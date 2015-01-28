@@ -1,19 +1,21 @@
 
-<h1><a>Math Cheat Sheet</a></h1>
+<h1>Math Cheat Sheet</h1>
 <div>
 
 </div>
 <!-- EDIT1 SECTION "Math Cheat Sheet" [1-31] -->
-<h2><a>Formulas</a></h2>
+<h2>Formulas</h2>
 <div>
 
 <p>
 Note: Typically you have to string these formulas together. Look in the table for what you want, and what you have. If the two are not the same line, than you need conversion steps inbetween. E.g. if you have an angle in degrees, but the formula expects radians: 1) convert degrees to radians, 2) use the radians formula on the result.
 </p>
 <div><table>
+	<thead>
 	<tr>
-		<th>I have???</th><th>I want???</th><th>Formula</th>
+		<th>I have…</th><th>I want…</th><th>Formula</th>
 	</tr>
+	</thead>
 	<tr>
 		<td>normalized direction and length <br/>
 n1,d1</td><td>a vector that goes that far in that direction <br/>
@@ -49,7 +51,7 @@ new direction vector v0</td><td>v0 = p1.substract(p2)</td>
 	</tr>
 	<tr>
 		<td>two points, a fraction <br/>
-p1, p2, h=0.5f</td><td>the point &quot;halfway&quot; (h=0.5f) between the two points <br/>
+p1, p2, h=0.5f</td><td>the point “halfway” (h=0.5f) between the two points <br/>
 new interpolated point p0</td><td>p0 = FastMath.interpolateLinear(h,p1,p2)</td>
 	</tr>
 	<tr>
@@ -60,9 +62,11 @@ q.lookAt(v,up)</td>
 	</tr>
 </table></div>
 <!-- EDIT3 TABLE [387-1459] --><div><table>
+	<thead>
 	<tr>
-		<th>I have???</th><th>I want???</th><th>Formula</th>
+		<th>I have…</th><th>I want…</th><th>Formula</th>
 	</tr>
+	</thead>
 	<tr>
 		<td>angle in degrees <br/>
 a </td><td> to convert angle a from degrees to radians <br/>
@@ -110,7 +114,7 @@ float z = FastMath.sin(phi)*r;</td>
 <!-- EDIT4 TABLE [1461-2555] -->
 </div>
 <!-- EDIT2 SECTION "Formulas" [32-2556] -->
-<h2><a>Local vs Non-local methods?</a></h2>
+<h2>Local vs Non-local methods?</h2>
 <div>
 <ul>
 <li><div> Non-local method creates new object as return value, v remains unchanged. <br/>
@@ -123,4 +127,4 @@ float z = FastMath.sin(phi)*r;</td>
 
 </div>
 <!-- EDIT5 SECTION "Local vs Non-local methods?" [2557-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:intermediate:math?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:intermediate:math?do=export_xhtmlbody">view online version</a></em></p>

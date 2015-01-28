@@ -1,25 +1,22 @@
 
-<h1><a>Projects and Assets</a></h1>
+<h1>Projects and Assets</h1>
 <div>
 
 <p>
-The <acronym title="Software Development Kit">SDK</acronym> heavily uses the systems provided by the base platform for the handling of assets and projects and extends the system with jME3 specific features.
-
+The SDK heavily uses the systems provided by the base platform for the handling of assets and projects and extends the system with jME3 specific features.
 </p>
 
 </div>
 <!-- EDIT1 SECTION "Projects and Assets" [1-189] -->
-<h2><a>ProjectAssetManager</a></h2>
+<h2>ProjectAssetManager</h2>
 <div>
 
 <p>
 All AssetDataObjects and SceneExplorerNodes allow access to the ProjectAssetManager of the project they were loaded from.
-
 </p>
 <pre>ProjectAssetManager pm = node.getLookup&#40;&#41;.lookup&#40;ProjectAssetManager.class&#41;</pre>
 
 <p>
-
 The ProjectAssetManager is basically a normal DesktopAssetManager for each project with some added functionality:
 </p>
 <ul>
@@ -35,23 +32,21 @@ The ProjectAssetManager is basically a normal DesktopAssetManager for each proje
 
 </div>
 <!-- EDIT2 SECTION "ProjectAssetManager" [190-801] -->
-<h2><a>AssetDataObject</a></h2>
+<h2>AssetDataObject</h2>
 <div>
 
 <p>
-Most &quot;files&quot; that you encounter in the <acronym title="Software Development Kit">SDK</acronym> come in the form of AssetDataObjects. All Nodes that you encounter contain the AssetDataObject they were loaded from. It provides not just access to the FileObject of the specific file but also an AssetData object that allows access to jME specific properties and data. The AssetData object also allows loading the object via the jME3 assetManager. It is accessible via the lookup of the Node or AssetDataObject:
-
+Most “files” that you encounter in the SDK come in the form of AssetDataObjects. All Nodes that you encounter contain the AssetDataObject they were loaded from. It provides not just access to the FileObject of the specific file but also an AssetData object that allows access to jME specific properties and data. The AssetData object also allows loading the object via the jME3 assetManager. It is accessible via the lookup of the Node or AssetDataObject:
 </p>
 <pre>assetDataObject.getLookup&#40;&#41;.lookup&#40;AssetData.class&#41;</pre>
 
 </div>
 <!-- EDIT3 SECTION "AssetDataObject" [802-1355] -->
-<h2><a>New Asset File Types</a></h2>
+<h2>New Asset File Types</h2>
 <div>
 
 <p>
-When you add a new file type for a model format or other asset file that can be loaded in jME3 you can start by using new file type template (New File???Module Development???File Type). Change the DataObject to extend AssetDataObject (general), SpatialAssetDataObject (some type of model) or BinaryModelDataObject (basically a j3o savable file). And possibly override the loadAsset and saveAsset methods which are used by the AssetData object to return the correct AssetKey type (needed for import properties to work).
-
+When you add a new file type for a model format or other asset file that can be loaded in jME3 you can start by using new file type template (New File→Module Development→File Type). Change the DataObject to extend AssetDataObject (general), SpatialAssetDataObject (some type of model) or BinaryModelDataObject (basically a j3o savable file). And possibly override the loadAsset and saveAsset methods which are used by the AssetData object to return the correct AssetKey type (needed for import properties to work).
 </p>
 <pre>public class BlenderDataObject extends SpatialAssetDataObject &#123;
     public BlenderDataObject&#40;FileObject pf, MultiFileLoader loader&#41; throws DataObjectExistsException, IOException &#123;
@@ -60,9 +55,7 @@ When you add a new file type for a model format or other asset file that can be 
 &#125;</pre>
 
 <p>
-
 An AssetManagerConfigurator class can be created to configure the assetManager of the projects and model importer to use the new asset type:
-
 </p>
 <pre>@org.openide.util.lookup.ServiceProvider&#40;service = AssetManagerConfigurator.class&#41;
 public class BlenderAssetManagerConfigurator implements AssetManagerConfigurator &#123;
@@ -73,4 +66,4 @@ public class BlenderAssetManagerConfigurator implements AssetManagerConfigurator
 
 </div>
 <!-- EDIT4 SECTION "New Asset File Types" [1356-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:development:projects_assets?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/sdk:development:projects_assets?do=export_xhtmlbody">view online version</a></em></p>

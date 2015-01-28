@@ -1,13 +1,13 @@
 
-<h1><a>Custom Controls</a></h1>
+<h1>Custom Controls</h1>
 <div>
 
 <p>
-A <code>com.jme3.scene.control.Control</code> is a customizable jME3 interface that allows you to cleanly steer the behaviour of game entities (Spatials), such as artificially intelligent behaviour in NPCs, traps, automatic alarms and doors, animals and pets, self-steering vehicles or platforms ??? anything that moves and interacts. Several instances of custom Controls together implement the behaviours of a type of Spatial. 
+A <code>com.jme3.scene.control.Control</code> is a customizable jME3 interface that allows you to cleanly steer the behaviour of game entities (Spatials), such as artificially intelligent behaviour in NPCs, traps, automatic alarms and doors, animals and pets, self-steering vehicles or platforms – anything that moves and interacts. Several instances of custom Controls together implement the behaviours of a type of Spatial. 
 </p>
 
 <p>
-To control global game behaviour see <a href="/com/jme3/gde/docs/jme3/advanced/application_states.html">Application States</a> ??? you often use AppStates and Control together.
+To control global game behaviour see <a href="/com/jme3/gde/docs/jme3/advanced/application_states.html">Application States</a> – you often use AppStates and Control together.
 </p>
 <ul>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.youtube.com/watch?v=MNDiZ9YHIpM"><param name="text" value="<html><u>Quick video introduction to Custom Controls</u></html>"><param name="textColor" value="blue"></object></div>
@@ -15,7 +15,6 @@ To control global game behaviour see <a href="/com/jme3/gde/docs/jme3/advanced/a
 </ul>
 
 <p>
-
 To control the behaviour of spatials:
 </p>
 <ol>
@@ -38,17 +37,15 @@ For example, one NPC can be controlled by a PhysicsControl instance and an AICon
 </ol>
 
 <p>
-
 To implement game logic for a type of spatial, you will either extend AbstractControl (most common case), or implement the Control interface, as explained in this article.
 </p>
 
 </div>
 <!-- EDIT1 SECTION "Custom Controls" [1-1746] -->
-<h2><a>Usage</a></h2>
+<h2>Usage</h2>
 <div>
 
 <p>
-
 Use <span><a href="/com/jme3/gde/docs/jme3/advanced/custom_controls.html">Controls</a></span> to implement the <em>behaviour of types of game entities</em>.
 </p>
 <ul>
@@ -67,11 +64,10 @@ Use <span><a href="/com/jme3/gde/docs/jme3/advanced/custom_controls.html">Contro
 </ul>
 
 <p>
-
 Examples: You can write
 </p>
 <ul>
-<li><div> A WalkerNavControl, SwimmerNavControl, FlyerNavControl??? that defines how a type of NPC finds their way around. All NPCs can walk, some can fly, others can swim, and some can all three, etc.</div>
+<li><div> A WalkerNavControl, SwimmerNavControl, FlyerNavControl… that defines how a type of NPC finds their way around. All NPCs can walk, some can fly, others can swim, and some can all three, etc.</div>
 </li>
 <li><div> A PlayerNavControl that is steered by user-configurable keyboard and mouse input.</div>
 </li>
@@ -81,22 +77,20 @@ Examples: You can write
 </li>
 <li><div> An IdleBehaviourControl that remote-controls NPC behaviour in neutral situations. </div>
 </li>
-<li><div> A DestructionControl that automatically replaces a structure with an appropriate piece of debris after collision with a projectile??? </div>
+<li><div> A DestructionControl that automatically replaces a structure with an appropriate piece of debris after collision with a projectile… </div>
 </li>
 </ul>
 
 <p>
-
-The possibilities are endless. <img src="/wiki/lib/images/smileys/icon_smile.gif" class="middle" alt=":-)" />
+The possibilities are endless. <img src="/lib/images/smileys/icon_smile.gif" class="icon" alt=":-)" />
 </p>
 
 </div>
 <!-- EDIT2 SECTION "Usage" [1747-3214] -->
-<h2><a>Example Code</a></h2>
+<h2>Example Code</h2>
 <div>
 
 <p>
-
 Other examples include the built-in RigidBodyControl in JME&#039;s physics integration, the built-in TerrainLODControl that updates the terrain&#039;s level of detail depending on the viewer&#039;s perspective, etc.
 </p>
 
@@ -116,11 +110,10 @@ Existing examples in the code base include:
 
 </div>
 <!-- EDIT3 SECTION "Example Code" [3215-4499] -->
-<h2><a>AbstractControl Class</a></h2>
+<h2>AbstractControl Class</h2>
 <div>
 
 <p>
-
 <p><div>The most common way to create a Control is to create a class that extends AbstractControl.
 </div></p>
 </p>
@@ -141,7 +134,6 @@ For example, you disable your IdleBehaviourControl when you enable your Defensiv
 </ul>
 
 <p>
-
 Usage: Your custom subclass implements the three methods <code>controlUpdate()</code>, <code>controlRender()</code>, <code>setSpatial()</code>, and <code>cloneForSpatial()</code> as shown here:
 </p>
 <pre>public class MyControl extends AbstractControl implements Savable, Cloneable &#123;
@@ -222,11 +214,10 @@ See also:
 
 </div>
 <!-- EDIT4 SECTION "AbstractControl Class" [4500-7583] -->
-<h2><a>The Control Interface</a></h2>
+<h2>The Control Interface</h2>
 <div>
 
 <p>
-
 <p><div>In the less common case that you want to create a Control that also extends another class, create a custom interface that  extends jME3&#039;s Control interface. Your class can become a Control by implementing the Control interface, and at the same time extending another class.
 </div></p>
 </p>
@@ -246,19 +237,15 @@ The AssetManager also uses this method if the same spatial is loaded twice. You 
 </ul>
 
 <p>
-
 Usage example:
 1. Create a custom control interface
-
 </p>
 <pre>public interface MyControlInterface extends Control &#123;
     public void setSomething&#40;int x&#41;; // optionally, add custom methods
 &#125;</pre>
 
 <p>
-
 2. Create custom Controls implementing your Control interface.
-
 </p>
 <pre>public class MyControl extends MyCustomClass implements MyControlInterface &#123;
 &nbsp;
@@ -329,14 +316,12 @@ Usage example:
 
 </div>
 <!-- EDIT5 SECTION "The Control Interface" [7584-10841] -->
-<h2><a>Best Practices</a></h2>
+<h2>Best Practices</h2>
 <div>
 
 <p>
-
 <strong>Tip:</strong> Use the getControl() accessor to get Control objects from Spatials. No need to pass around lots of object references.
 Here an example from the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/monkeyzone/"><param name="text" value="<html><u>MonkeyZone</u></html>"><param name="textColor" value="blue"></object> code:
-
 </p>
 <pre>public class CharacterAnimControl implements Control &#123;
   ...
@@ -349,9 +334,7 @@ Here an example from the <object classid="java:org.netbeans.modules.javahelp.Bro
 &#125;</pre>
 
 <p>
-
 <strong>Tip:</strong> You can create custom Control interfaces so a set of different Controls provide the same methods and can be accessed with the interface class type.
-
 </p>
 <pre>public interface ManualControl extends Control &#123;
     public void steerX&#40;float value&#41;;
@@ -363,22 +346,17 @@ Here an example from the <object classid="java:org.netbeans.modules.javahelp.Bro
 &#125;</pre>
 
 <p>
-
 Then you create custom sub-Controls and implement the methods accordingly to the context:
-
 </p>
 <pre>public class ManualVehicleControl   extends ManualControl &#123;...&#125;</pre>
 
 <p>
  and
-
 </p>
 <pre>public class ManualCharacterControl extends ManualControl &#123;...&#125;</pre>
 
 <p>
-
 Then add the appropriate controls to spatials:
-
 </p>
 <pre>characterSpatial.addControl&#40;new ManualCharacterControl&#40;&#41;&#41;;
 ...
@@ -386,13 +364,11 @@ vehicleSpatial.addControl&#40;new ManualVehicleControl&#40;&#41;&#41;;
 ...</pre>
 
 <p>
-
 <strong>Tip:</strong> Use the getControl() method on a Spatial to get a specific Control object, and activate its behaviour!
-
 </p>
 <pre>ManualControl c = mySpatial.getControl&#40;ManualControl.class&#41;;
 c.steerX&#40;steerX&#41;;</pre>
 
 </div>
 <!-- EDIT6 SECTION "Best Practices" [10842-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:custom_controls?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:custom_controls?do=export_xhtmlbody">view online version</a></em></p>

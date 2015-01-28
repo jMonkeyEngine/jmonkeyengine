@@ -1,9 +1,8 @@
 
-<h1><a>jMonkeyEngine 3 Tutorial (4) - Hello Update Loop</a></h1>
+<h1>jMonkeyEngine 3 Tutorial (4) - Hello Update Loop</h1>
 <div>
 
 <p>
-
 Previous: <a href="/com/jme3/gde/docs/jme3/beginner/hello_asset.html">Hello Assets</a>,
 Next: <a href="/com/jme3/gde/docs/jme3/beginner/hello_input_system.html">Hello Input System</a>
 </p>
@@ -14,7 +13,7 @@ Now that you know how to load assets, such as 3D models, you want to implement s
 
 </div>
 <!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (4) - Hello Update Loop" [1-404] -->
-<h2><a>Code Sample</a></h2>
+<h2>Code Sample</h2>
 <div>
 <pre>package jme3test.helloworld;
 &nbsp;
@@ -39,7 +38,7 @@ public class HelloLoop extends SimpleApplication &#123;
     @Override
     public void simpleInitApp&#40;&#41; &#123;
         /** this blue box is our player character */
-        Box b = new Box&#40;1, 1, 1&#41;;
+        Box&#40;1, 1, 1&#41;;
         player = new Geometry&#40;&quot;blue cube&quot;, b&#41;;
         Material mat = new Material&#40;assetManager,
           &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -58,26 +57,24 @@ public class HelloLoop extends SimpleApplication &#123;
 
 <p>
 Build and run the file: You see a constantly rotating cube. 
-
 </p>
 
 </div>
 <!-- EDIT2 SECTION "Code Sample" [405-1682] -->
-<h2><a>Understanding the Code</a></h2>
+<h2>Understanding the Code</h2>
 <div>
 
 <p>
-
 Compared to our previous code samples you note that the player Geometry is now a class field. This is because we want the update loop to be able to access and transform this Geometry. As usual, we initialize the player object in the <code>simpleInitApp()</code> method. 
 </p>
 
 <p>
-Now have a closer look at the <code>simpleUpdate()</code> method ??? this is the update loop.
+Now have a closer look at the <code>simpleUpdate()</code> method – this is the update loop.
 </p>
 <ul>
 <li><div> The <code>player.rotate(0, 2*tpf, 0);</code> line changes the rotation of the player object. </div>
 </li>
-<li><div> We use the <code>tpf</code> variable (&quot;time per frame&quot;) to time this action depending on the current frames per second rate. This simply means that the cube rotates with the same speed on fast and slow machines, and the game remains playable.</div>
+<li><div> We use the <code>tpf</code> variable (“time per frame”) to time this action depending on the current frames per second rate. This simply means that the cube rotates with the same speed on fast and slow machines, and the game remains playable.</div>
 </li>
 <li><div> When the game runs, the rotate() code is executed again and again. </div>
 </li>
@@ -85,13 +82,11 @@ Now have a closer look at the <code>simpleUpdate()</code> method ??? this is the
 
 </div>
 <!-- EDIT3 SECTION "Understanding the Code" [1683-2466] -->
-<h2><a>Using the Update Loop</a></h2>
+<h2>Using the Update Loop</h2>
 <div>
 
 <p>
-
 A rotating object is just a simple example. In the update loop, you typically have many tests and trigger various game actions. This is where you update score and health points, check for collisions, make enemies calculate their next move, roll the dice whether a trap has been set off, play random ambient sounds, and much more.  
-
 </p>
 <ul>
 <li><div> The <code>simpleUpdate()</code> method starts running after the <code>simpleInitApp()</code> method has initialized the scene graph and state variables.</div>
@@ -110,11 +105,10 @@ A rotating object is just a simple example. In the update loop, you typically ha
 
 </div>
 <!-- EDIT4 SECTION "Using the Update Loop" [2467-3301] -->
-<h2><a>Init - Update - Render</a></h2>
+<h2>Init - Update - Render</h2>
 <div>
 
 <p>
-
 Note the the three phases of every game:
 </p>
 <ul>
@@ -127,20 +121,18 @@ Note the the three phases of every game:
 </ul>
 
 <p>
-
 Since rendering is automatic, initialization and updating are the two most important concepts in a SimpleApplication-based game for you:
 </p>
 <ul>
-<li><div> The <code>simpleInitApp()</code> method is the application&#039;s &quot;first breath&quot;. <br/>
+<li><div> The <code>simpleInitApp()</code> method is the application&#039;s “first breath”. <br/>
 Here you load and create game data (once).</div>
 </li>
-<li><div> The <code>simpleUpdate()</code> method is the application&#039;s &quot;heartbeat&quot; (the time unit is called <code>ticks</code>). <br/>
+<li><div> The <code>simpleUpdate()</code> method is the application&#039;s “heartbeat” (the time unit is called <code>ticks</code>). <br/>
 Here you change their properties to update the game state (repeatedly).</div>
 </li>
 </ul>
 
 <p>
-
 <p><div>Everything in a game happens either during initialization, or during the update loop. This means that these two methods grow very long over time. Follwo these two strategies to spread out init and update code over several modular Java classes:
 </p>
 <ul>
@@ -158,11 +150,10 @@ Keep this in mind for later when your application grows.
 
 </div>
 <!-- EDIT5 SECTION "Init - Update - Render" [3302-4629] -->
-<h2><a>Exercises</a></h2>
+<h2>Exercises</h2>
 <div>
 
 <p>
-
 Here are some fun things to try:
 </p>
 <ol>
@@ -179,7 +170,6 @@ Here are some fun things to try:
 </ol>
 
 <p>
-
 Look back at the <a href="/com/jme3/gde/docs/jme3/beginner/hello_node.html">Hello Node</a> tutorial if you do not remember the transformation methods for scaling, translating, and rotating.
 </p>
 
@@ -187,17 +177,15 @@ Look back at the <a href="/com/jme3/gde/docs/jme3/beginner/hello_node.html">Hell
 <p><div>Link to user-proposed solutions: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/jm3:solutions"><param name="text" value="<html><u>http://jmonkeyengine.org/wiki/doku.php/jm3:solutions</u></html>"><param name="textColor" value="blue"></object>
 <em>Be sure to try to solve them for yourself first!</em>
 </div></p>
-
 </p>
 
 </div>
 <!-- EDIT6 SECTION "Exercises" [4630-5401] -->
-<h2><a>Conclusion</a></h2>
+<h2>Conclusion</h2>
 <div>
 
 <p>
-
-Now you are listening to the update loop, &quot;the heart beat&quot; of the game, and you can add all kinds of action to it. 
+Now you are listening to the update loop, “the heart beat” of the game, and you can add all kinds of action to it. 
 </p>
 
 <p>
@@ -212,16 +200,11 @@ See also:
 <li><div> Advanced jME3 developers use <a href="/com/jme3/gde/docs/jme3/advanced/application_states.html">Application States</a> and <a href="/com/jme3/gde/docs/jme3/advanced/custom_controls.html">Custom Controls</a> to implement game mechanics in their update loops. You will come across these topics again later when you proceed to more advanced documentation.</div>
 </li>
 </ul>
-<div><span>
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:state?do=showtag&amp;tag=tag%3Astate">state</a>,
-	<a href="/wiki/doku.php/tag:states?do=showtag&amp;tag=tag%3Astates">states</a>,
-	<a href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>,
-	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
-	<a href="/wiki/doku.php/tag:control?do=showtag&amp;tag=tag%3Acontrol">control</a>,
-	<a href="/wiki/doku.php/tag:loop?do=showtag&amp;tag=tag%3Aloop">loop</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/jme3:beginner/tag_documentation_state_states_intro_beginner_control_loop">tag_documentation_state_states_intro_beginner_control_loop</a>
+</p>
 
 </div>
 <!-- EDIT7 SECTION "Conclusion" [5402-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_main_event_loop?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:beginner:hello_main_event_loop?do=export_xhtmlbody">view online version</a></em></p>

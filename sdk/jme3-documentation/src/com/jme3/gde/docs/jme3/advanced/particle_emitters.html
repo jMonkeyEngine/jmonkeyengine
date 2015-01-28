@@ -1,9 +1,8 @@
 
-<h1><a>Particle Emmitter Settings</a></h1>
+<h1>Particle Emmitter Settings</h1>
 <div>
 
 <p>
-
 You cannot create a 3D model for delicate things like fire, smoke, or explosions. Particle Emitters are quite an efficient solution to create these kinds of effects: The emitter renders a series of flat orthogonal images and manipulates them in a way that creates the illusion of a anything from a delicate smoke cloud to individual flames, etc.
 Creating an effect involves some trial and error to get the settings <em>just right</em>, and it&#039;s worth exploring the expressiveness of the options described below. 
 </p>
@@ -19,11 +18,11 @@ Creating an effect involves some trial and error to get the settings <em>just ri
 
 </div>
 <!-- EDIT1 SECTION "Particle Emmitter Settings" [1-844] -->
-<h2><a>Create an Emitter</a></h2>
+<h2>Create an Emitter</h2>
 <div>
 <ol>
 <li><div> Create one emitter for each effect: <pre>ParticleEmitter explosion = new ParticleEmitter&#40;
-&quot;My explosion effect&quot;, ParticleMesh.Type.Triangle, 30&#41;;</pre>
+&quot;My explosion effect&quot;, Type.Triangle, 30&#41;;</pre>
 </div>
 </li>
 <li><div> Attach the emitter to the rootNode and position it in the scene: <pre>rootNode.attachChild&#40;explosion&#41;;
@@ -42,24 +41,26 @@ explosion.setLocalTranslation&#40;bomb.getLocalTranslation&#40;&#41;&#41;;</pre>
 Choose one of the following mesh shapes
 </p>
 <ul>
-<li><div> ParticleMesh.Type.Triangle</div>
+<li><div> Type.Triangle</div>
 </li>
-<li><div> ParticleMesh.Type.Point</div>
+<li><div> Type.Point</div>
 </li>
 </ul>
 
 </div>
-<!-- EDIT2 SECTION "Create an Emitter" [845-1473] -->
-<h2><a>Configure Parameters</a></h2>
+<!-- EDIT2 SECTION "Create an Emitter" [845-1434] -->
+<h2>Configure Parameters</h2>
 <div>
 
 <p>
 Not all of these parameters are required for all kinds of effects. If you don&#039;t specify one of them, a default value will be used.
 </p>
 <div><table>
+	<thead>
 	<tr>
 		<th> Parameter           </th><th> Method                </th><th> Default </th><th> Description </th>
 	</tr>
+	</thead>
 	<tr>
 		<td> number              </td><td> <code>setNumParticles()</code> </td><td>  </td><td> The maximum number of particles visible at the same time. Specified by user in constructor. </td>
 	</tr>
@@ -82,8 +83,8 @@ Set both to different colors for a gradient effect (e.g. fire). </td>
 	</tr>
 	<tr>
 		<td> fanning out         </td><td> <code>getParticleInfluencer(). setVelocityVariation(variation)</code> </td><td> 0.2f </td><td> How much the direction (<code>setInitialVelocity()</code>) can vary among particles. Use a value between 1 and 0 to create a directed swarm-like cloud of particles. <br/>
-1 = Maximum variation, particles emit in random 360?? directions (e.g. explosion, butterflies). <br/>
-0.5f = particles are emitted within 180?? of the initial direction. <br/>
+1 = Maximum variation, particles emit in random 360° directions (e.g. explosion, butterflies). <br/>
+0.5f = particles are emitted within 180° of the initial direction. <br/>
 0 = No variation, particles fly in a straight line in direction of start velocity (e.g. lasergun blasts). </td>
 	</tr>
 	<tr>
@@ -115,23 +116,22 @@ false = Particles fly straight like you drew them in the sprite texture (e.g. in
 		<td> start area        </td><td><code>setShape(new EmitterSphereShape( Vector3f.ZERO, 2f));</code></td><td>EmitterPointShape()</td><td>By default, particles are emitted from the emitters location (a point). You can increase the emitter shape to occupy a sphere, so that the start point of new particles can be anywhere inside the sphere, which makes the effect a bit more irregular.</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [1638-5412] -->
+<!-- EDIT4 TABLE [1599-5373] -->
 <p>
 Build up you effect by specifying one parameter after the other. If you change several parameters at the same time, it&#039;s difficult to tell which of the values caused which outcome.
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Configure Parameters" [1474-5594] -->
-<h2><a>Create an Effect Material</a></h2>
+<!-- EDIT3 SECTION "Configure Parameters" [1435-5555] -->
+<h2>Create an Effect Material</h2>
 <div>
 
 <p>
-
-<img src="/wiki/lib/exe/fetch.php">
+<img src="/lib/exe/fetch.php">
 </p>
 
 <p>
-Use the common Particle.j3md Material Definition and a texture to specify the shape of the particles. The shape is defined by the texture you provide and can be anything ??? debris, flames, smoke, mosquitoes, leaves, butterflies??? be creative.
+Use the common Particle.j3md Material Definition and a texture to specify the shape of the particles. The shape is defined by the texture you provide and can be anything – debris, flames, smoke, mosquitoes, leaves, butterflies… be creative.
 </p>
 <pre>    Material flash_mat = new Material&#40;
         assetManager, &quot;Common/MatDefs/Misc/Particle.j3md&quot;&#41;;
@@ -143,7 +143,7 @@ Use the common Particle.j3md Material Definition and a texture to specify the sh
     flash.setSelectRandomImage&#40;true&#41;;</pre>
 
 <p>
-The effect texture can be one image, or contain a sprite animation ??? a series of slightly different pictures in equally spaced rows and columns. If you choose the sprite animation:
+The effect texture can be one image, or contain a sprite animation – a series of slightly different pictures in equally spaced rows and columns. If you choose the sprite animation:
 </p>
 <ul>
 <li><div> Specify the number of rows and columns using setImagesX(2) and setImagesY().</div>
@@ -153,13 +153,12 @@ The effect texture can be one image, or contain a sprite animation ??? a series 
 </ul>
 
 <p>
-
 <strong>Examples:</strong> Have a look at the following default textures and you will see how you can create your own sprite textures after the same fashion.
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Create an Effect Material" [5595-6915] -->
-<h3><a>Default Particle Textures</a></h3>
+<!-- EDIT5 SECTION "Create an Effect Material" [5556-6876] -->
+<h3>Default Particle Textures</h3>
 <div>
 
 <p>
@@ -167,45 +166,46 @@ The Material is used together with grayscale texture: The black parts will be tr
 The following effect textures are available by default from <code>test-data.jar</code>. You can also load your own textures from your assets directory.
 </p>
 <div><table>
+	<thead>
 	<tr>
 		<th> Texture Path                     </th><th> Dimension </th><th> Preview </th>
 	</tr>
+	</thead>
 	<tr>
-		<td> Effects/Explosion/Debris.png     </td><td> 3*3  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
+		<td> Effects/Explosion/Debris.png     </td><td> 3*3  </td><td> <img src="/lib/exe/fetch.php"> </td>
 	</tr>
 	<tr>
-		<td> Effects/Explosion/flame.png      </td><td> 2*2  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
+		<td> Effects/Explosion/flame.png      </td><td> 2*2  </td><td> <img src="/lib/exe/fetch.php"> </td>
 	</tr>
 	<tr>
-		<td> Effects/Explosion/flash.png      </td><td> 2*2  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
+		<td> Effects/Explosion/flash.png      </td><td> 2*2  </td><td> <img src="/lib/exe/fetch.php"> </td>
 	</tr>
 	<tr>
-		<td> Effects/Explosion/roundspark.png </td><td> 1*1  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
+		<td> Effects/Explosion/roundspark.png </td><td> 1*1  </td><td> <img src="/lib/exe/fetch.php"> </td>
 	</tr>
 	<tr>
-		<td> Effects/Explosion/shockwave.png  </td><td> 1*1  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
+		<td> Effects/Explosion/shockwave.png  </td><td> 1*1  </td><td> <img src="/lib/exe/fetch.php"> </td>
 	</tr>
 	<tr>
-		<td> Effects/Explosion/smoketrail.png </td><td> 1*3  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
+		<td> Effects/Explosion/smoketrail.png </td><td> 1*3  </td><td> <img src="/lib/exe/fetch.php"> </td>
 	</tr>
 	<tr>
-		<td> Effects/Explosion/spark.png      </td><td> 1*1  </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
+		<td> Effects/Explosion/spark.png      </td><td> 1*1  </td><td> <img src="/lib/exe/fetch.php"> </td>
 	</tr>
 	<tr>
-		<td> Effects/Smoke/Smoke.png          </td><td> 1*15 </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
+		<td> Effects/Smoke/Smoke.png          </td><td> 1*15 </td><td> <img src="/lib/exe/fetch.php"> </td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [7231-8476] -->
+<!-- EDIT7 TABLE [7192-8437] -->
 <p>
-
 <strong>Tip:</strong> Use the <code>setStartColor()</code>/<code>setEndColor()</code> settings described above to colorize the white and gray parts of textures.
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Default Particle Textures" [6916-8608] -->
-<h2><a>Usage Example</a></h2>
+<!-- EDIT6 SECTION "Default Particle Textures" [6877-8569] -->
+<h2>Usage Example</h2>
 <div>
-<pre>    ParticleEmitter fire = new ParticleEmitter&#40;&quot;Emitter&quot;, ParticleMesh.Type.Triangle, 30&#41;;
+<pre>    ParticleEmitter fire = new ParticleEmitter&#40;&quot;Emitter&quot;, Type.Triangle, 30&#41;;
     Material mat_red = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Particle.j3md&quot;&#41;;
     mat_red.setTexture&#40;&quot;Texture&quot;, assetManager.loadTexture&#40;&quot;Effects/Explosion/flame.png&quot;&#41;&#41;;
     fire.setMaterial&#40;mat_red&#41;;
@@ -222,20 +222,18 @@ The following effect textures are available by default from <code>test-data.jar<
     rootNode.attachChild&#40;fire&#41;;</pre>
 
 <p>
-
 Browse the full source code of all <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/#svn%2Ftrunk%2Fengine%2Fsrc%2Ftest%2Fjme3test%2Feffect"><param name="text" value="<html><u>effect examples</u></html>"><param name="textColor" value="blue"></object> here.
 </p>
 <hr />
 
 <p>
-
 See also: <a href="/com/jme3/gde/docs/jme3/advanced/effects_overview.html">Effects Overview</a>
 </p>
-<div><span>
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:effect?do=showtag&amp;tag=tag%3Aeffect">effect</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/jme3:advanced/tag_documentation_effect">tag_documentation_effect</a>
+</p>
 
 </div>
-<!-- EDIT8 SECTION "Usage Example" [8609-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:particle_emitters?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT8 SECTION "Usage Example" [8570-] -->
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:particle_emitters?do=export_xhtmlbody">view online version</a></em></p>

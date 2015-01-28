@@ -1,9 +1,8 @@
 
-<h1><a>Multiple Camera Views</a></h1>
+<h1>Multiple Camera Views</h1>
 <div>
 
 <p>
-
 You can split the screen and look into the 3D scene from different camera angles at the same time. E.g. you can have two rootnodes with different scene graphs, and two viewPorts, each of which can only see its own subset of the scene with its own subset of port-processing filters, so you get two very different views of the scene.
 </p>
 
@@ -13,22 +12,19 @@ The packages used in this example are <code>com.jme3.renderer.Camera</code> and 
 
 </div>
 <!-- EDIT1 SECTION "Multiple Camera Views" [1-650] -->
-<h2><a>How to resize and Position ViewPorts</a></h2>
+<h2>How to resize and Position ViewPorts</h2>
 <div>
 
 <p>
-
 The default viewPort is as big as the window. If you have several, they must be of different sizes, either overlapping or adjacent to one another. How do you tell jME which of the ViewPorts should appear where on the screen, and how big they should be?
 </p>
 
 <p>
 Imagine the window as a 1.0f x 1.0f rectangle. The default cam&#039;s viewPort is set to 
-
 </p>
 <pre>cam.setViewPort&#40;0f, 1f, 0f, 1f&#41;;</pre>
 
 <p>
-
 This setting makes the ViewPort take up the whole rectangle. 
 </p>
 
@@ -44,9 +40,7 @@ The four values are read in the following order:
 </ul>
 
 <p>
-
 Here are a few examples:
-
 </p>
 <pre>cam1.setViewPort&#40; 0.0f , 1.0f   ,   0.0f , 1.0f &#41;;
 cam2.setViewPort&#40; 0.5f , 1.0f   ,   0.0f , 0.5f &#41;;</pre>
@@ -65,7 +59,7 @@ These viewport parameters are, (in this order) the left-right extend, and the bo
 0.0 , 0.0       1.0 , 0.0</pre>
 
 <p>
-Example: Cam2&#039;s rectangle is int he bottom right: It extends from mid (x1=0.5f) bottom (y1=0.0f), to right (x2=1.0f) mid (y2=0.5f)
+Example: Cam2&#039;s rectangle is in the bottom right: It extends from mid (x1=0.5f) bottom (y1=0.0f), to right (x2=1.0f) mid (y2=0.5f)
 </p>
 
 <p>
@@ -75,43 +69,36 @@ Example: Cam2&#039;s rectangle is int he bottom right: It extends from mid (x1=0
 
 </div>
 <!-- EDIT2 SECTION "How to resize and Position ViewPorts" [651-2294] -->
-<h2><a>Four-Time Split Screen</a></h2>
+<h2>Four-Time Split Screen</h2>
 <div>
 
 <p>
-
-In this example, you create four views (2x2) with the same aspect ratio as the window, but each is only half the width and height. 
+In this example, you create four views (2&times;2) with the same aspect ratio as the window, but each is only half the width and height. 
 </p>
 
 </div>
 <!-- EDIT3 SECTION "Four-Time Split Screen" [2295-2463] -->
-<h3><a>Set up the First View</a></h3>
+<h3>Set up the First View</h3>
 <div>
 
 <p>
-
 You use the preconfigured Camera <code>cam</code> and <code>viewPort</code> from <code>SimpleApplication</code> for the first view. It&#039;s in the bottom right.
-
 </p>
 <pre>cam.setViewPort&#40;.5f, 1f, 0f, 0.5f&#41;; // Resize the viewPort to half its size, bottom right.</pre>
 
 <p>
-
 Optionally, place the main camera in the scene and rotate it in its start position. 
-
 </p>
 <pre>cam.setLocation&#40;new Vector3f&#40;3.32f, 4.48f, 4.28f&#41;&#41;;
 cam.setRotation&#40;new Quaternion &#40;-0.07f, 0.92f, -0.25f, -0.27f&#41;&#41;;</pre>
 
 </div>
 <!-- EDIT4 SECTION "Set up the First View" [2464-2960] -->
-<h3><a>Set Up Three More Views</a></h3>
+<h3>Set Up Three More Views</h3>
 <div>
 
 <p>
-
 Here is the outline for how you create the three other cams and viewPorts (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/renderer/TestMultiViews.java"><param name="text" value="<html><u>Full code sample is here</u></html>"><param name="textColor" value="blue"></object>.) In the code snippet, <code>cam_n</code> stand for <code>cam_2</code> - <code>cam_4</code>, respectively, same for <code>view_n</code>.
-
 </p>
 <ol>
 <li><div> Clone the first cam to reuse its settings</div>
@@ -130,9 +117,7 @@ The camera doesn&#039;t have to look at the rootNode, but that is the most commo
 </ol>
 
 <p>
-
 Here is the abstract code sample for camera <code>n</code>:
-
 </p>
 <pre>Camera cam_n    = cam.clone&#40;&#41;;
 cam_n.setViewPort&#40;...&#41;; // resize the viewPort
@@ -170,11 +155,10 @@ cam4.setViewPort&#40; 0.5f , 1.0f  ,  0.5f , 1.0f&#41;;</pre>
 
 </div>
 <!-- EDIT5 SECTION "Set Up Three More Views" [2961-4771] -->
-<h2><a>Picture in Picture</a></h2>
+<h2>Picture in Picture</h2>
 <div>
 
 <p>
-
 The following code snippet sets up two views, one covers the whole screen, and the second is a small view in the top center.
 </p>
 <pre>       +-----+-----+
@@ -200,34 +184,28 @@ viewPort2.attachScene&#40;rootNode&#41;;</pre>
 
 </div>
 <!-- EDIT6 SECTION "Picture in Picture" [4772-5652] -->
-<h2><a>ViewPort Settings</a></h2>
+<h2>ViewPort Settings</h2>
 <div>
 
 <p>
-
 You can customize the camera and the viewPort of each view individually. For example, each view can have a different background color:
-
 </p>
 <pre>viewPort.setBackgroundColor&#40;ColorRGBA.Blue&#41;;</pre>
 
 <p>
-
-You have full control to determine which Nodes the camera can see! It can see the full rootNode???
-
+You have full control to determine which Nodes the camera can see! It can see the full rootNode…
 </p>
 <pre>viewPort1.attachScene&#40;rootNode&#41;;</pre>
 
 <p>
-
-??? or you can give each camera a special node whose content it can see:
-
+… or you can give each camera a special node whose content it can see:
 </p>
 <pre>viewPort2.attachScene&#40;spookyGhostDetectorNode&#41;;</pre>
-<div><span>
-	<a href="/wiki/doku.php/tag:camera?do=showtag&amp;tag=tag%3Acamera">camera</a>,
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/jme3:advanced/tag_camera_documentation">tag_camera_documentation</a>
+</p>
 
 </div>
 <!-- EDIT7 SECTION "ViewPort Settings" [5653-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:multiple_camera_views?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:multiple_camera_views?do=export_xhtmlbody">view online version</a></em></p>

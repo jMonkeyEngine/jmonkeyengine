@@ -1,5 +1,5 @@
 
-<h1><a>Creating assets in Blender3D</a></h1>
+<h1>Creating assets in Blender3D</h1>
 <div>
 
 <p>
@@ -8,7 +8,7 @@ This section discusses how to create and import models from Blender3D (2.62+, se
 
 </div>
 <!-- EDIT1 SECTION "Creating assets in Blender3D" [1-320] -->
-<h3><a>Asset Management</a></h3>
+<h3>Asset Management</h3>
 <div>
 
 <p>
@@ -17,7 +17,7 @@ For the managing of assets in general, be sure to read the <a href="/com/jme3/gd
 
 </div>
 <!-- EDIT2 SECTION "Asset Management" [321-551] -->
-<h3><a>Creating Models</a></h3>
+<h3>Creating Models</h3>
 <div>
 
 <p>
@@ -26,12 +26,11 @@ Game-compatible models are models that basically only consist of a mesh and UV-m
 
 </div>
 <!-- EDIT3 SECTION "Creating Models" [552-879] -->
-<h2><a>UV Mapped Textures</a></h2>
+<h2>UV Mapped Textures</h2>
 <div>
 
 <p>
 To successfully import a texture, the texture <strong>has to</strong> be UV-mapped to the model. Heres how to assign diffuse, normal and specular maps:
-
 </p>
 <ul>
 <li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender-material-4.png"> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender-material-3.png"></div>
@@ -41,13 +40,12 @@ To successfully import a texture, the texture <strong>has to</strong> be UV-mapp
 </ul>
 
 <p>
-
 Its important to note that each used texture will create one separate geometry. So its best to either combine the UV maps or use a premade atlas with different texture types from the start and then map the uv coords of the models to the atlas instead of painting on the texture. This works best for large models like cities and space ships.
 </p>
 
 </div>
 <!-- EDIT4 SECTION "UV Mapped Textures" [880-1593] -->
-<h2><a>Animations</a></h2>
+<h2>Animations</h2>
 <div>
 
 <p>
@@ -60,7 +58,7 @@ To create an animation from scratch do the following:
 <ul>
 <li><div> Create the model</div>
 <ul>
-<li><div> Make sure your models location, rotation and scale is applied and zero / one (see &quot;Model Checklist&quot; below)</div>
+<li><div> Make sure your models location, rotation and scale is applied and zero / one (see “Model Checklist” below)</div>
 </li>
 <li><div> (Did you know? You can make any model from a box by only using extrusion, this creates very clean meshes)</div>
 </li>
@@ -70,7 +68,7 @@ To create an animation from scratch do the following:
 <ul>
 <li><div> Start by placing the cursor at zero</div>
 </li>
-<li><div> Go to the Add???Armature???Single Bone menu and create the root bone</div>
+<li><div> Go to the Add→Armature→Single Bone menu and create the root bone</div>
 <ul>
 <li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender-add-bone.png"></div>
 </li>
@@ -78,9 +76,9 @@ To create an animation from scratch do the following:
 </li>
 <li><div> Select the bone and go to edit mode (press tab)</div>
 </li>
-<li><div> Select the root bone end and press &quot;E&quot; to extrude the bone, then start rigging your model this way</div>
+<li><div> Select the root bone end and press “E” to extrude the bone, then start rigging your model this way</div>
 </li>
-<li><div> <strong>Make sure your armatures location, rotation and scale is applied (see &quot;Model Checklist&quot; below) before continuing</strong></div>
+<li><div> <strong>Make sure your armatures location, rotation and scale is applied (see “Model Checklist” below) before continuing</strong></div>
 </li>
 </ul>
 </li>
@@ -94,7 +92,7 @@ To create an animation from scratch do the following:
 </li>
 </ul>
 </li>
-<li><div> Set a new armature constraint in the model &quot;Object Modifiers&quot; settings and select the Armature</div>
+<li><div> Set a new armature constraint in the model “Object Modifiers” settings and select the Armature</div>
 <ul>
 <li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender-make-armature.png"></div>
 </li>
@@ -102,7 +100,7 @@ To create an animation from scratch do the following:
 </li>
 <li><div> Voila, your model should move when you move the bones in pose mode</div>
 </li>
-<li><div> Go to the &quot;Dope Sheet&quot; window and select the &quot;Action editor&quot;</div>
+<li><div> Go to the “Dope Sheet” window and select the “Action editor”</div>
 <ul>
 <li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender-action-editor.png"></div>
 </li>
@@ -118,7 +116,7 @@ To create an animation from scratch do the following:
 </li>
 <li><div> Each action will be an animation available via the animation control in jME after the import</div>
 </li>
-<li><div> <strong>Press the &quot;F&quot; button next to the action so it will be saved even if theres no references</strong></div>
+<li><div> <strong>Press the “F” button next to the action so it will be saved even if theres no references</strong></div>
 <ul>
 <li><div> The animation would else be deleted if its not the active animation on the armature and the file is saved</div>
 </li>
@@ -128,7 +126,7 @@ To create an animation from scratch do the following:
 
 </div>
 <!-- EDIT5 SECTION "Animations" [1594-3751] -->
-<h3><a>Model Checklist</a></h3>
+<h3>Model Checklist</h3>
 <div>
 
 <p>
@@ -137,38 +135,37 @@ Sometimes you do not create the model yourself and often times models from the w
 
 <p>
 To export an animated model in Blender make sure the following conditions are met:
-
 </p>
 <ul>
 <li><div> The animation has to be a <strong>bone animation</strong></div>
 </li>
-<li><div> Apply Location, Rotation and Scale to the mesh on Blender: On 3D View editor on Blender, select the mesh in Object Mode and go to the 3D View Editor???s header ??? Object Menu ??? Apply ??? Location / Rotation / Scale.</div>
+<li><div> Apply Location, Rotation and Scale to the mesh on Blender: On 3D View editor on Blender, select the mesh in Object Mode and go to the 3D View Editor’s header → Object Menu → Apply → Location / Rotation / Scale.</div>
 <ul>
 <li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender_apply_mesh.png"></div>
 </li>
 </ul>
 </li>
-<li><div> Apply Location, Rotation and Scale to the armature on Blender: On 3D View editor on Blender, select the armature in Object Mode and go to the 3D View Editor???s header ??? Object Menu ??? Apply ??? Location / Rotation / Scale.</div>
+<li><div> Apply Location, Rotation and Scale to the armature on Blender: On 3D View editor on Blender, select the armature in Object Mode and go to the 3D View Editor’s header → Object Menu → Apply → Location / Rotation / Scale.</div>
 <ul>
 <li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender_apply_bones.png"></div>
 </li>
 </ul>
 </li>
-<li><div> Set the mesh???s origin point in the bottom of the mesh (see the image below).</div>
+<li><div> Set the mesh’s origin point in the bottom of the mesh (see the image below).</div>
 </li>
-<li><div> Set the armature???s origin point in the bottom of the armature (see the image below).</div>
+<li><div> Set the armature’s origin point in the bottom of the armature (see the image below).</div>
 </li>
-<li><div> Armature???s origin point and mesh???s origin point must be in the same location(see the image below).</div>
+<li><div> Armature’s origin point and mesh’s origin point must be in the same location(see the image below).</div>
 </li>
-<li><div> Use a root bone located in the armature???s origin. This root bone must be in vertical position (see the image below) and it is the root bone of the armature. If you rotate the root bone, the the entire armature might be rotate when you import the model into jMonkey (I???m just mentioning the result, I don???t know where is the problem (jMonkey importer or blender???s ogre exporter plugin)).</div>
+<li><div> Use a root bone located in the armature’s origin. This root bone must be in vertical position (see the image below) and it is the root bone of the armature. If you rotate the root bone, the the entire armature might be rotate when you import the model into jMonkey (I’m just mentioning the result, I don’t know where is the problem (jMonkey importer or blender’s ogre exporter plugin)).</div>
 </li>
-<li><div> Uncheck ???Bone Envelopes??? checkbox on the Armature modifier for the mesh (see the image below).</div>
+<li><div> Uncheck “Bone Envelopes” checkbox on the Armature modifier for the mesh (see the image below).</div>
 <ul>
 <li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender_envelopes.png"></div>
 </li>
 </ul>
 </li>
-<li><div> Uncheck ???Envelopes??? checkbox on the armature (see the image below).</div>
+<li><div> Uncheck “Envelopes” checkbox on the armature (see the image below).</div>
 <ul>
 <li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender_rootbone.png"></div>
 </li>
@@ -177,9 +174,7 @@ To export an animated model in Blender make sure the following conditions are me
 </ul>
 
 <p>
-
 You can use SkeletonDebugger to show the skeleton on your game in order to check if the mesh and the skeleton are loaded correctly:
-
 </p>
 <pre>    final Material soldier2Mat = assetManager.loadMaterial&#40;&quot;Materials/soldier2/soldier2.j3m&quot;&#41;;
     final Spatial soldier2 = assetManager.loadModel&#40;&quot;Models/soldier2/soldier2.j3o&quot;&#41;;
@@ -207,9 +202,7 @@ You can use SkeletonDebugger to show the skeleton on your game in order to check
 </ul>
 
 <p>
-
 Also check out these videos and resources:
-
 </p>
 <ul>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/import-assets/forum/topic/blender-2-61-animation-issues/?topic_page=2&amp;num=15"><param name="text" value="<html><u>Forum: How to import animated models from Blender 2.6 correctly</u></html>"><param name="textColor" value="blue"></object> (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://www.youtube.com/watch?v=QiLCs4AKh28"><param name="text" value="<html><u>Video</u></html>"><param name="textColor" value="blue"></object>)</div>
@@ -222,17 +215,16 @@ Also check out these videos and resources:
 
 </div>
 <!-- EDIT6 SECTION "Model Checklist" [3752-7310] -->
-<h2><a>NormalMap baking</a></h2>
+<h2>NormalMap baking</h2>
 <div>
 
 <p>
-
 Models for live rendering should have a low polygon count. To increase the perceived detail of a model normal maps are commonly used in games. This tutorial will show how to create a normalmap from a highpoly version of your model that you can apply to a lowpoly version of the model in your game.
 </p>
 
 </div>
 <!-- EDIT7 SECTION "NormalMap baking" [7311-7639] -->
-<h3><a>Blender modeling lowPoly &amp; highPoly</a></h3>
+<h3>Blender modeling lowPoly &amp; highPoly</h3>
 <div>
 <ul>
 <li><div> If you use the multiresolution modifier you only need one object. Lets look at this example:</div>
@@ -255,7 +247,7 @@ Models for live rendering should have a low polygon count. To increase the perce
 </li>
 </ul>
 </li>
-<li><div> When using Catmull-Clark with a higher &quot;subdivide&quot; value (more than 3) its good to have the &quot;preview&quot; value above 0 and less than the subdivide level. This is because Catmull-Clark smoothes the vertices, so the normalMap is not so precise.</div>
+<li><div> When using Catmull-Clark with a higher “subdivide” value (more than 3) its good to have the “preview” value above 0 and less than the subdivide level. This is because Catmull-Clark smoothes the vertices, so the normalMap is not so precise.</div>
 </li>
 <li><div> Here is an example of Prewiew 1, it&#039;s more smooth than the original mesh:</div>
 <ul>
@@ -263,7 +255,7 @@ Models for live rendering should have a low polygon count. To increase the perce
 </li>
 </ul>
 </li>
-<li><div> Enable &quot;Sculpt Mode&quot; in blender and design the highPoly version of your model like here:</div>
+<li><div> Enable “Sculpt Mode” in blender and design the highPoly version of your model like here:</div>
 <ul>
 <li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/3.gif"></div>
 </li>
@@ -287,7 +279,7 @@ Models for live rendering should have a low polygon count. To increase the perce
 </div></p>
 </p>
 <ul>
-<li><div> uncheck &quot;[ ] Bake from Multires&quot;</div>
+<li><div> uncheck “[ ] Bake from Multires”</div>
 </li>
 <li><div> switch to object mode</div>
 </li>
@@ -313,34 +305,30 @@ Models for live rendering should have a low polygon count. To increase the perce
 </li>
 <li><div> use Bake &gt; Normal</div>
 </li>
-<li><div> check &quot;[x] Selected to Active&quot;</div>
+<li><div> check “[x] Selected to Active”</div>
 </li>
-<li><div> use a reasonably high value for &quot;Margin&quot; (4+ pixels at least for 1024x1024 maps)</div>
+<li><div> use a reasonably high value for “Margin” (4+ pixels at least for 1024&times;1024 maps)</div>
 </li>
 <li><div> don&#039;t forget to safe the normal map image</div>
 </li>
 </ul>
 
 <p>
-
 <p><div>Be careful: in the Outliner the camera symbol (Restrict Render) must be on!
 </div></p>
-
 </p>
 
 </div>
 <!-- EDIT8 SECTION "Blender modeling lowPoly & highPoly" [7640-9694] -->
-<h3><a>Fixing the normal colors in Blender</a></h3>
+<h3>Fixing the normal colors in Blender</h3>
 <div>
 
 <p>
-
 Blender has its own normal colors standard. We need to fix the colors to prepare the normalmap for using it with the JME Lighting Material.
 </p>
 
 <p>
 To do this, go to the Blender Node Window
-
 </p>
 <ul>
 <li><div> Here is Blender Node example. It fixes the normal colors:</div>
@@ -375,17 +363,16 @@ To do this, go to the Blender Node Window
 
 </div>
 <!-- EDIT9 SECTION "Fixing the normal colors in Blender" [9695-10504] -->
-<h2><a>LightMap baking</a></h2>
+<h2>LightMap baking</h2>
 <div>
 
 <p>
-
 The goal of this tutorial is to explain briefly how to bake light map in blender with a separate set of texture coordinates and then export a model using this map in jME3.
 </p>
 
 </div>
 <!-- EDIT10 SECTION "LightMap baking" [10505-10706] -->
-<h3><a>Blender modeling + texturing</a></h3>
+<h3>Blender modeling + texturing</h3>
 <div>
 <ul>
 <li><div> create a mesh in blender and unwrap it to create uvs</div>
@@ -406,7 +393,7 @@ The goal of this tutorial is to explain briefly how to bake light map in blender
 </li>
 <li><div> In the 3D view in edit mode select all your mesh vertice and hit &#039;U&#039;/LightMap pack then ok it will unfold the mesh for light map.</div>
 </li>
-<li><div> Create a new image, go to the render tab an all at the end check the &quot;Bake&quot; section and select shadows. Then click bake.</div>
+<li><div> Create a new image, go to the render tab an all at the end check the “Bake” section and select shadows. Then click bake.</div>
 </li>
 <li><div> If all went ok it will create a light map like this.</div>
 <ul>
@@ -434,19 +421,18 @@ The goal of this tutorial is to explain briefly how to bake light map in blender
 
 </div>
 <!-- EDIT11 SECTION "Blender modeling + texturing" [10707-11841] -->
-<h3><a>Importing the model in the SDK and creating the appropriate material</a></h3>
+<h3>Importing the model in the SDK and creating the appropriate material</h3>
 <div>
 
 <p>
-Once this is done, export your model with the ogre exporter (or import it directly via the blend importer), and turn it into J3o with the <acronym title="Software Development Kit">SDK</acronym>.
-
+Once this is done, export your model with the ogre exporter (or import it directly via the blend importer), and turn it into J3o with the SDK.
 </p>
 <ul>
 <li><div> Create material for it using the lighting definition.</div>
 </li>
 <li><div> Add the colorMap in the diffuse map slot and the lightMap in the light map slot.</div>
 </li>
-<li><div> Make sure you check &quot;SeparateTexCoords&quot;</div>
+<li><div> Make sure you check “SeparateTexCoords”</div>
 <ul>
 <li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/5.jpg"></div>
 </li>
@@ -461,7 +447,6 @@ Once this is done, export your model with the ogre exporter (or import it direct
 </ul>
 
 <p>
-
 The blend file, the ogre xml files and the textures can be found in the download section of the google code repo
 </p>
 
@@ -471,7 +456,7 @@ The blend file, the ogre xml files and the textures can be found in the download
 
 </div>
 <!-- EDIT12 SECTION "Importing the model in the SDK and creating the appropriate material" [11842-12586] -->
-<h2><a>Modelling racing tracks and cars</a></h2>
+<h2>Modelling racing tracks and cars</h2>
 <div>
 
 <p>
@@ -481,7 +466,7 @@ Follow the link below to a pdf tutorial by rhymez where I guide you to modelling
 
 </div>
 <!-- EDIT13 SECTION "Modelling racing tracks and cars" [12587-12943] -->
-<h2><a>Optimizing Models for 3D games</a></h2>
+<h2>Optimizing Models for 3D games</h2>
 <div>
 
 <p>
@@ -491,16 +476,15 @@ Follow the link below to a pdf tutorial by rhymez where I guide you on how you c
 
 </div>
 <!-- EDIT14 SECTION "Optimizing Models for 3D games" [12944-13203] -->
-<h2><a>SkyBox baking</a></h2>
+<h2>SkyBox baking</h2>
 <div>
 
 <p>
-There are several ways to create static images to use for a sky in your game. This will describe the concepts used in blender and create an ugly sky <img src="/wiki/lib/images/smileys/icon_smile.gif" class="middle" alt=":-)" /> Check the links below for other ways and prettier skies.
+There are several ways to create static images to use for a sky in your game. This will describe the concepts used in blender and create an ugly sky <img src="/lib/images/smileys/icon_smile.gif" class="icon" alt=":-)" /> Check the links below for other ways and prettier skies.
 </p>
 
 <p>
 A sky box is a texture mapped cube, it can also, loosely, be called en EnvMap or a CubeMap. The camera is inside the cube and the clever thing that jME does is to draw the sky so it is always behind whatever else is in your scene. Imagine the monkey is the camera in the picture.
-
 </p>
 <ul>
 <li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/skybox-concept.png"></div>
@@ -508,7 +492,6 @@ A sky box is a texture mapped cube, it can also, loosely, be called en EnvMap or
 </ul>
 
 <p>
-
 But a real sky is not a box around our heads, it is more like a sphere. So if we put any old image in the sky it will look strange and might even look like a box. This is not what we want. The trick is to distort the image so that it will <em>look</em> like a sphere even if it in fact is a picture pasted on a box. Luckily blender can do that tricky distortion for us.
 </p>
 
@@ -518,7 +501,6 @@ The screenshots are from Blender 2.63 but the equivalent operations have been in
 
 <p>
 So let&#039;s get started
-
 </p>
 <ul>
 <li><div> Fire up blender and you&#039;ll see something like this.</div>
@@ -566,13 +548,11 @@ So let&#039;s get started
 </ul>
 
 <p>
-
-<p><div>The <acronym title="Software Development Kit">SDK</acronym> also contains an image editor, right-click the image and select &quot;edit image&quot; to open it.
+<p><div>The SDK also contains an image editor, right-click the image and select “edit image” to open it.
 </div></p>
-
 </p>
 <ul>
-<li><div> You will notice that Blender has taken the 6 sides of the cube and pasted together into one image (3x2). So now we need to cut it up again into 6 separate images. In gimp I usually set the guides to where I want to cut and then go into Filters???Web???Slice and let gimp cut it up for me.</div>
+<li><div> You will notice that Blender has taken the 6 sides of the cube and pasted together into one image (3&times;2). So now we need to cut it up again into 6 separate images. In gimp I usually set the guides to where I want to cut and then go into Filters→Web→Slice and let gimp cut it up for me.</div>
 <ul>
 <li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/post-slice.png"></div>
 </li>
@@ -610,12 +590,11 @@ If you want to do it from code, here is an example:
 <p>
 <p><div>This example uses a strange normalScale, this is to flip the image on the X-axis and might not be needed in your case. Hint: the texture is applied on the outside of the cube but we are inside so what do we see?
 </div></p>
-
 </p>
 
 </div>
 <!-- EDIT15 SECTION "SkyBox baking" [13204-17887] -->
-<h3><a>Further reading</a></h3>
+<h3>Further reading</h3>
 <div>
 <ul>
 <li><div> <a href="/com/jme3/gde/docs/jme3/external/blender-example.html">Warg - from cube to animated and textured game model Example</a></div>
@@ -628,4 +607,4 @@ If you want to do it from code, here is an example:
 
 </div>
 <!-- EDIT16 SECTION "Further reading" [17888-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:external:blender?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:external:blender?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,9 +1,8 @@
 
-<h1><a>jMonkeyEngine 3 Tutorial (5) - Hello Input System</a></h1>
+<h1>jMonkeyEngine 3 Tutorial (5) - Hello Input System</h1>
 <div>
 
 <p>
-
 Previous: <a href="/com/jme3/gde/docs/jme3/beginner/hello_main_event_loop.html">Hello Update Loop</a>,
 Next: <a href="/com/jme3/gde/docs/jme3/beginner/hello_material.html">Hello Material</a>
 </p>
@@ -18,7 +17,7 @@ Every game has its custom keybindings, and this tutorial explains how you define
 
 </div>
 <!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (5) - Hello Input System" [1-633] -->
-<h2><a>Sample Code</a></h2>
+<h2>Sample Code</h2>
 <div>
 <pre>package jme3test.helloworld;
 &nbsp;
@@ -47,7 +46,7 @@ public class HelloInput extends SimpleApplication &#123;
 &nbsp;
   @Override
   public void simpleInitApp&#40;&#41; &#123;
-    Box b = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
+    Box&#40;1, 1, 1&#41;;
     player = new Geometry&#40;&quot;Player&quot;, b&#41;;
     Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
     mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;
@@ -70,7 +69,7 @@ public class HelloInput extends SimpleApplication &#123;
 &nbsp;
   &#125;
 &nbsp;
-  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+  private ActionListener&#40;&#41; &#123;
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
       if &#40;name.equals&#40;&quot;Pause&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
         isRunning = !isRunning;
@@ -112,35 +111,33 @@ Build and run the example.
 </ul>
 
 </div>
-<!-- EDIT2 SECTION "Sample Code" [634-3651] -->
-<h2><a>Defining Mappings and Triggers</a></h2>
+<!-- EDIT2 SECTION "Sample Code" [634-3636] -->
+<h2>Defining Mappings and Triggers</h2>
 <div>
 
 <p>
-
 First you register each mapping name with its trigger(s). Remember the following:
 </p>
 <ul>
 <li><div> An input trigger can be a key press or mouse action. <br/>
-For example a mouse movement, a mouse click, or pressing the letter &quot;P&quot;.</div>
+For example a mouse movement, a mouse click, or pressing the letter “P”.</div>
 </li>
 <li><div> The mapping name is a string that you can choose. <br/>
-The name should describe the action (e.g. &quot;Rotate&quot;), and not the trigger. Because the trigger can change.</div>
+The name should describe the action (e.g. “Rotate”), and not the trigger. Because the trigger can change.</div>
 </li>
 <li><div> One named mapping can have several triggers. <br/>
-For example, the &quot;Rotate&quot; action can be triggered by a click and by pressing the spacebar.</div>
+For example, the “Rotate” action can be triggered by a click and by pressing the spacebar.</div>
 </li>
 </ul>
 
 <p>
-
 Have a look at the code:
 </p>
 <ol>
-<li><div> You register the mapping named &quot;Rotate&quot; to the Spacebar key trigger. <br/>
+<li><div> You register the mapping named “Rotate” to the Spacebar key trigger. <br/>
 <code>new KeyTrigger(KeyInput.KEY_SPACE)</code>). </div>
 </li>
-<li><div> In the same line, you also register &quot;Rotate&quot; to an alternative mouse click trigger. <br/>
+<li><div> In the same line, you also register “Rotate” to an alternative mouse click trigger. <br/>
 <code>new MouseButtonTrigger(MouseInput.BUTTON_LEFT)</code></div>
 </li>
 <li><div> You map the <code>Pause</code>, <code>Left</code>, <code>Right</code> mappings to the P, J, K keys, respectively. </div>
@@ -154,11 +151,10 @@ Have a look at the code:
                                       new MouseButtonTrigger&#40;MouseInput.BUTTON_LEFT&#41;&#41;;</pre>
 
 <p>
-
 Now you need to register your trigger mappings.
 </p>
 <ol>
-<li><div> You register the pause action to the ActionListener, because it is an &quot;on/off&quot; action.</div>
+<li><div> You register the pause action to the ActionListener, because it is an “on/off” action.</div>
 </li>
 <li><div> You register the movement actions to the AnalogListener, because they are gradual actions.</div>
 </li>
@@ -168,17 +164,15 @@ Now you need to register your trigger mappings.
     inputManager.addListener&#40;analogListener,&quot;Left&quot;, &quot;Right&quot;, &quot;Rotate&quot;&#41;;</pre>
 
 <p>
-This code goes into the <code>simpleInitApp()</code> method. But since we will likely add many keybindings, we extract these lines and wrap them in an auxiliary method, <code>initKeys()</code>. The <code>initKeys()</code> method is not part of the Input Controls interface ??? you can name it whatever you like. Just don&#039;t forget to call your method from the <code>initSimpleApp()</code> method.
-
+This code goes into the <code>simpleInitApp()</code> method. But since we will likely add many keybindings, we extract these lines and wrap them in an auxiliary method, <code>initKeys()</code>. The <code>initKeys()</code> method is not part of the Input Controls interface – you can name it whatever you like. Just don&#039;t forget to call your method from the <code>initSimpleApp()</code> method.
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Defining Mappings and Triggers" [3652-5835] -->
-<h2><a>Implementing the Actions</a></h2>
+<!-- EDIT3 SECTION "Defining Mappings and Triggers" [3637-5820] -->
+<h2>Implementing the Actions</h2>
 <div>
 
 <p>
-
 You have mapped action names to input triggers. Now you specify the actions themselves.
 </p>
 
@@ -188,7 +182,6 @@ The two important methods here are the <code>ActionListener</code> with its <cod
 
 <p>
 In this example, we trigger the following actions: 
-
 </p>
 <ol>
 <li><div> The <em>Rotate</em> mapping triggers the action <code>player.rotate(0, value, 0)</code>. </div>
@@ -200,7 +193,7 @@ In this example, we trigger the following actions:
 <li><div> We also want to check the boolean <code>isRunning</code> before any action (other than unpausing) is executed.</div>
 </li>
 </ol>
-<pre>  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+<pre>  private ActionListener&#40;&#41; &#123;
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
       if &#40;name.equals&#40;&quot;Pause&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
         isRunning = !isRunning;
@@ -230,7 +223,6 @@ In this example, we trigger the following actions:
 
 <p>
 You can also combine both listeners into one, the engine will send the appropriate events to each method (onAction or onAnalog). For example:
-
 </p>
 <pre>  private MyCombinedListener combinedListener = new MyCombinedListener&#40;&#41;;
 &nbsp;
@@ -265,17 +257,15 @@ inputManager.addListener&#40;combinedListener, new String&#91;&#93;&#123;&quot;P
 
 <p>
 It&#039;s okay to use only one of the two Listeners, and not implement the other one, if you are not using this type of interaction. In the following, we have a closer look how to decide which of the two listeners is best suited for which situation.
-
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Implementing the Actions" [5836-8954] -->
-<h2><a>Analog, Pressed, or Released?</a></h2>
+<!-- EDIT4 SECTION "Implementing the Actions" [5821-8939] -->
+<h2>Analog, Pressed, or Released?</h2>
 <div>
 
 <p>
-
-Technically, every input can be either an &quot;analog&quot; or a &quot;digital&quot; action. Here is how you find out which listener is the right one for which type of input.
+Technically, every input can be either an “analog” or a “digital” action. Here is how you find out which listener is the right one for which type of input.
 </p>
 
 <p>
@@ -293,7 +283,6 @@ Mappings registered to the <strong>AnalogListener</strong> are triggered repeate
 </ul>
 
 <p>
-
 In order to see the total time that a key has been pressed for then the incoming value can be accumulated. The analogue listener may also need to be combined with an action listener so that you are notified when the key is released.
 </p>
 <ul>
@@ -302,7 +291,7 @@ In order to see the total time that a key has been pressed for then the incoming
 </ul>
 
 <p>
-Mappings registered to the <strong>ActionListener</strong> are digital either-or actions ??? &quot;Pressed or released? On or off?&quot;
+Mappings registered to the <strong>ActionListener</strong> are digital either-or actions – “Pressed or released? On or off?”
 </p>
 <ul>
 <li><div> Parameters: </div>
@@ -318,27 +307,26 @@ Mappings registered to the <strong>ActionListener</strong> are digital either-or
 </ul>
 
 <p>
-
-<strong>Tip:</strong> It&#039;s very common that you want an action to be only triggered once, in the moment when the key is <em>released</em>. For instance when opening a door, flipping a boolean state, or picking up an item. To achieve that, you use an <code>ActionListener</code> and test for <code>??? &amp;&amp; !keyPressed</code>. For an example, look at the Pause button code:
+<strong>Tip:</strong> It&#039;s very common that you want an action to be only triggered once, in the moment when the key is <em>released</em>. For instance when opening a door, flipping a boolean state, or picking up an item. To achieve that, you use an <code>ActionListener</code> and test for <code>… &amp;&amp; !keyPressed</code>. For an example, look at the Pause button code:
 </p>
 <pre>      if &#40;name.equals&#40;&quot;Pause&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
         isRunning = !isRunning;
       &#125;</pre>
 
 </div>
-<!-- EDIT5 SECTION "Analog, Pressed, or Released?" [8955-10979] -->
-<h2><a>Table of Triggers</a></h2>
+<!-- EDIT5 SECTION "Analog, Pressed, or Released?" [8940-10964] -->
+<h2>Table of Triggers</h2>
 <div>
 
 <p>
-
 You can find the list of input constants in the files <code>src/core/com/jme3/input/KeyInput.java</code>, <code>JoyInput.java</code>, and <code>MouseInput.java</code>. Here is an overview of the most common triggers constants:
-
 </p>
 <div><table>
+	<thead>
 	<tr>
 		<th> Trigger </th><th> Code </th>
 	</tr>
+	</thead>
 	<tr>
 		<td> Mouse button: Left Click </td><td> MouseButtonTrigger(MouseInput.BUTTON_LEFT) </td>
 	</tr>
@@ -362,18 +350,23 @@ You can find the list of input constants in the files <code>src/core/com/jme3/in
 KeyTrigger(KeyInput.KEY_LEFT), KeyTrigger(KeyInput.KEY_RIGHT) </td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [11212-11808] -->
+<!-- EDIT7 TABLE [11197-11793] -->
 <p>
-
 <strong>Tip:</strong> If you don&#039;t recall an input constant during development, you benefit from an IDE&#039;s code completion functionality: Place the caret after e.g. <code>KeyInput.|</code> and trigger code completion to select possible input identifiers.
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Table of Triggers" [10980-12042] -->
-<h2><a>Exercises</a></h2>
+<!-- EDIT6 SECTION "Table of Triggers" [10965-12027] -->
+<h2>Exercises</h2>
 <div>
 <ol>
 <li><div> Add mappings for moving the player (box) up and down with the H and L keys!</div>
+</li>
+<li><div> Switch off the flyCam and override the WASD keys.</div>
+<ul>
+<li><div> Tip: Use <a href="/doku.php/jme3:faq?s[]=flycam&do=export_xhtmlbody#how_do_i_switch_between_third-person_and_first-person_view">flyCam.setEnabled(false);</a> </div>
+</li>
+</ul>
 </li>
 <li><div> Modify the mappings so that you can also trigger the up an down motion with the mouse scroll wheel!</div>
 <ul>
@@ -389,35 +382,28 @@ inputManager.addMapping&#40;&quot;Pause&quot;,  new KeyTrigger&#40;usersPauseKey
 </ol>
 
 <p>
-
 <p><div>Link to user-proposed solutions: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/jm3:solutions"><param name="text" value="<html><u>http://jmonkeyengine.org/wiki/doku.php/jm3:solutions</u></html>"><param name="textColor" value="blue"></object>
 <em>Be sure to try to solve them for yourself first!</em>
 </div></p>
-
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Exercises" [12043-12727] -->
-<h2><a>Conclusion</a></h2>
+<!-- EDIT8 SECTION "Exercises" [12028-12891] -->
+<h2>Conclusion</h2>
 <div>
 
 <p>
-
-You are now able to add custom interactions to your game: You know that you first have to define the key mappings, and then the actions for each mapping. You have learned to respond to mouse events and to the keyboard. You understand the difference between &quot;analog&quot; (gradually repeated) and &quot;digital&quot; (on/off) inputs.
+You are now able to add custom interactions to your game: You know that you first have to define the key mappings, and then the actions for each mapping. You have learned to respond to mouse events and to the keyboard. You understand the difference between “analog” (gradually repeated) and “digital” (on/off) inputs.
 </p>
 
 <p>
 Now you can already write a little interactive game! But wouldn&#039;t it be cooler if these old boxes were a bit more fancy? Let&#039;s continue with learning about <a href="/com/jme3/gde/docs/jme3/beginner/hello_material.html">materials</a>.
 </p>
-<div><span>
-	<a href="/wiki/doku.php/tag:input?do=showtag&amp;tag=tag%3Ainput">input</a>,
-	<a href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>,
-	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:keyinput?do=showtag&amp;tag=tag%3Akeyinput">keyinput</a>,
-	<a href="/wiki/doku.php/tag:click?do=showtag&amp;tag=tag%3Aclick">click</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/jme3:beginner/tag_input_intro_beginner_documentation_keyinput_click">tag_input_intro_beginner_documentation_keyinput_click</a>
+</p>
 
 </div>
-<!-- EDIT9 SECTION "Conclusion" [12728-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_input_system?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT9 SECTION "Conclusion" [12892-] -->
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:beginner:hello_input_system?do=export_xhtmlbody">view online version</a></em></p>

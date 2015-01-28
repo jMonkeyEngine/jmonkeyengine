@@ -1,9 +1,8 @@
 
-<h1><a>Simple Water</a></h1>
+<h1>Simple Water</h1>
 <div>
 
 <p>
-
 jMonkeyEngine offers a SimpleWaterProcessor that turns any quad (flat rectangle) into a reflective water surface with waves. You can use this quad for simple limited water surfaces such as water troughs, shallow fountains, puddles, shallow water in channels. The SimpleWaterProcessor has less performance impact on your game than the full featured <a href="/com/jme3/gde/docs/jme3/advanced/post-processor_water.html">SeaMonkey WaterFilter</a>; the main difference is that the SimpleWaterProcessor does not include under-water effects. 
 </p>
 
@@ -20,30 +19,27 @@ Here is some background info for JME3&#039;s basic water implementation:
 </ul>
 
 <p>
-
-<img src="/wiki/lib/exe/fetch.php">
+<img src="/lib/exe/fetch.php">
 </p>
 
 </div>
 <!-- EDIT1 SECTION "Simple Water" [1-865] -->
-<h2><a>SimpleWaterProcessor</a></h2>
+<h2>SimpleWaterProcessor</h2>
 <div>
 
 <p>
-
 A JME3 scene with water can use a <code>com.jme3.water.SimpleWaterProcessor</code> (which implements the SceneProcessor interface).
 </p>
 
 <p>
 To achieve a water effect, JME3 uses shaders and a special material, <code>Common/MatDefs/Water/SimpleWater.j3md</code>. The water surface is a quad, and we use normal map and dU/dV map texturing to simulate the waves. 
-
 </p>
 <ol>
 <li><div> Every frame, we render to three texture maps:</div>
 <ul>
-<li><div> For the water surface (reflection), we take a snapshot of the environment, flip it upside down, and clip it to the visible water surface. Note that we do not actually use a &quot;water texture&quot; color map: The &quot;texture&quot; of the water is solely a distorted reflection.</div>
+<li><div> For the water surface (reflection), we take a snapshot of the environment, flip it upside down, and clip it to the visible water surface. Note that we do not actually use a “water texture” color map: The “texture” of the water is solely a distorted reflection.</div>
 </li>
-<li><div> For the &quot;wavy&quot; distortion (refraction), we use the derivative of a normal map, a dU/dV map.</div>
+<li><div> For the “wavy” distortion (refraction), we use the derivative of a normal map, a dU/dV map.</div>
 </li>
 <li><div> For the fogginess of water (depth) we use a depth map from the terrains z-buffer.</div>
 </li>
@@ -51,7 +47,7 @@ To achieve a water effect, JME3 uses shaders and a special material, <code>Commo
 </li>
 <li><div> In the shaders, we add all of the texture maps together. </div>
 <ul>
-<li><div> For the &quot;bumpy&quot; displacement of the waves, we use a normal map and a du/dv map that are shifted against each other over time to create the wave effect.</div>
+<li><div> For the “bumpy” displacement of the waves, we use a normal map and a du/dv map that are shifted against each other over time to create the wave effect.</div>
 </li>
 <li><div> For the light reflection vectors on the water surface, we use the Fresnel formula, together with normal vectors.</div>
 </li>
@@ -59,19 +55,17 @@ To achieve a water effect, JME3 uses shaders and a special material, <code>Commo
 </li>
 </ul>
 </li>
-<li><div> (For the underwater caustics effect, we use splatted textures. ??? WIP/TODO)</div>
+<li><div> (For the underwater caustics effect, we use splatted textures. – WIP/TODO)</div>
 </li>
 </ol>
 
 </div>
 <!-- EDIT2 SECTION "SimpleWaterProcessor" [866-2190] -->
-<h2><a>Usage</a></h2>
+<h2>Usage</h2>
 <div>
 
 <p>
-
 <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/simplewater.png">
-
 </p>
 <ol>
 <li><div> Create a <code>mainScene</code> Node</div>
@@ -126,11 +120,10 @@ To achieve a water effect, JME3 uses shaders and a special material, <code>Commo
 
 </div>
 <!-- EDIT3 SECTION "Usage" [2191-3265] -->
-<h2><a>Sample Code</a></h2>
+<h2>Sample Code</h2>
 <div>
 
 <p>
-
 The sample code can be found in <code>jme3/src/jme3test/water/TestSimpleWater.java</code> and <code>jme3/src/jme3test/water/TestSceneWater.java</code>.
 </p>
 
@@ -165,53 +158,45 @@ rootNode.attachChild&#40;water&#41;;</pre>
 
 </div>
 <!-- EDIT4 SECTION "Sample Code" [3266-4565] -->
-<h2><a>Settings</a></h2>
+<h2>Settings</h2>
 <div>
 
 <p>
-
 You can lower the render size to gain higher performance:
-
 </p>
 <pre>waterProcessor.setRenderSize&#40;128,128&#41;;</pre>
 
 <p>
 The deeper the water, the more transparent. (?) 
-
 </p>
 <pre>waterProcessor.setWaterDepth&#40;40&#41;;</pre>
 
 <p>
 A higher distortion scale makes bigger waves.
-
 </p>
 <pre>waterProcessor.setDistortionScale&#40;0.05f&#41;;</pre>
 
 <p>
 A lower wave speed makes calmer water.
-
 </p>
 <pre>waterProcessor.setWaveSpeed&#40;0.05f&#41;;</pre>
 
 <p>
 If your scene does not have a lightsource, you can set the light direction for the water:
-
 </p>
 <pre>waterProcessor.setLightDirection&#40; new Vector3f&#40;0.55f, -0.82f, 0.15f&#41;&#41;;</pre>
 
 <p>
 Instead of creating a quad and specifying a plane, you can get a default waterplane from the processor:
-
 </p>
 <pre>Geometry waterPlane = waterProcessor.createWaterGeometry&#40;10, 10&#41;;
 waterPlane.setLocalTranslation&#40;-5, 0, 5&#41;;
 waterPlane.setMaterial&#40;waterProcessor.getMaterial&#40;&#41;&#41;;</pre>
 
 <p>
-You can offer a switch to set the water Material to a static texture ??? for users with slow PCs.
-
+You can offer a switch to set the water Material to a static texture – for users with slow PCs.
 </p>
 
 </div>
 <!-- EDIT5 SECTION "Settings" [4566-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:water?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:water?do=export_xhtmlbody">view online version</a></em></p>

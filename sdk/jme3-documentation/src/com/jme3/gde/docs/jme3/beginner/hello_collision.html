@@ -1,5 +1,5 @@
 
-<h1><a>jMonkeyEngine 3 Tutorial (9) - Hello Collision</a></h1>
+<h1>jMonkeyEngine 3 Tutorial (9) - Hello Collision</h1>
 <div>
 
 <p>
@@ -19,11 +19,10 @@ You can use the solution shown here for first-person shooters, mazes, and simila
 
 </div>
 <!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (9) - Hello Collision" [1-595] -->
-<h2><a>Sample Code</a></h2>
+<h2>Sample Code</h2>
 <div>
 
 <p>
-
 If you don&#039;t have it yet, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine/town.zip"><param name="text" value="<html><u>download the town.zip</u></html>"><param name="textColor" value="blue"></object> sample scene.
 </p>
 <pre>jMonkeyProjects$ ls -1 BasicGame
@@ -196,17 +195,15 @@ public class HelloCollision extends SimpleApplication
 &#125;</pre>
 
 <p>
-Run the sample. You should see a town square with houses and a monument. Use the WASD keys and the mouse to navigate around with a first-person perspective. Run forward and jump by pressing W and Space. Note how you step over the sidewalk, and up the steps to the monument. You can walk in the alleys between the houses, but the walls are solid. Don&#039;t walk over the edge of the world! <img src="/wiki/lib/images/smileys/icon_smile.gif" class="middle" alt=":-)" />
-
+Run the sample. You should see a town square with houses and a monument. Use the WASD keys and the mouse to navigate around with a first-person perspective. Run forward and jump by pressing W and Space. Note how you step over the sidewalk, and up the steps to the monument. You can walk in the alleys between the houses, but the walls are solid. Don&#039;t walk over the edge of the world! <img src="/lib/images/smileys/icon_smile.gif" class="icon" alt=":-)" />
 </p>
 
 </div>
 <!-- EDIT2 SECTION "Sample Code" [596-7341] -->
-<h2><a>Understanding the Code</a></h2>
+<h2>Understanding the Code</h2>
 <div>
 
 <p>
-
 Let&#039;s start with the class declaration:
 </p>
 <pre>public class HelloCollision extends SimpleApplication
@@ -246,18 +243,15 @@ You initialize a few private fields:
 </ul>
 
 <p>
-
 Let&#039;s have a look at all the details:
-
 </p>
 
 </div>
 <!-- EDIT3 SECTION "Understanding the Code" [7342-8887] -->
-<h2><a>Initializing the Game</a></h2>
+<h2>Initializing the Game</h2>
 <div>
 
 <p>
-
 As usual, you initialize the game in the <code>simpleInitApp()</code> method.
 </p>
 <pre>    viewPort.setBackgroundColor&#40;new ColorRGBA&#40;0.7f,0.8f,1f,1f&#41;&#41;;
@@ -267,21 +261,20 @@ As usual, you initialize the game in the <code>simpleInitApp()</code> method.
 <ol>
 <li><div> You set the background color to light blue, since this is a scene with a sky.</div>
 </li>
-<li><div> You repurpose the default camera control &quot;flyCam&quot; as first-person camera and set its speed.</div>
+<li><div> You repurpose the default camera control “flyCam” as first-person camera and set its speed.</div>
 </li>
 <li><div> The auxiliary method <code>setUpLights()</code> adds your light sources.</div>
 </li>
-<li><div> The auxiliary method <code>setUpKeys()</code> configures input mappings???we will look at it later.</div>
+<li><div> The auxiliary method <code>setUpKeys()</code> configures input mappings–we will look at it later.</div>
 </li>
 </ol>
 
 </div>
 <!-- EDIT4 SECTION "Initializing the Game" [8888-9484] -->
-<h3><a>The Physics-Controlled Scene</a></h3>
+<h3>The Physics-Controlled Scene</h3>
 <div>
 
 <p>
-
 The first thing you do in every physics game is create a BulletAppState object. It gives you access to jME3&#039;s jBullet integration which handles physical forces and collisions.
 </p>
 <pre>    bulletAppState = new BulletAppState&#40;&#41;;
@@ -295,7 +288,7 @@ For the scene, you load the <code>sceneModel</code> from a zip file, and adjust 
     sceneModel.setLocalScale&#40;2f&#41;;</pre>
 
 <p>
-The file <code>town.zip</code> is included as a sample model in the JME3 sources ??? you can <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine/town.zip"><param name="text" value="<html><u>download it here</u></html>"><param name="textColor" value="blue"></object>. (Optionally, use any OgreXML scene of your own.) For this sample, place the zip file in the application&#039;s top level directory (that is, next to src/, assets/, build.xml).
+The file <code>town.zip</code> is included as a sample model in the JME3 sources – you can <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine/town.zip"><param name="text" value="<html><u>download it here</u></html>"><param name="textColor" value="blue"></object>. (Optionally, use any OgreXML scene of your own.) For this sample, place the zip file in the application&#039;s top level directory (that is, next to src/, assets/, build.xml).
 </p>
 <pre>    CollisionShape sceneShape =
       CollisionShapeFactory.createMeshShape&#40;&#40;Node&#41; sceneModel&#41;;
@@ -318,18 +311,16 @@ To use collision detection, you add a RigidBodyControl to the <code>sceneModel</
 </ul>
 
 <p>
-
 <strong>Tip:</strong> Remember to add a light source so you can see the scene.
 </p>
 
 </div>
 <!-- EDIT5 SECTION "The Physics-Controlled Scene" [9485-11458] -->
-<h3><a>The Physics-Controlled Player</a></h3>
+<h3>The Physics-Controlled Player</h3>
 <div>
 
 <p>
-
-A first-person player is typically invisible. When you use the default flyCam as first-person cam, it does not even test for collisons and runs through walls. This is because the flyCam control does not have any physical shape assigned. In this code sample, you represent the first-person player as an (invisible) physical shape. You use the WASD keys to steer this physical shape around, while the physics engine manages for you how it walks along solid walls and on solid floors and jumps over solid obstacles. Then you simply make the camera follow the walking shape&#039;s location ??? and you get the illusion of being a physical body in a solid environment seeing through the camera.
+A first-person player is typically invisible. When you use the default flyCam as first-person cam, it does not even test for collisons and runs through walls. This is because the flyCam control does not have any physical shape assigned. In this code sample, you represent the first-person player as an (invisible) physical shape. You use the WASD keys to steer this physical shape around, while the physics engine manages for you how it walks along solid walls and on solid floors and jumps over solid obstacles. Then you simply make the camera follow the walking shape&#039;s location – and you get the illusion of being a physical body in a solid environment seeing through the camera.
 </p>
 
 <p>
@@ -349,7 +340,7 @@ Again, you create a CollisionShape: This time you choose a CapsuleCollisionShape
 <pre>    player = new CharacterControl&#40;capsuleShape, 0.05f&#41;;</pre>
 
 <p>
-<p><div>&quot;Does that CollisionShape make me look fat?&quot; If you ever get confusing physics behaviour, remember to have a look at the collision shapes. Add the following line after the bulletAppState initialization to make the shapes visible: 
+<p><div>“Does that CollisionShape make me look fat?” If you ever get confusing physics behaviour, remember to have a look at the collision shapes. Add the following line after the bulletAppState initialization to make the shapes visible: 
 </p>
 <pre>bulletAppState.getPhysicsSpace&#40;&#41;.enableDebug&#40;assetManager&#41;;</pre>
 
@@ -371,37 +362,35 @@ Apart from step height and character size, the <code>CharacterControl</code> let
 <pre>    player.setPhysicsLocation&#40;new Vector3f&#40;0, 10, 0&#41;&#41;;</pre>
 
 <p>
-Finally we put the player in its starting position and update its state ??? remember to use <code>setPhysicsLocation()</code> instead of <code>setLocalTranslation()</code> now, since you are dealing with a physical object. 
+Finally we put the player in its starting position and update its state – remember to use <code>setPhysicsLocation()</code> instead of <code>setLocalTranslation()</code> now, since you are dealing with a physical object. 
 </p>
 
 </div>
 <!-- EDIT6 SECTION "The Physics-Controlled Player" [11459-14223] -->
-<h3><a>PhysicsSpace</a></h3>
+<h3>PhysicsSpace</h3>
 <div>
 
 <p>
-
 Remember, in physical games, you must register all solid objects (usually the characters and the scene) to the PhysicsSpace!
 </p>
 <pre>    bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;landscape&#41;;
     bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;player&#41;;</pre>
 
 <p>
-The invisible body of the character just sits there on the physical floor. It cannot walk yet ??? you will deal with that next.
+The invisible body of the character just sits there on the physical floor. It cannot walk yet – you will deal with that next.
 </p>
 
 </div>
 <!-- EDIT7 SECTION "PhysicsSpace" [14224-14625] -->
-<h2><a>Navigation</a></h2>
+<h2>Navigation</h2>
 <div>
 
 <p>
-
 The default camera controller <code>cam</code> is a third-person camera. JME3 also offers a first-person controller, <code>flyCam</code>, which we use here to handle camera rotation. The <code>flyCam</code> control moves the camera using <code>setLocation()</code>.
 </p>
 
 <p>
-However, you must redefine how walking (camera movement) is handled for physics-controlled objects: When you navigate a non-physical node (e.g. the default flyCam), you simply specify the <em>target location</em>. There are no tests that prevent the flyCam from getting stuck in a wall! When you move a PhysicsControl, you want to specify a <em>walk direction</em> instead. Then the PhysicsSpace can calculate for you how far the character can actually move in the desired direction ??? or whether an obstacle prevents it from going any further.
+However, you must redefine how walking (camera movement) is handled for physics-controlled objects: When you navigate a non-physical node (e.g. the default flyCam), you simply specify the <em>target location</em>. There are no tests that prevent the flyCam from getting stuck in a wall! When you move a PhysicsControl, you want to specify a <em>walk direction</em> instead. Then the PhysicsSpace can calculate for you how far the character can actually move in the desired direction – or whether an obstacle prevents it from going any further.
 </p>
 
 <p>
@@ -410,11 +399,10 @@ In short, you must re-define the flyCam&#039;s navigational key mappings to use 
 
 </div>
 <!-- EDIT8 SECTION "Navigation" [14626-15573] -->
-<h3><a>1. inputManager</a></h3>
+<h3>1. inputManager</h3>
 <div>
 
 <p>
-
 In the <code>simpleInitApp()</code> method, you re-configure the familiar WASD inputs for walking, and Space for jumping.
 </p>
 <pre>private void setUpKeys&#40;&#41; &#123;
@@ -431,17 +419,16 @@ In the <code>simpleInitApp()</code> method, you re-configure the familiar WASD i
 &#125;</pre>
 
 <p>
-You can move this block of code into an auxiliary method <code>setupKeys()</code> and call this method from <code>simpleInitApp()</code>??? to keep the code more readable.
+You can move this block of code into an auxiliary method <code>setupKeys()</code> and call this method from <code>simpleInitApp()</code>– to keep the code more readable.
 </p>
 
 </div>
 <!-- EDIT9 SECTION "1. inputManager" [15574-16484] -->
-<h3><a>2. onAction()</a></h3>
+<h3>2. onAction()</h3>
 <div>
 
 <p>
-
-Remember that this class implements the an <code>ActionListener</code> interface, so you can customize the flyCam inputs. The <code>ActionListener</code> interface requires you to implement the <code>onAction()</code> method: You re-define the actions triggered by navigation key presses to work with physics.
+Remember that this class implements the <code>ActionListener</code> interface, so you can customize the flyCam inputs. The <code>ActionListener</code> interface requires you to implement the <code>onAction()</code> method: You re-define the actions triggered by navigation key presses to work with physics.
 </p>
 <pre>  public void onAction&#40;String binding, boolean value, float tpf&#41; &#123;
     if &#40;binding.equals&#40;&quot;Left&quot;&#41;&#41; &#123;
@@ -466,13 +453,12 @@ For all other directions: Every time the user presses one of the WASD keys, you 
 </p>
 
 </div>
-<!-- EDIT10 SECTION "2. onAction()" [16485-17901] -->
-<h3><a>3. setWalkDirection()</a></h3>
+<!-- EDIT10 SECTION "2. onAction()" [16485-17898] -->
+<h3>3. setWalkDirection()</h3>
 <div>
 
 <p>
-
-Previously in the <code>onAction()</code> method, you have collected the info in which direction the user wants to go in terms of &quot;forward&quot; or &quot;left&quot;. In the update loop, you repeatedly poll the current rotation of the camera. You calculate the actual vectors to which &quot;forward&quot; or &quot;left&quot; corresponds in the coordinate system.
+Previously in the <code>onAction()</code> method, you have collected the info in which direction the user wants to go in terms of “forward” or “left”. In the update loop, you repeatedly poll the current rotation of the camera. You calculate the actual vectors to which “forward” or “left” corresponds in the coordinate system.
 </p>
 
 <p>
@@ -506,7 +492,7 @@ This is how the walking is triggered:
 </li>
 <li><div> Add to <code>walkDirection</code> the recent motion vectors that you polled from the camera. This way it is posible for a character to move forward and to the left simultaneously, for example! </div>
 </li>
-<li><div> This one last line does the &quot;walking magic&quot;: <pre>player.setWalkDirection&#40;walkDirection&#41;;</pre>
+<li><div> This one last line does the “walking magic”: <pre>player.setWalkDirection&#40;walkDirection&#41;;</pre>
 
 <p>
  Always use <code>setWalkDirection()</code> to make a physics-controlled object move continuously, and the physics engine handles collision detection for you.
@@ -519,30 +505,25 @@ This is how the walking is triggered:
 </ol>
 
 <p>
-
 <strong>Important:</strong> Again, do not use <code>setLocalTranslation()</code> to walk the player around. You will get it stuck by overlapping with another physical object. You can put the player in a start position with <code>setPhysicalLocation()</code> if you make sure to place it a bit above the floor and away from obstacles.
-
 </p>
 
 </div>
-<!-- EDIT11 SECTION "3. setWalkDirection()" [17902-20020] -->
-<h2><a>Conclusion</a></h2>
+<!-- EDIT11 SECTION "3. setWalkDirection()" [17899-20017] -->
+<h2>Conclusion</h2>
 <div>
 
 <p>
-
-You have learned how to load a &quot;solid&quot; physical scene model and walk around in it with a first-person perspective.
+You have learned how to load a “solid” physical scene model and walk around in it with a first-person perspective.
 You learned to speed up the physics calculations by using the CollisionShapeFactory to create efficient CollisionShapes for complex Geometries. You know how to add PhysicsControls to your collidable geometries and you register them to the PhysicsSpace. You also learned to use <code>player.setWalkDirection(walkDirection)</code> to move collision-aware characters around, and not <code>setLocalTranslation()</code>.
 </p>
 
 <p>
 Terrains are another type of scene in which you will want to walk around. Let&#039;s proceed with learning <a href="/com/jme3/gde/docs/jme3/beginner/hello_terrain.html">how to generate terrains</a> now. 
-
 </p>
 <hr />
 
 <p>
-
 Related info:
 </p>
 <ul>
@@ -555,16 +536,11 @@ Related info:
 <li><div> FYI, there are simpler collision detection solutions without physics, too. Have a look at <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/collision/TestTriangleCollision.java"><param name="text" value="<html><u>jme3test.collision.TestTriangleCollision.java</u></html>"><param name="textColor" value="blue"></object>.</div>
 </li>
 </ul>
-<div><span>
-	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
-	<a href="/wiki/doku.php/tag:collision?do=showtag&amp;tag=tag%3Acollision">collision</a>,
-	<a href="/wiki/doku.php/tag:control?do=showtag&amp;tag=tag%3Acontrol">control</a>,
-	<a href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>,
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:model?do=showtag&amp;tag=tag%3Amodel">model</a>,
-	<a href="/wiki/doku.php/tag:physics?do=showtag&amp;tag=tag%3Aphysics">physics</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/jme3:beginner/tag_beginner_collision_control_intro_documentation_model_physics">tag_beginner_collision_control_intro_documentation_model_physics</a>
+</p>
 
 </div>
-<!-- EDIT12 SECTION "Conclusion" [20021-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_collision?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT12 SECTION "Conclusion" [20018-] -->
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:beginner:hello_collision?do=export_xhtmlbody">view online version</a></em></p>

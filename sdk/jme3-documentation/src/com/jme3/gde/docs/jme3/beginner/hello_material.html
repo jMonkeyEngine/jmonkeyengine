@@ -1,9 +1,8 @@
 
-<h1><a>jMonkeyEngine 3 Tutorial (6) - Hello Materials</a></h1>
+<h1>jMonkeyEngine 3 Tutorial (6) - Hello Materials</h1>
 <div>
 
 <p>
-
 Previous: <a href="/com/jme3/gde/docs/jme3/beginner/hello_input_system.html">Hello Input System</a>,
 Next: <a href="/com/jme3/gde/docs/jme3/beginner/hello_animation.html">Hello Animation</a>
 </p>
@@ -14,14 +13,13 @@ The term Material includes everything that influences what the surface of a 3D m
 </p>
 
 <p>
-
-<p><div>To use the example assets in a new jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> project, right-click your project, select &quot;Properties&quot;, go to &quot;Libraries&quot;, press &quot;Add Library&quot; and add the &quot;jme3-test-data&quot; library.
+<p><div>To use the example assets in a new jMonkeyEngine SDK project, right-click your project, select “Properties”, go to “Libraries”, press “Add Library” and add the “jme3-test-data” library.
 </div></p>
 </p>
 
 </div>
 <!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (6) - Hello Materials" [1-715] -->
-<h2><a>Sample Code</a></h2>
+<h2>Sample Code</h2>
 <div>
 <pre>package jme3test.helloworld;
 &nbsp;
@@ -51,7 +49,7 @@ public class HelloMaterial extends SimpleApplication &#123;
   public void simpleInitApp&#40;&#41; &#123;
 &nbsp;
     /** A simple textured cube -- in good MIP map quality. */
-    Box cube1Mesh = new Box&#40; 1f,1f,1f&#41;;
+    Box&#40; 1f,1f,1f&#41;;
     Geometry cube1Geo = new Geometry&#40;&quot;My Textured Box&quot;, cube1Mesh&#41;;
     cube1Geo.setLocalTranslation&#40;new Vector3f&#40;-3f,1.1f,0f&#41;&#41;;
     Material cube1Mat = new Material&#40;assetManager, 
@@ -63,7 +61,7 @@ public class HelloMaterial extends SimpleApplication &#123;
     rootNode.attachChild&#40;cube1Geo&#41;;
 &nbsp;
     /** A translucent/transparent texture, similar to a window frame. */
-    Box cube2Mesh = new Box&#40; 1f,1f,0.01f&#41;;
+    Box&#40; 1f,1f,0.01f&#41;;
     Geometry cube2Geo = new Geometry&#40;&quot;window frame&quot;, cube2Mesh&#41;;
     Material cube2Mat = new Material&#40;assetManager, 
         &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -107,9 +105,9 @@ public class HelloMaterial extends SimpleApplication &#123;
 You should see
 </p>
 <ul>
-<li><div> Left ??? A cube with a brown monkey texture.</div>
+<li><div> Left – A cube with a brown monkey texture.</div>
 </li>
-<li><div> Right ??? A translucent monkey picture in front of a shiny bumpy rock.</div>
+<li><div> Right – A translucent monkey picture in front of a shiny bumpy rock.</div>
 </li>
 </ul>
 
@@ -119,15 +117,14 @@ Move around with the WASD keys to have a closer look at the translucency, and th
 
 </div>
 <!-- EDIT2 SECTION "Sample Code" [716-4277] -->
-<h2><a>Simple Unshaded Texture</a></h2>
+<h2>Simple Unshaded Texture</h2>
 <div>
 
 <p>
-
-Typically you want to give objects in your scene textures: It can be rock, grass, brick, wood, water, metal, paper??? A texture is a normal image file in <acronym title="Joint Photographics Experts Group">JPG</acronym> or <acronym title="Portable Network Graphics">PNG</acronym> format. In this example, you create a box with a simple unshaded Monkey texture as material.
+Typically you want to give objects in your scene textures: It can be rock, grass, brick, wood, water, metal, paper… A texture is a normal image file in JPG or PNG format. In this example, you create a box with a simple unshaded Monkey texture as material.
 </p>
 <pre>    /** A simple textured cube -- in good MIP map quality. */
-    Box cube1Mesh = new Box&#40; 1f,1f,1f&#41;;
+    Box&#40; 1f,1f,1f&#41;;
     Geometry cube1Geo = new Geometry&#40;&quot;My Textured Box&quot;, cube1Mesh&#41;;
     cube1Geo.setLocalTranslation&#40;new Vector3f&#40;-3f,1.1f,0f&#41;&#41;;
     Material cube1Mat = new Material&#40;assetManager, 
@@ -156,11 +153,10 @@ Here is what we did: to create a textured box:
 
 </div>
 <!-- EDIT3 SECTION "Simple Unshaded Texture" [4278-5632] -->
-<h2><a>Transparent Unshaded Texture</a></h2>
+<h2>Transparent Unshaded Texture</h2>
 <div>
 
 <p>
-
 <code>Monkey.png</code> is the same texture as <code>Monkey.jpg</code>, but with an added alpha channel. The alpha channel allows you to specify which areas of the texture you want to be opaque or transparent: Black areas of the alpha channel remain opaque, gray areas become translucent, and white areas become transparent. 
 </p>
 
@@ -177,7 +173,7 @@ This bucket ensures that the transparent object is drawn on top of objects behin
 </li>
 </ul>
 <pre>    /** A translucent/transparent texture, similar to a window frame. */
-    Box cube2Mesh = new Box&#40; 1f,1f,0.01f&#41;;
+    Box&#40; 1f,1f,0.01f&#41;;
     Geometry cube2Geo = new Geometry&#40;&quot;window frame&quot;, cube2Mesh&#41;;
     Material cube2Mat = new Material&#40;assetManager, 
     &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -200,7 +196,7 @@ What you did for the transparent texture is the same as before, with only one ad
 </li>
 <li><div> Create a Material <code>cube2Mat</code> based on jME3&#039;s default <code>Unshaded.j3md</code> material definition.</div>
 </li>
-<li><div> Create a texture <code>cube2Tex</code> from the <code>Monkey.png</code> file in the <code>assets/Textures/ColoredTex/</code> directory of the project. This <acronym title="Portable Network Graphics">PNG</acronym> file must have an alpha layer.</div>
+<li><div> Create a texture <code>cube2Tex</code> from the <code>Monkey.png</code> file in the <code>assets/Textures/ColoredTex/</code> directory of the project. This PNG file must have an alpha layer.</div>
 </li>
 <li><div> <strong>Activate transparency in the material by setting the blend mode to Alpha.</strong></div>
 </li>
@@ -213,18 +209,16 @@ What you did for the transparent texture is the same as before, with only one ad
 </ol>
 
 <p>
-
-<strong>Tip:</strong> Learn more about creating <acronym title="Portable Network Graphics">PNG</acronym> images with an alpha layer in the help system of your graphic editor.
+<strong>Tip:</strong> Learn more about creating PNG images with an alpha layer in the help system of your graphic editor.
 </p>
 
 </div>
 <!-- EDIT4 SECTION "Transparent Unshaded Texture" [5633-8184] -->
-<h2><a>Shininess and Bumpiness</a></h2>
+<h2>Shininess and Bumpiness</h2>
 <div>
 
 <p>
-
-But textures are not all. Have a close look at the shiny sphere ??? you cannot get such a nice bumpy material with just a plain texture. You see that JME3 also supports so-called Phong-illuminated materials:
+But textures are not all. Have a close look at the shiny sphere – you cannot get such a nice bumpy material with just a plain texture. You see that JME3 also supports so-called Phong-illuminated materials:
 </p>
 
 <p>
@@ -252,11 +246,11 @@ Let&#039;s have a look at the part of the code example where you create the shin
 </div>
 <ol>
 <li><div> Set a standard rocky texture in the <code>DiffuseMap</code> layer. <br/>
-<img src="/wiki/lib/exe/fetch.php"><pre>    sphereMat.setTexture&#40;&quot;DiffuseMap&quot;, 
+<img src="/lib/exe/fetch.php"><pre>    sphereMat.setTexture&#40;&quot;DiffuseMap&quot;, 
         assetManager.loadTexture&#40;&quot;Textures/Terrain/Pond/Pond.jpg&quot;&#41;&#41;;</pre>
 </div>
 </li>
-<li><div> Set the <code>NormalMap</code> layer that contains the bumpiness. The NormalMap was generated for this particular DiffuseMap with a special tool (e.g. Blender). <img src="/wiki/lib/exe/fetch.php"> <pre>    sphereMat.setTexture&#40;&quot;NormalMap&quot;, 
+<li><div> Set the <code>NormalMap</code> layer that contains the bumpiness. The NormalMap was generated for this particular DiffuseMap with a special tool (e.g. Blender). <img src="/lib/exe/fetch.php"> <pre>    sphereMat.setTexture&#40;&quot;NormalMap&quot;, 
         assetManager.loadTexture&#40;&quot;Textures/Terrain/Pond/Pond_normal.png&quot;&#41;&#41;;</pre>
 </div>
 </li>
@@ -279,7 +273,6 @@ Let&#039;s have a look at the part of the code example where you create the shin
 </ol>
 
 <p>
-
 Remember that any Lighting.j3md-based material requires a light source, as shown in the full code sample above.
 </p>
 
@@ -289,18 +282,18 @@ Remember that any Lighting.j3md-based material requires a light source, as shown
 
 </div>
 <!-- EDIT5 SECTION "Shininess and Bumpiness" [8185-11426] -->
-<h2><a>Default Material Definitions</a></h2>
+<h2>Default Material Definitions</h2>
 <div>
 
 <p>
-
-As you have seen, you can find the following default materials in <code>jme/core-data/Common/???</code>.
-
+As you have seen, you can find the following default materials in <code>jme/core-data/Common/…</code>.
 </p>
 <div><table>
+	<thead>
 	<tr>
 		<th> Default Definition </th><th> Usage </th><th> Parameters  </th>
 	</tr>
+	</thead>
 	<tr>
 		<td> <code>Common/MatDefs/Misc/Unshaded.j3md</code> </td><td> Colored: Use with mat.setColor() and ColorRGBA. <br/>
 Textured: Use with mat.setTexture() and Texture. </td><td> Color : Color <br/>
@@ -315,22 +308,20 @@ Shininess : Float </td>
 </table></div>
 <!-- EDIT7 TABLE [11566-12036] -->
 <p>
-
-For a game, you create custom Materials based on these existing MaterialDefintions ??? as you have just seen in the example with the shiny rock&#039;s material.
+For a game, you create custom Materials based on these existing MaterialDefintions – as you have just seen in the example with the shiny rock&#039;s material.
 </p>
 
 </div>
 <!-- EDIT6 SECTION "Default Material Definitions" [11427-12193] -->
-<h2><a>Exercises</a></h2>
+<h2>Exercises</h2>
 <div>
 
 </div>
 <!-- EDIT8 SECTION "Exercises" [12194-12216] -->
-<h3><a>Exercise 1: Custom .j3m Material</a></h3>
+<h3>Exercise 1: Custom .j3m Material</h3>
 <div>
 
 <p>
-
 Look at the shiny rocky sphere above again. It takes several lines to create and set the Material.
 </p>
 <ul>
@@ -345,7 +336,6 @@ Look at the shiny rocky sphere above again. It takes several lines to create and
 </ul>
 
 <p>
-
 If you want to use one custom material for several models, you can store it in a .j3m file, and save a few lines of code every time. 
 </p>
 
@@ -384,17 +374,15 @@ You create a j3m file as follows:
 </ol>
 
 <p>
-
 Using this new custom material <code>MyCustomMaterial.j3m</code> only takes one line. You have replaced the eight lines of an on-the-fly material definition with one line that loads a custom material from a file. Using .j3m files is very handy if you use the same material often. 
 </p>
 
 </div>
 <!-- EDIT9 SECTION "Exercise 1: Custom .j3m Material" [12217-14101] -->
-<h3><a>Exercise 2: Bumpiness and Shininess</a></h3>
+<h3>Exercise 2: Bumpiness and Shininess</h3>
 <div>
 
 <p>
-
 Go back to the bumpy rock sample above:
 </p>
 <ol>
@@ -420,11 +408,10 @@ Go back to the bumpy rock sample above:
 
 </div>
 <!-- EDIT10 SECTION "Exercise 2: Bumpiness and Shininess" [14102-14529] -->
-<h2><a>Conclusion</a></h2>
+<h2>Conclusion</h2>
 <div>
 
 <p>
-
 You have learned how to create a Material, specify its properties, and use it on a Geometry. You know how to load an image file (.png, .jpg) as texture into a material. You know to save texture files in a subfolder of your project&#039;s <code>assets/Textures/</code> directory.
 </p>
 
@@ -434,7 +421,6 @@ You have also learned that a material can be stored in a .j3m file. The file ref
 
 <p>
 Now that you know how to load models and how to assign good-looking materials to them, let&#039;s have a look at how to animate models in the next chapter, <a href="/com/jme3/gde/docs/jme3/beginner/hello_animation.html">Hello Animation</a>.
-
 </p>
 <hr />
 
@@ -448,7 +434,7 @@ See also
 </li>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/forum/index.php?topic=14179.0"><param name="text" value="<html><u>Materials</u></html>"><param name="textColor" value="blue"></object> forum thread</div>
 </li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/files/jME3_materials.pdf"><param name="text" value="<html><u>jME3 Materials documentation</u></html>"><param name="textColor" value="blue"></object> (<acronym title="Portable Document Format">PDF</acronym>)</div>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/files/jME3_materials.pdf"><param name="text" value="<html><u>jME3 Materials documentation</u></html>"><param name="textColor" value="blue"></object> (PDF)</div>
 </li>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.youtube.com/watch?v=Feu3-mrpolc"><param name="text" value="<html><u>Video Tutorial: Editing and Assigning Materials to Models in jMonkeyEngine SDK (from 2010, is there a newer one?</u></html>"><param name="textColor" value="blue"></object></div>
 </li>
@@ -457,17 +443,11 @@ See also
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.shaders.org/ifw2_textures/whatsin10.htm"><param name="text" value="<html><u>Various Material screenshots</u></html>"><param name="textColor" value="blue"></object> (Not done with JME3, this is just to show the fantastic range of Material parameters in the hands of an expert, until we have a JME3 demo for it.)</div>
 </li>
 </ul>
-<div><span>
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
-	<a href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>,
-	<a href="/wiki/doku.php/tag:model?do=showtag&amp;tag=tag%3Amodel">model</a>,
-	<a href="/wiki/doku.php/tag:material?do=showtag&amp;tag=tag%3Amaterial">material</a>,
-	<a href="/wiki/doku.php/tag:color?do=showtag&amp;tag=tag%3Acolor">color</a>,
-	<a href="/wiki/doku.php/tag:texture?do=showtag&amp;tag=tag%3Atexture">texture</a>,
-	<a href="/wiki/doku.php/tag:transparency?do=showtag&amp;tag=tag%3Atransparency">transparency</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/jme3:beginner/tag_documentation_beginner_intro_model_material_color_texture_transparency">tag_documentation_beginner_intro_model_material_color_texture_transparency</a>
+</p>
 
 </div>
 <!-- EDIT11 SECTION "Conclusion" [14530-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_material?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:beginner:hello_material?do=export_xhtmlbody">view online version</a></em></p>

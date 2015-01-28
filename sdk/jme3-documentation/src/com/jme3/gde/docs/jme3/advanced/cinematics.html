@@ -1,10 +1,9 @@
 
-<h1><a>JME3 Cinematics</a></h1>
+<h1>JME3 Cinematics</h1>
 <div>
 
 <p>
-
-JME3 cinematics (com.jme.cinematic) allow you to remote control nodes and cameras in a 3D game: You can script and and play cinematic scenes. You can use cinematics to create <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Cutscene"><param name="text" value="<html><u>cutscenes</u></html>"><param name="textColor" value="blue"></object> and movies/trailers for your game. Another good use case is efficient &quot;destruction physics&quot;: Playing back prerecorded flying pieces of debris for demolitions is much faster than calculating them with live physics.
+JME3 cinematics (com.jme.cinematic) allow you to remote control nodes and cameras in a 3D game: You can script and and play cinematic scenes. You can use cinematics to create <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Cutscene"><param name="text" value="<html><u>cutscenes</u></html>"><param name="textColor" value="blue"></object> and movies/trailers for your game. Another good use case is efficient “destruction physics”: Playing back prerecorded flying pieces of debris for demolitions is much faster than calculating them with live physics.
 </p>
 
 <p>
@@ -29,7 +28,7 @@ This Node can be the rootNode, or a Node that is attached to the rootNode. </div
 
 </div>
 <!-- EDIT1 SECTION "JME3 Cinematics" [1-1103] -->
-<h2><a>Sample Code</a></h2>
+<h2>Sample Code</h2>
 <div>
 <ul>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/animation/TestCinematic.java"><param name="text" value="<html><u>TestCinematic.java</u></html>"><param name="textColor" value="blue"></object></div>
@@ -38,11 +37,10 @@ This Node can be the rootNode, or a Node that is attached to the rootNode. </div
 
 </div>
 <!-- EDIT2 SECTION "Sample Code" [1104-1270] -->
-<h2><a>How to Use a Cinematic</a></h2>
+<h2>How to Use a Cinematic</h2>
 <div>
 
 <p>
-
 A Cinematic is like a movie script for a node. 
 </p>
 <pre>Cinematic cinematic = new Cinematic&#40;sceneNode, duration&#41;;
@@ -76,9 +74,11 @@ stateManager.attach&#40;cinematic&#41;;</pre>
 </li>
 </ol>
 <div><table>
+	<thead>
 	<tr>
 		<th>Method</th><th>Usage</th>
 	</tr>
+	</thead>
 	<tr>
 		<td>cinematic.play()</td><td>Starts playing the cinematic from the start, or from where it was paused.</td>
 	</tr>
@@ -92,22 +92,22 @@ stateManager.attach&#40;cinematic&#41;;</pre>
 <!-- EDIT4 TABLE [2362-2574] -->
 </div>
 <!-- EDIT3 SECTION "How to Use a Cinematic" [1271-2574] -->
-<h2><a>Events(CinematicEvents)</a></h2>
+<h2>Events(CinematicEvents)</h2>
 <div>
 
 <p>
-
 Just like a movie script consists of lines with instructions to the actors, each Cinematic consists of a series of events.
 </p>
 
 <p>
 Here is the list of available CinematicEvents that you use as events. Each track remote-controls scene objects in a different way:
-
 </p>
 <div><table>
+	<thead>
 	<tr>
 		<th>Events(CinematicEvents)</th><th>Description</th>
 	</tr>
+	</thead>
 	<tr>
 		<td>MotionEvent</td><td>Use a MotionEvent to move a Spatial non-linearly over time. A MotionEvent is based on a list of waypoints in a MotionPath. The curve goes through each waypoint, and you can adjust the tension of the curve to modify the roundedness of the path. This is the motion interpolation you are going to use in most cases. </td>
 	</tr>
@@ -115,7 +115,7 @@ Here is the list of available CinematicEvents that you use as events. Each track
 		<td>SoundEvent</td><td>Use a SoundEvent to play a <a href="/com/jme3/gde/docs/jme3/advanced/audio.html">sound</a> at a given time for the given duration.</td>
 	</tr>
 	<tr>
-		<td>GuiEvent</td><td>Displays a <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui.html">Nifty GUI</a> at a given time for the given duration. Use it to display subtitles or HUD elements. Bind the Nifty <acronym title="Graphical User Interface">GUI</acronym> <acronym title="Extensible Markup Language">XML</acronym> to the cinematic using <code>cinematic.bindUi(&quot;path/to/nifty/file.xml&quot;);</code></td>
+		<td>GuiEvent</td><td>Displays a <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui.html">Nifty GUI</a> at a given time for the given duration. Use it to display subtitles or HUD elements. Bind the Nifty <abbr title="Graphical User Interface">GUI</abbr> XML to the cinematic using <code>cinematic.bindUi(“path/to/nifty/file.xml”);</code></td>
 	</tr>
 	<tr>
 		<td>AnimationEvent</td><td>Use this to start playing a model <a href="/com/jme3/gde/docs/jme3/advanced/animation.html">animation</a> at a given time (a character walking animation for example)</td>
@@ -123,20 +123,16 @@ Here is the list of available CinematicEvents that you use as events. Each track
 </table></div>
 <!-- EDIT6 TABLE [2868-3669] -->
 <p>
-
-Of course one can make is own event implementation, by extending the AbstractCinematicEvent.
-
+You can add custom events by extending AbstractCinematicEvent.
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Events(CinematicEvents)" [2575-3763] -->
-<h3><a>MotionEvent</a></h3>
+<!-- EDIT5 SECTION "Events(CinematicEvents)" [2575-3733] -->
+<h3>MotionEvent</h3>
 <div>
 
 <p>
-
 A MotionEvent moves a Spatial along a complex path.
-
 </p>
 <pre>MotionEvent events= new MotionEvent &#40;thingNode, path&#41;;</pre>
 
@@ -151,7 +147,6 @@ Details of the constructor:
 </ul>
 
 <p>
-
 To create a MotionEvent, do the following:
 </p>
 <ol>
@@ -165,9 +160,11 @@ To create a MotionEvent, do the following:
 </li>
 </ol>
 <div><table>
+	<thead>
 	<tr>
 		<th>MotionEvent configuration method</th><th>Usage</th>
 	</tr>
+	</thead>
 	<tr>
 		<td>event.setLoopMode(LoopMode.Loop)</td><td>Sets whether the animation along this path should loop (LoopMode.Loop) or play only once (LoopMode.DontLoop).</td>
 	</tr>
@@ -193,30 +190,26 @@ To create a MotionEvent, do the following:
 		<td>event.setRotation(quaternion)</td><td>Sets the rotation. Use together with <code>MotionEvent.Direction.Rotation</code> or <code>MotionEvent.Direction.PathAndRotation</code>.</td>
 	</tr>
 </table></div>
-<!-- EDIT8 TABLE [4249-5658] -->
+<!-- EDIT8 TABLE [4219-5628] -->
 <p>
-
 <strong>Tip:</strong> Most likely you remote-control more than one object in your scene. Give the events and paths useful names such as <code>dragonEvent</code>, <code>dragonPath</code>, <code>heroEvent</code>, <code>heroPath</code>, etc.
 </p>
 
 </div>
-<!-- EDIT7 SECTION "MotionEvent" [3764-5853] -->
-<h3><a>SoundEvent</a></h3>
+<!-- EDIT7 SECTION "MotionEvent" [3734-5823] -->
+<h3>SoundEvent</h3>
 <div>
 
 <p>
-
 A SoundEventplays a sound as part of the cinematic. 
-
 </p>
 <pre>SoundEvent&#40; audioPath, isStream, duration, loopMode &#41;</pre>
 
 <p>
-
 Details of the constructor:
 </p>
 <ul>
-<li><div> <code>audioPath</code> is the path to an audio file as String, e.g. &quot;Sounds/mySound.wav&quot;.</div>
+<li><div> <code>audioPath</code> is the path to an audio file as String, e.g. “Sounds/mySound.wav”.</div>
 </li>
 <li><div> <code>isStream</code> toggles between streaming and buffering. Set to true to stream long audio file, set to false to play short buffered sounds.</div>
 </li>
@@ -227,21 +220,17 @@ Details of the constructor:
 </ul>
 
 </div>
-<!-- EDIT9 SECTION "SoundEvent" [5854-6384] -->
-<h3><a>GuiEvent</a></h3>
+<!-- EDIT9 SECTION "SoundEvent" [5824-6354] -->
+<h3>GuiEvent</h3>
 <div>
 
 <p>
-
 A GuiEventshows or hide a NiftyGUI as part of a cinematic.
-
 </p>
 <pre>GuiEvent&#40; screen, duration, loopMode &#41;</pre>
 
 <p>
-
-You must use this together with bindUI() to specify the Nifty <acronym title="Graphical User Interface">GUI</acronym> <acronym title="Extensible Markup Language">XML</acronym> file that you want to load:
-
+You must use this together with bindUI() to specify the Nifty <abbr title="Graphical User Interface">GUI</abbr> XML file that you want to load:
 </p>
 <pre>cinematic.bindUi&#40;&quot;Interface/subtitle.xml&quot;&#41;;</pre>
 
@@ -249,7 +238,7 @@ You must use this together with bindUI() to specify the Nifty <acronym title="Gr
 Details of the constructor:
 </p>
 <ul>
-<li><div> <code>screen</code> is the name of the Nifty <acronym title="Graphical User Interface">GUI</acronym> screen to load, as String. </div>
+<li><div> <code>screen</code> is the name of the Nifty <abbr title="Graphical User Interface">GUI</abbr> screen to load, as String. </div>
 </li>
 <li><div> <code>duration</code> is the time that it should take to play.</div>
 </li>
@@ -258,19 +247,16 @@ Details of the constructor:
 </ul>
 
 </div>
-<!-- EDIT10 SECTION "GuiEvent" [6385-6912] -->
-<h3><a>AnimationEvent</a></h3>
+<!-- EDIT10 SECTION "GuiEvent" [6355-6882] -->
+<h3>AnimationEvent</h3>
 <div>
 
 <p>
-
 An AnimationEvent triggers an animation as part of a cinematic.
-
 </p>
 <pre>AnimationEvent&#40; thingNode, animationName, duration, loopMode &#41;</pre>
 
 <p>
-
 Details of the constructor:
 </p>
 <ul>
@@ -285,26 +271,22 @@ Details of the constructor:
 </ul>
 
 </div>
-<!-- EDIT11 SECTION "AnimationEvent" [6913-7425] -->
-<h3><a>Camera Management</a></h3>
+<!-- EDIT11 SECTION "AnimationEvent" [6883-7395] -->
+<h3>Camera Management</h3>
 <div>
 
 <p>
-
 There is a built in system for camera switching in Cinematics. It based on CameraNode, and the cinematic just enable the given CameraNode control at a given time.
 </p>
 
 <p>
 First you have to bind a camera to the cinematic with a unique name. You&#039;ll be provided with a CameraNode
-
 </p>
 <pre> CameraNode camNode = cinematic.bindCamera&#40;&quot;topView&quot;, cam&#41;;</pre>
 
 <p>
-
 then you can do whatever you want with this camera node : place it so that you have a the camera angle you&#039;d like, attach it to a motion event to have some camera scrolling, attach control of your own that give it whatever behavior you&#039;d like.
 In the above example, I want it to be a top view of the scene looking at the world origin.
-
 </p>
 <pre> //set its position
  camNode.setLocalTranslation&#40;new Vector3f&#40;0, 50, 0&#41;&#41;;
@@ -313,32 +295,30 @@ In the above example, I want it to be a top view of the scene looking at the wor
 
 <p>
 Then i just have to schedule its activation in the cinematic. I want it to get activated 3 seconds after the start of the cinematic so I just have to do 
-
 </p>
-<pre> cinematic.activateCamera&#40;3,???topView???&#41;;</pre>
+<pre> cinematic.activateCamera&#40;3,”topView”&#41;;</pre>
 
 </div>
-<!-- EDIT12 SECTION "Camera Management" [7426-8538] -->
-<h3><a>Customizations</a></h3>
+<!-- EDIT12 SECTION "Camera Management" [7396-8508] -->
+<h3>Customizations</h3>
 <div>
 
 <p>
-
 You can extend individual CinematicEvents. The <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/animation/SubtitleTrack.java"><param name="text" value="<html><u>SubtitleTrack.java example</u></html>"><param name="textColor" value="blue"></object> shows how to extend a GuiTrack to script subtitles. See how the subtitles are used in the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/animation/TestCinematic.java"><param name="text" value="<html><u>TestCinematic.java example</u></html>"><param name="textColor" value="blue"></object>.
 </p>
 
 <p>
-You can also create new CinematicEvent by extending <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/cinematic/events/AbstractCinematicEvent.java"><param name="text" value="<html><u>AbstractCinematicEvent</u></html>"><param name="textColor" value="blue"></object>. An AbstractCinematicEvent implements the CinematicEvent interface and provides duration, time, speed, etc??? management. Look at the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/animation/TestCinematic.java"><param name="text" value="<html><u>TestCinematic.java example</u></html>"><param name="textColor" value="blue"></object> is to use this for a custom fadeIn/fadeOut effect in combination with a com.jme3.post.filters.FadeFilter.
+You can also create new CinematicEvent by extending <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/cinematic/events/AbstractCinematicEvent.java"><param name="text" value="<html><u>AbstractCinematicEvent</u></html>"><param name="textColor" value="blue"></object>. An AbstractCinematicEvent implements the CinematicEvent interface and provides duration, time, speed, etc… management. Look at the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/animation/TestCinematic.java"><param name="text" value="<html><u>TestCinematic.java example</u></html>"><param name="textColor" value="blue"></object> is to use this for a custom fadeIn/fadeOut effect in combination with a com.jme3.post.filters.FadeFilter.
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Customizations" [8539-9584] -->
-<h2><a>Interacting with Cinematics</a></h2>
+<!-- EDIT13 SECTION "Customizations" [8509-9554] -->
+<h2>Interacting with Cinematics</h2>
 <div>
 
 </div>
-<!-- EDIT14 SECTION "Interacting with Cinematics" [9585-9625] -->
-<h3><a>CinematicEventListener</a></h3>
+<!-- EDIT14 SECTION "Interacting with Cinematics" [9555-9595] -->
+<h3>CinematicEventListener</h3>
 <div>
 <pre>CinematicEventListener cel = new CinematicEventListener&#40;&#41; &#123;
   public void onPlay&#40;CinematicEvent cinematic&#41; &#123;
@@ -359,15 +339,14 @@ You can also create new CinematicEvent by extending <object classid="java:org.ne
 cinematic.addListener&#40;cel&#41;;</pre>
 
 </div>
-<!-- EDIT15 SECTION "CinematicEventListener" [9626-10121] -->
-<h3><a>Physics Interaction</a></h3>
+<!-- EDIT15 SECTION "CinematicEventListener" [9596-10091] -->
+<h3>Physics Interaction</h3>
 <div>
 
 <p>
-
 Upcoming.
 </p>
 
 </div>
-<!-- EDIT16 SECTION "Physics Interaction" [10122-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:cinematics?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT16 SECTION "Physics Interaction" [10092-] -->
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:cinematics?do=export_xhtmlbody">view online version</a></em></p>

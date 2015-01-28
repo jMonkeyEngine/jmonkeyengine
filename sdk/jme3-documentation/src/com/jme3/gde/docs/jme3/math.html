@@ -1,9 +1,8 @@
 
-<h1><a>Introduction to Mathematical Functionality</a></h1>
+<h1>Introduction to Mathematical Functionality</h1>
 <div>
 
 <p>
-
 It&#039;s a fact of life, math is hard. Unfortunately, 3D graphics require a fair bit of knowledge about the subject. Fortunately, jME is able to hide the majority of the details away from the user. Vectors are the fundamental type in the 3D environment, and it is used extensively. Matrices are also a basic necessity of 3D for representing linear systems. <a href="/com/jme3/gde/docs/jme3/quaternion.html">Quaternion</a>s are perhaps the most powerful and complicated of the basic types and are used for rotation in jME. 
 </p>
 
@@ -17,16 +16,15 @@ To get a visual introduction to math in jME3 for the absolute beginner, check ou
 
 </div>
 <!-- EDIT1 SECTION "Introduction to Mathematical Functionality" [1-961] -->
-<h2><a>Coordinate System</a></h2>
+<h2>Coordinate System</h2>
 <div>
 
 </div>
 <!-- EDIT2 SECTION "Coordinate System" [962-992] -->
-<h3><a>Definition</a></h3>
+<h3>Definition</h3>
 <div>
 
 <p>
-
 A <em>coordinate system</em> consists of an origin (single point in space) and three coordinate axes that are each unit length and mutually perpendicular. The axes can be written as the column of a Matrix, R = [U1|U2|U3]. In fact, this is exactly how CameraNode works. The coordinate system defined by Camera is stored in a Matrix.
 </p>
 
@@ -44,11 +42,10 @@ The definition of a coordinate system is defined in jME by the properties sent t
 
 </div>
 <!-- EDIT3 SECTION "Definition" [993-1806] -->
-<h3><a>Homogenous coordinates</a></h3>
+<h3>Homogenous coordinates</h3>
 <div>
 
 <p>
-
 Homogenous coordinates have an additional <em>W</em> value tacked on to the end. The XYZ values are to be divided by W to give the true coordinates.
 </p>
 
@@ -63,60 +60,55 @@ It also simplifies some formulae, in particular anything that is related to rota
 
 <p>
 For application programmers, this means you can express infinitely long vectors that still have a direction - these tend to be used in lighting. Just use a W value of 0.0.
-
 </p>
 
 </div>
 <!-- EDIT4 SECTION "Homogenous coordinates" [1807-2767] -->
-<h2><a>Transformations</a></h2>
+<h2>Transformations</h2>
 <div>
 
 <p>
-
 Transformations define an operation that converts points from one coordinate system to another. This includes translation, rotation and scaling. In jME, local transforms are used to represent the positioning of objects relative to a parent coordinate system. While, world transforms are used to represent the positioning of objects in a global coordinate system.
 </p>
 
 </div>
 <!-- EDIT5 SECTION "Transformations" [2768-3160] -->
-<h2><a>Visibility Determination</a></h2>
+<h2>Visibility Determination</h2>
 <div>
 
 <p>
-
 Visibility Determination concerns itself with minimizing the amount of data that is sent to the graphics card for rendering. Specifically, we do not want to send data that will not be seen. Data not sent to the graphics card is said to be culled. The primary focus of this section is Frustum Culling based on the Camera&#039;s view frustum. In essence, this frustum creates six standard view planes. The BoundingVolume of an object is tested against the frustum planes to determine if it is contained in the frustum. If at any point the object&#039;s bounding is outside of the plane, it is tossed out and no longer processed for rendering. This also includes any children that it managed, allowing fast culling of large sections of the scene.
 </p>
 
 </div>
 <!-- EDIT6 SECTION "Visibility Determination" [3161-3933] -->
-<h1><a>Fundamental Types</a></h1>
+<h1>Fundamental Types</h1>
 <div>
 
 </div>
 <!-- EDIT7 SECTION "Fundamental Types" [3934-3966] -->
-<h2><a>ColorRGBA</a></h2>
+<h2>ColorRGBA</h2>
 <div>
 
 </div>
 <!-- EDIT8 SECTION "ColorRGBA" [3967-3987] -->
-<h3><a>Definition</a></h3>
+<h3>Definition</h3>
 <div>
 
 <p>
-
 ColorRGBA defines a color value in the jME library. The color value is made of three components, red, green and blue. A fourth component defines the alpha value (transparent) of the color. Every value is set between [0, 1]. Anything less than 0 will be clamped to 0 and anything greater than 1 will be clamped to 1.
 </p>
 
 <p>
-<strong>Note:</strong> If you would like to &quot;convert&quot; an ordinary RGB value (0-255) to the format used here (0-1), simply multiply it with: 1/255.
+<strong>Note:</strong> If you would like to “convert” an ordinary RGB value (0-255) to the format used here (0-1), simply multiply it with: 1/255.
 </p>
 
 </div>
 <!-- EDIT9 SECTION "Definition" [3988-4459] -->
-<h3><a>jME Class</a></h3>
+<h3>jME Class</h3>
 <div>
 
 <p>
-
 ColorRGBA defines a few static color values for ease of use. That is, rather than:
 </p>
 <pre>ColorRGBA red = new ColorRGBA&#40;1,0,0,1&#41;;
@@ -124,7 +116,6 @@ object.setSomeColor&#40;red&#41;;</pre>
 
 <p>
 you can simply say:
-
 </p>
 <pre>object.setSomeColor&#40;ColorRGBA.red&#41;</pre>
 
@@ -134,11 +125,10 @@ ColorRGBA will also handle interpolation between two colors. Given a second colo
 
 </div>
 <!-- EDIT10 SECTION "jME Class" [4460-4934] -->
-<h2><a>Matrix</a></h2>
+<h2>Matrix</h2>
 <div>
 
 <p>
-
 See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/doc/com/jme/math/Matrix3f.html"><param name="text" value="<html><u>Matrix3f Javadoc</u></html>"><param name="textColor" value="blue"></object><br/>
 
 and <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/doc/com/jme/math/Matrix4f.html"><param name="text" value="<html><u>Matrix4f Javadoc</u></html>"><param name="textColor" value="blue"></object>
@@ -146,11 +136,10 @@ and <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param
 
 </div>
 <!-- EDIT11 SECTION "Matrix" [4935-5125] -->
-<h3><a>Definition</a></h3>
+<h3>Definition</h3>
 <div>
 
 <p>
-
 A Matrix is typically used as a <em>linear transformation</em> to map vectors to vectors. That is: Y = MX where X is a Vector and M is a Matrix applying any or all transformations (scale, <a href="/com/jme3/gde/docs/jme3/rotate.html">rotate</a>, translate). 
 </p>
 
@@ -159,7 +148,7 @@ There are a few special matrices:
 </p>
 
 <p>
-<em>zero matrix</em> is the Matrix with all zero entries. 
+<em>zero matrix</em> is the Matrix with all zero entries.
 </p>
 <div><table>
 	<tr>
@@ -172,10 +161,9 @@ There are a few special matrices:
 		<td>0</td><td>0</td><td>0</td>
 	</tr>
 </table></div>
-<!-- EDIT13 TABLE [5445-5468] -->
+<!-- EDIT13 TABLE [5444-5468] -->
 <p>
-
-The <em>Identity Matrix</em> is the matrix with 1 on the diagonal entries and 0 for all other entries. 
+The <em>Identity Matrix</em> is the matrix with 1 on the diagonal entries and 0 for all other entries.
 </p>
 <div><table>
 	<tr>
@@ -188,14 +176,12 @@ The <em>Identity Matrix</em> is the matrix with 1 on the diagonal entries and 0 
 		<td>0</td><td>0</td><td>1</td>
 	</tr>
 </table></div>
-<!-- EDIT14 TABLE [5569-5592] -->
+<!-- EDIT14 TABLE [5568-5592] -->
 <p>
-
 A Matrix is <em>invertible</em> if there is a matrix <em>M<sup>-1</sup></em> where <em>MM<sup>-1</sup> = M<sup>-1</sup>M = I</em>. 
 </p>
 
 <p>
-
 The <em>transpose</em> of a matrix <em>M = [m<sub>ij</sub>]</em> is <em>M<sup>T</sup> = [m<sub>ji</sub>]</em>. This causes the rows of <em>M</em> to become the columns of <em>M<sup>T</sup></em>.
 </p>
 <div><table>
@@ -203,7 +189,7 @@ The <em>transpose</em> of a matrix <em>M = [m<sub>ij</sub>]</em> is <em>M<sup>T<
 		<td>1</td><td>1</td><td>1</td><td>    </td><td>1</td><td>2</td><td>3</td>
 	</tr>
 	<tr>
-		<td>2</td><td>2</td><td>2</td><td> ??? </td><td>1</td><td>2</td><td>3</td>
+		<td>2</td><td>2</td><td>2</td><td> ⇒ </td><td>1</td><td>2</td><td>3</td>
 	</tr>
 	<tr>
 		<td>3</td><td>3</td><td>3</td><td>    </td><td>1</td><td>2</td><td>3</td>
@@ -211,8 +197,7 @@ The <em>transpose</em> of a matrix <em>M = [m<sub>ij</sub>]</em> is <em>M<sup>T<
 </table></div>
 <!-- EDIT15 TABLE [5883-5949] -->
 <p>
-
-A Matrix is symmetric if <em>M</em> = <em>M<sup>T</sup></em>. 
+A Matrix is symmetric if <em>M</em> = <em>M<sup>T</sup></em>.
 </p>
 <div><table>
 	<tr>
@@ -225,44 +210,40 @@ A Matrix is symmetric if <em>M</em> = <em>M<sup>T</sup></em>.
 		<td>B</td><td>C</td><td>X</td>
 	</tr>
 </table></div>
-<!-- EDIT16 TABLE [6004-6029] -->
+<!-- EDIT16 TABLE [6003-6029] -->
 <p>
 Where X, A, B, and C equal numbers 
 </p>
 
 <p>
-jME includes two types of Matrix classes: Matrix3f and Matrix4f. Matrix3f is a 3x3 matrix and is the most commonly used (able to handle scaling and rotating), while Matrix4f is a 4x4 matrix that can also handle translation.
+jME includes two types of Matrix classes: Matrix3f and Matrix4f. Matrix3f is a 3&times;3 matrix and is the most commonly used (able to handle scaling and rotating), while Matrix4f is a 4&times;4 matrix that can also handle translation.
 </p>
 
 </div>
 <!-- EDIT12 SECTION "Definition" [5126-6291] -->
-<h3><a>Transformations</a></h3>
+<h3>Transformations</h3>
 <div>
 
 <p>
-
 Multiplying a vector with a Matrix allows the vector to be transformed. Either rotating, scaling or translating that vector.
 </p>
 
 </div>
 
-<h4><a>Scaling</a></h4>
+<h4>Scaling</h4>
 <div>
 
 <p>
-
 If a <em>diagonal Matrix</em>, defined by D = [d<sub>ij</sub>] and d<sub>ij</sub> = 0 for i != j, has all positive entries it is a <em>scaling matrix</em>. If d<sub>i</sub> is greater than 1 then the resulting vector will grow, while if d<sub>i</sub> is less than 1 it will shrink.
 </p>
 
 </div>
 
-<h4><a>Rotation</a></h4>
+<h4>Rotation</h4>
 <div>
 
 <p>
-
 A <em>rotation matrix</em> requires that the transpose and inverse are the same matrix (R<sup>-1</sup> = R<sup>T</sup>). The <em>rotation matrix</em> R can then be calculated as: R = I + (sin(angle)) S + (1 - cos(angle)S<sup>2</sup> where S is:
-
 </p>
 <div><table>
 	<tr>
@@ -278,13 +259,11 @@ A <em>rotation matrix</em> requires that the transpose and inverse are the same 
 <!-- EDIT18 TABLE [6983-7081] -->
 </div>
 
-<h4><a>Translation</a></h4>
+<h4>Translation</h4>
 <div>
 
 <p>
-
-Translation requires a 4x4 matrix, where the vector (x,y,z) is mapped to (x,y,z,1) for multiplication. The <em>Translation Matrix</em> is then defined as:
-
+Translation requires a 4&times;4 matrix, where the vector (x,y,z) is mapped to (x,y,z,1) for multiplication. The <em>Translation Matrix</em> is then defined as:
 </p>
 <div><table>
 	<tr>
@@ -296,18 +275,16 @@ Translation requires a 4x4 matrix, where the vector (x,y,z) is mapped to (x,y,z,
 </table></div>
 <!-- EDIT19 TABLE [7253-7276] -->
 <p>
-
-where M is the 3x3 matrix (containing any rotation/scale information), T is the translation vector and S<sup>T</sup> is the transpose Vector of T. 1 is just a constant.
+where M is the 3&times;3 matrix (containing any rotation/scale information), T is the translation vector and S<sup>T</sup> is the transpose Vector of T. 1 is just a constant.
 </p>
 
 </div>
 <!-- EDIT17 SECTION "Transformations" [6292-7448] -->
-<h3><a>jME Class</a></h3>
+<h3>jME Class</h3>
 <div>
 
 <p>
-
-Both Matrix3f and Matrix4f store their values as floats and are publicly available as (m00, m01, m02, ???, mNN) where N is either 2 or 3. 
+Both Matrix3f and Matrix4f store their values as floats and are publicly available as (m00, m01, m02, …, mNN) where N is either 2 or 3. 
 </p>
 
 <p>
@@ -316,11 +293,10 @@ Most methods are straight forward, and I will leave documentation to the Javadoc
 
 </div>
 <!-- EDIT20 SECTION "jME Class" [7449-7691] -->
-<h2><a>Vector</a></h2>
+<h2>Vector</h2>
 <div>
 
 <p>
-
 See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/doc/com/jme/math/Vector3f.html"><param name="text" value="<html><u>Vector3f Javadoc</u></html>"><param name="textColor" value="blue"></object><br/>
 
 and <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/doc/com/jme/math/Vector2f.html"><param name="text" value="<html><u>Vector2f Javadoc</u></html>"><param name="textColor" value="blue"></object>
@@ -328,16 +304,15 @@ and <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param
 
 </div>
 <!-- EDIT21 SECTION "Vector" [7692-7882] -->
-<h3><a>Definition</a></h3>
+<h3>Definition</h3>
 <div>
 
 <p>
-
 Vectors are used to represent a multitude of things in jME, points in space, vertices in a triangle mesh, normals, etc. These classes (Vector3f in particular) are probably the most used class in jME.
 </p>
 
 <p>
-A Vector is defined by an n-tuple of real numbers. <strong>V</strong> = &lt;V<sub>1</sub>, V<sub>2</sub>,???, V<sub>n</sub>&gt;.
+A Vector is defined by an n-tuple of real numbers. <strong>V</strong> = &lt;V<sub>1</sub>, V<sub>2</sub>,…, V<sub>n</sub>&gt;.
 </p>
 
 <p>
@@ -346,40 +321,37 @@ We have two Vectors (2f and 3f) meaning we have tuples of 2 float values or 3 fl
 
 </div>
 <!-- EDIT22 SECTION "Definition" [7883-8307] -->
-<h3><a>Operations</a></h3>
+<h3>Operations</h3>
 <div>
 
 </div>
 
-<h4><a>Multiplication by Scalar</a></h4>
+<h4>Multiplication by Scalar</h4>
 <div>
 
 <p>
-
-A Vector can be multiplied by a scalar value to produce a second Vector with the same proportions as the first. a<strong>V</strong> = <strong>V</strong>a = &lt;aV<sub>1</sub>, aV<sub>2</sub>,???,aV<sub>n</sub>&gt;
+A Vector can be multiplied by a scalar value to produce a second Vector with the same proportions as the first. a<strong>V</strong> = <strong>V</strong>a = &lt;aV<sub>1</sub>, aV<sub>2</sub>,…,aV<sub>n</sub>&gt;
 </p>
 
 </div>
 
-<h4><a>Addition and Subtraction</a></h4>
+<h4>Addition and Subtraction</h4>
 <div>
 
 <p>
-
 Adding or subtracting two Vectors occurs component-wise. That is the first component is added (subtracted) with the first component of the second Vector and so on.
 </p>
 
 <p>
-<strong>P</strong> + <strong>Q</strong> = &lt;P<sub>1</sub>+Q<sub>1</sub>, P<sub>2</sub>+Q<sub>2</sub>, ???, P<sub>n</sub>+Q<sub>n</sub>&gt;
+<strong>P</strong> + <strong>Q</strong> = &lt;P<sub>1</sub>+Q<sub>1</sub>, P<sub>2</sub>+Q<sub>2</sub>, …, P<sub>n</sub>+Q<sub>n</sub>&gt;
 </p>
 
 </div>
 
-<h4><a>Magnitude</a></h4>
+<h4>Magnitude</h4>
 <div>
 
 <p>
-
 The <em>magnitude</em> defines the length of a Vector. A Vector of magnitude 1 is <em>unit length</em>.
 </p>
 
@@ -393,11 +365,10 @@ A Vector can be <em>normalized</em> or made <em>unit length</em> by multiplying 
 
 </div>
 
-<h4><a>Dot Products</a></h4>
+<h4>Dot Products</h4>
 <div>
 
 <p>
-
 The dot product of two vectors is defined as: 
 <strong>P</strong> dot <strong>Q</strong> = P<sub>x</sub>Q<sub>x</sub> + P<sub>y</sub>Q<sub>y</sub> + P<sub>z</sub>Q<sub>z</sub>
 </p>
@@ -412,11 +383,10 @@ If the dot product is 0 then the two Vectors are <em>orthogonal</em> or 90 degre
 
 </div>
 
-<h4><a>Cross Product</a></h4>
+<h4>Cross Product</h4>
 <div>
 
 <p>
-
 The Cross Product of two Vectors returns a third Vector that is prependicular to the two Vectors. This is very useful for calculating surface normals.
 </p>
 
@@ -426,31 +396,28 @@ The Cross Product of two Vectors returns a third Vector that is prependicular to
 
 </div>
 
-<h4><a>jME Class</a></h4>
+<h4>jME Class</h4>
 <div>
 
 <p>
-
 Vector3f and Vector2f store their values (x, y, z) and (x, y) respectively as floats. Most methods are straight forward, and I will leave documentation to the Javadoc.
 </p>
 
 </div>
 <!-- EDIT23 SECTION "Operations" [8308-10243] -->
-<h2><a>Quaternion</a></h2>
+<h2>Quaternion</h2>
 <div>
 
 <p>
-
 See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/doc/com/jme/math/Quaternion.html"><param name="text" value="<html><u>Quaternion Javadoc</u></html>"><param name="textColor" value="blue"></object>
 </p>
 
 </div>
 <!-- EDIT24 SECTION "Quaternion" [10244-10356] -->
-<h3><a>Definition</a></h3>
+<h3>Definition</h3>
 <div>
 
 <p>
-
 Quaternions define a subset of a hypercomplex number system. Quaternions are defined by (i<sup>2</sup> = j<sup>2</sup> = k<sup>2</sup> = ijk = -1). jME makes use of Quaternions because they allow for compact representations of rotations, or correspondingly, orientations, in 3D space. With only four float values, we can represent an object&#039;s orientation, where a rotation matrix would require nine. They also require fewer arithmetic operations for concatenation. 
 </p>
 
@@ -510,17 +477,16 @@ These basic operations allow us to convert various rotation representations to Q
 
 </div>
 <!-- EDIT25 SECTION "Definition" [10357-12525] -->
-<h3><a>Angle Axis</a></h3>
+<h3>Angle Axis</h3>
 <div>
 
 <p>
-
 You might wish to represent your rotations as Angle Axis pairs. That is, you define a axis of rotation and the angle with which to <a href="/com/jme3/gde/docs/jme3/rotate.html">rotate</a> about this axis. <a href="/com/jme3/gde/docs/jme3/quaternion.html">Quaternion</a> defines a method <code>fromAngleAxis</code> (and <code>fromAngleNormalAxis</code>) to create a Quaternion from this pair. This is acutally used quite a bit in jME demos to continually rotate objects. You can also obtain a Angle Axis rotation from an existing Quaternion using <code>toAngleAxis</code>.
 </p>
 
 </div>
 
-<h4><a>Example - Rotate a Spatial Using fromAngleAxis</a></h4>
+<h4>Example - Rotate a Spatial Using fromAngleAxis</h4>
 <div>
 <pre>//rotate about the Y-Axis by approximately 1 pi
 Vector3f axis = Vector3f.UNIT_Y; 
@@ -530,17 +496,16 @@ s.getLocalRotation&#40;&#41;.fromAngleAxis&#40;angle, axis&#41;;</pre>
 
 </div>
 <!-- EDIT26 SECTION "Angle Axis" [12526-13291] -->
-<h3><a>Three Angles</a></h3>
+<h3>Three Angles</h3>
 <div>
 
 <p>
-
 You can also represent a rotation by defining three angles. The angles represent the rotation about the individual axes. Passing in a three-element array of floats defines the angles where the first element is X, second Y and third is Z. The method provided by Quaternion is <code>fromAngles</code> and can also fill an array using <code>toAngles</code>
 </p>
 
 </div>
 
-<h4><a>Example - Rotate a Spatial Using fromAngles</a></h4>
+<h4>Example - Rotate a Spatial Using fromAngles</h4>
 <div>
 <pre>//rotate 1 radian on the x, 3 on the y and 0 on z
 float&#91;&#93; angles = &#123;1, 3, 0&#125;;
@@ -548,17 +513,16 @@ s.getLocalRotation&#40;&#41;.fromAngles&#40;angles&#41;;</pre>
 
 </div>
 <!-- EDIT27 SECTION "Three Angles" [13292-13841] -->
-<h3><a>Three Axes</a></h3>
+<h3>Three Axes</h3>
 <div>
 
 <p>
-
 If you have three axes that define your rotation, where the axes define the left axis, up axis and directional axis respectively) you can make use of <code>fromAxes</code> to generate the Quaternion. It should be noted that this will generate a new <a href="/com/jme3/gde/docs/jme3/matrix.html">Matrix</a> object that is then garbage collected, thus, this method should not be used if it will be called many times. Again, <code>toAxes</code> will populate a Vector3f array.
 </p>
 
 </div>
 
-<h4><a>Example - Rotate a Spatial Using fromAxes</a></h4>
+<h4>Example - Rotate a Spatial Using fromAxes</h4>
 <div>
 <pre>//rotate a spatial to face up ~45 degrees
 Vector3f&#91;&#93; axes = new Vector3f&#91;3&#93;;
@@ -570,17 +534,16 @@ s.getLocalRotation&#40;&#41;.fromAxes&#40;axes&#41;;</pre>
 
 </div>
 <!-- EDIT28 SECTION "Three Axes" [13842-14588] -->
-<h3><a>Rotation Matrix</a></h3>
+<h3>Rotation Matrix</h3>
 <div>
 
 <p>
-
 Commonly you might find yourself with a <a href="/com/jme3/gde/docs/jme3/matrix.html">Matrix</a> defining a rotation. In fact, it&#039;s very common to contain a rotation in a <a href="/com/jme3/gde/docs/jme3/matrix.html">Matrix</a> create a Quaternion, rotate the Quaternion, and then get the <a href="/com/jme3/gde/docs/jme3/matrix.html">Matrix</a> back. Quaternion contains a <code>fromRotationMatrix</code> method that will create the appropriate Quaternion based on the give <a href="/com/jme3/gde/docs/jme3/matrix.html">Matrix</a>. The <code>toRotationMatrix</code> will populate a given <a href="/com/jme3/gde/docs/jme3/matrix.html">Matrix</a>.
 </p>
 
 </div>
 
-<h4><a>Example - Rotate a Spatial Using a Rotation Matrix</a></h4>
+<h4>Example - Rotate a Spatial Using a Rotation Matrix</h4>
 <div>
 <pre>Matrix3f mat = new Matrix3f&#40;&#41;;
 mat.setColumn&#40;0, new Vector3f&#40;1,0,0&#41;&#41;;
@@ -595,31 +558,39 @@ As you can see there are many ways to build a Quaternion. This allows you to wor
 
 </div>
 <!-- EDIT29 SECTION "Rotation Matrix" [14589-15493] -->
-<h3><a>Slerp</a></h3>
+<h3>Slerp</h3>
 <div>
 
 <p>
-
 One of the biggest advantages to using Quaternions is allowing interpolation between two rotations. That is, if you have an initial Quaternion representing the original orientation of an object, and you have a final Quaternion representing the orientation you want the object to face, you can do this very smoothly with slerp. Simply supply the time, where time is [0, 1] and 0 is the initial rotation and 1 is the final rotation.
 </p>
 
 </div>
 
-<h4><a>Example - Use Slerp to Rotate Between two Quaternions</a></h4>
+<h4>Example - Use Slerp to Rotate Between two Quaternions</h4>
 <div>
-<pre>Quaternion q1;
-Quaternion q2;
+<pre><span>/*
+You can interpolate rotations between two quaternions using spherical linear
+interpolation (slerp).
+*/</span>
+Quaternion Xroll45 = new Quaternion&#40;&#41;;
+Xroll45.fromAngleAxis&#40;45 * FastMath.DEG_TO_RAD, Vector3f.UNIT_X&#41;;
+//
+Quaternion Yroll45 = new Quaternion&#40;&#41;;
+Yroll45.fromAngleAxis&#40;45 * FastMath.DEG_TO_RAD, Vector3f.UNIT_Y&#41;;
 &nbsp;
-//the rotation half-way between these two
-Quaternion q3 = q1.slerp&#40;q2, 0.5f&#41;;</pre>
+//the rotation half - way between these two
+&nbsp;
+Quaternion halfBetweenXroll45Yroll45 = new Quaternion&#40;&#41;;
+halfBetweenXroll45Yroll45.slerp&#40;Xroll45, Yroll45, 0.5f&#41;;
+geom2.setLocalRotation&#40;halfBetweenXroll45Yroll45&#41;;</pre>
 
 </div>
-<!-- EDIT30 SECTION "Slerp" [15494-16131] -->
-<h3><a>Multiplication</a></h3>
+<!-- EDIT30 SECTION "Slerp" [15494-16552] -->
+<h3>Multiplication</h3>
 <div>
 
 <p>
-
 You can concatenate (add) rotations: This means you turn the object first around one axis, then around the other, in one step.
 </p>
 <pre>Quaternion myRotation = pitch90.mult&#40;roll45&#41;; /* pitch and roll */</pre>
@@ -632,42 +603,38 @@ Vector3f myVector = new Vector3f&#40;0,0,-1&#41;;
 myRotation.multLocal&#40;myVector&#41;;</pre>
 
 </div>
-<!-- EDIT31 SECTION "Multiplication" [16132-16606] -->
-<h1><a>Utility Classes</a></h1>
+<!-- EDIT31 SECTION "Multiplication" [16553-17027] -->
+<h1>Utility Classes</h1>
 <div>
 
 <p>
-
 Along with the base Math classes, jME provides a number of Math classes to make development easier (and, hopefully, faster). Most of these classes find uses throughout the jME system internally. They can also prove beneficial to users as well.
 </p>
 
 </div>
-<!-- EDIT32 SECTION "Utility Classes" [16607-16882] -->
-<h2><a>Fast Math</a></h2>
+<!-- EDIT32 SECTION "Utility Classes" [17028-17303] -->
+<h2>Fast Math</h2>
 <div>
 
 <p>
-
 See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/doc/com/jme/math/FastMath.html"><param name="text" value="<html><u>FastMath Javadoc</u></html>"><param name="textColor" value="blue"></object>
 </p>
 
 </div>
-<!-- EDIT33 SECTION "Fast Math" [16883-16989] -->
-<h3><a>Definition</a></h3>
+<!-- EDIT33 SECTION "Fast Math" [17304-17410] -->
+<h3>Definition</h3>
 <div>
 
 <p>
-
 FastMath provides a number of convience methods, and where possible faster versions (although this can be at the sake of accuracy). 
 </p>
 
 </div>
-<!-- EDIT34 SECTION "Definition" [16990-17143] -->
-<h3><a>Usage</a></h3>
+<!-- EDIT34 SECTION "Definition" [17411-17564] -->
+<h3>Usage</h3>
 <div>
 
 <p>
-
 FastMath provides a number of constants that can help with general math equations. One important attribute is <code>USE_FAST_TRIG</code> if you set this to true, a look-up table will be used for trig functions rather than Java&#039;s standard Math library. This provides significant speed increases, but might suffer from accuracy so care should be taken.
 </p>
 
@@ -677,7 +644,7 @@ There are five major categories of functions that FastMath provides.
 
 </div>
 
-<h4><a>Trig Functions</a></h4>
+<h4>Trig Functions</h4>
 <div>
 <ul>
 <li><div>cos and acos - provide <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/cosine"><param name="text" value="<html><u>cosine</u></html>"><param name="textColor" value="blue"></object> and <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/arc cosine"><param name="text" value="<html><u>arc cosine</u></html>"><param name="textColor" value="blue"></object> values (make use of the look-up table if <code>USE_FAST_TRIG</code> is true)</div>
@@ -690,7 +657,7 @@ There are five major categories of functions that FastMath provides.
 
 </div>
 
-<h4><a>Numerical Methods</a></h4>
+<h4>Numerical Methods</h4>
 <div>
 <ul>
 <li><div>ceil - provides the ceiling (smallest value that is greater than or equal to a given value and an integer)of a value.</div>
@@ -719,18 +686,18 @@ There are five major categories of functions that FastMath provides.
 
 </div>
 
-<h4><a>Linear Algebra</a></h4>
+<h4>Linear Algebra</h4>
 <div>
 <ul>
 <li><div>LERP - calculate the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Linear interpolation"><param name="text" value="<html><u>linear interpolation</u></html>"><param name="textColor" value="blue"></object> of two points given a time between 0 and 1.</div>
 </li>
-<li><div>determinant - calculates the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/determinant"><param name="text" value="<html><u>determinant</u></html>"><param name="textColor" value="blue"></object> of a 4x4 matrix.</div>
+<li><div>determinant - calculates the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/determinant"><param name="text" value="<html><u>determinant</u></html>"><param name="textColor" value="blue"></object> of a 4&times;4 matrix.</div>
 </li>
 </ul>
 
 </div>
 
-<h4><a>Geometric Functions</a></h4>
+<h4>Geometric Functions</h4>
 <div>
 <ul>
 <li><div>counterClockwise - given three points (defining a triangle), the winding is determined. 1 if counter-clockwise, -1 if clockwise and 0 if the points define a line.</div>
@@ -745,7 +712,7 @@ There are five major categories of functions that FastMath provides.
 
 </div>
 
-<h4><a>Misc.</a></h4>
+<h4>Misc.</h4>
 <div>
 <ul>
 <li><div>newRandomFloat - obtains a random float.</div>
@@ -753,32 +720,29 @@ There are five major categories of functions that FastMath provides.
 </ul>
 
 </div>
-<!-- EDIT35 SECTION "Usage" [17144-19565] -->
-<h2><a>Line</a></h2>
+<!-- EDIT35 SECTION "Usage" [17565-19986] -->
+<h2>Line</h2>
 <div>
 
 <p>
-
 See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/doc/com/jme/math/Line.html"><param name="text" value="<html><u>Line Javadoc</u></html>"><param name="textColor" value="blue"></object>
 </p>
 
 </div>
-<!-- EDIT36 SECTION "Line" [19566-19659] -->
-<h3><a>Definition</a></h3>
+<!-- EDIT36 SECTION "Line" [19987-20080] -->
+<h3>Definition</h3>
 <div>
 
 <p>
-
 A line is a straight one-dimensional figure having no thickness and extending infinitely in both directions. A line is defined by two points <strong>A</strong> and <strong>B</strong> with the line passing through both.
 </p>
 
 </div>
-<!-- EDIT37 SECTION "Definition" [19660-19873] -->
-<h3><a>Usage</a></h3>
+<!-- EDIT37 SECTION "Definition" [20081-20294] -->
+<h3>Usage</h3>
 <div>
 
 <p>
-
 jME defines a Line class that is defined by an origin and direction. In reality, this Line class is typically used as a <em>line segment</em>. Where the line is finite and contained between these two points.
 </p>
 
@@ -787,29 +751,27 @@ jME defines a Line class that is defined by an origin and direction. In reality,
 </p>
 
 </div>
-<!-- EDIT38 SECTION "Usage" [19874-20212] -->
-<h3><a>Example 1 - Find a Random Point on a Line</a></h3>
+<!-- EDIT38 SECTION "Usage" [20295-20633] -->
+<h3>Example 1 - Find a Random Point on a Line</h3>
 <div>
-<pre>Line l = new Line&#40;new Vector3f&#40;0,1,0&#41;, new Vector3f&#40;3,2,1&#41;&#41;;
+<pre>Line&#40;new Vector3f&#40;0,1,0&#41;, new Vector3f&#40;3,2,1&#41;&#41;;
 Vector3f randomPoint = l.random&#40;&#41;;</pre>
 
 </div>
-<!-- EDIT39 SECTION "Example 1 - Find a Random Point on a Line" [20213-20380] -->
-<h2><a>Plane</a></h2>
+<!-- EDIT39 SECTION "Example 1 - Find a Random Point on a Line" [20634-20801] -->
+<h2>Plane</h2>
 <div>
 
 <p>
-
 See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/doc/com/jme/math/Plane.html"><param name="text" value="<html><u>Plane Javadoc</u></html>"><param name="textColor" value="blue"></object>
 </p>
 
 </div>
-<!-- EDIT40 SECTION "Plane" [20381-20477] -->
-<h3><a>Definition</a></h3>
+<!-- EDIT40 SECTION "Plane" [20802-20898] -->
+<h3>Definition</h3>
 <div>
 
 <p>
-
 A plane is defined by the equation <strong>N</strong> . (<strong>X</strong> - <strong>X<sub>0</sub></strong>) = 0 where <strong>N</strong> = (a, b, c) and passes through the point <strong>X<sub>0</sub></strong> = (x<sub>0</sub>, y<sub>0</sub>, z<sub>0</sub>). <strong>X</strong> defines another point on this plane (x, y, z).
 </p>
 
@@ -838,12 +800,11 @@ This gives us the general equation: (ax + by + cz + d = 0)
 </p>
 
 </div>
-<!-- EDIT41 SECTION "Definition" [20478-21172] -->
-<h3><a>Usage in jME</a></h3>
+<!-- EDIT41 SECTION "Definition" [20899-21593] -->
+<h3>Usage in jME</h3>
 <div>
 
 <p>
-
 jME defines the Plane as ax + by + cz = -d. Therefore, during creation of the plane, the normal of the plane (a,b,c) and the constant d is supplied.
 </p>
 
@@ -853,7 +814,6 @@ The most common usage of Plane is <a href="/com/jme3/gde/docs/jme3/introduction_
 
 <p>
 Plane defines the constants:
-
 </p>
 <ul>
 <li><div><code>NEGATIVE_SIDE</code> - represents a point on the opposite side to which the normal points.</div>
@@ -865,13 +825,12 @@ Plane defines the constants:
 </ul>
 
 <p>
-
 These values are returned on a call to <code>whichSide</code>.
 </p>
 
 </div>
-<!-- EDIT42 SECTION "Usage in jME" [21173-21891] -->
-<h3><a>Example 1 - Determining if a Point is On the Positive Side of a Plane</a></h3>
+<!-- EDIT42 SECTION "Usage in jME" [21594-22312] -->
+<h3>Example 1 - Determining if a Point is On the Positive Side of a Plane</h3>
 <div>
 <pre>Vector3f normal = new Vector3f&#40;0,1,0&#41;;
 float constant = new Vector3f&#40;1,1,1&#41;.dot&#40;normal&#41;;
@@ -884,12 +843,11 @@ if&#40;side == Plane.NO_SIDE&#41; &#123;
 &#125;</pre>
 
 </div>
-<!-- EDIT43 SECTION "Example 1 - Determining if a Point is On the Positive Side of a Plane" [21892-22266] -->
-<h3><a>Example 2 - For the Layperson</a></h3>
+<!-- EDIT43 SECTION "Example 1 - Determining if a Point is On the Positive Side of a Plane" [22313-22687] -->
+<h3>Example 2 - For the Layperson</h3>
 <div>
 
 <p>
-
 Using the standard constructor Plane(Vector3f normal, float constant), here is what you need to do to create a plane, and then use it to check which side of the plane a point is on.
 </p>
 <pre>package test;
@@ -906,7 +864,7 @@ public class TestPlanes
 &#123;
   public static final Logger logger = Logger.getLogger&#40;LevelGraphBuilder.class.getName&#40;&#41;&#41;;
 &nbsp;
-  public static void main&#40;String&#91;&#93; args&#41; throws Exception
+  public static void main&#40;Exception
   &#123;
     //***Outline.
     //This example shows how to construct a plane representation using
@@ -956,22 +914,20 @@ public class TestPlanes
 &#125;</pre>
 
 </div>
-<!-- EDIT44 SECTION "Example 2 - For the Layperson" [22267-24904] -->
-<h2><a>Ray</a></h2>
+<!-- EDIT44 SECTION "Example 2 - For the Layperson" [22688-25325] -->
+<h2>Ray</h2>
 <div>
 
 <p>
-
 See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/doc/com/jme/math/Ray.html"><param name="text" value="<html><u>Ray Javadoc</u></html>"><param name="textColor" value="blue"></object>
 </p>
 
 </div>
-<!-- EDIT45 SECTION "Ray" [24905-24995] -->
-<h3><a>Definition</a></h3>
+<!-- EDIT45 SECTION "Ray" [25326-25416] -->
+<h3>Definition</h3>
 <div>
 
 <p>
-
 Ray defines a line that starts at a point <strong>A</strong> and continues in a direction through <strong>B</strong> into infinity. 
 </p>
 
@@ -980,84 +936,78 @@ This Ray is used extensively in jME for <a href="/com/jme3/gde/docs/jme3/picking
 </p>
 
 </div>
-<!-- EDIT46 SECTION "Definition" [24996-25362] -->
-<h3><a>Example 1 - Create a Ray That Represents Where the Camera is Looking</a></h3>
+<!-- EDIT46 SECTION "Definition" [25417-25783] -->
+<h3>Example 1 - Create a Ray That Represents Where the Camera is Looking</h3>
 <div>
 <pre>Ray ray = new Ray&#40;cam.getLocation&#40;&#41;, cam.getDirection&#40;&#41;&#41;;</pre>
 
 </div>
-<!-- EDIT47 SECTION "Example 1 - Create a Ray That Represents Where the Camera is Looking" [25363-25519] -->
-<h2><a>Rectangle</a></h2>
+<!-- EDIT47 SECTION "Example 1 - Create a Ray That Represents Where the Camera is Looking" [25784-25940] -->
+<h2>Rectangle</h2>
 <div>
 
 <p>
-
 See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/doc/com/jme/math/Rectangle.html"><param name="text" value="<html><u>Rectangle Javadoc</u></html>"><param name="textColor" value="blue"></object>
 </p>
 
 </div>
-<!-- EDIT48 SECTION "Rectangle" [25520-25628] -->
-<h3><a>Definition</a></h3>
+<!-- EDIT48 SECTION "Rectangle" [25941-26049] -->
+<h3>Definition</h3>
 <div>
 
 <p>
-
 Rectangle defines a finite plane within three dimensional space that is specified via three points (A, B, C). These three points define a triangle with the forth point defining the rectangle ( (B + C) - A ).
 </p>
 
 </div>
-<!-- EDIT49 SECTION "Definition" [25629-25857] -->
-<h3><a>jME Usage</a></h3>
+<!-- EDIT49 SECTION "Definition" [26050-26278] -->
+<h3>jME Usage</h3>
 <div>
 
 <p>
-
 Rectangle is a straight forward data class that simply maintains values that defines a Rectangle in 3D space. One interesting use is the <code>random</code> method that will create a random point on the Rectangle. The <a href="/com/jme3/gde/docs/jme3/particle_system.html">Particle System</a> makes use of this to define an area that generates <a href="/com/jme3/gde/docs/jme3/particles.html">Particles</a>.
 </p>
 
 </div>
-<!-- EDIT50 SECTION "jME Usage" [25858-26172] -->
-<h3><a>Example 1 : Define a Rectangle and Get a Point From It</a></h3>
+<!-- EDIT50 SECTION "jME Usage" [26279-26593] -->
+<h3>Example 1 : Define a Rectangle and Get a Point From It</h3>
 <div>
 <pre>Vector3f v1 = new Vector3f&#40;1,0,0&#41;;
 Vector3f v2 = new Vector3f&#40;1,1,0&#41;;
 Vector3f v3 = new Vector3f&#40;0,1,0&#41;;
-Rectangle r = new Rectangle&#40;v1, v2, v3&#41;;
+Rectangle&#40;v1, v2, v3&#41;;
 Vector3f point = r.random&#40;&#41;;</pre>
 
 </div>
-<!-- EDIT51 SECTION "Example 1 : Define a Rectangle and Get a Point From It" [26173-26432] -->
-<h2><a>Triangle</a></h2>
+<!-- EDIT51 SECTION "Example 1 : Define a Rectangle and Get a Point From It" [26594-26853] -->
+<h2>Triangle</h2>
 <div>
 
 <p>
-
 See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/doc/com/jme/math/Triangle.html"><param name="text" value="<html><u>Triangle Javadoc</u></html>"><param name="textColor" value="blue"></object>
 </p>
 
 </div>
-<!-- EDIT52 SECTION "Triangle" [26433-26538] -->
-<h3><a>Definition</a></h3>
+<!-- EDIT52 SECTION "Triangle" [26854-26959] -->
+<h3>Definition</h3>
 <div>
 
 <p>
-
 A triangle is a 3-sided polygon. Every triangle has three sides and three angles, some of which may be the same. If the triangle is a right triangle (one angle being 90 degrees), the side opposite the 90 degree angle is the hypotenuse, while the other two sides are the legs. All triangles are <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Convex_polygon"><param name="text" value="<html><u>convex</u></html>"><param name="textColor" value="blue"></object> and <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://mathworld.wolfram.com/BicentricPolygon.html"><param name="text" value="<html><u>bicentric</u></html>"><param name="textColor" value="blue"></object>.
 </p>
 
 </div>
-<!-- EDIT53 SECTION "Definition" [26539-26952] -->
-<h3><a>Usage</a></h3>
+<!-- EDIT53 SECTION "Definition" [26960-27373] -->
+<h3>Usage</h3>
 <div>
 
 <p>
-
 jME&#039;s Triangle class is a simple data class. It contains three <a href="/com/jme3/gde/docs/jme3/vector.html">Vector3f</a> objects that represent the three points of the triangle. These can be retrieved via the <code>get</code> method. The <code>get</code> method, obtains the point based on the index provided. Similarly, the values can be set via the <code>set</code> method.
 </p>
 
 </div>
-<!-- EDIT54 SECTION "Usage" [26953-27279] -->
-<h3><a>Example 1 - Creating a Triangle</a></h3>
+<!-- EDIT54 SECTION "Usage" [27374-27700] -->
+<h3>Example 1 - Creating a Triangle</h3>
 <div>
 <pre>//the three points that make up the triangle
 Vector3f p1 = new Vector3f&#40;0,1,0&#41;;
@@ -1066,19 +1016,17 @@ Vector3f p3 = new Vector3f&#40;0,1,1&#41;;
 Triangle t = new Triangle&#40;p1, p2, p3&#41;;</pre>
 
 </div>
-<!-- EDIT55 SECTION "Example 1 - Creating a Triangle" [27280-27530] -->
-<h1><a>Tips and Tricks</a></h1>
+<!-- EDIT55 SECTION "Example 1 - Creating a Triangle" [27701-27951] -->
+<h1>Tips and Tricks</h1>
 <div>
 
 </div>
-<!-- EDIT56 SECTION "Tips and Tricks" [27531-27561] -->
-<h2><a>How do I get height/width of a spatial?</a></h2>
+<!-- EDIT56 SECTION "Tips and Tricks" [27952-27982] -->
+<h2>How do I get height/width of a spatial?</h2>
 <div>
 
 <p>
-
 Cast the spatial to com.jme3.bounding.BoundingBox to be able to use getExtent().
-
 </p>
 <pre>Vector3f extent = &#40;&#40;BoundingBox&#41; spatial.getWorldBound&#40;&#41;&#41;.getExtent&#40;new Vector3f&#40;&#41;&#41;;
 float x = &#40; &#40;BoundingBox&#41;spatial.getWorldBound&#40;&#41;&#41;.getXExtent&#40;&#41;;
@@ -1086,14 +1034,14 @@ float y = &#40; &#40;BoundingBox&#41;spatial.getWorldBound&#40;&#41;&#41;.getYEx
 float z = &#40; &#40;BoundingBox&#41;spatial.getWorldBound&#40;&#41;&#41;.getZExtent&#40;&#41;;</pre>
 
 </div>
-<!-- EDIT57 SECTION "How do I get height/width of a spatial?" [27562-27992] -->
-<h2><a>How do I position the center of a Geomtry?</a></h2>
+<!-- EDIT57 SECTION "How do I get height/width of a spatial?" [27983-28413] -->
+<h2>How do I position the center of a Geomtry?</h2>
 <div>
 <pre>geo.center&#40;&#41;.move&#40;pos&#41;;</pre>
 
 </div>
-<!-- EDIT58 SECTION "How do I position the center of a Geomtry?" [27993-28092] -->
-<h3><a>See Also</a></h3>
+<!-- EDIT58 SECTION "How do I position the center of a Geomtry?" [28414-28513] -->
+<h3>See Also</h3>
 <div>
 <ul>
 <li><div> <a href="/com/jme3/gde/docs/jme3/rotate.html">Rotate</a> </div>
@@ -1103,5 +1051,5 @@ float z = &#40; &#40;BoundingBox&#41;spatial.getWorldBound&#40;&#41;&#41;.getZEx
 </ul>
 
 </div>
-<!-- EDIT59 SECTION "See Also" [28093-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:math?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT59 SECTION "See Also" [28514-] -->
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:math?do=export_xhtmlbody">view online version</a></em></p>

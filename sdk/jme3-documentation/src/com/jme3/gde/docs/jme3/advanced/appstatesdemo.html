@@ -1,19 +1,17 @@
 
-<h1><a>Simple AppStates Demo</a></h1>
+<h1>Simple AppStates Demo</h1>
 <div>
 
 <p>
-
 <p><div>
 THIS DEMO IS OUT OF DATE AND NEEDS CORRECTING
 
 </div></p>
-
 </p>
 
 </div>
 <!-- EDIT1 SECTION "Simple AppStates Demo" [1-108] -->
-<h1><a>THIS DEMO IS OUT OF DATE AND NEEDS CORRECTING FOR NOW PLEASE SEE</a></h1>
+<h1>THIS DEMO IS OUT OF DATE AND NEEDS CORRECTING FOR NOW PLEASE SEE</h1>
 <div>
 
 <p>
@@ -21,7 +19,7 @@ THIS DEMO IS OUT OF DATE AND NEEDS CORRECTING
 </p>
 
 <p>
-Note: this tutorial needs to be fixed and is currently not correct.  One should almost never override stateDetached and stateAttached??? and should certainly never do anything scene related in them.
+Note: this tutorial needs to be fixed and is currently not correct.  One should almost never override stateDetached and stateAttached… and should certainly never do anything scene related in them.
 </p>
 
 <p>
@@ -30,12 +28,11 @@ This demo is a simple example of how you use AppStates to toggle between a Start
 
 <p>
 There are four files, Main.java, GameRunningState.java, StartScreenState.java, SettingsScreenState.java. 
-
 </p>
 
 </div>
 <!-- EDIT2 SECTION "THIS DEMO IS OUT OF DATE AND NEEDS CORRECTING FOR NOW PLEASE SEE" [109-793] -->
-<h2><a>Main.java</a></h2>
+<h2>Main.java</h2>
 <div>
 <pre>package chapter04.appstatedemo;
 &nbsp;
@@ -94,7 +91,7 @@ public class Main extends SimpleApplication &#123;
     inputManager.addListener&#40;actionListener, new String&#91;&#93;&#123;&quot;Toggle Settings&quot;&#125;&#41;;
   &#125;
 &nbsp;
-  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+  private ActionListener&#40;&#41; &#123;
     public void onAction&#40;String name, boolean isPressed, float tpf&#41; &#123;
       System.out.println&#40;&quot;key&quot; + name&#41;;
       if &#40;name.equals&#40;&quot;Game Pause Unpause&quot;&#41; &amp;&amp; !isPressed&#41; &#123;
@@ -131,7 +128,7 @@ public class Main extends SimpleApplication &#123;
 
 </div>
 <!-- EDIT3 SECTION "Main.java" [794-4202] -->
-<h2><a>GameRunningState.java</a></h2>
+<h2>GameRunningState.java</h2>
 <div>
 <pre>package chapter04.appstatedemo;
 &nbsp;
@@ -178,7 +175,7 @@ public class GameRunningState extends AbstractAppState &#123;
     /** Load this scene */
     viewPort.setBackgroundColor&#40;backgroundColor&#41;;
 &nbsp;
-    Box mesh = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
+    Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
     Geometry geom = new Geometry&#40;&quot;Box&quot;, mesh&#41;;
     Material mat = new Material&#40;assetManager,
             &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -223,7 +220,7 @@ public class GameRunningState extends AbstractAppState &#123;
 
 </div>
 <!-- EDIT4 SECTION "GameRunningState.java" [4203-7170] -->
-<h2><a>SettingsScreenState.java</a></h2>
+<h2>SettingsScreenState.java</h2>
 <div>
 <pre>package chapter04.appstatedemo;
 &nbsp;
@@ -270,7 +267,7 @@ public class SettingsScreenState extends AbstractAppState &#123;
     /** Load this scene */
     viewPort.setBackgroundColor&#40;backgroundColor&#41;;
 &nbsp;
-    Box mesh = new Box&#40;new Vector3f&#40;-1, -1, 0&#41;, .5f, .5f, .5f&#41;;
+    Box&#40;new Vector3f&#40;-1, -1, 0&#41;, .5f, .5f, .5f&#41;;
     Geometry geom = new Geometry&#40;&quot;Box&quot;, mesh&#41;;
     Material mat = new Material&#40;assetManager,
             &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -312,7 +309,7 @@ public class SettingsScreenState extends AbstractAppState &#123;
 
 </div>
 <!-- EDIT5 SECTION "SettingsScreenState.java" [7171-9985] -->
-<h2><a>StartScreenState.java</a></h2>
+<h2>StartScreenState.java</h2>
 <div>
 <pre>package chapter04.appstatedemo;
 &nbsp;
@@ -359,7 +356,7 @@ public StartScreenState&#40;SimpleApplication app&#41;&#123;
     /** Init this scene */
     viewPort.setBackgroundColor&#40;backgroundColor&#41;;
 &nbsp;
-    Box mesh = new Box&#40;new Vector3f&#40;-1,1,0&#41;, .5f,.5f,.5f&#41;;
+    Box&#40;new Vector3f&#40;-1,1,0&#41;, .5f,.5f,.5f&#41;;
     Geometry geom = new Geometry&#40;&quot;Box&quot;, mesh&#41;;
     Material mat = new Material&#40;assetManager,
             &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -401,4 +398,4 @@ public StartScreenState&#40;SimpleApplication app&#41;&#123;
 
 </div>
 <!-- EDIT6 SECTION "StartScreenState.java" [9986-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:appstatesdemo?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:appstatesdemo?do=export_xhtmlbody">view online version</a></em></p>

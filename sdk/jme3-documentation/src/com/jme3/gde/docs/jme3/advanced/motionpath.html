@@ -1,9 +1,8 @@
 
-<h1><a>MotionPath</a></h1>
+<h1>MotionPath</h1>
 <div>
 
 <p>
-
 A MotionPath describes the motion of a spatial between waypoints. The path can be linear or rounded. You use MotionPaths to remote-control a spatial, or the camera.
 </p>
 
@@ -13,7 +12,7 @@ A MotionPath describes the motion of a spatial between waypoints. The path can b
 
 </div>
 <!-- EDIT1 SECTION "MotionPath" [1-365] -->
-<h2><a>Sample Code</a></h2>
+<h2>Sample Code</h2>
 <div>
 <ul>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/animation/TestMotionPath.java"><param name="text" value="<html><u>TestMotionPath.java</u></html>"><param name="textColor" value="blue"></object></div>
@@ -24,11 +23,10 @@ A MotionPath describes the motion of a spatial between waypoints. The path can b
 
 </div>
 <!-- EDIT2 SECTION "Sample Code" [366-689] -->
-<h2><a>What Are Way Points?</a></h2>
+<h2>What Are Way Points?</h2>
 <div>
 
 <p>
-
 When shooting a movie scene, the director tells actors where to walk, for example, by drawing a series of small crosses on the floor. Cameramen often mount the camera on rails (so called dolly track) so they can follow along complex scenes more easily. 
 </p>
 
@@ -48,13 +46,11 @@ The final shape of the path is computed using a linear interpolation or a <objec
 
 </div>
 <!-- EDIT3 SECTION "What Are Way Points?" [690-1498] -->
-<h2><a>Create a MotionPath</a></h2>
+<h2>Create a MotionPath</h2>
 <div>
 
 <p>
-
 Create a Motionpath object and add way points to it.
-
 </p>
 <pre>MotionPath path = new MotionPath&#40;&#41;;
 path.addWayPoint&#40;new Vector3f&#40;10, 3, 0&#41;&#41;;
@@ -63,12 +59,13 @@ path.addWayPoint&#40;new Vector3f&#40;8, -2, 1&#41;&#41;;
 
 <p>
 You can configure the path as follows.
-
 </p>
 <div><table>
+	<thead>
 	<tr>
 		<th> MotionPath Method </th><th> Usage </th>
 	</tr>
+	</thead>
 	<tr>
 		<td>path.setCycle(true)</td><td>Sets whether the motion along this path should be closed (true) or open-ended (false). </td>
 	</tr>
@@ -95,11 +92,10 @@ removeWayPoint(index)</td><td>Removes a way point from this path. You can specif
 <!-- EDIT5 TABLE [1769-2660] -->
 </div>
 <!-- EDIT4 SECTION "Create a MotionPath" [1499-2661] -->
-<h2><a>MotionPathListener</a></h2>
+<h2>MotionPathListener</h2>
 <div>
 
 <p>
-
 You can hook interactions into a playing MotionPath. Register a MotionPathListener to the MotionPath to track whether way points have been reached, and then trigger a custom action. The onWayPointReach() method of the interface gives you access to the MotionTrack object <code>control</code>, and an integer value representing the current wayPointIndex.
 </p>
 
@@ -118,4 +114,4 @@ In this example, you just print the status at every way point. In a game you cou
 
 </div>
 <!-- EDIT6 SECTION "MotionPathListener" [2662-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:motionpath?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:motionpath?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,5 +1,5 @@
 
-<h1><a>jMonkeyEngine 3 Tutorial (11) - Hello Audio</a></h1>
+<h1>jMonkeyEngine 3 Tutorial (11) - Hello Audio</h1>
 <div>
 
 <p>
@@ -11,14 +11,13 @@ This tutorial explains how to add 3D sound to a game, and how to make sounds pla
 </p>
 
 <p>
-<p><div>To use the example assets in a new jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> project, right-click your project, select &quot;Properties&quot;, go to &quot;Libraries&quot;, press &quot;Add Library&quot; and add the &quot;jme3-test-data&quot; library.
+<p><div>To use the example assets in a new jMonkeyEngine SDK project, right-click your project, select “Properties”, go to “Libraries”, press “Add Library” and add the “jme3-test-data” library.
 </div></p>
-
 </p>
 
 </div>
 <!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (11) - Hello Audio" [1-683] -->
-<h2><a>Sample Code</a></h2>
+<h2>Sample Code</h2>
 <div>
 <pre>package jme3test.helloworld;
 &nbsp;
@@ -49,7 +48,7 @@ public class HelloAudio extends SimpleApplication &#123;
     flyCam.setMoveSpeed&#40;40&#41;;
 &nbsp;
     /** just a blue box floating in space */
-    Box box1 = new Box&#40;1, 1, 1&#41;;
+    Box&#40;1, 1, 1&#41;;
     player = new Geometry&#40;&quot;Player&quot;, box1&#41;;
     Material mat1 = new Material&#40;assetManager,&quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
     mat1.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;
@@ -86,7 +85,7 @@ public class HelloAudio extends SimpleApplication &#123;
   &#125;
 &nbsp;
   /** Defining the &quot;Shoot&quot; action: Play a gun sound. */
-  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+  private ActionListener&#40;&#41; &#123;
     @Override
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
       if &#40;name.equals&#40;&quot;Shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
@@ -110,12 +109,11 @@ When you run the sample, you should see a blue cube. You should hear a nature-li
 
 </div>
 <!-- EDIT2 SECTION "Sample Code" [684-3501] -->
-<h2><a>Understanding the Code Sample</a></h2>
+<h2>Understanding the Code Sample</h2>
 <div>
 
 <p>
-
-In the <code>initSimpleApp()</code> method, you create a simple blue cube geometry called <code>player</code> and attach it to the scene ??? this is just arbitrary sample content, so you see something when running the audio sample.
+In the <code>initSimpleApp()</code> method, you create a simple blue cube geometry called <code>player</code> and attach it to the scene – this is just arbitrary sample content, so you see something when running the audio sample.
 </p>
 
 <p>
@@ -124,11 +122,10 @@ Let&#039;s have a closer look at <code>initAudio()</code> to learn how to use <c
 
 </div>
 <!-- EDIT3 SECTION "Understanding the Code Sample" [3502-3839] -->
-<h2><a>AudioNodes</a></h2>
+<h2>AudioNodes</h2>
 <div>
 
 <p>
-
 Adding sound to your game is quite simple: Save your audio files into your <code>assets/Sound</code> directory. JME3 supports both Ogg Vorbis (.ogg) and Wave (.wav) file formats.
 </p>
 
@@ -158,7 +155,6 @@ You want the gunshot sound to play <em>once</em> (you don&#039;t want it to loop
     rootNode.attachChild&#40;audio_gun&#41;;</pre>
 
 <p>
-
 <p><div>Note that setPositional(false) is pretty important when you use stereo sounds. Positional sounds must always be mono audio files, otherwise the engine will remind it to you with a crash.
 </div></p>
 </p>
@@ -191,11 +187,10 @@ Here you make audio_nature a positional sound that comes from a certain place. F
 
 </div>
 <!-- EDIT4 SECTION "AudioNodes" [3840-7174] -->
-<h2><a>Triggering Sound</a></h2>
+<h2>Triggering Sound</h2>
 <div>
 
 <p>
-
 Let&#039;s have a closer look at <code>initKeys()</code>: As you learned in previous tutorials, you use the <code>inputManager</code> to respond to user input. Here you add a mapping for a left mouse button click, and name this new action <code>Shoot</code>.
 </p>
 <pre>  /** Declaring &quot;Shoot&quot; action, mapping it to a trigger (mouse left click). */
@@ -208,7 +203,7 @@ Let&#039;s have a closer look at <code>initKeys()</code>: As you learned in prev
 Setting up the ActionListener should also be familiar from previous tutorials. You declare that, when the trigger (the mouse button) is pressed and released, you want to play a gun sound.
 </p>
 <pre>  /** Defining the &quot;Shoot&quot; action: Play a gun sound. */
-  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+  private ActionListener&#40;&#41; &#123;
     @Override
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
       if &#40;name.equals&#40;&quot;Shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
@@ -219,16 +214,14 @@ Setting up the ActionListener should also be familiar from previous tutorials. Y
 
 <p>
 Since you want to be able to shoot fast repeatedly, so you do not want to wait for the previous gunshot sound to end before the next one can start. This is why you play this sound using the <code>playInstance()</code> method. This means that every click starts a new instance of the sound, so two instances can overlap. You set this sound not to loop, so each instance only plays once. As you would expect it of a gunshot.
-
 </p>
 
 </div>
 <!-- EDIT5 SECTION "Triggering Sound" [7175-8664] -->
-<h2><a>Ambient or Situational?</a></h2>
+<h2>Ambient or Situational?</h2>
 <div>
 
 <p>
-
 The two sounds are two different use cases:
 </p>
 <ul>
@@ -247,7 +240,6 @@ The two sounds are two different use cases:
 </ul>
 
 <p>
-
 Now every sound knows whether it should loop or not. 
 </p>
 
@@ -259,7 +251,7 @@ Apart from the looping boolean, another difference is where <code>play().playIns
 </div>
 </li>
 <li><div> The gunshot sound, however, is triggered situationally, once, only as part of the <code>Shoot</code> input action that you defined in the ActionListener.<pre>  /** Defining the &quot;Shoot&quot; action: Play a gun sound. */
-  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+  private ActionListener&#40;&#41; &#123;
     @Override
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
       if &#40;name.equals&#40;&quot;Shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
@@ -273,13 +265,11 @@ Apart from the looping boolean, another difference is where <code>play().playIns
 
 </div>
 <!-- EDIT6 SECTION "Ambient or Situational?" [8665-9895] -->
-<h2><a>Buffered or Streaming?</a></h2>
+<h2>Buffered or Streaming?</h2>
 <div>
 
 <p>
-
 The Boolean in the AudioNode constructor defines whether the audio is buffered (false) or streamed (true). For example:
-
 </p>
 <pre>audio_gunshot = new AudioNode&#40;assetManager, &quot;Sound/Effects/Gun.wav&quot;, false&#41;; // buffered
 ...
@@ -291,17 +281,18 @@ Typically, you stream long sounds, and buffer short sounds.
 
 <p>
 Note that streamed sounds can not loop (i.e. setLooping will not work as you expect). Check the getStatus on the node and if it has stopped recreate the node.
-
 </p>
 
 </div>
 <!-- EDIT7 SECTION "Buffered or Streaming?" [9896-10478] -->
-<h2><a>Play() or PlayInstance()?</a></h2>
+<h2>Play() or PlayInstance()?</h2>
 <div>
 <div><table>
+	<thead>
 	<tr>
 		<th>audio.play()</th><th>audio.playInstance()</th>
 	</tr>
+	</thead>
 	<tr>
 		<td>Plays buffered sounds.</td><td>Plays buffered sounds. </td>
 	</tr>
@@ -315,11 +306,10 @@ Note that streamed sounds can not loop (i.e. setLooping will not work as you exp
 <!-- EDIT9 TABLE [10518-10762] -->
 </div>
 <!-- EDIT8 SECTION "Play() or PlayInstance()?" [10479-10763] -->
-<h2><a>Your Ear in the Scene</a></h2>
+<h2>Your Ear in the Scene</h2>
 <div>
 
 <p>
-
 To create a 3D audio effect, JME3 needs to know the position of the sound source, and the position of the ears of the player. The ears are represented by an 3D Audio Listener object. The <code>listener</code> object is a default object in a SimpleApplication.
 </p>
 
@@ -337,11 +327,10 @@ If you don&#039;t do that, the results of 3D audio will be quite random.
 
 </div>
 <!-- EDIT10 SECTION "Your Ear in the Scene" [10764-11466] -->
-<h2><a>Global, Directional, Positional?</a></h2>
+<h2>Global, Directional, Positional?</h2>
 <div>
 
 <p>
-
 In this example, you defined the nature sound as coming from a certain position, but not the gunshot sound. This means your gunshot is global and can be heard everywhere with the same volume. JME3 also supports directional sounds which you can only hear from a certain direction. 
 </p>
 
@@ -353,50 +342,44 @@ It makes equal sense to make the gunshot positional, and let the ambient sound c
 </li>
 <li><div> Similarly, you may have game levels where you want one background sound to play globally. In this case, you would make the AudioNode neither positional nor directional (set both to false).</div>
 </li>
-<li><div> If you want sound to be &quot;absorbed by the walls&quot; and only broadcast in one direction, you would make this AudioNode directional. This tutorial does not discuss directional sounds, you can read about <a href="/com/jme3/gde/docs/jme3/advanced/audio.html">Advanced Audio</a> here.</div>
+<li><div> If you want sound to be “absorbed by the walls” and only broadcast in one direction, you would make this AudioNode directional. This tutorial does not discuss directional sounds, you can read about <a href="/com/jme3/gde/docs/jme3/advanced/audio.html">Advanced Audio</a> here.</div>
 </li>
 </ul>
 
 <p>
-
 In short, you must choose in every situation whether it makes sense for a sound to be global, directional, or positional.
 </p>
 
 </div>
 <!-- EDIT11 SECTION "Global, Directional, Positional?" [11467-12823] -->
-<h2><a>Conclusion</a></h2>
+<h2>Conclusion</h2>
 <div>
 
 <p>
-
 You now know how to add the two most common types of sound to your game: Global sounds and positional sounds. You can play sounds in two ways: Either continuously in a loop, or situationally just once. You know the difference between buffering short sounds and streaming long sounds. You know the difference between playing overlapping sound instances, and playing unique sounds that cannot overlap with themselves. You also learned to use sound files that are in either .ogg or .wav format.
 </p>
 
 <p>
-<strong>Tip:</strong> JME&#039;s Audio implementation also supports more advanced effects such as reverberation and Doppler effect. Use these &quot;pro&quot; features to make audio sound different depending on whether it&#039;s in the hallway, in a cave, outdoors, or in a carpeted room. Find out more about environmental effects from the sample code included in the jme3test directory and from the advanced <a href="/com/jme3/gde/docs/jme3/advanced/audio.html">Audio</a> docs.
+<strong>Tip:</strong> JME&#039;s Audio implementation also supports more advanced effects such as reverberation and Doppler effect. Use these “pro” features to make audio sound different depending on whether it&#039;s in the hallway, in a cave, outdoors, or in a carpeted room. Find out more about environmental effects from the sample code included in the jme3test directory and from the advanced <a href="/com/jme3/gde/docs/jme3/advanced/audio.html">Audio</a> docs.
 </p>
 
 <p>
 Want some fire and explosions to go with your sounds? Read on to learn more about <a href="/com/jme3/gde/docs/jme3/beginner/hello_effects.html">effects</a>.
-
 </p>
 <hr />
 
 <p>
-
 See also:
 </p>
 <ul>
 <li><div>  <a href="/com/jme3/gde/docs/jme3/advanced/audio.html">Audio</a></div>
 </li>
 </ul>
-<div><span>
-	<a href="/wiki/doku.php/tag:sound?do=showtag&amp;tag=tag%3Asound">sound</a>,
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
-	<a href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/jme3:beginner/tag_sound_documentation_beginner_intro">tag_sound_documentation_beginner_intro</a>
+</p>
 
 </div>
 <!-- EDIT12 SECTION "Conclusion" [12824-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_audio?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:beginner:hello_audio?do=export_xhtmlbody">view online version</a></em></p>

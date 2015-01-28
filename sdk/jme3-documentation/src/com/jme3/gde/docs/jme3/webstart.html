@@ -1,19 +1,17 @@
 
-<h1><a>WebStart (JNLP) Deployment</a></h1>
+<h1>WebStart (JNLP) Deployment</h1>
 <div>
 
 <p>
-
 When you <a href="/com/jme3/gde/docs/sdk/application_deployment.html">use the jMonkeyEngine SDK to deploy your application</a>, you can configure the project to build files required for WebStart automatically. If you use another IDE, or work on the command line, use the following tips to set up WebStart correctly:
 </p>
 
 </div>
 <!-- EDIT1 SECTION "WebStart (JNLP) Deployment" [1-326] -->
-<h2><a>Problem Statement</a></h2>
+<h2>Problem Statement</h2>
 <div>
 
 <p>
-
 <strong>Problem:</strong>
 </p>
 
@@ -31,27 +29,25 @@ You can instruct WebStart to load the native libraries itself using the JNLP fil
 
 </div>
 <!-- EDIT2 SECTION "Problem Statement" [327-649] -->
-<h2><a>Simple way</a></h2>
+<h2>Simple way</h2>
 <div>
 
 <p>
-
 You can import the LWJGL JNLP extension directly into your extension, however be aware that your application will break whenever they update their jars. Simply add this line to your JNLP:
 </p>
 <pre><span>&lt;extension name=&quot;lwjgl&quot; href=&quot;http://lwjgl.org/webstart/2.7.1/extension.jnlp&quot; /&gt;</span></pre>
 
 </div>
 <!-- EDIT3 SECTION "Simple way" [650-963] -->
-<h2><a>Reliable way</a></h2>
+<h2>Reliable way</h2>
 <div>
 
 </div>
 <!-- EDIT4 SECTION "Reliable way" [964-989] -->
-<h3><a>Native jars</a></h3>
+<h3>Native jars</h3>
 <div>
 
 <p>
-
 You can download the LWJGL native jars from their site, or to ensure you&#039;re using the exact same version as bundled with your jME3 release, make your own:
 </p>
 <pre>mkdir tmp
@@ -85,11 +81,10 @@ Remember to sign all the jar files and move them into the right place from the t
 
 </div>
 <!-- EDIT5 SECTION "Native jars" [990-1626] -->
-<h3><a>JNLP file</a></h3>
+<h3>JNLP file</h3>
 <div>
 
 <p>
-
 Add the following to your JNLP file:
 </p>
 <pre>  <span>&lt;resources os=&quot;Windows&quot;&gt;</span>
@@ -111,11 +106,10 @@ Add the following to your JNLP file:
 
 </div>
 <!-- EDIT6 SECTION "JNLP file" [1627-2158] -->
-<h3><a>Set low-permissions mode</a></h3>
+<h3>Set low-permissions mode</h3>
 <div>
 
 <p>
-
 In your main() method, if running under WebStart, tell jME3 it is running in a low-permission environment so that it doesn&#039;t try to load the natives itself:
 </p>
 <pre>  public static void main&#40;String&#91;&#93; args&#41;
@@ -126,4 +120,4 @@ In your main() method, if running under WebStart, tell jME3 it is running in a l
 
 </div>
 <!-- EDIT7 SECTION "Set low-permissions mode" [2159-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:webstart?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:webstart?do=export_xhtmlbody">view online version</a></em></p>

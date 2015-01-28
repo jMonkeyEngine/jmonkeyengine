@@ -1,10 +1,9 @@
 
-<h1><a>Nifty GUI: Create a PopUp Menu</a></h1>
+<h1>Nifty GUI: Create a PopUp Menu</h1>
 <div>
 
 <p>
-
-Even though you create and populate the popup menu in Java, you still need a &quot;placeholder&quot; in your <acronym title="Extensible Markup Language">XML</acronym> file.
+Even though you create and populate the popup menu in Java, you still need a “placeholder” in your XML file.
 The popup element needs to be placed <em>outside</em> of any screen!
 </p>
 <pre><span>&lt;useControls filename=&quot;nifty-default-controls.xml&quot;/&gt;</span>
@@ -31,14 +30,13 @@ A brief explanation of some the attributes above:
 </ul>
 
 <p>
-
 The Java code within your defined ScreenController implementation:
 </p>
 <pre>private Element popup;
 ...
 public void createMyPopupMenu&#40;&#41;&#123;
   popup = nifty.createPopup&#40;&quot;niftyPopupMenu&quot;&#41;;
-  Menu myMenu = popup.findNiftyControl&#40;&quot;#menu&quot;, Menu.class&#41;;
+  Menu.class&#41;;
   myMenu.setWidth&#40;new SizeValue&#40;&quot;100px&quot;&#41;&#41;; // must be set
   myMenu.addMenuItem&#40;&quot;Click me!&quot;, &quot;menuItemIcon.png&quot;, 
     new menuItem&#40;&quot;menuItemid&quot;, &quot;blah blah&quot;&#41;&#41;; // menuItem is a custom class
@@ -60,7 +58,7 @@ public void showMenu&#40;&#41; &#123; // the method to trigger the menu
 private class menuItem &#123;
   public String id;
   public String name;
-  public menuItem&#40;String id, String name&#41;&#123;
+  public menuItem&#40;String name&#41;&#123;
     this.id= id;
     this.name = name;
   &#125;
@@ -75,7 +73,6 @@ private class menuItem &#123;
 </ul>
 
 <p>
-
 To handle menu item events (i.e. calling a method when you click on a menu item), you register (subscribe) a EventTopicSubscriber&lt;MenuItemActivatedEvent&gt; class implementation to a nifty screen and element.
 </p>
 <pre>  private class MenuItemActivatedEventSubscriber 
@@ -91,4 +88,4 @@ To handle menu item events (i.e. calling a method when you click on a menu item)
   &#125;;</pre>
 
 </div>
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_popup_menu?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:nifty_gui_popup_menu?do=export_xhtmlbody">view online version</a></em></p>

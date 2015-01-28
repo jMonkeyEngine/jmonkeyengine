@@ -1,9 +1,8 @@
 
-<h3><a>The jME3 Threading Model</a></h3>
+<h3>The jME3 Threading Model</h3>
 <div>
 
 <p>
-
 jME3 is similar to Swing in that, for speed and efficiency, all changes to the scene graph must be made in a single update thread. If you make changes only in Control.update(), AppState.update(), or SimpleApplication.simpleUpdate(), this will happen automatically.  However, if you pass work to another thread, you may need to pass results back to the main jME3 thread so that scene graph changes can take place there.
 </p>
 <pre>public void rotateGeometry&#40;final Geometry geo, final Quaternion rot&#41; &#123;
@@ -20,16 +19,14 @@ Note that this example does not fetch the returned value by calling <code>get()<
 
 <p>
 If the processing thread needs to wait or needs the return value then <code>get()</code> or the other methods in the returned Future object such as <code>isDone()</code> can be used.
-
 </p>
 
 </div>
 <!-- EDIT1 SECTION "The jME3 Threading Model" [1-1143] -->
-<h1><a>Multithreading Optimization</a></h1>
+<h1>Multithreading Optimization</h1>
 <div>
 
 <p>
-
 First, make sure you know what <a href="/com/jme3/gde/docs/jme3/advanced/application_states.html">Application States</a> and <a href="/com/jme3/gde/docs/jme3/advanced/custom_controls.html">Custom Controls</a> are.
 </p>
 
@@ -47,13 +44,11 @@ Effectively, each for-loop in the main update loop might be a chance for multith
 
 </div>
 <!-- EDIT2 SECTION "Multithreading Optimization" [1144-2274] -->
-<h2><a>Java Multithreading</a></h2>
+<h2>Java Multithreading</h2>
 <div>
 
 <p>
-
 The java.util.concurrent package provides a good foundation for multithreading and dividing work into tasks that can be executed concurrently (hence the name). The three basic components are the Executor (supervises threads), Callable Objects (the tasks), and Future Objects (the result). You can <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://download.oracle.com/javase/tutorial/essential/concurrency/"><param name="text" value="<html><u>read about the concurrent package more here</u></html>"><param name="textColor" value="blue"></object>, I will give just a short introduction.
-
 </p>
 <ul>
 <li><div> A Callable is one of the classes that gets executed on a thread in the Executor. The object represents one of several concurrent tasks (e.g, one NPC&#039;s path finding task). Each Callable is started from the updateloop by calling a method named <code>call()</code>.</div>
@@ -66,11 +61,10 @@ The java.util.concurrent package provides a good foundation for multithreading a
 
 </div>
 <!-- EDIT3 SECTION "Java Multithreading" [2275-3347] -->
-<h2><a>Multithreading in jME3</a></h2>
+<h2>Multithreading in jME3</h2>
 <div>
 
 <p>
-
 So how do we implement multithreading in jME3?
 </p>
 
@@ -84,11 +78,10 @@ To avoid slowdown, we decide to keep the pathfinding operations in the NPC Contr
 
 </div>
 <!-- EDIT4 SECTION "Multithreading in jME3" [3348-4020] -->
-<h3><a>Executor</a></h3>
+<h3>Executor</h3>
 <div>
 
 <p>
-
 You create the executor object in a global AppState (or the initSimpleApp() method), in any case in a high-level place where multiple controls can access it. 
 </p>
 <pre>/* This constructor creates a new executor with a core pool size of 4. */
@@ -101,7 +94,6 @@ Pool size means the executor will keep four threads alive at any time. Having mo
 <p>
 !!! Executor needs to be shut down when the application ends, in order to make the process die properly
 In your simple application you can override the destroy method and shutdown the executor: 
-
 </p>
 <pre>    @Override
     public void destroy&#40;&#41; &#123;
@@ -111,11 +103,10 @@ In your simple application you can override the destroy method and shutdown the 
 
 </div>
 <!-- EDIT5 SECTION "Executor" [4021-5096] -->
-<h3><a>Control Class Fields</a></h3>
+<h3>Control Class Fields</h3>
 <div>
 
 <p>
-
 In the NPC Control, we create the individual objects that the thread manipulates. In our example case (the pathfinding control), the task is about locations and path arrays, so we need the following variables:
 </p>
 <pre>//The vector to store the desired location in:
@@ -131,11 +122,10 @@ Here we also created the Future variable to track the state of this task.
 
 </div>
 <!-- EDIT6 SECTION "Control Class Fields" [5097-5687] -->
-<h3><a>Control Update() Method</a></h3>
+<h3>Control Update() Method</h3>
 <div>
 
 <p>
-
 Next let&#039;s look at the update() call of the Control where the time-intensive task starts. In our example, the task is the <code>findWay</code> Callable (which contains the pathfinding process). So instead of spelling out the pathfinding process  in the Control&#039;s update() loop, we start the process via <code>future = executor.submit(findWay);</code>.
 </p>
 <pre>public void update&#40;float tpf&#41; &#123;
@@ -174,16 +164,15 @@ Note how this logic makes its decision based on the Future object.
 </p>
 
 <p>
-Remember not to mess with the class fields after starting the thread, because they are being accessed and modified on the new thread. In more obvious terms: You cannot change the &quot;desired location&quot; of the NPC while the path finder is calculating a different path. You have to cancel the current Future first.
+Remember not to mess with the class fields after starting the thread, because they are being accessed and modified on the new thread. In more obvious terms: You cannot change the “desired location” of the NPC while the path finder is calculating a different path. You have to cancel the current Future first.
 </p>
 
 </div>
 <!-- EDIT7 SECTION "Control Update() Method" [5688-7559] -->
-<h3><a>The Callable</a></h3>
+<h3>The Callable</h3>
 <div>
 
 <p>
-
 The next code sample shows the Callable that is dedicated to performing the long-running task (here, wayfinding). This is the task that used to block the rest of the application, and is now executed on a thread of its own. You implement the task in the Callable always in an inner method named <code>call()</code>.
 </p>
 
@@ -193,7 +182,6 @@ The task code in the Callable should be self-contained! It should not write or r
 
 <p>
 In reality, you might need access to the game state. If you must read or write a current state from the scene graph, you must have a clone of the data in your thread. There are only two ways:
-
 </p>
 <ul>
 <li><div> Use the execution queue <code>application.enqueue()</code> to create a sub-thread that clones the info. Only disadvantage is, it may be slower. <br/>
@@ -205,7 +193,6 @@ The following example gets the object <code>Data data = myWorld.getData();</code
 </ul>
 
 <p>
-
 These two ways are thread-safe, they don&#039;t mess up the game logic, and keep the Callable code readable.
 </p>
 <pre>// A self-contained time-intensive task:
@@ -214,10 +201,10 @@ private Callable&lt;MyWayList&gt; findWay = new Callable&lt;MyWayList&gt;&#40;&#
 &nbsp;
         //Read or write data from the scene graph -- via the execution queue:
         Vector3f location = application.enqueue&#40;new Callable&lt;Vector3f&gt;&#40;&#41; &#123;
-        ????????public Vector3f call&#40;&#41; throws Exception &#123;
-        ????????????????//we clone the location so we can use the variable safely on our thread
-        ????????????????return mySpatial.getLocalTranslation&#40;&#41;.clone&#40;&#41;;
-        ????????&#125;
+            public Vector3f call&#40;&#41; throws Exception &#123;
+                //we clone the location so we can use the variable safely on our thread
+                return mySpatial.getLocalTranslation&#40;&#41;.clone&#40;&#41;;
+            &#125;
         &#125;&#41;.get&#40;&#41;;
 &nbsp;
         // This world class allows safe access via synchronized methods
@@ -231,33 +218,23 @@ private Callable&lt;MyWayList&gt; findWay = new Callable&lt;MyWayList&gt;&#40;&#
 
 </div>
 <!-- EDIT8 SECTION "The Callable" [7560-9926] -->
-<h2><a>Useful Links</a></h2>
+<h2>Useful Links</h2>
 <div>
 
 <p>
-
-High level description which describes how to manage the game state and the rendering in different threads - <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.altdevblogaday.com/2011/07/03/threading-and-your-game-loop/"><param name="text" value="<html><u>link</u></html>"><param name="textColor" value="blue"></object>
+High level description which describes how to manage the game state and the rendering in different threads - <del><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.altdevblogaday.com/2011/07/03/threading-and-your-game-loop/"><param name="text" value="<html><u>link</u></html>"><param name="textColor" value="blue"></object></del> Outdated link. A C++ example can be found at <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://gamasutra.com/blogs/AndreaMagnorsky/20130527/193087/Multithreading_rendering_in_a_game_engine_with_CDouble_buffer_implementation.php"><param name="text" value="<html><u>link</u></html>"><param name="textColor" value="blue"></object>
 </p>
 
 </div>
-<!-- EDIT9 SECTION "Useful Links" [9927-10143] -->
-<h2><a>Conclusion</a></h2>
+<!-- EDIT9 SECTION "Useful Links" [9927-10347] -->
+<h2>Conclusion</h2>
 <div>
 
 <p>
-
 The cool thing about this approach is that every entity creates one self-contained Callable for the Executor, and they are all executed in parallel. In theory, you can have one thread per entity without changing anything else but the settings of the executor.
-
+<a href="nbdocs:/com/jme3/gde/docs/jme3:advanced/tag_loop_game_performance_state_states_documentation">tag_loop_game_performance_state_states_documentation</a>
 </p>
-<div><span>
-	<a href="/wiki/doku.php/tag:loop?do=showtag&amp;tag=tag%3Aloop">loop</a>,
-	<a href="/wiki/doku.php/tag:game?do=showtag&amp;tag=tag%3Agame">game</a>,
-	<a href="/wiki/doku.php/tag:performance?do=showtag&amp;tag=tag%3Aperformance">performance</a>,
-	<a href="/wiki/doku.php/tag:state?do=showtag&amp;tag=tag%3Astate">state</a>,
-	<a href="/wiki/doku.php/tag:states?do=showtag&amp;tag=tag%3Astates">states</a>,
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>
-</span></div>
 
 </div>
-<!-- EDIT10 SECTION "Conclusion" [10144-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:multithreading?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT10 SECTION "Conclusion" [10348-] -->
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:multithreading?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,12 +1,12 @@
 
-<h1><a>Laying Out the GUI in Java</a></h1>
+<h1>Laying Out the GUI in Java</h1>
 <div>
 <ol>
 <li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui.html">Nifty GUI Concepts</a></div>
 </li>
 <li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_best_practices.html">Nifty GUI Best Practices</a></div>
 </li>
-<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_xml_layout.html">Nifty GUI XML Layout</a> or <strong>Nifty <acronym title="Graphical User Interface">GUI</acronym> Java Layout</strong></div>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_xml_layout.html">Nifty GUI XML Layout</a> or <strong>Nifty <abbr title="Graphical User Interface">GUI</abbr> Java Layout</strong></div>
 </li>
 <li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_overlay.html">Nifty GUI Overlay</a> or <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_projection.html">Nifty GUI Projection</a></div>
 </li>
@@ -15,17 +15,15 @@
 </ol>
 
 <p>
-
-<strong>Work in progress</strong> You can &quot;draw&quot; the <acronym title="Graphical User Interface">GUI</acronym> to the screen by writing Java code ??? alternatively to using <acronym title="Extensible Markup Language">XML</acronym>. Typically you lay out the static base <acronym title="Graphical User Interface">GUI</acronym> in <acronym title="Extensible Markup Language">XML</acronym>, and use Java commands if you need to change the <acronym title="Graphical User Interface">GUI</acronym> dynamically at runtime. In theory, you can also lay out the whole <acronym title="Graphical User Interface">GUI</acronym> in Java (but we don&#039;t cover that here).
+<strong>Work in progress</strong> You can “draw” the <abbr title="Graphical User Interface">GUI</abbr> to the screen by writing Java code – alternatively to using XML. Typically you lay out the static base <abbr title="Graphical User Interface">GUI</abbr> in XML, and use Java commands if you need to change the <abbr title="Graphical User Interface">GUI</abbr> dynamically at runtime. In theory, you can also lay out the whole <abbr title="Graphical User Interface">GUI</abbr> in Java (but we don&#039;t cover that here).
 </p>
 
 </div>
 <!-- EDIT1 SECTION "Laying Out the GUI in Java" [1-690] -->
-<h2><a>Sample Code</a></h2>
+<h2>Sample Code</h2>
 <div>
 
 <p>
-
 Sample project
 </p>
 <ul>
@@ -35,15 +33,15 @@ Sample project
 <li><div> <strong>Download demo project:</strong> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://files.seapegasus.org/NiftyGuiDemo.zip"><param name="text" value="<html><u>http://files.seapegasus.org/NiftyGuiDemo.zip</u></html>"><param name="textColor" value="blue"></object> (jme3-ready) <br/>
 The full demo ZIP is based on <code>de.lessvoid.nifty.examples.controls.ControlsDemo.java</code>.</div>
 <ol>
-<li><div> The demo is a SimpleApplication-based game (use e.g. the BasicGame template in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>).</div>
+<li><div> The demo is a SimpleApplication-based game (use e.g. the BasicGame template in the jMonkeyEngine SDK).</div>
 </li>
 <li><div> Copy images and sound files into your project&#039;s <code>assets/Interface/</code> directory. (In this example, I copied them from <code>nifty-default-controls-examples/trunk/src/main/resources/</code> to <code>assets/Interface/</code>).</div>
 </li>
 <li><div> Make sure to use paths relative to your project&#039;s <code>assets/</code> directory.</div>
 <ul>
-<li><div> E.g. for .fnt/.png/.jpg files use <code>filename(&quot;Interface/yang.png&quot;);</code> ( not <code>filename(&quot;yang.png&quot;);</code>).</div>
+<li><div> E.g. for .fnt/.png/.jpg files use <code>filename(“Interface/yang.png”);</code> ( not <code>filename(“yang.png”);</code>).</div>
 </li>
-<li><div> E.g. for .wav/.ogg files use <code>filename(&quot;Interface/sounds/gong.wav&quot;);</code> (not <code>filename(&quot;sounds/gong.wav&quot;);</code>).</div>
+<li><div> E.g. for .wav/.ogg files use <code>filename(“Interface/sounds/gong.wav”);</code> (not <code>filename(“sounds/gong.wav”);</code>).</div>
 </li>
 </ul>
 </li>
@@ -52,8 +50,7 @@ The full demo ZIP is based on <code>de.lessvoid.nifty.examples.controls.Controls
 </ul>
 
 <p>
-
-Just so you get a quick picture what Nifty <acronym title="Graphical User Interface">GUI</acronym>&#039;s Java Syntax looks like, here is the most basic example. It creates a screen with a layer and a panel that contains a button. 
+Just so you get a quick picture what Nifty <abbr title="Graphical User Interface">GUI</abbr>&#039;s Java Syntax looks like, here is the most basic example. It creates a screen with a layer and a panel that contains a button. 
 </p>
 <pre>package mygame;
 &nbsp;
@@ -122,16 +119,15 @@ public class Main extends SimpleApplication &#123;
 
 </div>
 <!-- EDIT2 SECTION "Sample Code" [691-3958] -->
-<h2><a>Implement Your GUI Layout</a></h2>
+<h2>Implement Your GUI Layout</h2>
 <div>
 
 <p>
-
 <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/gui-layout-draft.png">
 </p>
 
 <p>
-In this tutorial, you recreate the same screen as in the Nifty <acronym title="Graphical User Interface">GUI</acronym> <acronym title="Extensible Markup Language">XML</acronym> example.
+In this tutorial, you recreate the same screen as in the Nifty <abbr title="Graphical User Interface">GUI</abbr> XML example.
 </p>
 
 <p>
@@ -140,11 +136,10 @@ Create an Screen.Java file in the <code>assets/Interfaces/</code> directory of y
 
 </div>
 <!-- EDIT3 SECTION "Implement Your GUI Layout" [3959-4495] -->
-<h3><a>Make Screens</a></h3>
+<h3>Make Screens</h3>
 <div>
 
 <p>
-
 The following minimal Java file contains a start screen and a HUD screen. (Neither has been defined yet.)
 </p>
 <pre>nifty.addScreen&#40;&quot;start&quot;, new ScreenBuilder&#40;&quot;start&quot;&#41;&#123;&#123;
@@ -158,16 +153,15 @@ nifty.addScreen&#40;&quot;hud&quot;, new ScreenBuilder&#40;&quot;hud&quot;&#41;&
   &#125;&#125;.build&#40;nifty&#41;&#41;;</pre>
 
 <p>
-Every Nifty <acronym title="Graphical User Interface">GUI</acronym> must have a start screen. The others (in this example, the HUD screen) are optional. 
+Every Nifty <abbr title="Graphical User Interface">GUI</abbr> must have a start screen. The others (in this example, the HUD screen) are optional. 
 </p>
 
 </div>
 <!-- EDIT4 SECTION "Make Screens" [4496-5030] -->
-<h3><a>Make Layers</a></h3>
+<h3>Make Layers</h3>
 <div>
 
 <p>
-
 The following Java code shows how we add layers to the start screen and HUD screen:
 </p>
 <pre>nifty.addScreen&#40;&quot;start&quot;, new ScreenBuilder&#40;&quot;start&quot;&#41;&#123;&#123;
@@ -206,11 +200,10 @@ In a layer, you can now add panels and arrange them. Panels are containers that 
 
 </div>
 <!-- EDIT5 SECTION "Make Layers" [5031-5968] -->
-<h3><a>Make Panels</a></h3>
+<h3>Make Panels</h3>
 <div>
 
 <p>
-
 A panel is the inner-most container (that will contain the actual content: text, images, or controls). You place panels inside layers. The following panels go into in the <code>start</code> screen:
 </p>
 <pre>    nifty.addScreen&#40;&quot;start&quot;, new ScreenBuilder&#40;&quot;start&quot;&#41; &#123;&#123;
@@ -326,7 +319,7 @@ The following panels go into in the <code>hud</code> screen:
     &#125;&#125;.build&#40;nifty&#41;&#41;;</pre>
 
 <p>
-Try the sample. Remember to activate a screen using <code>nifty.gotoScreen(&quot;start&quot;);</code> or <code>hud</code> respectively.
+Try the sample. Remember to activate a screen using <code>nifty.gotoScreen(“start”);</code> or <code>hud</code> respectively.
 The result should look as follows:
 </p>
 
@@ -336,23 +329,20 @@ The result should look as follows:
 
 </div>
 <!-- EDIT6 SECTION "Make Panels" [5969-9926] -->
-<h2><a>Adding Content to Panels</a></h2>
+<h2>Adding Content to Panels</h2>
 <div>
 
 <p>
-
-See also <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Layout_Introduction"><param name="text" value="<html><u>Layout Introduction</u></html>"><param name="textColor" value="blue"></object> on the Nifty <acronym title="Graphical User Interface">GUI</acronym> site.
+See also <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Layout_Introduction"><param name="text" value="<html><u>Layout Introduction</u></html>"><param name="textColor" value="blue"></object> on the Nifty <abbr title="Graphical User Interface">GUI</abbr> site.
 </p>
 
 </div>
 <!-- EDIT7 SECTION "Adding Content to Panels" [9927-10105] -->
-<h3><a>Add Images</a></h3>
+<h3>Add Images</h3>
 <div>
 
 <p>
-
 The start-background.png image is a fullscreen background picture. In the <code>start</code> screen, add the following image element:
-
 </p>
 <pre>    nifty.addScreen&#40;&quot;start&quot;, new ScreenBuilder&#40;&quot;start&quot;&#41; &#123;&#123;
         controller&#40;new DefaultScreenController&#40;&#41;&#41;;
@@ -369,7 +359,6 @@ The start-background.png image is a fullscreen background picture. In the <code>
 
 <p>
 The hud-frame.png image is a transparent frame that we use as HUD decoration. In the <code>hud</code> screen, add the following image element:
-
 </p>
 <pre>    nifty.addScreen&#40;&quot;hud&quot;, new ScreenBuilder&#40;&quot;hud&quot;&#41; &#123;&#123;
         controller&#40;new DefaultScreenController&#40;&#41;&#41;;
@@ -388,7 +377,6 @@ The hud-frame.png image is a transparent frame that we use as HUD decoration. In
 <p>
 The face1.png image is an image that you want to use as a status icon. 
 In the <code>hud</code> screen&#039;s <code>foreground</code> layer, add the following image element:
-
 </p>
 <pre>                panel&#40;new PanelBuilder&#40;&quot;panel_top_right2&quot;&#41; &#123;&#123;
                     childLayoutCenter&#40;&#41;;
@@ -408,19 +396,16 @@ In the <code>hud</code> screen&#039;s <code>foreground</code> layer, add the fol
                 &#125;&#125;&#41;;</pre>
 
 <p>
-
 This image is scaled to use 50% of the height and 30% of the width of its container.
 </p>
 
 </div>
 <!-- EDIT8 SECTION "Add Images" [10106-12093] -->
-<h3><a>Add Static Text</a></h3>
+<h3>Add Static Text</h3>
 <div>
 
 <p>
-
 The game title is a typical example of static text. In the <code>start</code> screen, add the following text element:
-
 </p>
 <pre>           // panel added
             panel&#40;new PanelBuilder&#40;&quot;panel_top&quot;&#41; &#123;&#123;
@@ -441,7 +426,7 @@ The game title is a typical example of static text. In the <code>start</code> sc
             &#125;&#125;&#41;;</pre>
 
 <p>
-For longer pieces of static text, such as an introduction, you can use wrap=&quot;true&quot;. Add the following text element to the <code>Start screen</code>:
+For longer pieces of static text, such as an introduction, you can use wrap=“true”. Add the following text element to the <code>Start screen</code>:
 </p>
 <pre>            panel&#40;new PanelBuilder&#40;&quot;panel_mid&quot;&#41; &#123;&#123;
                 childLayoutCenter&#40;&#41;;
@@ -462,16 +447,15 @@ For longer pieces of static text, such as an introduction, you can use wrap=&quo
             &#125;&#125;&#41;;</pre>
 
 <p>
-The font used is jME3&#039;s default font &quot;Interface/Fonts/Default.fnt&quot; which is included in the jMonkeyEngine.JAR. You can add your own fonts to your own <code>assets/Interface</code> directory.
+The font used is jME3&#039;s default font “Interface/Fonts/Default.fnt” which is included in the jMonkeyEngine.JAR. You can add your own fonts to your own <code>assets/Interface</code> directory.
 </p>
 
 </div>
 <!-- EDIT9 SECTION "Add Static Text" [12094-13843] -->
-<h3><a>Add Controls</a></h3>
+<h3>Add Controls</h3>
 <div>
 
 <p>
-
 Before you can use any control, you must load a Control Definition first. Add the following two lines <em>before</em> your screen definitions:
 </p>
 <pre>    nifty.loadStyleFile&#40;&quot;nifty-default-styles.xml&quot;&#41;;
@@ -479,11 +463,10 @@ Before you can use any control, you must load a Control Definition first. Add th
 
 </div>
 
-<h4><a>Label Control</a></h4>
+<h4>Label Control</h4>
 <div>
 
 <p>
-
 Use label controls for text that you want to edit dynamically from Java. One example for this is the score display.
 In the <code>hud</code> screen&#039;s <code>foreground</code> layer, add the following text element:
 </p>
@@ -506,12 +489,11 @@ Note that the width and height do not scale the bitmap font, but make indirectly
 
 </div>
 
-<h4><a>Button Control</a></h4>
+<h4>Button Control</h4>
 <div>
 
 <p>
-
-Our <acronym title="Graphical User Interface">GUI</acronym> plan asks for two buttons on the start screen. You add the Start and Quit buttons to the bottom panel of the <code>start</code> screen using the <code>&lt;control&gt;</code> element:
+Our <abbr title="Graphical User Interface">GUI</abbr> plan asks for two buttons on the start screen. You add the Start and Quit buttons to the bottom panel of the <code>start</code> screen using the <code>&lt;control&gt;</code> element:
 </p>
 <pre>                panel&#40;new PanelBuilder&#40;&quot;panel_bottom_left&quot;&#41; &#123;&#123;
                     childLayoutCenter&#40;&#41;;
@@ -548,27 +530,25 @@ Our <acronym title="Graphical User Interface">GUI</acronym> plan asks for two bu
                 &#125;&#125;&#41;;</pre>
 
 <p>
-Note that these controls don&#039;t do anything yet ??? we&#039;ll get to that soon.
+Note that these controls don&#039;t do anything yet – we&#039;ll get to that soon.
 </p>
 
 </div>
 
-<h4><a>Other Controls</a></h4>
+<h4>Other Controls</h4>
 <div>
 
 <p>
-
-Nifty additionally offers many customizable controls such as check boxes, text fields, menus, chats, tabs, ??? See also <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Elements"><param name="text" value="<html><u>Elements</u></html>"><param name="textColor" value="blue"></object> on the Nifty <acronym title="Graphical User Interface">GUI</acronym> site.
+Nifty additionally offers many customizable controls such as check boxes, text fields, menus, chats, tabs, … See also <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Elements"><param name="text" value="<html><u>Elements</u></html>"><param name="textColor" value="blue"></object> on the Nifty <abbr title="Graphical User Interface">GUI</abbr> site.
 </p>
 
 </div>
 <!-- EDIT10 SECTION "Add Controls" [13844-16777] -->
-<h2><a>Intermediate Result</a></h2>
+<h2>Intermediate Result</h2>
 <div>
 
 <p>
-
-When you preview this code in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, our tutorial demo should looks as follows: A start screen with two buttons, and a game screen with a simple HUD frame and a blue cube (which stands for any jME3 game content). 
+When you preview this code in the jMonkeyEngine SDK, our tutorial demo should looks as follows: A start screen with two buttons, and a game screen with a simple HUD frame and a blue cube (which stands for any jME3 game content). 
 </p>
 
 <p>
@@ -581,25 +561,26 @@ When you preview this code in the jMonkeyEngine <acronym title="Software Develop
 
 </div>
 <!-- EDIT11 SECTION "Intermediate Result" [16778-17190] -->
-<h2><a>Nifty Java Settings</a></h2>
+<h2>Nifty Java Settings</h2>
 <div>
 
 <p>
-
 Before initializing the nifty screens, you set up properties and register media.
 </p>
 <div><table>
+	<thead>
 	<tr>
 		<th> Nifty Method </th><th> Description </th>
 	</tr>
+	</thead>
 	<tr>
-		<td> registerSound(&quot;mysound&quot;, &quot;Interface/abc.wav&quot;); </td><td> </td>
+		<td> registerSound(“mysound”, “Interface/abc.wav”); </td><td> </td>
 	</tr>
 	<tr>
-		<td> registerMusic(&quot;mymusic&quot;, &quot;Interface/xyz.ogg&quot;); </td><td> </td>
+		<td> registerMusic(“mymusic”, “Interface/xyz.ogg”); </td><td> </td>
 	</tr>
 	<tr>
-		<td> registerMouseCursor(&quot;mypointer&quot;, &quot;Interface/abc.png&quot;, 5, 4); </td><td> </td>
+		<td> registerMouseCursor(“mypointer”, “Interface/abc.png”, 5, 4); </td><td> </td>
 	</tr>
 	<tr>
 		<td> registerEffect(?); </td><td> ? </td>
@@ -610,19 +591,17 @@ Before initializing the nifty screens, you set up properties and register media.
 </table></div>
 <!-- EDIT13 TABLE [17305-17628] -->
 <p>
-
 Example: 
 </p>
 <pre>nifty.registerMouseCursor&#40;&quot;hand&quot;, &quot;Interface/mouse-cursor-hand.png&quot;, 5, 4&#41;;</pre>
 
 </div>
 <!-- EDIT12 SECTION "Nifty Java Settings" [17191-17733] -->
-<h2><a>Next Steps</a></h2>
+<h2>Next Steps</h2>
 <div>
 
 <p>
-
-Integrate the <acronym title="Graphical User Interface">GUI</acronym> into the game. Typically, you will overlay the <acronym title="Graphical User Interface">GUI</acronym>.
+Integrate the <abbr title="Graphical User Interface">GUI</abbr> into the game. Typically, you will overlay the <abbr title="Graphical User Interface">GUI</abbr>.
 </p>
 <ul>
 <li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_overlay.html">Nifty GUI Overlay</a> (recommended)</div>
@@ -630,13 +609,11 @@ Integrate the <acronym title="Graphical User Interface">GUI</acronym> into the g
 <li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_projection.html">Nifty GUI Projection</a> (optional)</div>
 </li>
 </ul>
-<div><span>
-	<a href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a>,
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:nifty?do=showtag&amp;tag=tag%3Anifty">nifty</a>,
-	<a href="/wiki/doku.php/tag:hud?do=showtag&amp;tag=tag%3Ahud">hud</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/jme3:advanced/tag_gui_documentation_nifty_hud">tag_gui_documentation_nifty_hud</a>
+</p>
 
 </div>
 <!-- EDIT14 SECTION "Next Steps" [17734-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_java_layout?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:nifty_gui_java_layout?do=export_xhtmlbody">view online version</a></em></p>
