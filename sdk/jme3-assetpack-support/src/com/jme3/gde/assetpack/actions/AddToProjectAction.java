@@ -71,7 +71,7 @@ public final class AddToProjectAction implements Action {
                         DialogDisplayer.getDefault().notifyLater(msg);
                     }
                 } else {
-                    Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Error loading model");
+                    Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Error loading model");
                 }
             } else {
                 AssetConfiguration conf = new AssetConfiguration(assetElement);

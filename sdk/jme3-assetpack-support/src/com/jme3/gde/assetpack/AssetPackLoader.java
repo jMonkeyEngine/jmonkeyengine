@@ -96,7 +96,7 @@ public class AssetPackLoader {
             if (model != null && node != null) {
                 node.attachChild(model);
             } else {
-                Logger.getLogger(AssetPackLoader.class.getName()).log(Level.WARNING, "Error loading model");
+                Logger.getLogger(AssetPackLoader.class.getName()).log(Level.INFO, "Error loading model");
             }
         }
         if (node != null) {

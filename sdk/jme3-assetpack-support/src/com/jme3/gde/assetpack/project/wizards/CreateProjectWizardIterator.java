@@ -18,6 +18,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
+import org.netbeans.api.templates.TemplateRegistration;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.WizardDescriptor;
@@ -28,8 +29,12 @@ import org.openide.xml.XMLUtil;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-// An example action demonstrating how the wizard could be called from within
-// your code. You can copy-paste the code below wherever you need.
+@TemplateRegistration(folder = "Project/Asset Pack",
+        content = "/com/jme3/gde/assetpack/AssetPackProject.zip",
+        iconBase = "com/jme3/gde/assetpack/icons/assetpack.png",
+        displayName = "com.jme3.gde.assetpack.Bundle#Templates/Project/AssetPack/AssetPackProject.zip",
+        description = "/com/jme3/gde/assetpack/project/AssetPackProjectDescription.html"
+)
 @SuppressWarnings({"unchecked", "rawtypes"})
 public final class CreateProjectWizardIterator implements WizardDescriptor.InstantiatingIterator {
 

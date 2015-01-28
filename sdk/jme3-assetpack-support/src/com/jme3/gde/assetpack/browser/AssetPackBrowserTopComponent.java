@@ -14,6 +14,8 @@ import org.openide.windows.WindowManager;
 //import org.openide.util.ImageUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.actions.CopyAction;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
@@ -25,6 +27,16 @@ import org.openide.util.actions.SystemAction;
  */
 @ConvertAsProperties(dtd = "-//com.jme3.gde.assetpack.browser//AssetPackBrowser//EN",
 autostore = false)
+@TopComponent.Description(
+    preferredID = "AssetPackBrowserTopComponent",
+    iconBase="com/jme3/gde/assetpack/icons/assetpack.png", 
+persistenceType = TopComponent.PERSISTENCE_ALWAYS)
+@TopComponent.Registration(mode = "explorer", openAtStartup = true, position = 500)
+@ActionID(category = "Window", id = "com.jme3.gde.assetpack.browser.AssetPackBrowserTopComponent")
+@ActionReference(path = "Menu/Window" /*, position = 333 */)
+@TopComponent.OpenActionRegistration(
+    displayName = "AssetPackBrowser",
+preferredID = "AssetPackBrowserTopComponent")
 @SuppressWarnings({"unchecked", "rawtypes"})
 public final class AssetPackBrowserTopComponent extends TopComponent implements ExplorerManager.Provider {
 

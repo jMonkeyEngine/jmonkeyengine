@@ -53,7 +53,7 @@ public final class AddAssetAction implements Action {
                 SceneComposerTopComponent.findInstance().addModel(model);
                 AssetPackLoader.addModelFiles(pm, scenePm, conf);
             } else {
-                Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Error loading model");
+                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Error loading model");
             }
         } else {
             AssetConfiguration conf = new AssetConfiguration(assetElement);
