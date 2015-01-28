@@ -47,6 +47,9 @@ import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -54,9 +57,13 @@ import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.actions.CallableSystemAction;
 
-// An example action demonstrating how the wizard could be called from within
-// your code. You can copy-paste the code below wherever you need.
 @SuppressWarnings({"unchecked", "rawtypes"})
+@ActionID(id = "com.jme3.gde.core.codeless.CodelessProjectWizardAction", category = "CodelessProjects")
+@ActionRegistration(iconBase = "com/jme3/gde/core/assets/actions/jme-logo.png",
+        displayName = "#CTL_Codeless_Project",
+        lazy = false,
+        iconInMenu = true)
+@ActionReference(path = "Menu/File/Import", name = "CodelessProject", position = 0)
 public final class CodelessProjectWizardAction extends CallableSystemAction {
 
     private static final Logger logger = Logger.getLogger(CodelessProjectWizardAction.class.getName());
