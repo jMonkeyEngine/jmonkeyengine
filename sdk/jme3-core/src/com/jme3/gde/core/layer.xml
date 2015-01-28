@@ -56,12 +56,10 @@
         </folder>
         <folder name="Help">
             <file name="jmewiki.url" url="jmewiki.url">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.jme3.gde.core.Bundle"/>
                 <attr name="displayName" bundlevalue="com.jme3.gde.core.Bundle#Menu/Help/jmewiki.url"/>
                 <attr name="position" intvalue="200"/>
             </file>
             <file name="help-main.xml" url="help-main.xml">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.jme3.gde.core.Bundle"/>
                 <attr name="displayName" bundlevalue="com.jme3.gde.core.Bundle#Menu/Help/help-main.xml"/>
                 <attr name="position" intvalue="100"/>
             </file>
