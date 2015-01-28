@@ -11,17 +11,6 @@
                 <attr name="noIconInMenu" boolvalue="false"/>
             </file>
         </folder>
-        <folder name="SceneComposer">
-            <file name="com-jme3-gde-core-sceneviewer-actions-SwitchFrontViewAcction.instance_hidden"/>
-            <file name="com-jme3-gde-core-sceneviewer-actions-SwitchFrontViewAction.instance">
-                <attr name="iconBase" stringvalue="com/jme3/gde/core/sceneviewer/actions/32_bit.png"/>
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="noIconInMenu" boolvalue="false"/>
-            </file>
-            <file name="com-jme3-gde-core-sceneviewer-actions-SwitchFrontViewAction.instance"/>
-            <file name="com-jme3-gde-core-sceneviewer-actions-SwitchToFrontViewAction.instance_hidden"/>
-        </folder>
         <folder name="jMonkeyPlatform">
             <file name="com-jme3-gde-core-assets-actions-OpenModel.instance">
                 <attr name="delegate" methodvalue="org.openide.awt.Actions.inject"/>
@@ -80,6 +69,8 @@
                     <attr name="originalFile" stringvalue="Actions/CodelessProjects/com-jme3-gde-core-codeless-CodelessProjectWizardAction.instance"/>
                     <attr name="position" intvalue="0"/>
                 </file>
+                <file name="org-netbeans-modules-projectimport-eclipse-core-ImportProjectAction.shadow_hidden"/>
+                <file name="org-netbeans-modules-projectimport-eclipse-core-ResynchronizeEclipseAction.shadow_hidden"/>
             </folder>
         </folder>
         <folder name="Help">
@@ -179,14 +170,6 @@
     <folder name="Services">
         <folder name="JavaHelp">
             <file name="org-netbeans-modules-java-helpset.xml_hidden"/>
-        </folder>
-    </folder>
-    <folder name="Menu">
-        <folder name="File">
-            <folder name="Import">
-                <file name="org-netbeans-modules-projectimport-eclipse-core-ImportProjectAction.shadow_hidden"/>
-                <file name="org-netbeans-modules-projectimport-eclipse-core-ResynchronizeEclipseAction.shadow_hidden"/>
-            </folder>
         </folder>
     </folder>
     <folder name="Windows2">
