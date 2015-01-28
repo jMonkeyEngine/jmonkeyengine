@@ -112,7 +112,7 @@ public class MaterialPreviewRenderer implements SceneListener {
                                     SceneApplication.getApplication().createPreview(request);
                                 }
                             } catch (Exception e) {
-                                Logger.getLogger(MaterialPreviewRenderer.class.getName()).log(Level.SEVERE, "Error rendering material" + e.getMessage());
+                                Logger.getLogger(MaterialPreviewRenderer.class.getName()).log(Level.SEVERE, "Error rendering material{0}", e.getMessage());
                             }
                         }
                     });
@@ -126,8 +126,9 @@ public class MaterialPreviewRenderer implements SceneListener {
     
       public Material reloadMaterial(Material mat, DesktopAssetManager assetManager) {
 
-        MaterialKey key = new MaterialKey(mat.getMaterialDef().getAssetName());
-        assetManager.deleteFromCache(key);
+        //MaterialKey key = new MaterialKey(mat.getMaterialDef().getAssetName());
+        ((ProjectAssetManager)mat.getMaterialDef().getAssetManager()).clearCache();
+        //assetManager.clearCache();
         
         //creating a dummy mat with the mat def of the mat to reload
         Material dummy = new Material(mat.getMaterialDef());

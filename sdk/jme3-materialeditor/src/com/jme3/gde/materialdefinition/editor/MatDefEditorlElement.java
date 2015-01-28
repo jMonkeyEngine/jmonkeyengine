@@ -434,15 +434,13 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
     }
 
     public void notifyAddMapParam(String type, String name) {
-        MatDefBlock matDef = obj.getLookup().lookup(MatDefBlock.class);
-        //FIXME add a way to set fixed pipeline function and default value
+        MatDefBlock matDef = obj.getLookup().lookup(MatDefBlock.class);        
         MatParamBlock param = new MatParamBlock(type, name, null, null);
         matDef.addMatParam(param);
     }
 
     public void notifyAddWorldParam(String name) {
-        MatDefBlock matDef = obj.getLookup().lookup(MatDefBlock.class);
-        //FIXME add a way to set fixed pipeline function and default value
+        MatDefBlock matDef = obj.getLookup().lookup(MatDefBlock.class);        
         WorldParamBlock param = new WorldParamBlock(name);
         getTechnique(matDef).addWorldParam(param);
     }
