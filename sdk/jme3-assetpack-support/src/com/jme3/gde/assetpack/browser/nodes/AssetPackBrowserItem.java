@@ -63,7 +63,7 @@ public class AssetPackBrowserItem extends AbstractNode {
     private void setImage() {
         try {
             String add = item.getAttribute("type");
-            icon = ImageUtilities.loadImage("/com/jme3/gde/assetpack/icons/" + add + ".gif");
+            icon = ImageUtilities.loadImage("com/jme3/gde/assetpack/icons/" + add + ".gif");
         } catch (Exception e) {
         }
     }
