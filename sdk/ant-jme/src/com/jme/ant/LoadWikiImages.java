@@ -37,11 +37,12 @@ public class LoadWikiImages extends Task {
                     int endIdx = line.indexOf("\"", idx + 10);
                     if (endIdx >= 0) {
                         String link = line.substring(idx + 10, endIdx);
-                        int wikidx = link.indexOf("/wiki/lib/exe/fetch.php/");
-                        //int extidx = link.indexOf("/wiki/lib/exe/fetch.php?");
+                        link = link.replace("&amp;", "&");
+                        int wikidx = link.indexOf("/lib/exe/fetch.php/");
+                        //int extidx = link.indexOf("/lib/exe/fetch.php?");
                         int extidx = -1;
                         if (wikidx >= 0) {
-                            String name = link.replaceAll("/wiki/lib/exe/fetch\\.php/", "");
+                            String name = link.replaceAll("/lib/exe/fetch\\.php/", "");
                             int markIdx = name.indexOf("?");
                             if (markIdx >= 0) {
                                 name = name.substring(0, markIdx);
@@ -75,7 +76,7 @@ public class LoadWikiImages extends Task {
                                 }
                             }
                         } else if (extidx >= 0) {
-                            String name = link.replaceAll("/wiki/lib/exe/fetch\\.php\\?([^>]*);media=([^>]*)\"", "");
+                            String name = link.replaceAll("/lib/exe/fetch\\.php\\?([^>]*);media=([^>]*)\"", "");
                             int markIdx = name.indexOf("?");
                             if (markIdx >= 0) {
                                 name = name.substring(0, markIdx);
