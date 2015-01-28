@@ -19,7 +19,7 @@ import org.w3c.dom.Element;
  */
 public class AssetPackBrowserFolder extends AbstractNode {
 
-    Image icon = ImageUtilities.loadImage("/com/jme3/gde/assetpack/icons/assets.gif");
+    Image icon = ImageUtilities.loadImage("com/jme3/gde/assetpack/icons/assets.gif");
     Project proj;
 
     public AssetPackBrowserFolder(Element[] elem, Project lib, String[] categories, String[] tags) {
