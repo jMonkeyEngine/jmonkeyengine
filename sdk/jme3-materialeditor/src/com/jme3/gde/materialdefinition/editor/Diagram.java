@@ -134,7 +134,11 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
         }
         repaint();
     }
-
+    
+    protected void showEdit(NodePanel node) {                
+        parent.showShaderEditor(node.getName(),node.getType(),node.filePaths);        
+    }
+    
     public void notifyMappingCreation(Connection conn) {
         parent.makeMapping(conn);
     }

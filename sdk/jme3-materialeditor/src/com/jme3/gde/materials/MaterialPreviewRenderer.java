@@ -11,6 +11,7 @@ import com.jme3.gde.core.scene.PreviewRequest;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneListener;
 import com.jme3.gde.core.scene.SceneRequest;
+import com.jme3.gde.materialdefinition.icons.Icons;
 import com.jme3.material.MatParam;
 import com.jme3.material.Material;
 import com.jme3.math.FastMath;
@@ -111,6 +112,11 @@ public class MaterialPreviewRenderer implements SceneListener {
                                     SceneApplication.getApplication().createPreview(request);
                                 }
                             } catch (Exception e) {
+                                java.awt.EventQueue.invokeLater(new Runnable() {
+                                    public void run() {
+                                        label.setIcon(Icons.error);
+                                    }
+                                });
                                 Logger.getLogger(MaterialPreviewRenderer.class.getName()).log(Level.SEVERE, "Error rendering material{0}", e.getMessage());
                             }
                         }
@@ -148,6 +154,12 @@ public class MaterialPreviewRenderer implements SceneListener {
             //the following code will output the error
             //System.err.println(e.getMessage());
             Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, e.getMessage());
+            
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    label.setIcon(Icons.error);
+                }
+            });
             return null;
         }
 

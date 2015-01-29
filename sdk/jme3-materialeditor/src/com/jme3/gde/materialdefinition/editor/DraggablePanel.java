@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 
 /**
  *
- * @author m327836
+ * @author Nehon
  */
 public class DraggablePanel extends JPanel implements MouseListener, MouseMotionListener {
 
@@ -44,7 +44,7 @@ public class DraggablePanel extends JPanel implements MouseListener, MouseMotion
         svdey = e.getYOnScreen();
         e.consume();
     }
-
+    
     @Override
     public void mouseReleased(MouseEvent e) {
     }

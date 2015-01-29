@@ -4,6 +4,7 @@
  */
 package com.jme3.gde.materialdefinition.icons;
 
+import com.jme3.gde.materialdefinition.editor.NodePanel;
 import javax.swing.ImageIcon;
 
 /**
@@ -27,4 +28,13 @@ public class Icons {
     public final static ImageIcon tech = new ImageIcon(Icons.class.getResource("tech.png"));
     public final static ImageIcon in = new ImageIcon(Icons.class.getResource("in.png"));
     public final static ImageIcon out = new ImageIcon(Icons.class.getResource("out.png"));
+    public final static ImageIcon error = new ImageIcon(Icons.class.getResource("error.png"));
+
+    public static ImageIcon getIconForShaderType(NodePanel.NodeType type) {
+        if (type == NodePanel.NodeType.Fragment) {
+            return frag;
+        } else {
+            return vert;
+        }
+    }
 }

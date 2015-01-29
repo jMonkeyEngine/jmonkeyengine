@@ -6,7 +6,7 @@ package com.jme3.gde.materialdefinition.editor;
 
 /**
  *
- * @author m327836
+ * @author Nehon
  */
 public interface Selectable {
     
