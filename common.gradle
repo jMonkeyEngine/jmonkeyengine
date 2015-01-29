@@ -30,14 +30,14 @@ version = mavenVersion
 
 javadoc {
     failOnError = false
-    project.configure(options) {
-        memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
-        docTitle = "jMonkeyEngine ${jmeMainVersion} ${project.name} Javadoc"
-        windowTitle = "jMonkeyEngine ${jmeMainVersion} ${project.name} Javadoc"
-        header = "<b>jMonkeyEngine ${jmeMainVersion} ${project.name}</b>"
-        author = "true"
-        use = "true"
-    }
+    options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
+    options.docTitle = "jMonkeyEngine ${jmeMainVersion} ${project.name} Javadoc"
+    options.windowTitle = "jMonkeyEngine ${jmeMainVersion} ${project.name} Javadoc"
+    options.header = "<b>jMonkeyEngine ${jmeMainVersion} ${project.name}</b>"
+    options.author = "true"
+    options.use = "true"
+    //disable doclint for JDK8, more quiet output
+    options.addStringOption('Xdoclint:none', '-quiet')
 }
 
 task sourcesJar(type: Jar, dependsOn: classes, description: 'Creates a jar from the source files.') {
