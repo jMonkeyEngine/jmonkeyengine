@@ -47,10 +47,9 @@ import com.jme3.scene.control.Control;
 import java.io.IOException;
 
 /**
- * @deprecated in favor of <code>BetterCharacterControl</code>
+ * You might want to try <code>BetterCharacterControl</code> as well.
  * @author normenhansen
  */
-@Deprecated
 public class CharacterControl extends PhysicsCharacter implements PhysicsControl {
 
     protected Spatial spatial;
