@@ -76,6 +76,7 @@ import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.WeakListeners;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.TopComponent;
 
@@ -484,7 +485,7 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
         Dot leftDot = findConnectPoint(mapping.getLeftNameSpace(), mapping.getLeftVar(), true);
         Dot rightDot = findConnectPoint(mapping.getRightNameSpace(), mapping.getRightVar(), false);
         Connection conn = diagram1.connect(leftDot, rightDot);
-        mapping.addPropertyChangeListener(conn);
+        mapping.addPropertyChangeListener(WeakListeners.propertyChange(conn, mapping));
         conn.makeKey(mapping, diagram1.getCurrentTechniqueName());
     }
 

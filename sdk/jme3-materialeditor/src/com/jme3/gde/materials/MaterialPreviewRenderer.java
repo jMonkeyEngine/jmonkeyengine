@@ -94,11 +94,10 @@ public class MaterialPreviewRenderer implements SceneListener {
         if (!init) {
             init();
         }
-        final DesktopAssetManager assetManager = (DesktopAssetManager) SceneApplication.getApplication().getAssetManager();
         SceneApplication.getApplication().enqueue(new Callable<Material>() {
 
             public Material call() throws Exception {
-                final Material mat = reloadMaterial(m, assetManager);
+                final Material mat = reloadMaterial(m);
                 if (mat != null) {
                     java.awt.EventQueue.invokeLater(new Runnable() {
                         public void run() {
@@ -124,11 +123,9 @@ public class MaterialPreviewRenderer implements SceneListener {
 
     }
     
-      public Material reloadMaterial(Material mat, DesktopAssetManager assetManager) {
-
-        //MaterialKey key = new MaterialKey(mat.getMaterialDef().getAssetName());
-        ((ProjectAssetManager)mat.getMaterialDef().getAssetManager()).clearCache();
-        //assetManager.clearCache();
+      public Material reloadMaterial(Material mat) {
+       
+        ((ProjectAssetManager)mat.getMaterialDef().getAssetManager()).clearCache();   
         
         //creating a dummy mat with the mat def of the mat to reload
         Material dummy = new Material(mat.getMaterialDef());
