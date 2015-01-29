@@ -11,6 +11,7 @@ import com.jme3.shader.Shader;
  *
  * @author Nehon
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ShaderVisualToolBar extends javax.swing.JPanel {
 
     private MatDefShaderElement parent;

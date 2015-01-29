@@ -17,6 +17,7 @@ import com.jme3.gde.materials.MaterialProperty;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class SelectionPanel extends MaterialPropertyWidget {
 
     /** Creates new form SelectionPanel */

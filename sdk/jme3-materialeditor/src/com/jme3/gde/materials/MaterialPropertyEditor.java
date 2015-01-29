@@ -64,7 +64,7 @@ import org.openide.util.Exceptions;
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerPropertyEditor.class)
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerPropertyEditor {
 
     private LinkedList<PropertyChangeListener> listeners = new LinkedList<PropertyChangeListener>();

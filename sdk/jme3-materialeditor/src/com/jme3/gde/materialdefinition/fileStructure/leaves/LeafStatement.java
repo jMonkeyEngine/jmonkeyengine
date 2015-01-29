@@ -15,6 +15,7 @@ import java.util.List;
  *
  * @author Nehon
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class LeafStatement extends Statement {
 
     private List listeners = Collections.synchronizedList(new LinkedList());

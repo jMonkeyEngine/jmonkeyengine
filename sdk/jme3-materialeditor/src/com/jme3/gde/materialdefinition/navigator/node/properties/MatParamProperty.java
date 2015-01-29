@@ -36,6 +36,7 @@ import org.openide.util.Lookup;
  *
  * @author Nehon
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class MatParamProperty<T> extends Node.Property<T> {
 
     private Lookup lookup;

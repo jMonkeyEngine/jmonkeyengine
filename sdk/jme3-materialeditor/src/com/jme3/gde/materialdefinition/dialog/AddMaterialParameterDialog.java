@@ -14,6 +14,7 @@ import javax.swing.DefaultComboBoxModel;
  *
  * @author Nehon
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class AddMaterialParameterDialog extends javax.swing.JDialog {
 
     private Diagram diagram;
