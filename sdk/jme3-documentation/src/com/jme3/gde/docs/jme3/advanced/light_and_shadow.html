@@ -1,9 +1,8 @@
 
-<h1><a>Light and Shadow</a></h1>
+<h1>Light and Shadow</h1>
 <div>
 
 <p>
-
 <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/shading-ani.gif">
 </p>
 
@@ -18,18 +17,16 @@ Light and Shadow are two separate things in 3D engines, although we percieve the
 </ul>
 
 <p>
-
 <p><div>A light source with a direction or location is required for all Geometries with Lighting.j3md-based Materials. An ambient light is not sufficient. In a scene with no appropriate light sources, Geometries with Lighting.j3md-based Materials do not render. Only Geometries with Unshaded.j3md-based Materials are visible independent of any light sources.
 </div></p>
 </p>
 
 </div>
 <!-- EDIT1 SECTION "Light and Shadow" [1-1017] -->
-<h2><a>Light Sources and Colors</a></h2>
+<h2>Light Sources and Colors</h2>
 <div>
 
 <p>
-
 <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/light-sources.png">
 </p>
 
@@ -38,7 +35,7 @@ You can add several types of light sources to a scene using <code>rootNode.addLi
 </p>
 
 <p>
-The available light sources in <code>com.???jme3.???light</code> are:
+The available light sources in <code>com.​jme3.​light</code> are:
 </p>
 <ul>
 <li><div> SpotLight </div>
@@ -52,7 +49,6 @@ The available light sources in <code>com.???jme3.???light</code> are:
 </ul>
 
 <p>
-
 You control the color and intensity of each light source. Typically you set the color to white (<code>new ColorRGBA(1.0f,1.0f,1.0f,1.0f)</code> or <code>ColorRGBA.White</code>), which makes all scene elements appear in their natural color. 
 </p>
 
@@ -66,11 +62,10 @@ You can get a list of all lights added to a Spatial by calling <code>getWorldLig
 
 </div>
 <!-- EDIT2 SECTION "Light Sources and Colors" [1018-2059] -->
-<h3><a>PointLight</a></h3>
+<h3>PointLight</h3>
 <div>
 
 <p>
-
 <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/elephant-pointlights.png">
 </p>
 
@@ -89,16 +84,15 @@ rootNode.addLight&#40;lamp_light&#41;;</pre>
 
 </div>
 <!-- EDIT3 SECTION "PointLight" [2060-2750] -->
-<h3><a>DirectionalLight</a></h3>
+<h3>DirectionalLight</h3>
 <div>
 
 <p>
-
 <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/house-directionallight.png">
 </p>
 
 <p>
-A DirectionalLight has no position, only a direction. It sends out parallel beams of light and is considered &quot;infinitely&quot; far away. You typically have one directional light per scene. A DirectionalLight can be used together with shadows. 
+A DirectionalLight has no position, only a direction. It sends out parallel beams of light and is considered “infinitely” far away. You typically have one directional light per scene. A DirectionalLight can be used together with shadows. 
 </p>
 
 <p>
@@ -111,11 +105,10 @@ rootNode.addLight&#40;sun&#41;;</pre>
 
 </div>
 <!-- EDIT4 SECTION "DirectionalLight" [2751-3355] -->
-<h3><a>SpotLight</a></h3>
+<h3>SpotLight</h3>
 <div>
 
 <p>
-
 <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/spotlight.png">
 </p>
 
@@ -136,16 +129,15 @@ spot.setDirection&#40;cam.getDirection&#40;&#41;&#41;;             // shine forw
 rootNode.addLight&#40;spot&#41;;</pre>
 
 <p>
-If you want the spotlight to follow the flycam, repeat the setDirection(???) and setPosition(???) calls in the update loop, and kee syncing them with the camera position and direction.
+If you want the spotlight to follow the flycam, repeat the setDirection(…) and setPosition(…) calls in the update loop, and kee syncing them with the camera position and direction.
 </p>
 
 </div>
 <!-- EDIT5 SECTION "SpotLight" [3356-4490] -->
-<h3><a>AmbientLight</a></h3>
+<h3>AmbientLight</h3>
 <div>
 
 <p>
-
 An AmbientLight simply influences the brightness and color of the scene globally. It has no direction and no location and shines equally everywhere. An AmbientLight does not cast any shadows, and it lights all sides of Geometries evenly, which makes 3D objects look unnaturally flat; this is why you typically do not use an AmbientLight alone without one of the other lights.  
 </p>
 
@@ -164,11 +156,10 @@ Example: <code>mylight.setColor(ColorRGBA.White.mult(1.3f));</code>
 
 </div>
 <!-- EDIT6 SECTION "AmbientLight" [4491-5313] -->
-<h2><a>Light Follows Spatial</a></h2>
+<h2>Light Follows Spatial</h2>
 <div>
 
 <p>
-
 You can use a <code>com.jme3.scene.control.LightControl</code> to make a SpotLight or PointLight follow a Spatial. This can be used for a flashlight being carried by a character, or for car headlights, or an aircraft&#039;s spotlight, etc.
 </p>
 <pre>PointLight myLight = new PointLight&#40;&#41;;
@@ -182,11 +173,10 @@ Obviously, this does not apply to AmbientLights, which have no position.
 
 </div>
 <!-- EDIT7 SECTION "Light Follows Spatial" [5314-5880] -->
-<h2><a>BasicShadowRenderer (deprecated)</a></h2>
+<h2>BasicShadowRenderer (deprecated)</h2>
 <div>
 
 <p>
-
 Full code sample
 </p>
 <ul>
@@ -196,11 +186,10 @@ Full code sample
 
 </div>
 <!-- EDIT8 SECTION "BasicShadowRenderer (deprecated)" [5881-6073] -->
-<h2><a>Casting Shadows</a></h2>
+<h2>Casting Shadows</h2>
 <div>
 
 <p>
-
 For each type of non-ambient light source, JME3 implements two ways to simulate geometries casting shadows on other geometries:
 </p>
 <ul>
@@ -210,9 +199,11 @@ For each type of non-ambient light source, JME3 implements two ways to simulate 
 </li>
 </ul>
 <div><table>
+	<thead>
 	<tr>
 		<th> light source class </th><th> shadow renderer class </th><th> shadow filter class </th>
 	</tr>
+	</thead>
 	<tr>
 		<td> DirectionalLight </td><td> DirectionalLightShadowRenderer </td><td> DirectionalLightShadowFilter </td>
 	</tr>
@@ -228,7 +219,6 @@ For each type of non-ambient light source, JME3 implements two ways to simulate 
 </table></div>
 <!-- EDIT10 TABLE [6369-6708] -->
 <p>
-
 You only need one shadow simulation per light source:  if you use shadow rendering, you won&#039;t need a shadow filter and vice versa.  Which way is more efficient depends partly on the complexity of your scene. All six shadow simulation classes have similar interfaces, so once you know how to use one, you can easily figure out the rest.
 </p>
 
@@ -255,9 +245,7 @@ Here&#039;s a sample application which demonstrates both DirectionalLightShadowR
 </ul>
 
 <p>
-
 Here is the key code fragment:
-
 </p>
 <pre>        DirectionalLight sun = new DirectionalLight&#40;&#41;;
         sun.setColor&#40;ColorRGBA.White&#41;;
@@ -280,26 +268,24 @@ Here is the key code fragment:
 <p>
 Constructor arguments:
  * your AssetManager object
- * size of the rendered shadow maps, in pixels per side (512, 1024, 2048, etc???)
+ * size of the rendered shadow maps, in pixels per side (512, 1024, 2048, etc…)
  * the number of shadow maps rendered (more shadow maps = better quality, but slower)
 </p>
 
 <p>
 Properties you can set:
- * setDirection(Vector3f) ??? the direction of the light
- * setLambda(0.65f) ??? to reduce the split size
- * setShadowIntensity(0.7f) ??? shadow darkness (1=black, 0=invisible)
- * setShadowZextend(float) ??? distance from camera to which shadows will be computed
-
+ * setDirection(Vector3f) – the direction of the light
+ * setLambda(0.65f) – to reduce the split size
+ * setShadowIntensity(0.7f) – shadow darkness (1=black, 0=invisible)
+ * setShadowZextend(float) – distance from camera to which shadows will be computed
 </p>
 
 </div>
 <!-- EDIT9 SECTION "Casting Shadows" [6074-9825] -->
-<h2><a>Parallel-Split Shadow Map (deprecated)</a></h2>
+<h2>Parallel-Split Shadow Map (deprecated)</h2>
 <div>
 
 <p>
-
 Full sample code
 </p>
 <ul>
@@ -308,7 +294,6 @@ Full sample code
 </ul>
 
 <p>
-
 <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/shadow.png">
 </p>
 <pre>private PssmShadowRenderer pssmRenderer;
@@ -321,24 +306,22 @@ public void simpleInitApp&#40;&#41; &#123;
 
 </div>
 <!-- EDIT11 SECTION "Parallel-Split Shadow Map (deprecated)" [9826-10415] -->
-<h2><a>Screen Space Ambient Occlusion</a></h2>
+<h2>Screen Space Ambient Occlusion</h2>
 <div>
 
 <p>
-
 Full sample code
 </p>
 <ul>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestSSAO.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestSSAO.java</u></html>"><param name="textColor" value="blue"></object> ??? Screen-Space Ambient Occlusion shadows</div>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestSSAO.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestSSAO.java</u></html>"><param name="textColor" value="blue"></object> – Screen-Space Ambient Occlusion shadows</div>
 </li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestTransparentSSAO.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestTransparentSSAO.java</u></html>"><param name="textColor" value="blue"></object> ??? Screen-Space Ambient Occlusion shadows plus transparancy</div>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestTransparentSSAO.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestTransparentSSAO.java</u></html>"><param name="textColor" value="blue"></object> – Screen-Space Ambient Occlusion shadows plus transparancy</div>
 </li>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://hub.jmonkeyengine.org/2010/08/screen-space-ambient-occlusion-for-jmonkeyengine-3-0/"><param name="text" value="<html><u>Screen Space Ambient Occlusion for jMonkeyEngine (article)</u></html>"><param name="textColor" value="blue"></object></div>
 </li>
 </ul>
 
 <p>
-
 Ambient Occlusion refers to the shadows which nearby objects cast on each other under an ambient lighting. Screen Space Ambient Occlusion (SSAO) approximates how light radiates in real life.
 </p>
 
@@ -352,9 +335,8 @@ viewPort.addProcessor&#40;fpp&#41;;</pre>
 
 <p>
 <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/shading-textured-ani.gif">
-
 </p>
 
 </div>
 <!-- EDIT12 SECTION "Screen Space Ambient Occlusion" [10416-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:light_and_shadow?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:light_and_shadow?do=export_xhtmlbody">view online version</a></em></p>

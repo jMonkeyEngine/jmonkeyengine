@@ -1,37 +1,34 @@
 
-<h1><a>jMonkeyEngine SDK: Version Control</a></h1>
+<h1>jMonkeyEngine SDK: Version Control</h1>
 <div>
 
 <p>
-
-Whether you work in a development team or alone: File versioning is a handy method to keep your code consistent, compare files line-by-line, and even roll back unwanted changes. This documentation shows you how to make the most of the <acronym title="Software Development Kit">SDK</acronym>&#039;s integrated version control features for Subversion, Mercurial, and Git.
+Whether you work in a development team or alone: File versioning is a handy method to keep your code consistent, compare files line-by-line, and even roll back unwanted changes. This documentation shows you how to make the most of the SDK&#039;s integrated version control features for Subversion, Mercurial, and Git.
 </p>
 
 <p>
 For every team member, the file versioning workflow is as follows:
 </p>
 <ol>
-<li><div> Once: Download a working copy of the project from the repository (&quot;checkout&quot;).</div>
+<li><div> Once: Download a working copy of the project from the repository (“checkout”).</div>
 </li>
-<li><div> Regularly: Upload your own changes to the repository (&quot;commit&quot;).</div>
+<li><div> Regularly: Upload your own changes to the repository (“commit”).</div>
 </li>
-<li><div> Regularly: Download updates by others from the repository (&quot;update&quot;).     </div>
+<li><div> Regularly: Download updates by others from the repository (“update”).     </div>
 </li>
 </ol>
 
 <p>
-
-Note: Since the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> is based on the NetBeans Platform framework, you can learn about certain jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> features by reading the corresponding NetBeans IDE tutorials (in the &quot;see also links&quot;). 
+Note: Since the jMonkeyEngine SDK is based on the NetBeans Platform framework, you can learn about certain jMonkeyEngine SDK features by reading the corresponding NetBeans IDE tutorials (in the “see also links”). 
 </p>
 
 </div>
 <!-- EDIT1 SECTION "jMonkeyEngine SDK: Version Control" [1-878] -->
-<h2><a>Version Control Systems</a></h2>
+<h2>Version Control Systems</h2>
 <div>
 
 <p>
-
-The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> supports various Version Control Systems such as Subversion, Mercurial, and Git. No matter which of them you use, they all share a common user interface.
+The jMonkeyEngine SDK supports various Version Control Systems such as Subversion, Mercurial, and Git. No matter which of them you use, they all share a common user interface.
 </p>
 
 <p>
@@ -40,11 +37,10 @@ You can use file versioning alone or in a team. The advantages are that you can 
 
 </div>
 <!-- EDIT2 SECTION "Version Control Systems" [879-1375] -->
-<h2><a>Creating a Repository (Upload)</a></h2>
+<h2>Creating a Repository (Upload)</h2>
 <div>
 
 <p>
-
 Requirements:
 </p>
 <ul>
@@ -65,12 +61,10 @@ Requirements:
 </ul>
 
 <p>
-
 Now you create a repository to store your project&#039;s files. 
-
 </p>
 <ol>
-<li><div> In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, right-click the project in the Projects window and choose Versioning &gt; Import Into Subversion Repository (or initialize Mercurial Project, etc, respectively). </div>
+<li><div> In the jMonkeyEngine SDK, right-click the project in the Projects window and choose Versioning &gt; Import Into Subversion Repository (or initialize Mercurial Project, etc, respectively). </div>
 <ul>
 <li><div> Tip: If you haven&#039;t evaluated yet which system to choose, start with Subversion for now.</div>
 </li>
@@ -82,20 +76,18 @@ Now you create a repository to store your project&#039;s files.
 
 </div>
 <!-- EDIT3 SECTION "Creating a Repository (Upload)" [1376-2439] -->
-<h2><a>Checking Out a Repository (Download)</a></h2>
+<h2>Checking Out a Repository (Download)</h2>
 <div>
 
 <p>
-
 You and your team mates check out (download) the repository to their individual workstations. 
-
 </p>
 <ol>
 <li><div> Go to the Team menu and choose Subversion &gt; Checkout (or Git or Mercurial respectively)</div>
 </li>
 <li><div> Fill in your repo data into the wizard and click Finish.</div>
 <ul>
-<li><div> A typical repository <acronym title="Uniform Resource Locator">URL</acronym> looks like this example: <code><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine"><param name="text" value="<html><u>http://jmonkeyengine.googlecode.com/svn/trunk/engine</u></html>"><param name="textColor" value="blue"></object></code></div>
+<li><div> A typical repository <abbr title="Uniform Resource Locator">URL</abbr> looks like this example: <code><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine"><param name="text" value="<html><u>http://jmonkeyengine.googlecode.com/svn/trunk/engine</u></html>"><param name="textColor" value="blue"></object></code></div>
 </li>
 <li><div> If you want to be able to submit changes, you must have a username and password to this repository. Otherwise leave these fields blank.</div>
 </li>
@@ -112,19 +104,16 @@ You and your team mates check out (download) the repository to their individual 
 </ol>
 
 <p>
-
 Of course you can also check out existing repositories and access code from other open-source projects (e.g. SourceForge, GoogleCode, dev.java.net). 
 </p>
 
 </div>
 <!-- EDIT4 SECTION "Checking Out a Repository (Download)" [2440-3407] -->
-<h2><a>Updating and Committing Changes (Send and Receive)</a></h2>
+<h2>Updating and Committing Changes (Send and Receive)</h2>
 <div>
 
 <p>
-
 Receiving the latest changes from the team&#039;s repository is referred to as <code>updating</code>. Sending your changes to the team&#039;s repository is refered to as <code>commiting</code>.
-
 </p>
 <ol>
 <li><div> Before making changes, right-click the project and select Subversion &gt; Update to make sure you have the latest revision.</div>
@@ -139,7 +128,7 @@ Receiving the latest changes from the team&#039;s repository is referred to as <
 </li>
 <li><div> Look at the red/green/blue marks in the editor to review what you have deleted/added/changed. Click the marks to review all differences in a file.</div>
 </li>
-<li><div> Choose Subversion &gt; Show Changes to see all files that were recently changed ??? by you and other team members. </div>
+<li><div> Choose Subversion &gt; Show Changes to see all files that were recently changed – by you and other team members. </div>
 </li>
 <li><div> <em>Update again</em> in case your team mates made changes while you were reviewing.</div>
 </li>
@@ -149,7 +138,7 @@ Receiving the latest changes from the team&#039;s repository is referred to as <
 </li>
 <li><div> Write a commit message describing what you changed. </div>
 <ul>
-<li><div> Remember, you are writing &quot;a message to your future self&quot;. Never write redundant stuff like &quot;I changed something&quot;.</div>
+<li><div> Remember, you are writing “a message to your future self”. Never write redundant stuff like “I changed something”.</div>
 </li>
 </ul>
 </li>
@@ -157,10 +146,10 @@ Receiving the latest changes from the team&#039;s repository is referred to as <
 
 </div>
 <!-- EDIT5 SECTION "Updating and Committing Changes (Send and Receive)" [3408-4656] -->
-<h2><a>Comparing and Reverting Changes</a></h2>
+<h2>Comparing and Reverting Changes</h2>
 <div>
 <ul>
-<li><div> If you and another committer edited the same line, there is a conflict, and the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> will show an error message. </div>
+<li><div> If you and another committer edited the same line, there is a conflict, and the jMonkeyEngine SDK will show an error message. </div>
 <ul>
 <li><div> Right-click a file Choose Subversion &gt; Resolve Conflict</div>
 <ol>
@@ -188,38 +177,33 @@ Receiving the latest changes from the team&#039;s repository is referred to as <
 
 </div>
 <!-- EDIT6 SECTION "Comparing and Reverting Changes" [4657-5448] -->
-<h2><a>No Version Control? Local History!</a></h2>
+<h2>No Version Control? Local History!</h2>
 <div>
 
 <p>
-
 If you do not use any version control, you can still track changes in projects to a certain degree.
-
 </p>
 <ul>
 <li><div> Right-click a file or directory and choose Local History to show or revert changes, or undelete files.</div>
 </li>
 <li><div> You can also select any two files in the Project window and choose Tools &gt; Diff to compare them.</div>
 </li>
-<li><div> Local History only works for files edited in jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Projects (It does not work for other files, e.g. in the Favorites window.)</div>
+<li><div> Local History only works for files edited in jMonkeyEngine SDK Projects (It does not work for other files, e.g. in the Favorites window.)</div>
 </li>
 </ul>
 
 <p>
 See also:
-
 </p>
 <ul>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://netbeans.org/kb/docs/ide/subversion.html"><param name="text" value="<html><u>Source Code Management with Subversion</u></html>"><param name="textColor" value="blue"></object></div>
 </li>
 </ul>
-<div><span>
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
-	<a href="/wiki/doku.php/tag:editor?do=showtag&amp;tag=tag%3Aeditor">editor</a>,
-	<a href="/wiki/doku.php/tag:tool?do=showtag&amp;tag=tag%3Atool">tool</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/sdk/tag_documentation_sdk_editor_tool">tag_documentation_sdk_editor_tool</a>
+</p>
 
 </div>
 <!-- EDIT7 SECTION "No Version Control? Local History!" [5449-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:version_control?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/sdk:version_control?do=export_xhtmlbody">view online version</a></em></p>

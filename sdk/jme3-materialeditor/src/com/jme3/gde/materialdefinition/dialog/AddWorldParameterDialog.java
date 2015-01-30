@@ -13,6 +13,7 @@ import javax.swing.DefaultComboBoxModel;
  *
  * @author Nehon
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class AddWorldParameterDialog extends javax.swing.JDialog {
 
     private Diagram diagram;

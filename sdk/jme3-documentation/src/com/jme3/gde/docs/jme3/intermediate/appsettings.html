@@ -1,9 +1,8 @@
 
-<h1><a>jME3 Application Display Settings</a></h1>
+<h1>jME3 Application Display Settings</h1>
 <div>
 
 <p>
-
 Every class that extends jme3.app.SimpleApplication has properties that can be configured by customizing a <code>com.jme3.system.AppSettings</code> object. 
 </p>
 
@@ -18,11 +17,10 @@ Every class that extends jme3.app.SimpleApplication has properties that can be c
 
 </div>
 <!-- EDIT1 SECTION "jME3 Application Display Settings" [1-558] -->
-<h2><a>Code Samples</a></h2>
+<h2>Code Samples</h2>
 <div>
 
 <p>
-
 Specify settings for a game (here called <code>MyGame</code>, or whatever you called your SimpleApplication instance) in the <code>main()</code> method before the game starts:
 </p>
 <pre>public static void main&#40;String&#91;&#93; args&#41; &#123;
@@ -42,7 +40,7 @@ Set the boolean in the AppSettings contructor to true if you want to keep the de
 This example toggles the settings to fullscreen while the game is already running. Then it restarts the game context (not the whole game) which applies the changed settings.
 </p>
 <pre>public void toggleToFullscreen&#40;&#41; &#123;
-  GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment&#40;&#41;.getDefaultScreenDevice&#40;&#41;;
+  GraphicsEnvironment.getLocalGraphicsEnvironment&#40;&#41;.getDefaultScreenDevice&#40;&#41;;
   DisplayMode&#91;&#93; modes = device.getDisplayModes&#40;&#41;;
   int i=0; // note: there are usually several, let's pick the first
   settings.setResolution&#40;modes&#91;i&#93;.getWidth&#40;&#41;,modes&#91;i&#93;.getHeight&#40;&#41;&#41;;
@@ -55,12 +53,14 @@ This example toggles the settings to fullscreen while the game is already runnin
 
 </div>
 <!-- EDIT2 SECTION "Code Samples" [559-2062] -->
-<h2><a>Properties</a></h2>
+<h2>Properties</h2>
 <div>
 <div><table>
+	<thead>
 	<tr>
 		<th>Settings Property (Video)</th><th>Description</th><th>Default</th>
 	</tr>
+	</thead>
 	<tr>
 		<td>setRenderer(AppSettings.LWJGL_OPENGL1) <br/>
 setRenderer(AppSettings.LWJGL_OPENGL2) <br/>
@@ -69,7 +69,7 @@ setRenderer(AppSettings.LWJGL_OPENGL3)</td><td>Switch Video Renderer to OpenGL 1
 	<tr>
 		<td>setBitsPerPixel(32)</td><td>Set the color depth. <br/>
 1 bpp = black and white, 2 bpp = gray, <br/>
-4 bpp = 16 colors, 8 bpp = 256 colors, 24 or 32 bpp = &quot;truecolor&quot;.</td><td>24</td>
+4 bpp = 16 colors, 8 bpp = 256 colors, 24 or 32 bpp = “truecolor”.</td><td>24</td>
 	</tr>
 	<tr>
 		<td>setFramerate(60)</td><td>How often per second the engine should try to refresh the frame. For the release, usually 60 fps. Can be lower (30) if you need to free up the CPU for other applications. No use setting it to a higher value than the screen frequency! If the framerate goes below 30 fps, viewers start to notice choppiness or flickering.</td><td>-1 (unlimited)</td>
@@ -80,7 +80,7 @@ Set this to false to play the game in a normal window of its own.</td><td>False 
 	</tr>
 	<tr>
 		<td>setHeight(480), setWidth(640) <br/>
-setResolution(640,480)</td><td>Two equivalent ways of setting the display resolution.</td><td>640x480 pixels</td>
+setResolution(640,480)</td><td>Two equivalent ways of setting the display resolution.</td><td>640&times;480 pixels</td>
 	</tr>
 	<tr>
 		<td>setSamples(4)</td><td>Set multisampling to 0 to switch antialiasing off (harder edges, faster.) <br/>
@@ -95,9 +95,11 @@ Set VSync to false to deactivate vertical syncing (faster, but possible page tea
 	</tr>
 </table></div>
 <!-- EDIT4 TABLE [2087-4308] --><div><table>
+	<thead>
 	<tr>
 		<th>Settings Property (Input)</th><th>Description</th><th>Default</th>
 	</tr>
+	</thead>
 	<tr>
 		<td>setUseInput(false)</td><td>Respond to user input by mouse and keyboard. Can be deactivated for use cases where you only display a 3D scene on the canvas without any interaction.</td><td>true</td>
 	</tr>
@@ -112,9 +114,11 @@ Set VSync to false to deactivate vertical syncing (faster, but possible page tea
 	</tr>
 </table></div>
 <!-- EDIT5 TABLE [4310-5024] --><div><table>
+	<thead>
 	<tr>
 		<th>Settings Property (Audio)</th><th>Description</th><th>Default</th>
 	</tr>
+	</thead>
 	<tr>
 		<td>setAudioRenderer(AppSettings.LWJGL_OPENAL)</td><td>Switch Audio Renderer. Currently there is only one option. </td><td>OpenAL</td>
 	</tr>
@@ -123,35 +127,38 @@ Set VSync to false to deactivate vertical syncing (faster, but possible page tea
 	</tr>
 </table></div>
 <!-- EDIT6 TABLE [5026-5450] --><div><table>
+	<thead>
 	<tr>
 		<th>Settings Property (Branding)</th><th>Description</th><th>Default</th>
 	</tr>
+	</thead>
 	<tr>
-		<td>setTitle(&quot;My Game&quot;)</td><td>This string will be visible in the titlebar, unless the window is fullscreen.</td><td>&quot;jMonkey Engine 3.0&quot;</td>
+		<td>setTitle(“My Game”)</td><td>This string will be visible in the titlebar, unless the window is fullscreen.</td><td>“jMonkey Engine 3.0”</td>
 	</tr>
 	<tr>
 		<td>setIcons(new BufferedImage[]{ <br/>
-ImageIO.read(new File(&quot;&quot;)), ???});</td><td>This specifies the little application icon in the titlebar of the application (unused in MacOS?). You should specify the icon in various sizes (256,128,32,16) to look good on various operating systems. Note: This is not the application icon on the desktop.</td><td>null</td>
+ImageIO.read(new File(“”)), …});</td><td>This specifies the little application icon in the titlebar of the application (unused in MacOS?). You should specify the icon in various sizes (256,128,32,16) to look good on various operating systems. Note: This is not the application icon on the desktop.</td><td>null</td>
 	</tr>
 	<tr>
-		<td>setSettingsDialogImage(&quot;Interface/mysplashscreen.png&quot;)</td><td>A custom splashscreen image in the <code>assets/Interface</code> directory which is displayed when the settings dialog is shown.</td><td>&quot;/com/jme3/app/Monkey.png&quot;</td>
+		<td>setSettingsDialogImage(“Interface/mysplashscreen.png”)</td><td>A custom splashscreen image in the <code>assets/Interface</code> directory which is displayed when the settings dialog is shown.</td><td>“/com/jme3/app/Monkey.png”</td>
 	</tr>
 </table></div>
 <!-- EDIT7 TABLE [5452-6159] -->
 <p>
-
-<p><div>You can use <code>app.setShowSettings(true);</code> and <code>setSettingsDialogImage(&quot;Interface/mysplashscreen.png&quot;)</code> to present the user with jme3&#039;s default display settings dialog when starting the game. Use <code>app.setShowSettings(false);</code> to hide the default settings screen. Set this boolean before calling <code>app.start()</code> on the SimpleApplication.
+<p><div>You can use <code>app.setShowSettings(true);</code> and <code>setSettingsDialogImage(“Interface/mysplashscreen.png”)</code> to present the user with jme3&#039;s default display settings dialog when starting the game. Use <code>app.setShowSettings(false);</code> to hide the default settings screen. Set this boolean before calling <code>app.start()</code> on the SimpleApplication.
 </div></p>
 </p>
 
 </div>
 <!-- EDIT3 SECTION "Properties" [2063-6519] -->
-<h2><a>Toggling and Activating Settings</a></h2>
+<h2>Toggling and Activating Settings</h2>
 <div>
 <div><table>
+	<thead>
 	<tr>
 		<th>SimpleApplication method</th><th>Description</th>
 	</tr>
+	</thead>
 	<tr>
 		<td>app.setShowSettings(boolean)</td><td>Activate or deactivate the default settings screen before start()ing the game. If you let users use this screen, you do not need to modify the settings object. Note: Most developers implement their own custom settings screen, but the default one is useful during the alpha stages.</td>
 	</tr>
@@ -168,24 +175,22 @@ ImageIO.read(new File(&quot;&quot;)), ???});</td><td>This specifies the little a
 <!-- EDIT9 TABLE [6566-7447] -->
 </div>
 <!-- EDIT8 SECTION "Toggling and Activating Settings" [6520-7448] -->
-<h2><a>Saving and Loading Settings</a></h2>
+<h2>Saving and Loading Settings</h2>
 <div>
 
 <p>
-
-An AppSettings object also supports the following methods to save your settings under a unique key (in this example &quot;com.foo.MyCoolGame3&quot;):
+An AppSettings object also supports the following methods to save your settings under a unique key (in this example “com.foo.MyCoolGame3”):
 </p>
 <ul>
-<li><div> Use <code>settings.save(&quot;com.foo.MyCoolGame3&quot;)</code> to save your settings via standard java.io serialization.</div>
+<li><div> Use <code>settings.save(“com.foo.MyCoolGame3”)</code> to save your settings via standard java.io serialization.</div>
 </li>
-<li><div> Use <code>settings.load(&quot;com.foo.MyCoolGame3&quot;)</code> to load your settings.</div>
+<li><div> Use <code>settings.load(“com.foo.MyCoolGame3”)</code> to load your settings.</div>
 </li>
 <li><div> Use <code>settings2.copyFrom(settings)</code> to copy a settings object.</div>
 </li>
 </ul>
 
 <p>
-
 Usage: 
 </p>
 
@@ -198,14 +203,14 @@ Provide the unique name of your jME3 application as the String argument. For exa
 <li><div> On Windows, the preferences are saved under the following registry key: <br/>
 <code>HKEY_CURRENT_USER\Software\JavaSoft\Prefs\com\foo\MyCoolGame3</code></div>
 </li>
-<li><div> On Linux, the preferences are saved in an <acronym title="Extensible Markup Language">XML</acronym> file under: <br/>
+<li><div> On Linux, the preferences are saved in an XML file under: <br/>
 <code>$HOME/.java/.userPrefs/com/foo/MyCoolGame3</code></div>
 </li>
-<li><div> On Mac <acronym title="Operating System">OS</acronym> X, the preferences are saved as <acronym title="Extensible Markup Language">XML</acronym> file under: <br/>
+<li><div> On Mac <abbr title="Operating System">OS</abbr> X, the preferences are saved as XML file under: <br/>
 <code>$HOME/Library/Preferences/com.foo.MyCoolGame3.plist</code></div>
 </li>
 </ul>
 
 </div>
 <!-- EDIT10 SECTION "Saving and Loading Settings" [7449-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:intermediate:appsettings?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:intermediate:appsettings?do=export_xhtmlbody">view online version</a></em></p>

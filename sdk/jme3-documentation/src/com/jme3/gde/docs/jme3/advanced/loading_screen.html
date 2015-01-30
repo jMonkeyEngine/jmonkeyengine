@@ -1,9 +1,8 @@
 
-<h3><a>Nifty Loading Screen (Progress Bar)</a></h3>
+<h3>Nifty Loading Screen (Progress Bar)</h3>
 <div>
 
 <p>
-
 There is a good tutorial about creating a nifty progress bar here:
 <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Create_your_own_Control_%28A_Nifty_Progressbar%29"><param name="text" value="<html><u>http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Create_your_own_Control_%28A_Nifty_Progressbar%29</u></html>"><param name="textColor" value="blue"></object>
 </p>
@@ -28,7 +27,6 @@ This is the progress bar at 90%:
 
 <p>
 nifty_loading.xml
-
 </p>
 <pre><span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
 <span><span>&lt;nifty&gt;</span></span>
@@ -71,14 +69,12 @@ nifty_loading.xml
 
 </div>
 
-<h4><a>Understanding Nifty XML</a></h4>
+<h4>Understanding Nifty XML</h4>
 <div>
 
 <p>
-
-The progress bar and text is done statically using nifty <acronym title="Extensible Markup Language">XML</acronym>.
+The progress bar and text is done statically using nifty XML.
 A custom control is created, which represents the progress bar.
-
 </p>
 <pre>    <span>&lt;controlDefinition name = &quot;loadingbar&quot; controller = &quot;jme3test.TestLoadingScreen&quot;&gt;</span>
         <span>&lt;image filename=&quot;Interface/border.png&quot; childLayout=&quot;absolute&quot; </span>
@@ -90,7 +86,6 @@ A custom control is created, which represents the progress bar.
 
 <p>
 This screen simply displays a button in the middle of the screen, which could be seen as a simple main menu UI.
-
 </p>
 <pre>    <span>&lt;screen id=&quot;start&quot; controller = &quot;jme3test.TestLoadingScreen&quot;&gt;</span>
         <span>&lt;layer id=&quot;layer&quot; childLayout=&quot;center&quot;&gt;</span>
@@ -105,7 +100,6 @@ This screen simply displays a button in the middle of the screen, which could be
 
 <p>
 This screen displays our custom progress bar control with a text control
-
 </p>
 <pre>    <span>&lt;screen id=&quot;loadlevel&quot; controller = &quot;jme3test.TestLoadingScreen&quot;&gt;</span>
         <span>&lt;layer id=&quot;loadinglayer&quot; childLayout=&quot;center&quot; backgroundColor=&quot;#000000&quot;&gt;</span>
@@ -119,7 +113,7 @@ This screen displays our custom progress bar control with a text control
 
 </div>
 <!-- EDIT1 SECTION "Nifty Loading Screen (Progress Bar)" [1-4344] -->
-<h3><a>Creating the bindings to use the Nifty XML</a></h3>
+<h3>Creating the bindings to use the Nifty XML</h3>
 <div>
 
 <p>
@@ -128,7 +122,6 @@ There are 3 main ways to update a progress bar. To understand why these methods 
 
 <p>
 Something like this in a single thread will not work:
-
 </p>
 <pre>load_scene&#40;&#41;;
 update_bar&#40;30%&#41;;
@@ -138,8 +131,7 @@ load_sounds&#40;&#41;;
 update_bar&#40;100%&#41;;</pre>
 
 <p>
-
-If you do all of this in a single frame, then it is sent to the graphics card only after the whole code block has executed. By this time the bar has reached 100% and the game has already begun ??? for the user, the progressbar on the screen would not have visibly changed.
+If you do all of this in a single frame, then it is sent to the graphics card only after the whole code block has executed. By this time the bar has reached 100% and the game has already begun – for the user, the progressbar on the screen would not have visibly changed.
 </p>
 
 <p>
@@ -154,13 +146,11 @@ The 2 main good solutions are:
 
 </div>
 
-<h4><a>Updating progress bar over a number of frames</a></h4>
+<h4>Updating progress bar over a number of frames</h4>
 <div>
 
 <p>
-
 The idea is to break down the loading of the game into discrete parts
-
 </p>
 <pre>package jme3test;
 &nbsp;
@@ -324,12 +314,12 @@ public class TestLoadingScreen extends SimpleApplication implements ScreenContro
     &#125;
 &nbsp;
     @Override
-    public void bind&#40;Nifty nifty, Screen screen, Element elmnt, Properties prprts, Attributes atrbts&#41; &#123;
+    public void bind&#40;Nifty nifty, Screen screen, Attributes atrbts&#41; &#123;
         progressBarElement = elmnt.findElementByName&#40;&quot;progressbar&quot;&#41;;
     &#125;
 &nbsp;
     @Override
-    public void init&#40;Properties prprts, Attributes atrbts&#41; &#123;
+    public void init&#40;Attributes atrbts&#41; &#123;
     &#125;
 &nbsp;
     public void onFocus&#40;boolean getFocus&#41; &#123;
@@ -346,7 +336,7 @@ Note:
 
 </div>
 
-<h4><a>Using multithreading</a></h4>
+<h4>Using multithreading</h4>
 <div>
 
 <p>
@@ -354,8 +344,7 @@ For more info on multithreading: <object classid="java:org.netbeans.modules.java
 </p>
 
 <p>
-Make sure to change the <acronym title="Extensible Markup Language">XML</acronym> file to point the controller to TestLoadingScreen<strong>1</strong>
-
+Make sure to change the XML file to point the controller to TestLoadingScreen<strong>1</strong>
 </p>
 <pre>package jme3test;
 &nbsp;
@@ -504,7 +493,7 @@ public class TestLoadingScreen1 extends SimpleApplication implements ScreenContr
         //since this method is called from another thread, we enqueue the changes to the progressbar to the update loop thread
         enqueue&#40;new Callable&#40;&#41; &#123;
 &nbsp;
-            public Object call&#40;&#41; throws Exception &#123;
+            public Exception &#123;
                 final int MIN_WIDTH = 32;
                 int pixelWidth = &#40;int&#41; &#40;MIN_WIDTH + &#40;progressBarElement.getParent&#40;&#41;.getWidth&#40;&#41; - MIN_WIDTH&#41; * progress&#41;;
                 progressBarElement.setConstraintWidth&#40;new SizeValue&#40;pixelWidth + &quot;px&quot;&#41;&#41;;
@@ -542,12 +531,12 @@ public class TestLoadingScreen1 extends SimpleApplication implements ScreenContr
     &#125;
 &nbsp;
     @Override
-    public void bind&#40;Nifty nifty, Screen screen, Element elmnt, Properties prprts, Attributes atrbts&#41; &#123;
+    public void bind&#40;Nifty nifty, Screen screen, Attributes atrbts&#41; &#123;
         progressBarElement = elmnt.findElementByName&#40;&quot;progressbar&quot;&#41;;
     &#125;
 &nbsp;
     @Override
-    public void init&#40;Properties prprts, Attributes atrbts&#41; &#123;
+    public void init&#40;Attributes atrbts&#41; &#123;
     &#125;
 &nbsp;
     public void onFocus&#40;boolean getFocus&#41; &#123;
@@ -564,4 +553,4 @@ public class TestLoadingScreen1 extends SimpleApplication implements ScreenContr
 
 </div>
 <!-- EDIT2 SECTION "Creating the bindings to use the Nifty XML" [4345-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:loading_screen?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:loading_screen?do=export_xhtmlbody">view online version</a></em></p>

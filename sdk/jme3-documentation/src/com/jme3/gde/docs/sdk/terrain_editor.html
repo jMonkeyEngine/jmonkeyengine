@@ -1,5 +1,5 @@
 
-<h1><a>jMonkeyEngine SDK: Terrain Editor</a></h1>
+<h1>jMonkeyEngine SDK: Terrain Editor</h1>
 <div>
 
 <p>
@@ -9,7 +9,7 @@ The terrain editor lets you create, modify, and paint terrain.
 
 </div>
 <!-- EDIT1 SECTION "jMonkeyEngine SDK: Terrain Editor" [1-171] -->
-<h2><a>Controls</a></h2>
+<h2>Controls</h2>
 <div>
 
 <p>
@@ -18,7 +18,7 @@ Terrain controls are the same as the Scene Composer, you rotate the camera with 
 
 </div>
 <!-- EDIT2 SECTION "Controls" [172-591] -->
-<h2><a>Creating Terrain</a></h2>
+<h2>Creating Terrain</h2>
 <div>
 
 <p>
@@ -34,12 +34,12 @@ This will pop up the Create Terrain wizard that will walk you through the steps 
 </p>
 
 <p>
-In order to see the terrain, you will need to add light to your scene. To do this, right-click the root node in the SceneExplorer window and select &quot;Add Light???Directional Light&quot;
+In order to see the terrain, you will need to add light to your scene. To do this, right-click the root node in the SceneExplorer window and select “Add Light→Directional Light”
 </p>
 
 </div>
 <!-- EDIT3 SECTION "Creating Terrain" [592-1248] -->
-<h3><a>Step 1: Terrain Size</a></h3>
+<h3>Step 1: Terrain Size</h3>
 <div>
 
 <p>
@@ -48,7 +48,7 @@ Here you determine the size of your terrain, the total size and the patch size. 
 
 </div>
 <!-- EDIT4 SECTION "Step 1: Terrain Size" [1249-1479] -->
-<h3><a>Step 2: Heightmap</a></h3>
+<h3>Step 2: Heightmap</h3>
 <div>
 
 <p>
@@ -58,7 +58,7 @@ By default, it will give you a flat terrain.
 
 </div>
 <!-- EDIT5 SECTION "Step 2: Heightmap" [1480-1732] -->
-<h3><a>Step 3: Alpha Image Detail</a></h3>
+<h3>Step 3: Alpha Image Detail</h3>
 <div>
 
 <p>
@@ -67,7 +67,7 @@ This step determines how large the alpha blend images are for your terrain.  The
 
 </div>
 <!-- EDIT6 SECTION "Step 3: Alpha Image Detail" [1733-2155] -->
-<h2><a>Modifying Terrain</a></h2>
+<h2>Modifying Terrain</h2>
 <div>
 
 <p>
@@ -90,11 +90,10 @@ Once a tool is selected, you will see the tool marker (now an ugly wire sphere) 
 
 </div>
 <!-- EDIT7 SECTION "Modifying Terrain" [2156-2637] -->
-<h2><a>Painting Terrain</a></h2>
+<h2>Painting Terrain</h2>
 <div>
 
 <p>
-
 Your terrain comes with one diffuse default texture, and you can have up to 12 total diffuse textures. It also allows you to add normal maps to each texture layer. There can be a maximum of 13 textures, including Diffuse and Normal (3 textures are taken up by alpha maps).
 </p>
 
@@ -111,11 +110,10 @@ There are two sliders that affect how the paint tool operates:
 
 </div>
 <!-- EDIT8 SECTION "Painting Terrain" [2638-3182] -->
-<h3><a>Adding a new texture layer</a></h3>
+<h3>Adding a new texture layer</h3>
 <div>
 
 <p>
-
 Adds a new texture layer to the terrain. The will be drawn over top of the other texture layers listed above it in the list.
 </p>
 
@@ -125,11 +123,10 @@ Adds a new texture layer to the terrain. The will be drawn over top of the other
 
 </div>
 <!-- EDIT9 SECTION "Adding a new texture layer" [3183-3383] -->
-<h3><a>Changing the diffuse texture</a></h3>
+<h3>Changing the diffuse texture</h3>
 <div>
 
 <p>
-
 Click on the diffuse texture image in the texture table. This will pop up a window with the available textures in your assets directory.
 </p>
 
@@ -139,7 +136,7 @@ Click on the diffuse texture image in the texture table. This will pop up a wind
 
 </div>
 <!-- EDIT10 SECTION "Changing the diffuse texture" [3384-3599] -->
-<h3><a>Adding a normal map to the texture layer</a></h3>
+<h3>Adding a normal map to the texture layer</h3>
 <div>
 
 <p>
@@ -150,7 +147,7 @@ When you add a texture layer, by default it does not add a normal map for you. T
 
 </div>
 <!-- EDIT11 SECTION "Adding a normal map to the texture layer" [3600-3943] -->
-<h3><a>Removing a normal map from the texture layer</a></h3>
+<h3>Removing a normal map from the texture layer</h3>
 <div>
 
 <p>
@@ -159,7 +156,7 @@ To remove a normal map from the texture layer, hit the normal map button for tha
 
 </div>
 <!-- EDIT12 SECTION "Removing a normal map from the texture layer" [3944-4175] -->
-<h3><a>Changing the texture scale</a></h3>
+<h3>Changing the texture scale</h3>
 <div>
 
 <p>
@@ -173,11 +170,10 @@ Essentially if your scale in normal texture coordinates is 16, then for tri-plan
 
 </div>
 <!-- EDIT13 SECTION "Changing the texture scale" [4176-4932] -->
-<h3><a>Tri-planar texture mapping</a></h3>
+<h3>Tri-planar texture mapping</h3>
 <div>
 
 <p>
-
 Tri-planar texture mapping is recommended if you have lots of near-vertical terrain. With normal texture mapping the textures can look stretched because it is rendered on the one plane: X-Z. Tri-planar mapping renders the textures on three planes: X-Z, X-Y, Z-Y; and blends them together based on what plane the normal of the triangle is facing most on.
 This makes the terrain look much better, but it does have a performance hit!
 Here is an article on tri-planar mapping: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch01.html"><param name="text" value="<html><u>http://http.developer.nvidia.com/GPUGems3/gpugems3_ch01.html</u></html>"><param name="textColor" value="blue"></object>
@@ -185,7 +181,7 @@ Here is an article on tri-planar mapping: <object classid="java:org.netbeans.mod
 
 </div>
 <!-- EDIT14 SECTION "Tri-planar texture mapping" [4933-5509] -->
-<h3><a>Total texture count</a></h3>
+<h3>Total texture count</h3>
 <div>
 
 <p>
@@ -195,7 +191,7 @@ Most video cards are limited to 16 texture units (textures), and 3 are used behi
 
 </div>
 <!-- EDIT15 SECTION "Total texture count" [5510-5847] -->
-<h2><a>Generating Terrain Entropies for LOD</a></h2>
+<h2>Generating Terrain Entropies for LOD</h2>
 <div>
 
 <p>
@@ -206,7 +202,7 @@ Note that whenever you modify the height of the terrain, you should re-generate 
 
 </div>
 <!-- EDIT16 SECTION "Generating Terrain Entropies for LOD" [5848-6563] -->
-<h2><a>Loading Terrain Into Your Game</a></h2>
+<h2>Loading Terrain Into Your Game</h2>
 <div>
 
 <p>
@@ -223,15 +219,11 @@ There are a few things your code needs to do to load the terrain.
 <pre>TerrainLodControl lodControl = &#40;&#40;Node&#41;terrain&#41;.getControl&#40;TerrainLodControl.class&#41;;
             if &#40;lodControl != null&#41;
                 lodControl.setCamera&#40;getCamera&#40;&#41;&#41;;</pre>
-<div><span>
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
-	<a href="/wiki/doku.php/tag:tool?do=showtag&amp;tag=tag%3Atool">tool</a>,
-	<a href="/wiki/doku.php/tag:terrain?do=showtag&amp;tag=tag%3Aterrain">terrain</a>,
-	<a href="/wiki/doku.php/tag:asset?do=showtag&amp;tag=tag%3Aasset">asset</a>,
-	<a href="/wiki/doku.php/tag:texture?do=showtag&amp;tag=tag%3Atexture">texture</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/sdk/tag_documentation_sdk_tool_terrain_asset_texture">tag_documentation_sdk_tool_terrain_asset_texture</a>
+</p>
 
 </div>
 <!-- EDIT17 SECTION "Loading Terrain Into Your Game" [6564-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:terrain_editor?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/sdk:terrain_editor?do=export_xhtmlbody">view online version</a></em></p>

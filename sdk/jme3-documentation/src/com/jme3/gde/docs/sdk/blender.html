@@ -1,14 +1,13 @@
 
-<h1><a>Blender importer for jMonkeyEngine 3</a></h1>
+<h1>Blender importer for jMonkeyEngine 3</h1>
 <div>
 
 </div>
 <!-- EDIT1 SECTION "Blender importer for jMonkeyEngine 3" [1-52] -->
-<h2><a>Introduction</a></h2>
+<h2>Introduction</h2>
 <div>
 
 <p>
-
 Importing models to any game engine is as important as using them. The quality of the models depends on the abilities of the people who create it and on the tools they use.
 Blender is one of the best free tools for creating 3D enviroments. Its high amount of features attract many model designers.
 So far jMonkeyEngine used Ogre mesh files to import 3D data. These files were created by the python script that exported data from blender.
@@ -23,17 +22,17 @@ Now we have an opportunity to simplify the import process by loading data direct
 
 </div>
 <!-- EDIT2 SECTION "Introduction" [53-911] -->
-<h2><a>Usage</a></h2>
+<h2>Usage</h2>
 <div>
 
 <p>
-To use it in your game or the <acronym title="Software Development Kit">SDK</acronym> you should follow the standard asset loading instructions.
+To use it in your game or the SDK you should follow the standard asset loading instructions.
 By default a BlenderModelLoader is registered with your assetManager to load blend files. This means you can load and convert .blend model files to .j3o format, just like any other supported model format.
 </p>
 
 </div>
 <!-- EDIT3 SECTION "Usage" [912-1228] -->
-<h2><a>Currently supported features</a></h2>
+<h2>Currently supported features</h2>
 <div>
 <ol>
 <li><div> Loading scene (only the current scene is loaded and imported as a node)</div>
@@ -88,7 +87,7 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 <ul>
 <li><div> Materials are loaded and attached to geometries.</div>
 </li>
-<li><div> Because jMonkeyEngine supports only one material for each Mesh, if you apply several materials to one object ??? it will be split into several meshes (but still in one node).</div>
+<li><div> Because jMonkeyEngine supports only one material for each Mesh, if you apply several materials to one object – it will be split into several meshes (but still in one node).</div>
 </li>
 <li><div> Several kinds of input mapping is supported: UV maps, Orco and Nor; all projection types for 2D textures, XYZ coordinates mapping.</div>
 </li>
@@ -172,7 +171,7 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 
 </div>
 <!-- EDIT4 SECTION "Currently supported features" [1229-4610] -->
-<h2><a>Planned features.</a></h2>
+<h2>Planned features.</h2>
 <div>
 <ol>
 <li><div> Full support for scale and offset in texture input mapping.</div>
@@ -189,7 +188,7 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 
 </div>
 <!-- EDIT5 SECTION "Planned features." [4611-4854] -->
-<h2><a>Known bugs/problems.</a></h2>
+<h2>Known bugs/problems.</h2>
 <div>
 <ol>
 <li><div> RGB10 and RGB9E5 texture types are not supported in texture merging operations (which means that you can use this as a single texture on the model, but you should not combine it with other images or generated textures).</div>
@@ -200,12 +199,11 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 
 </div>
 <!-- EDIT6 SECTION "Known bugs/problems." [4855-5261] -->
-<h2><a>Using BlenderLoader instead of BlenderModelLoader</a></h2>
+<h2>Using BlenderLoader instead of BlenderModelLoader</h2>
 <div>
 
 <p>
 You have two loaders available.
-
 </p>
 <ul>
 <li><div> BlenderLoader that loads the whole scene. It returns an instance of  LoadingResults that contains all the data loaded from the scene.</div>
@@ -237,14 +235,11 @@ You have two loaders available.
 
 <p>
 To register the model do the following:
-
 </p>
 <pre>assetManager.registerLoader&#40;BlenderLoader.class, &quot;blend&quot;&#41;;</pre>
 
 <p>
-
 or
-
 </p>
 <pre>assetManager.registerLoader&#40;BlenderModelLoader.class, &quot;blend&quot;&#41;;</pre>
 <ul>
@@ -261,7 +256,7 @@ You can use ModelKey as well. This will give the same result as using default Bl
 
 </div>
 <!-- EDIT7 SECTION "Using BlenderLoader instead of BlenderModelLoader" [5262-6998] -->
-<h2><a>How does it work?</a></h2>
+<h2>How does it work?</h2>
 <div>
 
 <p>
@@ -275,9 +270,11 @@ If you define animations in your BlenderKey the animations will as well be impor
 Here is the list of how blender features are mapped into jme.
 </p>
 <div><table>
+	<thead>
 	<tr>
 		<th>Blender</th><th>jMonkeyEngine3</th><th>Note</th>
 	</tr>
+	</thead>
 	<tr>
 		<td>Scene		</td><td>Node</td><td> </td>
 	</tr>
@@ -308,7 +305,6 @@ Here is the list of how blender features are mapped into jme.
 </table></div>
 <!-- EDIT9 TABLE [7472-7823] -->
 <p>
-
 Using BlenderLoader can allow you to use blend file as your local assets repository.
 You can store your textures, materials or meshes there and simply import it when needed.
 Currently blender 2.49 and 2.5+ are supported (only the stable versions).
@@ -317,11 +313,11 @@ Probably versions before 2.49 will work pretty well too, but I never checked tha
 
 </div>
 <!-- EDIT8 SECTION "How does it work?" [6999-8158] -->
-<h2><a>Notes</a></h2>
+<h2>Notes</h2>
 <div>
 
 <p>
-I know that the current version of loader is not yet fully functional, but belive me ??? Blender is a very large issue ;)
+I know that the current version of loader is not yet fully functional, but belive me – Blender is a very large issue ;)
 Hope I will meet your expectations.
 </p>
 
@@ -346,25 +342,21 @@ Marcin Roguski (Kaelthas)
 <p>
 P.S.
 This text might be edited in a meantime if I forgot about something ;)
-
 </p>
 <hr />
 
 <p>
 See also:
-
 </p>
 <ul>
 <li><div> <a href="/com/jme3/gde/docs/sdk/3ds_to_blender_to_jmp.html">3DS to Blender to j3o</a></div>
 </li>
 </ul>
-<div><span>
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
-	<a href="/wiki/doku.php/tag:tool?do=showtag&amp;tag=tag%3Atool">tool</a>,
-	<a href="/wiki/doku.php/tag:asset?do=showtag&amp;tag=tag%3Aasset">asset</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/sdk/tag_documentation_sdk_tool_asset">tag_documentation_sdk_tool_asset</a>
+</p>
 
 </div>
 <!-- EDIT10 SECTION "Notes" [8159-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:blender?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/sdk:blender?do=export_xhtmlbody">view online version</a></em></p>

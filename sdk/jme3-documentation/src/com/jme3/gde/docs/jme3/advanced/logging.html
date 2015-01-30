@@ -1,24 +1,22 @@
 
-<h1><a>Logging and Monitoring</a></h1>
+<h1>Logging and Monitoring</h1>
 <div>
 
 </div>
 <!-- EDIT1 SECTION "Logging and Monitoring" [1-38] -->
-<h2><a>Logging Like a Newbie</a></h2>
+<h2>Logging Like a Newbie</h2>
 <div>
 
 <p>
-
 Many developers just use <code>System.out.println()</code> to print diagnostic strings to the terminal. The problem with that is that before the release, you have to go through all your code and make certain you removed all these <code>println()</code> calls. You do not want your customers to see them, and needlessly worry about ominous outdated debugging diagnostics. 
 </p>
 
 </div>
 <!-- EDIT2 SECTION "Logging Like a Newbie" [39-428] -->
-<h2><a>Logging Like a Pro</a></h2>
+<h2>Logging Like a Pro</h2>
 <div>
 
 <p>
-
 Instead of <code>println()</code>, use the standard Java logger from <code>java.util.logging</code>. It has many advantages for professional game development:
 </p>
 <ul>
@@ -37,7 +35,6 @@ Instead of <code>println()</code>, use the standard Java logger from <code>java.
 </ul>
 
 <p>
-
 To print comments like a pro, you use the following logger syntax.
 </p>
 <ol>
@@ -64,8 +61,7 @@ Example: <code>Vector3f a = cam.getLocation();</code> </div>
 </ol>
 
 <p>
-
-<p><div>As you see in the examples, you should phrase potentially &quot;customer facing&quot; errors in a neutral way and offer <em>a reason and a solution</em> for the error (if you don&#039;t, it has no value to your customer). If your deveopment team uses WARNINGs as replacement for casual printlns, make sure you deactivate them for the release.
+<p><div>As you see in the examples, you should phrase potentially “customer facing” errors in a neutral way and offer <em>a reason and a solution</em> for the error (if you don&#039;t, it has no value to your customer). If your deveopment team uses WARNINGs as replacement for casual printlns, make sure you deactivate them for the release.
 </div></p>
 </p>
 
@@ -75,39 +71,34 @@ More details about <object classid="java:org.netbeans.modules.javahelp.BrowserDi
 
 </div>
 <!-- EDIT3 SECTION "Logging Like a Pro" [429-2826] -->
-<h2><a>Switching the Logger on and off</a></h2>
+<h2>Switching the Logger on and off</h2>
 <div>
 
 <p>
-
 In the release version you will deactivate the logging output to the terminal.
 </p>
 
 <p>
 To deactivate the default logger for a release, you set the log level to only report <code>severe</code> messages:
-
 </p>
-<pre>Logger.getLogger&#40;??????&#41;.setLevel&#40;Level.SEVERE&#41;;</pre>
+<pre>Logger.getLogger&#40;””&#41;.setLevel&#40;Level.SEVERE&#41;;</pre>
 
 <p>
 During development or a beta test, you can tune down the default logger, and set the log level to only report <code>warning</code>s:
-
 </p>
-<pre>Logger.getLogger&#40;??????&#41;.setLevel&#40;Level.WARNING&#41;;</pre>
+<pre>Logger.getLogger&#40;””&#41;.setLevel&#40;Level.WARNING&#41;;</pre>
 
 <p>
 To activate full logging, e.g. for debugging and testing, use the <code>fine</code> level: 
-
 </p>
-<pre>Logger.getLogger&#40;??????&#41;.setLevel&#40;Level.FINE&#41;;</pre>
+<pre>Logger.getLogger&#40;””&#41;.setLevel&#40;Level.FINE&#41;;</pre>
 
 </div>
 <!-- EDIT4 SECTION "Switching the Logger on and off" [2827-3468] -->
-<h2><a>Advanced Error Handling</a></h2>
+<h2>Advanced Error Handling</h2>
 <div>
 
 <p>
-
 When an uncaught exception reaches certain parts of the jME3 system then the default response is to log the error and then exit the application. This is because an error happening every frame will rapidly fill logs with repeated failings and potentially mask or over-write the original cause of the problem or even the application may continue for a while and then suffer other errors caused by the first and make the root cause hard to determine.
 </p>
 
@@ -117,4 +108,4 @@ This behaviour can be partially modified by overriding the method handleError in
 
 </div>
 <!-- EDIT5 SECTION "Advanced Error Handling" [3469-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:logging?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:logging?do=export_xhtmlbody">view online version</a></em></p>

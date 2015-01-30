@@ -1,17 +1,15 @@
 
-<h1><a>Audio Environment Presets</a></h1>
+<h1>Audio Environment Presets</h1>
 <div>
 
 <p>
-
-Use these presets together with <a href="/com/jme3/gde/docs/jme3/advanced/audio.html">Audio</a> Nodes to create different &quot;moods&quot; for sounds. Environment effects make your audio sound as if the listener were in various places that have different types of echoes. 
+Use these presets together with <a href="/com/jme3/gde/docs/jme3/advanced/audio.html">Audio</a> Nodes to create different “moods” for sounds. Environment effects make your audio sound as if the listener were in various places that have different types of echoes. 
 </p>
 
 <p>
 Usage:
-
 </p>
-<pre>Environment Generic = new Environment&#40;
+<pre>Environment&#40;
     new float&#91;&#93;&#123; 0, 7.5f, 1f, -1000, -100, 0, 1.49f, 0.83f, 1f, -2602,
                  0.007f, 0f, 0f, 0f, 200, 0.011f, 0f, 0f, 0f, 0.250f,
                  0f, 0.250f, 0f, -5f, 5000f, 250f, 0f, 0x3f&#125; &#41;;
@@ -19,7 +17,7 @@ audioRenderer.setEnvironment&#40;myEnvironment&#41;;</pre>
 
 </div>
 <!-- EDIT1 SECTION "Audio Environment Presets" [1-568] -->
-<h2><a>Castle</a></h2>
+<h2>Castle</h2>
 <div>
 <pre>CastleSmallRoom    = new Environment &#40; new float&#91;&#93;&#123; 26, 8.3f, 0.890f, -1000, -800, -2000, 1.22f, 0.83f, 0.31f, -100, 0.022f, 0f, 0f, 0f, 600, 0.011f, 0f, 0f, 0f, 0.138f, 0.080f, 0.250f, 0f, -5f, 5168.6f, 139.5f, 0f, 0x20&#125; &#41;;
 CastleShortPassage = new Environment &#40; new float&#91;&#93;&#123; 26, 8.3f, 0.890f, -1000, -1000, -2000, 2.32f, 0.83f, 0.31f, -100, 0.007f, 0f, 0f, 0f, 200, 0.023f, 0f, 0f, 0f, 0.138f, 0.080f, 0.250f, 0f, -5f, 5168.6f, 139.5f, 0f, 0x20&#125; &#41;;
@@ -33,7 +31,7 @@ CastleAlcove       = new Environment &#40; new float&#91;&#93;&#123; 26, 8.3f, 0
 
 </div>
 <!-- EDIT2 SECTION "Castle" [569-2630] -->
-<h2><a>Warehouse, Factory</a></h2>
+<h2>Warehouse, Factory</h2>
 <div>
 <pre>FactoryAlcove       = new Environment &#40; new float&#91;&#93;&#123; 26, 1.8f, 0.590f, -1200, -200, -600, 3.14f, 0.65f, 1.31f, 300, 0.010f, 0f, 0f, 0f, 000, 0.038f, 0f, 0f, 0f, 0.114f, 0.100f, 0.250f, 0f, -5f, 3762.6f, 362.5f, 0f, 0x20&#125; &#41;;
 FactoryShortpassage = new Environment &#40; new float&#91;&#93;&#123; 26, 1.8f, 0.640f, -1200, -200, -600, 2.53f, 0.65f, 1.31f, 0, 0.010f, 0f, 0f, 0f, 200, 0.038f, 0f, 0f, 0f, 0.135f, 0.230f, 0.250f, 0f, -5f, 3762.6f, 362.5f, 0f, 0x20&#125; &#41; &#41;;
@@ -47,7 +45,7 @@ FactorySmallroom    = new Environment &#40; new float&#91;&#93;&#123; 26, 1.8f, 
 
 </div>
 <!-- EDIT3 SECTION "Warehouse, Factory" [2631-4706] -->
-<h2><a>Ice Palace</a></h2>
+<h2>Ice Palace</h2>
 <div>
 <pre>IcepalaceAlcove       = new Environment &#40; new float&#91;&#93;&#123; 26, 2.7f, 0.840f, -1000, -500, -1100, 2.76f, 1.46f, 0.28f, 100, 0.010f, 0f, 0f, 0f, -100, 0.030f, 0f, 0f, 0f, 0.161f, 0.090f, 0.250f, 0f, -5f, 12428.5f, 99.6f, 0f, 0x20&#125; &#41;;
 IcepalaceShortpassage = new Environment &#40; new float&#91;&#93;&#123; 26, 2.7f, 0.750f, -1000, -500, -1100, 1.79f, 1.46f, 0.28f, -600, 0.010f, 0f, 0f, 0f, 100, 0.019f, 0f, 0f, 0f, 0.177f, 0.090f, 0.250f, 0f, -5f, 12428.5f, 99.6f, 0f, 0x20&#125; &#41; &#41;;
@@ -61,7 +59,7 @@ IcepalaceSmallroom    = new Environment &#40; new float&#91;&#93;&#123; 26, 2.7f
 
 </div>
 <!-- EDIT4 SECTION "Ice Palace" [4707-6805] -->
-<h2><a>Space Station</a></h2>
+<h2>Space Station</h2>
 <div>
 <pre>SpacestationAlcove       = new Environment &#40; new float&#91;&#93;&#123; 26, 1.5f, 0.780f, -1000, -300, -100, 1.16f, 0.81f, 0.55f, 300, 0.007f, 0f, 0f, 0f, 000, 0.018f, 0f, 0f, 0f, 0.192f, 0.210f, 0.250f, 0f, -5f, 3316.1f, 458.2f, 0f, 0x20&#125; &#41;;
 SpacestationMediumroom   = new Environment &#40; new float&#91;&#93;&#123; 26, 1.5f, 0.750f, -1000, -400, -100, 3.01f, 0.50f, 0.55f, -800, 0.034f, 0f, 0f, 0f, 100, 0.035f, 0f, 0f, 0f, 0.209f, 0.310f, 0.250f, 0f, -5f, 3316.1f, 458.2f, 0f, 0x20&#125; &#41;;
@@ -74,7 +72,7 @@ SpacestationSmallroom    = new Environment &#40; new float&#91;&#93;&#123; 26, 1
 
 </div>
 <!-- EDIT5 SECTION "Space Station" [6806-8687] -->
-<h2><a>Wooden Hut or Ship</a></h2>
+<h2>Wooden Hut or Ship</h2>
 <div>
 <pre>WoodenAlcove           = new Environment &#40; new float&#91;&#93;&#123; 26, 7.5f, 1f, -1000, -1800, -1000, 1.22f, 0.62f, 0.91f, 100, 0.012f, 0f, 0f, 0f, -300, 0.024f, 0f, 0f, 0f, 0.250f, 0f, 0.250f, 0f, -5f, 4705f, 99.6f, 0f, 0x3f&#125; &#41;;
 WoodenShortpassage     = new Environment &#40; new float&#91;&#93;&#123; 26, 7.5f, 1f, -1000, -1800, -1000, 1.75f, 0.50f, 0.87f, -100, 0.012f, 0f, 0f, 0f, -400, 0.024f, 0f, 0f, 0f, 0.250f, 0f, 0.250f, 0f, -5f, 4705f, 99.6f, 0f, 0x3f&#125; &#41;;
@@ -88,7 +86,7 @@ WoodenCourtyard        = new Environment &#40; new float&#91;&#93;&#123; 26, 7.5
 
 </div>
 <!-- EDIT6 SECTION "Wooden Hut or Ship" [8688-10715] -->
-<h2><a>Sport</a></h2>
+<h2>Sport</h2>
 <div>
 <pre>SportEmptystadium      = new Environment &#40; new float&#91;&#93;&#123; 26, 7.2f, 1f, -1000, -700, -200, 6.26f, 0.51f, 1.10f, -2400, 0.183f, 0f, 0f, 0f, -800, 0.038f, 0f, 0f, 0f, 0.250f, 0f, 0.250f, 0f, -5f, 5000f, 250f, 0f, 0x20&#125; &#41;;
 SportSquashcourt       = new Environment &#40; new float&#91;&#93;&#123; 26, 7.5f, 0.750f, -1000, -1000, -200, 2.22f, 0.91f, 1.16f, -700, 0.007f, 0f, 0f, 0f, -200, 0.011f, 0f, 0f, 0f, 0.126f, 0.190f, 0.250f, 0f, -5f, 7176.9f, 211.2f, 0f, 0x20&#125; &#41;;
@@ -99,7 +97,7 @@ SportFullstadium       = new Environment &#40; new float&#91;&#93;&#123; 26, 7.2
 
 </div>
 <!-- EDIT7 SECTION "Sport" [10716-12105] -->
-<h2><a>Pipes</a></h2>
+<h2>Pipes</h2>
 <div>
 <pre>Sewerpipe    = new Environment &#40; new float&#91;&#93;&#123; 21, 1.7f, 0.800f, -1000, -1000, 0, 2.81f, 0.14f, 1f, 429, 0.014f, 0f, 0f, 0f, 1023, 0.021f, 0f, 0f, 0f, 0.250f, 0f, 0.250f, 0f, -5f, 5000f, 250f, 0f, 0x3f&#125; &#41;;
 PipeSmall    = new Environment &#40; new float&#91;&#93;&#123; 26, 50.3f, 1f, -1000, -900, -1300, 5.04f, 0.10f, 0.10f, -600, 0.032f, 0f, 0f, 0f, 800, 0.015f, 0f, 0f, 0f, 0.250f, 0f, 0.250f, 0f, -5f, 2854.4f, 20f, 0f, 0x3f&#125; &#41;;
@@ -109,7 +107,7 @@ PipeResonant = new Environment &#40; new float&#91;&#93;&#123; 26, 1.3f, 0.910f,
 
 </div>
 <!-- EDIT8 SECTION "Pipes" [12106-13186] -->
-<h2><a>Moods</a></h2>
+<h2>Moods</h2>
 <div>
 <pre>Heaven    = new Environment &#40; new float&#91;&#93;&#123; 26, 19.6f, 0.940f, -1000, -200, -700, 5.04f, 1.12f, 0.56f, -1230, 0.020f, 0f, 0f, 0f, 200, 0.029f, 0f, 0f, 0f, 0.250f, 0.080f, 2.742f, 0.050f, -2f, 5000f, 250f, 0f, 0x3f&#125; &#41;;
 Hell      = new Environment &#40; new float&#91;&#93;&#123; 26, 100f, 0.570f, -1000, -900, -700, 3.57f, 0.49f, 2f, -10000, 0.020f, 0f, 0f, 0f, 300, 0.030f, 0f, 0f, 0f, 0.110f, 0.040f, 2.109f, 0.520f, -5f, 5000f, 139.5f, 0f, 0x40&#125; &#41;;
@@ -120,7 +118,7 @@ Psychotic = new Environment &#40; new float&#91;&#93;&#123; 25, 1f, 0.500f, -100
 
 </div>
 <!-- EDIT9 SECTION "Moods" [13187-14458] -->
-<h2><a>Car Racing</a></h2>
+<h2>Car Racing</h2>
 <div>
 <pre>DrivingCommentator    = new Environment &#40; new float&#91;&#93;&#123; 26, 3f, 0f, 1000, -500, -600, 2.42f, 0.88f, 0.68f, -1400, 0.093f, 0f, 0f, 0f, -1200, 0.017f, 0f, 0f, 0f, 0.250f, 1f, 0.250f, 0f, -10f, 5000f, 250f, 0f, 0x20&#125; &#41;;
 DrivingPitgarage       = new Environment &#40; new float&#91;&#93;&#123; 26, 1.9f, 0.590f, -1000, -300, -500, 1.72f, 0.93f, 0.87f, -500, 0f, 0f, 0f, 0f, 200, 0.016f, 0f, 0f, 0f, 0.250f, 0.110f, 0.250f, 0f, -5f, 5000f, 250f, 0f, 0x0&#125; &#41;;
@@ -133,7 +131,7 @@ DrivingTunnel          = new Environment &#40; new float&#91;&#93;&#123; 26, 3.1
 
 </div>
 <!-- EDIT10 SECTION "Car Racing" [14459-16253] -->
-<h2><a>City</a></h2>
+<h2>City</h2>
 <div>
 <pre>CityIndoors   = new Environment &#40; new float&#91;&#93;&#123; 16, 7.5f, 0.500f, -1000, -800, 0, 1.49f, 0.67f, 1f, -2273, 0.007f, 0f, 0f, 0f, -1691, 0.011f, 0f, 0f, 0f, 0.250f, 0f, 0.250f, 0f, -5f, 5000f, 250f, 0f, 0x3f&#125; &#41;;
 CityStreets   = new Environment &#40; new float&#91;&#93;&#123; 26, 3f, 0.780f, -1000, -300, -100, 1.79f, 1.12f, 0.91f, -1100, 0.046f, 0f, 0f, 0f, -1400, 0.028f, 0f, 0f, 0f, 0.250f, 0.200f, 0.250f, 0f, -5f, 5000f, 250f, 0f, 0x20&#125; &#41;;
@@ -145,7 +143,7 @@ CityAbandoned = new Environment &#40; new float&#91;&#93;&#123; 26, 3f, 0.690f, 
 
 </div>
 <!-- EDIT11 SECTION "City" [16254-17801] -->
-<h2><a>Small Indoor Rooms</a></h2>
+<h2>Small Indoor Rooms</h2>
 <div>
 <pre>Room         = new Environment &#40; new float&#91;&#93;&#123; 2, 1.9f, 1f, -1000, -454, 0, 0.40f, 0.83f, 1f, -1646, 0.002f, 0f, 0f, 0f, 53, 0.003f, 0f, 0f, 0f, 0.250f, 0f, 0.250f, 0f, -5f, 5000f, 250f, 0f, 0x3f&#125; &#41;;
 Bathroom     = new Environment &#40; new float&#91;&#93;&#123; 3, 1.4f, 1f, -1000, -1200, 0, 1.49f, 0.54f, 1f, -370, 0.007f, 0f, 0f, 0f, 1030, 0.011f, 0f, 0f, 0f, 0.250f, 0f, 0.250f, 0f, -5f, 5000f, 250f, 0f, 0x3f&#125; &#41;;
@@ -155,7 +153,7 @@ Stoneroom    = new Environment &#40; new float&#91;&#93;&#123; 5, 11.6f, 1f, -10
 
 </div>
 <!-- EDIT12 SECTION "Small Indoor Rooms" [17802-18853] -->
-<h2><a>Medium-Sized Indoor Rooms</a></h2>
+<h2>Medium-Sized Indoor Rooms</h2>
 <div>
 <pre>Workshop     = new Environment &#40; new float&#91;&#93;&#123; 26, 1.9f, 1f, -1000, -1700, -800, 0.76f, 1f, 1f, 0, 0.012f, 0f, 0f, 0f, 100, 0.012f, 0f, 0f, 0f, 0.250f, 0f, 0.250f, 0f, -5f, 5000f, 250f, 0f, 0x0&#125; &#41;;
 Schoolroom   = new Environment &#40; new float&#91;&#93;&#123; 26, 1.86f, 0.690f, -1000, -400, -600, 0.98f, 0.45f, 0.18f, 300, 0.017f, 0f, 0f, 0f, 300, 0.015f, 0f, 0f, 0f, 0.095f, 0.140f, 0.250f, 0f, -5f, 7176.9f, 211.2f, 0f, 0x20&#125; &#41;;
@@ -167,7 +165,7 @@ Chapel       = new Environment &#40; new float&#91;&#93;&#123; 26, 19.6f, 0.840f
 
 </div>
 <!-- EDIT13 SECTION "Medium-Sized Indoor Rooms" [18854-20400] -->
-<h2><a>Large Indoor Rooms</a></h2>
+<h2>Large Indoor Rooms</h2>
 <div>
 <pre>Auditorium     = new Environment &#40; new float&#91;&#93;&#123; 6, 21.6f, 1f, -1000, -476, 0, 4.32f, 0.59f, 1f, -789, 0.020f, 0f, 0f, 0f, -289, 0.030f, 0f, 0f, 0f, 0.250f, 0f, 0.250f, 0f, -5f, 5000f, 250f, 0f, 0x3f&#125; &#41;;
 Concerthall    = new Environment &#40; new float&#91;&#93;&#123; 7, 19.6f, 1f, -1000, -500, 0, 3.92f, 0.70f, 1f, -1230, 0.020f, 0f, 0f, 0f, -02, 0.029f, 0f, 0f, 0f, 0.250f, 0f, 0.250f, 0f, -5f, 5000f, 250f, 0f, 0x3f&#125; &#41;;
@@ -179,7 +177,7 @@ DomeSaintPauls = new Environment &#40; new float&#91;&#93;&#123; 26, 50.3f, 0.87
 
 </div>
 <!-- EDIT14 SECTION "Large Indoor Rooms" [20401-21901] -->
-<h2><a>Hallways, Alleys</a></h2>
+<h2>Hallways, Alleys</h2>
 <div>
 <pre>Carpettedhallway = new Environment &#40; new float&#91;&#93;&#123; 11, 1.9f, 1f, -1000, -4000, 0, 0.30f, 0.10f, 1f, -1831, 0.002f, 0f, 0f, 0f, -1630, 0.030f, 0f, 0f, 0f, 0.250f, 0f, 0.250f, 0f, -5f, 5000f, 250f, 0f, 0x3f&#125; &#41;;
 Hallway          = new Environment &#40; new float&#91;&#93;&#123; 12, 1.8f, 1f, -1000, -300, 0, 1.49f, 0.59f, 1f, -1219, 0.007f, 0f, 0f, 0f, 441, 0.011f, 0f, 0f, 0f, 0.250f, 0f, 0.250f, 0f, -5f, 5000f, 250f, 0f, 0x3f&#125; &#41;;
@@ -188,7 +186,7 @@ Alley            = new Environment &#40; new float&#91;&#93;&#123; 14, 7.5f, 0.3
 
 </div>
 <!-- EDIT15 SECTION "Hallways, Alleys" [21902-22779] -->
-<h2><a>Outdoors</a></h2>
+<h2>Outdoors</h2>
 <div>
 <pre>Backyard      = new Environment &#40; new float&#91;&#93;&#123; 26, 80.3f, 0.450f, -1000, -1200, -600, 1.12f, 0.34f, 0.46f, -700, 0.069f, 0f, 0f, -0f, -300, 0.023f, 0f, 0f, 0f, 0.218f, 0.340f, 0.250f, 0f, -5f, 4399.1f, 242.9f, 0f, 0x0&#125; &#41;;
 Plain         = new Environment &#40; new float&#91;&#93;&#123; 19, 42.5f, 0.210f, -1000, -2000, 0, 1.49f, 0.50f, 1f, -2466, 0.179f, 0f, 0f, 0f, -1926, 0.100f, 0f, 0f, 0f, 0.250f, 1f, 0.250f, 0f, -5f, 5000f, 250f, 0f, 0x3f&#125; &#41;;
@@ -203,11 +201,11 @@ Parkinglot    = new Environment &#40; new float&#91;&#93;&#123; 20, 8.3f, 1f, -1
 
 </div>
 <!-- EDIT16 SECTION "Outdoors" [22780-24957] -->
-<h2><a>Water</a></h2>
+<h2>Water</h2>
 <div>
 <pre>Underwater     = new Environment &#40; new float&#91;&#93;&#123; 22, 1.8f, 1f, -1000, -4000, 0, 1.49f, 0.10f, 1f, -449, 0.007f, 0f, 0f, 0f, 1700, 0.011f, 0f, 0f, 0f, 0.250f, 0f, 1.180f, 0.348f, -5f, 5000f, 250f, 0f, 0x3f&#125; &#41;;
 Smallwaterroom = new Environment &#40; new float&#91;&#93;&#123; 26, 36.2f, 0.700f, -1000, -698, 0, 1.51f, 1.25f, 1.14f, -100, 0.020f, 0f, 0f, 0f, 300, 0.030f, 0f, 0f, 0f, 0.179f, 0.150f, 0.895f, 0.190f, -7f, 5000f, 250f, 0f, 0x0&#125; &#41;;</pre>
 
 </div>
 <!-- EDIT17 SECTION "Water" [24958-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:audio_environment_presets?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:audio_environment_presets?do=export_xhtmlbody">view online version</a></em></p>

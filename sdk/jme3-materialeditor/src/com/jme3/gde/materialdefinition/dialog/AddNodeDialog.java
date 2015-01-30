@@ -28,7 +28,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 /**
  *
- * @author m327836
+ * @author Nehon
  */
 public class AddNodeDialog extends javax.swing.JDialog {
 

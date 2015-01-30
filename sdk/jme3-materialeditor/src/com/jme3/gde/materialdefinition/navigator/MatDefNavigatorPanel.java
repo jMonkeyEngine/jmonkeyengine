@@ -22,6 +22,7 @@ import org.openide.util.LookupListener;
  * @author Nehon
  */
 @NavigatorPanel.Registration(mimeType = "text/jme-materialdefinition", displayName = "Material Def")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class MatDefNavigatorPanel extends JPanel implements NavigatorPanel, ExplorerManager.Provider {
 
     /**

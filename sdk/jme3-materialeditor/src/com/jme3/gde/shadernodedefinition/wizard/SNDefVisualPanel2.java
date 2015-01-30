@@ -12,6 +12,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class SNDefVisualPanel2 extends JPanel {
 
     private final Object[] emptyObj = {"", "", ""};

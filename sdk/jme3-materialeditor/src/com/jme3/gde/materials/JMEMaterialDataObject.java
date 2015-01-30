@@ -32,6 +32,7 @@
 package com.jme3.gde.materials;
 
 import com.jme3.gde.core.assets.AssetDataObject;
+import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.materials.multiview.MaterialOpenSupport;
 import java.io.IOException;
 import org.openide.filesystems.FileObject;
@@ -53,8 +54,9 @@ public class JMEMaterialDataObject extends AssetDataObject {
     public JMEMaterialDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
         CookieSet cookies = getCookieSet();
-//        cookies.add((Node.Cookie) DataEditorSupport.create(this, getPrimaryEntry(), cookies));
-        cookies.add((Node.Cookie) new MaterialOpenSupport(getPrimaryEntry()));
+        if (getLookup().lookup(ProjectAssetManager.class) != null) {
+            cookies.add((Node.Cookie) new MaterialOpenSupport(getPrimaryEntry()));
+        }
     }
 
 }

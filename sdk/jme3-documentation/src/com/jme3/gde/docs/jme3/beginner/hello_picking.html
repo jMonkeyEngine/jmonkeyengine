@@ -1,9 +1,8 @@
 
-<h1><a>jMonkeyEngine 3 Tutorial (8) - Hello Picking</a></h1>
+<h1>jMonkeyEngine 3 Tutorial (8) - Hello Picking</h1>
 <div>
 
 <p>
-
 Previous: <a href="/com/jme3/gde/docs/jme3/beginner/hello_animation.html">Hello Animation</a>,
 Next: <a href="/com/jme3/gde/docs/jme3/beginner/hello_collision.html">Hello Collision</a>
 </p>
@@ -13,7 +12,7 @@ Typical interactions in games include shooting, picking up objects, and opening 
 </p>
 
 <p>
-You can pick something by either pressing a key on the keyboard, or by clicking with the mouse. In either case, you identify the target by aiming a ray ???a straight line??? into the scene. This method to implement picking is called <em>ray casting</em> (which is not the same as <em>ray tracing</em>).
+You can pick something by either pressing a key on the keyboard, or by clicking with the mouse. In either case, you identify the target by aiming a ray –a straight line– into the scene. This method to implement picking is called <em>ray casting</em> (which is not the same as <em>ray tracing</em>).
 </p>
 
 <p>
@@ -26,7 +25,7 @@ This tutorial relies on what you have learned in the <a href="/com/jme3/gde/docs
 
 </div>
 <!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (8) - Hello Picking" [1-991] -->
-<h2><a>Sample Code</a></h2>
+<h2>Sample Code</h2>
 <div>
 <pre>package jme3test.helloworld;
 &nbsp;
@@ -86,7 +85,7 @@ public class HelloPicking extends SimpleApplication &#123;
     inputManager.addListener&#40;actionListener, &quot;Shoot&quot;&#41;;
   &#125;
   /** Defining the &quot;Shoot&quot; action: Determine what was hit and how to respond. */
-  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+  private ActionListener&#40;&#41; &#123;
 &nbsp;
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
       if &#40;name.equals&#40;&quot;Shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
@@ -123,7 +122,7 @@ public class HelloPicking extends SimpleApplication &#123;
 &nbsp;
   /** A cube object for target practice */
   protected Geometry makeCube&#40;String name, float x, float y, float z&#41; &#123;
-    Box box = new Box&#40;1, 1, 1&#41;;
+    Box&#40;1, 1, 1&#41;;
     Geometry cube = new Geometry&#40;name, box&#41;;
     cube.setLocalTranslation&#40;x, y, z&#41;;
     Material mat1 = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -134,7 +133,7 @@ public class HelloPicking extends SimpleApplication &#123;
 &nbsp;
   /** A floor to show that the &quot;shot&quot; can go through several objects. */
   protected Geometry makeFloor&#40;&#41; &#123;
-    Box box = new Box&#40;15, .2f, 15&#41;;
+    Box&#40;15, .2f, 15&#41;;
     Geometry floor = new Geometry&#40;&quot;the Floor&quot;, box&#41;;
     floor.setLocalTranslation&#40;0, -4, -5&#41;;
     Material mat1 = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -184,31 +183,28 @@ You should see four colored cubes floating over a gray floor, and cross-hairs. A
 
 <p>
 Keep an eye on the application&#039;s output stream, it will give you more details: The name of the mesh that was hit, the coordinates of the hit, and the distance.
-
 </p>
 
 </div>
 <!-- EDIT2 SECTION "Sample Code" [992-7402] -->
-<h2><a>Understanding the Helper Methods</a></h2>
+<h2>Understanding the Helper Methods</h2>
 <div>
 
 <p>
-
 The methods <code>makeCube()</code>,  <code>makeFloor()</code>, <code>initMark()</code>, and <code>initCrossHairs</code>, are custom helper methods. We call them from  <code>simpleInitApp()</code> to initialize the scenegraph with sample content.
-
 </p>
 <ol>
-<li><div> <code>makeCube()</code> creates simple colored boxes for &quot;target practice&quot;.</div>
+<li><div> <code>makeCube()</code> creates simple colored boxes for “target practice”.</div>
 </li>
-<li><div> <code>makeFloor()</code> creates a gray floor node for &quot;target practice&quot;.</div>
+<li><div> <code>makeFloor()</code> creates a gray floor node for “target practice”.</div>
 </li>
-<li><div> <code>initMark()</code> creates a red sphere (&quot;mark&quot;). We will use it later to mark the spot that was hit.</div>
+<li><div> <code>initMark()</code> creates a red sphere (“mark”). We will use it later to mark the spot that was hit.</div>
 <ul>
 <li><div> Note that the mark is not attached and therefor not visible at the start!</div>
 </li>
 </ul>
 </li>
-<li><div> <code>initCrossHairs()</code> creates simple cross-hairs by printing a &quot;+&quot; sign in the middle of the screen.</div>
+<li><div> <code>initCrossHairs()</code> creates simple cross-hairs by printing a “+” sign in the middle of the screen.</div>
 <ul>
 <li><div> Note that the cross-hairs are attached to the <code>guiNode</code>, not to the <code>rootNode</code>.</div>
 </li>
@@ -217,18 +213,16 @@ The methods <code>makeCube()</code>,  <code>makeFloor()</code>, <code>initMark()
 </ol>
 
 <p>
-
-In this example, we attached all &quot;shootable&quot; objects to one custom node, <code>Shootables</code>. This is an optimization so the engine only has to calculate intersections with objects we are actually interested in.  The <code>Shootables</code> node is attached to the <code>rootNode</code> as usual.
+In this example, we attached all “shootable” objects to one custom node, <code>Shootables</code>. This is an optimization so the engine only has to calculate intersections with objects we are actually interested in.  The <code>Shootables</code> node is attached to the <code>rootNode</code> as usual.
 </p>
 
 </div>
 <!-- EDIT3 SECTION "Understanding the Helper Methods" [7403-8443] -->
-<h2><a>Understanding Ray Casting for Hit Testing</a></h2>
+<h2>Understanding Ray Casting for Hit Testing</h2>
 <div>
 
 <p>
-
-Our goal is to determine which box the user &quot;shot&quot; (picked). In general, we want to determine which mesh the user has selected by aiming the cross-hairs at it. Mathematically, we draw a line from the camera and see whether it intersects with objects in the 3D scene. This line is called a ray.
+Our goal is to determine which box the user “shot” (picked). In general, we want to determine which mesh the user has selected by aiming the cross-hairs at it. Mathematically, we draw a line from the camera and see whether it intersects with objects in the 3D scene. This line is called a ray.
 </p>
 
 <p>
@@ -255,18 +249,16 @@ Here is our simple ray casting algorithm for picking objects:
 
 </div>
 <!-- EDIT4 SECTION "Understanding Ray Casting for Hit Testing" [8444-9286] -->
-<h2><a>Implementing Hit Testing</a></h2>
+<h2>Implementing Hit Testing</h2>
 <div>
 
 </div>
 <!-- EDIT5 SECTION "Implementing Hit Testing" [9287-9324] -->
-<h3><a>Loading the scene</a></h3>
+<h3>Loading the scene</h3>
 <div>
 
 <p>
-
 First initialize some shootable nodes and attach them to the scene. You will use the <code>mark</code> object later.
-
 </p>
 <pre>  Node shootables;
   Geometry mark;
@@ -288,13 +280,11 @@ First initialize some shootable nodes and attach them to the scene. You will use
 
 </div>
 <!-- EDIT6 SECTION "Loading the scene" [9325-10011] -->
-<h3><a>Setting Up the Input Listener</a></h3>
+<h3>Setting Up the Input Listener</h3>
 <div>
 
 <p>
-
 Next you declare the shooting action. It can be triggered either by clicking, or by pressing the space bar. The <code>initKeys()</code> method is called from <code>simpleInitApp()</code> to set up these input mappings.
-
 </p>
 <pre>  /** Declaring the &quot;Shoot&quot; action and its triggers. */
   private void initKeys&#40;&#41; &#123;
@@ -306,11 +296,10 @@ Next you declare the shooting action. It can be triggered either by clicking, or
 
 </div>
 <!-- EDIT7 SECTION "Setting Up the Input Listener" [10012-10652] -->
-<h3><a>Picking Action Using Crosshairs</a></h3>
+<h3>Picking Action Using Crosshairs</h3>
 <div>
 
 <p>
-
 Next we implement the ActionListener that responds to the Shoot trigger with an action. The action follows the ray casting algorithm described above:
 </p>
 <ol>
@@ -327,11 +316,10 @@ Next we implement the ActionListener that responds to the Shoot trigger with an 
 </ol>
 
 <p>
-
 Note how it prints a lot of output to show you which hits were registered.
 </p>
 <pre>  /** Defining the &quot;Shoot&quot; action: Determine what was hit and how to respond. */
-  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+  private ActionListener&#40;&#41; &#123;
     @Override
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
       if &#40;name.equals&#40;&quot;Shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
@@ -367,18 +355,16 @@ Note how it prints a lot of output to show you which hits were registered.
   &#125;;</pre>
 
 <p>
-<strong>Tip:</strong> Notice how you use the provided method <code>results.getClosestCollision().getContactPoint()</code> to determine the <em>closest</em> hit&#039;s location. If your game includes a &quot;weapon&quot; or &quot;spell&quot; that can hit multiple targets, you could also loop over the list of results, and interact with each of them.
+<strong>Tip:</strong> Notice how you use the provided method <code>results.getClosestCollision().getContactPoint()</code> to determine the <em>closest</em> hit&#039;s location. If your game includes a “weapon” or “spell” that can hit multiple targets, you could also loop over the list of results, and interact with each of them.
 </p>
 
 </div>
 <!-- EDIT8 SECTION "Picking Action Using Crosshairs" [10653-13426] -->
-<h3><a>Picking Action Using Mouse Pointer</a></h3>
+<h3>Picking Action Using Mouse Pointer</h3>
 <div>
 
 <p>
-
-The above example assumes that the player is aiming crosshairs (attached to the center of the screen) at the target. But you can change the picking code to allow you to freely click at objects in the scene with a visible mouse pointer. In order to do this, and you have to convert the 2d screen coordinates of the click to 3D world coordinates to get the start point of the picking ray.
-
+The above example assumes that the player is aiming crosshairs (attached to the center of the screen) at the target. But you can change the picking code to allow you to freely click at objects in the scene with a visible mouse pointer. In order to do this you have to convert the 2d screen coordinates of the click to 3D world coordinates to get the start point of the picking ray.
 </p>
 <ol>
 <li><div> Reset result list.</div>
@@ -412,23 +398,21 @@ Note that since you now use the mouse for picking, you can no longer use it to r
 </p>
 
 </div>
-<!-- EDIT9 SECTION "Picking Action Using Mouse Pointer" [13427-14863] -->
-<h2><a>Exercises</a></h2>
+<!-- EDIT9 SECTION "Picking Action Using Mouse Pointer" [13427-14858] -->
+<h2>Exercises</h2>
 <div>
 
 <p>
-
 After a hit was registered, the closest object is identified as target, and marked with a red dot.
 Modify the code sample to solve these exercises:
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Exercises" [14864-15035] -->
-<h3><a>Exercise 1: Magic Spell</a></h3>
+<!-- EDIT10 SECTION "Exercises" [14859-15030] -->
+<h3>Exercise 1: Magic Spell</h3>
 <div>
 
 <p>
-
 Change the color of the closest clicked target! <br/>
 Here are some tips:
 </p>
@@ -450,28 +434,26 @@ Here are some tips:
 </ol>
 
 </div>
-<!-- EDIT11 SECTION "Exercise 1: Magic Spell" [15036-15568] -->
-<h3><a>Exercise 2: Shoot a Character</a></h3>
+<!-- EDIT11 SECTION "Exercise 1: Magic Spell" [15031-15563] -->
+<h3>Exercise 2: Shoot a Character</h3>
 <div>
 
 <p>
-
-Shooting boxes isn&#039;t very exciting ??? can you add code that loads and positions a model in the scene, and shoot at it?
+Shooting boxes isn&#039;t very exciting – can you add code that loads and positions a model in the scene, and shoot at it?
 </p>
 <ul>
-<li><div> Tip: You can use <code>Spatial golem = assetManager.loadModel(&quot;Models/Oto/Oto.mesh.xml&quot;);</code> from the engine&#039;s jme3-test-data.jar.</div>
+<li><div> Tip: You can use <code>Spatial golem = assetManager.loadModel(“Models/Oto/Oto.mesh.xml”);</code> from the engine&#039;s jme3-test-data.jar.</div>
 </li>
 <li><div> Tip: Models are shaded! You need some light!</div>
 </li>
 </ul>
 
 </div>
-<!-- EDIT12 SECTION "Exercise 2: Shoot a Character" [15569-15907] -->
-<h3><a>Exercise 3: Pick up into Inventory</a></h3>
+<!-- EDIT12 SECTION "Exercise 2: Shoot a Character" [15564-15902] -->
+<h3>Exercise 3: Pick up into Inventory</h3>
 <div>
 
 <p>
-
 Change the code as follows to simulate the player picking up objects into the inventory: When you click once, the closest target is identified and detached from the scene. When you click a second time, the target is reattached at the location that you have clicked. Here are some tips:
 </p>
 <ol>
@@ -481,9 +463,9 @@ Change the code as follows to simulate the player picking up objects into the in
 </li>
 <li><div> You can make the inventory visible by attaching the inventory node to the guiNode (which attaches it to the HUD). Note the following caveats:</div>
 <ul>
-<li><div> If your nodes use a lit Material (not &quot;Unshaded.j3md&quot;), also add a light to the guiNode.</div>
+<li><div> If your nodes use a lit Material (not “Unshaded.j3md”), also add a light to the guiNode.</div>
 </li>
-<li><div> Size units are pixels in the HUD, therefor a 2-wu cube is displayed only 2 pixels wide in the HUD. ??? Scale it bigger!</div>
+<li><div> Size units are pixels in the HUD, therefor a 2-wu cube is displayed only 2 pixels wide in the HUD. – Scale it bigger!</div>
 </li>
 <li><div> Position the nodes: The bottom left corner of the HUD is (0f,0f), and the top right corner is at (settings.getWidth(),settings.getHeight()).</div>
 </li>
@@ -492,20 +474,17 @@ Change the code as follows to simulate the player picking up objects into the in
 </ol>
 
 <p>
-
 <p><div>Link to user-proposed solutions: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/jm3:solutions"><param name="text" value="<html><u>http://jmonkeyengine.org/wiki/doku.php/jm3:solutions</u></html>"><param name="textColor" value="blue"></object>
 <em>Be sure to try to solve them for yourself first!</em>
 </div></p>
-
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Exercise 3: Pick up into Inventory" [15908-17041] -->
-<h2><a>Conclusion</a></h2>
+<!-- EDIT13 SECTION "Exercise 3: Pick up into Inventory" [15903-17036] -->
+<h2>Conclusion</h2>
 <div>
 
 <p>
-
 You have learned how to use ray casting to solve the task of determining what object a user selected on the screen. You learned that this can be used for a variety of interactions, such as shooting, opening, picking up and dropping items, pressing a button or lever, etc.
 </p>
 
@@ -513,22 +492,19 @@ You have learned how to use ray casting to solve the task of determining what ob
 Use your imagination from here:
 </p>
 <ul>
-<li><div> In your game, the click can trigger any action on the identified Geometry: Detach it and put it into the inventory, attach something to it, trigger an animation or effect, open a door or crate, ??? etc.</div>
+<li><div> In your game, the click can trigger any action on the identified Geometry: Detach it and put it into the inventory, attach something to it, trigger an animation or effect, open a door or crate, – etc.</div>
 </li>
-<li><div> In your game, you could replace the red mark with a particle emitter, add an explosion effect, play a sound, calculate the new score after each hit depending on what was hit ??? etc.</div>
+<li><div> In your game, you could replace the red mark with a particle emitter, add an explosion effect, play a sound, calculate the new score after each hit depending on what was hit – etc.</div>
 </li>
 </ul>
 
 <p>
-
 Now, wouldn&#039;t it be nice if those targets and the floor were solid objects and you could walk around between them? Let&#039;s continue to learn about <a href="/com/jme3/gde/docs/jme3/beginner/hello_collision.html">Collision Detection</a>.
-
 </p>
 <hr />
 
 <p>
 See also:
-
 </p>
 <ul>
 <li><div> <a href="/com/jme3/gde/docs/jme3/beginner/hello_input_system.html">Hello Input</a></div>
@@ -538,18 +514,11 @@ See also:
 <li><div> <a href="/com/jme3/gde/docs/jme3/advanced/collision_and_intersection.html">Collision and Intersection</a></div>
 </li>
 </ul>
-<div><span>
-	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>,
-	<a href="/wiki/doku.php/tag:node?do=showtag&amp;tag=tag%3Anode">node</a>,
-	<a href="/wiki/doku.php/tag:ray?do=showtag&amp;tag=tag%3Aray">ray</a>,
-	<a href="/wiki/doku.php/tag:click?do=showtag&amp;tag=tag%3Aclick">click</a>,
-	<a href="/wiki/doku.php/tag:collision?do=showtag&amp;tag=tag%3Acollision">collision</a>,
-	<a href="/wiki/doku.php/tag:keyinput?do=showtag&amp;tag=tag%3Akeyinput">keyinput</a>,
-	<a href="/wiki/doku.php/tag:input?do=showtag&amp;tag=tag%3Ainput">input</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/jme3:beginner/tag_beginner_documentation_intro_node_ray_click_collision_keyinput_input">tag_beginner_documentation_intro_node_ray_click_collision_keyinput_input</a>
+</p>
 
 </div>
-<!-- EDIT14 SECTION "Conclusion" [17042-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_picking?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT14 SECTION "Conclusion" [17037-] -->
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:beginner:hello_picking?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,24 +1,23 @@
 
-<h1><a>The SceneExplorer</a></h1>
+<h1>The SceneExplorer</h1>
 <div>
 
 </div>
 <!-- EDIT1 SECTION "The SceneExplorer" [1-32] -->
-<h2><a>Adding Node types to SceneExplorer</a></h2>
+<h2>Adding Node types to SceneExplorer</h2>
 <div>
 
 <p>
-
 If your plugin brings in its own SceneGraph objects you can still have them work like any other SceneExplorer item, including its special properties.
 </p>
 
 <p>
-If you want to support special properties of your objects that are not exposed by the <acronym title="Software Development Kit">SDK</acronym> automatically, you will have to create your own class that extends org.openide.nodes.Node and implement the interface com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode. Then you register that class by adding 
+If you want to support special properties of your objects that are not exposed by the SDK automatically, you will have to create your own class that extends org.openide.nodes.Node and implement the interface com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode. Then you register that class by adding 
 </p>
 <pre>@org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)</pre>
 
 <p>
- above the body of your class. Thats all, your Spatial type will automatically be used and displayed in the SceneExplorer. Make sure you register a jar with the used classes in the plugin preferences under &quot;wrapped libraries&quot;, otherwise the IDE cannot access those classes.
+ above the body of your class. Thats all, your Spatial type will automatically be used and displayed in the SceneExplorer. Make sure you register a jar with the used classes in the plugin preferences under “wrapped libraries”, otherwise the IDE cannot access those classes.
 </p>
 
 <p>
@@ -27,16 +26,15 @@ AbstractSceneExplorerNode brings some other useful features you might want to in
 
 <p>
 The SceneExplorerNode can be used for Spatial and Control type objects.
-
 </p>
 <ul>
-<li><div><em>Add the &quot;Nodes <acronym title="Application Programming Interface">API</acronym>&quot; and &quot;Lookup <acronym title="Application Programming Interface">API</acronym>&quot; libraries to your project when you want to use this</em></div>
+<li><div><em>Add the “Nodes <abbr title="Application Programming Interface">API</abbr>” and “Lookup <abbr title="Application Programming Interface">API</abbr>” libraries to your project when you want to use this</em></div>
 </li>
 </ul>
 
 </div>
 <!-- EDIT2 SECTION "Adding Node types to SceneExplorer" [33-1510] -->
-<h3><a>Spatial Example</a></h3>
+<h3>Spatial Example</h3>
 <div>
 <pre>@org.openide.util.lookup.ServiceProvider&#40;service=SceneExplorerNode.class&#41;
 public class JmeGeometry extends JmeSpatial &#123;
@@ -93,7 +91,7 @@ public class JmeGeometry extends JmeSpatial &#123;
         return JmeGeometry.class;
     &#125;
 &nbsp;
-    public org.openide.nodes.Node&#91;&#93; createNodes&#40;Object key, Object key2, boolean readOnly&#41; &#123;
+    public org.openide.nodes.Node&#91;&#93; createNodes&#40;Object key2, boolean readOnly&#41; &#123;
         SceneExplorerChildren children=new SceneExplorerChildren&#40;&#40;com.jme3.scene.Spatial&#41;key&#41;;
         children.setReadOnly&#40;readOnly&#41;;
         return new org.openide.nodes.Node&#91;&#93;&#123;new JmeGeometry&#40;&#40;Geometry&#41; key, children&#41;.setReadOnly&#40;readOnly&#41;&#125;;
@@ -102,7 +100,7 @@ public class JmeGeometry extends JmeSpatial &#123;
 
 </div>
 <!-- EDIT3 SECTION "Spatial Example" [1511-3452] -->
-<h3><a>Control Example</a></h3>
+<h3>Control Example</h3>
 <div>
 <pre>@org.openide.util.lookup.ServiceProvider&#40;service=SceneExplorerNode.class&#41;
 public class JmeGhostControl extends AbstractSceneExplorerNode &#123;
@@ -153,7 +151,7 @@ public class JmeGhostControl extends AbstractSceneExplorerNode &#123;
         try &#123;
             SceneApplication.getApplication&#40;&#41;.enqueue&#40;new Callable&lt;Void&gt;&#40;&#41; &#123;
 &nbsp;
-                public Void call&#40;&#41; throws Exception &#123;
+                public Exception &#123;
                     spat.removeControl&#40;control&#41;;
                     return null;
                 &#125;
@@ -204,7 +202,7 @@ public class JmeGhostControl extends AbstractSceneExplorerNode &#123;
 
 </div>
 <!-- EDIT4 SECTION "Control Example" [3453-6864] -->
-<h2><a>Adding items to the add and tools menus</a></h2>
+<h2>Adding items to the add and tools menus</h2>
 <div>
 
 <p>
@@ -296,16 +294,15 @@ public class NewRigidBodyAction extends AbstractNewControlAction &#123;
 
 </div>
 
-<h4><a>Adding using a Wizard</a></h4>
+<h4>Adding using a Wizard</h4>
 <div>
 
 <p>
-You can create a new wizard using the wizard template in the <acronym title="Software Development Kit">SDK</acronym> (New File???Module Development???Wizard). The Action that the template creates can easily be changed to one for adding a Control or Spatial or for applying a Tool. Note that we extend AbstractNewSpatial<strong>Wizard</strong>Action here.
+You can create a new wizard using the wizard template in the SDK (New File→Module Development→Wizard). The Action that the template creates can easily be changed to one for adding a Control or Spatial or for applying a Tool. Note that we extend AbstractNewSpatial<strong>Wizard</strong>Action here.
 </p>
 
 <p>
-A good example is the &quot;Add SkyBox&quot; Wizard:
-
+A good example is the “Add SkyBox” Wizard:
 </p>
 <pre>@org.openide.util.lookup.ServiceProvider&#40;service = NewSpatialAction.class&#41;
 public class AddSkyboxAction extends AbstractNewSpatialWizardAction &#123;
@@ -367,7 +364,7 @@ public class AddSkyboxAction extends AbstractNewSpatialWizardAction &#123;
                         new SkyboxWizardPanel1&#40;&#41;,
                         new SkyboxWizardPanel2&#40;&#41;
                     &#125;;
-            String&#91;&#93; steps = new String&#91;panels.length&#93;;
+            String&#91;panels.length&#93;;
             for &#40;int i = 0; i &lt; panels.length; i++&#41; &#123;
                 Component c = panels&#91;i&#93;.getComponent&#40;&#41;;
                 // Default step name to component name of panel. Mainly useful
@@ -375,7 +372,7 @@ public class AddSkyboxAction extends AbstractNewSpatialWizardAction &#123;
                 // list of steps.
                 steps&#91;i&#93; = c.getName&#40;&#41;;
                 if &#40;c instanceof JComponent&#41; &#123; // assume Swing components
-                    JComponent jc = &#40;JComponent&#41; c;
+                    JComponent&#41; c;
                     // Sets step number of a component
                     // TODO if using org.openide.dialogs &gt;= 7.8, can use WizardDescriptor.PROP_*:
                     jc.putClientProperty&#40;&quot;WizardPanel_contentSelectedIndex&quot;, new Integer&#40;i&#41;&#41;;
@@ -395,11 +392,10 @@ public class AddSkyboxAction extends AbstractNewSpatialWizardAction &#123;
 &#125;</pre>
 
 <p>
-
 <p><div>The abstract spatial and control actions implement undo/redo automatically, for the ToolActions you have to implement it yourself.
 </div></p>
 </p>
 
 </div>
 <!-- EDIT5 SECTION "Adding items to the add and tools menus" [6865-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:development:sceneexplorer?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/sdk:development:sceneexplorer?do=export_xhtmlbody">view online version</a></em></p>

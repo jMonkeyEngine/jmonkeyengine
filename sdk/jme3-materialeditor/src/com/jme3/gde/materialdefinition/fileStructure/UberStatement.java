@@ -16,6 +16,7 @@ import java.util.List;
  *
  * @author Nehon
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class UberStatement extends Statement {
 
     private List listeners = Collections.synchronizedList(new LinkedList());

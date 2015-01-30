@@ -1,18 +1,16 @@
 
-<h1><a>Polygon Meshes</a></h1>
+<h1>Polygon Meshes</h1>
 <div>
 
 <p>
-
 <img src="nbdocs:/com/jme3/gde/docs/jme3/dolphin-mesh.png">
 </p>
 
 <p>
 All visible game elements in a scene, whether it is a Model or a Shape, are made up of polygon meshes. JME3 has a com.jme3.scene.Mesh class that represents all meshes.
-
 </p>
 <ul>
-<li><div> Meshes are made up of triangles: <code>getTriangleCount(???)</code> and <code>getTriangle(???)</code></div>
+<li><div> Meshes are made up of triangles: <code>getTriangleCount(…)</code> and <code>getTriangle(…)</code></div>
 </li>
 <li><div> Each mesh has a unique ID: <code>getId()</code></div>
 </li>
@@ -31,7 +29,6 @@ All visible game elements in a scene, whether it is a Model or a Shape, are made
 </ul>
 
 <p>
-
 You have several options when <a href="/com/jme3/gde/docs/jme3/advanced/spatial.html">creating Geometries from meshes</a>:
 </p>
 <ul>
@@ -45,22 +42,23 @@ You have several options when <a href="/com/jme3/gde/docs/jme3/advanced/spatial.
 
 </div>
 <!-- EDIT1 SECTION "Polygon Meshes" [1-1154] -->
-<h2><a>Vertex Buffer</a></h2>
+<h2>Vertex Buffer</h2>
 <div>
 
 <p>
-
 The VertexBuffer contains a particular type of geometry data used by Meshes. Every VertexBuffer set on a Mesh is sent as an attribute to the vertex shader to be processed.
 </p>
 
 </div>
 <!-- EDIT2 SECTION "Vertex Buffer" [1155-1354] -->
-<h3><a>Mesh Vertex Buffers</a></h3>
+<h3>Mesh Vertex Buffers</h3>
 <div>
 <div><table>
+	<thead>
 	<tr>
 		<th>Vertex Buffer Type</th><th>Description</th>
 	</tr>
+	</thead>
 	<tr>
 		<td>Type.Position </td><td>Position of the vertex (3 floats)</td>
 	</tr>
@@ -107,12 +105,14 @@ The VertexBuffer contains a particular type of geometry data used by Meshes. Eve
 <!-- EDIT4 TABLE [1386-2205] -->
 </div>
 <!-- EDIT3 SECTION "Mesh Vertex Buffers" [1355-2206] -->
-<h3><a>Mesh Properties</a></h3>
+<h3>Mesh Properties</h3>
 <div>
 <div><table>
+	<thead>
 	<tr>
 		<th>Mesh method</th><th>Description</th>
 	</tr>
+	</thead>
 	<tr>
 		<td>setLineWidth(1)</td><td>the thickness of the line if using Mode.Lines</td>
 	</tr>
@@ -144,12 +144,14 @@ The VertexBuffer contains a particular type of geometry data used by Meshes. Eve
 <!-- EDIT6 TABLE [2234-2957] -->
 </div>
 <!-- EDIT5 SECTION "Mesh Properties" [2207-2958] -->
-<h3><a>Mesh Rendering Modes</a></h3>
+<h3>Mesh Rendering Modes</h3>
 <div>
 <div><table>
+	<thead>
 	<tr>
 		<th>Mesh Mode</th><th>Description</th>
 	</tr>
+	</thead>
 	<tr>
 		<td>Mesh.Mode.Points</td><td>Show only corner points (vertices) of mesh</td>
 	</tr>
@@ -178,21 +180,17 @@ The VertexBuffer contains a particular type of geometry data used by Meshes. Eve
 <!-- EDIT8 TABLE [2991-3267] -->
 </div>
 <!-- EDIT7 SECTION "Mesh Rendering Modes" [2959-3268] -->
-<h3><a>Level of Detail</a></h3>
+<h3>Level of Detail</h3>
 <div>
 
 <p>
-
 Optionally, custom meshes can have a LOD (level of detail optimization) that renders more or less detail, depending on the distance of the mesh from the camera. You have to specify several vertex buffers, one for each level of detail you want (very far away with few details, close up with all details, and something in the middle). Use <code>setLodLevels(VertexBuffer[] lodLevels)</code>. 
 </p>
-<div><span>
-	<a href="/wiki/doku.php/tag:spatial?do=showtag&amp;tag=tag%3Aspatial">spatial</a>,
-	<a href="/wiki/doku.php/tag:node?do=showtag&amp;tag=tag%3Anode">node</a>,
-	<a href="/wiki/doku.php/tag:mesh?do=showtag&amp;tag=tag%3Amesh">mesh</a>,
-	<a href="/wiki/doku.php/tag:geometry?do=showtag&amp;tag=tag%3Ageometry">geometry</a>,
-	<a href="/wiki/doku.php/tag:scenegraph?do=showtag&amp;tag=tag%3Ascenegraph">scenegraph</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/jme3:advanced/tag_spatial_node_mesh_geometry_scenegraph">tag_spatial_node_mesh_geometry_scenegraph</a>
+</p>
 
 </div>
 <!-- EDIT9 SECTION "Level of Detail" [3269-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:mesh?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:mesh?do=export_xhtmlbody">view online version</a></em></p>

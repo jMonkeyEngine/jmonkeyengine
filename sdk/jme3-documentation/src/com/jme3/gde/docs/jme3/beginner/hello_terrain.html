@@ -1,5 +1,5 @@
 
-<h1><a>jMonkeyEngine 3 Tutorial (10) - Hello Terrain</a></h1>
+<h1>jMonkeyEngine 3 Tutorial (10) - Hello Terrain</h1>
 <div>
 
 <p>
@@ -8,7 +8,7 @@ Next: <a href="/com/jme3/gde/docs/jme3/beginner/hello_audio.html">Hello Audio</a
 </p>
 
 <p>
-One way to create a 3D landscape is to sculpt a huge terrain model. This gives you a lot of artistic freedom ??? but rendering such a huge model can be quite slow. This tutorial explains how to create fast-rendering terrains from heightmaps, and how to use texture splatting to make the terrain look good.
+One way to create a 3D landscape is to sculpt a huge terrain model. This gives you a lot of artistic freedom – but rendering such a huge model can be quite slow. This tutorial explains how to create fast-rendering terrains from heightmaps, and how to use texture splatting to make the terrain look good.
 </p>
 
 <p>
@@ -16,17 +16,17 @@ One way to create a 3D landscape is to sculpt a huge terrain model. This gives y
 </p>
 
 <p>
-Note: If you get an error when trying to create your ImageBasedHeightMap object, you may need to update the <acronym title="Software Development Kit">SDK</acronym>, click on &quot;Help&quot; / &quot;Check for updates&quot;
+Note: If you get an error when trying to create your ImageBasedHeightMap object, you may need to update the SDK, click on “Help” / “Check for updates”
 </p>
 
 <p>
-<p><div>To use the example assets in a new jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> project, right-click your project, select &quot;Properties&quot;, go to &quot;Libraries&quot;, press &quot;Add Library&quot; and add the &quot;jme3-test-data&quot; library.
+<p><div>To use the example assets in a new jMonkeyEngine SDK project, right-click your project, select “Properties”, go to “Libraries”, press “Add Library” and add the “jme3-test-data” library.
 </div></p>
 </p>
 
 </div>
 <!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (10) - Hello Terrain" [1-827] -->
-<h2><a>Sample Code</a></h2>
+<h2>Sample Code</h2>
 <div>
 <pre>package jme3test.helloworld;
 &nbsp;
@@ -125,16 +125,15 @@ When you run this sample you should see a landscape with dirt mountains, grass p
 
 </div>
 <!-- EDIT2 SECTION "Sample Code" [828-4465] -->
-<h2><a>What is a Heightmap?</a></h2>
+<h2>What is a Heightmap?</h2>
 <div>
 
 <p>
-
 Heightmaps are an efficient way of representing the shape of a hilly landscape. Not every pixel of the landscape is stored, instead, a grid of sample values is used to outline the terrain height at certain points. The heights between the samples is interpolated. 
 </p>
 
 <p>
-In Java, a heightmap is a float array containing height values between 0f and 255f. Here is a very simple example of a terrain generated from a heightmap with 5x5=25 height values.
+In Java, a heightmap is a float array containing height values between 0f and 255f. Here is a very simple example of a terrain generated from a heightmap with 5&times;5=25 height values.
 </p>
 
 <p>
@@ -154,19 +153,17 @@ Important things to note:
 </ul>
 
 <p>
-
 When looking at Java data types to hold an array of floats between 0 and 255, the Image class comes to mind. Storing a terrain&#039;s height values as a grayscale image has one big advantage: The outcome is a very userfriendly, like a topographical map:
 </p>
 <ul>
-<li><div> Low values (e.g. 0 or 50) are dark gray ??? these are valleys.</div>
+<li><div> Low values (e.g. 0 or 50) are dark gray – these are valleys.</div>
 </li>
-<li><div> High values (e.g. 200, 255) are light grays ??? these are hills.</div>
+<li><div> High values (e.g. 200, 255) are light grays – these are hills.</div>
 </li>
 </ul>
 
 <p>
-
-Look at the next screenshot: In the top left you see a 128x128 grayscale image (heightmap) that was used as a base to generate the depicted terrain. To make the hilly shape better visible, the mountain tops are colored white, valleys brown, and the areas inbetween green:
+Look at the next screenshot: In the top left you see a 128&times;128 grayscale image (heightmap) that was used as a base to generate the depicted terrain. To make the hilly shape better visible, the mountain tops are colored white, valleys brown, and the areas inbetween green:
 </p>
 
 <p>
@@ -174,17 +171,16 @@ Look at the next screenshot: In the top left you see a 128x128 grayscale image (
 </p>
 
 <p>
-In a real game, you will want to use more complex and smoother terrains than the simple heightmaps shown here. Heightmaps typically have square sizes of 512x512 or 1024x1024, and contain hundred thousands to 1 million height values. No matter which size, the concept is the same as described here.
+In a real game, you will want to use more complex and smoother terrains than the simple heightmaps shown here. Heightmaps typically have square sizes of 512&times;512 or 1024&times;1024, and contain hundred thousands to 1 million height values. No matter which size, the concept is the same as described here.
 </p>
 
 </div>
 <!-- EDIT3 SECTION "What is a Heightmap?" [4466-6264] -->
-<h3><a>Looking at the Heightmap Code</a></h3>
+<h3>Looking at the Heightmap Code</h3>
 <div>
 
 <p>
-
-<img src="/wiki/lib/exe/fetch.php">
+<img src="/lib/exe/fetch.php">
 </p>
 
 <p>
@@ -193,7 +189,7 @@ The first step of terrain creation is the heightmap. You can create one yourself
 <ul>
 <li><div> The size must be square, and a power of two.</div>
 <ul>
-<li><div> Examples: 128x128, 256x256, 512x512, 1024x1024</div>
+<li><div> Examples: 128&times;128, 256&times;256, 512&times;512, 1024&times;1024</div>
 </li>
 </ul>
 </li>
@@ -208,7 +204,6 @@ The first step of terrain creation is the heightmap. You can create one yourself
 </ul>
 
 <p>
-
 The file <code>mountains512.png</code> that you see here is a typical example of an image heightmap.
 </p>
 
@@ -234,20 +229,19 @@ It requires an image from a JME Texture.</div>
 
 </div>
 <!-- EDIT4 SECTION "Looking at the Heightmap Code" [6265-7518] -->
-<h2><a>What is Texture Splatting?</a></h2>
+<h2>What is Texture Splatting?</h2>
 <div>
 
 <p>
-
 Previously you learned how to create a material for a simple shape such as a cube. All sides of the cube have the same color. You can apply the same material to a terrain, but then you have one big meadow, one big rock desert, etc. This is not always what you want.
 </p>
 
 <p>
-Texture splatting allows you create a custom material, and &quot;paint&quot; textures on it like with a &quot;paint brush&quot;. This is very useful for terrains: As you see in the example here, you can paint a grass texture into the valleys, a dirt texture onto the mountains, and free-form roads inbetween.
+Texture splatting allows you create a custom material, and “paint” textures on it like with a “paint brush”. This is very useful for terrains: As you see in the example here, you can paint a grass texture into the valleys, a dirt texture onto the mountains, and free-form roads inbetween.
 </p>
 
 <p>
-<p><div>The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> comes with a <a href="/com/jme3/gde/docs/sdk/terrain_editor.html">TerrainEditor plugin</a>. Using the TerrainEditor plugin, you can sculpt the terrain with the mouse, and save the result as heightmap. You can paint textures on the terrain and the plugin saves the resulting splat textures as alphamap(s). The following paragraphs describe the manual process for you. You can choose to create the terrain by hand, or using the <a href="/com/jme3/gde/docs/sdk/terrain_editor.html">TerrainEditor plugin</a>.
+<p><div>The jMonkeyEngine SDK comes with a <a href="/com/jme3/gde/docs/sdk/terrain_editor.html">TerrainEditor plugin</a>. Using the TerrainEditor plugin, you can sculpt the terrain with the mouse, and save the result as heightmap. You can paint textures on the terrain and the plugin saves the resulting splat textures as alphamap(s). The following paragraphs describe the manual process for you. You can choose to create the terrain by hand, or using the <a href="/com/jme3/gde/docs/sdk/terrain_editor.html">TerrainEditor plugin</a>.
 </div></p>
 </p>
 
@@ -259,22 +253,21 @@ Splat textures are based on the <code>Terrain.j3md</code> material defintion. If
 Before you can start painting, you have to make a few decisions:
 </p>
 <ol>
-<li><div> Choose three textures. For example grass.jpg, dirt.jpg, and road.jpg. <img src="/wiki/lib/exe/fetch.php">  <img src="/wiki/lib/exe/fetch.php"> <img src="/wiki/lib/exe/fetch.php"></div>
+<li><div> Choose three textures. For example grass.jpg, dirt.jpg, and road.jpg. <img src="/lib/exe/fetch.php">  <img src="/lib/exe/fetch.php"> <img src="/lib/exe/fetch.php"></div>
 </li>
-<li><div> You &quot;paint&quot; three texture layers by using three colors: Red, blue and, green. You arbitrarily decide that???</div>
+<li><div> You “paint” three texture layers by using three colors: Red, blue and, green. You arbitrarily decide that…</div>
 <ol>
-<li><div> Red   is grass ??? red   is layer <code>Tex1</code>, so put the grass texture into Tex1.</div>
+<li><div> Red   is grass – red   is layer <code>Tex1</code>, so put the grass texture into Tex1.</div>
 </li>
-<li><div> Green is dirt  ??? green is layer <code>Tex2</code>, so put the dirt  texture into Tex2.</div>
+<li><div> Green is dirt  – green is layer <code>Tex2</code>, so put the dirt  texture into Tex2.</div>
 </li>
-<li><div> Blue  is roads ??? blue  is layer <code>Tex3</code>, so put the roads texture into Tex3.</div>
+<li><div> Blue  is roads – blue  is layer <code>Tex3</code>, so put the roads texture into Tex3.</div>
 </li>
 </ol>
 </li>
 </ol>
 
 <p>
-
 Now you start painting the texture:
 </p>
 <ol>
@@ -284,9 +277,9 @@ Now you start painting the texture:
 </li>
 <li><div> Open <code>alphamap.png</code> in a graphic editor and switch the image mode to color image.</div>
 <ol>
-<li><div> Paint the black valleys red ??? this will be the grass.</div>
+<li><div> Paint the black valleys red – this will be the grass.</div>
 </li>
-<li><div> Paint the white hills green ??? this will be the dirt of the mountains.</div>
+<li><div> Paint the white hills green – this will be the dirt of the mountains.</div>
 </li>
 <li><div> Paint blue lines where you want roads to criss-cross the landscape.</div>
 </li>
@@ -297,16 +290,15 @@ Now you start painting the texture:
 </ol>
 
 <p>
-<img src="/wiki/lib/exe/fetch.php"> ??? <img src="/wiki/lib/exe/fetch.php">
+<img src="/lib/exe/fetch.php"> ⇒ <img src="/lib/exe/fetch.php">
 </p>
 
 </div>
 <!-- EDIT5 SECTION "What is Texture Splatting?" [7519-10438] -->
-<h3><a>Looking at the Texturing Code</a></h3>
+<h3>Looking at the Texturing Code</h3>
 <div>
 
 <p>
-
 As usual, you create a Material object. Base it on the Material Definition <code>Terrain.j3md</code> that is included in the jME3 framework.
 </p>
 <pre>Material mat_terrain = new Material&#40;assetManager, &quot;Common/MatDefs/Terrain/Terrain.j3md&quot;&#41;;</pre>
@@ -342,7 +334,7 @@ The three other textures are the layers that you have previously decided to pain
     mat_terrain.setFloat&#40;&quot;Tex3Scale&quot;, 128f&#41;;</pre>
 
 <p>
-The individual texture scales (e.g. <code>mat_terrain.setFloat(&quot;Tex3Scale&quot;, 128f);</code>) depend on the size of the textures you use.
+The individual texture scales (e.g. <code>mat_terrain.setFloat(“Tex3Scale”, 128f);</code>) depend on the size of the textures you use.
 </p>
 <ul>
 <li><div> You can tell you picked too small a scale if, for example, your road tiles appear like tiny grains of sand. </div>
@@ -352,22 +344,20 @@ The individual texture scales (e.g. <code>mat_terrain.setFloat(&quot;Tex3Scale&q
 </ul>
 
 <p>
-
 Use <code>setWrap(WrapMode.Repeat)</code> to make the small texture fill the wide area. If the repetition is too visible, try adjusting the respective <code>Tex*Scale</code> value.
 </p>
 
 </div>
 <!-- EDIT6 SECTION "Looking at the Texturing Code" [10439-12577] -->
-<h2><a>What is a Terrain?</a></h2>
+<h2>What is a Terrain?</h2>
 <div>
 
 <p>
-
-Internally, the generated terrain mesh is broken down into tiles and blocks. This is an optimization to make culling easier. You do not need to worry about &quot;tiles and blocks&quot; too much, just use recommended values for now ??? 64 is a good start.
+Internally, the generated terrain mesh is broken down into tiles and blocks. This is an optimization to make culling easier. You do not need to worry about “tiles and blocks” too much, just use recommended values for now – 64 is a good start.
 </p>
 
 <p>
-Let&#039;s assume you want to generate a 512x512 terrain. You already have created the heightmap object. Here are the steps that you perform everytime you create a new terrain.
+Let&#039;s assume you want to generate a 512&times;512 terrain. You already have created the heightmap object. Here are the steps that you perform everytime you create a new terrain.
 </p>
 
 <p>
@@ -376,13 +366,13 @@ Create a TerrainQuad with the following arguments:
 <ol>
 <li><div> Specify a name: E.g. <code>my terrain</code>.</div>
 </li>
-<li><div> Specify tile size: You want to terrain tiles of size 64x64, so you supply 64+1 = 65.</div>
+<li><div> Specify tile size: You want to terrain tiles of size 64&times;64, so you supply 64+1 = 65.</div>
 <ul>
 <li><div> In general, 64 is a good starting value for terrain tiles.</div>
 </li>
 </ul>
 </li>
-<li><div> Specify block size: Since you prepared a heightmap of size 512x512, you supply 512+1 = 513.</div>
+<li><div> Specify block size: Since you prepared a heightmap of size 512&times;512, you supply 512+1 = 513.</div>
 <ul>
 <li><div> If you supply a block size of 2x the heightmap size (1024+1=1025), you get a stretched out, wider, flatter terrain.</div>
 </li>
@@ -390,19 +380,17 @@ Create a TerrainQuad with the following arguments:
 </li>
 </ul>
 </li>
-<li><div> Supply the 512x512 heightmap object that you created.</div>
+<li><div> Supply the 512&times;512 heightmap object that you created.</div>
 </li>
 </ol>
 
 </div>
 <!-- EDIT7 SECTION "What is a Terrain?" [12578-13661] -->
-<h3><a>Looking at the Terrain Code</a></h3>
+<h3>Looking at the Terrain Code</h3>
 <div>
 
 <p>
-
 Here&#039;s the code:
-
 </p>
 <pre>terrain = new TerrainQuad(
   &quot;my terrain&quot;,               // name
@@ -425,17 +413,15 @@ You have created the terrain object.
 </ol>
 
 <p>
-
 <strong>Tip:</strong> Terrain.j3md is an unshaded material definition, so you do not need a light source. You can also use TerrainLighting.j3md plus a light, if you want a shaded terrain.
 </p>
 
 </div>
 <!-- EDIT8 SECTION "Looking at the Terrain Code" [13662-14424] -->
-<h2><a>What is LOD (Level of Detail)?</a></h2>
+<h2>What is LOD (Level of Detail)?</h2>
 <div>
 
 <p>
-
 JME3 includes an optimization that adjusts the level of detail (LOD) of the rendered terrain depending on how close or far the camera is.
 </p>
 <pre>    TerrainLodControl control = new TerrainLodControl&#40;terrain, getCamera&#40;&#41;&#41;;
@@ -447,18 +433,16 @@ Close parts of the terrain are rendered in full detail. Terrain parts that are f
 
 </div>
 <!-- EDIT9 SECTION "What is LOD (Level of Detail)?" [14425-15017] -->
-<h2><a>Exercises</a></h2>
+<h2>Exercises</h2>
 <div>
 
 </div>
 <!-- EDIT10 SECTION "Exercises" [15018-15040] -->
-<h3><a>Exercise 1: Texture Layers</a></h3>
+<h3>Exercise 1: Texture Layers</h3>
 <div>
 
 <p>
-
 What happens when you swap two layers, for example <code>Tex1</code> and <code>Tex2</code>?
-
 </p>
 <pre>...
 mat_terrain.setTexture&#40;&quot;Tex2&quot;, grass&#41;;
@@ -471,11 +455,10 @@ You see it&#039;s easier to swap layers in the code, than to change the colors i
 
 </div>
 <!-- EDIT11 SECTION "Exercise 1: Texture Layers" [15041-15350] -->
-<h3><a>Exercise 2: Randomized Terrains</a></h3>
+<h3>Exercise 2: Randomized Terrains</h3>
 <div>
 
 <p>
-
 The following three lines generate the heightmap object based on your user-defined image:
 </p>
 <pre>    AbstractHeightMap heightmap = null;
@@ -529,32 +512,28 @@ You see the variety of hilly landscapes that can be generated using this method.
 <p>
 <p><div>For this exercise, you can keep using the splat Material from the sample code above. Just don&#039;t be surprised that the Material does not match the shape of the newly randomized landscape. If you want to generate real matching splat textures for randomized heightmaps, you need to write a custom method that, for example, creates an alphamap from the heightmap by replacing certain grayscales with certain RGB values.
 </div></p>
-
 </p>
 
 </div>
 <!-- EDIT12 SECTION "Exercise 2: Randomized Terrains" [15351-17411] -->
-<h3><a>Exercise 3: Solid Terrains</a></h3>
+<h3>Exercise 3: Solid Terrains</h3>
 <div>
 
 <p>
-
 Can you combine what you learned here and in <a href="/com/jme3/gde/docs/jme3/beginner/hello_collision.html">Hello Collision</a>, and <a href="/com/jme3/gde/docs/jme3/advanced/terrain_collision.html">make the terrain solid</a>?
 </p>
 
 </div>
 <!-- EDIT13 SECTION "Exercise 3: Solid Terrains" [17412-17581] -->
-<h2><a>Conclusion</a></h2>
+<h2>Conclusion</h2>
 <div>
 
 <p>
-
-You have learned how to create terrains that are more efficient than loading one giant model. You know how to generate random or create handmade heightmaps. You can add a LOD control to render large terrains faster. You are aware that you can combine what you learned about collision detection to make the terrain solid to a physical player. You are also able to texture a terrain &quot;like a boss&quot; using layered Materials and texture splatting. You are aware that the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> provides a TerrainEditor that helps with most of these manual tasks.
+You have learned how to create terrains that are more efficient than loading one giant model. You know how to generate random or create handmade heightmaps. You can add a LOD control to render large terrains faster. You are aware that you can combine what you learned about collision detection to make the terrain solid to a physical player. You are also able to texture a terrain “like a boss” using layered Materials and texture splatting. You are aware that the jMonkeyEngine SDK provides a TerrainEditor that helps with most of these manual tasks.
 </p>
 
 <p>
-Do you want to hear your players say &quot;ouch!&quot; when they bump into a wall or fall off a hill? Continue with learning <a href="/com/jme3/gde/docs/jme3/beginner/hello_audio.html">how to add sound</a> to your game.
-
+Do you want to hear your players say “ouch!” when they bump into a wall or fall off a hill? Continue with learning <a href="/com/jme3/gde/docs/jme3/beginner/hello_audio.html">how to add sound</a> to your game.
 </p>
 <hr />
 
@@ -565,14 +544,11 @@ See also:
 <li><div> <a href="/com/jme3/gde/docs/jme3/advanced/terrain_collision.html">Terrain Collision</a></div>
 </li>
 </ul>
-<div><span>
-	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
-	<a href="/wiki/doku.php/tag:heightmap?do=showtag&amp;tag=tag%3Aheightmap">heightmap</a>,
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:terrain?do=showtag&amp;tag=tag%3Aterrain">terrain</a>,
-	<a href="/wiki/doku.php/tag:texture?do=showtag&amp;tag=tag%3Atexture">texture</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/jme3:beginner/tag_beginner_heightmap_documentation_terrain_texture">tag_beginner_heightmap_documentation_terrain_texture</a>
+</p>
 
 </div>
 <!-- EDIT14 SECTION "Conclusion" [17582-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_terrain?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:beginner:hello_terrain?do=export_xhtmlbody">view online version</a></em></p>

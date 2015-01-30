@@ -17,7 +17,7 @@ import javax.swing.text.StyledDocument;
 
 /**
  *
- * @author m327836
+ * @author Nehon
  */
 public class DocFormatter {
 

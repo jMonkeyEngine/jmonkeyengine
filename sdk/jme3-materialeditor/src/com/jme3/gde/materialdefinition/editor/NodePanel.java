@@ -5,6 +5,7 @@
 package com.jme3.gde.materialdefinition.editor;
 
 import com.jme3.gde.materialdefinition.fileStructure.ShaderNodeBlock;
+import com.jme3.gde.materialdefinition.fileStructure.leaves.DefinitionBlock;
 import com.jme3.gde.materialdefinition.fileStructure.leaves.InputMappingBlock;
 import com.jme3.gde.materialdefinition.fileStructure.leaves.OutputMappingBlock;
 import com.jme3.gde.materialdefinition.icons.Icons;
@@ -51,6 +52,7 @@ public class NodePanel extends DraggablePanel implements Selectable, PropertyCha
     private Color color;
     private String name;
     private String techName;
+    protected List<String> filePaths= new ArrayList<String>();
 
 //    private List listeners = Collections.synchronizedList(new LinkedList());
 //
@@ -106,6 +108,9 @@ public class NodePanel extends DraggablePanel implements Selectable, PropertyCha
         this.addPropertyChangeListener(WeakListeners.propertyChange(node, this));
         refresh(node);
         addKeyListener(this);
+        this.filePaths.addAll(def.getShadersPath());
+        String defPath = ((DefinitionBlock)node.getContents().get(0)).getPath();
+        this.filePaths.add(defPath);
     }
 
     /**
@@ -311,6 +316,19 @@ public class NodePanel extends DraggablePanel implements Selectable, PropertyCha
         header.addMouseMotionListener(labelMouseMotionListener);
         header.setHorizontalAlignment(SwingConstants.LEFT);
         header.setFont(new Font("Tahoma", Font.BOLD, 11));
+        header.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                //if(e.getClickCount()==2){
+                    if (type==NodeType.Fragment || type == NodeType.Vertex) {
+                      diagram.showEdit(NodePanel.this);
+                    }            
+                //}
+            }
+                
+        });
+        
         content = new JPanel();
         content.setOpaque(false);
         GroupLayout contentLayout = new GroupLayout(content);

@@ -54,6 +54,7 @@ import org.openide.windows.Mode;
  */
 @ConvertAsProperties(dtd = "-//com.jme3.gde.materials.multiview//MaterialEditor//EN",
 autostore = false)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class MaterialEditorTopComponent extends CloneableTopComponent implements MaterialWidgetListener, MaterialChangeProvider {
 
     private static MaterialEditorTopComponent instance;

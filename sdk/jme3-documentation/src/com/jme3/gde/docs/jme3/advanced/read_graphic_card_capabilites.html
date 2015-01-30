@@ -1,9 +1,8 @@
 
-<h1><a>Read Graphic Card Capabilites</a></h1>
+<h1>Read Graphic Card Capabilites</h1>
 <div>
 
 <p>
-
 When different people test your new game, you may get feedback that the game doesn&#039;t run on their hardware, or that some details don&#039;t look as expected. You need to detect which fetaures the user&#039;s hardware supports, and offer a replacement for non-supported features on olde hardware (or deactivate them automatically).
 </p>
 
@@ -11,7 +10,7 @@ When different people test your new game, you may get feedback that the game doe
 You can read (and print) the capabilities of the user&#039;s graphic card using the <code>com.jme3.renderer.Caps</code> class:
 </p>
 <pre>Collection&lt;Caps&gt; caps = renderer.getCaps&#40;&#41;;
-Logger.getLogger&#40;HelloWorld.class.getName&#40;&#41;&#41;.log&#40;Level.INFO, ???Caps: &#123;0&#125;???, caps.toString&#40;&#41;&#41;;</pre>
+Logger.getLogger&#40;HelloWorld.class.getName&#40;&#41;&#41;.log&#40;Level.INFO, “Caps: &#123;0&#125;”, caps.toString&#40;&#41;&#41;;</pre>
 
 <p>
 <strong>Note:</strong> Replace <code>HelloWorld</code> by the name of the class where you are using this line.
@@ -19,11 +18,10 @@ Logger.getLogger&#40;HelloWorld.class.getName&#40;&#41;&#41;.log&#40;Level.INFO,
 
 </div>
 <!-- EDIT1 SECTION "Read Graphic Card Capabilites" [1-731] -->
-<h2><a>Examples</a></h2>
+<h2>Examples</h2>
 <div>
 
 <p>
-
 A newer graphic card has modern capabilities, for example OpenGL 2.1 and NonPowerOfTwoTextures: 
 </p>
 <pre>INFO: Running on jMonkeyEngine 3.0.0 
@@ -61,7 +59,7 @@ VertexTextureFetch, FloatTexture,
 TextureCompressionLATC, NonPowerOfTwoTextures]</pre>
 
 <p>
-This next example is lacking <code>NonPowerOfTwoTextures</code>, this tells you that this user&#039;s graphic card cannot handle textures with sizes that are not square powers of two (such as &quot;128x128&quot;).
+This next example is lacking <code>NonPowerOfTwoTextures</code>, this tells you that this user&#039;s graphic card cannot handle textures with sizes that are not square powers of two (such as “128&times;128”).
 </p>
 <pre>INFO: Capabilities: [FrameBuffer, FrameBufferMRT, FrameBufferMultisample, 
 OpenGL20, ARBprogram, GLSL100, GLSL110, GLSL120, 
@@ -69,4 +67,4 @@ VertexTextureFetch, FloatTexture, TextureCompressionLATC]</pre>
 
 </div>
 <!-- EDIT2 SECTION "Examples" [732-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:read_graphic_card_capabilites?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:read_graphic_card_capabilites?do=export_xhtmlbody">view online version</a></em></p>

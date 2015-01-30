@@ -51,6 +51,7 @@ import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.actions.SystemAction;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -84,8 +85,8 @@ public final class FilterExplorerTopComponent extends TopComponent implements Ex
         setToolTipText(NbBundle.getMessage(FilterExplorerTopComponent.class, "HINT_FilterExplorerTopComponent"));
         ActionMap map = getActionMap();
         map.put("delete", ExplorerUtils.actionDelete(explorerManager, true));
-        map.put("moveup", new MoveUpAction());
-        map.put("movedown", new MoveDownAction());
+        map.put("moveup", SystemAction.get(MoveUpAction.class));
+        map.put("movedown", SystemAction.get(MoveDownAction.class));
         associateLookup(ExplorerUtils.createLookup(explorerManager, map));
 
     }

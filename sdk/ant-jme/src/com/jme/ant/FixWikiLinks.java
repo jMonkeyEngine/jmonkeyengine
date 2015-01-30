@@ -31,16 +31,16 @@ public class FixWikiLinks extends Task {
             String line = rdr.readLine();
             while (line != null) {
                 //internal links
-                line = line.replaceAll("wiki/doku\\.php/([^>]*):([^>]*):([^>]*):([^>]*)\\?do=export_xhtmlbody", helpPath + "$1/$2/$3/$4.html");
-                line = line.replaceAll("wiki/doku\\.php/([^>]*):([^>]*):([^>]*)\\?do=export_xhtmlbody", helpPath + "$1/$2/$3.html");
-                line = line.replaceAll("wiki/doku\\.php/([^>]*):([^>]*)\\?do=export_xhtmlbody", helpPath + "$1/$2.html");
-                line = line.replaceAll("wiki/doku\\.php/([^>]*)\\?do=export_xhtmlbody", helpPath + "$1.html");
+                line = line.replaceAll("doku\\.php/([^>]*):([^>]*):([^>]*):([^>]*)\\?do=export_xhtmlbody", helpPath + "$1/$2/$3/$4.html");
+                line = line.replaceAll("doku\\.php/([^>]*):([^>]*):([^>]*)\\?do=export_xhtmlbody", helpPath + "$1/$2/$3.html");
+                line = line.replaceAll("doku\\.php/([^>]*):([^>]*)\\?do=export_xhtmlbody", helpPath + "$1/$2.html");
+                line = line.replaceAll("doku\\.php/([^>]*)\\?do=export_xhtmlbody", helpPath + "$1.html");
                 //images
-                line = line.replaceAll("/wiki/lib/exe/fetch\\.php/([^>]*):([^>]*):([^>]*):([^>]*)\"", "nbdocs:/" + helpPath + "$1/$2/$3/$4\"");
-                line = line.replaceAll("/wiki/lib/exe/fetch\\.php/([^>]*):([^>]*):([^>]*)\"", "nbdocs:/" + helpPath + "$1/$2/$3\"");
-                line = line.replaceAll("/wiki/lib/exe/fetch\\.php/([^>]*):([^>]*)\"", "nbdocs:/" + helpPath + "$1/$2\"");
-                line = line.replaceAll("/wiki/lib/exe/fetch\\.php/([^>]*)\"", "nbdocs:/" + helpPath + "$1\"");
-//                line = line.replaceAll("/wiki/lib/exe/fetch\\.php?([^>]*)\"", "nbdocs:/" + helpPath + "external/$1\"").replaceAll("[_[^\\w\\däüö:ÄÜÖ\\/\\+\\-\\. ]]", "_");
+                line = line.replaceAll("/lib/exe/fetch\\.php/([^>]*):([^>]*):([^>]*):([^>]*)\"", "nbdocs:/" + helpPath + "$1/$2/$3/$4\"");
+                line = line.replaceAll("/lib/exe/fetch\\.php/([^>]*):([^>]*):([^>]*)\"", "nbdocs:/" + helpPath + "$1/$2/$3\"");
+                line = line.replaceAll("/lib/exe/fetch\\.php/([^>]*):([^>]*)\"", "nbdocs:/" + helpPath + "$1/$2\"");
+                line = line.replaceAll("/lib/exe/fetch\\.php/([^>]*)\"", "nbdocs:/" + helpPath + "$1\"");
+//                line = line.replaceAll("/lib/exe/fetch\\.php?([^>]*)\"", "nbdocs:/" + helpPath + "external/$1\"").replaceAll("[_[^\\w\\däüö:ÄÜÖ\\/\\+\\-\\. ]]", "_");
 
                 line = line.replaceAll("<a href=([^>]*)><img src=\"([^\"]*)\"([^>]*)></a>", "<img src=\"$2\">");
                 line = line.replaceAll("<img src=\"([^>]*)\\?([^>]*)\">", "<img src=\"$1\">");

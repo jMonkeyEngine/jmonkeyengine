@@ -9,6 +9,7 @@ import com.jme3.shader.Shader;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class SNDefVisualPanel1 extends JPanel {
 
    

@@ -48,10 +48,19 @@ public class AssetNode extends FilterNode {
     private Node node;
 
     public AssetNode(ProjectAssetManager manager, Node node) {
-        super(node, new AssetChildren(manager, node), createLookupProxy(manager, node));
+        super(node, isFile(node) ? Children.LEAF : new AssetChildren(manager, node), createLookupProxy(manager, node));
         this.node = node;
         enableDelegation(DELEGATE_GET_ACTIONS);
         enableDelegation(DELEGATE_GET_CONTEXT_ACTIONS);
+    }
+
+    public static boolean isFile(Node node) {
+        DataObject obj = null;
+        obj = node.getLookup().lookup(DataObject.class);
+        if (obj != null) {
+            return !obj.getPrimaryFile().isFolder();
+        }
+        return false;
     }
 
     public static Lookup createLookupProxy(ProjectAssetManager manager, Node node) {

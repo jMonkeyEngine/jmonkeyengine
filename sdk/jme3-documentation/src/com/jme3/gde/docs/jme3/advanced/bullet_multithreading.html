@@ -1,24 +1,22 @@
 
-<h1><a>Multithreading Bullet Physics in jme3</a></h1>
+<h1>Multithreading Bullet Physics in jme3</h1>
 <div>
 
 </div>
 <!-- EDIT1 SECTION "Multithreading Bullet Physics in jme3" [1-53] -->
-<h2><a>Introduction</a></h2>
+<h2>Introduction</h2>
 <div>
 
 <p>
-
 Since bullet is not (yet) multithreaded or GPU accelerated, the jME3 implementation allows to run each physics space on a separate thread that is executed in parallel to rendering.
 </p>
 
 </div>
 <!-- EDIT2 SECTION "Introduction" [54-261] -->
-<h2><a>How is it handled in jme3 and bullet?</a></h2>
+<h2>How is it handled in jme3 and bullet?</h2>
 <div>
 
 <p>
-
 A SimpleApplication with a BulletAppState allows setting the threading type via 
 </p>
 <pre>setThreadingType(ThreadingType type);</pre>
@@ -38,9 +36,11 @@ stateManager.attach&#40;bulletAppState&#41;;</pre>
 Now the physics update happens in parallel to render(), that is, after the user&#039;s changes in the update() call have been applied. During update() the physics update loop pauses. This way the loop logic is still maintained: the user can set and change values in physics and scenegraph objects before render() and physicsUpdate() are called in parallel. This allows you to use physics methods in update() as if it was single-threaded.
 </p>
 <div><table>
+	<thead>
 	<tr>
 		<th>PARALLEL</th><th>SEQUENTIAL</th>
 	</tr>
+	</thead>
 	<tr>
 		<td>1. update(), 2. render() and physics update().</td><td>1. update(), 2. render(), 3. physics update().  </td>
 	</tr>
@@ -50,16 +50,14 @@ Now the physics update happens in parallel to render(), that is, after the user&
 </table></div>
 <!-- EDIT4 TABLE [1202-1424] -->
 <p>
-
 <p><div>You can add more physics spaces by using multiple PARALLEL bulletAppStates. You would do that if you have sets physical objects that never collide (for example, underground bolders and flying cannon balls above ground), so you put those into separate physics spaces, which improves performances (less collisions to check!). 
 </div></p>
 </p>
-<div><span>
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:physics?do=showtag&amp;tag=tag%3Aphysics">physics</a>,
-	<a href="/wiki/doku.php/tag:threading?do=showtag&amp;tag=tag%3Athreading">threading</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/jme3:advanced/tag_documentation_physics_threading">tag_documentation_physics_threading</a>
+</p>
 
 </div>
 <!-- EDIT3 SECTION "How is it handled in jme3 and bullet?" [262-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:bullet_multithreading?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:bullet_multithreading?do=export_xhtmlbody">view online version</a></em></p>

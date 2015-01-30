@@ -1,5 +1,5 @@
 
-<h1><a>jMonkeyEngine 3 Tutorial (13) - Hello Physics</a></h1>
+<h1>jMonkeyEngine 3 Tutorial (13) - Hello Physics</h1>
 <div>
 
 <p>
@@ -12,25 +12,24 @@ Do you remember the <a href="/com/jme3/gde/docs/jme3/beginner/hello_collision.ht
 </p>
 
 <p>
-Apart from making models &quot;solid&quot;, the most common use cases for physics in 3D games are:
+Apart from making models “solid”, the most common use cases for physics in 3D games are:
 </p>
 <ul>
-<li><div> Driving vehicles with suspensions, tyre friction, ramp jumping, drifting ??? Example: car racers</div>
+<li><div> Driving vehicles with suspensions, tyre friction, ramp jumping, drifting – Example: car racers</div>
 </li>
-<li><div> Rolling and bouncing balls ??? Example: pong, pool billiard, bowling</div>
+<li><div> Rolling and bouncing balls – Example: pong, pool billiard, bowling</div>
 </li>
-<li><div> Sliding and falling boxes ??? Example: Breakout, Arkanoid</div>
+<li><div> Sliding and falling boxes – Example: Breakout, Arkanoid</div>
 </li>
-<li><div> Exposing objects to forces and gravity ??? Example: spaceships or zero-g flight</div>
+<li><div> Exposing objects to forces and gravity – Example: spaceships or zero-g flight</div>
 </li>
-<li><div> Animating ragdolls ??? Example: &quot;realistic&quot; character simulations</div>
+<li><div> Animating ragdolls – Example: “realistic” character simulations</div>
 </li>
-<li><div> Swinging pendulums, rope bridges, flexible chains, and much more???</div>
+<li><div> Swinging pendulums, rope bridges, flexible chains, and much more…</div>
 </li>
 </ul>
 
 <p>
-
 All these physical properties can be simulated in JME3. Let&#039;s have a look at a simulation of physical forces in this example where you shoot cannon balls at a brick wall.
 </p>
 
@@ -39,18 +38,17 @@ All these physical properties can be simulated in JME3. Let&#039;s have a look a
 </p>
 
 <p>
-<p><div>To use the example assets in a new jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> project, right-click your project, select &quot;Properties&quot;, go to &quot;Libraries&quot;, press &quot;Add Library&quot; and add the &quot;jme3-test-data&quot; library.
+<p><div>To use the example assets in a new jMonkeyEngine SDK project, right-click your project, select “Properties”, go to “Libraries”, press “Add Library” and add the “jme3-test-data” library.
 </div></p>
 </p>
 
 </div>
 <!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (13) - Hello Physics" [1-1378] -->
-<h2><a>Sample Code</a></h2>
+<h2>Sample Code</h2>
 <div>
 
 <p>
 Thanks to double1984 for contributing this fun sample!
-
 </p>
 <pre>package jme3test.helloworld;
 &nbsp;
@@ -141,7 +139,7 @@ public class HelloPhysics extends SimpleApplication &#123;
    * Every time the shoot action is triggered, a new cannon ball is produced.
    * The ball is set up to fly from the camera position in the camera direction.
    */</span>
-  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+  private ActionListener&#40;&#41; &#123;
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
       if &#40;name.equals&#40;&quot;shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
         makeCannonBall&#40;&#41;;
@@ -252,12 +250,11 @@ You should see a brick wall. Click to shoot cannon balls. Watch the bricks fall 
 
 </div>
 <!-- EDIT2 SECTION "Sample Code" [1379-8734] -->
-<h2><a>A Basic Physics Application</a></h2>
+<h2>A Basic Physics Application</h2>
 <div>
 
 <p>
-
-In the previous tutorials, you used static Geometries (boxes, spheres, and models) that you placed in the scene. Depending on their translation, Geometries can &quot;float in mid-air&quot; and even overlap ??? they are not affected by &quot;gravity&quot; and have no physical mass. This tutorial shows how to add physical properties to Geometries.
+In the previous tutorials, you used static Geometries (boxes, spheres, and models) that you placed in the scene. Depending on their translation, Geometries can “float in mid-air” and even overlap – they are not affected by “gravity” and have no physical mass. This tutorial shows how to add physical properties to Geometries.
 </p>
 
 <p>
@@ -280,17 +277,16 @@ The BulletAppState gives the game access to a PhysicsSpace. The PhysicsSpace let
 
 </div>
 <!-- EDIT3 SECTION "A Basic Physics Application" [8735-9718] -->
-<h2><a>Creating Bricks and Cannon Balls</a></h2>
+<h2>Creating Bricks and Cannon Balls</h2>
 <div>
 
 </div>
 <!-- EDIT4 SECTION "Creating Bricks and Cannon Balls" [9719-9764] -->
-<h3><a>Geometries</a></h3>
+<h3>Geometries</h3>
 <div>
 
 <p>
-
-In this &quot;shoot at the wall&quot; example, you use Geometries such as cannon balls and bricks. Geometries contain meshes, such as Shapes. Let&#039;s create and initialize some Shapes: Boxes and Spheres.
+In this “shoot at the wall” example, you use Geometries such as cannon balls and bricks. Geometries contain meshes, such as Shapes. Let&#039;s create and initialize some Shapes: Boxes and Spheres.
 </p>
 <pre>  /** Prepare geometries and physical nodes for bricks and cannon balls. */
   private static final Box    box;
@@ -314,11 +310,10 @@ In this &quot;shoot at the wall&quot; example, you use Geometries such as cannon
 
 </div>
 <!-- EDIT5 SECTION "Geometries" [9765-10830] -->
-<h3><a>RigidBodyControl: Brick</a></h3>
+<h3>RigidBodyControl: Brick</h3>
 <div>
 
 <p>
-
 We want to create brick Geometries from those boxes. For each Geometry with physical properties, you create a RigidBodyControl.
 </p>
 <pre>  private RigidBodyControl brick_phy;</pre>
@@ -376,11 +371,10 @@ This code sample does the following:
 
 </div>
 <!-- EDIT6 SECTION "RigidBodyControl: Brick" [10831-12353] -->
-<h3><a>RigidBodyControl: Cannonball</a></h3>
+<h3>RigidBodyControl: Cannonball</h3>
 <div>
 
 <p>
-
 You notice that the cannon ball is created in the same way, using the custom <code>makeCannonBall()</code> method. The cannon ball has the following properties:
 </p>
 <ul>
@@ -433,17 +427,15 @@ This code sample does the following:
 </ol>
 
 <p>
-
 Since you are shooting cannon balls, the last line accelerates the ball in the direction the camera is looking, with a speed of 25f.
 </p>
 
 </div>
 <!-- EDIT7 SECTION "RigidBodyControl: Cannonball" [12354-13950] -->
-<h3><a>RigidBodyControl: Floor</a></h3>
+<h3>RigidBodyControl: Floor</h3>
 <div>
 
 <p>
-
 The (static) floor has one important difference compared to the (dynamic) bricks and cannonballs: <strong>Static objects have a mass of zero.</strong>
 As before, you write a custom <code>initFloor()</code> method that creates a flat box with a rock texture that you use as floor. The floor has the following properties:
 </p>
@@ -482,7 +474,7 @@ This code sample does the following:
 </li>
 <li><div> You create a RigidBodyControl floor_phy for floor_geo.</div>
 <ul>
-<li><div> floor_phy has a mass of 0f <img src="/wiki/lib/images/smileys/icon_exclaim.gif" class="middle" alt=":!:" /></div>
+<li><div> floor_phy has a mass of 0f <img src="/lib/images/smileys/icon_exclaim.gif" class="icon" alt=":!:" /></div>
 </li>
 <li><div> You add floor_phy to floor_geo.</div>
 </li>
@@ -494,36 +486,33 @@ This code sample does the following:
 
 </div>
 <!-- EDIT8 SECTION "RigidBodyControl: Floor" [13951-15375] -->
-<h2><a>Creating the Scene</a></h2>
+<h2>Creating the Scene</h2>
 <div>
 
 <p>
-
 Let&#039;s have a quick look at the custom helper methods:
 </p>
 <ul>
-<li><div> <code>initMaterial()</code> ??? This method initializes all the materials we use in this demo.</div>
+<li><div> <code>initMaterial()</code> – This method initializes all the materials we use in this demo.</div>
 </li>
-<li><div> <code>initWall()</code> ??? A double loop that generates a wall by positioning brick objects: 15 rows high with 6 bricks per row. It&#039;s important to space the physical bricks so they do not overlap.</div>
+<li><div> <code>initWall()</code> – A double loop that generates a wall by positioning brick objects: 15 rows high with 6 bricks per row. It&#039;s important to space the physical bricks so they do not overlap.</div>
 </li>
-<li><div> <code>initCrossHairs()</code> ??? This method simply displays a plus sign that you use as crosshairs for aiming. Note that screen elements such as crosshairs are attached to the <code>guiNode</code>, not the <code>rootNode</code>!</div>
+<li><div> <code>initCrossHairs()</code> – This method simply displays a plus sign that you use as crosshairs for aiming. Note that screen elements such as crosshairs are attached to the <code>guiNode</code>, not the <code>rootNode</code>!</div>
 </li>
-<li><div> <code>initInputs()</code> ??? This method sets up the click-to-shoot action.</div>
+<li><div> <code>initInputs()</code> – This method sets up the click-to-shoot action.</div>
 </li>
 </ul>
 
 <p>
-
 These methods are each called once from the <code>simpleInitApp()</code> method at the start of the game. As you see, you can write any number of custom methods to set up your game&#039;s scene. 
 </p>
 
 </div>
 <!-- EDIT9 SECTION "Creating the Scene" [15376-16204] -->
-<h2><a>The Cannon Ball Shooting Action</a></h2>
+<h2>The Cannon Ball Shooting Action</h2>
 <div>
 
 <p>
-
 In the <code>initInputs()</code> method, you add an input mapping that triggers a shoot action when the left mouse button is pressed.
 </p>
 <pre>  private void initInputs&#40;&#41; &#123;
@@ -535,7 +524,7 @@ In the <code>initInputs()</code> method, you add an input mapping that triggers 
 <p>
 You define the actual action of shooting a new cannon ball as follows:
 </p>
-<pre>    private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+<pre>    private ActionListener&#40;&#41; &#123;
         public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
             if &#40;name.equals&#40;&quot;shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
                 makeCannonBall&#40;&#41;;
@@ -549,105 +538,92 @@ In the moment the cannonball appears in the scene, it flies off with the velocit
 
 </div>
 <!-- EDIT10 SECTION "The Cannon Ball Shooting Action" [16205-17245] -->
-<h2><a>Moving a Physical Spatial</a></h2>
+<h2>Moving a Physical Spatial</h2>
 <div>
 
 <p>
-
-The location of the dynamic Spatial is controlled by its RigidBodyControl. Move the RigidBodyControl to move the Spatial. If it&#039;s a dynamic PhysicsControl, you can use setLinearVelocity() and apply forces and torques to it. Other RigidBodyControl&#039;led objects can push the dynamic Spatial around (like pool billard balls).
+The location of the dynamic Spatial is controlled by its RigidBodyControl. Move the RigidBodyControl to move the Spatial. If it&#039;s a dynamic PhysicsControl, you can use setLinearVelocity() and apply forces and torques to it. Other RigidBodyControl&#039;led objects can push the dynamic Spatial around (like pool/billiard balls).
 </p>
 
 <p>
 You can make Spatials that are not dynamic: Switch the RigidBodyControl to setKinematic(true) to have it move along with its Spatial.
 </p>
 <ul>
-<li><div> A kinematic is unaffected by the forces nor gravity, that means it can float in mid-air and cannot be pushed away by dynamic &quot;cannon balls&quot; etc.</div>
+<li><div> A kinematic is unaffected by forces or gravity, which means it can float in mid-air and cannot be pushed away by dynamic “cannon balls” etc.</div>
 </li>
 <li><div> A kinematic RigidBody has a mass.</div>
 </li>
-<li><div> A kinematic can be moved and can exert forces on dynamic RigidBodys. This means you can use a kinematic node like a billard queue or a remote-controlled battering ram.</div>
+<li><div> A kinematic can be moved and can exert forces on dynamic RigidBodys. This means you can use a kinematic node as a billiard cue or a remote-controlled battering ram.</div>
 </li>
 </ul>
 
 <p>
-
 Learn more about static versus kinematic versus dynamic in the <a href="/com/jme3/gde/docs/jme3/advanced/physics.html">advanced physics doc</a>.
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Moving a Physical Spatial" [17246-18215] -->
-<h2><a>Excercises</a></h2>
+<!-- EDIT11 SECTION "Moving a Physical Spatial" [17246-18209] -->
+<h2>Excercises</h2>
 <div>
 
 </div>
-<!-- EDIT12 SECTION "Excercises" [18216-18239] -->
-<h3><a>Exercise 1: Debug Shapes</a></h3>
+<!-- EDIT12 SECTION "Excercises" [18210-18233] -->
+<h3>Exercise 1: Debug Shapes</h3>
 <div>
 
 <p>
-
 Add the following line after the bulletAppState initialization. 
-
 </p>
 <pre>bulletAppState.getPhysicsSpace&#40;&#41;.enableDebug&#40;assetManager&#41;;</pre>
 
 <p>
-
 Now you see the collisionShapes of the bricks and spheres, and the floor highlighted. 
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Exercise 1: Debug Shapes" [18240-18505] -->
-<h3><a>Exercise 2: No Mo&#039; Static</a></h3>
+<!-- EDIT13 SECTION "Exercise 1: Debug Shapes" [18234-18499] -->
+<h3>Exercise 2: No Mo&#039; Static</h3>
 <div>
 
 <p>
-
 What happens if you give a static node, such as the floor, a mass of more than 0.0f?
 </p>
 
 </div>
-<!-- EDIT14 SECTION "Exercise 2: No Mo' Static" [18506-18626] -->
-<h3><a>Exercise 3: Behind the Curtain</a></h3>
+<!-- EDIT14 SECTION "Exercise 2: No Mo' Static" [18500-18620] -->
+<h3>Exercise 3: Behind the Curtain</h3>
 <div>
 
 <p>
-
 Fill your scene with walls, bricks, and cannon balls. When do you begin to see a performance impact?
 </p>
 
 <p>
-Popular AAA games use a clever mix of physics, animation and prerendered graphics to give you the illusion of a real, &quot;physical&quot; world. Think of your favorite video games and try to spot where and how the game designers trick you into believing that the whole scene is physical. For example, think of a building &quot;breaking&quot; into 4-8 parts after an explosion. The pieces most likely fly on predefined (so called kinematic) paths and are only replaced by dynamic Spatials after they touch the ground??? Now that you start to implement game physics yourself, look behind the curtain!
+Popular AAA games use a clever mix of physics, animation and prerendered graphics to give you the illusion of a real, “physical” world. Think of your favorite video games and try to spot where and how the game designers trick you into believing that the whole scene is physical. For example, think of a building “breaking” into 4-8 parts after an explosion. The pieces most likely fly on predefined (so called kinematic) paths and are only replaced by dynamic Spatials after they touch the ground… Now that you start to implement game physics yourself, look behind the curtain!
 </p>
 
 <p>
-Using physics everywhere in a game sounds like a cool idea, but it is easily overused. Although the physics nodes are put to &quot;sleep&quot; when they are not moving, creating a world solely out of dynamic physics nodes will quickly bring you to the limits of your computer&#039;s capabilities.
+Using physics everywhere in a game sounds like a cool idea, but it is easily overused. Although the physics nodes are put to “sleep” when they are not moving, creating a world solely out of dynamic physics nodes will quickly bring you to the limits of your computer&#039;s capabilities.
 </p>
 
 </div>
-<!-- EDIT15 SECTION "Exercise 3: Behind the Curtain" [18627-19632] -->
-<h2><a>Conclusion</a></h2>
+<!-- EDIT15 SECTION "Exercise 3: Behind the Curtain" [18621-19626] -->
+<h2>Conclusion</h2>
 <div>
 
 <p>
-
 You have learned how to activate the jBullet PhysicsSpace in an application by adding a <code>BulletAppState</code>. You have created PhysicsControls for simple Shape-based Geometries (for more complex shapes, read up on <a href="/com/jme3/gde/docs/jme3/advanced/physics.html">CollisionShapes</a>). You have learned that physical objects are not only attached to the rootNode, but also registered to the PhysicsSpace. You know that it makes a difference whether a physical object has a mass (dynamic) or not (static). You are aware that overusing physics has a huge performance impact.
 </p>
 
 <p>
-<p><div>Congratulations! ??? You have completed the last beginner tutorial. Now you are ready to start <a href="/com/jme3/gde/docs/jme3.html">combining what you have learned</a>, to create a cool 3D game of your own. Show us what you can do, and feel free to share your demos, game videos, and screenshots on the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/free-announcements/forum/"><param name="text" value="<html><u>Free Announcements Forum</u></html>"><param name="textColor" value="blue"></object>!
+<p><div>Congratulations! – You have completed the last beginner tutorial. Now you are ready to start <a href="/com/jme3/gde/docs/jme3.html">combining what you have learned</a>, to create a cool 3D game of your own. Show us what you can do, and feel free to share your demos, game videos, and screenshots on the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/free-announcements/forum/"><param name="text" value="<html><u>Free Announcements Forum</u></html>"><param name="textColor" value="blue"></object>!
 </div></p>
 </p>
-<div><span>
-	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
-	<a href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>,
-	<a href="/wiki/doku.php/tag:physics?do=showtag&amp;tag=tag%3Aphysics">physics</a>,
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:input?do=showtag&amp;tag=tag%3Ainput">input</a>,
-	<a href="/wiki/doku.php/tag:model?do=showtag&amp;tag=tag%3Amodel">model</a>,
-	<a href="/wiki/doku.php/tag:control?do=showtag&amp;tag=tag%3Acontrol">control</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/jme3:beginner/tag_beginner_intro_physics_documentation_input_model_control">tag_beginner_intro_physics_documentation_input_model_control</a>
+</p>
 
 </div>
-<!-- EDIT16 SECTION "Conclusion" [19633-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_physics?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT16 SECTION "Conclusion" [19627-] -->
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:beginner:hello_physics?do=export_xhtmlbody">view online version</a></em></p>

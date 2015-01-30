@@ -2,26 +2,6 @@
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
     <folder name="Actions">
-        <folder name="CodelessProjects">
-            <file name="com-jme3-gde-core-codeless-CodelessProjectWizardAction.instance">
-                <attr name="delegate" methodvalue="org.openide.awt.Actions.inject"/>
-                <attr name="displayName" bundlevalue="com.jme3.gde.core.codeless.Bundle#CTL_Codeless_Project"/>
-                <attr name="iconBase" stringvalue="com/jme3/gde/core/assets/actions/jme-logo.png"/>
-                <attr name="injectable" stringvalue="com.jme3.gde.core.codeless.CodelessProjectWizardAction"/>
-                <attr name="noIconInMenu" boolvalue="false"/>
-            </file>
-        </folder>
-        <folder name="SceneComposer">
-            <file name="com-jme3-gde-core-sceneviewer-actions-SwitchFrontViewAcction.instance_hidden"/>
-            <file name="com-jme3-gde-core-sceneviewer-actions-SwitchFrontViewAction.instance">
-                <attr name="iconBase" stringvalue="com/jme3/gde/core/sceneviewer/actions/32_bit.png"/>
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="noIconInMenu" boolvalue="false"/>
-            </file>
-            <file name="com-jme3-gde-core-sceneviewer-actions-SwitchFrontViewAction.instance"/>
-            <file name="com-jme3-gde-core-sceneviewer-actions-SwitchToFrontViewAction.instance_hidden"/>
-        </folder>
         <folder name="jMonkeyPlatform">
             <file name="com-jme3-gde-core-assets-actions-OpenModel.instance">
                 <attr name="delegate" methodvalue="org.openide.awt.Actions.inject"/>
@@ -42,12 +22,6 @@
                 <attr name="noIconInMenu" boolvalue="false"/>
                 <attr name="selectionType" stringvalue="ANY"/>
                 <attr name="type" stringvalue="com.jme3.gde.core.assets.SpatialAssetDataObject"/>
-            </file>
-            <file name="com-jme3-gde-core-errorreport-RendererInfoAction.instance">
-                <attr name="delegate" newvalue="com.jme3.gde.core.errorreport.RendererInfoAction"/>
-                <attr name="displayName" bundlevalue="com.jme3.gde.core.errorreport.Bundle#CTL_RendererInfoAction"/>
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="noIconInMenu" boolvalue="false"/>
             </file>
         </folder>
         <folder name="Window">
@@ -76,24 +50,16 @@
         </folder>
         <folder name="File">
             <folder name="Import">
-                <file name="CodelessProject.shadow">
-                    <attr name="originalFile" stringvalue="Actions/CodelessProjects/com-jme3-gde-core-codeless-CodelessProjectWizardAction.instance"/>
-                    <attr name="position" intvalue="0"/>
-                </file>
+                <file name="org-netbeans-modules-projectimport-eclipse-core-ImportProjectAction.shadow_hidden"/>
+                <file name="org-netbeans-modules-projectimport-eclipse-core-ResynchronizeEclipseAction.shadow_hidden"/>
             </folder>
         </folder>
         <folder name="Help">
-            <file name="com-jme3-gde-core-errorreport-RendererInfoAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/jMonkeyPlatform/com-jme3-gde-core-errorreport-RendererInfoAction.instance"/>
-                <attr name="position" intvalue="1225"/>
-            </file>
             <file name="jmewiki.url" url="jmewiki.url">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.jme3.gde.core.Bundle"/>
                 <attr name="displayName" bundlevalue="com.jme3.gde.core.Bundle#Menu/Help/jmewiki.url"/>
                 <attr name="position" intvalue="200"/>
             </file>
             <file name="help-main.xml" url="help-main.xml">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.jme3.gde.core.Bundle"/>
                 <attr name="displayName" bundlevalue="com.jme3.gde.core.Bundle#Menu/Help/help-main.xml"/>
                 <attr name="position" intvalue="100"/>
             </file>
@@ -179,14 +145,6 @@
     <folder name="Services">
         <folder name="JavaHelp">
             <file name="org-netbeans-modules-java-helpset.xml_hidden"/>
-        </folder>
-    </folder>
-    <folder name="Menu">
-        <folder name="File">
-            <folder name="Import">
-                <file name="org-netbeans-modules-projectimport-eclipse-core-ImportProjectAction.shadow_hidden"/>
-                <file name="org-netbeans-modules-projectimport-eclipse-core-ResynchronizeEclipseAction.shadow_hidden"/>
-            </folder>
         </folder>
     </folder>
     <folder name="Windows2">

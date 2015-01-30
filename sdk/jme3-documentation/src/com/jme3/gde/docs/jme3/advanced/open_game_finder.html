@@ -1,5 +1,5 @@
 
-<h1><a>Open Game Finder</a></h1>
+<h1>Open Game Finder</h1>
 <div>
 
 <p>
@@ -13,13 +13,12 @@ The Open Game Finder (OGF) by Mark Schrijver can be plugged into any Java game. 
 </ul>
 
 <p>
-Both on the client and the server side of OGF is written purely in Java. OGF has a pluggable architecture and comes with a full set of plugins to get the job done. You can add your own plugins, or replace existing plugins to make them more in line with your game. OGF uses NiftyGUI as the main <acronym title="Graphical User Interface">GUI</acronym> plugin.
-
+Both on the client and the server side of OGF is written purely in Java. OGF has a pluggable architecture and comes with a full set of plugins to get the job done. You can add your own plugins, or replace existing plugins to make them more in line with your game. OGF uses NiftyGUI as the main <abbr title="Graphical User Interface">GUI</abbr> plugin.
 </p>
 
 </div>
 <!-- EDIT1 SECTION "Open Game Finder" [1-629] -->
-<h2><a>Installation</a></h2>
+<h2>Installation</h2>
 <div>
 <ol>
 <li><div> Go to <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/open-game-finder/downloads/list"><param name="text" value="<html><u>http://code.google.com/p/open-game-finder/downloads/list</u></html>"><param name="textColor" value="blue"></object></div>
@@ -32,23 +31,23 @@ Both on the client and the server side of OGF is written purely in Java. OGF has
 
 </div>
 <!-- EDIT2 SECTION "Installation" [630-849] -->
-<h2><a>Setting up the Database</a></h2>
+<h2>Setting up the Database</h2>
 <div>
 
 <p>
 The OGF server uses an embedded Apache Derby database. You have to install the database, this means creating the data files and adding the tables. You can do this straight from the command line by running a script file.
 </p>
 <ul>
-<li><div> On Windows, use installServer.bat to create a new database from scratch. On Mac <acronym title="Operating System">OS</acronym> or Linux, run <code>java -jar lib/Server-0.1.jar install</code> in the Terminal.</div>
+<li><div> On Windows, use installServer.bat to create a new database from scratch. On Mac <abbr title="Operating System">OS</abbr> or Linux, run <code>java -jar lib/Server-0.1.jar install</code> in the Terminal.</div>
 </li>
-<li><div> On Windows, use updateServer.bat to update the difference between the current state of the database and the way it should be. On Mac <acronym title="Operating System">OS</acronym> and Linux, run <code>java -jar lib/Server-0.1.jar update</code> in the Terminal. <br/>
+<li><div> On Windows, use updateServer.bat to update the difference between the current state of the database and the way it should be. On Mac <abbr title="Operating System">OS</abbr> and Linux, run <code>java -jar lib/Server-0.1.jar update</code> in the Terminal. <br/>
 <strong>This new feature is currently untested.</strong></div>
 </li>
 </ul>
 
 </div>
 <!-- EDIT3 SECTION "Setting up the Database" [850-1523] -->
-<h2><a>Running the server</a></h2>
+<h2>Running the server</h2>
 <div>
 
 <p>
@@ -65,12 +64,11 @@ Change into the OGF-Server directory and run the server:
 The server is now running and ready to accept connections. <br/>
 
 <strong>Note:</strong> In the alpha release, the server runs on localhost. In the final release, you will be able to configure the host!
-
 </p>
 
 </div>
 <!-- EDIT4 SECTION "Running the server" [1524-1913] -->
-<h2><a>Running the client</a></h2>
+<h2>Running the client</h2>
 <div>
 <ol>
 <li><div> Change into the OGF-Client directory and run the client:</div>
@@ -89,12 +87,11 @@ The server is now running and ready to accept connections. <br/>
 A client is now running, connects to the server, and displays a registration/login window.
 <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/open-game-finder-1.png">
 <strong>Note:</strong> You can run several clients on localhost for testing.
-
 </p>
 
 </div>
 <!-- EDIT5 SECTION "Running the client" [1914-2406] -->
-<h3><a>Client: 1. Registration</a></h3>
+<h3>Client: 1. Registration</h3>
 <div>
 
 <p>
@@ -114,12 +111,11 @@ On the main screen of the client:
 
 <p>
 The client registers the account and opens the chat window directly.
-
 </p>
 
 </div>
 <!-- EDIT6 SECTION "Client: 1. Registration" [2407-2760] -->
-<h3><a>Client: 2. Login</a></h3>
+<h3>Client: 2. Login</h3>
 <div>
 
 <p>
@@ -135,22 +131,20 @@ On the main screen of the client:
 
 <p>
 The client logs you in and opens the chat window.
-
 </p>
 
 </div>
 <!-- EDIT7 SECTION "Client: 2. Login" [2761-3033] -->
-<h3><a>Client: 3. Chat</a></h3>
+<h3>Client: 3. Chat</h3>
 <div>
 
 <p>
 The chat window shows a list of all users logged in to the server. Logged-in users can send public messages, and can receive public messages from others.
-
 </p>
 
 </div>
 <!-- EDIT8 SECTION "Client: 3. Chat" [3034-3213] -->
-<h2><a>Connecting to a Game</a></h2>
+<h2>Connecting to a Game</h2>
 <div>
 
 <p>
@@ -172,12 +166,11 @@ In a JME3 Application&#039;s init method:
 
 <p>
 After this, continue writing your JME3 init method.
-
 </p>
 
 </div>
 <!-- EDIT9 SECTION "Connecting to a Game" [3214-3904] -->
-<h2><a>Configuration</a></h2>
+<h2>Configuration</h2>
 <div>
 <ul>
 <li><div> Q: How can I offer more avatars to choose from? <br/>
@@ -187,10 +180,11 @@ A: Save the image files in the path <code>jMonkeyProjects/OGF-Client-1.0-bin/OGF
 A: TBD</div>
 </li>
 </ul>
-<div><span>
-	<a href="/wiki/doku.php/tag:network?do=showtag&amp;tag=tag%3Anetwork">network</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/jme3:advanced/tag_network">tag_network</a>
+</p>
 
 </div>
 <!-- EDIT10 SECTION "Configuration" [3905-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:open_game_finder?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:open_game_finder?do=export_xhtmlbody">view online version</a></em></p>

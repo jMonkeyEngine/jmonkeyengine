@@ -36,6 +36,7 @@ import org.openide.util.NbBundle.Messages;
 @TemplateRegistration(folder = "Material", content = "../ShaderNodeSource", scriptEngine = "freemarker")
 })
 @Messages("SNDefWizardIterator_displayName=Shader Node Definition")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class SNDefWizardIterator implements WizardDescriptor.InstantiatingIterator<WizardDescriptor> {
 
     private int index;

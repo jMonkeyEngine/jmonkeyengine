@@ -25,7 +25,7 @@ import javax.swing.SwingUtilities;
 
 /**
  *
- * @author m327836
+ * @author Nehon
  */
 public class OutBusPanel extends DraggablePanel implements ComponentListener, Selectable, InOut {
 

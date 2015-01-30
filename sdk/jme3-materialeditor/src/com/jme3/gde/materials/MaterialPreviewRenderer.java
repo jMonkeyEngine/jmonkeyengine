@@ -11,6 +11,7 @@ import com.jme3.gde.core.scene.PreviewRequest;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneListener;
 import com.jme3.gde.core.scene.SceneRequest;
+import com.jme3.gde.materialdefinition.icons.Icons;
 import com.jme3.material.MatParam;
 import com.jme3.material.Material;
 import com.jme3.math.FastMath;
@@ -94,11 +95,10 @@ public class MaterialPreviewRenderer implements SceneListener {
         if (!init) {
             init();
         }
-        final DesktopAssetManager assetManager = (DesktopAssetManager) SceneApplication.getApplication().getAssetManager();
         SceneApplication.getApplication().enqueue(new Callable<Material>() {
 
             public Material call() throws Exception {
-                final Material mat = reloadMaterial(m, assetManager);
+                final Material mat = reloadMaterial(m);
                 if (mat != null) {
                     java.awt.EventQueue.invokeLater(new Runnable() {
                         public void run() {
@@ -112,7 +112,12 @@ public class MaterialPreviewRenderer implements SceneListener {
                                     SceneApplication.getApplication().createPreview(request);
                                 }
                             } catch (Exception e) {
-                                Logger.getLogger(MaterialPreviewRenderer.class.getName()).log(Level.SEVERE, "Error rendering material" + e.getMessage());
+                                java.awt.EventQueue.invokeLater(new Runnable() {
+                                    public void run() {
+                                        label.setIcon(Icons.error);
+                                    }
+                                });
+                                Logger.getLogger(MaterialPreviewRenderer.class.getName()).log(Level.SEVERE, "Error rendering material{0}", e.getMessage());
                             }
                         }
                     });
@@ -124,10 +129,9 @@ public class MaterialPreviewRenderer implements SceneListener {
 
     }
     
-      public Material reloadMaterial(Material mat, DesktopAssetManager assetManager) {
-
-        MaterialKey key = new MaterialKey(mat.getMaterialDef().getAssetName());
-        assetManager.deleteFromCache(key);
+      public Material reloadMaterial(Material mat) {
+       
+        ((ProjectAssetManager)mat.getMaterialDef().getAssetManager()).clearCache();   
         
         //creating a dummy mat with the mat def of the mat to reload
         Material dummy = new Material(mat.getMaterialDef());
@@ -150,6 +154,12 @@ public class MaterialPreviewRenderer implements SceneListener {
             //the following code will output the error
             //System.err.println(e.getMessage());
             Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, e.getMessage());
+            
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    label.setIcon(Icons.error);
+                }
+            });
             return null;
         }
 

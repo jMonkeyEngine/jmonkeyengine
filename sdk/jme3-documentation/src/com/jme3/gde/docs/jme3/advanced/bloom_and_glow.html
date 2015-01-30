@@ -1,9 +1,8 @@
 
-<h1><a>Bloom and Glow</a></h1>
+<h1>Bloom and Glow</h1>
 <div>
 
 <p>
-
 Bloom is a popular shader effect in 3D games industry. It usually consist in displaying a glowing halo around light sources or bright areas of a scene.
 In practice, the bright areas are extracted from the rendered scene, blurred and finally added up to the render.
 </p>
@@ -16,7 +15,7 @@ Those images gives an idea of what bloom does. The left image has no bloom effec
 
 </div>
 <!-- EDIT1 SECTION "Bloom and Glow" [1-484] -->
-<h1><a>Bloom Usage</a></h1>
+<h1>Bloom Usage</h1>
 <div>
 <ol>
 <li><div> Create a FilterPostProcessor</div>
@@ -34,12 +33,14 @@ Those images gives an idea of what bloom does. The left image has no bloom effec
  viewPort.addProcessor&#40;fpp&#41;;</pre>
 
 <p>
-Here are the parameters that you can tweak : 
+Here are the parameters that you can tweak :
 </p>
 <div><table>
+	<thead>
 	<tr>
 		<th> Parameter           </th><th> Method                </th><th> Default </th><th> Description </th>
 	</tr>
+	</thead>
 	<tr>
 		<td> blur scale              </td><td> <code>setBlurScale(float)</code> </td><td>1.5f  </td><td> the scale of the bloom effect, but be careful, high values does artifacts </td>
 	</tr>
@@ -53,30 +54,27 @@ Here are the parameters that you can tweak :
 		<td> bloom intensity              </td><td> <code>setBloomIntensity(float)</code> </td><td>2.0f  </td><td> the resulting bloom value is multiplied by this intensity </td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [865-1454] -->
+<!-- EDIT3 TABLE [864-1454] -->
 <p>
-
 You&#039;ll probably need to adjust those parameters depending on your scene.
 </p>
 
 </div>
 <!-- EDIT2 SECTION "Bloom Usage" [485-1529] -->
-<h1><a>Bloom with a glow map</a></h1>
+<h1>Bloom with a glow map</h1>
 <div>
 
 <p>
-
 Sometimes, you want to have more control over what glows and does not glow. 
 The bloom filter supports a glow map or a glow color.
 </p>
 
 </div>
 
-<h5><a>Creating a glow-map</a></h5>
+<h5>Creating a glow-map</h5>
 <div>
 
 <p>
-
 Let&#039;s take the hover tank example bundled with JME3 test data.<br/>
 
 Here you can see the diffuse map of the tank, and the associated glow map that only contains the parts of the texture that will glow and their glowing color: <br/>
@@ -88,7 +86,6 @@ Here you can see the diffuse map of the tank, and the associated glow map that o
 <p>
 Glow maps work with Lighting.j3md, Particles.j3md and SolidColor.j3md material definitions.
 The tank material looks like this : 
-
 </p>
 <pre>Material My Material : Common/MatDefs/Light/Lighting.j3md {
      MaterialParameters {
@@ -105,13 +102,12 @@ The tank material looks like this :
 }</pre>
 
 <p>
-
 The glow map is defined here : <strong>GlowMap : Models/HoverTank/tank_glow_map_highres.png</strong>
 </p>
 
 </div>
 
-<h5><a>Usage</a></h5>
+<h5>Usage</h5>
 <div>
 <ol>
 <li><div> Create a FilterPostProcessor</div>
@@ -136,18 +132,17 @@ Here is the result : <br/>
 
 </div>
 <!-- EDIT4 SECTION "Bloom with a glow map" [1530-3231] -->
-<h1><a>Bloom with a glow color</a></h1>
+<h1>Bloom with a glow color</h1>
 <div>
 
 <p>
-
 Sometimes you need an entire object to glow, not just parts of it.
 In this case you&#039;ll need to use the glow color parameter.
 </p>
 
 </div>
 
-<h5><a>Usage</a></h5>
+<h5>Usage</h5>
 <div>
 <ol>
 <li><div> Create a material for your object and set the GlowColor parameter</div>
@@ -178,33 +173,30 @@ Here is the result on Oto&#039;s plasma ball (before and after) : <br/>
 
 </div>
 <!-- EDIT5 SECTION "Bloom with a glow color" [3232-4239] -->
-<h1><a>Hints and tricks</a></h1>
+<h1>Hints and tricks</h1>
 <div>
 
 </div>
 
-<h5><a>Increasing the blur range and reducing fps cost</a></h5>
+<h5>Increasing the blur range and reducing fps cost</h5>
 <div>
 
 <p>
-
 The glow render is sampled on a texture that has the same dimensions as the viewport.
 You can reduce the size of the bloom sampling just by using the setDownSamplingFactor method like this : <br/>
-
 
 </p>
 <pre> BloomFilter bloom=new BloomFilter&#40;&#41;;
  bloom.setDownSamplingFactor&#40;2.0f&#41;; </pre>
 
 <p>
-
 In this example the sampling size is divided by 4 (width/2,height/2), resulting in less work to blur the scene.
 The resulting texture is then up sampled to the screen size using hardware bilinear filtering. this results in a wider blur range.
 </p>
 
 </div>
 
-<h5><a>Using classic bloom combined with a glow map</a></h5>
+<h5>Using classic bloom combined with a glow map</h5>
 <div>
 
 <p>
@@ -219,11 +211,10 @@ However, note that both effects will share the same values of attribute, and som
 
 </div>
 
-<h5><a>Making your home brewed material definition support Glow</a></h5>
+<h5>Making your home brewed material definition support Glow</h5>
 <div>
 
 <p>
-
 Let&#039;s say you have made a custom material on your own, and that you want it to support glow maps and glow color.
 In your material definition you need to add those lines in the MaterialParameters section :
 </p>
@@ -239,7 +230,6 @@ In your material definition you need to add those lines in the MaterialParameter
 
 <p>
 Then add the following technique : 
-
 </p>
 <pre>    Technique Glow {
 
@@ -264,27 +254,23 @@ Then you can use this material with the BloomFilter
 
 </div>
 
-<h5><a>Make a glowing object stop to glow</a></h5>
+<h5>Make a glowing object stop to glow</h5>
 <div>
 
 <p>
-
 If you are using a glow map, remove the texture from the material.
-
 </p>
 <pre>material.clearTextureParam(&quot;GlowMap&quot;);</pre>
 
 <p>
 If you are using a glow color, set it to black
-
 </p>
 <pre>material.setColor(&quot;GlowColor&quot;,ColorRGBA.Black);</pre>
-<div><span>
-	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
-	<a href="/wiki/doku.php/tag:effect?do=showtag&amp;tag=tag%3Aeffect">effect</a>,
-	<a href="/wiki/doku.php/tag:light?do=showtag&amp;tag=tag%3Alight">light</a>
-</span></div>
+
+<p>
+<a href="nbdocs:/com/jme3/gde/docs/jme3:advanced/tag_documentation_effect_light">tag_documentation_effect_light</a>
+</p>
 
 </div>
 <!-- EDIT6 SECTION "Hints and tricks" [4240-] -->
-<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:bloom_and_glow?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://wiki.jmonkeyengine.org/doku.php/jme3:advanced:bloom_and_glow?do=export_xhtmlbody">view online version</a></em></p>

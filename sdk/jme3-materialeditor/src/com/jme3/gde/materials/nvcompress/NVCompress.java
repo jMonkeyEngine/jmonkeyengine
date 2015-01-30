@@ -55,6 +55,7 @@ import jme3tools.converters.ImageToAwt;
 import jme3tools.converters.MipMapGenerator;
 import org.openide.util.NbPreferences;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class NVCompress extends javax.swing.JFrame {
     
     private File texToolsPath;
