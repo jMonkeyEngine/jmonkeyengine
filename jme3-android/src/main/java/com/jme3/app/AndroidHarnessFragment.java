@@ -362,7 +362,7 @@ public class AndroidHarnessFragment extends Fragment implements
     @Override
     public void onDestroyView() {
         logger.fine("onDestroyView");
-        if (splashImageView != null) {
+        if (splashImageView != null && splashImageView.getParent() != null) {
             ((ViewGroup) splashImageView.getParent()).removeView(splashImageView);
         }
         if (view.getParent() != null) {
