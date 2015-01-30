@@ -62,6 +62,8 @@ public class PointLight extends Light {
     protected float radius = 0;
     protected float invRadius = 0;
 
+    protected boolean showCulledLightsShadows = false;    
+    
     @Override
     public void computeLastDistance(Spatial owner) {
         if (owner.getWorldBound() != null) {
@@ -185,5 +187,13 @@ public class PointLight extends Light {
         }else{
             this.invRadius = 0;
         }
+    }
+    
+    /// if showCulledLightsShadows is set, the PointLightShadowRenderer.checkCulling would not cull anything to make possible shadow rendered
+    public boolean showCulledLightsShadows() {
+        return showCulledLightsShadows;
+    }
+    public void setShowCulledLightsShadows(boolean val) {
+        showCulledLightsShadows = val;
     }
 }

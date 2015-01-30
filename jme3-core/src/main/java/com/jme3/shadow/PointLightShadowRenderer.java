@@ -140,9 +140,20 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
 
     @Override
     GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers) {
-        lightReceivers.clear();
-        for (Spatial scene : viewPort.getScenes()) {
-            ShadowUtil.getLitGeometriesInViewPort(scene, viewPort.getCamera(), shadowCams, RenderQueue.ShadowMode.Receive, lightReceivers);
+        if ( light.showCulledLightsShadows() ) {
+            //FIX: Ignore pointLight radius as shadow can be cast beyond its range
+            //sceneReceivers set to RenderQueue.shadowRecv are collected through ShadowUtil.getGeometriesInCamFrustum and should be shared
+            if (sceneReceivers.size()==0) {
+                for (Spatial scene : viewPort.getScenes()) {
+                    ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), RenderQueue.ShadowMode.Receive, sceneReceivers);
+                }
+            }
+            lightReceivers = sceneReceivers;            
+        } else {
+            lightReceivers.clear();
+            for (Spatial scene : viewPort.getScenes()) {
+                ShadowUtil.getLitGeometriesInViewPort(scene, viewPort.getCamera(), shadowCams, RenderQueue.ShadowMode.Receive, lightReceivers);
+            }
         }
         return lightReceivers;
     }
@@ -220,6 +231,9 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
      */
     @Override
     protected boolean checkCulling(Camera viewCam) {      
+        //FIX: Ignore pointLight radius as shadow can be cast beyond its range.
+        if (light.showCulledLightsShadows())
+            return true;
         Camera cam = viewCam;
         if(frustumCam != null){
             cam = frustumCam;            

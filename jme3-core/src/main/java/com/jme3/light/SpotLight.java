@@ -68,6 +68,8 @@ public class SpotLight extends Light implements Savable {
     
     protected float outerAngleCosSqr, outerAngleSinSqr;
     protected float outerAngleSinRcp, outerAngleSin, outerAngleCos;
+
+    protected boolean showCulledLightsShadows = false;    
     
     public SpotLight() {
         super();
@@ -148,21 +150,29 @@ public class SpotLight extends Light implements Savable {
             Plane plane = cam.getWorldPlane(i);
             float dot = plane.pseudoDistance(position);
             if(dot < 0){                
-                // outside, check the far point against the plane   
-                dot = plane.pseudoDistance(farPoint);
-                if(dot < 0){                   
-                    // outside, check the projection of the far point along the normal of the plane to the base disc perimeter of the cone
-                    //computing the radius of the base disc
-                    float farRadius = (spotRange / outerAngleCos) * outerAngleSin;                    
-                    //computing the projection direction : perpendicular to the light direction and coplanar with the direction vector and the normal vector
-                    Vector3f perpDirection = vars.vect2.set(direction).crossLocal(plane.getNormal()).normalizeLocal().crossLocal(direction);
-                    //projecting the far point on the base disc perimeter
-                    Vector3f projectedPoint = vars.vect3.set(farPoint).addLocal(perpDirection.multLocal(farRadius));
-                    //checking against the plane
-                    dot = plane.pseudoDistance(projectedPoint);
-                    if(dot < 0){                        
-                        // Outside, the light can be culled
+                if (showCulledLightsShadows) {
+                    // check if cone with far point in infty interscects the frustum
+                    // it is outside if angle phi between cone direction and plane normal is more then (90deg+outerAngle)
+                    float cosPhi = vars.vect2.set(plane.getNormal()).normalizeLocal().dot(direction)/direction.length();
+                    if (cosPhi + outerAngleSin < 0) //cos(90deg+phi) = -sin(phi)
                         return false;
+                } else {
+                    // outside, check the far point against the plane   
+                    dot = plane.pseudoDistance(farPoint);
+                    if(dot < 0){                   
+                        // outside, check the projection of the far point along the normal of the plane to the base disc perimeter of the cone
+                        //computing the radius of the base disc
+                        float farRadius = (spotRange / outerAngleCos) * outerAngleSin;                    
+                        //computing the projection direction : perpendicular to the light direction and coplanar with the direction vector and the normal vector
+                        Vector3f perpDirection = vars.vect2.set(direction).crossLocal(plane.getNormal()).normalizeLocal().crossLocal(direction);
+                        //projecting the far point on the base disc perimeter
+                        Vector3f projectedPoint = vars.vect3.set(farPoint).addLocal(perpDirection.multLocal(farRadius));
+                        //checking against the plane
+                        dot = plane.pseudoDistance(projectedPoint);
+                        if(dot < 0){                        
+                            // Outside, the light can be culled
+                            return false;
+                        }
                     }
                 }
             }
@@ -321,6 +331,14 @@ public class SpotLight extends Light implements Savable {
         } else {
             this.invSpotRange = 0;
         }
+    }
+
+    /// if showCulledLightsShadows is set, the SpotLightShadowRenderer.checkCulling would test the infinitely long light cone to show possible shadows
+    public boolean showCulledLightsShadows() {
+        return showCulledLightsShadows;
+    }
+    public void setShowCulledLightsShadows(boolean val) {
+        showCulledLightsShadows = val;
     }
 }
 
