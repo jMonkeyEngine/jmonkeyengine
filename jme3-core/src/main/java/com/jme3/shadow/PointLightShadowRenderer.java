@@ -40,7 +40,10 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.GeometryList;
+import com.jme3.renderer.queue.OpaqueComparator;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.util.TempVars;
@@ -130,14 +133,14 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
 
     @Override
     protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers, GeometryList shadowMapOccluders) {
-        ShadowUtil.getGeometriesInCamFrustum(sceneOccluders, shadowCams[shadowMapIndex], shadowMapOccluders);
+        ShadowUtil.getGeometriesInCamFrustum(viewPort.getQueue().getRootScene(), shadowCams[shadowMapIndex], RenderQueue.ShadowMode.Cast, shadowMapOccluders);
         return shadowMapOccluders;
     }
 
     @Override
     GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers) {
         lightReceivers.clear();
-        ShadowUtil.getGeometriesInLightRadius(sceneReceivers, shadowCams, lightReceivers);
+        ShadowUtil.getLitGeometriesInViewPort(viewPort.getQueue().getRootScene(), viewPort.getCamera(), shadowCams, RenderQueue.ShadowMode.Receive, lightReceivers);
         return lightReceivers;
     }
 
@@ -207,7 +210,7 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
         oc.write(light, "light", null);
     }
     
-   /**
+    /**
      *
      * @param viewCam
      * @return 
@@ -224,6 +227,5 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
         boolean intersects = light.intersectsFrustum(cam,vars);
         vars.release();
         return intersects;
-        
     }
 }

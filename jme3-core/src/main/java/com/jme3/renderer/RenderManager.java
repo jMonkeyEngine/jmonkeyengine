@@ -591,6 +591,7 @@ public class RenderManager {
      * is still rendered in the shadow frustum (shadow casting queue)
      * through this recursive method.
      */
+    @Deprecated
     private void renderShadow(Spatial s, RenderQueue rq) {
         if (s instanceof Node) {
             Node n = (Node) s;
@@ -681,6 +682,8 @@ public class RenderManager {
     public void renderScene(Spatial scene, ViewPort vp) {
         //reset of the camera plane state for proper culling (must be 0 for the first note of the scene to be rendered)
         vp.getCamera().setPlaneState(0);
+        //remember the scene for possible later use
+        vp.getQueue().setRootScene(scene);
         //rendering the scene
         renderSubScene(scene, vp);
     }
@@ -690,10 +693,6 @@ public class RenderManager {
 
         // check culling first.
         if (!scene.checkCulling(vp.getCamera())) {
-            // move on to shadow-only render
-            if ((scene.getShadowMode() != RenderQueue.ShadowMode.Off || scene instanceof Node) && scene.getCullHint() != Spatial.CullHint.Always) {
-                renderShadow(scene, vp.getQueue());
-            }
             return;
         }
 
@@ -717,12 +716,6 @@ public class RenderManager {
             }
 
             vp.getQueue().addToQueue(gm, scene.getQueueBucket());
-
-            // add to shadow queue if needed
-            RenderQueue.ShadowMode shadowMode = scene.getShadowMode();
-            if (shadowMode != RenderQueue.ShadowMode.Off) {
-                vp.getQueue().addToShadowQueue(gm, shadowMode);
-            }
         }
     }
 

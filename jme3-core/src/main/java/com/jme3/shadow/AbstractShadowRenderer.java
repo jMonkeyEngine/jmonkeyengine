@@ -387,8 +387,9 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     public void postQueue(RenderQueue rq) {
         GeometryList occluders = rq.getShadowQueueContent(ShadowMode.Cast);
         sceneReceivers = rq.getShadowQueueContent(ShadowMode.Receive);
+        lightReceivers.clear();
         skipPostPass = false;
-        if (sceneReceivers.size() == 0 || occluders.size() == 0 || !checkCulling(viewPort.getCamera())) {
+        if ( !checkCulling(viewPort.getCamera()) ) {
             skipPostPass = true;
             return;
         }
@@ -473,12 +474,12 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         if (debug) {
             displayShadowMap(renderManager.getRenderer());
         }
-
+        
         lightReceivers = getReceivers(sceneReceivers, lightReceivers);
 
         if (lightReceivers.size() != 0) {
             //setting params to recieving geometry list
-            setMatParams();
+            setMatParams(lightReceivers);
 
             Camera cam = viewPort.getCamera();
             //some materials in the scene does not have a post shadow technique so we're using the fall back material
@@ -541,10 +542,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
      */
     protected abstract void setMaterialParameters(Material material);
 
-    private void setMatParams() {
-
-        GeometryList l = viewPort.getQueue().getShadowQueueContent(ShadowMode.Receive);
-
+    private void setMatParams(GeometryList l) {
         //iteration throught all the geometries of the list to gather the materials
 
         matCache.clear();

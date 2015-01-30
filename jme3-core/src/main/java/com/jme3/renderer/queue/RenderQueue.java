@@ -50,8 +50,9 @@ public class RenderQueue {
     private GeometryList transparentList;
     private GeometryList translucentList;
     private GeometryList skyList;
-    private GeometryList shadowRecv;
-    private GeometryList shadowCast;
+    @Deprecated private GeometryList shadowRecv;
+    @Deprecated private GeometryList shadowCast;
+    private Spatial rootScene = null;
 
     /**
      * Creates a new RenderQueue, the default {@link GeometryComparator comparators}
@@ -242,21 +243,14 @@ public class RenderQueue {
      * {@link ShadowMode#CastAndReceive}, it is added to both the cast
      * and the receive buckets.
      */
+    @Deprecated
     public void addToShadowQueue(Geometry g, ShadowMode shadBucket) {
         switch (shadBucket) {
             case Inherit:
-                break;
             case Off:
-                break;
             case Cast:
-                shadowCast.add(g);
-                break;
             case Receive:
-                shadowRecv.add(g);
-                break;
             case CastAndReceive:
-                shadowCast.add(g);
-                shadowRecv.add(g);
                 break;
             default:
                 throw new UnsupportedOperationException("Unrecognized shadow bucket type: " + shadBucket);
@@ -331,6 +325,7 @@ public class RenderQueue {
         renderGeometryList(list, rm, cam, clear);
     }
 
+    @Deprecated
     public void renderShadowQueue(ShadowMode shadBucket, RenderManager rm, Camera cam, boolean clear) {
         switch (shadBucket) {
             case Cast:
@@ -388,6 +383,14 @@ public class RenderQueue {
         }
     }
 
+    public void setRootScene(Spatial rs) {
+        rootScene = rs;
+    }
+    
+    public Spatial getRootScene() {
+        return rootScene;
+    }
+    
     public void clear() {
         opaqueList.clear();
         guiList.clear();
