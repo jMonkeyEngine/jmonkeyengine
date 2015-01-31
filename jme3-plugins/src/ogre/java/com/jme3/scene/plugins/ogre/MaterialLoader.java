@@ -152,6 +152,7 @@ public class MaterialLoader implements AssetLoader {
         } catch (AssetNotFoundException ex){
             logger.log(Level.WARNING, "Cannot locate {0} for material {1}", new Object[]{texKey, matName});
             textures[texUnit].setImage(PlaceholderAssets.getPlaceholderImage());
+            textures[texUnit].setKey(texKey);
         }
     }
 
