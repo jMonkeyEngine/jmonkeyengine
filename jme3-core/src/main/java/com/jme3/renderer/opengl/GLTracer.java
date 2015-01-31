@@ -73,6 +73,7 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glTexSubImage3D", 1, 2, 3, 4, 5, 6, 7);
         noEnumArgs("glCompressedTexSubImage3D", 1, 2, 3, 4, 5, 6, 7);
         noEnumArgs("glDeleteTextures", 0);
+        noEnumArgs("glReadPixels", 0, 1, 2, 3);
         
         noEnumArgs("glBindBuffer", 1);
         noEnumArgs("glEnableVertexAttribArray", 0);
