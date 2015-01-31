@@ -139,9 +139,6 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
 
-        setBackground(new java.awt.Color(204, 204, 204));
-
-        sceneInfoPanel.setBackground(new java.awt.Color(204, 204, 204));
         sceneInfoPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.sceneInfoPanel.border.title"))); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(sceneInfoLabel1, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.sceneInfoLabel1.text")); // NOI18N
@@ -164,7 +161,6 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jToolBar1.setBackground(new java.awt.Color(204, 204, 204));
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
 
@@ -280,7 +276,6 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jToolBar1.add(jToggleSelectTerrain);
         jToolBar1.add(jSeparator7);
 
-        moveToCursorButton.setBackground(new java.awt.Color(204, 204, 204));
         moveToCursorButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/move.gif"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(moveToCursorButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.moveToCursorButton.text")); // NOI18N
         moveToCursorButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.moveToCursorButton.toolTipText")); // NOI18N
@@ -299,7 +294,6 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jLabel1.text")); // NOI18N
         jToolBar1.add(jLabel1);
 
-        resetCursorButton.setBackground(new java.awt.Color(204, 204, 204));
         org.openide.awt.Mnemonics.setLocalizedText(resetCursorButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.resetCursorButton.text")); // NOI18N
         resetCursorButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.resetCursorButton.toolTipText")); // NOI18N
         resetCursorButton.setFocusable(false);
@@ -312,7 +306,6 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         });
         jToolBar1.add(resetCursorButton);
 
-        cursorToSelectionButton.setBackground(new java.awt.Color(204, 204, 204));
         org.openide.awt.Mnemonics.setLocalizedText(cursorToSelectionButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.cursorToSelectionButton.text")); // NOI18N
         cursorToSelectionButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.cursorToSelectionButton.toolTipText")); // NOI18N
         cursorToSelectionButton.setFocusable(false);
@@ -330,7 +323,6 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jLabel2.text")); // NOI18N
         jToolBar1.add(jLabel2);
 
-        camToCursorSelectionButton.setBackground(new java.awt.Color(204, 204, 204));
         org.openide.awt.Mnemonics.setLocalizedText(camToCursorSelectionButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.camToCursorSelectionButton.text")); // NOI18N
         camToCursorSelectionButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.camToCursorSelectionButton.toolTipText")); // NOI18N
         camToCursorSelectionButton.setFocusable(false);
@@ -374,8 +366,6 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jToolBar1.add(showGridToggleButton);
         jToolBar1.add(jSeparator1);
 
-        jPanel3.setBackground(new java.awt.Color(204, 204, 204));
-
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -389,14 +379,11 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
 
         jToolBar1.add(jPanel3);
 
-        jPanel4.setBackground(new java.awt.Color(204, 204, 204));
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jPanel4.border.title"))); // NOI18N
 
-        jToolBar2.setBackground(new java.awt.Color(204, 204, 204));
         jToolBar2.setFloatable(false);
         jToolBar2.setRollover(true);
 
-        createPhysicsMeshButton.setBackground(new java.awt.Color(204, 204, 204));
         org.openide.awt.Mnemonics.setLocalizedText(createPhysicsMeshButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.createPhysicsMeshButton.text")); // NOI18N
         createPhysicsMeshButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.createPhysicsMeshButton.toolTipText")); // NOI18N
         createPhysicsMeshButton.addActionListener(new java.awt.event.ActionListener() {
@@ -406,7 +393,6 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         });
         jToolBar2.add(createPhysicsMeshButton);
 
-        jCheckBox1.setBackground(new java.awt.Color(204, 204, 204));
         org.openide.awt.Mnemonics.setLocalizedText(jCheckBox1, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jCheckBox1.text")); // NOI18N
         jToolBar2.add(jCheckBox1);
 
@@ -416,11 +402,9 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jLabel4.text")); // NOI18N
         jToolBar2.add(jLabel4);
 
-        jToolBar3.setBackground(new java.awt.Color(204, 204, 204));
         jToolBar3.setFloatable(false);
         jToolBar3.setRollover(true);
 
-        jButton1.setBackground(new java.awt.Color(204, 204, 204));
         org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jButton1.text")); // NOI18N
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -429,7 +413,6 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         });
         jToolBar3.add(jButton1);
 
-        fixedCheckBox.setBackground(new java.awt.Color(204, 204, 204));
         fixedCheckBox.setSelected(true);
         org.openide.awt.Mnemonics.setLocalizedText(fixedCheckBox, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.fixedCheckBox.text")); // NOI18N
         fixedCheckBox.setEnabled(false);
@@ -494,6 +477,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                                 .addComponent(jLabel6)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jButton2)
+                                .addGap(0, 0, 0)
                                 .addComponent(jButton3))
                             .addGroup(jPanel4Layout.createSequentialGroup()
                                 .addComponent(jLabel5)
