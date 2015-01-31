@@ -93,6 +93,8 @@ public class MaterialPreviewWidget extends javax.swing.JPanel {
 
         previewLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         previewLabel.setText(org.openide.util.NbBundle.getMessage(MaterialPreviewWidget.class, "MaterialPreviewWidget.previewLabel.text")); // NOI18N
+        previewLabel.setMaximumSize(new java.awt.Dimension(120, 120));
+        previewLabel.setMinimumSize(new java.awt.Dimension(120, 120));
 
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);

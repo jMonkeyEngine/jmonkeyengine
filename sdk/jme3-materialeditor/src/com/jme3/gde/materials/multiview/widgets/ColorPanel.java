@@ -48,14 +48,11 @@ public class ColorPanel extends MaterialPropertyWidget {
         jButton1 = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
 
-        setBackground(new java.awt.Color(204, 204, 204));
         setMaximumSize(new java.awt.Dimension(32767, 35));
         setPreferredSize(new java.awt.Dimension(430, 35));
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(ColorPanel.class, "ColorPanel.jLabel1.text")); // NOI18N
         jLabel1.setPreferredSize(new java.awt.Dimension(100, 16));
-
-        jPanel2.setBackground(new java.awt.Color(204, 204, 204));
 
         rLabel.setText(org.openide.util.NbBundle.getMessage(ColorPanel.class, "ColorPanel.rLabel.text")); // NOI18N
         rLabel.setMaximumSize(new java.awt.Dimension(110, 2147483647));
@@ -183,7 +180,6 @@ public class ColorPanel extends MaterialPropertyWidget {
             .addComponent(aLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 20, Short.MAX_VALUE)
         );
 
-        jButton1.setBackground(new java.awt.Color(204, 204, 204));
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/materials/multiview/widgets/icons/color_wheel.png"))); // NOI18N
         jButton1.setText(org.openide.util.NbBundle.getMessage(ColorPanel.class, "ColorPanel.jButton1.text")); // NOI18N
         jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);

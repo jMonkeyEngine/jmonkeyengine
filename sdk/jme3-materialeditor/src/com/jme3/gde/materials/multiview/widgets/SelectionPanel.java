@@ -55,9 +55,6 @@ public class SelectionPanel extends MaterialPropertyWidget {
         jPanel1 = new javax.swing.JPanel();
         jComboBox1 = new javax.swing.JComboBox();
 
-        setBackground(new java.awt.Color(204, 204, 204));
-
-        jToolBar1.setBackground(new java.awt.Color(204, 204, 204));
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
         jToolBar1.setMinimumSize(new java.awt.Dimension(212, 32));
@@ -67,9 +64,8 @@ public class SelectionPanel extends MaterialPropertyWidget {
         jLabel1.setPreferredSize(new java.awt.Dimension(100, 16));
         jToolBar1.add(jLabel1);
 
-        jPanel1.setBackground(new java.awt.Color(204, 204, 204));
+        jPanel1.setOpaque(false);
         jPanel1.setPreferredSize(new java.awt.Dimension(10, 0));
-        jPanel1.setSize(new java.awt.Dimension(0, 0));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
