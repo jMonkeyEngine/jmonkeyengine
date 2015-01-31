@@ -85,7 +85,11 @@ public final class Screenshots {
         int height = wr.getHeight();
 
         // flip the components the way AWT likes them
-        for (int y = 0; y < height / 2; y++){
+        
+        // calcuate half of height such that all rows of the array are written to
+        // e.g. for odd heights, write 1 more scanline
+        int heightdiv2ceil = height % 2 == 1 ? (height / 2) + 1 : height / 2;
+        for (int y = 0; y < heightdiv2ceil; y++){
             for (int x = 0; x < width; x++){
                 int inPtr  = (y * width + x) * 4;
                 int outPtr = ((height-y-1) * width + x) * 4;
