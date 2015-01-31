@@ -86,7 +86,7 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
     private final ByteBuffer cpuBuf = BufferUtils.createByteBuffer(width * height * 4);
     private final byte[] cpuArray = new byte[width * height * 4];
     private final BufferedImage image = new BufferedImage(width, height,
-                                            BufferedImage.TYPE_4BYTE_ABGR);
+                                            BufferedImage.TYPE_INT_BGR);
 
     private class ImageDisplay extends JPanel {
 
@@ -159,10 +159,10 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
 
     public void updateImageContents(){
         cpuBuf.clear();
-        renderer.readFrameBufferWithFormat(offBuffer, cpuBuf, Image.Format.BGRA8);
+        renderer.readFrameBuffer(offBuffer, cpuBuf);
 
         synchronized (image) {
-            Screenshots.convertScreenShot(cpuBuf, image);    
+            Screenshots.convertScreenShot2(cpuBuf.asIntBuffer(), image);    
         }
 
         if (display != null)
