@@ -151,6 +151,11 @@ public interface GL {
 	public static final int GL_TEXTURE_2D = 0xDE1;
 	public static final int GL_TEXTURE_CUBE_MAP = 0x8513;
 	public static final int GL_TEXTURE_CUBE_MAP_POSITIVE_X = 0x8515;
+        public static final int GL_TEXTURE_CUBE_MAP_NEGATIVE_X = 0x8516;
+        public static final int GL_TEXTURE_CUBE_MAP_POSITIVE_Y = 0x8517;
+        public static final int GL_TEXTURE_CUBE_MAP_NEGATIVE_Y = 0x8518;
+        public static final int GL_TEXTURE_CUBE_MAP_POSITIVE_Z = 0x8519;
+        public static final int GL_TEXTURE_CUBE_MAP_NEGATIVE_Z = 0x851A;
 	public static final int GL_TEXTURE_MAG_FILTER = 0x2800;
 	public static final int GL_TEXTURE_MAX_LEVEL = 0x813D;
 	public static final int GL_TEXTURE_MIN_FILTER = 0x2801;

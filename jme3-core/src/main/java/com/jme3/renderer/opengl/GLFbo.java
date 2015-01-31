@@ -44,6 +44,20 @@ import java.nio.IntBuffer;
 public interface GLFbo {
     
     public static final int GL_COLOR_ATTACHMENT0_EXT = 0x8CE0;
+    public static final int GL_COLOR_ATTACHMENT1_EXT = 0x8CE1;
+    public static final int GL_COLOR_ATTACHMENT2_EXT = 0x8CE2;
+    public static final int GL_COLOR_ATTACHMENT3_EXT = 0x8CE3;
+    public static final int GL_COLOR_ATTACHMENT4_EXT = 0x8CE4;
+    public static final int GL_COLOR_ATTACHMENT5_EXT = 0x8CE5;
+    public static final int GL_COLOR_ATTACHMENT6_EXT = 0x8CE6;
+    public static final int GL_COLOR_ATTACHMENT7_EXT = 0x8CE7;
+    public static final int GL_COLOR_ATTACHMENT8_EXT = 0x8CE8;
+    public static final int GL_COLOR_ATTACHMENT9_EXT = 0x8CE9;
+    public static final int GL_COLOR_ATTACHMENT10_EXT = 0x8CEA;
+    public static final int GL_COLOR_ATTACHMENT11_EXT = 0x8CEB;
+    public static final int GL_COLOR_ATTACHMENT12_EXT = 0x8CEC;
+    public static final int GL_COLOR_ATTACHMENT13_EXT = 0x8CED;
+    public static final int GL_COLOR_ATTACHMENT14_EXT = 0x8CEE;
     public static final int GL_COLOR_ATTACHMENT15_EXT = 0x8CEF;
     public static final int GL_DEPTH_ATTACHMENT_EXT = 0x8D00;
     public static final int GL_DRAW_FRAMEBUFFER_BINDING_EXT = 0x8CA6;
