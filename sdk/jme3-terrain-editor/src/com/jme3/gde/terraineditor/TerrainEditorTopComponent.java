@@ -287,7 +287,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         hintTextArea = new javax.swing.JTextArea();
 
         textureFileChooser.setApproveButtonText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.textureFileChooser.approveButtonText_1")); // NOI18N
-        textureFileChooser.setCurrentDirectory(new java.io.File("F:\\Assets\\Textures"));
+        textureFileChooser.setCurrentDirectory(new java.io.File("/Assets/Textures"));
         textureFileChooser.setDialogTitle(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.textureFileChooser.dialogTitle_1")); // NOI18N
         textureFileChooser.setFileFilter(new ImageFilter());
 
@@ -404,9 +404,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         });
         slopeBrushPanel.add(slopeLockCheckbox);
 
-        setBackground(java.awt.Color.gray);
-
-        jToolBar1.setBackground(new java.awt.Color(204, 204, 204));
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
         jToolBar1.setOpaque(false);
@@ -414,7 +411,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         createTerrainButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/terraineditor/icon_terrain-new.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(createTerrainButton, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.createTerrainButton.text")); // NOI18N
         createTerrainButton.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.createTerrainButton.toolTipText")); // NOI18N
-        createTerrainButton.setOpaque(false);
         createTerrainButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 createTerrainButtonActionPerformed(evt);
@@ -492,7 +488,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         org.openide.awt.Mnemonics.setLocalizedText(addTextureButton, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.addTextureButton.text")); // NOI18N
         addTextureButton.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.addTextureButton.toolTipText")); // NOI18N
         addTextureButton.setBorderPainted(false);
-        addTextureButton.setOpaque(false);
         addTextureButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addTextureButtonActionPerformed(evt);
@@ -504,7 +499,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         org.openide.awt.Mnemonics.setLocalizedText(removeTextureButton, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.removeTextureButton.text")); // NOI18N
         removeTextureButton.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.removeTextureButton.toolTipText")); // NOI18N
         removeTextureButton.setBorderPainted(false);
-        removeTextureButton.setOpaque(false);
         removeTextureButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 removeTextureButtonActionPerformed(evt);
@@ -535,7 +529,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         radiusSlider.setPaintTicks(true);
         radiusSlider.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.radiusSlider.toolTipText")); // NOI18N
         radiusSlider.setValue(5);
-        radiusSlider.setOpaque(false);
         radiusSlider.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 radiusSliderStateChanged(evt);
@@ -549,7 +542,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         heightSlider.setMajorTickSpacing(20);
         heightSlider.setMaximum(200);
         heightSlider.setPaintTicks(true);
-        heightSlider.setOpaque(false);
         heightSlider.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 heightSliderStateChanged(evt);
@@ -557,12 +549,10 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         });
         jToolBar1.add(heightSlider);
 
-        toolSettingsPanel.setBackground(new java.awt.Color(204, 204, 204));
         toolSettingsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.toolSettingsPanel.border.title"))); // NOI18N
         toolSettingsPanel.setOpaque(false);
         toolSettingsPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 0, 0));
 
-        paintingPanel.setBackground(new java.awt.Color(204, 204, 204));
         paintingPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.paintingPanel.border.title"))); // NOI18N
         paintingPanel.setOpaque(false);
 
@@ -600,7 +590,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                     .addComponent(remainingTexturesLabel)))
         );
 
-        jPanel2.setBackground(new java.awt.Color(204, 204, 204));
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.jPanel2.border.title"))); // NOI18N
         jPanel2.setOpaque(false);
 
@@ -649,12 +638,11 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                 .addContainerGap())
         );
 
-        hintPanel.setBackground(new java.awt.Color(204, 204, 204));
         hintPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.hintPanel.border.title"))); // NOI18N
         hintPanel.setOpaque(false);
 
-        hintTextArea.setColumns(20);
         hintTextArea.setEditable(false);
+        hintTextArea.setColumns(20);
         hintTextArea.setLineWrap(true);
         hintTextArea.setRows(2);
         hintTextArea.setTabSize(4);
