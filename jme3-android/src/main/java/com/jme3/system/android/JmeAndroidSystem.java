@@ -162,7 +162,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
                 return Platform.Android_ARM5; // unknown ARM
             }
         } else {
-            throw new UnsupportedOperationException("Unsupported Android Platform");
+            return Platform.Android_Other;
         }
     }
 
