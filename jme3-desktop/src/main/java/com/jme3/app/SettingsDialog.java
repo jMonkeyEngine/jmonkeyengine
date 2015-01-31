@@ -85,6 +85,8 @@ public final class SettingsDialog extends JFrame {
         new DisplayMode(1024, 768, 24, 60),
         new DisplayMode(1280, 720, 24, 60),
         new DisplayMode(1280, 1024, 24, 60),
+        new DisplayMode(1440, 900, 24, 60),
+        new DisplayMode(1680, 1050, 24, 60),
     };
     private DisplayMode[] windowModes = null;
 
@@ -657,6 +659,12 @@ public final class SettingsDialog extends JFrame {
         displayFreqCombo.setModel(new DefaultComboBoxModel(freqs));
         // Try to reset freq
         displayFreqCombo.setSelectedItem(displayFreq);
+        
+        if (!displayFreqCombo.getSelectedItem().equals(displayFreq)) {
+            // Cannot find saved frequency in available frequencies.
+            // Choose the closest one to 60 Hz.
+            displayFreqCombo.setSelectedItem(getBestFrequency(resolution, modes));
+        }
     }
 
     /**
@@ -827,6 +835,34 @@ public final class SettingsDialog extends JFrame {
         String[] res = new String[freqs.size()];
         freqs.toArray(res);
         return res;
+    }
+    
+    /**
+     * Chooses the closest frequency to 60 Hz.
+     * 
+     * @param resolution
+     * @param modes
+     * @return 
+     */
+    private static String getBestFrequency(String resolution, DisplayMode[] modes) {
+        int closest = Integer.MAX_VALUE;
+        int desired = 60;
+        for (int i = 0; i < modes.length; i++) {
+            String res = modes[i].getWidth() + " x " + modes[i].getHeight();
+            int freq = modes[i].getRefreshRate();
+            if (freq != DisplayMode.REFRESH_RATE_UNKNOWN && res.equals(resolution)) {
+                if (Math.abs(freq - desired) < 
+                    Math.abs(closest - desired)) {
+                    closest = modes[i].getRefreshRate();
+                }
+            }
+        }
+        
+        if (closest != Integer.MAX_VALUE) {
+            return closest + " Hz";
+        } else {
+            return null;
+        }
     }
 
     /**
