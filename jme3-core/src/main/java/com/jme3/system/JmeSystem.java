@@ -117,6 +117,20 @@ public class JmeSystem {
         return systemDelegate.getSoftTextDialogInput();
     }
 
+    /**
+     * Compresses a raw image into a stream.
+     * 
+     * The encoding is performed via system libraries. On desktop, the encoding
+     * is performed via ImageIO, whereas on Android, is is done via the 
+     * Bitmap class.
+     * 
+     * @param outStream The stream where to write the image data.
+     * @param format The format to use, either "png" or "jpg".
+     * @param imageData The image data in {@link Image.Format#RGBA8} format.
+     * @param width The width of the image.
+     * @param height The height of the image.
+     * @throws IOException If outStream throws an exception while writing.
+     */
     public static void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
         checkDelegate();
         systemDelegate.writeImageFile(outStream, format, imageData, width, height);

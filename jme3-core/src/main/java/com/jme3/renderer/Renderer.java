@@ -115,6 +115,9 @@ public interface Renderer {
 
     /**
      * Called when a new frame has been rendered.
+     * 
+     * Currently, this will simply delete any OpenGL objects from the GPU
+     * which have been garbage collected by the GC.
      */
     public void postFrame();
 
@@ -161,6 +164,7 @@ public interface Renderer {
      * the attached shader sources.
      * 
      * @param shader Shader to delete.
+     * @see #deleteShaderSource(com.jme3.shader.Shader.ShaderSource) 
      */
     public void deleteShader(Shader shader);
 
@@ -179,6 +183,11 @@ public interface Renderer {
 
     /**
      * Sets the framebuffer that will be drawn to.
+     * 
+     * If the framebuffer has not been initialized yet, it will be created
+     * and its render surfaces and attached textures will be allocated.
+     * 
+     * @param fb The framebuffer to set
      */
     public void setFrameBuffer(FrameBuffer fb);
     
@@ -186,7 +195,7 @@ public interface Renderer {
      * Set the framebuffer that will be set instead of the main framebuffer
      * when a call to setFrameBuffer(null) is made.
      * 
-     * @param fb 
+     * @param fb The framebuffer to override the main framebuffer.
      */
     public void setMainFrameBufferOverride(FrameBuffer fb);
 
