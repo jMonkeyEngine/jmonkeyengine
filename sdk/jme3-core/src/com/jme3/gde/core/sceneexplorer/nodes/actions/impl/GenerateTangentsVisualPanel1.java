@@ -65,7 +65,6 @@ public final class GenerateTangentsVisualPanel1 extends JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(splitMirrored, org.openide.util.NbBundle.getMessage(GenerateTangentsVisualPanel1.class, "GenerateTangentsVisualPanel1.splitMirrored.text")); // NOI18N
 
-        jTextPane1.setBackground(new java.awt.Color(240, 240, 240));
         jTextPane1.setText(org.openide.util.NbBundle.getMessage(GenerateTangentsVisualPanel1.class, "GenerateTangentsVisualPanel1.jTextPane1.text")); // NOI18N
         jScrollPane1.setViewportView(jTextPane1);
 

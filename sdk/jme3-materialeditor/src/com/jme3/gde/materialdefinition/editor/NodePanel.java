@@ -312,6 +312,7 @@ public class NodePanel extends DraggablePanel implements Selectable, PropertyCha
             icon = Icons.frag;
         }
         header = new JLabel(icon);
+        header.setForeground(Color.BLACK);
         header.addMouseListener(labelMouseMotionListener);
         header.addMouseMotionListener(labelMouseMotionListener);
         header.setHorizontalAlignment(SwingConstants.LEFT);
@@ -396,6 +397,7 @@ public class NodePanel extends DraggablePanel implements Selectable, PropertyCha
 
     public JLabel createLabel(String glslType, String txt, Dot.ParamType type) {
         JLabel label = new JLabel(txt);
+        label.setForeground(Color.BLACK);
         label.setToolTipText(glslType + " " + txt);
         label.setOpaque(false);
         //label.setPreferredSize(new Dimension(50, 15));        
