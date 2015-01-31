@@ -40,6 +40,7 @@ import com.jme3.math.FastMath;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.Renderer;
 import com.jme3.texture.image.ColorSpace;
+import com.jme3.texture.image.LastTextureState;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObject;
 import java.io.IOException;
@@ -374,7 +375,19 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     // attributes relating to GL object
     protected boolean mipsWereGenerated = false;
     protected boolean needGeneratedMips = false;
+    protected final LastTextureState lastTextureState = new LastTextureState();
 
+    /**
+     * Internal use only.
+     * The renderer stores the texture state set from the last texture
+     * so it doesn't have to change it unless necessary. 
+     * 
+     * @return The image parameter state.
+     */
+    public LastTextureState getLastTextureState() {
+        return lastTextureState;
+    }
+    
     /**
      * Internal use only. 
      * The renderer marks which images have generated mipmaps in VRAM
@@ -429,6 +442,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     public void resetObject() {
         this.id = -1;
         this.mipsWereGenerated = false;
+        this.lastTextureState.reset();
         setUpdateNeeded();
     }
 

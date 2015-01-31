@@ -1799,11 +1799,17 @@ public class GLRenderer implements Renderer {
         }
         
         // filter things
-        int minFilter = convertMinFilter(tex.getMinFilter(), haveMips);
-        int magFilter = convertMagFilter(tex.getMagFilter());
-        gl.glTexParameteri(target, GL.GL_TEXTURE_MIN_FILTER, minFilter);
-        gl.glTexParameteri(target, GL.GL_TEXTURE_MAG_FILTER, magFilter);
-
+        if (image.getLastTextureState().magFilter != tex.getMagFilter()) {
+            int magFilter = convertMagFilter(tex.getMagFilter());
+            gl.glTexParameteri(target, GL.GL_TEXTURE_MAG_FILTER, magFilter);
+            image.getLastTextureState().magFilter = tex.getMagFilter();
+        }
+        if (image.getLastTextureState().minFilter != tex.getMinFilter()) {
+            int minFilter = convertMinFilter(tex.getMinFilter(), haveMips);
+            gl.glTexParameteri(target, GL.GL_TEXTURE_MIN_FILTER, minFilter);
+            image.getLastTextureState().minFilter = tex.getMinFilter();
+        }
+        
         if (tex.getAnisotropicFilter() > 1) {
             if (caps.contains(Caps.TextureFilterAnisotropic)) {
                 gl.glTexParameterf(target,
@@ -1820,16 +1826,21 @@ public class GLRenderer implements Renderer {
         switch (tex.getType()) {
             case ThreeDimensional:
             case CubeMap: // cubemaps use 3D coords
-                if (gl2 != null) {
+                if (gl2 != null && image.getLastTextureState().rWrap != tex.getWrap(WrapAxis.R)) {
                     gl2.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_R, convertWrapMode(tex.getWrap(WrapAxis.R)));
+                    image.getLastTextureState().rWrap = tex.getWrap(WrapAxis.R);
                 }
                 //There is no break statement on purpose here
             case TwoDimensional:
             case TwoDimensionalArray:
-                gl.glTexParameteri(target, GL.GL_TEXTURE_WRAP_T, convertWrapMode(tex.getWrap(WrapAxis.T)));
-                // fall down here is intentional..
-//            case OneDimensional:
-                gl.glTexParameteri(target, GL.GL_TEXTURE_WRAP_S, convertWrapMode(tex.getWrap(WrapAxis.S)));
+                if (image.getLastTextureState().tWrap != tex.getWrap(WrapAxis.T)) {
+                    gl.glTexParameteri(target, GL.GL_TEXTURE_WRAP_T, convertWrapMode(tex.getWrap(WrapAxis.T)));
+                    image.getLastTextureState().tWrap = tex.getWrap(WrapAxis.T);
+                }
+                if (image.getLastTextureState().sWrap != tex.getWrap(WrapAxis.S)) {
+                    gl.glTexParameteri(target, GL.GL_TEXTURE_WRAP_S, convertWrapMode(tex.getWrap(WrapAxis.S)));
+                    image.getLastTextureState().sWrap = tex.getWrap(WrapAxis.S);
+                }
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown texture type: " + tex.getType());
