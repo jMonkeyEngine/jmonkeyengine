@@ -126,6 +126,10 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
         checkGLError();
 
         renderer.postFrame();
+        
+        // Need to flush GL commands 
+        // to see any result on the pbuffer's front buffer.
+        GL11.glFlush();
 
         int frameRate = settings.getFrameRate();
         if (frameRate >= 1) {
