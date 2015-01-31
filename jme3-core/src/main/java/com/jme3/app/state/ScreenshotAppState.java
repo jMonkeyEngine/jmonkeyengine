@@ -230,7 +230,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             int viewHeight = (int) ((curCamera.getViewPortTop() - curCamera.getViewPortBottom()) * curCamera.getHeight());
 
             renderer.setViewPort(0, 0, width, height);
-            renderer.readFrameBufferWithFormat(out, outBuf, Image.Format.BGRA8);
+            renderer.readFrameBuffer(out, outBuf);
             renderer.setViewPort(viewX, viewY, viewWidth, viewHeight);
 
             File file;
