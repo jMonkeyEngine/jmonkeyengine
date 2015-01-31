@@ -39,7 +39,14 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.lwjgl.LwjglGL;
 import com.jme3.renderer.lwjgl.LwjglGLExt;
+import com.jme3.renderer.opengl.GL;
+import com.jme3.renderer.opengl.GL2;
+import com.jme3.renderer.opengl.GL3;
+import com.jme3.renderer.opengl.GLDebugGL2;
+import com.jme3.renderer.opengl.GLExt;
+import com.jme3.renderer.opengl.GLFbo;
 import com.jme3.renderer.opengl.GLRenderer;
+import com.jme3.renderer.opengl.GLTracer;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
@@ -207,12 +214,27 @@ public abstract class LwjglContext implements JmeContext {
         
         if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL2)
                 || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
-            LwjglGL gl = new LwjglGL();
-            LwjglGLExt glext = new LwjglGLExt();
-            renderer = new GLRenderer(gl, glext);
+            GL gl = new LwjglGL();
+            GLFbo glfbo = new LwjglGLExt();
+            
+            if (settings.getBoolean("GraphicsDebug")) {
+                gl    = new GLDebugGL2(gl, glfbo);
+                glfbo = (GLFbo) gl;
+            }
+            
+            if (settings.getBoolean("GraphicsTrace")) {
+                gl    = (GL) GLTracer.createDesktopGlTracer(gl, GL2.class);
+                glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLExt.class);
+            }
+            
+            renderer = new GLRenderer(gl, glfbo);
             renderer.initialize();
         } else {
             throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
+        }
+        
+        if (GLContext.getCapabilities().GL_ARB_debug_output && settings.getBoolean("GraphicsDebug")) {
+            ARBDebugOutput.glDebugMessageCallbackARB(new ARBDebugOutputCallback());
         }
         
         renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
