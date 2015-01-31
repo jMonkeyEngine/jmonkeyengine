@@ -103,6 +103,8 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glUniformMatrix4", 0);
         noEnumArgs("glUniform1i", 0, 1);
         noEnumArgs("glUniform1f", 0);
+        noEnumArgs("glUniform2f", 0);
+        noEnumArgs("glUniform3f", 0);
         noEnumArgs("glUniform4f", 0);
         noEnumArgs("glGetAttribLocation", 0, -1);
         noEnumArgs("glDetachShader", 0, 1);
