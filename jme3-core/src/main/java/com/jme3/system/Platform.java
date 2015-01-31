@@ -95,7 +95,12 @@ public enum Platform {
     
     iOS_X86,
     
-    iOS_ARM;
+    iOS_ARM,
+    
+    /**
+     * Android running on unknown platform (could be x86 or mips for example).
+     */
+    Android_Other;
     
     private final boolean is64bit;
     
