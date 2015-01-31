@@ -6,14 +6,11 @@
 package com.jme3.gde.materialdefinition.editor;
 
 import com.jme3.gde.materialdefinition.icons.Icons;
-import com.jme3.shader.Shader;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
@@ -51,12 +48,13 @@ public class ShaderEditPanel extends JPanel {
             }
 
             public void keyPressed(KeyEvent e) {
-                if ((e.getKeyCode() == KeyEvent.VK_S) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)) {
-                    saveCurrent();
-                }
+               
             }
 
             public void keyReleased(KeyEvent e) {
+                if ((e.getKeyCode() == KeyEvent.VK_S) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)) {
+                    saveCurrent();
+                }
             }
         });
     }
