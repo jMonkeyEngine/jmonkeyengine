@@ -36,23 +36,21 @@ public class ShaderCheck {
     private static void checkMatDef(String matdefName){
         MaterialDef def = (MaterialDef) assetManager.loadAsset(matdefName);
         for (TechniqueDef techDef : def.getDefaultTechniques()){
-            if (techDef.isUsingShaders()){
-                DefineList dl = new DefineList();
-                dl.addFrom(techDef.getShaderPresetDefines());
-                ShaderKey shaderKey = new ShaderKey(techDef.getVertexShaderName(),
-                                                    techDef.getFragmentShaderName(),
-                                                    dl,
-                                                    techDef.getVertexShaderLanguage(),
-                                                    techDef.getFragmentShaderLanguage());
-                Shader shader = assetManager.loadShader(shaderKey);
-                
-                for (Validator validator : validators){
-                    StringBuilder sb = new StringBuilder();
-                    validator.validate(shader, sb);
-                    System.out.println("==== Validator: " + validator.getName() + " " + 
-                                            validator.getInstalledVersion() + " ====");
-                    System.out.println(sb.toString());
-                }
+            DefineList dl = new DefineList();
+            dl.addFrom(techDef.getShaderPresetDefines());
+            ShaderKey shaderKey = new ShaderKey(techDef.getVertexShaderName(),
+                                                techDef.getFragmentShaderName(),
+                                                dl,
+                                                techDef.getVertexShaderLanguage(),
+                                                techDef.getFragmentShaderLanguage());
+            Shader shader = assetManager.loadShader(shaderKey);
+
+            for (Validator validator : validators){
+                StringBuilder sb = new StringBuilder();
+                validator.validate(shader, sb);
+                System.out.println("==== Validator: " + validator.getName() + " " + 
+                                        validator.getInstalledVersion() + " ====");
+                System.out.println(sb.toString());
             }
         }
     }
