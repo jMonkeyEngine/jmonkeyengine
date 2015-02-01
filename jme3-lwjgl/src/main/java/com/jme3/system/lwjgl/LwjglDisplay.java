@@ -53,11 +53,11 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
     protected DisplayMode getFullscreenDisplayMode(int width, int height, int bpp, int freq){
         try {
             DisplayMode[] modes = Display.getAvailableDisplayModes();
-            for (DisplayMode mode : modes){
+            for (DisplayMode mode : modes) {
                 if (mode.getWidth() == width
-                 && mode.getHeight() == height
-                 && (mode.getBitsPerPixel() == bpp || (bpp==24&&mode.getBitsPerPixel()==32))
-                 && mode.getFrequency() == freq){
+                        && mode.getHeight() == height
+                        && (mode.getBitsPerPixel() == bpp || (bpp == 24 && mode.getBitsPerPixel() == 32))
+                        && (mode.getFrequency() == freq || (freq == 60 && mode.getFrequency() == 59))) {
                     return mode;
                 }
             }
