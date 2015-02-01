@@ -2,16 +2,12 @@ MaterialDef Sky Plane {
     MaterialParameters {
         TextureCubeMap Texture
         Boolean SphereMap
-		Boolean EquirectMap
+	Boolean EquirectMap
         Vector3 NormalScale
     }
     Technique {
         VertexShader GLSL100:   Common/MatDefs/Misc/Sky.vert
         FragmentShader GLSL100: Common/MatDefs/Misc/Sky.frag
-
-        RenderState {
-            FaceCull Off
-        }
 
         WorldParameters {
             ViewMatrix
@@ -21,9 +17,12 @@ MaterialDef Sky Plane {
 
         Defines {
             SPHERE_MAP : SphereMap
-			EQUIRECT_MAP : EquirectMap
+	    EQUIRECT_MAP : EquirectMap
         }
-    }
-    Technique {
+
+        RenderState {
+            DepthWrite Off
+            DepthFunc Equal
+        }
     }
 }
