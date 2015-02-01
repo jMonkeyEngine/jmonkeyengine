@@ -455,11 +455,6 @@ public class J3MLoader implements AssetLoader {
             technique = new TechniqueDef(null);
         } else if (split.length == 2) {
             String techName = split[1];
-            if (techName.equals("FixedFunc")) {
-                throw new UnsupportedOperationException(
-                        "In material: " + key + "\nThe 'FixedFunc' technique name no longer has any special meanining.\n"
-                        + "To support fixed pipeline mode, remove that technique's name entirely.");
-            }
             technique = new TechniqueDef(techName);
         } else {
             throw new IOException("Technique statement syntax incorrect");
