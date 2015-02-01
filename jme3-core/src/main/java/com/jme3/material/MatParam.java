@@ -130,10 +130,7 @@ public class MatParam implements Savable, Cloneable {
     }
 
     void apply(Renderer r, Technique technique) {
-        TechniqueDef techDef = technique.getDef();
-        if (techDef.isUsingShaders()) {
-            technique.updateUniformParam(getPrefixedName(), getVarType(), getValue());
-        }
+        technique.updateUniformParam(getPrefixedName(), getVarType(), getValue());
     }
 
     /**
@@ -343,6 +340,10 @@ When arrays can be inserted in J3M files
 
     @Override
     public String toString() {
-        return type.name() + " " + name + " : " + getValueAsString();
+        if (value != null) {
+            return type.name() + " " + name + " : " + getValueAsString();
+        } else {
+            return type.name() + " " + name;
+        }
     }
 }

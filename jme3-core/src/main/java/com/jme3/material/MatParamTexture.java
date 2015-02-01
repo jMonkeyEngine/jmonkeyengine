@@ -110,9 +110,7 @@ public class MatParamTexture extends MatParam {
     public void apply(Renderer r, Technique technique) {
         TechniqueDef techDef = technique.getDef();
         r.setTexture(getUnit(), getTextureValue());
-        if (techDef.isUsingShaders()) {
-            technique.updateUniformParam(getPrefixedName(), getVarType(), getUnit());
-        }
+        technique.updateUniformParam(getPrefixedName(), getVarType(), getUnit());
     }
 
     @Override

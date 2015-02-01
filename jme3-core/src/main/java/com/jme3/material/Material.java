@@ -150,7 +150,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     /**
      * This method sets the name of the material.
      * The name is not the same as the asset name.
-     * It can be null and there is no guarantee of its uniqness.
+     * It can be null and there is no guarantee of its uniqueness.
      * @param name the name of the material
      */
     public void setName(String name) {
@@ -1060,18 +1060,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 MatParamTexture texParam = (MatParamTexture) param;
                 r.setTexture(0, texParam.getTextureValue());
             } else {
-                if (!techDef.isUsingShaders()) {
-                    continue;
-                }
-
                 technique.updateUniformParam(param.getName(), param.getVarType(), param.getValue());
             }
         }
 
-        Shader shader = technique.getShader();
-        if (techDef.isUsingShaders()) {
-            r.setShader(shader);
-        }
+        r.setShader(technique.getShader());
     }
 
     private void clearUniformsSetByCurrent(Shader shader) {
@@ -1182,11 +1175,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
         // update camera and world matrices
         // NOTE: setWorldTransform should have been called already
-        if (techDef.isUsingShaders()) {
-            // reset unchanged uniform flag
-            clearUniformsSetByCurrent(technique.getShader());
-            rm.updateUniformBindings(technique.getWorldBindUniforms());
-        }
+
+        // reset unchanged uniform flag
+        clearUniformsSetByCurrent(technique.getShader());
+        rm.updateUniformBindings(technique.getWorldBindUniforms());
+        
 
         // setup textures and uniforms
         for (int i = 0; i < paramValues.size(); i++) {
@@ -1220,12 +1213,10 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
 
         // upload and bind shader
-        if (techDef.isUsingShaders()) {
-            // any unset uniforms will be set to 0
-            resetUniformsNotSetByCurrent(shader);
-            r.setShader(shader);
-        }
-
+        // any unset uniforms will be set to 0
+        resetUniformsNotSetByCurrent(shader);
+        r.setShader(shader);
+        
         renderMeshFromGeometry(r, geom);
     }
 

@@ -63,10 +63,8 @@ public class Technique /* implements Savable */ {
     public Technique(Material owner, TechniqueDef def) {
         this.owner = owner;
         this.def = def;
-        if (def.isUsingShaders()) {
-            this.worldBindUniforms = new ArrayList<Uniform>();
-            this.defines = new DefineList();
-        }
+        this.worldBindUniforms = new ArrayList<Uniform>();
+        this.defines = new DefineList();
     }
 
     /**
@@ -173,22 +171,16 @@ public class Technique /* implements Savable */ {
      * @param assetManager The asset manager to use for loading shaders.
      */
     public void makeCurrent(AssetManager assetManager, boolean techniqueSwitched, EnumSet<Caps> rendererCaps, RenderManager rm) {
-        if (!def.isUsingShaders()) {
-            // No shaders are used, no processing is neccessary. 
-            return;
-        }
-        
         if (techniqueSwitched) {
             if (defines.update(owner.getParamsMap(), def)) {
                 needReload = true;
             }
-            if(getDef().getLightMode()== TechniqueDef.LightMode.SinglePass){
+            if (getDef().getLightMode() == TechniqueDef.LightMode.SinglePass) {
                 defines.set("SINGLE_PASS_LIGHTING", VarType.Boolean, true);
-                defines.set("NB_LIGHTS", VarType.Int, rm.getSinglePassLightBatchSize()*3 );
-            }else{
+                defines.set("NB_LIGHTS", VarType.Int, rm.getSinglePassLightBatchSize() * 3);
+            } else {
                 defines.set("SINGLE_PASS_LIGHTING", VarType.Boolean, null);
             }
-            
         }
 
         if (needReload) {

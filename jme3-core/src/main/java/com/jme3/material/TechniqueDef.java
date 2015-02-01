@@ -208,12 +208,9 @@ public class TechniqueDef implements Savable {
     }
 
     /**
-     * Returns true if this technique uses shaders, false otherwise.
-     * 
-     * @return true if this technique uses shaders, false otherwise.
-     * 
-     * @see #setShaderFile(java.lang.String, java.lang.String, java.lang.String) 
+     * @deprecated jME3 always requires shaders now
      */
+    @Deprecated
     public boolean isUsingShaders(){
         return usesShaders;
     }
