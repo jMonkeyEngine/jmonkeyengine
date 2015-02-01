@@ -176,7 +176,7 @@ public class SkyFactory {
      * scene graph     
      */
      public static Spatial createSky(AssetManager assetManager, Texture texture,
-            Vector3f normalScale, EnvMapType envMapType, int sphereRadius) {
+            Vector3f normalScale, EnvMapType envMapType, float sphereRadius) {
         if (texture == null) {
             throw new IllegalArgumentException("texture cannot be null");
         }
@@ -188,14 +188,15 @@ public class SkyFactory {
         sky.setModelBound(new BoundingSphere(Float.POSITIVE_INFINITY, Vector3f.ZERO));
 
         Material skyMat = new Material(assetManager, "Common/MatDefs/Misc/Sky.j3md");
-
         skyMat.setVector3("NormalScale", normalScale);
         switch (envMapType){
             case CubeMap : 
                 // make sure its a cubemap
-                Image img = texture.getImage();
-                texture = new TextureCubeMap();
-                texture.setImage(img);
+                if (!(texture instanceof TextureCubeMap)) {
+                    Image img = texture.getImage();
+                    texture = new TextureCubeMap();
+                    texture.setImage(img);
+                }
                 break;
             case SphereMap :     
                 skyMat.setBoolean("SphereMap", true);
@@ -206,6 +207,8 @@ public class SkyFactory {
         }
         texture.setMagFilter(Texture.MagFilter.Bilinear);
         texture.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
+        texture.setAnisotropicFilter(0);
+        texture.setWrap(Texture.WrapMode.EdgeClamp);
         skyMat.setTexture("Texture", texture);
         sky.setMaterial(skyMat);
 
@@ -383,11 +386,6 @@ public class SkyFactory {
     public static Spatial createSky(AssetManager assetManager, Texture west,
             Texture east, Texture north, Texture south, Texture up,
             Texture down, Vector3f normalScale, float sphereRadius) {
-        final Sphere sphereMesh = new Sphere(10, 10, sphereRadius, false, true);
-        Geometry sky = new Geometry("Sky", sphereMesh);
-        sky.setQueueBucket(Bucket.Sky);
-        sky.setCullHint(Spatial.CullHint.Never);
-        sky.setModelBound(new BoundingSphere(Float.POSITIVE_INFINITY, Vector3f.ZERO));
 
         Image westImg = west.getImage();
         Image eastImg = east.getImage();
@@ -402,37 +400,13 @@ public class SkyFactory {
 
         cubeImage.addData(westImg.getData(0));
         cubeImage.addData(eastImg.getData(0));
-
         cubeImage.addData(downImg.getData(0));
         cubeImage.addData(upImg.getData(0));
-
         cubeImage.addData(southImg.getData(0));
         cubeImage.addData(northImg.getData(0));
         
-        if (westImg.getEfficentData() != null){
-            // also consilidate efficient data
-            ArrayList<Object> efficientData = new ArrayList<Object>(6);
-            efficientData.add(westImg.getEfficentData());
-            efficientData.add(eastImg.getEfficentData());
-            efficientData.add(downImg.getEfficentData());
-            efficientData.add(upImg.getEfficentData());
-            efficientData.add(southImg.getEfficentData());
-            efficientData.add(northImg.getEfficentData());
-            cubeImage.setEfficentData(efficientData);
-        }
-
         TextureCubeMap cubeMap = new TextureCubeMap(cubeImage);
-        cubeMap.setAnisotropicFilter(0);
-        cubeMap.setMagFilter(Texture.MagFilter.Bilinear);
-        cubeMap.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-        cubeMap.setWrap(Texture.WrapMode.EdgeClamp);
-
-        Material skyMat = new Material(assetManager, "Common/MatDefs/Misc/Sky.j3md");
-        skyMat.setTexture("Texture", cubeMap);
-        skyMat.setVector3("NormalScale", normalScale);
-        sky.setMaterial(skyMat);
-
-        return sky;
+        return createSky(assetManager, cubeMap, normalScale, EnvMapType.CubeMap, sphereRadius);
     }
 
     /**
