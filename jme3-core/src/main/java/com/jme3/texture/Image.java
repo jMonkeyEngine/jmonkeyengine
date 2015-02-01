@@ -740,22 +740,18 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
 
     /**
-     * Set the efficient data representation of this image.
-     * <p>
-     * Some system implementations are more efficient at operating
-     * on data other than ByteBuffers, in that case, this method can be used.
-     *
-     * @param efficientData
+     * @deprecated This feature is no longer used by the engine
      */
+    @Deprecated
     public void setEfficentData(Object efficientData){
         this.efficientData = efficientData;
         setUpdateNeeded();
     }
 
     /**
-     * @return The efficient data representation of this image.
-     * @see Image#setEfficentData(java.lang.Object)
+     * @deprecated This feature is no longer used by the engine
      */
+    @Deprecated
     public Object getEfficentData(){
         return efficientData;
     }
