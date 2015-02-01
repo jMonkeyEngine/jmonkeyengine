@@ -12,11 +12,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.text.EditorKit;
+import org.openide.cookies.EditorCookie;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -41,20 +42,19 @@ public class ShaderEditPanel extends JPanel {
         EditorKit ek = CloneableEditorSupport.getEditorKit(mime);
         shaderEditorPane.setEditorKit(ek);
         shaderEditorPane.setContentType(mime);
+        
         shaderEditorPane.addKeyListener(new KeyListener() {
 
             public void keyTyped(KeyEvent e) {
-                currentDataObject.setModified(true);
             }
 
-            public void keyPressed(KeyEvent e) {
-               
-            }
-
-            public void keyReleased(KeyEvent e) {
+            public void keyPressed(KeyEvent e) {                
                 if ((e.getKeyCode() == KeyEvent.VK_S) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)) {
                     saveCurrent();
                 }
+            }
+
+            public void keyReleased(KeyEvent e) {
             }
         });
     }
@@ -84,7 +84,7 @@ public class ShaderEditPanel extends JPanel {
                     public void actionPerformed(ActionEvent e) {
                         saveCurrent();
                         try {
-                            shaderEditorPane.setText(b.dataObject.getPrimaryFile().asText());
+                            shaderEditorPane.setDocument(b.dataObject.getLookup().lookup(EditorCookie.class).openDocument());                    
                         } catch (IOException ex) {
                             Exceptions.printStackTrace(ex);
                         }
@@ -93,7 +93,7 @@ public class ShaderEditPanel extends JPanel {
 
                 });
                 if (firstItem) {
-                    shaderEditorPane.setText(fo.asText());
+                    shaderEditorPane.setDocument(b.dataObject.getLookup().lookup(EditorCookie.class).openDocument());                    
                     currentDataObject = b.dataObject;
                     b.setSelected(true);
                     firstItem = false;                    
@@ -109,10 +109,10 @@ public class ShaderEditPanel extends JPanel {
 
     public void saveCurrent() {
         if (currentDataObject != null && currentDataObject.isModified()) {
+            FileLock lock = null;
+            
             try {
-                OutputStreamWriter out = new OutputStreamWriter(currentDataObject.getPrimaryFile().getOutputStream());
-                out.write(shaderEditorPane.getText(), 0, shaderEditorPane.getText().length());
-                out.close();
+                currentDataObject.getLookup().lookup(EditorCookie.class).saveDocument();
                 currentDataObject.setModified(false);
                 if(currentDataObject.getPrimaryFile().getExt().equalsIgnoreCase("j3sn")){
                     parent.reload();                            
@@ -122,6 +122,10 @@ public class ShaderEditPanel extends JPanel {
                 Exceptions.printStackTrace(ex);
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
+            }finally{
+                if (lock!=null){
+                    lock.releaseLock();
+                }
             }
         }
     }
@@ -155,10 +159,8 @@ public class ShaderEditPanel extends JPanel {
         shaderEditorPane.setText(org.openide.util.NbBundle.getMessage(ShaderEditPanel.class, "ShaderEditPanel.shaderEditorPane.text")); // NOI18N
         jScrollPane1.setViewportView(shaderEditorPane);
 
-        header.setBackground(javax.swing.UIManager.getDefaults().getColor("TabbedPane.focus"));
         header.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        headerText.setBackground(javax.swing.UIManager.getDefaults().getColor("TabbedPane.focus"));
         headerText.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         headerText.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         headerText.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/materialdefinition/icons/fragment.png"))); // NOI18N
