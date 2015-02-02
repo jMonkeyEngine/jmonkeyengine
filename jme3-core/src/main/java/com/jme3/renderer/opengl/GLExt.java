@@ -67,6 +67,7 @@ public interface GLExt extends GLFbo {
         public static final int GL_MAX_DRAW_BUFFERS_ARB = 0x8824;
 	public static final int GL_MAX_SAMPLES_EXT = 0x8D57;
 	public static final int GL_MULTISAMPLE_ARB = 0x809D;
+        public static final int GL_NUM_PROGRAM_BINARY_FORMATS = 0x87FE;
 	public static final int GL_R11F_G11F_B10F_EXT = 0x8C3A;
         public static final int GL_RGBA8 = 0x8058;
 	public static final int GL_RGB16F_ARB = 0x881B;
@@ -85,6 +86,7 @@ public interface GLExt extends GLFbo {
 	public static final int GL_TEXTURE_2D_ARRAY_EXT = 0x8C1A;
 	public static final int GL_TEXTURE_2D_MULTISAMPLE = 0x9100;
 	public static final int GL_TEXTURE_2D_MULTISAMPLE_ARRAY = 0x9102;
+        public static final int GL_TEXTURE_CUBE_MAP_SEAMLESS = 0x884F;
 	public static final int GL_TEXTURE_MAX_ANISOTROPY_EXT = 0x84FE;
 	public static final int GL_UNSIGNED_INT_10F_11F_11F_REV_EXT = 0x8C3B;
 	public static final int GL_UNSIGNED_INT_24_8_EXT = 0x84FA;

@@ -42,7 +42,7 @@ import com.jme3.renderer.lwjgl.LwjglGLExt;
 import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GL2;
 import com.jme3.renderer.opengl.GL3;
-import com.jme3.renderer.opengl.GLDebugGL2;
+import com.jme3.renderer.opengl.GLDebugDesktop;
 import com.jme3.renderer.opengl.GLExt;
 import com.jme3.renderer.opengl.GLFbo;
 import com.jme3.renderer.opengl.GLRenderer;
@@ -218,12 +218,12 @@ public abstract class LwjglContext implements JmeContext {
             GLFbo glfbo = new LwjglGLExt();
             
             if (settings.getBoolean("GraphicsDebug")) {
-                gl    = new GLDebugGL2(gl, glfbo);
+                gl    = new GLDebugDesktop(gl, glfbo);
                 glfbo = (GLFbo) gl;
             }
             
             if (settings.getBoolean("GraphicsTrace")) {
-                gl    = (GL) GLTracer.createDesktopGlTracer(gl, GL2.class);
+                gl    = (GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class);
                 glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLExt.class);
             }
             

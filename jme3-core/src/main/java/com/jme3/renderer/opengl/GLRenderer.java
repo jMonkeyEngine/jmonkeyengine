@@ -56,6 +56,7 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
 import java.nio.*;
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -79,22 +80,23 @@ public class GLRenderer implements Renderer {
     private final RenderContext context = new RenderContext();
     private final NativeObjectManager objManager = new NativeObjectManager();
     private final EnumSet<Caps> caps = EnumSet.noneOf(Caps.class);
-
-    private int vertexTextureUnits;
-    private int fragTextureUnits;
-    private int vertexUniforms;
-    private int fragUniforms;
-    private int vertexAttribs;
-    private int maxFBOSamples;
-    private int maxFBOAttachs;
-    private int maxMRTFBOAttachs;
-    private int maxRBSize;
-    private int maxTexSize;
-    private int maxCubeTexSize;
-    private int maxVertCount;
-    private int maxTriCount;
-    private int maxColorTexSamples;
-    private int maxDepthTexSamples;
+    private final EnumMap<Limits, Integer> limits = new EnumMap<Limits, Integer>(Limits.class);
+    
+//    private int vertexTextureUnits;
+//    private int fragTextureUnits;
+//    private int vertexUniforms;
+//    private int fragUniforms;
+//    private int vertexAttribs;
+//    private int maxFBOSamples;
+//    private int maxFBOAttachs;
+//    private int maxMRTFBOAttachs;
+//    private int maxRBSize;
+//    private int maxTexSize;
+//    private int maxCubeTexSize;
+//    private int maxVertCount;
+//    private int maxTriCount;
+//    private int maxColorTexSamples;
+//    private int maxDepthTexSamples;
     private FrameBuffer mainFbOverride = null;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
@@ -228,14 +230,12 @@ public class GLRenderer implements Renderer {
     private void loadCapabilitiesCommon() {
         extensions = loadExtensions(gl.glGetString(GL.GL_EXTENSIONS));
         
-        vertexTextureUnits = getInteger(GL.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        logger.log(Level.FINER, "VTF Units: {0}", vertexTextureUnits);
-        if (vertexTextureUnits > 0) {
+        limits.put(Limits.VertexTextureUnits, getInteger(GL.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS));
+        if (limits.get(Limits.VertexTextureUnits) > 0) {
             caps.add(Caps.VertexTextureFetch);
         }
 
-        fragTextureUnits = getInteger(GL.GL_MAX_TEXTURE_IMAGE_UNITS);
-        logger.log(Level.FINER, "Texture Units: {0}", fragTextureUnits);
+        limits.put(Limits.FragmentTextureUnits, getInteger(GL.GL_MAX_TEXTURE_IMAGE_UNITS));
 
 //        gl.glGetInteger(GL.GL_MAX_VERTEX_UNIFORM_COMPONENTS, intBuf16);
 //        vertexUniforms = intBuf16.get(0);
@@ -245,22 +245,9 @@ public class GLRenderer implements Renderer {
 //        fragUniforms = intBuf16.get(0);
 //        logger.log(Level.FINER, "Fragment Uniforms: {0}", fragUniforms);
 
-        vertexAttribs = getInteger(GL.GL_MAX_VERTEX_ATTRIBS);
-        logger.log(Level.FINER, "Vertex Attributes: {0}", vertexAttribs);
-
-//        gl.glGetInteger(GL.GL_MAX_ELEMENTS_VERTICES, intBuf16);
-//        maxVertCount = intBuf16.get(0);
-//        logger.log(Level.FINER, "Preferred Batch Vertex Count: {0}", maxVertCount);
-//
-//        gl.glGetInteger(GL.GL_MAX_ELEMENTS_INDICES, intBuf16);
-//        maxTriCount = intBuf16.get(0);
-//        logger.log(Level.FINER, "Preferred Batch Index Count: {0}", maxTriCount);
-
-        maxTexSize = getInteger(GL.GL_MAX_TEXTURE_SIZE);
-        logger.log(Level.FINER, "Maximum Texture Resolution: {0}", maxTexSize);
-
-        maxCubeTexSize = getInteger(GL.GL_MAX_CUBE_MAP_TEXTURE_SIZE);
-        logger.log(Level.FINER, "Maximum CubeMap Resolution: {0}", maxCubeTexSize);
+        limits.put(Limits.VertexAttributes, getInteger(GL.GL_MAX_VERTEX_ATTRIBS));
+        limits.put(Limits.TextureSize, getInteger(GL.GL_MAX_TEXTURE_SIZE));
+        limits.put(Limits.CubemapSize, getInteger(GL.GL_MAX_CUBE_MAP_TEXTURE_SIZE));
 
         if (hasExtension("GL_ARB_draw_instanced") && 
             hasExtension("GL_ARB_instanced_arrays")) {
@@ -374,42 +361,36 @@ public class GLRenderer implements Renderer {
 
         if (hasExtension("GL_EXT_framebuffer_object")) {
             caps.add(Caps.FrameBuffer);
-
-            maxRBSize = getInteger(GLExt.GL_MAX_RENDERBUFFER_SIZE_EXT);
-            logger.log(Level.FINER, "FBO RB Max Size: {0}", maxRBSize);
-
-            maxFBOAttachs = getInteger(GLExt.GL_MAX_COLOR_ATTACHMENTS_EXT);
-            logger.log(Level.FINER, "FBO Max renderbuffers: {0}", maxFBOAttachs);
-
+            
+            limits.put(Limits.RenderBufferSize, getInteger(GLExt.GL_MAX_RENDERBUFFER_SIZE_EXT));
+            limits.put(Limits.FrameBufferAttachments, getInteger(GLExt.GL_MAX_COLOR_ATTACHMENTS_EXT));
+            
             if (hasExtension("GL_EXT_framebuffer_blit")) {
                 caps.add(Caps.FrameBufferBlit);
             }
             
             if (hasExtension("GL_EXT_framebuffer_multisample")) {
                 caps.add(Caps.FrameBufferMultisample);
-
-                maxFBOSamples = getInteger(GLExt.GL_MAX_SAMPLES_EXT);
-                logger.log(Level.FINER, "FBO Max Samples: {0}", maxFBOSamples);
+                limits.put(Limits.FrameBufferSamples, getInteger(GLExt.GL_MAX_SAMPLES_EXT));
             }
 
             if (hasExtension("GL_ARB_texture_multisample")) {
                 caps.add(Caps.TextureMultisample);
-
-                maxColorTexSamples = getInteger(GLExt.GL_MAX_COLOR_TEXTURE_SAMPLES);
-                logger.log(Level.FINER, "Texture Multisample Color Samples: {0}", maxColorTexSamples);
-
-                maxDepthTexSamples = getInteger(GLExt.GL_MAX_DEPTH_TEXTURE_SAMPLES);
-                logger.log(Level.FINER, "Texture Multisample Depth Samples: {0}", maxDepthTexSamples);
+                limits.put(Limits.ColorTextureSamples, getInteger(GLExt.GL_MAX_COLOR_TEXTURE_SAMPLES));
+                limits.put(Limits.DepthTextureSamples, getInteger(GLExt.GL_MAX_DEPTH_TEXTURE_SAMPLES));
+                if (!limits.containsKey(Limits.FrameBufferSamples)) {
+                    // In case they want to query samples on main FB ...
+                    limits.put(Limits.FrameBufferSamples, limits.get(Limits.ColorTextureSamples));
+                }
             }
 
             if (hasExtension("GL_ARB_draw_buffers")) {
-                maxMRTFBOAttachs = getInteger(GLExt.GL_MAX_DRAW_BUFFERS_ARB);
-                if (maxMRTFBOAttachs > 1) {
+                limits.put(Limits.FrameBufferMrtAttachments, getInteger(GLExt.GL_MAX_DRAW_BUFFERS_ARB));
+                if (limits.get(Limits.FrameBufferMrtAttachments) > 1) {
                     caps.add(Caps.FrameBufferMRT);
-                    logger.log(Level.FINER, "FBO Max MRT renderbuffers: {0}", maxMRTFBOAttachs);
                 }
             } else {
-                maxMRTFBOAttachs = 1;
+                limits.put(Limits.FrameBufferMrtAttachments, 1);
             }
         }
 
@@ -419,6 +400,8 @@ public class GLRenderer implements Renderer {
             logger.log(Level.FINER, "Samples: {0}", samples);
             boolean enabled = gl.glIsEnabled(GLExt.GL_MULTISAMPLE_ARB);
             if (samples > 0 && available && !enabled) {
+                // Doesn't seem to be neccessary .. OGL spec says its always
+                // set by default?
                 gl.glEnable(GLExt.GL_MULTISAMPLE_ARB);
             }
             caps.add(Caps.Multisample);
@@ -430,6 +413,17 @@ public class GLRenderer implements Renderer {
             caps.add(Caps.Srgb);
         }
 
+        // Supports seamless cubemap
+        if (hasExtension("GL_ARB_seamless_cube_map") || caps.contains(Caps.OpenGL32)) {
+            caps.add(Caps.SeamlessCubemap);
+        }
+        
+        if (hasExtension("GL_ARB_get_program_binary")) {
+            // OK ..
+            int binaryFormats = getInteger(GLExt.GL_NUM_PROGRAM_BINARY_FORMATS);
+            System.out.println("Binary Formats: " + binaryFormats);
+        }
+        
         logger.log(Level.FINE, "Caps: {0}", caps);
         
         texUtil.initialize(caps);
@@ -564,24 +558,24 @@ public class GLRenderer implements Renderer {
             context.depthFunc = state.getDepthFunc();
         }
 
-        if (gl2 != null) {
-            if (state.isAlphaTest() && !context.alphaTestEnabled) {
-                gl2.glEnable(GL2.GL_ALPHA_TEST);
-                gl2.glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);
-                context.alphaTestEnabled = true;
-            } else if (!state.isAlphaTest() && context.alphaTestEnabled) {
-                gl2.glDisable(GL2.GL_ALPHA_TEST);
-                context.alphaTestEnabled = false;
-            }
-            if (state.getAlphaFallOff() != context.alphaTestFallOff) {
-                gl2.glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);   
-                context.alphaTestFallOff = state.getAlphaFallOff();
-            }         
-            if (state.getAlphaFunc() != context.alphaFunc) {
-                gl2.glAlphaFunc(convertTestFunction(state.getAlphaFunc()), context.alphaTestFallOff);
-                context.alphaFunc = state.getAlphaFunc();
-            }
-        }
+//        if (gl2 != null) {
+//            if (state.isAlphaTest() && !context.alphaTestEnabled) {
+//                gl2.glEnable(GL2.GL_ALPHA_TEST);
+//                gl2.glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);
+//                context.alphaTestEnabled = true;
+//            } else if (!state.isAlphaTest() && context.alphaTestEnabled) {
+//                gl2.glDisable(GL2.GL_ALPHA_TEST);
+//                context.alphaTestEnabled = false;
+//            }
+//            if (state.getAlphaFallOff() != context.alphaTestFallOff) {
+//                gl2.glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);   
+//                context.alphaTestFallOff = state.getAlphaFallOff();
+//            }         
+//            if (state.getAlphaFunc() != context.alphaFunc) {
+//                gl2.glAlphaFunc(convertTestFunction(state.getAlphaFunc()), context.alphaTestFallOff);
+//                context.alphaFunc = state.getAlphaFunc();
+//            }
+//        }
 
         if (state.isDepthWrite() && !context.depthWriteEnabled) {
             gl.glDepthMask(true);
@@ -1128,7 +1122,7 @@ public class GLRenderer implements Renderer {
             // Check if GLSL version is 1.5 for shader
             gl3.glBindFragDataLocation(id, 0, "outFragColor");
             // For MRT
-            for (int i = 0; i < maxMRTFBOAttachs; i++) {
+            for (int i = 0; i < limits.get(Limits.FrameBufferMrtAttachments); i++) {
                 gl3.glBindFragDataLocation(id, i, "outFragData[" + i + "]");
             }
         }
@@ -1346,7 +1340,8 @@ public class GLRenderer implements Renderer {
             context.boundRB = id;
         }
 
-        if (fb.getWidth() > maxRBSize || fb.getHeight() > maxRBSize) {
+        int rbSize = limits.get(Limits.RenderBufferSize);
+        if (fb.getWidth() > rbSize || fb.getHeight() > rbSize) {
             throw new RendererException("Resolution " + fb.getWidth()
                     + ":" + fb.getHeight() + " is not supported.");
         }
@@ -1355,8 +1350,9 @@ public class GLRenderer implements Renderer {
 
         if (fb.getSamples() > 1 && caps.contains(Caps.FrameBufferMultisample)) {
             int samples = fb.getSamples();
-            if (maxFBOSamples < samples) {
-                samples = maxFBOSamples;
+            int maxSamples = limits.get(Limits.FrameBufferSamples);
+            if (maxSamples < samples) {
+                samples = maxSamples;
             }
             glext.glRenderbufferStorageMultisampleEXT(GLExt.GL_RENDERBUFFER_EXT,
                     samples,
@@ -1576,7 +1572,7 @@ public class GLRenderer implements Renderer {
                     }
                 }
             } else {
-                if (fb.getNumColorBuffers() > maxFBOAttachs) {
+                if (fb.getNumColorBuffers() > limits.get(Limits.FrameBufferAttachments)) {
                     throw new RendererException("Framebuffer has more color "
                             + "attachments than are supported"
                             + " by the video hardware!");
@@ -1586,7 +1582,7 @@ public class GLRenderer implements Renderer {
                         throw new RendererException("Multiple render targets "
                                 + " are not supported by the video hardware");
                     }
-                    if (fb.getNumColorBuffers() > maxMRTFBOAttachs) {
+                    if (fb.getNumColorBuffers() > limits.get(Limits.FrameBufferMrtAttachments)) {
                         throw new RendererException("Framebuffer has more"
                                 + " multi targets than are supported"
                                 + " by the video hardware!");
@@ -1809,6 +1805,17 @@ public class GLRenderer implements Renderer {
             gl.glTexParameteri(target, GL.GL_TEXTURE_MIN_FILTER, minFilter);
             image.getLastTextureState().minFilter = tex.getMinFilter();
         }
+        if (caps.contains(Caps.SeamlessCubemap) && tex.getType() == Texture.Type.CubeMap) {
+            if (haveMips && !context.seamlessCubemap) {
+                // We can enable seamless cubemap filtering.
+                gl.glEnable(GLExt.GL_TEXTURE_CUBE_MAP_SEAMLESS);
+                context.seamlessCubemap = true;
+            } else if (!haveMips && context.seamlessCubemap) {
+                // For skyboxes (no mipmaps), disable seamless cubemap filtering.
+                gl.glDisable(GLExt.GL_TEXTURE_CUBE_MAP_SEAMLESS);
+                context.seamlessCubemap = false;
+            }
+        }
         
         if (tex.getAnisotropicFilter() > 1) {
             if (caps.contains(Caps.TextureFilterAnisotropic)) {
@@ -1940,11 +1947,12 @@ public class GLRenderer implements Renderer {
 
         // bind texture       
         int target = convertTextureType(type, img.getMultiSamples(), -1);
-        if (context.boundTextureUnit != unit) {
-            gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
-            context.boundTextureUnit = unit;
-        }
         if (context.boundTextures[unit] != img) {
+            if (context.boundTextureUnit != unit) {
+                gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
+                context.boundTextureUnit = unit;
+            }
+        
             gl.glBindTexture(target, texId);
             context.boundTextures[unit] = img;
 
@@ -1975,9 +1983,9 @@ public class GLRenderer implements Renderer {
         int imageSamples = img.getMultiSamples();
         if (imageSamples > 1) {
             if (img.getFormat().isDepthFormat()) {
-                img.setMultiSamples(Math.min(maxDepthTexSamples, imageSamples));
+                img.setMultiSamples(Math.min(limits.get(Limits.DepthTextureSamples), imageSamples));
             } else {
-                img.setMultiSamples(Math.min(maxColorTexSamples, imageSamples));
+                img.setMultiSamples(Math.min(limits.get(Limits.ColorTextureSamples), imageSamples));
             }
         }
 
@@ -1995,15 +2003,17 @@ public class GLRenderer implements Renderer {
         
         if (target == GL.GL_TEXTURE_CUBE_MAP) {
             // Check max texture size before upload
-            if (img.getWidth() > maxCubeTexSize || img.getHeight() > maxCubeTexSize) {
-                throw new RendererException("Cannot upload cubemap " + img + ". The maximum supported cubemap resolution is " + maxCubeTexSize);
+            int cubeSize = limits.get(Limits.CubemapSize);
+            if (img.getWidth() > cubeSize || img.getHeight() > cubeSize) {
+                throw new RendererException("Cannot upload cubemap " + img + ". The maximum supported cubemap resolution is " + cubeSize);
             }
             if (img.getWidth() != img.getHeight()) {
                 throw new RendererException("Cubemaps must have square dimensions");
             }
         } else {
-            if (img.getWidth() > maxTexSize || img.getHeight() > maxTexSize) {
-                throw new RendererException("Cannot upload texture " + img + ". The maximum supported texture resolution is " + maxTexSize);
+            int texSize = limits.get(Limits.TextureSize);
+            if (img.getWidth() > texSize || img.getHeight() > texSize) {
+                throw new RendererException("Cannot upload texture " + img + ". The maximum supported texture resolution is " + texSize);
             }
         }
 

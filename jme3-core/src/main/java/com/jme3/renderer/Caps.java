@@ -316,7 +316,15 @@ public enum Caps {
      * {@link Texture.MinFilter#NearestNoMipMaps}</li>
      * </ul>
      */
-    PartialNonPowerOfTwoTextures;
+    PartialNonPowerOfTwoTextures,
+    
+    /**
+     * When sampling cubemap edges, interpolate between the adjecent faces
+     * instead of just sampling one face.
+     * <p>
+     * Improves the quality of environment mapping.
+     */
+    SeamlessCubemap;
 
     /**
      * Returns true if given the renderer capabilities, the texture
