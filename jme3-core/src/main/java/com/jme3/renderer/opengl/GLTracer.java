@@ -71,6 +71,7 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glTexImage2D", 1, 3, 4, 5);
         noEnumArgs("glTexImage3D", 1, 3, 4, 5, 6);
         noEnumArgs("glTexSubImage3D", 1, 2, 3, 4, 5, 6, 7);
+        noEnumArgs("glCompressedTexImage2D", 1, 3, 4, 5);
         noEnumArgs("glCompressedTexSubImage3D", 1, 2, 3, 4, 5, 6, 7);
         noEnumArgs("glDeleteTextures", 0);
         noEnumArgs("glReadPixels", 0, 1, 2, 3);
@@ -86,8 +87,12 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glBindFramebufferEXT", 1);
         noEnumArgs("glBindRenderbufferEXT", 1);
         noEnumArgs("glRenderbufferStorageEXT", 2, 3);
+        noEnumArgs("glRenderbufferStorageMultisampleEXT", 1, 3, 4);
         noEnumArgs("glFramebufferRenderbufferEXT", 3);
         noEnumArgs("glFramebufferTexture2DEXT", 3, 4);
+        noEnumArgs("glBlitFramebufferEXT", 0, 1, 2, 3, 4, 5, 6, 7, 8);
+        
+        
         
         noEnumArgs("glCreateProgram", -1);
         noEnumArgs("glCreateShader", -1);
@@ -110,6 +115,7 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glDetachShader", 0, 1);
         noEnumArgs("glDeleteShader", 0);
         noEnumArgs("glDeleteProgram", 0);
+        noEnumArgs("glBindFragDataLocation", 0, 1);
     }
     
     public GLTracer(Object obj, IntMap<String> constMap) {
@@ -153,13 +159,13 @@ public final class GLTracer implements InvocationHandler {
      * Creates a tracer implementation that wraps OpenGL 2+.
      * 
      * @param glInterface OGL object to wrap
-     * @param glInterfaceClass The interface to implement
+     * @param glInterfaceClasses The interface(s) to implement
      * @return A tracer that implements the given interface
      */
-    public static Object createDesktopGlTracer(Object glInterface, Class<?> glInterfaceClass) {
+    public static Object createDesktopGlTracer(Object glInterface, Class<?> ... glInterfaceClasses) {
         IntMap<String> constMap = generateConstantMap(GL2.class, GLExt.class);
         return Proxy.newProxyInstance(glInterface.getClass().getClassLoader(),
-                                      new Class<?>[] { glInterfaceClass }, 
+                                      glInterfaceClasses, 
                                       new GLTracer(glInterface, constMap));
     }
     

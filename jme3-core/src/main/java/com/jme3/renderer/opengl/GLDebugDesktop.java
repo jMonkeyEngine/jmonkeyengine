@@ -3,12 +3,12 @@ package com.jme3.renderer.opengl;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-public class GLDebugGL2 extends GLDebugES {
+public class GLDebugDesktop extends GLDebugES implements GL2, GL3 {
 
     private final GL2 gl2;
     private final GL3 gl3;
     
-    public GLDebugGL2(GL gl, GLFbo glfbo) {
+    public GLDebugDesktop(GL gl, GLFbo glfbo) {
         super(gl, glfbo);
         this.gl2 = gl instanceof GL2 ? (GL2) gl : null;
         this.gl3 = gl instanceof GL3 ? (GL3) gl : null;
