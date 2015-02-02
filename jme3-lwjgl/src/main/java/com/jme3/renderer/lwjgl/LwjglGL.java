@@ -2,6 +2,7 @@ package com.jme3.renderer.lwjgl;
 
 import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GL2;
+import com.jme3.renderer.opengl.GL3;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -11,8 +12,9 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
 
-public class LwjglGL implements GL, GL2 {
+public class LwjglGL implements GL, GL2, GL3 {
     
     public void glActiveTexture(int param1) {
         GL13.glActiveTexture(param1);
@@ -362,5 +364,20 @@ public class LwjglGL implements GL, GL2 {
 
     public String glGetShaderInfoLog(int shader, int maxSize) {
         return GL20.glGetShaderInfoLog(shader, maxSize);
+    }
+
+    @Override
+    public void glBindFragDataLocation(int param1, int param2, String param3) {
+        GL30.glBindFragDataLocation(param1, param2, param3);
+    }
+
+    @Override
+    public void glBindVertexArray(int param1) {
+        GL30.glBindVertexArray(param1);
+    }
+
+    @Override
+    public void glGenVertexArrays(IntBuffer param1) {
+        GL30.glGenVertexArrays(param1);
     }
 }
