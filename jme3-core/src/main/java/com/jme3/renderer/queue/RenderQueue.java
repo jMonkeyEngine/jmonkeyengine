@@ -50,8 +50,7 @@ public class RenderQueue {
     private GeometryList transparentList;
     private GeometryList translucentList;
     private GeometryList skyList;
-    @Deprecated private GeometryList shadowRecv;
-    @Deprecated private GeometryList shadowCast;
+    private GeometryList shadowRecv;
     private Spatial rootScene = null;
 
     /**
@@ -65,7 +64,6 @@ public class RenderQueue {
         this.translucentList = new GeometryList(new TransparentComparator());
         this.skyList = new GeometryList(new NullComparator());
         this.shadowRecv = new GeometryList(new OpaqueComparator());
-        this.shadowCast = new GeometryList(new OpaqueComparator());
     }
 
     /**
@@ -231,33 +229,6 @@ public class RenderQueue {
     }
 
     /**
-     * Adds a geometry to a shadow bucket.
-     * Note that this operation is done automatically by the
-     * {@link RenderManager}. {@link SceneProcessor}s that handle
-     * shadow rendering should fetch the queue by using
-     * {@link #getShadowQueueContent(com.jme3.renderer.queue.RenderQueue.ShadowMode) },
-     * by default no action is taken on the shadow queues.
-     * 
-     * @param g The geometry to add
-     * @param shadBucket The shadow bucket type, if it is
-     * {@link ShadowMode#CastAndReceive}, it is added to both the cast
-     * and the receive buckets.
-     */
-    @Deprecated
-    public void addToShadowQueue(Geometry g, ShadowMode shadBucket) {
-        switch (shadBucket) {
-            case Inherit:
-            case Off:
-            case Cast:
-            case Receive:
-            case CastAndReceive:
-                break;
-            default:
-                throw new UnsupportedOperationException("Unrecognized shadow bucket type: " + shadBucket);
-        }
-    }
-
-    /**
      * Adds a geometry to the given bucket.
      * The {@link RenderManager} automatically handles this task
      * when flattening the scene graph. The bucket to add
@@ -292,14 +263,11 @@ public class RenderQueue {
     /**
      * 
      * @param shadBucket The shadow mode to retrieve the {@link GeometryList
-     * queue content} for.  Only {@link ShadowMode#Cast Cast} and
-     * {@link ShadowMode#Receive Receive} are valid.
+     * queue content} for.  Only {@link ShadowMode#Receive Receive} is valid.
      * @return The cast or receive {@link GeometryList}
      */
     public GeometryList getShadowQueueContent(ShadowMode shadBucket) {
         switch (shadBucket) {
-            case Cast:
-                return shadowCast;
             case Receive:
                 return shadowRecv;
             default:
@@ -323,20 +291,6 @@ public class RenderQueue {
 
     public void renderShadowQueue(GeometryList list, RenderManager rm, Camera cam, boolean clear) {
         renderGeometryList(list, rm, cam, clear);
-    }
-
-    @Deprecated
-    public void renderShadowQueue(ShadowMode shadBucket, RenderManager rm, Camera cam, boolean clear) {
-        switch (shadBucket) {
-            case Cast:
-                renderGeometryList(shadowCast, rm, cam, clear);
-                break;
-            case Receive:
-                renderGeometryList(shadowRecv, rm, cam, clear);
-                break;
-            default:
-                throw new IllegalArgumentException("Unexpected shadow bucket: " + shadBucket);
-        }
     }
 
     public boolean isQueueEmpty(Bucket bucket) {
@@ -397,7 +351,6 @@ public class RenderQueue {
         transparentList.clear();
         translucentList.clear();
         skyList.clear();
-        shadowCast.clear();
         shadowRecv.clear();
     }
 }

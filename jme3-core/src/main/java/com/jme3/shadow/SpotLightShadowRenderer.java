@@ -42,7 +42,6 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
-import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Node;
@@ -143,7 +142,7 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     }
 
     @Override
-    protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers, GeometryList shadowMapOccluders) {
+    protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList shadowMapOccluders) {
         ShadowUtil.getGeometriesInCamFrustum(viewPort.getQueue().getRootScene(), shadowCam, RenderQueue.ShadowMode.Cast, shadowMapOccluders);
         return shadowMapOccluders;
     }

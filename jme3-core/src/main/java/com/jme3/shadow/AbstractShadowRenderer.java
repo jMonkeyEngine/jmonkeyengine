@@ -363,7 +363,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
      * @param shadowMapOcculders
      * @return
      */
-    protected abstract GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers, GeometryList shadowMapOccluders);
+    protected abstract GeometryList getOccludersToRender(int shadowMapIndex, GeometryList shadowMapOccluders);
 
     /**
      * return the shadow camera to use for rendering the shadow map according
@@ -385,7 +385,6 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
 
     @SuppressWarnings("fallthrough")
     public void postQueue(RenderQueue rq) {
-        GeometryList occluders = rq.getShadowQueueContent(ShadowMode.Cast);
         sceneReceivers = rq.getShadowQueueContent(ShadowMode.Receive);
         lightReceivers.clear();
         skipPostPass = false;
@@ -405,14 +404,12 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
                 if (debugfrustums) {
                     doDisplayFrustumDebug(shadowMapIndex);
                 }
-                renderShadowMap(shadowMapIndex, occluders, sceneReceivers);
+                renderShadowMap(shadowMapIndex);
 
             }
 
         debugfrustums = false;
-        if (flushQueues) {
-            occluders.clear();
-        }
+
         //restore setting for future rendering
         r.setFrameBuffer(viewPort.getOutputFrameBuffer());
         renderManager.setForcedMaterial(null);
@@ -421,8 +418,8 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         
     }
 
-    protected void renderShadowMap(int shadowMapIndex, GeometryList occluders, GeometryList receivers) {
-        shadowMapOccluders = getOccludersToRender(shadowMapIndex, occluders, receivers, shadowMapOccluders);
+    protected void renderShadowMap(int shadowMapIndex) {
+        shadowMapOccluders = getOccludersToRender(shadowMapIndex, shadowMapOccluders);
         Camera shadowCam = getShadowCam(shadowMapIndex);
 
         //saving light view projection matrix for this split            

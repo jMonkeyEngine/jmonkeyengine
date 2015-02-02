@@ -39,7 +39,6 @@ import com.jme3.math.Transform;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
-import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
@@ -332,33 +331,15 @@ public class ShadowUtil {
     }
 
     /**
-     * Updates the shadow camera to properly contain the given points (which
-     * contain the eye camera frustum corners) and the shadow occluder objects.
-     *
-     * @param occluders
-     * @param receivers
-     * @param shadowCam
-     * @param points
-     */
-    public static void updateShadowCamera(GeometryList occluders,
-            GeometryList receivers,
-            Camera shadowCam,
-            Vector3f[] points,
-            float shadowMapSize) {
-        updateShadowCamera(occluders, receivers, shadowCam, points, null, shadowMapSize);
-    }
-    
-    /**
      * OccludersExtractor is a helper class to collect splitOccluders from scene recursively.
      * It utilizes the scene hierarchy, instead of making the huge flat geometries list first.
      * Instead of adding all geometries from scene to the RenderQueue.shadowCast and checking
      * all of them one by one against camera frustum the whole Node is checked first
      * to hopefully avoid the check on its children.
      */
-    static public Spatial rootScene = null; // static global used for OccludersExtractor in order not to change public ShadoUtil.updateShadowCamera interface
     public static class OccludersExtractor
     {
-        // global variables set in order not to have recursive addOccluders method with too many parameters
+        // global variables set in order not to have recursive process method with too many parameters
         Matrix4f viewProjMatrix;
         public Integer casterCount;
         BoundingBox splitBB, casterBB;
@@ -380,15 +361,14 @@ public class ShadowUtil {
         /**
          * Check the rootScene against camera frustum and if intersects process it recursively.
          * The global OccludersExtractor variables need to be initialized first.
-         * The {@link OccludersExtractor#rootScene} need to be set before the call to {@link ShadowUtil#updateShadowCamera}
          * Variables are updated and used in {@link ShadowUtil#updateShadowCamera} at last.
          */
-        public int addOccluders() {
-            if ( rootScene != null ) addOccluders(rootScene);
+        public int addOccluders(Spatial scene) {
+            if ( scene != null ) process(scene);
             return casterCount;
         }
         
-        private void addOccluders(Spatial scene) {
+        private void process(Spatial scene) {
             if (scene.getCullHint() == Spatial.CullHint.Always) return;
 
             RenderQueue.ShadowMode shadowMode = scene.getShadowMode();
@@ -460,7 +440,7 @@ public class ShadowUtil {
  
                 if ( intersects ) {
                     for (Spatial child : ((Node)scene).getChildren()) {
-                        addOccluders(child);
+                        process(child);
                     }
                 }
             }
@@ -469,13 +449,10 @@ public class ShadowUtil {
     
     /**
      * Updates the shadow camera to properly contain the given points (which
-     * contain the eye camera frustum corners) and the shadow occluder objects.
-     *
-     * @param occluders
-     * @param shadowCam
-     * @param points
+     * contain the eye camera frustum corners) and the shadow occluder objects
+     * collected through the traverse of the scene hierarchy
      */
-    public static void updateShadowCamera(GeometryList occluders,
+    public static void updateShadowCamera(Spatial rootScene,
             GeometryList receivers,
             Camera shadowCam,
             Vector3f[] points,
@@ -519,8 +496,8 @@ public class ShadowUtil {
 
         // collect splitOccluders through scene recursive traverse
         OccludersExtractor occExt = new OccludersExtractor(viewProjMatrix, casterCount, splitBB, casterBB, splitOccluders, vars);
-        casterCount = occExt.addOccluders(); // the rootScene inside
-
+        casterCount = occExt.addOccluders(rootScene);
+  
         //Nehon 08/18/2010 this is to avoid shadow bleeding when the ground is set to only receive shadows
         if (casterCount != receiverCount) {
             casterBB.setXExtent(casterBB.getXExtent() + 2.0f);
@@ -608,24 +585,6 @@ public class ShadowUtil {
         vars.release();
 
         shadowCam.setProjectionMatrix(result);
-
-    }
-
-    /**
-     * Updates the shadow camera to properly contain the given points (which
-     * contain the eye camera frustum corners) and the shadow occluder objects.
-     *
-     * Render Shadow optimization to traverse the scene hierarchy instead of using the whole, but flattened, scene
-     */
-    public static void updateShadowCameraFromRoot(Spatial rootScene,
-            GeometryList receivers,
-            Camera shadowCam,
-            Vector3f[] points,
-            GeometryList splitOccluders,
-            float shadowMapSize) {
-        ShadowUtil.rootScene = rootScene;
-        ShadowUtil.updateShadowCamera(null, receivers, shadowCam, points, splitOccluders, shadowMapSize);
-        ShadowUtil.rootScene = null;
     }
     
     /**
@@ -654,9 +613,10 @@ public class ShadowUtil {
     }
 
     /**
-     * Populates the outputGeometryList with the geometries of the children 
-     * of OccludersExtractor.rootScene node that are in the frustum of the given camera
+     * Populates the outputGeometryList with the rootScene children geometries
+     * that are in the frustum of the given camera
      *
+     * @param rootScene the rootNode of the scene to traverse
      * @param camera the camera to check geometries against
      * @param outputGeometryList the list of all geometries that are in the
      * camera frustum

@@ -587,30 +587,6 @@ public class RenderManager {
     }
 
     /**
-     * If a spatial is not inside the eye frustum, it
-     * is still rendered in the shadow frustum (shadow casting queue)
-     * through this recursive method.
-     */
-    @Deprecated
-    private void renderShadow(Spatial s, RenderQueue rq) {
-        if (s instanceof Node) {
-            Node n = (Node) s;
-            List<Spatial> children = n.getChildren();
-            for (int i = 0; i < children.size(); i++) {
-                renderShadow(children.get(i), rq);
-            }
-        } else if (s instanceof Geometry) {
-            Geometry gm = (Geometry) s;
-
-            RenderQueue.ShadowMode shadowMode = s.getShadowMode();
-            if (shadowMode != RenderQueue.ShadowMode.Off && shadowMode != RenderQueue.ShadowMode.Receive && !gm.isGrouped()) {
-                //forcing adding to shadow cast mode, culled objects doesn't have to be in the receiver queue
-                rq.addToShadowQueue(gm, RenderQueue.ShadowMode.Cast);
-            }
-        }
-    }
-
-    /**
      * Preloads a scene for rendering.
      * <p>
      * After invocation of this method, the underlying

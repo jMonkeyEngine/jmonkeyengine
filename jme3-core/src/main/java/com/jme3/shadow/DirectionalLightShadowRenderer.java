@@ -42,7 +42,6 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
-import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Node;
@@ -175,7 +174,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     }
     
     @Override
-    protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers, GeometryList shadowMapOccluders) {
+    protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList shadowMapOccluders) {
 
         // update frustum points based on current camera and split
         ShadowUtil.updateFrustumPoints(viewPort.getCamera(), splitsArray[shadowMapIndex], splitsArray[shadowMapIndex + 1], 1.0f, points);
@@ -184,7 +183,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
         if (sceneReceivers.size()==0) {
             ShadowUtil.getGeometriesInCamFrustum(viewPort.getQueue().getRootScene(), viewPort.getCamera(), RenderQueue.ShadowMode.Receive, sceneReceivers);
         }
-        ShadowUtil.updateShadowCameraFromRoot(viewPort.getQueue().getRootScene(), sceneReceivers, shadowCam, points, shadowMapOccluders, stabilize?shadowMapSize:0);
+        ShadowUtil.updateShadowCamera(viewPort.getQueue().getRootScene(), sceneReceivers, shadowCam, points, shadowMapOccluders, stabilize?shadowMapSize:0);
 
         return shadowMapOccluders;
     }

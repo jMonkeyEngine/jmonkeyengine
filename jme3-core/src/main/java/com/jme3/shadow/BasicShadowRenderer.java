@@ -174,9 +174,7 @@ public class BasicShadowRenderer implements SceneProcessor {
         shadowCam.updateViewProjection();
 
         // render shadow casters to shadow map
-        ShadowUtil.rootScene = rq.getRootScene();
-        ShadowUtil.updateShadowCamera(null, lightReceivers, shadowCam, points, shadowOccluders, shadowMapSize);
-        ShadowUtil.rootScene = null;
+        ShadowUtil.updateShadowCamera(rq.getRootScene(), lightReceivers, shadowCam, points, shadowOccluders, shadowMapSize);
         if (shadowOccluders.size() == 0) {
             noOccluders = true;
             return;
@@ -209,7 +207,7 @@ public class BasicShadowRenderer implements SceneProcessor {
         if (!noOccluders) {
             postshadowMat.setMatrix4("LightViewProjectionMatrix", shadowCam.getViewProjectionMatrix());
             renderManager.setForcedMaterial(postshadowMat);
-            viewPort.getQueue().renderShadowQueue(lightReceivers, renderManager, shadowCam, true);
+            viewPort.getQueue().renderShadowQueue(lightReceivers, renderManager, viewPort.getCamera(), true);
             renderManager.setForcedMaterial(null);
         }
     }
