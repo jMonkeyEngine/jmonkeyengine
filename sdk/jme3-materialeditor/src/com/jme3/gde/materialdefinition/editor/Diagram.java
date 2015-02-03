@@ -40,6 +40,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
@@ -56,15 +57,17 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
     protected List<Connection> connections = new ArrayList<Connection>();
     protected List<NodePanel> nodes = new ArrayList<NodePanel>();
     protected List<OutBusPanel> outBuses = new ArrayList<OutBusPanel>();
-    private MyMenu contextMenu = new MyMenu("Add");
+    private final MyMenu contextMenu = new MyMenu("Add");
     private MatDefEditorlElement parent;
     private String currentTechniqueName;
+    private final BackdropPanel backDrop = new BackdropPanel();
 
+    @SuppressWarnings("LeakingThisInConstructor")
     public Diagram() {
 
         addMouseListener(this);
         addMouseMotionListener(this);
-        createPopupMenu();
+        createPopupMenu();        
     }
 
     @Override
@@ -99,9 +102,23 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
 
     public void refreshPreviews(Material mat) {
         for (OutBusPanel outBusPanel : outBuses) {
-            outBusPanel.updatePreview(mat);
+            outBusPanel.updatePreview(mat);            
+        }
+        if(backDrop.isVisible()){
+            backDrop.showMaterial(mat);
         }
     }
+    
+    public void displayBackdrop(){
+        if(backDrop.getParent()== null){
+            add(backDrop);
+            ((JViewport)getParent()).addChangeListener(backDrop);
+        }
+        
+        backDrop.setVisible(true);
+        backDrop.update(((JViewport)getParent()));
+    }
+    
     Point clickLoc = new Point(0, 0);
 
     @Override

@@ -20,10 +20,9 @@ import javax.swing.Timer;
  *
  * @author Nehon
  */
-public class MatPanel extends javax.swing.JPanel implements MouseListener,ComponentListener {
-
+public class MatPanel extends javax.swing.JPanel implements MouseListener, ComponentListener {
     
-    private MaterialPreviewRenderer renderer;
+    private final MaterialPreviewRenderer renderer;
     private Material mat;
     /**
      * Creates new form PreviewPanel
@@ -36,18 +35,19 @@ public class MatPanel extends javax.swing.JPanel implements MouseListener,Compon
         renderer = new MaterialPreviewRenderer(previewLabel);
     }
     
-    public void cleanup(){
-        renderer.cleanUp();
-        cleanup();
+    public void cleanup() {
+        renderer.cleanUp();        
     }
     
     public void showMaterial(Material mat) {
         this.mat = mat;
-        renderer.showMaterial(mat);
+        renderer.showMaterial(mat);       
+    }
+
+    public void setExpandActionListener(ActionListener action){        
+        expandButton.addActionListener(action);
     }
     
-    
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -176,7 +176,7 @@ public class MatPanel extends javax.swing.JPanel implements MouseListener,Compon
 
         expandButton.setBackground(new java.awt.Color(153, 153, 153));
         expandButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/materialdefinition/icons/expend.png"))); // NOI18N
-        expandButton.setToolTipText("Expand");
+        expandButton.setToolTipText("Display Backdrop");
         expandButton.setBorder(null);
         expandButton.setBorderPainted(false);
         expandButton.setContentAreaFilled(false);
@@ -192,11 +192,6 @@ public class MatPanel extends javax.swing.JPanel implements MouseListener,Compon
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 expandButtonMouseExited(evt);
-            }
-        });
-        expandButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                expandButtonActionPerformed(evt);
             }
         });
 
@@ -245,10 +240,6 @@ public class MatPanel extends javax.swing.JPanel implements MouseListener,Compon
         add(previewLabel);
         previewLabel.setBounds(20, 20, 100, 100);
     }// </editor-fold>//GEN-END:initComponents
-
-    private void expandButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_expandButtonActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_expandButtonActionPerformed
 
     private void expandButtonMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_expandButtonMouseEntered
         mouseEntered(SwingUtilities.convertMouseEvent(expandButton, evt, this));
@@ -321,15 +312,15 @@ public class MatPanel extends javax.swing.JPanel implements MouseListener,Compon
     @Override
     public void mouseClicked(MouseEvent e) {
     }
-
+    
     @Override
     public void mousePressed(MouseEvent e) {
     }
-
+    
     @Override
     public void mouseReleased(MouseEvent e) {
     }
-
+    
     @Override
     public void mouseEntered(MouseEvent e) {
         toolBar.setVisible(true);
@@ -341,37 +332,37 @@ public class MatPanel extends javax.swing.JPanel implements MouseListener,Compon
             toolBar.setVisible(false);
         }
     });
-
+    
     @Override
     public void mouseExited(MouseEvent e) {
         t.restart();
     }
     
-     @Override
+    @Override
     public void componentResized(ComponentEvent e) {
         update(e.getComponent());
     }
-
+    
     @Override
     public void componentMoved(ComponentEvent e) {
         update(e.getComponent());
     }
-
+    
     @Override
     public void componentShown(ComponentEvent e) {
-         update(e.getComponent());
+        update(e.getComponent());
     }
-
+    
     @Override
     public void componentHidden(ComponentEvent e) {
     }
-
+    
     protected void update(Component c) {
         setLocation(c.getLocation().x + c.getWidth() - 150, c.getLocation().y + 10 - 120);
     }
-
+    
     private void refresh() {
-        if(mat!=null){
+        if (mat != null) {
             renderer.showMaterial(mat);
         }
     }

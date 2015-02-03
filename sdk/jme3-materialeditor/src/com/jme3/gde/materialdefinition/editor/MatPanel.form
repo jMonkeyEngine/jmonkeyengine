@@ -216,7 +216,7 @@
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/com/jme3/gde/materialdefinition/icons/expend.png"/>
             </Property>
-            <Property name="toolTipText" type="java.lang.String" value="Expand"/>
+            <Property name="toolTipText" type="java.lang.String" value="Display Backdrop"/>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="null"/>
             </Property>
@@ -240,7 +240,6 @@
           <Events>
             <EventHandler event="mouseEntered" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="expandButtonMouseEntered"/>
             <EventHandler event="mouseExited" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="expandButtonMouseExited"/>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="expandButtonActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>

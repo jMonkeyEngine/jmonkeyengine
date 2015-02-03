@@ -16,6 +16,8 @@ import java.awt.LinearGradientPaint;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
@@ -81,11 +83,18 @@ public class OutBusPanel extends DraggablePanel implements ComponentListener, Se
     }
 
     @Override
-    public void setDiagram(Diagram diagram) {
+    public void setDiagram(final Diagram diagram) {
         super.setDiagram(diagram);
         // preview.setBounds(350,300,128,100);
         diagram.add(preview);
         preview.update(this);
+        preview.setExpandActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                diagram.displayBackdrop();
+            }
+        });
+        
     }
 
     @Override
