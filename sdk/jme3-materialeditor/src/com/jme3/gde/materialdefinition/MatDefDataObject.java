@@ -37,7 +37,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
 import javax.swing.JEditorPane;
-import javax.swing.text.EditorKit;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.core.spi.multiview.MultiViewElement;
@@ -54,7 +53,6 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
-import org.openide.text.CloneableEditorSupport;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.lookup.AbstractLookup;
@@ -225,7 +223,7 @@ public class MatDefDataObject extends MultiDataObject {
             @Override
             public void componentActivated() {
                 super.componentActivated();
-                getEditorPane().addKeyListener(listener);
+                getEditorPane().addKeyListener(listener);                
             }
 
             @Override
@@ -243,8 +241,7 @@ public class MatDefDataObject extends MultiDataObject {
                 obj.unload();
             }
         };
-
-
+        obj.getLookupContents().add(ed);
         return ed;
     }
 

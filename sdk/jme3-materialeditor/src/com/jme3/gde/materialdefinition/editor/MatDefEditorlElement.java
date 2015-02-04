@@ -69,6 +69,7 @@ import javax.swing.JToolBar;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
+import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.openide.awt.UndoRedo;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -99,7 +100,7 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
     InstanceContent content;
     Selectable prevNode;
     MatDefMetaData metaData;
-
+    
     public MatDefEditorlElement(final Lookup lkp) {
         initComponents();
         obj = lkp.lookup(MatDefDataObject.class);
@@ -433,7 +434,7 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
 
     @Override
     public UndoRedo getUndoRedo() {
-        return UndoRedo.NONE;
+        return obj.getLookup().lookup(MultiViewEditorElement.class).getUndoRedo();
     }
 
     @Override

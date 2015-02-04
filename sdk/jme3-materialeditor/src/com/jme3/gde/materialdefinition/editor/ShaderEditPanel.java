@@ -16,6 +16,7 @@ import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.text.EditorKit;
+import org.openide.awt.UndoRedo;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
@@ -32,6 +33,7 @@ public class ShaderEditPanel extends JPanel {
 
     private DataObject currentDataObject = null;
     private MatDefEditorlElement parent = null;
+    private UndoRedo.Manager undoRedoManager;
 
     /**
      * Creates new form ShaderEditPanel
@@ -48,9 +50,9 @@ public class ShaderEditPanel extends JPanel {
             public void keyTyped(KeyEvent e) {
             }
 
-            public void keyPressed(KeyEvent e) {                
+            public void keyPressed(KeyEvent e) {                               
                 if ((e.getKeyCode() == KeyEvent.VK_S) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)) {
-                    saveCurrent();
+                    saveCurrent();                    
                 }
             }
 
@@ -61,6 +63,7 @@ public class ShaderEditPanel extends JPanel {
 
     public void setParent(MatDefEditorlElement parent) {
         this.parent = parent;
+        undoRedoManager = (UndoRedo.Manager)parent.getUndoRedo();
     }
 
     public void setFiles(String title, NodePanel.NodeType type, List<FileObject> fos) {
@@ -72,7 +75,7 @@ public class ShaderEditPanel extends JPanel {
             buttonGroup1.remove((JToggleButton) component);
         }
         buttonPanel.removeAll();
-        buttonPanel.repaint();
+        buttonPanel.repaint();        
 
         for (FileObject fo : fos) {
             final Tab b = new Tab();
@@ -83,8 +86,10 @@ public class ShaderEditPanel extends JPanel {
                 b.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         saveCurrent();
-                        try {
-                            shaderEditorPane.setDocument(b.dataObject.getLookup().lookup(EditorCookie.class).openDocument());                    
+                        try {                            
+                            shaderEditorPane.setDocument(b.dataObject.getLookup().lookup(EditorCookie.class).openDocument());   
+                            undoRedoManager.discardAllEdits();
+                            shaderEditorPane.getDocument().addUndoableEditListener(undoRedoManager);
                         } catch (IOException ex) {
                             Exceptions.printStackTrace(ex);
                         }
@@ -94,6 +99,8 @@ public class ShaderEditPanel extends JPanel {
                 });
                 if (firstItem) {
                     shaderEditorPane.setDocument(b.dataObject.getLookup().lookup(EditorCookie.class).openDocument());                    
+                    undoRedoManager.discardAllEdits();
+                    shaderEditorPane.getDocument().addUndoableEditListener(undoRedoManager);                    
                     currentDataObject = b.dataObject;
                     b.setSelected(true);
                     firstItem = false;                    
@@ -224,7 +231,7 @@ public class ShaderEditPanel extends JPanel {
 
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
         setVisible(false);
-
+        shaderEditorPane.getDocument().removeUndoableEditListener(undoRedoManager);
         saveCurrent();
 
 
