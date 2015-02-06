@@ -6,6 +6,8 @@
 package com.jme3.gde.shadernodedefinition.wizard;
 
 import com.jme3.shader.Shader;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
 
@@ -20,7 +22,9 @@ public final class SNDefVisualPanel1 extends JPanel {
         initComponents();
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>();
         for (Shader.ShaderType shaderType : Shader.ShaderType.values()) {
-            model.addElement(shaderType.name());
+            if(!shaderType.name().equalsIgnoreCase("geometry")){//hack to not have geometry shader remove that when geometry shader are in
+                model.addElement(shaderType.name());
+            }
         }
         shaderTypeCB.setModel(model);
     }
@@ -42,6 +46,34 @@ public final class SNDefVisualPanel1 extends JPanel {
         return descriptionTextArea.getText();
     }
     
+    public List<String> getGlslVersions(){
+        List<String> versions = new ArrayList<String>();
+        
+        if(glsl100.isSelected()){
+            versions.add("100");
+        }
+        if(glsl110.isSelected()){
+            versions.add("110");
+        }
+        if(glsl120.isSelected()){
+            versions.add("120");
+        }
+        if(glsl130.isSelected()){
+            versions.add("130");
+        }
+        if(glsl140.isSelected()){
+            versions.add("140");
+        }
+        if(glsl150.isSelected()){
+            versions.add("150");
+        }
+        if(glslCustom.isSelected()){
+            versions.add(customGlslVer.getText().replace(".", "")+"0");
+        }
+        
+        
+        return versions;
+    }
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -59,6 +91,15 @@ public final class SNDefVisualPanel1 extends JPanel {
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         descriptionTextArea = new javax.swing.JTextArea();
+        customGlslVer = new javax.swing.JTextField();
+        glsl110 = new javax.swing.JCheckBox();
+        glsl100 = new javax.swing.JCheckBox();
+        glsl120 = new javax.swing.JCheckBox();
+        glsl130 = new javax.swing.JCheckBox();
+        glsl150 = new javax.swing.JCheckBox();
+        glsl140 = new javax.swing.JCheckBox();
+        jLabel3 = new javax.swing.JLabel();
+        glslCustom = new javax.swing.JCheckBox();
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(SNDefVisualPanel1.class, "SNDefVisualPanel1.jLabel1.text")); // NOI18N
 
@@ -79,37 +120,83 @@ public final class SNDefVisualPanel1 extends JPanel {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
+            .addComponent(jScrollPane1)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 157, Short.MAX_VALUE)
         );
 
+        customGlslVer.setEditable(false);
+        customGlslVer.setText(org.openide.util.NbBundle.getMessage(SNDefVisualPanel1.class, "SNDefVisualPanel1.customGlslVer.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(glsl110, org.openide.util.NbBundle.getMessage(SNDefVisualPanel1.class, "SNDefVisualPanel1.glsl110.text")); // NOI18N
+
+        glsl100.setSelected(true);
+        org.openide.awt.Mnemonics.setLocalizedText(glsl100, org.openide.util.NbBundle.getMessage(SNDefVisualPanel1.class, "SNDefVisualPanel1.glsl100.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(glsl120, org.openide.util.NbBundle.getMessage(SNDefVisualPanel1.class, "SNDefVisualPanel1.glsl120.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(glsl130, org.openide.util.NbBundle.getMessage(SNDefVisualPanel1.class, "SNDefVisualPanel1.glsl130.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(glsl150, org.openide.util.NbBundle.getMessage(SNDefVisualPanel1.class, "SNDefVisualPanel1.glsl150.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(glsl140, org.openide.util.NbBundle.getMessage(SNDefVisualPanel1.class, "SNDefVisualPanel1.glsl140.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(SNDefVisualPanel1.class, "SNDefVisualPanel1.jLabel3.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(glslCustom, org.openide.util.NbBundle.getMessage(SNDefVisualPanel1.class, "SNDefVisualPanel1.glslCustom.text")); // NOI18N
+        glslCustom.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                glslCustomActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
                         .addGap(14, 14, 14)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel1))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(defNameTextField)
-                            .addComponent(shaderTypeCB, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(19, 19, 19)
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(glsl100)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(glsl110)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(glsl120)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(glsl130)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(glsl140)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(glsl150)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                                .addComponent(glslCustom)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(customGlslVer, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel1))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(defNameTextField)
+                                    .addComponent(shaderTypeCB, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(40, 40, 40)
+                .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(defNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -118,6 +205,17 @@ public final class SNDefVisualPanel1 extends JPanel {
                     .addComponent(jLabel2)
                     .addComponent(shaderTypeCB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(customGlslVer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(glsl110)
+                    .addComponent(glsl100)
+                    .addComponent(glsl120)
+                    .addComponent(glsl130)
+                    .addComponent(glsl150)
+                    .addComponent(glsl140)
+                    .addComponent(jLabel3)
+                    .addComponent(glslCustom))
+                .addGap(7, 7, 7)
                 .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
@@ -134,11 +232,28 @@ public final class SNDefVisualPanel1 extends JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void glslCustomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_glslCustomActionPerformed
+        if (glslCustom.isSelected()) {
+            customGlslVer.setEditable(true);
+        }else{
+            customGlslVer.setEditable(false);
+        }
+    }//GEN-LAST:event_glslCustomActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField customGlslVer;
     private javax.swing.JTextField defNameTextField;
     private javax.swing.JTextArea descriptionTextArea;
+    private javax.swing.JCheckBox glsl100;
+    private javax.swing.JCheckBox glsl110;
+    private javax.swing.JCheckBox glsl120;
+    private javax.swing.JCheckBox glsl130;
+    private javax.swing.JCheckBox glsl140;
+    private javax.swing.JCheckBox glsl150;
+    private javax.swing.JCheckBox glslCustom;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;

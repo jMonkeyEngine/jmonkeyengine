@@ -32,8 +32,8 @@ import org.openide.util.NbBundle.Messages;
 
 // TODO define position attribute
 @TemplateRegistrations({
-@TemplateRegistration(folder = "Material", content = "../SNDefTemplate.j3sn", displayName = "#SNDefWizardIterator_displayName", iconBase = "com/jme3/gde/materialdefinition/icons/node.png", description = "../sNDef.html", scriptEngine = "freemarker"),
-@TemplateRegistration(folder = "Material", content = "../ShaderNodeSource", scriptEngine = "freemarker")
+    @TemplateRegistration(folder = "Material", content = "../SNDefTemplate.j3sn", displayName = "Shader Node Definition", iconBase = "com/jme3/gde/materialdefinition/icons/node.png", description = "./sNDef.html", scriptEngine = "freemarker"),
+    @TemplateRegistration(folder = "Material", content = "../ShaderNodeSource", scriptEngine = "freemarker")
 })
 @Messages("SNDefWizardIterator_displayName=Shader Node Definition")
 @SuppressWarnings({"unchecked", "rawtypes"})
@@ -103,38 +103,36 @@ public final class SNDefWizardIterator implements WizardDescriptor.Instantiating
         //Get the template and convert it:
         FileObject tplSnd = Templates.getTemplate(wizard);
         FileObject tplShd = tplSnd.getParent().getChildren()[1];
-        
+
         DataObject templateSnd = DataObject.find(tplSnd);
         DataObject templateShd = DataObject.find(tplShd);
 
-        
-        
         //Get the package:
         FileObject dir = Templates.getTargetFolder(wizard);
         DataFolder df = DataFolder.findFolder(dir);
 
-        ProjectAssetManager assetManager = new ProjectAssetManager(Templates.getProject(wizard),"assets");
-        
+        ProjectAssetManager assetManager = new ProjectAssetManager(Templates.getProject(wizard), "assets");
+
         //Get the class:
         String targetName = Templates.getTargetName(wizard);
         String shaderName = targetName;
-        if (panel1.getDefType().equals("Fragment")) {
-            shaderName += ".frag";
-        } else if (panel1.getDefType().equals("Vertex")) {
-            shaderName += ".vert";
-        } else {
-            shaderName += ".frag";
+        String ext = ".frag";
+        if (panel1.getDefType().equals("Vertex")) {
+            ext = ".vert";
         }
-        
-        args.put("shaderSnippet",assetManager.getRelativeAssetPath(dir.getPath()+"/"+shaderName));
+        args.put("ext", ext);
+        args.put("glslVersions", panel1.getGlslVersions());
+
+        args.put("shaderSnippet", assetManager.getRelativeAssetPath(dir.getPath() + "/" + shaderName));
 
         //Define the template from the above,
         //passing the package, the file name, and the map of strings to the template:
-       // DataObject dobj = templateSnd.createFromTemplate(df, targetName, args);
-        
-       
-        DataObject sobj = templateShd.createFromTemplate(df, shaderName, args);
- DataObject dobj = templateSnd.createFromTemplate(df, targetName, args);
+        // DataObject dobj = templateSnd.createFromTemplate(df, targetName, args);
+        for (String ver : panel1.getGlslVersions()) {
+            templateShd.createFromTemplate(df, shaderName + ver + ext, args);
+        }
+
+        DataObject dobj = templateSnd.createFromTemplate(df, targetName, args);
         //Obtain a FileObject:
         createdFile = dobj.getPrimaryFile();
 

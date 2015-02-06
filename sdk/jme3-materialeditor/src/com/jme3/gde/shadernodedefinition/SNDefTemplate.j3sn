@@ -1,7 +1,11 @@
 ShaderNodeDefinitions{ 
     ShaderNodeDefinition ${defName} {      
         Type: ${defType}
-        Shader GLSL100: ${shaderSnippet}
+
+        <#list glslVersions as version>                
+        Shader GLSL${version}: ${shaderSnippet}${version}${ext}
+        </#list>
+        
         Documentation{
             ${description}            
             <#list inputParams as param>                
