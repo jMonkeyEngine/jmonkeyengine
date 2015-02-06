@@ -117,7 +117,7 @@ public class MaterialPreviewRenderer implements SceneListener {
                                         label.setIcon(Icons.error);
                                     }
                                 });
-                                Logger.getLogger(MaterialPreviewRenderer.class.getName()).log(Level.SEVERE, "Error rendering material{0}", e.getMessage());
+                                smartLog("Error rendering material{0}", e.getMessage());
                             }
                         }
                     });
@@ -126,10 +126,18 @@ public class MaterialPreviewRenderer implements SceneListener {
                 return mat;
             }
         });
-
     }
     
-      public Material reloadMaterial(Material mat) {
+    private int lastErrorHash = 0;
+    private void smartLog(String expText, String message){
+        int hash = message.hashCode();
+        if(hash != lastErrorHash){
+            Logger.getLogger(MaterialPreviewRenderer.class.getName()).log(Level.SEVERE, expText, message);
+            lastErrorHash = hash;
+        }
+    }
+    
+    public Material reloadMaterial(Material mat) {
        
         ((ProjectAssetManager)mat.getMaterialDef().getAssetManager()).clearCache();   
         

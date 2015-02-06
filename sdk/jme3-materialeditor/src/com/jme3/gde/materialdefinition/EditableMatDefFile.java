@@ -30,8 +30,8 @@ import com.jme3.util.blockparser.Statement;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -55,7 +55,7 @@ import org.openide.util.WeakListeners;
 public class EditableMatDefFile {
 
     private FileObject matDefFile;
-    private MatDefDataObject obj;
+    private final MatDefDataObject obj;
     private Material material;
     private MatDefBlock matDefStructure;
     private TechniqueBlock currentTechnique;
@@ -64,7 +64,7 @@ public class EditableMatDefFile {
 //    MatParamTopComponent matParamComponent;
     private ShaderGenerator glsl100;
     private ShaderGenerator glsl150;
-    private String selectedTechnique = "Default";
+    private final String selectedTechnique = "Default";
     private final static String GLSL100 = "GLSL100";
     private final static String GLSL150 = "GLSL150";
     private Lookup lookup;
@@ -78,6 +78,7 @@ public class EditableMatDefFile {
     }
 
     public final void load(Lookup lookup) {
+        loaded = false;
         this.matDefFile = obj.getPrimaryFile();
         this.assetManager = lookup.lookup(ProjectAssetManager.class);
         this.glsl100 = new Glsl100ShaderGenerator(assetManager);
@@ -92,20 +93,27 @@ public class EditableMatDefFile {
             obj.getLookupContents().remove(materialDef);
             materialDef = null;
         }
+        if (material != null) {
+            obj.getLookupContents().remove(material);
+            matToRemove = material;
+            material = null;
+        }
         FileLock lock = null;
+        InputStream in = null;
+        boolean matParseError = false;        
         try {
             lock = matDefFile.lock();
-            List<Statement> sta = BlockLanguageParser.parse(obj.getPrimaryFile().getInputStream());
+            in = obj.getPrimaryFile().getInputStream();
+            List<Statement> sta = BlockLanguageParser.parse(in);
             matDefStructure = new MatDefBlock(sta.get(0));
-            if(assetManager!=null){
+            if (assetManager != null) {
                 AssetKey<MaterialDef> matDefKey = new AssetKey<MaterialDef>(assetManager.getRelativeAssetPath(assetManager.getRelativeAssetPath(matDefFile.getPath())));
                 assetManager.deleteFromCache(matDefKey);
                 materialDef = (MaterialDef) assetManager.loadAsset(assetManager.getRelativeAssetPath(matDefFile.getPath()));
             }
-            lock.releaseLock();
         } catch (Exception ex) {
             Throwable t = ex.getCause();
-            boolean matParseError = false;
+
             while (t != null) {
                 if (t instanceof MatParseException) {
                     Logger.getLogger(EditableMatDefFile.class.getName()).log(Level.SEVERE, t.getMessage());
@@ -120,8 +128,15 @@ public class EditableMatDefFile {
             if (lock != null) {
                 lock.releaseLock();
             }
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
         }
-        if (materialDef != null) {
+        if (materialDef != null && !matParseError) {
             currentTechnique = matDefStructure.getTechniques().get(0);
             registerListener(matDefStructure);
 
@@ -164,8 +179,7 @@ public class EditableMatDefFile {
                 glsl150.initialize(material.getActiveTechnique());
                 s = glsl150.generateShader();
             }
-            for (Iterator<Shader.ShaderSource> it = s.getSources().iterator(); it.hasNext();) {
-                Shader.ShaderSource source = it.next();
+            for (Shader.ShaderSource source : s.getSources()) {
                 if (source.getType() == type) {
                     return source.getSource();
                 }
@@ -177,13 +191,6 @@ public class EditableMatDefFile {
         }
     }
 
-//    public MatParamTopComponent getMatParamComponent() {
-//        return matParamComponent;
-//    }
-//    
-//    public void setMatParamComponent(MatParamTopComponent matParamComponent) {
-//        this.matParamComponent = matParamComponent;
-//    }
     public TechniqueBlock getCurrentTechnique() {
         return currentTechnique;
     }
@@ -191,7 +198,7 @@ public class EditableMatDefFile {
     public MatDefBlock getMatDefStructure() {
         return matDefStructure;
     }
-    private MatStructChangeListener changeListener = new MatStructChangeListener();
+    private final MatStructChangeListener changeListener = new MatStructChangeListener();
     J3MLoader loader = new J3MLoader();
 
     private void updateLookupWithMaterialData(MatDefDataObject obj) {
@@ -202,7 +209,12 @@ public class EditableMatDefFile {
             material.selectTechnique("Default", SceneApplication.getApplication().getRenderManager());
             if (matToRemove != null) {
                 for (MatParam matParam : matToRemove.getParams()) {
-                    material.setParam(matParam.getName(), matParam.getVarType(), matParam.getValue());
+                    try {
+                        material.setParam(matParam.getName(), matParam.getVarType(), matParam.getValue());
+                    } catch (IllegalArgumentException ie) {
+                        matToRemove.clearParam(matParam.getName());
+                    }
+
                 }
                 obj.getLookupContents().remove(matToRemove);
                 matToRemove = null;
@@ -264,13 +276,13 @@ public class EditableMatDefFile {
                 for (ShaderNodeBlock shaderNodeBlock : currentTechnique.getShaderNodes()) {
 
                     if (shaderNodeBlock.getCondition() != null && shaderNodeBlock.getCondition().contains(oldValue.getName())) {
-                        shaderNodeBlock.setCondition(shaderNodeBlock.getCondition().replaceAll(oldValue.getName(), "").trim());                      
+                        shaderNodeBlock.setCondition(shaderNodeBlock.getCondition().replaceAll(oldValue.getName(), "").trim());
                     }
                     List<InputMappingBlock> lin = shaderNodeBlock.getInputs();
                     if (lin != null) {
                         for (InputMappingBlock inputMappingBlock : shaderNodeBlock.getInputs()) {
                             if (inputMappingBlock.getCondition() != null && inputMappingBlock.getCondition().contains(oldValue.getName())) {
-                                inputMappingBlock.setCondition(inputMappingBlock.getCondition().replaceAll(oldValue.getName(), "").trim());                               
+                                inputMappingBlock.setCondition(inputMappingBlock.getCondition().replaceAll(oldValue.getName(), "").trim());
                             }
                         }
                     }
@@ -278,7 +290,7 @@ public class EditableMatDefFile {
                     if (l != null) {
                         for (OutputMappingBlock outputMappingBlock : l) {
                             if (outputMappingBlock.getCondition() != null && outputMappingBlock.getCondition().contains(oldValue.getName())) {
-                                outputMappingBlock.setCondition(outputMappingBlock.getCondition().replaceAll(oldValue.getName(), "").trim());                             
+                                outputMappingBlock.setCondition(outputMappingBlock.getCondition().replaceAll(oldValue.getName(), "").trim());
                             }
                         }
                     }
@@ -303,10 +315,10 @@ public class EditableMatDefFile {
             NbDocument.runAtomicAsUser(ec.getDocument(), new Runnable() {
                 public void run() {
                     try {
-                        doc.remove(0, doc.getLength());
-                        doc.insertString(doc.getLength(),
-                                matDefStructure.toString(),
-                                SimpleAttributeSet.EMPTY);
+                    doc.remove(0, doc.getLength());
+                    doc.insertString(doc.getLength(),
+                    matDefStructure.toString(),
+                    SimpleAttributeSet.EMPTY);
                     } catch (BadLocationException e) {
                         exc[0] = e;
                     }

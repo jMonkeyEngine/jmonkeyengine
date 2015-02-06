@@ -52,16 +52,20 @@ import com.jme3.shader.ShaderNodeVariable;
 import com.jme3.shader.ShaderUtils;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.Action;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -71,10 +75,12 @@ import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.openide.awt.UndoRedo;
+import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.text.EditorSupport;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
@@ -85,12 +91,12 @@ import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.TopComponent;
 
 @MultiViewElement.Registration(
-    displayName = "#LBL_MatDef_EDITOR",
-iconBase = "com/jme3/gde/materialdefinition/icons/matdef.png",
-mimeType = "text/jme-materialdefinition",
-persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
-preferredID = "MatDefVisual",
-position = 2000)
+        displayName = "#LBL_MatDef_EDITOR",
+        iconBase = "com/jme3/gde/materialdefinition/icons/matdef.png",
+        mimeType = "text/jme-materialdefinition",
+        persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
+        preferredID = "MatDefVisual",
+        position = 2000)
 @Messages("LBL_MatDef_EDITOR=Editor")
 public final class MatDefEditorlElement extends JPanel implements MultiViewElement {
 
@@ -100,7 +106,7 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
     InstanceContent content;
     Selectable prevNode;
     MatDefMetaData metaData;
-    
+
     public MatDefEditorlElement(final Lookup lkp) {
         initComponents();
         obj = lkp.lookup(MatDefDataObject.class);
@@ -109,14 +115,14 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
         final EditableMatDefFile file = obj.getEditableFile();
         shaderEditPanel1.setVisible(false);
         shaderEditPanel1.setParent(this);
-        reload(file, lkp);        
+        reload(file, lkp);
     }
 
     private void initDiagram(Lookup lkp) throws NumberFormatException {
-       
+
         diagram1.clear();
         diagram1.setParent(this);
-        
+
         Material mat = lkp.lookup(Material.class);
 
         ProjectAssetManager manager = obj.getLookup().lookup(ProjectAssetManager.class);
@@ -213,7 +219,6 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
         diagram1.revalidate();
         jScrollPane1.addComponentListener(diagram1);
 
-
         diagram1.refreshPreviews(mat);
         final Lookup.Result<Material> resMat = obj.getLookup().lookupResult(Material.class);
         resMat.addLookupListener(new LookupListener() {
@@ -225,7 +230,6 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
                 }
             }
         });
-
 
         final MatDefNavigatorPanel nav = obj.getLookup().lookup(MatDefNavigatorPanel.class);
         if (nav != null) {
@@ -267,7 +271,7 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
             Exceptions.printStackTrace(ex);
         }
     }
-    
+
     public void refresh() {
 
         Lookup.Result<Material> resMat = obj.getLookup().lookupResult(Material.class);
@@ -278,32 +282,52 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
         }
 
     }
-    
-    public void setModified(){
-        obj.setModified(true);        
+
+    public void setModified() {
+        obj.setModified(true);
     }
-    
-    public ProjectAssetManager getAssetManager(){
+
+    public ProjectAssetManager getAssetManager() {
         return obj.getLookup().lookup(ProjectAssetManager.class);
     }
-    
-    public void showShaderEditor(String nodeName,NodePanel.NodeType type,List<String>pathList){
-        
+
+    public void showShaderEditor(String nodeName, NodePanel.NodeType type, List<String> pathList) {
+
         List<FileObject> fos = new ArrayList<FileObject>();
-        for (String path : pathList) {            
-            FileObject text = FileUtil.toFileObject(new File(getAssetManager().getAbsoluteAssetPath(path)));
-            fos.add(text);
+        Map<String, String> readOnlyFiles = new HashMap<String, String>();
+        for (String path : pathList) {
+            try {
+                FileObject text = FileUtil.toFileObject(new File(getAssetManager().getAbsoluteAssetPath(path)));
+                fos.add(text);
+            } catch (NullPointerException e) {
+                try {
+                    //cannot load the files because they are probably in a jar
+                    InputStream is = getAssetManager().getResourceAsStream(path);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                    StringBuilder out = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        out.append(line).append("\n");
+                    }
+                    readOnlyFiles.put(path.substring(path.lastIndexOf("/") + 1), out.toString());   //Prints the string content read from input stream
+                    reader.close();
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+
+            }
+
         }
-        shaderEditPanel1.setFiles(nodeName, type, fos);
+        shaderEditPanel1.setFiles(nodeName, type, fos, readOnlyFiles);
         shaderEditPanel1.revalidate();
-        if(!shaderEditPanel1.isVisible() || jSplitPane.getDividerLocation() == jSplitPane.getMinimumDividerLocation()){
+        if (!shaderEditPanel1.isVisible() || jSplitPane.getDividerLocation() == jSplitPane.getMinimumDividerLocation()) {
             shaderEditPanel1.setVisible(true);
             jSplitPane.setDividerLocation(650);
         }
-        
+
     }
-    
-    public ShaderEditPanel getShaderEditor(){
+
+    public ShaderEditPanel getShaderEditor() {
         return shaderEditPanel1;
     }
 
@@ -496,13 +520,13 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
     }
 
     public void notifyAddMapParam(String type, String name) {
-        MatDefBlock matDef = obj.getLookup().lookup(MatDefBlock.class);        
+        MatDefBlock matDef = obj.getLookup().lookup(MatDefBlock.class);
         MatParamBlock param = new MatParamBlock(type, name, null, null);
         matDef.addMatParam(param);
     }
 
     public void notifyAddWorldParam(String name) {
-        MatDefBlock matDef = obj.getLookup().lookup(MatDefBlock.class);        
+        MatDefBlock matDef = obj.getLookup().lookup(MatDefBlock.class);
         WorldParamBlock param = new WorldParamBlock(name);
         getTechnique(matDef).addWorldParam(param);
     }
@@ -596,7 +620,6 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
 
         }
 
-
         for (WorldParamBlock worldParamBlock : technique.getWorldParams()) {
             ShaderNodeVariable var = new ShaderNodeVariable("", "WorldParam", worldParamBlock.getName());
             var.setType(MaterialUtils.getWorldParamType(var.getName()));
@@ -633,9 +656,15 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
         metaData.setProperty(diagram1.getCurrentTechniqueName() + "/" + key, x + "," + y);
 
     }
-    
-    public void reload(){
-          reload(obj.getEditableFile(), obj.getLookup());
+
+    public void reload() {
+        try {
+            obj.getLookup().lookup(EditorCookie.class).saveDocument();
+            obj.getEditableFile().load(obj.getLookup());
+            reload(obj.getEditableFile(), obj.getLookup());
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 
     private void reload(final EditableMatDefFile file, final Lookup lkp) throws NumberFormatException {
@@ -647,21 +676,14 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
             }
         } else {
             diagram1.clear();
-            JLabel error = new JLabel("Cannot load material definition.");
-            error.setForeground(Color.RED);
-            error.setBounds(0, 0, 200, 20);
+            JLabel error = new JLabel("<html><center>Cannot load material definition.<br>Please see the error log and fix it in the text editor</center></html>");
+            error.setForeground(Color.ORANGE);
+            error.setFont(new Font("Arial", Font.BOLD, 24));
+            error.setBounds(0, 0, 400, 100);
+            jScrollPane1.getHorizontalScrollBar().setValue(0);
+            error.setLocation(jScrollPane1.getViewport().getWidth() / 2 - 200, jScrollPane1.getViewport().getHeight() / 2 - 50);
             diagram1.add(error);
-            JButton btn = new JButton("retry");
-            btn.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    file.load(lkp);
-                    if (file.isLoaded()) {
-                        initDiagram(lkp);
-                    }
-                }
-            });
-            btn.setBounds(0, 25, 150, 20);
-            diagram1.add(btn);
+            diagram1.repaint();
 
         }
     }

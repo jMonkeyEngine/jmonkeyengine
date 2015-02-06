@@ -13,8 +13,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.EditorKit;
 import org.openide.awt.UndoRedo;
 import org.openide.cookies.EditorCookie;
@@ -34,25 +36,26 @@ public class ShaderEditPanel extends JPanel {
     private DataObject currentDataObject = null;
     private MatDefEditorlElement parent = null;
     private UndoRedo.Manager undoRedoManager;
+    private final String MIME = "text/x-glsl";
 
     /**
      * Creates new form ShaderEditPanel
      */
     public ShaderEditPanel() {
         initComponents();
-        String mime = "text/x-glsl";
-        EditorKit ek = CloneableEditorSupport.getEditorKit(mime);
-        shaderEditorPane.setEditorKit(ek);
-        shaderEditorPane.setContentType(mime);
         
+        EditorKit ek = CloneableEditorSupport.getEditorKit(MIME);
+        shaderEditorPane.setEditorKit(ek);
+        shaderEditorPane.setContentType(MIME);
+
         shaderEditorPane.addKeyListener(new KeyListener() {
 
             public void keyTyped(KeyEvent e) {
             }
 
-            public void keyPressed(KeyEvent e) {                               
+            public void keyPressed(KeyEvent e) {
                 if ((e.getKeyCode() == KeyEvent.VK_S) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)) {
-                    saveCurrent();                    
+                    saveCurrent();
                 }
             }
 
@@ -63,11 +66,12 @@ public class ShaderEditPanel extends JPanel {
 
     public void setParent(MatDefEditorlElement parent) {
         this.parent = parent;
-        undoRedoManager = (UndoRedo.Manager)parent.getUndoRedo();
+        undoRedoManager = (UndoRedo.Manager) parent.getUndoRedo();
     }
 
-    public void setFiles(String title, NodePanel.NodeType type, List<FileObject> fos) {
+    public void setFiles(String title, NodePanel.NodeType type, List<FileObject> fos, final Map<String, String> readOnlyFiles) {
 
+        
         headerText.setText(title);
         headerText.setIcon(Icons.getIconForShaderType(type));
         boolean firstItem = true;
@@ -75,7 +79,7 @@ public class ShaderEditPanel extends JPanel {
             buttonGroup1.remove((JToggleButton) component);
         }
         buttonPanel.removeAll();
-        buttonPanel.repaint();        
+        buttonPanel.repaint();
 
         for (FileObject fo : fos) {
             final Tab b = new Tab();
@@ -86,51 +90,83 @@ public class ShaderEditPanel extends JPanel {
                 b.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         saveCurrent();
-                        try {                            
-                            shaderEditorPane.setDocument(b.dataObject.getLookup().lookup(EditorCookie.class).openDocument());   
-                            undoRedoManager.discardAllEdits();
-                            shaderEditorPane.getDocument().addUndoableEditListener(undoRedoManager);
+                        try {
+                            switchEditableDoc(b);
                         } catch (IOException ex) {
                             Exceptions.printStackTrace(ex);
                         }
-                        currentDataObject = b.dataObject;
                     }
-
                 });
                 if (firstItem) {
-                    shaderEditorPane.setDocument(b.dataObject.getLookup().lookup(EditorCookie.class).openDocument());                    
-                    undoRedoManager.discardAllEdits();
-                    shaderEditorPane.getDocument().addUndoableEditListener(undoRedoManager);                    
-                    currentDataObject = b.dataObject;
+                    switchEditableDoc(b);
                     b.setSelected(true);
-                    firstItem = false;                    
+                    firstItem = false;
                 }
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             }
+            buttonPanel.add(b);
+        }
 
+        for (String key : readOnlyFiles.keySet()) {
+            final Tab b = new Tab();
+            b.setText(key);
+            buttonGroup1.add(b);
+            final String theKey = key;
+            b.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    switchReadOnlyDoc(readOnlyFiles.get(theKey));
+                }
+
+            });
+            if (firstItem) {
+                switchReadOnlyDoc(readOnlyFiles.get(key));
+                b.setSelected(true);
+                firstItem = false;
+            }
             buttonPanel.add(b);
         }
 
     }
 
+    private void switchEditableDoc(Tab b) throws IOException {
+        if(currentDataObject != null){
+            currentDataObject.getLookup().lookup(EditorCookie.class).close();
+        }        
+        shaderEditorPane.setDocument(b.dataObject.getLookup().lookup(EditorCookie.class).openDocument());
+        undoRedoManager.discardAllEdits();
+        shaderEditorPane.getDocument().addUndoableEditListener(undoRedoManager);
+        shaderEditorPane.setEditable(true);
+        currentDataObject = b.dataObject;
+    }
+
+    private void switchReadOnlyDoc(String text) {
+        if(currentDataObject != null){
+            currentDataObject.getLookup().lookup(EditorCookie.class).close();
+        }
+        shaderEditorPane.setText(text);
+        undoRedoManager.discardAllEdits();
+        shaderEditorPane.setEditable(false);
+        currentDataObject = null;
+    }
+
     public void saveCurrent() {
         if (currentDataObject != null && currentDataObject.isModified()) {
             FileLock lock = null;
-            
+
             try {
                 currentDataObject.getLookup().lookup(EditorCookie.class).saveDocument();
                 currentDataObject.setModified(false);
-                if(currentDataObject.getPrimaryFile().getExt().equalsIgnoreCase("j3sn")){
-                    parent.reload();                            
-                }                   
+                if (currentDataObject.getPrimaryFile().getExt().equalsIgnoreCase("j3sn")) {
+                    parent.reload();
+                }
                 parent.refresh();
             } catch (DataObjectNotFoundException ex) {
                 Exceptions.printStackTrace(ex);
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
-            }finally{
-                if (lock!=null){
+            } finally {
+                if (lock != null) {
                     lock.releaseLock();
                 }
             }
@@ -139,7 +175,7 @@ public class ShaderEditPanel extends JPanel {
 
     private class Tab extends JToggleButton {
 
-        DataObject dataObject;      
+        DataObject dataObject;
     }
 
     /**
