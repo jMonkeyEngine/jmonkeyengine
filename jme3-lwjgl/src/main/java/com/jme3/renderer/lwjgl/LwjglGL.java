@@ -1,8 +1,10 @@
 package com.jme3.renderer.lwjgl;
 
+import com.jme3.renderer.RendererException;
 import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GL2;
 import com.jme3.renderer.opengl.GL3;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -15,6 +17,18 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
 public class LwjglGL implements GL, GL2, GL3 {
+    
+    private static void checkLimit(Buffer buffer) {
+        if (buffer == null) {
+            return;
+        }
+        if (buffer.limit() == 0) {
+            throw new RendererException("Attempting to upload empty buffer (limit = 0), that's an error");
+        }
+        if (buffer.remaining() == 0) {
+            throw new RendererException("Attempting to upload empty buffer (remaining = 0), that's an error");
+        }
+    }
     
     public void glActiveTexture(int param1) {
         GL13.glActiveTexture(param1);
@@ -41,26 +55,32 @@ public class LwjglGL implements GL, GL2, GL3 {
     }
 
     public void glBufferData(int param1, FloatBuffer param2, int param3) {
+        checkLimit(param2);
         GL15.glBufferData(param1, param2, param3);
     }
 
     public void glBufferData(int param1, ShortBuffer param2, int param3) {
+        checkLimit(param2);
         GL15.glBufferData(param1, param2, param3);
     }
 
     public void glBufferData(int param1, ByteBuffer param2, int param3) {
+        checkLimit(param2);
         GL15.glBufferData(param1, param2, param3);
     }
 
     public void glBufferSubData(int param1, long param2, FloatBuffer param3) {
+        checkLimit(param3);
         GL15.glBufferSubData(param1, param2, param3);
     }
 
     public void glBufferSubData(int param1, long param2, ShortBuffer param3) {
+        checkLimit(param3);
         GL15.glBufferSubData(param1, param2, param3);
     }
 
     public void glBufferSubData(int param1, long param2, ByteBuffer param3) {
+        checkLimit(param3);
         GL15.glBufferSubData(param1, param2, param3);
     }
 
@@ -81,18 +101,22 @@ public class LwjglGL implements GL, GL2, GL3 {
     }
 
     public void glCompressedTexImage2D(int param1, int param2, int param3, int param4, int param5, int param6, ByteBuffer param7) {
+        checkLimit(param7);
         GL13.glCompressedTexImage2D(param1, param2, param3, param4, param5, param6, param7);
     }
 
     public void glCompressedTexImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, ByteBuffer param8) {
+        checkLimit(param8);
         GL13.glCompressedTexImage3D(param1, param2, param3, param4, param5, param6, param7, param8);
     }
 
     public void glCompressedTexSubImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, ByteBuffer param8) {
+        checkLimit(param8);
         GL13.glCompressedTexSubImage2D(param1, param2, param3, param4, param5, param6, param7, param8);
     }
 
     public void glCompressedTexSubImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, ByteBuffer param10) {
+        checkLimit(param10);
         GL13.glCompressedTexSubImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
     }
 
@@ -109,6 +133,7 @@ public class LwjglGL implements GL, GL2, GL3 {
     }
 
     public void glDeleteBuffers(IntBuffer param1) {
+        checkLimit(param1);
         GL15.glDeleteBuffers(param1);
     }
 
@@ -121,6 +146,7 @@ public class LwjglGL implements GL, GL2, GL3 {
     }
 
     public void glDeleteTextures(IntBuffer param1) {
+        checkLimit(param1);
         GL11.glDeleteTextures(param1);
     }
 
@@ -169,14 +195,17 @@ public class LwjglGL implements GL, GL2, GL3 {
     }
 
     public void glGenBuffers(IntBuffer param1) {
+        checkLimit(param1);
         GL15.glGenBuffers(param1);
     }
 
     public void glGenTextures(IntBuffer param1) {
+        checkLimit(param1);
         GL11.glGenTextures(param1);
     }
 
     public void glGetBoolean(int param1, ByteBuffer param2) {
+        checkLimit(param2);
         GL11.glGetBoolean(param1, param2);
     }
 
@@ -185,14 +214,17 @@ public class LwjglGL implements GL, GL2, GL3 {
     }
     
     public void glGetInteger(int param1, IntBuffer param2) {
+        checkLimit(param2);
         GL11.glGetInteger(param1, param2);
     }
 
     public void glGetProgram(int param1, int param2, IntBuffer param3) {
+        checkLimit(param3);
         GL20.glGetProgram(param1, param2, param3);
     }
 
     public void glGetShader(int param1, int param2, IntBuffer param3) {
+        checkLimit(param3);
         GL20.glGetShader(param1, param2, param3);
     }
 
@@ -233,6 +265,7 @@ public class LwjglGL implements GL, GL2, GL3 {
     }
 
     public void glReadPixels(int param1, int param2, int param3, int param4, int param5, int param6, ByteBuffer param7) {
+        checkLimit(param7);
         GL11.glReadPixels(param1, param2, param3, param4, param5, param6, param7);
     }
 
@@ -249,10 +282,12 @@ public class LwjglGL implements GL, GL2, GL3 {
     }
 
     public void glTexImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, ByteBuffer param9) {
+        checkLimit(param9);
         GL11.glTexImage2D(param1, param2, param3, param4, param5, param6, param7, param8, param9);
     }
 
     public void glTexImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, ByteBuffer param10) {
+        checkLimit(param10);
         GL12.glTexImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
     }
 
@@ -265,18 +300,22 @@ public class LwjglGL implements GL, GL2, GL3 {
     }
 
     public void glTexSubImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, ByteBuffer param9) {
+        checkLimit(param9);
         GL11.glTexSubImage2D(param1, param2, param3, param4, param5, param6, param7, param8, param9);
     }
 
     public void glTexSubImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10, ByteBuffer param11) {
+        checkLimit(param11);
         GL12.glTexSubImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11);
     }
 
     public void glUniform1(int param1, FloatBuffer param2) {
+        checkLimit(param2);
         GL20.glUniform1(param1, param2);
     }
 
     public void glUniform1(int param1, IntBuffer param2) {
+        checkLimit(param2);
         GL20.glUniform1(param1, param2);
     }
 
@@ -289,10 +328,12 @@ public class LwjglGL implements GL, GL2, GL3 {
     }
 
     public void glUniform2(int param1, IntBuffer param2) {
+        checkLimit(param2);
         GL20.glUniform2(param1, param2);
     }
 
     public void glUniform2(int param1, FloatBuffer param2) {
+        checkLimit(param2);
         GL20.glUniform2(param1, param2);
     }
 
@@ -301,10 +342,12 @@ public class LwjglGL implements GL, GL2, GL3 {
     }
 
     public void glUniform3(int param1, IntBuffer param2) {
+        checkLimit(param2);
         GL20.glUniform3(param1, param2);
     }
 
     public void glUniform3(int param1, FloatBuffer param2) {
+        checkLimit(param2);
         GL20.glUniform3(param1, param2);
     }
 
@@ -313,10 +356,12 @@ public class LwjglGL implements GL, GL2, GL3 {
     }
 
     public void glUniform4(int param1, FloatBuffer param2) {
+        checkLimit(param2);
         GL20.glUniform4(param1, param2);
     }
 
     public void glUniform4(int param1, IntBuffer param2) {
+        checkLimit(param2);
         GL20.glUniform4(param1, param2);
     }
 
@@ -325,10 +370,12 @@ public class LwjglGL implements GL, GL2, GL3 {
     }
 
     public void glUniformMatrix3(int param1, boolean param2, FloatBuffer param3) {
+        checkLimit(param3);
         GL20.glUniformMatrix3(param1, param2, param3);
     }
 
     public void glUniformMatrix4(int param1, boolean param2, FloatBuffer param3) {
+        checkLimit(param3);
         GL20.glUniformMatrix4(param1, param2, param3);
     }
 
@@ -355,6 +402,7 @@ public class LwjglGL implements GL, GL2, GL3 {
     }
 
     public void glShaderSource(int param1, String[] param2, IntBuffer param3) {
+        checkLimit(param3);
         GL20.glShaderSource(param1, param2);
     }
 
@@ -378,6 +426,7 @@ public class LwjglGL implements GL, GL2, GL3 {
 
     @Override
     public void glGenVertexArrays(IntBuffer param1) {
+        checkLimit(param1);
         GL30.glGenVertexArrays(param1);
     }
 }

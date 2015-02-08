@@ -1,6 +1,8 @@
 package com.jme3.renderer.lwjgl;
 
+import com.jme3.renderer.RendererException;
 import com.jme3.renderer.opengl.GLExt;
+import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import org.lwjgl.opengl.ARBDrawInstanced;
@@ -14,15 +16,29 @@ import org.lwjgl.opengl.GL20;
 
 public class LwjglGLExt implements GLExt {
 
+    private static void checkLimit(Buffer buffer) {
+        if (buffer == null) {
+            return;
+        }
+        if (buffer.limit() == 0) {
+            throw new RendererException("Attempting to upload empty buffer (limit = 0), that's an error");
+        }
+        if (buffer.remaining() == 0) {
+            throw new RendererException("Attempting to upload empty buffer (remaining = 0), that's an error");
+        }
+    }
+    
     public void glBlitFramebufferEXT(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, int mask, int filter) {
         EXTFramebufferBlit.glBlitFramebufferEXT(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
     }
 
     public void glBufferData(int target, IntBuffer data, int usage) {
+        checkLimit(data);
         GL15.glBufferData(target, data, usage);
     }
 
     public void glBufferSubData(int target, long offset, IntBuffer data) {
+        checkLimit(data);
         GL15.glBufferSubData(target, offset, data);
     }
 
@@ -31,6 +47,7 @@ public class LwjglGLExt implements GLExt {
     }
 
     public void glDrawBuffers(IntBuffer bufs) {
+        checkLimit(bufs);
         GL20.glDrawBuffers(bufs);
     }
 
@@ -39,6 +56,7 @@ public class LwjglGLExt implements GLExt {
     }
 
     public void glGetMultisample(int pname, int index, FloatBuffer val) {
+        checkLimit(val);
         ARBTextureMultisample.glGetMultisample(pname, index, val);
     }
 
@@ -67,10 +85,12 @@ public class LwjglGLExt implements GLExt {
     }
 
     public void glDeleteFramebuffersEXT(IntBuffer param1) {
+        checkLimit(param1);
         EXTFramebufferObject.glDeleteFramebuffersEXT(param1);
     }
 
     public void glDeleteRenderbuffersEXT(IntBuffer param1) {
+        checkLimit(param1);
         EXTFramebufferObject.glDeleteRenderbuffersEXT(param1);
     }
 
@@ -83,10 +103,12 @@ public class LwjglGLExt implements GLExt {
     }
 
     public void glGenFramebuffersEXT(IntBuffer param1) {
+        checkLimit(param1);
         EXTFramebufferObject.glGenFramebuffersEXT(param1);
     }
 
     public void glGenRenderbuffersEXT(IntBuffer param1) {
+        checkLimit(param1);
         EXTFramebufferObject.glGenRenderbuffersEXT(param1);
     }
 

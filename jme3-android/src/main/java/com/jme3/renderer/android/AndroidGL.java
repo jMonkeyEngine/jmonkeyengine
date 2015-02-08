@@ -69,14 +69,14 @@ public class AndroidGL implements GL, GLExt {
     }
     
     private static void checkLimit(Buffer buffer) {
-        if (buffer.limit() == 0) {
-            throw new RendererException("Attempting to upload empty buffer, that's an error");
+        if (buffer == null) {
+            return;
         }
-    }
-    
-    private static void checkPosition(Buffer buffer) {
-        if (buffer.position() != 0) {
-            throw new RendererException("All buffers must have position set to zero");
+        if (buffer.limit() == 0) {
+            throw new RendererException("Attempting to upload empty buffer (limit = 0), that's an error");
+        }
+        if (buffer.remaining() == 0) {
+            throw new RendererException("Attempting to upload empty buffer (remaining = 0), that's an error");
         }
     }
     
@@ -101,32 +101,26 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glBufferData(int target, FloatBuffer data, int usage) {
-        checkPosition(data);
         GLES20.glBufferData(target, getLimitBytes(data), data, usage);
     }
 
     public void glBufferData(int target, ShortBuffer data, int usage) {
-        checkPosition(data);
         GLES20.glBufferData(target, getLimitBytes(data), data, usage);
     }
 
     public void glBufferData(int target, ByteBuffer data, int usage) {
-        checkPosition(data);
         GLES20.glBufferData(target, getLimitBytes(data), data, usage);
     }
 
     public void glBufferSubData(int target, long offset, FloatBuffer data) {
-        checkPosition(data);
         GLES20.glBufferSubData(target, (int) offset, getLimitBytes(data), data);
     }
 
     public void glBufferSubData(int target, long offset, ShortBuffer data) {
-        checkPosition(data);
         GLES20.glBufferSubData(target, (int) offset, getLimitBytes(data), data);
     }
 
     public void glBufferSubData(int target, long offset, ByteBuffer data) {
-        checkPosition(data);
         GLES20.glBufferSubData(target, (int) offset, getLimitBytes(data), data);
     }
 
@@ -147,12 +141,10 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glCompressedTexImage2D(int target, int level, int internalformat, int width, int height, int border, ByteBuffer data) {
-        checkPosition(data);
         GLES20.glCompressedTexImage2D(target, level, internalformat, width, height, 0, getLimitBytes(data), data);
     }
 
     public void glCompressedTexSubImage2D(int target, int level, int xoffset, int yoffset, int width, int height, int format, ByteBuffer data) {
-        checkPosition(data);
         GLES20.glCompressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, getLimitBytes(data), data);
     }
 
@@ -169,7 +161,7 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glDeleteBuffers(IntBuffer buffers) {
-        checkPosition(buffers);
+        checkLimit(buffers);
         GLES20.glDeleteBuffers(buffers.limit(), buffers);
     }
 
@@ -182,7 +174,7 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glDeleteTextures(IntBuffer textures) {
-        checkPosition(textures);
+        checkLimit(textures);
         GLES20.glDeleteTextures(textures.limit(), textures);
     }
 
@@ -227,12 +219,12 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glGenBuffers(IntBuffer buffers) {
-        checkPosition(buffers);
+        checkLimit(buffers);
         GLES20.glGenBuffers(buffers.limit(), buffers);
     }
 
     public void glGenTextures(IntBuffer textures) {
-        checkPosition(textures);
+        checkLimit(textures);
         GLES20.glGenTextures(textures.limit(), textures);
     }
 
@@ -250,12 +242,12 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glGetInteger(int pname, IntBuffer params) {
-        checkPosition(params);
+        checkLimit(params);
         GLES20.glGetIntegerv(pname, params);
     }
 
     public void glGetProgram(int program, int pname, IntBuffer params) {
-        checkPosition(params);
+        checkLimit(params);
         GLES20.glGetProgramiv(program, pname, params);
     }
 
@@ -264,7 +256,7 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glGetShader(int shader, int pname, IntBuffer params) {
-        checkPosition(params);
+        checkLimit(params);
         GLES20.glGetShaderiv(shader, pname, params);
     }
 
@@ -301,7 +293,6 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glReadPixels(int x, int y, int width, int height, int format, int type, ByteBuffer data) {
-        checkPosition(data);
         GLES20.glReadPixels(x, y, width, height, format, type, data);
     }
 
@@ -325,7 +316,6 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glTexImage2D(int target, int level, int internalFormat, int width, int height, int border, int format, int type, ByteBuffer data) {
-        checkPosition(data);
         GLES20.glTexImage2D(target, level, format, width, height, 0, format, type, data);
     }
 
@@ -338,17 +328,14 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glTexSubImage2D(int target, int level, int xoffset, int yoffset, int width, int height, int format, int type, ByteBuffer data) {
-        checkPosition(data);
         GLES20.glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, data);
     }
 
     public void glUniform1(int location, FloatBuffer value) {
-        checkPosition(value);
         GLES20.glUniform1fv(location, getLimitCount(value, 1), value);
     }
 
     public void glUniform1(int location, IntBuffer value) {
-        checkPosition(value);
         GLES20.glUniform1iv(location, getLimitCount(value, 1), value);
     }
 
@@ -361,12 +348,10 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glUniform2(int location, IntBuffer value) {
-        checkPosition(value);
         GLES20.glUniform2iv(location, getLimitCount(value, 2), value);
     }
 
     public void glUniform2(int location, FloatBuffer value) {
-        checkPosition(value);
         GLES20.glUniform2fv(location, getLimitCount(value, 2), value);
     }
 
@@ -375,12 +360,10 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glUniform3(int location, IntBuffer value) {
-        checkPosition(value);
         GLES20.glUniform3iv(location, getLimitCount(value, 3), value);
     }
 
     public void glUniform3(int location, FloatBuffer value) {
-        checkPosition(value);
         GLES20.glUniform3fv(location, getLimitCount(value, 3), value);
     }
 
@@ -389,12 +372,10 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glUniform4(int location, FloatBuffer value) {
-        checkPosition(value);
         GLES20.glUniform4fv(location, getLimitCount(value, 4), value);
     }
 
     public void glUniform4(int location, IntBuffer value) {
-        checkPosition(value);
         GLES20.glUniform4iv(location, getLimitCount(value, 4), value);
     }
 
@@ -403,12 +384,10 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glUniformMatrix3(int location, boolean transpose, FloatBuffer value) {
-        checkPosition(value);
         GLES20.glUniformMatrix3fv(location, getLimitCount(value, 3 * 3), transpose, value);
     }
 
     public void glUniformMatrix4(int location, boolean transpose, FloatBuffer value) {
-        checkPosition(value);
         GLES20.glUniformMatrix4fv(location, getLimitCount(value, 4 * 4), transpose, value);
     }
 
@@ -429,12 +408,10 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glBufferData(int target, IntBuffer data, int usage) {
-        checkPosition(data);
         GLES20.glBufferData(target, getLimitBytes(data), data, usage);
     }
 
     public void glBufferSubData(int target, long offset, IntBuffer data) {
-        checkPosition(data);
         GLES20.glBufferSubData(target, (int)offset, getLimitBytes(data), data);
     }
 
@@ -479,12 +456,12 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glDeleteFramebuffersEXT(IntBuffer param1) {
-        checkPosition(param1);
+        checkLimit(param1);
         GLES20.glDeleteFramebuffers(param1.limit(), param1);
     }
 
     public void glDeleteRenderbuffersEXT(IntBuffer param1) {
-        checkPosition(param1);
+        checkLimit(param1);
         GLES20.glDeleteRenderbuffers(param1.limit(), param1);
     }
 
@@ -497,12 +474,12 @@ public class AndroidGL implements GL, GLExt {
     }
 
     public void glGenFramebuffersEXT(IntBuffer param1) {
-        checkPosition(param1);
+        checkLimit(param1);
         GLES20.glGenFramebuffers(param1.limit(), param1);
     }
 
     public void glGenRenderbuffersEXT(IntBuffer param1) {
-        checkPosition(param1);
+        checkLimit(param1);
         GLES20.glGenRenderbuffers(param1.limit(), param1);
     }
 
