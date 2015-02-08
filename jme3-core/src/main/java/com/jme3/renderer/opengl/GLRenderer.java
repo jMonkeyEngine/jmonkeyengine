@@ -558,25 +558,6 @@ public class GLRenderer implements Renderer {
             context.depthFunc = state.getDepthFunc();
         }
 
-//        if (gl2 != null) {
-//            if (state.isAlphaTest() && !context.alphaTestEnabled) {
-//                gl2.glEnable(GL2.GL_ALPHA_TEST);
-//                gl2.glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);
-//                context.alphaTestEnabled = true;
-//            } else if (!state.isAlphaTest() && context.alphaTestEnabled) {
-//                gl2.glDisable(GL2.GL_ALPHA_TEST);
-//                context.alphaTestEnabled = false;
-//            }
-//            if (state.getAlphaFallOff() != context.alphaTestFallOff) {
-//                gl2.glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);   
-//                context.alphaTestFallOff = state.getAlphaFallOff();
-//            }         
-//            if (state.getAlphaFunc() != context.alphaFunc) {
-//                gl2.glAlphaFunc(convertTestFunction(state.getAlphaFunc()), context.alphaTestFallOff);
-//                context.alphaFunc = state.getAlphaFunc();
-//            }
-//        }
-
         if (state.isDepthWrite() && !context.depthWriteEnabled) {
             gl.glDepthMask(true);
             context.depthWriteEnabled = true;
@@ -675,7 +656,9 @@ public class GLRenderer implements Renderer {
             if (state.getBlendMode() == RenderState.BlendMode.Off) {
                 gl.glDisable(GL.GL_BLEND);
             } else {
-                gl.glEnable(GL.GL_BLEND);
+                if (context.blendMode == RenderState.BlendMode.Off) {
+                    gl.glEnable(GL.GL_BLEND);
+                }
                 switch (state.getBlendMode()) {
                     case Off:
                         break;
@@ -2077,19 +2060,12 @@ public class GLRenderer implements Renderer {
         Image[] textures = context.boundTextures;
 
         int type = convertTextureType(tex.getType(), image.getMultiSamples(), -1);
-//        if (!context.textureIndexList.moveToNew(unit)) {
-//             if (context.boundTextureUnit != unit){
-//                gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
-//                context.boundTextureUnit = unit;
-//             }
-//             gl.glEnable(type);
-//        }
-
-        if (context.boundTextureUnit != unit) {
-            gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
-            context.boundTextureUnit = unit;
-        }
         if (textures[unit] != image) {
+            if (context.boundTextureUnit != unit) {
+                gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
+                context.boundTextureUnit = unit;
+            }
+
             gl.glBindTexture(type, texId);
             textures[unit] = image;
 
@@ -2104,21 +2080,6 @@ public class GLRenderer implements Renderer {
     public void modifyTexture(Texture tex, Image pixels, int x, int y) {
 //        setTexture(0, tex);
 //        texUtil.uploadSubTexture(caps, pixels, convertTextureType(tex.getType(), pixels.getMultiSamples(), -1), 0, x, y, linearizeSrgbImages);
-    }
-
-    public void clearTextureUnits() {
-//        IDList textureList = context.textureIndexList;
-//        Image[] textures = context.boundTextures;
-//        for (int i = 0; i < textureList.oldLen; i++) {
-//            int idx = textureList.oldList[i];
-//            if (context.boundTextureUnit != idx){
-//                gl.glActiveTexture(GL.GL_TEXTURE0 + idx);
-//                context.boundTextureUnit = idx;
-//            }
-//            gl.glDisable(convertTextureType(textures[idx].getType()));
-//            textures[idx] = null;
-//        }
-//        context.textureIndexList.copyNewToOld();
     }
 
     public void deleteImage(Image image) {
@@ -2590,7 +2551,6 @@ public class GLRenderer implements Renderer {
             drawTriangleArray(mesh.getMode(), count, mesh.getVertexCount());
         }
         clearVertexAttribs();
-        clearTextureUnits();
     }
 
     private void renderMeshDefault(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
@@ -2639,7 +2599,6 @@ public class GLRenderer implements Renderer {
             drawTriangleArray(mesh.getMode(), count, mesh.getVertexCount());
         }
         clearVertexAttribs();
-        clearTextureUnits();
     }
 
     public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
