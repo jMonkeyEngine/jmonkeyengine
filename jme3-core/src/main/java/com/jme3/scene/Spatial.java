@@ -269,6 +269,33 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
     protected void setLightListRefresh() {
         refreshFlags |= RF_LIGHTLIST;
+        
+        // Make sure next updateGeometricState() visits this branch
+        // to update lights.
+        Spatial p = parent;
+        while (p != null) {
+            //if (p.refreshFlags != 0) {
+                // any refresh flag is sufficient, 
+                // as each propagates to the root Node
+
+                // 2015/2/8:
+                // This is not true, because using e.g. getWorldBound()
+                // or getWorldTransform() activates a "partial refresh"
+                // which does not update the lights but does clear
+                // the refresh flags on the ancestors!
+            
+            //    return; 
+            //}
+            
+            if ((p.refreshFlags & RF_CHILD_LIGHTLIST) != 0) {
+                // The parent already has this flag,
+                // so must all ancestors.
+                return;
+            }
+            
+            p.refreshFlags |= RF_CHILD_LIGHTLIST;
+            p = p.parent;
+        }
     }
 
     /**
@@ -808,7 +835,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         if ((refreshFlags & RF_BOUND) != 0) {
             updateWorldBound();
         }
-
+        
         assert refreshFlags == 0;
     }
 
