@@ -60,7 +60,7 @@ public class Texture2D extends Texture {
     public Texture2D(Image img){
         super();
         setImage(img);
-        if (img.getFormat().isDepthFormat()){
+        if (img.getData(0) == null) {
             setMagFilter(MagFilter.Nearest);
             setMinFilter(MinFilter.NearestNoMipMaps);
         }
