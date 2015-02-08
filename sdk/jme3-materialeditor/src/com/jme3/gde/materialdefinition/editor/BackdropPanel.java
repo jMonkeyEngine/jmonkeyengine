@@ -8,12 +8,14 @@ package com.jme3.gde.materialdefinition.editor;
 import com.jme3.gde.materials.MaterialPreviewRenderer;
 import com.jme3.material.Material;
 import java.awt.Container;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
@@ -25,7 +27,7 @@ import javax.swing.event.ChangeListener;
  *
  * @author Nehon
  */
-public class BackdropPanel extends javax.swing.JPanel implements MouseListener, ChangeListener {
+public class BackdropPanel extends javax.swing.JPanel implements MouseListener, ChangeListener,MouseMotionListener {
 
     private final MaterialPreviewRenderer renderer;
     private Material mat;
@@ -40,6 +42,7 @@ public class BackdropPanel extends javax.swing.JPanel implements MouseListener, 
         setLayout(null);
         toolBar.setVisible(false);
         addMouseListener(this);
+        addMouseMotionListener(this);
         renderer = new MaterialPreviewRenderer(previewLabel);
         recalculateTimer.setRepeats(false);
         addComponentListener(new ComponentAdapter() {
@@ -399,6 +402,10 @@ public class BackdropPanel extends javax.swing.JPanel implements MouseListener, 
 
     @Override
     public void mousePressed(MouseEvent e) {
+        Container c = getParent();
+        if (c != null) {
+            ((MouseListener) c).mousePressed(SwingUtilities.convertMouseEvent(this, e, c));
+        }
     }
 
     @Override
@@ -448,8 +455,8 @@ public class BackdropPanel extends javax.swing.JPanel implements MouseListener, 
             int size = Math.min(width, height) - 25;
             setSize(size, size);
             setBounds(0, 0, size, size);
-
-            setLocation(pane.getHorizontalScrollBar().getValue() + width / 2 - size / 2, pane.getVerticalScrollBar().getValue() + height / 2 - size / 2);
+            Point pos= viewPort.getViewPosition();
+            setLocation(pos.x + width / 2 - size / 2, pos.y + height / 2 - size / 2);
 
             repaint();
             if (recalculateTimer.isRunning()) {
@@ -464,6 +471,20 @@ public class BackdropPanel extends javax.swing.JPanel implements MouseListener, 
     private void refresh() {
         if (mat != null) {
             renderer.showMaterial(mat);
+        }
+    }
+
+    public void mouseDragged(MouseEvent e) {
+        Container c = getParent();
+        if (c != null) {
+            ((MouseMotionListener) c).mouseDragged(SwingUtilities.convertMouseEvent(this, e, c));
+        }
+    }
+
+    public void mouseMoved(MouseEvent e) {
+        Container c = getParent();
+        if (c != null) {
+            ((MouseMotionListener) c).mouseMoved(SwingUtilities.convertMouseEvent(this, e, c));
         }
     }
 
