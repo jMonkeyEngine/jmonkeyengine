@@ -43,7 +43,7 @@ jar.doFirst{
                                                         'lib/' +
                                                         it.name +
                                                         (it.classifier != null ? '-' + it.classifier : '') +
-                                                        '.' + it.extension }.join(' ') 
+                                                        '.' + it.extension }.join(' ')
         )
     }
 }
@@ -61,14 +61,14 @@ task dist (dependsOn: ['build', ':jme3-jogl:jar', ':jme3-bullet:jar', ':jme3-and
             }
         }
     }
-    copy { 
+    copy {
         from jar.archivePath
         into '../dist'
         rename { "jMonkeyEngine3.jar" }
     }
     // Copy JOGL packages, remove version
     def config = project(':jme3-jogl').configurations.runtime.copyRecursive({ !(it instanceof ProjectDependency); })
-    config.resolvedConfiguration.resolvedArtifacts.each {artifact -> 
+    config.resolvedConfiguration.resolvedArtifacts.each {artifact ->
         copy{
             from artifact.file
             into '../dist/opt/jogl/lib'
@@ -79,28 +79,38 @@ task dist (dependsOn: ['build', ':jme3-jogl:jar', ':jme3-bullet:jar', ':jme3-and
             }
         }
     }
-    copy { 
+    copy {
         from project(':jme3-jogl').jar.archivePath
         into '../dist/opt/jogl'
         rename {project(':jme3-jogl').name+".jar"}
     }
-    
+
     // Copy bullet packages, remove version
-    copy { 
+    copy {
         from project(':jme3-bullet').jar.archivePath
         into '../dist/opt/native-bullet'
         rename {project(':jme3-bullet').name+".jar"}
     }
-    copy { 
+    copy {
         from project(':jme3-bullet-native').jar.archivePath
         into '../dist/opt/native-bullet'
         rename {"jme3-bullet-natives.jar"}
     }
-    
+
     // Copy android packages, remove version
     copy {
         from project(':jme3-android').jar.archivePath
         into '../dist/opt/android'
         rename { project(':jme3-android').name + ".jar" }
+    }
+    copy {
+        from project(':jme3-android-native').jar.archivePath
+        into '../dist/opt/android'
+        rename { project(':jme3-android-native').name + ".jar" }
+    }
+    copy {
+        from project(':jme3-bullet-native-android').jar.archivePath
+        into '../dist/opt/native-bullet'
+        rename {"jme3-bullet-native-android.jar"}
     }
 }
