@@ -18,6 +18,7 @@ When you're ready to submit your code, just make a [pull request](https://help.g
 
 **Note to Eclipse users:** The Eclipse [git client does not support https](http://hub.jmonkeyengine.org/forum/topic/problem-cloning-the-new-git-repository/#post-265594). The current workaround is to use the command line to clone the repository.
 To import the local repository as a project follow these steps:
+
 1. Add a line 'apply plugin: eclipse' to your common.gradle file in the main project directory.
 2. Navigate to the project directory in command line and execute command 'gradle eclipse'. This will load all the dependancies for eclipse.
 3. In Eclipse, add the repository as an existing Java Project.
@@ -37,11 +38,12 @@ Developers in the Contributors team can push directly to Main instead of submitt
 
 ### Git essentials
 
-rebase...
+- [Creating good pull requests](http://seesparkbox.com/foundry/creating_good_pull_requests)
+- [How to write the perfect pull request](https://github.com/blog/1943-how-to-write-the-perfect-pull-request?utm_content=buffer0eb16&utm_medium=social&utm_source=twitter.com&utm_campaign=buffer)
 
 ### Testing
 
-general testing tips?
+general testing tips? WIP
 
 ### Code Quality
 
@@ -55,10 +57,10 @@ We generally abide by the standard Java Code Conventions. Besides that, just mak
 
 ## Reporting bugs
 
- 1. Start by searching the forum and issue tracker for duplicates.
+ 1. Start by searching the [forum](http://hub.jmonkeyengine.org) and GH issue tracker for duplicates.
  2. Create a new issue, explaining the problem in proper detail (templates pending).
 
 ## Documentation
 
-- Edit the wiki
-- Edit JavaDocs
+- How to edit the wiki - WIP
+- How to edit JavaDocs - WIP
