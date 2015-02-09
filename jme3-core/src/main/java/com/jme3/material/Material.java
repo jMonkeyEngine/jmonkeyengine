@@ -887,10 +887,10 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 case Directional:
                     DirectionalLight dl = (DirectionalLight) l;
                     Vector3f dir = dl.getDirection();
-                    //FIXME : there is an inconstencie here due to backward 
+                    //FIXME : there is an inconstency here due to backward 
                     //compatibility of the lighting shader.
                     //The directional light direction is passed in the 
-                    //LightPosition uniform. The lightinf shader needs to be 
+                    //LightPosition uniform. The lighting shader needs to be 
                     //reworked though in order to fix this.
                     tmpLightPosition.set(dir.getX(), dir.getY(), dir.getZ(), -1);
                     lightPos.setValue(VarType.Vector4, tmpLightPosition);
