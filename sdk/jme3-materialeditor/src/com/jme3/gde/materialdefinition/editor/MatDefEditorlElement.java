@@ -373,7 +373,7 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
         jScrollPane1.setMinimumSize(new java.awt.Dimension(0, 0));
         jScrollPane1.setName(""); // NOI18N
 
-        diagram1.setBackground(new java.awt.Color(153, 153, 153));
+        diagram1.setBackground(new java.awt.Color(102, 102, 102));
 
         javax.swing.GroupLayout diagram1Layout = new javax.swing.GroupLayout(diagram1);
         diagram1.setLayout(diagram1Layout);

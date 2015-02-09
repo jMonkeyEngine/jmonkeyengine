@@ -66,22 +66,7 @@ public class ConnectionCurve extends JPanel implements ComponentListener, MouseI
         }
         return me;
     }
-
-    private enum Corner {
-
-        RightBottom,
-        BottomRight,
-        BottomLeft,
-        LeftBottom,
-        RightTop,
-        TopRight,
-        LeftTop,
-        TopLeft,
-        Top,
-        Bottom,
-        None,
-    }
-
+    
     @SuppressWarnings("LeakingThisInConstructor")
     public ConnectionCurve(Dot start, Dot end) {
 
@@ -138,7 +123,12 @@ public class ConnectionCurve extends JPanel implements ComponentListener, MouseI
 
         g2.setStroke(new BasicStroke(4));
         Path2D.Double path1 = new Path2D.Double();
-        g.setColor(Color.DARK_GRAY);
+         if (getDiagram().selectedItem == this) {
+            g.setColor(SELECTED_COLOR);
+        } else {
+            g.setColor(VERY_DARK_GREY);
+        }
+       
 
         if (pointsSize < 4) {
             translate(points[0], p1);
@@ -171,14 +161,19 @@ public class ConnectionCurve extends JPanel implements ComponentListener, MouseI
 
         ((Graphics2D) g).draw(path1);
         g2.setStroke(new BasicStroke(2));
+       
         if (getDiagram().selectedItem == this) {
             g.setColor(Color.WHITE);
         } else {
             g.setColor(LIGHT_GREY);
         }
+        
         ((Graphics2D) g).draw(path1);
     }
-    private final static Color LIGHT_GREY = new Color(120, 120, 120);
+    private final static Color LIGHT_GREY = new Color(190, 190, 190);
+    private final static Color VERY_DARK_GREY = new Color(5, 5, 5);
+    private final static Color SELECTED_COLOR = new Color(0.8f, 0.8f, 1.0f, 1.0f);
+    
     public final static int MARGIN = 15;
 
     private int getOffset() {

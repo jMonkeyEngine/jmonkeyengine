@@ -118,8 +118,8 @@ public class OutBusPanel extends DraggablePanel implements ComponentListener, Se
             g.fillPolygon(p2);
         }
 
-        Color c1 = new Color(100, 100, 100, 255);
-        Color c2 = new Color(100, 100, 100, 100);
+        Color c1 = new Color(50, 50, 50, 255);
+        Color c2 = new Color(50, 50, 50, 80);
         g.setPaint(new GradientPaint(0, 0, c1, width, 0, c2));
         g.fillPolygon(p);
         g.fillRect(0, 10, 3, getHeight() - 20);
