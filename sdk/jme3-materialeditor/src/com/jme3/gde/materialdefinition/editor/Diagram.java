@@ -540,13 +540,6 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
             super(label);
         }
 
-        @Override
-        protected void paintComponent(Graphics g) {
-            //Color c1 = new Color(100, 100, 100, 255);
-            Color bg = new Color(175, 175, 175);
-            g.setColor(bg);
-            g.fillRect(0, 0, getWidth(), getHeight());
-        }
     }
 
     public void fixSize() {
