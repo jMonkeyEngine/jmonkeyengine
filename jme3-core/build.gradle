@@ -29,14 +29,16 @@ task updateVersion << {
     def grgit = Grgit.open(project.file('.').parent)
     
     def jmeGitHash = grgit.head().id
-    def jmeShortGitHash = grgit.head().getAbbreviatedId()
+    def jmeShortGitHash = grgit.head().abbreviatedId
     def jmeBuildDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date())
+    def jmeBranchName = grgit.branch.current.name
     
     def verfile = file('src/main/java/com/jme3/system/JmeVersion.java')
     verfile.text = "\npackage com.jme3.system;\n\n" +
                    "/**\n * THIS IS AN AUTO-GENERATED FILE..\n * DO NOT MODIFY!\n */\n" + 
                    "public class JmeVersion {\n" + 
                    "    public static final String BUILD_DATE = \"${jmeBuildDate}\";\n" + 
+                   "    public static final String BRANCH_NAME = \"${jmeBranchName}\";\n" + 
                    "    public static final String GIT_HASH = \"${jmeGitHash}\";\n" + 
                    "    public static final String GIT_SHORT_HASH = \"${jmeShortGitHash}\";\n" + 
                    "    public static final String FULL_NAME = \"jMonkeyEngine ${jmeVersion} (${jmeVersionTag})\";\n" + 
