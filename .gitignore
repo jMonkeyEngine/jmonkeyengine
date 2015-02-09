@@ -5,6 +5,7 @@
 /build/
 /netbeans/
 /jme3-core/build/
+/jme3-core/src/main/java/com/jme3/system/JmeVersion.java
 /jme3-plugins/build/
 /jme3-desktop/build/
 /jme3-android-native/build/
