@@ -91,7 +91,7 @@ public abstract class JmeSystemDelegate {
     }
 
     public String getFullName() {
-        return JmeVersion.getFullName();
+        return JmeVersion.FULL_NAME;
     }
 
     public InputStream getResourceAsStream(String name) {

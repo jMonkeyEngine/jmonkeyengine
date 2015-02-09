@@ -12,12 +12,35 @@ sourceSets {
     }
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.ajoberstar:gradle-git:1.0.0-rc.1'
+    }
+}
+
+import java.text.SimpleDateFormat
+import org.ajoberstar.grgit.*
+
 task updateVersion << {
-    ant.replaceregexp(
-        file: 'src/main/java/com/jme3/system/JmeVersion.java',
-        match: 'private static final String FULL_NAME = (.*);',
-        replace: 'private static final String FULL_NAME = "jMonkeyEngine ' + jmeVersion + ' (' + jmeVersionTag + ')";',
-        byline: 'true')
+    
+    def grgit = Grgit.open(project.file('.').parent)
+    
+    def jmeGitHash = grgit.head().id
+    def jmeShortGitHash = grgit.head().getAbbreviatedId()
+    def jmeBuildDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date())
+    
+    def verfile = file('src/main/java/com/jme3/system/JmeVersion.java')
+    verfile.text = "\npackage com.jme3.system;\n\n" +
+                   "/**\n * THIS IS AN AUTO-GENERATED FILE..\n * DO NOT MODIFY!\n */\n" + 
+                   "public class JmeVersion {\n" + 
+                   "    public static final String BUILD_DATE = \"${jmeBuildDate}\";\n" + 
+                   "    public static final String GIT_HASH = \"${jmeGitHash}\";\n" + 
+                   "    public static final String GIT_SHORT_HASH = \"${jmeShortGitHash}\";\n" + 
+                   "    public static final String FULL_NAME = \"jMonkeyEngine ${jmeVersion} (${jmeVersionTag})\";\n" + 
+                   "}\n"
 }
 
 compileJava.dependsOn(updateVersion)
