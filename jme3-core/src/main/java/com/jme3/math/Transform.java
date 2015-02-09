@@ -297,8 +297,11 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
         
-        rot = (Quaternion)capsule.readSavable("rot", new Quaternion());
-        translation = (Vector3f)capsule.readSavable("translation", Vector3f.ZERO);
+        rot = (Quaternion)capsule.readSavable("rot", new Quaternion());        
+        translation = (Vector3f)capsule.readSavable("translation", null);
+        if( translation == null ) {
+            translation = new Vector3f();
+        }
         scale = (Vector3f)capsule.readSavable("scale", Vector3f.UNIT_XYZ);
     }
     
