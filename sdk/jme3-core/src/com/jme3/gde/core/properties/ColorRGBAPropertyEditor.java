@@ -52,7 +52,11 @@ public class ColorRGBAPropertyEditor implements PropertyEditor {
 
     public void setValue(Object value) {
         if (value instanceof ColorRGBA) {
-            color.set((ColorRGBA) value);
+            if (color == null) {
+                color = new ColorRGBA((ColorRGBA) value);
+            } else {
+                color.set((ColorRGBA) value);
+            }
         }
     }
 
@@ -61,11 +65,19 @@ public class ColorRGBAPropertyEditor implements PropertyEditor {
     }
 
     public boolean isPaintable() {
-        return false;
+        return true;
     }
 
     public void paintValue(Graphics gfx, Rectangle box) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        final int width = box.height - 2;
+        final int height = box.height - 2;
+        java.awt.Color oldColor = gfx.getColor();
+        gfx.setColor(java.awt.Color.BLACK);
+        gfx.drawRect(box.x, box.y + 1, width, height);
+        gfx.setColor(new java.awt.Color(color.asIntARGB(), true));
+        gfx.fillRect(box.x + 1, box.y + 2, width - 1, height - 1);
+        gfx.setColor(oldColor);
+        gfx.drawString(getAsText(), box.x + width + 5, box.y + (box.height / 2) + 4);
     }
 
     public String getJavaInitializationString() {

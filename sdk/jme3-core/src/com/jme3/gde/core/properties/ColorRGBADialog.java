@@ -53,6 +53,7 @@ public class ColorRGBADialog extends javax.swing.JDialog {
         super(parent, modal);
         this.editor = editor;
         initComponents();
+        jColorChooser1.setColor(new Color(((ColorRGBA)editor.getValue()).asIntARGB()));
         alphaSlider.setValue(Math.round(((ColorRGBA)editor.getValue()).getAlpha()*100));
     }
 
