@@ -172,20 +172,20 @@
         <binary-origin>release/modules/ext/j-ogg-all-1.0.0.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/lwjgl-2.9.2.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/lwjgl-2.9.2.jar</binary-origin>
+        <runtime-relative-path>ext/lwjgl-2.9.3.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/lwjgl-2.9.3.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/lwjgl-platform-2.9.2-natives-windows.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/lwjgl-platform-2.9.2-natives-windows.jar</binary-origin>
+        <runtime-relative-path>ext/lwjgl-platform-2.9.3-natives-windows.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/lwjgl-platform-2.9.3-natives-windows.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/lwjgl-platform-2.9.2-natives-linux.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/lwjgl-platform-2.9.2-natives-linux.jar</binary-origin>
+        <runtime-relative-path>ext/lwjgl-platform-2.9.3-natives-linux.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/lwjgl-platform-2.9.3-natives-linux.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/lwjgl-platform-2.9.2-natives-osx.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/lwjgl-platform-2.9.2-natives-osx.jar</binary-origin>
+        <runtime-relative-path>ext/lwjgl-platform-2.9.3-natives-osx.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/lwjgl-platform-2.9.3-natives-osx.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
         <runtime-relative-path>ext/jinput-2.0.5.jar</runtime-relative-path>
