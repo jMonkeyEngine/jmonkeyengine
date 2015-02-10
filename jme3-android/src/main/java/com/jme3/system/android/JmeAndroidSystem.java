@@ -145,7 +145,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
             return;
         }
         initialized = true;
-        logger.log(Level.INFO, "Running on {0}", getFullName());
+        logger.log(Level.INFO, getBuildInfo());
     }
 
     @Override

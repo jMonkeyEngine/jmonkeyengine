@@ -172,6 +172,15 @@ public abstract class JmeSystemDelegate {
         }
     }
 
+    public String getBuildInfo() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Running on ").append(getFullName()).append("\n");
+        sb.append(" * Branch: ").append(JmeVersion.BRANCH_NAME).append("\n");
+        sb.append(" * Git Hash: ").append(JmeVersion.GIT_SHORT_HASH).append("\n");
+        sb.append(" * Build Date: ").append(JmeVersion.BUILD_DATE);
+        return sb.toString();
+    }
+    
     public abstract JmeContext newContext(AppSettings settings, JmeContext.Type contextType);
 
     public abstract AudioRenderer newAudioRenderer(AppSettings settings);
