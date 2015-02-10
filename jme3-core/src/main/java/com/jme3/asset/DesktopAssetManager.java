@@ -353,9 +353,7 @@ public class DesktopAssetManager implements AssetManager {
     public Texture loadTexture(String name){
         TextureKey key = new TextureKey(name, true);
         key.setGenerateMips(true);
-        Texture tex = loadTexture(key);
-        logger.log(Level.FINE, "{0} - {1}", new Object[]{tex, tex.getMinFilter()});
-        return tex;
+        return loadTexture(key);
     }
 
     public AudioData loadAudio(AudioKey key){
