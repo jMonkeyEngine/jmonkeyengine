@@ -84,25 +84,13 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     protected void printContextInitInfo() {
-        logger.log(Level.INFO, "Lwjgl {0} context running on thread {1}",
-                new Object[]{Sys.getVersion(), Thread.currentThread().getName()});
-
-        logger.log(Level.INFO, "Adapter: {0}", Display.getAdapter());
-        logger.log(Level.INFO, "Driver Version: {0}", Display.getVersion());
-
-        String vendor = GL11.glGetString(GL11.GL_VENDOR);
-        logger.log(Level.INFO, "Vendor: {0}", vendor);
-
-        String version = GL11.glGetString(GL11.GL_VERSION);
-        logger.log(Level.INFO, "OpenGL Version: {0}", version);
-
-        String renderGl = GL11.glGetString(GL11.GL_RENDERER);
-        logger.log(Level.INFO, "Renderer: {0}", renderGl);
-
-        if (GLContext.getCapabilities().OpenGL20){
-            String shadingLang = GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION);
-            logger.log(Level.INFO, "GLSL Ver: {0}", shadingLang);
-        }
+        logger.log(Level.INFO, "LWJGL {0} context running on thread {1}\n" +
+                               " * Graphics Adapter: {2}\n" +
+                               " * Driver Version: {3}\n" +
+                               " * Scaling Factor: {4}",
+                               new Object[]{ Sys.getVersion(), Thread.currentThread().getName(), 
+                                             Display.getAdapter(), Display.getVersion(),
+                                             Display.getPixelScaleFactor() });
     }
 
     protected ContextAttribs createContextAttribs() {

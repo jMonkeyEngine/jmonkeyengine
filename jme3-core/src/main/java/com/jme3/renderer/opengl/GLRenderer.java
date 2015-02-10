@@ -129,6 +129,11 @@ public class GLRenderer implements Renderer {
     public EnumSet<Caps> getCaps() {
         return caps;
     }
+    
+    // Not making public yet ...
+    public EnumMap<Limits, Integer> getLimits() {
+        return limits;
+    }
 
     private static HashSet<String> loadExtensions(String extensions) {
         HashSet<String> extensionSet = new HashSet<String>(64);
@@ -418,13 +423,33 @@ public class GLRenderer implements Renderer {
             caps.add(Caps.SeamlessCubemap);
         }
         
-        if (hasExtension("GL_ARB_get_program_binary")) {
-            // OK ..
-            int binaryFormats = getInteger(GLExt.GL_NUM_PROGRAM_BINARY_FORMATS);
-            System.out.println("Binary Formats: " + binaryFormats);
-        }
+//        if (hasExtension("GL_ARB_get_program_binary")) {
+//            int binaryFormats = getInteger(GLExt.GL_NUM_PROGRAM_BINARY_FORMATS);
+//        }
         
-        logger.log(Level.FINE, "Caps: {0}", caps);
+        // Print context information
+        logger.log(Level.INFO, "OpenGL Renderer Information\n" +
+                               " * Vendor: {0}\n" +
+                               " * Renderer: {1}\n" +
+                               " * OpenGL Version: {2}\n" +
+                               " * GLSL Version: {3}",
+                               new Object[]{ 
+                                   gl.glGetString(GL.GL_VENDOR), 
+                                   gl.glGetString(GL.GL_RENDERER),
+                                   gl.glGetString(GL.GL_VERSION),
+                                   gl.glGetString(GL.GL_SHADING_LANGUAGE_VERSION)
+                               });
+        
+        // Print capabilities (if fine logging is enabled)
+        if (logger.isLoggable(Level.FINE)) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Supported capabilities: \n");
+            for (Caps cap : caps)
+            {
+                sb.append("\t").append(cap.toString()).append("\n");
+            }
+            logger.log(Level.FINE, sb.toString());
+        }
         
         texUtil.initialize(caps);
     }
@@ -1094,14 +1119,22 @@ public class GLRenderer implements Renderer {
             needRegister = true;
         }
 
+        // If using GLSL 1.5, we bind the outputs for the user
+        // For versions 3.3 and up, user should use layout qualifiers instead.
+        boolean bindFragDataRequired = false;
+        
         for (ShaderSource source : shader.getSources()) {
             if (source.isUpdateNeeded()) {
                 updateShaderSourceData(source);
             }
+            if (source.getType() == ShaderType.Fragment
+                    && source.getLanguage().equals("GLSL150")) {
+                bindFragDataRequired = true;
+            }
             gl.glAttachShader(id, source.getId());
         }
 
-        if (caps.contains(Caps.OpenGL30) && gl3 != null) {
+        if (bindFragDataRequired) {
             // Check if GLSL version is 1.5 for shader
             gl3.glBindFragDataLocation(id, 0, "outFragColor");
             // For MRT
