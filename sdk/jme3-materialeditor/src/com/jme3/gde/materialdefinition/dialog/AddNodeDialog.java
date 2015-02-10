@@ -204,7 +204,7 @@ public class AddNodeDialog extends javax.swing.JDialog {
     private void createDoc(ShaderNodeDefinition def) {
         JTextPane doc = new JTextPane();
         doc.setEditable(false);
-        doc.setBackground(new java.awt.Color(240, 240, 240));
+        //doc.setBackground(new java.awt.Color(240, 240, 240));
         doc.setMaximumSize(new java.awt.Dimension(300, 300));
         doc.setMinimumSize(new java.awt.Dimension(300, 300));
         doc.setPreferredSize(new java.awt.Dimension(300, 300));
