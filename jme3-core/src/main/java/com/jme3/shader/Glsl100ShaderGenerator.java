@@ -517,7 +517,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * @return the modified source code
      */
     protected String replace(String nodeSource, ShaderNodeVariable var, String newName) {
-        nodeSource = nodeSource.replaceAll("(\\W)" + var.getName() + "(\\W)", "$1" + newName + "$2");
+        nodeSource = nodeSource.replaceAll("(?<=\\W)" + var.getName() + "(?=\\W)",  newName);
         return nodeSource;
     }
 

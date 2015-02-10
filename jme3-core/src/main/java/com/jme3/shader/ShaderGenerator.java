@@ -71,7 +71,6 @@ public abstract class ShaderGenerator {
     /**
      * Generate vertex and fragment shaders for the given technique
      *
-     * @param technique the technique to use to generate the shaders
      * @return a Shader program
      */
     public Shader generateShader() {
