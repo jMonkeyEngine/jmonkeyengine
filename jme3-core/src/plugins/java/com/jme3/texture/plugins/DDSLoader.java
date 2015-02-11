@@ -151,13 +151,13 @@ public class DDSLoader implements AssetLoader {
     private void loadDX10Header() throws IOException {
         int dxgiFormat = in.readInt();
         if (dxgiFormat == 0) {
-            pixelFormat = Format.ETC1;
-            bpp = 4;
+                pixelFormat = Format.ETC1;
+                bpp = 4;
         } else {
-            throw new IOException("Unsupported DX10 format: " + dxgiFormat);
+                throw new IOException("Unsupported DX10 format: " + dxgiFormat);
         }
         compressed = true;
-
+        
         int resDim = in.readInt();
         if (resDim == DX10DIM_TEXTURE3D) {
             texture3D = true;
@@ -327,9 +327,17 @@ public class DDSLoader implements AssetLoader {
 
             if (is(pfFlags, DDPF_RGB)) {
                 if (is(pfFlags, DDPF_ALPHAPIXELS)) {
-                    pixelFormat = Format.RGBA8;
+                    if (bpp == 16) {
+                        pixelFormat = Format.RGB5A1;
+                    } else {
+                        pixelFormat = Format.RGBA8;
+                    }
                 } else {
-                    pixelFormat = Format.RGB8;
+                    if (bpp == 16) {
+                        pixelFormat = Format.RGB565;
+                    } else {
+                        pixelFormat = Format.RGB8;
+                    }
                 }
             } else if (is(pfFlags, DDPF_GRAYSCALE) && is(pfFlags, DDPF_ALPHAPIXELS)) {
                 switch (bpp) {
