@@ -25,6 +25,9 @@ public class NodeToolBar extends javax.swing.JPanel implements ComponentListener
     public NodeToolBar(NodePanel node) {
         initComponents();
         this.node = node;
+        if (node.getType() != NodePanel.NodeType.Fragment && node.getType() != NodePanel.NodeType.Vertex) {
+            remove(codeButton);
+        }
         node.addComponentListener(this);
     }
 
