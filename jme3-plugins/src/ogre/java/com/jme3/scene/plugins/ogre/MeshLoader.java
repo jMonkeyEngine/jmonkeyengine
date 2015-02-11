@@ -212,7 +212,10 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
     private void applyMaterial(Geometry geom, String matName) {
         Material mat = null;
-        if (matName.endsWith(".j3m")) {
+        if (matName == null) {
+            // no material specified. use placeholder.
+            mat = null;
+        } else if (matName.endsWith(".j3m")) {
             // load as native jme3 material instance
             try {
                 mat = assetManager.loadMaterial(matName);
