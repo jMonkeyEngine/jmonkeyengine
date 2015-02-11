@@ -34,7 +34,10 @@ public final class SNDefVisualPanel2 extends JPanel {
     }
 
     public String[][] getData() {
-
+       
+        varTable.editCellAt(-1, -1);
+        varTable.getSelectionModel().clearSelection();
+       
         DefaultTableModel model = (DefaultTableModel) varTable.getModel();
         String[][] data = new String[model.getRowCount()][3];
         for (int i = 0; i < model.getRowCount(); i++) {
