@@ -35,12 +35,12 @@ import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioBuffer;
 import com.jme3.audio.AudioData;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.Texture;
 import com.jme3.texture.image.ColorSpace;
 import java.nio.ByteBuffer;
 
@@ -71,15 +71,22 @@ public class PlaceholderAssets {
         (byte)0xFF, (byte)0xFF, (byte)0xFF,
     };
     
+    @Deprecated
     public static Image getPlaceholderImage(){
         ByteBuffer tempData = BufferUtils.createByteBuffer(3 * 4 * 4);
         tempData.put(imageData).flip();
         return new Image(Format.RGB8, 4, 4, tempData, null, ColorSpace.Linear);
     }
     
+    public static Image getPlaceholderImage(AssetManager assetManager){
+        return assetManager.loadTexture("Common/Textures/MissingTexture.png").getImage();
+    }
+    
     public static Material getPlaceholderMaterial(AssetManager assetManager){
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", ColorRGBA.Red);
+        Texture tex = assetManager.loadTexture("Common/Textures/MissingMaterial.png");
+        tex.setWrap(Texture.WrapMode.Repeat);
+        mat.setTexture("ColorMap", tex);
         return mat;
     }
     
@@ -88,7 +95,11 @@ public class PlaceholderAssets {
         // the user's expected scale...
         Box box = new Box(1, 1, 1);
         Geometry geom = new Geometry("placeholder", box);
-        geom.setMaterial(getPlaceholderMaterial(assetManager));
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Texture tex = assetManager.loadTexture("Common/Textures/MissingModel.png");
+        tex.setWrap(Texture.WrapMode.Repeat);
+        mat.setTexture("ColorMap", tex);
+        geom.setMaterial(mat);
         return geom;
     }
     

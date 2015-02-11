@@ -182,7 +182,7 @@ public class MTLLoader implements AssetLoader {
             texture.setWrap(WrapMode.Repeat);
         } catch (AssetNotFoundException ex){
             logger.log(Level.WARNING, "Cannot locate {0} for material {1}", new Object[]{texKey, key});
-            texture = new Texture2D(PlaceholderAssets.getPlaceholderImage());
+            texture = new Texture2D(PlaceholderAssets.getPlaceholderImage(assetManager));
             texture.setWrap(WrapMode.Repeat);
             texture.setKey(key);
         }
