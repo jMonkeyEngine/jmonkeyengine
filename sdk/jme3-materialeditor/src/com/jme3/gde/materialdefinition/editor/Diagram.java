@@ -294,6 +294,7 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
                     }
                 }
 
+                selectedNode.cleanup();
                 remove(selectedNode);
                 selectedItem = null;
                 repaint();
@@ -418,6 +419,8 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
                 return doSelect(outBusPanel);
             }
         }
+        
+        
         return doSelect(null);
     }
 
