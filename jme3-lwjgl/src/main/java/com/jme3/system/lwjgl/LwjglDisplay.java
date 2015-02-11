@@ -94,6 +94,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
                                          settings.useStereo3D());
         
         frameRate = settings.getFrameRate();
+        allowSwapBuffers = settings.isSwapBuffers();
         logger.log(Level.FINE, "Selected display mode: {0}", displayMode);
 
         boolean pixelFormatChanged = false;
@@ -108,6 +109,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
         pixelFormat = pf;
         
         Display.setTitle(settings.getTitle());
+        Display.setResizable(settings.isResizable());
         
         if (displayMode != null) {
             if (settings.isFullscreen()) {
@@ -172,14 +174,19 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
     @Override
     public void runLoop(){
         // This method is overriden to do restart
-        if (needRestart.getAndSet(false)){
-            try{
+        if (needRestart.getAndSet(false)) {
+            try {
                 createContext(settings);
-            }catch (LWJGLException ex){
+            } catch (LWJGLException ex) {
                 logger.log(Level.SEVERE, "Failed to set display settings!", ex);
             }
             listener.reshape(settings.getWidth(), settings.getHeight());
             logger.fine("Display restarted.");
+        } else if (Display.wasResized()) {
+            int newWidth = Display.getWidth();
+            int newHeight = Display.getHeight();
+            settings.setResolution(newWidth, newHeight);
+            listener.reshape(newWidth, newHeight);
         }
 
         super.runLoop();

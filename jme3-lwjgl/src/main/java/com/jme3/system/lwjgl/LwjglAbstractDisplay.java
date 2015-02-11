@@ -59,6 +59,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
     protected boolean wasActive = false;
     protected int frameRate = 0;
     protected boolean autoFlush = true;
+    protected boolean allowSwapBuffers = false;
 
     /**
      * @return Type.Display or Type.Canvas
@@ -149,7 +150,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
             throw new IllegalStateException();
 
         listener.update();
-
+        
         // All this does is call swap buffers
         // If the canvas is not active, there's no need to waste time
         // doing that ..
@@ -158,30 +159,30 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
 
             // calls swap buffers, etc.
             try {
-                if (autoFlush){
+                if (allowSwapBuffers && autoFlush) {
                     Display.update(false);
-                }else{
-                    Display.processMessages();
-                    Thread.sleep(50);
-                    // add a small wait
-                    // to reduce CPU usage
-                }
+                } 
             } catch (Throwable ex){
                 listener.handleError("Error while swapping buffers", ex);
             }
         }
 
-        if (frameRate > 0)
-            Display.sync(frameRate);
-
-        if (renderable.get()){
-            if (autoFlush){
-                // check input after we synchronize with framerate.
-                // this reduces input lag.
-                Display.processMessages();
-            }
+        int frameRateCap;
+        if (autoFlush) {
+            frameRateCap = frameRate;
+        } else {
+            frameRateCap = 20;
         }
-
+        
+        if (frameRateCap > 0) {
+            // Cap framerate
+            Display.sync(frameRateCap);
+        }
+        
+        // check input after we synchronize with framerate.
+        // this reduces input lag.
+        Display.processMessages();
+        
         // Subclasses just call GLObjectManager clean up objects here
         // it is safe .. for now.
         renderer.postFrame();

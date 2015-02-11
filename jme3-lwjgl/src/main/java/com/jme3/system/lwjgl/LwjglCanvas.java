@@ -435,6 +435,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
         // In case canvas is not visible, we still take framerate
         // from settings to prevent "100% CPU usage"
         frameRate = settings.getFrameRate();
+        allowSwapBuffers = settings.isSwapBuffers();
         
         try {
             if (renderable.get()){

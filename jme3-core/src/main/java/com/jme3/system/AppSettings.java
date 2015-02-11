@@ -129,6 +129,8 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("MinHeight", 0);
         defaults.put("MinWidth", 0);
         defaults.put("GammaCorrection", false);
+        defaults.put("Resizable", false);
+        defaults.put("SwapBuffers", true);
       //  defaults.put("Icons", null);
     }
 
@@ -934,5 +936,58 @@ public final class AppSettings extends HashMap<String, Object> {
 
     public boolean getGammaCorrection() {
         return getBoolean("GammaCorrection");
+    }
+    
+    /**
+     * Allows the display window to be resized by dragging its edges.
+     * 
+     * Only supported for {@link JmeContext.Type#Display} contexts which 
+     * are in windowed mode, ignored for other types. 
+     * The default value is <code>false</code>.
+     * 
+     * @param resizable True to make a resizable window, false to make a fixed
+     * size window.
+     */
+    public void setResizable(boolean resizable) {
+        putBoolean("Resizable", true);
+    }
+    
+    /**
+     * Determine if the display window can be resized by dragging its edges.
+     * 
+     * @return True if the window is resizable, false if it is fixed size.
+     * 
+     * @see #setResizable(boolean) 
+     */
+    public boolean isResizable() {
+        return getBoolean("Resizable");
+    }
+    
+    /**
+     * When enabled the display context will swap buffers every frame.
+     * 
+     * This may need to be disabled when integrating with an external
+     * library that handles buffer swapping on its own, e.g. Oculus Rift.
+     * When disabled, the engine will process window messages
+     * after each frame but it will not swap buffers - note that this
+     * will cause 100% CPU usage normally as there's no VSync or any framerate
+     * caps (unless set via {@link #setFrameRate(int) }.
+     * The default is <code>true</code>.
+     * 
+     * @param swapBuffers True to enable buffer swapping, false to disable it.
+     */
+    public void setSwapBuffers(boolean swapBuffers) {
+        putBoolean("SwapBuffers", swapBuffers);
+    }
+   
+    /**
+     * Determine if the the display context will swap buffers every frame.
+     * 
+     * @return True if buffer swapping is enabled, false otherwise.
+     * 
+     * @see #setSwapBuffers(boolean) 
+     */
+    public boolean isSwapBuffers() {
+        return getBoolean("SwapBuffers");
     }
 }
