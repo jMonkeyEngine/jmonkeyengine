@@ -83,7 +83,7 @@ public class Application implements SystemListener {
     protected Listener listener;
 
     protected boolean inputEnabled = true;
-    protected boolean pauseOnFocus = true;
+    protected LostFocusBehavior lostFocusBehavior = LostFocusBehavior.ThrottleOnLostFocus;
     protected float speed = 1f;
     protected boolean paused = false;
     protected MouseInput mouseInput;
@@ -105,14 +105,39 @@ public class Application implements SystemListener {
     }
 
     /**
+     * Determine the application's behavior when unfocused.
+     * 
+     * @return The lost focus behavior of the application.
+     */
+    public LostFocusBehavior getLostFocusBehavior() {
+        return lostFocusBehavior;
+    }
+    
+    /**
+     * Change the application's behavior when unfocused.
+     * 
+     * By default, the application will 
+     * {@link LostFocusBehavior#ThrottleOnLostFocus throttle the update loop} 
+     * so as to not take 100% CPU usage when it is not in focus, e.g.
+     * alt-tabbed, minimized, or obstructed by another window.
+     * 
+     * @param lostFocusBehavior The new lost focus behavior to use.
+     * 
+     * @see LostFocusBehavior
+     */
+    public void setLostFocusBehavior(LostFocusBehavior lostFocusBehavior) {
+        this.lostFocusBehavior = lostFocusBehavior;
+    }
+    
+    /**
      * Returns true if pause on lost focus is enabled, false otherwise.
      *
      * @return true if pause on lost focus is enabled
      *
-     * @see #setPauseOnLostFocus(boolean)
+     * @see #getLostFocusBehavior() 
      */
     public boolean isPauseOnLostFocus() {
-        return pauseOnFocus;
+        return getLostFocusBehavior() == LostFocusBehavior.PauseOnLostFocus;
     }
 
     /**
@@ -128,9 +153,15 @@ public class Application implements SystemListener {
      *
      * @param pauseOnLostFocus True to enable pause on lost focus, false
      * otherwise.
+     * 
+     * @see #setLostFocusBehavior(com.jme3.app.LostFocusBehavior)
      */
     public void setPauseOnLostFocus(boolean pauseOnLostFocus) {
-        this.pauseOnFocus = pauseOnLostFocus;
+        if (pauseOnLostFocus) {
+            setLostFocusBehavior(LostFocusBehavior.PauseOnLostFocus);
+        } else {
+            setLostFocusBehavior(LostFocusBehavior.Disabled);
+        }
     }
 
     @Deprecated
@@ -563,8 +594,10 @@ public class Application implements SystemListener {
      * Internal use only.
      */
     public void gainFocus(){
-        if (pauseOnFocus) {
-            paused = false;
+        if (lostFocusBehavior != LostFocusBehavior.Disabled) {
+            if (lostFocusBehavior == LostFocusBehavior.PauseOnLostFocus) {
+                paused = false;
+            }
             context.setAutoFlushFrames(true);
             if (inputManager != null) {
                 inputManager.reset();
@@ -576,8 +609,10 @@ public class Application implements SystemListener {
      * Internal use only.
      */
     public void loseFocus(){
-        if (pauseOnFocus){
-            paused = true;
+        if (lostFocusBehavior != LostFocusBehavior.Disabled){
+            if (lostFocusBehavior == LostFocusBehavior.PauseOnLostFocus) {
+                paused = true;
+            }
             context.setAutoFlushFrames(false);
         }
     }
