@@ -1058,12 +1058,12 @@ public class ShaderNodeLoaderDelegate {
         if (!ShaderUtils.typesMatch(mapping)) {
             String ls = mapping.getLeftSwizzling().length() == 0 ? "" : "." + mapping.getLeftSwizzling();
             String rs = mapping.getRightSwizzling().length() == 0 ? "" : "." + mapping.getRightSwizzling();
-            throw new MatParseException("Type mismatch, cannot convert" + mapping.getLeftVariable().getType() + ls + " to " + mapping.getRightVariable().getType() + rs, statement1);
+            throw new MatParseException("Type mismatch, cannot convert " + mapping.getRightVariable().getType() + rs + " to " + mapping.getLeftVariable().getType() + ls, statement1);
         }
         if (!ShaderUtils.multiplicityMatch(mapping)) {
             String type1 = mapping.getLeftVariable().getType() + "[" + mapping.getLeftVariable().getMultiplicity() + "]";
             String type2 = mapping.getRightVariable().getType() + "[" + mapping.getRightVariable().getMultiplicity() + "]";
-            throw new MatParseException("Type mismatch, cannot convert" + type1 + " to " + type2, statement1);
+            throw new MatParseException("Type mismatch, cannot convert " + type1 + " to " + type2, statement1);
         }
     }
 
