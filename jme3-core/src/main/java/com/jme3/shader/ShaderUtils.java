@@ -120,11 +120,7 @@ public class ShaderUtils {
                 card = Integer.parseInt(type.replaceAll(".*vec", ""));
 
                 if (swizzling.length() > 0) {
-                    //if (card >= swizzling.length()) {
-                        card = swizzling.length();
-//                    } else {
-//                        card = 0;
-//                    }
+                    card = swizzling.length();
                 }
             }
         }

@@ -396,7 +396,18 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         source.append(mapping.getLeftVariable().getNameSpace());
         source.append("_");
         source.append(mapping.getLeftVariable().getName());
+        
+        //left swizzle, the variable can't be declared and assigned on the same line. 
         if (mapping.getLeftSwizzling().length() > 0) {
+            //initialize the declared variable to 0.0
+            source.append(" = ");
+            source.append(mapping.getLeftVariable().getType());
+            source.append("(0.0);\n");
+            appendIndent(source);
+            //assign the value on a new line
+            source.append(mapping.getLeftVariable().getNameSpace());
+            source.append("_");
+            source.append(mapping.getLeftVariable().getName());
             source.append(".");
             source.append(mapping.getLeftSwizzling());
         }
