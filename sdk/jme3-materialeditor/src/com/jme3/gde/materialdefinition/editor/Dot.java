@@ -5,6 +5,7 @@
 package com.jme3.gde.materialdefinition.editor;
 
 import com.jme3.gde.materialdefinition.icons.Icons;
+import com.jme3.shader.Shader;
 import com.jme3.shader.ShaderUtils;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -27,6 +28,7 @@ public class Dot extends JPanel implements MouseInputListener {
     protected ImageIcon prevImg;
     private String type;
     private ParamType paramType;
+    protected Shader.ShaderType shaderType;
     private String text = "";
     private DraggablePanel node;
     private int index = 1;
@@ -46,6 +48,7 @@ public class Dot extends JPanel implements MouseInputListener {
         Both
     }
 
+    @SuppressWarnings("LeakingThisInConstructor")
     public Dot() {
         super();
         setMaximumSize(new Dimension(10, 10));
@@ -54,6 +57,11 @@ public class Dot extends JPanel implements MouseInputListener {
         setSize(10, 10);
         addMouseMotionListener(this);
         addMouseListener(this);
+       
+    }
+    
+    public void setShaderTypr(Shader.ShaderType shaderType){
+         this.shaderType = shaderType;
     }
 
     @Override
@@ -143,14 +151,15 @@ public class Dot extends JPanel implements MouseInputListener {
     }
 
     public boolean canConnect(Dot pair) {
-        if (pair == null) {
+        
+        if (pair == null || paramType == ParamType.Input || 
+                 ((pair.getNode() instanceof OutBusPanel || node instanceof OutBusPanel) && shaderType != pair.shaderType)) {
             img = Icons.imgOrange;
             repaint();
             return false;
         }
 
-
-
+        
         if (matches(pair.getType(), type) && (pair.getParamType() != paramType
                 || pair.getParamType() == ParamType.Both
                 || paramType == ParamType.Both)

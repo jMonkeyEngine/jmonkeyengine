@@ -54,6 +54,7 @@ public class NodePanel extends DraggablePanel implements Selectable, PropertyCha
     private String techName;
     private NodeToolBar toolBar;
     protected List<String> filePaths = new ArrayList<String>();
+    protected Shader.ShaderType shaderType;
 
 //    private List listeners = Collections.synchronizedList(new LinkedList());
 //
@@ -99,6 +100,7 @@ public class NodePanel extends DraggablePanel implements Selectable, PropertyCha
     @SuppressWarnings("LeakingThisInConstructor")
     public NodePanel(ShaderNodeBlock node, ShaderNodeDefinition def) {
         super();
+        shaderType = def.getType();
         if (def.getType() == Shader.ShaderType.Vertex) {
             type = NodePanel.NodeType.Vertex;
         } else {
@@ -419,6 +421,7 @@ public class NodePanel extends DraggablePanel implements Selectable, PropertyCha
 
     public Dot createDot(String type, Dot.ParamType paramType, String paramName) {
         Dot dot1 = new Dot();
+        dot1.setShaderTypr(shaderType);
         dot1.setNode(this);
         dot1.setText(paramName);
         dot1.setParamType(paramType);

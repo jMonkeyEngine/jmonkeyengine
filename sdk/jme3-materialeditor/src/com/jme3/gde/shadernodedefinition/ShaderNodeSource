@@ -1,11 +1,11 @@
-          
+
 void main(){
-    <#list inputParams as param>                
+    <#list inputParams as param>
     //@input ${param[0]} ${param[1]} ${param[2]}
     </#list>
-    <#list outputParams as param>                
+    <#list outputParams as param>
     //@output ${param[0]} ${param[1]} ${param[2]}
-    </#list>  
+    </#list>
 
     //insert glsl code here
 }
