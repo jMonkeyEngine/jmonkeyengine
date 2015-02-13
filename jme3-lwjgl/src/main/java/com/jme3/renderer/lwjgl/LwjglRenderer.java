@@ -1094,7 +1094,7 @@ public class LwjglRenderer  {
             source.clearUpdateNeeded();
         } else {
             logger.log(Level.WARNING, "Bad compile of:\n{0}",
-                    new Object[]{ShaderDebug.formatShaderSource(source.getDefines(), source.getSource(), stringBuf.toString())});
+                    new Object[]{ShaderDebug.formatShaderSource(stringBuf.toString() + source.getDefines() + source.getSource())});
             if (infoLog != null) {
                 throw new RendererException("compile error in: " + source + "\n" + infoLog);
             } else {
