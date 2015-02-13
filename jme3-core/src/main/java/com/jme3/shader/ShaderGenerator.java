@@ -48,11 +48,17 @@ import java.util.List;
  */
 public abstract class ShaderGenerator {
 
-    //the asset manager
+    /**
+     * the asset manager
+     */
     protected AssetManager assetManager;
-    //indentation value for generation
+    /**
+     * indentation value for generation
+     */
     protected int indent;
-    //the technique to use for the shader generation
+    /**
+     * the technique to use for the shader generation
+     */
     protected Technique technique = null;    
 
     /**
@@ -163,6 +169,7 @@ public abstract class ShaderGenerator {
      * @see ShaderGenerator#generateNodeMainSection
      *
      * @param loadedSource the actual source code loaded for this node.
+     * @param shaderPath path the the shader file
      * @param sourceDeclaration the Shader declaration part string builder.
      * @param source the Shader main part StringBuilder.
      * @param shaderNode the shader node.
@@ -230,10 +237,10 @@ public abstract class ShaderGenerator {
      *
      * @see ShaderNode#getDefinition()
      * @see ShaderNodeDefinition#getType()
-     *
+     * 
+     * @param nodeDecalarationSource the declaration part of the node
      * @param source the StringBuilder to append generated code.
      * @param shaderNode the shaderNode.
-     * @param nodeSource the declaration part of the loaded shaderNode source.
      * @param info the ShaderGenerationInfo.
      */
     protected abstract void generateDeclarativeSection(StringBuilder source, ShaderNode shaderNode, String nodeDecalarationSource, ShaderGenerationInfo info);
