@@ -4,6 +4,7 @@
  */
 package com.jme3.gde.materialdefinition.editor;
 
+import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.materialdefinition.fileStructure.leaves.InputMappingBlock;
 import com.jme3.gde.materialdefinition.fileStructure.leaves.OutputMappingBlock;
 import com.jme3.material.Material;
@@ -183,6 +184,7 @@ public class OutBusPanel extends DraggablePanel implements ComponentListener, Se
             preview.showMaterial(mat);
         } else {
             Material vmat = mat.clone();
+            vmat.selectTechnique(mat.getActiveTechnique().getDef().getName(), SceneApplication.getApplication().getRenderManager());
             vmat.getAdditionalRenderState().setWireframe(true);
             preview.showMaterial(vmat);
         }

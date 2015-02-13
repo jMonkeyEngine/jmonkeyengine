@@ -147,7 +147,7 @@ public class MaterialPreviewRenderer implements SceneListener {
         for (MatParam matParam : mat.getParams()) {
             dummy.setParam(matParam.getName(), matParam.getVarType(), matParam.getValue());
         }
-        
+        dummy.selectTechnique(mat.getActiveTechnique().getDef().getName(), SceneApplication.getApplication().getRenderManager());
         dummy.getAdditionalRenderState().set(mat.getAdditionalRenderState());        
 
         //creating a dummy geom and assigning the dummy material to it

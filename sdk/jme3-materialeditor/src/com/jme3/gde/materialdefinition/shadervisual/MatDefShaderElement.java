@@ -31,12 +31,9 @@
  */
 package com.jme3.gde.materialdefinition.shadervisual;
 
-import com.jme3.gde.core.assets.ProjectAssetManager;
-import com.jme3.gde.materialdefinition.EditableMatDefFile;
 import com.jme3.gde.materialdefinition.MatDefDataObject;
 import javax.swing.Action;
 import javax.swing.JComponent;
-import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.text.EditorKit;
 import org.netbeans.core.spi.multiview.CloseOperationState;
@@ -58,10 +55,11 @@ position = 3000)
 @Messages("LBL_MatDef_SHADER=Shader")
 public final class MatDefShaderElement extends JPanel implements MultiViewElement {
 
-    private MatDefDataObject obj;
-    private ShaderVisualToolBar toolbar = new ShaderVisualToolBar();
+    private final MatDefDataObject obj;
+    private final ShaderVisualToolBar toolbar = new ShaderVisualToolBar();
     private transient MultiViewElementCallback callback;    
 
+    @SuppressWarnings("LeakingThisInConstructor")
     public MatDefShaderElement(Lookup lkp) {
         obj = lkp.lookup(MatDefDataObject.class);
         assert obj != null;

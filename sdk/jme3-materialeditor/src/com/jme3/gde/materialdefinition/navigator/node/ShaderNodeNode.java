@@ -38,26 +38,11 @@ public class ShaderNodeNode extends AbstractMatDefNode implements Selectable, Pr
     ShaderNodeBlock shaderNode;
     ShaderNodeDefinition def;
     String key = "";
+    String techName = "";
 
-    public ShaderNodeNode(final Lookup lookup, final ShaderNodeBlock shaderNode) {
-//        super(Children.create(new ChildFactory<MappingBlock>() {
-//            @Override
-//            protected boolean createKeys(List<MappingBlock> list) {
-//                list.addAll(shaderNode.getInputs());
-//                List<OutputMappingBlock> out = shaderNode.getOutputs();
-//                if (out != null) {
-//                    list.addAll(shaderNode.getOutputs());
-//                }
-//
-//                return true;
-//            }
-//
-//            @Override
-//            protected Node createNodeForKey(MappingBlock key) {
-//                return new MappingNode(lookup, key);
-//            }
-//        }, true), lookup);
+    public ShaderNodeNode(final Lookup lookup, final ShaderNodeBlock shaderNode, final String techName) {
         super(new MappingNodeChildren(lookup, shaderNode), lookup);
+        this.techName = techName;
         this.shaderNode = shaderNode;
         setName(shaderNode.getName());
         key = makeKey();
@@ -138,9 +123,8 @@ public class ShaderNodeNode extends AbstractMatDefNode implements Selectable, Pr
         }
     }
 
-    private String makeKey() {
-        String defName = lookup.lookup(MatDefDataObject.class).getEditableFile().getCurrentTechnique().getName();
-        return defName + "/" + getName();
+    private String makeKey() {        
+        return techName + "/" + getName();
     }
 
     public String getKey() {

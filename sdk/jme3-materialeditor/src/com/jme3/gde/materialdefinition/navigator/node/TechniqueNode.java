@@ -56,7 +56,7 @@ public class TechniqueNode extends AbstractMatDefNode implements Selectable, Pro
 
     }
 
-    protected TechniqueBlock getDef() {
+    public TechniqueBlock getDef() {
         return def;
     }
 
@@ -116,7 +116,7 @@ public class TechniqueNode extends AbstractMatDefNode implements Selectable, Pro
 
         @Override
         protected Node[] createNodes(ShaderNodeBlock key) {
-            return new Node[]{new ShaderNodeNode(lookup, key)};
+            return new Node[]{new ShaderNodeNode(lookup, key, def.getName())};
         }
     }
 }
