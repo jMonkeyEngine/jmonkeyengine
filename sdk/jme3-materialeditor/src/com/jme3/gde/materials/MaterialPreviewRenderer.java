@@ -60,6 +60,8 @@ public class MaterialPreviewRenderer implements SceneListener {
         Sphere sphMesh = new Sphere(32, 32, 2.5f);
         sphMesh.setTextureMode(Sphere.TextureMode.Projected);
         sphMesh.updateGeometry(32, 32, 2.5f, false, false);
+        Logger log = Logger.getLogger(TangentBinormalGenerator.class.getName());
+        log.setLevel(Level.SEVERE);
         TangentBinormalGenerator.generate(sphMesh);
         sphere = new Geometry("previewSphere", sphMesh);
         sphere.setLocalRotation(new Quaternion().fromAngleAxis(FastMath.QUARTER_PI, Vector3f.UNIT_X));
