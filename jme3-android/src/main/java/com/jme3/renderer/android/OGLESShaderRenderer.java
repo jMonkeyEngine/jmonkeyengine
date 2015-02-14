@@ -652,7 +652,7 @@ public class OGLESShaderRenderer implements Renderer {
 
         objManager.deleteUnused(this);
     }
-    
+
     /*********************************************************************\
     |* Shaders                                                           *|
     \*********************************************************************/
@@ -910,7 +910,7 @@ public class OGLESShaderRenderer implements Renderer {
             source.clearUpdateNeeded();
         } else {
            logger.log(Level.WARNING, "Bad compile of:\n{0}",
-                    new Object[]{ShaderDebug.formatShaderSource(source.getDefines(), source.getSource(),stringBuf.toString())});
+                    new Object[]{ShaderDebug.formatShaderSource(stringBuf.toString() + source.getDefines() + source.getSource())});
             if (infoLog != null) {
                 throw new RendererException("compile error in: " + source + "\n" + infoLog);
             } else {
@@ -2113,7 +2113,7 @@ public class OGLESShaderRenderer implements Renderer {
                                      vb.isNormalized(),
                                      vb.getStride(),
                                      0);
-                
+
                 RendererUtil.checkGLError();
 
                 attribs[loc] = vb;
@@ -2559,8 +2559,8 @@ public class OGLESShaderRenderer implements Renderer {
     public void setLinearizeSrgbImages(boolean linearize) {
         //TODO once opglES3.0 is supported maybe....
     }
-    
+
     public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {
-        throw new UnsupportedOperationException("Not supported yet. URA will make that work seamlessly"); 
+        throw new UnsupportedOperationException("Not supported yet. URA will make that work seamlessly");
     }
 }
