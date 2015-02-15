@@ -104,6 +104,7 @@ public class MaterialExtensionLoader {
         }
 
         material = new Material(assetManager, matExt.getJmeMatDefName());
+        material.setName(matName);
         for (Statement extMatStat : statement.getContents()){
             readExtendingMaterialStatement(extMatStat);
         }

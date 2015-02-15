@@ -331,6 +331,7 @@ public class MaterialLoader implements AssetLoader {
         }else{
            mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         }
+        mat.setName(matName);
         if (blend){
             RenderState rs = mat.getAdditionalRenderState();
             rs.setAlphaTest(true);
