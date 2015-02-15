@@ -41,7 +41,6 @@ import com.jme3.system.JmeSystem;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.NiftyInputConsumer;
 import de.lessvoid.nifty.controls.TextField;
-import de.lessvoid.nifty.controls.nullobjects.TextFieldNull;
 import de.lessvoid.nifty.elements.Element;
 import de.lessvoid.nifty.input.keyboard.KeyboardInputEvent;
 import de.lessvoid.nifty.spi.input.InputSystem;
@@ -310,7 +309,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
             Element element = nifty.getCurrentScreen().getFocusHandler().getKeyboardFocusElement();
             if (element != null) {
                 final TextField textField = element.getNiftyControl(TextField.class);
-                if (textField != null && !(textField instanceof TextFieldNull)) {
+                if (textField != null) {
                     Logger.getLogger(InputSystemJme.class.getName()).log(Level.FINE, "Current TextField: {0}", textField.getId());
                     String initialValue = textField.getText();
                     if (initialValue == null) {

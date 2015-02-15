@@ -47,7 +47,6 @@ import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.BufferUtils;
-import de.lessvoid.nifty.elements.render.TextRenderer.RenderFontNull;
 import de.lessvoid.nifty.render.BlendMode;
 import de.lessvoid.nifty.spi.render.MouseCursor;
 import de.lessvoid.nifty.spi.render.RenderDevice;
@@ -152,6 +151,14 @@ public class RenderDeviceJme implements RenderDevice {
         return new MouseCursor() {
             public void dispose() {
             }
+
+            @Override
+            public void enable() {
+            }
+
+            @Override
+            public void disable() {
+            }
         };
     }
     
@@ -223,7 +230,7 @@ public class RenderDeviceJme implements RenderDevice {
 
     @Override
     public void renderFont(RenderFont font, String str, int x, int y, Color color, float sizeX, float sizeY) {        
-        if (str.length() == 0 || font instanceof RenderFontNull) {
+        if (str.length() == 0) {
             return;
         }
         

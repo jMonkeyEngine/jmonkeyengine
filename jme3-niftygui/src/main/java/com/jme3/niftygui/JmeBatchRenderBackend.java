@@ -57,13 +57,15 @@ import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.BufferUtils;
 
-import de.lessvoid.nifty.batch.spi.BatchRenderBackend;
+import de.lessvoid.nifty.render.batch.spi.BatchRenderBackend;
 import de.lessvoid.nifty.render.BlendMode;
 import de.lessvoid.nifty.spi.render.MouseCursor;
 import de.lessvoid.nifty.tools.Color;
+import de.lessvoid.nifty.tools.Factory;
 import de.lessvoid.nifty.tools.ObjectPool;
-import de.lessvoid.nifty.tools.ObjectPool.Factory;
 import de.lessvoid.nifty.tools.resourceloader.NiftyResourceLoader;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Nifty GUI BatchRenderBackend Implementation for jMonkeyEngine.
@@ -82,18 +84,21 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
 
   private RenderManager renderManager;
   private NiftyJmeDisplay display;
-  private Texture2D textureAtlas;
+  private Map<Integer, Texture2D> textures = new HashMap<Integer, Texture2D>();
+  private int textureAtlasId = 1;
   private Batch currentBatch;
   private Matrix4f tempMat = new Matrix4f();
   private ByteBuffer initialData;
 
   // this is only used for debugging purpose and will make the removed textures filled with a color
-  private boolean fillRemovedTexture =
-      Boolean.getBoolean(System.getProperty(JmeBatchRenderBackend.class.getName() + ".fillRemovedTexture", "false"));
+  // please note: the old way to init this via a system property has been
+  // removed since it's now possible to configure it using the
+  // BatchRenderConfiguration class when you create the NiftyJmeDisplay instance
+  private boolean fillRemovedTexture = false;
 
   public JmeBatchRenderBackend(final NiftyJmeDisplay display) {
     this.display = display;
-    this.batchPool = new ObjectPool<Batch>(2, new Factory<Batch>() {
+    this.batchPool = new ObjectPool<Batch>(new Factory<Batch>() {
       @Override
       public Batch createNew() {
         return new Batch();
@@ -152,9 +157,18 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
   @Override
   public MouseCursor createMouseCursor(final String filename, final int hotspotX, final int hotspotY) throws IOException {
     return new MouseCursor() {
-      public void dispose() {
-      }
-  };
+        @Override
+        public void dispose() {
+        }
+
+        @Override
+        public void enable() {
+        }
+
+        @Override
+        public void disable() {
+        }
+    };
   }
 
   @Override
@@ -166,9 +180,9 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
   }
 
   @Override
-  public void createAtlasTexture(final int width, final int height) {
+  public int createTextureAtlas(final int width, final int height) {
     try {
-      createAtlasTextureInternal(width, height);
+      int atlasId = addTexture(createAtlasTextureInternal(width, height));
 
       // we just initialize a second buffer here that will replace the texture atlas image
       initialData = BufferUtils.createByteBuffer(width*height*4);
@@ -178,15 +192,18 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
         initialData.put((byte) 0x00);
         initialData.put((byte) 0xff);
       }
+      return atlasId;
     } catch (Exception e) {
       log.log(Level.WARNING, e.getMessage(), e);
+      return 0; // TODO Nifty always expects this call to be successfull
+                // there currently is no way to return failure or something :/
     }
   }
 
   @Override
-  public void clearAtlasTexture(final int width, final int height) {
-    initialData.rewind();
-    textureAtlas.getImage().setData(initialData);
+  public void clearTextureAtlas(final int atlasId) {
+      initialData.rewind();
+      getTextureAtlas(atlasId).getImage().setData(initialData);
   }
 
   @Override
@@ -200,16 +217,41 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
   }
 
   @Override
-  public void addImageToTexture(final Image image, final int x, final int y) {
+  public Image loadImage(final ByteBuffer imageData, final int imageWidth, final int imageHeight) {
+    return new ImageImpl(new com.jme3.texture.Image(Format.RGBA8, imageWidth, imageHeight, imageData));
+  }
+  
+  @Override
+  public void addImageToAtlas(final Image image, final int x, final int y, final int atlasTextureId) {
     ImageImpl imageImpl = (ImageImpl) image;
-    imageImpl.modifyTexture(this, textureAtlas, x, y);
+    imageImpl.modifyTexture(this, getTextureAtlas(atlasTextureId), x, y);
   }
 
   @Override
-  public void beginBatch(final BlendMode blendMode) {
+  public int createNonAtlasTexture(final Image image) {
+    ImageImpl imageImpl = (ImageImpl) image;
+
+    Texture2D texture = new Texture2D(imageImpl.image);
+    texture.setMinFilter(MinFilter.NearestNoMipMaps);
+    texture.setMagFilter(MagFilter.Nearest);
+    return addTexture(texture);
+  }
+
+  @Override
+  public void deleteNonAtlasTexture(final int textureId) {
+    textures.remove(textureId);
+  }
+
+  @Override
+  public boolean existsNonAtlasTexture(final int textureId) {
+    return textures.containsKey(textureId);
+  }
+
+  @Override
+  public void beginBatch(final BlendMode blendMode, final int textureId) {
     batches.add(batchPool.allocate());
     currentBatch = batches.get(batches.size() - 1);
-    currentBatch.begin(blendMode);
+    currentBatch.begin(blendMode, getTextureAtlas(textureId));
   }
 
   @Override
@@ -225,9 +267,10 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
       final float textureX,
       final float textureY,
       final float textureWidth,
-      final float textureHeight) {
+      final float textureHeight,
+      final int textureId) {
     if (!currentBatch.canAddQuad()) {
-      beginBatch(currentBatch.getBlendMode());
+      beginBatch(currentBatch.getBlendMode(), textureId);
     }
     currentBatch.addQuadInternal(x, y, width, height, color1, color2, color3, color4, textureX, textureY, textureWidth, textureHeight);
   }
@@ -242,7 +285,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
   }
 
   @Override
-  public void removeFromTexture(final Image image, final int x, final int y, final int w, final int h) {
+  public void removeImageFromAtlas(final Image image, final int x, final int y, final int w, final int h, final int atlasTextureId) {
     // Since we clear the whole texture when we switch screens it's not really necessary to remove data from the
     // texture atlas when individual textures are removed. If necessary this can be enabled with a system property.
     if (!fillRemovedTexture) {
@@ -258,24 +301,47 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
     }
     initialData.rewind();
     modifyTexture(
-        textureAtlas,
+        getTextureAtlas(atlasTextureId),
         new com.jme3.texture.Image(Format.RGBA8, image.getWidth(), image.getHeight(), initialData),
         x,
         y);
   }
 
+  /**
+   * Whether or not to render textures with high quality settings. Usually, setting to true will result in slower
+   * performance, but nicer looking textures, and vice versa. How high quality textures are rendered versus low quality
+   * textures will vary depending on the {@link de.lessvoid.nifty.render.batch.spi.BatchRenderBackend} implementation.
+   */
+  @Override
+  public void useHighQualityTextures(final boolean shouldUseHighQualityTextures) {
+      // TODO when true this should use something like linear filtering
+      // not sure right now how to tell jme about that ... might not be
+      // necessary to be set?
+  }
+
+  /**
+   * Whether or not to overwrite previously used atlas space with blank data. Setting to true will result in slower
+   * performance, but may be useful in debugging when visually inspecting the atlas, since there will not be portions
+   * of old images visible in currently unused atlas space.
+   */
+  @Override
+  public void fillRemovedImagesInAtlas(final boolean shouldFill) {
+    fillRemovedTexture = shouldFill;
+  }
+
   // internal implementations
 
-  private void createAtlasTextureInternal(final int width, final int height) throws Exception {
+  private Texture2D createAtlasTextureInternal(final int width, final int height) throws Exception {
     ByteBuffer initialData = BufferUtils.createByteBuffer(width*height*4);
     for (int i=0; i<width*height*4; i++) {
-      initialData.put((byte) 0x80);
+      initialData.put((byte) 0x00);
     }
     initialData.rewind();
 
-    textureAtlas = new Texture2D(new com.jme3.texture.Image(Format.RGBA8, width, height, initialData));
-    textureAtlas.setMinFilter(MinFilter.NearestNoMipMaps);
-    textureAtlas.setMagFilter(MagFilter.Nearest);
+    Texture2D texture = new Texture2D(new com.jme3.texture.Image(Format.RGBA8, width, height, initialData));
+    texture.setMinFilter(MinFilter.NearestNoMipMaps);
+    texture.setMagFilter(MagFilter.Nearest);
+    return texture;
   }
 
   private void modifyTexture(
@@ -292,6 +358,16 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
 
     // all is well, we can execute the modify right away
     renderer.modifyTexture(textureAtlas, image, x, y);
+  }
+
+  private Texture2D getTextureAtlas(final int atlasId) {
+    return textures.get(atlasId);
+  }
+
+  private int addTexture(final Texture2D texture) {
+    final int atlasId = textureAtlasId++;
+    textures.put(atlasId, texture);
+    return atlasId;
   }
 
   /**
@@ -389,6 +465,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
 
     // current blend mode
     private BlendMode blendMode = BlendMode.BLEND;
+    private Texture2D texture;
     private Material material;
 
     public Batch() {
@@ -416,8 +493,10 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
       renderState.setDepthWrite(false);
     }
 
-    public void begin(final BlendMode blendMode) {
+    public void begin(final BlendMode blendMode, final Texture2D texture) {
       this.blendMode = blendMode;
+      this.texture = texture;
+
       quadCount = 0;
       globalVertexIndex = 0;
       vertexPosBuffer.clear();
@@ -449,7 +528,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
       renderManager.setWorldMatrix(tempMat);
       renderManager.setForcedRenderState(renderState);
 
-      material.setTexture("ColorMap", textureAtlas);
+      material.setTexture("ColorMap", texture);
       mesh.updateCounts();
       material.render(meshGeometry, renderManager);
       renderManager.setForcedRenderState(null);
