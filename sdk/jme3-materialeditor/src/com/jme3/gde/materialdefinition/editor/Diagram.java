@@ -5,7 +5,6 @@
 package com.jme3.gde.materialdefinition.editor;
 
 import com.jme3.gde.core.assets.ProjectAssetManager;
-import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.materialdefinition.dialog.AddAttributeDialog;
 import com.jme3.gde.materialdefinition.dialog.AddMaterialParameterDialog;
 import com.jme3.gde.materialdefinition.dialog.AddNodeDialog;
@@ -23,7 +22,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -106,16 +104,16 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
         } else if (e.getButton() == MouseEvent.BUTTON2) {
             setCursor(hndCursor);
             pp.setLocation(e.getPoint());
-            ((JScrollPane)getParent().getParent()).setWheelScrollingEnabled(false);
+            ((JScrollPane) getParent().getParent()).setWheelScrollingEnabled(false);
         }
     }
 
-    public void refreshPreviews(Material mat) {
+    public void refreshPreviews(Material mat, String technique) {
         for (OutBusPanel outBusPanel : outBuses) {
-            outBusPanel.updatePreview(mat);
+            outBusPanel.updatePreview(mat, technique);
         }
         if (backDrop.isVisible()) {
-            backDrop.showMaterial(mat);
+            backDrop.showMaterial(mat, technique);
         }
     }
 
@@ -148,7 +146,7 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
                 break;
             case MouseEvent.BUTTON2:
                 setCursor(defCursor);
-                 ((JScrollPane)getParent().getParent()).setWheelScrollingEnabled(true);
+                ((JScrollPane) getParent().getParent()).setWheelScrollingEnabled(true);
                 break;
             case MouseEvent.BUTTON3:
                 contextMenu.show(this, e.getX(), e.getY());
@@ -420,8 +418,7 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
                 return doSelect(outBusPanel);
             }
         }
-        
-        
+
         return doSelect(null);
     }
 
@@ -576,6 +573,65 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
         minWidth = e.getComponent().getWidth() - 2;
         minHeight = e.getComponent().getHeight() - 2;
         fixSize();
+    }
+
+    public void autoLayout() {
+
+        int offset = 550;
+        for (OutBusPanel outBus : outBuses) {
+            if (outBus.getKey().equalsIgnoreCase("position")) {
+                outBus.setLocation(0, 100);
+                
+            } else {
+                outBus.setLocation(0, offset);
+                offset += 260;
+            }
+            getEditorParent().savePositionToMetaData(outBus.getKey(), outBus.getLocation().x, outBus.getLocation().y);
+        }
+        offset = 0;
+        String keys = "";
+        for (NodePanel node : nodes) {
+
+            if (node.getType() == NodePanel.NodeType.Vertex || node.getType() == NodePanel.NodeType.Fragment) {
+                node.setLocation(offset + 200, getNodeTop(node));
+                getEditorParent().savePositionToMetaData(node.getKey(), node.getLocation().x, node.getLocation().y);
+                int pad = getNodeTop(node);
+                for (Connection connection : connections) {
+                    if (connection.getEnd().getNode() == node) {
+                        if (connection.getStart().getNode() instanceof NodePanel) {
+                            NodePanel startP = (NodePanel) connection.getStart().getNode();
+                            if (startP.getType() != NodePanel.NodeType.Vertex && startP.getType() != NodePanel.NodeType.Fragment) {
+                                startP.setLocation(offset + 30, pad);
+                                getEditorParent().savePositionToMetaData(startP.getKey(), startP.getLocation().x, startP.getLocation().y);
+                                keys += startP.getKey() + "|";
+                                pad += 50;
+                            }
+                        }
+                    }
+                }
+            }
+            offset += 320;
+        }
+        offset = 0;
+        for (NodePanel node : nodes) {
+            if (node.getType() != NodePanel.NodeType.Vertex && node.getType() != NodePanel.NodeType.Fragment && !(keys.contains(node.getKey()))) {
+                node.setLocation(offset + 10, 0);
+                getEditorParent().savePositionToMetaData(node.getKey(), node.getLocation().x, node.getLocation().y);
+                offset += 130;
+            }
+        }
+
+    }
+
+    private int getNodeTop(NodePanel node) {
+        if (node.getType() == NodePanel.NodeType.Vertex) {
+            return 150;
+        }
+        if (node.getType() == NodePanel.NodeType.Fragment) {
+            return 400;
+        }
+        return 0;
+
     }
 
     public void componentMoved(ComponentEvent e) {

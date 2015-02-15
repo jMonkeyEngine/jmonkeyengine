@@ -115,7 +115,7 @@ public class NodePanel extends DraggablePanel implements Selectable, PropertyCha
         this.filePaths.addAll(def.getShadersPath());
         String defPath = ((DefinitionBlock) node.getContents().get(0)).getPath();
         this.filePaths.add(defPath);
-        toolBar = new NodeToolBar(this);
+        toolBar = new NodeToolBar(this);        
     }
 
     /**

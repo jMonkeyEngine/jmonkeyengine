@@ -43,6 +43,11 @@ public class MatPanel extends javax.swing.JPanel implements MouseListener, Compo
         this.mat = mat;
         renderer.showMaterial(mat);       
     }
+    
+    public void showMaterial(Material mat, String technique) {
+        this.mat = mat;
+        renderer.showMaterial(mat, technique);       
+    }
 
     public void setExpandActionListener(ActionListener action){        
         expandButton.addActionListener(action);

@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.materialdefinition.editor;
 
+import com.jme3.asset.ShaderNodeDefinitionKey;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.materialdefinition.EditableMatDefFile;
@@ -45,7 +46,6 @@ import com.jme3.gde.materialdefinition.fileStructure.leaves.MatParamBlock;
 import com.jme3.gde.materialdefinition.fileStructure.leaves.OutputMappingBlock;
 import com.jme3.gde.materialdefinition.fileStructure.leaves.WorldParamBlock;
 import com.jme3.gde.materialdefinition.navigator.MatDefNavigatorPanel;
-import com.jme3.gde.materialdefinition.shadervisual.MatDefShaderElement;
 import com.jme3.gde.materialdefinition.utils.MaterialUtils;
 import com.jme3.material.Material;
 import com.jme3.shader.Shader;
@@ -116,9 +116,12 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
         final EditableMatDefFile file = obj.getEditableFile();
         shaderEditPanel1.setVisible(false);
         shaderEditPanel1.setParent(this);
+        if(!file.isLoaded()){
+            file.load(lkp);
+        }
+        reload(file, lkp);        
         toolbar.setParent(this);
         toolbar.addTechnique(lkp.lookup(MatDefBlock.class).getTechniques());
-        reload(file, lkp);        
     }
 
     private void initDiagram(Lookup lkp) throws NumberFormatException {
@@ -222,16 +225,15 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
         diagram1.revalidate();
         jScrollPane1.addComponentListener(diagram1);
 
-        mat.selectTechnique(obj.getEditableFile().getCurrentTechnique().getName(), SceneApplication.getApplication().getRenderManager());
-        diagram1.refreshPreviews(mat);
+        
+        diagram1.refreshPreviews(mat,obj.getEditableFile().getCurrentTechnique().getName());
         final Lookup.Result<Material> resMat = obj.getLookup().lookupResult(Material.class);
         resMat.addLookupListener(new LookupListener() {
             public void resultChanged(LookupEvent ev) {
                 Collection<? extends Material> col = (Collection<? extends Material>) resMat.allInstances();
                 if (!col.isEmpty()) {
-                    Material material = col.iterator().next();
-                    material.selectTechnique(obj.getEditableFile().getCurrentTechnique().getName(), SceneApplication.getApplication().getRenderManager());
-                    diagram1.refreshPreviews(material);
+                    Material material = col.iterator().next();                    
+                    diagram1.refreshPreviews(material,obj.getEditableFile().getCurrentTechnique().getName());
                 }
             }
         });
@@ -256,6 +258,12 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
         obj.getEditableFile().setCurrentTechnique(tech);        
         reload(obj.getEditableFile(), obj.getLookup());
     }
+
+    public Diagram getDiagram() {
+        return diagram1;
+    }
+    
+    
 
     @Override
     public String getName() {
@@ -287,9 +295,8 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
         Lookup.Result<Material> resMat = obj.getLookup().lookupResult(Material.class);
         Collection<? extends Material> col = (Collection<? extends Material>) resMat.allInstances();
         if (!col.isEmpty()) {
-            Material material = col.iterator().next();
-            material.selectTechnique(obj.getEditableFile().getCurrentTechnique().getName(), SceneApplication.getApplication().getRenderManager());
-            diagram1.refreshPreviews(material);
+            Material material = col.iterator().next();            
+            diagram1.refreshPreviews(material,obj.getEditableFile().getCurrentTechnique().getName());
         }
 
     }
@@ -441,6 +448,10 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
 
     @Override
     public void componentOpened() {
+        if (!obj.getEditableFile().isLoaded()) {
+            obj.getEditableFile().load(obj.getLookup());
+            reload(obj.getEditableFile(), obj.getLookup());
+        }
     }
 
     @Override
@@ -449,6 +460,10 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
 
     @Override
     public void componentShowing() {
+        if (!obj.getEditableFile().isLoaded()) {
+            obj.getEditableFile().load(obj.getLookup());
+            reload(obj.getEditableFile(), obj.getLookup());
+        }
     }
 
     @Override
@@ -529,6 +544,38 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
         }
     }
 
+    public void notifyAddTechnique(TechniqueBlock tech) {
+       
+        String path = "Common/MatDefs/ShaderNodes/Common/Unshaded.j3sn";
+        ShaderNodeDefinitionKey key =  new ShaderNodeDefinitionKey(path);
+        List<ShaderNodeDefinition> defs = getAssetManager().loadAsset(key);
+        ShaderNodeBlock node = new ShaderNodeBlock(defs.get(0), path);
+        tech.addFragmentShaderNode(node);
+        node.addOutputMapping(new OutputMappingBlock("color", "color", "", "", "Global", "Unshaded", null));
+        
+        path = "Common/MatDefs/ShaderNodes/Common/CommonVert.j3sn";
+        key =  new ShaderNodeDefinitionKey(path);
+        defs = getAssetManager().loadAsset(key);
+        node = new ShaderNodeBlock(defs.get(0), path);
+        tech.addVertexShaderNode(node);
+        
+        node.addInputMapping(new InputMappingBlock("worldViewProjectionMatrix", "WorldViewProjectionMatrix", "", "", "CommonVert", "WorldParam", null));
+        node.addInputMapping(new InputMappingBlock("modelPosition", "position", "", "xyz", "CommonVert", "Global", null));        
+        
+        node.addOutputMapping(new OutputMappingBlock("position", "projPosition", "", "", "Global", "CommonVert", null));
+        
+        
+        WorldParamBlock param = new WorldParamBlock("WorldViewProjectionMatrix");
+        tech.addWorldParam(param);
+        
+        obj.getEditableFile().getMatDefStructure().addTechnique(tech);     
+        
+    }
+
+    public void autoLayout(){
+        diagram1.autoLayout();
+    }
+    
     public void notifyAddMapParam(String type, String name) {
         MatDefBlock matDef = obj.getLookup().lookup(MatDefBlock.class);
         MatParamBlock param = new MatParamBlock(type, name, null, null);

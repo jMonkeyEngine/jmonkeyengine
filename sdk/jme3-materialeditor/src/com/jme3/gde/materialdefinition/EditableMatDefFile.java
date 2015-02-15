@@ -209,7 +209,7 @@ public class EditableMatDefFile {
         material = new Material(materialDef);
 
         try {
-            material.selectTechnique("Default", SceneApplication.getApplication().getRenderManager());
+            //material.selectTechnique("Default", SceneApplication.getApplication().getRenderManager());
             if (matToRemove != null) {
                 for (MatParam matParam : matToRemove.getParams()) {
                     try {
@@ -342,5 +342,24 @@ public class EditableMatDefFile {
             Logger.getLogger(EditableMatDefFile.class.getName()).log(Level.SEVERE, ex.getMessage());
         }
         updateLookupWithMaterialData(obj);
+    }
+    
+    public void cleanup(){
+        if (matDefStructure != null) {
+            obj.getLookupContents().remove(matDefStructure);
+            matDefStructure = null;
+        }
+        if (materialDef != null) {
+            obj.getLookupContents().remove(materialDef);
+            materialDef = null;
+        }
+        if (material != null) {
+            obj.getLookupContents().remove(material);
+            matToRemove = material;
+            material = null;
+        }
+        
+        setCurrentTechnique(null);
+        setLoaded(false);
     }
 }

@@ -85,6 +85,13 @@ public class BackdropPanel extends javax.swing.JPanel implements MouseListener, 
             renderer.showMaterial(mat); 
         }
     }
+    
+     public void showMaterial(Material mat, String technique) {
+        if (isVisible()) {
+            this.mat = mat;
+            renderer.showMaterial(mat, technique); 
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.

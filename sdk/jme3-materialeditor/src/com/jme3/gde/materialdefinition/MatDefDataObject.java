@@ -132,6 +132,7 @@ public class MatDefDataObject extends MultiDataObject {
     private EditableMatDefFile file = null;
     private boolean loaded = false;
 
+    @SuppressWarnings("LeakingThisInConstructor")
     public MatDefDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
         registerEditor("text/jme-materialdefinition", true);
@@ -296,44 +297,15 @@ public class MatDefDataObject extends MultiDataObject {
 
     public void unload() {
         if (loaded) {
-            loaded = false;
+            loaded = false;            
             getLookup().lookup(MatDefNavigatorPanel.class).updateData(null);
+            getEditableFile().cleanup();
+
         }
     }
 
     public InstanceContent getLookupContents() {
         return lookupContents;
     }
-//    @Override
-//    public synchronized void saveAsset() throws IOException {
-//        
-////        ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Saving File..");
-////        progressHandle.start();
-// //      BinaryExporter exp = BinaryExporter.getInstance();
-//        FileLock lock = null;
-//        OutputStream out = null;
-//        try {
-//             PrintWriter to = new PrintWriter(getPrimaryFile().getOutputStream(lock));
-//            try {
-//                to.print(getEditableFile().getMatDefStructure().toString());
-//              
-//            } finally {
-//                to.close();
-//            }
-//        } finally {
-//            if (lock != null) {
-//                lock.releaseLock();
-//            }
-//            if (out != null) {
-//                out.close();
-//            }
-//        }
-//     //   progressHandle.finish();
-//        StatusDisplayer.getDefault().setStatusText(getPrimaryFile().getNameExt() + " saved.");
-//        setModified(false);
-//        
-////        getPrimaryFile().
-////                getOutputStream().write(getEditableFile().getMatDefStructure().toString().getBytes());        
-//       
-//    }
+
 }

@@ -59,6 +59,11 @@ public class TechniqueBlock extends UberStatement {
             name = s[1];
         }
     }
+    
+    public TechniqueBlock(String name){
+        super(0, "Technique "+name);        
+        this.name = name;                
+    }
 
     public String getName() {
         return name;

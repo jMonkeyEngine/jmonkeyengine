@@ -179,14 +179,13 @@ public class OutBusPanel extends DraggablePanel implements ComponentListener, Se
         return panel;
     }
 
-    public void updatePreview(Material mat) {
+    public void updatePreview(Material mat, String technique) {
         if (type == Shader.ShaderType.Fragment) {
-            preview.showMaterial(mat);
+            preview.showMaterial(mat,technique);
         } else {
-            Material vmat = mat.clone();
-            vmat.selectTechnique(mat.getActiveTechnique().getDef().getName(), SceneApplication.getApplication().getRenderManager());
+            Material vmat = mat.clone();            
             vmat.getAdditionalRenderState().setWireframe(true);
-            preview.showMaterial(vmat);
+            preview.showMaterial(vmat,technique);
         }
     }
 

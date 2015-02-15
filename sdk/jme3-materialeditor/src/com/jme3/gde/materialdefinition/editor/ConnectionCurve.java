@@ -434,4 +434,14 @@ public class ConnectionCurve extends JPanel implements ComponentListener, MouseI
         MappingBlock map = (MappingBlock) evt.getSource();
         key = MaterialUtils.makeKey(map, getDiagram().getCurrentTechniqueName());
     }
+
+    public Dot getStart() {
+        return start;
+    }
+
+    public Dot getEnd() {
+        return end;
+    }
+    
+    
 }

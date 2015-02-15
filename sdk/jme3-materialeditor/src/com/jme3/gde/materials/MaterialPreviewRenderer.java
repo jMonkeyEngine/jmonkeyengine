@@ -94,12 +94,23 @@ public class MaterialPreviewRenderer implements SceneListener {
     }
     
     public void showMaterial(final Material m) {
+        showMaterial(m, null);
+    }
+    
+    public void showMaterial(final Material m,final String techniqueName) {
         if (!init) {
             init();
         }
         SceneApplication.getApplication().enqueue(new Callable<Material>() {
 
             public Material call() throws Exception {
+                if(techniqueName!= null){
+                    try {
+                        m.selectTechnique(techniqueName, SceneApplication.getApplication().getRenderManager());
+                    } catch (Exception e) {
+                        //
+                    }
+                }
                 final Material mat = reloadMaterial(m);
                 if (mat != null) {
                     java.awt.EventQueue.invokeLater(new Runnable() {
@@ -145,18 +156,17 @@ public class MaterialPreviewRenderer implements SceneListener {
         
         //creating a dummy mat with the mat def of the mat to reload
         Material dummy = new Material(mat.getMaterialDef());
-
-        for (MatParam matParam : mat.getParams()) {
-            dummy.setParam(matParam.getName(), matParam.getVarType(), matParam.getValue());
-        }
-        dummy.selectTechnique(mat.getActiveTechnique().getDef().getName(), SceneApplication.getApplication().getRenderManager());
-        dummy.getAdditionalRenderState().set(mat.getAdditionalRenderState());        
-
-        //creating a dummy geom and assigning the dummy material to it
-        Geometry dummyGeom = new Geometry("dummyGeom", new Box(1f, 1f, 1f));
-        dummyGeom.setMaterial(dummy);
-
         try {
+            for (MatParam matParam : mat.getParams()) {
+                dummy.setParam(matParam.getName(), matParam.getVarType(), matParam.getValue());
+            }
+            dummy.selectTechnique(mat.getActiveTechnique().getDef().getName(), SceneApplication.getApplication().getRenderManager());
+            dummy.getAdditionalRenderState().set(mat.getAdditionalRenderState());        
+
+            //creating a dummy geom and assigning the dummy material to it
+            Geometry dummyGeom = new Geometry("dummyGeom", new Box(1f, 1f, 1f));
+            dummyGeom.setMaterial(dummy);
+
             //preloading the dummyGeom, this call will compile the shader again
            SceneApplication.getApplication().getRenderManager().preloadScene(dummyGeom);
         } catch (RendererException e) {
@@ -170,6 +180,9 @@ public class MaterialPreviewRenderer implements SceneListener {
                     label.setIcon(Icons.error);
                 }
             });
+            return null;
+        } catch (NullPointerException npe){
+            //utterly bad, but for some reason I get random NPE here and can't figure out why so to avoid bigger issues, I just catch it.
             return null;
         }
 

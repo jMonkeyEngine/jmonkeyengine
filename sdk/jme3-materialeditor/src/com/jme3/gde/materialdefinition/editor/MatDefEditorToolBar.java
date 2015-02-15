@@ -12,6 +12,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.ListCellRenderer;
 
 /**
@@ -21,7 +22,8 @@ import javax.swing.ListCellRenderer;
 public class MatDefEditorToolBar extends javax.swing.JPanel {
 
     private MatDefEditorlElement parent;
-    private final DefaultComboBoxModel<TechniqueBlock> comboModel = new DefaultComboBoxModel<TechniqueBlock>();   
+    private final DefaultComboBoxModel<TechniqueBlock> comboModel = new DefaultComboBoxModel<TechniqueBlock>();
+
     /**
      * Creates new form MatDefEditorToolBar
      */
@@ -32,25 +34,27 @@ public class MatDefEditorToolBar extends javax.swing.JPanel {
         techniqueComboBox.setRenderer(new ListCellRenderer<TechniqueBlock>() {
 
             public Component getListCellRendererComponent(JList list, TechniqueBlock value, int index, boolean isSelected, boolean cellHasFocus) {
-                JLabel c = (JLabel)renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                JLabel c = (JLabel) renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 c.setText(value.getName());
-                return  c;
+                return c;
             }
         });
-        
+
     }
 
     public void setParent(MatDefEditorlElement parent) {
         this.parent = parent;
     }
-    
-    public void addTechnique(List<TechniqueBlock> tech){
+
+    public void addTechnique(List<TechniqueBlock> tech) {
+        comboModel.removeAllElements();
+                
         for (TechniqueBlock tech1 : tech) {
             comboModel.addElement(tech1);
         }
-        
+
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -62,8 +66,11 @@ public class MatDefEditorToolBar extends javax.swing.JPanel {
 
         jLabel1 = new javax.swing.JLabel();
         techniqueComboBox = new javax.swing.JComboBox();
+        jButton1 = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JSeparator();
+        jButton2 = new javax.swing.JButton();
 
-        setPreferredSize(new java.awt.Dimension(474, 25));
+        setPreferredSize(new java.awt.Dimension(474, 20));
 
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(MatDefEditorToolBar.class, "MatDefEditorToolBar.jLabel1.text")); // NOI18N
@@ -75,31 +82,79 @@ public class MatDefEditorToolBar extends javax.swing.JPanel {
             }
         });
 
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/materialdefinition/icons/add.png"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(MatDefEditorToolBar.class, "MatDefEditorToolBar.jButton1.text")); // NOI18N
+        jButton1.setToolTipText(org.openide.util.NbBundle.getMessage(MatDefEditorToolBar.class, "MatDefEditorToolBar.jButton1.toolTipText")); // NOI18N
+        jButton1.setMargin(new java.awt.Insets(2, 5, 2, 5));
+        jButton1.setPreferredSize(new java.awt.Dimension(71, 25));
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jSeparator1.setOrientation(javax.swing.SwingConstants.VERTICAL);
+
+        org.openide.awt.Mnemonics.setLocalizedText(jButton2, org.openide.util.NbBundle.getMessage(MatDefEditorToolBar.class, "MatDefEditorToolBar.jButton2.text")); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(techniqueComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 337, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton2)
+                .addGap(0, 103, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE)
-                .addComponent(techniqueComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(techniqueComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jButton2))
+            .addComponent(jSeparator1)
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void techniqueComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_techniqueComboBoxActionPerformed
-        parent.switchTechnique((TechniqueBlock)techniqueComboBox.getSelectedItem());
+        parent.switchTechnique((TechniqueBlock) techniqueComboBox.getSelectedItem());
     }//GEN-LAST:event_techniqueComboBoxActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        String techName = JOptionPane.showInputDialog("Enter a name for the new technique");
+
+        if (techName != null) {
+            TechniqueBlock tech = new TechniqueBlock(techName);
+            parent.notifyAddTechnique(tech);
+            comboModel.addElement(tech);
+            comboModel.setSelectedItem(tech);
+            parent.autoLayout();
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+       parent.getDiagram().autoLayout();
+    }//GEN-LAST:event_jButton2ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JComboBox techniqueComboBox;
     // End of variables declaration//GEN-END:variables
 }
