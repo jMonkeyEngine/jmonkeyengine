@@ -112,6 +112,10 @@ public class AndroidGL implements GL, GLExt {
         GLES20.glBufferData(target, getLimitBytes(data), data, usage);
     }
 
+    public void glBufferData(int target, long data_size, int usage) {
+        GLES20.glBufferData(target, (int) data_size, null, usage);
+    }
+
     public void glBufferSubData(int target, long offset, FloatBuffer data) {
         GLES20.glBufferSubData(target, (int) offset, getLimitBytes(data), data);
     }
@@ -122,6 +126,10 @@ public class AndroidGL implements GL, GLExt {
 
     public void glBufferSubData(int target, long offset, ByteBuffer data) {
         GLES20.glBufferSubData(target, (int) offset, getLimitBytes(data), data);
+    }
+    
+    public void glGetBufferSubData(int target, long offset, ByteBuffer data) {
+        throw new UnsupportedOperationException("OpenGL ES 2 does not support glGetBufferSubData");
     }
 
     public void glClear(int mask) {
@@ -489,5 +497,26 @@ public class AndroidGL implements GL, GLExt {
 
     public void glRenderbufferStorageEXT(int param1, int param2, int param3, int param4) {
         GLES20.glRenderbufferStorage(param1, param2, param3, param4);
+    }
+
+    @Override
+    public void glReadPixels(int x, int y, int width, int height, int format, int type, long offset) {
+        // TODO: no offset???
+        GLES20.glReadPixels(x, y, width, height, format, type, null);
+    }
+
+    @Override
+    public int glClientWaitSync(Object sync, int flags, long timeout) {
+        throw new UnsupportedOperationException("OpenGL ES 2 does not support sync fences");
+    }
+
+    @Override
+    public void glDeleteSync(Object sync) {
+        throw new UnsupportedOperationException("OpenGL ES 2 does not support sync fences");
+    }
+
+    @Override
+    public Object glFenceSync(int condition, int flags) {
+        throw new UnsupportedOperationException("OpenGL ES 2 does not support sync fences");
     }
 }

@@ -285,6 +285,11 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
         gl.glReadPixels(x, y, width, height, format, type, data);
         checkError();
     }
+    
+    public void glReadPixels(int x, int y, int width, int height, int format, int type, long offset) {
+        gl.glReadPixels(x, y, width, height, format, type, offset);
+        checkError();
+    }
 
     public void glScissor(int x, int y, int width, int height) {
         gl.glScissor(x, y, width, height);
@@ -477,6 +482,18 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
         checkError();
     }
 
+    @Override
+    public void glBufferData(int target, long data_size, int usage) {
+        gl.glBufferData(target, data_size, usage);
+        checkError();
+    }
+
+    @Override
+    public void glGetBufferSubData(int target, long offset, ByteBuffer data) {
+        gl.glGetBufferSubData(target, offset, data);
+        checkError();
+    }
+    
     public void glBufferData(int target, IntBuffer data, int usage) {
         glext.glBufferData(target, data, usage);
         checkError();
@@ -520,5 +537,25 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
     public void glVertexAttribDivisorARB(int index, int divisor) {
         glext.glVertexAttribDivisorARB(index, divisor);
         checkError();
+    }
+
+    @Override
+    public int glClientWaitSync(Object sync, int flags, long timeout) {
+        int result = glext.glClientWaitSync(sync, flags, timeout);
+        checkError();
+        return result;
+    }
+
+    @Override
+    public void glDeleteSync(Object sync) {
+        glext.glDeleteSync(sync);
+        checkError();
+    }
+
+    @Override
+    public Object glFenceSync(int condition, int flags) {
+        Object sync = glext.glFenceSync(condition, flags);
+        checkError();
+        return sync;
     }
 }

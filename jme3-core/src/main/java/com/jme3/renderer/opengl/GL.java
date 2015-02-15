@@ -132,6 +132,7 @@ public interface GL {
 	public static final int GL_STENCIL_BUFFER_BIT = 0x400;
 	public static final int GL_STENCIL_TEST = 0xB90;
 	public static final int GL_STREAM_DRAW = 0x88E0;
+        public static final int GL_STREAM_READ = 0x88E1;
 	public static final int GL_TEXTURE = 0x1702;
 	public static final int GL_TEXTURE0 = 0x84C0;
         public static final int GL_TEXTURE1 = 0x84C1;
@@ -182,6 +183,7 @@ public interface GL {
 	public void glBindBuffer(int target, int buffer);
 	public void glBindTexture(int target, int texture);
 	public void glBlendFunc(int sfactor, int dfactor);
+        public void glBufferData(int target, long data_size, int usage);
 	public void glBufferData(int target, FloatBuffer data, int usage);
 	public void glBufferData(int target, ShortBuffer data, int usage);
 	public void glBufferData(int target, ByteBuffer data, int usage);
@@ -216,6 +218,7 @@ public interface GL {
 	public void glGenTextures(IntBuffer textures);
 	public int glGetAttribLocation(int program, String name);
 	public void glGetBoolean(int pname, ByteBuffer params);
+        public void glGetBufferSubData(int target, long offset, ByteBuffer data);
         public int glGetError();
 	public void glGetInteger(int pname, IntBuffer params);
 	public void glGetProgram(int program, int pname, IntBuffer params);
@@ -230,6 +233,7 @@ public interface GL {
 	public void glPixelStorei(int pname, int param);
 	public void glPolygonOffset(float factor, float units);
 	public void glReadPixels(int x, int y, int width, int height, int format, int type, ByteBuffer data);
+        public void glReadPixels(int x, int y, int width, int height, int format, int type, long offset);
 	public void glScissor(int x, int y, int width, int height);
 	public void glShaderSource(int shader, String[] string, IntBuffer length);
 	public void glStencilFuncSeparate(int face, int func, int ref, int mask);

@@ -7,12 +7,15 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import org.lwjgl.opengl.ARBDrawInstanced;
 import org.lwjgl.opengl.ARBInstancedArrays;
+import org.lwjgl.opengl.ARBPixelBufferObject;
+import org.lwjgl.opengl.ARBSync;
 import org.lwjgl.opengl.ARBTextureMultisample;
 import org.lwjgl.opengl.EXTFramebufferBlit;
 import org.lwjgl.opengl.EXTFramebufferMultisample;
 import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GLSync;
 
 public class LwjglGLExt implements GLExt {
 
@@ -118,5 +121,20 @@ public class LwjglGLExt implements GLExt {
 
     public void glRenderbufferStorageEXT(int param1, int param2, int param3, int param4) {
         EXTFramebufferObject.glRenderbufferStorageEXT(param1, param2, param3, param4);
+    }
+    
+    @Override
+    public Object glFenceSync(int condition, int flags) {
+        return ARBSync.glFenceSync(condition, flags);
+    }
+    
+    @Override
+    public int glClientWaitSync(Object sync, int flags, long timeout) {
+        return ARBSync.glClientWaitSync((GLSync) sync, flags, timeout);
+    }
+
+    @Override
+    public void glDeleteSync(Object sync) {
+        ARBSync.glDeleteSync((GLSync) sync);
     }
 }

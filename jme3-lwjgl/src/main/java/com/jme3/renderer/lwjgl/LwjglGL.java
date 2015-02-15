@@ -54,6 +54,10 @@ public class LwjglGL implements GL, GL2, GL3 {
         GL11.glBlendFunc(param1, param2);
     }
 
+    public void glBufferData(int param1, long param2, int param3) {
+        GL15.glBufferData(param1, param2, param3);
+    }
+    
     public void glBufferData(int param1, FloatBuffer param2, int param3) {
         checkLimit(param2);
         GL15.glBufferData(param1, param2, param3);
@@ -208,6 +212,11 @@ public class LwjglGL implements GL, GL2, GL3 {
         checkLimit(param2);
         GL11.glGetBoolean(param1, param2);
     }
+    
+    public void glGetBufferSubData(int target, long offset, ByteBuffer data) {
+        checkLimit(data);
+        GL15.glGetBufferSubData(target, offset, data);
+    }
 
     public int glGetError() {
         return GL11.glGetError();
@@ -266,6 +275,10 @@ public class LwjglGL implements GL, GL2, GL3 {
 
     public void glReadPixels(int param1, int param2, int param3, int param4, int param5, int param6, ByteBuffer param7) {
         checkLimit(param7);
+        GL11.glReadPixels(param1, param2, param3, param4, param5, param6, param7);
+    }
+    
+    public void glReadPixels(int param1, int param2, int param3, int param4, int param5, int param6, long param7) {
         GL11.glReadPixels(param1, param2, param3, param4, param5, param6, param7);
     }
 

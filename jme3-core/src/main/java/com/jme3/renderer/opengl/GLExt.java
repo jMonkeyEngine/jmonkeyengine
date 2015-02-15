@@ -43,6 +43,7 @@ import java.nio.IntBuffer;
  */
 public interface GLExt extends GLFbo {
 
+        public static final int GL_ALREADY_SIGNALED = 0x911A;
 	public static final int GL_COMPRESSED_RGB8_ETC2 = 0x9274;
 	public static final int GL_COMPRESSED_RGBA_S3TC_DXT1_EXT = 0x83F1;
 	public static final int GL_COMPRESSED_RGBA_S3TC_DXT3_EXT = 0x83F2;
@@ -52,6 +53,7 @@ public interface GLExt extends GLFbo {
 	public static final int GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT = 0x8C4E;
 	public static final int GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT = 0x8C4F;
 	public static final int GL_COMPRESSED_SRGB_S3TC_DXT1_EXT = 0x8C4C;
+        public static final int GL_CONDITION_SATISFIED = 0x911C;
         public static final int GL_DEPTH_COMPONENT32F = 0x8CAC;
 	public static final int GL_DEPTH24_STENCIL8_EXT = 0x88F0;
 	public static final int GL_DEPTH_STENCIL_EXT = 0x84F9;
@@ -68,6 +70,8 @@ public interface GLExt extends GLFbo {
 	public static final int GL_MAX_SAMPLES_EXT = 0x8D57;
 	public static final int GL_MULTISAMPLE_ARB = 0x809D;
         public static final int GL_NUM_PROGRAM_BINARY_FORMATS = 0x87FE;
+        public static final int GL_PIXEL_PACK_BUFFER_ARB = 0x88EB;
+        public static final int GL_PIXEL_UNPACK_BUFFER_ARB = 0x88EC;
 	public static final int GL_R11F_G11F_B10F_EXT = 0x8C3A;
         public static final int GL_RGBA8 = 0x8058;
 	public static final int GL_RGB16F_ARB = 0x881B;
@@ -83,21 +87,28 @@ public interface GLExt extends GLFbo {
 	public static final int GL_SLUMINANCE8_EXT = 0x8C47;
 	public static final int GL_SRGB8_ALPHA8_EXT = 0x8C43;
 	public static final int GL_SRGB8_EXT = 0x8C41;
+        public static final int GL_SYNC_FLUSH_COMMANDS_BIT = 0x1;
+        public static final int GL_SYNC_GPU_COMMANDS_COMPLETE = 0x9117;
 	public static final int GL_TEXTURE_2D_ARRAY_EXT = 0x8C1A;
 	public static final int GL_TEXTURE_2D_MULTISAMPLE = 0x9100;
 	public static final int GL_TEXTURE_2D_MULTISAMPLE_ARRAY = 0x9102;
         public static final int GL_TEXTURE_CUBE_MAP_SEAMLESS = 0x884F;
 	public static final int GL_TEXTURE_MAX_ANISOTROPY_EXT = 0x84FE;
+        public static final int GL_TIMEOUT_EXPIRED = 0x911B;
 	public static final int GL_UNSIGNED_INT_10F_11F_11F_REV_EXT = 0x8C3B;
 	public static final int GL_UNSIGNED_INT_24_8_EXT = 0x84FA;
 	public static final int GL_UNSIGNED_INT_5_9_9_9_REV_EXT = 0x8C3E;
+        public static final int GL_WAIT_FAILED = 0x911D;
 
 	public void glBlitFramebufferEXT(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, int mask, int filter);
         public void glBufferData(int target, IntBuffer data, int usage);
         public void glBufferSubData(int target, long offset, IntBuffer data);
+        public int glClientWaitSync(Object sync, int flags, long timeout);
+        public void glDeleteSync(Object sync);
 	public void glDrawArraysInstancedARB(int mode, int first, int count, int primcount);
         public void glDrawBuffers(IntBuffer bufs);
 	public void glDrawElementsInstancedARB(int mode, int indices_count, int type, long indices_buffer_offset, int primcount);
+        public Object glFenceSync(int condition, int flags);
 	public void glGetMultisample(int pname, int index, FloatBuffer val);
         public void glRenderbufferStorageMultisampleEXT(int target, int samples, int internalformat, int width, int height);
 	public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedsamplelocations);
