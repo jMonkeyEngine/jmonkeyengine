@@ -2111,8 +2111,9 @@ public class GLRenderer implements Renderer {
     }
 
     public void modifyTexture(Texture tex, Image pixels, int x, int y) {
-//        setTexture(0, tex);
-//        texUtil.uploadSubTexture(caps, pixels, convertTextureType(tex.getType(), pixels.getMultiSamples(), -1), 0, x, y, linearizeSrgbImages);
+        setTexture(0, tex);
+        int target = convertTextureType(tex.getType(), pixels.getMultiSamples(), -1);
+        texUtil.uploadSubTexture(pixels, target, 0, x, y, linearizeSrgbImages);
     }
 
     public void deleteImage(Image image) {

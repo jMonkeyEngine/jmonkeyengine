@@ -235,7 +235,10 @@ public interface Renderer {
     public void setTexture(int unit, Texture tex);
 
     /**
-     * Modify the given Texture tex with the given Image. The image will be put at x and y into the texture.
+     * Modify the given Texture with the given Image. 
+     * The image will be put at x and y into the texture.
+     * 
+     * NOTE: this is only supported for uncompressed 2D images without mipmaps.
      *
      * @param tex the Texture that will be modified
      * @param pixels the source Image data to copy data from
