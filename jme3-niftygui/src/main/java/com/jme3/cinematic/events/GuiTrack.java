@@ -37,7 +37,6 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import de.lessvoid.nifty.Nifty;
-import de.lessvoid.nifty.screen.NullScreen;
 import java.io.IOException;
 
 /**
@@ -84,7 +83,8 @@ public class GuiTrack extends AbstractCinematicEvent {
     }
 
     @Override
-    public void onStop() {        if (!(nifty.getCurrentScreen() instanceof NullScreen)) {
+    public void onStop() {
+        if (nifty.getCurrentScreen() != null) {
             nifty.getCurrentScreen().endScreen(null);
         }
     }
