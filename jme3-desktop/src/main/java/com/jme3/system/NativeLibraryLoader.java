@@ -254,7 +254,7 @@ public final class NativeLibraryLoader {
         URLConnection conn = null;
         try {
             String classpath = System.getProperty("java.class.path");
-            URL url = Thread.currentThread().getContextClassLoader().getResource("com/jme3/system/NativeLibraryLoder.class");
+            URL url = Thread.currentThread().getContextClassLoader().getResource("com/jme3/system/NativeLibraryLoader.class");
 
             StringBuilder sb = new StringBuilder(url.toString());
             if (sb.indexOf("jar:") == 0) {
