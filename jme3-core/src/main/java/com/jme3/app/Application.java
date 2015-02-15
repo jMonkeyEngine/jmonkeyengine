@@ -403,7 +403,16 @@ public class Application implements SystemListener {
      * @see #start(com.jme3.system.JmeContext.Type)
      */
     public void start(){
-        start(JmeContext.Type.Display);
+        start(JmeContext.Type.Display, false);
+    }
+    
+    /**
+     * Starts the application in {@link Type#Display display} mode.
+     *
+     * @see #start(com.jme3.system.JmeContext.Type)
+     */
+    public void start(boolean waitFor){
+        start(JmeContext.Type.Display, waitFor);
     }
 
     /**
@@ -411,7 +420,16 @@ public class Application implements SystemListener {
      * Creating a rendering context and executing
      * the main loop in a separate thread.
      */
-    public void start(JmeContext.Type contextType){
+    public void start(JmeContext.Type contextType) {
+        start(contextType, false);
+    }
+    
+    /**
+     * Starts the application.
+     * Creating a rendering context and executing
+     * the main loop in a separate thread.
+     */
+    public void start(JmeContext.Type contextType, boolean waitFor){
         if (context != null && context.isCreated()){
             logger.warning("start() called when application already created!");
             return;
@@ -424,7 +442,7 @@ public class Application implements SystemListener {
         logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
         context = JmeSystem.newContext(settings, contextType);
         context.setSystemListener(this);
-        context.create(false);
+        context.create(waitFor);
     }
 
     /**
