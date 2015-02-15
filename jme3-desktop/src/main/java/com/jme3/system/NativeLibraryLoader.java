@@ -226,7 +226,7 @@ public final class NativeLibraryLoader {
         if (extractionFolder == null) {
             File workingFolder = new File("").getAbsoluteFile();
             if (!workingFolder.canWrite()) {
-                setExtractionDirToStorageDir();
+                setExtractionFolderToUserCache();
             } else {
                 try {
                     File file = new File(workingFolder + File.separator + ".jmetestwrite");
@@ -234,20 +234,74 @@ public final class NativeLibraryLoader {
                     file.delete();
                     extractionFolder = workingFolder;
                 } catch (Exception e) {
-                    setExtractionDirToStorageDir();
+                    setExtractionFolderToUserCache();
                 }
             }
         }
         return extractionFolder;
     }
+    
+    /**
+     * Determine jME3's cache folder for the user account based on the OS.
+     * 
+     * If the OS cache folder is missing, the assumption is that this
+     * particular version of the OS does not have a dedicated cache folder,
+     * hence, we use the user's home folder instead as the root.
+     * 
+     * The folder returned is as follows:<br>
+     * <ul>
+     * <li>Windows: ~\AppData\Local\jme3</li>
+     * <li>Mac OS X: ~/Library/Caches/jme3</li>
+     * <li>Linux: ~/.cache/jme3</li>
+     * </ul>
+     * 
+     * @return the user cache folder.
+     */
+    private static File getJmeUserCacheFolder() {
+        File userHomeFolder = new File(System.getProperty("user.home"));
+        File userCacheFolder = null;
+        
+        switch (JmeSystem.getPlatform()) {
+            case Linux32:
+            case Linux64:
+                userCacheFolder = new File(userHomeFolder, ".cache");
+                break;
+            case MacOSX32:
+            case MacOSX64:
+            case MacOSX_PPC32:
+            case MacOSX_PPC64:
+                userCacheFolder = new File(new File(userHomeFolder, "Library"), "Caches");
+                break;
+            case Windows32:
+            case Windows64:
+                userCacheFolder = new File(new File(userHomeFolder, "AppData"), "Local");
+                break;
+        }
+        
+        if (userCacheFolder == null || !userCacheFolder.exists()) {
+            // Fallback to home directory if cache folder is missing
+            return new File(userHomeFolder, ".jme3");
+        }
+        
+        return new File(userCacheFolder, "jme3");
+    }
 
-    private static void setExtractionDirToStorageDir() {
-        logger.log(Level.WARNING, "Working directory is not writable. Using home directory instead.");
-        extractionFolder = new File(JmeSystem.getStorageFolder(),
-                "natives_" + Integer.toHexString(computeNativesHash()));
+    private static void setExtractionFolderToUserCache() {
+        File extractFolderInHome = getJmeUserCacheFolder();
+        
+        if (!extractFolderInHome.exists()) {
+            extractFolderInHome.mkdir();
+        }
+        
+        extractionFolder = new File(extractFolderInHome, "natives_" + Integer.toHexString(computeNativesHash()));
+        
         if (!extractionFolder.exists()) {
             extractionFolder.mkdir();
         }
+        
+        logger.log(Level.WARNING, "Working directory is not writable. "
+                                + "Natives will be extracted to:\n{0}", 
+                                extractionFolder);
     }
 
     private static int computeNativesHash() {
