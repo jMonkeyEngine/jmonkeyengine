@@ -1563,12 +1563,12 @@ public class GLRenderer implements Renderer {
                 updateFrameBuffer(fb);
             }
 
+            // update viewport to reflect framebuffer's resolution
+            setViewPort(0, 0, fb.getWidth(), fb.getHeight());
+            
             if (context.boundFBO != fb.getId()) {
                 glfbo.glBindFramebufferEXT(GLExt.GL_FRAMEBUFFER_EXT, fb.getId());
                 statistics.onFrameBufferUse(fb, true);
-
-                // update viewport to reflect framebuffer's resolution
-                setViewPort(0, 0, fb.getWidth(), fb.getHeight());
 
                 context.boundFBO = fb.getId();
             } else {
