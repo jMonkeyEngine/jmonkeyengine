@@ -96,21 +96,6 @@ public class RenderContext {
     public float polyOffsetUnits = 0;
 
     /**
-     * For normals only. Uses GL_NORMALIZE.
-     * 
-     * @see VertexBuffer#setNormalized(boolean) 
-     */
-    public boolean normalizeEnabled = false;
-
-    /**
-     * For glMatrixMode.
-     * 
-     * @see Renderer#setWorldMatrix(com.jme3.math.Matrix4f) 
-     * @see Renderer#setViewProjectionMatrices(com.jme3.math.Matrix4f, com.jme3.math.Matrix4f) 
-     */
-    public int matrixMode = -1;
-
-    /**
      * @see Mesh#setPointSize(float) 
      */
     public float pointSize = 1;
@@ -285,8 +270,6 @@ public class RenderContext {
         polyOffsetEnabled = false;
         polyOffsetFactor = 0;
         polyOffsetUnits = 0;
-        normalizeEnabled = false;
-        matrixMode = -1;
         pointSize = 1;
         blendMode = RenderState.BlendMode.Off;
         wireframe = false;
