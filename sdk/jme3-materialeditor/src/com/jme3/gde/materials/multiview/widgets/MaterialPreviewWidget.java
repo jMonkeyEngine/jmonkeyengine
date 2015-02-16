@@ -10,29 +10,9 @@
  */
 package com.jme3.gde.materials.multiview.widgets;
 
-import com.jme3.asset.DesktopAssetManager;
-import com.jme3.asset.MaterialKey;
 import com.jme3.gde.core.assets.ProjectAssetManager;
-import com.jme3.gde.core.scene.PreviewRequest;
-import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.scene.SceneListener;
 import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.gde.materials.MaterialPreviewRenderer;
-import com.jme3.material.MatParam;
-import com.jme3.material.Material;
-import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
-import com.jme3.renderer.RendererException;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.Quad;
-import com.jme3.scene.shape.Sphere;
-import com.jme3.util.MaterialDebugAppState;
-import com.jme3.util.TangentBinormalGenerator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.ImageIcon;
 
 /**
  *

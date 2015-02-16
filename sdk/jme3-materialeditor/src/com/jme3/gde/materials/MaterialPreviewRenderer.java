@@ -35,7 +35,7 @@ import javax.swing.JLabel;
  * @author Nehon
  */
 public class MaterialPreviewRenderer implements SceneListener {
-    
+
     private Geometry sphere;
     private Geometry box;
     private Geometry quad;
@@ -43,18 +43,18 @@ public class MaterialPreviewRenderer implements SceneListener {
     private Material currentMaterial;
     private boolean init = false;
     private final JLabel label;
-    
+
     public enum DisplayType {
-        
+
         Sphere,
         Box,
         Quad
     }
-    
+
     public MaterialPreviewRenderer(JLabel label) {
         this.label = label;
     }
-    
+
     private void init() {
         SceneApplication.getApplication().addSceneListener(this);
         Sphere sphMesh = new Sphere(32, 32, 2.5f);
@@ -65,12 +65,12 @@ public class MaterialPreviewRenderer implements SceneListener {
         TangentBinormalGenerator.generate(sphMesh);
         sphere = new Geometry("previewSphere", sphMesh);
         sphere.setLocalRotation(new Quaternion().fromAngleAxis(FastMath.QUARTER_PI, Vector3f.UNIT_X));
-        
+
         Box boxMesh = new Box(1.75f, 1.75f, 1.75f);
         TangentBinormalGenerator.generate(boxMesh);
         box = new Geometry("previewBox", boxMesh);
         box.setLocalRotation(new Quaternion().fromAngleAxis(-FastMath.DEG_TO_RAD * 30, Vector3f.UNIT_X).multLocal(new Quaternion().fromAngleAxis(FastMath.QUARTER_PI, Vector3f.UNIT_Y)));
-        
+
         Quad quadMesh = new Quad(4.5f, 4.5f);
         TangentBinormalGenerator.generate(quadMesh);
         quad = new Geometry("previewQuad", quadMesh);
@@ -78,33 +78,33 @@ public class MaterialPreviewRenderer implements SceneListener {
         currentGeom = sphere;
         init = true;
     }
-    
+
     @SuppressWarnings("unchecked")
     public void showMaterial(ProjectAssetManager assetManager, String materialFileName) {
         if (!init) {
             init();
-        }        
+        }
         MaterialKey key = new MaterialKey(assetManager.getRelativeAssetPath(materialFileName));
         assetManager.deleteFromCache(key);
         Material mat = (Material) assetManager.loadAsset(key);
         if (mat != null) {
             showMaterial(mat);
         }
-        
+
     }
-    
+
     public void showMaterial(final Material m) {
         showMaterial(m, null);
     }
-    
-    public void showMaterial(final Material m,final String techniqueName) {
+
+    public void showMaterial(final Material m, final String techniqueName) {
         if (!init) {
             init();
         }
         SceneApplication.getApplication().enqueue(new Callable<Material>() {
 
             public Material call() throws Exception {
-                if(techniqueName!= null){
+                if (techniqueName != null) {
                     try {
                         m.selectTechnique(techniqueName, SceneApplication.getApplication().getRenderManager());
                     } catch (Exception e) {
@@ -140,49 +140,54 @@ public class MaterialPreviewRenderer implements SceneListener {
             }
         });
     }
-    
+
     private int lastErrorHash = 0;
-    private void smartLog(String expText, String message){
+
+    private void smartLog(String expText, String message) {
         int hash = message.hashCode();
-        if(hash != lastErrorHash){
+        if (hash != lastErrorHash) {
             Logger.getLogger(MaterialPreviewRenderer.class.getName()).log(Level.SEVERE, expText, message);
             lastErrorHash = hash;
         }
     }
-    
+
     public Material reloadMaterial(Material mat) {
-       
-        ((ProjectAssetManager)mat.getMaterialDef().getAssetManager()).clearCache();   
-        
+
+        ((ProjectAssetManager) mat.getMaterialDef().getAssetManager()).clearCache();
+
         //creating a dummy mat with the mat def of the mat to reload
         Material dummy = new Material(mat.getMaterialDef());
         try {
             for (MatParam matParam : mat.getParams()) {
                 dummy.setParam(matParam.getName(), matParam.getVarType(), matParam.getValue());
             }
-            dummy.selectTechnique(mat.getActiveTechnique().getDef().getName(), SceneApplication.getApplication().getRenderManager());
-            dummy.getAdditionalRenderState().set(mat.getAdditionalRenderState());        
+            if (mat.getActiveTechnique() != null) {
+                dummy.selectTechnique(mat.getActiveTechnique().getDef().getName(), SceneApplication.getApplication().getRenderManager());
+            }
+            dummy.getAdditionalRenderState().set(mat.getAdditionalRenderState());
 
             //creating a dummy geom and assigning the dummy material to it
             Geometry dummyGeom = new Geometry("dummyGeom", new Box(1f, 1f, 1f));
             dummyGeom.setMaterial(dummy);
 
             //preloading the dummyGeom, this call will compile the shader again
-           SceneApplication.getApplication().getRenderManager().preloadScene(dummyGeom);
+            SceneApplication.getApplication().getRenderManager().preloadScene(dummyGeom);
         } catch (RendererException e) {
             //compilation error, the shader code will be output to the console
             //the following code will output the error
             //System.err.println(e.getMessage());
             Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, e.getMessage());
-            
+
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     label.setIcon(Icons.error);
                 }
             });
             return null;
-        } catch (NullPointerException npe){
+        } catch (NullPointerException npe) {
             //utterly bad, but for some reason I get random NPE here and can't figure out why so to avoid bigger issues, I just catch it.
+            //the printStackTrace is intended, it will show up in debug mode, but won't be displayed in standzrd mode
+            npe.printStackTrace();
             return null;
         }
 
@@ -190,8 +195,7 @@ public class MaterialPreviewRenderer implements SceneListener {
         //System.out.println("Material succesfully reloaded");
         return dummy;
     }
-    
-    
+
     public void switchDisplay(DisplayType type) {
         switch (type) {
             case Box:
@@ -206,13 +210,13 @@ public class MaterialPreviewRenderer implements SceneListener {
         }
         showMaterial(currentMaterial);
     }
-    
+
     public void sceneOpened(SceneRequest request) {
     }
-    
+
     public void sceneClosed(SceneRequest request) {
     }
-    
+
     public void previewCreated(PreviewRequest request) {
         if (request.getRequester() == this) {
             final ImageIcon icon = new ImageIcon(request.getImage());
@@ -223,7 +227,7 @@ public class MaterialPreviewRenderer implements SceneListener {
             });
         }
     }
-    
+
     public void cleanUp() {
         SceneApplication.getApplication().removeSceneListener(this);
     }
