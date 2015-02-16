@@ -136,9 +136,11 @@ public class SceneApplication extends Application implements LookupProvider {
     public SceneApplication() {
         Logger.getLogger("com.jme3").addHandler(logHandler);
         useCanvas = "true".equals(NbPreferences.forModule(Installer.class).get("use_lwjgl_canvas", "false"));
+        Logger.getLogger("com.jme3.renderer.opengl.TextureUtil").setLevel(Level.SEVERE);
         try {
             AppSettings newSetting = new AppSettings(true);
             newSetting.setFrameRate(30);
+            newSetting.setGammaCorrection(true);
             if (!useCanvas) {
                 newSetting.setCustomRenderer(AwtPanelsContext.class);
             }
@@ -169,7 +171,7 @@ public class SceneApplication extends Application implements LookupProvider {
             return ((JmeCanvasContext) getContext()).getCanvas();
         } else {
             if (panel == null) {
-                panel = ((AwtPanelsContext) getContext()).createPanel(PaintMode.Accelerated);
+                panel = ((AwtPanelsContext) getContext()).createPanel(PaintMode.Accelerated, true);
                 ((AwtPanelsContext) getContext()).setInputSource(panel);
                 attachPanel();
             }

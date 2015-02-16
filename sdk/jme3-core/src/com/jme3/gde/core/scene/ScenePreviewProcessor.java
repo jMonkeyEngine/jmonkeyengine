@@ -37,6 +37,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
@@ -49,6 +50,8 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -113,8 +116,9 @@ public class ScenePreviewProcessor implements SceneProcessor {
         offCamera.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
 
         //setup framebuffer to use texture
-        offBuffer.setDepthBuffer(Format.Depth);
+        offBuffer.setDepthBuffer(Format.Depth);        
         offBuffer.setColorBuffer(Format.RGBA8);
+        offBuffer.setSrgb(true);
 
         //set viewport to render to offscreen framebuffer
         offView.setOutputFrameBuffer(offBuffer);
@@ -182,7 +186,7 @@ public class ScenePreviewProcessor implements SceneProcessor {
                 byte g = cpuArray[i + 1];
                 byte r = cpuArray[i + 2];
                 byte a = cpuArray[i + 3];
-
+                
                 cpuArray[i + 0] = a;
                 cpuArray[i + 1] = b;
                 cpuArray[i + 2] = g;
