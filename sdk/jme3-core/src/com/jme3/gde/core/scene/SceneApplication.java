@@ -221,8 +221,11 @@ public class SceneApplication extends Application implements LookupProvider {
                 {
                     overlayView = getRenderManager().createMainView("Overlay", cam);
                     overlayView.setClearFlags(false, true, false);
-                    guiViewPort.setClearFlags(false, false, false);
+                    guiViewPort.setClearFlags(false, false, false);                    
                 }
+                ColorRGBA color = new ColorRGBA();
+                color.setAsSrgb(0.25f, 0.25f, 0.25f, 1.0f);
+                viewPort.setBackgroundColor(color);
                 //create camera controller
                 camController = new SceneCameraController(cam, inputManager);
                 //create preview view

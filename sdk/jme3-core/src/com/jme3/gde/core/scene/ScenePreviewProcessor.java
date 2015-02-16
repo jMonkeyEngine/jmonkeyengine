@@ -37,7 +37,6 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
-import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
@@ -50,8 +49,6 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -91,7 +88,9 @@ public class ScenePreviewProcessor implements SceneProcessor {
         // create a pre-view. a view that is rendered before the main view
         if (offView == null) {
             offView = SceneApplication.getApplication().getRenderManager().createPreView("Offscreen View", offCamera);
-            offView.setBackgroundColor(ColorRGBA.DarkGray);
+            ColorRGBA color = new ColorRGBA();
+            color.setAsSrgb(0.25f, 0.25f, 0.25f, 1.0f);
+            offView.setBackgroundColor(color);
             offView.setClearFlags(true, true, true);
             offView.addProcessor(this);
             // setup framebuffer's scene
