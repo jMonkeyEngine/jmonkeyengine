@@ -58,6 +58,7 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     
     private BufferedImage img;
     private FrameBuffer fb;
+    private boolean srgb = false;
     private ByteBuffer byteBuf;
     private IntBuffer intBuf;
     private RenderManager rm;
@@ -78,8 +79,12 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     private final Object lock = new Object();
     
     public AwtPanel(PaintMode paintMode){
+        this(paintMode, false);
+    }
+    
+    public AwtPanel(PaintMode paintMode, boolean srgb){
         this.paintMode = paintMode;
-        
+        this.srgb = srgb;
         if (paintMode == PaintMode.Accelerated){
             setIgnoreRepaint(true);
         }
@@ -246,6 +251,7 @@ public class AwtPanel extends Canvas implements SceneProcessor {
         fb = new FrameBuffer(width, height, 1);
         fb.setDepthBuffer(Format.Depth);
         fb.setColorBuffer(Format.RGB8);
+        fb.setSrgb(srgb);
         
         if (attachAsMain){
             rm.getRenderer().setMainFrameBufferOverride(fb);

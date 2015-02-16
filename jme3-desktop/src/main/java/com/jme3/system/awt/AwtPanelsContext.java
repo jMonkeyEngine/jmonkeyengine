@@ -153,6 +153,12 @@ public class AwtPanelsContext implements JmeContext {
         panels.add(panel);
         return panel;
     }
+    
+    public AwtPanel createPanel(PaintMode paintMode, boolean srgb){
+        AwtPanel panel = new AwtPanel(paintMode, srgb);
+        panels.add(panel);
+        return panel;
+    }
 
     private void initInThread(){
         listener.initialize();
