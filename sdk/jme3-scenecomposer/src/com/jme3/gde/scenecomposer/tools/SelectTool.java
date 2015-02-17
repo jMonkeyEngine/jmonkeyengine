@@ -93,7 +93,7 @@ public class SelectTool extends SceneEditTool {
             return; // only do anything if a spatial is selected
         }
         // key released
-        if (kie.isReleased()) {
+        if (kie.isPressed()) {
             boolean commandUsed = checkCommandKey(kie);
             boolean stateChange = checkStateKey(kie);
             boolean axisChange = checkAxisKey(kie);
@@ -268,7 +268,7 @@ public class SelectTool extends SceneEditTool {
 
     private boolean checkStateKey(KeyInputEvent kie) {
         Spatial selected = toolController.getSelectedSpatial();
-        if (kie.getKeyCode() == KeyInput.KEY_G) {
+        if (kie.getKeyCode() == KeyInput.KEY_G && !ctrlDown) {
             currentState = State.translate;
             MoveManager moveManager = Lookup.getDefault().lookup(MoveManager.class);
             moveManager.reset();
@@ -276,10 +276,10 @@ public class SelectTool extends SceneEditTool {
             moveManager.initiateMove(selected, rot, false);
             moving = moveManager.makeUndo();
             return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_R) {
+        } else if (kie.getKeyCode() == KeyInput.KEY_R && !ctrlDown) {
             currentState = State.rotate;
             return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_S) {
+        } else if (kie.getKeyCode() == KeyInput.KEY_S && !ctrlDown) {
             currentState = State.scale;
             return true;
         }
