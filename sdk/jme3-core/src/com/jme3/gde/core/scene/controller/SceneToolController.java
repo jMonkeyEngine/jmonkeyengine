@@ -53,7 +53,7 @@ public class SceneToolController implements AppState {
 
     public SceneToolController(AssetManager manager) {
         this.toolsNode = new Node("ToolsNode");
-        initTools();
+        initTools();        
         SceneApplication.getApplication().getStateManager().attach(this);
     }
 
@@ -416,17 +416,16 @@ public class SceneToolController implements AppState {
 //        throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void update(float f) {
+    public void update(float f) {     
         if (selected == null || selectionShape == null) {
             return;
         }
 
         selectionShape.setLocalTranslation(selected.getWorldTranslation());
         selectionShape.setLocalRotation(selected.getWorldRotation());
-        //selectionShape.setLocalScale(selected.getWorldScale());
-
+        selectionShape.setLocalScale(selected.getWorldScale());
+        
     }
-
     public void render(RenderManager rm) {
 //        throw new UnsupportedOperationException("Not supported yet.");
     }

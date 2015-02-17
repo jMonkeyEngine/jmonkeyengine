@@ -97,7 +97,14 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
     }
 
     public void enable() {
-        SceneApplication.getApplication().getStateManager().attach(this);
+        SceneToolController c = SceneApplication.getApplication().getStateManager().getState(SceneToolController.class);
+        if(c != null){
+            SceneApplication.getApplication().getStateManager().detach(c);
+            SceneApplication.getApplication().getStateManager().attach(this);
+            SceneApplication.getApplication().getStateManager().attach(c);
+        }else{
+            SceneApplication.getApplication().getStateManager().attach(this);
+        }
         final AbstractCameraController cc = SceneApplication.getApplication().getActiveCameraController();
 
         SceneApplication.getApplication().setActiveCameraController(this);
