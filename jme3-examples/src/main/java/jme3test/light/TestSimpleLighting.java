@@ -38,9 +38,11 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Sphere;
+import com.jme3.util.MaterialDebugAppState;
 import com.jme3.util.TangentBinormalGenerator;
 
 public class TestSimpleLighting extends SimpleApplication {
@@ -62,8 +64,10 @@ public class TestSimpleLighting extends SimpleApplication {
         teapot.setLocalScale(2f);
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
 //        mat.selectTechnique("GBuf");
-        mat.setFloat("Shininess", 12);
+        mat.setFloat("Shininess", 25);
         mat.setBoolean("UseMaterialColors", true);
+        cam.setLocation(new Vector3f(0.015041917f, 0.4572918f, 5.2874837f));
+        cam.setRotation(new Quaternion(-1.8875003E-4f, 0.99882424f, 0.04832061f, 0.0039016632f));
 
 //        mat.setTexture("ColorRamp", assetManager.loadTexture("Textures/ColorRamp/cloudy.png"));
 //
@@ -95,6 +99,14 @@ public class TestSimpleLighting extends SimpleApplication {
         dl.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
         dl.setColor(ColorRGBA.Green);
         rootNode.addLight(dl);
+        
+        
+        MaterialDebugAppState debug = new MaterialDebugAppState();
+        debug.registerBinding("Common/ShaderLib/BlinnPhongLighting.glsllib", teapot);
+        stateManager.attach(debug);
+        setPauseOnLostFocus(false);
+        flyCam.setDragToRotate(true);
+        
     }
 
     @Override

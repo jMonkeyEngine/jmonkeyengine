@@ -2,7 +2,7 @@
 #import "Common/ShaderLib/Skinning.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
 #ifdef VERTEX_LIGHTING
-    #import "Common/ShaderLib/PhongLighting.glsllib"    
+    #import "Common/ShaderLib/BlinnPhongLighting.glsllib"    
 #endif
 
 

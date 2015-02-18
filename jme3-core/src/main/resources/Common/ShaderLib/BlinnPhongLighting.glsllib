@@ -1,19 +1,29 @@
-/*Standard Phong ligting*/
+/*Blinn Phong ligting*/
 
 /*
-* Computes diffuse factor
+* Computes diffuse factor (Lambert)
 */
 float lightComputeDiffuse(in vec3 norm, in vec3 lightdir){
     return max(0.0, dot(norm, lightdir));
 }
 
 /*
-* Computes specular factor    
+* Computes specular factor   (blinn phong) 
 */
 float lightComputeSpecular(in vec3 norm, in vec3 viewdir, in vec3 lightdir, in float shiny){
+    vec3 H = normalize(viewdir + lightdir);
+    float HdotN = max(0.0, dot(H, norm));
+    return pow(HdotN, shiny);
+}
+
+/*
+*Computes standard phong specular lighting
+*/
+float lightComputeSpecularPhong(in vec3 norm, in vec3 viewdir, in vec3 lightdir, in float shiny){
     vec3 R = reflect(-lightdir, norm);
     return pow(max(dot(R, viewdir), 0.0), shiny);
 }
+
 
 /*
 * Computes diffuse and specular factors and pack them in a vec2 (x=diffuse, y=specular)
