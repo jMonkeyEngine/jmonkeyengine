@@ -39,8 +39,7 @@ public class SceneComposerToolController extends SceneToolController {
 
     private JmeNode rootNode;
     private SceneEditTool editTool;
-    private SceneEditorController editorController;
-    private ComposerCameraController cameraController;
+    private SceneEditorController editorController;  
     private ViewPort overlayView;
     private Node onTopToolsNode;
     private Node nonSpatialMarkersNode;
@@ -63,6 +62,7 @@ public class SceneComposerToolController extends SceneToolController {
                 return null;
             }
         });
+        setShowGrid(showGrid);
     }
 
     public SceneComposerToolController(AssetManager manager) {
@@ -73,9 +73,7 @@ public class SceneComposerToolController extends SceneToolController {
         this.editorController = editorController;
     }
 
-    public void setCameraController(ComposerCameraController cameraController) {
-        this.cameraController = cameraController;
-
+    public void createOnTopToolNode() {
         // a node in a viewport that will always render on top
         onTopToolsNode = new Node("OverlayNode");
         overlayView = SceneApplication.getApplication().getOverlayView();
@@ -91,7 +89,6 @@ public class SceneComposerToolController extends SceneToolController {
     @Override
     public void cleanup() {
         super.cleanup();
-        cameraController = null;
         editorController = null;
         SceneApplication.getApplication().enqueue(new Callable<Void>() {
 
@@ -126,6 +123,7 @@ public class SceneComposerToolController extends SceneToolController {
 
     /**
      * If the current tool overrides camera zoom/pan controls
+     * @return 
      */
     public boolean isOverrideCameraControl() {
         if (editTool != null) {
@@ -138,7 +136,7 @@ public class SceneComposerToolController extends SceneToolController {
     /**
      * Scene composer edit tool activated. Pass in null to remove tools.
      * 
-     * @param sceneEditButton pass in null to hide any existing tool markers
+     * @param sceneEditTool pass in null to hide any existing tool markers 
      */
     public void showEditTool(final SceneEditTool sceneEditTool) {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
@@ -175,6 +173,9 @@ public class SceneComposerToolController extends SceneToolController {
     /**
      * Primary button activated, send command to the tool
      * for appropriate action.
+     * @param mouseLoc
+     * @param pressed
+     * @param camera
      */
     public void doEditToolActivatedPrimary(Vector2f mouseLoc, boolean pressed, Camera camera) {
         if (editTool != null) {
@@ -186,6 +187,9 @@ public class SceneComposerToolController extends SceneToolController {
     /**
      * Secondary button activated, send command to the tool
      * for appropriate action.
+     * @param mouseLoc
+     * @param pressed
+     * @param camera
      */
     public void doEditToolActivatedSecondary(Vector2f mouseLoc, boolean pressed, Camera camera) {
         if (editTool != null) {
@@ -223,6 +227,7 @@ public class SceneComposerToolController extends SceneToolController {
     
     /**
      * Adds a marker for the light to the scene if it does not exist yet
+     * @param light
      */
     public void addLightMarker(Light light) {
         if (!(light instanceof PointLight) && !(light instanceof SpotLight))
@@ -252,6 +257,7 @@ public class SceneComposerToolController extends SceneToolController {
     
     /**
      * Removes a light marker from the scene's tool node
+     * @param light
      */
     public void removeLightMarker(Light light) {
         Spatial s = nonSpatialMarkersNode.getChild(light.getName());

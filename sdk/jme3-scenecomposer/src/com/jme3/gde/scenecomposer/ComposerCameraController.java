@@ -30,9 +30,7 @@ import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.input.KeyInput;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
-import com.jme3.scene.Node;
 
 /**
  *
@@ -40,15 +38,11 @@ import com.jme3.scene.Node;
  */
 public class ComposerCameraController extends AbstractCameraController {
 
-    private Node rootNode;
-    private JmeNode jmeRootNode;
     private SceneComposerToolController toolController;
     private boolean forceCameraControls = false; // when user holds shift, this is true
 
     public ComposerCameraController(Camera cam, JmeNode rootNode) {
         super(cam, SceneApplication.getApplication().getInputManager());
-        this.jmeRootNode = rootNode;
-        this.rootNode = rootNode.getLookup().lookup(Node.class);
     }
 
     private boolean isEditButtonEnabled() {

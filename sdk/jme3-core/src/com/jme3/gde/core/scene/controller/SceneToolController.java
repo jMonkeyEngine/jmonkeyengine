@@ -27,7 +27,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.debug.Arrow;
 import com.jme3.scene.debug.Grid;
 import com.jme3.scene.debug.WireBox;
@@ -51,12 +50,14 @@ public class SceneToolController implements AppState {
     protected Material blueMat;
     protected AbstractCameraController camController;
 
+    @SuppressWarnings("LeakingThisInConstructor")
     public SceneToolController(AssetManager manager) {
         this.toolsNode = new Node("ToolsNode");
         initTools();        
         SceneApplication.getApplication().getStateManager().attach(this);
     }
 
+    @SuppressWarnings("LeakingThisInConstructor")
     public SceneToolController(Node toolsNode, AssetManager manager) {
         this.toolsNode = toolsNode;
         this.manager = manager;
@@ -68,7 +69,7 @@ public class SceneToolController implements AppState {
         this.camController = camController;
     }
 
-    protected void initTools() {
+    protected final void initTools() {
 
         blueMat = createBlueMat();
         //Material redMat = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -103,9 +104,7 @@ public class SceneToolController implements AppState {
         //grid
         grid = new Geometry("grid", new Grid(20, 20, 1.0f));
         grid.setMaterial(grayMat);
-        grid.setLocalTranslation(-10, 0, -10);
-        final Spatial cursor = this.cursor;
-        final Node toolsNode = this.toolsNode;
+        grid.setLocalTranslation(-10, 0, -10);        
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
             public Object call() throws Exception {

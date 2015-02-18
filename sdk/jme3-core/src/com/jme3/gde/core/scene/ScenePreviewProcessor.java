@@ -64,9 +64,8 @@ public class ScenePreviewProcessor implements SceneProcessor {
     private FrameBuffer offBuffer;
     private ViewPort offView;
     private Camera offCamera;
-    private ConcurrentLinkedQueue<PreviewRequest> previewQueue = new ConcurrentLinkedQueue<PreviewRequest>();
-    private PreviewRequest currentPreviewRequest;
-    private RenderManager rm;
+    private final ConcurrentLinkedQueue<PreviewRequest> previewQueue = new ConcurrentLinkedQueue<PreviewRequest>();
+    private PreviewRequest currentPreviewRequest;    
     private PointLight light;
 
     public void addRequest(PreviewRequest request) {
@@ -126,7 +125,7 @@ public class ScenePreviewProcessor implements SceneProcessor {
     }
 
     public void initialize(RenderManager rm, ViewPort vp) {
-        this.rm = rm;
+       
     }
 
     public void reshape(ViewPort vp, int i, int i1) {

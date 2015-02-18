@@ -275,7 +275,7 @@ public class SceneApplication extends Application implements LookupProvider {
         super.destroy();
     }
 
-    @Override
+    @Override    
     public void update() {
         if (!started) {
             try {
@@ -299,7 +299,7 @@ public class SceneApplication extends Application implements LookupProvider {
                     fpsText.setText("Frames per second: " + fps);
                     secondCounter = 0.0f;
                 }
-                getStateManager().update(tpf);
+                getStateManager().update(tpf);                
                 toolsNode.updateLogicalState(tpf);
                 if (fakap != null) {
                     fakap.updateFake(tpf);
@@ -519,10 +519,6 @@ public class SceneApplication extends Application implements LookupProvider {
         }
     }
 
-    private void resetCam() {
-        cam.setLocation(new Vector3f(0, 0, 10));
-        cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
-    }
 
     private void setWindowTitle(final String string) {
         SceneViewerTopComponent.findInstance().setDisplayName(string);
@@ -637,7 +633,7 @@ public class SceneApplication extends Application implements LookupProvider {
         NotifyUtil.show("Error starting OpenGL context!", "Click here to go to troubleshooting web page.", MessageType.EXCEPTION, lst, 0);
         logger.log(Level.INFO, exception.getMessage(), exception);
     }
-    private static ActionListener lst = new ActionListener() {
+    private static final ActionListener lst = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             try {
                 HtmlBrowser.URLDisplayer.getDefault().showURL(new URL("http://jmonkeyengine.org/wiki/doku.php/sdk:troubleshooting"));

@@ -116,6 +116,9 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
                 if (cc != null) {
                     cam.setLocation(cc.cam.getLocation());
                     focus.set(cc.focus);
+                }else{
+                    cam.setLocation(new Vector3f(-10, 5, 10));
+                    cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);                     
                 }
                 inputManager.addRawInputListener(me);
                 inputManager.addListener(me, "MouseAxisX", "MouseAxisY", "MouseAxisX-", "MouseAxisY-", "MouseWheel", "MouseWheel-", "MouseButtonLeft", "MouseButtonMiddle", "MouseButtonRight");
@@ -127,7 +130,7 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
     private void addAdditionnalToolbar() {
         SceneViewerTopComponent svtc = SceneViewerTopComponent.findInstance();
         if (svtc != null) {
-            svtc.add(CameraToolbar.getInstance(), java.awt.BorderLayout.SOUTH);;
+            svtc.add(CameraToolbar.getInstance(), java.awt.BorderLayout.SOUTH);
         }
 
     }
@@ -299,7 +302,7 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
         if (!cam.isParallelProjection()) {
             cam.setParallelProjection(true);
             float h = cam.getFrustumTop();
-            float w = cam.getFrustumRight();
+            float w;
             float dist = cam.getLocation().distance(focus);
             float fovY = FastMath.atan(h) / (FastMath.DEG_TO_RAD * .5f);
             h = FastMath.tan(fovY * FastMath.DEG_TO_RAD * .5f) * dist;
@@ -557,12 +560,15 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
 
     /**
      * mouse clicked, not dragged
+     * @param button
      * @param pressed true if pressed, false if released
      */
     protected abstract void checkClick(int button, boolean pressed);
 
     /**
      * Mouse dragged while button is depressed
+     * @param button
+     * @param pressed
      */
     protected void checkDragged(int button, boolean pressed) {
         // override in sub classes
