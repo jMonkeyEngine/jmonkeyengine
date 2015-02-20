@@ -489,9 +489,6 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
 
             //rendering the post shadow pass
             viewPort.getQueue().renderShadowQueue(lightReceivers, renderManager, cam, false);
-            if (flushQueues) {
-                sceneReceivers.clear();
-            }
 
             //resetting renderManager settings
             renderManager.setForcedTechnique(null);
@@ -502,6 +499,9 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
             clearMatParams();
         }
 
+        if (flushQueues) {
+            sceneReceivers.clear();
+        }
     }
     
     /**

@@ -45,6 +45,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 
@@ -143,7 +144,9 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
 
     @Override
     protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList shadowMapOccluders) {
-        ShadowUtil.getGeometriesInCamFrustum(viewPort.getQueue().getRootScene(), shadowCam, RenderQueue.ShadowMode.Cast, shadowMapOccluders);
+        for (Spatial scene : viewPort.getScenes()) {
+            ShadowUtil.getGeometriesInCamFrustum(scene, shadowCam, RenderQueue.ShadowMode.Cast, shadowMapOccluders);
+        }
         return shadowMapOccluders;
     }
 
@@ -152,7 +155,9 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
         lightReceivers.clear();
         Camera[] cameras = new Camera[1];
         cameras[0] = shadowCam;
-        ShadowUtil.getLitGeometriesInViewPort(viewPort.getQueue().getRootScene(), viewPort.getCamera(), cameras, RenderQueue.ShadowMode.Receive, lightReceivers);
+        for (Spatial scene : viewPort.getScenes()) {
+            ShadowUtil.getLitGeometriesInViewPort(scene, viewPort.getCamera(), cameras, RenderQueue.ShadowMode.Receive, lightReceivers);
+        }
         return lightReceivers;
     }
     

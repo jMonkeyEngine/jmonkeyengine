@@ -43,6 +43,7 @@ import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.scene.Spatial;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture2D;
@@ -146,7 +147,9 @@ public class BasicShadowRenderer implements SceneProcessor {
     }
 
     public void postQueue(RenderQueue rq) {
-        ShadowUtil.getGeometriesInCamFrustum(rq.getRootScene(), viewPort.getCamera(), ShadowMode.Receive, lightReceivers);
+        for (Spatial scene : viewPort.getScenes()) {
+            ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), ShadowMode.Receive, lightReceivers);
+        }
 
         // update frustum points based on current camera
         Camera viewCam = viewPort.getCamera();
@@ -174,7 +177,7 @@ public class BasicShadowRenderer implements SceneProcessor {
         shadowCam.updateViewProjection();
 
         // render shadow casters to shadow map
-        ShadowUtil.updateShadowCamera(rq.getRootScene(), lightReceivers, shadowCam, points, shadowOccluders, shadowMapSize);
+        ShadowUtil.updateShadowCamera(viewPort, lightReceivers, shadowCam, points, shadowOccluders, shadowMapSize);
         if (shadowOccluders.size() == 0) {
             noOccluders = true;
             return;

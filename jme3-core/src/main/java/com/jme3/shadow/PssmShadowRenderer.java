@@ -387,7 +387,9 @@ public class PssmShadowRenderer implements SceneProcessor {
 
     @SuppressWarnings("fallthrough")
     public void postQueue(RenderQueue rq) {
-        ShadowUtil.getGeometriesInCamFrustum(rq.getRootScene(), viewPort.getCamera(), ShadowMode.Receive, lightReceivers);
+        for (Spatial scene : viewPort.getScenes()) {
+            ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), ShadowMode.Receive, lightReceivers);
+        }
 
         Camera viewCam = viewPort.getCamera();
 
@@ -431,7 +433,7 @@ public class PssmShadowRenderer implements SceneProcessor {
             ShadowUtil.updateFrustumPoints(viewCam, splitsArray[i], splitsArray[i + 1], 1.0f, points);
 
             //Updating shadow cam with curent split frustra
-            ShadowUtil.updateShadowCamera(rq.getRootScene(), lightReceivers, shadowCam, points, splitOccluders, shadowMapSize);
+            ShadowUtil.updateShadowCamera(viewPort, lightReceivers, shadowCam, points, splitOccluders, shadowMapSize);
 
             //saving light view projection matrix for this split            
             lightViewProjectionsMatrices[i].set(shadowCam.getViewProjectionMatrix());

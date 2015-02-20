@@ -658,8 +658,6 @@ public class RenderManager {
     public void renderScene(Spatial scene, ViewPort vp) {
         //reset of the camera plane state for proper culling (must be 0 for the first note of the scene to be rendered)
         vp.getCamera().setPlaneState(0);
-        //remember the scene for possible later use
-        vp.getQueue().setRootScene(scene);
         //rendering the scene
         renderSubScene(scene, vp);
     }

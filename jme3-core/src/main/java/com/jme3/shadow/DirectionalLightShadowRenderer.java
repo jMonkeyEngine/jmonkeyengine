@@ -45,6 +45,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import java.io.IOException;
 
 /**
@@ -181,9 +182,11 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
 
         //Updating shadow cam with curent split frustra
         if (sceneReceivers.size()==0) {
-            ShadowUtil.getGeometriesInCamFrustum(viewPort.getQueue().getRootScene(), viewPort.getCamera(), RenderQueue.ShadowMode.Receive, sceneReceivers);
+            for (Spatial scene : viewPort.getScenes()) {
+              ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), RenderQueue.ShadowMode.Receive, sceneReceivers);
+            }
         }
-        ShadowUtil.updateShadowCamera(viewPort.getQueue().getRootScene(), sceneReceivers, shadowCam, points, shadowMapOccluders, stabilize?shadowMapSize:0);
+        ShadowUtil.updateShadowCamera(viewPort, sceneReceivers, shadowCam, points, shadowMapOccluders, stabilize?shadowMapSize:0);
 
         return shadowMapOccluders;
     }
@@ -191,7 +194,9 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     @Override
     GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers) {
         if (sceneReceivers.size()==0) {
-            ShadowUtil.getGeometriesInCamFrustum(viewPort.getQueue().getRootScene(), viewPort.getCamera(), RenderQueue.ShadowMode.Receive, sceneReceivers);
+            for (Spatial scene : viewPort.getScenes()) {
+                ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), RenderQueue.ShadowMode.Receive, sceneReceivers);
+            }
         }
         lightReceivers = sceneReceivers;
         return sceneReceivers;

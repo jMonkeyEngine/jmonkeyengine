@@ -51,7 +51,6 @@ public class RenderQueue {
     private GeometryList translucentList;
     private GeometryList skyList;
     private GeometryList shadowRecv;
-    private Spatial rootScene = null;
 
     /**
      * Creates a new RenderQueue, the default {@link GeometryComparator comparators}
@@ -337,14 +336,6 @@ public class RenderQueue {
         }
     }
 
-    public void setRootScene(Spatial rs) {
-        rootScene = rs;
-    }
-    
-    public Spatial getRootScene() {
-        return rootScene;
-    }
-    
     public void clear() {
         opaqueList.clear();
         guiList.clear();

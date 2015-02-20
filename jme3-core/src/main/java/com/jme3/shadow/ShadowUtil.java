@@ -39,6 +39,7 @@ import com.jme3.math.Transform;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
@@ -452,7 +453,7 @@ public class ShadowUtil {
      * contain the eye camera frustum corners) and the shadow occluder objects
      * collected through the traverse of the scene hierarchy
      */
-    public static void updateShadowCamera(Spatial rootScene,
+    public static void updateShadowCamera(ViewPort viewPort,
             GeometryList receivers,
             Camera shadowCam,
             Vector3f[] points,
@@ -496,7 +497,10 @@ public class ShadowUtil {
 
         // collect splitOccluders through scene recursive traverse
         OccludersExtractor occExt = new OccludersExtractor(viewProjMatrix, casterCount, splitBB, casterBB, splitOccluders, vars);
-        casterCount = occExt.addOccluders(rootScene);
+        for (Spatial scene : viewPort.getScenes()) {
+            occExt.addOccluders(scene);
+        }
+        casterCount = occExt.casterCount;
   
         //Nehon 08/18/2010 this is to avoid shadow bleeding when the ground is set to only receive shadows
         if (casterCount != receiverCount) {
