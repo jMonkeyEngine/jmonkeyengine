@@ -139,6 +139,8 @@ public class MaterialLoader implements AssetLoader {
             
             textures[texUnit].setImage(loadedTexture.getImage());
             textures[texUnit].setMinFilter(loadedTexture.getMinFilter());
+            textures[texUnit].setMagFilter(loadedTexture.getMagFilter());
+            textures[texUnit].setAnisotropicFilter(loadedTexture.getAnisotropicFilter());
             textures[texUnit].setKey(loadedTexture.getKey());
             
             // XXX: Is this really neccessary?
