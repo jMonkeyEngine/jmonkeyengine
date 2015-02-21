@@ -45,6 +45,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
@@ -246,6 +247,13 @@ public class SimpleWaterProcessor implements SceneProcessor {
     protected void createTextures() {
         reflectionTexture = new Texture2D(renderWidth, renderHeight, Format.RGBA8);
         refractionTexture = new Texture2D(renderWidth, renderHeight, Format.RGBA8);
+        
+        reflectionTexture.setMinFilter(Texture.MinFilter.Trilinear);
+        reflectionTexture.setMagFilter(Texture.MagFilter.Bilinear);
+        
+        refractionTexture.setMinFilter(Texture.MinFilter.Trilinear);
+        refractionTexture.setMagFilter(Texture.MagFilter.Bilinear);
+        
         depthTexture = new Texture2D(renderWidth, renderHeight, Format.Depth);
     }
 
