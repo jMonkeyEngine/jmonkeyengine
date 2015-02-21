@@ -140,7 +140,7 @@ public class MaterialLoader implements AssetLoader {
             textures[texUnit].setImage(loadedTexture.getImage());
             textures[texUnit].setMinFilter(loadedTexture.getMinFilter());
             textures[texUnit].setKey(loadedTexture.getKey());
-
+            
             // XXX: Is this really neccessary?
             textures[texUnit].setWrap(WrapMode.Repeat);
             if (texName != null){
@@ -151,7 +151,7 @@ public class MaterialLoader implements AssetLoader {
             }
         } catch (AssetNotFoundException ex){
             logger.log(Level.WARNING, "Cannot locate {0} for material {1}", new Object[]{texKey, matName});
-            textures[texUnit].setImage(PlaceholderAssets.getPlaceholderImage());
+            textures[texUnit].setImage(PlaceholderAssets.getPlaceholderImage(assetManager));
             textures[texUnit].setKey(texKey);
         }
     }
