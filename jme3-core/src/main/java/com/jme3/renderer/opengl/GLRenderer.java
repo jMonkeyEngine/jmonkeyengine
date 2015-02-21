@@ -1062,6 +1062,10 @@ public class GLRenderer implements Renderer {
             }
         }
         
+        if (linearizeSrgbImages) {
+            stringBuf.append("#define SRGB 1\n");
+        }
+        
         stringBuf.append(source.getDefines());
         stringBuf.append(source.getSource());
         
