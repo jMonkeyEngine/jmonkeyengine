@@ -82,6 +82,7 @@ task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the pro
         options.addStringOption('Xdoclint:none', '-quiet')
     }
     
+    options.overview = file("javadoc-overview.html")
     // Note: The closures below are executed lazily.
     source subprojects.collect {project ->
         project.sourceSets*.allJava
