@@ -205,19 +205,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
         this.skeleton = skeleton;
     }
 
-    /**
-     * Creates a skeleton control.
-     *
-     * @param targets the meshes controlled by the skeleton
-     * @param skeleton the skeleton
-     */
-    @Deprecated
-    SkeletonControl(Mesh[] targets, Skeleton skeleton) {
-        this.skeleton = skeleton;
-        this.targets = new SafeArrayList<Mesh>(Mesh.class, Arrays.asList(targets));
-    }
-
-
     private void findTargets(Node node) {
         Mesh sharedMesh = null;        
 

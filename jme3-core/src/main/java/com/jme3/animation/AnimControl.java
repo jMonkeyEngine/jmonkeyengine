@@ -372,9 +372,8 @@ public final class AnimControl extends AbstractControl implements Cloneable {
             // When backward compatibility won't be needed anymore this can deleted        
             Savable[] sav = in.readSavableArray("targets", null);
             if (sav != null) {
-                Mesh[] targets = new Mesh[sav.length];
-                System.arraycopy(sav, 0, targets, 0, sav.length);
-                skeletonControl = new SkeletonControl(targets, skeleton);
+                // NOTE: allow the targets to be gathered automatically
+                skeletonControl = new SkeletonControl(skeleton);
                 spatial.addControl(skeletonControl);
             }
         }
