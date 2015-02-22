@@ -580,6 +580,7 @@ public class Geometry extends Spatial {
             Mesh sharedMesh = getUserData(UserData.JME_SHAREDMESH);
             if (sharedMesh != null) {
                 getMesh().extractVertexData(sharedMesh);
+                setUserData(UserData.JME_SHAREDMESH, null);
             }
         }
     }
