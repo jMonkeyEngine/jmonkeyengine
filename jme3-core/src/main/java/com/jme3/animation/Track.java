@@ -60,4 +60,15 @@ public interface Track extends Savable, Cloneable {
      * @return a clone of the current object
      */
     public Track clone();
+    
+    /**
+     * Get the times in seconds for all keyframes.
+     * 
+     * All keyframe times should be between 0.0 and {@link #getLength() length}.
+     * Modifying the provided array is not allowed, as it may corrupt internal
+     * state.
+     * 
+     * @return the keyframe times
+     */
+    public float[] getKeyFrameTimes();
 }

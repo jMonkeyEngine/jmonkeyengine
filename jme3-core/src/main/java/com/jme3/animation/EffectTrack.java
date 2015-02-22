@@ -239,6 +239,11 @@ public class EffectTrack implements ClonableTrack {
         return length;
     }
 
+    @Override
+    public float[] getKeyFrameTimes() {
+        return new float[] { startOffset };
+    }
+    
     /**
      * Clone this track
      *
