@@ -1,4 +1,4 @@
-#import "Common/ShaderLib/PhongLighting.glsllib"
+#import "Common/ShaderLib/BlinnPhongLighting.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
 
 uniform float m_Shininess;
