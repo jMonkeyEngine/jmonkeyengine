@@ -428,6 +428,18 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
     
     /**
+     * Sets the update needed flag, while also checking if mipmaps
+     * need to be regenerated.
+     */
+    @Override
+    public void setUpdateNeeded() {
+        super.setUpdateNeeded();
+        if (!isGeneratedMipmapsRequired() && !hasMipmaps()) {
+            setNeedGeneratedMipmaps();
+        }
+    }
+    
+    /**
      * Determine if the image is NPOT.
      *
      * @return if the image is a non-power-of-2 image, e.g. having dimensions
