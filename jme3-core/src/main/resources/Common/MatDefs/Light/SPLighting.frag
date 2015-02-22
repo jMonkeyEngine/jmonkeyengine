@@ -74,6 +74,12 @@ uniform float m_Shininess;
 void main(){
     #ifdef NORMALMAP   
         mat3 tbnMat = mat3(normalize(vTangent.xyz) , normalize(vBinormal.xyz) , normalize(vNormal.xyz));
+
+        if (!gl_FrontFacing)
+        {
+            tbnMat[2] = -tbnMat[2];
+        }
+
         vec3 viewDir = normalize(-vPos.xyz * tbnMat);
     #else
         vec3 viewDir = normalize(-vPos.xyz);
@@ -133,7 +139,12 @@ void main(){
       //for more explanation.
       vec3 normal = normalize((normalHeight.xyz * vec3(2.0,-2.0,2.0) - vec3(1.0,-1.0,1.0)));
     #elif !defined(VERTEX_LIGHTING)
-      vec3 normal = normalize(vNormal);            
+      vec3 normal = normalize(vNormal); 
+
+      if (!gl_FrontFacing)
+      {
+          normal = -normal;
+      }           
     #endif
 
     #ifdef SPECULARMAP
