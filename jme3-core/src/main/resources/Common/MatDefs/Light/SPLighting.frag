@@ -72,6 +72,13 @@ uniform float m_Shininess;
 #endif
 
 void main(){
+    #ifdef NORMALMAP   
+        mat3 tbnMat = mat3(normalize(vTangent.xyz) , normalize(vBinormal.xyz) , normalize(vNormal.xyz));
+        vec3 viewDir = normalize(-vPos.xyz * tbnMat);
+    #else
+        vec3 viewDir = normalize(-vPos.xyz);
+    #endif
+
     vec2 newTexCoord;
      
     #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP))) && !defined(VERTEX_LIGHTING) 
@@ -79,18 +86,18 @@ void main(){
        #ifdef STEEP_PARALLAX
            #ifdef NORMALMAP_PARALLAX
                //parallax map is stored in the alpha channel of the normal map         
-               newTexCoord = steepParallaxOffset(m_NormalMap, vViewDir, texCoord, m_ParallaxHeight);
+               newTexCoord = steepParallaxOffset(m_NormalMap, viewDir, texCoord, m_ParallaxHeight);
            #else
                //parallax map is a texture
-               newTexCoord = steepParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);         
+               newTexCoord = steepParallaxOffset(m_ParallaxMap, viewDir, texCoord, m_ParallaxHeight);         
            #endif
        #else
            #ifdef NORMALMAP_PARALLAX
                //parallax map is stored in the alpha channel of the normal map         
-               newTexCoord = classicParallaxOffset(m_NormalMap, vViewDir, texCoord, m_ParallaxHeight);
+               newTexCoord = classicParallaxOffset(m_NormalMap, viewDir, texCoord, m_ParallaxHeight);
            #else
                //parallax map is a texture
-               newTexCoord = classicParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);
+               newTexCoord = classicParallaxOffset(m_ParallaxMap, viewDir, texCoord, m_ParallaxHeight);
            #endif
        #endif
     #else
@@ -158,13 +165,6 @@ void main(){
 
         #ifdef USE_REFLECTION
              vec4 refColor = Optics_GetEnvColor(m_EnvMap, refVec.xyz);
-        #endif
-
-        #ifdef NORMALMAP   
-            mat3 tbnMat = mat3(normalize(vTangent.xyz) , normalize(vBinormal.xyz) , normalize(vNormal.xyz));
-            vec3 viewDir = normalize(-vPos.xyz * tbnMat);
-        #else
-            vec3 viewDir = normalize(-vPos.xyz);
         #endif
 
         for( int i = 0;i < NB_LIGHTS; i+=3){
