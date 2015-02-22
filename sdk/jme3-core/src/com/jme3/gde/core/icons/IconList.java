@@ -90,6 +90,10 @@ public class IconList {
             ImageUtilities.loadImageIcon("com/jme3/gde/core/icons/lightbulb.gif", false);
     public static ImageIcon eyeOpen =
             ImageUtilities.loadImageIcon("com/jme3/gde/core/icons/eye.gif", false);
+    public static ImageIcon eyeGreen =
+            ImageUtilities.loadImageIcon("com/jme3/gde/core/icons/eyeGreen.gif", false);
+    public static ImageIcon eyeOff =
+            ImageUtilities.loadImageIcon("com/jme3/gde/core/icons/eyeOff.gif", false);
     public static ImageIcon eyeCrossed =
             ImageUtilities.loadImageIcon("com/jme3/gde/core/icons/crossedEye.gif", false);
     public static ImageIcon colorBox =

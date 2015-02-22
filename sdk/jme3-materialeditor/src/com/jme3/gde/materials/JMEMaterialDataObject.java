@@ -48,7 +48,7 @@ import org.openide.nodes.Node;
         mimeType = "text/jme3material",
         extension = {"j3m", "J3M"}
 )
-@DataObject.Registration(displayName = "jME3 Material", mimeType = "text/jme3material", iconBase = "com/jme3/gde/materials/jme-logo.png")
+@DataObject.Registration(displayName = "jME3 Material", mimeType = "text/jme3material", iconBase = "com/jme3/gde/materials/material.png")
 public class JMEMaterialDataObject extends AssetDataObject {
 
     public JMEMaterialDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
