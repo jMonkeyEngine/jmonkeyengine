@@ -38,11 +38,8 @@ public class ShaderCheck {
         for (TechniqueDef techDef : def.getDefaultTechniques()){
             DefineList dl = new DefineList();
             dl.addFrom(techDef.getShaderPresetDefines());
-            ShaderKey shaderKey = new ShaderKey(techDef.getVertexShaderName(),
-                                                techDef.getFragmentShaderName(),
-                                                dl,
-                                                techDef.getVertexShaderLanguage(),
-                                                techDef.getFragmentShaderLanguage());
+            ShaderKey shaderKey = new ShaderKey(dl,techDef.getShaderProgramLanguages(),techDef.getShaderProgramNames());
+
             Shader shader = assetManager.loadShader(shaderKey);
 
             for (Validator validator : validators){

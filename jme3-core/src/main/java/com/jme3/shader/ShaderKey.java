@@ -37,25 +37,30 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import java.io.IOException;
+import java.util.EnumMap;
 
 public class ShaderKey extends AssetKey<Shader> {
 
-    protected String fragName;
+    protected EnumMap<Shader.ShaderType,String> shaderLanguage;
+    protected EnumMap<Shader.ShaderType,String> shaderName;
     protected DefineList defines;
-    protected String vertLanguage;
-    protected String fragLanguage;
     protected int cachedHashedCode = 0;
     protected boolean usesShaderNodes = false;
 
     public ShaderKey(){
+        shaderLanguage=new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
+        shaderName=new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
     }
 
-    public ShaderKey(String vertName, String fragName, DefineList defines, String vertLanguage, String fragLanguage){
-        super(vertName);
-        this.fragName = fragName;
+    public ShaderKey(DefineList defines, EnumMap<Shader.ShaderType,String> shaderLanguage,EnumMap<Shader.ShaderType,String> shaderName){
+        super(shaderName.get(Shader.ShaderType.Vertex));
+        this.shaderLanguage=new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
+        this.shaderName=new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
         this.defines = defines;
-        this.vertLanguage = vertLanguage;
-        this.fragLanguage = fragLanguage;
+        for (Shader.ShaderType shaderType : shaderName.keySet()) {
+            this.shaderName.put(shaderType,shaderName.get(shaderType));
+            this.shaderLanguage.put(shaderType,shaderLanguage.get(shaderType));
+        }
     }
     
     @Override
@@ -68,13 +73,15 @@ public class ShaderKey extends AssetKey<Shader> {
     
     @Override
     public String toString(){
-        return "V="+name + " F=" + fragName + (defines != null ? defines : "");
+        //todo:
+        return "V="+name+";";
     }
 
+    //todo: make equals and hashCode work
     @Override
     public boolean equals(Object obj) {
         final ShaderKey other = (ShaderKey) obj;
-        if (name.equals(other.name) && fragName.equals(other.fragName)){
+        if (name.equals(other.name) && shaderName.get(Shader.ShaderType.Fragment).equals(other.shaderName.get(Shader.ShaderType.Fragment))){
             if (defines != null && other.defines != null) {
                 return defines.equals(other.defines);
             } else if (defines != null || other.defines != null) {
@@ -91,7 +98,7 @@ public class ShaderKey extends AssetKey<Shader> {
         if (cachedHashedCode == 0) {
             int hash = 7;
             hash = 41 * hash + name.hashCode();
-            hash = 41 * hash + fragName.hashCode();
+            hash = 41 * hash + shaderName.get(Shader.ShaderType.Fragment).hashCode();
             hash = 41 * hash + (defines != null ? defines.hashCode() : 0);
             cachedHashedCode = hash;
         }
@@ -103,11 +110,11 @@ public class ShaderKey extends AssetKey<Shader> {
     }
 
     public String getVertName(){
-        return name;
+        return shaderName.get(Shader.ShaderType.Vertex);
     }
 
     public String getFragName() {
-        return fragName;
+        return shaderName.get(Shader.ShaderType.Fragment);
     }
 
     /**
@@ -115,15 +122,15 @@ public class ShaderKey extends AssetKey<Shader> {
      */
     @Deprecated
     public String getLanguage() {
-        return vertLanguage;
+        return shaderLanguage.get(Shader.ShaderType.Vertex);
     }
     
     public String getVertexShaderLanguage() { 
-        return vertLanguage;
+        return shaderLanguage.get(Shader.ShaderType.Vertex);
     }
     
     public String getFragmentShaderLanguage() {
-        return fragLanguage;
+        return shaderLanguage.get(Shader.ShaderType.Vertex);
     }
 
     public boolean isUsesShaderNodes() {
@@ -138,18 +145,32 @@ public class ShaderKey extends AssetKey<Shader> {
     public void write(JmeExporter ex) throws IOException{
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(fragName, "fragment_name", null);
-        oc.write(vertLanguage, "language", null);
-        oc.write(fragLanguage, "frag_language", null);
+        oc.write(shaderName.get(Shader.ShaderType.Fragment), "fragment_name", null);
+        oc.write(shaderName.get(Shader.ShaderType.Geometry), "geometry_name", null);
+        oc.write(shaderName.get(Shader.ShaderType.TesselationControl), "tessControl_name", null);
+        oc.write(shaderName.get(Shader.ShaderType.TesselationEvaluation), "tessEval_name", null);
+        oc.write(shaderLanguage.get(Shader.ShaderType.Vertex), "language", null);
+        oc.write(shaderLanguage.get(Shader.ShaderType.Fragment), "frag_language", null);
+        oc.write(shaderLanguage.get(Shader.ShaderType.Geometry), "geom_language", null);
+        oc.write(shaderLanguage.get(Shader.ShaderType.TesselationControl), "tsctrl_language", null);
+        oc.write(shaderLanguage.get(Shader.ShaderType.TesselationEvaluation), "tseval_language", null);
+
     }
 
     @Override
     public void read(JmeImporter im) throws IOException{
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        fragName = ic.readString("fragment_name", null);
-        vertLanguage = ic.readString("language", null);
-        fragLanguage = ic.readString("frag_language", null);
+        shaderName.put(Shader.ShaderType.Vertex,name);
+        shaderName.put(Shader.ShaderType.Fragment,ic.readString("fragment_name", null));
+        shaderName.put(Shader.ShaderType.Geometry,ic.readString("geometry_name", null));
+        shaderName.put(Shader.ShaderType.TesselationControl,ic.readString("tessControl_name", null));
+        shaderName.put(Shader.ShaderType.TesselationEvaluation,ic.readString("tessEval_name", null));
+        shaderLanguage.put(Shader.ShaderType.Vertex,ic.readString("language", null));
+        shaderLanguage.put(Shader.ShaderType.Fragment,ic.readString("frag_language", null));
+        shaderLanguage.put(Shader.ShaderType.Geometry,ic.readString("geom_language", null));
+        shaderLanguage.put(Shader.ShaderType.TesselationControl,ic.readString("tsctrl_language", null));
+        shaderLanguage.put(Shader.ShaderType.TesselationEvaluation,ic.readString("tseval_language", null));
     }
 
 }

@@ -190,11 +190,7 @@ public class Technique /* implements Savable */ {
 
     private void loadShader(AssetManager manager,EnumSet<Caps> rendererCaps) {
         
-        ShaderKey key = new ShaderKey(def.getVertexShaderName(),
-                    def.getFragmentShaderName(),
-                    getAllDefines(),
-                    def.getVertexShaderLanguage(),
-                    def.getFragmentShaderLanguage());
+        ShaderKey key = new ShaderKey(getAllDefines(),def.getShaderProgramLanguages(),def.getShaderProgramNames());
         
         if (getDef().isUsingShaderNodes()) {                 
            manager.getShaderGenerator(rendererCaps).initialize(this);           

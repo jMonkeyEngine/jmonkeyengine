@@ -402,6 +402,7 @@ public class DesktopAssetManager implements AssetManager {
                 }
                 shader = shaderGenerator.generateShader();
             } else {
+
                 String vertName = key.getVertName();
                 String fragName = key.getFragName();
 

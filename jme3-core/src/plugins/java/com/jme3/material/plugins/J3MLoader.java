@@ -40,6 +40,7 @@ import com.jme3.material.TechniqueDef.ShadowMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.shader.Shader;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
@@ -50,6 +51,7 @@ import com.jme3.util.blockparser.BlockLanguageParser;
 import com.jme3.util.blockparser.Statement;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,7 +62,7 @@ public class J3MLoader implements AssetLoader {
    // private ErrorLogger errors;
     private ShaderNodeLoaderDelegate nodesLoaderDelegate;
     boolean isUseNodes = false;
-    
+
     private AssetManager assetManager;
     private AssetKey key;
 
@@ -68,16 +70,15 @@ public class J3MLoader implements AssetLoader {
     private Material material;
     private TechniqueDef technique;
     private RenderState renderState;
-    
-    private String vertLanguage;
-    private String fragLanguage;
-    
-    private String vertName;
-    private String fragName;
-    
+
+    private EnumMap<Shader.ShaderType,String> shaderLanguage;
+    private EnumMap<Shader.ShaderType,String> shaderName;
+
     private static final String whitespacePattern = "\\p{javaWhitespace}+";
 
     public J3MLoader(){
+        shaderLanguage=new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
+        shaderName=new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
     }
 
 
@@ -91,14 +92,17 @@ public class J3MLoader implements AssetLoader {
         if (typeAndLang.length != 2) {
             throw new IOException("Shader statement syntax incorrect: " + statement);
         }
-        
-        if (typeAndLang[0].equals("VertexShader")) {
-            vertName = split[1].trim();
-            vertLanguage = typeAndLang[1];
-        } else if (typeAndLang[0].equals("FragmentShader")) {
-            fragName = split[1].trim();
-            fragLanguage = typeAndLang[1];
+
+        for (Shader.ShaderType shaderType : Shader.ShaderType.values()) {
+            if(typeAndLang[0].equals(shaderType.toString()+"Shader")){
+                readShaderDefinition(shaderType,split[1].trim(),typeAndLang[1]);
+            }
         }
+    }
+
+    private void readShaderDefinition(Shader.ShaderType shaderType,String name,String language){
+        shaderName.put(shaderType,name);
+        shaderLanguage.put(shaderType,language);
     }
 
     // LightMode <MODE>
@@ -163,14 +167,14 @@ public class J3MLoader implements AssetLoader {
             if (tex != null){
                 if (repeat){
                     tex.setWrap(WrapMode.Repeat);
-                }                
+                }
             }else{
                 tex = new Texture2D(PlaceholderAssets.getPlaceholderImage(assetManager));
                 if (repeat){
                     tex.setWrap(WrapMode.Repeat);
                 }
                 tex.setKey(texKey);
-            }         
+            }
             return tex;
         }else{
             String[] split = value.trim().split(whitespacePattern);
@@ -216,13 +220,13 @@ public class J3MLoader implements AssetLoader {
             }
         }
     }
-    
+
     // <TYPE> <NAME> [ "(" <FFBINDING> ")" ] [ ":" <DEFAULTVAL> ] [-LINEAR]
     private void readParam(String statement) throws IOException{
         String name;
         String defaultVal = null;
         ColorSpace colorSpace = null;
-        
+
         String[] split = statement.split("-");
         if(split.length>1){
             if(split[1].equalsIgnoreCase("LINEAR")){
@@ -230,9 +234,9 @@ public class J3MLoader implements AssetLoader {
             }
             statement = split[0].trim();
         }
-        
+
         split = statement.split(":");
-        
+
         // Parse default val
         if (split.length == 1){
             // Doesn't contain default value
@@ -241,9 +245,9 @@ public class J3MLoader implements AssetLoader {
                 throw new IOException("Parameter statement syntax incorrect");
             }
             statement = split[0].trim();
-            defaultVal = split[1].trim();           
+            defaultVal = split[1].trim();
         }
-        
+
         // Parse ffbinding
         int startParen = statement.indexOf("(");
         if (startParen != -1){
@@ -253,32 +257,32 @@ public class J3MLoader implements AssetLoader {
             // don't care about bindingStr
             statement = statement.substring(0, startParen);
         }
-        
+
         // Parse type + name
         split = statement.split(whitespacePattern);
         if (split.length != 2){
             throw new IOException("Parameter statement syntax incorrect");
         }
-        
+
         VarType type;
         if (split[0].equals("Color")){
             type = VarType.Vector4;
         }else{
             type = VarType.valueOf(split[0]);
         }
-        
+
         name = split[1];
-        
+
         Object defaultValObj = null;
-        if (defaultVal != null){ 
+        if (defaultVal != null){
             defaultValObj = readValue(type, defaultVal);
         }
         if(type.isTextureType()){
-            materialDef.addMaterialParamTexture(type, name, colorSpace);    
+            materialDef.addMaterialParamTexture(type, name, colorSpace);
         }else{
             materialDef.addMaterialParam(type, name, defaultValObj);
         }
-        
+
     }
 
     private void readValueParam(String statement) throws IOException{
@@ -373,7 +377,7 @@ public class J3MLoader implements AssetLoader {
         technique.setRenderState(renderState);
         renderState = null;
     }
-    
+
     private void readForcedRenderState(List<Statement> renderStates) throws IOException{
         renderState = new RenderState();
         for (Statement statement : renderStates){
@@ -382,7 +386,7 @@ public class J3MLoader implements AssetLoader {
         technique.setForcedRenderState(renderState);
         renderState = null;
     }
-    
+
     // <DEFINENAME> [ ":" <PARAMNAME> ]
     private void readDefine(String statement) throws IOException{
         String[] split = statement.split(":");
@@ -402,9 +406,9 @@ public class J3MLoader implements AssetLoader {
         }
 
     }
-    
+
     private void readTechniqueStatement(Statement statement) throws IOException{
-        String[] split = statement.getLine().split("[ \\{]");       
+        String[] split = statement.getLine().split("[ \\{]");
         if (split[0].equals("VertexShader") ||
             split[0].equals("FragmentShader")){
             readShaderStatement(statement.getLine());
@@ -414,12 +418,12 @@ public class J3MLoader implements AssetLoader {
             readShadowMode(statement.getLine());
         }else if (split[0].equals("WorldParameters")){
             readWorldParams(statement.getContents());
-        }else if (split[0].equals("RenderState")){  
+        }else if (split[0].equals("RenderState")){
             readRenderState(statement.getContents());
-        }else if (split[0].equals("ForcedRenderState")){  
+        }else if (split[0].equals("ForcedRenderState")){
             readForcedRenderState(statement.getContents());
-        }else if (split[0].equals("Defines")){           
-            readDefines(statement.getContents());         
+        }else if (split[0].equals("Defines")){
+            readDefines(statement.getContents());
         } else if (split[0].equals("ShaderNodesDefinitions")) {
             initNodesLoader();
             if (isUseNodes) {
@@ -432,14 +436,14 @@ public class J3MLoader implements AssetLoader {
             }
         } else if (split[0].equals("FragmentShaderNodes")) {
             initNodesLoader();
-            if (isUseNodes) {                
+            if (isUseNodes) {
                 nodesLoaderDelegate.readFragmentShaderNodes(statement.getContents());
             }
         } else {
             throw new MatParseException(null, split[0], statement);
         }
     }
-    
+
     private void readTransparentStatement(String statement) throws IOException{
         String[] split = statement.split(whitespacePattern);
         if (split.length != 2){
@@ -459,30 +463,28 @@ public class J3MLoader implements AssetLoader {
         } else {
             throw new IOException("Technique statement syntax incorrect");
         }
-        
+
         for (Statement statement : techStat.getContents()){
             readTechniqueStatement(statement);
         }
-        
+
         if(isUseNodes){
             nodesLoaderDelegate.computeConditions();
             //used for caching later, the shader here is not a file.
             technique.setShaderFile(technique.hashCode() + "", technique.hashCode() + "", "GLSL100", "GLSL100");
         }
 
-        if (vertName != null && fragName != null){
-            technique.setShaderFile(vertName, fragName, vertLanguage, fragLanguage);
+        if(shaderName.containsKey(Shader.ShaderType.Vertex) && shaderName.containsKey(Shader.ShaderType.Fragment)){
+            technique.setShaderFile(shaderName,shaderLanguage);
         }
-        
+
         materialDef.addTechniqueDef(technique);
         technique = null;
-        vertName = null;
-        fragName = null;
-        vertLanguage = null;
-        fragLanguage = null;
+        shaderLanguage.clear();
+        shaderName.clear();
     }
 
-    private void loadFromRoot(List<Statement> roots) throws IOException{       
+    private void loadFromRoot(List<Statement> roots) throws IOException{
         if (roots.size() == 2){
             Statement exception = roots.get(0);
             String line = exception.getLine();
@@ -494,7 +496,7 @@ public class J3MLoader implements AssetLoader {
         }else if (roots.size() != 1){
             throw new IOException("Too many roots in J3M/J3MD file");
         }
-               
+
         boolean extending = false;
         Statement materialStat = roots.get(0);
         String materialName = materialStat.getLine();
@@ -507,16 +509,16 @@ public class J3MLoader implements AssetLoader {
         }else{
             throw new IOException("Specified file is not a Material file");
         }
-        
+
         String[] split = materialName.split(":", 2);
-        
+
         if (materialName.equals("")){
-            throw new MatParseException("Material name cannot be empty", materialStat);         
+            throw new MatParseException("Material name cannot be empty", materialStat);
         }
 
         if (split.length == 2){
             if (!extending){
-                throw new MatParseException("Must use 'Material' when extending.", materialStat); 
+                throw new MatParseException("Must use 'Material' when extending.", materialStat);
             }
 
             String extendedMat = split[1].trim();
@@ -531,15 +533,15 @@ public class J3MLoader implements AssetLoader {
 //            material.setAssetName(fileName);
         }else if (split.length == 1){
             if (extending){
-                throw new MatParseException("Expected ':', got '{'", materialStat);               
+                throw new MatParseException("Expected ':', got '{'", materialStat);
             }
             materialDef = new MaterialDef(assetManager, materialName);
             // NOTE: pass file name for defs so they can be loaded later
             materialDef.setAssetName(key.getName());
         }else{
-            throw new MatParseException("Cannot use colon in material name/path", materialStat);   
+            throw new MatParseException("Cannot use colon in material name/path", materialStat);
         }
-        
+
         for (Statement statement : materialStat.getContents()){
             split = statement.getLine().split("[ \\{]");
             String statType = split[0];
@@ -557,25 +559,25 @@ public class J3MLoader implements AssetLoader {
                 }else if (statType.equals("MaterialParameters")){
                     readMaterialParams(statement.getContents());
                 }else{
-                    throw new MatParseException("Expected material statement, got '"+statType+"'", statement);                       
+                    throw new MatParseException("Expected material statement, got '"+statType+"'", statement);
                 }
             }
         }
     }
 
-    public Object load(AssetInfo info) throws IOException {       
+    public Object load(AssetInfo info) throws IOException {
         this.assetManager = info.getManager();
 
-        InputStream in = info.openStream();        
+        InputStream in = info.openStream();
         try {
-            key = info.getKey();            
+            key = info.getKey();
             loadFromRoot(BlockLanguageParser.parse(in));
         } finally {
             if (in != null){
                 in.close();
             }
         }
-        
+
         if (material != null){
             if (!(info.getKey() instanceof MaterialKey)){
                 throw new IOException("Material instances must be loaded via MaterialKey");
@@ -587,7 +589,7 @@ public class J3MLoader implements AssetLoader {
             return materialDef;
         }
     }
-    
+
     public MaterialDef loadMaterialDef(List<Statement> roots, AssetManager manager, AssetKey key) throws IOException {
         this.key = key;
         this.assetManager = manager;
@@ -597,8 +599,8 @@ public class J3MLoader implements AssetLoader {
 
     protected void initNodesLoader() {
         if (!isUseNodes) {
-            isUseNodes = fragName == null && vertName == null;
-            if (isUseNodes) { 
+            isUseNodes = shaderName.get(Shader.ShaderType.Vertex) == null && shaderName.get(Shader.ShaderType.Fragment) == null;
+            if (isUseNodes) {
                 if(nodesLoaderDelegate == null){
                     nodesLoaderDelegate = new ShaderNodeLoaderDelegate();
                 }else{
@@ -609,6 +611,6 @@ public class J3MLoader implements AssetLoader {
                 nodesLoaderDelegate.setAssetManager(assetManager);
             }
         }
-    }   
+    }
 
 }
