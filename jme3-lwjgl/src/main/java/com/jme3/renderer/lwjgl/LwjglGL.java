@@ -9,6 +9,8 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+
+import com.jme3.renderer.opengl.GL4;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
@@ -16,7 +18,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
-public class LwjglGL implements GL, GL2, GL3 {
+public class LwjglGL implements GL, GL2, GL3,GL4 {
     
     private static void checkLimit(Buffer buffer) {
         if (buffer == null) {
