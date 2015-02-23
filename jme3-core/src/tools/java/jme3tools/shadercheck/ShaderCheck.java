@@ -30,7 +30,7 @@ public class ShaderCheck {
         assetManager.registerLocator("/", ClasspathLocator.class);
         assetManager.registerLoader(J3MLoader.class, "j3m");
         assetManager.registerLoader(J3MLoader.class, "j3md");
-        assetManager.registerLoader(GLSLLoader.class, "vert", "frag", "glsllib");
+        assetManager.registerLoader(GLSLLoader.class, "vert", "frag","geom","tsctrl","tseval","glsllib");
     }
     
     private static void checkMatDef(String matdefName){
