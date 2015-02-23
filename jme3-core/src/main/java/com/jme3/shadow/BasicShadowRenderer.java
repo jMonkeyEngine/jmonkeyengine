@@ -40,8 +40,10 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.GeometryList;
+import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.scene.Spatial;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture2D;
@@ -71,6 +73,9 @@ public class BasicShadowRenderer implements SceneProcessor {
     protected Texture2D dummyTex;
     private float shadowMapSize;
 
+    protected GeometryList lightReceivers = new GeometryList(new OpaqueComparator());
+    protected GeometryList shadowOccluders = new GeometryList(new OpaqueComparator());
+    
     /**
      * Creates a BasicShadowRenderer
      * @param manager the asset manager
@@ -142,15 +147,9 @@ public class BasicShadowRenderer implements SceneProcessor {
     }
 
     public void postQueue(RenderQueue rq) {
-        GeometryList occluders = rq.getShadowQueueContent(ShadowMode.Cast);
-        if (occluders.size() == 0) {
-            noOccluders = true;
-            return;
-        } else {
-            noOccluders = false;
+        for (Spatial scene : viewPort.getScenes()) {
+            ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), ShadowMode.Receive, lightReceivers);
         }
-
-        GeometryList receivers = rq.getShadowQueueContent(ShadowMode.Receive);
 
         // update frustum points based on current camera
         Camera viewCam = viewPort.getCamera();
@@ -178,15 +177,21 @@ public class BasicShadowRenderer implements SceneProcessor {
         shadowCam.updateViewProjection();
 
         // render shadow casters to shadow map
-        ShadowUtil.updateShadowCamera(occluders, receivers, shadowCam, points, shadowMapSize);
-
+        ShadowUtil.updateShadowCamera(viewPort, lightReceivers, shadowCam, points, shadowOccluders, shadowMapSize);
+        if (shadowOccluders.size() == 0) {
+            noOccluders = true;
+            return;
+        } else {
+            noOccluders = false;
+        }            
+        
         Renderer r = renderManager.getRenderer();
         renderManager.setCamera(shadowCam, false);
         renderManager.setForcedMaterial(preshadowMat);
 
         r.setFrameBuffer(shadowFB);
         r.clearBuffers(false, true, false);
-        viewPort.getQueue().renderShadowQueue(ShadowMode.Cast, renderManager, shadowCam, true);
+        viewPort.getQueue().renderShadowQueue(shadowOccluders, renderManager, shadowCam, true);
         r.setFrameBuffer(viewPort.getOutputFrameBuffer());
 
         renderManager.setForcedMaterial(null);
@@ -205,7 +210,7 @@ public class BasicShadowRenderer implements SceneProcessor {
         if (!noOccluders) {
             postshadowMat.setMatrix4("LightViewProjectionMatrix", shadowCam.getViewProjectionMatrix());
             renderManager.setForcedMaterial(postshadowMat);
-            viewPort.getQueue().renderShadowQueue(ShadowMode.Receive, renderManager, viewPort.getCamera(), true);
+            viewPort.getQueue().renderShadowQueue(lightReceivers, renderManager, viewPort.getCamera(), true);
             renderManager.setForcedMaterial(null);
         }
     }
