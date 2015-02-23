@@ -38,6 +38,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import java.io.IOException;
 import java.util.EnumMap;
+import java.util.Set;
 
 public class ShaderKey extends AssetKey<Shader> {
 
@@ -139,6 +140,18 @@ public class ShaderKey extends AssetKey<Shader> {
 
     public void setUsesShaderNodes(boolean usesShaderNodes) {
         this.usesShaderNodes = usesShaderNodes;
+    }
+
+    public Set<Shader.ShaderType> getUsedShaderPrograms(){
+        return shaderName.keySet();
+    }
+
+    public String getShaderProgramLanguage(Shader.ShaderType shaderType){
+        return shaderLanguage.get(shaderType);
+    }
+
+    public String getShaderProgramName(Shader.ShaderType shaderType){
+        return shaderName.get(shaderType);
     }
 
     @Override

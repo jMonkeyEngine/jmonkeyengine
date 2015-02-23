@@ -68,12 +68,12 @@ public class DesktopAssetManager implements AssetManager {
 
     private static final Logger logger = Logger.getLogger(AssetManager.class.getName());
     private ShaderGenerator shaderGenerator;
-    
+
     private final ImplHandler handler = new ImplHandler(this);
 
-    private CopyOnWriteArrayList<AssetEventListener> eventListeners = 
+    private CopyOnWriteArrayList<AssetEventListener> eventListeners =
             new CopyOnWriteArrayList<AssetEventListener>();
-    
+
     private List<ClassLoader> classLoaders =
             Collections.synchronizedList(new ArrayList<ClassLoader>());
 
@@ -89,7 +89,7 @@ public class DesktopAssetManager implements AssetManager {
     public DesktopAssetManager(URL configFile){
         if (configFile != null){
             loadConfigFile(configFile);
-        }        
+        }
         logger.fine("DesktopAssetManager created.");
     }
 
@@ -109,11 +109,11 @@ public class DesktopAssetManager implements AssetManager {
                 }
         }
     }
-    
+
     public void addClassLoader(ClassLoader loader) {
         classLoaders.add(loader);
     }
-    
+
     public void removeClassLoader(ClassLoader loader) {
         classLoaders.remove(loader);
     }
@@ -121,7 +121,7 @@ public class DesktopAssetManager implements AssetManager {
     public List<ClassLoader> getClassLoaders(){
         return Collections.unmodifiableList(classLoaders);
     }
-    
+
     public void addAssetEventListener(AssetEventListener listener) {
         eventListeners.add(listener);
     }
@@ -133,7 +133,7 @@ public class DesktopAssetManager implements AssetManager {
     public void clearAssetEventListeners() {
         eventListeners.clear();
     }
-    
+
     public void setAssetEventListener(AssetEventListener listener){
         eventListeners.clear();
         eventListeners.add(listener);
@@ -160,7 +160,7 @@ public class DesktopAssetManager implements AssetManager {
             registerLoader(clazz, extensions);
         }
     }
-    
+
     public void unregisterLoader(Class<? extends AssetLoader> loaderClass) {
         handler.removeLoader(loaderClass);
         if (logger.isLoggable(Level.FINER)){
@@ -190,7 +190,7 @@ public class DesktopAssetManager implements AssetManager {
             registerLocator(rootPath, clazz);
         }
     }
-    
+
     public void unregisterLocator(String rootPath, Class<? extends AssetLocator> clazz){
         handler.removeLocator(clazz, rootPath);
         if (logger.isLoggable(Level.FINER)){
@@ -198,7 +198,7 @@ public class DesktopAssetManager implements AssetManager {
                     clazz.getSimpleName());
         }
     }
-    
+
     public AssetInfo locateAsset(AssetKey<?> key){
         AssetInfo info = handler.tryLocate(key);
         if (info == null){
@@ -206,7 +206,7 @@ public class DesktopAssetManager implements AssetManager {
         }
         return info;
     }
-    
+
     public <T> T getFromCache(AssetKey<T> key) {
         AssetCache cache = handler.getCache(key.getCacheType());
         if (cache != null) {
@@ -220,7 +220,7 @@ public class DesktopAssetManager implements AssetManager {
             throw new IllegalArgumentException("Key " + key + " specifies no cache.");
         }
     }
-    
+
     public <T> void addToCache(AssetKey<T> key, T asset) {
         AssetCache cache = handler.getCache(key.getCacheType());
         if (cache != null) {
@@ -230,7 +230,7 @@ public class DesktopAssetManager implements AssetManager {
             throw new IllegalArgumentException("Key " + key + " specifies no cache.");
         }
     }
-    
+
     public <T> boolean deleteFromCache(AssetKey<T> key) {
         AssetCache cache = handler.getCache(key.getCacheType());
         if (cache != null) {
@@ -239,7 +239,7 @@ public class DesktopAssetManager implements AssetManager {
             throw new IllegalArgumentException("Key " + key + " specifies no cache.");
         }
     }
-    
+
     public void clearCache(){
         handler.clearCache();
         if (logger.isLoggable(Level.FINER)){
@@ -257,14 +257,14 @@ public class DesktopAssetManager implements AssetManager {
       public <T> T loadAsset(AssetKey<T> key){
         if (key == null)
             throw new IllegalArgumentException("key cannot be null");
-        
+
         for (AssetEventListener listener : eventListeners){
             listener.assetRequested(key);
         }
-        
+
         AssetCache cache = handler.getCache(key.getCacheType());
         AssetProcessor proc = handler.getProcessor(key.getProcessorType());
-        
+
         Object obj = cache != null ? cache.getFromCache(key) : null;
         if (obj == null){
             // Asset not in cache, load it from file system.
@@ -298,17 +298,17 @@ public class DesktopAssetManager implements AssetManager {
                     logger.log(Level.FINER, "Loaded {0} with {1}",
                             new Object[]{key, loader.getClass().getSimpleName()});
                 }
-                
+
                 if (proc != null){
                     // do processing on asset before caching
                     obj = proc.postProcess(key, obj);
                 }
-                
+
                 if (cache != null){
                     // At this point, obj should be of type T
                     cache.addToCache(key, (T) obj);
                 }
-                
+
                 for (AssetEventListener listener : eventListeners){
                     listener.assetLoaded(key);
                 }
@@ -334,7 +334,7 @@ public class DesktopAssetManager implements AssetManager {
                 }
             }
         }
-       
+
         return clone;
     }
 
@@ -342,7 +342,7 @@ public class DesktopAssetManager implements AssetManager {
         return loadAsset(new AssetKey(name));
     }
 
-    public Texture loadTexture(TextureKey key){                
+    public Texture loadTexture(TextureKey key){
         return (Texture) loadAsset(key);
     }
 
@@ -393,6 +393,7 @@ public class DesktopAssetManager implements AssetManager {
     public Shader loadShader(ShaderKey key){
         // cache abuse in method
         // that doesn't use loaders/locators
+        System.out.println();
         AssetCache cache = handler.getCache(SimpleAssetCache.class);
         Shader shader = (Shader) cache.getFromCache(key);
         if (shader == null){
@@ -402,17 +403,11 @@ public class DesktopAssetManager implements AssetManager {
                 }
                 shader = shaderGenerator.generateShader();
             } else {
-
-                String vertName = key.getVertName();
-                String fragName = key.getFragName();
-
-                String vertSource = (String) loadAsset(new AssetKey(vertName));
-                String fragSource = (String) loadAsset(new AssetKey(fragName));
-
                 shader = new Shader();
                 shader.initialize();
-                shader.addSource(Shader.ShaderType.Vertex, vertName, vertSource, key.getDefines().getCompiled(), key.getVertexShaderLanguage());
-                shader.addSource(Shader.ShaderType.Fragment, fragName, fragSource, key.getDefines().getCompiled(), key.getFragmentShaderLanguage());
+                for (Shader.ShaderType shaderType : key.getUsedShaderPrograms()) {
+                    shader.addSource(shaderType,key.getShaderProgramName(shaderType),(String) loadAsset(new AssetKey(key.getShaderProgramName(shaderType))),key.getDefines().getCompiled(),key.getShaderProgramLanguage(shaderType));
+                }
             }
 
             cache.addToCache(key, shader);
@@ -443,5 +438,5 @@ public class DesktopAssetManager implements AssetManager {
         this.shaderGenerator = shaderGenerator;
     }
 
-    
+
 }
