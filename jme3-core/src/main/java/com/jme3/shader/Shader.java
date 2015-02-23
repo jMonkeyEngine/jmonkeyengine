@@ -74,7 +74,15 @@ public final class Shader extends NativeObject {
         /**
          * Control geometry assembly. (e.g compile a triangle list from input data)
          */
-        Geometry;
+        Geometry,
+        /**
+         * Controls tesselation factor (e.g how often a input patch should be subdivided)
+         */
+        TesselationControl,
+        /**
+         * Controls tesselation transform (e.g similar to the vertex shader, but required to mix inputs manual)
+         */
+        TesselationEvaluation;
     }
 
     /**
