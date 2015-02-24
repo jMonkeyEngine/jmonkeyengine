@@ -792,7 +792,35 @@ public class BoundingSphere extends BoundingVolume {
             return 1;
         }
     }
- 
+
+    private int collideWithRay(Ray ray) {
+        TempVars vars = TempVars.get();
+
+        Vector3f diff = vars.vect1.set(ray.getOrigin()).subtractLocal(
+                center);
+        float a = diff.dot(diff) - (getRadius() * getRadius());
+        float a1, discr;
+        if (a <= 0.0) {
+            // inside sphere
+            vars.release();
+            return 1;
+        }
+
+        a1 = ray.direction.dot(diff);
+        vars.release();
+        if (a1 >= 0.0) {
+            return 0;
+        }
+
+        discr = a1 * a1 - a;
+        if (discr < 0.0) {
+            return 0;
+        } else if (discr >= FastMath.ZERO_TOLERANCE) {
+            return 2;
+        }
+        return 1;
+    }
+    
     private int collideWithTri(Triangle tri, CollisionResults results) {
         TempVars tvars = TempVars.get();
         try {
@@ -991,6 +1019,18 @@ public class BoundingSphere extends BoundingVolume {
         }
     }
 
+    @Override public int collideWith(Collidable other) {
+        if (other instanceof Ray) {
+            Ray ray = (Ray) other;
+            return collideWithRay(ray);
+        } else if (other instanceof Triangle){
+            return super.collideWith(other);
+        } else {
+            throw new UnsupportedCollisionException();
+        }
+    }
+
+    
     @Override
     public boolean contains(Vector3f point) {
         return center.distanceSquared(point) < (getRadius() * getRadius());
