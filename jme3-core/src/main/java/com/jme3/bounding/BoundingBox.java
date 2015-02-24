@@ -761,6 +761,35 @@ public class BoundingBox extends BoundingVolume {
         }
     }
 
+    private int collideWithRay(Ray ray) {
+        TempVars vars = TempVars.get();
+        try {    
+            Vector3f diff = vars.vect1.set(ray.origin).subtractLocal(center);
+            Vector3f direction = vars.vect2.set(ray.direction);
+
+            //float[] t = {0f, Float.POSITIVE_INFINITY};
+            float[] t = vars.fWdU; // use one of the tempvars arrays
+            t[0] = 0;
+            t[1] = Float.POSITIVE_INFINITY;  
+
+            float saveT0 = t[0], saveT1 = t[1];
+            boolean notEntirelyClipped = clip(+direction.x, -diff.x - xExtent, t)
+                    && clip(-direction.x, +diff.x - xExtent, t)
+                    && clip(+direction.y, -diff.y - yExtent, t)
+                    && clip(-direction.y, +diff.y - yExtent, t)
+                    && clip(+direction.z, -diff.z - zExtent, t)
+                    && clip(-direction.z, +diff.z - zExtent, t);
+
+            if (notEntirelyClipped && (t[0] != saveT0 || t[1] != saveT1)) {
+                if (t[1] > t[0]) return 2;
+                else return 1;
+            }
+            return 0;
+        } finally {
+            vars.release();
+        }
+    }
+    
     public int collideWith(Collidable other, CollisionResults results) {
         if (other instanceof Ray) {
             Ray ray = (Ray) other;
@@ -770,6 +799,22 @@ public class BoundingBox extends BoundingVolume {
             if (intersects(t.get1(), t.get2(), t.get3())) {
                 CollisionResult r = new CollisionResult();
                 results.addCollision(r);
+                return 1;
+            }
+            return 0;
+        } else {
+            throw new UnsupportedCollisionException("With: " + other.getClass().getSimpleName());
+        }
+    }
+    
+    @Override
+    public int collideWith(Collidable other) {
+        if (other instanceof Ray) {
+            Ray ray = (Ray) other;
+            return collideWithRay(ray);
+        } else if (other instanceof Triangle) {
+            Triangle t = (Triangle) other;
+            if (intersects(t.get1(), t.get2(), t.get3())) {
                 return 1;
             }
             return 0;

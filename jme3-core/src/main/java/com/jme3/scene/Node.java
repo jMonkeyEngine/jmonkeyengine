@@ -34,12 +34,12 @@ package com.jme3.scene;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
-import com.jme3.collision.DummyCollisionResults;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.Savable;
 import com.jme3.material.Material;
 import com.jme3.util.SafeArrayList;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -499,10 +499,8 @@ public class Node extends Spatial implements Savable {
           BoundingVolume bv = this.getWorldBound();
           if (bv==null) return 0;
 
-          // use DummyCollisionResults to avoid allocation while making the call to any BoundingVolume.collideWith possible
-          // moreover, the DummyCollisionResults operations are empty, so faster
-          DummyCollisionResults dummyColRes = DummyCollisionResults.getInstance();
-          if (bv.collideWith(other, dummyColRes) == 0) return 0;
+          // collideWith without CollisionResults parameter used to avoid allocation when possible
+          if (bv.collideWith(other) == 0) return 0;
         }
         for (Spatial child : children.getArray()){
             total += child.collideWith(other, results);
