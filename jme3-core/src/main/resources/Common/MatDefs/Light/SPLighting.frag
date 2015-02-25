@@ -178,6 +178,11 @@ void main(){
              vec4 refColor = Optics_GetEnvColor(m_EnvMap, refVec.xyz);
         #endif
 
+//        #ifdef COLORRAMP
+//            diffuseColor.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
+//            specularColor.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
+//        #endif
+
         for( int i = 0;i < NB_LIGHTS; i+=3){
             vec4 lightColor = g_LightData[i];
             vec4 lightData1 = g_LightData[i+1];                
@@ -204,11 +209,6 @@ void main(){
             #endif
 
             vec2 light = computeLighting(normal, viewDir, lightDir.xyz, lightDir.w * spotFallOff , m_Shininess);
-
-            #ifdef COLORRAMP
-                diffuseColor.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
-                specularColor.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
-            #endif
 
             // Workaround, since it is not possible to modify varying variables
             vec4 SpecularSum2 = vec4(SpecularSum, 1.0);
