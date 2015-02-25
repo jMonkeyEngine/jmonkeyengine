@@ -178,11 +178,6 @@ void main(){
              vec4 refColor = Optics_GetEnvColor(m_EnvMap, refVec.xyz);
         #endif
 
-//        #ifdef COLORRAMP
-//            diffuseColor.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
-//            specularColor.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
-//        #endif
-
         for( int i = 0;i < NB_LIGHTS; i+=3){
             vec4 lightColor = g_LightData[i];
             vec4 lightData1 = g_LightData[i+1];                
@@ -221,7 +216,13 @@ void main(){
                  light.y = 1.0;
             #endif
 
-            gl_FragColor.rgb += DiffuseSum.rgb   * lightColor.rgb * diffuseColor.rgb  * vec3(light.x) +
+            #ifdef COLORRAMP
+               DiffuseSum2.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
+               SpecularSum2.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
+               light.xy = vec2(1.0);
+            #endif
+
+            gl_FragColor.rgb += DiffuseSum2.rgb   * lightColor.rgb * diffuseColor.rgb  * vec3(light.x) +
                                 SpecularSum2.rgb * lightColor.rgb * specularColor.rgb * vec3(light.y);
         }
            
