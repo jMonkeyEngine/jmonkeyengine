@@ -1056,12 +1056,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
         Collection<MatParam> params = paramValues.values();
         for (MatParam param : params) {
-            if (param instanceof MatParamTexture) {
-                MatParamTexture texParam = (MatParamTexture) param;
-                r.setTexture(0, texParam.getTextureValue());
-            } else {
-                technique.updateUniformParam(param.getName(), param.getVarType(), param.getValue());
-            }
+            param.apply(r, technique);
         }
 
         r.setShader(technique.getShader());
