@@ -241,6 +241,7 @@ public final class Shader extends NativeObject {
     }
 
     public Uniform getUniform(String name){
+        assert name.startsWith("m_") || name.startsWith("g_");
         Uniform uniform = uniforms.get(name);
         if (uniform == null){
             uniform = new Uniform();
