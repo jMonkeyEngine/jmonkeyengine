@@ -298,8 +298,8 @@ public class HttpZipLocator implements AssetLocator {
     }
 
     public void load(URL url) throws IOException {
-        if (!url.getProtocol().equals("http"))
-            throw new UnsupportedOperationException();
+        if (!url.getProtocol().equals("http") && !url.getProtocol().equals("https"))
+            throw new UnsupportedOperationException("HttpZipLocator only supports HTTP(S) URLs");
 
         zipUrl = url;
         readEndHeader();
