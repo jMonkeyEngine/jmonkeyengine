@@ -57,6 +57,7 @@ public class StatsAppState extends AbstractAppState {
     protected boolean showSettings = true;
     private boolean showFps = true;
     private boolean showStats = true;
+    private boolean includePostStats = true;
     private boolean darkenBehind = true;
     
     protected Node guiNode;
@@ -99,8 +100,15 @@ public class StatsAppState extends AbstractAppState {
     }
 
     public void toggleStats() {
-        setDisplayFps( !showFps );
-        setDisplayStatView( !showStats );
+        if (!showStats) {
+            setDisplayFps(true);
+            setDisplayStatView(true); // also sets includePostStats = true
+        } else if (isIncludePostStats()) {
+            setIncludePostStats(false);
+        } else {
+            setDisplayFps(false);
+            setDisplayStatView(false);
+        }
     }
 
     public void setDisplayFps(boolean show) {
@@ -116,12 +124,24 @@ public class StatsAppState extends AbstractAppState {
 
     public void setDisplayStatView(boolean show) {
         showStats = show;
+        includePostStats = show;
         if (statsView != null ) {
             statsView.setEnabled(show);
             statsView.setCullHint(show ? CullHint.Never : CullHint.Always);
             if (darkenStats != null) {
                 darkenStats.setCullHint(showStats && darkenBehind ? CullHint.Never : CullHint.Always);
             }
+        }
+    }
+
+    public boolean isIncludePostStats() {
+        return includePostStats;
+    }
+
+    public void setIncludePostStats(boolean includePostStats) {
+        this.includePostStats = includePostStats;
+        if (statsView != null ) {
+            statsView.setIncludePostStats(includePostStats);
         }
     }
 

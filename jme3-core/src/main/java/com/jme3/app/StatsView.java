@@ -65,8 +65,10 @@ public class StatsView extends Node implements Control {
 
     private String[] statLabels;
     private int[] statData;
+    private int[] statDataNoPost;
 
     private boolean enabled = true;
+    private boolean includePostStats = true;
     
     private final StringBuilder stringBuilder = new StringBuilder();
 
@@ -81,6 +83,7 @@ public class StatsView extends Node implements Control {
 
         statLabels = statistics.getLabels();
         statData = new int[statLabels.length];
+        statDataNoPost = new int[statLabels.length];
         labels = new BitmapText[statLabels.length];
 
         BitmapFont font = manager.loadFont("Interface/Fonts/Console.fnt");
@@ -103,9 +106,12 @@ public class StatsView extends Node implements Control {
             return;
             
         statistics.getData(statData);
+
+        int[] showData = isIncludePostStats() ? statData : statDataNoPost;
+
         for (int i = 0; i < labels.length; i++) {
             stringBuilder.setLength(0);
-            stringBuilder.append(statLabels[i]).append(" = ").append(statData[i]);
+            stringBuilder.append(statLabels[i]).append(" = ").append(showData[i]);
             labels[i].setText(stringBuilder);
         }
         
@@ -126,12 +132,19 @@ public class StatsView extends Node implements Control {
         this.enabled = enabled;
         statistics.setEnabled(enabled);
     }
+    public void setIncludePostStats(boolean includePostStats) {
+        this.includePostStats = includePostStats;
+    }
 
     public boolean isEnabled() {
         return enabled;
     }
 
     public void render(RenderManager rm, ViewPort vp) {
+        statistics.getData(statDataNoPost);
     }
 
+    public boolean isIncludePostStats() {
+        return includePostStats;
+    }
 }
