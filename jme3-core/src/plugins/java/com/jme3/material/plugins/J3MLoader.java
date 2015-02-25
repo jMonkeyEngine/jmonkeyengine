@@ -217,21 +217,13 @@ public class J3MLoader implements AssetLoader {
         }
     }
     
-    // <TYPE> <NAME> [ "(" <FFBINDING> ")" ] [ ":" <DEFAULTVAL> ] [-LINEAR]
+    // <TYPE> <NAME> [ "(" <FFBINDING> ")" ] [-LINEAR] [ ":" <DEFAULTVAL> ] 
     private void readParam(String statement) throws IOException{
         String name;
         String defaultVal = null;
         ColorSpace colorSpace = null;
         
-        String[] split = statement.split("-");
-        if(split.length>1){
-            if(split[1].equalsIgnoreCase("LINEAR")){
-                colorSpace = ColorSpace.Linear;
-            }
-            statement = split[0].trim();
-        }
-        
-        split = statement.split(":");
+        String[] split = statement.split(":");
         
         // Parse default val
         if (split.length == 1){
@@ -242,6 +234,11 @@ public class J3MLoader implements AssetLoader {
             }
             statement = split[0].trim();
             defaultVal = split[1].trim();           
+        }
+        
+        if (statement.endsWith("-LINEAR")) {
+            colorSpace = ColorSpace.Linear;
+            statement = statement.substring(0, statement.length() - "-LINEAR".length());
         }
         
         // Parse ffbinding
