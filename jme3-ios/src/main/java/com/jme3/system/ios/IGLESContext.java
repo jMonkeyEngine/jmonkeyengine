@@ -32,12 +32,15 @@
 package com.jme3.system.ios;
 
 import com.jme3.input.*;
-import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
-import com.jme3.renderer.ios.IGLESShaderRenderer;
 import com.jme3.system.*;
 import com.jme3.input.ios.IosInputHandler;
+import com.jme3.renderer.ios.IosGL;
+import com.jme3.renderer.opengl.GL;
+import com.jme3.renderer.opengl.GLDebugES;
+import com.jme3.renderer.opengl.GLExt;
+import com.jme3.renderer.opengl.GLRenderer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -54,7 +57,7 @@ public class IGLESContext implements JmeContext {
     /*
      * >= OpenGL ES 2.0 (iOS)
      */
-    protected IGLESShaderRenderer renderer;
+    protected GLRenderer renderer;
     protected Timer timer;
     protected SystemListener listener;
     protected IosInputHandler input;
@@ -150,7 +153,18 @@ public class IGLESContext implements JmeContext {
     @Override
     public void create(boolean waitFor) {
         logger.log(Level.FINE, "IGLESContext create");
-        renderer = new IGLESShaderRenderer();
+        
+        GL gl = new IosGL();
+        GLExt glext = (GLExt) gl;
+
+//        if (settings.getBoolean("GraphicsDebug")) {
+            gl = new GLDebugES(gl, glext);
+            glext = (GLExt) gl;
+//        }
+
+        renderer = new GLRenderer(gl, glext);
+        renderer.initialize();
+        
         input = new IosInputHandler();
         timer = new NanoTimer();
 
