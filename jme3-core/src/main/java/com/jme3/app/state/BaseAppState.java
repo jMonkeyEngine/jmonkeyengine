@@ -82,6 +82,7 @@ public abstract class BaseAppState implements AppState {
     /**
      *  Called during initialization once the app state is
      *  attached and before onEnable() is called.
+     * @param app the application
      */
     protected abstract void initialize( Application app );
     
@@ -90,6 +91,7 @@ public abstract class BaseAppState implements AppState {
      *  application shutdown if the state is still attached.
      *  onDisable() is called before this cleanup() method if
      *  the state is enabled at the time of cleanup.
+     * @param app the application
      */
     protected abstract void cleanup( Application app );
     
@@ -113,6 +115,7 @@ public abstract class BaseAppState implements AppState {
      *  This implementation calls initialize(app) and then onEnable() if the
      *  state is enabled.
      */
+    @Override
     public final void initialize( AppStateManager stateManager, Application app ) {
         log.log(Level.FINEST, "initialize():{0}", this);
 
@@ -125,6 +128,7 @@ public abstract class BaseAppState implements AppState {
         }
     }
 
+    @Override
     public final boolean isInitialized() {
         return initialized;
     }
@@ -141,6 +145,7 @@ public abstract class BaseAppState implements AppState {
         return getStateManager().getState(type);
     }
 
+    @Override
     public final void setEnabled( boolean enabled )
     {
         if( this.enabled == enabled )
@@ -157,22 +162,28 @@ public abstract class BaseAppState implements AppState {
         }
     }
 
+    @Override
     public final boolean isEnabled() {
         return enabled;
     }
 
+    @Override
     public void stateAttached( AppStateManager stateManager ) {
     }
 
+    @Override
     public void stateDetached( AppStateManager stateManager ) {
     }
 
+    @Override
     public void update( float tpf ) {
     }
 
+    @Override
     public void render( RenderManager rm ) {
     }
 
+    @Override
     public void postRender() {
     }
 
@@ -182,6 +193,7 @@ public abstract class BaseAppState implements AppState {
      *  This implementation calls onDisable() if the state is enabled and
      *  then cleanup(app).
      */
+    @Override
     public final void cleanup() {
         log.log(Level.FINEST, "cleanup():{0}", this);
 
