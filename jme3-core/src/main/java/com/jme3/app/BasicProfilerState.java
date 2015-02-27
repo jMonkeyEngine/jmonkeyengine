@@ -209,7 +209,7 @@ public class BasicProfilerState extends BaseAppState {
     }
 
     @Override
-    protected void enable() {
+    protected void onEnable() {
     
         // Set the number of visible frames to the current width of the screen
         setFrameCount(getApplication().getCamera().getWidth());
@@ -221,7 +221,7 @@ public class BasicProfilerState extends BaseAppState {
     }
 
     @Override
-    protected void disable() {
+    protected void onDisable() {
         getApplication().setAppProfiler(null);
         graph.removeFromParent();
         background.removeFromParent();
