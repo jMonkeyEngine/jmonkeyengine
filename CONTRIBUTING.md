@@ -5,7 +5,7 @@ First and foremost, you have to familiarize yourself with Git & GitHub. Dig thro
 
 ## Communication
 
-Communication always comes first. **All** code changes and other contributions should start with the [forum](http://hub.jmonkeyengine.org/forum/). Make a thread to explain your change and show us the important bits of your code. If the code is too long to be posted within the forum’s code tags, please paste your code in a Gist or pastebin and link to the submission in your thread. You are required to register on our website in order to create threads.
+Communication always comes first. **All** code changes and other contributions should start with the [forum](http://hub.jmonkeyengine.org/). Make a thread to explain your change and show us the important bits of your code. If the code is too long to be posted within the forum’s code tags, please paste your code in a Gist or pastebin and link to the submission in your thread. You are required to register on our website in order to create threads. (We do support login via GitHub though).
 
 ### New Contributors
 
