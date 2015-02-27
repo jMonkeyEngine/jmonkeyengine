@@ -23,7 +23,7 @@ To import the local repository as a project follow these steps:
 2. Navigate to the project directory in command line and execute command 'gradle eclipse'. This will load all the dependancies for eclipse.
 3. In Eclipse, add the repository as an existing Java Project.
 
-
+p.s. We will try hold ourselves to a [certain standard](http://www.defmacro.org/2013/04/03/issue-etiquette.html) when it comes to GitHub etiquette. If at any point we fail to uphold this standard, let us know.
 
 #### Core Contributors
 
