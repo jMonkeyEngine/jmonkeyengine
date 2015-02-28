@@ -1370,11 +1370,19 @@ public class Mesh implements Savable, Cloneable {
     }
 
     /**
-     * Sets the count of vertics used for each tessellation patch
+     * Sets the count of vertices used for each tessellation patch
      * @param patchVertexCount
      */
     public void setPatchVertexCount(int patchVertexCount) {
         this.patchVertexCount = patchVertexCount;
+    }
+
+    /**
+     * Gets the amout of vertices used for each patch;
+     * @return
+     */
+    public int getPatchVertexCount() {
+        return patchVertexCount;
     }
 
     public void write(JmeExporter ex) throws IOException {
