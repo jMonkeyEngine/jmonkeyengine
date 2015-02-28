@@ -46,6 +46,8 @@ import com.jme3.shader.ShaderGenerator;
 import com.jme3.shader.ShaderKey;
 import com.jme3.texture.Texture;
 import com.jme3.texture.plugins.TGALoader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -75,7 +77,15 @@ import java.util.List;
  * <li>{@link TGALoader} - Used to load Targa image files</li>
  * </ul>
  * <p>
- * Once the asset has been loaded, 
+ * Once the asset has been loaded, it will be 
+ * {@link AssetProcessor#postProcess(com.jme3.asset.AssetKey, java.lang.Object) 
+ * post-processed} by the {@link AssetKey#getProcessorType() key's processor}.
+ * If the key specifies a {@link AssetKey#getCacheType() cache type}, the asset
+ * will be cached in the specified cache. Next, the {@link AssetProcessor}
+ * will be requested to {@link AssetProcessor#createClone(java.lang.Object) } 
+ * generate a clone for the asset. Some assets do not require cloning,
+ * such as immutable or shared assets. Others, like models, must be cloned
+ * so that modifications to one instance do not leak onto others.
  */
 public interface AssetManager {
 
@@ -101,45 +111,12 @@ public interface AssetManager {
     public List<ClassLoader> getClassLoaders();
     
     /**
-     * Registers a loader for the given extensions.
-     * 
-     * @param loaderClassName
-     * @param extensions
-     * 
-     * @deprecated Please use {@link #registerLoader(java.lang.Class, java.lang.String[]) }
-     * together with {@link Class#forName(java.lang.String) } to find a class
-     * and then register it.
-     * 
-     * @deprecated Please use {@link #registerLoader(java.lang.Class, java.lang.String[]) }
-     * with {@link Class#forName(java.lang.String) } instead.
-     */
-    @Deprecated
-    public void registerLoader(String loaderClassName, String ... extensions);
-
-    /**
-     * Registers an {@link AssetLocator} by using a class name. 
-     * See the {@link AssetManager#registerLocator(java.lang.String, java.lang.Class) }
-     * method for more information.
-     *
-     * @param rootPath The root path from which to locate assets, this 
-     * depends on the implementation of the asset locator. 
-     * A URL based locator will expect a url folder such as "http://www.example.com/"
-     * while a File based locator will expect a file path (OS dependent).
-     * @param locatorClassName The full class name of the {@link AssetLocator}
-     * implementation.
-     * 
-     * @deprecated Please use {@link #registerLocator(java.lang.String, java.lang.Class)  }
-     * together with {@link Class#forName(java.lang.String) } to find a class
-     * and then register it.
-     */
-    @Deprecated
-    public void registerLocator(String rootPath, String locatorClassName);
-
-    /**
      * Register an {@link AssetLoader} by using a class object.
      * 
-     * @param loaderClass
-     * @param extensions
+     * @param loaderClass The loader class to register.
+     * @param extensions Which extensions this loader is responsible for loading,
+     * if there are already other loaders registered for that extension, they
+     * will be overridden - there should only be one loader for each extension.
      */
     public void registerLoader(Class<? extends AssetLoader> loaderClass, String ... extensions);
     
@@ -161,7 +138,7 @@ public interface AssetManager {
      * to the {@link AssetLoader} to load the asset.
      * Once a locator is registered, it can be removed via
      * {@link #unregisterLocator(java.lang.String, java.lang.Class) }.
-     *
+     * 
      * @param rootPath Specifies the root path from which to locate assets
      * for the given {@link AssetLocator}. The purpose of this parameter
      * depends on the type of the {@link AssetLocator}.
@@ -207,18 +184,6 @@ public interface AssetManager {
     public void clearAssetEventListeners();
     
     /**
-     * Set an {@link AssetEventListener} to receive events from this
-     * <code>AssetManager</code>. Any currently added listeners are
-     * cleared and then the given listener is added.
-     * 
-     * @param listener The listener to set
-     * @deprecated Please use {@link #addAssetEventListener(com.jme3.asset.AssetEventListener) }
-     * to listen for asset events.
-     */
-    @Deprecated
-    public void setAssetEventListener(AssetEventListener listener);
-
-    /**
      * Manually locates an asset with the given {@link AssetKey}. 
      * This method should be used for debugging or internal uses.
      * <br>
@@ -234,6 +199,23 @@ public interface AssetManager {
     public AssetInfo locateAsset(AssetKey<?> key);
 
     /**
+     * Load an asset from an {@link InputStream}. 
+     * In some cases it may be required to load an asset from memory 
+     * or arbitrary streams so that registering a custom locator and key
+     * type is not necessary. 
+     * 
+     * @param <T> The object type that will be loaded from the AssetKey instance.
+     * @param key The AssetKey. Note that the asset will not be cached - 
+     * following the same behavior as if {@link AssetKey#getCacheType()} returned null.
+     * @param inputStream The input stream from which the asset shall be loaded.
+     * @return The loaded asset.
+     * 
+     * @throws AssetLoadException If the {@link AssetLoader} has failed
+     * to load the asset due to an {@link IOException} or another error.
+     */
+    public <T> T loadAssetFromStream(AssetKey<T> key, InputStream inputStream);
+    
+    /**
      * Load an asset from a key, the asset will be located
      * by one of the {@link AssetLocator} implementations provided in the
      * {@link AssetManager#registerLocator(java.lang.String, java.lang.Class) }
@@ -244,17 +226,18 @@ public interface AssetManager {
      *
      * @param <T> The object type that will be loaded from the AssetKey instance.
      * @param key The AssetKey
-     * @return The loaded asset, or null if it was failed to be located
-     * or loaded.
+     * @return The loaded asset.
+     * 
+     * @throws AssetNotFoundException If all registered locators have failed 
+     * to locate the asset.
+     * @throws AssetLoadException If the {@link AssetLoader} has failed
+     * to load the asset due to an {@link IOException} or another error.
      */
     public <T> T loadAsset(AssetKey<T> key);
 
     /**
-     * Load an asset by name, calling this method
-     * is the same as calling
-     * <code>
-     * loadAsset(new AssetKey(name)).
-     * </code>
+     * Load an asset by name, calling this method is the same as calling
+     * <code>loadAsset(new AssetKey(name))</code>.
      *
      * @param name The name of the asset to load.
      * @return The loaded asset, or null if failed to be loaded.
@@ -265,7 +248,7 @@ public interface AssetManager {
 
     /**
      * Loads texture file, supported types are BMP, JPG, PNG, GIF,
-     * TGA and DDS.
+     * TGA, DDS, PFM, and HDR.
      *
      * @param key The {@link TextureKey} to use for loading.
      * @return The loaded texture, or null if failed to be loaded.
@@ -276,8 +259,10 @@ public interface AssetManager {
 
     /**
      * Loads texture file, supported types are BMP, JPG, PNG, GIF,
-     * TGA and DDS.
+     * TGA, DDS, PFM, and HDR.
      *
+     * The texture will be loaded with mip-mapping enabled. 
+     * 
      * @param name The name of the texture to load.
      * @return The texture that was loaded
      *
@@ -306,7 +291,8 @@ public interface AssetManager {
 
     /**
      * Loads a 3D model with a ModelKey. 
-     * Models can be jME3 object files (J3O) or OgreXML/OBJ files.
+     * Models can be jME3 object files (J3O), OgreXML (mesh.xml), BLEND, FBX 
+     * and OBJ files.
      * @param key Asset key of the model to load
      * @return The model that was loaded
      *
@@ -315,8 +301,9 @@ public interface AssetManager {
     public Spatial loadModel(ModelKey key);
 
     /**
-     * Loads a 3D model. Models can be jME3 object files (J3O) or
-     * OgreXML/OBJ files.
+     * Loads a 3D model. Models can be jME3 object files (J3O),
+     * OgreXML (mesh.xml), BLEND, FBX and OBJ files.
+     * 
      * @param name Asset name of the model to load
      * @return The model that was loaded
      *
@@ -381,4 +368,53 @@ public interface AssetManager {
      */
     public ShaderGenerator getShaderGenerator(EnumSet<Caps> caps);
     
+    /**
+     * Retrieve an asset from the asset cache.
+     * 
+     * <b>NOTE:</b> Do <em>not</em> modify the returned asset! 
+     * It is the same reference as what is stored in the cache, therefore any 
+     * modifications to it will leak onto assets loaded from the same key in the future.
+     * 
+     * @param <T> The object type that will be retrieved from the AssetKey instance.
+     * @param key The AssetKey to get from the cache.
+     * @return The cached asset, if found. Otherwise, <code>null</code>.
+     * 
+     * @throws IllegalArgumentException If {@link AssetKey#getCacheType() caching}
+     * is disabled for the key.
+     */
+    public <T> T getFromCache(AssetKey<T> key);
+    
+    /**
+     * Inject an asset into the asset cache.
+     * 
+     * <b>NOTE:</b> Do <em>not</em> modify the cached asset after storing!
+     * It is the same reference as what is stored in the cache, therefore any 
+     * modifications to it will leak onto assets loaded from the same key in the future.
+     * 
+     * @param <T> The object type of the asset.
+     * @param key The key where the asset shall be stored.
+     * @param asset The asset to inject into the cache.
+     * 
+     * @throws IllegalArgumentException If {@link AssetKey#getCacheType() caching}
+     * is disabled for the key.
+     */
+    public <T> void addToCache(AssetKey<T> key, T asset);
+    
+    /**
+     * Delete an asset from the asset cache.
+     * 
+     * @param <T> The object type of the AssetKey instance.
+     * @param key The asset key to remove from the cache.
+     * @return True if the asset key was found in the cache and was removed
+     * successfully. False if the asset key was not present in the cache.
+     * 
+     * @throws IllegalArgumentException If {@link AssetKey#getCacheType() caching}
+     * is disabled for the key.
+     */
+    public <T> boolean deleteFromCache(AssetKey<T> key);
+    
+    /**
+     * Clears the asset cache.
+     */
+    public void clearCache();
 }
