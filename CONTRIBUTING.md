@@ -5,7 +5,7 @@ First and foremost, you have to familiarize yourself with Git & GitHub. Dig thro
 
 ## Communication
 
-Communication always comes first. **All** code changes and other contributions should start with the [forum](http://hub.jmonkeyengine.org/forum/). Make a thread to explain your change and show us the important bits of your code. If the code is too long to be posted within the forum’s code tags, please paste your code in a Gist or pastebin and link to the submission in your thread. You are required to register on our website in order to create threads.
+Communication always comes first. **All** code changes and other contributions should start with the [forum](http://hub.jmonkeyengine.org/). Make a thread to explain your change and show us the important bits of your code. If the code is too long to be posted within the forum’s code tags, please paste your code in a Gist or pastebin and link to the submission in your thread. You are required to register on our website in order to create threads. (We do support login via GitHub though).
 
 ### New Contributors
 
@@ -23,7 +23,7 @@ To import the local repository as a project follow these steps:
 2. Navigate to the project directory in command line and execute command 'gradle eclipse'. This will load all the dependancies for eclipse.
 3. In Eclipse, add the repository as an existing Java Project.
 
-
+p.s. We will try hold ourselves to a [certain standard](http://www.defmacro.org/2013/04/03/issue-etiquette.html) when it comes to GitHub etiquette. If at any point we fail to uphold this standard, let us know.
 
 #### Core Contributors
 

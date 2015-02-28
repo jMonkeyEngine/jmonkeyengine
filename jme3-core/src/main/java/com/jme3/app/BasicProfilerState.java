@@ -61,7 +61,7 @@ public class BasicProfilerState extends BaseAppState {
     private Geometry background;
     private float scale = 2;
 
-    private ProfilerKeyListener keyListener = new ProfilerKeyListener();
+    private final ProfilerKeyListener keyListener = new ProfilerKeyListener();
 
     public BasicProfilerState() {
         this(false);
@@ -84,6 +84,7 @@ public class BasicProfilerState extends BaseAppState {
      *  Sets the vertical scale of the visualization where
      *  each unit is a millisecond.  Defaults to 2, ie: a
      *  single millisecond stretches two pixels high.
+     * @param scale the scale
      */
     public void setGraphScale( float scale ) {
         if( this.scale == scale ) {
@@ -101,6 +102,7 @@ public class BasicProfilerState extends BaseAppState {
  
     /**
      *  Sets the number frames displayed and tracked.
+     * @param count the number of frames
      */
     public void setFrameCount( int count ) {
         if( profiler.getFrameCount() == count ) {
@@ -209,7 +211,7 @@ public class BasicProfilerState extends BaseAppState {
     }
 
     @Override
-    protected void enable() {
+    protected void onEnable() {
     
         // Set the number of visible frames to the current width of the screen
         setFrameCount(getApplication().getCamera().getWidth());
@@ -221,7 +223,7 @@ public class BasicProfilerState extends BaseAppState {
     }
 
     @Override
-    protected void disable() {
+    protected void onDisable() {
         getApplication().setAppProfiler(null);
         graph.removeFromParent();
         background.removeFromParent();
@@ -229,6 +231,7 @@ public class BasicProfilerState extends BaseAppState {
     
     private class ProfilerKeyListener implements ActionListener {
 
+        @Override
         public void onAction(String name, boolean value, float tpf) {
             if (!value) {
                 return;

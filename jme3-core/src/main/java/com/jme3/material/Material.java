@@ -935,9 +935,9 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             renderMeshFromGeometry(r, g);
         }
 
-        if (isFirstLight && lightList.size() > 0) {
-            // There are only ambient lights in the scene. Render
-            // a dummy "normal light" so we can see the ambient
+        if (isFirstLight) {
+            // Either there are no lights at all, or only ambient lights.
+            // Render a dummy "normal light" so we can see the ambient color.
             ambientColor.setValue(VarType.Vector4, getAmbientColor(lightList, false));
             lightColor.setValue(VarType.Vector4, ColorRGBA.BlackNoAlpha);
             lightPos.setValue(VarType.Vector4, nullDirLight);
@@ -1056,12 +1056,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
         Collection<MatParam> params = paramValues.values();
         for (MatParam param : params) {
-            if (param instanceof MatParamTexture) {
-                MatParamTexture texParam = (MatParamTexture) param;
-                r.setTexture(0, texParam.getTextureValue());
-            } else {
-                technique.updateUniformParam(param.getName(), param.getVarType(), param.getValue());
-            }
+            param.apply(r, technique);
         }
 
         r.setShader(technique.getShader());
@@ -1157,11 +1152,6 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
         TechniqueDef techDef = technique.getDef();
 
-        if (techDef.getLightMode() == LightMode.MultiPass
-                && lights.size() == 0) {
-            return;
-        }
-
         if (rm.getForcedRenderState() != null) {
             r.applyRenderState(rm.getForcedRenderState());
         } else {
@@ -1196,10 +1186,16 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             case SinglePass:
                 int nbRenderedLights = 0;
                 resetUniformsNotSetByCurrent(shader);
-                while (nbRenderedLights < lights.size()) {
-                    nbRenderedLights = updateLightListUniforms(shader, geom, lights, rm.getSinglePassLightBatchSize(), rm, nbRenderedLights);
+                if (lights.size() == 0) {
+                    nbRenderedLights = updateLightListUniforms(shader, geom, lights, rm.getSinglePassLightBatchSize(), rm, 0);
                     r.setShader(shader);
                     renderMeshFromGeometry(r, geom);
+                } else {
+                    while (nbRenderedLights < lights.size()) {
+                        nbRenderedLights = updateLightListUniforms(shader, geom, lights, rm.getSinglePassLightBatchSize(), rm, nbRenderedLights);
+                        r.setShader(shader);
+                        renderMeshFromGeometry(r, geom);
+                    }
                 }
                 return;
             case FixedPipeline:

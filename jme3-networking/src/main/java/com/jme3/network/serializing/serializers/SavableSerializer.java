@@ -93,7 +93,7 @@ public class SavableSerializer extends Serializer {
         @Override
         public int read(byte[] b, int off, int len){
             int toRead = len > input.remaining() ? input.remaining() : len;
-            input.get(b, off, len);
+            input.get(b, off, toRead);
             return toRead;
         }
 

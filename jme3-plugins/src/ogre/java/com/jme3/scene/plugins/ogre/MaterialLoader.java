@@ -336,8 +336,7 @@ public class MaterialLoader implements AssetLoader {
         mat.setName(matName);
         if (blend){
             RenderState rs = mat.getAdditionalRenderState();
-            rs.setAlphaTest(true);
-            rs.setAlphaFallOff(0.01f);
+            mat.setFloat("AlphaDiscardThreshold", 0.01f);
             rs.setBlendMode(RenderState.BlendMode.Alpha);
             
             if (twoSide){
@@ -422,13 +421,18 @@ public class MaterialLoader implements AssetLoader {
 
         noLight = false;
         Arrays.fill(textures, null);
+        ambient = null;
         diffuse = null;
         specular = null;
+        emissive = null;
         shinines = 0f;
         vcolor = false;
         blend = false;
         texUnit = 0;
         separateTexCoord = false;
+        twoSide = false;
+        matName = null;
+        texName = null;
         return mat;
     }
     
@@ -464,7 +468,7 @@ public class MaterialLoader implements AssetLoader {
                 }
                 readMaterial(statement);
                 Material mat = compileMaterial();
-                list.put(matName, mat);
+                list.put(mat.getName(), mat);
             }
         }
         

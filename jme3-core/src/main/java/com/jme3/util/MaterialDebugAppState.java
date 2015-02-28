@@ -317,7 +317,7 @@ public class MaterialDebugAppState extends AbstractAppState {
                     if (field.getType().isInstance(p)) {
                         field.setAccessible(true);
                         p = (Filter.Pass) field.get(filter);
-                        if (p.getPassMaterial() != null) {
+                        if (p!= null && p.getPassMaterial() != null) {
                             Material mat = reloadMaterial(p.getPassMaterial());
                             if (mat == null) {
                                 return;

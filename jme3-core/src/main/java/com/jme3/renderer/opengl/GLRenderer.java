@@ -351,6 +351,7 @@ public class GLRenderer implements Renderer {
 
         if (hasExtension("GL_ARB_texture_non_power_of_two") ||
             hasExtension("GL_OES_texture_npot") ||
+            hasExtension("GL_APPLE_texture_2D_limited_npot") ||
             caps.contains(Caps.OpenGL30)) {
             caps.add(Caps.NonPowerOfTwoTextures);
         } else {

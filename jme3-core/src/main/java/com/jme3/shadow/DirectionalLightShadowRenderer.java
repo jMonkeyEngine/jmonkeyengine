@@ -43,7 +43,9 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.GeometryList;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import java.io.IOException;
 
 /**
@@ -173,19 +175,30 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     }
     
     @Override
-    protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers, GeometryList shadowMapOccluders) {
+    protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList shadowMapOccluders) {
 
         // update frustum points based on current camera and split
         ShadowUtil.updateFrustumPoints(viewPort.getCamera(), splitsArray[shadowMapIndex], splitsArray[shadowMapIndex + 1], 1.0f, points);
 
-        //Updating shadow cam with curent split frustra        
-        ShadowUtil.updateShadowCamera(sceneOccluders, sceneReceivers, shadowCam, points, shadowMapOccluders, stabilize?shadowMapSize:0);
+        //Updating shadow cam with curent split frustra
+        if (sceneReceivers.size()==0) {
+            for (Spatial scene : viewPort.getScenes()) {
+              ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), RenderQueue.ShadowMode.Receive, sceneReceivers);
+            }
+        }
+        ShadowUtil.updateShadowCamera(viewPort, sceneReceivers, shadowCam, points, shadowMapOccluders, stabilize?shadowMapSize:0);
 
         return shadowMapOccluders;
     }
 
     @Override
     GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers) {
+        if (sceneReceivers.size()==0) {
+            for (Spatial scene : viewPort.getScenes()) {
+                ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), RenderQueue.ShadowMode.Receive, sceneReceivers);
+            }
+        }
+        lightReceivers = sceneReceivers;
         return sceneReceivers;
     }
 

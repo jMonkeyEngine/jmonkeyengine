@@ -39,6 +39,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.Savable;
 import com.jme3.material.Material;
 import com.jme3.util.SafeArrayList;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -565,6 +566,18 @@ public class Node extends Spatial implements Savable {
 
     public int collideWith(Collidable other, CollisionResults results){
         int total = 0;
+        
+        // optimization: try collideWith BoundingVolume to avoid possibly redundant tests on children
+        // number 4 in condition is somewhat arbitrary. When there is only one child, the boundingVolume test is redundant at all. 
+        // The idea is when there are few children, it can be too expensive to test boundingVolume first.
+        if (children.size() > 4)
+        {
+          BoundingVolume bv = this.getWorldBound();
+          if (bv==null) return 0;
+
+          // collideWith without CollisionResults parameter used to avoid allocation when possible
+          if (bv.collideWith(other) == 0) return 0;
+        }
         for (Spatial child : children.getArray()){
             total += child.collideWith(other, results);
         }

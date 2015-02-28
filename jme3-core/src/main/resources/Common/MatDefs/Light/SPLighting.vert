@@ -160,8 +160,14 @@ void main(){
             }
             #endif
             vec2 v = computeLighting(wvNormal, viewDir, lightDir.xyz, lightDir.w  * spotFallOff, m_Shininess);
-            diffuseAccum +=v.x * diffuseColor;
-            specularAccum += v.y * specularColor;
+
+            #ifdef COLORRAMP
+                diffuseAccum  += texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb * diffuseColor;
+                specularAccum += texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb * specularColor;
+            #else
+                diffuseAccum  += v.x * diffuseColor;
+                specularAccum += v.y * specularColor;
+            #endif
         }
     #endif
     

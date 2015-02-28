@@ -405,8 +405,11 @@ public class PhysicsSpace {
             ((PhysicsControl) obj).setPhysicsSpace(this);
         } else if (obj instanceof Spatial) {
             Spatial node = (Spatial) obj;
-            PhysicsControl control = node.getControl(PhysicsControl.class);
-            control.setPhysicsSpace(this);
+            for (int i = 0; i < node.getNumControls(); i++) {
+                if (node.getControl(i) instanceof PhysicsControl) {
+                    add(((PhysicsControl) node.getControl(i)));
+                }
+            }
         } else if (obj instanceof PhysicsCollisionObject) {
             addCollisionObject((PhysicsCollisionObject) obj);
         } else if (obj instanceof PhysicsJoint) {
@@ -438,7 +441,12 @@ public class PhysicsSpace {
         if (obj instanceof PhysicsControl) {
             ((PhysicsControl) obj).setPhysicsSpace(null);
         } else if (obj instanceof Spatial) {
-            remove(((Spatial) obj).getControl(PhysicsControl.class));
+            Spatial node = (Spatial) obj;
+            for (int i = 0; i < node.getNumControls(); i++) {
+                if (node.getControl(i) instanceof PhysicsControl) {
+                    remove(((PhysicsControl) node.getControl(i)));
+                }
+            }
         } else if (obj instanceof PhysicsCollisionObject) {
             removeCollisionObject((PhysicsCollisionObject) obj);
         } else if (obj instanceof PhysicsJoint) {
