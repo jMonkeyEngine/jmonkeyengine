@@ -78,11 +78,11 @@ public final class Shader extends NativeObject {
         /**
          * Controls tesselation factor (e.g how often a input patch should be subdivided)
          */
-        TesselationControl,
+        TessellationControl,
         /**
          * Controls tesselation transform (e.g similar to the vertex shader, but required to mix inputs manual)
          */
-        TesselationEvaluation;
+        TessellationEvaluation;
     }
 
     /**
