@@ -107,6 +107,7 @@ public class GLRenderer implements Renderer {
     private final GL gl;
     private final GL2 gl2;
     private final GL3 gl3;
+    private final GL4 gl4;
     private final GLExt glext;
     private final GLFbo glfbo;
     private final TextureUtil texUtil;
@@ -115,6 +116,7 @@ public class GLRenderer implements Renderer {
         this.gl = gl;
         this.gl2 = gl instanceof GL2 ? (GL2)gl : null;
         this.gl3 = gl instanceof GL3 ? (GL3)gl : null;
+        this.gl4 = gl instanceof GL4 ? (GL4)gl : null;
         this.glfbo = glfbo;
         this.glext = glfbo instanceof GLExt ? (GLExt)glfbo : null;
         this.texUtil = new TextureUtil(gl, gl2, glext, context);
@@ -2686,7 +2688,9 @@ public class GLRenderer implements Renderer {
             gl.glLineWidth(mesh.getLineWidth());
             context.lineWidth = mesh.getLineWidth();
         }
-
+        if(gl4!=null && mesh.getMode().equals(Mode.Patch)){
+            gl4.glPatchParameter(mesh.getPatchVertexCount());
+        }
         statistics.onMeshDrawn(mesh, lod, count);
 //        if (ctxCaps.GL_ARB_vertex_array_object){
 //            renderMeshVertexArray(mesh, lod, count);
