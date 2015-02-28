@@ -56,12 +56,12 @@ import java.util.Map.Entry;
  * 4) Animation event listeners
  * 5) Animated model cloning
  * 6) Animated model binary import/export
+ * 7) Hardware skinning
+ * 8) Attachments
+ * 9) Add/remove skins
  *
  * Planned:
- * 1) Hardware skinning
- * 2) Morph/Pose animation
- * 3) Attachments
- * 4) Add/remove skins
+ * 1) Morph/Pose animation
  *
  * @author Kirill Vainer
  */
