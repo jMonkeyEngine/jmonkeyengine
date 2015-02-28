@@ -1,0 +1,30 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+
+<code>com.jme3.asset.cache</code> contains the {@link com.jme3.asset.cache.AssetCache}
+interface as well as its implementations.<br>
+
+<p>
+    
+<h3>AssetCaches</h3>
+The asset cache implementations are used by {@link com.jme3.asset.AssetManager}
+to cache loaded assets for faster access if they are requested again.
+<p>
+Assets in jME3 are cached in such a way that if there are no instances of
+that asset anymore in memory, then jME3 is likely to reclaim them. 
+Some asset types must be cloned prior to being used, for example, 3D models 
+cannot be stored in the cache as-is, because the user is likely to modify them
+after loading them. To handle this, a copy of the asset is stored in the 
+cache instead. The asset cache that implements these rules is the 
+{@link com.jme3.asset.cache.WeakRefCloneAssetCache} and it is used
+for caching most asset types.
+
+</body>
+</html>
+
