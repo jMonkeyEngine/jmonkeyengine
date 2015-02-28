@@ -1,0 +1,19 @@
+MaterialDef SimpleGeom {
+
+    MaterialParameters {
+        Texture2D NormalDisplacementMap
+        Int TessellationFactor
+    }
+
+     Technique {
+        VertexShader GLSL400:   Materials/Tess/SimpleTess.vert
+        TessellationEvaluationShader GLSL400:   Materials/Tess/SimpleTess.tseval
+        TessellationControlShader GLSL400:   Materials/Tess/SimpleTess.tsctrl
+        FragmentShader GLSL400: Materials/Tess/SimpleTess.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+
+}
