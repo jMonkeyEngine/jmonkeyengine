@@ -33,7 +33,6 @@ package com.jme3.material;
 
 import com.jme3.export.*;
 import com.jme3.renderer.Caps;
-import com.jme3.renderer.Renderer;
 import com.jme3.shader.*;
 
 import java.io.IOException;
@@ -267,7 +266,7 @@ public class TechniqueDef implements Savable {
             this.shaderName.put(shaderType,shaderName.get(shaderType));
             if(shaderType.equals(Shader.ShaderType.Geometry)){
                 requiredCaps.add(Caps.GeometryShader);
-            }else if(shaderType.equals(Shader.ShaderType.TesselationControl)){
+            }else if(shaderType.equals(Shader.ShaderType.TessellationControl)){
                 requiredCaps.add(Caps.TesselationShader);
             }
         }
@@ -440,13 +439,13 @@ public class TechniqueDef implements Savable {
         oc.write(shaderName.get(Shader.ShaderType.Vertex), "vertName", null);
         oc.write(shaderName.get(Shader.ShaderType.Fragment), "fragName", null);
         oc.write(shaderName.get(Shader.ShaderType.Geometry), "geomName", null);
-        oc.write(shaderName.get(Shader.ShaderType.TesselationControl), "tsctrlName", null);
-        oc.write(shaderName.get(Shader.ShaderType.TesselationEvaluation), "tsevalName", null);
+        oc.write(shaderName.get(Shader.ShaderType.TessellationControl), "tsctrlName", null);
+        oc.write(shaderName.get(Shader.ShaderType.TessellationEvaluation), "tsevalName", null);
         oc.write(shaderLanguage.get(Shader.ShaderType.Vertex), "vertLanguage", null);
         oc.write(shaderLanguage.get(Shader.ShaderType.Fragment), "fragLanguage", null);
         oc.write(shaderLanguage.get(Shader.ShaderType.Geometry), "geomLanguage", null);
-        oc.write(shaderLanguage.get(Shader.ShaderType.TesselationControl), "tsctrlLanguage", null);
-        oc.write(shaderLanguage.get(Shader.ShaderType.TesselationEvaluation), "tsevalLanguage", null);
+        oc.write(shaderLanguage.get(Shader.ShaderType.TessellationControl), "tsctrlLanguage", null);
+        oc.write(shaderLanguage.get(Shader.ShaderType.TessellationEvaluation), "tsevalLanguage", null);
 
         oc.write(presetDefines, "presetDefines", null);
         oc.write(lightMode, "lightMode", LightMode.Disable);
@@ -469,8 +468,8 @@ public class TechniqueDef implements Savable {
         shaderName.put(Shader.ShaderType.Vertex,ic.readString("vertName", null));
         shaderName.put(Shader.ShaderType.Fragment,ic.readString("fragName", null));
         shaderName.put(Shader.ShaderType.Geometry,ic.readString("geomName", null));
-        shaderName.put(Shader.ShaderType.TesselationControl,ic.readString("tsctrlName", null));
-        shaderName.put(Shader.ShaderType.TesselationEvaluation,ic.readString("tsevalName", null));
+        shaderName.put(Shader.ShaderType.TessellationControl,ic.readString("tsctrlName", null));
+        shaderName.put(Shader.ShaderType.TessellationEvaluation,ic.readString("tsevalName", null));
         presetDefines = (DefineList) ic.readSavable("presetDefines", null);
         lightMode = ic.readEnum("lightMode", LightMode.class, LightMode.Disable);
         shadowMode = ic.readEnum("shadowMode", ShadowMode.class, ShadowMode.Disable);
@@ -486,8 +485,8 @@ public class TechniqueDef implements Savable {
             shaderLanguage.put(Shader.ShaderType.Vertex,ic.readString("vertLanguage", null));
             shaderLanguage.put(Shader.ShaderType.Fragment,ic.readString("fragLanguage", null));
             shaderLanguage.put(Shader.ShaderType.Geometry,ic.readString("geomLanguage", null));
-            shaderLanguage.put(Shader.ShaderType.TesselationControl,ic.readString("tsctrlLanguage", null));
-            shaderLanguage.put(Shader.ShaderType.TesselationEvaluation,ic.readString("tsevalLanguage", null));
+            shaderLanguage.put(Shader.ShaderType.TessellationControl,ic.readString("tsctrlLanguage", null));
+            shaderLanguage.put(Shader.ShaderType.TessellationEvaluation,ic.readString("tsevalLanguage", null));
         }
         
         usesNodes = ic.readBoolean("usesNodes", false);
