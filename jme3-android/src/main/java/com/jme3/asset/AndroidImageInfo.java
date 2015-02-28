@@ -20,6 +20,7 @@ import java.util.logging.Logger;
   *
   * @author Kirill Vainer
   */
+@Deprecated
 public class AndroidImageInfo extends ImageRaster {
     
     private static final Logger logger = Logger.getLogger(AndroidImageInfo.class.getName());
