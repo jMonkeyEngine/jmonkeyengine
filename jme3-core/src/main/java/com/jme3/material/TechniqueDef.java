@@ -504,12 +504,18 @@ public class TechniqueDef implements Savable {
         usesShaders = true;
     }
 
-    //todo: add javadoc
+    /**
+     * Returns the Enum containing the ShaderProgramNames;
+     * @return
+     */
     public EnumMap<Shader.ShaderType, String> getShaderProgramNames() {
         return shaderName;
     }
 
-    //todo: add javadoc
+    /**
+     * Returns the Enum containing the ShaderProgramLanguages;
+     * @return
+     */
     public EnumMap<Shader.ShaderType, String> getShaderProgramLanguages() {
         return shaderLanguage;
     }
