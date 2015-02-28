@@ -315,6 +315,7 @@ public enum Caps {
      * Supports 32-bit index buffers.
      */
     IntegerIndexBuffer,
+    
     /**
      * Partial support for non-power-of-2 textures, typically found
      * on OpenGL ES 2 devices.

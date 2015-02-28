@@ -49,9 +49,7 @@ public class TechniqueDef implements Savable {
      * Version #1: Separate shader language for each shader source.
      */
     public static final int SAVABLE_VERSION = 1;
-
-
-
+    
     /**
      * Describes light rendering mode.
      */
