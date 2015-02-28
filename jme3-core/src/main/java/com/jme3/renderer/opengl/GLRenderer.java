@@ -1019,9 +1019,9 @@ public class GLRenderer implements Renderer {
                 return GL.GL_VERTEX_SHADER;
             case Geometry:
                 return GL3.GL_GEOMETRY_SHADER;
-            case TesselationControl:
+            case TessellationControl:
                 return GL4.GL_TESS_CONTROL_SHADER;
-            case TesselationEvaluation:
+            case TessellationEvaluation:
                 return GL4.GL_TESS_EVALUATION_SHADER;
             default:
                 throw new UnsupportedOperationException("Unrecognized shader type.");
@@ -2534,6 +2534,8 @@ public class GLRenderer implements Renderer {
                 return GL.GL_TRIANGLE_FAN;
             case TriangleStrip:
                 return GL.GL_TRIANGLE_STRIP;
+            case Patch:
+                return GL4.GL_PATCHES;
             default:
                 throw new UnsupportedOperationException("Unrecognized mesh mode: " + mode);
         }
