@@ -733,6 +733,8 @@ public class Mesh implements Savable, Cloneable {
                 return bufSize;
             case LineStrip:
                 return bufSize - 1;
+            case Patch:
+                return bufSize/patchVertexCount;
             default:
                 throw new UnsupportedOperationException();
         }
@@ -1367,6 +1369,13 @@ public class Mesh implements Savable, Cloneable {
                getBuffer(Type.HWBoneIndex) != null;
     }
 
+    /**
+     * Sets the count of vertics used for each tessellation patch
+     * @param patchVertexCount
+     */
+    public void setPatchVertexCount(int patchVertexCount) {
+        this.patchVertexCount = patchVertexCount;
+    }
 
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule out = ex.getCapsule(this);
