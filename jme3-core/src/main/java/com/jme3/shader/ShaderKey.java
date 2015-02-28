@@ -100,6 +100,9 @@ public class ShaderKey extends AssetKey<Shader> {
             int hash = 7;
             hash = 41 * hash + name.hashCode();
             hash = 41 * hash + shaderName.get(Shader.ShaderType.Fragment).hashCode();
+            hash = shaderName.get(Shader.ShaderType.Geometry) == null ? hash : 41 * hash + shaderName.get(Shader.ShaderType.Geometry).hashCode();
+            hash = shaderName.get(Shader.ShaderType.TessellationControl) == null ? hash : 41 * hash + shaderName.get(Shader.ShaderType.TessellationControl).hashCode();
+            hash = shaderName.get(Shader.ShaderType.TessellationEvaluation) == null ? hash : 41 * hash + shaderName.get(Shader.ShaderType.TessellationEvaluation).hashCode();
             hash = 41 * hash + (defines != null ? defines.hashCode() : 0);
             cachedHashedCode = hash;
         }
