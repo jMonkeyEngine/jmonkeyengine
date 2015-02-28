@@ -411,8 +411,8 @@ public class J3MLoader implements AssetLoader {
         if (split[0].equals("VertexShader") ||
                 split[0].equals("FragmentShader") ||
                 split[0].equals("GeometryShader") ||
-                split[0].equals("TesselationControlShader") ||
-                split[0].equals("TesselationEvaluationShader")) {
+                split[0].equals("TessellationControlShader") ||
+                split[0].equals("TessellationEvaluationShader")) {
             readShaderStatement(statement.getLine());
         } else if (split[0].equals("LightMode")) {
             readLightMode(statement.getLine());
