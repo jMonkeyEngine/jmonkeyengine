@@ -75,10 +75,10 @@ import javax.swing.SwingUtilities;
 public class JmeDesktopSystem extends JmeSystemDelegate {
 
     @Override
-    public AssetManager newAssetManager(URL configFile) {
-        return new DesktopAssetManager(configFile);
+    public String getPlatformAssetConfigPath() {
+        return "com/jme3/asset/Desktop.cfg";
     }
-
+    
     private static BufferedImage verticalFlip(BufferedImage original) {
         AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
         tx.translate(0, -original.getHeight());
@@ -117,17 +117,6 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             imgOut.close();
             writer.dispose();
         }
-    }
-
-    @Override
-    public ImageRaster createImageRaster(Image image, int slice) {
-        assert image.getEfficentData() == null;
-        return new DefaultImageRaster(image, slice);
-    }
-
-    @Override
-    public AssetManager newAssetManager() {
-        return new DesktopAssetManager(null);
     }
 
     @Override

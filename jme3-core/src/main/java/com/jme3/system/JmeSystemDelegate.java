@@ -32,9 +32,11 @@
 package com.jme3.system;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.DesktopAssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.SoftTextDialogInput;
 import com.jme3.texture.Image;
+import com.jme3.texture.image.DefaultImageRaster;
 import com.jme3.texture.image.ImageRaster;
 import java.io.File;
 import java.io.IOException;
@@ -117,15 +119,25 @@ public abstract class JmeSystemDelegate {
     public void setSoftTextDialogInput(SoftTextDialogInput input) {
         softTextDialogInput = input;
     }
+    
     public SoftTextDialogInput getSoftTextDialogInput() {
         return softTextDialogInput;
     }
 
+    public final AssetManager newAssetManager(URL configFile) {
+        return new DesktopAssetManager(configFile);
+    }
+
+    public final AssetManager newAssetManager() {
+        return new DesktopAssetManager(null);
+    }
+    
+    @Deprecated
+    public final ImageRaster createImageRaster(Image image, int slice) {
+        return new DefaultImageRaster(image, slice);
+    }
+    
     public abstract void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException;
-
-    public abstract AssetManager newAssetManager(URL configFile);
-
-    public abstract AssetManager newAssetManager();
 
     public abstract void showErrorDialog(String message);
 
@@ -181,13 +193,13 @@ public abstract class JmeSystemDelegate {
         return sb.toString();
     }
     
+    public abstract String getPlatformAssetConfigPath();
+    
     public abstract JmeContext newContext(AppSettings settings, JmeContext.Type contextType);
 
     public abstract AudioRenderer newAudioRenderer(AppSettings settings);
 
     public abstract void initialize(AppSettings settings);
-
-    public abstract ImageRaster createImageRaster(Image image, int slice);
 
     public abstract void showSoftKeyboard(boolean show);
 }

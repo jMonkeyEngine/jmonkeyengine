@@ -35,6 +35,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.SoftTextDialogInput;
 import com.jme3.texture.Image;
+import com.jme3.texture.image.DefaultImageRaster;
 import com.jme3.texture.image.ImageRaster;
 import java.io.File;
 import java.io.IOException;
@@ -166,6 +167,15 @@ public class JmeSystem {
         return systemDelegate.newAudioRenderer(settings);
     }
 
+    public static String getPlatformAssetConfigPath() {
+        checkDelegate();
+        return systemDelegate.getPlatformAssetConfigPath();
+    }
+    
+    /**
+     * @deprecated Directly create an image raster via {@link DefaultImageRaster}.
+     */
+    @Deprecated
     public static ImageRaster createImageRaster(Image image, int slice) {
         checkDelegate();
         return systemDelegate.createImageRaster(image, slice);

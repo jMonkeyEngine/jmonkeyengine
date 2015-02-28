@@ -81,11 +81,6 @@ public class DesktopAssetManager implements AssetManager {
         this(null);
     }
 
-    @Deprecated
-    public DesktopAssetManager(boolean loadDefaults){
-        this(Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/Desktop.cfg"));
-    }
-
     public DesktopAssetManager(URL configFile){
         if (configFile != null){
             loadConfigFile(configFile);
@@ -93,20 +88,11 @@ public class DesktopAssetManager implements AssetManager {
         logger.fine("DesktopAssetManager created.");
     }
 
-    private void loadConfigFile(URL configFile){
-        InputStream stream = null;
-        try{
-            AssetConfig cfg = new AssetConfig(this);
-            stream = configFile.openStream();
-            cfg.loadText(stream);
-        }catch (IOException ex){
+    private void loadConfigFile(URL configFile) {
+        try {
+            AssetConfig.loadText(this, configFile);
+        } catch (IOException ex) {
             logger.log(Level.SEVERE, "Failed to load asset config", ex);
-        }finally{
-            if (stream != null)
-                try{
-                    stream.close();
-                }catch (IOException ex){
-                }
         }
     }
     
