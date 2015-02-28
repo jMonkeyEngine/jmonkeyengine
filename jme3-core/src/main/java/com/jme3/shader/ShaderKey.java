@@ -160,13 +160,13 @@ public class ShaderKey extends AssetKey<Shader> {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(shaderName.get(Shader.ShaderType.Fragment), "fragment_name", null);
         oc.write(shaderName.get(Shader.ShaderType.Geometry), "geometry_name", null);
-        oc.write(shaderName.get(Shader.ShaderType.TesselationControl), "tessControl_name", null);
-        oc.write(shaderName.get(Shader.ShaderType.TesselationEvaluation), "tessEval_name", null);
+        oc.write(shaderName.get(Shader.ShaderType.TessellationControl), "tessControl_name", null);
+        oc.write(shaderName.get(Shader.ShaderType.TessellationEvaluation), "tessEval_name", null);
         oc.write(shaderLanguage.get(Shader.ShaderType.Vertex), "language", null);
         oc.write(shaderLanguage.get(Shader.ShaderType.Fragment), "frag_language", null);
         oc.write(shaderLanguage.get(Shader.ShaderType.Geometry), "geom_language", null);
-        oc.write(shaderLanguage.get(Shader.ShaderType.TesselationControl), "tsctrl_language", null);
-        oc.write(shaderLanguage.get(Shader.ShaderType.TesselationEvaluation), "tseval_language", null);
+        oc.write(shaderLanguage.get(Shader.ShaderType.TessellationControl), "tsctrl_language", null);
+        oc.write(shaderLanguage.get(Shader.ShaderType.TessellationEvaluation), "tseval_language", null);
 
     }
 
@@ -177,13 +177,13 @@ public class ShaderKey extends AssetKey<Shader> {
         shaderName.put(Shader.ShaderType.Vertex,name);
         shaderName.put(Shader.ShaderType.Fragment,ic.readString("fragment_name", null));
         shaderName.put(Shader.ShaderType.Geometry,ic.readString("geometry_name", null));
-        shaderName.put(Shader.ShaderType.TesselationControl,ic.readString("tessControl_name", null));
-        shaderName.put(Shader.ShaderType.TesselationEvaluation,ic.readString("tessEval_name", null));
+        shaderName.put(Shader.ShaderType.TessellationControl,ic.readString("tessControl_name", null));
+        shaderName.put(Shader.ShaderType.TessellationEvaluation,ic.readString("tessEval_name", null));
         shaderLanguage.put(Shader.ShaderType.Vertex,ic.readString("language", null));
         shaderLanguage.put(Shader.ShaderType.Fragment,ic.readString("frag_language", null));
         shaderLanguage.put(Shader.ShaderType.Geometry,ic.readString("geom_language", null));
-        shaderLanguage.put(Shader.ShaderType.TesselationControl,ic.readString("tsctrl_language", null));
-        shaderLanguage.put(Shader.ShaderType.TesselationEvaluation,ic.readString("tseval_language", null));
+        shaderLanguage.put(Shader.ShaderType.TessellationControl,ic.readString("tsctrl_language", null));
+        shaderLanguage.put(Shader.ShaderType.TessellationEvaluation,ic.readString("tseval_language", null));
     }
 
 }
