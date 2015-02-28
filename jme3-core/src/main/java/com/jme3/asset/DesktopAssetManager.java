@@ -393,7 +393,6 @@ public class DesktopAssetManager implements AssetManager {
     public Shader loadShader(ShaderKey key){
         // cache abuse in method
         // that doesn't use loaders/locators
-        System.out.println();
         AssetCache cache = handler.getCache(SimpleAssetCache.class);
         Shader shader = (Shader) cache.getFromCache(key);
         if (shader == null){
