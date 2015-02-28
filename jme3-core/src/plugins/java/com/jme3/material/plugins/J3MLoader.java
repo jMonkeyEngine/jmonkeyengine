@@ -102,8 +102,6 @@ public class J3MLoader implements AssetLoader {
     }
 
     private void readShaderDefinition(Shader.ShaderType shaderType, String name, String language) {
-        System.out.println(shaderType);
-        System.out.println(name);
         shaderName.put(shaderType, name);
         shaderLanguage.put(shaderType, language);
     }
