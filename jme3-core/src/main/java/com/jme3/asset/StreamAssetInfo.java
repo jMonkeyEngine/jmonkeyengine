@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,11 +29,32 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.jme3.asset;
 
-package jme3tools.converters;
+import java.io.InputStream;
 
-import java.util.Map;
+/**
+ * An {@link AssetInfo} wrapper for {@link InputStream InputStreams}.
+ * 
+ * @author Kirill Vainer
+ */
+public class StreamAssetInfo extends AssetInfo {
 
-public interface Converter<T> {
-    public T convert(T input, Map<String, String> params);
+    private boolean alreadyOpened;
+    private final InputStream inputStream;
+    
+    public StreamAssetInfo(AssetManager assetManager, AssetKey<?> assetKey, InputStream inputStream) {
+        super(assetManager, assetKey);
+        this.inputStream = inputStream;
+    }
+    
+    @Override
+    public InputStream openStream() {
+        if (alreadyOpened) {
+            throw new IllegalStateException("Stream already opened");
+        }
+        alreadyOpened = true;
+        return inputStream;
+    }
+    
 }

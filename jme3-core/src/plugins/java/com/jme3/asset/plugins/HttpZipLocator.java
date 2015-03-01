@@ -52,6 +52,23 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 import java.util.zip.ZipEntry;
 
+/**
+ * <code>HttpZipLocator</code> is similar to {@link ZipLocator}, except
+ * it allows loading assets from a <code>.ZIP</code> file on the web instead of
+ * on the local filesystem.
+ * <p>
+ * The root path must be a valid HTTP(S) {@link URL} pointing to ZIP or
+ * ZIP-like file (such as a JAR). For example,<br>
+ * <code>https://www.example.com/my/sub/path/assets.zip</code>.
+ * <p>
+ * The locator is designed in such a way that it does not require downloading
+ * the entire <code>.ZIP</code> file from the web in order to load
+ * assets from it. Instead, the ZIP header is extracted first, and then
+ * is used to lookup assets from within the ZIP file and download them
+ * as requested by the user. 
+ * 
+ * @author Kirill Vainer
+ */
 public class HttpZipLocator implements AssetLocator {
 
     private static final Logger logger = Logger.getLogger(HttpZipLocator.class.getName());

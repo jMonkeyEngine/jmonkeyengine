@@ -6,9 +6,6 @@ import android.graphics.Bitmap;
 import android.os.Environment;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import com.jme3.asset.AndroidAssetManager;
-import com.jme3.asset.AndroidImageInfo;
-import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.android.AndroidAL;
 import com.jme3.audio.android.AndroidALC;
@@ -19,14 +16,10 @@ import com.jme3.audio.openal.ALC;
 import com.jme3.audio.openal.EFX;
 import com.jme3.system.*;
 import com.jme3.system.JmeContext.Type;
-import com.jme3.texture.Image;
-import com.jme3.texture.image.DefaultImageRaster;
-import com.jme3.texture.image.ImageRaster;
 import com.jme3.util.AndroidScreenshots;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 
@@ -40,6 +33,11 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
             System.loadLibrary("bulletjme");
         } catch (UnsatisfiedLinkError e) {
         }
+    }
+    
+    @Override
+    public String getPlatformAssetConfigPath() {
+        return "com/jme3/asset/Android.cfg";
     }
 
     @Override
@@ -56,27 +54,6 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
         }
         bitmapImage.compress(compressFormat, 95, outStream);
         bitmapImage.recycle();
-    }
-
-    @Override
-    public ImageRaster createImageRaster(Image image, int slice) {
-        if (image.getEfficentData() != null) {
-            return (AndroidImageInfo) image.getEfficentData();
-        } else {
-            return new DefaultImageRaster(image, slice);
-        }
-    }
-
-    @Override
-    public AssetManager newAssetManager(URL configFile) {
-        logger.log(Level.FINE, "Creating asset manager with config {0}", configFile);
-        return new AndroidAssetManager(configFile);
-    }
-
-    @Override
-    public AssetManager newAssetManager() {
-        logger.log(Level.FINE, "Creating asset manager with default config");
-        return new AndroidAssetManager(null);
     }
 
     @Override
@@ -122,21 +99,6 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
         AL al = new AndroidAL();
         EFX efx = new AndroidEFX();
         return new ALAudioRenderer(al, alc, efx);
-/*
-        if (settings.getAudioRenderer().equals(AppSettings.ANDROID_MEDIAPLAYER)) {
-            logger.log(Level.INFO, "newAudioRenderer settings set to Android MediaPlayer / SoundPool");
-            audioRendererType = AppSettings.ANDROID_MEDIAPLAYER;
-            return new AndroidMediaPlayerAudioRenderer(activity);
-        } else if (settings.getAudioRenderer().equals(AppSettings.ANDROID_OPENAL_SOFT)) {
-            logger.log(Level.INFO, "newAudioRenderer settings set to Android OpenAL Soft");
-            audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
-            return new AndroidMediaPlayerAudioRenderer(activity);
-        } else {
-            logger.log(Level.INFO, "AudioRenderer not set. Defaulting to Android MediaPlayer / SoundPool");
-            audioRendererType = AppSettings.ANDROID_MEDIAPLAYER;
-            return new AndroidMediaPlayerAudioRenderer(activity);
-        }
-*/
     }
 
     @Override
@@ -145,6 +107,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
             return;
         }
         initialized = true;
+        System.setProperty("org.xml.sax.driver", "org.xmlpull.v1.sax2.Driver");
         logger.log(Level.INFO, getBuildInfo());
     }
 

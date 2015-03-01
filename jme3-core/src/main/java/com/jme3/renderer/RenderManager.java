@@ -863,10 +863,12 @@ public class RenderManager {
     private void setViewPort(Camera cam) {
         // this will make sure to update viewport only if needed
         if (cam != prevCam || cam.isViewportChanged()) {
-            viewX = (int) (cam.getViewPortLeft() * cam.getWidth());
-            viewY = (int) (cam.getViewPortBottom() * cam.getHeight());
-            viewWidth = ((int)(cam.getViewPortRight() * cam.getWidth())) - ((int)(cam.getViewPortLeft() * cam.getWidth()));
-            viewHeight = ((int)(cam.getViewPortTop() * cam.getHeight())) - ((int)(cam.getViewPortBottom() * cam.getHeight()));
+            viewX      = (int) (cam.getViewPortLeft() * cam.getWidth());
+            viewY      = (int) (cam.getViewPortBottom() * cam.getHeight());
+            int viewX2 = (int) (cam.getViewPortRight() * cam.getWidth());
+            int viewY2 = (int) (cam.getViewPortTop() * cam.getHeight());
+            viewWidth  = viewX2 - viewX;
+            viewHeight = viewY2 - viewY;
             uniformBindingManager.setViewPort(viewX, viewY, viewWidth, viewHeight);
             renderer.setViewPort(viewX, viewY, viewWidth, viewHeight);
             renderer.setClipRect(viewX, viewY, viewWidth, viewHeight);

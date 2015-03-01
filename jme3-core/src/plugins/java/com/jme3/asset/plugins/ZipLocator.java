@@ -40,7 +40,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
- * <code>ZipLocator</code> is a locator that looks up resources in a .ZIP file.
+ * <code>ZipLocator</code> is a locator that looks up resources in a 
+ * <code>.ZIP</code> file.
+ * 
+ * The root path must be a valid ZIP or ZIP-like {@link File file}, 
+ * for example, <br>
+ * <code>C:\My App\data.zip</code>
+ * 
  * @author Kirill Vainer
  */
 public class ZipLocator implements AssetLocator {

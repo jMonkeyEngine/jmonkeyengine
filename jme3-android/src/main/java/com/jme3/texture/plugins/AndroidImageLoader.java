@@ -8,6 +8,7 @@ import com.jme3.texture.Image;
 import com.jme3.texture.image.ColorSpace;
 import java.io.IOException;
 
+@Deprecated
 public class AndroidImageLoader implements AssetLoader {
 
     public Object load(AssetInfo info) throws IOException {

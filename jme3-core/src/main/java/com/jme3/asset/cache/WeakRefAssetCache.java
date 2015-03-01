@@ -77,7 +77,6 @@ public class WeakRefAssetCache implements AssetCache {
             // might not even have this asset anymore, it is OK.
             if (assetCache.remove(ref.assetKey) != null){
                 removedAssets ++;
-                //System.out.println("WeakRefAssetCache: The asset " + ref.assetKey + " was purged from the cache");
             }
         }
         if (removedAssets >= 1) {
@@ -92,10 +91,6 @@ public class WeakRefAssetCache implements AssetCache {
         // thread is loading an asset with the same key ..
         AssetRef ref = new AssetRef(key, obj, refQueue);
         assetCache.put(key, ref);
-        
-//        Texture t = (Texture) obj;
-//        Image i = t.getImage();
-//        System.out.println("add to cache "  + System.identityHashCode(i));
     }
 
     public <T> T getFromCache(AssetKey<T> key) {

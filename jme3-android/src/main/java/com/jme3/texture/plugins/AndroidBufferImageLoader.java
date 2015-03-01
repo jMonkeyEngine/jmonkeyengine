@@ -50,6 +50,7 @@ import java.nio.ByteBuffer;
  * 
  * @author Kirill Vainer
  */
+@Deprecated
 public class AndroidBufferImageLoader implements AssetLoader {
     
     private final byte[] tempData = new byte[16 * 1024];

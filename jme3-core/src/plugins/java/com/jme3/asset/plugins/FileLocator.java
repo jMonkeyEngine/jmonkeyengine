@@ -37,6 +37,7 @@ import java.io.*;
 /**
  * <code>FileLocator</code> allows you to specify a folder where to
  * look for assets. 
+ * 
  * @author Kirill Vainer
  */
 public class FileLocator implements AssetLocator {

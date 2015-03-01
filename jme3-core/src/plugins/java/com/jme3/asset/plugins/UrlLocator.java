@@ -46,6 +46,10 @@ import java.util.logging.Logger;
  * <code>UrlLocator</code> is a locator that combines a root URL
  * and the given path in the AssetKey to construct a new URL
  * that allows locating the asset.
+ * <p>
+ * The root path must be a valid {@link URL}, for example, <br>
+ * <code>https://www.example.com/assets/</code>
+ * 
  * @author Kirill Vainer
  */
 public class UrlLocator implements AssetLocator {
