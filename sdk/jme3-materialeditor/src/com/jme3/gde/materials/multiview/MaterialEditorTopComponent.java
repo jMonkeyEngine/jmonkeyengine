@@ -12,7 +12,6 @@ import com.jme3.gde.materials.EditableMaterialFile;
 import com.jme3.gde.materials.MaterialProperty;
 import com.jme3.gde.core.sceneexplorer.MaterialChangeListener;
 import com.jme3.gde.core.sceneexplorer.MaterialChangeProvider;
-import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
 import com.jme3.gde.materials.multiview.widgets.MaterialPropertyWidget;
 import com.jme3.gde.materials.multiview.widgets.MaterialWidgetListener;
 import com.jme3.gde.materials.multiview.widgets.WidgetFactory;
@@ -23,13 +22,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.logging.Logger;
-import javax.swing.JComponent;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -47,7 +43,6 @@ import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.CloneableTopComponent;
-import org.openide.windows.Mode;
 
 /**
  * Top component which displays something.
@@ -69,10 +64,10 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     private String materialFileName;
     private String relativeMaterialFileName;
     private ProjectAssetManager manager;
-    private SaveCookie saveCookie = new SaveCookieImpl();
+    private final SaveCookie saveCookie = new SaveCookieImpl();
     private boolean saveImmediate = true;
     private boolean updateProperties = false;
-    private List<MaterialChangeListener> materialListeners = new ArrayList<MaterialChangeListener>();
+    private final List<MaterialChangeListener> materialListeners = new ArrayList<MaterialChangeListener>();
 
     public MaterialEditorTopComponent() {
     }
@@ -520,8 +515,7 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         List<String> matDefList = Arrays.asList(matDefs);
         Collections.sort(matDefList);
         String[] sortedMatDefs = matDefList.toArray(new String[0]);
-        for (int i = 0; i < sortedMatDefs.length; i++) {
-            String string = sortedMatDefs[i];
+        for (String string : sortedMatDefs) {
             jComboBox1.addItem(string);
         }
 
@@ -538,14 +532,12 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     }
 
     private void updateProperties() {
-        for (int i = 0; i < optionsPanel.getComponents().length; i++) {
-            Component component = optionsPanel.getComponents()[i];
+        for (Component component : optionsPanel.getComponents()) {
             if (component instanceof MaterialPropertyWidget) {
                 ((MaterialPropertyWidget) component).registerChangeListener(null);
             }
         }
-        for (int i = 0; i < texturePanel.getComponents().length; i++) {
-            Component component = texturePanel.getComponents()[i];
+        for (Component component : texturePanel.getComponents()) {
             if (component instanceof MaterialPropertyWidget) {
                 ((MaterialPropertyWidget) component).registerChangeListener(null);
             }
@@ -557,13 +549,12 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         List<Component> valueList = new LinkedList<Component>();
         List<Component> textureList = new LinkedList<Component>();
         List<Component> otherList = new LinkedList<Component>();
-        for (Iterator<Entry<String, MaterialProperty>> it = materialFile.getParameterMap().entrySet().iterator(); it.hasNext();) {
-            Entry<String, MaterialProperty> entry = it.next();
+        for (Entry<String, MaterialProperty> entry : materialFile.getParameterMap().entrySet()) {
             MaterialPropertyWidget widget = WidgetFactory.getWidget(entry.getValue(), manager);
             widget.registerChangeListener(this);
             if ("Boolean".equals(entry.getValue().getType())) {
                 optionList.add(widget);
-            } else if (entry.getValue().getType().indexOf("Texture") >= 0) {
+            } else if (entry.getValue().getType().contains("Texture")) {
                 textureList.add(widget);
             } else if ("Color".equals(entry.getValue().getType())) {
                 colorList.add(widget);
@@ -575,24 +566,19 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
                 otherList.add(widget);
             }
         }
-        for (Iterator<Component> it = textureList.iterator(); it.hasNext();) {
-            Component component = it.next();
+        for (Component component : textureList) {
             texturePanel.add(component);
         }
-        for (Iterator<Component> it = optionList.iterator(); it.hasNext();) {
-            Component component = it.next();
+        for (Component component : optionList) {
             optionsPanel.add(component);
         }
-        for (Iterator<Component> it = colorList.iterator(); it.hasNext();) {
-            Component component = it.next();
+        for (Component component : colorList) {
             texturePanel.add(component);
         }
-        for (Iterator<Component> it = valueList.iterator(); it.hasNext();) {
-            Component component = it.next();
+        for (Component component : valueList) {
             optionsPanel.add(component);
         }
-        for (Iterator<Component> it = otherList.iterator(); it.hasNext();) {
-            Component component = it.next();
+        for (Component component : otherList) {
             optionsPanel.add(component);
         }
         jScrollPane2.repaint();
@@ -606,15 +592,13 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
     }
 
     private void updateStates() {
-        for (int i = 0; i < statesPanel.getComponents().length; i++) {
-            Component component = statesPanel.getComponents()[i];
+        for (Component component : statesPanel.getComponents()) {
             if (component instanceof MaterialPropertyWidget) {
                 ((MaterialPropertyWidget) component).registerChangeListener(null);
             }
         }
         statesPanel.removeAll();
-        for (Iterator<Entry<String, MaterialProperty>> it = materialFile.getStateMap().entrySet().iterator(); it.hasNext();) {
-            Entry<String, MaterialProperty> entry = it.next();
+        for (Entry<String, MaterialProperty> entry : materialFile.getStateMap().entrySet()) {
             MaterialPropertyWidget widget = WidgetFactory.getWidget(entry.getValue(), manager);
             widget.registerChangeListener(this);
             statesPanel.add(widget);
