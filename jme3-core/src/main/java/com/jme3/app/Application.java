@@ -174,28 +174,30 @@ public class Application implements SystemListener {
     }
 
     private void initAssetManager(){
+        URL assetCfgUrl = null;
+        
         if (settings != null){
             String assetCfg = settings.getString("AssetConfigURL");
             if (assetCfg != null){
-                URL url = null;
                 try {
-                    url = new URL(assetCfg);
+                    assetCfgUrl = new URL(assetCfg);
                 } catch (MalformedURLException ex) {
                 }
-                if (url == null) {
-                    url = Application.class.getClassLoader().getResource(assetCfg);
-                    if (url == null) {
+                if (assetCfgUrl == null) {
+                    assetCfgUrl = Application.class.getClassLoader().getResource(assetCfg);
+                    if (assetCfgUrl == null) {
                         logger.log(Level.SEVERE, "Unable to access AssetConfigURL in asset config:{0}", assetCfg);
                         return;
                     }
                 }
-                assetManager = JmeSystem.newAssetManager(url);
             }
         }
+        if (assetCfgUrl == null) {
+            String assetCfg = JmeSystem.getPlatformAssetConfigPath();
+            assetCfgUrl = Thread.currentThread().getContextClassLoader().getResource(assetCfg);
+        }
         if (assetManager == null){
-            assetManager = JmeSystem.newAssetManager(
-                    Thread.currentThread().getContextClassLoader()
-                    .getResource("com/jme3/asset/Desktop.cfg"));
+            assetManager = JmeSystem.newAssetManager(assetCfgUrl);
         }
     }
 
