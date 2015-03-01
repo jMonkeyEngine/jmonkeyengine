@@ -38,6 +38,7 @@ import com.jme3.system.JmeSystemDelegate;
 import com.jme3.system.NullContext;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.logging.Logger;
 
@@ -48,8 +49,8 @@ import java.util.logging.Logger;
 public class JmeIosSystem extends JmeSystemDelegate {
 
     @Override
-    public String getPlatformAssetConfigPath() {
-        return "com/jme3/asset/IOS.cfg";
+    public URL getPlatformAssetConfigURL() {
+        return Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/IOS.cfg");
     }
     
     @Override

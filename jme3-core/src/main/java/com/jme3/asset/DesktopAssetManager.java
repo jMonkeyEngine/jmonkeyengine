@@ -45,6 +45,7 @@ import com.jme3.shader.Glsl150ShaderGenerator;
 import com.jme3.shader.Shader;
 import com.jme3.shader.ShaderGenerator;
 import com.jme3.shader.ShaderKey;
+import com.jme3.system.JmeSystem;
 import com.jme3.texture.Texture;
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,6 +80,10 @@ public class DesktopAssetManager implements AssetManager {
 
     public DesktopAssetManager(){
         this(null);
+    }
+    
+    public DesktopAssetManager(boolean usePlatformConfig){
+        this(usePlatformConfig ? JmeSystem.getPlatformAssetConfigURL() : null);
     }
 
     public DesktopAssetManager(URL configFile){

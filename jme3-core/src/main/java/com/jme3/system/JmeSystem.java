@@ -167,9 +167,9 @@ public class JmeSystem {
         return systemDelegate.newAudioRenderer(settings);
     }
 
-    public static String getPlatformAssetConfigPath() {
+    public static URL getPlatformAssetConfigURL() {
         checkDelegate();
-        return systemDelegate.getPlatformAssetConfigPath();
+        return systemDelegate.getPlatformAssetConfigURL();
     }
     
     /**

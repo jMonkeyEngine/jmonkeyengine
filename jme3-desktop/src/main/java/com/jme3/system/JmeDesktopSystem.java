@@ -33,18 +33,13 @@ package com.jme3.system;
 
 import com.jme3.app.SettingsDialog;
 import com.jme3.app.SettingsDialog.SelectionListener;
-import com.jme3.asset.AssetManager;
 import com.jme3.asset.AssetNotFoundException;
-import com.jme3.asset.DesktopAssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.openal.AL;
 import com.jme3.audio.openal.ALAudioRenderer;
 import com.jme3.audio.openal.ALC;
 import com.jme3.audio.openal.EFX;
 import com.jme3.system.JmeContext.Type;
-import com.jme3.texture.Image;
-import com.jme3.texture.image.DefaultImageRaster;
-import com.jme3.texture.image.ImageRaster;
 import com.jme3.util.Screenshots;
 import java.awt.EventQueue;
 import java.awt.Graphics2D;
@@ -75,8 +70,8 @@ import javax.swing.SwingUtilities;
 public class JmeDesktopSystem extends JmeSystemDelegate {
 
     @Override
-    public String getPlatformAssetConfigPath() {
-        return "com/jme3/asset/Desktop.cfg";
+    public URL getPlatformAssetConfigURL() {
+        return Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/Desktop.cfg");
     }
     
     private static BufferedImage verticalFlip(BufferedImage original) {

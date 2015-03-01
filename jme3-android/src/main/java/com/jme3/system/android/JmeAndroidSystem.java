@@ -20,6 +20,7 @@ import com.jme3.util.AndroidScreenshots;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 
@@ -36,8 +37,8 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
     }
     
     @Override
-    public String getPlatformAssetConfigPath() {
-        return "com/jme3/asset/Android.cfg";
+    public URL getPlatformAssetConfigURL() {
+        return Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/Android.cfg");
     }
 
     @Override

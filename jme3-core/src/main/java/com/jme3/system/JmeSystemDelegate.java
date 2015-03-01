@@ -193,7 +193,7 @@ public abstract class JmeSystemDelegate {
         return sb.toString();
     }
     
-    public abstract String getPlatformAssetConfigPath();
+    public abstract URL getPlatformAssetConfigURL();
     
     public abstract JmeContext newContext(AppSettings settings, JmeContext.Type contextType);
 

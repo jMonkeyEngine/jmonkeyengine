@@ -454,7 +454,7 @@ public class NVCompress extends javax.swing.JFrame {
             manager = JmeSystem.newAssetManager();
 
         manager.registerLocator(input.getParent().toString(),
-                                FileLocator.class.getName());
+                                FileLocator.class);
 
         String format = (String) cmbCompressType.getSelectedItem();
         if (format.equals("PNG-RGBE")){

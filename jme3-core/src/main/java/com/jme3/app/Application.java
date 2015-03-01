@@ -193,8 +193,7 @@ public class Application implements SystemListener {
             }
         }
         if (assetCfgUrl == null) {
-            String assetCfg = JmeSystem.getPlatformAssetConfigPath();
-            assetCfgUrl = Thread.currentThread().getContextClassLoader().getResource(assetCfg);
+            assetCfgUrl = JmeSystem.getPlatformAssetConfigURL();
         }
         if (assetManager == null){
             assetManager = JmeSystem.newAssetManager(assetCfgUrl);
