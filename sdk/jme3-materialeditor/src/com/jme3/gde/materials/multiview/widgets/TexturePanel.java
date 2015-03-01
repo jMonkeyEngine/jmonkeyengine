@@ -18,7 +18,9 @@ import com.jme3.texture.Texture;
 import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import javax.swing.Icon;
+import javax.swing.SwingUtilities;
 import jme3tools.converters.ImageToAwt;
 import org.openide.util.ImageUtilities;
 
@@ -34,6 +36,7 @@ public class TexturePanel extends MaterialPropertyWidget {
     private boolean repeat = false;
     private String textureName = null;
     private DDSPreview ddsPreview;
+    private final ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
 
     /** Creates new form SelectionPanel */
     public TexturePanel(ProjectAssetManager manager) {
@@ -44,17 +47,26 @@ public class TexturePanel extends MaterialPropertyWidget {
 
     private void displayPreview() {
         if (!"".equals(textureName)) {
-            Texture tex = manager.loadTexture(textureName);
-            Icon newicon = null;
-            if (textureName.toLowerCase().endsWith(".dds")) {
-                if (ddsPreview == null) {
-                    ddsPreview = new DDSPreview(manager);
+            exec.execute(new Runnable() {
+
+                public void run() {
+
+                    Texture tex = manager.loadTexture(textureName);
+                    if (textureName.toLowerCase().endsWith(".dds")) {
+                        if (ddsPreview == null) {
+                            ddsPreview = new DDSPreview(manager);
+                        }
+                        ddsPreview.requestPreview(textureName, "", 80, 80, texturePreview, null);
+                    } else {
+                        final Icon newicon = ImageUtilities.image2Icon(resizeImage(ImageToAwt.convert(tex.getImage(), false, true, 0)));
+                        SwingUtilities.invokeLater(new Runnable() {
+                            public void run() {
+                                texturePreview.setIcon(newicon);
+                            }
+                        });
+                    }
                 }
-                ddsPreview.requestPreview(textureName, "", 80, 80, texturePreview, null);
-            } else {
-                newicon = ImageUtilities.image2Icon(resizeImage(ImageToAwt.convert(tex.getImage(), false, true, 0)));
-            }
-            texturePreview.setIcon(newicon);
+            });
         }
     }
 
@@ -302,6 +314,7 @@ public class TexturePanel extends MaterialPropertyWidget {
         if (ddsPreview != null) {
             ddsPreview.cleanUp();
         }
+        exec.shutdownNow();
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
