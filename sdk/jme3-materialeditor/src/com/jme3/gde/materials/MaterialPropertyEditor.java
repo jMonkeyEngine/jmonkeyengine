@@ -31,7 +31,6 @@
  */
 package com.jme3.gde.materials;
 
-import com.jme3.asset.DesktopAssetManager;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneRequest;
@@ -148,7 +147,7 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
             SceneApplication.getApplication().enqueue(new Callable<Void>() {
                 public Void call() throws Exception {
                     SceneRequest request = SceneApplication.getApplication().getCurrentSceneRequest();
-                    ((DesktopAssetManager) request.getManager()).deleteFromCache(new MaterialKey(text));
+                    request.getManager().deleteFromCache(new MaterialKey(text));
                     Material localMaterial = request.getManager().loadMaterial(text);
                     if (localMaterial != null) {
                         material = localMaterial;

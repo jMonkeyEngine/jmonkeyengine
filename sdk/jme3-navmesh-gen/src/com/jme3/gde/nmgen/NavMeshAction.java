@@ -4,7 +4,6 @@
  */
 package com.jme3.gde.nmgen;
 
-import com.jme3.asset.DesktopAssetManager;
 import com.jme3.gde.core.assets.BinaryModelDataObject;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.scene.Spatial;
@@ -46,7 +45,7 @@ public class NavMeshAction implements ActionListener {
                     java.awt.EventQueue.invokeLater(new Runnable() {
 
                         public void run() {
-                            ((DesktopAssetManager)manager.getManager()).clearCache();
+                            manager.getManager().clearCache();
                             NavMeshTopComponent composer = NavMeshTopComponent.findInstance();
                             composer.openScene(asset, context, manager);
                         }

@@ -37,10 +37,11 @@ import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.asset.plugins.HttpZipLocator;
 import com.jme3.asset.plugins.UrlLocator;
 import com.jme3.asset.plugins.ZipLocator;
+import com.jme3.system.JmeSystem;
 
 public class TestManyLocators {
     public static void main(String[] args){
-        AssetManager am = new DesktopAssetManager();
+        AssetManager am = JmeSystem.newAssetManager();
 
         am.registerLocator("http://www.jmonkeyengine.com/wp-content/uploads/2010/09/",
                            UrlLocator.class);

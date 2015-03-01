@@ -620,7 +620,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
                 AssetLinkNode linkNode = (AssetLinkNode) selected;
                 linkNode.attachLinkedChild(manager, new ModelKey(assetName));
             } else {
-                ((DesktopAssetManager) manager).clearCache();
+                manager.clearCache();
                 ModelKey key = new ModelKey(assetName);
                 AssetLinkNode linkNode = new AssetLinkNode(key);
                 linkNode.attachLinkedChildren(manager);

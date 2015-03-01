@@ -33,16 +33,16 @@
 package jme3test.asset;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.plugins.WAVLoader;
+import com.jme3.system.JmeSystem;
 import com.jme3.texture.Texture;
 import com.jme3.texture.plugins.AWTLoader;
 
 public class TestAbsoluteLocators {
     public static void main(String[] args){
-        AssetManager am = new DesktopAssetManager();
+        AssetManager am = JmeSystem.newAssetManager();
 
         am.registerLoader(AWTLoader.class, "jpg");
         am.registerLoader(WAVLoader.class, "wav");
