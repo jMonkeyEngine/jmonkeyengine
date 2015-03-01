@@ -56,12 +56,12 @@ import javax.swing.JLabel;
  */
 public class DDSPreview implements SceneListener {
 
-    private ProjectAssetManager assetManager;
+    private final ProjectAssetManager assetManager;
     private JComponent picPreview;
-    private Geometry quad;
-    private Geometry quad3D;
-    private Material material;
-    private Material material3D;
+    private final Geometry quad;
+    private final Geometry quad3D;
+    private final Material material;
+    private final Material material3D;
 
     public DDSPreview(ProjectAssetManager assetManager) {
         this.assetManager = assetManager;
@@ -95,7 +95,7 @@ public class DDSPreview implements SceneListener {
         } else if (key.getTextureTypeHint() == Texture.Type.ThreeDimensional) {
             geom = quad3D;
             assetManager.deleteFromCache(key);
-            key.setAsTexture3D(true);
+            key.setTextureTypeHint(Texture.Type.ThreeDimensional);
             t = assetManager.loadTexture(key);
             material3D.setTexture("Texture", t);
             geom.setMaterial(material3D);
@@ -104,7 +104,7 @@ public class DDSPreview implements SceneListener {
             }
         } else if (key.getTextureTypeHint() == Texture.Type.CubeMap) {
             assetManager.deleteFromCache(key);
-            geom = SkyFactory.createSky(assetManager, textureName, false);
+            geom = SkyFactory.createSky(assetManager, textureName, SkyFactory.EnvMapType.CubeMap);
             if (infoLabel != null) {
                 infoLabel.setText(" " + displayName + " (CubeMap)    w : " + t.getImage().getWidth() + "    h : " + t.getImage().getHeight());
             }

@@ -28,8 +28,8 @@ import org.openide.util.ImageUtilities;
  */
 public class TexturePanel extends MaterialPropertyWidget {
 
-    private TexturePropertyEditor editor;
-    private ProjectAssetManager manager;
+    private final TexturePropertyEditor editor;
+    private final ProjectAssetManager manager;
     private boolean flip = false;
     private boolean repeat = false;
     private String textureName = null;
@@ -56,17 +56,6 @@ public class TexturePanel extends MaterialPropertyWidget {
             }
             texturePreview.setIcon(newicon);
         }
-    }
-
-    private String getName(String path) {
-        int idx = path.lastIndexOf("/");
-        if (idx != -1 && path.length() > idx + 1) {
-            path = path.substring(idx + 1, path.length());
-        }
-        if (path.length() > 15) {
-            path = path.substring(0, 15) + "..";
-        }
-        return path;
     }
 
     private void updateFlipRepeat() {
