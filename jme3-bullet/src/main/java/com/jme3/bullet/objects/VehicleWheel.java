@@ -420,4 +420,22 @@ public class VehicleWheel implements Savable {
         this.applyLocal = applyLocal;
     }
 
+    /**
+    * write the content of the wheelWorldRotation into the store
+    * 
+    * @param store
+    */
+    public void getWheelWorldRotation(final Quaternion store) {
+        store.set(this.wheelWorldRotation);
+    }
+
+    /**
+    * write the content of the wheelWorldLocation into the store
+    * 
+    * @param store
+    */
+    public void getWheelWorldLocation(final Vector3f store) {
+        store.set(this.wheelWorldLocation);
+    }
+
 }
