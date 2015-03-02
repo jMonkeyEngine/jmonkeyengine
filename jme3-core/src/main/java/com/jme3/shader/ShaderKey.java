@@ -54,7 +54,8 @@ public class ShaderKey extends AssetKey<Shader> {
     }
 
     public ShaderKey(DefineList defines, EnumMap<Shader.ShaderType,String> shaderLanguage,EnumMap<Shader.ShaderType,String> shaderName){
-        super(shaderName.get(Shader.ShaderType.Vertex));
+        super("");
+        this.name = reducePath(getShaderName(Shader.ShaderType.Vertex));
         this.shaderLanguage=new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
         this.shaderName=new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
         this.defines = defines;
@@ -77,12 +78,20 @@ public class ShaderKey extends AssetKey<Shader> {
         //todo:
         return "V="+name+";";
     }
+    
+    private final String getShaderName(Shader.ShaderType type) {
+        if (shaderName == null) {
+            return "";
+        }
+        String shName = shaderName.get(type);
+        return shName != null ? shName : "";
+    }
 
     //todo: make equals and hashCode work
     @Override
     public boolean equals(Object obj) {
         final ShaderKey other = (ShaderKey) obj;
-        if (name.equals(other.name) && shaderName.get(Shader.ShaderType.Fragment).equals(other.shaderName.get(Shader.ShaderType.Fragment))){
+        if (name.equals(other.name) && getShaderName(Shader.ShaderType.Fragment).equals(other.getShaderName(Shader.ShaderType.Fragment))){
             if (defines != null && other.defines != null) {
                 return defines.equals(other.defines);
             } else if (defines != null || other.defines != null) {
@@ -99,10 +108,10 @@ public class ShaderKey extends AssetKey<Shader> {
         if (cachedHashedCode == 0) {
             int hash = 7;
             hash = 41 * hash + name.hashCode();
-            hash = 41 * hash + shaderName.get(Shader.ShaderType.Fragment).hashCode();
-            hash = shaderName.get(Shader.ShaderType.Geometry) == null ? hash : 41 * hash + shaderName.get(Shader.ShaderType.Geometry).hashCode();
-            hash = shaderName.get(Shader.ShaderType.TessellationControl) == null ? hash : 41 * hash + shaderName.get(Shader.ShaderType.TessellationControl).hashCode();
-            hash = shaderName.get(Shader.ShaderType.TessellationEvaluation) == null ? hash : 41 * hash + shaderName.get(Shader.ShaderType.TessellationEvaluation).hashCode();
+            hash = 41 * hash + getShaderName(Shader.ShaderType.Fragment).hashCode();
+            hash = getShaderName(Shader.ShaderType.Geometry) == null ? hash : 41 * hash + getShaderName(Shader.ShaderType.Geometry).hashCode();
+            hash = getShaderName(Shader.ShaderType.TessellationControl) == null ? hash : 41 * hash + getShaderName(Shader.ShaderType.TessellationControl).hashCode();
+            hash = getShaderName(Shader.ShaderType.TessellationEvaluation) == null ? hash : 41 * hash + getShaderName(Shader.ShaderType.TessellationEvaluation).hashCode();
             hash = 41 * hash + (defines != null ? defines.hashCode() : 0);
             cachedHashedCode = hash;
         }
@@ -114,11 +123,11 @@ public class ShaderKey extends AssetKey<Shader> {
     }
 
     public String getVertName(){
-        return shaderName.get(Shader.ShaderType.Vertex);
+        return getShaderName(Shader.ShaderType.Vertex);
     }
 
     public String getFragName() {
-        return shaderName.get(Shader.ShaderType.Fragment);
+        return getShaderName(Shader.ShaderType.Fragment);
     }
 
     /**
@@ -154,7 +163,7 @@ public class ShaderKey extends AssetKey<Shader> {
     }
 
     public String getShaderProgramName(Shader.ShaderType shaderType){
-        return shaderName.get(shaderType);
+        return getShaderName(shaderType);
     }
 
     @Override
