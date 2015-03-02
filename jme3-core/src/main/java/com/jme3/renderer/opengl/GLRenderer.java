@@ -107,6 +107,7 @@ public class GLRenderer implements Renderer {
     private final GL gl;
     private final GL2 gl2;
     private final GL3 gl3;
+    private final GL4 gl4;
     private final GLExt glext;
     private final GLFbo glfbo;
     private final TextureUtil texUtil;
@@ -115,6 +116,7 @@ public class GLRenderer implements Renderer {
         this.gl = gl;
         this.gl2 = gl instanceof GL2 ? (GL2)gl : null;
         this.gl3 = gl instanceof GL3 ? (GL3)gl : null;
+        this.gl4 = gl instanceof GL4 ? (GL4)gl : null;
         this.glfbo = glfbo;
         this.glext = glfbo instanceof GLExt ? (GLExt)glfbo : null;
         this.texUtil = new TextureUtil(gl, gl2, glext, context);
@@ -183,6 +185,12 @@ public class GLRenderer implements Renderer {
                         caps.add(Caps.OpenGL31);
                         if (oglVer >= 320) {
                             caps.add(Caps.OpenGL32);
+                        }if(oglVer>=330){
+                            caps.add(Caps.OpenGL33);
+                            caps.add(Caps.GeometryShader);
+                        }if(oglVer>=400){
+                            caps.add(Caps.OpenGL40);
+                            caps.add(Caps.TesselationShader);
                         }
                     }
                 }
@@ -199,7 +207,9 @@ public class GLRenderer implements Renderer {
                 // so that future OpenGL revisions wont break jme3
                 // fall through intentional
             case 400:
+                caps.add(Caps.GLSL400);
             case 330:
+                caps.add(Caps.GLSL330);
             case 150:
                 caps.add(Caps.GLSL150);
             case 140:
@@ -271,7 +281,7 @@ public class GLRenderer implements Renderer {
         
         boolean hasFloatTexture = false;
 
-        hasFloatTexture = hasExtension("GL_OES_texture_half_float") && 
+        hasFloatTexture = hasExtension("GL_OES_texture_half_float") &&
                           hasExtension("GL_OES_texture_float");
         
         if (!hasFloatTexture) {
@@ -1009,6 +1019,12 @@ public class GLRenderer implements Renderer {
                 return GL.GL_FRAGMENT_SHADER;
             case Vertex:
                 return GL.GL_VERTEX_SHADER;
+            case Geometry:
+                return GL3.GL_GEOMETRY_SHADER;
+            case TessellationControl:
+                return GL4.GL_TESS_CONTROL_SHADER;
+            case TessellationEvaluation:
+                return GL4.GL_TESS_EVALUATION_SHADER;
             default:
                 throw new UnsupportedOperationException("Unrecognized shader type.");
         }
@@ -2520,6 +2536,8 @@ public class GLRenderer implements Renderer {
                 return GL.GL_TRIANGLE_FAN;
             case TriangleStrip:
                 return GL.GL_TRIANGLE_STRIP;
+            case Patch:
+                return GL4.GL_PATCHES;
             default:
                 throw new UnsupportedOperationException("Unrecognized mesh mode: " + mode);
         }
@@ -2670,7 +2688,9 @@ public class GLRenderer implements Renderer {
             gl.glLineWidth(mesh.getLineWidth());
             context.lineWidth = mesh.getLineWidth();
         }
-
+        if(gl4!=null && mesh.getMode().equals(Mode.Patch)){
+            gl4.glPatchParameter(mesh.getPatchVertexCount());
+        }
         statistics.onMeshDrawn(mesh, lod, count);
 //        if (ctxCaps.GL_ARB_vertex_array_object){
 //            renderMeshVertexArray(mesh, lod, count);

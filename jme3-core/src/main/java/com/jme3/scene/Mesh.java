@@ -134,8 +134,12 @@ public class Mesh implements Savable, Cloneable {
          * {@link Mesh#setElementLengths(int[]) element lengths} must 
          * be specified for this mode.
          */
-        Hybrid(false);
-        
+        Hybrid(false),
+        /**
+         * Used for Tesselation only. Requires to set the number of vertices
+         * for each patch (default is 3 for triangle tesselation)
+         */
+        Patch(true);
         private boolean listMode = false;
         
         private Mode(boolean listMode){
@@ -175,6 +179,7 @@ public class Mesh implements Savable, Cloneable {
     private int vertCount = -1;
     private int elementCount = -1;
     private int instanceCount = -1;
+    private int patchVertexCount=3; //only used for tesselation
     private int maxNumWeights = -1; // only if using skeletal animation
 
     private int[] elementLengths;
@@ -728,6 +733,8 @@ public class Mesh implements Savable, Cloneable {
                 return bufSize;
             case LineStrip:
                 return bufSize - 1;
+            case Patch:
+                return bufSize/patchVertexCount;
             default:
                 throw new UnsupportedOperationException();
         }
@@ -1362,6 +1369,21 @@ public class Mesh implements Savable, Cloneable {
                getBuffer(Type.HWBoneIndex) != null;
     }
 
+    /**
+     * Sets the count of vertices used for each tessellation patch
+     * @param patchVertexCount
+     */
+    public void setPatchVertexCount(int patchVertexCount) {
+        this.patchVertexCount = patchVertexCount;
+    }
+
+    /**
+     * Gets the amout of vertices used for each patch;
+     * @return
+     */
+    public int getPatchVertexCount() {
+        return patchVertexCount;
+    }
 
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule out = ex.getCapsule(this);

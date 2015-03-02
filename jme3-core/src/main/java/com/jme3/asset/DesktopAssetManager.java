@@ -450,16 +450,11 @@ public class DesktopAssetManager implements AssetManager {
                 }
                 shader = shaderGenerator.generateShader();
             } else {
-                String vertName = key.getVertName();
-                String fragName = key.getFragName();
-
-                String vertSource = (String) loadAsset(new AssetKey(vertName));
-                String fragSource = (String) loadAsset(new AssetKey(fragName));
-
                 shader = new Shader();
                 shader.initialize();
-                shader.addSource(Shader.ShaderType.Vertex, vertName, vertSource, key.getDefines().getCompiled(), key.getVertexShaderLanguage());
-                shader.addSource(Shader.ShaderType.Fragment, fragName, fragSource, key.getDefines().getCompiled(), key.getFragmentShaderLanguage());
+                for (Shader.ShaderType shaderType : key.getUsedShaderPrograms()) {
+                    shader.addSource(shaderType,key.getShaderProgramName(shaderType),(String) loadAsset(new AssetKey(key.getShaderProgramName(shaderType))),key.getDefines().getCompiled(),key.getShaderProgramLanguage(shaderType));
+                }
             }
 
             cache.addToCache(key, shader);

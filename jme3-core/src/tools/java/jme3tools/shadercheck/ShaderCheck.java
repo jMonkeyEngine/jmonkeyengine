@@ -30,7 +30,7 @@ public class ShaderCheck {
         assetManager.registerLocator("/", ClasspathLocator.class);
         assetManager.registerLoader(J3MLoader.class, "j3m");
         assetManager.registerLoader(J3MLoader.class, "j3md");
-        assetManager.registerLoader(GLSLLoader.class, "vert", "frag", "glsllib");
+        assetManager.registerLoader(GLSLLoader.class, "vert", "frag","geom","tsctrl","tseval","glsllib");
     }
     
     private static void checkMatDef(String matdefName){
@@ -38,11 +38,8 @@ public class ShaderCheck {
         for (TechniqueDef techDef : def.getDefaultTechniques()){
             DefineList dl = new DefineList();
             dl.addFrom(techDef.getShaderPresetDefines());
-            ShaderKey shaderKey = new ShaderKey(techDef.getVertexShaderName(),
-                                                techDef.getFragmentShaderName(),
-                                                dl,
-                                                techDef.getVertexShaderLanguage(),
-                                                techDef.getFragmentShaderLanguage());
+            ShaderKey shaderKey = new ShaderKey(dl,techDef.getShaderProgramLanguages(),techDef.getShaderProgramNames());
+
             Shader shader = assetManager.loadShader(shaderKey);
 
             for (Validator validator : validators){

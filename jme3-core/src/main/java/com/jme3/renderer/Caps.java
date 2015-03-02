@@ -120,7 +120,14 @@ public enum Caps {
      * Supports OpenGL 3.2
      */
     OpenGL32,
-
+    /**
+     * Supports OpenGL 3.3
+     */
+    OpenGL33,
+    /**
+     * Supports OpenGL 4.0
+     */
+    OpenGL40,
     /**
      * Do not use.
      * 
@@ -163,7 +170,10 @@ public enum Caps {
      * Supports GLSL 3.3
      */
     GLSL330,
-
+    /**
+     * Supports GLSL 4.0
+     */
+    GLSL400,
     /**
      * Supports reading from textures inside the vertex shader.
      */
@@ -173,7 +183,10 @@ public enum Caps {
      * Supports geometry shader.
      */
     GeometryShader,
-
+    /**
+     * Supports Tesselation shader
+     */
+    TesselationShader,
     /**
      * Supports texture arrays
      */

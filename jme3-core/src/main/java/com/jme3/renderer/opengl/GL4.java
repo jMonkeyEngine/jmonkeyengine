@@ -38,11 +38,9 @@ import java.nio.IntBuffer;
  * 
  * @author Kirill Vainer
  */
-public interface GL3 extends GL2 {
-    
-    public static final int GL_DEPTH_STENCIL_ATTACHMENT = 0x821A;
-    public static final int GL_GEOMETRY_SHADER=0x8DD9;
-    public void glBindFragDataLocation(int param1, int param2, String param3); /// GL3+
-    public void glBindVertexArray(int param1); /// GL3+
-    public void glGenVertexArrays(IntBuffer param1); /// GL3+
+public interface GL4 extends GL3 {
+    public static final int GL_TESS_CONTROL_SHADER=0x8E87;
+    public static final int GL_TESS_EVALUATION_SHADER=0x8E88;
+    public static final int GL_PATCHES=0xE;
+    public void glPatchParameter(int count);
 }

@@ -40,6 +40,7 @@ import com.jme3.material.TechniqueDef.ShadowMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.shader.Shader;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
@@ -48,8 +49,10 @@ import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.PlaceholderAssets;
 import com.jme3.util.blockparser.BlockLanguageParser;
 import com.jme3.util.blockparser.Statement;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -68,16 +71,15 @@ public class J3MLoader implements AssetLoader {
     private Material material;
     private TechniqueDef technique;
     private RenderState renderState;
-    
-    private String vertLanguage;
-    private String fragLanguage;
-    
-    private String vertName;
-    private String fragName;
-    
+
+    private EnumMap<Shader.ShaderType, String> shaderLanguage;
+    private EnumMap<Shader.ShaderType, String> shaderName;
+
     private static final String whitespacePattern = "\\p{javaWhitespace}+";
 
-    public J3MLoader(){
+    public J3MLoader() {
+        shaderLanguage = new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
+        shaderName = new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
     }
 
 
@@ -91,14 +93,17 @@ public class J3MLoader implements AssetLoader {
         if (typeAndLang.length != 2) {
             throw new IOException("Shader statement syntax incorrect: " + statement);
         }
-        
-        if (typeAndLang[0].equals("VertexShader")) {
-            vertName = split[1].trim();
-            vertLanguage = typeAndLang[1];
-        } else if (typeAndLang[0].equals("FragmentShader")) {
-            fragName = split[1].trim();
-            fragLanguage = typeAndLang[1];
+
+        for (Shader.ShaderType shaderType : Shader.ShaderType.values()) {
+            if (typeAndLang[0].equals(shaderType.toString() + "Shader")) {
+                readShaderDefinition(shaderType, split[1].trim(), typeAndLang[1]);
+            }
         }
+    }
+
+    private void readShaderDefinition(Shader.ShaderType shaderType, String name, String language) {
+        shaderName.put(shaderType, name);
+        shaderLanguage.put(shaderType, language);
     }
 
     // LightMode <MODE>
@@ -403,7 +408,10 @@ public class J3MLoader implements AssetLoader {
     private void readTechniqueStatement(Statement statement) throws IOException{
         String[] split = statement.getLine().split("[ \\{]");       
         if (split[0].equals("VertexShader") ||
-            split[0].equals("FragmentShader")){
+                split[0].equals("FragmentShader") ||
+                split[0].equals("GeometryShader") ||
+                split[0].equals("TessellationControlShader") ||
+                split[0].equals("TessellationEvaluationShader")) {
             readShaderStatement(statement.getLine());
         }else if (split[0].equals("LightMode")){
             readLightMode(statement.getLine());
@@ -467,16 +475,14 @@ public class J3MLoader implements AssetLoader {
             technique.setShaderFile(technique.hashCode() + "", technique.hashCode() + "", "GLSL100", "GLSL100");
         }
 
-        if (vertName != null && fragName != null){
-            technique.setShaderFile(vertName, fragName, vertLanguage, fragLanguage);
+        if (shaderName.containsKey(Shader.ShaderType.Vertex) && shaderName.containsKey(Shader.ShaderType.Fragment)) {
+            technique.setShaderFile(shaderName, shaderLanguage);
         }
         
         materialDef.addTechniqueDef(technique);
         technique = null;
-        vertName = null;
-        fragName = null;
-        vertLanguage = null;
-        fragLanguage = null;
+        shaderLanguage.clear();
+        shaderName.clear();
     }
 
     private void loadFromRoot(List<Statement> roots) throws IOException{       
@@ -594,9 +600,9 @@ public class J3MLoader implements AssetLoader {
 
     protected void initNodesLoader() {
         if (!isUseNodes) {
-            isUseNodes = fragName == null && vertName == null;
-            if (isUseNodes) { 
-                if(nodesLoaderDelegate == null){
+            isUseNodes = shaderName.get(Shader.ShaderType.Vertex) == null && shaderName.get(Shader.ShaderType.Fragment) == null;
+            if (isUseNodes) {
+                if (nodesLoaderDelegate == null) {
                     nodesLoaderDelegate = new ShaderNodeLoaderDelegate();
                 }else{
                     nodesLoaderDelegate.clear();
