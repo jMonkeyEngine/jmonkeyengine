@@ -206,24 +206,18 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     }
 
     /**
-     * returns true if the PssmRenderer flushed the shadow queues
-     *
-     * @return flushQueues
+     * isFlushQueues does nothing and is kept only for backward compatibility
      */
+    @Deprecated
     public boolean isFlushQueues() {
         return shadowRenderer.isFlushQueues();
     }
 
     /**
-     * Set this to false if you want to use several PssmRederers to have
-     * multiple shadows cast by multiple light sources. Make sure the last
-     * PssmRenderer in the stack DO flush the queues, but not the others
-     *
-     * @param flushQueues
+     * setFlushQueues does nothing now and is kept only for backward compatibility
      */
-    public void setFlushQueues(boolean flushQueues) {
-        shadowRenderer.setFlushQueues(flushQueues);
-    }
+    @Deprecated
+    public void setFlushQueues(boolean flushQueues) {}
 
     /**
      * sets the shadow compare mode see {@link CompareMode} for more info
