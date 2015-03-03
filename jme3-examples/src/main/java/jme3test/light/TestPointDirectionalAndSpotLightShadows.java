@@ -149,12 +149,6 @@ public class TestPointDirectionalAndSpotLightShadows extends SimpleApplication {
         
         
         
-        slsr.setFlushQueues(false);
-        plsr.setFlushQueues(false);
-        dlsr.setFlushQueues(true);
-        slsf.setFlushQueues(false);
-        plsf.setFlushQueues(false);
-        dlsf.setFlushQueues(true);
         if (!useFilter)viewPort.addProcessor(slsr);
         if (!useFilter)viewPort.addProcessor(plsr);
         if (!useFilter)viewPort.addProcessor(dlsr);
