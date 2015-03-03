@@ -131,6 +131,7 @@ public class BatchNode extends GeometryGroupNode implements Savable {
             updateWorldTransforms();
         }
 
+        refreshFlags &= ~RF_CHILD_LIGHTLIST;
         if (!children.isEmpty()) {
             // the important part- make sure child geometric state is refreshed
             // first before updating own world bound. This saves
