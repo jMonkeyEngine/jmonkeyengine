@@ -33,8 +33,8 @@ public class TestTessellationShader extends SimpleApplication {
         geometry.setMaterial(tessellationMaterial);
         rootNode.attachChild(geometry);
 
-        getInputManager().addMapping("TessUp", new KeyTrigger(KeyInput.KEY_A));
-        getInputManager().addMapping("TessDo", new KeyTrigger(KeyInput.KEY_Y));
+        getInputManager().addMapping("TessUp", new KeyTrigger(KeyInput.KEY_O));
+        getInputManager().addMapping("TessDo", new KeyTrigger(KeyInput.KEY_L));
         getInputManager().addListener(new AnalogListener() {
             @Override
             public void onAnalog(String name, float value, float tpf) {
