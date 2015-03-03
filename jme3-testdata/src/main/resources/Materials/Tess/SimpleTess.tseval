@@ -1,17 +1,13 @@
-layout(vertices=4) out;
-out gl_PerVertex{
-  vec4 gl_Position;
-}gl_out[];
-uniform int m_TessellationFactor;
-void main(){
-    if (gl_InvocationID == 0){
-        gl_TessLevelOuter[0]=m_TessellationFactor;
-        gl_TessLevelOuter[1]=m_TessellationFactor;
-        gl_TessLevelOuter[2]=m_TessellationFactor;
-        gl_TessLevelOuter[3]=m_TessellationFactor;
+layout (quads,equal_spacing,cw) in;
 
-        gl_TessLevelInner[0]=m_TessellationFactor;
-        gl_TessLevelInner[1]=m_TessellationFactor;
-    }
-    gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
+uniform mat4 g_WorldViewProjectionMatrix;
+
+void main(){
+        vec3 p0 = mix(gl_in[0].gl_Position.xyz, gl_in[3].gl_Position.xyz, gl_TessCoord.x);
+        // interpolate in horizontal direction between vert. 1 and 2
+        vec3 p1 = mix(gl_in[1].gl_Position.xyz, gl_in[2].gl_Position.xyz, gl_TessCoord.x);
+        // interpolate in vert direction
+        vec3 tePosition = mix(p0, p1, gl_TessCoord.y);
+        gl_Position = g_WorldViewProjectionMatrix * vec4(tePosition, 1);
 }
+
