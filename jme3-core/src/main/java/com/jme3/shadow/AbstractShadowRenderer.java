@@ -92,7 +92,6 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     protected EdgeFilteringMode edgeFilteringMode = EdgeFilteringMode.Bilinear;
     protected CompareMode shadowCompareMode = CompareMode.Hardware;
     protected Picture[] dispPic;
-    protected boolean flushQueues = true;
     /**
      * true if the fallback material should be used, otherwise false
      */
@@ -105,7 +104,6 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
      * list of materials for post shadow queue geometries
      */
     protected List<Material> matCache = new ArrayList<Material>();
-    protected GeometryList sceneReceivers;
     protected GeometryList lightReceivers = new GeometryList(new OpaqueComparator());
     protected GeometryList shadowMapOccluders = new GeometryList(new OpaqueComparator());
     private String[] shadowMapStringCache;
@@ -385,7 +383,6 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
 
     @SuppressWarnings("fallthrough")
     public void postQueue(RenderQueue rq) {
-        sceneReceivers = rq.getShadowQueueContent(ShadowMode.Receive);
         lightReceivers.clear();
         skipPostPass = false;
         if ( !checkCulling(viewPort.getCamera()) ) {
@@ -462,7 +459,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         debug = true;
     }
 
-    abstract GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers);
+    abstract void getReceivers(GeometryList lightReceivers);
 
     public void postFrame(FrameBuffer out) {
         if (skipPostPass) {
@@ -472,7 +469,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
             displayShadowMap(renderManager.getRenderer());
         }
         
-        lightReceivers = getReceivers(sceneReceivers, lightReceivers);
+        getReceivers(lightReceivers);
 
         if (lightReceivers.size() != 0) {
             //setting params to recieving geometry list
@@ -497,10 +494,6 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
             
             //clearing the params in case there are some other shadow renderers
             clearMatParams();
-        }
-
-        if (flushQueues) {
-            sceneReceivers.clear();
         }
     }
     
@@ -726,24 +719,16 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     }
 
     /**
-     * Returns true if this shadow renderer flushes the shadow queues.
-     *
-     * @return flushQueues
+     *  isFlushQueues does nothing now and is kept only for backward compatibility
      */
-    public boolean isFlushQueues() {
-        return flushQueues;
-    }
+    @Deprecated
+    public boolean isFlushQueues() { return false; }
 
     /**
-     * Set flushQueues to false if you have multiple shadow renderers, in order
-     * for multiple light sources to cast shadows. Make sure the last shadow
-     * renderer in the stack DOES flush the queues, but not the others.
-     *
-     * @param flushQueues
+     * setFlushQueues does nothing now and is kept only for backward compatibility
      */
-    public void setFlushQueues(boolean flushQueues) {
-        this.flushQueues = flushQueues;
-    }
+    @Deprecated
+    public void setFlushQueues(boolean flushQueues) {}
 
     /**
      * De-serialize this instance, for example when loading from a J3O file.
@@ -758,7 +743,6 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         shadowIntensity = ic.readFloat("shadowIntensity", 0.7f);
         edgeFilteringMode = ic.readEnum("edgeFilteringMode", EdgeFilteringMode.class, EdgeFilteringMode.Bilinear);
         shadowCompareMode = ic.readEnum("shadowCompareMode", CompareMode.class, CompareMode.Hardware);
-        flushQueues = ic.readBoolean("flushQueues", false);
         init(assetManager, nbShadowMaps, (int) shadowMapSize);
         edgesThickness = ic.readFloat("edgesThickness", 1.0f);
         postshadowMat.setFloat("PCFEdge", edgesThickness);
@@ -777,7 +761,6 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         oc.write(shadowIntensity, "shadowIntensity", 0.7f);
         oc.write(edgeFilteringMode, "edgeFilteringMode", EdgeFilteringMode.Bilinear);
         oc.write(shadowCompareMode, "shadowCompareMode", CompareMode.Hardware);
-        oc.write(flushQueues, "flushQueues", false);
         oc.write(edgesThickness, "edgesThickness", 1.0f);
     }
 }
