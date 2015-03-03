@@ -118,49 +118,62 @@ public class BatchNode extends GeometryGroupNode implements Savable {
     public void onGeoemtryUnassociated(Geometry geom) {
         setNeedsFullRebatch(true);
     }
-
+    
     @Override
     public void updateGeometricState() {
-        if ((refreshFlags & RF_LIGHTLIST) != 0) {
-            updateWorldLightList();
-        }
-
-        if ((refreshFlags & RF_TRANSFORM) != 0) {
-            // combine with parent transforms- same for all spatial
-            // subclasses.
-            updateWorldTransforms();
-        }
-
-        refreshFlags &= ~RF_CHILD_LIGHTLIST;
+        super.updateGeometricState();
         if (!children.isEmpty()) {
-            // the important part- make sure child geometric state is refreshed
-            // first before updating own world bound. This saves
-            // a round-trip later on.
-            // NOTE 9/19/09
-            // Although it does save a round trip,
-
-            for (Spatial child : children.getArray()) {
-                child.updateGeometricState();
-            }
-
             for (Batch batch : batches.getArray()) {
                 if (batch.needMeshUpdate) {
                     batch.geometry.updateModelBound();
                     batch.geometry.updateWorldBound();
                     batch.needMeshUpdate = false;
-
                 }
             }
-
-
         }
-
-        if ((refreshFlags & RF_BOUND) != 0) {
-            updateWorldBound();
-        }
-
-        assert refreshFlags == 0;
     }
+//
+//    @Override
+//    public void updateGeometricState() {
+//        if ((refreshFlags & RF_LIGHTLIST) != 0) {
+//            updateWorldLightList();
+//        }
+//
+//        if ((refreshFlags & RF_TRANSFORM) != 0) {
+//            // combine with parent transforms- same for all spatial
+//            // subclasses.
+//            updateWorldTransforms();
+//        }
+//
+//        refreshFlags &= ~RF_CHILD_LIGHTLIST;
+//        if (!children.isEmpty()) {
+//            // the important part- make sure child geometric state is refreshed
+//            // first before updating own world bound. This saves
+//            // a round-trip later on.
+//            // NOTE 9/19/09
+//            // Although it does save a round trip,
+//
+//            for (Spatial child : children.getArray()) {
+//                child.updateGeometricState();
+//            }
+//
+//            for (Batch batch : batches.getArray()) {
+//                if (batch.needMeshUpdate) {
+//                    batch.geometry.updateModelBound();
+//                    batch.geometry.updateWorldBound();
+//                    batch.needMeshUpdate = false;
+//
+//                }
+//            }
+//
+//        }
+//
+//        if ((refreshFlags & RF_BOUND) != 0) {
+//            updateWorldBound();
+//        }
+//
+//        assert refreshFlags == 0;
+//    }
 
     protected Matrix4f getTransformMatrix(Geometry g){
         return g.cachedWorldMat;
