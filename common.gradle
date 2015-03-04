@@ -37,7 +37,9 @@ javadoc {
     options.author = "true"
     options.use = "true"
     //disable doclint for JDK8, more quiet output
-    options.addStringOption('Xdoclint:none', '-quiet')
+    if (Double.parseDouble(System.getProperty("java.specification.version")) > 1.7){
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
 }
 
 task sourcesJar(type: Jar, dependsOn: classes, description: 'Creates a jar from the source files.') {
