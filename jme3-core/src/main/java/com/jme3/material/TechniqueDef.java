@@ -238,11 +238,11 @@ public class TechniqueDef implements Savable {
      * @param vertLanguage The vertex shader language
      * @param fragLanguage The fragment shader language
      */
-    public void setShaderFile(String vertexShader, String fragmentShader, String vertLanguage, String fragLanguage){
-        this.shaderLanguage.put(Shader.ShaderType.Vertex,shaderLanguage.get(vertLanguage));
-        this.shaderName.put(Shader.ShaderType.Vertex,shaderName.get(vertexShader));
-        this.shaderLanguage.put(Shader.ShaderType.Fragment,shaderLanguage.get(fragLanguage));
-        this.shaderName.put(Shader.ShaderType.Fragment,shaderName.get(fragmentShader));
+    public void setShaderFile(String vertexShader, String fragmentShader, String vertLanguage, String fragLanguage) {
+        this.shaderLanguage.put(Shader.ShaderType.Vertex, vertLanguage);
+        this.shaderName.put(Shader.ShaderType.Vertex, vertexShader);
+        this.shaderLanguage.put(Shader.ShaderType.Fragment, fragLanguage);
+        this.shaderName.put(Shader.ShaderType.Fragment, fragmentShader);
         Caps vertCap = Caps.valueOf(vertLanguage);
         requiredCaps.add(vertCap);
         Caps fragCap = Caps.valueOf(fragLanguage);
