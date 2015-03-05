@@ -702,7 +702,9 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         dispose();
         cinematicEvents.clear();
         timeLine.clear();
-        eventsData.clear();
+        if (eventsData != null) {
+            eventsData.clear();
+        }
     }
 
     /**

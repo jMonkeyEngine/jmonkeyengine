@@ -43,7 +43,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.scene.Spatial;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -431,15 +431,17 @@ public class AnimationEvent extends AbstractCinematicEvent {
     @Override
     public void dispose() {
         super.dispose();
-        Object o = cinematic.getEventData(MODEL_CHANNELS, model);
-        if (o != null) {
-            ArrayList<AnimChannel> list = (ArrayList<AnimChannel>) o;
-            list.remove(channel);
-            if (list.isEmpty()) {
-                cinematic.removeEventData(MODEL_CHANNELS, model);
+        if (cinematic != null) {
+            Object o = cinematic.getEventData(MODEL_CHANNELS, model);
+            if (o != null) {
+                Collection<AnimChannel> values = ((HashMap<Integer, AnimChannel>) o).values();
+                while (values.remove(channel));
+                if (values.isEmpty()) {
+                    cinematic.removeEventData(MODEL_CHANNELS, model);
+                }
             }
+            cinematic = null;
+            channel = null;
         }
-        cinematic = null;
-        channel = null;
     }
 }
