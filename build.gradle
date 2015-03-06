@@ -165,3 +165,12 @@ ext {
 //        }
 //    }
 //}
+
+allprojects {
+    tasks.withType(JavaExec) {
+        enableAssertions = true // false by default
+    }
+    tasks.withType(Test) {
+        enableAssertions = true // true by default
+    }
+}
