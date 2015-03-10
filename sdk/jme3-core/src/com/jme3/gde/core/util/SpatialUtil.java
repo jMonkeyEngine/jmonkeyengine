@@ -256,6 +256,7 @@ public class SpatialUtil {
     public static void updateAnimControlDataFromOriginal(final Spatial root, final Spatial original) {
         //loop through original to also find new AnimControls, we expect all nodes etc. to exist
         //TODO: can (blender) AnimControls end up in other nodes that are not a parent of the geometry they modify?
+        removeAnimData(root);
         original.depthFirstTraversal(new SceneGraphVisitor() {
             @Override
             public void visit(Spatial spat) {
@@ -273,11 +274,11 @@ public class SpatialUtil {
                         if (myAnimControl != null) {
                             mySpatial.removeControl(myAnimControl);
                         }
-                        AnimControl newControl = (AnimControl)animControl.cloneForSpatial(mySpatial);
+                        AnimControl newControl = (AnimControl) animControl.cloneForSpatial(mySpatial);
                         if (mySpatial.getControl(SkeletonControl.class) == null) {
                             logger.log(Level.INFO, "Adding control for {0}", mySpatial.getName());
                             mySpatial.addControl(newControl);
-                        }else{
+                        } else {
                             logger.log(Level.INFO, "Control for {0} was added automatically", mySpatial.getName());
                         }
                         if (mySpatial.getControl(SkeletonControl.class) == null) {
@@ -293,6 +294,22 @@ public class SpatialUtil {
             }
         });
         //TODO: remove old AnimControls?
+    }
+
+    public static void removeAnimData(Spatial root) {
+        root.depthFirstTraversal(new SceneGraphVisitor() {
+            @Override
+            public void visit(Spatial spat) {
+                AnimControl animControl = spat.getControl(AnimControl.class);
+                if (animControl != null) {
+                    spat.removeControl(animControl);
+                    SkeletonControl skeletonControl = spat.getControl(SkeletonControl.class);
+                    if (skeletonControl != null) {
+                        spat.removeControl(skeletonControl);
+                    }
+                }
+            }
+        });
     }
 
     public static void clearRemovedOriginals(final Spatial root, final Spatial original) {
