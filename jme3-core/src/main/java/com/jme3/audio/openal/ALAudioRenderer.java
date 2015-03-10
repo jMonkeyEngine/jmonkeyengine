@@ -1132,6 +1132,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             ib.position(0).limit(1);
             ib.put(id).flip();
             efx.alDeleteFilters(1, ib);
+            filter.resetObject();
         }
     }
 
