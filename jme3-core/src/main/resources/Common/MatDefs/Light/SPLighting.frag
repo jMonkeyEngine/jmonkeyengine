@@ -216,6 +216,7 @@ void main(){
                  light.y = 1.0;
             #endif
 
+            vec3 DiffuseSum2 = DiffuseSum.rgb;
             #ifdef COLORRAMP
                DiffuseSum2.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
                SpecularSum2.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
