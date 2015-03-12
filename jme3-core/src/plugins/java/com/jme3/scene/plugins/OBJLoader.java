@@ -59,7 +59,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
@@ -73,34 +72,32 @@ import com.jme3.util.IntMap;
  */
 public final class OBJLoader implements AssetLoader {
 
-    private static final Logger logger = Logger.getLogger(OBJLoader.class
-            .getName());
+    private static final Logger logger = Logger.getLogger(OBJLoader.class.getName());
 
     private static final char SPLIT_CHAR_SPACE = ' ';
 
     private static final char SPLIT_CHAR_SLASH = '/';
 
-    protected final ArrayList<Face> faces = new ArrayList<Face>();
-    protected final HashMap<String, ArrayList<Face>> matFaces = new HashMap<String, ArrayList<Face>>();
+    private static final String LOG_TAG = OBJLoader.class.getSimpleName();
 
-    protected String currentMatName;
-    protected String currentObjectName;
+    private final ArrayList<Face> faces = new ArrayList<Face>();
+    private final HashMap<String, ArrayList<Face>> matFaces = new HashMap<String, ArrayList<Face>>();
 
-    protected final HashMap<Vertex, Integer> vertIndexMap = new HashMap<Vertex, Integer>(
-            100);
-    protected final IntMap<Vertex> indexVertMap = new IntMap<Vertex>(100);
-    protected int curIndex = 0;
-    protected int objectIndex = 0;
-    protected int geomIndex = 0;
+    private String currentMatName;
 
-    protected ModelKey key;
-    protected AssetManager assetManager;
-    protected MaterialList matList;
+    private final HashMap<Vertex, Integer> vertIndexMap = new HashMap<Vertex, Integer>(100);
+    private final IntMap<Vertex> indexVertMap = new IntMap<Vertex>(100);
+    private int curIndex = 0;
+    private int geomIndex = 0;
 
-    protected String objName;
-    protected Node objNode;
+    private ModelKey key;
+    private AssetManager assetManager;
+    private MaterialList matList;
 
-    protected static class Vertex {
+    private String objName;
+    private Node objNode;
+
+    private static class Vertex {
 
         Vector3f v;
         Vector2f vt;
@@ -116,16 +113,13 @@ public final class OBJLoader implements AssetLoader {
                 return false;
             }
             final Vertex other = (Vertex) obj;
-            if (this.v != other.v
-                    && (this.v == null || !this.v.equals(other.v))) {
+            if (this.v != other.v && (this.v == null || !this.v.equals(other.v))) {
                 return false;
             }
-            if (this.vt != other.vt
-                    && (this.vt == null || !this.vt.equals(other.vt))) {
+            if (this.vt != other.vt && (this.vt == null || !this.vt.equals(other.vt))) {
                 return false;
             }
-            if (this.vn != other.vn
-                    && (this.vn == null || !this.vn.equals(other.vn))) {
+            if (this.vn != other.vn && (this.vn == null || !this.vn.equals(other.vn))) {
                 return false;
             }
             return true;
@@ -141,31 +135,13 @@ public final class OBJLoader implements AssetLoader {
         }
     }
 
-    protected static class Face {
+    private static class Face {
         Vertex[] verticies;
 
         public Face(Vertex[] vertices) {
             this.verticies = vertices;
         }
 
-    }
-
-    protected class ObjectGroup {
-
-        final String objectName;
-
-        public ObjectGroup(String objectName) {
-            this.objectName = objectName;
-        }
-
-        public Spatial createGeometry() {
-            Node groupNode = new Node(objectName);
-            if (objectName == null) {
-                groupNode.setName("Model");
-            }
-
-            return groupNode;
-        }
     }
 
     public void reset() {
@@ -195,8 +171,7 @@ public final class OBJLoader implements AssetLoader {
     protected Face[] quadToTriangle(Face f) {
         assert f.verticies.length == 4;
 
-        Face[] t = new Face[] { new Face(new Vertex[3]),
-                new Face(new Vertex[3]) };
+        Face[] t = new Face[] { new Face(new Vertex[3]), new Face(new Vertex[3]) };
 
         Vertex v0 = f.verticies[0];
         Vertex v1 = f.verticies[1];
@@ -234,9 +209,7 @@ public final class OBJLoader implements AssetLoader {
 
     final ArrayList<Vertex> vertList = new ArrayList<Vertex>();
 
-    protected void readFace(ArrayList<Vector3f> verts,
-            ArrayList<Vector2f> texCoords, ArrayList<Vector3f> norms,
-            String[] verticies) throws Exception {
+    protected void readFace(ArrayList<Vector3f> verts, ArrayList<Vector2f> texCoords, ArrayList<Vector3f> norms, String[] verticies) throws Exception {
         vertList.clear();
         for (int i = 1; i < verticies.length; i++) {
             String vertex = verticies[i];
@@ -244,8 +217,7 @@ public final class OBJLoader implements AssetLoader {
             int vt = 0;
             int vn = 0;
 
-            final String[] split = splitByChar(vertex.toCharArray(),
-                    SPLIT_CHAR_SLASH);
+            final String[] split = splitByChar(vertex.toCharArray(), SPLIT_CHAR_SLASH);
             if (split.length == 1) {
                 v = Integer.parseInt(split[0]);
             } else if (split.length == 2) {
@@ -285,10 +257,8 @@ public final class OBJLoader implements AssetLoader {
         }
 
         if (vertList.size() > 4 || vertList.size() <= 2) {
-            throw new Exception("Edge or polygon detected in OBJ. "
-                    + "Ignored. vertList.size()=" + vertList.size());
-            // warning("Edge or polygon detected in OBJ. Ignored.");
-            // return;
+            warning("Edge or polygon detected in OBJ. " + "Ignored. vertList.size()=" + vertList.size());
+            return;
         }
         Face f = new Face(new Vertex[vertList.size()]);
         for (int i = 0; i < vertList.size(); i++) {
@@ -303,8 +273,7 @@ public final class OBJLoader implements AssetLoader {
     }
 
     protected Vector3f readVector3(String[] c) throws IOException {
-        return new Vector3f(Float.parseFloat(c[1]), Float.parseFloat(c[2]),
-                Float.parseFloat(c[3]));
+        return new Vector3f(Float.parseFloat(c[1]), Float.parseFloat(c[2]), Float.parseFloat(c[3]));
     }
 
     protected void loadMtlLib(String name) throws IOException {
@@ -329,8 +298,7 @@ public final class OBJLoader implements AssetLoader {
         }
     }
 
-    protected Geometry createGeometry(ArrayList<Face> faceList, String matName)
-            throws IOException {
+    protected Geometry createGeometry(ArrayList<Face> faceList, String matName) throws IOException {
         if (faceList.isEmpty()) {
             throw new IOException("No geometry data to generate mesh");
         }
@@ -347,8 +315,7 @@ public final class OBJLoader implements AssetLoader {
         }
         if (material == null) {
             // create default material
-            material = new Material(assetManager,
-                    "Common/MatDefs/Light/Lighting.j3md");
+            material = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
             material.setFloat("Shininess", 64);
         }
         geom.setMaterial(material);
@@ -358,10 +325,8 @@ public final class OBJLoader implements AssetLoader {
             geom.setQueueBucket(Bucket.Opaque);
         }
 
-        if (material.getMaterialDef().getName().contains("Lighting")
-                && mesh.getFloatBuffer(Type.Normal) == null) {
-            warning("OBJ mesh " + geom.getName() + " doesn't contain normals! "
-                    + "It might not display correctly");
+        if (material.getMaterialDef().getName().contains("Lighting") && mesh.getFloatBuffer(Type.Normal) == null) {
+            warning("OBJ mesh " + geom.getName() + " doesn't contain normals! " + "It might not display correctly");
         }
 
         return geom;
@@ -402,8 +367,7 @@ public final class OBJLoader implements AssetLoader {
             }
         }
 
-        FloatBuffer posBuf = BufferUtils
-                .createFloatBuffer(vertIndexMap.size() * 3);
+        FloatBuffer posBuf = BufferUtils.createFloatBuffer(vertIndexMap.size() * 3);
         FloatBuffer normBuf = null;
         FloatBuffer tcBuf = null;
 
@@ -510,8 +474,7 @@ public final class OBJLoader implements AssetLoader {
         objNode = new Node(objName + "-objnode");
 
         if (!(info.getKey() instanceof ModelKey)) {
-            throw new IllegalArgumentException(
-                    "Model assets must be loaded using a ModelKey");
+            throw new IllegalArgumentException("Model assets must be loaded using a ModelKey");
         }
 
         try {
@@ -524,8 +487,7 @@ public final class OBJLoader implements AssetLoader {
             for (Entry<String, ArrayList<Face>> entry : matFaces.entrySet()) {
                 ArrayList<Face> materialFaces = entry.getValue();
                 if (materialFaces.size() > 0) {
-                    Geometry geom = createGeometry(materialFaces,
-                            entry.getKey());
+                    Geometry geom = createGeometry(materialFaces, entry.getKey());
                     objNode.attachChild(geom);
                 }
             }
@@ -551,7 +513,7 @@ public final class OBJLoader implements AssetLoader {
      * @param string
      * @return
      */
-    private String[] splitByChar(final char[] s, final char splitChar) {
+    public String[] splitByChar(final char[] s, final char splitChar) {
         final ArrayList<String> splitByCharCache = this.splitByCharCache;
         splitByCharCache.clear();
         // splitByCharCache.clear();
@@ -582,8 +544,7 @@ public final class OBJLoader implements AssetLoader {
         final ArrayList<Vector3f> norms = new ArrayList<Vector3f>();
 
         InputStream in = info.openStream();
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(
-                in));
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         while (true) {
             final String l = reader.readLine();
             if (l == null) {
@@ -608,8 +569,7 @@ public final class OBJLoader implements AssetLoader {
                         norms.add(readVector3(line));
                     } else if (secondChar == 't') {
                         // texture coordinate
-                        texCoords.add(new Vector2f(Float.parseFloat(line[1]),
-                                Float.parseFloat(line[2])));
+                        texCoords.add(new Vector2f(Float.parseFloat(line[1]), Float.parseFloat(line[2])));
                     }
                 }
             } else if (firstChar == 'f') {
@@ -639,5 +599,5 @@ public final class OBJLoader implements AssetLoader {
         }
         in.close();
     }
-    
+
 }
