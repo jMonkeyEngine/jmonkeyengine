@@ -2089,9 +2089,7 @@ public class GLRenderer implements Renderer {
 
         if (caps.contains(Caps.OpenGL30) || gl2 == null) {
             if (!img.hasMipmaps() && img.isGeneratedMipmapsRequired() && img.getData(0) != null) {
-                if (gl2 != null) gl2.glEnable(target); // XXX: Required for ATI
                 glfbo.glGenerateMipmapEXT(target);
-                if (gl2 != null) gl2.glDisable(target);
                 img.setMipmapsGenerated(true);
             }
         }
