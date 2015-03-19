@@ -36,7 +36,7 @@ import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
-import com.jme3.asset.DesktopAssetManager;
+import com.jme3.asset.AssetManager;
 import com.jme3.asset.plugins.UrlAssetInfo;
 import com.jme3.input.InputManager;
 import com.jme3.input.controls.ActionListener;
@@ -96,7 +96,7 @@ import java.util.logging.Logger;
 public class MaterialDebugAppState extends AbstractAppState {
 
     private RenderManager renderManager;
-    private DesktopAssetManager assetManager;
+    private AssetManager assetManager;
     private InputManager inputManager;
     private List<Binding> bindings = new ArrayList<Binding>();
     private Map<Trigger,List<Binding>> fileTriggers = new HashMap<Trigger,List<Binding>> ();
@@ -105,7 +105,7 @@ public class MaterialDebugAppState extends AbstractAppState {
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         renderManager = app.getRenderManager();
-        assetManager = (DesktopAssetManager) app.getAssetManager();
+        assetManager = app.getAssetManager();
         inputManager = app.getInputManager();
         for (Binding binding : bindings) {
             bind(binding);
@@ -197,7 +197,7 @@ public class MaterialDebugAppState extends AbstractAppState {
 
     public Material reloadMaterial(Material mat) {
         //clear the entire cache, there might be more clever things to do, like clearing only the matdef, and the associated shaders.
-        ((DesktopAssetManager) assetManager).clearCache();
+        assetManager.clearCache();
 
         //creating a dummy mat with the mat def of the mat to reload
         Material dummy = new Material(mat.getMaterialDef());
