@@ -195,8 +195,8 @@ public class ImplHandler {
         // No need to synchronize() against map, its concurrent
         ImplThreadLocal local = extensionToLoaderMap.get(key.getExtension());
         if (local == null){
-            throw new IllegalStateException("No loader registered for type \"" +
-                                        key.getExtension() + "\"");
+            throw new AssetLoadException("No loader registered for type \"" +
+                                         key.getExtension() + "\"");
 
         }
         return (AssetLoader) local.get();
