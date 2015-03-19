@@ -1994,7 +1994,7 @@ public class GLRenderer implements Renderer {
             // Image does not have mipmaps, but they are required.
             // Generate from base level.
 
-            if (!caps.contains(Caps.OpenGL30) && gl2 != null) {
+            if (!caps.contains(Caps.FrameBuffer) && gl2 != null) {
                 gl2.glTexParameteri(target, GL2.GL_GENERATE_MIPMAP, GL.GL_TRUE);
                 img.setMipmapsGenerated(true);
             } else {
@@ -2081,7 +2081,7 @@ public class GLRenderer implements Renderer {
             img.setMultiSamples(imageSamples);
         }
 
-        if (caps.contains(Caps.OpenGL30) || gl2 == null) {
+        if (caps.contains(Caps.FrameBuffer) || gl2 == null) {
             if (!img.hasMipmaps() && img.isGeneratedMipmapsRequired() && img.getData(0) != null) {
                 glfbo.glGenerateMipmapEXT(target);
                 img.setMipmapsGenerated(true);
