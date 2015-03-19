@@ -47,12 +47,6 @@ public class MatParamTexture extends MatParam {
     private int unit;
     private ColorSpace colorSpace;
 
-    public MatParamTexture(VarType type, String name, Texture texture, int unit) {
-        super(type, name, texture);
-        this.texture = texture;
-        this.unit = unit;
-    }
-    
     public MatParamTexture(VarType type, String name, Texture texture, int unit, ColorSpace colorSpace) {
         super(type, name, texture);
         this.texture = texture;

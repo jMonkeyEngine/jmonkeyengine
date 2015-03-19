@@ -556,7 +556,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                         + "Linear using texture.getImage.setColorSpace().",
                         new Object[]{value.getName(), value.getImage().getColorSpace().name(), name});
             }
-            paramValues.put(name, new MatParamTexture(type, name, value, nextTexUnit++));
+            paramValues.put(name, new MatParamTexture(type, name, value, nextTexUnit++, null));
         } else {
             val.setTextureValue(value);
         }
