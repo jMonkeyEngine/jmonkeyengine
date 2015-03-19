@@ -1542,13 +1542,7 @@ public class GLRenderer implements Renderer {
                     setTexture(0, rb.getTexture());
 
                     int textureType = convertTextureType(tex.getType(), tex.getImage().getMultiSamples(), rb.getFace());
-                    if (gl2 != null) {
-                        gl2.glEnable(textureType);
-                    }
                     glfbo.glGenerateMipmapEXT(textureType);
-                    if (gl2 != null) {
-                        gl2.glDisable(textureType);
-                    }
                 }
             }
         }
