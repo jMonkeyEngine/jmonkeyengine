@@ -7,7 +7,7 @@ MaterialDef Phong Lighting {
         Boolean VertexLighting
 
         // Alpha threshold for fragment discarding
-        Float AlphaDiscardThreshold (AlphaTestFallOff)
+        Float AlphaDiscardThreshold 
 
         // Use the provided ambient, diffuse, and specular colors
         Boolean UseMaterialColors
@@ -16,16 +16,16 @@ MaterialDef Phong Lighting {
         Boolean UseVertexColor
 
         // Ambient color
-        Color Ambient (MaterialAmbient)
+        Color Ambient
 
         // Diffuse color
-        Color Diffuse (MaterialDiffuse)
+        Color Diffuse
 
         // Specular color
-        Color Specular (MaterialSpecular)
+        Color Specular
 
         // Specular power/shininess
-        Float Shininess (MaterialShininess) : 1
+        Float Shininess : 1
 
         // Diffuse map
         Texture2D DiffuseMap
