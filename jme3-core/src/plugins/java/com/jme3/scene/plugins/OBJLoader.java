@@ -72,13 +72,11 @@ import com.jme3.util.IntMap;
  */
 public final class OBJLoader implements AssetLoader {
 
-    private static final Logger logger = Logger.getLogger(OBJLoader.class.getName());
-
     private static final char SPLIT_CHAR_SPACE = ' ';
 
     private static final char SPLIT_CHAR_SLASH = '/';
 
-    private static final String LOG_TAG = OBJLoader.class.getSimpleName();
+    private static final Logger logger = Logger.getLogger(OBJLoader.class.getName());
 
     private final ArrayList<Face> faces = new ArrayList<Face>();
     private final HashMap<String, ArrayList<Face>> matFaces = new HashMap<String, ArrayList<Face>>();
@@ -207,7 +205,7 @@ public final class OBJLoader implements AssetLoader {
         return t;
     }
 
-    final ArrayList<Vertex> vertList = new ArrayList<Vertex>();
+    private final ArrayList<Vertex> vertList = new ArrayList<Vertex>();
 
     protected void readFace(ArrayList<Vector3f> verts, ArrayList<Vector2f> texCoords, ArrayList<Vector3f> norms, String[] verticies) throws Exception {
         vertList.clear();
@@ -217,19 +215,21 @@ public final class OBJLoader implements AssetLoader {
             int vt = 0;
             int vn = 0;
 
-            final String[] split = splitByChar(vertex.toCharArray(), SPLIT_CHAR_SLASH);
+            final String[] split = splitByChar(vertex.toCharArray(), SPLIT_CHAR_SLASH, true);
             if (split.length == 1) {
                 v = Integer.parseInt(split[0]);
             } else if (split.length == 2) {
                 v = Integer.parseInt(split[0]);
                 vt = Integer.parseInt(split[1]);
-            } else if (split.length == 3 && !split[1].equals("")) {
-                v = Integer.parseInt(split[0]);
-                vt = Integer.parseInt(split[1]);
-                vn = Integer.parseInt(split[2]);
             } else if (split.length == 3) {
-                v = Integer.parseInt(split[0]);
-                vn = Integer.parseInt(split[2]);
+                if (!split[1].isEmpty()) {
+                    v = Integer.parseInt(split[0]);
+                    vt = Integer.parseInt(split[1]);
+                    vn = Integer.parseInt(split[2]);
+                } else { // e.g. f 1//5
+                    v = Integer.parseInt(split[0]);
+                    vn = Integer.parseInt(split[2]);
+                }
             }
 
             if (v < 0) {
@@ -513,8 +513,7 @@ public final class OBJLoader implements AssetLoader {
      * @param string
      * @return
      */
-    public String[] splitByChar(final char[] s, final char splitChar) {
-        final ArrayList<String> splitByCharCache = this.splitByCharCache;
+    public String[] splitByChar(final char[] s, final char splitChar, boolean includeEmptySlits) {
         splitByCharCache.clear();
         // splitByCharCache.clear();
         final int length = s.length;
@@ -524,6 +523,8 @@ public final class OBJLoader implements AssetLoader {
             if (s[i] == splitChar) {
                 if (count > 0) {
                     splitByCharCache.add(new String(s, offset, count));
+                } else if (includeEmptySlits) {
+                    splitByCharCache.add("");
                 }
                 offset = i + 1;
                 count = 0;
@@ -553,7 +554,7 @@ public final class OBJLoader implements AssetLoader {
             if (l.isEmpty()) {
                 continue;
             }
-            final String[] line = splitByChar(l.toCharArray(), SPLIT_CHAR_SPACE);
+            final String[] line = splitByChar(l.toCharArray(), SPLIT_CHAR_SPACE, false);
             final String firstWord = line[0];
             // debug(LOG_TAG, "firstWord=" + firstWord);
             // debug(LOG_TAG, "     > line.length=" + line.length);
