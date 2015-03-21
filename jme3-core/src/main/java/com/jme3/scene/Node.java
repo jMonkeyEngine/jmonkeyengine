@@ -714,14 +714,22 @@ public class Node extends Spatial implements Savable {
             }
         }
     }
-    
+
     @Override
-    public void depthFirstTraversal(SceneGraphVisitor visitor) {
-        for (Spatial child : children.getArray()) {
-            child.depthFirstTraversal(visitor);
+    public void depthFirstTraversal(SceneGraphVisitor visitor, boolean preOrder) {
+        if (preOrder) {
+            visitor.visit(this);
+            for (Spatial child : children.getArray()) {
+                child.depthFirstTraversal(visitor);
+            }
+        } else {
+            for (Spatial child : children.getArray()) {
+                child.depthFirstTraversal(visitor);
+            }
+            visitor.visit(this);
         }
-        visitor.visit(this);
     }
+    
     
     @Override
     protected void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue) {
