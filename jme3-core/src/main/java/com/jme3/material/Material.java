@@ -874,7 +874,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
             TempVars vars = TempVars.get();
             Quaternion tmpLightDirection = vars.quat1;
-            Quaternion tmpLightPosition = vars.quat2;
+            Vector4f tmpLightPosition = vars.vect4f2;
             ColorRGBA tmpLightColor = vars.color;
             Vector4f tmpVec = vars.vect4f1;
 
@@ -892,7 +892,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                     //The directional light direction is passed in the 
                     //LightPosition uniform. The lighting shader needs to be 
                     //reworked though in order to fix this.
-                    tmpLightPosition.set(dir.getX(), dir.getY(), dir.getZ(), -1);
+                    tmpLightPosition.set(dir.getX(), dir.getY(), dir.getZ(), -1);      
+                    transposeLightDataToSpace(technique.getDef().getLightSpace(), rm, tmpLightPosition);
                     lightPos.setValue(VarType.Vector4, tmpLightPosition);
                     tmpLightDirection.set(0, 0, 0, 0);
                     lightDir.setValue(VarType.Vector4, tmpLightDirection);
@@ -903,6 +904,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                     float invRadius = pl.getInvRadius();
 
                     tmpLightPosition.set(pos.getX(), pos.getY(), pos.getZ(), invRadius);
+                    transposeLightDataToSpace(technique.getDef().getLightSpace(), rm, tmpLightPosition);
                     lightPos.setValue(VarType.Vector4, tmpLightPosition);
                     tmpLightDirection.set(0, 0, 0, 0);
                     lightDir.setValue(VarType.Vector4, tmpLightDirection);
@@ -913,15 +915,21 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                     Vector3f dir2 = sl.getDirection();
                     float invRange = sl.getInvSpotRange();
                     float spotAngleCos = sl.getPackedAngleCos();
-
+                
                     tmpLightPosition.set(pos2.getX(), pos2.getY(), pos2.getZ(), invRange);
+                    transposeLightDataToSpace(technique.getDef().getLightSpace(), rm, tmpLightPosition);
                     lightPos.setValue(VarType.Vector4, tmpLightPosition);
 
-                    //We transform the spot direction in view space here to save 5 varying later in the lighting shader
-                    //one vec4 less and a vec4 that becomes a vec3
-                    //the downside is that spotAngleCos decoding happens now in the frag shader.
                     tmpVec.set(dir2.getX(), dir2.getY(), dir2.getZ(), 0);
-                    rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
+                    if (technique.getDef().getLightSpace() == TechniqueDef.LightSpace.Legacy) {
+                        //Legacy kept for backward compatibility.
+                        //We transform the spot direction in view space here to save 5 varying later in the lighting shader
+                        //one vec4 less and a vec4 that becomes a vec3
+                        //the downside is that spotAngleCos decoding happens now in the frag shader.
+                        transposeLightDataToSpace(TechniqueDef.LightSpace.View, rm, tmpVec);
+                    } else {
+                        transposeLightDataToSpace(technique.getDef().getLightSpace(), rm, tmpVec);
+                    }
                     tmpLightDirection.set(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), spotAngleCos);
 
                     lightDir.setValue(VarType.Vector4, tmpLightDirection);
@@ -945,6 +953,12 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             renderMeshFromGeometry(r, g);
         }
     }
+    
+    private void transposeLightDataToSpace(TechniqueDef.LightSpace space, RenderManager rm, Vector4f store){
+        if(space == TechniqueDef.LightSpace.View){          
+            rm.getCurrentCamera().getViewMatrix().mult(store, store);            
+        }
+    };
 
     /**
      * Select the technique to use for rendering this material.
@@ -1179,15 +1193,17 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
         Shader shader = technique.getShader();
 
+        
         // send lighting information, if needed
         switch (techDef.getLightMode()) {
             case Disable:
                 break;
             case SinglePass:
+                assert technique.getDef().getLightSpace()!= null;
                 int nbRenderedLights = 0;
                 resetUniformsNotSetByCurrent(shader);
                 if (lights.size() == 0) {
-                    nbRenderedLights = updateLightListUniforms(shader, geom, lights, rm.getSinglePassLightBatchSize(), rm, 0);
+                    updateLightListUniforms(shader, geom, lights, rm.getSinglePassLightBatchSize(), rm, 0);
                     r.setShader(shader);
                     renderMeshFromGeometry(r, geom);
                 } else {
@@ -1201,6 +1217,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             case FixedPipeline:
                 throw new IllegalArgumentException("OpenGL1 is not supported");
             case MultiPass:
+                assert technique.getDef().getLightSpace()!= null;
                 // NOTE: Special case!
                 resetUniformsNotSetByCurrent(shader);
                 renderMultipassLighting(shader, geom, lights, rm);

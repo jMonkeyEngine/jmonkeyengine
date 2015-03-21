@@ -90,6 +90,15 @@ public class TechniqueDef implements Savable {
         InPass,
         PostPass,
     }
+    
+    /**
+     * Define in what space the light data should be sent to the shader.
+     */
+    public enum LightSpace {
+        World,
+        View,
+        Legacy
+    }
 
     private EnumSet<Caps> requiredCaps = EnumSet.noneOf(Caps.class);
     private String name;
@@ -111,6 +120,8 @@ public class TechniqueDef implements Savable {
 
     private HashMap<String, String> defineParams;
     private ArrayList<UniformBinding> worldBinds;
+    //The space in which the light should be transposed before sending to the shader.
+    private LightSpace lightSpace;
 
     /**
      * Creates a new technique definition.
@@ -161,6 +172,14 @@ public class TechniqueDef implements Savable {
      */
     public void setLightMode(LightMode lightMode) {
         this.lightMode = lightMode;
+        //if light space is not specified we set it to Legacy
+        if(lightSpace == null){
+            if(lightMode== LightMode.MultiPass){
+                lightSpace = LightSpace.Legacy;
+            }else if(lightMode== LightMode.SinglePass){
+                lightSpace = LightSpace.View;
+            }
+        }
     }
 
     /**
@@ -530,5 +549,22 @@ public class TechniqueDef implements Savable {
     @Override
     public String toString() {
         return "TechniqueDef{" + "requiredCaps=" + requiredCaps + ", name=" + name /*+ ", vertName=" + vertName + ", fragName=" + fragName + ", vertLanguage=" + vertLanguage + ", fragLanguage=" + fragLanguage */+ ", presetDefines=" + presetDefines + ", usesShaders=" + usesShaders + ", usesNodes=" + usesNodes + ", shaderNodes=" + shaderNodes + ", shaderGenerationInfo=" + shaderGenerationInfo + ", renderState=" + renderState + ", forcedRenderState=" + forcedRenderState + ", lightMode=" + lightMode + ", shadowMode=" + shadowMode + ", defineParams=" + defineParams + ", worldBinds=" + worldBinds + '}';
-    }    
+    }   
+
+    /**
+     * Returns the space in which the light data should be passed to the shader.
+     * @return the light space
+     */
+    public LightSpace getLightSpace() {
+        return lightSpace;
+    }
+
+    /**
+     * Sets the space in which the light data should be passed to the shader.
+     * @param lightSpace the light space
+     */
+    public void setLightSpace(LightSpace lightSpace) {
+        this.lightSpace = lightSpace;
+    }
+ 
 }
