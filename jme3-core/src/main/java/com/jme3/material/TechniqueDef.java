@@ -176,8 +176,8 @@ public class TechniqueDef implements Savable {
         if(lightSpace == null){
             if(lightMode== LightMode.MultiPass){
                 lightSpace = LightSpace.Legacy;
-            }else if(lightMode== LightMode.SinglePass){
-                lightSpace = LightSpace.View;
+            }else{
+                lightSpace = LightSpace.World;
             }
         }
     }
