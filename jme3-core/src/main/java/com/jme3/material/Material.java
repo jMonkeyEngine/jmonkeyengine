@@ -788,9 +788,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                         Vector3f dir = dl.getDirection();                        
                         //Data directly sent in view space to avoid a matrix mult for each pixel
                         tmpVec.set(dir.getX(), dir.getY(), dir.getZ(), 0.0f);
-                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);      
-//                        tmpVec.divideLocal(tmpVec.w);
-//                        tmpVec.normalizeLocal();
+                        transposeLightDataToSpace(technique.getDef().getLightSpace(), rm, tmpVec);                        
+
                         lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), -1, lightDataIndex);
                         lightDataIndex++;
                         //PADDING
@@ -802,8 +801,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                         Vector3f pos = pl.getPosition();
                         float invRadius = pl.getInvRadius();
                         tmpVec.set(pos.getX(), pos.getY(), pos.getZ(), 1.0f);
-                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);    
-                        //tmpVec.divideLocal(tmpVec.w);
+                        transposeLightDataToSpace(technique.getDef().getLightSpace(), rm, tmpVec);                        
+                        
                         lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), invRadius, lightDataIndex);
                         lightDataIndex++;
                         //PADDING
@@ -817,17 +816,13 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                         float invRange = sl.getInvSpotRange();
                         float spotAngleCos = sl.getPackedAngleCos();
                         tmpVec.set(pos2.getX(), pos2.getY(), pos2.getZ(),  1.0f);
-                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);   
-                       // tmpVec.divideLocal(tmpVec.w);
+                        transposeLightDataToSpace(technique.getDef().getLightSpace(), rm, tmpVec);                        
+                       
                         lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), invRange, lightDataIndex);
                         lightDataIndex++;
                         
-                        //We transform the spot direction in view space here to save 5 varying later in the lighting shader
-                        //one vec4 less and a vec4 that becomes a vec3
-                        //the downside is that spotAngleCos decoding happens now in the frag shader.
                         tmpVec.set(dir2.getX(), dir2.getY(), dir2.getZ(),  0.0f);
-                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);                           
-                        tmpVec.normalizeLocal();
+                        transposeLightDataToSpace(technique.getDef().getLightSpace(), rm, tmpVec);                        
                         lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), spotAngleCos, lightDataIndex);
                         lightDataIndex++;
                         break;                    
@@ -956,7 +951,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     
     private void transposeLightDataToSpace(TechniqueDef.LightSpace space, RenderManager rm, Vector4f store){
         if(space == TechniqueDef.LightSpace.View){          
-            rm.getCurrentCamera().getViewMatrix().mult(store, store);            
+            rm.getCurrentCamera().getViewMatrix().mult(store, store);        
         }
     };
 
