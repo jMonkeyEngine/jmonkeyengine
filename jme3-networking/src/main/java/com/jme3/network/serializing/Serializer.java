@@ -103,6 +103,7 @@ public abstract class Serializer {
         registerClass(Float.class,     new FloatSerializer());
         registerClass(Double.class,    new DoubleSerializer());
         registerClass(String.class,    new StringSerializer());
+        registerClass(UUID.class,    new UUIDSerializer());
 
         registerClass(Vector3f.class,  new Vector3Serializer());
 
