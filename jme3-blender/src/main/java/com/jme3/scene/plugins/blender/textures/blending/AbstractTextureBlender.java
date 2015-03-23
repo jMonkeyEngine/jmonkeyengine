@@ -1,10 +1,12 @@
 package com.jme3.scene.plugins.blender.textures.blending;
 
+import java.util.logging.Logger;
+
+import jme3tools.converters.MipMapGenerator;
+
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 import com.jme3.texture.Image;
-import java.util.logging.Logger;
-import jme3tools.converters.MipMapGenerator;
 
 /**
  * An abstract class that contains the basic methods used by the classes that
@@ -103,12 +105,12 @@ import jme3tools.converters.MipMapGenerator;
 
     public void copyBlendingData(TextureBlender textureBlender) {
         if (textureBlender instanceof AbstractTextureBlender) {
-            this.flag = ((AbstractTextureBlender) textureBlender).flag;
-            this.negateTexture = ((AbstractTextureBlender) textureBlender).negateTexture;
-            this.blendType = ((AbstractTextureBlender) textureBlender).blendType;
-            this.materialColor = ((AbstractTextureBlender) textureBlender).materialColor.clone();
-            this.color = ((AbstractTextureBlender) textureBlender).color.clone();
-            this.blendFactor = ((AbstractTextureBlender) textureBlender).blendFactor;
+            flag = ((AbstractTextureBlender) textureBlender).flag;
+            negateTexture = ((AbstractTextureBlender) textureBlender).negateTexture;
+            blendType = ((AbstractTextureBlender) textureBlender).blendType;
+            materialColor = ((AbstractTextureBlender) textureBlender).materialColor.clone();
+            color = ((AbstractTextureBlender) textureBlender).color.clone();
+            blendFactor = ((AbstractTextureBlender) textureBlender).blendFactor;
         } else {
             LOGGER.warning("Cannot copy blending data from other types than " + this.getClass());
         }

@@ -31,12 +31,12 @@
  */
 package com.jme3.scene.plugins.blender.textures.blending;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class creates the texture blending class depending on the texture type.
@@ -66,7 +66,6 @@ public class TextureBlenderFactory {
      *            the texture format
      * @return texture blending class
      */
-    @SuppressWarnings("deprecation")
     public static TextureBlender createTextureBlender(Format format, int flag, boolean negate, int blendType, float[] materialColor, float[] color, float colfac) {
         switch (format) {
             case Luminance8:

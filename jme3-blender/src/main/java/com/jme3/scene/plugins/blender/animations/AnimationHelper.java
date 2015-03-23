@@ -25,6 +25,7 @@ import com.jme3.scene.plugins.blender.curves.BezierCurve;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
+import com.jme3.scene.plugins.blender.file.FileBlockHeader.BlockCode;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
@@ -48,7 +49,7 @@ public class AnimationHelper extends AbstractBlenderHelper {
      */
     public void loadAnimations() throws BlenderFileException {
         LOGGER.info("Loading animations that will be later applied to scene features.");
-        List<FileBlockHeader> actionHeaders = blenderContext.getFileBlocks(Integer.valueOf(FileBlockHeader.BLOCK_AC00));
+        List<FileBlockHeader> actionHeaders = blenderContext.getFileBlocks(BlockCode.BLOCK_AC00);
         if (actionHeaders != null) {
             for (FileBlockHeader header : actionHeaders) {
                 Structure actionStructure = header.getStructure(blenderContext);

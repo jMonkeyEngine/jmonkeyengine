@@ -31,6 +31,8 @@
  */
 package com.jme3.scene.plugins.blender.file;
 
+import java.util.logging.Logger;
+
 import com.jme3.scene.plugins.blender.BlenderContext;
 
 /**
@@ -39,39 +41,23 @@ import com.jme3.scene.plugins.blender.BlenderContext;
  * @author Marcin Roguski
  */
 public class FileBlockHeader {
+    private static final Logger LOGGER = Logger.getLogger(FileBlockHeader.class.getName());
 
-    public static final int BLOCK_TE00 = 'T' << 24 | 'E' << 16;                 // TE00
-    public static final int BLOCK_ME00 = 'M' << 24 | 'E' << 16;                 // ME00
-    public static final int BLOCK_SR00 = 'S' << 24 | 'R' << 16;                 // SR00
-    public static final int BLOCK_CA00 = 'C' << 24 | 'A' << 16;                 // CA00
-    public static final int BLOCK_LA00 = 'L' << 24 | 'A' << 16;                 // LA00
-    public static final int BLOCK_OB00 = 'O' << 24 | 'B' << 16;                 // OB00
-    public static final int BLOCK_MA00 = 'M' << 24 | 'A' << 16;                 // MA00
-    public static final int BLOCK_SC00 = 'S' << 24 | 'C' << 16;                 // SC00
-    public static final int BLOCK_WO00 = 'W' << 24 | 'O' << 16;                 // WO00
-    public static final int BLOCK_TX00 = 'T' << 24 | 'X' << 16;                 // TX00
-    public static final int BLOCK_IP00 = 'I' << 24 | 'P' << 16;                 // IP00
-    public static final int BLOCK_AC00 = 'A' << 24 | 'C' << 16;                 // AC00
-    public static final int BLOCK_GLOB = 'G' << 24 | 'L' << 16 | 'O' << 8 | 'B'; // GLOB
-    public static final int BLOCK_REND = 'R' << 24 | 'E' << 16 | 'N' << 8 | 'D'; // REND
-    public static final int BLOCK_DATA = 'D' << 24 | 'A' << 16 | 'T' << 8 | 'A'; // DATA
-    public static final int BLOCK_DNA1 = 'D' << 24 | 'N' << 16 | 'A' << 8 | '1'; // DNA1
-    public static final int BLOCK_ENDB = 'E' << 24 | 'N' << 16 | 'D' << 8 | 'B'; // ENDB
     /** Identifier of the file-block [4 bytes]. */
-    private int             code;
+    private BlockCode           code;
     /** Total length of the data after the file-block-header [4 bytes]. */
-    private int             size;
+    private int                 size;
     /**
      * Memory address the structure was located when written to disk [4 or 8 bytes (defined in file header as a pointer
      * size)].
      */
-    private long            oldMemoryAddress;
+    private long                oldMemoryAddress;
     /** Index of the SDNA structure [4 bytes]. */
-    private int             sdnaIndex;
+    private int                 sdnaIndex;
     /** Number of structure located in this file-block [4 bytes]. */
-    private int             count;
+    private int                 count;
     /** Start position of the block's data in the stream. */
-    private int             blockPosition;
+    private int                 blockPosition;
 
     /**
      * Constructor. Loads the block header from the given stream during instance creation.
@@ -84,13 +70,13 @@ public class FileBlockHeader {
      */
     public FileBlockHeader(BlenderInputStream inputStream, BlenderContext blenderContext) throws BlenderFileException {
         inputStream.alignPosition(4);
-        code = inputStream.readByte() << 24 | inputStream.readByte() << 16 | inputStream.readByte() << 8 | inputStream.readByte();
+        code = BlockCode.valueOf(inputStream.readByte() << 24 | inputStream.readByte() << 16 | inputStream.readByte() << 8 | inputStream.readByte());
         size = inputStream.readInt();
         oldMemoryAddress = inputStream.readPointer();
         sdnaIndex = inputStream.readInt();
         count = inputStream.readInt();
         blockPosition = inputStream.getPosition();
-        if (FileBlockHeader.BLOCK_DNA1 == code) {
+        if (BlockCode.BLOCK_DNA1 == code) {
             blenderContext.setBlockData(new DnaBlockData(inputStream, blenderContext));
         } else {
             inputStream.setPosition(blockPosition + size);
@@ -116,7 +102,7 @@ public class FileBlockHeader {
      * This method returns the code of this data block.
      * @return the code of this data block
      */
-    public int getCode() {
+    public BlockCode getCode() {
         return code;
     }
 
@@ -157,7 +143,7 @@ public class FileBlockHeader {
      * @return true if this block is the last one in the file nad false otherwise
      */
     public boolean isLastBlock() {
-        return FileBlockHeader.BLOCK_ENDB == code;
+        return BlockCode.BLOCK_ENDB == code;
     }
 
     /**
@@ -165,25 +151,44 @@ public class FileBlockHeader {
      * @return true if this block is the SDNA block and false otherwise
      */
     public boolean isDnaBlock() {
-        return FileBlockHeader.BLOCK_DNA1 == code;
+        return BlockCode.BLOCK_DNA1 == code;
     }
 
     @Override
     public String toString() {
-        return "FILE BLOCK HEADER [" + this.codeToString(code) + " : " + size + " : " + oldMemoryAddress + " : " + sdnaIndex + " : " + count + "]";
+        return "FILE BLOCK HEADER [" + code.toString() + " : " + size + " : " + oldMemoryAddress + " : " + sdnaIndex + " : " + count + "]";
     }
 
-    /**
-     * This method transforms the coded bloch id into a string value.
-     * @param code
-     *            the id of the block
-     * @return the string value of the block id
-     */
-    protected String codeToString(int code) {
-        char c1 = (char) ((code & 0xFF000000) >> 24);
-        char c2 = (char) ((code & 0xFF0000) >> 16);
-        char c3 = (char) ((code & 0xFF00) >> 8);
-        char c4 = (char) (code & 0xFF);
-        return String.valueOf(c1) + c2 + c3 + c4;
+    public static enum BlockCode {
+        BLOCK_ME00('M' << 24 | 'E' << 16), // mesh
+        BLOCK_CA00('C' << 24 | 'A' << 16), // camera
+        BLOCK_LA00('L' << 24 | 'A' << 16), // lamp
+        BLOCK_OB00('O' << 24 | 'B' << 16), // object
+        BLOCK_MA00('M' << 24 | 'A' << 16), // material
+        BLOCK_SC00('S' << 24 | 'C' << 16), // scene
+        BLOCK_WO00('W' << 24 | 'O' << 16), // world
+        BLOCK_TX00('T' << 24 | 'X' << 16), // texture
+        BLOCK_IP00('I' << 24 | 'P' << 16), // ipo
+        BLOCK_AC00('A' << 24 | 'C' << 16), // action
+        BLOCK_IM00('I' << 24 | 'M' << 16), // image
+        BLOCK_TE00('T' << 24 | 'E' << 16), BLOCK_WM00('W' << 24 | 'M' << 16), BLOCK_SR00('S' << 24 | 'R' << 16), BLOCK_SN00('S' << 24 | 'N' << 16), BLOCK_BR00('B' << 24 | 'R' << 16), BLOCK_LS00('L' << 24 | 'S' << 16), BLOCK_GLOB('G' << 24 | 'L' << 16 | 'O' << 8 | 'B'), BLOCK_REND('R' << 24 | 'E' << 16 | 'N' << 8 | 'D'), BLOCK_DATA('D' << 24 | 'A' << 16 | 'T' << 8 | 'A'), BLOCK_DNA1('D' << 24 | 'N' << 16 | 'A' << 8 | '1'), BLOCK_ENDB('E' << 24 | 'N' << 16 | 'D' << 8 | 'B'), BLOCK_TEST('T' << 24 | 'E' << 16
+                | 'S' << 8 | 'T'), BLOCK_UNKN(0);
+
+        private int code;
+
+        private BlockCode(int code) {
+            this.code = code;
+        }
+
+        public static BlockCode valueOf(int code) {
+            for (BlockCode blockCode : BlockCode.values()) {
+                if (blockCode.code == code) {
+                    return blockCode;
+                }
+            }
+            byte[] codeBytes = new byte[] { (byte) (code >> 24 & 0xFF), (byte) (code >> 16 & 0xFF), (byte) (code >> 8 & 0xFF), (byte) (code & 0xFF) };
+            LOGGER.warning("Unknown block header: " + new String(codeBytes));
+            return BLOCK_UNKN;
+        }
     }
 }

@@ -40,12 +40,15 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jme3.asset.BlenderKey.FeaturesToLoad;
+import com.jme3.light.Light;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
+import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.LightNode;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -106,39 +109,34 @@ public class ObjectHelper extends AbstractBlenderHelper {
      *             an exception is thrown when the given data is inapropriate
      */
     public Object toObject(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
-        LOGGER.fine("Loading blender object.");
+        Object loadedResult = blenderContext.getLoadedFeature(objectStructure.getOldMemoryAddress(), LoadedDataType.FEATURE);
+        if (loadedResult != null) {
+            return loadedResult;
+        }
 
+        LOGGER.fine("Loading blender object.");
+        if ("ID".equals(objectStructure.getType())) {
+            Node object = (Node) this.loadLibrary(objectStructure);
+            if (object.getParent() != null) {
+                LOGGER.log(Level.FINEST, "Detaching object {0}, loaded from external file, from its parent.", object);
+                object.getParent().detachChild(object);
+            }
+            return object;
+        }
         int type = ((Number) objectStructure.getFieldValue("type")).intValue();
         ObjectType objectType = ObjectType.valueOf(type);
         LOGGER.log(Level.FINE, "Type of the object: {0}.", objectType);
-        if (objectType == ObjectType.LAMP && !blenderContext.getBlenderKey().shouldLoad(FeaturesToLoad.LIGHTS)) {
-            LOGGER.fine("Lamps are not included in loading.");
-            return null;
-        }
-        if (objectType == ObjectType.CAMERA && !blenderContext.getBlenderKey().shouldLoad(FeaturesToLoad.CAMERAS)) {
-            LOGGER.fine("Cameras are not included in loading.");
-            return null;
-        }
-        if (!blenderContext.getBlenderKey().shouldLoad(FeaturesToLoad.OBJECTS)) {
-            LOGGER.fine("Objects are not included in loading.");
-            return null;
-        }
+
         int lay = ((Number) objectStructure.getFieldValue("lay")).intValue();
         if ((lay & blenderContext.getBlenderKey().getLayersToLoad()) == 0) {
             LOGGER.fine("The layer this object is located in is not included in loading.");
             return null;
         }
 
-        LOGGER.fine("Checking if the object has not been already loaded.");
-        Object loadedResult = blenderContext.getLoadedFeature(objectStructure.getOldMemoryAddress(), LoadedDataType.FEATURE);
-        if (loadedResult != null) {
-            return loadedResult;
-        }
-
         blenderContext.pushParent(objectStructure);
         String name = objectStructure.getName();
         LOGGER.log(Level.FINE, "Loading obejct: {0}", name);
-        
+
         int restrictflag = ((Number) objectStructure.getFieldValue("restrictflag")).intValue();
         boolean visible = (restrictflag & 0x01) != 0;
 
@@ -171,7 +169,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
                     Pointer pMesh = (Pointer) objectStructure.getFieldValue("data");
                     List<Structure> meshesArray = pMesh.fetchData();
                     TemporalMesh temporalMesh = meshHelper.toTemporalMesh(meshesArray.get(0), blenderContext);
-                    if(temporalMesh != null) {
+                    if (temporalMesh != null) {
                         result.attachChild(temporalMesh);
                     }
                     break;
@@ -183,7 +181,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
                         CurvesHelper curvesHelper = blenderContext.getHelper(CurvesHelper.class);
                         Structure curveData = pCurve.fetchData().get(0);
                         TemporalMesh curvesTemporalMesh = curvesHelper.toCurve(curveData, blenderContext);
-                        if(curvesTemporalMesh != null) {
+                        if (curvesTemporalMesh != null) {
                             result.attachChild(curvesTemporalMesh);
                         }
                     }
@@ -193,10 +191,12 @@ public class ObjectHelper extends AbstractBlenderHelper {
                     if (pLamp.isNotNull()) {
                         LightHelper lightHelper = blenderContext.getHelper(LightHelper.class);
                         List<Structure> lampsArray = pLamp.fetchData();
-                        result = lightHelper.toLight(lampsArray.get(0), blenderContext);
-                        if (result == null) {
+                        Light light = lightHelper.toLight(lampsArray.get(0), blenderContext);
+                        if (light == null) {
                             // probably some light type is not supported, just create a node so that we can maintain child-parent relationship for nodes
                             result = new Node(name);
+                        } else {
+                            result = new LightNode(name, light);
                         }
                     }
                     break;
@@ -205,19 +205,25 @@ public class ObjectHelper extends AbstractBlenderHelper {
                     if (pCamera.isNotNull()) {
                         CameraHelper cameraHelper = blenderContext.getHelper(CameraHelper.class);
                         List<Structure> camerasArray = pCamera.fetchData();
-                        result = cameraHelper.toCamera(camerasArray.get(0), blenderContext);
+                        Camera camera = cameraHelper.toCamera(camerasArray.get(0), blenderContext);
+                        if (camera == null) {
+                            // just create a node so that we can maintain child-parent relationship for nodes
+                            result = new Node(name);
+                        } else {
+                            result = new CameraNode(name, camera);
+                        }
                     }
                     break;
                 default:
                     LOGGER.log(Level.WARNING, "Unsupported object type: {0}", type);
             }
-            
+
             if (result != null) {
                 LOGGER.fine("Storing loaded feature in blender context and applying markers (those will be removed before the final result is released).");
                 Long oma = objectStructure.getOldMemoryAddress();
                 blenderContext.addLoadedFeatures(oma, LoadedDataType.STRUCTURE, objectStructure);
                 blenderContext.addLoadedFeatures(oma, LoadedDataType.FEATURE, result);
-                
+
                 blenderContext.addMarker(OMA_MARKER, result, objectStructure.getOldMemoryAddress());
                 if (objectType == ObjectType.ARMATURE) {
                     blenderContext.addMarker(ARMATURE_NODE_MARKER, result, Boolean.TRUE);
@@ -235,13 +241,13 @@ public class ObjectHelper extends AbstractBlenderHelper {
                 for (Modifier modifier : modifiers) {
                     modifier.apply(result, blenderContext);
                 }
-                
+
                 if (result.getChildren() != null && result.getChildren().size() > 0) {
-                    if(result.getChildren().size() == 1 && result.getChild(0) instanceof TemporalMesh) {
+                    if (result.getChildren().size() == 1 && result.getChild(0) instanceof TemporalMesh) {
                         LOGGER.fine("Converting temporal mesh into jme geometries.");
-                        ((TemporalMesh)result.getChild(0)).toGeometries();
+                        ((TemporalMesh) result.getChild(0)).toGeometries();
                     }
-                    
+
                     LOGGER.fine("Applying proper scale to the geometries.");
                     for (Spatial child : result.getChildren()) {
                         if (child instanceof Geometry) {

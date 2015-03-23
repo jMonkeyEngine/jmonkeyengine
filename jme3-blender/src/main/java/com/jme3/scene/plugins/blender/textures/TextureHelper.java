@@ -121,7 +121,7 @@ public class TextureHelper extends AbstractBlenderHelper {
      * data. The returned texture has the name set to the value of its blender
      * type.
      * 
-     * @param tex
+     * @param textureStructure
      *            texture structure filled with data
      * @param blenderContext
      *            the blender context
@@ -130,23 +130,29 @@ public class TextureHelper extends AbstractBlenderHelper {
      *             this exception is thrown when the blend file structure is
      *             somehow invalid or corrupted
      */
-    public Texture getTexture(Structure tex, Structure mTex, BlenderContext blenderContext) throws BlenderFileException {
-        Texture result = (Texture) blenderContext.getLoadedFeature(tex.getOldMemoryAddress(), LoadedDataType.FEATURE);
+    public Texture getTexture(Structure textureStructure, Structure mTex, BlenderContext blenderContext) throws BlenderFileException {
+        Texture result = (Texture) blenderContext.getLoadedFeature(textureStructure.getOldMemoryAddress(), LoadedDataType.FEATURE);
         if (result != null) {
             return result;
         }
-        int type = ((Number) tex.getFieldValue("type")).intValue();
-        int imaflag = ((Number) tex.getFieldValue("imaflag")).intValue();
+
+        if ("ID".equals(textureStructure.getType())) {
+            LOGGER.fine("Loading texture from external blend file.");
+            return (Texture) this.loadLibrary(textureStructure);
+        }
+
+        int type = ((Number) textureStructure.getFieldValue("type")).intValue();
+        int imaflag = ((Number) textureStructure.getFieldValue("imaflag")).intValue();
 
         switch (type) {
             case TEX_IMAGE:// (it is first because probably this will be most commonly used)
-                Pointer pImage = (Pointer) tex.getFieldValue("ima");
+                Pointer pImage = (Pointer) textureStructure.getFieldValue("ima");
                 if (pImage.isNotNull()) {
                     Structure image = pImage.fetchData().get(0);
-                    Texture loadedTexture = this.loadTexture(image, imaflag, blenderContext);
+                    Texture loadedTexture = this.loadImageAsTexture(image, imaflag, blenderContext);
                     if (loadedTexture != null) {
                         result = loadedTexture;
-                        this.applyColorbandAndColorFactors(tex, result.getImage(), blenderContext);
+                        this.applyColorbandAndColorFactors(textureStructure, result.getImage(), blenderContext);
                     }
                 }
                 break;
@@ -160,7 +166,7 @@ public class TextureHelper extends AbstractBlenderHelper {
             case TEX_MUSGRAVE:
             case TEX_VORONOI:
             case TEX_DISTNOISE:
-                result = new GeneratedTexture(tex, mTex, textureGeneratorFactory.createTextureGenerator(type), blenderContext);
+                result = new GeneratedTexture(textureStructure, mTex, textureGeneratorFactory.createTextureGenerator(type), blenderContext);
                 break;
             case TEX_NONE:// No texture, do nothing
                 break;
@@ -169,13 +175,13 @@ public class TextureHelper extends AbstractBlenderHelper {
             case TEX_PLUGIN:
             case TEX_ENVMAP:
             case TEX_OCEAN:
-                LOGGER.log(Level.WARNING, "Unsupported texture type: {0} for texture: {1}", new Object[] { type, tex.getName() });
+                LOGGER.log(Level.WARNING, "Unsupported texture type: {0} for texture: {1}", new Object[] { type, textureStructure.getName() });
                 break;
             default:
-                throw new BlenderFileException("Unknown texture type: " + type + " for texture: " + tex.getName());
+                throw new BlenderFileException("Unknown texture type: " + type + " for texture: " + textureStructure.getName());
         }
         if (result != null) {
-            result.setName(tex.getName());
+            result.setName(textureStructure.getName());
             result.setWrap(WrapMode.Repeat);
 
             // decide if the mipmaps will be generated
@@ -195,14 +201,14 @@ public class TextureHelper extends AbstractBlenderHelper {
             }
 
             if (type != TEX_IMAGE) {// only generated textures should have this key
-                result.setKey(new GeneratedTextureKey(tex.getName()));
+                result.setKey(new GeneratedTextureKey(textureStructure.getName()));
             }
 
             if (LOGGER.isLoggable(Level.FINE)) {
-                LOGGER.log(Level.FINE, "Adding texture {0} to the loaded features with OMA = {1}", new Object[] { result.getName(), tex.getOldMemoryAddress() });
+                LOGGER.log(Level.FINE, "Adding texture {0} to the loaded features with OMA = {1}", new Object[] { result.getName(), textureStructure.getOldMemoryAddress() });
             }
-            blenderContext.addLoadedFeatures(tex.getOldMemoryAddress(), LoadedDataType.STRUCTURE, tex);
-            blenderContext.addLoadedFeatures(tex.getOldMemoryAddress(), LoadedDataType.FEATURE, result);
+            blenderContext.addLoadedFeatures(textureStructure.getOldMemoryAddress(), LoadedDataType.STRUCTURE, textureStructure);
+            blenderContext.addLoadedFeatures(textureStructure.getOldMemoryAddress(), LoadedDataType.FEATURE, result);
         }
         return result;
     }
@@ -222,29 +228,39 @@ public class TextureHelper extends AbstractBlenderHelper {
      *             this exception is thrown when the blend file structure is
      *             somehow invalid or corrupted
      */
-    protected Texture loadTexture(Structure imageStructure, int imaflag, BlenderContext blenderContext) throws BlenderFileException {
+    public Texture loadImageAsTexture(Structure imageStructure, int imaflag, BlenderContext blenderContext) throws BlenderFileException {
         LOGGER.log(Level.FINE, "Fetching texture with OMA = {0}", imageStructure.getOldMemoryAddress());
         Texture result = null;
         Image im = (Image) blenderContext.getLoadedFeature(imageStructure.getOldMemoryAddress(), LoadedDataType.FEATURE);
         if (im == null) {
-            String texturePath = imageStructure.getFieldValue("name").toString();
-            Pointer pPackedFile = (Pointer) imageStructure.getFieldValue("packedfile");
-            if (pPackedFile.isNull()) {
-                LOGGER.log(Level.FINE, "Reading texture from file: {0}", texturePath);
-                result = this.loadImageFromFile(texturePath, imaflag, blenderContext);
+            if ("ID".equals(imageStructure.getType())) {
+                LOGGER.fine("Loading texture from external blend file.");
+                result = (Texture) this.loadLibrary(imageStructure);
             } else {
-                LOGGER.fine("Packed texture. Reading directly from the blend file!");
-                Structure packedFile = pPackedFile.fetchData().get(0);
-                Pointer pData = (Pointer) packedFile.getFieldValue("data");
-                FileBlockHeader dataFileBlock = blenderContext.getFileBlock(pData.getOldMemoryAddress());
-                blenderContext.getInputStream().setPosition(dataFileBlock.getBlockPosition());
-                ImageLoader imageLoader = new ImageLoader();
+                String texturePath = imageStructure.getFieldValue("name").toString();
+                Pointer pPackedFile = (Pointer) imageStructure.getFieldValue("packedfile");
+                if (pPackedFile.isNull()) {
+                    LOGGER.log(Level.FINE, "Reading texture from file: {0}", texturePath);
+                    result = this.loadImageFromFile(texturePath, imaflag, blenderContext);
+                } else {
+                    LOGGER.fine("Packed texture. Reading directly from the blend file!");
+                    Structure packedFile = pPackedFile.fetchData().get(0);
+                    Pointer pData = (Pointer) packedFile.getFieldValue("data");
+                    FileBlockHeader dataFileBlock = blenderContext.getFileBlock(pData.getOldMemoryAddress());
+                    blenderContext.getInputStream().setPosition(dataFileBlock.getBlockPosition());
 
-                // Should the texture be flipped? It works for sinbad ..
-                result = new Texture2D(imageLoader.loadImage(blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true));
+                    // Should the texture be flipped? It works for sinbad ..
+                    result = new Texture2D(new ImageLoader().loadImage(blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true));
+                }
             }
         } else {
             result = new Texture2D(im);
+        }
+
+        if (result != null) {// render result is not being loaded
+            blenderContext.addLoadedFeatures(imageStructure.getOldMemoryAddress(), LoadedDataType.STRUCTURE, imageStructure);
+            blenderContext.addLoadedFeatures(imageStructure.getOldMemoryAddress(), LoadedDataType.FEATURE, result.getImage());
+            result.setName(imageStructure.getName());
         }
         return result;
     }
@@ -524,6 +540,18 @@ public class TextureHelper extends AbstractBlenderHelper {
         return result;
     }
 
+    /**
+     * Reads the texture data from the given material or sky structure.
+     * @param structure
+     *            the structure of material or sky
+     * @param diffuseColorArray
+     *            array of diffuse colors
+     * @param skyTexture
+     *            indicates it we're going to read sky texture or not
+     * @return a list of combined textures
+     * @throws BlenderFileException
+     *             an exception is thrown when problems with reading the blend file occur
+     */
     @SuppressWarnings("unchecked")
     public List<CombinedTexture> readTextureData(Structure structure, float[] diffuseColorArray, boolean skyTexture) throws BlenderFileException {
         DynamicArray<Pointer> mtexsArray = (DynamicArray<Pointer>) structure.getFieldValue("mtex");

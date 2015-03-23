@@ -53,6 +53,7 @@ import com.jme3.scene.plugins.blender.constraints.Constraint;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.DnaBlockData;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
+import com.jme3.scene.plugins.blender.file.FileBlockHeader.BlockCode;
 import com.jme3.scene.plugins.blender.file.Structure;
 
 /**
@@ -64,49 +65,51 @@ import com.jme3.scene.plugins.blender.file.Structure;
  */
 public class BlenderContext {
     /** The blender file version. */
-    private int                                 blenderVersion;
+    private int                                    blenderVersion;
     /** The blender key. */
-    private BlenderKey                          blenderKey;
+    private BlenderKey                             blenderKey;
     /** The header of the file block. */
-    private DnaBlockData                        dnaBlockData;
+    private DnaBlockData                           dnaBlockData;
     /** The scene structure. */
-    private Structure                           sceneStructure;
+    private Structure                              sceneStructure;
     /** The input stream of the blend file. */
-    private BlenderInputStream                  inputStream;
+    private BlenderInputStream                     inputStream;
     /** The asset manager. */
-    private AssetManager                        assetManager;
+    private AssetManager                           assetManager;
     /** The blocks read from the file. */
-    protected List<FileBlockHeader>             blocks;
+    protected List<FileBlockHeader>                blocks;
     /**
      * A map containing the file block headers. The key is the old memory address.
      */
-    private Map<Long, FileBlockHeader>          fileBlockHeadersByOma  = new HashMap<Long, FileBlockHeader>();
+    private Map<Long, FileBlockHeader>             fileBlockHeadersByOma  = new HashMap<Long, FileBlockHeader>();
     /** A map containing the file block headers. The key is the block code. */
-    private Map<Integer, List<FileBlockHeader>> fileBlockHeadersByCode = new HashMap<Integer, List<FileBlockHeader>>();
+    private Map<BlockCode, List<FileBlockHeader>>  fileBlockHeadersByCode = new HashMap<BlockCode, List<FileBlockHeader>>();
     /**
      * This map stores the loaded features by their old memory address. The
      * first object in the value table is the loaded structure and the second -
      * the structure already converted into proper data.
      */
-    private Map<Long, Map<LoadedDataType, Object>>                 loadedFeatures         = new HashMap<Long, Map<LoadedDataType, Object>>();
+    private Map<Long, Map<LoadedDataType, Object>> loadedFeatures         = new HashMap<Long, Map<LoadedDataType, Object>>();
+    /** Features loaded from external blender files. The key is the file path and the value is a map between feature name and loaded feature. */
+    private Map<String, Map<String, Object>>       linkedFeatures         = new HashMap<String, Map<String, Object>>();
     /** A stack that hold the parent structure of currently loaded feature. */
-    private Stack<Structure>                    parentStack            = new Stack<Structure>();
+    private Stack<Structure>                       parentStack            = new Stack<Structure>();
     /** A list of constraints for the specified object. */
-    protected Map<Long, List<Constraint>>       constraints            = new HashMap<Long, List<Constraint>>();
+    protected Map<Long, List<Constraint>>          constraints            = new HashMap<Long, List<Constraint>>();
     /** Animations loaded for features. */
-    private Map<Long, List<Animation>>          animations             = new HashMap<Long, List<Animation>>();
+    private Map<Long, List<Animation>>             animations             = new HashMap<Long, List<Animation>>();
     /** Loaded skeletons. */
-    private Map<Long, Skeleton>                 skeletons              = new HashMap<Long, Skeleton>();
+    private Map<Long, Skeleton>                    skeletons              = new HashMap<Long, Skeleton>();
     /** A map between skeleton and node it modifies. */
-    private Map<Skeleton, Node>                 nodesWithSkeletons     = new HashMap<Skeleton, Node>();
+    private Map<Skeleton, Node>                    nodesWithSkeletons     = new HashMap<Skeleton, Node>();
     /** A map of bone contexts. */
-    protected Map<Long, BoneContext>            boneContexts           = new HashMap<Long, BoneContext>();
+    protected Map<Long, BoneContext>               boneContexts           = new HashMap<Long, BoneContext>();
     /** A map og helpers that perform loading. */
-    private Map<String, AbstractBlenderHelper>  helpers                = new HashMap<String, AbstractBlenderHelper>();
+    private Map<String, AbstractBlenderHelper>     helpers                = new HashMap<String, AbstractBlenderHelper>();
     /** Markers used by loading classes to store some custom data. This is made to avoid putting this data into user properties. */
-    private Map<String, Map<Object, Object>>    markers                = new HashMap<String, Map<Object, Object>>();
+    private Map<String, Map<Object, Object>>       markers                = new HashMap<String, Map<Object, Object>>();
     /** A map of blender actions. The key is the action name and the value is the action itself. */
-    private Map<String, BlenderAction>          actions                = new HashMap<String, BlenderAction>();
+    private Map<String, BlenderAction>             actions                = new HashMap<String, BlenderAction>();
 
     /**
      * This method sets the blender file version.
@@ -231,10 +234,10 @@ public class BlenderContext {
      */
     public void addFileBlockHeader(Long oldMemoryAddress, FileBlockHeader fileBlockHeader) {
         fileBlockHeadersByOma.put(oldMemoryAddress, fileBlockHeader);
-        List<FileBlockHeader> headers = fileBlockHeadersByCode.get(Integer.valueOf(fileBlockHeader.getCode()));
+        List<FileBlockHeader> headers = fileBlockHeadersByCode.get(fileBlockHeader.getCode());
         if (headers == null) {
             headers = new ArrayList<FileBlockHeader>();
-            fileBlockHeadersByCode.put(Integer.valueOf(fileBlockHeader.getCode()), headers);
+            fileBlockHeadersByCode.put(fileBlockHeader.getCode(), headers);
         }
         headers.add(fileBlockHeader);
     }
@@ -258,7 +261,7 @@ public class BlenderContext {
      *            the code of file blocks
      * @return a list of file blocks' headers of a specified code
      */
-    public List<FileBlockHeader> getFileBlocks(Integer code) {
+    public List<FileBlockHeader> getFileBlocks(BlockCode code) {
         return fileBlockHeadersByCode.get(code);
     }
 
@@ -299,7 +302,7 @@ public class BlenderContext {
             throw new IllegalArgumentException("One of the given arguments is null!");
         }
         Map<LoadedDataType, Object> map = loadedFeatures.get(oldMemoryAddress);
-        if(map == null) {
+        if (map == null) {
             map = new HashMap<BlenderContext.LoadedDataType, Object>();
             loadedFeatures.put(oldMemoryAddress, map);
         }
@@ -323,6 +326,48 @@ public class BlenderContext {
             return result.get(loadedFeatureDataType);
         }
         return null;
+    }
+
+    /**
+     * The method adds linked content to the blender context.
+     * @param blenderFilePath
+     *            the path of linked blender file
+     * @param featureName
+     *            the linked feature name
+     * @param feature
+     *            the linked feature
+     */
+    public void addLinkedFeature(String blenderFilePath, String featureName, Object feature) {
+        if (feature != null) {
+            Map<String, Object> linkedFeatures = this.linkedFeatures.get(blenderFilePath);
+            if (linkedFeatures == null) {
+                linkedFeatures = new HashMap<String, Object>();
+                this.linkedFeatures.put(blenderFilePath, linkedFeatures);
+            }
+            if (!linkedFeatures.containsKey(featureName)) {
+                linkedFeatures.put(featureName, feature);
+            }
+        }
+    }
+
+    /**
+     * The method returns linked feature of a given name from the specified blender path.
+     * @param blenderFilePath
+     *            the blender file path
+     * @param featureName
+     *            the feature name we want to get
+     * @return linked feature or null if none was found
+     */
+    public Object getLinkedFeature(String blenderFilePath, String featureName) {
+        Map<String, Object> linkedFeatures = this.linkedFeatures.get(blenderFilePath);
+        return linkedFeatures != null ? linkedFeatures.get(featureName) : null;
+    }
+
+    /**
+     * @return all linked features for the current blend file
+     */
+    public Map<String, Map<String, Object>> getLinkedFeatures() {
+        return linkedFeatures;
     }
 
     /**

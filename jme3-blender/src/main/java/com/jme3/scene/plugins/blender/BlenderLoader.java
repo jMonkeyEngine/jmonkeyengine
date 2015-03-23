@@ -33,17 +33,21 @@ package com.jme3.scene.plugins.blender;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.animation.Animation;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.BlenderKey;
-import com.jme3.asset.BlenderKey.FeaturesToLoad;
-import com.jme3.asset.BlenderKey.LoadingResults;
 import com.jme3.asset.ModelKey;
 import com.jme3.light.Light;
+import com.jme3.math.ColorRGBA;
+import com.jme3.post.Filter;
+import com.jme3.renderer.Camera;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
@@ -55,16 +59,20 @@ import com.jme3.scene.plugins.blender.curves.CurvesHelper;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
+import com.jme3.scene.plugins.blender.file.FileBlockHeader.BlockCode;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.landscape.LandscapeHelper;
 import com.jme3.scene.plugins.blender.lights.LightHelper;
+import com.jme3.scene.plugins.blender.materials.MaterialContext;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 import com.jme3.scene.plugins.blender.meshes.MeshHelper;
+import com.jme3.scene.plugins.blender.meshes.TemporalMesh;
 import com.jme3.scene.plugins.blender.modifiers.ModifierHelper;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 import com.jme3.scene.plugins.blender.particles.ParticlesHelper;
 import com.jme3.scene.plugins.blender.textures.TextureHelper;
+import com.jme3.texture.Texture;
 
 /**
  * This is the main loading class. Have in notice that asset manager needs to have loaders for resources like textures.
@@ -83,72 +91,130 @@ public class BlenderLoader implements AssetLoader {
         try {
             this.setup(assetInfo);
 
-            List<FileBlockHeader> sceneBlocks = new ArrayList<FileBlockHeader>();
-            BlenderKey blenderKey = blenderContext.getBlenderKey();
-            LoadingResults loadingResults = blenderKey.prepareLoadingResults();
-            
             AnimationHelper animationHelper = blenderContext.getHelper(AnimationHelper.class);
             animationHelper.loadAnimations();
-            
+
+            BlenderKey blenderKey = blenderContext.getBlenderKey();
+            LoadedFeatures loadedFeatures = new LoadedFeatures();
             for (FileBlockHeader block : blocks) {
                 switch (block.getCode()) {
-                    case FileBlockHeader.BLOCK_OB00:// Object
+                    case BLOCK_OB00:
                         ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-                        Object object = objectHelper.toObject(block.getStructure(blenderContext), blenderContext);
-                        if (object instanceof LightNode) {
-                            loadingResults.addLight((LightNode) object);
-                        } else if (object instanceof CameraNode) {
-                            loadingResults.addCamera((CameraNode) object);
-                        } else if (object instanceof Node) {
-                            if (LOGGER.isLoggable(Level.FINE)) {
-                                LOGGER.log(Level.FINE, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
+                        Node object = (Node) objectHelper.toObject(block.getStructure(blenderContext), blenderContext);
+                        if (LOGGER.isLoggable(Level.FINE)) {
+                            LOGGER.log(Level.FINE, "{0}: {1}--> {2}", new Object[] { object.getName(), object.getLocalTranslation().toString(), object.getParent() == null ? "null" : object.getParent().getName() });
+                        }
+                        if (object.getParent() == null) {
+                            loadedFeatures.objects.add(object);
+                        }
+                        if (object instanceof LightNode && ((LightNode) object).getLight() != null) {
+                            loadedFeatures.lights.add(((LightNode) object).getLight());
+                        } else if (object instanceof CameraNode && ((CameraNode) object).getCamera() != null) {
+                            loadedFeatures.cameras.add(((CameraNode) object).getCamera());
+                        }
+                        break;
+                    case BLOCK_SC00:// Scene
+                        loadedFeatures.sceneBlocks.add(block);
+                        break;
+                    case BLOCK_MA00:// Material
+                        MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
+                        MaterialContext materialContext = materialHelper.toMaterialContext(block.getStructure(blenderContext), blenderContext);
+                        loadedFeatures.materials.add(materialContext);
+                        break;
+                    case BLOCK_ME00:// Mesh
+                        MeshHelper meshHelper = blenderContext.getHelper(MeshHelper.class);
+                        TemporalMesh temporalMesh = meshHelper.toTemporalMesh(block.getStructure(blenderContext), blenderContext);
+                        loadedFeatures.meshes.add(temporalMesh);
+                        break;
+                    case BLOCK_IM00:// Image
+                        TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
+                        Texture image = textureHelper.loadImageAsTexture(block.getStructure(blenderContext), 0, blenderContext);
+                        if (image != null && image.getImage() != null) {// render results are stored as images but are not being loaded
+                            loadedFeatures.images.add(image);
+                        }
+                        break;
+                    case BLOCK_TE00:
+                        Structure textureStructure = block.getStructure(blenderContext);
+                        int type = ((Number) textureStructure.getFieldValue("type")).intValue();
+                        if (type == TextureHelper.TEX_IMAGE) {
+                            TextureHelper texHelper = blenderContext.getHelper(TextureHelper.class);
+                            Texture texture = texHelper.getTexture(textureStructure, null, blenderContext);
+                            if (texture != null) {// null is returned when texture has no image
+                                loadedFeatures.textures.add(texture);
                             }
-                            if (this.isRootObject(loadingResults, (Node) object)) {
-                                loadingResults.addObject((Node) object);
+                        } else {
+                            LOGGER.fine("Only image textures can be loaded as unlinked assets. Generated textures will be applied to an existing object.");
+                        }
+                        break;
+                    case BLOCK_WO00:// World
+                        LandscapeHelper landscapeHelper = blenderContext.getHelper(LandscapeHelper.class);
+                        Structure worldStructure = block.getStructure(blenderContext);
+
+                        String worldName = worldStructure.getName();
+                        if (blenderKey.getUsedWorld() == null || blenderKey.getUsedWorld().equals(worldName)) {
+
+                            Light ambientLight = landscapeHelper.toAmbientLight(worldStructure);
+                            if (ambientLight != null) {
+                                loadedFeatures.objects.add(new LightNode(null, ambientLight));
+                                loadedFeatures.lights.add(ambientLight);
+                            }
+                            loadedFeatures.sky = landscapeHelper.toSky(worldStructure);
+                            loadedFeatures.backgroundColor = landscapeHelper.toBackgroundColor(worldStructure);
+
+                            Filter fogFilter = landscapeHelper.toFog(worldStructure);
+                            if (fogFilter != null) {
+                                loadedFeatures.filters.add(landscapeHelper.toFog(worldStructure));
                             }
                         }
                         break;
-//                    case FileBlockHeader.BLOCK_MA00:// Material
-//                        MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
-//                        MaterialContext materialContext = materialHelper.toMaterialContext(block.getStructure(blenderContext), blenderContext);
-//                        if (blenderKey.isLoadUnlinkedAssets() && blenderKey.shouldLoad(FeaturesToLoad.MATERIALS)) {
-//                            loadingResults.addMaterial(this.toMaterial(block.getStructure(blenderContext)));
-//                        }
-//                        break;
-                    case FileBlockHeader.BLOCK_SC00:// Scene
-                        if (blenderKey.shouldLoad(FeaturesToLoad.SCENES)) {
-                            sceneBlocks.add(block);
-                        }
+                    case BLOCK_AC00:
+                        LOGGER.fine("Loading unlinked animations is not yet supported!");
                         break;
-                    case FileBlockHeader.BLOCK_WO00:// World
-                        if (blenderKey.shouldLoad(FeaturesToLoad.WORLD)) {
-                            Structure worldStructure = block.getStructure(blenderContext);
-                            String worldName = worldStructure.getName();
-                            if (blenderKey.getUsedWorld() == null || blenderKey.getUsedWorld().equals(worldName)) {
-                                LandscapeHelper landscapeHelper = blenderContext.getHelper(LandscapeHelper.class);
-                                Light ambientLight = landscapeHelper.toAmbientLight(worldStructure);
-                                if(ambientLight != null) {
-                                    loadingResults.addLight(new LightNode(null, ambientLight));
-                                }
-                                loadingResults.setSky(landscapeHelper.toSky(worldStructure));
-                                loadingResults.addFilter(landscapeHelper.toFog(worldStructure));
-                                loadingResults.setBackgroundColor(landscapeHelper.toBackgroundColor(worldStructure));
-                            }
-                        }
-                        break;
+                    default:
+                        LOGGER.log(Level.FINEST, "Ommiting the block: {0}.", block.getCode());
                 }
             }
 
-            // bake constraints after everything is loaded
+            LOGGER.fine("Baking constraints after every feature is loaded.");
             ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
             constraintHelper.bakeConstraints(blenderContext);
 
-            // load the scene at the very end so that the root nodes have no parent during loading or constraints applying
-            for (FileBlockHeader sceneBlock : sceneBlocks) {
-                loadingResults.addScene(this.toScene(sceneBlock.getStructure(blenderContext)));
+            LOGGER.fine("Loading scenes and attaching them to the root object.");
+            for (FileBlockHeader sceneBlock : loadedFeatures.sceneBlocks) {
+                loadedFeatures.scenes.add(this.toScene(sceneBlock.getStructure(blenderContext)));
             }
 
-            return loadingResults;
+            LOGGER.fine("Creating the root node of the model and applying loaded nodes of the scene and loaded features to it.");
+            Node modelRoot = new Node(blenderKey.getName());
+            for (Node scene : loadedFeatures.scenes) {
+                modelRoot.attachChild(scene);
+            }
+
+            if (blenderKey.isLoadUnlinkedAssets()) {
+                LOGGER.fine("Setting loaded content as user data in resulting sptaial.");
+                Map<String, Map<String, Object>> linkedData = new HashMap<String, Map<String, Object>>();
+
+                Map<String, Object> thisFileData = new HashMap<String, Object>();
+                thisFileData.put("scenes", loadedFeatures.scenes == null ? new ArrayList<Object>() : loadedFeatures.scenes);
+                thisFileData.put("objects", loadedFeatures.objects == null ? new ArrayList<Object>() : loadedFeatures.objects);
+                thisFileData.put("meshes", loadedFeatures.meshes == null ? new ArrayList<Object>() : loadedFeatures.meshes);
+                thisFileData.put("materials", loadedFeatures.materials == null ? new ArrayList<Object>() : loadedFeatures.materials);
+                thisFileData.put("textures", loadedFeatures.textures == null ? new ArrayList<Object>() : loadedFeatures.textures);
+                thisFileData.put("images", loadedFeatures.images == null ? new ArrayList<Object>() : loadedFeatures.images);
+                thisFileData.put("animations", loadedFeatures.animations == null ? new ArrayList<Object>() : loadedFeatures.animations);
+                thisFileData.put("cameras", loadedFeatures.cameras == null ? new ArrayList<Object>() : loadedFeatures.cameras);
+                thisFileData.put("lights", loadedFeatures.lights == null ? new ArrayList<Object>() : loadedFeatures.lights);
+                thisFileData.put("filters", loadedFeatures.filters == null ? new ArrayList<Object>() : loadedFeatures.filters);
+                thisFileData.put("backgroundColor", loadedFeatures.backgroundColor);
+                thisFileData.put("sky", loadedFeatures.sky);
+
+                linkedData.put("this", thisFileData);
+                linkedData.putAll(blenderContext.getLinkedFeatures());
+
+                modelRoot.setUserData("linkedData", linkedData);
+            }
+
+            return modelRoot;
         } catch (BlenderFileException e) {
             throw new IOException(e.getLocalizedMessage(), e);
         } catch (Exception e) {
@@ -159,61 +225,35 @@ public class BlenderLoader implements AssetLoader {
     }
 
     /**
-     * This method indicates if the given spatial is a root object. It means it
-     * has no parent or is directly attached to one of the already loaded scene
-     * nodes.
-     * 
-     * @param loadingResults
-     *            loading results containing the scene nodes
-     * @param spatial
-     *            spatial object
-     * @return <b>true</b> if the given spatial is a root object and
-     *         <b>false</b> otherwise
-     */
-    protected boolean isRootObject(LoadingResults loadingResults, Spatial spatial) {
-        if (spatial.getParent() == null) {
-            return true;
-        }
-        for (Node scene : loadingResults.getScenes()) {
-            if (spatial.getParent().equals(scene)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * This method converts the given structure to a scene node.
      * @param structure
      *            structure of a scene
      * @return scene's node
+     * @throws BlenderFileException
+     *             an exception throw when problems with blender file occur
      */
-    private Node toScene(Structure structure) {
+    private Node toScene(Structure structure) throws BlenderFileException {
         ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
         Node result = new Node(structure.getName());
-        try {
-            List<Structure> base = ((Structure) structure.getFieldValue("base")).evaluateListBase();
-            for (Structure b : base) {
-                Pointer pObject = (Pointer) b.getFieldValue("object");
-                if (pObject.isNotNull()) {
-                    Structure objectStructure = pObject.fetchData().get(0);
+        List<Structure> base = ((Structure) structure.getFieldValue("base")).evaluateListBase();
+        for (Structure b : base) {
+            Pointer pObject = (Pointer) b.getFieldValue("object");
+            if (pObject.isNotNull()) {
+                Structure objectStructure = pObject.fetchData().get(0);
 
-                    Object object = objectHelper.toObject(objectStructure, blenderContext);
-                    if (object instanceof LightNode) {
-                        result.addLight(((LightNode) object).getLight());
-                        result.attachChild((LightNode) object);
-                    } else if (object instanceof Node) {
-                        if (LOGGER.isLoggable(Level.FINE)) {
-                            LOGGER.log(Level.FINE, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
-                        }
-                        if (((Node) object).getParent() == null) {
-                            result.attachChild((Spatial) object);
-                        }
+                Object object = objectHelper.toObject(objectStructure, blenderContext);
+                if (object instanceof LightNode) {
+                    result.addLight(((LightNode) object).getLight());// FIXME: check if this is needed !!!
+                    result.attachChild((LightNode) object);
+                } else if (object instanceof Node) {
+                    if (LOGGER.isLoggable(Level.FINE)) {
+                        LOGGER.log(Level.FINE, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
+                    }
+                    if (((Node) object).getParent() == null) {
+                        result.attachChild((Spatial) object);
                     }
                 }
             }
-        } catch (BlenderFileException e) {
-            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
         }
         return result;
     }
@@ -261,7 +301,7 @@ public class BlenderLoader implements AssetLoader {
         blenderContext.putHelper(ConstraintHelper.class, new ConstraintHelper(inputStream.getVersionNumber(), blenderContext));
         blenderContext.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber(), blenderContext));
         blenderContext.putHelper(LandscapeHelper.class, new LandscapeHelper(inputStream.getVersionNumber(), blenderContext));
-        
+
         // reading the blocks (dna block is automatically saved in the blender context when found)
         FileBlockHeader sceneFileBlock = null;
         do {
@@ -269,7 +309,7 @@ public class BlenderLoader implements AssetLoader {
             if (!fileBlock.isDnaBlock()) {
                 blocks.add(fileBlock);
                 // save the scene's file block
-                if (fileBlock.getCode() == FileBlockHeader.BLOCK_SC00) {
+                if (fileBlock.getCode() == BlockCode.BLOCK_SC00) {
                     sceneFileBlock = fileBlock;
                 }
             }
@@ -286,5 +326,40 @@ public class BlenderLoader implements AssetLoader {
     protected void clear() {
         blenderContext = null;
         blocks = null;
+    }
+
+    /**
+     * This class holds the loading results according to the given loading flag.
+     * @author Marcin Roguski (Kaelthas)
+     */
+    private static class LoadedFeatures {
+        private List<FileBlockHeader> sceneBlocks     = new ArrayList<FileBlockHeader>();
+        /** The scenes from the file. */
+        private List<Node>            scenes          = new ArrayList<Node>();
+        /** Objects from all scenes. */
+        private List<Node>            objects         = new ArrayList<Node>();
+        /** All meshes. */
+        private List<TemporalMesh>    meshes          = new ArrayList<TemporalMesh>();
+        /** Materials from all objects. */
+        private List<MaterialContext> materials       = new ArrayList<MaterialContext>();
+        /** Textures from all objects. */
+        private List<Texture>         textures        = new ArrayList<Texture>();
+        /** The images stored in the blender file. */
+        private List<Texture>         images          = new ArrayList<Texture>();
+        /** Animations of all objects. */
+        private List<Animation>       animations      = new ArrayList<Animation>();
+        /** All cameras from the file. */
+        private List<Camera>          cameras         = new ArrayList<Camera>();
+        /** All lights from the file. */
+        private List<Light>           lights          = new ArrayList<Light>();
+        /** Loaded sky. */
+        private Spatial               sky;
+        /** Scene filters (ie. FOG). */
+        private List<Filter>          filters         = new ArrayList<Filter>();
+        /**
+         * The background color of the render loaded from the horizon color of the world. If no world is used than the gray color
+         * is set to default (as in blender editor.
+         */
+        private ColorRGBA             backgroundColor = ColorRGBA.Gray;
     }
 }

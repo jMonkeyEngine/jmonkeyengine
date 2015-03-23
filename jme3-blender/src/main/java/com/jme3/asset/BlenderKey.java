@@ -32,36 +32,19 @@
 package com.jme3.asset;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
 
-import com.jme3.animation.Animation;
-import com.jme3.bounding.BoundingVolume;
-import com.jme3.collision.Collidable;
-import com.jme3.collision.CollisionResults;
-import com.jme3.collision.UnsupportedCollisionException;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.FaceCullMode;
-import com.jme3.math.ColorRGBA;
-import com.jme3.post.Filter;
-import com.jme3.scene.CameraNode;
-import com.jme3.scene.LightNode;
-import com.jme3.scene.Node;
-import com.jme3.scene.SceneGraphVisitor;
-import com.jme3.scene.Spatial;
-import com.jme3.texture.Texture;
 
 /**
  * Blender key. Contains path of the blender file and its loading properties.
  * @author Marcin Roguski (Kaelthas)
  */
 public class BlenderKey extends ModelKey {
-
     protected static final int         DEFAULT_FPS               = 25;
     /**
      * FramesPerSecond parameter describe how many frames there are in each second. It allows to calculate the time
@@ -72,7 +55,7 @@ public class BlenderKey extends ModelKey {
      * This variable is a bitwise flag of FeatureToLoad interface values; By default everything is being loaded.
      */
     protected int                      featuresToLoad            = FeaturesToLoad.ALL;
-    /** This variable determines if assets that are not linked to the objects should be loaded. */
+    /** The variable that tells if content of the file (along with data unlinked to any feature on the scene) should be stored as 'user data' in the result spatial. */
     protected boolean                  loadUnlinkedAssets;
     /** The root path for all the assets. */
     protected String                   assetRootPath;
@@ -268,6 +251,7 @@ public class BlenderKey extends ModelKey {
      * @param featuresToLoad
      *            bitwise flag of FeaturesToLoad interface values
      */
+    @Deprecated
     public void includeInLoading(int featuresToLoad) {
         this.featuresToLoad |= featuresToLoad;
     }
@@ -277,10 +261,12 @@ public class BlenderKey extends ModelKey {
      * @param featuresNotToLoad
      *            bitwise flag of FeaturesToLoad interface values
      */
+    @Deprecated
     public void excludeFromLoading(int featuresNotToLoad) {
         featuresToLoad &= ~featuresNotToLoad;
     }
 
+    @Deprecated
     public boolean shouldLoad(int featureToLoad) {
         return (featuresToLoad & featureToLoad) != 0;
     }
@@ -290,6 +276,7 @@ public class BlenderKey extends ModelKey {
      * the blender file loader.
      * @return features that will be loaded by the blender file loader
      */
+    @Deprecated
     public int getFeaturesToLoad() {
         return featuresToLoad;
     }
@@ -315,15 +302,6 @@ public class BlenderKey extends ModelKey {
      */
     public void setLoadUnlinkedAssets(boolean loadUnlinkedAssets) {
         this.loadUnlinkedAssets = loadUnlinkedAssets;
-    }
-
-    /**
-     * This method creates an object where loading results will be stores. Only those features will be allowed to store
-     * that were specified by features-to-load flag.
-     * @return an object to store loading results
-     */
-    public LoadingResults prepareLoadingResults() {
-        return new LoadingResults(featuresToLoad);
     }
 
     /**
@@ -699,8 +677,11 @@ public class BlenderKey extends ModelKey {
 
     /**
      * This interface describes the features of the scene that are to be loaded.
+     * @deprecated this interface is deprecated and is not used anymore; to ensure the loading models consistency
+     *             everything must be loaded because in blender one feature might depend on another
      * @author Marcin Roguski (Kaelthas)
      */
+    @Deprecated
     public static interface FeaturesToLoad {
 
         int SCENES     = 0x0000FFFF;
@@ -744,282 +725,5 @@ public class BlenderKey extends ModelKey {
          * animated spatial.
          */
         ALL_NAMES_MATCH;
-    }
-
-    /**
-     * This class holds the loading results according to the given loading flag.
-     * @author Marcin Roguski (Kaelthas)
-     */
-    public static class LoadingResults extends Spatial {
-
-        /** Bitwise mask of features that are to be loaded. */
-        private final int        featuresToLoad;
-        /** The scenes from the file. */
-        private List<Node>       scenes;
-        /** Objects from all scenes. */
-        private List<Node>       objects;
-        /** Materials from all objects. */
-        private List<Material>   materials;
-        /** Textures from all objects. */
-        private List<Texture>    textures;
-        /** Animations of all objects. */
-        private List<Animation>  animations;
-        /** All cameras from the file. */
-        private List<CameraNode> cameras;
-        /** All lights from the file. */
-        private List<LightNode>  lights;
-        /** Loaded sky. */
-        private Spatial          sky;
-        /** Scene filters (ie. FOG). */
-        private List<Filter>     filters;
-        /**
-         * The background color of the render loaded from the horizon color of the world. If no world is used than the gray color
-         * is set to default (as in blender editor.
-         */
-        private ColorRGBA        backgroundColor = ColorRGBA.Gray;
-
-        /**
-         * Private constructor prevents users to create an instance of this class from outside the
-         * @param featuresToLoad
-         *            bitwise mask of features that are to be loaded
-         * @see FeaturesToLoad FeaturesToLoad
-         */
-        private LoadingResults(int featuresToLoad) {
-            this.featuresToLoad = featuresToLoad;
-            if ((featuresToLoad & FeaturesToLoad.SCENES) != 0) {
-                scenes = new ArrayList<Node>();
-            }
-            if ((featuresToLoad & FeaturesToLoad.OBJECTS) != 0) {
-                objects = new ArrayList<Node>();
-                if ((featuresToLoad & FeaturesToLoad.MATERIALS) != 0) {
-                    materials = new ArrayList<Material>();
-                    if ((featuresToLoad & FeaturesToLoad.TEXTURES) != 0) {
-                        textures = new ArrayList<Texture>();
-                    }
-                }
-                if ((featuresToLoad & FeaturesToLoad.ANIMATIONS) != 0) {
-                    animations = new ArrayList<Animation>();
-                }
-            }
-            if ((featuresToLoad & FeaturesToLoad.CAMERAS) != 0) {
-                cameras = new ArrayList<CameraNode>();
-            }
-            if ((featuresToLoad & FeaturesToLoad.LIGHTS) != 0) {
-                lights = new ArrayList<LightNode>();
-            }
-        }
-
-        /**
-         * This method returns a bitwise flag describing what features of the blend file will be included in the result.
-         * @return bitwise mask of features that are to be loaded
-         * @see FeaturesToLoad FeaturesToLoad
-         */
-        public int getLoadedFeatures() {
-            return featuresToLoad;
-        }
-
-        /**
-         * This method adds a scene to the result set.
-         * @param scene
-         *            scene to be added to the result set
-         */
-        public void addScene(Node scene) {
-            if (scenes != null) {
-                scenes.add(scene);
-            }
-        }
-
-        /**
-         * This method adds an object to the result set.
-         * @param object
-         *            object to be added to the result set
-         */
-        public void addObject(Node object) {
-            if (objects != null) {
-                objects.add(object);
-            }
-        }
-
-        /**
-         * This method adds a material to the result set.
-         * @param material
-         *            material to be added to the result set
-         */
-        public void addMaterial(Material material) {
-            if (materials != null) {
-                materials.add(material);
-            }
-        }
-
-        /**
-         * This method adds a texture to the result set.
-         * @param texture
-         *            texture to be added to the result set
-         */
-        public void addTexture(Texture texture) {
-            if (textures != null) {
-                textures.add(texture);
-            }
-        }
-
-        /**
-         * This method adds a camera to the result set.
-         * @param camera
-         *            camera to be added to the result set
-         */
-        public void addCamera(CameraNode camera) {
-            if (cameras != null) {
-                cameras.add(camera);
-            }
-        }
-
-        /**
-         * This method adds a light to the result set.
-         * @param light
-         *            light to be added to the result set
-         */
-        public void addLight(LightNode light) {
-            if (lights != null) {
-                lights.add(light);
-            }
-        }
-
-        /**
-         * This method sets the sky of the scene. Only one sky can be set.
-         * @param sky
-         *            the sky to be set
-         */
-        public void setSky(Spatial sky) {
-            this.sky = sky;
-        }
-
-        /**
-         * This method adds a scene filter. Filters are used to load FOG or other
-         * scene effects that blender can define.
-         * @param filter
-         *            the filter to be added
-         */
-        public void addFilter(Filter filter) {
-            if (filter != null) {
-                if (filters == null) {
-                    filters = new ArrayList<Filter>(5);
-                }
-                filters.add(filter);
-            }
-        }
-
-        /**
-         * @param backgroundColor
-         *            the background color
-         */
-        public void setBackgroundColor(ColorRGBA backgroundColor) {
-            this.backgroundColor = backgroundColor;
-        }
-
-        /**
-         * @return all loaded scenes
-         */
-        public List<Node> getScenes() {
-            return scenes;
-        }
-
-        /**
-         * @return all loaded objects
-         */
-        public List<Node> getObjects() {
-            return objects;
-        }
-
-        /**
-         * @return all loaded materials
-         */
-        public List<Material> getMaterials() {
-            return materials;
-        }
-
-        /**
-         * @return all loaded textures
-         */
-        public List<Texture> getTextures() {
-            return textures;
-        }
-
-        /**
-         * @return all loaded animations
-         */
-        public List<Animation> getAnimations() {
-            return animations;
-        }
-
-        /**
-         * @return all loaded cameras
-         */
-        public List<CameraNode> getCameras() {
-            return cameras;
-        }
-
-        /**
-         * @return all loaded lights
-         */
-        public List<LightNode> getLights() {
-            return lights;
-        }
-
-        /**
-         * @return the scene's sky
-         */
-        public Spatial getSky() {
-            return sky;
-        }
-
-        /**
-         * @return scene filters
-         */
-        public List<Filter> getFilters() {
-            return filters;
-        }
-
-        /**
-         * @return the background color
-         */
-        public ColorRGBA getBackgroundColor() {
-            return backgroundColor;
-        }
-
-        @Override
-        public int collideWith(Collidable other, CollisionResults results) throws UnsupportedCollisionException {
-            return 0;
-        }
-
-        @Override
-        public void updateModelBound() {
-        }
-
-        @Override
-        public void setModelBound(BoundingVolume modelBound) {
-        }
-
-        @Override
-        public int getVertexCount() {
-            return 0;
-        }
-
-        @Override
-        public int getTriangleCount() {
-            return 0;
-        }
-
-        @Override
-        public Spatial deepClone() {
-            return null;
-        }
-
-        @Override
-        public void depthFirstTraversal(SceneGraphVisitor visitor) {
-        }
-
-        @Override
-        protected void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue) {
-        }
     }
 }
