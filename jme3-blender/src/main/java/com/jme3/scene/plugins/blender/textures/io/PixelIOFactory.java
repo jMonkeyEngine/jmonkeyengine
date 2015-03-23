@@ -26,7 +26,9 @@ public class PixelIOFactory {
                 case ABGR8:
                 case RGBA8:
                 case BGR8:
+                case BGRA8:
                 case RGB8:
+                case ARGB8:
                 case RGB111110F:
                 case RGB16F:
                 case RGB16F_to_RGB111110F:

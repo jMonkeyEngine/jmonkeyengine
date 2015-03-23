@@ -444,13 +444,17 @@ public class CombinedTexture {
                     case RGB8:
                         return true;// these types have no alpha by definition
                     case ABGR8:
+                    case DXT1A:
                     case DXT3:
                     case DXT5:
                     case Luminance16FAlpha16F:
                     case Luminance8Alpha8:
                     case RGBA16F:
                     case RGBA32F:
-                    case RGBA8:// with these types it is better to make sure if the texture is or is not transparent
+                    case RGBA8:
+                    case ARGB8:
+                    case BGRA8:
+                    case RGB5A1:// with these types it is better to make sure if the texture is or is not transparent
                         PixelInputOutput pixelInputOutput = PixelIOFactory.getPixelIO(image.getFormat());
                         TexturePixel pixel = new TexturePixel();
                         int depth = image.getDepth() == 0 ? 1 : image.getDepth();
@@ -465,6 +469,8 @@ public class CombinedTexture {
                             }
                         }
                         return true;
+                    default:
+                        throw new IllegalStateException("Unknown image format: " + image.getFormat());
                 }
             }
         }

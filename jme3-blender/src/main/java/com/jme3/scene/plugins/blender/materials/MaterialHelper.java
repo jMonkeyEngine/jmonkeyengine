@@ -51,6 +51,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.image.ColorSpace;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
 
@@ -217,7 +218,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
                 }
             }
 
-            image = new Image(Format.RGBA8, w, h, bb);
+            image = new Image(Format.RGBA8, w, h, bb, ColorSpace.Linear);
             texture.setImage(image);
 
             result.setTextureParam("Texture", VarType.Texture2D, texture);

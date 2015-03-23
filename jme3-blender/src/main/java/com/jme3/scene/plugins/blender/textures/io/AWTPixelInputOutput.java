@@ -17,11 +17,17 @@ import jme3tools.converters.RGB565;
             case RGBA8:
                 pixel.fromARGB8(data.get(index + 3), data.get(index), data.get(index + 1), data.get(index + 2));
                 break;
+            case ARGB8:
+                pixel.fromARGB8(data.get(index), data.get(index + 1), data.get(index + 2), data.get(index + 3));
+                break;
             case ABGR8:
                 pixel.fromARGB8(data.get(index), data.get(index + 3), data.get(index + 2), data.get(index + 1));
                 break;
             case BGR8:
                 pixel.fromARGB8((byte) 0xFF, data.get(index + 2), data.get(index + 1), data.get(index));
+                break;
+            case BGRA8:
+                pixel.fromARGB8(data.get(index + 3), data.get(index + 2), data.get(index + 1), data.get(index));
                 break;
             case RGB8:
                 pixel.fromARGB8((byte) 0xFF, data.get(index), data.get(index + 1), data.get(index + 2));
@@ -72,6 +78,12 @@ import jme3tools.converters.RGB565;
                 data.put(index + 2, pixel.getB8());
                 data.put(index + 3, pixel.getA8());
                 break;
+            case ARGB8:
+                data.put(index, pixel.getA8());
+                data.put(index + 1, pixel.getR8());
+                data.put(index + 2, pixel.getG8());
+                data.put(index + 3, pixel.getB8());
+                break;
             case ABGR8:
                 data.put(index, pixel.getA8());
                 data.put(index + 1, pixel.getB8());
@@ -82,6 +94,12 @@ import jme3tools.converters.RGB565;
                 data.put(index, pixel.getB8());
                 data.put(index + 1, pixel.getG8());
                 data.put(index + 2, pixel.getR8());
+                break;
+            case BGRA8:
+                data.put(index, pixel.getB8());
+                data.put(index + 1, pixel.getG8());
+                data.put(index + 2, pixel.getR8());
+                data.put(index + 3, pixel.getA8());
                 break;
             case RGB8:
                 data.put(index, pixel.getR8());
