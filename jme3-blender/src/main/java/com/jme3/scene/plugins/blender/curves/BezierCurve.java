@@ -1,10 +1,11 @@
 package com.jme3.scene.plugins.blender.curves;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Structure;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A class that helps to calculate the bezier curves calues. It uses doubles for performing calculations to minimize
@@ -12,21 +13,26 @@ import java.util.List;
  * @author Marcin Roguski (Kaelthas)
  */
 public class BezierCurve {
+    private static final int IPO_CONSTANT = 0;
+    private static final int IPO_LINEAR   = 1;
+    private static final int IPO_BEZIER   = 2;
 
-    public static final int X_VALUE = 0;
-    public static final int Y_VALUE = 1;
-    public static final int Z_VALUE = 2;
+    public static final int  X_VALUE      = 0;
+    public static final int  Y_VALUE      = 1;
+    public static final int  Z_VALUE      = 2;
     /**
      * The type of the curve. Describes the data it modifies.
      * Used in ipos calculations.
      */
-    private int             type;
+    private int              type;
     /** The dimension of the curve. */
-    private int             dimension;
+    private int              dimension;
     /** A table of the bezier points. */
-    private double[][][]    bezierPoints;
+    private double[][][]     bezierPoints;
     /** Array that stores a radius for each bezier triple. */
-    private double[]        radiuses;
+    private double[]         radiuses;
+    /** Interpolation types of the bezier triples. */
+    private int[]            interpolations;
 
     public BezierCurve(final int type, final List<Structure> bezTriples, final int dimension) {
         this(type, bezTriples, dimension, false);
@@ -44,6 +50,7 @@ public class BezierCurve {
         // the third index specifies the coordinates of the specific point in a bezier triple
         bezierPoints = new double[bezTriples.size()][3][dimension];
         radiuses = new double[bezTriples.size()];
+        interpolations = new int[bezTriples.size()];
         int i = 0, j, k;
         for (Structure bezTriple : bezTriples) {
             DynamicArray<Number> vec = (DynamicArray<Number>) bezTriple.getFieldValue("vec");
@@ -57,7 +64,8 @@ public class BezierCurve {
                     bezierPoints[i][j][1] = temp;
                 }
             }
-            radiuses[i++] = ((Number) bezTriple.getFieldValue("radius")).floatValue();
+            radiuses[i] = ((Number) bezTriple.getFieldValue("radius")).floatValue();
+            interpolations[i++] = ((Number) bezTriple.getFieldValue("ipo", IPO_BEZIER)).intValue();
         }
     }
 
@@ -75,10 +83,19 @@ public class BezierCurve {
         for (int i = 0; i < bezierPoints.length - 1; ++i) {
             if (frame >= bezierPoints[i][1][0] && frame <= bezierPoints[i + 1][1][0]) {
                 double t = (frame - bezierPoints[i][1][0]) / (bezierPoints[i + 1][1][0] - bezierPoints[i][1][0]);
-                double oneMinusT = 1.0f - t;
-                double oneMinusT2 = oneMinusT * oneMinusT;
-                double t2 = t * t;
-                return bezierPoints[i][1][valuePart] * oneMinusT2 * oneMinusT + 3.0f * bezierPoints[i][2][valuePart] * t * oneMinusT2 + 3.0f * bezierPoints[i + 1][0][valuePart] * t2 * oneMinusT + bezierPoints[i + 1][1][valuePart] * t2 * t;
+                switch (interpolations[i]) {
+                    case IPO_BEZIER:
+                        double oneMinusT = 1.0f - t;
+                        double oneMinusT2 = oneMinusT * oneMinusT;
+                        double t2 = t * t;
+                        return bezierPoints[i][1][valuePart] * oneMinusT2 * oneMinusT + 3.0f * bezierPoints[i][2][valuePart] * t * oneMinusT2 + 3.0f * bezierPoints[i + 1][0][valuePart] * t2 * oneMinusT + bezierPoints[i + 1][1][valuePart] * t2 * t;
+                    case IPO_LINEAR:
+                        return (1f - t) * bezierPoints[i][1][valuePart] + t * bezierPoints[i + 1][1][valuePart];
+                    case IPO_CONSTANT:
+                        return bezierPoints[i][1][valuePart];
+                    default:
+                        throw new IllegalStateException("Unknown interpolation type for curve: " + interpolations[i]);
+                }
             }
         }
         if (frame < bezierPoints[0][1][0]) {
