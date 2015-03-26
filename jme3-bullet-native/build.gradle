@@ -175,7 +175,7 @@ binaries.withType(SharedLibraryBinary) { binary ->
     // Add depend on build
     jar.dependsOn builderTask
     // Add output to libs folder
-    task "copyBinaryToLibs${targetPlatform}"(type: Copy) {
+    task "copyBinaryToLibs${targetPlatform}"(type: Copy, dependsOn: builderTask) {
         from builderTask.outputFile
         into "libs/native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}"
     }
