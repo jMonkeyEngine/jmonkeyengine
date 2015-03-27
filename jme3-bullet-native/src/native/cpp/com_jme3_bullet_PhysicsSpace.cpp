@@ -468,6 +468,68 @@ extern "C" {
         return;
     }
 
+
+
+	JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_sweepTest_1native
+		(JNIEnv * env, jobject object, jlong shapeId, jobject from, jobject to, jlong spaceId, jobject resultlist, jfloat allowedCcdPenetration) {
+
+		jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
+		if (space == NULL) {
+			jclass newExc = env->FindClass("java/lang/NullPointerException");
+			env->ThrowNew(newExc, "The physics space does not exist.");
+			return;
+		}
+
+		btCollisionShape* shape = reinterpret_cast<btCollisionShape*> (shapeId);
+		if (shape == NULL) {
+			jclass newExc = env->FindClass("java/lang/NullPointerException");
+			env->ThrowNew(newExc, "The shape does not exist.");
+			return;
+		}
+
+		struct AllConvexResultCallback : public btCollisionWorld::ConvexResultCallback {
+
+			AllConvexResultCallback(const btTransform& convexFromWorld, const  btTransform & convexToWorld) : m_convexFromWorld(convexFromWorld), m_convexToWorld(convexToWorld) {
+			}
+			jobject resultlist;
+			JNIEnv* env;
+			btTransform m_convexFromWorld; //used to calculate hitPointWorld from hitFraction
+			btTransform m_convexToWorld;
+
+			btVector3 m_hitNormalWorld;
+			btVector3 m_hitPointWorld;
+
+			virtual btScalar addSingleResult(btCollisionWorld::LocalConvexResult& convexResult, bool normalInWorldSpace) {
+				if (normalInWorldSpace) {
+					m_hitNormalWorld = convexResult.m_hitNormalLocal;
+				}
+				else {
+					m_hitNormalWorld = convexResult.m_hitCollisionObject->getWorldTransform().getBasis() * convexResult.m_hitNormalLocal;
+				}
+				m_hitPointWorld.setInterpolate3(m_convexFromWorld.getBasis() * m_convexFromWorld.getOrigin(), m_convexToWorld.getBasis() * m_convexToWorld.getOrigin(), convexResult.m_hitFraction);
+
+				jmeBulletUtil::addSweepResult(env, resultlist, &m_hitNormalWorld, &m_hitPointWorld, convexResult.m_hitFraction, convexResult.m_hitCollisionObject);
+
+				return 1.f;
+			}
+		};
+
+		btTransform native_to = btTransform();
+		jmeBulletUtil::convert(env, to, &native_to);
+
+		btTransform native_from = btTransform();
+		jmeBulletUtil::convert(env, from, &native_from);
+
+		btScalar native_allowed_ccd_penetration = btScalar(allowedCcdPenetration);
+
+
+		AllConvexResultCallback resultCallback(native_from, native_to);
+		resultCallback.env = env;
+		resultCallback.resultlist = resultlist;
+		space->getDynamicsWorld()->convexSweepTest((btConvexShape *) shape, native_from, native_to, resultCallback, native_allowed_ccd_penetration);
+		return;
+	}
+
 #ifdef __cplusplus
 }
 #endif

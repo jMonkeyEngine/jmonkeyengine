@@ -91,6 +91,21 @@ jfieldID jmeClasses::PhysicsRay_collisionObject;
 jclass jmeClasses::PhysicsRay_listresult;
 jmethodID jmeClasses::PhysicsRay_addmethod;
 
+jclass jmeClasses::PhysicsSweep_Class;
+jmethodID jmeClasses::PhysicsSweep_newSingleResult;
+
+jfieldID jmeClasses::PhysicsSweep_normalInWorldSpace;
+jfieldID jmeClasses::PhysicsSweep_hitfraction;
+jfieldID jmeClasses::PhysicsSweep_collisionObject;
+
+jclass jmeClasses::PhysicsSweep_listresult;
+jmethodID jmeClasses::PhysicsSweep_addmethod;
+
+
+jclass jmeClasses::Transform;
+jmethodID jmeClasses::Transform_rotation;
+jmethodID jmeClasses::Transform_translation;
+
 //private fields
 //JNIEnv* jmeClasses::env;
 JavaVM* jmeClasses::vm;
@@ -240,6 +255,70 @@ void jmeClasses::initJavaClasses(JNIEnv* env) {
         env->Throw(env->ExceptionOccurred());
         return;
     }
+
+	PhysicsSweep_Class = (jclass)env->NewGlobalRef(env->FindClass("com/jme3/bullet/collision/PhysicsSweepTestResult"));
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+}
+
+	PhysicsSweep_newSingleResult = env->GetMethodID(PhysicsSweep_Class, "<init>", "()V");
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+
+	PhysicsSweep_normalInWorldSpace = env->GetFieldID(PhysicsSweep_Class, "hitNormalLocal", "Lcom/jme3/math/Vector3f;");
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+
+
+	PhysicsSweep_hitfraction = env->GetFieldID(PhysicsSweep_Class, "hitFraction", "F");
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+
+
+	PhysicsSweep_collisionObject = env->GetFieldID(PhysicsSweep_Class, "collisionObject", "Lcom/jme3/bullet/collision/PhysicsCollisionObject;");
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+
+	PhysicsSweep_listresult = env->FindClass("java/util/List");
+	PhysicsSweep_listresult = (jclass)env->NewGlobalRef(PhysicsSweep_listresult);
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+
+	PhysicsSweep_addmethod = env->GetMethodID(PhysicsSweep_listresult, "add", "(Ljava/lang/Object;)Z");
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+
+	Transform = (jclass)env->NewGlobalRef(env->FindClass("com/jme3/math/Transform"));
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+
+	Transform_rotation = env->GetMethodID(Transform, "getRotation", "()Lcom/jme3/math/Quaternion;");
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+	
+	Transform_translation = env->GetMethodID(Transform, "getTranslation", "()Lcom/jme3/math/Vector3f;");
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+
 }
 
 void jmeClasses::throwNPE(JNIEnv* env) {

@@ -165,6 +165,15 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_initNativePhysics
 JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_finalizeNative
   (JNIEnv *, jobject, jlong);
 
+
+/*
+* Class:     com_jme3_bullet_PhysicsSpace
+* Method : sweepTest_native
+* Signature: (J;L;Lcom/jme3/math/Transform;Lcom/jme3/math/Transform;L;JLjava/util/List;F)V
+*/
+JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_sweepTest_1native
+(JNIEnv *, jobject, jlong, jobject, jobject, jlong, jobject, jfloat);
+
 #ifdef __cplusplus
 }
 #endif

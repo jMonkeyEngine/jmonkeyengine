@@ -820,6 +820,10 @@ public class PhysicsSpace {
 //            return lrr.hitFraction;
 //        }
 //    }
+//
+//
+
+
     /**
      * Performs a sweep collision test and returns the results as a list of
      * PhysicsSweepTestResults<br/> You have to use different Transforms for
@@ -828,16 +832,16 @@ public class PhysicsSpace {
      * center.
      */
     public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end) {
-        List<PhysicsSweepTestResult> results = new LinkedList<PhysicsSweepTestResult>();
-//        if (!(shape.getCShape() instanceof ConvexShape)) {
-//            logger.log(Level.WARNING, "Trying to sweep test with incompatible mesh shape!");
-//            return results;
-//        }
-//        dynamicsWorld.convexSweepTest((ConvexShape) shape.getCShape(), Converter.convert(start, sweepTrans1), Converter.convert(end, sweepTrans2), new InternalSweepListener(results));
-        return results;
-
+        List results = new LinkedList();
+        sweepTest(shape, start, end , results);
+        return (List<PhysicsSweepTestResult>) results;
     }
 
+    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results) {        
+        return sweepTest(shape, start, end, results, 0.0f);
+    }
+
+    public native void sweepTest_native(long shape, Transform from, Transform to, long physicsSpaceId, List<PhysicsSweepTestResult> results, float allowedCcdPenetration);
     /**
      * Performs a sweep collision test and returns the results as a list of
      * PhysicsSweepTestResults<br/> You have to use different Transforms for
@@ -845,31 +849,30 @@ public class PhysicsSpace {
      * collision if it starts INSIDE an object and is moving AWAY from its
      * center.
      */
-    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results) {
+    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results, float allowedCcdPenetration ) {        
         results.clear();
-//        if (!(shape.getCShape() instanceof ConvexShape)) {
-//            logger.log(Level.WARNING, "Trying to sweep test with incompatible mesh shape!");
-//            return results;
-//        }
-//        dynamicsWorld.convexSweepTest((ConvexShape) shape.getCShape(), Converter.convert(start, sweepTrans1), Converter.convert(end, sweepTrans2), new InternalSweepListener(results));
+        sweepTest_native(shape.getObjectId(), start, end, physicsSpaceId, results, allowedCcdPenetration);
         return results;
     }
 
-//    private class InternalSweepListener extends CollisionWorld.ConvexResultCallback {
-//
-//        private List<PhysicsSweepTestResult> results;
-//
-//        public InternalSweepListener(List<PhysicsSweepTestResult> results) {
-//            this.results = results;
-//        }
-//
-//        @Override
-//        public float addSingleResult(LocalConvexResult lcr, boolean bln) {
-//            PhysicsCollisionObject obj = (PhysicsCollisionObject) lcr.hitCollisionObject.getUserPointer();
-//            results.add(new PhysicsSweepTestResult(obj, Converter.convert(lcr.hitNormalLocal), lcr.hitFraction, bln));
-//            return lcr.hitFraction;
-//        }
-//    }
+/*    private class InternalSweepListener extends CollisionWorld.ConvexResultCallback {
+
+        private List<PhysicsSweepTestResult> results;
+
+        public InternalSweepListener(List<PhysicsSweepTestResult> results) {
+            this.results = results;
+        }
+
+        @Override
+        public float addSingleResult(LocalConvexResult lcr, boolean bln) {
+            PhysicsCollisionObject obj = (PhysicsCollisionObject) lcr.hitCollisionObject.getUserPointer();
+            results.add(new PhysicsSweepTestResult(obj, Converter.convert(lcr.hitNormalLocal), lcr.hitFraction, bln));
+            return lcr.hitFraction;
+        }
+    }
+
+    */
+    
     /**
      * destroys the current PhysicsSpace so that a new one can be created
      */

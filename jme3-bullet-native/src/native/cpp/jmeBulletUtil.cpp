@@ -59,6 +59,38 @@ void jmeBulletUtil::convert(JNIEnv* env, jobject in, btVector3* out) {
     out->setZ(z);
 }
 
+void jmeBulletUtil::convert(JNIEnv* env, jobject in, btQuaternion* out) {
+	if (in == NULL || out == NULL) {
+		jmeClasses::throwNPE(env);
+	}
+	float x = env->GetFloatField(in, jmeClasses::Quaternion_x); 
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+	float y = env->GetFloatField(in, jmeClasses::Quaternion_y); //env->CallFloatMethod(in, jmeClasses::Vector3f_getY);
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+	float z = env->GetFloatField(in, jmeClasses::Quaternion_z); //env->CallFloatMethod(in, jmeClasses::Vector3f_getZ);
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+
+	float w = env->GetFloatField(in, jmeClasses::Quaternion_w); //env->CallFloatMethod(in, jmeClasses::Vector3f_getZ);
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+	out->setX(x);
+	out->setY(y);
+	out->setZ(z);
+	out->setW(w);
+}
+
+
 void jmeBulletUtil::convert(JNIEnv* env, const btVector3* in, jobject out) {
     if (in == NULL || out == NULL) {
         jmeClasses::throwNPE(env);
@@ -324,4 +356,62 @@ void jmeBulletUtil::addResult(JNIEnv* env, jobject resultlist, btVector3* hitnor
         env->Throw(env->ExceptionOccurred());
         return;
     }
+}
+
+
+void jmeBulletUtil::addSweepResult(JNIEnv* env, jobject resultlist, btVector3* hitnormal, btVector3* m_hitPointWorld, btScalar m_hitFraction, const btCollisionObject* hitobject) {
+
+	jobject singleresult = env->AllocObject(jmeClasses::PhysicsSweep_Class);
+	jobject hitnormalvec = env->AllocObject(jmeClasses::Vector3f);
+
+	convert(env, hitnormal, hitnormalvec);
+	jmeUserPointer *up1 = (jmeUserPointer*)hitobject->getUserPointer();
+
+	env->SetObjectField(singleresult, jmeClasses::PhysicsSweep_normalInWorldSpace, hitnormalvec);
+	env->SetFloatField(singleresult, jmeClasses::PhysicsSweep_hitfraction, m_hitFraction);
+
+	env->SetObjectField(singleresult, jmeClasses::PhysicsSweep_collisionObject, up1->javaCollisionObject);
+	env->CallVoidMethod(resultlist, jmeClasses::PhysicsSweep_addmethod, singleresult);
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+}
+
+void jmeBulletUtil::convert(JNIEnv* env, jobject in, btTransform* out) {
+	if (in == NULL || out == NULL) {
+		jmeClasses::throwNPE(env);
+	}
+
+	jobject translation_vec = env->CallObjectMethod(in, jmeClasses::Transform_translation);
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+
+	jobject rot_quat = env->CallObjectMethod(in, jmeClasses::Transform_rotation);
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+	
+	/*
+	//Scale currently not supported by bullet
+	//@TBD: Create an assertion somewhere to avoid scale values
+	jobject scale_vec = env->GetObjectField(in, jmeClasses::Transform_scale);
+	if (env->ExceptionCheck()) {
+		env->Throw(env->ExceptionOccurred());
+		return;
+	}
+	*/
+	btVector3 native_translation_vec = btVector3();
+	//btVector3 native_scale_vec = btVector3();
+	btQuaternion native_rot_quat = btQuaternion();
+	
+	convert(env, translation_vec, &native_translation_vec);
+	//convert(env, scale_vec, native_scale_vec);
+	convert(env, rot_quat, &native_rot_quat);
+
+	out->setRotation(native_rot_quat);
+	out->setOrigin(native_translation_vec);
 }
