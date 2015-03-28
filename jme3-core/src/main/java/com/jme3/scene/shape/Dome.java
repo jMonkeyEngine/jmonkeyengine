@@ -266,7 +266,7 @@ public class Dome extends Mesh {
         vars.release();
 
         // pole
-        vb.put(center.x).put(center.y + radius).put(center.z);
+        vb.put(this.center.x).put(this.center.y + radius).put(this.center.z);
         nb.put(0).put(insideView ? -1 : 1).put(0);
         tb.put(0.5f).put(1.0f);
 
