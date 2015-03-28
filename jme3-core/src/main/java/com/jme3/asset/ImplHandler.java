@@ -47,7 +47,7 @@ import java.util.logging.Logger;
  * This is done by keeping an instance of each asset loader and asset
  * locator object in a thread local.
  */
-public class ImplHandler {
+final class ImplHandler {
 
     private static final Logger logger = Logger.getLogger(ImplHandler.class.getName());
 
@@ -75,7 +75,7 @@ public class ImplHandler {
         this.assetManager = assetManager;
     }
 
-    protected class ImplThreadLocal<T> extends ThreadLocal {
+    protected static class ImplThreadLocal<T> extends ThreadLocal {
 
         private final Class<T> type;
         private final String path;
@@ -83,7 +83,7 @@ public class ImplHandler {
 
         public ImplThreadLocal(Class<T> type, String[] extensions){
             this.type = type;
-            this.extensions = extensions;
+            this.extensions = extensions.clone();
             this.path = null;
         }
 

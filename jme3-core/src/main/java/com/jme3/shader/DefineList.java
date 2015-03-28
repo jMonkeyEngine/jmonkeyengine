@@ -40,7 +40,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class DefineList implements Savable, Cloneable {
+public final class DefineList implements Savable, Cloneable {
 
     private static final String ONE = "1";
     

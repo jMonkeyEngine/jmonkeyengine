@@ -69,7 +69,7 @@ public final class AssetConfig {
     public static void loadText(AssetManager assetManager, URL configUrl) throws IOException{
         InputStream in = configUrl.openStream();
         try {
-            Scanner scan = new Scanner(in);
+            Scanner scan = new Scanner(in, "UTF-8");
             scan.useLocale(Locale.US); // Fix commas / periods ??
             while (scan.hasNext()){
                 String cmd = scan.next();

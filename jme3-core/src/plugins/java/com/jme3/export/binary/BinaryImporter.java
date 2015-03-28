@@ -270,9 +270,7 @@ public final class BinaryImporter implements JmeImporter {
         try {
             return load(fis, listener);
         } finally {
-            if (fis != null) {
-                fis.close();
-            }
+            fis.close();
         }
     }
 

@@ -64,7 +64,7 @@ import java.util.logging.Logger;
  * TODO more automagic (batch when needed in the updateLogicalState)
  * @author Nehon
  */
-public class BatchNode extends GeometryGroupNode implements Savable {
+public class BatchNode extends GeometryGroupNode {
 
     private static final Logger logger = Logger.getLogger(BatchNode.class.getName());
     /**

@@ -196,7 +196,7 @@ public class WAVLoader implements AssetLoader {
                     break;
                 case i_data:
                     // Compute duration based on data chunk size
-                    duration = len / bytesPerSec;
+                    duration = (float)(len / bytesPerSec);
 
                     if (readStream) {
                         readDataChunkForStream(inOffset, len);

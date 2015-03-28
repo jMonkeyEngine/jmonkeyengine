@@ -56,7 +56,7 @@ import java.io.IOException;
  * the light intensity slowly decrease between the inner cone and the outer cone.
  *  @author Nehon
  */
-public class SpotLight extends Light implements Savable {
+public class SpotLight extends Light {
 
     protected Vector3f position = new Vector3f();
     protected Vector3f direction = new Vector3f(0,-1,0);

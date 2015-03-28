@@ -71,7 +71,7 @@ public class BlockLanguageParser {
     private void load(InputStream in) throws IOException{
         reset();
         
-        reader = new InputStreamReader(in);
+        reader = new InputStreamReader(in, "UTF-8");
         
         StringBuilder buffer = new StringBuilder();
         boolean insideComment = false;
