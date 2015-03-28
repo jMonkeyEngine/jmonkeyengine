@@ -42,10 +42,13 @@ public:
     static void convert(JNIEnv* env, jobject in, btVector3* out);
     static void convert(JNIEnv* env, const btVector3* in, jobject out);
     static void convert(JNIEnv* env, jobject in, btMatrix3x3* out);
+	static void convert(JNIEnv* env, jobject in, btQuaternion* out);
     static void convert(JNIEnv* env, const btMatrix3x3* in, jobject out);
     static void convertQuat(JNIEnv* env, jobject in, btMatrix3x3* out);
     static void convertQuat(JNIEnv* env, const btMatrix3x3* in, jobject out);
+	static void convert(JNIEnv* env, jobject in, btTransform* out);
     static void addResult(JNIEnv* env, jobject resultlist, btVector3* hitnormal, btVector3* m_hitPointWorld,const btScalar  m_hitFraction,const btCollisionObject* hitobject);
+	static void addSweepResult(JNIEnv* env, jobject resultlist, btVector3* hitnormal, btVector3* m_hitPointWorld, const btScalar  m_hitFraction, const btCollisionObject* hitobject);
 private:
     jmeBulletUtil(){};
     ~jmeBulletUtil(){};
