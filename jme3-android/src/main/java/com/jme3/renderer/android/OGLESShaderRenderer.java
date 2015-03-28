@@ -1850,21 +1850,6 @@ public class OGLESShaderRenderer implements Renderer {
       TextureUtil.uploadSubTexture(pixels, convertTextureType(tex.getType()), 0, x, y);
     }
 
-    public void clearTextureUnits() {
-        IDList textureList = context.textureIndexList;
-        Image[] textures = context.boundTextures;
-        for (int i = 0; i < textureList.oldLen; i++) {
-            int idx = textureList.oldList[i];
-//            if (context.boundTextureUnit != idx){
-//                glActiveTexture(GL_TEXTURE0 + idx);
-//                context.boundTextureUnit = idx;
-//            }
-//            glDisable(convertTextureType(textures[idx].getType()));
-            textures[idx] = null;
-        }
-        context.textureIndexList.copyNewToOld();
-    }
-
     public void deleteImage(Image image) {
         int texId = image.getId();
         if (texId != -1) {
@@ -2339,7 +2324,6 @@ public class OGLESShaderRenderer implements Renderer {
             RendererUtil.checkGLError();
         }
         clearVertexAttribs();
-        clearTextureUnits();
     }
 
     private void renderMeshDefault(Mesh mesh, int lod, int count) {
@@ -2378,7 +2362,6 @@ public class OGLESShaderRenderer implements Renderer {
             RendererUtil.checkGLError();
         }
         clearVertexAttribs();
-        clearTextureUnits();
     }
 
     public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
