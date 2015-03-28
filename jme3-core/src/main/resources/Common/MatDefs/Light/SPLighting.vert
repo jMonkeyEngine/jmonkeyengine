@@ -117,6 +117,7 @@ void main(){
         SpecularSum = m_Specular.rgb;
         DiffuseSum = m_Diffuse;                   
     #else
+        // Defaults: Ambient and diffuse are white, specular is black.
         AmbientSum  = g_AmbientLightColor.rgb; 
         SpecularSum = vec3(0.0);
         DiffuseSum = vec4(1.0);
