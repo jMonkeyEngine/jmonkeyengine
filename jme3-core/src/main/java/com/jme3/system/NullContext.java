@@ -46,6 +46,8 @@ public class NullContext implements JmeContext, Runnable {
 
     protected static final Logger logger = Logger.getLogger(NullContext.class.getName());
 
+    protected static final String THREAD_NAME = "jME3 Headless Main";
+    
     protected AtomicBoolean created = new AtomicBoolean(false);
     protected AtomicBoolean needClose = new AtomicBoolean(false);
     protected final Object createdLock = new Object();
@@ -150,7 +152,7 @@ public class NullContext implements JmeContext, Runnable {
             return;
         }
 
-        new Thread(this, "Headless Application Thread").start();
+        new Thread(this, THREAD_NAME).start();
         if (waitFor)
             waitFor(true);
     }

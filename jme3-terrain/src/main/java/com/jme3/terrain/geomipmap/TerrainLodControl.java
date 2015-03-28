@@ -137,7 +137,7 @@ public class TerrainLodControl extends AbstractControl {
         return Executors.newSingleThreadExecutor(new ThreadFactory() {
             public Thread newThread(Runnable r) {
                 Thread th = new Thread(r);
-                th.setName("jME Terrain Thread");
+                th.setName("jME3 Terrain Thread");
                 th.setDaemon(true);
                 return th;
             }

@@ -146,7 +146,7 @@ public class JoglOffscreenBuffer extends JoglContext implements Runnable {
             return;
         }
 
-        new Thread(this, "JOGL Renderer Thread").start();
+        new Thread(this, THREAD_NAME).start();
         if (waitFor) {
             waitFor(true);
         }
