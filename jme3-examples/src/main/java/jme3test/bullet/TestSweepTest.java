@@ -59,14 +59,19 @@ public class TestSweepTest extends SimpleApplication {
     public void simpleUpdate(float tpf) {
 
         float move = tpf * 1;
+        boolean colliding = false;
 
         List<PhysicsSweepTestResult> sweepTest = bulletAppState.getPhysicsSpace().sweepTest(capsuleCollisionShape, new Transform(capsule.getWorldTranslation()), new Transform(capsule.getWorldTranslation().add(dist, 0, 0)));
 
-        if (sweepTest.size() > 0) {
-            PhysicsSweepTestResult get = sweepTest.get(0);
-            PhysicsCollisionObject collisionObject = get.getCollisionObject();
-            fpsText.setText("Almost colliding with " + collisionObject.getUserObject().toString());
-        } else {
+        for (PhysicsSweepTestResult result : sweepTest) {
+            if (result.getCollisionObject().getCollisionShape() != capsuleCollisionShape) {
+                PhysicsCollisionObject collisionObject = result.getCollisionObject();
+                fpsText.setText("Almost colliding with " + collisionObject.getUserObject().toString());
+                colliding = true;
+            }
+        }
+        
+        if (!colliding) {
             // if the sweep is clear then move the spatial
             capsule.move(move, 0, 0);
         }
