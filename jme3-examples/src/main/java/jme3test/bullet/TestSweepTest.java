@@ -21,8 +21,8 @@ import java.util.List;
 public class TestSweepTest extends SimpleApplication {
 
     private BulletAppState bulletAppState = new BulletAppState();
-    private CapsuleCollisionShape obstacleCollisionShape = new CapsuleCollisionShape(0.3f, 0.5f);
-    private CapsuleCollisionShape capsuleCollisionShape = new CapsuleCollisionShape(1f, 1f);
+    private CapsuleCollisionShape obstacleCollisionShape;
+    private CapsuleCollisionShape capsuleCollisionShape;
     private Node capsule;
     private Node obstacle;
     private float dist = .5f;
@@ -33,6 +33,9 @@ public class TestSweepTest extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+        obstacleCollisionShape = new CapsuleCollisionShape(0.3f, 0.5f);
+        capsuleCollisionShape = new CapsuleCollisionShape(1f, 1f);
+        
         stateManager.attach(bulletAppState);
 
         capsule = new Node("capsule");
