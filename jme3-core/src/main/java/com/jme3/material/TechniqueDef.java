@@ -98,7 +98,6 @@ public class TechniqueDef implements Savable {
     private EnumMap<Shader.ShaderType,String> shaderName;
     
     private DefineList presetDefines;
-    private boolean usesShaders;
     private boolean usesNodes = false;
     private List<ShaderNode> shaderNodes;
     private ShaderGenerationInfo shaderGenerationInfo;
@@ -207,7 +206,7 @@ public class TechniqueDef implements Savable {
      */
     @Deprecated
     public boolean isUsingShaders(){
-        return usesShaders;
+        return true;
     }
     
     /**
@@ -248,7 +247,6 @@ public class TechniqueDef implements Savable {
         Caps fragCap = Caps.valueOf(fragLanguage);
         requiredCaps.add(fragCap);
 
-        usesShaders = true;
     }
 
 
@@ -268,7 +266,6 @@ public class TechniqueDef implements Savable {
                 requiredCaps.add(Caps.TesselationShader);
             }
         }
-        usesShaders=true;
     }
 
     /**
@@ -449,7 +446,6 @@ public class TechniqueDef implements Savable {
         oc.write(lightMode, "lightMode", LightMode.Disable);
         oc.write(shadowMode, "shadowMode", ShadowMode.Disable);
         oc.write(renderState, "renderState", null);
-        oc.write(usesShaders, "usesShaders", false);
         oc.write(usesNodes, "usesNodes", false);
         oc.writeSavableArrayList((ArrayList)shaderNodes,"shaderNodes", null);
         oc.write(shaderGenerationInfo, "shaderGenerationInfo", null);
@@ -472,7 +468,6 @@ public class TechniqueDef implements Savable {
         lightMode = ic.readEnum("lightMode", LightMode.class, LightMode.Disable);
         shadowMode = ic.readEnum("shadowMode", ShadowMode.class, ShadowMode.Disable);
         renderState = (RenderState) ic.readSavable("renderState", null);
-        usesShaders = ic.readBoolean("usesShaders", false);
         
         if (ic.getSavableVersion(TechniqueDef.class) == 0) {
             // Old version
@@ -499,7 +494,6 @@ public class TechniqueDef implements Savable {
     public void setShaderNodes(List<ShaderNode> shaderNodes) {
         this.shaderNodes = shaderNodes;
         usesNodes = true;
-        usesShaders = true;
     }
 
     /**
@@ -529,6 +523,6 @@ public class TechniqueDef implements Savable {
     //todo: make toString return something usefull
     @Override
     public String toString() {
-        return "TechniqueDef{" + "requiredCaps=" + requiredCaps + ", name=" + name /*+ ", vertName=" + vertName + ", fragName=" + fragName + ", vertLanguage=" + vertLanguage + ", fragLanguage=" + fragLanguage */+ ", presetDefines=" + presetDefines + ", usesShaders=" + usesShaders + ", usesNodes=" + usesNodes + ", shaderNodes=" + shaderNodes + ", shaderGenerationInfo=" + shaderGenerationInfo + ", renderState=" + renderState + ", forcedRenderState=" + forcedRenderState + ", lightMode=" + lightMode + ", shadowMode=" + shadowMode + ", defineParams=" + defineParams + ", worldBinds=" + worldBinds + '}';
+        return "TechniqueDef{" + "requiredCaps=" + requiredCaps + ", name=" + name /*+ ", vertName=" + vertName + ", fragName=" + fragName + ", vertLanguage=" + vertLanguage + ", fragLanguage=" + fragLanguage */+ ", presetDefines=" + presetDefines + ", usesNodes=" + usesNodes + ", shaderNodes=" + shaderNodes + ", shaderGenerationInfo=" + shaderGenerationInfo + ", renderState=" + renderState + ", forcedRenderState=" + forcedRenderState + ", lightMode=" + lightMode + ", shadowMode=" + shadowMode + ", defineParams=" + defineParams + ", worldBinds=" + worldBinds + '}';
     }    
 }
