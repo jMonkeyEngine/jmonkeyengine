@@ -161,6 +161,22 @@ JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_getCcdM
 JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_getCcdSquareMotionThreshold
   (JNIEnv *, jobject, jlong);
 
+/*
+* Class:     com_jme3_bullet_objects_PhysicsGhostObject
+* Method : rayTest_native
+* Signature : (Lcom / jme3 / math / Vector3f; Lcom / jme3 / math / Vector3f; JLjava / util / List;)V
+*/
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_rayTest_1native
+(JNIEnv *, jobject, jobject, jobject, jlong, jobject, jint);
+
+/*
+* Class:     com_jme3_bullet_objects_PhysicsGhostObject
+* Method : sweepTest_native
+* Signature: (J;L;Lcom/jme3/math/Transform;Lcom/jme3/math/Transform;L;JLjava/util/List;F)V
+*/
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsGhostObject_sweepTest_1native
+(JNIEnv *, jobject, jlong, jobject, jobject, jlong, jobject, jfloat);
+
 #ifdef __cplusplus
 }
 #endif

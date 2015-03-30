@@ -31,8 +31,10 @@
  */
 package com.jme3.bullet.objects;
 
+import com.jme3.bullet.collision.*;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.math.Transform;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -277,6 +279,45 @@ public class PhysicsGhostObject extends PhysicsCollisionObject {
     }
 
     private native float getCcdSquareMotionThreshold(long objectId);
+
+    public List<PhysicsRayTestResult> rayTest(Vector3f from, Vector3f to, List<PhysicsRayTestResult> results, int rayTestFlags) {
+        results.clear();
+        rayTest_native(from, to, objectId, results, rayTestFlags);
+        return results;
+    }
+
+    public native void rayTest_native(Vector3f from, Vector3f to, long objectId, List<PhysicsRayTestResult> results, int flags);
+
+    /**
+     * Performs a sweep collision test and returns the results as a list of
+     * PhysicsSweepTestResults<br/> You have to use different Transforms for
+     * start and end (at least distance > 0.4f). SweepTest will not see a
+     * collision if it starts INSIDE an object and is moving AWAY from its
+     * center.
+     */
+    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end) {
+        List results = new LinkedList();
+        sweepTest(shape, start, end , results);
+        return (List<PhysicsSweepTestResult>) results;
+    }
+
+    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results) {        
+        return sweepTest(shape, start, end, results, 0.0f);
+    }
+
+    public native void sweepTest_native(long shape, Transform from, Transform to, long objectId, List<PhysicsSweepTestResult> results, float allowedCcdPenetration);
+    /**
+     * Performs a sweep collision test and returns the results as a list of
+     * PhysicsSweepTestResults<br/> You have to use different Transforms for
+     * start and end (at least distance > allowedCcdPenetration). SweepTest will not see a
+     * collision if it starts INSIDE an object and is moving AWAY from its
+     * center.
+     */
+    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results, float allowedCcdPenetration ) {        
+        results.clear();
+        sweepTest_native(shape.getObjectId(), start, end, objectId, results, allowedCcdPenetration);
+        return results;
+    }
 
     @Override
     public void write(JmeExporter e) throws IOException {
