@@ -25,17 +25,18 @@ dependencies {
     corelibs project(':jme3-niftygui')
     corelibs project(':jme3-plugins')
     corelibs project(':jme3-terrain')
-    
+
     optlibs project(':jme3-bullet')
     optlibs project(':jme3-jogl')
     optlibs project(':jme3-android')
     optlibs project(':jme3-ios')
     optlibs project(':jme3-android-native')
     optlibs project(':jme3-bullet-native')
+    optlibs project(':jme3-bullet-native-android')
     testdatalibs project(':jme3-testdata')
 
     examplelibs project(':jme3-examples')
-    
+
 }
 
 artifacts {
@@ -97,7 +98,7 @@ task createBaseXml(dependsOn: configurations.corelibs) <<{
                 "jme3-core-baselibs and jme3-core-libraries"
     def jmeJarFiles = [] // jme3 jar files
     def externalJarFiles = [] // external jar files
-    
+
     // collect jar files
     project.configurations.corelibs.dependencies.each {dep ->
         // collect external jar files
@@ -120,7 +121,7 @@ task createBaseXml(dependsOn: configurations.corelibs) <<{
     def packages = []
     jmeJarFiles.each{jarFile ->
         ZipFile file = new ZipFile(jarFile)
-        file.entries().each { entry ->  
+        file.entries().each { entry ->
             if(entry.name.endsWith('.class')){
                 // TODO: "/" works on windows?
                 def pathPart = entry.name.substring(0,entry.name.lastIndexOf('/'))
@@ -129,14 +130,14 @@ task createBaseXml(dependsOn: configurations.corelibs) <<{
                     packages.add(classPath)
                 }
             }
-        } 
+        }
     }
-    
+
     // collect library packages
     def extPackages = []
     externalJarFiles.each{jarFile ->
         ZipFile file = new ZipFile(jarFile)
-        file.entries().each { entry ->  
+        file.entries().each { entry ->
             if(entry.name.endsWith('.class')){
                 // TODO: "/" works on windows?
                 def pathPart = entry.name.substring(0,entry.name.lastIndexOf('/'))
@@ -145,9 +146,9 @@ task createBaseXml(dependsOn: configurations.corelibs) <<{
                     extPackages.add(classPath)
                 }
             }
-        } 
+        }
     }
-    
+
     def writer = new StringWriter()
     def xml = new MarkupBuilder(writer)
     xml.mkp.xmlDeclaration(version:'1.0')
@@ -252,7 +253,7 @@ task copyProjectLibs(dependsOn: [configurations.corelibs, configurations.testdat
             into "jme3-project-libraries/release/libs/"
         }
     }
-    
+
     project.configurations.testdatalibs.dependencies.each {dep ->
         // copy jme3 test data to jme3-project-testdata
         dep.dependencyProject.configurations.archives.allArtifacts.each{ artifact->
@@ -281,10 +282,10 @@ def makeFile(builder, nameR) { builder.file(name:nameR, url:nameR) }
 
 task createProjectXml(dependsOn: configurations.corelibs) <<{
     description "Creates needed J2SE library and layer XML files in jme3-project-baselibs"
-    
-    def eol = System.properties.'line.separator' 
+
+    def eol = System.properties.'line.separator'
     def j2seLibraries = [] // created J2SE library descriptors
-    
+
     // for each dependency in corelibs..
     def deps = []
     deps.addAll(project.configurations.corelibs.dependencies)
@@ -315,7 +316,7 @@ task createProjectXml(dependsOn: configurations.corelibs) <<{
         def libraryWriter = new StringWriter()
         def libraryXml = new MarkupBuilder(libraryWriter)
 //        xml.mkp.xmlDeclaration(version:'1.0')
-        libraryWriter << '<?xml version="1.0" encoding="UTF-8"?>' << eol 
+        libraryWriter << '<?xml version="1.0" encoding="UTF-8"?>' << eol
         libraryWriter << '<!DOCTYPE library PUBLIC "-//NetBeans//DTD Library Declaration 1.0//EN" "http://www.netbeans.org/dtds/library-declaration-1_0.dtd">' << eol
         libraryXml.library(version:"1.0", encoding: "UTF-8"){
             makeName(libraryXml, "${dep.dependencyProject.name}")
@@ -352,7 +353,7 @@ task createProjectXml(dependsOn: configurations.corelibs) <<{
     def layerWriter = new StringWriter()
     def layerXml = new MarkupBuilder(layerWriter)
 //    layerXml.mkp.xmlDeclaration(version:'1.0')
-    layerWriter << '<?xml version="1.0" encoding="UTF-8"?>' << eol 
+    layerWriter << '<?xml version="1.0" encoding="UTF-8"?>' << eol
     layerWriter << '<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">' << eol
     layerXml.filesystem{
         folder(name:"org-netbeans-api-project-libraries"){
