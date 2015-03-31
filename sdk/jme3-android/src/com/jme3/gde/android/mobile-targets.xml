@@ -71,7 +71,7 @@
     </target>
 
     <target name="-add-bullet-libs" depends="-test-bullet-included" if="bulletIsIncluded">
-        <echo>Replacing android native bullet library.</echo>
+        <echo>Replacing bullet library with android native bullet version.</echo>
         <copy todir="mobile/libs" flatten="true" preservelastmodified="true">
             <path>
                 <pathelement path="${libs.jme3-bullet.classpath}"/>
