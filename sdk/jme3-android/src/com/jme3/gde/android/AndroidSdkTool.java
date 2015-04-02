@@ -299,17 +299,15 @@ public class AndroidSdkTool {
                         changed = true;
                     }
                 }
-                // add the following after AndroidHarness.screenOrientation is depreciated
-                //   for jME 3.1
-//                if (sdkActivity != null) {
-//                    if (sdkActivity.hasAttribute("android:screenOrientation")) {
-//                        String attrScreenOrientation = sdkActivity.getAttribute("android:screenOrientation");
-//                    } else {
-//                        Logger.getLogger(AndroidSdkTool.class.getName()).log(Level.INFO, "creating attrScreenOrientation");
-//                        sdkActivity.setAttribute("android:screenOrientation", "landscape");
-//                        changed = true;
-//                    }
-//                }
+                if (sdkActivity != null) {
+                    if (sdkActivity.hasAttribute("android:screenOrientation")) {
+                        String attrScreenOrientation = sdkActivity.getAttribute("android:screenOrientation");
+                    } else {
+                        Logger.getLogger(AndroidSdkTool.class.getName()).log(Level.INFO, "creating attrScreenOrientation");
+                        sdkActivity.setAttribute("android:screenOrientation", "landscape");
+                        changed = true;
+                    }
+                }
             }
 
             Element sdkElement = XmlHelper.findChildElement(configuration.getDocumentElement(), "uses-sdk");
@@ -319,7 +317,7 @@ public class AndroidSdkTool {
                 changed = true;
             }
             if (!"8".equals(sdkElement.getAttribute("android:minSdkVersion"))) {
-                sdkElement.setAttribute("android:minSdkVersion", "8");
+                sdkElement.setAttribute("android:minSdkVersion", "9");
                 changed = true;
             }
             Element screensElement = XmlHelper.findChildElement(configuration.getDocumentElement(), "supports-screens");
@@ -419,7 +417,6 @@ public class AndroidSdkTool {
                 + " \n"
                 + "import android.content.pm.ActivityInfo;\n"
                 + "import com.jme3.app.AndroidHarness;\n"
-                + "import com.jme3.system.android.AndroidConfigChooser.ConfigType;\n"
                 + "import java.util.logging.Level;\n"
                 + "import java.util.logging.LogManager;\n"
                 + " \n"
@@ -435,15 +432,9 @@ public class AndroidSdkTool {
                 + "    public MainActivity(){\n"
                 + "        // Set the application class to run\n"
                 + "        appClass = \"" + mainClass + "\";\n"
-                + "        // Try ConfigType.FASTEST; or ConfigType.LEGACY if you have problems\n"
-                + "        eglConfigType = ConfigType.BEST;\n"
                 + "        // Exit Dialog title & message\n"
                 + "        exitDialogTitle = \"Exit?\";\n"
                 + "        exitDialogMessage = \"Press Yes\";\n"
-                + "        // Enable verbose logging\n"
-                + "        eglConfigVerboseLogging = false;\n"
-                + "        // Choose screen orientation\n"
-                + "        screenOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;\n"
                 + "        // Enable MouseEvents being generated from TouchEvents (default = true)\n"
                 + "        mouseEventsEnabled = true;\n"
                 + "        // Set the default logging level (default=Level.INFO, Level.ALL=All Debug Info)\n"
