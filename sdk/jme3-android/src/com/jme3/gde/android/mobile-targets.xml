@@ -68,6 +68,8 @@
                 <pathelement path="${libs.jme3-android-native.classpath}"/>
             </path>
         </copy>
+        <!-- TODO: need to remove android.jar from jme3-android.jar during build instead of doing this -->
+        <delete file="mobile/libs/android.jar" failonerror="false"/>
     </target>
 
     <target name="-add-bullet-libs" depends="-test-bullet-included" if="bulletIsIncluded">
