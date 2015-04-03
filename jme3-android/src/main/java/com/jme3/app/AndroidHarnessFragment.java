@@ -196,19 +196,6 @@ public class AndroidHarnessFragment extends Fragment implements
     protected String exitDialogMessage = "Use your home key to bring this app into the background or exit to terminate it.";
 
     /**
-     * Set the screen window mode. If screenFullSize is true, then the
-     * notification bar and title bar are removed and the screen covers the
-     * entire display. If screenFullSize is false, then the notification bar
-     * remains visible if screenShowTitle is true while screenFullScreen is
-     * false, then the title bar is also displayed under the notification bar.
-     */
-    protected boolean screenFullScreen = true;
-    /**
-     * if screenShowTitle is true while screenFullScreen is false, then the
-     * title bar is also displayed under the notification bar
-     */
-    protected boolean screenShowTitle = true;
-    /**
      * Splash Screen picture Resource ID. If a Splash Screen is desired, set
      * splashPicID to the value of the Resource ID (i.e. R.drawable.picname). If
      * splashPicID = 0, then no splash screen will be displayed.
