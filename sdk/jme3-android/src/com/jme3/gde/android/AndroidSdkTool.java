@@ -243,6 +243,7 @@ public class AndroidSdkTool {
         }
         updateAndroidManifest(project);
         updateAndroidApplicationName(project, name);
+        updateAndroidLayout(project, packag);
     }
 
     public static void updateProject(Project project, String target, String name) {
@@ -411,17 +412,79 @@ public class AndroidSdkTool {
         }
     }
 
+    private static void updateAndroidLayout(Project project, String packag) {
+        FileObject layout = project.getProjectDirectory().getFileObject("mobile/res/layout/main.xml");
+        if (layout == null) {
+            Logger.getLogger(AndroidSdkTool.class.getName()).log(Level.WARNING, "Cannot find layout");
+            return;
+        }
+        InputStream in = null;
+        FileLock lock = null;
+        OutputStream out = null;
+        try {
+            in = layout.getInputStream();
+            Document configuration = XMLUtil.parse(new InputSource(in), false, false, null, null);
+            in.close();
+            in = null;
+
+            Element textViewElement = XmlHelper.findChildElement(configuration.getDocumentElement(), "TextView");
+
+            Element fragmentElement = configuration.createElement("fragment");
+            fragmentElement.setAttribute("android:name", packag+".MainActivity$JmeFragment");
+            fragmentElement.setAttribute("android:id", "@+id/jmeFragment");
+            fragmentElement.setAttribute("android:layout_width", "match_parent");
+            fragmentElement.setAttribute("android:layout_height", "match_parent");
+
+            if (textViewElement == null) {
+                configuration.getDocumentElement().appendChild(fragmentElement);
+            } else {
+                configuration.getDocumentElement().replaceChild(fragmentElement, textViewElement);
+            }
+
+            lock = layout.lock();
+            out = layout.getOutputStream(lock);
+            XMLUtil.write(configuration, out, "UTF-8");
+            out.close();
+            out = null;
+            lock.releaseLock();
+            lock = null;
+
+        } catch (SAXException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        } finally {
+            if (lock != null) {
+                lock.releaseLock();
+            }
+            try {
+                if (in != null) {
+                    in.close();
+                }
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException ex1) {
+                Exceptions.printStackTrace(ex1);
+            }
+        }
+    }
+
     private static String mainActivityString(String mainClass, String packag) {
         String str =
                 "package " + packag + ";\n"
                 + " \n"
-                + "import android.content.pm.ActivityInfo;\n"
-                + "import com.jme3.app.AndroidHarness;\n"
+                + "import com.jme3.app.DefaultAndroidProfiler;\n"
+                + "import android.app.Activity;\n"
+                + "import android.app.FragmentManager;\n"
+                + "import android.os.Bundle;\n"
+                + "import android.view.Window;\n"
+                + "import android.view.WindowManager;\n"
+                + "import com.jme3.app.AndroidHarnessFragment;\n"
                 + "import java.util.logging.Level;\n"
                 + "import java.util.logging.LogManager;\n"
                 + " \n"
-                + "public class MainActivity extends AndroidHarness{\n"
-                + " \n"
+                + "public class MainActivity extends Activity {\n"
                 + "    /*\n"
                 + "     * Note that you can ignore the errors displayed in this file,\n"
                 + "     * the android project will build regardless.\n"
@@ -430,18 +493,72 @@ public class AndroidSdkTool {
                 + "     */\n"
                 + " \n"
                 + "    public MainActivity(){\n"
-                + "        // Set the application class to run\n"
-                + "        appClass = \"" + mainClass + "\";\n"
-                + "        // Exit Dialog title & message\n"
-                + "        exitDialogTitle = \"Exit?\";\n"
-                + "        exitDialogMessage = \"Press Yes\";\n"
-                + "        // Enable MouseEvents being generated from TouchEvents (default = true)\n"
-                + "        mouseEventsEnabled = true;\n"
                 + "        // Set the default logging level (default=Level.INFO, Level.ALL=All Debug Info)\n"
                 + "        LogManager.getLogManager().getLogger(\"\").setLevel(Level.INFO);\n"
                 + "    }\n"
                 + " \n"
+                + "    @Override\n"
+                + "    protected void onCreate(Bundle savedInstanceState) {\n"
+                + "        super.onCreate(savedInstanceState);\n"
+                + "        // Set window fullscreen and remove title bar\n"
+                + "        requestWindowFeature(Window.FEATURE_NO_TITLE);\n"
+                + "        getWindow().setFlags(\n"
+                + "                WindowManager.LayoutParams.FLAG_FULLSCREEN,\n"
+                + "                WindowManager.LayoutParams.FLAG_FULLSCREEN);\n"
+                + "        setContentView(R.layout.main);\n"
+                + " \n"
+                + "        // find the fragment\n"
+                + "        FragmentManager fm = getFragmentManager();\n"
+                + "        AndroidHarnessFragment jmeFragment =\n"
+                + "                (AndroidHarnessFragment) fm.findFragmentById(R.id.jmeFragment);\n"
+                + " \n"
+                + "        // uncomment the next line to add the default android profiler to the project\n"
+                + "        //jmeFragment.getJmeApplication().setAppProfiler(new DefaultAndroidProfiler());\n"
+                + "    }\n"
+                + " \n"
+                + " \n"
+                + "    public static class JmeFragment extends AndroidHarnessFragment {\n"
+                + "        public JmeFragment() {\n"
+                + "            // Set main project class (fully qualified path)\n"
+                + "            appClass = \"" + mainClass + "\";\n"
+                + " \n"
+                + "            // Set the desired EGL configuration\n"
+                + "            eglBitsPerPixel = 24;\n"
+                + "            eglAlphaBits = 0;\n"
+                + "            eglDepthBits = 16;\n"
+                + "            eglSamples = 0;\n"
+                + "            eglStencilBits = 0;\n"
+                + " \n"
+                + "            // Set the maximum framerate\n"
+                + "            // (default = -1 for unlimited)\n"
+                + "            frameRate = -1;\n"
+                + " \n"
+                + "            // Set the maximum resolution dimension\n"
+                + "            // (the smaller side, height or width, is set automatically\n"
+                + "            // to maintain the original device screen aspect ratio)\n"
+                + "            // (default = -1 to match device screen resolution)\n"
+                + "            maxResolutionDimension = -1;\n"
+                + " \n"
+                + "            // Set input configuration settings\n"
+                + "            joystickEventsEnabled = false;\n"
+                + "            keyEventsEnabled = true;\n"
+                + "            mouseEventsEnabled = true;\n"
+                + " \n"
+                + "            // Set application exit settings\n"
+                + "            finishOnAppStop = true;\n"
+                + "            handleExitHook = true;\n"
+                + "            exitDialogTitle = \"Do you want to exit?\";\n"
+                + "            exitDialogMessage = \"Use your home key to bring this app into the background or exit to terminate it.\";\n"
+                + " \n"
+                + "            // Set splash screen resource id, if used\n"
+                + "            // (default = 0, no splash screen)\n"
+                + "            // For example, if the image file name is \"splash\"...\n"
+                + "            //     splashPicID = R.drawable.splash;\n"
+                + "            splashPicID = 0;\n"
+                + "        }\n"
+                + "    }\n"
                 + "}\n";
+
         return str;
     }
 
