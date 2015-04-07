@@ -47,9 +47,9 @@ import java.nio.IntBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2GL3;
-import javax.media.opengl.GLContext;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2GL3;
+import com.jogamp.opengl.GLContext;
 
 public abstract class JoglContext implements JmeContext {
 

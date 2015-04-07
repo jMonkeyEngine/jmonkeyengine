@@ -44,19 +44,19 @@ import com.jogamp.opengl.util.AnimatorBase;
 import com.jogamp.opengl.util.FPSAnimator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
-import javax.media.opengl.DebugGL2;
-import javax.media.opengl.DebugGL3;
-import javax.media.opengl.DebugGL3bc;
-import javax.media.opengl.DebugGL4;
-import javax.media.opengl.DebugGL4bc;
-import javax.media.opengl.DebugGLES1;
-import javax.media.opengl.DebugGLES2;
-import javax.media.opengl.GL;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLCapabilities;
-import javax.media.opengl.GLEventListener;
-import javax.media.opengl.GLProfile;
-import javax.media.opengl.GLRunnable;
+import com.jogamp.opengl.DebugGL2;
+import com.jogamp.opengl.DebugGL3;
+import com.jogamp.opengl.DebugGL3bc;
+import com.jogamp.opengl.DebugGL4;
+import com.jogamp.opengl.DebugGL4bc;
+import com.jogamp.opengl.DebugGLES1;
+import com.jogamp.opengl.DebugGLES2;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.GLRunnable;
 
 public abstract class JoglNewtAbstractDisplay extends JoglContext implements GLEventListener {
 

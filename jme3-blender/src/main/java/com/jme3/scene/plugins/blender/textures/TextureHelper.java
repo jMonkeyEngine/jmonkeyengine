@@ -232,7 +232,7 @@ public class TextureHelper extends AbstractBlenderHelper {
         LOGGER.log(Level.FINE, "Fetching texture with OMA = {0}", imageStructure.getOldMemoryAddress());
         Texture result = null;
         Image im = (Image) blenderContext.getLoadedFeature(imageStructure.getOldMemoryAddress(), LoadedDataType.FEATURE);
-        if (im == null) {
+       // if (im == null) {  HACK force reaload always, as constructor in else case is destroying the TextureKeys!
             if ("ID".equals(imageStructure.getType())) {
                 LOGGER.fine("Loading texture from external blend file.");
                 result = (Texture) this.loadLibrary(imageStructure);
@@ -253,9 +253,9 @@ public class TextureHelper extends AbstractBlenderHelper {
                     result = new Texture2D(new ImageLoader().loadImage(blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true));
                 }
             }
-        } else {
-            result = new Texture2D(im);
-        }
+        //} else {
+       //     result = new Texture2D(im);
+       // }
 
         if (result != null) {// render result is not being loaded
             blenderContext.addLoadedFeatures(imageStructure.getOldMemoryAddress(), LoadedDataType.STRUCTURE, imageStructure);

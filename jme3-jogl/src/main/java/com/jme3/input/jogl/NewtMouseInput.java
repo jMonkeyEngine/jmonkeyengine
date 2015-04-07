@@ -45,11 +45,11 @@ import com.jogamp.newt.opengl.GLWindow;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.logging.Logger;
-import javax.media.nativewindow.util.Dimension;
-import javax.media.nativewindow.util.DimensionImmutable;
-import javax.media.nativewindow.util.PixelFormat;
-import javax.media.nativewindow.util.PixelRectangle;
-import javax.media.nativewindow.util.Point;
+import com.jogamp.nativewindow.util.Dimension;
+import com.jogamp.nativewindow.util.DimensionImmutable;
+import com.jogamp.nativewindow.util.PixelFormat;
+import com.jogamp.nativewindow.util.PixelRectangle;
+import com.jogamp.nativewindow.util.Point;
 
 public class NewtMouseInput  implements MouseInput, MouseListener {
     
