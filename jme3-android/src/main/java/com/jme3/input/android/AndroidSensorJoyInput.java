@@ -37,7 +37,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Vibrator;
+import android.opengl.GLSurfaceView;
 import android.view.Surface;
 import android.view.WindowManager;
 import com.jme3.input.AbstractJoystick;
@@ -47,10 +47,8 @@ import com.jme3.input.JoyInput;
 import com.jme3.input.Joystick;
 import com.jme3.input.JoystickAxis;
 import com.jme3.input.SensorJoystickAxis;
-import com.jme3.input.RawInputListener;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.math.FastMath;
-import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
 import java.util.ArrayList;
@@ -63,7 +61,7 @@ import java.util.logging.Logger;
  * A single joystick is configured and includes data for all configured sensors
  * as seperate axes of the joystick.
  *
- * Each axis is named accounting to the static strings in SensorJoystickAxis.
+ * Each axis is named according to the static strings in SensorJoystickAxis.
  * Refer to the strings defined in SensorJoystickAxis for a list of supported
  * sensors and their axis data.  Each sensor type defined in SensorJoystickAxis
  * will be attempted to be configured.  If the device does not support a particular
@@ -72,46 +70,21 @@ import java.util.logging.Logger;
  * The joystick.getXAxis and getYAxis methods of the joystick are configured to
  * return the device orientation values in the device's X and Y directions.
  *
- * This joystick also supports the joystick.rumble(rumbleAmount) method.  In this
- * case, when joystick.rumble(rumbleAmount) is called, the Android device will vibrate
- * if the device has a built in vibrate motor.
- *
- * Because Andorid does not allow for the user to define the intensity of the
- * vibration, the rumble amount (ie strength) is converted into vibration pulses
- * The stronger the strength amount, the shorter the delay between pulses.  If
- * amount is 1, then the vibration stays on the whole time.  If amount is 0.5,
- * the vibration will a pulse of equal parts vibration and delay.
- * To turn off vibration, set rumble amount to 0.
- *
- * MainActivity needs the following line to enable Joysticks on Android platforms
- *    joystickEventsEnabled = true;
- * This is done to allow for battery conservation when sensor data is not required
- * by the application.
- *
- * To use the joystick rumble feature, the following line needs to be
- * added to the Android Manifest File
- *     <uses-permission android:name="android.permission.VIBRATE"/>
- *
  * @author iwgeric
  */
-public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
+public class AndroidSensorJoyInput implements SensorEventListener {
     private final static Logger logger = Logger.getLogger(AndroidSensorJoyInput.class.getName());
 
-    private Context context = null;
-    private InputManager inputManager = null;
+    private AndroidJoyInputHandler joyHandler;
     private SensorManager sensorManager = null;
     private WindowManager windowManager = null;
-    private Vibrator vibrator = null;
-    private boolean vibratorActive = false;
-    private long maxRumbleTime = 250;  // 250ms
-    private RawInputListener listener = null;
     private IntMap<SensorData> sensors = new IntMap<SensorData>();
-    private AndroidJoystick[] joysticks;
     private int lastRotation = 0;
-    private boolean initialized = false;
     private boolean loaded = false;
 
-    private final ArrayList<JoyAxisEvent> eventQueue = new ArrayList<JoyAxisEvent>();
+    public AndroidSensorJoyInput(AndroidJoyInputHandler joyHandler) {
+        this.joyHandler = joyHandler;
+    }
 
     /**
      * Internal class to enclose data for each sensor.
@@ -120,7 +93,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         int androidSensorType = -1;
         int androidSensorSpeed = SensorManager.SENSOR_DELAY_GAME;
         Sensor sensor = null;
-        int sensorAccuracy = 0;
+        int sensorAccuracy = -1;
         float[] lastValues;
         final Object valuesLock = new Object();
         ArrayList<AndroidJoystickAxis> axes = new ArrayList<AndroidJoystickAxis>();
@@ -134,16 +107,19 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
 
     }
 
-    private void initSensorManager() {
-        this.context = JmeAndroidSystem.getView().getContext();
-        // Get instance of the WindowManager from the current Context
-        windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        // Get instance of the SensorManager from the current Context
-        sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-        // Get instance of Vibrator from current Context
-        vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-        if (vibrator == null) {
-            logger.log(Level.FINE, "Vibrator Service not found.");
+    public void setView(GLSurfaceView view) {
+        pauseSensors();
+        if (sensorManager != null) {
+            sensorManager.unregisterListener(this);
+        }
+        if (view == null) {
+            windowManager = null;
+            sensorManager = null;
+        } else {
+            // Get instance of the WindowManager from the current Context
+            windowManager = (WindowManager) view.getContext().getSystemService(Context.WINDOW_SERVICE);
+            // Get instance of the SensorManager from the current Context
+            sensorManager = (SensorManager) view.getContext().getSystemService(Context.SENSOR_SERVICE);
         }
     }
 
@@ -221,9 +197,6 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
             if (entry.getKey() != Sensor.TYPE_ORIENTATION) {
                 unRegisterListener(entry.getKey());
             }
-        }
-        if (vibrator != null && vibratorActive) {
-            vibrator.cancel();
         }
     }
 
@@ -400,10 +373,8 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
                             if (!sensorData.haveData) {
                                 sensorData.haveData = true;
                             } else {
-                                synchronized (eventQueue){
-                                    if (axis.isChanged()) {
-                                        eventQueue.add(new JoyAxisEvent(axis, axis.getJoystickAxisValue()));
-                                    }
+                                if (axis.isChanged()) {
+                                    joyHandler.addEvent(new JoyAxisEvent(axis, axis.getJoystickAxisValue()));
                                 }
                             }
                         }
@@ -428,47 +399,14 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
 
     // Start of JoyInput methods
 
-    public void setJoyRumble(int joyId, float amount) {
-        // convert amount to pulses since Android doesn't allow intensity
-        if (vibrator != null) {
-            final long rumbleOnDur = (long)(amount * maxRumbleTime); // ms to pulse vibration on
-            final long rumbleOffDur = maxRumbleTime - rumbleOnDur; // ms to delay between pulses
-            final long[] rumblePattern = {
-                0, // start immediately
-                rumbleOnDur, // time to leave vibration on
-                rumbleOffDur // time to delay between vibrations
-            };
-            final int rumbleRepeatFrom = 0; // index into rumble pattern to repeat from
-
-            logger.log(Level.FINE, "Rumble amount: {0}, rumbleOnDur: {1}, rumbleOffDur: {2}",
-                    new Object[]{amount, rumbleOnDur, rumbleOffDur});
-
-            if (rumbleOnDur > 0) {
-                vibrator.vibrate(rumblePattern, rumbleRepeatFrom);
-                vibratorActive = true;
-            } else {
-                vibrator.cancel();
-                vibratorActive = false;
-            }
-        }
-
-    }
-
-    public Joystick[] loadJoysticks(InputManager inputManager) {
-        this.inputManager = inputManager;
-
-        initSensorManager();
-
+    public Joystick loadJoystick(int joyId, InputManager inputManager) {
         SensorData sensorData;
-        List<Joystick> list = new ArrayList<Joystick>();
-        AndroidJoystick joystick;
         AndroidJoystickAxis axis;
 
-        joystick = new AndroidJoystick(inputManager,
-                                    this,
-                                    list.size(),
+        AndroidJoystick joystick = new AndroidJoystick(inputManager,
+                                    joyHandler,
+                                    joyId,
                                     "AndroidSensorsJoystick");
-        list.add(joystick);
 
         List<Sensor> availSensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
         for (Sensor sensor: availSensors) {
@@ -555,14 +493,8 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
 //        }
 
 
-        joysticks = list.toArray( new AndroidJoystick[list.size()] );
         loaded = true;
-        return joysticks;
-    }
-
-    public void initialize() {
-        initialized = true;
-        loaded = false;
+        return joystick;
     }
 
     public void update() {
@@ -570,15 +502,6 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
             return;
         }
         updateOrientation();
-        synchronized (eventQueue){
-            // flush events to listener
-            if (listener != null && eventQueue.size() > 0) {
-                for (int i = 0; i < eventQueue.size(); i++){
-                    listener.onJoyAxisEvent(eventQueue.get(i));
-                }
-                eventQueue.clear();
-            }
-        }
     }
 
     public void destroy() {
@@ -588,39 +511,27 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
             sensorManager.unregisterListener(this);
         }
         sensors.clear();
-        eventQueue.clear();
-        initialized = false;
         loaded = false;
-        joysticks = null;
         sensorManager = null;
-        vibrator = null;
-        context = null;
     }
-
-    public boolean isInitialized() {
-        return initialized;
-    }
-
-    public void setInputListener(RawInputListener listener) {
-        this.listener = listener;
-    }
-
-    public long getInputTimeNanos() {
-        return System.nanoTime();
-    }
-
-    // End of JoyInput methods
 
     // Start of Android SensorEventListener methods
 
+    @Override
     public void onSensorChanged(SensorEvent se) {
-        if (!initialized || !loaded) {
+        if (!loaded) {
             return;
         }
+        logger.log(Level.FINE, "onSensorChanged for {0}: accuracy: {1}, values: {2}",
+                new Object[]{se.sensor.getName(), se.accuracy, se.values});
 
         int sensorType = se.sensor.getType();
 
         SensorData sensorData = sensors.get(sensorType);
+        if (sensorData != null) {
+            logger.log(Level.FINE, "sensorData name: {0}, enabled: {1}, unreliable: {2}",
+                    new Object[]{sensorData.sensor.getName(), sensorData.enabled, sensorData.sensorAccuracy == SensorManager.SENSOR_STATUS_UNRELIABLE});
+        }
         if (sensorData != null && sensorData.sensor.equals(se.sensor) && sensorData.enabled) {
 
             if (sensorData.sensorAccuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
@@ -641,10 +552,11 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
                         if (!sensorData.haveData) {
                             sensorData.haveData = true;
                         } else {
-                            synchronized (eventQueue){
-                                if (axis.isChanged()) {
-                                    eventQueue.add(new JoyAxisEvent(axis, axis.getJoystickAxisValue()));
-                                }
+                            if (axis.isChanged()) {
+                                JoyAxisEvent event = new JoyAxisEvent(axis, axis.getJoystickAxisValue());
+                                logger.log(Level.INFO, "adding JoyAxisEvent: {0}", event);
+                                joyHandler.addEvent(event);
+//                                joyHandler.addEvent(new JoyAxisEvent(axis, axis.getJoystickAxisValue()));
                             }
                         }
                     }
@@ -658,6 +570,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         }
     }
 
+    @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
         int sensorType = sensor.getType();
         SensorData sensorData = sensors.get(sensorType);
@@ -697,7 +610,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
             AndroidJoystickAxis axis;
 
             axis = new AndroidJoystickAxis(
-                    inputManager,               // InputManager (InputManager)
+                    getInputManager(),          // InputManager (InputManager)
                     this,                       // parent Joystick (Joystick)
                     axisNum,                    // Axis Index (int)
                     axisName,                   // Axis Name (String)
@@ -758,10 +671,12 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
             this.maxRawValue = maxRawValue;
         }
 
+        @Override
         public float getMaxRawValue() {
             return maxRawValue;
         }
 
+        @Override
         public void setMaxRawValue(float maxRawValue) {
             this.maxRawValue = maxRawValue;
         }
@@ -787,6 +702,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
             return hasChanged;
         }
 
+        @Override
         public void calibrateCenter() {
             zeroRawValue = lastRawValue;
             logger.log(Level.FINE, "Calibrating axis {0} to {1}",
