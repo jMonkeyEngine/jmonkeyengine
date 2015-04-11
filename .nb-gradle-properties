@@ -6,30 +6,4 @@
     <template>license.txt</template>
     <property name="organization">jMonkeyEngine</property>
   </license-header>
-  <built-in-tasks>
-    <task>
-      <display-name>run</display-name>
-      <non-blocking>no</non-blocking>
-      <task-names>
-        <name must-exist="no">run</name>
-      </task-names>
-      <task-args/>
-      <task-jvm-args>
-        <arg>-ea</arg>
-      </task-jvm-args>
-    </task>
-    <task>
-      <display-name>run.single</display-name>
-      <non-blocking>no</non-blocking>
-      <task-names>
-        <name must-exist="no">${project}:run</name>
-      </task-names>
-      <task-args>
-        <arg>-PmainClass=${selected-class}</arg>
-      </task-args>
-      <task-jvm-args>
-        <arg>-ea</arg>
-      </task-jvm-args>
-    </task>
-  </built-in-tasks>
 </gradle-project-properties>
