@@ -2,5 +2,12 @@ if (!hasProperty('mainClass')) {
     ext.mainClass = ''
 }
 
+repositories {
+    maven {
+        url 'http://nifty-gui.sourceforge.net/nifty-maven-repo'
+    }
+}
+
 dependencies {
+    compile 'lessvoid:nifty-examples:1.4.1'
 }

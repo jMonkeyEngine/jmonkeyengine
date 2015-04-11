@@ -181,7 +181,9 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
         
         // check input after we synchronize with framerate.
         // this reduces input lag.
-        Display.processMessages();
+        if (renderable.get()){
+            Display.processMessages();
+        }
         
         // Subclasses just call GLObjectManager clean up objects here
         // it is safe .. for now.

@@ -1321,13 +1321,6 @@ public class GLRenderer implements Renderer {
 
 
             glfbo.glBindFramebufferEXT(GLExt.GL_FRAMEBUFFER_EXT, prevFBO);
-            try {
-                checkFrameBufferError();
-            } catch (IllegalStateException ex) {
-                logger.log(Level.SEVERE, "Source FBO:\n{0}", src);
-                logger.log(Level.SEVERE, "Dest FBO:\n{0}", dst);
-                throw ex;
-            }
         } else {
             throw new RendererException("Framebuffer blitting not supported by the video hardware");
         }
@@ -1488,6 +1481,8 @@ public class GLRenderer implements Renderer {
             updateFrameBufferAttachment(fb, colorBuf);
         }
 
+        checkFrameBufferError();
+        
         fb.clearUpdateNeeded();
     }
 
@@ -1645,8 +1640,6 @@ public class GLRenderer implements Renderer {
             assert context.boundFBO == fb.getId();
 
             context.boundFB = fb;
-
-            checkFrameBufferError();
         }
     }
 
@@ -2221,53 +2214,25 @@ public class GLRenderer implements Renderer {
         int usage = convertUsage(vb.getUsage());
         vb.getData().rewind();
 
-//        if (created || vb.hasDataSizeChanged()) {
-            // upload data based on format
-            switch (vb.getFormat()) {
-                case Byte:
-                case UnsignedByte:
-                    gl.glBufferData(target, (ByteBuffer) vb.getData(), usage);
-                    break;
-                //            case Half:
-                case Short:
-                case UnsignedShort:
-                    gl.glBufferData(target, (ShortBuffer) vb.getData(), usage);
-                    break;
-                case Int:
-                case UnsignedInt:
-                    glext.glBufferData(target, (IntBuffer) vb.getData(), usage);
-                    break;
-                case Float:
-                    gl.glBufferData(target, (FloatBuffer) vb.getData(), usage);
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Unknown buffer format.");
-            }
-//        } else {
-//            // Invalidate buffer data (orphan) before uploading new data.
-//            switch (vb.getFormat()) {
-//                case Byte:
-//                case UnsignedByte:
-//                    gl.glBufferSubData(target, 0, (ByteBuffer) vb.getData());
-//                    break;
-//                case Short:
-//                case UnsignedShort:
-//                    gl.glBufferSubData(target, 0, (ShortBuffer) vb.getData());
-//                    break;
-//                case Int:
-//                case UnsignedInt:
-//                    gl.glBufferSubData(target, 0, (IntBuffer) vb.getData());
-//                    break;
-//                case Float:
-//                    gl.glBufferSubData(target, 0, (FloatBuffer) vb.getData());
-//                    break;
-//                case Double:
-//                    gl.glBufferSubData(target, 0, (DoubleBuffer) vb.getData());
-//                    break;
-//                default:
-//                    throw new UnsupportedOperationException("Unknown buffer format.");
-//            }
-//        }
+        switch (vb.getFormat()) {
+            case Byte:
+            case UnsignedByte:
+                gl.glBufferData(target, (ByteBuffer) vb.getData(), usage);
+                break;
+            case Short:
+            case UnsignedShort:
+                gl.glBufferData(target, (ShortBuffer) vb.getData(), usage);
+                break;
+            case Int:
+            case UnsignedInt:
+                glext.glBufferData(target, (IntBuffer) vb.getData(), usage);
+                break;
+            case Float:
+                gl.glBufferData(target, (FloatBuffer) vb.getData(), usage);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown buffer format.");
+        }
 
         vb.clearUpdateNeeded();
     }

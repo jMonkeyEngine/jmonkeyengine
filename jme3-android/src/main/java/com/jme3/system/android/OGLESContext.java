@@ -46,17 +46,15 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import com.jme3.input.*;
-import com.jme3.input.android.AndroidSensorJoyInput;
 import com.jme3.input.android.AndroidInputHandler;
+import com.jme3.input.android.AndroidJoyInputHandler;
 import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.android.AndroidGL;
 import com.jme3.renderer.opengl.GL;
-import com.jme3.renderer.opengl.GLDebugES;
 import com.jme3.renderer.opengl.GLExt;
 import com.jme3.renderer.opengl.GLRenderer;
-import com.jme3.renderer.opengl.GLTracer;
 import com.jme3.system.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -77,9 +75,9 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected SystemListener listener;
     protected boolean autoFlush = true;
     protected AndroidInputHandler androidInput;
+    protected AndroidJoyInputHandler androidJoyInput = null;
     protected long minFrameDuration = 0;                   // No FPS cap
     protected long lastUpdateTime = 0;
-    protected JoyInput androidSensorJoyInput = null;
 
     public OGLESContext() {
     }
@@ -118,6 +116,12 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         }
         androidInput.setView(view);
         androidInput.loadSettings(settings);
+
+        if (androidJoyInput == null) {
+            androidJoyInput = new AndroidJoyInputHandler();
+        }
+        androidJoyInput.setView(view);
+        androidJoyInput.loadSettings(settings);
 
         // setEGLContextClientVersion must be set before calling setRenderer
         // this means it cannot be set in AndroidConfigChooser (too late)
@@ -231,6 +235,9 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         if (androidInput != null) {
             androidInput.loadSettings(settings);
         }
+        if (androidJoyInput != null) {
+            androidJoyInput.loadSettings(settings);
+        }
 
         if (settings.getFrameRate() > 0) {
             minFrameDuration = (long)(1000d / (double)settings.getFrameRate()); // ms
@@ -267,10 +274,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
     @Override
     public JoyInput getJoyInput() {
-        if (androidSensorJoyInput == null) {
-            androidSensorJoyInput = new AndroidSensorJoyInput();
-        }
-        return androidSensorJoyInput;
+        return androidJoyInput;
     }
 
     @Override

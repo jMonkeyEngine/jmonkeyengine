@@ -40,7 +40,6 @@ import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
-import com.jme3.scene.LightNode;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedDataType;
@@ -67,8 +66,8 @@ public class LightHelper extends AbstractBlenderHelper {
         super(blenderVersion, blenderContext);
     }
 
-    public LightNode toLight(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
-        LightNode result = (LightNode) blenderContext.getLoadedFeature(structure.getOldMemoryAddress(), LoadedDataType.FEATURE);
+    public Light toLight(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
+        Light result = (Light) blenderContext.getLoadedFeature(structure.getOldMemoryAddress(), LoadedDataType.FEATURE);
         if (result != null) {
             return result;
         }
@@ -111,6 +110,7 @@ public class LightHelper extends AbstractBlenderHelper {
         float g = ((Number) structure.getFieldValue("g")).floatValue();
         float b = ((Number) structure.getFieldValue("b")).floatValue();
         light.setColor(new ColorRGBA(r, g, b, 1.0f));
-        return new LightNode(structure.getName(), light);
+        light.setName(structure.getName());
+        return light;
     }
 }

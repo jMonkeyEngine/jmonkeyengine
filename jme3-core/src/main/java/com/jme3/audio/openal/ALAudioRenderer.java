@@ -51,6 +51,9 @@ import static com.jme3.audio.openal.EFX.*;
 public class ALAudioRenderer implements AudioRenderer, Runnable {
 
     private static final Logger logger = Logger.getLogger(ALAudioRenderer.class.getName());
+    
+    private static final String THREAD_NAME = "jME3 Audio Decoder";
+    
     private final NativeObjectManager objManager = new NativeObjectManager();
     // When multiplied by STREAMING_BUFFER_COUNT, will equal 44100 * 2 * 2
     // which is exactly 1 second of audio.
@@ -75,7 +78,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     
     // Fill streaming sources every 50 ms
     private static final float UPDATE_RATE = 0.05f;
-    private final Thread decoderThread = new Thread(this, "jME3 Audio Decoding Thread");
+    private final Thread decoderThread = new Thread(this, THREAD_NAME);
     private final Object threadLock = new Object();
 
     private final AL al;

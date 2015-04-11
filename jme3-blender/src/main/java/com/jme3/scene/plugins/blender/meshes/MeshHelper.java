@@ -40,7 +40,6 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
@@ -52,7 +51,6 @@ import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.materials.MaterialContext;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 import com.jme3.scene.plugins.blender.objects.Properties;
 
@@ -106,17 +104,18 @@ public class MeshHelper extends AbstractBlenderHelper {
             return temporalMesh.clone();
         }
 
+        if ("ID".equals(meshStructure.getType())) {
+            LOGGER.fine("Loading mesh from external blend file.");
+            return (TemporalMesh) this.loadLibrary(meshStructure);
+        }
+
         String name = meshStructure.getName();
         LOGGER.log(Level.FINE, "Reading mesh: {0}.", name);
         temporalMesh = new TemporalMesh(meshStructure, blenderContext);
 
         LOGGER.fine("Loading materials.");
         MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
-        MaterialContext[] materials = null;
-        if ((blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0) {
-            materials = materialHelper.getMaterials(meshStructure, blenderContext);
-        }
-        temporalMesh.setMaterials(materials);
+        temporalMesh.setMaterials(materialHelper.getMaterials(meshStructure, blenderContext));
 
         LOGGER.fine("Reading custom properties.");
         Properties properties = this.loadProperties(meshStructure, blenderContext);

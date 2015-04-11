@@ -57,7 +57,7 @@ public class InstancedNode extends GeometryGroupNode {
         setGeometryStartIndex(geom, startIndex);
     }
     
-    private static class InstanceTypeKey implements Cloneable {
+    private static final class InstanceTypeKey implements Cloneable {
 
         Mesh mesh;
         Material material;

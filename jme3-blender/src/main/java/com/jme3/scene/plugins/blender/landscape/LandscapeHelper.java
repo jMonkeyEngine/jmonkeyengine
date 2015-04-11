@@ -208,6 +208,6 @@ public class LandscapeHelper extends AbstractBlenderHelper {
         }
 
         LOGGER.fine("Sky texture created. Creating sky.");
-        return SkyFactory.createSky(blenderContext.getAssetManager(), texture, false);
+        return SkyFactory.createSky(blenderContext.getAssetManager(), texture, SkyFactory.EnvMapType.CubeMap);
     }
 }

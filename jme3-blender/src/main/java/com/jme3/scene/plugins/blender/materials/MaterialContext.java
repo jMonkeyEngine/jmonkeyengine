@@ -1,11 +1,15 @@
 package com.jme3.scene.plugins.blender.materials;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.Savable;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
@@ -30,7 +34,7 @@ import com.jme3.util.BufferUtils;
  * This class holds the data about the material.
  * @author Marcin Roguski (Kaelthas)
  */
-public final class MaterialContext {
+public final class MaterialContext implements Savable {
     private static final Logger              LOGGER     = Logger.getLogger(MaterialContext.class.getName());
 
     // texture mapping types
@@ -67,7 +71,7 @@ public final class MaterialContext {
         int diff_shader = ((Number) structure.getFieldValue("diff_shader")).intValue();
         diffuseShader = DiffuseShader.values()[diff_shader];
         ambientFactor = ((Number) structure.getFieldValue("amb")).floatValue();
-        
+
         if (shadeless) {
             float r = ((Number) structure.getFieldValue("r")).floatValue();
             float g = ((Number) structure.getFieldValue("g")).floatValue();
@@ -105,6 +109,13 @@ public final class MaterialContext {
             transparent = transparent || specularColor.a < 1.0f;
         }
         this.transparent = transparent;
+    }
+
+    /**
+     * @return the name of the material
+     */
+    public String getName() {
+        return name;
     }
 
     /**
@@ -313,5 +324,15 @@ public final class MaterialContext {
         float b = ((Number) materialStructure.getFieldValue("specb")).floatValue() * specularIntensity;
         float alpha = ((Number) materialStructure.getFieldValue("alpha")).floatValue();
         return new ColorRGBA(r, g, b, alpha);
+    }
+
+    @Override
+    public void write(JmeExporter e) throws IOException {
+        throw new IOException("Material context is not for saving! It implements savable only to be passed to another blend file as a Savable in user data!");
+    }
+
+    @Override
+    public void read(JmeImporter e) throws IOException {
+        throw new IOException("Material context is not for loading! It implements savable only to be passed to another blend file as a Savable in user data!");
     }
 }

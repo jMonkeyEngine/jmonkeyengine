@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import com.jme3.math.FastMath;
 import com.jme3.renderer.Camera;
-import com.jme3.scene.CameraNode;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
@@ -43,7 +42,7 @@ public class CameraHelper extends AbstractBlenderHelper {
      *             an exception is thrown when there are problems with the
      *             blender file
      */
-    public CameraNode toCamera(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
+    public Camera toCamera(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
         if (blenderVersion >= 250) {
             return this.toCamera250(structure, blenderContext.getSceneStructure());
         } else {
@@ -63,7 +62,7 @@ public class CameraHelper extends AbstractBlenderHelper {
      *             an exception is thrown when there are problems with the
      *             blender file
      */
-    private CameraNode toCamera250(Structure structure, Structure sceneStructure) throws BlenderFileException {
+    private Camera toCamera250(Structure structure, Structure sceneStructure) throws BlenderFileException {
         int width = DEFAULT_CAM_WIDTH;
         int height = DEFAULT_CAM_HEIGHT;
         if (sceneStructure != null) {
@@ -99,7 +98,7 @@ public class CameraHelper extends AbstractBlenderHelper {
                 sensor = ((Number) structure.getFieldValue(sensorName)).floatValue();
             }
             float focalLength = ((Number) structure.getFieldValue("lens")).floatValue();
-            float fov = 2.0f * FastMath.atan((sensor / 2.0f) / focalLength);
+            float fov = 2.0f * FastMath.atan(sensor / 2.0f / focalLength);
             if (sensorVertical) {
                 fovY = fov * FastMath.RAD_TO_DEG;
             } else {
@@ -111,7 +110,8 @@ public class CameraHelper extends AbstractBlenderHelper {
             fovY = ((Number) structure.getFieldValue("ortho_scale")).floatValue();
         }
         camera.setFrustumPerspective(fovY, aspect, clipsta, clipend);
-        return new CameraNode(null, camera);
+        camera.setName(structure.getName());
+        return camera;
     }
 
     /**
@@ -124,7 +124,7 @@ public class CameraHelper extends AbstractBlenderHelper {
      *             an exception is thrown when there are problems with the
      *             blender file
      */
-    private CameraNode toCamera249(Structure structure) throws BlenderFileException {
+    private Camera toCamera249(Structure structure) throws BlenderFileException {
         Camera camera = new Camera(DEFAULT_CAM_WIDTH, DEFAULT_CAM_HEIGHT);
         int type = ((Number) structure.getFieldValue("type")).intValue();
         if (type != 0 && type != 1) {
@@ -142,6 +142,7 @@ public class CameraHelper extends AbstractBlenderHelper {
             aspect = ((Number) structure.getFieldValue("ortho_scale")).floatValue();
         }
         camera.setFrustumPerspective(aspect, camera.getWidth() / camera.getHeight(), clipsta, clipend);
-        return new CameraNode(null, camera);
+        camera.setName(structure.getName());
+        return camera;
     }
 }

@@ -274,11 +274,9 @@ public class TangentBinormalGenerator {
                 triData.setIndex(index);
                 triData.triangleOffset = i * 3 ;
             }
-            if (triData != null) {
-                vertices.get(index[0]).triangles.add(triData);
-                vertices.get(index[1]).triangles.add(triData);
-                vertices.get(index[2]).triangles.add(triData);
-            }
+            vertices.get(index[0]).triangles.add(triData);
+            vertices.get(index[1]).triangles.add(triData);
+            vertices.get(index[2]).triangles.add(triData);
         }
         
         return vertices;
@@ -483,7 +481,7 @@ public class TangentBinormalGenerator {
             boolean isDegenerate = isDegenerateTriangle(v[0], v[1], v[2]);
             TriangleData triData = processTriangle(index, v, t);
             
-            if (triData != null && !isDegenerate) {
+            if (!isDegenerate) {
                 vertices.get(index[0]).triangles.add(triData);
                 vertices.get(index[1]).triangles.add(triData);
                 vertices.get(index[2]).triangles.add(triData);
@@ -529,11 +527,9 @@ public class TangentBinormalGenerator {
             populateFromBuffer(t[2], textureBuffer, index[2]);
             
             TriangleData triData = processTriangle(index, v, t);
-            if (triData != null) {
-                vertices.get(index[0]).triangles.add(triData);
-                vertices.get(index[1]).triangles.add(triData);
-                vertices.get(index[2]).triangles.add(triData);
-            }
+            vertices.get(index[0]).triangles.add(triData);
+            vertices.get(index[1]).triangles.add(triData);
+            vertices.get(index[2]).triangles.add(triData);
             
             Vector3f vTemp = v[1];
             v[1] = v[2];

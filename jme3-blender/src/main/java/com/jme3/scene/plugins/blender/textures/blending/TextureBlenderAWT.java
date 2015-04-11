@@ -38,7 +38,9 @@ import com.jme3.scene.plugins.blender.textures.io.PixelIOFactory;
 import com.jme3.scene.plugins.blender.textures.io.PixelInputOutput;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
@@ -141,7 +143,7 @@ public class TextureBlenderAWT extends AbstractTextureBlender {
             dataArray.add(newData);
         }
 
-        Image result = depth > 1 ? new Image(Format.RGBA8, width, height, depth, dataArray) : new Image(Format.RGBA8, width, height, dataArray.get(0));
+        Image result = depth > 1 ? new Image(Format.RGBA8, width, height, depth, dataArray, ColorSpace.Linear) : new Image(Format.RGBA8, width, height, dataArray.get(0), ColorSpace.Linear);
         if (image.getMipMapSizes() != null) {
             result.setMipMapSizes(image.getMipMapSizes().clone());
         }

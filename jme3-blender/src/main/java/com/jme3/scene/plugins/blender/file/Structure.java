@@ -254,7 +254,8 @@ public class Structure implements Cloneable {
             Structure id = (Structure) fieldValue;
             return id == null ? null : id.getFieldValue("name").toString().substring(2);// blender adds 2-charactes as a name prefix
         }
-        return null;
+        Object name = this.getFieldValue("name", null);
+        return name == null ? null : name.toString().substring(2);
     }
 
     @Override

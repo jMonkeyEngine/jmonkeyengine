@@ -759,14 +759,6 @@ public class IGLESShaderRenderer implements Renderer {
         Image[] textures = context.boundTextures;
 
         int type = convertTextureType(tex.getType());
-        if (!context.textureIndexList.moveToNew(unit)) {
-//             if (context.boundTextureUnit != unit){
-//                glActiveTexture(GL_TEXTURE0 + unit);
-//                context.boundTextureUnit = unit;
-//             }
-//             glEnable(type);
-        }
-
         if (textures[unit] != image) {
             if (context.boundTextureUnit != unit) {
                 JmeIosGLES.glActiveTexture(JmeIosGLES.GL_TEXTURE0 + unit);
@@ -1768,7 +1760,6 @@ public class IGLESShaderRenderer implements Renderer {
             JmeIosGLES.checkGLError();
         }
         clearVertexAttribs();
-        clearTextureUnits();
     }
 
     private void renderMeshDefault(Mesh mesh, int lod, int count) {
@@ -1807,7 +1798,6 @@ public class IGLESShaderRenderer implements Renderer {
             JmeIosGLES.checkGLError();
         }
         clearVertexAttribs();
-        clearTextureUnits();
     }
 
 
@@ -2084,23 +2074,6 @@ public class IGLESShaderRenderer implements Renderer {
         }
         context.attribIndexList.copyNewToOld();
     }
-
-
-    public void clearTextureUnits() {
-        IDList textureList = context.textureIndexList;
-        Image[] textures = context.boundTextures;
-        for (int i = 0; i < textureList.oldLen; i++) {
-            int idx = textureList.oldList[i];
-//            if (context.boundTextureUnit != idx){
-//                glActiveTexture(GL_TEXTURE0 + idx);
-//                context.boundTextureUnit = idx;
-//            }
-//            glDisable(convertTextureType(textures[idx].getType()));
-            textures[idx] = null;
-        }
-        context.textureIndexList.copyNewToOld();
-    }
-
 
     public void updateFrameBuffer(FrameBuffer fb) {
         int id = fb.getId();

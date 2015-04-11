@@ -26,14 +26,29 @@ import org.ajoberstar.grgit.*
 
 task updateVersion << {
     
-    def grgit = Grgit.open(project.file('.').parent)
-    
-    def jmeGitHash = grgit.head().id
-    def jmeShortGitHash = grgit.head().abbreviatedId
-    def jmeBuildDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date())
-    def jmeBranchName = grgit.branch.current.name
-    
     def verfile = file('src/main/java/com/jme3/system/JmeVersion.java')
+    def jmeGitHash
+    def jmeShortGitHash
+    def jmeBuildDate
+    def jmeBranchName
+    
+    try {
+        def grgit = Grgit.open(project.file('.').parent)
+        jmeGitHash = grgit.head().id
+        jmeShortGitHash = grgit.head().abbreviatedId
+        jmeBuildDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date())
+        jmeBranchName = grgit.branch.current.name
+    } catch (ex) {
+        // Failed to get repo info
+        logger.warn("Failed to get repository info: " + ex.message + ". " + \
+                    "Only partial build info will be generated.")
+        
+        jmeGitHash = ""
+        jmeShortGitHash = ""
+        jmeBuildDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date())
+        jmeBranchName = "unknown"
+    }
+    
     verfile.text = "\npackage com.jme3.system;\n\n" +
                    "/**\n * THIS IS AN AUTO-GENERATED FILE..\n * DO NOT MODIFY!\n */\n" + 
                    "public class JmeVersion {\n" + 

@@ -58,7 +58,7 @@ import java.util.logging.Logger;
  * @author Gregg Patton
  * @author Joshua Slack
  */
-public class Node extends Spatial implements Savable {
+public class Node extends Spatial {
 
     private static final Logger logger = Logger.getLogger(Node.class.getName());
 

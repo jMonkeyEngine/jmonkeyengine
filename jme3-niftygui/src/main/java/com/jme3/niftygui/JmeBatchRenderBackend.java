@@ -55,6 +55,7 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture.MagFilter;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 
 import de.lessvoid.nifty.render.batch.spi.BatchRenderBackend;
@@ -302,7 +303,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
     initialData.rewind();
     modifyTexture(
         getTextureAtlas(atlasTextureId),
-        new com.jme3.texture.Image(Format.RGBA8, image.getWidth(), image.getHeight(), initialData),
+        new com.jme3.texture.Image(Format.RGBA8, image.getWidth(), image.getHeight(), initialData, ColorSpace.sRGB),
         x,
         y);
   }
@@ -338,7 +339,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
     }
     initialData.rewind();
 
-    Texture2D texture = new Texture2D(new com.jme3.texture.Image(Format.RGBA8, width, height, initialData));
+    Texture2D texture = new Texture2D(new com.jme3.texture.Image(Format.RGBA8, width, height, initialData, ColorSpace.sRGB));
     texture.setMinFilter(MinFilter.NearestNoMipMaps);
     texture.setMagFilter(MagFilter.Nearest);
     return texture;

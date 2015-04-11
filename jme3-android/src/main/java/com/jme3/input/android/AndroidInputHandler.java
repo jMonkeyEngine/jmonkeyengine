@@ -62,7 +62,6 @@ public class AndroidInputHandler implements TouchInput {
     private boolean mouseEventsInvertX = false;
     private boolean mouseEventsInvertY = false;
     private boolean keyboardEventsEnabled = false;
-    private boolean joystickEventsEnabled = false;
     private boolean dontSendHistory = false;
 
 
@@ -140,7 +139,6 @@ public class AndroidInputHandler implements TouchInput {
         mouseEventsEnabled = settings.isEmulateMouse();
         mouseEventsInvertX = settings.isEmulateMouseFlipX();
         mouseEventsInvertY = settings.isEmulateMouseFlipY();
-        joystickEventsEnabled = settings.useJoysticks();
 
         // view width and height are 0 until the view is displayed on the screen
         if (view.getWidth() != 0 && view.getHeight() != 0) {
