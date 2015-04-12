@@ -37,7 +37,6 @@ import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
-import static org.omg.IOP.IORHelper.id;
 
 /**
  * Quick n' dirty dumper of FBX binary files.
