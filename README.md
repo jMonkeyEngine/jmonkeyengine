@@ -1,7 +1,7 @@
 jMonkeyEngine
 =============
 
-jMonkeyEngine is a 3D game engine for adventurous Java developers. It’s open source, cross platform and cutting edge. And it is all beautifully documented. The 3.0 branch is the latest stable version of the jMonkeyEngine 3 SDK, a complete game development suite. We'll be frequently submitting stable 3.0.x updates until the major 3.1 version arrives in Q4 2014.
+jMonkeyEngine is a 3D game engine for adventurous Java developers. It’s open source, cross platform and cutting edge. And it is all beautifully documented. The 3.0 branch is the latest stable version of the jMonkeyEngine 3 SDK, a complete game development suite. We'll be frequently submitting stable 3.0.x updates until the major 3.1 version arrives.
 
 The engine is used by several commercial game studios and computer-science courses. Here's a taste:
 
