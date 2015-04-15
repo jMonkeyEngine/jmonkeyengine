@@ -27,7 +27,8 @@ import org.openide.util.Lookup;
  */
 public class MoveTool extends SceneEditTool {
 
-    private Vector3f pickedPlane;
+    private Vector3f pickedMarker;
+    private Vector3f constraintAxis; //used for one axis move
     private boolean wasDragging = false;
     private MoveManager moveManager;
 
@@ -46,15 +47,7 @@ public class MoveTool extends SceneEditTool {
 
     @Override
     public void actionPrimary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject dataObject) {
-        if (!pressed) {
-            setDefaultAxisMarkerColors();
-            pickedPlane = null; // mouse released, reset selection
-            if (wasDragging) {
-                actionPerformed(moveManager.makeUndo());
-                wasDragging = false;
-            }
-            moveManager.reset();
-        }
+        onPrimary(screenCoord, pressed);
     }
 
     @Override
@@ -63,20 +56,35 @@ public class MoveTool extends SceneEditTool {
 
     @Override
     public void mouseMoved(Vector2f screenCoord, JmeNode rootNode, DataObject currentDataObject, JmeSpatial selectedSpatial) {
-        
-        if (pickedPlane == null) {
+
+        if (pickedMarker == null) {
             highlightAxisMarker(camera, screenCoord, axisPickType);
         } else {
-            pickedPlane = null;
+            pickedMarker = null;
             moveManager.reset();
         }
     }
 
     @Override
     public void draggedPrimary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject currentDataObject) {
+        onPrimary(screenCoord, pressed);
+    }
+
+    @Override
+    public void draggedSecondary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject currentDataObject) {
+    }
+
+    /**
+     * Called by ActionPrimary and draggedPrimay, improve user feedback
+     *
+     * @param screenCoord
+     * @param pressed
+     */
+    private void onPrimary(Vector2f screenCoord, boolean pressed) {
         if (!pressed) {
             setDefaultAxisMarkerColors();
-            pickedPlane = null; // mouse released, reset selection
+            pickedMarker = null; // mouse released, reset selection
+            constraintAxis = Vector3f.UNIT_XYZ; // no constraint
             if (wasDragging) {
                 actionPerformed(moveManager.makeUndo());
                 wasDragging = false;
@@ -89,29 +97,34 @@ public class MoveTool extends SceneEditTool {
             return;
         }
 
-        if (pickedPlane == null) {
-            pickedPlane = pickAxisMarker(camera, screenCoord, axisPickType);
-            if (pickedPlane == null) {
+        if (pickedMarker == null) {
+            pickedMarker = pickAxisMarker(camera, screenCoord, axisPickType);
+            if (pickedMarker == null) {
                 return;
             }
 
-            if (pickedPlane.equals(new Vector3f(1, 1, 0))) {
+            if (pickedMarker.equals(QUAD_XY)) {
                 moveManager.initiateMove(toolController.getSelectedSpatial(), MoveManager.XY, true);
-            } else if (pickedPlane.equals(new Vector3f(1, 0, 1))) {
+            } else if (pickedMarker.equals(QUAD_XZ)) {
                 moveManager.initiateMove(toolController.getSelectedSpatial(), MoveManager.XZ, true);
-            } else if (pickedPlane.equals(new Vector3f(0, 1, 1))) {
+            } else if (pickedMarker.equals(QUAD_YZ)) {
                 moveManager.initiateMove(toolController.getSelectedSpatial(), MoveManager.YZ, true);
+            } else if (pickedMarker.equals(ARROW_X)) {
+                moveManager.initiateMove(toolController.getSelectedSpatial(), MoveManager.XY, true);
+                constraintAxis = Vector3f.UNIT_X; // move only X
+            } else if (pickedMarker.equals(ARROW_Y)) {
+                moveManager.initiateMove(toolController.getSelectedSpatial(), MoveManager.YZ, true);
+                constraintAxis = Vector3f.UNIT_Y; // move only Y
+            } else if (pickedMarker.equals(ARROW_Z)) {
+                moveManager.initiateMove(toolController.getSelectedSpatial(), MoveManager.XZ, true);
+                constraintAxis = Vector3f.UNIT_Z; // move only Z
             }
         }
-        if (!moveManager.move(camera, screenCoord)) {
+        if (!moveManager.move(camera, screenCoord, constraintAxis, false)) {
             return;
         }
         updateToolsTransformation();
 
         wasDragging = true;
-    }
-
-    @Override
-    public void draggedSecondary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject currentDataObject) {
     }
 }
