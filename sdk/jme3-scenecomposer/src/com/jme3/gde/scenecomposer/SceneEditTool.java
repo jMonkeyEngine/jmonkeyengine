@@ -285,7 +285,7 @@ public abstract class SceneEditTool {
      * what part of the axis was selected.
      * For example if  (1,0,0) is returned, then the X-axis pole was selected.
      * If (0,1,1) is returned, then the Y-Z plane was selected.
-     * 
+     *
      * @return null if it did not intersect the marker
      */
     protected Vector3f pickAxisMarker(Camera cam, Vector2f mouseLoc, AxisMarkerPickType pickType) {
@@ -336,7 +336,7 @@ public abstract class SceneEditTool {
         CollisionResults results = new CollisionResults();
         Ray ray = new Ray();
         Vector3f pos = cam.getWorldCoordinates(mouseLoc, 0).clone();
-        Vector3f dir = cam.getWorldCoordinates(mouseLoc, 0.1f).clone();
+        Vector3f dir = cam.getWorldCoordinates(mouseLoc, 0.125f).clone();
         dir.subtractLocal(pos).normalizeLocal();
         ray.setOrigin(pos);
         ray.setDirection(dir);
@@ -347,7 +347,7 @@ public abstract class SceneEditTool {
 
     /**
      * Show what axis or plane the mouse is currently over and will affect.
-     * @param axisMarkerPickType 
+     * @param axisMarkerPickType
      */
     protected void highlightAxisMarker(Camera camera, Vector2f screenCoord, AxisMarkerPickType axisMarkerPickType) {
         highlightAxisMarker(camera, screenCoord, axisMarkerPickType, false);
@@ -355,12 +355,12 @@ public abstract class SceneEditTool {
 
     /**
      * Show what axis or plane the mouse is currently over and will affect.
-     * @param axisMarkerPickType 
+     * @param axisMarkerPickType
      * @param colorAll highlight all parts of the marker when only one is selected
      */
     protected void highlightAxisMarker(Camera camera, Vector2f screenCoord, AxisMarkerPickType axisMarkerPickType, boolean colorAll) {
         setDefaultAxisMarkerColors();
-        Vector3f picked = pickAxisMarker(camera, screenCoord, axisPickType);
+        Vector3f picked = pickAxisMarker(camera, screenCoord, axisMarkerPickType);
         if (picked == null) {
             return;
         }
@@ -453,6 +453,7 @@ public abstract class SceneEditTool {
 //        axis.attachChild(quadYZ);
 
         axis.setModelBound(new BoundingBox());
+        axis.updateModelBound();
         return axis;
     }
 
