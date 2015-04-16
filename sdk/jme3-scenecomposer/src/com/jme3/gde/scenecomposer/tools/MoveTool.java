@@ -47,7 +47,16 @@ public class MoveTool extends SceneEditTool {
 
     @Override
     public void actionPrimary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject dataObject) {
-        onPrimary(screenCoord, pressed);
+        if (!pressed) {
+            setDefaultAxisMarkerColors();
+            pickedMarker = null; // mouse released, reset selection
+            constraintAxis = Vector3f.UNIT_XYZ; // no constraint
+            if (wasDragging) {
+                actionPerformed(moveManager.makeUndo());
+                wasDragging = false;
+    }
+            moveManager.reset();
+        }
     }
 
     @Override
@@ -67,21 +76,7 @@ public class MoveTool extends SceneEditTool {
 
     @Override
     public void draggedPrimary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject currentDataObject) {
-        onPrimary(screenCoord, pressed);
-    }
-
-    @Override
-    public void draggedSecondary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject currentDataObject) {
-    }
-
-    /**
-     * Called by ActionPrimary and draggedPrimay, improve user feedback
-     *
-     * @param screenCoord
-     * @param pressed
-     */
-    private void onPrimary(Vector2f screenCoord, boolean pressed) {
-        if (!pressed) {
+    if (!pressed) {
             setDefaultAxisMarkerColors();
             pickedMarker = null; // mouse released, reset selection
             constraintAxis = Vector3f.UNIT_XYZ; // no constraint
@@ -126,5 +121,9 @@ public class MoveTool extends SceneEditTool {
         updateToolsTransformation();
 
         wasDragging = true;
+    }
+
+    @Override
+    public void draggedSecondary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject currentDataObject) {
     }
 }
