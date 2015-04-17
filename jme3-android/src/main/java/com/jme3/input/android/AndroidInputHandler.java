@@ -33,231 +33,206 @@
 package com.jme3.input.android;
 
 import android.opengl.GLSurfaceView;
-import android.os.Build;
+import android.view.GestureDetector;
+import android.view.InputDevice;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
-import com.jme3.input.RawInputListener;
+import com.jme3.input.JoyInput;
 import com.jme3.input.TouchInput;
-import com.jme3.input.event.InputEvent;
-import com.jme3.input.event.KeyInputEvent;
-import com.jme3.input.event.MouseButtonEvent;
-import com.jme3.input.event.MouseMotionEvent;
-import com.jme3.input.event.TouchEvent;
 import com.jme3.system.AppSettings;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * <code>AndroidInput</code> is the main class that connects the Android system
- * inputs to jME. It serves as the manager that gathers inputs from the various
- * Android input methods and provides them to jME's <code>InputManager</code>.
+ * inputs to jME. It receives the inputs from the Android View and passes them
+ * to the appropriate classes based on the source of the input.</br>
+ * This class is to be extended when new functionality is released in Android.
  *
  * @author iwgeric
  */
-public class AndroidInputHandler implements TouchInput {
+public class AndroidInputHandler implements View.OnTouchListener,
+                                            View.OnKeyListener {
+
     private static final Logger logger = Logger.getLogger(AndroidInputHandler.class.getName());
 
-    // Custom settings
-    private boolean mouseEventsEnabled = true;
-    private boolean mouseEventsInvertX = false;
-    private boolean mouseEventsInvertY = false;
-    private boolean keyboardEventsEnabled = false;
-    private boolean dontSendHistory = false;
-
-
-    // Internal
-    private GLSurfaceView view;
-    private AndroidTouchHandler touchHandler;
-    private AndroidKeyHandler keyHandler;
-    private AndroidGestureHandler gestureHandler;
-    private boolean initialized = false;
-    private RawInputListener listener = null;
-    private ConcurrentLinkedQueue<InputEvent> inputEventQueue = new ConcurrentLinkedQueue<InputEvent>();
-    private final static int MAX_TOUCH_EVENTS = 1024;
-    private final TouchEventPool touchEventPool = new TouchEventPool(MAX_TOUCH_EVENTS);
-    private float scaleX = 1f;
-    private float scaleY = 1f;
+    protected GLSurfaceView view;
+    protected AndroidTouchInput touchInput;
+    protected AndroidJoyInput joyInput;
 
 
     public AndroidInputHandler() {
-        int buildVersion = Build.VERSION.SDK_INT;
-        logger.log(Level.INFO, "Android Build Version: {0}", buildVersion);
-        if (buildVersion >= 14) {
-            // add support for onHover and GenericMotionEvent (ie. gamepads)
-            gestureHandler = new AndroidGestureHandler(this);
-            touchHandler = new AndroidTouchHandler14(this, gestureHandler);
-            keyHandler = new AndroidKeyHandler(this);
-        } else if (buildVersion >= 8){
-            gestureHandler = new AndroidGestureHandler(this);
-            touchHandler = new AndroidTouchHandler(this, gestureHandler);
-            keyHandler = new AndroidKeyHandler(this);
-        }
-    }
-
-    public AndroidInputHandler(AndroidTouchHandler touchInput,
-            AndroidKeyHandler keyInput, AndroidGestureHandler gestureHandler) {
-        this.touchHandler = touchInput;
-        this.keyHandler = keyInput;
-        this.gestureHandler = gestureHandler;
+        touchInput = new AndroidTouchInput(this);
+        joyInput = new AndroidJoyInput(this);
     }
 
     public void setView(View view) {
-        if (touchHandler != null) {
-            touchHandler.setView(view);
+        if (this.view != null && view != null && this.view.equals(view)) {
+            return;
         }
-        if (keyHandler != null) {
-            keyHandler.setView(view);
+
+        if (this.view != null) {
+            removeListeners(this.view);
         }
-        if (gestureHandler != null) {
-            gestureHandler.setView(view);
-        }
+
         this.view = (GLSurfaceView)view;
+
+        if (this.view != null) {
+            addListeners(this.view);
+        }
+
+        joyInput.setView((GLSurfaceView)view);
     }
 
     public View getView() {
         return view;
     }
 
-    public float invertX(float origX) {
-        return getJmeX(view.getWidth()) - origX;
+    protected void removeListeners(GLSurfaceView view) {
+        view.setOnTouchListener(null);
+        view.setOnKeyListener(null);
+        touchInput.setGestureDetector(null);
+        touchInput.setScaleDetector(null);
     }
 
-    public float invertY(float origY) {
-        return getJmeY(view.getHeight()) - origY;
-    }
-
-    public float getJmeX(float origX) {
-        return origX * scaleX;
-    }
-
-    public float getJmeY(float origY) {
-        return origY * scaleY;
+    protected void addListeners(GLSurfaceView view) {
+        view.setOnTouchListener(this);
+        view.setOnKeyListener(this);
+        AndroidGestureProcessor gestureHandler = new AndroidGestureProcessor(touchInput);
+        touchInput.setGestureDetector(new GestureDetector(
+                view.getContext(), gestureHandler));
+        touchInput.setScaleDetector(new ScaleGestureDetector(
+                view.getContext(), gestureHandler));
     }
 
     public void loadSettings(AppSettings settings) {
-        keyboardEventsEnabled = settings.isEmulateKeyboard();
-        mouseEventsEnabled = settings.isEmulateMouse();
-        mouseEventsInvertX = settings.isEmulateMouseFlipX();
-        mouseEventsInvertY = settings.isEmulateMouseFlipY();
-
-        // view width and height are 0 until the view is displayed on the screen
-        if (view.getWidth() != 0 && view.getHeight() != 0) {
-            scaleX = (float)settings.getWidth() / (float)view.getWidth();
-            scaleY = (float)settings.getHeight() / (float)view.getHeight();
-        }
-        logger.log(Level.FINE, "Setting input scaling, scaleX: {0}, scaleY: {1}",
-                new Object[]{scaleX, scaleY});
-
+        touchInput.loadSettings(settings);
     }
 
-        // -----------------------------------------
-    // JME3 Input interface
+    public TouchInput getTouchInput() {
+        return touchInput;
+    }
+
+    public JoyInput getJoyInput() {
+        return joyInput;
+    }
+
+    /*
+     *  Android input events include the source from which the input came from.
+     *  We must look at the source of the input event to determine which type
+     *  of jME input it belongs to.
+     *  If the input is from a gamepad or joystick source, the event is sent
+     *  to the JoyInput class to convert the event into jME joystick events.
+     *  </br>
+     *  If the input is from a touchscreen source, the event is sent to the
+     *  TouchProcessor to convert the event into touch events.
+     *  The TouchProcessor also converts the events into Mouse and Key events
+     *  if AppSettings is set to simulate Mouse or Keyboard events.
+     *
+     *  Android reports the source as a bitmask as shown below.</br>
+     *
+     *  InputDevice Sources
+     *     0000 0000 0000 0000 0000 0000 0000 0000 - 32 bit bitmask
+     *
+     *     0000 0000 0000 0000 0000 0000 1111 1111 - SOURCE_CLASS_MASK       (0x000000ff)
+     *     0000 0000 0000 0000 0000 0000 0000 0000 - SOURCE_CLASS_NONE       (0x00000000)
+     *     0000 0000 0000 0000 0000 0000 0000 0001 - SOURCE_CLASS_BUTTON     (0x00000001)
+     *     0000 0000 0000 0000 0000 0000 0000 0010 - SOURCE_CLASS_POINTER    (0x00000002)
+     *     0000 0000 0000 0000 0000 0000 0000 0100 - SOURCE_CLASS_TRACKBALL  (0x00000004)
+     *     0000 0000 0000 0000 0000 0000 0000 1000 - SOURCE_CLASS_POSITION   (0x00000008)
+     *     0000 0000 0000 0000 0000 0000 0001 0000 - SOURCE_CLASS_JOYSTICK   (0x00000010)
+     *
+     *     1111 1111 1111 1111 1111 1111 0000 0000 - Source_Any              (0xffffff00)
+     *     0000 0000 0000 0000 0000 0000 0000 0000 - SOURCE_UNKNOWN          (0x00000000)
+     *     0000 0000 0000 0000 0000 0001 0000 0001 - SOURCE_KEYBOARD         (0x00000101)
+     *     0000 0000 0000 0000 0000 0010 0000 0001 - SOURCE_DPAD             (0x00000201)
+     *     0000 0000 0000 0000 0000 0100 0000 0001 - SOURCE_GAMEPAD          (0x00000401)
+     *     0000 0000 0000 0000 0001 0000 0000 0010 - SOURCE_TOUCHSCREEN      (0x00001002)
+     *     0000 0000 0000 0000 0010 0000 0000 0010 - SOURCE_MOUSE            (0x00002002)
+     *     0000 0000 0000 0000 0100 0000 0000 0010 - SOURCE_STYLUS           (0x00004002)
+     *     0000 0000 0000 0001 0000 0000 0000 0100 - SOURCE_TRACKBALL        (0x00010004)
+     *     0000 0000 0001 0000 0000 0000 0000 1000 - SOURCE_TOUCHPAD         (0x00100008)
+     *     0000 0000 0010 0000 0000 0000 0000 0000 - SOURCE_TOUCH_NAVIGATION (0x00200000)
+     *     0000 0001 0000 0000 0000 0000 0001 0000 - SOURCE_JOYSTICK         (0x01000010)
+     *     0000 0010 0000 0000 0000 0000 0000 0001 - SOURCE_HDMI             (0x02000001)
+     *
+     * Example values reported by Android for Source
+     * 4,098 = 0x00001002 =
+     *     0000 0000 0000 0000 0001 0000 0000 0010 - SOURCE_CLASS_POINTER
+     *                                               SOURCE_TOUCHSCREEN
+     * 1,281 = 0x00000501 =
+     *     0000 0000 0000 0000 0000 0101 0000 0001 - SOURCE_CLASS_BUTTON
+     *                                               SOURCE_KEYBOARD
+     *                                               SOURCE_GAMEPAD
+     * 16,777,232 = 0x01000010 =
+     *     0000 0001 0000 0000 0000 0000 0001 0000 - SOURCE_CLASS_JOYSTICK
+     *                                               SOURCE_JOYSTICK
+     *
+     * 16,778,513 = 0x01000511 =
+     *     0000 0001 0000 0000 0000 0101 0001 0001 - SOURCE_CLASS_BUTTON
+     *                                               SOURCE_CLASS_JOYSTICK
+     *                                               SOURCE_GAMEPAD
+     *                                               SOURCE_KEYBOARD
+     *                                               SOURCE_JOYSTICK
+     *
+     * 257 = 0x00000101 =
+     *     0000 0000 0000 0000 0000 0001 0000 0001 - SOURCE_CLASS_BUTTON
+     *                                               SOURCE_KEYBOARD
+     *
+     *
+     *
+     */
+
+
     @Override
-    public void initialize() {
-        touchEventPool.initialize();
-        if (touchHandler != null) {
-            touchHandler.initialize();
-        }
-        if (keyHandler != null) {
-            keyHandler.initialize();
-        }
-        if (gestureHandler != null) {
-            gestureHandler.initialize();
+    public boolean onTouch(View view, MotionEvent event) {
+        if (view != getView()) {
+            return false;
         }
 
-        initialized = true;
+        boolean consumed = false;
+
+        int source = event.getSource();
+//        logger.log(Level.INFO, "onTouch source: {0}", source);
+
+        boolean isTouch = ((source & InputDevice.SOURCE_TOUCHSCREEN) == InputDevice.SOURCE_TOUCHSCREEN);
+//        logger.log(Level.INFO, "onTouch source: {0}, isTouch: {1}",
+//                new Object[]{source, isTouch});
+
+        if (isTouch && touchInput != null) {
+            // send the event to the touch processor
+            consumed = touchInput.onTouch(event);
+        }
+
+        return consumed;
+
     }
 
     @Override
-    public void destroy() {
-        initialized = false;
-
-        touchEventPool.destroy();
-        if (touchHandler != null) {
-            touchHandler.destroy();
-        }
-        if (keyHandler != null) {
-            keyHandler.destroy();
-        }
-        if (gestureHandler != null) {
-            gestureHandler.destroy();
+    public boolean onKey(View view, int keyCode, KeyEvent event) {
+        if (view != getView()) {
+            return false;
         }
 
-        setView(null);
-    }
+        boolean consumed = false;
 
-    @Override
-    public boolean isInitialized() {
-        return initialized;
-    }
+        int source = event.getSource();
+//        logger.log(Level.INFO, "onKey source: {0}", source);
 
-    @Override
-    public void setInputListener(RawInputListener listener) {
-        this.listener = listener;
-    }
+        boolean isTouch =
+                ((source & InputDevice.SOURCE_TOUCHSCREEN) == InputDevice.SOURCE_TOUCHSCREEN) ||
+                ((source & InputDevice.SOURCE_KEYBOARD) == InputDevice.SOURCE_KEYBOARD);
+//        logger.log(Level.INFO, "onKey source: {0}, isTouch: {1}",
+//                new Object[]{source, isTouch});
 
-    @Override
-    public long getInputTimeNanos() {
-        return System.nanoTime();
-    }
-
-    public void update() {
-        if (listener != null) {
-            InputEvent inputEvent;
-
-            while ((inputEvent = inputEventQueue.poll()) != null) {
-                if (inputEvent instanceof TouchEvent) {
-                    listener.onTouchEvent((TouchEvent)inputEvent);
-                } else if (inputEvent instanceof MouseButtonEvent) {
-                    listener.onMouseButtonEvent((MouseButtonEvent)inputEvent);
-                } else if (inputEvent instanceof MouseMotionEvent) {
-                    listener.onMouseMotionEvent((MouseMotionEvent)inputEvent);
-                } else if (inputEvent instanceof KeyInputEvent) {
-                    listener.onKeyEvent((KeyInputEvent)inputEvent);
-                }
-            }
+        if (touchInput != null) {
+            consumed = touchInput.onKey(event);
         }
-    }
 
-    // -----------------------------------------
+        return consumed;
 
-    public TouchEvent getFreeTouchEvent() {
-            return touchEventPool.getNextFreeEvent();
-    }
-
-    public void addEvent(InputEvent event) {
-        inputEventQueue.add(event);
-        if (event instanceof TouchEvent) {
-            touchEventPool.storeEvent((TouchEvent)event);
-        }
-    }
-
-    public void setSimulateMouse(boolean simulate) {
-        this.mouseEventsEnabled = simulate;
-    }
-
-    public boolean isSimulateMouse() {
-        return mouseEventsEnabled;
-    }
-
-    public boolean isMouseEventsInvertX() {
-        return mouseEventsInvertX;
-    }
-
-    public boolean isMouseEventsInvertY() {
-        return mouseEventsInvertY;
-    }
-
-    public void setSimulateKeyboard(boolean simulate) {
-        this.keyboardEventsEnabled = simulate;
-    }
-
-    public boolean isSimulateKeyboard() {
-        return keyboardEventsEnabled;
-    }
-
-    public void setOmitHistoricEvents(boolean dontSendHistory) {
-        this.dontSendHistory = dontSendHistory;
     }
 
 }

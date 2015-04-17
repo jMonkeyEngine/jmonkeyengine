@@ -33,9 +33,7 @@ package com.jme3.input.android;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
-import android.os.Build;
 import android.os.Vibrator;
-import android.view.View;
 import com.jme3.input.InputManager;
 import com.jme3.input.JoyInput;
 import com.jme3.input.Joystick;
@@ -79,15 +77,15 @@ import java.util.logging.Logger;
  *
  * @author iwgeric
  */
-public class AndroidJoyInputHandler implements JoyInput {
-    private static final Logger logger = Logger.getLogger(AndroidJoyInputHandler.class.getName());
+public class AndroidJoyInput implements JoyInput {
+    private static final Logger logger = Logger.getLogger(AndroidJoyInput.class.getName());
 
-    private List<Joystick> joystickList = new ArrayList<Joystick>();
+    protected AndroidInputHandler inputHandler;
+    protected List<Joystick> joystickList = new ArrayList<Joystick>();
 //    private boolean dontSendHistory = false;
 
 
     // Internal
-    private GLSurfaceView view;
     private boolean initialized = false;
     private RawInputListener listener = null;
     private ConcurrentLinkedQueue<InputEvent> eventQueue = new ConcurrentLinkedQueue<InputEvent>();
@@ -96,34 +94,29 @@ public class AndroidJoyInputHandler implements JoyInput {
     private boolean vibratorActive = false;
     private long maxRumbleTime = 250;  // 250ms
 
-    public AndroidJoyInputHandler() {
-        int buildVersion = Build.VERSION.SDK_INT;
-        logger.log(Level.INFO, "Android Build Version: {0}", buildVersion);
-//        if (buildVersion >= 14) {
-//            touchHandler = new AndroidTouchHandler14(this);
-//        } else if (buildVersion >= 8){
-//            touchHandler = new AndroidTouchHandler(this);
-//        }
+    public AndroidJoyInput(AndroidInputHandler inputHandler) {
+        this.inputHandler = inputHandler;
         sensorJoyInput = new AndroidSensorJoyInput(this);
     }
 
     public void setView(GLSurfaceView view) {
-//        if (touchHandler != null) {
-//            touchHandler.setView(view);
-//        }
+        if (view == null) {
+            vibrator = null;
+        } else {
+            // Get instance of Vibrator from current Context
+            vibrator = (Vibrator) view.getContext().getSystemService(Context.VIBRATOR_SERVICE);
+            if (vibrator == null) {
+                logger.log(Level.FINE, "Vibrator Service not found.");
+            }
+        }
+
         if (sensorJoyInput != null) {
             sensorJoyInput.setView(view);
         }
-        this.view = (GLSurfaceView)view;
-
-    }
-
-    public View getView() {
-        return view;
     }
 
     public void loadSettings(AppSettings settings) {
-//        sensorEventsEnabled = settings.useSensors();
+
     }
 
     public void addEvent(InputEvent event) {
@@ -155,20 +148,8 @@ public class AndroidJoyInputHandler implements JoyInput {
 
     }
 
-
-
-
-
     @Override
     public void initialize() {
-//        if (sensorJoyInput != null) {
-//            sensorJoyInput.initialize();
-//        }
-        // Get instance of Vibrator from current Context
-        vibrator = (Vibrator) view.getContext().getSystemService(Context.VIBRATOR_SERVICE);
-        if (vibrator == null) {
-            logger.log(Level.FINE, "Vibrator Service not found.");
-        }
         initialized = true;
     }
 
@@ -211,8 +192,8 @@ public class AndroidJoyInputHandler implements JoyInput {
             };
             final int rumbleRepeatFrom = 0; // index into rumble pattern to repeat from
 
-            logger.log(Level.FINE, "Rumble amount: {0}, rumbleOnDur: {1}, rumbleOffDur: {2}",
-                    new Object[]{amount, rumbleOnDur, rumbleOffDur});
+//            logger.log(Level.FINE, "Rumble amount: {0}, rumbleOnDur: {1}, rumbleOffDur: {2}",
+//                    new Object[]{amount, rumbleOnDur, rumbleOffDur});
 
             if (rumbleOnDur > 0) {
                 vibrator.vibrate(rumblePattern, rumbleRepeatFrom);
@@ -226,9 +207,8 @@ public class AndroidJoyInputHandler implements JoyInput {
 
     @Override
     public Joystick[] loadJoysticks(InputManager inputManager) {
+        logger.log(Level.INFO, "loading joysticks for {0}", this.getClass().getName());
         joystickList.add(sensorJoyInput.loadJoystick(joystickList.size(), inputManager));
-
-
         return joystickList.toArray( new Joystick[joystickList.size()] );
     }
 
@@ -251,7 +231,5 @@ public class AndroidJoyInputHandler implements JoyInput {
         }
 
     }
-
-
 
 }
