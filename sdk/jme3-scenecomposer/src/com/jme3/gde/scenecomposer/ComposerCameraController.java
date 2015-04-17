@@ -79,26 +79,24 @@ public class ComposerCameraController extends AbstractCameraController {
 
     @Override
     public void checkClick(int button, boolean pressed) {
-        if (button == 0) {
-            if (isEditButtonEnabled() && !forceCameraControls) {
+        if (!forceCameraControls || !pressed) { // dont call toolController while forceCam but on button release (for UndoRedo)
+            if (button == 0) {
                 toolController.doEditToolActivatedPrimary(new Vector2f(mouseX, mouseY), pressed, cam);
             }
-        }
-        if (button == 1) {
-            if (isEditButtonEnabled() && !forceCameraControls) {
+            if (button == 1) {
                 toolController.doEditToolActivatedSecondary(new Vector2f(mouseX, mouseY), pressed, cam);
             }
         }
-
-
     }
 
     @Override
     protected void checkDragged(int button, boolean pressed) {
-        if (button == 0) {
-            toolController.doEditToolDraggedPrimary(new Vector2f(mouseX, mouseY), pressed, cam);
-        } else if (button == 1) {
-            toolController.doEditToolDraggedSecondary(new Vector2f(mouseX, mouseY), pressed, cam);
+        if (!forceCameraControls || !pressed) {
+            if (button == 0) {
+                toolController.doEditToolDraggedPrimary(new Vector2f(mouseX, mouseY), pressed, cam);
+            } else if (button == 1) {
+                toolController.doEditToolDraggedSecondary(new Vector2f(mouseX, mouseY), pressed, cam);
+            }
         }
     }
 
