@@ -148,7 +148,8 @@ public class AndroidInputHandler14 extends AndroidInputHandler implements View.O
         if (isJoystick && joyInput != null) {
 //            logger.log(Level.INFO, "onKey source: {0}, isJoystick: {1}",
 //                    new Object[]{source, isJoystick});
-            consumed = consumed || ((AndroidJoyInput14)joyInput).onKey(event);
+            // use inclusive OR to make sure the onKey method is called.
+            consumed = consumed | ((AndroidJoyInput14)joyInput).onKey(event);
         }
 
         return consumed;
