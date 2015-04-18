@@ -79,6 +79,7 @@ import java.util.logging.Logger;
  */
 public class AndroidJoyInput implements JoyInput {
     private static final Logger logger = Logger.getLogger(AndroidJoyInput.class.getName());
+    public static boolean disableSensors = false;
 
     protected AndroidInputHandler inputHandler;
     protected List<Joystick> joystickList = new ArrayList<Joystick>();
@@ -208,7 +209,9 @@ public class AndroidJoyInput implements JoyInput {
     @Override
     public Joystick[] loadJoysticks(InputManager inputManager) {
         logger.log(Level.INFO, "loading joysticks for {0}", this.getClass().getName());
-        joystickList.add(sensorJoyInput.loadJoystick(joystickList.size(), inputManager));
+        if (!disableSensors) {
+            joystickList.add(sensorJoyInput.loadJoystick(joystickList.size(), inputManager));
+        }
         return joystickList.toArray( new Joystick[joystickList.size()] );
     }
 
