@@ -37,6 +37,8 @@ import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Quick n' dirty dumper of FBX binary files.
@@ -45,12 +47,14 @@ import java.util.Map;
  * 
  * @author Kirill Vainer
  */
-public final class FBXDump {
+public final class FbxDump {
+    
+    private static final Logger logger = Logger.getLogger(FbxDump.class.getName());
     
     private static final DecimalFormat DECIMAL_FORMAT 
             = new DecimalFormat("0.0000000000");
     
-    private FBXDump() { }
+    private FbxDump() { }
     
     /**
      * Creates a map between object UIDs and the objects themselves.
@@ -58,16 +62,17 @@ public final class FBXDump {
      * @param file The file to create the mappings for.
      * @return The UID to object map.
      */
-    private static Map<Long, FBXElement> createUidToObjectMap(FBXFile file) {
-        Map<Long, FBXElement> uidToObjectMap = new HashMap<Long, FBXElement>();
-        for (FBXElement rootElement : file.rootElements) {
+    private static Map<FbxId, FbxElement> createUidToObjectMap(FbxFile file) {
+        Map<FbxId, FbxElement> uidToObjectMap = new HashMap<FbxId, FbxElement>();
+        for (FbxElement rootElement : file.rootElements) {
             if (rootElement.id.equals("Objects")) {
-                for (FBXElement fbxObj : rootElement.children) {
-                    if (fbxObj.propertiesTypes[0] != 'L') {
-                        continue; // error
+                for (FbxElement fbxObj : rootElement.children) {
+                    FbxId uid = FbxId.getObjectId(fbxObj);
+                    if (uid != null) {
+                        uidToObjectMap.put(uid, fbxObj);
+                    } else {
+                        logger.log(Level.WARNING, "Cannot determine ID for object: {0}", fbxObj);
                     }
-                    Long uid = (Long) fbxObj.properties.get(0);
-                    uidToObjectMap.put(uid, fbxObj);
                 }
             }
         }
@@ -79,8 +84,8 @@ public final class FBXDump {
      * 
      * @param file the file to dump.
      */
-    public static void dumpFBX(FBXFile file) {
-        dumpFBX(file, System.out);
+    public static void dumpFile(FbxFile file) {
+        dumpFile(file, System.out);
     }
     
     /**
@@ -89,11 +94,11 @@ public final class FBXDump {
      * @param file the file to dump.
      * @param out the output stream where to output.
      */
-    public static void dumpFBX(FBXFile file, OutputStream out) {
-        Map<Long, FBXElement> uidToObjectMap = createUidToObjectMap(file);
+    public static void dumpFile(FbxFile file, OutputStream out) {
+        Map<FbxId, FbxElement> uidToObjectMap = createUidToObjectMap(file);
         PrintStream ps = new PrintStream(out);
-        for (FBXElement rootElement : file.rootElements) {
-            dumpFBXElement(rootElement, ps, 0, uidToObjectMap);
+        for (FbxElement rootElement : file.rootElements) {
+            dumpElement(rootElement, ps, 0, uidToObjectMap);
         }
     }
     
@@ -112,9 +117,9 @@ public final class FBXDump {
         return string.replaceAll("\u0000\u0001", "::");
     }
 
-    protected static void dumpFBXProperty(String id, char propertyType, 
+    protected static void dumpProperty(String id, char propertyType, 
                                           Object property, PrintStream ps, 
-                                          Map<Long, FBXElement> uidToObjectMap) {
+                                          Map<FbxId, FbxElement> uidToObjectMap) {
         switch (propertyType) {
             case 'S':
                 // String
@@ -124,12 +129,18 @@ public final class FBXDump {
             case 'R':
                 // RAW data.
                 byte[] bytes = (byte[]) property;
-                ps.print("[");
-                for (int j = 0; j < bytes.length; j++) {
+                int numToPrint = Math.min(10 * 1024, bytes.length);
+                ps.print("(size = ");
+                ps.print(bytes.length);
+                ps.print(") [");
+                for (int j = 0; j < numToPrint; j++) {
                     ps.print(String.format("%02X", bytes[j] & 0xff));
                     if (j != bytes.length - 1) {
                         ps.print(" ");
                     }
+                }
+                if (numToPrint < bytes.length) {
+                    ps.print(" ...");
                 }
                 ps.print("]");
                 break;
@@ -158,7 +169,7 @@ public final class FBXDump {
                 // If this is a connection, decode UID into object name.
                 if (id.equals("C")) {
                     Long uid = (Long) property;
-                    FBXElement element = uidToObjectMap.get(uid);
+                    FbxElement element = uidToObjectMap.get(FbxId.create(uid));
                     if (element != null) {
                         String name = (String) element.properties.get(1);
                         ps.print("\"" + convertFBXString(name) + "\"");
@@ -177,7 +188,7 @@ public final class FBXDump {
                 int length = Array.getLength(property);
                 for (int j = 0; j < length; j++) {
                     Object arrayEntry = Array.get(property, j);
-                    dumpFBXProperty(id, Character.toUpperCase(propertyType), arrayEntry, ps, uidToObjectMap);
+                    dumpProperty(id, Character.toUpperCase(propertyType), arrayEntry, ps, uidToObjectMap);
                     if (j != length - 1) {
                         ps.print(",");
                     }
@@ -188,24 +199,24 @@ public final class FBXDump {
         }
     }
     
-    protected static void dumpFBXElement(FBXElement el, PrintStream ps, 
-                                         int indent, Map<Long, FBXElement> uidToObjectMap) {
+    protected static void dumpElement(FbxElement el, PrintStream ps, 
+                                         int indent, Map<FbxId, FbxElement> uidToObjectMap) {
         // 4 spaces per tab should be OK.
         String indentStr = indent(indent * 4);
         String textId = el.id;
         
         // Properties are called 'P' and connections are called 'C'.
-        if (el.id.equals("P")) {
-            textId = "Property";
-        } else if (el.id.equals("C")) {
-            textId = "Connect";
-        }
+//        if (el.id.equals("P")) {
+//            textId = "Property";
+//        } else if (el.id.equals("C")) {
+//            textId = "Connect";
+//        }
         
         ps.print(indentStr + textId + ": ");
         for (int i = 0; i < el.properties.size(); i++) {
             Object property = el.properties.get(i);
             char propertyType = el.propertiesTypes[i];
-            dumpFBXProperty(el.id, propertyType, property, ps, uidToObjectMap);
+            dumpProperty(el.id, propertyType, property, ps, uidToObjectMap);
             if (i != el.properties.size() - 1) {
                 ps.print(", ");
             }
@@ -214,8 +225,8 @@ public final class FBXDump {
             ps.println();
         } else {
             ps.println(" {");
-            for (FBXElement childElement : el.children) {
-                dumpFBXElement(childElement, ps, indent + 1, uidToObjectMap);
+            for (FbxElement childElement : el.children) {
+                dumpElement(childElement, ps, indent + 1, uidToObjectMap);
             }
             ps.println(indentStr + "}");
         }

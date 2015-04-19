@@ -40,8 +40,8 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.zip.InflaterInputStream;
 
-public class FBXReader {
-	
+public class FbxReader {
+
 	public static final int BLOCK_SENTINEL_LENGTH = 13;
 	public static final byte[] BLOCK_SENTINEL_DATA = new byte[BLOCK_SENTINEL_LENGTH];
 	/**
@@ -49,9 +49,9 @@ public class FBXReader {
 	 * "Kaydara FBX Binary\x20\x20\x00\x1a\x00"
 	 */
 	public static final byte[] HEAD_MAGIC = new byte[]{0x4b, 0x61, 0x79, 0x64, 0x61, 0x72, 0x61, 0x20, 0x46, 0x42, 0x58, 0x20, 0x42, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x20, 0x20, 0x00, 0x1a, 0x00};
-	
-	public static FBXFile readFBX(InputStream stream) throws IOException {
-		FBXFile fbxFile = new FBXFile();
+
+	public static FbxFile readFBX(InputStream stream) throws IOException {
+		FbxFile fbxFile = new FbxFile();
 		// Read file to byte buffer so we can know current position in file
 		ByteBuffer byteBuffer = readToByteBuffer(stream);
 		try {
@@ -61,27 +61,29 @@ public class FBXReader {
 		// Check majic header
 		byte[] majic = getBytes(byteBuffer, HEAD_MAGIC.length);
 		if(!Arrays.equals(HEAD_MAGIC, majic))
-			throw new IOException("Not FBX file");
+			throw new IOException("Either ASCII FBX or corrupt file. "
+                                            + "Only binary FBX files are supported");
+
 		// Read version
 		fbxFile.version = getUInt(byteBuffer);
 		// Read root elements
 		while(true) {
-			FBXElement e = readFBXElement(byteBuffer);
+			FbxElement e = readFBXElement(byteBuffer);
 			if(e == null)
 				break;
 			fbxFile.rootElements.add(e);
 		}
 		return fbxFile;
 	}
-	
-	private static FBXElement readFBXElement(ByteBuffer byteBuffer) throws IOException {
+
+	private static FbxElement readFBXElement(ByteBuffer byteBuffer) throws IOException {
 		long endOffset = getUInt(byteBuffer);
 		if(endOffset == 0)
 			return null;
 		long propCount = getUInt(byteBuffer);
 		getUInt(byteBuffer); // Properties length unused
 		
-		FBXElement element = new FBXElement((int) propCount);
+		FbxElement element = new FbxElement((int) propCount);
 		element.id = new String(getBytes(byteBuffer, getUByte(byteBuffer)));
 		
 		for(int i = 0; i < propCount; ++i) {
