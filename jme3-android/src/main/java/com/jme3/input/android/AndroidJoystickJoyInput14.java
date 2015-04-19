@@ -44,6 +44,7 @@ import com.jme3.input.JoyInput;
 import com.jme3.input.Joystick;
 import com.jme3.input.JoystickAxis;
 import com.jme3.input.JoystickButton;
+import com.jme3.input.JoystickCompatibilityMappings;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
 import java.util.ArrayList;
@@ -220,9 +221,14 @@ public class AndroidJoystickJoyInput14 {
         AndroidJoystick joystick = joystickIndex.get(event.getDeviceId());
         if (joystick != null) {
             JoystickButton button = joystick.getButton(event.getKeyCode());
+            boolean pressed = event.getAction() == KeyEvent.ACTION_DOWN;
             if (button != null) {
-                boolean pressed = event.getAction() == KeyEvent.ACTION_DOWN;
                 JoyButtonEvent buttonEvent = new JoyButtonEvent(button, pressed);
+                joyInput.addEvent(buttonEvent);
+                consumed = true;
+            } else {
+                JoystickButton newButton = joystick.addButton(event.getKeyCode());
+                JoyButtonEvent buttonEvent = new JoyButtonEvent(newButton, pressed);
                 joyInput.addEvent(buttonEvent);
                 consumed = true;
             }
@@ -273,44 +279,50 @@ public class AndroidJoystickJoyInput14 {
 //            logger.log(Level.FINE, "Adding button: {0}", keyCode);
 
             String name = KeyEvent.keyCodeToString(keyCode);
-            String logicalId = KeyEvent.keyCodeToString(keyCode);
+            String original = KeyEvent.keyCodeToString(keyCode);
             // A/B/X/Y buttons
             if (keyCode == KeyEvent.KEYCODE_BUTTON_Y) {
-                logicalId = JoystickButton.BUTTON_0;
-            } else if (keyCode == KeyEvent.KEYCODE_BUTTON_A) {
-                logicalId = JoystickButton.BUTTON_2;
+                original = JoystickButton.BUTTON_0;
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_B) {
-                logicalId = JoystickButton.BUTTON_1;
+                original = JoystickButton.BUTTON_1;
+            } else if (keyCode == KeyEvent.KEYCODE_BUTTON_A) {
+                original = JoystickButton.BUTTON_2;
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_X) {
-                logicalId = JoystickButton.BUTTON_3;
+                original = JoystickButton.BUTTON_3;
             // Front buttons  Some of these have the top ones and the bottoms ones flipped.
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_L1) {
-                logicalId = JoystickButton.BUTTON_4;
+                original = JoystickButton.BUTTON_4;
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_R1) {
-                logicalId = JoystickButton.BUTTON_5;
+                original = JoystickButton.BUTTON_5;
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_L2) {
-                logicalId = JoystickButton.BUTTON_6;
+                original = JoystickButton.BUTTON_6;
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_R2) {
-                logicalId = JoystickButton.BUTTON_7;
+                original = JoystickButton.BUTTON_7;
 //            // Dpad buttons
 //            } else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-//                logicalId = JoystickButton.BUTTON_8;
+//                original = JoystickButton.BUTTON_8;
 //            } else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-//                logicalId = JoystickButton.BUTTON_9;
+//                original = JoystickButton.BUTTON_9;
 //            } else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-//                logicalId = JoystickButton.BUTTON_8;
+//                original = JoystickButton.BUTTON_8;
 //            } else if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-//                logicalId = JoystickButton.BUTTON_9;
+//                original = JoystickButton.BUTTON_9;
             // Select and start buttons
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_SELECT) {
-                logicalId = JoystickButton.BUTTON_8;
+                original = JoystickButton.BUTTON_8;
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_START) {
-                logicalId = JoystickButton.BUTTON_9;
+                original = JoystickButton.BUTTON_9;
             // Joystick push buttons
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_THUMBL) {
-                logicalId = JoystickButton.BUTTON_10;
+                original = JoystickButton.BUTTON_10;
             } else if (keyCode == KeyEvent.KEYCODE_BUTTON_THUMBR) {
-                logicalId = JoystickButton.BUTTON_11;
+                original = JoystickButton.BUTTON_11;
+            }
+
+            String logicalId = JoystickCompatibilityMappings.remapComponent( getName(), original );
+            if( logicalId == null ? original != null : !logicalId.equals(original) ) {
+                logger.log(Level.FINE, "Remapped: {0} to: {1}",
+                        new Object[]{original, logicalId});
             }
 
             JoystickButton button = new DefaultJoystickButton( getInputManager(), this, getButtonCount(),
@@ -324,24 +336,25 @@ public class AndroidJoystickJoyInput14 {
 
             String name = MotionEvent.axisToString(motionRange.getAxis());
 
-            String logicalId = MotionEvent.axisToString(motionRange.getAxis());
+            String original = MotionEvent.axisToString(motionRange.getAxis());
             if (motionRange.getAxis() == MotionEvent.AXIS_X) {
-                logicalId = JoystickAxis.X_AXIS;
+                original = JoystickAxis.X_AXIS;
             } else if (motionRange.getAxis() == MotionEvent.AXIS_Y) {
-                logicalId = JoystickAxis.Y_AXIS;
+                original = JoystickAxis.Y_AXIS;
             } else if (motionRange.getAxis() == MotionEvent.AXIS_Z) {
-                logicalId = JoystickAxis.Z_AXIS;
+                original = JoystickAxis.Z_AXIS;
             } else if (motionRange.getAxis() == MotionEvent.AXIS_RZ) {
-                logicalId = JoystickAxis.Z_ROTATION;
+                original = JoystickAxis.Z_ROTATION;
             } else if (motionRange.getAxis() == MotionEvent.AXIS_HAT_X) {
-                logicalId = JoystickAxis.POV_X;
+                original = JoystickAxis.POV_X;
             } else if (motionRange.getAxis() == MotionEvent.AXIS_HAT_Y) {
-                logicalId = JoystickAxis.POV_Y;
+                original = JoystickAxis.POV_Y;
             }
-//            String logicalId = JoystickCompatibilityMappings.remapComponent( controller.getName(), original );
-//            if( name != original ) {
-//                logger.log(Level.FINE, "Remapped:" + original + " to:" + logicalId);
-//            }
+            String logicalId = JoystickCompatibilityMappings.remapComponent( getName(), original );
+            if( logicalId == null ? original != null : !logicalId.equals(original) ) {
+                logger.log(Level.FINE, "Remapped: {0} to: {1}",
+                        new Object[]{original, logicalId});
+            }
 
             JoystickAxis axis = new DefaultJoystickAxis(getInputManager(),
                                                 this,
