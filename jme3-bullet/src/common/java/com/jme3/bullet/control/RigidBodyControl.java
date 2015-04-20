@@ -195,7 +195,7 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
 
     /**
      * When set to true, the physics coordinates will be applied to the local
-     * translation of the Spatial instead of the world traslation.
+     * translation of the Spatial instead of the world translation.
      * @param applyPhysicsLocal
      */
     public void setApplyPhysicsLocal(boolean applyPhysicsLocal) {
