@@ -77,6 +77,7 @@ MaterialDef Advanced Water {
         FragmentShader GLSL120 : Common/MatDefs/Water/Water.frag
 
         WorldParameters {
+            ViewProjectionMatrixInverse
         }
         Defines {
             ENABLE_RIPPLES : UseRipples

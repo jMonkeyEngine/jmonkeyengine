@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,36 +29,41 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.fbx.file;
+package com.jme3.scene.plugins.fbx.mesh;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.jme3.scene.plugins.fbx.file.FbxElement;
 
-public class FBXElement {
-	
-	public String id;
-	public List<Object> properties;
-	/*
-	 * Y - signed short
-	 * C - boolean
-	 * I - signed integer
-	 * F - float
-	 * D - double
-	 * L - long
-	 * R - byte array
-	 * S - string
-	 * f - array of floats
-	 * i - array of ints
-	 * d - array of doubles
-	 * l - array of longs
-	 * b - array of boleans
-	 * c - array of unsigned bytes (represented as array of ints)
-	 */
-	public char[] propertiesTypes;
-	public List<FBXElement> children = new ArrayList<FBXElement>();
-	
-	public FBXElement(int propsCount) {
-		properties = new ArrayList<Object>(propsCount);
-		propertiesTypes = new char[propsCount];
-	}
+public class FbxMeshUtil {
+
+    public static double[] getDoubleArray(FbxElement el) {
+        if (el.propertiesTypes[0] == 'd') {
+            // FBX 7.x
+            return (double[]) el.properties.get(0);
+        } else if (el.propertiesTypes[0] == 'D') {
+            // FBX 6.x
+            double[] doubles = new double[el.propertiesTypes.length];
+            for (int i = 0; i < doubles.length; i++) {
+                doubles[i] = (Double) el.properties.get(i);
+            }
+            return doubles;
+        } else {
+            return null;
+        }
+    }
+    
+    public static int[] getIntArray(FbxElement el) {
+        if (el.propertiesTypes[0] == 'i') {
+            // FBX 7.x
+            return (int[]) el.properties.get(0);
+        } else if (el.propertiesTypes[0] == 'I') {
+            // FBX 6.x
+            int[] ints = new int[el.propertiesTypes.length];
+            for (int i = 0; i < ints.length; i++) {
+                ints[i] = (Integer) el.properties.get(i);
+            }
+            return ints;
+        } else {
+            return null;
+        }
+    }
 }

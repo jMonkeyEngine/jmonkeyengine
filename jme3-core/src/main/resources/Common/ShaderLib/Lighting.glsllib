@@ -30,6 +30,14 @@ float computeSpotFalloff(in vec4 lightDirection, in vec3 lightVector){
     float innerAngleCos = floor(lightDirection.w) * 0.001;
     float outerAngleCos = fract(lightDirection.w);
     float innerMinusOuter = innerAngleCos - outerAngleCos;
-    return  clamp((curAngleCos - outerAngleCos) / innerMinusOuter, step(lightDirection.w, 0.001), 1.0);
+    float falloff = clamp((curAngleCos - outerAngleCos) / innerMinusOuter, step(lightDirection.w, 0.001), 1.0);
+
+#ifdef SRGB
+    // Use quadratic falloff (notice the ^4)
+    return pow(clamp((curAngleCos - outerAngleCos) / innerMinusOuter, 0.0, 1.0), 4.0);
+#else
+    // Use linear falloff
+    return falloff;
+#endif
 }
 

@@ -31,6 +31,7 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 
 /**
@@ -77,7 +78,7 @@ import com.jme3.util.BufferUtils;
         for (int i = 0; i < facesCount; ++i) {
             faceTextures.add(new TriangleTextureElement(i, texture2d.getImage(), uvs, true, blenderContext));
         }
-        this.format = texture2d.getImage().getFormat();
+        format = texture2d.getImage().getFormat();
     }
 
     /**
@@ -113,7 +114,7 @@ import com.jme3.util.BufferUtils;
      */
     public void blend(TextureBlender textureBlender, TriangulatedTexture baseTexture, BlenderContext blenderContext) {
         Format newFormat = null;
-        for (TriangleTextureElement triangleTextureElement : this.faceTextures) {
+        for (TriangleTextureElement triangleTextureElement : faceTextures) {
             Image baseImage = baseTexture == null ? null : baseTexture.getFaceTextureElement(triangleTextureElement.faceIndex).image;
             triangleTextureElement.image = textureBlender.blend(triangleTextureElement.image, baseImage, blenderContext);
             if (newFormat == null) {
@@ -122,7 +123,7 @@ import com.jme3.util.BufferUtils;
                 throw new IllegalArgumentException("Face texture element images MUST have the same image format!");
             }
         }
-        this.format = newFormat;
+        format = newFormat;
     }
 
     /**
@@ -242,7 +243,7 @@ import com.jme3.util.BufferUtils;
                 resultUVS.set(entry.getKey().faceIndex * 3 + 2, uvs[2]);
             }
 
-            Image resultImage = new Image(format, resultImageWidth, resultImageHeight, BufferUtils.createByteBuffer(resultImageWidth * resultImageHeight * (format.getBitsPerPixel() >> 3)));
+            Image resultImage = new Image(format, resultImageWidth, resultImageHeight, BufferUtils.createByteBuffer(resultImageWidth * resultImageHeight * (format.getBitsPerPixel() >> 3)), ColorSpace.Linear);
             resultTexture = new Texture2D(resultImage);
             for (Entry<TriangleTextureElement, Integer[]> entry : imageLayoutData.entrySet()) {
                 if (!duplicatedFaceIndexes.contains(entry.getKey().faceIndex)) {
@@ -420,7 +421,7 @@ import com.jme3.util.BufferUtils;
                     data.put(pixel.getA8());
                 }
             }
-            image = new Image(Format.RGBA8, width, height, data);
+            image = new Image(Format.RGBA8, width, height, data, ColorSpace.Linear);
 
             // modify the UV values so that they fit the new image
             float heightUV = maxUVY - minUVY;
@@ -481,7 +482,7 @@ import com.jme3.util.BufferUtils;
                 imageHeight = 1;
             }
             ByteBuffer data = BufferUtils.createByteBuffer(imageWidth * imageHeight * (imageFormat.getBitsPerPixel() >> 3));
-            image = new Image(texture.getImage().getFormat(), imageWidth, imageHeight, data);
+            image = new Image(texture.getImage().getFormat(), imageWidth, imageHeight, data, ColorSpace.Linear);
 
             // computing the pixels
             PixelInputOutput pixelWriter = PixelIOFactory.getPixelIO(imageFormat);
@@ -529,8 +530,8 @@ import com.jme3.util.BufferUtils;
         public void computeFinalUVCoordinates(int totalImageWidth, int totalImageHeight, int xPos, int yPos, Vector2f[] result) {
             for (int i = 0; i < 3; ++i) {
                 result[i] = new Vector2f();
-                result[i].x = xPos / (float) totalImageWidth + this.uv[i].x * (this.image.getWidth() / (float) totalImageWidth);
-                result[i].y = yPos / (float) totalImageHeight + this.uv[i].y * (this.image.getHeight() / (float) totalImageHeight);
+                result[i].x = xPos / (float) totalImageWidth + uv[i].x * (image.getWidth() / (float) totalImageWidth);
+                result[i].y = yPos / (float) totalImageHeight + uv[i].y * (image.getHeight() / (float) totalImageHeight);
             }
         }
 
@@ -623,9 +624,9 @@ import com.jme3.util.BufferUtils;
          *            a position in 3D space
          */
         public RectangleEnvelope(Vector3f pointPosition) {
-            this.min = pointPosition;
-            this.h = this.w = Vector3f.ZERO;
-            this.width = this.height = 1;
+            min = pointPosition;
+            h = w = Vector3f.ZERO;
+            width = height = 1;
         }
 
         /**
@@ -642,8 +643,8 @@ import com.jme3.util.BufferUtils;
             this.min = min;
             this.h = h;
             this.w = w;
-            this.width = w.length();
-            this.height = h.length();
+            width = w.length();
+            height = h.length();
         }
 
         @Override

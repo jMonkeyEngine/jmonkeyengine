@@ -50,7 +50,6 @@ public class RenderQueue {
     private GeometryList transparentList;
     private GeometryList translucentList;
     private GeometryList skyList;
-    private GeometryList shadowRecv;
 
     /**
      * Creates a new RenderQueue, the default {@link GeometryComparator comparators}
@@ -62,7 +61,6 @@ public class RenderQueue {
         this.transparentList = new GeometryList(new TransparentComparator());
         this.translucentList = new GeometryList(new TransparentComparator());
         this.skyList = new GeometryList(new NullComparator());
-        this.shadowRecv = new GeometryList(new OpaqueComparator());
     }
 
     /**
@@ -259,21 +257,6 @@ public class RenderQueue {
         }
     }
 
-    /**
-     * 
-     * @param shadBucket The shadow mode to retrieve the {@link GeometryList
-     * queue content} for.  Only {@link ShadowMode#Receive Receive} is valid.
-     * @return The cast or receive {@link GeometryList}
-     */
-    public GeometryList getShadowQueueContent(ShadowMode shadBucket) {
-        switch (shadBucket) {
-            case Receive:
-                return shadowRecv;
-            default:
-                throw new IllegalArgumentException("Only Cast or Receive are allowed");
-        }
-    }
-
     private void renderGeometryList(GeometryList list, RenderManager rm, Camera cam, boolean clear) {
         list.setCamera(cam); // select camera for sorting
         list.sort();
@@ -342,6 +325,5 @@ public class RenderQueue {
         transparentList.clear();
         translucentList.clear();
         skyList.clear();
-        shadowRecv.clear();
     }
 }

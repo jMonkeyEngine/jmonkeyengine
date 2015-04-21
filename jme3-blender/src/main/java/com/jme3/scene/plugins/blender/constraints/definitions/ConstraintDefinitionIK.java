@@ -88,14 +88,17 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                     if (angle != 0) {
                         Vector3d cross = currentDir.crossLocal(target).normalizeLocal();
                         q.fromAngleAxis(angle, cross);
-                        if (boneContext.isLockX()) {
-                            q.set(0, q.getY(), q.getZ(), q.getW());
-                        }
-                        if (boneContext.isLockY()) {
-                            q.set(q.getX(), 0, q.getZ(), q.getW());
-                        }
-                        if (boneContext.isLockZ()) {
-                            q.set(q.getX(), q.getY(), 0, q.getW());
+                        
+                        if(bone.equals(this.getOwner())) {
+                            if (boneContext.isLockX()) {
+                                q.set(0, q.getY(), q.getZ(), q.getW());
+                            }
+                            if (boneContext.isLockY()) {
+                                q.set(q.getX(), 0, q.getZ(), q.getW());
+                            }
+                            if (boneContext.isLockZ()) {
+                                q.set(q.getX(), q.getY(), 0, q.getW());
+                            }
                         }
 
                         boneTransform.getRotation().set(q.multLocal(boneTransform.getRotation()));
@@ -107,6 +110,8 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
             }
         }
 
+        List<Transform> bestSolution = new ArrayList<Transform>(bones.size());
+        double bestSolutionDistance = Double.MAX_VALUE;
         BoneContext topBone = bones.get(0);
         for (int i = 0; i < iterations && distanceFromTarget > MIN_DISTANCE; ++i) {
             for (BoneContext boneContext : bones) {
@@ -124,14 +129,16 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                     Vector3d cross = currentDir.crossLocal(target).normalizeLocal();
                     q.fromAngleAxis(angle, cross);
 
-                    if (boneContext.isLockX()) {
-                        q.set(0, q.getY(), q.getZ(), q.getW());
-                    }
-                    if (boneContext.isLockY()) {
-                        q.set(q.getX(), 0, q.getZ(), q.getW());
-                    }
-                    if (boneContext.isLockZ()) {
-                        q.set(q.getX(), q.getY(), 0, q.getW());
+                    if(bone.equals(this.getOwner())) {
+                        if (boneContext.isLockX()) {
+                            q.set(0, q.getY(), q.getZ(), q.getW());
+                        }
+                        if (boneContext.isLockY()) {
+                            q.set(q.getX(), 0, q.getZ(), q.getW());
+                        }
+                        if (boneContext.isLockZ()) {
+                            q.set(q.getX(), q.getY(), 0, q.getW());
+                        }
                     }
 
                     boneWorldTransform.getRotation().set(q.multLocal(boneWorldTransform.getRotation()));
@@ -145,6 +152,20 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
             DTransform topBoneTransform = new DTransform(constraintHelper.getTransform(topBone.getArmatureObjectOMA(), topBone.getBone().getName(), Space.CONSTRAINT_SPACE_WORLD));
             Vector3d e = topBoneTransform.getTranslation().addLocal(topBoneTransform.getRotation().mult(Vector3d.UNIT_Y).multLocal(topBone.getLength()));// effector
             distanceFromTarget = e.distance(t);
+            
+            if(distanceFromTarget < bestSolutionDistance) {
+                bestSolutionDistance = distanceFromTarget;
+                bestSolution.clear();
+                for(BoneContext boneContext : bones) {
+                    bestSolution.add(constraintHelper.getTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), Space.CONSTRAINT_SPACE_WORLD));
+                }
+            }
+        }
+        
+        // applying best solution
+        for(int i=0;i<bestSolution.size();++i) {
+            BoneContext boneContext = bones.get(i);
+            constraintHelper.applyTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), Space.CONSTRAINT_SPACE_WORLD, bestSolution.get(i));
         }
     }
 

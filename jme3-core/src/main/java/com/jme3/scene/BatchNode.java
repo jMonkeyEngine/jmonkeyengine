@@ -64,7 +64,7 @@ import java.util.logging.Logger;
  * TODO more automagic (batch when needed in the updateLogicalState)
  * @author Nehon
  */
-public class BatchNode extends GeometryGroupNode implements Savable {
+public class BatchNode extends GeometryGroupNode {
 
     private static final Logger logger = Logger.getLogger(BatchNode.class.getName());
     /**
@@ -118,47 +118,19 @@ public class BatchNode extends GeometryGroupNode implements Savable {
     public void onGeoemtryUnassociated(Geometry geom) {
         setNeedsFullRebatch(true);
     }
-
+    
     @Override
     public void updateGeometricState() {
-        if ((refreshFlags & RF_LIGHTLIST) != 0) {
-            updateWorldLightList();
-        }
-
-        if ((refreshFlags & RF_TRANSFORM) != 0) {
-            // combine with parent transforms- same for all spatial
-            // subclasses.
-            updateWorldTransforms();
-        }
-
         if (!children.isEmpty()) {
-            // the important part- make sure child geometric state is refreshed
-            // first before updating own world bound. This saves
-            // a round-trip later on.
-            // NOTE 9/19/09
-            // Although it does save a round trip,
-
-            for (Spatial child : children.getArray()) {
-                child.updateGeometricState();
-            }
-
             for (Batch batch : batches.getArray()) {
                 if (batch.needMeshUpdate) {
                     batch.geometry.updateModelBound();
                     batch.geometry.updateWorldBound();
                     batch.needMeshUpdate = false;
-
                 }
             }
-
-
         }
-
-        if ((refreshFlags & RF_BOUND) != 0) {
-            updateWorldBound();
-        }
-
-        assert refreshFlags == 0;
+        super.updateGeometricState();
     }
 
     protected Matrix4f getTransformMatrix(Geometry g){
@@ -212,7 +184,6 @@ public class BatchNode extends GeometryGroupNode implements Savable {
             batch.geometry.setIgnoreTransform(true);
             batch.geometry.setUserData(UserData.JME_PHYSICSIGNORE, true);
         }
-        updateGeometricState();
     }
 
     protected void doBatch() {

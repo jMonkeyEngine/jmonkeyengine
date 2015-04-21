@@ -41,13 +41,13 @@ public final class ImageUtils {
     public static Image createEmptyImage(Format format, int width, int height, int depth) {
         int bufferSize = width * height * (format.getBitsPerPixel() >> 3);
         if (depth < 2) {
-            return new Image(format, width, height, BufferUtils.createByteBuffer(bufferSize));
+            return new Image(format, width, height, BufferUtils.createByteBuffer(bufferSize), com.jme3.texture.image.ColorSpace.Linear);
         }
         ArrayList<ByteBuffer> data = new ArrayList<ByteBuffer>(depth);
         for (int i = 0; i < depth; ++i) {
             data.add(BufferUtils.createByteBuffer(bufferSize));
         }
-        return new Image(Format.RGB8, width, height, depth, data);
+        return new Image(Format.RGB8, width, height, depth, data, com.jme3.texture.image.ColorSpace.Linear);
     }
 
     /**
@@ -337,7 +337,7 @@ public final class ImageUtils {
                             alphas[0] = data.get() * 255.0f;
                             alphas[1] = data.get() * 255.0f;
                             //the casts to long must be done here because otherwise 32-bit integers would be shifetd by 32 and 40 bits which would result in improper values
-                            long alphaIndices = (long)data.get() | (long)data.get() << 8 | (long)data.get() << 16 | (long)data.get() << 24 | (long)data.get() << 32 | (long)data.get() << 40;
+                            long alphaIndices = data.get() | (long)data.get() << 8 | (long)data.get() << 16 | (long)data.get() << 24 | (long)data.get() << 32 | (long)data.get() << 40;
                             if (alphas[0] > alphas[1]) {// 6 interpolated alpha values.
                                 alphas[2] = (6 * alphas[0] + alphas[1]) / 7;
                                 alphas[3] = (5 * alphas[0] + 2 * alphas[1]) / 7;
@@ -404,7 +404,8 @@ public final class ImageUtils {
             dataArray.add(BufferUtils.createByteBuffer(bytes));
         }
 
-        Image result = depth > 1 ? new Image(Format.RGBA8, image.getWidth(), image.getHeight(), depth, dataArray) : new Image(Format.RGBA8, image.getWidth(), image.getHeight(), dataArray.get(0));
+        Image result = depth > 1 ? new Image(Format.RGBA8, image.getWidth(), image.getHeight(), depth, dataArray, com.jme3.texture.image.ColorSpace.Linear) : 
+                                   new Image(Format.RGBA8, image.getWidth(), image.getHeight(), dataArray.get(0), com.jme3.texture.image.ColorSpace.Linear);
         if (newMipmapSizes != null) {
             result.setMipMapSizes(newMipmapSizes);
         }
@@ -467,6 +468,6 @@ public final class ImageUtils {
     private static Image toJmeImage(BufferedImage bufferedImage, Format format) {
         ByteBuffer byteBuffer = BufferUtils.createByteBuffer(bufferedImage.getWidth() * bufferedImage.getHeight() * 3);
         ImageToAwt.convert(bufferedImage, format, byteBuffer);
-        return new Image(format, bufferedImage.getWidth(), bufferedImage.getHeight(), byteBuffer);
+        return new Image(format, bufferedImage.getWidth(), bufferedImage.getHeight(), byteBuffer, com.jme3.texture.image.ColorSpace.Linear);
     }
 }

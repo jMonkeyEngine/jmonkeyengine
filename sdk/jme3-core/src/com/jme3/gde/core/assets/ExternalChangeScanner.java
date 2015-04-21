@@ -130,14 +130,16 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
             Spatial original = loadOriginalSpatial();
             Spatial spat = (Spatial) assetDataObject.loadAsset();
             SpatialUtil.updateMeshDataFromOriginal(spat, original);
+            if (SpatialUtil.hasAnimations(original)) {
+                NotifyDescriptor.Confirmation mesg = new NotifyDescriptor.Confirmation("Model appears to have animations, try to import as well?\nCurrently this will unlink attachment Nodes and clear\nadded effects tracks.",
+                        "Animations Available",
+                        NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.QUESTION_MESSAGE);
+                DialogDisplayer.getDefault().notify(mesg);
+                if (mesg.getValue() == NotifyDescriptor.Confirmation.YES_OPTION) {
+                    SpatialUtil.updateAnimControlDataFromOriginal(spat, original);
+                }
+            }
             closeOriginalSpatial();
-//            NotifyDescriptor.Confirmation mesg = new NotifyDescriptor.Confirmation("Model appears to have animations, try to import as well?\nCurrently this will unlink attachment Nodes and clear\nadded effects tracks.",
-//                    "Animations Available",
-//                    NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.QUESTION_MESSAGE);
-//            DialogDisplayer.getDefault().notify(mesg);
-//            if (mesg.getValue() == NotifyDescriptor.Confirmation.YES_OPTION) {
-//                SpatialUtil.updateAnimControlDataFromOriginal(spat, original);
-//            }
             assetDataObject.saveAsset();
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception when trying to update external data.", e);

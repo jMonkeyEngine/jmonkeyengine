@@ -25,6 +25,7 @@ import com.jme3.scene.plugins.blender.curves.BezierCurve;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
+import com.jme3.scene.plugins.blender.file.FileBlockHeader.BlockCode;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
@@ -48,7 +49,7 @@ public class AnimationHelper extends AbstractBlenderHelper {
      */
     public void loadAnimations() throws BlenderFileException {
         LOGGER.info("Loading animations that will be later applied to scene features.");
-        List<FileBlockHeader> actionHeaders = blenderContext.getFileBlocks(Integer.valueOf(FileBlockHeader.BLOCK_AC00));
+        List<FileBlockHeader> actionHeaders = blenderContext.getFileBlocks(BlockCode.BLOCK_AC00);
         if (actionHeaders != null) {
             for (FileBlockHeader header : actionHeaders) {
                 Structure actionStructure = header.getStructure(blenderContext);
@@ -70,7 +71,7 @@ public class AnimationHelper extends AbstractBlenderHelper {
         if (actions.size() > 0) {
             List<Animation> animations = new ArrayList<Animation>();
             for (BlenderAction action : actions) {
-                SpatialTrack[] tracks = action.toTracks(node);
+                SpatialTrack[] tracks = action.toTracks(node, blenderContext);
                 if (tracks != null && tracks.length > 0) {
                     Animation spatialAnimation = new Animation(action.getName(), action.getAnimationTime());
                     spatialAnimation.setTracks(tracks);
@@ -109,7 +110,7 @@ public class AnimationHelper extends AbstractBlenderHelper {
         if (actions.size() > 0) {
             List<Animation> animations = new ArrayList<Animation>();
             for (BlenderAction action : actions) {
-                BoneTrack[] tracks = action.toTracks(skeleton);
+                BoneTrack[] tracks = action.toTracks(skeleton, blenderContext);
                 if (tracks != null && tracks.length > 0) {
                     Animation boneAnimation = new Animation(action.getName(), action.getAnimationTime());
                     boneAnimation.setTracks(tracks);

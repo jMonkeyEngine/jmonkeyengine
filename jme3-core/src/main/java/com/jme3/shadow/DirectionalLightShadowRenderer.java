@@ -181,25 +181,23 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
         ShadowUtil.updateFrustumPoints(viewPort.getCamera(), splitsArray[shadowMapIndex], splitsArray[shadowMapIndex + 1], 1.0f, points);
 
         //Updating shadow cam with curent split frustra
-        if (sceneReceivers.size()==0) {
+        if (lightReceivers.size()==0) {
             for (Spatial scene : viewPort.getScenes()) {
-              ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), RenderQueue.ShadowMode.Receive, sceneReceivers);
+              ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), RenderQueue.ShadowMode.Receive, lightReceivers);
             }
         }
-        ShadowUtil.updateShadowCamera(viewPort, sceneReceivers, shadowCam, points, shadowMapOccluders, stabilize?shadowMapSize:0);
+        ShadowUtil.updateShadowCamera(viewPort, lightReceivers, shadowCam, points, shadowMapOccluders, stabilize?shadowMapSize:0);
 
         return shadowMapOccluders;
     }
 
     @Override
-    GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers) {
-        if (sceneReceivers.size()==0) {
+    void getReceivers(GeometryList lightReceivers) {
+        if (lightReceivers.size()==0) {
             for (Spatial scene : viewPort.getScenes()) {
-                ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), RenderQueue.ShadowMode.Receive, sceneReceivers);
+                ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), RenderQueue.ShadowMode.Receive, lightReceivers);
             }
         }
-        lightReceivers = sceneReceivers;
-        return sceneReceivers;
     }
 
     @Override

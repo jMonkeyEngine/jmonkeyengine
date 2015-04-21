@@ -413,10 +413,6 @@ void main(){
     // to calculate the derivatives for all these pixels by using step()!
     // That way we won't get pixels around the edges of the terrain,
     // Where the derivatives are undefined
-    if(position.y > level){
-            color = color2;
-    }
-
-    gl_FragColor = vec4(color,1.0);
+    gl_FragColor = vec4(mix(color, color2, step(level, position.y)), 1.0);
     
 }

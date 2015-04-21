@@ -34,6 +34,7 @@ package com.jme3.util;
 import com.jme3.util.IntMap.Entry;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * Similar to a {@link Map} except that ints are used as keys.
@@ -234,7 +235,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable {
 
         public Entry next() {
             if (el >= size)
-                throw new IllegalStateException("No more elements!");
+                throw new NoSuchElementException("No more elements!");
 
             if (cur != null){
                 Entry e = cur;

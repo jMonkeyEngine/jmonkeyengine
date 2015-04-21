@@ -51,6 +51,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.image.ColorSpace;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
 
@@ -161,12 +162,17 @@ public class MaterialHelper extends AbstractBlenderHelper {
      *             an exception is throw when problems with blend file occur
      */
     public MaterialContext toMaterialContext(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
-        LOGGER.log(Level.FINE, "Loading material.");
         MaterialContext result = (MaterialContext) blenderContext.getLoadedFeature(structure.getOldMemoryAddress(), LoadedDataType.FEATURE);
         if (result != null) {
             return result;
         }
 
+        if ("ID".equals(structure.getType())) {
+            LOGGER.fine("Loading material from external blend file.");
+            return (MaterialContext) this.loadLibrary(structure);
+        }
+
+        LOGGER.fine("Loading material.");
         result = new MaterialContext(structure, blenderContext);
         LOGGER.log(Level.FINE, "Material''s name: {0}", result.name);
         Long oma = structure.getOldMemoryAddress();
@@ -212,7 +218,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
                 }
             }
 
-            image = new Image(Format.RGBA8, w, h, bb);
+            image = new Image(Format.RGBA8, w, h, bb, ColorSpace.Linear);
             texture.setImage(image);
 
             result.setTextureParam("Texture", VarType.Texture2D, texture);

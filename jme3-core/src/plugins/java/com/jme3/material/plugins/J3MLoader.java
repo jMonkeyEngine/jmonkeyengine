@@ -175,6 +175,7 @@ public class J3MLoader implements AssetLoader {
                     tex.setWrap(WrapMode.Repeat);
                 }
                 tex.setKey(texKey);
+                tex.setName(texKey.getName());
             }         
             return tex;
         }else{

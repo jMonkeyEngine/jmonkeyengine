@@ -32,6 +32,8 @@
 package com.jme3.scene.plugins.fbx;
 
 import com.jme3.asset.TextureKey;
+import com.jme3.asset.cache.AssetCache;
+import com.jme3.asset.cache.WeakRefCloneAssetCache;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -56,6 +58,13 @@ public class ContentTextureKey extends TextureKey {
 		return content;
 	}
 	
+        @Override
+        public Class<? extends AssetCache> getCacheType(){
+            // Need to override this so that textures embedded in FBX
+            // don't get cached by the asset manager.
+            return null;
+        }
+        
 	@Override
 	public String toString() {
 		return super.toString() + " " + content.length + " bytes";

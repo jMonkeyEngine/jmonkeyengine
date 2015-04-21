@@ -89,6 +89,18 @@ public:
     static jclass PhysicsRay_listresult;
     static jmethodID PhysicsRay_addmethod;
 
+	static jclass PhysicsSweep_Class;
+	static jmethodID PhysicsSweep_newSingleResult;
+	static jfieldID PhysicsSweep_normalInWorldSpace;
+	static jfieldID PhysicsSweep_hitfraction;
+	static jfieldID PhysicsSweep_collisionObject;
+	static jclass PhysicsSweep_listresult;
+	static jmethodID PhysicsSweep_addmethod;
+
+	static jclass Transform;
+	static jmethodID Transform_rotation;
+	static jmethodID Transform_translation;
+
     static jclass DebugMeshCallback;
     static jmethodID DebugMeshCallback_addVector;
 

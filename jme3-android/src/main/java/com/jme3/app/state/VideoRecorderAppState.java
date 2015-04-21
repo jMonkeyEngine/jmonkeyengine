@@ -74,7 +74,7 @@ public class VideoRecorderAppState extends AbstractAppState {
 
         public Thread newThread(Runnable r) {
             Thread th = new Thread(r);
-            th.setName("jME Video Processing Thread");
+            th.setName("jME3 Video Processor");
             th.setDaemon(true);
             return th;
         }

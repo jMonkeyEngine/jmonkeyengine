@@ -20,6 +20,7 @@
       <file name='jme3-ios.xml' url='jme3-ios.xml' />
       <file name='jme3-android-native.xml' url='jme3-android-native.xml' />
       <file name='jme3-bullet-native.xml' url='jme3-bullet-native.xml' />
+      <file name='jme3-bullet-native-android.xml' url='jme3-bullet-native-android.xml' />
     </folder>
   </folder>
 </filesystem>

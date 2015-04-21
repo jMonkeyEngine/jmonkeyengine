@@ -151,14 +151,13 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     }
 
     @Override
-    GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers) {
+    void  getReceivers(GeometryList lightReceivers) {
         lightReceivers.clear();
         Camera[] cameras = new Camera[1];
         cameras[0] = shadowCam;
         for (Spatial scene : viewPort.getScenes()) {
             ShadowUtil.getLitGeometriesInViewPort(scene, viewPort.getCamera(), cameras, RenderQueue.ShadowMode.Receive, lightReceivers);
         }
-        return lightReceivers;
     }
     
     @Override

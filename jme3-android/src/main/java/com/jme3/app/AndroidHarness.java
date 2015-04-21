@@ -167,12 +167,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      */
     protected int splashPicID = 0;
 
-    /**
-     * No longer used - Use the android:screenOrientation declaration in
-     * the AndroidManifest.xml file.
-     */
-    @Deprecated
-    protected int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
 
     protected OGLESContext ctx;
     protected GLSurfaceView view = null;

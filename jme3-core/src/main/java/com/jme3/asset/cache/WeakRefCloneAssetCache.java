@@ -155,11 +155,7 @@ public class WeakRefCloneAssetCache implements AssetCache {
     }
 
     public <T> T getFromCache(AssetKey<T> key) {
-        AssetRef smartInfo;
-        synchronized (smartCache){
-            smartInfo = smartCache.get(key);
-        }
-        
+        AssetRef smartInfo = smartCache.get(key);
         if (smartInfo == null) {
             return null;
         } else {

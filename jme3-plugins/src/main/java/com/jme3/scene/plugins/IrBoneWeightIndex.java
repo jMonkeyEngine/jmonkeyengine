@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,14 +29,61 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.fbx.file;
+package com.jme3.scene.plugins;
 
-import java.util.ArrayList;
-import java.util.List;
+public class IrBoneWeightIndex implements Cloneable, Comparable<IrBoneWeightIndex> {
+    
+    int boneIndex;
+    float boneWeight;
 
-public class FBXFile {
-	
-	public List<FBXElement> rootElements = new ArrayList<FBXElement>();
-	public long version;
-	
+    public IrBoneWeightIndex(int boneIndex, float boneWeight) {
+        this.boneIndex = boneIndex;
+        this.boneWeight = boneWeight;
+    }
+
+    @Override
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new AssertionError(ex);
+        }
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 23 * hash + this.boneIndex;
+        hash = 23 * hash + Float.floatToIntBits(this.boneWeight);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final IrBoneWeightIndex other = (IrBoneWeightIndex) obj;
+        if (this.boneIndex != other.boneIndex) {
+            return false;
+        }
+        if (Float.floatToIntBits(this.boneWeight) != Float.floatToIntBits(other.boneWeight)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int compareTo(IrBoneWeightIndex o) {
+        if (boneWeight < o.boneWeight) {
+            return 1;
+        } else if (boneWeight > o.boneWeight) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
 }

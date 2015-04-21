@@ -70,15 +70,15 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.media.nativewindow.NativeWindowFactory;
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2;
-import javax.media.opengl.GL2ES1;
-import javax.media.opengl.GL2ES2;
-import javax.media.opengl.GL2ES3;
-import javax.media.opengl.GL2GL3;
-import javax.media.opengl.GL3;
-import javax.media.opengl.GLContext;
+import com.jogamp.nativewindow.NativeWindowFactory;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL2ES1;
+import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GL2ES3;
+import com.jogamp.opengl.GL2GL3;
+import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.GLContext;
 import jme3tools.converters.MipMapGenerator;
 import jme3tools.shader.ShaderDebug;
 
@@ -1800,7 +1800,7 @@ public class JoglRenderer implements Renderer {
                 if (samples > 1) {
                     return GL3.GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
                 } else {
-                    return GL.GL_TEXTURE_2D_ARRAY;
+                    return GL2ES3.GL_TEXTURE_2D_ARRAY;
                 }
             case ThreeDimensional:
                 return GL2ES2.GL_TEXTURE_3D;
@@ -2014,7 +2014,7 @@ public class JoglRenderer implements Renderer {
             for (int i = 0; i < 6; i++) {
                 TextureUtil.uploadTexture(img, GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, i, 0, linearizeSrgbImages);
             }
-        } else if (target == GL.GL_TEXTURE_2D_ARRAY) {
+        } else if (target == GL2ES3.GL_TEXTURE_2D_ARRAY) {
             if (!caps.contains(Caps.TextureArray)) {
                 throw new RendererException("Texture arrays not supported by graphics hardware");
             }

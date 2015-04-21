@@ -46,17 +46,15 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import com.jme3.input.*;
-import com.jme3.input.android.AndroidSensorJoyInput;
 import com.jme3.input.android.AndroidInputHandler;
+import com.jme3.input.android.AndroidInputHandler14;
 import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.android.AndroidGL;
 import com.jme3.renderer.opengl.GL;
-import com.jme3.renderer.opengl.GLDebugES;
 import com.jme3.renderer.opengl.GLExt;
 import com.jme3.renderer.opengl.GLRenderer;
-import com.jme3.renderer.opengl.GLTracer;
 import com.jme3.system.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -79,7 +77,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected AndroidInputHandler androidInput;
     protected long minFrameDuration = 0;                   // No FPS cap
     protected long lastUpdateTime = 0;
-    protected JoyInput androidSensorJoyInput = null;
 
     public OGLESContext() {
     }
@@ -113,8 +110,13 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         // Start to set up the view
         GLSurfaceView view = new GLSurfaceView(context);
+        logger.log(Level.INFO, "Android Build Version: {0}", Build.VERSION.SDK_INT);
         if (androidInput == null) {
-            androidInput = new AndroidInputHandler();
+            if (Build.VERSION.SDK_INT >= 14) {
+                androidInput = new AndroidInputHandler14();
+            } else if (Build.VERSION.SDK_INT >= 9){
+                androidInput = new AndroidInputHandler();
+            }
         }
         androidInput.setView(view);
         androidInput.loadSettings(settings);
@@ -267,15 +269,12 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
     @Override
     public JoyInput getJoyInput() {
-        if (androidSensorJoyInput == null) {
-            androidSensorJoyInput = new AndroidSensorJoyInput();
-        }
-        return androidSensorJoyInput;
+        return androidInput.getJoyInput();
     }
 
     @Override
     public TouchInput getTouchInput() {
-        return androidInput;
+        return androidInput.getTouchInput();
     }
 
     @Override

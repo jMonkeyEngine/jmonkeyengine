@@ -42,8 +42,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.media.nativewindow.util.Dimension;
-import javax.media.opengl.GLAutoDrawable;
+import com.jogamp.nativewindow.util.Dimension;
+import com.jogamp.opengl.GLAutoDrawable;
 
 public class JoglNewtDisplay extends JoglNewtAbstractDisplay {
     

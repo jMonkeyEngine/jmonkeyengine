@@ -139,12 +139,11 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
     }
 
     @Override
-    GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers) {
+    void getReceivers(GeometryList lightReceivers) {
         lightReceivers.clear();
         for (Spatial scene : viewPort.getScenes()) {
             ShadowUtil.getLitGeometriesInViewPort(scene, viewPort.getCamera(), shadowCams, RenderQueue.ShadowMode.Receive, lightReceivers);
         }
-        return lightReceivers;
     }
 
     @Override
