@@ -704,9 +704,6 @@ public class GLRenderer implements Renderer {
                     case AlphaAdditive:
                         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE);
                         break;
-                    case Color:
-                        gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE_MINUS_SRC_COLOR);
-                        break;
                     case Alpha:
                         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
                         break;
@@ -719,6 +716,7 @@ public class GLRenderer implements Renderer {
                     case ModulateX2:
                         gl.glBlendFunc(GL.GL_DST_COLOR, GL.GL_SRC_COLOR);
                         break;
+                    case Color:
                     case Screen:
                         gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE_MINUS_SRC_COLOR);
                         break;       
