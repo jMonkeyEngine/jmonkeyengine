@@ -90,7 +90,9 @@ public class IosGL implements GL, GLExt {
         if (buffer.remaining() < n) { 
             throw new BufferOverflowException();
         }
+        int pos = buffer.position();
         buffer.put(array, 0, n);
+        buffer.position(pos);
     }
     
     private static void checkLimit(Buffer buffer) {
