@@ -225,6 +225,13 @@ public abstract class LwjglContext implements JmeContext {
                 glfbo = (GLFbo) gl;
             }
             
+            if (settings.getBoolean("GraphicsTiming")) {
+                GLTimingState timingState = new GLTimingState();
+                gl    = (GL) GLTiming.createGLTiming(gl, timingState, GL.class, GL2.class, GL3.class, GL4.class);
+                glext = (GLExt) GLTiming.createGLTiming(glext, timingState, GLExt.class);
+                glfbo = (GLFbo) GLTiming.createGLTiming(glfbo, timingState, GLFbo.class);
+            }
+                  
             if (settings.getBoolean("GraphicsTrace")) {
                 gl    = (GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class, GL4.class);
                 glext = (GLExt) GLTracer.createDesktopGlTracer(glext, GLExt.class);

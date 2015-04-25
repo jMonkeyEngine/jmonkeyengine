@@ -27,6 +27,9 @@ public class LwjglGL implements GL, GL2, GL3, GL4 {
         }
     }
     
+    public void resetStats() {
+    }
+    
     public void glActiveTexture(int param1) {
         GL13.glActiveTexture(param1);
     }

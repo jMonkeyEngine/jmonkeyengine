@@ -16,6 +16,10 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
         this.glfbo = glfbo;
     }
 
+    public void resetStats() {
+        gl.resetStats();
+    }
+    
     public void glActiveTexture(int texture) {
         gl.glActiveTexture(texture);
         checkError();

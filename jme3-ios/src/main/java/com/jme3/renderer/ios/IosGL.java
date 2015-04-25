@@ -50,6 +50,9 @@ public class IosGL implements GL, GLExt {
     
     private final int[] temp_array = new int[16];
     
+    public void resetStats() {
+    }
+    
     private static int getLimitBytes(ByteBuffer buffer) {
         checkLimit(buffer);
         return buffer.limit();

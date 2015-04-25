@@ -870,6 +870,7 @@ public class GLRenderer implements Renderer {
 
     public void postFrame() {
         objManager.deleteUnused(this);
+        gl.resetStats();
     }
 
     /*********************************************************************\

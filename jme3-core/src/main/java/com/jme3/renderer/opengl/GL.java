@@ -177,6 +177,8 @@ public interface GL {
 	public static final int GL_VERTEX_SHADER = 0x8B31;
 	public static final int GL_ZERO = 0x0;
 
+        public void resetStats();
+        
 	public void glActiveTexture(int texture);
 	public void glAttachShader(int program, int shader);
 	public void glBindBuffer(int target, int buffer);
