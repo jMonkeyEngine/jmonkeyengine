@@ -337,7 +337,19 @@ public enum Caps {
      * <p>
      * Improves the quality of environment mapping.
      */
-    SeamlessCubemap;
+    SeamlessCubemap,
+    
+    /**
+     * Running with OpenGL 3.2+ core profile.
+     * 
+     * Compatibility features will not be available.
+     */
+    CoreProfile,
+    
+    /**
+     * GPU can provide and accept binary shaders.
+     */
+    BinaryShader;
 
     /**
      * Returns true if given the renderer capabilities, the texture

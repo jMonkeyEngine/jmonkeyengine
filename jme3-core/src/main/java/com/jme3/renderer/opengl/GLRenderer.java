@@ -112,13 +112,13 @@ public class GLRenderer implements Renderer {
     private final GLFbo glfbo;
     private final TextureUtil texUtil;
     
-    public GLRenderer(GL gl, GLFbo glfbo) {
+    public GLRenderer(GL gl, GLExt glext, GLFbo glfbo) {
         this.gl = gl;
         this.gl2 = gl instanceof GL2 ? (GL2)gl : null;
         this.gl3 = gl instanceof GL3 ? (GL3)gl : null;
         this.gl4 = gl instanceof GL4 ? (GL4)gl : null;
         this.glfbo = glfbo;
-        this.glext = glfbo instanceof GLExt ? (GLExt)glfbo : null;
+        this.glext = glext;
         this.texUtil = new TextureUtil(gl, gl2, glext, context);
     }
 
@@ -137,10 +137,19 @@ public class GLRenderer implements Renderer {
         return limits;
     }
 
-    private static HashSet<String> loadExtensions(String extensions) {
+    private HashSet<String> loadExtensions() {
         HashSet<String> extensionSet = new HashSet<String>(64);
-        for (String extension : extensions.split(" ")) {
-            extensionSet.add(extension);
+        if (gl3 != null) {
+            // If OpenGL3+ is available, use the non-deprecated way
+            // of getting supported extensions.
+            gl3.glGetInteger(GL3.GL_NUM_EXTENSIONS, intBuf16);
+            int extensionCount = intBuf16.get(0);
+            for (int i = 0; i < extensionCount; i++) {
+                String extension = gl3.glGetString(GL.GL_EXTENSIONS, i);
+                extensionSet.add(extension);
+            }
+        } else {
+            extensionSet.addAll(Arrays.asList(gl.glGetString(GL.GL_EXTENSIONS).split(" ")));
         }
         return extensionSet;
     }
@@ -185,10 +194,12 @@ public class GLRenderer implements Renderer {
                         caps.add(Caps.OpenGL31);
                         if (oglVer >= 320) {
                             caps.add(Caps.OpenGL32);
-                        }if(oglVer>=330){
+                        }
+                        if (oglVer >= 330) {
                             caps.add(Caps.OpenGL33);
                             caps.add(Caps.GeometryShader);
-                        }if(oglVer>=400){
+                        }
+                        if (oglVer >= 400) {
                             caps.add(Caps.OpenGL40);
                             caps.add(Caps.TesselationShader);
                         }
@@ -243,7 +254,7 @@ public class GLRenderer implements Renderer {
     }
     
     private void loadCapabilitiesCommon() {
-        extensions = loadExtensions(gl.glGetString(GL.GL_EXTENSIONS));
+        extensions = loadExtensions();
         
         limits.put(Limits.VertexTextureUnits, getInteger(GL.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS));
         if (limits.get(Limits.VertexTextureUnits) > 0) {
@@ -251,7 +262,7 @@ public class GLRenderer implements Renderer {
         }
 
         limits.put(Limits.FragmentTextureUnits, getInteger(GL.GL_MAX_TEXTURE_IMAGE_UNITS));
-
+        
 //        gl.glGetInteger(GL.GL_MAX_VERTEX_UNIFORM_COMPONENTS, intBuf16);
 //        vertexUniforms = intBuf16.get(0);
 //        logger.log(Level.FINER, "Vertex Uniforms: {0}", vertexUniforms);
@@ -279,7 +290,7 @@ public class GLRenderer implements Renderer {
         
         // == texture format extensions ==
         
-        boolean hasFloatTexture = false;
+        boolean hasFloatTexture;
 
         hasFloatTexture = hasExtension("GL_OES_texture_half_float") &&
                           hasExtension("GL_OES_texture_float");
@@ -375,11 +386,11 @@ public class GLRenderer implements Renderer {
             caps.add(Caps.TextureFilterAnisotropic);
         }
 
-        if (hasExtension("GL_EXT_framebuffer_object")) {
+        if (hasExtension("GL_EXT_framebuffer_object") || gl3 != null) {
             caps.add(Caps.FrameBuffer);
             
-            limits.put(Limits.RenderBufferSize, getInteger(GLExt.GL_MAX_RENDERBUFFER_SIZE_EXT));
-            limits.put(Limits.FrameBufferAttachments, getInteger(GLExt.GL_MAX_COLOR_ATTACHMENTS_EXT));
+            limits.put(Limits.RenderBufferSize, getInteger(GLFbo.GL_MAX_RENDERBUFFER_SIZE_EXT));
+            limits.put(Limits.FrameBufferAttachments, getInteger(GLFbo.GL_MAX_COLOR_ATTACHMENTS_EXT));
             
             if (hasExtension("GL_EXT_framebuffer_blit")) {
                 caps.add(Caps.FrameBufferBlit);
@@ -434,21 +445,30 @@ public class GLRenderer implements Renderer {
             caps.add(Caps.SeamlessCubemap);
         }
         
-//        if (hasExtension("GL_ARB_get_program_binary")) {
-//            int binaryFormats = getInteger(GLExt.GL_NUM_PROGRAM_BINARY_FORMATS);
-//        }
+        if (caps.contains(Caps.OpenGL32) && !hasExtension("GL_ARB_compatibility")) {
+            caps.add(Caps.CoreProfile);
+        }
+        
+        if (hasExtension("GL_ARB_get_program_binary")) {
+            int binaryFormats = getInteger(GLExt.GL_NUM_PROGRAM_BINARY_FORMATS);
+            if (binaryFormats > 0) {
+                caps.add(Caps.BinaryShader);
+            }
+        }
         
         // Print context information
         logger.log(Level.INFO, "OpenGL Renderer Information\n" +
                                " * Vendor: {0}\n" +
                                " * Renderer: {1}\n" +
                                " * OpenGL Version: {2}\n" +
-                               " * GLSL Version: {3}",
+                               " * GLSL Version: {3}\n" +
+                               " * Profile: {4}",
                                new Object[]{ 
                                    gl.glGetString(GL.GL_VENDOR), 
                                    gl.glGetString(GL.GL_RENDERER),
                                    gl.glGetString(GL.GL_VERSION),
-                                   gl.glGetString(GL.GL_SHADING_LANGUAGE_VERSION)
+                                   gl.glGetString(GL.GL_SHADING_LANGUAGE_VERSION),
+                                   caps.contains(Caps.CoreProfile) ? "Core" : "Compatibility"
                                });
         
         // Print capabilities (if fine logging is enabled)
@@ -491,6 +511,20 @@ public class GLRenderer implements Renderer {
         
         // Initialize default state..
         gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1);
+        
+        if (caps.contains(Caps.CoreProfile)) {
+            // Core Profile requires VAO to be bound.
+            gl3.glGenVertexArrays(intBuf16);
+            int vaoId = intBuf16.get(0);
+            gl3.glBindVertexArray(vaoId);
+        } 
+        if (gl2 != null) {
+            gl2.glEnable(GL2.GL_VERTEX_PROGRAM_POINT_SIZE);
+            if (!caps.contains(Caps.CoreProfile)) {
+                gl2.glEnable(GL2.GL_POINT_SPRITE);
+                context.pointSprite = true;
+            }
+        }
     }
 
     public void invalidateState() {
@@ -608,31 +642,6 @@ public class GLRenderer implements Renderer {
         } else if (!state.isColorWrite() && context.colorWriteEnabled) {
             gl.glColorMask(false, false, false, false);
             context.colorWriteEnabled = false;
-        }
-
-        if (gl2 != null) {
-            if (state.isPointSprite() && !context.pointSprite) {
-                // Only enable/disable sprite
-                if (context.boundTextures[0] != null) {
-                    if (context.boundTextureUnit != 0) {
-                        gl.glActiveTexture(GL.GL_TEXTURE0);
-                        context.boundTextureUnit = 0;
-                    }
-                    gl2.glEnable(GL2.GL_POINT_SPRITE);
-                    gl2.glEnable(GL2.GL_VERTEX_PROGRAM_POINT_SIZE);
-                }
-                context.pointSprite = true;
-            } else if (!state.isPointSprite() && context.pointSprite) {
-                if (context.boundTextures[0] != null) {
-                    if (context.boundTextureUnit != 0) {
-                        gl.glActiveTexture(GL.GL_TEXTURE0);
-                        context.boundTextureUnit = 0;
-                    }
-                    gl2.glDisable(GL2.GL_POINT_SPRITE);
-                    gl2.glDisable(GL2.GL_VERTEX_PROGRAM_POINT_SIZE);
-                    context.pointSprite = false;
-                }
-            }
         }
 
         if (state.isPolyOffset()) {
@@ -1288,24 +1297,24 @@ public class GLRenderer implements Renderer {
             }
 
             if (src == null) {
-                glfbo.glBindFramebufferEXT(GLExt.GL_READ_FRAMEBUFFER_EXT, 0);
+                glfbo.glBindFramebufferEXT(GLFbo.GL_READ_FRAMEBUFFER_EXT, 0);
                 srcX0 = vpX;
                 srcY0 = vpY;
                 srcX1 = vpX + vpW;
                 srcY1 = vpY + vpH;
             } else {
-                glfbo.glBindFramebufferEXT(GLExt.GL_READ_FRAMEBUFFER_EXT, src.getId());
+                glfbo.glBindFramebufferEXT(GLFbo.GL_READ_FRAMEBUFFER_EXT, src.getId());
                 srcX1 = src.getWidth();
                 srcY1 = src.getHeight();
             }
             if (dst == null) {
-                glfbo.glBindFramebufferEXT(GLExt.GL_DRAW_FRAMEBUFFER_EXT, 0);
+                glfbo.glBindFramebufferEXT(GLFbo.GL_DRAW_FRAMEBUFFER_EXT, 0);
                 dstX0 = vpX;
                 dstY0 = vpY;
                 dstX1 = vpX + vpW;
                 dstY1 = vpY + vpH;
             } else {
-                glfbo.glBindFramebufferEXT(GLExt.GL_DRAW_FRAMEBUFFER_EXT, dst.getId());
+                glfbo.glBindFramebufferEXT(GLFbo.GL_DRAW_FRAMEBUFFER_EXT, dst.getId());
                 dstX1 = dst.getWidth();
                 dstY1 = dst.getHeight();
             }
@@ -1313,12 +1322,12 @@ public class GLRenderer implements Renderer {
             if (copyDepth) {
                 mask |= GL.GL_DEPTH_BUFFER_BIT;
             }
-            glext.glBlitFramebufferEXT(srcX0, srcY0, srcX1, srcY1,
+            glfbo.glBlitFramebufferEXT(srcX0, srcY0, srcX1, srcY1,
                     dstX0, dstY0, dstX1, dstY1, mask,
                     GL.GL_NEAREST);
 
 
-            glfbo.glBindFramebufferEXT(GLExt.GL_FRAMEBUFFER_EXT, prevFBO);
+            glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, prevFBO);
         } else {
             throw new RendererException("Framebuffer blitting not supported by the video hardware");
         }
@@ -1364,7 +1373,7 @@ public class GLRenderer implements Renderer {
         }
 
         if (context.boundRB != id) {
-            glfbo.glBindRenderbufferEXT(GLExt.GL_RENDERBUFFER_EXT, id);
+            glfbo.glBindRenderbufferEXT(GLFbo.GL_RENDERBUFFER_EXT, id);
             context.boundRB = id;
         }
 
@@ -1382,13 +1391,13 @@ public class GLRenderer implements Renderer {
             if (maxSamples < samples) {
                 samples = maxSamples;
             }
-            glext.glRenderbufferStorageMultisampleEXT(GLExt.GL_RENDERBUFFER_EXT,
+            glfbo.glRenderbufferStorageMultisampleEXT(GLFbo.GL_RENDERBUFFER_EXT,
                     samples,
                     glFmt.internalFormat,
                     fb.getWidth(),
                     fb.getHeight());
         } else {
-            glfbo.glRenderbufferStorageEXT(GLExt.GL_RENDERBUFFER_EXT,
+            glfbo.glRenderbufferStorageEXT(GLFbo.GL_RENDERBUFFER_EXT,
                     glFmt.internalFormat,
                     fb.getWidth(),
                     fb.getHeight());
@@ -1398,7 +1407,7 @@ public class GLRenderer implements Renderer {
     private int convertAttachmentSlot(int attachmentSlot) {
         // can also add support for stencil here
         if (attachmentSlot == FrameBuffer.SLOT_DEPTH) {
-            return GLExt.GL_DEPTH_ATTACHMENT_EXT;
+            return GLFbo.GL_DEPTH_ATTACHMENT_EXT;
         } else if (attachmentSlot == FrameBuffer.SLOT_DEPTH_STENCIL) {
             // NOTE: Using depth stencil format requires GL3, this is already
             // checked via render caps.
@@ -1407,7 +1416,7 @@ public class GLRenderer implements Renderer {
             throw new UnsupportedOperationException("Invalid FBO attachment slot: " + attachmentSlot);
         }
         
-        return GLExt.GL_COLOR_ATTACHMENT0_EXT + attachmentSlot;
+        return GLFbo.GL_COLOR_ATTACHMENT0_EXT + attachmentSlot;
     }
 
     public void updateRenderTexture(FrameBuffer fb, RenderBuffer rb) {
@@ -1425,7 +1434,7 @@ public class GLRenderer implements Renderer {
             setupTextureParams(tex);
         }
 
-        glfbo.glFramebufferTexture2DEXT(GLExt.GL_FRAMEBUFFER_EXT,
+        glfbo.glFramebufferTexture2DEXT(GLFbo.GL_FRAMEBUFFER_EXT,
                 convertAttachmentSlot(rb.getSlot()),
                 convertTextureType(tex.getType(), image.getMultiSamples(), rb.getFace()),
                 image.getId(),
@@ -1443,9 +1452,9 @@ public class GLRenderer implements Renderer {
             updateRenderTexture(fb, rb);
         }
         if (needAttach) {
-            glfbo.glFramebufferRenderbufferEXT(GLExt.GL_FRAMEBUFFER_EXT,
+            glfbo.glFramebufferRenderbufferEXT(GLFbo.GL_FRAMEBUFFER_EXT,
                     convertAttachmentSlot(rb.getSlot()),
-                    GLExt.GL_RENDERBUFFER_EXT,
+                    GLFbo.GL_RENDERBUFFER_EXT,
                     rb.getId());
         }
     }
@@ -1463,7 +1472,7 @@ public class GLRenderer implements Renderer {
         }
 
         if (context.boundFBO != id) {
-            glfbo.glBindFramebufferEXT(GLExt.GL_FRAMEBUFFER_EXT, id);
+            glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, id);
             // binding an FBO automatically sets draw buf to GL_COLOR_ATTACHMENT0
             context.boundDrawBuf = 0;
             context.boundFBO = id;
@@ -1543,7 +1552,7 @@ public class GLRenderer implements Renderer {
         if (fb == null) {
             // unbind any fbos
             if (context.boundFBO != 0) {
-                glfbo.glBindFramebufferEXT(GLExt.GL_FRAMEBUFFER_EXT, 0);
+                glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, 0);
                 statistics.onFrameBufferUse(null, true);
 
                 context.boundFBO = 0;
@@ -1575,7 +1584,7 @@ public class GLRenderer implements Renderer {
             setViewPort(0, 0, fb.getWidth(), fb.getHeight());
             
             if (context.boundFBO != fb.getId()) {
-                glfbo.glBindFramebufferEXT(GLExt.GL_FRAMEBUFFER_EXT, fb.getId());
+                glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, fb.getId());
                 statistics.onFrameBufferUse(fb, true);
 
                 context.boundFBO = fb.getId();
@@ -1615,7 +1624,7 @@ public class GLRenderer implements Renderer {
                     if (context.boundDrawBuf != 100 + fb.getNumColorBuffers()) {
                         intBuf16.clear();
                         for (int i = 0; i < fb.getNumColorBuffers(); i++) {
-                            intBuf16.put(GLExt.GL_COLOR_ATTACHMENT0_EXT + i);
+                            intBuf16.put(GLFbo.GL_COLOR_ATTACHMENT0_EXT + i);
                         }
 
                         intBuf16.flip();
@@ -1627,7 +1636,7 @@ public class GLRenderer implements Renderer {
                     // select this draw buffer
                     if (gl2 != null) {
                         if (context.boundDrawBuf != rb.getSlot()) {
-                            gl2.glDrawBuffer(GLExt.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
+                            gl2.glDrawBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
                             context.boundDrawBuf = rb.getSlot();
                         }
                     }
@@ -1656,7 +1665,7 @@ public class GLRenderer implements Renderer {
             setFrameBuffer(fb);
             if (gl2 != null) {
                 if (context.boundReadBuf != rb.getSlot()) {
-                    gl2.glReadBuffer(GLExt.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
+                    gl2.glReadBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
                     context.boundReadBuf = rb.getSlot();
                 }
             }
@@ -1680,7 +1689,7 @@ public class GLRenderer implements Renderer {
     public void deleteFrameBuffer(FrameBuffer fb) {
         if (fb.getId() != -1) {
             if (context.boundFBO == fb.getId()) {
-                glfbo.glBindFramebufferEXT(GLExt.GL_FRAMEBUFFER_EXT, 0);
+                glfbo.glBindFramebufferEXT(GLFbo.GL_FRAMEBUFFER_EXT, 0);
                 context.boundFBO = 0;
             }
 
@@ -2618,32 +2627,13 @@ public class GLRenderer implements Renderer {
             return;
         }
 
-        if (context.pointSprite && mesh.getMode() != Mode.Points) {
-            // XXX: Hack, disable point sprite mode if mesh not in point mode
-            if (context.boundTextures[0] != null) {
-                if (context.boundTextureUnit != 0) {
-                    gl.glActiveTexture(GL.GL_TEXTURE0);
-                    context.boundTextureUnit = 0;
-                }
-                if (gl2 != null) {
-                    gl2.glDisable(GL2.GL_POINT_SPRITE);
-                    gl2.glDisable(GL2.GL_VERTEX_PROGRAM_POINT_SIZE);
-                }
-                context.pointSprite = false;
-            }
-        }
 
-        if (gl2 != null) {
-            if (context.pointSize != mesh.getPointSize()) {
-                gl2.glPointSize(mesh.getPointSize());
-                context.pointSize = mesh.getPointSize();
-            }
-        }
         if (context.lineWidth != mesh.getLineWidth()) {
             gl.glLineWidth(mesh.getLineWidth());
             context.lineWidth = mesh.getLineWidth();
         }
-        if(gl4!=null && mesh.getMode().equals(Mode.Patch)){
+        
+        if (gl4 != null && mesh.getMode().equals(Mode.Patch)) {
             gl4.glPatchParameter(mesh.getPatchVertexCount());
         }
         statistics.onMeshDrawn(mesh, lod, count);

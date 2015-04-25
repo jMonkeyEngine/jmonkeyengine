@@ -13,7 +13,7 @@ import java.nio.ShortBuffer;
 import com.jme3.renderer.opengl.GL4;
 import org.lwjgl.opengl.*;
 
-public class LwjglGL implements GL, GL2, GL3,GL4 {
+public class LwjglGL implements GL, GL2, GL3, GL4 {
     
     private static void checkLimit(Buffer buffer) {
         if (buffer == null) {
@@ -237,6 +237,10 @@ public class LwjglGL implements GL, GL2, GL3,GL4 {
     public String glGetString(int param1) {
         return GL11.glGetString(param1);
     }
+    
+    public String glGetString(int param1, int param2) {
+        return GL30.glGetStringi(param1, param2);
+    }
 
     public boolean glIsEnabled(int param1) {
         return GL11.glIsEnabled(param1);
@@ -443,5 +447,11 @@ public class LwjglGL implements GL, GL2, GL3,GL4 {
     @Override
     public void glPatchParameter(int count) {
         GL40.glPatchParameteri(GL40.GL_PATCH_VERTICES,count);
+    }
+    
+    @Override
+    public void glDeleteVertexArrays(IntBuffer arrays) {
+        checkLimit(arrays);
+        ARBVertexArrayObject.glDeleteVertexArrays(arrays);
     }
 }
