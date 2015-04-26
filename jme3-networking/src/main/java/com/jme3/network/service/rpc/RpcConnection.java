@@ -116,7 +116,11 @@ public class RpcConnection {
         if( log.isLoggable(Level.FINEST) ) {
             log.log(Level.FINEST, "Sending:{0}  on channel:{1}", new Object[]{msg, channel});
         }        
-        connection.send(channel, msg);
+        if( channel >= 0 ) {
+            connection.send(channel, msg);
+        } else {
+            connection.send(msg);
+        }
                 
         return holder.getResponse();
     }
@@ -159,6 +163,14 @@ public class RpcConnection {
         handlers.remove(objId);
     }
  
+    protected void send( byte channel, RpcResponseMessage msg ) {
+        if( channel >= 0 ) {
+            connection.send(channel, msg);
+        } else {
+            connection.send(msg);
+        }
+    }
+ 
     /**
      *  Called internally when an RpcCallMessage is received from 
      *  the remote connection.
@@ -170,15 +182,16 @@ public class RpcConnection {
         }    
         RpcHandler handler = handlers.get(msg.getObjectId());
         try {
+            if( handler == null ) {
+                throw new RuntimeException("Handler not found for objectID:" + msg.getObjectId());
+            }
             Object result = handler.call(this, msg.getObjectId(), msg.getProcedureId(), msg.getArguments());
             if( !msg.isAsync() ) {
-                RpcResponseMessage response = new RpcResponseMessage(msg.getMessageId(), result);
-                connection.send(msg.getChannel(), response);
+                send(msg.getChannel(), new RpcResponseMessage(msg.getMessageId(), result));
             }
         } catch( Exception e ) {
             if( !msg.isAsync() ) {
-                RpcResponseMessage response = new RpcResponseMessage(msg.getMessageId(), e);
-                connection.send(msg.getChannel(), response);
+                send(msg.getChannel(), new RpcResponseMessage(msg.getMessageId(), e));
             } else {
                 log.log(Level.SEVERE, "Error invoking async call for:" + msg, e);
             }
