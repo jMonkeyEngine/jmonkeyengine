@@ -91,9 +91,8 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
      *  Returns true if the specified method is valid for the specified
      *  message type.  This is used internally during automapping to
      *  provide implementation specific filting of methods.
-     *  This implementation checks for methods that take either no
-     *  arguments, the connection and message type arguments (in that order), 
-     *  or just the message type or connection argument.
+     *  This implementation checks for methods that take either the connection and message 
+     *  type arguments (in that order) or just the message type.
      */
     protected boolean isValidMethod( Method m, Class messageType ) {
  
@@ -106,13 +105,15 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
         if( parms.length != 2 && parms.length != 1 ) {
             log.finest("Parameter count is not 1 or 2");
             return false;
-        }            
-        int connectionIndex = parms.length > 1 ? 0 : -1;
-        int messageIndex = parms.length > 1 ? 1 : 0;
-
-        if( connectionIndex > 0 && !MessageConnection.class.isAssignableFrom(parms[connectionIndex]) ) {
-            log.finest("First paramter is not a MessageConnection or subclass.");
-            return false;
+        }                   
+        int messageIndex = 0;
+        if( parms.length > 1 ) {
+            if( MessageConnection.class.isAssignableFrom(parms[0]) ) {
+                messageIndex++;
+            } else {
+                log.finest("First paramter is not a MessageConnection or subclass.");
+                return false;
+            }
         }
  
         if( messageType == null && !Message.class.isAssignableFrom(parms[messageIndex]) ) {
