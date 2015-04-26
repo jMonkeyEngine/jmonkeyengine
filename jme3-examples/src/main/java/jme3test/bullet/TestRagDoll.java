@@ -64,7 +64,7 @@ public class TestRagDoll extends SimpleApplication implements ActionListener {
     public void simpleInitApp() {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
-        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+        bulletAppState.setDebugEnabled(true);
         inputManager.addMapping("Pull ragdoll up", new MouseButtonTrigger(0));
         inputManager.addListener(this, "Pull ragdoll up");
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
