@@ -31,6 +31,8 @@
  */
 package com.jme3.network;
 
+import com.jme3.network.service.ClientServiceManager;
+
 
 /**
  *  Represents a remote connection to a server that can be used
