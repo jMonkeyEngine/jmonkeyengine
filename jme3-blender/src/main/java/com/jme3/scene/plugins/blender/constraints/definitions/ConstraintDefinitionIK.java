@@ -88,14 +88,17 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                     if (angle != 0) {
                         Vector3d cross = currentDir.crossLocal(target).normalizeLocal();
                         q.fromAngleAxis(angle, cross);
-                        if (boneContext.isLockX()) {
-                            q.set(0, q.getY(), q.getZ(), q.getW());
-                        }
-                        if (boneContext.isLockY()) {
-                            q.set(q.getX(), 0, q.getZ(), q.getW());
-                        }
-                        if (boneContext.isLockZ()) {
-                            q.set(q.getX(), q.getY(), 0, q.getW());
+                        
+                        if(bone.equals(this.getOwner())) {
+                            if (boneContext.isLockX()) {
+                                q.set(0, q.getY(), q.getZ(), q.getW());
+                            }
+                            if (boneContext.isLockY()) {
+                                q.set(q.getX(), 0, q.getZ(), q.getW());
+                            }
+                            if (boneContext.isLockZ()) {
+                                q.set(q.getX(), q.getY(), 0, q.getW());
+                            }
                         }
 
                         boneTransform.getRotation().set(q.multLocal(boneTransform.getRotation()));
@@ -124,14 +127,16 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                     Vector3d cross = currentDir.crossLocal(target).normalizeLocal();
                     q.fromAngleAxis(angle, cross);
 
-                    if (boneContext.isLockX()) {
-                        q.set(0, q.getY(), q.getZ(), q.getW());
-                    }
-                    if (boneContext.isLockY()) {
-                        q.set(q.getX(), 0, q.getZ(), q.getW());
-                    }
-                    if (boneContext.isLockZ()) {
-                        q.set(q.getX(), q.getY(), 0, q.getW());
+                    if(bone.equals(this.getOwner())) {
+                        if (boneContext.isLockX()) {
+                            q.set(0, q.getY(), q.getZ(), q.getW());
+                        }
+                        if (boneContext.isLockY()) {
+                            q.set(q.getX(), 0, q.getZ(), q.getW());
+                        }
+                        if (boneContext.isLockZ()) {
+                            q.set(q.getX(), q.getY(), 0, q.getW());
+                        }
                     }
 
                     boneWorldTransform.getRotation().set(q.multLocal(boneWorldTransform.getRotation()));
