@@ -142,7 +142,6 @@ public class PhysicsSpace {
     private javax.vecmath.Vector3f rayVec2 = new javax.vecmath.Vector3f();
     private com.bulletphysics.linearmath.Transform sweepTrans1 = new com.bulletphysics.linearmath.Transform(new javax.vecmath.Matrix3f());
     private com.bulletphysics.linearmath.Transform sweepTrans2 = new com.bulletphysics.linearmath.Transform(new javax.vecmath.Matrix3f());
-    private AssetManager debugManager;
 
     /**
      * Get the current PhysicsSpace <b>running on this thread</b><br/>
@@ -362,7 +361,7 @@ public class PhysicsSpace {
             eventFactory.recycle(physicsCollisionEvent);
         }
     }
-    
+
     public static <V> Future<V> enqueueOnThisThread(Callable<V> callable) {
         AppTask<V> task = new AppTask<V>(callable);
         System.out.println("created apptask");
@@ -620,7 +619,7 @@ public class PhysicsSpace {
         physicsJoints.remove(joint.getObjectId());
         dynamicsWorld.removeConstraint(joint.getObjectId());
     }
-    
+
     public Collection<PhysicsRigidBody> getRigidBodyList(){
         return new LinkedList<PhysicsRigidBody>(physicsBodies.values());
     }
@@ -628,19 +627,19 @@ public class PhysicsSpace {
     public Collection<PhysicsGhostObject> getGhostObjectList(){
         return new LinkedList<PhysicsGhostObject>(physicsGhostObjects.values());
     }
-    
+
     public Collection<PhysicsCharacter> getCharacterList(){
         return new LinkedList<PhysicsCharacter>(physicsCharacters.values());
     }
-    
+
     public Collection<PhysicsJoint> getJointList(){
         return new LinkedList<PhysicsJoint>(physicsJoints.values());
     }
-    
+
     public Collection<PhysicsVehicle> getVehicleList(){
         return new LinkedList<PhysicsVehicle>(physicsVehicles.values());
     }
-    
+
     /**
      * Sets the gravity of the PhysicsSpace, set before adding physics objects!
      * @param gravity
@@ -658,7 +657,7 @@ public class PhysicsSpace {
         dynamicsWorld.getGravity(tempVec);
         return Converter.convert(tempVec, gravity);
     }
-    
+
     /**
      * applies gravity value to all objects
      */
@@ -875,29 +874,6 @@ public class PhysicsSpace {
      */
     public void setWorldMax(Vector3f worldMax) {
         this.worldMax.set(worldMax);
-    }
-
-    /**
-     * Enable debug display for physics.
-     *
-     * @deprecated in favor of BulletDebugAppState, use
-     * <code>BulletAppState.setDebugEnabled(boolean)</code> to add automatically
-     * @param manager AssetManager to use to create debug materials
-     */
-    @Deprecated
-    public void enableDebug(AssetManager manager) {
-        debugManager = manager;
-    }
-
-    /**
-     * Disable debug display
-     */
-    public void disableDebug() {
-        debugManager = null;
-    }
-
-    public AssetManager getDebugManager() {
-        return debugManager;
     }
 
     /**

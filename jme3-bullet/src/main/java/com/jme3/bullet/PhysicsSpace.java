@@ -102,7 +102,6 @@ public class PhysicsSpace {
     private Vector3f worldMax = new Vector3f(10000f, 10000f, 10000f);
     private float accuracy = 1f / 60f;
     private int maxSubSteps = 4, rayTestFlags = 1 << 2;
-    private AssetManager debugManager;
 
     static {
 //        System.loadLibrary("bulletjme");
@@ -702,7 +701,7 @@ public class PhysicsSpace {
     public Vector3f getGravity(Vector3f gravity) {
         return gravity.set(this.gravity);
     }
-    
+
 //    /**
 //     * applies gravity value to all objects
 //     */
@@ -783,7 +782,7 @@ public class PhysicsSpace {
     public void SetRayTestFlags(int flags) {
         rayTestFlags = flags;
     }
-    
+
     /**
      * Gets m_flags for raytest, see https://code.google.com/p/bullet/source/browse/trunk/src/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h
      * for possible options.
@@ -792,7 +791,7 @@ public class PhysicsSpace {
     public int GetRayTestFlags() {
         return rayTestFlags;
     }
-    
+
     /**
      * Performs a ray collision test and returns the results as a list of
      * PhysicsRayTestResults
@@ -837,7 +836,7 @@ public class PhysicsSpace {
         return (List<PhysicsSweepTestResult>) results;
     }
 
-    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results) {        
+    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results) {
         return sweepTest(shape, start, end, results, 0.0f);
     }
 
@@ -849,7 +848,7 @@ public class PhysicsSpace {
      * collision if it starts INSIDE an object and is moving AWAY from its
      * center.
      */
-    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results, float allowedCcdPenetration ) {        
+    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results, float allowedCcdPenetration ) {
         results.clear();
         sweepTest_native(shape.getObjectId(), start, end, physicsSpaceId, results, allowedCcdPenetration);
         return results;
@@ -872,7 +871,7 @@ public class PhysicsSpace {
     }
 
     */
-    
+
     /**
      * destroys the current PhysicsSpace so that a new one can be created
      */
@@ -957,29 +956,6 @@ public class PhysicsSpace {
      */
     public void setWorldMax(Vector3f worldMax) {
         this.worldMax.set(worldMax);
-    }
-
-    /**
-     * Enable debug display for physics.
-     *
-     * @deprecated in favor of BulletDebugAppState, use
-     * <code>BulletAppState.setDebugEnabled(boolean)</code> to add automatically
-     * @param manager AssetManager to use to create debug materials
-     */
-    @Deprecated
-    public void enableDebug(AssetManager manager) {
-        debugManager = manager;
-    }
-
-    /**
-     * Disable debug display
-     */
-    public void disableDebug() {
-        debugManager = null;
-    }
-
-    public AssetManager getDebugManager() {
-        return debugManager;
     }
 
     public static native void initNativePhysics();
