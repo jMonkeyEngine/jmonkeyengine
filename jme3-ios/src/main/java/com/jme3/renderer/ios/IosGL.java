@@ -34,6 +34,7 @@ package com.jme3.renderer.ios;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GLExt;
+import com.jme3.renderer.opengl.GLFbo;
 import java.nio.Buffer;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
@@ -46,7 +47,7 @@ import java.nio.ShortBuffer;
  * 
  * @author Kirill Vainer
  */
-public class IosGL implements GL, GLExt {
+public class IosGL implements GL, GLExt, GLFbo {
     
     private final int[] temp_array = new int[16];
     
