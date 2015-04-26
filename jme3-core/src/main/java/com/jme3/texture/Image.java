@@ -421,7 +421,8 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     
     /**
      * @return True if the image needs to have mipmaps generated
-     * for it (as requested by the texture).
+     * for it (as requested by the texture). This stays true even
+     * after mipmaps have been generated.
      */
     public boolean isGeneratedMipmapsRequired() {
         return needGeneratedMips;
@@ -434,8 +435,9 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     @Override
     public void setUpdateNeeded() {
         super.setUpdateNeeded();
-        if (!isGeneratedMipmapsRequired() && !hasMipmaps()) {
-            setNeedGeneratedMipmaps();
+        if (isGeneratedMipmapsRequired() && !hasMipmaps()) {
+            // Mipmaps are no longer valid, since the image was changed.
+            setMipmapsGenerated(false);
         }
     }
     
@@ -527,11 +529,13 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         
         this();
 
-        if (mipMapSizes != null && mipMapSizes.length <= 1) {
-            mipMapSizes = null;
-        } else {
-            needGeneratedMips = false;
-            mipsWereGenerated = true;
+        if (mipMapSizes != null) {
+            if (mipMapSizes.length <= 1) {
+                mipMapSizes = null;
+            } else {
+                needGeneratedMips = false;
+                mipsWereGenerated = true;
+            }
         }
 
         setFormat(format);
@@ -787,8 +791,8 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
              needGeneratedMips = false;
              mipsWereGenerated = false;
         } else {
-             needGeneratedMips = false;
-             mipsWereGenerated = true;
+             needGeneratedMips = true;
+             mipsWereGenerated = false;
         }
 
         setUpdateNeeded();

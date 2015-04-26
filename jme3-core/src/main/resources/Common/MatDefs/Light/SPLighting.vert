@@ -45,6 +45,9 @@ attribute vec3 inNormal;
 #else
     varying vec3 specularAccum;
     varying vec4 diffuseAccum;
+    #ifdef COLORRAMP
+      uniform sampler2D m_ColorRamp;
+    #endif
 #endif
 
 #ifdef USE_REFLECTION
@@ -160,14 +163,14 @@ void main(){
             #if __VERSION__ >= 110
             }
             #endif
-            vec2 v = computeLighting(wvNormal, viewDir, lightDir.xyz, lightDir.w  * spotFallOff, m_Shininess);
+            vec2 light = computeLighting(wvNormal, viewDir, lightDir.xyz, lightDir.w  * spotFallOff, m_Shininess);
 
             #ifdef COLORRAMP
-                diffuseAccum  += texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb * diffuseColor;
-                specularAccum += texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb * specularColor;
+                diffuseAccum.rgb  += texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb * diffuseColor.rgb;
+                specularAccum.rgb += texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb * specularColor;
             #else
-                diffuseAccum  += v.x * diffuseColor;
-                specularAccum += v.y * specularColor;
+                diffuseAccum.rgb  += light.x * diffuseColor.rgb;
+                specularAccum.rgb += light.y * specularColor;
             #endif
         }
     #endif

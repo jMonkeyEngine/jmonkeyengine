@@ -903,6 +903,25 @@ final public class FastMath {
     }
 
     /**
+     * Determine if two floats are approximately equal.
+     * This takes into account the magnitude of the floats, since
+     * large numbers will have larger differences be close to each other.
+     * 
+     * Should return true for a=100000, b=100001, but false for a=10000, b=10001.
+     * 
+     * @param a The first float to compare
+     * @param b The second float to compare
+     * @return True if a and b are approximately equal, false otherwise.
+     */
+    public static boolean approximateEquals(float a, float b) {
+        if (a == b) {
+            return true;
+        } else {
+            return (abs(a - b) / Math.max(abs(a), abs(b))) <= 0.00001f;
+        }
+    }
+    
+    /**
      * Converts a single precision (32 bit) floating point value
      * into half precision (16 bit).
      *

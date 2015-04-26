@@ -10,14 +10,16 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
     private final GLFbo glfbo;
     private final GLExt glext;
 
-    public GLDebugES(GL gl, GLFbo glfbo) {
+    public GLDebugES(GL gl, GLExt glext, GLFbo glfbo) {
         this.gl = gl;
-//        this.gl2 = gl instanceof GL2 ? (GL2) gl : null;
-//        this.gl3 = gl instanceof GL3 ? (GL3) gl : null;
+        this.glext = glext;
         this.glfbo = glfbo;
-        this.glext = glfbo instanceof GLExt ? (GLExt) glfbo : null;
     }
 
+    public void resetStats() {
+        gl.resetStats();
+    }
+    
     public void glActiveTexture(int texture) {
         gl.glActiveTexture(texture);
         checkError();
@@ -478,7 +480,7 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
     }
 
     public void glBlitFramebufferEXT(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, int mask, int filter) {
-        glext.glBlitFramebufferEXT(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+        glfbo.glBlitFramebufferEXT(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
         checkError();
     }
 
@@ -525,7 +527,7 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
     }
 
     public void glRenderbufferStorageMultisampleEXT(int target, int samples, int internalformat, int width, int height) {
-        glext.glRenderbufferStorageMultisampleEXT(target, samples, internalformat, width, height);
+        glfbo.glRenderbufferStorageMultisampleEXT(target, samples, internalformat, width, height);
         checkError();
     }
 

@@ -37,6 +37,8 @@ import com.jme3.network.kernel.Kernel;
 import com.jme3.network.message.ChannelInfoMessage;
 import com.jme3.network.message.ClientRegistrationMessage;
 import com.jme3.network.message.DisconnectMessage;
+import com.jme3.network.service.HostedServiceManager;
+import com.jme3.network.service.serializer.ServerSerializerRegistrationsService;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -55,7 +57,7 @@ import java.util.logging.Logger;
  */
 public class DefaultServer implements Server
 {
-    static Logger log = Logger.getLogger(DefaultServer.class.getName());
+    static final Logger log = Logger.getLogger(DefaultServer.class.getName());
 
     // First two channels are reserved for reliable and
     // unreliable
@@ -85,6 +87,8 @@ public class DefaultServer implements Server
                             = new MessageListenerRegistry<HostedConnection>();                        
     private List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<ConnectionListener>();
     
+    private HostedServiceManager services;
+    
     public DefaultServer( String gameName, int version, Kernel reliable, Kernel fast )
     {
         if( reliable == null )
@@ -92,6 +96,8 @@ public class DefaultServer implements Server
             
         this.gameName = gameName;
         this.version = version;
+        this.services = new HostedServiceManager(this);        
+        addStandardServices();
         
         reliableAdapter = new KernelAdapter( this, reliable, dispatcher, true );
         channels.add( reliableAdapter );
@@ -101,6 +107,10 @@ public class DefaultServer implements Server
         }
     }   
 
+    protected void addStandardServices() {
+        services.addService(new ServerSerializerRegistrationsService());
+    }
+
     public String getGameName()
     {
         return gameName;
@@ -109,6 +119,11 @@ public class DefaultServer implements Server
     public int getVersion()
     {
         return version;
+    }
+    
+    public HostedServiceManager getServices() 
+    {
+        return services;
     }
 
     public int addChannel( int port )
@@ -164,7 +179,10 @@ public class DefaultServer implements Server
             ka.start();
         }
         
-        isRunning = true;             
+        isRunning = true;
+        
+        // Start the services
+        services.start();             
     }
 
     public boolean isRunning()
@@ -177,13 +195,20 @@ public class DefaultServer implements Server
         if( !isRunning )
             throw new IllegalStateException( "Server is not started." );
  
+        // First stop the services since we are about to
+        // kill the connections they are using
+        services.stop();
+ 
         try {
             // Kill the adpaters, they will kill the kernels
             for( KernelAdapter ka : channels ) {
                 ka.close();
             }
             
-            isRunning = false;            
+            isRunning = false;
+            
+            // Now terminate all of the services
+            services.terminate();             
         } catch( InterruptedException e ) {
             throw new RuntimeException( "Interrupted while closing", e );
         }                               
@@ -396,6 +421,18 @@ public class DefaultServer implements Server
         return endpointConnections.get(endpoint);       
     } 
 
+    protected void removeConnecting( Endpoint p ) 
+    {
+        // No easy lookup for connecting Connections
+        // from endpoint.
+        for( Map.Entry<Long,Connection> e : connecting.entrySet() ) {
+            if( e.getValue().hasEndpoint(p) ) {
+                connecting.remove(e.getKey());
+                return;
+            } 
+        }
+    }
+
     protected void connectionClosed( Endpoint p )
     {
         if( p.isConnected() ) {
@@ -411,10 +448,10 @@ public class DefaultServer implements Server
         // Also note: this method will be called multiple times per
         // HostedConnection if it has multiple endpoints.
  
-        Connection removed = null;
+        Connection removed;
         synchronized( this ) {             
             // Just in case the endpoint was still connecting
-            connecting.values().remove(p);
+            removeConnecting(p);
 
             // And the regular management
             removed = (Connection)endpointConnections.remove(p);
@@ -451,6 +488,16 @@ public class DefaultServer implements Server
         {
             id = nextId.getAndIncrement();
             channels = new Endpoint[channelCount];
+        }
+        
+        boolean hasEndpoint( Endpoint p )
+        {
+            for( Endpoint e : channels ) {
+                if( p == e ) {
+                    return true;
+                }
+            }
+            return false;
         }
  
         void setChannel( int channel, Endpoint p )
@@ -557,6 +604,7 @@ public class DefaultServer implements Server
             return Collections.unmodifiableSet(sessionData.keySet());
         }           
         
+        @Override
         public String toString()
         {
             return "Connection[ id=" + id + ", reliable=" + channels[CH_RELIABLE] 

@@ -313,6 +313,26 @@ public final class Bone implements Savable {
         return modelBindInverseScale;
     }
 
+    public Transform getModelBindInverseTransform() {
+        Transform t = new Transform();
+        t.setTranslation(modelBindInversePos);
+        t.setRotation(modelBindInverseRot);
+        if (modelBindInverseScale != null) {
+            t.setScale(modelBindInverseScale);
+        }
+        return t;
+    }
+    
+    public Transform getBindInverseTransform() {
+        Transform t = new Transform();
+        t.setTranslation(bindPos);
+        t.setRotation(bindRot);
+        if (bindScale != null) {
+            t.setScale(bindScale);
+        }
+        return t.invert();
+    }
+    
     /**    
      * @deprecated use {@link #getBindPosition()}
      */

@@ -33,6 +33,7 @@ package com.jme3.system.ios;
 
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
+import com.jme3.asset.TextureKey;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import java.io.IOException;
@@ -45,14 +46,16 @@ import java.io.InputStream;
 public class IosImageLoader implements AssetLoader {
 
     public Object load(AssetInfo info) throws IOException {
-        InputStream in = info.openStream();
+        boolean flip = ((TextureKey) info.getKey()).isFlipY();
         Image img = null;
+        InputStream in = null;
         try {
-            img = loadImageData(Image.Format.RGBA8, in);
-        } catch (Exception e) {
-            e.printStackTrace();
+        	in = info.openStream();
+            img = loadImageData(Format.RGBA8, flip, in);
         } finally {
-            in.close();
+        	if (in != null) {
+            	in.close();
+            }
         }
         return img;
     }
@@ -64,5 +67,5 @@ public class IosImageLoader implements AssetLoader {
      * @param inputStream the InputStream to load the image data from
      * @return the loaded Image
      */
-    private static native Image loadImageData(Format format, InputStream inputStream);
+    private static native Image loadImageData(Format format, boolean flipY, InputStream inputStream);
 }

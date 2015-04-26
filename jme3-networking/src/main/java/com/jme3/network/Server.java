@@ -33,6 +33,8 @@ package com.jme3.network;
 
 import java.util.Collection;
 
+import com.jme3.network.service.HostedServiceManager;
+
 /**
  *  Represents a host that can send and receive messages to
  *  a set of remote client connections.
@@ -53,6 +55,12 @@ public interface Server
      *  mismatched clients.
      */   
     public int getVersion();
+
+    /**
+     *  Returns the manager for hosted services.  Hosted services extend
+     *  the functionality of the server.
+     */
+    public HostedServiceManager getServices();     
 
     /**
      *  Sends the specified message to all connected clients.
