@@ -53,7 +53,7 @@ public interface Service<S> {
     public void start();
     
     /**
-     *  Called when the service is shutting down.  All services
+     *  Called when the service manager is shutting down.  All services
      *  are stopped and any service manager resources are closed
      *  before the services are terminated.
      */

@@ -72,6 +72,12 @@ public interface Client extends MessageConnection
      *  be able to connect to.
      */   
     public int getVersion();
+
+    /**
+     *  Returns the manager for client services.  Client services extend
+     *  the functionality of the client.
+     */
+    public ClientServiceManager getServices();     
  
     /**
      *  Sends a message to the server.

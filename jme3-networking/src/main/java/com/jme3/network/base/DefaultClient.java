@@ -37,6 +37,7 @@ import com.jme3.network.kernel.Connector;
 import com.jme3.network.message.ChannelInfoMessage;
 import com.jme3.network.message.ClientRegistrationMessage;
 import com.jme3.network.message.DisconnectMessage;
+import com.jme3.network.service.ClientServiceManager;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -54,7 +55,7 @@ import java.util.logging.Logger;
  */
 public class DefaultClient implements Client
 {
-    static Logger log = Logger.getLogger(DefaultClient.class.getName());
+    static final Logger log = Logger.getLogger(DefaultClient.class.getName());
     
     // First two channels are reserved for reliable and
     // unreliable.  Note: channels are endpoint specific so these
@@ -80,10 +81,13 @@ public class DefaultClient implements Client
  
     private ConnectorFactory connectorFactory;
     
+    private ClientServiceManager services;
+    
     public DefaultClient( String gameName, int version )
     {
         this.gameName = gameName;
         this.version = version;
+        this.services = new ClientServiceManager(this);
     }
     
     public DefaultClient( String gameName, int version, Connector reliable, Connector fast,
@@ -200,6 +204,11 @@ public class DefaultClient implements Client
     {
         return version;
     }
+    
+    public ClientServiceManager getServices() 
+    {
+        return services;
+    }
    
     public void send( Message message )
     {
@@ -260,7 +269,7 @@ public class DefaultClient implements Client
     {
         checkRunning();
  
-        closeConnections( null );            
+        closeConnections( null );
     }         
 
     protected void closeConnections( DisconnectInfo info )
@@ -268,6 +277,10 @@ public class DefaultClient implements Client
         if( !isRunning )
             return;
 
+        // Let the services get a chance to stop before we
+        // kill the connection.
+        services.stop();
+        
         // Send a close message
     
         // Tell the thread it's ok to die
@@ -285,6 +298,9 @@ public class DefaultClient implements Client
         fireDisconnected(info);
         
         isRunning = false;
+        
+        // Terminate the services
+        services.terminate();            
     }         
 
     public void addClientStateListener( ClientStateListener listener )
@@ -329,6 +345,9 @@ public class DefaultClient implements Client
  
     protected void fireConnected()
     {
+        // Let the services know we are finally started
+        services.start();
+    
         for( ClientStateListener l : stateListeners ) {
             l.clientConnected( this );
         }            
