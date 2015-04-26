@@ -51,6 +51,7 @@ public class ServerSerializerRegistrationsService extends AbstractHostedService 
     protected void onInitialize( HostedServiceManager serviceManager ) {
         // Make sure our message type is registered
         Serializer.registerClass(SerializerRegistrationsMessage.class);
+        Serializer.registerClass(SerializerRegistrationsMessage.Registration.class);
     }
     
     @Override

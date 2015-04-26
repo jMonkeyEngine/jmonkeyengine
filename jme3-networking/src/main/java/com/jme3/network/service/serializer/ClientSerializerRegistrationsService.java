@@ -55,6 +55,7 @@ public class ClientSerializerRegistrationsService extends AbstractClientService
         // This is the minimum we'd need just to be able to register
         // the rest... otherwise we can't even receive this message.
         Serializer.registerClass(SerializerRegistrationsMessage.class);
+        Serializer.registerClass(SerializerRegistrationsMessage.Registration.class);
         
         // Add our listener for that message type
         serviceManager.getClient().addMessageListener(this, SerializerRegistrationsMessage.class); 
