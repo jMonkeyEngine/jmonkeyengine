@@ -102,7 +102,7 @@ public final class SNDefWizardIterator implements WizardDescriptor.Instantiating
 
         //Get the template and convert it:
         FileObject tplSnd = Templates.getTemplate(wizard);
-        FileObject tplShd = tplSnd.getParent().getChildren()[1];
+        FileObject tplShd = tplSnd.getParent().getChildren()[0];
 
         DataObject templateSnd = DataObject.find(tplSnd);
         DataObject templateShd = DataObject.find(tplShd);

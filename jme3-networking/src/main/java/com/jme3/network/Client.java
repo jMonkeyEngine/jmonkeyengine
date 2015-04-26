@@ -31,6 +31,8 @@
  */
 package com.jme3.network;
 
+import com.jme3.network.service.ClientServiceManager;
+
 
 /**
  *  Represents a remote connection to a server that can be used
@@ -72,6 +74,12 @@ public interface Client extends MessageConnection
      *  be able to connect to.
      */   
     public int getVersion();
+
+    /**
+     *  Returns the manager for client services.  Client services extend
+     *  the functionality of the client.
+     */
+    public ClientServiceManager getServices();     
  
     /**
      *  Sends a message to the server.

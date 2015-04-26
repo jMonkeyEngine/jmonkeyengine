@@ -569,10 +569,15 @@ public class J3MLoader implements AssetLoader {
 
     public Object load(AssetInfo info) throws IOException {       
         this.assetManager = info.getManager();
-
+        
         InputStream in = info.openStream();        
         try {
-            key = info.getKey();            
+            key = info.getKey();
+            if (key.getExtension().equals("j3m") && !(key instanceof MaterialKey)) {
+                throw new IOException("Material instances must be loaded via MaterialKey");
+            } else if (key.getExtension().equals("j3md") && key instanceof MaterialKey) {
+                throw new IOException("Material definitions must be loaded via AssetKey");
+            }
             loadFromRoot(BlockLanguageParser.parse(in));
         } finally {
             if (in != null){
@@ -581,9 +586,6 @@ public class J3MLoader implements AssetLoader {
         }
         
         if (material != null){
-            if (!(info.getKey() instanceof MaterialKey)){
-                throw new IOException("Material instances must be loaded via MaterialKey");
-            }
             // material implementation
             return material;
         }else{

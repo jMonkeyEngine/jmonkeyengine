@@ -43,6 +43,9 @@ import java.nio.ShortBuffer;
 
 public class AndroidGL implements GL, GLExt {
 
+    public void resetStats() {
+    }
+    
     private static int getLimitBytes(ByteBuffer buffer) {
         checkLimit(buffer);
         return buffer.limit();

@@ -83,6 +83,7 @@ public interface GLFbo {
     
     public void glBindFramebufferEXT(int param1, int param2);
     public void glBindRenderbufferEXT(int param1, int param2);
+    public void glBlitFramebufferEXT(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, int mask, int filter);
     public int glCheckFramebufferStatusEXT(int param1);
     public void glDeleteFramebuffersEXT(IntBuffer param1);
     public void glDeleteRenderbuffersEXT(IntBuffer param1);
@@ -92,5 +93,5 @@ public interface GLFbo {
     public void glGenRenderbuffersEXT(IntBuffer param1);
     public void glGenerateMipmapEXT(int param1);
     public void glRenderbufferStorageEXT(int param1, int param2, int param3, int param4);
-    
+    public void glRenderbufferStorageMultisampleEXT(int target, int samples, int internalformat, int width, int height);
 }
