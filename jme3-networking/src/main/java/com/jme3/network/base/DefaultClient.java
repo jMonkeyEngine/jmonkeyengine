@@ -38,6 +38,7 @@ import com.jme3.network.message.ChannelInfoMessage;
 import com.jme3.network.message.ClientRegistrationMessage;
 import com.jme3.network.message.DisconnectMessage;
 import com.jme3.network.service.ClientServiceManager;
+import com.jme3.network.service.serializer.ClientSerializerRegistrationsService;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -88,6 +89,7 @@ public class DefaultClient implements Client
         this.gameName = gameName;
         this.version = version;
         this.services = new ClientServiceManager(this);
+        addStandardServices();
     }
     
     public DefaultClient( String gameName, int version, Connector reliable, Connector fast,
@@ -95,6 +97,10 @@ public class DefaultClient implements Client
     {
         this( gameName, version );
         setPrimaryConnectors( reliable, fast, connectorFactory );
+    }
+
+    protected void addStandardServices() {
+        services.addService(new ClientSerializerRegistrationsService());
     }
 
     protected void setPrimaryConnectors( Connector reliable, Connector fast, ConnectorFactory connectorFactory )

@@ -38,6 +38,7 @@ import com.jme3.network.message.ChannelInfoMessage;
 import com.jme3.network.message.ClientRegistrationMessage;
 import com.jme3.network.message.DisconnectMessage;
 import com.jme3.network.service.HostedServiceManager;
+import com.jme3.network.service.serializer.ServerSerializerRegistrationsService;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -95,7 +96,8 @@ public class DefaultServer implements Server
             
         this.gameName = gameName;
         this.version = version;
-        this.services = new HostedServiceManager(this);
+        this.services = new HostedServiceManager(this);        
+        addStandardServices();
         
         reliableAdapter = new KernelAdapter( this, reliable, dispatcher, true );
         channels.add( reliableAdapter );
@@ -104,6 +106,10 @@ public class DefaultServer implements Server
             channels.add( fastAdapter );
         }
     }   
+
+    protected void addStandardServices() {
+        services.addService(new ServerSerializerRegistrationsService());
+    }
 
     public String getGameName()
     {

@@ -83,6 +83,19 @@ public class HostedServiceManager extends ServiceManager<HostedServiceManager> {
     }
 
     /**
+     *  Adds all of the specified HostedServices and initializes them.  If the service manager
+     *  has already been started then the services will also be started.
+     *  This is a convenience method that delegates to addService(), thus each
+     *  service will be initialized (and possibly started) in sequence rather
+     *  than doing them all at the end.
+     */   
+    public void addServices( HostedService... services ) {
+        for( HostedService s : services ) {
+            super.addService(s);
+        }
+    }
+
+    /**
      *  Removes the specified HostedService from this service manager, stopping
      *  and terminating it as required.  If this service manager is in a
      *  started state then the service will be stopped.  After removal,

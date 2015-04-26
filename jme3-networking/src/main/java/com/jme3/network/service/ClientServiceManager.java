@@ -76,6 +76,19 @@ public class ClientServiceManager extends ServiceManager<ClientServiceManager> {
     }
 
     /**
+     *  Adds all of the specified ClientServices and initializes them.  If the service manager
+     *  has already been started then the services will also be started.
+     *  This is a convenience method that delegates to addService(), thus each
+     *  service will be initialized (and possibly started) in sequence rather
+     *  than doing them all at the end.
+     */   
+    public void addServices( ClientService... services ) {
+        for( ClientService s : services ) {
+            super.addService(s);
+        }
+    }
+
+    /**
      *  Removes the specified ClientService from this service manager, stopping
      *  and terminating it as required.  If this service manager is in a
      *  started state then the service will be stopped.  After removal,
