@@ -791,8 +791,8 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
              needGeneratedMips = false;
              mipsWereGenerated = false;
         } else {
-             needGeneratedMips = false;
-             mipsWereGenerated = true;
+             needGeneratedMips = true;
+             mipsWereGenerated = false;
         }
 
         setUpdateNeeded();
