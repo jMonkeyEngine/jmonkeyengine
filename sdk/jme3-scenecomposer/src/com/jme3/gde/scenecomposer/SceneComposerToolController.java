@@ -10,6 +10,7 @@ import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.controller.SceneToolController;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
+import com.jme3.gde.scenecomposer.tools.PickManager;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
@@ -50,7 +51,12 @@ public class SceneComposerToolController extends SceneToolController {
     private boolean snapToScene = false;
     private boolean selectTerrain = false;
     private boolean selectGeometries = false;
-
+    private TransformationType transformationType = TransformationType.local;
+          
+    public enum TransformationType {
+        local, global, camera
+    }
+    
     public SceneComposerToolController(final Node toolsNode, AssetManager manager, JmeNode rootNode) {
         super(toolsNode, manager);
         this.rootNode = rootNode;
@@ -347,8 +353,37 @@ public class SceneComposerToolController extends SceneToolController {
     public void setSelectGeometries(boolean selectGeometries) {
         this.selectGeometries = selectGeometries;
     }
-    
-    
+
+    public void setTransformationType(String type) {
+        if(type != null){
+            if(type.equals("Local")){
+                setTransformationType(transformationType.local);
+            } else if(type.equals("Global")){
+                setTransformationType(TransformationType.global);
+            } else if(type.equals("Camera")){
+                setTransformationType(TransformationType.camera);
+            }
+        }
+    }
+        /**
+     * @return the transformationType
+     */
+    public TransformationType getTransformationType() {
+        return transformationType;
+    }
+
+    /**
+     * @param transformationType the transformationType to set
+     */
+    public void setTransformationType(TransformationType type) {
+        if(type != this.transformationType){
+            this.transformationType = type;
+            if(editTool != null){
+                //update the transform type of the tool
+                editTool.setTransformType(transformationType);
+            }
+        }
+    }
     
     /**
      * A marker on the screen that shows where a point light or

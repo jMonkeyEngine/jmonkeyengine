@@ -96,14 +96,11 @@ public class RotateTool extends SceneEditTool {
             }
 
             if (pickedMarker.equals(QUAD_XY)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XY,
-                        PickManager.TransformationType.local, camera, screenCoord);
+                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XY, getTransformType(), camera, screenCoord);
             } else if (pickedMarker.equals(QUAD_XZ)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XZ,
-                        PickManager.TransformationType.local, camera, screenCoord);
+                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XZ, getTransformType(), camera, screenCoord);
             } else if (pickedMarker.equals(QUAD_YZ)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_YZ,
-                        PickManager.TransformationType.local, camera, screenCoord);
+                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_YZ, getTransformType(), camera, screenCoord);
             }
             startRotate = toolController.getSelectedSpatial().getLocalRotation().clone();
         }
