@@ -875,7 +875,22 @@ public class PhysicsSpace {
     public void setWorldMax(Vector3f worldMax) {
         this.worldMax.set(worldMax);
     }
+    
+    /**
+     * Set the number of iterations used by the contact solver.
+     * 
+     * The default is 10. Use 4 for low quality, 20 for high quality.
+     * 
+     * @param numIterations The number of iterations used by the contact & constraint solver.
+     */
+    public void setSolverNumIterations(int numIterations) {
+        dynamicsWorld.getSolverInfo().numIterations = numIterations;
+    }
 
+    public int getSolverNumIterations() {
+        return dynamicsWorld.getSolverInfo().numIterations;
+    }
+    
     /**
      * interface with Broadphase types
      */

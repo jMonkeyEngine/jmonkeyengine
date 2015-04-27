@@ -102,6 +102,7 @@ public class PhysicsSpace {
     private Vector3f worldMax = new Vector3f(10000f, 10000f, 10000f);
     private float accuracy = 1f / 60f;
     private int maxSubSteps = 4, rayTestFlags = 1 << 2;
+    private int solverNumIterations = 10;
 
     static {
 //        System.loadLibrary("bulletjme");
@@ -871,7 +872,7 @@ public class PhysicsSpace {
     }
 
     */
-
+    
     /**
      * destroys the current PhysicsSpace so that a new one can be created
      */
@@ -958,6 +959,29 @@ public class PhysicsSpace {
         this.worldMax.set(worldMax);
     }
 
+    /**
+     * Set the number of iterations used by the contact solver.
+     * 
+     * The default is 10. Use 4 for low quality, 20 for high quality.
+     * 
+     * @param numIterations The number of iterations used by the contact & constraint solver.
+     */
+    public void setSolverNumIterations(int numIterations) {
+        this.solverNumIterations = numIterations;
+        setSolverNumIterations(physicsSpaceId, numIterations);
+    }
+    
+    /**
+     * Get the number of iterations used by the contact solver.
+     * 
+     * @return The number of iterations used by the contact & constraint solver.
+     */
+    public int getSolverNumIterations() {
+        return solverNumIterations;
+    }
+    
+    private static native void setSolverNumIterations(long physicsSpaceId, int numIterations);
+    
     public static native void initNativePhysics();
 
     /**
