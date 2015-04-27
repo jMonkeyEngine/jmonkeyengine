@@ -57,7 +57,7 @@ public abstract class SceneEditTool {
     protected Node axisMarker;
     protected Material redMat, blueMat, greenMat, yellowMat, cyanMat, magentaMat, orangeMat;
     protected Geometry quadXY, quadXZ, quadYZ;
-
+    
     protected enum AxisMarkerPickType {
 
         axisOnly, planeOnly, axisAndPlane
@@ -371,16 +371,17 @@ public abstract class SceneEditTool {
             axisMarker.getChild("arrowY").setMaterial(orangeMat);
         } else if (picked == ARROW_Z) {
             axisMarker.getChild("arrowZ").setMaterial(orangeMat);
-        }
+        } else {
 
-        if (picked == QUAD_XY || colorAll) {
-            axisMarker.getChild("quadXY").setMaterial(orangeMat);
-        }
-        if (picked == QUAD_XZ || colorAll) {
-            axisMarker.getChild("quadXZ").setMaterial(orangeMat);
-        }
-        if (picked == QUAD_YZ || colorAll) {
-            axisMarker.getChild("quadYZ").setMaterial(orangeMat);
+            if (picked == QUAD_XY || colorAll) {
+                axisMarker.getChild("quadXY").setMaterial(orangeMat);
+            }
+            if (picked == QUAD_XZ || colorAll) {
+                axisMarker.getChild("quadXZ").setMaterial(orangeMat);
+            }
+            if (picked == QUAD_YZ || colorAll) {
+                axisMarker.getChild("quadYZ").setMaterial(orangeMat);
+            }
         }
     }
 
