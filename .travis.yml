@@ -12,6 +12,10 @@ branches:
   only:
   - master
 
+notifications:
+  slack:
+    secure: "Tuoa63n2iJT/JrdmGggnzJRHo7yPigvoEIObddYU2uw4iAkoGhXO125V4z92bggD5idVX/CNr8SCHTgbomzvtq9VrozW75ta2NDMt0bgR9tuxK12QzZpGtU6togU7S0j/0rUrOFi8B3paIc9SfCX6T+hB+Z2hGz8UMpnFuh6xJc="
+
 before_install:
   # required libs for android build tools
   # sudo apt-get update
