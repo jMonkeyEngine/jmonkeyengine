@@ -168,7 +168,6 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jToolBar1.setRollover(true);
 
         transformationTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Local", "Global", "Camera" }));
-        transformationTypeComboBox.setMaximumSize(new java.awt.Dimension(160, 50));
         transformationTypeComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 transformationTypeComboBoxActionPerformed(evt);
@@ -219,7 +218,6 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
             }
         });
         jToolBar1.add(rotateButton);
-        rotateButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.rotateButton.AccessibleContext.accessibleDescription")); // NOI18N
 
         spatialModButtonGroup.add(scaleButton);
         scaleButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/icon_arrow_inout.png"))); // NOI18N
@@ -234,8 +232,6 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
             }
         });
         jToolBar1.add(scaleButton);
-        scaleButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.scaleButton.AccessibleContext.accessibleDescription")); // NOI18N
-
         jToolBar1.add(jSeparator5);
 
         jToggleScene.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/snapScene.png"))); // NOI18N
