@@ -31,7 +31,8 @@ public class PickManager {
     private Quaternion origineRotation;
     private final Node plane;
     private Spatial spatial;
-
+    private SceneComposerToolController.TransformationType transformationType;
+    
     protected static final Quaternion PLANE_XY = new Quaternion().fromAngleAxis(0, new Vector3f(1, 0, 0));
     protected static final Quaternion PLANE_YZ = new Quaternion().fromAngleAxis(-FastMath.PI / 2, new Vector3f(0, 1, 0));//YAW090
     protected static final Quaternion PLANE_XZ = new Quaternion().fromAngleAxis(FastMath.PI / 2, new Vector3f(1, 0, 0)); //PITCH090
@@ -64,14 +65,15 @@ public class PickManager {
 
     public void setTransformation(Quaternion planeRotation, SceneComposerToolController.TransformationType type) {
         Quaternion rot = new Quaternion();
-        if (type == SceneComposerToolController.TransformationType.local) {
+        transformationType = type;
+        if (transformationType == SceneComposerToolController.TransformationType.local) {
             rot.set(spatial.getWorldRotation());
             rot.multLocal(planeRotation);
             origineRotation = spatial.getWorldRotation().clone();
-        } else if (type == SceneComposerToolController.TransformationType.global) {
+        } else if (transformationType == SceneComposerToolController.TransformationType.global) {
             rot.set(planeRotation);
             origineRotation = new Quaternion(Quaternion.IDENTITY);
-        } else if (type == SceneComposerToolController.TransformationType.camera) {
+        } else if (transformationType == SceneComposerToolController.TransformationType.camera) {
             rot.set(planeRotation);
             origineRotation = planeRotation.clone();
         }
@@ -79,6 +81,10 @@ public class PickManager {
     }
 
     public boolean updatePick(Camera camera, Vector2f screenCoord) {
+        if(transformationType == SceneComposerToolController.TransformationType.camera){
+            origineRotation = camera.getRotation();
+            plane.setLocalRotation(camera.getRotation());
+        }
         finalPickLoc = SceneEditTool.pickWorldLocation(camera, screenCoord, plane, null);
         return finalPickLoc != null;
     }
