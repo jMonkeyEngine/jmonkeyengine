@@ -168,6 +168,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jToolBar1.setRollover(true);
 
         transformationTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Local", "Global", "Camera" }));
+        transformationTypeComboBox.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.transformationTypeComboBox.toolTipText")); // NOI18N
         transformationTypeComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 transformationTypeComboBoxActionPerformed(evt);
@@ -232,6 +233,8 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
             }
         });
         jToolBar1.add(scaleButton);
+        scaleButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.scaleButton.AccessibleContext.accessibleDescription")); // NOI18N
+
         jToolBar1.add(jSeparator5);
 
         jToggleScene.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/snapScene.png"))); // NOI18N
