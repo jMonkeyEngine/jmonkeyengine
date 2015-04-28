@@ -122,7 +122,9 @@ public class ScaleTool extends SceneEditTool {
             lastScale = scale;
             toolController.getSelectedSpatial().setLocalScale(scale);
         } else if (pickedMarker.equals(ARROW_X) || pickedMarker.equals(ARROW_Y) || pickedMarker.equals(ARROW_Z)) {
-            Vector3f diff = pickManager.getLocalTranslation(constraintAxis);
+            // Get the translation in the spatial Space
+            Quaternion worldToSpatial = toolController.getSelectedSpatial().getWorldRotation().inverse();
+            Vector3f diff = pickManager.getTranslation(worldToSpatial.mult(constraintAxis));
             diff.multLocal(0.5f);
             Vector3f scale = startScale.add(diff);
             lastScale = scale;
