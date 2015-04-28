@@ -35,42 +35,43 @@ import android.opengl.GLES20;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GLExt;
+import com.jme3.renderer.opengl.GLFbo;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-public class AndroidGL implements GL, GLExt {
+public class AndroidGL implements GL, GLExt, GLFbo {
 
     public void resetStats() {
     }
-    
+
     private static int getLimitBytes(ByteBuffer buffer) {
         checkLimit(buffer);
         return buffer.limit();
     }
-    
+
     private static int getLimitBytes(ShortBuffer buffer) {
         checkLimit(buffer);
         return buffer.limit() * 2;
     }
-    
+
     private static int getLimitBytes(IntBuffer buffer) {
         checkLimit(buffer);
         return buffer.limit() * 4;
     }
-    
+
     private static int getLimitBytes(FloatBuffer buffer) {
         checkLimit(buffer);
         return buffer.limit() * 4;
     }
-    
+
     private static int getLimitCount(Buffer buffer, int elementSize) {
         checkLimit(buffer);
         return buffer.limit() / elementSize;
     }
-    
+
     private static void checkLimit(Buffer buffer) {
         if (buffer == null) {
             return;
@@ -82,7 +83,7 @@ public class AndroidGL implements GL, GLExt {
             throw new RendererException("Attempting to upload empty buffer (remaining = 0), that's an error");
         }
     }
-    
+
     public void glActiveTexture(int texture) {
         GLES20.glActiveTexture(texture);
     }
@@ -130,7 +131,7 @@ public class AndroidGL implements GL, GLExt {
     public void glBufferSubData(int target, long offset, ByteBuffer data) {
         GLES20.glBufferSubData(target, (int) offset, getLimitBytes(data), data);
     }
-    
+
     public void glGetBufferSubData(int target, long offset, ByteBuffer data) {
         throw new UnsupportedOperationException("OpenGL ES 2 does not support glGetBufferSubData");
     }
