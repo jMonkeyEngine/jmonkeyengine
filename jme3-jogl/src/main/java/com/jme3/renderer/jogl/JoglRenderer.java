@@ -31,10 +31,21 @@
  */
 package com.jme3.renderer.jogl;
 
-import com.jme3.light.LightList;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import jme3tools.converters.MipMapGenerator;
+import jme3tools.shader.ShaderDebug;
+
 import com.jme3.material.RenderState;
+import com.jme3.math.ClipRectangle;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -45,6 +56,7 @@ import com.jme3.renderer.RenderContext;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.Statistics;
+import com.jme3.scene.ClipState;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer;
@@ -62,14 +74,6 @@ import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import com.jogamp.nativewindow.NativeWindowFactory;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
@@ -79,8 +83,6 @@ import com.jogamp.opengl.GL2ES3;
 import com.jogamp.opengl.GL2GL3;
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLContext;
-import jme3tools.converters.MipMapGenerator;
-import jme3tools.shader.ShaderDebug;
 
 public class JoglRenderer implements Renderer {
 
@@ -117,7 +119,10 @@ public class JoglRenderer implements Renderer {
     private FrameBuffer mainFbOverride = null;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
-    private int clipX, clipY, clipW, clipH;
+    private ClipRectangle currentClipRect = new ClipRectangle();
+    private ClipRectangle rendererClipRect = new ClipRectangle();
+    private ClipRectangle geometryClipRect = new ClipRectangle();
+    private ClipRectangle intersectionClipRect = new ClipRectangle();
     private boolean linearizeSrgbImages;
 
     public JoglRenderer() {
@@ -145,7 +150,8 @@ public class JoglRenderer implements Renderer {
         return caps;
     }
 
-    public void initialize() {
+    @Override
+	public void initialize() {
         GL gl = GLContext.getCurrentGL();
         //logger.log(Level.FINE, "Vendor: {0}", gl.glGetString(GL.GL_VENDOR));
         //logger.log(Level.FINE, "Renderer: {0}", gl.glGetString(GL.GL_RENDERER));
@@ -740,6 +746,68 @@ public class JoglRenderer implements Renderer {
         }
     }
 
+    @Override
+    public final void applyClipState(final ClipState state)
+    {
+    	GL gl = GLContext.getCurrentGL();
+        if ((state != null) && state.isClippingEnabled()) {
+            geometryClipRect.set(state.getX(), state.getY(), state.getW(), state.getH());
+            if (context.clipRectEnabled) {
+                if (!context.geometryClipRectEnabled) {
+                    context.geometryClipRectEnabled = true;
+                }
+                if (ClipRectangle.intersect(rendererClipRect, geometryClipRect, intersectionClipRect)) {
+                    if (!currentClipRect.equals(intersectionClipRect)) {
+                        int iClipX = intersectionClipRect.getX();
+                        int iClipY = intersectionClipRect.getY();
+                        int iClipW = intersectionClipRect.getW();
+                        int iClipH = intersectionClipRect.getH();
+                        currentClipRect.set(iClipX, iClipY, iClipW, iClipH);
+                        gl.glScissor(iClipX, iClipY, iClipW, iClipH);
+                    }
+                } else {
+                    if (currentClipRect.getX() != 0 || currentClipRect.getY() != 0 ||
+                        currentClipRect.getW() != 0 || currentClipRect.getH() != 0) {
+                        currentClipRect.set(0, 0, 0, 0);
+                        gl.glScissor(0, 0, 0, 0);
+                    }
+                }
+            } else {
+                if (!context.geometryClipRectEnabled) {
+                    context.geometryClipRectEnabled = true;
+                    gl.glEnable(GL.GL_SCISSOR_TEST);
+                }
+                if (!currentClipRect.equals(geometryClipRect)) {
+                    int gClipX = geometryClipRect.getX();
+                    int gClipY = geometryClipRect.getY();
+                    int gClipW = geometryClipRect.getW();
+                    int gClipH = geometryClipRect.getH();
+                    currentClipRect.set(gClipX, gClipY, gClipW, gClipH);
+                    gl.glScissor(gClipX, gClipY, gClipW, gClipH);
+                }
+            }
+        } else {
+            if (context.clipRectEnabled) {
+                if (context.geometryClipRectEnabled) {
+                    context.geometryClipRectEnabled = false;
+                }
+                if (!currentClipRect.equals(rendererClipRect)) {
+                    int rClipX = rendererClipRect.getX();
+                    int rClipY = rendererClipRect.getY();
+                    int rClipW = rendererClipRect.getW();
+                    int rClipH = rendererClipRect.getH();
+                    currentClipRect.set(rClipX, rClipY, rClipW, rClipH);
+                    gl.glScissor(rClipX, rClipY, rClipW, rClipH);
+                }
+            } else {
+                if (context.geometryClipRectEnabled) {
+                    context.geometryClipRectEnabled = false;
+                    gl.glDisable(GL.GL_SCISSOR_TEST);
+                }
+            }
+        }
+    }
+
     private int convertStencilOperation(RenderState.StencilOperation stencilOp) {
         switch (stencilOp) {
             case Keep:
@@ -790,7 +858,7 @@ public class JoglRenderer implements Renderer {
     |* Camera and World transforms                                       *|
     \*********************************************************************/
     @Override
-	public void setViewPort(int x, int y, int w, int h) {
+	public final void setViewPort(int x, int y, int w, int h) {
         if (x != vpX || vpY != y || vpW != w || vpH != h) {
             GL gl = GLContext.getCurrentGL();
             gl.glViewport(x, y, w, h);
@@ -802,33 +870,29 @@ public class JoglRenderer implements Renderer {
     }
 
     @Override
-	public void setClipRect(int x, int y, int width, int height) {
-        GL gl = GLContext.getCurrentGL();
-        if (!context.clipRectEnabled) {
+	public final void setClipRect(final int x, final int y, final int width, final int height) {
+    	GL gl = GLContext.getCurrentGL();
+        if (!context.clipRectEnabled && !context.geometryClipRectEnabled) {
             gl.glEnable(GL.GL_SCISSOR_TEST);
-            context.clipRectEnabled = true;
         }
-        if (clipX != x || clipY != y || clipW != width || clipH != height) {
+        context.clipRectEnabled = true;
+        context.geometryClipRectEnabled = false;
+        rendererClipRect.set(x, y, width, height);
+        if (currentClipRect.getX() != x || currentClipRect.getY() != y ||
+            currentClipRect.getW() != width || currentClipRect.getH() != height) {
+            currentClipRect.set(x, y, width, height);
             gl.glScissor(x, y, width, height);
-            clipX = x;
-            clipY = y;
-            clipW = width;
-            clipH = height;
         }
     }
 
     @Override
-	public void clearClipRect() {
-        if (context.clipRectEnabled) {
-            GL gl = GLContext.getCurrentGL();
+	public final void clearClipRect() {
+        if (context.clipRectEnabled || context.geometryClipRectEnabled) {
+        	GL gl = GLContext.getCurrentGL();
             gl.glDisable(GL.GL_SCISSOR_TEST);
-            context.clipRectEnabled = false;
-
-            clipX = 0;
-            clipY = 0;
-            clipW = 0;
-            clipH = 0;
         }
+        context.clipRectEnabled = false;
+        context.geometryClipRectEnabled = false;
     }
 
     @Override
@@ -2693,7 +2757,8 @@ public class JoglRenderer implements Renderer {
         linearizeSrgbImages = linearize;
     }
 
-    public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {
+    @Override
+	public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {
         throw new UnsupportedOperationException("Not supported yet. URA will make that work seamlessly");
     }
 }

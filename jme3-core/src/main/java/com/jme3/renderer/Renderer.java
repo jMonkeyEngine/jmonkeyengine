@@ -31,8 +31,12 @@
  */
 package com.jme3.renderer;
 
+import java.nio.ByteBuffer;
+import java.util.EnumSet;
+
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
+import com.jme3.scene.ClipState;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
@@ -42,24 +46,22 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.util.NativeObject;
-import java.nio.ByteBuffer;
-import java.util.EnumSet;
 
 /**
  * The <code>Renderer</code> is responsible for taking rendering commands and
  * executing them on the underlying video hardware.
- * 
+ *
  * @author Kirill Vainer
  */
 public interface Renderer {
 
     /**
-     * Detects available capabilities of the GPU. 
-     * 
+     * Detects available capabilities of the GPU.
+     *
      * Must be called prior to any other Renderer methods.
      */
     public void initialize();
-    
+
     /**
      * Get the capabilities of the renderer.
      * @return The capabilities of the renderer.
@@ -93,7 +95,7 @@ public interface Renderer {
 
     /**
      * Sets the background (aka clear) color.
-     * 
+     *
      * @param color The background color to set
      */
     public void setBackgroundColor(ColorRGBA color);
@@ -105,9 +107,17 @@ public interface Renderer {
     public void applyRenderState(RenderState state);
 
     /**
+     * Applies the given {@link ClipState}, which sets scissoring
+     * to the requested values.
+     *
+     * @param state the ClipState to be applied
+     */
+    public void applyClipState(ClipState state);
+
+    /**
      * Set the range of the depth values for objects. All rendered
      * objects will have their depth clamped to this range.
-     * 
+     *
      * @param start The range start
      * @param end The range end
      */
@@ -115,7 +125,7 @@ public interface Renderer {
 
     /**
      * Called when a new frame has been rendered.
-     * 
+     *
      * Currently, this will simply delete any OpenGL objects from the GPU
      * which have been garbage collected by the GC.
      */
@@ -123,7 +133,7 @@ public interface Renderer {
 
     /**
      * Set the viewport location and resolution on the screen.
-     * 
+     *
      * @param x The x coordinate of the viewport
      * @param y The y coordinate of the viewport
      * @param width Width of the viewport
@@ -135,7 +145,7 @@ public interface Renderer {
      * Specifies a clipping rectangle.
      * For all future rendering commands, no pixels will be allowed
      * to be rendered outside of the clip rectangle.
-     * 
+     *
      * @param x The x coordinate of the clip rect
      * @param y The y coordinate of the clip rect
      * @param width Width of the clip rect
@@ -144,7 +154,7 @@ public interface Renderer {
     public void setClipRect(int x, int y, int width, int height);
 
     /**
-     * Clears the clipping rectangle set with 
+     * Clears the clipping rectangle set with
      * {@link #setClipRect(int, int, int, int) }.
      */
     public void clearClipRect();
@@ -152,9 +162,9 @@ public interface Renderer {
     /**
      * Sets the shader to use for rendering.
      * If the shader has not been uploaded yet, it is compiled
-     * and linked. If it has been uploaded, then the 
+     * and linked. If it has been uploaded, then the
      * uniform data is updated and the shader is set.
-     * 
+     *
      * @param shader The shader to use for rendering.
      */
     public void setShader(Shader shader);
@@ -162,15 +172,15 @@ public interface Renderer {
     /**
      * Deletes a shader. This method also deletes
      * the attached shader sources.
-     * 
+     *
      * @param shader Shader to delete.
-     * @see #deleteShaderSource(com.jme3.shader.Shader.ShaderSource) 
+     * @see #deleteShaderSource(com.jme3.shader.Shader.ShaderSource)
      */
     public void deleteShader(Shader shader);
 
     /**
      * Deletes the provided shader source.
-     * 
+     *
      * @param source The ShaderSource to delete.
      */
     public void deleteShaderSource(ShaderSource source);
@@ -183,41 +193,41 @@ public interface Renderer {
 
     /**
      * Sets the framebuffer that will be drawn to.
-     * 
+     *
      * If the framebuffer has not been initialized yet, it will be created
      * and its render surfaces and attached textures will be allocated.
-     * 
+     *
      * @param fb The framebuffer to set
      */
     public void setFrameBuffer(FrameBuffer fb);
-    
+
     /**
      * Set the framebuffer that will be set instead of the main framebuffer
      * when a call to setFrameBuffer(null) is made.
-     * 
+     *
      * @param fb The framebuffer to override the main framebuffer.
      */
     public void setMainFrameBufferOverride(FrameBuffer fb);
 
     /**
      * Reads the pixels currently stored in the specified framebuffer
-     * into the given ByteBuffer object. 
-     * Only color pixels are transferred, the format is RGBA with 8 bits 
+     * into the given ByteBuffer object.
+     * Only color pixels are transferred, the format is RGBA with 8 bits
      * per component. The given byte buffer should have at least
      * fb.getWidth() * fb.getHeight() * 4 bytes remaining.
-     * 
+     *
      * @param fb The framebuffer to read from
      * @param byteBuf The bytebuffer to transfer color data to
      */
     public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf);
-    
+
     /**
      * Reads the pixels currently stored in the specified framebuffer
-     * into the given ByteBuffer object. 
-     * Only color pixels are transferred, witht hte given format. 
+     * into the given ByteBuffer object.
+     * Only color pixels are transferred, witht hte given format.
      * The given byte buffer should have at least
      * fb.getWidth() * fb.getHeight() * 4 bytes remaining.
-     * 
+     *
      * @param fb The framebuffer to read from
      * @param byteBuf The bytebuffer to transfer color data to
      * @param format the image format to use when reading the frameBuffer.
@@ -235,9 +245,9 @@ public interface Renderer {
     public void setTexture(int unit, Texture tex);
 
     /**
-     * Modify the given Texture with the given Image. 
+     * Modify the given Texture with the given Image.
      * The image will be put at x and y into the texture.
-     * 
+     *
      * NOTE: this is only supported for uncompressed 2D images without mipmaps.
      *
      * @param tex the Texture that will be modified
@@ -254,7 +264,7 @@ public interface Renderer {
 
     /**
      * Uploads a vertex buffer to the GPU.
-     * 
+     *
      * @param vb The vertex buffer to upload
      */
     public void updateBufferData(VertexBuffer vb);
@@ -289,24 +299,24 @@ public interface Renderer {
      * The state of the native objects is reset in such way, that using
      * them again will cause the renderer to reupload them.
      * Call this method when you know the GL context is going to shutdown.
-     * 
-     * @see NativeObject#resetObject() 
+     *
+     * @see NativeObject#resetObject()
      */
     public void resetGLObjects();
 
     /**
      * Deletes all previously used {@link NativeObject Native Objects} on this Renderer, and
      * then resets the native objects.
-     * 
-     * @see #resetGLObjects() 
-     * @see NativeObject#deleteObject(java.lang.Object) 
+     *
+     * @see #resetGLObjects()
+     * @see NativeObject#deleteObject(java.lang.Object)
      */
     public void cleanup();
-    
+
     /**
      * Sets the alpha to coverage state.
      * <p>
-     * When alpha coverage and multi-sampling is enabled, 
+     * When alpha coverage and multi-sampling is enabled,
      * each pixel will contain alpha coverage in all
      * of its subsamples, which is then combined when
      * other future alpha-blended objects are rendered.
@@ -317,11 +327,11 @@ public interface Renderer {
      * </p>
      */
     public void setAlphaToCoverage(boolean value);
-    
+
       /**
-      * If enabled, color values rendered to the main framebuffer undergo 
+      * If enabled, color values rendered to the main framebuffer undergo
       * linear -&gt; sRGB conversion.
-      * 
+      *
       * This is identical to {@link FrameBuffer#setSrgb(boolean)} except it is toggled
       * for the main framebuffer instead of an offscreen buffer.
       *
@@ -329,7 +339,7 @@ public interface Renderer {
       *
       * As a shorthand, the user can set {@link AppSettings#setGammaCorrection(boolean)} to true
       * to toggle both {@link Renderer#setLinearizeSrgbImages(boolean)} and
-      * {@link Renderer#setMainFrameBufferSrgb(boolean)} if the 
+      * {@link Renderer#setMainFrameBufferSrgb(boolean)} if the
       * {@link Caps#Srgb} is supported by the GPU.
       *
       * @throws RendererException If the GPU hardware does not support sRGB.
@@ -338,7 +348,7 @@ public interface Renderer {
       * @see Caps#Srgb
       */
      public void setMainFrameBufferSrgb(boolean srgb);
-     
+
        /**
       * If enabled, all {@link Image images} with the {@link Image#setColorSpace(com.jme3.texture.image.ColorSpace) sRGB flag}
       * set shall undergo an sRGB to linear RGB color conversion when read by a shader.
@@ -352,7 +362,7 @@ public interface Renderer {
       *  - {@link Image.Format#DXT1A}
       *  - {@link Image.Format#DXT3}
       *  - {@link Image.Format#DXT5}
-      * 
+      *
       * For all other formats, no conversion is performed.
       *
       * If this option is toggled at runtime, textures must be reloaded for the change to take effect.
