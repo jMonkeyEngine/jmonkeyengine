@@ -4,6 +4,7 @@
 
 apply plugin: 'java'
 apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 group   = 'com.jme3'
 version = jmeVersion + '-' + jmeVersionTag
@@ -52,6 +53,43 @@ artifacts {
     archives sourcesJar
     if(buildJavaDoc == "true"){
         archives javadocJar
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom.withXml {
+                asNode().children().last() + {
+                        resolveStrategy = Closure.DELEGATE_FIRST
+                        name POM_NAME
+                        description POM_DESCRIPTION
+                        url POM_URL
+                        scm {
+                            url POM_SCM_URL
+                            connection POM_SCM_CONNECTION
+                            developerConnection POM_SCM_DEVELOPER_CONNECTION
+                        }
+                        licenses {
+                            license {
+                                name POM_LICENSE_NAME
+                                url POM_LICENSE_URL
+                                distribution POM_LICENSE_DISTRIBUTION
+                            }
+                        }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url "${rootProject.buildDir}/repo" // change to point to your repo, e.g. http://my.org/repo
+        }
     }
 }
 
