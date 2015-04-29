@@ -5,15 +5,15 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 
-String mavenGroupId = 'com.jme3'
-String mavenVersion = jmeVersion + '-' + jmeVersionTag //'-SNAPSHOT'
+group   = 'com.jme3'
+version = jmeVersion + '-' + jmeVersionTag
 
 sourceCompatibility = '1.6'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 repositories {
     mavenCentral()
-    maven{
+    maven {
         url "http://nifty-gui.sourceforge.net/nifty-maven-repo"
     }
 }
@@ -22,11 +22,6 @@ dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
     testCompile group: 'junit', name: 'junit', version: '4.10'
 }
-
-String mavenArtifactId = name
-
-group = mavenGroupId
-version = mavenVersion
 
 javadoc {
     failOnError = false
@@ -57,14 +52,6 @@ artifacts {
     archives sourcesJar
     if(buildJavaDoc == "true"){
         archives javadocJar
-    }
-}
-
-configure(install.repositories.mavenInstaller) {
-    pom.project {
-        groupId = mavenGroupId
-        artifactId = mavenArtifactId
-        version = mavenVersion
     }
 }
 
