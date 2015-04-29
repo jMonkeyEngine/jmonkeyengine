@@ -103,25 +103,19 @@ public class MoveTool extends SceneEditTool {
             }
 
             if (pickedMarker.equals(QUAD_XY)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XY,
-                        PickManager.TransformationType.local, camera, screenCoord);
+                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XY, getTransformType(), camera, screenCoord);
             } else if (pickedMarker.equals(QUAD_XZ)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XZ,
-                        PickManager.TransformationType.local, camera, screenCoord);
+                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XZ, getTransformType(), camera, screenCoord);
             } else if (pickedMarker.equals(QUAD_YZ)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_YZ,
-                        PickManager.TransformationType.local, camera, screenCoord);
+                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_YZ, getTransformType(), camera, screenCoord);
             } else if (pickedMarker.equals(ARROW_X)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XY,
-                        PickManager.TransformationType.local, camera, screenCoord);
+                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XY, getTransformType(), camera, screenCoord);
                 constraintAxis = Vector3f.UNIT_X; // move only X
             } else if (pickedMarker.equals(ARROW_Y)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_YZ,
-                        PickManager.TransformationType.local, camera, screenCoord);
+                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_YZ, getTransformType(), camera, screenCoord);
                 constraintAxis = Vector3f.UNIT_Y; // move only Y
             } else if (pickedMarker.equals(ARROW_Z)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XZ,
-                        PickManager.TransformationType.local, camera, screenCoord);
+                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XZ, getTransformType(), camera, screenCoord);
                 constraintAxis = Vector3f.UNIT_Z; // move only Z
             }
             startPosition = toolController.getSelectedSpatial().getLocalTranslation().clone();

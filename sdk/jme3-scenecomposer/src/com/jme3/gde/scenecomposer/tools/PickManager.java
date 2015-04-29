@@ -5,6 +5,7 @@
  */
 package com.jme3.gde.scenecomposer.tools;
 
+import com.jme3.gde.scenecomposer.SceneComposerToolController;
 import com.jme3.gde.scenecomposer.SceneEditTool;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -30,15 +31,12 @@ public class PickManager {
     private Quaternion origineRotation;
     private final Node plane;
     private Spatial spatial;
-
+    private SceneComposerToolController.TransformationType transformationType;
+    
     protected static final Quaternion PLANE_XY = new Quaternion().fromAngleAxis(0, new Vector3f(1, 0, 0));
     protected static final Quaternion PLANE_YZ = new Quaternion().fromAngleAxis(-FastMath.PI / 2, new Vector3f(0, 1, 0));//YAW090
     protected static final Quaternion PLANE_XZ = new Quaternion().fromAngleAxis(FastMath.PI / 2, new Vector3f(1, 0, 0)); //PITCH090
 
-    public enum TransformationType {
-
-        local, global, camera
-    }
 
     public PickManager() {
         float size = 1000;
@@ -55,7 +53,7 @@ public class PickManager {
         spatial = null;
     }
 
-    public void initiatePick(Spatial selectedSpatial, Quaternion planeRotation, TransformationType type, Camera camera, Vector2f screenCoord) {
+    public void initiatePick(Spatial selectedSpatial, Quaternion planeRotation, SceneComposerToolController.TransformationType type, Camera camera, Vector2f screenCoord) {
         spatial = selectedSpatial;
         startSpatialLocation = selectedSpatial.getWorldTranslation().clone();
 
@@ -65,16 +63,17 @@ public class PickManager {
         startPickLoc = SceneEditTool.pickWorldLocation(camera, screenCoord, plane, null);
     }
 
-    public void setTransformation(Quaternion planeRotation, TransformationType type) {
+    public void setTransformation(Quaternion planeRotation, SceneComposerToolController.TransformationType type) {
         Quaternion rot = new Quaternion();
-        if (type == TransformationType.local) {
+        transformationType = type;
+        if (transformationType == SceneComposerToolController.TransformationType.local) {
             rot.set(spatial.getWorldRotation());
             rot.multLocal(planeRotation);
             origineRotation = spatial.getWorldRotation().clone();
-        } else if (type == TransformationType.global) {
+        } else if (transformationType == SceneComposerToolController.TransformationType.global) {
             rot.set(planeRotation);
             origineRotation = new Quaternion(Quaternion.IDENTITY);
-        } else if (type == TransformationType.camera) {
+        } else if (transformationType == SceneComposerToolController.TransformationType.camera) {
             rot.set(planeRotation);
             origineRotation = planeRotation.clone();
         }
@@ -82,6 +81,10 @@ public class PickManager {
     }
 
     public boolean updatePick(Camera camera, Vector2f screenCoord) {
+        if(transformationType == SceneComposerToolController.TransformationType.camera){
+            origineRotation = camera.getRotation();
+            plane.setLocalRotation(camera.getRotation());
+        }
         finalPickLoc = SceneEditTool.pickWorldLocation(camera, screenCoord, plane, null);
         return finalPickLoc != null;
     }

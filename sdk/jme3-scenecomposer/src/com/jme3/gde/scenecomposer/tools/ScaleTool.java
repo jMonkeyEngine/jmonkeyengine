@@ -97,18 +97,15 @@ public class ScaleTool extends SceneEditTool {
 
             if (pickedMarker.equals(QUAD_XY) || pickedMarker.equals(QUAD_XZ) || pickedMarker.equals(QUAD_YZ)) {
                 pickManager.initiatePick(toolController.getSelectedSpatial(), camera.getRotation(), 
-                        PickManager.TransformationType.camera, camera, screenCoord);
+                        SceneComposerToolController.TransformationType.camera, camera, screenCoord);
             } else if (pickedMarker.equals(ARROW_X)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XY, 
-                        PickManager.TransformationType.global, camera, screenCoord);
+                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XY, getTransformType(), camera, screenCoord);
                 constraintAxis = Vector3f.UNIT_X; // scale only X
             } else if (pickedMarker.equals(ARROW_Y)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_YZ, 
-                        PickManager.TransformationType.global, camera, screenCoord);
+                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_YZ, getTransformType(), camera, screenCoord);
                 constraintAxis = Vector3f.UNIT_Y; // scale only Y
             } else if (pickedMarker.equals(ARROW_Z)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XZ, 
-                        PickManager.TransformationType.global, camera, screenCoord);
+                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XZ, getTransformType(), camera, screenCoord);
                 constraintAxis = Vector3f.UNIT_Z; // scale only Z
             }
             startScale = toolController.getSelectedSpatial().getLocalScale().clone();
@@ -125,7 +122,9 @@ public class ScaleTool extends SceneEditTool {
             lastScale = scale;
             toolController.getSelectedSpatial().setLocalScale(scale);
         } else if (pickedMarker.equals(ARROW_X) || pickedMarker.equals(ARROW_Y) || pickedMarker.equals(ARROW_Z)) {
-            Vector3f diff = pickManager.getLocalTranslation(constraintAxis);
+            // Get the translation in the spatial Space
+            Quaternion worldToSpatial = toolController.getSelectedSpatial().getWorldRotation().inverse();
+            Vector3f diff = pickManager.getTranslation(worldToSpatial.mult(constraintAxis));
             diff.multLocal(0.5f);
             Vector3f scale = startScale.add(diff);
             lastScale = scale;
