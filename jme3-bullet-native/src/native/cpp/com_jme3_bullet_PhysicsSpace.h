@@ -174,6 +174,14 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_finalizeNative
 JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_sweepTest_1native
 (JNIEnv *, jobject, jlong, jobject, jobject, jlong, jobject, jfloat);
 
+/*
+ * Class:     com_jme3_bullet_PhysicsSpace
+ * Method:    setSolverNumIterations
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_setSolverNumIterations
+(JNIEnv *, jobject, jlong, jint);
+
 #ifdef __cplusplus
 }
 #endif

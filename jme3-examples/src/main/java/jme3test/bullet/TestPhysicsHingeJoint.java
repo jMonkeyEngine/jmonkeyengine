@@ -76,7 +76,7 @@ public class TestPhysicsHingeJoint extends SimpleApplication implements AnalogLi
     public void simpleInitApp() {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
-        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+        bulletAppState.setDebugEnabled(true);
         setupKeys();
         setupJoint();
     }
@@ -102,7 +102,7 @@ public class TestPhysicsHingeJoint extends SimpleApplication implements AnalogLi
 
     @Override
     public void simpleUpdate(float tpf) {
-        
+
     }
 
 
