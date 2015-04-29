@@ -140,7 +140,7 @@ public class GLRenderer implements Renderer {
 
     private HashSet<String> loadExtensions() {
         HashSet<String> extensionSet = new HashSet<String>(64);
-        if (gl3 != null) {
+        if (caps.contains(Caps.OpenGL30)) {
             // If OpenGL3+ is available, use the non-deprecated way
             // of getting supported extensions.
             gl3.glGetInteger(GL3.GL_NUM_EXTENSIONS, intBuf16);
