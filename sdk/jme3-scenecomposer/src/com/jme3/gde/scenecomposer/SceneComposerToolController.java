@@ -357,7 +357,7 @@ public class SceneComposerToolController extends SceneToolController {
     public void setTransformationType(String type) {
         if(type != null){
             if(type.equals("Local")){
-                setTransformationType(transformationType.local);
+                setTransformationType(TransformationType.local);
             } else if(type.equals("Global")){
                 setTransformationType(TransformationType.global);
             } else if(type.equals("Camera")){
@@ -365,15 +365,9 @@ public class SceneComposerToolController extends SceneToolController {
             }
         }
     }
-        /**
-     * @return the transformationType
-     */
-    public TransformationType getTransformationType() {
-        return transformationType;
-    }
 
     /**
-     * @param transformationType the transformationType to set
+     * @param type the transformationType to set
      */
     public void setTransformationType(TransformationType type) {
         if(type != this.transformationType){
@@ -385,6 +379,13 @@ public class SceneComposerToolController extends SceneToolController {
         }
     }
     
+    /**
+     * @return the transformationType
+     */
+    public TransformationType getTransformationType() {
+        return transformationType;
+    }
+
     /**
      * A marker on the screen that shows where a point light or
      * a spot light is. This marker is not part of the scene,
