@@ -31,11 +31,25 @@
  */
 package com.jme3.renderer.android;
 
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import jme3tools.shader.ShaderDebug;
 import android.opengl.GLES20;
 import android.os.Build;
+
 import com.jme3.asset.AndroidImageInfo;
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
+import com.jme3.math.ClipRectangle;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
@@ -49,6 +63,7 @@ import com.jme3.renderer.RendererException;
 import com.jme3.renderer.Statistics;
 import com.jme3.renderer.android.TextureUtil.AndroidGLImageFormat;
 import com.jme3.renderer.opengl.GLRenderer;
+import com.jme3.scene.ClipState;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer;
@@ -68,18 +83,6 @@ import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import jme3tools.shader.ShaderDebug;
 
 /**
  * @deprecated Should not be used anymore. Use {@link GLRenderer} instead.
@@ -120,7 +123,10 @@ public class OGLESShaderRenderer implements Renderer {
     private FrameBuffer mainFbOverride = null;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
-    private int clipX, clipY, clipW, clipH;
+    private ClipRectangle currentClipRect = new ClipRectangle();
+    private ClipRectangle rendererClipRect = new ClipRectangle();
+    private ClipRectangle geometryClipRect = new ClipRectangle();
+    private ClipRectangle intersectionClipRect = new ClipRectangle();
     //private final GL10 gl;
     private boolean powerVr = false;
     private boolean useVBO = false;
@@ -140,11 +146,13 @@ public class OGLESShaderRenderer implements Renderer {
         nameBuf.rewind();
     }
 
-    public Statistics getStatistics() {
+    @Override
+	public Statistics getStatistics() {
         return statistics;
     }
 
-    public EnumSet<Caps> getCaps() {
+    @Override
+	public EnumSet<Caps> getCaps() {
         return caps;
     }
 
@@ -163,7 +171,8 @@ public class OGLESShaderRenderer implements Renderer {
         }
     }
 
-    public void initialize() {
+    @Override
+	public void initialize() {
         logger.log(Level.FINE, "Vendor: {0}", GLES20.glGetString(GLES20.GL_VENDOR));
         logger.log(Level.FINE, "Renderer: {0}", GLES20.glGetString(GLES20.GL_RENDERER));
         logger.log(Level.FINE, "Version: {0}", GLES20.glGetString(GLES20.GL_VERSION));
@@ -380,7 +389,8 @@ public class OGLESShaderRenderer implements Renderer {
     /**
      * <code>resetGLObjects</code> should be called when die GLView gets recreated to reset all GPU objects
      */
-    public void resetGLObjects() {
+    @Override
+	public void resetGLObjects() {
         objManager.resetObjects();
         statistics.clearMemory();
         boundShader = null;
@@ -388,7 +398,8 @@ public class OGLESShaderRenderer implements Renderer {
         context.reset();
     }
 
-    public void cleanup() {
+    @Override
+	public void cleanup() {
         objManager.deleteAllObjects(this);
         statistics.clearMemory();
     }
@@ -402,12 +413,14 @@ public class OGLESShaderRenderer implements Renderer {
     /*********************************************************************\
     |* Render State                                                      *|
     \*********************************************************************/
-    public void setDepthRange(float start, float end) {
+    @Override
+	public void setDepthRange(float start, float end) {
         GLES20.glDepthRangef(start, end);
         RendererUtil.checkGLError();
     }
 
-    public void clearBuffers(boolean color, boolean depth, boolean stencil) {
+    @Override
+	public void clearBuffers(boolean color, boolean depth, boolean stencil) {
         int bits = 0;
         if (color) {
             //See explanations of the depth below, we must enable color write to be able to clear the color buffer
@@ -437,12 +450,14 @@ public class OGLESShaderRenderer implements Renderer {
         }
     }
 
-    public void setBackgroundColor(ColorRGBA color) {
+    @Override
+	public void setBackgroundColor(ColorRGBA color) {
         GLES20.glClearColor(color.r, color.g, color.b, color.a);
         RendererUtil.checkGLError();
     }
 
-    public void applyRenderState(RenderState state) {
+    @Override
+	public void applyRenderState(RenderState state) {
         /*
         if (state.isWireframe() && !context.wireframe){
         GLES20.glPolygonMode(GLES20.GL_FRONT_AND_BACK, GLES20.GL_LINE);
@@ -603,10 +618,78 @@ public class OGLESShaderRenderer implements Renderer {
         }
     }
 
+    @Override
+    public final void applyClipState(ClipState state)
+    {
+        if ((state != null) && state.isClippingEnabled()) {
+            geometryClipRect.set(state.getX(), state.getY(), state.getW(), state.getH());
+            if (context.clipRectEnabled) {
+                if (!context.geometryClipRectEnabled) {
+                    context.geometryClipRectEnabled = true;
+                }
+                if (ClipRectangle.intersect(rendererClipRect, geometryClipRect, intersectionClipRect)) {
+                    if (!currentClipRect.equals(intersectionClipRect)) {
+                        int iClipX = intersectionClipRect.getX();
+                        int iClipY = intersectionClipRect.getY();
+                        int iClipW = intersectionClipRect.getW();
+                        int iClipH = intersectionClipRect.getH();
+                        currentClipRect.set(iClipX, iClipY, iClipW, iClipH);
+                        GLES20.glScissor(iClipX, iClipY, iClipW, iClipH);
+                        RendererUtil.checkGLError();
+                    }
+                } else {
+                    if (currentClipRect.getX() != 0 || currentClipRect.getY() != 0 ||
+                        currentClipRect.getW() != 0 || currentClipRect.getH() != 0) {
+                        currentClipRect.set(0, 0, 0, 0);
+                        GLES20.glScissor(0, 0, 0, 0);
+                        RendererUtil.checkGLError();
+                    }
+                }
+            } else {
+                if (!context.geometryClipRectEnabled) {
+                    context.geometryClipRectEnabled = true;
+                    GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
+                    RendererUtil.checkGLError();
+                }
+                if (!currentClipRect.equals(geometryClipRect)) {
+                    int gClipX = geometryClipRect.getX();
+                    int gClipY = geometryClipRect.getY();
+                    int gClipW = geometryClipRect.getW();
+                    int gClipH = geometryClipRect.getH();
+                    currentClipRect.set(gClipX, gClipY, gClipW, gClipH);
+                    GLES20.glScissor(gClipX, gClipY, gClipW, gClipH);
+                    RendererUtil.checkGLError();
+                }
+            }
+        } else {
+            if (context.clipRectEnabled) {
+                if (context.geometryClipRectEnabled) {
+                    context.geometryClipRectEnabled = false;
+                }
+                if (!currentClipRect.equals(rendererClipRect)) {
+                    int rClipX = rendererClipRect.getX();
+                    int rClipY = rendererClipRect.getY();
+                    int rClipW = rendererClipRect.getW();
+                    int rClipH = rendererClipRect.getH();
+                    currentClipRect.set(rClipX, rClipY, rClipW, rClipH);
+                    GLES20.glScissor(rClipX, rClipY, rClipW, rClipH);
+                    RendererUtil.checkGLError();
+                }
+            } else {
+                if (context.geometryClipRectEnabled) {
+                    context.geometryClipRectEnabled = false;
+                    GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
+                    RendererUtil.checkGLError();
+                }
+            }
+        }
+    }
+
     /*********************************************************************\
     |* Camera and World transforms                                       *|
     \*********************************************************************/
-    public void setViewPort(int x, int y, int w, int h) {
+    @Override
+	public void setViewPort(int x, int y, int w, int h) {
         if (x != vpX || vpY != y || vpW != w || vpH != h) {
             GLES20.glViewport(x, y, w, h);
             RendererUtil.checkGLError();
@@ -618,36 +701,35 @@ public class OGLESShaderRenderer implements Renderer {
         }
     }
 
-    public void setClipRect(int x, int y, int width, int height) {
-        if (!context.clipRectEnabled) {
-            GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
+    @Override
+	public final void setClipRect(final int x, final int y, final int width, final int height) {
+        if (!context.clipRectEnabled && !context.geometryClipRectEnabled) {
+        	GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
             RendererUtil.checkGLError();
-            context.clipRectEnabled = true;
         }
-        if (clipX != x || clipY != y || clipW != width || clipH != height) {
+        context.clipRectEnabled = true;
+        context.geometryClipRectEnabled = false;
+        rendererClipRect.set(x, y, width, height);
+        if (currentClipRect.getX() != x || currentClipRect.getY() != y ||
+            currentClipRect.getW() != width || currentClipRect.getH() != height) {
+            currentClipRect.set(x, y, width, height);
             GLES20.glScissor(x, y, width, height);
             RendererUtil.checkGLError();
-            clipX = x;
-            clipY = y;
-            clipW = width;
-            clipH = height;
         }
     }
 
-    public void clearClipRect() {
-        if (context.clipRectEnabled) {
-            GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
+    @Override
+	public final void clearClipRect() {
+        if (context.clipRectEnabled || context.geometryClipRectEnabled) {
+        	GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
             RendererUtil.checkGLError();
-            context.clipRectEnabled = false;
-
-            clipX = 0;
-            clipY = 0;
-            clipW = 0;
-            clipH = 0;
         }
+        context.clipRectEnabled = false;
+        context.geometryClipRectEnabled = false;
     }
 
-    public void postFrame() {
+    @Override
+	public void postFrame() {
         RendererUtil.checkGLErrorForced();
 
         objManager.deleteUnused(this);
@@ -990,7 +1072,8 @@ public class OGLESShaderRenderer implements Renderer {
         }
     }
 
-    public void setShader(Shader shader) {
+    @Override
+	public void setShader(Shader shader) {
         if (shader == null) {
             throw new IllegalArgumentException("Shader cannot be null");
         } else {
@@ -1008,7 +1091,8 @@ public class OGLESShaderRenderer implements Renderer {
         }
     }
 
-    public void deleteShaderSource(ShaderSource source) {
+    @Override
+	public void deleteShaderSource(ShaderSource source) {
         if (source.getId() < 0) {
             logger.warning("Shader source is not uploaded to GPU, cannot delete.");
             return;
@@ -1022,7 +1106,8 @@ public class OGLESShaderRenderer implements Renderer {
         source.resetObject();
     }
 
-    public void deleteShader(Shader shader) {
+    @Override
+	public void deleteShader(Shader shader) {
         if (shader.getId() == -1) {
             logger.warning("Shader is not uploaded to GPU, cannot delete.");
             return;
@@ -1071,7 +1156,8 @@ public class OGLESShaderRenderer implements Renderer {
     |* Framebuffers                                                      *|
     \*********************************************************************/
 
-    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
+    @Override
+	public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
             throw new RendererException("Copy framebuffer not implemented yet.");
 
 //        if (GLContext.getCapabilities().GL_EXT_framebuffer_blit) {
@@ -1400,11 +1486,13 @@ public class OGLESShaderRenderer implements Renderer {
         fb.clearUpdateNeeded();
     }
 
-    public void setMainFrameBufferOverride(FrameBuffer fb){
+    @Override
+	public void setMainFrameBufferOverride(FrameBuffer fb){
         mainFbOverride = fb;
     }
 
-    public void setFrameBuffer(FrameBuffer fb) {
+    @Override
+	public void setFrameBuffer(FrameBuffer fb) {
         if (fb == null && mainFbOverride != null) {
             fb = mainFbOverride;
         }
@@ -1541,7 +1629,8 @@ public class OGLESShaderRenderer implements Renderer {
      * @param fb FrameBuffer
      * @param byteBuf ByteBuffer to store the Color Buffer from OpenGL
      */
-    public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf) {
+    @Override
+	public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf) {
         if (fb != null) {
             RenderBuffer rb = fb.getColorBuffer();
             if (rb == null) {
@@ -1564,7 +1653,8 @@ public class OGLESShaderRenderer implements Renderer {
         RendererUtil.checkGLError();
     }
 
-    public void deleteFrameBuffer(FrameBuffer fb) {
+    @Override
+	public void deleteFrameBuffer(FrameBuffer fb) {
         if (fb.getId() != -1) {
             if (context.boundFBO == fb.getId()) {
                 GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
@@ -1802,7 +1892,8 @@ public class OGLESShaderRenderer implements Renderer {
         img.clearUpdateNeeded();
     }
 
-    public void setTexture(int unit, Texture tex) {
+    @Override
+	public void setTexture(int unit, Texture tex) {
         Image image = tex.getImage();
         if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated()) ) {
             updateTexImageData(image, tex.getType());
@@ -1845,12 +1936,14 @@ public class OGLESShaderRenderer implements Renderer {
         setupTextureParams(tex);
     }
 
-    public void modifyTexture(Texture tex, Image pixels, int x, int y) {
+    @Override
+	public void modifyTexture(Texture tex, Image pixels, int x, int y) {
       setTexture(0, tex);
       TextureUtil.uploadSubTexture(pixels, convertTextureType(tex.getType()), 0, x, y);
     }
 
-    public void deleteImage(Image image) {
+    @Override
+	public void deleteImage(Image image) {
         int texId = image.getId();
         if (texId != -1) {
             intBuf1.put(0, texId);
@@ -1910,7 +2003,8 @@ public class OGLESShaderRenderer implements Renderer {
         }
     }
 
-    public void updateBufferData(VertexBuffer vb) {
+    @Override
+	public void updateBufferData(VertexBuffer vb) {
         int bufId = vb.getId();
         boolean created = false;
         if (bufId == -1) {
@@ -1955,21 +2049,21 @@ public class OGLESShaderRenderer implements Renderer {
         switch (vb.getFormat()) {
             case Byte:
             case UnsignedByte:
-                GLES20.glBufferData(target, size, (ByteBuffer) vb.getData(), usage);
+                GLES20.glBufferData(target, size, vb.getData(), usage);
                 RendererUtil.checkGLError();
                 break;
             case Short:
             case UnsignedShort:
-                GLES20.glBufferData(target, size, (ShortBuffer) vb.getData(), usage);
+                GLES20.glBufferData(target, size, vb.getData(), usage);
                 RendererUtil.checkGLError();
                 break;
             case Int:
             case UnsignedInt:
-                GLES20.glBufferData(target, size, (IntBuffer) vb.getData(), usage);
+                GLES20.glBufferData(target, size, vb.getData(), usage);
                 RendererUtil.checkGLError();
                 break;
             case Float:
-                GLES20.glBufferData(target, size, (FloatBuffer) vb.getData(), usage);
+                GLES20.glBufferData(target, size, vb.getData(), usage);
                 RendererUtil.checkGLError();
                 break;
             default:
@@ -2005,7 +2099,8 @@ public class OGLESShaderRenderer implements Renderer {
         vb.clearUpdateNeeded();
     }
 
-    public void deleteBuffer(VertexBuffer vb) {
+    @Override
+	public void deleteBuffer(VertexBuffer vb) {
         int bufId = vb.getId();
         if (bufId != -1) {
             // delete buffer
@@ -2364,7 +2459,8 @@ public class OGLESShaderRenderer implements Renderer {
         clearVertexAttribs();
     }
 
-    public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
+    @Override
+	public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
         if (mesh.getVertexCount() == 0) {
             return;
         }
@@ -2518,7 +2614,8 @@ public class OGLESShaderRenderer implements Renderer {
         setVertexAttrib_Array(vb, null);
     }
 
-    public void setAlphaToCoverage(boolean value) {
+    @Override
+	public void setAlphaToCoverage(boolean value) {
         if (value) {
             GLES20.glEnable(GLES20.GL_SAMPLE_ALPHA_TO_COVERAGE);
             RendererUtil.checkGLError();
@@ -2535,15 +2632,18 @@ public class OGLESShaderRenderer implements Renderer {
         lastFb = null;
     }
 
-    public void setMainFrameBufferSrgb(boolean srgb) {
+    @Override
+	public void setMainFrameBufferSrgb(boolean srgb) {
         //TODO once opglES3.0 is supported maybe....
     }
 
-    public void setLinearizeSrgbImages(boolean linearize) {
+    @Override
+	public void setLinearizeSrgbImages(boolean linearize) {
         //TODO once opglES3.0 is supported maybe....
     }
 
-    public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {
+    @Override
+	public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {
         throw new UnsupportedOperationException("Not supported yet. URA will make that work seamlessly");
     }
 }
