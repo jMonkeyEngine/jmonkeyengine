@@ -39,7 +39,7 @@ public class ScaleTool extends SceneEditTool {
     @Override
     public void activate(AssetManager manager, Node toolNode, Node onTopToolNode, Spatial selectedSpatial, SceneComposerToolController toolController) {
         super.activate(manager, toolNode, onTopToolNode, selectedSpatial, toolController);
-                pickManager = Lookup.getDefault().lookup(PickManager.class);
+        pickManager = Lookup.getDefault().lookup(PickManager.class);
         displayPlanes();
     }
 
@@ -54,12 +54,40 @@ public class ScaleTool extends SceneEditTool {
                 wasDragging = false;
             }
             pickManager.reset();
+        } else {
+            if (toolController.getSelectedSpatial() == null) {
+                return;
+            }
+            if (pickedMarker == null) {
+                pickedMarker = pickAxisMarker(camera, screenCoord, axisPickType);
+                if (pickedMarker == null) {
+                    return;
+                }
+
+                if (pickedMarker.equals(QUAD_XY) || pickedMarker.equals(QUAD_XZ) || pickedMarker.equals(QUAD_YZ)) {
+                    pickManager.initiatePick(toolController.getSelectedSpatial(), camera.getRotation(),
+                            SceneComposerToolController.TransformationType.camera, camera, screenCoord);
+                } else if (pickedMarker.equals(ARROW_X)) {
+                    pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XY, getTransformType(), camera, screenCoord);
+                    constraintAxis = Vector3f.UNIT_X; // scale only X
+                } else if (pickedMarker.equals(ARROW_Y)) {
+                    pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_YZ, getTransformType(), camera, screenCoord);
+                    constraintAxis = Vector3f.UNIT_Y; // scale only Y
+                } else if (pickedMarker.equals(ARROW_Z)) {
+                    pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XZ, getTransformType(), camera, screenCoord);
+                    constraintAxis = Vector3f.UNIT_Z; // scale only Z
+                }
+                startScale = toolController.getSelectedSpatial().getLocalScale().clone();
+                wasDragging = true;
+            }
         }
     }
 
     @Override
     public void actionSecondary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject dataObject) {
-
+        if (pressed) {
+            cancel();
+        }
     }
 
     @Override
@@ -83,61 +111,45 @@ public class ScaleTool extends SceneEditTool {
                 wasDragging = false;
             }
             pickManager.reset();
-            return;
-        }
-
-        if (toolController.getSelectedSpatial() == null) {
-            return;
-        }
-        if (pickedMarker == null) {
-            pickedMarker = pickAxisMarker(camera, screenCoord, axisPickType);
-            if (pickedMarker == null) {
+        } else if (wasDragging) {
+            if (!pickManager.updatePick(camera, screenCoord)) {
                 return;
             }
-
             if (pickedMarker.equals(QUAD_XY) || pickedMarker.equals(QUAD_XZ) || pickedMarker.equals(QUAD_YZ)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), camera.getRotation(), 
-                        SceneComposerToolController.TransformationType.camera, camera, screenCoord);
-            } else if (pickedMarker.equals(ARROW_X)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XY, getTransformType(), camera, screenCoord);
-                constraintAxis = Vector3f.UNIT_X; // scale only X
-            } else if (pickedMarker.equals(ARROW_Y)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_YZ, getTransformType(), camera, screenCoord);
-                constraintAxis = Vector3f.UNIT_Y; // scale only Y
-            } else if (pickedMarker.equals(ARROW_Z)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XZ, getTransformType(), camera, screenCoord);
-                constraintAxis = Vector3f.UNIT_Z; // scale only Z
+                constraintAxis = pickManager.getStartOffset().normalize();
+                float diff = pickManager.getTranslation(constraintAxis).dot(constraintAxis);
+                diff *= 0.5f;
+                Vector3f scale = startScale.add(new Vector3f(diff, diff, diff));
+                lastScale = scale;
+                toolController.getSelectedSpatial().setLocalScale(scale);
+            } else if (pickedMarker.equals(ARROW_X) || pickedMarker.equals(ARROW_Y) || pickedMarker.equals(ARROW_Z)) {
+                // Get the translation in the spatial Space
+                Quaternion worldToSpatial = toolController.getSelectedSpatial().getWorldRotation().inverse();
+                Vector3f diff = pickManager.getTranslation(worldToSpatial.mult(constraintAxis));
+                diff.multLocal(0.5f);
+                Vector3f scale = startScale.add(diff);
+                lastScale = scale;
+                toolController.getSelectedSpatial().setLocalScale(scale);
             }
-            startScale = toolController.getSelectedSpatial().getLocalScale().clone();
+            updateToolsTransformation();
         }
-
-        if (!pickManager.updatePick(camera, screenCoord)) {
-            return;
-        }
-        if (pickedMarker.equals(QUAD_XY) || pickedMarker.equals(QUAD_XZ) || pickedMarker.equals(QUAD_YZ)) {
-            constraintAxis = pickManager.getStartOffset().normalize();
-            float diff = pickManager.getTranslation(constraintAxis).dot(constraintAxis);
-            diff *= 0.5f;
-            Vector3f scale = startScale.add(new Vector3f(diff, diff, diff));
-            lastScale = scale;
-            toolController.getSelectedSpatial().setLocalScale(scale);
-        } else if (pickedMarker.equals(ARROW_X) || pickedMarker.equals(ARROW_Y) || pickedMarker.equals(ARROW_Z)) {
-            // Get the translation in the spatial Space
-            Quaternion worldToSpatial = toolController.getSelectedSpatial().getWorldRotation().inverse();
-            Vector3f diff = pickManager.getTranslation(worldToSpatial.mult(constraintAxis));
-            diff.multLocal(0.5f);
-            Vector3f scale = startScale.add(diff);
-            lastScale = scale;
-            toolController.getSelectedSpatial().setLocalScale(scale);
-        }
-        updateToolsTransformation();
-
-        wasDragging = true;
     }
 
     @Override
     public void draggedSecondary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject currentDataObject) {
+        if (pressed) {
+            cancel();
+        }
+    }
 
+    private void cancel() {
+        if (wasDragging) {
+            wasDragging = false;
+            toolController.getSelectedSpatial().setLocalScale(startScale);
+            setDefaultAxisMarkerColors();
+            pickedMarker = null; // mouse released, reset selection
+            pickManager.reset();
+        }
     }
 
     private class ScaleUndo extends AbstractUndoableSceneEdit {
