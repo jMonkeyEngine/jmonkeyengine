@@ -53,12 +53,36 @@ public class RotateTool extends SceneEditTool {
                 actionPerformed(new ScaleUndo(toolController.getSelectedSpatial(), startRotate, lastRotate));
                 wasDragging = false;
             }
+            pickManager.reset();
+        } else {
+            if (toolController.getSelectedSpatial() == null) {
+                return;
+            }
+
+            if (pickedMarker == null) {
+                pickedMarker = pickAxisMarker(camera, screenCoord, axisPickType);
+                if (pickedMarker == null) {
+                    return;
+                }
+
+                if (pickedMarker.equals(QUAD_XY)) {
+                    pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XY, getTransformType(), camera, screenCoord);
+                } else if (pickedMarker.equals(QUAD_XZ)) {
+                    pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XZ, getTransformType(), camera, screenCoord);
+                } else if (pickedMarker.equals(QUAD_YZ)) {
+                    pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_YZ, getTransformType(), camera, screenCoord);
+                }
+                startRotate = toolController.getSelectedSpatial().getLocalRotation().clone();
+                wasDragging = true;
+            }
         }
     }
 
     @Override
     public void actionSecondary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject dataObject) {
-
+        if (pressed) {
+            cancel();
+        }
     }
 
     @Override
@@ -67,12 +91,12 @@ public class RotateTool extends SceneEditTool {
             highlightAxisMarker(camera, screenCoord, axisPickType);
         } else {
             pickedMarker = null;
+            pickManager.reset();
         }
     }
 
     @Override
     public void draggedPrimary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject currentDataObject) {
-
         if (!pressed) {
             setDefaultAxisMarkerColors();
             pickedMarker = null; // mouse released, reset selection
@@ -82,45 +106,36 @@ public class RotateTool extends SceneEditTool {
                 actionPerformed(new ScaleUndo(toolController.getSelectedSpatial(), startRotate, lastRotate));
                 wasDragging = false;
             }
-            return;
-        }
-
-        if (toolController.getSelectedSpatial() == null) {
-            return;
-        }
-
-        if (pickedMarker == null) {
-            pickedMarker = pickAxisMarker(camera, screenCoord, axisPickType);
-            if (pickedMarker == null) {
+            pickManager.reset();
+        } else if (wasDragging) {
+            if (!pickManager.updatePick(camera, screenCoord)) {
                 return;
             }
 
-            if (pickedMarker.equals(QUAD_XY)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XY, getTransformType(), camera, screenCoord);
-            } else if (pickedMarker.equals(QUAD_XZ)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_XZ, getTransformType(), camera, screenCoord);
-            } else if (pickedMarker.equals(QUAD_YZ)) {
-                pickManager.initiatePick(toolController.getSelectedSpatial(), PickManager.PLANE_YZ, getTransformType(), camera, screenCoord);
+            if (pickedMarker.equals(QUAD_XY) || pickedMarker.equals(QUAD_XZ) || pickedMarker.equals(QUAD_YZ)) {
+                Quaternion rotation = startRotate.mult(pickManager.getLocalRotation());
+                toolController.getSelectedSpatial().setLocalRotation(rotation);
+                lastRotate = rotation;
             }
-            startRotate = toolController.getSelectedSpatial().getLocalRotation().clone();
+            updateToolsTransformation();
         }
-        if (!pickManager.updatePick(camera, screenCoord)) {
-            return;
-        }
-
-        if (pickedMarker.equals(QUAD_XY) || pickedMarker.equals(QUAD_XZ) || pickedMarker.equals(QUAD_YZ)) {
-            Quaternion rotation = startRotate.mult(pickManager.getLocalRotation());
-            toolController.getSelectedSpatial().setLocalRotation(rotation);
-            lastRotate = rotation;
-        }
-        updateToolsTransformation();
-        wasDragging = true;
     }
 
     @Override
-    public
-            void draggedSecondary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject currentDataObject) {
+    public void draggedSecondary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject currentDataObject) {
+        if (pressed) {
+            cancel();
+        }
+    }
 
+    private void cancel() {
+        if (wasDragging) {
+            wasDragging = false;
+            toolController.getSelectedSpatial().setLocalRotation(startRotate);
+            setDefaultAxisMarkerColors();
+            pickedMarker = null; // mouse released, reset selection
+            pickManager.reset();
+        }
     }
 
     private class ScaleUndo extends AbstractUndoableSceneEdit {
