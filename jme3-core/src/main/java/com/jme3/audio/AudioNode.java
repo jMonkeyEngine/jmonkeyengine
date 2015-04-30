@@ -409,6 +409,14 @@ public class AudioNode extends Node implements AudioSource {
             play();
         }
     }
+    
+    @Override
+    public float getPlaybackTime() {
+        if (channel >= 0)
+            return getRenderer().getSourcePlaybackTime(this);
+        else
+            return 0;
+    }
 
     public Vector3f getPosition() {
         return getWorldTranslation();
