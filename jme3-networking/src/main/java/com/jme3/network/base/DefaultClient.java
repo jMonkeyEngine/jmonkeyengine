@@ -177,6 +177,10 @@ public class DefaultClient implements Client
                 continue;
             send(ch, reg, false);
         }
+    }    
+
+    public boolean isStarted() {
+        return isRunning;
     }
 
     protected void waitForConnected()
@@ -351,12 +355,15 @@ public class DefaultClient implements Client
  
     protected void fireConnected()
     {
-        // Let the services know we are finally started
-        services.start();
-    
         for( ClientStateListener l : stateListeners ) {
             l.clientConnected( this );
         }            
+    }
+
+    protected void startServices() 
+    {
+        // Let the services know we are finally started
+        services.start();      
     }
     
     protected void fireDisconnected( DisconnectInfo info )
@@ -416,11 +423,19 @@ public class DefaultClient implements Client
         // Pull off the connection management messages we're
         // interested in and then pass on the rest.
         if( m instanceof ClientRegistrationMessage ) {
-            // Then we've gotten our real id
-            this.id = (int)((ClientRegistrationMessage)m).getId();
-            log.log( Level.FINE, "Connection established, id:{0}.", this.id );
-            connecting.countDown();
-            fireConnected();
+            ClientRegistrationMessage crm = (ClientRegistrationMessage)m; 
+            // See if it has a real ID
+            if( crm.getId() >= 0 ) {
+                // Then we've gotten our real id
+                this.id = (int)crm.getId();
+                log.log( Level.FINE, "Connection established, id:{0}.", this.id );
+                connecting.countDown();
+                fireConnected();
+            } else {
+                // Else it's a message letting us know that the 
+                // hosted services have been started
+                startServices();
+            }
             return;
         } else if( m instanceof ChannelInfoMessage ) {
             // This is an interum step in the connection process and
