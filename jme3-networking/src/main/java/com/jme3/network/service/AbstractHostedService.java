@@ -50,6 +50,15 @@ public abstract class AbstractHostedService extends AbstractService<HostedServic
     
     protected AbstractHostedService() {
     }
+ 
+    /**
+     *  Returns the server for this hosted service or null if
+     *  the service is not yet attached.
+     */   
+    protected Server getServer() {
+        HostedServiceManager hsm = getServiceManager();
+        return hsm == null ? null : hsm.getServer();
+    }
 
     /**
      *  Default implementation does nothing.  Implementations can
