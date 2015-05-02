@@ -223,7 +223,7 @@ public class DefaultServer implements Server
     {
         if( connections.isEmpty() )
             return;
-            
+ 
         ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
  
         FilterAdapter adapter = filter == null ? null : new FilterAdapter(filter);
