@@ -32,7 +32,7 @@ public class PickManager {
     private final Node plane;
     private Spatial spatial;
     private SceneComposerToolController.TransformationType transformationType;
-    
+
     protected static final Quaternion PLANE_XY = new Quaternion().fromAngleAxis(0, new Vector3f(1, 0, 0));
     protected static final Quaternion PLANE_YZ = new Quaternion().fromAngleAxis(-FastMath.PI / 2, new Vector3f(0, 1, 0));//YAW090
     protected static final Quaternion PLANE_XZ = new Quaternion().fromAngleAxis(FastMath.PI / 2, new Vector3f(1, 0, 0)); //PITCH090
@@ -57,13 +57,13 @@ public class PickManager {
         spatial = selectedSpatial;
         startSpatialLocation = selectedSpatial.getWorldTranslation().clone();
 
-        setTransformation(planeRotation, type);
+        setTransformation(planeRotation, type, camera);
         plane.setLocalTranslation(startSpatialLocation);
 
         startPickLoc = SceneEditTool.pickWorldLocation(camera, screenCoord, plane, null);
     }
 
-    public void setTransformation(Quaternion planeRotation, SceneComposerToolController.TransformationType type) {
+    public void setTransformation(Quaternion planeRotation, SceneComposerToolController.TransformationType type, Camera camera) {
         Quaternion rot = new Quaternion();
         transformationType = type;
         if (transformationType == SceneComposerToolController.TransformationType.local) {
@@ -74,12 +74,18 @@ public class PickManager {
             rot.set(planeRotation);
             origineRotation = new Quaternion(Quaternion.IDENTITY);
         } else if (transformationType == SceneComposerToolController.TransformationType.camera) {
-            rot.set(planeRotation);
-            origineRotation = planeRotation.clone();
+            rot.set(camera.getRotation());  
+            origineRotation = camera.getRotation().clone();
         }
         plane.setLocalRotation(rot);
     }
-
+    
+    /**
+     * 
+     * @param camera
+     * @param screenCoord
+     * @return true if the the new picked location is set, else return false.
+     */
     public boolean updatePick(Camera camera, Vector2f screenCoord) {
         if(transformationType == SceneComposerToolController.TransformationType.camera){
             origineRotation = camera.getRotation();
@@ -131,23 +137,26 @@ public class PickManager {
      * @return the Quaternion rotation in the WorldSpace
      */
     public Quaternion getRotation() {
-        Vector3f v1, v2;
-        v1 = startPickLoc.subtract(startSpatialLocation).normalize();
-        v2 = finalPickLoc.subtract(startSpatialLocation).normalize();
-        Vector3f axis = v1.cross(v2);
-        float angle = v1.angleBetween(v2);
-        return new Quaternion().fromAngleAxis(angle, axis);
+        return getRotation(Quaternion.IDENTITY);
     }
 
     /**
-     * 
+     *
      * @return the Quaternion rotation in the ToolSpace
      */
     public Quaternion getLocalRotation() {
+        return getRotation(origineRotation.inverse());
+    }
+
+    /**
+     * Get the Rotation into a specific custom space.
+     * @param transforme the rotation to the custom space (World to Custom space)
+     * @return the Rotation in the custom space
+     */
+    public Quaternion getRotation(Quaternion transforme) {
         Vector3f v1, v2;
-        Quaternion rot = origineRotation.inverse();
-        v1 = rot.mult(startPickLoc.subtract(startSpatialLocation).normalize());
-        v2 = rot.mult(finalPickLoc.subtract(startSpatialLocation).normalize());
+        v1 = transforme.mult(startPickLoc.subtract(startSpatialLocation).normalize());
+        v2 = transforme.mult(finalPickLoc.subtract(startSpatialLocation).normalize());
         Vector3f axis = v1.cross(v2);
         float angle = v1.angleBetween(v2);
         return new Quaternion().fromAngleAxis(angle, axis);
@@ -178,8 +187,7 @@ public class PickManager {
      * @return
      */
     public Vector3f getLocalTranslation(Vector3f axisConstrainte) {
-        //return plane.getWorldRotation().inverse().mult(getTranslation(axisConstrainte));
         return getTranslation(origineRotation.inverse().mult(axisConstrainte));
     }
-
+    
 }

@@ -113,7 +113,7 @@ public class RotateTool extends SceneEditTool {
             }
 
             if (pickedMarker.equals(QUAD_XY) || pickedMarker.equals(QUAD_XZ) || pickedMarker.equals(QUAD_YZ)) {
-                Quaternion rotation = startRotate.mult(pickManager.getLocalRotation());
+                Quaternion rotation = startRotate.mult(pickManager.getRotation(startRotate.inverse()));
                 toolController.getSelectedSpatial().setLocalRotation(rotation);
                 lastRotate = rotation;
             }
