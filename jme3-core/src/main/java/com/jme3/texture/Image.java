@@ -375,7 +375,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     // attributes relating to GL object
     protected boolean mipsWereGenerated = false;
     protected boolean needGeneratedMips = false;
-    protected final LastTextureState lastTextureState = new LastTextureState();
+    protected LastTextureState lastTextureState = new LastTextureState();
 
     /**
      * Internal use only.
@@ -490,6 +490,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         Image clone = (Image) super.clone();
         clone.mipMapSizes = mipMapSizes != null ? mipMapSizes.clone() : null;
         clone.data = data != null ? new ArrayList<ByteBuffer>(data) : null;
+        clone.lastTextureState = new LastTextureState();
         clone.setUpdateNeeded();
         return clone;
     }
