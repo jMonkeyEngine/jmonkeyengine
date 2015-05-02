@@ -100,8 +100,7 @@ public class MipMapGenerator {
     public static Image resizeToPowerOf2(Image original){
         int potWidth = FastMath.nearestPowerOfTwo(original.getWidth());
         int potHeight = FastMath.nearestPowerOfTwo(original.getHeight());
-        int potSize = Math.max(potWidth, potHeight);
-        return scaleImage(original, potSize, potSize);
+        return scaleImage(original, potWidth, potHeight);
     }
     
     public static void generateMipMaps(Image image){
