@@ -43,8 +43,6 @@ attribute vec3 inNormal;
         varying vec3 vBinormal;
     #endif
 #else
-    varying vec3 specularAccum;
-    varying vec4 diffuseAccum;
     #ifdef COLORRAMP
       uniform sampler2D m_ColorRamp;
     #endif
@@ -131,14 +129,13 @@ void main(){
     #endif
     #ifdef VERTEX_LIGHTING
         int i = 0;
-        diffuseAccum = vec4(0.0);
-        specularAccum = vec3(0.0);
+        vec3 diffuseAccum  = vec3(0.0);
+        vec3 specularAccum = vec3(0.0);
         vec4 diffuseColor;
         vec3 specularColor;
         for (int i =0;i < NB_LIGHTS; i+=3){
             vec4 lightColor = g_LightData[i];            
             vec4 lightData1 = g_LightData[i+1];            
-            DiffuseSum = vec4(1.0);
             #ifdef MATERIAL_COLORS
               diffuseColor  = m_Diffuse * vec4(lightColor.rgb, 1.0);                
               specularColor = m_Specular.rgb * lightColor.rgb;
@@ -166,13 +163,16 @@ void main(){
             vec2 light = computeLighting(wvNormal, viewDir, lightDir.xyz, lightDir.w  * spotFallOff, m_Shininess);
 
             #ifdef COLORRAMP
-                diffuseAccum.rgb  += texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb * diffuseColor.rgb;
-                specularAccum.rgb += texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb * specularColor;
+                diffuseAccum  += texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb * diffuseColor.rgb;
+                specularAccum += texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb * specularColor;
             #else
-                diffuseAccum.rgb  += light.x * diffuseColor.rgb;
-                specularAccum.rgb += light.y * specularColor;
+                diffuseAccum  += light.x * diffuseColor.rgb;
+                specularAccum += light.y * specularColor;
             #endif
         }
+
+        DiffuseSum.rgb  *= diffuseAccum.rgb;
+        SpecularSum.rgb *= specularAccum.rgb;
     #endif
     
 
