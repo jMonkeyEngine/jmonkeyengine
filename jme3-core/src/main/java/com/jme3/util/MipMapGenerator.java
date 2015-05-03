@@ -53,10 +53,8 @@ public class MipMapGenerator {
                                       buffer, 
                                       inputImage.getColorSpace());
         
-        // Perform scaling in linear colorspace for higher quality.
-        // However it requires a lot of pow() calls.. 
-        ImageRaster input = ImageRaster.create(inputImage, 0, 0, true);
-        ImageRaster output = ImageRaster.create(outputImage, 0, 0, true);
+        ImageRaster input = ImageRaster.create(inputImage, 0, 0, false);
+        ImageRaster output = ImageRaster.create(outputImage, 0, 0, false);
         
         float xRatio = ((float)(input.getWidth()  - 1)) / output.getWidth();
         float yRatio = ((float)(input.getHeight() - 1)) / output.getHeight();
