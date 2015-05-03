@@ -31,6 +31,7 @@
  */
 package com.jme3.export.binary;
 
+import com.jme3.asset.AssetManager;
 import com.jme3.export.FormatVersion;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.Savable;
@@ -166,6 +167,31 @@ public class BinaryExporter implements JmeExporter {
 
     public static BinaryExporter getInstance() {
         return new BinaryExporter();
+    }
+    
+    /**
+     * Saves the object into memory then loads it from memory.
+     * 
+     * Used by tests to check if the persistence system is working.
+     * 
+     * @param <T> The type of savable.
+     * @param assetManager AssetManager to load assets from.
+     * @param object The object to save and then load.
+     * @return A new instance that has been saved and loaded from the 
+     * original object.
+     */
+    public static <T extends Savable> T saveAndLoad(AssetManager assetManager, T object) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            BinaryExporter exporter = new BinaryExporter();
+            exporter.save(object, baos);
+            BinaryImporter importer = new BinaryImporter();
+            importer.setAssetManager(assetManager);
+            return (T) importer.load(baos.toByteArray());
+        } catch (IOException ex) {
+            // Should never happen.
+            throw new AssertionError(ex);
+        }
     }
 
     public void save(Savable object, OutputStream os) throws IOException {

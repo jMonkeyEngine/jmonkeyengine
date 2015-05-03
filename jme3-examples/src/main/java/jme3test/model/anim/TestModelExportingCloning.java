@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,49 +29,55 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package jme3test.model.anim;
 
-package jme3test.effect;
-
+import com.jme3.animation.AnimChannel;
+import com.jme3.animation.AnimControl;
 import com.jme3.app.SimpleApplication;
-import com.jme3.effect.ParticleEmitter;
-import com.jme3.effect.ParticleMesh.Type;
-import com.jme3.effect.shapes.EmitterSphereShape;
 import com.jme3.export.binary.BinaryExporter;
-import com.jme3.export.binary.BinaryImporter;
-import com.jme3.material.Material;
+import com.jme3.light.DirectionalLight;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import com.jme3.scene.Spatial;
 
-public class TestParticleExportingCloning extends SimpleApplication {
-
-    public static void main(String[] args){
-        TestParticleExportingCloning app = new TestParticleExportingCloning();
+public class TestModelExportingCloning extends SimpleApplication {
+    
+    public static void main(String[] args) {
+        TestModelExportingCloning app = new TestModelExportingCloning();
         app.start();
     }
 
     @Override
     public void simpleInitApp() {
-        ParticleEmitter emit = new ParticleEmitter("Emitter", Type.Triangle, 200);
-        emit.setShape(new EmitterSphereShape(Vector3f.ZERO, 1f));
-        emit.setGravity(0, 0, 0);
-        emit.setLowLife(5);
-        emit.setHighLife(10);
-        emit.setInitialVelocity(new Vector3f(0, 0, 0));
-        emit.setImagesX(15);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
-        mat.setTexture("Texture", assetManager.loadTexture("Effects/Smoke/Smoke.png"));
-        emit.setMaterial(mat);
+        cam.setLocation(new Vector3f(10f, 3f, 40f));
+        cam.lookAtDirection(Vector3f.UNIT_Z.negate(), Vector3f.UNIT_Y);
 
-        ParticleEmitter emit2 = emit.clone();
-        emit2.move(3, 0, 0);
+        DirectionalLight dl = new DirectionalLight();
+        dl.setDirection(new Vector3f(-0.1f, -0.7f, -1).normalizeLocal());
+        dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
+        rootNode.addLight(dl);
+
+        AnimControl control;
+        AnimChannel channel;
         
-        rootNode.attachChild(emit);
-        rootNode.attachChild(emit2);
+        Spatial originalModel = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        control = originalModel.getControl(AnimControl.class);
+        channel = control.createChannel();
+        channel.setAnim("Walk");
+        rootNode.attachChild(originalModel);
         
-        ParticleEmitter emit3 = BinaryExporter.saveAndLoad(assetManager, emit);
-        emit3.move(-3, 0, 0);
-        rootNode.attachChild(emit3);
+        Spatial clonedModel = originalModel.clone();
+        clonedModel.move(10, 0, 0);
+        control = clonedModel.getControl(AnimControl.class);
+        channel = control.createChannel();
+        channel.setAnim("push");
+        rootNode.attachChild(clonedModel);
+        
+        Spatial exportedModel = BinaryExporter.saveAndLoad(assetManager, originalModel);
+        exportedModel.move(20, 0, 0);
+        control = exportedModel.getControl(AnimControl.class);
+        channel = control.createChannel();
+        channel.setAnim("pull");
+        rootNode.attachChild(exportedModel);
     }
-
 }
