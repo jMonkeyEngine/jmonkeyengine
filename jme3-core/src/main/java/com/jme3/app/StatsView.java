@@ -91,7 +91,7 @@ public class StatsView extends Node implements Control {
     }
 
     public float getHeight() {
-        return statText.getLineHeight() * statText.getLineCount(); // labels[0].getLineHeight() * statLabels.length;
+        return statText.getLineHeight() * statLabels.length;
     }
     
     public void update(float tpf) {
