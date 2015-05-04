@@ -82,7 +82,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
     /**
      * User wishes to use hardware skinning if available.
      */
-    private transient boolean hwSkinningDesired = false;
+    private transient boolean hwSkinningDesired = true;
     
     /**
      * Hardware skinning is currently being used.
