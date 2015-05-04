@@ -1,0 +1,13 @@
+apply plugin: 'com.android.application'
+
+group   = 'com.jme3'
+version = jmeVersion + '-' + jmeVersionTag
+
+sourceCompatibility = '1.6'
+
+repositories {
+    mavenCentral()
+    maven {
+        url "http://nifty-gui.sourceforge.net/nifty-maven-repo"
+    }
+}

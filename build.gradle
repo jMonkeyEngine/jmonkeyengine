@@ -1,10 +1,23 @@
 import org.gradle.api.artifacts.*
 
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'com.android.tools.build:gradle:1.1.0'
+	}
+}
+
 apply plugin: 'base'
 
 // This is applied to all sub projects
 subprojects {
-    apply from: rootProject.file('common.gradle')
+    if(!project.name.equals('jme3-android-examples')) {
+        apply from: rootProject.file('common.gradle')
+    } else {
+        apply from: rootProject.file('common-android-app.gradle')
+    }
 }
 
 task run(dependsOn: ':jme3-examples:run') {
