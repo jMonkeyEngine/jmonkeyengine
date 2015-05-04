@@ -1,14 +1,10 @@
 import org.gradle.api.artifacts.*
 
-apply plugin: 'base' // To add "clean" task to the root project.
-//apply plugin: 'java-library-distribution'
+apply plugin: 'base'
 
 // This is applied to all sub projects
 subprojects {
-    // Don't add to native builds
-    //    if(!project.name.endsWith('native')){
     apply from: rootProject.file('common.gradle')
-    //    }
 }
 
 task run(dependsOn: ':jme3-examples:run') {
