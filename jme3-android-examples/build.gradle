@@ -3,7 +3,7 @@ dependencies {
     compile project(':jme3-android')
     compile project(':jme3-effects')
     compile project(':jme3-bullet')
-    compile project(':jme3-bullet-native')
+    compile project(':jme3-bullet-native-android')
     compile project(':jme3-networking')
     compile project(':jme3-niftygui')
     compile project(':jme3-plugins')
