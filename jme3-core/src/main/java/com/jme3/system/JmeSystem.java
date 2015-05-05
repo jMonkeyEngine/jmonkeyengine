@@ -173,15 +173,6 @@ public class JmeSystem {
     }
     
     /**
-     * @deprecated Directly create an image raster via {@link DefaultImageRaster}.
-     */
-    @Deprecated
-    public static ImageRaster createImageRaster(Image image, int slice) {
-        checkDelegate();
-        return systemDelegate.createImageRaster(image, slice);
-    }
-
-    /**
      * Displays an error message to the user in whichever way the context
      * feels is appropriate. If this is a headless or an offscreen surface
      * context, this method should do nothing.

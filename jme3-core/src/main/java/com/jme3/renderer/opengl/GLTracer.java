@@ -64,6 +64,7 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glScissor", 0, 1, 2, 3);
         noEnumArgs("glClear", 0);
         noEnumArgs("glGetInteger", 1);
+        noEnumArgs("glGetString", 1);
         
         noEnumArgs("glBindTexture", 1);
         noEnumArgs("glPixelStorei", 1);
@@ -94,8 +95,6 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glFramebufferRenderbufferEXT", 3);
         noEnumArgs("glFramebufferTexture2DEXT", 3, 4);
         noEnumArgs("glBlitFramebufferEXT", 0, 1, 2, 3, 4, 5, 6, 7, 8);
-        
-        
         
         noEnumArgs("glCreateProgram", -1);
         noEnumArgs("glCreateShader", -1);
@@ -155,7 +154,7 @@ public final class GLTracer implements InvocationHandler {
      * @return A tracer that implements the given interface
      */
     public static Object createGlesTracer(Object glInterface, Class<?> glInterfaceClass) {
-        IntMap<String> constMap = generateConstantMap(GL.class, GLExt.class);
+        IntMap<String> constMap = generateConstantMap(GL.class, GLFbo.class, GLExt.class);
         return Proxy.newProxyInstance(glInterface.getClass().getClassLoader(),
                                       new Class<?>[] { glInterfaceClass }, 
                                       new GLTracer(glInterface, constMap));
@@ -169,7 +168,7 @@ public final class GLTracer implements InvocationHandler {
      * @return A tracer that implements the given interface
      */
     public static Object createDesktopGlTracer(Object glInterface, Class<?> ... glInterfaceClasses) {
-        IntMap<String> constMap = generateConstantMap(GL2.class, GLExt.class);
+        IntMap<String> constMap = generateConstantMap(GL2.class, GL3.class, GL4.class, GLFbo.class, GLExt.class);
         return Proxy.newProxyInstance(glInterface.getClass().getClassLoader(),
                                       glInterfaceClasses, 
                                       new GLTracer(glInterface, constMap));

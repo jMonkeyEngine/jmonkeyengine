@@ -60,7 +60,7 @@ import com.jme3.scene.control.Control;
  */
 public class StatsView extends Node implements Control {
 
-    private BitmapText[] labels;
+    private BitmapText statText;
     private Statistics statistics;
 
     private String[] statLabels;
@@ -81,20 +81,17 @@ public class StatsView extends Node implements Control {
 
         statLabels = statistics.getLabels();
         statData = new int[statLabels.length];
-        labels = new BitmapText[statLabels.length];
 
         BitmapFont font = manager.loadFont("Interface/Fonts/Console.fnt");
-        for (int i = 0; i < labels.length; i++){
-            labels[i] = new BitmapText(font);
-            labels[i].setLocalTranslation(0, labels[i].getLineHeight() * (i+1), 0);
-            attachChild(labels[i]);
-        }
+        statText = new BitmapText(font);
+        statText.setLocalTranslation(0, statText.getLineHeight() * statLabels.length, 0);
+        attachChild(statText);
 
         addControl(this);
     }
 
     public float getHeight() {
-        return labels[0].getLineHeight() * statLabels.length;
+        return statText.getLineHeight() * statLabels.length;
     }
     
     public void update(float tpf) {
@@ -103,11 +100,14 @@ public class StatsView extends Node implements Control {
             return;
             
         statistics.getData(statData);
-        for (int i = 0; i < labels.length; i++) {
-            stringBuilder.setLength(0);
-            stringBuilder.append(statLabels[i]).append(" = ").append(statData[i]);
-            labels[i].setText(stringBuilder);
+        stringBuilder.setLength(0);
+        
+        // Need to walk through it backwards, as the first label 
+        // should appear at the bottom, not the top.
+        for (int i = statLabels.length - 1; i >= 0; i--) {
+            stringBuilder.append(statLabels[i]).append(" = ").append(statData[i]).append('\n');
         }
+        statText.setText(stringBuilder);
         
         // Moved to ResetStatsState to make sure it is
         // done even if there is no StatsView or the StatsView

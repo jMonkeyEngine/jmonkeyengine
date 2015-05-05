@@ -102,7 +102,7 @@ public class PhysicsSpace {
     private Vector3f worldMax = new Vector3f(10000f, 10000f, 10000f);
     private float accuracy = 1f / 60f;
     private int maxSubSteps = 4, rayTestFlags = 1 << 2;
-    private AssetManager debugManager;
+    private int solverNumIterations = 10;
 
     static {
 //        System.loadLibrary("bulletjme");
@@ -702,7 +702,7 @@ public class PhysicsSpace {
     public Vector3f getGravity(Vector3f gravity) {
         return gravity.set(this.gravity);
     }
-    
+
 //    /**
 //     * applies gravity value to all objects
 //     */
@@ -783,7 +783,7 @@ public class PhysicsSpace {
     public void SetRayTestFlags(int flags) {
         rayTestFlags = flags;
     }
-    
+
     /**
      * Gets m_flags for raytest, see https://code.google.com/p/bullet/source/browse/trunk/src/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h
      * for possible options.
@@ -792,7 +792,7 @@ public class PhysicsSpace {
     public int GetRayTestFlags() {
         return rayTestFlags;
     }
-    
+
     /**
      * Performs a ray collision test and returns the results as a list of
      * PhysicsRayTestResults
@@ -837,7 +837,7 @@ public class PhysicsSpace {
         return (List<PhysicsSweepTestResult>) results;
     }
 
-    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results) {        
+    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results) {
         return sweepTest(shape, start, end, results, 0.0f);
     }
 
@@ -849,7 +849,7 @@ public class PhysicsSpace {
      * collision if it starts INSIDE an object and is moving AWAY from its
      * center.
      */
-    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results, float allowedCcdPenetration ) {        
+    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results, float allowedCcdPenetration ) {
         results.clear();
         sweepTest_native(shape.getObjectId(), start, end, physicsSpaceId, results, allowedCcdPenetration);
         return results;
@@ -960,28 +960,28 @@ public class PhysicsSpace {
     }
 
     /**
-     * Enable debug display for physics.
-     *
-     * @deprecated in favor of BulletDebugAppState, use
-     * <code>BulletAppState.setDebugEnabled(boolean)</code> to add automatically
-     * @param manager AssetManager to use to create debug materials
+     * Set the number of iterations used by the contact solver.
+     * 
+     * The default is 10. Use 4 for low quality, 20 for high quality.
+     * 
+     * @param numIterations The number of iterations used by the contact & constraint solver.
      */
-    @Deprecated
-    public void enableDebug(AssetManager manager) {
-        debugManager = manager;
+    public void setSolverNumIterations(int numIterations) {
+        this.solverNumIterations = numIterations;
+        setSolverNumIterations(physicsSpaceId, numIterations);
     }
-
+    
     /**
-     * Disable debug display
+     * Get the number of iterations used by the contact solver.
+     * 
+     * @return The number of iterations used by the contact & constraint solver.
      */
-    public void disableDebug() {
-        debugManager = null;
+    public int getSolverNumIterations() {
+        return solverNumIterations;
     }
-
-    public AssetManager getDebugManager() {
-        return debugManager;
-    }
-
+    
+    private static native void setSolverNumIterations(long physicsSpaceId, int numIterations);
+    
     public static native void initNativePhysics();
 
     /**

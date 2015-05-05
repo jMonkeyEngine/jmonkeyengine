@@ -95,6 +95,11 @@ public interface AudioSource {
      * @return the time offset in the sound sample when to start playing.
      */
     public float getTimeOffset();
+    
+    /**
+     * @return the current playback position of the source in seconds.
+     */
+    public float getPlaybackTime();
 
     /**
      * @return The velocity of the audio source.

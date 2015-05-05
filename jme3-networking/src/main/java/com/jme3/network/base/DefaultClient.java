@@ -37,6 +37,8 @@ import com.jme3.network.kernel.Connector;
 import com.jme3.network.message.ChannelInfoMessage;
 import com.jme3.network.message.ClientRegistrationMessage;
 import com.jme3.network.message.DisconnectMessage;
+import com.jme3.network.service.ClientServiceManager;
+import com.jme3.network.service.serializer.ClientSerializerRegistrationsService;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -54,7 +56,7 @@ import java.util.logging.Logger;
  */
 public class DefaultClient implements Client
 {
-    static Logger log = Logger.getLogger(DefaultClient.class.getName());
+    static final Logger log = Logger.getLogger(DefaultClient.class.getName());
     
     // First two channels are reserved for reliable and
     // unreliable.  Note: channels are endpoint specific so these
@@ -80,10 +82,14 @@ public class DefaultClient implements Client
  
     private ConnectorFactory connectorFactory;
     
+    private ClientServiceManager services;
+    
     public DefaultClient( String gameName, int version )
     {
         this.gameName = gameName;
         this.version = version;
+        this.services = new ClientServiceManager(this);
+        addStandardServices();
     }
     
     public DefaultClient( String gameName, int version, Connector reliable, Connector fast,
@@ -91,6 +97,10 @@ public class DefaultClient implements Client
     {
         this( gameName, version );
         setPrimaryConnectors( reliable, fast, connectorFactory );
+    }
+
+    protected void addStandardServices() {
+        services.addService(new ClientSerializerRegistrationsService());
     }
 
     protected void setPrimaryConnectors( Connector reliable, Connector fast, ConnectorFactory connectorFactory )
@@ -167,6 +177,10 @@ public class DefaultClient implements Client
                 continue;
             send(ch, reg, false);
         }
+    }    
+
+    public boolean isStarted() {
+        return isRunning;
     }
 
     protected void waitForConnected()
@@ -199,6 +213,11 @@ public class DefaultClient implements Client
     public int getVersion()
     {
         return version;
+    }
+    
+    public ClientServiceManager getServices() 
+    {
+        return services;
     }
    
     public void send( Message message )
@@ -260,7 +279,7 @@ public class DefaultClient implements Client
     {
         checkRunning();
  
-        closeConnections( null );            
+        closeConnections( null );
     }         
 
     protected void closeConnections( DisconnectInfo info )
@@ -268,6 +287,10 @@ public class DefaultClient implements Client
         if( !isRunning )
             return;
 
+        // Let the services get a chance to stop before we
+        // kill the connection.
+        services.stop();
+        
         // Send a close message
     
         // Tell the thread it's ok to die
@@ -285,6 +308,9 @@ public class DefaultClient implements Client
         fireDisconnected(info);
         
         isRunning = false;
+        
+        // Terminate the services
+        services.terminate();            
     }         
 
     public void addClientStateListener( ClientStateListener listener )
@@ -332,6 +358,12 @@ public class DefaultClient implements Client
         for( ClientStateListener l : stateListeners ) {
             l.clientConnected( this );
         }            
+    }
+
+    protected void startServices() 
+    {
+        // Let the services know we are finally started
+        services.start();      
     }
     
     protected void fireDisconnected( DisconnectInfo info )
@@ -391,11 +423,19 @@ public class DefaultClient implements Client
         // Pull off the connection management messages we're
         // interested in and then pass on the rest.
         if( m instanceof ClientRegistrationMessage ) {
-            // Then we've gotten our real id
-            this.id = (int)((ClientRegistrationMessage)m).getId();
-            log.log( Level.FINE, "Connection established, id:{0}.", this.id );
-            connecting.countDown();
-            fireConnected();
+            ClientRegistrationMessage crm = (ClientRegistrationMessage)m; 
+            // See if it has a real ID
+            if( crm.getId() >= 0 ) {
+                // Then we've gotten our real id
+                this.id = (int)crm.getId();
+                log.log( Level.FINE, "Connection established, id:{0}.", this.id );
+                connecting.countDown();
+                fireConnected();
+            } else {
+                // Else it's a message letting us know that the 
+                // hosted services have been started
+                startServices();
+            }
             return;
         } else if( m instanceof ChannelInfoMessage ) {
             // This is an interum step in the connection process and

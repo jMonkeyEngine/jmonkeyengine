@@ -31,6 +31,7 @@
  */
 package com.jme3.export.binary;
 
+import com.jme3.asset.AssetManager;
 import com.jme3.export.FormatVersion;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.Savable;
@@ -167,8 +168,33 @@ public class BinaryExporter implements JmeExporter {
     public static BinaryExporter getInstance() {
         return new BinaryExporter();
     }
+    
+    /**
+     * Saves the object into memory then loads it from memory.
+     * 
+     * Used by tests to check if the persistence system is working.
+     * 
+     * @param <T> The type of savable.
+     * @param assetManager AssetManager to load assets from.
+     * @param object The object to save and then load.
+     * @return A new instance that has been saved and loaded from the 
+     * original object.
+     */
+    public static <T extends Savable> T saveAndLoad(AssetManager assetManager, T object) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            BinaryExporter exporter = new BinaryExporter();
+            exporter.save(object, baos);
+            BinaryImporter importer = new BinaryImporter();
+            importer.setAssetManager(assetManager);
+            return (T) importer.load(baos.toByteArray());
+        } catch (IOException ex) {
+            // Should never happen.
+            throw new AssertionError(ex);
+        }
+    }
 
-    public boolean save(Savable object, OutputStream os) throws IOException {
+    public void save(Savable object, OutputStream os) throws IOException {
         // reset some vars
         aliasCount = 1;
         idCount = 1;
@@ -286,7 +312,7 @@ public class BinaryExporter implements JmeExporter {
         out = null;
         os = null;
 
-        if (debug ) {
+        if (debug) {
             logger.fine("Stats:");
             logger.log(Level.FINE, "classes: {0}", classNum);
             logger.log(Level.FINE, "class table: {0} bytes", classTableSize);
@@ -294,8 +320,6 @@ public class BinaryExporter implements JmeExporter {
             logger.log(Level.FINE, "location table: {0} bytes", locationTableSize);
             logger.log(Level.FINE, "data: {0} bytes", location);
         }
-
-        return true;
     }
 
     protected String getChunk(BinaryIdContentPair pair) {
@@ -325,7 +349,7 @@ public class BinaryExporter implements JmeExporter {
         return bytes;
     }
 
-    public boolean save(Savable object, File f) throws IOException {
+    public void save(Savable object, File f) throws IOException {
         File parentDirectory = f.getParentFile();
         if (parentDirectory != null && !parentDirectory.exists()) {
             parentDirectory.mkdirs();
@@ -333,11 +357,9 @@ public class BinaryExporter implements JmeExporter {
 
         FileOutputStream fos = new FileOutputStream(f);
         try {
-            return save(object, fos);
+            save(object, fos);
         } finally {
-            if (fos != null) {
-                fos.close();
-            }
+            fos.close();
         }
     }
 

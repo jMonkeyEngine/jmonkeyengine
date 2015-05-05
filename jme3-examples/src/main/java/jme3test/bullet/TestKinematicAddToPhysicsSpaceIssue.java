@@ -60,7 +60,7 @@ public class TestKinematicAddToPhysicsSpaceIssue extends SimpleApplication {
 
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
-        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+        bulletAppState.setDebugEnabled(true);
         // Add a physics sphere to the world
         Node physicsSphere = PhysicsTestHelper.createPhysicsTestNode(assetManager, new SphereCollisionShape(1), 1);
         physicsSphere.getControl(RigidBodyControl.class).setPhysicsLocation(new Vector3f(3, 6, 0));
@@ -69,7 +69,7 @@ public class TestKinematicAddToPhysicsSpaceIssue extends SimpleApplication {
         //Setting the rigidBody to kinematic before adding it to the physic space
         physicsSphere.getControl(RigidBodyControl.class).setKinematic(true);
         //adding it to the physic space
-        getPhysicsSpace().add(physicsSphere);         
+        getPhysicsSpace().add(physicsSphere);
         //Making it not kinematic again, it should fall under gravity, it doesn't
         physicsSphere.getControl(RigidBodyControl.class).setKinematic(false);
 
@@ -77,7 +77,7 @@ public class TestKinematicAddToPhysicsSpaceIssue extends SimpleApplication {
         Node physicsSphere2 = PhysicsTestHelper.createPhysicsTestNode(assetManager, new SphereCollisionShape(1), 1);
         physicsSphere2.getControl(RigidBodyControl.class).setPhysicsLocation(new Vector3f(5, 6, 0));
         rootNode.attachChild(physicsSphere2);
-        
+
         //Adding the rigid body to physic space
         getPhysicsSpace().add(physicsSphere2);
         //making it kinematic
@@ -85,7 +85,7 @@ public class TestKinematicAddToPhysicsSpaceIssue extends SimpleApplication {
         //Making it not kinematic again, it works properly, the rigidbody is affected by grvity.
         physicsSphere2.getControl(RigidBodyControl.class).setKinematic(false);
 
-      
+
 
         // an obstacle mesh, does not move (mass=0)
         Node node2 = PhysicsTestHelper.createPhysicsTestNode(assetManager, new MeshCollisionShape(new Sphere(16, 16, 1.2f)), 0);

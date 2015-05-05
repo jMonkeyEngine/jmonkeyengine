@@ -3,15 +3,17 @@ package com.jme3.renderer.opengl;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-public class GLDebugDesktop extends GLDebugES implements GL2, GL3 {
+public class GLDebugDesktop extends GLDebugES implements GL2, GL3, GL4 {
 
     private final GL2 gl2;
     private final GL3 gl3;
+    private final GL4 gl4;
     
-    public GLDebugDesktop(GL gl, GLFbo glfbo) {
-        super(gl, glfbo);
+    public GLDebugDesktop(GL gl, GLExt glext, GLFbo glfbo) {
+        super(gl, glext, glfbo);
         this.gl2 = gl instanceof GL2 ? (GL2) gl : null;
         this.gl3 = gl instanceof GL3 ? (GL3) gl : null;
+        this.gl4 = gl instanceof GL4 ? (GL4) gl : null;
     }
     
     public void glAlphaFunc(int func, float ref) {
@@ -73,5 +75,23 @@ public class GLDebugDesktop extends GLDebugES implements GL2, GL3 {
         gl3.glGenVertexArrays(param1);
         checkError();
     }
+    
+    @Override
+    public String glGetString(int param1, int param2) {
+        String result = gl3.glGetString(param1, param2);
+        checkError();
+        return result;
+    }
 
+    @Override
+    public void glDeleteVertexArrays(IntBuffer arrays) {
+        gl3.glDeleteVertexArrays(arrays);
+        checkError();
+    }
+
+    @Override
+    public void glPatchParameter(int count) {
+        gl4.glPatchParameter(count);
+        checkError();
+    }
 }
