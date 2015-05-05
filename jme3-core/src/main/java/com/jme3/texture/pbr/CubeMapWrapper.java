@@ -76,7 +76,7 @@ public class CubeMapWrapper {
             sizes = new int[1];
             sizes[0] = image.getWidth();
         }
-        raster = new DefaultImageRaster(image, 0);
+        raster = new DefaultImageRaster(image, 0,0 , false);
     }
 
     /**
