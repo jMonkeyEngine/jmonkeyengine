@@ -6,7 +6,10 @@ if (!hasProperty('mainClass')) {
 
 task run(dependsOn: 'build', type:JavaExec) {
    main = mainClass
-   classpath = sourceSets.main.runtimeClasspath
+   classpath = sourceSets.main.runtimeClasspath   
+   if( assertions  == "true" ){
+       enableAssertions = true;
+   }
 }
 
 dependencies {
