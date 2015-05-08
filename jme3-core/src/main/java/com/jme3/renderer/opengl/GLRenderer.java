@@ -2670,7 +2670,7 @@ public class GLRenderer implements Renderer {
 
     public void setMainFrameBufferSrgb(boolean enableSrgb) {
         // Gamma correction
-        if (!caps.contains(Caps.Srgb)) {
+        if (!caps.contains(Caps.Srgb) && enableSrgb) {
             // Not supported, sorry.
             logger.warning("sRGB framebuffer is not supported " + 
                            "by video hardware, but was requested."); 
