@@ -37,13 +37,14 @@ import java.util.logging.Logger;
 
 /**
  * AndroidKeyMapping is just a utility to convert the Android keyCodes into
- * jME KeyCodes received in jME's KeyEvent will match between Desktop and Android.
- * 
+ * jME KeyCodes so that events received in jME's KeyEvent will match between
+ * Desktop and Android.
+ *
  * @author iwgeric
  */
 public class AndroidKeyMapping {
     private static final Logger logger = Logger.getLogger(AndroidKeyMapping.class.getName());
-    
+
     private static final int[] ANDROID_TO_JME = {
         0x0, // unknown
         0x0, // key code soft left
@@ -141,9 +142,13 @@ public class AndroidKeyMapping {
         0x0,//media fastforward
         0x0,//mute
     };
-    
+
     public static int getJmeKey(int androidKey) {
-        return ANDROID_TO_JME[androidKey];
+        if (androidKey > ANDROID_TO_JME.length) {
+            return androidKey;
+        } else {
+            return ANDROID_TO_JME[androidKey];
+        }
     }
-    
+
 }

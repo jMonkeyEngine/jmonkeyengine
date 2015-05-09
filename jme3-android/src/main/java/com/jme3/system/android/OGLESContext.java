@@ -47,13 +47,14 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import com.jme3.input.*;
 import com.jme3.input.android.AndroidInputHandler;
-import com.jme3.input.android.AndroidJoyInputHandler;
+import com.jme3.input.android.AndroidInputHandler14;
 import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.android.AndroidGL;
 import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GLExt;
+import com.jme3.renderer.opengl.GLFbo;
 import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.system.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -75,7 +76,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected SystemListener listener;
     protected boolean autoFlush = true;
     protected AndroidInputHandler androidInput;
-    protected AndroidJoyInputHandler androidJoyInput = null;
     protected long minFrameDuration = 0;                   // No FPS cap
     protected long lastUpdateTime = 0;
 
@@ -111,17 +111,16 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         // Start to set up the view
         GLSurfaceView view = new GLSurfaceView(context);
+        logger.log(Level.INFO, "Android Build Version: {0}", Build.VERSION.SDK_INT);
         if (androidInput == null) {
-            androidInput = new AndroidInputHandler();
+            if (Build.VERSION.SDK_INT >= 14) {
+                androidInput = new AndroidInputHandler14();
+            } else if (Build.VERSION.SDK_INT >= 9){
+                androidInput = new AndroidInputHandler();
+            }
         }
         androidInput.setView(view);
         androidInput.loadSettings(settings);
-
-        if (androidJoyInput == null) {
-            androidJoyInput = new AndroidJoyInputHandler();
-        }
-        androidJoyInput.setView(view);
-        androidJoyInput.loadSettings(settings);
 
         // setEGLContextClientVersion must be set before calling setRenderer
         // this means it cannot be set in AndroidConfigChooser (too late)
@@ -198,7 +197,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         Object gl = new AndroidGL();
         // gl = GLTracer.createGlesTracer((GL)gl, (GLExt)gl);
         // gl = new GLDebugES((GL)gl, (GLExt)gl);
-        renderer = new GLRenderer((GL)gl, (GLExt)gl);
+        renderer = new GLRenderer((GL)gl, (GLExt)gl, (GLFbo)gl);
         renderer.initialize();
 
         JmeSystem.setSoftTextDialogInput(this);
@@ -234,9 +233,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         this.settings.copyFrom(settings);
         if (androidInput != null) {
             androidInput.loadSettings(settings);
-        }
-        if (androidJoyInput != null) {
-            androidJoyInput.loadSettings(settings);
         }
 
         if (settings.getFrameRate() > 0) {
@@ -274,12 +270,12 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
     @Override
     public JoyInput getJoyInput() {
-        return androidJoyInput;
+        return androidInput.getJoyInput();
     }
 
     @Override
     public TouchInput getTouchInput() {
-        return androidInput;
+        return androidInput.getTouchInput();
     }
 
     @Override

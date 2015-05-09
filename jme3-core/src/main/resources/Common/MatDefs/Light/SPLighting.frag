@@ -17,10 +17,7 @@ varying vec3 SpecularSum;
 #ifndef VERTEX_LIGHTING
     uniform mat4 g_ViewMatrix;
     uniform vec4 g_LightData[NB_LIGHTS];
-    varying vec3 vPos;    
-#else
-    varying vec3 specularAccum;
-    varying vec4 diffuseAccum;
+    varying vec3 vPos; 
 #endif
 
 #ifdef DIFFUSEMAP
@@ -72,17 +69,19 @@ uniform float m_Shininess;
 #endif
 
 void main(){
-    #ifdef NORMALMAP   
-        mat3 tbnMat = mat3(normalize(vTangent.xyz) , normalize(vBinormal.xyz) , normalize(vNormal.xyz));
+    #if !defined(VERTEX_LIGHTING)
+        #if defined(NORMALMAP)
+            mat3 tbnMat = mat3(normalize(vTangent.xyz) , normalize(vBinormal.xyz) , normalize(vNormal.xyz));
 
-        if (!gl_FrontFacing)
-        {
-            tbnMat[2] = -tbnMat[2];
-        }
+            if (!gl_FrontFacing)
+            {
+                tbnMat[2] = -tbnMat[2];
+            }
 
-        vec3 viewDir = normalize(-vPos.xyz * tbnMat);
-    #else
-        vec3 viewDir = normalize(-vPos.xyz);
+            vec3 viewDir = normalize(-vPos.xyz * tbnMat);
+        #else
+            vec3 viewDir = normalize(-vPos.xyz);
+        #endif
     #endif
 
     vec2 newTexCoord;
@@ -165,10 +164,9 @@ void main(){
     #endif
 
     #ifdef VERTEX_LIGHTING
-        gl_FragColor.rgb = AmbientSum  * diffuseColor.rgb 
-                            +diffuseAccum.rgb *diffuseColor.rgb
-                            +specularAccum.rgb * specularColor.rgb;
-        gl_FragColor.a=1.0;                           
+        gl_FragColor.rgb = AmbientSum.rgb  * diffuseColor.rgb 
+                         + DiffuseSum.rgb  * diffuseColor.rgb
+                         + SpecularSum.rgb * specularColor.rgb;                         
     #else       
         
         int i = 0;

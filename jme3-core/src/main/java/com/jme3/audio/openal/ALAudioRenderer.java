@@ -301,6 +301,58 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         f.clearUpdateNeeded();
     }
 
+    @Override
+    public float getSourcePlaybackTime(AudioSource src) {
+        checkDead();
+        synchronized (threadLock) {
+            if (audioDisabled) {
+                return 0;
+            }
+            
+            // See comment in updateSourceParam().
+            if (src.getChannel() < 0) {
+                return 0;
+            }
+            
+            int id = channels[src.getChannel()];
+            AudioData data = src.getAudioData();
+            int playbackOffsetBytes = 0;
+            
+            if (data instanceof AudioStream) {
+                // Because audio streams are processed in buffer chunks, 
+                // we have to compute the amount of time the stream was already
+                // been playing based on the number of buffers that were processed.
+                AudioStream stream = (AudioStream) data;
+                
+                // NOTE: the assumption is that all enqueued buffers are the same size.
+                //       this is currently enforced by fillBuffer().
+                
+                // The number of unenqueued bytes that the decoder thread
+                // keeps track of.
+                int unqueuedBytes = stream.getUnqueuedBufferBytes();
+                
+                // Additional processed buffers that the decoder thread
+                // did not unenqueue yet (it only updates 20 times per second).
+                int unqueuedBytesExtra = al.alGetSourcei(id, AL_BUFFERS_PROCESSED) * BUFFER_SIZE;
+                
+                // Total additional bytes that need to be considered.
+                playbackOffsetBytes = unqueuedBytes; // + unqueuedBytesExtra;
+            }
+            
+            // Add byte offset from source (for both streams and buffers)
+            playbackOffsetBytes += al.alGetSourcei(id, AL_BYTE_OFFSET);
+            
+            // Compute time value from bytes
+            // E.g. for 44100 source with 2 channels and 16 bits per sample:
+            //    (44100 * 2 * 16 / 8) = 176400
+            int bytesPerSecond = (data.getSampleRate() * 
+                                  data.getChannels() * 
+                                  data.getBitsPerSample() / 8);
+            
+            return (float)playbackOffsetBytes / bytesPerSecond;
+        }
+    }
+    
     public void updateSourceParam(AudioSource src, AudioParam param) {
         checkDead();
         synchronized (threadLock) {
@@ -648,6 +700,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     private boolean fillStreamingSource(int sourceId, AudioStream stream, boolean looping) {
         boolean success = false;
         int processed = al.alGetSourcei(sourceId, AL_BUFFERS_PROCESSED);
+        int unqueuedBufferBytes = 0;
         
         for (int i = 0; i < processed; i++) {
             int buffer;
@@ -655,6 +708,11 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             ib.position(0).limit(1);
             al.alSourceUnqueueBuffers(sourceId, 1, ib);
             buffer = ib.get(0);
+            
+            // XXX: assume that reading from AudioStream always 
+            // gives BUFFER_SIZE amount of bytes! This might not always
+            // be the case...
+            unqueuedBufferBytes += BUFFER_SIZE;
             
             boolean active = fillBuffer(stream, buffer);
             
@@ -682,6 +740,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 break;
             }
         }
+        
+        stream.setUnqueuedBufferBytes(stream.getUnqueuedBufferBytes() + unqueuedBufferBytes);
 
         return success;
     }

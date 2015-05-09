@@ -71,7 +71,7 @@ public class AnimationHelper extends AbstractBlenderHelper {
         if (actions.size() > 0) {
             List<Animation> animations = new ArrayList<Animation>();
             for (BlenderAction action : actions) {
-                SpatialTrack[] tracks = action.toTracks(node);
+                SpatialTrack[] tracks = action.toTracks(node, blenderContext);
                 if (tracks != null && tracks.length > 0) {
                     Animation spatialAnimation = new Animation(action.getName(), action.getAnimationTime());
                     spatialAnimation.setTracks(tracks);
@@ -110,7 +110,7 @@ public class AnimationHelper extends AbstractBlenderHelper {
         if (actions.size() > 0) {
             List<Animation> animations = new ArrayList<Animation>();
             for (BlenderAction action : actions) {
-                BoneTrack[] tracks = action.toTracks(skeleton);
+                BoneTrack[] tracks = action.toTracks(skeleton, blenderContext);
                 if (tracks != null && tracks.length > 0) {
                     Animation boneAnimation = new Animation(action.getName(), action.getAnimationTime());
                     boneAnimation.setTracks(tracks);

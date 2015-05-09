@@ -16,6 +16,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GeometryBatchFactory {
@@ -452,5 +453,94 @@ public class GeometryBatchFactory {
         Mesh outMesh = new Mesh();
         mergeGeometries(geoms, outMesh);
         printMesh(outMesh);
+    }
+    
+    /**
+     * Options to align the buffers of geometries' meshes of a sub graph
+     * 
+     */
+    public static enum AlignOption {
+        
+        /**
+         * Will remove the buffers of a type that is not on all the geometries
+         */
+        RemoveUnalignedBuffers,
+        /**
+         * Will create missing buffers and pad with dummy data
+         */
+        CreateMissingBuffers
+    }
+
+    /**
+     * Will ensure that all the geometries' meshes of the n sub graph have the 
+     * same types of buffers
+     * @param n the node to gather geometries from
+     * @param option the align options 
+     * @see AlignOption
+     * 
+     * Very experimental for now.
+     */
+    public static void alignBuffers(Node n, AlignOption option) {
+        List<Geometry> geoms = new ArrayList<Geometry>();
+        gatherGeoms(n, geoms);
+
+        //gather buffer types
+        Map<VertexBuffer.Type, VertexBuffer> types = new EnumMap<VertexBuffer.Type, VertexBuffer>(VertexBuffer.Type.class);
+        Map<VertexBuffer.Type, Integer> typesCount = new EnumMap<VertexBuffer.Type, Integer>(VertexBuffer.Type.class);
+        for (Geometry geom : geoms) {
+            for (VertexBuffer buffer : geom.getMesh().getBufferList()) {
+                if (types.get(buffer.getBufferType()) == null) {
+                    types.put(buffer.getBufferType(), buffer);
+                    logger.log(Level.FINE, buffer.getBufferType().toString());
+                }
+                Integer count = typesCount.get(buffer.getBufferType());
+                if (count == null) {
+                    count = 0;
+                }
+                count++;
+                typesCount.put(buffer.getBufferType(), count);
+            }
+        }
+
+        switch (option) {
+            case RemoveUnalignedBuffers:
+                for (Geometry geom : geoms) {
+
+                    for (VertexBuffer buffer : geom.getMesh().getBufferList()) {
+                        Integer count = typesCount.get(buffer.getBufferType());
+                        if (count != null && count < geoms.size()) {
+                            geom.getMesh().clearBuffer(buffer.getBufferType());
+                            logger.log(Level.FINE, "removing {0} from {1}", new Object[]{buffer.getBufferType(), geom.getName()});
+
+                        }
+                    }
+                }
+                break;
+            case CreateMissingBuffers:
+                for (Geometry geom : geoms) {
+                    for (VertexBuffer.Type type : types.keySet()) {
+                        if (geom.getMesh().getBuffer(type) == null) {
+                            VertexBuffer vb = new VertexBuffer(type);
+                            Buffer b;
+                            switch (type) {
+                                case Index:
+                                case BoneIndex:
+                                case HWBoneIndex:
+                                    b = BufferUtils.createIntBuffer(geom.getMesh().getVertexCount() * types.get(type).getNumComponents());
+                                    break;
+                                case InterleavedData:
+                                    b = BufferUtils.createByteBuffer(geom.getMesh().getVertexCount() * types.get(type).getNumComponents());
+                                    break;
+                                default:
+                                    b = BufferUtils.createFloatBuffer(geom.getMesh().getVertexCount() * types.get(type).getNumComponents());
+                            }
+                            vb.setupData(types.get(type).getUsage(), types.get(type).getNumComponents(), types.get(type).getFormat(), b);
+                            geom.getMesh().setBuffer(vb);
+                            logger.log(Level.FINE, "geom {0} misses buffer {1}. Creating", new Object[]{geom.getName(), type});
+                        }
+                    }
+                }
+                break;
+        }
     }
 }

@@ -69,7 +69,7 @@ public class TestPhysicsCar extends SimpleApplication implements ActionListener 
     public void simpleInitApp() {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
-        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+        bulletAppState.setDebugEnabled(true);
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
         setupKeys();
         buildPlayer();

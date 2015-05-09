@@ -97,6 +97,8 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         sceneInfoLabel1 = new javax.swing.JLabel();
         sceneInfoLabel2 = new javax.swing.JLabel();
         jToolBar1 = new javax.swing.JToolBar();
+        transformationTypeComboBox = new javax.swing.JComboBox();
+        jSeparator9 = new javax.swing.JToolBar.Separator();
         selectButton = new javax.swing.JToggleButton();
         moveButton = new javax.swing.JToggleButton();
         rotateButton = new javax.swing.JToggleButton();
@@ -165,6 +167,16 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
 
+        transformationTypeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Local", "Global", "Camera" }));
+        transformationTypeComboBox.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.transformationTypeComboBox.toolTipText")); // NOI18N
+        transformationTypeComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                transformationTypeComboBoxActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(transformationTypeComboBox);
+        jToolBar1.add(jSeparator9);
+
         spatialModButtonGroup.add(selectButton);
         selectButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/icon_select.png"))); // NOI18N
         selectButton.setSelected(true);
@@ -221,6 +233,8 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
             }
         });
         jToolBar1.add(scaleButton);
+        scaleButton.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.scaleButton.AccessibleContext.accessibleDescription")); // NOI18N
+
         jToolBar1.add(jSeparator5);
 
         jToggleScene.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/snapScene.png"))); // NOI18N
@@ -644,6 +658,11 @@ private void jToggleSelectTerrainActionPerformed(java.awt.event.ActionEvent evt)
 private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleSelectGeomActionPerformed
     toolController.setSelectGeometries(jToggleSelectGeom.isSelected());
 }//GEN-LAST:event_jToggleSelectGeomActionPerformed
+
+    private void transformationTypeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_transformationTypeComboBoxActionPerformed
+        toolController.setTransformationType((String)transformationTypeComboBox.getSelectedItem());
+    }//GEN-LAST:event_transformationTypeComboBoxActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton camToCursorSelectionButton;
     private javax.swing.JButton createPhysicsMeshButton;
@@ -671,6 +690,7 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
     private javax.swing.JSeparator jSeparator6;
     private javax.swing.JToolBar.Separator jSeparator7;
     private javax.swing.JToolBar.Separator jSeparator8;
+    private javax.swing.JToolBar.Separator jSeparator9;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JToggleButton jToggleGrid;
     private javax.swing.JToggleButton jToggleScene;
@@ -692,6 +712,7 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
     private javax.swing.JToggleButton showGridToggleButton;
     private javax.swing.JToggleButton showSelectionToggleButton;
     private javax.swing.ButtonGroup spatialModButtonGroup;
+    private javax.swing.JComboBox transformationTypeComboBox;
     // End of variables declaration//GEN-END:variables
 
     private void emit(Spatial root) {

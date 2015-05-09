@@ -1,0 +1,40 @@
+dependencies {
+    compile project(':jme3-core')
+    compile project(':jme3-android')
+    compile project(':jme3-effects')
+    compile project(':jme3-bullet')
+    compile project(':jme3-bullet-native-android')
+    compile project(':jme3-networking')
+    compile project(':jme3-niftygui')
+    compile project(':jme3-plugins')
+    compile project(':jme3-terrain')
+    compile project(':jme3-testdata')
+}
+
+android {
+    compileSdkVersion 10
+    buildToolsVersion "22.0.1"
+
+    lintOptions {
+        // Fix nifty gui referencing "java.awt" package.
+        disable 'InvalidPackage'
+    }
+
+    defaultConfig {
+        applicationId "com.jme3.android"
+        minSdkVersion 10       // Android 2.3 GINGERBREAD
+        targetSdkVersion 22    // Android 5.1 LOLLIPOP
+        versionCode 1
+        versionName "1.0" // TODO: from settings.gradle
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            debuggable true
+        }
+    }
+}

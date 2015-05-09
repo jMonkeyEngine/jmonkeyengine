@@ -73,9 +73,9 @@ import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.scene.plugins.fbx.AnimationList.AnimInverval;
-import com.jme3.scene.plugins.fbx.file.FBXElement;
-import com.jme3.scene.plugins.fbx.file.FBXFile;
-import com.jme3.scene.plugins.fbx.file.FBXReader;
+import com.jme3.scene.plugins.fbx.file.FbxElement;
+import com.jme3.scene.plugins.fbx.file.FbxFile;
+import com.jme3.scene.plugins.fbx.file.FbxReader;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
@@ -165,8 +165,8 @@ public class SceneLoader implements AssetLoader {
 	private void loadScene(InputStream stream) throws IOException {
 		logger.log(Level.FINE, "Loading scene {0}", sceneFilename);
 		long startTime = System.currentTimeMillis();
-		FBXFile scene = FBXReader.readFBX(stream);
-		for(FBXElement e : scene.rootElements) {
+		FbxFile scene = FbxReader.readFBX(stream);
+		for(FbxElement e : scene.rootElements) {
 			if(e.id.equals("GlobalSettings"))
 				loadGlobalSettings(e);
 			else if(e.id.equals("Objects"))
@@ -178,10 +178,10 @@ public class SceneLoader implements AssetLoader {
 		logger.log(Level.FINE, "Loading done in {0} ms", estimatedTime);
 	}
 	
-	private void loadGlobalSettings(FBXElement element) {
-		for(FBXElement e : element.children) {
+	private void loadGlobalSettings(FbxElement element) {
+		for(FbxElement e : element.children) {
 			if(e.id.equals("Properties70")) {
-				for(FBXElement e2 : e.children) {
+				for(FbxElement e2 : e.children) {
 					if(e2.id.equals("P")) {
 						String propName = (String) e2.properties.get(0);
 						if(propName.equals("UnitScaleFactor"))
@@ -197,8 +197,8 @@ public class SceneLoader implements AssetLoader {
 		}
 	}
 	
-	private void loadObjects(FBXElement element) {
-		for(FBXElement e : element.children) {
+	private void loadObjects(FbxElement element) {
+		for(FbxElement e : element.children) {
 			if(e.id.equals("Geometry"))
 				loadGeometry(e);
 			else if(e.id.equals("Material"))
@@ -222,12 +222,12 @@ public class SceneLoader implements AssetLoader {
 		}
 	}
 	
-	private void loadGeometry(FBXElement element) {
+	private void loadGeometry(FbxElement element) {
 		long id = (Long) element.properties.get(0);
 		String type = (String) element.properties.get(2);
 		if(type.equals("Mesh")) {
 			MeshData data = new MeshData();
-			for(FBXElement e : element.children) {
+			for(FbxElement e : element.children) {
 				if(e.id.equals("Vertices"))
 					data.vertices = (double[]) e.properties.get(0);
 				else if(e.id.equals("PolygonVertexIndex"))
@@ -236,7 +236,7 @@ public class SceneLoader implements AssetLoader {
 				//else if(e.id.equals("Edges"))
 				//	data.edges = (int[]) e.properties.get(0);
 				else if(e.id.equals("LayerElementNormal"))
-					for(FBXElement e2 : e.children) {
+					for(FbxElement e2 : e.children) {
 						if(e2.id.equals("MappingInformationType")) {
 							data.normalsMapping = (String) e2.properties.get(0);
 							if(!data.normalsMapping.equals("ByVertice") && !data.normalsMapping.equals("ByPolygonVertex"))
@@ -249,7 +249,7 @@ public class SceneLoader implements AssetLoader {
 							data.normals = (double[]) e2.properties.get(0);
 					}
 				else if(e.id.equals("LayerElementTangent"))
-					for(FBXElement e2 : e.children) {
+					for(FbxElement e2 : e.children) {
 						if(e2.id.equals("MappingInformationType")) {
 							data.tangentsMapping = (String) e2.properties.get(0);
 							if(!data.tangentsMapping.equals("ByVertice") && !data.tangentsMapping.equals("ByPolygonVertex"))
@@ -262,7 +262,7 @@ public class SceneLoader implements AssetLoader {
 							data.tangents = (double[]) e2.properties.get(0);
 					}
 				else if(e.id.equals("LayerElementBinormal"))
-					for(FBXElement e2 : e.children) {
+					for(FbxElement e2 : e.children) {
 						if(e2.id.equals("MappingInformationType")) {
 							data.binormalsMapping = (String) e2.properties.get(0);
 							if(!data.binormalsMapping.equals("ByVertice") && !data.binormalsMapping.equals("ByPolygonVertex"))
@@ -275,7 +275,7 @@ public class SceneLoader implements AssetLoader {
 							data.binormals = (double[]) e2.properties.get(0);
 					}
 				else if(e.id.equals("LayerElementUV"))
-					for(FBXElement e2 : e.children) {
+					for(FbxElement e2 : e.children) {
 						if(e2.id.equals("MappingInformationType")) {
 							data.uvMapping = (String) e2.properties.get(0);
 							if(!data.uvMapping.equals("ByPolygonVertex"))
@@ -291,7 +291,7 @@ public class SceneLoader implements AssetLoader {
 					}
 				// TODO smoothing is not used now
 				//else if(e.id.equals("LayerElementSmoothing"))
-				//	for(FBXElement e2 : e.children) {
+				//	for(FbxElement e2 : e.children) {
 				//		if(e2.id.equals("MappingInformationType")) {
 				//			data.smoothingMapping = (String) e2.properties.get(0);
 				//			if(!data.smoothingMapping.equals("ByEdge"))
@@ -304,7 +304,7 @@ public class SceneLoader implements AssetLoader {
 				//			data.smoothing = (int[]) e2.properties.get(0);
 				//	}
 				else if(e.id.equals("LayerElementMaterial"))
-					for(FBXElement e2 : e.children) {
+					for(FbxElement e2 : e.children) {
 						if(e2.id.equals("MappingInformationType")) {
 							data.materialsMapping = (String) e2.properties.get(0);
 							if(!data.materialsMapping.equals("AllSame"))
@@ -321,18 +321,18 @@ public class SceneLoader implements AssetLoader {
 		}
 	}
 	
-	private void loadMaterial(FBXElement element) {
+	private void loadMaterial(FbxElement element) {
 		long id = (Long) element.properties.get(0);
 		String path = (String) element.properties.get(1);
 		String type = (String) element.properties.get(2);
 		if(type.equals("")) {
 			MaterialData data = new MaterialData();
 			data.name = path.substring(0, path.indexOf(0));
-			for(FBXElement e : element.children) {
+			for(FbxElement e : element.children) {
 				if(e.id.equals("ShadingModel")) {
 					data.shadingModel = (String) e.properties.get(0);
 				} else if(e.id.equals("Properties70")) {
-					for(FBXElement e2 : e.children) {
+					for(FbxElement e2 : e.children) {
 						if(e2.id.equals("P")) {
 							String propName = (String) e2.properties.get(0);
 							if(propName.equals("AmbientColor")) {
@@ -368,16 +368,16 @@ public class SceneLoader implements AssetLoader {
 		}
 	}
 	
-	private void loadModel(FBXElement element) {
+	private void loadModel(FbxElement element) {
 		long id = (Long) element.properties.get(0);
 		String path = (String) element.properties.get(1);
 		String type = (String) element.properties.get(2);
 		ModelData data = new ModelData();
 		data.name = path.substring(0, path.indexOf(0));
 		data.type = type;
-		for(FBXElement e : element.children) {
+		for(FbxElement e : element.children) {
 			if(e.id.equals("Properties70")) {
-				for(FBXElement e2 : e.children) {
+				for(FbxElement e2 : e.children) {
 					if(e2.id.equals("P")) {
 						String propName = (String) e2.properties.get(0);
 						if(propName.equals("Lcl Translation")) {
@@ -408,17 +408,17 @@ public class SceneLoader implements AssetLoader {
 		modelDataMap.put(id, data);
 	}
 	
-	private void loadPose(FBXElement element) {
+	private void loadPose(FbxElement element) {
 		long id = (Long) element.properties.get(0);
 		String path = (String) element.properties.get(1);
 		String type = (String) element.properties.get(2);
 		if(type.equals("BindPose")) {
 			BindPoseData data = new BindPoseData();
 			data.name = path.substring(0, path.indexOf(0));
-			for(FBXElement e : element.children) {
+			for(FbxElement e : element.children) {
 				if(e.id.equals("PoseNode")) {
 					NodeTransformData item = new NodeTransformData();
-					for(FBXElement e2 : e.children) {
+					for(FbxElement e2 : e.children) {
 						if(e2.id.equals("Node"))
 							item.nodeId = (Long) e2.properties.get(0);
 						else if(e2.id.equals("Matrix"))
@@ -431,14 +431,14 @@ public class SceneLoader implements AssetLoader {
 		}
 	}
 	
-	private void loadTexture(FBXElement element) {
+	private void loadTexture(FbxElement element) {
 		long id = (Long) element.properties.get(0);
 		String path = (String) element.properties.get(1);
 		String type = (String) element.properties.get(2);
 		if(type.equals("")) {
 			TextureData data = new TextureData();
 			data.name = path.substring(0, path.indexOf(0));
-			for(FBXElement e : element.children) {
+			for(FbxElement e : element.children) {
 				if(e.id.equals("Type"))
 					data.bindType = (String) e.properties.get(0);
 				else if(e.id.equals("FileName"))
@@ -448,14 +448,14 @@ public class SceneLoader implements AssetLoader {
 		}
 	}
 	
-	private void loadImage(FBXElement element) {
+	private void loadImage(FbxElement element) {
 		long id = (Long) element.properties.get(0);
 		String path = (String) element.properties.get(1);
 		String type = (String) element.properties.get(2);
 		if(type.equals("Clip")) {
 			ImageData data = new ImageData();
 			data.name = path.substring(0, path.indexOf(0));
-			for(FBXElement e : element.children) {
+			for(FbxElement e : element.children) {
 				if(e.id.equals("Type"))
 					data.type = (String) e.properties.get(0);
 				else if(e.id.equals("FileName"))
@@ -471,19 +471,19 @@ public class SceneLoader implements AssetLoader {
 		}
 	}
 	
-	private void loadDeformer(FBXElement element) {
+	private void loadDeformer(FbxElement element) {
 		long id = (Long) element.properties.get(0);
 		String type = (String) element.properties.get(2);
 		if(type.equals("Skin")) {
 			SkinData skinData = new SkinData();
-			for(FBXElement e : element.children) {
+			for(FbxElement e : element.children) {
 				if(e.id.equals("SkinningType"))
 					skinData.type = (String) e.properties.get(0);
 			}
 			skinMap.put(id, skinData);
 		} else if(type.equals("Cluster")) {
 			ClusterData clusterData = new ClusterData();
-			for(FBXElement e : element.children) {
+			for(FbxElement e : element.children) {
 				if(e.id.equals("Indexes"))
 					clusterData.indexes = (int[]) e.properties.get(0);
 				else if(e.id.equals("Weights"))
@@ -497,7 +497,7 @@ public class SceneLoader implements AssetLoader {
 		}
 	}
 	
-	private void loadAnimLayer(FBXElement element) {
+	private void loadAnimLayer(FbxElement element) {
 		long id = (Long) element.properties.get(0);
 		String path = (String) element.properties.get(1);
 		String type = (String) element.properties.get(2);
@@ -508,12 +508,12 @@ public class SceneLoader implements AssetLoader {
 		}
 	}
 	
-	private void loadAnimCurve(FBXElement element) {
+	private void loadAnimCurve(FbxElement element) {
 		long id = (Long) element.properties.get(0);
 		String type = (String) element.properties.get(2);
 		if(type.equals("")) {
 			AnimCurveData data = new AnimCurveData();
-			for(FBXElement e : element.children) {
+			for(FbxElement e : element.children) {
 				if(e.id.equals("KeyTime"))
 					data.keyTimes = (long[]) e.properties.get(0);
 				else if(e.id.equals("KeyValueFloat"))
@@ -523,15 +523,15 @@ public class SceneLoader implements AssetLoader {
 		}
 	}
 	
-	private void loadAnimNode(FBXElement element) {
+	private void loadAnimNode(FbxElement element) {
 		long id = (Long) element.properties.get(0);
 		String path = (String) element.properties.get(1);
 		String type = (String) element.properties.get(2);
 		if(type.equals("")) {
 			Double x = null, y = null, z = null;
-			for(FBXElement e : element.children) {
+			for(FbxElement e : element.children) {
 				if(e.id.equals("Properties70")) {
-					for(FBXElement e2 : e.children) {
+					for(FbxElement e2 : e.children) {
 						if(e2.id.equals("P")) {
 							String propName = (String) e2.properties.get(0);
 							if(propName.equals("d|X"))
@@ -554,8 +554,8 @@ public class SceneLoader implements AssetLoader {
 		}
 	}
 	
-	private void loadConnections(FBXElement element) {
-		for(FBXElement e : element.children) {
+	private void loadConnections(FbxElement element) {
+		for(FbxElement e : element.children) {
 			if(e.id.equals("C")) {
 				String type = (String) e.properties.get(0);
 				long objId, refId;

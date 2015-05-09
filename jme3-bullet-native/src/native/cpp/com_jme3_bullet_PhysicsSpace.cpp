@@ -528,6 +528,18 @@ extern "C" {
         space->getDynamicsWorld()->convexSweepTest((btConvexShape *) shape, native_from, native_to, resultCallback, native_allowed_ccd_penetration);
         return;
     }
+    
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_setSolverNumIterations
+    (JNIEnv *env, jobject object, jlong spaceId, jint value) {
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
+        if (space == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The physics space does not exist.");
+            return;
+        }
+        
+        space->getDynamicsWorld()->getSolverInfo().m_numIterations = value;
+    }
 
 #ifdef __cplusplus
 }

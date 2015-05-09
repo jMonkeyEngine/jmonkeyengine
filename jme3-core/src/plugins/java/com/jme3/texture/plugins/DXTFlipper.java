@@ -242,6 +242,20 @@ public class DXTFlipper {
                 img.position(blockByteOffset);
                 img.limit(blockByteOffset + bpb);
 
+                if (alphaBlock != null){
+                    img.get(alphaBlock);
+                    switch (type){
+                        case 2:
+                            flipDXT3Block(alphaBlock, h); 
+                            break;
+                        case 3:
+                        case 4: 
+                            flipDXT5Block(alphaBlock, h);
+                            break;
+                    }
+                    retImg.put(alphaBlock);
+                }
+                
                 img.get(colorBlock);
                 if (type == 4 || type == 5)
                     flipDXT5Block(colorBlock, h);
@@ -251,19 +265,6 @@ public class DXTFlipper {
                 // write block (no need to flip block indexes, only pixels
                 // inside block
                 retImg.put(colorBlock);
-
-                if (alphaBlock != null){
-                    img.get(alphaBlock);
-                    switch (type){
-                        case 2:
-                            flipDXT3Block(alphaBlock, h); break;
-                        case 3:
-                        case 4: 
-                            flipDXT5Block(alphaBlock, h);
-                            break;
-                    }
-                    retImg.put(alphaBlock);
-                }
             }
             retImg.rewind();
         }else if (h >= 4){

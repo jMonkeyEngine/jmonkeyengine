@@ -583,11 +583,13 @@ public class BatchNode extends GeometryGroupNode {
                         useTangents = true;
                     }
                 } else {
-                    inBuf.copyElements(0, outBuf, globalVertIndex, geomVertCount);
-//                    for (int vert = 0; vert < geomVertCount; vert++) {
-//                        int curGlobalVertIndex = globalVertIndex + vert;
-//                        inBuf.copyElement(vert, outBuf, curGlobalVertIndex);
-//                    }
+                    if (inBuf == null) {
+                        throw new IllegalArgumentException("Geometry " + geom.getName() + " has no " + outBuf.getBufferType() + " buffer whereas other geoms have. all geometries should have the same types of buffers.\n Try to use GeometryBatchFactory.alignBuffer() on the BatchNode before batching");
+                    } else if (outBuf == null) {
+                        throw new IllegalArgumentException("Geometry " + geom.getName() + " has a " + outBuf.getBufferType() + " buffer whereas other geoms don't. all geometries should have the same types of buffers.\n Try to use GeometryBatchFactory.alignBuffer() on the BatchNode before batching");
+                    } else {
+                        inBuf.copyElements(0, outBuf, globalVertIndex, geomVertCount);
+                    }
                 }
             }
 

@@ -40,6 +40,7 @@ import com.jme3.renderer.ios.IosGL;
 import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GLDebugES;
 import com.jme3.renderer.opengl.GLExt;
+import com.jme3.renderer.opengl.GLFbo;
 import com.jme3.renderer.opengl.GLRenderer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -158,11 +159,11 @@ public class IGLESContext implements JmeContext {
         GLExt glext = (GLExt) gl;
 
 //        if (settings.getBoolean("GraphicsDebug")) {
-            gl = new GLDebugES(gl, glext);
+            gl = new GLDebugES(gl, glext, (GLFbo) glext);
             glext = (GLExt) gl;
 //        }
 
-        renderer = new GLRenderer(gl, glext);
+        renderer = new GLRenderer(gl, glext, (GLFbo) glext);
         renderer.initialize();
         
         input = new IosInputHandler();
