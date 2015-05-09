@@ -11,6 +11,7 @@ import com.jme3.gde.core.scene.controller.SceneToolController;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.scenecomposer.tools.PickManager;
+import com.jme3.gde.scenecomposer.tools.shortcuts.ShortcutManager;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
@@ -31,6 +32,7 @@ import com.jme3.scene.control.Control;
 import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Texture;
 import java.util.concurrent.Callable;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -184,7 +186,11 @@ public class SceneComposerToolController extends SceneToolController {
      * @param camera
      */
     public void doEditToolActivatedPrimary(Vector2f mouseLoc, boolean pressed, Camera camera) {
-        if (editTool != null) {
+        ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
+        
+        if (scm.isActive()) {
+            scm.getActiveShortcut().actionPrimary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
+        } else if (editTool != null) {
             editTool.setCamera(camera);
             editTool.actionPrimary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
         }
@@ -198,36 +204,62 @@ public class SceneComposerToolController extends SceneToolController {
      * @param camera
      */
     public void doEditToolActivatedSecondary(Vector2f mouseLoc, boolean pressed, Camera camera) {
-        if (editTool != null) {
+        ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
+        
+        if (scm.isActive()) {
+            scm.getActiveShortcut().actionSecondary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
+        } else if (editTool != null) {
             editTool.setCamera(camera);
             editTool.actionSecondary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
         }
     }
 
     public void doEditToolMoved(Vector2f mouseLoc, Camera camera) {
-        if (editTool != null) {
+        ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
+        
+        if (scm.isActive()) {
+            scm.getActiveShortcut().mouseMoved(mouseLoc, rootNode, editorController.getCurrentDataObject(), selectedSpatial);
+        } else if (editTool != null) {
             editTool.setCamera(camera);
             editTool.mouseMoved(mouseLoc, rootNode, editorController.getCurrentDataObject(), selectedSpatial);
         }
     }
 
     public void doEditToolDraggedPrimary(Vector2f mouseLoc, boolean pressed, Camera camera) {
-        if (editTool != null) {
+        ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
+        
+        if (scm.isActive()) {
+            scm.getActiveShortcut().draggedPrimary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
+        } else if (editTool != null) {
             editTool.setCamera(camera);
             editTool.draggedPrimary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
         }
     }
 
     public void doEditToolDraggedSecondary(Vector2f mouseLoc, boolean pressed, Camera camera) {
-        if (editTool != null) {
+        ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
+        
+        if (scm.isActive()) {
+            scm.getActiveShortcut().draggedSecondary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
+        } else if (editTool != null) {
             editTool.setCamera(camera);
             editTool.draggedSecondary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
         }
     }
     
-    void doKeyPressed(KeyInputEvent kie) {
-        if (editTool != null) {
-            editTool.keyPressed(kie);
+    public void doKeyPressed(KeyInputEvent kie) {
+        ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
+        
+        if (scm.isActive()) {
+            scm.doKeyPressed(kie);
+        } else {
+            if (scm.activateShortcut(kie)) {
+                scm.getActiveShortcut().activate(manager, toolsNode, onTopToolsNode, selected, this);
+            } else {
+                if (editTool != null) {
+                    editTool.keyPressed(kie);
+                }
+            }
         }
     }
     
