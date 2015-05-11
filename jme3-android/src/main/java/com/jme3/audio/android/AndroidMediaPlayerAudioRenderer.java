@@ -525,4 +525,9 @@ public class AndroidMediaPlayerAudioRenderer implements AudioRenderer,
     @Override
     public void deleteFilter(Filter filter) {
     }
+
+    @Override
+    public float getSourcePlaybackTime(AudioSource src) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

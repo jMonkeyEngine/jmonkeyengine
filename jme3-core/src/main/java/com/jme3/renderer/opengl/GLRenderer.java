@@ -82,6 +82,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
+import com.jme3.util.MipMapGenerator;
 import com.jme3.util.NativeObjectManager;
 
 public class GLRenderer implements Renderer {
@@ -385,7 +386,6 @@ public class GLRenderer implements Renderer {
 
         if (hasExtension("GL_ARB_texture_non_power_of_two") ||
             hasExtension("GL_OES_texture_npot") ||
-            hasExtension("GL_APPLE_texture_2D_limited_npot") ||
             caps.contains(Caps.OpenGL30)) {
             caps.add(Caps.NonPowerOfTwoTextures);
         } else {
@@ -1522,7 +1522,7 @@ public class GLRenderer implements Renderer {
             // Check NPOT requirements
             checkNonPowerOfTwo(tex);
 
-            updateTexImageData(image, tex.getType(), 0);
+            updateTexImageData(image, tex.getType(), 0, false);
 
             // NOTE: For depth textures, sets nearest/no-mips mode
             // Required to fix "framebuffer unsupported"
@@ -2064,8 +2064,10 @@ public class GLRenderer implements Renderer {
      * @param img The image to upload
      * @param type How the data in the image argument should be interpreted.
      * @param unit The texture slot to be used to upload the image, not important
+     * @param scaleToPot If true, the image will be scaled to power-of-2 dimensions
+     * before being uploaded.
      */
-    public void updateTexImageData(Image img, Texture.Type type, int unit) {
+    public void updateTexImageData(Image img, Texture.Type type, int unit, boolean scaleToPot) {
         int texId = img.getId();
         if (texId == -1) {
             // create texture
@@ -2149,33 +2151,39 @@ public class GLRenderer implements Renderer {
             }
         }
 
+        Image imageForUpload;
+        if (scaleToPot) {
+            imageForUpload = MipMapGenerator.resizeToPowerOf2(img);
+        } else {
+            imageForUpload = img;
+        }
         if (target == GL.GL_TEXTURE_CUBE_MAP) {
-            List<ByteBuffer> data = img.getData();
+            List<ByteBuffer> data = imageForUpload.getData();
             if (data.size() != 6) {
                 logger.log(Level.WARNING, "Invalid texture: {0}\n"
                         + "Cubemap textures must contain 6 data units.", img);
                 return;
             }
             for (int i = 0; i < 6; i++) {
-                texUtil.uploadTexture(img, GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, i, linearizeSrgbImages);
+                texUtil.uploadTexture(imageForUpload, GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, i, linearizeSrgbImages);
             }
         } else if (target == GLExt.GL_TEXTURE_2D_ARRAY_EXT) {
             if (!caps.contains(Caps.TextureArray)) {
                 throw new RendererException("Texture arrays not supported by graphics hardware");
             }
 
-            List<ByteBuffer> data = img.getData();
+            List<ByteBuffer> data = imageForUpload.getData();
 
             // -1 index specifies prepare data for 2D Array
-            texUtil.uploadTexture(img, target, -1, linearizeSrgbImages);
+            texUtil.uploadTexture(imageForUpload, target, -1, linearizeSrgbImages);
 
             for (int i = 0; i < data.size(); i++) {
                 // upload each slice of 2D array in turn
                 // this time with the appropriate index
-                texUtil.uploadTexture(img, target, i, linearizeSrgbImages);
+                texUtil.uploadTexture(imageForUpload, target, i, linearizeSrgbImages);
             }
         } else {
-            texUtil.uploadTexture(img, target, 0, linearizeSrgbImages);
+            texUtil.uploadTexture(imageForUpload, target, 0, linearizeSrgbImages);
         }
 
         if (img.getMultiSamples() != imageSamples) {
@@ -2197,9 +2205,23 @@ public class GLRenderer implements Renderer {
         Image image = tex.getImage();
         if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
             // Check NPOT requirements
-            checkNonPowerOfTwo(tex);
+            boolean scaleToPot = false;
+            
+            try {
+                checkNonPowerOfTwo(tex);
+            } catch (RendererException ex) {
+                if (logger.isLoggable(Level.WARNING)) {
+                    int nextWidth = FastMath.nearestPowerOfTwo(tex.getImage().getWidth());
+                    int nextHeight = FastMath.nearestPowerOfTwo(tex.getImage().getHeight());
+                    logger.log(Level.WARNING, 
+                               "Non-power-of-2 textures are not supported! Scaling texture '" + tex.getName() + 
+                               "' of size " + tex.getImage().getWidth() + "x" + tex.getImage().getHeight() + 
+                               " to " + nextWidth + "x" + nextHeight);
+                }
+                scaleToPot = true;
+            }
 
-            updateTexImageData(image, tex.getType(), unit);
+            updateTexImageData(image, tex.getType(), unit, scaleToPot);
         }
 
         int texId = image.getId();
@@ -2754,7 +2776,7 @@ public class GLRenderer implements Renderer {
     @Override
     public void setMainFrameBufferSrgb(boolean enableSrgb) {
         // Gamma correction
-        if (!caps.contains(Caps.Srgb)) {
+        if (!caps.contains(Caps.Srgb) && enableSrgb) {
             // Not supported, sorry.
             logger.warning("sRGB framebuffer is not supported " +
                            "by video hardware, but was requested.");

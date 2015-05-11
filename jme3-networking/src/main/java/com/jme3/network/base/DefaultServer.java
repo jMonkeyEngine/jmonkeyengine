@@ -223,7 +223,7 @@ public class DefaultServer implements Server
     {
         if( connections.isEmpty() )
             return;
-            
+ 
         ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
  
         FilterAdapter adapter = filter == null ? null : new FilterAdapter(filter);
@@ -412,7 +412,14 @@ public class DefaultServer implements Server
             
             // Now we can notify the listeners about the
             // new connection.
-            fireConnectionAdded( addedConnection );                                                   
+            fireConnectionAdded( addedConnection );
+            
+            // Send a second registration message with an invalid ID
+            // to let the connection know that it can start its services
+            m = new ClientRegistrationMessage();
+            m.setId(-1);
+            m.setReliable(true);
+            addedConnection.send(m);            
         }            
     }
 

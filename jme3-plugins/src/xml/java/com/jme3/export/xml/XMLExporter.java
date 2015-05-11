@@ -40,6 +40,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Part of the jME XML IO system as introduced in the google code jmexml project.
@@ -61,7 +62,8 @@ public class XMLExporter implements JmeExporter {
        
     }
 
-    public boolean save(Savable object, OutputStream f) throws IOException {
+    @Override
+    public void save(Savable object, OutputStream f) throws IOException {
         try {
             //Initialize Document when saving so we don't retain state of previous exports
             this.domOut = new DOMOutputCapsule(DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument(), this);
@@ -69,18 +71,22 @@ public class XMLExporter implements JmeExporter {
             DOMSerializer serializer = new DOMSerializer();
             serializer.serialize(domOut.getDoc(), f);
             f.flush();
-            return true;
-        } catch (Exception ex) {
-            IOException e = new IOException();
-            e.initCause(ex);
-            throw e;
+        } catch (ParserConfigurationException ex) {
+            throw new IOException(ex);
         }
     }
 
-    public boolean save(Savable object, File f) throws IOException {
-        return save(object, new FileOutputStream(f));
+    @Override
+    public void save(Savable object, File f) throws IOException {
+        FileOutputStream fos = new FileOutputStream(f);
+        try {
+            save(object, fos);
+        } finally {
+            fos.close();
+        }
     }
 
+    @Override
     public OutputCapsule getCapsule(Savable object) {
         return domOut;
     }
