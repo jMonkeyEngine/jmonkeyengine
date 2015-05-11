@@ -1843,10 +1843,6 @@ public class GLRenderer implements Renderer {
             }
         }
 
-        if (context.pointSprite) {
-            return; // Attempt to fix glTexParameter crash for some ATI GPUs
-        }
-        
         // repeat modes
         switch (tex.getType()) {
             case ThreeDimensional:
