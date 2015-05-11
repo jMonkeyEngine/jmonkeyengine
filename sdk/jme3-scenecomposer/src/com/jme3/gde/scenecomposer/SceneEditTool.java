@@ -57,6 +57,7 @@ public abstract class SceneEditTool {
     protected Node axisMarker;
     protected Material redMat, blueMat, greenMat, yellowMat, cyanMat, magentaMat, orangeMat;
     protected Geometry quadXY, quadXZ, quadYZ;
+    protected SceneComposerToolController.TransformationType transformType;
 
     protected enum AxisMarkerPickType {
 
@@ -72,6 +73,7 @@ public abstract class SceneEditTool {
     public void activate(AssetManager manager, Node toolNode, Node onTopToolNode, Spatial selectedSpatial, SceneComposerToolController toolController) {
         this.manager = manager;
         this.toolController = toolController;
+        this.setTransformType(toolController.getTransformationType());
         //this.selectedSpatial = selectedSpatial;
         addMarker(toolNode, onTopToolNode);
     }
@@ -130,7 +132,19 @@ public abstract class SceneEditTool {
     public void doUpdateToolsTransformation() {
         if (toolController.getSelectedSpatial() != null) {
             axisMarker.setLocalTranslation(toolController.getSelectedSpatial().getWorldTranslation());
-            axisMarker.setLocalRotation(toolController.getSelectedSpatial().getLocalRotation());
+            switch (transformType) {
+                case local:
+                    axisMarker.setLocalRotation(toolController.getSelectedSpatial().getLocalRotation());
+                    break;
+                case global:
+                    axisMarker.setLocalRotation(Quaternion.IDENTITY);
+                    break;
+                case camera:
+                    if(camera != null){
+                        axisMarker.setLocalRotation(camera.getRotation());
+                    }
+                    break;
+            }
             setAxisMarkerScale(toolController.getSelectedSpatial());
         } else {
             axisMarker.setLocalTranslation(Vector3f.ZERO);
@@ -371,16 +385,17 @@ public abstract class SceneEditTool {
             axisMarker.getChild("arrowY").setMaterial(orangeMat);
         } else if (picked == ARROW_Z) {
             axisMarker.getChild("arrowZ").setMaterial(orangeMat);
-        }
+        } else {
 
-        if (picked == QUAD_XY || colorAll) {
-            axisMarker.getChild("quadXY").setMaterial(orangeMat);
-        }
-        if (picked == QUAD_XZ || colorAll) {
-            axisMarker.getChild("quadXZ").setMaterial(orangeMat);
-        }
-        if (picked == QUAD_YZ || colorAll) {
-            axisMarker.getChild("quadYZ").setMaterial(orangeMat);
+            if (picked == QUAD_XY || colorAll) {
+                axisMarker.getChild("quadXY").setMaterial(orangeMat);
+            }
+            if (picked == QUAD_XZ || colorAll) {
+                axisMarker.getChild("quadXZ").setMaterial(orangeMat);
+            }
+            if (picked == QUAD_YZ || colorAll) {
+                axisMarker.getChild("quadYZ").setMaterial(orangeMat);
+            }
         }
     }
 
@@ -485,5 +500,13 @@ public abstract class SceneEditTool {
 
     public void setCamera(Camera camera) {
         this.camera = camera;
+    }
+
+    public SceneComposerToolController.TransformationType getTransformType() {
+        return transformType;
+    }
+
+    public void setTransformType(SceneComposerToolController.TransformationType transformType) {
+        this.transformType = transformType;
     }
 }

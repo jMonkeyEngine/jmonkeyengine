@@ -69,7 +69,7 @@ public class TestPhysicsReadWrite extends SimpleApplication{
     public void simpleInitApp() {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
-        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+        bulletAppState.setDebugEnabled(true);
         physicsRootNode=new Node("PhysicsRootNode");
         rootNode.attachChild(physicsRootNode);
 

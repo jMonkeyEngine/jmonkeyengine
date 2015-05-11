@@ -48,7 +48,7 @@ task checkPlatformConfig {
     def platformFile = file("nbproject/private/platform-private.properties")
     if(!platformFile.exists()){
         def netbeansFolder = file("../netbeans")
-        if(!netbeansFolder.exists()){
+        if(!netbeansFolder.exists() || netbeansFolder.list().length == 0){
             println "Downloading NetBeans Platform base, this only has to be done once.."
             def f = file("netbeans.zip")
             new URL(netbeansUrl).withInputStream{ i -> f.withOutputStream{ it << i }}

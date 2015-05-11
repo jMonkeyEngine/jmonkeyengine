@@ -1,14 +1,23 @@
 import org.gradle.api.artifacts.*
 
-apply plugin: 'base' // To add "clean" task to the root project.
-//apply plugin: 'java-library-distribution'
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'com.android.tools.build:gradle:1.1.0'
+	}
+}
+
+apply plugin: 'base'
 
 // This is applied to all sub projects
 subprojects {
-    // Don't add to native builds
-    //    if(!project.name.endsWith('native')){
-    apply from: rootProject.file('common.gradle')
-    //    }
+    if(!project.name.equals('jme3-android-examples')) {
+        apply from: rootProject.file('common.gradle')
+    } else {
+        apply from: rootProject.file('common-android-app.gradle')
+    }
 }
 
 task run(dependsOn: ':jme3-examples:run') {
@@ -166,11 +175,11 @@ ext {
 //    }
 //}
 
-allprojects {
-    tasks.withType(JavaExec) {
-        enableAssertions = true // false by default
-    }
-    tasks.withType(Test) {
-        enableAssertions = true // true by default
-    }
-}
+//allprojects {
+//    tasks.withType(JavaExec) {
+//        enableAssertions = true // false by default
+//    }
+//    tasks.withType(Test) {
+//        enableAssertions = true // true by default
+//    }
+//}

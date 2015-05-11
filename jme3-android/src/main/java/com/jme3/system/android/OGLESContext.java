@@ -54,6 +54,7 @@ import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.android.AndroidGL;
 import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GLExt;
+import com.jme3.renderer.opengl.GLFbo;
 import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.system.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -196,7 +197,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         Object gl = new AndroidGL();
         // gl = GLTracer.createGlesTracer((GL)gl, (GLExt)gl);
         // gl = new GLDebugES((GL)gl, (GLExt)gl);
-        renderer = new GLRenderer((GL)gl, (GLExt)gl);
+        renderer = new GLRenderer((GL)gl, (GLExt)gl, (GLFbo)gl);
         renderer.initialize();
 
         JmeSystem.setSoftTextDialogInput(this);

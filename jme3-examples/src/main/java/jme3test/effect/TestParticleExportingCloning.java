@@ -69,26 +69,9 @@ public class TestParticleExportingCloning extends SimpleApplication {
         rootNode.attachChild(emit);
         rootNode.attachChild(emit2);
         
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try {
-            BinaryExporter.getInstance().save(emit, out);
-            
-            BinaryImporter imp = new BinaryImporter();
-            imp.setAssetManager(assetManager);
-            ParticleEmitter emit3 = (ParticleEmitter) imp.load(out.toByteArray());
-            
-            emit3.move(-3, 0, 0);
-            rootNode.attachChild(emit3);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
-            //        Camera cam2 = cam.clone();
-    //        cam.setViewPortTop(0.5f);
-    //        cam2.setViewPortBottom(0.5f);
-    //        ViewPort vp = renderManager.createMainView("SecondView", cam2);
-    //        viewPort.setClearEnabled(false);
-    //        vp.attachScene(rootNode);
+        ParticleEmitter emit3 = BinaryExporter.saveAndLoad(assetManager, emit);
+        emit3.move(-3, 0, 0);
+        rootNode.attachChild(emit3);
     }
 
 }

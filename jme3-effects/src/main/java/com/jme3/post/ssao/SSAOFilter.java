@@ -162,8 +162,8 @@ public class SSAOFilter extends Filter {
         };
 
         ssaoPass.init(renderManager.getRenderer(), (int) (screenWidth / downSampleFactor), (int) (screenHeight / downSampleFactor), Format.RGBA8, Format.Depth, 1, ssaoMat);
-        ssaoPass.getRenderedTexture().setMinFilter(Texture.MinFilter.Trilinear);
-        ssaoPass.getRenderedTexture().setMagFilter(Texture.MagFilter.Bilinear);
+//        ssaoPass.getRenderedTexture().setMinFilter(Texture.MinFilter.Trilinear);
+//        ssaoPass.getRenderedTexture().setMagFilter(Texture.MagFilter.Bilinear);
         postRenderPasses.add(ssaoPass);
         material = new Material(manager, "Common/MatDefs/SSAO/ssaoBlur.j3md");
         material.setTexture("SSAOMap", ssaoPass.getRenderedTexture());

@@ -35,7 +35,7 @@ public class TestSweepTest extends SimpleApplication {
     public void simpleInitApp() {
         obstacleCollisionShape = new CapsuleCollisionShape(0.3f, 0.5f);
         capsuleCollisionShape = new CapsuleCollisionShape(1f, 1f);
-        
+
         stateManager.attach(bulletAppState);
 
         capsule = new Node("capsule");
@@ -52,7 +52,7 @@ public class TestSweepTest extends SimpleApplication {
         bulletAppState.getPhysicsSpace().add(obstacle);
         rootNode.attachChild(obstacle);
 
-        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+        bulletAppState.setDebugEnabled(true);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class TestSweepTest extends SimpleApplication {
                 colliding = true;
             }
         }
-        
+
         if (!colliding) {
             // if the sweep is clear then move the spatial
             capsule.move(move, 0, 0);
