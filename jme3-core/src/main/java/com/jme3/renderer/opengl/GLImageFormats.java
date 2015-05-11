@@ -92,6 +92,7 @@ public final class GLImageFormats {
             if (!caps.contains(Caps.CoreProfile)) {
                 format(formatToGL, Format.Alpha8,           GL2.GL_ALPHA8,            GL.GL_ALPHA,           GL.GL_UNSIGNED_BYTE);
                 format(formatToGL, Format.Luminance8,       GL2.GL_LUMINANCE8,        GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE);
+                format(formatToGL,Format.Luminance16,   GL.GL_LUMINANCE16, GL.GL_LUMINANCE,GL.GL_UNSIGNED_SHORT);
                 format(formatToGL, Format.Luminance8Alpha8, GL2.GL_LUMINANCE8_ALPHA8, GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE);
             }
             format(formatToGL, Format.RGB8,             GL2.GL_RGB8,              GL.GL_RGB,             GL.GL_UNSIGNED_BYTE);
@@ -111,8 +112,7 @@ public final class GLImageFormats {
                 formatSrgb(formatToGL, Format.RGB5A1,           GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL.GL_UNSIGNED_SHORT_5_5_5_1);
                 formatSrgb(formatToGL, Format.RGBA8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE);
                 if (!caps.contains(Caps.CoreProfile)) {
-                    formatSrgb(formatToGL, Format.Luminance8,       GLExt.GL_SLUMINANCE8_EXT,        GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE);
-                    formatSrgb(formatToGL,Format.Luminance16,   GL.GL_LUMINANCE16, GL.GL_LUMINANCE,GL.GL_UNSIGNED_SHORT);
+                    formatSrgb(formatToGL, Format.Luminance8, GLExt.GL_SLUMINANCE8_EXT, GL.GL_LUMINANCE, GL.GL_UNSIGNED_BYTE);
                     formatSrgb(formatToGL, Format.Luminance8Alpha8, GLExt.GL_SLUMINANCE8_ALPHA8_EXT, GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE);
                 }
                 formatSrgb(formatToGL, Format.BGR8,             GLExt.GL_SRGB8_EXT,              GL2.GL_BGR,            GL.GL_UNSIGNED_BYTE);
