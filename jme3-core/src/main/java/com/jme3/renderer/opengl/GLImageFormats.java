@@ -112,6 +112,7 @@ public final class GLImageFormats {
                 formatSrgb(formatToGL, Format.RGBA8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE);
                 if (!caps.contains(Caps.CoreProfile)) {
                     formatSrgb(formatToGL, Format.Luminance8,       GLExt.GL_SLUMINANCE8_EXT,        GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE);
+                    formatSrgb(formatToGL,Format.Luminance16,   GL.GL_LUMINANCE16, GL.GL_LUMINANCE,GL.GL_UNSIGNED_SHORT);
                     formatSrgb(formatToGL, Format.Luminance8Alpha8, GLExt.GL_SLUMINANCE8_ALPHA8_EXT, GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE);
                 }
                 formatSrgb(formatToGL, Format.BGR8,             GLExt.GL_SRGB8_EXT,              GL2.GL_BGR,            GL.GL_UNSIGNED_BYTE);
