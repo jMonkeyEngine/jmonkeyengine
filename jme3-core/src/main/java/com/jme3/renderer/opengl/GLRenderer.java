@@ -52,6 +52,7 @@ import com.jme3.material.RenderState.StencilOperation;
 import com.jme3.material.RenderState.TestFunction;
 import com.jme3.math.ClipRectangle;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -2206,16 +2207,16 @@ public class GLRenderer implements Renderer {
         if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
             // Check NPOT requirements
             boolean scaleToPot = false;
-            
+
             try {
                 checkNonPowerOfTwo(tex);
             } catch (RendererException ex) {
                 if (logger.isLoggable(Level.WARNING)) {
                     int nextWidth = FastMath.nearestPowerOfTwo(tex.getImage().getWidth());
                     int nextHeight = FastMath.nearestPowerOfTwo(tex.getImage().getHeight());
-                    logger.log(Level.WARNING, 
-                               "Non-power-of-2 textures are not supported! Scaling texture '" + tex.getName() + 
-                               "' of size " + tex.getImage().getWidth() + "x" + tex.getImage().getHeight() + 
+                    logger.log(Level.WARNING,
+                               "Non-power-of-2 textures are not supported! Scaling texture '" + tex.getName() +
+                               "' of size " + tex.getImage().getWidth() + "x" + tex.getImage().getHeight() +
                                " to " + nextWidth + "x" + nextHeight);
                 }
                 scaleToPot = true;
