@@ -121,6 +121,7 @@ public interface GL {
         public static final int GL_RGB565 = 0x8D62;
         public static final int GL_RGB5_A1 = 0x8057;
 	public static final int GL_RGBA = 0x1908;
+	public static final int GL_LUMINANCE16 = 0x8042;
         public static final int GL_RGBA4 = 0x8056;
 	public static final int GL_SCISSOR_TEST = 0xC11;
 	public static final int GL_SHADING_LANGUAGE_VERSION = 0x8B8C;
