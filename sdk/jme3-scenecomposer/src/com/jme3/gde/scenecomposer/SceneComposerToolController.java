@@ -189,6 +189,7 @@ public class SceneComposerToolController extends SceneToolController {
         ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
         
         if (scm.isActive()) {
+            scm.getActiveShortcut().setCamera(camera);
             scm.getActiveShortcut().actionPrimary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
         } else if (editTool != null) {
             editTool.setCamera(camera);
@@ -207,6 +208,7 @@ public class SceneComposerToolController extends SceneToolController {
         ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
         
         if (scm.isActive()) {
+            scm.getActiveShortcut().setCamera(camera);
             scm.getActiveShortcut().actionSecondary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
         } else if (editTool != null) {
             editTool.setCamera(camera);
@@ -218,6 +220,7 @@ public class SceneComposerToolController extends SceneToolController {
         ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
         
         if (scm.isActive()) {
+            scm.getActiveShortcut().setCamera(camera);
             scm.getActiveShortcut().mouseMoved(mouseLoc, rootNode, editorController.getCurrentDataObject(), selectedSpatial);
         } else if (editTool != null) {
             editTool.setCamera(camera);
@@ -229,6 +232,7 @@ public class SceneComposerToolController extends SceneToolController {
         ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
         
         if (scm.isActive()) {
+            scm.getActiveShortcut().setCamera(camera);
             scm.getActiveShortcut().draggedPrimary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
         } else if (editTool != null) {
             editTool.setCamera(camera);
@@ -240,6 +244,7 @@ public class SceneComposerToolController extends SceneToolController {
         ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
         
         if (scm.isActive()) {
+            scm.getActiveShortcut().setCamera(null);
             scm.getActiveShortcut().draggedSecondary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
         } else if (editTool != null) {
             editTool.setCamera(camera);
@@ -249,7 +254,7 @@ public class SceneComposerToolController extends SceneToolController {
     
     public void doKeyPressed(KeyInputEvent kie) {
         ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
-        
+
         if (scm.isActive()) {
             scm.doKeyPressed(kie);
         } else {
