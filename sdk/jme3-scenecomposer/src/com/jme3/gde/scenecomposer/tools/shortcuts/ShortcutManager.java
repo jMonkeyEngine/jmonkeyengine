@@ -66,8 +66,11 @@ public class ShortcutManager {
     }
 
     public boolean activateShortcut(KeyInputEvent kie) {
-        currentShortcut = getActivableShortcut(kie);
-        return isActive();
+        ShortcutTool newShortcut = getActivableShortcut(kie);
+        if(newShortcut != null){
+            currentShortcut = newShortcut;
+        }
+        return newShortcut != null;
     }
 
     public void doKeyPressed(KeyInputEvent kie) {
@@ -182,13 +185,13 @@ public class ShortcutManager {
 
     public static boolean checkAxisKey(KeyInputEvent kie, Vector3f axisStore) {
         if (kie.getKeyCode() == KeyInput.KEY_X) {
-            axisStore = Vector3f.UNIT_X;
+            axisStore.set(Vector3f.UNIT_X);
             return true;
         } else if (kie.getKeyCode() == KeyInput.KEY_Y) {
-            axisStore = Vector3f.UNIT_Y;
+            axisStore.set(Vector3f.UNIT_Y);
             return true;
         } else if (kie.getKeyCode() == KeyInput.KEY_Z) {
-            axisStore = Vector3f.UNIT_Z;
+            axisStore.set(Vector3f.UNIT_Z);
             return true;
         }
         return false;
