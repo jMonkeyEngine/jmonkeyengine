@@ -26,6 +26,8 @@ public class ShortcutManager {
     public ShortcutManager() {
         shortcutList = new ArrayList<ShortcutTool>();
         shortcutList.add(new MoveShortcut());
+        shortcutList.add(new RotateShortcut());
+        shortcutList.add(new ScaleShortcut());
     }
 
     /*
@@ -72,7 +74,14 @@ public class ShortcutManager {
         }
         return newShortcut != null;
     }
-
+    
+    /**
+     * This should be called to trigger the currentShortcut.keyPressed() method.
+     * This method do a first check for command key used to provide isCtrlDown,
+     * isShiftDown ect.. to de
+     *
+     * @param kie
+     */
     public void doKeyPressed(KeyInputEvent kie) {
         ///todo check commande key
         if (isActive()) {
