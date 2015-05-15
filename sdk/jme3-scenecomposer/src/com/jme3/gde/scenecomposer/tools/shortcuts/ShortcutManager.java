@@ -22,12 +22,17 @@ public class ShortcutManager {
 
     private ShortcutTool currentShortcut;
     private ArrayList<ShortcutTool> shortcutList;
+    private boolean ctrlDown = false;
+    private boolean shiftDown = false;
+    private boolean altDown = false;
 
     public ShortcutManager() {
         shortcutList = new ArrayList<ShortcutTool>();
         shortcutList.add(new MoveShortcut());
         shortcutList.add(new RotateShortcut());
         shortcutList.add(new ScaleShortcut());
+        shortcutList.add(new DuplicateShortcut());
+        shortcutList.add(new DeleteShortcut());
     }
 
     /*
@@ -41,6 +46,27 @@ public class ShortcutManager {
         return currentShortcut != null;
     }
 
+    /**
+     * @return the ctrlDown
+     */
+    public boolean isCtrlDown() {
+        return ctrlDown;
+    }
+
+    /**
+     * @return the shiftDown
+     */
+    public boolean isShiftDown() {
+        return shiftDown;
+    }
+
+    /**
+     * @return the altDown
+     */
+    public boolean isAltDown() {
+        return altDown;
+    }
+
     public void setShortCut(ShortcutTool shortcut) {
         if (isActive()) {
             currentShortcut.cancel();
@@ -49,6 +75,9 @@ public class ShortcutManager {
     }
 
     public ShortcutTool getActivableShortcut(KeyInputEvent kie) {
+        if (checkCommandeKey(kie)) {
+            return null;
+        } 
         for (ShortcutTool s : shortcutList) {
             if (s != currentShortcut) {
                 if (s.isActivableBy(kie)) {
@@ -69,12 +98,12 @@ public class ShortcutManager {
 
     public boolean activateShortcut(KeyInputEvent kie) {
         ShortcutTool newShortcut = getActivableShortcut(kie);
-        if(newShortcut != null){
+        if (newShortcut != null) {
             currentShortcut = newShortcut;
         }
         return newShortcut != null;
     }
-    
+
     /**
      * This should be called to trigger the currentShortcut.keyPressed() method.
      * This method do a first check for command key used to provide isCtrlDown,
@@ -83,10 +112,25 @@ public class ShortcutManager {
      * @param kie
      */
     public void doKeyPressed(KeyInputEvent kie) {
-        ///todo check commande key
-        if (isActive()) {
+        if (checkCommandeKey(kie)) {
+            //return;
+        } else if (isActive()) {
             currentShortcut.keyPressed(kie);
         }
+    }
+
+    private boolean checkCommandeKey(KeyInputEvent kie) {
+        if (checkCtrlHit(kie)) {
+            ctrlDown = kie.isPressed();
+            return true;
+        } else if (checkAltHit(kie)) {
+            altDown = kie.isPressed();
+            return true;
+        } else if (checkShiftHit(kie)) {
+            shiftDown = kie.isPressed();
+            return true;
+        }
+        return false;
     }
 
     /*
