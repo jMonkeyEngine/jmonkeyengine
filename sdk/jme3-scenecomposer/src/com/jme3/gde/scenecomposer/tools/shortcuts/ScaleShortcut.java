@@ -94,7 +94,7 @@ public class ScaleShortcut extends ShortcutTool {
                 pickEnabled = false;
             } else if (axisChanged || numberChanged) {
                 //update transformation
-       /*         float number = ShortcutManager.getNumberkey(numberBuilder);
+       /*         float number = ShortcutManager.getNumberKey(numberBuilder);
                  Vector3f translation = currentAxis.mult(number);
                  finalPosition = startPosition.add(translation);
                  spatial.setLocalTranslation(finalPosition);

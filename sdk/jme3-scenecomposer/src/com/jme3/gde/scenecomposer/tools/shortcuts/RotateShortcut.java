@@ -95,7 +95,7 @@ public class RotateShortcut extends ShortcutTool {
                 spatial.setLocalRotation(startRotation.clone());
             } else if (axisChanged || numberChanged) {
                 //update transformation
-       /*         float number = ShortcutManager.getNumberkey(numberBuilder);
+       /*         float number = ShortcutManager.getNumberKey(numberBuilder);
                  Vector3f translation = currentAxis.mult(number);
                  finalPosition = startPosition.add(translation);
                  spatial.setLocalTranslation(finalPosition);

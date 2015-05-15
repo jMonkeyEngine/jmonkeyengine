@@ -38,10 +38,17 @@ public class ShortcutManager {
     /*
      Methodes 
      */
+    /**
+     * This MUST be called by the shortcut tool once the modifications are done.
+     */
     public void terminate() {
         currentShortcut = null;
     }
 
+    /**
+     *
+     * @return true if a shortCutTool is active, else return false.
+     */
     public boolean isActive() {
         return currentShortcut != null;
     }
@@ -67,6 +74,12 @@ public class ShortcutManager {
         return altDown;
     }
 
+    /**
+     * Set the current shortcut to <code>shortcut</code>. cancel the current
+     * shortcut if it was still active
+     *
+     * @param shortcut the ShortCutTool to set
+     */
     public void setShortCut(ShortcutTool shortcut) {
         if (isActive()) {
             currentShortcut.cancel();
@@ -74,10 +87,18 @@ public class ShortcutManager {
         currentShortcut = shortcut;
     }
 
+    /**
+     * Get the shortcut that can be enable with the given kei, the current
+     * shortcut cannot be enable twice. This also check for command key used to
+     * provide isCtrlDown(), isShiftDown() and isAltDown().
+     *
+     * @param kie the KeyInputEvent
+     * @return the activable shortcut else return null
+     */
     public ShortcutTool getActivableShortcut(KeyInputEvent kie) {
         if (checkCommandeKey(kie)) {
             return null;
-        } 
+        }
         for (ShortcutTool s : shortcutList) {
             if (s != currentShortcut) {
                 if (s.isActivableBy(kie)) {
@@ -88,14 +109,30 @@ public class ShortcutManager {
         return null;
     }
 
+    /**
+     *
+     * @return the current active shortcut
+     */
     public ShortcutTool getActiveShortcut() {
         return currentShortcut;
     }
 
+    /**
+     *
+     * @param kie the KeyInputEvent
+     * @return true if the given Kei can enable a sortcut, else false
+     */
     public boolean canActivateShortcut(KeyInputEvent kie) {
         return getActivableShortcut(kie) != null;
     }
 
+    /**
+     * Set the current shortcut with the shortcut one that can be enable with
+     * the given key
+     *
+     * @param kie the KeyInputEvent
+     * @return true is the shortcut changed, else false
+     */
     public boolean activateShortcut(KeyInputEvent kie) {
         ShortcutTool newShortcut = getActivableShortcut(kie);
         if (newShortcut != null) {
@@ -106,8 +143,8 @@ public class ShortcutManager {
 
     /**
      * This should be called to trigger the currentShortcut.keyPressed() method.
-     * This method do a first check for command key used to provide isCtrlDown,
-     * isShiftDown ect.. to de
+     * This also check for command key used to provide isCtrlDown(),
+     * isShiftDown() and isAltDown().
      *
      * @param kie
      */
@@ -136,6 +173,11 @@ public class ShortcutManager {
     /*
      STATIC
      */
+    /**
+     *
+     * @param kie
+     * @return true if the given kie is KEY_RETURN
+     */
     public static boolean checkEnterHit(KeyInputEvent kie) {
         if (kie.getKeyCode() == KeyInput.KEY_RETURN) {
             return true;
@@ -143,6 +185,11 @@ public class ShortcutManager {
         return false;
     }
 
+    /**
+     *
+     * @param kie
+     * @return true if the given kie is KEY_ESCAPE
+     */
     public static boolean checkEscHit(KeyInputEvent kie) {
         if (kie.getKeyCode() == KeyInput.KEY_ESCAPE) {
             return true;
@@ -150,6 +197,11 @@ public class ShortcutManager {
         return false;
     }
 
+    /**
+     *
+     * @param kie
+     * @return true if the given kie is KEY_LCONTROL || KEY_RCONTROL
+     */
     public static boolean checkCtrlHit(KeyInputEvent kie) {
         if (kie.getKeyCode() == KeyInput.KEY_LCONTROL || kie.getKeyCode() == KeyInput.KEY_RCONTROL) {
             return true;
@@ -157,6 +209,11 @@ public class ShortcutManager {
         return false;
     }
 
+    /**
+     *
+     * @param kie
+     * @return true if the given kie is KEY_LSHIFT || KEY_RSHIFT
+     */
     public static boolean checkShiftHit(KeyInputEvent kie) {
         if (kie.getKeyCode() == KeyInput.KEY_LSHIFT || kie.getKeyCode() == KeyInput.KEY_RSHIFT) {
             return true;
@@ -164,6 +221,11 @@ public class ShortcutManager {
         return false;
     }
 
+    /**
+     *
+     * @param kie
+     * @return true if the given kie is KEY_LMENU || KEY_RMENU
+     */
     public static boolean checkAltHit(KeyInputEvent kie) {
         if (kie.getKeyCode() == KeyInput.KEY_LMENU || kie.getKeyCode() == KeyInput.KEY_RMENU) {
             return true;
@@ -171,6 +233,13 @@ public class ShortcutManager {
         return false;
     }
 
+    /**
+     * store the number kie into the numberBuilder
+     *
+     * @param kie
+     * @param numberBuilder
+     * @return true if the given kie is handled as a number key event
+     */
     public static boolean checkNumberKey(KeyInputEvent kie, StringBuilder numberBuilder) {
         if (kie.getKeyCode() == KeyInput.KEY_MINUS) {
             if (numberBuilder.length() > 0) {
@@ -228,7 +297,12 @@ public class ShortcutManager {
         return false;
     }
 
-    public static float getNumberkey(StringBuilder numberBuilder) {
+    /**
+     *
+     * @param numberBuilder the StringBuilder storing the float number
+     * @return the float value created from the given StringBuilder
+     */
+    public static float getNumberKey(StringBuilder numberBuilder) {
         if (numberBuilder.length() == 0) {
             return 0;
         } else {
@@ -236,6 +310,14 @@ public class ShortcutManager {
         }
     }
 
+    /**
+     * Check for axis input for key X,Y,Z and store the corresponding UNIT_ into
+     * the axisStore
+     *
+     * @param kie
+     * @param axisStore
+     * @return true if the given kie is handled as a Axis input
+     */
     public static boolean checkAxisKey(KeyInputEvent kie, Vector3f axisStore) {
         if (kie.getKeyCode() == KeyInput.KEY_X) {
             axisStore.set(Vector3f.UNIT_X);
