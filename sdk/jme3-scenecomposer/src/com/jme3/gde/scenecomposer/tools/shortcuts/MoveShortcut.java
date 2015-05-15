@@ -6,8 +6,11 @@
 package com.jme3.gde.scenecomposer.tools.shortcuts;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.bullet.control.CharacterControl;
+import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
+import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
 import com.jme3.gde.scenecomposer.SceneComposerToolController;
 import com.jme3.gde.scenecomposer.tools.PickManager;
 import com.jme3.input.KeyInput;
@@ -29,7 +32,6 @@ public class MoveShortcut extends ShortcutTool {
     private Vector3f currentAxis;
     private StringBuilder numberBuilder;
     private Spatial spatial;
-    private Vector3f finalLocation;
     private PickManager pickManager;
     private boolean pickEnabled;
     private Vector3f startPosition;
@@ -48,7 +50,7 @@ public class MoveShortcut extends ShortcutTool {
     }
 
     private void apply() {
-        // TODO creat UNDO/REDO
+        actionPerformed(new MoveUndo(toolController.getSelectedSpatial(), startPosition, finalPosition));
         terminate();
     }
 
@@ -110,8 +112,8 @@ public class MoveShortcut extends ShortcutTool {
                 //update transformation
                 float number = ShortcutManager.getNumberkey(numberBuilder);
                 Vector3f translation = currentAxis.mult(number);
-                finalLocation = startPosition.add(translation);
-                spatial.setLocalTranslation(finalLocation);
+                finalPosition = startPosition.add(translation);
+                spatial.setLocalTranslation(finalPosition);
 
             }
 
@@ -171,13 +173,61 @@ public class MoveShortcut extends ShortcutTool {
 
     @Override
     public void draggedPrimary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject currentDataObject) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (pressed) {
+            apply();
+        }
     }
 
     @Override
     public void draggedSecondary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject currentDataObject) {
         if (pressed) {
             cancel();
+        }
+    }
+    
+    private class MoveUndo extends AbstractUndoableSceneEdit {
+
+        private Spatial spatial;
+        private Vector3f before = new Vector3f(), after = new Vector3f();
+
+        MoveUndo(Spatial spatial, Vector3f before, Vector3f after) {
+            this.spatial = spatial;
+            this.before.set(before);
+            if (after != null) {
+                this.after.set(after);
+            }
+        }
+
+        @Override
+        public void sceneUndo() {
+            spatial.setLocalTranslation(before);
+            RigidBodyControl control = spatial.getControl(RigidBodyControl.class);
+            if (control != null) {
+                control.setPhysicsLocation(spatial.getWorldTranslation());
+            }
+            CharacterControl character = spatial.getControl(CharacterControl.class);
+            if (character != null) {
+                character.setPhysicsLocation(spatial.getWorldTranslation());
+            }
+            //     toolController.selectedSpatialTransformed();
+        }
+
+        @Override
+        public void sceneRedo() {
+            spatial.setLocalTranslation(after);
+            RigidBodyControl control = spatial.getControl(RigidBodyControl.class);
+            if (control != null) {
+                control.setPhysicsLocation(spatial.getWorldTranslation());
+            }
+            CharacterControl character = spatial.getControl(CharacterControl.class);
+            if (character != null) {
+                character.setPhysicsLocation(spatial.getWorldTranslation());
+            }
+            //toolController.selectedSpatialTransformed();
+        }
+
+        public void setAfter(Vector3f after) {
+            this.after.set(after);
         }
     }
 
