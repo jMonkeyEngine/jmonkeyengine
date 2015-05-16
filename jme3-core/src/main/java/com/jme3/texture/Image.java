@@ -74,6 +74,11 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * 8-bit grayscale/luminance.
          */
         Luminance8(8),
+
+        /**
+         * 16-bit grayscale/luminance.
+         */
+        Luminance16(16),
         
         @Deprecated
         Reserved2(0),
