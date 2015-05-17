@@ -635,10 +635,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     private native void getAngularFactor(long objectId, Vector3f vec);
 
     public void setAngularFactor(float factor) {
-        setAngularFactor(objectId, factor);
+        setAngularFactor(objectId, new Vector3f(factor, factor, factor));
     }
-
-    private native void setAngularFactor(long objectId, float factor);
 
     public void setAngularFactor(Vector3f factor) {
 	setAngularFactor(objectId, factor);

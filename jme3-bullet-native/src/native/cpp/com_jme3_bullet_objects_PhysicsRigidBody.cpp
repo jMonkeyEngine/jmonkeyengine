@@ -829,20 +829,20 @@ extern "C" {
      * Method:    setAngularFactor
      * Signature: (JF)V
      */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setAngularFactor
-    (JNIEnv *env, jobject object, jlong bodyId, jfloat value) {
-        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
-        if (body == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return;
-        }
-        btVector3 vec1 = btVector3();
-        vec1.setX(value);
-        vec1.setY(value);
-        vec1.setZ(value);
-        body->setAngularFactor(vec1);
-    }
+//    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setAngularFactor
+//    (JNIEnv *env, jobject object, jlong bodyId, jfloat value) {
+//        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
+//        if (body == NULL) {
+//            jclass newExc = env->FindClass("java/lang/NullPointerException");
+//            env->ThrowNew(newExc, "The native object does not exist.");
+//            return;
+//        }
+//        btVector3 vec1 = btVector3();
+//        vec1.setX(value);
+//        vec1.setY(value);
+//        vec1.setZ(value);
+//        body->setAngularFactor(vec1);
+//    }
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsRigidBody

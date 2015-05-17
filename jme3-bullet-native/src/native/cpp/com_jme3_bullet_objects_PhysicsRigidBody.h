@@ -406,8 +406,8 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getAngularF
  * Method:    setAngularFactor
  * Signature: (JF)V
  */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setAngularFactor
-  (JNIEnv *, jobject, jlong, jfloat);
+//JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setAngularFactor
+//  (JNIEnv *, jobject, jlong, jfloat);
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsRigidBody
