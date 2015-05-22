@@ -190,7 +190,7 @@ public class BasicShadowRenderer implements SceneProcessor {
         renderManager.setForcedMaterial(preshadowMat);
 
         r.setFrameBuffer(shadowFB);
-        r.clearBuffers(false, true, false);
+        r.clearBuffers(true, true, true);
         viewPort.getQueue().renderShadowQueue(shadowOccluders, renderManager, shadowCam, true);
         r.setFrameBuffer(viewPort.getOutputFrameBuffer());
 

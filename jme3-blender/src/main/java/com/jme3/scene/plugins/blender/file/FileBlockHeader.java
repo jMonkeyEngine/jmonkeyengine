@@ -31,6 +31,7 @@
  */
 package com.jme3.scene.plugins.blender.file;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.scene.plugins.blender.BlenderContext;
@@ -171,8 +172,21 @@ public class FileBlockHeader {
         BLOCK_IP00('I' << 24 | 'P' << 16), // ipo
         BLOCK_AC00('A' << 24 | 'C' << 16), // action
         BLOCK_IM00('I' << 24 | 'M' << 16), // image
-        BLOCK_TE00('T' << 24 | 'E' << 16), BLOCK_WM00('W' << 24 | 'M' << 16), BLOCK_SR00('S' << 24 | 'R' << 16), BLOCK_SN00('S' << 24 | 'N' << 16), BLOCK_BR00('B' << 24 | 'R' << 16), BLOCK_LS00('L' << 24 | 'S' << 16), BLOCK_GLOB('G' << 24 | 'L' << 16 | 'O' << 8 | 'B'), BLOCK_REND('R' << 24 | 'E' << 16 | 'N' << 8 | 'D'), BLOCK_DATA('D' << 24 | 'A' << 16 | 'T' << 8 | 'A'), BLOCK_DNA1('D' << 24 | 'N' << 16 | 'A' << 8 | '1'), BLOCK_ENDB('E' << 24 | 'N' << 16 | 'D' << 8 | 'B'), BLOCK_TEST('T' << 24 | 'E' << 16
-                | 'S' << 8 | 'T'), BLOCK_UNKN(0);
+        BLOCK_TE00('T' << 24 | 'E' << 16), 
+        BLOCK_WM00('W' << 24 | 'M' << 16), 
+        BLOCK_SR00('S' << 24 | 'R' << 16), 
+        BLOCK_SN00('S' << 24 | 'N' << 16), 
+        BLOCK_BR00('B' << 24 | 'R' << 16), 
+        BLOCK_LS00('L' << 24 | 'S' << 16), 
+        BLOCK_GR00('G' << 24 | 'R' << 16), 
+        BLOCK_AR00('A' << 24 | 'R' << 16), 
+        BLOCK_GLOB('G' << 24 | 'L' << 16 | 'O' << 8 | 'B'), 
+        BLOCK_REND('R' << 24 | 'E' << 16 | 'N' << 8 | 'D'), 
+        BLOCK_DATA('D' << 24 | 'A' << 16 | 'T' << 8 | 'A'), 
+        BLOCK_DNA1('D' << 24 | 'N' << 16 | 'A' << 8 | '1'),
+        BLOCK_ENDB('E' << 24 | 'N' << 16 | 'D' << 8 | 'B'), 
+        BLOCK_TEST('T' << 24 | 'E' << 16 | 'S' << 8 | 'T'), 
+        BLOCK_UNKN(0);
 
         private int code;
 
@@ -187,7 +201,12 @@ public class FileBlockHeader {
                 }
             }
             byte[] codeBytes = new byte[] { (byte) (code >> 24 & 0xFF), (byte) (code >> 16 & 0xFF), (byte) (code >> 8 & 0xFF), (byte) (code & 0xFF) };
-            LOGGER.warning("Unknown block header: " + new String(codeBytes));
+			for (int i = 0; i < codeBytes.length; ++i) {
+				if (codeBytes[i] == 0) {
+					codeBytes[i] = '0';
+				}
+			}
+			LOGGER.log(Level.WARNING, "Unknown block header: {0}", new String(codeBytes));
             return BLOCK_UNKN;
         }
     }

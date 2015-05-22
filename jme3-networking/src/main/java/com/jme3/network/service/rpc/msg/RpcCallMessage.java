@@ -92,7 +92,7 @@ public class RpcCallMessage extends AbstractMessage {
                                           + (isAsync() ? ", async" : ", sync") 
                                           + ", objId=" + objId 
                                           + ", procId=" + procId 
-                                          + ", args.length=" + args.length 
+                                          + ", args.length=" + (args == null ? 0 : args.length) 
                                           + "]";
     }
 }

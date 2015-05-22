@@ -450,7 +450,7 @@ public class PssmShadowRenderer implements SceneProcessor {
             }
 
             r.setFrameBuffer(shadowFB[i]);
-            r.clearBuffers(false, true, false);
+            r.clearBuffers(true, true, true);
 
             // render shadow casters to shadow map
             viewPort.getQueue().renderShadowQueue(splitOccluders, renderManager, shadowCam, true);

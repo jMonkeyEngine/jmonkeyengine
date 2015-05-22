@@ -33,9 +33,9 @@ public class PickManager {
     private Spatial spatial;
     private SceneComposerToolController.TransformationType transformationType;
 
-    protected static final Quaternion PLANE_XY = new Quaternion().fromAngleAxis(0, new Vector3f(1, 0, 0));
-    protected static final Quaternion PLANE_YZ = new Quaternion().fromAngleAxis(-FastMath.PI / 2, new Vector3f(0, 1, 0));//YAW090
-    protected static final Quaternion PLANE_XZ = new Quaternion().fromAngleAxis(FastMath.PI / 2, new Vector3f(1, 0, 0)); //PITCH090
+    public static final Quaternion PLANE_XY = new Quaternion().fromAngleAxis(0, new Vector3f(1, 0, 0));
+    public static final Quaternion PLANE_YZ = new Quaternion().fromAngleAxis(-FastMath.PI / 2, new Vector3f(0, 1, 0));//YAW090
+    public static final Quaternion PLANE_XZ = new Quaternion().fromAngleAxis(FastMath.PI / 2, new Vector3f(1, 0, 0)); //PITCH090
 
 
     public PickManager() {
@@ -75,7 +75,7 @@ public class PickManager {
             origineRotation = new Quaternion(Quaternion.IDENTITY);
         } else if (transformationType == SceneComposerToolController.TransformationType.camera) {
             rot.set(camera.getRotation());  
-            origineRotation = camera.getRotation().clone();
+            origineRotation = camera.getRotation();
         }
         plane.setLocalRotation(rot);
     }
@@ -87,10 +87,6 @@ public class PickManager {
      * @return true if the the new picked location is set, else return false.
      */
     public boolean updatePick(Camera camera, Vector2f screenCoord) {
-        if(transformationType == SceneComposerToolController.TransformationType.camera){
-            origineRotation = camera.getRotation();
-            plane.setLocalRotation(camera.getRotation());
-        }
         finalPickLoc = SceneEditTool.pickWorldLocation(camera, screenCoord, plane, null);
         return finalPickLoc != null;
     }

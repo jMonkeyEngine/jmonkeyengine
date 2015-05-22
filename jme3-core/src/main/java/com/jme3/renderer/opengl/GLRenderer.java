@@ -84,21 +84,6 @@ public class GLRenderer implements Renderer {
     private final EnumSet<Caps> caps = EnumSet.noneOf(Caps.class);
     private final EnumMap<Limits, Integer> limits = new EnumMap<Limits, Integer>(Limits.class);
     
-//    private int vertexTextureUnits;
-//    private int fragTextureUnits;
-//    private int vertexUniforms;
-//    private int fragUniforms;
-//    private int vertexAttribs;
-//    private int maxFBOSamples;
-//    private int maxFBOAttachs;
-//    private int maxMRTFBOAttachs;
-//    private int maxRBSize;
-//    private int maxTexSize;
-//    private int maxCubeTexSize;
-//    private int maxVertCount;
-//    private int maxTriCount;
-//    private int maxColorTexSamples;
-//    private int maxDepthTexSamples;
     private FrameBuffer mainFbOverride = null;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
@@ -366,7 +351,6 @@ public class GLRenderer implements Renderer {
 
         if (hasExtension("GL_ARB_texture_non_power_of_two") || 
             hasExtension("GL_OES_texture_npot") ||
-            hasExtension("GL_APPLE_texture_2D_limited_npot") ||
             caps.contains(Caps.OpenGL30)) {
             caps.add(Caps.NonPowerOfTwoTextures);
         } else {
@@ -1859,10 +1843,6 @@ public class GLRenderer implements Renderer {
             }
         }
 
-        if (context.pointSprite) {
-            return; // Attempt to fix glTexParameter crash for some ATI GPUs
-        }
-        
         // repeat modes
         switch (tex.getType()) {
             case ThreeDimensional:
@@ -2671,7 +2651,7 @@ public class GLRenderer implements Renderer {
 
     public void setMainFrameBufferSrgb(boolean enableSrgb) {
         // Gamma correction
-        if (!caps.contains(Caps.Srgb)) {
+        if (!caps.contains(Caps.Srgb) && enableSrgb) {
             // Not supported, sorry.
             logger.warning("sRGB framebuffer is not supported " + 
                            "by video hardware, but was requested."); 
