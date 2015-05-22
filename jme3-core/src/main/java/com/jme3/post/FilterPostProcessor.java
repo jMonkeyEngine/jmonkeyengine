@@ -170,10 +170,10 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                 renderFrameBuffer.setDepthTexture(depthTexture);
             }
             computeDepth = true;
-            filter.init(assetManager, renderManager, vp, width, height, numSamples);
+            filter.init(assetManager, renderManager, vp, width, height);
             filter.setDepthTexture(depthTexture);
         } else {
-            filter.init(assetManager, renderManager, vp, width, height, numSamples);
+            filter.init(assetManager, renderManager, vp, width, height);
         }
     }
 
