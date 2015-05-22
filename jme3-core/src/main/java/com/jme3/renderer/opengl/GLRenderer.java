@@ -102,21 +102,6 @@ public class GLRenderer implements Renderer {
     private final EnumSet<Caps> caps = EnumSet.noneOf(Caps.class);
     private final EnumMap<Limits, Integer> limits = new EnumMap<Limits, Integer>(Limits.class);
 
-//    private int vertexTextureUnits;
-//    private int fragTextureUnits;
-//    private int vertexUniforms;
-//    private int fragUniforms;
-//    private int vertexAttribs;
-//    private int maxFBOSamples;
-//    private int maxFBOAttachs;
-//    private int maxMRTFBOAttachs;
-//    private int maxRBSize;
-//    private int maxTexSize;
-//    private int maxCubeTexSize;
-//    private int maxVertCount;
-//    private int maxTriCount;
-//    private int maxColorTexSamples;
-//    private int maxDepthTexSamples;
     private FrameBuffer mainFbOverride = null;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
@@ -1956,10 +1941,6 @@ public class GLRenderer implements Renderer {
                         GLExt.GL_TEXTURE_MAX_ANISOTROPY_EXT,
                         tex.getAnisotropicFilter());
             }
-        }
-
-        if (context.pointSprite) {
-            return; // Attempt to fix glTexParameter crash for some ATI GPUs
         }
 
         // repeat modes
