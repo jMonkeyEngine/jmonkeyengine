@@ -233,12 +233,11 @@ public abstract class Filter implements Savable {
      * @param vp the viewport
      * @param w the width
      * @param h the height
-     * @param numSamples the number of samples for anti aliasing
      */
-    protected final void init(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h, int numSamples) {
+    protected final void init(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         //  cleanup(renderManager.getRenderer());
         defaultPass = new Pass();
-        defaultPass.init(renderManager.getRenderer(), w, h, getDefaultPassTextureFormat(), getDefaultPassDepthFormat(), numSamples);
+        defaultPass.init(renderManager.getRenderer(), w, h, getDefaultPassTextureFormat(), getDefaultPassDepthFormat());
         initFilter(manager, renderManager, vp, w, h);
     }
 
