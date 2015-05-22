@@ -63,7 +63,7 @@ public class SpotLight extends Light {
     protected float spotInnerAngle = FastMath.QUARTER_PI / 8;
     protected float spotOuterAngle = FastMath.QUARTER_PI / 6;
     protected float spotRange = 100;
-    protected float invSpotRange = 1 / 100;
+    protected float invSpotRange = 1f / 100;
     protected float packedAngleCos=0;
     
     protected float outerAngleCosSqr, outerAngleSinSqr;
