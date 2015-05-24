@@ -196,7 +196,7 @@ public class GLRenderer implements Renderer {
         }
         
         int glslVer = extractVersion(gl.glGetString(GL.GL_SHADING_LANGUAGE_VERSION));
-        
+
         switch (glslVer) {
             default:
                 if (glslVer < 400) {
@@ -249,7 +249,7 @@ public class GLRenderer implements Renderer {
         }
 
         limits.put(Limits.FragmentTextureUnits, getInteger(GL.GL_MAX_TEXTURE_IMAGE_UNITS));
-        
+
 //        gl.glGetInteger(GL.GL_MAX_VERTEX_UNIFORM_COMPONENTS, intBuf16);
 //        vertexUniforms = intBuf16.get(0);
 //        logger.log(Level.FINER, "Vertex Uniforms: {0}", vertexUniforms);
@@ -257,7 +257,7 @@ public class GLRenderer implements Renderer {
 //        gl.glGetInteger(GL.GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, intBuf16);
 //        fragUniforms = intBuf16.get(0);
 //        logger.log(Level.FINER, "Fragment Uniforms: {0}", fragUniforms);
-
+        limits.put(Limits.VertexUniformComponents,getInteger(GL.GL_MAX_VERTEX_UNIFORM_COMPONENTS));
         limits.put(Limits.VertexAttributes, getInteger(GL.GL_MAX_VERTEX_ATTRIBS));
         limits.put(Limits.TextureSize, getInteger(GL.GL_MAX_TEXTURE_SIZE));
         limits.put(Limits.CubemapSize, getInteger(GL.GL_MAX_CUBE_MAP_TEXTURE_SIZE));
