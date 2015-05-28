@@ -35,8 +35,8 @@ package com.jme3.network.service.rpc;
 import com.jme3.network.HostedConnection;
 import com.jme3.network.Server;
 import com.jme3.network.serializing.Serializer;
+import com.jme3.network.service.AbstractHostedConnectionService;
 import com.jme3.network.util.SessionDataDelegator;
-import com.jme3.network.service.AbstractHostedService;
 import com.jme3.network.service.HostedServiceManager;
 import com.jme3.network.service.rpc.msg.RpcCallMessage;
 import com.jme3.network.service.rpc.msg.RpcResponseMessage;
@@ -62,13 +62,12 @@ import java.util.logging.Logger;
  *
  *  @author    Paul Speed
  */
-public class RpcHostedService extends AbstractHostedService {
+public class RpcHostedService extends AbstractHostedConnectionService {
 
     private static final String ATTRIBUTE_NAME = "rpcSession";
 
     static final Logger log = Logger.getLogger(RpcHostedService.class.getName());
 
-    private boolean autoHost;
     private SessionDataDelegator delegator;
 
     /**
@@ -87,7 +86,7 @@ public class RpcHostedService extends AbstractHostedService {
      *  on the specified 'autoHost' flag.
      */
     public RpcHostedService( boolean autoHost ) {
-        this.autoHost = autoHost;
+        super(autoHost);
         
         // This works for me... has to be different in
         // the general case
@@ -116,31 +115,6 @@ public class RpcHostedService extends AbstractHostedService {
     }
 
     /**
-     *  When set to true, all new connections will automatically have
-     *  RPC hosting services attached to them, meaning they can send
-     *  and receive RPC calls.  If this is set to false then it is up
-     *  to other services to eventually call startHostingOnConnection().
-     *  
-     *  <p>Reasons for doing this vary but usually would be because
-     *  the client shouldn't be allowed to perform any RPC calls until
-     *  it has provided more information.  In general, this is unnecessary
-     *  because the RpcHandler registries are not shared.  Each client
-     *  gets their own and RPC calls will fail until the appropriate
-     *  objects have been registtered.</p>
-     */
-    public void setAutoHost( boolean b ) {
-        this.autoHost = b;
-    }
- 
-    /**
-     *  Returns true if this service automatically attaches RPC
-     *  hosting capabilities to new connections.
-     */   
-    public boolean getAutoHost() {
-        return autoHost;
-    }
-
-    /**
      *  Retrieves the RpcConnection for the specified HostedConnection
      *  if that HostedConnection has had RPC services started using
      *  startHostingOnConnection() (or via autohosting).  Returns null
@@ -157,6 +131,7 @@ public class RpcHostedService extends AbstractHostedService {
      *  This method is called automatically for all new connections if
      *  autohost is set to true.
      */
+    @Override
     public void startHostingOnConnection( HostedConnection hc ) {
         if( log.isLoggable(Level.FINEST) ) {
             log.log(Level.FINEST, "startHostingOnConnection:{0}", hc);
@@ -173,6 +148,7 @@ public class RpcHostedService extends AbstractHostedService {
      *  This method is called automatically for all leaving connections if
      *  autohost is set to true.
      */
+    @Override
     public void stopHostingOnConnection( HostedConnection hc ) {
         RpcConnection rpc = hc.getAttribute(ATTRIBUTE_NAME);
         if( rpc == null ) {
@@ -193,34 +169,6 @@ public class RpcHostedService extends AbstractHostedService {
     public void terminate(HostedServiceManager serviceManager) {
         Server server = serviceManager.getServer();
         server.removeMessageListener(delegator, delegator.getMessageTypes());
-    }
-
-    /**
-     *  Called internally when a new connection is detected for
-     *  the server.  If the current autoHost property is true then
-     *  startHostingOnConnection(hc) is called. 
-     */
-    @Override
-    public void connectionAdded(Server server, HostedConnection hc) {
-        if( log.isLoggable(Level.FINEST) ) {
-            log.log(Level.FINEST, "connectionAdded({0}, {1})", new Object[]{server, hc});
-        }    
-        if( autoHost ) {
-            startHostingOnConnection(hc);
-        }
-    }
-
-    /**
-     *  Called internally when an existing connection is leaving
-     *  the server.  If the current autoHost property is true then
-     *  stopHostingOnConnection(hc) is called. 
-     */
-    @Override
-    public void connectionRemoved(Server server, HostedConnection hc) {
-        if( log.isLoggable(Level.FINEST) ) {
-            log.log(Level.FINEST, "connectionRemoved({0}, {1})", new Object[]{server, hc});
-        }    
-        stopHostingOnConnection(hc);
     }
 
 }
