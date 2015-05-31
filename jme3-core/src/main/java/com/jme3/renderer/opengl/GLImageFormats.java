@@ -52,12 +52,27 @@ public final class GLImageFormats {
         formatToGL[0][format.ordinal()] = new GLImageFormat(glInternalFormat, glFormat, glDataType);
     }
     
+    private static void formatSwiz(GLImageFormat[][] formatToGL, Image.Format format, 
+                                   int glInternalFormat, 
+                                   int glFormat, 
+                                   int glDataType){
+        formatToGL[0][format.ordinal()] = new GLImageFormat(glInternalFormat, glFormat, glDataType, false, true);
+    }
+    
     private static void formatSrgb(GLImageFormat[][] formatToGL, Image.Format format, 
                                    int glInternalFormat, 
                                    int glFormat, 
                                    int glDataType)
     {
         formatToGL[1][format.ordinal()] = new GLImageFormat(glInternalFormat, glFormat, glDataType);
+    }
+    
+    private static void formatSrgbSwiz(GLImageFormat[][] formatToGL, Image.Format format, 
+                                       int glInternalFormat, 
+                                       int glFormat, 
+                                       int glDataType)
+    {
+        formatToGL[1][format.ordinal()] = new GLImageFormat(glInternalFormat, glFormat, glDataType, false, true);
     }
     
     private static void formatComp(GLImageFormat[][] formatToGL, Image.Format format, 
@@ -87,6 +102,19 @@ public final class GLImageFormats {
      */
     public static GLImageFormat[][] getFormatsForCaps(EnumSet<Caps> caps) {
         GLImageFormat[][] formatToGL = new GLImageFormat[2][Image.Format.values().length];
+        
+        // Core Profile Formats (supported by both OpenGL Core 3.3 and OpenGL ES 3.0+)
+        if (caps.contains(Caps.CoreProfile)) {
+            formatSwiz(formatToGL,     Format.Alpha8,               GL3.GL_R8,                 GL.GL_RED,       GL.GL_UNSIGNED_BYTE);
+            formatSwiz(formatToGL,     Format.Luminance8,           GL3.GL_R8,                 GL.GL_RED,       GL.GL_UNSIGNED_BYTE);
+            formatSwiz(formatToGL,     Format.Luminance8Alpha8,     GL3.GL_RG8,                GL3.GL_RG,       GL.GL_UNSIGNED_BYTE);
+            formatSwiz(formatToGL,     Format.Luminance16F,         GL3.GL_R16F,               GL.GL_RED,       GLExt.GL_HALF_FLOAT_ARB);
+            formatSwiz(formatToGL,     Format.Luminance32F,         GL3.GL_R32F,               GL.GL_RED,       GL.GL_FLOAT);
+            formatSwiz(formatToGL,     Format.Luminance16FAlpha16F, GL3.GL_RG16F,              GL3.GL_RG,       GLExt.GL_HALF_FLOAT_ARB);
+            
+            formatSrgbSwiz(formatToGL, Format.Luminance8,           GLExt.GL_SRGB8_EXT,        GL.GL_RED,       GL.GL_UNSIGNED_BYTE);
+            formatSrgbSwiz(formatToGL, Format.Luminance8Alpha8,     GLExt.GL_SRGB8_ALPHA8_EXT, GL3.GL_RG,       GL.GL_UNSIGNED_BYTE);
+        }
         
         if (caps.contains(Caps.OpenGL20)) {
             if (!caps.contains(Caps.CoreProfile)) {

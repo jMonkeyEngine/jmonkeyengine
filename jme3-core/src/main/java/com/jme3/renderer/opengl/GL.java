@@ -74,6 +74,7 @@ public interface GL {
 	public static final int GL_FRONT_AND_BACK = 0x408;
 	public static final int GL_GEQUAL = 0x206;
 	public static final int GL_GREATER = 0x204;
+        public static final int GL_GREEN = 0x1904;
 	public static final int GL_INCR = 0x1E02;
 	public static final int GL_INCR_WRAP = 0x8507;
 	public static final int GL_INFO_LOG_LENGTH = 0x8B84;
@@ -114,6 +115,7 @@ public interface GL {
         public static final int GL_OUT_OF_MEMORY = 0x505;
 	public static final int GL_POINTS = 0x0;
 	public static final int GL_POLYGON_OFFSET_FILL = 0x8037;
+        public static final int GL_RED = 0x1903;
         public static final int GL_RENDERER = 0x1F01;
 	public static final int GL_REPEAT = 0x2901;
 	public static final int GL_REPLACE = 0x1E01;
