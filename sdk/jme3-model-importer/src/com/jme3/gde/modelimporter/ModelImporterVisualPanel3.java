@@ -126,6 +126,7 @@ public final class ModelImporterVisualPanel3 extends JPanel {
             DialogDisplayer.getDefault().notifyLater(msg);
             Exceptions.printStackTrace(e);
         }
+        data.closeAsset();
         manager.unregisterLocator(manager.getAssetFolderName(), UberAssetLocator.class);
         panel.fireChangeEvent();
     }
