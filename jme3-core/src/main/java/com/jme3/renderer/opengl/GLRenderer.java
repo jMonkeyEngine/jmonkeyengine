@@ -106,7 +106,7 @@ public class GLRenderer implements Renderer {
         this.gl4 = gl instanceof GL4 ? (GL4)gl : null;
         this.glfbo = glfbo;
         this.glext = glext;
-        this.texUtil = new TextureUtil(gl, gl2, glext, context);
+        this.texUtil = new TextureUtil(gl, gl2, glext);
     }
 
     @Override

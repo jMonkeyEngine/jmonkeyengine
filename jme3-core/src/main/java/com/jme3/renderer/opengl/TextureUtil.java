@@ -54,14 +54,12 @@ final class TextureUtil {
     private final GL gl;
     private final GL2 gl2;
     private final GLExt glext;
-    private final RenderContext context;
     private GLImageFormat[][] formats;
-
-    public TextureUtil(GL gl, GL2 gl2, GLExt glext, RenderContext context) {
+    
+    public TextureUtil(GL gl, GL2 gl2, GLExt glext) {
         this.gl = gl;
         this.gl2 = gl2;
         this.glext = glext;
-        this.context = context;
     }
     
     public void initialize(EnumSet<Caps> caps) {
@@ -101,6 +99,33 @@ final class TextureUtil {
             throw new RendererException("Image format '" + fmt + "' is unsupported by the video hardware.");
         }
         return glFmt;
+    }
+    
+    private void setupTextureSwizzle(int target, Format format) {
+        // Needed for OpenGL 3.3 to support luminance / alpha formats
+        switch (format) {
+            case Alpha8:
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_R, GL.GL_ZERO);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_G, GL.GL_ZERO);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_B, GL.GL_ZERO);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_A, GL.GL_RED);
+                break;
+            case Luminance8:
+            case Luminance16F:
+            case Luminance32F:
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_R, GL.GL_RED);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_G, GL.GL_RED);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_B, GL.GL_RED);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_A, GL.GL_ONE);
+                break;
+            case Luminance8Alpha8:
+            case Luminance16FAlpha16F:
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_R, GL.GL_RED);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_G, GL.GL_RED);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_B, GL.GL_RED);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_A, GL.GL_GREEN);
+                break;
+        }
     }
     
     private void uploadTextureLevel(GLImageFormat format, int target, int level, int slice, int sliceCount, int width, int height, int depth, int samples, ByteBuffer data) {
@@ -242,6 +267,11 @@ final class TextureUtil {
         }
 
         int samples = image.getMultiSamples();
+        
+        // For OGL3 core: setup texture swizzle.
+        if (oglFormat.swizzleRequired) {
+            setupTextureSwizzle(target, jmeFormat);
+        }
 
         for (int i = 0; i < mipSizes.length; i++) {
             int mipWidth = Math.max(1, width >> i);

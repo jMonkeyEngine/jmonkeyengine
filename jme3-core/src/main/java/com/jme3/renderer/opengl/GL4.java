@@ -34,7 +34,7 @@ package com.jme3.renderer.opengl;
 import java.nio.IntBuffer;
 
 /**
- * GL functions only available on vanilla desktop OpenGL 3.0.
+ * GL functions only available on vanilla desktop OpenGL 4.0.
  * 
  * @author Kirill Vainer
  */
