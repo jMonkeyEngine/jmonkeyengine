@@ -69,7 +69,7 @@ public class MotionPath implements Savable {
     }
 
     /**
-     * interpolate the path giving the time since the beginnin and the motionControl     
+     * interpolate the path giving the time since the beginnin and the motionControl
      * this methods sets the new localTranslation to the spatial of the MotionEvent control.
      * @param time the time since the animation started
      * @param control the ocntrol over the moving spatial
@@ -144,7 +144,7 @@ public class MotionPath implements Savable {
 
     private Geometry CreateLinearPath() {
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/UnshadedNodes.j3md");
         mat.getAdditionalRenderState().setWireframe(true);
         mat.setColor("Color", ColorRGBA.Blue);
         Geometry lineGeometry = new Geometry("line", new Curve(spline, 0));
@@ -154,7 +154,7 @@ public class MotionPath implements Savable {
 
     private Geometry CreateCatmullRomPath() {
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/UnshadedNodes.j3md");
         mat.getAdditionalRenderState().setWireframe(true);
         mat.setColor("Color", ColorRGBA.Blue);
         Geometry lineGeometry = new Geometry("line", new Curve(spline, 10));

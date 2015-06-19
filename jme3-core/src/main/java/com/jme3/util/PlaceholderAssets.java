@@ -45,7 +45,7 @@ import com.jme3.texture.image.ColorSpace;
 import java.nio.ByteBuffer;
 
 public class PlaceholderAssets {
-    
+
     /**
      * Checkerboard of white and red squares
      */
@@ -54,55 +54,55 @@ public class PlaceholderAssets {
         (byte)0xFF, (byte)0x00, (byte)0x00,
         (byte)0xFF, (byte)0xFF, (byte)0xFF,
         (byte)0xFF, (byte)0x00, (byte)0x00,
-        
+
         (byte)0xFF, (byte)0x00, (byte)0x00,
         (byte)0xFF, (byte)0xFF, (byte)0xFF,
         (byte)0xFF, (byte)0x00, (byte)0x00,
         (byte)0xFF, (byte)0xFF, (byte)0xFF,
-        
+
         (byte)0xFF, (byte)0xFF, (byte)0xFF,
         (byte)0xFF, (byte)0x00, (byte)0x00,
         (byte)0xFF, (byte)0xFF, (byte)0xFF,
         (byte)0xFF, (byte)0x00, (byte)0x00,
-        
+
         (byte)0xFF, (byte)0x00, (byte)0x00,
         (byte)0xFF, (byte)0xFF, (byte)0xFF,
         (byte)0xFF, (byte)0x00, (byte)0x00,
         (byte)0xFF, (byte)0xFF, (byte)0xFF,
     };
-    
+
     @Deprecated
     public static Image getPlaceholderImage(){
         ByteBuffer tempData = BufferUtils.createByteBuffer(3 * 4 * 4);
         tempData.put(imageData).flip();
         return new Image(Format.RGB8, 4, 4, tempData, null, ColorSpace.Linear);
     }
-    
+
     public static Image getPlaceholderImage(AssetManager assetManager){
         return assetManager.loadTexture("Common/Textures/MissingTexture.png").getImage();
     }
-    
+
     public static Material getPlaceholderMaterial(AssetManager assetManager){
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/UnshadedNodes.j3md");
         Texture tex = assetManager.loadTexture("Common/Textures/MissingMaterial.png");
         tex.setWrap(Texture.WrapMode.Repeat);
         mat.setTexture("ColorMap", tex);
         return mat;
     }
-    
+
     public static Spatial getPlaceholderModel(AssetManager assetManager){
         // What should be the size? Nobody knows
         // the user's expected scale...
         Box box = new Box(1, 1, 1);
         Geometry geom = new Geometry("placeholder", box);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/UnshadedNodes.j3md");
         Texture tex = assetManager.loadTexture("Common/Textures/MissingModel.png");
         tex.setWrap(Texture.WrapMode.Repeat);
         mat.setTexture("ColorMap", tex);
         geom.setMaterial(mat);
         return geom;
     }
-    
+
     public static AudioData getPlaceholderAudio(){
         AudioBuffer audioBuf = new AudioBuffer();
         audioBuf.setupFormat(1, 8, 44100);
@@ -111,5 +111,5 @@ public class PlaceholderAssets {
         audioBuf.updateData(bb);
         return audioBuf;
     }
-    
+
 }

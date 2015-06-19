@@ -48,17 +48,17 @@ import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 public class BitmapFontLoader implements AssetLoader {
 
     private BitmapFont load(AssetManager assetManager, String folder, InputStream in) throws IOException{
-        MaterialDef spriteMat = 
-                (MaterialDef) assetManager.loadAsset(new AssetKey("Common/MatDefs/Misc/Unshaded.j3md"));
+        MaterialDef spriteMat =
+                (MaterialDef) assetManager.loadAsset(new AssetKey("Common/MatDefs/Misc/UnshadedNodes.j3md"));
         BitmapCharacterSet charSet = new BitmapCharacterSet();
         Material[] matPages = null;
         BitmapFont font = new BitmapFont();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        String regex = "[\\s=]+";      
+        String regex = "[\\s=]+";
         font.setCharSet(charSet);
         String line;
-        while ((line = reader.readLine())!=null){                        
+        while ((line = reader.readLine())!=null){
             String[] tokens = line.split(regex);
             if (tokens[0].equals("info")){
                 // Get rendered size
@@ -162,7 +162,7 @@ public class BitmapFontLoader implements AssetLoader {
         }
         return font;
     }
-    
+
     public Object load(AssetInfo info) throws IOException {
         InputStream in = null;
         try {

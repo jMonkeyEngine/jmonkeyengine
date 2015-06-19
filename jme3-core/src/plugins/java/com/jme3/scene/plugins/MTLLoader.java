@@ -52,14 +52,14 @@ import java.util.logging.Logger;
 public class MTLLoader implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(MTLLoader.class.getName());
-    
+
     protected Scanner scan;
     protected MaterialList matList;
     //protected Material material;
     protected AssetManager assetManager;
     protected String folderName;
     protected AssetKey key;
-    
+
     protected Texture diffuseMap, normalMap, specularMap, alphaMap;
     protected ColorRGBA ambient = new ColorRGBA();
     protected ColorRGBA diffuse = new ColorRGBA();
@@ -71,12 +71,12 @@ public class MTLLoader implements AssetLoader {
     protected boolean transparent = false;
     protected boolean disallowAmbient = false;
     protected boolean disallowSpecular = false;
-    
+
     public void reset(){
         scan = null;
         matList = null;
 //        material = null;
-        
+
         resetMaterial();
     }
 
@@ -92,7 +92,7 @@ public class MTLLoader implements AssetLoader {
         scan.useDelimiter("\\p{javaWhitespace}+");
         return result;
     }
-    
+
     protected boolean skipLine(){
         try {
             scan.skip(".*\r{0,1}\n");
@@ -102,7 +102,7 @@ public class MTLLoader implements AssetLoader {
             return false;
         }
     }
-    
+
     protected void resetMaterial(){
         ambient.set(ColorRGBA.DarkGray);
         diffuse.set(ColorRGBA.LightGray);
@@ -119,16 +119,16 @@ public class MTLLoader implements AssetLoader {
         alphaMap = null;
         alpha = 1;
     }
-    
+
     protected void createMaterial(){
         Material material;
-        
+
         if (alpha < 1f && transparent){
             diffuse.a = alpha;
         }
-        
+
         if (shadeless){
-            material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+            material = new Material(assetManager, "Common/MatDefs/Misc/UnshadedNodes.j3md");
             material.setColor("Color", diffuse.clone());
             material.setTexture("ColorMap", diffuseMap);
             // TODO: Add handling for alpha map?
@@ -139,20 +139,20 @@ public class MTLLoader implements AssetLoader {
             material.setColor("Diffuse",  diffuse.clone());
             material.setColor("Specular", specular.clone());
             material.setFloat("Shininess", shininess); // prevents "premature culling" bug
-            
+
             if (diffuseMap != null)  material.setTexture("DiffuseMap", diffuseMap);
             if (specularMap != null) material.setTexture("SpecularMap", specularMap);
             if (normalMap != null)   material.setTexture("NormalMap", normalMap);
             if (alphaMap != null)    material.setTexture("AlphaMap", alphaMap);
         }
-        
+
         if (transparent){
             material.setTransparent(true);
             material.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
             material.getAdditionalRenderState().setAlphaTest(true);
             material.getAdditionalRenderState().setAlphaFallOff(0.01f);
         }
-        
+
         matList.put(matName, material);
     }
 
@@ -161,18 +161,18 @@ public class MTLLoader implements AssetLoader {
             // material is already in cache, generate it
             createMaterial();
         }
-        
+
         // now, reset the params and set the name to start a new material
         resetMaterial();
         matName = name;
     }
-    
+
     protected Texture loadTexture(String path){
         String[] split = path.trim().split("\\p{javaWhitespace}+");
-        
+
         // will crash if path is an empty string
         path = split[split.length-1];
-        
+
         String name = new File(path).getName();
         TextureKey texKey = new TextureKey(folderName + name);
         texKey.setGenerateMips(true);
@@ -218,7 +218,7 @@ public class MTLLoader implements AssetLoader {
                 // For some reason blender likes to export Ns 0 statements
                 // Ignore Ns 0 instead of setting it
             }
-            
+
         }else if (cmd.equals("d") || cmd.equals("tr")){
             float tempAlpha = scan.nextFloat();
             if (tempAlpha > 0.0f && tempAlpha < 1.0f){
@@ -252,7 +252,7 @@ public class MTLLoader implements AssetLoader {
             transparent = true;
         }else if (cmd.equals("illum")){
             int mode = scan.nextInt();
-            
+
             switch (mode){
                 case 0:
                     // no lighting
@@ -283,14 +283,14 @@ public class MTLLoader implements AssetLoader {
             logger.log(Level.WARNING, "Unknown statement in MTL! {0}", cmd);
             return skipLine();
         }
-        
+
         return true;
     }
 
     @SuppressWarnings("empty-statement")
     public Object load(AssetInfo info) throws IOException{
         reset();
-        
+
         this.key = info.getKey();
         this.assetManager = info.getManager();
         folderName = info.getKey().getFolder();
@@ -301,23 +301,23 @@ public class MTLLoader implements AssetLoader {
             in = info.openStream();
             scan = new Scanner(in);
             scan.useLocale(Locale.US);
-            
+
             while (readLine());
         } finally {
             if (in != null){
                 in.close();
             }
         }
-        
+
         if (matName != null){
             // still have a material in the vars
             createMaterial();
             resetMaterial();
         }
-        
+
         MaterialList list = matList;
 
-        
+
 
         return list;
     }

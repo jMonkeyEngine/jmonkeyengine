@@ -170,13 +170,13 @@ public class PssmShadowRenderer implements SceneProcessor {
     protected boolean applyShadowIntensity = true;
     //a list of material of the post shadow queue geometries.
     protected List<Material> matCache = new ArrayList<Material>();
-    //Holding the info for fading shadows in the far distance 
+    //Holding the info for fading shadows in the far distance
     protected Vector2f fadeInfo;
     protected float fadeLength;
     protected boolean applyFadeInfo = false;
 
     protected GeometryList lightReceivers = new GeometryList(new OpaqueComparator());
-    
+
     /**
      * Create a PSSM Shadow Renderer More info on the technique at <a
      * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>
@@ -327,7 +327,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         Geometry frustumMdl = new Geometry("f", frustum);
         frustumMdl.setCullHint(Spatial.CullHint.Never);
         frustumMdl.setShadowMode(ShadowMode.Off);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/UnshadedNodes.j3md");
         mat.getAdditionalRenderState().setWireframe(true);
         frustumMdl.setMaterial(mat);
         switch (i) {
@@ -435,7 +435,7 @@ public class PssmShadowRenderer implements SceneProcessor {
             //Updating shadow cam with curent split frustra
             ShadowUtil.updateShadowCamera(viewPort, lightReceivers, shadowCam, points, splitOccluders, shadowMapSize);
 
-            //saving light view projection matrix for this split            
+            //saving light view projection matrix for this split
             lightViewProjectionsMatrices[i].set(shadowCam.getViewProjectionMatrix());
             renderManager.setCamera(shadowCam, false);
 
@@ -583,7 +583,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         for (int j = 0; j < nbSplits; j++) {
             postshadowMat.setMatrix4("LightViewProjectionMatrix" + j, lightViewProjectionsMatrices[j]);
             postshadowMat.setTexture("ShadowMap" + j, shadowMaps[j]);
-        }        
+        }
     }
 
     public void preFrame(float tpf) {
