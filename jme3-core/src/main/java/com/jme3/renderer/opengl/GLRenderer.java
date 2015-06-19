@@ -101,9 +101,9 @@ public class GLRenderer implements Renderer {
 
     public GLRenderer(GL gl, GLExt glext, GLFbo glfbo) {
         this.gl = gl;
-        this.gl2 = gl instanceof GL2 ? (GL2) gl : null;
-        this.gl3 = gl instanceof GL3 ? (GL3) gl : null;
-        this.gl4 = gl instanceof GL4 ? (GL4) gl : null;
+        this.gl2 = gl instanceof GL2 ? (GL2)gl : null;
+        this.gl3 = gl instanceof GL3 ? (GL3)gl : null;
+        this.gl4 = gl instanceof GL4 ? (GL4)gl : null;
         this.glfbo = glfbo;
         this.glext = glext;
         this.texUtil = new TextureUtil(gl, gl2, glext, context);
@@ -425,8 +425,8 @@ public class GLRenderer implements Renderer {
         }
 
         // Supports sRGB pipeline.
-        if ((hasExtension("GL_ARB_framebuffer_sRGB") && hasExtension("GL_EXT_texture_sRGB"))
-                || caps.contains(Caps.OpenGL30)) {
+        if ( (hasExtension("GL_ARB_framebuffer_sRGB") && hasExtension("GL_EXT_texture_sRGB"))
+                || caps.contains(Caps.OpenGL30) ) {
             caps.add(Caps.Srgb);
         }
 
@@ -465,7 +465,8 @@ public class GLRenderer implements Renderer {
         if (logger.isLoggable(Level.FINE)) {
             StringBuilder sb = new StringBuilder();
             sb.append("Supported capabilities: \n");
-            for (Caps cap : caps) {
+            for (Caps cap : caps)
+            {
                 sb.append("\t").append(cap.toString()).append("\n");
             }
             logger.log(Level.FINE, sb.toString());
@@ -491,7 +492,7 @@ public class GLRenderer implements Renderer {
 
     private boolean getBoolean(int en) {
         gl.glGetBoolean(en, nameBuf);
-        return nameBuf.get(0) != (byte) 0;
+        return nameBuf.get(0) != (byte)0;
     }
 
     @SuppressWarnings("fallthrough")
@@ -538,11 +539,9 @@ public class GLRenderer implements Renderer {
         invalidateState();
     }
 
-    /**
-     * ******************************************************************\
-     * |* Render State                                                      *|
-     * \********************************************************************
-     */
+    /*********************************************************************\
+     |* Render State                                                      *|
+     \*********************************************************************/
     public void setDepthRange(float start, float end) {
         gl.glDepthRange(start, end);
     }
@@ -819,11 +818,9 @@ public class GLRenderer implements Renderer {
         }
     }
 
-    /**
-     * ******************************************************************\
-     * |* Camera and World transforms                                       *|
-     * \********************************************************************
-     */
+    /*********************************************************************\
+     |* Camera and World transforms                                       *|
+     \*********************************************************************/
     public void setViewPort(int x, int y, int w, int h) {
         if (x != vpX || vpY != y || vpW != w || vpH != h) {
             gl.glViewport(x, y, w, h);
@@ -865,11 +862,9 @@ public class GLRenderer implements Renderer {
         gl.resetStats();
     }
 
-    /**
-     * ******************************************************************\
-     * |* Shaders                                                           *|
-     * \********************************************************************
-     */
+    /*********************************************************************\
+     |* Shaders                                                           *|
+     \*********************************************************************/
     protected void updateUniformLocation(Shader shader, Uniform uniform) {
         int loc = gl.glGetUniformLocation(shader.getId(), uniform.getName());
         if (loc < 0) {
@@ -1091,7 +1086,7 @@ public class GLRenderer implements Renderer {
 
         intBuf1.clear();
         intBuf1.put(0, stringBuf.length());
-        gl.glShaderSource(id, new String[]{stringBuf.toString()}, intBuf1);
+        gl.glShaderSource(id, new String[]{ stringBuf.toString() }, intBuf1);
         gl.glCompileShader(id);
 
         gl.glGetShader(id, GL.GL_COMPILE_STATUS, intBuf1);
@@ -1254,11 +1249,9 @@ public class GLRenderer implements Renderer {
         shader.resetObject();
     }
 
-    /**
-     * ******************************************************************\
-     * |* Framebuffers                                                      *|
-     * \********************************************************************
-     */
+    /*********************************************************************\
+     |* Framebuffers                                                      *|
+     \*********************************************************************/
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst) {
         copyFrameBuffer(src, dst, true);
     }
@@ -1706,11 +1699,9 @@ public class GLRenderer implements Renderer {
         }
     }
 
-    /**
-     * ******************************************************************\
-     * |* Textures                                                          *|
-     * \********************************************************************
-     */
+    /*********************************************************************\
+     |* Textures                                                          *|
+     \*********************************************************************/
     private int convertTextureType(Texture.Type type, int samples, int face) {
         if (samples > 1 && !caps.contains(Caps.TextureMultisample)) {
             throw new RendererException("Multisample textures are not supported" +
@@ -1765,7 +1756,7 @@ public class GLRenderer implements Renderer {
     }
 
     private int convertMinFilter(Texture.MinFilter filter, boolean haveMips) {
-        if (haveMips) {
+        if (haveMips){
             switch (filter) {
                 case Trilinear:
                     return GL.GL_LINEAR_MIPMAP_LINEAR;
@@ -1880,7 +1871,7 @@ public class GLRenderer implements Renderer {
                 throw new UnsupportedOperationException("Unknown texture type: " + tex.getType());
         }
 
-        if (tex.isNeedCompareModeUpdate() && gl2 != null) {
+        if(tex.isNeedCompareModeUpdate() && gl2 != null){
             // R to Texture compare mode
             if (tex.getShadowCompareMode() != Texture.ShadowCompareMode.Off) {
                 gl2.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_MODE, GL2.GL_COMPARE_R_TO_TEXTURE);
@@ -1890,7 +1881,7 @@ public class GLRenderer implements Renderer {
                 } else {
                     gl2.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_FUNC, GL.GL_LEQUAL);
                 }
-            } else {
+            }else{
                 //restoring default value
                 gl2.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_MODE, GL.GL_NONE);
             }
@@ -1901,7 +1892,7 @@ public class GLRenderer implements Renderer {
     /**
      * Validates if a potentially NPOT texture is supported by the hardware.
      * <p>
-     * Textures with power-of-2 dimensions are supported on all hardware, however
+     * Textures with power-of-2 dimensions are supported on all hardware, however 
      * non-power-of-2 textures may or may not be supported depending on which
      * texturing features are used.
      *
@@ -1956,11 +1947,11 @@ public class GLRenderer implements Renderer {
     /**
      * Uploads the given image to the GL driver.
      *
-     * @param img        The image to upload
-     * @param type       How the data in the image argument should be interpreted.
-     * @param unit       The texture slot to be used to upload the image, not important
+     * @param img The image to upload
+     * @param type How the data in the image argument should be interpreted.
+     * @param unit The texture slot to be used to upload the image, not important
      * @param scaleToPot If true, the image will be scaled to power-of-2 dimensions
-     *                   before being uploaded.
+     * before being uploaded.
      */
     public void updateTexImageData(Image img, Texture.Type type, int unit, boolean scaleToPot) {
         int texId = img.getId();
@@ -2159,11 +2150,9 @@ public class GLRenderer implements Renderer {
         }
     }
 
-    /**
-     * ******************************************************************\
-     * |* Vertex Buffers and Attributes                                     *|
-     * \********************************************************************
-     */
+    /*********************************************************************\
+     |* Vertex Buffers and Attributes                                     *|
+     \*********************************************************************/
     private int convertUsage(Usage usage) {
         switch (usage) {
             case Static:
@@ -2501,11 +2490,9 @@ public class GLRenderer implements Renderer {
         }
     }
 
-    /**
-     * ******************************************************************\
-     * |* Render Calls                                                      *|
-     * \********************************************************************
-     */
+    /*********************************************************************\
+     |* Render Calls                                                      *|
+     \*********************************************************************/
     public int convertElementMode(Mesh.Mode mode) {
         switch (mode) {
             case Points:
