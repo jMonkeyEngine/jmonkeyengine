@@ -56,7 +56,6 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.MipMapGenerator;
 import com.jme3.util.NativeObjectManager;
-
 import java.nio.*;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -67,7 +66,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import jme3tools.shader.ShaderDebug;
 
 public class GLRenderer implements Renderer {
