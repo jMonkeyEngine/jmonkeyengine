@@ -82,6 +82,7 @@ public class ZipLocator implements AssetLocator {
 
     public AssetInfo locate(AssetManager manager, AssetKey key) {
         String name = key.getName();
+        if(name.startsWith("/"))name=name.substring(1);
         ZipEntry entry = zipfile.getEntry(name);
         if (entry == null)
             return null;
