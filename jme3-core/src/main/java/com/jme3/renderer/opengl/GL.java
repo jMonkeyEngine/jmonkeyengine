@@ -100,6 +100,8 @@ public interface GL {
 	public static final int GL_MAX_TEXTURE_SIZE = 0xD33;
 	public static final int GL_MAX_VERTEX_ATTRIBS = 0x8869;
 	public static final int GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS = 0x8B4C;
+	public static final int GL_MAX_VERTEX_UNIFORM_COMPONENTS  = 0x8B4A;
+	public static final int GL_MAX_VERTEX_UNIFORM_VECTORS = 0x8DFB;
 	public static final int GL_MIRRORED_REPEAT = 0x8370;
 	public static final int GL_NEAREST = 0x2600;
 	public static final int GL_NEAREST_MIPMAP_LINEAR = 0x2702;
