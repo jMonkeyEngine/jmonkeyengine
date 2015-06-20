@@ -21,9 +21,20 @@ notifications:
 
 install:
   -  ./gradlew assemble
+
 script:
   - ./gradlew check
   - ./gradlew createZipDistribution
+
+deploy:
+  provider: releases
+  api_key:
+    secure: "KbFiMt0a8FxUKvCJUYwikLYaqqGMn1p6k4OsXnGqwptQZEUIayabNLHeaD2kTNT3e6AY1ETwQLff/lB2LttmIo4g5NWW63g1K3A/HwgnhJwETengiProZ/Udl+ugPeDL/+ar43HUhFq4knBnzFKnEcHAThTPVqH/RMDvZf1UUYI="
+  file: build/distributions/jME3.1.0_snapshot-github_2015-06-20.zip
+  skip_cleanup: true
+  on:
+    tags: true
+
 # before_install:
   # required libs for android build tools
   # sudo apt-get update
