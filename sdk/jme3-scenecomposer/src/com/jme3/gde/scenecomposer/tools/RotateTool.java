@@ -25,7 +25,6 @@ import org.openide.util.Lookup;
 public class RotateTool extends SceneEditTool {
 
     private Vector3f pickedMarker;
-    private Vector2f lastScreenCoord;
     private Quaternion startRotate;
     private Quaternion lastRotate;
     private boolean wasDragging = false;
@@ -48,9 +47,8 @@ public class RotateTool extends SceneEditTool {
         if (!pressed) {
             setDefaultAxisMarkerColors();
             pickedMarker = null; // mouse released, reset selection
-            lastScreenCoord = null;
             if (wasDragging) {
-                actionPerformed(new ScaleUndo(toolController.getSelectedSpatial(), startRotate, lastRotate));
+                actionPerformed(new RotateUndo(toolController.getSelectedSpatial(), startRotate, lastRotate));
                 wasDragging = false;
             }
             pickManager.reset();
@@ -100,10 +98,9 @@ public class RotateTool extends SceneEditTool {
         if (!pressed) {
             setDefaultAxisMarkerColors();
             pickedMarker = null; // mouse released, reset selection
-            lastScreenCoord = null;
 
             if (wasDragging) {
-                actionPerformed(new ScaleUndo(toolController.getSelectedSpatial(), startRotate, lastRotate));
+                actionPerformed(new RotateUndo(toolController.getSelectedSpatial(), startRotate, lastRotate));
                 wasDragging = false;
             }
             pickManager.reset();
@@ -138,12 +135,12 @@ public class RotateTool extends SceneEditTool {
         }
     }
 
-    private class ScaleUndo extends AbstractUndoableSceneEdit {
+    private class RotateUndo extends AbstractUndoableSceneEdit {
 
         private Spatial spatial;
         private Quaternion before, after;
 
-        ScaleUndo(Spatial spatial, Quaternion before, Quaternion after) {
+        RotateUndo(Spatial spatial, Quaternion before, Quaternion after) {
             this.spatial = spatial;
             this.before = before;
             this.after = after;
