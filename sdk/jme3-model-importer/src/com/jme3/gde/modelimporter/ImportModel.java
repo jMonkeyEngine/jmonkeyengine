@@ -212,6 +212,7 @@ public final class ImportModel implements ActionListener {
                 }
                 replaceLocatedTextures(spat, manager);
                 targetData.saveAsset();
+                targetData.closeAsset();
                 ((SpatialAssetDataObject) targetModel).getLookupContents().remove(tempProjectManager);
             }
         } catch (Exception ex) {
