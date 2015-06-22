@@ -88,7 +88,7 @@ public class GZIPSerializer extends Serializer {
         GZIPOutputStream gzipOutput = new GZIPOutputStream(byteArrayOutput);
 
         tempBuffer.flip();
-	gzipOutput.write(tempBuffer.array(), 0, tempBuffer.limit());
+        gzipOutput.write(tempBuffer.array(), 0, tempBuffer.limit());
         gzipOutput.flush();
         gzipOutput.finish();
         gzipOutput.close();
