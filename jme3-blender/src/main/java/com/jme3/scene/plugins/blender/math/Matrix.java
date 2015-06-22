@@ -51,7 +51,7 @@ public class Matrix extends SimpleMatrix {
         
         int N = Math.min(this.numRows(),this.numCols());
         double maxSingular = 0;
-        for( int i = 0; i < N; i++ ) {
+        for( int i = 0; i < N; ++i ) {
             if( S.get(i, i) > maxSingular ) {
                 maxSingular = S.get(i, i);
             }

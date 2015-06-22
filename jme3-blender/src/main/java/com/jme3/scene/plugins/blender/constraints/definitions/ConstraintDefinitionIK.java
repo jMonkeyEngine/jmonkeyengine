@@ -1,9 +1,9 @@
 package com.jme3.scene.plugins.blender.constraints.definitions;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.ejml.simple.SimpleMatrix;
 
@@ -19,6 +19,11 @@ import com.jme3.scene.plugins.blender.math.DTransform;
 import com.jme3.scene.plugins.blender.math.Matrix;
 import com.jme3.scene.plugins.blender.math.Vector3d;
 
+/**
+ * A definiotion of a Inverse Kinematics constraint. This implementation uses Jacobian pseudoinverse algorithm.
+ * 
+ * @author Marcin Roguski (Kaelthas)
+ */
 public class ConstraintDefinitionIK extends ConstraintDefinition {
     private static final float MIN_DISTANCE  = 0.001f;
     private static final int   FLAG_USE_TAIL = 0x01;
@@ -31,6 +36,8 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
     private boolean            useTail;
     /** The amount of iterations of the algorithm. */
     private int                iterations;
+    /** The count of bones' chain. */
+    private int                bonesCount    = -1;
 
     public ConstraintDefinitionIK(Structure constraintData, Long ownerOMA, BlenderContext blenderContext) {
         super(constraintData, ownerOMA, blenderContext);
@@ -47,47 +54,64 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
         }
     }
 
-    @Override
-    public Set<Long> getAlteredOmas() {
-        return bones.alteredOmas;
-    }
+    /**
+     * Below are the variables that only need to be allocated once for IK constraint instance.
+     */
+    /** Temporal quaternion. */
+    private DQuaternion tempDQuaternion = new DQuaternion();
+    /** Temporal matrix column. */
+    private Vector3d    col             = new Vector3d();
+    /** Effector's position change. */
+    private Matrix      deltaP          = new Matrix(3, 1);
+    /** The current target position. */
+    private Vector3d    target          = new Vector3d();
+    /** Rotation vectors for each joint (allocated when we know the size of a bones' chain. */
+    private Vector3d[]  rotationVectors;
+    /** The Jacobian matrix. Allocated when the bones' chain size is known. */
+    private Matrix      J;
 
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
-        if (influence == 0 || !trackToBeChanged || targetTransform == null) {
+        if (influence == 0 || !trackToBeChanged || targetTransform == null || bonesCount == 0) {
             return;// no need to do anything
         }
 
-        DQuaternion q = new DQuaternion();
-        Vector3d t = new Vector3d(targetTransform.getTranslation());
-        bones = new BonesChain((Bone) this.getOwner(), useTail, bonesAffected, blenderContext);
+        if (bones == null) {
+            bones = new BonesChain((Bone) this.getOwner(), useTail, bonesAffected, alteredOmas, blenderContext);
+        }
         if (bones.size() == 0) {
+            bonesCount = 0;
             return;// no need to do anything
         }
         double distanceFromTarget = Double.MAX_VALUE;
+        target.set(targetTransform.getTranslation().x, targetTransform.getTranslation().y, targetTransform.getTranslation().z);
 
-        Vector3d target = new Vector3d(targetTransform.getTranslation());
-        Vector3d[] rotationVectors = new Vector3d[bones.size()];
+        if (bonesCount < 0) {
+            bonesCount = bones.size();
+            rotationVectors = new Vector3d[bonesCount];
+            for (int i = 0; i < bonesCount; ++i) {
+                rotationVectors[i] = new Vector3d();
+            }
+            J = new Matrix(3, bonesCount);
+        }
+
         BoneContext topBone = bones.get(0);
-        for (int i = 1; i <= iterations; ++i) {
+        for (int i = 0; i < iterations; ++i) {
             DTransform topBoneTransform = bones.getWorldTransform(topBone);
             Vector3d e = topBoneTransform.getTranslation().add(topBoneTransform.getRotation().mult(Vector3d.UNIT_Y).multLocal(topBone.getLength()));// effector
-            distanceFromTarget = e.distance(t);
+            distanceFromTarget = e.distance(target);
             if (distanceFromTarget <= MIN_DISTANCE) {
                 break;
             }
 
-            Matrix deltaP = new Matrix(3, 1);
-            deltaP.setColumn(target.subtract(e), 0);
-
-            Matrix J = new Matrix(3, bones.size());
+            deltaP.setColumn(0, 0, target.x - e.x, target.y - e.y, target.z - e.z);
             int column = 0;
             for (BoneContext boneContext : bones) {
                 DTransform boneWorldTransform = bones.getWorldTransform(boneContext);
                 Vector3d j = boneWorldTransform.getTranslation(); // current join position
                 Vector3d vectorFromJointToEffector = e.subtract(j);
-                rotationVectors[column] = vectorFromJointToEffector.cross(target.subtract(j)).normalize();
-                Vector3d col = rotationVectors[column].cross(vectorFromJointToEffector);
+                vectorFromJointToEffector.cross(target.subtract(j), rotationVectors[column]).normalizeLocal();
+                rotationVectors[column].cross(vectorFromJointToEffector, col);
                 J.setColumn(col, column++);
             }
             Matrix J_1 = J.pseudoinverse();
@@ -98,34 +122,34 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                 double angle = deltaThetas.get(j, 0);
                 Vector3d rotationVector = rotationVectors[j];
 
-                q.fromAngleAxis(angle, rotationVector);
+                tempDQuaternion.fromAngleAxis(angle, rotationVector);
                 BoneContext boneContext = bones.get(j);
                 Bone bone = boneContext.getBone();
                 if (bone.equals(this.getOwner())) {
                     if (boneContext.isLockX()) {
-                        q.set(0, q.getY(), q.getZ(), q.getW());
+                        tempDQuaternion.set(0, tempDQuaternion.getY(), tempDQuaternion.getZ(), tempDQuaternion.getW());
                     }
                     if (boneContext.isLockY()) {
-                        q.set(q.getX(), 0, q.getZ(), q.getW());
+                        tempDQuaternion.set(tempDQuaternion.getX(), 0, tempDQuaternion.getZ(), tempDQuaternion.getW());
                     }
                     if (boneContext.isLockZ()) {
-                        q.set(q.getX(), q.getY(), 0, q.getW());
+                        tempDQuaternion.set(tempDQuaternion.getX(), tempDQuaternion.getY(), 0, tempDQuaternion.getW());
                     }
                 }
 
                 DTransform boneTransform = bones.getWorldTransform(boneContext);
-                boneTransform.getRotation().set(q.mult(boneTransform.getRotation()));
+                boneTransform.getRotation().set(tempDQuaternion.mult(boneTransform.getRotation()));
                 bones.setWorldTransform(boneContext, boneTransform);
             }
         }
 
         // applying the results
-        for (int i = bones.size() - 1; i >= 0; --i) {
+        for (int i = bonesCount - 1; i >= 0; --i) {
             BoneContext boneContext = bones.get(i);
             DTransform transform = bones.getWorldTransform(boneContext);
             constraintHelper.applyTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), Space.CONSTRAINT_SPACE_WORLD, transform.toTransform());
         }
-        bones.reset();
+        bones = null;// need to reload them again
     }
 
     @Override
@@ -134,29 +158,22 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
     }
 
     @Override
-    public boolean isTrackToBeChanged() {
-        if (trackToBeChanged) {
-            // need to check the bone structure too (when constructor was called not all of the bones might have been loaded yet)
-            // that is why it is also checked here
-            bones = new BonesChain((Bone) this.getOwner(), useTail, bonesAffected, blenderContext);
-            trackToBeChanged = bones.size() > 0;
-        }
-        return trackToBeChanged;
-    }
-
-    @Override
     public boolean isTargetRequired() {
         return true;
     }
 
+    /**
+     * Loaded bones' chain. This class allows to operate on transform matrices that use double precision in computations.
+     * Only the final result is being transformed to single precision numbers.
+     * 
+     * @author Marcin Roguski (Kaelthas)
+     */
     private static class BonesChain extends ArrayList<BoneContext> {
-        private static final long serialVersionUID      = -1850524345643600718L;
+        private static final long serialVersionUID = -1850524345643600718L;
 
-        private Set<Long>         alteredOmas           = new HashSet<Long>();
-        private List<Matrix>    originalBonesMatrices = new ArrayList<Matrix>();
-        private List<Matrix>    bonesMatrices         = new ArrayList<Matrix>();
+        private List<Matrix>      bonesMatrices    = new ArrayList<Matrix>();
 
-        public BonesChain(Bone bone, boolean useTail, int bonesAffected, BlenderContext blenderContext) {
+        public BonesChain(Bone bone, boolean useTail, int bonesAffected, Collection<Long> alteredOmas, BlenderContext blenderContext) {
             if (bone != null) {
                 ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
                 if (!useTail) {
@@ -169,11 +186,10 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
 
                     Space space = this.size() < bonesAffected ? Space.CONSTRAINT_SPACE_LOCAL : Space.CONSTRAINT_SPACE_WORLD;
                     Transform transform = constraintHelper.getTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), space);
-                    originalBonesMatrices.add(new DTransform(transform).toMatrix());
+                    bonesMatrices.add(new DTransform(transform).toMatrix());
 
                     bone = bone.getParent();
                 }
-                this.reset();
             }
         }
 
@@ -203,13 +219,6 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
             SimpleMatrix result = this.getWorldMatrix(index + 1);
             result = result.mult(bonesMatrices.get(index));
             return new Matrix(result);
-        }
-
-        public void reset() {
-            bonesMatrices.clear();
-            for (Matrix m : originalBonesMatrices) {
-                bonesMatrices.add(new Matrix(m));
-            }
         }
     }
 }
