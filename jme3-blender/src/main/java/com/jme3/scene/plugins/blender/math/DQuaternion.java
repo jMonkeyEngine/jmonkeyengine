@@ -165,6 +165,134 @@ public final class DQuaternion implements Savable, Cloneable, java.io.Serializab
     }
 
     /**
+     * <code>norm</code> returns the norm of this quaternion. This is the dot
+     * product of this quaternion with itself.
+     *
+     * @return the norm of the quaternion.
+     */
+    public double norm() {
+        return w * w + x * x + y * y + z * z;
+    }
+    
+    public DQuaternion fromRotationMatrix(double m00, double m01, double m02,
+            double m10, double m11, double m12, double m20, double m21, double m22) {
+        // first normalize the forward (F), up (U) and side (S) vectors of the rotation matrix
+        // so that the scale does not affect the rotation
+        double lengthSquared = m00 * m00 + m10 * m10 + m20 * m20;
+        if (lengthSquared != 1f && lengthSquared != 0f) {
+            lengthSquared = 1.0 / Math.sqrt(lengthSquared);
+            m00 *= lengthSquared;
+            m10 *= lengthSquared;
+            m20 *= lengthSquared;
+        }
+        lengthSquared = m01 * m01 + m11 * m11 + m21 * m21;
+        if (lengthSquared != 1 && lengthSquared != 0f) {
+            lengthSquared = 1.0 / Math.sqrt(lengthSquared);
+            m01 *= lengthSquared;
+            m11 *= lengthSquared;
+            m21 *= lengthSquared;
+        }
+        lengthSquared = m02 * m02 + m12 * m12 + m22 * m22;
+        if (lengthSquared != 1f && lengthSquared != 0f) {
+            lengthSquared = 1.0 / Math.sqrt(lengthSquared);
+            m02 *= lengthSquared;
+            m12 *= lengthSquared;
+            m22 *= lengthSquared;
+        }
+
+        // Use the Graphics Gems code, from 
+        // ftp://ftp.cis.upenn.edu/pub/graphics/shoemake/quatut.ps.Z
+        // *NOT* the "Matrix and Quaternions FAQ", which has errors!
+
+        // the trace is the sum of the diagonal elements; see
+        // http://mathworld.wolfram.com/MatrixTrace.html
+        double t = m00 + m11 + m22;
+
+        // we protect the division by s by ensuring that s>=1
+        if (t >= 0) { // |w| >= .5
+            double s = Math.sqrt(t + 1); // |s|>=1 ...
+            w = 0.5f * s;
+            s = 0.5f / s;                 // so this division isn't bad
+            x = (m21 - m12) * s;
+            y = (m02 - m20) * s;
+            z = (m10 - m01) * s;
+        } else if (m00 > m11 && m00 > m22) {
+            double s = Math.sqrt(1.0 + m00 - m11 - m22); // |s|>=1
+            x = s * 0.5f; // |x| >= .5
+            s = 0.5f / s;
+            y = (m10 + m01) * s;
+            z = (m02 + m20) * s;
+            w = (m21 - m12) * s;
+        } else if (m11 > m22) {
+            double s = Math.sqrt(1.0 + m11 - m00 - m22); // |s|>=1
+            y = s * 0.5f; // |y| >= .5
+            s = 0.5f / s;
+            x = (m10 + m01) * s;
+            z = (m21 + m12) * s;
+            w = (m02 - m20) * s;
+        } else {
+            double s = Math.sqrt(1.0 + m22 - m00 - m11); // |s|>=1
+            z = s * 0.5f; // |z| >= .5
+            s = 0.5f / s;
+            x = (m02 + m20) * s;
+            y = (m21 + m12) * s;
+            w = (m10 - m01) * s;
+        }
+
+        return this;
+    }
+    
+    /**
+     * <code>toRotationMatrix</code> converts this quaternion to a rotational
+     * matrix. The result is stored in result. 4th row and 4th column values are
+     * untouched. Note: the result is created from a normalized version of this quat.
+     * 
+     * @param result
+     *            The Matrix4f to store the result in.
+     * @return the rotation matrix representation of this quaternion.
+     */
+    public Matrix toRotationMatrix(Matrix result) {
+        Vector3d originalScale = new Vector3d();
+        
+        result.toScaleVector(originalScale);
+        result.setScale(1, 1, 1);
+        double norm = this.norm();
+        // we explicitly test norm against one here, saving a division
+        // at the cost of a test and branch.  Is it worth it?
+        double s = norm == 1f ? 2f : norm > 0f ? 2f / norm : 0;
+
+        // compute xs/ys/zs first to save 6 multiplications, since xs/ys/zs
+        // will be used 2-4 times each.
+        double xs = x * s;
+        double ys = y * s;
+        double zs = z * s;
+        double xx = x * xs;
+        double xy = x * ys;
+        double xz = x * zs;
+        double xw = w * xs;
+        double yy = y * ys;
+        double yz = y * zs;
+        double yw = w * ys;
+        double zz = z * zs;
+        double zw = w * zs;
+
+        // using s=2/norm (instead of 1/norm) saves 9 multiplications by 2 here
+        result.set(0, 0, 1 - (yy + zz));
+        result.set(0, 1, xy - zw);
+        result.set(0, 2, xz + yw);
+        result.set(1, 0, xy + zw);
+        result.set(1, 1, 1 - (xx + zz));
+        result.set(1, 2, yz - xw);
+        result.set(2, 0, xz - yw);
+        result.set(2, 1, yz + xw);
+        result.set(2, 2, 1 - (xx + yy));
+        
+        result.setScale(originalScale);
+        
+        return result;
+    }
+    
+    /**
      * <code>fromAngleAxis</code> sets this quaternion to the values specified
      * by an angle and an axis of rotation. This method creates an object, so
      * use fromAngleNormalAxis if your axis is already normalized.
