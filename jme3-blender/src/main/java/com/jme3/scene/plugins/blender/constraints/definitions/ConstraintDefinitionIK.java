@@ -182,7 +182,7 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                 if (!useTail) {
                     bone = bone.getParent();
                 }
-                while (bone != null && this.size() < bonesAffected) {
+                while (bone != null && (bonesAffected <= 0 || this.size() < bonesAffected)) {
                     BoneContext boneContext = blenderContext.getBoneContext(bone);
                     this.add(boneContext);
                     alteredOmas.add(boneContext.getBoneOma());
