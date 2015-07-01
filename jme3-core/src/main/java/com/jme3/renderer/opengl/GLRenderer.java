@@ -401,7 +401,7 @@ public class GLRenderer implements Renderer {
                 }
             }
 
-            if (hasExtension("GL_ARB_draw_buffers")) {
+            if (hasExtension("GL_ARB_draw_buffers")|| gl3 != null) {
                 limits.put(Limits.FrameBufferMrtAttachments, getInteger(GLExt.GL_MAX_DRAW_BUFFERS_ARB));
                 if (limits.get(Limits.FrameBufferMrtAttachments) > 1) {
                     caps.add(Caps.FrameBufferMRT);

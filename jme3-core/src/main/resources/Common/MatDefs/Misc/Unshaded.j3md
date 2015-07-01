@@ -1,4 +1,4 @@
-MaterialDef Unshaded {
+MaterialDef Advanced Unshaded {
 
     MaterialParameters {
         Texture2D ColorMap
@@ -13,7 +13,7 @@ MaterialDef Unshaded {
         Color GlowColor
 
         // For instancing
-	Boolean UseInstancing
+        Boolean UseInstancing
 
         // For hardware skinning
         Int NumberOfBones
@@ -33,7 +33,7 @@ MaterialDef Unshaded {
         //pointLights
         Texture2D ShadowMap4
         Texture2D ShadowMap5
-        
+
         Float ShadowIntensity
         Vector4 Splits
         Vector2 FadeInfo
@@ -73,9 +73,6 @@ MaterialDef Unshaded {
             NUM_BONES : NumberOfBones
             DISCARD_ALPHA : AlphaDiscardThreshold
         }
-    }
-
-    Technique {
     }
 
     Technique PreNormalPass {
@@ -142,7 +139,7 @@ MaterialDef Unshaded {
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
-            DISCARD_ALPHA : AlphaDiscardThreshold           
+            DISCARD_ALPHA : AlphaDiscardThreshold
             COLOR_MAP : ColorMap
             SHADOWMAP_SIZE : ShadowMapSize
             FADE : FadeInfo
@@ -154,7 +151,7 @@ MaterialDef Unshaded {
 
         ForcedRenderState {
             Blend Modulate
-            DepthWrite Off                 
+            DepthWrite Off
             PolyOffset -0.1 0
         }
     }
@@ -174,7 +171,7 @@ MaterialDef Unshaded {
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
-            DISCARD_ALPHA : AlphaDiscardThreshold           
+            DISCARD_ALPHA : AlphaDiscardThreshold
             COLOR_MAP : ColorMap
             SHADOWMAP_SIZE : ShadowMapSize
             FADE : FadeInfo
@@ -186,8 +183,8 @@ MaterialDef Unshaded {
 
         ForcedRenderState {
             Blend Modulate
-            DepthWrite Off   
-            PolyOffset -0.1 0  
+            DepthWrite Off
+            PolyOffset -0.1 0
         }
     }
 
