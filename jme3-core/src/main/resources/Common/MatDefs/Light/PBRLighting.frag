@@ -167,7 +167,7 @@ void main(){
     #ifdef SPECGLOSSPIPELINE
           vec4 specularColor = texture2D(m_SpecularMap, newTexCoord);
           vec4 diffuseColor = albedo;
-          Roughness = 1.0 - texture2D(m_GlossMap, newTexCoord);          
+          Roughness = 1.0 - texture2D(m_GlossMap, newTexCoord).r;          
     #else      
         float nonMetalSpec = 0.08 * specular;
         vec4 specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
