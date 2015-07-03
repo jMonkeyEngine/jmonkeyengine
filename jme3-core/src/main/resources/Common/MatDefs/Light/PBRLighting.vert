@@ -23,7 +23,7 @@ attribute vec3 inNormal;
 
 varying vec3 wNormal;
 varying vec3 wPosition;
-#ifdef NORMALMAP
+#if defined(NORMALMAP) || defined(PARALLAXMAP)
     attribute vec4 inTangent;
     varying vec3 wTangent;
     varying vec3 wBinormal;
@@ -33,7 +33,7 @@ void main(){
     vec4 modelSpacePos = vec4(inPosition, 1.0);
     vec3 modelSpaceNorm = inNormal;
 
-    #if  defined(NORMALMAP) && !defined(VERTEX_LIGHTING)
+    #if  ( defined(NORMALMAP) || defined(PARALLAXMAP)) && !defined(VERTEX_LIGHTING)
          vec3 modelSpaceTan  = inTangent.xyz;
     #endif
 
@@ -53,8 +53,8 @@ void main(){
 
     wPosition = TransformWorld(modelSpacePos).xyz;
     wNormal  = TransformWorld(vec4(modelSpaceNorm,0.0)).xyz;
-       
-    #if defined(NORMALMAP) 
+
+    #if defined(NORMALMAP) || defined(PARALLAXMAP)
       wTangent = TransformWorld(vec4(modelSpaceTan,0.0)).xyz;
       wBinormal = cross(wNormal, wTangent)* inTangent.w;            
     #endif

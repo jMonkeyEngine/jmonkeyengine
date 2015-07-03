@@ -62,7 +62,7 @@ varying vec3 wPosition;
   uniform sampler2D m_LightMap;
 #endif
   
-#ifdef NORMALMAP
+#if defined(NORMALMAP) || defined(PARALLAXMAP)
   uniform sampler2D m_NormalMap;   
   varying vec3 wTangent;
   varying vec3 wBinormal;
@@ -75,9 +75,14 @@ uniform float m_AlphaDiscardThreshold;
 
 void main(){
     vec2 newTexCoord;
-     
+    vec3 viewDir = normalize(g_CameraPosition - wPosition);
+
+    #if defined(NORMALMAP) || defined(PARALLAXMAP)
+        mat3 tbnMat = mat3(normalize(wTangent.xyz) , normalize(wBinormal.xyz) , normalize(wNormal.xyz));       
+    #endif
+
     #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP)))
-     
+       vec3 vViewDir =  viewDir * tbnMat;  
        #ifdef STEEP_PARALLAX
            #ifdef NORMALMAP_PARALLAX
                //parallax map is stored in the alpha channel of the normal map         
@@ -114,9 +119,7 @@ void main(){
     #else
         float Metallic =  max(m_Metallic,0.00);
     #endif
-
- //Roughness =  max(m_Roughness,1e-8);
- //Metallic =  max(m_Metallic,0.00);
+ 
     float alpha = Color.a * albedo.a;
 
     #ifdef DISCARD_ALPHA
@@ -135,6 +138,8 @@ void main(){
       //see http://hub.jmonkeyengine.org/forum/topic/parallax-mapping-fundamental-bug/#post-256898
       //for more explanation.
       vec3 normal = normalize((normalHeight.xyz * vec3(2.0,-2.0,2.0) - vec3(1.0,-1.0,1.0)));
+      normal = tbnMat * normal;
+      //normal = normalize(normal * inverse(tbnMat));
     #else
       vec3 normal = normalize(wNormal);            
     #endif
@@ -151,19 +156,7 @@ void main(){
        albedo.rgb  *= lightMapColor;
     #endif
 
-    int i = 0;
-
-
-    #ifdef NORMALMAP   
-        mat3 tbnMat = mat3(normalize(wTangent.xyz) , normalize(wBinormal.xyz) , normalize(wNormal.xyz));
-        normal = normalize(tbnMat * normal);
-//        normal = normalize(normal * inverse(tbnMat));
-    #endif
-    vec3 viewDir = normalize(g_CameraPosition - wPosition);
-    
-   
     float specular = 0.5;
-
     #ifdef SPECGLOSSPIPELINE
           vec4 specularColor = texture2D(m_SpecularMap, newTexCoord);
           vec4 diffuseColor = albedo;
