@@ -64,7 +64,7 @@ public abstract class Constraint {
         Pointer pData = (Pointer) constraintStructure.getFieldValue("data");
         if (pData.isNotNull()) {
             Structure data = pData.fetchData().get(0);
-            constraintDefinition = ConstraintDefinitionFactory.createConstraintDefinition(data, ownerOMA, blenderContext);
+            constraintDefinition = ConstraintDefinitionFactory.createConstraintDefinition(data, name, ownerOMA, blenderContext);
             Pointer pTar = (Pointer) data.getFieldValue("tar");
             if (pTar != null && pTar.isNotNull()) {
                 targetOMA = pTar.getOldMemoryAddress();
@@ -77,7 +77,7 @@ public abstract class Constraint {
             }
         } else {
             // Null constraint has no data, so create it here
-            constraintDefinition = ConstraintDefinitionFactory.createConstraintDefinition(null, null, blenderContext);
+            constraintDefinition = ConstraintDefinitionFactory.createConstraintDefinition(null, name, null, blenderContext);
         }
         ownerSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("ownspace")).byteValue());
         ipo = influenceIpo;
