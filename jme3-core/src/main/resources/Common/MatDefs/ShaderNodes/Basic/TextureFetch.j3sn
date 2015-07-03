@@ -2,6 +2,7 @@ ShaderNodeDefinitions{
     ShaderNodeDefinition TextureFetch {      
         Type: Fragment
         Shader GLSL100: Common/MatDefs/ShaderNodes/Basic/texture.frag
+		Shader GLSL150: Common/MatDefs/ShaderNodes/Basic/texture15.frag
         Documentation{
             Fetches a color value in the given texture acording to given texture coordinates
             @input texture the texture to read
