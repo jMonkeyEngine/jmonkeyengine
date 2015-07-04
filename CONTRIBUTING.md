@@ -16,13 +16,6 @@ When you're ready to submit your code, just make a [pull request](https://help.g
 - When committing, always be sure to run an update before you commit. If there is a conflict between the latest revision and your patch after the update, then it is your responsibility to track down the update that caused the conflict and determine the issue (and fix it). In the case where the breaking commit has no thread linked (and one cannot be found in the forum), then the contributor should contact an administrator and wait for feedback before committing.
 - If your code is committed and it introduces new functionality, please edit the wiki accordingly. We can easily roll back to previous revisions, so just do your best; point us to it and we’ll see if it sticks!
 
-**Note to Eclipse users:** The Eclipse [git client does not support https](http://hub.jmonkeyengine.org/forum/topic/problem-cloning-the-new-git-repository/#post-265594). The current workaround is to use the command line to clone the repository.
-To import the local repository as a project follow these steps:
-
-1. Add a line 'apply plugin: eclipse' to your common.gradle file in the main project directory.
-2. Navigate to the project directory in command line and execute command 'gradle eclipse'. This will load all the dependancies for eclipse.
-3. In Eclipse, add the repository as an existing Java Project.
-
 p.s. We will try hold ourselves to a [certain standard](http://www.defmacro.org/2013/04/03/issue-etiquette.html) when it comes to GitHub etiquette. If at any point we fail to uphold this standard, let us know.
 
 #### Core Contributors
