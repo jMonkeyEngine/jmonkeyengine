@@ -1080,6 +1080,7 @@ public class GLRenderer implements Renderer {
         if (linearizeSrgbImages) {
             stringBuf.append("#define SRGB 1\n");
         }
+        stringBuf.append("#define ").append(source.getType().name().toUpperCase()).append("_SHADER 1\n");
 
         stringBuf.append(source.getDefines());
         stringBuf.append(source.getSource());
