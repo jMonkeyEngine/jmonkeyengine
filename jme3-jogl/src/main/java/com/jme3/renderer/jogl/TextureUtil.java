@@ -36,14 +36,17 @@ import com.jme3.renderer.RendererException;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.image.ColorSpace;
+
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2;
-import javax.media.opengl.GL2ES2;
-import javax.media.opengl.GL2GL3;
-import javax.media.opengl.GLContext;
+
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GL2ES3;
+import com.jogamp.opengl.GL2GL3;
+import com.jogamp.opengl.GLContext;
 
 public class TextureUtil {
     
@@ -124,9 +127,9 @@ public class TextureUtil {
         setFormat(Format.RGB32F,     GL.GL_RGB32F, GL.GL_RGB, GL.GL_FLOAT, false);
         
         // Special RGB formats
-        setFormat(Format.RGB111110F, GL.GL_R11F_G11F_B10F,    GL.GL_RGB, GL.GL_UNSIGNED_INT_10F_11F_11F_REV, false);
+        setFormat(Format.RGB111110F, GL2ES3.GL_R11F_G11F_B10F,    GL.GL_RGB, GL.GL_UNSIGNED_INT_10F_11F_11F_REV, false);
         setFormat(Format.RGB9E5,     GL2GL3.GL_RGB9_E5, GL.GL_RGB, GL2GL3.GL_UNSIGNED_INT_5_9_9_9_REV, false);
-        setFormat(Format.RGB16F_to_RGB111110F, GL.GL_R11F_G11F_B10F,    GL.GL_RGB, GL.GL_HALF_FLOAT, false);
+        setFormat(Format.RGB16F_to_RGB111110F, GL2ES3.GL_R11F_G11F_B10F,    GL.GL_RGB, GL.GL_HALF_FLOAT, false);
         setFormat(Format.RGB16F_to_RGB9E5, GL2.GL_RGB9_E5, GL.GL_RGB, GL.GL_HALF_FLOAT, false);
         
         // RGBA formats
@@ -346,7 +349,7 @@ public class TextureUtil {
                                       glFmt.format,
                                       glFmt.dataType,
                                       data);
-                }else if (target == GL.GL_TEXTURE_2D_ARRAY){
+                }else if (target == GL2ES3.GL_TEXTURE_2D_ARRAY){
                     // prepare data for 2D array
                     // or upload slice
                     if (index == -1){

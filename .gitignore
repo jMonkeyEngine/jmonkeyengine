@@ -11,6 +11,7 @@
 /jme3-desktop/build/
 /jme3-android-native/build/
 /jme3-android/build/
+/jme3-android-examples/build/
 /jme3-blender/build/
 /jme3-effects/build/
 /jme3-bullet/build/

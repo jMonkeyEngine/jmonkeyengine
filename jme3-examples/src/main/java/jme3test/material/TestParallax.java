@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,20 +39,17 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.*;
-import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.FXAAFilter;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
-import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
 
 public class TestParallax extends SimpleApplication {
 
-    private Vector3f lightDir = new Vector3f(-1, -1, .5f).normalizeLocal();
+    private final Vector3f lightDir = new Vector3f(-1, -1, .5f).normalizeLocal();
 
     public static void main(String[] args) {
         TestParallax app = new TestParallax();
@@ -60,7 +57,7 @@ public class TestParallax extends SimpleApplication {
     }
 
     public void setupSkyBox() {
-        rootNode.attachChild(SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", false));
+        rootNode.attachChild(SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", SkyFactory.EnvMapType.CubeMap));
     }
     DirectionalLight dl;
 
@@ -75,12 +72,7 @@ public class TestParallax extends SimpleApplication {
 
     public void setupFloor() {
         mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall2.j3m");
-        mat.getTextureParam("DiffuseMap").getTextureValue().setWrap(WrapMode.Repeat);
-        mat.getTextureParam("NormalMap").getTextureValue().setWrap(WrapMode.Repeat);
-
-       // Node floorGeom = (Node) assetManager.loadAsset("Models/WaterTest/WaterTest.mesh.xml");
-        //Geometry g = ((Geometry) floorGeom.getChild(0));
-        //g.getMesh().scaleTextureCoordinates(new Vector2f(10, 10));
+        //mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall.j3m");
                 
         Node floorGeom = new Node("floorGeom");
         Quad q = new Quad(100, 100);
@@ -100,9 +92,9 @@ public class TestParallax extends SimpleApplication {
 
     public void setupSignpost() {
         Spatial signpost = assetManager.loadModel("Models/Sign Post/Sign Post.mesh.xml");
-        Material mat = assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m");
+        Material matSp = assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m");
         TangentBinormalGenerator.generate(signpost);
-        signpost.setMaterial(mat);
+        signpost.setMaterial(matSp);
         signpost.rotate(0, FastMath.HALF_PI, 0);
         signpost.setLocalTranslation(12, 23.5f, 30);
         signpost.setLocalScale(4);
@@ -116,7 +108,6 @@ public class TestParallax extends SimpleApplication {
         cam.setRotation(new Quaternion(0.05173137f, 0.92363626f, -0.13454558f, 0.35513034f));
         flyCam.setMoveSpeed(30);
 
-
         setupLighting();
         setupSkyBox();
         setupFloor();
@@ -124,13 +115,14 @@ public class TestParallax extends SimpleApplication {
 
         inputManager.addListener(new AnalogListener() {
 
+            @Override
             public void onAnalog(String name, float value, float tpf) {
                 if ("heightUP".equals(name)) {
-                    parallaxHeigh += 0.0001;
+                    parallaxHeigh += 0.01;
                     mat.setFloat("ParallaxHeight", parallaxHeigh);
                 }
                 if ("heightDown".equals(name)) {
-                    parallaxHeigh -= 0.0001;
+                    parallaxHeigh -= 0.01;
                     parallaxHeigh = Math.max(parallaxHeigh, 0);
                     mat.setFloat("ParallaxHeight", parallaxHeigh);
                 }
@@ -142,6 +134,7 @@ public class TestParallax extends SimpleApplication {
 
         inputManager.addListener(new ActionListener() {
 
+            @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (isPressed && "toggleSteep".equals(name)) {
                     steep = !steep;

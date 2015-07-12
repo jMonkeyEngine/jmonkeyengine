@@ -41,7 +41,7 @@ import java.nio.IntBuffer;
  * 
  * @author Kirill Vainer
  */
-public interface GLExt extends GLFbo {
+public interface GLExt {
 
         public static final int GL_ALREADY_SIGNALED = 0x911A;
 	public static final int GL_COMPRESSED_RGB8_ETC2 = 0x9274;
@@ -100,7 +100,6 @@ public interface GLExt extends GLFbo {
 	public static final int GL_UNSIGNED_INT_5_9_9_9_REV_EXT = 0x8C3E;
         public static final int GL_WAIT_FAILED = 0x911D;
 
-	public void glBlitFramebufferEXT(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, int mask, int filter);
         public void glBufferData(int target, IntBuffer data, int usage);
         public void glBufferSubData(int target, long offset, IntBuffer data);
         public int glClientWaitSync(Object sync, int flags, long timeout);
@@ -110,7 +109,6 @@ public interface GLExt extends GLFbo {
 	public void glDrawElementsInstancedARB(int mode, int indices_count, int type, long indices_buffer_offset, int primcount);
         public Object glFenceSync(int condition, int flags);
 	public void glGetMultisample(int pname, int index, FloatBuffer val);
-        public void glRenderbufferStorageMultisampleEXT(int target, int samples, int internalformat, int width, int height);
 	public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedsamplelocations);
 	public void glVertexAttribDivisorARB(int index, int divisor);
 }

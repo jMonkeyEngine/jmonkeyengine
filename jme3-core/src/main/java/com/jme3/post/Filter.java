@@ -201,7 +201,7 @@ public abstract class Filter implements Savable {
 
     /**
      * returns the default pass texture format
-     * default is {@link Format#RGB10_A2}
+     * default is {@link Format#RGB111110F}
      * 
      * @return
      */

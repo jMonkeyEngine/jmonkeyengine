@@ -62,7 +62,7 @@ public class TestGhostObject extends SimpleApplication {
     public void simpleInitApp() {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
-        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+        bulletAppState.setDebugEnabled(true);
 
         // Mesh to be shared across several boxes.
         Box boxGeom = new Box(Vector3f.ZERO, 1f, 1f, 1f);

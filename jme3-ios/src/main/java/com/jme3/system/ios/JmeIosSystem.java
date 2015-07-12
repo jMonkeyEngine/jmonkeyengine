@@ -36,6 +36,14 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystemDelegate;
 import com.jme3.system.NullContext;
+import com.jme3.audio.AudioRenderer;
+import com.jme3.audio.ios.IosAL;
+import com.jme3.audio.ios.IosALC;
+//import com.jme3.audio.ios.IosEFX;
+import com.jme3.audio.openal.AL;
+import com.jme3.audio.openal.ALAudioRenderer;
+import com.jme3.audio.openal.ALC;
+import com.jme3.audio.openal.EFX;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -89,8 +97,11 @@ public class JmeIosSystem extends JmeSystemDelegate {
 
     @Override
     public AudioRenderer newAudioRenderer(AppSettings settings) {
-        return null;
-    }
+        ALC alc = new IosALC();
+        AL al = new IosAL();
+        //EFX efx = new IosEFX();
+        return new ALAudioRenderer(al, alc, null);
+     }
 
     @Override
     public void initialize(AppSettings settings) {

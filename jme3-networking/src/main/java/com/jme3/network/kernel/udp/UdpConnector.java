@@ -113,7 +113,6 @@ public class UdpConnector implements Connector
     public ByteBuffer read()
     {
         checkClosed();
-        
         try {
             DatagramPacket packet = new DatagramPacket( buffer, buffer.length );
             sock.receive(packet);
@@ -132,7 +131,6 @@ public class UdpConnector implements Connector
     public void write( ByteBuffer data )
     {
         checkClosed();
-        
         try {
             DatagramPacket p = new DatagramPacket( data.array(), data.position(), data.remaining(), 
                                                    remoteAddress );

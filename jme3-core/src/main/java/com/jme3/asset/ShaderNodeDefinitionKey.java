@@ -39,8 +39,6 @@ import java.util.List;
  * Used for loading {@link ShaderNodeDefinition shader nodes definition}
  *
  * Tells if the defintion has to be loaded with or without its documentation
- *
- * @author Kirill Vainer
  */
 public class ShaderNodeDefinitionKey extends AssetKey<List<ShaderNodeDefinition>> {
 

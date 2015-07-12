@@ -64,12 +64,14 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glScissor", 0, 1, 2, 3);
         noEnumArgs("glClear", 0);
         noEnumArgs("glGetInteger", 1);
+        noEnumArgs("glGetString", 1);
         
         noEnumArgs("glBindTexture", 1);
         noEnumArgs("glPixelStorei", 1);
 //        noEnumArgs("glTexParameteri", 2);
         noEnumArgs("glTexImage2D", 1, 3, 4, 5);
         noEnumArgs("glTexImage3D", 1, 3, 4, 5, 6);
+        noEnumArgs("glTexSubImage2D", 1, 2, 3, 4, 5);
         noEnumArgs("glTexSubImage3D", 1, 2, 3, 4, 5, 6, 7);
         noEnumArgs("glCompressedTexImage2D", 1, 3, 4, 5);
         noEnumArgs("glCompressedTexSubImage3D", 1, 2, 3, 4, 5, 6, 7);
@@ -83,6 +85,8 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glDrawRangeElements", 1, 2, 3, 5);
         noEnumArgs("glDrawArrays", 1, 2);
         noEnumArgs("glDeleteBuffers", 0);
+        noEnumArgs("glBindVertexArray", 0);
+        noEnumArgs("glGenVertexArrays", 0);
         
         noEnumArgs("glBindFramebufferEXT", 1);
         noEnumArgs("glBindRenderbufferEXT", 1);
@@ -91,8 +95,6 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glFramebufferRenderbufferEXT", 3);
         noEnumArgs("glFramebufferTexture2DEXT", 3, 4);
         noEnumArgs("glBlitFramebufferEXT", 0, 1, 2, 3, 4, 5, 6, 7, 8);
-        
-        
         
         noEnumArgs("glCreateProgram", -1);
         noEnumArgs("glCreateShader", -1);
@@ -110,6 +112,7 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glUniform1f", 0);
         noEnumArgs("glUniform2f", 0);
         noEnumArgs("glUniform3f", 0);
+        noEnumArgs("glUniform4", 0);
         noEnumArgs("glUniform4f", 0);
         noEnumArgs("glGetAttribLocation", 0, -1);
         noEnumArgs("glDetachShader", 0, 1);
@@ -151,7 +154,7 @@ public final class GLTracer implements InvocationHandler {
      * @return A tracer that implements the given interface
      */
     public static Object createGlesTracer(Object glInterface, Class<?> glInterfaceClass) {
-        IntMap<String> constMap = generateConstantMap(GL.class, GLExt.class);
+        IntMap<String> constMap = generateConstantMap(GL.class, GLFbo.class, GLExt.class);
         return Proxy.newProxyInstance(glInterface.getClass().getClassLoader(),
                                       new Class<?>[] { glInterfaceClass }, 
                                       new GLTracer(glInterface, constMap));
@@ -165,7 +168,7 @@ public final class GLTracer implements InvocationHandler {
      * @return A tracer that implements the given interface
      */
     public static Object createDesktopGlTracer(Object glInterface, Class<?> ... glInterfaceClasses) {
-        IntMap<String> constMap = generateConstantMap(GL2.class, GLExt.class);
+        IntMap<String> constMap = generateConstantMap(GL2.class, GL3.class, GL4.class, GLFbo.class, GLExt.class);
         return Proxy.newProxyInstance(glInterface.getClass().getClassLoader(),
                                       glInterfaceClasses, 
                                       new GLTracer(glInterface, constMap));

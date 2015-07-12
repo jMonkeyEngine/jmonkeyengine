@@ -102,7 +102,7 @@ public class PhysicsSpace {
     private Vector3f worldMax = new Vector3f(10000f, 10000f, 10000f);
     private float accuracy = 1f / 60f;
     private int maxSubSteps = 4, rayTestFlags = 1 << 2;
-    private AssetManager debugManager;
+    private int solverNumIterations = 10;
 
     static {
 //        System.loadLibrary("bulletjme");
@@ -702,7 +702,7 @@ public class PhysicsSpace {
     public Vector3f getGravity(Vector3f gravity) {
         return gravity.set(this.gravity);
     }
-    
+
 //    /**
 //     * applies gravity value to all objects
 //     */
@@ -783,7 +783,7 @@ public class PhysicsSpace {
     public void SetRayTestFlags(int flags) {
         rayTestFlags = flags;
     }
-    
+
     /**
      * Gets m_flags for raytest, see https://code.google.com/p/bullet/source/browse/trunk/src/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h
      * for possible options.
@@ -792,7 +792,7 @@ public class PhysicsSpace {
     public int GetRayTestFlags() {
         return rayTestFlags;
     }
-    
+
     /**
      * Performs a ray collision test and returns the results as a list of
      * PhysicsRayTestResults
@@ -820,6 +820,10 @@ public class PhysicsSpace {
 //            return lrr.hitFraction;
 //        }
 //    }
+//
+//
+
+
     /**
      * Performs a sweep collision test and returns the results as a list of
      * PhysicsSweepTestResults<br/> You have to use different Transforms for
@@ -828,48 +832,47 @@ public class PhysicsSpace {
      * center.
      */
     public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end) {
-        List<PhysicsSweepTestResult> results = new LinkedList<PhysicsSweepTestResult>();
-//        if (!(shape.getCShape() instanceof ConvexShape)) {
-//            logger.log(Level.WARNING, "Trying to sweep test with incompatible mesh shape!");
-//            return results;
-//        }
-//        dynamicsWorld.convexSweepTest((ConvexShape) shape.getCShape(), Converter.convert(start, sweepTrans1), Converter.convert(end, sweepTrans2), new InternalSweepListener(results));
-        return results;
-
+        List results = new LinkedList();
+        sweepTest(shape, start, end , results);
+        return (List<PhysicsSweepTestResult>) results;
     }
 
+    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results) {
+        return sweepTest(shape, start, end, results, 0.0f);
+    }
+
+    public native void sweepTest_native(long shape, Transform from, Transform to, long physicsSpaceId, List<PhysicsSweepTestResult> results, float allowedCcdPenetration);
     /**
      * Performs a sweep collision test and returns the results as a list of
      * PhysicsSweepTestResults<br/> You have to use different Transforms for
-     * start and end (at least distance > 0.4f). SweepTest will not see a
+     * start and end (at least distance > allowedCcdPenetration). SweepTest will not see a
      * collision if it starts INSIDE an object and is moving AWAY from its
      * center.
      */
-    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results) {
+    public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results, float allowedCcdPenetration ) {
         results.clear();
-//        if (!(shape.getCShape() instanceof ConvexShape)) {
-//            logger.log(Level.WARNING, "Trying to sweep test with incompatible mesh shape!");
-//            return results;
-//        }
-//        dynamicsWorld.convexSweepTest((ConvexShape) shape.getCShape(), Converter.convert(start, sweepTrans1), Converter.convert(end, sweepTrans2), new InternalSweepListener(results));
+        sweepTest_native(shape.getObjectId(), start, end, physicsSpaceId, results, allowedCcdPenetration);
         return results;
     }
 
-//    private class InternalSweepListener extends CollisionWorld.ConvexResultCallback {
-//
-//        private List<PhysicsSweepTestResult> results;
-//
-//        public InternalSweepListener(List<PhysicsSweepTestResult> results) {
-//            this.results = results;
-//        }
-//
-//        @Override
-//        public float addSingleResult(LocalConvexResult lcr, boolean bln) {
-//            PhysicsCollisionObject obj = (PhysicsCollisionObject) lcr.hitCollisionObject.getUserPointer();
-//            results.add(new PhysicsSweepTestResult(obj, Converter.convert(lcr.hitNormalLocal), lcr.hitFraction, bln));
-//            return lcr.hitFraction;
-//        }
-//    }
+/*    private class InternalSweepListener extends CollisionWorld.ConvexResultCallback {
+
+        private List<PhysicsSweepTestResult> results;
+
+        public InternalSweepListener(List<PhysicsSweepTestResult> results) {
+            this.results = results;
+        }
+
+        @Override
+        public float addSingleResult(LocalConvexResult lcr, boolean bln) {
+            PhysicsCollisionObject obj = (PhysicsCollisionObject) lcr.hitCollisionObject.getUserPointer();
+            results.add(new PhysicsSweepTestResult(obj, Converter.convert(lcr.hitNormalLocal), lcr.hitFraction, bln));
+            return lcr.hitFraction;
+        }
+    }
+
+    */
+    
     /**
      * destroys the current PhysicsSpace so that a new one can be created
      */
@@ -957,28 +960,28 @@ public class PhysicsSpace {
     }
 
     /**
-     * Enable debug display for physics.
-     *
-     * @deprecated in favor of BulletDebugAppState, use
-     * <code>BulletAppState.setDebugEnabled(boolean)</code> to add automatically
-     * @param manager AssetManager to use to create debug materials
+     * Set the number of iterations used by the contact solver.
+     * 
+     * The default is 10. Use 4 for low quality, 20 for high quality.
+     * 
+     * @param numIterations The number of iterations used by the contact & constraint solver.
      */
-    @Deprecated
-    public void enableDebug(AssetManager manager) {
-        debugManager = manager;
+    public void setSolverNumIterations(int numIterations) {
+        this.solverNumIterations = numIterations;
+        setSolverNumIterations(physicsSpaceId, numIterations);
     }
-
+    
     /**
-     * Disable debug display
+     * Get the number of iterations used by the contact solver.
+     * 
+     * @return The number of iterations used by the contact & constraint solver.
      */
-    public void disableDebug() {
-        debugManager = null;
+    public int getSolverNumIterations() {
+        return solverNumIterations;
     }
-
-    public AssetManager getDebugManager() {
-        return debugManager;
-    }
-
+    
+    private static native void setSolverNumIterations(long physicsSpaceId, int numIterations);
+    
     public static native void initNativePhysics();
 
     /**

@@ -1,5 +1,5 @@
 package jme3test.bullet;
- 
+
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
@@ -16,30 +16,30 @@ import java.util.List;
  * @author @wezrule
  */
 public class TestPhysicsRayCast extends SimpleApplication {
- 
+
     private BulletAppState bulletAppState = new BulletAppState();
- 
+
     public static void main(String[] args) {
         new TestPhysicsRayCast().start();
     }
- 
+
     @Override
     public void simpleInitApp() {
         stateManager.attach(bulletAppState);
         initCrossHair();
- 
+
         Spatial s = assetManager.loadModel("Models/Elephant/Elephant.mesh.xml");
         s.setLocalScale(0.1f);
- 
+
         CollisionShape collisionShape = CollisionShapeFactory.createMeshShape(s);
         Node n = new Node("elephant");
         n.addControl(new RigidBodyControl(collisionShape, 1));
         n.getControl(RigidBodyControl.class).setKinematic(true);
         bulletAppState.getPhysicsSpace().add(n);
         rootNode.attachChild(n);
-        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+        bulletAppState.setDebugEnabled(true);
     }
- 
+
     @Override
     public void simpleUpdate(float tpf) {
         List<PhysicsRayTestResult> rayTest = bulletAppState.getPhysicsSpace().rayTest(cam.getLocation(), cam.getLocation().add(cam.getDirection()));
@@ -50,7 +50,7 @@ public class TestPhysicsRayCast extends SimpleApplication {
             fpsText.setText(collisionObject.getUserObject().toString());
         }
     }
- 
+
     private void initCrossHair() {
         BitmapText bitmapText = new BitmapText(guiFont);
         bitmapText.setText("+");

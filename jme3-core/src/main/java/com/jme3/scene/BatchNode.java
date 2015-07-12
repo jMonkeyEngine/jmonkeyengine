@@ -64,7 +64,7 @@ import java.util.logging.Logger;
  * TODO more automagic (batch when needed in the updateLogicalState)
  * @author Nehon
  */
-public class BatchNode extends GeometryGroupNode implements Savable {
+public class BatchNode extends GeometryGroupNode {
 
     private static final Logger logger = Logger.getLogger(BatchNode.class.getName());
     /**
@@ -119,19 +119,6 @@ public class BatchNode extends GeometryGroupNode implements Savable {
         setNeedsFullRebatch(true);
     }
     
-    @Override
-    public void updateGeometricState() {
-        if (!children.isEmpty()) {
-            for (Batch batch : batches.getArray()) {
-                if (batch.needMeshUpdate) {
-                    batch.geometry.updateModelBound();
-                    batch.geometry.updateWorldBound();
-                    batch.needMeshUpdate = false;
-                }
-            }
-        }
-        super.updateGeometricState();
-    }
 
     protected Matrix4f getTransformMatrix(Geometry g){
         return g.cachedWorldMat;
@@ -169,7 +156,7 @@ public class BatchNode extends GeometryGroupNode implements Savable {
             nvb.updateData(normBuf);
 
 
-            batch.needMeshUpdate = true;
+            batch.geometry.updateModelBound();
         }
     }
 
@@ -234,7 +221,7 @@ public class BatchNode extends GeometryGroupNode implements Savable {
 
             batch.geometry.setMesh(m);
             batch.geometry.getMesh().updateCounts();
-            batch.geometry.getMesh().updateBound();
+            batch.geometry.updateModelBound();            
             batches.add(batch);
         }
         if (batches.size() > 0) {
@@ -583,11 +570,13 @@ public class BatchNode extends GeometryGroupNode implements Savable {
                         useTangents = true;
                     }
                 } else {
-                    inBuf.copyElements(0, outBuf, globalVertIndex, geomVertCount);
-//                    for (int vert = 0; vert < geomVertCount; vert++) {
-//                        int curGlobalVertIndex = globalVertIndex + vert;
-//                        inBuf.copyElement(vert, outBuf, curGlobalVertIndex);
-//                    }
+                    if (inBuf == null) {
+                        throw new IllegalArgumentException("Geometry " + geom.getName() + " has no " + outBuf.getBufferType() + " buffer whereas other geoms have. all geometries should have the same types of buffers.\n Try to use GeometryBatchFactory.alignBuffer() on the BatchNode before batching");
+                    } else if (outBuf == null) {
+                        throw new IllegalArgumentException("Geometry " + geom.getName() + " has a " + outBuf.getBufferType() + " buffer whereas other geoms don't. all geometries should have the same types of buffers.\n Try to use GeometryBatchFactory.alignBuffer() on the BatchNode before batching");
+                    } else {
+                        inBuf.copyElements(0, outBuf, globalVertIndex, geomVertCount);
+                    }
                 }
             }
 
@@ -745,8 +734,7 @@ public class BatchNode extends GeometryGroupNode implements Savable {
                 }
             }
         }
-        Geometry geometry;
-        boolean needMeshUpdate = false;
+        Geometry geometry;        
     }
 
     protected void setNeedsFullRebatch(boolean needsFullRebatch) {

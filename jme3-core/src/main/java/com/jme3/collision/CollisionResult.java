@@ -109,6 +109,11 @@ public class CollisionResult implements Comparable<CollisionResult> {
         return super.equals(obj);
     }
 
+    @Override
+    public int hashCode() {
+        return Float.floatToIntBits(distance);
+    }
+
     public Vector3f getContactPoint() {
         return contactPoint;
     }

@@ -532,7 +532,7 @@ public class EditableMaterialFile {
                             //TODO: seems like flip is removed due to ImageToAwt
                             texKey.setFlipY(false);
                             Texture texture = manager.loadTexture(texKey);
-                            MatParamTexture newParam = new MatParamTexture(texParam.getVarType(), texParam.getName(), texture, texParam.getUnit());
+                            MatParamTexture newParam = new MatParamTexture(texParam.getVarType(), texParam.getName(), texture, texParam.getUnit(), null);
                             materialParameters.put(newParam.getName(), new MaterialProperty(newParam));
                         } catch (Exception ex) {
                             Exceptions.printStackTrace(ex);

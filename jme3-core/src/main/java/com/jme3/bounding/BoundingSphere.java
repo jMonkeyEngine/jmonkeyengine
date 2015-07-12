@@ -640,8 +640,7 @@ public class BoundingSphere extends BoundingVolume {
             return rVal;
         }
 
-        return new BoundingSphere(radius,
-                (center != null ? (Vector3f) center.clone() : null));
+        return new BoundingSphere(radius, center.clone());
     }
 
     /**

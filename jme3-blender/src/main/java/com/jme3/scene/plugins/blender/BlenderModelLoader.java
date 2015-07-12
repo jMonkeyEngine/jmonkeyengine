@@ -31,79 +31,10 @@
  */
 package com.jme3.scene.plugins.blender;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.jme3.asset.AssetInfo;
-import com.jme3.asset.BlenderKey;
-import com.jme3.asset.BlenderKey.FeaturesToLoad;
-import com.jme3.scene.LightNode;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.plugins.blender.animations.AnimationHelper;
-import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
-import com.jme3.scene.plugins.blender.file.BlenderFileException;
-import com.jme3.scene.plugins.blender.file.FileBlockHeader;
-import com.jme3.scene.plugins.blender.objects.ObjectHelper;
-
 /**
  * This is the main loading class. Have in notice that asset manager needs to have loaders for resources like textures.
- * 
+ * @deprecated this class is deprecated; use BlenderLoader instead
  * @author Marcin Roguski (Kaelthas)
  */
 public class BlenderModelLoader extends BlenderLoader {
-
-    private static final Logger LOGGER = Logger.getLogger(BlenderModelLoader.class.getName());
-
-    @Override
-    public Spatial load(AssetInfo assetInfo) throws IOException {
-        try {
-            this.setup(assetInfo);
-
-            AnimationHelper animationHelper = blenderContext.getHelper(AnimationHelper.class);
-            animationHelper.loadAnimations();
-            
-            BlenderKey blenderKey = blenderContext.getBlenderKey();
-            List<Node> rootObjects = new ArrayList<Node>();
-            for (FileBlockHeader block : blocks) {
-                if (block.getCode() == FileBlockHeader.BLOCK_OB00) {
-                    ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-                    Object object = objectHelper.toObject(block.getStructure(blenderContext), blenderContext);
-                    if (object instanceof LightNode && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
-                        rootObjects.add((LightNode) object);
-                    } else if (object instanceof Node && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
-                        LOGGER.log(Level.FINE, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
-                        if (((Node) object).getParent() == null) {
-                            rootObjects.add((Node) object);
-                        }
-                    }
-                }
-            }
-
-            // bake constraints after everything is loaded
-            ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
-            constraintHelper.bakeConstraints(blenderContext);
-
-            // attach the nodes to the root node at the very end so that the root objects have no parents during constraint applying
-            LOGGER.fine("Creating the root node of the model and applying loaded nodes of the scene to it.");
-            Node modelRoot = new Node(blenderKey.getName());
-            for (Node node : rootObjects) {
-                if (node instanceof LightNode) {
-                    modelRoot.addLight(((LightNode) node).getLight());
-                }
-                modelRoot.attachChild(node);
-            }
-
-            return modelRoot;
-        } catch (BlenderFileException e) {
-            throw new IOException(e.getLocalizedMessage(), e);
-        } catch (Exception e) {
-            throw new IOException("Unexpected importer exception occured: " + e.getLocalizedMessage(), e);
-        } finally {
-            this.clear();
-        }
-    }
 }

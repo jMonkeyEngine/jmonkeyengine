@@ -10,6 +10,8 @@ import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.controller.SceneToolController;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
+import com.jme3.gde.scenecomposer.tools.PickManager;
+import com.jme3.gde.scenecomposer.tools.shortcuts.ShortcutManager;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
@@ -30,6 +32,7 @@ import com.jme3.scene.control.Control;
 import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Texture;
 import java.util.concurrent.Callable;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -50,7 +53,12 @@ public class SceneComposerToolController extends SceneToolController {
     private boolean snapToScene = false;
     private boolean selectTerrain = false;
     private boolean selectGeometries = false;
-
+    private TransformationType transformationType = TransformationType.local;
+          
+    public enum TransformationType {
+        local, global, camera
+    }
+    
     public SceneComposerToolController(final Node toolsNode, AssetManager manager, JmeNode rootNode) {
         super(toolsNode, manager);
         this.rootNode = rootNode;
@@ -178,7 +186,12 @@ public class SceneComposerToolController extends SceneToolController {
      * @param camera
      */
     public void doEditToolActivatedPrimary(Vector2f mouseLoc, boolean pressed, Camera camera) {
-        if (editTool != null) {
+        ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
+        
+        if (scm.isActive()) {
+            scm.getActiveShortcut().setCamera(camera);
+            scm.getActiveShortcut().actionPrimary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
+        } else if (editTool != null) {
             editTool.setCamera(camera);
             editTool.actionPrimary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
         }
@@ -192,36 +205,66 @@ public class SceneComposerToolController extends SceneToolController {
      * @param camera
      */
     public void doEditToolActivatedSecondary(Vector2f mouseLoc, boolean pressed, Camera camera) {
-        if (editTool != null) {
+        ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
+        
+        if (scm.isActive()) {
+            scm.getActiveShortcut().setCamera(camera);
+            scm.getActiveShortcut().actionSecondary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
+        } else if (editTool != null) {
             editTool.setCamera(camera);
             editTool.actionSecondary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
         }
     }
 
     public void doEditToolMoved(Vector2f mouseLoc, Camera camera) {
-        if (editTool != null) {
+        ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
+        
+        if (scm.isActive()) {
+            scm.getActiveShortcut().setCamera(camera);
+            scm.getActiveShortcut().mouseMoved(mouseLoc, rootNode, editorController.getCurrentDataObject(), selectedSpatial);
+        } else if (editTool != null) {
             editTool.setCamera(camera);
             editTool.mouseMoved(mouseLoc, rootNode, editorController.getCurrentDataObject(), selectedSpatial);
         }
     }
 
     public void doEditToolDraggedPrimary(Vector2f mouseLoc, boolean pressed, Camera camera) {
-        if (editTool != null) {
+        ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
+        
+        if (scm.isActive()) {
+            scm.getActiveShortcut().setCamera(camera);
+            scm.getActiveShortcut().draggedPrimary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
+        } else if (editTool != null) {
             editTool.setCamera(camera);
             editTool.draggedPrimary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
         }
     }
 
     public void doEditToolDraggedSecondary(Vector2f mouseLoc, boolean pressed, Camera camera) {
-        if (editTool != null) {
+        ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
+        
+        if (scm.isActive()) {
+            scm.getActiveShortcut().setCamera(null);
+            scm.getActiveShortcut().draggedSecondary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
+        } else if (editTool != null) {
             editTool.setCamera(camera);
             editTool.draggedSecondary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
         }
     }
     
-    void doKeyPressed(KeyInputEvent kie) {
-        if (editTool != null) {
-            editTool.keyPressed(kie);
+    public void doKeyPressed(KeyInputEvent kie) {
+        ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
+
+        if (scm.isActive()) {
+            scm.doKeyPressed(kie);
+        } else {
+            if (scm.activateShortcut(kie)) {
+                scm.getActiveShortcut().activate(manager, toolsNode, onTopToolsNode, selected, this);
+            } else {
+                if (editTool != null) {
+                    editTool.keyPressed(kie);
+                }
+            }
         }
     }
     
@@ -347,9 +390,39 @@ public class SceneComposerToolController extends SceneToolController {
     public void setSelectGeometries(boolean selectGeometries) {
         this.selectGeometries = selectGeometries;
     }
+
+    public void setTransformationType(String type) {
+        if(type != null){
+            if(type.equals("Local")){
+                setTransformationType(TransformationType.local);
+            } else if(type.equals("Global")){
+                setTransformationType(TransformationType.global);
+            } else if(type.equals("Camera")){
+                setTransformationType(TransformationType.camera);
+            }
+        }
+    }
+
+    /**
+     * @param type the transformationType to set
+     */
+    public void setTransformationType(TransformationType type) {
+        if(type != this.transformationType){
+            this.transformationType = type;
+            if(editTool != null){
+                //update the transform type of the tool
+                editTool.setTransformType(transformationType);
+            }
+        }
+    }
     
-    
-    
+    /**
+     * @return the transformationType
+     */
+    public TransformationType getTransformationType() {
+        return transformationType;
+    }
+
     /**
      * A marker on the screen that shows where a point light or
      * a spot light is. This marker is not part of the scene,

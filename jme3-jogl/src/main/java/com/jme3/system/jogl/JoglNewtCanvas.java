@@ -35,7 +35,7 @@ package com.jme3.system.jogl;
 import com.jme3.system.JmeCanvasContext;
 import com.jogamp.newt.awt.NewtCanvasAWT;
 import java.util.logging.Logger;
-import javax.media.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLAutoDrawable;
 
 public class JoglNewtCanvas extends JoglNewtAbstractDisplay implements JmeCanvasContext {
     

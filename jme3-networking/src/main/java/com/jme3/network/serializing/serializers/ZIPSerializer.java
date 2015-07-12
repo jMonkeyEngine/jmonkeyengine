@@ -98,7 +98,8 @@ public class ZIPSerializer extends Serializer {
         ZipEntry zipEntry = new ZipEntry("zip");
 
         zipOutput.putNextEntry(zipEntry);
-        zipOutput.write(tempBuffer.array());
+        tempBuffer.flip();
+        zipOutput.write(tempBuffer.array(), 0, tempBuffer.limit());
         zipOutput.flush();
         zipOutput.closeEntry();
         zipOutput.close();

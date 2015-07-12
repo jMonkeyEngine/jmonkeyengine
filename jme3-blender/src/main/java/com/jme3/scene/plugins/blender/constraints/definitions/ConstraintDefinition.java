@@ -30,6 +30,8 @@ public abstract class ConstraintDefinition {
     protected Set<Long>        alteredOmas;
     /** The variable that determines if the constraint will alter the track in any way. */
     protected boolean          trackToBeChanged = true;
+    /** The name of the constraint. */
+    protected String           constraintName;
 
     /**
      * Loads a constraint definition based on the constraint definition
@@ -52,6 +54,10 @@ public abstract class ConstraintDefinition {
         this.blenderContext = blenderContext;
         constraintHelper = (ConstraintHelper) (blenderContext == null ? null : blenderContext.getHelper(ConstraintHelper.class));
         this.ownerOMA = ownerOMA;
+    }
+    
+    public void setConstraintName(String constraintName) {
+        this.constraintName = constraintName;
     }
 
     /**

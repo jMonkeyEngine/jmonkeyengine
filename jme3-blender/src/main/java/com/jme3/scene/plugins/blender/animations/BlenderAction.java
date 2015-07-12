@@ -10,9 +10,8 @@ import java.util.Map.Entry;
 import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Skeleton;
 import com.jme3.animation.SpatialTrack;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
+import com.jme3.scene.plugins.blender.BlenderContext;
 
 /**
  * An abstract representation of animation. The data stored here is mainly a
@@ -69,10 +68,10 @@ public class BlenderAction implements Cloneable {
      *            the node that will be animated
      * @return the spatial tracks for the node
      */
-    public SpatialTrack[] toTracks(Node node) {
+    public SpatialTrack[] toTracks(Node node, BlenderContext blenderContext) {
         List<SpatialTrack> tracks = new ArrayList<SpatialTrack>(featuresTracks.size());
         for (Entry<String, Ipo> entry : featuresTracks.entrySet()) {
-            tracks.add((SpatialTrack) entry.getValue().calculateTrack(0, node.getLocalTranslation(), node.getLocalRotation(), node.getLocalScale(), 1, stopFrame, fps, true));
+            tracks.add((SpatialTrack) entry.getValue().calculateTrack(0, null, node.getLocalTranslation(), node.getLocalRotation(), node.getLocalScale(), 1, stopFrame, fps, true));
         }
         return tracks.toArray(new SpatialTrack[tracks.size()]);
     }
@@ -84,11 +83,12 @@ public class BlenderAction implements Cloneable {
      *            the skeleton that will be animated
      * @return the bone tracks for the node
      */
-    public BoneTrack[] toTracks(Skeleton skeleton) {
+    public BoneTrack[] toTracks(Skeleton skeleton, BlenderContext blenderContext) {
         List<BoneTrack> tracks = new ArrayList<BoneTrack>(featuresTracks.size());
         for (Entry<String, Ipo> entry : featuresTracks.entrySet()) {
             int boneIndex = skeleton.getBoneIndex(entry.getKey());
-            tracks.add((BoneTrack) entry.getValue().calculateTrack(boneIndex, Vector3f.ZERO, Quaternion.IDENTITY, Vector3f.UNIT_XYZ, 1, stopFrame, fps, false));
+            BoneContext boneContext = blenderContext.getBoneContext(skeleton.getBone(boneIndex));
+            tracks.add((BoneTrack) entry.getValue().calculateTrack(boneIndex, boneContext, boneContext.getBone().getBindPosition(), boneContext.getBone().getBindRotation(), boneContext.getBone().getBindScale(), 1, stopFrame, fps, false));
         }
         return tracks.toArray(new BoneTrack[tracks.size()]);
     }

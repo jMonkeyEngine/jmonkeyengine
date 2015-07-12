@@ -170,7 +170,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
             return;
         }
 
-        new Thread(this, "LWJGL Renderer Thread").start();
+        new Thread(this, THREAD_NAME).start();
         if (waitFor)
             waitFor(true);
     }

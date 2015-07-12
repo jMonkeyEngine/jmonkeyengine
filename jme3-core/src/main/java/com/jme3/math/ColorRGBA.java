@@ -607,28 +607,28 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
     }
     
     /**
-     * Get the color in sRGB color space as a Vector4f
+     * Get the color in sRGB color space as a <code>ColorRGBA</code>.
      * 
      * Note that linear values stored in the ColorRGBA will be gamma corrected 
-     * and returned as a Vector4f
-     * the x atribute will be fed with the r channel in sRGB space
-     * the y atribute will be fed with the g channel in sRGB space
-     * the z atribute will be fed with the b channel in sRGB space
-     * the w atribute will be fed with the a channel
+     * and returned as a ColorRGBA.
      * 
-     * Note that no correction will be performed on the alpha channel as it's 
-     * conventionnally doesn't represent a color itself
+     * The x attribute will be fed with the r channel in sRGB space.
+     * The y attribute will be fed with the g channel in sRGB space.
+     * The z attribute will be fed with the b channel in sRGB space.
+     * The w attribute will be fed with the a channel.
      * 
-     * @return the color in sRGB color space as a Vector4f
+     * Note that no correction will be performed on the alpha channel as it 
+     * conventionally doesn't represent a color itself.
+     * 
+     * @return the color in sRGB color space as a ColorRGBA.
      */
-    public Vector4f getAsSrgb(){
-        Vector4f srgb = new Vector4f();
-        float invGama = 1f/GAMMA;
-        srgb.x = (float)Math.pow(r, invGama);
-        srgb.y = (float)Math.pow(g, invGama);
-        srgb.z = (float)Math.pow(b, invGama);
-        srgb.w = a;
-        
+    public ColorRGBA getAsSrgb() {
+        ColorRGBA srgb = new ColorRGBA();
+        float invGama = 1f / GAMMA;
+        srgb.r = (float) Math.pow(r, invGama);
+        srgb.g = (float) Math.pow(g, invGama);
+        srgb.b = (float) Math.pow(b, invGama);
+        srgb.a = a;
         return srgb;
     }
     

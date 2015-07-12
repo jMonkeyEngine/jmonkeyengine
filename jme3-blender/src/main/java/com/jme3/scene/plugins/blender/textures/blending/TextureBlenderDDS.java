@@ -6,9 +6,12 @@ import com.jme3.scene.plugins.blender.textures.io.PixelIOFactory;
 import com.jme3.scene.plugins.blender.textures.io.PixelInputOutput;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+
 import jme3tools.converters.RGB565;
 
 /**
@@ -119,7 +122,7 @@ public class TextureBlenderDDS extends TextureBlenderAWT {
             dataArray.add(newData);
         }
 
-        Image result = dataArray.size() > 1 ? new Image(format, width, height, depth, dataArray) : new Image(format, width, height, dataArray.get(0));
+        Image result = dataArray.size() > 1 ? new Image(format, width, height, depth, dataArray, ColorSpace.Linear) : new Image(format, width, height, dataArray.get(0), ColorSpace.Linear);
         if (image.getMipMapSizes() != null) {
             result.setMipMapSizes(image.getMipMapSizes().clone());
         }

@@ -127,6 +127,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
             unIndent();
             startCondition(shaderNode.getCondition(), source);
             source.append(nodeSource);
+            source.append("\n");
             endCondition(shaderNode.getCondition(), source);
             indent();
         }

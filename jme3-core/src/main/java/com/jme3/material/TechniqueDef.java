@@ -40,7 +40,7 @@ import java.util.*;
 
 /**
  * Describes a technique definition.
- * 
+ *
  * @author Kirill Vainer
  */
 public class TechniqueDef implements Savable {
@@ -49,7 +49,7 @@ public class TechniqueDef implements Savable {
      * Version #1: Separate shader language for each shader source.
      */
     public static final int SAVABLE_VERSION = 1;
-    
+
     /**
      * Describes light rendering mode.
      */
@@ -58,15 +58,15 @@ public class TechniqueDef implements Savable {
          * Disable light-based rendering
          */
         Disable,
-        
+
         /**
-         * Enable light rendering by using a single pass. 
+         * Enable light rendering by using a single pass.
          * <p>
          * An array of light positions and light colors is passed to the shader
          * containing the world light list for the geometry being rendered.
          */
         SinglePass,
-        
+
         /**
          * Enable light rendering by using multi-pass rendering.
          * <p>
@@ -77,7 +77,7 @@ public class TechniqueDef implements Savable {
          * passes have it set to black.
          */
         MultiPass,
-        
+
         /**
          * @deprecated OpenGL1 is not supported anymore
          */
@@ -94,18 +94,18 @@ public class TechniqueDef implements Savable {
     private EnumSet<Caps> requiredCaps = EnumSet.noneOf(Caps.class);
     private String name;
 
-    private EnumMap<Shader.ShaderType,String> shaderLanguage;
-    private EnumMap<Shader.ShaderType,String> shaderName;
-    
+    private EnumMap<Shader.ShaderType,String> shaderLanguages;
+    private EnumMap<Shader.ShaderType,String> shaderNames;
+
     private DefineList presetDefines;
-    private boolean usesShaders;
     private boolean usesNodes = false;
     private List<ShaderNode> shaderNodes;
     private ShaderGenerationInfo shaderGenerationInfo;
 
+    private boolean noRender = false;
     private RenderState renderState;
     private RenderState forcedRenderState;
-    
+
     private LightMode lightMode   = LightMode.Disable;
     private ShadowMode shadowMode = ShadowMode.Disable;
 
@@ -116,7 +116,7 @@ public class TechniqueDef implements Savable {
      * Creates a new technique definition.
      * <p>
      * Used internally by the J3M/J3MD loader.
-     * 
+     *
      * @param name The name of the technique, should be set to <code>null</code>
      * for default techniques.
      */
@@ -129,14 +129,14 @@ public class TechniqueDef implements Savable {
      * Serialization only. Do not use.
      */
     public TechniqueDef(){
-        shaderLanguage=new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
-        shaderName=new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
+        shaderLanguages=new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
+        shaderNames=new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
     }
 
     /**
      * Returns the name of this technique as specified in the J3MD file.
      * Default techniques have the name "Default".
-     * 
+     *
      * @return the name of this technique
      */
     public String getName(){
@@ -154,9 +154,9 @@ public class TechniqueDef implements Savable {
 
     /**
      * Set the light mode
-     * 
+     *
      * @param lightMode the light mode
-     * 
+     *
      * @see LightMode
      */
     public void setLightMode(LightMode lightMode) {
@@ -173,9 +173,9 @@ public class TechniqueDef implements Savable {
 
     /**
      * Set the shadow mode.
-     * 
+     *
      * @param shadowMode the shadow mode.
-     * 
+     *
      * @see ShadowMode
      */
     public void setShadowMode(ShadowMode shadowMode) {
@@ -185,7 +185,7 @@ public class TechniqueDef implements Savable {
     /**
      * Returns the render state that this technique is using
      * @return the render state that this technique is using
-     * @see #setRenderState(com.jme3.material.RenderState) 
+     * @see #setRenderState(com.jme3.material.RenderState)
      */
     public RenderState getRenderState() {
         return renderState;
@@ -193,9 +193,9 @@ public class TechniqueDef implements Savable {
 
     /**
      * Sets the render state that this technique is using.
-     * 
+     *
      * @param renderState the render state that this technique is using.
-     * 
+     *
      * @see RenderState
      */
     public void setRenderState(RenderState renderState) {
@@ -203,18 +203,40 @@ public class TechniqueDef implements Savable {
     }
 
     /**
+     * Sets if this technique should not be used to render.
+     *
+     * @param noRender not render or render ?
+     *
+     * @see NoRender
+     */
+    public void setNoRender(boolean noRender) {
+        this.noRender = noRender;
+    }
+
+    /**
+     * Returns true if this technique should not be used to render.
+     * (eg. to not render a material with default technique)
+     *
+     * @return true if this technique should not be rendered, false otherwise.
+     *
+     */
+    public boolean isNoRender(){
+        return noRender;
+    }
+
+    /**
      * @deprecated jME3 always requires shaders now
      */
     @Deprecated
     public boolean isUsingShaders(){
-        return usesShaders;
+        return true;
     }
-    
+
     /**
      * Returns true if this technique uses Shader Nodes, false otherwise.
-     * 
+     *
      * @return true if this technique uses Shader Nodes, false otherwise.
-     * 
+     *
      */
     public boolean isUsingShaderNodes(){
         return usesNodes;
@@ -223,7 +245,7 @@ public class TechniqueDef implements Savable {
     /**
      * Gets the {@link Caps renderer capabilities} that are required
      * by this technique.
-     * 
+     *
      * @return the required renderer capabilities
      */
     public EnumSet<Caps> getRequiredCaps() {
@@ -232,52 +254,60 @@ public class TechniqueDef implements Savable {
 
     /**
      * Sets the shaders that this technique definition will use.
-     * 
+     *
      * @param vertexShader The name of the vertex shader
      * @param fragmentShader The name of the fragment shader
      * @param vertLanguage The vertex shader language
      * @param fragLanguage The fragment shader language
      */
     public void setShaderFile(String vertexShader, String fragmentShader, String vertLanguage, String fragLanguage) {
-        this.shaderLanguage.put(Shader.ShaderType.Vertex, vertLanguage);
-        this.shaderName.put(Shader.ShaderType.Vertex, vertexShader);
-        this.shaderLanguage.put(Shader.ShaderType.Fragment, fragLanguage);
-        this.shaderName.put(Shader.ShaderType.Fragment, fragmentShader);
+        this.shaderLanguages.put(Shader.ShaderType.Vertex, vertLanguage);
+        this.shaderNames.put(Shader.ShaderType.Vertex, vertexShader);
+        this.shaderLanguages.put(Shader.ShaderType.Fragment, fragLanguage);
+        this.shaderNames.put(Shader.ShaderType.Fragment, fragmentShader);
+
+        requiredCaps.clear();
         Caps vertCap = Caps.valueOf(vertLanguage);
         requiredCaps.add(vertCap);
         Caps fragCap = Caps.valueOf(fragLanguage);
         requiredCaps.add(fragCap);
-
-        usesShaders = true;
     }
 
 
     /**
      * Sets the shaders that this technique definition will use.
      *
-     * @param shaderName EnumMap containing all shader names for this stage
-     * @param shaderLanguage EnumMap containing all shader languages for this stage
+     * @param shaderNames EnumMap containing all shader names for this stage
+     * @param shaderLanguages EnumMap containing all shader languages for this stage
      */
-    public void setShaderFile(EnumMap<Shader.ShaderType, String> shaderName, EnumMap<Shader.ShaderType, String> shaderLanguage) {
-        for (Shader.ShaderType shaderType : shaderName.keySet()) {
-            this.shaderLanguage.put(shaderType,shaderLanguage.get(shaderType));
-            this.shaderName.put(shaderType,shaderName.get(shaderType));
-            if(shaderType.equals(Shader.ShaderType.Geometry)){
+    public void setShaderFile(EnumMap<Shader.ShaderType, String> shaderNames, EnumMap<Shader.ShaderType, String> shaderLanguages) {
+        requiredCaps.clear();
+
+        for (Shader.ShaderType shaderType : shaderNames.keySet()) {
+            String language = shaderLanguages.get(shaderType);
+            String shaderFile = shaderNames.get(shaderType);
+
+            this.shaderLanguages.put(shaderType, language);
+            this.shaderNames.put(shaderType, shaderFile);
+
+            Caps vertCap = Caps.valueOf(language);
+            requiredCaps.add(vertCap);
+
+            if (shaderType.equals(Shader.ShaderType.Geometry)) {
                 requiredCaps.add(Caps.GeometryShader);
-            }else if(shaderType.equals(Shader.ShaderType.TessellationControl)){
+            } else if (shaderType.equals(Shader.ShaderType.TessellationControl)) {
                 requiredCaps.add(Caps.TesselationShader);
             }
         }
-        usesShaders=true;
     }
 
     /**
      * Returns the define name which the given material parameter influences.
-     * 
+     *
      * @param paramName The parameter name to look up
      * @return The define name
-     * 
-     * @see #addShaderParamDefine(java.lang.String, java.lang.String) 
+     *
+     * @see #addShaderParamDefine(java.lang.String, java.lang.String)
      */
     public String getShaderParamDefine(String paramName){
         if (defineParams == null) {
@@ -290,11 +320,11 @@ public class TechniqueDef implements Savable {
      * Adds a define linked to a material parameter.
      * <p>
      * Any time the material parameter on the parent material is altered,
-     * the appropriate define on the technique will be modified as well. 
-     * See the method 
+     * the appropriate define on the technique will be modified as well.
+     * See the method
      * {@link DefineList#set(java.lang.String, com.jme3.shader.VarType, java.lang.Object) }
      * on the exact details of how the material parameter changes the define.
-     * 
+     *
      * @param paramName The name of the material parameter to link to.
      * @param defineName The name of the define parameter, e.g. USE_LIGHTING
      */
@@ -307,26 +337,26 @@ public class TechniqueDef implements Savable {
 
     /**
      * Returns the {@link DefineList} for the preset defines.
-     * 
+     *
      * @return the {@link DefineList} for the preset defines.
-     * 
-     * @see #addShaderPresetDefine(java.lang.String, com.jme3.shader.VarType, java.lang.Object) 
+     *
+     * @see #addShaderPresetDefine(java.lang.String, com.jme3.shader.VarType, java.lang.Object)
      */
     public DefineList getShaderPresetDefines() {
         return presetDefines;
     }
-    
+
     /**
-     * Adds a preset define. 
+     * Adds a preset define.
      * <p>
      * Preset defines do not depend upon any parameters to be activated,
      * they are always passed to the shader as long as this technique is used.
-     * 
+     *
      * @param defineName The name of the define parameter, e.g. USE_LIGHTING
-     * @param type The type of the define. See 
+     * @param type The type of the define. See
      * {@link DefineList#set(java.lang.String, com.jme3.shader.VarType, java.lang.Object) }
      * to see why it matters.
-     * 
+     *
      * @param value The value of the define
      */
     public void addShaderPresetDefine(String defineName, VarType type, Object value){
@@ -339,62 +369,54 @@ public class TechniqueDef implements Savable {
     /**
      * Returns the name of the fragment shader used by the technique, or null
      * if no fragment shader is specified.
-     * 
+     *
      * @return the name of the fragment shader to be used.
      */
     public String getFragmentShaderName() {
-        return shaderName.get(Shader.ShaderType.Fragment);
+        return shaderNames.get(Shader.ShaderType.Fragment);
     }
 
-    
+
     /**
      * Returns the name of the vertex shader used by the technique, or null
      * if no vertex shader is specified.
-     * 
+     *
      * @return the name of the vertex shader to be used.
      */
     public String getVertexShaderName() {
-        return shaderName.get(Shader.ShaderType.Vertex);
-    }
-
-    /**
-     * @deprecated Use {@link #getVertexShaderLanguage() } instead.
-     */
-    @Deprecated
-    public String getShaderLanguage() {
-        return shaderLanguage.get(Shader.ShaderType.Vertex);
+        return shaderNames.get(Shader.ShaderType.Vertex);
     }
 
     /**
      * Returns the language of the fragment shader used in this technique.
      */
     public String getFragmentShaderLanguage() {
-        return shaderLanguage.get(Shader.ShaderType.Fragment);
+        return shaderLanguages.get(Shader.ShaderType.Fragment);
     }
-    
+
     /**
      * Returns the language of the vertex shader used in this technique.
      */
     public String getVertexShaderLanguage() {
-        return shaderLanguage.get(Shader.ShaderType.Vertex);
+        return shaderLanguages.get(Shader.ShaderType.Vertex);
     }
 
     /**Returns the language for each shader program
      * @param shaderType
      */
     public String getShaderProgramLanguage(Shader.ShaderType shaderType){
-        return shaderLanguage.get(shaderType);
+        return shaderLanguages.get(shaderType);
     }
     /**Returns the name for each shader program
      * @param shaderType
      */
     public String getShaderProgramName(Shader.ShaderType shaderType){
-        return shaderName.get(shaderType);
+        return shaderNames.get(shaderType);
     }
-    
+
     /**
      * Adds a new world parameter by the given name.
-     * 
+     *
      * @param name The world parameter to add.
      * @return True if the world parameter name was found and added
      * to the list of world parameters, false otherwise.
@@ -403,7 +425,7 @@ public class TechniqueDef implements Savable {
         if (worldBinds == null){
             worldBinds = new ArrayList<UniformBinding>();
         }
-        
+
         try {
             worldBinds.add( UniformBinding.valueOf(name) );
             return true;
@@ -419,11 +441,11 @@ public class TechniqueDef implements Savable {
     public void setForcedRenderState(RenderState forcedRenderState) {
         this.forcedRenderState = forcedRenderState;
     }
-    
+
     /**
      * Returns a list of world parameters that are used by this
      * technique definition.
-     * 
+     *
      * @return The list of world parameters
      */
     public List<UniformBinding> getWorldBindings() {
@@ -434,26 +456,26 @@ public class TechniqueDef implements Savable {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", null);
 
-        oc.write(shaderName.get(Shader.ShaderType.Vertex), "vertName", null);
-        oc.write(shaderName.get(Shader.ShaderType.Fragment), "fragName", null);
-        oc.write(shaderName.get(Shader.ShaderType.Geometry), "geomName", null);
-        oc.write(shaderName.get(Shader.ShaderType.TessellationControl), "tsctrlName", null);
-        oc.write(shaderName.get(Shader.ShaderType.TessellationEvaluation), "tsevalName", null);
-        oc.write(shaderLanguage.get(Shader.ShaderType.Vertex), "vertLanguage", null);
-        oc.write(shaderLanguage.get(Shader.ShaderType.Fragment), "fragLanguage", null);
-        oc.write(shaderLanguage.get(Shader.ShaderType.Geometry), "geomLanguage", null);
-        oc.write(shaderLanguage.get(Shader.ShaderType.TessellationControl), "tsctrlLanguage", null);
-        oc.write(shaderLanguage.get(Shader.ShaderType.TessellationEvaluation), "tsevalLanguage", null);
+        oc.write(shaderNames.get(Shader.ShaderType.Vertex), "vertName", null);
+        oc.write(shaderNames.get(Shader.ShaderType.Fragment), "fragName", null);
+        oc.write(shaderNames.get(Shader.ShaderType.Geometry), "geomName", null);
+        oc.write(shaderNames.get(Shader.ShaderType.TessellationControl), "tsctrlName", null);
+        oc.write(shaderNames.get(Shader.ShaderType.TessellationEvaluation), "tsevalName", null);
+        oc.write(shaderLanguages.get(Shader.ShaderType.Vertex), "vertLanguage", null);
+        oc.write(shaderLanguages.get(Shader.ShaderType.Fragment), "fragLanguage", null);
+        oc.write(shaderLanguages.get(Shader.ShaderType.Geometry), "geomLanguage", null);
+        oc.write(shaderLanguages.get(Shader.ShaderType.TessellationControl), "tsctrlLanguage", null);
+        oc.write(shaderLanguages.get(Shader.ShaderType.TessellationEvaluation), "tsevalLanguage", null);
 
         oc.write(presetDefines, "presetDefines", null);
         oc.write(lightMode, "lightMode", LightMode.Disable);
         oc.write(shadowMode, "shadowMode", ShadowMode.Disable);
         oc.write(renderState, "renderState", null);
-        oc.write(usesShaders, "usesShaders", false);
+        oc.write(noRender, "noRender", false);
         oc.write(usesNodes, "usesNodes", false);
         oc.writeSavableArrayList((ArrayList)shaderNodes,"shaderNodes", null);
         oc.write(shaderGenerationInfo, "shaderGenerationInfo", null);
-        
+
         // TODO: Finish this when Map<String, String> export is available
 //        oc.write(defineParams, "defineParams", null);
         // TODO: Finish this when List<Enum> export is available
@@ -463,30 +485,30 @@ public class TechniqueDef implements Savable {
     public void read(JmeImporter im) throws IOException{
         InputCapsule ic = im.getCapsule(this);
         name = ic.readString("name", null);
-        shaderName.put(Shader.ShaderType.Vertex,ic.readString("vertName", null));
-        shaderName.put(Shader.ShaderType.Fragment,ic.readString("fragName", null));
-        shaderName.put(Shader.ShaderType.Geometry,ic.readString("geomName", null));
-        shaderName.put(Shader.ShaderType.TessellationControl,ic.readString("tsctrlName", null));
-        shaderName.put(Shader.ShaderType.TessellationEvaluation,ic.readString("tsevalName", null));
+        shaderNames.put(Shader.ShaderType.Vertex,ic.readString("vertName", null));
+        shaderNames.put(Shader.ShaderType.Fragment,ic.readString("fragName", null));
+        shaderNames.put(Shader.ShaderType.Geometry,ic.readString("geomName", null));
+        shaderNames.put(Shader.ShaderType.TessellationControl,ic.readString("tsctrlName", null));
+        shaderNames.put(Shader.ShaderType.TessellationEvaluation,ic.readString("tsevalName", null));
         presetDefines = (DefineList) ic.readSavable("presetDefines", null);
         lightMode = ic.readEnum("lightMode", LightMode.class, LightMode.Disable);
         shadowMode = ic.readEnum("shadowMode", ShadowMode.class, ShadowMode.Disable);
         renderState = (RenderState) ic.readSavable("renderState", null);
-        usesShaders = ic.readBoolean("usesShaders", false);
-        
+        noRender = ic.readBoolean("noRender", false);
+
         if (ic.getSavableVersion(TechniqueDef.class) == 0) {
             // Old version
-            shaderLanguage.put(Shader.ShaderType.Vertex,ic.readString("shaderLang", null));
-            shaderLanguage.put(Shader.ShaderType.Fragment,shaderLanguage.get(Shader.ShaderType.Vertex));
+            shaderLanguages.put(Shader.ShaderType.Vertex,ic.readString("shaderLang", null));
+            shaderLanguages.put(Shader.ShaderType.Fragment,shaderLanguages.get(Shader.ShaderType.Vertex));
         } else {
             // New version
-            shaderLanguage.put(Shader.ShaderType.Vertex,ic.readString("vertLanguage", null));
-            shaderLanguage.put(Shader.ShaderType.Fragment,ic.readString("fragLanguage", null));
-            shaderLanguage.put(Shader.ShaderType.Geometry,ic.readString("geomLanguage", null));
-            shaderLanguage.put(Shader.ShaderType.TessellationControl,ic.readString("tsctrlLanguage", null));
-            shaderLanguage.put(Shader.ShaderType.TessellationEvaluation,ic.readString("tsevalLanguage", null));
+            shaderLanguages.put(Shader.ShaderType.Vertex,ic.readString("vertLanguage", null));
+            shaderLanguages.put(Shader.ShaderType.Fragment,ic.readString("fragLanguage", null));
+            shaderLanguages.put(Shader.ShaderType.Geometry,ic.readString("geomLanguage", null));
+            shaderLanguages.put(Shader.ShaderType.TessellationControl,ic.readString("tsctrlLanguage", null));
+            shaderLanguages.put(Shader.ShaderType.TessellationEvaluation,ic.readString("tsevalLanguage", null));
         }
-        
+
         usesNodes = ic.readBoolean("usesNodes", false);
         shaderNodes = ic.readSavableArrayList("shaderNodes", null);
         shaderGenerationInfo = (ShaderGenerationInfo) ic.readSavable("shaderGenerationInfo", null);
@@ -499,7 +521,6 @@ public class TechniqueDef implements Savable {
     public void setShaderNodes(List<ShaderNode> shaderNodes) {
         this.shaderNodes = shaderNodes;
         usesNodes = true;
-        usesShaders = true;
     }
 
     /**
@@ -507,7 +528,7 @@ public class TechniqueDef implements Savable {
      * @return
      */
     public EnumMap<Shader.ShaderType, String> getShaderProgramNames() {
-        return shaderName;
+        return shaderNames;
     }
 
     /**
@@ -515,7 +536,7 @@ public class TechniqueDef implements Savable {
      * @return
      */
     public EnumMap<Shader.ShaderType, String> getShaderProgramLanguages() {
-        return shaderLanguage;
+        return shaderLanguages;
     }
 
     public ShaderGenerationInfo getShaderGenerationInfo() {
@@ -529,6 +550,6 @@ public class TechniqueDef implements Savable {
     //todo: make toString return something usefull
     @Override
     public String toString() {
-        return "TechniqueDef{" + "requiredCaps=" + requiredCaps + ", name=" + name /*+ ", vertName=" + vertName + ", fragName=" + fragName + ", vertLanguage=" + vertLanguage + ", fragLanguage=" + fragLanguage */+ ", presetDefines=" + presetDefines + ", usesShaders=" + usesShaders + ", usesNodes=" + usesNodes + ", shaderNodes=" + shaderNodes + ", shaderGenerationInfo=" + shaderGenerationInfo + ", renderState=" + renderState + ", forcedRenderState=" + forcedRenderState + ", lightMode=" + lightMode + ", shadowMode=" + shadowMode + ", defineParams=" + defineParams + ", worldBinds=" + worldBinds + '}';
-    }    
+        return "TechniqueDef{" + "requiredCaps=" + requiredCaps + ", name=" + name /*+ ", vertName=" + vertName + ", fragName=" + fragName + ", vertLanguage=" + vertLanguage + ", fragLanguage=" + fragLanguage */+ ", presetDefines=" + presetDefines + ", usesNodes=" + usesNodes + ", shaderNodes=" + shaderNodes + ", shaderGenerationInfo=" + shaderGenerationInfo + ", renderState=" + renderState + ", forcedRenderState=" + forcedRenderState + ", lightMode=" + lightMode + ", shadowMode=" + shadowMode + ", defineParams=" + defineParams + ", worldBinds=" + worldBinds + ", noRender=" + noRender + '}';
+    }
 }

@@ -96,7 +96,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                 canvas.setFocusable(true);
                 canvas.setIgnoreRepaint(true);
 
-                renderThread = new Thread(LwjglCanvas.this, "LWJGL Renderer Thread");
+                renderThread = new Thread(LwjglCanvas.this, THREAD_NAME);
                 renderThread.start();
             }else if (needClose.get()){
                 return;
@@ -162,7 +162,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
         if (renderThread == null){
             logger.log(Level.FINE, "MAIN: Creating OGL thread.");
 
-            renderThread = new Thread(LwjglCanvas.this, "LWJGL Renderer Thread");
+            renderThread = new Thread(LwjglCanvas.this, THREAD_NAME);
             renderThread.start();
         }
         // do not do anything.

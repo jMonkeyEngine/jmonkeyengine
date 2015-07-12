@@ -297,7 +297,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         //model.setLocalScale(0.5f);
         model.addControl(character);
-        character.setPhysicsLocation(new Vector3f(-140, 15, -10));
+        character.setPhysicsLocation(new Vector3f(-140, 40, -10));
         rootNode.attachChild(model);
         getPhysicsSpace().add(character);
     }

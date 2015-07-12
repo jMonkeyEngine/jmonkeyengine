@@ -72,9 +72,10 @@ import java.util.ArrayList;
  * @author Kirill Vainer
  */
 public class FrameBuffer extends NativeObject {
-    public static int SLOT_UNDEF = -1;
-    public static int SLOT_DEPTH = -100;
-    public static int SLOT_DEPTH_STENCIL = -101;
+    
+    public static final int SLOT_UNDEF = -1;
+    public static final int SLOT_DEPTH = -100;
+    public static final int SLOT_DEPTH_STENCIL = -101;
 
     private int width = 0;
     private int height = 0;

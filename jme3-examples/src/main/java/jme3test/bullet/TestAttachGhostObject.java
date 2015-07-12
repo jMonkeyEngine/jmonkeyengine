@@ -85,7 +85,7 @@ public class TestAttachGhostObject extends SimpleApplication implements AnalogLi
     public void simpleInitApp() {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
-        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
+        bulletAppState.setDebugEnabled(true);
         setupKeys();
         setupJoint();
     }

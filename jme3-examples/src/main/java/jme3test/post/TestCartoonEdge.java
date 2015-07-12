@@ -80,7 +80,7 @@ public class TestCartoonEdge extends SimpleApplication {
         }else if (spatial instanceof Geometry){
             Geometry g = (Geometry) spatial;
             Material m = g.getMaterial();
-            if (m.getMaterialDef().getName().equals("Phong Lighting")){
+            if (m.getMaterialDef().getMaterialParam("UseMaterialColors") != null) {
                 Texture t = assetManager.loadTexture("Textures/ColorRamp/toon.png");
 //                t.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
 //                t.setMagFilter(Texture.MagFilter.Nearest);

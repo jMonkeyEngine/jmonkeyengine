@@ -137,7 +137,7 @@ public class Ipo {
      *            as jme while other features have different one (Z is UP)
      * @return bone track for the specified bone
      */
-    public Track calculateTrack(int targetIndex, Vector3f localTranslation, Quaternion localRotation, Vector3f localScale, int startFrame, int stopFrame, int fps, boolean spatialTrack) {
+    public Track calculateTrack(int targetIndex, BoneContext boneContext, Vector3f localTranslation, Quaternion localRotation, Vector3f localScale, int startFrame, int stopFrame, int fps, boolean spatialTrack) {
         if (calculatedTrack == null) {
             // preparing data for track
             int framesAmount = stopFrame - startFrame;
@@ -236,6 +236,15 @@ public class Ipo {
                     }
                 }
                 translations[index] = localRotation.multLocal(new Vector3f(translation[0], translation[1], translation[2]));
+                
+                if(boneContext != null) {
+                    if(boneContext.getBone().getParent() == null && boneContext.is(BoneContext.NO_LOCAL_LOCATION)) {
+                        float temp = translations[index].z;
+                        translations[index].z = -translations[index].y;
+                        translations[index].y = temp;
+                    }
+                }
+                
                 if (queternionRotationUsed) {
                     rotations[index] = new Quaternion(quaternionRotation[0], quaternionRotation[1], quaternionRotation[2], quaternionRotation[3]);
                 } else {
@@ -292,7 +301,7 @@ public class Ipo {
         }
 
         @Override
-        public BoneTrack calculateTrack(int boneIndex, Vector3f localTranslation, Quaternion localRotation, Vector3f localScale, int startFrame, int stopFrame, int fps, boolean boneTrack) {
+        public BoneTrack calculateTrack(int boneIndex, BoneContext boneContext, Vector3f localTranslation, Quaternion localRotation, Vector3f localScale, int startFrame, int stopFrame, int fps, boolean boneTrack) {
             throw new IllegalStateException("Constatnt ipo object cannot be used for calculating bone tracks!");
         }
     }

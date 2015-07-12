@@ -67,6 +67,18 @@ public class AndroidImportantFiles implements ImportantFiles {
                 node.setDisplayName("Android Properties");
                 list.add(node);
             }
+            FileObject layout = project.getProjectDirectory().getFileObject("mobile/res/layout/main.xml");
+            if (layout != null) {
+                Node node = DataObject.find(layout).getNodeDelegate();
+                node.setDisplayName("Android Layout");
+                list.add(node);
+            }
+            FileObject strings = project.getProjectDirectory().getFileObject("mobile/res/values/strings.xml");
+            if (strings != null) {
+                Node node = DataObject.find(strings).getNodeDelegate();
+                node.setDisplayName("Android Strings");
+                list.add(node);
+            }
         } catch (DataObjectNotFoundException ex) {
             Exceptions.printStackTrace(ex);
         }

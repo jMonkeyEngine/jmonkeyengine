@@ -312,7 +312,6 @@ public final class AnimChannel {
             }
         }
         animation = null;
-       // System.out.println("Setting notified false");
         notified = false;
     }
 

@@ -57,6 +57,7 @@ public abstract class SceneEditTool {
     protected Node axisMarker;
     protected Material redMat, blueMat, greenMat, yellowMat, cyanMat, magentaMat, orangeMat;
     protected Geometry quadXY, quadXZ, quadYZ;
+    protected SceneComposerToolController.TransformationType transformType;
 
     protected enum AxisMarkerPickType {
 
@@ -72,6 +73,7 @@ public abstract class SceneEditTool {
     public void activate(AssetManager manager, Node toolNode, Node onTopToolNode, Spatial selectedSpatial, SceneComposerToolController toolController) {
         this.manager = manager;
         this.toolController = toolController;
+        this.setTransformType(toolController.getTransformationType());
         //this.selectedSpatial = selectedSpatial;
         addMarker(toolNode, onTopToolNode);
     }
@@ -130,7 +132,19 @@ public abstract class SceneEditTool {
     public void doUpdateToolsTransformation() {
         if (toolController.getSelectedSpatial() != null) {
             axisMarker.setLocalTranslation(toolController.getSelectedSpatial().getWorldTranslation());
-            axisMarker.setLocalRotation(toolController.getSelectedSpatial().getLocalRotation());
+            switch (transformType) {
+                case local:
+                    axisMarker.setLocalRotation(toolController.getSelectedSpatial().getLocalRotation());
+                    break;
+                case global:
+                    axisMarker.setLocalRotation(Quaternion.IDENTITY);
+                    break;
+                case camera:
+                    if(camera != null){
+                        axisMarker.setLocalRotation(camera.getRotation());
+                    }
+                    break;
+            }
             setAxisMarkerScale(toolController.getSelectedSpatial());
         } else {
             axisMarker.setLocalTranslation(Vector3f.ZERO);
@@ -285,7 +299,7 @@ public abstract class SceneEditTool {
      * what part of the axis was selected.
      * For example if  (1,0,0) is returned, then the X-axis pole was selected.
      * If (0,1,1) is returned, then the Y-Z plane was selected.
-     * 
+     *
      * @return null if it did not intersect the marker
      */
     protected Vector3f pickAxisMarker(Camera cam, Vector2f mouseLoc, AxisMarkerPickType pickType) {
@@ -336,7 +350,7 @@ public abstract class SceneEditTool {
         CollisionResults results = new CollisionResults();
         Ray ray = new Ray();
         Vector3f pos = cam.getWorldCoordinates(mouseLoc, 0).clone();
-        Vector3f dir = cam.getWorldCoordinates(mouseLoc, 0.1f).clone();
+        Vector3f dir = cam.getWorldCoordinates(mouseLoc, 0.125f).clone();
         dir.subtractLocal(pos).normalizeLocal();
         ray.setOrigin(pos);
         ray.setDirection(dir);
@@ -347,7 +361,7 @@ public abstract class SceneEditTool {
 
     /**
      * Show what axis or plane the mouse is currently over and will affect.
-     * @param axisMarkerPickType 
+     * @param axisMarkerPickType
      */
     protected void highlightAxisMarker(Camera camera, Vector2f screenCoord, AxisMarkerPickType axisMarkerPickType) {
         highlightAxisMarker(camera, screenCoord, axisMarkerPickType, false);
@@ -355,12 +369,12 @@ public abstract class SceneEditTool {
 
     /**
      * Show what axis or plane the mouse is currently over and will affect.
-     * @param axisMarkerPickType 
+     * @param axisMarkerPickType
      * @param colorAll highlight all parts of the marker when only one is selected
      */
     protected void highlightAxisMarker(Camera camera, Vector2f screenCoord, AxisMarkerPickType axisMarkerPickType, boolean colorAll) {
         setDefaultAxisMarkerColors();
-        Vector3f picked = pickAxisMarker(camera, screenCoord, axisPickType);
+        Vector3f picked = pickAxisMarker(camera, screenCoord, axisMarkerPickType);
         if (picked == null) {
             return;
         }
@@ -371,16 +385,17 @@ public abstract class SceneEditTool {
             axisMarker.getChild("arrowY").setMaterial(orangeMat);
         } else if (picked == ARROW_Z) {
             axisMarker.getChild("arrowZ").setMaterial(orangeMat);
-        }
+        } else {
 
-        if (picked == QUAD_XY || colorAll) {
-            axisMarker.getChild("quadXY").setMaterial(orangeMat);
-        }
-        if (picked == QUAD_XZ || colorAll) {
-            axisMarker.getChild("quadXZ").setMaterial(orangeMat);
-        }
-        if (picked == QUAD_YZ || colorAll) {
-            axisMarker.getChild("quadYZ").setMaterial(orangeMat);
+            if (picked == QUAD_XY || colorAll) {
+                axisMarker.getChild("quadXY").setMaterial(orangeMat);
+            }
+            if (picked == QUAD_XZ || colorAll) {
+                axisMarker.getChild("quadXZ").setMaterial(orangeMat);
+            }
+            if (picked == QUAD_YZ || colorAll) {
+                axisMarker.getChild("quadYZ").setMaterial(orangeMat);
+            }
         }
     }
 
@@ -453,6 +468,7 @@ public abstract class SceneEditTool {
 //        axis.attachChild(quadYZ);
 
         axis.setModelBound(new BoundingBox());
+        axis.updateModelBound();
         return axis;
     }
 
@@ -484,5 +500,13 @@ public abstract class SceneEditTool {
 
     public void setCamera(Camera camera) {
         this.camera = camera;
+    }
+
+    public SceneComposerToolController.TransformationType getTransformType() {
+        return transformType;
+    }
+
+    public void setTransformType(SceneComposerToolController.TransformationType transformType) {
+        this.transformType = transformType;
     }
 }

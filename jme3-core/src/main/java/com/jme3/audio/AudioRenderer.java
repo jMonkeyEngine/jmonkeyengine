@@ -59,6 +59,7 @@ public interface AudioRenderer {
 
     public void updateSourceParam(AudioSource src, AudioParam param);
     public void updateListenerParam(Listener listener, ListenerParam param);
+    public float getSourcePlaybackTime(AudioSource src);
 
     public void deleteFilter(Filter filter);
     public void deleteAudioData(AudioData ad);

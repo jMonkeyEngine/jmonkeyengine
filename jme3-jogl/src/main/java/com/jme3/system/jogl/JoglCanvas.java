@@ -35,7 +35,7 @@ package com.jme3.system.jogl;
 import com.jme3.system.JmeCanvasContext;
 import java.awt.Canvas;
 import java.util.logging.Logger;
-import javax.media.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLAutoDrawable;
 
 public class JoglCanvas extends JoglAbstractDisplay implements JmeCanvasContext {
 

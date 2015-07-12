@@ -312,13 +312,12 @@ public class DesktopAssetManager implements AssetManager {
     protected <T> T registerAndCloneSmartAsset(AssetKey<T> key, T obj, AssetProcessor proc, AssetCache cache) {
         // object obj is the original asset
         // create an instance for user
-        T clone = (T) obj;
         if (proc == null) {
             throw new IllegalStateException("Asset implements "
                     + "CloneableSmartAsset but doesn't "
                     + "have processor to handle cloning");
         } else {
-            clone = (T) proc.createClone(obj);
+            T clone = (T) proc.createClone(obj);
             if (cache != null && clone != obj) {
                 cache.registerAssetClone(key, clone);
             } else {
@@ -326,8 +325,8 @@ public class DesktopAssetManager implements AssetManager {
                         + "CloneableSmartAsset but doesn't have cache or "
                         + "was not cloned");
             }
+            return clone;
         }
-        return clone;
     }
     
     @Override

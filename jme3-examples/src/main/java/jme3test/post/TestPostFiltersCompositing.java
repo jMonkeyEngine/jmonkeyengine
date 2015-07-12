@@ -32,16 +32,16 @@
 package jme3test.post;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.plugins.ZipLocator;
+import com.jme3.asset.plugins.HttpZipLocator;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.BloomFilter;
 import com.jme3.post.filters.ColorOverlayFilter;
 import com.jme3.post.filters.ComposeFilter;
 import com.jme3.scene.Spatial;
+import com.jme3.system.AppSettings;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
@@ -55,8 +55,12 @@ import com.jme3.util.SkyFactory;
 public class TestPostFiltersCompositing extends SimpleApplication {
 
     public static void main(String[] args) {
-        TestPostFiltersCompositing app = new TestPostFiltersCompositing();
-        app.start();
+        TestPostFiltersCompositing app = new TestPostFiltersCompositing();        
+        AppSettings settings = new AppSettings(true);
+        settings.putBoolean("GraphicsDebug", false);
+        app.setSettings(settings);
+        app.start();        
+        
     }
 
     public void simpleInitApp() {
@@ -76,7 +80,7 @@ public class TestPostFiltersCompositing extends SimpleApplication {
         Texture2D mainVPTexture = new Texture2D(cam.getWidth(), cam.getHeight(), Image.Format.RGBA8);
         mainVPFrameBuffer.addColorTexture(mainVPTexture);
         mainVPFrameBuffer.setDepthBuffer(Image.Format.Depth);
-        viewPort.setOutputFrameBuffer(mainVPFrameBuffer);
+        viewPort.setOutputFrameBuffer(mainVPFrameBuffer);     
 
         //creating the post processor for the gui viewport
         final FilterPostProcessor guifpp = new FilterPostProcessor(assetManager);           
@@ -87,17 +91,18 @@ public class TestPostFiltersCompositing extends SimpleApplication {
         
         guiViewPort.addProcessor(guifpp);
         
-        //compositing is done my mixing texture depending on the alpha channel, 
+        //compositing is done by mixing texture depending on the alpha channel, 
         //it's important that the guiviewport clear color alpha value is set to 0
-        guiViewPort.setBackgroundColor(new ColorRGBA(0, 0, 0, 0));
+        guiViewPort.setBackgroundColor(ColorRGBA.BlackNoAlpha);
+        guiViewPort.setClearColor(true);
 
 
     }
 
     private void makeScene() {
         // load sky
-        rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
-        assetManager.registerLocator("wildhouse.zip", ZipLocator.class);
+        rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", SkyFactory.EnvMapType.CubeMap));
+        assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/wildhouse.zip", HttpZipLocator.class);        
         Spatial scene = assetManager.loadModel("main.scene");
         DirectionalLight sun = new DirectionalLight();
         sun.setDirection(new Vector3f(-0.4790551f, -0.39247334f, -0.7851566f));
