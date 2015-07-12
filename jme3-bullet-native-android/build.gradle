@@ -21,6 +21,7 @@ if (!hasProperty('mainClass')) {
 }
 
 dependencies {
+    compile project(':jme3-bullet-native')
     compile project(':jme3-bullet')
 }
 
@@ -28,7 +29,6 @@ dependencies {
 sourceSets {
     main {
         java {
-            srcDir jmeCppPath
             srcDir jmeAndroidPath
         }
     }
