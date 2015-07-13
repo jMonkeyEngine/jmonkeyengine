@@ -1,4 +1,4 @@
-#if _VERSION_ >= 150
+#if __VERSION__ >= 130
 out vec4 outFragColor;
 #  define texture1D texture
 #  define texture2D texture

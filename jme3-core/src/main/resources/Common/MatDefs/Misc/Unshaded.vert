@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSL150Compat.glsllib"
 #import "Common/ShaderLib/Skinning.glsllib"
 #import "Common/ShaderLib/Instancing.glsllib"
 
