@@ -32,6 +32,7 @@
 package com.jme3.light;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
@@ -48,6 +49,12 @@ import com.jme3.util.TempVars;
  * @author Kirill Vainer
  */
 public class AmbientLight extends Light {
+    /**
+     * @param lightColor Color of the ambient light
+     */
+    public AmbientLight(ColorRGBA lightColor) {
+        setColor(lightColor);
+    }
 
     @Override
     public boolean intersectsBox(BoundingBox box, TempVars vars) {
