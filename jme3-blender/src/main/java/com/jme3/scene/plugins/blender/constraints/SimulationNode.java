@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Stack;
 import java.util.logging.Logger;
 
 import com.jme3.animation.AnimChannel;
@@ -38,9 +39,9 @@ import com.jme3.util.TempVars;
  * @author Marcin Roguski (Kaelthas)
  */
 public class SimulationNode {
-    private static final Logger  LOGGER   = Logger.getLogger(SimulationNode.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(SimulationNode.class.getName());
 
-    private Long featureOMA;
+    private Long                 featureOMA;
     /** The blender context. */
     private BlenderContext       blenderContext;
     /** The name of the node (for debugging purposes). */
@@ -51,11 +52,11 @@ public class SimulationNode {
     private List<Animation>      animations;
 
     /** The nodes spatial (if null then the boneContext should be set). */
-    private Spatial              spatial;
+    private Spatial     spatial;
     /** The skeleton of the bone (not null if the node simulated the bone). */
-    private Skeleton             skeleton;
+    private Skeleton    skeleton;
     /** Animation controller for the node's feature. */
-    private AnimControl          animControl;
+    private AnimControl animControl;
 
     /**
      * The star transform of a spatial. Needed to properly reset the spatial to
@@ -64,7 +65,7 @@ public class SimulationNode {
     private Transform            spatialStartTransform;
     /** Star transformations for bones. Needed to properly reset the bones. */
     private Map<Bone, Transform> boneStartTransforms;
-    
+
     /**
      * Builds the nodes tree for the given feature. The feature (bone or
      * spatial) is found by its OMA. The feature must be a root bone or a root
@@ -208,8 +209,7 @@ public class SimulationNode {
         if (animations != null) {
             TempVars vars = TempVars.get();
             AnimChannel animChannel = animControl.createChannel();
-            
-            // List<Bone> bonesWithConstraints = this.collectBonesWithConstraints(skeleton);
+
             for (Animation animation : animations) {
                 float[] animationTimeBoundaries = this.computeAnimationTimeBoundaries(animation);
                 int maxFrame = (int) animationTimeBoundaries[0];
@@ -233,7 +233,7 @@ public class SimulationNode {
                     for (Bone rootBone : skeleton.getRoots()) {
                         // ignore the 0-indexed bone
                         if (skeleton.getBoneIndex(rootBone) > 0) {
-                            this.applyConstraints(rootBone, alteredOmas, applied, frame);
+                            this.applyConstraints(rootBone, alteredOmas, applied, frame, new Stack<Bone>());
                         }
                     }
 
@@ -294,34 +294,39 @@ public class SimulationNode {
      *            the set of OMAS of the altered bones (is populated if necessary)
      * @param frame
      *            the current frame of the animation
+     * @param bonesStack
+     *            the stack of bones used to avoid infinite loops while applying constraints
      */
-    private void applyConstraints(Bone bone, Set<Long> alteredOmas, Set<Long> applied, int frame) {
-        BoneContext boneContext = blenderContext.getBoneContext(bone);
-        if(!applied.contains(boneContext.getBoneOma())) {
-            List<Constraint> constraints = this.findConstraints(boneContext.getBoneOma(), blenderContext);
-            if (constraints != null && constraints.size() > 0) {
-                // TODO: BEWARE OF INFINITE LOOPS !!!!!!!!!!!!!!!!!!!!!!!!!!
-                for (Constraint constraint : constraints) {
-                    if (constraint.getTargetOMA() != null && constraint.getTargetOMA() > 0L) {
-                        // first apply constraints of the target bone
-                        BoneContext targetBone = blenderContext.getBoneContext(constraint.getTargetOMA());
-                        this.applyConstraints(targetBone.getBone(), alteredOmas, applied, frame);
+    private void applyConstraints(Bone bone, Set<Long> alteredOmas, Set<Long> applied, int frame, Stack<Bone> bonesStack) {
+        if (!bonesStack.contains(bone)) {
+            bonesStack.push(bone);
+            BoneContext boneContext = blenderContext.getBoneContext(bone);
+            if (!applied.contains(boneContext.getBoneOma())) {
+                List<Constraint> constraints = this.findConstraints(boneContext.getBoneOma(), blenderContext);
+                if (constraints != null && constraints.size() > 0) {
+                    for (Constraint constraint : constraints) {
+                        if (constraint.getTargetOMA() != null && constraint.getTargetOMA() > 0L) {
+                            // first apply constraints of the target bone
+                            BoneContext targetBone = blenderContext.getBoneContext(constraint.getTargetOMA());
+                            this.applyConstraints(targetBone.getBone(), alteredOmas, applied, frame, bonesStack);
+                        }
+                        constraint.apply(frame);
+                        if (constraint.getAlteredOmas() != null) {
+                            alteredOmas.addAll(constraint.getAlteredOmas());
+                        }
+                        alteredOmas.add(boneContext.getBoneOma());
                     }
-                    constraint.apply(frame);
-                    if (constraint.getAlteredOmas() != null) {
-                        alteredOmas.addAll(constraint.getAlteredOmas());
-                    }
-                    alteredOmas.add(boneContext.getBoneOma());
+                }
+                applied.add(boneContext.getBoneOma());
+            }
+
+            List<Bone> children = bone.getChildren();
+            if (children != null && children.size() > 0) {
+                for (Bone child : bone.getChildren()) {
+                    this.applyConstraints(child, alteredOmas, applied, frame, bonesStack);
                 }
             }
-            applied.add(boneContext.getBoneOma());
-        }
-        
-        List<Bone> children = bone.getChildren();
-        if (children != null && children.size() > 0) {
-            for (Bone child : bone.getChildren()) {
-                this.applyConstraints(child, alteredOmas, applied, frame);
-            }
+            bonesStack.pop();
         }
     }
 

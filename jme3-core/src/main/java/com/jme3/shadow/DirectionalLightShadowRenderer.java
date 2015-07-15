@@ -192,7 +192,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     }
 
     @Override
-    void getReceivers(GeometryList lightReceivers) {
+    protected void getReceivers(GeometryList lightReceivers) {
         if (lightReceivers.size()==0) {
             for (Spatial scene : viewPort.getScenes()) {
                 ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), RenderQueue.ShadowMode.Receive, lightReceivers);

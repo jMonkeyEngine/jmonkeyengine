@@ -1,3 +1,5 @@
+#import "Common/ShaderLib/GLSL150Compat.glsllib"
+
 #if defined(HAS_GLOWMAP) || defined(HAS_COLORMAP) || (defined(HAS_LIGHTMAP) && !defined(SEPARATE_TEXCOORD))
     #define NEED_TEXCOORD1
 #endif

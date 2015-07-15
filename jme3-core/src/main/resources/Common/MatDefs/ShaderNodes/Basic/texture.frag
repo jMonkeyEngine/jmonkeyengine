@@ -1,3 +1,3 @@
 void main(){
-    outColor = texture2D(texture,texCoord);
+    outColor = texture2D(textureMap,texCoord);
 }

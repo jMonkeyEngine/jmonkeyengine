@@ -31,10 +31,14 @@
  */
 package com.jme3.scene.plugins.blender.math;
 
-import com.jme3.export.*;
-import com.jme3.math.Transform;
-
 import java.io.IOException;
+
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
+import com.jme3.math.Transform;
 
 /**
  * Started Date: Jul 16, 2004<br>
@@ -57,6 +61,12 @@ public final class DTransform implements Savable, Cloneable, java.io.Serializabl
     private Vector3d          translation;
     private Vector3d          scale;
 
+    public DTransform() {
+        translation = new Vector3d();
+        rotation = new DQuaternion();
+        scale = new Vector3d();
+    }
+    
     public DTransform(Transform transform) {
         translation = new Vector3d(transform.getTranslation());
         rotation = new DQuaternion(transform.getRotation());
@@ -66,7 +76,15 @@ public final class DTransform implements Savable, Cloneable, java.io.Serializabl
     public Transform toTransform() {
         return new Transform(translation.toVector3f(), rotation.toQuaternion(), scale.toVector3f());
     }
-
+    
+    public Matrix toMatrix() {
+        Matrix m = Matrix.identity(4);
+        m.setTranslation(translation);
+        m.setRotationQuaternion(rotation);
+        m.setScale(scale);
+        return m;
+    }
+    
     /**
      * Sets this translation to the given value.
      * @param trans
