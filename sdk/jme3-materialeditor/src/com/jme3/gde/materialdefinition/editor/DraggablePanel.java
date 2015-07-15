@@ -37,14 +37,20 @@ public class DraggablePanel extends JPanel implements MouseListener, MouseMotion
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getButton() != MouseEvent.BUTTON2) {
-            svdx = getLocation().x;
+            
             if (!vertical) {
                 svdex = e.getXOnScreen();
             }
-            svdy = getLocation().y;
             svdey = e.getYOnScreen();
+            saveLocation();
+            diagram.multiStartDrag(this);
             e.consume();
         }
+    }
+
+    protected void saveLocation() {
+        svdy = getLocation().y;
+        svdx = getLocation().x;
     }
 
     @Override
@@ -71,9 +77,17 @@ public class DraggablePanel extends JPanel implements MouseListener, MouseMotion
                 xoffset = e.getLocationOnScreen().x - svdex;
             }
             int yoffset = e.getLocationOnScreen().y - svdey;
-            setLocation(Math.max(0, svdx + xoffset), Math.max(0, svdy + yoffset));
+            movePanel(xoffset, yoffset);
+            diagram.multiMove(this, xoffset, yoffset);
             e.consume();
         }
+    }
+
+    protected void movePanel(int xoffset, int yoffset) {
+        if (vertical) {
+            xoffset = 0;
+        }
+        setLocation(Math.max(0, svdx + xoffset), Math.max(0, svdy + yoffset));
     }
 
     public Diagram getDiagram() {
