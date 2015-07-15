@@ -34,6 +34,7 @@ package com.jme3.light;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.*;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Plane;
 import com.jme3.math.Vector3f;
@@ -51,8 +52,8 @@ import java.io.IOException;
  * can be used to attenuate the influence of the light depending on the 
  * distance between the light and the effected object.
  * Also the angle of the cone can be tweaked by changing the spot inner angle and the spot outer angle.
- * the spot inner angle determin the cone of light where light has full influence.
- * the spot outer angle determin the cone global cone of light of the spot light.
+ * the spot inner angle determine the cone of light where light has full influence.
+ * the spot outer angle determine the cone global cone of light of the spot light.
  * the light intensity slowly decrease between the inner cone and the outer cone.
  *  @author Nehon
  */
@@ -64,13 +65,45 @@ public class SpotLight extends Light {
     protected float spotOuterAngle = FastMath.QUARTER_PI / 6;
     protected float spotRange = 100;
     protected float invSpotRange = 1f / 100;
-    protected float packedAngleCos=0;
+    protected float packedAngleCos = 0;
     
     protected float outerAngleCosSqr, outerAngleSinSqr;
     protected float outerAngleSinRcp, outerAngleSin, outerAngleCos;
-    
+
+    /**
+     * Default constructor for SpotLight.
+     * <p>
+     *     <ul>
+     *         <li>Position will be defaulted to 0,0,0</li>
+     *         <li>Direction will be defaulted to -1 on the Y axis</li>
+     *         <li>Range will be defaulted to 100</li>
+     *     </ul>
+     * </p>
+     */
     public SpotLight() {
         super();
+        computeAngleParameters();
+    }
+
+    /**
+     * Constructor which allows setting color, position, direction, inner angle, outer angle and range.
+     *
+     * @param color the color of the spotlight.
+     * @param position the position of the spotlight.
+     * @param direction the direction of the spotlight.
+     * @param spotInnerAngle the inner angle of the spotlight.
+     * @param spotOuterAngle the outer angle of the spotlight.
+     * @param spotRange the range of the spotlight.
+     */
+    public SpotLight(final ColorRGBA color, final Vector3f position, final Vector3f direction, final float spotInnerAngle,
+                     final float spotOuterAngle, final float spotRange)
+    {
+        super(color);
+        this.position = position;
+        this.direction = direction;
+        this.spotInnerAngle = spotInnerAngle;
+        this.spotOuterAngle = spotOuterAngle;
+        this.spotRange = spotRange;
         computeAngleParameters();
     }
 

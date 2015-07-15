@@ -116,6 +116,22 @@ public abstract class Light implements Savable, Cloneable {
     boolean intersectsFrustum  = false;
 
     /**
+     * Default constructor for Light.
+     */
+    public Light() {
+
+    }
+
+    /**
+     * Constructor which allows setting of the color.
+     *
+     * @param color the color to apply to this light.
+     */
+    public Light(final ColorRGBA color) {
+        this.color = color;
+    }
+
+    /**
      * Returns the color of the light.
      * 
      * @return The color of the light.
