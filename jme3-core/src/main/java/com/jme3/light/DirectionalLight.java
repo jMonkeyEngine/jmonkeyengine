@@ -36,6 +36,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
@@ -52,6 +53,15 @@ import java.io.IOException;
 public class DirectionalLight extends Light {
 
     protected Vector3f direction = new Vector3f(0f, -1f, 0f);
+
+    /**
+     * @param lightColor Color of the light
+     * @param lightDirection Direction of the light
+     */
+    public DirectionalLight(ColorRGBA lightColor,Vector3f lightDirection) {
+        setColor(lightColor);
+        this.direction = lightDirection;
+    }
 
     @Override
     public void computeLastDistance(Spatial owner) {
