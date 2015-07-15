@@ -6,6 +6,7 @@ sourceSets {
     main {
         java {
             srcDir 'src/main/java'
+            srcDir '../jme3-bullet/src/common/java'
         }
     }
 }
@@ -15,5 +16,5 @@ dependencies {
     compile files('../lib/jbullet.jar', '../lib/stack-alloc.jar')
     compile project(':jme3-core')
     compile project(':jme3-terrain')
-    compile project(':jme3-bullet')
+//    compile project(':jme3-bullet')
 }
