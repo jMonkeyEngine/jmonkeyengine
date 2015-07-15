@@ -34,6 +34,7 @@ package com.jme3.light;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.*;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Plane;
 import com.jme3.math.Vector3f;
@@ -71,6 +72,39 @@ public class SpotLight extends Light {
     
     public SpotLight() {
         super();
+        computeAngleParameters();
+    }
+
+    /**
+     *
+     * @param lightColor Color of the light
+     * @param position Position of the light
+     * @param direction Direction of the light
+     * @param spotInnerAngle Inner angle of the light
+     * @param spotOuterAngle Outer angle of the light
+     */
+    public SpotLight(ColorRGBA lightColor,Vector3f position, Vector3f direction, float spotInnerAngle, float spotOuterAngle) {
+        this();
+        setColor(lightColor);
+        setPosition(position);
+        setDirection(direction);
+        setSpotInnerAngle(spotInnerAngle);
+        setSpotOuterAngle(spotOuterAngle);
+        computeAngleParameters();
+    }
+
+    /**
+     *
+     * @param lightColor Color of the light
+     * @param position Position of the light
+     * @param direction Direction of the light
+     * @param spotInnerAngle Inner angle of the light
+     * @param spotOuterAngle Outer angle of the light
+     * @param spotRange Range of the light
+     */
+    public SpotLight(ColorRGBA lightColor,Vector3f position, Vector3f direction, float spotInnerAngle, float spotOuterAngle,float spotRange) {
+        this(lightColor,position,direction,spotInnerAngle,spotOuterAngle);
+        setSpotRange(spotRange);
         computeAngleParameters();
     }
 
