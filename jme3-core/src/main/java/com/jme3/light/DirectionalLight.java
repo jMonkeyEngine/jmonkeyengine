@@ -60,7 +60,7 @@ public class DirectionalLight extends Light {
      */
     public DirectionalLight(ColorRGBA lightColor,Vector3f lightDirection) {
         setColor(lightColor);
-        this.direction = lightDirection;
+        setDirection(lightDirection);
     }
 
     @Override
