@@ -64,6 +64,12 @@ public class PointLight extends Light {
     protected float invRadius = 0;
 
     /**
+     * Default constructor
+     */
+    public PointLight() {
+    }
+
+    /**
      * @param lightColor Color of the light
      * @param lightPosition Position of the light
      * @param lightRadius Radius of the light

@@ -50,6 +50,12 @@ import com.jme3.util.TempVars;
  */
 public class AmbientLight extends Light {
     /**
+     * Default constructor
+     */
+    public AmbientLight() {
+    }
+
+    /**
      * @param lightColor Color of the ambient light
      */
     public AmbientLight(ColorRGBA lightColor) {

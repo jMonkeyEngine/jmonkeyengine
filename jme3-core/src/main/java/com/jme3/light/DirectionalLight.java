@@ -53,6 +53,11 @@ import java.io.IOException;
 public class DirectionalLight extends Light {
 
     protected Vector3f direction = new Vector3f(0f, -1f, 0f);
+    /**
+     * Default constructor
+     */
+    public DirectionalLight() {
+    }
 
     /**
      * @param lightColor Color of the light
