@@ -157,13 +157,13 @@ public class ShortcutManager {
     }
 
     private boolean checkCommandeKey(KeyInputEvent kie) {
-        if (checkCtrlHit(kie)) {
+        if (isCtrlKey(kie)) {
             ctrlDown = kie.isPressed();
             return true;
-        } else if (checkAltHit(kie)) {
+        } else if (isAltKey(kie)) {
             altDown = kie.isPressed();
             return true;
-        } else if (checkShiftHit(kie)) {
+        } else if (isShiftKey(kie)) {
             shiftDown = kie.isPressed();
             return true;
         }
@@ -178,11 +178,8 @@ public class ShortcutManager {
      * @param kie
      * @return true if the given kie is KEY_RETURN
      */
-    public static boolean checkEnterHit(KeyInputEvent kie) {
-        if (kie.getKeyCode() == KeyInput.KEY_RETURN) {
-            return true;
-        }
-        return false;
+    public static boolean isEnterKey(KeyInputEvent kie) {
+        return (kie.getKeyCode() == KeyInput.KEY_RETURN);
     }
 
     /**
@@ -190,11 +187,8 @@ public class ShortcutManager {
      * @param kie
      * @return true if the given kie is KEY_ESCAPE
      */
-    public static boolean checkEscHit(KeyInputEvent kie) {
-        if (kie.getKeyCode() == KeyInput.KEY_ESCAPE) {
-            return true;
-        }
-        return false;
+    public static boolean isEscKey(KeyInputEvent kie) {
+        return (kie.getKeyCode() == KeyInput.KEY_ESCAPE);
     }
 
     /**
@@ -202,11 +196,8 @@ public class ShortcutManager {
      * @param kie
      * @return true if the given kie is KEY_LCONTROL || KEY_RCONTROL
      */
-    public static boolean checkCtrlHit(KeyInputEvent kie) {
-        if (kie.getKeyCode() == KeyInput.KEY_LCONTROL || kie.getKeyCode() == KeyInput.KEY_RCONTROL) {
-            return true;
-        }
-        return false;
+    public static boolean isCtrlKey(KeyInputEvent kie) {
+        return (kie.getKeyCode() == KeyInput.KEY_LCONTROL || kie.getKeyCode() == KeyInput.KEY_RCONTROL);
     }
 
     /**
@@ -214,11 +205,8 @@ public class ShortcutManager {
      * @param kie
      * @return true if the given kie is KEY_LSHIFT || KEY_RSHIFT
      */
-    public static boolean checkShiftHit(KeyInputEvent kie) {
-        if (kie.getKeyCode() == KeyInput.KEY_LSHIFT || kie.getKeyCode() == KeyInput.KEY_RSHIFT) {
-            return true;
-        }
-        return false;
+    public static boolean isShiftKey(KeyInputEvent kie) {
+        return (kie.getKeyCode() == KeyInput.KEY_LSHIFT || kie.getKeyCode() == KeyInput.KEY_RSHIFT);
     }
 
     /**
@@ -226,9 +214,40 @@ public class ShortcutManager {
      * @param kie
      * @return true if the given kie is KEY_LMENU || KEY_RMENU
      */
-    public static boolean checkAltHit(KeyInputEvent kie) {
-        if (kie.getKeyCode() == KeyInput.KEY_LMENU || kie.getKeyCode() == KeyInput.KEY_RMENU) {
-            return true;
+    public static boolean isAltKey(KeyInputEvent kie) {
+        return (kie.getKeyCode() == KeyInput.KEY_LMENU || kie.getKeyCode() == KeyInput.KEY_RMENU);
+    }
+
+    /**
+     *
+     * @param kie
+     * @return
+     */
+    public static boolean isNumberKey(KeyInputEvent kie) {
+        switch (kie.getKeyCode()) {
+            case KeyInput.KEY_MINUS:
+            case KeyInput.KEY_0:
+            case KeyInput.KEY_1:
+            case KeyInput.KEY_2:
+            case KeyInput.KEY_3:
+            case KeyInput.KEY_4:
+            case KeyInput.KEY_5:
+            case KeyInput.KEY_6:
+            case KeyInput.KEY_7:
+            case KeyInput.KEY_8:
+            case KeyInput.KEY_9:
+            case KeyInput.KEY_NUMPAD0:
+            case KeyInput.KEY_NUMPAD1:
+            case KeyInput.KEY_NUMPAD2:
+            case KeyInput.KEY_NUMPAD3:
+            case KeyInput.KEY_NUMPAD4:
+            case KeyInput.KEY_NUMPAD5:
+            case KeyInput.KEY_NUMPAD6:
+            case KeyInput.KEY_NUMPAD7:
+            case KeyInput.KEY_NUMPAD8:
+            case KeyInput.KEY_NUMPAD9:
+            case KeyInput.KEY_PERIOD:
+                return true;
         }
         return false;
     }
@@ -236,65 +255,55 @@ public class ShortcutManager {
     /**
      * store the number kie into the numberBuilder
      *
-     * @param kie
-     * @param numberBuilder
-     * @return true if the given kie is handled as a number key event
+     * @param kie the KeiInputEvent to be handled as a number.
+     * @param numberBuilder the number builder that will be modified !
      */
-    public static boolean checkNumberKey(KeyInputEvent kie, StringBuilder numberBuilder) {
-        if (kie.getKeyCode() == KeyInput.KEY_MINUS) {
-            if (numberBuilder.length() > 0) {
-                if (numberBuilder.charAt(0) == '-') {
-                    numberBuilder.replace(0, 1, "");
+    public static void setNumberKey(KeyInputEvent kie, StringBuilder numberBuilder) {
+        switch (kie.getKeyCode()) {
+            case KeyInput.KEY_MINUS:
+                if (numberBuilder.length() > 0) {
+                    if (numberBuilder.charAt(0) == '-') {
+                        numberBuilder.replace(0, 1, "");
+                    } else {
+                        numberBuilder.insert(0, '-');
+                    }
                 } else {
-                    numberBuilder.insert(0, '-');
+                    numberBuilder.append('-');
                 }
-            } else {
-                numberBuilder.append('-');
-            }
-            return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_0 || kie.getKeyCode() == KeyInput.KEY_NUMPAD0) {
-            numberBuilder.append('0');
-            return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_1 || kie.getKeyCode() == KeyInput.KEY_NUMPAD1) {
-            numberBuilder.append('1');
-            return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_2 || kie.getKeyCode() == KeyInput.KEY_NUMPAD2) {
-            numberBuilder.append('2');
-            return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_3 || kie.getKeyCode() == KeyInput.KEY_NUMPAD3) {
-            numberBuilder.append('3');
-            return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_4 || kie.getKeyCode() == KeyInput.KEY_NUMPAD4) {
-            numberBuilder.append('4');
-            return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_5 || kie.getKeyCode() == KeyInput.KEY_NUMPAD5) {
-            numberBuilder.append('5');
-            return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_6 || kie.getKeyCode() == KeyInput.KEY_NUMPAD6) {
-            numberBuilder.append('6');
-            return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_7 || kie.getKeyCode() == KeyInput.KEY_NUMPAD7) {
-            numberBuilder.append('7');
-            return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_8 || kie.getKeyCode() == KeyInput.KEY_NUMPAD8) {
-            numberBuilder.append('8');
-            return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_9 || kie.getKeyCode() == KeyInput.KEY_NUMPAD9) {
-            numberBuilder.append('9');
-            return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_PERIOD) {
-            if (numberBuilder.indexOf(".") == -1) { // if it doesn't exist yet
-                if (numberBuilder.length() == 0
-                        || (numberBuilder.length() == 1 && numberBuilder.charAt(0) == '-')) {
-                    numberBuilder.append("0.");
-                } else {
-                    numberBuilder.append(".");
+                break;
+            case KeyInput.KEY_0:
+            case KeyInput.KEY_1:
+            case KeyInput.KEY_2:
+            case KeyInput.KEY_3:
+            case KeyInput.KEY_4:
+            case KeyInput.KEY_5:
+            case KeyInput.KEY_6:
+            case KeyInput.KEY_7:
+            case KeyInput.KEY_8:
+            case KeyInput.KEY_9:
+            case KeyInput.KEY_NUMPAD0:
+            case KeyInput.KEY_NUMPAD1:
+            case KeyInput.KEY_NUMPAD2:
+            case KeyInput.KEY_NUMPAD3:
+            case KeyInput.KEY_NUMPAD4:
+            case KeyInput.KEY_NUMPAD5:
+            case KeyInput.KEY_NUMPAD6:
+            case KeyInput.KEY_NUMPAD7:
+            case KeyInput.KEY_NUMPAD8:
+            case KeyInput.KEY_NUMPAD9:
+                numberBuilder.append(kie.getKeyChar());
+                break;
+            case KeyInput.KEY_PERIOD:
+                if (numberBuilder.indexOf(".") == -1) { // if it doesn't exist yet
+                    if (numberBuilder.length() == 0
+                            || (numberBuilder.length() == 1 && numberBuilder.charAt(0) == '-')) {
+                        numberBuilder.append("0.");
+                    } else {
+                        numberBuilder.append(".");
+                    }
                 }
-            }
-            return true;
+                break;
         }
-
-        return false;
     }
 
     /**
@@ -311,25 +320,42 @@ public class ShortcutManager {
     }
 
     /**
-     * Check for axis input for key X,Y,Z and store the corresponding UNIT_ into
-     * the axisStore
+     * Test if the given kie can be handled as en axis input by the getAxisKey()
+     * method.
      *
-     * @param kie
-     * @param axisStore
-     * @return true if the given kie is handled as a Axis input
+     * @param kie the KeyInputEvent to test
+     * @return true is the kie can be handled as an axis input, else false
      */
-    public static boolean checkAxisKey(KeyInputEvent kie, Vector3f axisStore) {
-        if (kie.getKeyCode() == KeyInput.KEY_X) {
-            axisStore.set(Vector3f.UNIT_X);
-            return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_Y) {
-            axisStore.set(Vector3f.UNIT_Y);
-            return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_Z) {
-            axisStore.set(Vector3f.UNIT_Z);
-            return true;
+    public static boolean isAxisKey(KeyInputEvent kie) {
+        switch (kie.getKeyCode()) {
+            case KeyInput.KEY_X:
+            case KeyInput.KEY_Y:
+            case KeyInput.KEY_Z:
+                return true;
         }
         return false;
+    }
+
+    /**
+     * Handle the Kie as an axis input : return a Vector3f from the kie keyCode.
+     *
+     * @param kie the KeyInputEvent to handle as an Axis
+     * @return UNIT_X for 'x', UNIT_Y for 'y' and UNIT_Z for 'z' kie.
+     */
+    public static Vector3f getAxisKey(KeyInputEvent kie) {
+        Vector3f result = Vector3f.ZERO;
+        switch (kie.getKeyCode()) {
+            case KeyInput.KEY_X:
+                result = Vector3f.UNIT_X;
+                break;
+            case KeyInput.KEY_Y:
+                result = Vector3f.UNIT_Y;
+                break;
+            case KeyInput.KEY_Z:
+                result = Vector3f.UNIT_Z;
+                break;
+        }
+        return result;
     }
 
 }
