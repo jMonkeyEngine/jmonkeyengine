@@ -103,7 +103,6 @@ public class SpotLight extends Light {
         setSpotInnerAngle(spotInnerAngle);
         setSpotOuterAngle(spotOuterAngle);
         setSpotRange(spotRange);
-        invSpotRange=1f/spotRange;
         computeAngleParameters();
     }
 
