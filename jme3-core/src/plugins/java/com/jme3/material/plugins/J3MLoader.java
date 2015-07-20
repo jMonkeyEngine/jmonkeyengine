@@ -158,7 +158,7 @@ public class J3MLoader implements AssetLoader {
             final String value = values.get(i);
             final TextureOption textureOption = TextureOption.getTextureOption(value);
 
-            if (textureOption == null && !value.contains("\\") && !value.contains("/")) {
+            if (textureOption == null && !value.contains("\\") && !value.contains("/") && !values.get(0).equals("Flip") && !values.get(0).equals("Repeat")) {
                 logger.log(Level.WARNING, "Unknown texture option \"{0}\" encountered for \"{1}\" in material \"{2}\"", new Object[]{value, key, material.getKey().getName()});
             } else if (textureOption != null){
                 final String option = textureOption.getOptionValue(value);
@@ -179,27 +179,25 @@ public class J3MLoader implements AssetLoader {
         final List<TextureOptionValue> textureOptionValues = parseTextureOptions(textureValues);
 
         TextureKey textureKey = null;
-        boolean repeat = false;
 
         // If there is only one token on the value, it must be the path to the texture.
         if (textureValues.size() == 1) {
-            textureKey = new TextureKey(textureValues.get(0));
+            textureKey = new TextureKey(textureValues.get(0), false);
         } else {
             String texturePath = value.trim();
-            boolean flipY = false;
 
             // If there are no valid "new" texture options specified but the path is split into several parts, lets parse the old way.
             if (isTexturePathDeclaredTheTraditionalWay(textureValues.size(), textureOptionValues.size(), texturePath)) {
+                boolean flipY = false;
+
                 if (texturePath.startsWith("Flip Repeat ") || texturePath.startsWith("Repeat Flip ")) {
                     texturePath = texturePath.substring(12).trim();
                     flipY = true;
-                    repeat = true;
                 } else if (texturePath.startsWith("Flip ")) {
                     texturePath = texturePath.substring(5).trim();
                     flipY = true;
                 } else if (texturePath.startsWith("Repeat ")) {
                     texturePath = texturePath.substring(7).trim();
-                    repeat = true;
                 }
 
                 // Support path starting with quotes (double and single)
@@ -216,7 +214,7 @@ public class J3MLoader implements AssetLoader {
             }
 
             if (textureKey == null) {
-                textureKey = new TextureKey(textureValues.get(textureValues.size() - 1));
+                textureKey = new TextureKey(textureValues.get(textureValues.size() - 1), false);
             }
 
             // Apply texture options to the texture key
@@ -254,11 +252,6 @@ public class J3MLoader implements AssetLoader {
             texture = new Texture2D(PlaceholderAssets.getPlaceholderImage(assetManager));
             texture.setKey(textureKey);
             texture.setName(textureKey.getName());
-        }
-
-        // This is here for backwards compatibility, we need to do this after the texture has been instantiated.
-        if (repeat) {
-            texture.setWrap(Texture.WrapMode.Repeat);
         }
 
         // Apply texture options to the texture

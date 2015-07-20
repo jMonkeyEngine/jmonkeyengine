@@ -21,7 +21,9 @@ repositories {
 
 dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
-    testCompile group: 'junit', name: 'junit', version: '4.10'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.0.28-beta'
+    testCompile group: 'org.easytesting', name: 'fest-assert-core', version: '2.0M10'
 }
 
 javadoc {
