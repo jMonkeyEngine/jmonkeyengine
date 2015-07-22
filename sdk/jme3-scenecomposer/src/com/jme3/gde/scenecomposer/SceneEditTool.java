@@ -453,6 +453,9 @@ public abstract class SceneEditTool {
         Geometry arrowX = new Geometry("arrowX", new Arrow(new Vector3f(arrowSize, 0, 0)));
         Geometry arrowY = new Geometry("arrowY", new Arrow(new Vector3f(0, arrowSize, 0)));
         Geometry arrowZ = new Geometry("arrowZ", new Arrow(new Vector3f(0, 0, arrowSize)));
+        arrowX.getMesh().setLineWidth(3f);
+        arrowY.getMesh().setLineWidth(3f);
+        arrowZ.getMesh().setLineWidth(3f);   
         axis.attachChild(arrowX);
         axis.attachChild(arrowY);
         axis.attachChild(arrowZ);
