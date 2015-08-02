@@ -8,9 +8,9 @@ cache:
    - gradle-cache
    - netbeans
 
-branches:
-  only:
-  - master
+# branches:
+#   only:
+#   - master
 
 notifications:
   slack:
