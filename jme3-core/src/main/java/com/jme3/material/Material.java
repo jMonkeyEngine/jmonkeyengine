@@ -1169,10 +1169,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      */
     public void render(Geometry geom, LightList lights, RenderManager rm) {
         autoSelectTechnique(rm);
+        TechniqueDef techDef = technique.getDef();
+
+        if (techDef.isNoRender()) return;
 
         Renderer r = rm.getRenderer();
-
-        TechniqueDef techDef = technique.getDef();
 
         if (rm.getForcedRenderState() != null) {
             r.applyRenderState(rm.getForcedRenderState());

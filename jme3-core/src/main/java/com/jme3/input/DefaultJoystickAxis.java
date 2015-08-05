@@ -72,8 +72,10 @@ public class DefaultJoystickAxis implements JoystickAxis {
      *  @param negativeMapping The mapping to receive events when the axis is positive
      */
     public void assignAxis(String positiveMapping, String negativeMapping){
-        inputManager.addMapping(positiveMapping, new JoyAxisTrigger(parent.getJoyId(), axisIndex, false));
-        inputManager.addMapping(negativeMapping, new JoyAxisTrigger(parent.getJoyId(), axisIndex, true));
+        if (axisIndex != -1) {
+            inputManager.addMapping(positiveMapping, new JoyAxisTrigger(parent.getJoyId(), axisIndex, false));
+            inputManager.addMapping(negativeMapping, new JoyAxisTrigger(parent.getJoyId(), axisIndex, true));
+        }
     }
 
     /**

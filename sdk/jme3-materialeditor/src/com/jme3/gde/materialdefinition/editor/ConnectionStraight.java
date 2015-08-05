@@ -209,7 +209,7 @@ public class ConnectionStraight extends JPanel implements ComponentListener, Mou
             g.drawLine(p1.x, p1.y, p2.x, p2.y);
 
 
-            if (getDiagram().selectedItem == this) {
+            if (getDiagram().getSelectedItems().contains(this)) {
                 g.setColor(Color.CYAN);
             } else {
                 g.setColor(Color.GRAY);
@@ -489,7 +489,7 @@ public class ConnectionStraight extends JPanel implements ComponentListener, Mou
         }
 
         if (selected) {
-            getDiagram().select(this);
+            getDiagram().select(this, e.isShiftDown() || e.isControlDown());
             e.consume();
         }
     }
@@ -511,9 +511,7 @@ public class ConnectionStraight extends JPanel implements ComponentListener, Mou
 
         if (e.getKeyCode() == KeyEvent.VK_DELETE) {
             Diagram diag = getDiagram();
-            if (diag.selectedItem == this) {
-                diag.removeSelectedConnection();
-            }
+            diag.removeSelected();
         }
     }
 

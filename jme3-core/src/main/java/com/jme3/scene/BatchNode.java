@@ -119,19 +119,6 @@ public class BatchNode extends GeometryGroupNode {
         setNeedsFullRebatch(true);
     }
     
-    @Override
-    public void updateGeometricState() {
-        if (!children.isEmpty()) {
-            for (Batch batch : batches.getArray()) {
-                if (batch.needMeshUpdate) {
-                    batch.geometry.updateModelBound();
-                    batch.geometry.updateWorldBound();
-                    batch.needMeshUpdate = false;
-                }
-            }
-        }
-        super.updateGeometricState();
-    }
 
     protected Matrix4f getTransformMatrix(Geometry g){
         return g.cachedWorldMat;
@@ -169,7 +156,7 @@ public class BatchNode extends GeometryGroupNode {
             nvb.updateData(normBuf);
 
 
-            batch.needMeshUpdate = true;
+            batch.geometry.updateModelBound();
         }
     }
 
@@ -234,7 +221,7 @@ public class BatchNode extends GeometryGroupNode {
 
             batch.geometry.setMesh(m);
             batch.geometry.getMesh().updateCounts();
-            batch.geometry.getMesh().updateBound();
+            batch.geometry.updateModelBound();            
             batches.add(batch);
         }
         if (batches.size() > 0) {
@@ -747,8 +734,7 @@ public class BatchNode extends GeometryGroupNode {
                 }
             }
         }
-        Geometry geometry;
-        boolean needMeshUpdate = false;
+        Geometry geometry;        
     }
 
     protected void setNeedsFullRebatch(boolean needsFullRebatch) {

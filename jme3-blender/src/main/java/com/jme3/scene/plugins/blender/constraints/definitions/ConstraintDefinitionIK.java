@@ -25,19 +25,20 @@ import com.jme3.scene.plugins.blender.math.Vector3d;
  * @author Marcin Roguski (Kaelthas)
  */
 public class ConstraintDefinitionIK extends ConstraintDefinition {
-    private static final float MIN_DISTANCE  = 0.001f;
-    private static final int   FLAG_USE_TAIL = 0x01;
-    private static final int   FLAG_POSITION = 0x20;
+    private static final float MIN_DISTANCE     = 0.001f;
+    private static final float MIN_ANGLE_CHANGE = 0.001f;
+    private static final int   FLAG_USE_TAIL    = 0x01;
+    private static final int   FLAG_POSITION    = 0x20;
 
-    private BonesChain         bones;
+    private BonesChain bones;
     /** The number of affected bones. Zero means that all parent bones of the current bone should take part in baking. */
-    private int                bonesAffected;
+    private int        bonesAffected;
     /** Indicates if the tail of the bone should be used or not. */
-    private boolean            useTail;
+    private boolean    useTail;
     /** The amount of iterations of the algorithm. */
-    private int                iterations;
+    private int        iterations;
     /** The count of bones' chain. */
-    private int                bonesCount    = -1;
+    private int        bonesCount = -1;
 
     public ConstraintDefinitionIK(Structure constraintData, Long ownerOMA, BlenderContext blenderContext) {
         super(constraintData, ownerOMA, blenderContext);
@@ -117,7 +118,9 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
             Matrix J_1 = J.pseudoinverse();
 
             SimpleMatrix deltaThetas = J_1.mult(deltaP);
-
+            if (deltaThetas.elementMaxAbs() < MIN_ANGLE_CHANGE) {
+                break;
+            }
             for (int j = 0; j < deltaThetas.numRows(); ++j) {
                 double angle = deltaThetas.get(j, 0);
                 Vector3d rotationVector = rotationVectors[j];
@@ -171,7 +174,7 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
     private static class BonesChain extends ArrayList<BoneContext> {
         private static final long serialVersionUID = -1850524345643600718L;
 
-        private List<Matrix>      bonesMatrices    = new ArrayList<Matrix>();
+        private List<Matrix> bonesMatrices = new ArrayList<Matrix>();
 
         public BonesChain(Bone bone, boolean useTail, int bonesAffected, Collection<Long> alteredOmas, BlenderContext blenderContext) {
             if (bone != null) {
@@ -179,7 +182,7 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                 if (!useTail) {
                     bone = bone.getParent();
                 }
-                while (bone != null && this.size() < bonesAffected) {
+                while (bone != null && (bonesAffected <= 0 || this.size() < bonesAffected)) {
                     BoneContext boneContext = blenderContext.getBoneContext(bone);
                     this.add(boneContext);
                     alteredOmas.add(boneContext.getBoneOma());
