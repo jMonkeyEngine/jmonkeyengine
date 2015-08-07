@@ -78,14 +78,16 @@ public class MoveShortcut extends ShortcutTool {
         if (kie.isPressed()) {
             Lookup.getDefault().lookup(ShortcutManager.class).activateShortcut(kie);
 
-            Vector3f axis = new Vector3f();
-            boolean axisChanged = ShortcutManager.checkAxisKey(kie, axis);
+            boolean axisChanged = ShortcutManager.isAxisKey(kie);
             if (axisChanged) {
-                currentAxis = axis;
+                currentAxis = ShortcutManager.getAxisKey(kie);
             }
-            boolean numberChanged = ShortcutManager.checkNumberKey(kie, numberBuilder);
-            boolean enterHit = ShortcutManager.checkEnterHit(kie);
-            boolean escHit = ShortcutManager.checkEscHit(kie);
+            boolean numberChanged = ShortcutManager.isNumberKey(kie);
+            if(numberChanged){
+                ShortcutManager.setNumberKey(kie, numberBuilder);
+            }
+            boolean enterHit = ShortcutManager.isEnterKey(kie);
+            boolean escHit = ShortcutManager.isEscKey(kie);
 
             if (escHit) {
                 cancel();
