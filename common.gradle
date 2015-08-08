@@ -22,6 +22,8 @@ repositories {
 dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
     testCompile group: 'junit', name: 'junit', version: '4.10'
+}
+
 jar {
     manifest {
         attributes 'Implementation-Title': 'jMonkeyEngine',
