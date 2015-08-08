@@ -61,5 +61,6 @@ public class JmeVersion {
     public static final String GIT_TAG          = props.getProperty("git.tag", "");
     public static final String VERSION_NUMBER   = props.getProperty("version.number", "");
     public static final String VERSION_TAG      = props.getProperty("version.tag", "");
+    public static final String VERSION_FULL     = props.getProperty("version.full", "");
     public static final String FULL_NAME        = props.getProperty("name.full", "jMonkeyEngine (unknown version)");
 }

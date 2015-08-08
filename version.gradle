@@ -3,25 +3,25 @@
  =====================
  
  Nightly Build Snapshot
- * Full Name: jMonkeyEngine 3.1.0-5124
+ * Full Version: 3.1.0-5124
  * POM Version: 3.1.0-SNAPSHOT
  * NBM Version: 3.1.0.5124
  * NBM UC Suffix: nightly/3.1/plugins
 
  Nightly Build Snapshot (PBRIsComing branch)
- * Full Name: jMonkeyEngine 3.1.0-PBRIsComing-5124
+ * Full Version: 3.1.0-PBRIsComing-5124
  * POM Version: 3.1.0-PBRIsComing-SNAPSHOT
  * NBM Version: 3.1.0.5124
  * NBM UC Suffix: PBRIsComing-nightly/3.1/plugins
 
  Alpha1 Release
- * Full Name: jMonkeyEngine 3.1.0-alpha1
+ * Full Version: 3.1.0-alpha1
  * POM Version: 3.1.0-alpha1
  * NBM Version: 3.1.0.0
  * NBM UC Suffix: alpha1/3.1/plugins
  
  Final Release
- * Full Name: jMonkeyEngine 3.1.0
+ * Full Version: 3.1.0
  * POM Version: 3.1.0
  * NBM Version: 3.1.0.0
  * NBM UC Suffix: stable/3.1/plugins
@@ -46,7 +46,7 @@ ext {
     jmeShortGitHash = ""
     jmeBuildDate    = new SimpleDateFormat("yyyy-MM-dd").format(new Date())
     jmeBranchName   = "unknown"
-    jmeFullName     = "jMonkeyEngine ${jmeVersion}-UNKNOWN"
+    jmeFullVersion  = "${jmeVersion}-UNKNOWN"
     jmePomVersion   = "unknown"
     jmeNbmVersion   = "0.0.0.0"
     jmeNbmUcSuffix  = "unknown"
@@ -62,12 +62,12 @@ task configureVersionInfo {
         jmeGitTag = grgit.describe()
         if (jmeGitTag == null) jmeGitTag = ""
         
-        jmeFullName   = "jMonkeyEngine ${jmeVersion}"
-        jmePomVersion = jmeVersion
-        jmeNbmVersion = jmeVersion
+        jmeFullVersion = "${jmeVersion}"
+        jmePomVersion  = jmeVersion
+        jmeNbmVersion  = jmeVersion
         
         if (jmeBranchName != "master") {
-            jmeFullName    += "-${jmeBranchName}"
+            jmeFullVersion += "-${jmeBranchName}"
             jmePomVersion  += "-${jmeBranchName}"
             
             jmeNbmUcSuffix = "${jmeBranchName}-"
@@ -86,18 +86,18 @@ task configureVersionInfo {
         jmeNbmUcSuffix += "/" + jmeMainVersion + "/plugins"
         
         if (jmeVersionTag == "SNAPSHOT") {
-            jmeFullName   += "-${jmeRevision}"
-            jmePomVersion += "-SNAPSHOT"
-            jmeNbmVersion += ".${jmeRevision}"
+            jmeFullVersion += "-${jmeRevision}"
+            jmePomVersion  += "-SNAPSHOT"
+            jmeNbmVersion  += ".${jmeRevision}"
         } else if (jmeVersionTag == "") {
             jmeNbmVersion += ".0"
         } else {
-            jmeFullName   += "-${jmeVersionTag}"
-            jmePomVersion += "-${jmeVersionTag}"
-            jmeNbmVersion += ".0"
+            jmeFullVersion += "-${jmeVersionTag}"
+            jmePomVersion  += "-${jmeVersionTag}"
+            jmeNbmVersion  += ".0"
         }
         
-        logger.warn("Full Name: ${jmeFullName}")
+        logger.warn("Full Version: ${jmeFullVersion}")
         logger.warn("POM Version: ${jmePomVersion}")
         logger.warn("NBM Version: ${jmeNbmVersion}")
         logger.warn("NBM UC Suffix: ${jmeNbmUcSuffix}")
