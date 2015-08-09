@@ -12,7 +12,6 @@
     <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="ant-import.classpath"/>
     <taskdef resource="com/jme/ant/ant-jme.properties" classpathref="ant-import.classpath"/>
     <taskdef name="deb" classname="com.googlecode.ant_deb_task.Deb" classpathref="ant-import.classpath"/>
-    <taskdef name="gcupload" classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpathref="ant-import.classpath"/>
     <taskdef name="desktopentry" classname="com.googlecode.ant_deb_task.DesktopEntry" classpathref="ant-import.classpath"/>
 
     <!--override branding target to include netbeans config file creation, using this target makes sure init was called-->
@@ -270,58 +269,5 @@
             </description>
         </deb>
     </target>
-
-    <target name="-upload-googlecode" depends="-check-googlecode" if="googlecode.credentials.present">
-        <property file="nbproject/project.properties"/>
-        <property file="../../../googlecode.properties" prefix="googlecode"/>
-        <echo>Upload windows installers to googlecode..</echo>
-        <gcupload projectname="jmonkeyengine"
-                  labels="Type-Installer, OpSys-Windows, jMonkeyEngine3, Featured"
-                  summary="jMonkeyEngine3 SDK ${app.version} for Windows32"
-                  filename="${basedir}/dist/${app.name}-windows-x86.exe"
-                  targetfilename="jME3_SDK_${app.version}-windows-x86.exe"
-                  username="${googlecode.username}"
-                  password="${googlecode.password}"
-                  />
-        <gcupload projectname="jmonkeyengine"
-                  labels="Type-Installer, OpSys-Windows, jMonkeyEngine3, Featured"
-                  summary="jMonkeyEngine3 SDK ${app.version} for Windows64"
-                  filename="${basedir}/dist/${app.name}-windows-x64.exe"
-                  targetfilename="jME3_SDK_${app.version}-windows-x64.exe"
-                  username="${googlecode.username}"
-                  password="${googlecode.password}"
-                  />
-        <echo>Upload linux installers to googlecode..</echo>
-        <gcupload projectname="jmonkeyengine"
-                  labels="Type-Installer, OpSys-Linux, jMonkeyEngine3, Featured"
-                  summary="jMonkeyEngine3 SDK ${app.version} for Linux32"
-                  filename="${basedir}/dist/${app.name}-linux-x86.sh"
-                  targetfilename="jME3_SDK_${app.version}-linux-x86.sh"
-                  username="${googlecode.username}"
-                  password="${googlecode.password}"
-                  />
-        <gcupload projectname="jmonkeyengine"
-                  labels="Type-Installer, OpSys-Linux, jMonkeyEngine3, Featured"
-                  summary="jMonkeyEngine3 SDK ${app.version} for Linux64"
-                  filename="${basedir}/dist/${app.name}-linux-x64.sh"
-                  targetfilename="jME3_SDK_${app.version}-linux-x64.sh"
-                  username="${googlecode.username}"
-                  password="${googlecode.password}"
-                  />
-        <echo>Upload mac installer to googlecode..</echo>
-        <gcupload projectname="jmonkeyengine"
-                  labels="Type-Installer, OpSys-OSX, jMonkeyEngine3, Featured"
-                  summary="jMonkeyEngine3 SDK ${app.version} for MacOS X"
-                  filename="${basedir}/dist/${app.name}-macosx.tgz"
-                  targetfilename="jME3_SDK_${app.version}-macosx.tgz"
-                  username="${googlecode.username}"
-                  password="${googlecode.password}"
-                  />
-    </target>
-
-    <target name="-check-googlecode">
-        <available file="../../../googlecode.properties" property="googlecode.credentials.present"/>
-    </target>
-
 
 </project>
