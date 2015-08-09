@@ -388,12 +388,14 @@ copyTestSources.outputs.dir "JME3TestsTemplate/src/"
 copyTestSources.outputs.dir "JME3TestsTemplateAndroid/src/"
 
 ant.properties['plugins.version'] = jmeVersion
-ant.properties['app.version']= jmeMainVersion + "-" + jmeVersionTag
+ant.properties['app.version']= jmeFullVersion
+ant.properties['git.revision']= jmeRevision
 
 task buildSdk(dependsOn: [copyBaseLibs, copyProjectLibs, createProjectXml, createBaseXml, copyTestSources]) <<{
     ant.propertyfile(file: "nbproject/project.properties") {
         entry( key: "plugins.version", value: "${jmeVersion}")
-        entry( key: "app.version", value: "${jmeMainVersion + "-" + jmeVersionTag}")
+        entry( key: "app.version", value: "${jmeFullVersion}")
+        entry( key: "git.revision", value: "${jmeRevision}")
     }
     ant.ant(dir: ".", antfile: "build.xml", target: "build")
 }
