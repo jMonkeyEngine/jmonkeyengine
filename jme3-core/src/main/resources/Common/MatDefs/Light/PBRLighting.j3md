@@ -37,6 +37,8 @@ MaterialDef PBR Lighting {
         Texture2D SpecularMap
         Texture2D GlossMap
 
+        Vector4 ProbeData
+
         // Prefiltered Env Map for indirect specular lighting
         TextureCubeMap PrefEnvMap -LINEAR
         
@@ -132,7 +134,7 @@ MaterialDef PBR Lighting {
             DISCARD_ALPHA : AlphaDiscardThreshold                        
             NUM_BONES : NumberOfBones                        
             INSTANCING : UseInstancing
-            INDIRECT_LIGHTING : IntegrateBRDF
+            //INDIRECT_LIGHTING : IntegrateBRDF
             VERTEX_COLOR : UseVertexColor
         }
     }

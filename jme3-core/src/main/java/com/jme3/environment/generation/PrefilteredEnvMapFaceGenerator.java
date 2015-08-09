@@ -46,7 +46,6 @@ import static com.jme3.environment.util.EnvMapUtils.getHammersleyPoint;
 import static com.jme3.environment.util.EnvMapUtils.getRoughnessFromMip;
 import static com.jme3.environment.util.EnvMapUtils.getSampleFromMip;
 import static com.jme3.environment.util.EnvMapUtils.getVectorFromCubemapFaceTexCoord;
-import com.jme3.math.FastMath;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;

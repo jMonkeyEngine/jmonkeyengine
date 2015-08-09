@@ -34,6 +34,7 @@ package com.jme3.material;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.CloneableSmartAsset;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.export.*;
 import com.jme3.light.*;
 import com.jme3.material.RenderState.BlendMode;
@@ -104,6 +105,10 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     private int sortingId = -1;
     private transient ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
 
+    //Env textures units
+    int irrUnit = -1;
+    int pemUnit = -1;
+    
     public Material(MaterialDef def) {
         if (def == null) {
             throw new NullPointerException("Material definition cannot be null");
@@ -505,20 +510,24 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         paramValues.remove(name);
         if (matParam instanceof MatParamTexture) {
             int texUnit = ((MatParamTexture) matParam).getUnit();
-            nextTexUnit--;
-            for (MatParam param : paramValues.values()) {
-                if (param instanceof MatParamTexture) {
-                    MatParamTexture texParam = (MatParamTexture) param;
-                    if (texParam.getUnit() > texUnit) {
-                        texParam.setUnit(texParam.getUnit() - 1);
-                    }
-                }
-            }
-            sortingId = -1;
+            removeTexUnit(texUnit);
         }
         if (technique != null) {
             technique.notifyParamChanged(name, null, null);
         }
+    }
+
+    protected void removeTexUnit(int texUnit) {
+        nextTexUnit--;
+        for (MatParam param : paramValues.values()) {
+            if (param instanceof MatParamTexture) {
+                MatParamTexture texParam = (MatParamTexture) param;
+                if (texParam.getUnit() > texUnit) {
+                    texParam.setUnit(texParam.getUnit() - 1);
+                }
+            }
+        }
+        sortingId = -1;
     }
 
     /**
@@ -750,8 +759,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         Uniform lightData = shader.getUniform("g_LightData");
         lightData.setVector4Length(numLights * 3);//8 lights * max 3
         Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
-
-
+        Uniform lightProbeData = shader.getUniform("g_LightProbeData");
+        Uniform lightProbeIrrMap = shader.getUniform("g_IrradianceMap");
+        Uniform lightProbePemMap = shader.getUniform("g_PrefEnvMap");
+        
+        
         if (startIndex != 0) {
             // apply additive blending for 2nd and future passes
             rm.getRenderer().applyRenderState(additiveLight);
@@ -824,6 +836,32 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                         transposeLightDataToSpace(technique.getDef().getLightSpace(), rm, tmpVec);                        
                         lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), spotAngleCos, lightDataIndex);
                         lightDataIndex++;
+                        break;
+                    case Probe:
+                        
+                        //There should be a better way to handle these texture units
+                        //for now they are removed and reassign on every frame which is a waste.                        
+                        if (irrUnit != -1) {
+                            lightProbeIrrMap.clearValue();
+                            lightProbePemMap.clearValue();
+                            removeTexUnit(irrUnit);
+                            removeTexUnit(pemUnit);
+                            irrUnit = -1;
+                            pemUnit = -1;
+                        }
+                        endIndex++;
+                        LightProbe probe = (LightProbe)l;
+                        BoundingSphere s = (BoundingSphere)probe.getBounds();
+                        tmpVec.set(probe.getPosition().x, probe.getPosition().y, probe.getPosition().z, 1f/s.getRadius());
+                        lightProbeData.setValue(VarType.Vector4, tmpVec);
+                        if( irrUnit == -1 ){
+                            irrUnit = nextTexUnit++;
+                            pemUnit = nextTexUnit++;
+                        }
+                        rm.getRenderer().setTexture(irrUnit, probe.getIrradianceMap());
+                        lightProbeIrrMap.setValue(VarType.Int, irrUnit);
+                        rm.getRenderer().setTexture(pemUnit, probe.getPrefilteredEnvMap());
+                        lightProbePemMap.setValue(VarType.Int, pemUnit);
                         break;
                     default:
                         throw new UnsupportedOperationException("Unknown type of light: " + l.getType());

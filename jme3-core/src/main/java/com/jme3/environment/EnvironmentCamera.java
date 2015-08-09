@@ -35,12 +35,13 @@ import com.jme3.environment.generation.JobProgressListener;
 import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
+import com.jme3.light.LightProbe;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
-import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture2D;
@@ -54,8 +55,11 @@ import java.util.concurrent.Callable;
 
 /**
  * A 360 camera that can capture a cube map of a scene, and then generate the
- * Prefiltered Environment cube Map and the Irradiance cube Map needed for PBE
+ * Prefiltered Environment cube Map and the Irradiance cube Map needed for PBR
  * indirect lighting
+ * 
+ * @see LightProbeFactory
+ * @see LightProbe
  *
  * @author Nehon
  */
@@ -105,10 +109,6 @@ public class EnvironmentCamera extends BaseAppState {
 
     private final List<SnapshotJob> jobs = new ArrayList<SnapshotJob>();
 
-    // debug to be removed
-    private Node debugPfemCm;
-    private Node debugIrrCm;
-
     /**
      * Creates an EnvironmentCamera with a size of 128
      */
@@ -154,9 +154,10 @@ public class EnvironmentCamera extends BaseAppState {
      * @param scene the scene to snapshot.
      * @param done a callback to call when the snapshot is done.
      */
-    public void snapshot(final Node scene, final JobProgressListener<TextureCubeMap> done) {
+    public void snapshot(final Spatial scene, final JobProgressListener<TextureCubeMap> done) {
         getApplication().enqueue(new Callable<Void>() {
 
+            @Override
             public Void call() throws Exception {
                 SnapshotJob job = new SnapshotJob(done, scene);
                 jobs.add(job);
@@ -195,37 +196,10 @@ public class EnvironmentCamera extends BaseAppState {
         return position;
     }
     
-    
-
-//    /**
-//     * Displays or cycles through the generated maps.
-//     */
-//    public void toggleDebug() {
-//        if (debugPfemCm == null) {
-//            debugPfemCm = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(currentEnvProbe.getPrefilteredEnvMap(), getApplication().getAssetManager());
-//            debugPfemCm.setLocalTranslation(getApplication().getGuiViewPort().getCamera().getWidth() - 532, 20, 0);
-//        }
-//        if (debugIrrCm == null) {
-//            debugIrrCm = EnvMapUtils.getCubeMapCrossDebugView(currentEnvProbe.getIrradianceMap(), getApplication().getAssetManager());
-//            debugIrrCm.setLocalTranslation(getApplication().getGuiViewPort().getCamera().getWidth() - 532, 20, 0);
-//        }
-//
-//        if (debugIrrCm.getParent() != null) {
-//            debugIrrCm.removeFromParent();
-//            ((Node) (getApplication().getGuiViewPort().getScenes().get(0))).attachChild(debugPfemCm);
-//
-//        } else if (debugPfemCm.getParent() != null) {
-//            debugPfemCm.removeFromParent();
-//        } else {
-//            ((Node) (getApplication().getGuiViewPort().getScenes().get(0))).attachChild(debugIrrCm);
-//        }
-//
-//    }
-
     /**
-     * Sets the camera position.
+     * Sets the camera position in world space.
      *
-     * @param position
+     * @param position the position in world space
      */
     public void setPosition(Vector3f position) {
         this.position.set(position);
@@ -336,12 +310,15 @@ public class EnvironmentCamera extends BaseAppState {
         return offBuffer;
     }
 
+    /**
+     * An inner class to keep track on a snapshot job.
+     */
     private class SnapshotJob {
 
         JobProgressListener<TextureCubeMap> callback;
-        Node scene;
+        Spatial scene;
 
-        public SnapshotJob(JobProgressListener callback, Node scene) {
+        public SnapshotJob(JobProgressListener callback, Spatial scene) {
             this.callback = callback;
             this.scene = scene;
         }

@@ -55,6 +55,7 @@ public final class DefaultLightFilter implements LightFilter {
         TempVars vars = TempVars.get();
         try {
             LightList worldLights = geometry.getWorldLightList();
+            boolean probeAdded = false;
             for (int i = 0; i < worldLights.size(); i++) {
                 Light light = worldLights.get(i);
 
@@ -80,8 +81,17 @@ public final class DefaultLightFilter implements LightFilter {
                         throw new UnsupportedOperationException("Only AABB supported for now");
                     }
                 }
+                
+                if (light.getType() == Light.Type.Probe) {
+                    if (!probeAdded && ((LightProbe)light).isReady()) {
+                        //only adding the first probe (the closest to the geom as lights are sorted by the distance to the geom
+                        probeAdded = true;
+                        filteredLightList.add(light);
+                    }
 
-                filteredLightList.add(light);
+                } else {
+                    filteredLightList.add(light);
+                }
             }
         } finally {
             vars.release();
