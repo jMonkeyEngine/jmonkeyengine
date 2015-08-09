@@ -157,7 +157,7 @@
                                replace="OpenIDE-Module-Specification-Version: ${plugins.version}"
                                byline="true"/>
                 <replaceregexp file="${module_dir}/nbproject/project.properties"
-                               match="spec.version.base"
+                               match="#*spec\.version\.base"
                                replace="#spec.version.base"
                                byline="true"/>
             </then>
@@ -167,7 +167,7 @@
                                replace="OpenIDE-Module-Implementation-Version: 0"
                                byline="true"/>
                 <replaceregexp file="${module_dir}/nbproject/project.properties"
-                               match="#spec.version.base"
+                               match="#*spec\.version\.base"
                                replace="spec.version.base"
                                byline="true"/>
             </else>
