@@ -77,10 +77,8 @@ task configureVersionInfo {
         
         if (jmeVersionTag == "SNAPSHOT") {
             jmeNbmUcSuffix += "nightly"
-        } else if (jmeVersionTag == "") {
-            jmeNbmUcSuffix += "stable"
         } else {
-            jmeNbmUcSuffix += jmeVersionTag
+            jmeNbmUcSuffix += "stable"
         }
         
         jmeNbmUcSuffix += "/" + jmeMainVersion + "/plugins"
