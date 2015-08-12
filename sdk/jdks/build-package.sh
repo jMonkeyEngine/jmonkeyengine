@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-#(c) jMonkeyEngine.com
+#(c) jmonkeyengine.org
 #This script creates SFX binaries of the JDK for the specified platform
 #Author Normen Hansen
 

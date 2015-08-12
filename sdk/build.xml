@@ -249,7 +249,7 @@
              section="devel"
              depends="sun-java6-jdk"
              maintainer="jMonkeyEngine"
-             homepage="http://www.jmonkeyengine.com"
+             homepage="http://www.jmonkeyengine.org"
              postrm="debscripts/postrm"
         >
             <tarfileset dir="dist/${app.name}/" prefix="opt/${app.name}">
