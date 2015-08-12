@@ -464,9 +464,8 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
     }
     public static final String SHORTCUT_FILENAME =
             ResourceUtils.getString(ConfigurationLogic.class, "CL.app.name") + ".desktop"; // NOI18N
-    public static final String[] SHORTCUT_CATEGORIES = new String[]{
-        "Application"
-    };
+    public static final String[] SHORTCUT_CATEGORIES = 
+            ResourceUtils.getString(ConfigurationLogic.class, "CL.app.categories").split(","); // NOI18N
     public static final String BIN_SUBDIR =
             "bin/";
     public static final String EXECUTABLE_WINDOWS =

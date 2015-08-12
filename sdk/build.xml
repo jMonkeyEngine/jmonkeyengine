@@ -221,6 +221,8 @@
             <property name="pack200.enabled" value="true"/>
             <property name="nbi.icon.file" value="${basedir}/jmonkeyplatform.png"/>
             <property name="nbi.dock.icon.file" value="${basedir}/jmonkeyplatform.icns"/>
+            <property name="product.description" value="${app.description}"/>
+            <property name="product.categories" value="${app.categories}"/>
         </ant>
     </target>
 
