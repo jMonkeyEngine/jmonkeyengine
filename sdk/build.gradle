@@ -165,7 +165,7 @@ task createBaseXml(dependsOn: configurations.corelibs) <<{
                         "compile-dependency"{}
                         "run-dependency"{
                             "release-version" "1"
-                            "specification-version" "3.0.0"
+                            "specification-version" jmeVersion
                         }
                     }
                 }
