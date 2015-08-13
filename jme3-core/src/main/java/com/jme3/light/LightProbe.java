@@ -221,6 +221,7 @@ public class LightProbe extends Light implements Savable {
      */
     public void setPosition(Vector3f position) {
         this.position.set(position);
+        getBounds().setCenter(position);
     }
 
     @Override
@@ -247,5 +248,12 @@ public class LightProbe extends Light implements Savable {
     public Type getType() {
         return Type.Probe;
     }
+
+    @Override
+    public String toString() {
+        return "Light Probe : " + position ;
+    }
+    
+    
 
 }

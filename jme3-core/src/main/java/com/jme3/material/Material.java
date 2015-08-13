@@ -839,27 +839,18 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                         break;
                     case Probe:
                         
-                        //There should be a better way to handle these texture units
-                        //for now they are removed and reassign on every frame which is a waste.                        
-                        if (irrUnit != -1) {
-                            lightProbeIrrMap.clearValue();
-                            lightProbePemMap.clearValue();
-                            removeTexUnit(irrUnit);
-                            removeTexUnit(pemUnit);
-                            irrUnit = -1;
-                            pemUnit = -1;
-                        }
                         endIndex++;
                         LightProbe probe = (LightProbe)l;
                         BoundingSphere s = (BoundingSphere)probe.getBounds();
                         tmpVec.set(probe.getPosition().x, probe.getPosition().y, probe.getPosition().z, 1f/s.getRadius());
-                        lightProbeData.setValue(VarType.Vector4, tmpVec);
+                        lightProbeData.setValue(VarType.Vector4, tmpVec);                        
+                        //assigning new texture indexes if they have never been assigned.
                         if( irrUnit == -1 ){
                             irrUnit = nextTexUnit++;
                             pemUnit = nextTexUnit++;
                         }
                         rm.getRenderer().setTexture(irrUnit, probe.getIrradianceMap());
-                        lightProbeIrrMap.setValue(VarType.Int, irrUnit);
+                        lightProbeIrrMap.setValue(VarType.Int, irrUnit);                        
                         rm.getRenderer().setTexture(pemUnit, probe.getPrefilteredEnvMap());
                         lightProbePemMap.setValue(VarType.Int, pemUnit);
                         break;
