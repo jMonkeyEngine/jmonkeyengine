@@ -124,9 +124,11 @@
         <replace dir="${installer.build.dir}/ext" encoding="utf-8">
             <replacefilter token="{product-name}" value="${suite.props.app.title}"/>
             <replacefilter token="{product-simple-name}" value="${suite.props.app.name}"/>
-            <replacefilter token="{product-description}" value=""/>
             <replacefilter token="{product-uid}"         value="${product.uid}"/>
             <replacefilter token="{product-icon-name}"   value="${icon.name}"/>
+            <!--kirill-->
+            <replacefilter token="{product-description}" value="${product.description}"/>
+            <replacefilter token="{product-categories}"  value="${product.categories}" />
         </replace>
 
         <replace dir="${installer.build.dir}/ext/infra/build/products" encoding="utf-8">

@@ -4,8 +4,9 @@
 /dist/
 /build/
 /netbeans/
+/sdk/jdks/local/
 /jme3-core/build/
-/jme3-core/src/main/java/com/jme3/system/JmeVersion.java
+/jme3-core/src/main/resources/com/jme3/system/version.properties
 /jme3-plugins/build/
 /jme3-desktop/build/
 /jme3-android-native/build/
@@ -132,3 +133,10 @@
 !/jme3-bullet-native/libs/native/osx/x86_64/libbulletjme.dylib
 !/jme3-bullet-native/libs/native/linux/x86/libbulletjme.so
 !/jme3-bullet-native/libs/native/linux/x86_64/libbulletjme.so
+/.nb-gradle/
+/sdk/ant-jme/nbproject/private/
+/sdk/nbi/stub/ext/components/products/jdk/nbproject/private/
+/sdk/nbi/stub/ext/components/products/blender/nbproject/private/
+/sdk/BasicGameTemplate/nbproject/private/
+/sdk/nbi/stub/ext/components/products/jdk/build/
+/sdk/nbi/stub/ext/components/products/jdk/dist/

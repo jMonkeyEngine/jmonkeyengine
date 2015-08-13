@@ -376,7 +376,9 @@ public class GLRenderer implements Renderer {
             caps.add(Caps.TextureFilterAnisotropic);
         }
 
-        if (hasExtension("GL_EXT_framebuffer_object") || gl3 != null) {
+        if (hasExtension("GL_EXT_framebuffer_object") 
+                || gl3 != null
+                || caps.contains(Caps.OpenGLES20)) {
             caps.add(Caps.FrameBuffer);
 
             limits.put(Limits.RenderBufferSize, getInteger(GLFbo.GL_MAX_RENDERBUFFER_SIZE_EXT));

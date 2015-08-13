@@ -6,8 +6,8 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
-group   = 'com.jme3'
-version = jmeVersion + '-' + jmeVersionTag
+group = 'com.jme3'
+version = jmePomVersion
 
 sourceCompatibility = '1.6'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -22,6 +22,13 @@ repositories {
 dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
     testCompile group: 'junit', name: 'junit', version: '4.10'
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'jMonkeyEngine',
+                   'Implementation-Version': version
+    }
 }
 
 javadoc {

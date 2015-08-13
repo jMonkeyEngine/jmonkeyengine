@@ -1,15 +1,16 @@
 import org.gradle.api.artifacts.*
 
 buildscript {
-	repositories {
-		mavenCentral()
-	}
-	dependencies {
-		classpath 'com.android.tools.build:gradle:1.1.0'
-	}
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.1.0'
+    }
 }
 
 apply plugin: 'base'
+apply from: file('version.gradle')
 
 // This is applied to all sub projects
 subprojects {
@@ -114,7 +115,12 @@ task wrapper(type: Wrapper, description: 'Creates and deploys the Gradle wrapper
     gradleVersion = '2.2.1'
 }
 
-String findNDK() {
+ext {
+    ndkCommandPath  = ""
+    ndkExists       = false
+}
+
+task configureAndroidNDK {
     def ndkBuildFile = "ndk-build"
     // if windows, use ndk-build.cmd instead
     if (System.properties['os.name'].toLowerCase().contains('windows')) {
@@ -127,25 +133,11 @@ String findNDK() {
     if (System.env.ANDROID_NDK != null) {
         ndkBuildPath = System.env.ANDROID_NDK + File.separator + ndkBuildFile
     }
+    
     if (new File(ndkBuildPath).exists()) {
-        return ndkBuildPath
-    } else {
-        return null
+        ndkExists = true
+        ndkCommandPath = ndkBuildPath
     }
-}
-
-boolean checkNdkExists(String ndkCommandPath) {
-//    String ndkCommandPath = findNDK()
-    if (ndkCommandPath != null && new File(ndkCommandPath).exists()) {
-        return true
-    } else {
-        return false
-    }
-}
-
-ext {
-    ndkCommandPath = findNDK()
-    ndkExists = checkNdkExists(ndkCommandPath)
 }
 
 //class IncrementalReverseTask extends DefaultTask {

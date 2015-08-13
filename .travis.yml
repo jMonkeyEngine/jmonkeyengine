@@ -8,9 +8,9 @@ cache:
    - gradle-cache
    - netbeans
 
-branches:
-  only:
-  - master
+# branches:
+#   only:
+#   - master
 
 notifications:
   slack:
@@ -29,10 +29,11 @@ script:
 deploy:
   provider: releases
   api_key:
-    secure: "KbFiMt0a8FxUKvCJUYwikLYaqqGMn1p6k4OsXnGqwptQZEUIayabNLHeaD2kTNT3e6AY1ETwQLff/lB2LttmIo4g5NWW63g1K3A/HwgnhJwETengiProZ/Udl+ugPeDL/+ar43HUhFq4knBnzFKnEcHAThTPVqH/RMDvZf1UUYI="
-  file: build/distributions/jME3.1.0_snapshot-github_2015-06-20.zip
+    secure: PuEsJd6juXBH29ByITW3ntSAyrwWs0IeFvXJ5Y2YlhojhSMtTwkoWeB6YmDJWP4fhzbajk4TQ1HlOX2IxJXSW/8ShOEIUlGXz9fHiST0dkSM+iRAUgC5enCLW5ITPTiem7eY9ZhS9miIam7ngce9jHNMh75PTzZrEJtezoALT9w=
+  file: build/distributions/jME3.1.0_snapshot-github_2015-08-02.zip
   skip_cleanup: true
   on:
+    repo: jMonkeyEngine/jmonkeyengine
     tags: true
 
 # before_install:
