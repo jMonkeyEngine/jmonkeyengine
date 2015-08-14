@@ -5,25 +5,25 @@
  Nightly Build Snapshot
  * Full Version: 3.1.0-5124
  * POM Version: 3.1.0-SNAPSHOT
- * NBM Version: 3.1.0.5124
+ * NBM Revision: 5124
  * NBM UC Suffix: nightly/3.1/plugins
 
  Nightly Build Snapshot (PBRIsComing branch)
  * Full Version: 3.1.0-PBRIsComing-5124
  * POM Version: 3.1.0-PBRIsComing-SNAPSHOT
- * NBM Version: 3.1.0.5124
+ * NBM Revision: 5124
  * NBM UC Suffix: PBRIsComing-nightly/3.1/plugins
 
  Alpha1 Release
  * Full Version: 3.1.0-alpha1
  * POM Version: 3.1.0-alpha1
- * NBM Version: 3.1.0.0
- * NBM UC Suffix: alpha1/3.1/plugins
+ * NBM Revision: 1
+ * NBM UC Suffix: stable/3.1/plugins
  
  Final Release
  * Full Version: 3.1.0
  * POM Version: 3.1.0
- * NBM Version: 3.1.0.0
+ * NBM Revision: 5
  * NBM UC Suffix: stable/3.1/plugins
  */ 
 
@@ -41,6 +41,7 @@ buildscript {
 
 ext {
     jmeRevision     = 0
+    jmeNbmRevision  = 0
     jmeGitHash      = ""
     jmeGitTag       = ""
     jmeShortGitHash = ""
@@ -48,7 +49,6 @@ ext {
     jmeBranchName   = "unknown"
     jmeFullVersion  = "${jmeVersion}-UNKNOWN"
     jmePomVersion   = "unknown"
-    jmeNbmVersion   = "0.0.0.0"
     jmeNbmUcSuffix  = "unknown"
 }
 
@@ -64,7 +64,6 @@ task configureVersionInfo {
         
         jmeFullVersion = "${jmeVersion}"
         jmePomVersion  = jmeVersion
-        jmeNbmVersion  = jmeVersion
         
         if (jmeBranchName != "master") {
             jmeFullVersion += "-${jmeBranchName}"
@@ -86,18 +85,18 @@ task configureVersionInfo {
         if (jmeVersionTag == "SNAPSHOT") {
             jmeFullVersion += "-${jmeRevision}"
             jmePomVersion  += "-SNAPSHOT"
-            jmeNbmVersion  += ".${jmeRevision}"
+            jmeNbmRevision = jmeRevision
         } else if (jmeVersionTag == "") {
-            jmeNbmVersion += ".0"
+            jmeNbmRevision = jmeVersionTagID
         } else {
             jmeFullVersion += "-${jmeVersionTag}"
             jmePomVersion  += "-${jmeVersionTag}"
-            jmeNbmVersion  += ".0"
+            jmeNbmRevision = jmeVersionTagID
         }
         
         logger.warn("Full Version: ${jmeFullVersion}")
         logger.warn("POM Version: ${jmePomVersion}")
-        logger.warn("NBM Version: ${jmeNbmVersion}")
+        logger.warn("NBM Revision: ${jmeNbmRevision}")
         logger.warn("NBM UC Suffix: ${jmeNbmUcSuffix}")
     } catch (ex) {
         // Failed to get repo info
