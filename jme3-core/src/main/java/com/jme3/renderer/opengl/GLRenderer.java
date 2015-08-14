@@ -1066,6 +1066,9 @@ public class GLRenderer implements Renderer {
                 stringBuf.append("\n");
             } else {
                 if (gles2) {
+                    // request GLSL ES (1.00) when compiling under GLES2.
+                    stringBuf.append("#version 100\n");
+                    
                     if (source.getType() == ShaderType.Fragment) {
                         // GLES2 requires precision qualifier.
                         stringBuf.append("precision mediump float;\n");
