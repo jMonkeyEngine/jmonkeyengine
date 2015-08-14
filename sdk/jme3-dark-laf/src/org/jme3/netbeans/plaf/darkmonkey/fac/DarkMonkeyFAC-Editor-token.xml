@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN" "http://www.netbeans.org/dtds/EditorFontsColors-1_1.dtd">
+<fontscolors>
+    <!--
+     * - Note from Charles -
+     * ======================
+     *  This is the root of any FAC scheme
+     *  Nothing is defined except Java's own 
+     *  Black and White or bgColor and foreColor
+     *  So, we carve that away with "default"
+    -->
+    <fontcolor bgColor="ff232323" foreColor="ffe0e0e0" name="default">
+        <font name="DejaVu Sans Mono" style="plain"/>
+    </fontcolor>
+    <fontcolor name="char" foreColor="ffCE7B00"/>
+    <fontcolor name="comment" foreColor="ff66747b"/>
+    <fontcolor name="error" waveUnderlined="ffff3300"/>
+    <fontcolor name="identifier" foreColor="ffcccccc"/>
+    <fontcolor name="keyword" foreColor="orange"/>
+    <fontcolor name="number" foreColor="ffffcd22"/>
+    <fontcolor name="operator" foreColor="ffe8e2b7"/>
+    <fontcolor name="string" foreColor="ffff8409"/>
+    <fontcolor name="separator" foreColor="ffe8e2b7"/>
+    <fontcolor name="warning" waveUnderlined="yellow"/>
+    <fontcolor name="whitespace" foreColor="white"/>
+
+    <!-- Absorbed url from other file -->
+    <fontcolor name="url" foreColor="ffa0a0e0"/>
+    
+    <!-- OO languages -->    
+    <fontcolor name="field" foreColor="ff7f7fd0" default="identifier"/>
+    <fontcolor name="method" default="identifier"/>
+    
+    <!-- Tag based languages -->
+    
+    <fontcolor name="markup-element" default="keyword"/>
+    <fontcolor name="markup-attribute" default="field"/>
+    <fontcolor name="markup-attribute-value" default="string"/>
+    <fontcolor name="entity-reference" foreColor="ff003333" default="default">
+        <font style="bold"/>
+    </fontcolor>
+
+</fontscolors>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE type PUBLIC "-//NetBeans//DTD annotation type 1.0//EN" "http://www.netbeans.org/dtds/annotation-type-1_0.dtd">
+<type browseable="false" description_key="LAB_IsOverridenAnnotation-override-is-overridden-combined" foreground="0xffffff" glyph="nbresloc:/org/netbeans/modules/editor/resources/override/override-is-overridden-combined.png" inherit_foreground_color="false" localizing_bundle="org.netbeans.modules.editor.resources.override.Bundle" name="org-netbeans-modules-editor-annotations-override-is-overridden-combined" priority="0" severity="none" type="line" use_custom_sidebar_color="false" use_highlight_color="false" use_wave_underline_color="false" visible="true">
+    <combination tiptext_key="TP_COMBINED-override-is-overridden-combined">
+        <combine absorb_all="false" annotationtype="org-netbeans-modules-editor-annotations-is_overridden" optional="false"/>
+        <combine absorb_all="false" annotationtype="org-netbeans-modules-editor-annotations-overrides" optional="false"/>
+    </combination>
+</type>
