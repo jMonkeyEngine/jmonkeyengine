@@ -164,6 +164,14 @@ public class BlenderTool {
             return "../blender";
         }
     }
+    
+    private static String getBlenderOsSettingsPath() {
+        if (Utilities.isMac()) {
+            return "../blender/blender.app/Contents/Resources";
+        } else {
+            return "../blender";
+        }
+    }
 
     private static boolean checkBlenderFolders() {
         String jmpDir = Places.getUserDirectory().getAbsolutePath();
@@ -251,9 +259,9 @@ public class BlenderTool {
     }
 
     private static File getBlenderSettingsFolder() {
-        File blender = InstalledFileLocator.getDefault().locate(getBlenderOsPath() + "/2.75", null, false);
+        File blender = InstalledFileLocator.getDefault().locate(getBlenderOsSettingsPath() + "/2.75", null, false);
         if (blender == null) {
-            blender = InstalledFileLocator.getDefault().locate(getBlenderOsPath() + "/2.69", null, false);
+            blender = InstalledFileLocator.getDefault().locate(getBlenderOsSettingsPath() + "/2.69", null, false);
         }
         if (blender == null) {
             DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message("Error finding Blender settings"));
