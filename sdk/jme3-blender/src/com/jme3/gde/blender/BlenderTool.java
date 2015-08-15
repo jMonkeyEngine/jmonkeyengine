@@ -251,9 +251,9 @@ public class BlenderTool {
     }
 
     private static File getBlenderSettingsFolder() {
-        File blender = InstalledFileLocator.getDefault().locate(getBlenderOsPath() + "/2.69", null, false);
+        File blender = InstalledFileLocator.getDefault().locate(getBlenderOsPath() + "/2.75", null, false);
         if (blender == null) {
-            blender = InstalledFileLocator.getDefault().locate(getBlenderOsPath() + "/2.67", null, false);
+            blender = InstalledFileLocator.getDefault().locate(getBlenderOsPath() + "/2.69", null, false);
         }
         if (blender == null) {
             DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message("Error finding Blender settings"));
