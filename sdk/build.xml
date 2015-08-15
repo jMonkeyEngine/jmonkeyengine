@@ -192,12 +192,12 @@
         <if>
             <equals arg1="${set_impl_version}" arg2="true"/>
             <then>
-                <echo>Setting implementation version for ${module_dir} to revision: ${git.revision}</echo>
-                <replace  file="${module_dir}/manifest.mf" token="OpenIDE-Module-Implementation-Version: 0" value="OpenIDE-Module-Implementation-Version: ${git.revision}"/>
+                <echo>Setting implementation version for ${module_dir} to revision: ${nbm.revision}</echo>
+                <replace  file="${module_dir}/manifest.mf" token="OpenIDE-Module-Implementation-Version: 0" value="OpenIDE-Module-Implementation-Version: ${nbm.revision}"/>
             </then>
             <else>
-                <echo>Removing implementation version for ${module_dir} from revision: ${git.revision}</echo>
-                <replace file="${module_dir}/manifest.mf" token="OpenIDE-Module-Implementation-Version: ${git.revision}" value="OpenIDE-Module-Implementation-Version: 0"/>
+                <echo>Removing implementation version for ${module_dir} from revision: ${nbm.revision}</echo>
+                <replace file="${module_dir}/manifest.mf" token="OpenIDE-Module-Implementation-Version: ${nbm.revision}" value="OpenIDE-Module-Implementation-Version: 0"/>
             </else>
         </if>
     </target>
@@ -208,7 +208,7 @@
             <property name="suite.location" value="${basedir}"/>
             <property name="suite.nbi.product.uid" value="${app.name}"/>
             <!--TODO: this is .0.2 because of the pre-release static 3.0.0, else the RCs could not be installed next to a beta-->
-            <property name="suite.nbi.product.version" value="${plugins.version}.0.4"/>
+            <property name="suite.nbi.product.version" value="${plugins.version}.0.${nbm.revision}"/>
             <property name="nbi.stub.location" value="${basedir}/nbi/stub"/>
             <property name="nbi.stub.common.location" value="${basedir}/nbi/.common"/>
             <property name="nbi.ant.tasks.jar" value="${basedir}/nbi/antlib/nbi-ant-tasks.jar"/>

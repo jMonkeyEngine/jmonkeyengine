@@ -1,0 +1,54 @@
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at https://netbeans.org/cddl.html
+or https://netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at https://netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!--
+    Created on : November 6, 2006, 6:48 PM
+    Author     : vstejskal
+    Description:
+        The vocabulary for an editor fonts and colors settings file.
+
+    PUBLIC ID  : -//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN
+    SYSTEM ID  : https://netbeans.org/dtds/EditorFontsColors-1_1.dtd
+-->
+
+<!ELEMENT fontscolors ( fontcolor )* >
+<!ATTLIST fontscolors >
+
+
+<!ELEMENT fontcolor ( font? ) >
+<!ATTLIST fontcolor
+          name              CDATA #REQUIRED
+          bgColor           CDATA #IMPLIED
+          foreColor         CDATA #IMPLIED
+          underline         CDATA #IMPLIED
+          strikeThrough     CDATA #IMPLIED
+          waveUnderlined    CDATA #IMPLIED
+          default           CDATA #IMPLIED
+>
+
+
+<!--
+    The style attribute can be 'plain', 'bold', 'italic' or 'bold+italic'.
+-->
+<!ELEMENT font EMPTY>
+<!ATTLIST font
+          name          CDATA #IMPLIED
+          size          CDATA #IMPLIED
+          style         CDATA "plain"
+>

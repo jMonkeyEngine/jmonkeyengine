@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE type PUBLIC "-//NetBeans//DTD annotation type 1.0//EN" "http://www.netbeans.org/dtds/annotation-type-1_0.dtd">
+<type browseable="false" description_key="HINT_CURRENT_EXP_LINE_BP" foreground="0xffffff" glyph="nbresloc:/org/netbeans/modules/debugger/resources/editor/Breakpoint+PC.png" highlight="0x8b9989" inherit_foreground_color="false" localizing_bundle="org.netbeans.modules.debugger.resources.Bundle" name="CurrentExpressionLine_BP" priority="0" severity="none" type="line" use_custom_sidebar_color="false" use_highlight_color="true" use_wave_underline_color="false" visible="true">
+    <combination order="600" tiptext_key="">
+        <combine absorb_all="false" annotationtype="Breakpoint" optional="false"/>
+        <combine absorb_all="false" annotationtype="CurrentExpressionLine" optional="false"/>
+    </combination>
+</type>
