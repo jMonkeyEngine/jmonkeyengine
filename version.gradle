@@ -3,25 +3,25 @@
  =====================
  
  Nightly Build Snapshot
- * Full Version: 3.1.0-5124
+ * Full Version: 3.1-5124
  * POM Version: 3.1.0-SNAPSHOT
  * NBM Revision: 5124
  * NBM UC Suffix: nightly/3.1/plugins
 
  Nightly Build Snapshot (PBRIsComing branch)
- * Full Version: 3.1.0-PBRIsComing-5124
+ * Full Version: 3.1-PBRIsComing-5124
  * POM Version: 3.1.0-PBRIsComing-SNAPSHOT
  * NBM Revision: 5124
  * NBM UC Suffix: PBRIsComing-nightly/3.1/plugins
 
  Alpha1 Release
- * Full Version: 3.1.0-alpha1
+ * Full Version: 3.1-alpha1
  * POM Version: 3.1.0-alpha1
  * NBM Revision: 1
  * NBM UC Suffix: stable/3.1/plugins
  
  Final Release
- * Full Version: 3.1.0
+ * Full Version: 3.1
  * POM Version: 3.1.0
  * NBM Revision: 5
  * NBM UC Suffix: stable/3.1/plugins
@@ -62,7 +62,7 @@ task configureVersionInfo {
         jmeGitTag = grgit.describe()
         if (jmeGitTag == null) jmeGitTag = ""
         
-        jmeFullVersion = "${jmeVersion}"
+        jmeFullVersion = jmeMainVersion
         jmePomVersion  = jmeVersion
         
         if (jmeBranchName != "master") {
