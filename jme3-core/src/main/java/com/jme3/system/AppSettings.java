@@ -118,7 +118,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("StencilBits", 0);
         defaults.put("Samples", 0);
         defaults.put("Fullscreen", false);
-        defaults.put("Title", "jMonkey Engine 3.0");
+        defaults.put("Title", "jMonkey Engine 3.1");
         defaults.put("Renderer", LWJGL_OPENGL2);
         defaults.put("AudioRenderer", LWJGL_OPENAL);
         defaults.put("DisableJoysticks", true);
@@ -686,7 +686,7 @@ public final class AppSettings extends HashMap<String, Object> {
 
     /**
      * @param title The title of the rendering display
-     * (Default: jMonkeyEngine 3.0)
+     * (Default: jMonkeyEngine 3.1)
      */
     public void setTitle(String title) {
         putString("Title", title);
