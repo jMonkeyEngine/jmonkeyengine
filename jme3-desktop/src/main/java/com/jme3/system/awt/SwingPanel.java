@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,10 +37,17 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image.Format;
+import com.jme3.texture.Image;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.Screenshots;
-import java.awt.*;
+import java.awt.AWTException;
+import java.awt.BufferCapabilities;
+import java.awt.Canvas;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.ImageCapabilities;
+import java.awt.RenderingHints;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.AffineTransform;
@@ -54,8 +61,11 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JPanel;
 
-public class AwtPanel extends Canvas implements JmePanel, SceneProcessor {
+public class SwingPanel extends JPanel implements JmePanel, SceneProcessor {
 
     private boolean attachAsMain = false;
     
@@ -66,7 +76,6 @@ public class AwtPanel extends Canvas implements JmePanel, SceneProcessor {
     private ArrayList<ViewPort> viewPorts = new ArrayList<ViewPort>(); 
     
     // Visibility/drawing vars
-    private BufferStrategy strategy;
     private AffineTransformOp transformOp;
     private AtomicBoolean hasNativePeer = new AtomicBoolean(false);
     private AtomicBoolean showing = new AtomicBoolean(false);
@@ -79,12 +88,11 @@ public class AwtPanel extends Canvas implements JmePanel, SceneProcessor {
     private final Object lock = new Object();
     
     // Buffer pool and pending buffers
-    private int NUM_FRAMES = 3;
+    private final int NUM_FRAMES = 2;
     private final ArrayBlockingQueue<Future<ByteBuffer>> pendingFrames = new ArrayBlockingQueue<Future<ByteBuffer>>(NUM_FRAMES);
     private final ArrayBlockingQueue<ByteBuffer> bufferPool = new ArrayBlockingQueue<ByteBuffer>(NUM_FRAMES);
     private final ArrayList<FrameBuffer> fbs = new ArrayList<FrameBuffer>(NUM_FRAMES);
     private int frameIndex = 0;
-    
     
     private final ComponentAdapter resizeListener = new ComponentAdapter() {
         @Override
@@ -93,15 +101,9 @@ public class AwtPanel extends Canvas implements JmePanel, SceneProcessor {
         }
     };
     
-    public AwtPanel(PaintMode paintMode, boolean srgb){
+    public SwingPanel(PaintMode paintMode, boolean srgb){
         this.paintMode = paintMode;
-        
         invalidatePendingFrames();
-        
-        if (paintMode == PaintMode.Accelerated){
-            setIgnoreRepaint(true);
-        }
-        
         addComponentListener(resizeListener);
     }
     
@@ -116,6 +118,11 @@ public class AwtPanel extends Canvas implements JmePanel, SceneProcessor {
                 System.out.println("EDT: componentResized " + newWidth + ", " + newHeight);
             }
         }
+    }
+    
+    @Override
+    public Component getComponent() {
+        return this;
     }
     
     @Override
@@ -140,47 +147,51 @@ public class AwtPanel extends Canvas implements JmePanel, SceneProcessor {
         super.removeNotify();
     }
     
-//    @Override
-//    public void paint(Graphics g){
-//        Graphics2D g2d = (Graphics2D) g;
-//        synchronized (lock){
-//            g2d.drawImage(img, transformOp, 0, 0);
-//        }
-//    }
-    
-    public boolean checkVisibilityState(){
-        if (!hasNativePeer.get()){
-            if (strategy != null){
-//                strategy.dispose();
-                strategy = null;
-                System.out.println("OGL: Not visible. Destroy strategy.");
-            }
+    public boolean checkVisibilityState() {
+        if (!hasNativePeer.get()) {
             return false;
         }
-        
+
         boolean currentShowing = isShowing();
-        if (showing.getAndSet(currentShowing) != currentShowing){
-            if (currentShowing){
+        if (showing.getAndSet(currentShowing) != currentShowing) {
+            if (currentShowing) {
                 System.out.println("OGL: Enter showing state.");
-            }else{
+            } else {
                 System.out.println("OGL: Exit showing state.");
             }
         }
         return currentShowing;
     }
     
-//    public void repaintInThread(){
-//        // Convert screenshot.
-//        byteBuf.clear();
-//        rm.getRenderer().readFrameBuffer(fb, byteBuf);
-//        
-//        synchronized (lock){
-//            // All operations on img must be synchronized
-//            // as it is accessed from EDT.
-//            Screenshots.convertScreenShot2(intBuf, img);
-//            repaint();
-//        }
-//    }
+    @Override
+    public void paintComponent(Graphics g){
+        Graphics2D g2d = (Graphics2D) g;
+        
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
+                             RenderingHints.VALUE_RENDER_SPEED);
+        
+        ByteBuffer byteBuf = null;
+        
+        synchronized (lock){
+            if (pendingFrames.size() > NUM_FRAMES - 1) {
+                byteBuf = acquireNextFrame();
+            }
+
+            if (byteBuf != null) { 
+                // Convert the frame into the image so it can be rendered.
+                Screenshots.convertScreenShot2(byteBuf.asIntBuffer(), img);
+
+                try {
+                    // return the frame back to its rightful owner.
+                    bufferPool.put(byteBuf);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(SwingPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+
+        g2d.drawImage(img, transformOp, 0, 0);
+    }
     
     public ByteBuffer acquireNextFrame() {
         if (pendingFrames.isEmpty()) {
@@ -189,23 +200,7 @@ public class AwtPanel extends Canvas implements JmePanel, SceneProcessor {
         }
         
         try {
-            ByteBuffer nextFrame = null;
-            
-//            while (!pendingFrames.isEmpty() && pendingFrames.peek().isDone()) {
-//                nextFrame = pendingFrames.take().get();
-//            }
-//            
-//            if (nextFrame != null) {
-//                return nextFrame;
-//            }
-//            
-//            if (pendingFrames.remainingCapacity() == 0) {
-                // Force it to finish ..
-                return pendingFrames.take().get();
-//            }
-            
-            // Some frames are pending, none are finished though.
-//            return null;
+            return pendingFrames.take().get();
         } catch (InterruptedException ex) {
             throw new RuntimeException(ex);
         } catch (ExecutionException ex) {
@@ -213,6 +208,10 @@ public class AwtPanel extends Canvas implements JmePanel, SceneProcessor {
         }
     }
     
+    /**
+     * Grabs an available buffer from the available frames pool, 
+     * reads the OpenGL backbuffer into it, then adds it to the pending frames pool.
+     */
     public void readNextFrame() {
         if (bufferPool.isEmpty()) {
             System.out.println("??? Too many pending frames!");
@@ -226,10 +225,10 @@ public class AwtPanel extends Canvas implements JmePanel, SceneProcessor {
             byteBuf.clear();
             
             GLRenderer renderer = (GLRenderer) rm.getRenderer();
-            Future<ByteBuffer> future = renderer.readFrameBufferLater(fbs.get(frameIndex), byteBuf);
-            if (!pendingFrames.offer(future)) {
-                throw new AssertionError();
-            }
+//            Future<ByteBuffer> future = renderer.readFrameBufferLater(fbs.get(frameIndex), byteBuf);
+//            if (!pendingFrames.offer(future)) {
+//                throw new AssertionError();
+//            }
             
             frameIndex ++;
             if (frameIndex >= NUM_FRAMES) {
@@ -240,56 +239,11 @@ public class AwtPanel extends Canvas implements JmePanel, SceneProcessor {
         }
     }
     
-    public void drawFrameInThread(ByteBuffer byteBuf){
-        // Convert the frame into the image so it can be rendered.
-        Screenshots.convertScreenShot2(byteBuf.asIntBuffer(), img);
-        
-        // return the frame back to its rightful owner.
-        if (!bufferPool.offer(byteBuf)) {
-            throw new AssertionError();
-        }
-        
-        synchronized (lock){
-            // All operations on strategy should be synchronized (?)
-            if (strategy == null){
-                try {
-                    createBufferStrategy(1, 
-                            new BufferCapabilities(
-                                new ImageCapabilities(true), 
-                                new ImageCapabilities(true), 
-                                BufferCapabilities.FlipContents.UNDEFINED)
-                                        );
-                } catch (AWTException ex) {
-                    ex.printStackTrace();
-                }
-                strategy = getBufferStrategy();
-                System.out.println("OGL: Visible. Create strategy.");
-            }
-            
-            // Draw screenshot.
-            do {
-                do {
-                    Graphics2D g2d = (Graphics2D) strategy.getDrawGraphics();
-                    if (g2d == null){
-                        System.out.println("OGL: DrawGraphics was null.");
-                        return;
-                    }
-                    
-                    g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
-                                         RenderingHints.VALUE_RENDER_SPEED);
-                    
-                    g2d.drawImage(img, transformOp, 0, 0);
-                    g2d.dispose();
-                    strategy.show();
-                } while (strategy.contentsRestored());
-            } while (strategy.contentsLost());
-        }
-    }
-    
-    public boolean isActiveDrawing(){
+    @Override
+    public boolean isActiveDrawing() {
         return paintMode != PaintMode.OnRequest && showing.get();
     }
-    
+
     public void attachTo(boolean overrideMainFramebuffer, ViewPort ... vps){
         if (viewPorts.size() > 0){
             for (ViewPort vp : viewPorts){
@@ -309,14 +263,6 @@ public class AwtPanel extends Canvas implements JmePanel, SceneProcessor {
             // First time called in OGL thread
             this.rm = rm;
 //            reshapeInThread(1, 1);
-        }
-    }
-    
-    private void updateAccelerated() {
-        readNextFrame();
-        ByteBuffer byteBuf = acquireNextFrame();
-        if (byteBuf != null) { 
-            drawFrameInThread(byteBuf);
         }
     }
     
@@ -341,38 +287,35 @@ public class AwtPanel extends Canvas implements JmePanel, SceneProcessor {
         for (FrameBuffer fb : fbs) {
             fb.dispose();
         }
+        
         fbs.clear();
         
         for (int i = 0; i < NUM_FRAMES; i++) {
             FrameBuffer fb = new FrameBuffer(width, height, 1);
-            fb.setDepthBuffer(Format.Depth);
-            fb.setColorBuffer(Format.RGBA8);
+            fb.setDepthBuffer(Image.Format.Depth);
+            fb.setColorBuffer(Image.Format.RGBA8);
             fbs.add(fb);
         }
         
-        
-//        if (attachAsMain){
-//            rm.getRenderer().setMainFrameBufferOverride(fb);
-//        }
-        
         synchronized (lock){
-            img = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
+            img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            
+            AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
+            tx.translate(0, -img.getHeight());
+            transformOp = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
         }
         
-        AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
-        tx.translate(0, -img.getHeight());
-        transformOp = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-        
-        for (ViewPort vp : viewPorts){
-//            if (!attachAsMain){
-//                vp.setOutputFrameBuffer(fb);
-//            }
-            vp.getCamera().resize(width, height, true);
-            
-            // NOTE: Hack alert. This is done ONLY for custom framebuffers.
-            // Main framebuffer should use RenderManager.notifyReshape().
-            for (SceneProcessor sp : vp.getProcessors()){
-                sp.reshape(vp, width, height);
+        if (attachAsMain) {
+            rm.notifyReshape(width, height);
+        } else {
+            for (ViewPort vp : viewPorts){
+                vp.getCamera().resize(width, height, true);
+
+                // NOTE: Hack alert. This is done ONLY for custom framebuffers.
+                // Main framebuffer should use RenderManager.notifyReshape().
+                for (SceneProcessor sp : vp.getProcessors()){
+                    sp.reshape(vp, width, height);
+                }
             }
         }
     }
@@ -382,9 +325,11 @@ public class AwtPanel extends Canvas implements JmePanel, SceneProcessor {
         return rm != null;
     }
 
+    @Override
     public void preFrame(float tpf) {
     }
 
+    @Override
     public void postQueue(RenderQueue rq) {
     }
     
@@ -392,11 +337,6 @@ public class AwtPanel extends Canvas implements JmePanel, SceneProcessor {
     public void invalidate(){
         // For "PaintMode.OnDemand" only.
         repaintRequest.set(true);
-    }
-    
-    @Override
-    public Component getComponent() {
-        return this;
     }
     
     @Override
@@ -417,24 +357,21 @@ public class AwtPanel extends Canvas implements JmePanel, SceneProcessor {
 
             switch (paintMode) {
                 case Accelerated:
-                    updateAccelerated();
+                case Repaint:
+                    readNextFrame();
+                    repaint();
                     break;
-//                case Repaint:
-//                    repaintInThread();
-//                    break;
-//                case OnRequest:
-//                    if (repaintRequest.getAndSet(false)) {
-//                        repaintInThread();
-//                    }
-//                    break;
+                case OnRequest:
+                    if (repaintRequest.getAndSet(false)) {
+                        readNextFrame();
+                        repaint();
+                    }
+                    break;
             }
         }
     }
     
     public void postFrame(FrameBuffer out) {
-//        if (!attachAsMain && out != fb){
-//            throw new IllegalStateException("Why did you change the output framebuffer?");
-//        }
     }
     
     public void reshape(ViewPort vp, int w, int h) {
