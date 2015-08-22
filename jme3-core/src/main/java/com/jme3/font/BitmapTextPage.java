@@ -137,6 +137,11 @@ class BitmapTextPage extends Geometry {
         Mesh m = getMesh();
         int vertCount = pageQuads.size() * 4;
         int triCount = pageQuads.size() * 2;
+        
+        if (vertCount > m.getVertexCount() ||
+            triCount  > m.getTriangleCount()) {
+            m.setUpdateNeeded();
+        }
 
         VertexBuffer pb = m.getBuffer(Type.Position);
         VertexBuffer tb = m.getBuffer(Type.TexCoord);

@@ -164,4 +164,7 @@ public class NullRenderer implements Renderer {
     public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {        
     }
 
+    @Override
+    public void deleteMesh(Mesh mesh) {
+    }
 }

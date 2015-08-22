@@ -283,6 +283,12 @@ public interface Renderer {
      *                     the per-instance attributes.
      */
     public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData);
+    
+    /**
+     * Delete a Mesh (or Vertex Array Object in GL terms) from the GPU.
+     * @param mesh The mesh to delete.
+     */
+    public void deleteMesh(Mesh mesh);
 
     /**
      * Resets all previously used {@link NativeObject Native Objects} on this Renderer.
