@@ -62,6 +62,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -98,7 +99,8 @@ public class GLRenderer implements Renderer {
     private final GLExt glext;
     private final GLFbo glfbo;
     private final TextureUtil texUtil;
-
+    private final AsyncFrameReader frameReader;
+    
     public GLRenderer(GL gl, GLExt glext, GLFbo glfbo) {
         this.gl = gl;
         this.gl2 = gl instanceof GL2 ? (GL2)gl : null;
@@ -107,6 +109,7 @@ public class GLRenderer implements Renderer {
         this.glfbo = glfbo;
         this.glext = glext;
         this.texUtil = new TextureUtil(gl, gl2, glext);
+        this.frameReader = new AsyncFrameReader(this, gl, glext, context);
     }
 
     @Override
@@ -861,6 +864,7 @@ public class GLRenderer implements Renderer {
 
     public void postFrame() {
         objManager.deleteUnused(this);
+        frameReader.updateReadRequests();
         gl.resetStats();
     }
 
@@ -1647,11 +1651,11 @@ public class GLRenderer implements Renderer {
         }
     }
 
-    public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf) {
-        readFrameBufferWithGLFormat(fb, byteBuf, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
+    public Future<ByteBuffer> readFrameBufferLater(FrameBuffer fb, ByteBuffer byteBuf) {
+      return frameReader.readFrameBufferLater(fb, byteBuf);
     }
-
-    private void readFrameBufferWithGLFormat(FrameBuffer fb, ByteBuffer byteBuf, int glFormat, int dataType) {
+    
+    void readFrameBufferWithGLFormat(FrameBuffer fb, ByteBuffer byteBuf, int glFormat, int dataType, int pboId) {
         if (fb != null) {
             RenderBuffer rb = fb.getColorBuffer();
             if (rb == null) {
@@ -1670,12 +1674,30 @@ public class GLRenderer implements Renderer {
             setFrameBuffer(null);
         }
 
-        gl.glReadPixels(vpX, vpY, vpW, vpH, glFormat, dataType, byteBuf);
+        if (context.boundPixelPackPBO != pboId) {
+            gl.glBindBuffer(GLExt.GL_PIXEL_PACK_BUFFER_ARB, pboId);
+            context.boundPixelPackPBO = pboId;
+        }
+        
+        if (byteBuf == null) {
+            gl.glReadPixels(vpX, vpY, vpW, vpH, glFormat, dataType, 0);
+        } else {
+            gl.glReadPixels(vpX, vpY, vpW, vpH, glFormat, dataType, byteBuf);
+        }
+        
+        if (context.boundPixelPackPBO != 0) {
+            gl.glBindBuffer(GLExt.GL_PIXEL_PACK_BUFFER_ARB, 0);
+            context.boundPixelPackPBO = 0;
+        }
     }
 
     public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {
         GLImageFormat glFormat = texUtil.getImageFormatWithError(format, false);
-        readFrameBufferWithGLFormat(fb, byteBuf, glFormat.format, glFormat.dataType);
+        readFrameBufferWithGLFormat(fb, byteBuf, glFormat.format, glFormat.dataType, 0);
+    }
+    
+    public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf) {
+        readFrameBufferWithFormat(fb, byteBuf, Image.Format.RGBA8);
     }
 
     private void deleteRenderBuffer(FrameBuffer fb, RenderBuffer rb) {
@@ -2284,6 +2306,7 @@ public class GLRenderer implements Renderer {
         }
         context.attribIndexList.copyNewToOld();
     }
+
     
     private int updateAttributeLocation(Shader shader, VertexBuffer.Type attribType) {
         Attribute attrib = shader.getAttribute(attribType);
@@ -2550,8 +2573,8 @@ public class GLRenderer implements Renderer {
     }
 
     /*********************************************************************\
-     |* Render Calls                                                      *|
-     \*********************************************************************/
+    |* Render Calls                                                      *|
+    \*********************************************************************/
     public int convertElementMode(Mesh.Mode mode) {
         switch (mode) {
             case Points:
