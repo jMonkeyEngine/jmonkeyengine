@@ -274,6 +274,16 @@ public final class Shader extends NativeObject {
         return attrib;
     }
 
+    public boolean isAttributeDefined(VertexBuffer.Type attribType) {
+        int ordinal = attribType.ordinal();
+        Attribute attrib = attribs.get(ordinal);
+        if (attrib == null){
+            return false;
+        } else {
+            return attrib.location != -1 && attrib.location != 2;
+        }
+    }
+    
     public ListMap<String, Uniform> getUniformMap(){
         return uniforms;
     }
