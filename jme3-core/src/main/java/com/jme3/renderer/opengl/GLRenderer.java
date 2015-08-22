@@ -2284,32 +2284,37 @@ public class GLRenderer implements Renderer {
         }
         context.attribIndexList.copyNewToOld();
     }
+    
+    private int updateAttributeLocation(Shader shader, VertexBuffer.Type attribType) {
+        Attribute attrib = shader.getAttribute(attribType);
+        int loc = attrib.getLocation();
+        if (loc == -1) {
+            return -1; // not defined
+        }
+        if (loc == -2) {
+            loc = gl.glGetAttribLocation(context.boundShaderProgram, "in" + attribType.name());
+
+            // not really the name of it in the shader (inPosition) but
+            // the internal name of the enum (Position).
+            if (loc < 0) {
+                attrib.setLocation(-1);
+                return -1; // not available in shader.
+            } else {
+                attrib.setLocation(loc);
+            }
+        }
+        return loc;
+    }
 
     public void setVertexAttrib(VertexBuffer vb, VertexBuffer idb) {
         if (vb.getBufferType() == VertexBuffer.Type.Index) {
             throw new IllegalArgumentException("Index buffers not allowed to be set to vertex attrib");
         }
 
-        if (context.boundShaderProgram <= 0) {
-            throw new IllegalStateException("Cannot render mesh without shader bound");
-        }
-
-        Attribute attrib = context.boundShader.getAttribute(vb.getBufferType());
-        int loc = attrib.getLocation();
-        if (loc == -1) {
-            return; // not defined
-        }
-        if (loc == -2) {
-            loc = gl.glGetAttribLocation(context.boundShaderProgram, "in" + vb.getBufferType().name());
-
-            // not really the name of it in the shader (inPosition) but
-            // the internal name of the enum (Position).
-            if (loc < 0) {
-                attrib.setLocation(-1);
-                return; // not available in shader.
-            } else {
-                attrib.setLocation(loc);
-            }
+        Shader shader = context.boundShader;
+        int location = updateAttributeLocation(shader, vb.getBufferType());
+        if (location == -1) {
+            return;
         }
 
         if (vb.isInstanced()) {
@@ -2334,11 +2339,11 @@ public class GLRenderer implements Renderer {
 
         VertexBuffer[] attribs = context.boundAttribs;
         for (int i = 0; i < slotsRequired; i++) {
-            if (!context.attribIndexList.moveToNew(loc + i)) {
-                gl.glEnableVertexAttribArray(loc + i);
+            if (!context.attribIndexList.moveToNew(location + i)) {
+                gl.glEnableVertexAttribArray(location + i);
             }
         }
-        if (attribs[loc] != vb) {
+        if (attribs[location] != vb) {
             // NOTE: Use id from interleaved buffer if specified
             int bufId = idb != null ? idb.getId() : vb.getId();
             assert bufId != -1;
@@ -2351,12 +2356,12 @@ public class GLRenderer implements Renderer {
             }
 
             if (slotsRequired == 1) {
-                gl.glVertexAttribPointer(loc,
-                        vb.getNumComponents(),
-                        convertFormat(vb.getFormat()),
-                        vb.isNormalized(),
-                        vb.getStride(),
-                        vb.getOffset());
+                gl.glVertexAttribPointer(location,
+                                         vb.getNumComponents(),
+                                         convertFormat(vb.getFormat()),
+                                         vb.isNormalized(),
+                                         vb.getStride(),
+                                         vb.getOffset());
             } else {
                 for (int i = 0; i < slotsRequired; i++) {
                     // The pointer maps the next 4 floats in the slot.
@@ -2367,17 +2372,17 @@ public class GLRenderer implements Renderer {
                     // P4: ____________XXXX____________XXXX
                     // stride = 4 bytes in float * 4 floats in slot * num slots
                     // offset = 4 bytes in float * 4 floats in slot * slot index
-                    gl.glVertexAttribPointer(loc + i,
-                            4,
-                            convertFormat(vb.getFormat()),
-                            vb.isNormalized(),
-                            4 * 4 * slotsRequired,
-                            4 * 4 * i);
+                    gl.glVertexAttribPointer(location + i,
+                                             4,
+                                             convertFormat(vb.getFormat()),
+                                             vb.isNormalized(),
+                                             4 * 4 * slotsRequired,
+                                             4 * 4 * i);
                 }
             }
 
             for (int i = 0; i < slotsRequired; i++) {
-                int slot = loc + i;
+                int slot = location + i;
                 if (vb.isInstanced() && (attribs[slot] == null || !attribs[slot].isInstanced())) {
                     // non-instanced -> instanced
                     glext.glVertexAttribDivisorARB(slot, vb.getInstanceSpan());
@@ -2390,6 +2395,92 @@ public class GLRenderer implements Renderer {
         }
     }
 
+    /**
+     * Set VBO on VAO. Assumes a brand new mesh or modified mesh with new buffer.
+     * 
+     * @param vb
+     * @param idb 
+     */
+    public void setVertexAttribVAO(VertexBuffer vb, VertexBuffer idb) {
+        if (vb.getBufferType() == VertexBuffer.Type.Index) {
+            throw new IllegalArgumentException("Index buffers not allowed to be set to vertex attrib");
+        }
+
+        Shader shader = context.boundShader;
+        int location = updateAttributeLocation(shader, vb.getBufferType());
+        if (location == -1) {
+            return;
+        }
+
+        if (vb.isInstanced()) {
+            if (!caps.contains(Caps.MeshInstancing)) {
+                throw new RendererException("Instancing is required, "
+                        + "but not supported by the "
+                        + "graphics hardware");
+            }
+        }
+        int slotsRequired = 1;
+        if (vb.getNumComponents() > 4) {
+            if (vb.getNumComponents() % 4 != 0) {
+                throw new RendererException("Number of components in multi-slot "
+                        + "buffers must be divisible by 4");
+            }
+            slotsRequired = vb.getNumComponents() / 4;
+        }
+
+        if (vb.isUpdateNeeded() && idb == null) {
+            updateBufferData(vb);
+        }
+
+        for (int i = 0; i < slotsRequired; i++) {
+            gl.glEnableVertexAttribArray(location + i);
+        }
+        
+        // NOTE: Use id from interleaved buffer if specified
+        int bufId = idb != null ? idb.getId() : vb.getId();
+        assert bufId != -1;
+        if (context.boundArrayVBO != bufId) {
+            gl.glBindBuffer(GL.GL_ARRAY_BUFFER, bufId);
+            context.boundArrayVBO = bufId;
+            //statistics.onVertexBufferUse(vb, true);
+        } else {
+            //statistics.onVertexBufferUse(vb, false);
+        }
+
+        if (slotsRequired == 1) {
+            gl.glVertexAttribPointer(location,
+                                     vb.getNumComponents(),
+                                     convertFormat(vb.getFormat()),
+                                     vb.isNormalized(),
+                                     vb.getStride(),
+                                     vb.getOffset());
+        } else {
+            for (int i = 0; i < slotsRequired; i++) {
+                // The pointer maps the next 4 floats in the slot.
+                // E.g.
+                // P1: XXXX____________XXXX____________
+                // P2: ____XXXX____________XXXX________
+                // P3: ________XXXX____________XXXX____
+                // P4: ____________XXXX____________XXXX
+                // stride = 4 bytes in float * 4 floats in slot * num slots
+                // offset = 4 bytes in float * 4 floats in slot * slot index
+                gl.glVertexAttribPointer(location + i,
+                                         4,
+                                         convertFormat(vb.getFormat()),
+                                         vb.isNormalized(),
+                                         4 * 4 * slotsRequired,
+                                         4 * 4 * i);
+            }
+        }
+
+        for (int i = 0; i < slotsRequired; i++) {
+            int slot = location + i;
+            if (vb.isInstanced()) {
+                glext.glVertexAttribDivisorARB(slot, vb.getInstanceSpan());
+            }
+        }
+    }
+    
     public void setVertexAttrib(VertexBuffer vb) {
         setVertexAttrib(vb, null);
     }
@@ -2442,57 +2533,19 @@ public class GLRenderer implements Renderer {
         int vertCount = mesh.getVertexCount();
         boolean useInstancing = count > 1 && caps.contains(Caps.MeshInstancing);
 
-        if (mesh.getMode() == Mode.Hybrid) {
-            int[] modeStart = mesh.getModeStart();
-            int[] elementLengths = mesh.getElementLengths();
-
-            int elMode = convertElementMode(Mode.Triangles);
-            int fmt = convertFormat(indexBuf.getFormat());
-            int elSize = indexBuf.getFormat().getComponentSize();
-            int listStart = modeStart[0];
-            int stripStart = modeStart[1];
-            int fanStart = modeStart[2];
-            int curOffset = 0;
-            for (int i = 0; i < elementLengths.length; i++) {
-                if (i == stripStart) {
-                    elMode = convertElementMode(Mode.TriangleStrip);
-                } else if (i == fanStart) {
-                    elMode = convertElementMode(Mode.TriangleFan);
-                }
-                int elementLength = elementLengths[i];
-
-                if (useInstancing) {
-                    glext.glDrawElementsInstancedARB(elMode,
-                            elementLength,
-                            fmt,
-                            curOffset,
-                            count);
-                } else {
-                    gl.glDrawRangeElements(elMode,
-                            0,
-                            vertCount,
-                            elementLength,
-                            fmt,
-                            curOffset);
-                }
-
-                curOffset += elementLength * elSize;
-            }
+        if (useInstancing) {
+            glext.glDrawElementsInstancedARB(convertElementMode(mesh.getMode()),
+                    indexBuf.getData().limit(),
+                    convertFormat(indexBuf.getFormat()),
+                    0,
+                    count);
         } else {
-            if (useInstancing) {
-                glext.glDrawElementsInstancedARB(convertElementMode(mesh.getMode()),
-                        indexBuf.getData().limit(),
-                        convertFormat(indexBuf.getFormat()),
-                        0,
-                        count);
-            } else {
-                gl.glDrawRangeElements(convertElementMode(mesh.getMode()),
-                        0,
-                        vertCount,
-                        indexBuf.getData().limit(),
-                        convertFormat(indexBuf.getFormat()),
-                        0);
-            }
+            gl.glDrawRangeElements(convertElementMode(mesh.getMode()),
+                    0,
+                    vertCount,
+                    indexBuf.getData().limit(),
+                    convertFormat(indexBuf.getFormat()),
+                    0);
         }
     }
 
@@ -2521,90 +2574,11 @@ public class GLRenderer implements Renderer {
                 throw new UnsupportedOperationException("Unrecognized mesh mode: " + mode);
         }
     }
-
-    public void updateVertexArray(Mesh mesh, VertexBuffer instanceData) {
-        int id = mesh.getId();
-        if (id == -1) {
-            IntBuffer temp = intBuf1;
-            gl3.glGenVertexArrays(temp);
-            id = temp.get(0);
-            mesh.setId(id);
-        }
-
-        if (context.boundVertexArray != id) {
-            gl3.glBindVertexArray(id);
-            context.boundVertexArray = id;
-        }
-
+    
+    private void setupVertexBuffersLegacy(Mesh mesh, VertexBuffer[] instanceData) {
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
         if (interleavedData != null && interleavedData.isUpdateNeeded()) {
             updateBufferData(interleavedData);
-        }
-
-        if (instanceData != null) {
-            setVertexAttrib(instanceData, null);
-        }
-
-        for (VertexBuffer vb : mesh.getBufferList().getArray()) {
-            if (vb.getBufferType() == Type.InterleavedData
-                    || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
-                    || vb.getBufferType() == Type.Index) {
-                continue;
-            }
-
-            if (vb.getStride() == 0) {
-                // not interleaved
-                setVertexAttrib(vb);
-            } else {
-                // interleaved
-                setVertexAttrib(vb, interleavedData);
-            }
-        }
-    }
-
-    private void renderMeshVertexArray(Mesh mesh, int lod, int count, VertexBuffer instanceData) {
-        if (mesh.getId() == -1) {
-            updateVertexArray(mesh, instanceData);
-        } else {
-            // TODO: Check if it was updated
-        }
-
-        if (context.boundVertexArray != mesh.getId()) {
-            gl3.glBindVertexArray(mesh.getId());
-            context.boundVertexArray = mesh.getId();
-        }
-
-//        IntMap<VertexBuffer> buffers = mesh.getBuffers();
-        VertexBuffer indices;
-        if (mesh.getNumLodLevels() > 0) {
-            indices = mesh.getLodLevel(lod);
-        } else {
-            indices = mesh.getBuffer(Type.Index);
-        }
-        if (indices != null) {
-            drawTriangleList(indices, mesh, count);
-        } else {
-            drawTriangleArray(mesh.getMode(), count, mesh.getVertexCount());
-        }
-        clearVertexAttribs();
-    }
-
-    private void renderMeshDefault(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
-
-        // Here while count is still passed in.  Can be removed when/if
-        // the method is collapsed again.  -pspeed        
-        count = Math.max(mesh.getInstanceCount(), count);
-
-        VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
-        if (interleavedData != null && interleavedData.isUpdateNeeded()) {
-            updateBufferData(interleavedData);
-        }
-
-        VertexBuffer indices;
-        if (mesh.getNumLodLevels() > 0) {
-            indices = mesh.getLodLevel(lod);
-        } else {
-            indices = mesh.getBuffer(Type.Index);
         }
 
         if (instanceData != null) {
@@ -2612,7 +2586,7 @@ public class GLRenderer implements Renderer {
                 setVertexAttrib(vb, null);
             }
         }
-
+        
         for (VertexBuffer vb : mesh.getBufferList().getArray()) {
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
@@ -2628,7 +2602,119 @@ public class GLRenderer implements Renderer {
                 setVertexAttrib(vb, interleavedData);
             }
         }
+    }
+    
+    private void setupVertexBuffers(Mesh mesh, VertexBuffer[] instanceData) {
+        VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
+        if (instanceData != null) {
+            for (VertexBuffer vb : instanceData) {
+                setVertexAttribVAO(vb, null);
+            }
+        }
+        
+        for (VertexBuffer vb : mesh.getBufferList().getArray()) {
+            if (vb.getBufferType() == Type.InterleavedData
+                    || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
+                    || vb.getBufferType() == Type.Index) {
+                continue;
+            }
 
+            if (vb.getStride() == 0) {
+                // not interleaved
+                setVertexAttribVAO(vb, null);
+            } else {
+                // interleaved
+                setVertexAttribVAO(vb, interleavedData);
+            }
+        }
+        
+        mesh.clearUpdateNeeded();
+    }
+
+    private void updateVertexBuffers(Mesh mesh, VertexBuffer[] instanceData) {
+        VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
+        if (interleavedData != null && interleavedData.isUpdateNeeded()) {
+            updateBufferData(interleavedData);
+        }
+        if (instanceData != null) {
+            for (VertexBuffer vb : instanceData) {
+                if (vb.isUpdateNeeded()) {
+                    updateBufferData(vb);
+                }
+            }
+        }
+        for (VertexBuffer vb : mesh.getBufferList().getArray()) {
+            if (vb.getBufferType() == Type.InterleavedData
+                    || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
+                    || vb.getBufferType() == Type.Index
+                    || !vb.isUpdateNeeded()
+                    || !context.boundShader.isAttributeDefined(vb.getBufferType())) {
+                continue;
+            }
+            updateBufferData(vb);
+        }
+    }
+    
+    private VertexBuffer getIndexBuffer(Mesh mesh, int lod) {
+        VertexBuffer indices;
+        if (mesh.getNumLodLevels() > 0) {
+            indices = mesh.getLodLevel(lod);
+        } else {
+            indices = mesh.getBuffer(Type.Index);
+        }
+        return indices;
+    }
+
+    private void setVertexArrayObject(Mesh mesh) {
+        int id = mesh.getId();
+        
+        if (id == -1) {
+            IntBuffer temp = intBuf1;
+            gl3.glGenVertexArrays(temp);
+            id = temp.get(0);
+            mesh.setId(id);
+            
+            objManager.registerObject(mesh);
+        }
+
+        if (context.boundVertexArray != id) {
+            gl3.glBindVertexArray(id);
+            context.boundVertexArray = id;
+        }
+    }
+
+    private void renderMeshDefault(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
+        setVertexArrayObject(mesh);
+        
+        VertexBuffer indices = getIndexBuffer(mesh, lod);
+        if (mesh.isUpdateNeeded()) {
+            setupVertexBuffers(mesh, instanceData);
+            updateBufferData(indices);
+        } else {
+            updateVertexBuffers(mesh, instanceData);
+            if (indices != null) {
+                // NOTE: context.boundElementArrayVBO gets captured in the VAO.
+                // Make everyone think its already bound.
+                context.boundElementArrayVBO = indices.getId();
+            }
+        }
+
+        if (indices != null) {
+            if (indices.isUpdateNeeded()) {
+                updateBufferData(indices);
+            }
+
+            drawTriangleList(indices, mesh, count);
+            
+            context.boundElementArrayVBO = 0;
+        } else {
+            drawTriangleArray(mesh.getMode(), count, mesh.getVertexCount());
+        }
+    }
+
+    private void renderMeshLegacy(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
+        setupVertexBuffersLegacy(mesh, instanceData);
+        VertexBuffer indices = getIndexBuffer(mesh, lod);
         if (indices != null) {
             drawTriangleList(indices, mesh, count);
         } else {
@@ -2651,14 +2737,32 @@ public class GLRenderer implements Renderer {
         if (gl4 != null && mesh.getMode().equals(Mode.Patch)) {
             gl4.glPatchParameter(mesh.getPatchVertexCount());
         }
+        
         statistics.onMeshDrawn(mesh, lod, count);
-//        if (ctxCaps.GL_ARB_vertex_array_object){
-//            renderMeshVertexArray(mesh, lod, count);
-//        }else{
-        renderMeshDefault(mesh, lod, count, instanceData);
-//        }
+        
+        // Here while count is still passed in.  Can be removed when/if
+        // the method is collapsed again.  -pspeed        
+        count = Math.max(mesh.getInstanceCount(), count);
+        
+//         if (caps.contains(Caps.VertexBufferArray)) {
+             renderMeshDefault(mesh, lod, count, instanceData);
+//         } else {
+//            renderMeshLegacy(mesh, lod, count, instanceData);
+//        // }
     }
 
+    @Override
+    public void deleteMesh(Mesh mesh) {
+        int bufId = mesh.getId();
+        if (bufId != -1) {
+            // delete vertex array object
+            intBuf1.put(0, bufId);
+            intBuf1.position(0).limit(1);
+            gl3.glDeleteVertexArrays(intBuf1);
+            mesh.resetObject();
+        }
+    }
+    
     public void setMainFrameBufferSrgb(boolean enableSrgb) {
         // Gamma correction
         if (!caps.contains(Caps.Srgb) && enableSrgb) {
