@@ -353,12 +353,17 @@ public class Mesh extends NativeObject implements Savable {
 
             // convert weights on the heap		
             VertexBuffer weights = getBuffer(Type.BoneWeight);		
-            if (!weights.getData().hasArray()) {		
-                FloatBuffer originalWeight = (FloatBuffer) weights.getData();		
-                FloatBuffer arrayWeight = FloatBuffer.allocate(originalWeight.capacity());		
-                originalWeight.clear();		
-                arrayWeight.put(originalWeight);		
-                weights.updateData(arrayWeight);		
+            if (!weights.getData().hasArray()) {
+                if (weights.getFormat() == Format.Float) {
+                    FloatBuffer originalWeight = (FloatBuffer) weights.getData();		
+                    FloatBuffer arrayWeight = FloatBuffer.allocate(originalWeight.capacity());		
+                    originalWeight.clear();		
+                    arrayWeight.put(originalWeight);		
+                    weights.updateData(arrayWeight);		
+                } else {
+                    // UByte to Float conversion
+                    throw new UnsupportedOperationException("Not yet supported");
+                }
             }		
             weights.setUsage(Usage.CpuOnly);
             // position, normal, and tanget buffers to be in "Stream" mode
