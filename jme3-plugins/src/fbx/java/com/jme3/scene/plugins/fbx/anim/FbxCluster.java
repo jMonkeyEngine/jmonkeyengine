@@ -32,6 +32,7 @@
 package com.jme3.scene.plugins.fbx.anim;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.math.Matrix4f;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
 import com.jme3.scene.plugins.fbx.obj.FbxObject;
 import java.util.logging.Level;
@@ -45,6 +46,10 @@ public class FbxCluster extends FbxObject {
     private double[] weights;
     private FbxLimbNode limb;
     
+    private Matrix4f transformMatrix;
+    private Matrix4f transformLinkMatrix;
+    private Matrix4f transformAssociateModelMatrix;
+    
     public FbxCluster(AssetManager assetManager, String sceneFolderName) {
         super(assetManager, sceneFolderName);
     }
@@ -57,6 +62,15 @@ public class FbxCluster extends FbxObject {
                 indexes = (int[]) e.properties.get(0);
             } else if (e.id.equals("Weights")) {
                 weights = (double[]) e.properties.get(0);
+            } else if (e.id.equals("Transform")) {
+                double[] data = (double[]) e.properties.get(0);
+                transformMatrix = FbxAnimUtil.toMatrix4(data);
+            } else if (e.id.equals("TransformLink")) {
+                double[] data = (double[]) e.properties.get(0);
+                transformLinkMatrix = FbxAnimUtil.toMatrix4(data);
+            } else if (e.id.equals("TransformAssociateModel")) {
+                double[] data = (double[]) e.properties.get(0);
+                transformAssociateModelMatrix = FbxAnimUtil.toMatrix4(data);
             }
         }
     }
@@ -86,6 +100,18 @@ public class FbxCluster extends FbxObject {
                 return;
             }
             limb = (FbxLimbNode) object;
+            
+            System.out.println(" ----- for limb: " + limb.getName());
+            System.out.println(" transform : " + transformMatrix);
+            System.out.println(" transform link : " + transformLinkMatrix);
+            System.out.println(" transform associate model : " + transformAssociateModelMatrix);
+            
+            //  Invert(Invert(TransformLinkMatrix) * TransformMatrix * Geometry)
+            Matrix4f accumMatrix = transformLinkMatrix.invert();
+            accumMatrix.multLocal(transformMatrix);
+            accumMatrix.invertLocal();
+            
+            System.out.println(" limb bind pose : " + accumMatrix);
         } else {
             unsupportedConnectObject(object);
         }

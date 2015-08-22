@@ -307,7 +307,11 @@ public class FbxMaterial extends FbxObject<Material> {
         if (useAlphaBlend) {
             // No idea if this is a transparent or translucent model, gotta guess..
             mat.setTransparent(true);
-            mat.setFloat("AlphaDiscardThreshold", 0.01f);
+            
+            // Commenting this out for now. It causes extra shaders to be 
+            // used and is less efficient due to usage of "discard".
+            // mat.setFloat("AlphaDiscardThreshold", 0.01f);
+            
             mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
         }
         

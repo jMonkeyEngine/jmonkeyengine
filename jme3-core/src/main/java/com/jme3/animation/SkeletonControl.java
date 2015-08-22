@@ -108,8 +108,8 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
     /**
      * Material references used for hardware skinning
      */
-    private Set<Material> materials = new HashSet<Material>();
-
+    private final HashSet<Material> materials = new HashSet<Material>();
+    
     /**
      * Serialization only. Do not use.
      */
@@ -202,6 +202,9 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
      * @param skeleton the skeleton
      */
     public SkeletonControl(Skeleton skeleton) {
+        if (skeleton == null) {
+            throw new IllegalArgumentException("skeleton cannot be null");
+        }
         this.skeleton = skeleton;
     }
 

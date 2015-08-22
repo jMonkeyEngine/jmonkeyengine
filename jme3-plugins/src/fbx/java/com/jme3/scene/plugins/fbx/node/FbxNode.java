@@ -53,6 +53,7 @@ import com.jme3.scene.debug.SkeletonDebugger;
 import com.jme3.scene.plugins.fbx.anim.FbxAnimCurveNode;
 import com.jme3.scene.plugins.fbx.anim.FbxCluster;
 import com.jme3.scene.plugins.fbx.anim.FbxLimbNode;
+import com.jme3.scene.plugins.fbx.anim.FbxSkeleton;
 import com.jme3.scene.plugins.fbx.anim.FbxSkinDeformer;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
 import com.jme3.scene.plugins.fbx.material.FbxImage;
@@ -108,7 +109,7 @@ public class FbxNode extends FbxObject<Spatial> {
     /**
      * For FBX nodes that contain a skeleton (i.e. FBX limbs).
      */
-    protected Skeleton skeleton;
+    protected FbxSkeleton skeleton;
     
     protected final Transform jmeWorldNodeTransform = new Transform();
     protected final Transform jmeLocalNodeTransform = new Transform();
@@ -376,11 +377,11 @@ public class FbxNode extends FbxObject<Spatial> {
         FbxNode preferredParent = null;
         
         if (deformer != null) {
-            for (FbxCluster cluster : deformer.getJmeObject()) {
+            for (FbxCluster cluster : deformer.getClusters()) {
                 FbxLimbNode limb = cluster.getLimb();
                 if (preferredParent == null) {
-                    preferredParent = limb.getSkeletonHolder();
-                } else if (preferredParent != limb.getSkeletonHolder()) {
+                    preferredParent = limb.getSkeletonRoot();
+                } else if (preferredParent != limb.getSkeletonRoot()) {
                     logger.log(Level.WARNING, "A mesh is being deformed by multiple skeletons. "
                                             + "Only one skeleton will work, ignoring other skeletons.");
                 }
@@ -479,8 +480,8 @@ public class FbxNode extends FbxObject<Spatial> {
             if (fbxNode.skeleton != null) {
                 throw new UnsupportedOperationException();
             }
-            fbxNode.skeleton = FbxLimbNode.createSkeleton(fbxNode);
-            System.out.println("created skeleton: " + fbxNode.skeleton);
+//            fbxNode.skeleton = FbxLimbNode.createSkeleton(fbxNode);
+//            System.out.println("created skeleton: " + fbxNode.skeleton);
         }
     }
     
@@ -518,19 +519,19 @@ public class FbxNode extends FbxObject<Spatial> {
             }
         }
         
-        if (fbxNode.skeleton != null) { 
-            jmeSpatial.addControl(new AnimControl(fbxNode.skeleton));
-            jmeSpatial.addControl(new SkeletonControl(fbxNode.skeleton));
-            
-            SkeletonDebugger sd = new SkeletonDebugger("debug", fbxNode.skeleton);
-            Material mat = new Material(fbxNode.assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-            mat.getAdditionalRenderState().setWireframe(true);
-            mat.getAdditionalRenderState().setDepthTest(false);
-            mat.setColor("Color", ColorRGBA.Green);
-            sd.setMaterial(mat);
-            
-            ((Node)jmeSpatial).attachChild(sd);
-        }
+//        if (fbxNode.skeleton != null) { 
+//            jmeSpatial.addControl(new AnimControl(fbxNode.skeleton));
+//            jmeSpatial.addControl(new SkeletonControl(fbxNode.skeleton));
+//            
+//            SkeletonDebugger sd = new SkeletonDebugger("debug", fbxNode.skeleton);
+//            Material mat = new Material(fbxNode.assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//            mat.getAdditionalRenderState().setWireframe(true);
+//            mat.getAdditionalRenderState().setDepthTest(false);
+//            mat.setColor("Color", ColorRGBA.Green);
+//            sd.setMaterial(mat);
+//            
+//            ((Node)jmeSpatial).attachChild(sd);
+//        }
         
         return jmeSpatial;
     }
@@ -543,8 +544,16 @@ public class FbxNode extends FbxObject<Spatial> {
 //        return limb;
 //    }
     
-    public Skeleton getJmeSkeleton() {
+//    public Skeleton getJmeSkeleton() {
+//        return skeleton;
+//    }
+    
+    public FbxSkeleton getFbxSkeleton() {
         return skeleton;
+    }
+    
+    public void setFbxSkeleton(FbxSkeleton skeleton) {
+        this.skeleton = skeleton;
     }
     
     public List<FbxNode> getChildren() { 

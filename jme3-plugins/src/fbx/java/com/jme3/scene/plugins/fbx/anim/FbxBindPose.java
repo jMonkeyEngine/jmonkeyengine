@@ -56,31 +56,25 @@ public class FbxBindPose extends FbxObject<Map<FbxId, Matrix4f>> {
             }
             
             FbxId node = null;
-            float[] matData = null;
+            double[] matData = null;
             
             for (FbxElement e : child.children) {
                 if (e.id.equals("Node")) {
                     node = FbxId.create(e.properties.get(0));
                 } else if (e.id.equals("Matrix")) {
-                    double[] matDataDoubles = (double[]) e.properties.get(0);
+                    matData = (double[]) e.properties.get(0);
                     
-                    if (matDataDoubles.length != 16) {
+                    if (matData.length != 16) {
                         // corrupt
                         throw new UnsupportedOperationException("Bind pose matrix "
                                 + "must have 16 doubles, but it has " 
-                                + matDataDoubles.length + ". Data is corrupt");
-                    }
-                    
-                    matData = new float[16];
-                    for (int i = 0; i < matDataDoubles.length; i++) {
-                        matData[i] = (float) matDataDoubles[i];
+                                + matData.length + ". Data is corrupt");
                     }
                 }
             }
             
             if (node != null && matData != null) {
-                Matrix4f matrix = new Matrix4f(matData);
-                bindPose.put(node, matrix);
+                bindPose.put(node, FbxAnimUtil.toMatrix4(matData));
             }
         }
     }
