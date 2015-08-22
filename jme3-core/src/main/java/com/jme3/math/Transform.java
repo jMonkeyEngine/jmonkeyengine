@@ -49,7 +49,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     private Quaternion rot = new Quaternion();
     private Vector3f translation = new Vector3f();
-    private Vector3f scale = new Vector3f(1,1,1);
+    private Vector3f scale = new Vector3f(1, 1, 1);
 
     public Transform(Vector3f translation, Quaternion rot){
         this.translation.set(translation);
@@ -283,9 +283,32 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * Loads the identity.  Equal to translation=0,0,0 scale=1,1,1 rot=0,0,0,1.
      */
     public void loadIdentity() {
-        translation.set(0,0,0);
-        scale.set(1,1,1);
-        rot.set(0,0,0,1);
+        translation.set(0, 0, 0);
+        scale.set(1, 1, 1);
+        rot.set(0, 0, 0, 1);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 89 * hash + rot.hashCode();
+        hash = 89 * hash + translation.hashCode();
+        hash = 89 * hash + scale.hashCode();
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Transform other = (Transform) obj;
+        return this.translation.equals(other.translation)
+                && this.scale.equals(other.scale)
+                && this.rot.equals(other.rot);
     }
 
     @Override
@@ -307,22 +330,21 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
         return this;
     }
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
-        capsule.write(rot, "rot", new Quaternion());
+        capsule.write(rot, "rot", Quaternion.IDENTITY);
         capsule.write(translation, "translation", Vector3f.ZERO);
         capsule.write(scale, "scale", Vector3f.UNIT_XYZ);
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         InputCapsule capsule = e.getCapsule(this);
         
-        rot = (Quaternion)capsule.readSavable("rot", new Quaternion());        
-        translation = (Vector3f)capsule.readSavable("translation", null);
-        if( translation == null ) {
-            translation = new Vector3f();
-        }
-        scale = (Vector3f)capsule.readSavable("scale", Vector3f.UNIT_XYZ);
+        rot.set((Quaternion)capsule.readSavable("rot", Quaternion.IDENTITY));
+        translation.set((Vector3f)capsule.readSavable("translation", Vector3f.ZERO));
+        scale.set((Vector3f)capsule.readSavable("scale", Vector3f.UNIT_XYZ));
     }
     
     @Override
