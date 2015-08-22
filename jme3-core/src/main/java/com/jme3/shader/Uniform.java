@@ -102,6 +102,10 @@ public class Uniform extends ShaderVariable {
     public Object getValue(){
         return value;
     }
+    
+    public FloatBuffer getMultiData() {
+        return multiData;
+    }
 
     public boolean isSetByCurrentMaterial() {
         return setByCurrentMaterial;
@@ -111,21 +115,6 @@ public class Uniform extends ShaderVariable {
         setByCurrentMaterial = false;
     }
 
-    private static void setVector4(Vector4f vec, Object value) {
-        if (value instanceof ColorRGBA) {
-            ColorRGBA color = (ColorRGBA) value;
-            vec.set(color.r, color.g, color.b, color.a);
-        } else if (value instanceof Quaternion) {
-            Quaternion quat = (Quaternion) value;
-            vec.set(quat.getX(), quat.getY(), quat.getZ(), quat.getW());
-        } else if (value instanceof Vector4f) {
-            Vector4f vec4 = (Vector4f) value;
-            vec.set(vec4);
-        } else{
-            throw new IllegalArgumentException();
-        }
-    }
-    
     public void clearValue(){
         updateNeeded = true;
 
@@ -189,20 +178,36 @@ public class Uniform extends ShaderVariable {
 
         switch (type){
             case Matrix3:
+                if (value.equals(this.value)) {
+                    return;
+                }
                 Matrix3f m3 = (Matrix3f) value;
                 if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(9);
                 }
                 m3.fillFloatBuffer(multiData, true);
                 multiData.clear();
+                if (this.value == null) {
+                    this.value = new Matrix3f(m3);
+                } else {
+                    ((Matrix3f)this.value).set(m3);
+                }
                 break;
             case Matrix4:
+                if (value.equals(this.value)) {
+                    return;
+                }
                 Matrix4f m4 = (Matrix4f) value;
                 if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(16);
                 }
                 m4.fillFloatBuffer(multiData, true);
                 multiData.clear();
+                if (this.value == null) {
+                    this.value = new Matrix4f(m4);
+                } else {
+                    ((Matrix4f)this.value).copy(m4);
+                }
                 break;
             case IntArray:
                 int[] ia = (int[]) value;
@@ -283,11 +288,32 @@ public class Uniform extends ShaderVariable {
                 }
                 multiData.clear();
                 break;
+            case Vector4:
+                if (value.equals(this.value)) {
+                    return;
+                }
+                if (value instanceof ColorRGBA) {
+                    if (this.value == null) {
+                        this.value = new ColorRGBA();
+                    }
+                    ((ColorRGBA) this.value).set((ColorRGBA) value);
+                } else if (value instanceof Vector4f) {
+                    if (this.value == null) {
+                        this.value = new Vector4f();
+                    }
+                    ((Vector4f) this.value).set((Vector4f) value);
+                } else {
+                    if (this.value == null) {
+                        this.value = new Quaternion();
+                    }
+                    ((Quaternion) this.value).set((Quaternion) value);
+                }
+                break;
                 // Only use check if equals optimization for primitive values
             case Int:
             case Float:
             case Boolean:
-                if (this.value != null && this.value.equals(value)) {
+                if (value.equals(this.value)) {
                     return;
                 }
                 this.value = value;
@@ -297,9 +323,9 @@ public class Uniform extends ShaderVariable {
                 break;
         }
 
-        if (multiData != null) {
-            this.value = multiData;
-        }
+//        if (multiData != null) {
+//            this.value = multiData;
+//        }
 
         varType = type;
         updateNeeded = true;
