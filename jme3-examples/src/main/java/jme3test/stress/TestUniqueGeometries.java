@@ -45,7 +45,7 @@ import com.jme3.system.AppSettings;
 // Let's see if we can render 2500 batches in 60 fps.
 // We'll use 50 materials with various combinations of textures and colors
 // to make things wild.
-public class TestObjects extends SimpleApplication {
+public class TestUniqueGeometries extends SimpleApplication {
 
     private Material[] randomMaterials = new Material[50];
     
@@ -84,10 +84,10 @@ public class TestObjects extends SimpleApplication {
     };
     
     public static void main(String[] args) {
-        TestObjects app = new TestObjects();
+        TestUniqueGeometries app = new TestUniqueGeometries();
         AppSettings settings = new AppSettings(true);
         settings.putBoolean("GraphicsTrace", false);
-        settings.putBoolean("GraphicsTiming", false);
+        settings.putBoolean("GraphicsTiming", true);
         app.setSettings(settings);
         app.start();
     }
@@ -108,6 +108,8 @@ public class TestObjects extends SimpleApplication {
     
     @Override
     public void simpleInitApp() {
+        flyCam.setDragToRotate(true);
+        
         cam.setLocation(new Vector3f(22.717342f, 18.366547f, 22.043106f));
         cam.setRotation(new Quaternion(-0.11630201f, 0.8794429f, -0.27703872f, -0.36919326f));
         
@@ -119,11 +121,11 @@ public class TestObjects extends SimpleApplication {
         
         loadRandomMaterials();
         
-//        Box box = new Box(1,1,1);
+        // Box box = new Box(1,1,1);
         
         for (int y = -25; y < 25; y++) {
             for (int x = -25; x < 25; x++) {
-                Material mat = randomMaterials[FastMath.nextRandomInt(0, randomMaterials.length - 1)];
+                Material mat = randomMaterials[0]; // randomMaterials[FastMath.nextRandomInt(0, randomMaterials.length - 1)];
         
                 Box box = new Box(1,1,1);
                 Geometry boxClone = new Geometry("box", box);
