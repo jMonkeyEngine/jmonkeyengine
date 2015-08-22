@@ -120,8 +120,8 @@ public class PointLight extends Light {
             throw new IllegalArgumentException("Light radius cannot be negative");
         }
         this.radius = radius;
-        if (radius != 0) {
-            this.invRadius = 1 / radius;
+        if (radius != 0f) {
+            this.invRadius = 1f / radius;
         } else {
             this.invRadius = 0;
         }
