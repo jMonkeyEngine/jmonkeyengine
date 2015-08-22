@@ -26,11 +26,15 @@ script:
   - ./gradlew check
   - ./gradlew createZipDistribution
 
+before_deploy:
+  - export RELEASE_DIST=$(ls build/distributions/*.zip)
+
 deploy:
   provider: releases
   api_key:
     secure: PuEsJd6juXBH29ByITW3ntSAyrwWs0IeFvXJ5Y2YlhojhSMtTwkoWeB6YmDJWP4fhzbajk4TQ1HlOX2IxJXSW/8ShOEIUlGXz9fHiST0dkSM+iRAUgC5enCLW5ITPTiem7eY9ZhS9miIam7ngce9jHNMh75PTzZrEJtezoALT9w=
-  file: build/distributions/jME3.1.0_snapshot-github_2015-08-02.zip
+  file_glob: true
+  file: "${RELEASE_DIST}"
   skip_cleanup: true
   on:
     repo: jMonkeyEngine/jmonkeyengine
