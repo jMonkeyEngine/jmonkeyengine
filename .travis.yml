@@ -25,7 +25,6 @@ install:
 script:
   - ./gradlew check
   - ./gradlew createZipDistribution
-  - ./gradlew uploadArchives
 
 before_deploy:
   - export RELEASE_DIST=$(ls build/distributions/*.zip)
