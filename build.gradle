@@ -11,6 +11,7 @@ buildscript {
 
 apply plugin: 'base'
 apply from: file('version.gradle')
+apply from: file('upload.gradle')
 
 // This is applied to all sub projects
 subprojects {
