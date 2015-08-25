@@ -62,6 +62,16 @@ task configureVersionInfo {
         jmeGitTag = grgit.describe()
         if (jmeGitTag == null) jmeGitTag = ""
         
+        if (System.env.TRAVIS_BRANCH != null) {
+            jmeBranchName = System.env.TRAVIS_BRANCH
+        }
+        if (System.env.TRAVIS_TAG != null) {
+            jmeGitTag = System.env.TRAVIS_TAG
+        }
+        if (System.env.TRAVIS_PULL_REQUEST != null) {
+            jmeBranchName += "-pr-" + System.env.TRAVIS_PULL_REQUEST
+        }
+        
         jmeFullVersion = jmeMainVersion
         jmePomVersion  = jmeVersion
         
