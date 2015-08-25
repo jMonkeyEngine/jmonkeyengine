@@ -68,7 +68,8 @@ task configureVersionInfo {
         if (System.env.TRAVIS_TAG != null) {
             jmeGitTag = System.env.TRAVIS_TAG
         }
-        if (System.env.TRAVIS_PULL_REQUEST != null) {
+        if (System.env.TRAVIS_PULL_REQUEST != null && 
+            System.env.TRAVIS_PULL_REQUEST != "false") {
             jmeBranchName += "-pr-" + System.env.TRAVIS_PULL_REQUEST
         }
         
