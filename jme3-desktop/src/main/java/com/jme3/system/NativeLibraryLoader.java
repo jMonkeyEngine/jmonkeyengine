@@ -48,9 +48,8 @@ import java.util.logging.Logger;
 /**
  * Utility class to register, extract, and load native libraries.
  * <br>
- * Register your own libraries via the 
- * {@link #registerNativeLibrary(java.lang.String, com.jme3.system.Platform, java.lang.String, boolean) }
- * method, for each platform. 
+ * Register your own libraries via the {@link #registerNativeLibrary(String, Platform, String, String)} method, for
+ * each platform.
  * You can then extract this library (depending on platform), by
  * using {@link #loadNativeLibrary(java.lang.String, boolean) }.
  * <br>
@@ -125,23 +124,6 @@ public final class NativeLibraryLoader {
     }
     
     static {
-        // LWJGL
-        registerNativeLibrary("lwjgl", Platform.Windows32, "native/windows/lwjgl.dll");
-        registerNativeLibrary("lwjgl", Platform.Windows64, "native/windows/lwjgl64.dll");
-        registerNativeLibrary("lwjgl", Platform.Linux32,   "native/linux/liblwjgl.so");
-        registerNativeLibrary("lwjgl", Platform.Linux64,   "native/linux/liblwjgl64.so");
-        registerNativeLibrary("lwjgl", Platform.MacOSX32,  "native/macosx/liblwjgl.dylib");
-        registerNativeLibrary("lwjgl", Platform.MacOSX64,  "native/macosx/liblwjgl.dylib");
-        
-        // OpenAL
-        // For OSX: Need to add lib prefix when extracting
-        registerNativeLibrary("openal", Platform.Windows32, "native/windows/OpenAL32.dll");
-        registerNativeLibrary("openal", Platform.Windows64, "native/windows/OpenAL64.dll");
-        registerNativeLibrary("openal", Platform.Linux32,   "native/linux/libopenal.so");
-        registerNativeLibrary("openal", Platform.Linux64,   "native/linux/libopenal64.so");
-        registerNativeLibrary("openal", Platform.MacOSX32,  "native/macosx/openal.dylib", "libopenal.dylib");
-        registerNativeLibrary("openal", Platform.MacOSX64,  "native/macosx/openal.dylib", "libopenal.dylib");
-        
         // BulletJme
         registerNativeLibrary("bulletjme", Platform.Windows32, "native/windows/x86/bulletjme.dll");
         registerNativeLibrary("bulletjme", Platform.Windows64, "native/windows/x86_64/bulletjme.dll");

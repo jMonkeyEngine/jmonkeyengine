@@ -32,7 +32,7 @@
 
 package com.jme3.system.lwjgl;
 
-import com.jme3.input.lwjgl.JInputJoyInput;
+import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.LwjglKeyInput;
 import com.jme3.input.lwjgl.LwjglMouseInput;
 import com.jme3.renderer.Renderer;
@@ -41,25 +41,20 @@ import com.jme3.renderer.lwjgl.LwjglGL;
 import com.jme3.renderer.lwjgl.LwjglGLExt;
 import com.jme3.renderer.lwjgl.LwjglGLFboEXT;
 import com.jme3.renderer.lwjgl.LwjglGLFboGL3;
+import com.jme3.renderer.opengl.*;
 import com.jme3.renderer.opengl.GL;
-import com.jme3.renderer.opengl.GL2;
-import com.jme3.renderer.opengl.GL3;
-import com.jme3.renderer.opengl.GL4;
-import com.jme3.renderer.opengl.GLDebugDesktop;
-import com.jme3.renderer.opengl.GLExt;
-import com.jme3.renderer.opengl.GLFbo;
-import com.jme3.renderer.opengl.GLRenderer;
-import com.jme3.renderer.opengl.GLTiming;
-import com.jme3.renderer.opengl.GLTimingState;
-import com.jme3.renderer.opengl.GLTracer;
 import com.jme3.system.*;
+import org.lwjgl.Sys;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.*;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.Sys;
-import org.lwjgl.opengl.*;
+
+import static org.lwjgl.opengl.GL.createCapabilities;
+import static org.lwjgl.opengl.GL11.GL_TRUE;
+import static org.lwjgl.opengl.GL11.glGetInteger;
 
 /**
  * A LWJGL implementation of a graphics context.
@@ -69,7 +64,7 @@ public abstract class LwjglContext implements JmeContext {
     private static final Logger logger = Logger.getLogger(LwjglContext.class.getName());
 
     protected static final String THREAD_NAME = "jME3 Main";
-    
+
     protected AtomicBoolean created = new AtomicBoolean(false);
     protected AtomicBoolean renderable = new AtomicBoolean(false);
     protected final Object createdLock = new Object();
@@ -78,110 +73,53 @@ public abstract class LwjglContext implements JmeContext {
     protected Renderer renderer;
     protected LwjglKeyInput keyInput;
     protected LwjglMouseInput mouseInput;
-    protected JInputJoyInput joyInput;
+    protected GlfwJoystickInput joyInput;
     protected Timer timer;
     protected SystemListener listener;
 
-    public void setSystemListener(SystemListener listener){
+    public void setSystemListener(SystemListener listener) {
         this.listener = listener;
     }
 
     protected void printContextInitInfo() {
         logger.log(Level.INFO, "LWJGL {0} context running on thread {1}\n" +
-                               " * Graphics Adapter: {2}\n" +
-                               " * Driver Version: {3}\n" +
-                               " * Scaling Factor: {4}",
-                               new Object[]{ Sys.getVersion(), Thread.currentThread().getName(), 
-                                             Display.getAdapter(), Display.getVersion(),
-                                             Display.getPixelScaleFactor() });
+                        " * Graphics Adapter: GLFW {2}",
+                new Object[]{Sys.getVersion(), Thread.currentThread().getName(), GLFW.glfwGetVersionString()});
     }
 
-    protected ContextAttribs createContextAttribs() {
-        if (settings.getBoolean("GraphicsDebug") || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
-            ContextAttribs attr;
-            if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
-                attr = new ContextAttribs(3, 2);
-                attr = attr.withProfileCore(true).withForwardCompatible(true).withProfileCompatibility(false);
-            } else {
-                attr = new ContextAttribs();
-            }
-            if (settings.getBoolean("GraphicsDebug")) {
-                attr = attr.withDebug(true);
-            }
-            return attr;
-        } else {
-            return null;
+    protected int determineMaxSamples() {
+        // If we already have a valid context, determine samples using current context.
+        if (GLFW.glfwExtensionSupported("GL_ARB_framebuffer_object") == GL_TRUE) {
+            return glGetInteger(ARBFramebufferObject.GL_MAX_SAMPLES);
+        } else if (GLFW.glfwExtensionSupported("GL_EXT_framebuffer_multisample") == GL_TRUE) {
+            return glGetInteger(EXTFramebufferMultisample.GL_MAX_SAMPLES_EXT);
         }
-    }
-    
-    protected int determineMaxSamples(int requestedSamples) {
-        try {
-            // If we already have a valid context, determine samples using current
-            // context.
-            if (Display.isCreated() && Display.isCurrent()) {
-                if (GLContext.getCapabilities().GL_ARB_framebuffer_object) {
-                    return GL11.glGetInteger(ARBFramebufferObject.GL_MAX_SAMPLES);
-                } else if (GLContext.getCapabilities().GL_EXT_framebuffer_multisample) {
-                    return GL11.glGetInteger(EXTFramebufferMultisample.GL_MAX_SAMPLES_EXT);
-                } else {
-                    // Unknown.
-                    return Integer.MAX_VALUE;
-                }
-            }
-        } catch (LWJGLException ex) {
-            listener.handleError("Failed to check if display is current", ex);
-        }
-        
-        if ((Pbuffer.getCapabilities() & Pbuffer.PBUFFER_SUPPORTED) == 0) {
-            // No pbuffer, assume everything is supported.
-            return Integer.MAX_VALUE;
-        } else {
-            Pbuffer pb = null;
-            
-            // OpenGL2 method: Create pbuffer and query samples
-            // from GL_ARB_framebuffer_object or GL_EXT_framebuffer_multisample.
-            try {
-                pb = new Pbuffer(1, 1, new PixelFormat(0, 0, 0), null);
-                pb.makeCurrent();
 
-                if (GLContext.getCapabilities().GL_ARB_framebuffer_object) {
-                    return GL11.glGetInteger(ARBFramebufferObject.GL_MAX_SAMPLES);
-                } else if (GLContext.getCapabilities().GL_EXT_framebuffer_multisample) {
-                    return GL11.glGetInteger(EXTFramebufferMultisample.GL_MAX_SAMPLES_EXT);
-                }
-
-                // OpenGL2 method failed.
-                return Integer.MAX_VALUE;
-            } catch (LWJGLException ex) {
-                // Something else failed.
-                return Integer.MAX_VALUE;
-            } finally { 
-                if (pb != null) {
-                    pb.destroy();
-                }
-            }
-        }
+        return Integer.MAX_VALUE;
     }
 
     protected void registerNatives() {
         // LWJGL
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Windows32, "native/windows/lwjgl.dll");
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Windows64, "native/windows/lwjgl64.dll");
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Linux32, "native/linux/liblwjgl.so");
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Linux64, "native/linux/liblwjgl64.so");
+        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Windows32, "native/windows/lwjgl32.dll");
+        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Windows64, "native/windows/lwjgl.dll");
+        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Linux32, "native/linux/liblwjgl32.so");
+        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Linux64, "native/linux/liblwjgl.so");
         NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.MacOSX32, "native/macosx/liblwjgl.dylib");
         NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.MacOSX64, "native/macosx/liblwjgl.dylib");
+        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Windows32, "native/windows/jemalloc32.dll");
+        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Windows64, "native/windows/jemalloc.dll");
 
+        // OpenAL
         // For OSX: Need to add lib prefix when extracting
         NativeLibraryLoader.registerNativeLibrary("openal", Platform.Windows32, "native/windows/OpenAL32.dll");
-        NativeLibraryLoader.registerNativeLibrary("openal", Platform.Windows64, "native/windows/OpenAL64.dll");
-        NativeLibraryLoader.registerNativeLibrary("openal", Platform.Linux32, "native/linux/libopenal.so");
-        NativeLibraryLoader.registerNativeLibrary("openal", Platform.Linux64, "native/linux/libopenal64.so");
+        NativeLibraryLoader.registerNativeLibrary("openal", Platform.Windows64, "native/windows/OpenAL.dll");
+        NativeLibraryLoader.registerNativeLibrary("openal", Platform.Linux32, "native/linux/libopenal32.so");
+        NativeLibraryLoader.registerNativeLibrary("openal", Platform.Linux64, "native/linux/libopenal.so");
         NativeLibraryLoader.registerNativeLibrary("openal", Platform.MacOSX32, "native/macosx/openal.dylib", "libopenal.dylib");
         NativeLibraryLoader.registerNativeLibrary("openal", Platform.MacOSX64, "native/macosx/openal.dylib", "libopenal.dylib");
     }
 
-    protected void loadNatives() {        
+    protected void loadNatives() {
         if (JmeSystem.isLowPermissions()) {
             return;
         }
@@ -189,79 +127,80 @@ public abstract class LwjglContext implements JmeContext {
             NativeLibraryLoader.loadNativeLibrary("openal", true);
         }
         if (settings.useJoysticks()) {
-            NativeLibraryLoader.loadNativeLibrary("jinput", true);
-            NativeLibraryLoader.loadNativeLibrary("jinput-dx8", true);
+            //NativeLibraryLoader.loadNativeLibrary("jinput", true);
+            //NativeLibraryLoader.loadNativeLibrary("jinput-dx8", true);
         }
         if (NativeLibraryLoader.isUsingNativeBullet()) {
             NativeLibraryLoader.loadNativeLibrary("bulletjme", true);
         }
         NativeLibraryLoader.loadNativeLibrary("lwjgl", true);
     }
-    
+
     protected int getNumSamplesToUse() {
         int samples = 0;
-        if (settings.getSamples() > 1){
+        if (settings.getSamples() > 1) {
             samples = settings.getSamples();
-            int supportedSamples = determineMaxSamples(samples);
+            final int supportedSamples = determineMaxSamples();
             if (supportedSamples < samples) {
                 logger.log(Level.WARNING,
-                        "Couldn''t satisfy antialiasing samples requirement: x{0}. "
-                        + "Video hardware only supports: x{1}",
+                        "Couldn't satisfy antialiasing samples requirement: x{0}. "
+                                + "Video hardware only supports: x{1}",
                         new Object[]{samples, supportedSamples});
-                
+
                 samples = supportedSamples;
             }
         }
         return samples;
     }
 
-    protected void initContextFirstTime(){
-        if (!GLContext.getCapabilities().OpenGL20) {
-            throw new RendererException("OpenGL 2.0 or higher is " + 
-                                        "required for jMonkeyEngine");
+    protected void initContextFirstTime() {
+        final GLCapabilities capabilities = createCapabilities(settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3));
+
+        if (!capabilities.OpenGL20) {
+            throw new RendererException("OpenGL 2.0 or higher is required for jMonkeyEngine");
         }
-        
+
         if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL2)
-         || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
+                || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
             GL gl = new LwjglGL();
             GLExt glext = new LwjglGLExt();
             GLFbo glfbo;
-            
-            if (GLContext.getCapabilities().OpenGL30) {
+
+            if (capabilities.OpenGL30) {
                 glfbo = new LwjglGLFboGL3();
             } else {
                 glfbo = new LwjglGLFboEXT();
             }
-            
+
             if (settings.getBoolean("GraphicsDebug")) {
-                gl    = new GLDebugDesktop(gl, glext, glfbo);
+                gl = new GLDebugDesktop(gl, glext, glfbo);
                 glext = (GLExt) gl;
                 glfbo = (GLFbo) gl;
             }
-            
+
             if (settings.getBoolean("GraphicsTiming")) {
                 GLTimingState timingState = new GLTimingState();
-                gl    = (GL) GLTiming.createGLTiming(gl, timingState, GL.class, GL2.class, GL3.class, GL4.class);
+                gl = (GL) GLTiming.createGLTiming(gl, timingState, GL.class, GL2.class, GL3.class, GL4.class);
                 glext = (GLExt) GLTiming.createGLTiming(glext, timingState, GLExt.class);
                 glfbo = (GLFbo) GLTiming.createGLTiming(glfbo, timingState, GLFbo.class);
             }
-                  
+
             if (settings.getBoolean("GraphicsTrace")) {
-                gl    = (GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class, GL4.class);
+                gl = (GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class, GL4.class);
                 glext = (GLExt) GLTracer.createDesktopGlTracer(glext, GLExt.class);
                 glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
             }
-            
+
             renderer = new GLRenderer(gl, glext, glfbo);
             renderer.initialize();
         } else {
             throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
         }
-        
-        if (GLContext.getCapabilities().GL_ARB_debug_output && settings.getBoolean("GraphicsDebug")) {
-            ARBDebugOutput.glDebugMessageCallbackARB(new ARBDebugOutputCallback(new LwjglGLDebugOutputHandler()));
+
+        if (capabilities.GL_ARB_debug_output && settings.getBoolean("GraphicsDebug")) {
+            ARBDebugOutput.glDebugMessageCallbackARB(new LwjglGLDebugOutputHandler(), 0); // User param is zero. Not sure what we could use that for.
         }
-        
+
         renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
         renderer.setLinearizeSrgbImages(settings.getGammaCorrection());
 
@@ -277,44 +216,44 @@ public abstract class LwjglContext implements JmeContext {
         if (joyInput != null) {
             joyInput.initialize();
         }
+
+        renderable.set(true);
     }
 
-    public void internalDestroy(){
+    public void internalDestroy() {
         renderer = null;
         timer = null;
         renderable.set(false);
-        synchronized (createdLock){
+        synchronized (createdLock) {
             created.set(false);
             createdLock.notifyAll();
         }
     }
-    
-    public void internalCreate(){
-        timer = new LwjglTimer();
-        
-        synchronized (createdLock){
+
+    public void internalCreate() {
+        synchronized (createdLock) {
             created.set(true);
             createdLock.notifyAll();
         }
-        
-        if (renderable.get()){
+
+        //if (renderable.get()) {
             initContextFirstTime();
-        }else{
-            assert getType() == Type.Canvas;
-        }
+        //} else {
+//            assert getType() == Type.Canvas;
+//        }
     }
 
-    public void create(){
+    public void create() {
         create(false);
     }
 
-    public void destroy(){
+    public void destroy() {
         destroy(false);
     }
 
-    protected void waitFor(boolean createdVal){
-        synchronized (createdLock){
-            while (created.get() != createdVal){
+    protected void waitFor(boolean createdVal) {
+        synchronized (createdLock) {
+            while (created.get() != createdVal) {
                 try {
                     createdLock.wait();
                 } catch (InterruptedException ex) {
@@ -323,11 +262,11 @@ public abstract class LwjglContext implements JmeContext {
         }
     }
 
-    public boolean isCreated(){
+    public boolean isCreated() {
         return created.get();
     }
-    
-    public boolean isRenderable(){
+
+    public boolean isRenderable() {
         return renderable.get();
     }
 
@@ -335,7 +274,7 @@ public abstract class LwjglContext implements JmeContext {
         this.settings.copyFrom(settings);
     }
 
-    public AppSettings getSettings(){
+    public AppSettings getSettings() {
         return settings;
     }
 
