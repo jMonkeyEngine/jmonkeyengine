@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE type PUBLIC "-//NetBeans//DTD annotation type 1.0//EN" "http://www.netbeans.org/dtds/annotation-type-1_0.dtd">
+<type browseable="false" custom_sidebar_color="0xbde6aa" description_key="HINT_OTHER_THREAD_BP" foreground="0xffffff" glyph="nbresloc:/org/netbeans/modules/debugger/resources/editor/other_threads_breakpoint.png" highlight="0xfc9d9f" inherit_foreground_color="false" localizing_bundle="org.netbeans.modules.debugger.resources.Bundle" name="OtherThread_BP" priority="100" severity="none" type="line" use_custom_sidebar_color="true" use_highlight_color="true" use_wave_underline_color="false" visible="true">
+    <combination min_optionals="1" order="350" tiptext_key="">
+        <combine absorb_all="false" annotationtype="Breakpoint" optional="true"/>
+        <combine absorb_all="false" annotationtype="CondBreakpoint" optional="true"/>
+        <combine absorb_all="false" annotationtype="debugger-multi_BPCBP" optional="true"/>
+        <combine absorb_all="false" annotationtype="OtherThread" optional="false"/>
+    </combination>
+</type>

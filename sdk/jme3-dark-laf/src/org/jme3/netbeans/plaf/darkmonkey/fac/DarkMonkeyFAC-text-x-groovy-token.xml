@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN" "http://www.netbeans.org/dtds/EditorFontsColors-1_1.dtd">
+<fontscolors>
+    <fontcolor name="mod-constructor">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor name="mod-method">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor default="error" name="error"/>
+    <fontcolor default="keyword" name="keyword"/>
+    <fontcolor default="whitespace" name="whitespace"/>
+    <fontcolor default="number" name="number"/>
+    <fontcolor name="mod-static">
+        <font style="italic"/>
+    </fontcolor>
+    <fontcolor name="mod-deprecated" strikeThrough="darkGray"/>
+    <fontcolor default="operator" name="operator"/>
+    <fontcolor name="mod-class">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor name="mod-unused" waveUnderlined="ff999999"/>
+    <fontcolor bgColor="ff666600" name="mark-occurrences"/>
+    <fontcolor default="string" name="string"/>
+    <fontcolor default="field" name="mod-field"/>
+    <fontcolor default="comment" name="comment"/>
+    <fontcolor default="identifier" name="identifier"/>
+    <fontcolor default="separator" name="separator"/>
+</fontscolors>

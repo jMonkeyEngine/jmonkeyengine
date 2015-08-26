@@ -169,9 +169,12 @@ public class NodePanel extends DraggablePanel implements Selectable, PropertyCha
     }
 
     private Dot getConnectPoint(List<JLabel> list, String varName, List<Dot> listDot) {
-        if (varName.startsWith("m_") || varName.startsWith("g_")) {
-            varName = varName.substring(2);
-        }
+        //This has been commented out because it was causing issues when a variable name was explicitely starting with m_ or g_ in the j3md.
+        //I can't remember why it was done in the first place, but I can't see any case where the m_ should be stripped out.
+        //I'm letting this commented in case this comes to light some day, and something more clever will have to be done.
+//        if (varName.startsWith("m_") || varName.startsWith("g_")) {
+//            varName = varName.substring(2);
+//        }
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getText().equals(varName)) {
                 return listDot.get(i);

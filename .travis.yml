@@ -25,16 +25,26 @@ install:
 script:
   - ./gradlew check
   - ./gradlew createZipDistribution
+  - "[ $TRAVIS_BRANCH == 'master' ] && [ $TRAVIS_PULL_REQUEST == 'false' ] && ./gradlew uploadArchives;"
+
+before_deploy:
+  - export RELEASE_DIST=$(ls build/distributions/*.zip)
 
 deploy:
   provider: releases
   api_key:
     secure: PuEsJd6juXBH29ByITW3ntSAyrwWs0IeFvXJ5Y2YlhojhSMtTwkoWeB6YmDJWP4fhzbajk4TQ1HlOX2IxJXSW/8ShOEIUlGXz9fHiST0dkSM+iRAUgC5enCLW5ITPTiem7eY9ZhS9miIam7ngce9jHNMh75PTzZrEJtezoALT9w=
-  file: build/distributions/jME3.1.0_snapshot-github_2015-08-02.zip
+  file_glob: true
+  file: "${RELEASE_DIST}"
   skip_cleanup: true
   on:
     repo: jMonkeyEngine/jmonkeyengine
     tags: true
+
+before_install:
+  - git fetch --unshallow
+  - openssl aes-256-cbc -K $encrypted_a1949b55824a_key -iv $encrypted_a1949b55824a_iv 
+    -in private/www-updater.key.enc -out private/www-updater.key -d
 
 # before_install:
   # required libs for android build tools
