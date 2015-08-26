@@ -40,7 +40,6 @@ import com.jme3.input.lwjgl.JInputJoyInput;
 import com.jme3.input.lwjgl.LwjglKeyInput;
 import com.jme3.input.lwjgl.LwjglMouseInput;
 import com.jme3.system.AppSettings;
-import com.jme3.system.JmeContext.Type;
 import com.jme3.system.JmeSystem;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -207,6 +206,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
                                           + "Must set with JmeContext.setSystemListner().");
         }
 
+        registerNatives();
         loadNatives();
         logger.log(Level.FINE, "Using LWJGL {0}", Sys.getVersion());
         if (!initInThread()) {
