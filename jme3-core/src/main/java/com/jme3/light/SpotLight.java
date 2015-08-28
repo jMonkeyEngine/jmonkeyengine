@@ -34,6 +34,7 @@ package com.jme3.light;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.*;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Plane;
 import com.jme3.math.Vector3f;
@@ -58,19 +59,50 @@ import java.io.IOException;
  */
 public class SpotLight extends Light {
 
-    protected Vector3f position = new Vector3f();
-    protected Vector3f direction = new Vector3f(0,-1,0);
-    protected float spotInnerAngle = FastMath.QUARTER_PI / 8;
-    protected float spotOuterAngle = FastMath.QUARTER_PI / 6;
-    protected float spotRange = 100;
-    protected float invSpotRange = 1f / 100;
-    protected float packedAngleCos=0;
+    protected Vector3f position;
+    protected Vector3f direction;
+    protected float spotInnerAngle;
+    protected float spotOuterAngle;
+    protected float spotRange;
+    protected float invSpotRange;
+    protected float packedAngleCos;
     
     protected float outerAngleCosSqr, outerAngleSinSqr;
     protected float outerAngleSinRcp, outerAngleSin, outerAngleCos;
     
     public SpotLight() {
+        this(new ColorRGBA(1f, 1f, 1f, 1f), new Vector3f(), new Vector3f(0, -1, 0), FastMath.QUARTER_PI / 8, FastMath.QUARTER_PI / 6);
+    }
+
+    /**
+     *
+     * @param lightColor Color of the light
+     * @param position Position of the light
+     * @param direction Direction of the light
+     * @param spotInnerAngle Inner angle of the light
+     * @param spotOuterAngle Outer angle of the light
+     */
+    public SpotLight(ColorRGBA lightColor,Vector3f position, Vector3f direction, float spotInnerAngle, float spotOuterAngle) {
+        this(lightColor,position,direction,spotInnerAngle,spotOuterAngle,100);
+    }
+
+    /**
+     *
+     * @param lightColor Color of the light
+     * @param position Position of the light
+     * @param direction Direction of the light
+     * @param spotInnerAngle Inner angle of the light
+     * @param spotOuterAngle Outer angle of the light
+     * @param spotRange Range of the light
+     */
+    public SpotLight(ColorRGBA lightColor,Vector3f position, Vector3f direction, float spotInnerAngle, float spotOuterAngle,float spotRange) {
         super();
+        setColor(lightColor);
+        setPosition(position);
+        setDirection(direction);
+        setSpotInnerAngle(spotInnerAngle);
+        setSpotOuterAngle(spotOuterAngle);
+        setSpotRange(spotRange);
         computeAngleParameters();
     }
 

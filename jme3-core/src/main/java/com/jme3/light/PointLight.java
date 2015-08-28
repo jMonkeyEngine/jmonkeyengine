@@ -38,6 +38,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Plane;
 import com.jme3.math.Vector3f;
@@ -61,6 +62,23 @@ public class PointLight extends Light {
     protected Vector3f position = new Vector3f();
     protected float radius = 0;
     protected float invRadius = 0;
+
+    /**
+     * Default constructor
+     */
+    public PointLight() {
+    }
+
+    /**
+     * @param lightColor Color of the light
+     * @param lightPosition Position of the light
+     * @param lightRadius Radius of the light
+     */
+    public PointLight(ColorRGBA lightColor,Vector3f lightPosition, float lightRadius) {
+        setColor(lightColor);
+        setPosition(lightPosition);
+        setRadius(lightRadius);
+    }
 
     @Override
     public void computeLastDistance(Spatial owner) {
