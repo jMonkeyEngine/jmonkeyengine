@@ -167,7 +167,12 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
         
         renderer = new JoglRenderer();
         
-        renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
+        canvas.invoke(false, new GLRunnable() {
+            public boolean run(GLAutoDrawable glad) {
+                renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
+                return true;
+            }
+        });
     }
 
     protected void startGLCanvas() {

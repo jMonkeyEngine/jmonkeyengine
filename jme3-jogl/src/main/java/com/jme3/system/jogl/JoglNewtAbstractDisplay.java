@@ -146,7 +146,12 @@ public abstract class JoglNewtAbstractDisplay extends JoglContext implements GLE
         
         renderer = new JoglRenderer();
         
-        renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
+        canvas.invoke(false, new GLRunnable() {
+            public boolean run(GLAutoDrawable glad) {
+                renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
+                return true;
+            }
+        });
     }
 
     protected void startGLCanvas() {
