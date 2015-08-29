@@ -25,7 +25,7 @@ install:
 script:
   - ./gradlew check
   - ./gradlew createZipDistribution
-  - "[ $TRAVIS_BRANCH == 'master' ] && [ $TRAVIS_PULL_REQUEST == 'false' ] && ./gradlew uploadArchives;"
+  - [ $TRAVIS_BRANCH == 'master' ] && [ $TRAVIS_PULL_REQUEST == 'false' ] && ./gradlew uploadArchives || :
 
 before_deploy:
   - export RELEASE_DIST=$(ls build/distributions/*.zip)
