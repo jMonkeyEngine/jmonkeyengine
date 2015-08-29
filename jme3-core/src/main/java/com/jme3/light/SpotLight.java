@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@ package com.jme3.light;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.*;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Plane;
 import com.jme3.math.Vector3f;
@@ -44,27 +45,27 @@ import java.io.IOException;
 
 /**
  * Represents a spot light.
- * A spot light emmit a cone of light from a position and in a direction.
- * It can be used to fake torch lights or car's lights.
+ * A spot light emits a cone of light from a position and in a direction.
+ * It can be used to fake torch lights or cars' lights.
  * <p>
  * In addition to a position and a direction, spot lights also have a range which 
  * can be used to attenuate the influence of the light depending on the 
- * distance between the light and the effected object.
+ * distance between the light and the affected object.
  * Also the angle of the cone can be tweaked by changing the spot inner angle and the spot outer angle.
- * the spot inner angle determin the cone of light where light has full influence.
- * the spot outer angle determin the cone global cone of light of the spot light.
- * the light intensity slowly decrease between the inner cone and the outer cone.
+ * the spot inner angle determines the cone of light where light has full influence.
+ * the spot outer angle determines the cone global cone of light of the spot light.
+ * the light intensity slowly decreases between the inner cone and the outer cone.
  *  @author Nehon
  */
 public class SpotLight extends Light {
 
     protected Vector3f position = new Vector3f();
-    protected Vector3f direction = new Vector3f(0,-1,0);
+    protected Vector3f direction = new Vector3f(0, -1, 0);
     protected float spotInnerAngle = FastMath.QUARTER_PI / 8;
     protected float spotOuterAngle = FastMath.QUARTER_PI / 6;
     protected float spotRange = 100;
     protected float invSpotRange = 1f / 100;
-    protected float packedAngleCos=0;
+    protected float packedAngleCos = 0;
     
     protected float outerAngleCosSqr, outerAngleSinSqr;
     protected float outerAngleSinRcp, outerAngleSin, outerAngleCos;
@@ -72,6 +73,19 @@ public class SpotLight extends Light {
     public SpotLight() {
         super();
         computeAngleParameters();
+    }
+
+    public SpotLight(Vector3f position, Vector3f direction) {
+        this();
+        setPosition(position);
+        setDirection(direction);
+    }
+
+    public SpotLight(Vector3f position, Vector3f direction, ColorRGBA color) {
+        super(color);
+        computeAngleParameters();
+        setPosition(position);
+        setDirection(direction);
     }
 
     private void computeAngleParameters() {

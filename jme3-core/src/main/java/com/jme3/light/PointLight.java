@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Plane;
 import com.jme3.math.Vector3f;
@@ -61,6 +62,18 @@ public class PointLight extends Light {
     protected Vector3f position = new Vector3f();
     protected float radius = 0;
     protected float invRadius = 0;
+
+    public PointLight() {
+    }
+
+    public PointLight(Vector3f position) {
+        setPosition(position);
+    }
+
+    public PointLight(Vector3f position, ColorRGBA color) {
+        super(color);
+        setPosition(position);
+    }
 
     @Override
     public void computeLastDistance(Spatial owner) {
