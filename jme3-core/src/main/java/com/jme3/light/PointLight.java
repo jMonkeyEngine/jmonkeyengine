@@ -32,7 +32,6 @@
 package com.jme3.light;
 
 import com.jme3.bounding.BoundingBox;
-import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -40,7 +39,6 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
-import com.jme3.math.Plane;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
@@ -63,16 +61,50 @@ public class PointLight extends Light {
     protected float radius = 0;
     protected float invRadius = 0;
 
+    /**
+     * Creates a PointLight
+     */
     public PointLight() {
     }
 
+    /**
+     * Creates a PointLight at the given position
+     * @param position the position in world space
+     */
     public PointLight(Vector3f position) {
         setPosition(position);
     }
 
+    /**
+     * Creates a PointLight at the given position and with the given color
+     * @param position the position in world space
+     * @param color the light color
+     */
     public PointLight(Vector3f position, ColorRGBA color) {
         super(color);
         setPosition(position);
+    }
+    
+    /**
+     * Creates a PointLight at the given position, with the given color and the 
+     * given radius
+     * @param position the position in world space
+     * @param color the light color
+     * @param radius the light radius
+     */
+    public PointLight(Vector3f position, ColorRGBA color, float radius) {
+        this(position, color);
+        setRadius(radius);
+    }
+    
+    /**
+     * Creates a PointLight at the given position, with the given radius
+     * @param position the position in world space
+     * @param radius the light radius
+     */
+    public PointLight(Vector3f position, float radius) {
+        this(position);
+        setRadius(radius);
     }
 
     @Override
@@ -101,7 +133,7 @@ public class PointLight extends Light {
      * 
      * @param position the world space position of the light.
      */
-    public void setPosition(Vector3f position) {
+    public final void setPosition(Vector3f position) {
         this.position.set(position);
     }
 
@@ -128,7 +160,7 @@ public class PointLight extends Light {
      * 
      * @throws IllegalArgumentException If radius is negative
      */
-    public void setRadius(float radius) {
+    public final void setRadius(float radius) {
         if (radius < 0) {
             throw new IllegalArgumentException("Light radius cannot be negative");
         }

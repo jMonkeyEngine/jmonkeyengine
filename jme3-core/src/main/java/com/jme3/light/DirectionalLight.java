@@ -54,13 +54,25 @@ public class DirectionalLight extends Light {
 
     protected Vector3f direction = new Vector3f(0f, -1f, 0f);
 
+    /**
+     * Creates a DirectionalLight
+     */
     public DirectionalLight() {
     }
 
+    /**
+     * Creates a DirectionalLight with the given direction
+     * @param direction the light's direction
+     */
     public DirectionalLight(Vector3f direction) {
         setDirection(direction);
     }
 
+    /**
+     * Creates a DirectionalLight with the given direction and the given color
+     * @param direction the light's direction
+     * @param color the light's color
+     */
     public DirectionalLight(Vector3f direction, ColorRGBA color) {
         super(color);
         setDirection(direction);
@@ -90,7 +102,7 @@ public class DirectionalLight extends Light {
      * 
      * @param dir the direction of the light.
      */
-    public void setDirection(Vector3f dir){
+    public final void setDirection(Vector3f dir){
         direction.set(dir);
         if (!direction.isUnitVector()) {
             direction.normalizeLocal();

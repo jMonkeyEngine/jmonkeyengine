@@ -70,23 +70,95 @@ public class SpotLight extends Light {
     protected float outerAngleCosSqr, outerAngleSinSqr;
     protected float outerAngleSinRcp, outerAngleSin, outerAngleCos;
     
+    /**
+     * Creates a SpotLight.
+     */
     public SpotLight() {
         super();
         computeAngleParameters();
     }
 
+    /**
+     * Creates a SpotLight at the given position and with the given direction.
+     * @param position the position in world space.
+     * @param direction the direction of the light.
+     */
     public SpotLight(Vector3f position, Vector3f direction) {
         this();
         setPosition(position);
         setDirection(direction);
     }
+    
+    /**
+     * Creates a SpotLight at the given position, with the given direction, and the
+     * given range.
+     * @param position the position in world space.
+     * @param direction the direction of the light.
+     * @param range the spot light range
+     */
+    public SpotLight(Vector3f position, Vector3f direction, float range) {
+        this();
+        setPosition(position);
+        setDirection(direction);
+        this.spotRange = range;
+    }
 
+    /**
+     * Creates a SpotLight at the given position, with the given direction and
+     * the given color.
+     * @param position the position in world space.
+     * @param direction the direction of the light.
+     * @param color the light's color.
+     */
     public SpotLight(Vector3f position, Vector3f direction, ColorRGBA color) {
         super(color);
         computeAngleParameters();
         setPosition(position);
         setDirection(direction);
     }
+    
+    
+    /**
+     * Creates a SpotLight at the given position, with the given direction,
+     * the given range and the given color.
+     * @param position the position in world space.
+     * @param direction the direction of the light.
+     * @param range the spot light range
+     * @param color the light's color.
+     */
+    public SpotLight(Vector3f position, Vector3f direction, float range, ColorRGBA color) {
+        super(color);
+        computeAngleParameters();
+        setPosition(position);
+        setDirection(direction);
+        this.spotRange = range;
+    }
+    
+    /**
+     * Creates a SpotLight at the given position, with the given direction,
+     * the given color and the given inner and outer angles 
+     * (controls the falloff of the light)
+     * 
+     * @param position the position in world space.
+     * @param direction the direction of the light.
+     * @param range the spot light range
+     * @param color the light's color.
+     * @param innerAngle the inner angle of the spot light.
+     * @param outerAngle the outer angle of the spot light.
+     * 
+     * @see SpotLight#setSpotInnerAngle(float) 
+     * @see SpotLight#setSpotOuterAngle(float) 
+     */
+    public SpotLight(Vector3f position, Vector3f direction, float range, ColorRGBA color, float innerAngle, float outerAngle) {
+        super(color);
+        this.spotInnerAngle = innerAngle;
+        this.spotOuterAngle = outerAngle;
+        computeAngleParameters();
+        setPosition(position);
+        setDirection(direction);
+        this.spotRange = range;
+    }  
+    
 
     private void computeAngleParameters() {
         float innerCos = FastMath.cos(spotInnerAngle);
@@ -203,7 +275,7 @@ public class SpotLight extends Light {
         return direction;
     }
 
-    public void setDirection(Vector3f direction) {
+    public final void setDirection(Vector3f direction) {
         this.direction.set(direction);
     }
 
@@ -211,7 +283,7 @@ public class SpotLight extends Light {
         return position;
     }
 
-    public void setPosition(Vector3f position) {
+    public final void setPosition(Vector3f position) {
         this.position.set(position);
     }
 
