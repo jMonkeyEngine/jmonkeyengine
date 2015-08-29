@@ -107,7 +107,8 @@ public abstract class JoglNewtAbstractDisplay extends JoglContext implements GLE
         canvas.setSize(settings.getWidth(), settings.getHeight());
         canvas.addGLEventListener(this);
 
-        if (settings.getBoolean("GraphicsDebug")) {
+        //TODO remove this block once for all when the unified renderer is stable
+        /*if (settings.getBoolean("GraphicsDebug")) {
             canvas.invoke(false, new GLRunnable() {
                 public boolean run(GLAutoDrawable glad) {
                     GL gl = glad.getGL();
@@ -156,7 +157,7 @@ public abstract class JoglNewtAbstractDisplay extends JoglContext implements GLE
                 renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
                 return true;
             }
-        });
+        });*/
     }
 
     protected void startGLCanvas() {

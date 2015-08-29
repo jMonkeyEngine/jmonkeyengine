@@ -36,17 +36,32 @@ import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.renderer.Renderer;
-import com.jme3.renderer.jogl.JoglRenderer;
+import com.jme3.renderer.RendererException;
+import com.jme3.renderer.jogl.JoglGL;
+import com.jme3.renderer.jogl.JoglGLExt;
+import com.jme3.renderer.jogl.JoglGLFbo;
+import com.jme3.renderer.opengl.GL2;
+import com.jme3.renderer.opengl.GL3;
+import com.jme3.renderer.opengl.GL4;
+import com.jme3.renderer.opengl.GLDebugDesktop;
+import com.jme3.renderer.opengl.GLExt;
+import com.jme3.renderer.opengl.GLFbo;
+import com.jme3.renderer.opengl.GLRenderer;
+import com.jme3.renderer.opengl.GLTiming;
+import com.jme3.renderer.opengl.GLTimingState;
+import com.jme3.renderer.opengl.GLTracer;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.NanoTimer;
 import com.jme3.system.NativeLibraryLoader;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
+
 import java.nio.IntBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2GL3;
 import com.jogamp.opengl.GLContext;
@@ -62,7 +77,7 @@ public abstract class JoglContext implements JmeContext {
     protected final Object createdLock = new Object();
 
     protected AppSettings settings = new AppSettings(true);
-    protected JoglRenderer renderer;
+    protected Renderer renderer;
     protected Timer timer;
     protected SystemListener listener;
 
@@ -77,43 +92,53 @@ public abstract class JoglContext implements JmeContext {
         }
     }
     
-    public void setSystemListener(SystemListener listener){
+    @Override
+	public void setSystemListener(SystemListener listener){
         this.listener = listener;
     }
 
-    public void setSettings(AppSettings settings) {
+    @Override
+	public void setSettings(AppSettings settings) {
         this.settings.copyFrom(settings);
     }
     
-    public boolean isRenderable(){
+    @Override
+	public boolean isRenderable(){
         return renderable.get();
     }
 
-    public AppSettings getSettings() {
+    @Override
+	public AppSettings getSettings() {
         return settings;
     }
 
-    public Renderer getRenderer() {
+    @Override
+	public Renderer getRenderer() {
         return renderer;
     }
 
-    public MouseInput getMouseInput() {
+    @Override
+	public MouseInput getMouseInput() {
         return mouseInput;
     }
 
-    public KeyInput getKeyInput() {
+    @Override
+	public KeyInput getKeyInput() {
         return keyInput;
     }
 
-    public JoyInput getJoyInput() {
+    @Override
+	public JoyInput getJoyInput() {
         return joyInput;
     }
 
-    public Timer getTimer() {
+    @Override
+	public Timer getTimer() {
         return timer;
     }
 
-    public boolean isCreated() {
+    @Override
+	public boolean isCreated() {
         return created.get();
     }
 
@@ -135,12 +160,75 @@ public abstract class JoglContext implements JmeContext {
             }
         }
     }
+    
+    protected void initContextFirstTime(){
+        if (GLContext.getCurrent().getGLVersionNumber().getMajor() < 2) {
+            throw new RendererException("OpenGL 2.0 or higher is " + 
+                                        "required for jMonkeyEngine");
+        }
+        
+        if (settings.getRenderer().equals("JOGL")) {
+        	com.jme3.renderer.opengl.GL gl = new JoglGL();
+        	GLExt glext = new JoglGLExt();
+        	GLFbo glfbo = new JoglGLFbo();
+            
+            if (settings.getBoolean("GraphicsDebug")) {
+                gl    = new GLDebugDesktop(gl, glext, glfbo);
+                glext = (GLExt) gl;
+                glfbo = (GLFbo) gl;
+            }
+            
+            if (settings.getBoolean("GraphicsTiming")) {
+                GLTimingState timingState = new GLTimingState();
+                gl    = (com.jme3.renderer.opengl.GL) GLTiming.createGLTiming(gl, timingState, GL.class, GL2.class, GL3.class, GL4.class);
+                glext = (GLExt) GLTiming.createGLTiming(glext, timingState, GLExt.class);
+                glfbo = (GLFbo) GLTiming.createGLTiming(glfbo, timingState, GLFbo.class);
+            }
+                  
+            if (settings.getBoolean("GraphicsTrace")) {
+                gl    = (com.jme3.renderer.opengl.GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class, GL4.class);
+                glext = (GLExt) GLTracer.createDesktopGlTracer(glext, GLExt.class);
+                glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
+            }
+            
+            renderer = new GLRenderer(gl, glext, glfbo);
+            renderer.initialize();
+        } else {
+            throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
+        }
+        
+        if (GLContext.getCurrentGL().isExtensionAvailable("GL_ARB_debug_output") && settings.getBoolean("GraphicsDebug")) {
+        	GLContext.getCurrent().enableGLDebugMessage(true);
+        	GLContext.getCurrent().addGLDebugListener(new JoglGLDebugOutputHandler());
+        }
+        
+        renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
+        renderer.setLinearizeSrgbImages(settings.getGammaCorrection());
 
-     public void internalCreate() {
+        // Init input
+        if (keyInput != null) {
+            keyInput.initialize();
+        }
+
+        if (mouseInput != null) {
+            mouseInput.initialize();
+        }
+
+        if (joyInput != null) {
+            joyInput.initialize();
+        }
+    }
+
+    public void internalCreate() {
         timer = new NanoTimer();
         synchronized (createdLock){
             created.set(true);
             createdLock.notifyAll();
+        }
+        if (renderable.get()){
+            initContextFirstTime();
+        } else {
+            assert getType() == Type.Canvas;
         }
     }
 
