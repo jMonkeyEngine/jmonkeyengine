@@ -42,7 +42,6 @@ import java.io.*;
 public class LittleEndien extends InputStream implements DataInput {
 
     protected BufferedInputStream in;
-    protected BufferedReader inRead;
 
     /**
      * Creates a new LittleEndien reader from the given input stream.  The
@@ -51,7 +50,6 @@ public class LittleEndien extends InputStream implements DataInput {
      */
     public LittleEndien(InputStream in) {
         this.in = new BufferedInputStream(in);
-        inRead = new BufferedReader(new InputStreamReader(in));
     }
 
     public int read() throws IOException {
@@ -141,7 +139,7 @@ public class LittleEndien extends InputStream implements DataInput {
     }
 
     public String readLine() throws IOException {
-        return inRead.readLine();
+        throw new IOException("Unsupported operation");
     }
 
     public String readUTF() throws IOException {

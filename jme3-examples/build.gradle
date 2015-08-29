@@ -21,7 +21,6 @@ dependencies {
 //    compile project(':jme3-bullet-native')
     compile project(':jme3-jbullet')
     compile project(':jme3-jogg')
-//    compile project(':jme3-jogl')
     compile project(':jme3-lwjgl')
     compile project(':jme3-networking')
     compile project(':jme3-niftygui')
@@ -51,7 +50,9 @@ jar.doFirst{
     }
 }
 
-task dist (dependsOn: ['build', ':jme3-jogl:jar', ':jme3-bullet:jar', ':jme3-android:jar']) << {
+task dist (dependsOn: ['build', ':jme3-jogl:jar', ':jme3-bullet:jar', ':jme3-android:jar', \
+                       ':jme3-android-native:jar', ':jme3-bullet-native-android:jar', \
+                       ':jme3-bullet-native:jar']) << {
     // Copy all dependencies to ../dist/lib, remove versions from jar files
     configurations.compile.resolvedConfiguration.resolvedArtifacts.each { artifact ->
         copy {
@@ -97,23 +98,23 @@ task dist (dependsOn: ['build', ':jme3-jogl:jar', ':jme3-bullet:jar', ':jme3-and
     copy {
         from project(':jme3-bullet-native').jar.archivePath
         into '../dist/opt/native-bullet'
-        rename {"jme3-bullet-natives.jar"}
+        rename {project(':jme3-bullet-native').name+".jar"}
     }
 
     // Copy android packages, remove version
     copy {
         from project(':jme3-android').jar.archivePath
         into '../dist/opt/android'
-        rename { project(':jme3-android').name + ".jar" }
+        rename {project(':jme3-android').name+".jar"}
     }
     copy {
         from project(':jme3-android-native').jar.archivePath
         into '../dist/opt/android'
-        rename { project(':jme3-android-native').name + ".jar" }
+        rename {project(':jme3-android-native').name+".jar"}
     }
     copy {
         from project(':jme3-bullet-native-android').jar.archivePath
         into '../dist/opt/native-bullet'
-        rename {"jme3-bullet-native-android.jar"}
+        rename {project(':jme3-bullet-native-android').name+".jar"}
     }
 }

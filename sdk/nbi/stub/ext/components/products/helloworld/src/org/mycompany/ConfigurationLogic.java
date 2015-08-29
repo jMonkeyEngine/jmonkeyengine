@@ -213,7 +213,8 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
     }
     private static void setExecutableContents(File parent, String path) {
         File binDir = new File(parent, path);
-        for (File file : binDir.listFiles()) {
+        File[] fileList = binDir.listFiles();
+        for (File file : fileList) {
             try {
                 file.setExecutable(true, false);
             } catch (Exception ex) {

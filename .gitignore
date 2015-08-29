@@ -136,8 +136,10 @@
 !/jme3-bullet-native/libs/native/linux/x86_64/libbulletjme.so
 /.nb-gradle/
 /sdk/ant-jme/nbproject/private/
+/sdk/nbi/stub/ext/engine/nbproject/private/
 /sdk/nbi/stub/ext/components/products/jdk/nbproject/private/
 /sdk/nbi/stub/ext/components/products/blender/nbproject/private/
+/sdk/nbi/stub/ext/components/products/helloworld/nbproject/private/
 /sdk/BasicGameTemplate/nbproject/private/
 /sdk/nbi/stub/ext/components/products/jdk/build/
 /sdk/nbi/stub/ext/components/products/jdk/dist/
