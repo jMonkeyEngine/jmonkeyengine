@@ -78,11 +78,11 @@ public class JoglGLExt implements GLExt {
     
     @Override
     public int glClientWaitSync(Object sync, int flags, long timeout) {
-        return GLContext.getCurrentGL().getGL3ES3().glClientWaitSync((long) sync, flags, timeout);
+        return GLContext.getCurrentGL().getGL3ES3().glClientWaitSync(((Long) sync).longValue(), flags, timeout);
     }
 
     @Override
     public void glDeleteSync(Object sync) {
-        GLContext.getCurrentGL().getGL3ES3().glDeleteSync((long) sync);
+        GLContext.getCurrentGL().getGL3ES3().glDeleteSync(((Long) sync).longValue());
     }
 }
