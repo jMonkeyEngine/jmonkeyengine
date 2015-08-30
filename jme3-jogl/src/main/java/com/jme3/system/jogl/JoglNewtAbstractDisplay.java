@@ -106,6 +106,9 @@ public abstract class JoglNewtAbstractDisplay extends JoglContext implements GLE
         canvas.requestFocus();
         canvas.setSize(settings.getWidth(), settings.getHeight());
         canvas.addGLEventListener(this);
+        
+        //FIXME not sure it is the best place to do that
+        renderable.set(true);
 
         //TODO remove this block once for all when the unified renderer is stable
         /*if (settings.getBoolean("GraphicsDebug")) {
@@ -172,9 +175,6 @@ public abstract class JoglNewtAbstractDisplay extends JoglContext implements GLE
 
         animator.start();
         wasAnimating = true;
-        
-        //FIXME not sure it is the best place to do that
-        renderable.set(true);
     }
 
     protected void onCanvasAdded() {

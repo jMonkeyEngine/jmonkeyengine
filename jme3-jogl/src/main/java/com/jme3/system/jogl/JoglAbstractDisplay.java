@@ -127,6 +127,9 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
         canvas.setSize(settings.getWidth(), settings.getHeight());
         canvas.setIgnoreRepaint(true);
         canvas.addGLEventListener(this);
+        
+        //FIXME not sure it is the best place to do that
+        renderable.set(true);
 
         //TODO remove this block once for all when the unified renderer is stable
         /*if (settings.getBoolean("GraphicsDebug")) {
@@ -193,9 +196,6 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
 
         animator.start();
         wasAnimating = true;
-        
-        //FIXME not sure it is the best place to do that
-        renderable.set(true);
     }
 
     protected void onCanvasAdded() {
