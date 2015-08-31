@@ -21,6 +21,7 @@ dependencies {
 //    compile project(':jme3-bullet-native')
     compile project(':jme3-jbullet')
     compile project(':jme3-jogg')
+    compile project(':jme3-jogl')
     compile project(':jme3-lwjgl')
     compile project(':jme3-networking')
     compile project(':jme3-niftygui')
