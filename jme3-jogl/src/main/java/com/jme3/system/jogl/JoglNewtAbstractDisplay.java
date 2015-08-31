@@ -37,7 +37,6 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.jogl.NewtKeyInput;
 import com.jme3.input.jogl.NewtMouseInput;
-import com.jme3.renderer.jogl.JoglRenderer;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.AnimatorBase;
@@ -46,15 +45,6 @@ import com.jogamp.opengl.util.FPSAnimator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
-import com.jogamp.opengl.DebugGL2;
-import com.jogamp.opengl.DebugGL3;
-import com.jogamp.opengl.DebugGL3bc;
-import com.jogamp.opengl.DebugGL4;
-import com.jogamp.opengl.DebugGL4bc;
-import com.jogamp.opengl.DebugGLES1;
-import com.jogamp.opengl.DebugGLES2;
-import com.jogamp.opengl.DebugGLES3;
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
@@ -109,58 +99,6 @@ public abstract class JoglNewtAbstractDisplay extends JoglContext implements GLE
         
         //FIXME not sure it is the best place to do that
         renderable.set(true);
-
-        //TODO remove this block once for all when the unified renderer is stable
-        /*if (settings.getBoolean("GraphicsDebug")) {
-            canvas.invoke(false, new GLRunnable() {
-                public boolean run(GLAutoDrawable glad) {
-                    GL gl = glad.getGL();
-                    if (gl.isGLES()) {
-                        if (gl.isGLES1()) {
-                            glad.setGL(new DebugGLES1(gl.getGLES1()));
-                        } else {
-                            if (gl.isGLES2()) {
-                                glad.setGL(new DebugGLES2(gl.getGLES2()));
-                            } else {
-                            	if (gl.isGLES3()) {
-                                	glad.setGL(new DebugGLES3(gl.getGLES3()));
-                                }
-                            }
-                        }
-                    } else {
-                        if (gl.isGL4bc()) {
-                            glad.setGL(new DebugGL4bc(gl.getGL4bc()));
-                        } else {
-                            if (gl.isGL4()) {
-                                glad.setGL(new DebugGL4(gl.getGL4()));
-                            } else {
-                                if (gl.isGL3bc()) {
-                                    glad.setGL(new DebugGL3bc(gl.getGL3bc()));
-                                } else {
-                                    if (gl.isGL3()) {
-                                        glad.setGL(new DebugGL3(gl.getGL3()));
-                                    } else {
-                                        if (gl.isGL2()) {
-                                            glad.setGL(new DebugGL2(gl.getGL2()));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    return true;
-                }
-            });
-        }
-        
-        renderer = new JoglRenderer();
-        
-        canvas.invoke(false, new GLRunnable() {
-            public boolean run(GLAutoDrawable glad) {
-                renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
-                return true;
-            }
-        });*/
     }
 
     protected void startGLCanvas() {
