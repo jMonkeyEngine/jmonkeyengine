@@ -50,9 +50,17 @@ import java.util.logging.Logger;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class LwjglMouseInput implements MouseInput {
+/**
+ * Captures mouse input using GLFW callbacks. It then temporarily stores these in event queues which are processed in the
+ * {@link #update()} method. Due to some of the GLFW button id's there is a conversion method in this class which will
+ * convert the GLFW left, middle and right mouse button to JME3 left, middle and right button codes.
+ *
+ * @author Daniel Johansson (dannyjo)
+ * @since 3.1
+ */
+public class GlfwMouseInput implements MouseInput {
 
-    private static final Logger logger = Logger.getLogger(LwjglMouseInput.class.getName());
+    private static final Logger logger = Logger.getLogger(GlfwMouseInput.class.getName());
 
     private LwjglWindow context;
     private RawInputListener listener;
@@ -67,7 +75,7 @@ public class LwjglMouseInput implements MouseInput {
     private Queue<MouseMotionEvent> mouseMotionEvents = new LinkedList<MouseMotionEvent>();
     private Queue<MouseButtonEvent> mouseButtonEvents = new LinkedList<MouseButtonEvent>();
 
-    public LwjglMouseInput(LwjglWindow context) {
+    public GlfwMouseInput(final LwjglWindow context) {
         this.context = context;
     }
 
@@ -78,7 +86,7 @@ public class LwjglMouseInput implements MouseInput {
                 int xDelta;
                 int yDelta;
                 int x = (int) Math.round(xpos);
-                int y = (int) Math.round(ypos);
+                int y = context.getSettings().getHeight() - (int) Math.round(ypos);
 
                 if (mouseX == 0) {
                     mouseX = x;
@@ -94,7 +102,7 @@ public class LwjglMouseInput implements MouseInput {
                 mouseY = y;
 
                 if (xDelta != 0 || yDelta != 0) {
-                    final MouseMotionEvent mouseMotionEvent = new MouseMotionEvent(x, y * -1, xDelta, yDelta * -1, mouseWheel, 0);
+                    final MouseMotionEvent mouseMotionEvent = new MouseMotionEvent(x, y, xDelta, yDelta, mouseWheel, 0);
                     mouseMotionEvent.setTime(getInputTimeNanos());
                     mouseMotionEvents.add(mouseMotionEvent);
                 }
@@ -115,7 +123,7 @@ public class LwjglMouseInput implements MouseInput {
         glfwSetMouseButtonCallback(context.getWindowHandle(), mouseButtonCallback = new GLFWMouseButtonCallback() {
             @Override
             public void invoke(final long window, final int button, final int action, final int mods) {
-                final MouseButtonEvent mouseButtonEvent = new MouseButtonEvent(button, action == GLFW_PRESS, mouseX, mouseY);
+                final MouseButtonEvent mouseButtonEvent = new MouseButtonEvent(convertButton(button), action == GLFW_PRESS, mouseX, mouseY);
                 mouseButtonEvent.setTime(getInputTimeNanos());
                 mouseButtonEvents.add(mouseButtonEvent);
             }
@@ -131,7 +139,7 @@ public class LwjglMouseInput implements MouseInput {
     }
 
     public int getButtonCount() {
-        return 2; // TODO: How to determine this?
+        return GLFW_MOUSE_BUTTON_LAST + 1;
     }
 
     public void update() {
@@ -185,5 +193,24 @@ public class LwjglMouseInput implements MouseInput {
             final long cursor = glfwCreateCursor(byteBuffer, jmeCursor.getXHotSpot(), jmeCursor.getYHotSpot());
             glfwSetCursor(context.getWindowHandle(), cursor);
         }
+    }
+
+    /**
+     * Simply converts the GLFW button code to a JME button code. If there is no match it just returns the GLFW button
+     * code. Bare in mind GLFW supports 8 different mouse buttons.
+     *
+     * @param glfwButton the raw GLFW button index.
+     * @return the mapped {@link MouseInput} button id.
+     */
+    private int convertButton(final int glfwButton) {
+        if (glfwButton == GLFW_MOUSE_BUTTON_LEFT) {
+            return MouseInput.BUTTON_LEFT;
+        } else if(glfwButton == GLFW_MOUSE_BUTTON_MIDDLE) {
+            return MouseInput.BUTTON_MIDDLE;
+        } else if(glfwButton == GLFW_MOUSE_BUTTON_RIGHT) {
+            return MouseInput.BUTTON_RIGHT;
+        }
+
+        return glfwButton;
     }
 }

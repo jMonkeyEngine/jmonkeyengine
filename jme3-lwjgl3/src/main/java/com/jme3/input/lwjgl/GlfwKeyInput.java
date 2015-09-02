@@ -45,9 +45,9 @@ import java.util.logging.Logger;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class LwjglKeyInput implements KeyInput {
+public class GlfwKeyInput implements KeyInput {
 
-    private static final Logger logger = Logger.getLogger(LwjglKeyInput.class.getName());
+    private static final Logger logger = Logger.getLogger(GlfwKeyInput.class.getName());
 
     private LwjglWindow context;
     private RawInputListener listener;
@@ -55,7 +55,7 @@ public class LwjglKeyInput implements KeyInput {
     private GLFWKeyCallback keyCallback;
     private Queue<KeyInputEvent> keyInputEvents = new LinkedList<KeyInputEvent>();
 
-    public LwjglKeyInput(LwjglWindow context) {
+    public GlfwKeyInput(LwjglWindow context) {
         this.context = context;
     }
 

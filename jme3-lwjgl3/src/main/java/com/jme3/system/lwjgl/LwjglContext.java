@@ -33,8 +33,8 @@
 package com.jme3.system.lwjgl;
 
 import com.jme3.input.lwjgl.GlfwJoystickInput;
-import com.jme3.input.lwjgl.LwjglKeyInput;
-import com.jme3.input.lwjgl.LwjglMouseInput;
+import com.jme3.input.lwjgl.GlfwKeyInput;
+import com.jme3.input.lwjgl.GlfwMouseInput;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.lwjgl.LwjglGL;
@@ -71,8 +71,8 @@ public abstract class LwjglContext implements JmeContext {
 
     protected AppSettings settings = new AppSettings(true);
     protected Renderer renderer;
-    protected LwjglKeyInput keyInput;
-    protected LwjglMouseInput mouseInput;
+    protected GlfwKeyInput keyInput;
+    protected GlfwMouseInput mouseInput;
     protected GlfwJoystickInput joyInput;
     protected Timer timer;
     protected SystemListener listener;
@@ -123,16 +123,15 @@ public abstract class LwjglContext implements JmeContext {
         if (JmeSystem.isLowPermissions()) {
             return;
         }
+
         if ("LWJGL".equals(settings.getAudioRenderer())) {
             NativeLibraryLoader.loadNativeLibrary("openal", true);
         }
-        if (settings.useJoysticks()) {
-            //NativeLibraryLoader.loadNativeLibrary("jinput", true);
-            //NativeLibraryLoader.loadNativeLibrary("jinput-dx8", true);
-        }
+
         if (NativeLibraryLoader.isUsingNativeBullet()) {
             NativeLibraryLoader.loadNativeLibrary("bulletjme", true);
         }
+
         NativeLibraryLoader.loadNativeLibrary("lwjgl", true);
     }
 
@@ -236,11 +235,7 @@ public abstract class LwjglContext implements JmeContext {
             createdLock.notifyAll();
         }
 
-        //if (renderable.get()) {
-            initContextFirstTime();
-        //} else {
-//            assert getType() == Type.Canvas;
-//        }
+        initContextFirstTime();
     }
 
     public void create() {

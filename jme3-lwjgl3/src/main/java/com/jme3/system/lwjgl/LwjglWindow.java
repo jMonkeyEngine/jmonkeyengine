@@ -37,12 +37,11 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.lwjgl.GlfwJoystickInput;
-import com.jme3.input.lwjgl.LwjglKeyInput;
-import com.jme3.input.lwjgl.LwjglMouseInput;
+import com.jme3.input.lwjgl.GlfwKeyInput;
+import com.jme3.input.lwjgl.GlfwMouseInput;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
-import org.lwjgl.PointerBuffer;
 import org.lwjgl.Sys;
 import org.lwjgl.glfw.*;
 
@@ -256,7 +255,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             if (window != 0) {
                 glfwDestroyWindow(window);
             }
-            //glfwTerminate();
         } catch (Exception ex) {
             listener.handleError("Failed to destroy context", ex);
         }
@@ -269,8 +267,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
 
         new Thread(this, THREAD_NAME).start();
-        if (waitFor)
+
+        if (waitFor) {
             waitFor(true);
+        }
     }
 
     /**
@@ -417,14 +417,14 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     public MouseInput getMouseInput() {
         if (mouseInput == null) {
-            mouseInput = new LwjglMouseInput(this);
+            mouseInput = new GlfwMouseInput(this);
         }
         return mouseInput;
     }
 
     public KeyInput getKeyInput() {
         if (keyInput == null) {
-            keyInput = new LwjglKeyInput(this);
+            keyInput = new GlfwKeyInput(this);
         }
 
         return keyInput;
