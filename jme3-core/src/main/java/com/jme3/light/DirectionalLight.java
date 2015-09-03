@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,29 +55,27 @@ public class DirectionalLight extends Light {
     protected Vector3f direction = new Vector3f(0f, -1f, 0f);
 
     /**
-     * Default constructor for DirectionalLight. Direction will be defaulted to -1 on the Y axis.
+     * Creates a DirectionalLight
      */
     public DirectionalLight() {
     }
 
     /**
-     * Constructor which allows setting of the direction.
-     *
-     * @param direction the direction vector for the light.
+     * Creates a DirectionalLight with the given direction
+     * @param direction the light's direction
      */
-    public DirectionalLight(final Vector3f direction) {
-        this.direction = direction;
+    public DirectionalLight(Vector3f direction) {
+        setDirection(direction);
     }
 
     /**
-     * Constructor which allows setting of the color and direction.
-     *
-     * @param color the color to apply to this light.
-     * @param direction the direction vector for the light.
+     * Creates a DirectionalLight with the given direction and the given color
+     * @param direction the light's direction
+     * @param color the light's color
      */
-    public DirectionalLight(final ColorRGBA color, final Vector3f direction) {
+    public DirectionalLight(Vector3f direction, ColorRGBA color) {
         super(color);
-        this.direction = direction;
+        setDirection(direction);
     }
 
     @Override
@@ -87,10 +85,10 @@ public class DirectionalLight extends Light {
 
     /**
      * Returns the direction vector of the light.
-     * 
+     *
      * @return The direction vector of the light.
-     * 
-     * @see DirectionalLight#setDirection(com.jme3.math.Vector3f) 
+     *
+     * @see DirectionalLight#setDirection(com.jme3.math.Vector3f)
      */
     public Vector3f getDirection() {
         return direction;
@@ -101,10 +99,10 @@ public class DirectionalLight extends Light {
      * <p>
      * Represents the direction the light is shining.
      * (1, 0, 0) would represent light shining in the +X direction.
-     * 
+     *
      * @param dir the direction of the light.
      */
-    public void setDirection(Vector3f dir){
+    public final void setDirection(Vector3f dir){
         direction.set(dir);
         if (!direction.isUnitVector()) {
             direction.normalizeLocal();
@@ -115,12 +113,12 @@ public class DirectionalLight extends Light {
     public boolean intersectsBox(BoundingBox box, TempVars vars) {
         return true;
     }
-    
+
     @Override
     public boolean intersectsFrustum(Camera camera, TempVars vars) {
         return true;
     }
-    
+
     @Override
     public Type getType() {
         return Type.Directional;

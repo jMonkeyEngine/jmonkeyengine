@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,23 +45,15 @@ import com.jme3.util.TempVars;
  * regardless of the model's location. The material's ambient color is
  * multiplied by the ambient light color to get the final ambient color of
  * an object.
- * 
+ *
  * @author Kirill Vainer
  */
 public class AmbientLight extends Light {
 
-    /**
-     * Default constructor for AmbientLight.
-     */
     public AmbientLight() {
     }
 
-    /**
-     * Constructor which allows setting of the color.
-     *
-     * @param color the color to apply to this light.
-     */
-    public AmbientLight(final ColorRGBA color) {
+    public AmbientLight(ColorRGBA color) {
         super(color);
     }
 
@@ -69,12 +61,12 @@ public class AmbientLight extends Light {
     public boolean intersectsBox(BoundingBox box, TempVars vars) {
         return true;
     }
-    
+
     @Override
     public boolean intersectsFrustum(Camera camera, TempVars vars) {
         return true;
     }
-    
+
     @Override
     public void computeLastDistance(Spatial owner) {
     }
