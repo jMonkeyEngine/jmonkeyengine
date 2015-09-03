@@ -188,7 +188,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         glfwSetWindowFocusCallback(window, windowFocusCallback = new GLFWWindowFocusCallback() {
             @Override
             public void invoke(final long window, final int focused) {
-                final boolean focus = (focused == 1);
+                final boolean focus = (focused == GL_TRUE);
 
                 if (wasActive != focus) {
                     if (!wasActive) {
@@ -200,7 +200,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
                     wasActive = !wasActive;
                 }
-
             }
         });
 
@@ -218,7 +217,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         } else {
             glfwSwapInterval(0);
         }
-
 
         // Make the window visible
         if (Type.Display.equals(type)) {
@@ -356,9 +354,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             }
         }
 
-        if (glfwGetWindowAttrib(window, GLFW_FOCUSED) == GL_TRUE) {
-            glfwPollEvents();
-        }
+        glfwPollEvents();
 
         // Subclasses just call GLObjectManager clean up objects here
         // it is safe .. for now.
@@ -381,7 +377,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     public void run() {
         if (listener == null) {
             throw new IllegalStateException("SystemListener is not set on context!"
-                    + "Must set with JmeContext.setSystemListner().");
+                    + "Must set with JmeContext.setSystemListener().");
         }
 
         registerNatives();
