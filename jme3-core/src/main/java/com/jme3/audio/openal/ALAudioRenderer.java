@@ -31,22 +31,20 @@
  */
 package com.jme3.audio.openal;
 
-import com.jme3.audio.AudioSource.Status;
 import com.jme3.audio.*;
+import com.jme3.audio.AudioSource.Status;
 import com.jme3.math.Vector3f;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObjectManager;
+
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.jme3.audio.openal.AL.*;
-import static com.jme3.audio.openal.ALC.*;
-import static com.jme3.audio.openal.EFX.*;
 
 public class ALAudioRenderer implements AudioRenderer, Runnable {
 
@@ -102,16 +100,6 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             return;
         }
 
-        String deviceName = alc.alcGetString(ALC.ALC_DEVICE_SPECIFIER);
-
-        logger.log(Level.INFO, "Audio Device: {0}", deviceName);
-        logger.log(Level.INFO, "Audio Vendor: {0}", al.alGetString(AL_VENDOR));
-        logger.log(Level.INFO, "Audio Renderer: {0}", al.alGetString(AL_RENDERER));
-        logger.log(Level.INFO, "Audio Version: {0}", al.alGetString(AL_VERSION));
-
-        logger.log(Level.INFO, "ALC extensions: {0}", alc.alcGetString(ALC.ALC_EXTENSIONS));
-        logger.log(Level.INFO, "AL extensions: {0}", al.alGetString(AL_EXTENSIONS));
-        
         // Find maximum # of sources supported by this implementation
         ArrayList<Integer> channelList = new ArrayList<Integer>();
         for (int i = 0; i < MAX_NUM_CHANNELS; i++) {
@@ -131,7 +119,25 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         ib = BufferUtils.createIntBuffer(channels.length);
         chanSrcs = new AudioSource[channels.length];
 
-        logger.log(Level.INFO, "AudioRenderer supports {0} channels", channels.length);
+        final String deviceName = alc.alcGetString(ALC.ALC_DEVICE_SPECIFIER);
+
+        logger.log(Level.INFO, "Audio Renderer Information\n" +
+                        " * Device: {0}\n" +
+                        " * Vendor: {1}\n" +
+                        " * Renderer: {2}\n" +
+                        " * Version: {3}\n" +
+                        " * Supported channels: {4}\n" +
+                        " * ALC extensions: {5}\n" +
+                        " * AL extensions: {6}",
+                new Object[]{
+                        deviceName,
+                        al.alGetString(AL_VENDOR),
+                        al.alGetString(AL_RENDERER),
+                        al.alGetString(AL_VERSION),
+                        channels.length,
+                        alc.alcGetString(ALC.ALC_EXTENSIONS),
+                        al.alGetString(AL_EXTENSIONS)
+                });
 
         // Pause device is a feature used specifically on Android
         // where the application could be closed but still running,
@@ -153,7 +159,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
             alc.alcGetInteger(EFX.ALC_MAX_AUXILIARY_SENDS, ib, 1);
             auxSends = ib.get(0);
-            logger.log(Level.INFO, "Audio max auxilary sends: {0}", auxSends);
+            logger.log(Level.INFO, "Audio max auxiliary sends: {0}", auxSends);
 
             // create slot
             ib.position(0).limit(1);
