@@ -2689,6 +2689,10 @@ public class GLRenderer implements Renderer {
     private void renderMeshDefault(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
         setVertexArrayObject(mesh);
         
+        // VAO clears current bound VBO automatically
+        context.boundElementArrayVBO = 0;
+        context.boundArrayVBO = 0;
+        
         VertexBuffer indices = getIndexBuffer(mesh, lod);
         if (mesh.isUpdateNeeded()) {
             setupVertexBuffers(mesh, instanceData);
