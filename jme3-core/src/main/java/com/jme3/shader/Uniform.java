@@ -332,30 +332,29 @@ public class Uniform extends ShaderVariable {
     }
 
     public void setVector4Length(int length){
-        if (location == -1)
+        if (location == -1) {
             return;
-
-        FloatBuffer fb = (FloatBuffer) value;
-        if (fb == null || fb.capacity() < length * 4) {
-            value = BufferUtils.createFloatBuffer(length * 4);
         }
-
+        
+        multiData = BufferUtils.ensureLargeEnough(multiData, length * 4);
+        value = multiData;
         varType = VarType.Vector4Array;
         updateNeeded = true;
         setByCurrentMaterial = true;
     }
 
     public void setVector4InArray(float x, float y, float z, float w, int index){
-        if (location == -1)
+        if (location == -1) {
             return;
+        }
 
-        if (varType != null && varType != VarType.Vector4Array)
-            throw new IllegalArgumentException("Expected a "+varType.name()+" value!");
+        if (varType != null && varType != VarType.Vector4Array) {
+            throw new IllegalArgumentException("Expected a " + varType.name() + " value!");
+        }
 
-        FloatBuffer fb = (FloatBuffer) value;
-        fb.position(index * 4);
-        fb.put(x).put(y).put(z).put(w);
-        fb.rewind();
+        multiData.position(index * 4);
+        multiData.put(x).put(y).put(z).put(w);
+        multiData.rewind();
         updateNeeded = true;
         setByCurrentMaterial = true;
     }
