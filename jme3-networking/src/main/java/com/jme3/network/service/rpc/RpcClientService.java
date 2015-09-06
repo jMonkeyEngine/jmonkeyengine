@@ -61,6 +61,15 @@ public class RpcClientService extends AbstractClientService {
     }
 
     /**
+     *  Returns the underlying RPC connection for use by other
+     *  services that may require a more generic non-client/server
+     *  specific RPC object with which to interact.
+     */
+    public RpcConnection getRpcConnection() {
+        return rpc;
+    }
+
+    /**
      *  Used internally to setup the RpcConnection and MessageDelegator.
      */
     @Override

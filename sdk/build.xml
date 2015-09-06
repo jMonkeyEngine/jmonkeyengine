@@ -12,7 +12,6 @@
     <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="ant-import.classpath"/>
     <taskdef resource="com/jme/ant/ant-jme.properties" classpathref="ant-import.classpath"/>
     <taskdef name="deb" classname="com.googlecode.ant_deb_task.Deb" classpathref="ant-import.classpath"/>
-    <taskdef name="gcupload" classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpathref="ant-import.classpath"/>
     <taskdef name="desktopentry" classname="com.googlecode.ant_deb_task.DesktopEntry" classpathref="ant-import.classpath"/>
 
     <!--override branding target to include netbeans config file creation, using this target makes sure init was called-->
@@ -157,7 +156,7 @@
                                replace="OpenIDE-Module-Specification-Version: ${plugins.version}"
                                byline="true"/>
                 <replaceregexp file="${module_dir}/nbproject/project.properties"
-                               match="spec.version.base"
+                               match="#*spec\.version\.base"
                                replace="#spec.version.base"
                                byline="true"/>
             </then>
@@ -167,7 +166,7 @@
                                replace="OpenIDE-Module-Implementation-Version: 0"
                                byline="true"/>
                 <replaceregexp file="${module_dir}/nbproject/project.properties"
-                               match="#spec.version.base"
+                               match="#*spec\.version\.base"
                                replace="spec.version.base"
                                byline="true"/>
             </else>
@@ -176,9 +175,6 @@
 
     <target name="set-impl-version">
         <property file="nbproject/project.properties"/>
-        <antcall target="-create-jme3-svn-properties" inheritall="true">
-            <param name="jme3_dir" value="../engine/"/>
-        </antcall>
         <foreach target="-do-impl-version" list="${modules}" delimiter=":" param="module_dir" inheritall="true">
             <param name="set_impl_version" value="true"/>
         </foreach>
@@ -191,105 +187,19 @@
         </foreach>
     </target>
 
-    <!--sets/unsets implementation version to svn revision for plugins-->
+    <!--sets/unsets implementation version to GIT revision for plugins-->
     <target name="-do-impl-version">
-        <!--jme3 libraries-->
-        <if>
-            <or>
-                <equals arg1="${module_dir}" arg2="jme3-core-libraries"/>
-                <equals arg1="${module_dir}" arg2="jme3-project-libraries"/>
-            </or>
-            <then>
-                <!--set jme3 libraries svn revision-->
-                <property prefix="svn" file="build/jme3-lib-svn.properties"/>
-            </then>
-            <else>
-                <!--jme3 core-->
-                <if>
-                    <or>
-                        <equals arg1="${module_dir}" arg2="jme3-core-baselibs"/>
-                        <equals arg1="${module_dir}" arg2="jme3-project-baselibs"/>
-                    </or>
-                    <then>
-                        <!--set jme3 svn revision-->
-                        <property prefix="svn" file="build/jme3-svn.properties"/>
-                    </then>
-                    <else>
-                        <!--jme3 test data-->
-                        <if>
-                            <equals arg1="${module_dir}" arg2="jme3-project-testdata"/>
-                            <then>
-                                <!--set jme3 testdata svn revision-->
-                                <property prefix="svn" file="build/jme3-testdata-svn.properties"/>
-                            </then>
-                            <else>
-                                <!--jme3 tests-->
-                                <if>
-                                    <equals arg1="${module_dir}" arg2="jme3-tests-template"/>
-                                    <then>
-                                        <!--set jme3 tests svn revision-->
-                                        <property prefix="svn" file="build/jme3-tests-svn.properties"/>
-                                    </then>
-                                    <!--"normal" module-->
-                                    <else>
-                                        <!--load svn revision of this modules folder if we are setting the value-->
-                                        <if>
-                                            <equals arg1="${set_impl_version}" arg2="true"/>
-                                            <then>
-                                                <exec executable="svn" output="build/${module_dir}-svn.properties" dir="${module_dir}">
-                                                    <arg value="info" />
-                                                </exec>
-                                                <replace file="build/${module_dir}-svn.properties" token=" " value=""/>
-                                            </then>
-                                        </if>
-                                        <!--set svn revision of module-->
-                                        <property prefix="svn" file="build/${module_dir}-svn.properties"/>
-                                    </else>
-                                </if>
-                            </else>
-                        </if>
-                    </else>
-                </if>
-            </else>
-        </if>
-
         <if>
             <equals arg1="${set_impl_version}" arg2="true"/>
             <then>
-                <echo>Setting implementation version for ${module_dir} to revision: ${svn.LastChangedRev}</echo>
-                <replace  file="${module_dir}/manifest.mf" token="OpenIDE-Module-Implementation-Version: 0" value="OpenIDE-Module-Implementation-Version: ${svn.LastChangedRev}"/>
+                <echo>Setting implementation version for ${module_dir} to revision: ${nbm.revision}</echo>
+                <replace  file="${module_dir}/manifest.mf" token="OpenIDE-Module-Implementation-Version: 0" value="OpenIDE-Module-Implementation-Version: ${nbm.revision}"/>
             </then>
             <else>
-                <echo>Removing implementation version for ${module_dir} from revision: ${svn.LastChangedRev}</echo>
-                <replace file="${module_dir}/manifest.mf" token="OpenIDE-Module-Implementation-Version: ${svn.LastChangedRev}" value="OpenIDE-Module-Implementation-Version: 0"/>
+                <echo>Removing implementation version for ${module_dir} from revision: ${nbm.revision}</echo>
+                <replace file="${module_dir}/manifest.mf" token="OpenIDE-Module-Implementation-Version: ${nbm.revision}" value="OpenIDE-Module-Implementation-Version: 0"/>
             </else>
         </if>
-
-    </target>
-
-    <!--creates properties files containing svn info for the jme3 folders-->
-    <target name="-create-jme3-svn-properties">
-        <mkdir dir="build"/>
-        <!--jme3 svn properties-->
-        <exec executable="svn" dir="${jme3_dir}/src/" output="build/jme3-svn.properties">
-            <arg value="info" />
-        </exec>
-        <replace file="build/jme3-svn.properties" token=" " value=""/>
-        <!--jme3 test data svn properties-->
-        <exec executable="svn" dir="${jme3_dir}/test-data/" output="build/jme3-testdata-svn.properties">
-            <arg value="info" />
-        </exec>
-        <replace file="build/jme3-testdata-svn.properties" token=" " value=""/>
-        <!--jme3 libraries svn properties-->
-        <exec executable="svn" dir="${jme3_dir}/lib/" output="build/jme3-lib-svn.properties">
-            <arg value="info" />
-        </exec>
-        <replace file="build/jme3-lib-svn.properties" token=" " value=""/>
-        <!--jme3 tests svn properties-->
-        <exec executable="svn" dir="${jme3_dir}/src/test/" output="build/jme3-tests-svn.properties">
-            <arg value="info" />
-        </exec>
-        <replace file="build/jme3-tests-svn.properties" token=" " value=""/>
     </target>
 
     <target name="build-installers">
@@ -298,7 +208,7 @@
             <property name="suite.location" value="${basedir}"/>
             <property name="suite.nbi.product.uid" value="${app.name}"/>
             <!--TODO: this is .0.2 because of the pre-release static 3.0.0, else the RCs could not be installed next to a beta-->
-            <property name="suite.nbi.product.version" value="${plugins.version}.0.4"/>
+            <property name="suite.nbi.product.version" value="${plugins.version}.0.${nbm.revision}"/>
             <property name="nbi.stub.location" value="${basedir}/nbi/stub"/>
             <property name="nbi.stub.common.location" value="${basedir}/nbi/.common"/>
             <property name="nbi.ant.tasks.jar" value="${basedir}/nbi/antlib/nbi-ant-tasks.jar"/>
@@ -311,6 +221,8 @@
             <property name="pack200.enabled" value="true"/>
             <property name="nbi.icon.file" value="${basedir}/jmonkeyplatform.png"/>
             <property name="nbi.dock.icon.file" value="${basedir}/jmonkeyplatform.icns"/>
+            <property name="product.description" value="${app.description}"/>
+            <property name="product.categories" value="${app.categories}"/>
         </ant>
     </target>
 
@@ -339,7 +251,7 @@
              section="devel"
              depends="sun-java6-jdk"
              maintainer="jMonkeyEngine"
-             homepage="http://www.jmonkeyengine.com"
+             homepage="http://www.jmonkeyengine.org"
              postrm="debscripts/postrm"
         >
             <tarfileset dir="dist/${app.name}/" prefix="opt/${app.name}">
@@ -359,58 +271,5 @@
             </description>
         </deb>
     </target>
-
-    <target name="-upload-googlecode" depends="-check-googlecode" if="googlecode.credentials.present">
-        <property file="nbproject/project.properties"/>
-        <property file="../../../googlecode.properties" prefix="googlecode"/>
-        <echo>Upload windows installers to googlecode..</echo>
-        <gcupload projectname="jmonkeyengine"
-                  labels="Type-Installer, OpSys-Windows, jMonkeyEngine3, Featured"
-                  summary="jMonkeyEngine3 SDK ${app.version} for Windows32"
-                  filename="${basedir}/dist/${app.name}-windows-x86.exe"
-                  targetfilename="jME3_SDK_${app.version}-windows-x86.exe"
-                  username="${googlecode.username}"
-                  password="${googlecode.password}"
-                  />
-        <gcupload projectname="jmonkeyengine"
-                  labels="Type-Installer, OpSys-Windows, jMonkeyEngine3, Featured"
-                  summary="jMonkeyEngine3 SDK ${app.version} for Windows64"
-                  filename="${basedir}/dist/${app.name}-windows-x64.exe"
-                  targetfilename="jME3_SDK_${app.version}-windows-x64.exe"
-                  username="${googlecode.username}"
-                  password="${googlecode.password}"
-                  />
-        <echo>Upload linux installers to googlecode..</echo>
-        <gcupload projectname="jmonkeyengine"
-                  labels="Type-Installer, OpSys-Linux, jMonkeyEngine3, Featured"
-                  summary="jMonkeyEngine3 SDK ${app.version} for Linux32"
-                  filename="${basedir}/dist/${app.name}-linux-x86.sh"
-                  targetfilename="jME3_SDK_${app.version}-linux-x86.sh"
-                  username="${googlecode.username}"
-                  password="${googlecode.password}"
-                  />
-        <gcupload projectname="jmonkeyengine"
-                  labels="Type-Installer, OpSys-Linux, jMonkeyEngine3, Featured"
-                  summary="jMonkeyEngine3 SDK ${app.version} for Linux64"
-                  filename="${basedir}/dist/${app.name}-linux-x64.sh"
-                  targetfilename="jME3_SDK_${app.version}-linux-x64.sh"
-                  username="${googlecode.username}"
-                  password="${googlecode.password}"
-                  />
-        <echo>Upload mac installer to googlecode..</echo>
-        <gcupload projectname="jmonkeyengine"
-                  labels="Type-Installer, OpSys-OSX, jMonkeyEngine3, Featured"
-                  summary="jMonkeyEngine3 SDK ${app.version} for MacOS X"
-                  filename="${basedir}/dist/${app.name}-macosx.tgz"
-                  targetfilename="jME3_SDK_${app.version}-macosx.tgz"
-                  username="${googlecode.username}"
-                  password="${googlecode.password}"
-                  />
-    </target>
-
-    <target name="-check-googlecode">
-        <available file="../../../googlecode.properties" property="googlecode.credentials.present"/>
-    </target>
-
 
 </project>

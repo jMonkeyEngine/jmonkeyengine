@@ -36,6 +36,7 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
@@ -1010,11 +1011,15 @@ public final class BufferUtils {
     }
 
     public static ByteBuffer createByteBuffer(String data) {
-        byte[] bytes = data.getBytes();
-        ByteBuffer bb = createByteBuffer(bytes.length);
-        bb.put(bytes);
-        bb.flip();
-        return bb;
+        try {
+            byte[] bytes = data.getBytes("UTF-8");
+            ByteBuffer bb = createByteBuffer(bytes.length);
+            bb.put(bytes);
+            bb.flip();
+            return bb;
+        } catch (UnsupportedEncodingException ex) {
+            throw new UnsupportedOperationException(ex);
+        }
     }
 
     /**

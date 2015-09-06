@@ -424,7 +424,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         renderManager.setCamera(shadowCam, false);
 
         renderManager.getRenderer().setFrameBuffer(shadowFB[shadowMapIndex]);
-        renderManager.getRenderer().clearBuffers(false, true, false);
+        renderManager.getRenderer().clearBuffers(true, true, true);
 
         // render shadow casters to shadow map
         viewPort.getQueue().renderShadowQueue(shadowMapOccluders, renderManager, shadowCam, true);
@@ -459,7 +459,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         debug = true;
     }
 
-    abstract void getReceivers(GeometryList lightReceivers);
+    protected abstract void getReceivers(GeometryList lightReceivers);
 
     public void postFrame(FrameBuffer out) {
         if (skipPostPass) {

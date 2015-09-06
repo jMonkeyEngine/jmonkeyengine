@@ -92,7 +92,7 @@ public class ConstraintDefinitionFactory {
      *             this exception is thrown when the blender file is somehow
      *             corrupted
      */
-    public static ConstraintDefinition createConstraintDefinition(Structure constraintStructure, Long ownerOMA, BlenderContext blenderContext) throws BlenderFileException {
+    public static ConstraintDefinition createConstraintDefinition(Structure constraintStructure, String constraintName, Long ownerOMA, BlenderContext blenderContext) throws BlenderFileException {
         if (constraintStructure == null) {
             return new ConstraintDefinitionNull(null, ownerOMA, blenderContext);
         }
@@ -100,7 +100,9 @@ public class ConstraintDefinitionFactory {
         Class<? extends ConstraintDefinition> constraintDefinitionClass = CONSTRAINT_CLASSES.get(constraintClassName);
         if (constraintDefinitionClass != null) {
             try {
-                return (ConstraintDefinition) constraintDefinitionClass.getDeclaredConstructors()[0].newInstance(constraintStructure, ownerOMA, blenderContext);
+                ConstraintDefinition def = (ConstraintDefinition) constraintDefinitionClass.getDeclaredConstructors()[0].newInstance(constraintStructure, ownerOMA, blenderContext);
+                def.setConstraintName(constraintName);
+                return def;
             } catch (IllegalArgumentException e) {
                 throw new BlenderFileException(e.getLocalizedMessage(), e);
             } catch (SecurityException e) {
@@ -113,9 +115,9 @@ public class ConstraintDefinitionFactory {
                 throw new BlenderFileException(e.getLocalizedMessage(), e);
             }
         } else {
-            String constraintName = UNSUPPORTED_CONSTRAINTS.get(constraintClassName);
-            if (constraintName != null) {
-                return new UnsupportedConstraintDefinition(constraintName);
+            String unsupportedConstraintClassName = UNSUPPORTED_CONSTRAINTS.get(constraintClassName);
+            if (unsupportedConstraintClassName != null) {
+                return new UnsupportedConstraintDefinition(unsupportedConstraintClassName);
             } else {
                 throw new BlenderFileException("Unknown constraint type: " + constraintClassName);
             }

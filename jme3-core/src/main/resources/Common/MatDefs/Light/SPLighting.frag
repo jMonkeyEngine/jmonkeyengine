@@ -17,10 +17,7 @@ varying vec3 SpecularSum;
 #ifndef VERTEX_LIGHTING
     uniform mat4 g_ViewMatrix;
     uniform vec4 g_LightData[NB_LIGHTS];
-    varying vec3 vPos;    
-#else
-    varying vec3 specularAccum;
-    varying vec4 diffuseAccum;
+    varying vec3 vPos; 
 #endif
 
 #ifdef DIFFUSEMAP
@@ -167,10 +164,9 @@ void main(){
     #endif
 
     #ifdef VERTEX_LIGHTING
-        gl_FragColor.rgb = AmbientSum  * diffuseColor.rgb 
-                            +diffuseAccum.rgb *diffuseColor.rgb
-                            +specularAccum.rgb * specularColor.rgb;
-        gl_FragColor.a=1.0;                           
+        gl_FragColor.rgb = AmbientSum.rgb  * diffuseColor.rgb 
+                         + DiffuseSum.rgb  * diffuseColor.rgb
+                         + SpecularSum.rgb * specularColor.rgb;                         
     #else       
         
         int i = 0;

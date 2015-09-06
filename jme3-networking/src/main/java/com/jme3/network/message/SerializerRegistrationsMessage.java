@@ -127,7 +127,9 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
         }
         compiled = list.toArray(new Registration[list.size()]);
         
-        INSTANCE = new SerializerRegistrationsMessage(compiled);                                
+        INSTANCE = new SerializerRegistrationsMessage(compiled);  
+        
+        Serializer.setReadOnly(true);                              
     }
  
     public void registerAll() {    

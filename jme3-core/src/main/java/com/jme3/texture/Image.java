@@ -367,7 +367,6 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     protected int width, height, depth;
     protected int[] mipMapSizes;
     protected ArrayList<ByteBuffer> data;
-    protected transient Object efficientData;
     protected int multiSamples = 1;
     protected ColorSpace colorSpace = null;
 //    protected int mipOffset = 0;
@@ -375,7 +374,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     // attributes relating to GL object
     protected boolean mipsWereGenerated = false;
     protected boolean needGeneratedMips = false;
-    protected final LastTextureState lastTextureState = new LastTextureState();
+    protected LastTextureState lastTextureState = new LastTextureState();
 
     /**
      * Internal use only.
@@ -490,6 +489,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         Image clone = (Image) super.clone();
         clone.mipMapSizes = mipMapSizes != null ? mipMapSizes.clone() : null;
         clone.data = data != null ? new ArrayList<ByteBuffer>(data) : null;
+        clone.lastTextureState = new LastTextureState();
         clone.setUpdateNeeded();
         return clone;
     }
@@ -760,8 +760,6 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      */
     @Deprecated
     public void setEfficentData(Object efficientData){
-        this.efficientData = efficientData;
-        setUpdateNeeded();
     }
 
     /**
@@ -769,7 +767,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      */
     @Deprecated
     public Object getEfficentData(){
-        return efficientData;
+        return null;
     }
 
     /**

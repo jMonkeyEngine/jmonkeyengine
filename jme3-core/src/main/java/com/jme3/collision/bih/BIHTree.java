@@ -48,6 +48,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.CollisionData;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
+import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.mesh.VirtualIndexBuffer;
@@ -114,8 +115,13 @@ public class BIHTree implements CollisionData {
 
         bihSwapTmp = new float[9];
 
-        FloatBuffer vb = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
+        VertexBuffer vBuffer = mesh.getBuffer(Type.Position);
+        if(vBuffer == null){
+            throw new IllegalArgumentException("A mesh should at least contain a Position buffer");
+        }        
         IndexBuffer ib = mesh.getIndexBuffer();
+        FloatBuffer vb = (FloatBuffer) vBuffer.getData();
+        
         if (ib == null) {
             ib = new VirtualIndexBuffer(mesh.getVertexCount(), mesh.getMode());
         } else if (mesh.getMode() != Mode.Triangles) {

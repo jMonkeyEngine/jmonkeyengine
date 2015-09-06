@@ -132,11 +132,6 @@ public abstract class JmeSystemDelegate {
         return new DesktopAssetManager(null);
     }
     
-    @Deprecated
-    public final ImageRaster createImageRaster(Image image, int slice) {
-        return new DefaultImageRaster(image, slice);
-    }
-    
     public abstract void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException;
 
     public abstract void showErrorDialog(String message);

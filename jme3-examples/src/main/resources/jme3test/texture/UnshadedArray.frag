@@ -1,5 +1,5 @@
 #extension GL_EXT_texture_array : enable
-#extension GL_EXT_gpu_shader4 : enable
+// #extension GL_EXT_gpu_shader4 : enable
 
 uniform vec4 m_Color;
 
@@ -8,7 +8,7 @@ uniform vec4 m_Color;
 #endif
 
 #ifdef HAS_COLORMAP
-    #if !defined(GL_EXT_texture_array) && !defined(GL_EXT_gpu_shader4)
+    #if !defined(GL_EXT_texture_array)
         #error Texture arrays are not supported, but required for this shader.
     #endif
 

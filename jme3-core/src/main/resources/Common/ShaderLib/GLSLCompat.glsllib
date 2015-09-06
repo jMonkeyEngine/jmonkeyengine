@@ -1,0 +1,34 @@
+#if defined _GL_ES_
+#  define hfloat highp float
+#  define hvec2  highp vec2
+#  define hvec3  highp vec3
+#  define hvec4  highp vec4
+#  define lfloat lowp float
+#  define lvec2 lowp vec2
+#  define lvec3 lowp vec3
+#  define lvec4 lowp vec4
+#else
+#  define hfloat float
+#  define hvec2  vec2
+#  define hvec3  vec3
+#  define hvec4  vec4
+#  define lfloat float
+#  define lvec2  vec2
+#  define lvec3  vec3
+#  define lvec4  vec4
+#endif
+
+#if __VERSION__ >= 130
+out vec4 outFragColor;
+#  define texture1D texture
+#  define texture2D texture
+#  define texture3D texture
+#  define texture2DLod texture
+#  if defined VERTEX_SHADER
+#    define varying out
+#    define attribute in
+#  elif defined FRAGMENT_SHADER
+#    define varying in
+#    define gl_FragColor outFragColor
+#  endif
+#endif

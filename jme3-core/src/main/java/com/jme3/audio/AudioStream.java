@@ -54,6 +54,8 @@ public class AudioStream extends AudioData implements Closeable {
     protected boolean eof = false;
     protected int[] ids;
 
+    protected int unqueuedBuffersBytes = 0;
+    
     public AudioStream() {
         super();
     }
@@ -196,10 +198,21 @@ public class AudioStream extends AudioData implements Closeable {
         return in instanceof SeekableStream;
     }
 
+    public int getUnqueuedBufferBytes() {
+        return unqueuedBuffersBytes;
+    }
+
+    public void setUnqueuedBufferBytes(int unqueuedBuffers) {
+        this.unqueuedBuffersBytes = unqueuedBuffers;
+    }
+    
     public void setTime(float time) {
         if (in instanceof SeekableStream) {
             ((SeekableStream) in).setTime(time);
             eof = false;
+            
+            // TODO: when we actually support seeking, this will need to be properly set.
+            unqueuedBuffersBytes = 0; 
         } else {
             throw new IllegalStateException(
                     "Cannot use setTime on a stream that "

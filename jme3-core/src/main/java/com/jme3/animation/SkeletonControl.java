@@ -82,7 +82,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
     /**
      * User wishes to use hardware skinning if available.
      */
-    private transient boolean hwSkinningDesired = false;
+    private transient boolean hwSkinningDesired = true;
     
     /**
      * Hardware skinning is currently being used.
@@ -347,11 +347,22 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
 
     public Control cloneForSpatial(Spatial spatial) {
         Node clonedNode = (Node) spatial;
-        AnimControl ctrl = spatial.getControl(AnimControl.class);
         SkeletonControl clone = new SkeletonControl();
 
-        clone.skeleton = ctrl.getSkeleton();
-
+        AnimControl ctrl = spatial.getControl(AnimControl.class);
+        if (ctrl != null) {
+            // AnimControl is responsible for cloning the skeleton, not
+            // SkeletonControl.
+            clone.skeleton = ctrl.getSkeleton();
+        } else {
+            // If there's no AnimControl, create the clone ourselves.
+            clone.skeleton = new Skeleton(skeleton);
+        }
+        clone.hwSkinningDesired = this.hwSkinningDesired;
+        clone.hwSkinningEnabled = this.hwSkinningEnabled;
+        clone.hwSkinningSupported = this.hwSkinningSupported;
+        clone.hwSkinningTested = this.hwSkinningTested;
+        
         clone.setSpatial(clonedNode);
 
         // Fix attachments for the cloned node

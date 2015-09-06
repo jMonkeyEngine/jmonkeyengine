@@ -198,14 +198,36 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
                 throw new InstallationException("Cannot copy JDK",e);
             }
             // set permissions:
-            File binDir = new File(target, "bin");
-            for (File file : binDir.listFiles()) {
-            try {
-                file.setExecutable(true);
-            } catch (Exception ex) { ex.printStackTrace(); }
-            }
+            // ADDED BY KIRILL: force correct permissions for JDK files
+            LogManager.log("Setting JDK files as executable");
+            setExecutableContents(target, "bin");
+            setExecutableContents(target, "db/bin");
+            setExecutableContents(target, "jre/bin");
+            setExecutableFile(target, "lib/jexec");
+            setExecutableFile(target, "lib/amd64/libjawt.so");
+            setExecutableFile(target, "lib/amd64/jli/libjli.so");
+            setExecutableFile(target, "lib/visualvm/platform/lib/nbexec");
             // to add uninstaller logic:
             SystemUtils.getNativeUtils().addUninstallerJVM(new LauncherResource(false, target));
+        }
+    }
+    private static void setExecutableContents(File parent, String path) {
+        File binDir = new File(parent, path);
+        File[] fileList = binDir.listFiles();
+        for (File file : fileList) {
+            try {
+                file.setExecutable(true, false);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+    private static void setExecutableFile(File parent, String path) {
+        File binFile = new File(parent, path);
+        try {
+            binFile.setExecutable(true, false);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -464,9 +486,8 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
     }
     public static final String SHORTCUT_FILENAME =
             ResourceUtils.getString(ConfigurationLogic.class, "CL.app.name") + ".desktop"; // NOI18N
-    public static final String[] SHORTCUT_CATEGORIES = new String[]{
-        "Application"
-    };
+    public static final String[] SHORTCUT_CATEGORIES = 
+            ResourceUtils.getString(ConfigurationLogic.class, "CL.app.categories").split(","); // NOI18N
     public static final String BIN_SUBDIR =
             "bin/";
     public static final String EXECUTABLE_WINDOWS =

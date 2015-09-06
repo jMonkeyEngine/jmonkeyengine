@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE type PUBLIC "-//NetBeans//DTD annotation type 1.0//EN" "http://www.netbeans.org/dtds/annotation-type-1_0.dtd">
+<type actions="OtherThreadActions" browseable="false" custom_sidebar_color="0xbde6aa" description_key="HINT_OTHER_THREADS" foreground="0xffffff" glyph="nbresloc:/org/netbeans/modules/debugger/resources/editor/other_threads_suspended.png" inherit_foreground_color="false" localizing_bundle="org.netbeans.modules.debugger.resources.Bundle" name="OtherThreads" priority="100" severity="none" type="line" use_custom_sidebar_color="true" use_highlight_color="false" use_wave_underline_color="false" visible="true">
+    <combination order="100" tiptext_key="">
+        <combine absorb_all="true" annotationtype="OtherThread" min="2" optional="false"/>
+    </combination>
+</type>

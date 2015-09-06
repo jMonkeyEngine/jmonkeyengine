@@ -165,7 +165,7 @@ task createBaseXml(dependsOn: configurations.corelibs) <<{
                         "compile-dependency"{}
                         "run-dependency"{
                             "release-version" "1"
-                            "specification-version" "3.0.0"
+                            "specification-version" jmeVersion
                         }
                     }
                 }
@@ -388,12 +388,14 @@ copyTestSources.outputs.dir "JME3TestsTemplate/src/"
 copyTestSources.outputs.dir "JME3TestsTemplateAndroid/src/"
 
 ant.properties['plugins.version'] = jmeVersion
-ant.properties['app.version']= jmeMainVersion + "-" + jmeVersionTag
+ant.properties['app.version']= jmeFullVersion
+ant.properties['nbm.revision']= jmeNbmRevision
 
 task buildSdk(dependsOn: [copyBaseLibs, copyProjectLibs, createProjectXml, createBaseXml, copyTestSources]) <<{
     ant.propertyfile(file: "nbproject/project.properties") {
         entry( key: "plugins.version", value: "${jmeVersion}")
-        entry( key: "app.version", value: "${jmeMainVersion + "-" + jmeVersionTag}")
+        entry( key: "app.version", value: "${jmeFullVersion}")
+        entry( key: "nbm.revision", value: "${jmeNbmRevision}")
     }
     ant.ant(dir: ".", antfile: "build.xml", target: "build")
 }
@@ -416,7 +418,7 @@ task cleanSdk() <<{
     file("JME3TestsTemplateAndroid/src/jmetest/").deleteDir()
 }
 
+tasks.remove(uploadArchives)
+
 jar.dependsOn(buildSdk)
-clean.dependsOn(cleanSdk);
-
-
+clean.dependsOn(cleanSdk)
