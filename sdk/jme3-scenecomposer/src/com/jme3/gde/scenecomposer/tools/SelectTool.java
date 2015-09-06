@@ -10,6 +10,7 @@ import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
 import com.jme3.gde.scenecomposer.SceneEditTool;
 import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.terrain.Terrain;
@@ -33,7 +34,7 @@ import org.openide.loaders.DataObject;
  */
 public class SelectTool extends SceneEditTool {
 
-    private boolean wasDraggingR = false;
+    private boolean wasDraggingR, wasDraggingL = false;
     private boolean wasDownR = false;
 
     /**
@@ -52,13 +53,24 @@ public class SelectTool extends SceneEditTool {
      */
     @Override
     public void actionPrimary(Vector2f screenCoord, boolean pressed, final JmeNode rootNode, DataObject dataObject) {
-
+        if (!pressed){
+            if (!wasDraggingL) {
+                Vector3f result = pickWorldLocation(getCamera(), screenCoord, rootNode);
+                if (result != null) {
+                    if (toolController.isSnapToGrid()) {
+                        result.set(Math.round(result.x), result.y, Math.round(result.z));
+                    }
+                    toolController.doSetCursorLocation(result);
+                }
+            }
+            wasDraggingL = false;
+        }        
     }
 
     @Override
     public void actionSecondary(final Vector2f screenCoord, boolean pressed, final JmeNode rootNode, DataObject dataObject) {
         if (pressed) {
-            Spatial selected = toolController.getSelectedSpatial();
+            Spatial selected;// = toolController.getSelectedSpatial();
             // mouse down
 
             if (!wasDraggingR && !wasDownR) { // wasn't dragging and was not down already
@@ -137,6 +149,7 @@ public class SelectTool extends SceneEditTool {
 
     @Override
     public void draggedPrimary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject currentDataObject) {
+        wasDraggingL = pressed;
     }
 
     @Override
