@@ -719,6 +719,7 @@ public class Mesh implements Savable, Cloneable {
     }
 
     private int computeNumElements(int bufSize){
+        if (bufSize == 0) return 0;
         switch (mode){
             case Triangles:
                 return bufSize / 3;
