@@ -10,15 +10,19 @@
  */
 package com.jme3.gde.materials.multiview.widgets;
 
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.properties.TexturePropertyEditor;
 import com.jme3.gde.core.properties.preview.DDSPreview;
 import com.jme3.gde.materials.MaterialProperty;
+import com.jme3.gde.materials.multiview.MaterialEditorTopComponent;
 import com.jme3.texture.Texture;
 import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Icon;
 import javax.swing.SwingUtilities;
 import jme3tools.converters.ImageToAwt;
@@ -50,7 +54,7 @@ public class TexturePanel extends MaterialPropertyWidget {
             exec.execute(new Runnable() {
 
                 public void run() {
-
+                    try{
                     Texture tex = manager.loadTexture(textureName);
                     if (textureName.toLowerCase().endsWith(".dds")) {
                         if (ddsPreview == null) {
@@ -64,6 +68,9 @@ public class TexturePanel extends MaterialPropertyWidget {
                                 texturePreview.setIcon(newicon);
                             }
                         });
+                    }
+                    } catch (AssetNotFoundException a) {
+                        Logger.getLogger(MaterialEditorTopComponent.class.getName()).log(Level.WARNING, "Could not load texture {0}", textureName);
                     }
                 }
             });
