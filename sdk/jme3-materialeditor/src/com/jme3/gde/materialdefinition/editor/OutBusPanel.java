@@ -110,7 +110,7 @@ public class OutBusPanel extends DraggablePanel implements ComponentListener, Se
 
         Polygon p = new Polygon(xs, ys, 8);
 
-        if (diagram.selectedItem == this) {
+        if (getDiagram().getSelectedItems().contains(this)) {
             int[] xs2 = {0, width - 30, width - 30, width, width - 32, width - 32, 0, 0};
             int[] ys2 = {10, 10, 0, getHeight() / 2 + 2, getHeight(), getHeight() - 8, getHeight() - 8, 10};
 
@@ -154,7 +154,7 @@ public class OutBusPanel extends DraggablePanel implements ComponentListener, Se
             return;
         }
         super.mousePressed(e);
-        diagram.select(this);
+        diagram.select(this, e.isShiftDown() || e.isControlDown());
     }
 
     @Override

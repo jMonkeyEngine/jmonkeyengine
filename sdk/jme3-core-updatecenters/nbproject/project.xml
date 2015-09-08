@@ -8,6 +8,8 @@
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.netbeans.modules.autoupdate.services</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
                     <run-dependency>
                         <specification-version>1.47.2</specification-version>
                     </run-dependency>

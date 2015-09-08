@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE type PUBLIC "-//NetBeans//DTD annotation type 1.0//EN" "http://www.netbeans.org/dtds/annotation-type-1_0.dtd">
+<type browseable="false" custom_sidebar_color="0xff8fd5" description_key="HINT_PC_CONDITIONAL_BREAKPOINT" foreground="0xffffff" glyph="nbresloc:/org/netbeans/modules/debugger/resources/editor/ConditionalBreakpoint+PC.png" highlight="0x8b9989" inherit_foreground_color="false" localizing_bundle="org.netbeans.modules.debugger.resources.Bundle" name="debugger-PC_CBP" priority="100" severity="ok" type="line" use_custom_sidebar_color="true" use_highlight_color="true" use_wave_underline_color="false" visible="true">
+    <combination order="600" tiptext_key="">
+        <combine absorb_all="false" annotationtype="CondBreakpoint" optional="false"/>
+        <combine absorb_all="false" annotationtype="CurrentPC" optional="false"/>
+    </combination>
+</type>

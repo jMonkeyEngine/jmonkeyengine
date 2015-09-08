@@ -13,7 +13,7 @@ MaterialDef Unshaded {
         Color GlowColor
 
         // For instancing
-	Boolean UseInstancing
+        Boolean UseInstancing
 
         // For hardware skinning
         Int NumberOfBones
@@ -54,8 +54,8 @@ MaterialDef Unshaded {
     }
 
     Technique {
-        VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL100: Common/MatDefs/Misc/Unshaded.frag
+        VertexShader GLSL150:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL150: Common/MatDefs/Misc/Unshaded.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -76,6 +76,25 @@ MaterialDef Unshaded {
     }
 
     Technique {
+        VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL100: Common/MatDefs/Misc/Unshaded.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            INSTANCING : UseInstancing
+            SEPARATE_TEXCOORD : SeparateTexCoord
+            HAS_COLORMAP : ColorMap
+            HAS_LIGHTMAP : LightMap
+            HAS_VERTEXCOLOR : VertexColor
+            HAS_COLOR : Color
+            NUM_BONES : NumberOfBones
+            DISCARD_ALPHA : AlphaDiscardThreshold
+        }
     }
 
     Technique PreNormalPass {

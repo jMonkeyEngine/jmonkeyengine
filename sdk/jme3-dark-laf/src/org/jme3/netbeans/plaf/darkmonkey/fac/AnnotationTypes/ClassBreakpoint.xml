@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE type PUBLIC "-//NetBeans//DTD annotation type 1.0//EN" "http://www.netbeans.org/dtds/annotation-type-1_0.dtd">
+<type actions="BreakpointActions" browseable="false" custom_sidebar_color="0xff8fd5" description_key="HINT_CLASS_BREAKPOINT" foreground="0xffffff" glyph="nbresloc:/org/netbeans/modules/debugger/resources/breakpointsView/NonLineBreakpoint.gif" inherit_foreground_color="false" localizing_bundle="org.netbeans.modules.debugger.jpda.resources.Bundle" name="ClassBreakpoint" priority="100" severity="ok" type="line" use_custom_sidebar_color="true" use_highlight_color="false" use_wave_underline_color="false" visible="true"/>

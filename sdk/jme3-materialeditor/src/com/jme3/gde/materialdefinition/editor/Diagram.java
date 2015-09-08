@@ -55,7 +55,7 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
 
     protected Dot draggedFrom;
     protected Dot draggedTo;
-    protected Selectable selectedItem;
+    protected List<Selectable> selectedItems = new ArrayList<Selectable>();
     protected List<Connection> connections = new ArrayList<Connection>();
     protected List<NodePanel> nodes = new ArrayList<NodePanel>();
     protected List<OutBusPanel> outBuses = new ArrayList<OutBusPanel>();
@@ -63,6 +63,9 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
     private MatDefEditorlElement parent;
     private String currentTechniqueName;
     private final BackdropPanel backDrop = new BackdropPanel();
+    private final Cursor defCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+    private final Cursor hndCursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
+    private final Point pp = new Point();
 
     @SuppressWarnings("LeakingThisInConstructor")
     public Diagram() {
@@ -99,7 +102,7 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
                 }
             }
 
-            selectedItem = null;
+            selectedItems.clear();
             repaint();
         } else if (e.getButton() == MouseEvent.BUTTON2) {
             setCursor(hndCursor);
@@ -204,13 +207,10 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
     public void mouseExited(MouseEvent e) {
     }
 
-    protected void removeSelectedConnection() {
-        if (selectedItem instanceof Connection) {
-            Connection selectedConnection = (Connection) selectedItem;
-            removeConnection(selectedConnection);
-            selectedItem = null;
-            parent.notifyRemoveConnection(selectedConnection);
-        }
+    protected void removeSelectedConnection(Selectable selectedItem) {        
+        Connection selectedConnection = (Connection) selectedItem;
+        removeConnection(selectedConnection);
+        parent.notifyRemoveConnection(selectedConnection);
     }
 
     private String fixNodeName(String name) {
@@ -276,44 +276,58 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
         np.revalidate();
         repaint();
     }
-
-    protected void removeSelectedNode() {
-        if (selectedItem instanceof NodePanel) {
-            int result = JOptionPane.showConfirmDialog(null, "Delete this node and all its mappings?", "Delete Shader Node", JOptionPane.OK_CANCEL_OPTION);
-            if (result == JOptionPane.OK_OPTION) {
-                NodePanel selectedNode = (NodePanel) selectedItem;
-                nodes.remove(selectedNode);
-                for (Iterator<Connection> it = connections.iterator(); it.hasNext();) {
-                    Connection conn = it.next();
-                    if (conn.start.getNode() == selectedNode || conn.end.getNode() == selectedNode) {
-                        it.remove();
-                        conn.end.disconnect();
-                        conn.start.disconnect();
-                        remove(conn);
-                    }
+    
+    protected void removeSelected(){
+        
+        int result = JOptionPane.showConfirmDialog(null, "Delete all selected items, nodes and mappings?", "Delete Selected", JOptionPane.OK_CANCEL_OPTION);
+        
+        if (result == JOptionPane.OK_OPTION) {
+            for (Selectable selectedItem : selectedItems) {
+                if (selectedItem instanceof NodePanel) {
+                    removeSelectedNode(selectedItem);
                 }
-
-                selectedNode.cleanup();
-                remove(selectedNode);
-                selectedItem = null;
-                repaint();
-                parent.notifyRemoveNode(selectedNode);
+                if (selectedItem instanceof Connection) {
+                    removeSelectedConnection(selectedItem);
+                }
             }
+            selectedItems.clear();
         }
     }
 
-    private final Cursor defCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
-    private final Cursor hndCursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
-    private final Point pp = new Point();
+    private void removeSelectedNode(Selectable selectedItem) {
+
+        NodePanel selectedNode = (NodePanel) selectedItem;
+        nodes.remove(selectedNode);
+        for (Iterator<Connection> it = connections.iterator(); it.hasNext();) {
+            Connection conn = it.next();
+            if (conn.start.getNode() == selectedNode || conn.end.getNode() == selectedNode) {
+                it.remove();
+                conn.end.disconnect();
+                conn.start.disconnect();
+                remove(conn);
+            }
+        }
+
+        selectedNode.cleanup();
+        remove(selectedNode);
+        repaint();
+        parent.notifyRemoveNode(selectedNode);
+    }
+
+    public List<Selectable> getSelectedItems() {
+        return selectedItems;
+    }
 
     @Override
     public void mouseDragged(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e)) {
             if (draggedFrom == null) {
-                if (selectedItem instanceof OutBusPanel) {
-                    OutBusPanel bus = (OutBusPanel) selectedItem;
-                    MouseEvent me = SwingUtilities.convertMouseEvent(this, e, bus);
-                    bus.dispatchEvent(me);
+                for (Selectable selectedItem : selectedItems) {
+                    if (selectedItem instanceof OutBusPanel) {
+                        OutBusPanel bus = (OutBusPanel) selectedItem;
+                        MouseEvent me = SwingUtilities.convertMouseEvent(this, e, bus);
+                        bus.dispatchEvent(me);
+                    }
                 }
             }
         } else if (SwingUtilities.isMiddleMouseButton(e)) {
@@ -373,22 +387,53 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
      *
      * @param selectable
      */
-    public void select(Selectable selectable) {
-        parent.selectionChanged(doSelect(selectable));
+    public void select(Selectable selectable, boolean multi) {
+        parent.selectionChanged(doSelect(selectable, multi));
+    }
+    
+    public void multiMove(DraggablePanel movedPanel ,int xOffset, int yOffset){
+        
+        for (Selectable selectedItem : selectedItems) {
+            if(selectedItem != movedPanel){
+                if(selectedItem instanceof DraggablePanel){
+                    ((DraggablePanel)selectedItem).movePanel(xOffset, yOffset);
+                }
+            }
+        }
     }
 
+    public void multiStartDrag(DraggablePanel movedPanel){
+        for (Selectable selectedItem : selectedItems) {
+            if(selectedItem != movedPanel){
+                if(selectedItem instanceof DraggablePanel){
+                    ((DraggablePanel)selectedItem).saveLocation();
+                }
+            }
+        }
+    }
+    
     /**
      * do select the item and repaint the diagram
      *
      * @param selectable
      * @return
      */
-    private Selectable doSelect(Selectable selectable) {
-        this.selectedItem = selectable;
+    private Selectable doSelect(Selectable selectable, boolean multi) {
+        
+
+        if (!multi && !selectedItems.contains(selectable)) {
+            selectedItems.clear();
+        }
+
+        if (selectable != null) {
+            selectedItems.add(selectable);
+        }
+
         if (selectable instanceof Component) {
             ((Component) selectable).requestFocusInWindow();
         }
         repaint();
+
         return selectable;
     }
 
@@ -403,23 +448,23 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
 
         for (NodePanel nodePanel : nodes) {
             if (nodePanel.getKey().equals(key)) {
-                return doSelect(nodePanel);
+                return doSelect(nodePanel, false);
             }
         }
 
         for (Connection connection : connections) {
             if (connection.getKey().equals(key)) {
-                return doSelect(connection);
+                return doSelect(connection, false);
             }
         }
 
         for (OutBusPanel outBusPanel : outBuses) {
             if (outBusPanel.getKey().equals(key)) {
-                return doSelect(outBusPanel);
+                return doSelect(outBusPanel, false);
             }
         }
 
-        return doSelect(null);
+        return null;
     }
 
     @Override

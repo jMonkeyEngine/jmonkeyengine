@@ -41,28 +41,34 @@ public class JoglCanvas extends JoglAbstractDisplay implements JmeCanvasContext 
 
     private static final Logger logger = Logger.getLogger(JoglCanvas.class.getName());
     private int width, height;
+    private boolean runningFirstTime = true;
 
     public JoglCanvas(){
         super();
         initGLCanvas();
     }
 
-    public Type getType() {
+    @Override
+	public Type getType() {
         return Type.Canvas;
     }
 
-    public void setTitle(String title) {
+    @Override
+	public void setTitle(String title) {
     }
 
-    public void restart() {
+    @Override
+	public void restart() {
     }
 
-    public void create(boolean waitFor){
+    @Override
+	public void create(boolean waitFor){
         if (waitFor)
             waitFor(true);
     }
 
-    public void destroy(boolean waitFor){
+    @Override
+	public void destroy(boolean waitFor){
         if (waitFor)
             waitFor(false);
         if (animator.isAnimating())
@@ -81,13 +87,20 @@ public class JoglCanvas extends JoglAbstractDisplay implements JmeCanvasContext 
         startGLCanvas();
     }
 
-    public void init(GLAutoDrawable drawable) {
+    @Override
+	public void init(GLAutoDrawable drawable) {
         canvas.requestFocus();
 
         super.internalCreate();
         logger.fine("Display created.");
 
-        renderer.initialize();
+        // At this point, the OpenGL context is active.
+        if (runningFirstTime){
+            // THIS is the part that creates the renderer.
+            // It must always be called, now that we have the pbuffer workaround.
+            initContextFirstTime();
+            runningFirstTime = false;
+        }
         listener.initialize();
     }
 
@@ -97,7 +110,8 @@ public class JoglCanvas extends JoglAbstractDisplay implements JmeCanvasContext 
         super.startGLCanvas();
     }
 
-    public void display(GLAutoDrawable glad) {
+    @Override
+	public void display(GLAutoDrawable glad) {
         if (!created.get() && renderer != null){
             listener.destroy();
             logger.fine("Canvas destroyed.");
@@ -129,7 +143,8 @@ public class JoglCanvas extends JoglAbstractDisplay implements JmeCanvasContext 
 
     }
 
-    public Canvas getCanvas() {
+    @Override
+	public Canvas getCanvas() {
         return canvas;
     }
 

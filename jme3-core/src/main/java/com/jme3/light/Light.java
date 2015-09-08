@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -94,7 +94,7 @@ public abstract class Light implements Savable, Cloneable {
         }
     }
 
-    protected ColorRGBA color = new ColorRGBA(1f,1f,1f,1f);
+    protected ColorRGBA color = new ColorRGBA(ColorRGBA.White);
     
     /**
      * Used in LightList for caching the distance 
@@ -114,6 +114,13 @@ public abstract class Light implements Savable, Cloneable {
     
     boolean frustumCheckNeeded = true;
     boolean intersectsFrustum  = false;
+
+    protected Light() {
+    }
+
+    protected Light(ColorRGBA color) {
+        setColor(color);
+    }
 
     /**
      * Returns the color of the light.

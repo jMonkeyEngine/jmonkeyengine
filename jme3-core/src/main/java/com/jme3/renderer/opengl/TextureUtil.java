@@ -90,9 +90,11 @@ final class TextureUtil {
     }
 
     public GLImageFormat getImageFormatWithError(Format fmt, boolean isSrgb) {
+        //if the passed format is one kind of depth there isno point in getting the srgb format;
+        isSrgb = isSrgb && fmt != Format.Depth && fmt != Format.Depth16 && fmt != Format.Depth24 && fmt != Format.Depth24Stencil8 && fmt != Format.Depth32 && fmt != Format.Depth32F;
         GLImageFormat glFmt = getImageFormat(fmt, isSrgb);
         if (glFmt == null && isSrgb) {
-            glFmt = getImageFormat(fmt, false);
+            glFmt = getImageFormat(fmt, false);               
             logger.log(Level.WARNING, "No sRGB format available for ''{0}''. Failling back to linear.", fmt);
         }
         if (glFmt == null) { 

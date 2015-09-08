@@ -811,39 +811,72 @@ extern "C" {
     /*
      * Class:     com_jme3_bullet_objects_PhysicsRigidBody
      * Method:    getAngularFactor
-     * Signature: (J)F
+     * Signature: (JLcom/jme3/math/Vector3f;)V
      */
-    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getAngularFactor
-    (JNIEnv *env, jobject object, jlong bodyId) {
-        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
-        if (body == NULL) {
-            jclass newExc = env->FindClass("java/lang/NullPointerException");
-            env->ThrowNew(newExc, "The native object does not exist.");
-            return 0;
-        }
-        return body->getAngularFactor().getX();
-    }
-
-    /*
-     * Class:     com_jme3_bullet_objects_PhysicsRigidBody
-     * Method:    setAngularFactor
-     * Signature: (JF)V
-     */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setAngularFactor
-    (JNIEnv *env, jobject object, jlong bodyId, jfloat value) {
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getAngularFactor
+    (JNIEnv *env, jobject object, jlong bodyId, jobject factor) {
         btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
         if (body == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        btVector3 vec1 = btVector3();
-        vec1.setX(value);
-        vec1.setY(value);
-        vec1.setZ(value);
-        body->setAngularFactor(vec1);
+        jmeBulletUtil::convert(env, &body->getAngularFactor(), factor);
     }
 
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsRigidBody
+     * Method:    setAngularFactor
+     * Signature: (JLcom/jme3/math/Vector3f;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setAngularFactor
+    (JNIEnv *env, jobject object, jlong bodyId, jobject factor) {
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, factor, &vec);
+        body->setAngularFactor(vec);
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsRigidBody
+     * Method:    getLinearFactor
+     * Signature: (JLcom/jme3/math/Vector3f;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getLinearFactor
+    (JNIEnv *env, jobject object, jlong bodyId, jobject factor) {
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        jmeBulletUtil::convert(env, &body->getLinearFactor(), factor);
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsRigidBody
+     * Method:    setLinearFactor
+     * Signature: (JLcom/jme3/math/Vector3f;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setLinearFactor
+    (JNIEnv *env, jobject object, jlong bodyId, jobject factor) {
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, factor, &vec);
+        body->setLinearFactor(vec);
+    }
+    
 #ifdef __cplusplus
 }
 #endif

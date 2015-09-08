@@ -376,7 +376,9 @@ public class GLRenderer implements Renderer {
             caps.add(Caps.TextureFilterAnisotropic);
         }
 
-        if (hasExtension("GL_EXT_framebuffer_object") || gl3 != null) {
+        if (hasExtension("GL_EXT_framebuffer_object") 
+                || gl3 != null
+                || caps.contains(Caps.OpenGLES20)) {
             caps.add(Caps.FrameBuffer);
 
             limits.put(Limits.RenderBufferSize, getInteger(GLFbo.GL_MAX_RENDERBUFFER_SIZE_EXT));
@@ -401,7 +403,7 @@ public class GLRenderer implements Renderer {
                 }
             }
 
-            if (hasExtension("GL_ARB_draw_buffers")) {
+            if (hasExtension("GL_ARB_draw_buffers") || gl3 != null) {
                 limits.put(Limits.FrameBufferMrtAttachments, getInteger(GLExt.GL_MAX_DRAW_BUFFERS_ARB));
                 if (limits.get(Limits.FrameBufferMrtAttachments) > 1) {
                     caps.add(Caps.FrameBufferMRT);
@@ -1064,6 +1066,9 @@ public class GLRenderer implements Renderer {
                 stringBuf.append("\n");
             } else {
                 if (gles2) {
+                    // request GLSL ES (1.00) when compiling under GLES2.
+                    stringBuf.append("#version 100\n");
+                    
                     if (source.getType() == ShaderType.Fragment) {
                         // GLES2 requires precision qualifier.
                         stringBuf.append("precision mediump float;\n");
@@ -1080,6 +1085,7 @@ public class GLRenderer implements Renderer {
         if (linearizeSrgbImages) {
             stringBuf.append("#define SRGB 1\n");
         }
+        stringBuf.append("#define ").append(source.getType().name().toUpperCase()).append("_SHADER 1\n");
 
         stringBuf.append(source.getDefines());
         stringBuf.append(source.getSource());

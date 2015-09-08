@@ -29,7 +29,9 @@ public class DeleteShortcut extends ShortcutTool {
     @Override
     public boolean isActivableBy(KeyInputEvent kie) {
         if (kie.getKeyCode() == KeyInput.KEY_X && kie.isPressed()) {
-            if (Lookup.getDefault().lookup(ShortcutManager.class).isShiftDown()) {
+            ShortcutManager scm = Lookup.getDefault().lookup(ShortcutManager.class);
+            if (!scm.isActive() && scm.isShiftDown()) {
+                // ^ can't be enable if an other shortcut is allready active
                 return true;
             }
         }
@@ -99,7 +101,7 @@ public class DeleteShortcut extends ShortcutTool {
     @Override
     public void draggedSecondary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject currentDataObject) {
     }
-    
+
     private class DeleteUndo extends AbstractUndoableSceneEdit {
 
         private Spatial spatial;

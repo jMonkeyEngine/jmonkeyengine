@@ -6,6 +6,44 @@
       <suite-component />
       <module-dependencies />
       <public-packages>
+        <package>org.ejml</package>
+        <package>org.ejml.interfaces.decomposition</package>
+        <package>org.ejml.interfaces.linsol</package>
+        <package>org.ejml.data</package>
+        <package>org.ejml.alg.dense.linsol</package>
+        <package>org.ejml.ops</package>
+        <package>org.ejml.factory</package>
+        <package>org.ejml.alg.fixed</package>
+        <package>org.ejml.alg.generic</package>
+        <package>org.ejml.alg.block</package>
+        <package>org.ejml.alg.block.decomposition.chol</package>
+        <package>org.ejml.alg.block.decomposition.qr</package>
+        <package>org.ejml.alg.block.decomposition.hessenberg</package>
+        <package>org.ejml.alg.block.decomposition.bidiagonal</package>
+        <package>org.ejml.alg.block.linsol.chol</package>
+        <package>org.ejml.alg.block.linsol.qr</package>
+        <package>org.ejml.alg.dense.decomposition</package>
+        <package>org.ejml.alg.dense.decomposition.chol</package>
+        <package>org.ejml.alg.dense.decomposition.lu</package>
+        <package>org.ejml.alg.dense.decomposition.qr</package>
+        <package>org.ejml.alg.dense.decomposition.hessenberg</package>
+        <package>org.ejml.alg.dense.decomposition.svd</package>
+        <package>org.ejml.alg.dense.decomposition.svd.implicitqr</package>
+        <package>org.ejml.alg.dense.decomposition.eig</package>
+        <package>org.ejml.alg.dense.decomposition.eig.watched</package>
+        <package>org.ejml.alg.dense.decomposition.eig.symm</package>
+        <package>org.ejml.alg.dense.decomposition.bidiagonal</package>
+        <package>org.ejml.alg.dense.mult</package>
+        <package>org.ejml.alg.dense.misc</package>
+        <package>org.ejml.alg.dense.linsol.chol</package>
+        <package>org.ejml.alg.dense.linsol.lu</package>
+        <package>org.ejml.alg.dense.linsol.qr</package>
+        <package>org.ejml.alg.dense.linsol.svd</package>
+        <package>org.ejml.simple</package>
+        <package>org.ejml.alg.dense.decompose</package>
+        <package>org.ejml.alg.dense.decompose.chol</package>
+        <package>org.ejml.alg.dense.decompose.lu</package>
+        <package>org.ejml.alg.dense.decompose.qr</package>
         <package>com.bulletphysics</package>
         <package>com.bulletphysics.collision.broadphase</package>
         <package>com.bulletphysics.collision.dispatch</package>
@@ -161,6 +199,22 @@
         <package>org.jglfont.impl.format.awt</package>
         <package>org.jglfont.impl</package>
       </public-packages>
+      <class-path-extension>
+        <runtime-relative-path>ext/core-0.27.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/core-0.27.jar</binary-origin>
+      </class-path-extension>
+      <class-path-extension>
+        <runtime-relative-path>ext/dense64-0.27.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/dense64-0.27.jar</binary-origin>
+      </class-path-extension>
+      <class-path-extension>
+        <runtime-relative-path>ext/simple-0.27.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/simple-0.27.jar</binary-origin>
+      </class-path-extension>
+      <class-path-extension>
+        <runtime-relative-path>ext/denseC64-0.27.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/denseC64-0.27.jar</binary-origin>
+      </class-path-extension>
       <class-path-extension>
         <runtime-relative-path>ext/jbullet.jar</runtime-relative-path>
         <binary-origin>release/modules/ext/jbullet.jar</binary-origin>

@@ -1,0 +1,144 @@
+    public static void loadFontsFromJar(Object refObj, String relPath) {
+        //first, we grab ahold of what all fonts are in the JRE's system
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        String[] fontFamilies = ge.getAvailableFontFamilyNames();
+        //Next we get a listing of all of the fonts in the refObj's jar at relPath
+        ZipFile zipFile = new ZipFile("C:/test.zip");
+        InputStream stream;
+        Enumeration<? extends ZipEntry> entries = zipFile.entries();
+        try {
+            bi = ImageIO.read(refObj.getClass().getResourceAsStream(fileName));
+        } catch (IOException e) {
+            // File is probably referenced wrong or "mispleled"... lol.
+            e.printStackTrace();
+        }
+
+        while (entries.hasMoreElements()) {
+            ZipEntry entry = entries.nextElement();
+            stream = zipFile.getInputStream(entry);
+            stream.close();
+        }
+
+        ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("A.ttf")));
+
+    }
+
+    /**
+     * Note from Charles: DO NOT USE - Retain it though :) this method correctly
+     * does get the path... of Netbeans.. lol... ... Todo: adjust this to work
+     * with concepts from the LoadImagefromJar... ... and we can make it work
+     * for custom defined themes dynamically in conjunction with the
+     * functionality available from Nilo's NimROD base. END NOTE...
+     *
+     * @param relativePath
+     * @return
+     * @throws NoSuchFileException
+     */
+    public static String relpath(String relativePath) {
+        //TODO fix the following statement and we can start having dynamic LaF adjustment - Charles
+        final File f = new File(DMUtils.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        //END TODO - Charles
+        String returnString;
+        int i;
+        returnString = f.getPath();
+        i = returnString.indexOf("org-jme3-netbeans"); // This would have to be adjusted as well - Charles
+        returnString = returnString.substring(0, i);
+        returnString = returnString.replace(File.separatorChar, '/') + relativePath;
+        File check = new File(returnString);
+
+        return returnString;
+
+    }
+
+This next bit is from the AnnotationType overrides in the layer.xml.....
+       <!-- and finally wrap it up with the AnnotationTypes -->
+        <folder name="AnnotationTypes">
+            <file name="Breakpoint.xml" url="fac/AnnotationTypes/Breakpoint.xml" />
+            <file name="Breakpoint_broken.xml" url="fac/AnnotationTypes/Breakpoint_broken.xml" />
+            <file name="Breakpoint_stroke.xml" url="fac/AnnotationTypes/Breakpoint_stroke.xml" />
+            <file name="CallSite.xml" url="fac/AnnotationTypes/CallSite.xml" />
+            <file name="ClassBreakpoint.xml" url="fac/AnnotationTypes/ClassBreakpoint.xml" />
+            <file name="ClassBreakpoint_stroke.xml" url="fac/AnnotationTypes/ClassBreakpoint_stroke.xml" />
+            <file name="CondBreakpoint.xml" url="fac/AnnotationTypes/CondBreakpoint.xml" />
+            <file name="CondBreakpoint_broken.xml" url="fac/AnnotationTypes/CondBreakpoint_broken.xml" />
+            <file name="CondBreakpoint_stroke.xml" url="fac/AnnotationTypes/CondBreakpoint_stroke.xml" />
+            <file name="CurrentExpression.xml" url="fac/AnnotationTypes/CurrentExpression.xml" />
+            <file name="CurrentExpressionLine.xml" url="fac/AnnotationTypes/CurrentExpressionLine.xml" />
+            <file name="CurrentExpressionLine_BP.xml" url="fac/AnnotationTypes/CurrentExpressionLine_BP.xml" />
+            <file name="CurrentExpressionLine_CBP.xml" url="fac/AnnotationTypes/CurrentExpressionLine_CBP.xml" />
+            <file name="CurrentExpressionLine_DBP.xml" url="fac/AnnotationTypes/CurrentExpressionLine_DBP.xml" />
+            <file name="CurrentExpressionLine_DCBP.xml" url="fac/AnnotationTypes/CurrentExpressionLine_DCBP.xml" />
+            <file name="CurrentPC.xml" url="fac/AnnotationTypes/CurrentPC.xml" />
+            <file name="CurrentPC2.xml" url="fac/AnnotationTypes/CurrentPC2.xml" />
+            <file name="CurrentPC2LinePart.xml" url="fac/AnnotationTypes/CurrentPC2LinePart.xml" />
+            <file name="CurrentPC2_BP.xml" url="fac/AnnotationTypes/CurrentPC2_BP.xml" />
+            <file name="CurrentPC2_DBP.xml" url="fac/AnnotationTypes/CurrentPC2_DBP.xml" />
+            <file name="CurrentPCLinePart.xml" url="fac/AnnotationTypes/CurrentPCLinePart.xml" />
+            <file name="DisabledBreakpoint.xml" url="fac/AnnotationTypes/DisabledBreakpoint.xml" />
+            <file name="DisabledBreakpoint_stroke.xml" url="fac/AnnotationTypes/DisabledBreakpoint_stroke.xml" />
+            <file name="DisabledClassBreakpoint.xml" url="fac/AnnotationTypes/DisabledClassBreakpoint.xml" />
+            <file name="DisabledClassBreakpoint_stroke.xml" url="fac/AnnotationTypes/DisabledClassBreakpoint_stroke.xml" />
+            <file name="DisabledCondBreakpoint.xml" url="fac/AnnotationTypes/DisabledCondBreakpoint.xml" />
+            <file name="DisabledCondBreakpoint_stroke.xml" url="fac/AnnotationTypes/DisabledCondBreakpoint_stroke.xml" />
+            <file name="DisabledFieldBreakpoint.xml" url="fac/AnnotationTypes/DisabledFieldBreakpoint.xml" />
+            <file name="DisabledFieldBreakpoint_stroke.xml" url="fac/AnnotationTypes/DisabledFieldBreakpoint_stroke.xml" />
+            <file name="DisabledMethodBreakpoint.xml" url="fac/AnnotationTypes/DisabledMethodBreakpoint.xml" />
+            <file name="DisabledMethodBreakpoint_stroke.xml" url="fac/AnnotationTypes/DisabledMethodBreakpoint_stroke.xml" />
+            <file name="FieldBreakpoint.xml" url="fac/AnnotationTypes/FieldBreakpoint.xml" />
+            <file name="FieldBreakpoint_stroke.xml" url="fac/AnnotationTypes/FieldBreakpoint_stroke.xml" />
+            <file name="MethodBreakpoint.xml" url="fac/AnnotationTypes/MethodBreakpoint.xml" />
+            <file name="MethodBreakpoint_stroke.xml" url="fac/AnnotationTypes/MethodBreakpoint_stroke.xml" />
+            <file name="OtherThread.xml" url="fac/AnnotationTypes/OtherThread.xml" />
+            <file name="OtherThread_BP.xml" url="fac/AnnotationTypes/OtherThread_BP.xml" />
+            <file name="OtherThread_BP_broken.xml" url="fac/AnnotationTypes/OtherThread_BP_broken.xml" />
+            <file name="OtherThread_DBP.xml" url="fac/AnnotationTypes/OtherThread_DBP.xml" />
+            <file name="OtherThread_PC.xml" url="fac/AnnotationTypes/OtherThread_PC.xml" />
+            <file name="OtherThread_PC_BP.xml" url="fac/AnnotationTypes/OtherThread_PC_BP.xml" />
+            <file name="OtherThreads.xml" url="fac/AnnotationTypes/OtherThreads.xml" />
+            <file name="OtherThreads_BP.xml" url="fac/AnnotationTypes/OtherThreads_BP.xml" />
+            <file name="OtherThreads_BP_broken.xml" url="fac/AnnotationTypes/OtherThreads_BP_broken.xml" />
+            <file name="OtherThreads_DBP.xml" url="fac/AnnotationTypes/OtherThreads_DBP.xml" />
+            <file name="OtherThreads_PC_BP.xml" url="fac/AnnotationTypes/OtherThreads_PC_BP.xml" />
+            <file name="PC_BP.xml" url="fac/AnnotationTypes/PC_BP.xml" />
+            <file name="PC_BP_broken.xml" url="fac/AnnotationTypes/PC_BP_broken.xml" />
+            <file name="PC_BP_stroke.xml" url="fac/AnnotationTypes/PC_BP_stroke.xml" />
+            <file name="PC_CBP.xml" url="fac/AnnotationTypes/PC_CBP.xml" />
+            <file name="PC_CBP_broken.xml" url="fac/AnnotationTypes/PC_CBP_broken.xml" />
+            <file name="PC_CBP_stroke.xml" url="fac/AnnotationTypes/PC_CBP_stroke.xml" />
+            <file name="PC_DBP.xml" url="fac/AnnotationTypes/PC_DBP.xml" />
+            <file name="PC_DBP_stroke.xml" url="fac/AnnotationTypes/PC_DBP_stroke.xml" />
+            <file name="PC_DCBP.xml" url="fac/AnnotationTypes/PC_DCBP.xml" />
+            <file name="PC_DCBP_stroke.xml" url="fac/AnnotationTypes/PC_DCBP_stroke.xml" />
+            <file name="PC_mixedBP.xml" url="fac/AnnotationTypes/PC_mixedBP.xml" />
+            <file name="PC_mixedBP_broken.xml" url="fac/AnnotationTypes/PC_mixedBP_broken.xml" />
+            <file name="PC_multi_BPCBP.xml" url="fac/AnnotationTypes/PC_multi_BPCBP.xml" />
+            <file name="PC_multi_BPCBP_broken.xml" url="fac/AnnotationTypes/PC_multi_BPCBP_broken.xml" />
+            <file name="PC_multi_DBPCBP.xml" url="fac/AnnotationTypes/PC_multi_DBPCBP.xml" />
+            <file name="bookmark.xml" url="fac/AnnotationTypes/bookmark.xml" />
+            <file name="implements-has-implementations-combined.xml" url="fac/AnnotationTypes/implements-has-implementations-combined.xml" />
+            <file name="implements-is-overridden-combined.xml" url="fac/AnnotationTypes/implements-is-overridden-combined.xml" />
+            <file name="mixed_BP.xml" url="fac/AnnotationTypes/mixed_BP.xml" />
+            <file name="mixed_BP_broken.xml" url="fac/AnnotationTypes/mixed_BP_broken.xml" />
+            <file name="multi_BPCBP.xml" url="fac/AnnotationTypes/multi_BPCBP.xml" />
+            <file name="multi_BPCBP_broken.xml" url="fac/AnnotationTypes/multi_BPCBP_broken.xml" />
+            <file name="multi_DBPCBP.xml" url="fac/AnnotationTypes/multi_DBPCBP.xml" />
+            <file name="org-netbeans-modules-editor-annotations-has_implementations.xml" url="fac/AnnotationTypes/org-netbeans-modules-editor-annotations-has_implementations.xml" />
+            <file name="org-netbeans-modules-editor-annotations-implements.xml" url="fac/AnnotationTypes/org-netbeans-modules-editor-annotations-implements.xml" />
+            <file name="org-netbeans-modules-editor-annotations-implements.xml" url="fac/AnnotationTypes/org-netbeans-modules-editor-annotations-implements.xml" />
+            <file name="org-netbeans-modules-editor-annotations-is_overridden.xml" url="fac/AnnotationTypes/org-netbeans-modules-editor-annotations-is_overridden.xml" />
+            <file name="org-netbeans-modules-editor-annotations-overrides.xml" url="fac/AnnotationTypes/org-netbeans-modules-editor-annotations-overrides.xml" />
+            <file name="org-netbeans-modules-git-Annotation.xml" url="fac/AnnotationTypes/org-netbeans-modules-git-Annotation.xml" />
+            <file name="org-netbeans-modules-subversion-Annotation.xml" url="fac/AnnotationTypes/org-netbeans-modules-subversion-Annotation.xml" />
+            <file name="org-netbeans-modules-versioning-annotate-Annotation.xml" url="fac/AnnotationTypes/org-netbeans-modules-versioning-annotate-Annotation.xml" />
+            <file name="org-netbeans-modules-xml-error.xml" url="fac/AnnotationTypes/org-netbeans-modules-xml-error.xml" />
+            <file name="org-netbeans-spi-java-parser_annotation_err.xml" url="fac/AnnotationTypes/org-netbeans-spi-java-parser_annotation_err.xml" />
+            <file name="org-netbeans-spi-java-parser_annotation_err_fixable.xml" url="fac/AnnotationTypes/org-netbeans-spi-java-parser_annotation_err_fixable.xml" />
+            <file name="org-netbeans-spi-java-parser_annotation_hint.xml" url="fac/AnnotationTypes/org-netbeans-spi-java-parser_annotation_hint.xml" />
+            <file name="org-netbeans-spi-java-parser_annotation_hint_fixable.xml" url="fac/AnnotationTypes/org-netbeans-spi-java-parser_annotation_hint_fixable.xml" />
+            <file name="org-netbeans-spi-java-parser_annotation_todo.xml" url="fac/AnnotationTypes/org-netbeans-spi-java-parser_annotation_todo.xml" />
+            <file name="org-netbeans-spi-java-parser_annotation_todo_fixable.xml" url="fac/AnnotationTypes/org-netbeans-spi-java-parser_annotation_todo_fixable.xml" />
+            <file name="org-netbeans-spi-java-parser_annotation_verifier.xml" url="fac/AnnotationTypes/org-netbeans-spi-java-parser_annotation_verifier.xml" />
+            <file name="org-netbeans-spi-java-parser_annotation_verifier_fixable.xml" url="fac/AnnotationTypes/org-netbeans-spi-java-parser_annotation_verifier_fixable.xml" />
+            <file name="org-netbeans-spi-java-parser_annotation_warn.xml" url="fac/AnnotationTypes/org-netbeans-spi-java-parser_annotation_warn.xml" />
+            <file name="org-netbeans-spi-java-parser_annotation_warn_fixable.xml" url="fac/AnnotationTypes/org-netbeans-spi-java-parser_annotation_warn_fixable.xml" />
+        </folder> <!-- AnnotationTypes" -->

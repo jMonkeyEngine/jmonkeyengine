@@ -4,10 +4,9 @@
 
 apply plugin: 'java'
 apply plugin: 'maven'
-apply plugin: 'maven-publish'
 
-group   = 'com.jme3'
-version = jmeVersion + '-' + jmeVersionTag
+group = 'com.jme3'
+version = jmePomVersion
 
 sourceCompatibility = '1.6'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -19,11 +18,23 @@ repositories {
     }
 }
 
+configurations {
+    deployerJars
+}
+
 dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.0.28-beta'
     testCompile group: 'org.easytesting', name: 'fest-assert-core', version: '2.0M10'
+    deployerJars "org.apache.maven.wagon:wagon-ssh:2.9"
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'jMonkeyEngine',
+                   'Implementation-Version': jmeFullVersion
+    }
 }
 
 javadoc {
@@ -58,39 +69,33 @@ artifacts {
     }
 }
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from components.java
-            artifact sourcesJar
-            artifact javadocJar
-
-            pom.withXml {
-                asNode().children().last() + {
-                        resolveStrategy = Closure.DELEGATE_FIRST
-                        name POM_NAME
-                        description POM_DESCRIPTION
-                        url POM_URL
-                        scm {
-                            url POM_SCM_URL
-                            connection POM_SCM_CONNECTION
-                            developerConnection POM_SCM_DEVELOPER_CONNECTION
-                        }
-                        licenses {
-                            license {
-                                name POM_LICENSE_NAME
-                                url POM_LICENSE_URL
-                                distribution POM_LICENSE_DISTRIBUTION
-                            }
-                        }
+uploadArchives {
+    repositories.mavenDeployer {
+        configuration = configurations.deployerJars
+        
+        // disable this otherwise it will fill up the server with stale jars
+        uniqueVersion = false
+        
+        repository(url: "scp://updates.jmonkeyengine.org/var/www/updates/maven") {
+             authentication(userName: "www-updater", privateKey: "private/www-updater.key")
+        }
+        
+        pom.project {
+            name POM_NAME
+            description POM_DESCRIPTION
+            url POM_URL
+            scm {
+                url POM_SCM_URL
+                connection POM_SCM_CONNECTION
+                developerConnection POM_SCM_DEVELOPER_CONNECTION
+            }
+            licenses {
+                license {
+                    name POM_LICENSE_NAME
+                    url POM_LICENSE_URL
+                    distribution POM_LICENSE_DISTRIBUTION
                 }
             }
-        }
-    }
-
-    repositories {
-        maven {
-            url "${rootProject.buildDir}/repo" // change to point to your repo, e.g. http://my.org/repo
         }
     }
 }
