@@ -151,7 +151,7 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     }
 
     @Override
-    void  getReceivers(GeometryList lightReceivers) {
+    protected void getReceivers(GeometryList lightReceivers) {
         lightReceivers.clear();
         Camera[] cameras = new Camera[1];
         cameras[0] = shadowCam;

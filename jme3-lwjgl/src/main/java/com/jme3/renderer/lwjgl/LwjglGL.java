@@ -13,7 +13,7 @@ import java.nio.ShortBuffer;
 import com.jme3.renderer.opengl.GL4;
 import org.lwjgl.opengl.*;
 
-public class LwjglGL implements GL, GL2, GL3, GL4 {
+public final class LwjglGL implements GL, GL2, GL3, GL4 {
     
     private static void checkLimit(Buffer buffer) {
         if (buffer == null) {

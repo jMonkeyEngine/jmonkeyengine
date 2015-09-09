@@ -123,7 +123,7 @@ public class ConnectionCurve extends JPanel implements ComponentListener, MouseI
 
         g2.setStroke(new BasicStroke(4));
         Path2D.Double path1 = new Path2D.Double();
-         if (getDiagram().selectedItem == this) {
+        if (getDiagram().getSelectedItems().contains(this)) {
             g.setColor(SELECTED_COLOR);
         } else {
             g.setColor(VERY_DARK_GREY);
@@ -162,7 +162,7 @@ public class ConnectionCurve extends JPanel implements ComponentListener, MouseI
         ((Graphics2D) g).draw(path1);
         g2.setStroke(new BasicStroke(2));
        
-        if (getDiagram().selectedItem == this) {
+        if (getDiagram().getSelectedItems().contains(this)) {
             g.setColor(Color.WHITE);
         } else {
             g.setColor(LIGHT_GREY);
@@ -385,7 +385,7 @@ public class ConnectionCurve extends JPanel implements ComponentListener, MouseI
         }
 
         if (selected) {
-            getDiagram().select(this);
+            getDiagram().select(this, e.isShiftDown() || e.isControlDown());
             e.consume();
         }
     }
@@ -407,9 +407,7 @@ public class ConnectionCurve extends JPanel implements ComponentListener, MouseI
 
         if (e.getKeyCode() == KeyEvent.VK_DELETE) {
             Diagram diag = getDiagram();
-            if (diag.selectedItem == this) {
-                diag.removeSelectedConnection();
-            }
+            diag.removeSelected();
         }
     }
 

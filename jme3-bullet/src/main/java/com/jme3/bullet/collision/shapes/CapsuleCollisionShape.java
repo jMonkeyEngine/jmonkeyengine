@@ -93,7 +93,9 @@ public class CapsuleCollisionShape extends CollisionShape{
      */
     @Override
     public void setScale(Vector3f scale) {
-        Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "CapsuleCollisionShape cannot be scaled");
+        if (!scale.equals(Vector3f.UNIT_XYZ)) {
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "CapsuleCollisionShape cannot be scaled");
+        }
     }
 
     public void write(JmeExporter ex) throws IOException {

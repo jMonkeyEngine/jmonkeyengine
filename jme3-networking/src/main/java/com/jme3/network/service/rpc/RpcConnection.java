@@ -115,8 +115,13 @@ public class RpcConnection {
  
         if( log.isLoggable(Level.FINEST) ) {
             log.log(Level.FINEST, "Sending:{0}  on channel:{1}", new Object[]{msg, channel});
-        }        
-        if( channel >= 0 ) {
+        }
+        
+        // Prevent non-async messages from being send as UDP
+        // because there is a high probabilty that this would block
+        // forever waiting for a response.  For async calls it's ok
+        // so it doesn't do the check.
+        if( channel >= 0 ) {        
             connection.send(channel, msg);
         } else {
             connection.send(msg);

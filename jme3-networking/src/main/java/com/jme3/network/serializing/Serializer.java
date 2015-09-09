@@ -71,6 +71,8 @@ public abstract class Serializer {
 
     private static boolean strictRegistration = true;
 
+    private static volatile boolean locked = false;
+    
 
     // Registers the classes we already have serializers for.
     static {
@@ -169,13 +171,31 @@ public abstract class Serializer {
     }
  
     /**
+     *  Can put the registry in a read-only state such that additional attempts
+     *  to register classes will fail.  This can be used by servers to lock the
+     *  registry to avoid accidentally registering classes after a full registry
+     *  set has been compiled.
+     */
+    public static void setReadOnly( boolean b ) {
+        locked = b;
+    }
+
+    public static boolean isReadOnly() {
+        return locked;
+    }
+ 
+    /**
      *  Directly registers a class for a specific ID.  Generally, use the regular
      *  registerClass() method.  This method is intended for framework code that might
      *  be maintaining specific ID maps across client and server.
      */
     public static SerializerRegistration registerClassForId( short id, Class cls, Serializer serializer ) {
  
-        SerializerRegistration reg = new SerializerRegistration(serializer, cls, id);
+        if( locked ) {
+            throw new RuntimeException("Serializer registry locked trying to register class:" + cls);
+        }
+ 
+        SerializerRegistration reg = new SerializerRegistration(serializer, cls, id);        
 
         idRegistrations.put(id, reg);
         classRegistrations.put(cls, reg);

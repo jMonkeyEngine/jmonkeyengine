@@ -553,7 +553,6 @@ public final class Bone implements Savable {
         Vector3f translate = modelPos.add(rotate.mult(scale.mult(modelBindInversePos, tmp2), tmp2), tmp2);
 
         // Populating the matrix
-        outTransform.loadIdentity();
         outTransform.setTransform(translate, scale, rotate.toRotationMatrix(tmp4));
     }
 

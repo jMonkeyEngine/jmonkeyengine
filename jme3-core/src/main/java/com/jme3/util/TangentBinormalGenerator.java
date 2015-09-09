@@ -612,9 +612,9 @@ public class TangentBinormalGenerator {
             normal.normalizeLocal();
             
             return new TriangleData(
-                    tangent,
-                    binormal,
-                    normal);
+                    tangent.clone(),
+                    binormal.clone(),
+                    normal.clone());
         } finally {
             tmp.release();
         }

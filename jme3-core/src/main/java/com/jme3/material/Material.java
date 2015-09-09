@@ -69,7 +69,7 @@ import java.util.logging.Logger;
  * Setting the parameters can modify the behavior of a
  * shader.
  * <p/>
- * 
+ *
  * @author Kirill Vainer
  */
 public class Material implements CloneableSmartAsset, Cloneable, Savable {
@@ -146,7 +146,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     public String getName() {
         return name;
     }
-    
+
     /**
      * This method sets the name of the material.
      * The name is not the same as the asset name.
@@ -222,11 +222,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     /**
-     * Compares two materials and returns true if they are equal. 
+     * Compares two materials and returns true if they are equal.
      * This methods compare definition, parameters, additional render states.
-     * Since materials are mutable objects, implementing equals() properly is not possible, 
+     * Since materials are mutable objects, implementing equals() properly is not possible,
      * hence the name contentEquals().
-     * 
+     *
      * @param otherObj the material to compare to this material
      * @return true if the materials are equal.
      */
@@ -234,15 +234,15 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         if (!(otherObj instanceof Material)) {
             return false;
         }
-        
+
         Material other = (Material) otherObj;
-        
+
         // Early exit if the material are the same object
         if (this == other) {
             return true;
         }
 
-        // Check material definition        
+        // Check material definition
         if (this.getMaterialDef() != other.getMaterialDef()) {
             return false;
         }
@@ -251,12 +251,12 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         if (this.paramValues.size() != other.paramValues.size()) {
             return false;
         }
-        
+
         // Checking technique
         if (this.technique != null || other.technique != null) {
             // Techniques are considered equal if their names are the same
-            // E.g. if user chose custom technique for one material but 
-            // uses default technique for other material, the materials 
+            // E.g. if user chose custom technique for one material but
+            // uses default technique for other material, the materials
             // are not equal.
             String thisDefName = this.technique != null ? this.technique.getDef().getName() : "Default";
             String otherDefName = other.technique != null ? other.technique.getDef().getName() : "Default";
@@ -290,7 +290,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -305,7 +305,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         hash = 29 * hash + (this.additionalState != null ? this.additionalState.contentHashCode() : 0);
         return hash;
     }
-    
+
     /**
      * Returns the currently active technique.
      * <p>
@@ -436,7 +436,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     public Collection<MatParam> getParams() {
         return paramValues.values();
     }
-    
+
     /**
      * Returns the ListMap of all parameters set on this material.
      *
@@ -473,7 +473,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      */
     public void setParam(String name, VarType type, Object value) {
         checkSetParam(type, name);
-        
+
         if (type.isTextureType()) {
             setTextureParam(name, type, (Texture)value);
         } else {
@@ -501,7 +501,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         if (matParam == null) {
             return;
         }
-        
+
         paramValues.remove(name);
         if (matParam instanceof MatParamTexture) {
             int texUnit = ((MatParamTexture) matParam).getUnit();
@@ -728,7 +728,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             renderer.renderMesh(mesh, lodLevel, 1, null);
         }
     }
-    
+
     /**
      * Uploads the lights in the light list as two uniform arrays.<br/><br/> *
      * <p>
@@ -747,30 +747,30 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             return 0;
         }
 
-        Uniform lightData = shader.getUniform("g_LightData");        
-        lightData.setVector4Length(numLights * 3);//8 lights * max 3        
+        Uniform lightData = shader.getUniform("g_LightData");
+        lightData.setVector4Length(numLights * 3);//8 lights * max 3
         Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
-        
 
-        if (startIndex != 0) {        
+
+        if (startIndex != 0) {
             // apply additive blending for 2nd and future passes
             rm.getRenderer().applyRenderState(additiveLight);
-            ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);            
+            ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);
         }else{
             ambientColor.setValue(VarType.Vector4, getAmbientColor(lightList,true));
         }
-        
+
         int lightDataIndex = 0;
         TempVars vars = TempVars.get();
         Vector4f tmpVec = vars.vect4f1;
         int curIndex;
         int endIndex = numLights + startIndex;
         for (curIndex = startIndex; curIndex < endIndex && curIndex < lightList.size(); curIndex++) {
-                
-                
-                Light l = lightList.get(curIndex);              
+
+
+                Light l = lightList.get(curIndex);
                 if(l.getType() == Light.Type.Ambient){
-                    endIndex++;    
+                    endIndex++;
                     continue;
                 }
                 ColorRGBA color = l.getColor();
@@ -781,14 +781,14 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                         l.getType().getId(),
                         lightDataIndex);
                 lightDataIndex++;
-                
+
                 switch (l.getType()) {
                     case Directional:
                         DirectionalLight dl = (DirectionalLight) l;
-                        Vector3f dir = dl.getDirection();                        
+                        Vector3f dir = dl.getDirection();
                         //Data directly sent in view space to avoid a matrix mult for each pixel
                         tmpVec.set(dir.getX(), dir.getY(), dir.getZ(), 0.0f);
-                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);      
+                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
 //                        tmpVec.divideLocal(tmpVec.w);
 //                        tmpVec.normalizeLocal();
                         lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), -1, lightDataIndex);
@@ -802,7 +802,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                         Vector3f pos = pl.getPosition();
                         float invRadius = pl.getInvRadius();
                         tmpVec.set(pos.getX(), pos.getY(), pos.getZ(), 1.0f);
-                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);    
+                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
                         //tmpVec.divideLocal(tmpVec.w);
                         lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), invRadius, lightDataIndex);
                         lightDataIndex++;
@@ -810,37 +810,37 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                         lightData.setVector4InArray(0,0,0,0, lightDataIndex);
                         lightDataIndex++;
                         break;
-                    case Spot:                      
+                    case Spot:
                         SpotLight sl = (SpotLight) l;
                         Vector3f pos2 = sl.getPosition();
                         Vector3f dir2 = sl.getDirection();
                         float invRange = sl.getInvSpotRange();
                         float spotAngleCos = sl.getPackedAngleCos();
                         tmpVec.set(pos2.getX(), pos2.getY(), pos2.getZ(),  1.0f);
-                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);   
+                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
                        // tmpVec.divideLocal(tmpVec.w);
                         lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), invRange, lightDataIndex);
                         lightDataIndex++;
-                        
+
                         //We transform the spot direction in view space here to save 5 varying later in the lighting shader
                         //one vec4 less and a vec4 that becomes a vec3
                         //the downside is that spotAngleCos decoding happens now in the frag shader.
                         tmpVec.set(dir2.getX(), dir2.getY(), dir2.getZ(),  0.0f);
-                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);                           
+                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
                         tmpVec.normalizeLocal();
                         lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), spotAngleCos, lightDataIndex);
                         lightDataIndex++;
-                        break;                    
+                        break;
                     default:
                         throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
                 }
         }
-        vars.release();        
+        vars.release();
         //Padding of unsued buffer space
         while(lightDataIndex < numLights * 3) {
             lightData.setVector4InArray(0f, 0f, 0f, 0f, lightDataIndex);
-            lightDataIndex++;             
-        } 
+            lightDataIndex++;
+        }
         return curIndex;
     }
 
@@ -887,10 +887,10 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 case Directional:
                     DirectionalLight dl = (DirectionalLight) l;
                     Vector3f dir = dl.getDirection();
-                    //FIXME : there is an inconstency here due to backward 
+                    //FIXME : there is an inconstency here due to backward
                     //compatibility of the lighting shader.
-                    //The directional light direction is passed in the 
-                    //LightPosition uniform. The lighting shader needs to be 
+                    //The directional light direction is passed in the
+                    //LightPosition uniform. The lighting shader needs to be
                     //reworked though in order to fix this.
                     tmpLightPosition.set(dir.getX(), dir.getY(), dir.getZ(), -1);
                     lightPos.setValue(VarType.Vector4, tmpLightPosition);
@@ -987,11 +987,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 for (TechniqueDef techDef : techDefs) {
                     if (rendererCaps.containsAll(techDef.getRequiredCaps())) {
                         // use the first one that supports all the caps
-                        tech = new Technique(this, techDef);                        
+                        tech = new Technique(this, techDef);
                         techniques.put(name, tech);
                         if(tech.getDef().getLightMode() == renderManager.getPreferredLightMode() ||
                                tech.getDef().getLightMode() == LightMode.Disable){
-                            break;  
+                            break;
                         }
                     }
                     lastTech = techDef;
@@ -1078,7 +1078,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             Uniform u = uniforms.getValue(i);
             if (!u.isSetByCurrentMaterial()) {
                 if (u.getName().charAt(0) != 'g') {
-                    // Don't reset world globals! 
+                    // Don't reset world globals!
                     // The benefits gained from this are very minimal
                     // and cause lots of matrix -> FloatBuffer conversions.
                     u.clearValue();
@@ -1093,21 +1093,21 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * <p>
      * The material is rendered as follows:
      * <ul>
-     * <li>Determine which technique to use to render the material - 
-     * either what the user selected via 
-     * {@link #selectTechnique(java.lang.String, com.jme3.renderer.RenderManager) 
-     * Material.selectTechnique()}, 
-     * or the first default technique that the renderer supports 
+     * <li>Determine which technique to use to render the material -
+     * either what the user selected via
+     * {@link #selectTechnique(java.lang.String, com.jme3.renderer.RenderManager)
+     * Material.selectTechnique()},
+     * or the first default technique that the renderer supports
      * (based on the technique's {@link TechniqueDef#getRequiredCaps() requested rendering capabilities})<ul>
-     * <li>If the technique has been changed since the last frame, then it is notified via 
-     * {@link Technique#makeCurrent(com.jme3.asset.AssetManager, boolean, java.util.EnumSet) 
-     * Technique.makeCurrent()}. 
-     * If the technique wants to use a shader to render the model, it should load it at this part - 
-     * the shader should have all the proper defines as declared in the technique definition, 
-     * including those that are bound to material parameters. 
-     * The technique can re-use the shader from the last frame if 
+     * <li>If the technique has been changed since the last frame, then it is notified via
+     * {@link Technique#makeCurrent(com.jme3.asset.AssetManager, boolean, java.util.EnumSet)
+     * Technique.makeCurrent()}.
+     * If the technique wants to use a shader to render the model, it should load it at this part -
+     * the shader should have all the proper defines as declared in the technique definition,
+     * including those that are bound to material parameters.
+     * The technique can re-use the shader from the last frame if
      * no changes to the defines occurred.</li></ul>
-     * <li>Set the {@link RenderState} to use for rendering. The render states are 
+     * <li>Set the {@link RenderState} to use for rendering. The render states are
      * applied in this order (later RenderStates override earlier RenderStates):<ol>
      * <li>{@link TechniqueDef#getRenderState() Technique Definition's RenderState}
      * - i.e. specific renderstate that is required for the shader.</li>
@@ -1120,22 +1120,22 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * <li>Uniforms bound to material parameters are updated based on the current material parameter values.</li>
      * <li>Uniforms bound to world parameters are updated from the RenderManager.
      * Internally {@link UniformBindingManager} is used for this task.</li>
-     * <li>Uniforms bound to textures will cause the texture to be uploaded as necessary. 
+     * <li>Uniforms bound to textures will cause the texture to be uploaded as necessary.
      * The uniform is set to the texture unit where the texture is bound.</li></ul>
-     * <li>If the technique uses a shader, the model is then rendered according 
+     * <li>If the technique uses a shader, the model is then rendered according
      * to the lighting mode specified on the technique definition.<ul>
-     * <li>{@link LightMode#SinglePass single pass light mode} fills the shader's light uniform arrays 
+     * <li>{@link LightMode#SinglePass single pass light mode} fills the shader's light uniform arrays
      * with the first 4 lights and renders the model once.</li>
-     * <li>{@link LightMode#MultiPass multi pass light mode} light mode renders the model multiple times, 
-     * for the first light it is rendered opaque, on subsequent lights it is 
+     * <li>{@link LightMode#MultiPass multi pass light mode} light mode renders the model multiple times,
+     * for the first light it is rendered opaque, on subsequent lights it is
      * rendered with {@link BlendMode#AlphaAdditive alpha-additive} blending and depth writing disabled.</li>
      * </ul>
-     * <li>For techniques that do not use shaders, 
+     * <li>For techniques that do not use shaders,
      * fixed function OpenGL is used to render the model (see {@link GL1Renderer} interface):<ul>
      * <li>OpenGL state ({@link FixedFuncBinding}) that is bound to material parameters is updated. </li>
-     * <li>The texture set on the material is uploaded and bound. 
+     * <li>The texture set on the material is uploaded and bound.
      * Currently only 1 texture is supported for fixed function techniques.</li>
-     * <li>If the technique uses lighting, then OpenGL lighting state is updated 
+     * <li>If the technique uses lighting, then OpenGL lighting state is updated
      * based on the light list on the geometry, otherwise OpenGL lighting is disabled.</li>
      * <li>The mesh is uploaded and rendered.</li>
      * </ul>
@@ -1147,10 +1147,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      */
     public void render(Geometry geom, LightList lights, RenderManager rm) {
         autoSelectTechnique(rm);
+        TechniqueDef techDef = technique.getDef();
+
+        if (techDef.isNoRender()) return;
 
         Renderer r = rm.getRenderer();
-
-        TechniqueDef techDef = technique.getDef();
 
         if (rm.getForcedRenderState() != null) {
             r.applyRenderState(rm.getForcedRenderState());
@@ -1169,7 +1170,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         // reset unchanged uniform flag
         clearUniformsSetByCurrent(technique.getShader());
         rm.updateUniformBindings(technique.getWorldBindUniforms());
-        
+
 
         // setup textures and uniforms
         for (int i = 0; i < paramValues.size(); i++) {
@@ -1212,24 +1213,24 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         // any unset uniforms will be set to 0
         resetUniformsNotSetByCurrent(shader);
         r.setShader(shader);
-        
+
         renderMeshFromGeometry(r, geom);
     }
 
     /**
      * Called by {@link RenderManager} to render the geometry by
      * using this material.
-     * 
+     *
      * Note that this version of the render method
      * does not perform light filtering.
-     * 
+     *
      * @param geom The geometry to render
      * @param rm The render manager requesting the rendering
      */
     public void render(Geometry geom, RenderManager rm) {
         render(geom, geom.getWorldLightList(), rm);
     }
-    
+
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(def.getAssetName(), "material_def", null);
@@ -1304,14 +1305,14 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                     continue;
                 }
             }
-            
+
             if (im.getFormatVersion() == 0 && param.getName().startsWith("m_")) {
                 // Ancient version of jME3 ...
                 param.setName(param.getName().substring(2));
             }
-            
+
             if (def.getMaterialParam(param.getName()) == null) {
-                logger.log(Level.WARNING, "The material parameter is not defined: {0}. Ignoring..", 
+                logger.log(Level.WARNING, "The material parameter is not defined: {0}. Ignoring..",
                                           param.getName());
             } else {
                 checkSetParam(param.getVarType(), param.getName());

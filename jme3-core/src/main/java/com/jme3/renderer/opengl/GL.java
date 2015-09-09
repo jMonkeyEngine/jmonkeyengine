@@ -74,6 +74,7 @@ public interface GL {
 	public static final int GL_FRONT_AND_BACK = 0x408;
 	public static final int GL_GEQUAL = 0x206;
 	public static final int GL_GREATER = 0x204;
+        public static final int GL_GREEN = 0x1904;
 	public static final int GL_INCR = 0x1E02;
 	public static final int GL_INCR_WRAP = 0x8507;
 	public static final int GL_INFO_LOG_LENGTH = 0x8B84;
@@ -99,6 +100,8 @@ public interface GL {
 	public static final int GL_MAX_TEXTURE_SIZE = 0xD33;
 	public static final int GL_MAX_VERTEX_ATTRIBS = 0x8869;
 	public static final int GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS = 0x8B4C;
+	public static final int GL_MAX_VERTEX_UNIFORM_COMPONENTS  = 0x8B4A;
+	public static final int GL_MAX_VERTEX_UNIFORM_VECTORS = 0x8DFB;
 	public static final int GL_MIRRORED_REPEAT = 0x8370;
 	public static final int GL_NEAREST = 0x2600;
 	public static final int GL_NEAREST_MIPMAP_LINEAR = 0x2702;
@@ -114,6 +117,7 @@ public interface GL {
         public static final int GL_OUT_OF_MEMORY = 0x505;
 	public static final int GL_POINTS = 0x0;
 	public static final int GL_POLYGON_OFFSET_FILL = 0x8037;
+        public static final int GL_RED = 0x1903;
         public static final int GL_RENDERER = 0x1F01;
 	public static final int GL_REPEAT = 0x2901;
 	public static final int GL_REPLACE = 0x1E01;
@@ -157,6 +161,7 @@ public interface GL {
         public static final int GL_TEXTURE_CUBE_MAP_NEGATIVE_Y = 0x8518;
         public static final int GL_TEXTURE_CUBE_MAP_POSITIVE_Z = 0x8519;
         public static final int GL_TEXTURE_CUBE_MAP_NEGATIVE_Z = 0x851A;
+        public static final int GL_TEXTURE_BASE_LEVEL = 0x813C;
 	public static final int GL_TEXTURE_MAG_FILTER = 0x2800;
 	public static final int GL_TEXTURE_MAX_LEVEL = 0x813D;
 	public static final int GL_TEXTURE_MIN_FILTER = 0x2801;

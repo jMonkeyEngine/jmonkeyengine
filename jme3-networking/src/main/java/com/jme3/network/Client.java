@@ -56,6 +56,12 @@ public interface Client extends MessageConnection
     public boolean isConnected();     
 
     /**
+     *  Returns true if this client has been started and is still
+     *  running.
+     */
+    public boolean isStarted();
+
+    /**
      *  Returns a unique ID for this client within the remote
      *  server or -1 if this client isn't fully connected to the
      *  server.
