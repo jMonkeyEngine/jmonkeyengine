@@ -1951,6 +1951,28 @@ public class GLRenderer implements Renderer {
     }
 
     /**
+     * Ensures that the texture is bound to the given unit
+     * and that the unit is currently active (for modification).
+     * 
+     * @param target The texture target, one of GL_TEXTURE_***
+     * @param img The image texture to bind
+     * @param unit At what unit to bind the texture.
+     */
+    private void bindTextureAndUnit(int target, Image img, int unit) {
+        if (context.boundTextureUnit != unit) {
+            gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
+            context.boundTextureUnit = unit;
+        }
+        if (context.boundTextures[unit] != img) {
+            gl.glBindTexture(target, img.getId());
+            context.boundTextures[unit] = img;
+            statistics.onTextureUse(img, true);
+        } else {
+            statistics.onTextureUse(img, false);
+        }
+    }
+    
+    /**
      * Uploads the given image to the GL driver.
      *
      * @param img The image to upload
@@ -1973,17 +1995,7 @@ public class GLRenderer implements Renderer {
 
         // bind texture       
         int target = convertTextureType(type, img.getMultiSamples(), -1);
-        if (context.boundTextures[unit] != img) {
-            if (context.boundTextureUnit != unit) {
-                gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
-                context.boundTextureUnit = unit;
-            }
-
-            gl.glBindTexture(target, texId);
-            context.boundTextures[unit] = img;
-
-            statistics.onTextureUse(img, true);
-        }
+        bindTextureAndUnit(target, img, unit);
 
         if (!img.hasMipmaps() && img.isGeneratedMipmapsRequired()) {
             // Image does not have mipmaps, but they are required.
@@ -2092,6 +2104,7 @@ public class GLRenderer implements Renderer {
         img.clearUpdateNeeded();
     }
 
+    @Override
     public void setTexture(int unit, Texture tex) {
         Image image = tex.getImage();
         if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
@@ -2118,23 +2131,8 @@ public class GLRenderer implements Renderer {
         int texId = image.getId();
         assert texId != -1;
 
-        Image[] textures = context.boundTextures;
-
-        int type = convertTextureType(tex.getType(), image.getMultiSamples(), -1);
-        if (textures[unit] != image) {
-            if (context.boundTextureUnit != unit) {
-                gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
-                context.boundTextureUnit = unit;
-            }
-
-            gl.glBindTexture(type, texId);
-            textures[unit] = image;
-
-            statistics.onTextureUse(image, true);
-        } else {
-            statistics.onTextureUse(image, false);
-        }
-
+        int target = convertTextureType(tex.getType(), image.getMultiSamples(), -1);
+        bindTextureAndUnit(target, image, unit);
         setupTextureParams(tex);
     }
 
