@@ -241,12 +241,12 @@ public class RenderContext {
     public IDList attribIndexList = new IDList();
     
     /**
-     * depth tets function
+     * depth test function
      */
-    public RenderState.TestFunction depthFunc = RenderState.TestFunction.LessOrEqual;
+    public RenderState.TestFunction depthFunc = RenderState.TestFunction.Less;
     
      /**
-     * alpha tets function
+     * alpha test function
      */
     public RenderState.TestFunction alphaFunc = RenderState.TestFunction.Greater;
 
