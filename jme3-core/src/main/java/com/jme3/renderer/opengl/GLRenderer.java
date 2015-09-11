@@ -2650,12 +2650,13 @@ public class GLRenderer implements Renderer {
             }
         }
 
+        clearVertexAttribs();
+        
         if (indices != null) {
             drawTriangleList(indices, mesh, count);
         } else {
             drawTriangleArray(mesh.getMode(), count, mesh.getVertexCount());
         }
-        clearVertexAttribs();
     }
 
     public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
