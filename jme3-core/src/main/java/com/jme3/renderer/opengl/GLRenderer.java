@@ -1432,7 +1432,7 @@ public class GLRenderer implements Renderer {
             // NOTE: For depth textures, sets nearest/no-mips mode
             // Required to fix "framebuffer unsupported"
             // for old NVIDIA drivers!
-            setupTextureParams(tex);
+            setupTextureParams(0, tex);
         }
 
         glfbo.glFramebufferTexture2DEXT(GLFbo.GL_FRAMEBUFFER_EXT,
@@ -1816,7 +1816,7 @@ public class GLRenderer implements Renderer {
     }
 
     @SuppressWarnings("fallthrough")
-    private void setupTextureParams(Texture tex) {
+    private void setupTextureParams(int unit, Texture tex) {
         Image image = tex.getImage();
         int target = convertTextureType(tex.getType(), image != null ? image.getMultiSamples() : 1, -1);
 
@@ -1829,20 +1829,23 @@ public class GLRenderer implements Renderer {
         // filter things
         if (image.getLastTextureState().magFilter != tex.getMagFilter()) {
             int magFilter = convertMagFilter(tex.getMagFilter());
+            bindTextureAndUnit(target, image, unit);
             gl.glTexParameteri(target, GL.GL_TEXTURE_MAG_FILTER, magFilter);
             image.getLastTextureState().magFilter = tex.getMagFilter();
         }
         if (image.getLastTextureState().minFilter != tex.getMinFilter()) {
             int minFilter = convertMinFilter(tex.getMinFilter(), haveMips);
+            bindTextureAndUnit(target, image, unit);
             gl.glTexParameteri(target, GL.GL_TEXTURE_MIN_FILTER, minFilter);
             image.getLastTextureState().minFilter = tex.getMinFilter();
         }
-        if (tex.getAnisotropicFilter() > 1) {
-            if (caps.contains(Caps.TextureFilterAnisotropic)) {
-                gl.glTexParameterf(target,
-                        GLExt.GL_TEXTURE_MAX_ANISOTROPY_EXT,
-                        tex.getAnisotropicFilter());
-            }
+        if (caps.contains(Caps.TextureFilterAnisotropic)
+                && image.getLastTextureState().anisoFilter != tex.getAnisotropicFilter()) {
+            bindTextureAndUnit(target, image, unit);
+            gl.glTexParameterf(target,
+                    GLExt.GL_TEXTURE_MAX_ANISOTROPY_EXT,
+                    tex.getAnisotropicFilter());
+            image.getLastTextureState().anisoFilter = tex.getAnisotropicFilter();
         }
 
         // repeat modes
@@ -1850,6 +1853,7 @@ public class GLRenderer implements Renderer {
             case ThreeDimensional:
             case CubeMap: // cubemaps use 3D coords
                 if (gl2 != null && image.getLastTextureState().rWrap != tex.getWrap(WrapAxis.R)) {
+                    bindTextureAndUnit(target, image, unit);
                     gl2.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_R, convertWrapMode(tex.getWrap(WrapAxis.R)));
                     image.getLastTextureState().rWrap = tex.getWrap(WrapAxis.R);
                 }
@@ -1857,10 +1861,12 @@ public class GLRenderer implements Renderer {
             case TwoDimensional:
             case TwoDimensionalArray:
                 if (image.getLastTextureState().tWrap != tex.getWrap(WrapAxis.T)) {
+                    bindTextureAndUnit(target, image, unit);
                     gl.glTexParameteri(target, GL.GL_TEXTURE_WRAP_T, convertWrapMode(tex.getWrap(WrapAxis.T)));
                     image.getLastTextureState().tWrap = tex.getWrap(WrapAxis.T);
                 }
                 if (image.getLastTextureState().sWrap != tex.getWrap(WrapAxis.S)) {
+                    bindTextureAndUnit(target, image, unit);
                     gl.glTexParameteri(target, GL.GL_TEXTURE_WRAP_S, convertWrapMode(tex.getWrap(WrapAxis.S)));
                     image.getLastTextureState().sWrap = tex.getWrap(WrapAxis.S);
                 }
@@ -1869,9 +1875,10 @@ public class GLRenderer implements Renderer {
                 throw new UnsupportedOperationException("Unknown texture type: " + tex.getType());
         }
 
-        if(tex.isNeedCompareModeUpdate() && gl2 != null){
+        if (tex.isNeedCompareModeUpdate() && gl2 != null) {
             // R to Texture compare mode
             if (tex.getShadowCompareMode() != Texture.ShadowCompareMode.Off) {
+                bindTextureAndUnit(target, image, unit);
                 gl2.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_MODE, GL2.GL_COMPARE_R_TO_TEXTURE);
                 gl2.glTexParameteri(target, GL2.GL_DEPTH_TEXTURE_MODE, GL2.GL_INTENSITY);
                 if (tex.getShadowCompareMode() == Texture.ShadowCompareMode.GreaterOrEqual) {
@@ -1879,12 +1886,16 @@ public class GLRenderer implements Renderer {
                 } else {
                     gl2.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_FUNC, GL.GL_LEQUAL);
                 }
-            }else{
+            } else {
+                bindTextureAndUnit(target, image, unit);
                 //restoring default value
                 gl2.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_MODE, GL.GL_NONE);
             }
             tex.compareModeUpdated();
         }
+        
+        // If at this point we didn't bind the texture, bind it now
+        bindTextureOnly(target, image, unit);
     }
 
     /**
@@ -1965,6 +1976,28 @@ public class GLRenderer implements Renderer {
     }
     
     /**
+     * Ensures that the texture is bound to the given unit,
+     * but does not care if the unit is active (for rendering).
+     * 
+     * @param target The texture target, one of GL_TEXTURE_***
+     * @param img The image texture to bind
+     * @param unit At what unit to bind the texture.
+     */
+    private void bindTextureOnly(int target, Image img, int unit) {
+        if (context.boundTextures[unit] != img) {
+            if (context.boundTextureUnit != unit) {
+                gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
+                context.boundTextureUnit = unit;
+            }
+            gl.glBindTexture(target, img.getId());
+            context.boundTextures[unit] = img;
+            statistics.onTextureUse(img, true);
+        } else {
+            statistics.onTextureUse(img, false);
+        }
+    }
+    
+    /**
      * Uploads the given image to the GL driver.
      *
      * @param img The image to upload
@@ -1985,7 +2018,7 @@ public class GLRenderer implements Renderer {
             statistics.onNewTexture();
         }
 
-        // bind texture       
+        // bind texture
         int target = convertTextureType(type, img.getMultiSamples(), -1);
         bindTextureAndUnit(target, img, unit);
 
@@ -2123,9 +2156,7 @@ public class GLRenderer implements Renderer {
         int texId = image.getId();
         assert texId != -1;
 
-        int target = convertTextureType(tex.getType(), image.getMultiSamples(), -1);
-        bindTextureAndUnit(target, image, unit);
-        setupTextureParams(tex);
+        setupTextureParams(unit, tex);
     }
 
     public void modifyTexture(Texture tex, Image pixels, int x, int y) {

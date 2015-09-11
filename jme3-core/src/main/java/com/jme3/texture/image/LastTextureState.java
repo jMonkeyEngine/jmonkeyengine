@@ -45,6 +45,7 @@ public final class LastTextureState {
     public Texture.WrapMode sWrap, tWrap, rWrap;
     public Texture.MagFilter magFilter;
     public Texture.MinFilter minFilter;
+    public int anisoFilter = 0;
     
     public LastTextureState() {
         // All parameters initialized to null (meaning unset).
@@ -56,5 +57,6 @@ public final class LastTextureState {
         rWrap = null;
         magFilter = null;
         minFilter = null;
+        anisoFilter = 0;
     }
 }
