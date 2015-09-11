@@ -503,6 +503,11 @@ public class GLRenderer implements Renderer {
 
         // Initialize default state..
         gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1);
+        
+        if (caps.contains(Caps.SeamlessCubemap)) {
+            // Enable this globally. Should be OK.
+            gl.glEnable(GLExt.GL_TEXTURE_CUBE_MAP_SEAMLESS);
+        }
 
         if (caps.contains(Caps.CoreProfile)) {
             // Core Profile requires VAO to be bound.
@@ -1833,18 +1838,6 @@ public class GLRenderer implements Renderer {
             gl.glTexParameteri(target, GL.GL_TEXTURE_MIN_FILTER, minFilter);
             image.getLastTextureState().minFilter = tex.getMinFilter();
         }
-        if (caps.contains(Caps.SeamlessCubemap) && tex.getType() == Texture.Type.CubeMap) {
-            if (haveMips && !context.seamlessCubemap) {
-                // We can enable seamless cubemap filtering.
-                gl.glEnable(GLExt.GL_TEXTURE_CUBE_MAP_SEAMLESS);
-                context.seamlessCubemap = true;
-            } else if (!haveMips && context.seamlessCubemap) {
-                // For skyboxes (no mipmaps), disable seamless cubemap filtering.
-                gl.glDisable(GLExt.GL_TEXTURE_CUBE_MAP_SEAMLESS);
-                context.seamlessCubemap = false;
-            }
-        }
-
         if (tex.getAnisotropicFilter() > 1) {
             if (caps.contains(Caps.TextureFilterAnisotropic)) {
                 gl.glTexParameterf(target,

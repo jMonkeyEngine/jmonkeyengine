@@ -255,8 +255,6 @@ public class RenderContext {
     
     public ColorRGBA clearColor = new ColorRGBA(0,0,0,0);
     
-    public boolean seamlessCubemap = false;
-    
     /**
      * Reset the RenderContext to default GL state
      */
@@ -308,6 +306,5 @@ public class RenderContext {
         depthFunc = RenderState.TestFunction.LessOrEqual;    
         alphaFunc = RenderState.TestFunction.Greater;
         clearColor.set(0,0,0,0);
-        seamlessCubemap = false;
     }
 }
