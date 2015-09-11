@@ -351,7 +351,7 @@ void jmeBulletUtil::addResult(JNIEnv* env, jobject resultlist, btVector3* hitnor
     env->SetFloatField(singleresult, jmeClasses::PhysicsRay_hitfraction, m_hitFraction);
 
     env->SetObjectField(singleresult, jmeClasses::PhysicsRay_collisionObject, up1->javaCollisionObject);
-    env->CallVoidMethod(resultlist, jmeClasses::PhysicsRay_addmethod, singleresult);
+    env->CallBooleanMethod(resultlist, jmeClasses::PhysicsRay_addmethod, singleresult);
     if (env->ExceptionCheck()) {
         env->Throw(env->ExceptionOccurred());
         return;
@@ -371,7 +371,7 @@ void jmeBulletUtil::addSweepResult(JNIEnv* env, jobject resultlist, btVector3* h
 	env->SetFloatField(singleresult, jmeClasses::PhysicsSweep_hitfraction, m_hitFraction);
 
 	env->SetObjectField(singleresult, jmeClasses::PhysicsSweep_collisionObject, up1->javaCollisionObject);
-	env->CallVoidMethod(resultlist, jmeClasses::PhysicsSweep_addmethod, singleresult);
+	env->CallBooleanMethod(resultlist, jmeClasses::PhysicsSweep_addmethod, singleresult);
 	if (env->ExceptionCheck()) {
 		env->Throw(env->ExceptionOccurred());
 		return;
