@@ -2715,7 +2715,9 @@ public class GLRenderer implements Renderer {
         VertexBuffer indices = getIndexBuffer(mesh, lod);
         if (mesh.isUpdateNeeded()) {
             setupVertexBuffers(mesh, instanceData);
-            updateBufferData(indices);
+            if (indices != null) {
+                updateBufferData(indices);
+            }
         } else {
             updateVertexBuffers(mesh, instanceData);
             if (indices != null) {
