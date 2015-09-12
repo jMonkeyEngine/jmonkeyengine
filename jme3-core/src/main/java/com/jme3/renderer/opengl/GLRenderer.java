@@ -511,9 +511,9 @@ public class GLRenderer implements Renderer {
 
         if (caps.contains(Caps.CoreProfile)) {
             // Core Profile requires VAO to be bound.
-            gl3.glGenVertexArrays(intBuf16);
-            int vaoId = intBuf16.get(0);
-            gl3.glBindVertexArray(vaoId);
+//            gl3.glGenVertexArrays(intBuf16);
+//            int vaoId = intBuf16.get(0);
+//            gl3.glBindVertexArray(vaoId);
         }
         if (gl2 != null) {
             gl2.glEnable(GL2.GL_VERTEX_PROGRAM_POINT_SIZE);
