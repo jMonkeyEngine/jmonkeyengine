@@ -40,14 +40,12 @@ import com.jme3.renderer.RendererException;
 import com.jme3.renderer.jogl.JoglGL;
 import com.jme3.renderer.jogl.JoglGLExt;
 import com.jme3.renderer.jogl.JoglGLFbo;
-import com.jme3.renderer.jogl.JoglRenderer;
 import com.jme3.renderer.opengl.GL2;
 import com.jme3.renderer.opengl.GL3;
 import com.jme3.renderer.opengl.GL4;
 import com.jme3.renderer.opengl.GLDebugDesktop;
 import com.jme3.renderer.opengl.GLExt;
 import com.jme3.renderer.opengl.GLFbo;
-import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.renderer.opengl.GLTiming;
 import com.jme3.renderer.opengl.GLTimingState;
 import com.jme3.renderer.opengl.GLTracer;
@@ -55,6 +53,7 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.NanoTimer;
 import com.jme3.system.NativeLibraryLoader;
+import com.jme3.system.NullRenderer;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 
@@ -194,7 +193,7 @@ public abstract class JoglContext implements JmeContext {
             
             //FIXME uncomment the line below when the unified renderer is ready for the prime time :)
             //renderer = new GLRenderer(gl, glext, glfbo);
-            renderer = new JoglRenderer();
+            renderer = new NullRenderer();
             renderer.initialize();
         } else {
             throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
