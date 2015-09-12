@@ -1816,7 +1816,7 @@ public class GLRenderer implements Renderer {
     }
 
     @SuppressWarnings("fallthrough")
-    private void setupTextureParams(Texture tex) {
+    private void setupTextureParams(int unit, Texture tex) {
         Image image = tex.getImage();
         int target = convertTextureType(tex.getType(), image != null ? image.getMultiSamples() : 1, -1);
 
@@ -1829,32 +1829,23 @@ public class GLRenderer implements Renderer {
         // filter things
         if (image.getLastTextureState().magFilter != tex.getMagFilter()) {
             int magFilter = convertMagFilter(tex.getMagFilter());
+            bindTextureAndUnit(target, image, unit);
             gl.glTexParameteri(target, GL.GL_TEXTURE_MAG_FILTER, magFilter);
             image.getLastTextureState().magFilter = tex.getMagFilter();
         }
         if (image.getLastTextureState().minFilter != tex.getMinFilter()) {
             int minFilter = convertMinFilter(tex.getMinFilter(), haveMips);
+            bindTextureAndUnit(target, image, unit);
             gl.glTexParameteri(target, GL.GL_TEXTURE_MIN_FILTER, minFilter);
             image.getLastTextureState().minFilter = tex.getMinFilter();
         }
-        if (caps.contains(Caps.SeamlessCubemap) && tex.getType() == Texture.Type.CubeMap) {
-            if (haveMips && !context.seamlessCubemap) {
-                // We can enable seamless cubemap filtering.
-                gl.glEnable(GLExt.GL_TEXTURE_CUBE_MAP_SEAMLESS);
-                context.seamlessCubemap = true;
-            } else if (!haveMips && context.seamlessCubemap) {
-                // For skyboxes (no mipmaps), disable seamless cubemap filtering.
-                gl.glDisable(GLExt.GL_TEXTURE_CUBE_MAP_SEAMLESS);
-                context.seamlessCubemap = false;
-            }
-        }
-
-        if (tex.getAnisotropicFilter() > 1) {
-            if (caps.contains(Caps.TextureFilterAnisotropic)) {
-                gl.glTexParameterf(target,
-                        GLExt.GL_TEXTURE_MAX_ANISOTROPY_EXT,
-                        tex.getAnisotropicFilter());
-            }
+        if (caps.contains(Caps.TextureFilterAnisotropic)
+                && image.getLastTextureState().anisoFilter != tex.getAnisotropicFilter()) {
+            bindTextureAndUnit(target, image, unit);
+            gl.glTexParameterf(target,
+                    GLExt.GL_TEXTURE_MAX_ANISOTROPY_EXT,
+                    tex.getAnisotropicFilter());
+            image.getLastTextureState().anisoFilter = tex.getAnisotropicFilter();
         }
 
         // repeat modes
@@ -1862,6 +1853,7 @@ public class GLRenderer implements Renderer {
             case ThreeDimensional:
             case CubeMap: // cubemaps use 3D coords
                 if (gl2 != null && image.getLastTextureState().rWrap != tex.getWrap(WrapAxis.R)) {
+                    bindTextureAndUnit(target, image, unit);
                     gl2.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_R, convertWrapMode(tex.getWrap(WrapAxis.R)));
                     image.getLastTextureState().rWrap = tex.getWrap(WrapAxis.R);
                 }
@@ -1869,10 +1861,12 @@ public class GLRenderer implements Renderer {
             case TwoDimensional:
             case TwoDimensionalArray:
                 if (image.getLastTextureState().tWrap != tex.getWrap(WrapAxis.T)) {
+                    bindTextureAndUnit(target, image, unit);
                     gl.glTexParameteri(target, GL.GL_TEXTURE_WRAP_T, convertWrapMode(tex.getWrap(WrapAxis.T)));
                     image.getLastTextureState().tWrap = tex.getWrap(WrapAxis.T);
                 }
                 if (image.getLastTextureState().sWrap != tex.getWrap(WrapAxis.S)) {
+                    bindTextureAndUnit(target, image, unit);
                     gl.glTexParameteri(target, GL.GL_TEXTURE_WRAP_S, convertWrapMode(tex.getWrap(WrapAxis.S)));
                     image.getLastTextureState().sWrap = tex.getWrap(WrapAxis.S);
                 }
@@ -1881,21 +1875,27 @@ public class GLRenderer implements Renderer {
                 throw new UnsupportedOperationException("Unknown texture type: " + tex.getType());
         }
 
-        if(tex.isNeedCompareModeUpdate() && gl2 != null){
+        if (tex.isNeedCompareModeUpdate() && gl2 != null) {
             // R to Texture compare mode
             if (tex.getShadowCompareMode() != Texture.ShadowCompareMode.Off) {
+                bindTextureAndUnit(target, image, unit);
                 gl2.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_MODE, GL2.GL_COMPARE_R_TO_TEXTURE);
+                gl2.glTexParameteri(target, GL2.GL_DEPTH_TEXTURE_MODE, GL2.GL_INTENSITY);
                 if (tex.getShadowCompareMode() == Texture.ShadowCompareMode.GreaterOrEqual) {
                     gl2.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_FUNC, GL.GL_GEQUAL);
                 } else {
                     gl2.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_FUNC, GL.GL_LEQUAL);
                 }
-            }else{
+            } else {
+                bindTextureAndUnit(target, image, unit);
                 //restoring default value
                 gl2.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_MODE, GL.GL_NONE);
             }
             tex.compareModeUpdated();
         }
+        
+        // If at this point we didn't bind the texture, bind it now
+        bindTextureOnly(target, image, unit);
     }
 
     /**
@@ -1954,6 +1954,50 @@ public class GLRenderer implements Renderer {
     }
 
     /**
+     * Ensures that the texture is bound to the given unit
+     * and that the unit is currently active (for modification).
+     * 
+     * @param target The texture target, one of GL_TEXTURE_***
+     * @param img The image texture to bind
+     * @param unit At what unit to bind the texture.
+     */
+    private void bindTextureAndUnit(int target, Image img, int unit) {
+        if (context.boundTextureUnit != unit) {
+            gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
+            context.boundTextureUnit = unit;
+        }
+        if (context.boundTextures[unit] != img) {
+            gl.glBindTexture(target, img.getId());
+            context.boundTextures[unit] = img;
+            statistics.onTextureUse(img, true);
+        } else {
+            statistics.onTextureUse(img, false);
+        }
+    }
+    
+    /**
+     * Ensures that the texture is bound to the given unit,
+     * but does not care if the unit is active (for rendering).
+     * 
+     * @param target The texture target, one of GL_TEXTURE_***
+     * @param img The image texture to bind
+     * @param unit At what unit to bind the texture.
+     */
+    private void bindTextureOnly(int target, Image img, int unit) {
+        if (context.boundTextures[unit] != img) {
+            if (context.boundTextureUnit != unit) {
+                gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
+                context.boundTextureUnit = unit;
+            }
+            gl.glBindTexture(target, img.getId());
+            context.boundTextures[unit] = img;
+            statistics.onTextureUse(img, true);
+        } else {
+            statistics.onTextureUse(img, false);
+        }
+    }
+    
+    /**
      * Uploads the given image to the GL driver.
      *
      * @param img The image to upload
@@ -1974,19 +2018,10 @@ public class GLRenderer implements Renderer {
             statistics.onNewTexture();
         }
 
-        // bind texture       
+        // bind texture
         int target = convertTextureType(type, img.getMultiSamples(), -1);
-        if (context.boundTextures[unit] != img) {
-            if (context.boundTextureUnit != unit) {
-                gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
-                context.boundTextureUnit = unit;
-            }
-
-            gl.glBindTexture(target, texId);
-            context.boundTextures[unit] = img;
-
-            statistics.onTextureUse(img, true);
-        }
+        
+        bindTextureAndUnit(target, img, unit);
 
         if (!img.hasMipmaps() && img.isGeneratedMipmapsRequired()) {
             // Image does not have mipmaps, but they are required.
@@ -2095,6 +2130,7 @@ public class GLRenderer implements Renderer {
         img.clearUpdateNeeded();
     }
 
+    @Override
     public void setTexture(int unit, Texture tex) {
         Image image = tex.getImage();
         if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
@@ -2121,24 +2157,7 @@ public class GLRenderer implements Renderer {
         int texId = image.getId();
         assert texId != -1;
 
-        Image[] textures = context.boundTextures;
-
-        int type = convertTextureType(tex.getType(), image.getMultiSamples(), -1);
-        if (textures[unit] != image) {
-            if (context.boundTextureUnit != unit) {
-                gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
-                context.boundTextureUnit = unit;
-            }
-
-            gl.glBindTexture(type, texId);
-            textures[unit] = image;
-
-            statistics.onTextureUse(image, true);
-        } else {
-            statistics.onTextureUse(image, false);
-        }
-
-        setupTextureParams(tex);
+        setupTextureParams(unit, tex);
     }
 
     public void modifyTexture(Texture tex, Image pixels, int x, int y) {
@@ -2722,12 +2741,15 @@ public class GLRenderer implements Renderer {
     private void renderMeshLegacy(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
         setupVertexBuffersLegacy(mesh, instanceData);
         VertexBuffer indices = getIndexBuffer(mesh, lod);
+
+        clearVertexAttribs();
+
         if (indices != null) {
             drawTriangleList(indices, mesh, count);
         } else {
             drawTriangleArray(mesh.getMode(), count, mesh.getVertexCount());
         }
-        clearVertexAttribs();
+        
     }
 
     public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
