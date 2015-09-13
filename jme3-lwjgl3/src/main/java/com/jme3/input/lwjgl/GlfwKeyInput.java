@@ -80,7 +80,8 @@ public class GlfwKeyInput implements KeyInput {
     }
 
     public int getKeyCount() {
-        return 0; // TODO: How do we figure this out?
+        // This might not be correct
+        return GLFW_KEY_LAST - GLFW_KEY_SPACE;
     }
 
     public void update() {
