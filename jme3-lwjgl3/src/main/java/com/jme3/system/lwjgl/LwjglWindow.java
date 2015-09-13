@@ -60,8 +60,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 /**
  * A wrapper class over the GLFW framework in LWJGL 3.
  *
- * @author Daniel Johansson (dannyjo)
- * @since 3.1
+ * @author Daniel Johansson
  */
 public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
