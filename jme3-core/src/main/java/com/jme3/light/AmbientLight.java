@@ -45,7 +45,7 @@ import com.jme3.util.TempVars;
  * regardless of the model's location. The material's ambient color is
  * multiplied by the ambient light color to get the final ambient color of
  * an object.
- *
+ * 
  * @author Kirill Vainer
  */
 public class AmbientLight extends Light {
@@ -61,12 +61,12 @@ public class AmbientLight extends Light {
     public boolean intersectsBox(BoundingBox box, TempVars vars) {
         return true;
     }
-
+    
     @Override
     public boolean intersectsFrustum(Camera camera, TempVars vars) {
         return true;
     }
-
+    
     @Override
     public void computeLastDistance(Spatial owner) {
     }

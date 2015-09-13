@@ -85,10 +85,10 @@ public class DirectionalLight extends Light {
 
     /**
      * Returns the direction vector of the light.
-     *
+     * 
      * @return The direction vector of the light.
-     *
-     * @see DirectionalLight#setDirection(com.jme3.math.Vector3f)
+     * 
+     * @see DirectionalLight#setDirection(com.jme3.math.Vector3f) 
      */
     public Vector3f getDirection() {
         return direction;
@@ -99,7 +99,7 @@ public class DirectionalLight extends Light {
      * <p>
      * Represents the direction the light is shining.
      * (1, 0, 0) would represent light shining in the +X direction.
-     *
+     * 
      * @param dir the direction of the light.
      */
     public final void setDirection(Vector3f dir){
@@ -113,12 +113,12 @@ public class DirectionalLight extends Light {
     public boolean intersectsBox(BoundingBox box, TempVars vars) {
         return true;
     }
-
+    
     @Override
     public boolean intersectsFrustum(Camera camera, TempVars vars) {
         return true;
     }
-
+    
     @Override
     public Type getType() {
         return Type.Directional;
