@@ -53,7 +53,7 @@ import java.io.IOException;
  * In addition to a position, point lights also have a radius which 
  * can be used to attenuate the influence of the light depending on the 
  * distance between the light and the effected object.
- *
+ * 
  */
 public class PointLight extends Light {
 
@@ -84,7 +84,7 @@ public class PointLight extends Light {
         super(color);
         setPosition(position);
     }
-
+    
     /**
      * Creates a PointLight at the given position, with the given color and the 
      * given radius
@@ -96,7 +96,7 @@ public class PointLight extends Light {
         this(position, color);
         setRadius(radius);
     }
-
+    
     /**
      * Creates a PointLight at the given position, with the given radius
      * @param position the position in world space
@@ -119,10 +119,10 @@ public class PointLight extends Light {
 
     /**
      * Returns the world space position of the light.
-     *
+     * 
      * @return the world space position of the light.
-     *
-     * @see PointLight#setPosition(com.jme3.math.Vector3f)
+     * 
+     * @see PointLight#setPosition(com.jme3.math.Vector3f) 
      */
     public Vector3f getPosition() {
         return position;
@@ -130,7 +130,7 @@ public class PointLight extends Light {
 
     /**
      * Set the world space position of the light.
-     *
+     * 
      * @param position the world space position of the light.
      */
     public final void setPosition(Vector3f position) {
@@ -140,7 +140,7 @@ public class PointLight extends Light {
     /**
      * Returns the radius of the light influence. A radius of 0 means
      * the light has no attenuation.
-     *
+     * 
      * @return the radius of the light
      */
     public float getRadius() {
@@ -155,9 +155,9 @@ public class PointLight extends Light {
      * is greater than the light's radius, then the pixel will not be
      * effected by this light, if the distance is less than the radius, then
      * the magnitude of the influence is equal to distance / radius.
-     *
+     * 
      * @param radius the radius of the light influence.
-     *
+     * 
      * @throws IllegalArgumentException If radius is negative
      */
     public final void setRadius(float radius) {
@@ -192,11 +192,11 @@ public class PointLight extends Light {
         } else {
             // Sphere v. box collision
             return FastMath.abs(box.getCenter().x - position.x) < radius + box.getXExtent()
-                    && FastMath.abs(box.getCenter().y - position.y) < radius + box.getYExtent()
-                    && FastMath.abs(box.getCenter().z - position.z) < radius + box.getZExtent();
+                && FastMath.abs(box.getCenter().y - position.y) < radius + box.getYExtent()
+                && FastMath.abs(box.getCenter().z - position.z) < radius + box.getZExtent();
         }
     }
-
+    
     @Override
     public boolean intersectsFrustum(Camera camera, TempVars vars) {
         if (this.radius == 0) {
@@ -210,7 +210,7 @@ public class PointLight extends Light {
             return true;
         }
     }
-
+    
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
