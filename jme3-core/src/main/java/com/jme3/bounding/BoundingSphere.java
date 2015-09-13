@@ -1013,17 +1013,27 @@ public class BoundingSphere extends BoundingVolume {
         } else if (other instanceof Triangle){
             Triangle t = (Triangle) other;
             return collideWithTri(t, results);
+        } else if (other instanceof BoundingVolume) {
+            if (intersects((BoundingVolume)other)) {
+                CollisionResult result = new CollisionResult();
+                results.addCollision(result);
+                return 1;
+            }
+            return 0;
         } else {
             throw new UnsupportedCollisionException();
         }
     }
 
-    @Override public int collideWith(Collidable other) {
+    @Override
+    public int collideWith(Collidable other) {
         if (other instanceof Ray) {
             Ray ray = (Ray) other;
             return collideWithRay(ray);
         } else if (other instanceof Triangle){
             return super.collideWith(other);
+        } else if (other instanceof BoundingVolume) {
+            return intersects((BoundingVolume)other) ? 1 : 0;
         } else {
             throw new UnsupportedCollisionException();
         }

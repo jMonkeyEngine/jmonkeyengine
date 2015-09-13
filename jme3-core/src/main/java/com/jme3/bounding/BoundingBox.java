@@ -790,6 +790,7 @@ public class BoundingBox extends BoundingVolume {
         }
     }
     
+    @Override
     public int collideWith(Collidable other, CollisionResults results) {
         if (other instanceof Ray) {
             Ray ray = (Ray) other;
@@ -797,6 +798,13 @@ public class BoundingBox extends BoundingVolume {
         } else if (other instanceof Triangle) {
             Triangle t = (Triangle) other;
             if (intersects(t.get1(), t.get2(), t.get3())) {
+                CollisionResult r = new CollisionResult();
+                results.addCollision(r);
+                return 1;
+            }
+            return 0;
+        } else if (other instanceof BoundingVolume) {
+            if (intersects((BoundingVolume) other)) {
                 CollisionResult r = new CollisionResult();
                 results.addCollision(r);
                 return 1;
@@ -818,6 +826,8 @@ public class BoundingBox extends BoundingVolume {
                 return 1;
             }
             return 0;
+        } else if (other instanceof BoundingVolume) {
+            return intersects((BoundingVolume) other) ? 1 : 0;
         } else {
             throw new UnsupportedCollisionException("With: " + other.getClass().getSimpleName());
         }
