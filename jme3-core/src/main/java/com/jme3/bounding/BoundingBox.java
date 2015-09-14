@@ -593,18 +593,7 @@ public class BoundingBox extends BoundingVolume {
      * @see BoundingVolume#intersectsSphere(com.jme3.bounding.BoundingSphere)
      */
     public boolean intersectsSphere(BoundingSphere bs) {
-        assert Vector3f.isValidVector(center) && Vector3f.isValidVector(bs.center);
-
-        if (FastMath.abs(center.x - bs.center.x) < bs.getRadius()
-                + xExtent
-                && FastMath.abs(center.y - bs.center.y) < bs.getRadius()
-                + yExtent
-                && FastMath.abs(center.z - bs.center.z) < bs.getRadius()
-                + zExtent) {
-            return true;
-        }
-
-        return false;
+        return bs.intersectsBoundingBox(this);
     }
 
     /**

@@ -41,10 +41,56 @@ import static java.lang.Math.min;
 /**
  * This class includes some utility methods for computing intersection
  * between bounding volumes and triangles.
+ * 
  * @author Kirill
  */
-public class Intersection {
+public final class Intersection {
 
+    private Intersection() {
+    }
+
+    public static boolean intersect(BoundingSphere sphere, Vector3f center, float radius) {
+        assert Vector3f.isValidVector(center) && Vector3f.isValidVector(sphere.center);
+
+        TempVars vars = TempVars.get();
+        try {
+            Vector3f diff = center.subtract(sphere.center, vars.vect1);
+            float rsum = sphere.getRadius() + radius;
+            return (diff.dot(diff) <= rsum * rsum);
+        } finally {
+            vars.release();
+        }
+    }
+    
+    public static boolean intersect(BoundingBox bbox, Vector3f center, float radius) {
+        assert Vector3f.isValidVector(center) && Vector3f.isValidVector(bbox.center);
+
+        // Arvo's algorithm 
+        float distSqr = radius * radius;
+        
+        float minX = bbox.center.x - bbox.xExtent;
+        float maxX = bbox.center.x + bbox.xExtent;
+        
+        float minY = bbox.center.y - bbox.yExtent;
+        float maxY = bbox.center.y + bbox.yExtent;
+        
+        float minZ = bbox.center.z - bbox.zExtent;
+        float maxZ = bbox.center.z + bbox.zExtent;
+        
+        if      (center.x < minX) distSqr -= FastMath.sqr(center.x - minX);
+        else if (center.x > maxX) distSqr -= FastMath.sqr(center.x - maxX);
+        
+        
+        if      (center.y < minY) distSqr -= FastMath.sqr(center.y - minY);
+        else if (center.y > maxY) distSqr -= FastMath.sqr(center.y - maxY);
+        
+        
+        if      (center.z < minZ) distSqr -= FastMath.sqr(center.z - minZ);
+        else if (center.z > maxZ) distSqr -= FastMath.sqr(center.z - maxZ);
+        
+        return distSqr > 0;
+    }
+    
     private static final void findMinMax(float x0, float x1, float x2, Vector3f minMax) {
         minMax.set(x0, x0, 0);
         if (x1 < minMax.x) {

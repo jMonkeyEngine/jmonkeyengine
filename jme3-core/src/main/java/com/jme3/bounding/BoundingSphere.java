@@ -670,15 +670,7 @@ public class BoundingSphere extends BoundingVolume {
      * @see com.jme.bounding.BoundingVolume#intersectsSphere(com.jme.bounding.BoundingSphere)
      */
     public boolean intersectsSphere(BoundingSphere bs) {
-        assert Vector3f.isValidVector(center) && Vector3f.isValidVector(bs.center);
-
-        TempVars vars = TempVars.get();
-
-        Vector3f diff = center.subtract(bs.center, vars.vect1);
-        float rsum = getRadius() + bs.getRadius();
-        boolean eq = (diff.dot(diff) <= rsum * rsum);
-        vars.release();
-        return eq;
+        return Intersection.intersect(bs, center, radius);
     }
 
     /*
@@ -687,18 +679,7 @@ public class BoundingSphere extends BoundingVolume {
      * @see com.jme.bounding.BoundingVolume#intersectsBoundingBox(com.jme.bounding.BoundingBox)
      */
     public boolean intersectsBoundingBox(BoundingBox bb) {
-        assert Vector3f.isValidVector(center) && Vector3f.isValidVector(bb.center);
-
-        if (FastMath.abs(bb.center.x - center.x) < getRadius()
-                + bb.xExtent
-                && FastMath.abs(bb.center.y - center.y) < getRadius()
-                + bb.yExtent
-                && FastMath.abs(bb.center.z - center.z) < getRadius()
-                + bb.zExtent) {
-            return true;
-        }
-
-        return false;
+        return Intersection.intersect(bb, center, radius);
     }
 
     /*
