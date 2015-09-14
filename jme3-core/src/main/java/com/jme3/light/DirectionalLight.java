@@ -80,7 +80,9 @@ public class DirectionalLight extends Light {
 
     @Override
     public void computeLastDistance(Spatial owner) {
-        lastDistance = 0; // directional lights are always closest to their owner
+        // directional lights are after ambient lights
+        // but before all other lights.
+        lastDistance = -1; 
     }
 
     /**

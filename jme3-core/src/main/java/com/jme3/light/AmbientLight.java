@@ -69,6 +69,8 @@ public class AmbientLight extends Light {
     
     @Override
     public void computeLastDistance(Spatial owner) {
+        // ambient lights must always be before directional lights.
+        lastDistance = -2;
     }
 
     @Override
