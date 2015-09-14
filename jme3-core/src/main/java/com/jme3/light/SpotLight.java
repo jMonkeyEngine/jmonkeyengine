@@ -227,7 +227,10 @@ public class SpotLight extends Light {
     
     @Override
     public boolean intersectsFrustum(Camera cam, TempVars vars) {
-        
+        if (spotRange == 0) {
+            // The algorithm below does not support infinite spot range.
+            return true;
+        }
         Vector3f farPoint = vars.vect1.set(position).addLocal(vars.vect2.set(direction).multLocal(spotRange));
         for (int i = 5; i >= 0; i--) {
             //check origin against the plane
