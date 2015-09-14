@@ -41,6 +41,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.*;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -799,6 +800,8 @@ public class BoundingBox extends BoundingVolume {
                 return 1;
             }
             return 0;
+        } else if (other instanceof Spatial) {
+            return ((Spatial)other).collideWith(this, results);
         } else {
             throw new UnsupportedCollisionException("With: " + other.getClass().getSimpleName());
         }

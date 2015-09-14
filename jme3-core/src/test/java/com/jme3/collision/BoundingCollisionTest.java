@@ -162,5 +162,42 @@ public class BoundingCollisionTest {
         // Not touching
         box.setCenter(new Vector3f(0, 0, -1f - FastMath.ZERO_TOLERANCE));
         checkCollision(box, geom, 0);
+        
+        // Test collisions only against one of the triangles
+        box.setCenter(new Vector3f(-1f, 1.5f, 0f));
+        checkCollision(box, geom, 1);
+        
+        box.setCenter(new Vector3f(1.5f, -1f, 0f));
+        checkCollision(box, geom, 1);
+    }
+    
+    @Test
+    public void testSphereTriangleCollision() {
+        BoundingSphere sphere = new BoundingSphere(1, Vector3f.ZERO);
+        Geometry geom = new Geometry("geom", new Quad(1, 1));
+        checkCollision(sphere, geom, 2);
+        
+        // The box touches the edges of the triangles.
+        sphere.setCenter(new Vector3f(-1f + FastMath.ZERO_TOLERANCE, 0, 0));
+        checkCollision(sphere, geom, 2);
+        
+        // Move it slightly farther..
+        sphere.setCenter(new Vector3f(-1f - FastMath.ZERO_TOLERANCE, 0, 0));
+        checkCollision(sphere, geom, 0);
+        
+        // Parallel triangle / box side, touching
+        sphere.setCenter(new Vector3f(0, 0, -1f));
+        checkCollision(sphere, geom, 2);
+        
+        // Not touching
+        sphere.setCenter(new Vector3f(0, 0, -1f - FastMath.ZERO_TOLERANCE));
+        checkCollision(sphere, geom, 0);
+        
+        // Test collisions only against one of the triangles
+        sphere.setCenter(new Vector3f(-0.9f, 1.2f, 0f));
+        checkCollision(sphere, geom, 1);
+        
+        sphere.setCenter(new Vector3f(1.2f, -0.9f, 0f));
+        checkCollision(sphere, geom, 1);
     }
 }

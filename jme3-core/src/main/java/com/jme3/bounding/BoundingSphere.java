@@ -38,6 +38,7 @@ import com.jme3.collision.UnsupportedCollisionException;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.math.*;
+import com.jme3.scene.Spatial;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
 import java.io.IOException;
@@ -1001,6 +1002,8 @@ public class BoundingSphere extends BoundingVolume {
                 return 1;
             }
             return 0;
+        } else if (other instanceof Spatial) {
+            return ((Spatial)other).collideWith(this, results);
         } else {
             throw new UnsupportedCollisionException();
         }
