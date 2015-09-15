@@ -36,10 +36,10 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.asset.plugins.HttpZipLocator;
 import com.jme3.material.Material;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Texture;
+import com.jme3.ui.Picture;
 
 /**
  * This tests loading a file from a jar stored online.
@@ -59,22 +59,27 @@ public class TestOnlineJar extends SimpleApplication {
         quadMesh.updateGeometry(1, 1, true);
 
         Geometry quad = new Geometry("Textured Quad", quadMesh);
-        assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/town.zip",
-                           HttpZipLocator.class);
+        
+        assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/town.zip", 
+                                     HttpZipLocator.class);
+        assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/wildhouse.zip", 
+                                     HttpZipLocator.class);
 
-        TextureKey key = new TextureKey("grass.jpg", false);
-        key.setGenerateMips(true);
-        Texture tex = assetManager.loadTexture(key);
-
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setTexture("ColorMap", tex);
-        quad.setMaterial(mat);
-
-        float aspect = tex.getImage().getWidth() / (float) tex.getImage().getHeight();
-        quad.setLocalScale(new Vector3f(aspect * 1.5f, 1.5f, 1));
-        quad.center();
-
-        rootNode.attachChild(quad);
+        Picture pic1 = new Picture("Picture1");
+        pic1.move(0, 0, -1); 
+        pic1.setPosition(0, 0);
+        pic1.setWidth(128);
+        pic1.setHeight(128);
+        pic1.setImage(assetManager, "grass.jpg", false);
+        guiNode.attachChild(pic1);
+        
+        Picture pic2 = new Picture("Picture1");
+        pic2.move(0, 0, -1); 
+        pic2.setPosition(128, 0);
+        pic2.setWidth(128);
+        pic2.setHeight(128);
+        pic2.setImage(assetManager, "glasstile2.png", false);
+        guiNode.attachChild(pic2);
     }
 
 }
