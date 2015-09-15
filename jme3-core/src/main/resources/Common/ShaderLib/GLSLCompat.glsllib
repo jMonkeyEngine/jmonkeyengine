@@ -1,4 +1,4 @@
-#if defined _GL_ES_
+#if defined GL_ES
 #  define hfloat highp float
 #  define hvec2  highp vec2
 #  define hvec3  highp vec3
