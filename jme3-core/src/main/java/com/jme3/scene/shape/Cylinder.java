@@ -389,6 +389,7 @@ public class Cylinder extends Mesh {
         }
 
         updateBound();
+        setStatic();
     }
 
     @Override
