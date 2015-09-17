@@ -35,7 +35,6 @@ package com.jme3.input.lwjgl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.KeyInputEvent;
-import com.jme3.system.lwjgl.LwjglTimer;
 import com.jme3.system.lwjgl.LwjglWindow;
 import org.lwjgl.glfw.GLFWKeyCallback;
 
@@ -112,6 +111,6 @@ public class GlfwKeyInput implements KeyInput {
     }
 
     public long getInputTimeNanos() {
-        return (long) (glfwGetTime() * LwjglTimer.LWJGL_TIME_TO_NANOS);
+        return (long) (glfwGetTime() * 1000000000);
     }
 }

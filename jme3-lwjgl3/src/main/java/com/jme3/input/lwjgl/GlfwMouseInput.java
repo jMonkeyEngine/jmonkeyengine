@@ -37,7 +37,6 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
-import com.jme3.system.lwjgl.LwjglTimer;
 import com.jme3.system.lwjgl.LwjglWindow;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
@@ -183,7 +182,7 @@ public class GlfwMouseInput implements MouseInput {
     }
 
     public long getInputTimeNanos() {
-        return (long) (glfwGetTime() * LwjglTimer.LWJGL_TIME_TO_NANOS);
+        return (long) (glfwGetTime() * 1000000000);
     }
 
     public void setNativeCursor(final JmeCursor jmeCursor) {
