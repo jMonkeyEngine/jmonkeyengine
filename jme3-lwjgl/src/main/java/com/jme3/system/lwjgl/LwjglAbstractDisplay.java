@@ -206,7 +206,6 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
                                           + "Must set with JmeContext.setSystemListner().");
         }
 
-        registerNatives();
         loadNatives();
         logger.log(Level.FINE, "Using LWJGL {0}", Sys.getVersion());
         if (!initInThread()) {

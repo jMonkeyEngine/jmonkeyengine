@@ -98,41 +98,20 @@ public abstract class LwjglContext implements JmeContext {
         return Integer.MAX_VALUE;
     }
 
-    protected void registerNatives() {
-        // LWJGL
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Windows32, "native/windows/lwjgl32.dll");
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Windows64, "native/windows/lwjgl.dll");
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Linux32, "native/linux/liblwjgl32.so");
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Linux64, "native/linux/liblwjgl.so");
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.MacOSX32, "native/macosx/liblwjgl.dylib");
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.MacOSX64, "native/macosx/liblwjgl.dylib");
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Windows32, "native/windows/jemalloc32.dll");
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Windows64, "native/windows/jemalloc.dll");
-
-        // OpenAL
-        // For OSX: Need to add lib prefix when extracting
-        NativeLibraryLoader.registerNativeLibrary("openal", Platform.Windows32, "native/windows/OpenAL32.dll");
-        NativeLibraryLoader.registerNativeLibrary("openal", Platform.Windows64, "native/windows/OpenAL.dll");
-        NativeLibraryLoader.registerNativeLibrary("openal", Platform.Linux32, "native/linux/libopenal32.so");
-        NativeLibraryLoader.registerNativeLibrary("openal", Platform.Linux64, "native/linux/libopenal.so");
-        NativeLibraryLoader.registerNativeLibrary("openal", Platform.MacOSX32, "native/macosx/openal.dylib", "libopenal.dylib");
-        NativeLibraryLoader.registerNativeLibrary("openal", Platform.MacOSX64, "native/macosx/openal.dylib", "libopenal.dylib");
-    }
-
     protected void loadNatives() {
         if (JmeSystem.isLowPermissions()) {
             return;
         }
 
         if ("LWJGL".equals(settings.getAudioRenderer())) {
-            NativeLibraryLoader.loadNativeLibrary("openal", true);
+            NativeLibraryLoader.loadNativeLibrary("openal-lwjgl3", true);
         }
 
         if (NativeLibraryLoader.isUsingNativeBullet()) {
             NativeLibraryLoader.loadNativeLibrary("bulletjme", true);
         }
 
-        NativeLibraryLoader.loadNativeLibrary("lwjgl", true);
+        NativeLibraryLoader.loadNativeLibrary("lwjgl3", true);
     }
 
     protected int getNumSamplesToUse() {

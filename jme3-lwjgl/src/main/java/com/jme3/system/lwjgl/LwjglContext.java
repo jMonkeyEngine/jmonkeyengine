@@ -162,26 +162,7 @@ public abstract class LwjglContext implements JmeContext {
             }
         }
     }
-
-    protected void registerNatives() {
-        // LWJGL
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Windows32, "native/windows/lwjgl.dll");
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Windows64, "native/windows/lwjgl64.dll");
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Linux32, "native/linux/liblwjgl.so");
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.Linux64, "native/linux/liblwjgl64.so");
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.MacOSX32, "native/macosx/liblwjgl.dylib");
-        NativeLibraryLoader.registerNativeLibrary("lwjgl", Platform.MacOSX64, "native/macosx/liblwjgl.dylib");
-
-        // For OSX: Need to add lib prefix when extracting
-        NativeLibraryLoader.registerNativeLibrary("openal", Platform.Windows32, "native/windows/OpenAL32.dll");
-        NativeLibraryLoader.registerNativeLibrary("openal", Platform.Windows64, "native/windows/OpenAL64.dll");
-        NativeLibraryLoader.registerNativeLibrary("openal", Platform.Linux32, "native/linux/libopenal.so");
-        NativeLibraryLoader.registerNativeLibrary("openal", Platform.Linux64, "native/linux/libopenal64.so");
-        NativeLibraryLoader.registerNativeLibrary("openal", Platform.MacOSX32, "native/macosx/openal.dylib", "libopenal.dylib");
-        NativeLibraryLoader.registerNativeLibrary("openal", Platform.MacOSX64, "native/macosx/openal.dylib", "libopenal.dylib");
-    }
-
-    protected void loadNatives() {        
+    protected void loadNatives() {
         if (JmeSystem.isLowPermissions()) {
             return;
         }

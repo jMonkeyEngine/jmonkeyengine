@@ -2,6 +2,12 @@ if (!hasProperty('mainClass')) {
     ext.mainClass = ''
 }
 
+repositories {
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+}
+
 dependencies {
     compile project(':jme3-core')
     compile project(':jme3-desktop')

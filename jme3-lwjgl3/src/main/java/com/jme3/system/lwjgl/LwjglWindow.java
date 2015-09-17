@@ -42,6 +42,7 @@ import com.jme3.input.lwjgl.GlfwMouseInput;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
+import com.jme3.system.NanoTimer;
 import org.lwjgl.Sys;
 import org.lwjgl.glfw.*;
 
@@ -73,6 +74,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected boolean allowSwapBuffers = false;
     private long window = -1;
     private final JmeContext.Type type;
+    private int frameRateLimit = -1;
+    private double frameSleepTime;
 
     private GLFWErrorCallback errorCallback;
     private GLFWWindowSizeCallback windowSizeCallback;
@@ -160,16 +163,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         glfwWindowHint(GLFW_STENCIL_BITS, settings.getStencilBits());
         glfwWindowHint(GLFW_SAMPLES, settings.getSamples());
         glfwWindowHint(GLFW_STEREO, settings.useStereo3D() ? GL_TRUE : GL_FALSE);
-
-        int frameRateCap = settings.getFrameRate();
-
-        if (!autoFlush) {
-            frameRateCap = 20;
-        }
-
-        if (frameRateCap > 0) {
-            glfwWindowHint(GLFW_REFRESH_RATE, frameRateCap);
-        }
+        glfwWindowHint(GLFW_REFRESH_RATE, settings.getFrequency());
 
         // Not sure how else to support bits per pixel
         if (settings.getBitsPerPixel() == 24) {
@@ -289,7 +283,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 });
             }
 
-            timer = new LwjglTimer();
+            timer = new NanoTimer();
 
             // For canvas, this will create a pbuffer,
             // allowing us to query information.
@@ -303,7 +297,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         } catch (Exception ex) {
             try {
                 if (window != -1) {
-                    //glfwSetWindowShouldClose(window, GL_TRUE);
                     glfwDestroyWindow(window);
                 }
             } catch (Exception ex2) {
@@ -360,11 +353,41 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         if (renderer != null) {
             renderer.postFrame();
         }
+
+        if (autoFlush) {
+            if (frameRateLimit != getSettings().getFrameRate()) {
+                setFrameRateLimit(getSettings().getFrameRate());
+            }
+        } else if (frameRateLimit != 20) {
+            setFrameRateLimit(20);
+        }
+
+        // If software frame rate limiting has been asked for, lets calculate sleep time based on a base value calculated
+        // from 1000 / frameRateLimit in milliseconds subtracting the time it has taken to render last frame.
+        // This gives an approximate limit within 3 fps of the given frame rate limit.
+        if (frameRateLimit > 0) {
+            final double sleep = frameSleepTime - (timer.getTimePerFrame() / 1000.0);
+            final long sleepMillis = (long) sleep;
+            final int additionalNanos = (int) ((sleep - sleepMillis) * 1000000.0);
+
+            if (sleepMillis >= 0 && additionalNanos >= 0) {
+                try {
+                    Thread.sleep(sleepMillis, additionalNanos);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        }
+    }
+
+    private void setFrameRateLimit(int frameRateLimit) {
+        this.frameRateLimit = frameRateLimit;
+        frameSleepTime = 1000.0 / this.frameRateLimit;
     }
 
     /**
      * De-initialize in the OpenGL thread.
      */
+
     protected void deinitInThread() {
         destroyContext();
 
@@ -379,7 +402,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                     + "Must set with JmeContext.setSystemListener().");
         }
 
-        registerNatives();
         loadNatives();
         LOGGER.log(Level.FINE, "Using LWJGL {0}", Sys.getVersion());
 
@@ -444,6 +466,9 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     public long getWindowHandle() {
         return window;
     }
+
+
+    // TODO: Implement support for window icon when GLFW supports it.
 
     private ByteBuffer[] imagesToByteBuffers(Object[] images) {
         ByteBuffer[] out = new ByteBuffer[images.length];
