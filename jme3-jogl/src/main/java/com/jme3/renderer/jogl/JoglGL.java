@@ -519,14 +519,14 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
 
     @Override
 	public int glGetAttribLocation(int param1, String param2) {
-        // FIXME: Does JOGL require null-terminated strings?????
-        return GLContext.getCurrentGL().getGL2ES2().glGetAttribLocation(param1, param2 + "\0");
+    	// JOGL 2.0 doesn't need a null-terminated string
+        return GLContext.getCurrentGL().getGL2ES2().glGetAttribLocation(param1, param2);
     }
 
     @Override
 	public int glGetUniformLocation(int param1, String param2) {
-        // FIXME: Does JOGL require null-terminated strings????????
-        return GLContext.getCurrentGL().getGL2ES2().glGetUniformLocation(param1, param2 + "\0");
+    	// JOGL 2.0 doesn't need a null-terminated string
+        return GLContext.getCurrentGL().getGL2ES2().glGetUniformLocation(param1, param2);
     }
 
     @Override
