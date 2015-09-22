@@ -40,7 +40,6 @@ import com.jme3.renderer.RendererException;
 import com.jme3.renderer.jogl.JoglGL;
 import com.jme3.renderer.jogl.JoglGLExt;
 import com.jme3.renderer.jogl.JoglGLFbo;
-import com.jme3.renderer.jogl.JoglRenderer;
 import com.jme3.renderer.opengl.GL2;
 import com.jme3.renderer.opengl.GL3;
 import com.jme3.renderer.opengl.GL4;
@@ -192,9 +191,7 @@ public abstract class JoglContext implements JmeContext {
                 glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
             }
             
-            //FIXME uncomment the line below when the unified renderer is ready for the prime time :)
-            //renderer = new GLRenderer(gl, glext, glfbo);
-            renderer = new JoglRenderer();
+            renderer = new GLRenderer(gl, glext, glfbo);
             renderer.initialize();
         } else {
             throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
