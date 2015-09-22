@@ -151,11 +151,7 @@ public class UpdateNetBeansDependencies extends Task {
             }
             String version = versionElement.getAttribute("specification_version");
             versionMap.put(name, version);
-        } catch (SAXException ex) {
-            Logger.getLogger(UpdateNetBeansDependencies.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(UpdateNetBeansDependencies.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ParserConfigurationException ex) {
+        } catch (SAXException | IOException | ParserConfigurationException ex) {
             Logger.getLogger(UpdateNetBeansDependencies.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
