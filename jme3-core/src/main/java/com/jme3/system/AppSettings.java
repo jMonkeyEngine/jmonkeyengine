@@ -110,6 +110,24 @@ public final class AppSettings extends HashMap<String, Object> {
      * @see AppSettings#setAudioRenderer(java.lang.String)
      */
     public static final String ANDROID_OPENAL_SOFT = "OpenAL_SOFT";
+    
+    /**
+     * Use JogAmp's JOGL as the display system
+     * <p>
+     * N.B: This backend is EXPERIMENTAL
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String JOGL = "JOGL";
+    
+    /**
+     * Use JogAmp's JOAL as the display system
+     * <p>
+     * N.B: This backend is EXPERIMENTAL
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String JOAL = "JOAL";
 
     static {
         defaults.put("Width", 640);
