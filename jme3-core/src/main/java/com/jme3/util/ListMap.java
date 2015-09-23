@@ -43,21 +43,6 @@ import java.util.Map.Entry;
  */
 public final class ListMap<K, V> extends AbstractMap<K, V> implements Cloneable, Serializable {
 
-    public static void main(String[] args){
-        Map<String, String> map = new ListMap<String, String>();
-        map.put( "bob", "hello");
-        System.out.println(map.get("bob"));
-        map.remove("bob");
-        System.out.println(map.size());
-
-        map.put("abc", "1");
-        map.put("def", "2");
-        map.put("ghi", "3");
-        map.put("jkl", "4");
-        map.put("mno", "5");
-        System.out.println(map.get("ghi"));
-    }
-
     private final static class ListMapEntry<K, V> implements Map.Entry<K, V>, Cloneable {
 
         private final K key;
