@@ -45,10 +45,11 @@ public final class LastTextureState {
     public Texture.WrapMode sWrap, tWrap, rWrap;
     public Texture.MagFilter magFilter;
     public Texture.MinFilter minFilter;
-    public int anisoFilter = 0;
+    public int anisoFilter;
+    public Texture.ShadowCompareMode shadowCompareMode;
     
     public LastTextureState() {
-        // All parameters initialized to null (meaning unset).
+        reset();
     }
     
     public void reset() {
@@ -58,5 +59,9 @@ public final class LastTextureState {
         magFilter = null;
         minFilter = null;
         anisoFilter = 0;
+        
+        // The default in OpenGL is OFF, so we avoid setting this per texture
+        // if its not used.
+        shadowCompareMode = Texture.ShadowCompareMode.Off;
     }
 }

@@ -51,7 +51,9 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.RenderBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
+import com.jme3.texture.Texture.ShadowCompareMode;
 import com.jme3.texture.Texture.WrapAxis;
+import com.jme3.texture.image.LastTextureState;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.MipMapGenerator;
@@ -1842,77 +1844,71 @@ public class GLRenderer implements Renderer {
         int target = convertTextureType(tex.getType(), image != null ? image.getMultiSamples() : 1, -1);
 
         boolean haveMips = true;
-
         if (image != null) {
             haveMips = image.isGeneratedMipmapsRequired() || image.hasMipmaps();
         }
+        
+        LastTextureState curState = image.getLastTextureState();
 
-        // filter things
-        if (image.getLastTextureState().magFilter != tex.getMagFilter()) {
-            int magFilter = convertMagFilter(tex.getMagFilter());
+        if (curState.magFilter != tex.getMagFilter()) {
             bindTextureAndUnit(target, image, unit);
-            gl.glTexParameteri(target, GL.GL_TEXTURE_MAG_FILTER, magFilter);
-            image.getLastTextureState().magFilter = tex.getMagFilter();
+            gl.glTexParameteri(target, GL.GL_TEXTURE_MAG_FILTER, convertMagFilter(tex.getMagFilter()));
+            curState.magFilter = tex.getMagFilter();
         }
-        if (image.getLastTextureState().minFilter != tex.getMinFilter()) {
-            int minFilter = convertMinFilter(tex.getMinFilter(), haveMips);
+        if (curState.minFilter != tex.getMinFilter()) {
             bindTextureAndUnit(target, image, unit);
-            gl.glTexParameteri(target, GL.GL_TEXTURE_MIN_FILTER, minFilter);
-            image.getLastTextureState().minFilter = tex.getMinFilter();
+            gl.glTexParameteri(target, GL.GL_TEXTURE_MIN_FILTER, convertMinFilter(tex.getMinFilter(), haveMips));
+            curState.minFilter = tex.getMinFilter();
         }
         if (caps.contains(Caps.TextureFilterAnisotropic)
-                && image.getLastTextureState().anisoFilter != tex.getAnisotropicFilter()) {
+                && curState.anisoFilter != tex.getAnisotropicFilter()) {
             bindTextureAndUnit(target, image, unit);
             gl.glTexParameterf(target,
                     GLExt.GL_TEXTURE_MAX_ANISOTROPY_EXT,
                     tex.getAnisotropicFilter());
-            image.getLastTextureState().anisoFilter = tex.getAnisotropicFilter();
+            curState.anisoFilter = tex.getAnisotropicFilter();
         }
 
-        // repeat modes
         switch (tex.getType()) {
             case ThreeDimensional:
             case CubeMap: // cubemaps use 3D coords
-                if (gl2 != null && image.getLastTextureState().rWrap != tex.getWrap(WrapAxis.R)) {
+                if (gl2 != null && curState.rWrap != tex.getWrap(WrapAxis.R)) {
                     bindTextureAndUnit(target, image, unit);
                     gl2.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_R, convertWrapMode(tex.getWrap(WrapAxis.R)));
-                    image.getLastTextureState().rWrap = tex.getWrap(WrapAxis.R);
+                    curState.rWrap = tex.getWrap(WrapAxis.R);
                 }
                 //There is no break statement on purpose here
             case TwoDimensional:
             case TwoDimensionalArray:
-                if (image.getLastTextureState().tWrap != tex.getWrap(WrapAxis.T)) {
+                if (curState.tWrap != tex.getWrap(WrapAxis.T)) {
                     bindTextureAndUnit(target, image, unit);
                     gl.glTexParameteri(target, GL.GL_TEXTURE_WRAP_T, convertWrapMode(tex.getWrap(WrapAxis.T)));
                     image.getLastTextureState().tWrap = tex.getWrap(WrapAxis.T);
                 }
-                if (image.getLastTextureState().sWrap != tex.getWrap(WrapAxis.S)) {
+                if (curState.sWrap != tex.getWrap(WrapAxis.S)) {
                     bindTextureAndUnit(target, image, unit);
                     gl.glTexParameteri(target, GL.GL_TEXTURE_WRAP_S, convertWrapMode(tex.getWrap(WrapAxis.S)));
-                    image.getLastTextureState().sWrap = tex.getWrap(WrapAxis.S);
+                    curState.sWrap = tex.getWrap(WrapAxis.S);
                 }
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown texture type: " + tex.getType());
         }
 
-        if (tex.isNeedCompareModeUpdate() && gl2 != null) {
-            // R to Texture compare mode
-            if (tex.getShadowCompareMode() != Texture.ShadowCompareMode.Off) {
-                bindTextureAndUnit(target, image, unit);
-                gl2.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_MODE, GL2.GL_COMPARE_R_TO_TEXTURE);
-                gl2.glTexParameteri(target, GL2.GL_DEPTH_TEXTURE_MODE, GL2.GL_INTENSITY);
-                if (tex.getShadowCompareMode() == Texture.ShadowCompareMode.GreaterOrEqual) {
+        ShadowCompareMode texCompareMode = tex.getShadowCompareMode();
+        if (gl2 != null && curState.shadowCompareMode != texCompareMode) {
+            bindTextureAndUnit(target, image, unit);
+            if (texCompareMode != ShadowCompareMode.Off) {
+                gl2.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_MODE, GL2.GL_COMPARE_REF_TO_TEXTURE);
+                if (texCompareMode == ShadowCompareMode.GreaterOrEqual) {
                     gl2.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_FUNC, GL.GL_GEQUAL);
                 } else {
                     gl2.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_FUNC, GL.GL_LEQUAL);
                 }
             } else {
-                bindTextureAndUnit(target, image, unit);
-                //restoring default value
                 gl2.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_MODE, GL.GL_NONE);
             }
-            tex.compareModeUpdated();
+            curState.shadowCompareMode = texCompareMode;
         }
         
         // If at this point we didn't bind the texture, bind it now
