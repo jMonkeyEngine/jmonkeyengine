@@ -1,0 +1,18 @@
+if (!hasProperty('mainClass')) {
+    ext.mainClass = ''
+}
+
+repositories {
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+}
+
+dependencies {
+    compile project(':jme3-core')
+    compile project(':jme3-desktop')
+    compile 'org.lwjgl:lwjgl:3.0.0b-SNAPSHOT'
+    compile group: 'org.lwjgl', name: 'lwjgl-platform', version: '3.0.0b-SNAPSHOT', classifier: 'natives-windows'
+    compile group: 'org.lwjgl', name: 'lwjgl-platform', version: '3.0.0b-SNAPSHOT', classifier: 'natives-linux'
+    compile group: 'org.lwjgl', name: 'lwjgl-platform', version: '3.0.0b-SNAPSHOT', classifier: 'natives-osx'
+}
