@@ -374,6 +374,7 @@ public class GLRenderer implements Renderer {
 
         if (hasExtension("GL_EXT_texture_filter_anisotropic")) {
             caps.add(Caps.TextureFilterAnisotropic);
+            limits.put(Limits.TextureAnisotropy, getInteger(GLExt.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT));
         }
 
         if (hasExtension("GL_EXT_framebuffer_object") 
