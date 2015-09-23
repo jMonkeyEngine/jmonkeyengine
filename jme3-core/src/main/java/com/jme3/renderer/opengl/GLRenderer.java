@@ -70,7 +70,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import jme3tools.shader.ShaderDebug;
 
-public class GLRenderer implements Renderer {
+public final class GLRenderer implements Renderer {
 
     private static final Logger logger = Logger.getLogger(GLRenderer.class.getName());
     private static final boolean VALIDATE_SHADER = false;
