@@ -99,7 +99,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     /**
      * Set the title if its a windowed display
      *
-     * @param title
+     * @param title the title to set
      */
     public void setTitle(final String title) {
         if (created.get() && window != -1) {
@@ -121,7 +121,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     /**
      * Apply the settings, changing resolution, etc.
      *
-     * @param settings
+     * @param settings the settings to apply when creating the context.
      */
     protected void createContext(final AppSettings settings) {
         glfwSetErrorCallback(errorCallback = new GLFWErrorCallback() {
