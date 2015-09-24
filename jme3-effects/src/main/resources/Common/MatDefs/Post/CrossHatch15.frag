@@ -17,7 +17,9 @@ uniform float m_Luminance5;
  
 uniform float m_LineDistance;
 uniform float m_LineThickness;
- 
+
+out vec4 fragColor;
+
 void main() {
     vec4 texVal = getColor(m_Texture, texCoord);
     float linePixel = 0;
@@ -49,5 +51,5 @@ void main() {
     // Mix paper color with existing color information
     vec4 paperColor = mix(m_PaperColor, texVal, m_ColorInfluencePaper);
  
-    gl_FragColor = mix(paperColor, lineColor, linePixel);
+    fragColor = mix(paperColor, lineColor, linePixel);
 }

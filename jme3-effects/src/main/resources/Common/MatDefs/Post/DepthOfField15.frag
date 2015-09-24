@@ -11,6 +11,8 @@ uniform float m_YScale;
 
 vec2 m_NearFar = vec2( 0.1, 1000.0 );
 
+out vec4 fragColor;
+
 void main() {
 
     vec4 texVal = getColor( m_Texture, texCoord );
@@ -44,7 +46,7 @@ void main() {
     if( unfocus < 0.2 ) {
         // If we are mostly in focus then don't bother with the
         // convolution filter
-        gl_FragColor = texVal;
+        fragColor = texVal;
     } else {
     // Perform a wide convolution filter and we scatter it
     // a bit to avoid some texture look-ups.  Instead of
@@ -83,7 +85,7 @@ void main() {
 
     sum = sum / 12.0;
 
-    gl_FragColor = mix( texVal, sum, unfocus );
+    fragColor = mix( texVal, sum, unfocus );
 
     // I used this for debugging the range
     // gl_FragColor.r = unfocus;
