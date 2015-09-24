@@ -138,7 +138,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("StencilBits", 0);
         defaults.put("Samples", 0);
         defaults.put("Fullscreen", false);
-        defaults.put("Title", "jMonkey Engine 3.0");
+        defaults.put("Title", JmeVersion.FULL_NAME);
         defaults.put("Renderer", LWJGL_OPENGL2);
         defaults.put("AudioRenderer", LWJGL_OPENAL);
         defaults.put("DisableJoysticks", true);
