@@ -22,6 +22,7 @@ public class AndroidLocator implements AssetLocator {
 
         public AndroidAssetInfo(com.jme3.asset.AssetManager assetManager, AssetKey<?> key, String assetPath, InputStream in) {
             super(assetManager, key);
+            //to keep compatiblity with asset paths allowed in 3.0
             if(assetPath.startsWith("/")){
                 this.assetPath=assetPath.substring(1);
             }else {
