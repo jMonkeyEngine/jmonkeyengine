@@ -75,7 +75,7 @@ final class ImplHandler {
         this.assetManager = assetManager;
     }
 
-    protected static class ImplThreadLocal<T> extends ThreadLocal {
+    protected static class ImplThreadLocal<T> extends ThreadLocal<T> {
 
         private final Class<T> type;
         private final String path;
@@ -112,9 +112,13 @@ final class ImplHandler {
         }
 
         @Override
-        protected Object initialValue(){
+        protected T initialValue(){
             try {
-                return type.newInstance();
+                T obj = type.newInstance();
+                if (path != null) {
+                    ((AssetLocator)obj).setRootPath(path);
+                }
+                return obj;
             } catch (InstantiationException ex) {
                 logger.log(Level.SEVERE,"Cannot create locator of type {0}, does"
                             + " the class have an empty and publically accessible"+
@@ -169,14 +173,11 @@ final class ImplHandler {
             return null;
         }
         
-        for (ImplThreadLocal local : locatorsList){
-            AssetLocator locator = (AssetLocator) local.get();
-            if (local.getPath() != null){
-                locator.setRootPath((String) local.getPath());
-            }
-            AssetInfo info = locator.locate(assetManager, key);
-            if (info != null)
+        for (ImplThreadLocal<AssetLocator> local : locatorsList){
+            AssetInfo info = local.get().locate(assetManager, key);
+            if (info != null) {
                 return info;
+            }
         }
         
         return null;

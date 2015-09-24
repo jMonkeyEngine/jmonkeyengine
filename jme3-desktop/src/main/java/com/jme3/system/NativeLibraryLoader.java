@@ -48,9 +48,8 @@ import java.util.logging.Logger;
 /**
  * Utility class to register, extract, and load native libraries.
  * <br>
- * Register your own libraries via the 
- * {@link #registerNativeLibrary(java.lang.String, com.jme3.system.Platform, java.lang.String, boolean) }
- * method, for each platform. 
+ * Register your own libraries via the {@link #registerNativeLibrary(String, Platform, String, String)} method, for
+ * each platform.
  * You can then extract this library (depending on platform), by
  * using {@link #loadNativeLibrary(java.lang.String, boolean) }.
  * <br>
@@ -132,7 +131,7 @@ public final class NativeLibraryLoader {
         registerNativeLibrary("lwjgl", Platform.Linux64,   "native/linux/liblwjgl64.so");
         registerNativeLibrary("lwjgl", Platform.MacOSX32,  "native/macosx/liblwjgl.dylib");
         registerNativeLibrary("lwjgl", Platform.MacOSX64,  "native/macosx/liblwjgl.dylib");
-        
+
         // OpenAL
         // For OSX: Need to add lib prefix when extracting
         registerNativeLibrary("openal", Platform.Windows32, "native/windows/OpenAL32.dll");
@@ -141,7 +140,26 @@ public final class NativeLibraryLoader {
         registerNativeLibrary("openal", Platform.Linux64,   "native/linux/libopenal64.so");
         registerNativeLibrary("openal", Platform.MacOSX32,  "native/macosx/openal.dylib", "libopenal.dylib");
         registerNativeLibrary("openal", Platform.MacOSX64,  "native/macosx/openal.dylib", "libopenal.dylib");
-        
+
+        // LWJGL 3.x
+        registerNativeLibrary("lwjgl3", Platform.Windows32, "native/windows/lwjgl32.dll");
+        registerNativeLibrary("lwjgl3", Platform.Windows64, "native/windows/lwjgl.dll");
+        registerNativeLibrary("lwjgl3", Platform.Linux32, "native/linux/liblwjgl32.so");
+        registerNativeLibrary("lwjgl3", Platform.Linux64, "native/linux/liblwjgl.so");
+        registerNativeLibrary("lwjgl3", Platform.MacOSX32, "native/macosx/liblwjgl.dylib");
+        registerNativeLibrary("lwjgl3", Platform.MacOSX64, "native/macosx/liblwjgl.dylib");
+        registerNativeLibrary("lwjgl3", Platform.Windows32, "native/windows/jemalloc32.dll");
+        registerNativeLibrary("lwjgl3", Platform.Windows64, "native/windows/jemalloc.dll");
+
+        // OpenAL for LWJGL 3.x
+        // For OSX: Need to add lib prefix when extracting
+        registerNativeLibrary("openal-lwjgl3", Platform.Windows32, "native/windows/OpenAL32.dll");
+        registerNativeLibrary("openal-lwjgl3", Platform.Windows64, "native/windows/OpenAL.dll");
+        registerNativeLibrary("openal-lwjgl3", Platform.Linux32, "native/linux/libopenal32.so");
+        registerNativeLibrary("openal-lwjgl3", Platform.Linux64, "native/linux/libopenal.so");
+        registerNativeLibrary("openal-lwjgl3", Platform.MacOSX32, "native/macosx/openal.dylib", "libopenal.dylib");
+        registerNativeLibrary("openal-lwjgl3", Platform.MacOSX64, "native/macosx/openal.dylib", "libopenal.dylib");
+
         // BulletJme
         registerNativeLibrary("bulletjme", Platform.Windows32, "native/windows/x86/bulletjme.dll");
         registerNativeLibrary("bulletjme", Platform.Windows64, "native/windows/x86_64/bulletjme.dll");

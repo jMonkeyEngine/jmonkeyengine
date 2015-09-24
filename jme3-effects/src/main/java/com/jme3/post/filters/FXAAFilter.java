@@ -69,6 +69,12 @@ public class FXAAFilter extends Filter {
     protected Material getMaterial() {
         return material;
     }
+    
+    @Override
+    protected boolean isRequiresBilinear() {
+        // FXAA wants the input texture to be filtered.
+        return true;
+    }
 
     public void setSpanMax(float spanMax) {
         this.spanMax = spanMax;

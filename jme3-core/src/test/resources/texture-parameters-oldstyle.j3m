@@ -1,0 +1,6 @@
+Material Test : matdef.j3md {
+     MaterialParameters {
+         OldStyle: Flip Repeat old style/texture.png
+         OldStyleUsingQuotes: Repeat Flip "old style using quotes/texture.png"
+     }
+}

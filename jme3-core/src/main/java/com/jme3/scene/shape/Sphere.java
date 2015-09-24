@@ -299,7 +299,6 @@ public class Sphere extends Mesh {
         }
 
         updateBound();
-        setStatic();
     }
 
     /**
@@ -400,6 +399,7 @@ public class Sphere extends Mesh {
         this.interior = interior;
         setGeometryData();
         setIndexData();
+        setStatic();
     }
 
     public void read(JmeImporter e) throws IOException {

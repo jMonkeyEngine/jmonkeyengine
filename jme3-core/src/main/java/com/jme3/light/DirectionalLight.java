@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
@@ -53,9 +54,35 @@ public class DirectionalLight extends Light {
 
     protected Vector3f direction = new Vector3f(0f, -1f, 0f);
 
+    /**
+     * Creates a DirectionalLight
+     */
+    public DirectionalLight() {
+    }
+
+    /**
+     * Creates a DirectionalLight with the given direction
+     * @param direction the light's direction
+     */
+    public DirectionalLight(Vector3f direction) {
+        setDirection(direction);
+    }
+
+    /**
+     * Creates a DirectionalLight with the given direction and the given color
+     * @param direction the light's direction
+     * @param color the light's color
+     */
+    public DirectionalLight(Vector3f direction, ColorRGBA color) {
+        super(color);
+        setDirection(direction);
+    }
+
     @Override
     public void computeLastDistance(Spatial owner) {
-        lastDistance = 0; // directional lights are always closest to their owner
+        // directional lights are after ambient lights
+        // but before all other lights.
+        lastDistance = -1; 
     }
 
     /**
@@ -77,7 +104,7 @@ public class DirectionalLight extends Light {
      * 
      * @param dir the direction of the light.
      */
-    public void setDirection(Vector3f dir){
+    public final void setDirection(Vector3f dir){
         direction.set(dir);
         if (!direction.isUnitVector()) {
             direction.normalizeLocal();
