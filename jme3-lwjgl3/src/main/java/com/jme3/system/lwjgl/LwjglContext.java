@@ -42,13 +42,11 @@ import com.jme3.renderer.lwjgl.LwjglGLExt;
 import com.jme3.renderer.lwjgl.LwjglGLFboEXT;
 import com.jme3.renderer.lwjgl.LwjglGLFboGL3;
 import com.jme3.renderer.opengl.*;
+import com.jme3.renderer.opengl.GL;
 import com.jme3.system.*;
 import org.lwjgl.Sys;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.ARBDebugOutput;
-import org.lwjgl.opengl.ARBFramebufferObject;
-import org.lwjgl.opengl.ContextCapabilities;
-import org.lwjgl.opengl.EXTFramebufferMultisample;
+import org.lwjgl.opengl.*;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -134,6 +132,7 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     protected void initContextFirstTime() {
+        GLContext.createFromCurrent();
         final ContextCapabilities capabilities = createCapabilities(settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3));
 
         if (!capabilities.OpenGL20) {
