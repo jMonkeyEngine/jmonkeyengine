@@ -31,11 +31,40 @@
  */
 package com.jme3.renderer.opengl;
 
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import jme3tools.shader.ShaderDebug;
+
 import com.jme3.material.RenderState;
 import com.jme3.material.RenderState.StencilOperation;
 import com.jme3.material.RenderState.TestFunction;
-import com.jme3.math.*;
-import com.jme3.renderer.*;
+import com.jme3.math.ClipRectangle;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
+import com.jme3.renderer.Caps;
+import com.jme3.renderer.IDList;
+import com.jme3.renderer.Limits;
+import com.jme3.renderer.RenderContext;
+import com.jme3.renderer.Renderer;
+import com.jme3.renderer.RendererException;
+import com.jme3.renderer.Statistics;
+import com.jme3.scene.ClipState;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer;
@@ -58,17 +87,6 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.MipMapGenerator;
 import com.jme3.util.NativeObjectManager;
-import java.nio.*;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import jme3tools.shader.ShaderDebug;
 
 public final class GLRenderer implements Renderer {
 
@@ -89,7 +107,10 @@ public final class GLRenderer implements Renderer {
     private FrameBuffer mainFbOverride = null;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
-    private int clipX, clipY, clipW, clipH;
+    private ClipRectangle currentClipRect = new ClipRectangle();
+    private ClipRectangle rendererClipRect = new ClipRectangle();
+    private ClipRectangle geometryClipRect = new ClipRectangle();
+    private ClipRectangle intersectionClipRect = new ClipRectangle();
     private boolean linearizeSrgbImages;
     private HashSet<String> extensions;
 
@@ -149,7 +170,7 @@ public final class GLRenderer implements Renderer {
             int major = Integer.parseInt(m.group(1));
             int minor = Integer.parseInt(m.group(2));
             if (minor >= 10 && minor % 10 == 0) {
-                // some versions can look like "1.30" instead of "1.3". 
+                // some versions can look like "1.30" instead of "1.3".
                 // make sure to correct for this
                 minor /= 10;
             }
@@ -500,6 +521,7 @@ public final class GLRenderer implements Renderer {
         return nameBuf.get(0) != (byte)0;
     }
 
+    @Override
     @SuppressWarnings("fallthrough")
     public void initialize() {
         loadCapabilities();
@@ -527,6 +549,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void invalidateState() {
         context.reset();
         if (gl2 != null) {
@@ -535,6 +558,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void resetGLObjects() {
         logger.log(Level.FINE, "Reseting objects and invalidating state");
         objManager.resetObjects();
@@ -542,6 +566,7 @@ public final class GLRenderer implements Renderer {
         invalidateState();
     }
 
+    @Override
     public void cleanup() {
         logger.log(Level.FINE, "Deleting objects and invalidating state");
         objManager.deleteAllObjects(this);
@@ -552,10 +577,12 @@ public final class GLRenderer implements Renderer {
     /*********************************************************************\
      |* Render State                                                      *|
      \*********************************************************************/
+    @Override
     public void setDepthRange(float start, float end) {
         gl.glDepthRange(start, end);
     }
 
+    @Override
     public void clearBuffers(boolean color, boolean depth, boolean stencil) {
         int bits = 0;
         if (color) {
@@ -587,6 +614,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void setBackgroundColor(ColorRGBA color) {
         if (!context.clearColor.equals(color)) {
             gl.glClearColor(color.r, color.g, color.b, color.a);
@@ -594,6 +622,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void setAlphaToCoverage(boolean value) {
         if (caps.contains(Caps.Multisample)) {
             if (value) {
@@ -604,6 +633,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void applyRenderState(RenderState state) {
         if (gl2 != null) {
             if (state.isWireframe() && !context.wireframe) {
@@ -781,6 +811,67 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
+    public final void applyClipState(final ClipState state)
+    {
+        if ((state != null) && state.isClippingEnabled()) {
+            geometryClipRect.set(state.getX(), state.getY(), state.getW(), state.getH());
+            if (context.clipRectEnabled) {
+                if (!context.geometryClipRectEnabled) {
+                    context.geometryClipRectEnabled = true;
+                }
+                if (ClipRectangle.intersect(rendererClipRect, geometryClipRect, intersectionClipRect)) {
+                    if (!currentClipRect.equals(intersectionClipRect)) {
+                        int iClipX = intersectionClipRect.getX();
+                        int iClipY = intersectionClipRect.getY();
+                        int iClipW = intersectionClipRect.getW();
+                        int iClipH = intersectionClipRect.getH();
+                        currentClipRect.set(iClipX, iClipY, iClipW, iClipH);
+                        gl.glScissor(iClipX, iClipY, iClipW, iClipH);
+                    }
+                } else {
+                    if (currentClipRect.getX() != 0 || currentClipRect.getY() != 0 ||
+                        currentClipRect.getW() != 0 || currentClipRect.getH() != 0) {
+                        currentClipRect.set(0, 0, 0, 0);
+                        gl.glScissor(0, 0, 0, 0);
+                    }
+                }
+            } else {
+                if (!context.geometryClipRectEnabled) {
+                    context.geometryClipRectEnabled = true;
+                    gl.glEnable(GL.GL_SCISSOR_TEST);
+                }
+                if (!currentClipRect.equals(geometryClipRect)) {
+                    int gClipX = geometryClipRect.getX();
+                    int gClipY = geometryClipRect.getY();
+                    int gClipW = geometryClipRect.getW();
+                    int gClipH = geometryClipRect.getH();
+                    currentClipRect.set(gClipX, gClipY, gClipW, gClipH);
+                    gl.glScissor(gClipX, gClipY, gClipW, gClipH);
+                }
+            }
+        } else {
+            if (context.clipRectEnabled) {
+                if (context.geometryClipRectEnabled) {
+                    context.geometryClipRectEnabled = false;
+                }
+                if (!currentClipRect.equals(rendererClipRect)) {
+                    int rClipX = rendererClipRect.getX();
+                    int rClipY = rendererClipRect.getY();
+                    int rClipW = rendererClipRect.getW();
+                    int rClipH = rendererClipRect.getH();
+                    currentClipRect.set(rClipX, rClipY, rClipW, rClipH);
+                    gl.glScissor(rClipX, rClipY, rClipW, rClipH);
+                }
+            } else {
+                if (context.geometryClipRectEnabled) {
+                    context.geometryClipRectEnabled = false;
+                    gl.glDisable(GL.GL_SCISSOR_TEST);
+                }
+            }
+        }
+    }
+
     private int convertStencilOperation(StencilOperation stencilOp) {
         switch (stencilOp) {
             case Keep:
@@ -830,6 +921,7 @@ public final class GLRenderer implements Renderer {
     /*********************************************************************\
      |* Camera and World transforms                                       *|
      \*********************************************************************/
+    @Override
     public void setViewPort(int x, int y, int w, int h) {
         if (x != vpX || vpY != y || vpW != w || vpH != h) {
             gl.glViewport(x, y, w, h);
@@ -840,32 +932,31 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    public void setClipRect(int x, int y, int width, int height) {
-        if (!context.clipRectEnabled) {
+    @Override
+    public final void setClipRect(final int x, final int y, final int width, final int height) {
+        if (!context.clipRectEnabled && !context.geometryClipRectEnabled) {
             gl.glEnable(GL.GL_SCISSOR_TEST);
-            context.clipRectEnabled = true;
         }
-        if (clipX != x || clipY != y || clipW != width || clipH != height) {
+        context.clipRectEnabled = true;
+        context.geometryClipRectEnabled = false;
+        rendererClipRect.set(x, y, width, height);
+        if (currentClipRect.getX() != x || currentClipRect.getY() != y ||
+            currentClipRect.getW() != width || currentClipRect.getH() != height) {
+            currentClipRect.set(x, y, width, height);
             gl.glScissor(x, y, width, height);
-            clipX = x;
-            clipY = y;
-            clipW = width;
-            clipH = height;
         }
     }
 
-    public void clearClipRect() {
-        if (context.clipRectEnabled) {
+    @Override
+    public final void clearClipRect() {
+        if (context.clipRectEnabled || context.geometryClipRectEnabled) {
             gl.glDisable(GL.GL_SCISSOR_TEST);
-            context.clipRectEnabled = false;
-
-            clipX = 0;
-            clipY = 0;
-            clipW = 0;
-            clipH = 0;
         }
+        context.clipRectEnabled = false;
+        context.geometryClipRectEnabled = false;
     }
 
+    @Override
     public void postFrame() {
         objManager.deleteUnused(this);
         gl.resetStats();
@@ -1216,6 +1307,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void setShader(Shader shader) {
         if (shader == null) {
             throw new IllegalArgumentException("Shader cannot be null");
@@ -1234,6 +1326,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void deleteShaderSource(ShaderSource source) {
         if (source.getId() < 0) {
             logger.warning("Shader source is not uploaded to GPU, cannot delete.");
@@ -1244,6 +1337,7 @@ public final class GLRenderer implements Renderer {
         source.resetObject();
     }
 
+    @Override
     public void deleteShader(Shader shader) {
         if (shader.getId() == -1) {
             logger.warning("Shader is not uploaded to GPU, cannot delete.");
@@ -1269,6 +1363,7 @@ public final class GLRenderer implements Renderer {
         copyFrameBuffer(src, dst, true);
     }
 
+    @Override
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
         if (caps.contains(Caps.FrameBufferBlit)) {
             int srcX0 = 0;
@@ -1538,6 +1633,7 @@ public final class GLRenderer implements Renderer {
         return samplePositions;
     }
 
+    @Override
     public void setMainFrameBufferOverride(FrameBuffer fb) {
         mainFbOverride = null;
         if (context.boundFBO == 0) {
@@ -1545,6 +1641,7 @@ public final class GLRenderer implements Renderer {
             setFrameBuffer(fb);
         }
         mainFbOverride = fb;
+    @Override
     }
 
     public void setReadDrawBuffers(FrameBuffer fb) {
@@ -1674,6 +1771,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf) {
         readFrameBufferWithGLFormat(fb, byteBuf, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
     }
@@ -1700,6 +1798,7 @@ public final class GLRenderer implements Renderer {
         gl.glReadPixels(vpX, vpY, vpW, vpH, glFormat, dataType, byteBuf);
     }
 
+     @Override
     public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {
         GLImageFormat glFormat = texUtil.getImageFormatWithError(format, false);
         readFrameBufferWithGLFormat(fb, byteBuf, glFormat.format, glFormat.dataType);
@@ -1710,6 +1809,7 @@ public final class GLRenderer implements Renderer {
         glfbo.glDeleteRenderbuffersEXT(intBuf1);
     }
 
+    @Override
     public void deleteFrameBuffer(FrameBuffer fb) {
         if (fb.getId() != -1) {
             if (context.boundFBO == fb.getId()) {
@@ -1918,7 +2018,7 @@ public final class GLRenderer implements Renderer {
     /**
      * Validates if a potentially NPOT texture is supported by the hardware.
      * <p>
-     * Textures with power-of-2 dimensions are supported on all hardware, however 
+     * Textures with power-of-2 dimensions are supported on all hardware, however
      * non-power-of-2 textures may or may not be supported depending on which
      * texturing features are used.
      *
@@ -2051,7 +2151,7 @@ public final class GLRenderer implements Renderer {
                 // We'll generate mipmaps via glGenerateMipmapEXT (see below)
             }
         } else if (img.hasMipmaps()) {
-            // Image already has mipmaps, set the max level based on the 
+            // Image already has mipmaps, set the max level based on the
             // number of mipmaps we have.
             gl.glTexParameteri(target, GL.GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
         } else {
@@ -2176,12 +2276,14 @@ public final class GLRenderer implements Renderer {
         setupTextureParams(unit, tex);
     }
 
+    @Override
     public void modifyTexture(Texture tex, Image pixels, int x, int y) {
         setTexture(0, tex);
         int target = convertTextureType(tex.getType(), pixels.getMultiSamples(), -1);
         texUtil.uploadSubTexture(pixels, target, 0, x, y, linearizeSrgbImages);
     }
 
+    @Override
     public void deleteImage(Image image) {
         int texId = image.getId();
         if (texId != -1) {
@@ -2234,6 +2336,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void updateBufferData(VertexBuffer vb) {
         int bufId = vb.getId();
         boolean created = false;
@@ -2297,6 +2400,7 @@ public final class GLRenderer implements Renderer {
         vb.clearUpdateNeeded();
     }
 
+    @Override
     public void deleteBuffer(VertexBuffer vb) {
         int bufId = vb.getId();
         if (bufId != -1) {
@@ -2630,7 +2734,7 @@ public final class GLRenderer implements Renderer {
     private void renderMeshDefault(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
 
         // Here while count is still passed in.  Can be removed when/if
-        // the method is collapsed again.  -pspeed        
+        // the method is collapsed again.  -pspeed
         count = Math.max(mesh.getInstanceCount(), count);
 
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
@@ -2676,6 +2780,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
         if (mesh.getVertexCount() == 0) {
             return;
@@ -2698,6 +2803,7 @@ public final class GLRenderer implements Renderer {
 //        }
     }
 
+    @Override
     public void setMainFrameBufferSrgb(boolean enableSrgb) {
         // Gamma correction
         if (!caps.contains(Caps.Srgb) && enableSrgb) {
@@ -2724,6 +2830,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void setLinearizeSrgbImages(boolean linearize) {
         if (caps.contains(Caps.Srgb)) {
             linearizeSrgbImages = linearize;

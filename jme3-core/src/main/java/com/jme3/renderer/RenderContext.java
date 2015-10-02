@@ -33,6 +33,7 @@ package com.jme3.renderer;
 
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
@@ -51,99 +52,104 @@ public class RenderContext {
     public RenderState.FaceCullMode cullMode = RenderState.FaceCullMode.Off;
 
     /**
-     * @see RenderState#setDepthTest(boolean) 
+     * @see RenderState#setDepthTest(boolean)
      */
     public boolean depthTestEnabled = false;
 
     /**
-     * @see RenderState#setAlphaFallOff(float) 
+     * @see RenderState#setAlphaFallOff(float)
      */
     public float alphaTestFallOff = 0f;
 
     /**
-     * @see RenderState#setAlphaTest(boolean) 
+     * @see RenderState#setAlphaTest(boolean)
      */
     public boolean alphaTestEnabled = false;
 
     /**
-     * @see RenderState#setDepthWrite(boolean) 
+     * @see RenderState#setDepthWrite(boolean)
      */
     public boolean depthWriteEnabled = true;
 
     /**
-     * @see RenderState#setColorWrite(boolean) 
+     * @see RenderState#setColorWrite(boolean)
      */
     public boolean colorWriteEnabled = true;
 
     /**
-     * @see Renderer#setClipRect(int, int, int, int) 
+     * @see Renderer#setClipRect(int, int, int, int)
      */
     public boolean clipRectEnabled = false;
 
     /**
-     * @see RenderState#setPolyOffset(float, float) 
+     * @see Geometry#enableClipping(int, int, int, int)
+    */
+    public boolean geometryClipRectEnabled = false;
+
+    /**
+     * @see RenderState#setPolyOffset(float, float)
      */
     public boolean polyOffsetEnabled = false;
-    
+
     /**
-     * @see RenderState#setPolyOffset(float, float) 
+     * @see RenderState#setPolyOffset(float, float)
      */
     public float polyOffsetFactor = 0;
-    
+
     /**
-     * @see RenderState#setPolyOffset(float, float) 
+     * @see RenderState#setPolyOffset(float, float)
      */
     public float polyOffsetUnits = 0;
 
     /**
-     * @see Mesh#setPointSize(float) 
+     * @see Mesh#setPointSize(float)
      */
     public float pointSize = 1;
-    
+
     /**
-     * @see Mesh#setLineWidth(float) 
+     * @see Mesh#setLineWidth(float)
      */
     public float lineWidth = 1;
 
     /**
-     * @see RenderState#setBlendMode(com.jme3.material.RenderState.BlendMode) 
+     * @see RenderState#setBlendMode(com.jme3.material.RenderState.BlendMode)
      */
     public RenderState.BlendMode blendMode = RenderState.BlendMode.Off;
 
     /**
-     * @see RenderState#setWireframe(boolean) 
+     * @see RenderState#setWireframe(boolean)
      */
     public boolean wireframe = false;
 
     /**
-     * @see RenderState#setPointSprite(boolean) 
+     * @see RenderState#setPointSprite(boolean)
      */
     public boolean pointSprite = false;
 
     /**
-     * @see Renderer#setShader(com.jme3.shader.Shader) 
+     * @see Renderer#setShader(com.jme3.shader.Shader)
      */
     public int boundShaderProgram;
-    
+
     /**
-     * @see Renderer#setShader(com.jme3.shader.Shader) 
+     * @see Renderer#setShader(com.jme3.shader.Shader)
      */
     public Shader boundShader;
 
     /**
-     * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer) 
+     * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
      */
     public int boundFBO = 0;
-    
+
     /**
-     * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer) 
+     * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
      */
     public FrameBuffer boundFB;
 
     /**
      * Currently bound Renderbuffer
-     * 
-     * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer) 
+     *
+     * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
      */
     public int boundRB = 0;
 
@@ -154,9 +160,9 @@ public class RenderContext {
      *  0 = GL_COLOR_ATTACHMENT0
      *  n = GL_COLOR_ATTACHMENTn
      *  where n is an integer greater than 1
-     * 
-     * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer) 
-     * @see FrameBuffer#setTargetIndex(int) 
+     *
+     * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
+     * @see FrameBuffer#setTargetIndex(int)
      */
     public int boundDrawBuf = -1;
 
@@ -164,30 +170,30 @@ public class RenderContext {
      * Currently bound read buffer
      *
      * @see RenderContext#boundDrawBuf
-     * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer) 
-     * @see FrameBuffer#setTargetIndex(int) 
+     * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer)
+     * @see FrameBuffer#setTargetIndex(int)
      */
     public int boundReadBuf = -1;
 
     /**
      * Currently bound element array vertex buffer.
-     * 
-     * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int) 
+     *
+     * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int)
      */
     public int boundElementArrayVBO;
 
     /**
-     * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int) 
+     * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int)
      */
     public int boundVertexArray;
 
     /**
      * Currently bound array vertex buffer.
-     * 
-     * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int) 
+     *
+     * @see Renderer#renderMesh(com.jme3.scene.Mesh, int, int)
      */
     public int boundArrayVBO;
-    
+
     /**
      * Currently bound pixel pack pixel buffer.
      */
@@ -197,22 +203,22 @@ public class RenderContext {
 
     /**
      * Current bound texture IDs for each texture unit.
-     * 
-     * @see Renderer#setTexture(int, com.jme3.texture.Texture) 
+     *
+     * @see Renderer#setTexture(int, com.jme3.texture.Texture)
      */
     public Image[] boundTextures = new Image[16];
 
     /**
      * IDList for texture units
-     * 
-     * @see Renderer#setTexture(int, com.jme3.texture.Texture) 
+     *
+     * @see Renderer#setTexture(int, com.jme3.texture.Texture)
      */
     public IDList textureIndexList = new IDList();
 
     /**
      * Currently bound texture unit
-     * 
-     * @see Renderer#setTexture(int, com.jme3.texture.Texture) 
+     *
+     * @see Renderer#setTexture(int, com.jme3.texture.Texture)
      */
     public int boundTextureUnit = 0;
 
@@ -239,12 +245,12 @@ public class RenderContext {
      * IDList for vertex attributes
      */
     public IDList attribIndexList = new IDList();
-    
+
     /**
      * depth test function
      */
     public RenderState.TestFunction depthFunc = RenderState.TestFunction.Less;
-    
+
      /**
      * alpha test function
      */
@@ -252,9 +258,9 @@ public class RenderContext {
 
     public int initialDrawBuf;
     public int initialReadBuf;
-    
+
     public ColorRGBA clearColor = new ColorRGBA(0,0,0,0);
-    
+
     /**
      * Reset the RenderContext to default GL state
      */
@@ -276,7 +282,7 @@ public class RenderContext {
         boundFBO = 0;
         boundFB = null;
         boundRB = 0;
-        boundDrawBuf = -1; 
+        boundDrawBuf = -1;
         boundReadBuf = -1;
         boundElementArrayVBO = 0;
         boundVertexArray = 0;
@@ -292,7 +298,7 @@ public class RenderContext {
             boundAttribs[i] = null;
 
         attribIndexList.reset();
-        
+
         stencilTest = false;
         frontStencilStencilFailOperation = RenderState.StencilOperation.Keep;
         frontStencilDepthFailOperation = RenderState.StencilOperation.Keep;
@@ -302,8 +308,8 @@ public class RenderContext {
         backStencilDepthPassOperation = RenderState.StencilOperation.Keep;
         frontStencilFunction = RenderState.TestFunction.Always;
         backStencilFunction = RenderState.TestFunction.Always;
-        
-        depthFunc = RenderState.TestFunction.LessOrEqual;    
+
+        depthFunc = RenderState.TestFunction.LessOrEqual;
         alphaFunc = RenderState.TestFunction.Greater;
         clearColor.set(0,0,0,0);
     }
