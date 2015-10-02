@@ -38,6 +38,7 @@ import com.jme3.collision.UnsupportedCollisionException;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.math.*;
+import com.jme3.scene.Spatial;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
 import java.io.IOException;
@@ -670,15 +671,7 @@ public class BoundingSphere extends BoundingVolume {
      * @see com.jme.bounding.BoundingVolume#intersectsSphere(com.jme.bounding.BoundingSphere)
      */
     public boolean intersectsSphere(BoundingSphere bs) {
-        assert Vector3f.isValidVector(center) && Vector3f.isValidVector(bs.center);
-
-        TempVars vars = TempVars.get();
-
-        Vector3f diff = center.subtract(bs.center, vars.vect1);
-        float rsum = getRadius() + bs.getRadius();
-        boolean eq = (diff.dot(diff) <= rsum * rsum);
-        vars.release();
-        return eq;
+        return Intersection.intersect(bs, center, radius);
     }
 
     /*
@@ -687,18 +680,7 @@ public class BoundingSphere extends BoundingVolume {
      * @see com.jme.bounding.BoundingVolume#intersectsBoundingBox(com.jme.bounding.BoundingBox)
      */
     public boolean intersectsBoundingBox(BoundingBox bb) {
-        assert Vector3f.isValidVector(center) && Vector3f.isValidVector(bb.center);
-
-        if (FastMath.abs(bb.center.x - center.x) < getRadius()
-                + bb.xExtent
-                && FastMath.abs(bb.center.y - center.y) < getRadius()
-                + bb.yExtent
-                && FastMath.abs(bb.center.z - center.z) < getRadius()
-                + bb.zExtent) {
-            return true;
-        }
-
-        return false;
+        return Intersection.intersect(bb, center, radius);
     }
 
     /*
@@ -1013,17 +995,29 @@ public class BoundingSphere extends BoundingVolume {
         } else if (other instanceof Triangle){
             Triangle t = (Triangle) other;
             return collideWithTri(t, results);
+        } else if (other instanceof BoundingVolume) {
+            if (intersects((BoundingVolume)other)) {
+                CollisionResult result = new CollisionResult();
+                results.addCollision(result);
+                return 1;
+            }
+            return 0;
+        } else if (other instanceof Spatial) {
+            return ((Spatial)other).collideWith(this, results);
         } else {
             throw new UnsupportedCollisionException();
         }
     }
 
-    @Override public int collideWith(Collidable other) {
+    @Override
+    public int collideWith(Collidable other) {
         if (other instanceof Ray) {
             Ray ray = (Ray) other;
             return collideWithRay(ray);
         } else if (other instanceof Triangle){
             return super.collideWith(other);
+        } else if (other instanceof BoundingVolume) {
+            return intersects((BoundingVolume)other) ? 1 : 0;
         } else {
             throw new UnsupportedCollisionException();
         }

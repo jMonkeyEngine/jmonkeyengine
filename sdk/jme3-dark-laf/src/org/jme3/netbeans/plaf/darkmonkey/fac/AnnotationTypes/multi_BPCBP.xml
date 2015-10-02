@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE type PUBLIC "-//NetBeans//DTD annotation type 1.0//EN" "http://www.netbeans.org/dtds/annotation-type-1_0.dtd">
+<type actions="BreakpointActions" browseable="false" custom_sidebar_color="0xff8fd5" description_key="HINT_MULTIPLE_BREAKPOINTS" foreground="0xffffff" glyph="nbresloc:/org/netbeans/modules/debugger/resources/editor/MultiBreakpoint.png" highlight="0xfc9d9f" inherit_foreground_color="false" localizing_bundle="org.netbeans.modules.debugger.resources.Bundle" name="debugger-multi_BPCBP" priority="100" severity="ok" type="line" use_custom_sidebar_color="true" use_highlight_color="true" use_wave_underline_color="false" visible="true">
+    <combination min_optionals="1" order="200" tiptext_key="">
+        <combine absorb_all="true" annotationtype="debugger-multi_BP" optional="true"/>
+        <combine absorb_all="true" annotationtype="debugger-multi_CBP" optional="true"/>
+        <combine absorb_all="true" annotationtype="debugger-mixed_BPCBP" optional="true"/>
+    </combination>
+</type>

@@ -41,6 +41,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.*;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -313,7 +314,7 @@ public class BoundingBox extends BoundingVolume {
         transMatrix.absoluteLocal();
 
         Vector3f scale = trans.getScale();
-        vars.vect1.set(xExtent * scale.x, yExtent * scale.y, zExtent * scale.z);
+        vars.vect1.set(xExtent * FastMath.abs(scale.x), yExtent * FastMath.abs(scale.y), zExtent * FastMath.abs(scale.z));
         transMatrix.mult(vars.vect1, vars.vect2);
         // Assign the biggest rotations after scales.
         box.xExtent = FastMath.abs(vars.vect2.getX());
@@ -593,18 +594,7 @@ public class BoundingBox extends BoundingVolume {
      * @see BoundingVolume#intersectsSphere(com.jme3.bounding.BoundingSphere)
      */
     public boolean intersectsSphere(BoundingSphere bs) {
-        assert Vector3f.isValidVector(center) && Vector3f.isValidVector(bs.center);
-
-        if (FastMath.abs(center.x - bs.center.x) < bs.getRadius()
-                + xExtent
-                && FastMath.abs(center.y - bs.center.y) < bs.getRadius()
-                + yExtent
-                && FastMath.abs(center.z - bs.center.z) < bs.getRadius()
-                + zExtent) {
-            return true;
-        }
-
-        return false;
+        return bs.intersectsBoundingBox(this);
     }
 
     /**
@@ -790,6 +780,7 @@ public class BoundingBox extends BoundingVolume {
         }
     }
     
+    @Override
     public int collideWith(Collidable other, CollisionResults results) {
         if (other instanceof Ray) {
             Ray ray = (Ray) other;
@@ -802,6 +793,15 @@ public class BoundingBox extends BoundingVolume {
                 return 1;
             }
             return 0;
+        } else if (other instanceof BoundingVolume) {
+            if (intersects((BoundingVolume) other)) {
+                CollisionResult r = new CollisionResult();
+                results.addCollision(r);
+                return 1;
+            }
+            return 0;
+        } else if (other instanceof Spatial) {
+            return ((Spatial)other).collideWith(this, results);
         } else {
             throw new UnsupportedCollisionException("With: " + other.getClass().getSimpleName());
         }
@@ -818,6 +818,8 @@ public class BoundingBox extends BoundingVolume {
                 return 1;
             }
             return 0;
+        } else if (other instanceof BoundingVolume) {
+            return intersects((BoundingVolume) other) ? 1 : 0;
         } else {
             throw new UnsupportedCollisionException("With: " + other.getClass().getSimpleName());
         }

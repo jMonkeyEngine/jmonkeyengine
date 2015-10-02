@@ -11,7 +11,7 @@ import org.lwjgl.opengl.GL30;
  * 
  * @author Kirill Vainer
  */
-public class LwjglGLFboGL3 implements GLFbo {
+public final class LwjglGLFboGL3 implements GLFbo {
 
     private static void checkLimit(Buffer buffer) {
         if (buffer == null) {

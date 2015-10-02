@@ -2,6 +2,7 @@ package com.jme3.scene.plugins.blender.modifiers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -129,13 +130,18 @@ public class SubdivisionSurfaceModifier extends Modifier {
         for (int i = 0; i < temporalMesh.getVertexCount(); ++i) {
             // finding adjacent edges that were created by dividing original edges
             List<Edge> adjacentOriginalEdges = new ArrayList<Edge>();
-            for (Edge edge : temporalMesh.getAdjacentEdges(i)) {
-                if (verticesOnOriginalEdges.contains(edge.getFirstIndex()) || verticesOnOriginalEdges.contains(edge.getSecondIndex())) {
-                    adjacentOriginalEdges.add(edge);
+            Collection<Edge> adjacentEdges = temporalMesh.getAdjacentEdges(i);
+            if(adjacentEdges != null) {// this can be null if a vertex with index 'i' is not connected to any face nor edge
+                for (Edge edge : temporalMesh.getAdjacentEdges(i)) {
+                    if (verticesOnOriginalEdges.contains(edge.getFirstIndex()) || verticesOnOriginalEdges.contains(edge.getSecondIndex())) {
+                        adjacentOriginalEdges.add(edge);
+                    }
                 }
+                
+                creasePoints.add(new CreasePoint(i, boundaryVertices.contains(i), adjacentOriginalEdges, temporalMesh));
+            } else {
+                creasePoints.add(null);//the count of crease points must be equal to vertex count; otherwise we'll get IndexOutofBoundsException later
             }
-
-            creasePoints.add(new CreasePoint(i, boundaryVertices.contains(i), adjacentOriginalEdges, temporalMesh));
         }
 
         Vector3f[] averageVert = new Vector3f[temporalMesh.getVertexCount()];
@@ -174,23 +180,25 @@ public class SubdivisionSurfaceModifier extends Modifier {
         }
 
         for (int i = 0; i < averageVert.length; ++i) {
-            Vector3f v = temporalMesh.getVertices().get(i);
-            averageVert[i].divideLocal(averageCount[i]);
+            if(averageVert[i] != null && averageCount[i] > 0) {
+                Vector3f v = temporalMesh.getVertices().get(i);
+                averageVert[i].divideLocal(averageCount[i]);
 
-            // computing translation vector
-            Vector3f t = averageVert[i].subtract(v);
-            if (!boundaryVertices.contains(i)) {
-                t.multLocal(4 / (float) averageCount[i]);
-            }
+                // computing translation vector
+                Vector3f t = averageVert[i].subtract(v);
+                if (!boundaryVertices.contains(i)) {
+                    t.multLocal(4 / (float) averageCount[i]);
+                }
 
-            // moving the vertex
-            v.addLocal(t);
-
-            // applying crease weight if neccessary
-            CreasePoint creasePoint = creasePoints.get(i);
-            if (creasePoint.getTarget() != null && creasePoint.getWeight() != 0) {
-                t = creasePoint.getTarget().subtractLocal(v).multLocal(creasePoint.getWeight());
+                // moving the vertex
                 v.addLocal(t);
+
+                // applying crease weight if neccessary
+                CreasePoint creasePoint = creasePoints.get(i);
+                if (creasePoint.getTarget() != null && creasePoint.getWeight() != 0) {
+                    t = creasePoint.getTarget().subtractLocal(v).multLocal(creasePoint.getWeight());
+                    v.addLocal(t);
+                }
             }
         }
     }

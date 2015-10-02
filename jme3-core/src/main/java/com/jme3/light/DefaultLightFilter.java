@@ -44,6 +44,7 @@ public final class DefaultLightFilter implements LightFilter {
     private Camera camera;
     private final HashSet<Light> processedLights = new HashSet<Light>();
     
+    @Override
     public void setCamera(Camera camera) {
         this.camera = camera;
         for (Light light : processedLights) {
@@ -51,6 +52,7 @@ public final class DefaultLightFilter implements LightFilter {
         }
     }
 
+    @Override
     public void filterLights(Geometry geometry, LightList filteredLightList) {
         TempVars vars = TempVars.get();
         try {

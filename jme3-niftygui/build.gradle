@@ -14,3 +14,16 @@ dependencies {
     compile 'lessvoid:nifty-default-controls:1.4.1'
     compile 'lessvoid:nifty-style-black:1.4.1'
 }
+
+uploadArchives {
+    repositories.mavenDeployer {
+        pom.project {
+            repositories {
+                repository {
+                    id "nifty-maven-repo.sourceforge.net"
+                    url "http://nifty-gui.sourceforge.net/nifty-maven-repo"
+                }
+            }
+        }
+    }
+}

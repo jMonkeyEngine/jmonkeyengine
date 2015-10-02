@@ -10,6 +10,7 @@ uniform float m_YScale;
 uniform vec2 m_FrustumNearFar;
 
 in vec2 texCoord;
+out vec4 fragColor;
 
 vec4 getResult(vec4 color){
  
@@ -125,7 +126,7 @@ float readDepth(in vec2 uv){
     void main(){
         //  float depth =texture2D(m_DepthTexture,uv).r;
 
-       gl_FragColor=getResult(convolutionFilter());
+       fragColor=getResult(convolutionFilter());
       // gl_FragColor=getResult(bilateralFilter());
       //  gl_FragColor=getColor(m_SSAOMap,texCoord);
 

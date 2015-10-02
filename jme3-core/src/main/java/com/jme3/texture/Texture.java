@@ -316,7 +316,6 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
     private MinFilter minificationFilter = MinFilter.BilinearNoMipMaps;
     private MagFilter magnificationFilter = MagFilter.Bilinear;
     private ShadowCompareMode shadowCompareMode = ShadowCompareMode.Off;
-    private boolean needCompareModeUpdate = false;
     private int anisotropicFilter;
 
     /**
@@ -404,7 +403,6 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
                     "compareMode can not be null.");
         }
         this.shadowCompareMode = compareMode;
-        needCompareModeUpdate = true;
     }
 
     /**
@@ -489,7 +487,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
     /**
      * @return the anisotropic filtering level for this texture. Default value
      * is 0 (use value from config), 
-     * 1 means 1x (no anisotrophy), 2 means x2, 4 is x4, etc.
+     * 1 means 1x (no anisotropy), 2 means x2, 4 is x4, etc.
      */
     public int getAnisotropicFilter() {
         return anisotropicFilter;
@@ -636,14 +634,4 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
         magnificationFilter = capsule.readEnum("magnificationFilter",
                 MagFilter.class, MagFilter.Bilinear);
     }
-
-    public boolean isNeedCompareModeUpdate() {
-        return needCompareModeUpdate;
-    }
-
-    public void compareModeUpdated() {
-        this.needCompareModeUpdate = false;
-    }
-    
-    
 }

@@ -173,6 +173,8 @@ public class JoglNewtDisplay extends JoglNewtAbstractDisplay {
         if (waitFor){
             waitFor(false);
         }
+        if (animator.isAnimating())
+            animator.stop();
     }
 
     public void restart() {

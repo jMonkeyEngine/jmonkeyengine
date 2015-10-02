@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE type PUBLIC "-//NetBeans//DTD annotation type 1.0//EN" "http://www.netbeans.org/dtds/annotation-type-1_0.dtd">
+<type browseable="true" custom_sidebar_color="0xffbe00" description_key="LAB_parser_annotation_warn" foreground="0xffffff" glyph="nbresloc:/org/netbeans/modules/editor/hints/resources/warning-glyph.gif" inherit_foreground_color="false" localizing_bundle="org.netbeans.modules.editor.hints.resources.Bundle" name="org-netbeans-spi-editor-hints-parser_annotation_warn" priority="50" severity="warning" type="linepart" use_custom_sidebar_color="true" use_highlight_color="false" use_wave_underline_color="false" visible="true"/>

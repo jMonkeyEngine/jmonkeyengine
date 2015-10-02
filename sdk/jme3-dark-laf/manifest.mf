@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.jme3.netbeans.plaf.darkmonkey/1
+OpenIDE-Module-Implementation-Version: 0
+OpenIDE-Module-Install: org/jme3/netbeans/plaf/darkmonkey/Installer.class
+OpenIDE-Module-Layer: org/jme3/netbeans/plaf/darkmonkey/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/jme3/netbeans/plaf/darkmonkey/Bundle.properties
+

@@ -13,7 +13,7 @@ import org.lwjgl.opengl.EXTFramebufferObject;
  * 
  * @author Kirill Vainer
  */
-public class LwjglGLFboEXT implements GLFbo {
+public final class LwjglGLFboEXT implements GLFbo {
 
     private static void checkLimit(Buffer buffer) {
         if (buffer == null) {

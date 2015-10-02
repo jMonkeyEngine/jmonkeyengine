@@ -154,53 +154,34 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
     }
 
     public void fromFrame(Vector3f location, Vector3f direction, Vector3f up, Vector3f left) {
-        loadIdentity();
-
         TempVars vars = TempVars.get();
+        try {
+            Vector3f fwdVector = vars.vect1.set(direction);
+            Vector3f leftVector = vars.vect2.set(fwdVector).crossLocal(up);
+            Vector3f upVector = vars.vect3.set(leftVector).crossLocal(fwdVector);
 
-        Vector3f f = vars.vect1.set(direction);
-        Vector3f s = vars.vect2.set(f).crossLocal(up);
-        Vector3f u = vars.vect3.set(s).crossLocal(f);
-//        s.normalizeLocal();
-//        u.normalizeLocal();
+            m00 = leftVector.x;
+            m01 = leftVector.y;
+            m02 = leftVector.z;
+            m03 = -leftVector.dot(location);
 
-        m00 = s.x;
-        m01 = s.y;
-        m02 = s.z;
+            m10 = upVector.x;
+            m11 = upVector.y;
+            m12 = upVector.z;
+            m13 = -upVector.dot(location);
 
-        m10 = u.x;
-        m11 = u.y;
-        m12 = u.z;
+            m20 = -fwdVector.x;
+            m21 = -fwdVector.y;
+            m22 = -fwdVector.z;
+            m23 = fwdVector.dot(location);
 
-        m20 = -f.x;
-        m21 = -f.y;
-        m22 = -f.z;
-
-//        m00 = -left.x;
-//        m10 = -left.y;
-//        m20 = -left.z;
-//
-//        m01 = up.x;
-//        m11 = up.y;
-//        m21 = up.z;
-//
-//        m02 = -direction.x;
-//        m12 = -direction.y;
-//        m22 = -direction.z;
-//
-
-        Matrix4f transMatrix = vars.tempMat4;
-        transMatrix.loadIdentity();
-        transMatrix.m03 = -location.x;
-        transMatrix.m13 = -location.y;
-        transMatrix.m23 = -location.z;
-        this.multLocal(transMatrix);
-
-        vars.release();
-
-//        transMatrix.multLocal(this);
-
-//        set(transMatrix);
+            m30 = 0f;
+            m31 = 0f;
+            m32 = 0f;
+            m33 = 1f;
+        } finally {
+            vars.release();
+        }
     }
 
     /**

@@ -1,5 +1,5 @@
 #!/bin/sh
-#(c) jMonkeyEngine.com
+#(c) jmonkeyengine.org
 #Author Normen Hansen
 set -e
 rm -rf jdk-macosx.zip

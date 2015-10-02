@@ -68,6 +68,7 @@ public interface GLExt {
 	public static final int GL_MAX_DEPTH_TEXTURE_SAMPLES = 0x910F;
         public static final int GL_MAX_DRAW_BUFFERS_ARB = 0x8824;
 	public static final int GL_MAX_SAMPLES_EXT = 0x8D57;
+        public static final int GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT = 0x84FF;
 	public static final int GL_MULTISAMPLE_ARB = 0x809D;
         public static final int GL_NUM_PROGRAM_BINARY_FORMATS = 0x87FE;
         public static final int GL_PIXEL_PACK_BUFFER_ARB = 0x88EB;

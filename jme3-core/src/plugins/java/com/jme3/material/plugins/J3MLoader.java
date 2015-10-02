@@ -43,7 +43,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.shader.Shader;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.PlaceholderAssets;
@@ -52,10 +51,13 @@ import com.jme3.util.blockparser.Statement;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class J3MLoader implements AssetLoader {
 
@@ -126,59 +128,146 @@ public class J3MLoader implements AssetLoader {
         technique.setShadowMode(sm);
     }
 
-    private Object readValue(VarType type, String value) throws IOException{
-        if (type.isTextureType()){
-//            String texturePath = readString("[\n;(//)(\\})]");
+    private List<String> tokenizeTextureValue(final String value) {
+        final List<String> matchList = new ArrayList<String>();
+        final Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
+        final Matcher regexMatcher = regex.matcher(value.trim());
+
+        while (regexMatcher.find()) {
+            if (regexMatcher.group(1) != null) {
+                matchList.add(regexMatcher.group(1));
+            } else if (regexMatcher.group(2) != null) {
+                matchList.add(regexMatcher.group(2));
+            } else {
+                matchList.add(regexMatcher.group());
+            }
+        }
+
+        return matchList;
+    }
+
+    private List<TextureOptionValue> parseTextureOptions(final List<String> values) {
+        final List<TextureOptionValue> matchList = new ArrayList<TextureOptionValue>();
+
+        if (values.isEmpty() || values.size() == 1) {
+            return matchList;
+        }
+
+        // Loop through all but the last value, the last one is going to be the path.
+        for (int i = 0; i < values.size() - 1; i++) {
+            final String value = values.get(i);
+            final TextureOption textureOption = TextureOption.getTextureOption(value);
+
+            if (textureOption == null && !value.contains("\\") && !value.contains("/") && !values.get(0).equals("Flip") && !values.get(0).equals("Repeat")) {
+                logger.log(Level.WARNING, "Unknown texture option \"{0}\" encountered for \"{1}\" in material \"{2}\"", new Object[]{value, key, material.getKey().getName()});
+            } else if (textureOption != null){
+                final String option = textureOption.getOptionValue(value);
+                matchList.add(new TextureOptionValue(textureOption, option));
+            }
+        }
+
+        return matchList;
+    }
+
+    private boolean isTexturePathDeclaredTheTraditionalWay(final int numberOfValues, final int numberOfTextureOptions, final String texturePath) {
+        return (numberOfValues > 1 && (texturePath.startsWith("Flip Repeat ") || texturePath.startsWith("Flip ") ||
+                texturePath.startsWith("Repeat ") || texturePath.startsWith("Repeat Flip "))) || numberOfTextureOptions == 0;
+    }
+
+    private Texture parseTextureType(final VarType type, final String value) {
+        final List<String> textureValues = tokenizeTextureValue(value);
+        final List<TextureOptionValue> textureOptionValues = parseTextureOptions(textureValues);
+
+        TextureKey textureKey = null;
+
+        // If there is only one token on the value, it must be the path to the texture.
+        if (textureValues.size() == 1) {
+            textureKey = new TextureKey(textureValues.get(0), false);
+        } else {
             String texturePath = value.trim();
-            boolean flipY = false;
-            boolean repeat = false;
-            if (texturePath.startsWith("Flip Repeat ")){
-                texturePath = texturePath.substring(12).trim();
-                flipY = true;
-                repeat = true;
-            }else if (texturePath.startsWith("Flip ")){
-                texturePath = texturePath.substring(5).trim();
-                flipY = true;
-            }else if (texturePath.startsWith("Repeat ")){
-                texturePath = texturePath.substring(7).trim();
-                repeat = true;
+
+            // If there are no valid "new" texture options specified but the path is split into several parts, lets parse the old way.
+            if (isTexturePathDeclaredTheTraditionalWay(textureValues.size(), textureOptionValues.size(), texturePath)) {
+                boolean flipY = false;
+
+                if (texturePath.startsWith("Flip Repeat ") || texturePath.startsWith("Repeat Flip ")) {
+                    texturePath = texturePath.substring(12).trim();
+                    flipY = true;
+                } else if (texturePath.startsWith("Flip ")) {
+                    texturePath = texturePath.substring(5).trim();
+                    flipY = true;
+                } else if (texturePath.startsWith("Repeat ")) {
+                    texturePath = texturePath.substring(7).trim();
+                }
+
+                // Support path starting with quotes (double and single)
+                if (texturePath.startsWith("\"") || texturePath.startsWith("'")) {
+                    texturePath = texturePath.substring(1);
+                }
+
+                // Support path ending with quotes (double and single)
+                if (texturePath.endsWith("\"") || texturePath.endsWith("'")) {
+                    texturePath = texturePath.substring(0, texturePath.length() - 1);
+                }
+
+                textureKey = new TextureKey(texturePath, flipY);
             }
 
-            TextureKey texKey = new TextureKey(texturePath, flipY);
-            switch (type) {
-                case Texture3D:
-                    texKey.setTextureTypeHint(Texture.Type.ThreeDimensional);
-                    break;
-                case TextureArray:
-                    texKey.setTextureTypeHint(Texture.Type.TwoDimensionalArray);
-                    break;
-                case TextureCubeMap:
-                    texKey.setTextureTypeHint(Texture.Type.CubeMap);
-                    break;
+            if (textureKey == null) {
+                textureKey = new TextureKey(textureValues.get(textureValues.size() - 1), false);
             }
-            texKey.setGenerateMips(true);
 
-            Texture tex;
-            try {
-                tex = assetManager.loadTexture(texKey);
-            } catch (AssetNotFoundException ex){
-                logger.log(Level.WARNING, "Cannot locate {0} for material {1}", new Object[]{texKey, key});
-                tex = null;
-            }
-            if (tex != null){
-                if (repeat){
-                    tex.setWrap(WrapMode.Repeat);
+            // Apply texture options to the texture key
+            if (!textureOptionValues.isEmpty()) {
+                for (final TextureOptionValue textureOptionValue : textureOptionValues) {
+                    textureOptionValue.applyToTextureKey(textureKey);
                 }
-            }else{
-                tex = new Texture2D(PlaceholderAssets.getPlaceholderImage(assetManager));
-                if (repeat){
-                    tex.setWrap(WrapMode.Repeat);
-                }
-                tex.setKey(texKey);
-                tex.setName(texKey.getName());
             }
-            return tex;
-        }else{
+        }
+
+        switch (type) {
+            case Texture3D:
+                textureKey.setTextureTypeHint(Texture.Type.ThreeDimensional);
+                break;
+            case TextureArray:
+                textureKey.setTextureTypeHint(Texture.Type.TwoDimensionalArray);
+                break;
+            case TextureCubeMap:
+                textureKey.setTextureTypeHint(Texture.Type.CubeMap);
+                break;
+        }
+
+        textureKey.setGenerateMips(true);
+
+        Texture texture;
+
+        try {
+            texture = assetManager.loadTexture(textureKey);
+        } catch (AssetNotFoundException ex){
+            logger.log(Level.WARNING, "Cannot locate {0} for material {1}", new Object[]{textureKey, key});
+            texture = null;
+        }
+
+        if (texture == null){
+            texture = new Texture2D(PlaceholderAssets.getPlaceholderImage(assetManager));
+            texture.setKey(textureKey);
+            texture.setName(textureKey.getName());
+        }
+
+        // Apply texture options to the texture
+        if (!textureOptionValues.isEmpty()) {
+            for (final TextureOptionValue textureOptionValue : textureOptionValues) {
+                textureOptionValue.applyToTexture(texture);
+            }
+        }
+
+        return texture;
+    }
+
+    private Object readValue(final VarType type, final String value) throws IOException{
+        if (type.isTextureType()) {
+            return parseTextureType(type, value);
+        } else {
             String[] split = value.trim().split(whitespacePattern);
             switch (type){
                 case Float:
@@ -619,4 +708,125 @@ public class J3MLoader implements AssetLoader {
         }
     }
 
+    /**
+     * Texture options allow you to specify how a texture should be initialized by including an option before
+     * the path to the texture in the .j3m file.
+     * <p>
+     *     <b>Example:</b>
+     *     <pre>
+     *     DiffuseMap: MinTrilinear MagBilinear WrapRepeat_S "some/path/to a/texture.png"
+     *     </pre>
+     *     This would apply a minification filter of "Trilinear", a magnification filter of "Bilinear" and set the wrap mode to "Repeat".
+     * </p>
+     * <p>
+     *     <b>Note:</b> If several filters of the same type are added, eg. MinTrilinear MinNearestLinearMipMap, the last one will win.
+     * </p>
+     */
+    private enum TextureOption {
+
+        /**
+         * Applies a {@link com.jme3.texture.Texture.MinFilter} to the texture.
+         */
+        Min {
+            @Override
+            public void applyToTexture(final String option, final Texture texture) {
+                texture.setMinFilter(Texture.MinFilter.valueOf(option));
+            }
+        },
+
+        /**
+         * Applies a {@link com.jme3.texture.Texture.MagFilter} to the texture.
+         */
+        Mag {
+            @Override
+            public void applyToTexture(final String option, final Texture texture) {
+                texture.setMagFilter(Texture.MagFilter.valueOf(option));
+            }
+        },
+
+        /**
+         * Applies a {@link com.jme3.texture.Texture.WrapMode} to the texture. This also supports {@link com.jme3.texture.Texture.WrapAxis}
+         * by adding "_AXIS" to the texture option. For instance if you wanted to repeat on the S (horizontal) axis, you
+         * would use <pre>WrapRepeat_S</pre> as a texture option.
+         */
+        Wrap {
+            @Override
+            public void applyToTexture(final String option, final Texture texture) {
+                final int separatorPosition = option.indexOf("_");
+
+                if (separatorPosition >= option.length() - 2) {
+                    final String axis = option.substring(separatorPosition + 1);
+                    final String mode = option.substring(0, separatorPosition);
+                    final Texture.WrapAxis wrapAxis = Texture.WrapAxis.valueOf(axis);
+                    texture.setWrap(wrapAxis, Texture.WrapMode.valueOf(mode));
+                } else {
+                    texture.setWrap(Texture.WrapMode.valueOf(option));
+                }
+            }
+        },
+
+        /**
+         * Applies a {@link com.jme3.texture.Texture.WrapMode#Repeat} to the texture. This is simply an alias for
+         * WrapRepeat, please use WrapRepeat instead if possible as this may become deprecated later on.
+         */
+        Repeat {
+            @Override
+            public void applyToTexture(final String option, final Texture texture) {
+                Wrap.applyToTexture("Repeat", texture);
+            }
+        },
+
+        /**
+         * Applies flipping on the Y axis to the {@link TextureKey#setFlipY(boolean)}.
+         */
+        Flip {
+            @Override
+            public void applyToTextureKey(final String option, final TextureKey textureKey) {
+                textureKey.setFlipY(true);
+            }
+        };
+
+        public String getOptionValue(final String option) {
+            return option.substring(name().length());
+        }
+
+        public void applyToTexture(final String option, final Texture texture) {
+        }
+
+        public void applyToTextureKey(final String option, final TextureKey textureKey) {
+        }
+
+        public static TextureOption getTextureOption(final String option) {
+            for(final TextureOption textureOption : TextureOption.values()) {
+                if (option.startsWith(textureOption.name())) {
+                    return textureOption;
+                }
+            }
+
+            return null;
+        }
+    }
+
+    /**
+     * Internal object used for holding a {@link com.jme3.material.plugins.J3MLoader.TextureOption} and it's value. Also
+     * contains a couple of convenience methods for applying the TextureOption to either a TextureKey or a Texture.
+     */
+    private static class TextureOptionValue {
+
+        private final TextureOption textureOption;
+        private final String value;
+
+        public TextureOptionValue(TextureOption textureOption, String value) {
+            this.textureOption = textureOption;
+            this.value = value;
+        }
+
+        public void applyToTextureKey(final TextureKey textureKey) {
+            textureOption.applyToTextureKey(value, textureKey);
+        }
+
+        public void applyToTexture(final Texture texture) {
+            textureOption.applyToTexture(value, texture);
+        }
+    }
 }
