@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,8 +78,9 @@ public final class DefaultLightFilter implements LightFilter {
                     }
                 } else if (bv instanceof BoundingSphere) {
                     if (!Float.isInfinite( ((BoundingSphere)bv).getRadius() )) {
-                        // Non-infinite bounding sphere... Not supported yet.
-                        throw new UnsupportedOperationException("Only AABB supported for now");
+                        if (!light.intersectsSphere((BoundingSphere)bv, vars)) {
+                            continue;
+                        }
                     }
                 }
 
