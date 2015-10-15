@@ -34,6 +34,7 @@ package com.jme3.light;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
+import com.jme3.bounding.Intersection;
 import com.jme3.export.*;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -189,9 +190,7 @@ public class SpotLight extends Light {
         if (this.spotRange > 0f) {
             // Check spot range first.
             // Sphere v. box collision
-            if (FastMath.abs(box.getCenter().x - position.x) >= spotRange + box.getXExtent()
-             || FastMath.abs(box.getCenter().y - position.y) >= spotRange + box.getYExtent()
-             || FastMath.abs(box.getCenter().z - position.z) >= spotRange + box.getZExtent()) {
+            if (!Intersection.intersect(box, position, spotRange)) {
                 return false;
             }
         }
@@ -231,7 +230,7 @@ public class SpotLight extends Light {
         if (this.spotRange > 0f) {
             // Check spot range first.
             // Sphere v. sphere collision
-            if (sphere.getCenter().subtract(position).lengthSquared() >= FastMath.sqr(spotRange + sphere.getRadius())) {
+            if (!Intersection.intersect(sphere, position, spotRange)) {
                 return false;
             }
         }

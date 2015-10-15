@@ -203,7 +203,7 @@ public class PointLight extends Light {
             return true;
         } else {
             // Sphere v. sphere collision
-            return sphere.getCenter().subtract(position).lengthSquared() < FastMath.sqr(radius + sphere.getRadius());
+            return Intersection.intersect(sphere, position, radius);
         }
     }
     
