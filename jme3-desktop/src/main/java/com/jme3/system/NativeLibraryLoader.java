@@ -31,11 +31,7 @@
  */
 package com.jme3.system;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -148,8 +144,8 @@ public final class NativeLibraryLoader {
         registerNativeLibrary("lwjgl3", Platform.Linux64, "native/linux/liblwjgl.so");
         registerNativeLibrary("lwjgl3", Platform.MacOSX32, "native/macosx/liblwjgl.dylib");
         registerNativeLibrary("lwjgl3", Platform.MacOSX64, "native/macosx/liblwjgl.dylib");
-        registerNativeLibrary("lwjgl3", Platform.Windows32, "native/windows/jemalloc32.dll");
-        registerNativeLibrary("lwjgl3", Platform.Windows64, "native/windows/jemalloc.dll");
+        //registerNativeLibrary("lwjgl3", Platform.Windows32, "native/windows/jemalloc32.dll");     // These are introduced in LWJGL 3.0.0b
+        //registerNativeLibrary("lwjgl3", Platform.Windows64, "native/windows/jemalloc.dll");       // These are introduced in LWJGL 3.0.0b
 
         // OpenAL for LWJGL 3.x
         // For OSX: Need to add lib prefix when extracting
