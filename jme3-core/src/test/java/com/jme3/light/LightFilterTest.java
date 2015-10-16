@@ -139,25 +139,26 @@ public class LightFilterTest {
         
         // ==================================
         // Tests for bounding Sphere
-        geom.setLocalTranslation(0, 0, 0);
-        
+        geom.setModelBound(new BoundingSphere(1f, Vector3f.ZERO));
+        geom.setLocalTranslation(0, 0, 2);
+        pl.setPosition(new Vector3f(0, 0, 2f));
+
         // Infinite point lights must never be filtered
         pl.setRadius(0);
         checkFilteredLights(1);
-        
+     
         pl.setRadius(1f);
-        geom.setModelBound(new BoundingSphere(1f, Vector3f.ZERO));
-        
         // Put the light at the very close to the geom,
         // the very edge of the sphere touches the other bounding sphere
         // Still not considered an intersection though.
-        pl.setPosition(new Vector3f(0, 0, -2f));
+        pl.setPosition(new Vector3f(0, 0, 0));
         checkFilteredLights(0);
 
         // And more close - now its an intersection.
-        pl.setPosition(new Vector3f(0, 0, 0f));
-        checkFilteredLights(0);
-        
+        pl.setPosition(new Vector3f(0, 0, 0f + FastMath.ZERO_TOLERANCE));
+        checkFilteredLights(1);
+               
+        geom.setLocalTranslation(0, 0, 0);
         // In this case its an intersection for pointLight v. box
         // But not for pointLight v. sphere
         // Vector3f(0, 0.5f, 0.5f).normalize().mult(2) ~ >= (0.0, 1.4142135, 1.4142135)
