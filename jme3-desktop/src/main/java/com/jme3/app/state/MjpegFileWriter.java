@@ -205,7 +205,6 @@ public class MjpegFileWriter {
             baos.write(fcc3);
             baos.write(intBytes(swapInt(listSize)));
             baos.write(fcc4);
-            baos.close();
 
             return baos.toByteArray();
         }
@@ -275,7 +274,6 @@ public class MjpegFileWriter {
             baos.write(intBytes(swapInt(dwReserved[1])));
             baos.write(intBytes(swapInt(dwReserved[2])));
             baos.write(intBytes(swapInt(dwReserved[3])));
-            baos.close();
 
             return baos.toByteArray();
         }
@@ -295,7 +293,6 @@ public class MjpegFileWriter {
             baos.write(fcc);
             baos.write(intBytes(swapInt(size)));
             baos.write(fcc2);
-            baos.close();
 
             return baos.toByteArray();
         }
@@ -365,7 +362,6 @@ public class MjpegFileWriter {
             baos.write(intBytes(swapInt(top)));
             baos.write(intBytes(swapInt(right)));
             baos.write(intBytes(swapInt(bottom)));
-            baos.close();
 
             return baos.toByteArray();
         }
@@ -420,7 +416,6 @@ public class MjpegFileWriter {
             baos.write(intBytes(swapInt(biYPelsPerMeter)));
             baos.write(intBytes(swapInt(biClrUsed)));
             baos.write(intBytes(swapInt(biClrImportant)));
-            baos.close();
 
             return baos.toByteArray();
         }
@@ -445,7 +440,6 @@ public class MjpegFileWriter {
             baos.write(fcc);
             baos.write(intBytes(swapInt(listSize)));
             baos.write(fcc2);
-            baos.close();
 
             return baos.toByteArray();
         }
@@ -480,8 +474,6 @@ public class MjpegFileWriter {
                 baos.write(in.toBytes());
             }
 
-            baos.close();
-
             return baos.toByteArray();
         }
     }
@@ -504,7 +496,6 @@ public class MjpegFileWriter {
             baos.write(intBytes(swapInt(dwFlags)));
             baos.write(intBytes(swapInt(dwOffset)));
             baos.write(intBytes(swapInt(dwSize)));
-            baos.close();
 
             return baos.toByteArray();
         }
@@ -525,7 +516,6 @@ public class MjpegFileWriter {
             baos.write(fcc);
             baos.write(intBytes(swapInt(size)));
             baos.write(data);
-            baos.close();
 
             return baos.toByteArray();
         }
@@ -552,7 +542,6 @@ public class MjpegFileWriter {
         imgWrtr.write(null, new IIOImage(bi, null, null), jpgWrtPrm);
         imgOutStrm.close();
         
-        baos.close();
         return baos.toByteArray();
     }
 }
