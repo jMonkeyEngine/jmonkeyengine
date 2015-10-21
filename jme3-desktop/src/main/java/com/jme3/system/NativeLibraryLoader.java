@@ -671,7 +671,7 @@ public final class NativeLibraryLoader {
         } finally {
             // XXX: HACK. Vary loading method based on library name..
             // lwjgl and jinput handle loading by themselves.
-            if (name.equals("lwjgl")) {
+            if (name.equals("lwjgl") || name.equals("lwjgl3")) {
                 System.setProperty("org.lwjgl.librarypath", 
                                    extactionDirectory.getAbsolutePath());
             } else if (name.equals("jinput")) {
