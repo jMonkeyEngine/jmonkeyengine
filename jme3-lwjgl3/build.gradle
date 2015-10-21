@@ -11,8 +11,5 @@ repositories {
 dependencies {
     compile project(':jme3-core')
     compile project(':jme3-desktop')
-    compile 'org.lwjgl:lwjgl:3.0.0a'
-    compile group: 'org.lwjgl', name: 'lwjgl-platform', version: '3.0.0a', classifier: 'natives-windows'
-    compile group: 'org.lwjgl', name: 'lwjgl-platform', version: '3.0.0a', classifier: 'natives-linux'
-    compile group: 'org.lwjgl', name: 'lwjgl-platform', version: '3.0.0a', classifier: 'natives-osx'
+    compile files('lib/lwjgl-3.0.0b-35.jar', 'lib/lwjgl-3.0.0b-35-natives.jar')
 }

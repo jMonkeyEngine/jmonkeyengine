@@ -34,6 +34,7 @@ package com.jme3.audio.lwjgl;
 import com.jme3.audio.openal.ALC;
 import org.lwjgl.openal.ALC10;
 import org.lwjgl.openal.ALContext;
+import org.lwjgl.openal.ALDevice;
 
 import java.nio.IntBuffer;
 
@@ -42,15 +43,21 @@ import static org.lwjgl.openal.ALC10.alcGetCurrentContext;
 
 public class LwjglALC implements ALC {
 
+    private ALDevice device;
     private ALContext context;
 
     public void createALC() {
-        context = ALContext.create();
+        device = ALDevice.create();
+        context = ALContext.create(device);
     }
 
     public void destroyALC() {
         if (context != null) {
             context.destroy();
+        }
+
+        if (device != null) {
+            device.destroy();
         }
     }
 
