@@ -32,6 +32,7 @@
 package com.jme3.light;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -116,6 +117,11 @@ public class DirectionalLight extends Light {
         return true;
     }
     
+    @Override
+    public boolean intersectsSphere(BoundingSphere sphere, TempVars vars) {
+        return true;
+    }
+
     @Override
     public boolean intersectsFrustum(Camera camera, TempVars vars) {
         return true;

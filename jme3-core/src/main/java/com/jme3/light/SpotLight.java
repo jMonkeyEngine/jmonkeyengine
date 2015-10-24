@@ -32,7 +32,9 @@
 package com.jme3.light;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
+import com.jme3.bounding.Intersection;
 import com.jme3.export.*;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -188,9 +190,7 @@ public class SpotLight extends Light {
         if (this.spotRange > 0f) {
             // Check spot range first.
             // Sphere v. box collision
-            if (FastMath.abs(box.getCenter().x - position.x) >= spotRange + box.getXExtent()
-             || FastMath.abs(box.getCenter().y - position.y) >= spotRange + box.getYExtent()
-             || FastMath.abs(box.getCenter().z - position.z) >= spotRange + box.getZExtent()) {
+            if (!Intersection.intersect(box, position, spotRange)) {
                 return false;
             }
         }
@@ -212,6 +212,43 @@ public class SpotLight extends Light {
 
         if (e > 0f && e * e >= dsqr * outerAngleCosSqr) {
             D = otherCenter.subtract(position, vars.vect3);
+            dsqr = D.dot(D);
+            e = -direction.dot(D);
+
+            if (e > 0f && e * e >= dsqr * outerAngleSinSqr) {
+                return dsqr <= otherRadiusSquared;
+            } else {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    @Override
+    public boolean intersectsSphere(BoundingSphere sphere, TempVars vars) {
+        if (this.spotRange > 0f) {
+            // Check spot range first.
+            // Sphere v. sphere collision
+            if (!Intersection.intersect(sphere, position, spotRange)) {
+                return false;
+            }
+        }
+
+        float otherRadiusSquared = FastMath.sqr(sphere.getRadius());
+        float otherRadius = sphere.getRadius();
+
+        // Check if sphere is within spot angle.
+        // Cone v. sphere collision.
+        Vector3f E = direction.mult(otherRadius * outerAngleSinRcp, vars.vect1);
+        Vector3f U = position.subtract(E, vars.vect2);
+        Vector3f D = sphere.getCenter().subtract(U, vars.vect3);
+
+        float dsqr = D.dot(D);
+        float e = direction.dot(D);
+
+        if (e > 0f && e * e >= dsqr * outerAngleCosSqr) {
+            D = sphere.getCenter().subtract(position, vars.vect3);
             dsqr = D.dot(D);
             e = -direction.dot(D);
 
