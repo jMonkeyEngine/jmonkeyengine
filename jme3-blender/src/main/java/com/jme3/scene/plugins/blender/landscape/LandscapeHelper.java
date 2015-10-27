@@ -81,6 +81,7 @@ public class LandscapeHelper extends AbstractBlenderHelper {
         if ((mode & MODE_MIST) != 0) {
             LOGGER.fine("Loading fog.");
             result = new FogFilter();
+            result.setName("FIfog");
             result.setFogColor(this.toBackgroundColor(worldStructure));
         }
         return result;
