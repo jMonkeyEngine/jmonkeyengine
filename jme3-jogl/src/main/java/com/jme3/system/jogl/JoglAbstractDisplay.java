@@ -37,6 +37,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.awt.AwtMouseInput;
+import com.jme3.system.AppSettings;
 import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.AnimatorBase;
 import com.jogamp.opengl.util.FPSAnimator;
@@ -80,9 +81,13 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
         
         device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         
-        //FIXME use the settings to know whether to use the max programmable profile
-        //then call GLProfile.getMaxProgrammable(true);
-        GLCapabilities caps = new GLCapabilities(GLProfile.getMaxFixedFunc(true));
+        GLCapabilities caps;
+        if (settings.getRenderer().equals(AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE)) {
+        	caps = new GLCapabilities(GLProfile.getMaxProgrammable(true));
+        } else {
+        	caps = new GLCapabilities(GLProfile.getMaxFixedFunc(true));
+        }
+        
         caps.setHardwareAccelerated(true);
         caps.setDoubleBuffered(true);
         caps.setStencilBits(settings.getStencilBits());
