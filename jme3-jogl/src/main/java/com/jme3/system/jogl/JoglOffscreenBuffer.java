@@ -37,16 +37,18 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
-import com.jogamp.newt.NewtVersion;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLDrawableFactory;
 import com.jogamp.opengl.GLOffscreenAutoDrawable;
 import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.JoglVersion;
 
 
 public class JoglOffscreenBuffer extends JoglContext implements Runnable {
@@ -123,7 +125,7 @@ public class JoglOffscreenBuffer extends JoglContext implements Runnable {
     @Override
 	public void run(){
         loadNatives();
-        logger.log(Level.FINE, "Using JOGL {0}", NewtVersion.getInstance().getImplementationVersion());
+        logger.log(Level.FINE, "Using JOGL {0}", JoglVersion.getInstance().getImplementationVersion());
         initInThread();
         while (!needClose.get()){
             runLoop();
