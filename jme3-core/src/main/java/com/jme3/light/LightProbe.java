@@ -253,6 +253,11 @@ public class LightProbe extends Light implements Savable {
     public String toString() {
         return "Light Probe : " + position ;
     }
+
+    @Override
+    public boolean intersectsSphere(BoundingSphere sphere, TempVars vars) {
+        return getBounds().intersectsSphere(sphere);
+    }
     
     
 
