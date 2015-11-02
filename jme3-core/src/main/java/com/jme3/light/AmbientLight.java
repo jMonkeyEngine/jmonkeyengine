@@ -32,6 +32,7 @@
 package com.jme3.light;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -63,12 +64,19 @@ public class AmbientLight extends Light {
     }
     
     @Override
+    public boolean intersectsSphere(BoundingSphere sphere, TempVars vars) {
+        return true;
+    }
+
+    @Override
     public boolean intersectsFrustum(Camera camera, TempVars vars) {
         return true;
     }
     
     @Override
     public void computeLastDistance(Spatial owner) {
+        // ambient lights must always be before directional lights.
+        lastDistance = -2;
     }
 
     @Override

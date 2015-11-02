@@ -51,6 +51,7 @@ extern "C" {
         jmeClasses::initJavaClasses(env);
         btTriangleIndexVertexArray* array = reinterpret_cast<btTriangleIndexVertexArray*>(meshId);
         btGImpactMeshShape* shape = new btGImpactMeshShape(array);
+        shape->updateBound();
         return reinterpret_cast<jlong>(shape);
     }
 

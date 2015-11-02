@@ -327,12 +327,13 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
     
     public int collideWith(Collidable other) {
         TempVars tempVars = TempVars.get();
-        CollisionResults tempResults = tempVars.collisionResults;
-        tempResults.clear();
-        int retval = collideWith(other, tempResults);
-        tempVars.release();
-        return retval;
+        try {
+            CollisionResults tempResults = tempVars.collisionResults;
+            tempResults.clear();
+            return collideWith(other, tempResults);
+        } finally {
+            tempVars.release();
+        }
     }
- 
 }
 

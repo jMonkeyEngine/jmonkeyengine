@@ -77,4 +77,6 @@ public enum Limits {
     DepthTextureSamples,
 
     VertexUniformVectors,
+    
+    TextureAnisotropy,
 }

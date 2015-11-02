@@ -8,6 +8,7 @@ uniform float m_FogDensity;
 uniform float m_FogDistance;
 
 in vec2 texCoord;
+out vec4 fragColor;
 
 vec2 m_FrustumNearFar=vec2(1.0,m_FogDistance);
 const float LOG2 = 1.442695;
@@ -19,6 +20,6 @@ void main() {
 
        float fogFactor = exp2( -m_FogDensity * m_FogDensity * depth *  depth * LOG2 );
        fogFactor = clamp(fogFactor, 0.0, 1.0);
-       gl_FragColor =mix(m_FogColor,texVal,fogFactor);
+       fragColor =mix(m_FogColor,texVal,fogFactor);
 
 }

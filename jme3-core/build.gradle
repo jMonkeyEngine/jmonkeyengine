@@ -10,6 +10,11 @@ sourceSets {
             srcDir 'src/tools/java'
         }
     }
+    test {
+        java {
+            srcDir 'src/test/java'
+        }
+    }
 }
 
 task updateVersionPropertiesFile << {

@@ -1,0 +1,11 @@
+Material Test : matdef.j3md {
+     MaterialParameters {
+         Empty: "empty.png"
+         Flip: Flip "flip.png"
+         Repeat: WrapRepeat "repeat.png"
+         Min: MinTrilinear "min.png"
+         Mag: MagBilinear "mag.png"
+         RepeatAxis: WrapRepeat_T "repeat-axis.png"
+         Combined: MagNearest MinBilinearNoMipMaps Flip WrapRepeat "combined.png"
+     }
+}

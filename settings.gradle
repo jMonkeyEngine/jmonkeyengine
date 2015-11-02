@@ -15,6 +15,7 @@ include 'jme3-desktop'
 include 'jme3-blender'
 include 'jme3-jogl'
 include 'jme3-lwjgl'
+include 'jme3-lwjgl3'
 
 // Other external dependencies
 include 'jme3-jbullet'
@@ -36,7 +37,7 @@ include 'jme3-testdata'
 include 'jme3-examples'
 
 if(buildAndroidExamples == "true"){
-	include 'jme3-android-examples'
+    include 'jme3-android-examples'
 }
 
 if(buildSdkProject == "true"){

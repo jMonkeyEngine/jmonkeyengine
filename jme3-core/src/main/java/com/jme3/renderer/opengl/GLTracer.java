@@ -36,8 +36,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
 import java.util.HashMap;
 
 /**
@@ -51,6 +57,17 @@ public final class GLTracer implements InvocationHandler {
     private final IntMap<String> constMap;
     private static final HashMap<String, IntMap<Void>> nonEnumArgMap = new HashMap<String, IntMap<Void>>();
     
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_BRIGHT = "\u001B[1m";
+    private static final String ANSI_BLACK = "\u001B[30m";
+    private static final String ANSI_RED = "\u001B[31m";
+    private static final String ANSI_GREEN = "\u001B[32m";
+    private static final String ANSI_YELLOW = "\u001B[33m";
+    private static final String ANSI_BLUE = "\u001B[34m";
+    private static final String ANSI_MAGENTA = "\u001B[35m";
+    private static final String ANSI_CYAN = "\u001B[36m";
+    private static final String ANSI_WHITE = "\u001B[37m";
+
     private static void noEnumArgs(String method, int... argSlots) {
         IntMap<Void> argSlotsMap = new IntMap<Void>();
         for (int argSlot : argSlots) {
@@ -174,100 +191,305 @@ public final class GLTracer implements InvocationHandler {
                                       new GLTracer(glInterface, constMap));
     }
     
-    private String translateInteger(String method, int value, int argIndex) {
-        IntMap<Void> argSlotMap = nonEnumArgMap.get(method);
-        if (argSlotMap != null && argSlotMap.containsKey(argIndex)) {
-            return Integer.toString(value);
-        }
+    private void printStyle(String style, String string) {
+        System.out.print(style + string + ANSI_RESET);
+    }
+    
+    private void print(String string) {
+        System.out.print(string);
+    }
+    
+    private void printInt(int value) {
+        print(Integer.toString(value));
+    }
+    
+    private void printEnum(int value) {
         String enumName = constMap.get(value);
         if (enumName != null) {
-            return enumName;
+            if (enumName.startsWith("GL_")) {
+                enumName = enumName.substring(3);
+            }
+            if (enumName.endsWith("_EXT") || enumName.endsWith("_ARB")) {
+                enumName = enumName.substring(0, enumName.length() - 4);
+            }
+            printStyle(ANSI_GREEN, enumName);
         } else {
-            return "GL_ENUM_" + Integer.toHexString(value);
-            //throw new IllegalStateException("Untranslatable enum encountered on " + method + 
-            //                                " at argument " + argIndex + " with value " + value);
+            printStyle(ANSI_GREEN, "ENUM_" + Integer.toHexString(value));
         }
     }
     
-    private String translateString(String value) {
-        return "\"" + value.replaceAll("\0", "\\\\0") + "\"";
+    private void printIntOrEnum(String method, int value, int argIndex) {
+        IntMap<Void> argSlotMap = nonEnumArgMap.get(method);
+        if (argSlotMap != null && argSlotMap.containsKey(argIndex)) {
+            printInt(value);
+        } else {
+            printEnum(value);
+        }
     }
     
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Object result = method.invoke(obj, args);
-        String methodName = method.getName();
+    private void printNewLine() {
+        System.out.println();
+    }
+    
+    private void printString(String value) {
+        if (value.length() > 150) {
+            value = value.substring(0, 150) + "...";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(ANSI_YELLOW);
+        sb.append("\"");
+        sb.append(ANSI_RESET);
+        for (String line : value.split("\n")) {
+            sb.append(ANSI_YELLOW);
+            sb.append(line.replaceAll("\0", "\\\\0"));
+            sb.append(ANSI_RESET);
+            sb.append("\n");
+        }
+        if (sb.length() > 1 && sb.charAt(sb.length() - 1) == '\n') {
+            sb.setLength(sb.length() - 1);
+        }
+        sb.append(ANSI_YELLOW);
+        sb.append("\"");
+        sb.append(ANSI_RESET);
+        print(sb.toString());
+    }
+    
+    private void printBoolean(boolean bool) {
+        printStyle(ANSI_BLUE, bool ? "true" : "false");
+    }
+    
+    private void printBuffer(Buffer buffer) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(ANSI_MAGENTA);
+        if (buffer instanceof ByteBuffer) {
+            sb.append("byte");
+        } else if (buffer instanceof ShortBuffer) {
+            sb.append("short");
+        } else if (buffer instanceof CharBuffer) { 
+            sb.append("char");
+        } else if (buffer instanceof FloatBuffer) {
+            sb.append("float");
+        } else if (buffer instanceof IntBuffer) {
+            sb.append("int");
+        } else if (buffer instanceof LongBuffer) {
+            sb.append("long");
+        } else if (buffer instanceof DoubleBuffer) {
+            sb.append("double");
+        } else {
+            throw new UnsupportedOperationException();
+        }
+        sb.append(ANSI_RESET);
+        sb.append("[");
+        
+        if (buffer.position() == 0
+                && buffer.limit() == buffer.capacity()) {
+            // Common case. Just print buffer size.
+            sb.append(buffer.capacity());
+        } else {
+            sb.append("pos=").append(buffer.position());
+            sb.append(" lim=").append(buffer.limit());
+            sb.append(" cap=").append(buffer.capacity());
+        }
+        
+        sb.append("]");
+        print(sb.toString());
+    }
+    
+    private void printMethodName(String methodName) {
         if (methodName.startsWith("gl")) {
-            System.out.print(methodName);
-            System.out.print("(");
-            if (args != null) {
-                Class<?>[] paramTypes = method.getParameterTypes();
-                for (int i = 0; i < args.length; i++) {
-                    if (paramTypes[i] == int.class) {
-                        int val = (Integer)args[i];
-                        System.out.print(translateInteger(methodName, val, i));
-                    } else if (paramTypes[i] == String.class) {
-                        System.out.print(translateString((String)args[i]));
-                    } else if (paramTypes[i] == String[].class) {
-                        String[] arr = (String[]) args[i];
-                        if (arr.length == 1) {
-                            if (arr[0].length() > 150) {
-                                System.out.print("\"" + arr[0].substring(0, 150) + "...\"");
-                            } else {
-                                System.out.print("\"" + arr[0] + "\"");
-                            }
-                        } else {
-                            System.out.print("String[" + arr.length + "]");
-                        }
-                    } else if (args[i] instanceof IntBuffer) {
-                        IntBuffer buf = (IntBuffer) args[i];
-                        if (buf.capacity() == 16) {
-                            int val = buf.get(0);
-                            System.out.print("out=" + translateInteger(methodName, val, i));
-                        } else if (buf.capacity() == 1) {
-                            System.out.print("out=" + buf.get(0));
-                        } else {
-                            System.out.print(args[i]);
-                        }
-                    } else if (args[i] instanceof ByteBuffer) {
-                        ByteBuffer bb = (ByteBuffer)args[i];
-                        if (bb.capacity() == 250) {
-                            if (bb.get(0) != 0) {
-                                System.out.print("out=GL_TRUE");
-                            } else {
-                                System.out.print("out=GL_FALSE");
-                            }
-                        } else {
-                            System.out.print(args[i]);
-                        }
-                    } else {
-                        System.out.print(args[i]);
-                    }
-
-                    if (i != args.length - 1) {
-                        System.out.print(", ");
-                    }
-                }
-            }
-
-            System.out.print(")");
-
-            if (method.getReturnType() != void.class) {
-                if (result instanceof String) {
-                    System.out.println(" = " + translateString((String)result));
-                } else if (method.getReturnType() == int.class) {
-                    int val = (Integer)result;
-                    System.out.println(" = " + translateInteger(methodName, val, -1));
-                } else if (method.getReturnType() == boolean.class) {
-                    boolean val = (Boolean)result;
-                    if (val) System.out.println(" = GL_TRUE");
-                    else System.out.println(" = GL_FALSE");
-                } else {
-                    System.out.println(" = ???");
-                }
+            // GL calls which actually draw (as opposed to change state)
+            // will be printed in darker color
+            methodName = methodName.substring(2);
+            if (methodName.equals("Clear")
+                    || methodName.equals("DrawRangeElements")) {
+                print(methodName);
             } else {
-                System.out.println();
+                if (methodName.endsWith("EXT")) {
+                    methodName = methodName.substring(0, methodName.length() - 3);
+                }
+                printStyle(ANSI_BRIGHT, methodName);
+            }
+        } else if (methodName.equals("resetStats")) {
+            printStyle(ANSI_RED, "-- frame boundary --");
+        }
+    }
+    
+    private void printArgsClear(int mask) {
+        boolean needAPipe = false;
+        print("(");
+        if ((mask & GL.GL_COLOR_BUFFER_BIT) != 0) {
+            printStyle(ANSI_GREEN, "COLOR_BUFFER_BIT");
+            needAPipe = true;
+        }
+        if ((mask & GL.GL_DEPTH_BUFFER_BIT) != 0) {
+            if (needAPipe) {
+                print(" | ");
+            }
+            printStyle(ANSI_GREEN, "DEPTH_BUFFER_BIT");
+        }
+        if ((mask & GL.GL_STENCIL_BUFFER_BIT) != 0) {
+            if (needAPipe) {
+                print(" | ");
+            }
+            printStyle(ANSI_GREEN, "STENCIL_BUFFER_BIT");
+        }
+        print(")");
+    }
+    
+    private void printArgsGetInteger(Object[] args) {
+        print("(");
+        int param = (Integer)args[0];
+        IntBuffer ib = (IntBuffer) args[1];
+        printEnum(param);
+        print(", ");
+        printOut();
+        if (param == GL2.GL_DRAW_BUFFER || param == GL2.GL_READ_BUFFER) {
+            printEnum(ib.get(0));
+        } else {
+            printInt(ib.get(0));
+        }
+        print(")");
+    }
+    
+    private void printArgsTexParameter(Object[] args) {
+        print("(");
+
+        int target = (Integer) args[0];
+        int param = (Integer) args[1];
+        int value = (Integer) args[2];
+
+        printEnum(target);
+        print(", ");
+        printEnum(param);
+        print(", ");
+        
+        if (param == GL.GL_TEXTURE_BASE_LEVEL
+                || param == GL.GL_TEXTURE_MAX_LEVEL) {
+            printInt(value);
+        } else {
+            printEnum(value);
+        }
+        
+        print(")");
+    }
+    
+    private void printOut() {
+        printStyle(ANSI_CYAN, "out=");
+    }
+    
+    private void printResult(String methodName, Object result, Class<?> returnType) {
+        if (returnType != void.class) {
+            print(" = ");
+            if (result instanceof String) {
+                printString((String) result);
+            } else if (returnType == int.class) {
+                int val = (Integer) result;
+                printIntOrEnum(methodName, val, -1);
+            } else if (returnType == boolean.class) {
+                printBoolean((Boolean)result);
+            } else {
+                print(" = ???");
             }
         }
-        return result;
+    }
+    
+    private void printNull() {
+        printStyle(ANSI_BLUE, "null");
+    }
+    
+    private void printArgs(String methodName, Object[] args, Class<?>[] paramTypes) {
+        if (methodName.equals("glClear")) {
+            printArgsClear((Integer)args[0]);
+            return;
+        } else if (methodName.equals("glTexParameteri")) {
+            printArgsTexParameter(args);
+            return;
+        } else if (methodName.equals("glGetInteger")) {
+            printArgsGetInteger(args);
+            return;
+        }
+        
+        if (args == null) {
+            print("()");
+            return;
+        }
+        
+        print("(");
+        for (int i = 0; i < args.length; i++) {
+            if (paramTypes[i] == int.class) {
+                int val = (Integer)args[i];
+                printIntOrEnum(methodName, val, i);
+            } else if (paramTypes[i] == boolean.class) {
+                printBoolean((Boolean)args[i]);
+            } else if (paramTypes[i] == String.class) {
+                printString((String)args[i]);
+            } else if (paramTypes[i] == String[].class) {
+                String[] arr = (String[]) args[i];
+                if (arr.length == 1) {
+                    printString(arr[0]);
+                } else {
+                    print("string[" + arr.length + "]");
+                }
+            } else if (args[i] instanceof IntBuffer) {
+                IntBuffer buf = (IntBuffer) args[i];
+                if (buf.capacity() == 16) {
+                    int val = buf.get(0);
+                    printOut();
+                    printIntOrEnum(methodName, val, i);
+                } else if (buf.capacity() == 1) {
+                    printOut();
+                    print(Integer.toString(buf.get(0)));
+                } else {
+                    printBuffer(buf);
+                }
+            } else if (args[i] instanceof ByteBuffer) {
+                ByteBuffer bb = (ByteBuffer)args[i];
+                if (bb.capacity() == 250) {
+                    printOut();
+                    printBoolean(bb.get(0) != 0);
+                } else {
+                    printBuffer(bb);
+                }
+            } else if (args[i] instanceof Buffer) {
+                printBuffer((Buffer)args[i]);
+            } else if (args[i] != null) {
+                print(args[i].toString());
+            } else {
+                printNull();
+            }
+
+            if (i != args.length - 1) {
+                System.out.print(", ");
+            }
+        }
+        print(")");
+    }
+    
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        String methodName = method.getName();
+        printMethodName(methodName);
+        
+        if (methodName.startsWith("gl")) {
+            try {
+                // Try to evaluate result first, so we can see output values.
+                Object result = method.invoke(obj, args);
+                printArgs(methodName, args, method.getParameterTypes());
+                printResult(methodName, result, method.getReturnType());
+                printNewLine();
+                return result;
+            } catch (Throwable ex) {
+                // Execution failed, print args anyway
+                // but output values will be incorrect.
+                printArgs(methodName, args, method.getParameterTypes());
+                printNewLine();
+                System.out.println("\tException occurred!");
+                System.out.println(ex.toString());
+                throw ex;
+            }
+        } else {
+            printNewLine();
+            return method.invoke(obj, args);
+        }
     }
 }

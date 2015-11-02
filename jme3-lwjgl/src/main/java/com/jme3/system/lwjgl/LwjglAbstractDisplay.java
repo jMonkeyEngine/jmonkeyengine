@@ -40,7 +40,6 @@ import com.jme3.input.lwjgl.JInputJoyInput;
 import com.jme3.input.lwjgl.LwjglKeyInput;
 import com.jme3.input.lwjgl.LwjglMouseInput;
 import com.jme3.system.AppSettings;
-import com.jme3.system.JmeContext.Type;
 import com.jme3.system.JmeSystem;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;

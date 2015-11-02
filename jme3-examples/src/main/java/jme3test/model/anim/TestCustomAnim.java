@@ -73,6 +73,13 @@ public class TestCustomAnim extends SimpleApplication {
 
         Box box = new Box(1, 1, 1);
 
+        VertexBuffer weightsHW = new VertexBuffer(Type.HWBoneWeight);
+        VertexBuffer indicesHW = new VertexBuffer(Type.HWBoneIndex);
+        indicesHW.setUsage(Usage.CpuOnly);
+        weightsHW.setUsage(Usage.CpuOnly);
+        box.setBuffer(weightsHW);
+        box.setBuffer(indicesHW);
+        
         // Setup bone weight buffer
         FloatBuffer weights = FloatBuffer.allocate( box.getVertexCount() * 4 );
         VertexBuffer weightsBuf = new VertexBuffer(Type.BoneWeight);

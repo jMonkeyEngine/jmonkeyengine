@@ -154,8 +154,9 @@ void main(){
     #ifdef VERTEX_LIGHTING
        vec2 light = vertexLightValues.xy;
        #ifdef COLORRAMP
-           light.x = texture2D(m_ColorRamp, vec2(light.x, 0.0)).r;
-           light.y = texture2D(m_ColorRamp, vec2(light.y, 0.0)).r;
+            diffuseColor.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
+            specularColor.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
+            light.xy = vec2(1.0);
        #endif
 
        gl_FragColor.rgb =  AmbientSum     * diffuseColor.rgb + 
@@ -183,8 +184,9 @@ void main(){
 
        vec2   light = computeLighting(normal, viewDir, lightDir.xyz, lightDir.w * spotFallOff, m_Shininess) ;
        #ifdef COLORRAMP
-           diffuseColor.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
-           specularColor.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
+            diffuseColor.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
+            specularColor.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
+            light.xy = vec2(1.0);
        #endif
 
        // Workaround, since it is not possible to modify varying variables

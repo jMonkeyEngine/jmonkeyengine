@@ -32,6 +32,7 @@
 package com.jme3.light;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -80,7 +81,9 @@ public class DirectionalLight extends Light {
 
     @Override
     public void computeLastDistance(Spatial owner) {
-        lastDistance = 0; // directional lights are always closest to their owner
+        // directional lights are after ambient lights
+        // but before all other lights.
+        lastDistance = -1; 
     }
 
     /**
@@ -114,6 +117,11 @@ public class DirectionalLight extends Light {
         return true;
     }
     
+    @Override
+    public boolean intersectsSphere(BoundingSphere sphere, TempVars vars) {
+        return true;
+    }
+
     @Override
     public boolean intersectsFrustum(Camera camera, TempVars vars) {
         return true;

@@ -32,13 +32,15 @@
 package com.jme3.light;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
+import com.jme3.bounding.Intersection;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
@@ -191,9 +193,17 @@ public class PointLight extends Light {
             return true;
         } else {
             // Sphere v. box collision
-            return FastMath.abs(box.getCenter().x - position.x) < radius + box.getXExtent()
-                && FastMath.abs(box.getCenter().y - position.y) < radius + box.getYExtent()
-                && FastMath.abs(box.getCenter().z - position.z) < radius + box.getZExtent();
+            return Intersection.intersect(box, position, radius);
+        }
+    }
+    
+    @Override
+    public boolean intersectsSphere(BoundingSphere sphere, TempVars vars) {
+        if (this.radius == 0) {
+            return true;
+        } else {
+            // Sphere v. sphere collision
+            return Intersection.intersect(sphere, position, radius);
         }
     }
     

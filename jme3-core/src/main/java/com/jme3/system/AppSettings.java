@@ -110,6 +110,33 @@ public final class AppSettings extends HashMap<String, Object> {
      * @see AppSettings#setAudioRenderer(java.lang.String)
      */
     public static final String ANDROID_OPENAL_SOFT = "OpenAL_SOFT";
+    
+    /**
+     * Use JogAmp's JOGL as the display system, with the OpenGL forward compatible profile
+     * <p>
+     * N.B: This backend is EXPERIMENTAL
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String JOGL_OPENGL_FORWARD_COMPATIBLE = "JOGL_OPENGL_FORWARD_COMPATIBLE";
+    
+    /**
+     * Use JogAmp's JOGL as the display system with the backward compatible profile
+     * <p>
+     * N.B: This backend is EXPERIMENTAL
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String JOGL_OPENGL_BACKWARD_COMPATIBLE = "JOGL_OPENGL_BACKWARD_COMPATIBLE";
+    
+    /**
+     * Use JogAmp's JOAL as the display system
+     * <p>
+     * N.B: This backend is EXPERIMENTAL
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String JOAL = "JOAL";
 
     static {
         defaults.put("Width", 640);
@@ -120,7 +147,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("StencilBits", 0);
         defaults.put("Samples", 0);
         defaults.put("Fullscreen", false);
-        defaults.put("Title", "jMonkey Engine 3.0");
+        defaults.put("Title", JmeVersion.FULL_NAME);
         defaults.put("Renderer", LWJGL_OPENGL2);
         defaults.put("AudioRenderer", LWJGL_OPENAL);
         defaults.put("DisableJoysticks", true);

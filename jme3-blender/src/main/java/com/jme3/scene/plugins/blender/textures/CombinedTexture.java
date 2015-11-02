@@ -158,6 +158,9 @@ public class CombinedTexture {
                         } else {
                             resultUVS = userDefinedUVCoordinates.get(textureData.uvCoordinatesName);
                         }
+                        if(resultUVS == null && LOGGER.isLoggable(Level.WARNING)) {
+                            LOGGER.warning("The texture " + textureData.texture.getName() + " has assigned non existing UV coordinates group: " + textureData.uvCoordinatesName + ".");
+                        }
                         masterUserUVSetName = textureData.uvCoordinatesName;
                     } else {
                         TemporalMesh temporalMesh = (TemporalMesh) blenderContext.getLoadedFeature(geometriesOMA, LoadedDataType.TEMPORAL_MESH);

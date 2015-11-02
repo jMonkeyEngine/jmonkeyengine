@@ -168,9 +168,11 @@ public final class MaterialContext implements Savable {
 
                     this.setTexture(material, combinedTexture.getMappingType(), combinedTexture.getResultTexture());
                     List<Vector2f> uvs = combinedTexture.getResultUVS();
-                    VertexBuffer uvCoordsBuffer = new VertexBuffer(TextureHelper.TEXCOORD_TYPES[textureIndex++]);
-                    uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(uvs.toArray(new Vector2f[uvs.size()])));
-                    geometry.getMesh().setBuffer(uvCoordsBuffer);
+                    if(uvs != null && uvs.size() > 0) {
+                        VertexBuffer uvCoordsBuffer = new VertexBuffer(TextureHelper.TEXCOORD_TYPES[textureIndex++]);
+                        uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(uvs.toArray(new Vector2f[uvs.size()])));
+                        geometry.getMesh().setBuffer(uvCoordsBuffer);
+                    }//uvs might be null if the user assigned non existing UV coordinates group name to the mesh (this should be fixed in blender file)
                 } else {
                     LOGGER.log(Level.WARNING, "The texture could not be applied because JME only supports up to {0} different UV's.", TextureHelper.TEXCOORD_TYPES.length);
                 }

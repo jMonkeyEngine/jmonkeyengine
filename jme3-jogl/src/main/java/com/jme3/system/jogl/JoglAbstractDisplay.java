@@ -37,7 +37,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.awt.AwtMouseInput;
-import com.jme3.renderer.jogl.JoglRenderer;
+import com.jme3.system.AppSettings;
 import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.AnimatorBase;
 import com.jogamp.opengl.util.FPSAnimator;
@@ -47,15 +47,6 @@ import java.awt.GraphicsEnvironment;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
-import com.jogamp.opengl.DebugGL2;
-import com.jogamp.opengl.DebugGL3;
-import com.jogamp.opengl.DebugGL3bc;
-import com.jogamp.opengl.DebugGL4;
-import com.jogamp.opengl.DebugGL4bc;
-import com.jogamp.opengl.DebugGLES1;
-import com.jogamp.opengl.DebugGLES2;
-import com.jogamp.opengl.DebugGLES3;
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLEventListener;
@@ -90,9 +81,13 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
         
         device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         
-        //FIXME use the settings to know whether to use the max programmable profile
-        //then call GLProfile.getMaxProgrammable(true);
-        GLCapabilities caps = new GLCapabilities(GLProfile.getMaxFixedFunc(true));
+        GLCapabilities caps;
+        if (settings.getRenderer().equals(AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE)) {
+        	caps = new GLCapabilities(GLProfile.getMaxProgrammable(true));
+        } else {
+        	caps = new GLCapabilities(GLProfile.getMaxFixedFunc(true));
+        }
+        
         caps.setHardwareAccelerated(true);
         caps.setDoubleBuffered(true);
         caps.setStencilBits(settings.getStencilBits());
@@ -127,57 +122,9 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
         canvas.setSize(settings.getWidth(), settings.getHeight());
         canvas.setIgnoreRepaint(true);
         canvas.addGLEventListener(this);
-
-        if (settings.getBoolean("GraphicsDebug")) {
-            canvas.invoke(false, new GLRunnable() {
-                public boolean run(GLAutoDrawable glad) {
-                    GL gl = glad.getGL();
-                    if (gl.isGLES()) {
-                        if (gl.isGLES1()) {
-                            glad.setGL(new DebugGLES1(gl.getGLES1()));
-                        } else {
-                            if (gl.isGLES2()) {
-                                glad.setGL(new DebugGLES2(gl.getGLES2()));
-                            } else {
-                                if (gl.isGLES3()) {
-                                	glad.setGL(new DebugGLES3(gl.getGLES3()));
-                                }
-                            }
-                        }
-                    } else {
-                        if (gl.isGL4bc()) {
-                            glad.setGL(new DebugGL4bc(gl.getGL4bc()));
-                        } else {
-                            if (gl.isGL4()) {
-                                glad.setGL(new DebugGL4(gl.getGL4()));
-                            } else {
-                                if (gl.isGL3bc()) {
-                                    glad.setGL(new DebugGL3bc(gl.getGL3bc()));
-                                } else {
-                                    if (gl.isGL3()) {
-                                        glad.setGL(new DebugGL3(gl.getGL3()));
-                                    } else {
-                                        if (gl.isGL2()) {
-                                            glad.setGL(new DebugGL2(gl.getGL2()));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    return true;
-                }
-            });
-        }
         
-        renderer = new JoglRenderer();
-        
-        canvas.invoke(false, new GLRunnable() {
-            public boolean run(GLAutoDrawable glad) {
-                renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
-                return true;
-            }
-        });
+        //FIXME not sure it is the best place to do that
+        renderable.set(true);
     }
 
     protected void startGLCanvas() {
@@ -192,9 +139,6 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
 
         animator.start();
         wasAnimating = true;
-        
-        //FIXME not sure it is the best place to do that
-        renderable.set(true);
     }
 
     protected void onCanvasAdded() {

@@ -418,7 +418,7 @@ task cleanSdk() <<{
     file("JME3TestsTemplateAndroid/src/jmetest/").deleteDir()
 }
 
+tasks.remove(uploadArchives)
+
 jar.dependsOn(buildSdk)
-clean.dependsOn(cleanSdk);
-
-
+clean.dependsOn(cleanSdk)
