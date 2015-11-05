@@ -80,7 +80,7 @@ void PBR_ComputeDirectLight(vec3 normal, vec3 lightDir, vec3 viewDir,
     float D = alpha2 / denom;  
 
     // Compute Fresnel function via Schlick's approximation.
-    float fresnel = fZero + ( 1.0 - fZero ) * pow( 1.0 - hdotv, 5.0 );
+    float fresnel = fZero + ( 1.0 - fZero ) * pow( 2.0, (-5.55473 * hdotv - 6.98316) * hdotv);
     
     //G Shchlick GGX Gometry shadowing term,  k = alpha/2
     float k = alpha * 0.5;
