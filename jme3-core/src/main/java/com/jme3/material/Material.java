@@ -787,12 +787,15 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 }
                 ColorRGBA color = l.getColor();
                 //Color
-                lightData.setVector4InArray(color.getRed(),
-                        color.getGreen(),
-                        color.getBlue(),
-                        l.getType().getId(),
-                        lightDataIndex);
-                lightDataIndex++;
+                
+                if(l.getType() != Light.Type.Probe){
+                    lightData.setVector4InArray(color.getRed(),
+                            color.getGreen(),
+                            color.getBlue(),
+                            l.getType().getId(),
+                            lightDataIndex);
+                    lightDataIndex++;
+                }
 
                 switch (l.getType()) {
                     case Directional:
