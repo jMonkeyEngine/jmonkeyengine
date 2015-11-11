@@ -215,7 +215,7 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
 
     @Override
     public void mousePressed(MouseEvent newtEvt) {
-        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(newtEvt), true, newtEvt.getX(), newtEvt.getY());
+        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(newtEvt), true, newtEvt.getX(), component.getSurfaceHeight() - newtEvt.getY());
         evt.setTime(newtEvt.getWhen());
         synchronized (eventQueue) {
             eventQueue.add(evt);
@@ -224,7 +224,7 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
 
     @Override
      public void mouseReleased(MouseEvent awtEvt) {
-        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(awtEvt), false, awtEvt.getX(), awtEvt.getY());
+        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(awtEvt), false, awtEvt.getX(), component.getSurfaceHeight() - awtEvt.getY());
         evt.setTime(awtEvt.getWhen());
         synchronized (eventQueue) {
             eventQueue.add(evt);
