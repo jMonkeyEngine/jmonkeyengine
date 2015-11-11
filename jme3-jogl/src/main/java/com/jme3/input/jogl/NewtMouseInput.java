@@ -176,7 +176,7 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
 
             // invert DY
             int actualX = lastKnownLocation.getX();
-            int actualY = component.getHeight() - lastKnownLocation.getY();
+            int actualY = component.getSurfaceHeight() - lastKnownLocation.getY();
             MouseMotionEvent evt = new MouseMotionEvent(actualX, actualY,
                                                         newX - lastEventX,
                                                         lastEventY - newY,
@@ -285,8 +285,8 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
     private void recenterMouse(final GLWindow component) {
         eventsSinceRecenter = 0;
         isRecentering = true;
-        centerLocation.setX(component.getWidth() / 2);
-        centerLocation.setY(component.getHeight() / 2);
+        centerLocation.setX(component.getSurfaceWidth() / 2);
+        centerLocation.setY(component.getSurfaceHeight() / 2);
         centerLocationOnScreen.setX(centerLocation.getX());
         centerLocationOnScreen.setY(centerLocation.getY());
         
