@@ -38,6 +38,7 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.LightList;
+import com.jme3.light.LightProbe;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.scene.Geometry;
@@ -179,6 +180,9 @@ public class JmeSpatialChildren extends Children.Keys<Object> {
             }
             if (pair.getLight() instanceof AmbientLight) {
                 return new Node[]{new JmeAmbientLight(pair.getSpatial(), (AmbientLight) pair.getLight()).setReadOnly(readOnly)};
+            }
+            if (pair.getLight() instanceof LightProbe) {
+                return new Node[]{new JmeLightProbe(pair.getSpatial(), (LightProbe) pair.getLight()).setReadOnly(readOnly)};
             }
             return new Node[]{new JmeLight(pair.getSpatial(), pair.getLight()).setReadOnly(readOnly)};
         } else if (key instanceof MeshGeometryPair) {
