@@ -36,9 +36,13 @@ import com.jme3.gde.core.properties.TexturePropertyEditor;
 import com.jme3.gde.core.properties.preview.DDSPreview;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.texture.Texture;
+import com.jme3.util.SkyFactory;
 import java.awt.Component;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import jme3tools.converters.ImageToAwt;
@@ -51,6 +55,12 @@ public final class SkyboxVisualPanel2 extends JPanel {
     /** Creates new form SkyboxVisualPanel2 */
     public SkyboxVisualPanel2() {
         initComponents();
+        
+        DefaultComboBoxModel<SkyFactory.EnvMapType> model = new DefaultComboBoxModel<SkyFactory.EnvMapType>();
+        for (SkyFactory.EnvMapType value : SkyFactory.EnvMapType.values()) {
+            model.addElement(value);
+        }
+        mapTypeCombo.setModel(model);
     }
 
     @Override
@@ -140,11 +150,12 @@ public final class SkyboxVisualPanel2 extends JPanel {
         normal2X = new javax.swing.JTextField();
         normal2Y = new javax.swing.JTextField();
         normal2Z = new javax.swing.JTextField();
-        spheremapCheckBox = new javax.swing.JCheckBox();
         singlePic = new javax.swing.JLabel();
         flipYcheckBox = new javax.swing.JCheckBox();
+        mapTypeCombo = new javax.swing.JComboBox();
+        jLabel10 = new javax.swing.JLabel();
 
-        titleLabel.setFont(new java.awt.Font("Tahoma", 1, 14));
+        titleLabel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(titleLabel, org.openide.util.NbBundle.getMessage(SkyboxVisualPanel2.class, "SkyboxVisualPanel2.titleLabel.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(SkyboxVisualPanel2.class, "SkyboxVisualPanel2.jLabel1.text")); // NOI18N
@@ -279,7 +290,7 @@ public final class SkyboxVisualPanel2 extends JPanel {
                                 .addComponent(multipleTexTopLoadButton)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(topPic, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addContainerGap(29, Short.MAX_VALUE))
         );
         multipleTexturePanelLayout.setVerticalGroup(
             multipleTexturePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -315,7 +326,7 @@ public final class SkyboxVisualPanel2 extends JPanel {
                         .addGroup(multipleTexturePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel5)
                             .addComponent(multipleTexTopLoadButton))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(multipleTexturePanelLayout.createSequentialGroup()
                         .addComponent(westPic, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -346,11 +357,18 @@ public final class SkyboxVisualPanel2 extends JPanel {
 
         normal2Z.setText(org.openide.util.NbBundle.getMessage(SkyboxVisualPanel2.class, "SkyboxVisualPanel2.normal2Z.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(spheremapCheckBox, org.openide.util.NbBundle.getMessage(SkyboxVisualPanel2.class, "SkyboxVisualPanel2.spheremapCheckBox.text")); // NOI18N
-
         org.openide.awt.Mnemonics.setLocalizedText(singlePic, org.openide.util.NbBundle.getMessage(SkyboxVisualPanel2.class, "SkyboxVisualPanel2.singlePic.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(flipYcheckBox, org.openide.util.NbBundle.getMessage(SkyboxVisualPanel2.class, "SkyboxVisualPanel2.flipYcheckBox.text")); // NOI18N
+
+        mapTypeCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        mapTypeCombo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mapTypeComboActionPerformed(evt);
+            }
+        });
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel10, org.openide.util.NbBundle.getMessage(SkyboxVisualPanel2.class, "SkyboxVisualPanel2.jLabel10.text")); // NOI18N
 
         javax.swing.GroupLayout singleTexturePanelLayout = new javax.swing.GroupLayout(singleTexturePanel);
         singleTexturePanel.setLayout(singleTexturePanelLayout);
@@ -359,11 +377,16 @@ public final class SkyboxVisualPanel2 extends JPanel {
             .addGroup(singleTexturePanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(singleTexturePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(flipYcheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(singleTexturePanelLayout.createSequentialGroup()
+                        .addComponent(jLabel10)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(mapTypeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(singleTexturePanelLayout.createSequentialGroup()
                         .addComponent(jLabel8)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(21, 21, 21)
                         .addComponent(singleTexLoadButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(2, 2, 2)
                         .addComponent(singlePic, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(39, 39, 39)
                         .addComponent(jLabel9)
@@ -372,11 +395,8 @@ public final class SkyboxVisualPanel2 extends JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(normal2Y, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(6, 6, 6)
-                        .addComponent(normal2Z, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(singleTexturePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(flipYcheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(spheremapCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(31, Short.MAX_VALUE))
+                        .addComponent(normal2Z, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         singleTexturePanelLayout.setVerticalGroup(
             singleTexturePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -394,7 +414,9 @@ public final class SkyboxVisualPanel2 extends JPanel {
                             .addComponent(normal2Z, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel9))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(spheremapCheckBox)
+                .addGroup(singleTexturePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(mapTypeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel10))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(flipYcheckBox)
                 .addContainerGap(75, Short.MAX_VALUE))
@@ -565,11 +587,17 @@ public final class SkyboxVisualPanel2 extends JPanel {
             }
         }
     }//GEN-LAST:event_singleTexLoadButtonActionPerformed
+
+    private void mapTypeComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mapTypeComboActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_mapTypeComboActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel bottomPic;
     private javax.swing.JLabel eastPic;
     private javax.swing.JCheckBox flipYcheckBox;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -578,6 +606,7 @@ public final class SkyboxVisualPanel2 extends JPanel {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JComboBox mapTypeCombo;
     private javax.swing.JButton multipleTexBottomLoadButton;
     private javax.swing.JButton multipleTexEastLoadButton;
     private javax.swing.JButton multipleTexNorthLoadButton;
@@ -596,7 +625,6 @@ public final class SkyboxVisualPanel2 extends JPanel {
     private javax.swing.JButton singleTexLoadButton;
     private javax.swing.JPanel singleTexturePanel;
     private javax.swing.JLabel southPic;
-    private javax.swing.JCheckBox spheremapCheckBox;
     private javax.swing.JLabel titleLabel;
     private javax.swing.JLabel topPic;
     private javax.swing.JLabel westPic;
@@ -626,9 +654,10 @@ public final class SkyboxVisualPanel2 extends JPanel {
         return normal2Z;
     }
 
-    public JCheckBox getSpheremapCheckBox() {
-        return spheremapCheckBox;
+    public SkyFactory.EnvMapType getEnvMapType(){
+        return (SkyFactory.EnvMapType)mapTypeCombo.getSelectedItem();
     }
+    
     
     public JCheckBox getFlipYCheckBox() {
         return flipYcheckBox;
