@@ -1,0 +1,9 @@
+Material Pong Rock PBR : Common/MatDefs/Light/PBRLighting.j3md {
+     MaterialParameters {
+         Roughness : 1.0
+         Metallic : 0.0
+         BaseColorMap : Repeat Textures/Terrain/BrickWall/BrickWall.jpg
+         NormalMap : Repeat Textures/Terrain/BrickWall/BrickWall_normal_parallax.dds
+         PackedNormalParallax: true
+     }
+}

@@ -1,0 +1,45 @@
+MaterialDef Simple {
+    MaterialParameters {
+        TextureCubeMap CubeMap
+    }
+    Technique {
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldMatrix
+            CameraPosition
+        }
+        VertexShaderNodes {
+            ShaderNode Reflect {
+                Definition : Reflect : Common/MatDefs/ShaderNodes/Environment/reflect.j3sn
+                InputMappings {
+                    normal = Attr.inNormal
+                    position = Global.position.xyz
+                    worldMatrix = WorldParam.WorldMatrix
+                    camPosition = WorldParam.CameraPosition
+                }
+            }
+            ShaderNode CommonVert {
+                Definition : CommonVert : Common/MatDefs/ShaderNodes/Common/CommonVert.j3sn
+                InputMappings {
+                    worldViewProjectionMatrix = WorldParam.WorldViewProjectionMatrix
+                    modelPosition = Global.position.xyz
+                }
+                OutputMappings {
+                    Global.position = projPosition
+                }
+            }
+        }
+        FragmentShaderNodes {
+            ShaderNode EnvMapping {
+                Definition : EnvMapping : Common/MatDefs/ShaderNodes/Environment/envMapping.j3sn
+                InputMappings {
+                    refVec = Reflect.refVec
+                    cubeMap = MatParam.CubeMap
+                }
+                OutputMappings {
+                    Global.color = color
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,11 @@
+Material My Material : Common/MatDefs/Light/PBRLighting.j3md {
+     MaterialParameters {
+        BaseColorMap : Repeat Textures/Terrain/BrickWall/BrickWall.jpg
+        Roughness : 0.01
+        NormalMap : Repeat Textures/Terrain/BrickWall/BrickWall_normal.jpg
+        Metallic : 1.0
+        BaseColor : 1.0 1.0 1.0 1.0
+     }
+    AdditionalRenderState {
+    }
+}
