@@ -149,7 +149,7 @@ public final class NativeLibraryLoader {
         registerNativeLibrary("glfw-lwjgl3", Platform.Windows32, "native/windows/glfw32.dll");
         registerNativeLibrary("glfw-lwjgl3", Platform.Windows64, "native/windows/glfw.dll");
         registerNativeLibrary("glfw-lwjgl3", Platform.Linux32, "native/linux/libglfw32.so");
-        registerNativeLibrary("glfw-lwjgl3", Platform.Linux64, "native/linux/libglfw.dll");
+        registerNativeLibrary("glfw-lwjgl3", Platform.Linux64, "native/linux/libglfw.so");
         registerNativeLibrary("glfw-lwjgl3", Platform.MacOSX32, "native/macosx/libglfw.dylib");
         registerNativeLibrary("glfw-lwjgl3", Platform.MacOSX64, "native/macosx/libglfw.dylib");
 

@@ -123,7 +123,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
         }
 
         listener.update();
-        checkGLError();
+        assert checkGLError();
 
         renderer.postFrame();
         

@@ -69,14 +69,16 @@ public class AddSkyboxAction extends AbstractNewSpatialWizardAction {
         } else {
             Texture textureSingle = (Texture) wiz.getProperty("textureSingle");
             Vector3f normalScale = (Vector3f) wiz.getProperty("normalScale");
-            boolean useSpheremap = (Boolean) wiz.getProperty("useSpheremap");
+            SkyFactory.EnvMapType type = (SkyFactory.EnvMapType) wiz.getProperty("envMapType");
             boolean flipY = (Boolean) wiz.getProperty("flipY");
             // reload the texture so we can use flipY
             TextureKey key = (TextureKey) textureSingle.getKey();
             TextureKey newKey = new TextureKey(key.getName(), flipY);
             newKey.setGenerateMips(true);
-            newKey.setAsCube(!useSpheremap);
-            return SkyFactory.createSky(pm, pm.loadTexture(newKey), normalScale, useSpheremap);
+            if(type == SkyFactory.EnvMapType.CubeMap){
+                newKey.setTextureTypeHint(Texture.Type.CubeMap);
+            }
+            return SkyFactory.createSky(pm, pm.loadTexture(newKey), normalScale, type); 
         }
     }
 
