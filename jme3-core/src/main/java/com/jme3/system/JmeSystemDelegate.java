@@ -153,6 +153,10 @@ public abstract class JmeSystemDelegate {
             return false;
         } else if (arch.equals("universal")) {
             return false;
+        } else if (arch.equals("aarch32")) {
+            return false;
+        } else if (arch.equals("aarch64")) {
+            return true;
         } else if (arch.equals("arm")) {
             return false;
         } else {
