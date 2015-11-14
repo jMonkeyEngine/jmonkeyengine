@@ -1021,7 +1021,7 @@ public class ParticleEmitter extends Geometry {
             Particle p = emitParticle(min, max);
             if (p != null){
                 p.life -= tpf;
-                if (lastPos != null) {
+                if (lastPos != null && isInWorldSpace()) {
                     p.position.interpolateLocal(lastPos, 1 - tpf / originalTpf);
                 }
                 if (p.life <= 0){
