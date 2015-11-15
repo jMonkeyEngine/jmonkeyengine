@@ -33,6 +33,7 @@ package jme3test.network;
 
 import com.jme3.network.Client;
 import com.jme3.network.ClientStateListener;
+import com.jme3.network.ErrorListener;
 import com.jme3.network.Message;
 import com.jme3.network.MessageListener;
 import com.jme3.network.Network;
@@ -92,6 +93,7 @@ public class TestChatClient extends JFrame {
                 host, TestChatServer.PORT, TestChatServer.UDP_PORT);
         client.addMessageListener(new ChatHandler(), ChatMessage.class);
         client.addClientStateListener(new ChatClientStateListener());
+        client.addErrorListener(new ChatErrorListener());
         client.start();
         
         System.out.println("Started client:" + client);        
@@ -101,7 +103,9 @@ public class TestChatClient extends JFrame {
     public void dispose() {
         System.out.println("Chat window closing.");
         super.dispose();
-        client.close();
+        if( client.isConnected() ) {
+            client.close();
+        }
     }
 
     public static String getString(Component owner, String title, String message, String initialValue) {
@@ -165,7 +169,27 @@ public class TestChatClient extends JFrame {
 
         @Override
         public void clientDisconnected(Client c, DisconnectInfo info) {
-            System.out.println("clientDisconnected(" + c + ")");
+            System.out.println("clientDisconnected(" + c + "):" + info);
+            if( info != null ) {
+                // The connection was closed by the server
+                JOptionPane.showMessageDialog(rootPane, 
+                                          info.reason, 
+                                          "Connection Closed", 
+                                          JOptionPane.INFORMATION_MESSAGE);
+                dispose();
+            }
+        }        
+    }
+    
+    private class ChatErrorListener implements ErrorListener<Client> {
+
+        @Override
+        public void handleError( Client source, Throwable t ) {
+            System.out.println("handleError(" + source + ", " + t + ")");
+            JOptionPane.showMessageDialog(rootPane, 
+                                          String.valueOf(t), 
+                                          "Connection Error", 
+                                          JOptionPane.ERROR_MESSAGE);
         }
         
     }
