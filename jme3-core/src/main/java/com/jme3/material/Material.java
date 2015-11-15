@@ -777,6 +777,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         Vector4f tmpVec = vars.vect4f1;
         int curIndex;
         int endIndex = numLights + startIndex;
+        boolean useIBL = false;
         for (curIndex = startIndex; curIndex < endIndex && curIndex < lightList.size(); curIndex++) {
 
 
@@ -841,7 +842,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                         lightDataIndex++;
                         break;
                     case Probe:
-                        
+                        useIBL = true;
+                        technique.setUseIndirectLighting(true);
                         endIndex++;
                         LightProbe probe = (LightProbe)l;
                         BoundingSphere s = (BoundingSphere)probe.getBounds();
@@ -862,6 +864,10 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 }
         }
         vars.release();
+        
+        if(!useIBL ){ 
+            technique.setUseIndirectLighting(false);            
+        }
         //Padding of unsued buffer space
         while(lightDataIndex < numLights * 3) {
             lightData.setVector4InArray(0f, 0f, 0f, 0f, lightDataIndex);
@@ -1238,7 +1244,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                         nbRenderedLights = updateLightListUniforms(shader, geom, lights, rm.getSinglePassLightBatchSize(), rm, nbRenderedLights);
                         r.setShader(shader);
                         renderMeshFromGeometry(r, geom);
-                    }
+                    }                    
                 }
                 return;
             case FixedPipeline:

@@ -202,7 +202,7 @@ void main(){
         gl_FragColor.rgb += directLighting * fallOff;
     }
 
- //   #ifdef INDIRECT_LIGHTING
+    #ifdef INDIRECT_LIGHTING
         vec3 rv = reflect(-viewDir.xyz, normal.xyz);
         //prallax fix for spherical bounds.
         rv = g_ProbeData.w * (wPosition - g_ProbeData.xyz) +rv;
@@ -223,7 +223,7 @@ void main(){
         vec3 indirectLighting =  indirectDiffuse + indirectSpecular;
         
         gl_FragColor.rgb = gl_FragColor.rgb + indirectLighting ;        
-  //  #endif
+    #endif
  
     #if defined(EMISSIVE) || defined (EMISSIVEMAP)
         #ifdef EMISSIVEMAP

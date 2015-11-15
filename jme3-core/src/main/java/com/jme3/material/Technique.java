@@ -187,6 +187,15 @@ public class Technique /* implements Savable */ {
             loadShader(assetManager,rendererCaps);
         }
     }
+    
+    public void setUseIndirectLighting(boolean useIBL){
+        if(useIBL){
+            defines.set("INDIRECT_LIGHTING", VarType.Boolean, true);
+        }else{
+            defines.remove("INDIRECT_LIGHTING");
+        }
+        needReload = true;
+    }
 
     private void loadShader(AssetManager manager,EnumSet<Caps> rendererCaps) {
         

@@ -265,13 +265,15 @@ public class TestPbrEnv extends SimpleApplication implements ActionListener {
         inputManager.addMapping("down", new KeyTrigger(KeyInput.KEY_DOWN));
         inputManager.addMapping("right", new KeyTrigger(KeyInput.KEY_RIGHT));
         inputManager.addMapping("left", new KeyTrigger(KeyInput.KEY_LEFT));
+        inputManager.addMapping("delete", new KeyTrigger(KeyInput.KEY_DELETE));
 
-        inputManager.addListener(this, "switchGroundMat", "snapshot", "debugTex", "debugProbe", "fc", "up", "down", "left", "right");
+        inputManager.addListener(this, "delete","switchGroundMat", "snapshot", "debugTex", "debugProbe", "fc", "up", "down", "left", "right");
     }
     
     private LightProbe lastProbe;
     private Node debugGui ;
 
+    @Override
     public void onAction(String name, boolean keyPressed, float tpf) {
 
         if (name.equals("switchGroundMat") && keyPressed) {
@@ -289,6 +291,13 @@ public class TestPbrEnv extends SimpleApplication implements ActionListener {
             ((BoundingSphere)lastProbe.getBounds()).setRadius(200);
             rootNode.addLight(lastProbe);
 
+        }
+        
+        if (name.equals("delete") && keyPressed) {           
+            System.err.println(rootNode.getWorldLightList().size());
+            rootNode.removeLight(lastProbe);           
+            System.err.println("deleted");
+            System.err.println(rootNode.getWorldLightList().size());
         }
 
         if (name.equals("fc") && keyPressed) {
