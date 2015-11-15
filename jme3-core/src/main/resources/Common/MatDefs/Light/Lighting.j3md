@@ -114,8 +114,84 @@ MaterialDef Phong Lighting {
         //For instancing
         Boolean UseInstancing
     }
+    Technique {
+        LightMode SinglePass
+        
+        VertexShader GLSL150:   Common/MatDefs/Light/SPLighting.vert
+        FragmentShader GLSL150: Common/MatDefs/Light/SPLighting.frag
 
- Technique {
+        WorldParameters {
+            WorldViewProjectionMatrix
+            NormalMatrix
+            WorldViewMatrix
+            ViewMatrix
+            CameraPosition
+            WorldMatrix
+            ViewProjectionMatrix            
+        }
+
+        Defines {           
+            VERTEX_COLOR : UseVertexColor
+            VERTEX_LIGHTING : VertexLighting           
+            MATERIAL_COLORS : UseMaterialColors         
+            DIFFUSEMAP : DiffuseMap
+            NORMALMAP : NormalMap
+            SPECULARMAP : SpecularMap
+            PARALLAXMAP : ParallaxMap
+            NORMALMAP_PARALLAX : PackedNormalParallax
+            STEEP_PARALLAX : SteepParallax
+            ALPHAMAP : AlphaMap
+            COLORRAMP : ColorRamp
+            LIGHTMAP : LightMap
+            SEPARATE_TEXCOORD : SeparateTexCoord
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            USE_REFLECTION : EnvMap
+            SPHERE_MAP : SphereMap  
+            NUM_BONES : NumberOfBones                        
+            INSTANCING : UseInstancing
+        }
+    }
+
+    Technique {
+
+        LightMode MultiPass
+
+        VertexShader GLSL150:   Common/MatDefs/Light/Lighting.vert
+        FragmentShader GLSL150: Common/MatDefs/Light/Lighting.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            NormalMatrix
+            WorldViewMatrix
+            ViewMatrix
+            CameraPosition
+            WorldMatrix
+            ViewProjectionMatrix            
+        }
+
+        Defines {
+            VERTEX_COLOR : UseVertexColor
+            VERTEX_LIGHTING : VertexLighting            
+            MATERIAL_COLORS : UseMaterialColors
+            DIFFUSEMAP : DiffuseMap
+            NORMALMAP : NormalMap
+            SPECULARMAP : SpecularMap
+            PARALLAXMAP : ParallaxMap
+            NORMALMAP_PARALLAX : PackedNormalParallax
+            STEEP_PARALLAX : SteepParallax
+            ALPHAMAP : AlphaMap
+            COLORRAMP : ColorRamp
+            LIGHTMAP : LightMap
+            SEPARATE_TEXCOORD : SeparateTexCoord
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            USE_REFLECTION : EnvMap
+            SPHERE_MAP : SphereMap  
+            NUM_BONES : NumberOfBones                        
+            INSTANCING : UseInstancing
+        }
+    }
+
+    Technique {
         LightMode SinglePass
         
         VertexShader GLSL100:   Common/MatDefs/Light/SPLighting.vert
