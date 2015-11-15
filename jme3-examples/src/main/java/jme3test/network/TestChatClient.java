@@ -114,7 +114,12 @@ public class TestChatClient extends JFrame {
     }
 
     public static void main(String... args) throws Exception {
-        TestChatServer.initializeClasses();
+    
+        // Note: in JME 3.1 this is generally unnecessary as the server will
+        // send a message with all server-registered classes.
+        // TestChatServer.initializeClasses();
+        // Leaving the call commented out to be illustrative regarding the
+        // common old pattern.
 
         // Grab a host string from the user
         String s = getString(null, "Host Info", "Enter chat host:", "localhost");
