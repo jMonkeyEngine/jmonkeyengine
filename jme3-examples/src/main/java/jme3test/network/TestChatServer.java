@@ -34,6 +34,7 @@ package jme3test.network;
 import com.jme3.network.*;
 import com.jme3.network.serializing.Serializable;
 import com.jme3.network.serializing.Serializer;
+import java.io.IOException;
 
 /**
  *  A simple test chat server.  When SM implements a set
@@ -51,6 +52,24 @@ public class TestChatServer {
     public static final int PORT = 5110;
     public static final int UDP_PORT = 5110;
 
+    private Server server;
+    
+    public TestChatServer() throws IOException {
+        initializeClasses();
+
+        // Use this to test the client/server name version check
+        this.server = Network.createServer(NAME, VERSION, PORT, UDP_PORT);
+
+        ChatHandler handler = new ChatHandler();
+        server.addMessageListener(handler, ChatMessage.class);
+        
+        server.addConnectionListener(new ChatConnectionListener());
+    }
+
+    public void start() {
+        server.start();
+    }
+
     public static void initializeClasses() {
         // Doing it here means that the client code only needs to
         // call our initialize. 
@@ -58,15 +77,12 @@ public class TestChatServer {
     }
 
     public static void main(String... args) throws Exception {
-        initializeClasses();
-
-        // Use this to test the client/server name version check
-        Server server = Network.createServer(NAME, VERSION, PORT, UDP_PORT);
-        server.start();
-
-        ChatHandler handler = new ChatHandler();
-        server.addMessageListener(handler, ChatMessage.class);
-
+    
+        TestChatServer chatServer = new TestChatServer();
+        chatServer.start();
+ 
+        System.out.println("Waiting for connections on port:" + PORT);
+                
         // Keep running basically forever
         synchronized (NAME) {
             NAME.wait();
@@ -78,6 +94,7 @@ public class TestChatServer {
         public ChatHandler() {
         }
 
+        @Override
         public void messageReceived(HostedConnection source, Message m) {
             if (m instanceof ChatMessage) {
                 // Keep track of the name just in case we 
@@ -96,6 +113,20 @@ public class TestChatServer {
         }
     }
 
+    private static class ChatConnectionListener implements ConnectionListener {
+
+        @Override
+        public void connectionAdded( Server server, HostedConnection conn ) {
+            System.out.println("connectionAdded(" + conn + ")");
+        }
+
+        @Override
+        public void connectionRemoved(Server server, HostedConnection conn) {
+            System.out.println("connectionRemoved(" + conn + ")");
+        }
+        
+    }
+    
     @Serializable
     public static class ChatMessage extends AbstractMessage {
 
@@ -126,6 +157,7 @@ public class TestChatServer {
             return message;
         }
 
+        @Override
         public String toString() {
             return name + ":" + message;
         }

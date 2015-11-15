@@ -32,6 +32,7 @@
 package jme3test.network;
 
 import com.jme3.network.Client;
+import com.jme3.network.ClientStateListener;
 import com.jme3.network.Message;
 import com.jme3.network.MessageListener;
 import com.jme3.network.Network;
@@ -51,11 +52,11 @@ import jme3test.network.TestChatServer.ChatMessage;
  */
 public class TestChatClient extends JFrame {
 
-    private Client client;
-    private JEditorPane chatLog;
-    private StringBuilder chatMessages = new StringBuilder();
-    private JTextField nameField;
-    private JTextField messageField;
+    private final Client client;
+    private final JEditorPane chatLog;
+    private final StringBuilder chatMessages = new StringBuilder();
+    private final JTextField nameField;
+    private final JTextField messageField;
 
     public TestChatClient(String host) throws IOException {
         super("jME3 Test Chat Client - to:" + host);
@@ -90,7 +91,15 @@ public class TestChatClient extends JFrame {
         client = Network.connectToServer(TestChatServer.NAME, TestChatServer.VERSION,
                 host, TestChatServer.PORT, TestChatServer.UDP_PORT);
         client.addMessageListener(new ChatHandler(), ChatMessage.class);
+        client.addClientStateListener(new ChatClientStateListener());
         client.start();
+    }
+
+    @Override
+    public void dispose() {
+        System.out.println("Chat window closing.");
+        super.dispose();
+        client.close();
     }
 
     public static String getString(Component owner, String title, String message, String initialValue) {
@@ -108,12 +117,23 @@ public class TestChatClient extends JFrame {
             return;
         }
 
+        // Register a shutdown hook to get a message on the console when the
+        // app actually finishes
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    System.out.println("Chat client is terminating.");
+                }
+            });
+
+
         TestChatClient test = new TestChatClient(s);
         test.setVisible(true);
     }
 
     private class ChatHandler implements MessageListener<Client> {
 
+        @Override
         public void messageReceived(Client source, Message m) {
             ChatMessage chat = (ChatMessage) m;
 
@@ -134,15 +154,30 @@ public class TestChatClient extends JFrame {
         }
     }
 
+    private class ChatClientStateListener implements ClientStateListener {
+
+        @Override
+        public void clientConnected(Client c) {
+            System.out.println("clientConnected()");
+        }
+
+        @Override
+        public void clientDisconnected(Client c, DisconnectInfo info) {
+            System.out.println("clientDisconnected()");
+        }
+        
+    }
+    
     private class SendAction extends AbstractAction {
 
-        private boolean reliable;
+        private final boolean reliable;
 
         public SendAction(boolean reliable) {
             super(reliable ? "TCP" : "UDP");
             this.reliable = reliable;
         }
 
+        @Override
         public void actionPerformed(ActionEvent evt) {
             String name = nameField.getText();
             String message = messageField.getText();
