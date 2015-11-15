@@ -67,6 +67,10 @@ public class TestChatServer {
         server.addConnectionListener(new ChatConnectionListener());
     }
 
+    public boolean isRunning() {
+        return isRunning;
+    }
+    
     public synchronized void start() {
         if( isRunning ) {
             return;
