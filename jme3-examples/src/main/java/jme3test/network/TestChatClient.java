@@ -93,6 +93,8 @@ public class TestChatClient extends JFrame {
         client.addMessageListener(new ChatHandler(), ChatMessage.class);
         client.addClientStateListener(new ChatClientStateListener());
         client.start();
+        
+        System.out.println("Started client:" + client);        
     }
 
     @Override
@@ -158,12 +160,12 @@ public class TestChatClient extends JFrame {
 
         @Override
         public void clientConnected(Client c) {
-            System.out.println("clientConnected()");
+            System.out.println("clientConnected(" + c + ")");
         }
 
         @Override
         public void clientDisconnected(Client c, DisconnectInfo info) {
-            System.out.println("clientDisconnected()");
+            System.out.println("clientDisconnected(" + c + ")");
         }
         
     }
