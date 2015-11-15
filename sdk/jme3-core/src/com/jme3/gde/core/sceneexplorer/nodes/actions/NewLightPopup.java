@@ -56,6 +56,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.loaders.DataObject;
 import org.openide.util.Lookup;
 import org.openide.util.actions.Presenter;
@@ -196,9 +198,30 @@ public class NewLightPopup extends AbstractAction implements Presenter.Popup {
                         envCam.setPosition(new Vector3f(0, 0, 0));                    
                     }
                     LightProbe lightProbe = LightProbeFactory.makeProbe(envCam, node, new JobProgressAdapter<LightProbe>() {
+
+                        int lastProgress;
+                        
+                        ProgressHandle handle = ProgressHandleFactory.createHandle("Generating environment maps");
+                        @Override
+                        public void start() {
+                            handle.start(100);
+                        }
+
+                        @Override
+                        public void progress(double value) {
+                            lastProgress = (int)(value * 100);
+                            handle.progress(lastProgress);
+                        }
+
+                        @Override
+                        public void step(String message) {
+                            handle.progress(message,lastProgress);                            
+                        }
+                        
+                        
                         @Override
                         public void done(LightProbe t) {
-                            System.err.println("Done computing env maps");
+                            handle.finish();
                             ((BoundingSphere)t.getBounds()).setRadius(200);
                         }
                     });                                
