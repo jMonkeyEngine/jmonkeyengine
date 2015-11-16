@@ -39,7 +39,8 @@ import java.util.List;
 
 
 /**
- *
+ *  Internal information about a shared class.  This is the information
+ *  that is sent over the wire for shared types.
  *
  *  @author    Paul Speed
  */

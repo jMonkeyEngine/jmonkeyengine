@@ -46,7 +46,30 @@ import java.util.logging.Logger;
 
 
 /**
+ *  A service that can be added to the host to support a simple
+ *  shared objects protocol.
  *
+ *  <p>Objects are shared by adding them to the RmiRegistry with one of the
+ *  share() methods.  Shared objects must have a separate interface and implementation.
+ *  The interface is what the other end of the connection will use to interact
+ *  with the object and that interface class must be available on both ends of
+ *  the connection.  The implementing class need only be on the sharing end.</p>
+ *
+ *  <p>Shared objects can be accessed on the other end of the connection by
+ *  using one of the RmiRegistry's getRemoteObject() methods.  These can be
+ *  used to lookup an object by class if it is a shared singleton or by name
+ *  if it was registered with a name.</p>
+ *
+ *  <p>On the hosting side, a special shardGlobal() method is provided that
+ *  will register shared objects that will automatically be provided to every
+ *  new joining client and they will all be calling the same server-side instance.
+ *  Normally, shared objects themselves are connection specific and handled
+ *  at the connection layer.  The shareGlobal() space is a way to have global
+ *  resources passed directly though the need is relatively rare.</p>
+ * 
+ *  <p>Note: This RMI implementation is not as advanced as Java's regular
+ *  RMI as it won't marshall shared references, ie: you can't pass
+ *  a shared objects as an argument to another shared object's method.</p>
  *
  *  @author    Paul Speed
  */
@@ -74,14 +97,34 @@ public class RmiHostedService extends AbstractHostedService {
         Serializer.registerClasses(ClassInfo.class, MethodInfo.class);
     }
 
+    /**
+     *  Shares a server-wide object associated with the specified type.  All connections
+     *  with RMI hosting started will have access to this shared object as soon as they 
+     *  connect and they will all share the same instance.  It is up to the shared object 
+     *  to handle any multithreading that might be required.
+     */     
     public <T> void shareGlobal( T object, Class<? super T> type ) {
         shareGlobal(defaultChannel, type.getName(), object, type);
     }
     
+    /**
+     *  Shares a server-wide object associated with the specified name.  All connections
+     *  with RMI hosting started will have access to this shared object as soon as they 
+     *  connect and they will all share the same instance.  It is up to the shared object 
+     *  to handle any multithreading that might be required.
+     */     
     public <T> void shareGlobal( String name, T object, Class<? super T> type ) {
         shareGlobal(defaultChannel, name, object, type);
     }
     
+    /**
+     *  Shares a server-wide object associated with the specified name over the specified
+     *  channel.  All connections with RMI hosting started will have access to this shared 
+     *  object as soon as they connect and they will all share the same instance.  It is up 
+     *  to the shared object to handle any multithreading that might be required.
+     *  All network communcation associated with the shared object will be done over
+     *  the specified channel. 
+     */     
     public <T> void shareGlobal( byte channel, String name, T object, Class<? super T> type ) {
         GlobalShare share = new GlobalShare(channel, object, type);
         GlobalShare existing = globalShares.put(name, share);
@@ -99,14 +142,30 @@ public class RmiHostedService extends AbstractHostedService {
         }
     } 
 
+    /**
+     *  Set to true if all new connections should automatically have RMI hosting started.
+     *  Set to false if the game-specific connection setup will call startHostingOnConnection()
+     *  after some connection setup is done (for example, logging in).  Note: generally
+     *  is is safe to autohost RMI as long as callers are careful about what they've added
+     *  using shareGlobal().  One reasonable use-case is to shareGlobal() some kind of login
+     *  service and nothing else.  All other shared objects would then be added as connection
+     *  specific objects during successful login processing. 
+     */
     public void setAutoHost( boolean b ) {
         this.autoHost = b;
     }
  
+    /**
+     *  Returns true if RMI hosting is automatically started for all new connections. 
+     */
     public boolean getAutoHost() {
         return autoHost;
     }
 
+    /**
+     *  Returns the RMI registry for the specific HostedConection.  Each connection
+     *  has its own registry with its own connection-specific shared objects.
+     */
     public RmiRegistry getRmiRegistry( HostedConnection hc ) {
         return hc.getAttribute(ATTRIBUTE_NAME);
     }

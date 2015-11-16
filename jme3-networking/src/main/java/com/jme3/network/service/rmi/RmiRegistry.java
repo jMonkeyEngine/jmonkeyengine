@@ -87,18 +87,45 @@ public class RmiRegistry {
         rpc.registerHandler(rmiId, rmiHandler);
     }
     
+    /**
+     *  Exposes the specified object to the other end of the connection as
+     *  the specified interface type.  The object can be looked up by type
+     *  on the other end.
+     */
     public <T> void share( T object, Class<? super T> type ) {
         share(defaultChannel, object, type);       
     }
     
+    /**
+     *  Exposes, through a specific connection channel, the specified object 
+     *  to the other end of the connection as the specified interface type.  
+     *  The object can be looked up by type on the other end.
+     *  The specified channel will be used for all network communication
+     *  specific to this object. 
+     */
     public <T> void share( byte channel, T object, Class<? super T> type ) {
         share(channel, type.getName(), object, type);
     } 
     
+    /**
+     *  Exposes the specified object to the other end of the connection as
+     *  the specified interface type and associates it with the specified name.  
+     *  The object can be looked up by the associated name on the other end of
+     *  the connection.
+     */
     public <T> void share( String name, T object, Class<? super T> type ) {
         share(defaultChannel, name, object, type);
     }
     
+    /**
+     *  Exposes, through a specific connection channel, the specified object to 
+     *  the other end of the connection as the specified interface type and associates 
+     *  it with the specified name.  
+     *  The object can be looked up by the associated name on the other end of
+     *  the connection.
+     *  The specified channel will be used for all network communication
+     *  specific to this object. 
+     */
     public <T> void share( byte channel, String name, T object, Class<? super T> type ) {
         
         ClassInfo typeInfo = classCache.getClassInfo(type);
@@ -153,16 +180,18 @@ public class RmiRegistry {
     }
  
     /**
-     *  Returns an object that was previously registered with share().
+     *  Returns a local object that was previously registered with share() using
+     *  just type registration.
      */
-    public <T> T getSharedObject( Class<T> type ) {
-        return getSharedObject(type.getName(), type);
+    public <T> T getLocalObject( Class<T> type ) {
+        return getLocalObject(type.getName(), type);
     }
     
     /**
-     *  Returns an object that was previously registered with share().
+     *  Returns a local object that was previously registered with share() using
+     *  name registration.
      */
-    public <T> T getSharedObject( String name, Class<T> type ) {
+    public <T> T getLocalObject( String name, Class<T> type ) {
         local.lock.readLock().lock();
         try {
             return type.cast(local.byName.get(name));
@@ -171,10 +200,24 @@ public class RmiRegistry {
         }
     }   
     
+    /**
+     *  Looks up a remote object by type and returns a local proxy to the remote object 
+     *  that was shared on the other end of the network connection.  If this is called 
+     *  from a client then it is accessing a shared object registered on the server.  
+     *  If this is called from the server then it is accessing a shared object registered 
+     *  on the client.
+     */
     public <T> T getRemoteObject( Class<T> type ) {
         return getRemoteObject(type.getName(), type);
     }
 
+    /**
+     *  Looks up a remote object by name and returns a local proxy to the remote object 
+     *  that was shared on the other end of the network connection.  If this is called 
+     *  from a client then it is accessing a shared object registered on the server.  
+     *  If this is called from the server then it is accessing a shared object registered 
+     *  on the client.
+     */
     public <T> T getRemoteObject( String name, Class<T> type ) {
         remote.lock.readLock().lock();
         try {

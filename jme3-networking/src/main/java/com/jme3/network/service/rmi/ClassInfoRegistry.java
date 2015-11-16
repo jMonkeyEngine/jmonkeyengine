@@ -40,7 +40,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 /**
- *
+ *  Internal registry of shared types and their ClassInfo and MethodInfo
+ *  objects.
  *
  *  @author    Paul Speed
  */

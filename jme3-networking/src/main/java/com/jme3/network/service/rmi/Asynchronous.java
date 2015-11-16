@@ -41,7 +41,9 @@ import static java.lang.annotation.RetentionPolicy.*;
 /**
  *  Indicates that a given method should be executed asynchronously
  *  through the RMI service.  This must annotate the method on the
- *  shared interface for it to have an effect.
+ *  shared interface for it to have an effect.  If reliable=false
+ *  is specified then remote method invocation is done over UDP
+ *  instead of TCP, ie: unreliably... but faster.
  *
  *  @author    Paul Speed
  */

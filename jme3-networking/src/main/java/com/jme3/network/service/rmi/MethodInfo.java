@@ -39,7 +39,8 @@ import javax.jws.Oneway;
 
 
 /**
- *
+ *  Internal information about shared methods.  This is part of the data that
+ *  is passed over the wire when an object is shared. 
  *
  *  @author    Paul Speed
  */

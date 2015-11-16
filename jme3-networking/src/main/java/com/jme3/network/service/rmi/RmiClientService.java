@@ -41,7 +41,23 @@ import java.util.List;
 
 
 /**
+ *  A service that can be added to the client to support a simple
+ *  shared objects protocol.
  *
+ *  <p>Objects are shared by adding them to the RmiRegistry with one of the
+ *  share() methods.  Shared objects must have a separate interface and implementation.
+ *  The interface is what the other end of the connection will use to interact
+ *  with the object and that interface class must be available on both ends of
+ *  the connection.  The implementing class need only be on the sharing end.</p>
+ *
+ *  <p>Shared objects can be accessed on the other end of the connection by
+ *  using one of the RmiRegistry's getRemoteObject() methods.  These can be
+ *  used to lookup an object by class if it is a shared singleton or by name
+ *  if it was registered with a name.</p>
+ * 
+ *  <p>Note: This RMI implementation is not as advanced as Java's regular
+ *  RMI as it won't marshall shared references, ie: you can't pass
+ *  a shared objects as an argument to another shared object's method.</p>
  *
  *  @author    Paul Speed
  */
@@ -64,18 +80,42 @@ public class RmiClientService extends AbstractClientService {
         this.rmiObjectId = rmiObjectId;
     }
 
+    /**
+     *  Shares the specified object with the server and associates it with the 
+     *  specified type.  Objects shared in this way are available in the connection-specific
+     *  RMI registry on the server and are not available to other connections.
+     */
     public <T> void share( T object, Class<? super T> type ) {
         share(defaultChannel, object, type);       
     }
     
+    /**
+     *  Shares the specified object with the server and associates it with the 
+     *  specified type.  Objects shared in this way are available in the connection-specific
+     *  RMI registry on the server and are not available to other connections.
+     *  All object related communication will be done over the specified connection
+     *  channel.
+     */
     public <T> void share( byte channel, T object, Class<? super T> type ) {
         share(channel, type.getName(), object, type);
     } 
     
+    /**
+     *  Shares the specified object with the server and associates it with the 
+     *  specified name.  Objects shared in this way are available in the connection-specific
+     *  RMI registry on the server and are not available to other connections.
+     */
     public <T> void share( String name, T object, Class<? super T> type ) {
         share(defaultChannel, name, object, type);
     }
     
+    /**
+     *  Shares the specified object with the server and associates it with the 
+     *  specified name.  Objects shared in this way are available in the connection-specific
+     *  RMI registry on the server and are not available to other connections.
+     *  All object related communication will be done over the specified connection
+     *  channel.
+     */
     public <T> void share( byte channel, String name, T object, Class<? super T> type ) {
         if( !isStarted ) {
             synchronized(pending) {
@@ -90,10 +130,18 @@ public class RmiClientService extends AbstractClientService {
         rmi.share(channel, name, object, type);
     }
 
+    /**
+     *  Looks up a remote object on the server by type and returns a local proxy to the 
+     *  remote object that was shared on the other end of the network connection.  
+     */
     public <T> T getRemoteObject( Class<T> type ) {
         return rmi.getRemoteObject(type);
     }
         
+    /**
+     *  Looks up a remote object on the server by name and returns a local proxy to the 
+     *  remote object that was shared on the other end of the network connection.  
+     */
     public <T> T getRemoteObject( String name, Class<T> type ) {
         return rmi.getRemoteObject(name, type);
     }    

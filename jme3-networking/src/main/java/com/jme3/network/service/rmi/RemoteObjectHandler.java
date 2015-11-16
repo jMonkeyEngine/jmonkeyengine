@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
- *
+ *  Used internally to remotely invoke methods on RMI shared objects.
  *
  *  @author    Paul Speed
  */

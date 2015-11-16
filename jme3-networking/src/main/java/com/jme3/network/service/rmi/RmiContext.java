@@ -45,7 +45,11 @@ import com.jme3.network.HostedConnection;
  */
 public class RmiContext {
     private static final ThreadLocal<HostedConnection> connection = new ThreadLocal<HostedConnection>();
-    
+ 
+    /**
+     *  Returns the HostedConnection that is responsible for any
+     *  RMI-related calls on this thread.
+     */   
     public static HostedConnection getRmiConnection() {
         return connection.get();
     }
