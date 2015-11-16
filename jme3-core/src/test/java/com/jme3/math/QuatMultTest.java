@@ -62,8 +62,8 @@ public class QuatMultTest {
             
             randVect(vect);
             
-            quat.mult(vect, store60);
-            mult15V2(quat, vect, store15);
+            quat.mult(vect, store15);
+            mult60(quat, vect, store60);
     
             //eps stands for the epsillon in the approximateEquals method
             //set your desired eps
@@ -113,21 +113,21 @@ public class QuatMultTest {
         v.set(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
         v.multLocal(10000f).subtractLocal(5000f, 5000f, 5000f);
     }
-    public static void mult15V2(Quaternion q, Vector3f v, Vector3f s) {
-        //15 mult, 15 add
+    public static void mult60(Quaternion q, Vector3f v, Vector3f s) {
         float x = q.getX();
         float y = q.getY();
         float z = q.getZ();
         float w = q.getW();
         
-        //v + 2*q.xyz cross (q.xyz cross v + w*v )
-        //q.xyz x v.xyz + w*v
-        float vx = y*v.z - z*v.y + w*v.x;
-        float vy = z*v.x - x*v.z + w*v.y;
-        float vz = x*v.y - y*v.x + w*v.z;
-        vx += vx; vy += vy; vz += vz;
-        s.x = v.x + y*vz - z*vy;
-        s.y = v.y + z*vx - x*vz;
-        s.z = v.z + x*vy - y*vx;
+        float vx = v.x, vy = v.y, vz = v.z;
+        s.x = w * w * vx + 2 * y * w * vz - 2 * z * w * vy + x * x
+                    * vx + 2 * y * x * vy + 2 * z * x * vz - z * z * vx - y
+                    * y * vx;
+        s.y = 2 * x * y * vx + y * y * vy + 2 * z * y * vz + 2 * w
+                    * z * vx - z * z * vy + w * w * vy - 2 * x * w * vz - x
+                    * x * vy;
+        s.z = 2 * x * z * vx + 2 * y * z * vy + z * z * vz - 2 * w
+                    * y * vx - y * y * vz + 2 * w * x * vy - x * x * vz + w
+                    * w * vz;
     }
 }
