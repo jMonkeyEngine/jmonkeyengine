@@ -55,9 +55,9 @@ public class ClientSerializerRegistrationsService extends AbstractClientService
 
     @Override
     protected void onInitialize( ClientServiceManager serviceManager ) {
-    
+
         // Make sure our message type is registered if it isn't already
-        if( Serializer.getSerializer(SerializerRegistrationsMessage.class, false) == null ) {
+        if( Serializer.getExactSerializerRegistration(SerializerRegistrationsMessage.class) == null ) {
             // This is the minimum we'd need just to be able to register
             // the rest... otherwise we can't even receive this message.
             Serializer.registerClass(SerializerRegistrationsMessage.class);
@@ -70,6 +70,7 @@ public class ClientSerializerRegistrationsService extends AbstractClientService
         serviceManager.getClient().addMessageListener(this, SerializerRegistrationsMessage.class); 
     }
 
+    @Override
     public void messageReceived( Client source, Message m ) {
         // We only wait for one kind of message...
         SerializerRegistrationsMessage msg = (SerializerRegistrationsMessage)m;
