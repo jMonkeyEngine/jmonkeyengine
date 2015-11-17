@@ -7,6 +7,7 @@ package com.jme3.gde.scenecomposer.gizmo.light;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.environment.util.BoundingSphereDebug;
+import com.jme3.gde.scenecomposer.gizmo.light.shape.ProbeRadiusShape;
 import com.jme3.light.Light;
 import com.jme3.light.LightProbe;
 import com.jme3.material.Material;
@@ -15,6 +16,7 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.control.BillboardControl;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Texture;
@@ -54,7 +56,7 @@ public class LightGizmoFactory {
         Geometry debugGeom = new Geometry(light.getName(), s);
         Material debugMaterial = new Material(assetManager, "Common/MatDefs/Misc/reflect.j3md");
         debugGeom.setMaterial(debugMaterial);
-        Spatial debugBounds = BoundingSphereDebug.createDebugSphere(assetManager);
+        Spatial debugBounds = ProbeRadiusShape.createShape(assetManager);
         
         debugNode.attachChild(debugGeom);
         debugNode.attachChild(debugBounds);
