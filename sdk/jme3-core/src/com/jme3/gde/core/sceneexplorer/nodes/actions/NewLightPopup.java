@@ -221,11 +221,11 @@ public class NewLightPopup extends AbstractAction implements Presenter.Popup {
                         
                         @Override
                         public void done(LightProbe t) {
-                            handle.finish();
-                            ((BoundingSphere)t.getBounds()).setRadius(200);
+                            handle.finish();                            
                         }
                     });                                
                     node.addLight(lightProbe);
+                    ((BoundingSphere)lightProbe.getBounds()).setRadius(10);
                     addLightUndo(node, lightProbe);
                     setModified();
                     

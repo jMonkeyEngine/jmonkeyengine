@@ -248,10 +248,6 @@ public class SceneApplication extends Application implements LookupProvider {
                 cam.setLocation(new Vector3f(0, 0, 10));
                 getStateManager().attach(new EnvironmentCamera());
                 
-                LightsDebugState lightDebugState = new LightsDebugState();
-                getStateManager().attach(lightDebugState);
-                
-
                 wireProcessor = new WireProcessor(assetManager);
 
                 inputManager.addMapping("MouseAxisX", new MouseAxisTrigger(MouseInput.AXIS_X, false));
