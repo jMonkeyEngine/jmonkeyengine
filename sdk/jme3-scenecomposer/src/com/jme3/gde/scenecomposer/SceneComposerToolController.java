@@ -10,10 +10,12 @@ import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.controller.SceneToolController;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
+import com.jme3.gde.scenecomposer.gizmo.light.LightGizmoFactory;
 import com.jme3.gde.scenecomposer.tools.PickManager;
 import com.jme3.gde.scenecomposer.tools.shortcuts.ShortcutManager;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.light.Light;
+import com.jme3.light.LightProbe;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
@@ -45,8 +47,7 @@ public class SceneComposerToolController extends SceneToolController {
     private SceneEditorController editorController;  
     private ViewPort overlayView;
     private Node onTopToolsNode;
-    private Node nonSpatialMarkersNode;
-    private Material lightMarkerMaterial;
+    private Node nonSpatialMarkersNode;    
     private Material audioMarkerMaterial;
     private JmeSpatial selectedSpatial;
     private boolean snapToGrid = false;
@@ -273,7 +274,7 @@ public class SceneComposerToolController extends SceneToolController {
      * @param light
      */
     public void addLightMarker(Light light) {
-        if (!(light instanceof PointLight) && !(light instanceof SpotLight))
+        if (!(light instanceof PointLight) && !(light instanceof SpotLight) && !(light instanceof LightProbe))
             return; // only handle point and spot lights
         
         Spatial s = nonSpatialMarkersNode.getChild(light.getName());
@@ -282,8 +283,7 @@ public class SceneComposerToolController extends SceneToolController {
             return;
         }
         
-        LightMarker lm = new LightMarker(light);
-        nonSpatialMarkersNode.attachChild(lm);
+        nonSpatialMarkersNode.attachChild(LightGizmoFactory.createGizmo(manager, light));
     }
     
     public void addAudioMarker(AudioNode audio) {
@@ -306,17 +306,7 @@ public class SceneComposerToolController extends SceneToolController {
         Spatial s = nonSpatialMarkersNode.getChild(light.getName());
         s.removeFromParent();
     }
-    
-    private Material getLightMarkerMaterial() {
-        if (lightMarkerMaterial == null) {
-            Material mat = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
-            Texture tex = manager.loadTexture("com/jme3/gde/scenecomposer/lightbulb32.png");
-            mat.setTexture("ColorMap", tex);
-            mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
-            lightMarkerMaterial = mat;
-        }
-        return lightMarkerMaterial;
-    }
+
     
     private Material getAudioMarkerMaterial() {
         if (audioMarkerMaterial == null) {
@@ -422,88 +412,7 @@ public class SceneComposerToolController extends SceneToolController {
     public TransformationType getTransformationType() {
         return transformationType;
     }
-
-    /**
-     * A marker on the screen that shows where a point light or
-     * a spot light is. This marker is not part of the scene,
-     * but is part of the tools node.
-     */
-    protected class LightMarker extends Geometry {
-        private Light light;
-        
-        protected LightMarker() {}
-    
-        protected LightMarker(Light light) {
-            this.light = light;
-            Quad q = new Quad(0.5f, 0.5f);
-            this.setMesh(q);
-            this.setMaterial(getLightMarkerMaterial());
-            this.addControl(new LightMarkerControl());
-            this.setQueueBucket(Bucket.Transparent);
-        }
-        
-        protected Light getLight() {
-            return light;
-        }
-        
-        @Override
-        public void setLocalTranslation(Vector3f location) {
-            super.setLocalTranslation(location);
-            if (light instanceof PointLight)
-                ((PointLight)light).setPosition(location);
-            else if (light instanceof SpotLight)
-                ((SpotLight)light).setPosition(location);
-        }
-        
-        @Override
-        public void setLocalTranslation(float x, float y, float z) {
-            super.setLocalTranslation(x, y, z);
-            if (light instanceof PointLight)
-                ((PointLight)light).setPosition(new Vector3f(x,y,z));
-            else if (light instanceof SpotLight)
-                ((SpotLight)light).setPosition(new Vector3f(x,y,z));
-        }
-    }
-    
-    /**
-     * Updates the marker's position whenever the light has moved.
-     * It is also a BillboardControl, so this marker always faces
-     * the camera
-     */
-    protected class LightMarkerControl extends BillboardControl {
-
-        LightMarkerControl(){
-            super();
-        }
-        
-        @Override
-        protected void controlUpdate(float f) {
-            super.controlUpdate(f);
-            LightMarker marker = (LightMarker) getSpatial();
-            if (marker != null) {
-                if (marker.getLight() instanceof PointLight) {
-                    marker.setLocalTranslation(((PointLight)marker.getLight()).getPosition());
-                } else if (marker.getLight() instanceof SpotLight) {
-                    marker.setLocalTranslation(((SpotLight)marker.getLight()).getPosition());
-                }
-            }
-        }
-
-        @Override
-        protected void controlRender(RenderManager rm, ViewPort vp) {
-            super.controlRender(rm, vp);
-        }
-
-        @Override
-        public Control cloneForSpatial(Spatial sptl) {
-            LightMarkerControl c = new LightMarkerControl();
-            c.setSpatial(sptl);
-            //TODO this isn't correct, none of BillboardControl is copied over
-            return c;
-        }
-        
-    }
-    
+   
     /**
      * A marker on the screen that shows where an audio node is. 
      * This marker is not part of the scene, but is part of the tools node.
