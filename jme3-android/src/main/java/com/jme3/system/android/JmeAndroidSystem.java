@@ -122,9 +122,13 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
                 return Platform.Android_ARM6;
             } else if (arch.contains("v7")) {
                 return Platform.Android_ARM7;
+            } else if (arch.contains("v8")) {
+                return Platform.Android_ARM8;
             } else {
                 return Platform.Android_ARM5; // unknown ARM
             }
+        } else if (arch.contains("aarch")) {
+            return Platform.Android_ARM8;
         } else {
             return Platform.Android_Other;
         }

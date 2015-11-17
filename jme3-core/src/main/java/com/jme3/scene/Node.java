@@ -195,7 +195,7 @@ public class Node extends Spatial {
     void invalidateUpdateList() {
         updateListValid = false;
         if ( parent != null ) {
-          parent.invalidateUpdateList();
+            parent.invalidateUpdateList();
         }
     }
 
@@ -570,6 +570,35 @@ public class Node extends Spatial {
         // optimization: try collideWith BoundingVolume to avoid possibly redundant tests on children
         // number 4 in condition is somewhat arbitrary. When there is only one child, the boundingVolume test is redundant at all. 
         // The idea is when there are few children, it can be too expensive to test boundingVolume first.
+        /*
+        I'm removing this change until some issues can be addressed and I really
+        think it needs to be implemented a better way anyway.
+        
+        First, it causes issues for anyone doing collideWith() with BoundingVolumes
+        and expecting it to trickle down to the children.  For example, children
+        with BoundingSphere bounding volumes and collideWith(BoundingSphere).  Doing
+        a collision check at the parent level then has to do a BoundingSphere to BoundingBox
+        collision which isn't resolved.  (Having to come up with a collision point in that
+        case is tricky and the first sign that this is the wrong approach.)
+        
+        Second, the rippling changes this caused to 'optimize' collideWith() for this
+        special use-case are another sign that this approach was a bit dodgy.  The whole
+        idea of calculating a full collision just to see if the two shapes collide at all
+        is very wasteful.
+        
+        A proper implementation should support a simpler boolean check that doesn't do
+        all of that calculation.  For example, if 'other' is also a BoundingVolume (ie: 99.9%
+        of all non-Ray cases) then a direct BV to BV intersects() test can be done.  So much
+        faster.  And if 'other' _is_ a Ray then the BV.intersects(Ray) call can be done.
+        
+        I don't have time to do it right now but I'll at least un-break a bunch of peoples'
+        code until it can be 'optimized' properly.  Hopefully it's not too late to back out
+        the other dodgy ripples this caused.  -pspeed (hindsight-expert ;)) 
+        
+        Note: the code itself is relatively simple to implement but I don't have time to
+        a) test it, and b) see if '> 4' is still a decent check for it.  Could be it's fast
+        enough to do all the time for > 1.
+        
         if (children.size() > 4)
         {
           BoundingVolume bv = this.getWorldBound();
@@ -578,6 +607,7 @@ public class Node extends Spatial {
           // collideWith without CollisionResults parameter used to avoid allocation when possible
           if (bv.collideWith(other) == 0) return 0;
         }
+        */
         for (Spatial child : children.getArray()){
             total += child.collideWith(other, results);
         }
