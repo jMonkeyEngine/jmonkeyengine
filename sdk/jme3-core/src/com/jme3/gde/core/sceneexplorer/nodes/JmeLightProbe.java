@@ -69,7 +69,8 @@ public class JmeLightProbe extends JmeLight{
         }
 
         set.put(makeProperty(obj, Vector3f.class, "getPosition", "setPosition", "Position"));
-        //set.put(makeProperty(obj.getBounds(), Float.class, "getRadius", "setRadius", "Radius"));
+        set.put(makeEmbedProperty(obj.getBounds(), obj.getBounds().getClass(), float.class, "getRadius", "setRadius", "Radius"));
+        
         sheet.put(set);
         return sheet;
 
