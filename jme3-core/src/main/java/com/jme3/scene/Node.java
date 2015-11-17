@@ -195,7 +195,7 @@ public class Node extends Spatial {
     void invalidateUpdateList() {
         updateListValid = false;
         if ( parent != null ) {
-          parent.invalidateUpdateList();
+            parent.invalidateUpdateList();
         }
     }
 
