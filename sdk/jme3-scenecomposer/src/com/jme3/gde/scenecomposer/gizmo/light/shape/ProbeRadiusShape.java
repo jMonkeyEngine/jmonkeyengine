@@ -33,8 +33,10 @@ package com.jme3.gde.scenecomposer.gizmo.light.shape;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
@@ -54,7 +56,7 @@ public class ProbeRadiusShape extends Mesh {
 
     protected int vertCount;
     protected int triCount;
-    protected int radialSamples = 64;
+    protected int radialSamples = 256;
     protected boolean useEvenSlices;
     protected boolean interior;
     /**
@@ -79,9 +81,12 @@ public class ProbeRadiusShape extends Mesh {
 
         FloatBuffer posBuf = BufferUtils.createVector3Buffer((radialSamples + 1));
         FloatBuffer colBuf = BufferUtils.createFloatBuffer((radialSamples + 1) * 4);
+        FloatBuffer texBuf = BufferUtils.createVector2Buffer(radialSamples + 1);
+        
 
         setBuffer(Type.Position, 3, posBuf);
         setBuffer(Type.Color, 4, colBuf);
+        setBuffer(Type.TexCoord, 2, texBuf);
 
         // generate geometry
         float fInvRS = 1.0f / radialSamples;
@@ -106,26 +111,10 @@ public class ProbeRadiusShape extends Mesh {
                     .put(ColorRGBA.Orange.g)
                     .put(ColorRGBA.Orange.b)
                     .put(ColorRGBA.Orange.a);
+            texBuf.put(iR % 2f)
+                    .put(iR % 2f);
 
         }
-//        for (int iR = 0; iR <= radialSamples; iR++) {
-//            posBuf.put(afCos[iR])
-//                    .put(0)
-//                    .put(afSin[iR]);
-//            colBuf.put(ColorRGBA.Green.r)
-//                    .put(ColorRGBA.Green.g)
-//                    .put(ColorRGBA.Green.b)
-//                    .put(ColorRGBA.Green.a);
-//        }
-//        for (int iR = 0; iR <= radialSamples; iR++) {
-//            posBuf.put(0)
-//                    .put(afCos[iR])
-//                    .put(afSin[iR]);
-//            colBuf.put(ColorRGBA.Yellow.r)
-//                    .put(ColorRGBA.Yellow.g)
-//                    .put(ColorRGBA.Yellow.b)
-//                    .put(ColorRGBA.Yellow.a);
-//        }
 
         updateBound();
         setStatic();
@@ -148,15 +137,11 @@ public class ProbeRadiusShape extends Mesh {
             idxBuf.put((short) (idx + 1));
             idx++;
             segDone++;
-//            if (segDone == radialSamples || segDone == radialSamples * 2) {
-//                idx++;
-//            }
-
         }
 
     }
-
     
+
     /**
      * Convenience factory method that creates a debuging bounding sphere geometry
      * @param assetManager the assetManager
@@ -166,9 +151,13 @@ public class ProbeRadiusShape extends Mesh {
         ProbeRadiusShape b = new ProbeRadiusShape();
         Geometry geom = new Geometry("BoundingDebug", b);
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setBoolean("VertexColor", true);
+        Material mat = new Material(assetManager, "com/jme3/gde/scenecomposer/gizmo/light/mat/dashed/dashed.j3md");        
         mat.getAdditionalRenderState().setWireframe(true);
+        mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+        mat.getAdditionalRenderState().setDepthWrite(false);
+        mat.getAdditionalRenderState().setDepthTest(false);  
+        mat.setFloat("DashSize", 0.5f);
+        geom.setQueueBucket(RenderQueue.Bucket.Transparent);
         geom.addControl(new BillboardControl());
         
         
