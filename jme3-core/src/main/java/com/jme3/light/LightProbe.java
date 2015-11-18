@@ -130,7 +130,8 @@ public class LightProbe extends Light implements Savable {
         oc.write(irradianceMap, "irradianceMap", null);
         oc.write(prefilteredEnvMap, "prefilteredEnvMap", null);
         oc.write(position, "position", null);
-        oc.write(bounds, "bounds", bounds);
+        oc.write(bounds, "bounds", new BoundingSphere(1.0f, Vector3f.ZERO));
+        oc.write(ready, "ready", false);
     }
 
     @Override
@@ -140,7 +141,8 @@ public class LightProbe extends Light implements Savable {
         irradianceMap = (TextureCubeMap) ic.readSavable("irradianceMap", null);
         prefilteredEnvMap = (TextureCubeMap) ic.readSavable("prefilteredEnvMap", null);
         position = (Vector3f) ic.readSavable("position", this);
-        bounds = (BoundingVolume) ic.readSavable("bounds", bounds);
+        bounds = (BoundingVolume) ic.readSavable("bounds", new BoundingSphere(1.0f, Vector3f.ZERO));
+        ready = ic.readBoolean("ready", false);
     }
 
     /**
