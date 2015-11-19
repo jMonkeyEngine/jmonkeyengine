@@ -34,7 +34,11 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.light.LightProbe;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import java.beans.PropertyEditor;
+import java.lang.reflect.InvocationTargetException;
+import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 
 /**
@@ -70,10 +74,14 @@ public class JmeLightProbe extends JmeLight{
 
         set.put(makeProperty(obj, Vector3f.class, "getPosition", "setPosition", "Position"));
         set.put(makeEmbedProperty(obj.getBounds(), obj.getBounds().getClass(), float.class, "getRadius", "setRadius", "Radius"));
-        
+        set.put(createButtonProperty());
         sheet.put(set);
         return sheet;
 
+    }
+
+    public LightProbe getLightProbe() {
+        return lightProbe;
     }
 
     @Override
@@ -85,5 +93,39 @@ public class JmeLightProbe extends JmeLight{
     public Class getExplorerNodeClass() {
         return JmeLightProbe.class;
     }
+    
+    protected void setModified(){
+        java.awt.EventQueue.invokeLater(new Runnable() {
 
+            @Override
+            public void run() {
+                fireSave(true);
+            }
+        });
+        
+    }
+
+     private Property createButtonProperty() {
+        return new PropertySupport.ReadWrite<Object>("update", Object.class, "Refresh maps", "Click here to refresh environment maps ") {
+            JmeLightProbeButtonProperty pe;
+
+            @Override
+            public Object getValue() throws IllegalAccessException, InvocationTargetException {
+                return "";
+            }
+
+            @Override
+            public PropertyEditor getPropertyEditor() {
+                if (pe == null) {
+                    pe = new JmeLightProbeButtonProperty(JmeLightProbe.this, (Node)getSpatial());
+                    pe.attachEnv(pe.env);
+                }
+                return pe;
+            }
+
+            @Override
+            public void setValue(Object t) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+            }
+        };
+    }
 }

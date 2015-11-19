@@ -150,6 +150,12 @@ public class JmeLight extends AbstractSceneExplorerNode {
         }
     }
 
+    public Spatial getSpatial() {
+        return spatial;
+    }
+    
+    
+
     public Class getExplorerObjectClass() {
         return Light.class;
     }

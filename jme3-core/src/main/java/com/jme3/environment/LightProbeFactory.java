@@ -126,6 +126,51 @@ public class LightProbeFactory {
         });
         return probe;
     }
+    
+     /**
+     * Updates a LightProbe with the giver EnvironmentCamera in the given scene.
+     * 
+     * Note that this is an assynchronous process that will run on multiple threads.
+     * The process is thread safe.
+     * The created lightProbe will only be marked as ready when the rendering process is done.
+     *      
+     * The JobProgressListener will be notified of the progress of the generation. 
+     * Note that you can also use a {@link JobProgressAdapter}. 
+     *      
+     * @see LightProbe
+     * @see EnvironmentCamera
+     * @see JobProgressListener
+     * 
+     * @param probe the Light probe to update
+     * @param envCam the EnvironmentCamera
+     * @param scene the Scene
+     * @param listener the listener of the genration progress.
+     * @return the created LightProbe
+     */
+    public static LightProbe updateProbe(final LightProbe probe, final EnvironmentCamera envCam, Spatial scene, final JobProgressListener<LightProbe> listener) {
+        
+        envCam.setPosition(probe.getPosition());
+        
+        probe.setReady(false);
+        
+        if(probe.getIrradianceMap() == null) {
+            probe.getIrradianceMap().getImage().dispose();
+            probe.getPrefilteredEnvMap().getImage().dispose();
+        }
+        
+        probe.setIrradianceMap(EnvMapUtils.createIrradianceMap(envCam.getSize(), envCam.getImageFormat()));
+        probe.setPrefilteredMap(EnvMapUtils.createPrefilteredEnvMap(envCam.getSize(), envCam.getImageFormat()));
+        
+        
+        envCam.snapshot(scene, new JobProgressAdapter<TextureCubeMap>() {
+
+            @Override
+            public void done(TextureCubeMap map) {
+                generatePbrMaps(map, probe, envCam.getApplication(), listener);
+            }
+        });
+        return probe;
+    }
 
     /**
      * Internally called to generate the maps.

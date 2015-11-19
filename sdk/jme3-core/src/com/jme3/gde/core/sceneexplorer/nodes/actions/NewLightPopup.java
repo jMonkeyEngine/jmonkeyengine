@@ -37,6 +37,7 @@ import com.jme3.environment.LightProbeFactory;
 import com.jme3.environment.generation.JobProgressAdapter;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.controller.SceneToolController;
+import com.jme3.gde.core.sceneexplorer.nodes.JmeLightProbeProgressHandler;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
 import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
@@ -197,33 +198,7 @@ public class NewLightPopup extends AbstractAction implements Presenter.Popup {
                     } else {
                         envCam.setPosition(new Vector3f(0, 0, 0));                    
                     }
-                    LightProbe lightProbe = LightProbeFactory.makeProbe(envCam, node, new JobProgressAdapter<LightProbe>() {
-
-                        int lastProgress;
-                        
-                        ProgressHandle handle = ProgressHandleFactory.createHandle("Generating environment maps");
-                        @Override
-                        public void start() {
-                            handle.start(100);
-                        }
-
-                        @Override
-                        public void progress(double value) {
-                            lastProgress = (int)(value * 100);
-                            handle.progress(lastProgress);
-                        }
-
-                        @Override
-                        public void step(String message) {
-                            handle.progress(message,lastProgress);                            
-                        }
-                        
-                        
-                        @Override
-                        public void done(LightProbe t) {
-                            handle.finish();                            
-                        }
-                    });                                
+                    LightProbe lightProbe = LightProbeFactory.makeProbe(envCam, node, new JmeLightProbeProgressHandler());                                
                     node.addLight(lightProbe);
                     ((BoundingSphere)lightProbe.getBounds()).setRadius(10);
                     addLightUndo(node, lightProbe);
