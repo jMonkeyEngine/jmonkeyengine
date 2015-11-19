@@ -704,8 +704,9 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         setParam(name, VarType.Vector4, value);
     }
 
-    private ColorRGBA getAmbientColor(LightList lightList, boolean removeLights) {
+    private LightProbe extractIndirectLights(LightList lightList, boolean removeLights) {
         ambientLightColor.set(0, 0, 0, 1);
+        LightProbe probe = null;
         for (int j = 0; j < lightList.size(); j++) {
             Light l = lightList.get(j);
             if (l instanceof AmbientLight) {
@@ -714,9 +715,15 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                     lightList.remove(l);
                 }
             }
+            if (l instanceof LightProbe) {
+                probe = (LightProbe)l;                
+                if(removeLights){
+                    lightList.remove(l);
+                }
+            }
         }
         ambientLightColor.a = 1.0f;
-        return ambientLightColor;
+        return probe;
     }
 
     private static void renderMeshFromGeometry(Renderer renderer, Geometry geom) {
@@ -764,13 +771,32 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         Uniform lightProbeIrrMap = shader.getUniform("g_IrradianceMap");
         Uniform lightProbePemMap = shader.getUniform("g_PrefEnvMap");
         
-        
+        LightProbe lightProbe = null;
         if (startIndex != 0) {
             // apply additive blending for 2nd and future passes
             rm.getRenderer().applyRenderState(additiveLight);
             ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);
         }else{
-            ambientColor.setValue(VarType.Vector4, getAmbientColor(lightList,true));
+            lightProbe = extractIndirectLights(lightList,true);
+            ambientColor.setValue(VarType.Vector4, ambientLightColor);
+        }
+        
+        //If there is a lightProbe in the list we force it's render on the first pass
+        if(lightProbe != null){
+            BoundingSphere s = (BoundingSphere)lightProbe.getBounds();                        
+            lightProbeData.setVector4InArray(lightProbe.getPosition().x, lightProbe.getPosition().y, lightProbe.getPosition().z, 1f/s.getRadius(), 0);
+            //assigning new texture indexes if they have never been assigned.
+            if( irrUnit == -1 ){
+                irrUnit = nextTexUnit++;
+                pemUnit = nextTexUnit++;
+            }
+            rm.getRenderer().setTexture(irrUnit, lightProbe.getIrradianceMap());
+            lightProbeIrrMap.setValue(VarType.Int, irrUnit);                        
+            rm.getRenderer().setTexture(pemUnit, lightProbe.getPrefilteredEnvMap());
+            lightProbePemMap.setValue(VarType.Int, pemUnit);
+        } else {
+            //Disable IBL for this pass
+            lightProbeData.setVector4InArray(0,0,0,-1, 0);
         }
 
         int lightDataIndex = 0;
@@ -841,34 +867,13 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                         transposeLightDataToSpace(technique.getDef().getLightSpace(), rm, tmpVec);                        
                         lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), spotAngleCos, lightDataIndex);
                         lightDataIndex++;
-                        break;
-                    case Probe:
-                        useIBL = true;
-                        endIndex++;
-                        LightProbe probe = (LightProbe)l;
-                        BoundingSphere s = (BoundingSphere)probe.getBounds();                        
-                        lightProbeData.setVector4InArray(probe.getPosition().x, probe.getPosition().y, probe.getPosition().z, 1f/s.getRadius(), 0);
-                        
-                        //assigning new texture indexes if they have never been assigned.
-                        if( irrUnit == -1 ){
-                            irrUnit = nextTexUnit++;
-                            pemUnit = nextTexUnit++;
-                        }
-                        rm.getRenderer().setTexture(irrUnit, probe.getIrradianceMap());
-                        lightProbeIrrMap.setValue(VarType.Int, irrUnit);                        
-                        rm.getRenderer().setTexture(pemUnit, probe.getPrefilteredEnvMap());
-                        lightProbePemMap.setValue(VarType.Int, pemUnit);
-                        break;
+                        break;                   
                     default:
                         throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
                 }
         }
         vars.release();
-        
-        if(!useIBL ){            
-            //Disable IBL for this pass
-            lightProbeData.setVector4InArray(0,0,0,-1, 0);
-        }
+
         //Padding of unsued buffer space
         while(lightDataIndex < numLights * 3) {
             lightData.setVector4InArray(0f, 0f, 0f, 0f, lightDataIndex);
@@ -889,13 +894,14 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
         for (int i = 0; i < lightList.size(); i++) {
             Light l = lightList.get(i);
-            if (l instanceof AmbientLight) {
+            if (l instanceof AmbientLight || l instanceof LightProbe ) {
                 continue;
             }
 
             if (isFirstLight) {
                 // set ambient color for first light only
-                ambientColor.setValue(VarType.Vector4, getAmbientColor(lightList, false));
+                extractIndirectLights(lightList, false);
+                ambientColor.setValue(VarType.Vector4, ambientLightColor);
                 isFirstLight = false;
                 isSecondLight = true;
             } else if (isSecondLight) {
@@ -967,7 +973,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
                     lightDir.setValue(VarType.Vector4, tmpLightDirection);
 
-                    break;
+                    break;                
                 default:
                     throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
             }
@@ -979,7 +985,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         if (isFirstLight) {
             // Either there are no lights at all, or only ambient lights.
             // Render a dummy "normal light" so we can see the ambient color.
-            ambientColor.setValue(VarType.Vector4, getAmbientColor(lightList, false));
+            extractIndirectLights(lightList, false);
+            ambientColor.setValue(VarType.Vector4, ambientLightColor);
             lightColor.setValue(VarType.Vector4, ColorRGBA.BlackNoAlpha);
             lightPos.setValue(VarType.Vector4, nullDirLight);
             r.setShader(shader);
