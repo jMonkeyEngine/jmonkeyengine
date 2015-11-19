@@ -760,6 +760,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         lightData.setVector4Length(numLights * 3);//8 lights * max 3
         Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
         Uniform lightProbeData = shader.getUniform("g_LightProbeData");
+        lightProbeData.setVector4Length(1);
         Uniform lightProbeIrrMap = shader.getUniform("g_IrradianceMap");
         Uniform lightProbePemMap = shader.getUniform("g_PrefEnvMap");
         
@@ -843,12 +844,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                         break;
                     case Probe:
                         useIBL = true;
-                        technique.setUseIndirectLighting(true);
                         endIndex++;
                         LightProbe probe = (LightProbe)l;
-                        BoundingSphere s = (BoundingSphere)probe.getBounds();
-                        tmpVec.set(probe.getPosition().x, probe.getPosition().y, probe.getPosition().z, 1f/s.getRadius());
-                        lightProbeData.setValue(VarType.Vector4, tmpVec);                        
+                        BoundingSphere s = (BoundingSphere)probe.getBounds();                        
+                        lightProbeData.setVector4InArray(probe.getPosition().x, probe.getPosition().y, probe.getPosition().z, 1f/s.getRadius(), 0);
+                        
                         //assigning new texture indexes if they have never been assigned.
                         if( irrUnit == -1 ){
                             irrUnit = nextTexUnit++;
@@ -865,8 +865,9 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
         vars.release();
         
-        if(!useIBL ){ 
-            technique.setUseIndirectLighting(false);            
+        if(!useIBL ){            
+            //Disable IBL for this pass
+            lightProbeData.setVector4InArray(0,0,0,-1, 0);
         }
         //Padding of unsued buffer space
         while(lightDataIndex < numLights * 3) {

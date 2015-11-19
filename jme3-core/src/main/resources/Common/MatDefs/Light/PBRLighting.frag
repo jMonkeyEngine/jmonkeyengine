@@ -23,7 +23,7 @@ varying vec3 wPosition;
 //  uniform sampler2D m_IntegrateBRDF;
   uniform samplerCube g_PrefEnvMap;
   uniform samplerCube g_IrradianceMap;
-  uniform vec4 g_ProbeData;
+  uniform vec4 g_LightProbeData;
 //#endif
 
 #ifdef BASECOLORMAP
@@ -202,28 +202,26 @@ void main(){
         gl_FragColor.rgb += directLighting * fallOff;
     }
 
-    #ifdef INDIRECT_LIGHTING
-        vec3 rv = reflect(-viewDir.xyz, normal.xyz);
-        //prallax fix for spherical bounds.
-        rv = g_ProbeData.w * (wPosition - g_ProbeData.xyz) +rv;
-       
-         //horizon fade from http://marmosetco.tumblr.com/post/81245981087
-        float horiz = dot(rv, wNormal.xyz);
-        float horizFadePower= 1.0 - Roughness;
-        horiz = clamp( 1.0 + horizFadePower * horiz, 0.0, 1.0 );
-        horiz *= horiz;
-        
-        vec3 indirectDiffuse = vec3(0.0);
-        vec3 indirectSpecular = vec3(0.0);    
-        indirectDiffuse = textureCube(g_IrradianceMap, rv.xyz).rgb * albedo.rgb;
-        
-        indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, rv.xyz);
-        indirectSpecular *= vec3(horiz);
+    vec3 rv = reflect(-viewDir.xyz, normal.xyz);
+    //prallax fix for spherical bounds.
+    rv = g_LightProbeData.w * (wPosition - g_LightProbeData.xyz) +rv;
 
-        vec3 indirectLighting =  indirectDiffuse + indirectSpecular;
-        
-        gl_FragColor.rgb = gl_FragColor.rgb + indirectLighting ;        
-    #endif
+     //horizon fade from http://marmosetco.tumblr.com/post/81245981087
+    float horiz = dot(rv, wNormal.xyz);
+    float horizFadePower= 1.0 - Roughness;
+    horiz = clamp( 1.0 + horizFadePower * horiz, 0.0, 1.0 );
+    horiz *= horiz;
+
+    vec3 indirectDiffuse = vec3(0.0);
+    vec3 indirectSpecular = vec3(0.0);    
+    indirectDiffuse = textureCube(g_IrradianceMap, rv.xyz).rgb * albedo.rgb;
+
+    indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, rv.xyz);
+    indirectSpecular *= vec3(horiz);
+
+    vec3 indirectLighting =  indirectDiffuse + indirectSpecular;
+
+    gl_FragColor.rgb = gl_FragColor.rgb + indirectLighting * step( 0.0, g_LightProbeData.w);        
  
     #if defined(EMISSIVE) || defined (EMISSIVEMAP)
         #ifdef EMISSIVEMAP
