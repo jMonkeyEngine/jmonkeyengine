@@ -34,7 +34,7 @@ package com.jme3.gde.terraineditor;
 import com.jme3.gde.core.assets.AssetDataObject;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.properties.TexturePropertyEditor;
-import com.jme3.gde.core.properties.preview.DDSPreview;
+import com.jme3.gde.core.properties.preview.TexturePreview;
 import com.jme3.gde.core.scene.PreviewRequest;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneListener;
@@ -122,7 +122,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     //private TerrainNodeListener terrainDeletedNodeListener;
     private boolean availableNormalTextures;
     private HelpCtx ctx = new HelpCtx("sdk.terrain_editor");
-    private DDSPreview ddsPreview;
+    private TexturePreview texPreview;
     private Map<String, JButton> buttons = new HashMap<String, JButton>();
     private JPanel insideToolSettings;
     
@@ -153,35 +153,29 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         private float max = 0;
         private final Object lock = new Object();
 
+        @Override
         public void incrementProgress(float f) {
             progress += f;
             progressHandle.progress((int) progress);
         }
 
+        @Override
         public void setMonitorMax(float f) {
             max = f;
-//            java.awt.EventQueue.invokeLater(new Runnable() {
-//                public void run() {
-//                    synchronized(lock){
             if (progressHandle == null) {
                 progressHandle = ProgressHandleFactory.createHandle("Calculating terrain entropies...");
                 progressHandle.start((int) max);
             }
-//                    }
-//                }
-//            });
         }
 
+        @Override
         public float getMonitorMax() {
             return max;
         }
 
+        @Override
         public void progressComplete() {
-//            SwingUtilities.invokeLater(new Runnable() {
-//                public void run() {
             progressHandle.finish();
-//                }
-//            });
         }
     }
 
@@ -1631,6 +1625,13 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         protected abstract Texture getTextureFromModel(int index);
 
         protected abstract boolean supportsNullTexture();
+        
+        private TexturePreview getTexturePreview(){
+            if (texPreview == null) {
+                texPreview = new TexturePreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
+            }
+            return texPreview;
+        }
 
         private JButton getButton(Object value, final int row, final int column) {
 
@@ -1656,21 +1657,9 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                     }
 
                     Texture tex = getTextureFromModel(index); // delegate to sub-class
-
-                    //Texture tex = SceneApplication.getApplication().getAssetManager().loadTexture((String)value);
                     if (tex != null) {
                         String selected = tex.getKey().getName();
-
-                        if (selected.toLowerCase().endsWith(".dds")) {
-                            if (ddsPreview == null) {
-                                ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
-                            }
-                            ddsPreview.requestPreview(selected, "", 80, 80, lbl, null);
-
-                        } else {
-                            Icon icon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-                            lbl.setIcon(icon);
-                        }
+                        getTexturePreview().requestPreview(selected, "", 80, 80, lbl, null);
                     }
 
                 }
@@ -1694,24 +1683,17 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                             TexturePropertyEditor editor = new TexturePropertyEditor(selectedTex);
                             Component view = editor.getCustomEditor();
                             view.setVisible(true);
-                            Texture tex = (Texture) editor.getValue();
-                            if (editor.getValue() != null) {
-                                String selected = tex.getKey().getName();
-
-                                if (selected.toLowerCase().endsWith(".dds")) {
-                                    if (ddsPreview == null) {
-                                        ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
-                                    }
-                                    ddsPreview.requestPreview(selected, "", 80, 80, lbl, null);
-
-                                } else {
-                                    Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-                                    lbl.setIcon(newicon);
-                                }
+                            
+                            if (editor.getAsText() != null) {
+                                
+                                String selected = editor.getAsText();
+                                getTexturePreview().requestPreview(selected, "", 80, 80, lbl, null);
+                                Texture tex = SceneApplication.getApplication().getAssetManager().loadTexture(selected);
+                                setTextureInModel(row, tex);
                             } else if (supportsNullTexture()) {
                                 lbl.setIcon(null);
                             }
-                            setTextureInModel(row, tex);
+                            
                         } finally {
                             alreadyChoosing = false;
                         }
