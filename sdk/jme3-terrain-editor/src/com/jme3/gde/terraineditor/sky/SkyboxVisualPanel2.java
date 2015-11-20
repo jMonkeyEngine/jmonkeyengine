@@ -33,16 +33,14 @@ package com.jme3.gde.terraineditor.sky;
 
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.properties.TexturePropertyEditor;
-import com.jme3.gde.core.properties.preview.DDSPreview;
+import com.jme3.gde.core.properties.preview.TexturePreview;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import java.awt.Component;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import jme3tools.converters.ImageToAwt;
@@ -50,7 +48,7 @@ import org.openide.util.ImageUtilities;
 
 public final class SkyboxVisualPanel2 extends JPanel {
 
-    private DDSPreview ddsPreview;
+    private TexturePreview texPreview;
 
     /** Creates new form SkyboxVisualPanel2 */
     public SkyboxVisualPanel2() {
@@ -111,6 +109,14 @@ public final class SkyboxVisualPanel2 extends JPanel {
         return editorWest;
     }
 
+    
+    private TexturePreview getTexturePreview(){
+        if (texPreview == null) {
+            texPreview = new TexturePreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
+        }
+        return texPreview;
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -450,141 +456,63 @@ public final class SkyboxVisualPanel2 extends JPanel {
     private void multipleTexSouthLoadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_multipleTexSouthLoadButtonActionPerformed
         Component view = editorSouth.getCustomEditor();
         view.setVisible(true);
-        if (editorSouth.getValue() != null) {
-            Texture tex = (Texture) editorSouth.getValue();
-            String selected = tex.getKey().getName();
-
-            if (selected.toLowerCase().endsWith(".dds")) {
-                if (ddsPreview == null) {
-                    ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
-                }
-                ddsPreview.requestPreview(selected, "", 80, 80, southPic, null);
-
-            } else {
-                Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-                southPic.setIcon(newicon);
-            }
+        if (editorSouth.getAsText()!= null) {            
+            String selected = editorSouth.getAsText();
+            getTexturePreview().requestPreview(selected, "", 80, 80, southPic, null);
         }
     }//GEN-LAST:event_multipleTexSouthLoadButtonActionPerformed
 
     private void multipleTexNorthLoadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_multipleTexNorthLoadButtonActionPerformed
         Component view = editorNorth.getCustomEditor();
         view.setVisible(true);
-        if (editorNorth.getValue() != null) {
-            Texture tex = (Texture) editorNorth.getValue();
-            String selected = tex.getKey().getName();
-
-            if (selected.toLowerCase().endsWith(".dds")) {
-                if (ddsPreview == null) {
-                    ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
-                }
-                ddsPreview.requestPreview(selected, "", 80, 80, northPic, null);
-
-            } else {
-                Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-                northPic.setIcon(newicon);
-            }
+        if (editorNorth.getAsText() != null) {            
+            String selected =  editorNorth.getAsText();
+            getTexturePreview().requestPreview(selected, "", 80, 80, northPic, null);
         }
     }//GEN-LAST:event_multipleTexNorthLoadButtonActionPerformed
 
     private void multipleTexEastLoadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_multipleTexEastLoadButtonActionPerformed
         Component view = editorEast.getCustomEditor();
         view.setVisible(true);
-        if (editorEast.getValue() != null) {
-            Texture tex = (Texture) editorEast.getValue();
-            String selected = tex.getKey().getName();
-
-            if (selected.toLowerCase().endsWith(".dds")) {
-                if (ddsPreview == null) {
-                    ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
-                }
-                ddsPreview.requestPreview(selected, "", 80, 80, eastPic, null);
-
-            } else {
-                Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-                eastPic.setIcon(newicon);
-            }
+        if (editorEast.getAsText() != null) {            
+            String selected = editorEast.getAsText();
+            getTexturePreview().requestPreview(selected, "", 80, 80, eastPic, null);
         }
     }//GEN-LAST:event_multipleTexEastLoadButtonActionPerformed
 
     private void multipleTexWestLoadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_multipleTexWestLoadButtonActionPerformed
         Component view = editorWest.getCustomEditor();
         view.setVisible(true);
-        if (editorWest.getValue() != null) {
-            Texture tex = (Texture) editorWest.getValue();
-            String selected = tex.getKey().getName();
-
-            if (selected.toLowerCase().endsWith(".dds")) {
-                if (ddsPreview == null) {
-                    ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
-                }
-                ddsPreview.requestPreview(selected, "", 80, 80, westPic, null);
-
-            } else {
-                Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-                westPic.setIcon(newicon);
-            }
+        if (editorWest.getAsText() != null) {            
+            String selected = editorWest.getAsText();
+            getTexturePreview().requestPreview(selected, "", 80, 80, westPic, null);
         }
     }//GEN-LAST:event_multipleTexWestLoadButtonActionPerformed
 
     private void multipleTexTopLoadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_multipleTexTopLoadButtonActionPerformed
         Component view = editorTop.getCustomEditor();
         view.setVisible(true);
-        if (editorTop.getValue() != null) {
-            Texture tex = (Texture) editorTop.getValue();
-            String selected = tex.getKey().getName();
-
-            if (selected.toLowerCase().endsWith(".dds")) {
-                if (ddsPreview == null) {
-                    ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
-                }
-                ddsPreview.requestPreview(selected, "", 80, 80, topPic, null);
-
-            } else {
-                Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-                topPic.setIcon(newicon);
-            }
+        if (editorTop.getAsText() != null) {            
+            String selected = editorTop.getAsText();
+            getTexturePreview().requestPreview(selected, "", 80, 80, topPic, null);
         }
     }//GEN-LAST:event_multipleTexTopLoadButtonActionPerformed
 
     private void multipleTexBottomLoadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_multipleTexBottomLoadButtonActionPerformed
         Component view = editorBottom.getCustomEditor();
         view.setVisible(true);
-        if (editorBottom.getValue() != null) {
-            Texture tex = (Texture) editorBottom.getValue();
-            String selected = tex.getKey().getName();
-
-            if (selected.toLowerCase().endsWith(".dds")) {
-                if (ddsPreview == null) {
-                    ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
-                }
-                ddsPreview.requestPreview(selected, "", 80, 80, bottomPic, null);
-
-            } else {
-                Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-                bottomPic.setIcon(newicon);
-            }
+        if (editorBottom.getAsText() != null) {            
+            String selected = editorBottom.getAsText();
+            getTexturePreview().requestPreview(selected, "", 80, 80, bottomPic, null);
         }
     }//GEN-LAST:event_multipleTexBottomLoadButtonActionPerformed
 
     private void singleTexLoadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_singleTexLoadButtonActionPerformed
         Component view = editorSingle.getCustomEditor();
         view.setVisible(true);
-        if (editorSingle.getValue() != null) {
-            Texture tex = (Texture) editorSingle.getValue();
-            String selected = tex.getKey().getName();
-
-            if (selected.toLowerCase().endsWith(".dds")) {
-                if (ddsPreview == null) {
-                    ddsPreview = new DDSPreview((ProjectAssetManager) SceneApplication.getApplication().getAssetManager());
-                }
-                ddsPreview.requestPreview(selected, "", 80, 80, singlePic, null);
-
-            } else {
-
-                Icon newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-                singlePic.setIcon(newicon);
-            }
+        if (editorSingle.getAsText()!= null) {                        
+            String selected = editorSingle.getAsText();
+            getTexturePreview().requestPreview(selected, "", 80, 80, singlePic, null);
         }
     }//GEN-LAST:event_singleTexLoadButtonActionPerformed
 

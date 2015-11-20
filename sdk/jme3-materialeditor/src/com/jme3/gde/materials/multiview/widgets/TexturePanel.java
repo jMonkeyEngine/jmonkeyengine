@@ -13,7 +13,7 @@ package com.jme3.gde.materials.multiview.widgets;
 import com.jme3.asset.AssetNotFoundException;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.properties.TexturePropertyEditor;
-import com.jme3.gde.core.properties.preview.DDSPreview;
+import com.jme3.gde.core.properties.preview.TexturePreview;
 import com.jme3.gde.materials.MaterialProperty;
 import com.jme3.gde.materials.multiview.MaterialEditorTopComponent;
 import com.jme3.texture.Texture;
@@ -39,7 +39,7 @@ public class TexturePanel extends MaterialPropertyWidget {
     private boolean flip = false;
     private boolean repeat = false;
     private String textureName = null;
-    private DDSPreview ddsPreview;
+    private TexturePreview texPreview;
     private final ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
 
     /** Creates new form SelectionPanel */
@@ -53,22 +53,13 @@ public class TexturePanel extends MaterialPropertyWidget {
         if (!"".equals(textureName)) {
             exec.execute(new Runnable() {
 
+                @Override
                 public void run() {
                     try{
-                    Texture tex = manager.loadTexture(textureName);
-                    if (textureName.toLowerCase().endsWith(".dds")) {
-                        if (ddsPreview == null) {
-                            ddsPreview = new DDSPreview(manager);
+                        if (texPreview == null) {
+                            texPreview = new TexturePreview(manager);
                         }
-                        ddsPreview.requestPreview(textureName, "", 80, 80, texturePreview, null);
-                    } else {
-                        final Icon newicon = ImageUtilities.image2Icon(resizeImage(ImageToAwt.convert(tex.getImage(), false, true, 0)));
-                        SwingUtilities.invokeLater(new Runnable() {
-                            public void run() {
-                                texturePreview.setIcon(newicon);
-                            }
-                        });
-                    }
+                        texPreview.requestPreview(textureName, "", 80, 25, texturePreview, null);
                     } catch (AssetNotFoundException a) {
                         Logger.getLogger(MaterialEditorTopComponent.class.getName()).log(Level.WARNING, "Could not load texture {0}", textureName);
                     }
@@ -318,8 +309,8 @@ public class TexturePanel extends MaterialPropertyWidget {
 
     @Override
     public void cleanUp() {
-        if (ddsPreview != null) {
-            ddsPreview.cleanUp();
+        if (texPreview != null) {
+            texPreview.cleanUp();
         }
         exec.shutdownNow();
     }
