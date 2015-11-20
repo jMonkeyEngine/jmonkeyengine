@@ -309,7 +309,8 @@ public class HDRLoader implements AssetLoader {
         in.close();
 
         dataStore.rewind();        
-        return new Image(pixelFormat, width, height, dataStore, ColorSpace.sRGB);
+        //HDR files color data is actually stored in linear space.
+        return new Image(pixelFormat, width, height, dataStore, ColorSpace.Linear);
     }
 
     public Object load(AssetInfo info) throws IOException {
