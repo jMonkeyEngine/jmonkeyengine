@@ -51,7 +51,6 @@ import java.io.IOException;
  */
 public abstract class AbstractPhysicsControl implements PhysicsControl {
 
-    private final Quaternion tmp_inverseWorldRotation = new Quaternion();
     protected Spatial spatial;
     protected boolean enabled = true;
     protected boolean added = false;
@@ -147,9 +146,7 @@ public abstract class AbstractPhysicsControl implements PhysicsControl {
             if (!applyLocal && spatial.getParent() != null) {
                 localLocation.set(worldLocation).subtractLocal(spatial.getParent().getWorldTranslation());
                 localLocation.divideLocal(spatial.getParent().getWorldScale());
-                tmp_inverseWorldRotation.set(spatial.getParent().getWorldRotation()).inverseLocal().multLocal(localLocation);
                 localRotationQuat.set(worldRotation);
-                tmp_inverseWorldRotation.set(spatial.getParent().getWorldRotation()).inverseLocal().mult(localRotationQuat, localRotationQuat);
 
                 spatial.setLocalTranslation(localLocation);
                 spatial.setLocalRotation(localRotationQuat);
