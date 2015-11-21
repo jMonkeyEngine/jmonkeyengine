@@ -737,8 +737,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
         setKinematic(capsule.readBoolean("kinematic", false));
 
         setRestitution(capsule.readFloat("restitution", 0));
-        Vector3f angularFactor = (Vector3f) capsule.readSavable("angularFactor", Vector3f.NAN.clone());
-        if(angularFactor == Vector3f.NAN) {
+        Vector3f angularFactor = (Vector3f) capsule.readSavable("angularFactor", null);
+        if(angularFactor == null) {
             setAngularFactor(capsule.readFloat("angularFactor", 1));
         } else {
             setAngularFactor(angularFactor);
