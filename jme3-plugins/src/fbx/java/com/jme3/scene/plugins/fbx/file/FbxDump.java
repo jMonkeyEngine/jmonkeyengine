@@ -31,6 +31,9 @@
  */
 package com.jme3.scene.plugins.fbx.file;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Array;
@@ -86,6 +89,28 @@ public final class FbxDump {
      */
     public static void dumpFile(FbxFile file) {
         dumpFile(file, System.out);
+    }
+    
+    /**
+     * Dump FBX to standard output.
+     * 
+     * @param file the file to dump.
+     */
+    public static void dumpFile(String file) {
+        InputStream in = null;
+        try {
+            in = new FileInputStream(file);
+            FbxFile scene = FbxReader.readFBX(in);
+            FbxDump.dumpFile(scene);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ex) { }
+            }
+        }
     }
     
     /**

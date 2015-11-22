@@ -293,7 +293,8 @@ public class FbxNode extends FbxObject<Spatial> {
                     float z = ((Double) e2.properties.get(6)).floatValue();
                     userDataValue = new Vector3f(x, y, z);
                 } else {
-                    logger.log(Level.WARNING, "Unsupported user data type: {0}. Ignoring.", userDataType);
+                    logger.log(Level.WARNING, "Unsupported user data type: {0}. "
+                                            + "Ignoring.", userDataType);
                     continue;
                 }
                 
@@ -329,6 +330,9 @@ public class FbxNode extends FbxObject<Spatial> {
             // Material index does not exist. Create default material.
             jmeMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
             jmeMat.setReceivesShadows(true);
+            logger.log(Level.WARNING, "Material index {0} is undefined in: {1}. "
+                                    + "Will use default material.",
+                                    new Object[]{materialIndex, this});
         } else {
             FbxMaterial fbxMat = materials.get(materialIndex);
             jmeMat = fbxMat.getJmeObject();
@@ -400,7 +404,8 @@ public class FbxNode extends FbxObject<Spatial> {
             
             if (jmeMeshes == null || jmeMeshes.size() == 0) {
                 // No meshes found on FBXMesh (??)
-                logger.log(Level.WARNING, "No meshes could be loaded. Creating empty node.");
+                logger.log(Level.WARNING, "No meshes could be loaded: {0}. "
+                                        + "Creating empty node.", this);
                 spatial = new Node(getName() + "-node");
             } else {
                 // Multiple jME3 geometries required for a single FBXMesh.
@@ -437,7 +442,7 @@ public class FbxNode extends FbxObject<Spatial> {
             if (!FastMath.approximateEquals(localScale.x, localScale.y) || 
                 !FastMath.approximateEquals(localScale.x, localScale.z)) {
                 logger.log(Level.WARNING, "Non-uniform scale detected on parent node. " +
-                                          "The model may appear distorted.");
+                                          "The model {1} may appear distorted.", this);
             }
         }
         
