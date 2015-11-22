@@ -115,7 +115,7 @@ MaterialDef Phong Lighting {
         Boolean UseInstancing
     }
 
- Technique {
+    Technique {
         LightMode SinglePass
         
         VertexShader GLSL100:   Common/MatDefs/Light/SPLighting.vert
@@ -147,7 +147,7 @@ MaterialDef Phong Lighting {
             SEPARATE_TEXCOORD : SeparateTexCoord
             DISCARD_ALPHA : AlphaDiscardThreshold
             USE_REFLECTION : EnvMap
-            SPHERE_MAP : SphereMap  
+            SPHERE_MAP : EnvMapAsSphereMap  
             NUM_BONES : NumberOfBones                        
             INSTANCING : UseInstancing
         }
@@ -186,7 +186,7 @@ MaterialDef Phong Lighting {
             SEPARATE_TEXCOORD : SeparateTexCoord
             DISCARD_ALPHA : AlphaDiscardThreshold
             USE_REFLECTION : EnvMap
-            SPHERE_MAP : SphereMap  
+            SPHERE_MAP : EnvMapAsSphereMap  
             NUM_BONES : NumberOfBones                        
             INSTANCING : UseInstancing
         }
@@ -207,7 +207,6 @@ MaterialDef Phong Lighting {
         }
 
         Defines {
-            COLOR_MAP : ColorMap
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
@@ -239,8 +238,7 @@ MaterialDef Phong Lighting {
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
-            DISCARD_ALPHA : AlphaDiscardThreshold           
-            COLOR_MAP : ColorMap
+            DISCARD_ALPHA : AlphaDiscardThreshold
             SHADOWMAP_SIZE : ShadowMapSize
             FADE : FadeInfo
             PSSM : Splits
@@ -271,8 +269,7 @@ MaterialDef Phong Lighting {
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
-            DISCARD_ALPHA : AlphaDiscardThreshold           
-            COLOR_MAP : ColorMap
+            DISCARD_ALPHA : AlphaDiscardThreshold
             SHADOWMAP_SIZE : ShadowMapSize
             FADE : FadeInfo
             PSSM : Splits
@@ -346,10 +343,6 @@ MaterialDef Phong Lighting {
         Defines {
             VERTEX_COLOR : UseVertexColor
             MATERIAL_COLORS : UseMaterialColors
-            V_TANGENT : VTangent
-            MINNAERT  : Minnaert
-            WARDISO   : WardIso
-
             DIFFUSEMAP : DiffuseMap
             NORMALMAP : NormalMap
             SPECULARMAP : SpecularMap

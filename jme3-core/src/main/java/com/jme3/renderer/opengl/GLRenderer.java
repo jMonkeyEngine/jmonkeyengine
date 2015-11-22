@@ -467,14 +467,25 @@ public final class GLRenderer implements Renderer {
                 });
 
         // Print capabilities (if fine logging is enabled)
-        if (logger.isLoggable(Level.FINE)) {
+        if (logger.isLoggable(Level.INFO)) {
             StringBuilder sb = new StringBuilder();
             sb.append("Supported capabilities: \n");
             for (Caps cap : caps)
             {
                 sb.append("\t").append(cap.toString()).append("\n");
             }
-            logger.log(Level.FINE, sb.toString());
+            
+            sb.append("\nHardware limits: \n");
+            for (Limits limit : Limits.values()) {
+                Integer value = limits.get(limit);
+                if (value == null) {
+                    value = 0;
+                }
+                sb.append("\t").append(limit.name()).append(" = ")
+                  .append(value).append("\n");
+            }
+            
+            logger.log(Level.INFO, sb.toString());
         }
 
         texUtil.initialize(caps);
@@ -1500,17 +1511,17 @@ public final class GLRenderer implements Renderer {
         }
 
         bindFrameBuffer(fb);
-
-        FrameBuffer.RenderBuffer depthBuf = fb.getDepthBuffer();
-        if (depthBuf != null) {
-            updateFrameBufferAttachment(fb, depthBuf);
-        }
-
+        
         for (int i = 0; i < fb.getNumColorBuffers(); i++) {
             FrameBuffer.RenderBuffer colorBuf = fb.getColorBuffer(i);
             updateFrameBufferAttachment(fb, colorBuf);
         }
         
+        FrameBuffer.RenderBuffer depthBuf = fb.getDepthBuffer();
+        if (depthBuf != null) {
+            updateFrameBufferAttachment(fb, depthBuf);
+        }
+
         setReadDrawBuffers(fb);
         checkFrameBufferError();
 
@@ -2433,8 +2444,7 @@ public final class GLRenderer implements Renderer {
     }
 
     public void drawTriangleArray(Mesh.Mode mode, int count, int vertCount) {
-        boolean useInstancing = count > 1 && caps.contains(Caps.MeshInstancing);
-        if (useInstancing) {
+        if (count > 1) {
             glext.glDrawArraysInstancedARB(convertElementMode(mode), 0,
                     vertCount, count);
         } else {
@@ -2478,8 +2488,6 @@ public final class GLRenderer implements Renderer {
         }
 
         int vertCount = mesh.getVertexCount();
-        boolean useInstancing = count > 1 && caps.contains(Caps.MeshInstancing);
-
         if (mesh.getMode() == Mode.Hybrid) {
             int[] modeStart = mesh.getModeStart();
             int[] elementLengths = mesh.getElementLengths();
@@ -2499,7 +2507,7 @@ public final class GLRenderer implements Renderer {
                 }
                 int elementLength = elementLengths[i];
 
-                if (useInstancing) {
+                if (count > 1) {
                     glext.glDrawElementsInstancedARB(elMode,
                             elementLength,
                             fmt,
@@ -2517,7 +2525,7 @@ public final class GLRenderer implements Renderer {
                 curOffset += elementLength * elSize;
             }
         } else {
-            if (useInstancing) {
+            if (count > 1) {
                 glext.glDrawElementsInstancedARB(convertElementMode(mesh.getMode()),
                         indexBuf.getData().limit(),
                         convertFormat(indexBuf.getFormat()),
@@ -2677,10 +2685,13 @@ public final class GLRenderer implements Renderer {
     }
 
     public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
-        if (mesh.getVertexCount() == 0) {
+        if (mesh.getVertexCount() == 0 || mesh.getTriangleCount() == 0 || count == 0) {
             return;
         }
 
+        if (count > 1 && !caps.contains(Caps.MeshInstancing)) {
+            throw new RendererException("Mesh instancing is not supported by the video hardware");
+        }
 
         if (context.lineWidth != mesh.getLineWidth()) {
             gl.glLineWidth(mesh.getLineWidth());

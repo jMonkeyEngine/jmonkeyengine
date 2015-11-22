@@ -49,7 +49,7 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.*;
-import com.jme3.shader.Uniform;
+import com.jme3.shader.Shader;
 import com.jme3.shader.UniformBinding;
 import com.jme3.shader.UniformBindingManager;
 import com.jme3.system.NullRenderer;
@@ -483,8 +483,8 @@ public class RenderManager {
      * Updates the given list of uniforms with {@link UniformBinding uniform bindings}
      * based on the current world state.
      */
-    public void updateUniformBindings(List<Uniform> params) {
-        uniformBindingManager.updateUniformBindings(params);
+    public void updateUniformBindings(Shader shader) {
+        uniformBindingManager.updateUniformBindings(shader);
     }
 
     /**
@@ -616,7 +616,9 @@ public class RenderManager {
 
             gm.getMaterial().preload(this);
             Mesh mesh = gm.getMesh();
-            if (mesh != null) {
+            if (mesh != null
+                    && mesh.getVertexCount() != 0
+                    && mesh.getTriangleCount() != 0) {
                 for (VertexBuffer vb : mesh.getBufferList().getArray()) {
                     if (vb.getData() != null && vb.getUsage() != VertexBuffer.Usage.CpuOnly) {
                         renderer.updateBufferData(vb);
@@ -768,6 +770,9 @@ public class RenderManager {
     }
 
     public void setSinglePassLightBatchSize(int singlePassLightBatchSize) {
+        if (singlePassLightBatchSize < 1) {
+            throw new IllegalArgumentException("batch size cannot be less than 1");
+        }
         this.singlePassLightBatchSize = singlePassLightBatchSize;
     }
     

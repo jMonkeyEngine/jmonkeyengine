@@ -129,9 +129,6 @@ public class MatParam implements Savable, Cloneable {
         this.value = value;
     }
 
-    void apply(Renderer r, Technique technique) {
-        technique.updateUniformParam(getPrefixedName(), getVarType(), getValue());
-    }
 
     /**
      * Returns the material parameter value as it would appear in a J3M
