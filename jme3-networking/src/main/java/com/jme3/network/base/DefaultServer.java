@@ -108,6 +108,7 @@ public class DefaultServer implements Server
     }   
 
     protected void addStandardServices() {
+        log.fine("Adding standard services...");
         services.addService(new ServerSerializerRegistrationsService());
     }
 
@@ -221,6 +222,10 @@ public class DefaultServer implements Server
 
     public void broadcast( Filter<? super HostedConnection> filter, Message message )
     {
+        if( log.isLoggable(Level.FINER) ) {
+            log.log(Level.FINER, "broadcast({0}, {1})", new Object[]{filter, message});
+        }
+        
         if( connections.isEmpty() )
             return;
  
@@ -239,6 +244,10 @@ public class DefaultServer implements Server
 
     public void broadcast( int channel, Filter<? super HostedConnection> filter, Message message )
     {
+        if( log.isLoggable(Level.FINER) ) {
+            log.log(Level.FINER, "broadcast({0}, {1}. {2})", new Object[]{channel, filter, message});
+        }
+        
         if( connections.isEmpty() )
             return;
 
@@ -540,6 +549,9 @@ public class DefaultServer implements Server
        
         public void send( Message message )
         {
+            if( log.isLoggable(Level.FINER) ) {
+                log.log(Level.FINER, "send({0})", message);
+            }
             ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
             if( message.isReliable() || channels[CH_UNRELIABLE] == null ) {
                 channels[CH_RELIABLE].send( buffer );
@@ -550,6 +562,9 @@ public class DefaultServer implements Server
 
         public void send( int channel, Message message )
         {
+            if( log.isLoggable(Level.FINER) ) {
+                log.log(Level.FINER, "send({0}, {1})", new Object[]{channel, message});
+            }
             checkChannel(channel);
             ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
             channels[channel+CH_FIRST].send(buffer);

@@ -100,6 +100,7 @@ public class DefaultClient implements Client
     }
 
     protected void addStandardServices() {
+        log.fine("Adding standard services...");
         services.addService(new ClientSerializerRegistrationsService());
     }
 
@@ -222,6 +223,9 @@ public class DefaultClient implements Client
    
     public void send( Message message )
     {
+        if( log.isLoggable(Level.FINER) ) {
+            log.log(Level.FINER, "send({0})", message);
+        }
         if( message.isReliable() || channels.get(CH_UNRELIABLE) == null ) {
             send(CH_RELIABLE, message, true);
         } else {
@@ -231,6 +235,9 @@ public class DefaultClient implements Client
  
     public void send( int channel, Message message )
     {
+        if( log.isLoggable(Level.FINER) ) {
+            log.log(Level.FINER, "send({0}, {1})", new Object[]{channel, message});
+        }
         if( channel >= 0 ) {
             // Make sure we aren't still connecting.  Channels
             // won't be valid until we are fully connected since
@@ -287,9 +294,11 @@ public class DefaultClient implements Client
         if( !isRunning )
             return;
 
-        // Let the services get a chance to stop before we
-        // kill the connection.
-        services.stop();
+        if( services.isStarted() ) {
+            // Let the services get a chance to stop before we
+            // kill the connection.
+            services.stop();
+        }
         
         // Send a close message
     
