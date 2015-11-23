@@ -585,6 +585,37 @@ public class RenderManager {
             renderGeometry(gl.get(i));
         }
     }
+    
+    public void renderGeometryListNew(GeometryList gl) {
+        int size = gl.size();
+        int pass = 0;
+        
+        // Keep rendering geometries in the list
+        // checking each time if they need more passes.
+        // Geometries which need more passes are added to the beginning
+        // of the list and then another pass is executed.
+        // In the end, all geometries will have their passes rendered.
+        while (true) {
+            int writeIdx = 0;
+            for (int i = 0; i < size; i++) {
+                Geometry obj = gl.get(i);
+                renderGeometry(obj);
+                boolean morePasses = true;
+                if (morePasses) {
+                    // Geometry wants to be rendered again.
+                    // Move it to the beginning of the list.
+                    gl.set(writeIdx++, obj);
+                }
+            }
+            // No geometries were written to the beginning of the list -
+            // all passes are finished.
+            if (writeIdx == 0) {
+                return;
+            }
+            pass++;
+            size = writeIdx;
+        }
+    }
 
     /**
      * Preloads a scene for rendering.
