@@ -213,20 +213,18 @@ public class DXTFlipper {
             case DXT5:
                 type = 3;
                 break;
-            /*
-            case LATC:
+            case RGTC:
                 type = 4;
                 break;
-            case LTC:
+            case RTC:
                 type = 5;
                 break;
-            */
             default:
                 throw new IllegalArgumentException();
         }
 
         // DXT1 uses 8 bytes per block,
-        // DXT3, DXT5, LATC use 16 bytes per block
+        // DXT3, DXT5, RGTC use 16 bytes per block
         int bpb = type == 1 || type == 5 ? 8 : 16;
 
         ByteBuffer retImg = BufferUtils.createByteBuffer(blocksX * blocksY * bpb);

@@ -348,6 +348,10 @@ public final class GLRenderer implements Renderer {
         } else if (hasExtension("GL_OES_compressed_ETC1_RGB8_texture")) {
             caps.add(Caps.TextureCompressionETC1);
         }
+        
+        if (hasExtension("GL_ARB_texture_compression_rgtc")) {
+            caps.add(Caps.TextureCompressionRGTC);
+        }
 
         // == end texture format extensions ==
 

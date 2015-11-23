@@ -349,7 +349,12 @@ public enum Caps {
     /**
      * GPU can provide and accept binary shaders.
      */
-    BinaryShader;
+    BinaryShader, 
+    
+    /**
+     * Supports {@link Format#RGTC} and {@link Format#RTC} texture compression.
+     */
+    TextureCompressionRGTC;
 
     /**
      * Returns true if given the renderer capabilities, the texture
