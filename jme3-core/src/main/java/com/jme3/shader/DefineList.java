@@ -38,11 +38,9 @@ import java.util.List;
  * 
  * @author Kirill Vainer
  */
-public final class DefineList implements Cloneable {
+public final class DefineList {
 
     public static final int MAX_DEFINES = 64;
-    
-    public static final int SAVABLE_VERSION = 1;
     
     private long hash;
     private final int[] vals;
@@ -78,6 +76,18 @@ public final class DefineList implements Cloneable {
         set(id, val ? 1 : 0);
     }
 
+    public boolean getBoolean(int id) {
+        return vals[id] != 0;
+    }
+    
+    public float getFloat(int id) {
+        return Float.intBitsToFloat(vals[id]);
+    }
+    
+    public int getInt(int id) {
+        return vals[id];
+    }
+    
     @Override
     public int hashCode() {
         return (int)((hash >> 32) ^ hash);
@@ -110,7 +120,7 @@ public final class DefineList implements Cloneable {
                 
                 if (defineTypes != null && defineTypes.get(i) == VarType.Float) {
                     float val = Float.intBitsToFloat(vals[i]);
-                    if (!Float.isFinite(val)) {
+                    if (Float.isInfinite(val) || Float.isNaN(val)) {
                         throw new IllegalArgumentException(
                                 "GLSL does not support NaN "
                                 + "or Infinite float literals");
@@ -123,6 +133,11 @@ public final class DefineList implements Cloneable {
                 sb.append("\n");
             }
         }
-        System.out.println(sb.toString());
+    }
+    
+    public String generateSource(List<String> defineNames, List<VarType> defineTypes) {
+        StringBuilder sb = new StringBuilder();
+        generateSource(sb, defineNames, defineTypes);
+        return sb.toString();
     }
 }

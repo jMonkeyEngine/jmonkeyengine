@@ -33,14 +33,22 @@ package com.jme3.shader;
 
 import com.jme3.math.FastMath;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import org.junit.Test;
 
+import static org.junit.Assert.*;
+
 public class DefineListTest {
     
-    private List<String> defineNames;
-    private List<VarType> defineTypes;
-    
+    private static final List<String> DEFINE_NAMES = Arrays.asList("BOOL_VAR", "INT_VAR", "FLOAT_VAR");
+    private static final List<VarType> DEFINE_TYPES = Arrays.asList(VarType.Boolean, VarType.Int, VarType.Float);
+    private static final int NUM_DEFINES = DEFINE_NAMES.size();
+    private static final int BOOL_VAR = 0;
+    private static final int INT_VAR = 1;
+    private static final int FLOAT_VAR = 2;
+    private static final DefineList EMPTY = new DefineList(NUM_DEFINES);
+
     @Test
     public void testHashCollision() {
         DefineList dl1 = new DefineList(64);
@@ -58,86 +66,235 @@ public class DefineListTest {
         assert dl1.equals(dl2);
     }
     
+    @Test
+    public void testGetSet() {
+        DefineList dl = new DefineList(NUM_DEFINES);
+        
+        assertFalse(dl.getBoolean(BOOL_VAR));
+        assertEquals(dl.getInt(INT_VAR), 0);
+        assertEquals(dl.getFloat(FLOAT_VAR), 0f, 0f);
+        
+        dl.set(BOOL_VAR, true);
+        dl.set(INT_VAR, -1);
+        dl.set(FLOAT_VAR, Float.NaN);
+        
+        assertTrue(dl.getBoolean(BOOL_VAR));
+        assertEquals(dl.getInt(INT_VAR), -1);
+        assertTrue(Float.isNaN(dl.getFloat(FLOAT_VAR)));
+    }
+    
     private String generateSource(DefineList dl) {
         StringBuilder sb = new StringBuilder();
-        dl.generateSource(sb, defineNames, defineTypes);
+        dl.generateSource(sb, DEFINE_NAMES, DEFINE_TYPES);
         return sb.toString();
     }
     
     @Test
-    public void testInitial() {
-        DefineList dl = new DefineList(3);
-        defineNames  = Arrays.asList("A", "B", "C");
-        defineTypes = Arrays.asList(VarType.Boolean, VarType.Int, VarType.Float);
-        
+    public void testSourceInitial() {
+        DefineList dl = new DefineList(NUM_DEFINES);
         assert dl.hashCode() == 0;
         assert generateSource(dl).equals("");
     }
     
     @Test
-    public void testBooleanDefine() {
-        DefineList dl = new DefineList(1);
-        defineNames  = Arrays.asList("BOOL_VAR");
-        defineTypes = Arrays.asList(VarType.Boolean);
-        
-        dl.set(0, true);
+    public void testSourceBooleanDefine() {
+        DefineList dl = new DefineList(NUM_DEFINES);
+
+        dl.set(BOOL_VAR, true);
         assert dl.hashCode() == 1;
         assert generateSource(dl).equals("#define BOOL_VAR 1\n");
         
-        dl.set(0, false);
+        dl.set(BOOL_VAR, false);
         assert dl.hashCode() == 0;
         assert generateSource(dl).equals("");
     }
     
     @Test
-    public void testFloatDefine() {
-        DefineList dl = new DefineList(1);
-        defineNames  = Arrays.asList("FLOAT_VAR");
-        defineTypes = Arrays.asList(VarType.Float);
+    public void testSourceIntDefine() {
+        DefineList dl = new DefineList(NUM_DEFINES);
+
+        int hashCodeWithInt = 1 << INT_VAR;
         
-        dl.set(0, 1f);
-        assert dl.hashCode() == 1;
-        assert generateSource(dl).equals("#define FLOAT_VAR 1.0\n");
+        dl.set(INT_VAR, 123);
+        assert dl.hashCode() == hashCodeWithInt;
+        assert generateSource(dl).equals("#define INT_VAR 123\n");
         
-        dl.set(0, 0f);
+        dl.set(INT_VAR, 0);
         assert dl.hashCode() == 0;
         assert generateSource(dl).equals("");
         
-        dl.set(0, -1f);
+        dl.set(INT_VAR, -99);
+        assert dl.hashCode() == hashCodeWithInt;
+        assert generateSource(dl).equals("#define INT_VAR -99\n");
+        
+        dl.set(INT_VAR, Integer.MAX_VALUE);
+        assert dl.hashCode() == hashCodeWithInt;
+        assert generateSource(dl).equals("#define INT_VAR 2147483647\n");
+    }
+    
+    @Test
+    public void testSourceFloatDefine() {
+        DefineList dl = new DefineList(NUM_DEFINES);
+
+        dl.set(FLOAT_VAR, 1f);
+        assert dl.hashCode() == (1 << FLOAT_VAR);
+        assert generateSource(dl).equals("#define FLOAT_VAR 1.0\n");
+        
+        dl.set(FLOAT_VAR, 0f);
+        assert dl.hashCode() == 0;
+        assert generateSource(dl).equals("");
+        
+        dl.set(FLOAT_VAR, -1f);
         assert generateSource(dl).equals("#define FLOAT_VAR -1.0\n");
         
-        dl.set(0, FastMath.FLT_EPSILON);
+        dl.set(FLOAT_VAR, FastMath.FLT_EPSILON);
         assert generateSource(dl).equals("#define FLOAT_VAR 1.1920929E-7\n");
         
-        dl.set(0, FastMath.PI);
+        dl.set(FLOAT_VAR, FastMath.PI);
         assert generateSource(dl).equals("#define FLOAT_VAR 3.1415927\n");
         
         try {
-            dl.set(0, Float.NaN);
+            dl.set(FLOAT_VAR, Float.NaN);
             generateSource(dl);
             assert false;
         } catch (IllegalArgumentException ex) { }
         
         try {
-            dl.set(0, Float.POSITIVE_INFINITY);
+            dl.set(FLOAT_VAR, Float.POSITIVE_INFINITY);
             generateSource(dl);
             assert false;
         } catch (IllegalArgumentException ex) { }
         
         try {
-            dl.set(0, Float.NEGATIVE_INFINITY);
+            dl.set(FLOAT_VAR, Float.NEGATIVE_INFINITY);
             generateSource(dl);
             assert false;
         } catch (IllegalArgumentException ex) { }
     }
     
     @Test
-    public void testSourceGeneration() {
-        DefineList dl = new DefineList(64);
-        defineNames  = Arrays.asList("BOOL_VAR",      "INT_VAR",   "FLOAT_VAR");
-        defineTypes = Arrays.asList(VarType.Boolean, VarType.Int, VarType.Float);
-        dl.set(0, true);
-        dl.set(1, -1);
-        dl.set(2, Float.NaN);
+    public void testEqualsAndHashCode() {
+        DefineList dl1 = new DefineList(NUM_DEFINES);
+        DefineList dl2 = new DefineList(NUM_DEFINES);
+        
+        assertTrue(dl1.hashCode() == 0);
+        assertEquals(dl1, dl2);
+        
+        dl1.set(BOOL_VAR, true);
+        
+        assertTrue(dl1.hashCode() == 1);
+        assertNotSame(dl1, dl2);
+        
+        dl2.set(BOOL_VAR, true);
+        
+        assertEquals(dl1, dl2);
+        
+        dl1.set(INT_VAR, 2);
+        
+        assertTrue(dl1.hashCode() == (1|2));
+        assertNotSame(dl1, dl2);
+        
+        dl2.set(INT_VAR, 2);
+        
+        assertEquals(dl1, dl2);
+        
+        dl1.set(BOOL_VAR, false);
+        
+        assertTrue(dl1.hashCode() == 2);
+        assertNotSame(dl1, dl2);
+    }
+    
+    @Test
+    public void testDeepClone() {
+        DefineList dl1 = new DefineList(NUM_DEFINES);
+        DefineList dl2 = dl1.deepClone();
+        
+        assertFalse(dl1 == dl2);
+        assertTrue(dl1.equals(dl2));
+        assertTrue(dl1.hashCode() == dl2.hashCode());
+        
+        dl1.set(BOOL_VAR, true);
+        dl2 = dl1.deepClone();
+        
+        assertTrue(dl1.equals(dl2));
+        assertTrue(dl1.hashCode() == dl2.hashCode());
+        
+        dl1.set(INT_VAR, 123);
+        
+        assertFalse(dl1.equals(dl2));
+        assertFalse(dl1.hashCode() == dl2.hashCode());
+        
+        dl2 = dl1.deepClone();
+        
+        assertTrue(dl1.equals(dl2));
+        assertTrue(dl1.hashCode() == dl2.hashCode());
+    }
+    
+    @Test
+    public void testGenerateSource() {
+        DefineList dl = new DefineList(NUM_DEFINES);
+        
+        assertEquals("", generateSource(dl));
+        
+        dl.set(BOOL_VAR, true);
+        
+        assertEquals("#define BOOL_VAR 1\n", generateSource(dl));
+        
+        dl.set(INT_VAR, 123);
+        
+        assertEquals("#define BOOL_VAR 1\n" + 
+                     "#define INT_VAR 123\n", generateSource(dl));
+        
+        dl.set(BOOL_VAR, false);
+        
+        assertEquals("#define INT_VAR 123\n", generateSource(dl));
+        
+        dl.set(BOOL_VAR, true);
+        
+        // should have predictable ordering based on defineId
+        assertEquals("#define BOOL_VAR 1\n" + 
+                     "#define INT_VAR 123\n", generateSource(dl));
+    }
+    
+    private static String doLookup(HashMap<DefineList, String> map, boolean boolVal, int intVal, float floatVal) {
+        DefineList dl = new DefineList(NUM_DEFINES);
+        dl.set(BOOL_VAR, boolVal);
+        dl.set(INT_VAR, intVal);
+        dl.set(FLOAT_VAR, floatVal);
+        return map.get(dl);
+    }
+    
+    @Test
+    public void testHashLookup() {
+        String STR_EMPTY          = "This is an empty define list";
+        String STR_INT            = "This define list has an int value";
+        String STR_BOOL           = "This define list just has boolean value set";
+        String STR_BOOL_INT       = "This define list has both a boolean and int value";
+        String STR_BOOL_INT_FLOAT = "This define list has a boolean, int, and float value";
+        
+        HashMap<DefineList, String> map = new HashMap<DefineList, String>();
+        
+        DefineList lookup = new DefineList(NUM_DEFINES);
+        
+        map.put(lookup.deepClone(), STR_EMPTY);
+        
+        lookup.set(BOOL_VAR, true);
+        map.put(lookup.deepClone(), STR_BOOL);
+        
+        lookup.set(BOOL_VAR, false);
+        lookup.set(INT_VAR, 123);
+        map.put(lookup.deepClone(), STR_INT);
+        
+        lookup.set(BOOL_VAR, true);
+        map.put(lookup.deepClone(), STR_BOOL_INT);
+        
+        lookup.set(FLOAT_VAR, FastMath.PI);
+        map.put(lookup.deepClone(), STR_BOOL_INT_FLOAT);
+        
+        assertEquals(doLookup(map, false, 0, 0f), STR_EMPTY);
+        assertEquals(doLookup(map, false, 123, 0f), STR_INT);
+        assertEquals(doLookup(map, true, 0, 0f), STR_BOOL);
+        assertEquals(doLookup(map, true, 123, 0f), STR_BOOL_INT);
+        assertEquals(doLookup(map, true, 123, FastMath.PI), STR_BOOL_INT_FLOAT);
     }
 }
