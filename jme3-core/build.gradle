@@ -13,8 +13,22 @@ sourceSets {
     test {
         java {
             srcDir 'src/test/java'
+            srcDir 'src/plugins/java'
         }
     }
+}
+
+configurations {
+    testOutput.extendsFrom testCompile
+}
+
+task testJar(type: Jar) {
+    classifier "test"
+    from sourceSets.test.output
+}
+
+artifacts {
+    testOutput testJar
 }
 
 task updateVersionPropertiesFile << {
@@ -35,5 +49,3 @@ task updateVersionPropertiesFile << {
 
 compileJava.dependsOn(updateVersionPropertiesFile)
 
-dependencies {
-}

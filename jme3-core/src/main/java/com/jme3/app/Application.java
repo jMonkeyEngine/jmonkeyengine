@@ -520,6 +520,17 @@ public class Application implements SystemListener {
     }
 
     /**
+     * Determine if the application has already started.
+     * 
+     * After {@link #start() } but before {@link #stop() }.
+     * 
+     * @return if started
+     */
+    public boolean isStarted() {
+        return context != null && context.isCreated();
+    }
+    
+    /**
      * Internal use only.
      */
     public void reshape(int w, int h){
@@ -726,6 +737,7 @@ public class Application implements SystemListener {
             audioRenderer.cleanup();
 
         timer.reset();
+        context = null;
     }
 
     /**

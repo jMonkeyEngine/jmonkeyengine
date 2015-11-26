@@ -6,4 +6,6 @@ dependencies {
     compile project(':jme3-core')
     compile project(':jme3-desktop')
     compile 'org.lwjgl.lwjgl:lwjgl:2.9.3'
+
+    testCompile project(path: ':jme3-core', configuration: 'testOutput')
 }
