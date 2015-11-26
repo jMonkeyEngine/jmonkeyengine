@@ -30,6 +30,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.jme3.app;
+
 import com.jme3.renderer.RenderManager;
 import com.jme3.system.JmeContext;
 import java.awt.GraphicsEnvironment;
@@ -42,11 +43,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class LwjglAppTest {
-    
+
     private final AtomicInteger simpleInitAppInvocations = new AtomicInteger();
     private final AtomicInteger simpleUpdateInvocations = new AtomicInteger();
     private final AtomicInteger simpleRenderInvocations = new AtomicInteger();
-    
+
     private class TestApp extends SimpleApplication {
 
         @Override
@@ -58,49 +59,54 @@ public class LwjglAppTest {
         public void simpleUpdate(float tpf) {
             simpleUpdateInvocations.incrementAndGet();
         }
-        
+
         @Override
         public void simpleRender(RenderManager rm) {
             simpleRenderInvocations.incrementAndGet();
         }
     }
-    
+
     public void doStopStart(Application app, JmeContext.Type type) throws InterruptedException {
         app.setLostFocusBehavior(LostFocusBehavior.Disabled);
-        
+
         // start the application - simple init / update will be called once.
-        app.start(type, true); assert app.isStarted();
-        
+        app.start(type, true);
+        assert app.isStarted();
+
         // stop the application, wait a bit, then start it again.
-        app.stop(true);  assert !app.isStarted();
-        
+        app.stop(true);
+        assert !app.isStarted();
+
         Thread.sleep(100);
-        
-        app.start(type, true); assert app.isStarted();
-        app.stop(true);  assert !app.isStarted();
-        
+
+        app.start(type, true);
+        assert app.isStarted();
+        app.stop(true);
+        assert !app.isStarted();
+
         // make sure each method was called twice.
         assertEquals(2, simpleInitAppInvocations.get());
         assertEquals(2, simpleUpdateInvocations.get());
         assertEquals(2, simpleRenderInvocations.get());
     }
-    
+
     @Before
     public void setUp() {
         Logger.getLogger("com.jme3").setLevel(Level.OFF);
     }
-    
+
     @Test
     public void testDisplayApp() throws InterruptedException {
         assumeFalse(GraphicsEnvironment.isHeadless());
         doStopStart(new TestApp(), JmeContext.Type.Display);
     }
-    
+
     @Test
     public void testOffscreenSurface() throws InterruptedException {
+        assumeFalse(GraphicsEnvironment.isHeadless());
         doStopStart(new TestApp(), JmeContext.Type.OffscreenSurface);
     }
-    
+
     @Test
     public void testHeadlessApp() throws InterruptedException {
         doStopStart(new TestApp(), JmeContext.Type.Headless);
