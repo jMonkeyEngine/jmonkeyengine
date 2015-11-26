@@ -53,7 +53,7 @@ import java.util.LinkedList;
  */
 public class MessageProtocol
 {
-    private LinkedList<Message> messages = new LinkedList<Message>();
+    private final LinkedList<Message> messages = new LinkedList<Message>();
     private ByteBuffer current;
     private int size;
     private Byte carry;
