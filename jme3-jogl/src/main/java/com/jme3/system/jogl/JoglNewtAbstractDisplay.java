@@ -37,6 +37,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.jogl.NewtKeyInput;
 import com.jme3.input.jogl.NewtMouseInput;
+import com.jme3.system.AppSettings;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.AnimatorBase;
@@ -73,10 +74,12 @@ public abstract class JoglNewtAbstractDisplay extends JoglContext implements GLE
 
     protected void initGLCanvas() {
         loadNatives();
-        //FIXME use the settings to know whether to use the max programmable profile
-        //then call GLProfile.getMaxProgrammable(true);
-        //FIXME use the default profile only on embedded devices
-        GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
+        GLCapabilities caps;
+        if (settings.getRenderer().equals(AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE)) {
+        	caps = new GLCapabilities(GLProfile.getMaxProgrammable(true));
+        } else {
+        	caps = new GLCapabilities(GLProfile.getMaxFixedFunc(true));
+        }
         caps.setHardwareAccelerated(true);
         caps.setDoubleBuffered(true);
         caps.setStencilBits(settings.getStencilBits());

@@ -31,6 +31,9 @@
  */
 package com.jme3.scene.plugins.blender;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,9 +44,13 @@ import java.util.logging.Logger;
 
 import com.jme3.animation.Animation;
 import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoader;
+import com.jme3.asset.AssetLocator;
+import com.jme3.asset.AssetManager;
 import com.jme3.asset.BlenderKey;
 import com.jme3.asset.ModelKey;
+import com.jme3.asset.StreamAssetInfo;
 import com.jme3.light.Light;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.Filter;
@@ -81,22 +88,17 @@ import com.jme3.texture.Texture;
 public class BlenderLoader implements AssetLoader {
     private static final Logger     LOGGER = Logger.getLogger(BlenderLoader.class.getName());
 
-    /** The blocks read from the file. */
-    protected List<FileBlockHeader> blocks;
-    /** The blender context. */
-    protected BlenderContext        blenderContext;
-
     @Override
     public Spatial load(AssetInfo assetInfo) throws IOException {
         try {
-            this.setup(assetInfo);
+            BlenderContext blenderContext = this.setup(assetInfo);
 
             AnimationHelper animationHelper = blenderContext.getHelper(AnimationHelper.class);
             animationHelper.loadAnimations();
 
             BlenderKey blenderKey = blenderContext.getBlenderKey();
             LoadedFeatures loadedFeatures = new LoadedFeatures();
-            for (FileBlockHeader block : blocks) {
+            for (FileBlockHeader block : blenderContext.getBlocks()) {
                 switch (block.getCode()) {
                     case BLOCK_OB00:
                         ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
@@ -181,7 +183,7 @@ public class BlenderLoader implements AssetLoader {
 
             LOGGER.fine("Loading scenes and attaching them to the root object.");
             for (FileBlockHeader sceneBlock : loadedFeatures.sceneBlocks) {
-                loadedFeatures.scenes.add(this.toScene(sceneBlock.getStructure(blenderContext)));
+                loadedFeatures.scenes.add(this.toScene(sceneBlock.getStructure(blenderContext), blenderContext));
             }
 
             LOGGER.fine("Creating the root node of the model and applying loaded nodes of the scene and loaded features to it.");
@@ -220,7 +222,7 @@ public class BlenderLoader implements AssetLoader {
         } catch (Exception e) {
             throw new IOException("Unexpected importer exception occured: " + e.getLocalizedMessage(), e);
         } finally {
-            this.clear();
+            this.clear(assetInfo);
         }
     }
 
@@ -228,11 +230,12 @@ public class BlenderLoader implements AssetLoader {
      * This method converts the given structure to a scene node.
      * @param structure
      *            structure of a scene
+     *            @param blenderContext the blender context
      * @return scene's node
      * @throws BlenderFileException
      *             an exception throw when problems with blender file occur
      */
-    private Node toScene(Structure structure) throws BlenderFileException {
+    private Node toScene(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
         ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
         Node result = new Node(structure.getName());
         List<Structure> base = ((Structure) structure.getFieldValue("base")).evaluateListBase();
@@ -265,7 +268,7 @@ public class BlenderLoader implements AssetLoader {
      * @throws BlenderFileException
      *             an exception is throw when something wrong happens with blender file
      */
-    protected void setup(AssetInfo assetInfo) throws BlenderFileException {
+    protected BlenderContext setup(AssetInfo assetInfo) throws BlenderFileException {
         // registering loaders
         ModelKey modelKey = (ModelKey) assetInfo.getKey();
         BlenderKey blenderKey;
@@ -273,16 +276,15 @@ public class BlenderLoader implements AssetLoader {
             blenderKey = (BlenderKey) modelKey;
         } else {
             blenderKey = new BlenderKey(modelKey.getName());
-            blenderKey.setAssetRootPath(modelKey.getFolder());
         }
 
         // opening stream
         BlenderInputStream inputStream = new BlenderInputStream(assetInfo.openStream());
 
         // reading blocks
-        blocks = new ArrayList<FileBlockHeader>();
+        List<FileBlockHeader> blocks = new ArrayList<FileBlockHeader>();
         FileBlockHeader fileBlock;
-        blenderContext = new BlenderContext();
+        BlenderContext blenderContext = new BlenderContext();
         blenderContext.setBlenderVersion(inputStream.getVersionNumber());
         blenderContext.setAssetManager(assetInfo.getManager());
         blenderContext.setInputStream(inputStream);
@@ -317,15 +319,19 @@ public class BlenderLoader implements AssetLoader {
         if (sceneFileBlock != null) {
             blenderContext.setSceneStructure(sceneFileBlock.getStructure(blenderContext));
         }
+        
+        // adding locator for linked content
+        assetInfo.getManager().registerLocator(assetInfo.getKey().getName(), LinkedContentLocator.class);
+        
+        return blenderContext;
     }
 
     /**
      * The internal data is only needed during loading so make it unreachable so that the GC can release
      * that memory (which can be quite large amount).
      */
-    protected void clear() {
-        blenderContext = null;
-        blocks = null;
+    protected void clear(AssetInfo assetInfo) {
+        assetInfo.getManager().unregisterLocator(assetInfo.getKey().getName(), LinkedContentLocator.class);
     }
 
     /**
@@ -361,5 +367,51 @@ public class BlenderLoader implements AssetLoader {
          * is set to default (as in blender editor.
          */
         private ColorRGBA             backgroundColor = ColorRGBA.Gray;
+    }
+    
+    public static class LinkedContentLocator implements AssetLocator {
+        private File rootFolder;
+        
+        @Override
+        public void setRootPath(String rootPath) {
+            rootFolder = new File(rootPath);
+            if(rootFolder.isFile()) {
+                rootFolder = rootFolder.getParentFile();
+            }
+        }
+
+        @SuppressWarnings("rawtypes")
+        @Override
+        public AssetInfo locate(AssetManager manager, AssetKey key) {
+            if(key instanceof BlenderKey) {
+                File linkedAbsoluteFile = new File(key.getName());
+                if(linkedAbsoluteFile.exists() && linkedAbsoluteFile.isFile()) {
+                    try {
+                        return new StreamAssetInfo(manager, key, new FileInputStream(linkedAbsoluteFile));
+                    } catch (FileNotFoundException e) {
+                        return null;
+                    }
+                }
+                
+                File linkedFileInCurrentAssetFolder = new File(rootFolder, linkedAbsoluteFile.getName());
+                if(linkedFileInCurrentAssetFolder.exists() && linkedFileInCurrentAssetFolder.isFile()) {
+                    try {
+                        return new StreamAssetInfo(manager, key, new FileInputStream(linkedFileInCurrentAssetFolder));
+                    } catch (FileNotFoundException e) {
+                        return null;
+                    }
+                }
+                
+                File linkedFileInCurrentFolder = new File(".", linkedAbsoluteFile.getName());
+                if(linkedFileInCurrentFolder.exists() && linkedFileInCurrentFolder.isFile()) {
+                    try {
+                        return new StreamAssetInfo(manager, key, new FileInputStream(linkedFileInCurrentFolder));
+                    } catch (FileNotFoundException e) {
+                        return null;
+                    }
+                }
+            }
+            return null;
+        }
     }
 }

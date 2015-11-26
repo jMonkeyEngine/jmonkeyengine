@@ -94,7 +94,7 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
     public static Registration[] compiled;
     private static final Serializer fieldSerializer = new FieldSerializer();
     
-    private Registration[] registrations;
+    private Registration[] registrations;    
 
     public SerializerRegistrationsMessage() {
         setReliable(true);
@@ -132,7 +132,25 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
         Serializer.setReadOnly(true);                              
     }
  
-    public void registerAll() {    
+    public void registerAll() {
+
+        // See if we will have problems because our registry is locked        
+        if( Serializer.isReadOnly() ) {
+            // Check to see if maybe we are executing this from the
+            // same JVM that sent the message, ie: client and server are running on
+            // the same JVM
+            // There could be more advanced checks than this but for now we'll
+            // assume that if the registry was compiled here then it means
+            // we are also the server process.  Note that this wouldn't hold true
+            // under complicated examples where there are clients of one server
+            // that also run their own servers but realistically they would have
+            // to disable the ServerSerializerRegistrationsServer anyway.
+            if( compiled != null ) {
+                log.log( Level.INFO, "Skipping registration as registry is locked, presumably by a local server process.");
+                return;
+            }
+        }
+        
         for( Registration reg : registrations ) {
             log.log( Level.INFO, "Registering:{0}", reg);
             reg.register();

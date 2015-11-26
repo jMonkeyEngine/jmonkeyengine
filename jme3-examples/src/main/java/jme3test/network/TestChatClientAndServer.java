@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,95 +29,46 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.system;
+package jme3test.network;
 
-public enum Platform {
 
-    /**
-     * Microsoft Windows 32 bit
-     */
-    Windows32,
+/**
+ *  Combines the server instance and a client instance into the
+ *  same JVM to show an example of, and to test, a pattern like
+ *  self-hosted multiplayer games.
+ *
+ *  @author    Paul Speed
+ */
+public class TestChatClientAndServer {
     
-    /**
-     * Microsoft Windows 64 bit
-     */
-    Windows64(true),
-    
-    /**
-     * Linux 32 bit
-     */
-    Linux32,
-    
-    /**
-     * Linux 64 bit
-     */
-    Linux64(true),
-    
-    /**
-     * Apple Mac OS X 32 bit
-     */
-    MacOSX32,
-    
-    /**
-     * Apple Mac OS X 64 bit
-     */
-    MacOSX64(true),
-    
-    /**
-     * Apple Mac OS X 32 bit PowerPC
-     */
-    MacOSX_PPC32,
-    
-    /**
-     * Apple Mac OS X 64 bit PowerPC
-     */
-    MacOSX_PPC64(true),
-    
-    /**
-     * Android ARM5
-     */
-    Android_ARM5,
-    
-    /**
-     * Android ARM6
-     */
-    Android_ARM6,
+    public static void main( String... args ) throws Exception {
 
-    /**
-     * Android ARM7
-     */
-    Android_ARM7,
+        System.out.println("Starting chat server...");    
+        TestChatServer chatServer = new TestChatServer();
+        chatServer.start();
+ 
+        System.out.println("Waiting for connections on port:" + TestChatServer.PORT);
+ 
+        // Now launch a client
 
-    /**
-     * Android ARM8
-     */
-    Android_ARM8,
-
-    /**
-     * Android x86
-     */
-    Android_X86,
-    
-    iOS_X86,
-    
-    iOS_ARM,
-    
-    /**
-     * Android running on unknown platform (could be x86 or mips for example).
-     */
-    Android_Other;
-    
-    private final boolean is64bit;
-    
-    public boolean is64Bit() {
-        return is64bit;
-    }
-    
-    private Platform(boolean is64bit) {
-        this.is64bit = is64bit;
-    }
-    
-    private Platform() {
-        this(false);
+        TestChatClient test = new TestChatClient("localhost");
+        test.setVisible(true);
+        
+        // Register a shutdown hook to get a message on the console when the
+        // app actually finishes
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    System.out.println("Client and server test is terminating.");
+                }
+            });
+                
+        // Keep running basically forever or until the server
+        // shuts down
+        while( chatServer.isRunning() ) {
+            synchronized (chatServer) {
+                chatServer.wait();
+            }
+        }    
     }
 }

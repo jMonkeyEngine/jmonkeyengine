@@ -1041,6 +1041,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         capsule.write(mipMapSizes, "mipMapSizes", null);
         capsule.write(multiSamples, "multiSamples", 1);
         capsule.writeByteBufferArrayList(data, "data", null);
+        capsule.write(colorSpace, "colorSpace", null);
     }
 
     public void read(JmeImporter e) throws IOException {
@@ -1052,6 +1053,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         mipMapSizes = capsule.readIntArray("mipMapSizes", null);
         multiSamples = capsule.readInt("multiSamples", 1);
         data = (ArrayList<ByteBuffer>) capsule.readByteBufferArrayList("data", null);
+        colorSpace = capsule.readEnum("colorSpace", ColorSpace.class, null);
 
         if (mipMapSizes != null) {
             needGeneratedMips = false;

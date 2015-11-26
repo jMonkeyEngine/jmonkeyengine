@@ -80,7 +80,14 @@ public class TexturePropertyEditor implements PropertyEditor {
         }        
     }
 
+    @Override
     public Object getValue() {
+        if(texture == null && assetKey != null){
+            if (manager == null){
+                manager = SceneApplication.getApplication().getAssetManager();
+            }
+            texture = manager.loadTexture(assetKey);
+        }
         return texture;
     }
 

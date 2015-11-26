@@ -532,6 +532,15 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
     @Override
 	public void glShaderSource(int param1, String[] param2, IntBuffer param3) {
         checkLimit(param3);
+        
+        int param3pos = param3.position();
+        try {
+        	for (final String param2string : param2) {
+        		param3.put(Math.max(param2string.length(), param2string.getBytes().length));
+        	}
+        } finally {
+        	param3.position(param3pos);
+        }
         GLContext.getCurrentGL().getGL2ES2().glShaderSource(param1, param2.length, param2, param3);
     }
 

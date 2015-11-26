@@ -123,6 +123,7 @@ public class SkyboxWizardPanel2 implements WizardDescriptor.Panel {
         }
     }
 
+    @Override
     public void storeSettings(Object settings) {
         WizardDescriptor wiz = (WizardDescriptor) settings;
         SkyboxVisualPanel2 comp = (SkyboxVisualPanel2) getComponent();
@@ -143,7 +144,7 @@ public class SkyboxWizardPanel2 implements WizardDescriptor.Panel {
             float y = new Float(comp.getNormal2Y().getText());
             float z = new Float(comp.getNormal2Z().getText());
             wiz.putProperty("normalScale", new Vector3f(x,y,z) );
-            wiz.putProperty("useSpheremap", comp.getSpheremapCheckBox().isSelected());
+            wiz.putProperty("envMapType", comp.getEnvMapType());         
             wiz.putProperty("flipY", comp.getFlipYCheckBox().isSelected());
         }
     }

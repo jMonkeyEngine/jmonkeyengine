@@ -167,7 +167,7 @@ public abstract class JoglContext implements JmeContext {
                                         "required for jMonkeyEngine");
         }
         
-        if (settings.getRenderer().equals("JOGL")) {
+        if (settings.getRenderer().startsWith("JOGL")) {
         	com.jme3.renderer.opengl.GL gl = new JoglGL();
         	GLExt glext = new JoglGLExt();
         	GLFbo glfbo = new JoglGLFbo();

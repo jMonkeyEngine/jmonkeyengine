@@ -46,7 +46,9 @@ import com.jme3.scene.plugins.blender.objects.Properties;
  */
 public class TemporalMesh extends Geometry {
     private static final Logger        LOGGER                    = Logger.getLogger(TemporalMesh.class.getName());
-
+    /** A minimum weight value. */
+    private static final double 	   MINIMUM_BONE_WEIGHT 		 = FastMath.DBL_EPSILON;
+    
     /** The blender context. */
     protected final BlenderContext     blenderContext;
 
@@ -530,7 +532,11 @@ public class TemporalMesh extends Geometry {
                         for (Entry<String, Integer> entry : boneIndexes.entrySet()) {
                             if (vertexGroupsForVertex.containsKey(entry.getKey())) {
                                 float weight = vertexGroupsForVertex.get(entry.getKey());
-                                if (weight > 0) {// no need to use such weights
+                                if (weight > MINIMUM_BONE_WEIGHT) {
+                                	// only values of weight greater than MINIMUM_BONE_WEIGHT are used
+                                	// if all non zero weights were used, and they were samm enough, problems with normalisation would occur
+                                	// because adding a very small value to 1.0 will give 1.0
+                                	// so in order to avoid such errors, which can cause severe animation artifacts we need to use some minimum weight value
                                     boneBuffersForVertex.put(weight, entry.getValue());
                                 }
                             }

@@ -106,6 +106,6 @@ public abstract class AbstractService<S extends ServiceManager> implements Servi
     
     @Override
     public String toString() {
-        return getClass().getName() + "[serviceManager.class=" + serviceManager.getClass() + "]";
+        return getClass().getName() + "[serviceManager.class=" + (serviceManager != null ? serviceManager.getClass() : "") + "]";
     }
 }

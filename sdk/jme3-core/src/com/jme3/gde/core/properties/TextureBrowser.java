@@ -31,9 +31,8 @@
  */
 package com.jme3.gde.core.properties;
 
-import com.jme3.asset.TextureKey;
 import com.jme3.gde.core.assets.ProjectAssetManager;
-import com.jme3.gde.core.properties.preview.DDSPreview;
+import com.jme3.gde.core.properties.preview.TexturePreview;
 import com.jme3.gde.core.util.TreeUtil;
 import com.jme3.texture.Texture;
 import java.awt.event.MouseEvent;
@@ -42,6 +41,7 @@ import java.awt.event.WindowListener;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import javax.swing.DefaultListSelectionModel;
@@ -52,8 +52,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import jme3tools.converters.ImageToAwt;
-import org.openide.util.ImageUtilities;
 
 /**
  * Displays all textures in the ProjectAssetManager,
@@ -68,7 +66,7 @@ public class TextureBrowser extends javax.swing.JDialog implements TreeSelection
 
     private ProjectAssetManager assetManager;
     private TexturePropertyEditor editor;
-    private DDSPreview ddsPreview;
+    private TexturePreview texPreview;
     private Preferences prefs;
     private static final String PREF_LAST_SELECTED = "lastSelectedTexture";
 
@@ -234,8 +232,8 @@ private void noTexturebuttonActionPerformed(java.awt.event.ActionEvent evt) {//G
         if (node != null && node.isLeaf()) {
             String selected = TreeUtil.getPath(node.getUserObjectPath());
             selected = selected.substring(0, selected.lastIndexOf("/"));
-            Texture tex = assetManager.loadTexture(selected);
-            editor.setValue(tex);
+//            Texture tex = assetManager.loadTexture(selected);
+//            editor.setValue(tex);
             editor.setAsText(selected);
             return true;
         }
@@ -270,7 +268,7 @@ private void noTexturebuttonActionPerformed(java.awt.event.ActionEvent evt) {//G
 
     private void setSelectedTexture(Texture texture) {
         if (texture != null) {
-            Logger.getLogger(TextureBrowser.class.getName()).finer("Looking for Texture: " + texture.getName());
+            Logger.getLogger(TextureBrowser.class.getName()).log(Level.FINER, "Looking for Texture: {0}", texture.getName());
             String[] path = ("/" + texture.getName()).split("/");
             TreePath parent = new TreePath((TreeNode) jTree1.getModel().getRoot());
             TreePath selectedTreePath = TreeUtil.buildTreePath(jTree1, parent, path, 0, true);
@@ -287,6 +285,7 @@ private void noTexturebuttonActionPerformed(java.awt.event.ActionEvent evt) {//G
         }
     }
 
+    @Override
     public void valueChanged(TreeSelectionEvent e) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTree1.getLastSelectedPathComponent();
 
@@ -295,25 +294,14 @@ private void noTexturebuttonActionPerformed(java.awt.event.ActionEvent evt) {//G
             return;
         }
 
-        //Object nodeInfo = node.getUserObject();
         if (node.isLeaf()) {
             String selected = TreeUtil.getPath(node.getUserObjectPath());
             selected = selected.substring(0, selected.lastIndexOf("/"));
             Icon newicon = null;
-            if (selected.toLowerCase().endsWith(".dds")) {
-                if (ddsPreview == null) {
-                    ddsPreview = new DDSPreview(assetManager);
-                }
-                ddsPreview.requestPreview(selected, (String) node.getUserObject(), 450, 450, imagePreviewLabel, infoLabel);
-
-            } else {
-                Texture tex = assetManager.loadTexture(selected);
-                newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
-                assetManager.deleteFromCache(new TextureKey(selected));
-                imagePreviewLabel.setIcon(newicon);
-                infoLabel.setText(" " + node.getUserObject() + "    w : " + newicon.getIconWidth() + "    h : " + newicon.getIconHeight());
+            if (texPreview == null) {
+                texPreview = new TexturePreview(assetManager);
             }
-            
+            texPreview.requestPreview(selected, (String) node.getUserObject(), 450, 450, imagePreviewLabel, infoLabel);
             prefs.put(PREF_LAST_SELECTED, selected);
         } else {
             imagePreviewLabel.setIcon(null);
@@ -323,27 +311,34 @@ private void noTexturebuttonActionPerformed(java.awt.event.ActionEvent evt) {//G
 
     }
 
+    @Override
     public void windowOpened(WindowEvent e) {
     }
 
+    @Override
     public void windowClosing(WindowEvent e) {
-        if (ddsPreview != null) {
-            ddsPreview.cleanUp();
+        if (texPreview != null) {
+            texPreview.cleanUp();
         }
     }
 
+    @Override
     public void windowClosed(WindowEvent e) {
     }
 
+    @Override
     public void windowIconified(WindowEvent e) {
     }
 
+    @Override
     public void windowDeiconified(WindowEvent e) {
     }
 
+    @Override
     public void windowActivated(WindowEvent e) {
     }
 
+    @Override
     public void windowDeactivated(WindowEvent e) {
     }
 
