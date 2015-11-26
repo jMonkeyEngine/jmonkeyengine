@@ -123,7 +123,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
         }
 
         listener.update();
-        checkGLError();
+        assert checkGLError();
 
         renderer.postFrame();
         
@@ -148,12 +148,16 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
         super.internalDestroy();
     }
 
+    @Override
     public void run(){
         loadNatives();
         logger.log(Level.FINE, "Using LWJGL {0}", Sys.getVersion());
         initInThread();
-        while (!needClose.get()){
+        while (true) {
             runLoop();
+            if (needClose.get()) {
+                break;
+            }
         }
         deinitInThread();
     }
