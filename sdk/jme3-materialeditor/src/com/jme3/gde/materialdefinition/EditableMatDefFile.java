@@ -62,8 +62,8 @@ public class EditableMatDefFile {
     private MaterialDef materialDef;
     private ProjectAssetManager assetManager;
     private ShaderGenerator glsl100;
-    private ShaderGenerator glsl150;    
-    private final static String GLSL100 = "GLSL100";    
+    private ShaderGenerator glsl150;
+    private final static String GLSL100 = "GLSL100";
     private Lookup lookup;
     private boolean loaded = false;
     private boolean dirty = false;
@@ -97,7 +97,7 @@ public class EditableMatDefFile {
         }
         FileLock lock = null;
         InputStream in = null;
-        boolean matParseError = false;        
+        boolean matParseError = false;
         try {
             lock = matDefFile.lock();
             in = obj.getPrimaryFile().getInputStream();
@@ -134,7 +134,7 @@ public class EditableMatDefFile {
             }
         }
         if (materialDef != null && !matParseError) {
-            if(currentTechnique == null){
+            if (currentTechnique == null) {
                 currentTechnique = matDefStructure.getTechniques().get(0);
             }
             registerListener(matDefStructure);
@@ -172,11 +172,11 @@ public class EditableMatDefFile {
             material.selectTechnique(currentTechnique.getName(), SceneApplication.getApplication().getRenderManager());
             Shader s;
             if (version.equals(GLSL100)) {
-                glsl100.initialize(material.getActiveTechnique());
-                s = glsl100.generateShader();
+                glsl100.initialize(material.getActiveTechnique().getDef());
+                s = glsl100.generateShader(null);
             } else {
-                glsl150.initialize(material.getActiveTechnique());
-                s = glsl150.generateShader();
+                glsl150.initialize(material.getActiveTechnique().getDef());
+                s = glsl150.generateShader(null);
             }
             for (Shader.ShaderSource source : s.getSources()) {
                 if (source.getType() == type) {
@@ -193,8 +193,8 @@ public class EditableMatDefFile {
     public TechniqueBlock getCurrentTechnique() {
         return currentTechnique;
     }
-    
-    public void setCurrentTechnique(TechniqueBlock tech){
+
+    public void setCurrentTechnique(TechniqueBlock tech) {
         this.currentTechnique = tech;
     }
 
@@ -318,10 +318,10 @@ public class EditableMatDefFile {
             NbDocument.runAtomicAsUser(ec.getDocument(), new Runnable() {
                 public void run() {
                     try {
-                    doc.remove(0, doc.getLength());
-                    doc.insertString(doc.getLength(),
-                    matDefStructure.toString(),
-                    SimpleAttributeSet.EMPTY);
+                        doc.remove(0, doc.getLength());
+                        doc.insertString(doc.getLength(),
+                                matDefStructure.toString(),
+                                SimpleAttributeSet.EMPTY);
                     } catch (BadLocationException e) {
                         exc[0] = e;
                     }
@@ -343,8 +343,8 @@ public class EditableMatDefFile {
         }
         updateLookupWithMaterialData(obj);
     }
-    
-    public void cleanup(){
+
+    public void cleanup() {
         if (matDefStructure != null) {
             obj.getLookupContents().remove(matDefStructure);
             matDefStructure = null;
@@ -358,7 +358,7 @@ public class EditableMatDefFile {
             matToRemove = material;
             material = null;
         }
-        
+
         setCurrentTechnique(null);
         setLoaded(false);
     }

@@ -59,7 +59,7 @@ public abstract class ShaderGenerator {
     /**
      * the technique def to use for the shader generation
      */
-    protected TechniqueDef techniqueDef = null;    
+    protected TechniqueDef techniqueDef = null;
 
     /**
      * Build a shaderGenerator
@@ -67,16 +67,18 @@ public abstract class ShaderGenerator {
      * @param assetManager
      */
     protected ShaderGenerator(AssetManager assetManager) {
-        this.assetManager = assetManager;        
+        this.assetManager = assetManager;
     }
-    
-    public void initialize(TechniqueDef techniqueDef){
+
+    public void initialize(TechniqueDef techniqueDef) {
         this.techniqueDef = techniqueDef;
     }
-    
+
     /**
      * Generate vertex and fragment shaders for the given technique
      *
+     * @param definesSourceCode Defines to include alongside the shader. May be
+     * null.
      * @return a Shader program
      */
     public Shader generateShader(String definesSourceCode) {
@@ -94,13 +96,13 @@ public abstract class ShaderGenerator {
             String extension = type.getExtension();
             String language = getLanguageAndVersion(type);
             String shaderSourceCode = buildShader(techniqueDef.getShaderNodes(), info, type);
-            
+
             if (shaderSourceCode != null) {
                 String shaderSourceAssetName = techniqueName + "." + extension;
                 shader.addSource(type, shaderSourceAssetName, shaderSourceCode, definesSourceCode, language);
             }
         }
-        
+
         techniqueDef = null;
         return shader;
     }
@@ -114,14 +116,14 @@ public abstract class ShaderGenerator {
      * @return the code of the generated vertex shader
      */
     protected String buildShader(List<ShaderNode> shaderNodes, ShaderGenerationInfo info, ShaderType type) {
-        if (type == ShaderType.TessellationControl ||
-            type == ShaderType.TessellationEvaluation || 
-            type == ShaderType.Geometry) {
+        if (type == ShaderType.TessellationControl
+                || type == ShaderType.TessellationEvaluation
+                || type == ShaderType.Geometry) {
             // TODO: Those are not supported.
             // Too much code assumes that type is either Vertex or Fragment
             return null;
         }
-        
+
         indent = 0;
 
         StringBuilder sourceDeclaration = new StringBuilder();
@@ -192,8 +194,8 @@ public abstract class ShaderGenerator {
         if (loadedSource.length() > 1) {
             loadedSource = loadedSource.substring(0, loadedSource.lastIndexOf("}"));
             String[] sourceParts = loadedSource.split("\\s*void\\s*main\\s*\\(\\s*\\)\\s*\\{");
-            if(sourceParts.length<2){
-                throw new IllegalArgumentException("Syntax error in "+ shaderPath +". Cannot find 'void main(){' in \n"+ loadedSource);
+            if (sourceParts.length < 2) {
+                throw new IllegalArgumentException("Syntax error in " + shaderPath + ". Cannot find 'void main(){' in \n" + loadedSource);
             }
             generateDeclarativeSection(sourceDeclaration, shaderNode, sourceParts[0], info);
             generateNodeMainSection(source, shaderNode, sourceParts[1], info);
@@ -250,7 +252,7 @@ public abstract class ShaderGenerator {
      *
      * @see ShaderNode#getDefinition()
      * @see ShaderNodeDefinition#getType()
-     * 
+     *
      * @param nodeDecalarationSource the declaration part of the node
      * @param source the StringBuilder to append generated code.
      * @param shaderNode the shaderNode.
@@ -319,5 +321,5 @@ public abstract class ShaderGenerator {
             }
         }
         return index;
-    }    
+    }
 }
