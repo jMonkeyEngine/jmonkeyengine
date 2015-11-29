@@ -253,7 +253,7 @@ public class LightProbe extends Light implements Savable {
 
     @Override
     public String toString() {
-        return "Light Probe : " + position ;
+        return "Light Probe : " + name + " at " + position + " / " + bounds;
     }
 
     @Override
