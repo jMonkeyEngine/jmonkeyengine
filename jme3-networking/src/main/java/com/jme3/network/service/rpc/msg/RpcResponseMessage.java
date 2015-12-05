@@ -84,6 +84,7 @@ public class RpcResponseMessage extends AbstractMessage {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[#" + msgId + ", result=" + result
+                                          + (error != null ? ", error=" + error : "")
                                           + "]";
     }
 }
