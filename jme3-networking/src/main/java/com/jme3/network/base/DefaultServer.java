@@ -326,6 +326,10 @@ public class DefaultServer implements Server
  
     protected void dispatch( HostedConnection source, Message m )
     {
+        if( log.isLoggable(Level.FINER) ) {
+            log.log(Level.FINER, "{0} received:{1}", new Object[]{source, m});
+        }
+        
         if( source == null ) {
             messageListeners.messageReceived( source, m );
         } else {

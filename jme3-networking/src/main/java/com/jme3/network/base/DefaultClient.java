@@ -389,6 +389,7 @@ public class DefaultClient implements Client
 
     protected void startServices() 
     {
+        log.fine("Starting client services.");
         // Let the services know we are finally started
         services.start();      
     }
@@ -447,6 +448,10 @@ public class DefaultClient implements Client
  
     protected void dispatch( Message m )
     {
+        if( log.isLoggable(Level.FINER) ) {
+            log.log(Level.FINER, "{0} received:{1}", new Object[]{this, m});
+        }
+        
         // Pull off the connection management messages we're
         // interested in and then pass on the rest.
         if( m instanceof ClientRegistrationMessage ) {
