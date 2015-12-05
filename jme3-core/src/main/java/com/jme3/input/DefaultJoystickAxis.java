@@ -135,6 +135,14 @@ public class DefaultJoystickAxis implements JoystickAxis {
         return deadZone;
     }        
 
+    /**
+     *  Sets/overrides the dead zone for this axis.  This indicates that values
+     *  within +/- deadZone should be ignored.
+     */
+    public void setDeadZone( float f ) {
+        this.deadZone = f;
+    }     
+
     @Override
     public String toString(){
         return "JoystickAxis[name=" + name + ", parent=" + parent.getName() + ", id=" + axisIndex 
