@@ -39,6 +39,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
+import com.jme3.util.SafeArrayList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -97,15 +98,14 @@ public class InputManager implements RawInputListener {
     private boolean mouseVisible = true;
     private boolean safeMode = false;
     private float globalAxisDeadZone = 0.05f;
-    private Vector2f cursorPos = new Vector2f();
+    private final Vector2f cursorPos = new Vector2f();
     private Joystick[] joysticks;
     private final IntMap<ArrayList<Mapping>> bindings = new IntMap<ArrayList<Mapping>>();
     private final HashMap<String, Mapping> mappings = new HashMap<String, Mapping>();
     private final IntMap<Long> pressedButtons = new IntMap<Long>();
     private final IntMap<Float> axisValues = new IntMap<Float>();
-    private ArrayList<RawInputListener> rawListeners = new ArrayList<RawInputListener>();
-    private RawInputListener[] rawListenerArray = null;
-    private ArrayList<InputEvent> inputQueue = new ArrayList<InputEvent>();
+    private final SafeArrayList<RawInputListener> rawListeners = new SafeArrayList<RawInputListener>(RawInputListener.class);
+    private final ArrayList<InputEvent> inputQueue = new ArrayList<InputEvent>();
 
     private static class Mapping {
 
@@ -722,7 +722,6 @@ public class InputManager implements RawInputListener {
      */
     public void addRawInputListener(RawInputListener listener) {
         rawListeners.add(listener);
-        rawListenerArray = null;
     }
 
     /**
@@ -735,7 +734,6 @@ public class InputManager implements RawInputListener {
      */
     public void removeRawInputListener(RawInputListener listener) {
         rawListeners.remove(listener);
-        rawListenerArray = null;
     }
 
     /**
@@ -745,13 +743,6 @@ public class InputManager implements RawInputListener {
      */
     public void clearRawInputListeners() {
         rawListeners.clear();
-        rawListenerArray = null;
-    }
-
-    private RawInputListener[] getRawListenerArray() {
-        if (rawListenerArray == null)
-            rawListenerArray = rawListeners.toArray(new RawInputListener[rawListeners.size()]);
-        return rawListenerArray;
     }
 
     /**
@@ -814,7 +805,7 @@ public class InputManager implements RawInputListener {
 
     private void processQueue() {
         int queueSize = inputQueue.size();
-        RawInputListener[] array = getRawListenerArray();
+        RawInputListener[] array = rawListeners.getArray(); 
 
         for (RawInputListener listener : array) {
             listener.beginInput();
