@@ -287,12 +287,14 @@ public class InputManager implements RawInputListener {
     /**
      * Callback from RawInputListener. Do not use.
      */
+    @Override
     public void beginInput() {
     }
 
     /**
      * Callback from RawInputListener. Do not use.
      */
+    @Override
     public void endInput() {
     }
 
@@ -312,10 +314,10 @@ public class InputManager implements RawInputListener {
             Float val1 = axisValues.get(hash1);
             Float val2 = axisValues.get(hash2);
 
-            if (val1 != null && val1.floatValue() > effectiveDeadZone) {
+            if (val1 != null && val1 > effectiveDeadZone) {
                 invokeActions(hash1, false);
             }
-            if (val2 != null && val2.floatValue() > effectiveDeadZone) {
+            if (val2 != null && val2 > effectiveDeadZone) {
                 invokeActions(hash2, false);
             }
 
@@ -329,7 +331,7 @@ public class InputManager implements RawInputListener {
             // Clear the reverse direction's actions in case we
             // crossed center too quickly
             Float otherVal = axisValues.get(otherHash);
-            if (otherVal != null && otherVal.floatValue() > effectiveDeadZone) {
+            if (otherVal != null && otherVal > effectiveDeadZone) {
                 invokeActions(otherHash, false);
             }
 
@@ -343,7 +345,7 @@ public class InputManager implements RawInputListener {
             // Clear the reverse direction's actions in case we
             // crossed center too quickly
             Float otherVal = axisValues.get(otherHash);
-            if (otherVal != null && otherVal.floatValue() > effectiveDeadZone) {
+            if (otherVal != null && otherVal > effectiveDeadZone) {
                 invokeActions(otherHash, false);
             }
 
@@ -356,6 +358,7 @@ public class InputManager implements RawInputListener {
     /**
      * Callback from RawInputListener. Do not use.
      */
+    @Override
     public void onJoyAxisEvent(JoyAxisEvent evt) {
         if (!eventsPermitted) {
             throw new UnsupportedOperationException("JoyInput has raised an event at an illegal time.");
@@ -377,6 +380,7 @@ public class InputManager implements RawInputListener {
     /**
      * Callback from RawInputListener. Do not use.
      */
+    @Override
     public void onJoyButtonEvent(JoyButtonEvent evt) {
         if (!eventsPermitted) {
             throw new UnsupportedOperationException("JoyInput has raised an event at an illegal time.");
@@ -420,6 +424,7 @@ public class InputManager implements RawInputListener {
     /**
      * Callback from RawInputListener. Do not use.
      */
+    @Override
     public void onMouseMotionEvent(MouseMotionEvent evt) {
         if (!eventsPermitted) {
             throw new UnsupportedOperationException("MouseInput has raised an event at an illegal time.");
@@ -438,6 +443,7 @@ public class InputManager implements RawInputListener {
     /**
      * Callback from RawInputListener. Do not use.
      */
+    @Override
     public void onMouseButtonEvent(MouseButtonEvent evt) {
         if (!eventsPermitted) {
             throw new UnsupportedOperationException("MouseInput has raised an event at an illegal time.");
@@ -460,6 +466,7 @@ public class InputManager implements RawInputListener {
     /**
      * Callback from RawInputListener. Do not use.
      */
+    @Override
     public void onKeyEvent(KeyInputEvent evt) {
         if (!eventsPermitted) {
             throw new UnsupportedOperationException("KeyInput has raised an event at an illegal time.");
