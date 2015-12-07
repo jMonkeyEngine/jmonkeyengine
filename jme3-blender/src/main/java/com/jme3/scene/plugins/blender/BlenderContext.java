@@ -44,8 +44,11 @@ import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.BlenderKey;
+import com.jme3.light.Light;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.post.Filter;
+import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
 import com.jme3.scene.plugins.blender.animations.BlenderAction;
 import com.jme3.scene.plugins.blender.animations.BoneContext;
@@ -55,6 +58,8 @@ import com.jme3.scene.plugins.blender.file.DnaBlockData;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader.BlockCode;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.materials.MaterialContext;
+import com.jme3.texture.Texture;
 
 /**
  * The class that stores temporary data and manages it during loading the belnd
@@ -77,7 +82,7 @@ public class BlenderContext {
     /** The asset manager. */
     private AssetManager                           assetManager;
     /** The blocks read from the file. */
-    protected List<FileBlockHeader>                blocks;
+    protected List<FileBlockHeader>                blocks                 = new ArrayList<FileBlockHeader>();
     /**
      * A map containing the file block headers. The key is the old memory address.
      */
@@ -233,6 +238,7 @@ public class BlenderContext {
      *            the block header to store
      */
     public void addFileBlockHeader(Long oldMemoryAddress, FileBlockHeader fileBlockHeader) {
+        blocks.add(fileBlockHeader);
         fileBlockHeadersByOma.put(oldMemoryAddress, fileBlockHeader);
         List<FileBlockHeader> headers = fileBlockHeadersByCode.get(fileBlockHeader.getCode());
         if (headers == null) {
@@ -240,6 +246,13 @@ public class BlenderContext {
             fileBlockHeadersByCode.put(fileBlockHeader.getCode(), headers);
         }
         headers.add(fileBlockHeader);
+    }
+
+    /**
+     * @return the block headers
+     */
+    public List<FileBlockHeader> getBlocks() {
+        return blocks;
     }
 
     /**
@@ -332,22 +345,14 @@ public class BlenderContext {
      * The method adds linked content to the blender context.
      * @param blenderFilePath
      *            the path of linked blender file
-     * @param featureName
-     *            the linked feature name
+     * @param featureGroup
+     *            the linked feature group (ie. scenes, materials, meshes, etc.)
      * @param feature
      *            the linked feature
      */
-    public void addLinkedFeature(String blenderFilePath, String featureName, Object feature) {
-        if (feature != null) {
-            Map<String, Object> linkedFeatures = this.linkedFeatures.get(blenderFilePath);
-            if (linkedFeatures == null) {
-                linkedFeatures = new HashMap<String, Object>();
-                this.linkedFeatures.put(blenderFilePath, linkedFeatures);
-            }
-            if (!linkedFeatures.containsKey(featureName)) {
-                linkedFeatures.put(featureName, feature);
-            }
-        }
+    @Deprecated
+    public void addLinkedFeature(String blenderFilePath, String featureGroup, Object feature) {
+        // the method is deprecated and empty at the moment
     }
 
     /**
@@ -358,9 +363,106 @@ public class BlenderContext {
      *            the feature name we want to get
      * @return linked feature or null if none was found
      */
+    @SuppressWarnings("unchecked")
     public Object getLinkedFeature(String blenderFilePath, String featureName) {
         Map<String, Object> linkedFeatures = this.linkedFeatures.get(blenderFilePath);
-        return linkedFeatures != null ? linkedFeatures.get(featureName) : null;
+        if(linkedFeatures != null) {
+            String namePrefix = (featureName.charAt(0) + "" + featureName.charAt(1)).toUpperCase();
+            featureName = featureName.substring(2);
+            
+            if("SC".equals(namePrefix)) {
+                List<Node> scenes = (List<Node>) linkedFeatures.get("scenes");
+                if(scenes != null) {
+                    for(Node scene : scenes) {
+                        if(featureName.equals(scene.getName())) {
+                            return scene;
+                        }
+                    }
+                }
+            } else if("OB".equals(namePrefix)) {
+                List<Node> features = (List<Node>) linkedFeatures.get("objects");
+                if(features != null) {
+                    for(Node feature : features) {
+                        if(featureName.equals(feature.getName())) {
+                            return feature;
+                        }
+                    }
+                }
+            } else if("ME".equals(namePrefix)) {
+                List<Node> features = (List<Node>) linkedFeatures.get("meshes");
+                if(features != null) {
+                    for(Node feature : features) {
+                        if(featureName.equals(feature.getName())) {
+                            return feature;
+                        }
+                    }
+                }
+            } else if("MA".equals(namePrefix)) {
+                List<MaterialContext> features = (List<MaterialContext>) linkedFeatures.get("materials");
+                if(features != null) {
+                    for(MaterialContext feature : features) {
+                        if(featureName.equals(feature.getName())) {
+                            return feature;
+                        }
+                    }
+                }
+            } else if("TX".equals(namePrefix)) {
+                List<Texture> features = (List<Texture>) linkedFeatures.get("textures");
+                if(features != null) {
+                    for(Texture feature : features) {
+                        if(featureName.equals(feature.getName())) {
+                            return feature;
+                        }
+                    }
+                }
+            } else if("IM".equals(namePrefix)) {
+                List<Texture> features = (List<Texture>) linkedFeatures.get("images");
+                if(features != null) {
+                    for(Texture feature : features) {
+                        if(featureName.equals(feature.getName())) {
+                            return feature;
+                        }
+                    }
+                }
+            } else if("AC".equals(namePrefix)) {
+                List<Animation> features = (List<Animation>) linkedFeatures.get("animations");
+                if(features != null) {
+                    for(Animation feature : features) {
+                        if(featureName.equals(feature.getName())) {
+                            return feature;
+                        }
+                    }
+                }
+            } else if("CA".equals(namePrefix)) {
+                List<Camera> features = (List<Camera>) linkedFeatures.get("cameras");
+                if(features != null) {
+                    for(Camera feature : features) {
+                        if(featureName.equals(feature.getName())) {
+                            return feature;
+                        }
+                    }
+                }
+            } else if("LA".equals(namePrefix)) {
+                List<Light> features = (List<Light>) linkedFeatures.get("lights");
+                if(features != null) {
+                    for(Light feature : features) {
+                        if(featureName.equals(feature.getName())) {
+                            return feature;
+                        }
+                    }
+                }
+            } else if("FI".equals(featureName)) {
+                List<Filter> features = (List<Filter>) linkedFeatures.get("lights");
+                if(features != null) {
+                    for(Filter feature : features) {
+                        if(featureName.equals(feature.getName())) {
+                            return feature;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -658,5 +760,10 @@ public class BlenderContext {
      */
     public static enum LoadedDataType {
         STRUCTURE, FEATURE, TEMPORAL_MESH;
+    }
+    
+    @Override
+    public String toString() {
+        return blenderKey == null ? "BlenderContext [key = null]" : "BlenderContext [ key = " + blenderKey.toString() + " ]";
     }
 }

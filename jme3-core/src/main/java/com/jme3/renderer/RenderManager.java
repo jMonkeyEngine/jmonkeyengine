@@ -746,27 +746,43 @@ public class RenderManager {
     }
 
     /**
-     * Sets the light filter to use when rendering Lighted Geometries
+     * Sets the light filter to use when rendering lit Geometries.
      * 
      * @see LightFilter
-     * @param lightFilter The light filter tose. Set it to null if you want all lights to be rendered
+     * @param lightFilter The light filter. Set it to null if you want all lights to be rendered.
      */
     public void setLightFilter(LightFilter lightFilter) {
         this.lightFilter = lightFilter;
     }
 
+    /**
+     * Defines what light mode will be selected when a technique offers several light modes.
+     * @param preferredLightMode The light mode to use.
+     */
     public void setPreferredLightMode(TechniqueDef.LightMode preferredLightMode) {
         this.preferredLightMode = preferredLightMode;
     }
 
+    /**
+     * returns the preferred light mode.
+     * @return the light mode.
+     */
     public TechniqueDef.LightMode getPreferredLightMode() {
         return preferredLightMode;
     }
 
+    /**
+     * returns the number of lights used for each pass when the light mode is single pass.
+     * @return the number of lights.
+     */
     public int getSinglePassLightBatchSize() {
         return singlePassLightBatchSize;
     }
 
+    /**
+     * Sets the number of lights to use for each pass when the light mode is single pass.
+     * @param singlePassLightBatchSize the number of lights.
+     */
     public void setSinglePassLightBatchSize(int singlePassLightBatchSize) {
         this.singlePassLightBatchSize = singlePassLightBatchSize;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,8 @@
 package com.jme3.light;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
@@ -49,11 +51,23 @@ import com.jme3.util.TempVars;
  */
 public class AmbientLight extends Light {
 
+    public AmbientLight() {
+    }
+
+    public AmbientLight(ColorRGBA color) {
+        super(color);
+    }
+
     @Override
     public boolean intersectsBox(BoundingBox box, TempVars vars) {
         return true;
     }
     
+    @Override
+    public boolean intersectsSphere(BoundingSphere sphere, TempVars vars) {
+        return true;
+    }
+
     @Override
     public boolean intersectsFrustum(Camera camera, TempVars vars) {
         return true;
@@ -61,6 +75,8 @@ public class AmbientLight extends Light {
     
     @Override
     public void computeLastDistance(Spatial owner) {
+        // ambient lights must always be before directional lights.
+        lastDistance = -2;
     }
 
     @Override

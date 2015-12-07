@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN" "http://www.netbeans.org/dtds/EditorFontsColors-1_1.dtd">
+<fontscolors>
+    <fontcolor default="preprocessor" foreColor="ffc46200" name="preprocessor"/>
+    <fontcolor default="error" foreColor="white" name="error" waveUnderlined="ffff3300"/>
+    <fontcolor default="basictype" foreColor="ff4b9393" name="basictype"/>
+    <fontcolor default="builtinvar" foreColor="ff8080ff" name="builtinvar"/>
+    <fontcolor default="string" foreColor="ff808000" name="string"/>
+    <fontcolor default="keyword" foreColor="ff0080ff" name="keyword"/>
+    <fontcolor default="whitespace" foreColor="black" name="whitespace"/>
+    <fontcolor default="number" foreColor="magenta" name="number"/>
+    <fontcolor default="comment" foreColor="ff00934a" name="comment"/>
+    <fontcolor default="identifier" foreColor="lightGray" name="identifier"/>
+    <fontcolor default="builtinfunc" foreColor="ffff8040" name="builtinfunc"/>
+    <fontcolor default="operator" foreColor="white" name="operator"/>
+</fontscolors>

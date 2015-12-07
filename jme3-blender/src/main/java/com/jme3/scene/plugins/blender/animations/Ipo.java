@@ -145,7 +145,7 @@ public class Ipo {
 
             float[] times = new float[framesAmount + 1];
             Vector3f[] translations = new Vector3f[framesAmount + 1];
-            float[] translation = new float[] { localTranslation.x, localTranslation.y, localTranslation.z };
+            float[] translation = new float[3];
             Quaternion[] rotations = new Quaternion[framesAmount + 1];
             float[] quaternionRotation = new float[] { localRotation.getX(), localRotation.getY(), localRotation.getZ(), localRotation.getW(), };
             float[] eulerRotation = localRotation.toAngles(null);
@@ -165,6 +165,8 @@ public class Ipo {
 
             // calculating track data
             for (int frame = startFrame; frame <= stopFrame; ++frame) {
+                boolean translationSet = false;
+                translation[0] = translation[1] = translation[2] = 0;
                 int index = frame - startFrame;
                 times[index] = index * timeBetweenFrames;// start + (frame - 1) * timeBetweenFrames;
                 for (int j = 0; j < bezierCurves.length; ++j) {
@@ -173,15 +175,18 @@ public class Ipo {
                         // LOCATION
                         case AC_LOC_X:
                             translation[0] = (float) value;
+                            translationSet = true;
                             break;
                         case AC_LOC_Y:
                             if (swapAxes && value != 0) {
                                 value = -value;
                             }
                             translation[yIndex] = (float) value;
+                            translationSet = true;
                             break;
                         case AC_LOC_Z:
                             translation[zIndex] = (float) value;
+                            translationSet = true;
                             break;
 
                         // EULER ROTATION
@@ -235,7 +240,11 @@ public class Ipo {
                             LOGGER.log(Level.WARNING, "Unknown ipo curve type: {0}.", bezierCurves[j].getType());
                     }
                 }
-                translations[index] = localRotation.multLocal(new Vector3f(translation[0], translation[1], translation[2]));
+                if(translationSet) {
+                    translations[index] = localRotation.multLocal(new Vector3f(translation[0], translation[1], translation[2]));
+                } else {
+                    translations[index] = new Vector3f();
+                }
                 
                 if(boneContext != null) {
                     if(boneContext.getBone().getParent() == null && boneContext.is(BoneContext.NO_LOCAL_LOCATION)) {

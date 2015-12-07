@@ -66,26 +66,26 @@ public class DefaultServer implements Server
     private static final int CH_FIRST = 2;
     
     private boolean isRunning = false;
-    private AtomicInteger nextId = new AtomicInteger(0);
+    private final AtomicInteger nextId = new AtomicInteger(0);
     private String gameName;
     private int version;
-    private KernelFactory kernelFactory = KernelFactory.DEFAULT;
+    private final KernelFactory kernelFactory = KernelFactory.DEFAULT;
     private KernelAdapter reliableAdapter;
     private KernelAdapter fastAdapter;
-    private List<KernelAdapter> channels = new ArrayList<KernelAdapter>();
-    private List<Integer> alternatePorts = new ArrayList<Integer>();
-    private Redispatch dispatcher = new Redispatch();
-    private Map<Integer,HostedConnection> connections = new ConcurrentHashMap<Integer,HostedConnection>();
-    private Map<Endpoint,HostedConnection> endpointConnections 
+    private final List<KernelAdapter> channels = new ArrayList<KernelAdapter>();
+    private final List<Integer> alternatePorts = new ArrayList<Integer>();
+    private final Redispatch dispatcher = new Redispatch();
+    private final Map<Integer,HostedConnection> connections = new ConcurrentHashMap<Integer,HostedConnection>();
+    private final Map<Endpoint,HostedConnection> endpointConnections 
                             = new ConcurrentHashMap<Endpoint,HostedConnection>();
     
     // Keeps track of clients for whom we've only received the UDP
     // registration message
-    private Map<Long,Connection> connecting = new ConcurrentHashMap<Long,Connection>();
+    private final Map<Long,Connection> connecting = new ConcurrentHashMap<Long,Connection>();
     
-    private MessageListenerRegistry<HostedConnection> messageListeners 
+    private final MessageListenerRegistry<HostedConnection> messageListeners 
                             = new MessageListenerRegistry<HostedConnection>();                        
-    private List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<ConnectionListener>();
+    private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<ConnectionListener>();
     
     private HostedServiceManager services;
     
@@ -108,24 +108,29 @@ public class DefaultServer implements Server
     }   
 
     protected void addStandardServices() {
+        log.fine("Adding standard services...");
         services.addService(new ServerSerializerRegistrationsService());
     }
 
+    @Override
     public String getGameName()
     {
         return gameName;
     }
 
+    @Override
     public int getVersion()
     {
         return version;
     }
     
+    @Override
     public HostedServiceManager getServices() 
     {
         return services;
     }
 
+    @Override
     public int addChannel( int port )
     {
         if( isRunning )
@@ -164,6 +169,7 @@ public class DefaultServer implements Server
         }              
     }
 
+    @Override
     public void start()
     {
         if( isRunning )
@@ -185,11 +191,13 @@ public class DefaultServer implements Server
         services.start();             
     }
 
+    @Override
     public boolean isRunning()
     {
         return isRunning;
     }     
  
+    @Override
     public void close() 
     {
         if( !isRunning )
@@ -214,13 +222,19 @@ public class DefaultServer implements Server
         }                               
     }
  
+    @Override
     public void broadcast( Message message )
     {
         broadcast( null, message );
     }
 
+    @Override
     public void broadcast( Filter<? super HostedConnection> filter, Message message )
     {
+        if( log.isLoggable(Level.FINER) ) {
+            log.log(Level.FINER, "broadcast({0}, {1})", new Object[]{filter, message});
+        }
+        
         if( connections.isEmpty() )
             return;
  
@@ -237,8 +251,13 @@ public class DefaultServer implements Server
         }               
     }
 
+    @Override
     public void broadcast( int channel, Filter<? super HostedConnection> filter, Message message )
     {
+        if( log.isLoggable(Level.FINER) ) {
+            log.log(Level.FINER, "broadcast({0}, {1}. {2})", new Object[]{channel, filter, message});
+        }
+        
         if( connections.isEmpty() )
             return;
 
@@ -251,46 +270,55 @@ public class DefaultServer implements Server
         channels.get(channel+CH_FIRST).broadcast( adapter, buffer, true, false );               
     }
 
+    @Override
     public HostedConnection getConnection( int id )
     {
         return connections.get(id);
     }     
  
+    @Override
     public boolean hasConnections()
     {
         return !connections.isEmpty();
     }
  
+    @Override
     public Collection<HostedConnection> getConnections()
     {
         return Collections.unmodifiableCollection((Collection<HostedConnection>)connections.values());
     } 
  
+    @Override
     public void addConnectionListener( ConnectionListener listener )
     {
         connectionListeners.add(listener);   
     }
  
+    @Override
     public void removeConnectionListener( ConnectionListener listener )
     {
         connectionListeners.remove(listener);   
     }     
     
+    @Override
     public void addMessageListener( MessageListener<? super HostedConnection> listener )
     {
         messageListeners.addMessageListener( listener );
     } 
 
+    @Override
     public void addMessageListener( MessageListener<? super HostedConnection> listener, Class... classes )
     {
         messageListeners.addMessageListener( listener, classes );
     } 
 
+    @Override
     public void removeMessageListener( MessageListener<? super HostedConnection> listener )
     {
         messageListeners.removeMessageListener( listener );
     } 
 
+    @Override
     public void removeMessageListener( MessageListener<? super HostedConnection> listener, Class... classes )
     {
         messageListeners.removeMessageListener( listener, classes );
@@ -298,6 +326,10 @@ public class DefaultServer implements Server
  
     protected void dispatch( HostedConnection source, Message m )
     {
+        if( log.isLoggable(Level.FINER) ) {
+            log.log(Level.FINER, "{0} received:{1}", new Object[]{source, m});
+        }
+        
         if( source == null ) {
             messageListeners.messageReceived( source, m );
         } else {
@@ -484,12 +516,12 @@ public class DefaultServer implements Server
 
     protected class Connection implements HostedConnection
     {
-        private int id;
+        private final int id;
         private boolean closed;
         private Endpoint[] channels;
         private int setChannelCount = 0; 
        
-        private Map<String,Object> sessionData = new ConcurrentHashMap<String,Object>();       
+        private final Map<String,Object> sessionData = new ConcurrentHashMap<String,Object>();       
         
         public Connection( int channelCount )
         {
@@ -523,23 +555,30 @@ public class DefaultServer implements Server
             return setChannelCount == channels.length;
         }
  
+        @Override
         public Server getServer()
         {   
             return DefaultServer.this;
         }     
        
+        @Override
         public int getId()
         {
             return id;
         }
  
+        @Override
         public String getAddress()
         {            
             return channels[CH_RELIABLE] == null ? null : channels[CH_RELIABLE].getAddress();
         }
        
+        @Override
         public void send( Message message )
         {
+            if( log.isLoggable(Level.FINER) ) {
+                log.log(Level.FINER, "send({0})", message);
+            }
             ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
             if( message.isReliable() || channels[CH_UNRELIABLE] == null ) {
                 channels[CH_RELIABLE].send( buffer );
@@ -548,8 +587,12 @@ public class DefaultServer implements Server
             }
         }
 
+        @Override
         public void send( int channel, Message message )
         {
+            if( log.isLoggable(Level.FINER) ) {
+                log.log(Level.FINER, "send({0}, {1})", new Object[]{channel, message});
+            }
             checkChannel(channel);
             ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
             channels[channel+CH_FIRST].send(buffer);
@@ -573,6 +616,7 @@ public class DefaultServer implements Server
             fireConnectionRemoved( this );
         }
         
+        @Override
         public void close( String reason )
         {
             // Send a reason
@@ -593,6 +637,7 @@ public class DefaultServer implements Server
             }
         }
         
+        @Override
         public Object setAttribute( String name, Object value )
         {
             if( value == null )
@@ -601,11 +646,13 @@ public class DefaultServer implements Server
         }
     
         @SuppressWarnings("unchecked")
+        @Override
         public <T> T getAttribute( String name )
         {
             return (T)sessionData.get(name);
         }             
 
+        @Override
         public Set<String> attributeNames()
         {
             return Collections.unmodifiableSet(sessionData.keySet());
@@ -621,6 +668,7 @@ public class DefaultServer implements Server
 
     protected class Redispatch implements MessageListener<HostedConnection>
     {
+        @Override
         public void messageReceived( HostedConnection source, Message m )
         {
             dispatch( source, m );
@@ -629,13 +677,14 @@ public class DefaultServer implements Server
      
     protected class FilterAdapter implements Filter<Endpoint>
     {
-        private Filter<? super HostedConnection> delegate;
+        private final Filter<? super HostedConnection> delegate;
         
         public FilterAdapter( Filter<? super HostedConnection> delegate )
         {
             this.delegate = delegate;
         }
         
+        @Override
         public boolean apply( Endpoint input )
         {
             HostedConnection conn = getConnection( input );

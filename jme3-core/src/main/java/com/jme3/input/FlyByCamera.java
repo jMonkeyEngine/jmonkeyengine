@@ -277,8 +277,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
     }
 
     /**
-     * Registers the FlyByCamera to receive input events from the provided
-     * Dispatcher.
+     * Unregisters the FlyByCamera from the event Dispatcher.
      */
     public void unregisterInput(){
     

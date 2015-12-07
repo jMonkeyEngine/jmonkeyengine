@@ -56,23 +56,6 @@ public class NodePanel extends DraggablePanel implements Selectable, PropertyCha
     protected List<String> filePaths = new ArrayList<String>();
     protected Shader.ShaderType shaderType;
 
-//    private List listeners = Collections.synchronizedList(new LinkedList());
-//
-//    public void addPropertyChangeListener(PropertyChangeListener pcl) {
-//        listeners.add(pcl);
-//    }
-//
-//    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-//        listeners.remove(pcl);
-//    }
-//
-//    protected void fire(String propertyName, Object old, Object nue) {
-//        //Passing 0 below on purpose, so you only synchronize for one atomic call:
-//        PropertyChangeListener[] pcls = (PropertyChangeListener[]) listeners.toArray(new PropertyChangeListener[0]);
-//        for (int i = 0; i < pcls.length; i++) {
-//            pcls[i].propertyChange(new PropertyChangeEvent(this, propertyName, old, nue));
-//        }
-//    }
     public enum NodeType {
 
         Vertex(new Color(220, 220, 70)),//yellow
@@ -186,9 +169,12 @@ public class NodePanel extends DraggablePanel implements Selectable, PropertyCha
     }
 
     private Dot getConnectPoint(List<JLabel> list, String varName, List<Dot> listDot) {
-        if (varName.startsWith("m_") || varName.startsWith("g_")) {
-            varName = varName.substring(2);
-        }
+        //This has been commented out because it was causing issues when a variable name was explicitely starting with m_ or g_ in the j3md.
+        //I can't remember why it was done in the first place, but I can't see any case where the m_ should be stripped out.
+        //I'm letting this commented in case this comes to light some day, and something more clever will have to be done.
+//        if (varName.startsWith("m_") || varName.startsWith("g_")) {
+//            varName = varName.substring(2);
+//        }
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getText().equals(varName)) {
                 return listDot.get(i);
@@ -201,13 +187,13 @@ public class NodePanel extends DraggablePanel implements Selectable, PropertyCha
     protected void paintComponent(Graphics g1) {
         Graphics2D g = (Graphics2D) g1;
         Color boderColor = Color.BLACK;
-        if (diagram.selectedItem == this) {
+        if (getDiagram().getSelectedItems().contains(this)) {
             boderColor = Color.WHITE;
         }
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, // Anti-alias!
                 RenderingHints.VALUE_ANTIALIAS_ON);
         // Color[] colors = {new Color(0, 0, 0, 0.7f), new Color(0, 0, 0, 0.15f)};
-        if (diagram.selectedItem == this) {
+        if (getDiagram().getSelectedItems().contains(this)) {
             Color[] colors = new Color[]{new Color(0.6f, 0.6f, 1.0f, 0.8f), new Color(0.6f, 0.6f, 1.0f, 0.5f)};
             float[] factors = {0f, 1f};
             g.setPaint(new RadialGradientPaint(getWidth() / 2, getHeight() / 2, getWidth() / 2, factors, colors));
@@ -260,8 +246,8 @@ public class NodePanel extends DraggablePanel implements Selectable, PropertyCha
 
     @Override
     public void mousePressed(MouseEvent e) {
-        super.mousePressed(e);
-        diagram.select(this);
+        super.mousePressed(e);        
+        diagram.select(this, e.isShiftDown() || e.isControlDown());
         showToolBar();
     }
     
@@ -442,9 +428,7 @@ public class NodePanel extends DraggablePanel implements Selectable, PropertyCha
 
     public void delete() {
         Diagram diag = getDiagram();
-        if (diag.selectedItem == this) {
-            diag.removeSelectedNode();
-        }
+        diag.removeSelected();
     }
 
     public void keyReleased(KeyEvent e) {

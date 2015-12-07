@@ -459,7 +459,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         debug = true;
     }
 
-    abstract void getReceivers(GeometryList lightReceivers);
+    protected abstract void getReceivers(GeometryList lightReceivers);
 
     public void postFrame(FrameBuffer out) {
         if (skipPostPass) {

@@ -34,6 +34,8 @@ package com.jme3.network.service;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *  The base service manager class from which the HostedServiceManager
@@ -44,7 +46,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public abstract class ServiceManager<T> {
 
-    private List<Service<T>> services = new CopyOnWriteArrayList<Service<T>>();
+    static final Logger log = Logger.getLogger(ServiceManager.class.getName());
+    
+    private final List<Service<T>> services = new CopyOnWriteArrayList<Service<T>>();
     private volatile boolean started = false;
     
     protected ServiceManager() {
@@ -76,6 +80,9 @@ public abstract class ServiceManager<T> {
             return;
         }
         for( Service<T> s : services ) {
+            if( log.isLoggable(Level.FINE) ) {
+                log.log(Level.FINE, "Starting service:{0}", s);
+            }
             s.start();
         }
         started = true;
@@ -96,6 +103,9 @@ public abstract class ServiceManager<T> {
             throw new IllegalStateException(getClass().getSimpleName() + " not started.");
         }
         for( Service<T> s : services ) {
+            if( log.isLoggable(Level.FINE) ) {
+                log.log(Level.FINE, "Stopping service:{0}", s);
+            }
             s.stop();
         }
         started = false;
@@ -106,9 +116,18 @@ public abstract class ServiceManager<T> {
      *  has already been started then the service will also be started.
      */   
     public <S extends Service<T>> void addService( S s ) {
+        if( log.isLoggable(Level.FINE) ) {
+            log.log(Level.FINE, "addService({0})", s);
+        }
         services.add(s);
+        if( log.isLoggable(Level.FINE) ) {
+            log.log(Level.FINE, "Initializing service:{0}", s);
+        }
         s.initialize(getParent());
         if( started ) {
+            if( log.isLoggable(Level.FINE) ) {
+                log.log(Level.FINE, "Starting service:{0}", s);
+            }
             s.start();
         }
     }
@@ -120,10 +139,19 @@ public abstract class ServiceManager<T> {
      *  the service will be terminated.
      */
     public <S extends Service<T>> void removeService( S s ) {
+        if( log.isLoggable(Level.FINE) ) {
+            log.log(Level.FINE, "removeService({0})", s);
+        }
         if( started ) {
+            if( log.isLoggable(Level.FINE) ) {
+                log.log(Level.FINE, "Stopping service:{0}", s);
+            }
             s.stop();
         }
         services.remove(s);
+        if( log.isLoggable(Level.FINE) ) {
+            log.log(Level.FINE, "Terminating service:{0}", s);
+        }
         s.terminate(getParent());        
     }
  

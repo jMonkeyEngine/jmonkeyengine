@@ -124,6 +124,7 @@ public class Quad extends Mesh {
         }
         
         updateBound();
+        setStatic();
     }
 
 

@@ -43,7 +43,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.shader.Shader;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.PlaceholderAssets;
@@ -52,10 +51,13 @@ import com.jme3.util.blockparser.Statement;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class J3MLoader implements AssetLoader {
 
@@ -63,7 +65,7 @@ public class J3MLoader implements AssetLoader {
    // private ErrorLogger errors;
     private ShaderNodeLoaderDelegate nodesLoaderDelegate;
     boolean isUseNodes = false;
-    
+
     private AssetManager assetManager;
     private AssetKey key;
 
@@ -126,59 +128,146 @@ public class J3MLoader implements AssetLoader {
         technique.setShadowMode(sm);
     }
 
-    private Object readValue(VarType type, String value) throws IOException{
-        if (type.isTextureType()){
-//            String texturePath = readString("[\n;(//)(\\})]");
+    private List<String> tokenizeTextureValue(final String value) {
+        final List<String> matchList = new ArrayList<String>();
+        final Pattern regex = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
+        final Matcher regexMatcher = regex.matcher(value.trim());
+
+        while (regexMatcher.find()) {
+            if (regexMatcher.group(1) != null) {
+                matchList.add(regexMatcher.group(1));
+            } else if (regexMatcher.group(2) != null) {
+                matchList.add(regexMatcher.group(2));
+            } else {
+                matchList.add(regexMatcher.group());
+            }
+        }
+
+        return matchList;
+    }
+
+    private List<TextureOptionValue> parseTextureOptions(final List<String> values) {
+        final List<TextureOptionValue> matchList = new ArrayList<TextureOptionValue>();
+
+        if (values.isEmpty() || values.size() == 1) {
+            return matchList;
+        }
+
+        // Loop through all but the last value, the last one is going to be the path.
+        for (int i = 0; i < values.size() - 1; i++) {
+            final String value = values.get(i);
+            final TextureOption textureOption = TextureOption.getTextureOption(value);
+
+            if (textureOption == null && !value.contains("\\") && !value.contains("/") && !values.get(0).equals("Flip") && !values.get(0).equals("Repeat")) {
+                logger.log(Level.WARNING, "Unknown texture option \"{0}\" encountered for \"{1}\" in material \"{2}\"", new Object[]{value, key, material.getKey().getName()});
+            } else if (textureOption != null){
+                final String option = textureOption.getOptionValue(value);
+                matchList.add(new TextureOptionValue(textureOption, option));
+            }
+        }
+
+        return matchList;
+    }
+
+    private boolean isTexturePathDeclaredTheTraditionalWay(final int numberOfValues, final int numberOfTextureOptions, final String texturePath) {
+        return (numberOfValues > 1 && (texturePath.startsWith("Flip Repeat ") || texturePath.startsWith("Flip ") ||
+                texturePath.startsWith("Repeat ") || texturePath.startsWith("Repeat Flip "))) || numberOfTextureOptions == 0;
+    }
+
+    private Texture parseTextureType(final VarType type, final String value) {
+        final List<String> textureValues = tokenizeTextureValue(value);
+        final List<TextureOptionValue> textureOptionValues = parseTextureOptions(textureValues);
+
+        TextureKey textureKey = null;
+
+        // If there is only one token on the value, it must be the path to the texture.
+        if (textureValues.size() == 1) {
+            textureKey = new TextureKey(textureValues.get(0), false);
+        } else {
             String texturePath = value.trim();
-            boolean flipY = false;
-            boolean repeat = false;
-            if (texturePath.startsWith("Flip Repeat ")){
-                texturePath = texturePath.substring(12).trim();
-                flipY = true;
-                repeat = true;
-            }else if (texturePath.startsWith("Flip ")){
-                texturePath = texturePath.substring(5).trim();
-                flipY = true;
-            }else if (texturePath.startsWith("Repeat ")){
-                texturePath = texturePath.substring(7).trim();
-                repeat = true;
-            }
 
-            TextureKey texKey = new TextureKey(texturePath, flipY);
-            switch (type) {
-                case Texture3D:
-                    texKey.setTextureTypeHint(Texture.Type.ThreeDimensional);
-                    break;
-                case TextureArray:
-                    texKey.setTextureTypeHint(Texture.Type.TwoDimensionalArray);
-                    break;
-                case TextureCubeMap:
-                    texKey.setTextureTypeHint(Texture.Type.CubeMap);
-                    break;
-            }
-            texKey.setGenerateMips(true);
+            // If there are no valid "new" texture options specified but the path is split into several parts, lets parse the old way.
+            if (isTexturePathDeclaredTheTraditionalWay(textureValues.size(), textureOptionValues.size(), texturePath)) {
+                boolean flipY = false;
 
-            Texture tex;
-            try {
-                tex = assetManager.loadTexture(texKey);
-            } catch (AssetNotFoundException ex){
-                logger.log(Level.WARNING, "Cannot locate {0} for material {1}", new Object[]{texKey, key});
-                tex = null;
-            }
-            if (tex != null){
-                if (repeat){
-                    tex.setWrap(WrapMode.Repeat);
-                }                
-            }else{
-                tex = new Texture2D(PlaceholderAssets.getPlaceholderImage(assetManager));
-                if (repeat){
-                    tex.setWrap(WrapMode.Repeat);
+                if (texturePath.startsWith("Flip Repeat ") || texturePath.startsWith("Repeat Flip ")) {
+                    texturePath = texturePath.substring(12).trim();
+                    flipY = true;
+                } else if (texturePath.startsWith("Flip ")) {
+                    texturePath = texturePath.substring(5).trim();
+                    flipY = true;
+                } else if (texturePath.startsWith("Repeat ")) {
+                    texturePath = texturePath.substring(7).trim();
                 }
-                tex.setKey(texKey);
-                tex.setName(texKey.getName());
-            }         
-            return tex;
-        }else{
+
+                // Support path starting with quotes (double and single)
+                if (texturePath.startsWith("\"") || texturePath.startsWith("'")) {
+                    texturePath = texturePath.substring(1);
+                }
+
+                // Support path ending with quotes (double and single)
+                if (texturePath.endsWith("\"") || texturePath.endsWith("'")) {
+                    texturePath = texturePath.substring(0, texturePath.length() - 1);
+                }
+
+                textureKey = new TextureKey(texturePath, flipY);
+            }
+
+            if (textureKey == null) {
+                textureKey = new TextureKey(textureValues.get(textureValues.size() - 1), false);
+            }
+
+            // Apply texture options to the texture key
+            if (!textureOptionValues.isEmpty()) {
+                for (final TextureOptionValue textureOptionValue : textureOptionValues) {
+                    textureOptionValue.applyToTextureKey(textureKey);
+                }
+            }
+        }
+
+        switch (type) {
+            case Texture3D:
+                textureKey.setTextureTypeHint(Texture.Type.ThreeDimensional);
+                break;
+            case TextureArray:
+                textureKey.setTextureTypeHint(Texture.Type.TwoDimensionalArray);
+                break;
+            case TextureCubeMap:
+                textureKey.setTextureTypeHint(Texture.Type.CubeMap);
+                break;
+        }
+
+        textureKey.setGenerateMips(true);
+
+        Texture texture;
+
+        try {
+            texture = assetManager.loadTexture(textureKey);
+        } catch (AssetNotFoundException ex){
+            logger.log(Level.WARNING, "Cannot locate {0} for material {1}", new Object[]{textureKey, key});
+            texture = null;
+        }
+
+        if (texture == null){
+            texture = new Texture2D(PlaceholderAssets.getPlaceholderImage(assetManager));
+            texture.setKey(textureKey);
+            texture.setName(textureKey.getName());
+        }
+
+        // Apply texture options to the texture
+        if (!textureOptionValues.isEmpty()) {
+            for (final TextureOptionValue textureOptionValue : textureOptionValues) {
+                textureOptionValue.applyToTexture(texture);
+            }
+        }
+
+        return texture;
+    }
+
+    private Object readValue(final VarType type, final String value) throws IOException{
+        if (type.isTextureType()) {
+            return parseTextureType(type, value);
+        } else {
             String[] split = value.trim().split(whitespacePattern);
             switch (type){
                 case Float:
@@ -222,15 +311,15 @@ public class J3MLoader implements AssetLoader {
             }
         }
     }
-    
-    // <TYPE> <NAME> [ "(" <FFBINDING> ")" ] [-LINEAR] [ ":" <DEFAULTVAL> ] 
+
+    // <TYPE> <NAME> [ "(" <FFBINDING> ")" ] [-LINEAR] [ ":" <DEFAULTVAL> ]
     private void readParam(String statement) throws IOException{
         String name;
         String defaultVal = null;
         ColorSpace colorSpace = null;
-        
+
         String[] split = statement.split(":");
-        
+
         // Parse default val
         if (split.length == 1){
             // Doesn't contain default value
@@ -239,14 +328,14 @@ public class J3MLoader implements AssetLoader {
                 throw new IOException("Parameter statement syntax incorrect");
             }
             statement = split[0].trim();
-            defaultVal = split[1].trim();           
+            defaultVal = split[1].trim();
         }
-        
+
         if (statement.endsWith("-LINEAR")) {
             colorSpace = ColorSpace.Linear;
             statement = statement.substring(0, statement.length() - "-LINEAR".length());
         }
-        
+
         // Parse ffbinding
         int startParen = statement.indexOf("(");
         if (startParen != -1){
@@ -256,32 +345,32 @@ public class J3MLoader implements AssetLoader {
             // don't care about bindingStr
             statement = statement.substring(0, startParen);
         }
-        
+
         // Parse type + name
         split = statement.split(whitespacePattern);
         if (split.length != 2){
             throw new IOException("Parameter statement syntax incorrect");
         }
-        
+
         VarType type;
         if (split[0].equals("Color")){
             type = VarType.Vector4;
         }else{
             type = VarType.valueOf(split[0]);
         }
-        
+
         name = split[1];
-        
+
         Object defaultValObj = null;
-        if (defaultVal != null){ 
+        if (defaultVal != null){
             defaultValObj = readValue(type, defaultVal);
         }
         if(type.isTextureType()){
-            materialDef.addMaterialParamTexture(type, name, colorSpace);    
+            materialDef.addMaterialParamTexture(type, name, colorSpace);
         }else{
             materialDef.addMaterialParam(type, name, defaultValObj);
         }
-        
+
     }
 
     private void readValueParam(String statement) throws IOException{
@@ -376,7 +465,7 @@ public class J3MLoader implements AssetLoader {
         technique.setRenderState(renderState);
         renderState = null;
     }
-    
+
     private void readForcedRenderState(List<Statement> renderStates) throws IOException{
         renderState = new RenderState();
         for (Statement statement : renderStates){
@@ -385,7 +474,7 @@ public class J3MLoader implements AssetLoader {
         technique.setForcedRenderState(renderState);
         renderState = null;
     }
-    
+
     // <DEFINENAME> [ ":" <PARAMNAME> ]
     private void readDefine(String statement) throws IOException{
         String[] split = statement.split(":");
@@ -405,9 +494,9 @@ public class J3MLoader implements AssetLoader {
         }
 
     }
-    
+
     private void readTechniqueStatement(Statement statement) throws IOException{
-        String[] split = statement.getLine().split("[ \\{]");       
+        String[] split = statement.getLine().split("[ \\{]");
         if (split[0].equals("VertexShader") ||
                 split[0].equals("FragmentShader") ||
                 split[0].equals("GeometryShader") ||
@@ -420,12 +509,12 @@ public class J3MLoader implements AssetLoader {
             readShadowMode(statement.getLine());
         }else if (split[0].equals("WorldParameters")){
             readWorldParams(statement.getContents());
-        }else if (split[0].equals("RenderState")){  
+        }else if (split[0].equals("RenderState")){
             readRenderState(statement.getContents());
-        }else if (split[0].equals("ForcedRenderState")){  
+        }else if (split[0].equals("ForcedRenderState")){
             readForcedRenderState(statement.getContents());
-        }else if (split[0].equals("Defines")){           
-            readDefines(statement.getContents());         
+        }else if (split[0].equals("Defines")){
+            readDefines(statement.getContents());
         } else if (split[0].equals("ShaderNodesDefinitions")) {
             initNodesLoader();
             if (isUseNodes) {
@@ -438,14 +527,16 @@ public class J3MLoader implements AssetLoader {
             }
         } else if (split[0].equals("FragmentShaderNodes")) {
             initNodesLoader();
-            if (isUseNodes) {                
+            if (isUseNodes) {
                 nodesLoaderDelegate.readFragmentShaderNodes(statement.getContents());
             }
+        } else if (split[0].equals("NoRender")) {
+            technique.setNoRender(true);
         } else {
             throw new MatParseException(null, split[0], statement);
         }
     }
-    
+
     private void readTransparentStatement(String statement) throws IOException{
         String[] split = statement.split(whitespacePattern);
         if (split.length != 2){
@@ -465,11 +556,11 @@ public class J3MLoader implements AssetLoader {
         } else {
             throw new IOException("Technique statement syntax incorrect");
         }
-        
+
         for (Statement statement : techStat.getContents()){
             readTechniqueStatement(statement);
         }
-        
+
         if(isUseNodes){
             nodesLoaderDelegate.computeConditions();
             //used for caching later, the shader here is not a file.
@@ -479,14 +570,14 @@ public class J3MLoader implements AssetLoader {
         if (shaderName.containsKey(Shader.ShaderType.Vertex) && shaderName.containsKey(Shader.ShaderType.Fragment)) {
             technique.setShaderFile(shaderName, shaderLanguage);
         }
-        
+
         materialDef.addTechniqueDef(technique);
         technique = null;
         shaderLanguage.clear();
         shaderName.clear();
     }
 
-    private void loadFromRoot(List<Statement> roots) throws IOException{       
+    private void loadFromRoot(List<Statement> roots) throws IOException{
         if (roots.size() == 2){
             Statement exception = roots.get(0);
             String line = exception.getLine();
@@ -498,7 +589,7 @@ public class J3MLoader implements AssetLoader {
         }else if (roots.size() != 1){
             throw new IOException("Too many roots in J3M/J3MD file");
         }
-               
+
         boolean extending = false;
         Statement materialStat = roots.get(0);
         String materialName = materialStat.getLine();
@@ -511,16 +602,16 @@ public class J3MLoader implements AssetLoader {
         }else{
             throw new IOException("Specified file is not a Material file");
         }
-        
+
         String[] split = materialName.split(":", 2);
-        
+
         if (materialName.equals("")){
-            throw new MatParseException("Material name cannot be empty", materialStat);         
+            throw new MatParseException("Material name cannot be empty", materialStat);
         }
 
         if (split.length == 2){
             if (!extending){
-                throw new MatParseException("Must use 'Material' when extending.", materialStat); 
+                throw new MatParseException("Must use 'Material' when extending.", materialStat);
             }
 
             String extendedMat = split[1].trim();
@@ -535,15 +626,15 @@ public class J3MLoader implements AssetLoader {
 //            material.setAssetName(fileName);
         }else if (split.length == 1){
             if (extending){
-                throw new MatParseException("Expected ':', got '{'", materialStat);               
+                throw new MatParseException("Expected ':', got '{'", materialStat);
             }
             materialDef = new MaterialDef(assetManager, materialName);
             // NOTE: pass file name for defs so they can be loaded later
             materialDef.setAssetName(key.getName());
         }else{
-            throw new MatParseException("Cannot use colon in material name/path", materialStat);   
+            throw new MatParseException("Cannot use colon in material name/path", materialStat);
         }
-        
+
         for (Statement statement : materialStat.getContents()){
             split = statement.getLine().split("[ \\{]");
             String statType = split[0];
@@ -561,16 +652,16 @@ public class J3MLoader implements AssetLoader {
                 }else if (statType.equals("MaterialParameters")){
                     readMaterialParams(statement.getContents());
                 }else{
-                    throw new MatParseException("Expected material statement, got '"+statType+"'", statement);                       
+                    throw new MatParseException("Expected material statement, got '"+statType+"'", statement);
                 }
             }
         }
     }
 
-    public Object load(AssetInfo info) throws IOException {       
+    public Object load(AssetInfo info) throws IOException {
         this.assetManager = info.getManager();
-        
-        InputStream in = info.openStream();        
+
+        InputStream in = info.openStream();
         try {
             key = info.getKey();
             if (key.getExtension().equals("j3m") && !(key instanceof MaterialKey)) {
@@ -584,7 +675,7 @@ public class J3MLoader implements AssetLoader {
                 in.close();
             }
         }
-        
+
         if (material != null){
             // material implementation
             return material;
@@ -593,7 +684,7 @@ public class J3MLoader implements AssetLoader {
             return materialDef;
         }
     }
-    
+
     public MaterialDef loadMaterialDef(List<Statement> roots, AssetManager manager, AssetKey key) throws IOException {
         this.key = key;
         this.assetManager = manager;
@@ -615,6 +706,127 @@ public class J3MLoader implements AssetLoader {
                 nodesLoaderDelegate.setAssetManager(assetManager);
             }
         }
-    }   
+    }
 
+    /**
+     * Texture options allow you to specify how a texture should be initialized by including an option before
+     * the path to the texture in the .j3m file.
+     * <p>
+     *     <b>Example:</b>
+     *     <pre>
+     *     DiffuseMap: MinTrilinear MagBilinear WrapRepeat_S "some/path/to a/texture.png"
+     *     </pre>
+     *     This would apply a minification filter of "Trilinear", a magnification filter of "Bilinear" and set the wrap mode to "Repeat".
+     * </p>
+     * <p>
+     *     <b>Note:</b> If several filters of the same type are added, eg. MinTrilinear MinNearestLinearMipMap, the last one will win.
+     * </p>
+     */
+    private enum TextureOption {
+
+        /**
+         * Applies a {@link com.jme3.texture.Texture.MinFilter} to the texture.
+         */
+        Min {
+            @Override
+            public void applyToTexture(final String option, final Texture texture) {
+                texture.setMinFilter(Texture.MinFilter.valueOf(option));
+            }
+        },
+
+        /**
+         * Applies a {@link com.jme3.texture.Texture.MagFilter} to the texture.
+         */
+        Mag {
+            @Override
+            public void applyToTexture(final String option, final Texture texture) {
+                texture.setMagFilter(Texture.MagFilter.valueOf(option));
+            }
+        },
+
+        /**
+         * Applies a {@link com.jme3.texture.Texture.WrapMode} to the texture. This also supports {@link com.jme3.texture.Texture.WrapAxis}
+         * by adding "_AXIS" to the texture option. For instance if you wanted to repeat on the S (horizontal) axis, you
+         * would use <pre>WrapRepeat_S</pre> as a texture option.
+         */
+        Wrap {
+            @Override
+            public void applyToTexture(final String option, final Texture texture) {
+                final int separatorPosition = option.indexOf("_");
+
+                if (separatorPosition >= option.length() - 2) {
+                    final String axis = option.substring(separatorPosition + 1);
+                    final String mode = option.substring(0, separatorPosition);
+                    final Texture.WrapAxis wrapAxis = Texture.WrapAxis.valueOf(axis);
+                    texture.setWrap(wrapAxis, Texture.WrapMode.valueOf(mode));
+                } else {
+                    texture.setWrap(Texture.WrapMode.valueOf(option));
+                }
+            }
+        },
+
+        /**
+         * Applies a {@link com.jme3.texture.Texture.WrapMode#Repeat} to the texture. This is simply an alias for
+         * WrapRepeat, please use WrapRepeat instead if possible as this may become deprecated later on.
+         */
+        Repeat {
+            @Override
+            public void applyToTexture(final String option, final Texture texture) {
+                Wrap.applyToTexture("Repeat", texture);
+            }
+        },
+
+        /**
+         * Applies flipping on the Y axis to the {@link TextureKey#setFlipY(boolean)}.
+         */
+        Flip {
+            @Override
+            public void applyToTextureKey(final String option, final TextureKey textureKey) {
+                textureKey.setFlipY(true);
+            }
+        };
+
+        public String getOptionValue(final String option) {
+            return option.substring(name().length());
+        }
+
+        public void applyToTexture(final String option, final Texture texture) {
+        }
+
+        public void applyToTextureKey(final String option, final TextureKey textureKey) {
+        }
+
+        public static TextureOption getTextureOption(final String option) {
+            for(final TextureOption textureOption : TextureOption.values()) {
+                if (option.startsWith(textureOption.name())) {
+                    return textureOption;
+                }
+            }
+
+            return null;
+        }
+    }
+
+    /**
+     * Internal object used for holding a {@link com.jme3.material.plugins.J3MLoader.TextureOption} and it's value. Also
+     * contains a couple of convenience methods for applying the TextureOption to either a TextureKey or a Texture.
+     */
+    private static class TextureOptionValue {
+
+        private final TextureOption textureOption;
+        private final String value;
+
+        public TextureOptionValue(TextureOption textureOption, String value) {
+            this.textureOption = textureOption;
+            this.value = value;
+        }
+
+        public void applyToTextureKey(final TextureKey textureKey) {
+            textureOption.applyToTextureKey(value, textureKey);
+        }
+
+        public void applyToTexture(final Texture texture) {
+            textureOption.applyToTexture(value, texture);
+        }
+    }
 }

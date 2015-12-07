@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package com.jme3.light;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.export.*;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.Camera;
@@ -94,7 +95,7 @@ public abstract class Light implements Savable, Cloneable {
         }
     }
 
-    protected ColorRGBA color = new ColorRGBA(1f,1f,1f,1f);
+    protected ColorRGBA color = new ColorRGBA(ColorRGBA.White);
     
     /**
      * Used in LightList for caching the distance 
@@ -114,6 +115,13 @@ public abstract class Light implements Savable, Cloneable {
     
     boolean frustumCheckNeeded = true;
     boolean intersectsFrustum  = false;
+
+    protected Light() {
+    }
+
+    protected Light(ColorRGBA color) {
+        setColor(color);
+    }
 
     /**
      * Returns the color of the light.
@@ -190,7 +198,21 @@ public abstract class Light implements Savable, Cloneable {
     public abstract boolean intersectsBox(BoundingBox box, TempVars vars);
     
     /**
-     * Determines if the lgiht intersects with the given camera frustum.
+     * Determines if the light intersects with the given bounding sphere.
+     * <p>
+     * For non-local lights, such as {@link DirectionalLight directional lights},
+     * {@link AmbientLight ambient lights}, or {@link PointLight point lights}
+     * without influence radius, this method should always return true.
+     * 
+     * @param sphere The sphere to check intersection against.
+     * @param vars TempVars in case it is needed.
+     * 
+     * @return True if the light intersects the sphere, false otherwise.
+     */
+    public abstract boolean intersectsSphere(BoundingSphere sphere, TempVars vars);
+
+    /**
+     * Determines if the light intersects with the given camera frustum.
      * 
      * For non-local lights, such as {@link DirectionalLight directional lights},
      * {@link AmbientLight ambient lights}, or {@link PointLight point lights}

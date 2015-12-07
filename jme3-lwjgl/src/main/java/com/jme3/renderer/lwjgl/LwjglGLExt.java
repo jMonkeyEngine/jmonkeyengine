@@ -13,7 +13,7 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GLSync;
 
-public class LwjglGLExt implements GLExt {
+public final class LwjglGLExt implements GLExt {
 
     private static void checkLimit(Buffer buffer) {
         if (buffer == null) {

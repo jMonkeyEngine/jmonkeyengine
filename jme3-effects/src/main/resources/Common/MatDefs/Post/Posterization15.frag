@@ -2,7 +2,8 @@
  
 uniform COLORTEXTURE m_Texture;
 in vec2 texCoord;
- 
+out vec4 fragColor;
+
 uniform int m_NumColors;
 uniform float m_Gamma;
 uniform float m_Strength;
@@ -16,5 +17,5 @@ void main() {
     texVal = texVal / m_NumColors;
     texVal = pow(texVal, vec4(1.0/m_Gamma));
  
-    gl_FragColor = mix(getColor(m_Texture, texCoord), texVal, m_Strength);
+    fragColor = mix(getColor(m_Texture, texCoord), texVal, m_Strength);
 }

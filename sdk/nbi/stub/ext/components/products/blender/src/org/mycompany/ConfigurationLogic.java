@@ -1,8 +1,11 @@
 package org.mycompany;
 
+import java.io.File;
 import java.util.List;
 import org.netbeans.installer.product.Registry;
+import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.product.components.ProductConfigurationLogic;
+import org.netbeans.installer.utils.LogManager;
 import org.netbeans.installer.utils.helper.RemovalMode;
 import org.netbeans.installer.utils.exceptions.InitializationException;
 import org.netbeans.installer.utils.exceptions.InstallationException;
@@ -35,6 +38,20 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
 
     @Override
     public void install(Progress progress) throws InstallationException {
+        final Product product = getProduct();
+        final File installLocation = product.getInstallationLocation();
+        LogManager.log("Setting Blender files as executable");
+        setExecutableFile(installLocation, "blender");
+        setExecutableFile(installLocation, "blenderplayer");
+        setExecutableFile(installLocation, "blender-softwaregl");
+    }
+    private static void setExecutableFile(File parent, String path) {
+        File binFile = new File(parent, path);
+        try {
+            binFile.setExecutable(true, false);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override

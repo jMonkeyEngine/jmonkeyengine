@@ -44,7 +44,7 @@ public interface GL2 extends GL {
     public static final int GL_ALPHA_TEST = 0xBC0;
     public static final int GL_BGR = 0x80E0;
     public static final int GL_BGRA = 0x80E1;
-    public static final int GL_COMPARE_R_TO_TEXTURE = 0x884E;
+    public static final int GL_COMPARE_REF_TO_TEXTURE = 0x884E;
     public static final int GL_DEPTH_COMPONENT24 = 0x81A6;
     public static final int GL_DEPTH_COMPONENT32 = 0x81A7;
     public static final int GL_DEPTH_TEXTURE_MODE = 0x884B;

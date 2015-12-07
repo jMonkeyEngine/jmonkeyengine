@@ -52,12 +52,8 @@ import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.renderer.opengl.GLTiming;
 import com.jme3.renderer.opengl.GLTimingState;
 import com.jme3.renderer.opengl.GLTracer;
-import com.jme3.system.AppSettings;
-import com.jme3.system.JmeContext;
-import com.jme3.system.JmeSystem;
-import com.jme3.system.NativeLibraryLoader;
-import com.jme3.system.SystemListener;
-import com.jme3.system.Timer;
+import com.jme3.system.*;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -166,8 +162,7 @@ public abstract class LwjglContext implements JmeContext {
             }
         }
     }
-    
-    protected void loadNatives() {        
+    protected void loadNatives() {
         if (JmeSystem.isLowPermissions()) {
             return;
         }

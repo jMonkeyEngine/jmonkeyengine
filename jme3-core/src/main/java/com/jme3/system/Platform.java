@@ -89,6 +89,11 @@ public enum Platform {
     Android_ARM7,
 
     /**
+     * Android ARM8
+     */
+    Android_ARM8,
+
+    /**
      * Android x86
      */
     Android_X86,

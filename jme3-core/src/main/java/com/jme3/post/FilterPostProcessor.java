@@ -38,6 +38,7 @@ import com.jme3.renderer.*;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
 import com.jme3.util.SafeArrayList;
@@ -284,6 +285,12 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                         mat.clearParam("NumSamples");
                     }
                 }
+                
+                boolean wantsBilinear = filter.isRequiresBilinear();
+                if (wantsBilinear) {
+                    tex.setMagFilter(Texture.MagFilter.Bilinear);
+                    tex.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
+                }
 
                 buff = outputBuffer;
                 if (i != lastFilterIndex) {
@@ -293,6 +300,11 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                 }
                 renderProcessing(r, buff, mat);
                 filter.postFilter(r, buff);
+                
+                if (wantsBilinear) {
+                    tex.setMagFilter(Texture.MagFilter.Nearest);
+                    tex.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
+                }
             }
         }
     }
@@ -300,7 +312,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     public void postFrame(FrameBuffer out) {
 
         FrameBuffer sceneBuffer = renderFrameBuffer;
-        if (renderFrameBufferMS != null && !renderer.getCaps().contains(Caps.OpenGL31)) {
+        if (renderFrameBufferMS != null && !renderer.getCaps().contains(Caps.OpenGL32)) {
             renderer.copyFrameBuffer(renderFrameBufferMS, renderFrameBuffer, true);
         } else if (renderFrameBufferMS != null) {
             sceneBuffer = renderFrameBufferMS;
@@ -443,7 +455,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         //antialiasing on filters only supported in opengl 3 due to depth read problem
         if (numSamples > 1 && caps.contains(Caps.FrameBufferMultisample)) {
             renderFrameBufferMS = new FrameBuffer(width, height, numSamples);
-            if (caps.contains(Caps.OpenGL31)) {
+            if (caps.contains(Caps.OpenGL32)) {
                 Texture2D msColor = new Texture2D(width, height, numSamples, fbFormat);
                 Texture2D msDepth = new Texture2D(width, height, numSamples, Format.Depth);
                 renderFrameBufferMS.setDepthTexture(msDepth);
@@ -456,7 +468,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             }
         }
 
-        if (numSamples <= 1 || !caps.contains(Caps.OpenGL31)) {
+        if (numSamples <= 1 || !caps.contains(Caps.OpenGL32)) {
             renderFrameBuffer = new FrameBuffer(width, height, 1);
             renderFrameBuffer.setDepthBuffer(Format.Depth);
             filterTexture = new Texture2D(width, height, fbFormat);

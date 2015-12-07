@@ -45,6 +45,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.jar.Attributes;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**
@@ -402,6 +403,10 @@ public abstract class Serializer {
         SerializerRegistration reg = getSerializerRegistration(type);
         if (reg == null) {
             throw new SerializerException( "Class not registered:" + type );
+        }
+        
+        if( log.isLoggable(Level.FINER) ) {
+            log.log(Level.FINER, "writing class:{0} with ID:{1}", new Object[]{type, reg.getId()});
         }
         buffer.putShort(reg.getId());
         return reg;

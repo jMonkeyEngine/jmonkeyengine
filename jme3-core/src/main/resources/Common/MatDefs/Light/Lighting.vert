@@ -48,6 +48,10 @@ varying vec3 lightVec;
   uniform vec4 g_LightDirection;
 #endif
 
+#if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP))) && !defined(VERTEX_LIGHTING) 
+    varying vec3 vViewDirPrlx;
+#endif
+
 #ifdef USE_REFLECTION
     uniform vec3 g_CameraPosition;
 
@@ -107,17 +111,25 @@ void main(){
    wvLightPos.w = g_LightPosition.w;
    vec4 lightColor = g_LightColor;
 
-   #if defined(NORMALMAP) && !defined(VERTEX_LIGHTING)
+   #if (defined(NORMALMAP) || defined(PARALLAXMAP)) && !defined(VERTEX_LIGHTING)
      vec3 wvTangent = normalize(TransformNormal(modelSpaceTan));
      vec3 wvBinormal = cross(wvNormal, wvTangent);
      mat3 tbnMat = mat3(wvTangent, wvBinormal * inTangent.w,wvNormal);
+   #endif
  
-     vViewDir  = -wvPosition * tbnMat;
+   #if defined(NORMALMAP) && !defined(VERTEX_LIGHTING)
+     vViewDir  = -wvPosition * tbnMat;    
+     #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP))) 
+         vViewDirPrlx = vViewDir;
+     #endif
      lightComputeDir(wvPosition, lightColor.w, wvLightPos, vLightDir, lightVec);
      vLightDir.xyz = (vLightDir.xyz * tbnMat).xyz;
    #elif !defined(VERTEX_LIGHTING)
      vNormal = wvNormal;
      vViewDir = viewDir;
+     #if defined(PARALLAXMAP)
+        vViewDirPrlx  =  -wvPosition * tbnMat;
+     #endif
      lightComputeDir(wvPosition, lightColor.w, wvLightPos, vLightDir, lightVec);
    #endif
 

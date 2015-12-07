@@ -72,8 +72,10 @@ public class DefaultJoystickAxis implements JoystickAxis {
      *  @param negativeMapping The mapping to receive events when the axis is positive
      */
     public void assignAxis(String positiveMapping, String negativeMapping){
-        inputManager.addMapping(positiveMapping, new JoyAxisTrigger(parent.getJoyId(), axisIndex, false));
-        inputManager.addMapping(negativeMapping, new JoyAxisTrigger(parent.getJoyId(), axisIndex, true));
+        if (axisIndex != -1) {
+            inputManager.addMapping(positiveMapping, new JoyAxisTrigger(parent.getJoyId(), axisIndex, false));
+            inputManager.addMapping(negativeMapping, new JoyAxisTrigger(parent.getJoyId(), axisIndex, true));
+        }
     }
 
     /**
@@ -132,6 +134,14 @@ public class DefaultJoystickAxis implements JoystickAxis {
     public float getDeadZone() {
         return deadZone;
     }        
+
+    /**
+     *  Sets/overrides the dead zone for this axis.  This indicates that values
+     *  within +/- deadZone should be ignored.
+     */
+    public void setDeadZone( float f ) {
+        this.deadZone = f;
+    }     
 
     @Override
     public String toString(){

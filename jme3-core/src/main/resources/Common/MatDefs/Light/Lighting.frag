@@ -37,6 +37,7 @@ varying vec3 SpecularSum;
 #endif
 #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP))) && !defined(VERTEX_LIGHTING) 
     uniform float m_ParallaxHeight;
+    varying vec3 vViewDirPrlx;
 #endif
 
 #ifdef LIGHTMAP
@@ -78,18 +79,18 @@ void main(){
        #ifdef STEEP_PARALLAX
            #ifdef NORMALMAP_PARALLAX
                //parallax map is stored in the alpha channel of the normal map         
-               newTexCoord = steepParallaxOffset(m_NormalMap, vViewDir, texCoord, m_ParallaxHeight);
+               newTexCoord = steepParallaxOffset(m_NormalMap, vViewDirPrlx, texCoord, m_ParallaxHeight);
            #else
                //parallax map is a texture
-               newTexCoord = steepParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);         
+               newTexCoord = steepParallaxOffset(m_ParallaxMap, vViewDirPrlx, texCoord, m_ParallaxHeight);         
            #endif
        #else
            #ifdef NORMALMAP_PARALLAX
                //parallax map is stored in the alpha channel of the normal map         
-               newTexCoord = classicParallaxOffset(m_NormalMap, vViewDir, texCoord, m_ParallaxHeight);
+               newTexCoord = classicParallaxOffset(m_NormalMap, vViewDirPrlx, texCoord, m_ParallaxHeight);
            #else
                //parallax map is a texture
-               newTexCoord = classicParallaxOffset(m_ParallaxMap, vViewDir, texCoord, m_ParallaxHeight);
+               newTexCoord = classicParallaxOffset(m_ParallaxMap, vViewDirPrlx, texCoord, m_ParallaxHeight);
            #endif
        #endif
     #else
@@ -153,8 +154,9 @@ void main(){
     #ifdef VERTEX_LIGHTING
        vec2 light = vertexLightValues.xy;
        #ifdef COLORRAMP
-           light.x = texture2D(m_ColorRamp, vec2(light.x, 0.0)).r;
-           light.y = texture2D(m_ColorRamp, vec2(light.y, 0.0)).r;
+            diffuseColor.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
+            specularColor.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
+            light.xy = vec2(1.0);
        #endif
 
        gl_FragColor.rgb =  AmbientSum     * diffuseColor.rgb + 
@@ -182,8 +184,9 @@ void main(){
 
        vec2   light = computeLighting(normal, viewDir, lightDir.xyz, lightDir.w * spotFallOff, m_Shininess) ;
        #ifdef COLORRAMP
-           diffuseColor.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
-           specularColor.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
+            diffuseColor.rgb  *= texture2D(m_ColorRamp, vec2(light.x, 0.0)).rgb;
+            specularColor.rgb *= texture2D(m_ColorRamp, vec2(light.y, 0.0)).rgb;
+            light.xy = vec2(1.0);
        #endif
 
        // Workaround, since it is not possible to modify varying variables

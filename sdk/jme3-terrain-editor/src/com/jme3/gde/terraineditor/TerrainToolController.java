@@ -260,8 +260,7 @@ public class TerrainToolController extends SceneToolController {
      * The action on the tool has ended (mouse button up), record the Undo (for painting only now)
      */
     void doTerrainEditToolActionEnded() {
-        if (terrainTool != null) {
-            System.out.println("undo tagged");
+        if (terrainTool != null) {            
             terrainTool.actionEnded(jmeRootNode, editorController.getCurrentDataObject());
         }
     }
