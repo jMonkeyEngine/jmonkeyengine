@@ -1,5 +1,5 @@
 #import "Common/ShaderLib/Parallax.glsllib"
-#import "Common/ShaderLib/PBR.glsllib"
+#import "ShaderLib/PBR.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
 
 varying vec2 texCoord;
@@ -111,14 +111,14 @@ void main(){
         vec4 albedo = Color;
     #endif
     #ifdef ROUGHNESSMAP
-        float Roughness = texture2D(m_RoughnessMap, newTexCoord).r * max(m_Roughness,1e-8);
+        float Roughness = texture2D(m_RoughnessMap, newTexCoord).r * max(m_Roughness, 1e-8);
     #else
-        float Roughness =  max(m_Roughness,1e-8);
+        float Roughness =  max(m_Roughness, 1e-8);
     #endif
     #ifdef METALLICMAP   
         float Metallic = texture2D(m_MetallicMap, newTexCoord).r;
     #else
-        float Metallic =  max(m_Metallic,0.00);
+        float Metallic =  max(m_Metallic, 0.0);
     #endif
  
     float alpha = Color.a * albedo.a;
@@ -214,7 +214,7 @@ void main(){
 
     vec3 indirectDiffuse = vec3(0.0);
     vec3 indirectSpecular = vec3(0.0);    
-    indirectDiffuse = textureCube(g_IrradianceMap, rv.xyz).rgb * albedo.rgb;
+    indirectDiffuse = textureCube(g_IrradianceMap, rv.xyz).rgb * diffuseColor.rgb;
 
     indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, rv.xyz);
     indirectSpecular *= vec3(horiz);
@@ -233,5 +233,6 @@ void main(){
     #endif
            
     gl_FragColor.a = alpha;
+    
    
 }
