@@ -57,14 +57,14 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
     private static final String DEFINE_SINGLE_PASS_LIGHTING = "SINGLE_PASS_LIGHTING";
     private static final String DEFINE_NB_LIGHTS = "NB_LIGHTS";
     private static final RenderState ADDITIVE_LIGHT = new RenderState();
-    
+
     private final ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
-    
+
     static {
         ADDITIVE_LIGHT.setBlendMode(BlendMode.AlphaAdditive);
         ADDITIVE_LIGHT.setDepthWrite(false);
     }
-    
+
     private final int singlePassLightingDefineId;
     private final int nbLightsDefineId;
 
@@ -73,7 +73,7 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
         singlePassLightingDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_SINGLE_PASS_LIGHTING, VarType.Boolean);
         nbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_LIGHTS, VarType.Int);
     }
-    
+
     @Override
     public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
             EnumSet<Caps> rendererCaps, DefineList defines) {
@@ -81,7 +81,7 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
         defines.set(singlePassLightingDefineId, true);
         return super.makeCurrent(assetManager, renderManager, rendererCaps, defines);
     }
-    
+
     /**
      * Uploads the lights in the light list as two uniform arrays.<br/><br/> *
      * <p>
@@ -120,73 +120,72 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
         int endIndex = numLights + startIndex;
         for (curIndex = startIndex; curIndex < endIndex && curIndex < lightList.size(); curIndex++) {
 
+            Light l = lightList.get(curIndex);
+            if (l.getType() == Light.Type.Ambient) {
+                endIndex++;
+                continue;
+            }
+            ColorRGBA color = l.getColor();
+            //Color
+            lightData.setVector4InArray(color.getRed(),
+                    color.getGreen(),
+                    color.getBlue(),
+                    l.getType().getId(),
+                    lightDataIndex);
+            lightDataIndex++;
 
-                Light l = lightList.get(curIndex);
-                if(l.getType() == Light.Type.Ambient){
-                    endIndex++;
-                    continue;
-                }
-                ColorRGBA color = l.getColor();
-                //Color
-                lightData.setVector4InArray(color.getRed(),
-                        color.getGreen(),
-                        color.getBlue(),
-                        l.getType().getId(),
-                        lightDataIndex);
-                lightDataIndex++;
-
-                switch (l.getType()) {
-                    case Directional:
-                        DirectionalLight dl = (DirectionalLight) l;
-                        Vector3f dir = dl.getDirection();
-                        //Data directly sent in view space to avoid a matrix mult for each pixel
-                        tmpVec.set(dir.getX(), dir.getY(), dir.getZ(), 0.0f);
-                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
+            switch (l.getType()) {
+                case Directional:
+                    DirectionalLight dl = (DirectionalLight) l;
+                    Vector3f dir = dl.getDirection();
+                    //Data directly sent in view space to avoid a matrix mult for each pixel
+                    tmpVec.set(dir.getX(), dir.getY(), dir.getZ(), 0.0f);
+                    rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
 //                        tmpVec.divideLocal(tmpVec.w);
 //                        tmpVec.normalizeLocal();
-                        lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), -1, lightDataIndex);
-                        lightDataIndex++;
-                        //PADDING
-                        lightData.setVector4InArray(0,0,0,0, lightDataIndex);
-                        lightDataIndex++;
-                        break;
-                    case Point:
-                        PointLight pl = (PointLight) l;
-                        Vector3f pos = pl.getPosition();
-                        float invRadius = pl.getInvRadius();
-                        tmpVec.set(pos.getX(), pos.getY(), pos.getZ(), 1.0f);
-                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
-                        //tmpVec.divideLocal(tmpVec.w);
-                        lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), invRadius, lightDataIndex);
-                        lightDataIndex++;
-                        //PADDING
-                        lightData.setVector4InArray(0,0,0,0, lightDataIndex);
-                        lightDataIndex++;
-                        break;
-                    case Spot:
-                        SpotLight sl = (SpotLight) l;
-                        Vector3f pos2 = sl.getPosition();
-                        Vector3f dir2 = sl.getDirection();
-                        float invRange = sl.getInvSpotRange();
-                        float spotAngleCos = sl.getPackedAngleCos();
-                        tmpVec.set(pos2.getX(), pos2.getY(), pos2.getZ(),  1.0f);
-                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
-                       // tmpVec.divideLocal(tmpVec.w);
-                        lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), invRange, lightDataIndex);
-                        lightDataIndex++;
+                    lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), -1, lightDataIndex);
+                    lightDataIndex++;
+                    //PADDING
+                    lightData.setVector4InArray(0, 0, 0, 0, lightDataIndex);
+                    lightDataIndex++;
+                    break;
+                case Point:
+                    PointLight pl = (PointLight) l;
+                    Vector3f pos = pl.getPosition();
+                    float invRadius = pl.getInvRadius();
+                    tmpVec.set(pos.getX(), pos.getY(), pos.getZ(), 1.0f);
+                    rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
+                    //tmpVec.divideLocal(tmpVec.w);
+                    lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), invRadius, lightDataIndex);
+                    lightDataIndex++;
+                    //PADDING
+                    lightData.setVector4InArray(0, 0, 0, 0, lightDataIndex);
+                    lightDataIndex++;
+                    break;
+                case Spot:
+                    SpotLight sl = (SpotLight) l;
+                    Vector3f pos2 = sl.getPosition();
+                    Vector3f dir2 = sl.getDirection();
+                    float invRange = sl.getInvSpotRange();
+                    float spotAngleCos = sl.getPackedAngleCos();
+                    tmpVec.set(pos2.getX(), pos2.getY(), pos2.getZ(), 1.0f);
+                    rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
+                    // tmpVec.divideLocal(tmpVec.w);
+                    lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), invRange, lightDataIndex);
+                    lightDataIndex++;
 
-                        //We transform the spot direction in view space here to save 5 varying later in the lighting shader
-                        //one vec4 less and a vec4 that becomes a vec3
-                        //the downside is that spotAngleCos decoding happens now in the frag shader.
-                        tmpVec.set(dir2.getX(), dir2.getY(), dir2.getZ(),  0.0f);
-                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
-                        tmpVec.normalizeLocal();
-                        lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), spotAngleCos, lightDataIndex);
-                        lightDataIndex++;
-                        break;
-                    default:
-                        throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
-                }
+                    //We transform the spot direction in view space here to save 5 varying later in the lighting shader
+                    //one vec4 less and a vec4 that becomes a vec3
+                    //the downside is that spotAngleCos decoding happens now in the frag shader.
+                    tmpVec.set(dir2.getX(), dir2.getY(), dir2.getZ(), 0.0f);
+                    rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
+                    tmpVec.normalizeLocal();
+                    lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), spotAngleCos, lightDataIndex);
+                    lightDataIndex++;
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
+            }
         }
         vars.release();
         //Padding of unsued buffer space
@@ -197,7 +196,6 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
         return curIndex;
     }
 
-    
     @Override
     public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights) {
         int nbRenderedLights = 0;
