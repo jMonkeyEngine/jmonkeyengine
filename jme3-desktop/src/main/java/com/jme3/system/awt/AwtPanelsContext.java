@@ -46,8 +46,8 @@ public class AwtPanelsContext implements JmeContext {
     protected JmeContext actualContext;
     protected AppSettings settings = new AppSettings(true);
     protected SystemListener listener;
-    protected ArrayList<AwtPanel> panels = new ArrayList<AwtPanel>();
-    protected AwtPanel inputSource;
+    protected ArrayList<JmePanel> panels = new ArrayList<JmePanel>();
+    protected JmePanel inputSource;
 
     protected AwtMouseInput mouseInput = new AwtMouseInput();
     protected AwtKeyInput keyInput = new AwtKeyInput();
@@ -92,13 +92,13 @@ public class AwtPanelsContext implements JmeContext {
         }
     }
 
-    public void setInputSource(AwtPanel panel){
+    public void setInputSource(JmePanel panel){
         if (!panels.contains(panel))
             throw new IllegalArgumentException();
 
         inputSource = panel;
-        mouseInput.setInputSource(panel);
-        keyInput.setInputSource(panel);
+        mouseInput.setInputSource(panel.getComponent());
+        keyInput.setInputSource(panel.getComponent());
     }
 
     public Type getType() {
@@ -148,14 +148,14 @@ public class AwtPanelsContext implements JmeContext {
     public AwtPanelsContext(){
     }
 
-    public AwtPanel createPanel(PaintMode paintMode){
-        AwtPanel panel = new AwtPanel(paintMode);
+    public JmePanel createPanel(PaintMode paintMode){
+        JmePanel panel = new SwingPanel(paintMode, true);
         panels.add(panel);
         return panel;
     }
     
-    public AwtPanel createPanel(PaintMode paintMode, boolean srgb){
-        AwtPanel panel = new AwtPanel(paintMode, srgb);
+    public JmePanel createPanel(PaintMode paintMode, boolean srgb){
+        JmePanel panel = new SwingPanel(paintMode, srgb);
         panels.add(panel);
         return panel;
     }
@@ -168,18 +168,18 @@ public class AwtPanelsContext implements JmeContext {
         // Check if throttle required
         boolean needThrottle = true;
 
-        for (AwtPanel panel : panels){
+        for (JmePanel panel : panels){
             if (panel.isActiveDrawing()){
                 needThrottle = false;
                 break;
             }
         }
 
-        if (lastThrottleState != needThrottle){
+        if (lastThrottleState != needThrottle) {
             lastThrottleState = needThrottle;
-            if (lastThrottleState){
+            if (lastThrottleState) {
                 System.out.println("OGL: Throttling update loop.");
-            }else{
+            } else {
                 System.out.println("OGL: Ceased throttling update loop.");
             }
         }
@@ -191,9 +191,13 @@ public class AwtPanelsContext implements JmeContext {
             }
         }
 
+        for (JmePanel panel : panels){
+            panel.onFrameBegin();
+        }
+        
         listener.update();
         
-        for (AwtPanel panel : panels){
+        for (JmePanel panel : panels){
             panel.onFrameEnd();
         }
     }
