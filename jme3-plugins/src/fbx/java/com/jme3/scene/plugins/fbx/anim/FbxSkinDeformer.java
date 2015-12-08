@@ -31,24 +31,94 @@
  */
 package com.jme3.scene.plugins.fbx.anim;
 
+import com.jme3.animation.Bone;
+import com.jme3.animation.Skeleton;
 import com.jme3.asset.AssetManager;
+import com.jme3.math.Transform;
+import com.jme3.scene.plugins.fbx.node.FbxNode;
 import com.jme3.scene.plugins.fbx.obj.FbxObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FbxSkinDeformer extends FbxObject<List<FbxCluster>> {
+public class FbxSkinDeformer extends FbxObject<Skeleton> {
 
+    private FbxNode skeletonRoot;
     private final List<FbxCluster> clusters = new ArrayList<FbxCluster>();
     
     public FbxSkinDeformer(AssetManager assetManager, String sceneFolderName) {
         super(assetManager, sceneFolderName);
     }
     
+    private boolean isHierarchyCompatible(Bone thisBone, Bone otherBone) {
+        Transform thisTransform = thisBone.getBindInverseTransform();
+        Transform otherTransform = otherBone.getBindInverseTransform();
+        throw new UnsupportedOperationException();
+    }
+    
+    /** 
+     * Determine if both skin deformers can share the same 
+     * Skeleton object and hence the same SkeletonControl / AnimControl. 
+     * 
+     * @param skinDeformer The skin deformer to test compatibility against.
+     * @return True if the skeletons are identical and can be shared, false
+     * otherwise.
+     */
+    public boolean isCompatible(FbxSkinDeformer skinDeformer) {
+        Skeleton thisSkeleton = this.getJmeObject();
+        Skeleton otherSkeleton = skinDeformer.getJmeObject();
+        Bone[] thisRoots = thisSkeleton.getRoots();
+        Bone[] otherRoots = otherSkeleton.getRoots();
+        for (int i = 0; i < thisRoots.length; i++) {
+            
+        }
+        throw new UnsupportedOperationException();
+    }
+    
+    /** 
+     * Get the root FbxNode containing the skeleton.
+     * 
+     * The node should have one or more FbxLimbNodes which are
+     * the root limbs of the skeleton structure.
+     * 
+     * This is null until prepareSkeletonData() is called.
+     * 
+     * @return The root node containing the skeleton.
+     */
+    public FbxNode getSkeletonRoot() {
+        return skeletonRoot;
+    }
+    
+    /** 
+     * Derives the skeleton from the skin deformer. 
+     * 
+     * The Skeleton hierarchy is derived via the {@link #getSkeletonRoot() skeleton root}
+     *  whereas the bind poses for the bones is derived from the 
+     * {@link #getClusters() clusters}.
+     * 
+     * FbxLimbNode.prepareSkeletonData() must have been called first
+     * The bone's bind pose depends on each cluster's TransformLinkMatrix 
+     * and TransformMatrix.
+     * The bone's bind pose is derived as follows:
+     * <code><pre>
+     * Invert(Invert(TransformLinkMatrix) * TransformMatrix * Geometry)
+     * </code></pre>
+     * 
+     * @return The skeleton as described by this skin deformer.
+     */
     @Override
-    protected List<FbxCluster> toJmeObject() {
+    protected Skeleton toJmeObject() {
+        throw new UnsupportedOperationException();
+    }
+    
+    /**
+     * Get the clusters attached to this skin deformer.
+     * 
+     * @return The skin deformer's clusters.
+     */
+    public List<FbxCluster> getClusters() {
         return clusters;
     }
-
+    
     @Override
     public void connectObject(FbxObject object) {
         if (object instanceof FbxCluster) {
@@ -62,5 +132,5 @@ public class FbxSkinDeformer extends FbxObject<List<FbxCluster>> {
     public void connectObjectProperty(FbxObject object, String property) {
         unsupportedConnectObjectProperty(object, property);
     }
-    
+
 }

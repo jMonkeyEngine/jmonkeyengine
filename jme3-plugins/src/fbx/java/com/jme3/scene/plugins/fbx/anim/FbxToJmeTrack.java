@@ -34,6 +34,7 @@ package com.jme3.scene.plugins.fbx.anim;
 import com.jme3.animation.BoneTrack;
 import com.jme3.animation.SpatialTrack;
 import com.jme3.animation.Track;
+import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
@@ -98,6 +99,7 @@ public final class FbxToJmeTrack {
     }
     
     private static void applyInverse(Vector3f translation, Quaternion rotation, Vector3f scale, Transform inverseBindPose) {
+        /*
         Transform t = new Transform();
         t.setTranslation(translation);
         t.setRotation(rotation);
@@ -110,6 +112,24 @@ public final class FbxToJmeTrack {
         t.getRotation(rotation);
         if (scale != null) {
             t.getScale(scale);
+        }
+        */
+        
+        Matrix4f mat = new Matrix4f();
+        mat.setTranslation(translation);
+        mat.setRotationQuaternion(rotation);
+        if (scale != null) {
+            mat.setScale(scale);
+        }
+        
+        Matrix4f mat2 = inverseBindPose.toTransformMatrix();
+        mat2.multLocal(mat);
+        mat = mat2;
+        
+        mat.toTranslationVector(translation);
+        mat.toRotationQuat(rotation);
+        if (scale != null) { 
+            mat.toScaleVector(scale);
         }
     }
     
@@ -154,7 +174,7 @@ public final class FbxToJmeTrack {
                 if (i > 0) {
                     if (rotations[i - 1].dot(rotations[i]) < 0) {
                         System.out.println("rotation will go the long way, oh noes");
-                        rotations[i - 1].negate();
+                        rotations[i].negate();
                     }
                 }
             } else {

@@ -111,36 +111,36 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<Mesh>> {
     }
     
     public void applyCluster(FbxCluster cluster) {
-        if (boneIndices == null) {
-            boneIndices = new ArrayList[positions.length];
-            boneWeights = new ArrayList[positions.length];
-        }
-        
-        FbxLimbNode limb = cluster.getLimb();
-        Bone bone = limb.getJmeBone();
-        Skeleton skeleton = limb.getSkeletonHolder().getJmeSkeleton();
-        int boneIndex = skeleton.getBoneIndex(bone);
-        
-        int[] positionIndices = cluster.getVertexIndices();
-        double[] weights = cluster.getWeights();
-        
-        for (int i = 0; i < positionIndices.length; i++) {
-            int positionIndex = positionIndices[i];
-            float boneWeight = (float)weights[i];
-            
-            ArrayList<Integer> boneIndicesForVertex = boneIndices[positionIndex];
-            ArrayList<Float>  boneWeightsForVertex = boneWeights[positionIndex];
-            
-            if (boneIndicesForVertex == null) {
-                boneIndicesForVertex = new ArrayList<Integer>();
-                boneWeightsForVertex = new ArrayList<Float>();
-                boneIndices[positionIndex] = boneIndicesForVertex;
-                boneWeights[positionIndex] = boneWeightsForVertex;
-            }
-            
-            boneIndicesForVertex.add(boneIndex);
-            boneWeightsForVertex.add(boneWeight);
-        }
+//        if (boneIndices == null) {
+//            boneIndices = new ArrayList[positions.length];
+//            boneWeights = new ArrayList[positions.length];
+//        }
+//        
+//        FbxLimbNode limb = cluster.getLimb();
+//        Bone bone = limb.getJmeBone();
+//        Skeleton skeleton = limb.getSkeletonRoot().getJmeSkeleton();
+//        int boneIndex = skeleton.getBoneIndex(bone);
+//        
+//        int[] positionIndices = cluster.getVertexIndices();
+//        double[] weights = cluster.getWeights();
+//        
+//        for (int i = 0; i < positionIndices.length; i++) {
+//            int positionIndex = positionIndices[i];
+//            float boneWeight = (float)weights[i];
+//            
+//            ArrayList<Integer> boneIndicesForVertex = boneIndices[positionIndex];
+//            ArrayList<Float>  boneWeightsForVertex = boneWeights[positionIndex];
+//            
+//            if (boneIndicesForVertex == null) {
+//                boneIndicesForVertex = new ArrayList<Integer>();
+//                boneWeightsForVertex = new ArrayList<Float>();
+//                boneIndices[positionIndex] = boneIndicesForVertex;
+//                boneWeights[positionIndex] = boneWeightsForVertex;
+//            }
+//            
+//            boneIndicesForVertex.add(boneIndex);
+//            boneWeightsForVertex.add(boneWeight);
+//        }
     }
     
     @Override
@@ -210,7 +210,7 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<Mesh>> {
     protected IntMap<Mesh> toJmeObject() {
         // Load clusters from SkinDeformer
         if (skinDeformer != null) {
-            for (FbxCluster cluster : skinDeformer.getJmeObject()) {
+            for (FbxCluster cluster : skinDeformer.getClusters()) {
                 applyCluster(cluster);
             }
         }

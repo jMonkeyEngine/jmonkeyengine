@@ -150,7 +150,7 @@ public class FbxLoader implements AssetLoader {
     private void loadData(InputStream stream) throws IOException {
         FbxFile scene = FbxReader.readFBX(stream);
 
-        FbxDump.dumpFile(scene);
+//        FbxDump.dumpFile(scene);
 
         // TODO: Load FBX object templates
         
@@ -346,33 +346,33 @@ public class FbxLoader implements AssetLoader {
             duration = pair.getDuration();
             
             if (pair.node instanceof FbxLimbNode) {
-                // Find the spatial that has the skeleton for this limb.
-                FbxLimbNode limbNode = (FbxLimbNode) pair.node;
-                Bone bone = limbNode.getJmeBone();
-                Spatial jmeSpatial = limbNode.getSkeletonHolder().getJmeObject();
-                Skeleton skeleton = limbNode.getSkeletonHolder().getJmeSkeleton();
-                
-                // Get the animation control (create if missing).
-                AnimControl animControl = jmeSpatial.getControl(AnimControl.class);
-                if (animControl.getSkeleton() != skeleton) {
-                    throw new UnsupportedOperationException();
-                }
-                
-                // Get the animation (create if missing).
-                Animation anim = animControl.getAnim(animName);
-                if (anim == null) { 
-                    anim = new Animation(animName, duration);
-                    animControl.addAnim(anim);
-                }
-                
-                // Find the bone index from the spatial's skeleton.
-                int boneIndex = skeleton.getBoneIndex(bone);
-                
-                // Generate the bone track.
-                BoneTrack bt = pair.toJmeBoneTrack(boneIndex, bone.getBindInverseTransform());
-                
-                // Add the bone track to the animation.
-                anim.addTrack(bt);
+//                // Find the spatial that has the skeleton for this limb.
+//                FbxLimbNode limbNode = (FbxLimbNode) pair.node;
+//                Bone bone = limbNode.getJmeBone();
+//                Spatial jmeSpatial = limbNode.getSkeletonRoot().getJmeObject();
+//                Skeleton skeleton = limbNode.getSkeletonRoot().getJmeSkeleton();
+//                
+//                // Get the animation control (create if missing).
+//                AnimControl animControl = jmeSpatial.getControl(AnimControl.class);
+//                if (animControl.getSkeleton() != skeleton) {
+//                    throw new UnsupportedOperationException();
+//                }
+//                
+//                // Get the animation (create if missing).
+//                Animation anim = animControl.getAnim(animName);
+//                if (anim == null) { 
+//                    anim = new Animation(animName, duration);
+//                    animControl.addAnim(anim);
+//                }
+//                
+//                // Find the bone index from the spatial's skeleton.
+//                int boneIndex = skeleton.getBoneIndex(bone);
+//                
+//                // Generate the bone track.
+//                BoneTrack bt = pair.toJmeBoneTrack(boneIndex, bone.getBindInverseTransform());
+//                
+//                // Add the bone track to the animation.
+//                anim.addTrack(bt);
             } else {
                 // Create the spatial animation
                 Animation anim = new Animation(animName, duration);

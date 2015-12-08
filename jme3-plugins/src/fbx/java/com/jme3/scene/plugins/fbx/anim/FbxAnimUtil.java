@@ -31,6 +31,8 @@
  */
 package com.jme3.scene.plugins.fbx.anim;
 
+import com.jme3.math.Matrix4f;
+
 public class FbxAnimUtil {
     /**
      * Conversion factor from FBX animation time unit to seconds.
@@ -41,4 +43,12 @@ public class FbxAnimUtil {
     public static final String CURVE_NODE_PROPERTY_Y          = "d|Y";
     public static final String CURVE_NODE_PROPERTY_Z          = "d|Z";
     public static final String CURVE_NODE_PROPERTY_VISIBILITY = "d|Visibility";
+    
+    public static Matrix4f toMatrix4(double[] matrixData) {
+        float[] matrixDataFloat = new float[16];
+        for (int i = 0; i < matrixData.length; i++) {
+            matrixDataFloat[i] = (float) matrixData[i];
+        }
+        return new Matrix4f(matrixDataFloat);
+    }
 }
