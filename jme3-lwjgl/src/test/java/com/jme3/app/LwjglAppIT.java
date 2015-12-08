@@ -31,6 +31,7 @@
  */
 package com.jme3.app;
 
+import com.jme3.IntegrationTest;
 import com.jme3.renderer.RenderManager;
 import com.jme3.system.JmeContext;
 import java.awt.GraphicsEnvironment;
@@ -41,8 +42,10 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.*;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
-public class LwjglAppTest {
+@Category(IntegrationTest.class)
+public class LwjglAppIT {
 
     private final AtomicInteger simpleInitAppInvocations = new AtomicInteger();
     private final AtomicInteger simpleUpdateInvocations = new AtomicInteger();
@@ -66,7 +69,7 @@ public class LwjglAppTest {
         }
     }
 
-    public void doStopStart(Application app, JmeContext.Type type) throws InterruptedException {
+    private void doStopStart(Application app, JmeContext.Type type) throws InterruptedException {
         app.setLostFocusBehavior(LostFocusBehavior.Disabled);
 
         // start the application - simple init / update will be called once.
@@ -96,19 +99,19 @@ public class LwjglAppTest {
     }
 
     @Test
-    public void testDisplayApp() throws InterruptedException {
+    public void testDisplayAppLifeCycle() throws InterruptedException {
         assumeFalse(GraphicsEnvironment.isHeadless());
         doStopStart(new TestApp(), JmeContext.Type.Display);
     }
 
     @Test
-    public void testOffscreenSurface() throws InterruptedException {
+    public void testOffscreenAppLifeCycle() throws InterruptedException {
         assumeFalse(GraphicsEnvironment.isHeadless());
         doStopStart(new TestApp(), JmeContext.Type.OffscreenSurface);
     }
 
     @Test
-    public void testHeadlessApp() throws InterruptedException {
+    public void testExceptionInvokesHandleError() throws InterruptedException {
         doStopStart(new TestApp(), JmeContext.Type.Headless);
     }
 }

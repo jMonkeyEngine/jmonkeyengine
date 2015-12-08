@@ -29,22 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.jme3;
 
-import com.jme3.system.NativeLibraryLoader;
-import java.io.File;
-import java.util.Arrays;
-import org.junit.Test;
-
-/**
- *
- * @author Kirill Vainer
- */
-public class LibraryLoaderTest {
-    
-    @Test
-    public void whatever() {
-        File[] nativeJars = NativeLibraryLoader.getJarsWithNatives();
-        System.out.println(Arrays.toString(nativeJars));
-    }
-    
+public interface IntegrationTest {
 }

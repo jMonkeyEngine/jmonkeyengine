@@ -52,6 +52,7 @@ import com.jme3.renderer.opengl.GLTiming;
 import com.jme3.renderer.opengl.GLTimingState;
 import com.jme3.renderer.opengl.GLTracer;
 import com.jme3.system.*;
+import java.io.File;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -166,17 +167,23 @@ public abstract class LwjglContext implements JmeContext {
         if (JmeSystem.isLowPermissions()) {
             return;
         }
+
+        String extractPath = NativeLibraryLoader.getExtractionFolder().getAbsolutePath();
+
         if ("LWJGL".equals(settings.getAudioRenderer())) {
             NativeLibraryLoader.loadNativeLibrary("openal", true);
         }
         if (settings.useJoysticks()) {
-            NativeLibraryLoader.loadNativeLibrary("jinput", true);
-            NativeLibraryLoader.loadNativeLibrary("jinput-dx8", true);
+            System.setProperty("net.java.games.input.librarypath", extractPath);
+            NativeLibraryLoader.loadNativeLibrary("jinput", true, false);
+            NativeLibraryLoader.loadNativeLibrary("jinput-dx8", true, false);
         }
         if (NativeLibraryLoader.isUsingNativeBullet()) {
             NativeLibraryLoader.loadNativeLibrary("bulletjme", true);
         }
-        NativeLibraryLoader.loadNativeLibrary("lwjgl", true);
+
+        System.setProperty("org.lwjgl.librarypath", extractPath);
+        NativeLibraryLoader.loadNativeLibrary("lwjgl", true, false);
     }
 
     protected int getNumSamplesToUse() {
