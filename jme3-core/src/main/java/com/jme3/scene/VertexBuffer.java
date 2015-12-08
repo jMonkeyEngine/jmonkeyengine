@@ -525,6 +525,17 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     }
 
     /**
+     * The size of an element in bytes.
+     * 
+     * The number of components multiplied by the size of a component.
+     * 
+     * @return size of an element in bytes.
+     */
+    public int getElementSize() {
+        return componentsLength;
+    }
+
+    /**
      * @param normalized Set to true if integer components should be converted
      * from their maximal range into the range 0.0 - 1.0 when converted to
      * a floating-point value for the shader.
@@ -976,6 +987,10 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * of the parameters. The buffer will be of the type specified by
      * {@link Format format} and would be able to contain the given number
      * of elements with the given number of components in each element.
+     * @param format The format of the buffer to create
+     * @param components The number of components (aka dimensions)
+     * @param numElements Capacity of the buffer in number of elements.
+     * @return A buffer satisfying the given requirements.
      */
     public static Buffer createBuffer(Format format, int components, int numElements){
         if (components < 1 || components > 4)
@@ -1010,7 +1025,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * @return Deep clone of this buffer
      */
     @Override
-    public VertexBuffer clone(){
+    public VertexBuffer clone() {
         // NOTE: Superclass GLObject automatically creates shallow clone
         // e.g re-use ID.
         VertexBuffer vb = (VertexBuffer) super.clone();
