@@ -39,6 +39,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
+import com.jme3.util.SafeArrayList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -96,16 +97,15 @@ public class InputManager implements RawInputListener {
     private boolean eventsPermitted = false;
     private boolean mouseVisible = true;
     private boolean safeMode = false;
-    private float axisDeadZone = 0.05f;
-    private Vector2f cursorPos = new Vector2f();
+    private float globalAxisDeadZone = 0.05f;
+    private final Vector2f cursorPos = new Vector2f();
     private Joystick[] joysticks;
     private final IntMap<ArrayList<Mapping>> bindings = new IntMap<ArrayList<Mapping>>();
     private final HashMap<String, Mapping> mappings = new HashMap<String, Mapping>();
     private final IntMap<Long> pressedButtons = new IntMap<Long>();
     private final IntMap<Float> axisValues = new IntMap<Float>();
-    private ArrayList<RawInputListener> rawListeners = new ArrayList<RawInputListener>();
-    private RawInputListener[] rawListenerArray = null;
-    private ArrayList<InputEvent> inputQueue = new ArrayList<InputEvent>();
+    private final SafeArrayList<RawInputListener> rawListeners = new SafeArrayList<RawInputListener>(RawInputListener.class);
+    private final ArrayList<InputEvent> inputQueue = new ArrayList<InputEvent>();
 
     private static class Mapping {
 
@@ -248,8 +248,8 @@ public class InputManager implements RawInputListener {
         }
     }
 
-    private void invokeAnalogsAndActions(int hash, float value, boolean applyTpf) {
-        if (value < axisDeadZone) {
+    private void invokeAnalogsAndActions(int hash, float value, float effectiveDeadZone, boolean applyTpf) {
+        if (value < effectiveDeadZone) {
             invokeAnalogs(hash, value, !applyTpf);
             return;
         }
@@ -287,12 +287,14 @@ public class InputManager implements RawInputListener {
     /**
      * Callback from RawInputListener. Do not use.
      */
+    @Override
     public void beginInput() {
     }
 
     /**
      * Callback from RawInputListener. Do not use.
      */
+    @Override
     public void endInput() {
     }
 
@@ -304,17 +306,18 @@ public class InputManager implements RawInputListener {
         int joyId = evt.getJoyIndex();
         int axis = evt.getAxisIndex();
         float value = evt.getValue();
-        if (value < axisDeadZone && value > -axisDeadZone) {
+        float effectiveDeadZone = Math.max(globalAxisDeadZone, evt.getAxis().getDeadZone()); 
+        if (value < effectiveDeadZone && value > -effectiveDeadZone) {
             int hash1 = JoyAxisTrigger.joyAxisHash(joyId, axis, true);
             int hash2 = JoyAxisTrigger.joyAxisHash(joyId, axis, false);
 
             Float val1 = axisValues.get(hash1);
             Float val2 = axisValues.get(hash2);
 
-            if (val1 != null && val1.floatValue() > axisDeadZone) {
+            if (val1 != null && val1 > effectiveDeadZone) {
                 invokeActions(hash1, false);
             }
-            if (val2 != null && val2.floatValue() > axisDeadZone) {
+            if (val2 != null && val2 > effectiveDeadZone) {
                 invokeActions(hash2, false);
             }
 
@@ -328,11 +331,11 @@ public class InputManager implements RawInputListener {
             // Clear the reverse direction's actions in case we
             // crossed center too quickly
             Float otherVal = axisValues.get(otherHash);
-            if (otherVal != null && otherVal.floatValue() > axisDeadZone) {
+            if (otherVal != null && otherVal > effectiveDeadZone) {
                 invokeActions(otherHash, false);
             }
 
-            invokeAnalogsAndActions(hash, -value, true);
+            invokeAnalogsAndActions(hash, -value, effectiveDeadZone, true);
             axisValues.put(hash, -value);
             axisValues.remove(otherHash);
         } else {
@@ -342,11 +345,11 @@ public class InputManager implements RawInputListener {
             // Clear the reverse direction's actions in case we
             // crossed center too quickly
             Float otherVal = axisValues.get(otherHash);
-            if (otherVal != null && otherVal.floatValue() > axisDeadZone) {
+            if (otherVal != null && otherVal > effectiveDeadZone) {
                 invokeActions(otherHash, false);
             }
 
-            invokeAnalogsAndActions(hash, value, true);
+            invokeAnalogsAndActions(hash, value, effectiveDeadZone, true);
             axisValues.put(hash, value);
             axisValues.remove(otherHash);
         }
@@ -355,6 +358,7 @@ public class InputManager implements RawInputListener {
     /**
      * Callback from RawInputListener. Do not use.
      */
+    @Override
     public void onJoyAxisEvent(JoyAxisEvent evt) {
         if (!eventsPermitted) {
             throw new UnsupportedOperationException("JoyInput has raised an event at an illegal time.");
@@ -376,6 +380,7 @@ public class InputManager implements RawInputListener {
     /**
      * Callback from RawInputListener. Do not use.
      */
+    @Override
     public void onJoyButtonEvent(JoyButtonEvent evt) {
         if (!eventsPermitted) {
             throw new UnsupportedOperationException("JoyInput has raised an event at an illegal time.");
@@ -391,15 +396,15 @@ public class InputManager implements RawInputListener {
 
         if (evt.getDX() != 0) {
             float val = Math.abs(evt.getDX()) / 1024f;
-            invokeAnalogsAndActions(MouseAxisTrigger.mouseAxisHash(MouseInput.AXIS_X, evt.getDX() < 0), val, false);
+            invokeAnalogsAndActions(MouseAxisTrigger.mouseAxisHash(MouseInput.AXIS_X, evt.getDX() < 0), val, globalAxisDeadZone, false);
         }
         if (evt.getDY() != 0) {
             float val = Math.abs(evt.getDY()) / 1024f;
-            invokeAnalogsAndActions(MouseAxisTrigger.mouseAxisHash(MouseInput.AXIS_Y, evt.getDY() < 0), val, false);
+            invokeAnalogsAndActions(MouseAxisTrigger.mouseAxisHash(MouseInput.AXIS_Y, evt.getDY() < 0), val, globalAxisDeadZone, false);
         }
         if (evt.getDeltaWheel() != 0) {
             float val = Math.abs(evt.getDeltaWheel()) / 100f;
-            invokeAnalogsAndActions(MouseAxisTrigger.mouseAxisHash(MouseInput.AXIS_WHEEL, evt.getDeltaWheel() < 0), val, false);
+            invokeAnalogsAndActions(MouseAxisTrigger.mouseAxisHash(MouseInput.AXIS_WHEEL, evt.getDeltaWheel() < 0), val, globalAxisDeadZone, false);
         }
     }
 
@@ -419,6 +424,7 @@ public class InputManager implements RawInputListener {
     /**
      * Callback from RawInputListener. Do not use.
      */
+    @Override
     public void onMouseMotionEvent(MouseMotionEvent evt) {
         if (!eventsPermitted) {
             throw new UnsupportedOperationException("MouseInput has raised an event at an illegal time.");
@@ -437,6 +443,7 @@ public class InputManager implements RawInputListener {
     /**
      * Callback from RawInputListener. Do not use.
      */
+    @Override
     public void onMouseButtonEvent(MouseButtonEvent evt) {
         if (!eventsPermitted) {
             throw new UnsupportedOperationException("MouseInput has raised an event at an illegal time.");
@@ -459,6 +466,7 @@ public class InputManager implements RawInputListener {
     /**
      * Callback from RawInputListener. Do not use.
      */
+    @Override
     public void onKeyEvent(KeyInputEvent evt) {
         if (!eventsPermitted) {
             throw new UnsupportedOperationException("KeyInput has raised an event at an illegal time.");
@@ -477,7 +485,7 @@ public class InputManager implements RawInputListener {
      * @param deadZone the deadzone for joystick axes.
      */
     public void setAxisDeadZone(float deadZone) {
-        this.axisDeadZone = deadZone;
+        this.globalAxisDeadZone = deadZone;
     }
 
     /**
@@ -486,7 +494,7 @@ public class InputManager implements RawInputListener {
      * @return the deadzone for joystick axes.
      */
     public float getAxisDeadZone() {
-        return axisDeadZone;
+        return globalAxisDeadZone;
     }
 
     /**
@@ -721,7 +729,6 @@ public class InputManager implements RawInputListener {
      */
     public void addRawInputListener(RawInputListener listener) {
         rawListeners.add(listener);
-        rawListenerArray = null;
     }
 
     /**
@@ -734,7 +741,6 @@ public class InputManager implements RawInputListener {
      */
     public void removeRawInputListener(RawInputListener listener) {
         rawListeners.remove(listener);
-        rawListenerArray = null;
     }
 
     /**
@@ -744,13 +750,6 @@ public class InputManager implements RawInputListener {
      */
     public void clearRawInputListeners() {
         rawListeners.clear();
-        rawListenerArray = null;
-    }
-
-    private RawInputListener[] getRawListenerArray() {
-        if (rawListenerArray == null)
-            rawListenerArray = rawListeners.toArray(new RawInputListener[rawListeners.size()]);
-        return rawListenerArray;
     }
 
     /**
@@ -813,7 +812,7 @@ public class InputManager implements RawInputListener {
 
     private void processQueue() {
         int queueSize = inputQueue.size();
-        RawInputListener[] array = getRawListenerArray();
+        RawInputListener[] array = rawListeners.getArray(); 
 
         for (RawInputListener listener : array) {
             listener.beginInput();

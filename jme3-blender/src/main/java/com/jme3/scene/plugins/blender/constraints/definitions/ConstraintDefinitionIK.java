@@ -174,7 +174,7 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
     private static class BonesChain extends ArrayList<BoneContext> {
         private static final long serialVersionUID = -1850524345643600718L;
 
-        private List<Matrix> bonesMatrices = new ArrayList<Matrix>();
+        private List<Matrix> localBonesMatrices = new ArrayList<Matrix>();
 
         public BonesChain(Bone bone, boolean useTail, int bonesAffected, Collection<Long> alteredOmas, BlenderContext blenderContext) {
             if (bone != null) {
@@ -187,11 +187,20 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                     this.add(boneContext);
                     alteredOmas.add(boneContext.getBoneOma());
 
-                    Space space = this.size() < bonesAffected ? Space.CONSTRAINT_SPACE_LOCAL : Space.CONSTRAINT_SPACE_WORLD;
-                    Transform transform = constraintHelper.getTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), space);
-                    bonesMatrices.add(new DTransform(transform).toMatrix());
+                    Transform transform = constraintHelper.getTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), Space.CONSTRAINT_SPACE_WORLD);
+                    localBonesMatrices.add(new DTransform(transform).toMatrix());
 
                     bone = bone.getParent();
+                }
+                
+                if(localBonesMatrices.size() > 0) {
+                	// making the matrices describe the local transformation
+                    Matrix parentWorldMatrix = localBonesMatrices.get(localBonesMatrices.size() - 1);
+                    for(int i=localBonesMatrices.size() - 2;i>=0;--i) {
+                    	SimpleMatrix m = parentWorldMatrix.invert().mult(localBonesMatrices.get(i));
+                    	parentWorldMatrix = localBonesMatrices.get(i);
+                    	localBonesMatrices.set(i, new Matrix(m));
+                    }
                 }
             }
         }
@@ -211,16 +220,16 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                 SimpleMatrix m = parentWorldMatrix.invert().mult(boneMatrix);
                 boneMatrix = new Matrix(m);
             }
-            bonesMatrices.set(index, boneMatrix);
+            localBonesMatrices.set(index, boneMatrix);
         }
 
         public Matrix getWorldMatrix(int index) {
             if (index == this.size() - 1) {
-                return new Matrix(bonesMatrices.get(this.size() - 1));
+                return new Matrix(localBonesMatrices.get(this.size() - 1));
             }
 
             SimpleMatrix result = this.getWorldMatrix(index + 1);
-            result = result.mult(bonesMatrices.get(index));
+            result = result.mult(localBonesMatrices.get(index));
             return new Matrix(result);
         }
     }

@@ -198,35 +198,42 @@ public class Curve extends Mesh {
      * points
      */
     private void createNurbMesh(int nbSubSegments) {
-        float minKnot = spline.getMinNurbKnot();
-        float maxKnot = spline.getMaxNurbKnot();
-        float deltaU = (maxKnot - minKnot) / nbSubSegments;
+    	if(spline.getControlPoints() != null && spline.getControlPoints().size() > 0) {
+    		if(nbSubSegments == 0) {
+        		nbSubSegments = spline.getControlPoints().size() + 1;
+        	} else {
+        		nbSubSegments = spline.getControlPoints().size() * nbSubSegments + 1;
+        	}
+            float minKnot = spline.getMinNurbKnot();
+            float maxKnot = spline.getMaxNurbKnot();
+            float deltaU = (maxKnot - minKnot) / nbSubSegments;
 
-        float[] array = new float[(nbSubSegments + 1) * 3];
+            float[] array = new float[(nbSubSegments + 1) * 3];
 
-        float u = minKnot;
-        Vector3f interpolationResult = new Vector3f();
-        for (int i = 0; i < array.length; i += 3) {
-            spline.interpolate(u, 0, interpolationResult);
-            array[i] = interpolationResult.x;
-            array[i + 1] = interpolationResult.y;
-            array[i + 2] = interpolationResult.z;
-            u += deltaU;
-        }
+            float u = minKnot;
+            Vector3f interpolationResult = new Vector3f();
+            for (int i = 0; i < array.length; i += 3) {
+                spline.interpolate(u, 0, interpolationResult);
+                array[i] = interpolationResult.x;
+                array[i + 1] = interpolationResult.y;
+                array[i + 2] = interpolationResult.z;
+                u += deltaU;
+            }
 
-        //calculating indexes
-        int i = 0;
-        short[] indices = new short[nbSubSegments << 1];
-        for (int j = 0; j < nbSubSegments; ++j) {
-            indices[i++] = (short) j;
-            indices[i++] = (short) (j + 1);
-        }
+            //calculating indexes
+            int i = 0;
+            short[] indices = new short[nbSubSegments << 1];
+            for (int j = 0; j < nbSubSegments; ++j) {
+                indices[i++] = (short) j;
+                indices[i++] = (short) (j + 1);
+            }
 
-        this.setMode(Mesh.Mode.Lines);
-        this.setBuffer(VertexBuffer.Type.Position, 3, array);
-        this.setBuffer(VertexBuffer.Type.Index, 2, indices);
-        this.updateBound();
-        this.updateCounts();
+            this.setMode(Mesh.Mode.Lines);
+            this.setBuffer(VertexBuffer.Type.Position, 3, array);
+            this.setBuffer(VertexBuffer.Type.Index, 2, indices);
+            this.updateBound();
+            this.updateCounts();
+    	}
     }
 
     private void createLinearMesh() {

@@ -89,6 +89,10 @@ public class RmiHostedService extends AbstractHostedService {
         this((short)-1, (byte)MessageConnection.CHANNEL_DEFAULT_RELIABLE, true);
     }
 
+    public RmiHostedService( byte defaultChannel ) {
+        this((short)-1, defaultChannel, true);
+    }
+
     public RmiHostedService( short rmiId, byte defaultChannel, boolean autoHost ) {
         this.rmiId = rmiId;
         this.defaultChannel = defaultChannel;

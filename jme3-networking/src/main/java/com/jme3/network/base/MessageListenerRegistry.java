@@ -50,26 +50,34 @@ import java.util.logging.Logger;
  */
 public class MessageListenerRegistry<S> implements MessageListener<S>
 {
-    static Logger log = Logger.getLogger(MessageListenerRegistry.class.getName());
+    static final Logger log = Logger.getLogger(MessageListenerRegistry.class.getName());
     
-    private List<MessageListener<? super S>> listeners = new CopyOnWriteArrayList<MessageListener<? super S>>();
-    private Map<Class,List<MessageListener<? super S>>> typeListeners 
+    private final List<MessageListener<? super S>> listeners = new CopyOnWriteArrayList<MessageListener<? super S>>();
+    private final Map<Class,List<MessageListener<? super S>>> typeListeners 
                     = new ConcurrentHashMap<Class,List<MessageListener<? super S>>>(); 
 
     public MessageListenerRegistry()
     {
     }
  
+    @Override
     public void messageReceived( S source, Message m )
     {
         boolean delivered = false;
+        boolean trace = log.isLoggable(Level.FINER);
         
         for( MessageListener<? super S> l : listeners ) {
+            if( trace ) {
+                log.log(Level.FINER, "Delivering {0} to:{1}", new Object[]{m, l});
+            }
             l.messageReceived( source, m );
             delivered = true;
         }
         
         for( MessageListener<? super S> l : getListeners(m.getClass(),false) ) {
+            if( trace ) {
+                log.log(Level.FINER, "Delivering {0} to:{1}", new Object[]{m, l});
+            }
             l.messageReceived( source, m );
             delivered = true;
         }
