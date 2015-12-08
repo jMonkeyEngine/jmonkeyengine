@@ -44,6 +44,8 @@ import java.nio.IntBuffer;
 public interface GLExt {
 
         public static final int GL_ALREADY_SIGNALED = 0x911A;
+        public static final int GL_COMPRESSED_RED_RGTC1 = 0x8DBB;
+        public static final int GL_COMPRESSED_RG_RGTC2 = 0x8DBD;
 	public static final int GL_COMPRESSED_RGB8_ETC2 = 0x9274;
 	public static final int GL_COMPRESSED_RGBA_S3TC_DXT1_EXT = 0x83F1;
 	public static final int GL_COMPRESSED_RGBA_S3TC_DXT3_EXT = 0x83F2;

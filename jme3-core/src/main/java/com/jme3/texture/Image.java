@@ -299,7 +299,21 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * 
          * Requires {@link Caps#TextureCompressionETC1}.
          */
-        ETC1(4, false, true, false);
+        ETC1(4, false, true, false),
+        
+        /**
+         * RGTC with red channel only.
+         * 
+         * Requires {@link Caps#TextureCompressionRGTC}.
+         */
+        RTC(4, false, true, false),
+        
+        /**
+         * RGTC with red and green channels.
+         * 
+         * Requires {@link Caps#TextureCompressionRGTC}.
+         */
+        RGTC(8, false, true, false);
 
         private int bpp;
         private boolean isDepth;

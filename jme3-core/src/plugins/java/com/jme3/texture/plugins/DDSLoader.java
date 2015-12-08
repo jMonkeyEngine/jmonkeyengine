@@ -85,6 +85,8 @@ public class DDSLoader implements AssetLoader {
     private static final int PF_DXT1 = 0x31545844;
     private static final int PF_DXT3 = 0x33545844;
     private static final int PF_DXT5 = 0x35545844;
+    private static final int PF_ETC1 = 0x31435445;
+    private static final int PF_ETC_ = 0x20435445; // the underscore represents a space
     private static final int PF_ATI1 = 0x31495441;
     private static final int PF_ATI2 = 0x32495441; // 0x41544932;
     private static final int PF_DX10 = 0x30315844; // a DX10 format
@@ -94,6 +96,9 @@ public class DDSLoader implements AssetLoader {
             DX10DIM_TEXTURE3D = 0x4;
     private static final int DX10MISC_GENERATE_MIPS = 0x1,
             DX10MISC_TEXTURECUBE = 0x4;
+    private static final int DXGI_FORMAT_BC4_TYPELESS = 79;
+    private static final int DXGI_FORMAT_BC4_UNORM = 80;
+    private static final int DXGI_FORMAT_BC4_SNORM = 81;
     private static final double LOG2 = Math.log(2);
     private int width;
     private int height;
@@ -105,9 +110,11 @@ public class DDSLoader implements AssetLoader {
     private int caps2;
     private boolean directx10;
     private boolean compressed;
+    private boolean dxtOrRgtc;
     private boolean texture3D;
     private boolean grayscaleOrAlpha;
     private boolean normal;
+    private ColorSpace colorSpace;
     private Format pixelFormat;
     private int bpp;
     private int[] sizes;
@@ -133,7 +140,8 @@ public class DDSLoader implements AssetLoader {
                 ((TextureKey) info.getKey()).setTextureTypeHint(Texture.Type.CubeMap);
             }
             ArrayList<ByteBuffer> data = readData(((TextureKey) info.getKey()).isFlipY());
-            return new Image(pixelFormat, width, height, depth, data, sizes, ColorSpace.sRGB);
+            
+            return new Image(pixelFormat, width, height, depth, data, sizes, colorSpace);
         } finally {
             if (stream != null){
                 stream.close();
@@ -145,18 +153,24 @@ public class DDSLoader implements AssetLoader {
         in = new LittleEndien(stream);
         loadHeader();
         ArrayList<ByteBuffer> data = readData(false);
-        return new Image(pixelFormat, width, height, depth, data, sizes, ColorSpace.sRGB);
+        return new Image(pixelFormat, width, height, depth, data, sizes, colorSpace);
     }
 
     private void loadDX10Header() throws IOException {
         int dxgiFormat = in.readInt();
+        
         if (dxgiFormat == 0) {
-                pixelFormat = Format.ETC1;
-                bpp = 4;
+            pixelFormat = Format.ETC1;
+            compressed = true;
+            bpp = 4;
         } else {
+            pixelFormat = DXGIFormat.getJmeFormat(dxgiFormat);
+            if (pixelFormat == null) {
                 throw new IOException("Unsupported DX10 format: " + dxgiFormat);
+            }
+            bpp = pixelFormat.getBitsPerPixel();
+            compressed = pixelFormat.isCompressed();
         }
-        compressed = true;
         
         int resDim = in.readInt();
         if (resDim == DX10DIM_TEXTURE3D) {
@@ -201,6 +215,7 @@ public class DDSLoader implements AssetLoader {
         caps2 = in.readInt();
         in.skipBytes(12);
         texture3D = false;
+        colorSpace = ColorSpace.sRGB;
 
         if (!directx10) {
             if (!is(caps1, DDSCAPS_TEXTURE)) {
@@ -268,10 +283,12 @@ public class DDSLoader implements AssetLoader {
                     } else {
                         pixelFormat = Image.Format.DXT1;
                     }
+                    dxtOrRgtc = true;
                     break;
                 case PF_DXT3:
                     bpp = 8;
                     pixelFormat = Image.Format.DXT3;
+                    dxtOrRgtc = true;
                     break;
                 case PF_DXT5:
                     bpp = 8;
@@ -279,17 +296,24 @@ public class DDSLoader implements AssetLoader {
                     if (swizzle == SWIZZLE_xGxR) {
                         normal = true;
                     }
+                    dxtOrRgtc = true;
                     break;
-                /*
                 case PF_ATI1:
                     bpp = 4;
-                    pixelFormat = Image.Format.LTC;
+                    pixelFormat = Image.Format.RTC;
+                    dxtOrRgtc = true;
                     break;
                 case PF_ATI2:
                     bpp = 8;
-                    pixelFormat = Image.Format.LATC;
+                    pixelFormat = Image.Format.RGTC;
+                    dxtOrRgtc = true;
                     break;
-                */
+                case PF_ETC1:
+                case PF_ETC_:
+                    bpp = 4;
+                    pixelFormat = Image.Format.ETC1;
+                    dxtOrRgtc = false;
+                    break;
                 case PF_DX10:
                     compressed = false;
                     directx10 = true;
@@ -530,6 +554,30 @@ public class DDSLoader implements AssetLoader {
         return dataBuffer;
     }
 
+    public ByteBuffer readCompressed2Dor3D(boolean flip, int totalSize) throws IOException {
+        logger.log(Level.FINEST, "Source image format: {0}", pixelFormat);
+        
+        ByteBuffer buffer = BufferUtils.createByteBuffer(totalSize * depth);
+
+        // TODO: add support for flipping ETC1
+        
+        for (int i = 0; i < depth; i++) {
+            int mipWidth = width;
+            int mipHeight = height;
+            for (int mip = 0; mip < mipMapCount; mip++) {
+                byte[] data = new byte[sizes[mip]];
+                in.readFully(data);
+                buffer.put(data);
+
+                mipWidth = Math.max(mipWidth / 2, 1);
+                mipHeight = Math.max(mipHeight / 2, 1);
+            }
+        }
+        buffer.rewind();
+        
+        return buffer;
+    }
+    
     /**
      * Reads a DXT compressed image from the InputStream
      *
@@ -738,8 +786,10 @@ public class DDSLoader implements AssetLoader {
         ArrayList<ByteBuffer> allMaps = new ArrayList<ByteBuffer>();
         if (depth > 1 && !texture3D) {
             for (int i = 0; i < depth; i++) {
-                if (compressed) {
+                if (compressed && dxtOrRgtc) {
                     allMaps.add(readDXT2D(flip, totalSize));
+                } else if (compressed) {
+                    allMaps.add(readCompressed2Dor3D(flip, totalSize));
                 } else if (grayscaleOrAlpha) {
                     allMaps.add(readGrayscale2D(flip, totalSize));
                 } else {
@@ -747,8 +797,10 @@ public class DDSLoader implements AssetLoader {
                 }
             }
         } else if (texture3D) {
-            if (compressed) {
+            if (compressed && dxtOrRgtc) {
                 allMaps.add(readDXT3D(flip, totalSize));
+            } else if (compressed) {
+                allMaps.add(readCompressed2Dor3D(flip, totalSize));
             } else if (grayscaleOrAlpha) {
                 allMaps.add(readGrayscale3D(flip, totalSize));
             } else {
@@ -756,8 +808,10 @@ public class DDSLoader implements AssetLoader {
             }
 
         } else {
-            if (compressed) {
+            if (compressed && dxtOrRgtc) {
                 allMaps.add(readDXT2D(flip, totalSize));
+            } else if (compressed) {
+                allMaps.add(readCompressed2Dor3D(flip, totalSize));
             } else if (grayscaleOrAlpha) {
                 allMaps.add(readGrayscale2D(flip, totalSize));
             } else {
@@ -822,7 +876,7 @@ public class DDSLoader implements AssetLoader {
         buf.append((char) (value & 0xFF));
         buf.append((char) ((value & 0xFF00) >> 8));
         buf.append((char) ((value & 0xFF0000) >> 16));
-        buf.append((char) ((value & 0xFF00000) >> 24));
+        buf.append((char) ((value & 0xFF000000) >> 24));
 
         return buf.toString();
     }

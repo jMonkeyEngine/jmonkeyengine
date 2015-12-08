@@ -233,6 +233,11 @@ public final class GLImageFormats {
             formatComp(formatToGL, Format.ETC1, GLExt.GL_ETC1_RGB8_OES,        GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
         }
         
+        if (caps.contains(Caps.TextureCompressionRGTC)) {
+            formatComp(formatToGL, Format.RGTC, GLExt.GL_COMPRESSED_RG_RGTC2,  GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
+            formatComp(formatToGL, Format.RTC, GLExt.GL_COMPRESSED_RED_RGTC1,  GL.GL_RED, GL.GL_UNSIGNED_BYTE);
+        }
+        
         return formatToGL;
     }
 }

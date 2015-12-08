@@ -37,6 +37,7 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.mesh.IndexIntBuffer;
 import com.jme3.scene.mesh.IndexShortBuffer;
+import com.jme3.scene.plugins.triangulator.EarClippingTriangulator;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import java.nio.ByteBuffer;
@@ -172,23 +173,40 @@ public final class IrUtils {
         }
     }
     
+    private static void dumpPoly(IrPolygon polygon) {
+        System.out.println("Polygon with " + polygon.vertices.length + " vertices");
+        for (IrVertex vertex : polygon.vertices) {
+            System.out.println("\t" + vertex.pos);
+        }
+    }
+    
     /**
      * Convert mesh from quads / triangles to triangles only.
      */
     public static void triangulate(IrMesh mesh) {
         List<IrPolygon> newPolygons = new ArrayList<IrPolygon>(mesh.polygons.length);
+        EarClippingTriangulator triangulator = new EarClippingTriangulator();
         for (IrPolygon inputPoly : mesh.polygons) {
-            if (inputPoly.vertices.length == 4) {
+            int numVertices = inputPoly.vertices.length;
+
+            if (numVertices < 3) {
+                // point / edge
+                logger.log(Level.WARNING, "Point or edge encountered. Ignoring.");
+            } else if (numVertices == 3) {
+                // triangle
+                newPolygons.add(inputPoly);
+            } else if (numVertices == 4) {
+                // quad
                 IrPolygon[] tris = quadToTri(inputPoly);
                 newPolygons.add(tris[0]);
                 newPolygons.add(tris[1]);
-            } else if (inputPoly.vertices.length == 3) {
-                newPolygons.add(inputPoly);
             } else {
-                // N-gon. We have to ignore it..
-                logger.log(Level.WARNING, "N-gon encountered, ignoring. "
-                                        + "The mesh may not appear correctly. "
-                                        + "Triangulate your model prior to export.");
+                // N-gon
+                dumpPoly(inputPoly);
+                IrPolygon[] tris = triangulator.triangulate(inputPoly);
+                for (IrPolygon tri : tris) {
+                    newPolygons.add(tri);
+                }
             }
         }
         mesh.polygons = new IrPolygon[newPolygons.size()];
@@ -373,12 +391,11 @@ public final class IrUtils {
                         boneIndices.put((byte)0);
                         boneWeights.put(0f);
                     }
+                    maxBonesPerVertex = Math.max(maxBonesPerVertex, vertex.boneWeightsIndices.length);
                 } else {
                     boneIndices.putInt(0);
                     boneWeights.put(0f).put(0f).put(0f).put(0f);
                 }
-                
-                maxBonesPerVertex = Math.max(maxBonesPerVertex, vertex.boneWeightsIndices.length);
             }
         }
         

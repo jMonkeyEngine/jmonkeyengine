@@ -147,7 +147,8 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<Mesh>> {
     public void connectObject(FbxObject object) {
         if (object instanceof FbxSkinDeformer) {
             if (skinDeformer != null) {
-                logger.log(Level.WARNING, "This mesh already has a skin deformer attached. Ignoring.");
+                logger.log(Level.WARNING, "This mesh already has a skin "
+                                        + "deformer attached: {0}. Ignoring.", this);
                 return;
             }
             skinDeformer = (FbxSkinDeformer) object;
@@ -237,7 +238,7 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<Mesh>> {
        
         if (jmeMeshes.size() == 0) {
             // When will this actually happen? Not sure.
-            logger.log(Level.WARNING, "Empty FBX mesh found (unusual).");
+            logger.log(Level.WARNING, "Empty FBX mesh found: {0} (unusual).", this);
         }
         
         // IMPORTANT: If we have a -1 entry, those are triangles
@@ -245,7 +246,8 @@ public final class FbxMesh extends FbxNodeAttribute<IntMap<Mesh>> {
         // It makes sense only if the mesh uses a single material!
         if (jmeMeshes.containsKey(-1) && jmeMeshes.size() > 1) {
             logger.log(Level.WARNING, "Mesh has polygons with no material "
-                                    + "indices (unusual) - they will use material index 0.");
+                                    + "indices: {0} (unusual) - "
+                                    + "they will use material index 0.", this);
         }
         
         return jmeMeshes;
