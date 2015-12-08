@@ -29,6 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.jme3.system.lwjgl;
 
 import com.jme3.input.lwjgl.JInputJoyInput;
@@ -69,7 +70,6 @@ public abstract class LwjglContext implements JmeContext {
     private static final Logger logger = Logger.getLogger(LwjglContext.class.getName());
 
     protected static final String THREAD_NAME = "jME3 Main";
-
     protected AtomicBoolean created = new AtomicBoolean(false);
     protected AtomicBoolean renderable = new AtomicBoolean(false);
     protected final Object createdLock = new Object();
@@ -113,7 +113,6 @@ public abstract class LwjglContext implements JmeContext {
             return null;
         }
     }
-
     protected int determineMaxSamples(int requestedSamples) {
         try {
             // If we already have a valid context, determine samples using current
@@ -131,13 +130,11 @@ public abstract class LwjglContext implements JmeContext {
         } catch (LWJGLException ex) {
             listener.handleError("Failed to check if display is current", ex);
         }
-
         if ((Pbuffer.getCapabilities() & Pbuffer.PBUFFER_SUPPORTED) == 0) {
             // No pbuffer, assume everything is supported.
             return Integer.MAX_VALUE;
         } else {
             Pbuffer pb = null;
-
             // OpenGL2 method: Create pbuffer and query samples
             // from GL_ARB_framebuffer_object or GL_EXT_framebuffer_multisample.
             try {
@@ -162,7 +159,6 @@ public abstract class LwjglContext implements JmeContext {
             }
         }
     }
-
     protected void loadNatives() {
         if (JmeSystem.isLowPermissions()) {
             return;
@@ -179,7 +175,6 @@ public abstract class LwjglContext implements JmeContext {
         }
         NativeLibraryLoader.loadNativeLibrary("lwjgl", true);
     }
-
     protected int getNumSamplesToUse() {
         int samples = 0;
         if (settings.getSamples() > 1) {
@@ -190,7 +185,6 @@ public abstract class LwjglContext implements JmeContext {
                         "Couldn''t satisfy antialiasing samples requirement: x{0}. "
                         + "Video hardware only supports: x{1}",
                         new Object[]{samples, supportedSamples});
-
                 samples = supportedSamples;
             }
         }
@@ -202,50 +196,45 @@ public abstract class LwjglContext implements JmeContext {
             throw new RendererException("OpenGL 2.0 or higher is "
                     + "required for jMonkeyEngine");
         }
-
+        
         if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL2)
                 || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
             GL gl = new LwjglGL();
             GLExt glext = new LwjglGLExt();
             GLFbo glfbo;
-
+            
             if (GLContext.getCapabilities().OpenGL30) {
                 glfbo = new LwjglGLFboGL3();
             } else {
                 glfbo = new LwjglGLFboEXT();
             }
-
+            
             if (settings.getBoolean("GraphicsDebug")) {
                 gl = new GLDebugDesktop(gl, glext, glfbo);
                 glext = (GLExt) gl;
                 glfbo = (GLFbo) gl;
             }
-
             if (settings.getBoolean("GraphicsTiming")) {
                 GLTimingState timingState = new GLTimingState();
                 gl = (GL) GLTiming.createGLTiming(gl, timingState, GL.class, GL2.class, GL3.class, GL4.class);
                 glext = (GLExt) GLTiming.createGLTiming(glext, timingState, GLExt.class);
                 glfbo = (GLFbo) GLTiming.createGLTiming(glfbo, timingState, GLFbo.class);
             }
-
             if (settings.getBoolean("GraphicsTrace")) {
                 gl = (GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class, GL4.class);
                 glext = (GLExt) GLTracer.createDesktopGlTracer(glext, GLExt.class);
                 glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
             }
-
             renderer = new GLRenderer(gl, glext, glfbo);
             renderer.initialize();
         } else {
             throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
         }
-
         if (GLContext.getCapabilities().GL_ARB_debug_output && settings.getBoolean("GraphicsDebug")) {
             ARBDebugOutput.glDebugMessageCallbackARB(new ARBDebugOutputCallback(new LwjglGLDebugOutputHandler()));
         }
-
-        renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
-        renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
+        renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
+        renderer.setLinearizeSrgbImages(settings.getGammaCorrection());
 
         // Init input
         if (keyInput != null) {
@@ -270,15 +259,12 @@ public abstract class LwjglContext implements JmeContext {
             createdLock.notifyAll();
         }
     }
-
     public void internalCreate() {
         timer = new LwjglTimer();
-
         synchronized (createdLock) {
             created.set(true);
             createdLock.notifyAll();
         }
-
         if (renderable.get()) {
             initContextFirstTime();
         } else {
@@ -308,7 +294,6 @@ public abstract class LwjglContext implements JmeContext {
     public boolean isCreated() {
         return created.get();
     }
-
     public boolean isRenderable() {
         return renderable.get();
     }

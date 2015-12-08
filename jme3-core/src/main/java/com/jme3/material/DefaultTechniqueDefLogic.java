@@ -49,14 +49,14 @@ import java.util.EnumSet;
 public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
 
     protected final TechniqueDef techniqueDef;
-    
+
     public DefaultTechniqueDefLogic(TechniqueDef techniqueDef) {
         this.techniqueDef = techniqueDef;
     }
-   
+
     @Override
-    public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager, 
-                              EnumSet<Caps> rendererCaps, DefineList defines) {
+    public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
+            EnumSet<Caps> rendererCaps, DefineList defines) {
         return techniqueDef.getShader(assetManager, rendererCaps, defines);
     }
 
@@ -65,14 +65,14 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
         int lodLevel = geom.getLodLevel();
         if (geom instanceof InstancedGeometry) {
             InstancedGeometry instGeom = (InstancedGeometry) geom;
-            renderer.renderMesh(mesh, lodLevel, instGeom.getActualNumInstances(), 
-                                                instGeom.getAllInstanceData());
+            renderer.renderMesh(mesh, lodLevel, instGeom.getActualNumInstances(),
+                    instGeom.getAllInstanceData());
         } else {
             renderer.renderMesh(mesh, lodLevel, 1, null);
         }
     }
-    
-    public static ColorRGBA getAmbientColor(LightList lightList, boolean removeLights, ColorRGBA ambientLightColor) {
+
+    protected static ColorRGBA getAmbientColor(LightList lightList, boolean removeLights, ColorRGBA ambientLightColor) {
         ambientLightColor.set(0, 0, 0, 1);
         for (int j = 0; j < lightList.size(); j++) {
             Light l = lightList.get(j);
@@ -86,7 +86,7 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
         ambientLightColor.a = 1.0f;
         return ambientLightColor;
     }
-    
+
     @Override
     public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights) {
         Renderer renderer = renderManager.getRenderer();
