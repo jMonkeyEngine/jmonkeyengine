@@ -427,13 +427,13 @@ public class EnvMapUtils {
 
     }*/
 
-    public static int getSampleFromMip(int mipLevel, int miptot) {
-        return Math.min(1 << (miptot + mipLevel * 2), 8192);
+    public static int getSampleFromMip(int mipLevel, int miptot) {        
+        return mipLevel==0?1:Math.min(1 << (miptot - 1 + (mipLevel) * 2 ), 8192);
     }
 
     public static float getRoughnessFromMip(int miplevel, int miptot) {
-        float mipScale = 1.2f;
-        float mipOffset = 0.0f;
+        float mipScale = 1.0f;
+        float mipOffset = -0.3f;        
 
         return pow(2, (float) (miplevel - (miptot - 1) + mipOffset) / mipScale);
     }

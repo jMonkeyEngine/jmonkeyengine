@@ -1,5 +1,5 @@
 #import "Common/ShaderLib/Parallax.glsllib"
-#import "ShaderLib/PBR.glsllib"
+#import "Common/ShaderLib/PBR.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
 
 varying vec2 texCoord;
