@@ -155,7 +155,7 @@ public class TextureAtlas {
                 return false;
             } else {
                 if (normal != null && normal.getKey() != null) {
-                    addTexture(diffuse, "NormalMap", keyName);
+                    addTexture(normal, "NormalMap", keyName);
                 }
                 if (specular != null && specular.getKey() != null) {
                     addTexture(specular, "SpecularMap", keyName);
