@@ -225,6 +225,7 @@ public class RpcConnection {
     private class ResponseHolder {
         private Object response;
         private String error;
+        private Throwable exception;
         private RpcCallMessage msg;
         boolean received = false;
  
@@ -235,6 +236,7 @@ public class RpcConnection {
         public synchronized void setResponse( RpcResponseMessage msg ) {
             this.response = msg.getResult();
             this.error = msg.getError();
+            this.exception = msg.getThrowable();
             this.received = true;
             notifyAll();
         }
@@ -250,6 +252,9 @@ public class RpcConnection {
             if( error != null ) {
                 throw new RuntimeException("Error calling remote procedure:" + msg + "\n" + error);
             }
+            if( exception != null ) {
+                throw new RuntimeException("Error calling remote procedure:" + msg, exception);
+            } 
             return response;              
         }
         
