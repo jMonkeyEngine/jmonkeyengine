@@ -784,7 +784,8 @@ public class RenderManager {
      * @param singlePassLightBatchSize the number of lights.
      */
     public void setSinglePassLightBatchSize(int singlePassLightBatchSize) {
-        this.singlePassLightBatchSize = singlePassLightBatchSize;
+        // Ensure the batch size is no less than 1
+        this.singlePassLightBatchSize = singlePassLightBatchSize < 1 ? 1 : singlePassLightBatchSize;
     }
     
     
