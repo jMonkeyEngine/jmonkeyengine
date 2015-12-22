@@ -103,9 +103,6 @@ public abstract class Light implements Savable, Cloneable {
      */
     protected transient float lastDistance = -1;
 
-    /**
-     * If light is disabled, it will not have any 
-     */
     protected boolean enabled = true;
 
     /** 
@@ -169,20 +166,24 @@ public abstract class Light implements Savable, Cloneable {
         this.color.set(color);
     }
 
-    
-    /*
-     * Returns true if the light is enabled
-     * 
-     * @return true if the light is enabled
-     * 
-     * @see Light#setEnabled(boolean)
+
+    /**
+     * Returns true if this light is enabled.
+     * @return true if enabled, otherwise false.
      */
-    /*
     public boolean isEnabled() {
         return enabled;
     }
-    */
-    
+
+    /**
+     * Set to false in order to disable a light and have it filtered out from being included in rendering.
+     *
+     * @param enabled true to enable and false to disable the light.
+     */
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     /**
      * Determines if the light intersects with the given bounding box.
      * <p>
