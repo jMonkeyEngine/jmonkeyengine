@@ -49,7 +49,6 @@ public class Statistics {
     protected boolean enabled = false;
 
     protected int numObjects;
-    protected int numLights;
     protected int numTriangles;
     protected int numVertices;
     protected int numShaderSwitches;
@@ -80,7 +79,6 @@ public class Statistics {
                              "Uniforms",
 
                              "Objects",
-                             "Lights",
 
                              "Shaders (S)",
                              "Shaders (F)",
@@ -108,19 +106,18 @@ public class Statistics {
         data[1] = numTriangles;
         data[2] = numUniformsSet;
         data[3] = numObjects;
-        data[4] = numLights;
 
-        data[5] = numShaderSwitches;
-        data[6] = shadersUsed.size();
-        data[7] = memoryShaders;
+        data[4] = numShaderSwitches;
+        data[5] = shadersUsed.size();
+        data[6] = memoryShaders;
 
-        data[8] = numTextureBinds;
-        data[9] = texturesUsed.size();
-        data[10] = memoryTextures;
+        data[7] = numTextureBinds;
+        data[8] = texturesUsed.size();
+        data[9] = memoryTextures;
         
-        data[11] = numFboSwitches;
-        data[12] = fbosUsed.size();
-        data[13] = memoryFrameBuffers;
+        data[10] = numFboSwitches;
+        data[11] = fbosUsed.size();
+        data[12] = memoryFrameBuffers;
     }
 
     /**
@@ -225,7 +222,6 @@ public class Statistics {
         fbosUsed.clear();
 
         numObjects = 0;
-        numLights = 0;
         numTriangles = 0;
         numVertices = 0;
         numShaderSwitches = 0;
@@ -288,19 +284,6 @@ public class Statistics {
         if( !enabled )
             return;
         memoryFrameBuffers --;
-    }
-
-    /**
-     * Called by the RenderManager once filtering has happened.
-     *
-     * @param lightCount the number of lights which will be passed to the materials for inclusion in rendering.
-     */
-    public void onLights(final int lightCount) {
-        if (!enabled) {
-            return;
-        }
-
-        numLights += lightCount;
     }
 
     /**

@@ -34,12 +34,8 @@ package com.jme3.renderer;
 import com.jme3.light.DefaultLightFilter;
 import com.jme3.light.LightFilter;
 import com.jme3.light.LightList;
-import com.jme3.material.Material;
-import com.jme3.material.MaterialDef;
-import com.jme3.material.RenderState;
-import com.jme3.material.Technique;
-import com.jme3.material.TechniqueDef;
-import com.jme3.math.*;
+import com.jme3.material.*;
+import com.jme3.math.Matrix4f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
 import com.jme3.profile.AppStep;
@@ -55,6 +51,7 @@ import com.jme3.shader.UniformBindingManager;
 import com.jme3.system.NullRenderer;
 import com.jme3.system.Timer;
 import com.jme3.util.SafeArrayList;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -533,9 +530,6 @@ public class RenderManager {
             lightFilter.filterLights(g, filteredLightList);
             lightList = filteredLightList;
         }
-
-        // Report the number of lights we're about to render to the statistics.
-        renderer.getStatistics().onLights(lightList.size());
 
         //if forcedTechnique we try to force it for render,
         //if it does not exists in the mat def, we check for forcedMaterial and render the geom if not null
