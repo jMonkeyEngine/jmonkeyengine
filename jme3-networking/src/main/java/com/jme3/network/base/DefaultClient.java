@@ -301,35 +301,38 @@ public class DefaultClient implements Client
 
     protected void closeConnections( DisconnectInfo info )
     {
-        if( !isRunning )
-            return;
+        synchronized(this) {
+            if( !isRunning )
+                return;
 
-        if( services.isStarted() ) {
-            // Let the services get a chance to stop before we
-            // kill the connection.
-            services.stop();
-        }
+            if( services.isStarted() ) {
+                // Let the services get a chance to stop before we
+                // kill the connection.
+                services.stop();
+            }
         
-        // Send a close message
+            // Send a close message
     
-        // Tell the thread it's ok to die
-        for( ConnectorAdapter ca : channels ) {
-            if( ca == null )
-                continue;
-            ca.close();
+            // Tell the thread it's ok to die
+            for( ConnectorAdapter ca : channels ) {
+                if( ca == null )
+                    continue;
+                ca.close();
+            }
+        
+            // Wait for the threads?
+
+            // Just in case we never fully connected
+            connecting.countDown();
+        
+            isRunning = false;
+        
+            // Terminate the services
+            services.terminate();            
         }
         
-        // Wait for the threads?
-
-        // Just in case we never fully connected
-        connecting.countDown();
-        
-        fireDisconnected(info);
-        
-        isRunning = false;
-        
-        // Terminate the services
-        services.terminate();            
+        // Make sure we aren't synched while firing events
+        fireDisconnected(info);        
     }         
 
     @Override
@@ -462,11 +465,17 @@ public class DefaultClient implements Client
                 this.id = (int)crm.getId();
                 log.log( Level.FINE, "Connection established, id:{0}.", this.id );
                 connecting.countDown();
-                fireConnected();
+                //fireConnected();
             } else {
                 // Else it's a message letting us know that the 
                 // hosted services have been started
                 startServices();
+ 
+                // Delay firing 'connected' until the services have all
+                // been started to avoid odd race conditions.  If there is some
+                // need to get some kind of event before the services have been
+                // started then we should create a new event step.               
+                fireConnected();
             }
             return;
         } else if( m instanceof ChannelInfoMessage ) {
