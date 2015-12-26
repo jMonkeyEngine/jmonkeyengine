@@ -184,7 +184,7 @@ public class RpcConnection {
     
         if( log.isLoggable(Level.FINEST) ) {
             log.log(Level.FINEST, "handleMessage({0})", msg);
-        }    
+        }
         RpcHandler handler = handlers.get(msg.getObjectId());
         try {
             if( handler == null ) {
