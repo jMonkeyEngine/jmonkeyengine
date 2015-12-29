@@ -167,23 +167,17 @@ public abstract class LwjglContext implements JmeContext {
         if (JmeSystem.isLowPermissions()) {
             return;
         }
-
-        String extractPath = NativeLibraryLoader.getExtractionFolder().getAbsolutePath();
-
         if ("LWJGL".equals(settings.getAudioRenderer())) {
             NativeLibraryLoader.loadNativeLibrary("openal", true);
         }
         if (settings.useJoysticks()) {
-            System.setProperty("net.java.games.input.librarypath", extractPath);
-            NativeLibraryLoader.loadNativeLibrary("jinput", true, false);
-            NativeLibraryLoader.loadNativeLibrary("jinput-dx8", true, false);
+            NativeLibraryLoader.loadNativeLibrary("jinput", true);
+            NativeLibraryLoader.loadNativeLibrary("jinput-dx8", true);
         }
         if (NativeLibraryLoader.isUsingNativeBullet()) {
             NativeLibraryLoader.loadNativeLibrary("bulletjme", true);
         }
-
-        System.setProperty("org.lwjgl.librarypath", extractPath);
-        NativeLibraryLoader.loadNativeLibrary("lwjgl", true, false);
+        NativeLibraryLoader.loadNativeLibrary("lwjgl", true);
     }
 
     protected int getNumSamplesToUse() {
