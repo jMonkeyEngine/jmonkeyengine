@@ -250,8 +250,8 @@ public abstract class LwjglContext implements JmeContext {
             ARBDebugOutput.glDebugMessageCallbackARB(new ARBDebugOutputCallback(new LwjglGLDebugOutputHandler()));
         }
 
-        renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
-        renderer.setLinearizeSrgbImages(settings.getGammaCorrection());
+        renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
+        renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
 
         // Init input
         if (keyInput != null) {

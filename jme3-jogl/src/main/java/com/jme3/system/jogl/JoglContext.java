@@ -203,8 +203,8 @@ public abstract class JoglContext implements JmeContext {
         	GLContext.getCurrent().addGLDebugListener(new JoglGLDebugOutputHandler());
         }
 
-        renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
-        renderer.setLinearizeSrgbImages(settings.getGammaCorrection());
+        renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
+        renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
 
         // Init input
         if (keyInput != null) {

@@ -66,7 +66,8 @@ public class GlfwKeyInput implements KeyInput {
         glfwSetKeyCallback(context.getWindowHandle(), keyCallback = new GLFWKeyCallback() {
             @Override
             public void invoke(long window, int key, int scancode, int action, int mods) {
-                final KeyInputEvent evt = new KeyInputEvent(scancode, (char) key, GLFW_PRESS == action, GLFW_REPEAT == action);
+                int jmeKey = GlfwKeyMap.toJmeKeyCode(key);
+                final KeyInputEvent evt = new KeyInputEvent(jmeKey, (char) key, GLFW_PRESS == action, GLFW_REPEAT == action);
                 evt.setTime(getInputTimeNanos());
                 keyInputEvents.add(evt);
             }
