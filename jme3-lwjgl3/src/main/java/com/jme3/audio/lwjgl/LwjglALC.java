@@ -32,32 +32,38 @@
 package com.jme3.audio.lwjgl;
 
 import com.jme3.audio.openal.ALC;
+import java.nio.IntBuffer;
 import org.lwjgl.openal.ALC10;
 import org.lwjgl.openal.ALContext;
 import org.lwjgl.openal.ALDevice;
-
-import java.nio.IntBuffer;
-
-import static org.lwjgl.openal.ALC10.alcGetContextsDevice;
-import static org.lwjgl.openal.ALC10.alcGetCurrentContext;
+import org.lwjgl.openal.SOFTPauseDevice;
 
 public class LwjglALC implements ALC {
 
     private ALDevice device;
     private ALContext context;
 
+    private long contextId;
+    private long deviceId;
+
     public void createALC() {
         device = ALDevice.create();
         context = ALContext.create(device);
+        context.makeCurrent();
+
+        contextId = ALC10.alcGetCurrentContext();
+        deviceId = ALC10.alcGetContextsDevice(contextId);
     }
 
     public void destroyALC() {
         if (context != null) {
             context.destroy();
+            context = null;
         }
 
         if (device != null) {
             device.destroy();
+            device = null;
         }
     }
 
@@ -66,31 +72,29 @@ public class LwjglALC implements ALC {
     }
 
     public String alcGetString(final int parameter) {
-        final long context = alcGetCurrentContext();
-        final long device = alcGetContextsDevice(context);
-        return ALC10.alcGetString(device, parameter);
+        return ALC10.alcGetString(deviceId, parameter);
     }
 
     public boolean alcIsExtensionPresent(final String extension) {
-        final long context = alcGetCurrentContext();
-        final long device = alcGetContextsDevice(context);
-        return ALC10.alcIsExtensionPresent(device, extension);
+        return ALC10.alcIsExtensionPresent(deviceId, extension);
     }
 
     public void alcGetInteger(final int param, final IntBuffer buffer, final int size) {
-        if (buffer.position() != 0) throw new AssertionError();
-        if (buffer.limit() != size) throw new AssertionError();
-
-        final long context = alcGetCurrentContext();
-        final long device = alcGetContextsDevice(context);
-        final int value = ALC10.alcGetInteger(device, param);
-        //buffer.put(value);
+        if (buffer.position() != 0) {
+            throw new AssertionError();
+        }
+        if (buffer.limit() != size) {
+            throw new AssertionError();
+        }
+        ALC10.alcGetIntegerv(deviceId, param, buffer);
     }
 
     public void alcDevicePauseSOFT() {
+        SOFTPauseDevice.alcDevicePauseSOFT(deviceId);
     }
 
     public void alcDeviceResumeSOFT() {
+        SOFTPauseDevice.alcDeviceResumeSOFT(deviceId);
     }
 
 }

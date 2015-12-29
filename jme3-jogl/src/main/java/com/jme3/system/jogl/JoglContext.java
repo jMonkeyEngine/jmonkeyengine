@@ -54,6 +54,7 @@ import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.NanoTimer;
 import com.jme3.system.NativeLibraryLoader;
+import com.jme3.system.NullRenderer;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 
@@ -69,9 +70,9 @@ import com.jogamp.opengl.GLContext;
 public abstract class JoglContext implements JmeContext {
 
     private static final Logger logger = Logger.getLogger(JoglContext.class.getName());
-    
+
     protected static final String THREAD_NAME = "jME3 Main";
-    
+
     protected AtomicBoolean created = new AtomicBoolean(false);
     protected AtomicBoolean renderable = new AtomicBoolean(false);
     protected final Object createdLock = new Object();
@@ -91,7 +92,7 @@ public abstract class JoglContext implements JmeContext {
             NativeLibraryLoader.loadNativeLibrary("bulletjme", true);
         }
     }
-    
+
     @Override
 	public void setSystemListener(SystemListener listener){
         this.listener = listener;
@@ -101,7 +102,7 @@ public abstract class JoglContext implements JmeContext {
 	public void setSettings(AppSettings settings) {
         this.settings.copyFrom(settings);
     }
-    
+
     @Override
 	public boolean isRenderable(){
         return renderable.get();
@@ -160,50 +161,50 @@ public abstract class JoglContext implements JmeContext {
             }
         }
     }
-    
+
     protected void initContextFirstTime(){
         if (GLContext.getCurrent().getGLVersionNumber().getMajor() < 2) {
-            throw new RendererException("OpenGL 2.0 or higher is " + 
+            throw new RendererException("OpenGL 2.0 or higher is " +
                                         "required for jMonkeyEngine");
         }
-        
+
         if (settings.getRenderer().startsWith("JOGL")) {
         	com.jme3.renderer.opengl.GL gl = new JoglGL();
         	GLExt glext = new JoglGLExt();
         	GLFbo glfbo = new JoglGLFbo();
-            
+
             if (settings.getBoolean("GraphicsDebug")) {
                 gl    = new GLDebugDesktop(gl, glext, glfbo);
                 glext = (GLExt) gl;
                 glfbo = (GLFbo) gl;
             }
-            
+
             if (settings.getBoolean("GraphicsTiming")) {
                 GLTimingState timingState = new GLTimingState();
                 gl    = (com.jme3.renderer.opengl.GL) GLTiming.createGLTiming(gl, timingState, GL.class, GL2.class, GL3.class, GL4.class);
                 glext = (GLExt) GLTiming.createGLTiming(glext, timingState, GLExt.class);
                 glfbo = (GLFbo) GLTiming.createGLTiming(glfbo, timingState, GLFbo.class);
             }
-                  
+
             if (settings.getBoolean("GraphicsTrace")) {
                 gl    = (com.jme3.renderer.opengl.GL) GLTracer.createDesktopGlTracer(gl, GL.class, GL2.class, GL3.class, GL4.class);
                 glext = (GLExt) GLTracer.createDesktopGlTracer(glext, GLExt.class);
                 glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
             }
-            
+
             renderer = new GLRenderer(gl, glext, glfbo);
             renderer.initialize();
         } else {
             throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
         }
-        
+
         if (GLContext.getCurrentGL().isExtensionAvailable("GL_ARB_debug_output") && settings.getBoolean("GraphicsDebug")) {
         	GLContext.getCurrent().enableGLDebugMessage(true);
         	GLContext.getCurrent().addGLDebugListener(new JoglGLDebugOutputHandler());
         }
-        
-        renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
-        renderer.setLinearizeSrgbImages(settings.getGammaCorrection());
+
+        renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
+        renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
 
         // Init input
         if (keyInput != null) {
@@ -241,7 +242,7 @@ public abstract class JoglContext implements JmeContext {
             createdLock.notifyAll();
         }
     }
-    
+
     protected int determineMaxSamples(int requestedSamples) {
         GL gl = GLContext.getCurrentGL();
         if (gl.hasFullFBOSupport()) {
@@ -257,7 +258,7 @@ public abstract class JoglContext implements JmeContext {
             }
         }
     }
-    
+
     protected int getNumSamplesToUse() {
         int samples = 0;
         if (settings.getSamples() > 1){
@@ -268,7 +269,7 @@ public abstract class JoglContext implements JmeContext {
                         "Couldn''t satisfy antialiasing samples requirement: x{0}. "
                         + "Video hardware only supports: x{1}",
                         new Object[]{samples, supportedSamples});
-                
+
                 samples = supportedSamples;
             }
         }
