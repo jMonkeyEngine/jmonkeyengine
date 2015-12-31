@@ -40,6 +40,8 @@ import java.lang.reflect.Modifier;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The field serializer is the default serializer used for custom class.
@@ -47,6 +49,9 @@ import java.util.*;
  * @author Lars Wesselius, Nathan Sweet
  */
 public class FieldSerializer extends Serializer {
+    
+    static final Logger log = Logger.getLogger(FieldSerializer.class.getName());
+
     private static Map<Class, SavedField[]> savedFields = new HashMap<Class, SavedField[]>();
     private static Map<Class, Constructor> savedCtors = new HashMap<Class, Constructor>();
 
@@ -147,6 +152,9 @@ public class FieldSerializer extends Serializer {
         for (SavedField savedField : fields) {
             Field field = savedField.field;
             Serializer serializer = savedField.serializer;
+            if( log.isLoggable(Level.FINER) ) {
+                log.log(Level.FINER, "Reading field:{0} using serializer:{1}", new Object[]{field, serializer});
+            }
             Object value;
 
             if (serializer != null) {
@@ -182,9 +190,12 @@ public class FieldSerializer extends Serializer {
             try {
                 val = savedField.field.get(object);
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                throw new SerializerException("Unable to access field:" + savedField.field + " on:" + object, e);
             }
             Serializer serializer = savedField.serializer;
+            if( log.isLoggable(Level.FINER) ) {
+                log.log(Level.FINER, "Writing field:{0} using serializer:{1}", new Object[]{savedField.field, serializer});
+            }
 
             try {
                 if (serializer != null) {
