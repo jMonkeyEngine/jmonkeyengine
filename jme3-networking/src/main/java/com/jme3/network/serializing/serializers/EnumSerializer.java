@@ -48,8 +48,9 @@ public class EnumSerializer extends Serializer {
 
             if (ordinal == -1) return null;
             T[] enumConstants = c.getEnumConstants();
-            if (enumConstants == null)
-                throw new SerializerException( "Class has no enum constants:" + c );
+            if (enumConstants == null) {
+                throw new SerializerException("Class has no enum constants:" + c + "  Ordinal:" + ordinal);
+            }
             return enumConstants[ordinal];
         } catch (IndexOutOfBoundsException ex) {
             return null;
