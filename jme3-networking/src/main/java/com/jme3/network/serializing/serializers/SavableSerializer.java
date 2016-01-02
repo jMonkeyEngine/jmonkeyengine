@@ -70,31 +70,49 @@ public class SavableSerializer extends Serializer {
     }
 
     private static class BufferInputStream extends InputStream {
-
         ByteBuffer input;
-
-        public BufferInputStream(ByteBuffer input){
+                
+        public BufferInputStream( ByteBuffer input ) {
             this.input = input;
         }
 
         @Override
+        public int available() throws IOException {
+            return input.remaining();
+        }
+
+        @Override
+        public boolean markSupported() {
+            return false;
+        }
+
+        @Override
         public int read() throws IOException {
-            if (input.remaining() == 0)
+            if (!input.hasRemaining()) {
                 return -1;
-            else
-                return input.get() & 0xff;
+            }
+            else {
+                return input.get();
+            }
         }
 
         @Override
-        public int read(byte[] b){
-            return read(b, 0, b.length);
+        public int read( byte[] b ) {
+            return read( b, 0, b.length );
         }
 
         @Override
-        public int read(byte[] b, int off, int len){
-            int toRead = len > input.remaining() ? input.remaining() : len;
-            input.get(b, off, toRead);
-            return toRead;
+        public int read( byte[] bytes, int offset, int length ) {
+            if (length == 0) {
+                return 0;
+            }
+            if (!input.hasRemaining()) {
+                return -1;
+            }
+            final int count = Math.min( input.remaining(), length );
+            input.get( bytes, offset, count );
+            return count;
+
         }
 
     }

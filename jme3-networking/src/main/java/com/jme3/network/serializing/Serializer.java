@@ -218,29 +218,47 @@ public abstract class Serializer {
      */
     @SuppressWarnings("unchecked")
     public static SerializerRegistration registerClass(Class cls, boolean failOnMiss) {
-        if (cls.isAnnotationPresent(Serializable.class)) {
-            Serializable serializable = (Serializable)cls.getAnnotation(Serializable.class);
+        if (cls.isAnnotationPresent( Serializable.class )) {
+            final Serializable serializable = (Serializable) cls.getAnnotation( Serializable.class );
 
-            Class serializerClass = serializable.serializer();
+            final Class<? extends Serializer> serializerClass = serializable.serializer();
             short classId = serializable.id();
-            if (classId == 0) classId = nextId();
+            if (classId == 0) {
+                classId = nextId();
+            }
+            Serializer serializer = null;
 
-            Serializer serializer = getSerializer(serializerClass, false);
+            try {
+                serializer = serializerClass.newInstance();
+            }
+            catch (InstantiationException | IllegalAccessException e) {
+                if (failOnMiss) {
+                    throw new IllegalStateException( e );
+                }
+                else {
+                    log.log( Level.WARNING, "Failed to instantiate serializer (" + serializerClass.getName() + ") for class: " + cls.getName() + " with error "
+                                    + e.getMessage() + ". Falling back to FieldSerializer" );
+                }
+            }
 
-            if (serializer == null) serializer = fieldSerializer;
+            if (serializer == null) {
+                serializer = fieldSerializer;
+            }
 
-            SerializerRegistration existingReg = getExactSerializerRegistration(cls);
+            final SerializerRegistration existingReg = getExactSerializerRegistration( cls );
 
-            if (existingReg != null) classId = existingReg.getId();
-            
-            SerializerRegistration reg = new SerializerRegistration(serializer, cls, classId);
+            if (existingReg != null) {
+                classId = existingReg.getId();
+            }
 
             return registerClassForId( classId, cls, serializer );
         }
-        if (failOnMiss) {
-            throw new IllegalArgumentException( "Class is not marked @Serializable:" + cls );            
+        else if (failOnMiss) {
+            throw new IllegalArgumentException( "Class is not marked @Serializable:" + cls );
         }
-        return null;
+        else {
+            return null;
+        }
     }
 
     /**
