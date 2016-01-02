@@ -31,88 +31,107 @@
  */
 package com.jme3.network.serializing.serializers;
 
-import com.jme3.export.Savable;
-import com.jme3.export.binary.BinaryExporter;
-import com.jme3.export.binary.BinaryImporter;
-import com.jme3.network.serializing.Serializer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
+import com.jme3.export.Savable;
+import com.jme3.export.binary.BinaryExporter;
+import com.jme3.export.binary.BinaryImporter;
+import com.jme3.network.serializing.Serializer;
+
 public class SavableSerializer extends Serializer {
-
-    private BinaryExporter exporter = new BinaryExporter();
-    private BinaryImporter importer = new BinaryImporter();
-
-    private static class BufferOutputStream extends OutputStream {
-
-        ByteBuffer output;
-
-        public BufferOutputStream(ByteBuffer output){
-            this.output = output;
-        }
-
-        @Override
-        public void write(int b) throws IOException {
-            output.put( (byte) b );
-        }
-
-        @Override
-        public void write(byte[] b){
-            output.put(b);
-        }
-
-        @Override
-        public void write(byte[] b, int off, int len){
-            output.put(b, off, len);
-        }
-    }
-
     private static class BufferInputStream extends InputStream {
+        private final ByteBuffer input;
 
-        ByteBuffer input;
-
-        public BufferInputStream(ByteBuffer input){
+        public BufferInputStream( ByteBuffer input ) {
             this.input = input;
         }
 
         @Override
+        public int available() throws IOException {
+            return input.remaining();
+        }
+
+        @Override
+        public boolean markSupported() {
+            return false;
+        }
+
+        @Override
         public int read() throws IOException {
-            if (input.remaining() == 0)
+            if (!input.hasRemaining()) {
                 return -1;
-            else
-                return input.get() & 0xff;
+            }
+            else {
+                return input.get();
+            }
         }
 
         @Override
-        public int read(byte[] b){
-            return read(b, 0, b.length);
+        public int read( byte[] b ) {
+            return read( b, 0, b.length );
         }
 
         @Override
-        public int read(byte[] b, int off, int len){
-            int toRead = len > input.remaining() ? input.remaining() : len;
-            input.get(b, off, toRead);
-            return toRead;
+        public int read( byte[] bytes, int offset, int length ) {
+            if (length == 0) {
+                return 0;
+            }
+            if (!input.hasRemaining()) {
+                return -1;
+            }
+            final int count = Math.min( input.remaining(), length );
+            input.get( bytes, offset, count );
+            return count;
+
         }
 
     }
 
+    private static class BufferOutputStream extends OutputStream {
+
+        private final ByteBuffer output;
+
+        public BufferOutputStream( ByteBuffer output ) {
+            this.output = output;
+        }
+
+        @Override
+        public void write( byte[] b ) {
+            output.put( b );
+        }
+
+        @Override
+        public void write( byte[] b, int off, int len ) {
+            output.put( b, off, len );
+        }
+
+        @Override
+        public void write( int b ) throws IOException {
+            output.put( (byte) b );
+        }
+    }
+
+    private final BinaryExporter exporter = new BinaryExporter();
+
+    private final BinaryImporter importer = new BinaryImporter();
+
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> T readObject(ByteBuffer data, Class<T> c) throws IOException {
-        BufferInputStream in = new BufferInputStream(data);
-        Savable s = importer.load(in);
+    @SuppressWarnings( "unchecked" )
+    public <T> T readObject( ByteBuffer data, Class<T> c ) throws IOException {
+        final BufferInputStream in = new BufferInputStream( data );
+        final Savable s = importer.load( in );
         in.close();
         return (T) s;
     }
 
     @Override
-    public void writeObject(ByteBuffer buffer, Object object) throws IOException {
-        Savable s = (Savable) object;
-        BufferOutputStream out = new BufferOutputStream(buffer);
-        exporter.save(s, out);
+    public void writeObject( ByteBuffer buffer, Object object ) throws IOException {
+        final Savable s = (Savable) object;
+        final BufferOutputStream out = new BufferOutputStream( buffer );
+        exporter.save( s, out );
         out.close();
     }
 

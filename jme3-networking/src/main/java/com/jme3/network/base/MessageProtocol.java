@@ -31,16 +31,17 @@
  */
 package com.jme3.network.base;
 
-import com.jme3.network.Message;
-import com.jme3.network.serializing.Serializer;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
+import com.jme3.network.Message;
+import com.jme3.network.serializing.Serializer;
+
 /**
  *  Consolidates the conversion of messages to/from byte buffers
  *  and provides a rolling message buffer.  ByteBuffers can be
- *  pushed in and messages will be extracted, accumulated, and 
+ *  pushed in and messages will be extracted, accumulated, and
  *  available for retrieval.  This is not thread safe and is meant
  *  to be used within a single message processing thread.
  *
@@ -51,140 +52,137 @@ import java.util.LinkedList;
  *  @version   $Revision$
  *  @author    Paul Speed
  */
-public class MessageProtocol
-{
-    private LinkedList<Message> messages = new LinkedList<Message>();
-    private ByteBuffer current;
-    private int size;
-    private Byte carry;
- 
+public class MessageProtocol {
     /**
      *  Converts a message to a ByteBuffer using the Serializer
      *  and the (short length) + data protocol.  If target is null
      *  then a 32k byte buffer will be created and filled.
      */
-    public static ByteBuffer messageToBuffer( Message message, ByteBuffer target )
-    {
-        // Could let the caller pass their own in       
-        ByteBuffer buffer = target == null ? ByteBuffer.allocate( 32767 + 2 ) : target;
-        
+    public static ByteBuffer messageToBuffer( Message message, ByteBuffer target ) {
+        // Could let the caller pass their own in
+        final ByteBuffer buffer = target == null ? ByteBuffer.allocate( 32767 + Integer.BYTES ) : target;
+
         try {
-            buffer.position( 2 );
+            buffer.position( Integer.BYTES );
             Serializer.writeClassAndObject( buffer, message );
             buffer.flip();
-            short dataLength = (short)(buffer.remaining() - 2);
-            buffer.putShort( dataLength );
+            final int dataLength = buffer.remaining() - Integer.BYTES;
+            buffer.putInt( dataLength );
             buffer.position( 0 );
-            
+
             return buffer;
-        } catch( IOException e ) {
+        }
+        catch (final IOException e) {
             throw new RuntimeException( "Error serializing message", e );
         }
     }
- 
+
+    private final LinkedList<Message> messages = new LinkedList<Message>();
+    private ByteBuffer current;
+    private int size;
+
+    private Byte carry;
+
     /**
-     *  Retrieves and removes an extracted message from the accumulated buffer
-     *  or returns null if there are no more messages.
-     */
-    public Message getMessage()
-    {
-        if( messages.isEmpty() ) {
-            return null;
-        }
-        
-        return messages.removeFirst();
-    }     
-   
-    /**
-     *  Adds the specified buffer, extracting the contained messages 
+     *  Adds the specified buffer, extracting the contained messages
      *  and making them available to getMessage().  The left over
      *  data is buffered to be combined with future data.
      &
-     *  @return The total number of queued messages after this call.       
+     *  @return The total number of queued messages after this call.
      */
-    public int addBuffer( ByteBuffer buffer )
-    {
+    public int addBuffer( ByteBuffer buffer ) {
         // push the data from the buffer into as
         // many messages as we can
-        while( buffer.remaining() > 0 ) {
+        while (buffer.remaining() > 0) {
 
-            if( current == null ) {
+            if (current == null) {
 
                 // If we have a left over carry then we need to
                 // do manual processing to get the short value
-                if( carry != null ) {
-                    byte high = carry;
-                    byte low = buffer.get();
-                    
-                    size = (high & 0xff) << 8 | (low & 0xff);
+                if (carry != null) {
+                    final byte high = carry;
+                    final byte low = buffer.get();
+
+                    size = (high & 0xff) << 8 | low & 0xff;
                     carry = null;
                 }
-                else if( buffer.remaining() < 2 ) {
+                else if (buffer.remaining() < 2) {
                     // It's possible that the supplied buffer only has one
                     // byte in it... and in that case we will get an underflow
                     // when attempting to read the short below.
-                    
+
                     // It has to be 1 or we'd never get here... but one
                     // isn't enough so we stash it away.
                     carry = buffer.get();
                     break;
-                } else {
+                }
+                else {
                     // We are not currently reading an object so
                     // grab the size.
                     // Note: this is somewhat limiting... int would
                     // be better.
-                    size = buffer.getShort();
-                }               
- 
-                // Allocate the buffer into which we'll feed the
-                // data as we get it               
-                current = ByteBuffer.allocate(size);
-            } 
+                    size = buffer.getInt();
+                }
 
-            if( current.remaining() <= buffer.remaining() ) {
+                // Allocate the buffer into which we'll feed the
+                // data as we get it
+                current = ByteBuffer.allocate( size );
+            }
+
+            if (current.remaining() <= buffer.remaining()) {
                 // We have at least one complete object so
                 // copy what we can into current, create a message,
                 // and then continue pulling from buffer.
-                    
+
                 // Artificially set the limit so we don't overflow
-                int extra = buffer.remaining() - current.remaining();
+                final int extra = buffer.remaining() - current.remaining();
                 buffer.limit( buffer.position() + current.remaining() );
- 
-                // Now copy the data                   
+
+                // Now copy the data
                 current.put( buffer );
                 current.flip();
-                    
+
                 // Now set the limit back to a good value
                 buffer.limit( buffer.position() + extra );
- 
+
                 createMessage( current );
- 
-                current = null;                    
-            } else {
-                
+
+                current = null;
+            }
+            else {
+
                 // Not yet a complete object so just copy what we have
-                current.put( buffer ); 
-            }            
-        }            
-        
-        return messages.size();        
+                current.put( buffer );
+            }
+        }
+
+        return messages.size();
     }
- 
+
     /**
      *  Creates a message from the properly sized byte buffer
      *  and adds it to the messages queue.
-     */   
-    protected void createMessage( ByteBuffer buffer )
-    {
+     */
+    protected void createMessage( ByteBuffer buffer ) {
         try {
-            Object obj = Serializer.readClassAndObject( buffer );
-            Message m = (Message)obj;
-            messages.add(m);
-        } catch( IOException e ) {
-            throw new RuntimeException( "Error deserializing object, clas ID:" + buffer.getShort(0), e );   
-        }         
+            final Object obj = Serializer.readClassAndObject( buffer );
+            final Message m = (Message) obj;
+            messages.add( m );
+        }
+        catch (final IOException e) {
+            throw new RuntimeException( "Error deserializing object, clas ID:" + buffer.getShort( 0 ), e );
+        }
+    }
+
+    /**
+     *  Retrieves and removes an extracted message from the accumulated buffer
+     *  or returns null if there are no more messages.
+     */
+    public Message getMessage() {
+        if (messages.isEmpty()) {
+            return null;
+        }
+
+        return messages.removeFirst();
     }
 }
-
-
-
