@@ -1,0 +1,9 @@
+Material My Material : Common/MatDefs/Light/PBRLighting.j3md {
+     MaterialParameters {
+        BaseColor : 0.6 0.6 0.6 1.0
+        Metallic : 1.0
+        Roughness : 0.05
+     }
+    AdditionalRenderState {
+    }
+}

@@ -78,7 +78,14 @@ public abstract class Light implements Savable, Cloneable {
          * 
          * @see AmbientLight
          */
-        Ambient(3);
+        Ambient(3),
+        
+        /**
+         * Light probe
+         * @see LightProbe
+         */
+        Probe(4);
+                
 
         private int typeId;
 
