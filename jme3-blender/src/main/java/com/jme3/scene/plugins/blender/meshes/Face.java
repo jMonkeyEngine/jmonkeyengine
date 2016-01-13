@@ -335,17 +335,23 @@ public class Face implements Comparator<Integer> {
         return "Face " + indexes;
     }
 
-    /**
-     * The method finds the closest vertex to the one specified by <b>index</b>.
-     * If the vertexToIgnore is positive than it will be ignored in the result.
-     * The closes vertex must be able to create an edge that is fully contained within the face and does not cross
-     * any other edges.
-     * @param index
-     *            the index of the vertex that needs to have found the nearest neighbour
-     * @param indexToIgnore
-     *            the index to ignore in the result (pass -1 if none is to be ignored)
-     * @return the index of the closest vertex to the given one
-     */
+	/**
+	 * The method finds the closest vertex to the one specified by <b>index</b>.
+	 * If the vertexToIgnore is positive than it will be ignored in the result.
+	 * The closest vertex must be able to create an edge that is fully contained
+	 * within the face and does not cross any other edges. Also if the
+	 * vertexToIgnore is not negative then the condition that the edge between
+	 * the found index and the one to ignore is inside the face must also be
+	 * met.
+	 * 
+	 * @param index
+	 *            the index of the vertex that needs to have found the nearest
+	 *            neighbour
+	 * @param indexToIgnore
+	 *            the index to ignore in the result (pass -1 if none is to be
+	 *            ignored)
+	 * @return the index of the closest vertex to the given one
+	 */
     private int findClosestVertex(int index, int indexToIgnore) {
         int result = -1;
         List<Vector3f> vertices = temporalMesh.getVertices();
@@ -355,7 +361,7 @@ public class Face implements Comparator<Integer> {
             if (i != index && i != indexToIgnore) {
                 Vector3f v2 = vertices.get(i);
                 float d = v2.distance(v1);
-                if (d < distance && this.contains(new Edge(index, i, 0, true, temporalMesh))) {
+                if (d < distance && this.contains(new Edge(index, i, 0, true, temporalMesh)) && (indexToIgnore < 0 || this.contains(new Edge(indexToIgnore, i, 0, true, temporalMesh)))) {
                     result = i;
                     distance = d;
                 }
