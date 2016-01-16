@@ -112,6 +112,8 @@ public class KernelAdapter extends Thread
         
         // Kill the kernel
         kernel.terminate();
+        
+        join();
     }
 
     protected void reportError( Endpoint p, Object context, Exception e )
@@ -119,7 +121,9 @@ public class KernelAdapter extends Thread
         // Should really be queued up so the outer thread can
         // retrieve them.  For now we'll just log it.  FIXME
         log.log( Level.SEVERE, "Unhandled error, endpoint:" + p + ", context:" + context, e );
-        
+
+        //if( p.isConnected() )
+        System.out.println("Is p connected:" + p.isConnected());
         // In lieu of other options, at least close the endpoint
         p.close();
     }                                                      
