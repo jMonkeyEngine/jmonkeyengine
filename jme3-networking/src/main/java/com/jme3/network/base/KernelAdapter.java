@@ -122,10 +122,10 @@ public class KernelAdapter extends Thread
         // retrieve them.  For now we'll just log it.  FIXME
         log.log( Level.SEVERE, "Unhandled error, endpoint:" + p + ", context:" + context, e );
 
-        //if( p.isConnected() )
-        System.out.println("Is p connected:" + p.isConnected());
-        // In lieu of other options, at least close the endpoint
-        p.close();
+        if( p.isConnected() ) {
+            // In lieu of other options, at least close the endpoint
+            p.close();
+        }
     }                                                      
 
     protected HostedConnection getConnection( Endpoint p )
