@@ -91,7 +91,7 @@ public class SphereCollisionShape extends CollisionShape {
 //        new SphereShape(radius);
 //        objectId.setLocalScaling(Converter.convert(getScale()));
 //        objectId.setMargin(margin);
-        setScale(scale);
+        super.setScale(scale); // Set the scale to 1
         setMargin(margin);
     }
     
