@@ -325,6 +325,19 @@ public class FrameBuffer extends NativeObject {
     }
     
     /**
+     * Set the color texture array to use for this framebuffer.
+     * This automatically clears all existing textures added previously
+     * with {@link FrameBuffer#addColorTexture } and adds this texture as the
+     * only target.
+     * 
+     * @param tex The color texture array to set.
+     */
+    public void setColorTexture(TextureArray tex){
+        clearColorTargets();
+        addColorTexture(tex);
+    }
+    
+    /**
      * Set the color texture to use for this framebuffer.
      * This automatically clears all existing textures added previously
      * with {@link FrameBuffer#addColorTexture } and adds this texture as the
@@ -355,6 +368,30 @@ public class FrameBuffer extends NativeObject {
      * @param tex The texture to add.
      */
     public void addColorTexture(Texture2D tex) {
+        if (id != -1)
+            throw new UnsupportedOperationException("FrameBuffer already initialized.");
+
+        Image img = tex.getImage();
+        checkSetTexture(tex, false);
+
+        RenderBuffer colorBuf = new RenderBuffer();
+        colorBuf.slot = colorBufs.size();
+        colorBuf.tex = tex;
+        colorBuf.format = img.getFormat();
+
+        colorBufs.add(colorBuf);
+    }
+    
+    /**
+     * Add a color texture array to use for this framebuffer.
+     * If MRT is enabled, then each subsequently added texture can be
+     * rendered to through a shader that writes to the array <code>gl_FragData</code>.
+     * If MRT is not enabled, then the index set with {@link FrameBuffer#setTargetIndex(int) }
+     * is rendered to by the shader.
+     * 
+     * @param tex The texture array to add.
+     */
+    public void addColorTexture(TextureArray tex) {
         if (id != -1)
             throw new UnsupportedOperationException("FrameBuffer already initialized.");
 
