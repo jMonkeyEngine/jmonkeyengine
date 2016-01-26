@@ -687,6 +687,7 @@ public class Node extends Spatial {
 //            childClone.parent = nodeClone;
 //            nodeClone.children.add(childClone);
 //        }
+        nodeClone.invalidateUpdateList();
         return nodeClone;
     }
 
