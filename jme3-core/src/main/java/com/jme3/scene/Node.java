@@ -687,6 +687,11 @@ public class Node extends Spatial {
 //            childClone.parent = nodeClone;
 //            nodeClone.children.add(childClone);
 //        }
+
+        // Reset the fields of the clone that should be in a 'new' state.
+        nodeClone.updateList = null;
+        nodeClone.updateListValid = false; // safe because parent is nulled out in super.clone()
+            
         return nodeClone;
     }
 
