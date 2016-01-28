@@ -54,3 +54,6 @@ before_install:
   # wget http://dl.google.com/android/ndk/android-ndk-r10c-linux-x86_64.bin -O ndk.bin
   # 7z x ndk.bin -y > /dev/null
   # export ANDROID_NDK=`pwd`/android-ndk-r10c
+
+after_success:
+  - '[ -n "$TRAVIS_TAG"" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && ./gradlew bintrayUpload || :'

@@ -5,7 +5,7 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 
-group = 'com.jme3'
+group = 'org.jmonkeyengine'
 version = jmePomVersion
 
 sourceCompatibility = '1.6'
