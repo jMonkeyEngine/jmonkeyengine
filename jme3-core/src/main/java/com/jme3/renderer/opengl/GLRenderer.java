@@ -1438,11 +1438,19 @@ public final class GLRenderer implements Renderer {
             setupTextureParams(0, tex);
         }
 
-        glfbo.glFramebufferTexture2DEXT(GLFbo.GL_FRAMEBUFFER_EXT,
-                convertAttachmentSlot(rb.getSlot()),
-                convertTextureType(tex.getType(), image.getMultiSamples(), rb.getFace()),
-                image.getId(),
-                0);
+        if (rb.getLayer() < 0){
+            glfbo.glFramebufferTexture2DEXT(GLFbo.GL_FRAMEBUFFER_EXT,
+                    convertAttachmentSlot(rb.getSlot()),
+                    convertTextureType(tex.getType(), image.getMultiSamples(), rb.getFace()),
+                    image.getId(),
+                    0);
+        } else {
+            gl3.glFramebufferTextureLayer(GLFbo.GL_FRAMEBUFFER_EXT, 
+                    convertAttachmentSlot(rb.getSlot()), 
+                    image.getId(), 
+                    0,
+                    rb.getLayer());
+        }
     }
 
     public void updateFrameBufferAttachment(FrameBuffer fb, RenderBuffer rb) {
