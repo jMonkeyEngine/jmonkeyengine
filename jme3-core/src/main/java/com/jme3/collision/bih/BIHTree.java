@@ -109,8 +109,11 @@ public class BIHTree implements CollisionData {
         this.mesh = mesh;
         this.maxTrisPerNode = maxTrisPerNode;
 
-        if (maxTrisPerNode < 1 || mesh == null) {
-            throw new IllegalArgumentException();
+        if (maxTrisPerNode < 1) {
+            throw new IllegalArgumentException("maxTrisPerNode cannot be less than 1");
+        }
+        if (mesh == null) {
+            throw new IllegalArgumentException("Mesh cannot be null");
         }
 
         bihSwapTmp = new float[9];
@@ -451,7 +454,7 @@ public class BIHTree implements CollisionData {
         } else if (bv instanceof BoundingBox) {
             bbox = new BoundingBox((BoundingBox) bv);
         } else {
-            throw new UnsupportedCollisionException();
+            throw new UnsupportedCollisionException("BoundingVolume:" + bv);
         }
 
         bbox.transform(worldMatrix.invert(), bbox);
@@ -470,7 +473,7 @@ public class BIHTree implements CollisionData {
             BoundingVolume bv = (BoundingVolume) other;
             return collideWithBoundingVolume(bv, worldMatrix, results);
         } else {
-            throw new UnsupportedCollisionException();
+            throw new UnsupportedCollisionException("Collidable:" + other);
         }
     }
 
