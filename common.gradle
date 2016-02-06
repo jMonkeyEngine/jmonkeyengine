@@ -129,6 +129,7 @@ task writeFullPom {
         }.writeTo(pomFile)
     }
 }
+assemble.dependsOn(writeFullPom)
 install.dependsOn(writeFullPom)
 uploadArchives.dependsOn(writeFullPom)
 

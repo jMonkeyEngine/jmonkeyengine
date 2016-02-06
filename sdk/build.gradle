@@ -109,6 +109,7 @@ task createBaseXml(dependsOn: configurations.corelibs) <<{
         dep.dependencyProject.configurations.archives.allArtifacts.each{ artifact->
             if(artifact.classifier == "sources"){
             } else if(artifact.classifier == "javadoc"){
+            } else if(artifact.file.name.endsWith('.pom')) {
             } else{
                 if(!jmeJarFiles.contains(artifact.file)){
                     jmeJarFiles.add(artifact.file)
