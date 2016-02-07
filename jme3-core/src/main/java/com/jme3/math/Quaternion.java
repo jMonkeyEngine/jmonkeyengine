@@ -168,6 +168,25 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
+     * Constructor instantiates a new <code>Quaternion</code> object from a
+     * collection of rotation angles.
+     *
+     * @param xangle
+     *            the x angle of rotation that will define the
+     *            <code>Quaternion</code>.
+     * @param yangle
+     *            the y angle of rotation that will define the
+     *            <code>Quaternion</code>.
+     * @param zangle
+     *            the z angle of rotation that will define the
+     *            <code>Quaternion</code>.
+     * 
+     */
+    public Quaternion(float xangle, float yangle, float zangle) {
+        fromAngles(xangle, yangle, zangle);
+    }
+
+    /**
      * Constructor instantiates a new <code>Quaternion</code> object from an
      * interpolation between two other quaternions.
      *
