@@ -77,6 +77,16 @@ public class TGALoader implements AssetLoader {
     // 11 - run-length encoded, black and white image
     public static final int TYPE_BLACKANDWHITE_RLE = 11;
 
+    protected static TGALoader loader;
+
+    public static void setLoader(TGALoader loader) {
+        TGALoader.loader = loader;
+    }
+
+    public TGALoader() {
+        setLoader(this);
+    }
+
     public Object load(AssetInfo info) throws IOException {
 
         if (!(info.getKey() instanceof TextureKey)) {
@@ -87,7 +97,7 @@ public class TGALoader implements AssetLoader {
         InputStream in = null;
         try {
             in = info.openStream();
-            Image img = load(in, flip);
+            Image img = loadImage(in, flip);
             return img;
         } finally {
             if (in != null) {
@@ -110,7 +120,29 @@ public class TGALoader implements AssetLoader {
      *         image, either as a RGB888 or RGBA8888
      * @throws java.io.IOException
      */
-    public Image load(InputStream in, boolean flip) throws IOException {
+    public static Image load(InputStream in, boolean flip) throws IOException {
+
+        if(loader == null) {
+            loader = new TGALoader();
+        }
+
+        return loader.loadImage(in, flip);
+    }
+    /**
+     * <code>loadImage</code> is a manual image loader which is entirely
+     * independent of AWT. OUT: RGB888 or RGBA8888 Image object
+     *
+     *
+
+     * @param in
+     *            InputStream of an uncompressed 24b RGB or 32b RGBA TGA
+     * @param flip
+     *            Flip the image vertically
+     * @return <code>Image</code> object that contains the
+     *         image, either as a RGB888 or RGBA8888
+     * @throws java.io.IOException
+     */
+    public Image loadImage(InputStream in, boolean flip) throws IOException {
         boolean flipH = false;
 
         // open a stream to the file
