@@ -713,12 +713,14 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 ambientLightColor.addLocal(l.getColor());
                 if(removeLights){
                     lightList.remove(l);
+                    j--;
                 }
             }
             if (l instanceof LightProbe) {
                 probe = (LightProbe)l;                
                 if(removeLights){
                     lightList.remove(l);
+                    j--;
                 }
             }
         }
