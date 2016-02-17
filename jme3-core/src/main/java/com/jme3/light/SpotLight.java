@@ -448,5 +448,13 @@ public class SpotLight extends Light {
             this.invSpotRange = 0;
         }
     }
+
+    @Override
+    public SpotLight clone() {
+        SpotLight s = (SpotLight)super.clone();
+        s.direction = direction.clone();
+        s.position = position.clone();
+        return s;
+    }
 }
 

@@ -146,4 +146,10 @@ public class DirectionalLight extends Light {
         direction = (Vector3f) ic.readSavable("direction", null);
     }
 
+    @Override
+    public DirectionalLight clone() {
+        DirectionalLight l = (DirectionalLight)super.clone();
+        l.direction = direction.clone();
+        return l;
+    }
 }

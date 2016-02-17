@@ -241,4 +241,11 @@ public class PointLight extends Light {
             this.invRadius = 0;
         }
     }
+
+    @Override
+    public PointLight clone() {
+        PointLight p = (PointLight)super.clone();
+        p.position = position.clone();
+        return p;
+    }
 }
