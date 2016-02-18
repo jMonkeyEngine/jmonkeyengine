@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2016 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -86,6 +86,7 @@ public class AudioNode extends Node implements AudioSource {
     protected float innerAngle = 360;
     protected float outerAngle = 360;
     protected boolean positional = true;
+    protected Type type = null;
 
     /**
      * <code>Status</code> indicates the current status of the audio node.
@@ -113,6 +114,26 @@ public class AudioNode extends Node implements AudioSource {
     }
 
     /**
+     * <code>Type</code> indicates how to retrieve the audio data.
+     * It replaced the old "stream" and "streamCache" parameters.
+     * It defines whether the whole file is read and buffered or
+     * if it is read gradually from disk.
+     */
+    public enum Type {
+        /**
+         * The audio data will be loaded as whole and be buffered in memory.
+         * Use this for short sounds.
+         */
+        Buffered,
+        
+        /**
+         * The audio data will be streamed gradually from disk.
+         * Use this for longer sounds.
+         * Note: looping and seeking <b>is</b> supported.
+         */
+        Streaming,
+    }
+    /**
      * Creates a new <code>AudioNode</code> without any audio data set.
      */
     public AudioNode() {
@@ -126,6 +147,22 @@ public class AudioNode extends Node implements AudioSource {
      */
     public AudioNode(AudioData audioData, AudioKey audioKey) {
         setAudioData(audioData, audioKey);
+        if (audioKey.isStream()) {
+            type = Type.Streaming;
+        } else {
+            type = Type.Buffered;
+        }
+    }
+    
+    /**
+     * Creates a new <code>AudioNode</code> with the given audio file.
+     * @param assetManager The asset manager to use to load the audio file
+     * @param name The filename of the audio file
+     * @param type The type. If <code>Type.Streaming</code>, the audio will be streamed gradually from disk,
+     *             otherwise it will be buffered (<code>Type.Buffered</code>)
+     */
+    public AudioNode(AssetManager assetManager, String name, Type type) {
+        this(assetManager, name, type == Type.Streaming, true);
     }
 
     /**
@@ -139,10 +176,17 @@ public class AudioNode extends Node implements AudioSource {
      * the stream cache is used. When enabled, the audio stream will
      * be read entirely but not decoded, allowing features such as 
      * seeking, looping and determining duration.
+     * 
+     * @deprecated Use {@link AudioNode#AudioNode(com.jme3.asset.AssetManager, java.lang.String, com.jme3.audio.AudioNode.Type)} instead
      */
     public AudioNode(AssetManager assetManager, String name, boolean stream, boolean streamCache) {
         this.audioKey = new AudioKey(name, stream, streamCache);
         this.data = (AudioData) assetManager.loadAsset(audioKey);
+        if (stream) {
+            type = Type.Streaming;
+        } else {
+            type = Type.Buffered;
+        }
     }
 
     /**
@@ -152,9 +196,11 @@ public class AudioNode extends Node implements AudioSource {
      * @param name The filename of the audio file
      * @param stream If true, the audio will be streamed gradually from disk, 
      *               otherwise, it will be buffered.
+     * 
+     * @deprecated Use {@link AudioNode#AudioNode(com.jme3.asset.AssetManager, java.lang.String, com.jme3.audio.AudioNode.Type)} instead
      */
     public AudioNode(AssetManager assetManager, String name, boolean stream) {
-        this(assetManager, name, stream, false);
+        this(assetManager, name, stream, true); // Always streamCached
     }
 
     /**
@@ -167,7 +213,7 @@ public class AudioNode extends Node implements AudioSource {
      * @deprecated AudioRenderer parameter is ignored.
      */
     public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name) {
-        this(assetManager, name, false);
+        this(assetManager, name, Type.Buffered);
     }
     
     /**
@@ -175,9 +221,10 @@ public class AudioNode extends Node implements AudioSource {
      * 
      * @param assetManager The asset manager to use to load the audio file
      * @param name The filename of the audio file
+     * @deprecated Use {@link AudioNode#AudioNode(com.jme3.asset.AssetManager, java.lang.String, com.jme3.audio.AudioNode.Type)} instead
      */
     public AudioNode(AssetManager assetManager, String name) {
-        this(assetManager, name, false);
+        this(assetManager, name, Type.Buffered);
     }
     
     protected AudioRenderer getRenderer() {
@@ -283,6 +330,12 @@ public class AudioNode extends Node implements AudioSource {
 
         data = audioData;
         this.audioKey = audioKey;
+        
+        if (audioKey.isStream()) {
+            type = Type.Streaming;
+        } else {
+            type = Type.Buffered;
+        }
     }
 
     /**
@@ -310,6 +363,17 @@ public class AudioNode extends Node implements AudioSource {
         this.status = status;
     }
 
+    /**
+     * This is set only once in the constructor.
+     * It defines, whether the underlying Data is Buffered or
+     * Streamed continuously.
+     * <b>Warning</b>: Can return null!
+     * @return The {@link Type} of the audio node.
+     */
+    public Type getType() {
+        return type;
+    }
+    
     /**
      * @return True if the audio will keep looping after it is done playing,
      * otherwise, false.
