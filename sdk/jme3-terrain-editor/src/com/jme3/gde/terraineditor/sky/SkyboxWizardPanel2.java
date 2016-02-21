@@ -32,14 +32,16 @@
 package com.jme3.gde.terraineditor.sky;
 
 import com.jme3.math.Vector3f;
+import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import java.awt.Component;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
+import org.openide.WizardValidationException;
 import org.openide.util.HelpCtx;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class SkyboxWizardPanel2 implements WizardDescriptor.Panel {
+public class SkyboxWizardPanel2 implements WizardDescriptor.ValidatingPanel<WizardDescriptor> {
 
     /**
      * The visual component that displays this panel. If you need to access the
@@ -76,10 +78,12 @@ public class SkyboxWizardPanel2 implements WizardDescriptor.Panel {
         // fireChangeEvent();
         // and uncomment the complicated stuff below.
     }
-
+    
+    @Override
     public final void addChangeListener(ChangeListener l) {
     }
-
+    
+    @Override
     public final void removeChangeListener(ChangeListener l) {
     }
     /*
@@ -105,14 +109,56 @@ public class SkyboxWizardPanel2 implements WizardDescriptor.Panel {
     }
     }
      */
-
+    
+    @Override
+    public void validate() throws WizardValidationException {
+        SkyboxVisualPanel2 sky = (SkyboxVisualPanel2)component;
+        
+        /* Check if there are empty textures */
+        if (multipleTextures) {
+            if (sky.getEditorNorth().getAsText() == null) { throw new WizardValidationException(null, " Texture North: Missing texture!", null); }
+            if (sky.getEditorSouth().getAsText() == null) { throw new WizardValidationException(null, " Texture South: Missing texture!", null); }
+            if (sky.getEditorWest().getAsText() == null) { throw new WizardValidationException(null, " Texture West: Missing texture!", null); }
+            if (sky.getEditorEast().getAsText() == null) { throw new WizardValidationException(null, " Texture East: Missing texture!", null); }
+            if (sky.getEditorTop().getAsText() == null) { throw new WizardValidationException(null, " Texture Top: Missing texture!", null); }
+            if (sky.getEditorBottom().getAsText() == null) { throw new WizardValidationException(null, " Texture Bottom: Missing texture!", null); }
+            
+            /* Prevent Null-Pointer Exception. If this is triggered, the Texture has no Image or the AssetKey is invalid (which should never happen) */
+            if (sky.getEditorNorth().getValue() == null || ((Texture)sky.getEditorNorth().getValue()).getImage() == null) { throw new WizardValidationException(null, " Texture North: Cannot load texture!", null); }
+            if (sky.getEditorSouth().getValue() == null || ((Texture)sky.getEditorSouth().getValue()).getImage() == null) { throw new WizardValidationException(null, " Texture South: Cannot load texture!", null); }
+            if (sky.getEditorWest().getValue() == null || ((Texture)sky.getEditorWest().getValue()).getImage() == null) { throw new WizardValidationException(null, " Texture West: Cannot load texture!", null); }
+            if (sky.getEditorEast().getValue() == null || ((Texture)sky.getEditorEast().getValue()).getImage() == null) { throw new WizardValidationException(null, " Texture East: Cannot load texture!", null); }
+            if (sky.getEditorTop().getValue() == null || ((Texture)sky.getEditorTop().getValue()).getImage() == null) { throw new WizardValidationException(null, " Texture Top: Cannot load texture!", null); }
+            if (sky.getEditorBottom().getValue() == null || ((Texture)sky.getEditorBottom().getValue()).getImage() == null) { throw new WizardValidationException(null, " Texture Bottom: Cannot load texture!", null); }
+            
+            /* Check for squares */
+            Image I = ((Texture)sky.getEditorNorth().getValue()).getImage();
+            if (I.getWidth() != I.getHeight()) { throw new WizardValidationException(null, " Texture North: Image has to be a square (width == height)!", null); }
+            I = ((Texture)sky.getEditorSouth().getValue()).getImage();
+            if (I.getWidth() != I.getHeight()) { throw new WizardValidationException(null, " Texture South: Image has to be a square (width == height)!", null); }
+            I = ((Texture)sky.getEditorWest().getValue()).getImage();
+            if (I.getWidth() != I.getHeight()) { throw new WizardValidationException(null, " Texture West: Image has to be a square (width == height)!", null); }
+            I = ((Texture)sky.getEditorEast().getValue()).getImage();
+            if (I.getWidth() != I.getHeight()) { throw new WizardValidationException(null, " Texture East: Image has to be a square (width == height)!", null); }
+            I = ((Texture)sky.getEditorTop().getValue()).getImage();
+            if (I.getWidth() != I.getHeight()) { throw new WizardValidationException(null, " Texture Top: Image has to be a square (width == height)!", null); }
+            I = ((Texture)sky.getEditorBottom().getValue()).getImage();
+            if (I.getWidth() != I.getHeight()) { throw new WizardValidationException(null, " Texture Bottom: Image has to be a square (width == height)!", null); }
+        } else {
+            if (sky.getEditorSingle().getAsText() == null){ throw new WizardValidationException(null, " Single Texture: Missing texture!", null); }
+            if (sky.getEditorSingle().getValue() == null || ((Texture)sky.getEditorSingle().getValue()).getImage() == null){ throw new WizardValidationException(null, " Single Texture: Cannot load texture!", null); }
+            Image I = ((Texture)sky.getEditorSingle().getValue()).getImage();
+            if (I.getWidth() != I.getHeight()) { throw new WizardValidationException(null, " Single Texture: Image has to be a square (width == height)!", null); }
+        }
+    }
+    
     // You can use a settings object to keep track of state. Normally the
     // settings object will be the WizardDescriptor, so you can use
     // WizardDescriptor.getProperty & putProperty to store information entered
     // by the user.
-    public void readSettings(Object settings) {
-        WizardDescriptor wiz = (WizardDescriptor) settings;
-        multipleTextures = (Boolean)wiz.getProperty("multipleTextures");
+    @Override
+    public void readSettings(WizardDescriptor settings) {
+        multipleTextures = (Boolean)settings.getProperty("multipleTextures");
         SkyboxVisualPanel2 comp = (SkyboxVisualPanel2) getComponent();
         if (multipleTextures) {
             comp.getMultipleTexturePanel().setVisible(true);
@@ -124,28 +170,27 @@ public class SkyboxWizardPanel2 implements WizardDescriptor.Panel {
     }
 
     @Override
-    public void storeSettings(Object settings) {
-        WizardDescriptor wiz = (WizardDescriptor) settings;
+    public void storeSettings(WizardDescriptor settings) {
         SkyboxVisualPanel2 comp = (SkyboxVisualPanel2) getComponent();
         if (multipleTextures) {
-            wiz.putProperty("textureSouth", (Texture)comp.getEditorSouth().getValue());
-            wiz.putProperty("textureNorth", (Texture)comp.getEditorNorth().getValue());
-            wiz.putProperty("textureEast", (Texture)comp.getEditorEast().getValue());
-            wiz.putProperty("textureWest", (Texture)comp.getEditorWest().getValue());
-            wiz.putProperty("textureTop", (Texture)comp.getEditorTop().getValue());
-            wiz.putProperty("textureBottom", (Texture)comp.getEditorBottom().getValue());
+            settings.putProperty("textureSouth", (Texture)comp.getEditorSouth().getValue());
+            settings.putProperty("textureNorth", (Texture)comp.getEditorNorth().getValue());
+            settings.putProperty("textureEast", (Texture)comp.getEditorEast().getValue());
+            settings.putProperty("textureWest", (Texture)comp.getEditorWest().getValue());
+            settings.putProperty("textureTop", (Texture)comp.getEditorTop().getValue());
+            settings.putProperty("textureBottom", (Texture)comp.getEditorBottom().getValue());
             float x = new Float(comp.getNormal1X().getText());
             float y = new Float(comp.getNormal1Y().getText());
             float z = new Float(comp.getNormal1Z().getText());
-            wiz.putProperty("normalScale", new Vector3f(x,y,z) );
+            settings.putProperty("normalScale", new Vector3f(x,y,z) );
         } else {
-            wiz.putProperty("textureSingle", (Texture)comp.getEditorSingle().getValue());
+            settings.putProperty("textureSingle", (Texture)comp.getEditorSingle().getValue());
             float x = new Float(comp.getNormal2X().getText());
             float y = new Float(comp.getNormal2Y().getText());
             float z = new Float(comp.getNormal2Z().getText());
-            wiz.putProperty("normalScale", new Vector3f(x,y,z) );
-            wiz.putProperty("envMapType", comp.getEnvMapType());         
-            wiz.putProperty("flipY", comp.getFlipYCheckBox().isSelected());
+            settings.putProperty("normalScale", new Vector3f(x,y,z) );
+            settings.putProperty("envMapType", comp.getEnvMapType());         
+            settings.putProperty("flipY", comp.getFlipYCheckBox().isSelected());
         }
     }
 }
