@@ -31,10 +31,10 @@
  */
 package com.jme3.environment;
 
-import com.jme3.environment.generation.JobProgressListener;
-import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
+import com.jme3.environment.generation.JobProgressListener;
+import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.light.LightProbe;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -48,6 +48,7 @@ import com.jme3.texture.Texture2D;
 import com.jme3.texture.TextureCubeMap;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +58,7 @@ import java.util.concurrent.Callable;
  * A 360 camera that can capture a cube map of a scene, and then generate the
  * Prefiltered Environment cube Map and the Irradiance cube Map needed for PBR
  * indirect lighting
- * 
+ *
  * @see LightProbeFactory
  * @see LightProbe
  *
@@ -65,11 +66,11 @@ import java.util.concurrent.Callable;
  */
 public class EnvironmentCamera extends BaseAppState {
 
-    
-    private static Vector3f[] axisX = new Vector3f[6];
-    private static Vector3f[] axisY = new Vector3f[6];
-    private static Vector3f[] axisZ = new Vector3f[6];
-    private Image.Format imageFormat = Image.Format.RGB16F;
+    protected static Vector3f[] axisX = new Vector3f[6];
+    protected static Vector3f[] axisY = new Vector3f[6];
+    protected static Vector3f[] axisZ = new Vector3f[6];
+
+    protected Image.Format imageFormat = Image.Format.RGB16F;
 
     //Axis for cameras
     static {
@@ -99,13 +100,15 @@ public class EnvironmentCamera extends BaseAppState {
         axisZ[5] = Vector3f.UNIT_Z.mult(-1f);
 
     }
-    private Image images[];
-    ViewPort[] viewports;
-    FrameBuffer[] framebuffers;
-    ByteBuffer[] buffers;
-    private Vector3f position = new Vector3f();
-    private ColorRGBA backGroundColor = null;
-    private int size = 128;
+    protected Image images[];
+    protected ViewPort[] viewports;
+    protected FrameBuffer[] framebuffers;
+    protected ByteBuffer[] buffers;
+
+    protected Vector3f position = new Vector3f();
+    protected ColorRGBA backGroundColor;
+
+    protected int size = 128;
 
     private final List<SnapshotJob> jobs = new ArrayList<SnapshotJob>();
 
@@ -167,25 +170,28 @@ public class EnvironmentCamera extends BaseAppState {
     }
 
     @Override
-    public void render(RenderManager renderManager) {
-        if (!jobs.isEmpty()) {
-            SnapshotJob job = jobs.get(0);
+    public void render(final RenderManager renderManager) {
 
-            for (int i = 0; i < 6; i++) {
-                viewports[i].clearScenes();
-                viewports[i].attachScene(job.scene);
-                renderManager.renderViewPort(viewports[i], 0.16f);
-                buffers[i] = BufferUtils.createByteBuffer(size * size * imageFormat.getBitsPerPixel() / 8);
-                renderManager.getRenderer().readFrameBufferWithFormat(framebuffers[i], buffers[i], imageFormat);
-                images[i] = new Image(imageFormat, size, size, buffers[i], ColorSpace.Linear);
-            }
-
-            TextureCubeMap map = EnvMapUtils.makeCubeMap(images[0], images[1], images[2], images[3], images[4], images[5], imageFormat);
-
-            job.callback.done(map);
-            map.getImage().dispose();
-            jobs.remove(0);
+        if (jobs.isEmpty()) {
+            return;
         }
+
+        final SnapshotJob job = jobs.get(0);
+
+        for (int i = 0; i < 6; i++) {
+            viewports[i].clearScenes();
+            viewports[i].attachScene(job.scene);
+            renderManager.renderViewPort(viewports[i], 0.16f);
+            buffers[i] = BufferUtils.createByteBuffer(size * size * imageFormat.getBitsPerPixel() / 8);
+            renderManager.getRenderer().readFrameBufferWithFormat(framebuffers[i], buffers[i], imageFormat);
+            images[i] = new Image(imageFormat, size, size, buffers[i], ColorSpace.Linear);
+        }
+
+        final TextureCubeMap map = EnvMapUtils.makeCubeMap(images[0], images[1], images[2], images[3], images[4], images[5], imageFormat);
+
+        job.callback.done(map);
+        map.getImage().dispose();
+        jobs.remove(0);
     }
 
     public int getSize() {
@@ -195,49 +201,55 @@ public class EnvironmentCamera extends BaseAppState {
     public Vector3f getPosition() {
         return position;
     }
-    
+
     /**
      * Sets the camera position in world space.
      *
      * @param position the position in world space
      */
-    public void setPosition(Vector3f position) {
+    public void setPosition(final Vector3f position) {
         this.position.set(position);
-        if (viewports != null) {
-            for (ViewPort viewPort : viewports) {
-                viewPort.getCamera().setLocation(position);
-            }
+
+        if (viewports == null) {
+            return;
+        }
+
+        for (final ViewPort viewPort : viewports) {
+            viewPort.getCamera().setLocation(position);
         }
     }
 
     @Override
     protected void initialize(Application app) {
         this.backGroundColor = app.getViewPort().getBackgroundColor();
-        Camera[] cameras = new Camera[6];
+
+        final Camera[] cameras = new Camera[6];
+
+        Texture2D[] textures = new Texture2D[6];
+
         viewports = new ViewPort[6];
         framebuffers = new FrameBuffer[6];
         buffers = new ByteBuffer[6];
-        Texture2D[] textures = new Texture2D[6];
         images = new Image[6];
+
         for (int i = 0; i < 6; i++) {
             cameras[i] = createOffCamera(size, position, axisX[i], axisY[i], axisZ[i]);
             viewports[i] = createOffViewPort("EnvView" + i, cameras[i]);
             framebuffers[i] = createOffScreenFrameBuffer(size, viewports[i]);
             textures[i] = new Texture2D(size, size, imageFormat);
             framebuffers[i].setColorTexture(textures[i]);
-            
         }
-
     }
 
     @Override
     protected void cleanup(Application app) {
         this.backGroundColor = null;
-        for (FrameBuffer frameBuffer : framebuffers) {
+
+        for (final FrameBuffer frameBuffer : framebuffers) {
             frameBuffer.dispose();
-            
         }
-        for (Image image : images) {
+
+        for (final Image image : images) {
             if( image != null){
                 image.dispose();
             }
@@ -271,8 +283,8 @@ public class EnvironmentCamera extends BaseAppState {
      * @param axisZ tha z axis
      * @return
      */
-    protected final Camera createOffCamera(int mapSize, Vector3f worldPos, Vector3f axisX, Vector3f axisY, Vector3f axisZ) {
-        Camera offCamera = new Camera(mapSize, mapSize);
+    protected Camera createOffCamera(final int mapSize, final Vector3f worldPos, final Vector3f axisX, final Vector3f axisY, final Vector3f axisZ) {
+        final Camera offCamera = new Camera(mapSize, mapSize);
         offCamera.setLocation(worldPos);
         offCamera.setAxes(axisX, axisY, axisZ);
         offCamera.setFrustumPerspective(90f, 1f, 1, 1000);
@@ -287,11 +299,10 @@ public class EnvironmentCamera extends BaseAppState {
      * @param offCamera
      * @return
      */
-    protected final ViewPort createOffViewPort(String name, Camera offCamera) {
-        ViewPort offView = new ViewPort(name, offCamera);
+    protected ViewPort createOffViewPort(final String name, final Camera offCamera) {
+        final ViewPort offView = new ViewPort(name, offCamera);
         offView.setClearFlags(true, true, true);
         offView.setBackgroundColor(backGroundColor);
-        
         return offView;
     }
 
@@ -302,9 +313,9 @@ public class EnvironmentCamera extends BaseAppState {
      * @param offView
      * @return
      */
-    protected final FrameBuffer createOffScreenFrameBuffer(int mapSize, ViewPort offView) {
+    protected FrameBuffer createOffScreenFrameBuffer(int mapSize, ViewPort offView) {
         // create offscreen framebuffer
-        FrameBuffer offBuffer = new FrameBuffer(mapSize, mapSize, 1);
+        final FrameBuffer offBuffer = new FrameBuffer(mapSize, mapSize, 1);
         offBuffer.setDepthBuffer(Image.Format.Depth);
         offView.setOutputFrameBuffer(offBuffer);
         return offBuffer;
@@ -313,7 +324,7 @@ public class EnvironmentCamera extends BaseAppState {
     /**
      * An inner class to keep track on a snapshot job.
      */
-    private class SnapshotJob {
+    protected class SnapshotJob {
 
         JobProgressListener<TextureCubeMap> callback;
         Spatial scene;
@@ -322,7 +333,5 @@ public class EnvironmentCamera extends BaseAppState {
             this.callback = callback;
             this.scene = scene;
         }
-
     }
-
 }
