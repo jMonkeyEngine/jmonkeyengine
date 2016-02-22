@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2015 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2015-2016 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -228,7 +228,9 @@ public abstract class Light implements Savable, Cloneable {
     @Override
     public Light clone(){
         try {
-            return (Light) super.clone();
+            Light l = (Light) super.clone();
+            l.color = color.clone();
+            return l;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }

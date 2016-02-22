@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2015 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2015-2016 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -447,6 +447,14 @@ public class SpotLight extends Light {
         } else {
             this.invSpotRange = 0;
         }
+    }
+
+    @Override
+    public SpotLight clone() {
+        SpotLight s = (SpotLight)super.clone();
+        s.direction = direction.clone();
+        s.position = position.clone();
+        return s;
     }
 }
 
