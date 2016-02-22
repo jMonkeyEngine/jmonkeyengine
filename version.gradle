@@ -2,29 +2,21 @@
  Version Info Examples
  =====================
  
- Nightly Build Snapshot
- * Full Version: 3.1-5124
- * POM Version: 3.1.0-SNAPSHOT
- * NBM Revision: 5124
- * NBM UC Suffix: nightly/3.1/plugins
+ Nightly Build Snapshot (no git tag)
+  * Full Version: 3.1.0-5124
+  * POM Version: 3.1.0-SNAPSHOT
 
- Nightly Build Snapshot (PBRIsComing branch)
- * Full Version: 3.1-PBRIsComing-5124
- * POM Version: 3.1.0-PBRIsComing-SNAPSHOT
- * NBM Revision: 5124
- * NBM UC Suffix: PBRIsComing-nightly/3.1/plugins
+ Nightly Build Snapshot (PBRIsComing branch) (no git tag)
+  * Full Version: 3.1.0-PBRIsComing-5124
+  * POM Version: 3.1.0-PBRIsComing-SNAPSHOT
 
- Alpha1 Release
- * Full Version: 3.1-alpha1
- * POM Version: 3.1.0-alpha1
- * NBM Revision: 1
- * NBM UC Suffix: stable/3.1/plugins
+ Alpha1 Release (git tag: v3.1-alpha1)
+  * Full Version: 3.1.0-alpha1
+  * POM Version: 3.1.0-alpha1
  
- Final Release
- * Full Version: 3.1
- * POM Version: 3.1.0
- * NBM Revision: 5
- * NBM UC Suffix: stable/3.1/plugins
+ Final Release (git tag: v3.1)
+  * Full Version: 3.1.0
+  * POM Version: 3.1.0
  */ 
 
 import java.text.SimpleDateFormat
@@ -35,83 +27,156 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'org.ajoberstar:gradle-git:1.2.0'
+        classpath 'org.ajoberstar:gradle-git:1.4.1'
     }
 }
 
 ext {
-    jmeRevision     = 0
-    jmeNbmRevision  = 0
-    jmeGitHash      = ""
-    jmeGitTag       = ""
-    jmeShortGitHash = ""
-    jmeBuildDate    = new SimpleDateFormat("yyyy-MM-dd").format(new Date())
-    jmeBranchName   = "unknown"
-    jmeFullVersion  = "${jmeVersion}-UNKNOWN"
-    jmePomVersion   = "unknown"
-    jmeNbmUcSuffix  = "unknown"
+    releaseInfo = null;
+}
+
+enum ReleaseType {
+    Unknown,
+    Snapshot,
+    PreRelease,
+    Release;
+}
+
+class ReleaseInfo {
+
+    String tag;
+    String version;
+    String releaseName;
+    ReleaseType releaseType;
+    String buildDate;
+    
+    String branch;
+    String hash;
+    String shortHash;
+    int revision;
+
+    String fullVersion;
+    String pomVersion;
+    
+    ReleaseInfo(String version, Grgit repo) {
+        loadBuildDate();
+        loadRepoInfo(version, repo);
+    }
+
+    ReleaseInfo(String version) {
+        loadBuildDate();
+        loadUnknownInfo(version);
+    }
+
+    final void loadBuildDate() {
+        this.buildDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+    }
+
+    final void loadUnknownInfo(String version) {
+        this.releaseType = ReleaseType.Unknown;
+        this.version     = version;
+        this.releaseName = "unknown";
+        this.tag         = "";
+        this.revision    = 0;
+        this.branch      = "unknown";
+        this.hash        = "";
+        this.shortHash   = "";
+        this.fullVersion = "${version}-UNKNOWN";
+        this.pomVersion  = "${version}-UNKNOWN";
+    }
+
+    final void loadRepoInfo(String version, Grgit repo) {
+        this.releaseType = ReleaseType.Snapshot;
+        this.version     = version;
+
+        Commit head = repo.head();
+        this.revision = repo.log(includes:[head]).size();
+        this.hash = head.id;
+        this.shortHash = head.abbreviatedId;
+        this.branch = repo.branch.current.name;
+
+        Tag gitTag = repo.tag.list().find { it.commit == head }
+        if (gitTag != null){
+            this.tag = gitTag.name;
+        } else {
+            this.tag = "";
+        }
+
+        if (System.env.TRAVIS_BRANCH != null) {
+            this.branch = System.env.TRAVIS_BRANCH
+        }
+        if (System.env.TRAVIS_TAG != null) {
+            this.tag = System.env.TRAVIS_TAG
+        }
+        if (System.env.TRAVIS_PULL_REQUEST != null && System.env.TRAVIS_PULL_REQUEST != "false") {
+            this.branch += "-pr-" + System.env.TRAVIS_PULL_REQUEST
+        }
+        
+        loadTagInfo(this.tag);
+
+        this.fullVersion = version;
+        if (this.branch != "master") {
+            this.fullVersion += "-${branch}";
+        }
+
+        switch (this.releaseType) {
+        case ReleaseType.Snapshot:
+            this.pomVersion  = "${fullVersion}-SNAPSHOT";
+            this.fullVersion += "-${revision}";
+            break;
+        case ReleaseType.PreRelease:
+            this.pomVersion  = "${fullVersion}-${releaseName}";
+            this.fullVersion += "-${releaseName}";
+            break;
+        case ReleaseType.Release:
+            this.pomVersion  = "${fullVersion}";
+            break;
+        }
+    }
+
+    final void loadTagInfo(String tag) {
+        this.tag = tag;
+        
+        if (tag == null || !tag.startsWith("v")) {
+            return;
+        }
+        
+        String[] parts = tag.split("-");
+        if (parts.length == 2) {
+            if (parts[0].size() < 1 || parts[1].size() < 1) {
+                return;
+            }
+
+            releaseType = ReleaseType.PreRelease;
+            version = parts[0].substring(1);
+            releaseName = parts[1];
+        } else if (parts.length == 1) {
+            if (parts[0].size() < 1) {
+                return;
+            }
+
+            releaseType = ReleaseType.Release;
+            version = parts[0];
+        }
+    }
+
+    public String toString() {
+        return "tag = ${tag}, base_ver = ${baseVersion}, main_ver = ${mainVersion}, " +
+               "prerelease = ${prerelease}, release_name = ${releaseName}"
+    }
 }
 
 task configureVersionInfo {
     try {
-        def grgit = Grgit.open(project.file('.'))
-        jmeRevision = grgit.log(includes:['HEAD']).size()
-        jmeGitHash = grgit.head().id
-        jmeShortGitHash = grgit.head().abbreviatedId
-        jmeBranchName = grgit.branch.current.name
-        jmeGitTag = grgit.describe()
-        if (jmeGitTag == null) jmeGitTag = ""
-        
-        if (System.env.TRAVIS_BRANCH != null) {
-            jmeBranchName = System.env.TRAVIS_BRANCH
-        }
-        if (System.env.TRAVIS_TAG != null) {
-            jmeGitTag = System.env.TRAVIS_TAG
-        }
-        if (System.env.TRAVIS_PULL_REQUEST != null && 
-            System.env.TRAVIS_PULL_REQUEST != "false") {
-            jmeBranchName += "-pr-" + System.env.TRAVIS_PULL_REQUEST
-        }
-        
-        jmeFullVersion = jmeMainVersion
-        jmePomVersion  = jmeVersion
-        
-        if (jmeBranchName != "master") {
-            jmeFullVersion += "-${jmeBranchName}"
-            jmePomVersion  += "-${jmeBranchName}"
-            
-            jmeNbmUcSuffix = "${jmeBranchName}-"
-        } else {
-            jmeNbmUcSuffix = ""
-        }
-        
-        if (jmeVersionTag == "SNAPSHOT") {
-            jmeNbmUcSuffix += "nightly"
-        } else {
-            jmeNbmUcSuffix += "stable"
-        }
-        
-        jmeNbmUcSuffix += "/" + jmeMainVersion + "/plugins"
-        
-        if (jmeVersionTag == "SNAPSHOT") {
-            jmeFullVersion += "-${jmeRevision}"
-            jmePomVersion  += "-SNAPSHOT"
-            jmeNbmRevision = jmeRevision
-        } else if (jmeVersionTag == "") {
-            jmeNbmRevision = jmeVersionTagID
-        } else {
-            jmeFullVersion += "-${jmeVersionTag}"
-            jmePomVersion  += "-${jmeVersionTag}"
-            jmeNbmRevision = jmeVersionTagID
-        }
-        
-        logger.warn("Full Version: ${jmeFullVersion}")
-        logger.warn("POM Version: ${jmePomVersion}")
-        logger.warn("NBM Revision: ${jmeNbmRevision}")
-        logger.warn("NBM UC Suffix: ${jmeNbmUcSuffix}")
+        def repo = Grgit.open(project.file('.'))
+        releaseInfo = new ReleaseInfo(jmeVersion, repo);
+        logger.warn("Full Version: ${releaseInfo.fullVersion}")
+        logger.warn("POM Version: ${releaseInfo.pomVersion}")
     } catch (ex) {
         // Failed to get repo info
         logger.warn("Failed to get repository info: " + ex.message + ". " + \
                     "Only partial build info will be generated.")
+
+        releaseInfo = new ReleaseInfo(jmeVersion);
     }
 }

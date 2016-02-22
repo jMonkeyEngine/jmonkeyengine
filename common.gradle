@@ -6,7 +6,7 @@ apply plugin: 'java'
 apply plugin: 'maven'
 
 group = 'com.jme3'
-version = jmePomVersion
+version = releaseInfo.pomVersion
 
 sourceCompatibility = '1.6'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -33,7 +33,7 @@ dependencies {
 jar {
     manifest {
         attributes 'Implementation-Title': 'jMonkeyEngine',
-                   'Implementation-Version': jmeFullVersion
+                   'Implementation-Version': releaseInfo.fullVersion
     }
 }
 

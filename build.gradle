@@ -61,7 +61,7 @@ task libDist(dependsOn: subprojects.build) << {
 }
 
 task createZipDistribution(type:Zip,dependsOn:["dist","libDist"], description:"Package the nightly zip distribution"){
-    archiveName "jME" + jmeFullVersion + ".zip"
+    archiveName "jME" + releaseInfo.fullVersion + ".zip"
     into("/") {
          from {"./dist"}
     }            
