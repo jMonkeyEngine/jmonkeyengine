@@ -34,11 +34,14 @@ package com.jme3.network.serializing.serializers;
 import com.jme3.network.serializing.Serializer;
 import com.jme3.network.serializing.SerializerException;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The field serializer is the default serializer used for custom class.
@@ -46,16 +49,35 @@ import java.util.*;
  * @author Lars Wesselius, Nathan Sweet
  */
 public class FieldSerializer extends Serializer {
+    
+    static final Logger log = Logger.getLogger(FieldSerializer.class.getName());
+
     private static Map<Class, SavedField[]> savedFields = new HashMap<Class, SavedField[]>();
+    private static Map<Class, Constructor> savedCtors = new HashMap<Class, Constructor>();
 
     protected void checkClass(Class clazz) {
     
         // See if the class has a public no-arg constructor
         try {
-            clazz.getConstructor();
+            savedCtors.put(clazz, clazz.getConstructor());
+            return;
         } catch( NoSuchMethodException e ) {
-            throw new RuntimeException( "Registration error: no-argument constructor not found on:" + clazz ); 
-        } 
+            //throw new RuntimeException( "Registration error: no-argument constructor not found on:" + clazz ); 
+        }
+        
+        // See if it has a non-public no-arg constructor
+        try {
+            Constructor ctor = clazz.getDeclaredConstructor();
+            
+            // Make sure we can call it later.
+            ctor.setAccessible(true);
+             
+            savedCtors.put(clazz, ctor);
+            return;
+        } catch( NoSuchMethodException e ) {
+        }
+        
+        throw new RuntimeException( "Registration error: no-argument constructor not found on:" + clazz );  
     }        
     
     public void initialize(Class clazz) {
@@ -121,7 +143,8 @@ public class FieldSerializer extends Serializer {
 
         T object;
         try {
-            object = c.newInstance();
+            Constructor<T> ctor = (Constructor<T>)savedCtors.get(c);
+            object = ctor.newInstance();
         } catch (Exception e) {
             throw new SerializerException( "Error creating object of type:" + c, e );
         }
@@ -129,6 +152,9 @@ public class FieldSerializer extends Serializer {
         for (SavedField savedField : fields) {
             Field field = savedField.field;
             Serializer serializer = savedField.serializer;
+            if( log.isLoggable(Level.FINER) ) {
+                log.log(Level.FINER, "Reading field:{0} using serializer:{1}", new Object[]{field, serializer});
+            }
             Object value;
 
             if (serializer != null) {
@@ -164,9 +190,12 @@ public class FieldSerializer extends Serializer {
             try {
                 val = savedField.field.get(object);
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                throw new SerializerException("Unable to access field:" + savedField.field + " on:" + object, e);
             }
             Serializer serializer = savedField.serializer;
+            if( log.isLoggable(Level.FINER) ) {
+                log.log(Level.FINER, "Writing field:{0} using serializer:{1}", new Object[]{savedField.field, serializer});
+            }
 
             try {
                 if (serializer != null) {

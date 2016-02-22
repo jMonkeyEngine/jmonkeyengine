@@ -49,7 +49,7 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.*;
-import com.jme3.shader.Shader;
+import com.jme3.shader.Uniform;
 import com.jme3.shader.UniformBinding;
 import com.jme3.shader.UniformBindingManager;
 import com.jme3.system.NullRenderer;
@@ -483,8 +483,8 @@ public class RenderManager {
      * Updates the given list of uniforms with {@link UniformBinding uniform bindings}
      * based on the current world state.
      */
-    public void updateUniformBindings(Shader shader) {
-        uniformBindingManager.updateUniformBindings(shader);
+    public void updateUniformBindings(List<Uniform> params) {
+        uniformBindingManager.updateUniformBindings(params);
     }
 
     /**
@@ -556,7 +556,7 @@ public class RenderManager {
                 forcedRenderState = tmpRs;
 
                 //Reverted this part from revision 6197
-                //If forcedTechnique does not exists, and frocedMaterial is not set, the geom MUST NOT be rendered
+                //If forcedTechnique does not exists, and forcedMaterial is not set, the geom MUST NOT be rendered
             } else if (forcedMaterial != null) {
                 // use forced material
                 forcedMaterial.render(g, lightList, this);
@@ -583,37 +583,6 @@ public class RenderManager {
     public void renderGeometryList(GeometryList gl) {
         for (int i = 0; i < gl.size(); i++) {
             renderGeometry(gl.get(i));
-        }
-    }
-    
-    public void renderGeometryListNew(GeometryList gl) {
-        int size = gl.size();
-        int pass = 0;
-        
-        // Keep rendering geometries in the list
-        // checking each time if they need more passes.
-        // Geometries which need more passes are added to the beginning
-        // of the list and then another pass is executed.
-        // In the end, all geometries will have their passes rendered.
-        while (true) {
-            int writeIdx = 0;
-            for (int i = 0; i < size; i++) {
-                Geometry obj = gl.get(i);
-                renderGeometry(obj);
-                boolean morePasses = true;
-                if (morePasses) {
-                    // Geometry wants to be rendered again.
-                    // Move it to the beginning of the list.
-                    gl.set(writeIdx++, obj);
-                }
-            }
-            // No geometries were written to the beginning of the list -
-            // all passes are finished.
-            if (writeIdx == 0) {
-                return;
-            }
-            pass++;
-            size = writeIdx;
         }
     }
 
@@ -647,9 +616,7 @@ public class RenderManager {
 
             gm.getMaterial().preload(this);
             Mesh mesh = gm.getMesh();
-            if (mesh != null
-                    && mesh.getVertexCount() != 0
-                    && mesh.getTriangleCount() != 0) {
+            if (mesh != null) {
                 for (VertexBuffer vb : mesh.getBufferList().getArray()) {
                     if (vb.getData() != null && vb.getUsage() != VertexBuffer.Usage.CpuOnly) {
                         renderer.updateBufferData(vb);
@@ -674,10 +641,8 @@ public class RenderManager {
      * <p>
      * In addition to enqueuing the visible geometries, this method
      * also scenes which cast or receive shadows, by putting them into the
-     * RenderQueue's 
-     * {@link RenderQueue#addToShadowQueue(com.jme3.scene.Geometry, com.jme3.renderer.queue.RenderQueue.ShadowMode) 
-     * shadow queue}. Each Spatial which has its 
-     * {@link Spatial#setShadowMode(com.jme3.renderer.queue.RenderQueue.ShadowMode) shadow mode}
+     * RenderQueue's {@link RenderQueue#renderShadowQueue(GeometryList, RenderManager, Camera, boolean) shadow queue}.
+     * Each Spatial which has its {@link Spatial#setShadowMode(com.jme3.renderer.queue.RenderQueue.ShadowMode) shadow mode}
      * set to not off, will be put into the appropriate shadow queue, note that
      * this process does not check for frustum culling on any 
      * {@link ShadowMode#Cast shadow casters}, as they don't have to be
@@ -817,10 +782,8 @@ public class RenderManager {
      * @param singlePassLightBatchSize the number of lights.
      */
     public void setSinglePassLightBatchSize(int singlePassLightBatchSize) {
-        if (singlePassLightBatchSize < 1) {
-            throw new IllegalArgumentException("batch size cannot be less than 1");
-        }
-        this.singlePassLightBatchSize = singlePassLightBatchSize;
+        // Ensure the batch size is no less than 1
+        this.singlePassLightBatchSize = singlePassLightBatchSize < 1 ? 1 : singlePassLightBatchSize;
     }
     
     
@@ -1026,13 +989,12 @@ public class RenderManager {
      * (see {@link #renderTranslucentQueue(com.jme3.renderer.ViewPort) })</li>
      * <li>If any objects remained in the render queue, they are removed
      * from the queue. This is generally objects added to the 
-     * {@link RenderQueue#renderShadowQueue(com.jme3.renderer.queue.RenderQueue.ShadowMode, com.jme3.renderer.RenderManager, com.jme3.renderer.Camera, boolean) 
-     * shadow queue}
+     * {@link RenderQueue#renderShadowQueue(GeometryList, RenderManager, Camera, boolean) shadow queue}
      * which were not rendered because of a missing shadow renderer.</li>
      * </ul>
      * 
-     * @param vp
-     * @param tpf 
+     * @param vp View port to render
+     * @param tpf Time per frame value
      */
     public void renderViewPort(ViewPort vp, float tpf) {
         if (!vp.isEnabled()) {
