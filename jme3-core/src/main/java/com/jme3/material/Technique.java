@@ -131,10 +131,10 @@ public final class Technique {
      * @param rendererCaps The renderer capabilities which the shader should support.
      * @return A compatible shader.
      */
-    Shader makeCurrent(RenderManager renderManager, EnumSet<Caps> rendererCaps) {
+    Shader makeCurrent(RenderManager renderManager, LightList lights, EnumSet<Caps> rendererCaps) {
         TechniqueDefLogic logic = def.getLogic();
         AssetManager assetManager = owner.getMaterialDef().getAssetManager();
-        return logic.makeCurrent(assetManager, renderManager, rendererCaps, dynamicDefines);
+        return logic.makeCurrent(assetManager, renderManager, rendererCaps, lights, dynamicDefines);
     }
     
     /**

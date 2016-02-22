@@ -56,7 +56,7 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
 
     @Override
     public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
-            EnumSet<Caps> rendererCaps, DefineList defines) {
+            EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
         return techniqueDef.getShader(assetManager, rendererCaps, defines);
     }
 
