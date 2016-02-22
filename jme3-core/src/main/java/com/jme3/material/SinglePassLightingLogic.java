@@ -76,10 +76,10 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
 
     @Override
     public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
-            EnumSet<Caps> rendererCaps, DefineList defines) {
+            EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
         defines.set(nbLightsDefineId, renderManager.getSinglePassLightBatchSize() * 3);
         defines.set(singlePassLightingDefineId, true);
-        return super.makeCurrent(assetManager, renderManager, rendererCaps, defines);
+        return super.makeCurrent(assetManager, renderManager, rendererCaps, lights, defines);
     }
 
     /**

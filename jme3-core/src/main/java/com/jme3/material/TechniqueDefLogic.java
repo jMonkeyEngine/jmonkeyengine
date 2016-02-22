@@ -66,6 +66,8 @@ public interface TechniqueDefLogic {
      * @param renderManager The render manager for which rendering is to be performed.
      * @param rendererCaps Renderer capabilities. The returned shader must
      * support these capabilities.
+     * @param lights The lights with which the geometry shall be rendered. This
+     * list must not include culled lights.
      * @param defines The define list used by the technique, any 
      * {@link TechniqueDef#addShaderUnmappedDefine(java.lang.String) unmapped defines}
      * should be set here to change shader behavior.
@@ -73,7 +75,7 @@ public interface TechniqueDefLogic {
      * @return The shader to use for rendering.
      */
     public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager, 
-                              EnumSet<Caps> rendererCaps, DefineList defines);
+            EnumSet<Caps> rendererCaps, LightList lights, DefineList defines);
     
     /**
      * Requests that the <code>TechniqueDefLogic</code> renders the given geometry.

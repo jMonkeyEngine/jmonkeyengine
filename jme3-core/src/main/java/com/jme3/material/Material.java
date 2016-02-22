@@ -834,7 +834,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             return;
         }
 
-        Shader shader = technique.makeCurrent(renderManager, rendererCaps);
+        Shader shader = technique.makeCurrent(renderManager, null, rendererCaps);
         updateShaderMaterialParameters(renderer, shader);
         renderManager.getRenderer().setShader(shader);
     }
@@ -939,7 +939,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         updateRenderState(renderManager, renderer, techniqueDef);
 
         // Select shader to use
-        Shader shader = technique.makeCurrent(renderManager, rendererCaps);
+        Shader shader = technique.makeCurrent(renderManager, lights, rendererCaps);
         
         // Begin tracking which uniforms were changed by material.
         clearUniformsSetByCurrent(shader);
