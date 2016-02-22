@@ -164,7 +164,7 @@ public class DDSLoader implements AssetLoader {
             compressed = true;
             bpp = 4;
         } else {
-            pixelFormat = DXGIFormat.getJmeFormat(dxgiFormat);
+            pixelFormat = null; // DXGIFormat.getJmeFormat(dxgiFormat);
             if (pixelFormat == null) {
                 throw new IOException("Unsupported DX10 format: " + dxgiFormat);
             }
