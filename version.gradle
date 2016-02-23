@@ -3,27 +3,31 @@
  =====================
  
  Nightly Build Snapshot
+ * git tag:
  * Full Version: 3.1-5124
  * POM Version: 3.1.0-SNAPSHOT
  * NBM Revision: 5124
  * NBM UC Suffix: nightly/3.1/plugins
 
  Nightly Build Snapshot (PBRIsComing branch)
+ * git tag:
  * Full Version: 3.1-PBRIsComing-5124
  * POM Version: 3.1.0-PBRIsComing-SNAPSHOT
  * NBM Revision: 5124
  * NBM UC Suffix: PBRIsComing-nightly/3.1/plugins
 
  Alpha1 Release
+ * git tag: v3.1.0-alpha1
  * Full Version: 3.1-alpha1
  * POM Version: 3.1.0-alpha1
- * NBM Revision: 1
+ * NBM Revision: 0
  * NBM UC Suffix: stable/3.1/plugins
  
  Final Release
+ * git tag: v3.1.0
  * Full Version: 3.1
  * POM Version: 3.1.0
- * NBM Revision: 5
+ * NBM Revision: 0
  * NBM UC Suffix: stable/3.1/plugins
  */ 
 
@@ -52,6 +56,63 @@ ext {
     jmeNbmUcSuffix  = "unknown"
 }
 
+def getReleaseInfo(String tag) {
+    if (tag == null) {
+        // not a tagged commit
+        return null;
+    }
+    if (!tag.startsWith("v")) {
+        // syntax error
+        return null;
+    }
+    tag = tag.substring(1)
+
+    String[] parts = tag.split("-");
+    String mainVersion;
+    boolean prerelease;
+    String releaseName = null;
+
+    if (parts.length == 2) {
+        // prerelease
+        prerelease = true;
+        mainVersion = parts[0];
+        releaseName = parts[1];
+        if (releaseName.size() == 0) {
+            // syntax error
+            return null;
+        }
+    } else if (parts.length == 1) {
+        // final release
+        prerelease = false;
+        mainVersion = parts[0];
+    } else {
+        // error
+        return null;
+    }
+
+    if (mainVersion.size() == 0) {
+        // syntax error
+        return null;
+    }
+
+    parts = mainVersion.split("\\.");
+    if (parts.size() != 3) {
+        // syntax error
+        return null;
+    }
+
+    String baseVersion = parts[0] + "." + parts[1];
+
+    return [
+        "tag" : tag,
+        "baseVersion" : baseVersion,
+        "mainVersion" : mainVersion,
+        "prerelease" :  prerelease,
+        "releaseName" : releaseName,
+        "releaseSuffix": (prerelease ? "-${releaseName}": "")
+    ]
+}
+
 task configureVersionInfo {
     try {
         def grgit = Grgit.open(project.file('.'))
@@ -59,56 +120,40 @@ task configureVersionInfo {
         jmeGitHash = grgit.head().id
         jmeShortGitHash = grgit.head().abbreviatedId
         jmeBranchName = grgit.branch.current.name
-        jmeGitTag = grgit.describe()
-        if (jmeGitTag == null) jmeGitTag = ""
-        
-        if (System.env.TRAVIS_BRANCH != null) {
-            jmeBranchName = System.env.TRAVIS_BRANCH
-        }
-        if (System.env.TRAVIS_TAG != null) {
-            jmeGitTag = System.env.TRAVIS_TAG
-        }
-        if (System.env.TRAVIS_PULL_REQUEST != null && 
-            System.env.TRAVIS_PULL_REQUEST != "false") {
-            jmeBranchName += "-pr-" + System.env.TRAVIS_PULL_REQUEST
-        }
-        
-        jmeFullVersion = jmeMainVersion
-        jmePomVersion  = jmeVersion
-        
-        if (jmeGitTag.startsWith(jmeMainVersion)) {
-            jmeVersionTag = ""
-            jmePomVersion = jmeGitTag
-        }
-        if (jmeBranchName != "master" && jmeVersionTag == "SNAPSHOT") {
-            jmeFullVersion += "-${jmeBranchName}"
-            jmePomVersion  += "-${jmeBranchName}"
-            
-            jmeNbmUcSuffix = "${jmeBranchName}-"
+        //gtgit.describe doesn't behave like git describe and it doens't support any option
+        //jmeGitTag = grgit.describe() ?: System.env.TRAVIS_TAG
+        jmeGitTag = "git describe --tags --exact-match --dirty".execute().text.trim() ?: System.env.TRAVIS_TAG
+
+        def releaseInfo = getReleaseInfo(jmeGitTag)
+        if (releaseInfo != null) {
+            jmeFullVersion = "${releaseInfo.baseVersion}${releaseInfo.releaseSuffix}"
+            jmePomVersion = "${releaseInfo.mainVersion}${releaseInfo.releaseSuffix}"
+            jmeNbmRevision = "0"
+            jmeNbmUcSuffix = "stable/${releaseInfo.baseVersion}/plugins"
         } else {
-            jmeNbmUcSuffix = ""
-        }
-        
-        if (jmeVersionTag == "SNAPSHOT") {
-            jmeNbmUcSuffix += "nightly"
-        } else {
-            jmeNbmUcSuffix += "stable"
-        }
-        
-        jmeNbmUcSuffix += "/" + jmeMainVersion + "/plugins"
-        
-        if (jmeVersionTag == "SNAPSHOT") {
+            // SNAPSHOT
+            jmeFullVersion = jmeMainVersion
+            jmePomVersion  = jmeVersion
+            if (System.env.TRAVIS_BRANCH != null) {
+                jmeBranchName = System.env.TRAVIS_BRANCH
+            }
+            if (System.env.TRAVIS_PULL_REQUEST != null && 
+                System.env.TRAVIS_PULL_REQUEST != "false") {
+                jmeBranchName += "-pr-" + System.env.TRAVIS_PULL_REQUEST
+            }
+            if (jmeBranchName != "master") {
+                jmeFullVersion += "-${jmeBranchName}"
+                jmePomVersion  += "-${jmeBranchName}"
+                jmeNbmUcSuffix = "${jmeBranchName}-"
+            } else {
+                jmeNbmUcSuffix = ""
+            }
+            jmeNbmUcSuffix += "nightly/" + jmeMainVersion + "/plugins"
             jmeFullVersion += "-${jmeRevision}"
             jmePomVersion  += "-SNAPSHOT"
             jmeNbmRevision = jmeRevision
-        } else if (jmeVersionTag == "") {
-            jmeNbmRevision = jmeVersionTagID
-        } else {
-            jmeFullVersion += "-${jmeVersionTag}"
-            jmePomVersion  += "-${jmeVersionTag}"
-            jmeNbmRevision = jmeVersionTagID
         }
-        
+            
         logger.warn("Full Version: ${jmeFullVersion}")
         logger.warn("POM Version: ${jmePomVersion}")
         logger.warn("NBM Revision: ${jmeNbmRevision}")
