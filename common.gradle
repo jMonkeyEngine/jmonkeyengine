@@ -81,40 +81,8 @@ def pomConfig = {
     // from http://hub.jmonkeyengine.org/introduction/team/
     developers {
         developer {
-            name 'Kirill Vainer'
-            id 'Momoko_Fan'
-        }
-        developer {
-            name 'Erlend Sogge Heggen'
-            id 'erlend_sh'
-        }
-        developer {
-            name 'Skye Book'
-            id 'sbook'
-        }
-        developer {
-            name 'Normen Hansen'
-            id 'normen'
-        }
-        developer {
-            name 'Ruth Kusterer'
-            id 'zathras'
-        }
-        developer {
-            name 'Rémy Bouquet'
-            id 'nehon'
-        }
-        developer {
-            name 'Paul Speed'
-            id 'pspeed'
-        }
-        developer {
-            name 'Brent Owens'
-            id 'Sploreg'
-        }
-        developer {
-            name 'Eric Potter'
-            id 'iwgeric'
+            name 'jMonkeyEngine Team'
+            id 'jMonkeyEngine'
         }
     }
 }
