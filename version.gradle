@@ -67,7 +67,7 @@ def getReleaseInfo(String tag) {
     }
     tag = tag.substring(1)
 
-    String[] parts = tag.split("-");
+    String[] parts = tag.split("-", 2);
     String mainVersion;
     boolean prerelease;
     String releaseName = null;
@@ -121,7 +121,13 @@ task configureVersionInfo {
         jmeGitHash = head.id
         jmeShortGitHash = head.abbreviatedId
         jmeBranchName = grgit.branch.current.name
-        jmeGitTag = grgit.tag.list().find { it.commit == head } ?: System.env.TRAVIS_TAG
+        jmeGitTag = grgit.tag.list().find { it.commit == head }
+        
+        if (jmeGitTag != null) {
+            jmeGitTag = jmeGitTag.name
+        } else {
+            jmeGitTag = System.env.TRAVIS_TAG
+        }
 
         def releaseInfo = getReleaseInfo(jmeGitTag)
         if (releaseInfo != null) {
