@@ -116,13 +116,12 @@ def getReleaseInfo(String tag) {
 task configureVersionInfo {
     try {
         def grgit = Grgit.open(project.file('.'))
-        jmeRevision = grgit.log(includes:['HEAD']).size()
-        jmeGitHash = grgit.head().id
-        jmeShortGitHash = grgit.head().abbreviatedId
+        def head = grgit.head()
+        jmeRevision = grgit.log(includes: [head]).size()
+        jmeGitHash = head.id
+        jmeShortGitHash = head.abbreviatedId
         jmeBranchName = grgit.branch.current.name
-        //gtgit.describe doesn't behave like git describe and it doens't support any option
-        //jmeGitTag = grgit.describe() ?: System.env.TRAVIS_TAG
-        jmeGitTag = "git describe --tags --exact-match --dirty".execute().text.trim() ?: System.env.TRAVIS_TAG
+        jmeGitTag = grgit.tag.list().find { it.commit == head } ?: System.env.TRAVIS_TAG
 
         def releaseInfo = getReleaseInfo(jmeGitTag)
         if (releaseInfo != null) {
