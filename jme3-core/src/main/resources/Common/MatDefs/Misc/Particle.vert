@@ -32,7 +32,7 @@ void main(){
     #ifdef POINT_SPRITE
         vec4 worldPos = g_WorldMatrix * pos;
         float d = distance(g_CameraPosition.xyz, worldPos.xyz);
-        float size = (inSize * SIZE_MULTIPLIER * m_Quadratic) / d);
+        float size = (inSize * SIZE_MULTIPLIER * m_Quadratic) / d;
         gl_PointSize = max(1.0, size);
 
         //vec4 worldViewPos = g_WorldViewMatrix * pos;
