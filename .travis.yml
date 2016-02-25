@@ -55,9 +55,6 @@ before_install:
   # export ANDROID_NDK=`pwd`/android-ndk-r10c
 
 after_success:
-  - '[ "$TRAVIS_BRANCH" == "master" ] && echo running on master'
-  - '[ "$TRAVIS_PULL_REQUEST" == "false" ] && echo not a PR'
-  - '[ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && echo master and not PR'
-  - '[ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && echo upload archives! || :'
+  - '[ "$TRAVIS_BRANCH" == "master" ] && echo the branch is $TRAVIS_BRANCH'
   - '[ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && ./gradlew uploadArchives || :'
-  - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && ./gradlew bintrayUpload || :'
+  - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && ./gradlew uploadArchives bintrayUpload || :'
