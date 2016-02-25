@@ -153,7 +153,7 @@ public class LightProbeFactory {
         
         probe.setReady(false);
         
-        if(probe.getIrradianceMap() == null) {
+        if(probe.getIrradianceMap() != null) {
             probe.getIrradianceMap().getImage().dispose();
             probe.getPrefilteredEnvMap().getImage().dispose();
         }
