@@ -90,6 +90,8 @@ task dist(dependsOn: [':jme3-examples:dist', 'mergedJavadoc']){
 task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the projects.') {
     title = 'jMonkeyEngine3'
     destinationDir = mkdir("dist/javadoc")
+    
+    options.encoding = 'UTF-8'
 
     // Allows Javadoc to be generated on Java 8 despite doclint errors.
     if (JavaVersion.current().isJava8Compatible()) {
