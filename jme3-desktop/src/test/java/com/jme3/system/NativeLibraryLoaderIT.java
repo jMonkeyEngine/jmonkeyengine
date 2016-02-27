@@ -43,6 +43,7 @@ import org.junit.FixMethodOrder;
 import org.junit.experimental.categories.Category;
 
 import com.jme3.IntegrationTest;
+import org.junit.Ignore;
 
 /**
  * Integration test for {@link NativeLibraryLoader}.
@@ -51,6 +52,7 @@ import com.jme3.IntegrationTest;
  *
  * @author Kirill Vainer
  */
+@Ignore
 @Category(IntegrationTest.class)
 @FixMethodOrder
 public class NativeLibraryLoaderIT {
