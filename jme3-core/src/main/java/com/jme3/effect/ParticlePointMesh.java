@@ -33,14 +33,21 @@ package com.jme3.effect;
 
 import com.jme3.math.Matrix3f;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.RenderManager;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.TempVars;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 
 public class ParticlePointMesh extends ParticleMesh {
+
+    private static final int POS_SIZE = 3 * 4;
+    private static final int COLOR_SIZE = 4 * 1;
+    private static final int SIZE_SIZE = 1 * 4;
+    private static final int UV_SIZE = 4 * 4;
+    private static final int TOTAL_SIZE = POS_SIZE + COLOR_SIZE + SIZE_SIZE + UV_SIZE;
 
     private ParticleEmitter emitter;
 
@@ -59,109 +66,86 @@ public class ParticlePointMesh extends ParticleMesh {
 
         this.emitter = emitter;
 
-        // set positions
-        FloatBuffer pb = BufferUtils.createVector3Buffer(numParticles);
-        
-        //if the buffer is already set only update the data
-        VertexBuffer buf = getBuffer(VertexBuffer.Type.Position);
-        if (buf != null) {
-            buf.updateData(pb);
-        } else {
-            VertexBuffer pvb = new VertexBuffer(VertexBuffer.Type.Position);
-            pvb.setupData(Usage.Stream, 3, Format.Float, pb);
-            setBuffer(pvb);
-        }
+        ByteBuffer eb = BufferUtils.createByteBuffer(TOTAL_SIZE * numParticles);
+        VertexBuffer vb = new VertexBuffer(VertexBuffer.Type.InterleavedData);
+        vb.setupData(Usage.Stream, 1, Format.Byte, eb);
+        setBuffer(vb);
 
-        // set colors
-        ByteBuffer cb = BufferUtils.createByteBuffer(numParticles * 4);
-        
-        buf = getBuffer(VertexBuffer.Type.Color);
-        if (buf != null) {
-            buf.updateData(cb);
-        } else {
-            VertexBuffer cvb = new VertexBuffer(VertexBuffer.Type.Color);
-            cvb.setupData(Usage.Stream, 4, Format.UnsignedByte, cb);
-            cvb.setNormalized(true);
-            setBuffer(cvb);
-        }
+        VertexBuffer pb = new VertexBuffer(VertexBuffer.Type.Position);
+        pb.setupData(Usage.Stream, 3, Format.Float, eb);
+        pb.updateData(null);
+        pb.setOffset(0);
+        pb.setStride(TOTAL_SIZE);
+        setBuffer(pb);
 
-        // set sizes
-        FloatBuffer sb = BufferUtils.createFloatBuffer(numParticles);
-        
-        buf = getBuffer(VertexBuffer.Type.Size);
-        if (buf != null) {
-            buf.updateData(sb);
-        } else {
-            VertexBuffer svb = new VertexBuffer(VertexBuffer.Type.Size);
-            svb.setupData(Usage.Stream, 1, Format.Float, sb);
-            setBuffer(svb);
-        }
+        VertexBuffer cb = new VertexBuffer(VertexBuffer.Type.Color);
+        cb.setupData(Usage.Stream, 4, Format.UnsignedByte, eb);
+        cb.updateData(null);
+        cb.setNormalized(true);
+        cb.setOffset(POS_SIZE);
+        cb.setStride(TOTAL_SIZE);
+        setBuffer(cb);
 
-        // set UV-scale
-        FloatBuffer tb = BufferUtils.createFloatBuffer(numParticles*4);
-        
-        buf = getBuffer(VertexBuffer.Type.TexCoord);
-        if (buf != null) {
-            buf.updateData(tb);
-        } else {
-            VertexBuffer tvb = new VertexBuffer(VertexBuffer.Type.TexCoord);
-            tvb.setupData(Usage.Stream, 4, Format.Float, tb);
-            setBuffer(tvb);
-        }
-        
+        VertexBuffer sb = new VertexBuffer(VertexBuffer.Type.Size);
+        sb.setupData(Usage.Stream, 1, Format.Float, eb);
+        sb.updateData(null);
+        sb.setOffset(POS_SIZE + COLOR_SIZE);
+        sb.setStride(TOTAL_SIZE);
+        setBuffer(sb);
+
+        VertexBuffer tb = new VertexBuffer(VertexBuffer.Type.TexCoord);
+        tb.setupData(Usage.Stream, 4, Format.Float, eb);
+        tb.updateData(null);
+        tb.setOffset(POS_SIZE + COLOR_SIZE + SIZE_SIZE);
+        tb.setStride(TOTAL_SIZE);
+        setBuffer(tb);
+
         updateCounts();
     }
 
     @Override
-    public void updateParticleData(Particle[] particles, Camera cam, Matrix3f inverseRotation) {
-        VertexBuffer pvb = getBuffer(VertexBuffer.Type.Position);
-        FloatBuffer positions = (FloatBuffer) pvb.getData();
-
-        VertexBuffer cvb = getBuffer(VertexBuffer.Type.Color);
-        ByteBuffer colors = (ByteBuffer) cvb.getData();
-
-        VertexBuffer svb = getBuffer(VertexBuffer.Type.Size);
-        FloatBuffer sizes = (FloatBuffer) svb.getData();
-
-        VertexBuffer tvb = getBuffer(VertexBuffer.Type.TexCoord);
-        FloatBuffer texcoords = (FloatBuffer) tvb.getData();
+    public void updateParticleData(RenderManager rm, Particle[] particles, Camera cam, Matrix3f inverseRotation) {
+        VertexBuffer eb = getBuffer(VertexBuffer.Type.InterleavedData);
+        ByteBuffer elements = (ByteBuffer) eb.getData();
 
         float sizeScale = emitter.getWorldScale().x;
 
-        // update data in vertex buffers
-        positions.rewind();
-        colors.rewind();
-        sizes.rewind();
-        texcoords.rewind();
-        for (int i = 0; i < particles.length; i++){
-            Particle p = particles[i];
-            
-            positions.put(p.position.x)
-                     .put(p.position.y)
-                     .put(p.position.z);
+        TempVars vars = TempVars.get();
+        try {
+            float[] temp = vars.skinTangents;
+            int index = 0;
 
-            sizes.put(p.size * sizeScale);
-            colors.putInt(p.color.asIntABGR());
+            for (int i = 0; i < particles.length; i++) {
+                Particle p = particles[i];
 
-            int imgX = p.imageIndex % imagesX;
-            int imgY = (p.imageIndex - imgX) / imagesY;
+                temp[index++] = p.position.x;
+                temp[index++] = p.position.y;
+                temp[index++] = p.position.z;
+                temp[index++] = Float.intBitsToFloat(p.color.asIntABGR());
+                temp[index++] = p.size * sizeScale;
 
-            float startX = ((float) imgX) / imagesX;
-            float startY = ((float) imgY) / imagesY;
-            float endX   = startX + (1f / imagesX);
-            float endY   = startY + (1f / imagesY);
+                int imgX = p.imageIndex % imagesX;
+                int imgY = (p.imageIndex - imgX) / imagesY;
 
-            texcoords.put(startX).put(startY).put(endX).put(endY);
+                float startX = ((float) imgX) / imagesX;
+                float startY = ((float) imgY) / imagesY;
+                float endX = startX + (1f / imagesX);
+                float endY = startY + (1f / imagesY);
+
+                temp[index++] = startX;
+                temp[index++] = startY;
+                temp[index++] = endX;
+                temp[index++] = endY;
+            }
+
+            elements.asFloatBuffer().put(temp, 0, (TOTAL_SIZE / 4) * particles.length).flip();
+
+            eb.updateData(elements);
+
+            // cheating!
+            rm.getRenderer().updateBufferData(eb);
+        } finally {
+            vars.release();
         }
-        positions.flip();
-        colors.flip();
-        sizes.flip();
-        texcoords.flip();
-
-        // force renderer to re-send data to GPU
-        pvb.updateData(positions);
-        cvb.updateData(colors);
-        svb.updateData(sizes);
-        tvb.updateData(texcoords);
     }
 }

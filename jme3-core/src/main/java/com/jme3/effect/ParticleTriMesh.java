@@ -35,6 +35,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.RenderManager;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Usage;
@@ -145,7 +146,7 @@ public class ParticleTriMesh extends ParticleMesh {
     }
 
     @Override
-    public void updateParticleData(Particle[] particles, Camera cam, Matrix3f inverseRotation) {
+    public void updateParticleData(RenderManager rm, Particle[] particles, Camera cam, Matrix3f inverseRotation) {
 //        System.arraycopy(particles, 0, particlesCopy, 0, particlesCopy.length);
 //        comparator.setCamera(cam);
 //        Arrays.sort(particlesCopy, comparator);

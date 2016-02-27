@@ -1092,7 +1092,8 @@ public class ParticleEmitter extends Geometry {
 
             inverseRotation = this.getWorldRotation().toRotationMatrix(vars.tempMat3).invertLocal();
         }
-        particleMesh.updateParticleData(particles, cam, inverseRotation);
+        particleMesh.updateParticleData(rm, particles, cam, inverseRotation);
+
         if (!worldSpace) {
             vars.release();
         }
@@ -1100,7 +1101,7 @@ public class ParticleEmitter extends Geometry {
 
     public void preload(RenderManager rm, ViewPort vp) {
         this.updateParticleState(0);
-        particleMesh.updateParticleData(particles, vp.getCamera(), Matrix3f.IDENTITY);
+        particleMesh.updateParticleData(rm, particles, vp.getCamera(), Matrix3f.IDENTITY);
     }
 
     @Override

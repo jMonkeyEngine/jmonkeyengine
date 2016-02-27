@@ -2680,6 +2680,10 @@ public final class GLRenderer implements Renderer {
 
     private void setupVertexBuffers(Mesh mesh, VertexBuffer[] instanceData) {
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
+        if (interleavedData != null && interleavedData.isUpdateNeeded()) {
+            updateBufferData(interleavedData);
+        }
+
         if (instanceData != null) {
             for (VertexBuffer vb : instanceData) {
                 setVertexAttribVAO(vb, null);
@@ -2707,9 +2711,7 @@ public final class GLRenderer implements Renderer {
 
     private void updateVertexBuffers(Mesh mesh, VertexBuffer[] instanceData) {
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
-        if (interleavedData != null && interleavedData.isUpdateNeeded()) {
-            updateBufferData(interleavedData);
-        }
+
         if (instanceData != null) {
             for (VertexBuffer vb : instanceData) {
                 if (vb.isUpdateNeeded()) {
@@ -2717,6 +2719,14 @@ public final class GLRenderer implements Renderer {
                 }
             }
         }
+
+        if (interleavedData != null) {
+            if (interleavedData.isUpdateNeeded()) {
+                updateBufferData(interleavedData);
+            }
+            return;
+        }
+
         for (VertexBuffer vb : mesh.getBufferList().getArray()) {
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers

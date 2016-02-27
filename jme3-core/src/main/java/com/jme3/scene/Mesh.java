@@ -713,13 +713,21 @@ public class Mesh extends NativeObject implements Savable {
      * {@link #setInterleaved() interleaved} format.
      */
     public void updateCounts(){
-        if (getBuffer(Type.InterleavedData) != null)
-            throw new IllegalStateException("Should update counts before interleave");
+//        if (getBuffer(Type.InterleavedData) != null) {
+//            throw new IllegalStateException("Should update counts before interleave");
+//        }
 
         VertexBuffer pb = getBuffer(Type.Position);
         VertexBuffer ib = getBuffer(Type.Index);
-        if (pb != null){
-            vertCount = pb.getData().limit() / pb.getNumComponents();
+        if (pb != null) {
+            VertexBuffer ip = getBuffer(Type.InterleavedData);
+            if (ip != null) {
+                int limitBytes = ip.getData().limit();
+                int elementSizeWithOthers = pb.getStride();
+                vertCount = limitBytes / elementSizeWithOthers;
+            } else {
+                vertCount = pb.getData().limit() / pb.getNumComponents();
+            }
         }
         if (ib != null){
             elementCount = computeNumElements(ib.getData().limit());
