@@ -402,6 +402,25 @@ public final class BufferUtils {
     }
 
     /**
+     * Updates the values of the given vector from the specified buffer at the
+     * index provided.
+     * 
+     * @param vector
+     *            the vector to set data on
+     * @param buf
+     *            the buffer to read from
+     * @param index
+     *            the position (in terms of vectors, not floats) to read from
+     *            the buf
+     */
+    public static void populateFromBuffer(Vector4f vector, FloatBuffer buf, int index) {
+        vector.x = buf.get(index * 4);
+        vector.y = buf.get(index * 4 + 1);
+        vector.z = buf.get(index * 4 + 2);
+        vector.w = buf.get(index * 4 + 3);
+    }
+
+    /**
      * Generates a Vector3f array from the given FloatBuffer.
      * 
      * @param buff

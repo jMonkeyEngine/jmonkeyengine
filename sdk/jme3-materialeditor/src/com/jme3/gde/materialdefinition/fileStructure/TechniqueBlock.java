@@ -15,6 +15,8 @@ import com.jme3.util.blockparser.Statement;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.openide.util.WeakListeners;
 
 /**
@@ -28,6 +30,8 @@ public class TechniqueBlock extends UberStatement {
     public static final String ADD_WORLD_PARAM = "addWorldParam";
     public static final String REMOVE_WORLD_PARAM = "removeWorldParam";
     protected String name;
+    
+    private static final Logger logger = Logger.getLogger(TechniqueBlock.class.getName());
 
     protected TechniqueBlock(int lineNumber, String line) {
         super(lineNumber, line);
@@ -102,7 +106,13 @@ public class TechniqueBlock extends UberStatement {
     }
 
     public List<WorldParamBlock> getWorldParams() {
-        return getWorldParameters().getWorldParams();
+        WorldParametersBlock block = getWorldParameters();
+        if (block != null)
+            return getWorldParameters().getWorldParams();
+        else {
+            logger.log(Level.WARNING, "Unable to build ShaderNodes: Could not find any WorldParameters. Most likely the technique {0} is broken.", line);
+            return new ArrayList<WorldParamBlock>();
+        }
     }
 
     public void addWorldParam(WorldParamBlock block) {
@@ -180,8 +190,19 @@ public class TechniqueBlock extends UberStatement {
 
     public List<ShaderNodeBlock> getShaderNodes() {
         List<ShaderNodeBlock> list = new ArrayList<ShaderNodeBlock>();
-        list.addAll(getBlock(VertexShaderNodesBlock.class).getShaderNodes());
-        list.addAll(getBlock(FragmentShaderNodesBlock.class).getShaderNodes());
+        
+        VertexShaderNodesBlock vert_block = getBlock(VertexShaderNodesBlock.class);
+        if (vert_block == null)
+            logger.log(Level.WARNING, "Unable to build ShaderNodes: Could not find any VertexShaderNode. Most likely the technique {0} is broken.", line);
+        else
+            list.addAll(vert_block.getShaderNodes());
+        
+        FragmentShaderNodesBlock frag_block = getBlock(FragmentShaderNodesBlock.class);
+        if (frag_block == null)
+            logger.log(Level.WARNING, "Unable to build ShaderNodes: Could not find any FragmentShaderNode. Most likely the technique {0} is broken.", line);
+        else
+            list.addAll(frag_block.getShaderNodes());
+        
         return list;
     }
 

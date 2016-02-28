@@ -25,7 +25,6 @@ install:
 script:
   - ./gradlew check
   - ./gradlew createZipDistribution
-  - "[ $TRAVIS_BRANCH == 'master' ] && [ $TRAVIS_PULL_REQUEST == 'false' ] && ./gradlew uploadArchives || :"
 
 before_deploy:
   - export RELEASE_DIST=$(ls build/distributions/*.zip)
@@ -54,3 +53,7 @@ before_install:
   # wget http://dl.google.com/android/ndk/android-ndk-r10c-linux-x86_64.bin -O ndk.bin
   # 7z x ndk.bin -y > /dev/null
   # export ANDROID_NDK=`pwd`/android-ndk-r10c
+
+after_success:
+  - '[ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && ./gradlew uploadArchives || :'
+  - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && ./gradlew uploadArchives bintrayUpload || :'

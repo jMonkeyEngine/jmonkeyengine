@@ -351,6 +351,11 @@ public class RmiRegistry {
         }
         
         public Object invoke( short procId, Object[] args ) {
+            if( log.isLoggable(Level.FINEST) ) {
+                log.finest("SharedObject->invoking:" + classInfo.getMethod(procId) 
+                           + " on:" + object 
+                           + " with:" + (args == null ? "null" : Arrays.asList(args))); 
+            }
             return classInfo.getMethod(procId).invoke(object, args);
         }
     }

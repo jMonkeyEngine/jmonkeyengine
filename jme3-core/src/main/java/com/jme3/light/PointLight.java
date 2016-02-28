@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2015 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2015-2016 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -240,5 +240,12 @@ public class PointLight extends Light {
         }else{
             this.invRadius = 0;
         }
+    }
+
+    @Override
+    public PointLight clone() {
+        PointLight p = (PointLight)super.clone();
+        p.position = position.clone();
+        return p;
     }
 }

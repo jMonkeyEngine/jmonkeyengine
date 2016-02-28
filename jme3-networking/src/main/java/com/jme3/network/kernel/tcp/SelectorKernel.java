@@ -106,6 +106,9 @@ public class SelectorKernel extends AbstractKernel
         try {
             thread.close();
             thread = null;
+            
+            // Need to let any caller waiting for a read() wakeup 
+            wakeupReader();       
         } catch( IOException e ) {
             throw new KernelException( "Error closing host connection:" + address, e );
         }
@@ -164,15 +167,7 @@ public class SelectorKernel extends AbstractKernel
         // Enqueue an endpoint event for the listeners
         addEvent( EndpointEvent.createRemove( this, p ) );
 
-        // If there are no pending messages then add one so that the
-        // kernel-user knows to wake up if it is only listening for
-        // envelopes.
-        if( !hasEnvelopes() ) {
-            // Note: this is not really a race condition.  At worst, our
-            // event has already been handled by now and it does no harm
-            // to check again.
-            addEnvelope( EVENTS_PENDING );
-        }
+        wakeupReader();
     }
 
     /**

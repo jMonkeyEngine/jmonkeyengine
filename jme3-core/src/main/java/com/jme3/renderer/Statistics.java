@@ -36,7 +36,6 @@ import com.jme3.shader.Shader;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.util.IntMap;
-import java.util.HashSet;
 
 /**
  * The statistics class allows tracking of real-time rendering statistics.

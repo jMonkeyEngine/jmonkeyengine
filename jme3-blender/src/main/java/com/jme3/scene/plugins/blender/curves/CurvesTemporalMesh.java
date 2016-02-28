@@ -180,8 +180,8 @@ public class CurvesTemporalMesh extends TemporalMesh {
         if (bevelObject != null && beziers.size() > 0) {
             this.append(this.applyBevelAndTaper(this, bevelObject, taperObject, blenderContext));
         } else {
-            int originalVerticesAmount = vertices.size();
             for (BezierLine bezierLine : beziers) {
+            	int originalVerticesAmount = vertices.size();
                 vertices.add(bezierLine.vertices[0]);
                 Vector3f v = bezierLine.vertices[1].subtract(bezierLine.vertices[0]).normalizeLocal();
                 float temp = v.x;

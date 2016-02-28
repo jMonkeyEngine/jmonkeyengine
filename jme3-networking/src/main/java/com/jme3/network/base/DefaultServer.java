@@ -326,6 +326,10 @@ public class DefaultServer implements Server
  
     protected void dispatch( HostedConnection source, Message m )
     {
+        if( log.isLoggable(Level.FINER) ) {
+            log.log(Level.FINER, "{0} received:{1}", new Object[]{source, m});
+        }
+        
         if( source == null ) {
             messageListeners.messageReceived( source, m );
         } else {
@@ -604,7 +608,7 @@ public class DefaultServer implements Server
             // should always already be closed through all paths that I
             // can conceive... but it doesn't hurt to be sure. 
             for( Endpoint p : channels ) {
-                if( p == null ) 
+                if( p == null || !p.isConnected() ) 
                     continue;
                 p.close();
             }
