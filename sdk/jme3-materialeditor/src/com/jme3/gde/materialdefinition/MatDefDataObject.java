@@ -142,6 +142,7 @@ public class MatDefDataObject extends MultiDataObject {
         findAssetManager();
         final MatDefMetaData metaData = new MatDefMetaData(this);
         lookupContents.add(metaData);
+        lookupContents.add(new MatDefNavigatorPanel());
         pf.addFileChangeListener(new FileChangeAdapter() {
             @Override
             public void fileChanged(FileEvent fe) {

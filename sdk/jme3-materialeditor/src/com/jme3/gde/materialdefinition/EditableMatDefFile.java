@@ -186,7 +186,7 @@ public class EditableMatDefFile {
             return "";
         } catch (Exception e) {
             Exceptions.printStackTrace(e);
-            return "error generating shader " + e.getMessage();
+            return "Error generating shader: " + e.getMessage();
         }
     }
 
