@@ -155,13 +155,13 @@ public final class Bone implements Savable {
 
         userControl = source.userControl;
 
-        bindPos = source.bindPos;
-        bindRot = source.bindRot;
-        bindScale = source.bindScale;
+        bindPos = source.bindPos.clone();
+        bindRot = source.bindRot.clone();
+        bindScale = source.bindScale.clone();
 
-        modelBindInversePos = source.modelBindInversePos;
-        modelBindInverseRot = source.modelBindInverseRot;
-        modelBindInverseScale = source.modelBindInverseScale;
+        modelBindInversePos = source.modelBindInversePos.clone();
+        modelBindInverseRot = source.modelBindInverseRot.clone();
+        modelBindInverseScale = source.modelBindInverseScale.clone();
 
         // parent and children will be assigned manually..
     }
