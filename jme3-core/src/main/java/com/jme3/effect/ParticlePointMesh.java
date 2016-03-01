@@ -40,6 +40,7 @@ import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 
 public class ParticlePointMesh extends ParticleMesh {
 
@@ -47,7 +48,8 @@ public class ParticlePointMesh extends ParticleMesh {
     private static final int COLOR_SIZE = 4 * 1;
     private static final int SIZE_SIZE = 1 * 4;
     private static final int UV_SIZE = 4 * 4;
-    private static final int TOTAL_SIZE = POS_SIZE + COLOR_SIZE + SIZE_SIZE + UV_SIZE;
+    private static final int BYTES_PER_PARTICLE = POS_SIZE + COLOR_SIZE + SIZE_SIZE + UV_SIZE;
+    private static final int FLOATS_PER_PARTICLE = BYTES_PER_PARTICLE / 4;
 
     private ParticleEmitter emitter;
 
@@ -66,39 +68,46 @@ public class ParticlePointMesh extends ParticleMesh {
 
         this.emitter = emitter;
 
-        ByteBuffer eb = BufferUtils.createByteBuffer(TOTAL_SIZE * numParticles);
-        VertexBuffer vb = new VertexBuffer(VertexBuffer.Type.InterleavedData);
-        vb.setupData(Usage.Stream, 1, Format.Byte, eb);
-        setBuffer(vb);
+        ByteBuffer eb = BufferUtils.createByteBuffer(BYTES_PER_PARTICLE * numParticles);
+        VertexBuffer vb = getBuffer(VertexBuffer.Type.InterleavedData);
+        if (vb != null) {
+            vb.updateData(eb);
+        } else {
+            vb = new VertexBuffer(VertexBuffer.Type.InterleavedData);
+            vb.setupData(Usage.Stream, 1, Format.Byte, eb);
+            setBuffer(vb);
+        }
 
-        VertexBuffer pb = new VertexBuffer(VertexBuffer.Type.Position);
-        pb.setupData(Usage.Stream, 3, Format.Float, eb);
-        pb.updateData(null);
-        pb.setOffset(0);
-        pb.setStride(TOTAL_SIZE);
-        setBuffer(pb);
+        if (getBuffer(VertexBuffer.Type.Position) == null) {
+            VertexBuffer pb = new VertexBuffer(VertexBuffer.Type.Position);
+            pb.setupData(Usage.Stream, 3, Format.Float, eb);
+            pb.updateData(null);
+            pb.setOffset(0);
+            pb.setStride(BYTES_PER_PARTICLE);
+            setBuffer(pb);
 
-        VertexBuffer cb = new VertexBuffer(VertexBuffer.Type.Color);
-        cb.setupData(Usage.Stream, 4, Format.UnsignedByte, eb);
-        cb.updateData(null);
-        cb.setNormalized(true);
-        cb.setOffset(POS_SIZE);
-        cb.setStride(TOTAL_SIZE);
-        setBuffer(cb);
+            VertexBuffer cb = new VertexBuffer(VertexBuffer.Type.Color);
+            cb.setupData(Usage.Stream, 4, Format.UnsignedByte, eb);
+            cb.updateData(null);
+            cb.setNormalized(true);
+            cb.setOffset(POS_SIZE);
+            cb.setStride(BYTES_PER_PARTICLE);
+            setBuffer(cb);
 
-        VertexBuffer sb = new VertexBuffer(VertexBuffer.Type.Size);
-        sb.setupData(Usage.Stream, 1, Format.Float, eb);
-        sb.updateData(null);
-        sb.setOffset(POS_SIZE + COLOR_SIZE);
-        sb.setStride(TOTAL_SIZE);
-        setBuffer(sb);
+            VertexBuffer sb = new VertexBuffer(VertexBuffer.Type.Size);
+            sb.setupData(Usage.Stream, 1, Format.Float, eb);
+            sb.updateData(null);
+            sb.setOffset(POS_SIZE + COLOR_SIZE);
+            sb.setStride(BYTES_PER_PARTICLE);
+            setBuffer(sb);
 
-        VertexBuffer tb = new VertexBuffer(VertexBuffer.Type.TexCoord);
-        tb.setupData(Usage.Stream, 4, Format.Float, eb);
-        tb.updateData(null);
-        tb.setOffset(POS_SIZE + COLOR_SIZE + SIZE_SIZE);
-        tb.setStride(TOTAL_SIZE);
-        setBuffer(tb);
+            VertexBuffer tb = new VertexBuffer(VertexBuffer.Type.TexCoord);
+            tb.setupData(Usage.Stream, 4, Format.Float, eb);
+            tb.updateData(null);
+            tb.setOffset(POS_SIZE + COLOR_SIZE + SIZE_SIZE);
+            tb.setStride(BYTES_PER_PARTICLE);
+            setBuffer(tb);
+        }
 
         updateCounts();
     }
@@ -107,38 +116,53 @@ public class ParticlePointMesh extends ParticleMesh {
     public void updateParticleData(RenderManager rm, Particle[] particles, Camera cam, Matrix3f inverseRotation) {
         VertexBuffer eb = getBuffer(VertexBuffer.Type.InterleavedData);
         ByteBuffer elements = (ByteBuffer) eb.getData();
+        FloatBuffer floatElements = elements.asFloatBuffer();
 
         float sizeScale = emitter.getWorldScale().x;
 
         TempVars vars = TempVars.get();
         try {
-            float[] temp = vars.skinTangents;
-            int index = 0;
+            float[] floatArray = vars.skinTangents;
 
-            for (int i = 0; i < particles.length; i++) {
-                Particle p = particles[i];
+            int particlesPerIteration = floatArray.length / FLOATS_PER_PARTICLE;
+            int iterations = (particles.length + particlesPerIteration - 1) / particlesPerIteration;
 
-                temp[index++] = p.position.x;
-                temp[index++] = p.position.y;
-                temp[index++] = p.position.z;
-                temp[index++] = Float.intBitsToFloat(p.color.asIntABGR());
-                temp[index++] = p.size * sizeScale;
+            int particleIndex = 0;
+            for (int iteration = 0; iteration < iterations; iteration++) {
+                int particlesRemaining = Math.min(
+                        particles.length - particleIndex,
+                        particlesPerIteration);
 
-                int imgX = p.imageIndex % imagesX;
-                int imgY = (p.imageIndex - imgX) / imagesY;
+                int floatIndex = 0;
+                for (int i = 0; i < particlesRemaining; i++) {
+                    Particle p = particles[particleIndex++];
 
-                float startX = ((float) imgX) / imagesX;
-                float startY = ((float) imgY) / imagesY;
-                float endX = startX + (1f / imagesX);
-                float endY = startY + (1f / imagesY);
+                    floatArray[floatIndex++] = p.position.x;
+                    floatArray[floatIndex++] = p.position.y;
+                    floatArray[floatIndex++] = p.position.z;
+                    floatArray[floatIndex++] = Float.intBitsToFloat(p.color.asIntABGR());
+                    floatArray[floatIndex++] = p.size * sizeScale;
 
-                temp[index++] = startX;
-                temp[index++] = startY;
-                temp[index++] = endX;
-                temp[index++] = endY;
+                    int imgX = p.imageIndex % imagesX;
+                    int imgY = (p.imageIndex - imgX) / imagesY;
+
+                    float startX = ((float) imgX) / imagesX;
+                    float startY = ((float) imgY) / imagesY;
+                    float endX = startX + (1f / imagesX);
+                    float endY = startY + (1f / imagesY);
+
+                    floatArray[floatIndex++] = startX;
+                    floatArray[floatIndex++] = startY;
+                    floatArray[floatIndex++] = endX;
+                    floatArray[floatIndex++] = endY;
+                }
+
+                floatElements.put(floatArray, 0, FLOATS_PER_PARTICLE * particlesRemaining);
             }
 
-            elements.asFloatBuffer().put(temp, 0, (TOTAL_SIZE / 4) * particles.length).flip();
+            if (floatElements.remaining() != 0) {
+                throw new IllegalStateException();
+            }
 
             eb.updateData(elements);
 
