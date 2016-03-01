@@ -5,7 +5,7 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 
-group = 'com.jme3'
+group = 'org.jmonkeyengine'
 version = jmePomVersion
 
 sourceCompatibility = '1.6'
@@ -61,12 +61,53 @@ task javadocJar(type: Jar, dependsOn: javadoc, description: 'Creates a jar from 
     from javadoc.destinationDir
 }
 
+def pomConfig = {
+    name POM_NAME
+    description POM_DESCRIPTION
+    url POM_URL
+    inceptionYear '2016'
+    scm {
+        url POM_SCM_URL
+        connection POM_SCM_CONNECTION
+        developerConnection POM_SCM_DEVELOPER_CONNECTION
+    }
+    licenses {
+        license {
+            name POM_LICENSE_NAME
+            url POM_LICENSE_URL
+            distribution POM_LICENSE_DISTRIBUTION
+        }
+    }
+    // from http://hub.jmonkeyengine.org/introduction/team/
+    developers {
+        developer {
+            name 'jMonkeyEngine Team'
+            id 'jMonkeyEngine'
+        }
+    }
+}
+
+// workaround to be able to use same custom pom with 'maven' and 'bintray' plugin
+task writeFullPom {
+    ext.pomFile = "$mavenPomDir/${project.name}-${project.version}.pom"
+    outputs.file pomFile
+    doLast {
+        pom {
+            project pomConfig
+        }.writeTo(pomFile)
+    }
+}
+assemble.dependsOn(writeFullPom)
+install.dependsOn(writeFullPom)
+uploadArchives.dependsOn(writeFullPom)
+
 artifacts {
     archives jar
     archives sourcesJar
     if(buildJavaDoc == "true"){
         archives javadocJar
     }
+    archives writeFullPom.outputs.files[0]
 }
 
 uploadArchives {
@@ -80,23 +121,7 @@ uploadArchives {
              authentication(userName: "www-updater", privateKey: "private/www-updater.key")
         }
         
-        pom.project {
-            name POM_NAME
-            description POM_DESCRIPTION
-            url POM_URL
-            scm {
-                url POM_SCM_URL
-                connection POM_SCM_CONNECTION
-                developerConnection POM_SCM_DEVELOPER_CONNECTION
-            }
-            licenses {
-                license {
-                    name POM_LICENSE_NAME
-                    url POM_LICENSE_URL
-                    distribution POM_LICENSE_DISTRIBUTION
-                }
-            }
-        }
+        pom.project pomConfig
     }
 }
 

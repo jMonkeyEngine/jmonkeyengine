@@ -963,7 +963,7 @@ public final class AppSettings extends HashMap<String, Object> {
         return getString("SettingsDialogImage");
     }
 
-    public boolean getGammaCorrection() {
+    public boolean isGammaCorrection() {
         return getBoolean("GammaCorrection");
     }
     

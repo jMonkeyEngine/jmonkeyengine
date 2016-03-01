@@ -37,6 +37,11 @@ package com.jme3.input;
 public interface KeyInput extends Input {
 
     /**
+     * unmapped key.
+     */
+    public static final int KEY_UNKNOWN = 0x00;
+
+    /**
      * escape key.
      */
     public static final int KEY_ESCAPE = 0x01;
@@ -518,17 +523,17 @@ public interface KeyInput extends Input {
      * delete key.
      */
     public static final int KEY_DELETE = 0xD3;
-    
+
     /**
      * Left "Windows" key on PC keyboards, left "Option" key on Mac keyboards.
      */
     public static final int KEY_LMETA  = 0xDB;
-    
+
     /**
      * Right "Windows" key on PC keyboards, right "Option" key on Mac keyboards.
      */
     public static final int KEY_RMETA = 0xDC;
-    
+
     public static final int KEY_APPS = 0xDD;
     /**
      * power key.
@@ -539,4 +544,8 @@ public interface KeyInput extends Input {
      */
     public static final int KEY_SLEEP = 0xDF;
 
+    /**
+     * the last key.
+     */
+    public static final int KEY_LAST = 0xE0;
 }

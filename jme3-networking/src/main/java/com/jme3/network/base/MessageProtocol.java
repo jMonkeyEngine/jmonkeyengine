@@ -181,7 +181,7 @@ public class MessageProtocol
             Message m = (Message)obj;
             messages.add(m);
         } catch( IOException e ) {
-            throw new RuntimeException( "Error deserializing object, clas ID:" + buffer.getShort(0), e );   
+            throw new RuntimeException( "Error deserializing object, class ID:" + buffer.getShort(0), e );   
         }         
     }
 }

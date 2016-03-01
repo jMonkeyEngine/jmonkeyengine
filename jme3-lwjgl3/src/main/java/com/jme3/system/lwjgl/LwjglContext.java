@@ -43,9 +43,7 @@ import com.jme3.renderer.lwjgl.LwjglGLFboEXT;
 import com.jme3.renderer.lwjgl.LwjglGLFboGL3;
 import com.jme3.renderer.opengl.*;
 import com.jme3.system.*;
-import org.lwjgl.Sys;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.ARBDebugOutput;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.EXTFramebufferMultisample;
 import org.lwjgl.opengl.GLCapabilities;
@@ -53,9 +51,10 @@ import org.lwjgl.opengl.GLCapabilities;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
+import org.lwjgl.opengl.ARBDebugOutput;
 
 import static org.lwjgl.opengl.GL.createCapabilities;
-import static org.lwjgl.opengl.GL11.GL_TRUE;
 import static org.lwjgl.opengl.GL11.glGetInteger;
 
 /**
@@ -84,16 +83,16 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     protected void printContextInitInfo() {
-        logger.log(Level.INFO, "LWJGL {0} context running on thread {1}\n" +
-                        " * Graphics Adapter: GLFW {2}",
-                new Object[]{Sys.getVersion(), Thread.currentThread().getName(), GLFW.glfwGetVersionString()});
+        logger.log(Level.INFO, "LWJGL {0} context running on thread {1}\n"
+                + " * Graphics Adapter: GLFW {2}",
+                new Object[]{org.lwjgl.Version.getVersion(), Thread.currentThread().getName(), GLFW.glfwGetVersionString()});
     }
 
     protected int determineMaxSamples() {
         // If we already have a valid context, determine samples using current context.
-        if (GLFW.glfwExtensionSupported("GL_ARB_framebuffer_object") == GL_TRUE) {
+        if (GLFW.glfwExtensionSupported("GL_ARB_framebuffer_object") == GLFW_TRUE) {
             return glGetInteger(ARBFramebufferObject.GL_MAX_SAMPLES);
-        } else if (GLFW.glfwExtensionSupported("GL_EXT_framebuffer_multisample") == GL_TRUE) {
+        } else if (GLFW.glfwExtensionSupported("GL_EXT_framebuffer_multisample") == GLFW_TRUE) {
             return glGetInteger(EXTFramebufferMultisample.GL_MAX_SAMPLES_EXT);
         }
 
@@ -180,11 +179,11 @@ public abstract class LwjglContext implements JmeContext {
         }
 
         if (capabilities.GL_ARB_debug_output && settings.getBoolean("GraphicsDebug")) {
-            ARBDebugOutput.glDebugMessageCallbackARB(new LwjglGLDebugOutputHandler(), 0); // User param is zero. Not sure what we could use that for.
+            ARBDebugOutput.glDebugMessageCallbackARB(new LwjglGLDebugOutputHandler(), 0);
         }
 
-        renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
-        renderer.setLinearizeSrgbImages(settings.getGammaCorrection());
+        renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
+        renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
 
         // Init input
         if (keyInput != null) {
@@ -198,7 +197,6 @@ public abstract class LwjglContext implements JmeContext {
         if (joyInput != null) {
             joyInput.initialize();
         }
-
         renderable.set(true);
     }
 
@@ -240,26 +238,32 @@ public abstract class LwjglContext implements JmeContext {
         }
     }
 
+    @Override
     public boolean isCreated() {
         return created.get();
     }
 
+    @Override
     public boolean isRenderable() {
         return renderable.get();
     }
 
+    @Override
     public void setSettings(AppSettings settings) {
         this.settings.copyFrom(settings);
     }
 
+    @Override
     public AppSettings getSettings() {
         return settings;
     }
 
+    @Override
     public Renderer getRenderer() {
         return renderer;
     }
 
+    @Override
     public Timer getTimer() {
         return timer;
     }

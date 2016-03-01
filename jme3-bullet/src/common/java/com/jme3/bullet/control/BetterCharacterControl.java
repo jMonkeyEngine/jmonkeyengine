@@ -171,6 +171,8 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         }
         TempVars vars = TempVars.get();
 
+        Vector3f currentVelocity = vars.vect2.set(velocity);
+        
         // dampen existing x/z forces
         float existingLeftVelocity = velocity.dot(localLeft);
         float existingForwardVelocity = velocity.dot(localForward);
@@ -194,7 +196,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
             //add resulting vector to existing velocity
             velocity.addLocal(localWalkDirection);
         }
-        rigidBody.setLinearVelocity(velocity);
+        if(currentVelocity.distance(velocity) > FastMath.ZERO_TOLERANCE) rigidBody.setLinearVelocity(velocity);
         if (jump) {
             //TODO: precalculate jump force
             Vector3f rotatedJumpForce = vars.vect1;

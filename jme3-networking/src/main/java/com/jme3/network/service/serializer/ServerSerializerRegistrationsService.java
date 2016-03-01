@@ -65,7 +65,7 @@ public class ServerSerializerRegistrationsService extends AbstractHostedService 
     public void connectionAdded(Server server, HostedConnection hc) {
         // Just in case
         super.connectionAdded(server, hc);
-        
+ 
         // Send the client the registration information
         hc.send(SerializerRegistrationsMessage.INSTANCE);
     }

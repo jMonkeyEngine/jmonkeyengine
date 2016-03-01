@@ -146,15 +146,17 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
             // that also run their own servers but realistically they would have
             // to disable the ServerSerializerRegistrationsServer anyway.
             if( compiled != null ) {
-                log.log( Level.INFO, "Skipping registration as registry is locked, presumably by a local server process.");
+                log.log(Level.INFO, "Skipping registration as registry is locked, presumably by a local server process.");
                 return;
             }
         }
         
+        log.log(Level.FINE, "Registering {0} classes...", registrations.length);
         for( Registration reg : registrations ) {
-            log.log( Level.INFO, "Registering:{0}", reg);
+            log.log(Level.INFO, "Registering:{0}", reg);
             reg.register();
         }
+        log.log(Level.FINE, "Done registering serializable classes.");
     }
     
     @Serializable
@@ -187,7 +189,7 @@ public class SerializerRegistrationsMessage extends AbstractMessage {
                     serializer = (Serializer)serializerType.newInstance();                    
                 }
                 SerializerRegistration result = Serializer.registerClassForId(id, type, serializer);
-                log.log( Level.FINE, "   result:{0}", result);                
+                log.log(Level.FINE, "   result:{0}", result);                
             } catch( ClassNotFoundException e ) {
                 throw new RuntimeException( "Class not found attempting to register:" + this, e );
             } catch( InstantiationException e ) {

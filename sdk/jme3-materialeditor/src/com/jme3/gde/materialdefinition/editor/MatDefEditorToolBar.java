@@ -8,6 +8,8 @@ package com.jme3.gde.materialdefinition.editor;
 import com.jme3.gde.materialdefinition.fileStructure.TechniqueBlock;
 import java.awt.Component;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
@@ -23,7 +25,8 @@ public class MatDefEditorToolBar extends javax.swing.JPanel {
 
     private MatDefEditorlElement parent;
     private final DefaultComboBoxModel<TechniqueBlock> comboModel = new DefaultComboBoxModel<TechniqueBlock>();
-
+    private final static Logger logger = Logger.getLogger(MatDefEditorToolBar.class.getName());
+    
     /**
      * Creates new form MatDefEditorToolBar
      */
@@ -130,6 +133,17 @@ public class MatDefEditorToolBar extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void techniqueComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_techniqueComboBoxActionPerformed
+        if (techniqueComboBox.getSelectedItem() == null) {
+            if (techniqueComboBox.getItemCount() > 0) {
+                if (techniqueComboBox.getItemCount() > 1) {
+                    logger.log(Level.WARNING, "No Technique selected, taking the first one!"); /* Don't be over verbose: When there's only one Element, you can't select itself again, thus null */
+                }
+                techniqueComboBox.setSelectedIndex(0); /* Take the first one available */
+            } else {
+                logger.log(Level.WARNING, "No Techniques known for this MaterialDef. Please add one using the button to the right!");
+                return;
+            }
+        }
         parent.switchTechnique((TechniqueBlock) techniqueComboBox.getSelectedItem());
     }//GEN-LAST:event_techniqueComboBoxActionPerformed
 

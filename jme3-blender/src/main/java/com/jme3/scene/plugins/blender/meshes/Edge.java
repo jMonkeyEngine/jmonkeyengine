@@ -10,6 +10,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.math.Vector3d;
 import com.jme3.scene.plugins.blender.meshes.IndexesLoop.IndexPredicate;
 
 /**
@@ -24,6 +25,8 @@ public class Edge {
 
     /** The vertices indexes. */
     private int                 index1, index2;
+    /** The vertices that can be set if we need and abstract edge outside the mesh (for computations). */
+    private Vector3f 			v1, v2;
     /** The weight of the edge. */
     private float               crease;
     /** A variable that indicates if this edge belongs to any face or not. */
@@ -31,6 +34,13 @@ public class Edge {
     /** The mesh that owns the edge. */
     private TemporalMesh        temporalMesh;
 
+    public Edge(Vector3f v1, Vector3f v2) {
+		this.v1 = v1 == null ? new Vector3f() : v1;
+		this.v2 = v2 == null ? new Vector3f() : v2;
+		index1 = 0;
+		index2 = 1;
+	}
+    
     /**
      * This constructor only stores the indexes of the vertices. The position vertices should be stored
      * outside this class.
@@ -74,14 +84,14 @@ public class Edge {
      * @return the first vertex of the edge
      */
     public Vector3f getFirstVertex() {
-        return temporalMesh.getVertices().get(index1);
+        return temporalMesh == null ? v1 : temporalMesh.getVertices().get(index1);
     }
 
     /**
      * @return the second vertex of the edge
      */
     public Vector3f getSecondVertex() {
-        return temporalMesh.getVertices().get(index2);
+        return temporalMesh == null ? v2 : temporalMesh.getVertices().get(index2);
     }
 
     /**
@@ -188,28 +198,82 @@ public class Edge {
      * @return <b>true</b> if the edges cross and false otherwise
      */
     public boolean cross(Edge edge) {
-        Vector3f P1 = this.getFirstVertex();
-        Vector3f P2 = edge.getFirstVertex();
-        Vector3f u = this.getSecondVertex().subtract(P1);
-        Vector3f v = edge.getSecondVertex().subtract(P2);
-        float t2 = (u.x * (P2.y - P1.y) - u.y * (P2.x - P1.x)) / (u.y * v.x - u.x * v.y);
-        float t1 = (P2.x - P1.x + v.x * t2) / u.x;
-        Vector3f p1 = P1.add(u.mult(t1));
-        Vector3f p2 = P2.add(v.mult(t2));
+        return this.getCrossPoint(edge) != null;
+    }
+    
+    /**
+	 * The method computes the crossing pint of this edge and another edge. If
+	 * there is no crossing then null is returned.
+	 * 
+	 * @param edge
+	 *            the edge to compute corss point with
+	 * @return cross point on null if none exist
+	 */
+	public Vector3f getCrossPoint(Edge edge) {
+		return this.getCrossPoint(edge, false, false);
+	}
+    
+	/**
+	 * The method computes the crossing pint of this edge and another edge. If
+	 * there is no crossing then null is returned. This method also allows to
+	 * get the crossing point of the straight lines that contain these edges if
+	 * you set the 'extend' parameter to true.
+	 * 
+	 * @param edge
+	 *            the edge to compute corss point with
+	 * @param extendThisEdge
+	 *            set to <b>true</b> to find a crossing point along the whole
+	 *            straight that contains the current edge
+	 * @param extendSecondEdge
+	 *            set to <b>true</b> to find a crossing point along the whole
+	 *            straight that contains the given edge
+	 * @return cross point on null if none exist
+	 */
+	public Vector3f getCrossPoint(Edge edge, boolean extendThisEdge, boolean extendSecondEdge) {
+		Vector3d P1 = new Vector3d(this.getFirstVertex());
+		Vector3d P2 = new Vector3d(edge.getFirstVertex());
+		Vector3d u = new Vector3d(this.getSecondVertex()).subtract(P1).normalizeLocal();
+		Vector3d v = new Vector3d(edge.getSecondVertex()).subtract(P2).normalizeLocal();
+		
+		double t1 = 0, t2 = 0;
+		if(u.x == 0 && v.x == 0) {
+			t2 = (u.z * (P2.y - P1.y) - u.y * (P2.z - P1.z)) / (u.y * v.z - u.z * v.y);
+	        t1 = (P2.z - P1.z + v.z * t2) / u.z;
+		} else if(u.y == 0 && v.y == 0) {
+			t2 = (u.x * (P2.z - P1.z) - u.z * (P2.x - P1.x)) / (u.z * v.x - u.x * v.z);
+	        t1 = (P2.x - P1.x + v.x * t2) / u.x;
+		} else if(u.z == 0 && v.z == 0) {
+			t2 = (u.x * (P2.y - P1.y) - u.y * (P2.x - P1.x)) / (u.y * v.x - u.x * v.y);
+	        t1 = (P2.x - P1.x + v.x * t2) / u.x;
+		} else {
+			t2 = (P1.y * u.x - P1.x * u.y + P2.x * u.y - P2.y * u.x) / (v.y * u.x - u.y * v.x);
+			t1 = (P2.x - P1.x + v.x * t2) / u.x;
+			if(Math.abs(P1.z - P2.z + u.z * t1 - v.z * t2) > FastMath.FLT_EPSILON) {
+				return null;
+			}
+		}
+		Vector3d p1 = P1.add(u.mult(t1));
+        Vector3d p2 = P2.add(v.mult(t2));
 
-        if (p1.distance(p2) <= FastMath.FLT_EPSILON) {
-            // the lines cross, check if p1 and p2 are within the edges
-            Vector3f p = p1.subtract(P1);
-            float cos = p.dot(u) / (p.length() * u.length());
-            if (cos > 0 && p.length() <= u.length()) {
+		if (p1.distance(p2) <= FastMath.FLT_EPSILON) {
+			if(extendThisEdge && extendSecondEdge) {
+				return p1.toVector3f();
+			}
+			// the lines cross, check if p1 and p2 are within the edges
+            Vector3d p = p1.subtract(P1);
+            double cos = p.dot(u) / p.length();
+            if (extendThisEdge || p.length()<= FastMath.FLT_EPSILON || cos >= 1 - FastMath.FLT_EPSILON && p.length() <= this.getLength()) {
                 // p1 is inside the first edge, lets check the other edge now
                 p = p2.subtract(P2);
-                cos = p.dot(v) / (p.length() * v.length());
-                return cos > 0 && p.length() <= u.length();
+                cos = p.dot(v) / p.length();
+                if(extendSecondEdge || p.length()<= FastMath.FLT_EPSILON || cos >= 1 - FastMath.FLT_EPSILON && p.length() <= edge.getLength()) {
+                	return p1.toVector3f();
+                }
             }
         }
-        return false;
-    }
+		
+		return null;
+	}
 
     @Override
     public String toString() {

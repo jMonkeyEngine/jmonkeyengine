@@ -82,7 +82,9 @@ public class SphereCollisionShape extends CollisionShape {
      */
     @Override
     public void setScale(Vector3f scale) {
-        Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "SphereCollisionShape cannot be scaled");
+        if (!scale.equals(Vector3f.UNIT_XYZ)) {
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "SphereCollisionShape cannot be scaled");
+        }
     }
 
     protected void createShape() {
@@ -91,7 +93,7 @@ public class SphereCollisionShape extends CollisionShape {
 //        new SphereShape(radius);
 //        objectId.setLocalScaling(Converter.convert(getScale()));
 //        objectId.setMargin(margin);
-        setScale(scale);
+        setScale(scale); // Set the scale to 1
         setMargin(margin);
     }
     

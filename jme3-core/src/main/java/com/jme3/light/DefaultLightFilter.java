@@ -60,6 +60,11 @@ public final class DefaultLightFilter implements LightFilter {
             for (int i = 0; i < worldLights.size(); i++) {
                 Light light = worldLights.get(i);
 
+                // If this light is not enabled it will be ignored.
+                if (!light.isEnabled()) {
+                    continue;
+                }
+
                 if (light.frustumCheckNeeded) {
                     processedLights.add(light);
                     light.frustumCheckNeeded = false;
