@@ -107,7 +107,16 @@ public class JmeSkeletonControl extends AbstractSceneExplorerNode {
                     SystemAction.get(DeleteAction.class)
                 };
     }
-
+    
+    @Override
+    protected void fireSave(boolean modified) {
+        Node parent = getParentNode();
+        if (parent instanceof AbstractSceneExplorerNode) {
+            AbstractSceneExplorerNode par=(AbstractSceneExplorerNode)parent;
+            par.fireSave(modified);
+        }
+    }
+    
     @Override
     public boolean canDestroy() {
         return !readOnly;
@@ -118,6 +127,7 @@ public class JmeSkeletonControl extends AbstractSceneExplorerNode {
         super.destroy();
         final Spatial spat = getParentNode().getLookup().lookup(Spatial.class);
         try {
+            fireSave(true);
             SceneApplication.getApplication().enqueue(new Callable<Void>() {
 
                 public Void call() throws Exception {

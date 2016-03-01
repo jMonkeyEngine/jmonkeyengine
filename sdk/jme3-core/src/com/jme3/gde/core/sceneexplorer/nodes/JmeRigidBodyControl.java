@@ -45,6 +45,7 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.Action;
 import org.openide.actions.DeleteAction;
 import org.openide.loaders.DataObject;
+import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
 import org.openide.util.actions.SystemAction;
@@ -90,6 +91,15 @@ public class JmeRigidBodyControl extends AbstractSceneExplorerNode {
                     SystemAction.get(DeleteAction.class)
                 };
     }
+    
+    @Override
+    protected void fireSave(boolean modified) {
+        Node parent = getParentNode();
+        if (parent instanceof AbstractSceneExplorerNode) {
+            AbstractSceneExplorerNode par=(AbstractSceneExplorerNode)parent;
+            par.fireSave(modified);
+        }
+    }
 
     @Override
     public boolean canDestroy() {
@@ -101,6 +111,7 @@ public class JmeRigidBodyControl extends AbstractSceneExplorerNode {
         super.destroy();
         final Spatial spat=getParentNode().getLookup().lookup(Spatial.class);
         try {
+            fireSave(true);
             SceneApplication.getApplication().enqueue(new Callable<Void>() {
 
                 public Void call() throws Exception {

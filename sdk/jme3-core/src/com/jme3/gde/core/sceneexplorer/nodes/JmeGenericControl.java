@@ -32,7 +32,6 @@
 package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.gde.core.icons.IconList;
-import com.jme3.gde.core.properties.ScenePropertyChangeListener;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
@@ -43,6 +42,7 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.Action;
 import org.openide.actions.DeleteAction;
 import org.openide.loaders.DataObject;
+import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
 import org.openide.util.actions.SystemAction;
@@ -122,6 +122,15 @@ public class JmeGenericControl extends AbstractSceneExplorerNode {
     }
 
     @Override
+    protected void fireSave(boolean modified) {
+        Node parent = getParentNode();
+        if (parent instanceof AbstractSceneExplorerNode) {
+            AbstractSceneExplorerNode par=(AbstractSceneExplorerNode)parent;
+            par.fireSave(modified);
+        }
+    }
+
+    @Override
     public boolean canDestroy() {
         return true;
     }
@@ -131,6 +140,7 @@ public class JmeGenericControl extends AbstractSceneExplorerNode {
         super.destroy();
         final Spatial spat = getParentNode().getLookup().lookup(Spatial.class);
         try {
+            fireSave(true);
             SceneApplication.getApplication().enqueue(new Callable<Void>() {
                 public Void call() throws Exception {
                     spat.removeControl(control);
