@@ -99,24 +99,6 @@ public abstract class LwjglContext implements JmeContext {
         return Integer.MAX_VALUE;
     }
 
-    protected void loadNatives() {
-        if (JmeSystem.isLowPermissions()) {
-            return;
-        }
-
-        if ("LWJGL".equals(settings.getAudioRenderer())) {
-            NativeLibraryLoader.loadNativeLibrary("openal-lwjgl3", true);
-        }
-
-        if (NativeLibraryLoader.isUsingNativeBullet()) {
-            NativeLibraryLoader.loadNativeLibrary("bulletjme", true);
-        }
-
-        NativeLibraryLoader.loadNativeLibrary("glfw-lwjgl3", true);
-        NativeLibraryLoader.loadNativeLibrary("jemalloc-lwjgl3", true);
-        NativeLibraryLoader.loadNativeLibrary("lwjgl3", true);
-    }
-
     protected int getNumSamplesToUse() {
         int samples = 0;
         if (settings.getSamples() > 1) {
