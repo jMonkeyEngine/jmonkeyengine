@@ -139,7 +139,7 @@ public final class Bone implements Savable {
     /**
      * Special-purpose copy constructor. 
      * <p>
-     * Only copies the name, user control state and world inverse / local bind pose transforms from the original.
+     * Only copies the name, user control state and bind pose transforms from the original.
      * <p>
      * The rest of the data is <em>NOT</em> copied, as it will be
      * generated automatically when the bone is animated.
