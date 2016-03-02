@@ -5,11 +5,15 @@ if (!hasProperty('mainClass')) {
 }
 
 task run(dependsOn: 'build', type:JavaExec) {
-   main = mainClass
-   classpath = sourceSets.main.runtimeClasspath   
-   if( assertions  == "true" ){
-       enableAssertions = true;
-   }
+    main = mainClass
+    classpath = sourceSets.main.runtimeClasspath
+    if (System.properties['os.name'].toLowerCase().contains('mac')) {
+        jvmArgs "-XstartOnFirstThread"
+        jvmArgs "-Djava.awt.headless=true"
+    }
+    if( assertions  == "true" ){
+        enableAssertions = true;
+    }
 }
 
 dependencies {
