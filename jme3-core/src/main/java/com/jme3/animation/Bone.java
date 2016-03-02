@@ -141,10 +141,6 @@ public final class Bone implements Savable {
      * <p>
      * Only copies the name and bind pose from the original.
      * <p>
-     * WARNING: Local bind pose and world inverse bind pose transforms shallow 
-     * copied. Modifying that data on the original bone will cause it to
-     * be recomputed on any cloned bones.
-     * <p>
      * The rest of the data is <em>NOT</em> copied, as it will be
      * generated automatically when the bone is animated.
      * 
