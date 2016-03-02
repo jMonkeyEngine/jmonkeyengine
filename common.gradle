@@ -33,7 +33,7 @@ dependencies {
 jar {
     manifest {
         attributes 'Implementation-Title': 'jMonkeyEngine',
-                   'Implementation-Version': releaseInfo.fullVersion
+                   'Implementation-Version': jmeFullVersion
     }
 }
 
