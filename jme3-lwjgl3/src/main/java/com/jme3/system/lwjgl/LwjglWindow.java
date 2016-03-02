@@ -440,7 +440,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                     + "Must set with JmeContext.setSystemListener().");
         }
 
-        loadNatives();
         LOGGER.log(Level.FINE, "Using LWJGL {0}", Version.getVersion());
 
         if (!initInThread()) {
