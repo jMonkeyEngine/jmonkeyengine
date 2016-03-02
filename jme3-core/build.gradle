@@ -48,4 +48,3 @@ task updateVersionPropertiesFile << {
 }
 
 compileJava.dependsOn(updateVersionPropertiesFile)
-

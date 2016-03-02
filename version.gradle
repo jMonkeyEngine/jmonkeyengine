@@ -54,6 +54,7 @@ ext {
     jmeFullVersion  = "${jmeVersion}-UNKNOWN"
     jmePomVersion   = "unknown"
     jmeNbmUcSuffix  = "unknown"
+    jmeVersionTag   = "unknown"
 }
 
 def getReleaseInfo(String tag) {
@@ -135,6 +136,7 @@ task configureVersionInfo {
             jmePomVersion = "${releaseInfo.mainVersion}${releaseInfo.releaseSuffix}"
             jmeNbmRevision = "0"
             jmeNbmUcSuffix = "stable/${releaseInfo.baseVersion}/plugins"
+            jmeVersionTag = releaseInfo.releaseName ?: "";
         } else {
             // SNAPSHOT
             jmeFullVersion = jmeMainVersion
@@ -157,6 +159,7 @@ task configureVersionInfo {
             jmeFullVersion += "-${jmeRevision}"
             jmePomVersion  += "-SNAPSHOT"
             jmeNbmRevision = jmeRevision
+            jmeVersionTag = "SNAPSHOT"
         }
 
         logger.warn("Full Version: ${jmeFullVersion}")
