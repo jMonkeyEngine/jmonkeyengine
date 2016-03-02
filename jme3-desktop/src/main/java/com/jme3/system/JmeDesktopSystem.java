@@ -43,6 +43,7 @@ import com.jme3.system.JmeContext.Type;
 import com.jme3.util.Screenshots;
 import java.awt.EventQueue;
 import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -116,18 +117,25 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
 
     @Override
     public void showErrorDialog(String message) {
-        final String msg = message;
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                ErrorDialog.showDialog(msg);
-            }
-        });
+        if (!GraphicsEnvironment.isHeadless()) {
+            final String msg = message;
+            EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    ErrorDialog.showDialog(msg);
+                }
+            });
+        } else {
+            System.err.println("[JME ERROR] " + message);
+        }
     }
 
     @Override
     public boolean showSettingsDialog(AppSettings sourceSettings, final boolean loadFromRegistry) {
         if (SwingUtilities.isEventDispatchThread()) {
             throw new IllegalStateException("Cannot run from EDT");
+        }
+        if (GraphicsEnvironment.isHeadless()) {
+            throw new IllegalStateException("Cannot show dialog in headless environment");
         }
 
         final AppSettings settings = new AppSettings(false);
