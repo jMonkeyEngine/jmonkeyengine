@@ -52,7 +52,6 @@ import org.junit.Ignore;
  *
  * @author Kirill Vainer
  */
-@Ignore
 @Category(IntegrationTest.class)
 @FixMethodOrder
 public class NativeLibraryLoaderIT {
