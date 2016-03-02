@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009-2010 jMonkeyEngine
+ *  Copyright (c) 2009-2016 jMonkeyEngine
  *  All rights reserved.
  * 
  *  Redistribution and use in source and binary forms, with or without
@@ -34,12 +34,10 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.scene.Spatial;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.geomipmap.lodcalc.PerspectiveLodCalculator;
 import java.awt.Image;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -58,7 +56,7 @@ import org.openide.util.actions.SystemAction;
  */
 @org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class JmeTerrainLodControl extends AbstractSceneExplorerNode {
+public class JmeTerrainLodControl extends JmeControl {
     
     private static Image smallImage = IconList.wheel.getImage();
     private TerrainLodControl terrainLodControl;
@@ -71,6 +69,7 @@ public class JmeTerrainLodControl extends AbstractSceneExplorerNode {
         getLookupContents().add(control);
         getLookupContents().add(this);
         this.terrainLodControl = control;
+        this.control = control;
         setName("TerrainLodControl");
     }
     
@@ -93,41 +92,6 @@ public class JmeTerrainLodControl extends AbstractSceneExplorerNode {
                     //SystemAction.get(DeleteAction.class)
                 };
     }
-    
-    @Override
-    protected void fireSave(boolean modified) {
-        Node parent = getParentNode();
-        if (parent instanceof AbstractSceneExplorerNode) {
-            AbstractSceneExplorerNode par=(AbstractSceneExplorerNode)parent;
-            par.fireSave(modified);
-        }
-    }
-
-    @Override
-    public boolean canDestroy() {
-        return !readOnly;
-    }
-
-    @Override
-    public void destroy() throws IOException {
-        super.destroy();
-        final Spatial spat = getParentNode().getLookup().lookup(Spatial.class);
-        try {
-            fireSave(true);
-            SceneApplication.getApplication().enqueue(new Callable<Void>() {
-
-                public Void call() throws Exception {
-                    spat.removeControl(terrainLodControl);
-                    return null;
-                }
-            }).get();
-            ((AbstractSceneExplorerNode) getParentNode()).refresh(true);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-    }
 
     @Override
     protected Sheet createSheet() {
@@ -147,6 +111,7 @@ public class JmeTerrainLodControl extends AbstractSceneExplorerNode {
 
     }
 
+    @Override
     public Class getExplorerObjectClass() {
         return TerrainLodControl.class;
     }

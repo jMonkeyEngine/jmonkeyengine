@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009-2010 jMonkeyEngine
+ *  Copyright (c) 2009-2016 jMonkeyEngine
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -34,19 +34,13 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 import com.jme3.animation.AnimControl;
 import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.properties.AnimationProperty;
-import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.TrackVisibilityPopup;
-import com.jme3.scene.Spatial;
 import java.awt.Image;
-import java.io.IOException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import javax.swing.Action;
 import org.openide.actions.DeleteAction;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
-import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.actions.BooleanStateAction;
 import org.openide.util.actions.SystemAction;
@@ -57,7 +51,7 @@ import org.openide.util.actions.SystemAction;
  */
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class JmeAnimControl extends AbstractSceneExplorerNode {
+public class JmeAnimControl extends JmeControl {
 
     private AnimControl animControl;
     private JmeAnimation playingAnimation = null;
@@ -78,6 +72,7 @@ public class JmeAnimControl extends AbstractSceneExplorerNode {
         lookupContents.add(animControl);
         setName("AnimControl");
         children.setAnimControl(this);
+        control = animControl;
     }
 
     @Override
@@ -130,40 +125,6 @@ public class JmeAnimControl extends AbstractSceneExplorerNode {
     }
 
     @Override
-    protected void fireSave(boolean modified) {
-        Node parent = getParentNode();
-        if (parent instanceof AbstractSceneExplorerNode) {
-            AbstractSceneExplorerNode par=(AbstractSceneExplorerNode)parent;
-            par.fireSave(modified);
-        }
-    }
-    
-    @Override
-    public boolean canDestroy() {
-        return !readOnly;
-    }
-
-    @Override
-    public void destroy() throws IOException {
-        super.destroy();
-        final Spatial spat = getParentNode().getLookup().lookup(Spatial.class);
-        try {
-            fireSave(true);
-            SceneApplication.getApplication().enqueue(new Callable<Void>() {
-
-                public Void call() throws Exception {
-                    spat.removeControl(animControl);
-                    return null;
-                }
-            }).get();
-            ((AbstractSceneExplorerNode) getParentNode()).refresh(true);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-    }
-
     public Class getExplorerObjectClass() {
         return AnimControl.class;
     }

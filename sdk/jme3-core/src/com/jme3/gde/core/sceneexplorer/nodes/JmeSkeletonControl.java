@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009-2010 jMonkeyEngine
+ *  Copyright (c) 2009-2016 jMonkeyEngine
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -33,19 +33,10 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.animation.SkeletonControl;
 import com.jme3.gde.core.icons.IconList;
-import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.scene.Spatial;
 import java.awt.Image;
-import java.io.IOException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import javax.swing.Action;
-import org.openide.actions.DeleteAction;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
-import org.openide.util.Exceptions;
-import org.openide.util.actions.SystemAction;
 
 /**
  *
@@ -53,7 +44,7 @@ import org.openide.util.actions.SystemAction;
  */
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class JmeSkeletonControl extends AbstractSceneExplorerNode {
+public class JmeSkeletonControl extends JmeControl {
 
     private SkeletonControl skeletonControl;
     private static Image smallImage = IconList.skeletonControl.getImage();
@@ -64,6 +55,7 @@ public class JmeSkeletonControl extends AbstractSceneExplorerNode {
     public JmeSkeletonControl(SkeletonControl skeletonControl, JmeBoneChildren children) {
         super(children);
         this.skeletonControl = skeletonControl;
+        control = skeletonControl;
         lookupContents.add(this);
         lookupContents.add(skeletonControl);
         setName("SkeletonControl");
@@ -99,50 +91,6 @@ public class JmeSkeletonControl extends AbstractSceneExplorerNode {
     }
 
     @Override
-    public Action[] getActions(boolean context) {
-        return new SystemAction[]{
-                    //                    SystemAction.get(CopyAction.class),
-                    //                    SystemAction.get(CutAction.class),
-                    //                    SystemAction.get(PasteAction.class),
-                    SystemAction.get(DeleteAction.class)
-                };
-    }
-    
-    @Override
-    protected void fireSave(boolean modified) {
-        Node parent = getParentNode();
-        if (parent instanceof AbstractSceneExplorerNode) {
-            AbstractSceneExplorerNode par=(AbstractSceneExplorerNode)parent;
-            par.fireSave(modified);
-        }
-    }
-    
-    @Override
-    public boolean canDestroy() {
-        return !readOnly;
-    }
-
-    @Override
-    public void destroy() throws IOException {
-        super.destroy();
-        final Spatial spat = getParentNode().getLookup().lookup(Spatial.class);
-        try {
-            fireSave(true);
-            SceneApplication.getApplication().enqueue(new Callable<Void>() {
-
-                public Void call() throws Exception {
-                    spat.removeControl(skeletonControl);
-                    return null;
-                }
-            }).get();
-            ((AbstractSceneExplorerNode) getParentNode()).refresh(true);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-    }
-
     public Class getExplorerObjectClass() {
         return SkeletonControl.class;
     }

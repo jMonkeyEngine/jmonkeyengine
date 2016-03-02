@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009-2010 jMonkeyEngine
+ *  Copyright (c) 2009-2016 jMonkeyEngine
  *  All rights reserved.
  * 
  *  Redistribution and use in source and binary forms, with or without
@@ -34,20 +34,10 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.gde.core.icons.IconList;
-import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Spatial;
 import java.awt.Image;
-import java.io.IOException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import javax.swing.Action;
-import org.openide.actions.DeleteAction;
 import org.openide.loaders.DataObject;
-import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
-import org.openide.util.Exceptions;
-import org.openide.util.actions.SystemAction;
 
 /**
  *
@@ -55,7 +45,7 @@ import org.openide.util.actions.SystemAction;
  */
 @org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class JmeCharacterControl extends AbstractSceneExplorerNode {
+public class JmeCharacterControl extends JmeControl {
 
     private static Image smallImage = IconList.player.getImage();
     private CharacterControl geom;
@@ -68,6 +58,7 @@ public class JmeCharacterControl extends AbstractSceneExplorerNode {
         getLookupContents().add(this);
         getLookupContents().add(spatial);
         this.geom = spatial;
+        control = spatial;
         setName("CharacterControl");
     }
 
@@ -79,51 +70,6 @@ public class JmeCharacterControl extends AbstractSceneExplorerNode {
     @Override
     public Image getOpenedIcon(int type) {
         return smallImage;
-    }
-
-    @Override
-    public Action[] getActions(boolean context) {
-        return new SystemAction[]{
-                    //                    SystemAction.get(CopyAction.class),
-                    //                    SystemAction.get(CutAction.class),
-                    //                    SystemAction.get(PasteAction.class),
-                    SystemAction.get(DeleteAction.class)
-                };
-    }
-    
-    @Override
-    protected void fireSave(boolean modified) {
-        Node parent = getParentNode();
-        if (parent instanceof AbstractSceneExplorerNode) {
-            AbstractSceneExplorerNode par=(AbstractSceneExplorerNode)parent;
-            par.fireSave(modified);
-        }
-    }
-
-    @Override
-    public boolean canDestroy() {
-        return !readOnly;
-    }
-    
-    @Override
-    public void destroy() throws IOException {
-        super.destroy();
-        final Spatial spat=getParentNode().getLookup().lookup(Spatial.class);
-        try {
-            fireSave(true);
-            SceneApplication.getApplication().enqueue(new Callable<Void>() {
-
-                public Void call() throws Exception {
-                    spat.removeControl(geom);
-                    return null;
-                }
-            }).get();
-            ((AbstractSceneExplorerNode)getParentNode()).refresh(true);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-        }
     }
 
     @Override
@@ -154,6 +100,7 @@ public class JmeCharacterControl extends AbstractSceneExplorerNode {
 
     }
 
+    @Override
     public Class getExplorerObjectClass() {
         return CharacterControl.class;
     }
