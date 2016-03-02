@@ -148,7 +148,7 @@ public class MaterialPreviewRenderer implements SceneListener {
         });
     }
 
-    private int lastErrorHash = 0;
+    private static int lastErrorHash = 0;
 
     private void smartLog(String expText, String message) {
         int hash = message.hashCode();
@@ -183,7 +183,8 @@ public class MaterialPreviewRenderer implements SceneListener {
             //compilation error, the shader code will be output to the console
             //the following code will output the error
             //System.err.println(e.getMessage());
-            Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, e.getMessage());
+            //Logger.getLogger(MaterialDebugAppState.class.getName()).log(Level.SEVERE, e.getMessage());
+            smartLog("{0}", e.getMessage());
 
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {

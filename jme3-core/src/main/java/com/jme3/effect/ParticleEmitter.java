@@ -106,6 +106,7 @@ public class ParticleEmitter extends Geometry {
     private boolean worldSpace = true;
     //variable that helps with computations
     private transient Vector3f temp = new Vector3f();
+    private transient Vector3f lastPos;
 
     public static class ParticleEmitterControl implements Control {
 
@@ -1013,12 +1014,16 @@ public class ParticleEmitter extends Geometry {
         
         // Spawns particles within the tpf timeslot with proper age
         float interval = 1f / particlesPerSec;
+        float originalTpf = tpf;
         tpf += timeDifference;
         while (tpf > interval){
             tpf -= interval;
             Particle p = emitParticle(min, max);
             if (p != null){
                 p.life -= tpf;
+                if (lastPos != null && isInWorldSpace()) {
+                    p.position.interpolateLocal(lastPos, 1 - tpf / originalTpf);
+                }
                 if (p.life <= 0){
                     freeParticle(lastUsed);
                 }else{
@@ -1027,6 +1032,12 @@ public class ParticleEmitter extends Geometry {
             }
         }
         timeDifference = tpf;
+
+        if (lastPos == null) {
+            lastPos = new Vector3f();
+        }
+
+        lastPos.set(getWorldTranslation());
 
         BoundingBox bbox = (BoundingBox) this.getMesh().getBound();
         bbox.setMinMax(min, max);
