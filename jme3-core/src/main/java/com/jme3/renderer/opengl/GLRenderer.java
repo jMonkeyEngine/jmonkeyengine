@@ -2840,11 +2840,11 @@ public final class GLRenderer implements Renderer {
         // the method is collapsed again.  -pspeed
         count = Math.max(mesh.getInstanceCount(), count);
 
-//         if (caps.contains(Caps.VertexBufferArray)) {
-             renderMeshDefault(mesh, lod, count, instanceData);
-//         } else {
-//            renderMeshLegacy(mesh, lod, count, instanceData);
-//        // }
+        if (caps.contains(Caps.VertexBufferArray)) {
+            renderMeshDefault(mesh, lod, count, instanceData);
+        } else {
+            renderMeshLegacy(mesh, lod, count, instanceData);
+        }
     }
 
     @Override
