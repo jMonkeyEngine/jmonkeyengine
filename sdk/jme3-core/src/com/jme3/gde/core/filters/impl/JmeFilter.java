@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009-2010 jMonkeyEngine
+ *  Copyright (c) 2009-2016 jMonkeyEngine
  *  All rights reserved.
  * 
  *  Redistribution and use in source and binary forms, with or without
@@ -33,22 +33,24 @@ package com.jme3.gde.core.filters.impl;
 
 import com.jme3.gde.core.filters.AbstractFilterNode;
 import com.jme3.gde.core.filters.FilterNode;
-import com.jme3.post.ssao.SSAOFilter;
+import com.jme3.post.Filter;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 
+
 /**
  *
- * @author Rémy Bouquet
+ * @author dokthar
  */
 @org.openide.util.lookup.ServiceProvider(service = FilterNode.class)
-public class JmeSSAOFilter extends AbstractFilterNode {
+public class JmeFilter extends AbstractFilterNode {
 
-    public JmeSSAOFilter() {
+    
+    public JmeFilter() {
     }
 
-    public JmeSSAOFilter(SSAOFilter filter, DataObject object, boolean readOnly) {
+    public JmeFilter(Filter filter, DataObject object, boolean readOnly) {
         super(filter);
         this.dataObject = object;
         this.readOnly = readOnly;
@@ -57,18 +59,16 @@ public class JmeSSAOFilter extends AbstractFilterNode {
     @Override
     protected Sheet createSheet() {
         Sheet sheet = super.createSheet();
-
         Sheet.Set set = Sheet.createPropertiesSet();
-        set.setDisplayName("SSAO");
-        set.setName("SSAO");
-        SSAOFilter obj = (SSAOFilter) filter;
-
+        set.setDisplayName(filter.getName());
+        set.setName(Node.class.getName());
+        
+        Filter obj = filter;
         if (obj == null) {
             return sheet;
         }
 
-        createFields(SSAOFilter.class, set, obj);
-
+        createFields(filter.getClass(), set, obj);
         sheet.put(set);
         return sheet;
 
@@ -76,11 +76,12 @@ public class JmeSSAOFilter extends AbstractFilterNode {
 
     @Override
     public Class<?> getExplorerObjectClass() {
-        return SSAOFilter.class;
+        return filter.getClass();
     }
 
     @Override
     public Node[] createNodes(Object key, DataObject dataObject, boolean readOnly) {
-        return new Node[]{new JmeSSAOFilter((SSAOFilter) key, dataObject, readOnly)};
+        return new Node[]{new JmeFilter((Filter) key, dataObject, readOnly)};
     }
+    
 }
