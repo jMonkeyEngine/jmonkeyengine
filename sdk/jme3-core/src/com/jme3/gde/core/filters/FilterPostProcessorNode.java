@@ -45,6 +45,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -65,6 +67,7 @@ public class FilterPostProcessorNode extends AbstractNode {
     private FilterDataObject dataObject;
     private static Image smallImage = IconList.eyeOpen.getImage();
     private FilterPostProcessor fpp;
+    private static final Logger logger = Logger.getLogger(FilterPostProcessorNode.class.getName());
 
     public FilterPostProcessorNode(FilterDataObject dataObject) {
         super(new FilterChildren(dataObject), Lookups.singleton(new FilterIndexSupport()));
@@ -74,9 +77,6 @@ public class FilterPostProcessorNode extends AbstractNode {
         setName(dataObject.getName());
         getLookup().lookup(FilterIndexSupport.class).setFilterPostProcessorNode(this);
         ((FilterChildren) getChildren()).setFilterPostProcessorNode(this);
-
-
-
     }
 
     @Override
@@ -91,7 +91,9 @@ public class FilterPostProcessorNode extends AbstractNode {
 
     public FilterPostProcessor getFilterPostProcessor() {
         if (fpp == null) {
-            this.fpp = dataObject.loadAsset();
+            fpp = dataObject.loadAsset();
+            if (fpp == null)
+                logger.log(Level.SEVERE, "Cannot load Filter. Maybe it's not in the Asset Path?");
         }
         return fpp;
     }
@@ -132,7 +134,9 @@ public class FilterPostProcessorNode extends AbstractNode {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
             public Object call() throws Exception {
-                getFilterPostProcessor().addFilter(filter);
+                FilterPostProcessor fp = getFilterPostProcessor();
+                if (fp != null)
+                    fp.addFilter(filter);
                 return null;
             }
         });
@@ -144,7 +148,10 @@ public class FilterPostProcessorNode extends AbstractNode {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
             public Object call() throws Exception {
-                getFilterPostProcessor().removeFilter(filter);
+                FilterPostProcessor fp = getFilterPostProcessor();
+                if (fp != null)
+                    fp.removeFilter(filter);
+                
                 return null;
             }
         });
@@ -186,7 +193,9 @@ public class FilterPostProcessorNode extends AbstractNode {
         @Override
         protected void addNotify() {
             super.addNotify();
-            setKeys(createKeys());
+            List<Object> keys = createKeys();
+            if (keys != null)
+                setKeys(keys);
         }
 
         protected void doRefresh() {
@@ -203,7 +212,11 @@ public class FilterPostProcessorNode extends AbstractNode {
 
                     public List<Object> call() throws Exception {
                         List<Object> keys = new LinkedList<Object>();
-                        for (Iterator it = node.getFilterPostProcessor().getFilterIterator(); it.hasNext();) {
+                        FilterPostProcessor fp = node.getFilterPostProcessor();
+                        if (fp == null) /* e.g. Filter not in Asset Path */
+                            return null;
+                        
+                        for (Iterator it = fp.getFilterIterator(); it.hasNext();) {
                             Filter filter = (Filter) it.next();
                             keys.add(filter);
                         }
