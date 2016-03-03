@@ -211,7 +211,7 @@ public class Cylinder extends Mesh {
      */
     public void updateGeometry(int axisSamples, int radialSamples,
             float radius, float radius2, float height, boolean closed, boolean inverted) {
-        this.axisSamples = axisSamples + (closed ? 2 : 0);
+        this.axisSamples = axisSamples;
         this.radialSamples = radialSamples;
         this.radius = radius;
         this.radius2 = radius2;
