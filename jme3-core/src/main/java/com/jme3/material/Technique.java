@@ -41,7 +41,9 @@ import com.jme3.shader.DefineList;
 import com.jme3.shader.Shader;
 import com.jme3.shader.VarType;
 import com.jme3.util.ListMap;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 /**
  * Represents a technique instance.
@@ -85,26 +87,8 @@ public final class Technique {
         if (defineId == null) {
             return;
         }
-        
-        if (value == null) {
-            dynamicDefines.set(defineId, 0);
-            return;
-        }
-        
-        switch (type) {
-            case Int:
-                dynamicDefines.set(defineId, (Integer) value);
-                break;
-            case Float:
-                dynamicDefines.set(defineId, (Float) value);
-                break;
-            case Boolean:
-                dynamicDefines.set(defineId, ((Boolean)value));
-                break;
-            default:
-                dynamicDefines.set(defineId, 1);
-                break;
-        }
+
+        dynamicDefines.set(defineId, type, value);
     }
     
     /**
@@ -115,6 +99,7 @@ public final class Technique {
      */
     void notifyTechniqueSwitched() {
         ListMap<String, MatParam> paramMap = owner.getParamsMap();
+        dynamicDefines.clear();
         for (int i = 0; i < paramMap.size(); i++) {
             MatParam param = paramMap.getValue(i);
             notifyParamChanged(param.getName(), param.getVarType(), param.getValue());
@@ -131,10 +116,23 @@ public final class Technique {
      * @param rendererCaps The renderer capabilities which the shader should support.
      * @return A compatible shader.
      */
-    Shader makeCurrent(RenderManager renderManager, LightList lights, EnumSet<Caps> rendererCaps) {
+    Shader makeCurrent(RenderManager renderManager, ArrayList<MatParamOverride> overrides,
+            LightList lights, EnumSet<Caps> rendererCaps) {
         TechniqueDefLogic logic = def.getLogic();
         AssetManager assetManager = owner.getMaterialDef().getAssetManager();
-        return logic.makeCurrent(assetManager, renderManager, rendererCaps, lights, dynamicDefines);
+
+        // TODO: remove allocation
+        DefineList combinedDefines = def.createDefineList();
+        combinedDefines.setAll(dynamicDefines);
+
+        for (MatParamOverride override : overrides) {
+            Integer defineId = def.getShaderParamDefineId(override.name);
+            if (defineId != null) {
+                combinedDefines.set(defineId, override.type, override.value);
+            }
+        }
+
+        return logic.makeCurrent(assetManager, renderManager, rendererCaps, lights, combinedDefines);
     }
     
     /**

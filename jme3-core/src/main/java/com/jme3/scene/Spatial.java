@@ -38,6 +38,7 @@ import com.jme3.collision.Collidable;
 import com.jme3.export.*;
 import com.jme3.light.Light;
 import com.jme3.light.LightList;
+import com.jme3.material.MatParamOverride;
 import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.renderer.Camera;
@@ -422,6 +423,29 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      */
     public LightList getWorldLightList() {
         return worldLights;
+    }
+
+    /**
+     * Get the local material parameter overrides.
+     *
+     * @return The list of local material parameter overrides.
+     */
+    public ArrayList<MatParamOverride> getLocalOverrides() {
+        return null;
+    }
+
+    /**
+     * Get the world material parameter overrides.
+     *
+     * Note that this list is only updated on a call to
+     * {@link #updateGeometricState()}. After update, the world overrides list
+     * will contain the {@link #getParent() parent's} world overrides combined
+     * with this spatial's {@link #getLocalOverrides() local overrides}.
+     *
+     * @return The list of world material parameter overrides.
+     */
+    public ArrayList<MatParamOverride> getWorldOverrides() {
+        return null;
     }
 
     /**

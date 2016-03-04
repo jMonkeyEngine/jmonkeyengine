@@ -820,7 +820,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * used for rendering, there won't be any delay since the material has
      * been already been setup for rendering.
      *
-     * @param rm The render manager to preload for
+     * @param renderManager The render manager to preload for
      */
     public void preload(RenderManager renderManager) {
         if (technique == null) {
@@ -834,7 +834,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             return;
         }
 
-        Shader shader = technique.makeCurrent(renderManager, null, rendererCaps);
+        Shader shader = technique.makeCurrent(renderManager, null, null, rendererCaps);
         updateShaderMaterialParameters(renderer, shader);
         renderManager.getRenderer().setShader(shader);
     }
@@ -938,8 +938,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         // Apply render state
         updateRenderState(renderManager, renderer, techniqueDef);
 
+        // Get world overrides
+        ArrayList<MatParamOverride> overrides = geometry.getWorldOverrides();
+
         // Select shader to use
-        Shader shader = technique.makeCurrent(renderManager, lights, rendererCaps);
+        Shader shader = technique.makeCurrent(renderManager, overrides, lights, rendererCaps);
         
         // Begin tracking which uniforms were changed by material.
         clearUniformsSetByCurrent(shader);
