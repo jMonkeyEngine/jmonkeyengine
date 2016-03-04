@@ -344,7 +344,7 @@ public class Geometry extends Spatial {
         if (groupNode != null) {
             // Once the geometry is removed 
             // from the parent, the group node needs to be updated.
-            groupNode.onGeoemtryUnassociated(this);
+            groupNode.onGeometryUnassociated(this);
             groupNode = null;
             
             // change the default to -1 to make error detection easier
