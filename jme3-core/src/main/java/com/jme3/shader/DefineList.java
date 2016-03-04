@@ -31,6 +31,7 @@
  */
 package com.jme3.shader;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -41,7 +42,7 @@ import java.util.List;
 public final class DefineList {
 
     public static final int MAX_DEFINES = 64;
-    
+
     private long hash;
     private final int[] vals;
 
@@ -74,6 +75,41 @@ public final class DefineList {
     
     public void set(int id, boolean val) {
         set(id, val ? 1 : 0);
+    }
+
+    public void set(int id, VarType type, Object value) {
+        if (value == null) {
+            set(id, 0);
+            return;
+        }
+
+        switch (type) {
+            case Int:
+                set(id, (Integer) value);
+                break;
+            case Float:
+                set(id, (Float) value);
+                break;
+            case Boolean:
+                set(id, ((Boolean) value));
+                break;
+            default:
+                set(id, 1);
+                break;
+        }
+    }
+
+    public void setAll(DefineList other) {
+        for (int i = 0; i < other.vals.length; i++) {
+            if (other.vals[i] != 0) {
+                vals[i] = other.vals[i];
+            }
+        }
+    }
+
+    public void clear() {
+        hash = 0;
+        Arrays.fill(vals, 0);
     }
 
     public boolean getBoolean(int id) {

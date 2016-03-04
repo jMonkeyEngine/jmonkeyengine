@@ -330,13 +330,13 @@ public class TechniqueDef implements Savable {
     }
     
     /**
-     * Get the define ID for a given define name.
+     * Get the define ID for a given material parameter.
      *
-     * @param defineName The define name to lookup
+     * @param paramName The parameter name to look up
      * @return The define ID, or null if not found.
      */
-    public Integer getShaderParamDefineId(String defineName) {
-        return paramToDefineId.get(defineName);
+    public Integer getShaderParamDefineId(String paramName) {
+        return paramToDefineId.get(paramName);
     }
 
     
