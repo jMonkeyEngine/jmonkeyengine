@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: com.jme3.gde.scenecomposer/1
-OpenIDE-Module-Implementation-Version: 0
-OpenIDE-Module-Install: com/jme3/gde/scenecomposer/Installer.class
-OpenIDE-Module-Layer: com/jme3/gde/scenecomposer/layer.xml
-OpenIDE-Module-Localizing-Bundle: com/jme3/gde/scenecomposer/Bundle.properties
-

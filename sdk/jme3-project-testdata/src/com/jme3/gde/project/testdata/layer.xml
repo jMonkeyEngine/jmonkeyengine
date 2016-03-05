@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
-<filesystem>
-    <folder name="org-netbeans-api-project-libraries">
-        <folder name="Libraries">
-            <file name="jme3-test-data.xml" url="jme3-test-data.xml"/>
-        </folder>
-    </folder>
-</filesystem>
