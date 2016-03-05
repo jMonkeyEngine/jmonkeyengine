@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009-2010 jMonkeyEngine
+ *  Copyright (c) 2009-2016 jMonkeyEngine
  *  All rights reserved.
  * 
  *  Redistribution and use in source and binary forms, with or without
@@ -38,9 +38,7 @@ import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Spatial;
 import java.awt.Image;
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -60,7 +58,7 @@ import org.openide.util.actions.SystemAction;
  */
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class JmeVehicleControl extends AbstractSceneExplorerNode {
+public class JmeVehicleControl extends JmeControl {
 
     private static Image smallImage = IconList.vehicle.getImage();
     private VehicleControl vehicle;
@@ -73,6 +71,7 @@ public class JmeVehicleControl extends AbstractSceneExplorerNode {
         getLookupContents().add(vehicle);
         getLookupContents().add(this);
         this.vehicle = vehicle;
+        control = vehicle;
         setName("VehicleControl");
     }
 
@@ -84,41 +83,6 @@ public class JmeVehicleControl extends AbstractSceneExplorerNode {
     @Override
     public Image getOpenedIcon(int type) {
         return smallImage;
-    }
-
-    @Override
-    public Action[] getActions(boolean context) {
-        return new SystemAction[]{
-                    //                    SystemAction.get(CopyAction.class),
-                    //                    SystemAction.get(CutAction.class),
-                    //                    SystemAction.get(PasteAction.class),
-                    SystemAction.get(DeleteAction.class)
-                };
-    }
-
-    @Override
-    public boolean canDestroy() {
-        return !readOnly;
-    }
-
-    @Override
-    public void destroy() throws IOException {
-        super.destroy();
-        final Spatial spat = getParentNode().getLookup().lookup(Spatial.class);
-        try {
-            SceneApplication.getApplication().enqueue(new Callable<Void>() {
-
-                public Void call() throws Exception {
-                    spat.removeControl(vehicle);
-                    return null;
-                }
-            }).get();
-            ((AbstractSceneExplorerNode) getParentNode()).refresh(true);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-        }
     }
 
     @Override
@@ -162,6 +126,7 @@ public class JmeVehicleControl extends AbstractSceneExplorerNode {
 
     }
 
+    @Override
     public Class getExplorerObjectClass() {
         return VehicleControl.class;
     }

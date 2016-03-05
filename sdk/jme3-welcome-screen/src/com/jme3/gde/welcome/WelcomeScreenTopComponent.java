@@ -38,7 +38,7 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @ActionID(category = "Window", id = "com.jme3.gde.welcome.WelcomeScreenTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
-    displayName = "#CTL_WelcomeScreenAction",
+    displayName = "CTL_WelcomeScreenAction", /* No # since it's not part of the Bundles.properties. See http://bits.netbeans.org/dev/javadoc/org-openide-awt/org/openide/awt/ActionRegistration.html#displayName-- */
 preferredID = "WelcomeScreenTopComponent")
 @Messages({
     "CTL_WelcomeScreenAction=Info Screen",

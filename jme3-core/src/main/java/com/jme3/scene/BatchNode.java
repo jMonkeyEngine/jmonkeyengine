@@ -116,7 +116,7 @@ public class BatchNode extends GeometryGroupNode {
     }
 
     @Override
-    public void onGeoemtryUnassociated(Geometry geom) {
+    public void onGeometryUnassociated(Geometry geom) {
         setNeedsFullRebatch(true);
     }
 

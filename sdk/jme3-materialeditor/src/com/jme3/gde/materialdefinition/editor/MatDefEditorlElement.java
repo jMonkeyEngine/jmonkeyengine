@@ -272,6 +272,11 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
 
     protected void selectionChanged(Selectable selectable) {
         MatDefNavigatorPanel nav = obj.getLookup().lookup(MatDefNavigatorPanel.class);
+        //It's possible that the navigator is null if it's collapsed in the ui.
+        //In that case we early return to avoid further issues
+        if(nav == null){
+            return;
+        }
         try {
             Node n = findNode(nav.getExplorerManager().getRootContext(), selectable.getKey());
             if (n == null) {
