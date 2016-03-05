@@ -31,6 +31,7 @@
  */
 package com.jme3.material;
 
+import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.LightList;
 import com.jme3.material.TechniqueDef.LightMode;
