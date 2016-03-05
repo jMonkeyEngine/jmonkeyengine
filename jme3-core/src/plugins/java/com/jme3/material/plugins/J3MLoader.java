@@ -31,6 +31,9 @@
  */
 package com.jme3.material.plugins;
 
+import com.jme3.material.logic.MultiPassLightingLogic;
+import com.jme3.material.logic.SinglePassLightingLogic;
+import com.jme3.material.logic.DefaultTechniqueDefLogic;
 import com.jme3.asset.*;
 import com.jme3.material.*;
 import com.jme3.material.RenderState.BlendMode;
