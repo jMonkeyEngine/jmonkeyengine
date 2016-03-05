@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: com.jme3.gde.lwjgl.applet
-OpenIDE-Module-Implementation-Version: 0
-OpenIDE-Module-Layer: com/jme3/gde/lwjgl/applet/layer.xml
-OpenIDE-Module-Localizing-Bundle: com/jme3/gde/lwjgl/applet/Bundle.properties
-
