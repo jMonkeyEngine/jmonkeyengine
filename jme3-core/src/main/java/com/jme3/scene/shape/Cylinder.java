@@ -222,6 +222,7 @@ public class Cylinder extends Mesh {
 //        VertexBuffer pvb = getBuffer(Type.Position);
 //        VertexBuffer nvb = getBuffer(Type.Normal);
 //        VertexBuffer tvb = getBuffer(Type.TexCoord);
+        axisSamples += (closed ? 2 : 0);
 
         // Vertices
         int vertCount = axisSamples * (radialSamples + 1) + (closed ? 2 : 0);
