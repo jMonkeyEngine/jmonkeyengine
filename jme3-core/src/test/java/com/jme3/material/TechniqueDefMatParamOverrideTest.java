@@ -196,6 +196,7 @@ public class TechniqueDefMatParamOverrideTest {
 
         reset();
         geometry.clearMatParamOverrides();
+        geometry.updateGeometricState();
         outDefines(def("NUM_BONES", VarType.Int, 1234));
         outUniforms(uniform("NumberOfBones", VarType.Int, 1234));
 
@@ -245,6 +246,7 @@ public class TechniqueDefMatParamOverrideTest {
 
         reset();
         geometry.clearMatParamOverrides();
+        geometry.updateGeometricState();
         outDefines();
         outUniforms();
     }
@@ -287,6 +289,7 @@ public class TechniqueDefMatParamOverrideTest {
 
         reset();
         geometry.clearMatParamOverrides();
+        geometry.updateGeometricState();
         outDefines();
         outUniforms();
         outTextures();
@@ -312,6 +315,7 @@ public class TechniqueDefMatParamOverrideTest {
 
         reset();
         geometry.clearMatParamOverrides();
+        geometry.updateGeometricState();
         outDefines(def("DIFFUSEMAP", VarType.Texture2D, tex1));
         outUniforms(uniform("DiffuseMap", VarType.Int, 0));
         outTextures(tex1);
