@@ -184,9 +184,9 @@ public final class Technique {
      * @return the sort ID for this technique instance.
      */
     public int getSortId() {
-       int hash = 17;
-       hash = hash * 23 + def.getSortId();
-       hash = hash * 23 + dynamicDefines.hashCode();
-       return hash;
+        int hash = 17;
+        hash = hash * 23 + def.getSortId();
+        hash = hash * 23 + paramDefines.hashCode();
+        return hash;
     }
 }
