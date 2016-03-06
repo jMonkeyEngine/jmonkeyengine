@@ -615,16 +615,16 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     }
 
     public void removeMatParamOverride(MatParamOverride override) {
-        if (worldOverrides.remove(override)) {
+        if (localOverrides.remove(override)) {
             setMatParamOverrideRefresh();
         }
     }
 
     public void clearMatParamOverrides() {
-        if (!worldOverrides.isEmpty()) {
+        if (!localOverrides.isEmpty()) {
             setMatParamOverrideRefresh();
         }
-        worldOverrides.clear();
+        localOverrides.clear();
     }
 
     /**

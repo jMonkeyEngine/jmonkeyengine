@@ -79,6 +79,75 @@ public class SceneMatParamOverrideTest {
     }
 
     @Test
+    public void testOverrides_Empty() {
+        Node n = new Node("Node");
+        assertTrue(n.getLocalOverrides().isEmpty());
+        assertTrue(n.getWorldOverrides().isEmpty());
+
+        n.updateGeometricState();
+        assertTrue(n.getLocalOverrides().isEmpty());
+        assertTrue(n.getWorldOverrides().isEmpty());
+    }
+
+    @Test
+    public void testOverrides_AddRemove() {
+        MatParamOverride override = mpoBool("Test", true);
+        Node n = new Node("Node");
+
+        n.removeMatParamOverride(override);
+        assertTrue(n.getLocalOverrides().isEmpty());
+        assertTrue(n.getWorldOverrides().isEmpty());
+
+        n.addMatParamOverride(override);
+
+        assertSame(n.getLocalOverrides().get(0), override);
+        assertTrue(n.getWorldOverrides().isEmpty());
+        n.updateGeometricState();
+
+        assertSame(n.getLocalOverrides().get(0), override);
+        assertSame(n.getWorldOverrides().get(0), override);
+
+        n.removeMatParamOverride(override);
+        assertTrue(n.getLocalOverrides().isEmpty());
+        assertSame(n.getWorldOverrides().get(0), override);
+
+        n.updateGeometricState();
+        assertTrue(n.getLocalOverrides().isEmpty());
+        assertTrue(n.getWorldOverrides().isEmpty());
+    }
+
+    @Test
+    public void testOverrides_Clear() {
+        MatParamOverride override = mpoBool("Test", true);
+        Node n = new Node("Node");
+
+        n.clearMatParamOverrides();
+        assertTrue(n.getLocalOverrides().isEmpty());
+        assertTrue(n.getWorldOverrides().isEmpty());
+
+        n.addMatParamOverride(override);
+        n.clearMatParamOverrides();
+        assertTrue(n.getLocalOverrides().isEmpty());
+        assertTrue(n.getWorldOverrides().isEmpty());
+
+        n.addMatParamOverride(override);
+        n.updateGeometricState();
+        n.clearMatParamOverrides();
+        assertTrue(n.getLocalOverrides().isEmpty());
+        assertSame(n.getWorldOverrides().get(0), override);
+
+        n.updateGeometricState();
+        assertTrue(n.getLocalOverrides().isEmpty());
+        assertTrue(n.getWorldOverrides().isEmpty());
+
+        n.addMatParamOverride(override);
+        n.clearMatParamOverrides();
+        n.updateGeometricState();
+        assertTrue(n.getLocalOverrides().isEmpty());
+        assertTrue(n.getWorldOverrides().isEmpty());
+    }
+
+    @Test
     public void testOverrides_AddAfterAttach() {
         Node scene = createDummyScene();
         scene.updateGeometricState();
