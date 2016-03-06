@@ -34,7 +34,11 @@ package com.jme3.material;
 import com.jme3.shader.VarType;
 
 public final class MatParamOverride extends MatParam {
-    
+
+    public MatParamOverride() {
+        super();
+    }
+
     public MatParamOverride(VarType type, String name, Object value) {
         super(type, name, value);
     }

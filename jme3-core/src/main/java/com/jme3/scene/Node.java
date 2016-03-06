@@ -141,6 +141,18 @@ public class Node extends Spatial {
     }
 
     @Override
+    protected void setMatParamOverrideRefresh() {
+        super.setMatParamOverrideRefresh();
+        for (Spatial child : children.getArray()) {
+            if ((child.refreshFlags & RF_MATPARAM_OVERRIDE) != 0) {
+                continue;
+            }
+
+            child.setMatParamOverrideRefresh();
+        }
+    }
+
+    @Override
     protected void updateWorldBound(){
         super.updateWorldBound();
         
@@ -241,6 +253,10 @@ public class Node extends Spatial {
         
         if ((refreshFlags & RF_LIGHTLIST) != 0){
             updateWorldLightList();
+        }
+
+        if ((refreshFlags & RF_MATPARAM_OVERRIDE) != 0) {
+            updateMatParamOverrides();
         }
 
         if ((refreshFlags & RF_TRANSFORM) != 0){
@@ -350,6 +366,7 @@ public class Node extends Spatial {
             // transform update down the tree-
             child.setTransformRefresh();
             child.setLightListRefresh();
+            child.setMatParamOverrideRefresh();
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE,"Child ({0}) attached to this node ({1})",
                         new Object[]{child.getName(), getName()});
@@ -432,6 +449,7 @@ public class Node extends Spatial {
             child.setTransformRefresh();
             // lights are also inherited from parent
             child.setLightListRefresh();
+            child.setMatParamOverrideRefresh();
             
             invalidateUpdateList();
         }

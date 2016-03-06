@@ -120,7 +120,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     protected static final int RF_TRANSFORM = 0x01, // need light resort + combine transforms
                                RF_BOUND = 0x02,
                                RF_LIGHTLIST = 0x04, // changes in light lists 
-                               RF_CHILD_LIGHTLIST = 0x08; // some child need geometry update
+                               RF_CHILD_LIGHTLIST = 0x08, // some child need geometry update
+                               RF_MATPARAM_OVERRIDE = 0x10;
     
     protected CullHint cullHint = CullHint.Inherit;
     protected BatchHint batchHint = BatchHint.Inherit;
@@ -133,6 +134,10 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      */
     protected LightList localLights;
     protected transient LightList worldLights;
+
+    protected ArrayList<MatParamOverride> localOverrides;
+    protected ArrayList<MatParamOverride> worldOverrides;
+
     /** 
      * This spatial's name.
      */
@@ -199,6 +204,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
         localLights = new LightList(this);
         worldLights = new LightList(this);
+
+        localOverrides = new ArrayList<MatParamOverride>();
+        worldOverrides = new ArrayList<MatParamOverride>();
 
         refreshFlags |= RF_BOUND;
     }
@@ -275,19 +283,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         // to update lights.
         Spatial p = parent;
         while (p != null) {
-            //if (p.refreshFlags != 0) {
-                // any refresh flag is sufficient, 
-                // as each propagates to the root Node
-
-                // 2015/2/8:
-                // This is not true, because using e.g. getWorldBound()
-                // or getWorldTransform() activates a "partial refresh"
-                // which does not update the lights but does clear
-                // the refresh flags on the ancestors!
-            
-            //    return; 
-            //}
-            
             if ((p.refreshFlags & RF_CHILD_LIGHTLIST) != 0) {
                 // The parent already has this flag,
                 // so must all ancestors.
@@ -295,6 +290,19 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
             }
             
             p.refreshFlags |= RF_CHILD_LIGHTLIST;
+            p = p.parent;
+        }
+    }
+
+    protected void setMatParamOverrideRefresh() {
+        refreshFlags |= RF_MATPARAM_OVERRIDE;
+        Spatial p = parent;
+        while (p != null) {
+            if ((p.refreshFlags & RF_MATPARAM_OVERRIDE) != 0) {
+                return;
+            }
+
+            p.refreshFlags |= RF_MATPARAM_OVERRIDE;
             p = p.parent;
         }
     }
@@ -428,7 +436,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * @return The list of local material parameter overrides.
      */
     public ArrayList<MatParamOverride> getLocalOverrides() {
-        return null;
+        return localOverrides;
     }
 
     /**
@@ -442,7 +450,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * @return The list of world material parameter overrides.
      */
     public ArrayList<MatParamOverride> getWorldOverrides() {
-        return null;
+        return worldOverrides;
     }
 
     /**
@@ -576,13 +584,47 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
             worldLights.update(localLights, null);
             refreshFlags &= ~RF_LIGHTLIST;
         } else {
-            if ((parent.refreshFlags & RF_LIGHTLIST) == 0) {
-                worldLights.update(localLights, parent.worldLights);
-                refreshFlags &= ~RF_LIGHTLIST;
-            } else {
-                assert false;
-            }
+            assert (parent.refreshFlags & RF_LIGHTLIST) == 0;
+            worldLights.update(localLights, parent.worldLights);
+            refreshFlags &= ~RF_LIGHTLIST;
         }
+    }
+
+    protected void updateMatParamOverrides() {
+        refreshFlags &= ~RF_MATPARAM_OVERRIDE;
+
+        worldOverrides.clear();
+        if (parent == null) {
+            worldOverrides.addAll(localOverrides);
+        } else {
+            assert (parent.refreshFlags & RF_MATPARAM_OVERRIDE) == 0;
+            worldOverrides.addAll(localOverrides);
+            worldOverrides.addAll(parent.worldOverrides);
+        }
+    }
+
+    /**
+     * Adds a local material parameter override.
+     *
+     * @param override The override to add.
+     * @see #getLocalOverrides()
+     */
+    public void addMatParamOverride(MatParamOverride override) {
+        localOverrides.add(override);
+        setMatParamOverrideRefresh();
+    }
+
+    public void removeMatParamOverride(MatParamOverride override) {
+        if (worldOverrides.remove(override)) {
+            setMatParamOverrideRefresh();
+        }
+    }
+
+    public void clearMatParamOverrides() {
+        if (!worldOverrides.isEmpty()) {
+            setMatParamOverrideRefresh();
+        }
+        worldOverrides.clear();
     }
 
     /**
@@ -858,6 +900,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         }
         if ((refreshFlags & RF_BOUND) != 0) {
             updateWorldBound();
+        }
+        if ((refreshFlags & RF_MATPARAM_OVERRIDE) != 0) {
+            updateMatParamOverrides();
         }
         
         assert refreshFlags == 0;
@@ -1303,6 +1348,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
             clone.localLights.setOwner(clone);
             clone.worldLights.setOwner(clone);
 
+            clone.worldOverrides = new ArrayList<MatParamOverride>(worldOverrides);
+            clone.localOverrides = new ArrayList<MatParamOverride>(localOverrides);
+
             // No need to force cloned to update.
             // This node already has the refresh flags
             // set below so it will have to update anyway.
@@ -1443,6 +1491,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         capsule.write(shadowMode, "shadow_mode", ShadowMode.Inherit);
         capsule.write(localTransform, "transform", Transform.IDENTITY);
         capsule.write(localLights, "lights", null);
+        capsule.writeSavableArrayList(localOverrides, "overrides", null);
 
         // Shallow clone the controls array to convert its type.
         capsule.writeSavableArrayList(new ArrayList(controls), "controlsList", null);
@@ -1465,6 +1514,12 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
         localLights = (LightList) ic.readSavable("lights", null);
         localLights.setOwner(this);
+
+        localOverrides = ic.readSavableArrayList("overrides", null);
+        if (localOverrides == null) {
+            localOverrides = new ArrayList<MatParamOverride>();
+        }
+        worldOverrides = new ArrayList<MatParamOverride>();
 
         //changed for backward compatibility with j3o files generated before the AnimControl/SkeletonControl split
         //the AnimControl creates the SkeletonControl for old files and add it to the spatial.
