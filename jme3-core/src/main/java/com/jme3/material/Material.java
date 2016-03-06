@@ -785,12 +785,36 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         sortingId = -1;
     }
 
-    private void updateShaderMaterialParameters(Renderer renderer, Shader shader) {
+    private void updateShaderMaterialParameters(Renderer renderer, Shader shader, ArrayList<MatParamOverride> overrides) {
         int unit = 0;
+
+        for (MatParamOverride override : overrides) {
+            VarType type = override.getVarType();
+
+            MatParam paramDef = def.getMaterialParam(override.getName());
+            if (paramDef == null || paramDef.getVarType() != type) {
+                continue;
+            }
+
+            Uniform uniform = shader.getUniform(override.getPrefixedName());
+            if (type.isTextureType()) {
+                renderer.setTexture(unit, (Texture) override.getValue());
+                uniform.setValue(VarType.Int, unit);
+                unit++;
+            } else {
+                uniform.setValue(type, override.getValue());
+            }
+        }
+
         for (int i = 0; i < paramValues.size(); i++) {
             MatParam param = paramValues.getValue(i);
             VarType type = param.getVarType();
             Uniform uniform = shader.getUniform(param.getPrefixedName());
+
+            if (uniform.isSetByCurrentMaterial()) {
+                continue;
+            }
+
             if (type.isTextureType()) {
                 renderer.setTexture(unit, (Texture) param.getValue());
                 uniform.setValue(VarType.Int, unit);
@@ -799,8 +823,9 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 uniform.setValue(type, param.getValue());
             }
         }
+
     }
-    
+
     private void updateRenderState(RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {
         if (renderManager.getForcedRenderState() != null) {
             renderer.applyRenderState(renderManager.getForcedRenderState());
@@ -835,7 +860,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
 
         Shader shader = technique.makeCurrent(renderManager, null, null, rendererCaps);
-        updateShaderMaterialParameters(renderer, shader);
+        updateShaderMaterialParameters(renderer, shader, null);
         renderManager.getRenderer().setShader(shader);
     }
 
@@ -951,7 +976,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         renderManager.updateUniformBindings(shader);
         
         // Set material parameters
-        updateShaderMaterialParameters(renderer, shader);
+        updateShaderMaterialParameters(renderer, shader, geometry.getWorldOverrides());
         
         // Clear any uniforms not changed by material.
         resetUniformsNotSetByCurrent(shader);

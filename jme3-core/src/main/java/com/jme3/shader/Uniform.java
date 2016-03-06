@@ -71,6 +71,30 @@ public class Uniform extends ShaderVariable {
     protected boolean setByCurrentMaterial = false;
 
     @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 31 * hash + (this.value != null ? this.value.hashCode() : 0);
+        hash = 31 * hash + (this.varType != null ? this.varType.hashCode() : 0);
+        hash = 31 * hash + (this.binding != null ? this.binding.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        final Uniform other = (Uniform) obj;
+        if (this.value != other.value && (this.value == null || !this.value.equals(other.value))) {
+            return false;
+        }
+        return this.binding == other.binding && this.varType == other.varType;
+    }
+
+    @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
         sb.append("Uniform[name=");

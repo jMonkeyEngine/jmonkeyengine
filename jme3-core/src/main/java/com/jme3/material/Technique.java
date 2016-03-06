@@ -44,7 +44,6 @@ import com.jme3.shader.VarType;
 import com.jme3.util.ListMap;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 
 /**
  * Represents a technique instance.
@@ -53,6 +52,7 @@ public final class Technique {
 
     private final TechniqueDef def;
     private final Material owner;
+    private final DefineList paramDefines;
     private final DefineList dynamicDefines;
 
     /**
@@ -65,6 +65,7 @@ public final class Technique {
     public Technique(Material owner, TechniqueDef def) {
         this.owner = owner;
         this.def = def;
+        this.paramDefines = def.createDefineList();
         this.dynamicDefines = def.createDefineList();
     }
 
@@ -83,13 +84,14 @@ public final class Technique {
      * Called by the material to tell the technique a parameter was modified.
      * Specify <code>null</code> for value if the param is to be cleared.
      */
-    void notifyParamChanged(String paramName, VarType type, Object value) {
+    final void notifyParamChanged(String paramName, VarType type, Object value) {
         Integer defineId = def.getShaderParamDefineId(paramName);
+
         if (defineId == null) {
             return;
         }
 
-        dynamicDefines.set(defineId, type, value);
+        paramDefines.set(defineId, type, value);
     }
     
     /**
@@ -98,9 +100,9 @@ public final class Technique {
      * The technique updates dynamic defines based on the
      * currently set material parameters.
      */
-    void notifyTechniqueSwitched() {
+    final void notifyTechniqueSwitched() {
         ListMap<String, MatParam> paramMap = owner.getParamsMap();
-        dynamicDefines.clear();
+        paramDefines.clear();
         for (int i = 0; i < paramMap.size(); i++) {
             MatParam param = paramMap.getValue(i);
             notifyParamChanged(param.getName(), param.getVarType(), param.getValue());
@@ -122,18 +124,19 @@ public final class Technique {
         TechniqueDefLogic logic = def.getLogic();
         AssetManager assetManager = owner.getMaterialDef().getAssetManager();
 
-        // TODO: remove allocation
-        DefineList combinedDefines = def.createDefineList();
-        combinedDefines.setAll(dynamicDefines);
+        dynamicDefines.clear();
+        dynamicDefines.setAll(paramDefines);
 
         for (MatParamOverride override : overrides) {
             Integer defineId = def.getShaderParamDefineId(override.name);
             if (defineId != null) {
-                combinedDefines.set(defineId, override.type, override.value);
+                if (def.getDefineIdType(defineId) == override.type) {
+                    dynamicDefines.set(defineId, override.type, override.value);
+                }
             }
         }
 
-        return logic.makeCurrent(assetManager, renderManager, rendererCaps, lights, combinedDefines);
+        return logic.makeCurrent(assetManager, renderManager, rendererCaps, lights, dynamicDefines);
     }
     
     /**
@@ -163,8 +166,10 @@ public final class Technique {
     }
     
     /**
-     * @deprecated Preset defines are precompiled into 
-     * {@link TechniqueDef#getShaderPrologue()}, whereas
+     * @return nothing.
+     *
+     * @deprecated Preset defines are precompiled into
+       * {@link TechniqueDef#getShaderPrologue()}, whereas
      * dynamic defines are available via {@link #getParamDefines()}.
      */
     @Deprecated

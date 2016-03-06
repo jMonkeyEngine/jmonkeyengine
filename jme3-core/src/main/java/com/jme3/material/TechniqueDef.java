@@ -340,6 +340,15 @@ public class TechniqueDef implements Savable {
         return paramToDefineId.get(paramName);
     }
 
+    /**
+     * Get the type of a particular define.
+     *
+     * @param defineId The define ID to lookup.
+     * @return The type of the define, or null if not found.
+     */
+    public VarType getDefineIdType(int defineId) {
+        return defineId < defineTypes.size() ? defineTypes.get(defineId) : null;
+    }
     
     /**
      * Adds a define linked to a material parameter.
@@ -387,6 +396,28 @@ public class TechniqueDef implements Savable {
         defineNames.add(defineName);
         defineTypes.add(defineType);
         return defineId;
+    }
+
+    /**
+     * Get the names of all defines declared on this technique definition.
+     *
+     * The defines are returned in order of declaration.
+     *
+     * @return the names of all defines declared.
+     */
+    public String[] getDefineNames() {
+        return defineNames.toArray(new String[0]);
+    }
+
+    /**
+     * Get the types of all defines declared on this technique definition.
+     *
+     * The types are returned in order of declaration.
+     *
+     * @return the types of all defines declared.
+     */
+    public VarType[] getDefineTypes() {
+        return defineTypes.toArray(new VarType[0]);
     }
     
     /**
