@@ -260,8 +260,8 @@ public class TestChooser extends JDialog {
                     for (int i = 0; i < appClass.length; i++) {
                 	    Class<?> clazz = (Class)appClass[i];
                 		try {
-                			Object app = clazz.newInstance();
-                			if (app instanceof Application) {
+                			if (Application.class.isAssignableFrom(clazz)) {
+                    			Object app = clazz.newInstance();
                 			    if (app instanceof SimpleApplication) {
                 			        final Method settingMethod = clazz.getMethod("setShowSettings", boolean.class);
                 			        settingMethod.invoke(app, showSetting);
@@ -283,7 +283,7 @@ public class TestChooser extends JDialog {
                 			    }
                 			} else {
                                 final Method mainMethod = clazz.getMethod("main", (new String[0]).getClass());
-                                mainMethod.invoke(app, new Object[]{new String[0]});
+                                mainMethod.invoke(clazz, new Object[]{new String[0]});
                 			}
                 			// wait for destroy
                 			System.gc();
