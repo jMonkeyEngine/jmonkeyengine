@@ -31,6 +31,9 @@
  */
 package jme3test.network;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.network.*;
 import com.jme3.network.serializing.Serializable;
 import com.jme3.network.serializing.Serializer;
@@ -56,10 +59,14 @@ public class TestChatServer {
     private boolean isRunning;
     
     public TestChatServer() throws IOException {
-        initializeClasses();
 
         // Use this to test the client/server name version check
         this.server = Network.createServer(NAME, VERSION, PORT, UDP_PORT);
+
+        // Initialize our own messages only after the server has been created.
+        // It registers some additional messages with the serializer by default
+        // that need to go before custom messages.
+        initializeClasses();
 
         ChatHandler handler = new ChatHandler();
         server.addMessageListener(handler, ChatMessage.class);
@@ -121,6 +128,18 @@ public class TestChatServer {
     }
 
     public static void main(String... args) throws Exception {
+ 
+        // Increate the logging level for networking...
+        System.out.println("Setting logging to max");
+        Logger networkLog = Logger.getLogger("com.jme3.network"); 
+        networkLog.setLevel(Level.FINEST);
+ 
+        // And we have to tell JUL's handler also   
+        // turn up logging in a very convoluted way
+        Logger rootLog = Logger.getLogger("");
+        if( rootLog.getHandlers().length > 0 ) {
+            rootLog.getHandlers()[0].setLevel(Level.FINEST);
+        }        
     
         TestChatServer chatServer = new TestChatServer();
         chatServer.start();

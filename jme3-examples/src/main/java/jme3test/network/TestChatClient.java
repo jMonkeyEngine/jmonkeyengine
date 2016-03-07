@@ -41,6 +41,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import jme3test.network.TestChatServer.ChatMessage;
 
@@ -115,6 +117,18 @@ public class TestChatClient extends JFrame {
 
     public static void main(String... args) throws Exception {
     
+        // Increate the logging level for networking...
+        System.out.println("Setting logging to max");
+        Logger networkLog = Logger.getLogger("com.jme3.network"); 
+        networkLog.setLevel(Level.FINEST);
+ 
+        // And we have to tell JUL's handler also   
+        // turn up logging in a very convoluted way
+        Logger rootLog = Logger.getLogger("");
+        if( rootLog.getHandlers().length > 0 ) {
+            rootLog.getHandlers()[0].setLevel(Level.FINEST);
+        }
+                
         // Note: in JME 3.1 this is generally unnecessary as the server will
         // send a message with all server-registered classes.
         // TestChatServer.initializeClasses();
