@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2016 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ package com.jme3.audio;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.AssetNotFoundException;
+import com.jme3.audio.AudioData.DataType;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -127,6 +128,17 @@ public class AudioNode extends Node implements AudioSource {
     public AudioNode(AudioData audioData, AudioKey audioKey) {
         setAudioData(audioData, audioKey);
     }
+    
+    /**
+     * Creates a new <code>AudioNode</code> with the given audio file.
+     * @param assetManager The asset manager to use to load the audio file
+     * @param name The filename of the audio file
+     * @param type The type. If <code>{@link com.jme3.audio.AudioData.DataType}.Stream</code>, the audio will be streamed gradually from disk,
+     *             otherwise it will be buffered (<code>{@link com.jme3.audio.AudioData.DataType}.Buffer</code>)
+     */
+    public AudioNode(AssetManager assetManager, String name, DataType type) {
+        this(assetManager, name, type == DataType.Stream, true);
+    }
 
     /**
      * Creates a new <code>AudioNode</code> with the given audio file.
@@ -139,6 +151,8 @@ public class AudioNode extends Node implements AudioSource {
      * the stream cache is used. When enabled, the audio stream will
      * be read entirely but not decoded, allowing features such as 
      * seeking, looping and determining duration.
+     * 
+     * @deprecated Use {@link AudioNode#AudioNode(com.jme3.asset.AssetManager, java.lang.String, com.jme3.audio.AudioData.DataType)} instead
      */
     public AudioNode(AssetManager assetManager, String name, boolean stream, boolean streamCache) {
         this.audioKey = new AudioKey(name, stream, streamCache);
@@ -152,9 +166,11 @@ public class AudioNode extends Node implements AudioSource {
      * @param name The filename of the audio file
      * @param stream If true, the audio will be streamed gradually from disk, 
      *               otherwise, it will be buffered.
+     * 
+     * @deprecated Use {@link AudioNode#AudioNode(com.jme3.asset.AssetManager, java.lang.String, com.jme3.audio.AudioData.DataType)} instead
      */
     public AudioNode(AssetManager assetManager, String name, boolean stream) {
-        this(assetManager, name, stream, false);
+        this(assetManager, name, stream, true); // Always streamCached
     }
 
     /**
@@ -167,7 +183,7 @@ public class AudioNode extends Node implements AudioSource {
      * @deprecated AudioRenderer parameter is ignored.
      */
     public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name) {
-        this(assetManager, name, false);
+        this(assetManager, name, DataType.Buffer);
     }
     
     /**
@@ -175,9 +191,10 @@ public class AudioNode extends Node implements AudioSource {
      * 
      * @param assetManager The asset manager to use to load the audio file
      * @param name The filename of the audio file
+     * @deprecated Use {@link AudioNode#AudioNode(com.jme3.asset.AssetManager, java.lang.String, com.jme3.audio.AudioData.DataType) } instead
      */
     public AudioNode(AssetManager assetManager, String name) {
-        this(assetManager, name, false);
+        this(assetManager, name, DataType.Buffer);
     }
     
     protected AudioRenderer getRenderer() {
@@ -310,6 +327,19 @@ public class AudioNode extends Node implements AudioSource {
         this.status = status;
     }
 
+    /**
+     * Get the Type of the underlying AudioData to see if it's streamed or buffered.
+     * This is a shortcut to getAudioData().getType()
+     * <b>Warning</b>: Can return null!
+     * @return The {@link com.jme3.audio.AudioData.DataType} of the audio node.
+     */
+    public DataType getType() {
+        if (data == null)
+            return null;
+        else
+            return data.getDataType();
+    }
+    
     /**
      * @return True if the audio will keep looping after it is done playing,
      * otherwise, false.

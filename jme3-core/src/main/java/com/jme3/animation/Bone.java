@@ -139,11 +139,7 @@ public final class Bone implements Savable {
     /**
      * Special-purpose copy constructor. 
      * <p>
-     * Only copies the name and bind pose from the original.
-     * <p>
-     * WARNING: Local bind pose and world inverse bind pose transforms shallow 
-     * copied. Modifying that data on the original bone will cause it to
-     * be recomputed on any cloned bones.
+     * Only copies the name, user control state and bind pose transforms from the original.
      * <p>
      * The rest of the data is <em>NOT</em> copied, as it will be
      * generated automatically when the bone is animated.
@@ -155,13 +151,13 @@ public final class Bone implements Savable {
 
         userControl = source.userControl;
 
-        bindPos = source.bindPos;
-        bindRot = source.bindRot;
-        bindScale = source.bindScale;
+        bindPos = source.bindPos.clone();
+        bindRot = source.bindRot.clone();
+        bindScale = source.bindScale.clone();
 
-        modelBindInversePos = source.modelBindInversePos;
-        modelBindInverseRot = source.modelBindInverseRot;
-        modelBindInverseScale = source.modelBindInverseScale;
+        modelBindInversePos = source.modelBindInversePos.clone();
+        modelBindInverseRot = source.modelBindInverseRot.clone();
+        modelBindInverseScale = source.modelBindInverseScale.clone();
 
         // parent and children will be assigned manually..
     }

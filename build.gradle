@@ -2,10 +2,11 @@ import org.gradle.api.artifacts.*
 
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.1.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.5'
     }
 }
 
@@ -17,6 +18,9 @@ apply from: file('upload.gradle')
 subprojects {
     if(!project.name.equals('jme3-android-examples')) {
         apply from: rootProject.file('common.gradle')
+        if (!['jme3-testdata', 'sdk'].contains(project.name)) {
+            apply from: rootProject.file('bintray.gradle')
+        }
     } else {
         apply from: rootProject.file('common-android-app.gradle')
     }
@@ -86,6 +90,8 @@ task dist(dependsOn: [':jme3-examples:dist', 'mergedJavadoc']){
 task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the projects.') {
     title = 'jMonkeyEngine3'
     destinationDir = mkdir("dist/javadoc")
+    
+    options.encoding = 'UTF-8'
 
     // Allows Javadoc to be generated on Java 8 despite doclint errors.
     if (JavaVersion.current().isJava8Compatible()) {

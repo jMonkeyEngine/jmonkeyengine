@@ -211,7 +211,7 @@ public class Cylinder extends Mesh {
      */
     public void updateGeometry(int axisSamples, int radialSamples,
             float radius, float radius2, float height, boolean closed, boolean inverted) {
-        this.axisSamples = axisSamples + (closed ? 2 : 0);
+        this.axisSamples = axisSamples;
         this.radialSamples = radialSamples;
         this.radius = radius;
         this.radius2 = radius2;
@@ -222,6 +222,7 @@ public class Cylinder extends Mesh {
 //        VertexBuffer pvb = getBuffer(Type.Position);
 //        VertexBuffer nvb = getBuffer(Type.Normal);
 //        VertexBuffer tvb = getBuffer(Type.TexCoord);
+        axisSamples += (closed ? 2 : 0);
 
         // Vertices
         int vertCount = axisSamples * (radialSamples + 1) + (closed ? 2 : 0);

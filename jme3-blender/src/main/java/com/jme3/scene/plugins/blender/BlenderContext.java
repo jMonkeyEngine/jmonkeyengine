@@ -59,6 +59,7 @@ import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader.BlockCode;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.materials.MaterialContext;
+import com.jme3.scene.plugins.blender.meshes.TemporalMesh;
 import com.jme3.texture.Texture;
 
 /**
@@ -389,11 +390,11 @@ public class BlenderContext {
                     }
                 }
             } else if("ME".equals(namePrefix)) {
-                List<Node> features = (List<Node>) linkedFeatures.get("meshes");
-                if(features != null) {
-                    for(Node feature : features) {
-                        if(featureName.equals(feature.getName())) {
-                            return feature;
+                List<TemporalMesh> temporalMeshes = (List<TemporalMesh>) linkedFeatures.get("meshes");
+                if(temporalMeshes != null) {
+                    for(TemporalMesh temporalMesh : temporalMeshes) {
+                        if(featureName.equals(temporalMesh.getName())) {
+                            return temporalMesh;
                         }
                     }
                 }

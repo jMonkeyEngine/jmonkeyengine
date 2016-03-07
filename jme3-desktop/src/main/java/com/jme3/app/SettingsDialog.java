@@ -360,7 +360,7 @@ public final class SettingsDialog extends JFrame {
         vsyncBox.setSelected(source.isVSync());
         
         gammaBox = new JCheckBox(resourceBundle.getString("checkbox.gamma"));
-        gammaBox.setSelected(source.getGammaCorrection());
+        gammaBox.setSelected(source.isGammaCorrection());
         
         gbc = new GridBagConstraints();
         gbc.weightx = 0.5;
