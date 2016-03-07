@@ -20,5 +20,5 @@ void main(void)
        Skinning_Compute(modelSpacePos,modelSpaceNormals);
    #endif
    normal = normalize(g_NormalMatrix * modelSpaceNormals);
-   gl_Position = g_WorldViewProjectionMatrix * modelSpacePos;
+   gl_Position = TransformWorldViewProjection(modelSpacePos);
 }
