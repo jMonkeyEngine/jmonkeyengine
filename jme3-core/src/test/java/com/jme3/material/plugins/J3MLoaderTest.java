@@ -80,6 +80,7 @@ public class J3MLoaderTest {
         final Texture textureMin = Mockito.mock(Texture.class);
         final Texture textureMag = Mockito.mock(Texture.class);
         final Texture textureCombined = Mockito.mock(Texture.class);
+        final Texture textureLooksLikeOldStyle = Mockito.mock(Texture.class);
 
         final TextureKey textureKeyNoParameters = setupMockForTexture("Empty", "empty.png", false, textureNoParameters);
         final TextureKey textureKeyFlip = setupMockForTexture("Flip", "flip.png", true, textureFlip);
@@ -88,6 +89,7 @@ public class J3MLoaderTest {
         setupMockForTexture("Min", "min.png", false, textureMin);
         setupMockForTexture("Mag", "mag.png", false, textureMag);
         setupMockForTexture("Combined", "combined.png", true, textureCombined);
+        setupMockForTexture("LooksLikeOldStyle", "oldstyle.png", true, textureLooksLikeOldStyle);
 
         j3MLoader.load(assetInfo);
 

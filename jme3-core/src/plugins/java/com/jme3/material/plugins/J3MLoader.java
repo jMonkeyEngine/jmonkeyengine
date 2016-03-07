@@ -169,9 +169,23 @@ public class J3MLoader implements AssetLoader {
         return matchList;
     }
 
-    private boolean isTexturePathDeclaredTheTraditionalWay(final int numberOfValues, final int numberOfTextureOptions, final String texturePath) {
-        return (numberOfValues > 1 && (texturePath.startsWith("Flip Repeat ") || texturePath.startsWith("Flip ") ||
-                texturePath.startsWith("Repeat ") || texturePath.startsWith("Repeat Flip "))) || numberOfTextureOptions == 0;
+    private boolean isTexturePathDeclaredTheTraditionalWay(final List<TextureOptionValue> optionValues, final String texturePath) {
+        final boolean startsWithOldStyle = texturePath.startsWith("Flip Repeat ") || texturePath.startsWith("Flip ") ||
+                texturePath.startsWith("Repeat ") || texturePath.startsWith("Repeat Flip ");
+
+        if (!startsWithOldStyle) {
+            return false;
+        }
+
+        if (optionValues.size() == 1 && (optionValues.get(0).textureOption == TextureOption.Flip || optionValues.get(0).textureOption == TextureOption.Repeat)) {
+            return true;
+        } else if (optionValues.size() == 2 && optionValues.get(0).textureOption == TextureOption.Flip && optionValues.get(1).textureOption == TextureOption.Repeat) {
+            return true;
+        } else if (optionValues.size() == 2 && optionValues.get(0).textureOption == TextureOption.Repeat && optionValues.get(1).textureOption == TextureOption.Flip) {
+            return true;
+        }
+
+        return false;
     }
 
     private Texture parseTextureType(final VarType type, final String value) {
@@ -187,7 +201,7 @@ public class J3MLoader implements AssetLoader {
             String texturePath = value.trim();
 
             // If there are no valid "new" texture options specified but the path is split into several parts, lets parse the old way.
-            if (isTexturePathDeclaredTheTraditionalWay(textureValues.size(), textureOptionValues.size(), texturePath)) {
+            if (isTexturePathDeclaredTheTraditionalWay(textureOptionValues, texturePath)) {
                 boolean flipY = false;
 
                 if (texturePath.startsWith("Flip Repeat ") || texturePath.startsWith("Repeat Flip ")) {
