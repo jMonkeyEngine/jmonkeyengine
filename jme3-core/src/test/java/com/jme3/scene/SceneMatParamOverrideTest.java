@@ -43,7 +43,11 @@ import com.jme3.system.TestUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Validates how {@link MatParamOverride MPOs} work on the scene level.
+ *
+ * @author Kirill Vainer
+ */
 public class SceneMatParamOverrideTest {
 
     private static Node createDummyScene() {

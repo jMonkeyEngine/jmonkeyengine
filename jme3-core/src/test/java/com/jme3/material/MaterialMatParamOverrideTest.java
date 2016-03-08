@@ -55,6 +55,11 @@ import com.jme3.texture.Texture2D;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Validates how {@link MatParamOverride MPOs} work on the material level.
+ *
+ * @author Kirill Vainer
+ */
 public class MaterialMatParamOverrideTest {
 
     private static final HashSet<String> IGNORED_UNIFORMS = new HashSet<String>(
