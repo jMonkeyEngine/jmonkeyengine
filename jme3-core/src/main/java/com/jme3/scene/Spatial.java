@@ -614,12 +614,23 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         setMatParamOverrideRefresh();
     }
 
+    /**
+     * Remove a local material parameter override if it exists.
+     *
+     * @param override The override to remove.
+     * @see MatParamOverride
+     */
     public void removeMatParamOverride(MatParamOverride override) {
         if (localOverrides.remove(override)) {
             setMatParamOverrideRefresh();
         }
     }
 
+    /**
+     * Remove all local material parameter overrides.
+     *
+     * @see #addMatParamOverride(com.jme3.material.MatParamOverride)
+     */
     public void clearMatParamOverrides() {
         if (!localOverrides.isEmpty()) {
             setMatParamOverrideRefresh();
