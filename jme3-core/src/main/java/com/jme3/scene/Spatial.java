@@ -435,7 +435,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      *
      * @return The list of local material parameter overrides.
      */
-    public ArrayList<MatParamOverride> getLocalOverrides() {
+    public List<MatParamOverride> getLocalMatParamOverrides() {
         return localOverrides;
     }
 
@@ -445,11 +445,11 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * Note that this list is only updated on a call to
      * {@link #updateGeometricState()}. After update, the world overrides list
      * will contain the {@link #getParent() parent's} world overrides combined
-     * with this spatial's {@link #getLocalOverrides() local overrides}.
+     * with this spatial's {@link #getLocalMatParamOverrides() local overrides}.
      *
      * @return The list of world material parameter overrides.
      */
-    public ArrayList<MatParamOverride> getWorldOverrides() {
+    public List<MatParamOverride> getWorldMatParamOverrides() {
         return worldOverrides;
     }
 
@@ -607,7 +607,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * Adds a local material parameter override.
      *
      * @param override The override to add.
-     * @see #getLocalOverrides()
+     * @see MatParamOverride
      */
     public void addMatParamOverride(MatParamOverride override) {
         localOverrides.add(override);

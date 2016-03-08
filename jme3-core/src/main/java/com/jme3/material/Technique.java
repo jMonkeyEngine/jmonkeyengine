@@ -44,6 +44,7 @@ import com.jme3.shader.VarType;
 import com.jme3.util.ListMap;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 /**
  * Represents a technique instance.
@@ -119,7 +120,7 @@ public final class Technique {
      * @param rendererCaps The renderer capabilities which the shader should support.
      * @return A compatible shader.
      */
-    Shader makeCurrent(RenderManager renderManager, ArrayList<MatParamOverride> overrides,
+    Shader makeCurrent(RenderManager renderManager, List<MatParamOverride> overrides,
             LightList lights, EnumSet<Caps> rendererCaps) {
         TechniqueDefLogic logic = def.getLogic();
         AssetManager assetManager = owner.getMaterialDef().getAssetManager();

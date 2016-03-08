@@ -79,12 +79,12 @@ public class TestMatParamOverride extends SimpleApplication {
             @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (name.equals("override") && isPressed) {
-                    if (!rootNode.getLocalOverrides().isEmpty()) {
+                    if (!rootNode.getLocalMatParamOverrides().isEmpty()) {
                         rootNode.clearMatParamOverrides();
                     } else {
                         rootNode.addMatParamOverride(override);
                     }
-                    System.out.println(rootNode.getLocalOverrides());
+                    System.out.println(rootNode.getLocalMatParamOverrides());
                 }
             }
         }, "override");

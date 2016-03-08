@@ -57,14 +57,14 @@ public class MPOTestUtils {
         scene.checkCulling(DUMMY_CAM);
 
         Set<MatParamOverride> actualOverrides = new HashSet<MatParamOverride>();
-        for (MatParamOverride override : scene.getWorldOverrides()) {
+        for (MatParamOverride override : scene.getWorldMatParamOverrides()) {
             actualOverrides.add(override);
         }
 
         Set<MatParamOverride> expectedOverrides = new HashSet<MatParamOverride>();
         Spatial current = scene;
         while (current != null) {
-            for (MatParamOverride override : current.getLocalOverrides()) {
+            for (MatParamOverride override : current.getLocalMatParamOverrides()) {
                 expectedOverrides.add(override);
             }
             current = current.getParent();
@@ -151,7 +151,7 @@ public class MPOTestUtils {
             sb.append(")");
         }
 
-        if (!scene.getLocalOverrides().isEmpty()) {
+        if (!scene.getLocalMatParamOverrides().isEmpty()) {
             sb.append(" [MPO]");
         }
 

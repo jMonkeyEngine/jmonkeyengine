@@ -41,10 +41,10 @@ import static org.junit.Assert.*;
 
 import com.jme3.system.TestUtil;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class SceneMatParamOverrideTest {
-
 
     private static Node createDummyScene() {
         Node scene = new Node("Scene Node");
@@ -81,12 +81,12 @@ public class SceneMatParamOverrideTest {
     @Test
     public void testOverrides_Empty() {
         Node n = new Node("Node");
-        assertTrue(n.getLocalOverrides().isEmpty());
-        assertTrue(n.getWorldOverrides().isEmpty());
+        assertTrue(n.getLocalMatParamOverrides().isEmpty());
+        assertTrue(n.getWorldMatParamOverrides().isEmpty());
 
         n.updateGeometricState();
-        assertTrue(n.getLocalOverrides().isEmpty());
-        assertTrue(n.getWorldOverrides().isEmpty());
+        assertTrue(n.getLocalMatParamOverrides().isEmpty());
+        assertTrue(n.getWorldMatParamOverrides().isEmpty());
     }
 
     @Test
@@ -95,25 +95,25 @@ public class SceneMatParamOverrideTest {
         Node n = new Node("Node");
 
         n.removeMatParamOverride(override);
-        assertTrue(n.getLocalOverrides().isEmpty());
-        assertTrue(n.getWorldOverrides().isEmpty());
+        assertTrue(n.getLocalMatParamOverrides().isEmpty());
+        assertTrue(n.getWorldMatParamOverrides().isEmpty());
 
         n.addMatParamOverride(override);
 
-        assertSame(n.getLocalOverrides().get(0), override);
-        assertTrue(n.getWorldOverrides().isEmpty());
+        assertSame(n.getLocalMatParamOverrides().get(0), override);
+        assertTrue(n.getWorldMatParamOverrides().isEmpty());
         n.updateGeometricState();
 
-        assertSame(n.getLocalOverrides().get(0), override);
-        assertSame(n.getWorldOverrides().get(0), override);
+        assertSame(n.getLocalMatParamOverrides().get(0), override);
+        assertSame(n.getWorldMatParamOverrides().get(0), override);
 
         n.removeMatParamOverride(override);
-        assertTrue(n.getLocalOverrides().isEmpty());
-        assertSame(n.getWorldOverrides().get(0), override);
+        assertTrue(n.getLocalMatParamOverrides().isEmpty());
+        assertSame(n.getWorldMatParamOverrides().get(0), override);
 
         n.updateGeometricState();
-        assertTrue(n.getLocalOverrides().isEmpty());
-        assertTrue(n.getWorldOverrides().isEmpty());
+        assertTrue(n.getLocalMatParamOverrides().isEmpty());
+        assertTrue(n.getWorldMatParamOverrides().isEmpty());
     }
 
     @Test
@@ -122,29 +122,29 @@ public class SceneMatParamOverrideTest {
         Node n = new Node("Node");
 
         n.clearMatParamOverrides();
-        assertTrue(n.getLocalOverrides().isEmpty());
-        assertTrue(n.getWorldOverrides().isEmpty());
+        assertTrue(n.getLocalMatParamOverrides().isEmpty());
+        assertTrue(n.getWorldMatParamOverrides().isEmpty());
 
         n.addMatParamOverride(override);
         n.clearMatParamOverrides();
-        assertTrue(n.getLocalOverrides().isEmpty());
-        assertTrue(n.getWorldOverrides().isEmpty());
+        assertTrue(n.getLocalMatParamOverrides().isEmpty());
+        assertTrue(n.getWorldMatParamOverrides().isEmpty());
 
         n.addMatParamOverride(override);
         n.updateGeometricState();
         n.clearMatParamOverrides();
-        assertTrue(n.getLocalOverrides().isEmpty());
-        assertSame(n.getWorldOverrides().get(0), override);
+        assertTrue(n.getLocalMatParamOverrides().isEmpty());
+        assertSame(n.getWorldMatParamOverrides().get(0), override);
 
         n.updateGeometricState();
-        assertTrue(n.getLocalOverrides().isEmpty());
-        assertTrue(n.getWorldOverrides().isEmpty());
+        assertTrue(n.getLocalMatParamOverrides().isEmpty());
+        assertTrue(n.getWorldMatParamOverrides().isEmpty());
 
         n.addMatParamOverride(override);
         n.clearMatParamOverrides();
         n.updateGeometricState();
-        assertTrue(n.getLocalOverrides().isEmpty());
-        assertTrue(n.getWorldOverrides().isEmpty());
+        assertTrue(n.getLocalMatParamOverrides().isEmpty());
+        assertTrue(n.getWorldMatParamOverrides().isEmpty());
     }
 
     @Test
@@ -233,8 +233,8 @@ public class SceneMatParamOverrideTest {
         validateScene(clonedScene);
         validateScene(originalScene);
 
-        ArrayList<MatParamOverride> clonedOverrides = clonedScene.getChild("A").getLocalOverrides();
-        ArrayList<MatParamOverride> originalOverrides = originalScene.getChild("A").getLocalOverrides();
+        List<MatParamOverride> clonedOverrides = clonedScene.getChild("A").getLocalMatParamOverrides();
+        List<MatParamOverride> originalOverrides = originalScene.getChild("A").getLocalMatParamOverrides();
 
         assertNotSame(clonedOverrides, originalOverrides);
         assertEquals(clonedOverrides, originalOverrides);
@@ -258,8 +258,8 @@ public class SceneMatParamOverrideTest {
         validateScene(root);
         validateScene(scene);
 
-        assertNotSame(override, loadedScene.getChild("A").getLocalOverrides().get(0));
-        assertEquals(override, loadedScene.getChild("A").getLocalOverrides().get(0));
+        assertNotSame(override, loadedScene.getChild("A").getLocalMatParamOverrides().get(0));
+        assertEquals(override, loadedScene.getChild("A").getLocalMatParamOverrides().get(0));
     }
 
     @Test
