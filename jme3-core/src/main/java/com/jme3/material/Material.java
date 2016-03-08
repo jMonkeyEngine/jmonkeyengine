@@ -792,7 +792,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             VarType type = override.getVarType();
 
             MatParam paramDef = def.getMaterialParam(override.getName());
-            if (paramDef == null || paramDef.getVarType() != type) {
+            if (paramDef == null || paramDef.getVarType() != type || !override.isEnabled()) {
                 continue;
             }
 

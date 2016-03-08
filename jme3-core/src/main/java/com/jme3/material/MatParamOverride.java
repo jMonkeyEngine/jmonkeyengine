@@ -35,6 +35,8 @@ import com.jme3.shader.VarType;
 
 public final class MatParamOverride extends MatParam {
 
+    private boolean enabled = true;
+
     public MatParamOverride() {
         super();
     }
@@ -43,4 +45,36 @@ public final class MatParamOverride extends MatParam {
         super(type, name, value);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj) && this.enabled == ((MatParamOverride) obj).enabled;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = super.hashCode();
+        hash = 59 * hash + (enabled ? 1 : 0);
+        return hash;
+    }
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(enabled, "enabled", true);
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule ic = im.getCapsule(this);
+        enabled = ic.readBoolean("enabled", true);
+    }
 }
