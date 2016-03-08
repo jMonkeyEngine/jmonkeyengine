@@ -785,7 +785,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         sortingId = -1;
     }
 
-    private void updateShaderMaterialParameters(Renderer renderer, Shader shader, ArrayList<MatParamOverride> overrides) {
+    private void updateShaderMaterialParameters(Renderer renderer, Shader shader, List<MatParamOverride> overrides) {
         int unit = 0;
 
         for (MatParamOverride override : overrides) {
@@ -964,7 +964,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         updateRenderState(renderManager, renderer, techniqueDef);
 
         // Get world overrides
-        ArrayList<MatParamOverride> overrides = geometry.getWorldOverrides();
+        List<MatParamOverride> overrides = geometry.getWorldMatParamOverrides();
 
         // Select shader to use
         Shader shader = technique.makeCurrent(renderManager, overrides, lights, rendererCaps);
@@ -976,7 +976,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         renderManager.updateUniformBindings(shader);
         
         // Set material parameters
-        updateShaderMaterialParameters(renderer, shader, geometry.getWorldOverrides());
+        updateShaderMaterialParameters(renderer, shader, geometry.getWorldMatParamOverrides());
         
         // Clear any uniforms not changed by material.
         resetUniformsNotSetByCurrent(shader);
