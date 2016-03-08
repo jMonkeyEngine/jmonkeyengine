@@ -55,7 +55,7 @@ import com.jme3.texture.Texture2D;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TechniqueDefMatParamOverrideTest {
+public class MaterialMatParamOverrideTest {
 
     private static final HashSet<String> IGNORED_UNIFORMS = new HashSet<String>(
             Arrays.asList(new String[]{"m_ParallaxHeight", "m_Shininess"}));
@@ -115,6 +115,27 @@ public class TechniqueDefMatParamOverrideTest {
         material("Common/MatDefs/Light/Lighting.j3md");
         inputMp(mpoFloat("AlphaDiscardThreshold", 3.12f));
         inputMpo(mpoFloat("AlphaDiscardThreshold", 2.79f));
+        outDefines(def("DISCARD_ALPHA", VarType.Float, 2.79f));
+        outUniforms(uniform("AlphaDiscardThreshold", VarType.Float, 2.79f));
+    }
+
+    @Test
+    public void testMpoDisable() {
+        material("Common/MatDefs/Light/Lighting.j3md");
+        inputMp(mpoFloat("AlphaDiscardThreshold", 3.12f));
+
+        MatParamOverride override = mpoFloat("AlphaDiscardThreshold", 2.79f);
+        inputMpo(override);
+        outDefines(def("DISCARD_ALPHA", VarType.Float, 2.79f));
+        outUniforms(uniform("AlphaDiscardThreshold", VarType.Float, 2.79f));
+
+        reset();
+        override.setEnabled(false);
+        outDefines(def("DISCARD_ALPHA", VarType.Float, 3.12f));
+        outUniforms(uniform("AlphaDiscardThreshold", VarType.Float, 3.12f));
+
+        reset();
+        override.setEnabled(true);
         outDefines(def("DISCARD_ALPHA", VarType.Float, 2.79f));
         outUniforms(uniform("AlphaDiscardThreshold", VarType.Float, 2.79f));
     }
@@ -349,13 +370,13 @@ public class TechniqueDefMatParamOverrideTest {
     private final NullRenderer renderer = new NullRenderer() {
         @Override
         public void setShader(Shader shader) {
-            TechniqueDefMatParamOverrideTest.this.usedShader = shader;
+            MaterialMatParamOverrideTest.this.usedShader = shader;
             evaluated = true;
         }
 
         @Override
         public void setTexture(int unit, Texture texture) {
-            TechniqueDefMatParamOverrideTest.this.usedTextures[unit] = texture;
+            MaterialMatParamOverrideTest.this.usedTextures[unit] = texture;
         }
     };
     private final RenderManager renderManager = new RenderManager(renderer);

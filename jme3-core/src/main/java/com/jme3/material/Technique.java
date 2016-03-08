@@ -128,6 +128,9 @@ public final class Technique {
         dynamicDefines.setAll(paramDefines);
 
         for (MatParamOverride override : overrides) {
+            if (!override.isEnabled()) {
+                continue;
+            }
             Integer defineId = def.getShaderParamDefineId(override.name);
             if (defineId != null) {
                 if (def.getDefineIdType(defineId) == override.type) {
