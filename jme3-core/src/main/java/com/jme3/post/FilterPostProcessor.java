@@ -401,8 +401,10 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             viewPort.getCamera().setViewPort(left, right, bottom, top);
             viewPort.setOutputFrameBuffer(outputBuffer);
             viewPort = null;
-            
-            renderFrameBuffer.dispose();
+
+            if(renderFrameBuffer != null){
+                renderFrameBuffer.dispose();
+            }
             if(depthTexture!=null){
                depthTexture.getImage().dispose();
             }
