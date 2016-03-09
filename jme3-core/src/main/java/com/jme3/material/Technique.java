@@ -128,14 +128,16 @@ public final class Technique {
         dynamicDefines.clear();
         dynamicDefines.setAll(paramDefines);
 
-        for (MatParamOverride override : overrides) {
-            if (!override.isEnabled()) {
-                continue;
-            }
-            Integer defineId = def.getShaderParamDefineId(override.name);
-            if (defineId != null) {
-                if (def.getDefineIdType(defineId) == override.type) {
-                    dynamicDefines.set(defineId, override.type, override.value);
+        if (overrides != null) {
+            for (MatParamOverride override : overrides) {
+                if (!override.isEnabled()) {
+                    continue;
+                }
+                Integer defineId = def.getShaderParamDefineId(override.name);
+                if (defineId != null) {
+                    if (def.getDefineIdType(defineId) == override.type) {
+                        dynamicDefines.set(defineId, override.type, override.value);
+                    }
                 }
             }
         }
