@@ -244,7 +244,8 @@ public class SceneMatParamOverrideTest {
         assertEquals(clonedOverrides, originalOverrides);
 
         for (int i = 0; i < clonedOverrides.size(); i++) {
-            assertSame(clonedOverrides.get(i), originalOverrides.get(i));
+            assertNotSame(clonedOverrides.get(i), originalOverrides.get(i));
+            assertEquals(clonedOverrides.get(i), originalOverrides.get(i));
         }
     }
 

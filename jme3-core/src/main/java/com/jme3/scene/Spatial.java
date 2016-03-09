@@ -1362,8 +1362,12 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
             clone.localLights.setOwner(clone);
             clone.worldLights.setOwner(clone);
 
-            clone.worldOverrides = new ArrayList<MatParamOverride>(worldOverrides);
-            clone.localOverrides = new ArrayList<MatParamOverride>(localOverrides);
+            clone.worldOverrides = new ArrayList<MatParamOverride>();
+            clone.localOverrides = new ArrayList<MatParamOverride>();
+
+            for (MatParamOverride override : localOverrides) {
+                clone.localOverrides.add((MatParamOverride) override.clone());
+            }
 
             // No need to force cloned to update.
             // This node already has the refresh flags
@@ -1386,6 +1390,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
             clone.setBoundRefresh();
             clone.setTransformRefresh();
             clone.setLightListRefresh();
+            clone.setMatParamOverrideRefresh();
 
             clone.controls = new SafeArrayList<Control>(Control.class);
             for (int i = 0; i < controls.size(); i++) {
