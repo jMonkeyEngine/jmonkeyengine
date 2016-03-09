@@ -195,7 +195,7 @@ public class Uniform extends ShaderVariable {
         }
 
         if (value == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("for uniform " + name + ": value cannot be null");
         }
 
         setByCurrentMaterial = true;
