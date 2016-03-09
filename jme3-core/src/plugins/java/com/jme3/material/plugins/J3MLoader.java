@@ -637,6 +637,7 @@ public class J3MLoader implements AssetLoader {
 
             material = new Material(def);
             material.setKey(key);
+            material.setName(split[0].trim());
 //            material.setAssetName(fileName);
         }else if (split.length == 1){
             if (extending){
