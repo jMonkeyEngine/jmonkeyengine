@@ -234,13 +234,6 @@ public class TestCloner {
  
         public void cloneFields( Cloner cloner, Object original ) {
             this.links = cloner.clone(links);
-            /*
-            // manually clone the list for a sec
-            List<GraphNode> cloneList = (List<GraphNode>)((ArrayList<GraphNode>)links).clone(); //new ArrayList<GraphNode>();
-            for( int i = 0; i < links.size(); i++ ) {
-                cloneList.set(i, cloner.clone(links.get(i)));
-            }
-            links = cloneList;*/
         } 
         
         public String toString() {
