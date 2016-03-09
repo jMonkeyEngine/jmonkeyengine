@@ -788,21 +788,27 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     private void updateShaderMaterialParameters(Renderer renderer, Shader shader, List<MatParamOverride> overrides) {
         int unit = 0;
 
-        for (MatParamOverride override : overrides) {
-            VarType type = override.getVarType();
+        if (overrides != null) {
+            for (MatParamOverride override : overrides) {
+                VarType type = override.getVarType();
 
-            MatParam paramDef = def.getMaterialParam(override.getName());
-            if (paramDef == null || paramDef.getVarType() != type || !override.isEnabled()) {
-                continue;
-            }
+                MatParam paramDef = def.getMaterialParam(override.getName());
+                if (paramDef == null || paramDef.getVarType() != type || !override.isEnabled()) {
+                    continue;
+                }
 
-            Uniform uniform = shader.getUniform(override.getPrefixedName());
-            if (type.isTextureType()) {
-                renderer.setTexture(unit, (Texture) override.getValue());
-                uniform.setValue(VarType.Int, unit);
-                unit++;
-            } else {
-                uniform.setValue(type, override.getValue());
+                Uniform uniform = shader.getUniform(override.getPrefixedName());
+                if (override.getValue() != null) {
+                    if (type.isTextureType()) {
+                        renderer.setTexture(unit, (Texture) override.getValue());
+                        uniform.setValue(VarType.Int, unit);
+                        unit++;
+                    } else {
+                        uniform.setValue(type, override.getValue());
+                    }
+                } else {
+                    uniform.clearValue();
+                }
             }
         }
 
