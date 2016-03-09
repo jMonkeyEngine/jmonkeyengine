@@ -674,6 +674,10 @@ public class BatchNode extends GeometryGroupNode {
             }
         }
         Geometry geometry;
+        
+        public final Geometry getGeometry() {
+            return geometry;
+        }
     }
 
     protected void setNeedsFullRebatch(boolean needsFullRebatch) {
