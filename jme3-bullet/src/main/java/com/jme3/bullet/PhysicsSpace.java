@@ -334,6 +334,19 @@ public class PhysicsSpace {
     private void addCollisionEvent_native(PhysicsCollisionObject node, PhysicsCollisionObject node1, long manifoldPointObjectId) {
 //        System.out.println("addCollisionEvent:"+node.getObjectId()+" "+ node1.getObjectId());
         collisionEvents.add(eventFactory.getEvent(PhysicsCollisionEvent.TYPE_PROCESSED, node, node1, manifoldPointObjectId));
+
+        // Notify group listeners
+        if((node.getCollideWithGroups() & node1.getCollisionGroup()) > 0
+                || (node1.getCollideWithGroups() & node.getCollisionGroup()) > 0){
+            PhysicsCollisionGroupListener listener = collisionGroupListeners.get(node.getCollisionGroup());
+            PhysicsCollisionGroupListener listener1 = collisionGroupListeners.get(node1.getCollisionGroup());
+            if(listener != null){
+                listener.collide(node, node1);
+            }
+            if(listener1 != null && node.getCollisionGroup() != node1.getCollisionGroup()){
+                listener1.collide(node, node1);
+            }
+        }
     }
 
     /**
