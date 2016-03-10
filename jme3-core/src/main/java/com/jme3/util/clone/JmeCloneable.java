@@ -61,9 +61,21 @@ package com.jme3.util.clone;
 public interface JmeCloneable extends Cloneable {
 
     /**
-     *  Performs a shallow clone of the object.
+     *  Performs a regular shallow clone of the object.  Some fields
+     *  may also be cloned but generally only if they will never be
+     *  shared with other objects.  (For example, local Vector3fs and so on.)
+     *
+     *  <p>This method is separate from the regular clone() method
+     *  so that objects might still maintain their own regular java clone()
+     *  semantics (perhaps even using Cloner for those methods).  However,
+     *  because Java's clone() has specific features in the sense of Object's
+     *  clone() implementation, it's usually best to have some path for
+     *  subclasses to bypass the public clone() method that might be cloning
+     *  fields and instead get at the superclass protected clone() methods.
+     *  For example, through super.jmeClone() or another protected clone
+     *  method that some base class eventually calls super.clone() in.</p>
      */
-    public Object clone();     
+    public Object jmeClone();     
 
     /**
      *  Implemented to perform deep cloning for this object, resolving

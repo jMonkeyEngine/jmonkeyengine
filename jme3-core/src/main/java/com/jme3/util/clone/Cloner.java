@@ -221,7 +221,17 @@ public class Cloner {
             clone = arrayClone(object);
             
             // Array clone already indexes the clone
+        } else if( object instanceof JmeCloneable ) {
+            // Use the two-step cloning semantics
+            clone = ((JmeCloneable)object).jmeClone();
+            
+            // Store the object in the identity map so that any circular references
+            // are resolvable
+            index.put(object, clone); 
+            
+            ((JmeCloneable)clone).cloneFields(this, object);
         } else if( object instanceof Cloneable ) {
+            
             // Perform a regular Java shallow clone
             try {
                 clone = javaClone(object);
@@ -234,12 +244,6 @@ public class Cloner {
             index.put(object, clone); 
         } else {
             throw new IllegalArgumentException("Object is not cloneable, type:" + type);
-        }
-        
-        // Finally, check to see if the object implements special field cloning
-        // behavior.       
-        if( clone instanceof JmeCloneable ) {
-            ((JmeCloneable)clone).cloneFields(this, object);
         }
         
         return type.cast(clone);

@@ -170,6 +170,12 @@ public class TestCloner {
                 throw new RuntimeException(e);
             }
         }
+        
+        public Parent jmeClone() {
+            // Ok to delegate to clone() in this case because no deep
+            // cloning is done there.
+            return clone();
+        }
  
         public void cloneFields( Cloner cloner, Object original ) {
             this.ro = cloner.clone(ro);
@@ -224,7 +230,7 @@ public class TestCloner {
             return links;
         }
         
-        public GraphNode clone() {
+        public GraphNode jmeClone() {
             try {
                 return (GraphNode)super.clone();
             } catch( CloneNotSupportedException e ) {
@@ -267,7 +273,7 @@ public class TestCloner {
             }
         }
         
-        public ArrayHolder clone() {
+        public ArrayHolder jmeClone() {
             try {
                 return (ArrayHolder)super.clone();
             } catch( CloneNotSupportedException e ) {
