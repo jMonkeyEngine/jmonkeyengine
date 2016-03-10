@@ -202,7 +202,7 @@ public class Cloner {
         }
         
         // See if there is a custom function... that trumps everything.
-        CloneFunction<T> f = getCloneFunction(type); //(CloneFunction<T>)functions.get(type);
+        CloneFunction<T> f = getCloneFunction(type); 
         if( f != null ) {
             T result = f.cloneObject(this, object);
             
