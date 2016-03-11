@@ -73,7 +73,7 @@ public class TestMaterialWrite {
 //        System.err.println(reference);
 //        System.err.println(stream.toString());
 
-        assertEquals(reference.replaceAll("[\\s|\\r\\n]",""), stream.toString().replaceAll("[\\s|\\r\\n]",""));
+        assertEquals(reference.replaceAll("[\\s\\r\\n]",""), stream.toString().replaceAll("[\\s\\r\\n]",""));
     }
 
     private String convertStreamToString(java.io.InputStream is) {
