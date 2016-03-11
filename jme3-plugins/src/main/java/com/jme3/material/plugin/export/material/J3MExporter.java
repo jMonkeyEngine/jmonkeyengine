@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 
 /**
  * Saves a Material to a j3m file with proper formatting.
@@ -49,7 +50,7 @@ public class J3MExporter implements JmeExporter {
             throw new IllegalArgumentException("J3MExporter can only save com.jme3.material.Material class");
         }
 
-        OutputStreamWriter out = new OutputStreamWriter(f);
+        OutputStreamWriter out = new OutputStreamWriter(f, Charset.forName("UTF-8"));
 
         rootCapsule.clear();
         object.write(this);
