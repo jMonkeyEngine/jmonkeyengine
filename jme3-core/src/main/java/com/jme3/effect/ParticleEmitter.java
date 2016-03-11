@@ -119,6 +119,7 @@ public class ParticleEmitter extends Geometry {
             this.parentEmitter = parentEmitter;
         }
 
+        @Override
         public Control cloneForSpatial(Spatial spatial) {
             return this; // WARNING: Sets wrong control on spatial. Will be
             // fixed automatically by ParticleEmitter.clone() method.

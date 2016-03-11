@@ -115,6 +115,7 @@ public class StatsView extends Node implements Control {
         //statistics.clearFrame();
     }
 
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         return (Control) spatial;
     }

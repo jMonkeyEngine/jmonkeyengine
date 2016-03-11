@@ -108,6 +108,7 @@ public final class AnimControl extends AbstractControl implements Cloneable {
     /**
      * Internal use only.
      */
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         try {
             AnimControl clone = (AnimControl) super.clone();

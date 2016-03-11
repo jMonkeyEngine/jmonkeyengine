@@ -85,6 +85,7 @@ public class UpdateControl extends AbstractControl {
         
     }
 
+    @Override
     public Control cloneForSpatial(Spatial newSpatial) {
         UpdateControl control = new UpdateControl(); 
         control.setSpatial(newSpatial);

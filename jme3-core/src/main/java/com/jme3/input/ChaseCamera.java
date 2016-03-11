@@ -567,6 +567,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
      * @param spatial
      * @return
      */
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         ChaseCamera cc = new ChaseCamera(cam, spatial, inputManager);
         cc.setMaxDistance(getMaxDistance());

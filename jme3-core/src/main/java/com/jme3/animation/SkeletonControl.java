@@ -345,6 +345,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
         }
     }
 
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         Node clonedNode = (Node) spatial;
         SkeletonControl clone = new SkeletonControl();

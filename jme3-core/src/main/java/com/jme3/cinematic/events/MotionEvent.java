@@ -274,6 +274,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control {
      * @param spatial
      * @return
      */
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         MotionEvent control = new MotionEvent(spatial, path);
         control.playState = playState;

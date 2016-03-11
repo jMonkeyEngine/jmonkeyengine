@@ -263,6 +263,7 @@ public class EffectTrack implements ClonableTrack {
      * @param spatial the Spatial holding the AnimControl
      * @return the cloned Track with proper reference
      */
+    @Override
     public Track cloneForSpatial(Spatial spatial) {
         EffectTrack effectTrack = new EffectTrack();
         effectTrack.particlesPerSeconds = this.particlesPerSeconds;

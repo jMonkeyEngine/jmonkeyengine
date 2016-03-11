@@ -86,12 +86,13 @@ public class BillboardControl extends AbstractControl {
         alignment = Alignment.Screen;
     }
 
-    public Control cloneForSpatial(Spatial spatial) {
-        BillboardControl control = new BillboardControl();
-        control.alignment = this.alignment;
-        control.setSpatial(spatial);
-        return control;
-    }
+    // default implementation from AbstractControl is equivalent
+    //public Control cloneForSpatial(Spatial spatial) {
+    //    BillboardControl control = new BillboardControl();
+    //    control.alignment = this.alignment;
+    //    control.setSpatial(spatial);
+    //    return control;
+    //}
 
     @Override
     protected void controlUpdate(float tpf) {
