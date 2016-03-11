@@ -87,6 +87,7 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         return spatial.getWorldTranslation();
     }
 
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         CharacterControl control = new CharacterControl(collisionShape, stepHeight);
         control.setCcdMotionThreshold(getCcdMotionThreshold());

@@ -93,6 +93,7 @@ public class GhostControl extends PhysicsGhostObject implements PhysicsControl {
         return spatial.getWorldRotation();
     }
 
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         GhostControl control = new GhostControl(collisionShape);
         control.setCcdMotionThreshold(getCcdMotionThreshold());

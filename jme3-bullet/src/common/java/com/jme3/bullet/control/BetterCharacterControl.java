@@ -663,6 +663,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         rigidBody.setUserObject(null);
     }
 
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         BetterCharacterControl control = new BetterCharacterControl(radius, height, mass);
         control.setJumpForce(jumpForce);

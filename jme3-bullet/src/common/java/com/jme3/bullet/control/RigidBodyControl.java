@@ -89,6 +89,7 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
         super(shape, mass);
     }
 
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         RigidBodyControl control = new RigidBodyControl(collisionShape, mass);
         control.setAngularFactor(getAngularFactor());

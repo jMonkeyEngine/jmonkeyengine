@@ -106,6 +106,7 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl {
         return spatial.getWorldRotation();
     }
 
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         VehicleControl control = new VehicleControl(collisionShape, mass);
         control.setAngularFactor(getAngularFactor());

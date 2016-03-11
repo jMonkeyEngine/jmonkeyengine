@@ -910,6 +910,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     public void render(RenderManager rm, ViewPort vp) {
     }
 
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         KinematicRagdollControl control = new KinematicRagdollControl(preset, weightThreshold);
         control.setMode(mode);
