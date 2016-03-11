@@ -67,6 +67,7 @@ public class NormalRecalcControl extends AbstractControl {
 
     }
 
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         NormalRecalcControl control = new NormalRecalcControl(terrain);
         control.setSpatial(spatial);

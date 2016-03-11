@@ -301,6 +301,7 @@ public class TerrainLodControl extends AbstractControl {
     
     
     
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         if (spatial instanceof Terrain) {
             List<Camera> cameraClone = new ArrayList<Camera>();
