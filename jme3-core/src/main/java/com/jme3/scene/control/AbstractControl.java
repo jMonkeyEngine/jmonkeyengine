@@ -45,7 +45,7 @@ import java.io.IOException;
  *
  * @author Kirill Vainer
  */
-public abstract class AbstractControl implements Control {
+public abstract class AbstractControl implements Control, Cloneable {
 
     protected boolean enabled = true;
     protected Spatial spatial;
