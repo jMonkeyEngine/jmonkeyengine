@@ -168,7 +168,7 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
 
         Spatial missile = assetManager.loadModel("Models/SpaceCraft/Rocket.mesh.xml");
         missile.scale(0.5f);
-        missile.rotate(FastMath.PI, FastMath.PI, 0);
+        missile.rotate(0, FastMath.PI, 0);
         missile.updateGeometricState();
 
         BoundingBox box = (BoundingBox) missile.getWorldBound();

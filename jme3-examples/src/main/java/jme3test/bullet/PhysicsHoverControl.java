@@ -94,6 +94,7 @@ public class PhysicsHoverControl extends PhysicsVehicle implements PhysicsContro
         createWheels();
     }
 
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
