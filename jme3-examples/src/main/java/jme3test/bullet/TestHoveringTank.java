@@ -147,13 +147,13 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         spaceCraft.setLocalRotation(new Quaternion(new float[]{0, 0.01f, 0}));
 
         hoverControl = new PhysicsHoverControl(colShape, 500);
-        hoverControl.setCollisionGroup(PhysicsCollisionObject.COLLISION_GROUP_02);
 
         spaceCraft.addControl(hoverControl);
 
 
         rootNode.attachChild(spaceCraft);
         getPhysicsSpace().add(hoverControl);
+        hoverControl.setCollisionGroup(PhysicsCollisionObject.COLLISION_GROUP_02);
 
         ChaseCamera chaseCam = new ChaseCamera(cam, inputManager);
         spaceCraft.addControl(chaseCam);
@@ -168,7 +168,7 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
 
         Spatial missile = assetManager.loadModel("Models/SpaceCraft/Rocket.mesh.xml");
         missile.scale(0.5f);
-        missile.rotate(0, FastMath.PI, 0);
+        missile.rotate(FastMath.PI, FastMath.PI, 0);
         missile.updateGeometricState();
 
         BoundingBox box = (BoundingBox) missile.getWorldBound();
