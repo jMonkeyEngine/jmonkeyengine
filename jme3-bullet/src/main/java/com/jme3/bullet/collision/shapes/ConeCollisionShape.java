@@ -70,6 +70,10 @@ public class ConeCollisionShape extends CollisionShape {
     public float getRadius() {
         return radius;
     }
+    
+    public float getHeight() {
+        return height;
+    }
 
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
