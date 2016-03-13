@@ -249,21 +249,23 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             }
             logger.log(Level.FINE, "Saving ScreenShot to: {0}", file.getAbsolutePath());
 
-            OutputStream outStream = null;
             try {
-                outStream = new FileOutputStream(file);
-                JmeSystem.writeImageFile(outStream, "png", outBuf, width, height);
+                writeImageFile(file);
             } catch (IOException ex) {
                 logger.log(Level.SEVERE, "Error while saving screenshot", ex);
-            } finally {
-                if (outStream != null){
-                    try {
-                        outStream.close();
-                    } catch (IOException ex) {
-                        logger.log(Level.SEVERE, "Error while saving screenshot", ex);
-                    }
-                }
-            }
+            }                
         }
     }
+    
+    /**
+     *  Called by postFrame() once the screen has been captured to outBuf.
+     */
+    protected void writeImageFile( File file ) throws IOException {
+        OutputStream outStream = new FileOutputStream(file);
+        try {
+            JmeSystem.writeImageFile(outStream, "png", outBuf, width, height);
+        } finally {
+            outStream.close();
+        }
+    } 
 }
