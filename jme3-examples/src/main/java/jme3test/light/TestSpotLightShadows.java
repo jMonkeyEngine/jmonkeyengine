@@ -65,7 +65,7 @@ public class TestSpotLightShadows extends SimpleApplication {
 
     public void setupLighting() {
         AmbientLight al = new AmbientLight();
-        al.setColor(ColorRGBA.White.mult(0.3f));
+        al.setColor(ColorRGBA.White.mult(0.02f));
         rootNode.addLight(al);
 
         rootNode.setShadowMode(ShadowMode.CastAndReceive);
