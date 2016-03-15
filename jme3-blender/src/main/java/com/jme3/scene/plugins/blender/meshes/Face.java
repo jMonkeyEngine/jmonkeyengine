@@ -146,7 +146,6 @@ public class Face implements Comparator<Integer> {
     /**
      * @return current indexes of the face (if it is already triangulated then more than one index group will be in the result list)
      */
-    @SuppressWarnings("unchecked")
     public List<List<Integer>> getCurrentIndexes() {
         if (triangulatedFaces == null) {
             return Arrays.asList(indexes.getAll());
@@ -279,16 +278,6 @@ public class Face implements Comparator<Integer> {
                 // two special cases will improve the computations speed
                 if(face.getIndexes().size() == 3) {
                 	triangulatedFaces.add(face.getIndexes().clone());
-                } else if(face.getIndexes().size() == 4) {
-                	// in case face has 4 verts we use the plain triangulation
-                	indexes[0] = face.getIndex(0);
-                    indexes[1] = face.getIndex(1);
-                    indexes[2] = face.getIndex(2);
-                	triangulatedFaces.add(new IndexesLoop(indexes));
-                	
-                    indexes[1] = face.getIndex(2);
-                    indexes[2] = face.getIndex(3);
-                	triangulatedFaces.add(new IndexesLoop(indexes));
                 } else {
                 	int previousIndex1 = -1, previousIndex2 = -1, previousIndex3 = -1;
                     while (face.vertexCount() > 0) {

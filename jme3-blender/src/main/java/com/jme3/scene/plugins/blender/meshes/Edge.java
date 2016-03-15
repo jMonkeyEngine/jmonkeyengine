@@ -215,8 +215,8 @@ public class Edge {
     
 	/**
 	 * The method computes the crossing pint of this edge and another edge. If
-	 * there is no crossing then null is returned. This method also allows to
-	 * get the crossing point of the straight lines that contain these edges if
+	 * there is no crossing then null is returned. Also null is returned if the edges are parallel.
+	 * This method also allows to get the crossing point of the straight lines that contain these edges if
 	 * you set the 'extend' parameter to true.
 	 * 
 	 * @param edge
@@ -227,13 +227,18 @@ public class Edge {
 	 * @param extendSecondEdge
 	 *            set to <b>true</b> to find a crossing point along the whole
 	 *            straight that contains the given edge
-	 * @return cross point on null if none exist
+	 * @return cross point on null if none exist or the edges are parallel
 	 */
 	public Vector3f getCrossPoint(Edge edge, boolean extendThisEdge, boolean extendSecondEdge) {
 		Vector3d P1 = new Vector3d(this.getFirstVertex());
 		Vector3d P2 = new Vector3d(edge.getFirstVertex());
 		Vector3d u = new Vector3d(this.getSecondVertex()).subtract(P1).normalizeLocal();
 		Vector3d v = new Vector3d(edge.getSecondVertex()).subtract(P2).normalizeLocal();
+		
+		if(Math.abs(u.dot(v)) >= 1 - FastMath.DBL_EPSILON) {
+			// the edges are parallel; do not care about the crossing point
+			return null;
+		}
 		
 		double t1 = 0, t2 = 0;
 		if(u.x == 0 && v.x == 0) {
@@ -262,11 +267,11 @@ public class Edge {
 			// the lines cross, check if p1 and p2 are within the edges
             Vector3d p = p1.subtract(P1);
             double cos = p.dot(u) / p.length();
-            if (extendThisEdge || p.length()<= FastMath.FLT_EPSILON || cos >= 1 - FastMath.FLT_EPSILON && p.length() <= this.getLength()) {
+            if (extendThisEdge || p.length()<= FastMath.FLT_EPSILON || cos >= 1 - FastMath.FLT_EPSILON && p.length() - this.getLength() <= FastMath.FLT_EPSILON) {
                 // p1 is inside the first edge, lets check the other edge now
                 p = p2.subtract(P2);
                 cos = p.dot(v) / p.length();
-                if(extendSecondEdge || p.length()<= FastMath.FLT_EPSILON || cos >= 1 - FastMath.FLT_EPSILON && p.length() <= edge.getLength()) {
+                if(extendSecondEdge || p.length()<= FastMath.FLT_EPSILON || cos >= 1 - FastMath.FLT_EPSILON && p.length() - edge.getLength() <= FastMath.FLT_EPSILON) {
                 	return p1.toVector3f();
                 }
             }
