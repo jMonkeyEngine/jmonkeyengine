@@ -117,8 +117,8 @@ public abstract class Light implements Savable, Cloneable {
      */
     protected String name;
     
-    boolean frustumCheckNeeded = true;
-    boolean intersectsFrustum  = false;
+    public boolean frustumCheckNeeded = true;
+    public boolean intersectsFrustum  = false;
 
     protected Light() {
     }
