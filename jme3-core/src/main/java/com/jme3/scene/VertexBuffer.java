@@ -335,6 +335,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     protected boolean normalized = false;
     protected int instanceSpan = 0;
     protected transient boolean dataSizeChanged = false;
+    protected boolean unused;
 
     /**
      * Creates an empty, uninitialized buffer.
@@ -713,6 +714,14 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         dataSizeChanged = false;
     }
 
+    public void setUnused(boolean v){
+    	unused=v;
+    }
+    
+    public boolean isUnused(){
+    	return unused;
+    }
+    
     /**
      * Converts single floating-point data to {@link Format#Half half} floating-point data.
      */
