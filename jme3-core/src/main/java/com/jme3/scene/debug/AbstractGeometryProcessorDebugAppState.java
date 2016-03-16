@@ -88,7 +88,7 @@ public abstract class AbstractGeometryProcessorDebugAppState extends BaseAppStat
 	}
 
 	@Override
-	public void update(float tpf) {
+	public void update(final float tpf) {
 		updateId++;
 		targetSpatial.depthFirstTraversal(new SceneGraphVisitor(){
 			@Override
