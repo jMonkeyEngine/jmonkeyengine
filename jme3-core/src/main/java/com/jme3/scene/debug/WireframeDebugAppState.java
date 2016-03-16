@@ -64,7 +64,7 @@ public class WireframeDebugAppState extends AbstractGeometryProcessorDebugAppSta
 			if(s==GeometryState.REMOVE) return true;
 		}else if(s==GeometryState.UPDATE){
 			Geometry generated=generatedGeometries.get(g);
-			generated.setLocalTransform(g.getLocalTransform());
+			generated.setLocalTransform(g.getWorldTransform());
 			return true;
 		}
 
