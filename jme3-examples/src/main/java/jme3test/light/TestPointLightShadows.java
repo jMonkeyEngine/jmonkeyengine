@@ -72,7 +72,7 @@ public class TestPointLightShadows extends SimpleApplication implements ActionLi
 
 
 
-        Node scene = (Node) assetManager.loadModel("Models/Test/CornellBox_1.j3o");
+        Node scene = (Node) assetManager.loadModel("Models/Test/CornellBox.j3o");
         scene.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
         rootNode.attachChild(scene);
         rootNode.getChild("Cube").setShadowMode(RenderQueue.ShadowMode.Receive);
