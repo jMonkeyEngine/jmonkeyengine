@@ -29,6 +29,8 @@ MaterialDef Post Shadow {
         Float PCFEdge
 
         Float ShadowMapSize
+
+        Boolean BackfaceShadows: false
 		
     }
 
@@ -49,6 +51,7 @@ MaterialDef Post Shadow {
             FADE : FadeInfo
             PSSM : Splits
             POINTLIGHT : LightViewProjectionMatrix5
+            BACKFACE_SHADOWS: BackfaceShadows
         }
 
         RenderState {
@@ -75,6 +78,7 @@ MaterialDef Post Shadow {
             FADE : FadeInfo
             PSSM : Splits
             POINTLIGHT : LightViewProjectionMatrix5
+            BACKFACE_SHADOWS: BackfaceShadows
         }
 
         RenderState {
