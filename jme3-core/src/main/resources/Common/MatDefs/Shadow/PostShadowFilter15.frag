@@ -1,5 +1,5 @@
 #import "Common/ShaderLib/MultiSample.glsllib"
-#import "Common/ShaderLib/Shadows15.glsllib"
+#import "Common/ShaderLib/Shadows.glsllib"
 
 
 uniform COLORTEXTURE m_Texture;

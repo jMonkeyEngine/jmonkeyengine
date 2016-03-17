@@ -132,11 +132,6 @@ public class TestSpotLightShadows extends SimpleApplication {
         }, "stop");
 
         inputManager.addMapping("stop", new KeyTrigger(KeyInput.KEY_1));
-        
-        MaterialDebugAppState s = new MaterialDebugAppState();
-        s.registerBinding("Common/MatDefs/Shadow/PostShadow15.frag", rootNode);
-        s.registerBinding(new KeyTrigger(KeyInput.KEY_R), rootNode);
-        stateManager.attach(s);
         flyCam.setDragToRotate(true);
     }
 

@@ -92,6 +92,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     protected EdgeFilteringMode edgeFilteringMode = EdgeFilteringMode.Bilinear;
     protected CompareMode shadowCompareMode = CompareMode.Hardware;
     protected Picture[] dispPic;
+
     /**
      * true if the fallback material should be used, otherwise false
      */
