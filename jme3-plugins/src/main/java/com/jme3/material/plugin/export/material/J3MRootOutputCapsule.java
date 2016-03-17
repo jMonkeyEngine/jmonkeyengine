@@ -91,7 +91,9 @@ public class J3MRootOutputCapsule extends J3MOutputCapsule {
 
     @Override
     public void write(Savable object, String name, Savable defVal) throws IOException {
-        object.write(exporter);
+        if(object != null && !object.equals(defVal)) {
+            object.write(exporter);
+        }
     }
 
 }
