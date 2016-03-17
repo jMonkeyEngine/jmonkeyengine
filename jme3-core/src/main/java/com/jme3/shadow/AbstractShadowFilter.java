@@ -37,6 +37,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector4f;
 import com.jme3.post.Filter;
@@ -44,6 +45,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.FrameBuffer;
+
 import java.io.IOException;
 
 /**
@@ -74,6 +76,9 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
         material = new Material(manager, "Common/MatDefs/Shadow/PostShadowFilter.j3md");       
         this.shadowRenderer = shadowRenderer;
         this.shadowRenderer.setPostShadowMaterial(material);
+
+        //this is legacy setting for shadows with backface shadows
+        this.shadowRenderer.setRenderBackFacesShadows(true);
     }
 
     @Override
@@ -126,7 +131,7 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
       /**
      * How far the shadows are rendered in the view
      *
-     * @see setShadowZExtend(float zFar)
+     * @see #setShadowZExtend(float zFar)
      * @return shadowZExtend
      */
     public float getShadowZExtend() {
@@ -247,6 +252,46 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     final public void setEdgeFilteringMode(EdgeFilteringMode filterMode) {
         shadowRenderer.setEdgeFilteringMode(filterMode);
     }
+
+    /**
+     *
+     * !! WARNING !! this parameter is defaulted to true for the ShadowFilter.
+     * Setting it to true, may produce edges artifacts on shadows.     *
+     *
+     * Set to true if you want back faces shadows on geometries.
+     * Note that back faces shadows will be blended over dark lighten areas and may produce overly dark lighting.
+     *
+     * Setting this parameter will override this parameter for ALL materials in the scene.
+     * This also will automatically adjust the faceCullMode and the PolyOffset of the pre shadow pass.
+     * You can modify them by using {@link #getPreShadowForcedRenderState()}
+     *
+     * If you want to set it differently for each material in the scene you have to use the ShadowRenderer instead
+     * of the shadow filter.
+     *
+     * @param renderBackFacesShadows true or false.
+     */
+    public void setRenderBackFacesShadows(Boolean renderBackFacesShadows) {
+        shadowRenderer.setRenderBackFacesShadows(renderBackFacesShadows);
+    }
+
+    /**
+     * if this filter renders back faces shadows
+     * @return true if this filter renders back faces shadows
+     */
+    public boolean isRenderBackFacesShadows() {
+        return shadowRenderer.isRenderBackFacesShadows();
+    }
+
+    /**
+     * returns the pre shadows pass render state.
+     * use it to adjust the RenderState parameters of the pre shadow pass.
+     * Note that this will be overriden if the preShadow technique in the material has a ForcedRenderState
+     * @return the pre shadow render state.
+     */
+    public RenderState getPreShadowForcedRenderState() {
+        return shadowRenderer.getPreShadowForcedRenderState();
+    }
+
 
     /**
      * returns the the edge filtering mode

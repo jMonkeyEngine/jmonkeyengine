@@ -51,6 +51,8 @@ MaterialDef Unshaded {
         Float PCFEdge
 
         Float ShadowMapSize
+
+        Boolean BackfaceShadows: true
     }
 
     Technique {
@@ -169,6 +171,7 @@ MaterialDef Unshaded {
             POINTLIGHT : LightViewProjectionMatrix5
             NUM_BONES : NumberOfBones
 	    INSTANCING : UseInstancing
+	        BACKFACE_SHADOWS: BackfaceShadows
         }
 
         ForcedRenderState {
@@ -201,6 +204,7 @@ MaterialDef Unshaded {
             POINTLIGHT : LightViewProjectionMatrix5
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            BACKFACE_SHADOWS: BackfaceShadows
         }
 
         ForcedRenderState {
