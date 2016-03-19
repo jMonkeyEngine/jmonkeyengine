@@ -12,6 +12,7 @@ import com.jme3.input.JoystickCompatibilityMappings;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
+import com.jme3.system.NativeLibraryLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,6 +74,12 @@ public class JInputJoyInput implements JoyInput {
     @Override
     public void initialize() {
         inited = true;
+
+        // Load natives
+        String extractPath = NativeLibraryLoader.getExtractionFolder().getAbsolutePath();
+        System.setProperty("net.java.games.input.librarypath", extractPath);
+        NativeLibraryLoader.loadNativeLibrary("jinput", true, false);
+        NativeLibraryLoader.loadNativeLibrary("jinput-dx8", true, false);
     }
 
     @Override

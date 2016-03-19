@@ -172,11 +172,6 @@ public abstract class LwjglContext implements JmeContext {
         if ("LWJGL".equals(settings.getAudioRenderer())) {
             NativeLibraryLoader.loadNativeLibrary("openal", true);
         }
-        if (settings.useJoysticks()) {
-            System.setProperty("net.java.games.input.librarypath", extractPath);
-            NativeLibraryLoader.loadNativeLibrary("jinput", true, false);
-            NativeLibraryLoader.loadNativeLibrary("jinput-dx8", true, false);
-        }
         if (NativeLibraryLoader.isUsingNativeBullet()) {
             NativeLibraryLoader.loadNativeLibrary("bulletjme", true);
         }
