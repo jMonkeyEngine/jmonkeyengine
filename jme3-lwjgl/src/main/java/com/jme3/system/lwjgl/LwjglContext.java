@@ -31,7 +31,7 @@
  */
 package com.jme3.system.lwjgl;
 
-import com.jme3.input.lwjgl.JInputJoyInput;
+import com.jme3.input.jinput.JInputJoyInput;
 import com.jme3.input.lwjgl.LwjglKeyInput;
 import com.jme3.input.lwjgl.LwjglMouseInput;
 import com.jme3.renderer.Renderer;
@@ -52,7 +52,6 @@ import com.jme3.renderer.opengl.GLTiming;
 import com.jme3.renderer.opengl.GLTimingState;
 import com.jme3.renderer.opengl.GLTracer;
 import com.jme3.system.*;
-import java.io.File;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;

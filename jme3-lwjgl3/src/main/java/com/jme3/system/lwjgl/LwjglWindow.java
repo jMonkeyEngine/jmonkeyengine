@@ -36,6 +36,7 @@ import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
+import com.jme3.input.jinput.JInputJoyInput;
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
@@ -465,7 +466,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     public JoyInput getJoyInput() {
         if (joyInput == null) {
-            joyInput = new GlfwJoystickInput();
+            joyInput = new JInputJoyInput();
         }
         return joyInput;
     }

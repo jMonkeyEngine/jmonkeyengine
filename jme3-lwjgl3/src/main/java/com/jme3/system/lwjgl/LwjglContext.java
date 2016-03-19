@@ -32,6 +32,7 @@
 
 package com.jme3.system.lwjgl;
 
+import com.jme3.input.jinput.JInputJoyInput;
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
@@ -74,7 +75,7 @@ public abstract class LwjglContext implements JmeContext {
     protected Renderer renderer;
     protected GlfwKeyInput keyInput;
     protected GlfwMouseInput mouseInput;
-    protected GlfwJoystickInput joyInput;
+    protected JInputJoyInput joyInput;
     protected Timer timer;
     protected SystemListener listener;
 

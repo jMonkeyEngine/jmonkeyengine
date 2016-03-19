@@ -7,6 +7,7 @@ def lwjglVersion = '3.0.0b'
 dependencies {
     compile project(':jme3-core')
     compile project(':jme3-desktop')
+    compile project(':jme3-jinput')
 
     compile "org.lwjgl:lwjgl:${lwjglVersion}"
     compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"

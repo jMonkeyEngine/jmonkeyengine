@@ -1,4 +1,4 @@
-package com.jme3.input.lwjgl;
+package com.jme3.input.jinput;
 
 import com.jme3.input.AbstractJoystick;
 import com.jme3.input.DefaultJoystickAxis;
@@ -32,25 +32,13 @@ public class JInputJoyInput implements JoyInput {
     private JInputJoystick[] joysticks;
     private RawInputListener listener;
 
-    private Map<Controller, JInputJoystick> joystickIndex = new HashMap<Controller, JInputJoystick>();
-    
-    public void setJoyRumble(int joyId, float amount){
+    private final Map<Controller, JInputJoystick> joystickIndex = new HashMap<Controller, JInputJoystick>();
 
-        if( joyId >= joysticks.length )        
-            throw new IllegalArgumentException();
-            
-        Controller c = joysticks[joyId].controller;
-        for (Rumbler r : c.getRumblers()){
-            r.rumble(amount);
-        }
-    }
-
+    @Override
     public Joystick[] loadJoysticks(InputManager inputManager){
         ControllerEnvironment ce =
             ControllerEnvironment.getDefaultEnvironment();
 
-        Controller[] cs = ce.getControllers();
-        
         List<Joystick> list = new ArrayList<Joystick>();
         for( Controller c : ce.getControllers() ) {
             if (c.getType() == Controller.Type.KEYBOARD
@@ -82,10 +70,12 @@ public class JInputJoyInput implements JoyInput {
         return joysticks;
     }
 
+    @Override
     public void initialize() {
         inited = true;
     }
 
+    @Override
     public void update() {
         ControllerEnvironment ce =
             ControllerEnvironment.getDefaultEnvironment();
@@ -151,25 +141,42 @@ public class JInputJoyInput implements JoyInput {
         }
     }
 
+    @Override
+    public void setJoyRumble(int joyId, float amount) {
+
+        if (joyId >= joysticks.length) {
+            throw new IllegalArgumentException();
+        }
+
+        Controller c = joysticks[joyId].controller;
+        for (Rumbler r : c.getRumblers()) {
+            r.rumble(amount);
+        }
+    }
+
+    @Override
     public void destroy() {
         inited = false;
     }
 
+    @Override
     public boolean isInitialized() {
         return inited;
     }
 
+    @Override
     public void setInputListener(RawInputListener listener) {
         this.listener = listener;
     }
 
+    @Override
     public long getInputTimeNanos() {
         return 0;
     }
 
-    protected class JInputJoystick extends AbstractJoystick {
+    private static class JInputJoystick extends AbstractJoystick {
 
-        private JoystickAxis nullAxis;
+        private final JoystickAxis nullAxis;
         private Controller controller;    
         private JoystickAxis xAxis;
         private JoystickAxis yAxis;
@@ -216,8 +223,8 @@ public class JInputJoyInput implements JoyInput {
             String name = comp.getName();
             String original = id.getName();
             String logicalId = JoystickCompatibilityMappings.remapComponent( controller.getName(), original );
-            if( name != original ) {
-                logger.log(Level.FINE, "Remapped:" + original + " to:" + logicalId);
+            if (!logicalId.equals(original)) {
+                logger.log(Level.FINE, "Remapped:{0} to:{1}", new Object[]{original, logicalId});
             }
  
             JoystickButton button = new DefaultJoystickButton( getInputManager(), this, getButtonCount(),
@@ -238,8 +245,8 @@ public class JInputJoyInput implements JoyInput {
             String name = comp.getName();
             String original = id.getName();
             String logicalId = JoystickCompatibilityMappings.remapComponent( controller.getName(), original );
-            if( name != original ) {
-                logger.log(Level.FINE, "Remapped:" + original + " to:" + logicalId);
+            if (!logicalId.equals(original)) {
+                logger.log(Level.FINE, "Remapped:{0} to:{1}", new Object[]{original, logicalId});
             }
             
             JoystickAxis axis = new DefaultJoystickAxis( getInputManager(), 

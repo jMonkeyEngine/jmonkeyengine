@@ -14,6 +14,7 @@ include 'jme3-terrain'
 include 'jme3-desktop'
 include 'jme3-blender'
 include 'jme3-jogl'
+include 'jme3-jinput'
 include 'jme3-lwjgl'
 include 'jme3-lwjgl3'
 
