@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2016 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,9 +64,9 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     protected int currentWayPoint;
     protected float currentValue;
     protected Vector3f direction = new Vector3f();
-    protected Vector3f lookAt;
+    protected Vector3f lookAt = Vector3f.ZERO;
     protected Vector3f upVector = Vector3f.UNIT_Y;
-    protected Quaternion rotation;
+    protected Quaternion rotation = Quaternion.IDENTITY;
     protected Direction directionType = Direction.None;
     protected MotionPath path;
     private boolean isControl = true;
