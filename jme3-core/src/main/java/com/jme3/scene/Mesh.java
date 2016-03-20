@@ -37,6 +37,7 @@ import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
 import com.jme3.collision.bih.BIHTree;
 import com.jme3.export.*;
+import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Triangle;
@@ -65,7 +66,7 @@ import java.util.ArrayList;
  * Points can also be used for {@link RenderState#setPointSprite(boolean) point
  * sprite} mode.</li>
  * <li>Lines - 2 vertices represent a line segment, with the width specified
- * via {@link Mesh#setLineWidth(float) }.</li>
+ * via {@link Material#getAdditionalRenderState()} and {@link RenderState#setLineWidth(float)}.</li>
  * <li>Triangles - 3 vertices represent a solid triangle primitive. </li>
  * </ul>
  * 
@@ -86,7 +87,7 @@ public class Mesh implements Savable, Cloneable {
         
         /**
          * A primitive is a line segment. Every two vertices specify
-         * a single line. {@link Mesh#setLineWidth(float) } can be used 
+         * a single line. {@link Material#getAdditionalRenderState()} and {@link RenderState#setLineWidth(float)} can be used
          * to set the width of the lines.
          */
         Lines(true),
@@ -94,7 +95,7 @@ public class Mesh implements Savable, Cloneable {
         /**
          * A primitive is a line segment. The first two vertices specify
          * a single line, while subsequent vertices are combined with the 
-         * previous vertex to make a line. {@link Mesh#setLineWidth(float) } can 
+         * previous vertex to make a line. {@link Material#getAdditionalRenderState()} and {@link RenderState#setLineWidth(float)} can
          * be used to set the width of the lines.
          */
         LineStrip(false),
@@ -102,7 +103,7 @@ public class Mesh implements Savable, Cloneable {
         /**
          * Identical to {@link #LineStrip} except that at the end
          * the last vertex is connected with the first to form a line.
-         * {@link Mesh#setLineWidth(float) } can be used 
+         * {@link Material#getAdditionalRenderState()} and {@link RenderState#setLineWidth(float)} can be used
          * to set the width of the lines.
          */
         LineLoop(false),
@@ -172,7 +173,7 @@ public class Mesh implements Savable, Cloneable {
     private IntMap<VertexBuffer> buffers = new IntMap<VertexBuffer>();
     private VertexBuffer[] lodLevels;
     private float pointSize = 1;
-    private float lineWidth = 1;
+    private float lineWidth = -1;
 
     private transient int vertexArrayID = -1;
 
@@ -583,7 +584,9 @@ public class Mesh implements Savable, Cloneable {
      * Returns the line width for line meshes.
      * 
      * @return the line width
+     * @deprecated use {@link Material#getAdditionalRenderState()} and {@link RenderState#getLineWidth()}
      */
+    @Deprecated
     public float getLineWidth() {
         return lineWidth;
     }
@@ -594,7 +597,9 @@ public class Mesh implements Savable, Cloneable {
      * the default value is 1.0.
      * 
      * @param lineWidth The line width
+     * @deprecated use {@link Material#getAdditionalRenderState()} and {@link RenderState#setLineWidth(float)}
      */
+    @Deprecated
     public void setLineWidth(float lineWidth) {
         this.lineWidth = lineWidth;
     }

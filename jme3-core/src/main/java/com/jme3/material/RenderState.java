@@ -311,6 +311,8 @@ public class RenderState implements Cloneable, Savable {
     boolean applyPolyOffset = true;
     boolean stencilTest = false;
     boolean applyStencilTest = false;
+    float lineWidth = 1;
+    boolean applyLineWidth = false;
     TestFunction depthFunc = TestFunction.LessOrEqual;
     //by default depth func will be applied anyway if depth test is applied
     boolean applyDepthFunc = false;    
@@ -350,6 +352,9 @@ public class RenderState implements Cloneable, Savable {
         oc.write(backStencilDepthPassOperation, "backStencilDepthPassOperation", StencilOperation.Keep);
         oc.write(frontStencilFunction, "frontStencilFunction", TestFunction.Always);
         oc.write(backStencilFunction, "backStencilFunction", TestFunction.Always);
+        oc.write(depthFunc, "depthFunc", TestFunction.LessOrEqual);
+        oc.write(alphaFunc, "alphaFunc", TestFunction.Greater);
+        oc.write(lineWidth, "lineWidth", 1);
 
         // Only "additional render state" has them set to false by default
         oc.write(applyPointSprite, "applyPointSprite", true);
@@ -364,8 +369,7 @@ public class RenderState implements Cloneable, Savable {
         oc.write(applyPolyOffset, "applyPolyOffset", true);
         oc.write(applyDepthFunc, "applyDepthFunc", true);
         oc.write(applyAlphaFunc, "applyAlphaFunc", false);
-        oc.write(depthFunc, "depthFunc", TestFunction.LessOrEqual);
-        oc.write(alphaFunc, "alphaFunc", TestFunction.Greater);  
+        oc.write(applyLineWidth, "applyLineWidth", true);
 
     }
 
@@ -394,6 +398,8 @@ public class RenderState implements Cloneable, Savable {
         backStencilFunction = ic.readEnum("backStencilFunction", TestFunction.class, TestFunction.Always);
         depthFunc = ic.readEnum("depthFunc", TestFunction.class, TestFunction.LessOrEqual);
         alphaFunc = ic.readEnum("alphaFunc", TestFunction.class, TestFunction.Greater);
+        lineWidth = ic.readFloat("lineWidth", 1);
+
 
         applyPointSprite = ic.readBoolean("applyPointSprite", true);
         applyWireFrame = ic.readBoolean("applyWireFrame", true);
@@ -407,6 +413,8 @@ public class RenderState implements Cloneable, Savable {
         applyPolyOffset = ic.readBoolean("applyPolyOffset", true);
         applyDepthFunc = ic.readBoolean("applyDepthFunc", true);
         applyAlphaFunc = ic.readBoolean("applyAlphaFunc", false);
+        applyLineWidth = ic.readBoolean("applyLineWidth", true);
+
         
     }
 
@@ -526,6 +534,10 @@ public class RenderState implements Cloneable, Savable {
             if (backStencilFunction != rs.backStencilFunction) {
                 return false;
             }
+        }
+
+        if(lineWidth != rs.lineWidth){
+            return false;
         }
 
         return true;
@@ -803,8 +815,17 @@ public class RenderState implements Cloneable, Savable {
         this.alphaFunc = alphaFunc;
         cachedHashCode = -1;
     }
-    
-    
+
+    /**
+     * Sets the mesh line width.
+     * This is to use in conjunction with {@link #setWireframe(boolean)} or with a mesh in {@link Mesh.Mode#Lines} mode.
+     * @param lineWidth the line width.
+     */
+    public void setLineWidth(float lineWidth) {
+        this.lineWidth = lineWidth;
+        this.applyLineWidth = true;
+        cachedHashCode = -1;
+    }
 
     /**
      * Check if stencil test is enabled.
@@ -1118,8 +1139,16 @@ public class RenderState implements Cloneable, Savable {
     public TestFunction getAlphaFunc() {
         return alphaFunc;
     }
-    
-    
+
+    /**
+     * returns the wireframe line width
+     *
+     * @return the line width
+     */
+    public float getLineWidth() {
+        return lineWidth;
+    }
+
 
     public boolean isApplyAlphaFallOff() {
         return applyAlphaFallOff;
@@ -1168,8 +1197,10 @@ public class RenderState implements Cloneable, Savable {
     public boolean isApplyAlphaFunc() {
         return applyAlphaFunc;
     }
-    
-    
+
+    public boolean isApplyLineWidth() {
+        return applyLineWidth;
+    }
 
     /**
      *
@@ -1200,6 +1231,7 @@ public class RenderState implements Cloneable, Savable {
             hash = 79 * hash + (this.backStencilDepthPassOperation != null ? this.backStencilDepthPassOperation.hashCode() : 0);
             hash = 79 * hash + (this.frontStencilFunction != null ? this.frontStencilFunction.hashCode() : 0);
             hash = 79 * hash + (this.backStencilFunction != null ? this.backStencilFunction.hashCode() : 0);
+            hash = 79 * hash + Float.floatToIntBits(this.lineWidth);
             cachedHashCode = hash;
         }
         return cachedHashCode;
@@ -1324,6 +1356,11 @@ public class RenderState implements Cloneable, Savable {
             state.frontStencilFunction = frontStencilFunction;
             state.backStencilFunction = backStencilFunction;
         }
+        if (additionalState.applyLineWidth) {
+            state.lineWidth = additionalState.lineWidth;
+        } else {
+            state.lineWidth = lineWidth;
+        }
         state.cachedHashCode = -1;
         return state;
     }
@@ -1351,6 +1388,7 @@ public class RenderState implements Cloneable, Savable {
         backStencilFunction = state.backStencilFunction;
         depthFunc = state.depthFunc;
         alphaFunc = state.alphaFunc;
+        lineWidth = state.lineWidth;
 
         applyPointSprite = true;
         applyWireFrame =  true;
@@ -1364,6 +1402,7 @@ public class RenderState implements Cloneable, Savable {
         applyPolyOffset =  true;
         applyDepthFunc =  true;
         applyAlphaFunc =  false;
+        applyLineWidth = true;
     }
 
     @Override
@@ -1392,7 +1431,8 @@ public class RenderState implements Cloneable, Savable {
                 + "\noffsetEnabled=" + offsetEnabled
                 + "\napplyPolyOffset=" + applyPolyOffset
                 + "\noffsetFactor=" + offsetFactor
-                + "\noffsetUnits=" + offsetUnits      
+                + "\noffsetUnits=" + offsetUnits
+                + "\nlineWidth=" + lineWidth
                 + "\n]";
     }
 }

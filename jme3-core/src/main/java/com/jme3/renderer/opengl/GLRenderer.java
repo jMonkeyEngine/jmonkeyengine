@@ -779,6 +779,10 @@ public final class GLRenderer implements Renderer {
                 gl.glDisable(GL.GL_STENCIL_TEST);
             }
         }
+        if (context.lineWidth != state.getLineWidth()) {
+            gl.glLineWidth(state.getLineWidth());
+            context.lineWidth = state.getLineWidth();
+        }
     }
 
     private int convertStencilOperation(StencilOperation stencilOp) {
@@ -2681,8 +2685,8 @@ public final class GLRenderer implements Renderer {
             return;
         }
 
-
-        if (context.lineWidth != mesh.getLineWidth()) {
+        //this is kept for backward compatibility.
+        if (mesh.getLineWidth() != -1 && context.lineWidth != mesh.getLineWidth()) {
             gl.glLineWidth(mesh.getLineWidth());
             context.lineWidth = mesh.getLineWidth();
         }

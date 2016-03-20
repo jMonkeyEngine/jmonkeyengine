@@ -72,7 +72,6 @@ public class TestTangentGenBadModels extends SimpleApplication {
                     "debug tangents geom",
                     TangentBinormalGenerator.genTbnLines(g.getMesh(), 0.2f)
                 );
-                debug.getMesh().setLineWidth(1);
                 debug.setMaterial(debugMat);
                 debug.setCullHint(Spatial.CullHint.Never);
                 debug.setLocalTransform(g.getWorldTransform());

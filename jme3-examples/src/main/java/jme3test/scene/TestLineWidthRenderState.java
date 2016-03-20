@@ -30,66 +30,58 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package jme3test.model.shape;
+package jme3test.scene;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.debug.Arrow;
-import com.jme3.scene.debug.Grid;
-import com.jme3.scene.debug.WireBox;
-import com.jme3.scene.debug.WireSphere;
+import com.jme3.scene.shape.Box;
 
-public class TestDebugShapes extends SimpleApplication {
+public class TestLineWidthRenderState extends SimpleApplication {
+
+    private Material mat;
 
     public static void main(String[] args){
-        TestDebugShapes app = new TestDebugShapes();
+        TestLineWidthRenderState app = new TestLineWidthRenderState();
         app.start();
     }
 
-    public Geometry putShape(Mesh shape, ColorRGBA color, float lineWidth){
-        Geometry g = new Geometry("shape", shape);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.getAdditionalRenderState().setWireframe(true);
-        mat.getAdditionalRenderState().setLineWidth(lineWidth);
-        mat.setColor("Color", color);
-        g.setMaterial(mat);
-        rootNode.attachChild(g);
-        return g;
-    }
 
-    public void putArrow(Vector3f pos, Vector3f dir, ColorRGBA color){
-        Arrow arrow = new Arrow(dir);
-        putShape(arrow, color, 4).setLocalTranslation(pos);
-    }
-
-    public void putBox(Vector3f pos, float size, ColorRGBA color){
-        putShape(new WireBox(size, size, size), color, 1).setLocalTranslation(pos);
-    }
-
-    public void putGrid(Vector3f pos, ColorRGBA color){
-        putShape(new Grid(6, 6, 0.2f), color, 1).center().move(pos);
-    }
-
-    public void putSphere(Vector3f pos, ColorRGBA color){
-        putShape(new WireSphere(1), color, 1).setLocalTranslation(pos);
-    }
 
     @Override
     public void simpleInitApp() {
-        cam.setLocation(new Vector3f(2,1.5f,2));
-        cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
+        setDisplayFps(false);
+        setDisplayStatView(false);
+        cam.setLocation(new Vector3f(5.5826545f, 3.6192513f, 8.016988f));
+        cam.setRotation(new Quaternion(-0.04787097f, 0.9463123f, -0.16569641f, -0.27339742f));
 
-        putArrow(Vector3f.ZERO, Vector3f.UNIT_X, ColorRGBA.Red);
-        putArrow(Vector3f.ZERO, Vector3f.UNIT_Y, ColorRGBA.Green);
-        putArrow(Vector3f.ZERO, Vector3f.UNIT_Z, ColorRGBA.Blue);
+        Box b = new Box(1, 1, 1);
+        Geometry geom = new Geometry("Box", b);
+        mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setColor("Color", ColorRGBA.Blue);
+        mat.getAdditionalRenderState().setWireframe(true);
+        mat.getAdditionalRenderState().setLineWidth(2);
+        geom.setMaterial(mat);
+        rootNode.attachChild(geom);
 
-        putBox(new Vector3f(2, 0, 0), 0.5f, ColorRGBA.Yellow);
-        putGrid(new Vector3f(3.5f, 0, 0), ColorRGBA.White);
-        putSphere(new Vector3f(4.5f, 0, 0), ColorRGBA.Magenta);
+        inputManager.addListener(new ActionListener() {
+            @Override
+            public void onAction(String name, boolean isPressed, float tpf) {
+                if(name.equals("up") && isPressed){
+                    mat.getAdditionalRenderState().setLineWidth(mat.getAdditionalRenderState().getLineWidth() + 1);
+                }
+                if(name.equals("down") && isPressed){
+                    mat.getAdditionalRenderState().setLineWidth(Math.max(mat.getAdditionalRenderState().getLineWidth() - 1, 1));
+                }
+            }
+        }, "up", "down");
+        inputManager.addMapping("up", new KeyTrigger(KeyInput.KEY_U));
+        inputManager.addMapping("down", new KeyTrigger(KeyInput.KEY_J));
     }
-
 }

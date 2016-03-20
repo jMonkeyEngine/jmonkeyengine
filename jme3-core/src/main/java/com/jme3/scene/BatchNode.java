@@ -383,7 +383,7 @@ public class BatchNode extends GeometryGroupNode {
                 maxVertCount = geom.getVertexCount();
             }
             Mesh.Mode listMode;
-            float listLineWidth = 1f;
+            //float listLineWidth = 1f;
             int components;
             switch (geom.getMesh().getMode()) {
                 case Points:
@@ -394,7 +394,7 @@ public class BatchNode extends GeometryGroupNode {
                 case LineStrip:
                 case Lines:
                     listMode = Mesh.Mode.Lines;
-                    listLineWidth = geom.getMesh().getLineWidth();
+                    //listLineWidth = geom.getMesh().getLineWidth();
                     components = 2;
                     break;
                 case TriangleFan:
@@ -426,19 +426,20 @@ public class BatchNode extends GeometryGroupNode {
                         + " primitive types: " + mode + " != " + listMode);
             }
             mode = listMode;
-            if (mode == Mesh.Mode.Lines) {
-                if (lineWidth != 1f && listLineWidth != lineWidth) {
-                    throw new UnsupportedOperationException("When using Mesh Line mode, cannot combine meshes with different line width "
-                            + lineWidth + " != " + listLineWidth);
-                }
-                lineWidth = listLineWidth;
-            }
+            //Not needed anymore as lineWidth is now in RenderState and will be taken into account when merging according to the material
+//            if (mode == Mesh.Mode.Lines) {
+//                if (lineWidth != 1f && listLineWidth != lineWidth) {
+//                    throw new UnsupportedOperationException("When using Mesh Line mode, cannot combine meshes with different line width "
+//                            + lineWidth + " != " + listLineWidth);
+//                }
+//                lineWidth = listLineWidth;
+//            }
             compsForBuf[VertexBuffer.Type.Index.ordinal()] = components;
         }
 
         outMesh.setMaxNumWeights(maxWeights);
         outMesh.setMode(mode);
-        outMesh.setLineWidth(lineWidth);
+        //outMesh.setLineWidth(lineWidth);
         if (totalVerts >= 65536) {
             // make sure we create an UnsignedInt buffer so we can fit all of the meshes
             formatForBuf[VertexBuffer.Type.Index.ordinal()] = VertexBuffer.Format.UnsignedInt;
