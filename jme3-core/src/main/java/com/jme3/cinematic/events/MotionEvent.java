@@ -120,7 +120,6 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
      */
     public MotionEvent(Spatial spatial, MotionPath path) {
         super();
-        this.spatial = spatial;
         spatial.addControl(this);
         this.path = path;
     }
@@ -132,7 +131,6 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
      */
     public MotionEvent(Spatial spatial, MotionPath path, float initialDuration) {
         super(initialDuration);
-        this.spatial = spatial;
         spatial.addControl(this);
         this.path = path;
     }
@@ -144,7 +142,6 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
      */
     public MotionEvent(Spatial spatial, MotionPath path, LoopMode loopMode) {
         super();
-        this.spatial = spatial;
         spatial.addControl(this);
         this.path = path;
         this.loopMode = loopMode;
@@ -157,7 +154,6 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
      */
     public MotionEvent(Spatial spatial, MotionPath path, float initialDuration, LoopMode loopMode) {
         super(initialDuration);
-        this.spatial = spatial;
         spatial.addControl(this);
         this.path = path;
         this.loopMode = loopMode;
@@ -278,7 +274,8 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
      */
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        MotionEvent control = new MotionEvent(spatial, path);
+        MotionEvent control = new MotionEvent();
+        control.setPath(path);
         control.playState = playState;
         control.currentWayPoint = currentWayPoint;
         control.currentValue = currentValue;
