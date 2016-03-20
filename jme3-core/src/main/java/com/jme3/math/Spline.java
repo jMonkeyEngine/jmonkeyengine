@@ -458,7 +458,7 @@ public class Spline implements Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
 
-        controlPoints = (ArrayList<Vector3f>) in.readSavableArrayList("wayPoints", null);
+        controlPoints = (ArrayList<Vector3f>) in.readSavableArrayList("controlPoints", new ArrayList<Vector3f>()); /* Empty List as default, prevents null pointers */
         float list[] = in.readFloatArray("segmentsLength", null);
         if (list != null) {
             segmentsLength = new ArrayList<Float>();
