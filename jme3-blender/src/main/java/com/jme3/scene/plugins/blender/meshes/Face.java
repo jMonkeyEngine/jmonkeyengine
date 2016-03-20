@@ -146,7 +146,6 @@ public class Face implements Comparator<Integer> {
     /**
      * @return current indexes of the face (if it is already triangulated then more than one index group will be in the result list)
      */
-    @SuppressWarnings("unchecked")
     public List<List<Integer>> getCurrentIndexes() {
         if (triangulatedFaces == null) {
             return Arrays.asList(indexes.getAll());

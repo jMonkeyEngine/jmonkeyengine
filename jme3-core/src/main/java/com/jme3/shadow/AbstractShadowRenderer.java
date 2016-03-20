@@ -31,10 +31,6 @@
  */
 package com.jme3.shadow;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jme3.asset.AssetManager;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -42,6 +38,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector2f;
@@ -66,6 +63,10 @@ import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.ShadowCompareMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * abstract shadow renderer that holds commons feature to have for a shadow
@@ -92,6 +93,9 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     protected EdgeFilteringMode edgeFilteringMode = EdgeFilteringMode.Bilinear;
     protected CompareMode shadowCompareMode = CompareMode.Hardware;
     protected Picture[] dispPic;
+    protected RenderState forcedRenderState = new RenderState();
+    protected Boolean renderBackFacesShadows;
+
     /**
      * true if the fallback material should be used, otherwise false
      */
@@ -181,6 +185,14 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         setShadowCompareMode(shadowCompareMode);
         setEdgeFilteringMode(edgeFilteringMode);
         setShadowIntensity(shadowIntensity);
+        initForcedRenderState();
+    }
+
+    protected void initForcedRenderState() {
+        forcedRenderState.setFaceCullMode(RenderState.FaceCullMode.Front);
+        forcedRenderState.setColorWrite(false);
+        forcedRenderState.setDepthWrite(true);
+        forcedRenderState.setDepthTest(true);
     }
 
     /**
@@ -356,9 +368,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
      * rendered in the shadow map
      *
      * @param shadowMapIndex the index of the shadow map being rendered
-     * @param sceneOccluders the occluders of the whole scene
-     * @param sceneReceivers the receivers of the whole scene
-     * @param shadowMapOcculders
+     * @param shadowMapOccluders the list of occluders
      * @return
      */
     protected abstract GeometryList getOccludersToRender(int shadowMapIndex, GeometryList shadowMapOccluders);
@@ -425,9 +435,11 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
 
         renderManager.getRenderer().setFrameBuffer(shadowFB[shadowMapIndex]);
         renderManager.getRenderer().clearBuffers(true, true, true);
+        renderManager.setForcedRenderState(forcedRenderState);
 
         // render shadow casters to shadow map
         viewPort.getQueue().renderShadowQueue(shadowMapOccluders, renderManager, shadowCam, true);
+        renderManager.setForcedRenderState(null);
     }
     boolean debugfrustums = false;
 
@@ -535,18 +547,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     private void setMatParams(GeometryList l) {
         //iteration throught all the geometries of the list to gather the materials
 
-        matCache.clear();
-        for (int i = 0; i < l.size(); i++) {
-            Material mat = l.get(i).getMaterial();
-            //checking if the material has the post technique and adding it to the material cache
-            if (mat.getMaterialDef().getTechniqueDef(postTechniqueName) != null) {
-                if (!matCache.contains(mat)) {
-                    matCache.add(mat);
-                }
-            } else {
-                needsfallBackMaterial = true;
-            }
-        }
+        buildMatCache(l);
 
         //iterating through the mat cache and setting the parameters
         for (Material mat : matCache) {
@@ -566,6 +567,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
             if (fadeInfo != null) {
                mat.setVector2("FadeInfo", fadeInfo);
             }
+            if(renderBackFacesShadows != null){
+                mat.setBoolean("BackfaceShadows", renderBackFacesShadows);
+            }
+
             setMaterialParameters(mat);
         }
 
@@ -575,6 +580,21 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
             setPostShadowParams();
         }
 
+    }
+
+    private void buildMatCache(GeometryList l) {
+        matCache.clear();
+        for (int i = 0; i < l.size(); i++) {
+            Material mat = l.get(i).getMaterial();
+            //checking if the material has the post technique and adding it to the material cache
+            if (mat.getMaterialDef().getTechniqueDef(postTechniqueName) != null) {
+                if (!matCache.contains(mat)) {
+                    matCache.add(mat);
+                }
+            } else {
+                needsfallBackMaterial = true;
+            }
+        }
     }
 
     /**
@@ -587,7 +607,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
             postshadowMat.setTexture(shadowMapStringCache[j], shadowMaps[j]);
         }
         if (fadeInfo != null) {
-              postshadowMat.setVector2("FadeInfo", fadeInfo);
+            postshadowMat.setVector2("FadeInfo", fadeInfo);
+        }
+        if(renderBackFacesShadows != null){
+            postshadowMat.setBoolean("BackfaceShadows", renderBackFacesShadows);
         }
     }
     
@@ -729,6 +752,48 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
      */
     @Deprecated
     public void setFlushQueues(boolean flushQueues) {}
+
+
+    /**
+     * returns the pre shadows pass render state.
+     * use it to adjust the RenderState parameters of the pre shadow pass.
+     * Note that this will be overriden if the preShadow technique in the material has a ForcedRenderState
+     * @return the pre shadow render state.
+     */
+    public RenderState getPreShadowForcedRenderState() {
+        return forcedRenderState;
+    }
+
+    /**
+     * Set to true if you want back faces shadows on geometries.
+     * Note that back faces shadows will be blended over dark lighten areas and may produce overly dark lighting.
+     *
+     * Also note that setting this parameter will override this parameter for ALL materials in the scene.
+     * You can alternatively change this parameter on a single material using {@link Material#setBoolean(String, boolean)}
+     *
+     * This also will automatically adjust the faceCullMode and the PolyOffset of the pre shadow pass.
+     * You can modify them by using {@link #getPreShadowForcedRenderState()}
+     *
+     * @param renderBackFacesShadows true or false.
+     */
+    public void setRenderBackFacesShadows(Boolean renderBackFacesShadows) {
+        this.renderBackFacesShadows = renderBackFacesShadows;
+        if(renderBackFacesShadows) {
+            getPreShadowForcedRenderState().setPolyOffset(5, 3);
+            getPreShadowForcedRenderState().setFaceCullMode(RenderState.FaceCullMode.Back);
+        }else{
+            getPreShadowForcedRenderState().setPolyOffset(0, 0);
+            getPreShadowForcedRenderState().setFaceCullMode(RenderState.FaceCullMode.Front);
+        }
+    }
+
+    /**
+     * if this processor renders back faces shadows
+     * @return true if this processor renders back faces shadows
+     */
+    public boolean isRenderBackFacesShadows() {
+        return renderBackFacesShadows != null?renderBackFacesShadows:false;
+    }
 
     /**
      * De-serialize this instance, for example when loading from a J3O file.

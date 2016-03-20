@@ -38,13 +38,15 @@ MaterialDef Post Shadow {
         Texture2D Texture        
         Texture2D DepthTexture
 
+        Boolean BackfaceShadows: true
     }
 
     Technique {
         VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadowFilter15.vert
         FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadowFilter15.frag
 
-        WorldParameters {           
+        WorldParameters {
+            ResolutionInverse
         }
 
         Defines {
@@ -59,7 +61,7 @@ MaterialDef Post Shadow {
             POINTLIGHT : LightViewProjectionMatrix5
             //if no shadow map don't render shadows
             RENDER_SHADOWS : ShadowMap0
-
+            BACKFACE_SHADOWS : BackfaceShadows
         }
       
     }
@@ -68,7 +70,8 @@ MaterialDef Post Shadow {
         VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadowFilter.vert
         FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadowFilter.frag
 
-        WorldParameters {         
+        WorldParameters {
+            ResolutionInverse
         }
 
         Defines {
@@ -79,6 +82,7 @@ MaterialDef Post Shadow {
             FADE : FadeInfo
             PSSM : Splits
             POINTLIGHT : LightViewProjectionMatrix5
+            BACKFACE_SHADOWS : BackfaceShadows
         }
       
     }

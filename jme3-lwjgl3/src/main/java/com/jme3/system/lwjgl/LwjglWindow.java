@@ -81,6 +81,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     private GLFWWindowSizeCallback windowSizeCallback;
     private GLFWWindowFocusCallback windowFocusCallback;
 
+    private Thread mainThread;
+
     public LwjglWindow(final JmeContext.Type type) {
         if (!JmeContext.Type.Display.equals(type) && !JmeContext.Type.OffscreenSurface.equals(type) && !JmeContext.Type.Canvas.equals(type)) {
             throw new IllegalArgumentException("Unsupported type '" + type.name() + "' provided");
@@ -210,7 +212,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             @Override
             public void invoke(final long window, final int focused) {
                 final boolean focus = (focused == GL_TRUE);
-
                 if (wasActive != focus) {
                     if (!wasActive) {
                         listener.gainFocus();
@@ -241,10 +242,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             glfwSwapInterval(0);
         }
 
-        // Make the window visible
-        if (Type.Display.equals(type)) {
-            glfwShowWindow(window);
-        }
 
         glfwShowWindow(window);
 
@@ -286,17 +283,16 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         }
     }
 
+    @Override
     public void create(boolean waitFor) {
         if (created.get()) {
             LOGGER.warning("create() called when display is already created!");
             return;
         }
 
-        new Thread(this, THREAD_NAME).start();
-
-        if (waitFor) {
-            waitFor(true);
-        }
+        // NOTE: this is required for Mac OS X!
+        mainThread = Thread.currentThread();
+        run();
     }
 
     /**
@@ -307,6 +303,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             if (!JmeSystem.isLowPermissions()) {
                 // Enable uncaught exception handler only for current thread
                 Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+                    @Override
                     public void uncaughtException(Thread thread, Throwable thrown) {
                         listener.handleError("Uncaught exception thrown in " + thread.toString(), thrown);
                         if (needClose.get()) {
@@ -317,6 +314,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                     }
                 });
             }
+
+            loadNatives();
 
             timer = new NanoTimer();
 
@@ -434,13 +433,13 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         LOGGER.fine("Display destroyed.");
     }
 
+    @Override
     public void run() {
         if (listener == null) {
             throw new IllegalStateException("SystemListener is not set on context!"
                     + "Must set with JmeContext.setSystemListener().");
         }
 
-        loadNatives();
         LOGGER.log(Level.FINE, "Using LWJGL {0}", Version.getVersion());
 
         if (!initInThread()) {
@@ -496,6 +495,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     public void destroy(boolean waitFor) {
         needClose.set(true);
+
+        if (mainThread == Thread.currentThread()) {
+            // Ignore waitFor.
+            return;
+        }
 
         if (waitFor) {
             waitFor(false);

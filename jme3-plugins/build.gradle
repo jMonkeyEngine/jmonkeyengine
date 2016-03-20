@@ -14,4 +14,5 @@ sourceSets {
 
 dependencies {
     compile project(':jme3-core')
+    testCompile project(':jme3-desktop')
 }

@@ -113,6 +113,8 @@ MaterialDef Phong Lighting {
                 
         //For instancing
         Boolean UseInstancing
+
+        Boolean BackfaceShadows: false
     }
 
  Technique {
@@ -213,26 +215,19 @@ MaterialDef Phong Lighting {
             INSTANCING : UseInstancing
         }
 
-        ForcedRenderState {
-            FaceCull Off
-            DepthTest On
-            DepthWrite On
-            PolyOffset 5 3
-            ColorWrite Off
-        }
-
     }
 
 
     Technique PostShadow15{
-        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow15.vert
-        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow15.frag
+        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
             WorldMatrix
             ViewProjectionMatrix
             ViewMatrix
+            NormalMatrix
         }
 
         Defines {
@@ -247,6 +242,7 @@ MaterialDef Phong Lighting {
             POINTLIGHT : LightViewProjectionMatrix5
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            BACKFACE_SHADOWS: BackfaceShadows
         }
 
         ForcedRenderState {
@@ -265,6 +261,7 @@ MaterialDef Phong Lighting {
             WorldMatrix
             ViewProjectionMatrix
             ViewMatrix
+            NormalMatrix
         }
 
         Defines {

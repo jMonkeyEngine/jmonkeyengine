@@ -18,6 +18,8 @@ uniform mat4 m_LightViewProjectionMatrix1;
 uniform mat4 m_LightViewProjectionMatrix2;
 uniform mat4 m_LightViewProjectionMatrix3;
 
+uniform vec2 g_ResolutionInverse;
+
 #ifdef POINTLIGHT
     uniform vec3 m_LightPos;
     uniform mat4 m_LightViewProjectionMatrix4;
@@ -39,6 +41,19 @@ vec3 getPosition(in float depth, in vec2 uv){
     return pos.xyz / pos.w;
 }
 
+vec3 approximateNormal(in vec4 worldPos,in vec2 texCoord){
+    float step = g_ResolutionInverse.x ;
+    float stepy = g_ResolutionInverse.y ;
+    float depth2 = texture2D(m_DepthTexture,texCoord + vec2(step,-stepy)).r;
+    float depth3 = texture2D(m_DepthTexture,texCoord + vec2(-step,-stepy)).r;
+    vec4 worldPos2 = vec4(getPosition(depth2,texCoord + vec2(step,-stepy)),1.0);
+    vec4 worldPos3 = vec4(getPosition(depth3,texCoord + vec2(-step,-stepy)),1.0);
+
+    vec3 v1 = (worldPos - worldPos2).xyz;
+    vec3 v2 = (worldPos3 - worldPos2).xyz;
+    return normalize(cross(v1, v2));
+}
+
 void main(){    
     #if !defined( RENDER_SHADOWS )
           gl_FragColor = texture2D(m_Texture,texCoord);
@@ -48,6 +63,7 @@ void main(){
     float depth = texture2D(m_DepthTexture,texCoord).r;
     vec4 color = texture2D(m_Texture,texCoord);
 
+
     //Discard shadow computation on the sky
     if(depth == 1.0){
         gl_FragColor = color;
@@ -56,6 +72,19 @@ void main(){
 
     // get the vertex in world space
     vec4 worldPos = vec4(getPosition(depth,texCoord),1.0);
+    vec3 normal = approximateNormal(worldPos, texCoord);
+
+    vec3 lightDir;
+    #ifdef PSSM
+        lightDir = m_LightDir;
+    #else
+        lightDir = worldPos.xyz - m_LightPos;
+    #endif
+    float ndotl = dot(normal, lightDir);
+    if(ndotl > -0.0){
+        gl_FragColor = color;
+        return;
+    }
    
      #if (!defined(POINTLIGHT) && !defined(PSSM))
           vec3 lightDir = worldPos.xyz - m_LightPos;
