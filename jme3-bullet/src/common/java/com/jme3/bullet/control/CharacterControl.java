@@ -44,13 +44,15 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
  * You might want to try <code>BetterCharacterControl</code> as well.
  * @author normenhansen
  */
-public class CharacterControl extends PhysicsCharacter implements PhysicsControl {
+public class CharacterControl extends PhysicsCharacter implements PhysicsControl, JmeCloneable {
 
     protected Spatial spatial;
     protected boolean enabled = true;
@@ -104,6 +106,29 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         return control;
     }
 
+    @Override
+    public Object jmeClone() {
+        CharacterControl control = new CharacterControl(collisionShape, stepHeight);
+        control.setCcdMotionThreshold(getCcdMotionThreshold());
+        control.setCcdSweptSphereRadius(getCcdSweptSphereRadius());
+        control.setCollideWithGroups(getCollideWithGroups());
+        control.setCollisionGroup(getCollisionGroup());
+        control.setFallSpeed(getFallSpeed());
+        control.setGravity(getGravity());
+        control.setJumpSpeed(getJumpSpeed());
+        control.setMaxSlope(getMaxSlope());
+        control.setPhysicsLocation(getPhysicsLocation());
+        control.setUpAxis(getUpAxis());
+        control.setApplyPhysicsLocal(isApplyPhysicsLocal());
+        control.spatial = this.spatial;
+        return control;
+    }     
+
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) { 
+        this.spatial = cloner.clone(spatial);
+    }
+         
     public void setSpatial(Spatial spatial) {
         this.spatial = spatial;
         setUserObject(spatial);

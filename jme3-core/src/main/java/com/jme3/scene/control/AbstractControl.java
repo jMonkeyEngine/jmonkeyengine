@@ -38,6 +38,8 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
@@ -45,7 +47,7 @@ import java.io.IOException;
  *
  * @author Kirill Vainer
  */
-public abstract class AbstractControl implements Control, Cloneable {
+public abstract class AbstractControl implements Control, JmeCloneable {
 
     protected boolean enabled = true;
     protected Spatial spatial;
@@ -105,6 +107,20 @@ public abstract class AbstractControl implements Control, Cloneable {
         } 
     }
 
+    @Override
+    public Object jmeClone() {
+        try {
+            return super.clone();
+        } catch( CloneNotSupportedException e ) {
+            throw new RuntimeException( "Can't clone control for spatial", e );
+        }
+    }     
+
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) { 
+        this.spatial = cloner.clone(spatial);
+    }
+         
     public void update(float tpf) {
         if (!enabled)
             return;

@@ -35,6 +35,8 @@ import com.jme3.app.AppTask;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
@@ -94,4 +96,15 @@ public class UpdateControl extends AbstractControl {
         return control;
     }
     
+    @Override
+    public Object jmeClone() {
+        UpdateControl clone = (UpdateControl)super.jmeClone();
+        
+        // This is kind of questionable since the tasks aren't cloned and have
+        // no reference to the new spatial or anything.  They'll get run again
+        // but it's not clear to me why that would be desired.  I'm doing it
+        // because the old cloneForSpatial() code does.  FIXME?   -pspeed
+        clone.taskQueue.addAll(taskQueue);
+        return clone;
+    }     
 }

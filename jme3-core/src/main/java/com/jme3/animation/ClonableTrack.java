@@ -32,6 +32,7 @@
 package com.jme3.animation;
 
 import com.jme3.scene.Spatial;
+import com.jme3.util.clone.JmeCloneable;
 
 /**
  * An interface that allow to clone a Track for a given Spatial.
@@ -43,7 +44,7 @@ import com.jme3.scene.Spatial;
  *
  * @author Nehon
  */
-public interface ClonableTrack extends Track {
+public interface ClonableTrack extends Track, JmeCloneable {
 
     /**
      * Allows to clone the track for a given Spatial.

@@ -39,6 +39,8 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -193,7 +195,27 @@ public class AudioTrack implements ClonableTrack {
         return audioTrack;
     }
 
-    /**
+    @Override   
+    public Object jmeClone() {
+        try {
+            return super.clone();
+        } catch( CloneNotSupportedException e ) {
+            throw new RuntimeException("Error cloning", e);
+        }
+    }     
+
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) {
+        // Duplicating the old cloned state from cloneForSpatial()
+        this.initialized = false;
+        this.started = false;
+        this.played = false; 
+        this.audio = cloner.clone(audio);
+    }
+         
+         
+    /**    
      * recursive function responsible for finding the newly cloned AudioNode
      *
      * @param spat

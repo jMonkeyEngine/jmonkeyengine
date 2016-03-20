@@ -38,11 +38,14 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 /**
@@ -65,7 +68,7 @@ import java.util.Map.Entry;
  *
  * @author Kirill Vainer
  */
-public final class AnimControl extends AbstractControl implements Cloneable {
+public final class AnimControl extends AbstractControl implements Cloneable, JmeCloneable {
 
     /**
      * Skeleton object must contain corresponding data for the targets' weight buffers.
@@ -131,6 +134,32 @@ public final class AnimControl extends AbstractControl implements Cloneable {
         }
     }
 
+    @Override   
+    public Object jmeClone() {
+        AnimControl clone = (AnimControl) super.jmeClone();
+        clone.channels = new ArrayList<AnimChannel>();
+        clone.listeners = new ArrayList<AnimEventListener>();
+
+        return clone;
+    }     
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+        
+        this.skeleton = cloner.clone(skeleton);
+ 
+        // Note cloneForSpatial() never actually cloned the animation map... just its reference       
+        HashMap<String, Animation> newMap = new HashMap<>();
+         
+        // animationMap is cloned, but only ClonableTracks will be cloned as they need a reference to a cloned spatial
+        for( Map.Entry<String, Animation> e : animationMap.entrySet() ) {
+            newMap.put(e.getKey(), cloner.clone(e.getValue()));
+        }
+        
+        this.animationMap = newMap;
+    }
+         
     /**
      * @param animations Set the animations that this <code>AnimControl</code>
      * will be capable of playing. The animations should be compatible

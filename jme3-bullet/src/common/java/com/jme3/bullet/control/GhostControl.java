@@ -44,6 +44,8 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
@@ -51,7 +53,7 @@ import java.io.IOException;
  * overlaps with other physics objects (e.g. aggro radius).
  * @author normenhansen
  */
-public class GhostControl extends PhysicsGhostObject implements PhysicsControl {
+public class GhostControl extends PhysicsGhostObject implements PhysicsControl, JmeCloneable {
 
     protected Spatial spatial;
     protected boolean enabled = true;
@@ -106,6 +108,25 @@ public class GhostControl extends PhysicsGhostObject implements PhysicsControl {
         return control;
     }
 
+    @Override   
+    public Object jmeClone() {
+        GhostControl control = new GhostControl(collisionShape);
+        control.setCcdMotionThreshold(getCcdMotionThreshold());
+        control.setCcdSweptSphereRadius(getCcdSweptSphereRadius());
+        control.setCollideWithGroups(getCollideWithGroups());
+        control.setCollisionGroup(getCollisionGroup());
+        control.setPhysicsLocation(getPhysicsLocation());
+        control.setPhysicsRotation(getPhysicsRotationMatrix());
+        control.setApplyPhysicsLocal(isApplyPhysicsLocal());
+        control.spatial = this.spatial;
+        return control;
+    }     
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) { 
+        this.spatial = cloner.clone(spatial);
+    }
+         
     public void setSpatial(Spatial spatial) {
         this.spatial = spatial;
         setUserObject(spatial);

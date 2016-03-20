@@ -43,13 +43,15 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
  * A camera that follows a spatial and can turn around it by dragging the mouse
  * @author nehon
  */
-public class ChaseCamera implements ActionListener, AnalogListener, Control {
+public class ChaseCamera implements ActionListener, AnalogListener, Control, JmeCloneable {
 
     protected Spatial target = null;
     protected float minVerticalRotation = 0.00f;
@@ -575,6 +577,23 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
         return cc;
     }
 
+    @Override   
+    public Object jmeClone() {
+        ChaseCamera cc = new ChaseCamera(cam, inputManager);
+        cc.target = target;
+        cc.setMaxDistance(getMaxDistance());
+        cc.setMinDistance(getMinDistance());
+        return cc;
+    }     
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) { 
+        this.target = cloner.clone(target);
+        computePosition();
+        prevPos = new Vector3f(target.getWorldTranslation());
+        cam.setLocation(pos);
+    }
+         
     /**
      * Sets the spacial for the camera control, should only be used internally
      * @param spatial

@@ -46,6 +46,8 @@ import com.jme3.scene.control.Control;
 import com.jme3.shader.VarType;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -63,7 +65,7 @@ import java.util.logging.Logger;
  *
  * @author Rémy Bouquet Based on AnimControl by Kirill Vainer
  */
-public class SkeletonControl extends AbstractControl implements Cloneable {
+public class SkeletonControl extends AbstractControl implements Cloneable, JmeCloneable {
 
     /**
      * The skeleton of the model.
@@ -386,6 +388,29 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
         return clone;
     }
 
+    @Override   
+    public Object jmeClone() {
+        return super.jmeClone();
+    }     
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+         
+        this.skeleton = cloner.clone(skeleton);
+        
+        // If the targets were cloned then this will clone them.  If the targets
+        // were shared then this will share them.
+        this.targets = cloner.clone(targets);
+        
+        // Not automatic set cloning yet
+        Set<Material> newMaterials = new HashSet<Material>();
+        for( Material m : this.materials ) {
+            newMaterials.add(cloner.clone(m));
+        }
+        this.materials = newMaterials;
+    }
+         
     /**
      *
      * @param boneName the name of the bone

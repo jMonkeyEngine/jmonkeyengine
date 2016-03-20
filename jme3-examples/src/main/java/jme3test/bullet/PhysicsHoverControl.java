@@ -46,13 +46,15 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
  * PhysicsHoverControl uses a RayCast Vehicle with "slippery wheels" to simulate a hovering tank
  * @author normenhansen
  */
-public class PhysicsHoverControl extends PhysicsVehicle implements PhysicsControl, PhysicsTickListener {
+public class PhysicsHoverControl extends PhysicsVehicle implements PhysicsControl, PhysicsTickListener, JmeCloneable {
 
     protected Spatial spatial;
     protected boolean enabled = true;
@@ -99,6 +101,16 @@ public class PhysicsHoverControl extends PhysicsVehicle implements PhysicsContro
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override   
+    public Object jmeClone() {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }     
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) { 
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+         
     public void setSpatial(Spatial spatial) {
         this.spatial = spatial;
         setUserObject(spatial);

@@ -34,6 +34,8 @@ package com.jme3.animation;
 import com.jme3.export.*;
 import com.jme3.math.Matrix4f;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.JmeCloneable;
+import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +47,7 @@ import java.util.List;
  * 
  * @author Kirill Vainer
  */
-public final class Skeleton implements Savable {
+public final class Skeleton implements Savable, JmeCloneable {
 
     private Bone[] rootBones;
     private Bone[] boneList;
@@ -116,6 +118,15 @@ public final class Skeleton implements Savable {
      * Serialization only. Do not use.
      */
     public Skeleton() {
+    }
+
+    @Override   
+    public Object jmeClone() {
+        return new Skeleton(this);
+    }     
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) {
     }
 
     private void createSkinningMatrices() {

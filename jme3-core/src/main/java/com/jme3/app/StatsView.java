@@ -41,6 +41,8 @@ import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 
 /**
  * The <code>StatsView</code> provides a heads-up display (HUD) of various
@@ -58,7 +60,7 @@ import com.jme3.scene.control.Control;
  * rootNode.attachChild(statsView);<br/>
  * </code>
  */
-public class StatsView extends Node implements Control {
+public class StatsView extends Node implements Control, JmeCloneable {
 
     private BitmapText statText;
     private Statistics statistics;
@@ -120,6 +122,16 @@ public class StatsView extends Node implements Control {
         return (Control) spatial;
     }
 
+    @Override   
+    public Object jmeClone() {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }     
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) { 
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+         
     public void setSpatial(Spatial spatial) {
     }
 

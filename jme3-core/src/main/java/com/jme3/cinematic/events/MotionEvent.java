@@ -47,6 +47,8 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
@@ -56,7 +58,7 @@ import java.io.IOException;
  *
  * @author Nehon
  */
-public class MotionEvent extends AbstractCinematicEvent implements Control {
+public class MotionEvent extends AbstractCinematicEvent implements Control, JmeCloneable {
 
     protected Spatial spatial;
     protected int currentWayPoint;
@@ -292,6 +294,31 @@ public class MotionEvent extends AbstractCinematicEvent implements Control {
         return control;
     }
 
+    @Override   
+    public Object jmeClone() {
+        MotionEvent control = new MotionEvent();
+        control.path = path;
+        control.playState = playState;
+        control.currentWayPoint = currentWayPoint;
+        control.currentValue = currentValue;
+        control.direction = direction.clone();
+        control.lookAt = lookAt.clone();
+        control.upVector = upVector.clone();
+        control.rotation = rotation.clone();
+        control.initialDuration = initialDuration;
+        control.speed = speed;
+        control.loopMode = loopMode;
+        control.directionType = directionType;
+        control.spatial = spatial;
+
+        return control;
+    }     
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) { 
+        this.spatial = cloner.clone(spatial);
+    }
+         
     @Override
     public void onPlay() {
         traveledDistance = 0;

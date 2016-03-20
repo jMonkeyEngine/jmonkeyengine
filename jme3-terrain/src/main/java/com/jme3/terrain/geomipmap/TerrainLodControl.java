@@ -46,6 +46,8 @@ import com.jme3.scene.control.Control;
 import com.jme3.terrain.Terrain;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.geomipmap.lodcalc.LodCalculator;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -298,7 +300,29 @@ public class TerrainLodControl extends AbstractControl {
     
     
     
-    
+ 
+    @Override   
+    public Object jmeClone() {
+        if (spatial instanceof Terrain) {
+            TerrainLodControl cloned = new TerrainLodControl((Terrain) spatial, cameras);
+            cloned.setLodCalculator(lodCalculator.clone());
+            cloned.spatial = spatial;
+            return cloned;
+        }
+        return null;
+    }     
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) {
+        this.lodCalculator = cloner.clone(lodCalculator);
+ 
+        try {       
+            // Not deep clone of the cameras themselves
+            this.cameras = cloner.javaClone(cameras);
+        } catch( CloneNotSupportedException e ) {
+            throw new RuntimeException("Error cloning", e);
+        } 
+    }     
     
     
     @Override

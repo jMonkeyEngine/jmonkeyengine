@@ -54,6 +54,8 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
@@ -108,7 +110,7 @@ public class ParticleEmitter extends Geometry {
     private transient Vector3f temp = new Vector3f();
     private transient Vector3f lastPos;
 
-    public static class ParticleEmitterControl implements Control {
+    public static class ParticleEmitterControl implements Control, JmeCloneable {
 
         ParticleEmitter parentEmitter;
 
@@ -125,6 +127,20 @@ public class ParticleEmitter extends Geometry {
             // fixed automatically by ParticleEmitter.clone() method.
         }
 
+        @Override   
+        public Object jmeClone() {
+            try {
+                return super.clone();
+            } catch( CloneNotSupportedException e ) {
+                throw new RuntimeException("Error cloning", e);
+            }
+        }     
+
+        @Override   
+        public void cloneFields( Cloner cloner, Object original ) { 
+            this.parentEmitter = cloner.clone(parentEmitter);
+        }
+             
         public void setSpatial(Spatial spatial) {
         }
 

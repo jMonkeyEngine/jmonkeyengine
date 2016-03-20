@@ -44,6 +44,8 @@ import com.jme3.scene.control.Control;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.material.MatParam;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -106,7 +108,7 @@ public class InstancedNode extends GeometryGroupNode {
         }
     }
     
-    private static class InstancedNodeControl implements Control {
+    private static class InstancedNodeControl implements Control, JmeCloneable {
 
         private InstancedNode node;
         
@@ -124,6 +126,20 @@ public class InstancedNode extends GeometryGroupNode {
             // fixed automatically by InstancedNode.clone() method.
         }
         
+        @Override
+        public Object jmeClone() {
+            try {
+                return super.clone();
+            } catch( CloneNotSupportedException e ) {
+                throw new RuntimeException("Error cloning control", e);
+            }
+        }     
+
+        @Override
+        public void cloneFields( Cloner cloner, Object original ) { 
+            this.node = cloner.clone(node);
+        }
+         
         public void setSpatial(Spatial spatial){
         }
         
