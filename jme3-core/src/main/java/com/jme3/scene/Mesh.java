@@ -724,6 +724,7 @@ public class Mesh implements Savable, Cloneable {
     }
 
     private int computeNumElements(int bufSize){
+        if (bufSize == 0) return 0;
         switch (mode){
             case Triangles:
                 return bufSize / 3;
@@ -756,6 +757,40 @@ public class Mesh implements Savable, Cloneable {
         return max;
     }
 
+    /**
+     * Called to update the data in a buffer with new data. Can only
+     * be called after {@link VertexBuffer#setupData(com.jme3.scene.VertexBuffer.Usage, int, com.jme3.scene.VertexBuffer.Format, java.nio.Buffer) }
+     * has been called on buffer. Note that it is fine to call this method on the
+     * data already set, e.g. updateBuffer(vb, vb.getData()), this will just
+     * set the proper update flag indicating the data should be sent to the GPU
+     * again.
+     * 
+     * @param buffer The VertexBuffer to effect.
+     * @param data The data buffer to set
+     */
+    public void updateBuffer(VertexBuffer buffer, Buffer data){
+        if (buffer.getId() != -1){
+            // request to update data is okay
+        }
+
+        // Check if the data buffer is read-only which is a sign
+        // of a bug on the part of the caller
+        if (data != null && data.isReadOnly()) {
+            throw new IllegalArgumentException( "VertexBuffer data cannot be read-only." );
+        }
+
+        // will force renderer to call glBufferData again
+        if (data != null && (buffer.data.getClass() != data.getClass() || data.limit() != buffer.lastLimit)){
+            buffer.dataSizeChanged = true;
+            buffer.lastLimit = data.limit();
+        }
+        
+        buffer.data = data;
+        buffer.setUpdateNeeded();
+        
+        if (buffer.dataSizeChanged) // Don't update Counts if they stayed the same
+            updateCounts();
+    }
     /**
      * Update the {@link #getVertexCount() vertex} and 
      * {@link #getTriangleCount() triangle} counts for this mesh

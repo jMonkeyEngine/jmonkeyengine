@@ -127,6 +127,9 @@ public class Statistics {
         if( !enabled )
             return;
             
+        if (mesh.getTriangleCount(lod) < 0 || mesh.getVertexCount() < 0)
+            throw new IllegalStateException("Invalid triangle or vertex count on this mesh. Call .updateCounts() before rendering");
+        
         numObjects += 1;
         numTriangles += mesh.getTriangleCount(lod) * count;
         numVertices += mesh.getVertexCount() * count;

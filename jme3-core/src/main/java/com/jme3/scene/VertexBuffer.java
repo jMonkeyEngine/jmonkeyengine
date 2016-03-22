@@ -676,6 +676,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * call Mesh.updateCounts() otherwise bizarre errors can occur.
      * 
      * @param data The data buffer to set
+     * @deprecated call {@link Mesh#updateBuffer(VertexBuffer, Buffer) } instead.
      */
     public void updateData(Buffer data){
         if (id != -1){
