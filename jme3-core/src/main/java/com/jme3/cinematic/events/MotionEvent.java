@@ -64,9 +64,9 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     protected int currentWayPoint;
     protected float currentValue;
     protected Vector3f direction = new Vector3f();
-    protected Vector3f lookAt = Vector3f.ZERO;
+    protected Vector3f lookAt = null;
     protected Vector3f upVector = Vector3f.UNIT_Y;
-    protected Quaternion rotation = Quaternion.IDENTITY;
+    protected Quaternion rotation = null;
     protected Direction directionType = Direction.None;
     protected MotionPath path;
     private boolean isControl = true;
@@ -213,9 +213,9 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(lookAt, "lookAt", Vector3f.ZERO);
+        oc.write(lookAt, "lookAt", null);
         oc.write(upVector, "upVector", Vector3f.UNIT_Y);
-        oc.write(rotation, "rotation", Quaternion.IDENTITY);
+        oc.write(rotation, "rotation", null);
         oc.write(directionType, "directionType", Direction.None);
         oc.write(path, "path", null);
     }
@@ -224,9 +224,9 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule in = im.getCapsule(this);
-        lookAt = (Vector3f) in.readSavable("lookAt", Vector3f.ZERO);
+        lookAt = (Vector3f) in.readSavable("lookAt", null);
         upVector = (Vector3f) in.readSavable("upVector", Vector3f.UNIT_Y);
-        rotation = (Quaternion) in.readSavable("rotation", Quaternion.IDENTITY);
+        rotation = (Quaternion) in.readSavable("rotation", null);
         directionType = in.readEnum("directionType", Direction.class, Direction.None);
         path = (MotionPath) in.readSavable("path", null);
     }
@@ -283,9 +283,9 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
         control.currentWayPoint = currentWayPoint;
         control.currentValue = currentValue;
         control.direction = direction.clone();
-        control.lookAt = lookAt.clone();
+        control.lookAt = lookAt;
         control.upVector = upVector.clone();
-        control.rotation = rotation.clone();
+        control.rotation = rotation;
         control.initialDuration = initialDuration;
         control.speed = speed;
         control.loopMode = loopMode;
@@ -302,9 +302,9 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
         control.currentWayPoint = currentWayPoint;
         control.currentValue = currentValue;
         control.direction = direction.clone();
-        control.lookAt = lookAt.clone();
+        control.lookAt = lookAt;
         control.upVector = upVector.clone();
-        control.rotation = rotation.clone();
+        control.rotation = rotation;
         control.initialDuration = initialDuration;
         control.speed = speed;
         control.loopMode = loopMode;
