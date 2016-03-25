@@ -39,8 +39,7 @@ attribute vec3 inNormal;
     varying vec3 vPos;
     #ifdef NORMALMAP
         attribute vec4 inTangent;
-        varying vec3 vTangent;
-        varying vec3 vBinormal;
+        varying vec4 vTangent;
     #endif
 #else
     #ifdef COLORRAMP
@@ -104,8 +103,7 @@ void main(){
   
        
     #if defined(NORMALMAP) && !defined(VERTEX_LIGHTING)
-      vTangent = TransformNormal(modelSpaceTan);
-      vBinormal = cross(wvNormal, vTangent)* inTangent.w;      
+      vTangent = vec4(TransformNormal(modelSpaceTan).xyz,inTangent.w);
       vNormal = wvNormal;         
       vPos = wvPosition;
     #elif !defined(VERTEX_LIGHTING)
