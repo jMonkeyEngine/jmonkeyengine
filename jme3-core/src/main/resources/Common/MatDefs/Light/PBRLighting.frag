@@ -65,8 +65,7 @@ varying vec3 wPosition;
   
 #if defined(NORMALMAP) || defined(PARALLAXMAP)
   uniform sampler2D m_NormalMap;   
-  varying vec3 wTangent;
-  varying vec3 wBinormal;
+  varying vec4 wTangent;
 #endif
 varying vec3 wNormal;
 
@@ -79,7 +78,7 @@ void main(){
     vec3 viewDir = normalize(g_CameraPosition - wPosition);
 
     #if defined(NORMALMAP) || defined(PARALLAXMAP)
-        mat3 tbnMat = mat3(normalize(wTangent.xyz) , normalize(wBinormal.xyz) , normalize(wNormal.xyz));       
+      mat3 tbnMat = mat3(wTangent.xyz, wTangent.w * cross( (wNormal), (wTangent.xyz)), wNormal.xyz);
     #endif
 
     #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP)))
@@ -139,7 +138,7 @@ void main(){
       //see http://hub.jmonkeyengine.org/forum/topic/parallax-mapping-fundamental-bug/#post-256898
       //for more explanation.
       vec3 normal = normalize((normalHeight.xyz * vec3(2.0,-2.0,2.0) - vec3(1.0,-1.0,1.0)));
-      normal = tbnMat * normal;
+      normal = normalize(tbnMat * normal);
       //normal = normalize(normal * inverse(tbnMat));
     #else
       vec3 normal = normalize(wNormal);            
