@@ -33,6 +33,8 @@ package com.jme3.light;
 
 import com.jme3.export.*;
 import com.jme3.scene.Spatial;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import com.jme3.util.SortUtil;
 import java.io.IOException;
 import java.util.*;
@@ -40,10 +42,10 @@ import java.util.*;
 /**
  * <code>LightList</code> is used internally by {@link Spatial}s to manage
  * lights that are attached to them.
- * 
+ *
  * @author Kirill Vainer
  */
-public final class LightList implements Iterable<Light>, Savable, Cloneable {
+public final class LightList implements Iterable<Light>, Savable, Cloneable, JmeCloneable {
 
     private Light[] list, tlist;
     private float[] distToOwner;
@@ -74,7 +76,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
 
     /**
      * Creates a <code>LightList</code> for the given {@link Spatial}.
-     * 
+     *
      * @param owner The spatial owner
      */
     public LightList(Spatial owner) {
@@ -87,7 +89,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
 
     /**
      * Set the owner of the LightList. Only used for cloning.
-     * @param owner 
+     * @param owner
      */
     public void setOwner(Spatial owner){
         this.owner = owner;
@@ -118,7 +120,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
 
     /**
      * Remove the light at the given index.
-     * 
+     *
      * @param index
      */
     public void remove(int index){
@@ -139,7 +141,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
 
     /**
      * Removes the given light from the LightList.
-     * 
+     *
      * @param l the light to remove
      */
     public void remove(Light l){
@@ -187,12 +189,12 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
 
     /**
      * Sorts the elements in the list according to their Comparator.
-     * There are two reasons why lights should be resorted. 
-     * First, if the lights have moved, that means their distance to 
-     * the spatial changed. 
-     * Second, if the spatial itself moved, it means the distance from it to 
+     * There are two reasons why lights should be resorted.
+     * First, if the lights have moved, that means their distance to
+     * the spatial changed.
+     * Second, if the spatial itself moved, it means the distance from it to
      * the individual lights might have changed.
-     * 
+     *
      *
      * @param transformChanged Whether the spatial's transform has changed
      */
@@ -252,7 +254,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
                 list[p] = parent.list[i];
                 distToOwner[p] = Float.NEGATIVE_INFINITY;
             }
-            
+
             listSize = local.listSize + parent.listSize;
         }else{
             listSize = local.listSize;
@@ -261,7 +263,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
 
     /**
      * Returns an iterator that can be used to iterate over this LightList.
-     * 
+     *
      * @return an iterator that can be used to iterate over this LightList.
      */
     public Iterator<Light> iterator() {
@@ -276,10 +278,10 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
             public Light next() {
                 if (!hasNext())
                     throw new NoSuchElementException();
-                
+
                 return list[index++];
             }
-            
+
             public void remove() {
                 LightList.this.remove(--index);
             }
@@ -290,7 +292,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
     public LightList clone(){
         try{
             LightList clone = (LightList) super.clone();
-            
+
             clone.owner = null;
             clone.list = list.clone();
             clone.distToOwner = distToOwner.clone();
@@ -300,6 +302,24 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
         }catch (CloneNotSupportedException ex){
             throw new AssertionError();
         }
+    }
+
+    @Override
+    public LightList jmeClone() {
+        try{
+            LightList clone = (LightList)super.clone();
+            clone.tlist = null; // list used for sorting only
+            return clone;
+        }catch (CloneNotSupportedException ex){
+            throw new AssertionError();
+        }
+    }
+
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        this.owner = cloner.clone(owner);
+        this.list = cloner.clone(list);
+        this.distToOwner = cloner.clone(distToOwner);
     }
 
     public void write(JmeExporter ex) throws IOException {
@@ -319,7 +339,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
 
         List<Light> lights = ic.readSavableArrayList("lights", null);
         listSize = lights.size();
-        
+
         // NOTE: make sure the array has a length of at least 1
         int arraySize = Math.max(DEFAULT_SIZE, listSize);
         list = new Light[arraySize];
@@ -328,7 +348,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
         for (int i = 0; i < listSize; i++){
             list[i] = lights.get(i);
         }
-        
+
         Arrays.fill(distToOwner, Float.NEGATIVE_INFINITY);
     }
 
