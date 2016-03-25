@@ -25,8 +25,7 @@ varying vec3 wNormal;
 varying vec3 wPosition;
 #if defined(NORMALMAP) || defined(PARALLAXMAP)
     attribute vec4 inTangent;
-    varying vec3 wTangent;
-    varying vec3 wBinormal;
+    varying vec4 wTangent;
 #endif
 
 void main(){
@@ -55,8 +54,7 @@ void main(){
     wNormal  = TransformWorld(vec4(modelSpaceNorm,0.0)).xyz;
 
     #if defined(NORMALMAP) || defined(PARALLAXMAP)
-      wTangent = TransformWorld(vec4(modelSpaceTan,0.0)).xyz;
-      wBinormal = cross(wNormal, wTangent)* inTangent.w;            
+      wTangent = vec4(TransformWorld(vec4(modelSpaceTan,0.0)).xyz,inTangent.w);
     #endif
 
     Color = m_BaseColor;
