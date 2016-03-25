@@ -41,6 +41,8 @@ import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 
 /**
  * The <code>StatsView</code> provides a heads-up display (HUD) of various
@@ -58,7 +60,7 @@ import com.jme3.scene.control.Control;
  * rootNode.attachChild(statsView);<br/>
  * </code>
  */
-public class StatsView extends Node implements Control {
+public class StatsView extends Node implements Control, JmeCloneable {
 
     private BitmapText statText;
     private Statistics statistics;
@@ -67,7 +69,7 @@ public class StatsView extends Node implements Control {
     private int[] statData;
 
     private boolean enabled = true;
-    
+
     private final StringBuilder stringBuilder = new StringBuilder();
 
     public StatsView(String name, AssetManager manager, Statistics stats){
@@ -93,30 +95,41 @@ public class StatsView extends Node implements Control {
     public float getHeight() {
         return statText.getLineHeight() * statLabels.length;
     }
-    
+
     public void update(float tpf) {
-    
-        if (!isEnabled()) 
+
+        if (!isEnabled())
             return;
-            
+
         statistics.getData(statData);
         stringBuilder.setLength(0);
-        
-        // Need to walk through it backwards, as the first label 
+
+        // Need to walk through it backwards, as the first label
         // should appear at the bottom, not the top.
         for (int i = statLabels.length - 1; i >= 0; i--) {
             stringBuilder.append(statLabels[i]).append(" = ").append(statData[i]).append('\n');
         }
         statText.setText(stringBuilder);
-        
+
         // Moved to ResetStatsState to make sure it is
         // done even if there is no StatsView or the StatsView
         // is disable.
         //statistics.clearFrame();
     }
 
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         return (Control) spatial;
+    }
+
+    @Override
+    public StatsView jmeClone() {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        throw new UnsupportedOperationException("Not yet implemented.");
     }
 
     public void setSpatial(Spatial spatial) {

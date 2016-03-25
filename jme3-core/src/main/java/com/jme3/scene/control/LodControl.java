@@ -43,6 +43,8 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
@@ -56,7 +58,7 @@ import java.io.IOException;
  * and will update the spatial's LOD if the camera has moved by a specified
  * amount.
  */
-public class LodControl extends AbstractControl implements Cloneable {
+public class LodControl extends AbstractControl implements Cloneable, JmeCloneable {
 
     private float trisPerPixel = 1f;
     private float distTolerance = 1f;
@@ -140,7 +142,16 @@ public class LodControl extends AbstractControl implements Cloneable {
         clone.lastLevel = 0;
         clone.numTris = numTris != null ? numTris.clone() : null;
         return clone;
-   }
+    }
+
+    @Override
+    public Object jmeClone() {
+        LodControl clone = (LodControl)super.jmeClone();
+        clone.lastDistance = 0;
+        clone.lastLevel = 0;
+        clone.numTris = numTris != null ? numTris.clone() : null;
+        return clone;
+    }     
 
     @Override
     protected void controlUpdate(float tpf) {

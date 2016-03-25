@@ -128,12 +128,12 @@ public class TestMousePick extends SimpleApplication {
     /** A red ball that marks the last spot that was "hit" by the "shot". */
     protected void initMark() {
         Arrow arrow = new Arrow(Vector3f.UNIT_Z.mult(2f));
-        arrow.setLineWidth(3);
 
         //Sphere sphere = new Sphere(30, 30, 0.2f);
         mark = new Geometry("BOOM!", arrow);
         //mark = new Geometry("BOOM!", sphere);
         Material mark_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mark_mat.getAdditionalRenderState().setLineWidth(3);
         mark_mat.setColor("Color", ColorRGBA.Red);
         mark.setMaterial(mark_mat);
     }

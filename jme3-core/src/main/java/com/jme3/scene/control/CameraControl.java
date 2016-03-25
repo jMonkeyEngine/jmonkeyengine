@@ -136,13 +136,14 @@ public class CameraControl extends AbstractControl {
         // nothing to do
     }
 
-    @Override
-    public Control cloneForSpatial(Spatial newSpatial) {
-        CameraControl control = new CameraControl(camera, controlDir);
-        control.setSpatial(newSpatial);
-        control.setEnabled(isEnabled());
-        return control;
-    }
+    // default implementation from AbstractControl is equivalent
+    //@Override
+    //public Control cloneForSpatial(Spatial newSpatial) {
+    //    CameraControl control = new CameraControl(camera, controlDir);
+    //    control.setSpatial(newSpatial);
+    //    control.setEnabled(isEnabled());
+    //    return control;
+    //}
     private static final String CONTROL_DIR_NAME = "controlDir";
     private static final String CAMERA_NAME = "camera";
     

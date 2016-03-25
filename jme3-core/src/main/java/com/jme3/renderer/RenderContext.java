@@ -101,7 +101,7 @@ public class RenderContext {
     public float pointSize = 1;
     
     /**
-     * @see Mesh#setLineWidth(float) 
+     * @see RenderState#setLineWidth(float)
      */
     public float lineWidth = 1;
 

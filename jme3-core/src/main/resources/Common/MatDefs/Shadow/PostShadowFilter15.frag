@@ -1,5 +1,5 @@
 #import "Common/ShaderLib/MultiSample.glsllib"
-#import "Common/ShaderLib/Shadows15.glsllib"
+#import "Common/ShaderLib/Shadows.glsllib"
 
 
 uniform COLORTEXTURE m_Texture;
@@ -20,14 +20,16 @@ uniform mat4 m_LightViewProjectionMatrix1;
 uniform mat4 m_LightViewProjectionMatrix2;
 uniform mat4 m_LightViewProjectionMatrix3;
 
+uniform vec2 g_ResolutionInverse;
+
 #ifdef POINTLIGHT
     uniform vec3 m_LightPos;
     uniform mat4 m_LightViewProjectionMatrix4;
     uniform mat4 m_LightViewProjectionMatrix5;
 #else
+    uniform vec3 m_LightDir;
     #ifndef PSSM    
-        uniform vec3 m_LightPos;    
-        uniform vec3 m_LightDir;       
+        uniform vec3 m_LightPos;
     #endif
 #endif
 
@@ -41,6 +43,23 @@ vec3 getPosition(in float depth, in vec2 uv){
     return pos.xyz / pos.w;
 }
 
+#ifndef BACKFACE_SHADOWS
+    vec3 approximateNormal(in float depth,in vec4 worldPos,in vec2 texCoord, in int numSample){
+        float step = g_ResolutionInverse.x ;
+        float stepy = g_ResolutionInverse.y ;
+        float depth1 = fetchTextureSample(m_DepthTexture,texCoord + vec2(-step,stepy),numSample).r;
+        float depth2 = fetchTextureSample(m_DepthTexture,texCoord + vec2(step,stepy),numSample).r;
+        vec3 v1, v2;
+        vec4 worldPos1 = vec4(getPosition(depth1,texCoord + vec2(-step,stepy)),1.0);
+        vec4 worldPos2 = vec4(getPosition(depth2,texCoord + vec2(step,stepy)),1.0);
+
+        v1 = normalize((worldPos1 - worldPos)).xyz;
+        v2 =  normalize((worldPos2 - worldPos)).xyz;
+        return normalize(cross(v2, v1));
+
+    }
+#endif
+
 vec4 main_multiSample(in int numSample){
     float depth = fetchTextureSample(m_DepthTexture,texCoord,numSample).r;//getDepth(m_DepthTexture,texCoord).r;
     vec4 color = fetchTextureSample(m_Texture,texCoord,numSample);
@@ -52,12 +71,27 @@ vec4 main_multiSample(in int numSample){
     
     // get the vertex in world space
     vec4 worldPos = vec4(getPosition(depth,texCoord),1.0);
-  
+
+
+    vec3 lightDir;
+    #ifdef PSSM
+        lightDir = m_LightDir;
+    #else
+        lightDir = worldPos.xyz - m_LightPos;
+    #endif
+
+    #ifndef BACKFACE_SHADOWS
+        vec3 normal = approximateNormal(depth, worldPos, texCoord, numSample);
+        float ndotl = dot(normal, lightDir);
+        if(ndotl > 0.0){
+            return color;
+        }
+    #endif
+
     #if (!defined(POINTLIGHT) && !defined(PSSM))
-          vec3 lightDir = worldPos.xyz - m_LightPos;
-          if( dot(m_LightDir,lightDir)<0){
-             return color;
-          }         
+        if( dot(m_LightDir,lightDir)<0){
+         return color;
+        }
     #endif
 
     // populate the light view matrices array and convert vertex to light viewProj space

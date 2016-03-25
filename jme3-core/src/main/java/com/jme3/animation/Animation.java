@@ -35,6 +35,8 @@ import com.jme3.export.*;
 import com.jme3.scene.Spatial;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
@@ -42,7 +44,7 @@ import java.io.IOException;
  * 
  * @author Kirill Vainer, Marcin Roguski (Kaelthas)
  */
-public class Animation implements Savable, Cloneable {
+public class Animation implements Savable, Cloneable, JmeCloneable {
 
     /** 
      * The name of the animation. 
@@ -190,6 +192,33 @@ public class Animation implements Savable, Cloneable {
         }
     }
 
+    @Override   
+    public Object jmeClone() {
+        try {
+            return super.clone();
+        } catch( CloneNotSupportedException e ) {
+            throw new RuntimeException("Error cloning", e);
+        }
+    }     
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) {
+         
+        // There is some logic here that I'm copying but I'm not sure if
+        // it's a mistake or not.  If a track is not a CloneableTrack then it
+        // isn't cloned at all... even though they all implement clone() methods. -pspeed
+        SafeArrayList<Track> newTracks = new SafeArrayList<>(Track.class);
+        for( Track track : tracks ) {
+            if( track instanceof ClonableTrack ) {
+                newTracks.add(cloner.clone(track));
+            } else {
+                // this is the part that seems fishy 
+                newTracks.add(track);
+            }
+        }
+        this.tracks = newTracks;
+    }
+         
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[name=" + name + ", length=" + length + ']';
