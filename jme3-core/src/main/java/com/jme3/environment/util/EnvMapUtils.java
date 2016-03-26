@@ -433,13 +433,13 @@ public class EnvMapUtils {
 
     public static float getRoughnessFromMip(int miplevel, int miptot) {
         float mipScale = 1.0f;
-        float mipOffset = -0.3f;        
+        float mipOffset = -0.5f;
 
-        return pow(2, (float) (miplevel - (miptot - 1) + mipOffset) / mipScale);
+        return pow(2, (miplevel - (miptot - 1) + mipOffset) / mipScale);
     }
 
     public static float getMipFromRoughness(float roughness, int miptot) {
-        float mipScale = 1.2f;
+        float mipScale = 1.0f;
         float Lod = (float) (Math.log(roughness) / Math.log(2)) * mipScale + miptot - 1.0f;       
 
         return (float) Math.max(0.0, Lod);

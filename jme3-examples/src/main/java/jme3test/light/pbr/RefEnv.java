@@ -17,6 +17,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.ui.Picture;
 import com.jme3.util.MaterialDebugAppState;
 
 /**
@@ -27,14 +28,11 @@ import com.jme3.util.MaterialDebugAppState;
 public class RefEnv extends SimpleApplication {
 
     private Node tex;
+    private Node ref;
+    private Picture refDE;
+    private Picture refM;
 
     public static void main(String[] args) {
-        System.err.println(Math.min(1, 8192));
-        System.err.println(Math.min(1 << (6), 8192));
-        System.err.println(Math.min(1 << (8), 8192));
-        System.err.println(Math.min(1 << (10), 8192));
-        System.err.println(Math.min(1 << (12), 8192));
-        System.err.println(Math.min(1 << (14), 8192));
         RefEnv app = new RefEnv();
         app.start();
     }
@@ -42,16 +40,29 @@ public class RefEnv extends SimpleApplication {
     @Override
     public void simpleInitApp() {
 
-        cam.setLocation(new Vector3f(-3.0286736f, 2.8702848f, 5.153083f));
-        cam.setRotation(new Quaternion(0.06595449f, 0.9340066f, -0.24384351f, 0.2526304f));
+        cam.setLocation(new Vector3f(-2.3324413f, 2.9567573f, 4.6054406f));
+        cam.setRotation(new Quaternion(0.06310794f, 0.9321281f, -0.29613864f, 0.1986369f));
         Spatial sc = assetManager.loadModel("Scenes/PBR/spheres.j3o");
         rootNode.attachChild(sc);
         rootNode.getChild("Scene").setCullHint(Spatial.CullHint.Always);
+
+        ref = new Node("reference pictures");
+        refDE = new Picture("refDE");
+        refDE.setHeight(cam.getHeight());
+        refDE.setWidth(cam.getWidth());
+        refDE.setImage(assetManager,"jme3test/light/pbr/spheresRefDE.png", false);
+        refM = new Picture("refM");
+        refM.setImage(assetManager,"jme3test/light/pbr/spheresRefM.png", false);
+        refM.setHeight(cam.getHeight());
+        refM.setWidth(cam.getWidth());
+
+        ref.attachChild(refDE);
 
         stateManager.attach(new EnvironmentCamera());
 
         inputManager.addMapping("tex", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addMapping("switch", new KeyTrigger(KeyInput.KEY_RETURN));
+        inputManager.addMapping("ref", new KeyTrigger(KeyInput.KEY_R));
         inputManager.addListener(new ActionListener() {
 
             @Override
@@ -70,8 +81,15 @@ public class RefEnv extends SimpleApplication {
                 if (name.equals("switch") && isPressed) {
                     switchMat(rootNode.getChild("Scene"));
                 }
+                if (name.equals("ref") && isPressed) {
+                    if (ref.getParent() == null) {
+                        guiNode.attachChild(ref);
+                    } else {
+                        ref.removeFromParent();
+                    }
+                }
             }
-        }, "tex", "switch");
+        }, "tex", "switch", "ref");
 
     }
 
@@ -87,9 +105,13 @@ public class RefEnv extends SimpleApplication {
             if (((Float) mat.getParam("Metallic").getValue()) == 1f) {
                 mat.setFloat("Metallic", 0);
                 mat.setColor("BaseColor", ColorRGBA.Black);
+                ref.attachChild(refDE);
+                refM.removeFromParent();
             } else {
                 mat.setFloat("Metallic", 1);
                 mat.setColor("BaseColor", ColorRGBA.White);
+                ref.attachChild(refM);
+                refDE.removeFromParent();
             }
         }
     }
