@@ -123,6 +123,13 @@ class BitmapTextPage extends Geometry {
         return clone;
     }
 
+    // Here is where one might add JmeCloneable related stuff except
+    // the old clone() method doesn't actually bother to clone anything.
+    // The arrays and the pageQuads are shared across all BitmapTextPage
+    // clones and it doesn't seem to bother anything.  That means the
+    // fields could probably just as well be static... but this code is
+    // all very fragile.  I'm not tipping that particular boat today. -pspeed
+
     void assemble(Letters quads) {
         pageQuads.clear();
         quads.rewind();
