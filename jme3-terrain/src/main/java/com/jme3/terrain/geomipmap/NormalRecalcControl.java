@@ -69,12 +69,23 @@ public class NormalRecalcControl extends AbstractControl {
 
     }
 
-    @Override   
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
     public Object jmeClone() {
         NormalRecalcControl control = (NormalRecalcControl)super.jmeClone();
         control.setEnabled(true);
-        return control; 
-    }     
+        return control;
+    }
+
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        this.terrain = cloner.clone(terrain);
+    }
 
     @Override
     public Control cloneForSpatial(Spatial spatial) {
@@ -83,7 +94,7 @@ public class NormalRecalcControl extends AbstractControl {
         control.setEnabled(true);
         return control;
     }
-    
+
     @Override
     public void setSpatial(Spatial spatial) {
         super.setSpatial(spatial);
