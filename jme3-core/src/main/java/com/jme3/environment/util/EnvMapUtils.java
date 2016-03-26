@@ -433,7 +433,7 @@ public class EnvMapUtils {
 
     public static float getRoughnessFromMip(int miplevel, int miptot) {
         float mipScale = 1.0f;
-        float mipOffset = -0.5f;
+        float mipOffset = -0.3f;
 
         return pow(2, (miplevel - (miptot - 1) + mipOffset) / mipScale);
     }

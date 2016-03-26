@@ -57,6 +57,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.texture.plugins.ktx.KTXLoader;
 import com.jme3.util.MaterialDebugAppState;
 import com.jme3.util.SkyFactory;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 /**
  * A test case for PBR lighting.
@@ -83,6 +84,7 @@ public class TestPBRLighting extends SimpleApplication {
         viewPort.setBackgroundColor(ColorRGBA.White);
         modelNode = (Node) new Node("modelNode");
         model = (Geometry) assetManager.loadModel("Models/Tank/tank.j3o");
+        //MikktspaceTangentGenerator.generate(model);
         modelNode.attachChild(model);
 
         dl = new DirectionalLight();
@@ -93,9 +95,9 @@ public class TestPBRLighting extends SimpleApplication {
 
       
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
-        fpp.addFilter(new FXAAFilter());
+//        fpp.addFilter(new FXAAFilter());
         fpp.addFilter(new ToneMapFilter(Vector3f.UNIT_XYZ.mult(4.0f)));
-        fpp.addFilter(new SSAOFilter(0.5f, 3, 0.2f, 0.2f));
+//        fpp.addFilter(new SSAOFilter(0.5f, 3, 0.2f, 0.2f));
         viewPort.addProcessor(fpp);
 
         //Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Sky_Cloudy.hdr", SkyFactory.EnvMapType.EquirectMap);
