@@ -214,7 +214,7 @@ void main(){
 
     vec3 indirectDiffuse = vec3(0.0);
     vec3 indirectSpecular = vec3(0.0);    
-    indirectDiffuse = textureCube(g_IrradianceMap, wNormal.xyz).rgb * diffuseColor.rgb;
+    indirectDiffuse = textureCube(g_IrradianceMap, normal.xyz).rgb * diffuseColor.rgb;
 
     indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, rv.xyz);
     indirectSpecular *= vec3(horiz);
