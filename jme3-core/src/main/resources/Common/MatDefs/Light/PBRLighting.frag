@@ -202,7 +202,8 @@ void main(){
     }
 
     vec3 rv = reflect(-viewDir.xyz, normal.xyz);
-    //prallax fix for spherical bounds.
+    //prallax fix for spherical bounds from https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
+    // g_LightProbeData.w is 1/probe radius, g_LightProbeData.xyz is the position of the lightProbe.
     rv = g_LightProbeData.w * (wPosition - g_LightProbeData.xyz) +rv;
 
      //horizon fade from http://marmosetco.tumblr.com/post/81245981087
@@ -213,7 +214,7 @@ void main(){
 
     vec3 indirectDiffuse = vec3(0.0);
     vec3 indirectSpecular = vec3(0.0);    
-    indirectDiffuse = textureCube(g_IrradianceMap, rv.xyz).rgb * diffuseColor.rgb;
+    indirectDiffuse = textureCube(g_IrradianceMap, wNormal.xyz).rgb * diffuseColor.rgb;
 
     indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, rv.xyz);
     indirectSpecular *= vec3(horiz);
