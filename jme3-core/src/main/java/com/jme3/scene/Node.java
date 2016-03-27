@@ -697,7 +697,17 @@ public class Node extends Spatial {
     }
 
     @Override
-    public Spatial deepClone(){
+    public Spatial deepClone() {
+        Node nodeClone = (Node)super.deepClone();
+
+        // Reset the fields of the clone that should be in a 'new' state.
+        nodeClone.updateList = null;
+        nodeClone.updateListValid = false; // safe because parent is nulled out in super.clone()
+
+        return nodeClone;
+    }
+
+    public Spatial oldDeepClone(){
         Node nodeClone = (Node) super.clone();
         nodeClone.children = new SafeArrayList<Spatial>(Spatial.class);
         for (Spatial child : children){
@@ -713,6 +723,8 @@ public class Node extends Spatial {
      */
     @Override
     public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
         this.children = cloner.clone(children);
 
         // Only the outer cloning thing knows whether this should be nulled

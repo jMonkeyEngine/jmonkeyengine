@@ -961,6 +961,7 @@ public class TerrainPatch extends Geometry {
      */
     @Override
     public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
 
         this.stepScale = cloner.clone(stepScale);
         this.offset = cloner.clone(offset);

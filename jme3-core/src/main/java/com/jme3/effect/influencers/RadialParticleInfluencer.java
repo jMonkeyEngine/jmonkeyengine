@@ -125,6 +125,8 @@ public class RadialParticleInfluencer extends DefaultParticleInfluencer {
      */
     @Override
     public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
         // Change in behavior: the old origin was not cloned -pspeed
         this.origin = cloner.clone(origin);
     }

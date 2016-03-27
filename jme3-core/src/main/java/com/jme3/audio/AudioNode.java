@@ -730,6 +730,8 @@ public class AudioNode extends Node implements AudioSource {
      */
     @Override
     public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
         this.direction = cloner.clone(direction);
         this.velocity = cloner.clone(velocity);
 

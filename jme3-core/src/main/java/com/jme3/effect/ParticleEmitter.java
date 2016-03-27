@@ -174,6 +174,13 @@ public class ParticleEmitter extends Geometry {
 
     @Override
     public ParticleEmitter clone(boolean cloneMaterial) {
+        return (ParticleEmitter)super.clone(cloneMaterial);
+    }
+
+    /**
+     *  The old clone() method that did not use the new Cloner utility.
+     */
+    public ParticleEmitter oldClone(boolean cloneMaterial) {
         ParticleEmitter clone = (ParticleEmitter) super.clone(cloneMaterial);
         clone.shape = shape.deepClone();
 
@@ -216,6 +223,8 @@ public class ParticleEmitter extends Geometry {
      */
     @Override
     public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
         this.shape = cloner.clone(shape);
         this.control = cloner.clone(control);
         this.faceNormal = cloner.clone(faceNormal);

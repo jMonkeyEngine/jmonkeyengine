@@ -84,6 +84,7 @@ public class NormalRecalcControl extends AbstractControl {
      */
     @Override
     public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
         this.terrain = cloner.clone(terrain);
     }
 

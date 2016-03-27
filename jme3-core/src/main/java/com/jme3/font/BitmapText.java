@@ -90,6 +90,8 @@ public class BitmapText extends Node {
      */
     @Override
     public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
         for( int i = 0; i < textPages.length; i++ ) {
             textPages[i] = cloner.clone(textPages[i]);
         }

@@ -349,6 +349,8 @@ public class InstancedGeometry extends Geometry {
      */
     @Override
     public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
         this.globalInstanceData = cloner.clone(globalInstanceData);
         this.transformInstanceData = cloner.clone(transformInstanceData);
         this.geometries = cloner.clone(geometries);

@@ -74,12 +74,12 @@ import java.util.logging.Logger;
  * This control serializes, but it does not save the Camera reference.
  * This camera reference has to be manually added in when you load the
  * terrain to the scene!
- * 
+ *
  * When the control or the terrain are removed from the scene, you should call
  * TerrainLodControl.detachAndCleanUpControl() to remove any threads it created
  * to handle the LOD processing. If you supply your own executor service, then
  * you have to handle its thread termination yourself.
- * 
+ *
  * @author Brent Owens
  */
 public class TerrainLodControl extends AbstractControl {
@@ -92,15 +92,15 @@ public class TerrainLodControl extends AbstractControl {
 
     private HashMap<String,UpdatedTerrainPatch> updatedPatches;
     private final Object updatePatchesLock = new Object();
-    
+
     protected List<Vector3f> lastCameraLocations; // used for LOD calc
     private AtomicBoolean lodCalcRunning = new AtomicBoolean(false);
     private int lodOffCount = 0;
-    
+
     protected ExecutorService executor;
     protected Future<HashMap<String, UpdatedTerrainPatch>> indexer;
     private boolean forceUpdate = true;
-    
+
     public TerrainLodControl() {
     }
 
@@ -111,7 +111,7 @@ public class TerrainLodControl extends AbstractControl {
         this.cameras = cams;
         lodCalculator = new DistanceLodCalculator(65, 2.7f); // a default calculator
     }
-    
+
     /**
      * Only uses the first camera right now.
      * @param terrain to act upon (must be a Spatial)
@@ -134,7 +134,7 @@ public class TerrainLodControl extends AbstractControl {
     public void setExecutor(ExecutorService executor) {
         this.executor = executor;
     }
-    
+
     protected ExecutorService createExecutorService() {
         return Executors.newSingleThreadExecutor(new ThreadFactory() {
             public Thread newThread(Runnable r) {
@@ -145,14 +145,14 @@ public class TerrainLodControl extends AbstractControl {
             }
         });
     }
-    
+
     @Override
     protected void controlUpdate(float tpf) {
         //list of cameras for when terrain supports multiple cameras (ie split screen)
 
         if (lodCalculator == null)
             return;
-        
+
         if (!enabled) {
             if (!hasResetLod) {
                 // this will get run once
@@ -160,7 +160,7 @@ public class TerrainLodControl extends AbstractControl {
                 lodCalculator.turnOffLod();
             }
         }
-        
+
         if (cameras != null) {
             cameraLocations.clear();
             for (Camera c : cameras) // populate them
@@ -170,7 +170,7 @@ public class TerrainLodControl extends AbstractControl {
             updateLOD(cameraLocations, lodCalculator);
         }
     }
-    
+
     /**
      * Call this when you remove the terrain or this control from the scene.
      * It will clear up any threads it had.
@@ -186,7 +186,7 @@ public class TerrainLodControl extends AbstractControl {
         if(getSpatial() == null){
             return;
         }
-        
+
         // update any existing ones that need updating
         updateQuadLODs();
 
@@ -196,9 +196,9 @@ public class TerrainLodControl extends AbstractControl {
                 return;
             else
                 lodOffCount++;
-        } else 
+        } else
             lodOffCount = 0;
-        
+
         if (lastCameraLocations != null) {
             if (!forceUpdate && lastCameraLocationsTheSame(locations) && !lodCalculator.isLodOff())
                 return; // don't update if in same spot
@@ -218,9 +218,9 @@ public class TerrainLodControl extends AbstractControl {
 
         if (executor == null)
             executor = createExecutorService();
-        
+
         prepareTerrain();
-        
+
         UpdateLOD updateLodThread = getLodThread(locations, lodCalculator);
         indexer = executor.submit(updateLodThread);
     }
@@ -232,12 +232,12 @@ public class TerrainLodControl extends AbstractControl {
     public void forceUpdate() {
         this.forceUpdate = true;
     }
-    
+
     protected void prepareTerrain() {
         TerrainQuad terrain = (TerrainQuad)getSpatial();
         terrain.cacheTerrainTransforms();// cache the terrain's world transforms so they can be accessed on the separate thread safely
     }
-    
+
     protected UpdateLOD getLodThread(List<Vector3f> locations, LodCalculator lodCalculator) {
         return new UpdateLOD(locations, lodCalculator);
     }
@@ -249,7 +249,7 @@ public class TerrainLodControl extends AbstractControl {
         if (indexer != null) {
             if (indexer.isDone()) {
                 try {
-                    
+
                     HashMap<String, UpdatedTerrainPatch> updated = indexer.get();
                     if (updated != null) {
                         // do the actual geometry update here
@@ -257,7 +257,7 @@ public class TerrainLodControl extends AbstractControl {
                             utp.updateAll();
                         }
                     }
-                    
+
                 } catch (InterruptedException ex) {
                     Logger.getLogger(TerrainLodControl.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ExecutionException ex) {
@@ -268,7 +268,7 @@ public class TerrainLodControl extends AbstractControl {
             }
         }
     }
-    
+
     private boolean lastCameraLocationsTheSame(List<Vector3f> locations) {
         boolean theSame = true;
         for (Vector3f l : locations) {
@@ -281,7 +281,7 @@ public class TerrainLodControl extends AbstractControl {
         }
         return theSame;
     }
-    
+
     protected synchronized boolean isLodCalcRunning() {
         return lodCalcRunning.get();
     }
@@ -297,11 +297,11 @@ public class TerrainLodControl extends AbstractControl {
         return cloned;
     }
 
-    
-    
-    
- 
-    @Override   
+
+
+
+
+    @Override
     public Object jmeClone() {
         if (spatial instanceof Terrain) {
             TerrainLodControl cloned = new TerrainLodControl((Terrain) spatial, cameras);
@@ -310,21 +310,23 @@ public class TerrainLodControl extends AbstractControl {
             return cloned;
         }
         return null;
-    }     
+    }
 
-    @Override   
+    @Override
     public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
         this.lodCalculator = cloner.clone(lodCalculator);
- 
-        try {       
+
+        try {
             // Not deep clone of the cameras themselves
             this.cameras = cloner.javaClone(cameras);
         } catch( CloneNotSupportedException e ) {
             throw new RuntimeException("Error cloning", e);
-        } 
-    }     
-    
-    
+        }
+    }
+
+
     @Override
     public Control cloneForSpatial(Spatial spatial) {
         if (spatial instanceof Terrain) {
@@ -346,7 +348,7 @@ public class TerrainLodControl extends AbstractControl {
         cams.add(camera);
         setCameras(cams);
     }
-    
+
     public void setCameras(List<Camera> cameras) {
         this.cameras = cameras;
         cameraLocations.clear();
@@ -374,7 +376,7 @@ public class TerrainLodControl extends AbstractControl {
     public void setLodCalculator(LodCalculator lodCalculator) {
         this.lodCalculator = lodCalculator;
     }
-    
+
     @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
@@ -386,8 +388,8 @@ public class TerrainLodControl extends AbstractControl {
             lodCalculator.turnOnLod();
         }
     }
-    
-    
+
+
     /**
      * Calculates the LOD of all child terrain patches.
      */
@@ -408,7 +410,7 @@ public class TerrainLodControl extends AbstractControl {
             setLodCalcRunning(true);
 
             TerrainQuad terrainQuad = (TerrainQuad)getSpatial();
-            
+
             // go through each patch and calculate its LOD based on camera distance
             HashMap<String,UpdatedTerrainPatch> updated = new HashMap<String,UpdatedTerrainPatch>();
             boolean lodChanged = terrainQuad.calculateLod(camLocations, updated, lodCalculator); // 'updated' gets populated here
@@ -418,8 +420,8 @@ public class TerrainLodControl extends AbstractControl {
                 setLodCalcRunning(false);
                 return null;
             }
-            
-            
+
+
             // then calculate its neighbour LOD values for seaming in the shader
             terrainQuad.findNeighboursLod(updated);
 
@@ -430,7 +432,7 @@ public class TerrainLodControl extends AbstractControl {
             //setUpdateQuadLODs(updated); // set back to main ogl thread
 
             setLodCalcRunning(false);
-            
+
             return updated;
         }
     }

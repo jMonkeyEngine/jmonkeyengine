@@ -48,6 +48,7 @@ import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.control.Control;
 import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.IdentityCloneFunction;
 import com.jme3.util.clone.JmeCloneable;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
@@ -1263,12 +1264,42 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * Note that meshes of geometries are not cloned explicitly, they
      * are shared if static, or specially cloned if animated.
      *
-     * All controls will be cloned using the Control.cloneForSpatial method
-     * on the clone.
-     *
      * @see Mesh#cloneForAnim()
      */
-    public Spatial clone(boolean cloneMaterial) {
+    public Spatial clone( boolean cloneMaterial ) {
+
+        // Setup the cloner for the type of cloning we want to do.
+        Cloner cloner = new Cloner();
+
+        // First, we definitely do not want to clone our own parent
+        cloner.setClonedValue(parent, null);
+
+        // If we aren't cloning materials then we will make sure those
+        // aren't cloned also
+        if( !cloneMaterial ) {
+            cloner.setCloneFunction(Material.class, new IdentityCloneFunction<Material>());
+        }
+
+        // By default the meshes are not cloned.  The geometry
+        // may choose to selectively force them to be cloned but
+        // normally they will be shared
+        cloner.setCloneFunction(Mesh.class, new IdentityCloneFunction<Mesh>());
+
+        // Clone it!
+        Spatial clone = cloner.clone(this);
+
+        // Because we've nulled the parent out we need to make sure
+        // the transforms and stuff get refreshed.
+        clone.setTransformRefresh();
+        clone.setLightListRefresh();
+
+        return clone;
+    }
+
+    /**
+     *  The old clone() method that did not use the new Cloner utility.
+     */
+    public Spatial oldClone(boolean cloneMaterial) {
         try {
             Spatial clone = (Spatial) super.clone();
             if (worldBound != null) {
@@ -1344,7 +1375,22 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      *
      * @see Spatial#clone()
      */
-    public abstract Spatial deepClone();
+    public Spatial deepClone() {
+        // Setup the cloner for the type of cloning we want to do.
+        Cloner cloner = new Cloner();
+
+        // First, we definitely do not want to clone our own parent
+        cloner.setClonedValue(parent, null);
+
+        Spatial clone = cloner.clone(this);
+
+        // Because we've nulled the parent out we need to make sure
+        // the transforms and stuff get refreshed.
+        clone.setTransformRefresh();
+        clone.setLightListRefresh();
+
+        return clone;
+    }
 
     /**
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
@@ -1381,13 +1427,15 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         // to avoid all of the nasty cloneForSpatial() fixup style code that
         // used to inject stuff into the clone's user data.  By using cloner
         // to clone the user data we get this automatically.
-        userData = (HashMap<String, Savable>)userData.clone();
-        for( Map.Entry<String, Savable> e : userData.entrySet() ) {
-            Savable value = e.getValue();
-            if( value instanceof Cloneable ) {
-                // Note: all JmeCloneable objects are also Cloneable so this
-                // catches both cases.
-                e.setValue(cloner.clone(value));
+        if( userData != null ) {
+            userData = (HashMap<String, Savable>)userData.clone();
+            for( Map.Entry<String, Savable> e : userData.entrySet() ) {
+                Savable value = e.getValue();
+                if( value instanceof Cloneable ) {
+                    // Note: all JmeCloneable objects are also Cloneable so this
+                    // catches both cases.
+                    e.setValue(cloner.clone(value));
+                }
             }
         }
     }

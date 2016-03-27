@@ -307,7 +307,9 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     @Override
     public Mesh jmeClone() {
         try {
-            return (Mesh)super.clone();
+            Mesh clone = (Mesh)super.clone();
+            clone.vertexArrayID = -1;
+            return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }
