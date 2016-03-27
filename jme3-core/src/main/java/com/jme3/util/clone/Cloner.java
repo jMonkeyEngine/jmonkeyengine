@@ -277,10 +277,12 @@ public class Cloner {
     }
 
     /**
-     *  Sets a custom CloneFunction for the exact Java type.  Note: no inheritence
-     *  checks are performed so a function must be registered for each specific type
-     *  that it handles.  By default ListCloneFunction is registered for
-     *  ArrayList, LinkedList, CopyOnWriteArrayList, Vector, Stack, and JME's SafeArrayList.
+     *  Sets a custom CloneFunction for implementations of the specified Java type.  Some
+     *  inheritance checks are made but no disambiguation is performed.
+     *  <p>Note: in the general case, it is better to register against specific classes and
+     *  not super-classes or super-interfaces unless you know specifically that they are cloneable.</p>
+     *  <p>By default ListCloneFunction is registered for ArrayList, LinkedList, CopyOnWriteArrayList,
+     *  Vector, Stack, and JME's SafeArrayList.</p>
      */
     public <T> void setCloneFunction( Class<T> type, CloneFunction<T> function ) {
         if( function == null ) {
@@ -296,7 +298,21 @@ public class Cloner {
      */
     @SuppressWarnings("unchecked")
     public <T> CloneFunction<T> getCloneFunction( Class<T> type ) {
-        return (CloneFunction<T>)functions.get(type);
+        CloneFunction<T> result = (CloneFunction<T>)functions.get(type);
+        if( result == null ) {
+            // Do a more exhaustive search
+            for( Map.Entry<Class, CloneFunction> e : functions.entrySet() ) {
+                if( e.getKey().isAssignableFrom(type) ) {
+                    result = e.getValue();
+                    break;
+                }
+            }
+            if( result != null ) {
+                // Cache it for later
+                functions.put(type, result);
+            }
+        }
+        return result;
     }
 
     /**
