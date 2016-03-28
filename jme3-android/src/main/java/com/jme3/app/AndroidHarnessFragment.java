@@ -207,7 +207,7 @@ public class AndroidHarnessFragment extends Fragment implements
     protected ImageView splashImageView = null;
     final private String ESCAPE_EVENT = "TouchEscape";
     private boolean firstDrawFrame = true;
-    private Application app = null;
+    private LegacyApplication app = null;
     private int viewWidth = 0;
     private int viewHeight = 0;
 
@@ -258,7 +258,7 @@ public class AndroidHarnessFragment extends Fragment implements
         try {
             if (app == null) {
                 @SuppressWarnings("unchecked")
-                Class<? extends Application> clazz = (Class<? extends Application>) Class.forName(appClass);
+                Class<? extends LegacyApplication> clazz = (Class<? extends LegacyApplication>) Class.forName(appClass);
                 app = clazz.newInstance();
             }
 
