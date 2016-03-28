@@ -354,6 +354,9 @@ public class Cloner {
      *  clone() and objects without necessarily knowing their real type.</p>
      */
     public <T> T javaClone( T object ) throws CloneNotSupportedException {
+        if( object == null ) {
+            return null;
+        }
         Method m = methodCache.get(object.getClass());
         if( m == null ) {
             try {
