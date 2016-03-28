@@ -129,6 +129,7 @@
 *.jnilib
 *.dylib
 *.iml
+.DS_Store
 /sdk/dist/
 !/jme3-bullet-native/libs/native/windows/x86_64/bulletjme.dll
 !/jme3-bullet-native/libs/native/windows/x86/bulletjme.dll
