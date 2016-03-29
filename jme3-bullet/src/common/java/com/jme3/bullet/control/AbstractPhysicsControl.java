@@ -41,6 +41,8 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
@@ -49,7 +51,7 @@ import java.io.IOException;
  *
  * @author normenhansen
  */
-public abstract class AbstractPhysicsControl implements PhysicsControl {
+public abstract class AbstractPhysicsControl implements PhysicsControl, JmeCloneable {
 
     private final Quaternion tmp_inverseWorldRotation = new Quaternion();
     protected Spatial spatial;
@@ -161,6 +163,12 @@ public abstract class AbstractPhysicsControl implements PhysicsControl {
 
     }
     
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) { 
+        this.spatial = cloner.clone(spatial);
+        createSpatialData(this.spatial);
+    }
+         
     public void setSpatial(Spatial spatial) {
         if (this.spatial != null && this.spatial != spatial) {
             removeSpatialData(this.spatial);

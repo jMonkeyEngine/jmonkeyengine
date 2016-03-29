@@ -50,6 +50,8 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
@@ -68,7 +70,7 @@ import java.util.logging.Logger;
  *
  * @author normenhansen
  */
-public class BetterCharacterControl extends AbstractPhysicsControl implements PhysicsTickListener {
+public class BetterCharacterControl extends AbstractPhysicsControl implements PhysicsTickListener, JmeCloneable {
 
     protected static final Logger logger = Logger.getLogger(BetterCharacterControl.class.getName());
     protected PhysicsRigidBody rigidBody;
@@ -663,11 +665,20 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         rigidBody.setUserObject(null);
     }
 
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         BetterCharacterControl control = new BetterCharacterControl(radius, height, mass);
         control.setJumpForce(jumpForce);
         return control;
     }
+
+    @Override
+    public Object jmeClone() {
+        BetterCharacterControl control = new BetterCharacterControl(radius, height, mass);
+        control.setJumpForce(jumpForce);
+        control.spatial = this.spatial;
+        return control;
+    }     
 
     @Override
     public void write(JmeExporter ex) throws IOException {

@@ -67,6 +67,8 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 public class TestPssmShadow extends SimpleApplication implements ActionListener {
@@ -249,10 +251,20 @@ public class TestPssmShadow extends SimpleApplication implements ActionListener 
             time = 0;
         }
 
+        @Override   
+        public Object jmeClone() {
+            return null;
+        }     
+
+        @Override   
+        public void cloneFields( Cloner cloner, Object original ) { 
+        }
+             
         @Override
         protected void controlRender(RenderManager rm, ViewPort vp) {
         }
 
+        @Override
         public Control cloneForSpatial(Spatial spatial) {
             return null;
         }

@@ -38,6 +38,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Node;
+import com.jme3.util.clone.Cloner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,6 +85,27 @@ public class BitmapText extends Node {
         return clone;
     }
 
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
+        for( int i = 0; i < textPages.length; i++ ) {
+            textPages[i] = cloner.clone(textPages[i]);
+        }
+        this.block = cloner.clone(block);
+
+        // Change in behavior: The 'letters' field was not cloned or recreated
+        // before.  I'm not sure how this worked and suspect BitmapText was just
+        // not cloneable if you planned to change the text later. -pspeed
+        this.letters = new Letters(font, block, letters.getQuad().isRightToLeft());
+
+        // Just noticed BitmapText is not even writable/readable really...
+        // so I guess cloning doesn't come up that often.
+    }
+
     public BitmapFont getFont() {
         return font;
     }
@@ -115,10 +137,10 @@ public class BitmapText extends Node {
      *
      * @param text String to change text to
      */
-    public void setText(String text) {            
+    public void setText(String text) {
         text = text == null ? "" : text;
 
-        if (text == block.getText() || block.getText().equals(text)) { 	
+        if (text == block.getText() || block.getText().equals(text)) {
             return;
         }
 
@@ -126,24 +148,24 @@ public class BitmapText extends Node {
         The problem with the below block is that StringBlock carries
         pretty much all of the text-related state of the BitmapText such
         as size, text box, alignment, etc.
-        
+
         I'm not sure why this change was needed and the commit message was
-        not entirely helpful because it purports to fix a problem that I've 
+        not entirely helpful because it purports to fix a problem that I've
         never encountered.
-        
+
         If block.setText("") doesn't do the right thing then that's where
         the fix should go because StringBlock carries too much information to
         be blown away every time.  -pspeed
-        
+
         Change was made:
         http://code.google.com/p/jmonkeyengine/source/detail?spec=svn9389&r=9389
         Diff:
         http://code.google.com/p/jmonkeyengine/source/diff?path=/trunk/engine/src/core/com/jme3/font/BitmapText.java&format=side&r=9389&old_path=/trunk/engine/src/core/com/jme3/font/BitmapText.java&old=8843
-        
+
         // If the text is empty, reset
         if (text.isEmpty()) {
             detachAllChildren();
-                
+
             for (int page = 0; page < textPages.length; page++) {
                 textPages[page] = new BitmapTextPage(font, true, page);
                 attachChild(textPages[page]);
@@ -153,7 +175,7 @@ public class BitmapText extends Node {
             letters = new Letters(font, block, letters.getQuad().isRightToLeft());
         }
         */
-            
+
         // Update the text content
         block.setText(text);
         letters.setText(text);
@@ -185,7 +207,7 @@ public class BitmapText extends Node {
         letters.invalidate(); // TODO: Don't have to align.
         needRefresh = true;
     }
-    
+
     /**
      *  Sets an overall alpha that will be applied to all
      *  letters.  If the alpha passed is -1 then alpha reverts
@@ -196,7 +218,7 @@ public class BitmapText extends Node {
     public void setAlpha(float alpha) {
         letters.setBaseAlpha(alpha);
         needRefresh = true;
-    }    
+    }
 
     public float getAlpha() {
         return letters.getBaseAlpha();
@@ -414,17 +436,17 @@ public class BitmapText extends Node {
         if( mp == null ) {
             return null;
         }
-        return (ColorRGBA)mp.getValue(); 
+        return (ColorRGBA)mp.getValue();
     }
 
     public void render(RenderManager rm, ColorRGBA color) {
         for (BitmapTextPage page : textPages) {
             Material mat = page.getMaterial();
             mat.setTexture("ColorMap", page.getTexture());
-            //ColorRGBA original = getColor(mat, "Color");            
+            //ColorRGBA original = getColor(mat, "Color");
             //mat.setColor("Color", color);
             mat.render(page, rm);
-            
+
             //if( original == null ) {
             //    mat.clearParam("Color");
             //} else {

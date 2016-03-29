@@ -430,7 +430,7 @@ public class AndroidTouchInput implements TouchInput {
             return;
         }
 
-        logger.log(Level.INFO, "event: {0}", event);
+        //logger.log(Level.INFO, "event: {0}", event);
 
         inputEventQueue.add(event);
         if (event instanceof TouchEvent) {

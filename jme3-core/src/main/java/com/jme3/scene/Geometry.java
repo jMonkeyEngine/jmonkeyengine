@@ -43,6 +43,8 @@ import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.IdentityCloneFunction;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.Queue;
@@ -54,12 +56,12 @@ import java.util.logging.Logger;
  * contains the geometric data for rendering objects. It manages all rendering
  * information such as a {@link Material} object to define how the surface
  * should be shaded and the {@link Mesh} data to contain the actual geometry.
- * 
+ *
  * @author Kirill Vainer
  */
 public class Geometry extends Spatial {
 
-    // Version #1: removed shared meshes. 
+    // Version #1: removed shared meshes.
     // models loaded with shared mesh will be automatically fixed.
     public static final int SAVABLE_VERSION = 1;
     private static final Logger logger = Logger.getLogger(Geometry.class.getName());
@@ -71,19 +73,19 @@ public class Geometry extends Spatial {
      */
     protected boolean ignoreTransform = false;
     protected transient Matrix4f cachedWorldMat = new Matrix4f();
-    
+
     /**
      * Specifies which {@link GeometryGroupNode} this <code>Geometry</code>
      * is managed by.
      */
     protected GeometryGroupNode groupNode;
-    
+
     /**
-     * The start index of this <code>Geometry's</code> inside 
+     * The start index of this <code>Geometry's</code> inside
      * the {@link GeometryGroupNode}.
      */
     protected int startIndex = -1;
-        
+
     /**
      * Serialization only. Do not use.
      */
@@ -95,37 +97,37 @@ public class Geometry extends Spatial {
      * Create a geometry node without any mesh data.
      * Both the mesh and the material are null, the geometry
      * cannot be rendered until those are set.
-     * 
+     *
      * @param name The name of this geometry
      */
     public Geometry(String name) {
         super(name);
-        
+
         // For backwards compatibility, only clear the "requires
         // update" flag if we are not a subclass of Geometry.
         // This prevents subclass from silently failing to receive
         // updates when they upgrade.
-        setRequiresUpdates(Geometry.class != getClass()); 
+        setRequiresUpdates(Geometry.class != getClass());
     }
 
     /**
      * Create a geometry node with mesh data.
      * The material of the geometry is null, it cannot
      * be rendered until it is set.
-     * 
+     *
      * @param name The name of this geometry
      * @param mesh The mesh data for this geometry
      */
     public Geometry(String name, Mesh mesh) {
         this(name);
-        
+
         if (mesh == null) {
             throw new IllegalArgumentException("mesh cannot be null");
         }
 
         this.mesh = mesh;
     }
-    
+
     @Override
     public boolean checkCulling(Camera cam) {
         if (isGrouped()) {
@@ -137,8 +139,8 @@ public class Geometry extends Spatial {
 
     /**
      * @return If ignoreTransform mode is set.
-     * 
-     * @see Geometry#setIgnoreTransform(boolean) 
+     *
+     * @see Geometry#setIgnoreTransform(boolean)
      */
     public boolean isIgnoreTransform() {
         return ignoreTransform;
@@ -156,7 +158,7 @@ public class Geometry extends Spatial {
      * Level 0 indicates that the default index buffer should be used,
      * levels [1, LodLevels + 1] represent the levels set on the mesh
      * with {@link Mesh#setLodLevels(com.jme3.scene.VertexBuffer[]) }.
-     * 
+     *
      * @param lod The lod level to set
      */
     @Override
@@ -170,7 +172,7 @@ public class Geometry extends Spatial {
         }
 
         lodLevel = lod;
-        
+
         if (isGrouped()) {
             groupNode.onMeshChange(this);
         }
@@ -178,7 +180,7 @@ public class Geometry extends Spatial {
 
     /**
      * Returns the LOD level set with {@link #setLodLevel(int) }.
-     * 
+     *
      * @return the LOD level set
      */
     public int getLodLevel() {
@@ -187,10 +189,10 @@ public class Geometry extends Spatial {
 
     /**
      * Returns this geometry's mesh vertex count.
-     * 
+     *
      * @return this geometry's mesh vertex count.
-     * 
-     * @see Mesh#getVertexCount() 
+     *
+     * @see Mesh#getVertexCount()
      */
     public int getVertexCount() {
         return mesh.getVertexCount();
@@ -198,10 +200,10 @@ public class Geometry extends Spatial {
 
     /**
      * Returns this geometry's mesh triangle count.
-     * 
+     *
      * @return this geometry's mesh triangle count.
-     * 
-     * @see Mesh#getTriangleCount() 
+     *
+     * @see Mesh#getTriangleCount()
      */
     public int getTriangleCount() {
         return mesh.getTriangleCount();
@@ -209,9 +211,9 @@ public class Geometry extends Spatial {
 
     /**
      * Sets the mesh to use for this geometry when rendering.
-     * 
+     *
      * @param mesh the mesh to use for this geometry
-     * 
+     *
      * @throws IllegalArgumentException If mesh is null
      */
     public void setMesh(Mesh mesh) {
@@ -221,7 +223,7 @@ public class Geometry extends Spatial {
 
         this.mesh = mesh;
         setBoundRefresh();
-        
+
         if (isGrouped()) {
             groupNode.onMeshChange(this);
         }
@@ -229,10 +231,10 @@ public class Geometry extends Spatial {
 
     /**
      * Returns the mesh to use for this geometry
-     * 
+     *
      * @return the mesh to use for this geometry
-     * 
-     * @see #setMesh(com.jme3.scene.Mesh) 
+     *
+     * @see #setMesh(com.jme3.scene.Mesh)
      */
     public Mesh getMesh() {
         return mesh;
@@ -240,13 +242,13 @@ public class Geometry extends Spatial {
 
     /**
      * Sets the material to use for this geometry.
-     * 
+     *
      * @param material the material to use for this geometry
      */
     @Override
     public void setMaterial(Material material) {
         this.material = material;
-        
+
         if (isGrouped()) {
             groupNode.onMaterialChange(this);
         }
@@ -254,10 +256,10 @@ public class Geometry extends Spatial {
 
     /**
      * Returns the material that is used for this geometry.
-     * 
+     *
      * @return the material that is used for this geometry
-     * 
-     * @see #setMaterial(com.jme3.material.Material) 
+     *
+     * @see #setMaterial(com.jme3.material.Material)
      */
     public Material getMaterial() {
         return material;
@@ -310,18 +312,18 @@ public class Geometry extends Spatial {
         computeWorldMatrix();
 
         if (isGrouped()) {
-            groupNode.onTransformChange(this);   
+            groupNode.onTransformChange(this);
         }
-        
+
         // geometry requires lights to be sorted
         worldLights.sort(true);
     }
 
     /**
      * Associate this <code>Geometry</code> with a {@link GeometryGroupNode}.
-     * 
+     *
      * Should only be called by the parent {@link GeometryGroupNode}.
-     * 
+     *
      * @param node Which {@link GeometryGroupNode} to associate with.
      * @param startIndex The starting index of this geometry in the group.
      */
@@ -329,26 +331,26 @@ public class Geometry extends Spatial {
         if (isGrouped()) {
             unassociateFromGroupNode();
         }
-        
+
         this.groupNode = node;
         this.startIndex = startIndex;
     }
 
     /**
-     * Removes the {@link GeometryGroupNode} association from this 
+     * Removes the {@link GeometryGroupNode} association from this
      * <code>Geometry</code>.
-     * 
+     *
      * Should only be called by the parent {@link GeometryGroupNode}.
      */
     public void unassociateFromGroupNode() {
         if (groupNode != null) {
-            // Once the geometry is removed 
+            // Once the geometry is removed
             // from the parent, the group node needs to be updated.
             groupNode.onGeometryUnassociated(this);
             groupNode = null;
-            
+
             // change the default to -1 to make error detection easier
-            startIndex = -1; 
+            startIndex = -1;
         }
     }
 
@@ -360,7 +362,7 @@ public class Geometry extends Spatial {
     @Override
     protected void setParent(Node parent) {
         super.setParent(parent);
-        
+
         // If the geometry is managed by group node we need to unassociate.
         if (parent == null && isGrouped()) {
             unassociateFromGroupNode();
@@ -406,7 +408,7 @@ public class Geometry extends Spatial {
      * {@link Geometry#getWorldTransform() world transform} of this geometry.
      * In order to receive updated values, you must call {@link Geometry#computeWorldMatrix() }
      * before using this method.
-     * 
+     *
      * @return Matrix to transform from local space to world space
      */
     public Matrix4f getWorldMatrix() {
@@ -418,7 +420,7 @@ public class Geometry extends Spatial {
      * This alters the bound used on the mesh as well via
      * {@link Mesh#setBound(com.jme3.bounding.BoundingVolume) } and
      * forces the world bounding volume to be recomputed.
-     * 
+     *
      * @param modelBound The model bound to set
      */
     @Override
@@ -465,15 +467,15 @@ public class Geometry extends Spatial {
     }
 
     /**
-     * Determine whether this <code>Geometry</code> is managed by a 
+     * Determine whether this <code>Geometry</code> is managed by a
      * {@link GeometryGroupNode} or not.
-     * 
+     *
      * @return True if managed by a {@link GeometryGroupNode}.
      */
     public boolean isGrouped() {
         return groupNode != null;
     }
-    
+
     /**
      * @deprecated Use {@link #isGrouped()} instead.
      */
@@ -491,15 +493,22 @@ public class Geometry extends Spatial {
      */
     @Override
     public Geometry clone(boolean cloneMaterial) {
+        return (Geometry)super.clone(cloneMaterial);
+    }
+
+    /**
+     *  The old clone() method that did not use the new Cloner utility.
+     */
+    public Geometry oldClone(boolean cloneMaterial) {
         Geometry geomClone = (Geometry) super.clone(cloneMaterial);
-        
+
         // This geometry is managed,
         // but the cloned one is not attached to anything, hence not managed.
         if (geomClone.isGrouped()) {
             geomClone.groupNode = null;
             geomClone.startIndex = -1;
         }
-        
+
         geomClone.cachedWorldMat = cachedWorldMat.clone();
         if (material != null) {
             if (cloneMaterial) {
@@ -534,9 +543,56 @@ public class Geometry extends Spatial {
      */
     @Override
     public Spatial deepClone() {
+        return super.deepClone();
+    }
+
+    public Spatial oldDeepClone() {
         Geometry geomClone = clone(true);
         geomClone.mesh = mesh.deepClone();
         return geomClone;
+    }
+
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
+        // If this is a grouped node and if our group node is
+        // also cloned then we'll grab it's reference.
+        if( groupNode != null ) {
+            if( cloner.isCloned(groupNode) ) {
+                // Then resolve the reference
+                this.groupNode = cloner.clone(groupNode);
+            } else {
+                // We are on our own now
+                this.groupNode = null;
+                this.startIndex = -1;
+            }
+
+            // The above is based on the fact that if we were
+            // cloning the hierarchy that contained the parent
+            // group then it would have been shallow cloned before
+            // this child.  Can't really be otherwise.
+        }
+
+        this.cachedWorldMat = cloner.clone(cachedWorldMat);
+
+        // See if we are doing a shallow clone or a deep mesh clone
+        boolean shallowClone = (cloner.getCloneFunction(Mesh.class) instanceof IdentityCloneFunction);
+
+        // See if we clone the mesh using the special animation
+        // semi-deep cloning
+        if( shallowClone && mesh != null && mesh.getBuffer(Type.BindPosePosition) != null ) {
+            // Then we need to clone the mesh a little deeper
+            this.mesh = mesh.cloneForAnim();
+        } else {
+            // Do whatever the cloner wants to do about it
+            this.mesh = cloner.clone(mesh);
+        }
+
+        this.material = cloner.clone(material);
     }
 
     @Override

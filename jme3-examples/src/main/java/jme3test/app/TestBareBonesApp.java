@@ -32,7 +32,7 @@
 
 package jme3test.app;
 
-import com.jme3.app.Application;
+import com.jme3.app.LegacyApplication;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
@@ -40,7 +40,7 @@ import com.jme3.scene.shape.Box;
 /**
  * Test a bare-bones application, without SimpleApplication.
  */
-public class TestBareBonesApp extends Application {
+public class TestBareBonesApp extends LegacyApplication {
 
     private Geometry boxGeom;
 
@@ -72,7 +72,7 @@ public class TestBareBonesApp extends Application {
         // do some animation
         float tpf = timer.getTimePerFrame();
         boxGeom.rotate(tpf * 2, tpf * 4, tpf * 3);
-        
+
         // dont forget to update the scenes
         boxGeom.updateLogicalState(tpf);
         boxGeom.updateGeometricState();

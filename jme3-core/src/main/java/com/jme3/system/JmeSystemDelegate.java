@@ -157,6 +157,8 @@ public abstract class JmeSystemDelegate {
             return false;
         } else if (arch.equals("aarch64")) {
             return true;
+        } else if (arch.equals("armv7") || arch.equals("armv7l")) {
+            return false;
         } else if (arch.equals("arm")) {
             return false;
         } else {

@@ -33,12 +33,13 @@ package com.jme3.effect.shapes;
 
 import com.jme3.export.Savable;
 import com.jme3.math.Vector3f;
+import com.jme3.util.clone.JmeCloneable;
 
 /**
  * This interface declares methods used by all shapes that represent particle emitters.
  * @author Kirill
  */
-public interface EmitterShape extends Savable, Cloneable {
+public interface EmitterShape extends Savable, Cloneable, JmeCloneable {
 
     /**
      * This method fills in the initial position of the particle.

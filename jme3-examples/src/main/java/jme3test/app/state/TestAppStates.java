@@ -32,13 +32,13 @@
 
 package jme3test.app.state;
 
-import com.jme3.app.Application;
+import com.jme3.app.LegacyApplication;
 import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 
-public class TestAppStates extends Application {
+public class TestAppStates extends LegacyApplication {
 
     public static void main(String[] args){
         TestAppStates app = new TestAppStates();
@@ -50,7 +50,7 @@ public class TestAppStates extends Application {
         AppSettings settings = new AppSettings(true);
         settings.setResolution(1024, 768);
         setSettings(settings);
-        
+
         super.start(contextType);
     }
 

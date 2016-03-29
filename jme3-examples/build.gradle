@@ -11,6 +11,9 @@ task run(dependsOn: 'build', type:JavaExec) {
         jvmArgs "-XstartOnFirstThread"
         jvmArgs "-Djava.awt.headless=true"
     }
+
+    systemProperty "java.util.logging.config.file", System.getProperty("java.util.logging.config.file")
+
     if( assertions  == "true" ){
         enableAssertions = true;
     }

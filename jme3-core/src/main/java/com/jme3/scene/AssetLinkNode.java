@@ -39,6 +39,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.binary.BinaryImporter;
+import com.jme3.util.clone.Cloner;
 import com.jme3.util.SafeArrayList;
 import java.io.IOException;
 import java.util.*;
@@ -50,7 +51,7 @@ import java.util.logging.Logger;
  * The AssetLinkNode does not store its children when exported to file.
  * Instead, you can add a list of AssetKeys that will be loaded and attached
  * when the AssetLinkNode is restored.
- * 
+ *
  * @author normenhansen
  */
 public class AssetLinkNode extends Node {
@@ -68,6 +69,20 @@ public class AssetLinkNode extends Node {
     public AssetLinkNode(String name, ModelKey key) {
         super(name);
         assetLoaderKeys.add(key);
+    }
+
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
+        // This is a change in behavior because the old version did not clone
+        // this list... changes to one clone would be reflected in all.
+        // I think that's probably undesirable. -pspeed
+        this.assetLoaderKeys = cloner.clone(assetLoaderKeys);
+        this.assetChildren = new HashMap<ModelKey, Spatial>();
     }
 
     /**
@@ -166,7 +181,7 @@ public class AssetLinkNode extends Node {
                 children.add(child);
                 assetChildren.put(modelKey, child);
             } else {
-                Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Cannot locate {0} for asset link node {1}", 
+                Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Cannot locate {0} for asset link node {1}",
                                                                     new Object[]{ modelKey, key });
             }
         }

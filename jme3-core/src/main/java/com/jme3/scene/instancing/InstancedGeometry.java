@@ -47,19 +47,20 @@ import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class InstancedGeometry extends Geometry {
-    
+
     private static final int INSTANCE_SIZE = 16;
-    
+
     private VertexBuffer[] globalInstanceData;
     private VertexBuffer transformInstanceData;
     private Geometry[] geometries = new Geometry[1];
-    
+
     private int firstUnusedIndex = 0;
 
     /**
@@ -71,12 +72,12 @@ public class InstancedGeometry extends Geometry {
         setBatchHint(BatchHint.Never);
         setMaxNumInstances(1);
     }
-    
+
     /**
      * Creates instanced geometry with the specified mode and name.
-     * 
-     * @param name The name of the spatial. 
-     * 
+     *
+     * @param name The name of the spatial.
+     *
      * @see Spatial#Spatial(java.lang.String)
      */
     public InstancedGeometry(String name) {
@@ -85,57 +86,57 @@ public class InstancedGeometry extends Geometry {
         setBatchHint(BatchHint.Never);
         setMaxNumInstances(1);
     }
-    
+
     /**
-     * Global user specified per-instance data. 
-     * 
+     * Global user specified per-instance data.
+     *
      * By default set to <code>null</code>, specify an array of VertexBuffers
      * via {@link #setGlobalUserInstanceData(com.jme3.scene.VertexBuffer[]) }.
-     * 
-     * @return global user specified per-instance data. 
-     * @see #setGlobalUserInstanceData(com.jme3.scene.VertexBuffer[]) 
+     *
+     * @return global user specified per-instance data.
+     * @see #setGlobalUserInstanceData(com.jme3.scene.VertexBuffer[])
      */
     public VertexBuffer[] getGlobalUserInstanceData() {
         return globalInstanceData;
     }
-    
+
     /**
      * Specify global user per-instance data.
-     * 
+     *
      * By default set to <code>null</code>, specify an array of VertexBuffers
      * that contain per-instance vertex attributes.
-     * 
+     *
      * @param globalInstanceData global user per-instance data.
-     * 
-     * @throws IllegalArgumentException If one of the VertexBuffers is not 
+     *
+     * @throws IllegalArgumentException If one of the VertexBuffers is not
      * {@link VertexBuffer#setInstanced(boolean) instanced}.
      */
     public void setGlobalUserInstanceData(VertexBuffer[] globalInstanceData) {
         this.globalInstanceData = globalInstanceData;
     }
-    
+
     /**
      * Specify camera specific user per-instance data.
-     * 
+     *
      * @param transformInstanceData The transforms for each instance.
      */
     public void setTransformUserInstanceData(VertexBuffer transformInstanceData) {
         this.transformInstanceData = transformInstanceData;
     }
-    
+
     /**
      * Return user per-instance transform data.
-     * 
+     *
      * @return The per-instance transform data.
      *
-     * @see #setTransformUserInstanceData(com.jme3.scene.VertexBuffer) 
+     * @see #setTransformUserInstanceData(com.jme3.scene.VertexBuffer)
      */
     public VertexBuffer getTransformUserInstanceData() {
         return transformInstanceData;
     }
-    
-    private void updateInstance(Matrix4f worldMatrix, float[] store, 
-                                int offset, Matrix3f tempMat3, 
+
+    private void updateInstance(Matrix4f worldMatrix, float[] store,
+                                int offset, Matrix3f tempMat3,
                                 Quaternion tempQuat) {
         worldMatrix.toRotationMatrix(tempMat3);
         tempMat3.invertLocal();
@@ -164,17 +165,17 @@ public class InstancedGeometry extends Geometry {
         store[offset + 14] = worldMatrix.m23;
         store[offset + 15] = tempQuat.getW();
     }
-    
+
     /**
      * Set the maximum amount of instances that can be rendered by this
      * instanced geometry when mode is set to auto.
-     * 
+     *
      * This re-allocates internal structures and therefore should be called
-     * only when necessary. 
-     * 
+     * only when necessary.
+     *
      * @param maxNumInstances The maximum number of instances that can be
      * rendered.
-     * 
+     *
      * @throws IllegalStateException If mode is set to manual.
      * @throws IllegalArgumentException If maxNumInstances is zero or negative
      */
@@ -182,14 +183,14 @@ public class InstancedGeometry extends Geometry {
         if (maxNumInstances < 1) {
             throw new IllegalArgumentException("maxNumInstances must be 1 or higher");
         }
-        
+
         Geometry[] originalGeometries = geometries;
         this.geometries = new Geometry[maxNumInstances];
-        
+
         if (originalGeometries != null) {
             System.arraycopy(originalGeometries, 0, geometries, 0, originalGeometries.length);
         }
-        
+
         // Resize instance data.
         if (transformInstanceData != null) {
             BufferUtils.destroyDirectBuffer(transformInstanceData.getData());
@@ -203,7 +204,7 @@ public class InstancedGeometry extends Geometry {
                     BufferUtils.createFloatBuffer(geometries.length * INSTANCE_SIZE));
         }
     }
-    
+
     public int getMaxNumInstances() {
         return geometries.length;
     }
@@ -211,12 +212,12 @@ public class InstancedGeometry extends Geometry {
     public int getActualNumInstances() {
         return firstUnusedIndex;
     }
-    
+
     private void swap(int idx1, int idx2) {
         Geometry g = geometries[idx1];
         geometries[idx1] = geometries[idx2];
         geometries[idx2] = g;
-        
+
         if (geometries[idx1] != null) {
             InstancedNode.setGeometryStartIndex2(geometries[idx1], idx1);
         }
@@ -224,7 +225,7 @@ public class InstancedGeometry extends Geometry {
             InstancedNode.setGeometryStartIndex2(geometries[idx2], idx2);
         }
     }
-    
+
     private void sanitize(boolean insideEntriesNonNull) {
         if (firstUnusedIndex >= geometries.length) {
             throw new AssertionError();
@@ -234,7 +235,7 @@ public class InstancedGeometry extends Geometry {
                 if (geometries[i] == null) {
                     if (insideEntriesNonNull) {
                         throw new AssertionError();
-                    }  
+                    }
                 } else if (InstancedNode.getGeometryStartIndex2(geometries[i]) != i) {
                     throw new AssertionError();
                 }
@@ -245,55 +246,55 @@ public class InstancedGeometry extends Geometry {
             }
         }
     }
-    
+
     public void updateInstances() {
         FloatBuffer fb = (FloatBuffer) transformInstanceData.getData();
         fb.limit(fb.capacity());
         fb.position(0);
-        
+
         TempVars vars = TempVars.get();
         {
             float[] temp = vars.matrixWrite;
-            
+
             for (int i = 0; i < firstUnusedIndex; i++) {
                 Geometry geom = geometries[i];
 
                 if (geom == null) {
                     geom = geometries[firstUnusedIndex - 1];
-                    
+
                     if (geom == null) {
                         throw new AssertionError();
                     }
-                    
+
                     swap(i, firstUnusedIndex - 1);
-                    
+
                     while (geometries[firstUnusedIndex -1] == null) {
                         firstUnusedIndex--;
                     }
                 }
-                
+
                 Matrix4f worldMatrix = geom.getWorldMatrix();
                 updateInstance(worldMatrix, temp, 0, vars.tempMat3, vars.quat1);
                 fb.put(temp);
             }
         }
         vars.release();
-        
+
         fb.flip();
-        
+
         if (fb.limit() / INSTANCE_SIZE != firstUnusedIndex) {
             throw new AssertionError();
         }
 
         transformInstanceData.updateData(fb);
     }
-    
+
     public void deleteInstance(Geometry geom) {
         int idx = InstancedNode.getGeometryStartIndex2(geom);
         InstancedNode.setGeometryStartIndex2(geom, -1);
-        
+
         geometries[idx] = null;
-        
+
         if (idx == firstUnusedIndex - 1) {
             // Deleting the last element.
             // Move index back.
@@ -309,12 +310,12 @@ public class InstancedGeometry extends Geometry {
             // Deleting element in the middle
         }
     }
-    
+
     public void addInstance(Geometry geometry) {
         if (geometry == null) {
             throw new IllegalArgumentException("geometry cannot be null");
         }
-       
+
         // Take an index from the end.
         if (firstUnusedIndex + 1 >= geometries.length) {
             // No more room.
@@ -323,15 +324,15 @@ public class InstancedGeometry extends Geometry {
 
         int freeIndex = firstUnusedIndex;
         firstUnusedIndex++;
-        
+
         geometries[freeIndex] = geometry;
         InstancedNode.setGeometryStartIndex2(geometry, freeIndex);
     }
-    
+
     public Geometry[] getGeometries() {
         return geometries;
     }
-    
+
     public VertexBuffer[] getAllInstanceData() {
         ArrayList<VertexBuffer> allData = new ArrayList();
         if (transformInstanceData != null) {
@@ -343,6 +344,18 @@ public class InstancedGeometry extends Geometry {
         return allData.toArray(new VertexBuffer[allData.size()]);
     }
 
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
+        this.globalInstanceData = cloner.clone(globalInstanceData);
+        this.transformInstanceData = cloner.clone(transformInstanceData);
+        this.geometries = cloner.clone(geometries);
+    }
+
     @Override
     public void write(JmeExporter exporter) throws IOException {
         super.write(exporter);
@@ -350,7 +363,7 @@ public class InstancedGeometry extends Geometry {
         //capsule.write(currentNumInstances, "cur_num_instances", 1);
         capsule.write(geometries, "geometries", null);
     }
-    
+
     @Override
     public void read(JmeImporter importer) throws IOException {
         super.read(importer);

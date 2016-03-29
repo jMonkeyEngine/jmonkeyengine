@@ -36,6 +36,8 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -48,7 +50,7 @@ import java.util.ArrayList;
  *
  * @author Nehon
  */
-public class TrackInfo implements Savable {
+public class TrackInfo implements Savable, JmeCloneable {
 
     ArrayList<Track> tracks = new ArrayList<Track>();
 
@@ -72,4 +74,18 @@ public class TrackInfo implements Savable {
     public void addTrack(Track track) {
         tracks.add(track);
     }
+    
+    @Override   
+    public Object jmeClone() {
+        try {
+            return super.clone();
+        } catch( CloneNotSupportedException e ) {
+            throw new RuntimeException("Error cloning", e);
+        }
+    }     
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) {
+        this.tracks = cloner.clone(tracks); 
+    }             
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2016 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,8 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
@@ -56,15 +58,15 @@ import java.io.IOException;
  *
  * @author Nehon
  */
-public class MotionEvent extends AbstractCinematicEvent implements Control {
+public class MotionEvent extends AbstractCinematicEvent implements Control, JmeCloneable {
 
     protected Spatial spatial;
     protected int currentWayPoint;
     protected float currentValue;
     protected Vector3f direction = new Vector3f();
-    protected Vector3f lookAt;
+    protected Vector3f lookAt = null;
     protected Vector3f upVector = Vector3f.UNIT_Y;
-    protected Quaternion rotation;
+    protected Quaternion rotation = null;
     protected Direction directionType = Direction.None;
     protected MotionPath path;
     private boolean isControl = true;
@@ -118,7 +120,6 @@ public class MotionEvent extends AbstractCinematicEvent implements Control {
      */
     public MotionEvent(Spatial spatial, MotionPath path) {
         super();
-        this.spatial = spatial;
         spatial.addControl(this);
         this.path = path;
     }
@@ -130,7 +131,6 @@ public class MotionEvent extends AbstractCinematicEvent implements Control {
      */
     public MotionEvent(Spatial spatial, MotionPath path, float initialDuration) {
         super(initialDuration);
-        this.spatial = spatial;
         spatial.addControl(this);
         this.path = path;
     }
@@ -142,7 +142,6 @@ public class MotionEvent extends AbstractCinematicEvent implements Control {
      */
     public MotionEvent(Spatial spatial, MotionPath path, LoopMode loopMode) {
         super();
-        this.spatial = spatial;
         spatial.addControl(this);
         this.path = path;
         this.loopMode = loopMode;
@@ -155,7 +154,6 @@ public class MotionEvent extends AbstractCinematicEvent implements Control {
      */
     public MotionEvent(Spatial spatial, MotionPath path, float initialDuration, LoopMode loopMode) {
         super(initialDuration);
-        this.spatial = spatial;
         spatial.addControl(this);
         this.path = path;
         this.loopMode = loopMode;
@@ -211,9 +209,9 @@ public class MotionEvent extends AbstractCinematicEvent implements Control {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(lookAt, "lookAt", Vector3f.ZERO);
+        oc.write(lookAt, "lookAt", null);
         oc.write(upVector, "upVector", Vector3f.UNIT_Y);
-        oc.write(rotation, "rotation", Quaternion.IDENTITY);
+        oc.write(rotation, "rotation", null);
         oc.write(directionType, "directionType", Direction.None);
         oc.write(path, "path", null);
     }
@@ -222,9 +220,9 @@ public class MotionEvent extends AbstractCinematicEvent implements Control {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule in = im.getCapsule(this);
-        lookAt = (Vector3f) in.readSavable("lookAt", Vector3f.ZERO);
+        lookAt = (Vector3f) in.readSavable("lookAt", null);
         upVector = (Vector3f) in.readSavable("upVector", Vector3f.UNIT_Y);
-        rotation = (Quaternion) in.readSavable("rotation", Quaternion.IDENTITY);
+        rotation = (Quaternion) in.readSavable("rotation", null);
         directionType = in.readEnum("directionType", Direction.class, Direction.None);
         path = (MotionPath) in.readSavable("path", null);
     }
@@ -274,15 +272,17 @@ public class MotionEvent extends AbstractCinematicEvent implements Control {
      * @param spatial
      * @return
      */
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
-        MotionEvent control = new MotionEvent(spatial, path);
+        MotionEvent control = new MotionEvent();
+        control.setPath(path);
         control.playState = playState;
         control.currentWayPoint = currentWayPoint;
         control.currentValue = currentValue;
         control.direction = direction.clone();
-        control.lookAt = lookAt.clone();
+        control.lookAt = lookAt;
         control.upVector = upVector.clone();
-        control.rotation = rotation.clone();
+        control.rotation = rotation;
         control.initialDuration = initialDuration;
         control.speed = speed;
         control.loopMode = loopMode;
@@ -291,6 +291,31 @@ public class MotionEvent extends AbstractCinematicEvent implements Control {
         return control;
     }
 
+    @Override   
+    public Object jmeClone() {
+        MotionEvent control = new MotionEvent();
+        control.path = path;
+        control.playState = playState;
+        control.currentWayPoint = currentWayPoint;
+        control.currentValue = currentValue;
+        control.direction = direction.clone();
+        control.lookAt = lookAt;
+        control.upVector = upVector.clone();
+        control.rotation = rotation;
+        control.initialDuration = initialDuration;
+        control.speed = speed;
+        control.loopMode = loopMode;
+        control.directionType = directionType;
+        control.spatial = spatial;
+
+        return control;
+    }     
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) { 
+        this.spatial = cloner.clone(spatial);
+    }
+         
     @Override
     public void onPlay() {
         traveledDistance = 0;

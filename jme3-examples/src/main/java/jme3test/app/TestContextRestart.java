@@ -32,7 +32,7 @@
 
 package jme3test.app;
 
-import com.jme3.app.Application;
+import com.jme3.app.LegacyApplication;
 import com.jme3.system.AppSettings;
 
 public class TestContextRestart {
@@ -40,7 +40,7 @@ public class TestContextRestart {
     public static void main(String[] args) throws InterruptedException{
         AppSettings settings = new AppSettings(true);
 
-        final Application app = new Application();
+        final LegacyApplication app = new LegacyApplication();
         app.setSettings(settings);
         app.start();
 

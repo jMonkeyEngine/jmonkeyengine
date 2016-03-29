@@ -1,4 +1,5 @@
 #import "Common/ShaderLib/Shadows.glsllib"
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 
 #if defined(PSSM) || defined(FADE)
 varying float shadowPosition;
@@ -8,6 +9,9 @@ varying vec4 projCoord0;
 varying vec4 projCoord1;
 varying vec4 projCoord2;
 varying vec4 projCoord3;
+#ifndef BACKFACE_SHADOWS
+    varying float nDotL;
+#endif
 
 #ifdef POINTLIGHT
     varying vec4 projCoord4;
@@ -45,9 +49,15 @@ void main(){
         if(alpha<=m_AlphaDiscardThreshold){
             discard;
         }
-
     #endif
-     
+
+    #ifndef BACKFACE_SHADOWS
+        if(nDotL > 0.0){
+            discard;
+        }
+    #endif
+
+
     float shadow = 1.0;
  
     #ifdef POINTLIGHT         
@@ -70,11 +80,11 @@ void main(){
     #endif   
 
     #ifdef FADE
-      shadow = max(0.0,mix(shadow,1.0,(shadowPosition - m_FadeInfo.x) * m_FadeInfo.y));    
+        shadow = max(0.0,mix(shadow,1.0,(shadowPosition - m_FadeInfo.x) * m_FadeInfo.y));
     #endif
-    shadow = shadow * m_ShadowIntensity + (1.0 - m_ShadowIntensity);
 
-  gl_FragColor = vec4(shadow, shadow, shadow, 1.0);
+    shadow = shadow * m_ShadowIntensity + (1.0 - m_ShadowIntensity);
+    gl_FragColor = vec4(shadow, shadow, shadow, 1.0);
 
 }
 

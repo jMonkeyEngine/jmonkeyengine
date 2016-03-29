@@ -36,6 +36,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.control.CameraControl.ControlDirection;
+import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 
 /**
@@ -93,7 +94,20 @@ public class CameraNode extends Node {
 //        this.lookAt(position, upVector);
 //        camControl.getCamera().lookAt(position, upVector);
 //    }
-    
+
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
+        // A change in behavior... I think previously CameraNode was probably
+        // not really cloneable... or at least its camControl would be pointing
+        // to the wrong control. -pspeed
+        this.camControl = cloner.clone(camControl);
+    }
+
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);

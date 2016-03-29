@@ -152,7 +152,7 @@ public final class GLRenderer implements Renderer {
             int major = Integer.parseInt(m.group(1));
             int minor = Integer.parseInt(m.group(2));
             if (minor >= 10 && minor % 10 == 0) {
-                // some versions can look like "1.30" instead of "1.3".
+                // some versions can look like "1.30" instead of "1.3". 
                 // make sure to correct for this
                 minor /= 10;
             }
@@ -524,7 +524,7 @@ public final class GLRenderer implements Renderer {
 
         // Initialize default state..
         gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1);
-
+        
         if (caps.contains(Caps.SeamlessCubemap)) {
             // Enable this globally. Should be OK.
             gl.glEnable(GLExt.GL_TEXTURE_CUBE_MAP_SEAMLESS);
@@ -644,7 +644,7 @@ public final class GLRenderer implements Renderer {
             gl.glDepthFunc(convertTestFunction(state.getDepthFunc()));
             context.depthFunc = state.getDepthFunc();
         }
-
+        
         if (state.isDepthWrite() && !context.depthWriteEnabled) {
             gl.glDepthMask(true);
             context.depthWriteEnabled = true;
@@ -796,6 +796,10 @@ public final class GLRenderer implements Renderer {
             } else {
                 gl.glDisable(GL.GL_STENCIL_TEST);
             }
+        }
+        if (context.lineWidth != state.getLineWidth()) {
+            gl.glLineWidth(state.getLineWidth());
+            context.lineWidth = state.getLineWidth();
         }
     }
 
@@ -1094,7 +1098,7 @@ public final class GLRenderer implements Renderer {
                 if (gles2) {
                     // request GLSL ES (1.00) when compiling under GLES2.
                     stringBuf.append("#version 100\n");
-
+                    
                     if (source.getType() == ShaderType.Fragment) {
                         // GLES2 requires precision qualifier.
                         stringBuf.append("precision mediump float;\n");
@@ -1481,7 +1485,7 @@ public final class GLRenderer implements Renderer {
                     rb.getId());
         }
     }
-
+    
     private void bindFrameBuffer(FrameBuffer fb) {
         if (fb == null) {
             if (context.boundFBO != 0) {
@@ -1530,6 +1534,7 @@ public final class GLRenderer implements Renderer {
             updateFrameBufferAttachment(fb, depthBuf);
         }
 
+        
         setReadDrawBuffers(fb);
         checkFrameBufferError();
 
@@ -1570,11 +1575,11 @@ public final class GLRenderer implements Renderer {
         if (gl2 == null) {
             return;
         }
-
+        
         final int NONE    = -2;
         final int INITIAL = -1;
         final int MRT_OFF = 100;
-
+        
         if (fb == null) {
             // Set Read/Draw buffers to initial value.
             if (context.boundDrawBuf != INITIAL) {
@@ -1638,9 +1643,9 @@ public final class GLRenderer implements Renderer {
                 }
             }
         }
-
+        
     }
-
+    
     public void setFrameBuffer(FrameBuffer fb) {
         if (fb == null && mainFbOverride != null) {
             fb = mainFbOverride;
@@ -1884,7 +1889,7 @@ public final class GLRenderer implements Renderer {
         if (image != null) {
             haveMips = image.isGeneratedMipmapsRequired() || image.hasMipmaps();
         }
-
+        
         LastTextureState curState = image.getLastTextureState();
 
         if (curState.magFilter != tex.getMagFilter()) {
@@ -1947,7 +1952,7 @@ public final class GLRenderer implements Renderer {
             }
             curState.shadowCompareMode = texCompareMode;
         }
-
+        
         // If at this point we didn't bind the texture, bind it now
         bindTextureOnly(target, image, unit);
     }
@@ -1955,7 +1960,7 @@ public final class GLRenderer implements Renderer {
     /**
      * Validates if a potentially NPOT texture is supported by the hardware.
      * <p>
-     * Textures with power-of-2 dimensions are supported on all hardware, however
+     * Textures with power-of-2 dimensions are supported on all hardware, however 
      * non-power-of-2 textures may or may not be supported depending on which
      * texturing features are used.
      *
@@ -2010,7 +2015,7 @@ public final class GLRenderer implements Renderer {
     /**
      * Ensures that the texture is bound to the given unit
      * and that the unit is currently active (for modification).
-     *
+     * 
      * @param target The texture target, one of GL_TEXTURE_***
      * @param img The image texture to bind
      * @param unit At what unit to bind the texture.
@@ -2028,11 +2033,11 @@ public final class GLRenderer implements Renderer {
             statistics.onTextureUse(img, false);
         }
     }
-
+    
     /**
      * Ensures that the texture is bound to the given unit,
      * but does not care if the unit is active (for rendering).
-     *
+     * 
      * @param target The texture target, one of GL_TEXTURE_***
      * @param img The image texture to bind
      * @param unit At what unit to bind the texture.
@@ -2050,7 +2055,7 @@ public final class GLRenderer implements Renderer {
             statistics.onTextureUse(img, false);
         }
     }
-
+    
     /**
      * Uploads the given image to the GL driver.
      *
@@ -2074,7 +2079,6 @@ public final class GLRenderer implements Renderer {
 
         // bind texture
         int target = convertTextureType(type, img.getMultiSamples(), -1);
-
         bindTextureAndUnit(target, img, unit);
 
         if (!img.hasMipmaps() && img.isGeneratedMipmapsRequired()) {
@@ -2089,7 +2093,7 @@ public final class GLRenderer implements Renderer {
                 // We'll generate mipmaps via glGenerateMipmapEXT (see below)
             }
         } else if (img.hasMipmaps()) {
-            // Image already has mipmaps, set the max level based on the
+            // Image already has mipmaps, set the max level based on the 
             // number of mipmaps we have.
             gl.glTexParameteri(target, GL.GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
         } else {
@@ -2825,7 +2829,8 @@ public final class GLRenderer implements Renderer {
             throw new RendererException("Mesh instancing is not supported by the video hardware");
         }
 
-        if (context.lineWidth != mesh.getLineWidth()) {
+        //this is kept for backward compatibility.
+        if (mesh.getLineWidth() != -1 && context.lineWidth != mesh.getLineWidth()) {
             gl.glLineWidth(mesh.getLineWidth());
             context.lineWidth = mesh.getLineWidth();
         }

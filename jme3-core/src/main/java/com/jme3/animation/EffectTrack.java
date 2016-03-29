@@ -44,6 +44,8 @@ import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -117,6 +119,17 @@ public class EffectTrack implements ClonableTrack {
         }
 
         @Override
+        public Object jmeClone() {
+            KillParticleControl c = new KillParticleControl();
+            //this control should be removed as it shouldn't have been persisted in the first place
+            //In the quest to find the less hackish solution to achieve this,
+            //making it remove itself from the spatial in the first update loop when loaded was the less bad.
+            c.remove = true;
+            c.spatial = spatial;
+            return c;
+        }
+
+        @Override
         protected void controlRender(RenderManager rm, ViewPort vp) {
         }
 
@@ -125,8 +138,8 @@ public class EffectTrack implements ClonableTrack {
 
             KillParticleControl c = new KillParticleControl();
             //this control should be removed as it shouldn't have been persisted in the first place
-            //In the quest to find the less hackish solution to achieve this, 
-            //making it remove itself from the spatial in the first update loop when loaded was the less bad. 
+            //In the quest to find the less hackish solution to achieve this,
+            //making it remove itself from the spatial in the first update loop when loaded was the less bad.
             c.remove = true;
             c.setSpatial(spatial);
             return c;
@@ -243,7 +256,7 @@ public class EffectTrack implements ClonableTrack {
     public float[] getKeyFrameTimes() {
         return new float[] { startOffset };
     }
-    
+
     /**
      * Clone this track
      *
@@ -263,6 +276,7 @@ public class EffectTrack implements ClonableTrack {
      * @param spatial the Spatial holding the AnimControl
      * @return the cloned Track with proper reference
      */
+    @Override
     public Track cloneForSpatial(Spatial spatial) {
         EffectTrack effectTrack = new EffectTrack();
         effectTrack.particlesPerSeconds = this.particlesPerSeconds;
@@ -281,6 +295,21 @@ public class EffectTrack implements ClonableTrack {
         setUserData(effectTrack);
         effectTrack.emitter.setParticlesPerSec(0);
         return effectTrack;
+    }
+
+    @Override
+    public Object jmeClone() {
+        try {
+            return super.clone();
+        } catch( CloneNotSupportedException e ) {
+            throw new RuntimeException("Error cloning", e);
+        }
+    }
+
+
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        this.emitter = cloner.clone(emitter);
     }
 
     /**
