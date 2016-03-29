@@ -55,6 +55,7 @@ import javax.imageio.ImageIO;
  * @author MadJack
  */
 public class CursorLoader implements AssetLoader {
+
     final private static int FDE_OFFSET = 6; // first directory entry offset
 
     private boolean isIco;
@@ -67,19 +68,17 @@ public class CursorLoader implements AssetLoader {
      * @return A JmeCursor representation of the LWJGL's Cursor.
      * @throws IOException if the file is not found.
      */
-    public JmeCursor load(AssetInfo info) throws IOException {
+    public JmeCursor load(final AssetInfo info) throws IOException {
 
-        isIco = false;
-        isAni = false;
-        isCur = false;
+        final AssetKey assetKey = info.getKey();
+        final String extension = assetKey.getExtension();
 
-        isIco = ((AssetKey) info.getKey()).getExtension().equals("ico");
-        if (!isIco) {
-            isCur = ((AssetKey) info.getKey()).getExtension().equals("cur");
-            if (!isCur) {
-                isAni = ((AssetKey) info.getKey()).getExtension().equals("ani");
-            }
-        }
+        final boolean flipY = !(assetKey instanceof CursorKey) || ((CursorKey) assetKey).isFlipY();
+
+        isIco = extension.equals("ico");
+        isCur = !isIco && extension.equals("cur");
+        isAni = !isCur && extension.equals("ani");
+
         if (!isAni && !isIco && !isCur) {
             throw new IllegalArgumentException("Cursors supported are .ico, .cur or .ani");
         }
@@ -87,7 +86,7 @@ public class CursorLoader implements AssetLoader {
         InputStream in = null;
         try {
             in = info.openStream();
-            return loadCursor(in);
+            return loadCursor(in, flipY);
         } finally {
             if (in != null) {
                 in.close();
@@ -95,7 +94,7 @@ public class CursorLoader implements AssetLoader {
         }
     }
 
-    private JmeCursor loadCursor(InputStream inStream) throws IOException {
+    private JmeCursor loadCursor(final InputStream inStream, final boolean flipY) throws IOException {
 
         byte[] icoimages = new byte[0]; // new byte [0] facilitates read()
 
@@ -193,7 +192,7 @@ public class CursorLoader implements AssetLoader {
                                     // through jiffy or rate array, the sequence (if
                                     // applicable) and the ani header info.
                                     // Put things together.
-                                    ciDat.assembleCursor(icons, rate, animSeq, jiffy, steps, width, height);
+                                    ciDat.assembleCursor(icons, rate, animSeq, jiffy, steps, width, height, flipY);
                                     ciDat.completeCursor();
                                     nextInt = leIn.readInt();
                                     // if for some reason there's JUNK (nextInt > -1)
@@ -223,9 +222,12 @@ public class CursorLoader implements AssetLoader {
         }
 
         BufferedImage bi[] = parseICOImage(icoimages);
+
         int hotSpotX = 0;
         int hotSpotY = 0;
-        CursorLoader.CursorImageData cid = new CursorLoader.CursorImageData(bi, 0, hotSpotX, hotSpotY, 0);
+
+        CursorLoader.CursorImageData cid = new CursorLoader.CursorImageData(bi, 0, hotSpotX, hotSpotY, 0, flipY);
+
         if (isCur) {
             /*
              * Per http://msdn.microsoft.com/en-us/library/ms997538.aspx
@@ -236,11 +238,13 @@ public class CursorLoader implements AssetLoader {
             hotSpotY = icoimages[FDE_OFFSET + 6]
                     + icoimages[FDE_OFFSET + 7] * 255;
             cid.xHotSpot = hotSpotX;
+
             /*
              * Flip the Y-coordinate.
              */
-            cid.yHotSpot = cid.height - 1 - hotSpotY;
+            cid.yHotSpot = flipY? cid.height - 1 - hotSpotY : hotSpotY;
         }
+
         cid.completeCursor();
 
         return setJmeCursor(cid);
@@ -572,7 +576,7 @@ public class CursorLoader implements AssetLoader {
         public CursorImageData() {
         }
 
-        CursorImageData(BufferedImage[] bi, int delay, int hsX, int hsY, int curType) {
+        CursorImageData(BufferedImage[] bi, int delay, int hsX, int hsY, int curType, final boolean flipY) {
             // cursor type
             // 0 - Undefined (an array of images inside an ICO)
             // 1 - ICO
@@ -585,9 +589,12 @@ public class CursorLoader implements AssetLoader {
 
             // make the cursor image
             for (int i = 0; i < bi.length; i++) {
+
                 BufferedImage img = bi[i];
+
                 bwidth = img.getWidth();
                 bheight = img.getHeight();
+
                 if (curType == 1) {
                     hsX = 0;
                     hsY = bheight - 1;
@@ -613,12 +620,15 @@ public class CursorLoader implements AssetLoader {
                 }
 
                 // We flip our image because .ICO and .CUR will always be reversed.
-                AffineTransform trans = AffineTransform.getScaleInstance(1, -1);
-                trans.translate(0, -img.getHeight(null));
-                AffineTransformOp op = new AffineTransformOp(trans, AffineTransformOp.TYPE_BILINEAR);
-                img = op.filter(img, null);
+                if (flipY) {
 
-                singleCursor = BufferUtils.createIntBuffer(img.getWidth() * img.getHeight());
+                    final AffineTransform trans = AffineTransform.getScaleInstance(1, -1);
+                    trans.translate(0, -img.getHeight(null));
+
+                    final AffineTransformOp op = new AffineTransformOp(trans, AffineTransformOp.TYPE_BILINEAR);
+                    img = op.filter(img, null);
+                }
+
                 DataBufferInt dataIntBuf = (DataBufferInt) img.getData().getDataBuffer();
                 singleCursor = IntBuffer.wrap(dataIntBuf.getData());
                 cursors.add(singleCursor);
@@ -652,7 +662,7 @@ public class CursorLoader implements AssetLoader {
             }
         }
 
-        private void addFrame(byte[] imgData, int rate, int jiffy, int width, int height, int numSeq) throws IOException {
+        private void addFrame(byte[] imgData, int rate, int jiffy, int width, int height, int numSeq, final boolean flipY) throws IOException {
             BufferedImage bi[] = parseICOImage(imgData);
             int hotspotx = 0;
             int hotspoty = 0;
@@ -671,7 +681,7 @@ public class CursorLoader implements AssetLoader {
             if (rate == 0) {
                 rate = jiffy;
             }
-            CursorLoader.CursorImageData cid = new CursorLoader.CursorImageData(bi, rate, hotspotx, hotspoty, type);
+            CursorLoader.CursorImageData cid = new CursorLoader.CursorImageData(bi, rate, hotspotx, hotspoty, type, flipY);
             if (width == 0) {
                 this.width = cid.width;
             } else {
@@ -707,7 +717,7 @@ public class CursorLoader implements AssetLoader {
             cid = null;
         }
 
-        void assembleCursor(ArrayList<byte[]> icons, int[] rate, int[] animSeq, int jiffy, int steps, int width, int height) throws IOException {
+        void assembleCursor(ArrayList<byte[]> icons, int[] rate, int[] animSeq, int jiffy, int steps, int width, int height, final boolean flipY) throws IOException {
             // Jiffy multiplicator for LWJGL's delay, which is in milisecond.
             final int MULT = 17;
             numImages = icons.size();
@@ -726,7 +736,7 @@ public class CursorLoader implements AssetLoader {
                     }
                     // the frame # is the one in the animation sequence
                     frame = icons.get(animSeq[i]);
-                    addFrame(frame, frRate, jiffy, width, height, animSeq.length);
+                    addFrame(frame, frRate, jiffy, width, height, animSeq.length, flipY);
 //                    System.out.println("delay of " + frRate);
                 }
             } else {
@@ -737,7 +747,7 @@ public class CursorLoader implements AssetLoader {
                     } else {
                         frRate = rate[i] * MULT;
                     }
-                    addFrame(frame, frRate, jiffy, width, height, 0);
+                    addFrame(frame, frRate, jiffy, width, height, 0, flipY);
 //                    System.out.println("delay of " + frRate);
                 }
             }
