@@ -67,6 +67,8 @@ public class GlfwMouseInput implements MouseInput {
 
     private static final Logger logger = Logger.getLogger(GlfwMouseInput.class.getName());
 
+    private static final int WHEEL_SCALE = 120;
+
     private LwjglWindow context;
     private RawInputListener listener;
     private boolean cursorVisible = true;
@@ -136,7 +138,7 @@ public class GlfwMouseInput implements MouseInput {
         glfwSetScrollCallback(context.getWindowHandle(), scrollCallback = new GLFWScrollCallback() {
             @Override
             public void invoke(final long window, final double xOffset, final double yOffset) {
-                onWheelScroll(window, xOffset, yOffset);
+                onWheelScroll(window, xOffset, yOffset * WHEEL_SCALE);
             }
         });
 
@@ -213,7 +215,7 @@ public class GlfwMouseInput implements MouseInput {
 
         // TODO: currently animated cursors are not supported
         IntBuffer imageData = jmeCursor.getImagesData();
-        ByteBuffer buf = BufferUtils.createByteBuffer(imageData.capacity());
+        ByteBuffer buf = BufferUtils.createByteBuffer(imageData.capacity() * 4);
         buf.asIntBuffer().put(imageData);
 
         glfwImage.set(jmeCursor.getWidth(), jmeCursor.getHeight(), buf);

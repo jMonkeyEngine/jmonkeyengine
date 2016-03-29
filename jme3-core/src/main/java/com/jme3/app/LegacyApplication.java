@@ -540,7 +540,9 @@ public class LegacyApplication implements Application, SystemListener {
      * Internal use only.
      */
     public void reshape(int w, int h){
-        renderManager.notifyReshape(w, h);
+        if (renderManager != null) {
+            renderManager.notifyReshape(w, h);
+        }
     }
 
     /**
