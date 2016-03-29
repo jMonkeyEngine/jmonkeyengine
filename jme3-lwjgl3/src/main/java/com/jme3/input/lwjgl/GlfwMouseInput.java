@@ -67,6 +67,8 @@ public class GlfwMouseInput implements MouseInput {
 
     private static final Logger logger = Logger.getLogger(GlfwMouseInput.class.getName());
 
+    private static final int WHEEL_SCALE = 120;
+
     private LwjglWindow context;
     private RawInputListener listener;
     private boolean cursorVisible = true;
@@ -136,7 +138,7 @@ public class GlfwMouseInput implements MouseInput {
         glfwSetScrollCallback(context.getWindowHandle(), scrollCallback = new GLFWScrollCallback() {
             @Override
             public void invoke(final long window, final double xOffset, final double yOffset) {
-                onWheelScroll(window, xOffset, yOffset * 120);
+                onWheelScroll(window, xOffset, yOffset * WHEEL_SCALE);
             }
         });
 
