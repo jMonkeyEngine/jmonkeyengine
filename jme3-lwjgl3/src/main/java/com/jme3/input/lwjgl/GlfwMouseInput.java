@@ -136,7 +136,7 @@ public class GlfwMouseInput implements MouseInput {
         glfwSetScrollCallback(context.getWindowHandle(), scrollCallback = new GLFWScrollCallback() {
             @Override
             public void invoke(final long window, final double xOffset, final double yOffset) {
-                onWheelScroll(window, xOffset, yOffset);
+                onWheelScroll(window, xOffset, yOffset * 120);
             }
         });
 
@@ -213,7 +213,7 @@ public class GlfwMouseInput implements MouseInput {
 
         // TODO: currently animated cursors are not supported
         IntBuffer imageData = jmeCursor.getImagesData();
-        ByteBuffer buf = BufferUtils.createByteBuffer(imageData.capacity());
+        ByteBuffer buf = BufferUtils.createByteBuffer(imageData.capacity() * 4);
         buf.asIntBuffer().put(imageData);
 
         glfwImage.set(jmeCursor.getWidth(), jmeCursor.getHeight(), buf);
