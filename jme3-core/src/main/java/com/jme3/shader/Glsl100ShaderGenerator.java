@@ -258,7 +258,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         }
        
         for (ShaderNodeVariable var : shaderNode.getDefinition().getOutputs()) {
-            ShaderNodeVariable v = new ShaderNodeVariable(var.getType(), shaderNode.getName(), var.getName());
+            ShaderNodeVariable v = new ShaderNodeVariable(var.getType(), shaderNode.getName(), var.getName(), var.getMultiplicity());
             if (!declaredInputs.contains(shaderNode.getName() + "_" + var.getName())) {
                 if (!isVarying(info, v)) {
                     declareVariable(source, v);
@@ -397,6 +397,11 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         source.append(mapping.getLeftVariable().getNameSpace());
         source.append("_");
         source.append(mapping.getLeftVariable().getName());
+        if (mapping.getLeftVariable().getMultiplicity() != null){
+            source.append("[");
+            source.append(mapping.getLeftVariable().getMultiplicity());
+            source.append("]");
+        }
         
         //left swizzle, the variable can't be declared and assigned on the same line. 
         if (mapping.getLeftSwizzling().length() > 0) {

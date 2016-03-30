@@ -97,6 +97,7 @@ public class FrameBuffer extends NativeObject {
         int id = -1;
         int slot = SLOT_UNDEF;
         int face = -1;
+        int layer = -1;
         
         /**
          * @return The image format of the render buffer.
@@ -159,6 +160,10 @@ public class FrameBuffer extends NativeObject {
             }else{
                 return "BufferTarget[format=" + format + "]";
             }
+        }
+
+        public int getLayer() {
+            return this.layer;
         }
     }
 
@@ -325,6 +330,19 @@ public class FrameBuffer extends NativeObject {
     }
     
     /**
+     * Set the color texture array to use for this framebuffer.
+     * This automatically clears all existing textures added previously
+     * with {@link FrameBuffer#addColorTexture } and adds this texture as the
+     * only target.
+     * 
+     * @param tex The color texture array to set.
+     */
+    public void setColorTexture(TextureArray tex, int layer){
+        clearColorTargets();
+        addColorTexture(tex, layer);
+    }
+    
+    /**
      * Set the color texture to use for this framebuffer.
      * This automatically clears all existing textures added previously
      * with {@link FrameBuffer#addColorTexture } and adds this texture as the
@@ -365,6 +383,31 @@ public class FrameBuffer extends NativeObject {
         colorBuf.slot = colorBufs.size();
         colorBuf.tex = tex;
         colorBuf.format = img.getFormat();
+
+        colorBufs.add(colorBuf);
+    }
+    
+    /**
+     * Add a color texture array to use for this framebuffer.
+     * If MRT is enabled, then each subsequently added texture can be
+     * rendered to through a shader that writes to the array <code>gl_FragData</code>.
+     * If MRT is not enabled, then the index set with {@link FrameBuffer#setTargetIndex(int) }
+     * is rendered to by the shader.
+     * 
+     * @param tex The texture array to add.
+     */
+    public void addColorTexture(TextureArray tex, int layer) {
+        if (id != -1)
+            throw new UnsupportedOperationException("FrameBuffer already initialized.");
+
+        Image img = tex.getImage();
+        checkSetTexture(tex, false);
+
+        RenderBuffer colorBuf = new RenderBuffer();
+        colorBuf.slot = colorBufs.size();
+        colorBuf.tex = tex;
+        colorBuf.format = img.getFormat();
+        colorBuf.layer = layer;
 
         colorBufs.add(colorBuf);
     }
@@ -412,7 +455,20 @@ public class FrameBuffer extends NativeObject {
         depthBuf.tex = tex;
         depthBuf.format = img.getFormat();
     }
+    public void setDepthTexture(TextureArray tex, int layer){
+        if (id != -1)
+            throw new UnsupportedOperationException("FrameBuffer already initialized.");
 
+        Image img = tex.getImage();
+        checkSetTexture(tex, true);
+        
+        depthBuf = new RenderBuffer();
+        depthBuf.slot = img.getFormat().isDepthStencilFormat() ?  SLOT_DEPTH_STENCIL : SLOT_DEPTH;
+        depthBuf.tex = tex;
+        depthBuf.format = img.getFormat();
+        depthBuf.layer = layer;
+    }
+    
     /**
      * @return The number of color buffers attached to this texture. 
      */

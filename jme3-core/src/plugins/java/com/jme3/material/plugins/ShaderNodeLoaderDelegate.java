@@ -752,6 +752,7 @@ public class ShaderNodeLoaderDelegate {
             }
             right.setNameSpace(node.getName());
             right.setType(var.getType());
+            right.setMultiplicity(var.getMultiplicity());
             mapping.setRightVariable(right);            
             storeVaryings(node, mapping.getRightVariable());
 
