@@ -339,15 +339,16 @@ public class PhysicsSpace {
     private boolean notifyCollisionGroupListeners_native(PhysicsCollisionObject node, PhysicsCollisionObject node1){
         PhysicsCollisionGroupListener listener = collisionGroupListeners.get(node.getCollisionGroup());
         PhysicsCollisionGroupListener listener1 = collisionGroupListeners.get(node1.getCollisionGroup());
+        boolean result = true;
+        
         if(listener != null){
-            if(!listener.collide(node, node1)){
-                return false;
-            }
+            result = listener.collide(node, node1);
         }
         if(listener1 != null && node.getCollisionGroup() != node1.getCollisionGroup()){
-            return listener1.collide(node, node1);
+            result = listener1.collide(node, node1) && result;
         }
-        return true;
+        
+        return result;
     }
 
     /**
