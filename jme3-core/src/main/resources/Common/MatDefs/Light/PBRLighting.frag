@@ -78,9 +78,7 @@ void main(){
     vec3 viewDir = normalize(g_CameraPosition - wPosition);
 
     #if defined(NORMALMAP) || defined(PARALLAXMAP)
-      vec3 tan = normalize(wTangent.xyz);
-      vec3 norm = normalize(wNormal);
-      mat3 tbnMat = mat3(tan, wTangent.w * cross(norm, tan), norm.xyz);
+        mat3 tbnMat = mat3(wTangent.xyz, wTangent.w * cross( (wNormal), (wTangent.xyz)), wNormal.xyz);
     #endif
 
     #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP)))

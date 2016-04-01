@@ -60,14 +60,16 @@ vec4 TransformWorldViewProjection(vec4 position)
     return g_ViewProjectionMatrix * TransformWorld(position);
 }
 
-vec3 TransformNormal(vec3 vec)
-{
+vec3 TransformWorldNormal(vec3 vec) {
     vec4 quat = vec4(inInstanceData[0].w, inInstanceData[1].w,
                      inInstanceData[2].w, inInstanceData[3].w);
 
-    vec3 worldNormal = vec + vec3(2.0) * cross(cross(vec, quat.xyz) + vec3(quat.w) * vec, quat.xyz);
-    
-    return (g_ViewMatrix * vec4(worldNormal, 0.0)).xyz;
+    return vec + vec3(2.0) * cross(cross(vec, quat.xyz) + vec3(quat.w) * vec, quat.xyz);
+}
+
+vec3 TransformNormal(vec3 vec)
+{
+    return (g_ViewMatrix * vec4(TransformWorldNormal(vec), 0.0)).xyz;
 }
 
 // Prevent user from using g_** matrices which will have invalid data in this case.
@@ -97,4 +99,9 @@ vec3 TransformNormal(vec3 normal) {
 	return g_NormalMatrix * normal;
 }
 
+vec3 TransformWorldNormal(vec3 normal) {
+    return normalize((g_WorldMatrix * vec4(normal,0.0)).xyz);
+}
+
+ 
 #endif

@@ -51,10 +51,10 @@ void main(){
     #endif
 
     wPosition = TransformWorld(modelSpacePos).xyz;
-    wNormal  = TransformWorld(vec4(modelSpaceNorm,0.0)).xyz;
+    wNormal  = TransformWorldNormal(modelSpaceNorm);
 
     #if defined(NORMALMAP) || defined(PARALLAXMAP)
-      wTangent = vec4(TransformWorld(vec4(modelSpaceTan,0.0)).xyz,inTangent.w);
+      wTangent = vec4(TransformWorldNormal(modelSpaceTan),inTangent.w);
     #endif
 
     Color = m_BaseColor;
