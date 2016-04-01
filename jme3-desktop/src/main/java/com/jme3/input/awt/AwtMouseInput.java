@@ -323,4 +323,9 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
 
     public void setNativeCursor(JmeCursor cursor) {
     }
+
+    @Override
+    public boolean isNeedFlipYCursor() {
+        return true;
+    }
 }

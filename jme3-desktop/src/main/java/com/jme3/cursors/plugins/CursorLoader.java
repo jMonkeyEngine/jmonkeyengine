@@ -31,11 +31,16 @@
  */
 package com.jme3.cursors.plugins;
 
+import com.jme3.app.Application;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoader;
+import com.jme3.asset.AssetManager;
+import com.jme3.input.MouseInput;
+import com.jme3.system.JmeContext;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.LittleEndien;
+
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -48,6 +53,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+
 import javax.imageio.ImageIO;
 
 /**
@@ -70,10 +76,21 @@ public class CursorLoader implements AssetLoader {
      */
     public JmeCursor load(final AssetInfo info) throws IOException {
 
+        final AssetManager assetManager = info.getManager();
+        final Application application = assetManager.getApplication();
+
         final AssetKey assetKey = info.getKey();
         final String extension = assetKey.getExtension();
 
-        final boolean flipY = !(assetKey instanceof CursorKey) || ((CursorKey) assetKey).isFlipY();
+        boolean flipY = true;
+
+        if (application != null) {
+
+            final JmeContext context = application.getContext();
+            final MouseInput mouseInput = context.getMouseInput();
+
+            flipY = mouseInput.isNeedFlipYCursor();
+        }
 
         isIco = extension.equals("ico");
         isCur = !isIco && extension.equals("cur");

@@ -31,6 +31,7 @@
  */
 package com.jme3.asset;
 
+import com.jme3.app.Application;
 import com.jme3.asset.cache.AssetCache;
 import com.jme3.asset.cache.SimpleAssetCache;
 import com.jme3.audio.AudioData;
@@ -68,6 +69,7 @@ import java.util.logging.Logger;
 public class DesktopAssetManager implements AssetManager {
 
     private static final Logger logger = Logger.getLogger(AssetManager.class.getName());
+
     private ShaderGenerator shaderGenerator;
     
     private final ImplHandler handler = new ImplHandler(this);
@@ -77,6 +79,11 @@ public class DesktopAssetManager implements AssetManager {
     
     private List<ClassLoader> classLoaders =
             Collections.synchronizedList(new ArrayList<ClassLoader>());
+
+    /**
+     * The application of this manager.
+     */
+    private Application application;
 
     public DesktopAssetManager(){
         this(null);
@@ -91,6 +98,16 @@ public class DesktopAssetManager implements AssetManager {
             loadConfigFile(configFile);
         }        
         logger.fine("DesktopAssetManager created.");
+    }
+
+    @Override
+    public void setApplication(final Application application) {
+        this.application = application;
+    }
+
+    @Override
+    public Application getApplication() {
+        return application;
     }
 
     private void loadConfigFile(URL configFile) {

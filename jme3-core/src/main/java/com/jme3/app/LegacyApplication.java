@@ -209,11 +209,17 @@ public class LegacyApplication implements Application, SystemListener {
                 }
             }
         }
+
         if (assetCfgUrl == null) {
             assetCfgUrl = JmeSystem.getPlatformAssetConfigURL();
         }
+
         if (assetManager == null){
             assetManager = JmeSystem.newAssetManager(assetCfgUrl);
+        }
+
+        if (assetManager != null){
+            assetManager.setApplication(this);
         }
     }
 

@@ -328,4 +328,9 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
         final PointerIcon joglCursor = component.getScreen().getDisplay().createPointerIcon(rec, cursor.getXHotSpot(), cursor.getHeight() - cursor.getYHotSpot());
         component.setPointerIcon(joglCursor);
     }
+
+    @Override
+    public boolean isNeedFlipYCursor() {
+        return true;
+    }
 }
