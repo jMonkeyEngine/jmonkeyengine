@@ -301,7 +301,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
             // crashes on bad drivers
             if (pbufferFormat == null){
                 pbufferFormat = new PixelFormat(settings.getBitsPerPixel(),
-                                                0,
+                                                settings.getAlphaBits(),
                                                 settings.getDepthBits(),
                                                 settings.getStencilBits(),
                                                 0, // samples
@@ -315,7 +315,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
             if (canvasFormat == null){
                 int samples = getNumSamplesToUse();
                 canvasFormat = new PixelFormat(settings.getBitsPerPixel(),
-                                               0,
+                                               settings.getAlphaBits(),
                                                settings.getDepthBits(),
                                                settings.getStencilBits(),
                                                samples,

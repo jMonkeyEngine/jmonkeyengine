@@ -84,7 +84,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
 
         int samples = getNumSamplesToUse();
         PixelFormat pf = new PixelFormat(settings.getBitsPerPixel(),
-                                         0,
+                                         settings.getAlphaBits(),
                                          settings.getDepthBits(),
                                          settings.getStencilBits(),
                                          samples, 
@@ -99,6 +99,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
 
         boolean pixelFormatChanged = false;
         if (created.get() && (pixelFormat.getBitsPerPixel() != pf.getBitsPerPixel()
+        					||pixelFormat.getAlphaBits() != pf.getAlphaBits()
                             ||pixelFormat.getDepthBits() != pf.getDepthBits()
                             ||pixelFormat.getStencilBits() != pf.getStencilBits()
                             ||pixelFormat.getSamples() != pf.getSamples())){
