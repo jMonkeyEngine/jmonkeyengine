@@ -237,12 +237,12 @@ public class PhysicsSpace {
                             || (collisionObject1.getCollideWithGroups() & collisionObject.getCollisionGroup()) > 0) {
                         PhysicsCollisionGroupListener listener = collisionGroupListeners.get(collisionObject.getCollisionGroup());
                         PhysicsCollisionGroupListener listener1 = collisionGroupListeners.get(collisionObject1.getCollisionGroup());
-                        if (listener != null) {
-                            return listener.collide(collisionObject, collisionObject1);
-                        } else if (listener1 != null) {
-                            return listener1.collide(collisionObject, collisionObject1);
+                        if(listener != null){
+                            collides = listener.collide(collisionObject, collisionObject1);
                         }
-                        return true;
+                        if(listener1 != null && collisionObject.getCollisionGroup() != collisionObject1.getCollisionGroup()){
+                            collides = listener1.collide(collisionObject, collisionObject1) && collides;
+                        }
                     } else {
                         return false;
                     }
