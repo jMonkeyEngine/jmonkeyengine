@@ -975,12 +975,12 @@ public final class GLRenderer implements Renderer {
                 gl.glUniform1i(loc, b.booleanValue() ? GL.GL_TRUE : GL.GL_FALSE);
                 break;
             case Matrix3:
-                fb = (FloatBuffer) uniform.getValue();
+                fb = uniform.getMultiData();
                 assert fb.remaining() == 9;
                 gl.glUniformMatrix3(loc, false, fb);
                 break;
             case Matrix4:
-                fb = (FloatBuffer) uniform.getValue();
+                fb = uniform.getMultiData();
                 assert fb.remaining() == 16;
                 gl.glUniformMatrix4(loc, false, fb);
                 break;
@@ -989,23 +989,23 @@ public final class GLRenderer implements Renderer {
                 gl.glUniform1(loc, ib);
                 break;
             case FloatArray:
-                fb = (FloatBuffer) uniform.getValue();
+                fb = uniform.getMultiData();
                 gl.glUniform1(loc, fb);
                 break;
             case Vector2Array:
-                fb = (FloatBuffer) uniform.getValue();
+                fb = uniform.getMultiData();
                 gl.glUniform2(loc, fb);
                 break;
             case Vector3Array:
-                fb = (FloatBuffer) uniform.getValue();
+                fb = uniform.getMultiData();
                 gl.glUniform3(loc, fb);
                 break;
             case Vector4Array:
-                fb = (FloatBuffer) uniform.getValue();
+                fb = uniform.getMultiData();
                 gl.glUniform4(loc, fb);
                 break;
             case Matrix4Array:
-                fb = (FloatBuffer) uniform.getValue();
+                fb = uniform.getMultiData();
                 gl.glUniformMatrix4(loc, false, fb);
                 break;
             case Int:
