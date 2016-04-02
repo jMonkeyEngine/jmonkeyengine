@@ -520,7 +520,7 @@ public class MaterialMatParamOverrideTest {
     }
 
     private void outUniforms(Uniform... uniforms) {
-        HashSet<Uniform> actualUniforms = new HashSet<Uniform>();
+        HashSet<Uniform> actualUniforms = new HashSet<>();
 
         for (Uniform uniform : usedShader.getUniformMap().values()) {
             if (uniform.getName().startsWith("m_")
@@ -529,11 +529,10 @@ public class MaterialMatParamOverrideTest {
             }
         }
 
-        HashSet<Uniform> expectedUniforms = new HashSet<Uniform>(Arrays.asList(uniforms));
+        HashSet<Uniform> expectedUniforms = new HashSet<>(Arrays.asList(uniforms));
 
         if (!expectedUniforms.equals(actualUniforms)) {
-            System.out.println(expectedUniforms + " != " + actualUniforms);
-            Assert.fail("Uniform lists must match");
+            Assert.fail("Uniform lists must match: " + expectedUniforms + " != " + actualUniforms);
         }
     }
 }
