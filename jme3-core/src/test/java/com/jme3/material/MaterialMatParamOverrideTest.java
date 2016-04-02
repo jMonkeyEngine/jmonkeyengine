@@ -63,7 +63,7 @@ import java.util.Map;
 public class MaterialMatParamOverrideTest {
 
     private static final HashSet<String> IGNORED_UNIFORMS = new HashSet<String>(
-            Arrays.asList(new String[]{"m_ParallaxHeight", "m_Shininess"}));
+            Arrays.asList(new String[]{"m_ParallaxHeight", "m_Shininess", "m_BackfaceShadows"}));
 
     @Test
     public void testBoolMpoOnly() {
