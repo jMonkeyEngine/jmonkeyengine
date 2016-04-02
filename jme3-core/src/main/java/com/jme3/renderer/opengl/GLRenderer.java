@@ -2708,7 +2708,7 @@ public final class GLRenderer implements Renderer {
             throw new RendererException("Mesh instancing is not supported by the video hardware");
         }
 
-        if (context.lineWidth != mesh.getLineWidth()) {
+        if (mesh.getLineWidth() != 1f && context.lineWidth != mesh.getLineWidth()) {
             gl.glLineWidth(mesh.getLineWidth());
             context.lineWidth = mesh.getLineWidth();
         }
