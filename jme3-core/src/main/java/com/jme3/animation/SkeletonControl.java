@@ -110,7 +110,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     /**
      * Material references used for hardware skinning
      */
-    private final HashSet<Material> materials = new HashSet<Material>();
+    private Set<Material> materials = new HashSet<Material>();
     
     /**
      * Serialization only. Do not use.
