@@ -31,9 +31,12 @@
  */
 package com.jme3.material;
 
+import com.jme3.material.logic.TechniqueDefLogic;
+import com.jme3.asset.AssetManager;
 import com.jme3.export.*;
 import com.jme3.renderer.Caps;
 import com.jme3.shader.*;
+import com.jme3.shader.Shader.ShaderType;
 
 import java.io.IOException;
 import java.util.*;
@@ -93,11 +96,17 @@ public class TechniqueDef implements Savable {
 
     private EnumSet<Caps> requiredCaps = EnumSet.noneOf(Caps.class);
     private String name;
-
+    private int sortId;
+    
     private EnumMap<Shader.ShaderType,String> shaderLanguages;
     private EnumMap<Shader.ShaderType,String> shaderNames;
 
-    private DefineList presetDefines;
+    private String shaderPrologue;
+    private ArrayList<String> defineNames;
+    private ArrayList<VarType> defineTypes;
+    private HashMap<String, Integer> paramToDefineId;
+    private final HashMap<DefineList, Shader> definesToShaderMap;
+    
     private boolean usesNodes = false;
     private List<ShaderNode> shaderNodes;
     private ShaderGenerationInfo shaderGenerationInfo;
@@ -106,10 +115,10 @@ public class TechniqueDef implements Savable {
     private RenderState renderState;
     private RenderState forcedRenderState;
 
-    private LightMode lightMode   = LightMode.Disable;
+    private LightMode lightMode = LightMode.Disable;
     private ShadowMode shadowMode = ShadowMode.Disable;
+    private TechniqueDefLogic logic;
 
-    private HashMap<String, String> defineParams;
     private ArrayList<UniformBinding> worldBinds;
 
     /**
@@ -120,17 +129,30 @@ public class TechniqueDef implements Savable {
      * @param name The name of the technique, should be set to <code>null</code>
      * for default techniques.
      */
-    public TechniqueDef(String name){
+    public TechniqueDef(String name, int sortId){
         this();
+        this.sortId = sortId;
         this.name = name == null ? "Default" : name;
     }
 
     /**
      * Serialization only. Do not use.
      */
-    public TechniqueDef(){
-        shaderLanguages=new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
-        shaderNames=new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
+    public TechniqueDef() {
+        shaderLanguages = new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
+        shaderNames = new EnumMap<Shader.ShaderType, String>(Shader.ShaderType.class);
+        defineNames = new ArrayList<String>();
+        defineTypes = new ArrayList<VarType>();
+        paramToDefineId = new HashMap<String, Integer>();
+        definesToShaderMap = new HashMap<DefineList, Shader>();
+    }
+    
+    /**
+     * @return A unique sort ID. 
+     * No other technique definition can have the same ID.
+     */
+    public int getSortId() {
+        return sortId;
     }
 
     /**
@@ -162,7 +184,15 @@ public class TechniqueDef implements Savable {
     public void setLightMode(LightMode lightMode) {
         this.lightMode = lightMode;
     }
+    
+    public void setLogic(TechniqueDefLogic logic) {
+        this.logic = logic;
+    }
 
+    public TechniqueDefLogic getLogic() {
+        return logic;
+    }
+    
     /**
      * Returns the shadow mode.
      * @return the shadow mode.
@@ -225,14 +255,6 @@ public class TechniqueDef implements Savable {
     }
 
     /**
-     * @deprecated jME3 always requires shaders now
-     */
-    @Deprecated
-    public boolean isUsingShaders(){
-        return true;
-    }
-
-    /**
      * Returns true if this technique uses Shader Nodes, false otherwise.
      *
      * @return true if this technique uses Shader Nodes, false otherwise.
@@ -273,7 +295,188 @@ public class TechniqueDef implements Savable {
         requiredCaps.add(fragCap);
     }
 
+    /**
+     * Set a string which is prepended to every shader used by this technique.
+     * 
+     * Typically this is used for preset defines.
+     * 
+     * @param shaderPrologue The prologue to append before the technique's shaders.
+     */
+    public void setShaderPrologue(String shaderPrologue) {
+        this.shaderPrologue = shaderPrologue;
+    }
+    
+    /**
+     * @return the shader prologue which is prepended to every shader.
+     */
+    public String getShaderPrologue() {
+        return shaderPrologue;
+    }
+    
+    /**
+     * Returns the define name which the given material parameter influences.
+     *
+     * @param paramName The parameter name to look up
+     * @return The define name
+     *
+     * @see #addShaderParamDefine(java.lang.String, java.lang.String)
+     */
+    public String getShaderParamDefine(String paramName){
+        Integer defineId = paramToDefineId.get(paramName);
+        if (defineId != null) {
+            return defineNames.get(defineId);
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Get the define ID for a given material parameter.
+     *
+     * @param paramName The parameter name to look up
+     * @return The define ID, or null if not found.
+     */
+    public Integer getShaderParamDefineId(String paramName) {
+        return paramToDefineId.get(paramName);
+    }
 
+    /**
+     * Get the type of a particular define.
+     *
+     * @param defineId The define ID to lookup.
+     * @return The type of the define, or null if not found.
+     */
+    public VarType getDefineIdType(int defineId) {
+        return defineId < defineTypes.size() ? defineTypes.get(defineId) : null;
+    }
+    
+    /**
+     * Adds a define linked to a material parameter.
+     * <p>
+     * Any time the material parameter on the parent material is altered,
+     * the appropriate define on the technique will be modified as well.
+     * When set, the material parameter will be mapped to an integer define, 
+     * typically <code>1</code> if it is set, unless it is an integer or a float,
+     * in which case it will converted into an integer.
+     *
+     * @param paramName The name of the material parameter to link to.
+     * @param paramType The type of the material parameter to link to.
+     * @param defineName The name of the define parameter, e.g. USE_LIGHTING
+     */
+    public void addShaderParamDefine(String paramName, VarType paramType, String defineName){
+        int defineId = defineNames.size();
+        
+        if (defineId >= DefineList.MAX_DEFINES) {
+            throw new IllegalStateException("Cannot have more than " + 
+                    DefineList.MAX_DEFINES + " defines on a technique.");
+        }
+        
+        paramToDefineId.put(paramName, defineId);
+        defineNames.add(defineName);
+        defineTypes.add(paramType);
+    }
+
+    /**
+     * Add an unmapped define which can only be set by define ID.
+     * 
+     * Unmapped defines are used by technique renderers to 
+     * configure the shader internally before rendering.
+     * 
+     * @param defineName The define name to create
+     * @return The define ID of the created define
+     */
+    public int addShaderUnmappedDefine(String defineName, VarType defineType) {
+        int defineId = defineNames.size();
+        
+        if (defineId >= DefineList.MAX_DEFINES) {
+            throw new IllegalStateException("Cannot have more than " + 
+                    DefineList.MAX_DEFINES + " defines on a technique.");
+        }
+        
+        defineNames.add(defineName);
+        defineTypes.add(defineType);
+        return defineId;
+    }
+
+    /**
+     * Get the names of all defines declared on this technique definition.
+     *
+     * The defines are returned in order of declaration.
+     *
+     * @return the names of all defines declared.
+     */
+    public String[] getDefineNames() {
+        return defineNames.toArray(new String[0]);
+    }
+
+    /**
+     * Get the types of all defines declared on this technique definition.
+     *
+     * The types are returned in order of declaration.
+     *
+     * @return the types of all defines declared.
+     */
+    public VarType[] getDefineTypes() {
+        return defineTypes.toArray(new VarType[0]);
+    }
+    
+    /**
+     * Create a define list with the size matching the number
+     * of defines on this technique.
+     * 
+     * @return a define list with the size matching the number
+     * of defines on this technique.
+     */
+    public DefineList createDefineList() {
+        return new DefineList(defineNames.size());
+    }
+    
+    private Shader loadShader(AssetManager assetManager, EnumSet<Caps> rendererCaps, DefineList defines) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(shaderPrologue);
+        defines.generateSource(sb, defineNames, defineTypes);
+        String definesSourceCode = sb.toString();
+
+        Shader shader;
+        if (isUsingShaderNodes()) {
+            ShaderGenerator shaderGenerator = assetManager.getShaderGenerator(rendererCaps);
+            if (shaderGenerator == null) {
+                throw new UnsupportedOperationException("ShaderGenerator was not initialized, "
+                        + "make sure assetManager.getGenerator(caps) has been called");
+            }
+            shaderGenerator.initialize(this);
+            shader = shaderGenerator.generateShader(definesSourceCode);
+        } else {
+            shader = new Shader();
+            for (ShaderType type : ShaderType.values()) {
+                String language = shaderLanguages.get(type);
+                String shaderSourceAssetName = shaderNames.get(type);
+                if (language == null || shaderSourceAssetName == null) {
+                    continue;
+                }
+                String shaderSourceCode = (String) assetManager.loadAsset(shaderSourceAssetName);
+                shader.addSource(type, shaderSourceAssetName, shaderSourceCode, definesSourceCode, language);
+            }
+        }
+
+        if (getWorldBindings() != null) {
+           for (UniformBinding binding : getWorldBindings()) {
+               shader.addUniformBinding(binding);
+           }
+        }
+        
+        return shader;
+    }
+    
+    public Shader getShader(AssetManager assetManager, EnumSet<Caps> rendererCaps, DefineList defines) {
+          Shader shader = definesToShaderMap.get(defines);
+          if (shader == null) {
+              shader = loadShader(assetManager, rendererCaps, defines);
+              definesToShaderMap.put(defines.deepClone(), shader);
+          }
+          return shader;
+     }
+    
     /**
      * Sets the shaders that this technique definition will use.
      *
@@ -299,71 +502,6 @@ public class TechniqueDef implements Savable {
                 requiredCaps.add(Caps.TesselationShader);
             }
         }
-    }
-
-    /**
-     * Returns the define name which the given material parameter influences.
-     *
-     * @param paramName The parameter name to look up
-     * @return The define name
-     *
-     * @see #addShaderParamDefine(java.lang.String, java.lang.String)
-     */
-    public String getShaderParamDefine(String paramName){
-        if (defineParams == null) {
-            return null;
-        }
-        return defineParams.get(paramName);
-    }
-
-    /**
-     * Adds a define linked to a material parameter.
-     * <p>
-     * Any time the material parameter on the parent material is altered,
-     * the appropriate define on the technique will be modified as well.
-     * See the method
-     * {@link DefineList#set(java.lang.String, com.jme3.shader.VarType, java.lang.Object) }
-     * on the exact details of how the material parameter changes the define.
-     *
-     * @param paramName The name of the material parameter to link to.
-     * @param defineName The name of the define parameter, e.g. USE_LIGHTING
-     */
-    public void addShaderParamDefine(String paramName, String defineName){
-        if (defineParams == null) {
-            defineParams = new HashMap<String, String>();
-        }
-        defineParams.put(paramName, defineName);
-    }
-
-    /**
-     * Returns the {@link DefineList} for the preset defines.
-     *
-     * @return the {@link DefineList} for the preset defines.
-     *
-     * @see #addShaderPresetDefine(java.lang.String, com.jme3.shader.VarType, java.lang.Object)
-     */
-    public DefineList getShaderPresetDefines() {
-        return presetDefines;
-    }
-
-    /**
-     * Adds a preset define.
-     * <p>
-     * Preset defines do not depend upon any parameters to be activated,
-     * they are always passed to the shader as long as this technique is used.
-     *
-     * @param defineName The name of the define parameter, e.g. USE_LIGHTING
-     * @param type The type of the define. See
-     * {@link DefineList#set(java.lang.String, com.jme3.shader.VarType, java.lang.Object) }
-     * to see why it matters.
-     *
-     * @param value The value of the define
-     */
-    public void addShaderPresetDefine(String defineName, VarType type, Object value){
-        if (presetDefines == null) {
-            presetDefines = new DefineList();
-        }
-        presetDefines.set(defineName, type, value);
     }
 
     /**
@@ -467,7 +605,7 @@ public class TechniqueDef implements Savable {
         oc.write(shaderLanguages.get(Shader.ShaderType.TessellationControl), "tsctrlLanguage", null);
         oc.write(shaderLanguages.get(Shader.ShaderType.TessellationEvaluation), "tsevalLanguage", null);
 
-        oc.write(presetDefines, "presetDefines", null);
+        oc.write(shaderPrologue, "shaderPrologue", null);
         oc.write(lightMode, "lightMode", LightMode.Disable);
         oc.write(shadowMode, "shadowMode", ShadowMode.Disable);
         oc.write(renderState, "renderState", null);
@@ -490,7 +628,7 @@ public class TechniqueDef implements Savable {
         shaderNames.put(Shader.ShaderType.Geometry,ic.readString("geomName", null));
         shaderNames.put(Shader.ShaderType.TessellationControl,ic.readString("tsctrlName", null));
         shaderNames.put(Shader.ShaderType.TessellationEvaluation,ic.readString("tsevalName", null));
-        presetDefines = (DefineList) ic.readSavable("presetDefines", null);
+        shaderPrologue = ic.readString("shaderPrologue", null);
         lightMode = ic.readEnum("lightMode", LightMode.class, LightMode.Disable);
         shadowMode = ic.readEnum("shadowMode", ShadowMode.class, ShadowMode.Disable);
         renderState = (RenderState) ic.readSavable("renderState", null);
@@ -547,9 +685,14 @@ public class TechniqueDef implements Savable {
         this.shaderGenerationInfo = shaderGenerationInfo;
     }
 
-    //todo: make toString return something usefull
     @Override
     public String toString() {
-        return "TechniqueDef{" + "requiredCaps=" + requiredCaps + ", name=" + name /*+ ", vertName=" + vertName + ", fragName=" + fragName + ", vertLanguage=" + vertLanguage + ", fragLanguage=" + fragLanguage */+ ", presetDefines=" + presetDefines + ", usesNodes=" + usesNodes + ", shaderNodes=" + shaderNodes + ", shaderGenerationInfo=" + shaderGenerationInfo + ", renderState=" + renderState + ", forcedRenderState=" + forcedRenderState + ", lightMode=" + lightMode + ", shadowMode=" + shadowMode + ", defineParams=" + defineParams + ", worldBinds=" + worldBinds + ", noRender=" + noRender + '}';
+        return "TechniqueDef[name=" + name
+                + ", requiredCaps=" + requiredCaps
+                + ", noRender=" + noRender
+                + ", lightMode=" + lightMode
+                + ", usesNodes=" + usesNodes
+                + ", renderState=" + renderState
+                + ", forcedRenderState=" + forcedRenderState + "]";
     }
 }

@@ -57,9 +57,9 @@ public abstract class ShaderGenerator {
      */
     protected int indent;
     /**
-     * the technique to use for the shader generation
+     * the technique def to use for the shader generation
      */
-    protected Technique technique = null;    
+    protected TechniqueDef techniqueDef = null;    
 
     /**
      * Build a shaderGenerator
@@ -70,8 +70,8 @@ public abstract class ShaderGenerator {
         this.assetManager = assetManager;        
     }
     
-    public void initialize(Technique technique){
-        this.technique = technique;
+    public void initialize(TechniqueDef techniqueDef){
+        this.techniqueDef = techniqueDef;
     }
     
     /**
@@ -79,24 +79,29 @@ public abstract class ShaderGenerator {
      *
      * @return a Shader program
      */
-    public Shader generateShader() {
-        if(technique == null){
-            throw new UnsupportedOperationException("The shaderGenerator was not properly initialized, call initialize(Technique) before any generation");
+    public Shader generateShader(String definesSourceCode) {
+        if (techniqueDef == null) {
+            throw new UnsupportedOperationException("The shaderGenerator was not "
+                    + "properly initialized, call "
+                    + "initialize(TechniqueDef) before any generation");
         }
 
-        DefineList defines = technique.getAllDefines();
-        TechniqueDef def = technique.getDef();
-        ShaderGenerationInfo info = def.getShaderGenerationInfo();
-
-        String vertexSource = buildShader(def.getShaderNodes(), info, ShaderType.Vertex);
-        String fragmentSource = buildShader(def.getShaderNodes(), info, ShaderType.Fragment);
+        String techniqueName = techniqueDef.getName();
+        ShaderGenerationInfo info = techniqueDef.getShaderGenerationInfo();
 
         Shader shader = new Shader();
-        shader.initialize();
-        shader.addSource(Shader.ShaderType.Vertex, technique.getDef().getName() + ".vert", vertexSource, defines.getCompiled(), getLanguageAndVersion(ShaderType.Vertex));
-        shader.addSource(Shader.ShaderType.Fragment, technique.getDef().getName() + ".frag", fragmentSource, defines.getCompiled(), getLanguageAndVersion(ShaderType.Fragment));
+        for (ShaderType type : ShaderType.values()) {
+            String extension = type.getExtension();
+            String language = getLanguageAndVersion(type);
+            String shaderSourceCode = buildShader(techniqueDef.getShaderNodes(), info, type);
+            
+            if (shaderSourceCode != null) {
+                String shaderSourceAssetName = techniqueName + "." + extension;
+                shader.addSource(type, shaderSourceAssetName, shaderSourceCode, definesSourceCode, language);
+            }
+        }
         
-        technique = null;
+        techniqueDef = null;
         return shader;
     }
 
@@ -109,6 +114,14 @@ public abstract class ShaderGenerator {
      * @return the code of the generated vertex shader
      */
     protected String buildShader(List<ShaderNode> shaderNodes, ShaderGenerationInfo info, ShaderType type) {
+        if (type == ShaderType.TessellationControl ||
+            type == ShaderType.TessellationEvaluation || 
+            type == ShaderType.Geometry) {
+            // TODO: Those are not supported.
+            // Too much code assumes that type is either Vertex or Fragment
+            return null;
+        }
+        
         indent = 0;
 
         StringBuilder sourceDeclaration = new StringBuilder();

@@ -31,27 +31,30 @@
  */
 package com.jme3.material;
 
+import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.asset.AssetManager;
+import com.jme3.light.LightList;
+import com.jme3.material.TechniqueDef.LightMode;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
-import com.jme3.shader.*;
+import com.jme3.scene.Geometry;
+import com.jme3.shader.DefineList;
+import com.jme3.shader.Shader;
+import com.jme3.shader.VarType;
+import com.jme3.util.ListMap;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Represents a technique instance.
  */
-public class Technique /* implements Savable */ {
+public final class Technique {
 
-    private static final Logger logger = Logger.getLogger(Technique.class.getName());
-    private TechniqueDef def;
-    private Material owner;
-    private ArrayList<Uniform> worldBindUniforms;
-    private DefineList defines;
-    private Shader shader;
-    private boolean needReload = true;
+    private final TechniqueDef def;
+    private final Material owner;
+    private final DefineList paramDefines;
+    private final DefineList dynamicDefines;
 
     /**
      * Creates a new technique instance that implements the given
@@ -63,14 +66,8 @@ public class Technique /* implements Savable */ {
     public Technique(Material owner, TechniqueDef def) {
         this.owner = owner;
         this.def = def;
-        this.worldBindUniforms = new ArrayList<Uniform>();
-        this.defines = new DefineList();
-    }
-
-    /**
-     * Serialization only. Do not use.
-     */
-    public Technique() {
+        this.paramDefines = def.createDefineList();
+        this.dynamicDefines = def.createDefineList();
     }
 
     /**
@@ -85,157 +82,117 @@ public class Technique /* implements Savable */ {
     }
 
     /**
-     * Returns the shader currently used by this technique instance.
-     * <p>
-     * Shaders are typically loaded dynamically when the technique is first
-     * used, therefore, this variable will most likely be null most of the time.
-     * 
-     * @return the shader currently used by this technique instance.
-     */
-    public Shader getShader() {
-        return shader;
-    }
-
-    /**
-     * Returns a list of uniforms that implements the world parameters
-     * that were requested by the material definition.
-     * 
-     * @return a list of uniforms implementing the world parameters.
-     */
-    public List<Uniform> getWorldBindUniforms() {
-        return worldBindUniforms;
-    }
-
-    /**
      * Called by the material to tell the technique a parameter was modified.
      * Specify <code>null</code> for value if the param is to be cleared.
      */
-    void notifyParamChanged(String paramName, VarType type, Object value) {
-        // Check if there's a define binding associated with this
-        // parameter.
-        String defineName = def.getShaderParamDefine(paramName);
-        if (defineName != null) {
-            // There is a define. Change it on the define list.
-            // The "needReload" variable will determine
-            // if the shader will be reloaded when the material
-            // is rendered.
-            
-            if (value == null) {
-                // Clear the define.
-                needReload = defines.remove(defineName) || needReload;
-            } else {
-                // Set the define.
-                needReload = defines.set(defineName, type, value) || needReload;
-            }
-        }
-    }
+    final void notifyParamChanged(String paramName, VarType type, Object value) {
+        Integer defineId = def.getShaderParamDefineId(paramName);
 
-    void updateUniformParam(String paramName, VarType type, Object value) {
-        if (paramName == null) {
-            throw new IllegalArgumentException();
-        }
-        
-        Uniform u = shader.getUniform(paramName);
-        switch (type) {
-            case TextureBuffer:
-            case Texture2D: // fall intentional
-            case Texture3D:
-            case TextureArray:
-            case TextureCubeMap:
-            case Int:
-                u.setValue(VarType.Int, value);
-                break;
-            default:
-                u.setValue(type, value);
-                break;
-        }
-    }
-
-    /**
-     * Returns true if the technique must be reloaded.
-     * <p>
-     * If a technique needs to reload, then the {@link Material} should
-     * call {@link #makeCurrent(com.jme3.asset.AssetManager) } on this
-     * technique.
-     * 
-     * @return true if the technique must be reloaded.
-     */
-    public boolean isNeedReload() {
-        return needReload;
-    }
-
-    /**
-     * Prepares the technique for use by loading the shader and setting
-     * the proper defines based on material parameters.
-     * 
-     * @param assetManager The asset manager to use for loading shaders.
-     */
-    public void makeCurrent(AssetManager assetManager, boolean techniqueSwitched, EnumSet<Caps> rendererCaps, RenderManager rm) {
-        if (techniqueSwitched) {
-            if (defines.update(owner.getParamsMap(), def)) {
-                needReload = true;
-            }
-            if (getDef().getLightMode() == TechniqueDef.LightMode.SinglePass) {
-                defines.set("SINGLE_PASS_LIGHTING", VarType.Boolean, true);
-                defines.set("NB_LIGHTS", VarType.Int, rm.getSinglePassLightBatchSize() * 3);
-            } else {
-                defines.set("SINGLE_PASS_LIGHTING", VarType.Boolean, null);
-            }
+        if (defineId == null) {
+            return;
         }
 
-        if (needReload) {
-            loadShader(assetManager,rendererCaps);
-        }
-    }
-
-    private void loadShader(AssetManager manager,EnumSet<Caps> rendererCaps) {
-        
-        ShaderKey key = new ShaderKey(getAllDefines(),def.getShaderProgramLanguages(),def.getShaderProgramNames());
-        
-        if (getDef().isUsingShaderNodes()) {                 
-           manager.getShaderGenerator(rendererCaps).initialize(this);           
-           key.setUsesShaderNodes(true);
-        }   
-        shader = manager.loadShader(key);
-
-        // register the world bound uniforms
-        worldBindUniforms.clear();
-        if (def.getWorldBindings() != null) {
-           for (UniformBinding binding : def.getWorldBindings()) {
-               Uniform uniform = shader.getUniform("g_" + binding.name());
-               uniform.setBinding(binding);
-               worldBindUniforms.add(uniform);
-           }
-        }        
-        needReload = false;
+        paramDefines.set(defineId, type, value);
     }
     
     /**
-     * Computes the define list
-     * @return the complete define list
+     * Called by the material to tell the technique that it has been made
+     * current.
+     * The technique updates dynamic defines based on the
+     * currently set material parameters.
      */
+    final void notifyTechniqueSwitched() {
+        ListMap<String, MatParam> paramMap = owner.getParamsMap();
+        paramDefines.clear();
+        for (int i = 0; i < paramMap.size(); i++) {
+            MatParam param = paramMap.getValue(i);
+            notifyParamChanged(param.getName(), param.getVarType(), param.getValue());
+        }
+    }
+
+    /**
+     * Called by the material to determine which shader to use for rendering.
+     * 
+     * The {@link TechniqueDefLogic} is used to determine the shader to use
+     * based on the {@link LightMode}.
+     * 
+     * @param renderManager The render manager for which the shader is to be selected.
+     * @param rendererCaps The renderer capabilities which the shader should support.
+     * @return A compatible shader.
+     */
+    Shader makeCurrent(RenderManager renderManager, List<MatParamOverride> overrides,
+            LightList lights, EnumSet<Caps> rendererCaps) {
+        TechniqueDefLogic logic = def.getLogic();
+        AssetManager assetManager = owner.getMaterialDef().getAssetManager();
+
+        dynamicDefines.clear();
+        dynamicDefines.setAll(paramDefines);
+
+        if (overrides != null) {
+            for (MatParamOverride override : overrides) {
+                if (!override.isEnabled()) {
+                    continue;
+                }
+                Integer defineId = def.getShaderParamDefineId(override.name);
+                if (defineId != null) {
+                    if (def.getDefineIdType(defineId) == override.type) {
+                        dynamicDefines.set(defineId, override.type, override.value);
+                    }
+                }
+            }
+        }
+
+        return logic.makeCurrent(assetManager, renderManager, rendererCaps, lights, dynamicDefines);
+    }
+    
+    /**
+     * Render the technique according to its {@link TechniqueDefLogic}.
+     * 
+     * @param renderManager The render manager to perform the rendering against.
+     * @param shader The shader that was selected in 
+     * {@link #makeCurrent(com.jme3.renderer.RenderManager, java.util.EnumSet)}.
+     * @param geometry The geometry to render
+     * @param lights Lights which influence the geometry.
+     */
+    void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights) {
+        TechniqueDefLogic logic = def.getLogic();
+        logic.render(renderManager, shader, geometry, lights);
+    }
+    
+    /**
+     * Get the {@link DefineList} for dynamic defines.
+     * 
+     * Dynamic defines are used to implement material parameter -> define
+     * bindings as well as {@link TechniqueDefLogic} specific functionality.
+     * 
+     * @return all dynamic defines.
+     */
+    public DefineList getDynamicDefines() {
+        return dynamicDefines;
+    }
+    
+    /**
+     * @return nothing.
+     *
+     * @deprecated Preset defines are precompiled into
+       * {@link TechniqueDef#getShaderPrologue()}, whereas
+     * dynamic defines are available via {@link #getParamDefines()}.
+     */
+    @Deprecated
     public DefineList getAllDefines() {
-        DefineList allDefines = new DefineList();
-        allDefines.addFrom(def.getShaderPresetDefines());
-        allDefines.addFrom(defines);
-        return allDefines;
-    } 
+        throw new UnsupportedOperationException();
+    }
     
-    /*
-    public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = ex.getCapsule(this);
-        oc.write(def, "def", null);
-        oc.writeSavableArrayList(worldBindUniforms, "worldBindUniforms", null);
-        oc.write(defines, "defines", null);
-        oc.write(shader, "shader", null);
+    /**
+     * Compute the sort ID. Similar to {@link Object#hashCode()} but used
+     * for sorting geometries for rendering.
+     * 
+     * @return the sort ID for this technique instance.
+     */
+    public int getSortId() {
+        int hash = 17;
+        hash = hash * 23 + def.getSortId();
+        hash = hash * 23 + paramDefines.hashCode();
+        return hash;
     }
-
-    public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = im.getCapsule(this);
-        def = (TechniqueDef) ic.readSavable("def", null);
-        worldBindUniforms = ic.readSavableArrayList("worldBindUniforms", null);
-        defines = (DefineList) ic.readSavable("defines", null);
-        shader = (Shader) ic.readSavable("shader", null);
-    }
-    */
 }

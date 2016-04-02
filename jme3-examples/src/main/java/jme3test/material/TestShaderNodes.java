@@ -30,9 +30,9 @@ public class TestShaderNodes extends SimpleApplication {
         mat.selectTechnique("Default", renderManager);
         Technique t = mat.getActiveTechnique();
 
-        for (Shader.ShaderSource shaderSource : t.getShader().getSources()) {
-            System.out.println(shaderSource.getSource());
-        }
+//        for (Shader.ShaderSource shaderSource : t.getShader().getSources()) {
+//            System.out.println(shaderSource.getSource());
+//        }
 
         
         mat.setColor("Color", ColorRGBA.Yellow);

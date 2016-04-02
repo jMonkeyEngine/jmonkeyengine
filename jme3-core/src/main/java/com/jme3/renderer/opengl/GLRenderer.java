@@ -474,6 +474,17 @@ public final class GLRenderer implements Renderer {
             {
                 sb.append("\t").append(cap.toString()).append("\n");
             }
+            
+            sb.append("\nHardware limits: \n");
+            for (Limits limit : Limits.values()) {
+                Integer value = limits.get(limit);
+                if (value == null) {
+                    value = 0;
+                }
+                sb.append("\t").append(limit.name()).append(" = ")
+                  .append(value).append("\n");
+            }
+            
             logger.log(Level.FINE, sb.toString());
         }
 
@@ -964,12 +975,12 @@ public final class GLRenderer implements Renderer {
                 gl.glUniform1i(loc, b.booleanValue() ? GL.GL_TRUE : GL.GL_FALSE);
                 break;
             case Matrix3:
-                fb = (FloatBuffer) uniform.getValue();
+                fb = uniform.getMultiData();
                 assert fb.remaining() == 9;
                 gl.glUniformMatrix3(loc, false, fb);
                 break;
             case Matrix4:
-                fb = (FloatBuffer) uniform.getValue();
+                fb = uniform.getMultiData();
                 assert fb.remaining() == 16;
                 gl.glUniformMatrix4(loc, false, fb);
                 break;
@@ -978,23 +989,23 @@ public final class GLRenderer implements Renderer {
                 gl.glUniform1(loc, ib);
                 break;
             case FloatArray:
-                fb = (FloatBuffer) uniform.getValue();
+                fb = uniform.getMultiData();
                 gl.glUniform1(loc, fb);
                 break;
             case Vector2Array:
-                fb = (FloatBuffer) uniform.getValue();
+                fb = uniform.getMultiData();
                 gl.glUniform2(loc, fb);
                 break;
             case Vector3Array:
-                fb = (FloatBuffer) uniform.getValue();
+                fb = uniform.getMultiData();
                 gl.glUniform3(loc, fb);
                 break;
             case Vector4Array:
-                fb = (FloatBuffer) uniform.getValue();
+                fb = uniform.getMultiData();
                 gl.glUniform4(loc, fb);
                 break;
             case Matrix4Array:
-                fb = (FloatBuffer) uniform.getValue();
+                fb = uniform.getMultiData();
                 gl.glUniformMatrix4(loc, false, fb);
                 break;
             case Int:
@@ -2689,12 +2700,15 @@ public final class GLRenderer implements Renderer {
     }
 
     public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
-        if (mesh.getVertexCount() == 0) {
+        if (mesh.getVertexCount() == 0 || mesh.getTriangleCount() == 0 || count == 0) {
             return;
         }
 
-        //this is kept for backward compatibility.
-        if (mesh.getLineWidth() != -1 && context.lineWidth != mesh.getLineWidth()) {
+        if (count > 1 && !caps.contains(Caps.MeshInstancing)) {
+            throw new RendererException("Mesh instancing is not supported by the video hardware");
+        }
+
+        if (mesh.getLineWidth() != 1f && context.lineWidth != mesh.getLineWidth()) {
             gl.glLineWidth(mesh.getLineWidth());
             context.lineWidth = mesh.getLineWidth();
         }

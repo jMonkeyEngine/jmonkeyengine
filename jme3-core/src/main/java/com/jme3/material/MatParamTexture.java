@@ -100,12 +100,6 @@ public class MatParamTexture extends MatParam {
         return unit;
     }
 
-    @Override
-    public void apply(Renderer r, Technique technique) {
-        TechniqueDef techDef = technique.getDef();
-        r.setTexture(getUnit(), getTextureValue());
-        technique.updateUniformParam(getPrefixedName(), getVarType(), getUnit());
-    }
 
     @Override
     public void write(JmeExporter ex) throws IOException {
