@@ -43,6 +43,7 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Triangle;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.Renderer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
@@ -50,6 +51,7 @@ import com.jme3.scene.mesh.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
+import com.jme3.util.NativeObject;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
@@ -279,16 +281,11 @@ public class Mesh extends NativeObject implements Savable, Cloneable, JmeCloneab
     }
 
     /**
-     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     * Called internally by com.jme3.util.clone.Cloner. Do not call directly.
      */
     @Override
     public Mesh jmeClone() {
-        try {
-            Mesh clone = (Mesh)super.clone();
-            return clone;
-        } catch (CloneNotSupportedException ex) {
-            throw new AssertionError();
-        }
+        return (Mesh) super.clone();
     }
 
     /**
@@ -453,6 +450,8 @@ public class Mesh extends NativeObject implements Savable, Cloneable, JmeCloneab
                 tangents.setUpdateNeeded();
             }
         }
+
+        this.setUpdateNeeded();
     }
 
     /**

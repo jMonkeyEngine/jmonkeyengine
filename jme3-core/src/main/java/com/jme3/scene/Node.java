@@ -367,6 +367,7 @@ public class Node extends Spatial {
             // transform update down the tree-
             child.setTransformRefresh();
             child.setLightListRefresh();
+            child.setMatParamOverrideRefresh();
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE,"Child ({0}) attached to this node ({1})",
                         new Object[]{child.getName(), getName()});
