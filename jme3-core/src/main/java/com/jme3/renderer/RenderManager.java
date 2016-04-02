@@ -616,7 +616,9 @@ public class RenderManager {
 
             gm.getMaterial().preload(this);
             Mesh mesh = gm.getMesh();
-            if (mesh != null) {
+            if (mesh != null
+                    && mesh.getVertexCount() != 0
+                    && mesh.getTriangleCount() != 0) {
                 for (VertexBuffer vb : mesh.getBufferList().getArray()) {
                     if (vb.getData() != null && vb.getUsage() != VertexBuffer.Usage.CpuOnly) {
                         renderer.updateBufferData(vb);
@@ -641,8 +643,10 @@ public class RenderManager {
      * <p>
      * In addition to enqueuing the visible geometries, this method
      * also scenes which cast or receive shadows, by putting them into the
-     * RenderQueue's {@link RenderQueue#renderShadowQueue(GeometryList, RenderManager, Camera, boolean) shadow queue}.
-     * Each Spatial which has its {@link Spatial#setShadowMode(com.jme3.renderer.queue.RenderQueue.ShadowMode) shadow mode}
+     * RenderQueue's 
+     * {@link RenderQueue#addToShadowQueue(com.jme3.scene.Geometry, com.jme3.renderer.queue.RenderQueue.ShadowMode) 
+     * shadow queue}. Each Spatial which has its 
+     * {@link Spatial#setShadowMode(com.jme3.renderer.queue.RenderQueue.ShadowMode) shadow mode}
      * set to not off, will be put into the appropriate shadow queue, note that
      * this process does not check for frustum culling on any 
      * {@link ShadowMode#Cast shadow casters}, as they don't have to be
@@ -989,7 +993,8 @@ public class RenderManager {
      * (see {@link #renderTranslucentQueue(com.jme3.renderer.ViewPort) })</li>
      * <li>If any objects remained in the render queue, they are removed
      * from the queue. This is generally objects added to the 
-     * {@link RenderQueue#renderShadowQueue(GeometryList, RenderManager, Camera, boolean) shadow queue}
+     * {@link RenderQueue#renderShadowQueue(com.jme3.renderer.queue.RenderQueue.ShadowMode, com.jme3.renderer.RenderManager, com.jme3.renderer.Camera, boolean) 
+     * shadow queue}
      * which were not rendered because of a missing shadow renderer.</li>
      * </ul>
      * 

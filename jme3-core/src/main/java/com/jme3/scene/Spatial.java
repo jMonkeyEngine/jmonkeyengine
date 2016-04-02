@@ -126,6 +126,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
                                RF_CHILD_LIGHTLIST = 0x08, // some child need geometry update
                                RF_MATPARAM_OVERRIDE = 0x10;
     
+
     protected CullHint cullHint = CullHint.Inherit;
     protected BatchHint batchHint = BatchHint.Inherit;
     /**
@@ -137,10 +138,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      */
     protected LightList localLights;
     protected transient LightList worldLights;
-
     protected ArrayList<MatParamOverride> localOverrides;
     protected ArrayList<MatParamOverride> worldOverrides;
-
     /**
      * This spatial's name.
      */
@@ -210,7 +209,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
         localOverrides = new ArrayList<MatParamOverride>();
         worldOverrides = new ArrayList<MatParamOverride>();
-
         refreshFlags |= RF_BOUND;
     }
 
@@ -285,7 +283,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         // Make sure next updateGeometricState() visits this branch
         // to update lights.
         Spatial p = parent;
-        while (p != null) {            
+        while (p != null) {
+
             if ((p.refreshFlags & RF_CHILD_LIGHTLIST) != 0) {
                 // The parent already has this flag,
                 // so must all ancestors.
@@ -309,7 +308,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
             p = p.parent;
         }
     }
-
     /**
      * Indicate that the bounding of this spatial has changed and that
      * a refresh is required.
@@ -643,7 +641,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         }
         localOverrides.clear();
     }
-
     /**
      * Should only be called from updateGeometricState().
      * In most cases should not be subclassed.
@@ -662,7 +659,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     }
 
     /**
-     * Computes the world transform of this Spatial in the most 
+     * Computes the world transform of this Spatial in the most
      * efficient manner possible.
      */
     void checkDoTransformUpdate() {
@@ -918,6 +915,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         if ((refreshFlags & RF_BOUND) != 0) {
             updateWorldBound();
         }
+
         if ((refreshFlags & RF_MATPARAM_OVERRIDE) != 0) {
             updateMatParamOverrides();
         }
@@ -1375,7 +1373,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         // the transforms and stuff get refreshed.
         clone.setTransformRefresh();
         clone.setLightListRefresh();
-	clone.setMatParamOverrideRefresh();
+        clone.setMatParamOverrideRefresh();
 
         return clone;
     }
@@ -1402,7 +1400,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
             for (MatParamOverride override : localOverrides) {
                 clone.localOverrides.add((MatParamOverride) override.clone());
             }
-
             // No need to force cloned to update.
             // This node already has the refresh flags
             // set below so it will have to update anyway.
@@ -1480,7 +1477,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         // the transforms and stuff get refreshed.
         clone.setTransformRefresh();
         clone.setLightListRefresh();
-	clone.setMatParamOverrideRefresh();
+		clone.setMatParamOverrideRefresh();
 
         return clone;
     }
@@ -1633,7 +1630,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
         localLights = (LightList) ic.readSavable("lights", null);
         localLights.setOwner(this);
-
         localOverrides = ic.readSavableArrayList("overrides", null);
         if (localOverrides == null) {
             localOverrides = new ArrayList<>();

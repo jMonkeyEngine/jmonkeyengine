@@ -474,14 +474,13 @@ public final class GLRenderer implements Renderer {
                 });
 
         // Print capabilities (if fine logging is enabled)
-        if (logger.isLoggable(Level.INFO)) {
+        if (logger.isLoggable(Level.FINE)) {
             StringBuilder sb = new StringBuilder();
             sb.append("Supported capabilities: \n");
             for (Caps cap : caps)
             {
                 sb.append("\t").append(cap.toString()).append("\n");
             }
-
             sb.append("\nHardware limits: \n");
             for (Limits limit : Limits.values()) {
                 Integer value = limits.get(limit);
@@ -492,7 +491,7 @@ public final class GLRenderer implements Renderer {
                   .append(value).append("\n");
             }
 
-            logger.log(Level.INFO, sb.toString());
+            logger.log(Level.FINE, sb.toString());
         }
 
         texUtil.initialize(caps);
@@ -1536,7 +1535,6 @@ public final class GLRenderer implements Renderer {
             FrameBuffer.RenderBuffer colorBuf = fb.getColorBuffer(i);
             updateFrameBufferAttachment(fb, colorBuf);
         }
-
         FrameBuffer.RenderBuffer depthBuf = fb.getDepthBuffer();
         if (depthBuf != null) {
             updateFrameBufferAttachment(fb, depthBuf);
@@ -2568,7 +2566,6 @@ public final class GLRenderer implements Renderer {
             }
         }
     }
-
     public void setVertexAttrib(VertexBuffer vb) {
         setVertexAttrib(vb, null);
     }
@@ -2619,6 +2616,7 @@ public final class GLRenderer implements Renderer {
 
         int vertCount = mesh.getVertexCount();
         boolean useInstancing = count > 1 && caps.contains(Caps.MeshInstancing);
+
         if (useInstancing) {
             glext.glDrawElementsInstancedARB(convertElementMode(mesh.getMode()),
                     indexBuf.getData().limit(),
@@ -2717,7 +2715,6 @@ public final class GLRenderer implements Renderer {
                 setVertexAttribVAO(vb, interleavedData);
             }
         }
-
         mesh.clearUpdateNeeded();
     }
 
@@ -2819,13 +2816,11 @@ public final class GLRenderer implements Renderer {
         VertexBuffer indices = getIndexBuffer(mesh, lod);
 
         clearVertexAttribs();
-
         if (indices != null) {
             drawTriangleList(indices, mesh, count);
         } else {
             drawTriangleArray(mesh.getMode(), count, mesh.getVertexCount());
         }
-
     }
 
     public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
@@ -2836,9 +2831,8 @@ public final class GLRenderer implements Renderer {
         if (count > 1 && !caps.contains(Caps.MeshInstancing)) {
             throw new RendererException("Mesh instancing is not supported by the video hardware");
         }
-
         //this is kept for backward compatibility.
-        if (mesh.getLineWidth() != -1 && context.lineWidth != mesh.getLineWidth()) {
+        if (mesh.getLineWidth() != 1f && context.lineWidth != mesh.getLineWidth()) {
             gl.glLineWidth(mesh.getLineWidth());
             context.lineWidth = mesh.getLineWidth();
         }
@@ -2846,9 +2840,7 @@ public final class GLRenderer implements Renderer {
         if (gl4 != null && mesh.getMode().equals(Mode.Patch)) {
             gl4.glPatchParameter(mesh.getPatchVertexCount());
         }
-
         statistics.onMeshDrawn(mesh, lod, count);
-
         // Here while count is still passed in.  Can be removed when/if
         // the method is collapsed again.  -pspeed
         count = Math.max(mesh.getInstanceCount(), count);

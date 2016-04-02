@@ -259,7 +259,6 @@ public class Node extends Spatial {
         if ((refreshFlags & RF_MATPARAM_OVERRIDE) != 0) {
             updateMatParamOverrides();
         }
-
         if ((refreshFlags & RF_TRANSFORM) != 0){
             // combine with parent transforms- same for all spatial
             // subclasses.
@@ -450,6 +449,7 @@ public class Node extends Spatial {
             child.setTransformRefresh();
             // lights are also inherited from parent
             child.setLightListRefresh();
+
             child.setMatParamOverrideRefresh();
             
             invalidateUpdateList();

@@ -69,11 +69,10 @@ public abstract class ShaderGenerator {
     protected ShaderGenerator(AssetManager assetManager) {
         this.assetManager = assetManager;
     }
-
     public void initialize(TechniqueDef techniqueDef) {
         this.techniqueDef = techniqueDef;
     }
-
+    
     /**
      * Generate vertex and fragment shaders for the given technique
      *
@@ -123,7 +122,6 @@ public abstract class ShaderGenerator {
             // Too much code assumes that type is either Vertex or Fragment
             return null;
         }
-
         indent = 0;
 
         StringBuilder sourceDeclaration = new StringBuilder();

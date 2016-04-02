@@ -171,7 +171,7 @@ public class Mesh extends NativeObject implements Savable, Cloneable, JmeCloneab
     private IntMap<VertexBuffer> buffers = new IntMap<VertexBuffer>();
     private VertexBuffer[] lodLevels;
     private float pointSize = 1;
-    private float lineWidth = -1;
+    private float lineWidth = 1;
 
     private transient int vertexArrayID = -1;
 
@@ -578,6 +578,9 @@ public class Mesh extends NativeObject implements Savable, Cloneable, JmeCloneab
      */
     @Deprecated
     public void setLineWidth(float lineWidth) {
+        if (lineWidth < 1f) {
+            throw new IllegalArgumentException("lineWidth must be greater than or equal to 1.0");
+        }
         this.lineWidth = lineWidth;
     }
 

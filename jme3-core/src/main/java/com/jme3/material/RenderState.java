@@ -822,6 +822,9 @@ public class RenderState implements Cloneable, Savable {
      * @param lineWidth the line width.
      */
     public void setLineWidth(float lineWidth) {
+        if (lineWidth < 1f) {
+            throw new IllegalArgumentException("lineWidth must be greater than or equal to 1.0");
+        }
         this.lineWidth = lineWidth;
         this.applyLineWidth = true;
         cachedHashCode = -1;
