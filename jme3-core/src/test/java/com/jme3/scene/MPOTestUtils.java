@@ -35,7 +35,6 @@ import com.jme3.material.MatParamOverride;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.Camera;
 import com.jme3.shader.VarType;
-import static com.jme3.shader.VarType.Texture2D;
 import com.jme3.texture.Texture2D;
 import java.lang.reflect.Field;
 import java.util.HashSet;
