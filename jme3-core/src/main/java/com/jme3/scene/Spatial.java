@@ -1364,7 +1364,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         // the transforms and stuff get refreshed.
         clone.setTransformRefresh();
         clone.setLightListRefresh();
-		clone.setMatParamOverrideRefresh();
+        clone.setMatParamOverrideRefresh();
 
         return clone;
     }
@@ -1500,6 +1500,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         this.localLights = cloner.clone(localLights);
         this.worldTransform = cloner.clone(worldTransform);
         this.localTransform = cloner.clone(localTransform);
+        this.worldOverrides = cloner.clone(worldOverrides);
+        this.localOverrides = cloner.clone(localOverrides);
         this.controls = cloner.clone(controls);
 
         // Cloner doesn't handle maps on its own just yet.
