@@ -100,15 +100,7 @@ public abstract class SimpleApplication extends LegacyApplication {
     }
 
     public SimpleApplication( AppState... initialStates ) {
-        super();
-
-        if (initialStates != null) {
-            for (AppState a : initialStates) {
-                if (a != null) {
-                    stateManager.attach(a);
-                }
-            }
-        }
+        super(initialStates);
     }
 
     @Override

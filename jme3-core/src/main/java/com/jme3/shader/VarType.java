@@ -55,7 +55,7 @@ public enum VarType {
     TextureBuffer(false,true,"sampler1D|sampler1DShadow"),
     Texture2D(false,true,"sampler2D|sampler2DShadow"),
     Texture3D(false,true,"sampler3D"),
-    TextureArray(false,true,"sampler2DArray"),
+    TextureArray(false,true,"sampler2DArray|sampler2DArrayShadow"),
     TextureCubeMap(false,true,"samplerCube"),
     Int("int");
 

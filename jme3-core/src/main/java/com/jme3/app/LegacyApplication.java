@@ -31,6 +31,7 @@
  */
 package com.jme3.app;
 
+import com.jme3.app.state.AppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioContext;
@@ -100,8 +101,24 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * Create a new instance of <code>LegacyApplication</code>.
      */
-    public LegacyApplication(){
+    public LegacyApplication() {
+        this((AppState[])null);
+    }
+
+    /**
+     * Create a new instance of <code>LegacyApplication</code>, preinitialized
+     * with the specified set of app states.
+     */
+    public LegacyApplication( AppState... initialStates ) {
         initStateManager();
+
+        if (initialStates != null) {
+            for (AppState a : initialStates) {
+                if (a != null) {
+                    stateManager.attach(a);
+                }
+            }
+        }
     }
 
     /**
@@ -523,7 +540,9 @@ public class LegacyApplication implements Application, SystemListener {
      * Internal use only.
      */
     public void reshape(int w, int h){
-        renderManager.notifyReshape(w, h);
+        if (renderManager != null) {
+            renderManager.notifyReshape(w, h);
+        }
     }
 
     /**
