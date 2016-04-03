@@ -170,9 +170,6 @@ public abstract class LwjglContext implements JmeContext {
             NativeLibraryLoader.loadNativeLibrary("jinput", true);
             NativeLibraryLoader.loadNativeLibrary("jinput-dx8", true);
         }
-        if (NativeLibraryLoader.isUsingNativeBullet()) {
-            NativeLibraryLoader.loadNativeLibrary("bulletjme", true);
-        }
         NativeLibraryLoader.loadNativeLibrary("lwjgl", true);
     }
     protected int getNumSamplesToUse() {
