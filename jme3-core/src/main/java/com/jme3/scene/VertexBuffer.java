@@ -522,6 +522,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
 //            throw new UnsupportedOperationException("Data has already been sent. Cannot set usage.");
 
         this.usage = usage;
+        this.setUpdateNeeded();
     }
 
     /**
