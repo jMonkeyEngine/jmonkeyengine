@@ -251,14 +251,13 @@ public class Node extends Spatial {
         if ((refreshFlags & RF_LIGHTLIST) != 0){
             updateWorldLightList();
         }
-
-        if ((refreshFlags & RF_MATPARAM_OVERRIDE) != 0) {
-            updateMatParamOverrides();
-        }
         if ((refreshFlags & RF_TRANSFORM) != 0){
             // combine with parent transforms- same for all spatial
             // subclasses.
             updateWorldTransforms();
+        }
+        if ((refreshFlags & RF_MATPARAM_OVERRIDE) != 0) {
+            updateMatParamOverrides();
         }
 
         refreshFlags &= ~RF_CHILD_LIGHTLIST;

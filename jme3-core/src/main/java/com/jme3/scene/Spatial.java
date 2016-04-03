@@ -207,9 +207,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         localLights = new LightList(this);
         worldLights = new LightList(this);
 
-        localOverrides = new ArrayList<MatParamOverride>();
-        worldOverrides = new ArrayList<MatParamOverride>();
-
+        localOverrides = new ArrayList<>();
+        worldOverrides = new ArrayList<>();
         refreshFlags |= RF_BOUND;
     }
 
@@ -1469,6 +1468,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         // the transforms and stuff get refreshed.
         clone.setTransformRefresh();
         clone.setLightListRefresh();
+        clone.setMatParamOverrideRefresh();
 
         return clone;
     }
@@ -1624,9 +1624,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
         localOverrides = ic.readSavableArrayList("overrides", null);
         if (localOverrides == null) {
-            localOverrides = new ArrayList<MatParamOverride>();
+            localOverrides = new ArrayList<>();
         }
-        worldOverrides = new ArrayList<MatParamOverride>();
+        worldOverrides = new ArrayList<>();
 
         //changed for backward compatibility with j3o files generated before the AnimControl/SkeletonControl split
         //the AnimControl creates the SkeletonControl for old files and add it to the spatial.
