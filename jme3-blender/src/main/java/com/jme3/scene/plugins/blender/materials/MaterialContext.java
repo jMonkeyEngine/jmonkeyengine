@@ -1,6 +1,7 @@
 package com.jme3.scene.plugins.blender.materials;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -157,14 +158,14 @@ public final class MaterialContext implements Savable {
         }
 
         // applying textures
+        int textureIndex = 0;
         if (loadedTextures != null && loadedTextures.size() > 0) {
-            int textureIndex = 0;
             if (loadedTextures.size() > TextureHelper.TEXCOORD_TYPES.length) {
                 LOGGER.log(Level.WARNING, "The blender file has defined more than {0} different textures. JME supports only {0} UV mappings.", TextureHelper.TEXCOORD_TYPES.length);
             }
             for (CombinedTexture combinedTexture : loadedTextures) {
                 if (textureIndex < TextureHelper.TEXCOORD_TYPES.length) {
-                    combinedTexture.flatten(geometry, geometriesOMA, userDefinedUVCoordinates, blenderContext);
+                    String usedUserUVSet = combinedTexture.flatten(geometry, geometriesOMA, userDefinedUVCoordinates, blenderContext);
 
                     this.setTexture(material, combinedTexture.getMappingType(), combinedTexture.getResultTexture());
                     List<Vector2f> uvs = combinedTexture.getResultUVS();
@@ -173,13 +174,19 @@ public final class MaterialContext implements Savable {
                         uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(uvs.toArray(new Vector2f[uvs.size()])));
                         geometry.getMesh().setBuffer(uvCoordsBuffer);
                     }//uvs might be null if the user assigned non existing UV coordinates group name to the mesh (this should be fixed in blender file)
+                    
+                    if(usedUserUVSet != null) {
+                    	userDefinedUVCoordinates = new HashMap<>(userDefinedUVCoordinates);
+                    	userDefinedUVCoordinates.remove(usedUserUVSet);
+                    }
                 } else {
                     LOGGER.log(Level.WARNING, "The texture could not be applied because JME only supports up to {0} different UV's.", TextureHelper.TEXCOORD_TYPES.length);
                 }
             }
-        } else if (userDefinedUVCoordinates != null && userDefinedUVCoordinates.size() > 0) {
-            LOGGER.fine("No textures found for the mesh, but UV coordinates are applied.");
-            int textureIndex = 0;
+        }
+
+        if (userDefinedUVCoordinates != null && userDefinedUVCoordinates.size() > 0) {
+            LOGGER.fine("Storing unused, user defined UV coordinates sets.");
             if (userDefinedUVCoordinates.size() > TextureHelper.TEXCOORD_TYPES.length) {
                 LOGGER.log(Level.WARNING, "The blender file has defined more than {0} different UV coordinates for the mesh. JME supports only {0} UV coordinates buffers.", TextureHelper.TEXCOORD_TYPES.length);
             }
@@ -190,7 +197,9 @@ public final class MaterialContext implements Savable {
                     uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(uvs.toArray(new Vector2f[uvs.size()])));
                     geometry.getMesh().setBuffer(uvCoordsBuffer);
                 } else {
-                    LOGGER.log(Level.WARNING, "The texture could not be applied because JME only supports up to {0} different UV's.", TextureHelper.TEXCOORD_TYPES.length);
+                    LOGGER.log(Level.WARNING, "The user's UV set named: '{0}' could not be stored because JME only supports up to {1} different UV's.", new Object[] {
+                		entry.getKey(), TextureHelper.TEXCOORD_TYPES.length
+                    });
                 }
             }
         }
