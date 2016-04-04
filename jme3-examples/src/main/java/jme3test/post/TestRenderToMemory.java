@@ -116,7 +116,7 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
             frames ++;
             t = t2;
 
-            if (total > 1000){
+            if (total > timer.getResolution()) {
                 fps = frames;
                 total = 0;
                 frames = 0;

@@ -41,8 +41,7 @@ varying vec3 SpecularSum;
   
 #ifdef NORMALMAP
   uniform sampler2D m_NormalMap;   
-  varying vec3 vTangent;
-  varying vec3 vBinormal;
+  varying vec4 vTangent;
 #endif
 varying vec3 vNormal;
 
@@ -71,7 +70,7 @@ uniform float m_Shininess;
 void main(){
     #if !defined(VERTEX_LIGHTING)
         #if defined(NORMALMAP)
-            mat3 tbnMat = mat3(normalize(vTangent.xyz) , normalize(vBinormal.xyz) , normalize(vNormal.xyz));
+             mat3 tbnMat = mat3(vTangent.xyz, vTangent.w * cross( (vNormal), (vTangent.xyz)), vNormal.xyz);
 
             if (!gl_FrontFacing)
             {

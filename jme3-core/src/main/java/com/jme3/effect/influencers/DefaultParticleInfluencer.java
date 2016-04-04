@@ -39,6 +39,8 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
@@ -49,7 +51,7 @@ import java.io.IOException;
  */
 public class DefaultParticleInfluencer implements ParticleInfluencer {
 
-    //Version #1 : changed startVelocity to initialvelocity for consistency with accessors 
+    //Version #1 : changed startVelocity to initialvelocity for consistency with accessors
     //and also changed it in serialization
     public static final int SAVABLE_VERSION = 1;
     /** Temporary variable used to help with calculations. */
@@ -94,7 +96,7 @@ public class DefaultParticleInfluencer implements ParticleInfluencer {
             initialVelocity = (Vector3f) ic.readSavable("startVelocity", Vector3f.ZERO.clone());
         }else{
             initialVelocity = (Vector3f) ic.readSavable("initialVelocity", Vector3f.ZERO.clone());
-        }       
+        }
         velocityVariation = ic.readFloat("variation", 0.2f);
     }
 
@@ -107,6 +109,35 @@ public class DefaultParticleInfluencer implements ParticleInfluencer {
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
+    }
+
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public Object jmeClone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new AssertionError();
+        }
+    }
+
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        this.initialVelocity = cloner.clone(initialVelocity);
+
+        // Change in behavior: I'm cloning 'for real' the 'temp' field because
+        // otherwise it will be shared across all clones.  Note: if this is
+        // ok because of how its used then it might as well be static and let
+        // everything share it.
+        // Note 2: transient fields _are_ cloned just like anything else so
+        // thinking it wouldn't get cloned is also not right.
+        // -pspeed
+        this.temp = cloner.clone(temp);
     }
 
     @Override

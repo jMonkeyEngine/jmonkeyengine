@@ -6,11 +6,12 @@ import com.jme3.asset.plugins.FileLocator;
 import com.jme3.material.MaterialDef;
 import com.jme3.material.TechniqueDef;
 import com.jme3.material.plugins.J3MLoader;
+import com.jme3.renderer.Caps;
 import com.jme3.shader.DefineList;
 import com.jme3.shader.Shader;
-import com.jme3.shader.ShaderKey;
 import com.jme3.shader.plugins.GLSLLoader;
 import com.jme3.system.JmeSystem;
+import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,23 +34,22 @@ public class ShaderCheck {
         assetManager.registerLoader(GLSLLoader.class, "vert", "frag","geom","tsctrl","tseval","glsllib");
     }
     
-    private static void checkMatDef(String matdefName){
+    private static void checkMatDef(String matdefName) {
         MaterialDef def = (MaterialDef) assetManager.loadAsset(matdefName);
-        for (TechniqueDef techDef : def.getDefaultTechniques()){
-            DefineList dl = new DefineList();
-            dl.addFrom(techDef.getShaderPresetDefines());
-            ShaderKey shaderKey = new ShaderKey(dl,techDef.getShaderProgramLanguages(),techDef.getShaderProgramNames());
-
-            Shader shader = assetManager.loadShader(shaderKey);
-
-            for (Validator validator : validators){
+        EnumSet<Caps> rendererCaps = EnumSet.noneOf(Caps.class);
+        rendererCaps.add(Caps.GLSL100);
+        for (TechniqueDef techDef : def.getDefaultTechniques()) {
+            DefineList defines = techDef.createDefineList();
+            Shader shader = techDef.getShader(assetManager, rendererCaps, defines);
+            for (Validator validator : validators) {
                 StringBuilder sb = new StringBuilder();
                 validator.validate(shader, sb);
-                System.out.println("==== Validator: " + validator.getName() + " " + 
-                                        validator.getInstalledVersion() + " ====");
+                System.out.println("==== Validator: " + validator.getName() + " "
+                        + validator.getInstalledVersion() + " ====");
                 System.out.println(sb.toString());
             }
         }
+        throw new UnsupportedOperationException();
     }
           
     public static void main(String[] args){

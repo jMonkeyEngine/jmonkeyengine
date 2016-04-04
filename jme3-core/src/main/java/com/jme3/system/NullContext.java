@@ -128,12 +128,13 @@ public class NullContext implements JmeContext, Runnable {
     public void run(){
         initInThread();
 
-        while (!needClose.get()){
+        do {
             listener.update();
 
-            if (frameRate > 0)
+            if (frameRate > 0) {
                 sync(frameRate);
-        }
+            }
+        } while (!needClose.get());
 
         deinitInThread();
 

@@ -40,6 +40,8 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -168,6 +170,27 @@ public class EmitterMeshVertexShape implements EmitterShape {
         }
     }
 
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public Object jmeClone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new AssertionError();
+        }
+    }
+
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        this.vertices = cloner.clone(vertices);
+        this.normals = cloner.clone(normals);
+    }
+
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
@@ -180,7 +203,7 @@ public class EmitterMeshVertexShape implements EmitterShape {
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         this.vertices = ic.readSavableArrayList("vertices", null);
-        
+
         List<List<Vector3f>> tmpNormals = ic.readSavableArrayList("normals", null);
         if (tmpNormals != null){
             this.normals = tmpNormals;

@@ -51,7 +51,7 @@ import com.jme3.texture.Texture;
 
 public class NullRenderer implements Renderer {
 
-    private static final EnumSet<Caps> caps = EnumSet.noneOf(Caps.class);
+    private static final EnumSet<Caps> caps = EnumSet.allOf(Caps.class);
     private static final Statistics stats = new Statistics();
 
     public void initialize() {

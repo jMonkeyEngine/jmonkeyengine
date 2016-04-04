@@ -48,18 +48,19 @@ import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 public class InstancedNode extends GeometryGroupNode {
-    
+
     static int getGeometryStartIndex2(Geometry geom) {
         return getGeometryStartIndex(geom);
     }
-    
+
     static void setGeometryStartIndex2(Geometry geom, int startIndex) {
         setGeometryStartIndex(geom, startIndex);
     }
-    
-    private static final class InstanceTypeKey implements Cloneable {
+
+    private static final class InstanceTypeKey implements Cloneable, JmeCloneable {
 
         Mesh mesh;
         Material material;
@@ -70,7 +71,7 @@ public class InstancedNode extends GeometryGroupNode {
             this.material = material;
             this.lodLevel = lodLevel;
         }
-        
+
         public InstanceTypeKey(){
         }
 
@@ -97,7 +98,7 @@ public class InstancedNode extends GeometryGroupNode {
             }
             return true;
         }
-        
+
         @Override
         public InstanceTypeKey clone() {
             try {
@@ -106,26 +107,41 @@ public class InstancedNode extends GeometryGroupNode {
                 throw new AssertionError();
             }
         }
+
+        @Override
+        public Object jmeClone() {
+            try {
+                return super.clone();
+            } catch( CloneNotSupportedException e ) {
+                throw new AssertionError();
+            }
+        }
+
+        @Override
+        public void cloneFields( Cloner cloner, Object original ) {
+            this.mesh = cloner.clone(mesh);
+            this.material = cloner.clone(material);
+        }
     }
-    
+
     private static class InstancedNodeControl implements Control, JmeCloneable {
 
         private InstancedNode node;
-        
+
         public InstancedNodeControl() {
         }
-        
+
         public InstancedNodeControl(InstancedNode node) {
             this.node = node;
         }
-        
+
         @Override
         public Control cloneForSpatial(Spatial spatial) {
-            return this; 
+            return this;
             // WARNING: Sets wrong control on spatial. Will be
             // fixed automatically by InstancedNode.clone() method.
         }
-        
+
         @Override
         public Object jmeClone() {
             try {
@@ -133,52 +149,52 @@ public class InstancedNode extends GeometryGroupNode {
             } catch( CloneNotSupportedException e ) {
                 throw new RuntimeException("Error cloning control", e);
             }
-        }     
+        }
 
         @Override
-        public void cloneFields( Cloner cloner, Object original ) { 
+        public void cloneFields( Cloner cloner, Object original ) {
             this.node = cloner.clone(node);
         }
-         
+
         public void setSpatial(Spatial spatial){
         }
-        
+
         public void update(float tpf){
         }
-        
+
         public void render(RenderManager rm, ViewPort vp) {
             node.renderFromControl();
         }
-        
+
         public void write(JmeExporter ex) throws IOException {
         }
 
         public void read(JmeImporter im) throws IOException {
         }
     }
-    
+
     protected InstancedNodeControl control;
-    
-    protected HashMap<Geometry, InstancedGeometry> igByGeom 
+
+    protected HashMap<Geometry, InstancedGeometry> igByGeom
             = new HashMap<Geometry, InstancedGeometry>();
-    
+
     private InstanceTypeKey lookUp = new InstanceTypeKey();
-    
-    private HashMap<InstanceTypeKey, InstancedGeometry> instancesMap = 
+
+    private HashMap<InstanceTypeKey, InstancedGeometry> instancesMap =
             new HashMap<InstanceTypeKey, InstancedGeometry>();
-    
+
     public InstancedNode() {
         super();
         // NOTE: since we are deserializing,
         // the control is going to be added automatically here.
     }
-    
+
     public InstancedNode(String name) {
         super(name);
         control = new InstancedNodeControl(this);
         addControl(control);
     }
-    
+
     private void renderFromControl() {
         for (InstancedGeometry ig : instancesMap.values()) {
             ig.updateInstances();
@@ -207,7 +223,7 @@ public class InstancedNode extends GeometryGroupNode {
 
         return ig;
     }
-    
+
     private void addToInstancedGeometry(Geometry geom) {
         Material material = geom.getMaterial();
         MatParam param = material.getParam("UseInstancing");
@@ -216,20 +232,20 @@ public class InstancedNode extends GeometryGroupNode {
                     + "parameter to true on the material prior "
                     + "to adding it to InstancedNode");
         }
-        
+
         InstancedGeometry ig = lookUpByGeometry(geom);
         igByGeom.put(geom, ig);
         geom.associateWithGroupNode(this, 0);
         ig.addInstance(geom);
     }
-    
+
     private void removeFromInstancedGeometry(Geometry geom) {
         InstancedGeometry ig = igByGeom.remove(geom);
         if (ig != null) {
             ig.deleteInstance(geom);
         }
     }
-    
+
     private void relocateInInstancedGeometry(Geometry geom) {
         InstancedGeometry oldIG = igByGeom.get(geom);
         InstancedGeometry newIG = lookUpByGeometry(geom);
@@ -242,7 +258,7 @@ public class InstancedNode extends GeometryGroupNode {
             igByGeom.put(geom, newIG);
         }
     }
-    
+
     private void ungroupSceneGraph(Spatial s) {
         if (s instanceof Node) {
             for (Spatial sp : ((Node) s).getChildren()) {
@@ -253,14 +269,14 @@ public class InstancedNode extends GeometryGroupNode {
             if (g.isGrouped()) {
                 // Will invoke onGeometryUnassociated automatically.
                 g.unassociateFromGroupNode();
-                
+
                 if (InstancedNode.getGeometryStartIndex(g) != -1) {
                     throw new AssertionError();
                 }
             }
         }
     }
-    
+
     @Override
     public Spatial detachChildAt(int index) {
         Spatial s = super.detachChildAt(index);
@@ -269,7 +285,7 @@ public class InstancedNode extends GeometryGroupNode {
         }
         return s;
     }
-    
+
     private void instance(Spatial n) {
         if (n instanceof Geometry) {
             Geometry g = (Geometry) n;
@@ -285,20 +301,20 @@ public class InstancedNode extends GeometryGroupNode {
             }
         }
     }
-    
+
     public void instance() {
         instance(this);
     }
-    
+
     @Override
     public Node clone() {
         return clone(true);
     }
-    
+
     @Override
     public Node clone(boolean cloneMaterials) {
         InstancedNode clone = (InstancedNode)super.clone(cloneMaterials);
-        
+
         if (instancesMap.size() > 0) {
             // Remove all instanced geometries from the clone
             for (int i = 0; i < clone.children.size(); i++) {
@@ -312,7 +328,7 @@ public class InstancedNode extends GeometryGroupNode {
                 }
             }
         }
-        
+
         // remove original control from the clone
         clone.controls.remove(this.control);
 
@@ -323,12 +339,35 @@ public class InstancedNode extends GeometryGroupNode {
         clone.lookUp = new InstanceTypeKey();
         clone.igByGeom = new HashMap<Geometry, InstancedGeometry>();
         clone.instancesMap = new HashMap<InstanceTypeKey, InstancedGeometry>();
-        
+
         clone.instance();
-        
+
         return clone;
     }
-    
+
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
+        this.control = cloner.clone(control);
+        this.lookUp = cloner.clone(lookUp);
+
+        HashMap<Geometry, InstancedGeometry> newIgByGeom = new HashMap<Geometry, InstancedGeometry>();
+        for( Map.Entry<Geometry, InstancedGeometry> e : igByGeom.entrySet() ) {
+            newIgByGeom.put(cloner.clone(e.getKey()), cloner.clone(e.getValue()));
+        }
+        this.igByGeom = newIgByGeom;
+
+        HashMap<InstanceTypeKey, InstancedGeometry> newInstancesMap = new HashMap<InstanceTypeKey, InstancedGeometry>();
+        for( Map.Entry<InstanceTypeKey, InstancedGeometry> e : instancesMap.entrySet() ) {
+            newInstancesMap.put(cloner.clone(e.getKey()), cloner.clone(e.getValue()));
+        }
+        this.instancesMap = newInstancesMap;
+    }
+
     @Override
     public void onTransformChange(Geometry geom) {
         // Handled automatically

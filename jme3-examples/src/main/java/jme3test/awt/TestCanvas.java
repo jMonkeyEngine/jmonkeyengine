@@ -32,7 +32,7 @@
 
 package jme3test.awt;
 
-import com.jme3.app.Application;
+import com.jme3.app.LegacyApplication;
 import com.jme3.app.SimpleApplication;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeCanvasContext;
@@ -55,7 +55,7 @@ public class TestCanvas {
 
     private static JmeCanvasContext context;
     private static Canvas canvas;
-    private static Application app;
+    private static LegacyApplication app;
     private static JFrame frame;
     private static Container canvasPanel1, canvasPanel2;
     private static Container currentPanel;
@@ -64,20 +64,20 @@ public class TestCanvas {
 
     private static void createTabs(){
         tabbedPane = new JTabbedPane();
-        
+
         canvasPanel1 = new JPanel();
         canvasPanel1.setLayout(new BorderLayout());
         tabbedPane.addTab("jME3 Canvas 1", canvasPanel1);
-        
+
         canvasPanel2 = new JPanel();
         canvasPanel2.setLayout(new BorderLayout());
         tabbedPane.addTab("jME3 Canvas 2", canvasPanel2);
-        
+
         frame.getContentPane().add(tabbedPane);
-        
+
         currentPanel = canvasPanel1;
     }
-    
+
     private static void createMenu(){
         JMenuBar menuBar = new JMenuBar();
         frame.setJMenuBar(menuBar);
@@ -95,12 +95,12 @@ public class TestCanvas {
                     itemRemoveCanvas.setText("Add Canvas");
                 }else if (itemRemoveCanvas.getText().equals("Add Canvas")){
                     currentPanel.add(canvas, BorderLayout.CENTER);
-                    
+
                     itemRemoveCanvas.setText("Remove Canvas");
                 }
             }
         });
-        
+
         final JMenuItem itemHideCanvas = new JMenuItem("Hide Canvas");
         menuTortureMethods.add(itemHideCanvas);
         itemHideCanvas.addActionListener(new ActionListener() {
@@ -114,7 +114,7 @@ public class TestCanvas {
                 }
             }
         });
-        
+
         final JMenuItem itemSwitchTab = new JMenuItem("Switch to tab #2");
         menuTortureMethods.add(itemSwitchTab);
         itemSwitchTab.addActionListener(new ActionListener(){
@@ -130,9 +130,9 @@ public class TestCanvas {
                    currentPanel = canvasPanel1;
                    itemSwitchTab.setText("Switch to tab #2");
                }
-           } 
+           }
         });
-        
+
         JMenuItem itemSwitchLaf = new JMenuItem("Switch Look and Feel");
         menuTortureMethods.add(itemSwitchLaf);
         itemSwitchLaf.addActionListener(new ActionListener(){
@@ -146,7 +146,7 @@ public class TestCanvas {
                 frame.pack();
             }
         });
-        
+
         JMenuItem itemSmallSize = new JMenuItem("Set size to (0, 0)");
         menuTortureMethods.add(itemSmallSize);
         itemSmallSize.addActionListener(new ActionListener(){
@@ -157,7 +157,7 @@ public class TestCanvas {
                 frame.setPreferredSize(preferred);
             }
         });
-        
+
         JMenuItem itemKillCanvas = new JMenuItem("Stop/Start Canvas");
         menuTortureMethods.add(itemKillCanvas);
         itemKillCanvas.addActionListener(new ActionListener() {
@@ -181,7 +181,7 @@ public class TestCanvas {
             }
         });
     }
-    
+
     private static void createFrame(){
         frame = new JFrame("Test");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -202,7 +202,7 @@ public class TestCanvas {
         settings.setHeight(480);
 
         try{
-            Class<? extends Application> clazz = (Class<? extends Application>) Class.forName(appClass);
+            Class<? extends LegacyApplication> clazz = (Class<? extends LegacyApplication>) Class.forName(appClass);
             app = clazz.newInstance();
         }catch (ClassNotFoundException ex){
             ex.printStackTrace();
@@ -233,7 +233,7 @@ public class TestCanvas {
                 return null;
             }
         });
-        
+
     }
 
     public static void main(String[] args){
@@ -244,20 +244,20 @@ public class TestCanvas {
 
         Logger.getLogger("").removeHandler(Logger.getLogger("").getHandlers()[0]);
         Logger.getLogger("").addHandler(consoleHandler);
-        
+
         createCanvas(appClass);
-        
+
         try {
             Thread.sleep(500);
         } catch (InterruptedException ex) {
         }
-        
+
         SwingUtilities.invokeLater(new Runnable(){
             public void run(){
                 JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 
                 createFrame();
-                
+
                 currentPanel.add(canvas, BorderLayout.CENTER);
                 frame.pack();
                 startApp();

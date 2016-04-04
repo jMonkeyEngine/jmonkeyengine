@@ -40,6 +40,7 @@ jclass jmeClasses::PhysicsSpace;
 jmethodID jmeClasses::PhysicsSpace_preTick;
 jmethodID jmeClasses::PhysicsSpace_postTick;
 jmethodID jmeClasses::PhysicsSpace_addCollisionEvent;
+jmethodID jmeClasses::PhysicsSpace_notifyCollisionGroupListeners;
 
 jclass jmeClasses::PhysicsGhostObject;
 jmethodID jmeClasses::PhysicsGhostObject_addOverlappingObject;
@@ -137,6 +138,7 @@ void jmeClasses::initJavaClasses(JNIEnv* env) {
     PhysicsSpace_preTick = env->GetMethodID(PhysicsSpace, "preTick_native", "(F)V");
     PhysicsSpace_postTick = env->GetMethodID(PhysicsSpace, "postTick_native", "(F)V");
     PhysicsSpace_addCollisionEvent = env->GetMethodID(PhysicsSpace, "addCollisionEvent_native","(Lcom/jme3/bullet/collision/PhysicsCollisionObject;Lcom/jme3/bullet/collision/PhysicsCollisionObject;J)V");
+    PhysicsSpace_notifyCollisionGroupListeners = env->GetMethodID(PhysicsSpace, "notifyCollisionGroupListeners_native","(Lcom/jme3/bullet/collision/PhysicsCollisionObject;Lcom/jme3/bullet/collision/PhysicsCollisionObject;)Z");
     if (env->ExceptionCheck()) {
         env->Throw(env->ExceptionOccurred());
         return;

@@ -32,6 +32,7 @@ public class J3MRenderStateOutputCapsule extends J3MOutputCapsule {
         NAME_MAP.put( "pointSprite", "PointSprite");
         NAME_MAP.put( "depthFunc", "DepthFunc");
         NAME_MAP.put( "alphaFunc", "AlphaFunc");
+        NAME_MAP.put( "lineWidth", "LineWidth");
     }
     public J3MRenderStateOutputCapsule(J3MExporter exporter) {
         super(exporter);

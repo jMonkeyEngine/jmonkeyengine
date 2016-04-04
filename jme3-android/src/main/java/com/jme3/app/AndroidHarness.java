@@ -50,7 +50,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     /**
      * The jme3 application object
      */
-    protected Application app = null;
+    protected LegacyApplication app = null;
 
     /**
      * Sets the desired RGB size for the surfaceview.  16 = RGB565, 24 = RGB888.
@@ -178,7 +178,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     private boolean inConfigChange = false;
 
     private class DataObject {
-        protected Application app = null;
+        protected LegacyApplication app = null;
     }
 
     @Override
@@ -241,7 +241,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             try {
                 if (app == null) {
                     @SuppressWarnings("unchecked")
-                    Class<? extends Application> clazz = (Class<? extends Application>) Class.forName(appClass);
+                    Class<? extends LegacyApplication> clazz = (Class<? extends LegacyApplication>) Class.forName(appClass);
                     app = clazz.newInstance();
                 }
 

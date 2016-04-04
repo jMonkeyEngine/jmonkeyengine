@@ -50,12 +50,12 @@ import javax.swing.SwingUtilities;
  */
 public class AppletHarness extends Applet {
 
-    public static final HashMap<Application, Applet> appToApplet
-                         = new HashMap<Application, Applet>();
+    public static final HashMap<LegacyApplication, Applet> appToApplet
+                         = new HashMap<LegacyApplication, Applet>();
 
     protected JmeCanvasContext context;
     protected Canvas canvas;
-    protected Application app;
+    protected LegacyApplication app;
 
     protected String appClass;
     protected URL appCfg = null;
@@ -103,7 +103,7 @@ public class AppletHarness extends Applet {
         JmeSystem.setLowPermissions(true);
 
         try{
-            Class<? extends Application> clazz = (Class<? extends Application>) Class.forName(appClass);
+            Class<? extends LegacyApplication> clazz = (Class<? extends LegacyApplication>) Class.forName(appClass);
             app = clazz.newInstance();
         }catch (ClassNotFoundException ex){
             ex.printStackTrace();

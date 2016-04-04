@@ -123,8 +123,7 @@ public class JoglOffscreenBuffer extends JoglContext implements Runnable {
     }
 
     @Override
-	public void run(){
-        loadNatives();
+    public void run() {
         logger.log(Level.FINE, "Using JOGL {0}", JoglVersion.getInstance().getImplementationVersion());
         initInThread();
         while (!needClose.get()){

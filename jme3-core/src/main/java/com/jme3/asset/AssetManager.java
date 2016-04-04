@@ -41,9 +41,7 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.Caps;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.OBJLoader;
-import com.jme3.shader.Shader;
 import com.jme3.shader.ShaderGenerator;
-import com.jme3.shader.ShaderKey;
 import com.jme3.texture.Texture;
 import com.jme3.texture.plugins.TGALoader;
 import java.io.IOException;
@@ -319,13 +317,6 @@ public interface AssetManager {
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
      */
     public Material loadMaterial(String name);
-
-    /**
-     * Loads shader file(s), shouldn't be used by end-user in most cases.
-     *
-     * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
-     */
-    public Shader loadShader(ShaderKey key);
 
     /**
      * Load a font file. Font files are in AngelCode text format,

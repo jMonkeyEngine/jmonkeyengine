@@ -123,11 +123,7 @@ public class TestEverything extends SimpleApplication {
 
     public void setupFloor(){
         Material mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall.j3m");
-        mat.getTextureParam("DiffuseMap").getTextureValue().setWrap(WrapMode.Repeat);
-        mat.getTextureParam("NormalMap").getTextureValue().setWrap(WrapMode.Repeat);
-        mat.getTextureParam("ParallaxMap").getTextureValue().setWrap(WrapMode.Repeat);
-        
-        Box floor = new Box(Vector3f.ZERO, 50, 1f, 50);
+        Box floor = new Box(50, 1f, 50);
         TangentBinormalGenerator.generate(floor);
         floor.scaleTextureCoordinates(new Vector2f(5, 5));
         Geometry floorGeom = new Geometry("Floor", floor);

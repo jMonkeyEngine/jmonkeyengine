@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,256 +31,149 @@
  */
 package com.jme3.shader;
 
-import com.jme3.export.*;
-import com.jme3.material.MatParam;
-import com.jme3.material.TechniqueDef;
-import com.jme3.util.ListMap;
+import java.util.Arrays;
+import java.util.List;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.TreeMap;
+/**
+ * The new define list.
+ * 
+ * @author Kirill Vainer
+ */
+public final class DefineList {
 
-public final class DefineList implements Savable, Cloneable {
+    public static final int MAX_DEFINES = 64;
 
-    private static final String ONE = "1";
-    
-    private TreeMap<String, String> defines = new TreeMap<String, String>();
-    private String compiled = null;
-    private int cachedHashCode = 0;
+    private long hash;
+    private final int[] vals;
 
-    public void write(JmeExporter ex) throws IOException{
-        OutputCapsule oc = ex.getCapsule(this);
-
-        String[] keys = new String[defines.size()];
-        String[] vals = new String[defines.size()];
-
-        int i = 0;
-        for (Map.Entry<String, String> define : defines.entrySet()){
-            keys[i] = define.getKey();
-            vals[i] = define.getValue();
-            i++;
+    public DefineList(int numValues) {
+        if (numValues < 0 || numValues > MAX_DEFINES) {
+            throw new IllegalArgumentException("numValues must be between 0 and 64");
         }
-
-        oc.write(keys, "keys", null);
-        oc.write(vals, "vals", null);
+        vals = new int[numValues];
+    }
+    
+    private DefineList(DefineList original) {
+        this.hash = original.hash;
+        this.vals = new int[original.vals.length];
+        System.arraycopy(original.vals, 0, vals, 0, vals.length);
     }
 
-    public void read(JmeImporter im) throws IOException{
-        InputCapsule ic = im.getCapsule(this);
+    public void set(int id, int val) {
+        assert 0 <= id && id < 64;
+        if (val != 0) {
+            hash |=  (1L << id);
+        } else {
+            hash &= ~(1L << id);
+        }
+        vals[id] = val;
+    }
+    
+    public void set(int id, float val) {
+        set(id, Float.floatToIntBits(val));
+    }
+    
+    public void set(int id, boolean val) {
+        set(id, val ? 1 : 0);
+    }
 
-        String[] keys = ic.readStringArray("keys", null);
-        String[] vals = ic.readStringArray("vals", null);
-        for (int i = 0; i < keys.length; i++){
-            defines.put(keys[i], vals[i]);
+    public void set(int id, VarType type, Object value) {
+        if (value == null) {
+            set(id, 0);
+            return;
+        }
+
+        switch (type) {
+            case Int:
+                set(id, (Integer) value);
+                break;
+            case Float:
+                set(id, (Float) value);
+                break;
+            case Boolean:
+                set(id, ((Boolean) value));
+                break;
+            default:
+                set(id, 1);
+                break;
+        }
+    }
+
+    public void setAll(DefineList other) {
+        for (int i = 0; i < other.vals.length; i++) {
+            if (other.vals[i] != 0) {
+                vals[i] = other.vals[i];
+            }
         }
     }
 
     public void clear() {
-        defines.clear();
-        compiled = "";
-        cachedHashCode = 0;
+        hash = 0;
+        Arrays.fill(vals, 0);
     }
 
-    public String get(String key){
-        return defines.get(key);
-    }
-    
-    @Override
-    public DefineList clone() {
-        try {
-            DefineList clone = (DefineList) super.clone();
-            clone.cachedHashCode = 0;
-            clone.compiled = null;
-            clone.defines = (TreeMap<String, String>) defines.clone();
-            return clone;
-        } catch (CloneNotSupportedException ex) {
-            throw new AssertionError();
-        }
-    }
-
-    public boolean set(String key, VarType type, Object val){    
-        if (val == null){
-            defines.remove(key);
-            compiled = null;
-            cachedHashCode = 0;
-            return true;
-        }
-
-        switch (type){
-            case Boolean:
-                if (((Boolean) val).booleanValue()) {
-                    // same literal, != will work
-                    if (defines.put(key, ONE) != ONE) {
-                        compiled = null;
-                        cachedHashCode = 0;
-                        return true;
-                    }
-                } else if (defines.containsKey(key)) {
-                    defines.remove(key);
-                    compiled = null;
-                    cachedHashCode = 0;
-                    return true;
-                }
-                
-                break;
-            case Float:
-            case Int:
-                String newValue = val.toString();
-                String original = defines.put(key, newValue);
-                if (!val.equals(original)) {
-                    compiled = null;
-                    cachedHashCode = 0;
-                    return true;            
-                }
-                break;
-            default:
-                // same literal, != will work
-                if (defines.put(key, ONE) != ONE) {  
-                    compiled = null;
-                    cachedHashCode = 0;
-                    return true;            
-                }
-                break;
-        }
-        
-        return false;
-    }
-
-    public boolean remove(String key){   
-        if (defines.remove(key) != null) {
-            compiled = null;
-            cachedHashCode = 0;
-            return true;
-        }
-        return false;
-    }
-
-    public void addFrom(DefineList other){    
-        if (other == null) {
-            return;
-        }
-        compiled = null;
-        cachedHashCode = 0;
-        defines.putAll(other.defines);
-    }
-
-    public String getCompiled(){
-        if (compiled == null){
-            StringBuilder sb = new StringBuilder();
-            for (Map.Entry<String, String> entry : defines.entrySet()){
-                sb.append("#define ").append(entry.getKey()).append(" ");
-                sb.append(entry.getValue()).append('\n');
-            }
-            compiled = sb.toString();
-        }
-        return compiled;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        final DefineList other = (DefineList) obj;
-        return defines.equals(other.defines);
+    public boolean getBoolean(int id) {
+        return vals[id] != 0;
     }
     
-    /**
-     * Update defines if the define list changed based on material parameters.
-     * @param params
-     * @param def
-     * @return true if defines was updated
-     */
-    public boolean update(ListMap params, TechniqueDef def){
-        if(equalsParams(params, def)){
-            return false;
-        }
-         // Defines were changed, update define list
-        clear();
-        for(int i=0;i<params.size();i++) {
-            MatParam param = (MatParam)params.getValue(i);
-            String defineName = def.getShaderParamDefine(param.getName());
-            if (defineName != null) {
-                set(defineName, param.getVarType(), param.getValue());
-            }
-        }
-        return true;
+    public float getFloat(int id) {
+        return Float.intBitsToFloat(vals[id]);
     }
     
-    private boolean equalsParams(ListMap params, TechniqueDef def) {
-        
-        int size = 0;
-
-        for(int i = 0; i < params.size() ; i++ ) {
-            MatParam param = (MatParam)params.getValue(i);
-            String key = def.getShaderParamDefine(param.getName());
-            if (key != null) {
-                Object val = param.getValue();
-                if (val != null) {
-
-                    switch (param.getVarType()) {
-                    case Boolean: {
-                        String current = defines.get(key);
-                        if (((Boolean) val).booleanValue()) {
-                            if (current == null || current != ONE) {
-                                return false;
-                            }
-                            size++;
-                        } else {
-                            if (current != null) {
-                                return false;
-                            }
-                        }
-                    }
-                        break;
-                    case Float:
-                    case Int: {
-                        String newValue = val.toString();
-                        String current = defines.get(key);
-                        if (!newValue.equals(current)) {
-                            return false;
-                        }
-                        size++;
-                    }
-                        break;
-                    default: {
-                        if (!defines.containsKey(key)) {
-                            return false;
-                        }
-                        size++;
-                    }
-                        break;
-                    }
-
-                }
-
-            }
-        }
-
-        if (size != defines.size()) {
-            return false;
-        }
-
-        return true;
+    public int getInt(int id) {
+        return vals[id];
     }
     
     @Override
     public int hashCode() {
-        if (cachedHashCode == 0) {
-            cachedHashCode = defines.hashCode();
-        }
-        return cachedHashCode;
+        return (int)((hash >> 32) ^ hash);
     }
 
     @Override
-    public String toString(){
-        StringBuilder sb = new StringBuilder();
-        int i = 0;
-        for (Map.Entry<String, String> entry : defines.entrySet()) {
-            sb.append(entry.getKey()).append("=").append(entry.getValue());
-            if (i != defines.size() - 1) {
-                sb.append(", ");
-            }
-            i++;
-        }
-        return sb.toString();
+    public boolean equals(Object other) {
+         DefineList o = (DefineList) other;
+         if (hash == o.hash) {
+             for (int i = 0; i < vals.length; i++) {
+                  if (vals[i] != o.vals[i]) return false;
+             }
+             return true;
+         }
+         return false;
     }
 
+    public DefineList deepClone() {
+         return new DefineList(this);
+    }
+    
+    public void generateSource(StringBuilder sb, List<String> defineNames, List<VarType> defineTypes) {
+        for (int i = 0; i < vals.length; i++) {
+            if (vals[i] != 0) {
+                String defineName = defineNames.get(i);
+                
+                sb.append("#define ");
+                sb.append(defineName);
+                sb.append(" ");
+                
+                if (defineTypes != null && defineTypes.get(i) == VarType.Float) {
+                    float val = Float.intBitsToFloat(vals[i]);
+                    if (Float.isInfinite(val) || Float.isNaN(val)) {
+                        throw new IllegalArgumentException(
+                                "GLSL does not support NaN "
+                                + "or Infinite float literals");
+                    }
+                    sb.append(val);
+                } else {
+                    sb.append(vals[i]);
+                }
+                
+                sb.append("\n");
+            }
+        }
+    }
+    
+    public String generateSource(List<String> defineNames, List<VarType> defineTypes) {
+        StringBuilder sb = new StringBuilder();
+        generateSource(sb, defineNames, defineTypes);
+        return sb.toString();
+    }
 }

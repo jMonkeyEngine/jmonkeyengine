@@ -40,10 +40,7 @@ import com.jme3.material.plugin.export.material.J3MExporter;
 import com.jme3.material.plugins.J3MLoader;
 import com.jme3.math.ColorRGBA;
 import com.jme3.system.JmeSystem;
-import static org.junit.Assert.*;
-
 import com.jme3.texture.Texture;
-import com.jme3.texture.Texture2D;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,7 +48,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Scanner;
+
+import static org.junit.Assert.assertTrue;
 
 public class TestMaterialWrite {
 
@@ -87,6 +85,7 @@ public class TestMaterialWrite {
         mat.setTexture("DiffuseMap", tex);
         mat.getAdditionalRenderState().setDepthWrite(false);
         mat.getAdditionalRenderState().setDepthTest(false);
+        mat.getAdditionalRenderState().setLineWidth(5);
         mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
 
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();

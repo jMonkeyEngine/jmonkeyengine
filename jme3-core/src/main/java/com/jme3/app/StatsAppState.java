@@ -46,7 +46,7 @@ import com.jme3.scene.shape.Quad;
 
 /**
  *  Displays stats in SimpleApplication's GUI node or
- *  using the node and font parameters provided.  
+ *  using the node and font parameters provided.
  *
  *  @author    Paul Speed
  */
@@ -58,7 +58,7 @@ public class StatsAppState extends AbstractAppState {
     private boolean showFps = true;
     private boolean showStats = true;
     private boolean darkenBehind = true;
-    
+
     protected Node guiNode;
     protected float secondCounter = 0.0f;
     protected int frameCounter = 0;
@@ -68,7 +68,7 @@ public class StatsAppState extends AbstractAppState {
     protected Geometry darkenStats;
 
     public StatsAppState() {
-    }    
+    }
 
     public StatsAppState( Node guiNode, BitmapFont guiFont ) {
         this.guiNode = guiNode;
@@ -89,7 +89,7 @@ public class StatsAppState extends AbstractAppState {
     public BitmapText getFpsText() {
         return fpsText;
     }
-    
+
     public StatsView getStatsView() {
         return statsView;
     }
@@ -110,7 +110,7 @@ public class StatsAppState extends AbstractAppState {
             if (darkenFps != null) {
                 darkenFps.setCullHint(showFps && darkenBehind ? CullHint.Never : CullHint.Always);
             }
-            
+
         }
     }
 
@@ -138,7 +138,7 @@ public class StatsAppState extends AbstractAppState {
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
         this.app = app;
-               
+
         if (app instanceof SimpleApplication) {
             SimpleApplication simpleApp = (SimpleApplication)app;
             if (guiNode == null) {
@@ -147,21 +147,21 @@ public class StatsAppState extends AbstractAppState {
             if (guiFont == null ) {
                 guiFont = simpleApp.guiFont;
             }
-        } 
-        
+        }
+
         if (guiNode == null) {
             throw new RuntimeException( "No guiNode specific and cannot be automatically determined." );
-        } 
-        
+        }
+
         if (guiFont == null) {
             guiFont = app.getAssetManager().loadFont("Interface/Fonts/Default.fnt");
         }
-        
-        loadFpsText();  
-        loadStatsView();      
+
+        loadFpsText();
+        loadStatsView();
         loadDarken();
     }
-            
+
     /**
      * Attaches FPS statistics to guiNode and displays it on the screen.
      *
@@ -170,12 +170,12 @@ public class StatsAppState extends AbstractAppState {
         if (fpsText == null) {
             fpsText = new BitmapText(guiFont, false);
         }
-        
+
         fpsText.setLocalTranslation(0, fpsText.getLineHeight(), 0);
         fpsText.setText("Frames per second");
         fpsText.setCullHint(showFps ? CullHint.Never : CullHint.Always);
         guiNode.attachChild(fpsText);
-        
+
     }
 
     /**
@@ -184,53 +184,53 @@ public class StatsAppState extends AbstractAppState {
      *
      */
     public void loadStatsView() {
-        statsView = new StatsView("Statistics View", 
-                                  app.getAssetManager(), 
+        statsView = new StatsView("Statistics View",
+                                  app.getAssetManager(),
                                   app.getRenderer().getStatistics());
         // move it up so it appears above fps text
         statsView.setLocalTranslation(0, fpsText.getLineHeight(), 0);
         statsView.setEnabled(showStats);
-        statsView.setCullHint(showStats ? CullHint.Never : CullHint.Always);        
+        statsView.setCullHint(showStats ? CullHint.Never : CullHint.Always);
         guiNode.attachChild(statsView);
     }
-        
+
     public void loadDarken() {
-        Material mat = new Material(app.assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", new ColorRGBA(0,0,0,0.5f));
         mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
-        
+
         darkenFps = new Geometry("StatsDarken", new Quad(200, fpsText.getLineHeight()));
         darkenFps.setMaterial(mat);
         darkenFps.setLocalTranslation(0, 0, -1);
         darkenFps.setCullHint(showFps && darkenBehind ? CullHint.Never : CullHint.Always);
         guiNode.attachChild(darkenFps);
-        
+
         darkenStats = new Geometry("StatsDarken", new Quad(200, statsView.getHeight()));
         darkenStats.setMaterial(mat);
         darkenStats.setLocalTranslation(0, fpsText.getHeight(), -1);
         darkenStats.setCullHint(showStats && darkenBehind ? CullHint.Never : CullHint.Always);
         guiNode.attachChild(darkenStats);
     }
-    
+
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        
+
         if (enabled) {
             fpsText.setCullHint(showFps ? CullHint.Never : CullHint.Always);
             darkenFps.setCullHint(showFps && darkenBehind ? CullHint.Never : CullHint.Always);
             statsView.setEnabled(showStats);
-            statsView.setCullHint(showStats ? CullHint.Never : CullHint.Always);        
+            statsView.setCullHint(showStats ? CullHint.Never : CullHint.Always);
             darkenStats.setCullHint(showStats && darkenBehind ? CullHint.Never : CullHint.Always);
         } else {
             fpsText.setCullHint(CullHint.Always);
             darkenFps.setCullHint(CullHint.Always);
             statsView.setEnabled(false);
-            statsView.setCullHint(CullHint.Always);        
+            statsView.setCullHint(CullHint.Always);
             darkenStats.setCullHint(CullHint.Always);
         }
     }
-    
+
     @Override
     public void update(float tpf) {
         if (showFps) {
@@ -241,14 +241,14 @@ public class StatsAppState extends AbstractAppState {
                 fpsText.setText("Frames per second: " + fps);
                 secondCounter = 0.0f;
                 frameCounter = 0;
-            }          
+            }
         }
     }
 
     @Override
     public void cleanup() {
         super.cleanup();
-        
+
         guiNode.detachChild(statsView);
         guiNode.detachChild(fpsText);
         guiNode.detachChild(darkenFps);

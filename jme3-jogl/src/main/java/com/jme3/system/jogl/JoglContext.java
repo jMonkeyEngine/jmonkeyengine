@@ -53,8 +53,6 @@ import com.jme3.renderer.opengl.GLTracer;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.NanoTimer;
-import com.jme3.system.NativeLibraryLoader;
-import com.jme3.system.NullRenderer;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 
@@ -85,13 +83,6 @@ public abstract class JoglContext implements JmeContext {
     protected KeyInput keyInput;
     protected MouseInput mouseInput;
     protected JoyInput joyInput;
-
-    public void loadNatives() {
-        // Not sure if need to load OpenAL here ...
-        if (NativeLibraryLoader.isUsingNativeBullet()) {
-            NativeLibraryLoader.loadNativeLibrary("bulletjme", true);
-        }
-    }
 
     @Override
 	public void setSystemListener(SystemListener listener){

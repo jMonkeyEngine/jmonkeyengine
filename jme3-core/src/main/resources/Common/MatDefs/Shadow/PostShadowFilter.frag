@@ -25,9 +25,9 @@ uniform vec2 g_ResolutionInverse;
     uniform mat4 m_LightViewProjectionMatrix4;
     uniform mat4 m_LightViewProjectionMatrix5;
 #else
+    uniform vec3 m_LightDir;
     #ifndef PSSM    
-        uniform vec3 m_LightPos;    
-        uniform vec3 m_LightDir;       
+        uniform vec3 m_LightPos;
     #endif
 #endif
 

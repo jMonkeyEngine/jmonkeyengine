@@ -184,6 +184,22 @@ public abstract class Light implements Savable, Cloneable {
         this.enabled = enabled;
     }
 
+    public boolean isFrustumCheckNeeded() {
+      return frustumCheckNeeded;
+    }
+
+    public void setFrustumCheckNeeded(boolean frustumCheckNeeded) {
+      this.frustumCheckNeeded = frustumCheckNeeded;
+    }
+
+    public boolean isIntersectsFrustum() {
+      return intersectsFrustum;
+    }
+
+    public void setIntersectsFrustum(boolean intersectsFrustum) {
+      this.intersectsFrustum = intersectsFrustum;
+    }
+    
     /**
      * Determines if the light intersects with the given bounding box.
      * <p>

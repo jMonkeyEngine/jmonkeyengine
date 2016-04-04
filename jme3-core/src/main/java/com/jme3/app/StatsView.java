@@ -69,7 +69,7 @@ public class StatsView extends Node implements Control, JmeCloneable {
     private int[] statData;
 
     private boolean enabled = true;
-    
+
     private final StringBuilder stringBuilder = new StringBuilder();
 
     public StatsView(String name, AssetManager manager, Statistics stats){
@@ -95,22 +95,22 @@ public class StatsView extends Node implements Control, JmeCloneable {
     public float getHeight() {
         return statText.getLineHeight() * statLabels.length;
     }
-    
+
     public void update(float tpf) {
-    
-        if (!isEnabled()) 
+
+        if (!isEnabled())
             return;
-            
+
         statistics.getData(statData);
         stringBuilder.setLength(0);
-        
-        // Need to walk through it backwards, as the first label 
+
+        // Need to walk through it backwards, as the first label
         // should appear at the bottom, not the top.
         for (int i = statLabels.length - 1; i >= 0; i--) {
             stringBuilder.append(statLabels[i]).append(" = ").append(statData[i]).append('\n');
         }
         statText.setText(stringBuilder);
-        
+
         // Moved to ResetStatsState to make sure it is
         // done even if there is no StatsView or the StatsView
         // is disable.
@@ -122,16 +122,16 @@ public class StatsView extends Node implements Control, JmeCloneable {
         return (Control) spatial;
     }
 
-    @Override   
-    public Object jmeClone() {
-        throw new UnsupportedOperationException("Not yet implemented.");
-    }     
-
-    @Override   
-    public void cloneFields( Cloner cloner, Object original ) { 
+    @Override
+    public StatsView jmeClone() {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
-         
+
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+
     public void setSpatial(Spatial spatial) {
     }
 
