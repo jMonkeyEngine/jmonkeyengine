@@ -787,14 +787,14 @@ public class PhysicsSpace {
      * PhysicsRayTestResults
      */
     public List rayTest(Vector3f from, Vector3f to) {
-        List results = new LinkedList();
+        LinkedList<PhysicsRayTestResult> results = new LinkedList<PhysicsRayTestResult>();
         rayTest(from, to, results);
         
         if(results.getFirst().getHitFraction() > results.getLast().getHitFraction()) {
             Collections.reverse(results);
         }
         
-        return (List<PhysicsRayTestResult>) results;
+        return results;
     }
 
     /**
