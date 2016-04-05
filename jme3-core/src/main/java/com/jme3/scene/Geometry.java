@@ -44,6 +44,7 @@ import com.jme3.math.Matrix4f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.IdentityCloneFunction;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.Queue;
@@ -499,6 +500,13 @@ public class Geometry extends Spatial {
      */
     @Override
     public Geometry clone(boolean cloneMaterial) {
+        return (Geometry)super.clone(cloneMaterial);
+    }
+
+    /**
+     *  The old clone() method that did not use the new Cloner utility.
+     */
+    public Geometry oldClone(boolean cloneMaterial) {
         Geometry geomClone = (Geometry) super.clone(cloneMaterial);
 
         // This geometry is managed,
@@ -542,6 +550,10 @@ public class Geometry extends Spatial {
      */
     @Override
     public Spatial deepClone() {
+        return super.deepClone();
+    }
+
+    public Spatial oldDeepClone() {
         Geometry geomClone = clone(true);
         geomClone.mesh = mesh.deepClone();
         return geomClone;
@@ -552,9 +564,42 @@ public class Geometry extends Spatial {
      */
     @Override
     public void cloneFields( Cloner cloner, Object original ) {
-        this.mesh = cloner.clone(mesh);
+        super.cloneFields(cloner, original);
+
+        // If this is a grouped node and if our group node is
+        // also cloned then we'll grab it's reference.
+        if( groupNode != null ) {
+            if( cloner.isCloned(groupNode) ) {
+                // Then resolve the reference
+                this.groupNode = cloner.clone(groupNode);
+            } else {
+                // We are on our own now
+                this.groupNode = null;
+                this.startIndex = -1;
+            }
+
+            // The above is based on the fact that if we were
+            // cloning the hierarchy that contained the parent
+            // group then it would have been shallow cloned before
+            // this child.  Can't really be otherwise.
+        }
+
+        this.cachedWorldMat = cloner.clone(cachedWorldMat);
+
+        // See if we are doing a shallow clone or a deep mesh clone
+        boolean shallowClone = (cloner.getCloneFunction(Mesh.class) instanceof IdentityCloneFunction);
+
+        // See if we clone the mesh using the special animation
+        // semi-deep cloning
+        if( shallowClone && mesh != null && mesh.getBuffer(Type.BindPosePosition) != null ) {
+            // Then we need to clone the mesh a little deeper
+            this.mesh = mesh.cloneForAnim();
+        } else {
+            // Do whatever the cloner wants to do about it
+            this.mesh = cloner.clone(mesh);
+        }
+
         this.material = cloner.clone(material);
-        this.groupNode = cloner.clone(groupNode);
     }
 
     @Override

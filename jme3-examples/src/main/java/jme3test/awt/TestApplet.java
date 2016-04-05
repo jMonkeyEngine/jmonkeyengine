@@ -32,7 +32,7 @@
 
 package jme3test.awt;
 
-import com.jme3.app.Application;
+import com.jme3.app.LegacyApplication;
 import com.jme3.app.SimpleApplication;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeCanvasContext;
@@ -46,7 +46,7 @@ import javax.swing.SwingUtilities;
 public class TestApplet extends Applet {
 
     private static JmeCanvasContext context;
-    private static Application app;
+    private static LegacyApplication app;
     private static Canvas canvas;
     private static TestApplet applet;
 
@@ -62,7 +62,7 @@ public class TestApplet extends Applet {
         JmeSystem.setLowPermissions(true);
 
         try{
-            Class<? extends Application> clazz = (Class<? extends Application>) Class.forName(appClass);
+            Class<? extends LegacyApplication> clazz = (Class<? extends LegacyApplication>) Class.forName(appClass);
             app = clazz.newInstance();
         }catch (ClassNotFoundException ex){
             ex.printStackTrace();
@@ -74,7 +74,7 @@ public class TestApplet extends Applet {
 
         app.setSettings(settings);
         app.createCanvas();
-        
+
         context = (JmeCanvasContext) app.getContext();
         canvas = context.getCanvas();
         canvas.setSize(settings.getWidth(), settings.getHeight());

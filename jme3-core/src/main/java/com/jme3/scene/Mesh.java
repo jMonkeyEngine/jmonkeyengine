@@ -175,7 +175,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     private IntMap<VertexBuffer> buffers = new IntMap<VertexBuffer>();
     private VertexBuffer[] lodLevels;
     private float pointSize = 1;
-    private float lineWidth = -1;
+    private float lineWidth = 1;
 
     private transient int vertexArrayID = -1;
 
@@ -307,7 +307,9 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     @Override
     public Mesh jmeClone() {
         try {
-            return (Mesh)super.clone();
+            Mesh clone = (Mesh)super.clone();
+            clone.vertexArrayID = -1;
+            return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }
@@ -632,6 +634,9 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      */
     @Deprecated
     public void setLineWidth(float lineWidth) {
+        if (lineWidth < 1f) {
+            throw new IllegalArgumentException("lineWidth must be greater than or equal to 1.0");
+        }
         this.lineWidth = lineWidth;
     }
 

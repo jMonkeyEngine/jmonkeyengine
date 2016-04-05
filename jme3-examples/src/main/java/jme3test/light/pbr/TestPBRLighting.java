@@ -84,7 +84,7 @@ public class TestPBRLighting extends SimpleApplication {
         viewPort.setBackgroundColor(ColorRGBA.White);
         modelNode = (Node) new Node("modelNode");
         model = (Geometry) assetManager.loadModel("Models/Tank/tank.j3o");
-        //MikktspaceTangentGenerator.generate(model);
+        MikktspaceTangentGenerator.generate(model);
         modelNode.attachChild(model);
 
         dl = new DirectionalLight();

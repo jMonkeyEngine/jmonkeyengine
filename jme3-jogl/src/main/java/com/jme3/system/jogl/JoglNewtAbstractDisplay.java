@@ -73,7 +73,6 @@ public abstract class JoglNewtAbstractDisplay extends JoglContext implements GLE
     protected boolean wasAnimating = false;
 
     protected void initGLCanvas() {
-        loadNatives();
         GLCapabilities caps;
         if (settings.getRenderer().equals(AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE)) {
         	caps = new GLCapabilities(GLProfile.getMaxProgrammable(true));

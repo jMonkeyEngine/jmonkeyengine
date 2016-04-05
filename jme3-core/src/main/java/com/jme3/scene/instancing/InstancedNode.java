@@ -350,6 +350,8 @@ public class InstancedNode extends GeometryGroupNode {
      */
     @Override
     public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
         this.control = cloner.clone(control);
         this.lookUp = cloner.clone(lookUp);
 

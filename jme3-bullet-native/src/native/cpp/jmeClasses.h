@@ -46,6 +46,7 @@ public:
     static jmethodID PhysicsSpace_addCollisionEvent;
     static jclass PhysicsGhostObject;
     static jmethodID PhysicsGhostObject_addOverlappingObject;
+    static jmethodID PhysicsSpace_notifyCollisionGroupListeners;
 
     static jclass Vector3f;
     static jmethodID Vector3f_set;

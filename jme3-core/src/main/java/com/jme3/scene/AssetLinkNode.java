@@ -76,6 +76,8 @@ public class AssetLinkNode extends Node {
      */
     @Override
     public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
         // This is a change in behavior because the old version did not clone
         // this list... changes to one clone would be reflected in all.
         // I think that's probably undesirable. -pspeed

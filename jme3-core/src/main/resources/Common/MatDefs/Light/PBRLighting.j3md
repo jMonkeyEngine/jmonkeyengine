@@ -107,7 +107,7 @@ MaterialDef PBR Lighting {
     }
 
  Technique {
-        LightMode SinglePass
+        LightMode SinglePassAndImageBased
         
         VertexShader GLSL100:   Common/MatDefs/Light/PBRLighting.vert
         FragmentShader GLSL100: Common/MatDefs/Light/PBRLighting.frag

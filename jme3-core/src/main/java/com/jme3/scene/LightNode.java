@@ -100,6 +100,8 @@ public class LightNode extends Node {
      */
     @Override
     public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
         // A change in behavior... I think previously LightNode was probably
         // not really cloneable... or at least its lightControl would be pointing
         // to the wrong control. -pspeed

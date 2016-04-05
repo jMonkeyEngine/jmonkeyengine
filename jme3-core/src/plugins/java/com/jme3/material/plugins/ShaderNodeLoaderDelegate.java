@@ -44,6 +44,7 @@ import com.jme3.shader.ShaderNodeDefinition;
 import com.jme3.shader.ShaderNodeVariable;
 import com.jme3.shader.ShaderUtils;
 import com.jme3.shader.UniformBinding;
+import com.jme3.shader.VarType;
 import com.jme3.shader.VariableMapping;
 import com.jme3.util.blockparser.Statement;
 import java.io.IOException;
@@ -583,7 +584,7 @@ public class ShaderNodeLoaderDelegate {
                     //multiplicity is not an int attempting to find for a material parameter.
                     MatParam mp = findMatParam(multiplicity);
                     if (mp != null) {
-                        addDefine(multiplicity);
+                        addDefine(multiplicity, VarType.Int);
                         multiplicity = multiplicity.toUpperCase();
                     } else {
                         throw new MatParseException("Wrong multiplicity for variable" + mapping.getLeftVariable().getName() + ". " + multiplicity + " should be an int or a declared material parameter.", statement);
@@ -625,9 +626,9 @@ public class ShaderNodeLoaderDelegate {
      *
      * @param paramName
      */
-    public void addDefine(String paramName) {
+    public void addDefine(String paramName, VarType paramType) {
         if (techniqueDef.getShaderParamDefine(paramName) == null) {
-            techniqueDef.addShaderParamDefine(paramName, paramName.toUpperCase());
+            techniqueDef.addShaderParamDefine(paramName, paramType, paramName.toUpperCase());
         }
     }
 
@@ -660,7 +661,7 @@ public class ShaderNodeLoaderDelegate {
         for (String string : defines) {
             MatParam param = findMatParam(string);
             if (param != null) {
-                addDefine(param.getName());
+                addDefine(param.getName(), param.getVarType());
             } else {
                 throw new MatParseException("Invalid condition, condition must match a Material Parameter named " + cond, statement);
             }
@@ -752,6 +753,7 @@ public class ShaderNodeLoaderDelegate {
             }
             right.setNameSpace(node.getName());
             right.setType(var.getType());
+            right.setMultiplicity(var.getMultiplicity());
             mapping.setRightVariable(right);            
             storeVaryings(node, mapping.getRightVariable());
 

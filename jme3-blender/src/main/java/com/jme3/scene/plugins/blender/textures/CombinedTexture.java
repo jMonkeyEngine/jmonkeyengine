@@ -119,22 +119,24 @@ public class CombinedTexture {
         }
     }
 
-    /**
-     * This method flattens the texture and creates a single result of Texture2D
-     * type.
-     * 
-     * @param geometry
-     *            the geometry the texture is created for
-     * @param geometriesOMA
-     *            the old memory address of the geometries list that the given
-     *            geometry belongs to (needed for bounding box creation)
-     * @param userDefinedUVCoordinates
-     *            the UV's defined by user (null or zero length table if none
-     *            were defined)
-     * @param blenderContext
-     *            the blender context
-     */
-    public void flatten(Geometry geometry, Long geometriesOMA, Map<String, List<Vector2f>> userDefinedUVCoordinates, BlenderContext blenderContext) {
+	/**
+	 * This method flattens the texture and creates a single result of Texture2D
+	 * type.
+	 * 
+	 * @param geometry
+	 *            the geometry the texture is created for
+	 * @param geometriesOMA
+	 *            the old memory address of the geometries list that the given
+	 *            geometry belongs to (needed for bounding box creation)
+	 * @param userDefinedUVCoordinates
+	 *            the UV's defined by user (null or zero length table if none
+	 *            were defined)
+	 * @param blenderContext
+	 *            the blender context
+	 * @return the name of the user UV coordinates used (null if the UV's were
+	 *         generated)
+	 */
+    public String flatten(Geometry geometry, Long geometriesOMA, Map<String, List<Vector2f>> userDefinedUVCoordinates, BlenderContext blenderContext) {
         Mesh mesh = geometry.getMesh();
         Texture previousTexture = null;
         UVCoordinatesType masterUVCoordinatesType = null;
@@ -226,6 +228,7 @@ public class CombinedTexture {
             }
             resultUVS = ((TriangulatedTexture) resultTexture).getResultUVS();
             resultTexture = ((TriangulatedTexture) resultTexture).getResultTexture();
+            masterUserUVSetName = null;
         }
 
         // setting additional data
@@ -234,6 +237,8 @@ public class CombinedTexture {
         // otherwise ugly lines appear between the mesh faces
         resultTexture.setMagFilter(MagFilter.Nearest);
         resultTexture.setMinFilter(MinFilter.NearestNoMipMaps);
+        
+        return masterUserUVSetName;
     }
 
     /**

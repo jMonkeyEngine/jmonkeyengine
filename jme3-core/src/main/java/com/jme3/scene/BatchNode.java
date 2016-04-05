@@ -727,6 +727,8 @@ public class BatchNode extends GeometryGroupNode {
      */
     @Override
     public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
         this.batches = cloner.clone(batches);
         this.tmpFloat = cloner.clone(tmpFloat);
         this.tmpFloatN = cloner.clone(tmpFloatN);

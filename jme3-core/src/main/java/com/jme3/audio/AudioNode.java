@@ -41,26 +41,27 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.util.PlaceholderAssets;
+import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * An <code>AudioNode</code> is a scene Node which can play audio assets. 
- * 
- * An AudioNode is either positional or ambient, with positional being the 
- * default. Once a positional node is attached to the scene, its location and 
- * velocity relative to the {@link Listener} affect how it sounds when played. 
- * Positional nodes can only play monoaural (single-channel) assets, not stereo 
- * ones. 
- * 
- * An ambient AudioNode plays in "headspace", meaning that the node's location 
- * and velocity do not affect how it sounds when played. Ambient audio nodes can 
- * play stereo assets. 
- * 
- * The "positional" property of an AudioNode can be set via 
+ * An <code>AudioNode</code> is a scene Node which can play audio assets.
+ *
+ * An AudioNode is either positional or ambient, with positional being the
+ * default. Once a positional node is attached to the scene, its location and
+ * velocity relative to the {@link Listener} affect how it sounds when played.
+ * Positional nodes can only play monoaural (single-channel) assets, not stereo
+ * ones.
+ *
+ * An ambient AudioNode plays in "headspace", meaning that the node's location
+ * and velocity do not affect how it sounds when played. Ambient audio nodes can
+ * play stereo assets.
+ *
+ * The "positional" property of an AudioNode can be set via
  * {@link AudioNode#setPositional(boolean) }.
- * 
+ *
  * @author normenhansen
  * @author Kirill Vainer
  */
@@ -99,15 +100,15 @@ public class AudioNode extends Node implements AudioSource {
          * {@link AudioNode#play() } is called.
          */
         Playing,
-        
+
         /**
          * The audio node is currently paused.
          */
         Paused,
-        
+
         /**
          * The audio node is currently stopped.
-         * This will be set if {@link AudioNode#stop() } is called 
+         * This will be set if {@link AudioNode#stop() } is called
          * or the audio has reached the end of the file.
          */
         Stopped,
@@ -121,14 +122,14 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * Creates a new <code>AudioNode</code> with the given data and key.
-     * 
+     *
      * @param audioData The audio data contains the audio track to play.
      * @param audioKey The audio key that was used to load the AudioData
      */
     public AudioNode(AudioData audioData, AudioKey audioKey) {
         setAudioData(audioData, audioKey);
     }
-    
+
     /**
      * Creates a new <code>AudioNode</code> with the given audio file.
      * @param assetManager The asset manager to use to load the audio file
@@ -142,16 +143,16 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * Creates a new <code>AudioNode</code> with the given audio file.
-     * 
+     *
      * @param assetManager The asset manager to use to load the audio file
      * @param name The filename of the audio file
-     * @param stream If true, the audio will be streamed gradually from disk, 
+     * @param stream If true, the audio will be streamed gradually from disk,
      *               otherwise, it will be buffered.
      * @param streamCache If stream is also true, then this specifies if
      * the stream cache is used. When enabled, the audio stream will
-     * be read entirely but not decoded, allowing features such as 
+     * be read entirely but not decoded, allowing features such as
      * seeking, looping and determining duration.
-     * 
+     *
      * @deprecated Use {@link AudioNode#AudioNode(com.jme3.asset.AssetManager, java.lang.String, com.jme3.audio.AudioData.DataType)} instead
      */
     public AudioNode(AssetManager assetManager, String name, boolean stream, boolean streamCache) {
@@ -161,12 +162,12 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * Creates a new <code>AudioNode</code> with the given audio file.
-     * 
+     *
      * @param assetManager The asset manager to use to load the audio file
      * @param name The filename of the audio file
-     * @param stream If true, the audio will be streamed gradually from disk, 
+     * @param stream If true, the audio will be streamed gradually from disk,
      *               otherwise, it will be buffered.
-     * 
+     *
      * @deprecated Use {@link AudioNode#AudioNode(com.jme3.asset.AssetManager, java.lang.String, com.jme3.audio.AudioData.DataType)} instead
      */
     public AudioNode(AssetManager assetManager, String name, boolean stream) {
@@ -175,20 +176,20 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * Creates a new <code>AudioNode</code> with the given audio file.
-     * 
+     *
      * @param audioRenderer The audio renderer to use for playing. Cannot be null.
      * @param assetManager The asset manager to use to load the audio file
      * @param name The filename of the audio file
-     * 
+     *
      * @deprecated AudioRenderer parameter is ignored.
      */
     public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name) {
         this(assetManager, name, DataType.Buffer);
     }
-    
+
     /**
      * Creates a new <code>AudioNode</code> with the given audio file.
-     * 
+     *
      * @param assetManager The asset manager to use to load the audio file
      * @param name The filename of the audio file
      * @deprecated Use {@link AudioNode#AudioNode(com.jme3.asset.AssetManager, java.lang.String, com.jme3.audio.AudioData.DataType) } instead
@@ -196,14 +197,14 @@ public class AudioNode extends Node implements AudioSource {
     public AudioNode(AssetManager assetManager, String name) {
         this(assetManager, name, DataType.Buffer);
     }
-    
+
     protected AudioRenderer getRenderer() {
         AudioRenderer result = AudioContext.getAudioRenderer();
         if( result == null )
             throw new IllegalStateException( "No audio renderer available, make sure call is being performed on render thread." );
-        return result;            
+        return result;
     }
-    
+
     /**
      * Start playing the audio.
      */
@@ -217,7 +218,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Start playing an instance of this audio. This method can be used
      * to play the same <code>AudioNode</code> multiple times. Note
-     * that changes to the parameters of this AudioNode will not effect the 
+     * that changes to the parameters of this AudioNode will not effect the
      * instances already playing.
      */
     public void playInstance(){
@@ -226,21 +227,21 @@ public class AudioNode extends Node implements AudioSource {
         }
         getRenderer().playSourceInstance(this);
     }
-    
+
     /**
      * Stop playing the audio that was started with {@link AudioNode#play() }.
      */
     public void stop(){
         getRenderer().stopSource(this);
     }
-    
+
     /**
      * Pause the audio that was started with {@link AudioNode#play() }.
      */
     public void pause(){
         getRenderer().pauseSource(this);
     }
-    
+
     /**
      * Do not use.
      */
@@ -261,7 +262,7 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * @return The {#link Filter dry filter} that is set.
-     * @see AudioNode#setDryFilter(com.jme3.audio.Filter) 
+     * @see AudioNode#setDryFilter(com.jme3.audio.Filter)
      */
     public Filter getDryFilter() {
         return dryFilter;
@@ -269,14 +270,14 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * Set the dry filter to use for this audio node.
-     * 
-     * When {@link AudioNode#setReverbEnabled(boolean) reverb} is used, 
-     * the dry filter will only influence the "dry" portion of the audio, 
+     *
+     * When {@link AudioNode#setReverbEnabled(boolean) reverb} is used,
+     * the dry filter will only influence the "dry" portion of the audio,
      * e.g. not the reverberated parts of the AudioNode playing.
-     * 
+     *
      * See the relevent documentation for the {@link Filter} to determine
      * the effect.
-     * 
+     *
      * @param dryFilter The filter to set, or null to disable dry filter.
      */
     public void setDryFilter(Filter dryFilter) {
@@ -289,7 +290,7 @@ public class AudioNode extends Node implements AudioSource {
      * Set the audio data to use for the audio. Note that this method
      * can only be called once, if for example the audio node was initialized
      * without an {@link AudioData}.
-     * 
+     *
      * @param audioData The audio data contains the audio track to play.
      * @param audioKey The audio key that was used to load the AudioData
      */
@@ -303,7 +304,7 @@ public class AudioNode extends Node implements AudioSource {
     }
 
     /**
-     * @return The {@link AudioData} set previously with 
+     * @return The {@link AudioData} set previously with
      * {@link AudioNode#setAudioData(com.jme3.audio.AudioData, com.jme3.audio.AudioKey) }
      * or any of the constructors that initialize the audio data.
      */
@@ -312,7 +313,7 @@ public class AudioNode extends Node implements AudioSource {
     }
 
     /**
-     * @return The {@link Status} of the audio node. 
+     * @return The {@link Status} of the audio node.
      * The status will be changed when either the {@link AudioNode#play() }
      * or {@link AudioNode#stop() } methods are called.
      */
@@ -339,7 +340,7 @@ public class AudioNode extends Node implements AudioSource {
         else
             return data.getDataType();
     }
-    
+
     /**
      * @return True if the audio will keep looping after it is done playing,
      * otherwise, false.
@@ -351,7 +352,7 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * Set the looping mode for the audio node. The default is false.
-     * 
+     *
      * @param loop True if the audio should keep looping after it is done playing.
      */
     public void setLooping(boolean loop) {
@@ -362,8 +363,8 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * @return The pitch of the audio, also the speed of playback.
-     * 
-     * @see AudioNode#setPitch(float) 
+     *
+     * @see AudioNode#setPitch(float)
      */
     public float getPitch() {
         return pitch;
@@ -372,7 +373,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Set the pitch of the audio, also the speed of playback.
      * The value must be between 0.5 and 2.0.
-     * 
+     *
      * @param pitch The pitch to set.
      * @throws IllegalArgumentException If pitch is not between 0.5 and 2.0.
      */
@@ -388,7 +389,7 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * @return The volume of this audio node.
-     * 
+     *
      * @see AudioNode#setVolume(float)
      */
     public float getVolume() {
@@ -397,9 +398,9 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * Set the volume of this audio node.
-     * 
+     *
      * The volume is specified as gain. 1.0 is the default.
-     * 
+     *
      * @param volume The volume to set.
      * @throws IllegalArgumentException If volume is negative
      */
@@ -422,7 +423,7 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * Set the time offset in the sound sample when to start playing.
-     * 
+     *
      * @param timeOffset The time offset
      * @throws IllegalArgumentException If timeOffset is negative
      */
@@ -439,7 +440,7 @@ public class AudioNode extends Node implements AudioSource {
             play();
         }
     }
-    
+
     @Override
     public float getPlaybackTime() {
         if (channel >= 0)
@@ -451,10 +452,10 @@ public class AudioNode extends Node implements AudioSource {
     public Vector3f getPosition() {
         return getWorldTranslation();
     }
-    
+
     /**
      * @return The velocity of the audio node.
-     * 
+     *
      * @see AudioNode#setVelocity(com.jme3.math.Vector3f)
      */
     public Vector3f getVelocity() {
@@ -464,7 +465,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Set the velocity of the audio node. The velocity is expected
      * to be in meters. Does nothing if the audio node is not positional.
-     * 
+     *
      * @param velocity The velocity to set.
      * @see AudioNode#setPositional(boolean)
      */
@@ -476,7 +477,7 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * @return True if reverb is enabled, otherwise false.
-     * 
+     *
      * @see AudioNode#setReverbEnabled(boolean)
      */
     public boolean isReverbEnabled() {
@@ -487,10 +488,10 @@ public class AudioNode extends Node implements AudioSource {
      * Set to true to enable reverberation effects for this audio node.
      * Does nothing if the audio node is not positional.
      * <br/>
-     * When enabled, the audio environment set with 
+     * When enabled, the audio environment set with
      * {@link AudioRenderer#setEnvironment(com.jme3.audio.Environment) }
      * will apply a reverb effect to the audio playing from this audio node.
-     * 
+     *
      * @param reverbEnabled True to enable reverb.
      */
     public void setReverbEnabled(boolean reverbEnabled) {
@@ -502,8 +503,8 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * @return Filter for the reverberations of this audio node.
-     * 
-     * @see AudioNode#setReverbFilter(com.jme3.audio.Filter) 
+     *
+     * @see AudioNode#setReverbFilter(com.jme3.audio.Filter)
      */
     public Filter getReverbFilter() {
         return reverbFilter;
@@ -515,7 +516,7 @@ public class AudioNode extends Node implements AudioSource {
      * The reverb filter will influence the reverberations
      * of the audio node playing. This only has an effect if
      * reverb is enabled.
-     * 
+     *
      * @param reverbFilter The reverb filter to set.
      * @see AudioNode#setDryFilter(com.jme3.audio.Filter)
      */
@@ -527,7 +528,7 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * @return Max distance for this audio node.
-     * 
+     *
      * @see AudioNode#setMaxDistance(float)
      */
     public float getMaxDistance() {
@@ -545,7 +546,7 @@ public class AudioNode extends Node implements AudioSource {
      * get any quieter than at that distance.  If you want a sound to fall-off
      * very quickly then set ref distance very short and leave this distance
      * very long.
-     * 
+     *
      * @param maxDistance The maximum playing distance.
      * @throws IllegalArgumentException If maxDistance is negative
      */
@@ -561,8 +562,8 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * @return The reference playing distance for the audio node.
-     * 
-     * @see AudioNode#setRefDistance(float) 
+     *
+     * @see AudioNode#setRefDistance(float)
      */
     public float getRefDistance() {
         return refDistance;
@@ -574,7 +575,7 @@ public class AudioNode extends Node implements AudioSource {
      * <br/>
      * The reference playing distance is the distance at which the
      * audio node will be exactly half of its volume.
-     * 
+     *
      * @param refDistance The reference playing distance.
      * @throws  IllegalArgumentException If refDistance is negative
      */
@@ -590,8 +591,8 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * @return True if the audio node is directional
-     * 
-     * @see AudioNode#setDirectional(boolean) 
+     *
+     * @see AudioNode#setDirectional(boolean)
      */
     public boolean isDirectional() {
         return directional;
@@ -601,10 +602,10 @@ public class AudioNode extends Node implements AudioSource {
      * Set the audio node to be directional.
      * Does nothing if the audio node is not positional.
      * <br/>
-     * After setting directional, you should call 
+     * After setting directional, you should call
      * {@link AudioNode#setDirection(com.jme3.math.Vector3f) }
      * to set the audio node's direction.
-     * 
+     *
      * @param directional If the audio node is directional
      */
     public void setDirectional(boolean directional) {
@@ -615,7 +616,7 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * @return The direction of this audio node.
-     * 
+     *
      * @see AudioNode#setDirection(com.jme3.math.Vector3f)
      */
     public Vector3f getDirection() {
@@ -625,9 +626,9 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Set the direction of this audio node.
      * Does nothing if the audio node is not directional.
-     * 
-     * @param direction 
-     * @see AudioNode#setDirectional(boolean) 
+     *
+     * @param direction
+     * @see AudioNode#setDirectional(boolean)
      */
     public void setDirection(Vector3f direction) {
         this.direction = direction;
@@ -637,8 +638,8 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * @return The directional audio node, cone inner angle.
-     * 
-     * @see AudioNode#setInnerAngle(float) 
+     *
+     * @see AudioNode#setInnerAngle(float)
      */
     public float getInnerAngle() {
         return innerAngle;
@@ -647,7 +648,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Set the directional audio node cone inner angle.
      * Does nothing if the audio node is not directional.
-     * 
+     *
      * @param innerAngle The cone inner angle.
      */
     public void setInnerAngle(float innerAngle) {
@@ -658,8 +659,8 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * @return The directional audio node, cone outer angle.
-     * 
-     * @see AudioNode#setOuterAngle(float) 
+     *
+     * @see AudioNode#setOuterAngle(float)
      */
     public float getOuterAngle() {
         return outerAngle;
@@ -668,7 +669,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Set the directional audio node cone outer angle.
      * Does nothing if the audio node is not directional.
-     * 
+     *
      * @param outerAngle The cone outer angle.
      */
     public void setOuterAngle(float outerAngle) {
@@ -679,8 +680,8 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * @return True if the audio node is positional.
-     * 
-     * @see AudioNode#setPositional(boolean) 
+     *
+     * @see AudioNode#setPositional(boolean)
      */
     public boolean isPositional() {
         return positional;
@@ -690,7 +691,7 @@ public class AudioNode extends Node implements AudioSource {
      * Set the audio node as positional.
      * The position, velocity, and distance parameters effect positional
      * audio nodes. Set to false if the audio node should play in "headspace".
-     * 
+     *
      * @param positional True if the audio node should be positional, otherwise
      * false if it should be headspace.
      */
@@ -707,7 +708,7 @@ public class AudioNode extends Node implements AudioSource {
         if ((refreshFlags & RF_TRANSFORM) != 0){
             updatePos = true;
         }
-        
+
         super.updateGeometricState();
 
         if (updatePos && channel >= 0)
@@ -717,13 +718,37 @@ public class AudioNode extends Node implements AudioSource {
     @Override
     public AudioNode clone(){
         AudioNode clone = (AudioNode) super.clone();
-        
+
         clone.direction = direction.clone();
         clone.velocity  = velocity.clone();
-        
+
         return clone;
     }
-    
+
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
+        this.direction = cloner.clone(direction);
+        this.velocity = cloner.clone(velocity);
+
+        // Change in behavior: the filters were not cloned before meaning
+        // that two cloned audio nodes would share the same filter instance.
+        // While settings will only be applied when the filter is actually
+        // set, I think it's probably surprising to callers if the values of
+        // a filter change from one AudioNode when a different AudioNode's
+        // filter attributes are updated.
+        // Plus if they disable and re-enable the thing using the filter then
+        // the settings get reapplied and it might be surprising to have them
+        // suddenly be strange.
+        // ...so I'll clone them.  -pspeed
+        this.dryFilter = cloner.clone(dryFilter);
+        this.reverbFilter = cloner.clone(reverbFilter);
+    }
+
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -745,7 +770,7 @@ public class AudioNode extends Node implements AudioSource {
         oc.write(direction, "direction", null);
         oc.write(innerAngle, "inner_angle", 360);
         oc.write(outerAngle, "outer_angle", 360);
-        
+
         oc.write(positional, "positional", false);
     }
 
@@ -753,7 +778,7 @@ public class AudioNode extends Node implements AudioSource {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        
+
         // NOTE: In previous versions of jME3, audioKey was actually
         // written with the name "key". This has been changed
         // to "audio_key" in case Spatial's key will be written as "key".
@@ -762,7 +787,7 @@ public class AudioNode extends Node implements AudioSource {
         }else{
             audioKey = (AudioKey) ic.readSavable("audio_key", null);
         }
-        
+
         loop = ic.readBoolean("looping", false);
         volume = ic.readFloat("volume", 1);
         pitch = ic.readFloat("pitch", 1);
@@ -779,9 +804,9 @@ public class AudioNode extends Node implements AudioSource {
         direction = (Vector3f) ic.readSavable("direction", null);
         innerAngle = ic.readFloat("inner_angle", 360);
         outerAngle = ic.readFloat("outer_angle", 360);
-        
+
         positional = ic.readBoolean("positional", false);
-        
+
         if (audioKey != null) {
             try {
                 data = im.getAssetManager().loadAsset(audioKey);
