@@ -49,6 +49,7 @@ import com.jme3.scene.Spatial;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -788,6 +789,11 @@ public class PhysicsSpace {
     public List rayTest(Vector3f from, Vector3f to) {
         List results = new LinkedList();
         rayTest(from, to, results);
+        
+        if(results.getFirst().getHitFraction() > results.getLast().getHitFraction()) {
+            Collections.reverse(results);
+        }
+        
         return (List<PhysicsRayTestResult>) results;
     }
 
