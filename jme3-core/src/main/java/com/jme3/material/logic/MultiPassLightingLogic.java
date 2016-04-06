@@ -157,6 +157,8 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
                     lightDir.setValue(VarType.Vector4, tmpLightDirection);
 
                     break;
+                case Probe:
+                    break;
                 default:
                     throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
             }

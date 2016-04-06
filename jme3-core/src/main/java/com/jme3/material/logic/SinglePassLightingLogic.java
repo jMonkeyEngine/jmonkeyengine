@@ -185,6 +185,8 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
                     lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), spotAngleCos, lightDataIndex);
                     lightDataIndex++;
                     break;
+                case Probe:
+                    break;
                 default:
                     throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
             }
