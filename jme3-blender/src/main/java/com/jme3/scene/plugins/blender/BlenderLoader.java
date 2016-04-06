@@ -49,7 +49,6 @@ import com.jme3.asset.AssetLoader;
 import com.jme3.asset.AssetLocator;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.BlenderKey;
-import com.jme3.asset.ModelKey;
 import com.jme3.asset.StreamAssetInfo;
 import com.jme3.light.Light;
 import com.jme3.math.ColorRGBA;
@@ -270,12 +269,12 @@ public class BlenderLoader implements AssetLoader {
      */
     protected BlenderContext setup(AssetInfo assetInfo) throws BlenderFileException {
         // registering loaders
-        ModelKey modelKey = (ModelKey) assetInfo.getKey();
+        AssetKey assetKey = assetInfo.getKey();
         BlenderKey blenderKey;
-        if (modelKey instanceof BlenderKey) {
-            blenderKey = (BlenderKey) modelKey;
+        if (assetKey instanceof BlenderKey) {
+            blenderKey = (BlenderKey) assetKey;
         } else {
-            blenderKey = new BlenderKey(modelKey.getName());
+            blenderKey = new BlenderKey(assetKey.getName());
         }
 
         // opening stream
