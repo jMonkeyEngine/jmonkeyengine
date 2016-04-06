@@ -746,6 +746,18 @@ public final class GLRenderer implements Renderer {
                         throw new UnsupportedOperationException("Unrecognized blend mode: "
                                 + state.getBlendMode());
                 }
+                
+                if (gl2 != null && (state.getBlendEquation() != context.blendEquation || state.getBlendEquationAlpha() != context.blendEquationAlpha)) {
+                    int colorMode = convertBlendEquation(state.getBlendEquation());
+                    int alphaMode;
+                    if (state.getBlendEquationAlpha() == RenderState.BlendEquationAlpha.InheritColor) {
+                        alphaMode = colorMode;
+                    } else {
+                        alphaMode = convertBlendEquationAlpha(state.getBlendEquationAlpha());
+                    }
+                    gl2.glBlendEquationSeparate(colorMode, alphaMode);
+                    context.blendEquation = state.getBlendEquation();
+                }
             }
 
             context.blendMode = state.getBlendMode();
@@ -793,6 +805,41 @@ public final class GLRenderer implements Renderer {
         if (context.lineWidth != state.getLineWidth()) {
             gl.glLineWidth(state.getLineWidth());
             context.lineWidth = state.getLineWidth();
+        }
+    }
+
+    private int convertBlendEquation(RenderState.BlendEquation blendEquation) {
+        switch (blendEquation) {
+            case Add:
+                return GL2.GL_FUNC_ADD;
+            case Subtract:
+                return GL2.GL_FUNC_SUBTRACT;
+            case ReverseSubtract:
+                return GL2.GL_FUNC_REVERSE_SUBTRACT;
+            case Min:
+                return GL2.GL_MIN;
+            case Max:
+                return GL2.GL_MAX;
+            default:
+                throw new UnsupportedOperationException("Unrecognized blend operation: " + blendEquation);
+        }
+    }
+    
+    private int convertBlendEquationAlpha(RenderState.BlendEquationAlpha blendEquationAlpha) {
+        //Note: InheritColor mode should already be handled, that is why it does not belong the the switch case.
+        switch (blendEquationAlpha) {
+            case Add:
+                return GL2.GL_FUNC_ADD;
+            case Subtract:
+                return GL2.GL_FUNC_SUBTRACT;
+            case ReverseSubtract:
+                return GL2.GL_FUNC_REVERSE_SUBTRACT;
+            case Min:
+                return GL2.GL_MIN;
+            case Max:
+                return GL2.GL_MAX;
+            default:
+                throw new UnsupportedOperationException("Unrecognized alpha blend operation: " + blendEquationAlpha);
         }
     }
 
