@@ -71,14 +71,8 @@ public interface GL2 extends GL {
     public static final int GL_TEXTURE_WRAP_R = 0x8072;
     public static final int GL_VERTEX_PROGRAM_POINT_SIZE = 0x8642;
     public static final int GL_UNSIGNED_INT_8_8_8_8 = 0x8035;
-    public static final int GL_FUNC_ADD = 0x8006;
-    public static final int GL_FUNC_SUBTRACT = 0x800A;
-    public static final int GL_FUNC_REVERSE_SUBTRACT = 0x800B;
-    public static final int GL_MIN = 0x8007;
-    public static final int GL_MAX = 0x8008;
     
     public void glAlphaFunc(int func, float ref);
-    public void glBlendEquationSeparate(int colorMode, int alphaMode);
     public void glPointSize(float size);
     public void glPolygonMode(int face, int mode);
     public void glDrawBuffer(int mode);

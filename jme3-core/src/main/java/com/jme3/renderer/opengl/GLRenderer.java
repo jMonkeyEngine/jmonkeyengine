@@ -747,7 +747,7 @@ public final class GLRenderer implements Renderer {
                                 + state.getBlendMode());
                 }
                 
-                if (gl2 != null && (state.getBlendEquation() != context.blendEquation || state.getBlendEquationAlpha() != context.blendEquationAlpha)) {
+                if (state.getBlendEquation() != context.blendEquation || state.getBlendEquationAlpha() != context.blendEquationAlpha) {
                     int colorMode = convertBlendEquation(state.getBlendEquation());
                     int alphaMode;
                     if (state.getBlendEquationAlpha() == RenderState.BlendEquationAlpha.InheritColor) {
@@ -755,8 +755,9 @@ public final class GLRenderer implements Renderer {
                     } else {
                         alphaMode = convertBlendEquationAlpha(state.getBlendEquationAlpha());
                     }
-                    gl2.glBlendEquationSeparate(colorMode, alphaMode);
+                    gl.glBlendEquationSeparate(colorMode, alphaMode);
                     context.blendEquation = state.getBlendEquation();
+                    context.blendEquationAlpha = state.getBlendEquationAlpha();
                 }
             }
 

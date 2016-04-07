@@ -142,6 +142,7 @@ public class JmeIosGLES {
 	public static native void glBindRenderbuffer(int target, int renderbuffer);
 	public static native void glBindTexture(int target, int texture);
 //	public static native void glBindVertexArray // TODO: Investigate this 
+    public static native void glBlendEquationSeparate(int colorMode, int alphaMode);
 	public static native void glBlendFunc(int sfactor, int dfactor);
 	public static native void glBufferData(int target, int size, Buffer data, int usage);
 	public static native void glBufferData2(int target, int size, byte[] data, int offset, int usage);

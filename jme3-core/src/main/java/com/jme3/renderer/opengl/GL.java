@@ -69,6 +69,9 @@ public interface GL {
 	public static final int GL_EXTENSIONS = 0x1F03;
 	public static final int GL_FALSE = 0x0;
 	public static final int GL_FLOAT = 0x1406;
+    public static final int GL_FUNC_ADD = 0x8006;
+    public static final int GL_FUNC_SUBTRACT = 0x800A;
+    public static final int GL_FUNC_REVERSE_SUBTRACT = 0x800B;
 	public static final int GL_FRAGMENT_SHADER = 0x8B30;
 	public static final int GL_FRONT = 0x404;
 	public static final int GL_FRONT_AND_BACK = 0x408;
@@ -95,6 +98,7 @@ public interface GL {
 	public static final int GL_LINK_STATUS = 0x8B82;
 	public static final int GL_LUMINANCE = 0x1909;
 	public static final int GL_LUMINANCE_ALPHA = 0x190A;
+    public static final int GL_MAX = 0x8008;
 	public static final int GL_MAX_CUBE_MAP_TEXTURE_SIZE = 0x851C;
 	public static final int GL_MAX_TEXTURE_IMAGE_UNITS = 0x8872;
 	public static final int GL_MAX_TEXTURE_SIZE = 0xD33;
@@ -103,6 +107,7 @@ public interface GL {
 	public static final int GL_MAX_VERTEX_UNIFORM_COMPONENTS  = 0x8B4A;
 	public static final int GL_MAX_VERTEX_UNIFORM_VECTORS = 0x8DFB;
 	public static final int GL_MIRRORED_REPEAT = 0x8370;
+    public static final int GL_MIN = 0x8007;
 	public static final int GL_NEAREST = 0x2600;
 	public static final int GL_NEAREST_MIPMAP_LINEAR = 0x2702;
 	public static final int GL_NEAREST_MIPMAP_NEAREST = 0x2700;
@@ -188,6 +193,7 @@ public interface GL {
 	public void glAttachShader(int program, int shader);
 	public void glBindBuffer(int target, int buffer);
 	public void glBindTexture(int target, int texture);
+    public void glBlendEquationSeparate(int colorMode, int alphaMode);
 	public void glBlendFunc(int sfactor, int dfactor);
         public void glBufferData(int target, long data_size, int usage);
 	public void glBufferData(int target, FloatBuffer data, int usage);

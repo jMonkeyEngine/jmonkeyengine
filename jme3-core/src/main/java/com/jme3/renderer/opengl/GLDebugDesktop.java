@@ -102,7 +102,7 @@ public class GLDebugDesktop extends GLDebugES implements GL2, GL3, GL4 {
     }
 
     public void glBlendEquationSeparate(int colorMode, int alphaMode) {
-        gl2.glBlendEquationSeparate(colorMode, alphaMode);
+        gl.glBlendEquationSeparate(colorMode, alphaMode);
         checkError();
     }
 }

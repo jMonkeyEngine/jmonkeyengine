@@ -1501,7 +1501,7 @@ public class RenderState implements Cloneable, Savable {
         if (additionalState.applyBlendEquationAlpha) {
             state.blendEquationAlpha = additionalState.blendEquationAlpha;
         } else {
-            state.blendEquation = blendEquation;
+            state.blendEquationAlpha = blendEquationAlpha;
         }        
         if (additionalState.applyBlendMode) {
             state.blendMode = additionalState.blendMode;
