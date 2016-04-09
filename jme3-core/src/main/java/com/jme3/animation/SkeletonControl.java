@@ -124,7 +124,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
         }
         for (Mesh mesh : targets) {
             if (mesh.isAnimated()) {
-                mesh.prepareForAnim(false);
+                mesh.prepareForAnimHardware();
             }
         }
     }
@@ -137,7 +137,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
         }
         for (Mesh mesh : targets) {
             if (mesh.isAnimated()) {
-                mesh.prepareForAnim(true);
+                mesh.prepareForAnimSoftware();
             }
         }
     }
@@ -312,7 +312,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
                 Buffer bwBuff = mesh.getBuffer(Type.BoneWeight).getData();
                 Buffer biBuff = mesh.getBuffer(Type.BoneIndex).getData();
                 if (!biBuff.hasArray() || !bwBuff.hasArray()) {
-                    mesh.prepareForAnim(true); // prepare for software animation
+                    mesh.prepareForAnimSoftware(); // prepare for software animation
                 }
                 VertexBuffer bindPos = mesh.getBuffer(Type.BindPosePosition);
                 VertexBuffer bindNorm = mesh.getBuffer(Type.BindPoseNormal);
