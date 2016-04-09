@@ -94,7 +94,7 @@ public class TechniqueDef implements Savable {
         PostPass,
     }
 
-    private EnumSet<Caps> requiredCaps = EnumSet.noneOf(Caps.class);
+    private final EnumSet<Caps> requiredCaps = EnumSet.noneOf(Caps.class);
     private String name;
     private int sortId;
     

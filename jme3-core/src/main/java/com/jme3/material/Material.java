@@ -720,46 +720,30 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         // supports all the caps.
         if (tech == null) {
             EnumSet<Caps> rendererCaps = renderManager.getRenderer().getCaps();
-            if (name.equals("Default")) {
-                List<TechniqueDef> techDefs = def.getDefaultTechniques();
-                if (techDefs == null || techDefs.isEmpty()) {
-                    throw new IllegalArgumentException("No default techniques are available on material '" + def.getName() + "'");
-                }
+            List<TechniqueDef> techDefs = def.getTechniqueDefs(name);
 
-                TechniqueDef lastTech = null;
-                for (TechniqueDef techDef : techDefs) {
-                    if (rendererCaps.containsAll(techDef.getRequiredCaps())) {
-                        // use the first one that supports all the caps
-                        tech = new Technique(this, techDef);
-                        techniques.put(name, tech);
-                        if(tech.getDef().getLightMode() == renderManager.getPreferredLightMode() ||
-                               tech.getDef().getLightMode() == LightMode.Disable){
-                            break;
-                        }
+            if (techDefs == null || techDefs.isEmpty()) {
+                throw new IllegalArgumentException(
+                        String.format("The requested technique %s is not available on material %s", name, def.getName()));
+            }
+
+            TechniqueDef lastTech = null;
+            for (TechniqueDef techDef : techDefs) {
+                if (rendererCaps.containsAll(techDef.getRequiredCaps())) {
+                    // use the first one that supports all the caps
+                    tech = new Technique(this, techDef);
+                    techniques.put(name, tech);
+                    if (tech.getDef().getLightMode() == renderManager.getPreferredLightMode()
+                            || tech.getDef().getLightMode() == LightMode.Disable) {
+                        break;
                     }
-                    lastTech = techDef;
                 }
-                if (tech == null) {
-                    throw new UnsupportedOperationException("No default technique on material '" + def.getName() + "'\n"
-                            + " is supported by the video hardware. The caps "
-                            + lastTech.getRequiredCaps() + " are required.");
-                }
-
-            } else {
-                // create "special" technique instance
-                TechniqueDef techDef = def.getTechniqueDef(name);
-                if (techDef == null) {
-                    throw new IllegalArgumentException("For material " + def.getName() + ", technique not found: " + name);
-                }
-
-                if (!rendererCaps.containsAll(techDef.getRequiredCaps())) {
-                    throw new UnsupportedOperationException("The explicitly chosen technique '" + name + "' on material '" + def.getName() + "'\n"
-                            + "requires caps " + techDef.getRequiredCaps() + " which are not "
-                            + "supported by the video renderer");
-                }
-
-                tech = new Technique(this, techDef);
-                techniques.put(name, tech);
+                lastTech = techDef;
+            }
+            if (tech == null) {
+                throw new UnsupportedOperationException("No default technique on material '" + def.getName() + "'\n"
+                        + " is supported by the video hardware. The caps "
+                        + lastTech.getRequiredCaps() + " are required.");
             }
         } else if (technique == tech) {
             // attempting to switch to an already

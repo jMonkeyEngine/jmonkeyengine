@@ -533,7 +533,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         for (int i = 0; i < l.size(); i++) {
             Material mat = l.get(i).getMaterial();
             //checking if the material has the post technique and adding it to the material cache
-            if (mat.getMaterialDef().getTechniqueDef(postTechniqueName) != null) {
+            if (mat.getMaterialDef().getTechniqueDefs(postTechniqueName) != null) {
                 if (!matCache.contains(mat)) {
                     matCache.add(mat);
                 }

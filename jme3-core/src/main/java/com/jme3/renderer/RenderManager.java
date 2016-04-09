@@ -580,7 +580,8 @@ public class RenderManager {
         //if it does not exists in the mat def, we check for forcedMaterial and render the geom if not null
         //else the geom is not rendered
         if (forcedTechnique != null) {
-            if (g.getMaterial().getMaterialDef().getTechniqueDef(forcedTechnique) != null) {
+            MaterialDef matDef = g.getMaterial().getMaterialDef();
+            if (matDef.getTechniqueDefs(forcedTechnique) != null) {
                 tmpTech = g.getMaterial().getActiveTechnique() != null ? g.getMaterial().getActiveTechnique().getDef().getName() : "Default";
                 g.getMaterial().selectTechnique(forcedTechnique, this);
                 //saving forcedRenderState for future calls
