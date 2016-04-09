@@ -107,7 +107,7 @@ public class J3MLoaderTest {
     }
 
     private TextureKey setupMockForTexture(final String paramName, final String path, final boolean flipY, final Texture texture) {
-        when(materialDef.getMaterialParam(paramName)).thenReturn(new MatParamTexture(VarType.Texture2D, paramName, texture, 0, null));
+        when(materialDef.getMaterialParam(paramName)).thenReturn(new MatParamTexture(VarType.Texture2D, paramName, texture, null));
 
         final TextureKey textureKey = new TextureKey(path, flipY);
         textureKey.setGenerateMips(true);
