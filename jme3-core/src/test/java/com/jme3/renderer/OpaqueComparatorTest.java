@@ -33,6 +33,7 @@ package com.jme3.renderer;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
+import com.jme3.material.TechniqueDef;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.OpaqueComparator;
@@ -92,7 +93,7 @@ public class OpaqueComparatorTest {
                     String techniqueName = materials[i].getActiveTechnique().getDef().getName();
                     clonedMaterial.selectTechnique(techniqueName, renderManager);
                 } else {
-                    clonedMaterial.selectTechnique("Default", renderManager);
+                    clonedMaterial.selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
                 }
                 
                 geom.setMaterial(clonedMaterial);
@@ -156,7 +157,7 @@ public class OpaqueComparatorTest {
         Material lightingMatGlow = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         
         lightingMatDefault.setName("TechDefault");
-        lightingMatDefault.selectTechnique("Default", renderManager);
+        lightingMatDefault.selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
         
         lightingPostShadow.setName("TechPostShad");
         lightingPostShadow.selectTechnique("PostShadow", renderManager);
@@ -272,7 +273,7 @@ public class OpaqueComparatorTest {
         tex2.getImage().setId(3);
         
         matBase1.setName("BASE");
-        matBase1.selectTechnique("Default", renderManager);
+        matBase1.selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
         matBase1.setBoolean("UseVertexColor", true);
         matBase1.setTexture("DiffuseMap", texBase);
         

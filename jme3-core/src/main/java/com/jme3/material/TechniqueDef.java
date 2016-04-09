@@ -54,6 +54,14 @@ public class TechniqueDef implements Savable {
     public static final int SAVABLE_VERSION = 1;
 
     /**
+     * The default technique name.
+     *
+     * The technique with this name is selected if no specific technique is
+     * requested by the user. Currently set to "Default".
+     */
+    public static final String DEFAULT_TECHNIQUE_NAME = "Default";
+
+    /**
      * Describes light rendering mode.
      */
     public enum LightMode {
@@ -132,7 +140,7 @@ public class TechniqueDef implements Savable {
     public TechniqueDef(String name, int sortId){
         this();
         this.sortId = sortId;
-        this.name = name == null ? "Default" : name;
+        this.name = name == null ? TechniqueDef.DEFAULT_TECHNIQUE_NAME : name;
     }
 
     /**
@@ -157,7 +165,8 @@ public class TechniqueDef implements Savable {
 
     /**
      * Returns the name of this technique as specified in the J3MD file.
-     * Default techniques have the name "Default".
+     * Default
+     * techniques have the name {@link #DEFAULT_TECHNIQUE_NAME}.
      *
      * @return the name of this technique
      */

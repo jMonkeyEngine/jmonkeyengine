@@ -263,8 +263,14 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             // E.g. if user chose custom technique for one material but
             // uses default technique for other material, the materials
             // are not equal.
-            String thisDefName = this.technique != null ? this.technique.getDef().getName() : "Default";
-            String otherDefName = other.technique != null ? other.technique.getDef().getName() : "Default";
+            String thisDefName = this.technique != null
+                    ? this.technique.getDef().getName()
+                    : TechniqueDef.DEFAULT_TECHNIQUE_NAME;
+
+            String otherDefName = other.technique != null
+                    ? other.technique.getDef().getName()
+                    : TechniqueDef.DEFAULT_TECHNIQUE_NAME;
+
             if (!thisDefName.equals(otherDefName)) {
                 return false;
             }
@@ -693,23 +699,18 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     /**
      * Select the technique to use for rendering this material.
      * <p>
-     * If <code>name</code> is "Default", then one of the
-     * {@link MaterialDef#getDefaultTechniques() default techniques}
-     * on the material will be selected. Otherwise, the named technique
-     * will be found in the material definition.
-     * <p>
      * Any candidate technique for selection (either default or named)
      * must be verified to be compatible with the system, for that, the
      * <code>renderManager</code> is queried for capabilities.
      *
-     * @param name The name of the technique to select, pass "Default" to
-     * select one of the default techniques.
+     * @param name The name of the technique to select, pass
+     * {@link TechniqueDef#DEFAULT_TECHNIQUE_NAME} to select one of the default
+     * techniques.
      * @param renderManager The {@link RenderManager render manager}
      * to query for capabilities.
      *
-     * @throws IllegalArgumentException If "Default" is passed and no default
-     * techniques are available on the material definition, or if a name
-     * is passed but there's no technique by that name.
+     * @throws IllegalArgumentException If no technique exists with the given
+     * name.
      * @throws UnsupportedOperationException If no candidate technique supports
      * the system capabilities.
      */
@@ -839,7 +840,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      */
     public void preload(RenderManager renderManager) {
         if (technique == null) {
-            selectTechnique("Default", renderManager);
+            selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
         }
         TechniqueDef techniqueDef = technique.getDef();
         Renderer renderer = renderManager.getRenderer();
@@ -939,7 +940,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      */
     public void render(Geometry geometry, LightList lights, RenderManager renderManager) {
         if (technique == null) {
-            selectTechnique("Default", renderManager);
+            selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
         }
         
         TechniqueDef techniqueDef = technique.getDef();

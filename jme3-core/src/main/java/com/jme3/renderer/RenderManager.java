@@ -582,7 +582,9 @@ public class RenderManager {
         if (forcedTechnique != null) {
             MaterialDef matDef = g.getMaterial().getMaterialDef();
             if (matDef.getTechniqueDefs(forcedTechnique) != null) {
-                tmpTech = g.getMaterial().getActiveTechnique() != null ? g.getMaterial().getActiveTechnique().getDef().getName() : "Default";
+                tmpTech = g.getMaterial().getActiveTechnique() != null
+                        ? g.getMaterial().getActiveTechnique().getDef().getName()
+                        : TechniqueDef.DEFAULT_TECHNIQUE_NAME;
                 g.getMaterial().selectTechnique(forcedTechnique, this);
                 //saving forcedRenderState for future calls
                 RenderState tmpRs = forcedRenderState;
