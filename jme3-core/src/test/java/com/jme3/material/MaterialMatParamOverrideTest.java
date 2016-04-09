@@ -127,7 +127,6 @@ public class MaterialMatParamOverrideTest {
     }
 
     @Test
-    @Test
     public void testChildOverridesParent() {
         material("Common/MatDefs/Light/Lighting.j3md");
 
