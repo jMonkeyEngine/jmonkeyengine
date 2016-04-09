@@ -135,7 +135,7 @@ public class MaterialDef {
      * @see ColorSpace
      */
     public void addMaterialParamTexture(VarType type, String name, ColorSpace colorSpace) {
-        matParams.put(name, new MatParamTexture(type, name, null , 0, colorSpace));
+        matParams.put(name, new MatParamTexture(type, name, null, colorSpace));
     }
     
     /**

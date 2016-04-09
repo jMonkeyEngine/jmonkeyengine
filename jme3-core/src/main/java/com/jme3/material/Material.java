@@ -93,7 +93,6 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     private ListMap<String, MatParam> paramValues = new ListMap<String, MatParam>();
     private Technique technique;
     private HashMap<String, Technique> techniques = new HashMap<String, Technique>();
-    private int nextTexUnit = 0;
     private RenderState additionalState = null;
     private RenderState mergedRenderState = new RenderState();
     private boolean transparent = false;
@@ -510,16 +509,6 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
         paramValues.remove(name);
         if (matParam instanceof MatParamTexture) {
-            int texUnit = ((MatParamTexture) matParam).getUnit();
-            nextTexUnit--;
-            for (MatParam param : paramValues.values()) {
-                if (param instanceof MatParamTexture) {
-                    MatParamTexture texParam = (MatParamTexture) param;
-                    if (texParam.getUnit() > texUnit) {
-                        texParam.setUnit(texParam.getUnit() - 1);
-                    }
-                }
-            }
             sortingId = -1;
         }
         if (technique != null) {
@@ -562,13 +551,13 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                         + "Linear using texture.getImage.setColorSpace().",
                         new Object[]{value.getName(), value.getImage().getColorSpace().name(), name});
             }
-            paramValues.put(name, new MatParamTexture(type, name, value, nextTexUnit++, null));
+            paramValues.put(name, new MatParamTexture(type, name, value, null));
         } else {
             val.setTextureValue(value);
         }
 
         if (technique != null) {
-            technique.notifyParamChanged(name, type, nextTexUnit - 1);
+            technique.notifyParamChanged(name, type, value);
         }
 
         // need to recompute sort ID
@@ -1078,11 +1067,6 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             MatParam param = entry.getValue();
             if (param instanceof MatParamTexture) {
                 MatParamTexture texVal = (MatParamTexture) param;
-
-                if (nextTexUnit < texVal.getUnit() + 1) {
-                    nextTexUnit = texVal.getUnit() + 1;
-                }
-
                 // the texture failed to load for this param
                 // do not add to param values
                 if (texVal.getTextureValue() == null || texVal.getTextureValue().getImage() == null) {
