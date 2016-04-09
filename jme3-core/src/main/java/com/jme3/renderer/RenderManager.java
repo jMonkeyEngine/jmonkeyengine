@@ -34,6 +34,7 @@ package com.jme3.renderer;
 import com.jme3.light.DefaultLightFilter;
 import com.jme3.light.LightFilter;
 import com.jme3.light.LightList;
+import com.jme3.material.MatParamOverride;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialDef;
 import com.jme3.material.RenderState;
@@ -82,6 +83,7 @@ public class RenderManager {
     private Material forcedMaterial = null;
     private String forcedTechnique = null;
     private RenderState forcedRenderState = null;
+    private final List<MatParamOverride> forcedOverrides = new ArrayList<>();
     private int viewX, viewY, viewWidth, viewHeight;
     private Matrix4f orthoMatrix = new Matrix4f();
     private LightList filteredLightList = new LightList(null);
@@ -91,6 +93,7 @@ public class RenderManager {
     private LightFilter lightFilter = new DefaultLightFilter();
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
     private int singlePassLightBatchSize = 1;
+
 
     /**
      * Create a high-level rendering interface over the
@@ -424,6 +427,44 @@ public class RenderManager {
      */
     public void setForcedTechnique(String forcedTechnique) {
         this.forcedTechnique = forcedTechnique;
+    }
+
+    /**
+     * Adds a forced material parameter to use when rendering geometries.
+     * <p>
+     * The provided parameter takes precedence over parameters set on the
+     * material or any overrides that exist in the scene graph that have the
+     * same name.
+     *
+     * @param override The override to add
+     * @see MatParamOverride
+     * @see #removeForcedMatParam(com.jme3.material.MatParamOverride)
+     */
+    public void addForcedMatParam(MatParamOverride override) {
+        forcedOverrides.add(override);
+    }
+
+    /**
+     * Remove a forced material parameter previously added.
+     *
+     * @param override The override to remove.
+     * @see #addForcedMatParam(com.jme3.material.MatParamOverride)
+     */
+    public void removeForcedMatParam(MatParamOverride override) {
+        forcedOverrides.remove(override);
+    }
+
+    /**
+     * Get the forced material parameters applied to rendered geometries.
+     * <p>
+     * Forced parameters can be added via
+     * {@link #addForcedMatParam(com.jme3.material.MatParamOverride)} or removed
+     * via {@link #removeForcedMatParam(com.jme3.material.MatParamOverride)}.
+     *
+     * @return The forced material parameters.
+     */
+    public List<MatParamOverride> getForcedMatParams() {
+        return forcedOverrides;
     }
 
     /**

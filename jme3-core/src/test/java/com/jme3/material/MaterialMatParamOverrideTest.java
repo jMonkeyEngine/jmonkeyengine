@@ -53,6 +53,7 @@ import com.jme3.system.TestUtil;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Before;
@@ -122,6 +123,22 @@ public class MaterialMatParamOverrideTest {
         material("Common/MatDefs/Light/Lighting.j3md");
         inputMp(mpoFloat("AlphaDiscardThreshold", 3.12f));
         inputMpo(mpoFloat("AlphaDiscardThreshold", 2.79f));
+        outDefines(def("DISCARD_ALPHA", VarType.Float, 2.79f));
+        outUniforms(uniform("AlphaDiscardThreshold", VarType.Float, 2.79f));
+    }
+
+    @Test
+    public void testForcedOverride() {
+        material("Common/MatDefs/Light/Lighting.j3md");
+        inputMp(mpoFloat("AlphaDiscardThreshold", 3.12f));
+        inputMpo(mpoFloat("AlphaDiscardThreshold", 2.79f));
+        inputFpo(mpoFloat("AlphaDiscardThreshold", 1.23f));
+        outDefines(def("DISCARD_ALPHA", VarType.Float, 1.23f));
+        outUniforms(uniform("AlphaDiscardThreshold", VarType.Float, 1.23f));
+
+        reset();
+        root.clearMatParamOverrides();
+        root.updateGeometricState();
         outDefines(def("DISCARD_ALPHA", VarType.Float, 2.79f));
         outUniforms(uniform("AlphaDiscardThreshold", VarType.Float, 2.79f));
     }
@@ -439,10 +456,22 @@ public class MaterialMatParamOverrideTest {
         root.updateGeometricState();
     }
 
+    private void inputFpo(MatParamOverride... overrides) {
+        if (evaluated) {
+            throw new IllegalStateException();
+        }
+        for (MatParamOverride override : overrides) {
+            renderManager.addForcedMatParam(override);
+        }
+    }
+
     private void reset() {
         evaluated = false;
         usedShader = null;
         Arrays.fill(usedTextures, null);
+        for (MatParamOverride override : new ArrayList<>(renderManager.getForcedMatParams())) {
+            renderManager.removeForcedMatParam(override);
+        }
     }
 
     private Define def(String name, VarType type, Object value) {

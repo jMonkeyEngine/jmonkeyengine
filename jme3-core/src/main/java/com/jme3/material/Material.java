@@ -774,31 +774,42 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         sortingId = -1;
     }
 
-    private void updateShaderMaterialParameters(Renderer renderer, Shader shader, List<MatParamOverride> overrides) {
-        int unit = 0;
+    private int applyOverrides(Renderer renderer, Shader shader, List<MatParamOverride> overrides, int unit) {
+        for (MatParamOverride override : overrides) {
+            VarType type = override.getVarType();
 
-        if (overrides != null) {
-            for (MatParamOverride override : overrides) {
-                VarType type = override.getVarType();
+            MatParam paramDef = def.getMaterialParam(override.getName());
 
-                MatParam paramDef = def.getMaterialParam(override.getName());
-                if (paramDef == null || paramDef.getVarType() != type || !override.isEnabled()) {
-                    continue;
-                }
-
-                Uniform uniform = shader.getUniform(override.getPrefixedName());
-                if (override.getValue() != null) {
-                    if (type.isTextureType()) {
-                        renderer.setTexture(unit, (Texture) override.getValue());
-                        uniform.setValue(VarType.Int, unit);
-                        unit++;
-                    } else {
-                        uniform.setValue(type, override.getValue());
-                    }
-                } else {
-                    uniform.clearValue();
-                }
+            if (paramDef == null || paramDef.getVarType() != type || !override.isEnabled()) {
+                continue;
             }
+
+            Uniform uniform = shader.getUniform(override.getPrefixedName());
+
+            if (override.getValue() != null) {
+                if (type.isTextureType()) {
+                    renderer.setTexture(unit, (Texture) override.getValue());
+                    uniform.setValue(VarType.Int, unit);
+                    unit++;
+                } else {
+                    uniform.setValue(type, override.getValue());
+                }
+            } else {
+                uniform.clearValue();
+            }
+        }
+        return unit;
+    }
+
+    private void updateShaderMaterialParameters(Renderer renderer, Shader shader,
+            List<MatParamOverride> worldOverrides, List<MatParamOverride> forcedOverrides) {
+
+        int unit = 0;
+        if (worldOverrides != null) {
+            unit = applyOverrides(renderer, shader, worldOverrides, unit);
+        }
+        if (forcedOverrides != null) {
+            unit = applyOverrides(renderer, shader, forcedOverrides, unit);
         }
 
         for (int i = 0; i < paramValues.size(); i++) {
@@ -854,8 +865,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             return;
         }
 
-        Shader shader = technique.makeCurrent(renderManager, null, null, rendererCaps);
-        updateShaderMaterialParameters(renderer, shader, null);
+        Shader shader = technique.makeCurrent(renderManager, null, null, null, rendererCaps);
+        updateShaderMaterialParameters(renderer, shader, null, null);
         renderManager.getRenderer().setShader(shader);
     }
 
@@ -962,7 +973,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         List<MatParamOverride> overrides = geometry.getWorldMatParamOverrides();
 
         // Select shader to use
-        Shader shader = technique.makeCurrent(renderManager, overrides, lights, rendererCaps);
+        Shader shader = technique.makeCurrent(renderManager, overrides, renderManager.getForcedMatParams(), lights, rendererCaps);
         
         // Begin tracking which uniforms were changed by material.
         clearUniformsSetByCurrent(shader);
@@ -971,7 +982,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         renderManager.updateUniformBindings(shader);
         
         // Set material parameters
-        updateShaderMaterialParameters(renderer, shader, geometry.getWorldMatParamOverrides());
+        updateShaderMaterialParameters(renderer, shader, overrides, renderManager.getForcedMatParams());
         
         // Clear any uniforms not changed by material.
         resetUniformsNotSetByCurrent(shader);
