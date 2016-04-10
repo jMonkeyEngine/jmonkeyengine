@@ -533,7 +533,6 @@ public final class GLRenderer implements Renderer {
             gl2.glEnable(GL2.GL_VERTEX_PROGRAM_POINT_SIZE);
             if (!caps.contains(Caps.CoreProfile)) {
                 gl2.glEnable(GL2.GL_POINT_SPRITE);
-                context.pointSprite = true;
             }
         }
     }

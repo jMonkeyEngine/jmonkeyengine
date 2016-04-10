@@ -56,16 +56,6 @@ public class RenderContext {
     public boolean depthTestEnabled = false;
 
     /**
-     * @see RenderState#setAlphaFallOff(float) 
-     */
-    public float alphaTestFallOff = 0f;
-
-    /**
-     * @see RenderState#setAlphaTest(boolean) 
-     */
-    public boolean alphaTestEnabled = false;
-
-    /**
      * @see RenderState#setDepthWrite(boolean) 
      */
     public boolean depthWriteEnabled = true;
@@ -114,11 +104,6 @@ public class RenderContext {
      * @see RenderState#setWireframe(boolean) 
      */
     public boolean wireframe = false;
-
-    /**
-     * @see RenderState#setPointSprite(boolean) 
-     */
-    public boolean pointSprite = false;
 
     /**
      * @see Renderer#setShader(com.jme3.shader.Shader) 
@@ -261,7 +246,6 @@ public class RenderContext {
     public void reset(){
         cullMode = RenderState.FaceCullMode.Off;
         depthTestEnabled = false;
-        alphaTestFallOff = 0f;
         depthWriteEnabled = false;
         colorWriteEnabled = false;
         clipRectEnabled = false;

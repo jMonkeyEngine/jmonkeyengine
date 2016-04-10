@@ -75,12 +75,11 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * <code>TestFunction</code> specifies the testing function for stencil test
-     * function and alpha test function.
+     * function.
      *
-     * <p>The functions work similarly as described except that for stencil
-     * test function, the reference value given in the stencil command is
-     * the input value while the reference is the value already in the stencil
-     * buffer.
+     * <p>
+     * The reference value given in the stencil command is the input value while
+     * the reference is the value already in the stencil buffer.
      */
     public enum TestFunction {
 
@@ -118,7 +117,8 @@ public class RenderState implements Cloneable, Savable {
         /**
          * The test always passes
          */
-        Always,}
+        Always
+    }
 
     /**
      * <code>BlendMode</code> specifies the blending operation to use.
@@ -276,19 +276,14 @@ public class RenderState implements Cloneable, Savable {
     }
 
     static {
-        ADDITIONAL.applyPointSprite = false;
         ADDITIONAL.applyWireFrame = false;
         ADDITIONAL.applyCullMode = false;
         ADDITIONAL.applyDepthWrite = false;
         ADDITIONAL.applyDepthTest = false;
         ADDITIONAL.applyColorWrite = false;
         ADDITIONAL.applyBlendMode = false;
-        ADDITIONAL.applyAlphaTest = false;
-        ADDITIONAL.applyAlphaFallOff = false;
         ADDITIONAL.applyPolyOffset = false;
     }
-    boolean pointSprite = false;
-    boolean applyPointSprite = true;
     boolean wireframe = false;
     boolean applyWireFrame = true;
     FaceCullMode cullMode = FaceCullMode.Back;
@@ -301,10 +296,6 @@ public class RenderState implements Cloneable, Savable {
     boolean applyColorWrite = true;
     BlendMode blendMode = BlendMode.Off;
     boolean applyBlendMode = true;
-    boolean alphaTest = false;
-    boolean applyAlphaTest = true;
-    float alphaFallOff = 0;
-    boolean applyAlphaFallOff = true;
     float offsetFactor = 0;
     float offsetUnits = 0;
     boolean offsetEnabled = false;
@@ -315,10 +306,7 @@ public class RenderState implements Cloneable, Savable {
     boolean applyLineWidth = false;
     TestFunction depthFunc = TestFunction.LessOrEqual;
     //by default depth func will be applied anyway if depth test is applied
-    boolean applyDepthFunc = false;    
-    //by default alpha func will be applied anyway if alpha test is applied
-    TestFunction alphaFunc = TestFunction.Greater;    
-    boolean applyAlphaFunc = false;
+    boolean applyDepthFunc = false;
     StencilOperation frontStencilStencilFailOperation = StencilOperation.Keep;
     StencilOperation frontStencilDepthFailOperation = StencilOperation.Keep;
     StencilOperation frontStencilDepthPassOperation = StencilOperation.Keep;
@@ -331,15 +319,13 @@ public class RenderState implements Cloneable, Savable {
 
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(pointSprite, "pointSprite", false);
+        oc.write(true, "pointSprite", false);
         oc.write(wireframe, "wireframe", false);
         oc.write(cullMode, "cullMode", FaceCullMode.Back);
         oc.write(depthWrite, "depthWrite", true);
         oc.write(depthTest, "depthTest", true);
         oc.write(colorWrite, "colorWrite", true);
         oc.write(blendMode, "blendMode", BlendMode.Off);
-        oc.write(alphaTest, "alphaTest", false);
-        oc.write(alphaFallOff, "alphaFallOff", 0);
         oc.write(offsetEnabled, "offsetEnabled", false);
         oc.write(offsetFactor, "offsetFactor", 0);
         oc.write(offsetUnits, "offsetUnits", 0);
@@ -353,37 +339,29 @@ public class RenderState implements Cloneable, Savable {
         oc.write(frontStencilFunction, "frontStencilFunction", TestFunction.Always);
         oc.write(backStencilFunction, "backStencilFunction", TestFunction.Always);
         oc.write(depthFunc, "depthFunc", TestFunction.LessOrEqual);
-        oc.write(alphaFunc, "alphaFunc", TestFunction.Greater);
         oc.write(lineWidth, "lineWidth", 1);
 
         // Only "additional render state" has them set to false by default
-        oc.write(applyPointSprite, "applyPointSprite", true);
         oc.write(applyWireFrame, "applyWireFrame", true);
         oc.write(applyCullMode, "applyCullMode", true);
         oc.write(applyDepthWrite, "applyDepthWrite", true);
         oc.write(applyDepthTest, "applyDepthTest", true);
         oc.write(applyColorWrite, "applyColorWrite", true);
         oc.write(applyBlendMode, "applyBlendMode", true);
-        oc.write(applyAlphaTest, "applyAlphaTest", true);
-        oc.write(applyAlphaFallOff, "applyAlphaFallOff", true);
         oc.write(applyPolyOffset, "applyPolyOffset", true);
         oc.write(applyDepthFunc, "applyDepthFunc", true);
-        oc.write(applyAlphaFunc, "applyAlphaFunc", false);
         oc.write(applyLineWidth, "applyLineWidth", true);
 
     }
 
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
-        pointSprite = ic.readBoolean("pointSprite", false);
         wireframe = ic.readBoolean("wireframe", false);
         cullMode = ic.readEnum("cullMode", FaceCullMode.class, FaceCullMode.Back);
         depthWrite = ic.readBoolean("depthWrite", true);
         depthTest = ic.readBoolean("depthTest", true);
         colorWrite = ic.readBoolean("colorWrite", true);
         blendMode = ic.readEnum("blendMode", BlendMode.class, BlendMode.Off);
-        alphaTest = ic.readBoolean("alphaTest", false);
-        alphaFallOff = ic.readFloat("alphaFallOff", 0);
         offsetEnabled = ic.readBoolean("offsetEnabled", false);
         offsetFactor = ic.readFloat("offsetFactor", 0);
         offsetUnits = ic.readFloat("offsetUnits", 0);
@@ -397,22 +375,16 @@ public class RenderState implements Cloneable, Savable {
         frontStencilFunction = ic.readEnum("frontStencilFunction", TestFunction.class, TestFunction.Always);
         backStencilFunction = ic.readEnum("backStencilFunction", TestFunction.class, TestFunction.Always);
         depthFunc = ic.readEnum("depthFunc", TestFunction.class, TestFunction.LessOrEqual);
-        alphaFunc = ic.readEnum("alphaFunc", TestFunction.class, TestFunction.Greater);
         lineWidth = ic.readFloat("lineWidth", 1);
 
-
-        applyPointSprite = ic.readBoolean("applyPointSprite", true);
         applyWireFrame = ic.readBoolean("applyWireFrame", true);
         applyCullMode = ic.readBoolean("applyCullMode", true);
         applyDepthWrite = ic.readBoolean("applyDepthWrite", true);
         applyDepthTest = ic.readBoolean("applyDepthTest", true);
         applyColorWrite = ic.readBoolean("applyColorWrite", true);
         applyBlendMode = ic.readBoolean("applyBlendMode", true);
-        applyAlphaTest = ic.readBoolean("applyAlphaTest", true);
-        applyAlphaFallOff = ic.readBoolean("applyAlphaFallOff", true);
         applyPolyOffset = ic.readBoolean("applyPolyOffset", true);
         applyDepthFunc = ic.readBoolean("applyDepthFunc", true);
-        applyAlphaFunc = ic.readBoolean("applyAlphaFunc", false);
         applyLineWidth = ic.readBoolean("applyLineWidth", true);
 
         
@@ -446,9 +418,6 @@ public class RenderState implements Cloneable, Savable {
             return false;
         }
         RenderState rs = (RenderState) o;
-        if (pointSprite != rs.pointSprite) {
-            return false;
-        }
 
         if (wireframe != rs.wireframe) {
             return false;
@@ -476,19 +445,6 @@ public class RenderState implements Cloneable, Savable {
         }
 
         if (blendMode != rs.blendMode) {
-            return false;
-        }
-
-        if (alphaTest != rs.alphaTest) {
-            return false;
-        }
-        if (alphaTest) {
-            if (alphaFunc != rs.alphaFunc) {
-                return false;
-            }
-        }
-
-        if (alphaFallOff != rs.alphaFallOff) {
             return false;
         }
 
@@ -544,70 +500,30 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * Enables point sprite mode.
-     *
-     * <p>When point sprite is enabled, any meshes
-     * with the type of {@link Mode#Points} will be rendered as 2D quads
-     * with texturing enabled. Fragment shaders can write to the
-     * <code>gl_PointCoord</code> variable to manipulate the texture coordinate
-     * for each pixel. The size of the 2D quad can be controlled by writing
-     * to the <code>gl_PointSize</code> variable in the vertex shader.
-     *
-     * @param pointSprite Enables Point Sprite mode.
+     * @deprecated Does nothing. Point sprite is already enabled by default for
+     * all supported platforms. jME3 does not support rendering conventional
+     * point clouds.
      */
+    @Deprecated
     public void setPointSprite(boolean pointSprite) {
-        applyPointSprite = true;
-        this.pointSprite = pointSprite;
-        cachedHashCode = -1;
     }
 
     /**
-     * Sets the alpha fall off value for alpha testing.
-     *
-     * <p>If the pixel's alpha value is greater than the
-     * <code>alphaFallOff</code> then the pixel will be rendered, otherwise
-     * the pixel will be discarded.
-     * 
-     * Note : Alpha test is deprecated since opengl 3.0 and does not exists in
-     * openglES 2.0.
-     * The prefered way is to use the alphaDiscardThreshold on the material
-     * Or have a shader that discards the pixel when its alpha value meets the
-     * discarding condition.
-     *
-     * @param alphaFallOff The alpha of all rendered pixels must be higher
-     * than this value to be rendered. This value should be between 0 and 1.
-     *
-     * @see RenderState#setAlphaTest(boolean)
+     * @deprecated Does nothing. To use alpha test, set the
+     * <code>AlphaDiscardThreshold</code> material parameter.
+     * @param alphaFallOff does nothing
      */
+    @Deprecated
     public void setAlphaFallOff(float alphaFallOff) {
-        applyAlphaFallOff = true;
-        this.alphaFallOff = alphaFallOff;
-        cachedHashCode = -1;
     }
 
     /**
-     * Enable alpha testing.
-     *
-     * <p>When alpha testing is enabled, all input pixels' alpha are compared
-     * to the {@link RenderState#setAlphaFallOff(float) constant alpha falloff}.
-     * If the input alpha is greater than the falloff, the pixel will be rendered,
-     * otherwise it will be discarded.
-     *
-     * @param alphaTest Set to true to enable alpha testing.
-     * 
-     * Note : Alpha test is deprecated since opengl 3.0 and does not exists in
-     * openglES 2.0.
-     * The prefered way is to use the alphaDiscardThreshold on the material
-     * Or have a shader that discards the pixel when its alpha value meets the
-     * discarding condition.
-     * 
-     *
-     * @see RenderState#setAlphaFallOff(float)
+     * @deprecated Does nothing. To use alpha test, set the
+     * <code>AlphaDiscardThreshold</code> material parameter.
+     * @param alphaTest does nothing
      */
+    @Deprecated
     public void setAlphaTest(boolean alphaTest) {
-        applyAlphaTest = true;
-        this.alphaTest = alphaTest;
-        cachedHashCode = -1;
     }
 
     /**
@@ -796,24 +712,10 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * Sets the alpha comparision function to the given TestFunction
-     * default is Greater (GL_GREATER)
-     * 
-     * Note : Alpha test is deprecated since opengl 3.0 and does not exists in
-     * openglES 2.0.
-     * The prefered way is to use the alphaDiscardThreshold on the material
-     * Or have a shader taht discards the pixel when its alpha value meets the
-     * discarding condition.
-     * 
-     * @see TestFunction
-     * @see RenderState#setAlphaTest(boolean) 
-     * @see RenderState#setAlphaFallOff(float) 
-     * @param alphaFunc the alpha comparision function
+     * @deprecated
      */
-    public void setAlphaFunc(TestFunction alphaFunc) {        
-        applyAlphaFunc = true;
-        this.alphaFunc = alphaFunc;
-        cachedHashCode = -1;
+    @Deprecated
+    public void setAlphaFunc(TestFunction alphaFunc) {
     }
 
     /**
@@ -1001,25 +903,22 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * Check if point sprite mode is enabled
-     *
-     * @return True if point sprite mode is enabled.
-     *
-     * @see RenderState#setPointSprite(boolean)
+     * @return true
+     * @deprecated Always returns true since point sprite is always enabled.
+     * @see #setPointSprite(boolean)
      */
+    @Deprecated
     public boolean isPointSprite() {
-        return pointSprite;
+        return true;
     }
 
     /**
-     * Check if alpha test is enabled.
-     *
-     * @return True if alpha test is enabled.
-     *
-     * @see RenderState#setAlphaTest(boolean)
+     * @deprecated To use alpha test, set the <code>AlphaDiscardThreshold</code>
+     * material parameter.
+     * @return false
      */
     public boolean isAlphaTest() {
-        return alphaTest;
+        return false;
     }
 
     /**
@@ -1111,14 +1010,12 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * Retrieve the alpha falloff value.
-     *
-     * @return the alpha falloff value.
-     *
-     * @see RenderState#setAlphaFallOff(float)
+     * @return 0
+     * @deprecated
      */
+    @Deprecated
     public float getAlphaFallOff() {
-        return alphaFallOff;
+        return 0f;
     }
 
     /**
@@ -1133,14 +1030,12 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * Retrieve the alpha comparison function
-     *
-     * @return the alpha comparison function
-     *
-     * @see RenderState#setAlphaFunc(com.jme3.material.RenderState.TestFunction)
+     * @return {@link TestFunction#Greater}.
+     * @deprecated
      */
+    @Deprecated
     public TestFunction getAlphaFunc() {
-        return alphaFunc;
+        return TestFunction.Greater;
     }
 
     /**
@@ -1150,15 +1045,6 @@ public class RenderState implements Cloneable, Savable {
      */
     public float getLineWidth() {
         return lineWidth;
-    }
-
-
-    public boolean isApplyAlphaFallOff() {
-        return applyAlphaFallOff;
-    }
-
-    public boolean isApplyAlphaTest() {
-        return applyAlphaTest;
     }
 
     public boolean isApplyBlendMode() {
@@ -1181,10 +1067,6 @@ public class RenderState implements Cloneable, Savable {
         return applyDepthWrite;
     }
 
-    public boolean isApplyPointSprite() {
-        return applyPointSprite;
-    }
-
     public boolean isApplyPolyOffset() {
         return applyPolyOffset;
     }
@@ -1197,10 +1079,6 @@ public class RenderState implements Cloneable, Savable {
         return applyDepthFunc;
     }
 
-    public boolean isApplyAlphaFunc() {
-        return applyAlphaFunc;
-    }
-
     public boolean isApplyLineWidth() {
         return applyLineWidth;
     }
@@ -1211,7 +1089,6 @@ public class RenderState implements Cloneable, Savable {
     public int contentHashCode() {
         if (cachedHashCode == -1){
             int hash = 7;
-            hash = 79 * hash + (this.pointSprite ? 1 : 0);
             hash = 79 * hash + (this.wireframe ? 1 : 0);
             hash = 79 * hash + (this.cullMode != null ? this.cullMode.hashCode() : 0);
             hash = 79 * hash + (this.depthWrite ? 1 : 0);
@@ -1219,9 +1096,6 @@ public class RenderState implements Cloneable, Savable {
             hash = 79 * hash + (this.depthFunc != null ? this.depthFunc.hashCode() : 0);
             hash = 79 * hash + (this.colorWrite ? 1 : 0);
             hash = 79 * hash + (this.blendMode != null ? this.blendMode.hashCode() : 0);
-            hash = 79 * hash + (this.alphaTest ? 1 : 0);
-            hash = 79 * hash + (this.alphaFunc != null ? this.alphaFunc.hashCode() : 0);
-            hash = 79 * hash + Float.floatToIntBits(this.alphaFallOff);
             hash = 79 * hash + Float.floatToIntBits(this.offsetFactor);
             hash = 79 * hash + Float.floatToIntBits(this.offsetUnits);
             hash = 79 * hash + (this.offsetEnabled ? 1 : 0);
@@ -1266,11 +1140,6 @@ public class RenderState implements Cloneable, Savable {
             return this;
         }
 
-        if (additionalState.applyPointSprite) {
-            state.pointSprite = additionalState.pointSprite;
-        } else {
-            state.pointSprite = pointSprite;
-        }
         if (additionalState.applyWireFrame) {
             state.wireframe = additionalState.wireframe;
         } else {
@@ -1307,22 +1176,7 @@ public class RenderState implements Cloneable, Savable {
         } else {
             state.blendMode = blendMode;
         }
-        if (additionalState.applyAlphaTest) {
-            state.alphaTest = additionalState.alphaTest;
-        } else {
-            state.alphaTest = alphaTest;
-        }
-        if (additionalState.applyAlphaFunc) {
-            state.alphaFunc = additionalState.alphaFunc;
-        } else {
-            state.alphaFunc = alphaFunc;
-        }
 
-        if (additionalState.applyAlphaFallOff) {
-            state.alphaFallOff = additionalState.alphaFallOff;
-        } else {
-            state.alphaFallOff = alphaFallOff;
-        }
         if (additionalState.applyPolyOffset) {
             state.offsetEnabled = additionalState.offsetEnabled;
             state.offsetFactor = additionalState.offsetFactor;
@@ -1367,16 +1221,13 @@ public class RenderState implements Cloneable, Savable {
         state.cachedHashCode = -1;
         return state;
     }
-     public void set(RenderState state) {
-        pointSprite = state.pointSprite;
+    public void set(RenderState state) {
         wireframe = state.wireframe;
         cullMode = state.cullMode;
         depthWrite = state.depthWrite;
         depthTest = state.depthTest;
         colorWrite = state.colorWrite;
         blendMode = state.blendMode;
-        alphaTest = state.alphaTest;
-        alphaFallOff = state.alphaFallOff;
         offsetEnabled = state.offsetEnabled;
         offsetFactor = state.offsetFactor;
         offsetUnits = state.offsetUnits;
@@ -1390,29 +1241,22 @@ public class RenderState implements Cloneable, Savable {
         frontStencilFunction = state.frontStencilFunction;
         backStencilFunction = state.backStencilFunction;
         depthFunc = state.depthFunc;
-        alphaFunc = state.alphaFunc;
         lineWidth = state.lineWidth;
 
-        applyPointSprite = true;
         applyWireFrame =  true;
         applyCullMode =  true;
         applyDepthWrite =  true;
         applyDepthTest =  true;
         applyColorWrite = true;
-        applyBlendMode =  true;
-        applyAlphaTest =  true;
-        applyAlphaFallOff =  true;
+        applyBlendMode = true;
         applyPolyOffset =  true;
-        applyDepthFunc =  true;
-        applyAlphaFunc =  false;
+        applyDepthFunc = true;
         applyLineWidth = true;
     }
 
     @Override
     public String toString() {
         return "RenderState[\n"
-                + "pointSprite=" + pointSprite
-                + "\napplyPointSprite=" + applyPointSprite
                 + "\nwireframe=" + wireframe
                 + "\napplyWireFrame=" + applyWireFrame
                 + "\ncullMode=" + cullMode
@@ -1426,11 +1270,6 @@ public class RenderState implements Cloneable, Savable {
                 + "\napplyColorWrite=" + applyColorWrite
                 + "\nblendMode=" + blendMode
                 + "\napplyBlendMode=" + applyBlendMode
-                + "\nalphaTest=" + alphaTest
-                + "\nalphaFunc=" + alphaFunc
-                + "\napplyAlphaTest=" + applyAlphaTest
-                + "\nalphaFallOff=" + alphaFallOff
-                + "\napplyAlphaFallOff=" + applyAlphaFallOff
                 + "\noffsetEnabled=" + offsetEnabled
                 + "\napplyPolyOffset=" + applyPolyOffset
                 + "\noffsetFactor=" + offsetFactor

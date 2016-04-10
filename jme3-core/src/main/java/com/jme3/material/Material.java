@@ -1097,14 +1097,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             // Try to guess values of "apply" render state based on defaults
             // if value != default then set apply to true
             additionalState.applyPolyOffset = additionalState.offsetEnabled;
-            additionalState.applyAlphaFallOff = additionalState.alphaTest;
-            additionalState.applyAlphaTest = additionalState.alphaTest;
             additionalState.applyBlendMode = additionalState.blendMode != BlendMode.Off;
             additionalState.applyColorWrite = !additionalState.colorWrite;
             additionalState.applyCullMode = additionalState.cullMode != FaceCullMode.Back;
             additionalState.applyDepthTest = !additionalState.depthTest;
             additionalState.applyDepthWrite = !additionalState.depthWrite;
-            additionalState.applyPointSprite = additionalState.pointSprite;
             additionalState.applyStencilTest = additionalState.stencilTest;
             additionalState.applyWireFrame = additionalState.wireframe;
         }
