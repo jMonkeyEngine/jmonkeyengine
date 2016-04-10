@@ -310,7 +310,21 @@ public interface Renderer {
      * @see NativeObject#deleteObject(java.lang.Object) 
      */
     public void cleanup();
-    
+
+    /**
+     * Set the default anisotropic filter level for textures.
+     *
+     * If the
+     * {@link Texture#setAnisotropicFilter(int) texture anisotropic filter} is
+     * set to 0, then the default level is used. Otherwise if the texture level
+     * is 1 or greater, then the texture's value overrides the default value.
+     *
+     * @param level The default anisotropic filter level to use. Default: 1.
+     *
+     * @throws IllegalArgumentException If level is less than 1.
+     */
+    public void setDefaultAnisotropicFilter(int level);
+
     /**
      * Sets the alpha to coverage state.
      * <p>

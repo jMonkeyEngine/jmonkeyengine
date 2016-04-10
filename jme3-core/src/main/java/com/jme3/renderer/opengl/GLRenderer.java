@@ -90,6 +90,7 @@ public final class GLRenderer implements Renderer {
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
     private int clipX, clipY, clipW, clipH;
+    private int defaultAnisotropicFilter = 1;
     private boolean linearizeSrgbImages;
     private HashSet<String> extensions;
 
@@ -598,6 +599,14 @@ public final class GLRenderer implements Renderer {
             gl.glClearColor(color.r, color.g, color.b, color.a);
             context.clearColor.set(color);
         }
+    }
+
+    @Override
+    public void setDefaultAnisotropicFilter(int level) {
+        if (level < 1) {
+            throw new IllegalArgumentException("level cannot be less than 1");
+        }
+        this.defaultAnisotropicFilter = level;
     }
 
     public void setAlphaToCoverage(boolean value) {
@@ -1878,13 +1887,18 @@ public final class GLRenderer implements Renderer {
             gl.glTexParameteri(target, GL.GL_TEXTURE_MIN_FILTER, convertMinFilter(tex.getMinFilter(), haveMips));
             curState.minFilter = tex.getMinFilter();
         }
+
+        int desiredAnisoFilter = tex.getAnisotropicFilter() == 0
+                ? defaultAnisotropicFilter
+                : tex.getAnisotropicFilter();
+
         if (caps.contains(Caps.TextureFilterAnisotropic)
-                && curState.anisoFilter != tex.getAnisotropicFilter()) {
+                && curState.anisoFilter != desiredAnisoFilter) {
             bindTextureAndUnit(target, image, unit);
             gl.glTexParameterf(target,
                     GLExt.GL_TEXTURE_MAX_ANISOTROPY_EXT,
-                    tex.getAnisotropicFilter());
-            curState.anisoFilter = tex.getAnisotropicFilter();
+                    desiredAnisoFilter);
+            curState.anisoFilter = desiredAnisoFilter;
         }
 
         switch (tex.getType()) {
