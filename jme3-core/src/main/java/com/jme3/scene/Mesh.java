@@ -589,28 +589,26 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     }
 
     /**
-     * Returns the size of points for point meshes
+     * @deprecated Always returns <code>1.0</code> since point size is
+     * determined in the vertex shader.
      *
-     * @return the size of points
+     * @return <code>1.0</code>
      *
      * @see #setPointSize(float)
      */
+    @Deprecated
     public float getPointSize() {
-        return pointSize;
+        return 1.0f;
     }
 
     /**
-     * Set the size of points for meshes of mode {@link Mode#Points}.
-     * The point size is specified as on-screen pixels, the default
-     * value is 1.0. The point size
-     * does nothing if {@link RenderState#setPointSprite(boolean) point sprite}
-     * render state is enabled, in that case, the vertex shader must specify the
-     * point size by writing to <code>gl_PointSize</code>.
+     * @deprecated Does nothing, since the size of {@link Mode#Points points} is
+     * determined via the vertex shader's <code>gl_PointSize</code> output.
      *
-     * @param pointSize The size of points
+     * @param pointSize ignored
      */
+    @Deprecated
     public void setPointSize(float pointSize) {
-        this.pointSize = pointSize;
     }
 
     /**

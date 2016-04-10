@@ -76,7 +76,7 @@ public class TestShadow extends SimpleApplication {
 
         Material mat = assetManager.loadMaterial("Common/Materials/WhiteColor.j3m");
         rootNode.setShadowMode(ShadowMode.Off);
-        Box floor = new Box(Vector3f.ZERO, 3, 0.1f, 3);
+        Box floor = new Box(3, 0.1f, 3);
         Geometry floorGeom = new Geometry("Floor", floor);
         floorGeom.setMaterial(mat);
         floorGeom.setLocalTranslation(0,-0.2f,0);

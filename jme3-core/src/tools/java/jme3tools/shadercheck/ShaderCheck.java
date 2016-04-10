@@ -38,7 +38,7 @@ public class ShaderCheck {
         MaterialDef def = (MaterialDef) assetManager.loadAsset(matdefName);
         EnumSet<Caps> rendererCaps = EnumSet.noneOf(Caps.class);
         rendererCaps.add(Caps.GLSL100);
-        for (TechniqueDef techDef : def.getDefaultTechniques()) {
+        for (TechniqueDef techDef : def.getTechniqueDefs(TechniqueDef.DEFAULT_TECHNIQUE_NAME)) {
             DefineList defines = techDef.createDefineList();
             Shader shader = techDef.getShader(assetManager, rendererCaps, defines);
             for (Validator validator : validators) {

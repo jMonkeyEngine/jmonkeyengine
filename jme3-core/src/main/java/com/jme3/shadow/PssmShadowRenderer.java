@@ -355,12 +355,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     public void initialize(RenderManager rm, ViewPort vp) {
         renderManager = rm;
         viewPort = vp;
-        //checking for caps to chosse the appropriate post material technique
-        if (renderManager.getRenderer().getCaps().contains(Caps.GLSL150)) {
-            postTechniqueName = "PostShadow15";
-        } else {
-            postTechniqueName = "PostShadow";
-        }
+        postTechniqueName = "PostShadow";
     }
 
     public boolean isInitialized() {
@@ -533,7 +528,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         for (int i = 0; i < l.size(); i++) {
             Material mat = l.get(i).getMaterial();
             //checking if the material has the post technique and adding it to the material cache
-            if (mat.getMaterialDef().getTechniqueDef(postTechniqueName) != null) {
+            if (mat.getMaterialDef().getTechniqueDefs(postTechniqueName) != null) {
                 if (!matCache.contains(mat)) {
                     matCache.add(mat);
                 }

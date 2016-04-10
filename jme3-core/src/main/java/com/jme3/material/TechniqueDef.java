@@ -54,6 +54,14 @@ public class TechniqueDef implements Savable {
     public static final int SAVABLE_VERSION = 1;
 
     /**
+     * The default technique name.
+     *
+     * The technique with this name is selected if no specific technique is
+     * requested by the user. Currently set to "Default".
+     */
+    public static final String DEFAULT_TECHNIQUE_NAME = "Default";
+
+    /**
      * Describes light rendering mode.
      */
     public enum LightMode {
@@ -94,7 +102,7 @@ public class TechniqueDef implements Savable {
         PostPass,
     }
 
-    private EnumSet<Caps> requiredCaps = EnumSet.noneOf(Caps.class);
+    private final EnumSet<Caps> requiredCaps = EnumSet.noneOf(Caps.class);
     private String name;
     private int sortId;
     
@@ -126,13 +134,12 @@ public class TechniqueDef implements Savable {
      * <p>
      * Used internally by the J3M/J3MD loader.
      *
-     * @param name The name of the technique, should be set to <code>null</code>
-     * for default techniques.
+     * @param name The name of the technique
      */
     public TechniqueDef(String name, int sortId){
         this();
         this.sortId = sortId;
-        this.name = name == null ? "Default" : name;
+        this.name = name;
     }
 
     /**
@@ -157,7 +164,8 @@ public class TechniqueDef implements Savable {
 
     /**
      * Returns the name of this technique as specified in the J3MD file.
-     * Default techniques have the name "Default".
+     * Default
+     * techniques have the name {@link #DEFAULT_TECHNIQUE_NAME}.
      *
      * @return the name of this technique
      */

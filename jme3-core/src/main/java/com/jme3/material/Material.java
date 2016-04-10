@@ -75,31 +75,18 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     // Version #2: Fixed issue with RenderState.apply*** flags not getting exported
     public static final int SAVABLE_VERSION = 2;
     private static final Logger logger = Logger.getLogger(Material.class.getName());
-    private static final RenderState additiveLight = new RenderState();
-    private static final RenderState depthOnly = new RenderState();
 
-    static {
-        depthOnly.setDepthTest(true);
-        depthOnly.setDepthWrite(true);
-        depthOnly.setFaceCullMode(RenderState.FaceCullMode.Back);
-        depthOnly.setColorWrite(false);
-
-        additiveLight.setBlendMode(RenderState.BlendMode.AlphaAdditive);
-        additiveLight.setDepthWrite(false);
-    }
     private AssetKey key;
     private String name;
     private MaterialDef def;
     private ListMap<String, MatParam> paramValues = new ListMap<String, MatParam>();
     private Technique technique;
     private HashMap<String, Technique> techniques = new HashMap<String, Technique>();
-    private int nextTexUnit = 0;
     private RenderState additionalState = null;
     private RenderState mergedRenderState = new RenderState();
     private boolean transparent = false;
     private boolean receivesShadows = false;
     private int sortingId = -1;
-    private transient ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
 
     public Material(MaterialDef def) {
         if (def == null) {
@@ -264,8 +251,14 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             // E.g. if user chose custom technique for one material but
             // uses default technique for other material, the materials
             // are not equal.
-            String thisDefName = this.technique != null ? this.technique.getDef().getName() : "Default";
-            String otherDefName = other.technique != null ? other.technique.getDef().getName() : "Default";
+            String thisDefName = this.technique != null
+                    ? this.technique.getDef().getName()
+                    : TechniqueDef.DEFAULT_TECHNIQUE_NAME;
+
+            String otherDefName = other.technique != null
+                    ? other.technique.getDef().getName()
+                    : TechniqueDef.DEFAULT_TECHNIQUE_NAME;
+
             if (!thisDefName.equals(otherDefName)) {
                 return false;
             }
@@ -510,16 +503,6 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
         paramValues.remove(name);
         if (matParam instanceof MatParamTexture) {
-            int texUnit = ((MatParamTexture) matParam).getUnit();
-            nextTexUnit--;
-            for (MatParam param : paramValues.values()) {
-                if (param instanceof MatParamTexture) {
-                    MatParamTexture texParam = (MatParamTexture) param;
-                    if (texParam.getUnit() > texUnit) {
-                        texParam.setUnit(texParam.getUnit() - 1);
-                    }
-                }
-            }
             sortingId = -1;
         }
         if (technique != null) {
@@ -562,13 +545,13 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                         + "Linear using texture.getImage.setColorSpace().",
                         new Object[]{value.getName(), value.getImage().getColorSpace().name(), name});
             }
-            paramValues.put(name, new MatParamTexture(type, name, value, nextTexUnit++, null));
+            paramValues.put(name, new MatParamTexture(type, name, value, null));
         } else {
             val.setTextureValue(value);
         }
 
         if (technique != null) {
-            technique.notifyParamChanged(name, type, nextTexUnit - 1);
+            technique.notifyParamChanged(name, type, value);
         }
 
         // need to recompute sort ID
@@ -704,23 +687,18 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     /**
      * Select the technique to use for rendering this material.
      * <p>
-     * If <code>name</code> is "Default", then one of the
-     * {@link MaterialDef#getDefaultTechniques() default techniques}
-     * on the material will be selected. Otherwise, the named technique
-     * will be found in the material definition.
-     * <p>
      * Any candidate technique for selection (either default or named)
      * must be verified to be compatible with the system, for that, the
      * <code>renderManager</code> is queried for capabilities.
      *
-     * @param name The name of the technique to select, pass "Default" to
-     * select one of the default techniques.
+     * @param name The name of the technique to select, pass
+     * {@link TechniqueDef#DEFAULT_TECHNIQUE_NAME} to select one of the default
+     * techniques.
      * @param renderManager The {@link RenderManager render manager}
      * to query for capabilities.
      *
-     * @throws IllegalArgumentException If "Default" is passed and no default
-     * techniques are available on the material definition, or if a name
-     * is passed but there's no technique by that name.
+     * @throws IllegalArgumentException If no technique exists with the given
+     * name.
      * @throws UnsupportedOperationException If no candidate technique supports
      * the system capabilities.
      */
@@ -731,46 +709,32 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         // supports all the caps.
         if (tech == null) {
             EnumSet<Caps> rendererCaps = renderManager.getRenderer().getCaps();
-            if (name.equals("Default")) {
-                List<TechniqueDef> techDefs = def.getDefaultTechniques();
-                if (techDefs == null || techDefs.isEmpty()) {
-                    throw new IllegalArgumentException("No default techniques are available on material '" + def.getName() + "'");
-                }
+            List<TechniqueDef> techDefs = def.getTechniqueDefs(name);
 
-                TechniqueDef lastTech = null;
-                for (TechniqueDef techDef : techDefs) {
-                    if (rendererCaps.containsAll(techDef.getRequiredCaps())) {
-                        // use the first one that supports all the caps
-                        tech = new Technique(this, techDef);
-                        techniques.put(name, tech);
-                        if(tech.getDef().getLightMode() == renderManager.getPreferredLightMode() ||
-                               tech.getDef().getLightMode() == LightMode.Disable){
-                            break;
-                        }
+            if (techDefs == null || techDefs.isEmpty()) {
+                throw new IllegalArgumentException(
+                        String.format("The requested technique %s is not available on material %s", name, def.getName()));
+            }
+
+            TechniqueDef lastTech = null;
+            for (TechniqueDef techDef : techDefs) {
+                if (rendererCaps.containsAll(techDef.getRequiredCaps())) {
+                    // use the first one that supports all the caps
+                    tech = new Technique(this, techDef);
+                    techniques.put(name, tech);
+                    if (tech.getDef().getLightMode() == renderManager.getPreferredLightMode()
+                            || tech.getDef().getLightMode() == LightMode.Disable) {
+                        break;
                     }
-                    lastTech = techDef;
                 }
-                if (tech == null) {
-                    throw new UnsupportedOperationException("No default technique on material '" + def.getName() + "'\n"
-                            + " is supported by the video hardware. The caps "
-                            + lastTech.getRequiredCaps() + " are required.");
-                }
-
-            } else {
-                // create "special" technique instance
-                TechniqueDef techDef = def.getTechniqueDef(name);
-                if (techDef == null) {
-                    throw new IllegalArgumentException("For material " + def.getName() + ", technique not found: " + name);
-                }
-
-                if (!rendererCaps.containsAll(techDef.getRequiredCaps())) {
-                    throw new UnsupportedOperationException("The explicitly chosen technique '" + name + "' on material '" + def.getName() + "'\n"
-                            + "requires caps " + techDef.getRequiredCaps() + " which are not "
-                            + "supported by the video renderer");
-                }
-
-                tech = new Technique(this, techDef);
-                techniques.put(name, tech);
+                lastTech = techDef;
+            }
+            if (tech == null) {
+                throw new UnsupportedOperationException(
+                        String.format("No technique '%s' on material "
+                                + "'%s' is supported by the video hardware. "
+                                + "The capabilities %s are required.",
+                                name, def.getName(), lastTech.getRequiredCaps()));
             }
         } else if (technique == tech) {
             // attempting to switch to an already
@@ -785,31 +749,42 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         sortingId = -1;
     }
 
-    private void updateShaderMaterialParameters(Renderer renderer, Shader shader, List<MatParamOverride> overrides) {
-        int unit = 0;
+    private int applyOverrides(Renderer renderer, Shader shader, List<MatParamOverride> overrides, int unit) {
+        for (MatParamOverride override : overrides) {
+            VarType type = override.getVarType();
 
-        if (overrides != null) {
-            for (MatParamOverride override : overrides) {
-                VarType type = override.getVarType();
+            MatParam paramDef = def.getMaterialParam(override.getName());
 
-                MatParam paramDef = def.getMaterialParam(override.getName());
-                if (paramDef == null || paramDef.getVarType() != type || !override.isEnabled()) {
-                    continue;
-                }
-
-                Uniform uniform = shader.getUniform(override.getPrefixedName());
-                if (override.getValue() != null) {
-                    if (type.isTextureType()) {
-                        renderer.setTexture(unit, (Texture) override.getValue());
-                        uniform.setValue(VarType.Int, unit);
-                        unit++;
-                    } else {
-                        uniform.setValue(type, override.getValue());
-                    }
-                } else {
-                    uniform.clearValue();
-                }
+            if (paramDef == null || paramDef.getVarType() != type || !override.isEnabled()) {
+                continue;
             }
+
+            Uniform uniform = shader.getUniform(override.getPrefixedName());
+
+            if (override.getValue() != null) {
+                if (type.isTextureType()) {
+                    renderer.setTexture(unit, (Texture) override.getValue());
+                    uniform.setValue(VarType.Int, unit);
+                    unit++;
+                } else {
+                    uniform.setValue(type, override.getValue());
+                }
+            } else {
+                uniform.clearValue();
+            }
+        }
+        return unit;
+    }
+
+    private void updateShaderMaterialParameters(Renderer renderer, Shader shader,
+            List<MatParamOverride> worldOverrides, List<MatParamOverride> forcedOverrides) {
+
+        int unit = 0;
+        if (worldOverrides != null) {
+            unit = applyOverrides(renderer, shader, worldOverrides, unit);
+        }
+        if (forcedOverrides != null) {
+            unit = applyOverrides(renderer, shader, forcedOverrides, unit);
         }
 
         for (int i = 0; i < paramValues.size(); i++) {
@@ -855,7 +830,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      */
     public void preload(RenderManager renderManager) {
         if (technique == null) {
-            selectTechnique("Default", renderManager);
+            selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
         }
         TechniqueDef techniqueDef = technique.getDef();
         Renderer renderer = renderManager.getRenderer();
@@ -865,8 +840,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             return;
         }
 
-        Shader shader = technique.makeCurrent(renderManager, null, null, rendererCaps);
-        updateShaderMaterialParameters(renderer, shader, null);
+        Shader shader = technique.makeCurrent(renderManager, null, null, null, rendererCaps);
+        updateShaderMaterialParameters(renderer, shader, null, null);
         renderManager.getRenderer().setShader(shader);
     }
 
@@ -955,7 +930,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      */
     public void render(Geometry geometry, LightList lights, RenderManager renderManager) {
         if (technique == null) {
-            selectTechnique("Default", renderManager);
+            selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
         }
         
         TechniqueDef techniqueDef = technique.getDef();
@@ -973,7 +948,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         List<MatParamOverride> overrides = geometry.getWorldMatParamOverrides();
 
         // Select shader to use
-        Shader shader = technique.makeCurrent(renderManager, overrides, lights, rendererCaps);
+        Shader shader = technique.makeCurrent(renderManager, overrides, renderManager.getForcedMatParams(), lights, rendererCaps);
         
         // Begin tracking which uniforms were changed by material.
         clearUniformsSetByCurrent(shader);
@@ -982,7 +957,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         renderManager.updateUniformBindings(shader);
         
         // Set material parameters
-        updateShaderMaterialParameters(renderer, shader, geometry.getWorldMatParamOverrides());
+        updateShaderMaterialParameters(renderer, shader, overrides, renderManager.getForcedMatParams());
         
         // Clear any uniforms not changed by material.
         resetUniformsNotSetByCurrent(shader);
@@ -1078,11 +1053,6 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             MatParam param = entry.getValue();
             if (param instanceof MatParamTexture) {
                 MatParamTexture texVal = (MatParamTexture) param;
-
-                if (nextTexUnit < texVal.getUnit() + 1) {
-                    nextTexUnit = texVal.getUnit() + 1;
-                }
-
                 // the texture failed to load for this param
                 // do not add to param values
                 if (texVal.getTextureValue() == null || texVal.getTextureValue().getImage() == null) {
@@ -1117,14 +1087,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             // Try to guess values of "apply" render state based on defaults
             // if value != default then set apply to true
             additionalState.applyPolyOffset = additionalState.offsetEnabled;
-            additionalState.applyAlphaFallOff = additionalState.alphaTest;
-            additionalState.applyAlphaTest = additionalState.alphaTest;
             additionalState.applyBlendMode = additionalState.blendMode != BlendMode.Off;
             additionalState.applyColorWrite = !additionalState.colorWrite;
             additionalState.applyCullMode = additionalState.cullMode != FaceCullMode.Back;
             additionalState.applyDepthTest = !additionalState.depthTest;
             additionalState.applyDepthWrite = !additionalState.depthWrite;
-            additionalState.applyPointSprite = additionalState.pointSprite;
             additionalState.applyStencilTest = additionalState.stencilTest;
             additionalState.applyWireFrame = additionalState.wireframe;
         }

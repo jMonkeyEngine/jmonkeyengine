@@ -166,7 +166,7 @@ public class TestBatchNodeCluster extends SimpleApplication {
     public void randomGenerator() {
         for (int i = startAt; i < maxCubes - 1; i++) {
             randomize();
-            Geometry box = new Geometry("Box" + i, new Box(Vector3f.ZERO, 1, 1, 1));
+            Geometry box = new Geometry("Box" + i, new Box(1, 1, 1));
             box.setLocalTranslation(new Vector3f(xPosition.get(xPosition.size() - 1),
                     yPosition.get(yPosition.size() - 1),
                     zPosition.get(zPosition.size() - 1)));

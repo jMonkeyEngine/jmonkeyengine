@@ -110,6 +110,20 @@ public final class Technique {
         }
     }
 
+    private void applyOverrides(DefineList defineList, List<MatParamOverride> overrides) {
+        for (MatParamOverride override : overrides) {
+            if (!override.isEnabled()) {
+                continue;
+            }
+            Integer defineId = def.getShaderParamDefineId(override.name);
+            if (defineId != null) {
+                if (def.getDefineIdType(defineId) == override.type) {
+                    defineList.set(defineId, override.type, override.value);
+                }
+            }
+        }
+    }
+
     /**
      * Called by the material to determine which shader to use for rendering.
      * 
@@ -120,7 +134,8 @@ public final class Technique {
      * @param rendererCaps The renderer capabilities which the shader should support.
      * @return A compatible shader.
      */
-    Shader makeCurrent(RenderManager renderManager, List<MatParamOverride> overrides,
+    Shader makeCurrent(RenderManager renderManager, List<MatParamOverride> worldOverrides,
+            List<MatParamOverride> forcedOverrides,
             LightList lights, EnumSet<Caps> rendererCaps) {
         TechniqueDefLogic logic = def.getLogic();
         AssetManager assetManager = owner.getMaterialDef().getAssetManager();
@@ -128,18 +143,11 @@ public final class Technique {
         dynamicDefines.clear();
         dynamicDefines.setAll(paramDefines);
 
-        if (overrides != null) {
-            for (MatParamOverride override : overrides) {
-                if (!override.isEnabled()) {
-                    continue;
-                }
-                Integer defineId = def.getShaderParamDefineId(override.name);
-                if (defineId != null) {
-                    if (def.getDefineIdType(defineId) == override.type) {
-                        dynamicDefines.set(defineId, override.type, override.value);
-                    }
-                }
-            }
+        if (worldOverrides != null) {
+            applyOverrides(dynamicDefines, worldOverrides);
+        }
+        if (forcedOverrides != null) {
+            applyOverrides(dynamicDefines, forcedOverrides);
         }
 
         return logic.makeCurrent(assetManager, renderManager, rendererCaps, lights, dynamicDefines);
@@ -175,8 +183,8 @@ public final class Technique {
      * @return nothing.
      *
      * @deprecated Preset defines are precompiled into
-       * {@link TechniqueDef#getShaderPrologue()}, whereas
-     * dynamic defines are available via {@link #getParamDefines()}.
+     * {@link TechniqueDef#getShaderPrologue()}, whereas dynamic defines are
+     * available via {@link #getParamDefines()}.
      */
     @Deprecated
     public DefineList getAllDefines() {

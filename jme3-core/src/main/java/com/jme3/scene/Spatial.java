@@ -593,8 +593,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
             worldOverrides.addAll(localOverrides);
         } else {
             assert (parent.refreshFlags & RF_MATPARAM_OVERRIDE) == 0;
-            worldOverrides.addAll(localOverrides);
             worldOverrides.addAll(parent.worldOverrides);
+            worldOverrides.addAll(localOverrides);
         }
     }
 

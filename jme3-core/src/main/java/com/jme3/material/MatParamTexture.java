@@ -35,7 +35,6 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.renderer.Renderer;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
 import com.jme3.texture.image.ColorSpace;
@@ -44,13 +43,11 @@ import java.io.IOException;
 public class MatParamTexture extends MatParam {
 
     private Texture texture;
-    private int unit;
     private ColorSpace colorSpace;
 
-    public MatParamTexture(VarType type, String name, Texture texture, int unit, ColorSpace colorSpace) {
+    public MatParamTexture(VarType type, String name, Texture texture, ColorSpace colorSpace) {
         super(type, name, texture);
         this.texture = texture;
-        this.unit = unit;
         this.colorSpace = colorSpace;
     }
 
@@ -92,31 +89,18 @@ public class MatParamTexture extends MatParam {
         this.colorSpace = colorSpace;
     }
 
-    public void setUnit(int unit) {
-        this.unit = unit;
-    }
-
-    public int getUnit() {
-        return unit;
-    }
-
-
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(unit, "texture_unit", -1);
-        
-        // For backwards compat
-        oc.write(texture, "texture", null);
+        oc.write(0, "texture_unit", -1);
+        oc.write(texture, "texture", null); // For backwards compatibility
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        unit = ic.readInt("texture_unit", -1);
         texture = (Texture) value;
-        //texture = (Texture) ic.readSavable("texture", null);
     }
 }

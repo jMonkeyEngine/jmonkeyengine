@@ -82,7 +82,7 @@ public class TestBatchNode extends SimpleApplication {
          * A cube with a color "bleeding" through transparent texture. Uses
          * Texture from jme3-test-data library!
          */
-        Box boxshape4 = new Box(Vector3f.ZERO, 1f, 1f, 1f);
+        Box boxshape4 = new Box(1f, 1f, 1f);
         cube = new Geometry("cube1", boxshape4);
         Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
         cube.setMaterial(mat);
@@ -93,7 +93,7 @@ public class TestBatchNode extends SimpleApplication {
          * A cube with a color "bleeding" through transparent texture. Uses
          * Texture from jme3-test-data library!
          */
-        Box box = new Box(Vector3f.ZERO, 1f, 1f, 1f);
+        Box box = new Box(1f, 1f, 1f);
         cube2 = new Geometry("cube2", box);
         cube2.setMaterial(mat);
 
