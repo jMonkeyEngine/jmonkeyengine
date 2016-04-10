@@ -46,14 +46,17 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import static com.jme3.scene.MPOTestUtils.*;
+import com.jme3.scene.Node;
 import com.jme3.shader.DefineList;
 import com.jme3.system.NullRenderer;
 import com.jme3.system.TestUtil;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import org.junit.Before;
 
 /**
  * Validates how {@link MatParamOverride MPOs} work on the material level.
@@ -122,6 +125,33 @@ public class MaterialMatParamOverrideTest {
         inputMpo(mpoFloat("AlphaDiscardThreshold", 2.79f));
         outDefines(def("DISCARD_ALPHA", VarType.Float, 2.79f));
         outUniforms(uniform("AlphaDiscardThreshold", VarType.Float, 2.79f));
+    }
+
+    @Test
+    public void testForcedOverride() {
+        material("Common/MatDefs/Light/Lighting.j3md");
+        inputMp(mpoFloat("AlphaDiscardThreshold", 3.12f));
+        inputMpo(mpoFloat("AlphaDiscardThreshold", 2.79f));
+        inputFpo(mpoFloat("AlphaDiscardThreshold", 1.23f));
+        outDefines(def("DISCARD_ALPHA", VarType.Float, 1.23f));
+        outUniforms(uniform("AlphaDiscardThreshold", VarType.Float, 1.23f));
+
+        reset();
+        root.clearMatParamOverrides();
+        root.updateGeometricState();
+        outDefines(def("DISCARD_ALPHA", VarType.Float, 2.79f));
+        outUniforms(uniform("AlphaDiscardThreshold", VarType.Float, 2.79f));
+    }
+
+    @Test
+    public void testChildOverridesParent() {
+        material("Common/MatDefs/Light/Lighting.j3md");
+
+        inputParentMpo(mpoFloat("AlphaDiscardThreshold", 3.12f));
+        inputMpo(mpoFloat("AlphaDiscardThreshold", 2.79f));
+
+        outUniforms(uniform("AlphaDiscardThreshold", VarType.Float, 2.79f));
+        outDefines(def("DISCARD_ALPHA", VarType.Float, 2.79f));
     }
 
     @Test
@@ -222,7 +252,7 @@ public class MaterialMatParamOverrideTest {
 
         reset();
         geometry.clearMatParamOverrides();
-        geometry.updateGeometricState();
+        root.updateGeometricState();
         outDefines(def("NUM_BONES", VarType.Int, 1234));
         outUniforms(uniform("NumberOfBones", VarType.Int, 1234));
 
@@ -272,7 +302,7 @@ public class MaterialMatParamOverrideTest {
 
         reset();
         geometry.clearMatParamOverrides();
-        geometry.updateGeometricState();
+        root.updateGeometricState();
         outDefines();
         outUniforms();
     }
@@ -315,7 +345,7 @@ public class MaterialMatParamOverrideTest {
 
         reset();
         geometry.clearMatParamOverrides();
-        geometry.updateGeometricState();
+        root.updateGeometricState();
         outDefines();
         outUniforms();
         outTextures();
@@ -341,7 +371,7 @@ public class MaterialMatParamOverrideTest {
 
         reset();
         geometry.clearMatParamOverrides();
-        geometry.updateGeometricState();
+        root.updateGeometricState();
         outDefines(def("DIFFUSEMAP", VarType.Texture2D, tex1));
         outUniforms(uniform("DiffuseMap", VarType.Int, 0));
         outTextures(tex1);
@@ -369,8 +399,14 @@ public class MaterialMatParamOverrideTest {
         }
     }
 
-    private final Geometry geometry = new Geometry("geometry", new Box(1, 1, 1));
+    private final Geometry geometry = new Geometry("Geometry", new Box(1, 1, 1));
+    private final Node root = new Node("Root Node");
     private final LightList lightList = new LightList(geometry);
+
+    @Before
+    public void setUp() {
+        root.attachChild(geometry);
+    }
 
     private final NullRenderer renderer = new NullRenderer() {
         @Override
@@ -407,13 +443,35 @@ public class MaterialMatParamOverrideTest {
         for (MatParamOverride override : overrides) {
             geometry.addMatParamOverride(override);
         }
-        geometry.updateGeometricState();
+        root.updateGeometricState();
+    }
+
+    private void inputParentMpo(MatParamOverride... overrides) {
+        if (evaluated) {
+            throw new IllegalStateException();
+        }
+        for (MatParamOverride override : overrides) {
+            root.addMatParamOverride(override);
+        }
+        root.updateGeometricState();
+    }
+
+    private void inputFpo(MatParamOverride... overrides) {
+        if (evaluated) {
+            throw new IllegalStateException();
+        }
+        for (MatParamOverride override : overrides) {
+            renderManager.addForcedMatParam(override);
+        }
     }
 
     private void reset() {
         evaluated = false;
         usedShader = null;
         Arrays.fill(usedTextures, null);
+        for (MatParamOverride override : new ArrayList<>(renderManager.getForcedMatParams())) {
+            renderManager.removeForcedMatParam(override);
+        }
     }
 
     private Define def(String name, VarType type, Object value) {
@@ -520,6 +578,10 @@ public class MaterialMatParamOverrideTest {
     }
 
     private void outUniforms(Uniform... uniforms) {
+        if (!evaluated) {
+            evaluateTechniqueDef();
+        }
+
         HashSet<Uniform> actualUniforms = new HashSet<>();
 
         for (Uniform uniform : usedShader.getUniformMap().values()) {
