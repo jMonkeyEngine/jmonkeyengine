@@ -43,6 +43,7 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.util.NativeObject;
 import java.nio.ByteBuffer;
+import java.util.EnumMap;
 import java.util.EnumSet;
 
 /**
@@ -65,6 +66,13 @@ public interface Renderer {
      * @return The capabilities of the renderer.
      */
     public EnumSet<Caps> getCaps();
+
+    /**
+     * Get the limits of the renderer.
+     *
+     * @return The limits of the renderer.
+     */
+    public EnumMap<Limits, Integer> getLimits();
 
     /**
      * The statistics allow tracking of how data

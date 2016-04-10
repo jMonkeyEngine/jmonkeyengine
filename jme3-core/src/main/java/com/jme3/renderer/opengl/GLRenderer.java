@@ -252,18 +252,14 @@ public final class GLRenderer implements Renderer {
 
         limits.put(Limits.FragmentTextureUnits, getInteger(GL.GL_MAX_TEXTURE_IMAGE_UNITS));
 
-//        gl.glGetInteger(GL.GL_MAX_VERTEX_UNIFORM_COMPONENTS, intBuf16);
-//        vertexUniforms = intBuf16.get(0);
-//        logger.log(Level.FINER, "Vertex Uniforms: {0}", vertexUniforms);
-//
-//        gl.glGetInteger(GL.GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, intBuf16);
-//        fragUniforms = intBuf16.get(0);
-//        logger.log(Level.FINER, "Fragment Uniforms: {0}", fragUniforms);
         if (caps.contains(Caps.OpenGLES20)) {
+            limits.put(Limits.FragmentUniformVectors, getInteger(GL.GL_MAX_FRAGMENT_UNIFORM_VECTORS));
             limits.put(Limits.VertexUniformVectors, getInteger(GL.GL_MAX_VERTEX_UNIFORM_VECTORS));
         } else {
+            limits.put(Limits.FragmentUniformVectors, getInteger(GL.GL_MAX_FRAGMENT_UNIFORM_COMPONENTS) / 4);
             limits.put(Limits.VertexUniformVectors, getInteger(GL.GL_MAX_VERTEX_UNIFORM_COMPONENTS) / 4);
         }
+
         limits.put(Limits.VertexAttributes, getInteger(GL.GL_MAX_VERTEX_ATTRIBS));
         limits.put(Limits.TextureSize, getInteger(GL.GL_MAX_TEXTURE_SIZE));
         limits.put(Limits.CubemapSize, getInteger(GL.GL_MAX_CUBE_MAP_TEXTURE_SIZE));
