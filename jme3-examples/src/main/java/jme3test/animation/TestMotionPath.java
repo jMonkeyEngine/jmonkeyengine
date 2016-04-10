@@ -136,7 +136,8 @@ public class TestMotionPath extends SimpleApplication {
 
 
         rootNode.attachChild(teapot);
-        Geometry soil = new Geometry("soil", new Box(new Vector3f(0, -1.0f, 0), 50, 1, 50));
+        Geometry soil = new Geometry("soil", new Box(50, 1, 50));
+        soil.setLocalTranslation(0, -1, 0);
         soil.setMaterial(matSoil);
 
         rootNode.attachChild(soil);

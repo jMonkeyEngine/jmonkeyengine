@@ -65,7 +65,7 @@ public class TestGhostObject extends SimpleApplication {
         bulletAppState.setDebugEnabled(true);
 
         // Mesh to be shared across several boxes.
-        Box boxGeom = new Box(Vector3f.ZERO, 1f, 1f, 1f);
+        Box boxGeom = new Box(1f, 1f, 1f);
         // CollisionShape to be shared across several boxes.
         CollisionShape shape = new BoxCollisionShape(new Vector3f(1, 1, 1));
 

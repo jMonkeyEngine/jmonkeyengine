@@ -112,7 +112,7 @@ public class TestAttachDriver extends SimpleApplication implements ActionListene
         tex.setMinFilter(Texture.MinFilter.Trilinear);
         mat.setTexture("ColorMap", tex);
 
-        Box floor = new Box(Vector3f.ZERO, 100, 1f, 100);
+        Box floor = new Box(100, 1f, 100);
         Geometry floorGeom = new Geometry("Floor", floor);
         floorGeom.setMaterial(mat);
         floorGeom.setLocalTranslation(new Vector3f(0f, -3, 0f));

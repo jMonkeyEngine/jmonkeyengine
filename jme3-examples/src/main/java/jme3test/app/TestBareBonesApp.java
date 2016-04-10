@@ -56,7 +56,7 @@ public class TestBareBonesApp extends LegacyApplication {
         System.out.println("Initialize");
 
         // create a box
-        boxGeom = new Geometry("Box", new Box(Vector3f.ZERO, 2, 2, 2));
+        boxGeom = new Geometry("Box", new Box(2, 2, 2));
 
         // load some default material
         boxGeom.setMaterial(assetManager.loadMaterial("Interface/Logo/Logo.j3m"));

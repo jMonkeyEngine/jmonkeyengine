@@ -64,8 +64,9 @@ public class TestBillboard extends SimpleApplication {
         g3.setMaterial(mat2);
         g3.setLocalTranslation(.5f, .5f, .01f);
 
-        Box b = new Box(new Vector3f(0, 0, 3), .25f, .5f, .25f);
+        Box b = new Box(.25f, .5f, .25f);
         Geometry g2 = new Geometry("Box", b);
+        g2.setLocalTranslation(0, 0, 3);
         g2.setMaterial(mat);
 
         Node bb = new Node("billboard");

@@ -194,7 +194,7 @@ public class TestPostWater extends SimpleApplication {
 
     private void createBox() {
         //creating a transluscent box
-        box = new Geometry("box", new Box(new Vector3f(0, 0, 0), 50, 50, 50));
+        box = new Geometry("box", new Box(50, 50, 50));
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", new ColorRGBA(1.0f, 0, 0, 0.3f));
         mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);

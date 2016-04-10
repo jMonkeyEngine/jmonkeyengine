@@ -222,7 +222,8 @@ public class TestCinematic extends SimpleApplication {
         matSoil.setColor("Diffuse", ColorRGBA.Green);
         matSoil.setColor("Specular", ColorRGBA.Black);
 
-        Geometry soil = new Geometry("soil", new Box(new Vector3f(0, -6.0f, 0), 50, 1, 50));
+        Geometry soil = new Geometry("soil", new Box(50, 1, 50));
+        soil.setLocalTranslation(0, -6, 0);
         soil.setMaterial(matSoil);
         soil.setShadowMode(ShadowMode.Receive);
         rootNode.attachChild(soil);

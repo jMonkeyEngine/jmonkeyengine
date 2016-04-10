@@ -57,7 +57,7 @@ public class HelloInput extends SimpleApplication {
 
   @Override
   public void simpleInitApp() {
-    Box b = new Box(Vector3f.ZERO, 1, 1, 1);
+      Box b = new Box(1, 1, 1);
     player = new Geometry("Player", b);
     Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
     mat.setColor("Color", ColorRGBA.Blue);
