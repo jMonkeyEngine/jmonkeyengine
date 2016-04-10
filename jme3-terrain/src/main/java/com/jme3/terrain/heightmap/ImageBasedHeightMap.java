@@ -44,7 +44,7 @@ import com.jme3.texture.image.ImageRaster;
  * @author Mike Kienenberger
  * @version $id$
  */
-public class ImageBasedHeightMap extends AbstractHeightMap implements ImageHeightmap {
+public class ImageBasedHeightMap extends AbstractHeightMap {
     
     
     protected Image colorImage;
