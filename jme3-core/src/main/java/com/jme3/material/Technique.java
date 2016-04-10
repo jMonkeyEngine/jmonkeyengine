@@ -183,8 +183,8 @@ public final class Technique {
      * @return nothing.
      *
      * @deprecated Preset defines are precompiled into
-       * {@link TechniqueDef#getShaderPrologue()}, whereas
-     * dynamic defines are available via {@link #getParamDefines()}.
+     * {@link TechniqueDef#getShaderPrologue()}, whereas dynamic defines are
+     * available via {@link #getParamDefines()}.
      */
     @Deprecated
     public DefineList getAllDefines() {

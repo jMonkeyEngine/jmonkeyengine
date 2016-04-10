@@ -108,8 +108,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
          * Do not use.
          */
         @Deprecated
-        MiscAttrib,
-
+        Reserved0,
         /**
          * Specifies the index buffer, must contain integer data
          * (ubyte, ushort, or uint).

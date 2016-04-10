@@ -75,18 +75,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     // Version #2: Fixed issue with RenderState.apply*** flags not getting exported
     public static final int SAVABLE_VERSION = 2;
     private static final Logger logger = Logger.getLogger(Material.class.getName());
-    private static final RenderState additiveLight = new RenderState();
-    private static final RenderState depthOnly = new RenderState();
 
-    static {
-        depthOnly.setDepthTest(true);
-        depthOnly.setDepthWrite(true);
-        depthOnly.setFaceCullMode(RenderState.FaceCullMode.Back);
-        depthOnly.setColorWrite(false);
-
-        additiveLight.setBlendMode(RenderState.BlendMode.AlphaAdditive);
-        additiveLight.setDepthWrite(false);
-    }
     private AssetKey key;
     private String name;
     private MaterialDef def;
@@ -98,7 +87,6 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     private boolean transparent = false;
     private boolean receivesShadows = false;
     private int sortingId = -1;
-    private transient ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
 
     public Material(MaterialDef def) {
         if (def == null) {
@@ -742,9 +730,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 lastTech = techDef;
             }
             if (tech == null) {
-                throw new UnsupportedOperationException("No default technique on material '" + def.getName() + "'\n"
-                        + " is supported by the video hardware. The caps "
-                        + lastTech.getRequiredCaps() + " are required.");
+                throw new UnsupportedOperationException(
+                        String.format("No technique '%s' on material "
+                                + "'%s' is supported by the video hardware. "
+                                + "The capabilities %s are required.",
+                                name, def.getName(), lastTech.getRequiredCaps()));
             }
         } else if (technique == tech) {
             // attempting to switch to an already
