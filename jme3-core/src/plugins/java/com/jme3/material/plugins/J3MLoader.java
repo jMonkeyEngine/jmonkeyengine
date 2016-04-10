@@ -590,17 +590,18 @@ public class J3MLoader implements AssetLoader {
     private void readTechnique(Statement techStat) throws IOException{
         isUseNodes = false;
         String[] split = techStat.getLine().split(whitespacePattern);
-        
+
+        String name;
         if (split.length == 1) {
-            String techniqueUniqueName = materialDef.getAssetName() + "@Default";
-            technique = new TechniqueDef(null, techniqueUniqueName.hashCode());
+            name = TechniqueDef.DEFAULT_TECHNIQUE_NAME;
         } else if (split.length == 2) {
-            String techName = split[1];
-            String techniqueUniqueName = materialDef.getAssetName() + "@" + techName;
-            technique = new TechniqueDef(techName, techniqueUniqueName.hashCode());
+            name = split[1];
         } else {
             throw new IOException("Technique statement syntax incorrect");
         }
+
+        String techniqueUniqueName = materialDef.getAssetName() + "@" + name;
+        technique = new TechniqueDef(name, techniqueUniqueName.hashCode());
 
         for (Statement statement : techStat.getContents()){
             readTechniqueStatement(statement);
@@ -619,6 +620,15 @@ public class J3MLoader implements AssetLoader {
 
         if (shaderNames.containsKey(Shader.ShaderType.Vertex) && shaderNames.containsKey(Shader.ShaderType.Fragment)) {
             technique.setShaderFile(shaderNames, shaderLanguages);
+        } else {
+            technique = null;
+            shaderLanguages.clear();
+            shaderNames.clear();
+            presetDefines.clear();
+            logger.log(Level.WARNING, "Fixed function technique was ignored");
+            logger.log(Level.WARNING, "Fixed function technique ''{0}'' was ignored for material {1}",
+                    new Object[]{name, key});
+            return;
         }
         
         technique.setShaderPrologue(createShaderPrologue(presetDefines));
