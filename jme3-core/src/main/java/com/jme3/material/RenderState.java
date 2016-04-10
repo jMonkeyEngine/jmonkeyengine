@@ -121,6 +121,92 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
+     * <code>BlendEquation</code> specifies the blending equation to combine
+     * pixels.
+     */
+    public enum BlendEquation {
+        /**
+         * Sets the blend equation so that the source and destination data are
+         * added. (Default) Clamps to [0,1] Useful for things like antialiasing
+         * and transparency.
+         */
+        Add,
+        /**
+         * Sets the blend equation so that the source and destination data are
+         * subtracted (Src - Dest). Clamps to [0,1] Falls back to Add if
+         * supportsSubtract is false.
+         */
+        Subtract,
+        /**
+         * Same as Subtract, but the order is reversed (Dst - Src). Clamps to
+         * [0,1] Falls back to Add if supportsSubtract is false.
+         */
+        ReverseSubtract,
+        /**
+         * Sets the blend equation so that each component of the result color is
+         * the minimum of the corresponding components of the source and
+         * destination colors. This and Max are useful for applications that
+         * analyze image data (image thresholding against a constant color, for
+         * example). Falls back to Add if supportsMinMax is false.
+         */
+        Min,
+        /**
+         * Sets the blend equation so that each component of the result color is
+         * the maximum of the corresponding components of the source and
+         * destination colors. This and Min are useful for applications that
+         * analyze image data (image thresholding against a constant color, for
+         * example). Falls back to Add if supportsMinMax is false.
+         */
+        Max
+    }
+    
+    /**
+     * <code>BlendEquationAlpha</code> specifies the blending equation to
+     * combine pixels for the alpha component.
+     */
+    public enum BlendEquationAlpha {
+        /**
+         * Sets the blend equation to be the same as the one defined by
+         * {@link #blendEquation}.
+         *
+         */
+        InheritColor,
+        /**
+         * Sets the blend equation so that the source and destination data are
+         * added. (Default) Clamps to [0,1] Useful for things like antialiasing
+         * and transparency.
+         */
+        Add,
+        /**
+         * Sets the blend equation so that the source and destination data are
+         * subtracted (Src - Dest). Clamps to [0,1] Falls back to Add if
+         * supportsSubtract is false.
+         */
+        Subtract,
+        /**
+         * Same as Subtract, but the order is reversed (Dst - Src). Clamps to
+         * [0,1] Falls back to Add if supportsSubtract is false.
+         */
+        ReverseSubtract,
+        /**
+         * Sets the blend equation so that the result alpha is the minimum of
+         * the source alpha and destination alpha. This and Max are useful for
+         * applications that analyze image data (image thresholding against a
+         * constant color, for example). Falls back to Add if supportsMinMax is
+         * false.
+         */
+        Min,
+        /**
+         * sSets the blend equation so that the result alpha is the maximum of
+         * the source alpha and destination alpha. This and Min are useful for
+         * applications that analyze image data (image thresholding against a
+         * constant color, for example). Falls back to Add if supportsMinMax is
+         * false.
+         */
+        Max
+    }
+
+    /**
      * <code>BlendMode</code> specifies the blending operation to use.
      *
      * @see RenderState#setBlendMode(com.jme3.material.RenderState.BlendMode)
@@ -377,6 +463,7 @@ public class RenderState implements Cloneable, Savable {
         depthFunc = ic.readEnum("depthFunc", TestFunction.class, TestFunction.LessOrEqual);
         lineWidth = ic.readFloat("lineWidth", 1);
 
+
         applyWireFrame = ic.readBoolean("applyWireFrame", true);
         applyCullMode = ic.readBoolean("applyCullMode", true);
         applyDepthWrite = ic.readBoolean("applyDepthWrite", true);
@@ -405,8 +492,8 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * returns true if the given renderState is equall to this one
-     * @param o the renderState to compate to
+     * returns true if the given renderState is equal to this one
+     * @param o the renderState to compare to
      * @return true if the renderStates are equal
      */
     @Override
@@ -447,6 +534,7 @@ public class RenderState implements Cloneable, Savable {
         if (blendMode != rs.blendMode) {
             return false;
         }
+
 
         if (offsetEnabled != rs.offsetEnabled) {
             return false;
@@ -576,6 +664,61 @@ public class RenderState implements Cloneable, Savable {
     public void setBlendMode(BlendMode blendMode) {
         applyBlendMode = true;
         this.blendMode = blendMode;
+        cachedHashCode = -1;
+    }
+
+    /**
+     * Set the blending equation.
+     * <p>
+     * When blending is enabled, (<code>blendMode</code> is not
+     * {@link BlendMode#Off}) the input pixel will be blended with the pixel
+     * already in the color buffer. The blending equation is determined by the
+     * {@link BlendEquation}. For example, the mode {@link BlendMode#Additive}
+     * and {@link BlendEquation#Add} will add the input pixel's color to the
+     * color already in the color buffer:
+     * <br/>
+     * <code>Result = Source Color + Destination Color</code>
+     * <br/>
+     * However, the mode {@link BlendMode#Additive}
+     * and {@link BlendEquation#Subtract} will subtract the input pixel's color to the
+     * color already in the color buffer:
+     * <br/>
+     * <code>Result = Source Color - Destination Color</code>
+     *
+     * @param blendEquation The blend equation to use. 
+     */
+    public void setBlendEquation(BlendEquation blendEquation) {
+        applyBlendEquation = true;
+        this.blendEquation = blendEquation;
+        cachedHashCode = -1;
+    }
+    
+    /**
+     * Set the blending equation for the alpha component.
+     * <p>
+     * When blending is enabled, (<code>blendMode</code> is not
+     * {@link BlendMode#Off}) the input pixel will be blended with the pixel
+     * already in the color buffer. The blending equation is determined by the
+     * {@link BlendEquation} and can be overrode for the alpha component using
+     * the {@link BlendEquationAlpha} . For example, the mode
+     * {@link BlendMode#Additive} and {@link BlendEquationAlpha#Add} will add
+     * the input pixel's alpha to the alpha component already in the color
+     * buffer:
+     * <br/>
+     * <code>Result = Source Alpha + Destination Alpha</code>
+     * <br/>
+     * However, the mode {@link BlendMode#Additive} and
+     * {@link BlendEquationAlpha#Subtract} will subtract the input pixel's alpha
+     * to the alpha component already in the color buffer:
+     * <br/>
+     * <code>Result = Source Alpha - Destination Alpha</code>
+     *
+     * @param blendEquationAlpha The blend equation to use for the alpha
+     *                           component.
+     */
+    public void setBlendEquationAlpha(BlendEquationAlpha blendEquationAlpha) {
+        applyBlendEquationAlpha = true;
+        this.blendEquationAlpha = blendEquationAlpha;
         cachedHashCode = -1;
     }
 
@@ -894,6 +1037,24 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
+     * Retrieve the blend equation.
+     *
+     * @return the blend equation.
+     */
+    public BlendEquation getBlendEquation() {
+        return blendEquation;
+    }
+    
+    /**
+     * Retrieve the blend equation used for the alpha component.
+     *
+     * @return the blend equation for the alpha component.
+     */
+    public BlendEquationAlpha getBlendEquationAlpha() {
+        return blendEquationAlpha;
+    }
+
+    /**
      * Retrieve the blend mode.
      *
      * @return the blend mode.
@@ -1047,6 +1208,8 @@ public class RenderState implements Cloneable, Savable {
         return lineWidth;
     }
 
+
+
     public boolean isApplyBlendMode() {
         return applyBlendMode;
     }
@@ -1067,6 +1230,7 @@ public class RenderState implements Cloneable, Savable {
         return applyDepthWrite;
     }
 
+
     public boolean isApplyPolyOffset() {
         return applyPolyOffset;
     }
@@ -1078,6 +1242,7 @@ public class RenderState implements Cloneable, Savable {
     public boolean isApplyDepthFunc() {
         return applyDepthFunc;
     }
+
 
     public boolean isApplyLineWidth() {
         return applyLineWidth;
@@ -1096,6 +1261,8 @@ public class RenderState implements Cloneable, Savable {
             hash = 79 * hash + (this.depthFunc != null ? this.depthFunc.hashCode() : 0);
             hash = 79 * hash + (this.colorWrite ? 1 : 0);
             hash = 79 * hash + (this.blendMode != null ? this.blendMode.hashCode() : 0);
+            hash = 79 * hash + (this.blendEquation != null ? this.blendEquation.hashCode() : 0);
+            hash = 79 * hash + (this.blendEquationAlpha != null ? this.blendEquationAlpha.hashCode() : 0);
             hash = 79 * hash + Float.floatToIntBits(this.offsetFactor);
             hash = 79 * hash + Float.floatToIntBits(this.offsetUnits);
             hash = 79 * hash + (this.offsetEnabled ? 1 : 0);
@@ -1171,6 +1338,16 @@ public class RenderState implements Cloneable, Savable {
         } else {
             state.colorWrite = colorWrite;
         }
+        if (additionalState.applyBlendEquation) {
+            state.blendEquation = additionalState.blendEquation;
+        } else {
+            state.blendEquation = blendEquation;
+        }
+        if (additionalState.applyBlendEquationAlpha) {
+            state.blendEquationAlpha = additionalState.blendEquationAlpha;
+        } else {
+            state.blendEquationAlpha = blendEquationAlpha;
+        }        
         if (additionalState.applyBlendMode) {
             state.blendMode = additionalState.blendMode;
         } else {
@@ -1221,6 +1398,7 @@ public class RenderState implements Cloneable, Savable {
         state.cachedHashCode = -1;
         return state;
     }
+
     public void set(RenderState state) {
         wireframe = state.wireframe;
         cullMode = state.cullMode;
@@ -1240,6 +1418,8 @@ public class RenderState implements Cloneable, Savable {
         backStencilDepthPassOperation = state.backStencilDepthPassOperation;
         frontStencilFunction = state.frontStencilFunction;
         backStencilFunction = state.backStencilFunction;
+        blendEquationAlpha = state.blendEquationAlpha;
+        blendEquation = state.blendEquation;
         depthFunc = state.depthFunc;
         lineWidth = state.lineWidth;
 
@@ -1248,7 +1428,9 @@ public class RenderState implements Cloneable, Savable {
         applyDepthWrite =  true;
         applyDepthTest =  true;
         applyColorWrite = true;
-        applyBlendMode = true;
+        applyBlendEquation =  true;
+        applyBlendEquationAlpha =  true;
+	    applyBlendMode = true;
         applyPolyOffset =  true;
         applyDepthFunc = true;
         applyLineWidth = true;
@@ -1268,6 +1450,9 @@ public class RenderState implements Cloneable, Savable {
                 + "\napplyDepthTest=" + applyDepthTest
                 + "\ncolorWrite=" + colorWrite
                 + "\napplyColorWrite=" + applyColorWrite
+                + "\nblendEquation=" + blendEquation
+                + "\napplyBlendEquation=" + applyBlendEquation
+                + "\napplyBlendEquationAlpha=" + applyBlendEquationAlpha
                 + "\nblendMode=" + blendMode
                 + "\napplyBlendMode=" + applyBlendMode
                 + "\noffsetEnabled=" + offsetEnabled

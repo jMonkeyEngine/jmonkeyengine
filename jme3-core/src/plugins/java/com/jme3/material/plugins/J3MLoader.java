@@ -36,6 +36,7 @@ import com.jme3.material.logic.SinglePassLightingLogic;
 import com.jme3.material.logic.DefaultTechniqueDefLogic;
 import com.jme3.asset.*;
 import com.jme3.material.*;
+import com.jme3.material.RenderState.BlendEquation;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.material.TechniqueDef.LightMode;
@@ -448,6 +449,10 @@ public class J3MLoader implements AssetLoader {
             renderState.setDepthTest(parseBoolean(split[1]));
         }else if (split[0].equals("Blend")){
             renderState.setBlendMode(BlendMode.valueOf(split[1]));
+        }else if (split[0].equals("BlendEquation")){
+            renderState.setBlendEquation(BlendEquation.valueOf(split[1]));
+        }else if (split[0].equals("BlendEquationAlpha")){
+            renderState.setBlendEquationAlpha(RenderState.BlendEquationAlpha.valueOf(split[1]));
         }else if (split[0].equals("AlphaTestFalloff")){
             // Ignore for backwards compatbility
         }else if (split[0].equals("PolyOffset")){

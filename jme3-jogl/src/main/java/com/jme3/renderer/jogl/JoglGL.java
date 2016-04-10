@@ -79,6 +79,11 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
     }
 
     @Override
+    public void glBlendEquationSeparate(int colorMode, int alphaMode){
+        GLContext.getCurrentGL().glBlendEquationSeparate(colorMode, alphaMode);
+    }
+
+    @Override
 	public void glBlendFunc(int param1, int param2) {
         GLContext.getCurrentGL().glBlendFunc(param1, param2);
     }
