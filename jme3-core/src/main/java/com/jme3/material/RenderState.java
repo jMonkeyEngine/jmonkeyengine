@@ -367,6 +367,8 @@ public class RenderState implements Cloneable, Savable {
         ADDITIONAL.applyDepthWrite = false;
         ADDITIONAL.applyDepthTest = false;
         ADDITIONAL.applyColorWrite = false;
+        ADDITIONAL.applyBlendEquation = false;
+        ADDITIONAL.applyBlendEquationAlpha = false;
         ADDITIONAL.applyBlendMode = false;
         ADDITIONAL.applyPolyOffset = false;
     }
@@ -380,6 +382,10 @@ public class RenderState implements Cloneable, Savable {
     boolean applyDepthTest = true;
     boolean colorWrite = true;
     boolean applyColorWrite = true;
+    BlendEquation blendEquation = BlendEquation.Add;
+    boolean applyBlendEquation = true;
+    BlendEquationAlpha blendEquationAlpha = BlendEquationAlpha.InheritColor;
+    boolean applyBlendEquationAlpha = true;
     BlendMode blendMode = BlendMode.Off;
     boolean applyBlendMode = true;
     float offsetFactor = 0;
@@ -424,6 +430,8 @@ public class RenderState implements Cloneable, Savable {
         oc.write(backStencilDepthPassOperation, "backStencilDepthPassOperation", StencilOperation.Keep);
         oc.write(frontStencilFunction, "frontStencilFunction", TestFunction.Always);
         oc.write(backStencilFunction, "backStencilFunction", TestFunction.Always);
+        oc.write(blendEquation, "blendEquation", BlendEquation.Add);
+        oc.write(blendEquationAlpha, "blendEquationAlpha", BlendEquationAlpha.InheritColor);
         oc.write(depthFunc, "depthFunc", TestFunction.LessOrEqual);
         oc.write(lineWidth, "lineWidth", 1);
 
@@ -433,6 +441,8 @@ public class RenderState implements Cloneable, Savable {
         oc.write(applyDepthWrite, "applyDepthWrite", true);
         oc.write(applyDepthTest, "applyDepthTest", true);
         oc.write(applyColorWrite, "applyColorWrite", true);
+        oc.write(applyBlendEquation, "applyBlendEquation", true);
+        oc.write(applyBlendEquationAlpha, "applyBlendEquationAlpha", true);
         oc.write(applyBlendMode, "applyBlendMode", true);
         oc.write(applyPolyOffset, "applyPolyOffset", true);
         oc.write(applyDepthFunc, "applyDepthFunc", true);
@@ -460,6 +470,8 @@ public class RenderState implements Cloneable, Savable {
         backStencilDepthPassOperation = ic.readEnum("backStencilDepthPassOperation", StencilOperation.class, StencilOperation.Keep);
         frontStencilFunction = ic.readEnum("frontStencilFunction", TestFunction.class, TestFunction.Always);
         backStencilFunction = ic.readEnum("backStencilFunction", TestFunction.class, TestFunction.Always);
+        blendEquation = ic.readEnum("blendEquation", BlendEquation.class, BlendEquation.Add);
+        blendEquationAlpha = ic.readEnum("blendEquationAlpha", BlendEquationAlpha.class, BlendEquationAlpha.InheritColor);
         depthFunc = ic.readEnum("depthFunc", TestFunction.class, TestFunction.LessOrEqual);
         lineWidth = ic.readFloat("lineWidth", 1);
 
@@ -469,6 +481,8 @@ public class RenderState implements Cloneable, Savable {
         applyDepthWrite = ic.readBoolean("applyDepthWrite", true);
         applyDepthTest = ic.readBoolean("applyDepthTest", true);
         applyColorWrite = ic.readBoolean("applyColorWrite", true);
+        applyBlendEquation = ic.readBoolean("applyBlendEquation", true);
+        applyBlendEquationAlpha = ic.readBoolean("applyBlendEquationAlpha", true);
         applyBlendMode = ic.readBoolean("applyBlendMode", true);
         applyPolyOffset = ic.readBoolean("applyPolyOffset", true);
         applyDepthFunc = ic.readBoolean("applyDepthFunc", true);
@@ -528,6 +542,14 @@ public class RenderState implements Cloneable, Savable {
         }
 
         if (colorWrite != rs.colorWrite) {
+            return false;
+        }
+
+        if (blendEquation != rs.blendEquation) {
+            return false;
+        }
+
+        if (blendEquationAlpha != rs.blendEquationAlpha) {
             return false;
         }
 
@@ -1214,6 +1236,14 @@ public class RenderState implements Cloneable, Savable {
         return applyBlendMode;
     }
 
+    public boolean isApplyBlendEquation() {
+        return applyBlendEquation;
+    }
+
+    public boolean isApplyBlendEquationAlpha() {
+        return applyBlendEquationAlpha;
+    }
+
     public boolean isApplyColorWrite() {
         return applyColorWrite;
     }
@@ -1430,7 +1460,7 @@ public class RenderState implements Cloneable, Savable {
         applyColorWrite = true;
         applyBlendEquation =  true;
         applyBlendEquationAlpha =  true;
-	    applyBlendMode = true;
+        applyBlendMode = true;
         applyPolyOffset =  true;
         applyDepthFunc = true;
         applyLineWidth = true;
