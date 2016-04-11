@@ -74,6 +74,12 @@ public final class FbxObjectFactory {
                        subclassName.equals("FKEffector")) {
                 // jME3 does not support IK.
                 return FbxNullAttribute.class;
+            } else if (subclassName.equals("Light")) {
+                // TODO: support lights
+                return FbxNullAttribute.class;
+            } else if (subclassName.equals("Camera")) {
+                // TODO: support cameras
+                return FbxNullAttribute.class;
             } else {
                 // NodeAttribute - Unknown
                 logger.log(Level.WARNING, "Unknown object subclass: {0}. Ignoring.", subclassName);
