@@ -12,7 +12,9 @@ task run(dependsOn: 'build', type:JavaExec) {
         jvmArgs "-Djava.awt.headless=true"
     }
 
-    systemProperty "java.util.logging.config.file", System.getProperty("java.util.logging.config.file")
+    if (System.properties['java.util.logging.config.file'] != null) {
+        systemProperty "java.util.logging.config.file", System.properties['java.util.logging.config.file']
+    }
 
     if( assertions  == "true" ){
         enableAssertions = true;

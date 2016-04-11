@@ -60,7 +60,7 @@ public class HelloAssets extends SimpleApplication {
         rootNode.attachChild(teapot);
 
         /** Create a wall (Box with material and texture from test-data) */
-        Box box = new Box(Vector3f.ZERO, 2.5f,2.5f,1.0f);
+        Box box = new Box(2.5f, 2.5f, 1.0f);
         Spatial wall = new Geometry("Box", box );
         Material mat_brick = new Material( assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat_brick.setTexture("ColorMap", assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg"));

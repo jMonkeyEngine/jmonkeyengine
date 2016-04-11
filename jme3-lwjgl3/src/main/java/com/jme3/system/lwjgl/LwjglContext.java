@@ -116,17 +116,6 @@ public abstract class LwjglContext implements JmeContext {
         return samples;
     }
 
-    protected void loadNatives() {
-        if (JmeSystem.isLowPermissions()) {
-            return;
-        }
-
-        if (NativeLibraryLoader.isUsingNativeBullet()) {
-            NativeLibraryLoader.loadNativeLibrary("bulletjme", true);
-        }
-    }
-
-
     protected void initContextFirstTime() {
         final GLCapabilities capabilities = createCapabilities(settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3));
 

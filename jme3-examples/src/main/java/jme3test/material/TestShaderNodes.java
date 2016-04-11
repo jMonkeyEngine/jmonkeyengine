@@ -3,6 +3,7 @@ package jme3test.material;
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
 import com.jme3.material.Technique;
+import com.jme3.material.TechniqueDef;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
@@ -27,12 +28,12 @@ public class TestShaderNodes extends SimpleApplication {
         Texture tex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
 
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/UnshadedNodes.j3md");
-        mat.selectTechnique("Default", renderManager);
+        mat.selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
         Technique t = mat.getActiveTechnique();
 
-        for (Shader.ShaderSource shaderSource : t.getShader().getSources()) {
-            System.out.println(shaderSource.getSource());
-        }
+//        for (Shader.ShaderSource shaderSource : t.getShader().getSources()) {
+//            System.out.println(shaderSource.getSource());
+//        }
 
         
         mat.setColor("Color", ColorRGBA.Yellow);

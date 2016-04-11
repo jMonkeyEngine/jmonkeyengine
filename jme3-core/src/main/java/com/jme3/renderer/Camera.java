@@ -1005,12 +1005,12 @@ public class Camera implements Savable, Cloneable {
      *
      * NOTE: This method is used internally for culling, for public usage,
      * the plane state of the bounding volume must be saved and restored, e.g:
-     * <code>BoundingVolume bv;<br/>
-     * Camera c;<br/>
-     * int planeState = bv.getPlaneState();<br/>
-     * bv.setPlaneState(0);<br/>
-     * c.contains(bv);<br/>
-     * bv.setPlaneState(plateState);<br/>
+     * <code>BoundingVolume bv;<br>
+     * Camera c;<br>
+     * int planeState = bv.getPlaneState();<br>
+     * bv.setPlaneState(0);<br>
+     * c.contains(bv);<br>
+     * bv.setPlaneState(plateState);<br>
      * </code>
      *
      * @param bound the bound to check for culling

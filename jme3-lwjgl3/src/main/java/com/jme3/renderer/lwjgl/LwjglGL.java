@@ -79,6 +79,10 @@ public class LwjglGL implements GL, GL2, GL3, GL4 {
         GL11.glBindTexture(param1, param2);
     }
 
+    public void glBlendEquationSeparate(int colorMode, int alphaMode){
+        GL20.glBlendEquationSeparate(colorMode,alphaMode);
+    }
+
     public void glBlendFunc(int param1, int param2) {
         GL11.glBlendFunc(param1, param2);
     }

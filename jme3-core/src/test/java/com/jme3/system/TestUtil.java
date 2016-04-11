@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,16 +29,27 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.animation;
+package com.jme3.system;
 
-/**
- * @deprecated use Animation instead with tracks of selected type (ie. BoneTrack, SpatialTrack, MeshTrack)
- */
-@Deprecated
-public final class BoneAnimation extends Animation {
+import com.jme3.asset.AssetConfig;
+import com.jme3.asset.AssetManager;
+import com.jme3.asset.DesktopAssetManager;
+import com.jme3.renderer.RenderManager;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-    @Deprecated
-    public BoneAnimation(String name, float length) {
-        super(name, length);
+public class TestUtil {
+    
+    static {
+        JmeSystem.setSystemDelegate(new MockJmeSystemDelegate());
+    }
+    
+    public static AssetManager createAssetManager() {
+        Logger.getLogger(AssetConfig.class.getName()).setLevel(Level.OFF);
+        return new DesktopAssetManager(true);
+    }
+    
+    public static RenderManager createRenderManager() {
+        return new RenderManager(new NullRenderer());
     }
 }

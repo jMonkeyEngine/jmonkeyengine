@@ -100,6 +100,16 @@ public class GeometryList implements Iterable<Geometry>{
     }
 
     /**
+     * Sets the element at the given index.
+     * 
+     * @param index The index to set
+     * @param value The value
+     */
+    public void set(int index, Geometry value) {
+        geometries[index] = value;
+    }
+    
+    /**
      * Returns the element at the given index.
      *
      * @param index The index to lookup

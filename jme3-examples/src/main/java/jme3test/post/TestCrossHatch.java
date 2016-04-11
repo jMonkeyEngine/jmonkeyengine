@@ -102,7 +102,8 @@ public class TestCrossHatch extends SimpleApplication {
 
   
 
-        Geometry soil=new Geometry("soil", new Box(new Vector3f(0, -13, 550), 800, 10, 700));
+        Geometry soil = new Geometry("soil", new Box(800, 10, 700));
+        soil.setLocalTranslation(0, -13, 550);
         soil.setMaterial(matSoil);
         soil.setShadowMode(ShadowMode.CastAndReceive);
         rootNode.attachChild(soil);

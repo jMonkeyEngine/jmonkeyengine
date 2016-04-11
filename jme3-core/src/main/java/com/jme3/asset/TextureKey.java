@@ -123,48 +123,12 @@ public class TextureKey extends AssetKey<Texture> {
         this.anisotropy = anisotropy;
     }
 
-    /**
-     * @deprecated Use {@link #setTextureTypeHint(com.jme3.texture.Texture.Type) }
-     * instead.
-     */
-    @Deprecated
-    public boolean isAsCube() {
-        return textureTypeHint == Type.CubeMap;
-    }
-
-    /**
-     * @deprecated Use {@link #setTextureTypeHint(com.jme3.texture.Texture.Type) }
-     * instead.
-     */
-    @Deprecated
-    public void setAsCube(boolean asCube) {
-        textureTypeHint = asCube ? Type.CubeMap : Type.TwoDimensional;
-    }
-
     public boolean isGenerateMips() {
         return generateMips;
     }
 
     public void setGenerateMips(boolean generateMips) {
         this.generateMips = generateMips;
-    }
-
-    /**
-     * @deprecated Use {@link #setTextureTypeHint(com.jme3.texture.Texture.Type) }
-     * instead.
-     */
-    @Deprecated
-    public boolean isAsTexture3D() {
-        return textureTypeHint == Type.ThreeDimensional;
-    }
-
-    /**
-     * @deprecated Use {@link #setTextureTypeHint(com.jme3.texture.Texture.Type) }
-     * instead.
-     */
-    @Deprecated
-    public void setAsTexture3D(boolean asTexture3D) {
-        textureTypeHint = asTexture3D ? Type.ThreeDimensional : Type.TwoDimensional;
     }
 
     /**

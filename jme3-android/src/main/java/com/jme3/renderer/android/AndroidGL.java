@@ -523,4 +523,9 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     public Object glFenceSync(int condition, int flags) {
         throw new UnsupportedOperationException("OpenGL ES 2 does not support sync fences");
     }
+
+    @Override
+    public void glBlendEquationSeparate(int colorMode, int alphaMode) {
+        GLES20.glBlendEquationSeparate(colorMode, alphaMode);
+    }
 }

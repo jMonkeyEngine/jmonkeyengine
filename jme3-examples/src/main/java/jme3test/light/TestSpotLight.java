@@ -100,7 +100,7 @@ public class TestSpotLight extends SimpleApplication {
       //  mat.setBoolean("VertexLighting", true);
         
         
-        Box floor = new Box(Vector3f.ZERO, 50, 1f, 50);
+        Box floor = new Box(50, 1f, 50);
         TangentBinormalGenerator.generate(floor);
         floor.scaleTextureCoordinates(new Vector2f(5, 5));
         Geometry floorGeom = new Geometry("Floor", floor);

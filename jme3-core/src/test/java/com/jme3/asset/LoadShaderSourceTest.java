@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,48 +29,24 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.effect;
+package com.jme3.asset;
 
-import com.jme3.renderer.Camera;
-import java.util.Comparator;
+import com.jme3.asset.plugins.ClasspathLocator;
+import com.jme3.shader.plugins.GLSLLoader;
+import com.jme3.system.JmeSystem;
+import com.jme3.system.MockJmeSystemDelegate;
+import org.junit.Test;
 
-@Deprecated
-class ParticleComparator implements Comparator<Particle> {
+public class LoadShaderSourceTest {
 
-    private Camera cam;
-
-    public void setCamera(Camera cam){
-        this.cam = cam;
+    @Test
+    public void testLoadShaderSource() {
+        JmeSystem.setSystemDelegate(new MockJmeSystemDelegate());
+        AssetManager assetManager = new DesktopAssetManager();
+        assetManager.registerLocator(null, ClasspathLocator.class);
+        assetManager.registerLoader(GLSLLoader.class, "frag");
+        String showNormals = (String) assetManager.loadAsset("Common/MatDefs/Misc/ShowNormals.frag");
+        System.out.println(showNormals);
     }
-
-    public int compare(Particle p1, Particle p2) {
-        return 0; // unused
-        /*
-        if (p1.life <= 0 || p2.life <= 0)
-            return 0;
-
-//        if (p1.life <= 0)
-//            return 1;
-//        else if (p2.life <= 0)
-//            return -1;
-
-        float d1 = p1.distToCam, d2 = p2.distToCam;
-
-        if (d1 == -1){
-            d1 = cam.distanceToNearPlane(p1.position);
-            p1.distToCam = d1;
-        }
-        if (d2 == -1){
-            d2 = cam.distanceToNearPlane(p2.position);
-            p2.distToCam = d2;
-        }
-
-        if (d1 < d2)
-            return 1;
-        else if (d1 > d2)
-            return -1;
-        else
-            return 0;
-        */
-    }
+    
 }

@@ -218,11 +218,6 @@ public class TerrainPatch extends Geometry {
         return lodEntropy;
     }
 
-    @Deprecated
-    public FloatBuffer getHeightmap() {
-        return BufferUtils.createFloatBuffer(geomap.getHeightArray());
-    }
-
     public float[] getHeightMap() {
         return geomap.getHeightArray();
     }

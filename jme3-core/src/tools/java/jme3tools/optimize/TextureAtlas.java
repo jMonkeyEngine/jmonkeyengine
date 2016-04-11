@@ -504,7 +504,6 @@ public class TextureAtlas {
         geom.setMesh(mesh);
 
         Material mat = new Material(mgr, "Common/MatDefs/Light/Lighting.j3md");
-        mat.getAdditionalRenderState().setAlphaTest(true);
         Texture diffuseMap = atlas.getAtlasTexture("DiffuseMap");
         Texture normalMap = atlas.getAtlasTexture("NormalMap");
         Texture specularMap = atlas.getAtlasTexture("SpecularMap");

@@ -78,6 +78,11 @@ public class IosGL implements GL, GLExt, GLFbo {
         checkLimit(buffer);
         return buffer.limit() / elementSize;
     }
+
+    @Override
+    public void glBlendEquationSeparate(int colorMode, int alphaMode) {
+        JmeIosGLES.glBlendEquationSeparate(colorMode, alphaMode);
+    }
     
     private int toArray(IntBuffer buffer) {
         int remain = buffer.remaining();

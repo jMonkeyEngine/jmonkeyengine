@@ -32,7 +32,6 @@
 package com.jme3.asset;
 
 import com.jme3.asset.cache.AssetCache;
-import com.jme3.asset.cache.SimpleAssetCache;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioKey;
 import com.jme3.font.BitmapFont;
@@ -42,9 +41,7 @@ import com.jme3.renderer.Caps;
 import com.jme3.scene.Spatial;
 import com.jme3.shader.Glsl100ShaderGenerator;
 import com.jme3.shader.Glsl150ShaderGenerator;
-import com.jme3.shader.Shader;
 import com.jme3.shader.ShaderGenerator;
-import com.jme3.shader.ShaderKey;
 import com.jme3.system.JmeSystem;
 import com.jme3.texture.Texture;
 import java.io.IOException;
@@ -429,36 +426,6 @@ public class DesktopAssetManager implements AssetManager {
 
     public FilterPostProcessor loadFilter(String name){
         return loadFilter(new FilterKey(name));
-    }
-
-    /**
-     * Load a vertex/fragment shader combo.
-     *
-     * @param key
-     * @return the loaded {@link Shader}
-     */
-    public Shader loadShader(ShaderKey key){
-        // cache abuse in method
-        // that doesn't use loaders/locators
-        AssetCache cache = handler.getCache(SimpleAssetCache.class);
-        Shader shader = (Shader) cache.getFromCache(key);
-        if (shader == null){
-            if (key.isUsesShaderNodes()) {
-                if(shaderGenerator == null){
-                    throw new UnsupportedOperationException("ShaderGenerator was not initialized, make sure assetManager.getGenerator(caps) has been called");
-                }
-                shader = shaderGenerator.generateShader();
-            } else {
-                shader = new Shader();
-                shader.initialize();
-                for (Shader.ShaderType shaderType : key.getUsedShaderPrograms()) {
-                    shader.addSource(shaderType,key.getShaderProgramName(shaderType),(String) loadAsset(new AssetKey(key.getShaderProgramName(shaderType))),key.getDefines().getCompiled(),key.getShaderProgramLanguage(shaderType));
-                }
-            }
-
-            cache.addToCache(key, shader);
-        }
-        return shader;
     }
 
     /**

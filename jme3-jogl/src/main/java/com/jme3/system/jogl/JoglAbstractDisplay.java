@@ -77,8 +77,6 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
     protected boolean wasAnimating = false;
 
     protected void initGLCanvas() {
-        loadNatives();
-        
         device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         
         GLCapabilities caps;

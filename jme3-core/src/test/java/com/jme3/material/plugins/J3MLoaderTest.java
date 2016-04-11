@@ -7,8 +7,11 @@ import com.jme3.asset.TextureKey;
 import com.jme3.material.MatParamTexture;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialDef;
+import com.jme3.renderer.Caps;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
+import java.io.IOException;
+import java.util.EnumSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +21,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -49,6 +53,30 @@ public class J3MLoaderTest {
         when(assetManager.loadAsset(any(AssetKey.class))).thenReturn(materialDef);
 
         j3MLoader = new J3MLoader();
+    }
+
+    @Test
+    public void noDefaultTechnique_shouldBeSupported() throws IOException {
+        when(assetInfo.openStream()).thenReturn(J3MLoader.class.getResourceAsStream("/no-default-technique.j3md"));
+        MaterialDef def = (MaterialDef) j3MLoader.load(assetInfo);
+        assertEquals(1, def.getTechniqueDefs("Test").size());
+    }
+
+    @Test
+    public void fixedPipelineTechnique_shouldBeIgnored() throws IOException {
+        when(assetInfo.openStream()).thenReturn(J3MLoader.class.getResourceAsStream("/no-shader-specified.j3md"));
+        MaterialDef def = (MaterialDef) j3MLoader.load(assetInfo);
+        assertEquals(null, def.getTechniqueDefs("A"));
+        assertEquals(1, def.getTechniqueDefs("B").size());
+    }
+
+    @Test
+    public void multipleSameNamedTechniques_shouldBeSupported() throws IOException {
+        when(assetInfo.openStream()).thenReturn(J3MLoader.class.getResourceAsStream("/same-name-technique.j3md"));
+        MaterialDef def = (MaterialDef) j3MLoader.load(assetInfo);
+        assertEquals(2, def.getTechniqueDefs("Test").size());
+        assertEquals(EnumSet.of(Caps.GLSL150), def.getTechniqueDefs("Test").get(0).getRequiredCaps());
+        assertEquals(EnumSet.of(Caps.GLSL100), def.getTechniqueDefs("Test").get(1).getRequiredCaps());
     }
 
     @Test
@@ -107,7 +135,7 @@ public class J3MLoaderTest {
     }
 
     private TextureKey setupMockForTexture(final String paramName, final String path, final boolean flipY, final Texture texture) {
-        when(materialDef.getMaterialParam(paramName)).thenReturn(new MatParamTexture(VarType.Texture2D, paramName, texture, 0, null));
+        when(materialDef.getMaterialParam(paramName)).thenReturn(new MatParamTexture(VarType.Texture2D, paramName, texture, null));
 
         final TextureKey textureKey = new TextureKey(path, flipY);
         textureKey.setGenerateMips(true);

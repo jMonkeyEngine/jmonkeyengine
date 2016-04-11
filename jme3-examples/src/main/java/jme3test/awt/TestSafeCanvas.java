@@ -59,7 +59,7 @@ public class TestSafeCanvas extends SimpleApplication {
     public void simpleInitApp() {
         flyCam.setDragToRotate(true);
 
-        Box b = new Box(Vector3f.ZERO, 1, 1, 1);
+        Box b = new Box(1, 1, 1);
         Geometry geom = new Geometry("Box", b);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));

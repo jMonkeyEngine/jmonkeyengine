@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2015 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,27 +29,50 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.terrain.heightmap;
+package com.jme3.system;
 
-/**
- * A heightmap that is built off an image.
- * If you want to be able to supply different Image types to 
- * ImageBaseHeightMapGrid, you need to implement this interface,
- * and have that class extend Abstract heightmap.
- * 
- * @author bowens
- * @deprecated
- */
-public interface ImageHeightmap {
+import com.jme3.audio.AudioRenderer;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URL;
+import java.nio.ByteBuffer;
+
+public class MockJmeSystemDelegate extends JmeSystemDelegate {
+
+    @Override
+    public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
+    }
+
+    @Override
+    public void showErrorDialog(String message) {
+    }
+
+    @Override
+    public boolean showSettingsDialog(AppSettings sourceSettings, boolean loadFromRegistry) {
+        return false;
+    }
+
+    @Override
+    public URL getPlatformAssetConfigURL() {
+        return Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/General.cfg");
+    }
+
+    @Override
+    public JmeContext newContext(AppSettings settings, JmeContext.Type contextType) {
+        return null;
+    }
+
+    @Override
+    public AudioRenderer newAudioRenderer(AppSettings settings) {
+        return null;
+    }
+
+    @Override
+    public void initialize(AppSettings settings) {
+    }
+
+    @Override
+    public void showSoftKeyboard(boolean show) {
+    }
     
-    /**
-     * Set the image to use for this heightmap
-     */
-    //public void setImage(Image image);
-    
-    /**
-     * The BufferedImage.TYPE_ that is supported
-     * by this ImageHeightmap
-     */
-    //public int getSupportedImageType();
 }

@@ -33,72 +33,62 @@
 package jme3test.audio;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
-import com.jme3.audio.Environment;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import org.lwjgl.openal.AL10;
-import org.lwjgl.openal.AL11;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.shape.Sphere;
+import com.jme3.scene.shape.Torus;
 
 /**
  * Test Doppler Effect
  */
 public class TestDoppler extends SimpleApplication {
 
-    private AudioNode ufo;
+    private float pos = -5;
+    private float vel = 5;
+    private AudioNode ufoNode;
 
-    private float x = 20, z = 0;
-    private float rate     = -0.05f;
-    private float xDist    = 20;
-    private float zDist    = 5;
-    private float angle    = FastMath.TWO_PI;
-    
     public static void main(String[] args){
         TestDoppler test = new TestDoppler();
         test.start();
     }
 
     @Override
-    public void simpleInitApp(){
-        audioRenderer.setEnvironment(Environment.Dungeon);
-        AL10.alDistanceModel(AL11.AL_EXPONENT_DISTANCE);
-        
-        ufo  = new AudioNode(assetManager, "Sound/Effects/Beep.ogg", false);
-        ufo.setPositional(true);
-        ufo.setLooping(true);
-        ufo.setReverbEnabled(true);
-        ufo.setRefDistance(100000000);
-        ufo.setMaxDistance(100000000);
-        ufo.play();
+    public void simpleInitApp() {
+        flyCam.setMoveSpeed(10);
+
+        Torus torus = new Torus(10, 6, 1, 3);
+        Geometry g = new Geometry("Torus Geom", torus);
+        g.rotate(-FastMath.HALF_PI, 0, 0);
+        g.center();
+
+        g.setMaterial(assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
+//        rootNode.attachChild(g);
+
+        ufoNode = new AudioNode(assetManager, "Sound/Effects/Beep.ogg", AudioData.DataType.Buffer);
+        ufoNode.setLooping(true);
+        ufoNode.setPitch(0.5f);
+        ufoNode.setRefDistance(1);
+        ufoNode.setMaxDistance(100000000);
+        ufoNode.setVelocityFromTranslation(true);
+        ufoNode.play();
+
+        Geometry ball = new Geometry("Beeper", new Sphere(10, 10, 0.1f));
+        ball.setMaterial(assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
+        ufoNode.attachChild(ball);
+
+        rootNode.attachChild(ufoNode);
     }
+
 
     @Override
-    public void simpleUpdate(float tpf){
-        //float x  = (float) (Math.cos(angle) * xDist);
-        float dx = (float)  Math.sin(angle) * xDist; 
-        
-        //float z  = (float) (Math.sin(angle) * zDist);
-        float dz = (float)(-Math.cos(angle) * zDist);
-        
-        x += dx * tpf * 0.05f;
-        z += dz * tpf * 0.05f;
-        
-        angle += tpf * rate;
-        
-        if (angle > FastMath.TWO_PI){
-            angle = FastMath.TWO_PI;
-            rate = -rate;
-        }else if (angle < -0){
-            angle = -0;
-            rate = -rate;
+    public void simpleUpdate(float tpf) {
+        pos += tpf * vel;
+        if (pos < -10 || pos > 10) {
+            vel *= -1;
         }
-        
-        ufo.setVelocity(new Vector3f(dx, 0, dz));
-        ufo.setLocalTranslation(x, 0, z);
-        ufo.updateGeometricState();
-        
-        System.out.println("LOC: " + (int)x +", " + (int)z + 
-                ", VEL: " + (int)dx + ", " + (int)dz);
+        ufoNode.setLocalTranslation(new Vector3f(pos, 0, 0));
     }
-
 }

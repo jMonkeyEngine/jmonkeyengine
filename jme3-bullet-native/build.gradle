@@ -34,7 +34,14 @@ libraries {
 //                linker.args "-static-libstdc++"
             } else if (targetPlatform.operatingSystem.name == "windows") {
                 if (toolChain in Gcc) {
-                    cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
+                    if (toolChain.name.startsWith('mingw')) {
+                        cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
+                    } else {
+                        cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
+                    }
+                    cppCompiler.args "-fpermissive"
+                    cppCompiler.args "-static"
+                    linker.args "-static"
                 }
                 else if (toolChain in VisualCpp) {
                     cppCompiler.args "/I${org.gradle.internal.jvm.Jvm.current().javaHome}\\include\\win32"
@@ -76,6 +83,31 @@ sourceSets {
 
 // Set of target platforms, will be available based on build system
 model {
+
+    toolChains {
+        gcc(Gcc)
+        mingw_x86(Gcc) {
+            eachPlatform() {
+                cCompiler.executable "i686-w64-mingw32-gcc"
+                cppCompiler.executable "i686-w64-mingw32-g++"
+                linker.executable "i686-w64-mingw32-g++"
+                assembler.executable "i686-w64-mingw32-g++"
+                staticLibArchiver.executable "i686-w64-mingw32-gcc-ar"
+            }
+            target("windows_x86")
+        }
+        mingw_x86_64(Gcc) {
+            eachPlatform() {
+                cCompiler.executable "x86_64-w64-mingw32-gcc"
+                cppCompiler.executable "x86_64-w64-mingw32-g++"
+                linker.executable "x86_64-w64-mingw32-g++"
+                assembler.executable "x86_64-w64-mingw32-g++"
+                staticLibArchiver.executable "x86_64-w64-mingw32-gcc-ar"
+            }
+            target("windows_x86_64")
+        }
+    }
+
     platforms{
 //    osx_universal { // TODO: universal binary doesn't work?
 //        architecture 'x86_64'

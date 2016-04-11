@@ -69,7 +69,7 @@ public class TestAmbient extends SimpleApplication {
     nature.play();
     
     // just a blue box to mark the spot
-    Box box1 = new Box(Vector3f.ZERO, .5f, .5f, .5f);
+    Box box1 = new Box(.5f, .5f, .5f);
     Geometry player = new Geometry("Player", box1);
     Material mat1 = new Material(assetManager,
             "Common/MatDefs/Misc/Unshaded.j3md");
