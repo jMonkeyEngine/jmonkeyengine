@@ -43,6 +43,7 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.util.NativeObject;
 import java.nio.ByteBuffer;
+import java.util.EnumMap;
 import java.util.EnumSet;
 
 /**
@@ -65,6 +66,13 @@ public interface Renderer {
      * @return The capabilities of the renderer.
      */
     public EnumSet<Caps> getCaps();
+
+    /**
+     * Get the limits of the renderer.
+     *
+     * @return The limits of the renderer.
+     */
+    public EnumMap<Limits, Integer> getLimits();
 
     /**
      * The statistics allow tracking of how data
@@ -302,7 +310,21 @@ public interface Renderer {
      * @see NativeObject#deleteObject(java.lang.Object) 
      */
     public void cleanup();
-    
+
+    /**
+     * Set the default anisotropic filter level for textures.
+     *
+     * If the
+     * {@link Texture#setAnisotropicFilter(int) texture anisotropic filter} is
+     * set to 0, then the default level is used. Otherwise if the texture level
+     * is 1 or greater, then the texture's value overrides the default value.
+     *
+     * @param level The default anisotropic filter level to use. Default: 1.
+     *
+     * @throws IllegalArgumentException If level is less than 1.
+     */
+    public void setDefaultAnisotropicFilter(int level);
+
     /**
      * Sets the alpha to coverage state.
      * <p>

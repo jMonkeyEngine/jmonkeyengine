@@ -46,7 +46,7 @@ public class SimpleTexturedTest extends SimpleApplication {
 
 
 		shapeSphere = new Sphere(16, 16, .5f);
-		shapeBox = new Box(Vector3f.ZERO, 0.3f, 0.3f, 0.3f);
+            shapeBox = new Box(0.3f, 0.3f, 0.3f);
 
 
 	//	ModelConverter.optimize(geom);

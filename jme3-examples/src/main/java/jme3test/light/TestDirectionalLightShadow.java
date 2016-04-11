@@ -127,9 +127,10 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
             t.setLocalTranslation(FastMath.nextRandomFloat() * 200f, FastMath.nextRandomFloat() * 30f + 20, 30f * (i + 2f));
         }
 
-        Box b = new Box(new Vector3f(0, 10, 550), 1000, 2, 1000);
+        Box b = new Box(1000, 2, 1000);
         b.scaleTextureCoordinates(new Vector2f(10, 10));
         ground = new Geometry("soil", b);
+        ground.setLocalTranslation(0, 10, 550);
         matGroundU = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         matGroundU.setColor("Color", ColorRGBA.Green);
 

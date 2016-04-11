@@ -139,7 +139,7 @@ public class TestRagdollCharacter extends SimpleApplication implements AnimEvent
     }
 
     public void initWall(float bLength, float bWidth, float bHeight) {
-        Box brick = new Box(Vector3f.ZERO, bLength, bHeight, bWidth);
+        Box brick = new Box(bLength, bHeight, bWidth);
         brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
         Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         TextureKey key = new TextureKey("Textures/Terrain/BrickWall/BrickWall.jpg");

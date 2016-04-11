@@ -58,7 +58,7 @@ public final class LastTextureState {
         rWrap = null;
         magFilter = null;
         minFilter = null;
-        anisoFilter = 0;
+        anisoFilter = 1;
         
         // The default in OpenGL is OFF, so we avoid setting this per texture
         // if its not used.

@@ -56,6 +56,21 @@ public class J3MLoaderTest {
     }
 
     @Test
+    public void noDefaultTechnique_shouldBeSupported() throws IOException {
+        when(assetInfo.openStream()).thenReturn(J3MLoader.class.getResourceAsStream("/no-default-technique.j3md"));
+        MaterialDef def = (MaterialDef) j3MLoader.load(assetInfo);
+        assertEquals(1, def.getTechniqueDefs("Test").size());
+    }
+
+    @Test
+    public void fixedPipelineTechnique_shouldBeIgnored() throws IOException {
+        when(assetInfo.openStream()).thenReturn(J3MLoader.class.getResourceAsStream("/no-shader-specified.j3md"));
+        MaterialDef def = (MaterialDef) j3MLoader.load(assetInfo);
+        assertEquals(null, def.getTechniqueDefs("A"));
+        assertEquals(1, def.getTechniqueDefs("B").size());
+    }
+
+    @Test
     public void multipleSameNamedTechniques_shouldBeSupported() throws IOException {
         when(assetInfo.openStream()).thenReturn(J3MLoader.class.getResourceAsStream("/same-name-technique.j3md"));
         MaterialDef def = (MaterialDef) j3MLoader.load(assetInfo);

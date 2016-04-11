@@ -51,16 +51,7 @@ public class GeoMap implements Savable {
     protected int width, height, maxval;
     
     public GeoMap() {}
-    
-    @Deprecated
-    public GeoMap(FloatBuffer heightData, int width, int height, int maxval){
-        hdata = new float[heightData.limit()];
-        heightData.get(hdata);
-        this.width = width;
-        this.height = height;
-        this.maxval = maxval;
-    }
-    
+
     public GeoMap(float[] heightData, int width, int height, int maxval){
         this.hdata = heightData;
         this.width = width;
@@ -68,13 +59,6 @@ public class GeoMap implements Savable {
         this.maxval = maxval;
     }
 
-    @Deprecated
-    public FloatBuffer getHeightData(){
-        if (!isLoaded())
-            return null;
-        return BufferUtils.createFloatBuffer(hdata);
-    }
-    
     public float[] getHeightArray(){
         if (!isLoaded())
             return null;

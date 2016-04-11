@@ -54,10 +54,10 @@ import java.util.logging.Logger;
  */
 public class SavableClassUtil {
 
-    private final static HashMap<String, String> classRemappings = new HashMap<String, String>();
+    private final static HashMap<String, String> CLASS_REMAPPINGS = new HashMap<>();
     
     private static void addRemapping(String oldClass, Class<? extends Savable> newClass){
-        classRemappings.put(oldClass, newClass.getName());
+        CLASS_REMAPPINGS.put(oldClass, newClass.getName());
     }
     
     static {
@@ -74,7 +74,7 @@ public class SavableClassUtil {
     }
     
     private static String remapClass(String className) throws ClassNotFoundException {
-        String result = classRemappings.get(className);
+        String result = CLASS_REMAPPINGS.get(className);
         if (result == null) {
             return className;
         } else {

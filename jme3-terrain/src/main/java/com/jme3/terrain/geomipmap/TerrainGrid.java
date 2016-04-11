@@ -43,7 +43,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.UpdateControl;
 import com.jme3.terrain.Terrain;
-import com.jme3.terrain.heightmap.HeightMap;
 import com.jme3.terrain.heightmap.HeightMapGrid;
 import java.io.IOException;
 import java.util.HashSet;
@@ -114,7 +113,6 @@ public class TerrainGrid extends TerrainQuad {
     protected Vector3f currentCamCell = Vector3f.ZERO;
     protected int quarterSize; // half of quadSize
     protected int quadSize;
-    protected HeightMapGrid heightMapGrid;
     private TerrainGridTileLoader gridTileLoader;
     protected Vector3f[] quadIndex;
     protected Set<TerrainGridListener> listeners = new HashSet<TerrainGridListener>();
@@ -150,13 +148,7 @@ public class TerrainGrid extends TerrainQuad {
                     final Vector3f quadCell = location.add(quadIndex[quadIdx]);
                     TerrainQuad q = cache.get(quadCell);
                     if (q == null) {
-                        if (heightMapGrid != null) {
-                            // create the new Quad since it doesn't exist
-                            HeightMap heightMapAt = heightMapGrid.getHeightMapAt(quadCell);
-                            q = new TerrainQuad(getName() + "Quad" + quadCell, patchSize, quadSize, heightMapAt == null ? null : heightMapAt.getHeightMap());
-                            q.setMaterial(material.clone());
-                            log.log(Level.FINE, "Loaded TerrainQuad {0} from HeightMapGrid", q.getName());
-                        } else if (gridTileLoader != null) {
+                        if (gridTileLoader != null) {
                             q = gridTileLoader.getTerrainQuadAt(quadCell);
                             // only clone the material to the quad if it doesn't have a material of its own
                             if(q.getMaterial()==null) q.setMaterial(material.clone());

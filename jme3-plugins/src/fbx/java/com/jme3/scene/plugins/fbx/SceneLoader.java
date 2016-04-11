@@ -803,9 +803,7 @@ public class SceneLoader implements AssetLoader {
 		m.setColor("Diffuse", new ColorRGBA(data.diffuseColor.x, data.diffuseColor.y, data.diffuseColor.z, 1));
 		m.setColor("Specular", new ColorRGBA(data.specularColor.x, data.specularColor.y, data.specularColor.z, 1));
 		m.setFloat("Shininess", data.shininessExponent);
-		m.setBoolean("UseMaterialColors", true);
-		m.getAdditionalRenderState().setAlphaTest(true);
-		m.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
+            m.setBoolean("UseMaterialColors", true);
 		return m;
 	}
 	

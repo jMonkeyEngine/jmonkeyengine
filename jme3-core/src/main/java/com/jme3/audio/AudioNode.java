@@ -78,6 +78,7 @@ public class AudioNode extends Node implements AudioSource {
     protected transient AudioData data = null;
     protected transient volatile AudioSource.Status status = AudioSource.Status.Stopped;
     protected transient volatile int channel = -1;
+    protected Vector3f previousWorldTranslation = Vector3f.NAN;
     protected Vector3f velocity = new Vector3f();
     protected boolean reverbEnabled = false;
     protected float maxDistance = 200; // 200 meters
@@ -88,6 +89,8 @@ public class AudioNode extends Node implements AudioSource {
     protected float innerAngle = 360;
     protected float outerAngle = 360;
     protected boolean positional = true;
+    protected boolean velocityFromTranslation = false;
+    protected float lastTpf;
 
     /**
      * <code>Status</code> indicates the current status of the audio node.
@@ -702,17 +705,44 @@ public class AudioNode extends Node implements AudioSource {
         }
     }
 
-    @Override
-    public void updateGeometricState(){
-        boolean updatePos = false;
-        if ((refreshFlags & RF_TRANSFORM) != 0){
-            updatePos = true;
-        }
+    public boolean isVelocityFromTranslation() {
+        return velocityFromTranslation;
+    }
 
+    public void setVelocityFromTranslation(boolean velocityFromTranslation) {
+        this.velocityFromTranslation = velocityFromTranslation;
+    }
+
+    @Override
+    public void updateLogicalState(float tpf) {
+        super.updateLogicalState(tpf);
+        lastTpf = tpf;
+    }
+
+    @Override
+    public void updateGeometricState() {
         super.updateGeometricState();
 
-        if (updatePos && channel >= 0)
+        if (channel < 0) {
+            return;
+        }
+
+        Vector3f currentWorldTranslation = worldTransform.getTranslation();
+
+        if (Float.isNaN(previousWorldTranslation.x)
+                || !previousWorldTranslation.equals(currentWorldTranslation)) {
+
             getRenderer().updateSourceParam(this, AudioParam.Position);
+
+            if (velocityFromTranslation) {
+                velocity.set(currentWorldTranslation).subtractLocal(previousWorldTranslation);
+                velocity.multLocal(1f / lastTpf);
+
+                getRenderer().updateSourceParam(this, AudioParam.Velocity);
+            }
+
+            previousWorldTranslation.set(currentWorldTranslation);
+        }
     }
 
     @Override
@@ -772,6 +802,7 @@ public class AudioNode extends Node implements AudioSource {
         oc.write(outerAngle, "outer_angle", 360);
 
         oc.write(positional, "positional", false);
+        oc.write(velocityFromTranslation, "velocity_from_translation", false);
     }
 
     @Override
@@ -806,6 +837,7 @@ public class AudioNode extends Node implements AudioSource {
         outerAngle = ic.readFloat("outer_angle", 360);
 
         positional = ic.readBoolean("positional", false);
+        velocityFromTranslation = ic.readBoolean("velocity_from_translation", false);
 
         if (audioKey != null) {
             try {

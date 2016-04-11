@@ -149,8 +149,7 @@ public class MTLLoader implements AssetLoader {
         if (transparent){
             material.setTransparent(true);
             material.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
-            material.getAdditionalRenderState().setAlphaTest(true);
-            material.getAdditionalRenderState().setAlphaFallOff(0.01f);
+            material.setFloat("AlphaDiscardThreshold", 0.01f);
         }
         
         matList.put(matName, material);

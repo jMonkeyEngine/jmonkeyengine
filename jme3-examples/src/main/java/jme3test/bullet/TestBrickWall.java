@@ -90,7 +90,7 @@ public class TestBrickWall extends SimpleApplication {
         bullet = new Sphere(32, 32, 0.4f, true, false);
         bullet.setTextureMode(TextureMode.Projected);
         bulletCollisionShape = new SphereCollisionShape(0.4f);
-        brick = new Box(Vector3f.ZERO, bLength, bHeight, bWidth);
+        brick = new Box(bLength, bHeight, bWidth);
         brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
 
         initMaterial();
@@ -151,7 +151,7 @@ public class TestBrickWall extends SimpleApplication {
     }
 
     public void initFloor() {
-        Box floorBox = new Box(Vector3f.ZERO, 10f, 0.1f, 5f);
+        Box floorBox = new Box(10f, 0.1f, 5f);
         floorBox.scaleTextureCoordinates(new Vector2f(3, 6));
 
         Geometry floor = new Geometry("floor", floorBox);

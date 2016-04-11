@@ -193,7 +193,7 @@ public class TestBatchNodeTower extends SimpleApplication {
     }
 
     public void initFloor() {
-        Box floorBox = new Box(Vector3f.ZERO, 10f, 0.1f, 5f);
+        Box floorBox = new Box(10f, 0.1f, 5f);
         floorBox.scaleTextureCoordinates(new Vector2f(3, 6));
 
         Geometry floor = new Geometry("floor", floorBox);

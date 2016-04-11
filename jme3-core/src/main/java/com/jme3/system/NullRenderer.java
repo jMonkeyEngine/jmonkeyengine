@@ -39,6 +39,7 @@ import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.Caps;
+import com.jme3.renderer.Limits;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.Statistics;
 import com.jme3.scene.Mesh;
@@ -48,15 +49,25 @@ import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
+import java.util.EnumMap;
 
 public class NullRenderer implements Renderer {
 
-    private static final EnumSet<Caps> caps = EnumSet.allOf(Caps.class);
-    private static final Statistics stats = new Statistics();
+    private final EnumSet<Caps> caps = EnumSet.allOf(Caps.class);
+    private final EnumMap<Limits, Integer> limits = new EnumMap<>(Limits.class);
+    private final Statistics stats = new Statistics();
 
     public void initialize() {
+        for (Limits limit : Limits.values()) {
+            limits.put(limit, Integer.MAX_VALUE);
+        }
     }
-    
+
+    @Override
+    public EnumMap<Limits, Integer> getLimits() {
+        return limits;
+    }
+
     public EnumSet<Caps> getCaps() {
         return caps;
     }
@@ -164,4 +175,7 @@ public class NullRenderer implements Renderer {
     public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {        
     }
 
+    @Override
+    public void setDefaultAnisotropicFilter(int level) {
+    }
 }

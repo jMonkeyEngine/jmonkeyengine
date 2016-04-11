@@ -76,7 +76,7 @@ public class TestSoftParticles extends SimpleApplication {
 
 
         // -------- floor
-        Box b = new Box(Vector3f.ZERO, 10, 0.1f, 10);
+        Box b = new Box(10, 0.1f, 10);
         Geometry geom = new Geometry("Box", b);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.Gray);
@@ -84,7 +84,7 @@ public class TestSoftParticles extends SimpleApplication {
         geom.setMaterial(mat);
         rootNode.attachChild(geom);
 
-        Box b2 = new Box(Vector3f.ZERO, 1, 1, 1);
+        Box b2 = new Box(1, 1, 1);
         Geometry geom2 = new Geometry("Box", b2);
         Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat2.setColor("Color", ColorRGBA.DarkGray);

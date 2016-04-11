@@ -218,7 +218,7 @@ MaterialDef Phong Lighting {
     }
 
 
-    Technique PostShadow15{
+    Technique PostShadow {
         VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
         FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow.frag
 

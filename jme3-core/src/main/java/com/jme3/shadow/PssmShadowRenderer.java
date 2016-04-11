@@ -355,12 +355,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     public void initialize(RenderManager rm, ViewPort vp) {
         renderManager = rm;
         viewPort = vp;
-        //checking for caps to chosse the appropriate post material technique
-        if (renderManager.getRenderer().getCaps().contains(Caps.GLSL150)) {
-            postTechniqueName = "PostShadow15";
-        } else {
-            postTechniqueName = "PostShadow";
-        }
+        postTechniqueName = "PostShadow";
     }
 
     public boolean isInitialized() {

@@ -83,7 +83,7 @@ public class TestShadowsPerf extends SimpleApplication {
 
         mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
 
-        Box b = new Box(Vector3f.ZERO, 800, 1, 700);
+        Box b = new Box(800, 1, 700);
         b.scaleTextureCoordinates(new Vector2f(50, 50));
         Geometry ground = new Geometry("ground", b);
         ground.setMaterial(mat);

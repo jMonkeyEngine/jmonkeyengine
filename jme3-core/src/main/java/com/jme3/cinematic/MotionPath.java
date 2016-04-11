@@ -121,7 +121,8 @@ public class MotionPath implements Savable {
             Material m = assetManager.loadMaterial("Common/Materials/RedColor.j3m");
             for (Iterator<Vector3f> it = spline.getControlPoints().iterator(); it.hasNext();) {
                 Vector3f cp = it.next();
-                Geometry geo = new Geometry("box", new Box(cp, 0.3f, 0.3f, 0.3f));
+                Geometry geo = new Geometry("box", new Box(0.3f, 0.3f, 0.3f));
+                geo.setLocalTranslation(cp);
                 geo.setMaterial(m);
                 debugNode.attachChild(geo);
 

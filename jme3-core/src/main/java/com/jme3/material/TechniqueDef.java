@@ -155,13 +155,12 @@ public class TechniqueDef implements Savable {
      * <p>
      * Used internally by the J3M/J3MD loader.
      *
-     * @param name The name of the technique, should be set to <code>null</code>
-     * for default techniques.
+     * @param name The name of the technique
      */
     public TechniqueDef(String name, int sortId){
         this();
         this.sortId = sortId;
-        this.name = name == null ? TechniqueDef.DEFAULT_TECHNIQUE_NAME : name;
+        this.name = name;
     }
 
     /**
