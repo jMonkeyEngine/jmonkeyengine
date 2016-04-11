@@ -156,11 +156,17 @@ public final class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
             ColorRGBA color = light.getColor();
             Vector3f pos = light.getPosition();
             Vector3f dir = light.getDirection();
+
+            tempPosition.set(light.getPosition());
+            tempDirection.set(light.getDirection());
+            transformPosition(viewMatrix, tempPosition);
+            transformDirection(viewMatrix, tempDirection);
+
             float invRange = light.getInvSpotRange();
             float spotAngleCos = light.getPackedAngleCos();
             lightData.setVector4InArray(color.r, color.g, color.b, 1f, index++);
-            lightData.setVector4InArray(pos.x, pos.y, pos.z, invRange, index++);
-            lightData.setVector4InArray(dir.x, dir.y, dir.z, spotAngleCos, index++);
+            lightData.setVector4InArray(tempPosition.x, tempPosition.y, tempPosition.z, invRange, index++);
+            lightData.setVector4InArray(tempDirection.x, tempDirection.y, tempDirection.z, spotAngleCos, index++);
         }
     }
 
