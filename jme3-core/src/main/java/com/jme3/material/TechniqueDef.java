@@ -94,6 +94,17 @@ public class TechniqueDef implements Savable {
          */
         @Deprecated
         FixedPipeline,
+        /**
+         * Similar to {@link #SinglePass} except the type of each light is known
+         * at shader compile time.
+         * <p>
+         * The advantage is that the shader can be much more efficient, i.e. not
+         * do operations required for spot and point lights if it knows the
+         * light is a directional light. The disadvantage is that the number of
+         * shaders used balloons because of the variations in the number of
+         * lights used by objects.
+         */
+        StaticPass
     }
 
     public enum ShadowMode {
