@@ -633,9 +633,7 @@ public class J3MLoader implements AssetLoader {
             // Not sure if this is needed anymore, since shader caching
             // is now done by TechniqueDef.
             technique.setShaderFile(technique.hashCode() + "", technique.hashCode() + "", "GLSL100", "GLSL100");
-        }
-
-        if (shaderNames.containsKey(Shader.ShaderType.Vertex) && shaderNames.containsKey(Shader.ShaderType.Fragment)) {
+        }else if (shaderNames.containsKey(Shader.ShaderType.Vertex) && shaderNames.containsKey(Shader.ShaderType.Fragment)) {
             technique.setShaderFile(shaderNames, shaderLanguages);
         } else {
             technique = null;

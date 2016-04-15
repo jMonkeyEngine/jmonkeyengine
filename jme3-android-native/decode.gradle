@@ -85,7 +85,9 @@ task copyPreCompiledLibs(type: Copy) {
     into outputDir
 }
 
-if (rootProject.ndkExists && rootProject.buildNativeProjects) {
+// ndkExists is a boolean from the build.gradle in the root project
+// buildNativeProjects is a string set to "true"
+if (ndkExists && buildNativeProjects == "true") {
     // build native libs and update stored pre-compiled libs to commit
     compileJava.dependsOn { updatePreCompiledLibs }
 } else {

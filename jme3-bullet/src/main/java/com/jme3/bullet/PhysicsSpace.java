@@ -995,7 +995,7 @@ public class PhysicsSpace {
         return solverNumIterations;
     }
     
-    private static native void setSolverNumIterations(long physicsSpaceId, int numIterations);
+    private native void setSolverNumIterations(long physicsSpaceId, int numIterations);
     
     public static native void initNativePhysics();
 
