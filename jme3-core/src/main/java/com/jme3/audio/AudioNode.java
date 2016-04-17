@@ -78,7 +78,7 @@ public class AudioNode extends Node implements AudioSource {
     protected transient AudioData data = null;
     protected transient volatile AudioSource.Status status = AudioSource.Status.Stopped;
     protected transient volatile int channel = -1;
-    protected Vector3f previousWorldTranslation = Vector3f.NAN;
+    protected Vector3f previousWorldTranslation = Vector3f.NAN.clone();
     protected Vector3f velocity = new Vector3f();
     protected boolean reverbEnabled = false;
     protected float maxDistance = 200; // 200 meters
