@@ -35,6 +35,7 @@ package com.jme3.system.lwjgl;
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
+import com.jme3.opencl.Context;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.lwjgl.LwjglGL;
@@ -51,7 +52,9 @@ import org.lwjgl.opengl.GLCapabilities;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
+
 import org.lwjgl.opengl.ARBDebugOutput;
 
 import static org.lwjgl.opengl.GL.createCapabilities;
@@ -77,6 +80,9 @@ public abstract class LwjglContext implements JmeContext {
     protected GlfwJoystickInput joyInput;
     protected Timer timer;
     protected SystemListener listener;
+    
+    protected long clPlatform;
+    protected Context clContext;
 
     public void setSystemListener(SystemListener listener) {
         this.listener = listener;
@@ -180,6 +186,14 @@ public abstract class LwjglContext implements JmeContext {
             joyInput.initialize();
         }
         renderable.set(true);
+        
+        if (settings.isOpenCLSupport()) {
+            initOpenCL();
+        }
+    }
+    
+    protected void initOpenCL() {
+        logger.info("Initialize OpenCL with LWJGL3");
     }
 
     public void internalDestroy() {
@@ -248,6 +262,11 @@ public abstract class LwjglContext implements JmeContext {
     @Override
     public Timer getTimer() {
         return timer;
+    }
+
+    @Override
+    public Context getOpenCLContext() {
+        return clContext;
     }
 
 }

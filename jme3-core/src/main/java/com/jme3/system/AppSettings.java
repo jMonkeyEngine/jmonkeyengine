@@ -160,7 +160,8 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("GammaCorrection", false);
         defaults.put("Resizable", false);
         defaults.put("SwapBuffers", true);
-      //  defaults.put("Icons", null);
+        defaults.put("OpenCL", false);
+        //  defaults.put("Icons", null);
     }
 
     /**
@@ -1018,5 +1019,18 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public boolean isSwapBuffers() {
         return getBoolean("SwapBuffers");
+    }
+
+    /**
+     * True to enable the creation of an OpenCL context.
+     *
+     * @param support
+     */
+    public void setOpenCLSupport(boolean support) {
+        putBoolean("OpenCL", support);
+    }
+
+    public boolean isOpenCLSupport() {
+        return getBoolean("OpenCL");
     }
 }

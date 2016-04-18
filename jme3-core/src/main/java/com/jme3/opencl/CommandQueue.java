@@ -37,97 +37,116 @@ import java.nio.ByteBuffer;
  *
  * @author Sebastian Weiss
  */
-public final class CommandQueue {
-	private final long queue;
+public final class CommandQueue extends NativeCLObject {
 
-	public CommandQueue(long queue) {
-		this.queue = queue;
-	}
-	
-	public void read(Buffer src, ByteBuffer dest, int size, int offset) {
-		throw new UnsupportedOperationException("not supported yet");
-	}
-	public void read(Buffer src, ByteBuffer dest, int size) {
-		read(src, dest, size, 0);
-	}
-	public void read(Buffer src, ByteBuffer dest) {
-		read(src, dest, src.getSize(), 0);
-	}
-	
-	public Event readAsync(Buffer src, ByteBuffer dest, int size, int offset) {
-		throw new UnsupportedOperationException("not supported yet");
-	}
-	public Event readAsync(Buffer src, ByteBuffer dest, int size) {
-		return readAsync(src, dest, size, 0);
-	}
-	public Event readAsync(Buffer src, ByteBuffer dest) {
-		return readAsync(src, dest, src.getSize());
-	}
-	
-	public void write(ByteBuffer src, Buffer dest, int size, int offset) {
-		throw new UnsupportedOperationException("not supported yet");
-	}
-	public void write(ByteBuffer src, Buffer dest, int size) {
-		write(src, dest, size, 0);
-	}
-	public void write(ByteBuffer src, Buffer dest) {
-		write(src, dest, dest.getSize());
-	}
-	
-	public Event writeAsync(ByteBuffer src, Buffer dest, int size, int offset) {
-		throw new UnsupportedOperationException("not supported yet");
-	}
-	public Event writeAsync(ByteBuffer src, Buffer dest, int size) {
-		return writeAsync(src, dest, size, 0);
-	}
-	public Event writeAsync(ByteBuffer src, Buffer dest) {
-		return writeAsync(src, dest, dest.getSize());
-	}
-	
-	public void copyTo(Buffer src, Buffer dest, int size, int srcOffset, int destOffset) {
-		throw new UnsupportedOperationException("not supported yet");
-	}
-	public void copyTo(Buffer src, Buffer dest, int size) {
-		copyTo(src, dest, size, 0, 0);
-	}
-	public void copyTo(Buffer src, Buffer dest) {
-		copyTo(src, dest, src.getSize());
-	}
-	
-	public Event copyToAsync(Buffer src, Buffer dest, int size, int srcOffset, int destOffset) {
-		throw new UnsupportedOperationException("not supported yet");
-	}
-	public Event copyToAsync(Buffer src, Buffer dest, int size) {
-		return copyToAsync(src, dest, size, 0, 0);
-	}
-	public Event copyToAsync(Buffer src, Buffer dest) {
-		return copyToAsync(src, dest, src.getSize());
-	}
-	
-	public ByteBuffer map(Buffer src, int size, int offset, MappingAccess access) {
-		throw new UnsupportedOperationException("not supported yet");
-	}
-	public ByteBuffer map(Buffer src, int size, MappingAccess access) {
-		return map(src, size, 0, access);
-	}
-	public ByteBuffer map(Buffer src, MappingAccess access) {
-		return map(src, src.getSize(), access);
-	}
-	public void unmap(Buffer src, ByteBuffer ptr) {
-		throw new UnsupportedOperationException("not supported yet");
-	}
-	
+    private final long queue;
+
+    public CommandQueue(long queue) {
+        this.queue = queue;
+    }
+
+    public void read(Buffer src, ByteBuffer dest, int size, int offset) {
+        throw new UnsupportedOperationException("not supported yet");
+    }
+
+    public void read(Buffer src, ByteBuffer dest, int size) {
+        read(src, dest, size, 0);
+    }
+
+    public void read(Buffer src, ByteBuffer dest) {
+        read(src, dest, src.getSize(), 0);
+    }
+
+    public Event readAsync(Buffer src, ByteBuffer dest, int size, int offset) {
+        throw new UnsupportedOperationException("not supported yet");
+    }
+
+    public Event readAsync(Buffer src, ByteBuffer dest, int size) {
+        return readAsync(src, dest, size, 0);
+    }
+
+    public Event readAsync(Buffer src, ByteBuffer dest) {
+        return readAsync(src, dest, src.getSize());
+    }
+
+    public void write(ByteBuffer src, Buffer dest, int size, int offset) {
+        throw new UnsupportedOperationException("not supported yet");
+    }
+
+    public void write(ByteBuffer src, Buffer dest, int size) {
+        write(src, dest, size, 0);
+    }
+
+    public void write(ByteBuffer src, Buffer dest) {
+        write(src, dest, dest.getSize());
+    }
+
+    public Event writeAsync(ByteBuffer src, Buffer dest, int size, int offset) {
+        throw new UnsupportedOperationException("not supported yet");
+    }
+
+    public Event writeAsync(ByteBuffer src, Buffer dest, int size) {
+        return writeAsync(src, dest, size, 0);
+    }
+
+    public Event writeAsync(ByteBuffer src, Buffer dest) {
+        return writeAsync(src, dest, dest.getSize());
+    }
+
+    public void copyTo(Buffer src, Buffer dest, int size, int srcOffset, int destOffset) {
+        throw new UnsupportedOperationException("not supported yet");
+    }
+
+    public void copyTo(Buffer src, Buffer dest, int size) {
+        copyTo(src, dest, size, 0, 0);
+    }
+
+    public void copyTo(Buffer src, Buffer dest) {
+        copyTo(src, dest, src.getSize());
+    }
+
+    public Event copyToAsync(Buffer src, Buffer dest, int size, int srcOffset, int destOffset) {
+        throw new UnsupportedOperationException("not supported yet");
+    }
+
+    public Event copyToAsync(Buffer src, Buffer dest, int size) {
+        return copyToAsync(src, dest, size, 0, 0);
+    }
+
+    public Event copyToAsync(Buffer src, Buffer dest) {
+        return copyToAsync(src, dest, src.getSize());
+    }
+
+    public ByteBuffer map(Buffer src, int size, int offset, MappingAccess access) {
+        throw new UnsupportedOperationException("not supported yet");
+    }
+
+    public ByteBuffer map(Buffer src, int size, MappingAccess access) {
+        return map(src, size, 0, access);
+    }
+
+    public ByteBuffer map(Buffer src, MappingAccess access) {
+        return map(src, src.getSize(), access);
+    }
+
+    public void unmap(Buffer src, ByteBuffer ptr) {
+        throw new UnsupportedOperationException("not supported yet");
+    }
+
 	//TODO: async mapping
-	
 	//TODO: clEnqueueFillBuffer
-	
 	//TODO: image read/write
-	
-	public void flush() {
-		throw new UnsupportedOperationException("not supported yet");
-	}
-	public void finish() {
-		throw new UnsupportedOperationException("not supported yet");
-	}
-	
+    public void flush() {
+        throw new UnsupportedOperationException("not supported yet");
+    }
+
+    public void finish() {
+        throw new UnsupportedOperationException("not supported yet");
+    }
+
+    @Override
+    public void deleteObject() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }

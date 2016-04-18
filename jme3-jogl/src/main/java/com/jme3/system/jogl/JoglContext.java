@@ -35,6 +35,7 @@ package com.jme3.system.jogl;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+import com.jme3.opencl.Context;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.jogl.JoglGL;
@@ -84,6 +85,8 @@ public abstract class JoglContext implements JmeContext {
     protected MouseInput mouseInput;
     protected JoyInput joyInput;
 
+    protected com.jme3.opencl.Context clContext;
+    
     @Override
 	public void setSystemListener(SystemListener listener){
         this.listener = listener;
@@ -209,6 +212,14 @@ public abstract class JoglContext implements JmeContext {
         if (joyInput != null) {
             joyInput.initialize();
         }
+        
+        if (settings.isOpenCLSupport()) {
+            initOpenCL();
+        }
+    }
+    
+    protected void initOpenCL() {
+        logger.info("Initialize OpenCL with JOGL");
     }
 
     public void internalCreate() {
@@ -266,4 +277,10 @@ public abstract class JoglContext implements JmeContext {
         }
         return samples;
     }
+
+    @Override
+    public Context getOpenCLContext() {
+        return clContext;
+    }
+    
 }

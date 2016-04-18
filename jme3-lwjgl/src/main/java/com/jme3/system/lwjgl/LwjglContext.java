@@ -35,6 +35,7 @@ package com.jme3.system.lwjgl;
 import com.jme3.input.lwjgl.JInputJoyInput;
 import com.jme3.input.lwjgl.LwjglKeyInput;
 import com.jme3.input.lwjgl.LwjglMouseInput;
+import com.jme3.opencl.lwjgl.LwjglCL;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.lwjgl.LwjglGL;
@@ -54,12 +55,17 @@ import com.jme3.renderer.opengl.GLTimingState;
 import com.jme3.renderer.opengl.GLTracer;
 import com.jme3.system.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
+import org.lwjgl.opencl.CL;
+import org.lwjgl.opencl.CL10;
+import org.lwjgl.opencl.CLPlatform;
 import org.lwjgl.opengl.*;
 
 /**
@@ -81,6 +87,10 @@ public abstract class LwjglContext implements JmeContext {
     protected JInputJoyInput joyInput;
     protected Timer timer;
     protected SystemListener listener;
+    
+    protected LwjglCL clImpl;
+    protected CLPlatform clPlatform;
+    protected com.jme3.opencl.Context context;
 
     public void setSystemListener(SystemListener listener) {
         this.listener = listener;
@@ -245,8 +255,47 @@ public abstract class LwjglContext implements JmeContext {
         if (joyInput != null) {
             joyInput.initialize();
         }
+        
     }
 
+    protected void initOpenCL() {
+        logger.info("Initialize OpenCL wiht LWJGL2");
+        
+        try {
+            CL.create();
+        } catch (LWJGLException ex) {
+            logger.log(Level.SEVERE, "Unable to initialize OpenCL", ex);
+            return;
+        }
+        
+        List<CLPlatform> platforms = CLPlatform.getPlatforms();
+        StringBuilder platformInfos = new StringBuilder();
+        platformInfos.append("Available OpenCL platforms:\n");
+        ArrayList<Integer> possiblePlatforms = new ArrayList<Integer>();
+        for (int i=0; i<platforms.size(); ++i) {
+            CLPlatform platform = platforms.get(i);
+            platformInfos.append(" * Platform ").append(i+1).append("\n");
+            platformInfos.append(" *   Name: ").append(platform.getInfoString(CL10.CL_PLATFORM_NAME)).append("\n");
+            platformInfos.append(" *   Vendor: ").append(platform.getInfoString(CL10.CL_PLATFORM_VENDOR)).append("\n");
+            platformInfos.append(" *   Version: ").append(platform.getInfoString(CL10.CL_PLATFORM_VERSION)).append("\n");
+            platformInfos.append(" *   Profile: ").append(platform.getInfoString(CL10.CL_PLATFORM_PROFILE)).append("\n");
+            boolean supportsInterop = platform.getInfoString(CL10.CL_PLATFORM_EXTENSIONS).contains("cl_khr_gl_sharing");
+            platformInfos.append(" *   Supports Interop: ").append(supportsInterop).append("\n");
+            if (supportsInterop) {
+                possiblePlatforms.add(i);
+            }
+        }
+        logger.info(platformInfos.toString().trim());
+        if (possiblePlatforms.isEmpty()) {
+            logger.warning("No OpenCL platform with the extension 'cl_khr_gl_sharing' found!");
+            return;
+        }
+        int platformIndex = possiblePlatforms.get(0);
+        logger.info("Choose platform with index "+(platformIndex+1));
+        
+        
+    }
+    
     public void internalDestroy() {
         renderer = null;
         timer = null;
@@ -311,4 +360,8 @@ public abstract class LwjglContext implements JmeContext {
         return timer;
     }
 
+    @Override
+    public com.jme3.opencl.Context getOpenCLContext() {
+        return context;
+    }
 }
