@@ -119,6 +119,10 @@ public final class CommandQueue {
 	
 	//TODO: async mapping
 	
+	//TODO: clEnqueueFillBuffer
+	
+	//TODO: image read/write
+	
 	public void flush() {
 		throw new UnsupportedOperationException("not supported yet");
 	}

@@ -52,6 +52,10 @@ public final class Context {
 		this.context = context;
 	}
 	
+	public List<? extends Device> getDevices() {
+		throw new UnsupportedOperationException("not supported yet");
+	}
+	
 	public CommandQueue createQueue() {
 		throw new UnsupportedOperationException("not supported yet");
 	}

@@ -127,4 +127,8 @@ public class Buffer {
 	}
 	
 	//TODO: async mapping
+	
+	//TODO: clEnqueueFillBuffer
+	
+	//TODO: image read/write
 }
