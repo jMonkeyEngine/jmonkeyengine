@@ -37,94 +37,40 @@ import java.nio.ByteBuffer;
  *
  * @author Sebastian Weiss
  */
-public class Buffer {
+public interface Buffer {
 
-	private final long buffer;
+	int getSize();
+	
+	MemoryAccess getMemoryAccessFlags();
+	
+	void read(CommandQueue queue, ByteBuffer dest, int size, int offset);
+	void read(CommandQueue queue, ByteBuffer dest, int size);
+    void read(CommandQueue queue, ByteBuffer dest);
+	
+	Event readAsync(CommandQueue queue, ByteBuffer dest, int size, int offset);
+	Event readAsync(CommandQueue queue, ByteBuffer dest, int size);
+    Event readAsync(CommandQueue queue, ByteBuffer dest);
+	
+	void write(CommandQueue queue, ByteBuffer src, int size, int offset);
+	void write(CommandQueue queue, ByteBuffer src, int size);
+    void write(CommandQueue queue, ByteBuffer src);
+	
+	Event writeAsync(CommandQueue queue, ByteBuffer src, int size, int offset);
+	Event writeAsync(CommandQueue queue, ByteBuffer src, int size);
+    Event writeAsync(CommandQueue queue, ByteBuffer src);
+	
+	void copyTo(CommandQueue queue, Buffer dest, int size, int srcOffset, int destOffset);
+    void copyTo(CommandQueue queue, Buffer dest, int size);
+    void copyTo(CommandQueue queue, Buffer dest);
 
-	public Buffer(long buffer) {
-		this.buffer = buffer;
-	}
+	Event copyToAsync(CommandQueue queue, Buffer dest, int size, int srcOffset, int destOffset);
+    Event copyToAsync(CommandQueue queue, Buffer dest, int size);
+    Event copyToAsync(CommandQueue queue, Buffer dest);
 	
-	public int getSize() {
-		throw new UnsupportedOperationException("not supported yet");
-	}
-	
-	public MemoryAccess getMemoryAccessFlags() {
-		throw new UnsupportedOperationException("not supported yet");
-	}
-	
-	public void read(CommandQueue queue, Buffer src, ByteBuffer dest, int size, int offset) {
-		queue.read(src, dest, size, offset);
-	}
-	public void read(CommandQueue queue, Buffer src, ByteBuffer dest, int size) {
-		queue.read(src, dest, size);
-	}
-	public void read(CommandQueue queue, Buffer src, ByteBuffer dest) {
-		queue.read(src, dest);
-	}
-	
-	public Event readAsync(CommandQueue queue, Buffer src, ByteBuffer dest, int size, int offset) {
-		return queue.readAsync(src, dest, size, offset);
-	}
-	public Event readAsync(CommandQueue queue, Buffer src, ByteBuffer dest, int size) {
-		return queue.readAsync(src, dest, size);
-	}
-	public Event readAsync(CommandQueue queue, Buffer src, ByteBuffer dest) {
-		return queue.readAsync(src, dest);
-	}
-	
-	public void write(CommandQueue queue, ByteBuffer src, Buffer dest, int size, int offset) {
-		queue.write(src, dest, size, offset);
-	}
-	public void write(CommandQueue queue, ByteBuffer src, Buffer dest, int size) {
-		queue.write(src, dest, size);
-	}
-	public void write(CommandQueue queue, ByteBuffer src, Buffer dest) {
-		queue.write(src, dest);
-	}
-	
-	public Event writeAsync(CommandQueue queue, ByteBuffer src, Buffer dest, int size, int offset) {
-		return queue.writeAsync(src, dest, size, offset);
-	}
-	public Event writeAsync(CommandQueue queue, ByteBuffer src, Buffer dest, int size) {
-		return queue.writeAsync(src, dest, size);
-	}
-	public Event writeAsync(CommandQueue queue, ByteBuffer src, Buffer dest) {
-		return queue.writeAsync(src, dest);
-	}
-	
-	public void copyTo(CommandQueue queue, Buffer src, Buffer dest, int size, int srcOffset, int destOffset) {
-		queue.copyTo(src, dest, size, srcOffset, destOffset);
-	}
-	public void copyTo(CommandQueue queue, Buffer src, Buffer dest, int size) {
-		queue.copyTo(src, dest, size);
-	}
-	public void copyTo(CommandQueue queue, Buffer src, Buffer dest) {
-		queue.copyTo(src, dest);
-	}
-	
-	public Event copyToAsync(CommandQueue queue, Buffer src, Buffer dest, int size, int srcOffset, int destOffset) {
-		return queue.copyToAsync(src, dest, size, srcOffset, destOffset);
-	}
-	public Event copyToAsync(CommandQueue queue, Buffer src, Buffer dest, int size) {
-		return queue.copyToAsync(src, dest, size);
-	}
-	public Event copyToAsync(CommandQueue queue, Buffer src, Buffer dest) {
-		return queue.copyToAsync(src, dest);
-	}
-	
-	public ByteBuffer map(CommandQueue queue, Buffer src, int size, int offset, MappingAccess access) {
-		return queue.map(src, size, offset, access);
-	}
-	public ByteBuffer map(CommandQueue queue, Buffer src, int size, MappingAccess access) {
-		return queue.map(src, size, access);
-	}
-	public ByteBuffer map(CommandQueue queue, Buffer src, MappingAccess access) {
-		return queue.map(src, access);
-	}
-	public void unmap(CommandQueue queue, Buffer src, ByteBuffer ptr) {
-		queue.unmap(src, ptr);
-	}
+	ByteBuffer map(CommandQueue queue, int size, int offset, MappingAccess access);
+	ByteBuffer map(CommandQueue queue, int size, MappingAccess access);
+    ByteBuffer map(CommandQueue queue, MappingAccess access);
+	void unmap(CommandQueue queue, ByteBuffer ptr);
 	
 	//TODO: async mapping
 	

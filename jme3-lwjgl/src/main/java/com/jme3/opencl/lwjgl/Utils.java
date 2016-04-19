@@ -29,74 +29,23 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.opencl;
-
-import java.util.Collection;
+package com.jme3.opencl.lwjgl;
 
 /**
  *
  * @author Sebastian Weiss
  */
-public interface Device {
-	
-    Platform getPlatform();
+public class Utils {
     
-	public static enum DeviceType {
-		DEFAULT,
-		CPU,
-		GPU,
-		ACCELEARTOR,
-		ALL
-	}
-	DeviceType getDeviceType();
-	int getVendorId();
-	boolean isAvailable();
-	
-	boolean hasCompiler();
-	boolean hasDouble();
-	boolean hasHalfFloat();
-	boolean hasErrorCorrectingMemory();
-	boolean hasUnifiedMemory();
-	boolean hasImageSupport();
-    boolean hasWritableImage3D();
-    boolean hasOpenGLInterop();
-	boolean hasExtension(String extension);
-	Collection<? extends String> getExtensions();
-	
-	int getComputeUnits();
-	int getClockFrequency();
-	int getAddressBits();
-	boolean isLittleEndian();
-	
-	long getMaximumWorkItemDimensions();
-	long[] getMaximumWorkItemSizes();
-	long getMaxiumWorkItemsPerGroup();
-	
-	int getMaximumSamplers();
-	int getMaximumReadImages();
-	int getMaximumWriteImages();
-	long[] getMaximumImage2DSize();
-	long[] getMaximumImage3DSize();
-	
-    long getMaximumAllocationSize();
-    long getGlobalMemorySize();
-    long getLocalMemorySize();
-    long getMaximumConstantBufferSize();
-    int getMaximumConstantArguments();
+    public static int getMajorVersion(String version, String prefix) {
+        String s = version.substring(prefix.length());
+        return Integer.parseInt(s);
+    }
     
-	//TODO: cache, prefered sizes properties
-	
-	String getProfile();
-	String getVersion();
-	int getVersionMajor();
-	int getVersionMinor();
-	String getCompilerVersion();
-	int getCompilerVersionMajor();
-	int getCompilerVersionMinor();
-	String getDriverVersion();
-	int getDriverVersionMajor();
-	int getDriverVersionMinor();
-	String getName();
-	String getVendor();
-
+    public static int getMinorVersion(String version, String prefix) {
+        String s = version.substring(prefix.length());
+        int major = Integer.parseInt(s);
+        s = s.substring((int) (Math.log10(major) + 2));
+        return Integer.parseInt(s);
+    }
 }

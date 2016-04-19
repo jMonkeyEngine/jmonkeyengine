@@ -33,10 +33,6 @@ package com.jme3.opencl;
 
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.mesh.IndexBuffer;
-import com.jme3.scene.mesh.IndexByteBuffer;
-import com.jme3.scene.mesh.IndexIntBuffer;
-import com.jme3.scene.mesh.IndexShortBuffer;
-import com.jme3.texture.Image;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -45,43 +41,18 @@ import java.util.List;
  *
  * @author Sebastian Weiss
  */
-public final class Context extends NativeCLObject {
+public interface Context {
 
-    private final long context;
+    List<? extends Device> getDevices();
 
-    public Context(long context) {
-        this.context = context;
-    }
+    CommandQueue createQueue();
+	CommandQueue createQueue(Device device);
 
-    public List<? extends Device> getDevices() {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    Buffer createBuffer(int size, MemoryAccess access);
+    Buffer createBuffer(int size);
 
-    public CommandQueue createQueue() {
-        throw new UnsupportedOperationException("not supported yet");
-    }
-	//TODO: constructor with specific device and properties
-
-    public Buffer createBuffer(int size, MemoryAccess access) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
-
-    public Buffer createBuffer(int size) {
-        return createBuffer(size, MemoryAccess.READ_WRITE);
-    }
-
-    public Buffer useHostBuffer(ByteBuffer data, int size, MemoryAccess access) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
-
-    public Buffer useHostBuffer(ByteBuffer data, int size) {
-        return useHostBuffer(data, size, MemoryAccess.READ_WRITE);
-    }
-
-    @Override
-    public void deleteObject() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    Buffer useHostBuffer(ByteBuffer data, int size, MemoryAccess access);
+    Buffer useHostBuffer(ByteBuffer data, int size);
 
     public static enum ImageChannelOrder {
 
@@ -143,49 +114,18 @@ public final class Context extends NativeCLObject {
         public Buffer buffer;
     }
 
-    public Buffer createImage(MemoryAccess access, ImageFormat format, ImageDescriptor descr, ByteBuffer hostPtr) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    Image createImage(MemoryAccess access, ImageFormat format, ImageDescriptor descr, ByteBuffer hostPtr);
 	//TODO: add simplified methods for 1D, 2D, 3D textures
 
 	//Interop
-    public Buffer bindVertexBuffer(VertexBuffer vb) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    Buffer bindVertexBuffer(VertexBuffer vb);
+    Buffer bindIndexBuffer(IndexBuffer ib);
+    Image bindImage(com.jme3.texture.Image image);
 
-    public Buffer bindIndexBuffer(IndexBuffer ib) {
-        if (!(ib instanceof IndexByteBuffer)
-                && !(ib instanceof IndexShortBuffer)
-                && !(ib instanceof IndexIntBuffer)) {
-            throw new IllegalArgumentException("Index buffer must be an IndexByteBuffer, IndexShortBuffer or IndexIntBuffer");
-        }
-        throw new UnsupportedOperationException("not supported yet");
-    }
-
-    public Buffer bindImage(Image image) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
-
-    public Program createProgramFromSourceCode(String sourceCode) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
-
-    public Program createProgramFromSourceFilesWithInclude(
-            String include, String... resources) {
-        //TODO: load resources
-        throw new UnsupportedOperationException("not implemented yet");
-    }
-
-    public Program createProgramFormSourcesWithInclude(String include, List<String> resources) {
-        return createProgramFromSourceFilesWithInclude(include, resources.toArray(new String[resources.size()]));
-    }
-
-    public Program createProgramFromSources(String... resources) {
-        return createProgramFromSourceFilesWithInclude(null, resources);
-    }
-
-    public Program createProgramFromSources(List<String> resources) {
-        return createProgramFormSourcesWithInclude(null, resources);
-    }
+    Program createProgramFromSourceCode(String sourceCode);
+    Program createProgramFromSourceFilesWithInclude(String include, String... resources);
+    Program createProgramFormSourcesWithInclude(String include, List<String> resources);
+    Program createProgramFromSources(String... resources);
+    Program createProgramFromSources(List<String> resources);
 
 }

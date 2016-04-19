@@ -31,20 +31,30 @@
  */
 package com.jme3.opencl;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  *
  * @author Sebastian Weiss
  */
-public abstract class NativeCLObject {
-	protected CL cl;
+public interface Platform {
 
-	public CL getCl() {
-		return cl;
-	}
-
-	public void setCl(CL cl) {
-		this.cl = cl;
-	}
-	
-	public abstract void deleteObject();
+    List<? extends Device> getDevices();
+    
+    String getProfile();
+    boolean isFullProfile();
+    boolean isEmbeddedProfile();
+    
+    String getVersion();
+    int getVersionMajor();
+    int getVersionMinor();
+    
+    String getName();
+    String getVendor();
+    boolean hasOpenGLInterop();
+    boolean hasExtension(String extension);
+    Collection<? extends String> getExtensions();
+    
+    
 }

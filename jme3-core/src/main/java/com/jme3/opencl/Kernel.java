@@ -39,8 +39,8 @@ import com.jme3.math.Vector4f;
  *
  * @author Sebastian Weiss
  */
-public final class Kernel extends NativeCLObject {
-
+public final class Kernel {
+/*
     private final WorkSize globalWorkSize;
     private final WorkSize workGroupSize;
     private final long kernel;
@@ -212,4 +212,5 @@ public final class Kernel extends NativeCLObject {
     public void deleteObject() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+*/
 }

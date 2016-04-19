@@ -38,6 +38,7 @@ import java.nio.*;
  *
  * @author Sebastian Weiss
  */
+@Deprecated
 public interface CL {
 
     //temp buffers for argument passing

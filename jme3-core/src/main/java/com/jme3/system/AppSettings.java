@@ -31,6 +31,7 @@
  */
 package com.jme3.system;
 
+import com.jme3.opencl.PlatformChooser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -1032,5 +1033,21 @@ public final class AppSettings extends HashMap<String, Object> {
 
     public boolean isOpenCLSupport() {
         return getBoolean("OpenCL");
+    }
+    
+    /**
+     * Sets a custom platform chooser. This chooser specifies which platform and
+     * which devices are used for the OpenCL context.
+     * 
+     * Default: not set, an implementation defined one is used.
+     * 
+     * @param chooser the class of the chooser, must have a default constructor
+     */
+    public void setOpenCLPlatformChooser(Class<? extends PlatformChooser> chooser) {
+        putString("OpenCLPlatformChooser", chooser.getName());
+    }
+    
+    public String getOpenCLPlatformChooser() {
+        return getString("OpenCLPlatformChooser");
     }
 }
