@@ -35,6 +35,7 @@ package com.jme3.system.lwjgl;
 import com.jme3.input.lwjgl.JInputJoyInput;
 import com.jme3.input.lwjgl.LwjglKeyInput;
 import com.jme3.input.lwjgl.LwjglMouseInput;
+import com.jme3.opencl.Context;
 import com.jme3.opencl.lwjgl.LwjglCL;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
@@ -63,9 +64,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
-import org.lwjgl.opencl.CL;
-import org.lwjgl.opencl.CL10;
-import org.lwjgl.opencl.CLPlatform;
+import org.lwjgl.opencl.*;
 import org.lwjgl.opengl.*;
 
 /**
@@ -90,7 +89,7 @@ public abstract class LwjglContext implements JmeContext {
     
     protected LwjglCL clImpl;
     protected CLPlatform clPlatform;
-    protected com.jme3.opencl.Context context;
+    protected com.jme3.opencl.Context clContext;
 
     public void setSystemListener(SystemListener listener) {
         this.listener = listener;
@@ -268,6 +267,7 @@ public abstract class LwjglContext implements JmeContext {
             return;
         }
         
+        //load platforms
         List<CLPlatform> platforms = CLPlatform.getPlatforms();
         StringBuilder platformInfos = new StringBuilder();
         platformInfos.append("Available OpenCL platforms:\n");
@@ -282,6 +282,7 @@ public abstract class LwjglContext implements JmeContext {
             boolean supportsInterop = platform.getInfoString(CL10.CL_PLATFORM_EXTENSIONS).contains("cl_khr_gl_sharing");
             platformInfos.append(" *   Supports Interop: ").append(supportsInterop).append("\n");
             if (supportsInterop) {
+                
                 possiblePlatforms.add(i);
             }
         }
@@ -291,9 +292,47 @@ public abstract class LwjglContext implements JmeContext {
             return;
         }
         int platformIndex = possiblePlatforms.get(0);
+        //TODO: add API to choose the platform
         logger.info("Choose platform with index "+(platformIndex+1));
+        clPlatform = platforms.get(platformIndex);
         
+        //load devices
+        List<CLDevice> devices = clPlatform.getDevices(CL10.CL_DEVICE_TYPE_GPU);
+        StringBuilder deviceInfos = new StringBuilder();
+        deviceInfos.append("Available OpenCL devices:\n");
+        ArrayList<CLDevice> possibleDevices = new ArrayList<CLDevice>();
+        for (int i=0; i<devices.size(); ++i) {
+            CLDevice device = devices.get(i);
+            deviceInfos.append(" * Device ").append(i+1).append("\n");
+            deviceInfos.append(" *   Name: ").append(device.getInfoString(CL10.CL_DEVICE_NAME)).append("\n");
+            deviceInfos.append(" *   Vendor: ").append(device.getInfoString(CL10.CL_DEVICE_VENDOR)).append("\n");
+            deviceInfos.append(" *   Version: ").append(device.getInfoString(CL10.CL_DEVICE_VERSION)).append("\n");
+            deviceInfos.append(" *   Profile: ").append(device.getInfoString(CL10.CL_DEVICE_PROFILE)).append("\n");
+            deviceInfos.append(" *   Global memory: ").append(device.getInfoLong(CL10.CL_DEVICE_GLOBAL_MEM_SIZE)).append("\n");
+            deviceInfos.append(" *   Compute units: ").append(device.getInfoInt(CL10.CL_DEVICE_MAX_COMPUTE_UNITS)).append("\n");
+            deviceInfos.append(" *   Work group size: ").append(device.getInfoSize(CL10.CL_DEVICE_MAX_WORK_GROUP_SIZE)).append("\n");
+            boolean supportsInterop = device.getInfoString(CL10.CL_DEVICE_EXTENSIONS).contains("cl_khr_gl_sharing");
+            platformInfos.append(" *   Supports Interop: ").append(supportsInterop).append("\n");
+            if (supportsInterop) {
+                possibleDevices.add(device);
+            }
+        }
         
+        //create context
+        CLContext context;
+        try {
+            context = CLContext.create(clPlatform, possibleDevices, null, Display.getDrawable(), null);
+        } catch (LWJGLException ex) {
+            logger.log(Level.SEVERE, "Unable to create OpenCL context", ex);
+            return;
+        }
+        clContext = new Context(context.getPointer());
+        
+        //create cl implementation
+        clImpl = new LwjglCL();
+        clContext.setCl(clImpl);
+        
+        logger.info("OpenCL context created");
     }
     
     public void internalDestroy() {
@@ -362,6 +401,6 @@ public abstract class LwjglContext implements JmeContext {
 
     @Override
     public com.jme3.opencl.Context getOpenCLContext() {
-        return context;
+        return clContext;
     }
 }
