@@ -39,7 +39,7 @@ import java.nio.IntBuffer;
 
 public class Uniform extends ShaderVariable {
 
-    private static final Integer ZERO_INT = Integer.valueOf(0);
+    private static final Integer ZERO_INT = 0;
     private static final Float ZERO_FLT = Float.valueOf(0);
     private static final FloatBuffer ZERO_BUF = BufferUtils.createFloatBuffer(4*4);
 
@@ -171,13 +171,25 @@ public class Uniform extends ShaderVariable {
                 this.value = ZERO_FLT; 
                 break;
             case Vector2:
-                this.value = Vector2f.ZERO;
+                if (this.value != null) {
+                    ((Vector2f) this.value).set(Vector2f.ZERO);
+                }
                 break;
             case Vector3:
-                this.value = Vector3f.ZERO;
+                if (this.value != null) {
+                    ((Vector3f) this.value).set(Vector3f.ZERO);
+                }
                 break;
             case Vector4:
-                this.value = Vector4f.ZERO;
+                if (this.value != null) {
+                    if (this.value instanceof ColorRGBA) {
+                        ((ColorRGBA) this.value).set(ColorRGBA.BlackNoAlpha);
+                    } else if (this.value instanceof Vector4f) {
+                        ((Vector4f) this.value).set(Vector4f.ZERO);
+                    } else {
+                        ((Quaternion) this.value).set(Quaternion.ZERO);
+                    }
+                }
                 break;
             default:
                 // won't happen because those are either textures
@@ -311,6 +323,26 @@ public class Uniform extends ShaderVariable {
                     m4a[i].fillFloatBuffer(multiData, true);
                 }
                 multiData.clear();
+                break;
+            case Vector2:
+                if (value.equals(this.value)) {
+                    return;
+                }
+                if (this.value == null) {
+                    this.value = new Vector2f((Vector2f) value);
+                } else {
+                    ((Vector2f) this.value).set((Vector2f) value);
+                }
+                break;
+            case Vector3:
+                if (value.equals(this.value)) {
+                    return;
+                }
+                if (this.value == null) {
+                    this.value = new Vector3f((Vector3f) value);
+                } else {
+                    ((Vector3f) this.value).set((Vector3f) value);
+                }
                 break;
             case Vector4:
                 if (value.equals(this.value)) {
