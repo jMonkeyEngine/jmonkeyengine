@@ -31,6 +31,17 @@
  */
 package com.jme3.opencl.lwjgl;
 
+import com.jme3.opencl.MappingAccess;
+import com.jme3.opencl.MemoryAccess;
+import com.jme3.opencl.OpenCLException;
+import java.nio.*;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.LWJGLUtil;
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.opencl.CL10;
+import org.lwjgl.opencl.CL12;
+import org.lwjgl.opencl.Util;
+
 /**
  *
  * @author Sebastian Weiss
@@ -47,5 +58,71 @@ public class Utils {
         int major = Integer.parseInt(s);
         s = s.substring((int) (Math.log10(major) + 2));
         return Integer.parseInt(s);
+    }
+    
+    public static final class TempBuffer {
+        public final ByteBuffer b16;
+        public final ShortBuffer b16s;
+        public final IntBuffer b16i;
+        public final LongBuffer b16l;
+        public final FloatBuffer b16f;
+        public final DoubleBuffer b16d;
+        public TempBuffer() {
+            b16 = BufferUtils.createByteBuffer(16);
+            b16s = b16.asShortBuffer();
+            b16i = b16.asIntBuffer();
+            b16l = b16.asLongBuffer();
+            b16f = b16.asFloatBuffer();
+            b16d = b16.asDoubleBuffer();
+        }
+    }
+    public static TempBuffer[] tempBuffers = new TempBuffer[8];
+    public static PointerBuffer[] pointerBuffers = new PointerBuffer[8];
+    static {
+        for (int i=0; i<8; ++i) {
+            tempBuffers[i] = new TempBuffer();
+            pointerBuffers[i] = PointerBuffer.allocateDirect(4);
+        }
+        errorBuffer = BufferUtils.createIntBuffer(1);
+    }
+    
+    public static IntBuffer errorBuffer;
+    public static void checkError(IntBuffer errorBuffer, String callName) {
+        checkError(errorBuffer.get(0), callName);
+    }
+    public static void checkError(int error, String callName) {
+        //TODO: proper handling
+        Util.checkCLError(error);
+    }
+    
+    public static long getMemoryAccessFlags(MemoryAccess ma) {
+        switch (ma) {
+            case READ_ONLY: return CL10.CL_MEM_READ_ONLY;
+            case WRITE_ONLY: return CL10.CL_MEM_WRITE_ONLY;
+            case READ_WRITE: return CL10.CL_MEM_READ_WRITE;
+            default: throw new IllegalArgumentException("Unknown memory access: "+ma);
+        }
+    }
+    public static MemoryAccess getMemoryAccessFromFlag(long flag) {
+        if ((flag & CL10.CL_MEM_READ_WRITE) > 0) {
+            return MemoryAccess.READ_WRITE;
+        }
+        if ((flag & CL10.CL_MEM_READ_ONLY) > 0) {
+            return MemoryAccess.READ_ONLY;
+        }
+        if ((flag & CL10.CL_MEM_WRITE_ONLY) > 0) {
+            return MemoryAccess.WRITE_ONLY;
+        }
+        throw new OpenCLException("Unknown memory access flag: "+flag);
+    }
+    
+    public static long getMappingAccessFlags(MappingAccess ma) {
+        switch (ma) {
+            case MAP_READ_ONLY: return CL10.CL_MAP_READ;
+            case MAP_READ_WRITE: return CL10.CL_MAP_READ | CL10.CL_MAP_WRITE;
+            case MAP_WRITE_ONLY: return CL10.CL_MAP_WRITE;
+            case MAP_WRITE_INVALIDATE: return CL12.CL_MAP_WRITE_INVALIDATE_REGION;
+            default: throw new IllegalArgumentException("Unknown mapping access: "+ma);
+        }
     }
 }

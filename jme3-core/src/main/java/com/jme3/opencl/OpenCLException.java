@@ -35,7 +35,7 @@ package com.jme3.opencl;
  *
  * @author Sebastian Weiss
  */
-public class OpenCLException extends Exception {
+public class OpenCLException extends RuntimeException {
 
 	private final int errorCode;
 	

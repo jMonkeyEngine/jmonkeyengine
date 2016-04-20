@@ -35,18 +35,9 @@ package com.jme3.opencl;
  *
  * @author Sebastian Weiss
  */
-public final class Event {
-	private final long event;
-
-	public Event(long event) {
-		this.event = event;
-	}
+public interface Event {
 	
-	public void waitForFinished() {
-		throw new UnsupportedOperationException("not supported yet");
-	}
+	void waitForFinished();
 	
-	public boolean isCompleted() {
-		throw new UnsupportedOperationException("not supported yet");
-	}
+	boolean isCompleted();
 }

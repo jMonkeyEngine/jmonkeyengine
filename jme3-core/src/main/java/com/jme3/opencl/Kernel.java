@@ -34,30 +34,24 @@ package com.jme3.opencl;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector4f;
+import java.nio.ByteBuffer;
 
 /**
  *
  * @author Sebastian Weiss
  */
-public final class Kernel {
-/*
+public abstract class Kernel {
     private final WorkSize globalWorkSize;
     private final WorkSize workGroupSize;
-    private final long kernel;
 
-    public Kernel(long kernel) {
-        this.kernel = kernel;
+    protected Kernel() {
         this.globalWorkSize = new WorkSize(0);
         this.workGroupSize = new WorkSize(0);
     }
 
-    public String getName() {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    public abstract String getName();
 
-    public int getArgCount() {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    public abstract int getArgCount();
 
     public WorkSize getGlobalWorkSize() {
         return globalWorkSize;
@@ -103,55 +97,31 @@ public final class Kernel {
         workGroupSize.set(1, 0);
     }
 
-    public void setArg(int index, LocalMemPerElement t) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    public abstract void setArg(int index, LocalMemPerElement t);
 
-    public void setArg(int index, LocalMem t) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    public abstract void setArg(int index, LocalMem t);
 
-    public void setArg(int index, Buffer t) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    public abstract void setArg(int index, Buffer t);
 
-    public void setArg(int index, byte b) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    public abstract void setArg(int index, byte b);
 
-    public void setArg(int index, short s) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    public abstract void setArg(int index, short s);
 
-    public void setArg(int index, int i) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    public abstract void setArg(int index, int i);
 
-    public void setArg(int index, long l) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    public abstract void setArg(int index, long l);
 
-    public void setArg(int index, float f) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    public abstract void setArg(int index, float f);
 
-    public void setArg(int index, double d) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    public abstract void setArg(int index, double d);
 
-    public void setArg(int index, Vector2f v) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    public abstract void setArg(int index, Vector2f v);
+  
+    public abstract void setArg(int index, Vector4f v);
 
-    //Vector3f not supported because cl_float3 is the same as a float4
-
-    public void setArg(int index, Vector4f v) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
-
-    public void setArg(int index, Quaternion q) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    public abstract void setArg(int index, Quaternion q);
+    
+    public abstract void setArg(int index, ByteBuffer buffer, long size);
 
     public void setArg(int index, Object arg) {
         if (arg instanceof Byte) {
@@ -189,9 +159,7 @@ public final class Kernel {
         }
     }
 
-    public Event Run(CommandQueue queue) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
+    public abstract Event Run(CommandQueue queue);
 
     public Event Run1(CommandQueue queue, WorkSize globalWorkSize, Object... args) {
         setGlobalWorkSize(globalWorkSize);
@@ -208,9 +176,4 @@ public final class Kernel {
         return Run(queue);
     }
 
-    @Override
-    public void deleteObject() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-*/
 }

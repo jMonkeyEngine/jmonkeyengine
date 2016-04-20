@@ -35,10 +35,8 @@ package com.jme3.system.lwjgl;
 import com.jme3.input.lwjgl.JInputJoyInput;
 import com.jme3.input.lwjgl.LwjglKeyInput;
 import com.jme3.input.lwjgl.LwjglMouseInput;
-import com.jme3.opencl.Context;
 import com.jme3.opencl.Device;
 import com.jme3.opencl.PlatformChooser;
-import com.jme3.opencl.lwjgl.LwjglCL;
 import com.jme3.opencl.lwjgl.LwjglDevice;
 import com.jme3.opencl.lwjgl.LwjglPlatform;
 import com.jme3.opencl.lwjgl.PlatformChooserImpl;
@@ -261,6 +259,7 @@ public abstract class LwjglContext implements JmeContext {
         
     }
 
+    @SuppressWarnings("unchecked")
     protected void initOpenCL() {
         logger.info("Initialize OpenCL wiht LWJGL2");
         
@@ -349,7 +348,8 @@ public abstract class LwjglContext implements JmeContext {
         
         //create context
         try {
-            clContext = new com.jme3.opencl.lwjgl.LwjglContext(CLContext.create(platform.getPlatform(), devices, null, Display.getDrawable(), null));
+            CLContext c = CLContext.create(platform.getPlatform(), devices, null, Display.getDrawable(), null);
+            clContext = new com.jme3.opencl.lwjgl.LwjglContext(c, (List<LwjglDevice>) choosenDevices);
         } catch (LWJGLException ex) {
             logger.log(Level.SEVERE, "Unable to create OpenCL context", ex);
             return;

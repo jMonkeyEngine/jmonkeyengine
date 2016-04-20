@@ -29,17 +29,43 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.opencl;
+package com.jme3.opencl.lwjgl;
+
+import com.jme3.opencl.Event;
+import org.lwjgl.opencl.CL10;
+import org.lwjgl.opencl.CLEvent;
 
 /**
  *
  * @author Sebastian Weiss
  */
-public interface Program {
-	
-	void build(String args) throws KernelCompilationException;
-	void build() throws KernelCompilationException;
+public class LwjglEvent implements Event {
+    private final CLEvent event;
 
-	Kernel createKernel(String name);
-	
+    public LwjglEvent(CLEvent event) {
+        this.event = event;
+    }
+
+    public CLEvent getEvent() {
+        return event;
+    }
+
+    @Override
+    public void waitForFinished() {
+        CL10.clWaitForEvents(event);
+    }
+
+    @Override
+    public boolean isCompleted() {
+        int status = event.getInfoInt(CL10.CL_EVENT_COMMAND_EXECUTION_STATUS);
+        if (status == CL10.CL_SUCCESS) {
+            return true;
+        } else if (status < 0) {
+            Utils.checkError(status, "EventStatus");
+            return false;
+        } else {
+            return false;
+        }
+    }
+    
 }

@@ -36,7 +36,7 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.mesh.IndexBuffer;
 import java.nio.ByteBuffer;
 import java.util.List;
-import org.lwjgl.opencl.CLContext;
+import org.lwjgl.opencl.*;
 
 /**
  *
@@ -44,9 +44,11 @@ import org.lwjgl.opencl.CLContext;
  */
 public class LwjglContext implements Context {
     private final CLContext context;
+    private final List<LwjglDevice> devices;
 
-    public LwjglContext(CLContext context) {
+    public LwjglContext(CLContext context, List<LwjglDevice> devices) {
         this.context = context;
+        this.devices = devices;
     }
 
     public CLContext getContext() {
@@ -55,37 +57,50 @@ public class LwjglContext implements Context {
 
     @Override
     public List<? extends Device> getDevices() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return devices;
     }
 
     @Override
     public CommandQueue createQueue() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return createQueue(devices.get(0));
     }
 
     @Override
+    @SuppressWarnings("element-type-mismatch")
     public CommandQueue createQueue(Device device) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        assert (devices.contains(device)); //this also ensures that device is a LwjglDevice
+        CLDevice d = ((LwjglDevice) device).getDevice();
+        long properties = 0;
+        CLCommandQueue q = CL10.clCreateCommandQueue(context, d, properties, Utils.errorBuffer);
+        Utils.checkError(Utils.errorBuffer, "clCreateCommandQueue");
+        return new LwjglCommandQueue(q);
     }
-
+    
     @Override
     public Buffer createBuffer(int size, MemoryAccess access) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        long flags = Utils.getMemoryAccessFlags(access);
+        CLMem mem = CL10.clCreateBuffer(context, flags, (long) size, Utils.errorBuffer);
+        Utils.checkError(Utils.errorBuffer, "clCreateBuffer");
+        return new LwjglBuffer(mem);
     }
 
     @Override
     public Buffer createBuffer(int size) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return createBuffer(size, MemoryAccess.READ_WRITE);
     }
 
     @Override
-    public Buffer useHostBuffer(ByteBuffer data, int size, MemoryAccess access) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Buffer createBufferFromHost(ByteBuffer data, MemoryAccess access) {
+        long flags = Utils.getMemoryAccessFlags(access);
+        flags |= CL10.CL_MEM_USE_HOST_PTR;
+        CLMem mem = CL10.clCreateBuffer(context, flags, data, Utils.errorBuffer);
+        Utils.checkError(Utils.errorBuffer, "clCreateBuffer");
+        return new LwjglBuffer(mem);
     }
 
     @Override
-    public Buffer useHostBuffer(ByteBuffer data, int size) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Buffer createBufferFromHost(ByteBuffer data) {
+        return createBufferFromHost(data, MemoryAccess.READ_WRITE);
     }
 
     @Override

@@ -29,17 +29,38 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.opencl;
+package com.jme3.opencl.lwjgl;
+
+import com.jme3.opencl.CommandQueue;
+import org.lwjgl.opencl.CL10;
+import org.lwjgl.opencl.CLCommandQueue;
 
 /**
  *
  * @author Sebastian Weiss
  */
-public interface Program {
-	
-	void build(String args) throws KernelCompilationException;
-	void build() throws KernelCompilationException;
+public class LwjglCommandQueue implements CommandQueue {
 
-	Kernel createKernel(String name);
-	
+    private final CLCommandQueue queue;
+
+    public LwjglCommandQueue(CLCommandQueue queue) {
+        this.queue = queue;
+    }
+    
+    public CLCommandQueue getQueue() {
+        return queue;
+    }
+    
+    @Override
+    public void flush() {
+        int ret = CL10.clFlush(queue);
+        Utils.checkError(ret, "clFlush");
+    }
+
+    @Override
+    public void finish() {
+        int ret = CL10.clFinish(queue);
+        Utils.checkError(ret, "clFinish");
+    }
+    
 }

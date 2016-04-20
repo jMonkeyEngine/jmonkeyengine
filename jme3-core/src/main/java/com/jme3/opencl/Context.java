@@ -51,8 +51,8 @@ public interface Context {
     Buffer createBuffer(int size, MemoryAccess access);
     Buffer createBuffer(int size);
 
-    Buffer useHostBuffer(ByteBuffer data, int size, MemoryAccess access);
-    Buffer useHostBuffer(ByteBuffer data, int size);
+    Buffer createBufferFromHost(ByteBuffer data, MemoryAccess access);
+    Buffer createBufferFromHost(ByteBuffer data);
 
     public static enum ImageChannelOrder {
 

@@ -32,19 +32,24 @@
 
 package jme3test.gui.opencl;
 
-import jme3test.helloworld.*;
 import com.jme3.app.SimpleApplication;
-import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.shape.Box;
+import com.jme3.font.BitmapFont;
+import com.jme3.font.BitmapText;
+import com.jme3.opencl.Buffer;
+import com.jme3.opencl.CommandQueue;
+import com.jme3.opencl.Context;
+import com.jme3.opencl.Event;
 import com.jme3.system.AppSettings;
+import com.jme3.util.BufferUtils;
+import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** Sample 1 - how to get started with the most simple JME 3 application.
  * Display a blue 3D cube and view from all sides by
  * moving the mouse and pressing the WASD keys. */
 public class HelloOpenCL extends SimpleApplication {
+    private static final Logger LOG = Logger.getLogger(HelloOpenCL.class.getName());
 
     public static void main(String[] args){
         HelloOpenCL app = new HelloOpenCL();
@@ -56,12 +61,80 @@ public class HelloOpenCL extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        Box b = new Box(1, 1, 1); // create cube shape
-        Geometry geom = new Geometry("Box", b);  // create cube geometry from the shape
-        Material mat = new Material(assetManager,
-          "Common/MatDefs/Misc/Unshaded.j3md");  // create a simple material
-        mat.setColor("Color", ColorRGBA.Blue);   // set color of material to blue
-        geom.setMaterial(mat);                   // set the cube's material
-        rootNode.attachChild(geom);              // make the cube appear in the scene
+        BitmapFont fnt = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        Context clContext = context.getOpenCLContext();
+        if (clContext == null) {
+            BitmapText txt = new BitmapText(fnt);
+            txt.setText("No OpenCL Context created!\nSee output log for details.");
+            txt.setLocalTranslation(5, settings.getHeight() - 5, 0);
+            guiNode.attachChild(txt);
+            return;
+        }
+        CommandQueue clQueue = clContext.createQueue();
+        
+        StringBuilder str = new StringBuilder();
+        str.append("OpenCL Context created:\n  Platform: ")
+                .append(clContext.getDevices().get(0).getPlatform().getName())
+                .append("\n  Devices: ").append(clContext.getDevices());
+        str.append("\nTests:");
+        str.append("\n  Buffers: ").append(testBuffer(clContext, clQueue));
+        
+        BitmapText txt1 = new BitmapText(fnt);
+        txt1.setText(str.toString());
+        txt1.setLocalTranslation(5, settings.getHeight() - 5, 0);
+        guiNode.attachChild(txt1);
+    }
+    
+    private boolean testBuffer(Context clContext, CommandQueue clQueue) {
+        try {
+            //create two buffers
+            ByteBuffer h1 = BufferUtils.createByteBuffer(256);
+            Buffer b1 = clContext.createBuffer(256);
+            ByteBuffer h2 = BufferUtils.createByteBuffer(256);
+            Buffer b2 = clContext.createBuffer(256);
+
+            //fill buffer
+            h2.rewind();
+            for (int i=0; i<256; ++i) {
+                h2.put((byte)i);
+            }
+            h2.rewind();
+            b2.write(clQueue, h2);
+            
+            //copy b2 to b1
+            b2.copyTo(clQueue, b1);
+            
+            //read buffer
+            h1.rewind();
+            b1.read(clQueue, h1);
+            h1.rewind();
+            for (int i=0; i<256; ++i) {
+                byte b = h1.get();
+                if (b != (byte)i) {
+                    System.err.println("Wrong byte read: expected="+i+", actual="+b);
+                    return false;
+                }
+            }
+            
+            //read buffer with offset
+            int low = 26;
+            int high = 184;
+            h1.position(5);
+            Event event = b1.readAsync(clQueue, h1, high-low, low);
+            event.waitForFinished();
+            h1.position(5);
+            for (int i=0; i<high-low; ++i) {
+                byte b = h1.get();
+                if (b != (byte)(i+low)) {
+                    System.err.println("Wrong byte read: expected="+(i+low)+", actual="+b);
+                    return false;
+                }
+            }
+        
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "Buffer test failed with:", ex);
+            return false;
+        }
+        return true;
     }
 }
