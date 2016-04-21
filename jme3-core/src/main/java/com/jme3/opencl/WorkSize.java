@@ -39,9 +39,9 @@ import java.util.Arrays;
  */
 public final class WorkSize {
 	private int dimension;
-	private int[] sizes;
+	private long[] sizes;
 	
-	public WorkSize(int dimension, int... sizes)
+	public WorkSize(int dimension, long... sizes)
 	{
 		set(dimension, sizes);
 	}
@@ -49,24 +49,24 @@ public final class WorkSize {
 	public WorkSize() {
 		this(1, 1, 1, 1);
 	}
-	public WorkSize(int size) {
+	public WorkSize(long size) {
 		this(1, size, 1, 1);
 	}
-	public WorkSize(int width, int height) {
+	public WorkSize(long width, long height) {
 		this(2, width, height, 1);
 	}
-	public WorkSize(int width, int height, int depth) {
+	public WorkSize(long width, long height, long depth) {
 		this(3, width, height, depth);
 	}
 
 	public int getDimension() {
 		return dimension;
 	}
-	public int[] getSizes() {
+	public long[] getSizes() {
 		return sizes;
 	}
 	
-	public void set(int dimension, int... sizes) {
+	public void set(int dimension, long... sizes) {
 		if (sizes==null || sizes.length!=3) {
 			throw new IllegalArgumentException("sizes must be an array of length 3");
 		}

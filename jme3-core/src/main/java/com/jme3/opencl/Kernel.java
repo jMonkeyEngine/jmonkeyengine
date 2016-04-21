@@ -41,8 +41,8 @@ import java.nio.ByteBuffer;
  * @author Sebastian Weiss
  */
 public abstract class Kernel {
-    private final WorkSize globalWorkSize;
-    private final WorkSize workGroupSize;
+    protected final WorkSize globalWorkSize;
+    protected final WorkSize workGroupSize;
 
     protected Kernel() {
         this.globalWorkSize = new WorkSize(0);
@@ -94,7 +94,7 @@ public abstract class Kernel {
     }
 
     public void setWorkGroupSizeToNull() {
-        workGroupSize.set(1, 0);
+        workGroupSize.set(1, 0, 0, 0);
     }
 
     public abstract void setArg(int index, LocalMemPerElement t);

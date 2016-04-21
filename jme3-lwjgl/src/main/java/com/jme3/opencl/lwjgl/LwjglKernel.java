@@ -35,8 +35,11 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector4f;
 import com.jme3.opencl.*;
-import java.nio.ByteBuffer;
+import com.jme3.opencl.Buffer;
+import java.nio.*;
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.opencl.CL10;
+import org.lwjgl.opencl.CLCommandQueue;
 import org.lwjgl.opencl.CLKernel;
 
 /**
@@ -67,72 +70,144 @@ public class LwjglKernel extends Kernel {
 
     @Override
     public void setArg(int index, LocalMemPerElement t) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        int ret = CL10.clSetKernelArg (kernel, index, t.getSize() * workGroupSize.getSizes()[0] * workGroupSize.getSizes()[1] * workGroupSize.getSizes()[2]);
+        Utils.checkError(ret, "clSetKernelArg");
     }
 
     @Override
     public void setArg(int index, LocalMem t) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        int ret = CL10.clSetKernelArg (kernel, index, t.getSize());
+        Utils.checkError(ret, "clSetKernelArg");
     }
 
     @Override
     public void setArg(int index, Buffer t) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        int ret = CL10.clSetKernelArg(kernel, index, ((LwjglBuffer) t).getBuffer());
+        Utils.checkError(ret, "clSetKernelArg");
     }
 
     @Override
     public void setArg(int index, byte b) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        ByteBuffer buf = Utils.tempBuffers[0].b16;
+        buf.position(0);
+        buf.limit(1);
+        buf.put(0, b);
+        int ret = CL10.clSetKernelArg(kernel, index, buf);
+        Utils.checkError(ret, "clSetKernelArg");
     }
 
     @Override
     public void setArg(int index, short s) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        ShortBuffer buf = Utils.tempBuffers[0].b16s;
+        buf.position(0);
+        buf.limit(1);
+        buf.put(0, s);
+        int ret = CL10.clSetKernelArg(kernel, index, buf);
+        Utils.checkError(ret, "clSetKernelArg");
     }
 
     @Override
     public void setArg(int index, int i) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        IntBuffer buf = Utils.tempBuffers[0].b16i;
+        buf.position(0);
+        buf.limit(1);
+        buf.put(0, i);
+        int ret = CL10.clSetKernelArg(kernel, index, buf);
+        Utils.checkError(ret, "clSetKernelArg");
     }
 
     @Override
     public void setArg(int index, long l) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        LongBuffer buf = Utils.tempBuffers[0].b16l;
+        buf.position(0);
+        buf.limit(1);
+        buf.put(0, l);
+        int ret = CL10.clSetKernelArg(kernel, index, buf);
+        Utils.checkError(ret, "clSetKernelArg");
     }
 
     @Override
     public void setArg(int index, float f) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        FloatBuffer buf = Utils.tempBuffers[0].b16f;
+        buf.position(0);
+        buf.limit(1);
+        buf.put(0, f);
+        int ret = CL10.clSetKernelArg(kernel, index, buf);
+        Utils.checkError(ret, "clSetKernelArg");
     }
 
     @Override
     public void setArg(int index, double d) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        DoubleBuffer buf = Utils.tempBuffers[0].b16d;
+        buf.position(0);
+        buf.limit(1);
+        buf.put(0, d);
+        int ret = CL10.clSetKernelArg(kernel, index, buf);
+        Utils.checkError(ret, "clSetKernelArg");
     }
 
     @Override
     public void setArg(int index, Vector2f v) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        FloatBuffer buf = Utils.tempBuffers[0].b16f;
+        buf.position(0);
+        buf.limit(2);
+        buf.put(0, v.x);
+        buf.put(1, v.y);
+        int ret = CL10.clSetKernelArg(kernel, index, buf);
+        Utils.checkError(ret, "clSetKernelArg");
     }
 
     @Override
     public void setArg(int index, Vector4f v) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        FloatBuffer buf = Utils.tempBuffers[0].b16f;
+        buf.position(0);
+        buf.limit(4);
+        buf.put(0, v.x);
+        buf.put(1, v.y);
+        buf.put(2, v.z);
+        buf.put(3, v.w);
+        int ret = CL10.clSetKernelArg(kernel, index, buf);
+        Utils.checkError(ret, "clSetKernelArg");
     }
 
     @Override
     public void setArg(int index, Quaternion q) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        FloatBuffer buf = Utils.tempBuffers[0].b16f;
+        buf.position(0);
+        buf.limit(4);
+        buf.put(0, q.getX());
+        buf.put(1, q.getY());
+        buf.put(2, q.getZ());
+        buf.put(3, q.getW());
+        int ret = CL10.clSetKernelArg(kernel, index, buf);
+        Utils.checkError(ret, "clSetKernelArg");
     }
 
     @Override
     public void setArg(int index, ByteBuffer buffer, long size) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        buffer.limit((int) (buffer.position() + size));
+        int ret = CL10.clSetKernelArg(kernel, index, buffer);
+        Utils.checkError(ret, "clSetKernelArg");
     }
 
     @Override
     public Event Run(CommandQueue queue) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Utils.pointerBuffers[0].rewind();
+        Utils.pointerBuffers[1].rewind();
+        Utils.pointerBuffers[1].put(globalWorkSize.getSizes());
+        Utils.pointerBuffers[1].position(0);
+        PointerBuffer p2 = null;
+        if (workGroupSize.getSizes()[0] > 0) {
+            p2 = Utils.pointerBuffers[2].rewind();
+            p2.put(workGroupSize.getSizes());
+            p2.position(0);
+        }
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10.clEnqueueNDRangeKernel(q, kernel,
+			globalWorkSize.getDimension(), null, Utils.pointerBuffers[1],
+			p2, null, Utils.pointerBuffers[0]);
+        Utils.checkError(ret, "clEnqueueNDRangeKernel");
+        return new LwjglEvent(q.getCLEvent(Utils.pointerBuffers[0].get(0)));
     }
     
 }

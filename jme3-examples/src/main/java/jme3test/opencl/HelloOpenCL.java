@@ -39,6 +39,7 @@ import com.jme3.opencl.*;
 import com.jme3.system.AppSettings;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -137,15 +138,42 @@ public class HelloOpenCL extends SimpleApplication {
     }
     
     private boolean testKernel(Context clContext, CommandQueue clQueue) {
-        String include = "#define TYPE float\n";
-        Program program = clContext.createProgramFromSourceFilesWithInclude(assetManager, include, "jme3test/opencl/Blas.cl");
-        program.build();
-        Kernel[] kernels = program.createAllKernels();
-        for (Kernel k : kernels) {
-            System.out.println("available kernel: "+k.getName());
+        try {
+            //create fill code
+            String include = "#define TYPE float\n";
+            Program program = clContext.createProgramFromSourceFilesWithInclude(assetManager, include, "jme3test/opencl/Blas.cl");
+            program.build();
+            Kernel[] kernels = program.createAllKernels();
+            for (Kernel k : kernels) {
+                System.out.println("available kernel: "+k.getName());
+            }
+            Kernel kernel = program.createKernel("Fill");
+            System.out.println("number of args: "+kernel.getArgCount());
+
+            //fill buffer
+            int size = 256+128;
+            Buffer buffer = clContext.createBuffer(size*4);
+            float value = 5;
+            Event event = kernel.Run1(clQueue, new WorkSize(buffer.getSize() / 4), buffer, value);
+            event.waitForFinished();
+            
+            //check if filled
+            ByteBuffer buf = buffer.map(clQueue, MappingAccess.MAP_READ_ONLY);
+            FloatBuffer buff = buf.asFloatBuffer();
+            for (int i=0; i<size; ++i) {
+                float v = buff.get(i);
+                if (v != value) {
+                    System.err.println("Buffer filled with the wrong value at index "+i+": expected="+value+", actual="+v);
+                    buffer.unmap(clQueue, buf);
+                    return false;
+                }
+            }
+            buffer.unmap(clQueue, buf);
+
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "kernel test failed with:", ex);
+            return false;
         }
-        Kernel kernel = program.createKernel("Fill");
-        System.out.println("number of args: "+kernel.getArgCount());
         return true;
     }
 }
