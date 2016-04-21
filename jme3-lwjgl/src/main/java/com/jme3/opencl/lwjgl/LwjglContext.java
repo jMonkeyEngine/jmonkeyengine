@@ -31,18 +31,29 @@
  */
 package com.jme3.opencl.lwjgl;
 
+import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetKey;
+import com.jme3.asset.AssetManager;
 import com.jme3.opencl.*;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.mesh.IndexBuffer;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lwjgl.opencl.*;
+import sun.misc.IOUtils;
 
 /**
  *
  * @author Sebastian Weiss
  */
 public class LwjglContext implements Context {
+    private static final Logger LOG = Logger.getLogger(LwjglContext.class.getName());
     private final CLContext context;
     private final List<LwjglDevice> devices;
 
@@ -56,7 +67,7 @@ public class LwjglContext implements Context {
     }
 
     @Override
-    public List<? extends Device> getDevices() {
+    public List<LwjglDevice> getDevices() {
         return devices;
     }
 
@@ -125,27 +136,51 @@ public class LwjglContext implements Context {
 
     @Override
     public Program createProgramFromSourceCode(String sourceCode) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        LOG.log(Level.INFO, "Create program from source:\n{0}", sourceCode);
+        Utils.errorBuffer.rewind();
+        CLProgram p = CL10.clCreateProgramWithSource(context, sourceCode, Utils.errorBuffer);
+        Utils.checkError(Utils.errorBuffer, "clCreateProgramWithSource");
+        return new LwjglProgram(p, this);
     }
 
     @Override
-    public Program createProgramFromSourceFilesWithInclude(String include, String... resources) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Program createProgramFromSourceFilesWithInclude(AssetManager assetManager, String include, String... resources) {
+        return createProgramFromSourceFilesWithInclude(assetManager, include, Arrays.asList(resources));
     }
 
     @Override
-    public Program createProgramFormSourcesWithInclude(String include, List<String> resources) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Program createProgramFromSourceFilesWithInclude(AssetManager assetManager, String include, List<String> resources) {
+        StringBuilder str = new StringBuilder();
+        str.append(include);
+        for (String res : resources) {
+            AssetInfo info = assetManager.locateAsset(new AssetKey<String>(res));
+            if (info == null) {
+                LOG.log(Level.WARNING, "unable to load source file ''{0}''", res);
+                continue;
+            }
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(info.openStream()))) {
+                while (true) {
+                    String line = reader.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    str.append(line).append('\n');
+                }
+            } catch (IOException ex) {
+                LOG.log(Level.WARNING, "unable to load source file '"+res+"'", ex);
+            }
+        }
+        return createProgramFromSourceCode(str.toString());
     }
 
     @Override
-    public Program createProgramFromSources(String... resources) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Program createProgramFromSourceFiles(AssetManager assetManager, String... resources) {
+        return createProgramFromSourceFilesWithInclude(assetManager, "", resources);
     }
 
     @Override
-    public Program createProgramFromSources(List<String> resources) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Program createProgramFromSourceFiles(AssetManager assetManager, List<String> resources) {
+        return createProgramFromSourceFilesWithInclude(assetManager, "", resources);
     }
     
 }

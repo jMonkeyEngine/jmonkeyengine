@@ -31,6 +31,7 @@
  */
 package com.jme3.opencl;
 
+import com.jme3.asset.AssetManager;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.mesh.IndexBuffer;
 import java.nio.ByteBuffer;
@@ -123,9 +124,9 @@ public interface Context {
     Image bindImage(com.jme3.texture.Image image);
 
     Program createProgramFromSourceCode(String sourceCode);
-    Program createProgramFromSourceFilesWithInclude(String include, String... resources);
-    Program createProgramFormSourcesWithInclude(String include, List<String> resources);
-    Program createProgramFromSources(String... resources);
-    Program createProgramFromSources(List<String> resources);
+    Program createProgramFromSourceFilesWithInclude(AssetManager assetManager, String include, String... resources);
+    Program createProgramFromSourceFilesWithInclude(AssetManager assetManager, String include, List<String> resources);
+    Program createProgramFromSourceFiles(AssetManager assetManager, String... resources);
+    Program createProgramFromSourceFiles(AssetManager assetManager, List<String> resources);
 
 }

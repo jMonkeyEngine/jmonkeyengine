@@ -41,5 +41,6 @@ public interface Program {
 	void build() throws KernelCompilationException;
 
 	Kernel createKernel(String name);
-	
+	Kernel[] createAllKernels();
+    
 }

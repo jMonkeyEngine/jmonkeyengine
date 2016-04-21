@@ -30,15 +30,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package jme3test.gui.opencl;
+package jme3test.opencl;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
-import com.jme3.opencl.Buffer;
-import com.jme3.opencl.CommandQueue;
-import com.jme3.opencl.Context;
-import com.jme3.opencl.Event;
+import com.jme3.opencl.*;
 import com.jme3.system.AppSettings;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
@@ -78,6 +75,7 @@ public class HelloOpenCL extends SimpleApplication {
                 .append("\n  Devices: ").append(clContext.getDevices());
         str.append("\nTests:");
         str.append("\n  Buffers: ").append(testBuffer(clContext, clQueue));
+        str.append("\n  Kernel: ").append(testKernel(clContext, clQueue));
         
         BitmapText txt1 = new BitmapText(fnt);
         txt1.setText(str.toString());
@@ -135,6 +133,19 @@ public class HelloOpenCL extends SimpleApplication {
             LOG.log(Level.SEVERE, "Buffer test failed with:", ex);
             return false;
         }
+        return true;
+    }
+    
+    private boolean testKernel(Context clContext, CommandQueue clQueue) {
+        String include = "#define TYPE float\n";
+        Program program = clContext.createProgramFromSourceFilesWithInclude(assetManager, include, "jme3test/opencl/Blas.cl");
+        program.build();
+        Kernel[] kernels = program.createAllKernels();
+        for (Kernel k : kernels) {
+            System.out.println("available kernel: "+k.getName());
+        }
+        Kernel kernel = program.createKernel("Fill");
+        System.out.println("number of args: "+kernel.getArgCount());
         return true;
     }
 }
