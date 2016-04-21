@@ -52,7 +52,7 @@ import sun.misc.IOUtils;
  *
  * @author Sebastian Weiss
  */
-public class LwjglContext implements Context {
+public class LwjglContext extends Context {
     private static final Logger LOG = Logger.getLogger(LwjglContext.class.getName());
     private final CLContext context;
     private final List<LwjglDevice> devices;
@@ -69,11 +69,6 @@ public class LwjglContext implements Context {
     @Override
     public List<LwjglDevice> getDevices() {
         return devices;
-    }
-
-    @Override
-    public CommandQueue createQueue() {
-        return createQueue(devices.get(0));
     }
 
     @Override
@@ -96,22 +91,12 @@ public class LwjglContext implements Context {
     }
 
     @Override
-    public Buffer createBuffer(int size) {
-        return createBuffer(size, MemoryAccess.READ_WRITE);
-    }
-
-    @Override
     public Buffer createBufferFromHost(ByteBuffer data, MemoryAccess access) {
         long flags = Utils.getMemoryAccessFlags(access);
         flags |= CL10.CL_MEM_USE_HOST_PTR;
         CLMem mem = CL10.clCreateBuffer(context, flags, data, Utils.errorBuffer);
         Utils.checkError(Utils.errorBuffer, "clCreateBuffer");
         return new LwjglBuffer(mem);
-    }
-
-    @Override
-    public Buffer createBufferFromHost(ByteBuffer data) {
-        return createBufferFromHost(data, MemoryAccess.READ_WRITE);
     }
 
     @Override
@@ -141,46 +126,6 @@ public class LwjglContext implements Context {
         CLProgram p = CL10.clCreateProgramWithSource(context, sourceCode, Utils.errorBuffer);
         Utils.checkError(Utils.errorBuffer, "clCreateProgramWithSource");
         return new LwjglProgram(p, this);
-    }
-
-    @Override
-    public Program createProgramFromSourceFilesWithInclude(AssetManager assetManager, String include, String... resources) {
-        return createProgramFromSourceFilesWithInclude(assetManager, include, Arrays.asList(resources));
-    }
-
-    @Override
-    public Program createProgramFromSourceFilesWithInclude(AssetManager assetManager, String include, List<String> resources) {
-        StringBuilder str = new StringBuilder();
-        str.append(include);
-        for (String res : resources) {
-            AssetInfo info = assetManager.locateAsset(new AssetKey<String>(res));
-            if (info == null) {
-                LOG.log(Level.WARNING, "unable to load source file ''{0}''", res);
-                continue;
-            }
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(info.openStream()))) {
-                while (true) {
-                    String line = reader.readLine();
-                    if (line == null) {
-                        break;
-                    }
-                    str.append(line).append('\n');
-                }
-            } catch (IOException ex) {
-                LOG.log(Level.WARNING, "unable to load source file '"+res+"'", ex);
-            }
-        }
-        return createProgramFromSourceCode(str.toString());
-    }
-
-    @Override
-    public Program createProgramFromSourceFiles(AssetManager assetManager, String... resources) {
-        return createProgramFromSourceFilesWithInclude(assetManager, "", resources);
-    }
-
-    @Override
-    public Program createProgramFromSourceFiles(AssetManager assetManager, List<String> resources) {
-        return createProgramFromSourceFilesWithInclude(assetManager, "", resources);
     }
     
 }

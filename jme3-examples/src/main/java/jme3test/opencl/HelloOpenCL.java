@@ -53,6 +53,7 @@ public class HelloOpenCL extends SimpleApplication {
         HelloOpenCL app = new HelloOpenCL();
         AppSettings settings = new AppSettings(true);
         settings.setOpenCLSupport(true);
+        settings.setVSync(true);
         app.setSettings(settings);
         app.start(); // start the game
     }

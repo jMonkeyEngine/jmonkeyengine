@@ -31,29 +31,44 @@
  */
 package com.jme3.opencl;
 
+import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.mesh.IndexBuffer;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The central OpenCL context. Every actions start from here.
  *
  * @author Sebastian Weiss
  */
-public interface Context {
+public abstract class Context {
+    private static final Logger LOG = Logger.getLogger(Context.class.getName());
 
-    List<? extends Device> getDevices();
+    public abstract List<? extends Device> getDevices();
 
-    CommandQueue createQueue();
-	CommandQueue createQueue(Device device);
+    public CommandQueue createQueue() {
+        return createQueue(getDevices().get(0));
+    }
+	public abstract CommandQueue createQueue(Device device);
 
-    Buffer createBuffer(int size, MemoryAccess access);
-    Buffer createBuffer(int size);
+    public abstract Buffer createBuffer(int size, MemoryAccess access);
+    public Buffer createBuffer(int size) {
+        return createBuffer(size, MemoryAccess.READ_WRITE);
+    }
 
-    Buffer createBufferFromHost(ByteBuffer data, MemoryAccess access);
-    Buffer createBufferFromHost(ByteBuffer data);
+    public abstract Buffer createBufferFromHost(ByteBuffer data, MemoryAccess access);
+    public Buffer createBufferFromHost(ByteBuffer data) {
+        return createBufferFromHost(data, MemoryAccess.READ_WRITE);
+    }
 
     public static enum ImageChannelOrder {
 
@@ -115,18 +130,49 @@ public interface Context {
         public Buffer buffer;
     }
 
-    Image createImage(MemoryAccess access, ImageFormat format, ImageDescriptor descr, ByteBuffer hostPtr);
+    public abstract Image createImage(MemoryAccess access, ImageFormat format, ImageDescriptor descr, ByteBuffer hostPtr);
 	//TODO: add simplified methods for 1D, 2D, 3D textures
 
 	//Interop
-    Buffer bindVertexBuffer(VertexBuffer vb);
-    Buffer bindIndexBuffer(IndexBuffer ib);
-    Image bindImage(com.jme3.texture.Image image);
+    public abstract Buffer bindVertexBuffer(VertexBuffer vb);
+    public abstract Buffer bindIndexBuffer(IndexBuffer ib);
+    public abstract Image bindImage(com.jme3.texture.Image image);
 
-    Program createProgramFromSourceCode(String sourceCode);
-    Program createProgramFromSourceFilesWithInclude(AssetManager assetManager, String include, String... resources);
-    Program createProgramFromSourceFilesWithInclude(AssetManager assetManager, String include, List<String> resources);
-    Program createProgramFromSourceFiles(AssetManager assetManager, String... resources);
-    Program createProgramFromSourceFiles(AssetManager assetManager, List<String> resources);
+    public abstract Program createProgramFromSourceCode(String sourceCode);
+    
+    public Program createProgramFromSourceFilesWithInclude(AssetManager assetManager, String include, String... resources) {
+        return createProgramFromSourceFilesWithInclude(assetManager, include, Arrays.asList(resources));
+    }
 
+    public Program createProgramFromSourceFilesWithInclude(AssetManager assetManager, String include, List<String> resources) {
+        StringBuilder str = new StringBuilder();
+        str.append(include);
+        for (String res : resources) {
+            AssetInfo info = assetManager.locateAsset(new AssetKey<String>(res));
+            if (info == null) {
+                LOG.log(Level.WARNING, "unable to load source file ''{0}''", res);
+                continue;
+            }
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(info.openStream()))) {
+                while (true) {
+                    String line = reader.readLine();
+                    if (line == null) {
+                        break;
+                    }
+                    str.append(line).append('\n');
+                }
+            } catch (IOException ex) {
+                LOG.log(Level.WARNING, "unable to load source file '"+res+"'", ex);
+            }
+        }
+        return createProgramFromSourceCode(str.toString());
+    }
+
+    public Program createProgramFromSourceFiles(AssetManager assetManager, String... resources) {
+        return createProgramFromSourceFilesWithInclude(assetManager, "", resources);
+    }
+
+    public Program createProgramFromSourceFiles(AssetManager assetManager, List<String> resources) {
+        return createProgramFromSourceFilesWithInclude(assetManager, "", resources);
+    }
 }
