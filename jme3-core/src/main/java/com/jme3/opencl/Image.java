@@ -230,7 +230,7 @@ public interface Image {
      * @param color
      * @return 
      */
-    Event fillIntegerAsync(CommandQueue queue, long[] origin, long[] region, int[] color);
+    Event fillAsync(CommandQueue queue, long[] origin, long[] region, int[] color);
     
     Event copyToBufferAsync(CommandQueue queue, Buffer dest, long[] srcOrigin, long[] srcRegion, long destOffset);
 }

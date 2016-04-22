@@ -32,6 +32,7 @@
 package com.jme3.opencl.lwjgl;
 
 import com.jme3.opencl.Event;
+import java.util.logging.Logger;
 import org.lwjgl.opencl.CL10;
 import org.lwjgl.opencl.CLEvent;
 
@@ -40,10 +41,14 @@ import org.lwjgl.opencl.CLEvent;
  * @author Sebastian Weiss
  */
 public class LwjglEvent implements Event {
+    private static final Logger LOG = Logger.getLogger(LwjglEvent.class.getName());
     private final CLEvent event;
 
     public LwjglEvent(CLEvent event) {
         this.event = event;
+        if (event == null) {
+            LOG.warning("event is null!");
+        }
     }
 
     public CLEvent getEvent() {
@@ -52,11 +57,17 @@ public class LwjglEvent implements Event {
 
     @Override
     public void waitForFinished() {
+        if (event==null) {
+            return;
+        }
         CL10.clWaitForEvents(event);
     }
 
     @Override
     public boolean isCompleted() {
+        if (event==null) {
+            return true;
+        }
         int status = event.getInfoInt(CL10.CL_EVENT_COMMAND_EXECUTION_STATUS);
         if (status == CL10.CL_SUCCESS) {
             return true;

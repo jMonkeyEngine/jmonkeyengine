@@ -63,8 +63,8 @@ public abstract class Context {
     }
 	public abstract CommandQueue createQueue(Device device);
 
-    public abstract Buffer createBuffer(int size, MemoryAccess access);
-    public Buffer createBuffer(int size) {
+    public abstract Buffer createBuffer(long size, MemoryAccess access);
+    public Buffer createBuffer(long size) {
         return createBuffer(size, MemoryAccess.READ_WRITE);
     }
 

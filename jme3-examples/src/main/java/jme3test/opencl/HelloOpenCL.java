@@ -35,6 +35,7 @@ package jme3test.opencl;
 import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
+import com.jme3.math.ColorRGBA;
 import com.jme3.opencl.*;
 import com.jme3.system.AppSettings;
 import com.jme3.util.BufferUtils;
@@ -86,6 +87,9 @@ public class HelloOpenCL extends SimpleApplication {
         txt1.setText(str.toString());
         txt1.setLocalTranslation(5, settings.getHeight() - 5, 0);
         guiNode.attachChild(txt1);
+        
+        flyCam.setEnabled(false);
+        inputManager.setCursorVisible(true);
     }
     
     private static void assertEquals(byte expected, byte actual, String message) {
@@ -222,6 +226,59 @@ public class HelloOpenCL extends SimpleApplication {
             assertEquals(format, image.getImageFormat(), "Wrong image format");
             assertEquals(descr.width, image.getWidth(), "Wrong width");
             assertEquals(descr.height, image.getHeight(), "Wrong height");
+            
+            //fill with red and blue
+            ColorRGBA color1 = ColorRGBA.Red;
+            ColorRGBA color2 = ColorRGBA.Blue;
+            Event e1 = image.fillAsync(clQueue, new long[]{0,0,0}, new long[]{descr.width/2, descr.height, 1}, color1);
+            Event e2 = image.fillAsync(clQueue, new long[]{descr.width/2,0,0}, new long[]{descr.width/2, descr.height, 1}, color2);
+            e1.waitForFinished();
+            e2.waitForFinished();
+            
+            //copy to a buffer
+            Buffer buffer = clContext.createBuffer(4*4*500*1024);
+            image.copyToBufferAsync(clQueue, buffer, new long[]{10,10,0}, new long[]{500,1024,1}, 0);
+            //this buffer must be completely red
+            ByteBuffer map1 = buffer.map(clQueue, MappingAccess.MAP_READ_ONLY);
+            FloatBuffer map1F = map1.asFloatBuffer(); map1F.rewind();
+            for (int x=0; x<500; ++x) {
+                for (int y=0; y<1024; ++y) {
+                    float r = map1F.get(); 
+                    float g = map1F.get(); 
+                    float b = map1F.get(); 
+                    float a = map1F.get();
+                    assertEquals(1, r, "Wrong red component");
+                    assertEquals(0, g, "Wrong green component");
+                    assertEquals(0, b, "Wrong blue component");
+                    assertEquals(1, a, "Wrong alpha component");
+                }
+            }
+            buffer.unmap(clQueue, map1);
+            
+            //create a second image
+            format = new Image.ImageFormat(Image.ImageChannelOrder.RGBA, Image.ImageChannelType.FLOAT);
+            descr = new Image.ImageDescriptor(Image.ImageType.IMAGE_2D, 512, 512, 0, 0, 0, 0);
+            Image image2 = clContext.createImage(MemoryAccess.READ_WRITE, format, descr, null);
+            //copy an area of image1 to image2
+            image.copyTo(clQueue, image2, new long[]{1000, 20,0}, new long[]{0,0,0}, new long[]{512, 512,1});
+            //this area should be completely blue
+            Image.ImageMapping map2 = image2.map(clQueue, new long[]{0,0,0}, new long[]{512,512,1}, MappingAccess.MAP_READ_WRITE);
+            FloatBuffer map2F = map2.buffer.asFloatBuffer();
+            for (int y=0; y<512; ++y) {
+                for (int x=0; x<512; ++x) {
+                    long index = 4 * x + y * (map2.rowPitch / 4);
+                    map2F.position((int) index);
+                    float r = map2F.get();
+                    float g = map2F.get();
+                    float b = map2F.get();
+                    float a = map2F.get();
+                    assertEquals(0, r, "Wrong red component");
+                    assertEquals(0, g, "Wrong green component");
+                    assertEquals(1, b, "Wrong blue component");
+                    assertEquals(1, a, "Wrong alpha component");
+                }
+            }
+            image2.unmap(clQueue, map2);
             
         } catch (AssertionError ex) {
             LOG.log(Level.SEVERE, "image test failed with an assertion error");

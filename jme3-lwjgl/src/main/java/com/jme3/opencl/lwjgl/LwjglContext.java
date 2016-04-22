@@ -87,9 +87,9 @@ public class LwjglContext extends Context {
     }
     
     @Override
-    public Buffer createBuffer(int size, MemoryAccess access) {
+    public Buffer createBuffer(long size, MemoryAccess access) {
         long flags = Utils.getMemoryAccessFlags(access);
-        CLMem mem = CL10.clCreateBuffer(context, flags, (long) size, Utils.errorBuffer);
+        CLMem mem = CL10.clCreateBuffer(context, flags, size, Utils.errorBuffer);
         Utils.checkError(Utils.errorBuffer, "clCreateBuffer");
         return new LwjglBuffer(mem);
     }

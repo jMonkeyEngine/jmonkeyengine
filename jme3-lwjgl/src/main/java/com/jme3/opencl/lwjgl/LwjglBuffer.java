@@ -168,6 +168,9 @@ public class LwjglBuffer extends Buffer {
 
     @Override
     public Event copyToImageAsync(CommandQueue queue, Image dest, long srcOffset, long[] destOrigin, long[] destRegion) {
+        if (destOrigin.length!=3 || destRegion.length!=3) {
+            throw new IllegalArgumentException("origin and region must both be arrays of length 3");
+        }
         Utils.pointerBuffers[0].rewind();
         Utils.pointerBuffers[1].rewind();
         Utils.pointerBuffers[2].rewind();

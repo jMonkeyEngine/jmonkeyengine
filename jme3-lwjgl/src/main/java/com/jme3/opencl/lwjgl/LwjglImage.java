@@ -36,10 +36,7 @@ import com.jme3.opencl.*;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lwjgl.opencl.CL10;
-import org.lwjgl.opencl.CL11;
-import org.lwjgl.opencl.CL12;
-import org.lwjgl.opencl.CLMem;
+import org.lwjgl.opencl.*;
 import org.lwjgl.opencl.api.CLImageFormat;
 
 /**
@@ -121,7 +118,7 @@ public class LwjglImage implements Image {
             case CL11.CL_Rx:
                 return ImageChannelOrder.Rx;
             default:
-                //throw new OpenCLException("unknown image channel order id: " + order);
+                //throw new com.jme3.opencl.OpenCLException("unknown image channel order id: " + order);
                 LOG.log(Level.WARNING, "Unknown image channel order id: {0}", order);
                 return null;
         }
@@ -197,7 +194,7 @@ public class LwjglImage implements Image {
             case CL10.CL_UNSIGNED_INT8:
                 return ImageChannelType.UNSIGNED_INT8;
             default:
-                //throw new OpenCLException("unknown image channel type id: " + type);
+                //throw new com.jme3.opencl.OpenCLException("unknown image channel type id: " + type);
                 LOG.log(Level.WARNING, "Unknown image channel type id: {0}", type);
                 return null;
         }
@@ -237,44 +234,46 @@ public class LwjglImage implements Image {
             case CL10.CL_MEM_OBJECT_IMAGE3D:
                 return ImageType.IMAGE_3D;
             default:
-                throw new OpenCLException("Unknown image type id: " + type);
+                throw new com.jme3.opencl.OpenCLException("Unknown image type id: " + type);
         }
     }
 
     @Override
     public long getWidth() {
-        return image.getInfoSize(CL10.CL_IMAGE_WIDTH);
+        return image.getImageInfoSize(CL10.CL_IMAGE_WIDTH);
     }
 
     @Override
     public long getHeight() {
-        return image.getInfoSize(CL10.CL_IMAGE_HEIGHT);
+        return image.getImageInfoSize(CL10.CL_IMAGE_HEIGHT);
     }
 
     @Override
     public long getDepth() {
-        return image.getInfoSize(CL10.CL_IMAGE_DEPTH);
+        return image.getImageInfoSize(CL10.CL_IMAGE_DEPTH);
     }
 
     @Override
     public long getRowPitch() {
-        return image.getInfoSize(CL10.CL_IMAGE_ROW_PITCH);
+        return image.getImageInfoSize(CL10.CL_IMAGE_ROW_PITCH);
     }
 
     @Override
     public long getSlicePitch() {
-        return image.getInfoSize(CL10.CL_IMAGE_SLICE_PITCH);
+        return image.getImageInfoSize(CL10.CL_IMAGE_SLICE_PITCH);
     }
 
     @Override
     public long getArraySize() {
-        return image.getInfoSize(CL12.CL_IMAGE_ARRAY_SIZE);
+        return image.getImageInfoSize(CL12.CL_IMAGE_ARRAY_SIZE);
     }
 
     @Override
     public ImageFormat getImageFormat() {
         CLImageFormat format = image.getImageFormat();
-        return new ImageFormat(encodeImageChannelOrder(format.getChannelOrder()), encodeImageChannelType(format.getChannelType()));
+        return new ImageFormat(
+                encodeImageChannelOrder(format.getChannelOrder()), 
+                encodeImageChannelType(format.getChannelType()));
     }
 
     @Override
@@ -285,67 +284,242 @@ public class LwjglImage implements Image {
 
     @Override
     public int getElementSize() {
-        return (int) image.getInfoSize(CL10.CL_IMAGE_ELEMENT_SIZE);
+        return (int) image.getImageInfoSize(CL10.CL_IMAGE_ELEMENT_SIZE);
     }
 
     @Override
     public void readImage(CommandQueue queue, ByteBuffer dest, long[] origin, long[] region, long rowPitch, long slicePitch) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (origin.length!=3 || region.length!=3) {
+            throw new IllegalArgumentException("origin and region must both be arrays of length 3");
+        }
+        Utils.pointerBuffers[1].rewind();
+        Utils.pointerBuffers[2].rewind();
+        Utils.pointerBuffers[1].put(origin).position(0);
+        Utils.pointerBuffers[2].put(region).position(0);
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10.clEnqueueReadImage(q, image, CL10.CL_TRUE, 
+                Utils.pointerBuffers[1], Utils.pointerBuffers[2], 
+                rowPitch, slicePitch, dest, null, null);
+        Utils.checkError(ret, "clEnqueueReadImage");
     }
 
     @Override
     public Event readImageAsync(CommandQueue queue, ByteBuffer dest, long[] origin, long[] region, long rowPitch, long slicePitch) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (origin.length!=3 || region.length!=3) {
+            throw new IllegalArgumentException("origin and region must both be arrays of length 3");
+        }
+        Utils.pointerBuffers[0].rewind();
+        Utils.pointerBuffers[1].rewind();
+        Utils.pointerBuffers[2].rewind();
+        Utils.pointerBuffers[1].put(origin).position(0);
+        Utils.pointerBuffers[2].put(region).position(0);
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10.clEnqueueReadImage(q, image, CL10.CL_FALSE, 
+                Utils.pointerBuffers[1], Utils.pointerBuffers[2], 
+                rowPitch, slicePitch, dest, null, Utils.pointerBuffers[0]);
+        Utils.checkError(ret, "clEnqueueReadImage");
+        long event = Utils.pointerBuffers[0].get(0);
+        return new LwjglEvent(q.getCLEvent(event));
     }
 
     @Override
     public void writeImage(CommandQueue queue, ByteBuffer dest, long[] origin, long[] region, long rowPitch, long slicePitch) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (origin.length!=3 || region.length!=3) {
+            throw new IllegalArgumentException("origin and region must both be arrays of length 3");
+        }
+        Utils.pointerBuffers[1].rewind();
+        Utils.pointerBuffers[2].rewind();
+        Utils.pointerBuffers[1].put(origin).position(0);
+        Utils.pointerBuffers[2].put(region).position(0);
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10.clEnqueueWriteImage(q, image, CL10.CL_TRUE, 
+                Utils.pointerBuffers[1], Utils.pointerBuffers[2], 
+                rowPitch, slicePitch, dest, null, null);
+        Utils.checkError(ret, "clEnqueueWriteImage");
     }
 
     @Override
     public Event writeImageAsync(CommandQueue queue, ByteBuffer dest, long[] origin, long[] region, long rowPitch, long slicePitch) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (origin.length!=3 || region.length!=3) {
+            throw new IllegalArgumentException("origin and region must both be arrays of length 3");
+        }
+        Utils.pointerBuffers[0].rewind();
+        Utils.pointerBuffers[1].rewind();
+        Utils.pointerBuffers[2].rewind();
+        Utils.pointerBuffers[1].put(origin).position(0);
+        Utils.pointerBuffers[2].put(region).position(0);
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10.clEnqueueWriteImage(q, image, CL10.CL_FALSE, 
+                Utils.pointerBuffers[1], Utils.pointerBuffers[2], 
+                rowPitch, slicePitch, dest, null, Utils.pointerBuffers[0]);
+        Utils.checkError(ret, "clEnqueueWriteImage");
+        long event = Utils.pointerBuffers[0].get(0);
+        return new LwjglEvent(q.getCLEvent(event));
     }
 
     @Override
     public void copyTo(CommandQueue queue, Image dest, long[] srcOrigin, long[] destOrigin, long[] region) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (srcOrigin.length!=3 || destOrigin.length!=3 || region.length!=3) {
+            throw new IllegalArgumentException("origin and region must both be arrays of length 3");
+        }
+        Utils.pointerBuffers[0].rewind();
+        Utils.pointerBuffers[1].rewind();
+        Utils.pointerBuffers[2].rewind();
+        Utils.pointerBuffers[3].rewind();
+        Utils.pointerBuffers[1].put(srcOrigin).position(0);
+        Utils.pointerBuffers[2].put(destOrigin).position(0);
+        Utils.pointerBuffers[3].put(region).position(0);
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10.clEnqueueCopyImage(q, image, ((LwjglImage) dest).getImage(), 
+                Utils.pointerBuffers[1], Utils.pointerBuffers[2], Utils.pointerBuffers[3], 
+                null, Utils.pointerBuffers[0]);
+        Utils.checkError(ret, "clEnqueueCopyImage");
+        long event = Utils.pointerBuffers[0].get(0);
+        ret = CL10.clWaitForEvents(q.getCLEvent(event));
+        Utils.checkError(ret, "clWaitForEvents");
     }
 
     @Override
     public Event copyToAsync(CommandQueue queue, Image dest, long[] srcOrigin, long[] destOrigin, long[] region) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (srcOrigin.length!=3 || destOrigin.length!=3 || region.length!=3) {
+            throw new IllegalArgumentException("origin and region must both be arrays of length 3");
+        }
+        Utils.pointerBuffers[0].rewind();
+        Utils.pointerBuffers[1].rewind();
+        Utils.pointerBuffers[2].rewind();
+        Utils.pointerBuffers[3].rewind();
+        Utils.pointerBuffers[1].put(srcOrigin).position(0);
+        Utils.pointerBuffers[2].put(destOrigin).position(0);
+        Utils.pointerBuffers[3].put(region).position(0);
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10.clEnqueueCopyImage(q, image, ((LwjglImage) dest).getImage(), 
+                Utils.pointerBuffers[1], Utils.pointerBuffers[2], Utils.pointerBuffers[3], 
+                null, Utils.pointerBuffers[0]);
+        Utils.checkError(ret, "clEnqueueCopyImage");
+        long event = Utils.pointerBuffers[0].get(0);
+        return new LwjglEvent(q.getCLEvent(event));
     }
 
     @Override
     public ImageMapping map(CommandQueue queue, long[] origin, long[] region, MappingAccess access) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (origin.length!=3 || region.length!=3) {
+            throw new IllegalArgumentException("origin and region must both be arrays of length 3");
+        }
+        Utils.pointerBuffers[1].rewind();
+        Utils.pointerBuffers[2].rewind();
+        Utils.pointerBuffers[3].rewind();
+        Utils.pointerBuffers[4].rewind();
+        Utils.pointerBuffers[1].put(origin).position(0);
+        Utils.pointerBuffers[2].put(region).position(0);
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        long flags = Utils.getMappingAccessFlags(access);
+        Utils.errorBuffer.rewind();
+        ByteBuffer buf = CL10.clEnqueueMapImage(q, image, CL10.CL_TRUE, flags, 
+                Utils.pointerBuffers[1], Utils.pointerBuffers[2], 
+                Utils.pointerBuffers[3], Utils.pointerBuffers[4], null, null, Utils.errorBuffer);
+        Utils.checkError(Utils.errorBuffer, "clEnqueueMapBuffer");
+        long event = Utils.pointerBuffers[0].get(0);
+        return new ImageMapping(buf, Utils.pointerBuffers[3].get(0), Utils.pointerBuffers[4].get(0), 
+                new LwjglEvent(q.getCLEvent(event)));
     }
 
     @Override
     public ImageMapping mapAsync(CommandQueue queue, long[] origin, long[] region, MappingAccess access) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (origin.length!=3 || region.length!=3) {
+            throw new IllegalArgumentException("origin and region must both be arrays of length 3");
+        }
+        Utils.pointerBuffers[0].rewind();
+        Utils.pointerBuffers[1].rewind();
+        Utils.pointerBuffers[2].rewind();
+        Utils.pointerBuffers[3].rewind();
+        Utils.pointerBuffers[4].rewind();
+        Utils.pointerBuffers[1].put(origin).position(0);
+        Utils.pointerBuffers[2].put(region).position(0);
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        long flags = Utils.getMappingAccessFlags(access);
+        Utils.errorBuffer.rewind();
+        ByteBuffer buf = CL10.clEnqueueMapImage(q, image, CL10.CL_FALSE, flags, 
+                Utils.pointerBuffers[1], Utils.pointerBuffers[2], 
+                Utils.pointerBuffers[3], Utils.pointerBuffers[4], null, null, Utils.errorBuffer);
+        Utils.checkError(Utils.errorBuffer, "clEnqueueMapBuffer");
+        return new ImageMapping(buf, Utils.pointerBuffers[3].get(0), Utils.pointerBuffers[4].get(0));
     }
 
     @Override
     public void unmap(CommandQueue queue, ImageMapping mapping) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        Utils.pointerBuffers[0].rewind();
+        int ret = CL10.clEnqueueUnmapMemObject(q, image, mapping.buffer, null, Utils.pointerBuffers[0]);
+        Utils.checkError(ret, "clEnqueueUnmapMemObject");
+        long event = Utils.pointerBuffers[0].get(0);
+        ret = CL10.clWaitForEvents(q.getCLEvent(event));
+        Utils.checkError(ret, "clWaitForEvents");
     }
 
     @Override
     public Event fillAsync(CommandQueue queue, long[] origin, long[] region, ColorRGBA color) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (origin.length!=3 || region.length!=3) {
+            throw new IllegalArgumentException("origin and region must both be arrays of length 3");
+        }
+        Utils.pointerBuffers[0].rewind();
+        Utils.pointerBuffers[1].rewind();
+        Utils.pointerBuffers[2].rewind();
+        Utils.pointerBuffers[1].put(origin).position(0);
+        Utils.pointerBuffers[2].put(region).position(0);
+        Utils.tempBuffers[0].b16f.rewind();
+        Utils.tempBuffers[0].b16f.limit(4);
+        Utils.tempBuffers[0].b16f.put(color.r).put(color.g).put(color.b).put(color.a);
+        Utils.tempBuffers[0].b16.rewind();
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL12.clEnqueueFillImage(q, image, Utils.tempBuffers[0].b16, 
+                Utils.pointerBuffers[1], Utils.pointerBuffers[2], null, Utils.pointerBuffers[0]);
+        Utils.checkError(ret, "clEnqueueFillImage");
+        long event = Utils.pointerBuffers[0].get(0);
+        return new LwjglEvent(q.getCLEvent(event));
+        //TODO: why does q.getCLEvent(event) return null?
     }
 
     @Override
-    public Event fillIntegerAsync(CommandQueue queue, long[] origin, long[] region, int[] color) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Event fillAsync(CommandQueue queue, long[] origin, long[] region, int[] color) {
+        if (color.length != 4) {
+            throw new IllegalArgumentException("the passed color array must have length 4");
+        }
+        if (origin.length!=3 || region.length!=3) {
+            throw new IllegalArgumentException("origin and region must both be arrays of length 3");
+        }
+        Utils.pointerBuffers[0].rewind();
+        Utils.pointerBuffers[1].rewind();
+        Utils.pointerBuffers[2].rewind();
+        Utils.pointerBuffers[1].put(origin).position(0);
+        Utils.pointerBuffers[2].put(region).position(0);
+        Utils.tempBuffers[0].b16i.rewind();
+        Utils.tempBuffers[0].b16i.limit(4);
+        Utils.tempBuffers[0].b16i.put(color);
+        Utils.tempBuffers[0].b16.rewind();
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL12.clEnqueueFillImage(q, image, Utils.tempBuffers[0].b16, 
+                Utils.pointerBuffers[1], Utils.pointerBuffers[2], null, Utils.pointerBuffers[0]);
+        Utils.checkError(ret, "clEnqueueFillImage");
+        long event = Utils.pointerBuffers[0].get(0);
+        return new LwjglEvent(q.getCLEvent(event));
     }
 
     @Override
     public Event copyToBufferAsync(CommandQueue queue, Buffer dest, long[] srcOrigin, long[] srcRegion, long destOffset) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (srcOrigin.length!=3 || srcRegion.length!=3) {
+            throw new IllegalArgumentException("origin and region must both be arrays of length 3");
+        }
+        Utils.pointerBuffers[0].rewind();
+        Utils.pointerBuffers[1].rewind();
+        Utils.pointerBuffers[2].rewind();
+        Utils.pointerBuffers[1].put(srcOrigin).position(0);
+        Utils.pointerBuffers[2].put(srcRegion).position(0);
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10.clEnqueueCopyImageToBuffer(q, image, ((LwjglBuffer) dest).getBuffer(), 
+                Utils.pointerBuffers[1], Utils.pointerBuffers[2], destOffset, null, Utils.pointerBuffers[0]);
+        Utils.checkError(ret, "clEnqueueCopyImageToBuffer");
+        long event = Utils.pointerBuffers[0].get(0);
+        return new LwjglEvent(q.getCLEvent(event));
     }
 
 }
