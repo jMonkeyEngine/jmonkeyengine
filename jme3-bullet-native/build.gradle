@@ -90,6 +90,7 @@ model {
 
     toolChains {
         gcc(Gcc)
+	clang(Clang)
         mingw_x86(Gcc) {
             eachPlatform() {
                 cCompiler.executable "i686-w64-mingw32-gcc"
