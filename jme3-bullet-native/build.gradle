@@ -25,9 +25,12 @@ libraries {
             if (targetPlatform.operatingSystem.name == "osx") {
                 cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
             } else if (targetPlatform.operatingSystem.name == "linux") {
+                cppCompiler.args "-fvisibility=hidden"
                 cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
                 cppCompiler.args "-fPIC"
                 cppCompiler.args "-fpermissive"
+                linker.args "-fvisibility=hidden"
+
 //                cppCompiler.args "-static-libgcc"
 //                cppCompiler.args "-static-libstdc++"
 //                linker.args "-static-libgcc"
@@ -35,13 +38,14 @@ libraries {
             } else if (targetPlatform.operatingSystem.name == "windows") {
                 if (toolChain in Gcc) {
                     if (toolChain.name.startsWith('mingw')) {
-                        cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
+                        cppCompiler.args '-I', "${projectDir}/src/native/cpp/fake_win32"
                     } else {
                         cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
                     }
                     cppCompiler.args "-fpermissive"
                     cppCompiler.args "-static"
                     linker.args "-static"
+                    linker.args "-Wl,--exclude-all-symbols"
                 }
                 else if (toolChain in VisualCpp) {
                     cppCompiler.args "/I${org.gradle.internal.jvm.Jvm.current().javaHome}\\include\\win32"
