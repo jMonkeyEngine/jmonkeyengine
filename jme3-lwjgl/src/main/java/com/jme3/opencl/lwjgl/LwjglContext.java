@@ -35,16 +35,20 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.opencl.*;
+import com.jme3.opencl.Image.ImageDescriptor;
+import com.jme3.opencl.Image.ImageFormat;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.mesh.IndexBuffer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opencl.*;
 import sun.misc.IOUtils;
 
@@ -101,7 +105,52 @@ public class LwjglContext extends Context {
 
     @Override
     public Image createImage(MemoryAccess access, ImageFormat format, ImageDescriptor descr, ByteBuffer hostPtr) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        long memFlags = Utils.getMemoryAccessFlags(access);
+        Utils.errorBuffer.rewind();
+        //fill image format
+        Utils.tempBuffers[0].b16i.rewind();
+        Utils.tempBuffers[0].b16i.put(LwjglImage.decodeImageChannelOrder(format.channelOrder))
+                .put(LwjglImage.decodeImageChannelType(format.channelType));
+        Utils.tempBuffers[0].b16.rewind();
+        //fill image desc
+        Utils.b80l.rewind();
+        Utils.b80l.put(LwjglImage.decodeImageType(descr.type))
+                .put(descr.width).put(descr.height).put(descr.depth)
+                .put(descr.arraySize).put(descr.rowPitch).put(descr.slicePitch)
+                .put(0).put(0).put(0);
+        Utils.b80.rewind();
+        //create image
+        CLMem mem = CL12.clCreateImage(context, memFlags, Utils.tempBuffers[0].b16, Utils.b80, hostPtr, Utils.errorBuffer);
+        Utils.checkError(Utils.errorBuffer, "clCreateImage");
+        return new LwjglImage(mem);
+    }
+
+    @Override
+    public ImageFormat[] querySupportedFormats(MemoryAccess access, Image.ImageType type) {
+        long memFlags = Utils.getMemoryAccessFlags(access);
+        int typeFlag = LwjglImage.decodeImageType(type);
+        Utils.tempBuffers[0].b16i.rewind();
+        //query count
+        int ret = CL10.clGetSupportedImageFormats(context, memFlags, typeFlag, null, Utils.tempBuffers[0].b16i);
+        Utils.checkError(ret, "clGetSupportedImageFormats");
+        int count = Utils.tempBuffers[0].b16i.get(0);
+        if (count == 0) {
+            return new ImageFormat[0];
+        }
+        //get formats
+        ByteBuffer formatsB = BufferUtils.createByteBuffer(count * 8);
+        ret = CL10.clGetSupportedImageFormats(context, memFlags, typeFlag, formatsB, null);
+        Utils.checkError(ret, "clGetSupportedImageFormats");
+        //convert formats
+        ImageFormat[] formats = new ImageFormat[count];
+        IntBuffer formatsBi = formatsB.asIntBuffer();
+        formatsBi.rewind();
+        for (int i=0; i<count; ++i) {
+            Image.ImageChannelOrder channelOrder = LwjglImage.encodeImageChannelOrder(formatsBi.get());
+            Image.ImageChannelType channelType = LwjglImage.encodeImageChannelType(formatsBi.get());
+            formats[i] = new ImageFormat(channelOrder, channelType);
+        }
+        return formats;
     }
 
     @Override

@@ -85,6 +85,12 @@ public class LwjglKernel extends Kernel {
         int ret = CL10.clSetKernelArg(kernel, index, ((LwjglBuffer) t).getBuffer());
         Utils.checkError(ret, "clSetKernelArg");
     }
+    
+    @Override
+    public void setArg(int index, Image i) {
+        int ret = CL10.clSetKernelArg(kernel, index, ((LwjglImage) i).getImage());
+        Utils.checkError(ret, "clSetKernelArg");
+    }
 
     @Override
     public void setArg(int index, byte b) {

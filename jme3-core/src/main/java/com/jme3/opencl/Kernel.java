@@ -102,6 +102,8 @@ public abstract class Kernel {
     public abstract void setArg(int index, LocalMem t);
 
     public abstract void setArg(int index, Buffer t);
+    
+    public abstract void setArg(int index, Image i);
 
     public abstract void setArg(int index, byte b);
 

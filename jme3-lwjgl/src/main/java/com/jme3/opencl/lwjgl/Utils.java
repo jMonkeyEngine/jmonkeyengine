@@ -76,14 +76,18 @@ public class Utils {
             b16d = b16.asDoubleBuffer();
         }
     }
-    public static TempBuffer[] tempBuffers = new TempBuffer[8];
-    public static PointerBuffer[] pointerBuffers = new PointerBuffer[8];
+    public static final ByteBuffer b80; //needed for ImageDescriptor
+    public static final LongBuffer b80l;
+    public static final TempBuffer[] tempBuffers = new TempBuffer[8];
+    public static final PointerBuffer[] pointerBuffers = new PointerBuffer[8];
     static {
         for (int i=0; i<8; ++i) {
             tempBuffers[i] = new TempBuffer();
             pointerBuffers[i] = PointerBuffer.allocateDirect(4);
         }
         errorBuffer = BufferUtils.createIntBuffer(1);
+        b80 = BufferUtils.createByteBuffer(80);
+        b80l = b80.asLongBuffer();
     }
     
     public static IntBuffer errorBuffer;

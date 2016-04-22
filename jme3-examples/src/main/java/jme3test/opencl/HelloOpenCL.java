@@ -40,6 +40,8 @@ import com.jme3.system.AppSettings;
 import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,11 +80,37 @@ public class HelloOpenCL extends SimpleApplication {
         str.append("\nTests:");
         str.append("\n  Buffers: ").append(testBuffer(clContext, clQueue));
         str.append("\n  Kernel: ").append(testKernel(clContext, clQueue));
+        str.append("\n  Images: ").append(testImages(clContext, clQueue));
         
         BitmapText txt1 = new BitmapText(fnt);
         txt1.setText(str.toString());
         txt1.setLocalTranslation(5, settings.getHeight() - 5, 0);
         guiNode.attachChild(txt1);
+    }
+    
+    private static void assertEquals(byte expected, byte actual, String message) {
+        if (expected != actual) {
+            System.err.println(message+": expected="+expected+", actual="+actual);
+            throw new AssertionError();
+        }
+    }
+    private static void assertEquals(long expected, long actual, String message) {
+        if (expected != actual) {
+            System.err.println(message+": expected="+expected+", actual="+actual);
+            throw new AssertionError();
+        }
+    }
+    private static void assertEquals(double expected, double actual, String message) {
+        if (Math.abs(expected - actual) >= 0.00001) {
+            System.err.println(message+": expected="+expected+", actual="+actual);
+            throw new AssertionError();
+        }
+    }
+    private static void assertEquals(Object expected, Object actual, String message) {
+        if (!Objects.equals(expected, actual)) {
+            System.err.println(message+": expected="+expected+", actual="+actual);
+            throw new AssertionError();
+        }
     }
     
     private boolean testBuffer(Context clContext, CommandQueue clQueue) {
@@ -110,10 +138,7 @@ public class HelloOpenCL extends SimpleApplication {
             h1.rewind();
             for (int i=0; i<256; ++i) {
                 byte b = h1.get();
-                if (b != (byte)i) {
-                    System.err.println("Wrong byte read: expected="+i+", actual="+b);
-                    return false;
-                }
+                assertEquals((byte) i, b, "Wrong byte read");
             }
             
             //read buffer with offset
@@ -125,12 +150,12 @@ public class HelloOpenCL extends SimpleApplication {
             h1.position(5);
             for (int i=0; i<high-low; ++i) {
                 byte b = h1.get();
-                if (b != (byte)(i+low)) {
-                    System.err.println("Wrong byte read: expected="+(i+low)+", actual="+b);
-                    return false;
-                }
+                assertEquals((byte) (i+low), b, "Wrong byte read");
             }
         
+        } catch (AssertionError ex) {
+            LOG.log(Level.SEVERE, "Buffer test failed with an assertion error");
+            return false;
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "Buffer test failed with:", ex);
             return false;
@@ -163,16 +188,46 @@ public class HelloOpenCL extends SimpleApplication {
             FloatBuffer buff = buf.asFloatBuffer();
             for (int i=0; i<size; ++i) {
                 float v = buff.get(i);
-                if (v != value) {
-                    System.err.println("Buffer filled with the wrong value at index "+i+": expected="+value+", actual="+v);
-                    buffer.unmap(clQueue, buf);
-                    return false;
-                }
+                assertEquals(value, v, "Buffer filled with the wrong value at index "+i);
             }
             buffer.unmap(clQueue, buf);
 
+        } catch (AssertionError ex) {
+            LOG.log(Level.SEVERE, "kernel test failed with an assertion error");
+            return false;
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "kernel test failed with:", ex);
+            return false;
+        }
+        return true;
+    }
+    
+    private boolean testImages(Context clContext, CommandQueue clQueue) {
+        try {
+            //query supported formats
+            for (MemoryAccess ma : MemoryAccess.values()) {
+                for (Image.ImageType type : Image.ImageType.values()) {
+                    System.out.println("Formats for "+ma+" and "+type+": "+Arrays.toString(clContext.querySupportedFormats(ma, type)));
+                }
+            }
+            
+            //create an image
+            Image.ImageFormat format = new Image.ImageFormat(Image.ImageChannelOrder.RGBA, Image.ImageChannelType.FLOAT);
+            Image.ImageDescriptor descr = new Image.ImageDescriptor(Image.ImageType.IMAGE_2D, 1920, 1080, 0, 0, 0, 0);
+            Image image = clContext.createImage(MemoryAccess.READ_WRITE, format, descr, null);
+            System.out.println("image created");
+            
+            //check queries
+            assertEquals(descr.type, image.getImageType(), "Wrong image type");
+            assertEquals(format, image.getImageFormat(), "Wrong image format");
+            assertEquals(descr.width, image.getWidth(), "Wrong width");
+            assertEquals(descr.height, image.getHeight(), "Wrong height");
+            
+        } catch (AssertionError ex) {
+            LOG.log(Level.SEVERE, "image test failed with an assertion error");
+            return false;
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "image test failed with:", ex);
             return false;
         }
         return true;

@@ -34,6 +34,9 @@ package com.jme3.opencl;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
+import com.jme3.opencl.Image.ImageDescriptor;
+import com.jme3.opencl.Image.ImageFormat;
+import com.jme3.opencl.Image.ImageType;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.mesh.IndexBuffer;
 import java.io.BufferedReader;
@@ -70,69 +73,10 @@ public abstract class Context {
         return createBufferFromHost(data, MemoryAccess.READ_WRITE);
     }
 
-    public static enum ImageChannelOrder {
-
-        R, Rx, A,
-        INTENSITY,
-        LUMINANCE,
-        RG, RGx, RA,
-        RGB, RGBx,
-        RGBA,
-        ARGB, BGRA
-    }
-
-    public static enum ImageChannelType {
-
-        SNORM_INT8,
-        SNORM_INT16,
-        UNORM_INT8,
-        UNROM_INT16,
-        UNORM_SHORT_565,
-        UNROM_SHORT_555,
-        UNORM_INT_101010,
-        SIGNED_INT8,
-        SIGNED_INT16,
-        SIGNED_INT32,
-        UNSIGNED_INT8,
-        UNSIGNED_INT16,
-        UNSIGNED_INT32,
-        HALF_FLOAT,
-        FLOAT
-    }
-
-    public static class ImageFormat { //Struct
-
-        public ImageChannelOrder channelOrder;
-        public ImageChannelType channelType;
-    }
-
-    public static enum ImageType {
-
-        IMAGE_1D,
-        IMAGE_1D_BUFFER,
-        IMAGE_2D,
-        IMAGE_3D,
-        IMAGE_1D_ARRAY,
-        IMAGE_2D_ARRAY
-    }
-
-    public static class ImageDescriptor { //Struct
-
-        public ImageType type;
-        public int width;
-        public int height;
-        public int depth;
-        public int arraySize;
-        public int rowPitch;
-        public int slicePitch;
-        public int numMipLevels;
-        public int numSamples;
-        public Buffer buffer;
-    }
-
     public abstract Image createImage(MemoryAccess access, ImageFormat format, ImageDescriptor descr, ByteBuffer hostPtr);
 	//TODO: add simplified methods for 1D, 2D, 3D textures
-
+    public abstract ImageFormat[] querySupportedFormats(MemoryAccess access, ImageType type);
+    
 	//Interop
     public abstract Buffer bindVertexBuffer(VertexBuffer vb);
     public abstract Buffer bindIndexBuffer(IndexBuffer ib);
