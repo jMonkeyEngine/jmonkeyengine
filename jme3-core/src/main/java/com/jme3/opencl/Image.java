@@ -233,4 +233,8 @@ public interface Image {
     Event fillAsync(CommandQueue queue, long[] origin, long[] region, int[] color);
     
     Event copyToBufferAsync(CommandQueue queue, Buffer dest, long[] srcOrigin, long[] srcRegion, long destOffset);
+    
+    
+    Event acquireImageForSharingAsync(CommandQueue queue);
+    Event releaseImageForSharingAsync(CommandQueue queue);
 }

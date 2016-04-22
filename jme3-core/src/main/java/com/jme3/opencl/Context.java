@@ -39,6 +39,8 @@ import com.jme3.opencl.Image.ImageFormat;
 import com.jme3.opencl.Image.ImageType;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.mesh.IndexBuffer;
+import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.Texture;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -78,9 +80,23 @@ public abstract class Context {
     public abstract ImageFormat[] querySupportedFormats(MemoryAccess access, ImageType type);
     
 	//Interop
-    public abstract Buffer bindVertexBuffer(VertexBuffer vb);
-    public abstract Buffer bindIndexBuffer(IndexBuffer ib);
-    public abstract Image bindImage(com.jme3.texture.Image image);
+    public abstract Buffer bindVertexBuffer(VertexBuffer vb, MemoryAccess access);
+
+    public abstract Image bindImage(com.jme3.texture.Image image, Texture.Type textureType, int miplevel, MemoryAccess access);
+    public Image bindImage(Texture texture, int miplevel, MemoryAccess access) {
+        return bindImage(texture.getImage(), texture.getType(), miplevel, access);
+    }
+    public Image bindImage(Texture texture, MemoryAccess access) {
+        return bindImage(texture, 0, access);
+    }
+    public Image bindRenderBuffer(FrameBuffer.RenderBuffer buffer, MemoryAccess access) {
+        if (buffer.getTexture() == null) {
+            return bindPureRenderBuffer(buffer, access);
+        } else {
+            return bindImage(buffer.getTexture(), access);
+        }
+    }
+    protected abstract Image bindPureRenderBuffer(FrameBuffer.RenderBuffer buffer, MemoryAccess access);
 
     public abstract Program createProgramFromSourceCode(String sourceCode);
     

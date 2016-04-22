@@ -46,9 +46,10 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** Sample 1 - how to get started with the most simple JME 3 application.
- * Display a blue 3D cube and view from all sides by
- * moving the mouse and pressing the WASD keys. */
+/**
+ * Simple test checking if the basic functions of the OpenCL wrapper work
+ * @author Sebastian Weiss
+ */
 public class HelloOpenCL extends SimpleApplication {
     private static final Logger LOG = Logger.getLogger(HelloOpenCL.class.getName());
 

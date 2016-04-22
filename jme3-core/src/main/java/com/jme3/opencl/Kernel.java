@@ -150,6 +150,8 @@ public abstract class Kernel {
             setArg(index, (LocalMem) arg);
         } else if (arg instanceof Buffer) {
             setArg(index, (Buffer) arg);
+        } else if (arg instanceof Image) {
+            setArg(index, (Image) arg);
         } else {
             throw new IllegalArgumentException("unknown kernel argument type: " + arg);
         }

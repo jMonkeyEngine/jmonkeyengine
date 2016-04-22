@@ -477,6 +477,9 @@ public class LwjglImage implements Image {
         long event = Utils.pointerBuffers[0].get(0);
         return new LwjglEvent(q.getCLEvent(event));
         //TODO: why does q.getCLEvent(event) return null?
+        //This is a bug in LWJGL: they forgot to include the line
+        //  if ( __result == CL_SUCCESS ) command_queue.registerCLEvent(event);
+        // after the native call
     }
 
     @Override
@@ -522,4 +525,21 @@ public class LwjglImage implements Image {
         return new LwjglEvent(q.getCLEvent(event));
     }
 
+    @Override
+    public Event acquireImageForSharingAsync(CommandQueue queue) {
+        Utils.pointerBuffers[0].rewind();
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10GL.clEnqueueAcquireGLObjects(q, image, null, Utils.pointerBuffers[0]);
+        Utils.checkError(ret, "clEnqueueAcquireGLObjects");
+        long event = Utils.pointerBuffers[0].get(0);
+        return new LwjglEvent(q.getCLEvent(event));
+    }
+    public Event releaseImageForSharingAsync(CommandQueue queue) {
+        Utils.pointerBuffers[0].rewind();
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10GL.clEnqueueReleaseGLObjects(q, image, null, Utils.pointerBuffers[0]);
+        Utils.checkError(ret, "clEnqueueReleaseGLObjects");
+        long event = Utils.pointerBuffers[0].get(0);
+        return new LwjglEvent(q.getCLEvent(event));
+    }
 }

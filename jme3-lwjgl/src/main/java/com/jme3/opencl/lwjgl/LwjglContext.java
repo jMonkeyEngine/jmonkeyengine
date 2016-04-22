@@ -31,26 +31,22 @@
  */
 package com.jme3.opencl.lwjgl;
 
-import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetKey;
-import com.jme3.asset.AssetManager;
 import com.jme3.opencl.*;
+import com.jme3.opencl.Context;
 import com.jme3.opencl.Image.ImageDescriptor;
 import com.jme3.opencl.Image.ImageFormat;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.mesh.IndexBuffer;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.Texture;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opencl.*;
-import sun.misc.IOUtils;
+import org.lwjgl.opengl.*;
 
 /**
  *
@@ -154,23 +150,58 @@ public class LwjglContext extends Context {
     }
 
     @Override
-    public Buffer bindVertexBuffer(VertexBuffer vb) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Buffer bindVertexBuffer(VertexBuffer vb, MemoryAccess access) {
+        int id = vb.getId();
+        if (id == -1) {
+            throw new IllegalArgumentException("vertex buffer was not yet uploaded to the GPU or is CPU only");
+        }
+        long flags = Utils.getMemoryAccessFlags(access);
+        Utils.errorBuffer.rewind();
+        CLMem mem = CL10GL.clCreateFromGLBuffer(context, flags, id, Utils.errorBuffer);
+        Utils.checkError(Utils.errorBuffer, "clCreateFromGLBuffer");
+        return new LwjglBuffer(mem);
     }
 
     @Override
-    public Buffer bindIndexBuffer(IndexBuffer ib) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public Image bindImage(com.jme3.texture.Image image, Texture.Type textureType, int miplevel, MemoryAccess access) {
+        int imageID = image.getId();
+        if (imageID == -1) {
+            throw new IllegalArgumentException("image was not yet uploaded to the GPU");
+        }
+        long memFlags = Utils.getMemoryAccessFlags(access);
+        int textureTarget = convertTextureType(textureType);
+        Utils.errorBuffer.rewind();
+        CLMem mem = CL12GL.clCreateFromGLTexture(context, memFlags, textureTarget, miplevel, imageID, Utils.errorBuffer);
+        Utils.checkError(Utils.errorBuffer, "clCreateFromGLTexture");
+        return new LwjglImage(mem);
     }
 
     @Override
-    public Image bindImage(com.jme3.texture.Image image) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    protected Image bindPureRenderBuffer(FrameBuffer.RenderBuffer buffer, MemoryAccess access) {
+        int renderbuffer = buffer.getId();
+        if (renderbuffer == -1) {
+            throw new IllegalArgumentException("renderbuffer was not yet uploaded to the GPU");
+        }
+        long memFlags = Utils.getMemoryAccessFlags(access);
+         Utils.errorBuffer.rewind();
+        CLMem mem = CL10GL.clCreateFromGLRenderbuffer(context, memFlags, renderbuffer, Utils.errorBuffer);
+        Utils.checkError(Utils.errorBuffer, "clCreateFromGLRenderbuffer");
+        return new LwjglImage(mem);
+    }
+    
+    private int convertTextureType(Texture.Type textureType) {
+        switch (textureType) {
+            case TwoDimensional: return GL11.GL_TEXTURE_2D;
+            case TwoDimensionalArray: return GL30.GL_TEXTURE_2D_ARRAY;
+            case ThreeDimensional: return GL12.GL_TEXTURE_3D;
+            case CubeMap: return GL13.GL_TEXTURE_CUBE_MAP;
+            default: throw new IllegalArgumentException("unknown texture type "+textureType);
+        }
     }
 
     @Override
     public Program createProgramFromSourceCode(String sourceCode) {
-        LOG.log(Level.INFO, "Create program from source:\n{0}", sourceCode);
+        LOG.log(Level.FINE, "Create program from source:\n{0}", sourceCode);
         Utils.errorBuffer.rewind();
         CLProgram p = CL10.clCreateProgramWithSource(context, sourceCode, Utils.errorBuffer);
         Utils.checkError(Utils.errorBuffer, "clCreateProgramWithSource");
