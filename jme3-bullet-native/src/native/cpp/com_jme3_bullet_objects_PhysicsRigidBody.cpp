@@ -434,7 +434,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        body->setDamping(body->getAngularDamping(), value);
+        body->setDamping(body->getLinearDamping(), value);
     }
 
     /*
