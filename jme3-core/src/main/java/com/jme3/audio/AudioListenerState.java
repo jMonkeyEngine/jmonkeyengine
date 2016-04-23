@@ -70,7 +70,7 @@ public class AudioListenerState extends BaseAppState {
 
     @Override
     public void render(RenderManager rm) {
-        if (!isEnabled()) {
+        if (!isEnabled() || listener == null) {
             return;
         }
 
