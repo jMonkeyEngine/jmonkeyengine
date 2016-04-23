@@ -38,7 +38,6 @@ import com.jme3.opencl.Image.ImageDescriptor;
 import com.jme3.opencl.Image.ImageFormat;
 import com.jme3.opencl.Image.ImageType;
 import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture;
 import java.io.BufferedReader;
@@ -55,7 +54,7 @@ import java.util.logging.Logger;
  *
  * @author Sebastian Weiss
  */
-public abstract class Context {
+public abstract class Context implements OpenCLObject {
     private static final Logger LOG = Logger.getLogger(Context.class.getName());
 
     public abstract List<? extends Device> getDevices();

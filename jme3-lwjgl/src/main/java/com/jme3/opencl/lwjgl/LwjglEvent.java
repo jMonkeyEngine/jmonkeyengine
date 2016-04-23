@@ -32,6 +32,7 @@
 package com.jme3.opencl.lwjgl;
 
 import com.jme3.opencl.Event;
+import com.jme3.opencl.OpenCLObjectManager;
 import java.util.logging.Logger;
 import org.lwjgl.opencl.CL10;
 import org.lwjgl.opencl.CLEvent;
@@ -42,17 +43,28 @@ import org.lwjgl.opencl.CLEvent;
  */
 public class LwjglEvent implements Event {
     private static final Logger LOG = Logger.getLogger(LwjglEvent.class.getName());
-    private final CLEvent event;
+    private CLEvent event;
 
     public LwjglEvent(CLEvent event) {
         this.event = event;
         if (event == null) {
             LOG.warning("event is null!");
+        } else {
+            OpenCLObjectManager.getInstance().registerObject(this);
         }
     }
 
     public CLEvent getEvent() {
         return event;
+    }
+    
+    protected void release() {
+        if (event != null && event.isValid()) {
+            int ret = CL10.clReleaseEvent(event);
+            event = null;
+            Utils.reportError(ret, "clReleaseEvent");
+            LOG.finer("Event deleted");
+        }
     }
 
     @Override
@@ -61,6 +73,7 @@ public class LwjglEvent implements Event {
             return;
         }
         CL10.clWaitForEvents(event);
+        release(); //short cut to save resources
     }
 
     @Override
@@ -70,6 +83,7 @@ public class LwjglEvent implements Event {
         }
         int status = event.getInfoInt(CL10.CL_EVENT_COMMAND_EXECUTION_STATUS);
         if (status == CL10.CL_SUCCESS) {
+            release(); //short cut to save resources
             return true;
         } else if (status < 0) {
             Utils.checkError(status, "EventStatus");
@@ -78,5 +92,28 @@ public class LwjglEvent implements Event {
             return false;
         }
     }
+
+    @Override
+    public ObjectReleaser getReleaser() {
+        return new ReleaserImpl(event);
+    }
     
+    private static class ReleaserImpl implements ObjectReleaser {
+        private CLEvent event;
+
+        private ReleaserImpl(CLEvent event) {
+            this.event = event;
+        }
+        
+        @Override
+        public void release() {
+            if (event != null && event.isValid()) {
+                int ret = CL10.clReleaseEvent(event);
+                event = null;
+                Utils.reportError(ret, "clReleaseEvent");
+                LOG.finer("Event deleted");
+            }
+        }
+        
+    }
 }

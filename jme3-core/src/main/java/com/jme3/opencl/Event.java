@@ -35,7 +35,7 @@ package com.jme3.opencl;
  *
  * @author Sebastian Weiss
  */
-public interface Event {
+public interface Event extends OpenCLObject {
 	
 	void waitForFinished();
 	

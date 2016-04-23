@@ -36,7 +36,6 @@ import com.jme3.opencl.Context;
 import com.jme3.opencl.Image.ImageDescriptor;
 import com.jme3.opencl.Image.ImageFormat;
 import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture;
 import java.nio.ByteBuffer;
@@ -60,6 +59,7 @@ public class LwjglContext extends Context {
     public LwjglContext(CLContext context, List<LwjglDevice> devices) {
         this.context = context;
         this.devices = devices;
+        OpenCLObjectManager.getInstance().registerObject(this);
     }
 
     public CLContext getContext() {
@@ -207,5 +207,27 @@ public class LwjglContext extends Context {
         Utils.checkError(Utils.errorBuffer, "clCreateProgramWithSource");
         return new LwjglProgram(p, this);
     }
-    
+
+    @Override
+    public ObjectReleaser getReleaser() {
+        return new ReleaserImpl(context, devices);
+    }
+    private static class ReleaserImpl implements ObjectReleaser {
+        private CLContext context;
+        private final List<LwjglDevice> devices;
+        private ReleaserImpl(CLContext mem, List<LwjglDevice> devices) {
+            this.context = mem;
+            this.devices = devices;
+        }
+        @Override
+        public void release() {
+            if (context != null) {
+                int ret = CL10.clReleaseContext(context);
+                context = null;
+                devices.clear();
+                Utils.reportError(ret, "clReleaseMemObject");
+            }
+        }
+        
+    }
 }

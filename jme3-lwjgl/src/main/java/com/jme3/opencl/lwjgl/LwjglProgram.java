@@ -33,8 +33,8 @@ package com.jme3.opencl.lwjgl;
 
 import com.jme3.opencl.Kernel;
 import com.jme3.opencl.KernelCompilationException;
+import com.jme3.opencl.OpenCLObjectManager;
 import com.jme3.opencl.Program;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.PointerBuffer;
@@ -53,6 +53,7 @@ public class LwjglProgram implements Program {
     public LwjglProgram(CLProgram program, LwjglContext context) {
         this.program = program;
         this.context = context;
+        OpenCLObjectManager.getInstance().registerObject(this);
     }
 
     public CLProgram getProgram() {
@@ -107,5 +108,26 @@ public class LwjglProgram implements Program {
         }
         return kx;
     }
-    
+
+    @Override
+    public ObjectReleaser getReleaser() {
+        return new ReleaserImpl(program);
+    }
+    private static class ReleaserImpl implements ObjectReleaser {
+        private CLProgram program;
+        private ReleaserImpl(CLProgram program) {
+            this.program = program;
+        }
+        @Override
+        public void release() {
+            //LWJGL Bug: releasing a program also released every! kernel associated with that program
+            /*
+            if (program != null) {
+                int ret = CL10.clReleaseProgram(program);
+                program = null;
+                Utils.reportError(ret, "clReleaseProgram");
+            }
+            */
+        }
+    }
 }

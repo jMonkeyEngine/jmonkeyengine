@@ -35,7 +35,7 @@ package com.jme3.opencl;
  *
  * @author Sebastian Weiss
  */
-public interface Program {
+public interface Program extends OpenCLObject {
 	
 	void build(String args) throws KernelCompilationException;
 	void build() throws KernelCompilationException;

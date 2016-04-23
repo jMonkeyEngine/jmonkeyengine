@@ -34,19 +34,32 @@ package com.jme3.opencl.lwjgl;
 import com.jme3.opencl.MappingAccess;
 import com.jme3.opencl.MemoryAccess;
 import com.jme3.opencl.OpenCLException;
+import java.lang.reflect.Field;
 import java.nio.*;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLUtil;
 import org.lwjgl.PointerBuffer;
-import org.lwjgl.opencl.CL10;
-import org.lwjgl.opencl.CL12;
-import org.lwjgl.opencl.Util;
+import org.lwjgl.opencl.*;
 
 /**
  *
  * @author Sebastian Weiss
  */
 public class Utils {
+    private static final Logger LOG = Logger.getLogger(Utils.class.getName());
+    private Utils() {}
+    
+    /** Maps OpenCL error token values to their String representations. 
+        Taken directly from org.lwjgl.opencl.Util
+     */
+	private static final Map<Integer, String> CL_ERROR_TOKENS = LWJGLUtil.getClassTokens(new LWJGLUtil.TokenFilter() {
+		public boolean accept(final Field field, final int value) {
+			return value < 0; // Currently, all OpenCL errors have negative values.
+		}
+	}, null, CL10.class, CL11.class, CL12.class, KHRGLSharing.class, KHRICD.class, APPLEGLSharing.class, EXTDeviceFission.class);
     
     public static int getMajorVersion(String version, String prefix) {
         String s = version.substring(prefix.length());
@@ -95,8 +108,27 @@ public class Utils {
         checkError(errorBuffer.get(0), callName);
     }
     public static void checkError(int error, String callName) {
-        //TODO: proper handling
-        Util.checkCLError(error);
+        if (error != CL10.CL_SUCCESS) {
+            String errname = getErrorName(error);
+            if (errname == null) {
+                errname = "UNKNOWN";
+            }
+            throw new OpenCLException("OpenCL error in " + callName + ": " + errname + " (0x" + Integer.toHexString(error) + ")", error);
+        }
+    }
+    
+    public static void reportError(int error, String callName) {
+        if (error != CL10.CL_SUCCESS) {
+            String errname = getErrorName(error);
+            if (errname == null) {
+                errname = "UNKNOWN";
+            }
+            LOG.log(Level.WARNING, "OpenCL error in {0}: {1} (0x{2})", new Object[]{callName, errname, Integer.toHexString(error)});
+        }
+    }
+    
+    public static String getErrorName(int code) {
+        return CL_ERROR_TOKENS.get(code);
     }
     
     public static long getMemoryAccessFlags(MemoryAccess ma) {
@@ -129,4 +161,5 @@ public class Utils {
             default: throw new IllegalArgumentException("Unknown mapping access: "+ma);
         }
     }
+
 }

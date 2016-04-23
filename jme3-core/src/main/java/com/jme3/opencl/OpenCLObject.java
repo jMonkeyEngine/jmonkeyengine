@@ -29,58 +29,17 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.opencl.lwjgl;
-
-import com.jme3.opencl.CommandQueue;
-import com.jme3.opencl.OpenCLObjectManager;
-import org.lwjgl.opencl.CL10;
-import org.lwjgl.opencl.CLCommandQueue;
+package com.jme3.opencl;
 
 /**
- *
+ * 
  * @author Sebastian Weiss
  */
-public class LwjglCommandQueue implements CommandQueue {
-
-    private final CLCommandQueue queue;
-
-    public LwjglCommandQueue(CLCommandQueue queue) {
-        this.queue = queue;
-        OpenCLObjectManager.getInstance().registerObject(this);
-    }
+public interface OpenCLObject {
     
-    public CLCommandQueue getQueue() {
-        return queue;
+    public static interface ObjectReleaser {
+        void release();
     }
-    
-    @Override
-    public void flush() {
-        int ret = CL10.clFlush(queue);
-        Utils.checkError(ret, "clFlush");
-    }
+    ObjectReleaser getReleaser();
 
-    @Override
-    public void finish() {
-        int ret = CL10.clFinish(queue);
-        Utils.checkError(ret, "clFinish");
-    }
-    
-    @Override
-    public ObjectReleaser getReleaser() {
-        return new ReleaserImpl(queue);
-    }
-    private static class ReleaserImpl implements ObjectReleaser {
-        private CLCommandQueue queue;
-        private ReleaserImpl(CLCommandQueue queue) {
-            this.queue = queue;
-        }
-        @Override
-        public void release() {
-            if (queue != null) {
-                int ret = CL10.clReleaseCommandQueue(queue);
-                queue = null;
-                Utils.reportError(ret, "clReleaseCommandQueue");
-            }
-        }
-    }
 }

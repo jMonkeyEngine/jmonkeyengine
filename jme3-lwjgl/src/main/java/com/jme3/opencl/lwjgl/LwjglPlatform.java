@@ -123,5 +123,5 @@ public final class LwjglPlatform implements Platform {
     public Collection<? extends String> getExtensions() {
         return Arrays.asList(platform.getInfoString(CL10.CL_PLATFORM_EXTENSIONS).split(" "));
     }
-    
+
 }

@@ -37,7 +37,7 @@ import java.nio.ByteBuffer;
  *
  * @author Sebastian Weiss
  */
-public abstract class Buffer {
+public abstract class Buffer implements OpenCLObject {
 
     public abstract int getSize();
 
@@ -154,4 +154,8 @@ public abstract class Buffer {
     }
     
     public abstract Event copyToImageAsync(CommandQueue queue, Image dest, long srcOffset, long[] destOrigin, long[] destRegion);
+    
+    public abstract Event acquireBufferForSharingAsync(CommandQueue queue);
+    public abstract Event releaseBufferForSharingAsync(CommandQueue queue);
+    //TODO: add variants of the above two methods that don't create the event object, but release the event immediately
 }

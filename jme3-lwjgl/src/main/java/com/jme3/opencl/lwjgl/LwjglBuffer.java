@@ -45,6 +45,7 @@ public class LwjglBuffer extends Buffer {
 
     public LwjglBuffer(CLMem buffer) {
         this.buffer = buffer;
+        OpenCLObjectManager.getInstance().registerObject(this);
     }
     public CLMem getBuffer() {
         return buffer;
@@ -183,5 +184,44 @@ public class LwjglBuffer extends Buffer {
         long event = Utils.pointerBuffers[0].get(0);
         return new LwjglEvent(q.getCLEvent(event));
     }
-    
+
+    @Override
+    public Event acquireBufferForSharingAsync(CommandQueue queue) {
+        Utils.pointerBuffers[0].rewind();
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10GL.clEnqueueAcquireGLObjects(q, buffer, null, Utils.pointerBuffers[0]);
+        Utils.checkError(ret, "clEnqueueAcquireGLObjects");
+        long event = Utils.pointerBuffers[0].get(0);
+        return new LwjglEvent(q.getCLEvent(event));
+    }
+
+    @Override
+    public Event releaseBufferForSharingAsync(CommandQueue queue) {
+        Utils.pointerBuffers[0].rewind();
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10GL.clEnqueueReleaseGLObjects(q, buffer, null, Utils.pointerBuffers[0]);
+        Utils.checkError(ret, "clEnqueueReleaseGLObjects");
+        long event = Utils.pointerBuffers[0].get(0);
+        return new LwjglEvent(q.getCLEvent(event));
+    }
+
+    @Override
+    public ObjectReleaser getReleaser() {
+        return new ReleaserImpl(buffer);
+    }
+    private static class ReleaserImpl implements ObjectReleaser {
+        private CLMem mem;
+        private ReleaserImpl(CLMem mem) {
+            this.mem = mem;
+        }
+        @Override
+        public void release() {
+            if (mem != null) {
+                int ret = CL10.clReleaseMemObject(mem);
+                mem = null;
+                Utils.reportError(ret, "clReleaseMemObject");
+            }
+        }
+        
+    }
 }

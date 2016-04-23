@@ -40,7 +40,7 @@ import java.nio.ByteBuffer;
  *
  * @author Sebastian Weiss
  */
-public abstract class Kernel {
+public abstract class Kernel implements OpenCLObject {
     protected final WorkSize globalWorkSize;
     protected final WorkSize workGroupSize;
 
@@ -180,4 +180,6 @@ public abstract class Kernel {
         return Run(queue);
     }
 
+    //TODO: add variants of the above three methods that don't create the event object, but release the event immediately
+    
 }

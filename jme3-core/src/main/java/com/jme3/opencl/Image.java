@@ -39,7 +39,7 @@ import java.util.Objects;
  *
  * @author Sebastian Weiss
  */
-public interface Image {
+public interface Image extends OpenCLObject {
     
     public static enum ImageChannelType {
         SNORM_INT8,
@@ -237,4 +237,5 @@ public interface Image {
     
     Event acquireImageForSharingAsync(CommandQueue queue);
     Event releaseImageForSharingAsync(CommandQueue queue);
+    //TODO: add variants of the above two methods that don't create the event object, but release the event immediately
 }

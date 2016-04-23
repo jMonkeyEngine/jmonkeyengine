@@ -61,6 +61,7 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
     private Vector2f C;
     private Image texCL;
     private boolean dragging;
+    private int gcCounter;
 
     public static void main(String[] args){
         TestWriteToTexture app = new TestWriteToTexture();
@@ -84,6 +85,7 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
         guiNode.attachChild(pic);
         
         initCounter = 0;
+        gcCounter = 0;
         
         flyCam.setEnabled(false);
         inputManager.setCursorVisible(true);
@@ -111,6 +113,13 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
         } else {
             updateOpenCL(tpf);
         }
+        
+        gcCounter++;
+        if (gcCounter > 10) {
+            Runtime.getRuntime().gc();
+            gcCounter = 0;
+        }
+//        Runtime.getRuntime().runFinalization();
     }
     
     private void initOpenCL1() {

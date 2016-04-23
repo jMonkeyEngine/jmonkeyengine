@@ -50,6 +50,7 @@ public class LwjglImage implements Image {
 
     public LwjglImage(CLMem image) {
         this.image = image;
+        OpenCLObjectManager.getInstance().registerObject(this);
     }
 
     public CLMem getImage() {
@@ -541,5 +542,25 @@ public class LwjglImage implements Image {
         Utils.checkError(ret, "clEnqueueReleaseGLObjects");
         long event = Utils.pointerBuffers[0].get(0);
         return new LwjglEvent(q.getCLEvent(event));
+    }
+    
+    @Override
+    public ObjectReleaser getReleaser() {
+        return new ReleaserImpl(image);
+    }
+    private static class ReleaserImpl implements ObjectReleaser {
+        private CLMem mem;
+        private ReleaserImpl(CLMem mem) {
+            this.mem = mem;
+        }
+        @Override
+        public void release() {
+            if (mem != null) {
+                int ret = CL10.clReleaseMemObject(mem);
+                mem = null;
+                Utils.reportError(ret, "clReleaseMemObject");
+            }
+        }
+        
     }
 }

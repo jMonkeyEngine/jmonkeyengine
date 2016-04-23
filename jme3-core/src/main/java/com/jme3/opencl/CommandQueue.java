@@ -31,13 +31,11 @@
  */
 package com.jme3.opencl;
 
-import java.nio.ByteBuffer;
-
 /**
  *
  * @author Sebastian Weiss
  */
-public interface CommandQueue {
+public interface CommandQueue extends OpenCLObject {
 
     void flush();
 

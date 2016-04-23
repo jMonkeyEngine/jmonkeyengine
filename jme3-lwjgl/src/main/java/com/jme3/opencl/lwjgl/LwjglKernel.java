@@ -52,6 +52,7 @@ public class LwjglKernel extends Kernel {
 
     public LwjglKernel(CLKernel kernel) {
         this.kernel = kernel;
+        OpenCLObjectManager.getInstance().registerObject(this);
     }
 
     public CLKernel getKernel() {
@@ -215,5 +216,23 @@ public class LwjglKernel extends Kernel {
         Utils.checkError(ret, "clEnqueueNDRangeKernel");
         return new LwjglEvent(q.getCLEvent(Utils.pointerBuffers[0].get(0)));
     }
-    
+
+    @Override
+    public ObjectReleaser getReleaser() {
+        return new ReleaserImpl(kernel);
+    }
+    private static class ReleaserImpl implements ObjectReleaser {
+        private CLKernel kernel;
+        private ReleaserImpl(CLKernel kernel) {
+            this.kernel = kernel;
+        }
+        @Override
+        public void release() {
+            if (kernel != null) {
+                int ret = CL10.clReleaseKernel(kernel);
+                kernel = null;
+                Utils.reportError(ret, "clReleaseKernel");
+            }
+        }
+    }
 }
