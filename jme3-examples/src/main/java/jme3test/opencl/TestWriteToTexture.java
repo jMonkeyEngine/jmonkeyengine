@@ -46,7 +46,9 @@ import com.jme3.ui.Picture;
 import java.util.logging.Logger;
 
 /**
- * This test class tests the capability to write to a GL texture from OpenCL
+ * This test class tests the capability to write to a GL texture from OpenCL.
+ * Move the mouse around while pressing the left mouse key to modify the fractal.
+ * 
  * @author Sebastian Weiss
  */
 public class TestWriteToTexture extends SimpleApplication implements AnalogListener, ActionListener {
@@ -67,7 +69,7 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
         TestWriteToTexture app = new TestWriteToTexture();
         AppSettings settings = new AppSettings(true);
         settings.setOpenCLSupport(true);
-        settings.setVSync(true);
+        settings.setVSync(false);
         app.setSettings(settings);
         app.start(); // start the game
     }

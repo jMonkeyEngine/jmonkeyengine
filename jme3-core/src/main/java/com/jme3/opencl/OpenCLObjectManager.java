@@ -43,8 +43,8 @@ import java.util.logging.Logger;
  */
 public class OpenCLObjectManager {
     private static final Logger LOG = Logger.getLogger(OpenCLObjectManager.class.getName());
-    private static final Level LOG_LEVEL1 = Level.INFO;
-    private static final Level LOG_LEVEL2 = Level.INFO;
+    private static final Level LOG_LEVEL1 = Level.FINER;
+    private static final Level LOG_LEVEL2 = Level.FINE;
     /**
      * Call Runtime.getRuntime().gc() every these frames
      */
@@ -84,6 +84,10 @@ public class OpenCLObjectManager {
     }
         
     public void deleteUnusedObjects() {
+        if (activeObjects.isEmpty()) {
+            return; //nothing to do
+        }
+        
         gcCounter++;
         if (gcCounter >= GC_FREQUENCY) {
             //The program is that the OpenCLObjects are so small that they are 

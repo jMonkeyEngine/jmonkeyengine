@@ -39,7 +39,7 @@ import com.jme3.opencl.Device;
 import com.jme3.opencl.PlatformChooser;
 import com.jme3.opencl.lwjgl.LwjglDevice;
 import com.jme3.opencl.lwjgl.LwjglPlatform;
-import com.jme3.opencl.lwjgl.PlatformChooserImpl;
+import com.jme3.opencl.DefaultPlatformChooser;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.lwjgl.LwjglGL;
@@ -319,7 +319,7 @@ public abstract class LwjglContext implements JmeContext {
             }
         }
         if (chooser == null) {
-            chooser = new PlatformChooserImpl();
+            chooser = new DefaultPlatformChooser();
         }
         List<? extends Device> choosenDevices = chooser.chooseDevices(platforms);
         List<CLDevice> devices = new ArrayList<>(choosenDevices.size());

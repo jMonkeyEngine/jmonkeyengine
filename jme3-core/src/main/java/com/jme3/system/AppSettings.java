@@ -31,6 +31,7 @@
  */
 package com.jme3.system;
 
+import com.jme3.opencl.DefaultPlatformChooser;
 import com.jme3.opencl.PlatformChooser;
 import java.io.IOException;
 import java.io.InputStream;
@@ -162,6 +163,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("Resizable", false);
         defaults.put("SwapBuffers", true);
         defaults.put("OpenCL", false);
+        defaults.put("OpenCLPlatformChooser", DefaultPlatformChooser.class.getName());
         //  defaults.put("Icons", null);
     }
 
@@ -1039,7 +1041,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * Sets a custom platform chooser. This chooser specifies which platform and
      * which devices are used for the OpenCL context.
      * 
-     * Default: not set, an implementation defined one is used.
+     * Default: an implementation defined one.
      * 
      * @param chooser the class of the chooser, must have a default constructor
      */

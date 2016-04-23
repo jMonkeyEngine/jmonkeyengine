@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.opencl.lwjgl;
+package com.jme3.opencl;
 
 import com.jme3.opencl.Device;
 import com.jme3.opencl.Platform;
@@ -42,8 +42,8 @@ import java.util.logging.Logger;
  *
  * @author Sebastian Weiss
  */
-public class PlatformChooserImpl implements PlatformChooser {
-    private static final Logger LOG = Logger.getLogger(PlatformChooserImpl.class.getName());
+public class DefaultPlatformChooser implements PlatformChooser {
+    private static final Logger LOG = Logger.getLogger(DefaultPlatformChooser.class.getName());
 
     @Override
     public List<? extends Device> chooseDevices(List<? extends Platform> platforms) {
