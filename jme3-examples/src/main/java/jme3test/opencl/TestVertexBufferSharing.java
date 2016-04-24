@@ -33,40 +33,34 @@
 package jme3test.opencl;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.input.MouseInput;
-import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.AnalogListener;
-import com.jme3.input.controls.MouseAxisTrigger;
-import com.jme3.input.controls.MouseButtonTrigger;
-import com.jme3.math.Vector2f;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.opencl.*;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
-import com.jme3.texture.Texture2D;
-import com.jme3.ui.Picture;
 import java.util.logging.Logger;
 
 /**
- * This test class tests the capability to write to a GL texture from OpenCL.
- * Move the mouse around while pressing the left mouse key to modify the fractal.
+ * This test class tests the capability to read and modify an OpenGL vertex buffer.
  * 
  * @author Sebastian Weiss
  */
-public class TestWriteToTexture extends SimpleApplication implements AnalogListener, ActionListener {
-    private static final Logger LOG = Logger.getLogger(TestWriteToTexture.class.getName());
-    private static final float MOUSE_SPEED = 0.5f;
+public class TestVertexBufferSharing extends SimpleApplication {
+    private static final Logger LOG = Logger.getLogger(TestVertexBufferSharing.class.getName());
     
-    private Texture2D tex;
     private int initCounter;
     private Context clContext;
     private CommandQueue clQueue;
+    private Geometry geom;
+    private Buffer buffer;
     private Kernel kernel;
-    private Vector2f C;
-    private Image texCL;
-    private boolean dragging;
-    private int gcCounter;
+    private WorkSize ws;
+    private float time;
 
     public static void main(String[] args){
-        TestWriteToTexture app = new TestWriteToTexture();
+        TestVertexBufferSharing app = new TestVertexBufferSharing();
         AppSettings settings = new AppSettings(true);
         settings.setOpenCLSupport(true);
         settings.setVSync(false);
@@ -78,26 +72,18 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
     public void simpleInitApp() {
         initOpenCL1();
         
-        tex = new Texture2D(settings.getWidth(), settings.getHeight(), 1, com.jme3.texture.Image.Format.RGBA8);
-        Picture pic = new Picture("julia");
-        pic.setTexture(assetManager, tex, true);
-        pic.setPosition(0, 0);
-        pic.setWidth(settings.getWidth());
-        pic.setHeight(settings.getHeight());
-        guiNode.attachChild(pic);
+        Box b = new Box(1, 1, 1); // create cube shape
+        geom = new Geometry("Box", b);  // create cube geometry from the shape
+        Material mat = new Material(assetManager,
+          "Common/MatDefs/Misc/Unshaded.j3md");  // create a simple material
+        mat.setColor("Color", ColorRGBA.Blue);   // set color of material to blue
+        geom.setMaterial(mat);                   // set the cube's material
+        rootNode.attachChild(geom);              // make the cube appear in the scene
         
         initCounter = 0;
-        gcCounter = 0;
+        time = 0;
         
-        flyCam.setEnabled(false);
-        inputManager.setCursorVisible(true);
-        inputManager.addMapping("right", new MouseAxisTrigger(MouseInput.AXIS_X, false));
-        inputManager.addMapping("left", new MouseAxisTrigger(MouseInput.AXIS_X, true));
-        inputManager.addMapping("up", new MouseAxisTrigger(MouseInput.AXIS_Y, false));
-        inputManager.addMapping("down", new MouseAxisTrigger(MouseInput.AXIS_Y, true));
-        inputManager.addMapping("drag", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
-        inputManager.addListener(this, "right", "left", "up", "down", "drag");
-        dragging = false;
+        flyCam.setDragToRotate(true);
     }
 
     @Override
@@ -115,55 +101,44 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
         } else {
             updateOpenCL(tpf);
         }
-        
     }
     
     private void initOpenCL1() {
         clContext = context.getOpenCLContext();
         clQueue = clContext.createQueue();
         //create kernel
-        Program program = clContext.createProgramFromSourceFiles(assetManager, "jme3test/opencl/JuliaSet.cl");
+        String source = ""
+                + "__kernel void ScaleKernel(__global float* vb, float scale)\n"
+                + "{\n"
+                + "  int idx = get_global_id(0);\n"
+                + "  float3 pos = vload3(idx, vb);\n"
+                + "  pos *= scale;\n"
+                + "  vstore3(pos, idx, vb);\n"
+                + "}\n";
+        Program program = clContext.createProgramFromSourceCode(source);
         program.build();
-        kernel = program.createKernel("JuliaSet");
-        C = new Vector2f(0.12f, -0.2f);
+        kernel = program.createKernel("ScaleKernel");
     }
     private void initOpenCL2() {
-        //bind image to OpenCL
-        texCL = clContext.bindImage(tex, MemoryAccess.WRITE_ONLY);
+        //bind vertex buffer to OpenCL
+        VertexBuffer vb = geom.getMesh().getBuffer(VertexBuffer.Type.Position);
+        buffer = clContext.bindVertexBuffer(vb, MemoryAccess.READ_WRITE);
+        ws = new WorkSize(geom.getMesh().getVertexCount());
     }
     private void updateOpenCL(float tpf) {
+        //advect time
+        time += tpf;
+        
         //aquire resource
-        texCL.acquireImageForSharingAsync(clQueue);
+        buffer.acquireBufferForSharingAsync(clQueue);
         //no need to wait for the returned event, since the kernel implicitely waits for it (same command queue)
         
         //execute kernel
-        kernel.Run1(clQueue, new WorkSize(settings.getWidth(), settings.getHeight()), texCL, C, 16);
+        float scale = (float) Math.pow(1.1, (1.0 - time%2) / 16.0);
+        kernel.Run1(clQueue, ws, buffer, scale);
         
         //release resource
-        texCL.releaseImageForSharingAsync(clQueue);
+        buffer.releaseBufferForSharingAsync(clQueue);
     }
 
-    @Override
-    public void onAnalog(String name, float value, float tpf) {
-        if (!dragging) {
-            return;
-        }
-        if ("left".equals(name)) {
-            C.x -= tpf * MOUSE_SPEED;
-        } else if ("right".equals(name)) {
-            C.x += tpf * MOUSE_SPEED;
-        } else if ("up".equals(name)) {
-            C.y -= tpf * MOUSE_SPEED;
-        } else if ("down".equals(name)) {
-            C.y += tpf * MOUSE_SPEED;
-        }
-    }
-
-    @Override
-    public void onAction(String name, boolean isPressed, float tpf) {
-        if ("drag".equals(name)) {
-            dragging = isPressed;
-            inputManager.setCursorVisible(!isPressed);
-        }
-    }
 }
