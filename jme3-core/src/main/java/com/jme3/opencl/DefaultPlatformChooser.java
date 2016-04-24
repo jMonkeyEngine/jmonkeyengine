@@ -31,15 +31,14 @@
  */
 package com.jme3.opencl;
 
-import com.jme3.opencl.Device;
-import com.jme3.opencl.Platform;
-import com.jme3.opencl.PlatformChooser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 /**
- *
+ * A default implementation of {@link PlatformChooser}.
+ * It favors GPU devices with OpenGL sharing, then any devices with OpenGL sharing,
+ * then any possible device.
  * @author Sebastian Weiss
  */
 public class DefaultPlatformChooser implements PlatformChooser {

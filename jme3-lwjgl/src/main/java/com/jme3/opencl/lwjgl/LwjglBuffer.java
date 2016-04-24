@@ -52,8 +52,8 @@ public class LwjglBuffer extends Buffer {
     }
     
     @Override
-    public int getSize() {
-        return buffer.getInfoInt(CL10.CL_MEM_SIZE);
+    public long getSize() {
+        return buffer.getInfoSize(CL10.CL_MEM_SIZE);
     }
 
     @Override
@@ -62,18 +62,18 @@ public class LwjglBuffer extends Buffer {
     }
 
     @Override
-    public void read(CommandQueue queue, ByteBuffer dest, int size, int offset) {
+    public void read(CommandQueue queue, ByteBuffer dest, long size, long offset) {
         //Note: LWJGL does not support the size parameter, I have to set the buffer limit
-        dest.limit(dest.position() + size);
+        dest.limit((int) (dest.position() + size));
         int ret = CL10.clEnqueueReadBuffer(((LwjglCommandQueue)queue).getQueue(), 
                 buffer, CL10.CL_TRUE, offset, dest, null, null);
         Utils.checkError(ret, "clEnqueueReadBuffer");
     }
 
     @Override
-    public Event readAsync(CommandQueue queue, ByteBuffer dest, int size, int offset) {
+    public Event readAsync(CommandQueue queue, ByteBuffer dest, long size, long offset) {
         //Note: LWJGL does not support the size parameter, I have to set the buffer limit
-        dest.limit(dest.position() + size);
+        dest.limit((int) (dest.position() + size));
         Utils.pointerBuffers[0].rewind();
         CLCommandQueue q = ((LwjglCommandQueue)queue).getQueue();
         int ret = CL10.clEnqueueReadBuffer(q, buffer, CL10.CL_FALSE, offset, dest, null, Utils.pointerBuffers[0]);
@@ -83,18 +83,18 @@ public class LwjglBuffer extends Buffer {
     }
 
     @Override
-    public void write(CommandQueue queue, ByteBuffer src, int size, int offset) {
+    public void write(CommandQueue queue, ByteBuffer src, long size, long offset) {
         //Note: LWJGL does not support the size parameter, I have to set the buffer limit
-        src.limit(src.position() + size);
+        src.limit((int) (src.position() + size));
         CLCommandQueue q = ((LwjglCommandQueue)queue).getQueue();
         int ret = CL10.clEnqueueWriteBuffer(q, buffer, CL10.CL_TRUE, offset, src, null, null);
         Utils.checkError(ret, "clEnqueueWriteBuffer");
     }
 
     @Override
-    public Event writeAsync(CommandQueue queue, ByteBuffer src, int size, int offset) {
+    public Event writeAsync(CommandQueue queue, ByteBuffer src, long size, long offset) {
         //Note: LWJGL does not support the size parameter, I have to set the buffer limit
-        src.limit(src.position() + size);
+        src.limit((int) (src.position() + size));
         Utils.pointerBuffers[0].rewind();
         CLCommandQueue q = ((LwjglCommandQueue)queue).getQueue();
         int ret = CL10.clEnqueueWriteBuffer(q, buffer, CL10.CL_FALSE, offset, src, null, Utils.pointerBuffers[0]);
@@ -104,7 +104,7 @@ public class LwjglBuffer extends Buffer {
     }
 
     @Override
-    public void copyTo(CommandQueue queue, Buffer dest, int size, int srcOffset, int destOffset) {
+    public void copyTo(CommandQueue queue, Buffer dest, long size, long srcOffset, long destOffset) {
         CLCommandQueue q = ((LwjglCommandQueue)queue).getQueue();
         Utils.pointerBuffers[0].rewind();
         int ret = CL10.clEnqueueCopyBuffer(q, buffer, ((LwjglBuffer) dest).buffer, srcOffset, destOffset, size, null, Utils.pointerBuffers[0]);
@@ -115,7 +115,7 @@ public class LwjglBuffer extends Buffer {
     }
 
     @Override
-    public Event copyToAsync(CommandQueue queue, Buffer dest, int size, int srcOffset, int destOffset) {
+    public Event copyToAsync(CommandQueue queue, Buffer dest, long size, long srcOffset, long destOffset) {
         CLCommandQueue q = ((LwjglCommandQueue)queue).getQueue();
         Utils.pointerBuffers[0].rewind();
         int ret = CL10.clEnqueueCopyBuffer(q, buffer, ((LwjglBuffer) dest).buffer, srcOffset, destOffset, size, null, Utils.pointerBuffers[0]);
@@ -125,7 +125,7 @@ public class LwjglBuffer extends Buffer {
     }
 
     @Override
-    public ByteBuffer map(CommandQueue queue, int size, int offset, MappingAccess access) {
+    public ByteBuffer map(CommandQueue queue, long size, long offset, MappingAccess access) {
         CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
         long flags = Utils.getMappingAccessFlags(access);
         Utils.errorBuffer.rewind();
@@ -146,7 +146,7 @@ public class LwjglBuffer extends Buffer {
     }
 
     @Override
-    public com.jme3.opencl.Buffer.AsyncMapping mapAsync(CommandQueue queue, int size, int offset, MappingAccess access) {
+    public com.jme3.opencl.Buffer.AsyncMapping mapAsync(CommandQueue queue, long size, long offset, MappingAccess access) {
         Utils.pointerBuffers[0].rewind();
         Utils.errorBuffer.rewind();
         CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
@@ -158,7 +158,7 @@ public class LwjglBuffer extends Buffer {
     }
 
     @Override
-    public Event fillAsync(CommandQueue queue, ByteBuffer pattern, int size, int offset) {
+    public Event fillAsync(CommandQueue queue, ByteBuffer pattern, long size, long offset) {
         Utils.pointerBuffers[0].rewind();
         CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
         int ret = CL12.clEnqueueFillBuffer(q, buffer, pattern, offset, size, null, Utils.pointerBuffers[0]);

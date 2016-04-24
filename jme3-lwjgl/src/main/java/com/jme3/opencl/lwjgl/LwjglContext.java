@@ -183,7 +183,7 @@ public class LwjglContext extends Context {
             throw new IllegalArgumentException("renderbuffer was not yet uploaded to the GPU");
         }
         long memFlags = Utils.getMemoryAccessFlags(access);
-         Utils.errorBuffer.rewind();
+        Utils.errorBuffer.rewind();
         CLMem mem = CL10GL.clCreateFromGLRenderbuffer(context, memFlags, renderbuffer, Utils.errorBuffer);
         Utils.checkError(Utils.errorBuffer, "clCreateFromGLRenderbuffer");
         return new LwjglImage(mem);

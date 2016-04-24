@@ -31,7 +31,13 @@
  */
 package com.jme3.opencl;
 
-
+/**
+ * This exception is thrown by {@link Program#build() } and {@link Program#build(java.lang.String) }
+ * when the compilation failed.
+ * The error log returned by {@link #getLog() } contains detailed information
+ * where the error occured.
+ * @author Sebastian Weiss
+ */
 public class KernelCompilationException extends OpenCLException {
 
 	private final String log;
@@ -41,6 +47,10 @@ public class KernelCompilationException extends OpenCLException {
 		this.log = log;
 	}
 
+    /**
+     * The output of the compiler
+     * @return 
+     */
 	public String getLog() {
 		return log;
 	}
