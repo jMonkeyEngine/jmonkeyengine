@@ -266,7 +266,7 @@ public class TestJoystick extends SimpleApplication {
         }
  
         public void setAxisValue( JoystickAxis axis, float value ) {
-           //System.out.println( "Axis:" + axis.getName() + "=" + value );
+            System.out.println( "Axis:" + axis.getName() + "=" + value );
             if( axis == axis.getJoystick().getXAxis() ) {
                 setXAxis(value);
             } else if( axis == axis.getJoystick().getYAxis() ) {
