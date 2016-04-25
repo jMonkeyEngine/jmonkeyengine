@@ -1,11 +1,15 @@
 package jme3test.input;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.collision.CollisionResult;
+import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapText;
 import com.jme3.input.Joystick;
 import com.jme3.input.JoystickAxis;
 import com.jme3.input.JoystickButton;
 import com.jme3.input.RawInputListener;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
 import com.jme3.input.event.KeyInputEvent;
@@ -16,7 +20,10 @@ import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Quad;
@@ -33,6 +40,7 @@ public class TestJoystick extends SimpleApplication {
     private GamepadView gamepad;
     private Node joystickInfo;
     private float yInfo = 0;
+    private JoystickButton lastButton;
 
     public static void main(String[] args){
         TestJoystick app = new TestJoystick();
@@ -44,6 +52,8 @@ public class TestJoystick extends SimpleApplication {
     
     @Override
     public void simpleInitApp() {
+        getFlyByCamera().setEnabled(false);
+
         Joystick[] joysticks = inputManager.getJoysticks();
         if (joysticks == null)
             throw new IllegalStateException("Cannot find any joysticks!");
@@ -54,9 +64,9 @@ public class TestJoystick extends SimpleApplication {
             out.close();
         } catch( IOException e ) {
             throw new RuntimeException( "Error writing joystick dump", e );
-        }
+        }   
 
- 
+
         int gamepadSize = cam.getHeight() / 2;
         float scale = gamepadSize / 512.0f;        
         gamepad = new GamepadView();       
@@ -71,6 +81,18 @@ public class TestJoystick extends SimpleApplication {
         // Add a raw listener because it's eisier to get all joystick events
         // this way.
         inputManager.addRawInputListener( new JoystickEventListener() );
+        
+        // add action listener for mouse click 
+        // to all easier custom mapping
+        inputManager.addMapping("mouseClick", new MouseButtonTrigger(mouseInput.BUTTON_LEFT));
+        inputManager.addListener(new ActionListener() {
+            @Override
+            public void onAction(String name, boolean isPressed, float tpf) {
+                if(isPressed){
+                    pickGamePad(getInputManager().getCursorPosition());
+                }
+            }
+        }, "mouseClick");
     }
 
     protected void dumpJoysticks( Joystick[] joysticks, PrintWriter out ) {
@@ -199,7 +221,7 @@ public class TestJoystick extends SimpleApplication {
             leftStick = new Geometry( "leftStick", new Quad(64, 64) );
             leftStick.setMaterial(m);
             attachChild(leftStick);
-            rightStick = new Geometry( "leftStick", new Quad(64, 64) );
+            rightStick = new Geometry( "rightStick", new Quad(64, 64) );
             rightStick.setMaterial(m);
             attachChild(rightStick);
 
@@ -288,6 +310,7 @@ public class TestJoystick extends SimpleApplication {
         public void setButtonValue( JoystickButton button, boolean isPressed ) {
             System.out.println( "Button:" + button.getName() + "=" + (isPressed ? "Down" : "Up") );
             setButtonValue( button.getLogicalId(), isPressed );
+            lastButton = button;
         }
 
         protected void setButtonValue( String name, boolean isPressed ) {
@@ -388,5 +411,33 @@ public class TestJoystick extends SimpleApplication {
             state--;
             resetState();
         } 
+    }
+    
+    private void pickGamePad(Vector2f mouseLoc){
+        if (lastButton != null) {
+            CollisionResults cresults = pick(cam, mouseLoc, gamepad);
+            for (CollisionResult cr : cresults) {
+                Node n = cr.getGeometry().getParent();
+                if (n != null && (n instanceof ButtonView)) {
+                    String b = ((ButtonView) n).getName().substring("Button:".length());
+                    String name = lastButton.getJoystick().getName().replaceAll(" ", "\\\\ ");
+                    String id = lastButton.getLogicalId().replaceAll(" ", "\\\\ ");
+                    System.out.println(name + "." + id + "=" + b);
+                    return;
+                }
+            }
+        }
+    }
+    
+    private static CollisionResults pick(Camera cam, Vector2f mouseLoc, Node node) {
+        CollisionResults results = new CollisionResults();
+        Ray ray = new Ray();
+        Vector3f pos = new Vector3f(mouseLoc.x, mouseLoc.y, -1);
+        Vector3f dir = new Vector3f(mouseLoc.x, mouseLoc.y, 1);
+        dir.subtractLocal(pos).normalizeLocal();
+        ray.setOrigin(pos);
+        ray.setDirection(dir);
+        node.collideWith(ray, results);
+        return results;
     }
 }
