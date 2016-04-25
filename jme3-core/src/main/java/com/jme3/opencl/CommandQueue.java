@@ -32,13 +32,33 @@
 package com.jme3.opencl;
 
 /**
- *
+ * Wrapper for an OpenCL command queue.
+ * The command queue serializes every GPU function call: By passing the same
+ * queue to OpenCL function (buffer, image operations, kernel calls), it is 
+ * ensured that they are executed in the order in which they are passed.
+ * <br>
+ * Each command queue is associtated with exactly one device: that device
+ * is specified on creation ({@link Context#createQueue(com.jme3.opencl.Device) })
+ * and all commands are sent to this device.
  * @author Sebastian Weiss
  */
 public interface CommandQueue extends OpenCLObject {
 
+    /**
+     * Issues all previously queued OpenCL commands in command_queue to the
+     * device associated with command queue. Flush only guarantees that all
+     * queued commands to command_queue will eventually be submitted to the
+     * appropriate device. There is no guarantee that they will be complete
+     * after flush returns.
+     */
     void flush();
 
+    /**
+     * Blocks until all previously queued OpenCL commands in command queue are
+     * issued to the associated device and have completed. Finish does not
+     * return until all previously queued commands in command queue have been
+     * processed and completed. Finish is also a synchronization point.
+     */
     void finish();
 
 }

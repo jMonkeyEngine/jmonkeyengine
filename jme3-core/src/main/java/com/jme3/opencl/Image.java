@@ -131,6 +131,7 @@ public interface Image extends OpenCLObject {
         public long arraySize;
         public long rowPitch;
         public long slicePitch;
+        public ByteBuffer hostPtr;
         /*
         public int numMipLevels;  //They must always be set to zero
         public int numSamples;
@@ -139,7 +140,7 @@ public interface Image extends OpenCLObject {
         public ImageDescriptor() {
         }
 
-        public ImageDescriptor(ImageType type, long width, long height, long depth, long arraySize, long rowPitch, long slicePitch) {
+        public ImageDescriptor(ImageType type, long width, long height, long depth, long arraySize, long rowPitch, long slicePitch, ByteBuffer hostPtr) {
             this.type = type;
             this.width = width;
             this.height = height;
@@ -147,6 +148,7 @@ public interface Image extends OpenCLObject {
             this.arraySize = arraySize;
             this.rowPitch = rowPitch;
             this.slicePitch = slicePitch;
+            this.hostPtr = hostPtr;
         }
         public ImageDescriptor(ImageType type, long width, long height, long depth, long arraySize) {
             this.type = type;
@@ -156,6 +158,7 @@ public interface Image extends OpenCLObject {
             this.arraySize = arraySize;
             this.rowPitch = 0;
             this.slicePitch = 0;
+            hostPtr = null;
         }
 
         @Override

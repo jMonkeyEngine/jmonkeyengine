@@ -100,7 +100,7 @@ public class LwjglContext extends Context {
     }
 
     @Override
-    public Image createImage(MemoryAccess access, ImageFormat format, ImageDescriptor descr, ByteBuffer hostPtr) {
+    public Image createImage(MemoryAccess access, ImageFormat format, ImageDescriptor descr) {
         long memFlags = Utils.getMemoryAccessFlags(access);
         Utils.errorBuffer.rewind();
         //fill image format
@@ -116,7 +116,7 @@ public class LwjglContext extends Context {
                 .put(0).put(0).put(0);
         Utils.b80.rewind();
         //create image
-        CLMem mem = CL12.clCreateImage(context, memFlags, Utils.tempBuffers[0].b16, Utils.b80, hostPtr, Utils.errorBuffer);
+        CLMem mem = CL12.clCreateImage(context, memFlags, Utils.tempBuffers[0].b16, Utils.b80, descr.hostPtr, Utils.errorBuffer);
         Utils.checkError(Utils.errorBuffer, "clCreateImage");
         return new LwjglImage(mem);
     }

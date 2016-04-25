@@ -174,10 +174,6 @@ public class HelloOpenCL extends SimpleApplication {
             String include = "#define TYPE float\n";
             Program program = clContext.createProgramFromSourceFilesWithInclude(assetManager, include, "jme3test/opencl/Blas.cl");
             program.build();
-            Kernel[] kernels = program.createAllKernels();
-            for (Kernel k : kernels) {
-                System.out.println("available kernel: "+k.getName());
-            }
             Kernel kernel = program.createKernel("Fill");
             System.out.println("number of args: "+kernel.getArgCount());
 
@@ -218,8 +214,8 @@ public class HelloOpenCL extends SimpleApplication {
             
             //create an image
             Image.ImageFormat format = new Image.ImageFormat(Image.ImageChannelOrder.RGBA, Image.ImageChannelType.FLOAT);
-            Image.ImageDescriptor descr = new Image.ImageDescriptor(Image.ImageType.IMAGE_2D, 1920, 1080, 0, 0, 0, 0);
-            Image image = clContext.createImage(MemoryAccess.READ_WRITE, format, descr, null);
+            Image.ImageDescriptor descr = new Image.ImageDescriptor(Image.ImageType.IMAGE_2D, 1920, 1080, 0, 0);
+            Image image = clContext.createImage(MemoryAccess.READ_WRITE, format, descr);
             System.out.println("image created");
             
             //check queries
@@ -258,8 +254,8 @@ public class HelloOpenCL extends SimpleApplication {
             
             //create a second image
             format = new Image.ImageFormat(Image.ImageChannelOrder.RGBA, Image.ImageChannelType.FLOAT);
-            descr = new Image.ImageDescriptor(Image.ImageType.IMAGE_2D, 512, 512, 0, 0, 0, 0);
-            Image image2 = clContext.createImage(MemoryAccess.READ_WRITE, format, descr, null);
+            descr = new Image.ImageDescriptor(Image.ImageType.IMAGE_2D, 512, 512, 0, 0);
+            Image image2 = clContext.createImage(MemoryAccess.READ_WRITE, format, descr);
             //copy an area of image1 to image2
             image.copyTo(clQueue, image2, new long[]{1000, 20,0}, new long[]{0,0,0}, new long[]{512, 512,1});
             //this area should be completely blue
