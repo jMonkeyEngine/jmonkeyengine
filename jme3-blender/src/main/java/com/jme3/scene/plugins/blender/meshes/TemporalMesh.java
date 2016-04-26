@@ -34,6 +34,7 @@ import com.jme3.scene.plugins.blender.BlenderContext.LoadedDataType;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.materials.MaterialContext;
+import com.jme3.scene.plugins.blender.meshes.Face.TriangulationWarning;
 import com.jme3.scene.plugins.blender.meshes.MeshBuffers.BoneBuffersData;
 import com.jme3.scene.plugins.blender.modifiers.Modifier;
 import com.jme3.scene.plugins.blender.objects.Properties;
@@ -357,9 +358,22 @@ public class TemporalMesh extends Geometry {
      * Triangulates the mesh.
      */
     public void triangulate() {
+        Set<TriangulationWarning> warnings = new HashSet<>(TriangulationWarning.values().length - 1);
         LOGGER.fine("Triangulating temporal mesh.");
         for (Face face : faces) {
-            face.triangulate();
+            TriangulationWarning warning = face.triangulate();
+            if(warning != TriangulationWarning.NONE) {
+                warnings.add(warning);
+            }
+        }
+        
+        if(warnings.size() > 0 && LOGGER.isLoggable(Level.WARNING)) {
+            StringBuilder sb = new StringBuilder(512);
+            sb.append("There were problems with triangulating the faces of a mesh: ").append(name);
+            for(TriangulationWarning w : warnings) {
+                sb.append("\n\t").append(w);
+            }
+            LOGGER.warning(sb.toString());
         }
     }
 

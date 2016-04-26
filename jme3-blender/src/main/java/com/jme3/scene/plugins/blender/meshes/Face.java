@@ -265,15 +265,16 @@ public class Face implements Comparator<Integer> {
     /**
      * The method triangulates the face.
      */
-    public void triangulate() {
+    public TriangulationWarning triangulate() {
         LOGGER.fine("Triangulating face.");
         assert indexes.size() >= 3 : "Invalid indexes amount for face. 3 is the required minimum!";
         triangulatedFaces = new ArrayList<IndexesLoop>(indexes.size() - 2);
         Integer[] indexes = new Integer[3];
-
+        TriangulationWarning warning = TriangulationWarning.NONE;
+        
         try {
             List<Face> facesToTriangulate = new ArrayList<Face>(Arrays.asList(this.clone()));
-            while (facesToTriangulate.size() > 0) {
+            while (facesToTriangulate.size() > 0 && warning == TriangulationWarning.NONE) {
                 Face face = facesToTriangulate.remove(0);
                 // two special cases will improve the computations speed
                 if(face.getIndexes().size() == 3) {
@@ -287,10 +288,12 @@ public class Face implements Comparator<Integer> {
 
                         LOGGER.finer("Veryfying improper triangulation of the temporal mesh.");
                         if (indexes[0] < 0 || indexes[1] < 0 || indexes[2] < 0) {
-                            throw new BlenderFileException("Unable to find two closest vertices while triangulating face in mesh: " + temporalMesh + "Please apply triangulation modifier in blender as a workaround and load again!");
+                            warning = TriangulationWarning.CLOSEST_VERTS;
+                            break;
                         }
                         if (previousIndex1 == indexes[0] && previousIndex2 == indexes[1] && previousIndex3 == indexes[2]) {
-                            throw new BlenderFileException("Infinite loop detected during triangulation of mesh: " + temporalMesh + "Please apply triangulation modifier in blender as a workaround and load again!");
+                            warning = TriangulationWarning.INFINITE_LOOP;
+                            break;
                         }
                         previousIndex1 = indexes[0];
                         previousIndex2 = indexes[1];
@@ -304,12 +307,42 @@ public class Face implements Comparator<Integer> {
             }
         } catch (BlenderFileException e) {
             LOGGER.log(Level.WARNING, "Errors occured during face triangulation: {0}. The face will be triangulated with the most direct algorithm, but the results might not be identical to blender.", e.getLocalizedMessage());
+            warning = TriangulationWarning.UNKNOWN;
+        }
+        if(warning != TriangulationWarning.NONE) {
+            LOGGER.finest("Triangulation the face using the most direct algorithm.");
             indexes[0] = this.getIndex(0);
             for (int i = 1; i < this.vertexCount() - 1; ++i) {
                 indexes[1] = this.getIndex(i);
                 indexes[2] = this.getIndex(i + 1);
                 triangulatedFaces.add(new IndexesLoop(indexes));
             }
+        }
+        return warning;
+    }
+    
+    /**
+     * A warning that indicates a problem with face triangulation. The warnings are collected and displayed once for each type for a mesh to
+     * avoid multiple warning loggings during triangulation. The amount of iterations can be really huge and logging every single failure would
+     * really slow down the importing process and make logs unreadable.
+     * 
+     * @author Marcin Roguski (Kaelthas)
+     */
+    public static enum TriangulationWarning {
+        NONE(null), 
+        CLOSEST_VERTS("Unable to find two closest vertices while triangulating face."), 
+        INFINITE_LOOP("Infinite loop detected during triangulation."), 
+        UNKNOWN("There was an unknown problem with face triangulation. Please see log for details.");
+
+        private String description;
+
+        private TriangulationWarning(String description) {
+            this.description = description;
+        }
+
+        @Override
+        public String toString() {
+            return description;
         }
     }
     
