@@ -14,27 +14,27 @@ String decodeSourceDir = 'src/native/jme_decode'
 
 task downloadStbImage(type: MyDownload) {
     sourceUrl = stbiUrl
-    target = file('stb_image.h')
+    target = file(decodeBuildDir + File.separator + 'stb_image.h')
 }
 
-// Copy stb_image.h to the source directory.
+// Copy stb_image.h to the jni directory.
 task copyStbiFiles(type: Copy) {
-    def sourceDir = file('stb_image.h')
-    def outputDir = file(decodeSourceDir + File.separator + "STBI")
+    def sourceDir = file(decodeBuildDir + File.separator + 'stb_image.h')
+    def outputDir = file(decodeBuildJniDir + File.separator + "STBI")
     from sourceDir
     into outputDir
 }
 copyStbiFiles.dependsOn {
-    def stbiFile = file('stb_image.h')
+    def stbiFile = file(decodeBuildDir + File.separator + 'stb_image.h')
     if (!stbiFile.exists()) {
         downloadStbImage
     }
 }
 
-// Copy libtremor source to the source directory.
+// Copy libtremor source to the jni directory.
 task copyTremorFiles(type: Copy) {
     def zipFile = file(tremorZipFile)
-    def outputDir = file(decodeSourceDir + File.separator + "Tremor")
+    def outputDir = file(decodeBuildJniDir + File.separator + "Tremor")
 
     from (zipTree(zipFile)) {
         include '*.c'
