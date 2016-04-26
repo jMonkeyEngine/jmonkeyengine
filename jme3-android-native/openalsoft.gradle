@@ -5,7 +5,7 @@ String openALSoftZipFile = 'OpenALSoft.zip'
 // OpenAL Soft directory the download is extracted into
 // Typically, the downloaded OpenAL Soft zip file will extract to a directory
 // called "openal-soft"
-String openALSoftFolder = 'openal-soft'
+String openALSoftFolder = 'openal-soft-e5016f8'
 
 //Working directories for the ndk build.
 String openalsoftBuildDir = "${buildDir}" + File.separator + 'openalsoft'
@@ -21,19 +21,19 @@ String openalsoftJmeAndroidPath = 'src/native/jme_openalsoft'
 // Download external source files if not available
 task downloadOpenALSoft(type: MyDownload) {
     sourceUrl = openALSoftUrl
-    target = file(openALSoftZipFile)
+    target = file(openalsoftBuildDir + File.separator + openALSoftZipFile)
 }
 
 // Unzip external source files
 task unzipOpenALSoft(type: Copy) {
-    def zipFile = file(openALSoftZipFile)
-    def outputDir = file(".")
+    def zipFile = file(openalsoftBuildDir + File.separator + openALSoftZipFile)
+    def outputDir = file(openalsoftBuildDir)
 
     from zipTree(zipFile)
     into outputDir
 }
 unzipOpenALSoft.dependsOn {
-    def zipFilePath = project.projectDir.absolutePath + File.separator + openALSoftZipFile
+    def zipFilePath = openalsoftBuildDir + File.separator + openALSoftZipFile
     def zipFile = new File(zipFilePath)
 //    println "zipFile path: " + zipFile.absolutePath
 //    println "zipFile exists: " + zipFile.exists()
@@ -44,7 +44,7 @@ unzipOpenALSoft.dependsOn {
 
 // Copy external source files to jni directory
 task copyOpenALSoft(type: Copy) {
-    def sourceDir = file(openALSoftFolder)
+    def sourceDir = file(openalsoftBuildDir + File.separator + openALSoftFolder)
     def outputDir = file(openalsoftBuildJniDir)
 //    println "copyOpenALSoft sourceDir: " + sourceDir
 //    println "copyOpenALSoft outputDir: " + outputDir
