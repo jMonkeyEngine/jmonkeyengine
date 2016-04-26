@@ -68,10 +68,10 @@ public class JoystickCompatibilityMappings {
     }
 
     protected static Map<String,String> getMappings( String joystickName, boolean create ) {
-        Map<String,String> result = joystickMappings.get(joystickName);
+        Map<String,String> result = joystickMappings.get(joystickName.trim());
         if( result == null && create ) {
             result = new HashMap<String,String>();
-            joystickMappings.put(joystickName,result);
+            joystickMappings.put(joystickName.trim(),result);
         }
         return result;          
     }
@@ -94,7 +94,7 @@ public class JoystickCompatibilityMappings {
      *  it returns an empty map.
      */
     public static Map<String,String> getJoystickMappings( String joystickName ) {
-        Map<String,String> result = getMappings(joystickName, false);
+        Map<String,String> result = getMappings(joystickName.trim(), false);
         if( result == null )
             return Collections.emptyMap();
         return Collections.unmodifiableMap(result);
@@ -121,7 +121,7 @@ public class JoystickCompatibilityMappings {
         for( Map.Entry<Object,Object> e : p.entrySet() ) {
             String key = String.valueOf(e.getKey()).trim();
             
-            int split = key.indexOf( '.' );
+            int split = key.lastIndexOf( '.' );
             if( split < 0 ) {
                 logger.log(Level.WARNING, "Skipping mapping:{0}", e);
                 continue;
