@@ -104,7 +104,7 @@ public class SceneLoader implements AssetLoader {
 			loadScene(stream);
 			linkScene();
 			if(warnings.size() > 0)
-				logger.log(Level.WARNING, "Model load finished with warnings:\n" + String.join("\n", warnings));
+				logger.log(Level.WARNING, "Model load finished with warnings:\n" + join(warnings, "\n"));
 		} finally {
 			releaseObjects();
 			if(stream != null)
@@ -430,10 +430,6 @@ public class SceneLoader implements AssetLoader {
 		animControl.setAnimations(anims);
 	}
 	
-	private static boolean haveAnyChannel(FbxAnimNode anims) {
-		return anims != null && anims.haveAnyChannel();
-	}
-	
 	private void releaseObjects() {
 		// Reset settings
 		unitSize = 1;
@@ -460,5 +456,20 @@ public class SceneLoader implements AssetLoader {
 		skeleton = null;
 		animControl = null;
 		sceneNode = null;
+	}
+	
+	
+	private static boolean haveAnyChannel(FbxAnimNode anims) {
+		return anims != null && anims.haveAnyChannel();
+	}
+	
+	private static String join(List<String> list, String glue) {
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < list.size(); ++i) {
+			if(sb.length() != 0)
+				sb.append(glue);
+			sb.append(list.get(i));
+		}
+		return sb.toString();
 	}
 }
