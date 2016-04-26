@@ -320,7 +320,7 @@ public class FbxMesh extends FbxObject {
 			// Build reverse vertex mapping
 			reverseVertexMap = new ArrayList<>(srcVertexCount);
 			for(int i = 0; i < srcVertexCount; ++i)
-				reverseVertexMap.add(new ArrayList<>());
+				reverseVertexMap.add(new ArrayList<Integer>());
 			for(int i = 0; i < vCount; ++i) {
 				int index = vertexMap.get(i);
 				reverseVertexMap.get(index).add(i);

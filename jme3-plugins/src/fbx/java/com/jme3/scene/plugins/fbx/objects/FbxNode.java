@@ -19,7 +19,6 @@ import com.jme3.scene.plugins.fbx.file.FbxElement;
 
 public class FbxNode extends FbxObject {
 	
-	public Map<String, Object> userData = new HashMap<>();
 	public FaceCullMode cullMode = FaceCullMode.Back;
 	public Transform localTransform;
 	public Node node;
@@ -44,6 +43,7 @@ public class FbxNode extends FbxObject {
 	
 	public FbxNode(SceneLoader scene, FbxElement element) {
 		super(scene, element);
+		node = new Node(name);
 		Vector3f translationLocalRaw = new Vector3f();
 		Vector3f rotationOffsetRaw = new Vector3f();
 		Vector3f rotationPivotRaw = new Vector3f();
@@ -108,7 +108,7 @@ public class FbxNode extends FbxObject {
 					scene.warning("Unsupported user data type: " + userDataType + ". Ignoring.");
 					continue;
 				}
-				userData.put(userDataKey, userDataValue);
+				node.setUserData(userDataKey, userDataValue);
 				break;
 			}
 		}
@@ -164,8 +164,6 @@ public class FbxNode extends FbxObject {
 		
 		localTransform = new Transform(transformMatrix.toTranslationVector(), transformMatrix.toRotationQuat(), transformMatrix.toScaleVector());
 		
-		node = new Node(name);
-		userData.forEach((s, o) -> node.setUserData(s, o));
 		node.setLocalTransform(localTransform);
 	}
 	
