@@ -44,9 +44,8 @@ import com.jme3.scene.plugins.fbx.objects.FbxTexture;
 /**
  * FBX file format loader
  * <p> Loads scene meshes, materials, textures, skeleton and skeletal animation.
- * Multiple animations can be defined with {@link AnimationList} passing into {@link SceneKey}.</p>
- * 
- * @author Aleksandra Menshchikova
+ * Multiple animations can be defined with {@link AnimationList} passing into {@link SceneKey}
+ * or loaded from different animation layer.</p>
  */
 public class SceneLoader implements AssetLoader {
 	
