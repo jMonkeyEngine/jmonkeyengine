@@ -55,5 +55,5 @@ before_install:
   # export ANDROID_NDK=`pwd`/android-ndk-r10c
 
 after_success:
-  - '[ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && ./gradlew uploadArchives || :'
+  - '[ "$TRAVIS_BRANCH" == "v3.1" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && ./gradlew uploadArchives || :'
   - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && ./gradlew uploadArchives bintrayUpload || :'
