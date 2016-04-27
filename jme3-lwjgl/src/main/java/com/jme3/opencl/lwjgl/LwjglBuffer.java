@@ -37,7 +37,7 @@ import org.lwjgl.opencl.*;
 
 /**
  *
- * @author Sebastian Weiss
+ * @author shaman
  */
 public class LwjglBuffer extends Buffer {
 

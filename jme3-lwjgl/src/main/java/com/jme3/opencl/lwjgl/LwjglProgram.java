@@ -42,7 +42,7 @@ import org.lwjgl.opencl.*;
 
 /**
  *
- * @author Sebastian Weiss
+ * @author shaman
  */
 public class LwjglProgram implements Program {
     private static final Logger LOG = Logger.getLogger(LwjglProgram.class.getName());

@@ -46,7 +46,7 @@ import org.lwjgl.opencl.*;
 
 /**
  *
- * @author Sebastian Weiss
+ * @author shaman
  */
 public class Utils {
     private static final Logger LOG = Logger.getLogger(Utils.class.getName());

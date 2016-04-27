@@ -49,7 +49,7 @@ import org.lwjgl.opengl.*;
 
 /**
  *
- * @author Sebastian Weiss
+ * @author shaman
  */
 public class LwjglContext extends Context {
     private static final Logger LOG = Logger.getLogger(LwjglContext.class.getName());

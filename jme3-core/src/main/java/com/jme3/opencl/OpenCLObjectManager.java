@@ -39,7 +39,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author Sebastian Weiss
+ * @author shaman
  */
 public class OpenCLObjectManager {
     private static final Logger LOG = Logger.getLogger(OpenCLObjectManager.class.getName());

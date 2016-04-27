@@ -43,7 +43,7 @@ import org.lwjgl.opencl.CLPlatform;
 
 /**
  *
- * @author Sebastian Weiss
+ * @author shaman
  */
 public final class LwjglPlatform implements Platform {
     

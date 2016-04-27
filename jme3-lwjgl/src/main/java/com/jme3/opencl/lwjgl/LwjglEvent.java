@@ -39,7 +39,7 @@ import org.lwjgl.opencl.CLEvent;
 
 /**
  *
- * @author Sebastian Weiss
+ * @author shaman
  */
 public class LwjglEvent implements Event {
     private static final Logger LOG = Logger.getLogger(LwjglEvent.class.getName());

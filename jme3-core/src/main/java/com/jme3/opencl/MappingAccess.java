@@ -35,7 +35,7 @@ package com.jme3.opencl;
  * Specifies the access flags when mapping a {@link Buffer} or {@link Image} object.
  * @see Buffer#map(com.jme3.opencl.CommandQueue, long, long, com.jme3.opencl.MappingAccess) 
  * @see Image#map(com.jme3.opencl.CommandQueue, long[], long[], com.jme3.opencl.MappingAccess) 
- * @author Sebastian Weiss
+ * @author shaman
  */
 public enum MappingAccess {
     /**

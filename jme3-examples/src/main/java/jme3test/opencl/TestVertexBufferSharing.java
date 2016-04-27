@@ -45,7 +45,7 @@ import java.util.logging.Logger;
 /**
  * This test class tests the capability to read and modify an OpenGL vertex buffer.
  * 
- * @author Sebastian Weiss
+ * @author shaman
  */
 public class TestVertexBufferSharing extends SimpleApplication {
     private static final Logger LOG = Logger.getLogger(TestVertexBufferSharing.class.getName());

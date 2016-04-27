@@ -42,7 +42,7 @@ import java.util.Collection;
  * <p>
  * This class is used to query the capabilities of the underlying device.
  * 
- * @author Sebastian Weiss
+ * @author shaman
  */
 public interface Device {
 	

@@ -72,7 +72,7 @@ import java.util.Objects;
  * object, region[1] and region[2] must be 1. If image is a 1D image array
  * object, region[2] must be 1. The values in region cannot be 0.
  *
- * @author Sebastian Weiss
+ * @author shaman
  */
 public interface Image extends OpenCLObject {
     

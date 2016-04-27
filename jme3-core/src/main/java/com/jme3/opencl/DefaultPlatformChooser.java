@@ -39,7 +39,7 @@ import java.util.logging.Logger;
  * A default implementation of {@link PlatformChooser}.
  * It favors GPU devices with OpenGL sharing, then any devices with OpenGL sharing,
  * then any possible device.
- * @author Sebastian Weiss
+ * @author shaman
  */
 public class DefaultPlatformChooser implements PlatformChooser {
     private static final Logger LOG = Logger.getLogger(DefaultPlatformChooser.class.getName());

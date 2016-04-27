@@ -40,7 +40,7 @@ import java.util.List;
  * create the {@link Context}.<br>
  * This class is mostly used within {@link PlatformChooser}.
  * 
- * @author Sebastian Weiss
+ * @author shaman
  */
 public interface Platform {
 

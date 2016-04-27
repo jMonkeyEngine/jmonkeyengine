@@ -33,7 +33,7 @@ package com.jme3.opencl;
 
 /**
  * 
- * @author Sebastian Weiss
+ * @author shaman
  */
 public interface OpenCLObject {
     

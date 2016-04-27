@@ -40,7 +40,7 @@ package com.jme3.opencl;
  * 
  * @see Context#createProgramFromSourceCode(java.lang.String) 
  * @see #createKernel(java.lang.String) 
- * @author Sebastian Weiss
+ * @author shaman
  */
 public interface Program extends OpenCLObject {
 	

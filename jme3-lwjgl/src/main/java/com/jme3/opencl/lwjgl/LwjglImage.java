@@ -41,7 +41,7 @@ import org.lwjgl.opencl.api.CLImageFormat;
 
 /**
  *
- * @author Sebastian Weiss
+ * @author shaman
  */
 public class LwjglImage implements Image {
     private static final Logger LOG = Logger.getLogger(LwjglImage.class.getName());

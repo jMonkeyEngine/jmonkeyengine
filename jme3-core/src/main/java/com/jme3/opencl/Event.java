@@ -36,7 +36,7 @@ package com.jme3.opencl;
  * Events are returned from kernel launches and all asynchronous operations.
  * They allow to test if the action has completed and to block until the operation
  * is done.
- * @author Sebastian Weiss
+ * @author shaman
  */
 public interface Event extends OpenCLObject {
 	

@@ -33,7 +33,7 @@ package com.jme3.opencl;
 
 /**
  * Specifies how a buffer object can be accessed by the kernel.
- * @author Sebastian Weiss
+ * @author shaman
  * @see Buffer
  */
 public enum MemoryAccess {

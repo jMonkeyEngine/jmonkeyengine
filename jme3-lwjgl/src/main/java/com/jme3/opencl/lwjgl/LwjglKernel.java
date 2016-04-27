@@ -45,7 +45,7 @@ import org.lwjgl.opencl.CLKernel;
 
 /**
  *
- * @author Sebastian Weiss
+ * @author shaman
  */
 public class LwjglKernel extends Kernel {
 

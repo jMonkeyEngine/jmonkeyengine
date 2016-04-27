@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * This SPI is called on startup to specify which platform and which devices
  * are used for context creation.
- * @author Sebastian Weiss
+ * @author shaman
  * @see AppSettings#setOpenCLPlatformChooser(java.lang.Class) 
  */
 public interface PlatformChooser {

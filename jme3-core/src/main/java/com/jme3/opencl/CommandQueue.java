@@ -40,7 +40,7 @@ package com.jme3.opencl;
  * Each command queue is associtated with exactly one device: that device
  * is specified on creation ({@link Context#createQueue(com.jme3.opencl.Device) })
  * and all commands are sent to this device.
- * @author Sebastian Weiss
+ * @author shaman
  */
 public interface CommandQueue extends OpenCLObject {
 

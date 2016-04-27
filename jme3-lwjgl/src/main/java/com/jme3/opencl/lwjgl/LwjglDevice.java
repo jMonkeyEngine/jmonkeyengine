@@ -41,7 +41,7 @@ import org.lwjgl.opencl.CLDevice;
 
 /**
  *
- * @author Sebastian Weiss
+ * @author shaman
  */
 public final class LwjglDevice implements Device {
 

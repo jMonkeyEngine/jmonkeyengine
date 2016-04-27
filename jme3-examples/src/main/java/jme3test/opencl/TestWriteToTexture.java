@@ -49,7 +49,7 @@ import java.util.logging.Logger;
  * This test class tests the capability to write to a GL texture from OpenCL.
  * Move the mouse around while pressing the left mouse key to modify the fractal.
  * 
- * @author Sebastian Weiss
+ * @author shaman
  */
 public class TestWriteToTexture extends SimpleApplication implements AnalogListener, ActionListener {
     private static final Logger LOG = Logger.getLogger(TestWriteToTexture.class.getName());

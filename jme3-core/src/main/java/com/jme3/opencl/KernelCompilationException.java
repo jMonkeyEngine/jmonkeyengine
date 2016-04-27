@@ -36,7 +36,7 @@ package com.jme3.opencl;
  * when the compilation failed.
  * The error log returned by {@link #getLog() } contains detailed information
  * where the error occured.
- * @author Sebastian Weiss
+ * @author shaman
  */
 public class KernelCompilationException extends OpenCLException {
 

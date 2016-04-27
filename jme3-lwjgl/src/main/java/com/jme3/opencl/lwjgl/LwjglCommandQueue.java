@@ -38,7 +38,7 @@ import org.lwjgl.opencl.CLCommandQueue;
 
 /**
  *
- * @author Sebastian Weiss
+ * @author shaman
  */
 public class LwjglCommandQueue implements CommandQueue {
 

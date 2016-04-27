@@ -48,7 +48,7 @@ import java.util.logging.Logger;
 
 /**
  * Simple test checking if the basic functions of the OpenCL wrapper work
- * @author Sebastian Weiss
+ * @author shaman
  */
 public class HelloOpenCL extends SimpleApplication {
     private static final Logger LOG = Logger.getLogger(HelloOpenCL.class.getName());

@@ -61,7 +61,7 @@ import java.util.logging.Logger;
  *  <li>Created buffers and images shared with OpenGL vertex buffers, textures and renderbuffers</li>
  *  <li>Create program objects from source code and source files</li>
  * </ul>
- * @author Sebastian Weiss
+ * @author shaman
  */
 public abstract class Context implements OpenCLObject {
     private static final Logger LOG = Logger.getLogger(Context.class.getName());

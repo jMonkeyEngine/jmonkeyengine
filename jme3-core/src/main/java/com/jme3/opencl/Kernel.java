@@ -79,7 +79,7 @@ import java.util.Arrays;
  * {@link #Run1(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) }
  * and {@link #Run2(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) }.
  * 
- * @author Sebastian Weiss
+ * @author shaman
  * @see Program#createKernel(java.lang.String) 
  */
 public abstract class Kernel implements OpenCLObject {
@@ -441,7 +441,7 @@ public abstract class Kernel implements OpenCLObject {
 
     /**
      * The work size (global and local) for executing a kernel
-     * @author Sebastian Weiss
+     * @author shaman
      */
     public static final class WorkSize {
 

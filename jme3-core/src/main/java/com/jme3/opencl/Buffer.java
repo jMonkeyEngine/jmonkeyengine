@@ -45,7 +45,7 @@ import java.nio.ByteBuffer;
  * and have the prefix -Async in their name.
  * 
  * @see Context#createBuffer(long, com.jme3.opencl.MemoryAccess) 
- * @author Sebastian Weiss
+ * @author shaman
  */
 public abstract class Buffer implements OpenCLObject {
 
@@ -316,7 +316,7 @@ public abstract class Buffer implements OpenCLObject {
      * Result of an async mapping operation, contains the event and the target byte buffer.
      * This is a work-around since no generic pair-structure is avaiable.
      *
-     * @author Sebastian Weiss
+     * @author shaman
      */
     public static class AsyncMapping {
 
