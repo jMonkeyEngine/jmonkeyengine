@@ -146,7 +146,7 @@ task configureVersionInfo {
                 System.env.TRAVIS_PULL_REQUEST != "false") {
                 jmeBranchName += "-pr-" + System.env.TRAVIS_PULL_REQUEST
             }
-            if (jmeBranchName != "master") {
+            if (jmeBranchName != "v3.1") {
                 jmeFullVersion += "-${jmeBranchName}"
                 jmePomVersion  += "-${jmeBranchName}"
                 jmeNbmUcSuffix = "${jmeBranchName}-"
