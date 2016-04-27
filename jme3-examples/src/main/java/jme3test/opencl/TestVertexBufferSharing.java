@@ -56,7 +56,7 @@ public class TestVertexBufferSharing extends SimpleApplication {
     private Geometry geom;
     private Buffer buffer;
     private Kernel kernel;
-    private WorkSize ws;
+    private com.jme3.opencl.Kernel.WorkSize ws;
     private float time;
 
     public static void main(String[] args){
@@ -123,7 +123,7 @@ public class TestVertexBufferSharing extends SimpleApplication {
         //bind vertex buffer to OpenCL
         VertexBuffer vb = geom.getMesh().getBuffer(VertexBuffer.Type.Position);
         buffer = clContext.bindVertexBuffer(vb, MemoryAccess.READ_WRITE);
-        ws = new WorkSize(geom.getMesh().getVertexCount());
+        ws = new com.jme3.opencl.Kernel.WorkSize(geom.getMesh().getVertexCount());
     }
     private void updateOpenCL(float tpf) {
         //advect time

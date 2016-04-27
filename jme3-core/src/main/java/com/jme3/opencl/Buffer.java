@@ -382,5 +382,6 @@ public abstract class Buffer implements OpenCLObject {
      * @return the event object
      */
     public abstract Event releaseBufferForSharingAsync(CommandQueue queue);
+    
     //TODO: add variants of the above two methods that don't create the event object, but release the event immediately
 }

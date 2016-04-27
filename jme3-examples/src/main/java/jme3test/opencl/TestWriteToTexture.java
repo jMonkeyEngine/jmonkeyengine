@@ -137,7 +137,7 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
         //no need to wait for the returned event, since the kernel implicitely waits for it (same command queue)
         
         //execute kernel
-        kernel.Run1(clQueue, new WorkSize(settings.getWidth(), settings.getHeight()), texCL, C, 16);
+        kernel.Run1(clQueue, new com.jme3.opencl.Kernel.WorkSize(settings.getWidth(), settings.getHeight()), texCL, C, 16);
         
         //release resource
         texCL.releaseImageForSharingAsync(clQueue);

@@ -40,6 +40,7 @@ import java.nio.*;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.opencl.CL10;
 import org.lwjgl.opencl.CLCommandQueue;
+import org.lwjgl.opencl.CLDevice;
 import org.lwjgl.opencl.CLKernel;
 
 /**
@@ -69,6 +70,12 @@ public class LwjglKernel extends Kernel {
         return kernel.getInfoInt(CL10.CL_KERNEL_NUM_ARGS);
     }
 
+    @Override
+    public long getMaxWorkGroupSize(Device device) {
+        CLDevice d = ((LwjglDevice) device).getDevice();
+        return kernel.getWorkGroupInfoSize(d, CL10.CL_KERNEL_WORK_GROUP_SIZE);
+    }
+    
     @Override
     public void setArg(int index, LocalMemPerElement t) {
         int ret = CL10.clSetKernelArg (kernel, index, t.getSize() * workGroupSize.getSizes()[0] * workGroupSize.getSizes()[1] * workGroupSize.getSizes()[2]);

@@ -32,15 +32,48 @@
 package com.jme3.opencl;
 
 /**
- *
+ * A wrapper for an OpenCL program. A program is created from kernel source code,
+ * manages the build process and creates the kernels.
+ * <p>
+ * Warning: Creating the same kernel more than one leads to undefined behaviour,
+ * this is especially important for {@link #createAllKernels() }
+ * 
+ * @see Context#createProgramFromSourceCode(java.lang.String) 
+ * @see #createKernel(java.lang.String) 
  * @author Sebastian Weiss
  */
 public interface Program extends OpenCLObject {
 	
+    /**
+     * Builds this program with the specified argument string.
+     * Please see the official OpenCL specification for a definition of
+     * all supported arguments
+     * @param args the compilation arguments
+     * @throws KernelCompilationException if the compilation fails
+     * @see #build() 
+     */
 	void build(String args) throws KernelCompilationException;
+    /**
+     * Builds this program without additional arguments
+     * @throws KernelCompilationException if the compilation fails
+     * @see #build(java.lang.String) 
+     */
 	void build() throws KernelCompilationException;
 
+    /**
+     * Creates the kernel with the specified name.
+     * @param name the name of the kernel as defined in the source code
+     * @return the kernel object
+     * @throws OpenCLException if the kernel was not found or some other
+     * error occured
+     */
 	Kernel createKernel(String name);
+    
+    /**
+     * Creates all available kernels in this program.
+     * The names of the kernels can then by queried by {@link Kernel#getName() }.
+     * @return an array of all kernels
+     */
 	Kernel[] createAllKernels();
     
 }

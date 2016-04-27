@@ -181,7 +181,7 @@ public class HelloOpenCL extends SimpleApplication {
             int size = 256+128;
             Buffer buffer = clContext.createBuffer(size*4);
             float value = 5;
-            Event event = kernel.Run1(clQueue, new WorkSize(buffer.getSize() / 4), buffer, value);
+            Event event = kernel.Run1(clQueue, new com.jme3.opencl.Kernel.WorkSize(buffer.getSize() / 4), buffer, value);
             event.waitForFinished();
             
             //check if filled
