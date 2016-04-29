@@ -33,6 +33,7 @@ android {
             assets {
                 srcDir 'src/assets'
                 srcDir '../jme3-testdata/src/main/resources'
+                srcDir '../jme3-examples/src/main/resources'
             }
         }
     }
@@ -53,4 +54,6 @@ dependencies {
     compile project(':jme3-niftygui')
     compile project(':jme3-plugins')
     compile project(':jme3-terrain')
+    compile fileTree(dir: '../jme3-examples/build/libs', include: ['*.jar'], exclude: ['*sources*.*'])
+//    compile project(':jme3-examples')
 }
