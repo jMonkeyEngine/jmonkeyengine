@@ -16,21 +16,26 @@ public class TestActivity extends AppCompatActivity {
         // Supply index input as an argument.
         Bundle args = new Bundle();
 
-        String appClass = savedInstanceState.getString(MainActivity.SELECTED_APP_CLASS);
+        Bundle bundle = savedInstanceState;
+        if (bundle == null) {
+            bundle = getIntent().getExtras();
+        }
+
+        String appClass = bundle.getString(MainActivity.SELECTED_APP_CLASS);
         args.putString(MainActivity.SELECTED_APP_CLASS, appClass);
-        Log.d(TestActivity.class.getSimpleName(), "AppClass="+appClass);
+//        Log.d(TestActivity.class.getSimpleName(), "AppClass="+appClass);
 
-        boolean mouseEnabled = savedInstanceState.getBoolean(MainActivity.ENABLE_MOUSE_EVENTS, true);
+        boolean mouseEnabled = bundle.getBoolean(MainActivity.ENABLE_MOUSE_EVENTS, true);
         args.putBoolean(MainActivity.ENABLE_MOUSE_EVENTS, mouseEnabled);
-        Log.d(TestActivity.class.getSimpleName(), "MouseEnabled="+mouseEnabled);
+//        Log.d(TestActivity.class.getSimpleName(), "MouseEnabled="+mouseEnabled);
 
-        boolean joystickEnabled = savedInstanceState.getBoolean(MainActivity.ENABLE_JOYSTICK_EVENTS, true);
+        boolean joystickEnabled = bundle.getBoolean(MainActivity.ENABLE_JOYSTICK_EVENTS, true);
         args.putBoolean(MainActivity.ENABLE_JOYSTICK_EVENTS, joystickEnabled);
-        Log.d(TestActivity.class.getSimpleName(), "JoystickEnabled="+joystickEnabled);
+//        Log.d(TestActivity.class.getSimpleName(), "JoystickEnabled="+joystickEnabled);
 
-        boolean keyEnabled = savedInstanceState.getBoolean(MainActivity.ENABLE_KEY_EVENTS, true);
+        boolean keyEnabled = bundle.getBoolean(MainActivity.ENABLE_KEY_EVENTS, true);
         args.putBoolean(MainActivity.ENABLE_KEY_EVENTS, keyEnabled);
-        Log.d(TestActivity.class.getSimpleName(), "KeyEnabled="+keyEnabled);
+//        Log.d(TestActivity.class.getSimpleName(), "KeyEnabled="+keyEnabled);
 
         fragment.setArguments(args);
 
@@ -39,7 +44,7 @@ public class TestActivity extends AppCompatActivity {
 
         // Replace whatever is in the fragment_container view with this fragment,
         // and add the transaction to the back stack so the user can navigate back
-        transaction.replace(R.id.jMEFragment, fragment);
+        transaction.add(R.id.fragmentContainer, fragment);
         transaction.addToBackStack(null);
 
         // Commit the transaction

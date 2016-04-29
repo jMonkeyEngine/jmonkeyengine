@@ -1,6 +1,7 @@
 package org.jmonkeyengine.jme3androidexamples;
 
 import android.os.Bundle;
+import android.util.Log;
 import com.jme3.app.AndroidHarnessFragment;
 
 import java.util.logging.Level;
@@ -66,9 +67,13 @@ public class JmeFragment extends AndroidHarnessFragment {
         Bundle bundle=getArguments();
 
         appClass = bundle.getString(SELECTED_APP_CLASS);
+//        Log.d(this.getClass().getSimpleName(), "AppClass: " + appClass);
         joystickEventsEnabled = bundle.getBoolean(ENABLE_JOYSTICK_EVENTS);
+//        Log.d(this.getClass().getSimpleName(), "JoystickEventsEnabled: " + joystickEventsEnabled);
         keyEventsEnabled = bundle.getBoolean(ENABLE_KEY_EVENTS);
+//        Log.d(this.getClass().getSimpleName(), "KeyEventsEnabled: " + keyEventsEnabled);
         mouseEventsEnabled = bundle.getBoolean(ENABLE_MOUSE_EVENTS);
+//        Log.d(this.getClass().getSimpleName(), "MouseEventsEnabled: " + mouseEventsEnabled);
 
         super.onCreate(savedInstanceState);
     }

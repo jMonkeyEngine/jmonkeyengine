@@ -25,16 +25,14 @@ android {
         }
     }
 
-//    sourceSets  {
-//        main.java.srcDirs += ['../jme3-examples/src/main/java' exclude 'TestChooser.java']
-//    }
     sourceSets {
         main {
             java {
                 srcDir 'src/main/java'
-//                srcDir '../jme3-examples/src/main/java'
-//                exclude '**/TestChooser.java'
-//                exclude '**/awt/**'
+            }
+            assets {
+                srcDir 'src/assets'
+                srcDir '../jme3-testdata/src/main/resources'
             }
         }
     }
@@ -55,29 +53,4 @@ dependencies {
     compile project(':jme3-niftygui')
     compile project(':jme3-plugins')
     compile project(':jme3-terrain')
-    compile project(':jme3-testdata')
-//    compile project(':jme3-examples')
 }
-
-//task copyTestClasses(type: Copy) {
-//    def sourceDir = file("../jme-examples/src/main/java")
-//    def outputDir = file("src/main/java")
-//
-//    from sourceDir
-//    into outputDir
-//}
-//
-//task copyTestResources(type: Copy) {
-//    def sourceDir = file("../jme-examples/src/main/resources")
-//    def outputDir = file("src/main/resources")
-//
-//    from sourceDir
-//    into outputDir
-//}
-//
-//// copy test classes and resources from jme3-examples module
-//assembleDebug.dependsOn {
-//    copyTestClasses
-//    copyTestResources
-//}
-

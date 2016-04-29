@@ -213,9 +213,27 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
             /* Get selected class, pack it in the intent and start the test app */
             Log.i(TAG, "User selected OK for class: " + currentSelection);
             Intent intent = new Intent(this, TestActivity.class);
-            intent.putExtra(SELECTED_APP_CLASS, currentSelection);
-            intent.putExtra(ENABLE_MOUSE_EVENTS, enableMouseEvents);
-            intent.putExtra(ENABLE_JOYSTICK_EVENTS, enableJoystickEvents);
+//            intent.putExtra(SELECTED_APP_CLASS, currentSelection);
+//            intent.putExtra(ENABLE_MOUSE_EVENTS, enableMouseEvents);
+//            intent.putExtra(ENABLE_JOYSTICK_EVENTS, enableJoystickEvents);
+//            intent.putExtra(ENABLE_KEY_EVENTS, enableKeyEvents);
+
+            Bundle args = new Bundle();
+
+            args.putString(MainActivity.SELECTED_APP_CLASS, currentSelection);
+//            Log.d(this.getClass().getSimpleName(), "AppClass="+currentSelection);
+
+            args.putBoolean(MainActivity.ENABLE_MOUSE_EVENTS, enableMouseEvents);
+//            Log.d(TestActivity.class.getSimpleName(), "MouseEnabled="+enableMouseEvents);
+
+            args.putBoolean(MainActivity.ENABLE_JOYSTICK_EVENTS, enableJoystickEvents);
+//            Log.d(TestActivity.class.getSimpleName(), "JoystickEnabled="+enableJoystickEvents);
+
+            args.putBoolean(MainActivity.ENABLE_KEY_EVENTS, enableKeyEvents);
+//            Log.d(TestActivity.class.getSimpleName(), "KeyEnabled="+enableKeyEvents);
+
+            intent.putExtras(args);
+
             startActivity(intent);
         } else if (view.equals(btnCancel)) {
             /* Exit */
