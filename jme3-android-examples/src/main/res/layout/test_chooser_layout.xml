@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/layoutTestChooser"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:background="#FFFFFF"
+>
+
+    <TextView
+            android:id="@+id/lblTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:text="@string/strLblTitle"
+            android:textSize="20sp"
+            android:textColor="#000000"
+    />
+
+    <LinearLayout
+            android:id="@+id/layoutFilter"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/lblTitle"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:orientation="horizontal"
+    >
+
+        <TextView
+                android:id="@+id/lblFindTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:text="@string/strLblFindTitle"
+                android:textSize="20sp"
+                android:textColor="#000000"
+        />
+
+        <EditText
+                android:id="@+id/txtFilter"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:hint="@string/strTxtFilterHint"
+                android:inputType="text"
+                android:textSize="20sp"
+                android:textColor="#000000"
+        />
+
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/layoutButtons"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:gravity="center"
+            android:layout_marginTop="20dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+    >
+
+        <Button
+                android:id="@+id/btnOK"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="@string/strBtnOK"
+                android:layout_marginRight="20dp"
+                android:textSize="20sp"
+                android:textColor="#000000"
+        />
+
+        <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:text="@string/strBtnCancel"
+                android:layout_marginLeft="20dp"
+                android:textSize="20sp"
+                android:textColor="#000000"
+        />
+        <requestFocus/>
+
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/layoutButtons"
+            android:layout_below="@id/layoutFilter"
+            android:gravity="center"
+            android:background="@drawable/selected"
+    >
+
+        <ListView
+                android:id="@+id/listClasses"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:choiceMode="singleChoice"
+                android:listSelector="@drawable/selected"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:scrollbars="vertical"
+                android:fadeScrollbars="false"
+                android:textFilterEnabled="true"
+        >
+
+        </ListView>
+
+    </LinearLayout>
+
+</RelativeLayout>

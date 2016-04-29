@@ -1,28 +1,18 @@
-dependencies {
-    compile project(':jme3-core')
-    compile project(':jme3-android')
-    compile project(':jme3-effects')
-    compile project(':jme3-bullet')
-    compile project(':jme3-bullet-native-android')
-    compile project(':jme3-networking')
-    compile project(':jme3-niftygui')
-    compile project(':jme3-plugins')
-    compile project(':jme3-terrain')
-    compile project(':jme3-testdata')
-}
+apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 10
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
 
     lintOptions {
         // Fix nifty gui referencing "java.awt" package.
         disable 'InvalidPackage'
+        abortOnError false
     }
 
     defaultConfig {
-        applicationId "com.jme3.android"
-        minSdkVersion 10       // Android 2.3 GINGERBREAD
+        applicationId "org.jmonkeyengine.jme3androidexamples"
+        minSdkVersion 11       // Android 2.3 GINGERBREAD
         targetSdkVersion 22    // Android 5.1 LOLLIPOP
         versionCode 1
         versionName "1.0" // TODO: from settings.gradle
@@ -31,10 +21,63 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-        debug {
-            applicationIdSuffix ".debug"
-            debuggable true
+    }
+
+//    sourceSets  {
+//        main.java.srcDirs += ['../jme3-examples/src/main/java' exclude 'TestChooser.java']
+//    }
+    sourceSets {
+        main {
+            java {
+                srcDir 'src/main/java'
+//                srcDir '../jme3-examples/src/main/java'
+//                exclude '**/TestChooser.java'
+//                exclude '**/awt/**'
+            }
         }
     }
 }
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.3.0'
+
+    compile project(':jme3-core')
+    compile project(':jme3-android')
+    compile project(':jme3-android-native')
+    compile project(':jme3-effects')
+    compile project(':jme3-bullet')
+    compile project(':jme3-bullet-native-android')
+    compile project(':jme3-networking')
+    compile project(':jme3-niftygui')
+    compile project(':jme3-plugins')
+    compile project(':jme3-terrain')
+    compile project(':jme3-testdata')
+//    compile project(':jme3-examples')
+}
+
+//task copyTestClasses(type: Copy) {
+//    def sourceDir = file("../jme-examples/src/main/java")
+//    def outputDir = file("src/main/java")
+//
+//    from sourceDir
+//    into outputDir
+//}
+//
+//task copyTestResources(type: Copy) {
+//    def sourceDir = file("../jme-examples/src/main/resources")
+//    def outputDir = file("src/main/resources")
+//
+//    from sourceDir
+//    into outputDir
+//}
+//
+//// copy test classes and resources from jme3-examples module
+//assembleDebug.dependsOn {
+//    copyTestClasses
+//    copyTestResources
+//}
+
