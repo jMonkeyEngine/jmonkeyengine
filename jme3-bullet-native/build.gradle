@@ -4,6 +4,10 @@ import java.nio.file.Paths
 
 String bulletSrcPath = bulletFolder + '/src'
 
+if (!hasProperty('mainClass')) {
+    ext.mainClass = ''
+}
+
 dependencies {
     compile project(':jme3-bullet')
 }
