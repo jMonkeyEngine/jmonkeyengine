@@ -1,46 +1,97 @@
 apply plugin: 'cpp'
 
-String bulletSrcPath = bulletFolder + '/src'
+import java.nio.file.Paths
 
-if (!hasProperty('mainClass')) {
-    ext.mainClass = ''
-}
+String bulletSrcPath = bulletFolder + '/src'
 
 dependencies {
     compile project(':jme3-bullet')
 }
 
-// Defines created C++ libraries
-libraries {
-    bulletjme {
+model {
+    components {
+        bulletjme(NativeLibrarySpec) {
+            targetPlatform 'Windows64'
+            targetPlatform 'Windows32'
+            targetPlatform 'Mac64'
+            targetPlatform 'Mac32'
+            targetPlatform 'Linux64'
+            targetPlatform 'Linux32'
+
+            sources {
+                cpp {
+                    source {
+                        srcDir 'src/native/cpp'
+                        srcDir bulletSrcPath
+                        exclude 'BulletMultiThreaded/GpuSoftBodySolvers/**'
+                        include '**/*.cpp'
+                    }
+                    exportedHeaders {
+                        srcDir 'src/native/cpp'
+                        srcDir bulletSrcPath
+                        include '**/*.h'
+                    }
+                }
+            }
+        }
     }
-    all {
-        binaries.all {
-            if (toolChain in VisualCpp) {
-                cppCompiler.args "/I${org.gradle.internal.jvm.Jvm.current().javaHome}\\include"
-            } else{
-                cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+    
+    binaries {
+        withType(SharedLibraryBinarySpec) {
+            def projectPath = project.projectDir.absolutePath
+            def javaHome = org.gradle.internal.jvm.Jvm.current().javaHome
+            def os = targetPlatform.operatingSystem.name
+            def arch = targetPlatform.architecture.name
+            def fileName = sharedLibraryFile.name
+            
+            // Gradle decided to change underscores to dashes - fix that.
+            arch = arch.replaceAll('-', '_')
+            
+            // For all binaries that can't be built on the current system
+            if (buildNativeProjects != "true") {
+                buildable = false
             }
 
-            if (targetPlatform.operatingSystem.name == "osx") {
-                cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
-            } else if (targetPlatform.operatingSystem.name == "linux") {
+            if (!buildable) {
+                if (sharedLibraryFile.exists()) {
+                    // Add binary to jar file if the binary exists in the build folder already,
+                    // e.g. when the build of jme3-bullet-native has been run on a virtual box
+                    // and the project hasn't been cleaned yet.
+                    jar.into("native/${os}/${arch}") {
+                        from sharedLibraryFile
+                    }
+                } else {
+                    // Get from libs folder if no fresh build is available in the build folder and add to jar file
+                    def precompiledFile = Paths.get(projectPath, 'libs', 'native', os, arch, fileName).toFile()
+                    if (precompiledFile.exists()) {
+                        jar.into("native/${os}/${arch}") {
+                            from precompiledFile
+                        }
+                    }
+                }
+                return
+            }
+
+            if (toolChain in VisualCpp) {
+                cppCompiler.args "/I$javaHome\\include"
+            } else{
+                cppCompiler.args '-I', "$javaHome/include"
+            }
+
+            if (os == "osx") {
+                cppCompiler.args '-I', "$javaHome/include/darwin"
+            } else if (os == "linux") {
                 cppCompiler.args "-fvisibility=hidden"
-                cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
+                cppCompiler.args '-I', "$javaHome/include/linux"
                 cppCompiler.args "-fPIC"
                 cppCompiler.args "-fpermissive"
                 linker.args "-fvisibility=hidden"
-
-//                cppCompiler.args "-static-libgcc"
-//                cppCompiler.args "-static-libstdc++"
-//                linker.args "-static-libgcc"
-//                linker.args "-static-libstdc++"
-            } else if (targetPlatform.operatingSystem.name == "windows") {
+            } else if (os == "windows") {
                 if (toolChain in Gcc) {
                     if (toolChain.name.startsWith('mingw')) {
-                        cppCompiler.args '-I', "${projectDir}/src/native/cpp/fake_win32"
+                        cppCompiler.args '-I', "$projectDir/src/native/cpp/fake_win32"
                     } else {
-                        cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
+                        cppCompiler.args '-I', "$javaHome/include/win32"
                     }
                     cppCompiler.args "-fpermissive"
                     cppCompiler.args "-static"
@@ -48,45 +99,59 @@ libraries {
                     linker.args "-Wl,--exclude-all-symbols"
                 }
                 else if (toolChain in VisualCpp) {
-                    cppCompiler.args "/I${org.gradle.internal.jvm.Jvm.current().javaHome}\\include\\win32"
+                    cppCompiler.args "/I$javaHome\\include\\win32"
                 }
                 cppCompiler.define('WIN32')
-//                linker.args 'Shlwapi.lib', 'Advapi32.lib'
             }
+            
+            tasks.all { dependsOn unzipBulletIfNeeded }
+
+            // Add output to jar file
+            jar.into("native/${os}/${arch}") {
+                from sharedLibraryFile
+            }
+            
+            // Add depend on build
+            jar.dependsOn tasks
+            // Add output to libs folder
+            task "copyBinaryToLibs${targetPlatform.name}"(type: Copy, dependsOn: tasks) {
+                from sharedLibraryFile
+                into "libs/native/${os}/${arch}"
+            }
+            // Add depend on copy
+            jar.dependsOn("copyBinaryToLibs${targetPlatform.name}")
+        }
+        withType(StaticLibraryBinarySpec) {
+            buildable = false
         }
     }
-}
 
-// C++ sources for binary compilation
-sources {
-    bulletjme {
-        cpp {
-            source {
-                srcDir 'src/native/cpp'
-                srcDir bulletSrcPath
-                exclude 'BulletMultiThreaded/GpuSoftBodySolvers/**'
-                include '**/*.cpp'
-            }
-            exportedHeaders {
-                srcDir 'src/native/cpp'
-                srcDir bulletSrcPath
-                include '**/*.h'
-            }
+    platforms {
+        Windows32 {
+            architecture "x86"
+            operatingSystem "windows"
+        }
+        Windows64 {
+            architecture "x86_64"
+            operatingSystem "windows"
+        }
+        Mac32 {
+            architecture "x86"
+            operatingSystem "osx"
+        }
+        Mac64 {
+            architecture "x86_64"
+            operatingSystem "osx"
+        }
+        Linux32 {
+            architecture "x86"
+            operatingSystem "linux"
+        }
+        Linux64 {
+            architecture "x86_64"
+            operatingSystem "linux"
         }
     }
-}
-
-// Java source sets for IDE acces and source jar bundling / mavenization
-sourceSets {
-    main {
-        java {
-            srcDir 'src/native/cpp'
-        }
-    }
-}
-
-// Set of target platforms, will be available based on build system
-model {
 
     toolChains {
         gcc(Gcc)
@@ -112,112 +177,40 @@ model {
             target("windows_x86_64")
         }
     }
+}
 
-    platforms{
-//    osx_universal { // TODO: universal binary doesn't work?
-//        architecture 'x86_64'
-//        architecture 'x86'
-//        operatingSystem 'osx'
-//    }
-        osx_x86 {
-            architecture "x86"
-            operatingSystem "osx"
-        }
-        osx_x86_64 {
-            architecture "x86_64"
-            operatingSystem "osx"
-        }
-        linux_x86 {
-            architecture "x86"
-            operatingSystem "linux"
-        }
-        linux_x86_64 {
-            architecture "x86_64"
-            operatingSystem "linux"
-        }
-        windows_x86 {
-            architecture "x86"
-            operatingSystem "windows"
-        }
-        windows_x86_64 {
-            architecture "x86_64"
-            operatingSystem "windows"
+// Java source sets for IDE access and source jar bundling / mavenization
+sourceSets {
+    main {
+        java {
+            srcDir 'src/native/cpp'
         }
     }
 }
 
-// Download bullet if not available
 task downloadBullet(type: MyDownload) {
     sourceUrl = bulletUrl
     target = file(bulletZipFile)
 }
 
-// Unzip bullet if not available
 task unzipBullet(type: Copy) {
-    def zipFile = file(bulletZipFile)
-    def outputDir = file(".")
-
-    from zipTree(zipFile)
-    into outputDir
+    from zipTree(bulletZipFile)
+    into file('.')
 }
+
 unzipBullet.dependsOn {
-    def zipFilePath = project.projectDir.absolutePath + File.separator + bulletZipFile
-    def zipFile = new File(zipFilePath)
-    if (!zipFile.exists()) {
+    if (!file(bulletZipFile).exists()) {
         downloadBullet
     }
 }
 
-compileJava.dependsOn {
-    if(buildNativeProjects=="true"){
-        def bulletUnzipDir = new File(project.projectDir.absolutePath + File.separator + bulletFolder)
-        if (!bulletUnzipDir.isDirectory()) {
-            unzipBullet
-        }
-    }
+task unzipBulletIfNeeded << {
 }
 
-binaries.withType(StaticLibraryBinarySpec) {
-    buildable = false
-}
-
-// Adds all available binaries to java jar task
-binaries.withType(SharedLibraryBinary) { binary ->
-    // For all binaries that can't be built on the current system
-    if(buildNativeProjects!="true"){
-        buildable = false;
+unzipBulletIfNeeded.dependsOn {
+    if (buildNativeProjects == "true" && !file(bulletFolder).isDirectory()) {
+        unzipBullet
     }
-    if (!buildable) {
-        //Get from libs folder if no fresh build is available in the build folder and add to jar file
-        if(!binary.tasks.outputFile.get(0).exists()){
-            def fileName = binary.tasks.outputFile.get(0).getName();
-            def precompiledFile = new File(project.projectDir.absolutePath + File.separator + "libs" + File.separator + "native" + File.separator + "${targetPlatform.operatingSystem.name}" + File.separator + "${targetPlatform.architecture.name}" + File.separator + "${fileName}")
-            if(precompiledFile.exists()){
-                jar.into("native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}") { from precompiledFile }
-            }
-            return
-        } else{
-            // Add binary to jar file if the binary exists in the build folder already,
-            // e.g. when the build of jme3-bullet-native has been run on a virtual box
-            // and the project hasn't been cleaned yet.
-            jar.into("native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}") { from binary.tasks.outputFile }
-            return
-        }
-    }
-
-    // For all binaries that can be built on the current system
-    def builderTask = binary.tasks
-    // Add output to jar file
-    jar.into("native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}") { from builderTask.outputFile }
-    // Add depend on build
-    jar.dependsOn builderTask
-    // Add output to libs folder
-    task "copyBinaryToLibs${targetPlatform}"(type: Copy, dependsOn: builderTask) {
-        from builderTask.outputFile
-        into "libs/native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}"
-    }
-    // Add depend on copy
-    jar.dependsOn("copyBinaryToLibs${targetPlatform}")
 }
 
 // Helper class to wrap ant dowload task
@@ -230,7 +223,6 @@ class MyDownload extends DefaultTask {
 
     @TaskAction
     void download() {
-       ant.get(src: sourceUrl, dest: target)
+        ant.get(src: sourceUrl, dest: target)
     }
 }
-
