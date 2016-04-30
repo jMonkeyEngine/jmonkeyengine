@@ -1,6 +1,0 @@
-task copySshKnownHosts(type: Copy) {
-    from 'private/known_hosts'
-    into System.properties['user.home'] + '/.ssh'
-}
-
-uploadArchives.dependsOn copySshKnownHosts

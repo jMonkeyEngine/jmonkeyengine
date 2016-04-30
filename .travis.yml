@@ -1,6 +1,9 @@
 language: java
 sudo: false
 
+addons:
+  ssh_known_hosts: updates.jmonkeyengine.org
+
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
  
