@@ -84,7 +84,6 @@ def pomConfig = {
             distribution POM_LICENSE_DISTRIBUTION
         }
     }
-    // from http://hub.jmonkeyengine.org/introduction/team/
     developers {
         developer {
             name 'jMonkeyEngine Team'
@@ -110,7 +109,7 @@ uploadArchives.dependsOn(writeFullPom)
 artifacts {
     archives jar
     archives sourcesJar
-    if(buildJavaDoc == "true"){
+    if (buildJavaDoc == "true") {
         archives javadocJar
     }
     archives writeFullPom.outputs.files[0]
@@ -129,13 +128,4 @@ uploadArchives {
         
         pom.project pomConfig
     }
-}
-
-task createFolders(description: 'Creates the source folders if they do not exist.') doLast {
-//    sourceSets*.allSource*.srcDirs*.each { File srcDir ->
-//        if (!srcDir.isDirectory()) {
-//            println "Creating source folder: ${srcDir}"
-//            srcDir.mkdirs()
-//        }
-//    }
 }
