@@ -1,11 +1,13 @@
 language: java
 sudo: false
-env:
- - GRADLE_USER_HOME=gradle-cache
+
+before_cache:
+  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
  
 cache:
   directories:
-   - gradle-cache
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
 
 notifications:
   slack:
