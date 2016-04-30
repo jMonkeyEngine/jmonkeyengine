@@ -33,7 +33,7 @@ task updateVersionPropertiesFile {
                           "version.tag=${jmeVersionTag}"
 
     outputs.upToDateWhen { 
-        versionFile.text == versionFileText
+        versionFile.exists() && versionFile.text == versionFileText
     }
     doLast {
         versionFile.text = versionFileText
