@@ -6,11 +6,6 @@ env:
 cache:
   directories:
    - gradle-cache
-   - netbeans
-
-# branches:
-#   only:
-#   - master
 
 notifications:
   slack:
