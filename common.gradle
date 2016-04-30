@@ -71,7 +71,7 @@ def pomConfig = {
     name POM_NAME
     description POM_DESCRIPTION
     url POM_URL
-    inceptionYear '2016'
+    inceptionYear POM_INCEPTION_YEAR
     scm {
         url POM_SCM_URL
         connection POM_SCM_CONNECTION
