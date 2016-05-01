@@ -63,13 +63,13 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
     private Vector2f C;
     private Image texCL;
     private boolean dragging;
-    private int gcCounter;
 
     public static void main(String[] args){
         TestWriteToTexture app = new TestWriteToTexture();
         AppSettings settings = new AppSettings(true);
         settings.setOpenCLSupport(true);
         settings.setVSync(false);
+//        settings.setRenderer(AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE);
         app.setSettings(settings);
         app.start(); // start the game
     }
@@ -87,7 +87,6 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
         guiNode.attachChild(pic);
         
         initCounter = 0;
-        gcCounter = 0;
         
         flyCam.setEnabled(false);
         inputManager.setCursorVisible(true);

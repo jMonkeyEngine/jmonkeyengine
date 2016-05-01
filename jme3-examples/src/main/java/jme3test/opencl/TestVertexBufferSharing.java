@@ -64,6 +64,7 @@ public class TestVertexBufferSharing extends SimpleApplication {
         AppSettings settings = new AppSettings(true);
         settings.setOpenCLSupport(true);
         settings.setVSync(false);
+//        settings.setRenderer(AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE);
         app.setSettings(settings);
         app.start(); // start the game
     }

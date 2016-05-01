@@ -58,6 +58,7 @@ public class HelloOpenCL extends SimpleApplication {
         AppSettings settings = new AppSettings(true);
         settings.setOpenCLSupport(true);
         settings.setVSync(true);
+//        settings.setRenderer(AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE);
         app.setSettings(settings);
         app.start(); // start the game
     }
@@ -208,7 +209,11 @@ public class HelloOpenCL extends SimpleApplication {
             //query supported formats
             for (MemoryAccess ma : MemoryAccess.values()) {
                 for (Image.ImageType type : Image.ImageType.values()) {
-                    System.out.println("Formats for "+ma+" and "+type+": "+Arrays.toString(clContext.querySupportedFormats(ma, type)));
+                    try {
+                        System.out.println("Formats for " + ma + " and " + type + ": " + Arrays.toString(clContext.querySupportedFormats(ma, type)));
+                    } catch (UnsupportedOperationException e) {
+                        LOG.warning(e.getLocalizedMessage());
+                    }
                 }
             }
             

@@ -419,9 +419,7 @@ public class LwjglImage implements Image {
                 Utils.pointerBuffers[1], Utils.pointerBuffers[2], 
                 Utils.pointerBuffers[3], Utils.pointerBuffers[4], null, null, Utils.errorBuffer);
         Utils.checkError(Utils.errorBuffer, "clEnqueueMapBuffer");
-        long event = Utils.pointerBuffers[0].get(0);
-        return new ImageMapping(buf, Utils.pointerBuffers[3].get(0), Utils.pointerBuffers[4].get(0), 
-                new LwjglEvent(q.getCLEvent(event)));
+        return new ImageMapping(buf, Utils.pointerBuffers[3].get(0), Utils.pointerBuffers[4].get(0));
     }
 
     @Override
@@ -441,9 +439,10 @@ public class LwjglImage implements Image {
         Utils.errorBuffer.rewind();
         ByteBuffer buf = CL10.clEnqueueMapImage(q, image, CL10.CL_FALSE, flags, 
                 Utils.pointerBuffers[1], Utils.pointerBuffers[2], 
-                Utils.pointerBuffers[3], Utils.pointerBuffers[4], null, null, Utils.errorBuffer);
+                Utils.pointerBuffers[3], Utils.pointerBuffers[4], null, Utils.pointerBuffers[0], Utils.errorBuffer);
         Utils.checkError(Utils.errorBuffer, "clEnqueueMapBuffer");
-        return new ImageMapping(buf, Utils.pointerBuffers[3].get(0), Utils.pointerBuffers[4].get(0));
+        long event = Utils.pointerBuffers[0].get(0);
+        return new ImageMapping(buf, Utils.pointerBuffers[3].get(0), Utils.pointerBuffers[4].get(0), new LwjglEvent(q.getCLEvent(event)));
     }
 
     @Override
