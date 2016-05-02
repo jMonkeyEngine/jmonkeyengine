@@ -208,6 +208,17 @@ public class LwjglContext extends Context {
         return new LwjglProgram(p, this);
     }
 
+    @Override
+    public Program createProgramFromBinary(ByteBuffer binaries, Device device) {
+        Utils.errorBuffer.rewind();
+        Utils.tempBuffers[0].b16i.rewind();
+        CLProgram p = CL10.clCreateProgramWithBinary(context, ((LwjglDevice) device).device, 
+                binaries, Utils.tempBuffers[0].b16i, Utils.errorBuffer);
+        Utils.checkError(Utils.errorBuffer, "clCreateProgramWithSource");
+        Utils.checkError(Utils.tempBuffers[0].b16i, "clCreateProgramWithSource");
+        return new LwjglProgram(p, this);
+    }
+
     private static class ReleaserImpl implements ObjectReleaser {
         private CLContext context;
         private final List<LwjglDevice> devices;

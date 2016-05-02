@@ -367,4 +367,22 @@ public abstract class Context extends AbstractOpenCLObject {
     public Program createProgramFromSourceFiles(AssetManager assetManager, List<String> resources) {
         return createProgramFromSourceFilesWithInclude(assetManager, "", resources);
     }
+    
+    /**
+     * Creates a program from the specified binaries.
+     * The binaries are created by {@link Program#getBinary(com.jme3.opencl.Device) }.
+     * The returned program still needs to be build using
+     * {@link Program#build(java.lang.String, com.jme3.opencl.Device...) }.
+     * <b>Important:</b>The device passed to {@code Program.getBinary(..)},
+     * this method and {@code Program#build(..)} must be the same.
+     * 
+     * The binaries are used to build a program cache across multiple launches
+     * of the application. The programs build mach faster from binaries than
+     * from sources.
+     * 
+     * @param binaries the binaries
+     * @param device the device to use
+     * @return the new program
+     */
+    public abstract Program createProgramFromBinary(ByteBuffer binaries, Device device);
 }

@@ -31,10 +31,8 @@
  */
 package com.jme3.opencl.lwjgl;
 
-import com.jme3.opencl.Kernel;
-import com.jme3.opencl.KernelCompilationException;
-import com.jme3.opencl.OpenCLObjectManager;
-import com.jme3.opencl.Program;
+import com.jme3.opencl.*;
+import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.PointerBuffer;
@@ -61,8 +59,17 @@ public class LwjglProgram extends Program {
     }
 
     @Override
-    public void build(String args) throws KernelCompilationException {
-        int ret = CL10.clBuildProgram(program, (PointerBuffer) null, args, null);
+    public void build(String args, Device... devices) throws KernelCompilationException {
+        PointerBuffer deviceList = null;
+        if (devices != null) {
+            deviceList = PointerBuffer.allocateDirect(devices.length);
+            deviceList.rewind();
+            for (Device d : devices) {
+                deviceList.put(((LwjglDevice) d).device.getPointer());
+            }
+            deviceList.flip();
+        }
+        int ret = CL10.clBuildProgram(program, deviceList, args, null);
         if (ret != CL10.CL_SUCCESS) {
             String log = Log();
             LOG.log(Level.WARNING, "Unable to compile program:\n{0}", log);
@@ -102,6 +109,20 @@ public class LwjglProgram extends Program {
             kx[i] = new LwjglKernel(kernels[i]);
         }
         return kx;
+    }
+
+    @Override
+    public ByteBuffer getBinary(Device device) {
+        ByteBuffer[] binaries = program.getInfoBinaries((ByteBuffer[]) null);
+        CLDevice[] devices = program.getInfoDevices();
+        //find the requested one
+        assert (binaries.length == devices.length);
+        for (int i=0; i<devices.length; ++i) {
+            if (((LwjglDevice) device).device == devices[i]) {
+                return binaries[i];
+            }
+        }
+        throw new com.jme3.opencl.OpenCLException("Program was not built against the specified device "+device);
     }
 
     private static class ReleaserImpl implements ObjectReleaser {
