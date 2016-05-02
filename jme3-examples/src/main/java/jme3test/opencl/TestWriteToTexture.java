@@ -49,6 +49,8 @@ import java.util.logging.Logger;
  * This test class tests the capability to write to a GL texture from OpenCL.
  * Move the mouse around while pressing the left mouse key to modify the fractal.
  * 
+ * In addition, this test shows how to use {@link ProgramCache}.
+ * 
  * @author shaman
  */
 public class TestWriteToTexture extends SimpleApplication implements AnalogListener, ActionListener {
@@ -59,6 +61,7 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
     private int initCounter;
     private Context clContext;
     private CommandQueue clQueue;
+    private ProgramCache programCache;
     private Kernel kernel;
     private Vector2f C;
     private Image texCL;
@@ -121,9 +124,16 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
         clContext = context.getOpenCLContext();
         clQueue = clContext.createQueue();
         clQueue.register();
+        programCache = new ProgramCache(clContext);
         //create kernel
-        Program program = clContext.createProgramFromSourceFiles(assetManager, "jme3test/opencl/JuliaSet.cl");
-        program.build();
+        String cacheID = getClass().getName()+".Julia";
+        Program program = programCache.loadFromCache(cacheID);
+        if (program == null) {
+            LOG.info("Program not loaded from cache, create from sources instead");
+            program = clContext.createProgramFromSourceFiles(assetManager, "jme3test/opencl/JuliaSet.cl");
+            program.build();
+            programCache.saveToCache(cacheID, program);
+        }
         program.register();
         kernel = program.createKernel("JuliaSet");
         kernel.register();

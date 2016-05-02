@@ -71,7 +71,7 @@ public abstract class Program extends AbstractOpenCLObject {
      * @see #build(java.lang.String) 
      */
 	public void build() throws KernelCompilationException {
-        build("", null);
+        build("", (Device[]) null);
     }
 
     /**
