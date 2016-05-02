@@ -44,8 +44,8 @@ public class LwjglBuffer extends Buffer {
     private final CLMem buffer;
 
     public LwjglBuffer(CLMem buffer) {
+        super(new ReleaserImpl(buffer));
         this.buffer = buffer;
-        OpenCLObjectManager.getInstance().registerObject(this);
     }
     public CLMem getBuffer() {
         return buffer;
@@ -205,10 +205,6 @@ public class LwjglBuffer extends Buffer {
         return new LwjglEvent(q.getCLEvent(event));
     }
 
-    @Override
-    public ObjectReleaser getReleaser() {
-        return new ReleaserImpl(buffer);
-    }
     private static class ReleaserImpl implements ObjectReleaser {
         private CLMem mem;
         private ReleaserImpl(CLMem mem) {

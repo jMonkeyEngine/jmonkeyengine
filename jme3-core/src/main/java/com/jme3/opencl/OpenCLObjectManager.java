@@ -43,8 +43,8 @@ import java.util.logging.Logger;
  */
 public class OpenCLObjectManager {
     private static final Logger LOG = Logger.getLogger(OpenCLObjectManager.class.getName());
-    private static final Level LOG_LEVEL1 = Level.FINER;
-    private static final Level LOG_LEVEL2 = Level.FINE;
+    private static final Level LOG_LEVEL1 = Level.INFO;
+    private static final Level LOG_LEVEL2 = Level.INFO;
     /**
      * Call Runtime.getRuntime().gc() every these frames
      */
@@ -85,6 +85,7 @@ public class OpenCLObjectManager {
         
     public void deleteUnusedObjects() {
         if (activeObjects.isEmpty()) {
+            LOG.log(LOG_LEVEL2, "no active natives");
             return; //nothing to do
         }
         
@@ -108,7 +109,7 @@ public class OpenCLObjectManager {
             removed++;
         }
         if (removed >= 1) {
-            LOG.log(LOG_LEVEL2, "NativeObjectManager: {0} native objects were removed from native", removed);
+            LOG.log(LOG_LEVEL2, "{0} native objects were removed from native", removed);
         }
     }
     

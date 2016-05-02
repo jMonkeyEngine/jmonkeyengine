@@ -40,7 +40,6 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Texture;
 import com.jogamp.opencl.CLContext;
 import com.jogamp.opencl.CLImageFormat;
-import com.jogamp.opencl.CLMemory;
 import com.jogamp.opencl.CLMemory.Mem;
 import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.llb.CL;
@@ -48,7 +47,6 @@ import com.jogamp.opencl.llb.gl.CLGL;
 import com.jogamp.opencl.llb.impl.CLImageFormatImpl;
 import com.jogamp.opengl.GL;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,11 +64,11 @@ public class JoclContext extends Context {
     private final List<JoclDevice> devices;
 
     public JoclContext(CLContext context, List<JoclDevice> devices) {
+        super(new ReleaserImpl(context.ID, devices));
         this.context = context;
         this.id = context.ID;
         this.cl = context.getCL();
         this.devices = devices;
-        OpenCLObjectManager.getInstance().registerObject(this);
     }
 
     public CLContext getContext() {
@@ -224,10 +222,6 @@ public class JoclContext extends Context {
         return new JoclProgram(p, this);
     }
 
-    @Override
-    public ObjectReleaser getReleaser() {
-        return new ReleaserImpl(id, devices);
-    }
     private static class ReleaserImpl implements ObjectReleaser {
         private long id;
         private final List<JoclDevice> devices;

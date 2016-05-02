@@ -37,7 +37,6 @@ import com.jme3.math.Vector4f;
 import com.jme3.opencl.*;
 import com.jme3.opencl.Buffer;
 import com.jogamp.common.nio.PointerBuffer;
-import com.jogamp.opencl.CLKernel;
 import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.llb.CL;
 import java.nio.*;
@@ -55,6 +54,7 @@ public class JoclKernel extends Kernel {
     final CL cl;
 
     public JoclKernel(long kernel) {
+        super(new ReleaserImpl(kernel));
         this.kernel = kernel;
         this.cl = CLPlatform.getLowLevelCLInterface();
         OpenCLObjectManager.getInstance().registerObject(this);
@@ -240,10 +240,6 @@ public class JoclKernel extends Kernel {
         return new JoclEvent(Utils.pointers[0].get(0));
     }
 
-    @Override
-    public ObjectReleaser getReleaser() {
-        return new ReleaserImpl(kernel);
-    }
     private static class ReleaserImpl implements ObjectReleaser {
         private long kernel;
         private ReleaserImpl(long kernel) {

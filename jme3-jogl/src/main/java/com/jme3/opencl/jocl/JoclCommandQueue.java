@@ -42,15 +42,15 @@ import com.jogamp.opencl.llb.CLCommandQueueBinding;
  *
  * @author shaman
  */
-public class JoclCommandQueue implements CommandQueue {
+public class JoclCommandQueue extends CommandQueue {
 
     final CL cl;
     final long id;
 
     public JoclCommandQueue(long id) {
+        super(new ReleaserImpl(id));
         this.id = id;
         this.cl = CLPlatform.getLowLevelCLInterface();
-        OpenCLObjectManager.getInstance().registerObject(this);
     }
     
     @Override
@@ -65,23 +65,17 @@ public class JoclCommandQueue implements CommandQueue {
         Utils.checkError(ret, "clFinish");
     }
     
-    @Override
-    public ObjectReleaser getReleaser() {
-        return new ReleaserImpl(id, cl);
-    }
     private static class ReleaserImpl implements ObjectReleaser {
         private long id;
-        private CLCommandQueueBinding cl;
 
-        private ReleaserImpl(long id, CLCommandQueueBinding cl) {
+        private ReleaserImpl(long id) {
             this.id = id;
-            this.cl = cl;
         }
         
         @Override
         public void release() {
             if (id != 0) {
-                int ret = cl.clReleaseCommandQueue(id);
+                int ret = CLPlatform.getLowLevelCLInterface().clReleaseCommandQueue(id);
                 id = 0;
                 Utils.reportError(ret, "clReleaseCommandQueue");
             }

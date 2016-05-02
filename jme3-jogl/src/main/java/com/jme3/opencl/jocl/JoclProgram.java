@@ -50,7 +50,7 @@ import static com.jogamp.opencl.llb.CL.CL_SUCCESS;
  *
  * @author shaman
  */
-public class JoclProgram implements Program {
+public class JoclProgram extends Program {
     private static final Logger LOG = Logger.getLogger(JoclProgram.class.getName());
     
     final long program;
@@ -58,10 +58,10 @@ public class JoclProgram implements Program {
     private final JoclContext context;
 
     public JoclProgram(long program, JoclContext context) {
+        super(new ReleaserImpl(program));
         this.program = program;
         this.context = context;
         this.cl = CLPlatform.getLowLevelCLInterface();
-        OpenCLObjectManager.getInstance().registerObject(this);
     }
 
     @Override
@@ -78,11 +78,6 @@ public class JoclProgram implements Program {
         } else {
             LOG.log(Level.INFO, "Program compiled:\n{0}", Log());
         }
-    }
-
-    @Override
-    public void build() throws KernelCompilationException {
-        build("");
     }
     
     private String Log(long device) {
@@ -131,10 +126,6 @@ public class JoclProgram implements Program {
         return kx;
     }
 
-    @Override
-    public ObjectReleaser getReleaser() {
-        return new ReleaserImpl(program);
-    }
     private static class ReleaserImpl implements ObjectReleaser {
         private long program;
         private ReleaserImpl(long program) {

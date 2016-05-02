@@ -74,7 +74,7 @@ import java.util.Objects;
  *
  * @author shaman
  */
-public interface Image extends OpenCLObject {
+public abstract class Image extends AbstractOpenCLObject {
     
     /**
      * {@code ImageChannelType} describes the size of the channel data type.
@@ -245,47 +245,51 @@ memory layout in which channels are stored in the image.
         }
         
     }
+
+    protected Image(ObjectReleaser releaser) {
+        super(releaser);
+    }
     
     /**
      * @return the width of the image
      */
-    long getWidth();
+    public abstract long getWidth();
     /**
      * @return the height of the image
      */
-    long getHeight();
+    public abstract long getHeight();
     /**
      * @return the depth of the image
      */
-    long getDepth();
+    public abstract long getDepth();
     /**
      * @return the row pitch when the image was created from a host buffer
      * @see ImageDescriptor#ImageDescriptor(com.jme3.opencl.Image.ImageType, long, long, long, long, long, long, java.nio.ByteBuffer) 
      */
-    long getRowPitch();
+    public abstract long getRowPitch();
     /**
      * @return the slice pitch when the image was created from a host buffer
      * @see ImageDescriptor#ImageDescriptor(com.jme3.opencl.Image.ImageType, long, long, long, long, long, long, java.nio.ByteBuffer) 
      */
-    long getSlicePitch();
+    public abstract long getSlicePitch();
     /**
      * @return the number of elements in the image array
      * @see ImageType#IMAGE_1D_ARRAY
      * @see ImageType#IMAGE_2D_ARRAY
      */
-    long getArraySize();
+    public abstract long getArraySize();
     /**
      * @return the image format
      */
-    ImageFormat getImageFormat();
+    public abstract ImageFormat getImageFormat();
     /**
      * @return the image type
      */
-    ImageType getImageType();
+    public abstract ImageType getImageType();
     /**
      * @return the number of bytes per pixel
      */
-    int getElementSize();
+    public abstract int getElementSize();
     
     /**
      * Performs a blocking read of the image into the specified byte buffer.
@@ -298,7 +302,7 @@ memory layout in which channels are stored in the image.
      * @param slicePitch the slice pitch of the target buffer, must be set to 0 for 1D and 2D images.
      * If set to 0 for 3D images, the slice pitch is calculated as {@code rowPitch * height}
      */
-    void readImage(CommandQueue queue, ByteBuffer dest, long[] origin, long[] region, long rowPitch, long slicePitch);
+    public abstract void readImage(CommandQueue queue, ByteBuffer dest, long[] origin, long[] region, long rowPitch, long slicePitch);
     /**
      * Performs an async/non-blocking read of the image into the specified byte buffer.
      * @param queue the command queue
@@ -311,7 +315,7 @@ memory layout in which channels are stored in the image.
      * If set to 0 for 3D images, the slice pitch is calculated as {@code rowPitch * height}
      * @return the event object indicating the status of the operation
      */
-    Event readImageAsync(CommandQueue queue, ByteBuffer dest, long[] origin, long[] region, long rowPitch, long slicePitch);
+    public abstract Event readImageAsync(CommandQueue queue, ByteBuffer dest, long[] origin, long[] region, long rowPitch, long slicePitch);
     
     /**
      * Performs a blocking write from the specified byte buffer into the image.
@@ -324,7 +328,7 @@ memory layout in which channels are stored in the image.
      * @param slicePitch the slice pitch of the target buffer, must be set to 0 for 1D and 2D images.
      * If set to 0 for 3D images, the slice pitch is calculated as {@code rowPitch * height}
      */
-    void writeImage(CommandQueue queue, ByteBuffer src, long[] origin, long[] region, long rowPitch, long slicePitch);
+    public abstract void writeImage(CommandQueue queue, ByteBuffer src, long[] origin, long[] region, long rowPitch, long slicePitch);
     /**
      * Performs an async/non-blocking write from the specified byte buffer into the image.
      * @param queue the command queue
@@ -337,7 +341,7 @@ memory layout in which channels are stored in the image.
      * If set to 0 for 3D images, the slice pitch is calculated as {@code rowPitch * height}
      * @return the event object indicating the status of the operation
      */
-    Event writeImageAsync(CommandQueue queue, ByteBuffer src, long[] origin, long[] region, long rowPitch, long slicePitch);
+    public abstract Event writeImageAsync(CommandQueue queue, ByteBuffer src, long[] origin, long[] region, long rowPitch, long slicePitch);
     
     /**
      * Performs a blocking copy operation from one image to another.
@@ -348,7 +352,7 @@ memory layout in which channels are stored in the image.
      * @param destOrigin the target image origin, see class description for the format
      * @param region the copied region, see class description for the format
      */
-    void copyTo(CommandQueue queue, Image dest, long[] srcOrigin, long[] destOrigin, long[] region);
+    public abstract void copyTo(CommandQueue queue, Image dest, long[] srcOrigin, long[] destOrigin, long[] region);
     /**
      * Performs an async/non-blocking copy operation from one image to another.
      * <b>Important:</b> Both images must have the same format!
@@ -359,7 +363,7 @@ memory layout in which channels are stored in the image.
      * @param region the copied region, see class description for the format
      * @return the event object indicating the status of the operation
      */
-    Event copyToAsync(CommandQueue queue, Image dest, long[] srcOrigin, long[] destOrigin, long[] region);
+    public abstract Event copyToAsync(CommandQueue queue, Image dest, long[] srcOrigin, long[] destOrigin, long[] region);
     
     /**
      * Maps the image into host memory.
@@ -373,7 +377,7 @@ memory layout in which channels are stored in the image.
      * @return a structure describing the mapped memory
      * @see #unmap(com.jme3.opencl.CommandQueue, com.jme3.opencl.Image.ImageMapping) 
      */
-    ImageMapping map(CommandQueue queue, long[] origin, long[] region, MappingAccess access);
+    public abstract ImageMapping map(CommandQueue queue, long[] origin, long[] region, MappingAccess access);
     /**
      * Non-blocking version of {@link #map(com.jme3.opencl.CommandQueue, long[], long[], com.jme3.opencl.MappingAccess) }.
      * The returned structure contains the mapped byte buffer and row and slice pitch.
@@ -385,13 +389,13 @@ memory layout in which channels are stored in the image.
      * @return a structure describing the mapped memory
      * @see #unmap(com.jme3.opencl.CommandQueue, com.jme3.opencl.Image.ImageMapping) 
      */
-    ImageMapping mapAsync(CommandQueue queue, long[] origin, long[] region, MappingAccess access);
+    public abstract ImageMapping mapAsync(CommandQueue queue, long[] origin, long[] region, MappingAccess access);
     /**
      * Unmaps the mapped memory
      * @param queue the command queue
      * @param mapping the mapped memory
      */
-    void unmap(CommandQueue queue, ImageMapping mapping);
+    public abstract void unmap(CommandQueue queue, ImageMapping mapping);
     
     /**
      * Describes a mapped region of the image
@@ -442,7 +446,7 @@ memory layout in which channels are stored in the image.
      * @param color the color to fill
      * @return an event object to detect for the completion
      */
-    Event fillAsync(CommandQueue queue, long[] origin, long[] region, ColorRGBA color);
+    public abstract Event fillAsync(CommandQueue queue, long[] origin, long[] region, ColorRGBA color);
     /**
      * Fills the image with the specified color given as four integer variables.
      * Does <b>not</b> work if the image channel is {@link ImageChannelType#FLOAT}
@@ -453,7 +457,7 @@ memory layout in which channels are stored in the image.
      * @param color the color to fill, must be an array of length 4
      * @return an event object to detect for the completion
      */
-    Event fillAsync(CommandQueue queue, long[] origin, long[] region, int[] color);
+    public abstract Event fillAsync(CommandQueue queue, long[] origin, long[] region, int[] color);
     
     /**
      * Copies this image into the specified buffer, no format conversion is done.
@@ -466,7 +470,7 @@ memory layout in which channels are stored in the image.
      * @param destOffset an offset into the target buffer
      * @return the event object to detect the completion of the operation
      */
-    Event copyToBufferAsync(CommandQueue queue, Buffer dest, long[] srcOrigin, long[] srcRegion, long destOffset);
+    public abstract Event copyToBufferAsync(CommandQueue queue, Buffer dest, long[] srcOrigin, long[] srcRegion, long destOffset);
     
     /**
      * Aquires this image object for using. Only call this method if this image
@@ -480,7 +484,7 @@ memory layout in which channels are stored in the image.
      * @param queue the command queue
      * @return the event object
      */
-    Event acquireImageForSharingAsync(CommandQueue queue);
+    public abstract Event acquireImageForSharingAsync(CommandQueue queue);
     /**
      * Releases a shared image object.
      * Call this method after the image object was acquired by
@@ -489,7 +493,7 @@ memory layout in which channels are stored in the image.
      * @param queue the command queue
      * @return the event object
      */
-    Event releaseImageForSharingAsync(CommandQueue queue);
+    public abstract Event releaseImageForSharingAsync(CommandQueue queue);
     
     //TODO: add variants of the above two methods that don't create the event object, but release the event immediately
 }

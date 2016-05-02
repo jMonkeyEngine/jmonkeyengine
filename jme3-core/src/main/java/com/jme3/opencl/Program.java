@@ -42,8 +42,12 @@ package com.jme3.opencl;
  * @see #createKernel(java.lang.String) 
  * @author shaman
  */
-public interface Program extends OpenCLObject {
-	
+public abstract class Program extends AbstractOpenCLObject {
+
+    protected Program(ObjectReleaser releaser) {
+        super(releaser);
+    }
+    
     /**
      * Builds this program with the specified argument string.
      * Please see the official OpenCL specification for a definition of
@@ -52,13 +56,15 @@ public interface Program extends OpenCLObject {
      * @throws KernelCompilationException if the compilation fails
      * @see #build() 
      */
-	void build(String args) throws KernelCompilationException;
+	public abstract void build(String args) throws KernelCompilationException;
     /**
      * Builds this program without additional arguments
      * @throws KernelCompilationException if the compilation fails
      * @see #build(java.lang.String) 
      */
-	void build() throws KernelCompilationException;
+	public void build() throws KernelCompilationException {
+        build("");
+    }
 
     /**
      * Creates the kernel with the specified name.
@@ -67,13 +73,13 @@ public interface Program extends OpenCLObject {
      * @throws OpenCLException if the kernel was not found or some other
      * error occured
      */
-	Kernel createKernel(String name);
+	public abstract Kernel createKernel(String name);
     
     /**
      * Creates all available kernels in this program.
      * The names of the kernels can then by queried by {@link Kernel#getName() }.
      * @return an array of all kernels
      */
-	Kernel[] createAllKernels();
+	public abstract Kernel[] createAllKernels();
     
 }

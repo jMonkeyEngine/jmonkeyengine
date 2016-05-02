@@ -63,8 +63,12 @@ import java.util.logging.Logger;
  * </ul>
  * @author shaman
  */
-public abstract class Context implements OpenCLObject {
+public abstract class Context extends AbstractOpenCLObject {
     private static final Logger LOG = Logger.getLogger(Context.class.getName());
+
+    protected Context(ObjectReleaser releaser) {
+        super(releaser);
+    }
 
     /**
      * Returns all available devices for this context.

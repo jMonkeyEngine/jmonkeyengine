@@ -107,6 +107,7 @@ public class TestVertexBufferSharing extends SimpleApplication {
     private void initOpenCL1() {
         clContext = context.getOpenCLContext();
         clQueue = clContext.createQueue();
+        clQueue.register();
         //create kernel
         String source = ""
                 + "__kernel void ScaleKernel(__global float* vb, float scale)\n"
@@ -118,12 +119,15 @@ public class TestVertexBufferSharing extends SimpleApplication {
                 + "}\n";
         Program program = clContext.createProgramFromSourceCode(source);
         program.build();
+        program.register();
         kernel = program.createKernel("ScaleKernel");
+        kernel.register();
     }
     private void initOpenCL2() {
         //bind vertex buffer to OpenCL
         VertexBuffer vb = geom.getMesh().getBuffer(VertexBuffer.Type.Position);
         buffer = clContext.bindVertexBuffer(vb, MemoryAccess.READ_WRITE);
+        buffer.register();
         ws = new com.jme3.opencl.Kernel.WorkSize(geom.getMesh().getVertexCount());
     }
     private void updateOpenCL(float tpf) {
@@ -131,15 +135,15 @@ public class TestVertexBufferSharing extends SimpleApplication {
         time += tpf;
         
         //aquire resource
-        buffer.acquireBufferForSharingAsync(clQueue);
+        buffer.acquireBufferForSharingAsync(clQueue).release();
         //no need to wait for the returned event, since the kernel implicitely waits for it (same command queue)
         
         //execute kernel
         float scale = (float) Math.pow(1.1, (1.0 - time%2) / 16.0);
-        kernel.Run1(clQueue, ws, buffer, scale);
+        kernel.Run1(clQueue, ws, buffer, scale).release();
         
         //release resource
-        buffer.releaseBufferForSharingAsync(clQueue);
+        buffer.releaseBufferForSharingAsync(clQueue).release();
     }
 
 }

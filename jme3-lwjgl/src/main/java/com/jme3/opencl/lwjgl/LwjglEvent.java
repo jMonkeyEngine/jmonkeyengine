@@ -41,30 +41,23 @@ import org.lwjgl.opencl.CLEvent;
  *
  * @author shaman
  */
-public class LwjglEvent implements Event {
+public class LwjglEvent extends Event {
     private static final Logger LOG = Logger.getLogger(LwjglEvent.class.getName());
     private CLEvent event;
+    private ReleaserImpl releaser;
 
     public LwjglEvent(CLEvent event) {
+        super(new ReleaserImpl(event));
         this.event = event;
         if (event == null) {
             LOG.warning("event is null!");
         } else {
-            OpenCLObjectManager.getInstance().registerObject(this);
+            this.releaser = new ReleaserImpl(event);
         }
     }
 
     public CLEvent getEvent() {
         return event;
-    }
-    
-    protected void release() {
-        if (event != null && event.isValid()) {
-            int ret = CL10.clReleaseEvent(event);
-            event = null;
-            Utils.reportError(ret, "clReleaseEvent");
-            LOG.finer("Event deleted");
-        }
     }
 
     @Override
@@ -93,11 +86,6 @@ public class LwjglEvent implements Event {
         }
     }
 
-    @Override
-    public ObjectReleaser getReleaser() {
-        return new ReleaserImpl(event);
-    }
-    
     private static class ReleaserImpl implements ObjectReleaser {
         private CLEvent event;
 

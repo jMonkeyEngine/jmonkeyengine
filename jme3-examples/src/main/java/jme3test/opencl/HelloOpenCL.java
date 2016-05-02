@@ -85,6 +85,8 @@ public class HelloOpenCL extends SimpleApplication {
         str.append("\n  Kernel: ").append(testKernel(clContext, clQueue));
         str.append("\n  Images: ").append(testImages(clContext, clQueue));
         
+        clQueue.release();
+        
         BitmapText txt1 = new BitmapText(fnt);
         txt1.setText(str.toString());
         txt1.setLocalTranslation(5, settings.getHeight() - 5, 0);
@@ -159,6 +161,10 @@ public class HelloOpenCL extends SimpleApplication {
                 assertEquals((byte) (i+low), b, "Wrong byte read");
             }
         
+            //release
+            b1.release();
+            b2.release();
+            
         } catch (AssertionError ex) {
             LOG.log(Level.SEVERE, "Buffer test failed with an assertion error");
             return false;
@@ -193,6 +199,11 @@ public class HelloOpenCL extends SimpleApplication {
                 assertEquals(value, v, "Buffer filled with the wrong value at index "+i);
             }
             buffer.unmap(clQueue, buf);
+            
+            //release
+            buffer.release();
+            kernel.release();
+            program.release();
 
         } catch (AssertionError ex) {
             LOG.log(Level.SEVERE, "kernel test failed with an assertion error");
@@ -239,7 +250,8 @@ public class HelloOpenCL extends SimpleApplication {
             
             //copy to a buffer
             Buffer buffer = clContext.createBuffer(4*4*500*1024);
-            image.copyToBufferAsync(clQueue, buffer, new long[]{10,10,0}, new long[]{500,1024,1}, 0);
+            Event e3 = image.copyToBufferAsync(clQueue, buffer, new long[]{10,10,0}, new long[]{500,1024,1}, 0);
+            e3.release();
             //this buffer must be completely red
             ByteBuffer map1 = buffer.map(clQueue, MappingAccess.MAP_READ_ONLY);
             FloatBuffer map1F = map1.asFloatBuffer(); map1F.rewind();
@@ -281,6 +293,11 @@ public class HelloOpenCL extends SimpleApplication {
                 }
             }
             image2.unmap(clQueue, map2);
+            
+            //release
+            image.release();
+            image2.release();
+            buffer.release();
             
         } catch (AssertionError ex) {
             LOG.log(Level.SEVERE, "image test failed with an assertion error");

@@ -48,9 +48,9 @@ public class JoclBuffer extends Buffer {
     final CL cl;
 
     public JoclBuffer(long id) {
+        super(new ReleaserImpl(id));
         this.id = id;
         this.cl = CLPlatform.getLowLevelCLInterface();
-        OpenCLObjectManager.getInstance().registerObject(this);
     }
     
     @Override
@@ -203,10 +203,6 @@ public class JoclBuffer extends Buffer {
         return new JoclEvent(event);
     }
 
-    @Override
-    public ObjectReleaser getReleaser() {
-        return new ReleaserImpl(id);
-    }
     private static class ReleaserImpl implements ObjectReleaser {
         private long mem;
         private ReleaserImpl(long mem) {

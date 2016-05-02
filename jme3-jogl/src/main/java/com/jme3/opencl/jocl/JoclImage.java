@@ -44,16 +44,16 @@ import java.util.logging.Logger;
  *
  * @author shaman
  */
-public class JoclImage implements Image {
+public class JoclImage extends Image {
     private static final Logger LOG = Logger.getLogger(JoclImage.class.getName());
 
     final long id;
     final CL cl;
 
     public JoclImage(long image) {
+        super(new ReleaserImpl(image));
         this.id = image;
         this.cl = CLPlatform.getLowLevelCLInterface();
-        OpenCLObjectManager.getInstance().registerObject(this);
     }
 
     public static int decodeImageChannelOrder(ImageChannelOrder order) {
@@ -512,10 +512,6 @@ public class JoclImage implements Image {
         return new JoclEvent(event);
     }
     
-    @Override
-    public ObjectReleaser getReleaser() {
-        return new ReleaserImpl(id);
-    }
     private static class ReleaserImpl implements ObjectReleaser {
         private long mem;
         private ReleaserImpl(long mem) {

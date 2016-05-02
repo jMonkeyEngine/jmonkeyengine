@@ -44,16 +44,16 @@ import org.lwjgl.opencl.*;
  *
  * @author shaman
  */
-public class LwjglProgram implements Program {
+public class LwjglProgram extends Program {
     private static final Logger LOG = Logger.getLogger(LwjglProgram.class.getName());
     
     private final CLProgram program;
     private final LwjglContext context;
 
     public LwjglProgram(CLProgram program, LwjglContext context) {
+        super(new ReleaserImpl(program));
         this.program = program;
         this.context = context;
-        OpenCLObjectManager.getInstance().registerObject(this);
     }
 
     public CLProgram getProgram() {
@@ -74,11 +74,6 @@ public class LwjglProgram implements Program {
         } else {
             LOG.log(Level.INFO, "Program compiled:\n{0}", Log());
         }
-    }
-
-    @Override
-    public void build() throws KernelCompilationException {
-        build("");
     }
     
     private String Log() {
@@ -109,10 +104,6 @@ public class LwjglProgram implements Program {
         return kx;
     }
 
-    @Override
-    public ObjectReleaser getReleaser() {
-        return new ReleaserImpl(program);
-    }
     private static class ReleaserImpl implements ObjectReleaser {
         private CLProgram program;
         private ReleaserImpl(CLProgram program) {

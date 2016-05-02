@@ -57,9 +57,9 @@ public class LwjglContext extends Context {
     private final List<LwjglDevice> devices;
 
     public LwjglContext(CLContext context, List<LwjglDevice> devices) {
+        super(new ReleaserImpl(context, devices));
         this.context = context;
         this.devices = devices;
-        OpenCLObjectManager.getInstance().registerObject(this);
     }
 
     public CLContext getContext() {
@@ -208,10 +208,6 @@ public class LwjglContext extends Context {
         return new LwjglProgram(p, this);
     }
 
-    @Override
-    public ObjectReleaser getReleaser() {
-        return new ReleaserImpl(context, devices);
-    }
     private static class ReleaserImpl implements ObjectReleaser {
         private CLContext context;
         private final List<LwjglDevice> devices;

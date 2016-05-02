@@ -52,8 +52,8 @@ public class LwjglKernel extends Kernel {
     private final CLKernel kernel;
 
     public LwjglKernel(CLKernel kernel) {
+        super(new ReleaserImpl(kernel));
         this.kernel = kernel;
-        OpenCLObjectManager.getInstance().registerObject(this);
     }
 
     public CLKernel getKernel() {

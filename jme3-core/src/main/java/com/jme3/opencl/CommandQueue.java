@@ -42,8 +42,12 @@ package com.jme3.opencl;
  * and all commands are sent to this device.
  * @author shaman
  */
-public interface CommandQueue extends OpenCLObject {
+public abstract class CommandQueue extends AbstractOpenCLObject {
 
+    protected CommandQueue(ObjectReleaser releaser) {
+        super(releaser);
+    }
+    
     /**
      * Issues all previously queued OpenCL commands in command_queue to the
      * device associated with command queue. Flush only guarantees that all
@@ -51,7 +55,7 @@ public interface CommandQueue extends OpenCLObject {
      * appropriate device. There is no guarantee that they will be complete
      * after flush returns.
      */
-    void flush();
+    public abstract void flush();
 
     /**
      * Blocks until all previously queued OpenCL commands in command queue are
@@ -59,6 +63,6 @@ public interface CommandQueue extends OpenCLObject {
      * return until all previously queued commands in command queue have been
      * processed and completed. Finish is also a synchronization point.
      */
-    void finish();
+    public abstract void finish();
 
 }

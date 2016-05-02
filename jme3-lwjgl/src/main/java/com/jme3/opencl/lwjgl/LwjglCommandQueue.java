@@ -40,13 +40,13 @@ import org.lwjgl.opencl.CLCommandQueue;
  *
  * @author shaman
  */
-public class LwjglCommandQueue implements CommandQueue {
+public class LwjglCommandQueue extends CommandQueue {
 
     private final CLCommandQueue queue;
 
     public LwjglCommandQueue(CLCommandQueue queue) {
+        super(new ReleaserImpl(queue));
         this.queue = queue;
-        OpenCLObjectManager.getInstance().registerObject(this);
     }
     
     public CLCommandQueue getQueue() {
@@ -65,10 +65,6 @@ public class LwjglCommandQueue implements CommandQueue {
         Utils.checkError(ret, "clFinish");
     }
     
-    @Override
-    public ObjectReleaser getReleaser() {
-        return new ReleaserImpl(queue);
-    }
     private static class ReleaserImpl implements ObjectReleaser {
         private CLCommandQueue queue;
         private ReleaserImpl(CLCommandQueue queue) {

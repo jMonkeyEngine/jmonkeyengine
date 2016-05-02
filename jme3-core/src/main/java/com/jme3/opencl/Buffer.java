@@ -47,8 +47,12 @@ import java.nio.ByteBuffer;
  * @see Context#createBuffer(long, com.jme3.opencl.MemoryAccess) 
  * @author shaman
  */
-public abstract class Buffer implements OpenCLObject {
+public abstract class Buffer extends AbstractOpenCLObject {
 
+    protected Buffer(ObjectReleaser releaser) {
+        super(releaser);
+    }
+    
     /**
      * @return the size of the buffer in bytes.
      * @see Context#createBuffer(long) 

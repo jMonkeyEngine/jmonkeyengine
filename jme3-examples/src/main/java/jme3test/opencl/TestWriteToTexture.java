@@ -120,26 +120,31 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
     private void initOpenCL1() {
         clContext = context.getOpenCLContext();
         clQueue = clContext.createQueue();
+        clQueue.register();
         //create kernel
         Program program = clContext.createProgramFromSourceFiles(assetManager, "jme3test/opencl/JuliaSet.cl");
         program.build();
+        program.register();
         kernel = program.createKernel("JuliaSet");
+        kernel.register();
         C = new Vector2f(0.12f, -0.2f);
     }
     private void initOpenCL2() {
         //bind image to OpenCL
         texCL = clContext.bindImage(tex, MemoryAccess.WRITE_ONLY);
+        texCL.register();
     }
     private void updateOpenCL(float tpf) {
         //aquire resource
-        texCL.acquireImageForSharingAsync(clQueue);
+        texCL.acquireImageForSharingAsync(clQueue).release();
         //no need to wait for the returned event, since the kernel implicitely waits for it (same command queue)
         
         //execute kernel
-        kernel.Run1(clQueue, new com.jme3.opencl.Kernel.WorkSize(settings.getWidth(), settings.getHeight()), texCL, C, 16);
+        kernel.Run1(clQueue, new com.jme3.opencl.Kernel.WorkSize(settings.getWidth(), settings.getHeight()), texCL, C, 16)
+                .release();
         
         //release resource
-        texCL.releaseImageForSharingAsync(clQueue);
+        texCL.releaseImageForSharingAsync(clQueue).release();
     }
 
     @Override

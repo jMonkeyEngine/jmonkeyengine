@@ -43,14 +43,14 @@ import org.lwjgl.opencl.api.CLImageFormat;
  *
  * @author shaman
  */
-public class LwjglImage implements Image {
+public class LwjglImage extends Image {
     private static final Logger LOG = Logger.getLogger(LwjglImage.class.getName());
 
     private final CLMem image;
 
     public LwjglImage(CLMem image) {
+        super(new ReleaserImpl(image));
         this.image = image;
-        OpenCLObjectManager.getInstance().registerObject(this);
     }
 
     public CLMem getImage() {
@@ -543,10 +543,6 @@ public class LwjglImage implements Image {
         return new LwjglEvent(q.getCLEvent(event));
     }
     
-    @Override
-    public ObjectReleaser getReleaser() {
-        return new ReleaserImpl(image);
-    }
     private static class ReleaserImpl implements ObjectReleaser {
         private CLMem mem;
         private ReleaserImpl(CLMem mem) {

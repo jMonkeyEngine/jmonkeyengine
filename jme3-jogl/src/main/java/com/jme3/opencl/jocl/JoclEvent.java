@@ -41,16 +41,16 @@ import java.util.logging.Logger;
  *
  * @author shaman
  */
-public class JoclEvent implements Event {
+public class JoclEvent extends Event {
     private static final Logger LOG = Logger.getLogger(JoclEvent.class.getName());
     
     final long id;
     final CL cl;
 
     public JoclEvent(long id) {
+        super(new ReleaserImpl(id));
         this.id = id;
         this.cl = CLPlatform.getLowLevelCLInterface();
-        OpenCLObjectManager.getInstance().registerObject(this);
     }
 
     @Override
@@ -59,6 +59,7 @@ public class JoclEvent implements Event {
         Utils.pointers[0].put(0, id);
         int ret = cl.clWaitForEvents(1, Utils.pointers[0]);
         Utils.checkError(ret, "clWaitForEvents");
+        release();
     }
 
     @Override
@@ -68,6 +69,7 @@ public class JoclEvent implements Event {
         Utils.checkError(err, "clGetEventInfo");
         int status = Utils.tempBuffers[0].b16i.get(0);
         if (status == CL.CL_SUCCESS) {
+            release();
             return true;
         } else if (status < 0) {
             Utils.checkError(status, "EventStatus");
@@ -75,11 +77,6 @@ public class JoclEvent implements Event {
         } else {
             return false;
         }
-    }
-
-    @Override
-    public ObjectReleaser getReleaser() {
-        return new ReleaserImpl(id);
     }
     
     private static class ReleaserImpl implements ObjectReleaser {

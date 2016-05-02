@@ -82,7 +82,7 @@ import java.util.Arrays;
  * @author shaman
  * @see Program#createKernel(java.lang.String) 
  */
-public abstract class Kernel implements OpenCLObject {
+public abstract class Kernel extends AbstractOpenCLObject {
     /**
      * The current global work size
      */
@@ -92,7 +92,8 @@ public abstract class Kernel implements OpenCLObject {
      */
     protected final WorkSize workGroupSize;
 
-    protected Kernel() {
+    protected Kernel(ObjectReleaser releaser) {
+        super(releaser);
         this.globalWorkSize = new WorkSize(0);
         this.workGroupSize = new WorkSize(0);
     }
