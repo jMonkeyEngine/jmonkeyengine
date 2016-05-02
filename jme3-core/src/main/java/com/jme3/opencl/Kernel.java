@@ -299,6 +299,9 @@ public abstract class Kernel extends AbstractOpenCLObject {
     /**
      * Launches the kernel with the current global work size, work group size
      * and arguments.
+     * If the returned event object is not needed and would otherwise be
+     * released immediately, {@link #RunNoEvent(com.jme3.opencl.CommandQueue) }
+     * might bring a better performance.
      * @param queue the command queue
      * @return an event object indicating when the kernel is finished
      * @see #setGlobalWorkSize(com.jme3.opencl.Kernel.WorkSize) 
@@ -306,6 +309,22 @@ public abstract class Kernel extends AbstractOpenCLObject {
      * @see #setArg(int, java.lang.Object) 
      */
     public abstract Event Run(CommandQueue queue);
+    
+    /**
+     * Launches the kernel with the current global work size, work group size
+     * and arguments without returning an event object.
+     * The generated event is directly released. Therefore, the performance
+     * is better, but there is no way to detect when the kernel execution
+     * has finished. For this purpose, use {@link #Run(com.jme3.opencl.CommandQueue) }.
+     * @param queue the command queue
+     * @see #setGlobalWorkSize(com.jme3.opencl.Kernel.WorkSize) 
+     * @see #setWorkGroupSize(com.jme3.opencl.Kernel.WorkSize) 
+     * @see #setArg(int, java.lang.Object) 
+     */
+    public void RunNoEvent(CommandQueue queue) {
+        //Default implementation, overwrite to not allocate the event object
+        Run(queue).release();
+    }
 
     /**
      * Sets the work sizes and arguments in one call and launches the kernel.
@@ -325,6 +344,28 @@ public abstract class Kernel extends AbstractOpenCLObject {
         setArgs(args);
         return Run(queue);
     }
+    
+    /**
+     * Sets the work sizes and arguments in one call and launches the kernel.
+     * The global work size is set to the specified size. The work group
+     * size is automatically determined by the driver.
+     * Each object in the argument array is sent to the kernel by
+     * {@link #setArg(int, java.lang.Object) }.
+     * The generated event is directly released. Therefore, the performance
+     * is better, but there is no way to detect when the kernel execution
+     * has finished. For this purpose, use 
+     * {@link #Run1(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) }.
+     * @param queue the command queue
+     * @param globalWorkSize the global work size
+     * @param args the kernel arguments
+     * @see #Run2(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) 
+     */
+    public void Run1NoEvent(CommandQueue queue, WorkSize globalWorkSize, Object... args) {
+        setGlobalWorkSize(globalWorkSize);
+        setWorkGroupSizeToNull();
+        setArgs(args);
+        RunNoEvent(queue);
+    }
 
     /**
      * Sets the work sizes and arguments in one call and launches the kernel.
@@ -342,8 +383,25 @@ public abstract class Kernel extends AbstractOpenCLObject {
         return Run(queue);
     }
 
-    //TODO: add variants of the above three methods that don't create the event object, but release the event immediately
-
+    /**
+     * Sets the work sizes and arguments in one call and launches the kernel.
+     * The generated event is directly released. Therefore, the performance
+     * is better, but there is no way to detect when the kernel execution
+     * has finished. For this purpose, use 
+     * {@link #Run2(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) }.
+     * @param queue the command queue
+     * @param globalWorkSize the global work size
+     * @param workGroupSize the work group size
+     * @param args the kernel arguments
+     */
+    public void Run2NoEvent(CommandQueue queue, WorkSize globalWorkSize,
+            WorkSize workGroupSize, Object... args) {
+        setGlobalWorkSize(globalWorkSize);
+        setWorkGroupSize(workGroupSize);
+        setArgs(args);
+        RunNoEvent(queue);
+    }
+    
     /**
      * A placeholder for kernel arguments representing local kernel memory.
      * This defines the size of available shared memory of a {@code __shared} kernel

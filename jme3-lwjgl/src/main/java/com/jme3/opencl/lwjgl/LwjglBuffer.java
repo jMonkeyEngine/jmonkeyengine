@@ -194,6 +194,12 @@ public class LwjglBuffer extends Buffer {
         long event = Utils.pointerBuffers[0].get(0);
         return new LwjglEvent(q.getCLEvent(event));
     }
+    @Override
+    public void acquireBufferForSharingNoEvent(CommandQueue queue) {
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10GL.clEnqueueAcquireGLObjects(q, buffer, null, null);
+        Utils.checkError(ret, "clEnqueueAcquireGLObjects");
+    }
 
     @Override
     public Event releaseBufferForSharingAsync(CommandQueue queue) {
@@ -203,6 +209,12 @@ public class LwjglBuffer extends Buffer {
         Utils.checkError(ret, "clEnqueueReleaseGLObjects");
         long event = Utils.pointerBuffers[0].get(0);
         return new LwjglEvent(q.getCLEvent(event));
+    }
+    @Override
+    public void releaseBufferForSharingNoEvent(CommandQueue queue) {
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10GL.clEnqueueReleaseGLObjects(q, buffer, null, null);
+        Utils.checkError(ret, "clEnqueueReleaseGLObjects");
     }
 
     private static class ReleaserImpl implements ObjectReleaser {

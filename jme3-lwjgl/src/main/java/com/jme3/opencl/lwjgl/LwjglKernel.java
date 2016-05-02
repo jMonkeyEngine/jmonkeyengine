@@ -223,6 +223,23 @@ public class LwjglKernel extends Kernel {
         Utils.checkError(ret, "clEnqueueNDRangeKernel");
         return new LwjglEvent(q.getCLEvent(Utils.pointerBuffers[0].get(0)));
     }
+    @Override
+    public void RunNoEvent(CommandQueue queue) {
+        Utils.pointerBuffers[1].rewind();
+        Utils.pointerBuffers[1].put(globalWorkSize.getSizes());
+        Utils.pointerBuffers[1].position(0);
+        PointerBuffer p2 = null;
+        if (workGroupSize.getSizes()[0] > 0) {
+            p2 = Utils.pointerBuffers[2].rewind();
+            p2.put(workGroupSize.getSizes());
+            p2.position(0);
+        }
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10.clEnqueueNDRangeKernel(q, kernel,
+			globalWorkSize.getDimension(), null, Utils.pointerBuffers[1],
+			p2, null, null);
+        Utils.checkError(ret, "clEnqueueNDRangeKernel");
+    }
 
     @Override
     public ObjectReleaser getReleaser() {

@@ -89,6 +89,16 @@
  * These async calls all return {@link com.jme3.opencl.Event} objects.
  * These events can be used to check (non-blocking) if the action has completed, e.g. a memory copy
  * is finished, or to block the execution until the action has finished.
+ * <br>
+ * Some methods have the suffix {@code -NoEvent}. This means that these methods
+ * don't return an event object even if the OpenCL function would return an event.
+ * There exists always an alternative version that does return an event.
+ * These methods exist to increase the performance: since all actions (like multiple kernel calls)
+ * that are sent to the same command queue are executed in order, there is no
+ * need for intermediate events. (These intermediate events would be released
+ * immediately). Therefore, the no-event alternatives increase the performance
+ * because no additional event object has to be allocated and less system calls
+ * are neccessary.
  * 
  * <p>
  * <b>Interoperability between OpenCL and jME3:</b><br>
@@ -142,6 +152,10 @@
  * thrown. The exception always records the error code and error name and the 
  * OpenCL function call where the error was detected. Please check the official
  * OpenCL specification for the meanings of these errors for that particular function.</li>
+ * <li>{@code UnsupportedOperationException}: the OpenCL implementation does not
+ * support some operations. This is currently only an issue for Jogamp's Jogl
+ * renderer, since Jocl only supports OpenCL 1.1. LWJGL has full support for
+ * OpenCL 1.2 and 2.0.
  * </ul>
  */
 package com.jme3.opencl;

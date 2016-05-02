@@ -191,6 +191,13 @@ public class JoclBuffer extends Buffer {
         long event = Utils.pointers[0].get(0);
         return new JoclEvent(event);
     }
+    @Override
+    public void acquireBufferForSharingNoEvent(CommandQueue queue) {
+        Utils.pointers[1].rewind();
+        Utils.pointers[1].put(0, id);
+        long q = ((JoclCommandQueue)queue).id;
+        ((CLGL) cl).clEnqueueAcquireGLObjects(q, 1, Utils.pointers[1], 0, null, null);
+    }
 
     @Override
     public Event releaseBufferForSharingAsync(CommandQueue queue) {
@@ -201,6 +208,13 @@ public class JoclBuffer extends Buffer {
         ((CLGL) cl).clEnqueueReleaseGLObjects(q, 1, Utils.pointers[1], 0, null, Utils.pointers[0]);
         long event = Utils.pointers[0].get(0);
         return new JoclEvent(event);
+    }
+    @Override
+    public void releaseBufferForSharingNoEvent(CommandQueue queue) {
+        Utils.pointers[1].rewind();
+        Utils.pointers[1].put(0, id);
+        long q = ((JoclCommandQueue)queue).id;
+        ((CLGL) cl).clEnqueueReleaseGLObjects(q, 1, Utils.pointers[1], 0, null, null);
     }
 
     private static class ReleaserImpl implements ObjectReleaser {

@@ -135,15 +135,15 @@ public class TestVertexBufferSharing extends SimpleApplication {
         time += tpf;
         
         //aquire resource
-        buffer.acquireBufferForSharingAsync(clQueue).release();
+        buffer.acquireBufferForSharingNoEvent(clQueue);
         //no need to wait for the returned event, since the kernel implicitely waits for it (same command queue)
         
         //execute kernel
         float scale = (float) Math.pow(1.1, (1.0 - time%2) / 16.0);
-        kernel.Run1(clQueue, ws, buffer, scale).release();
+        kernel.Run1NoEvent(clQueue, ws, buffer, scale);
         
         //release resource
-        buffer.releaseBufferForSharingAsync(clQueue).release();
+        buffer.releaseBufferForSharingNoEvent(clQueue);
     }
 
 }

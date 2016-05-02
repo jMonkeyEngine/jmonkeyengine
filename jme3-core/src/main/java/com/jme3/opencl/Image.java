@@ -485,6 +485,30 @@ memory layout in which channels are stored in the image.
      * @return the event object
      */
     public abstract Event acquireImageForSharingAsync(CommandQueue queue);
+    
+    /**
+     * Aquires this image object for using. Only call this method if this image
+     * represents a shared object from OpenGL, created with e.g.
+     * {@link Context#bindImage(com.jme3.texture.Image, com.jme3.texture.Texture.Type, int, com.jme3.opencl.MemoryAccess) }
+     * or variations.
+     * This method must be called before the image is used. After the work is
+     * done, the image must be released by calling
+     * {@link #releaseImageForSharingAsync(com.jme3.opencl.CommandQueue)  }
+     * so that OpenGL can use the image/texture/renderbuffer again.
+     * 
+     * The generated event object is directly released.
+     * This brings a performance improvement when the resource is e.g. directly
+     * used by a kernel afterwards on the same queue (this implicitly waits for
+     * this action). If you need the event, use 
+     * {@link #acquireImageForSharingAsync(com.jme3.opencl.CommandQueue) }.
+     * 
+     * @param queue the command queue
+     */
+    public void acquireImageForSharingNoEvent(CommandQueue queue) {
+        //Default implementation, overwrite for performance
+        acquireImageForSharingAsync(queue).release();
+    }
+    
     /**
      * Releases a shared image object.
      * Call this method after the image object was acquired by
@@ -494,6 +518,20 @@ memory layout in which channels are stored in the image.
      * @return the event object
      */
     public abstract Event releaseImageForSharingAsync(CommandQueue queue);
+    
+    /**
+     * Releases a shared image object.
+     * Call this method after the image object was acquired by
+     * {@link #acquireImageForSharingAsync(com.jme3.opencl.CommandQueue) }
+     * to hand the control back to OpenGL.
+     * The generated event object is directly released, resulting in 
+     * performance improvements.
+     * @param queue the command queue
+     */
+    public void releaseImageForSharingNoEvent(CommandQueue queue) {
+        //default implementation, overwrite it for performance improvements
+        releaseImageForSharingAsync(queue).release();
+    }
     
     //TODO: add variants of the above two methods that don't create the event object, but release the event immediately
 }

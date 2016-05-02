@@ -239,6 +239,24 @@ public class JoclKernel extends Kernel {
         Utils.checkError(ret, "clEnqueueNDRangeKernel");
         return new JoclEvent(Utils.pointers[0].get(0));
     }
+    
+    @Override
+    public void RunNoEvent(CommandQueue queue) {
+        Utils.pointers[1].rewind();
+        Utils.pointers[1].put(globalWorkSize.getSizes(), 0, globalWorkSize.getSizes().length);
+        Utils.pointers[1].position(0);
+        PointerBuffer p2 = null;
+        if (workGroupSize.getSizes()[0] > 0) {
+            p2 = Utils.pointers[2].rewind();
+            p2.put(workGroupSize.getSizes(), 0, workGroupSize.getSizes().length);
+            p2.position(0);
+        }
+        long q = ((JoclCommandQueue) queue).id;
+        int ret = cl.clEnqueueNDRangeKernel(q, kernel,
+			globalWorkSize.getDimension(), null, Utils.pointers[1],
+			p2, 0, null, null);
+        Utils.checkError(ret, "clEnqueueNDRangeKernel");
+    }
 
     private static class ReleaserImpl implements ObjectReleaser {
         private long kernel;

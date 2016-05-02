@@ -534,6 +534,13 @@ public class LwjglImage extends Image {
         long event = Utils.pointerBuffers[0].get(0);
         return new LwjglEvent(q.getCLEvent(event));
     }
+    @Override
+    public void acquireImageForSharingNoEvent(CommandQueue queue) {
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10GL.clEnqueueAcquireGLObjects(q, image, null, null);
+        Utils.checkError(ret, "clEnqueueAcquireGLObjects");
+    }
+    @Override
     public Event releaseImageForSharingAsync(CommandQueue queue) {
         Utils.pointerBuffers[0].rewind();
         CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
@@ -541,6 +548,12 @@ public class LwjglImage extends Image {
         Utils.checkError(ret, "clEnqueueReleaseGLObjects");
         long event = Utils.pointerBuffers[0].get(0);
         return new LwjglEvent(q.getCLEvent(event));
+    }
+    @Override
+    public void releaseImageForSharingNoEvent(CommandQueue queue) {
+        CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
+        int ret = CL10GL.clEnqueueReleaseGLObjects(q, image, null, null);
+        Utils.checkError(ret, "clEnqueueReleaseGLObjects");
     }
     
     private static class ReleaserImpl implements ObjectReleaser {

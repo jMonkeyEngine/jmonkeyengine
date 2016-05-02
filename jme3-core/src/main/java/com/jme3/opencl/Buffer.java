@@ -377,6 +377,29 @@ public abstract class Buffer extends AbstractOpenCLObject {
      * @return the event object
      */
     public abstract Event acquireBufferForSharingAsync(CommandQueue queue);
+    
+    /**
+     * Aquires this buffer object for using. Only call this method if this buffer
+     * represents a shared object from OpenGL, created with e.g.
+     * {@link Context#bindVertexBuffer(com.jme3.scene.VertexBuffer, com.jme3.opencl.MemoryAccess) }.
+     * This method must be called before the buffer is used. After the work is
+     * done, the buffer must be released by calling
+     * {@link #releaseBufferForSharingAsync(com.jme3.opencl.CommandQueue) }
+     * so that OpenGL can use the VertexBuffer again.
+     * 
+     * The generated event object is directly released.
+     * This brings a performance improvement when the resource is e.g. directly
+     * used by a kernel afterwards on the same queue (this implicitly waits for
+     * this action). If you need the event, use 
+     * {@link #acquireBufferForSharingAsync(com.jme3.opencl.CommandQueue) } instead.
+     * 
+     * @param queue the command queue
+     */
+    public void acquireBufferForSharingNoEvent(CommandQueue queue) {
+        //default implementation, overwrite for better performance
+        acquireBufferForSharingAsync(queue).release();
+    }
+    
     /**
      * Releases a shared buffer object.
      * Call this method after the buffer object was acquired by
@@ -387,5 +410,18 @@ public abstract class Buffer extends AbstractOpenCLObject {
      */
     public abstract Event releaseBufferForSharingAsync(CommandQueue queue);
     
-    //TODO: add variants of the above two methods that don't create the event object, but release the event immediately
+    /**
+     * Releases a shared buffer object.
+     * Call this method after the buffer object was acquired by
+     * {@link #acquireBufferForSharingAsync(com.jme3.opencl.CommandQueue) }
+     * to hand the control back to OpenGL.
+     * The generated event object is directly released, resulting in 
+     * performance improvements.
+     * @param queue the command queue
+     */
+    public void releaseBufferForSharingNoEvent(CommandQueue queue) {
+        //default implementation, overwrite for better performance
+        releaseBufferForSharingAsync(queue).release();
+    }
+    
 }
