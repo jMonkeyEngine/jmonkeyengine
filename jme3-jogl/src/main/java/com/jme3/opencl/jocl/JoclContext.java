@@ -222,6 +222,12 @@ public class JoclContext extends Context {
         return new JoclProgram(p, this);
     }
 
+    @Override
+    public Program createProgramFromBinary(ByteBuffer binaries, Device device) {
+        //Not supported because JoclProgram.getBinaries is also not supported.
+        throw new UnsupportedOperationException("No supported by Jocl");
+    }
+
     private static class ReleaserImpl implements ObjectReleaser {
         private long id;
         private final List<JoclDevice> devices;

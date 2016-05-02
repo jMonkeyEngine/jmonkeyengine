@@ -31,12 +31,10 @@
  */
 package com.jme3.opencl.jocl;
 
-import com.jme3.opencl.Kernel;
-import com.jme3.opencl.KernelCompilationException;
-import com.jme3.opencl.OpenCLObjectManager;
-import com.jme3.opencl.Program;
+import com.jme3.opencl.*;
 import com.jogamp.common.nio.PointerBuffer;
 import com.jogamp.opencl.CLPlatform;
+import com.jogamp.opencl.CLProgram;
 import com.jogamp.opencl.llb.CL;
 import com.jogamp.opencl.util.CLUtil;
 import java.nio.ByteBuffer;
@@ -44,8 +42,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.jogamp.common.nio.Buffers.newDirectByteBuffer;
-import static com.jogamp.opencl.CLException.newException;
-import static com.jogamp.opencl.llb.CL.CL_SUCCESS;
 /**
  *
  * @author shaman
@@ -65,8 +61,18 @@ public class JoclProgram extends Program {
     }
 
     @Override
-    public void build(String args) throws KernelCompilationException {
-        int ret = cl.clBuildProgram(program, 0, null, args, null);
+    public void build(String args, Device... devices) throws KernelCompilationException {
+        PointerBuffer deviceList = null;
+        int deviceCount = 0;
+        if (devices != null) {
+            deviceList = PointerBuffer.allocateDirect(devices.length);
+            for (Device d : devices) {
+                deviceList.put(((JoclDevice) d).id);
+            }
+            deviceCount = devices.length;
+            deviceList.rewind();
+        }
+        int ret = cl.clBuildProgram(program, deviceCount, deviceList, args, null);
         if (ret != CL.CL_SUCCESS) {
             String log = Log();
             LOG.log(Level.WARNING, "Unable to compile program:\n{0}", log);
@@ -124,6 +130,19 @@ public class JoclProgram extends Program {
             kx[i] = new JoclKernel(buf.get());
         }
         return kx;
+    }
+
+    @Override
+    public ByteBuffer getBinary(Device device) {
+        //There is no way to do this in Jocl:
+        //The low-level bindings need a buffer of adresses to buffers. For that
+        //the class InternalBufferUtil is used, but this class is not public.
+        //I also can't create a temporal instance of CLProgram because the constructor
+        //that takes only the native pointer is private.
+        //So the only way would be to create the CLProgram directly from the beginning.
+        //I don't want to do this because then I would have to use the whole 
+        //bunch of garbage the CLProgram class is doing in background.
+        throw new UnsupportedOperationException("Jocl does not expose this operation");
     }
 
     private static class ReleaserImpl implements ObjectReleaser {
