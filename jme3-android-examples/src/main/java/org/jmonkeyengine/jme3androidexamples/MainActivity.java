@@ -287,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     private boolean checkClassType(String className) {
         boolean include = true;
         try {
-            Class<?> clazz = (Class<?>)Class.forName(className);
+            Class<?> clazz = (Class<?>) Class.forName(className);
             if (Application.class.isAssignableFrom(clazz)) {
                 Log.i(TAG, "Class " + className + " is a jME Application");
             } else {
@@ -295,6 +295,9 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
                 Log.i(TAG, "Skipping Class " + className + ". Not a jME Application");
             }
 
+        } catch (NoClassDefFoundError ncdf) {
+            include = false;
+            Log.i(TAG, "Skipping Class " + className + ". No Class Def found.");
         } catch (ClassNotFoundException cnfe) {
             include = false;
             Log.i(TAG, "Skipping Class " + className + ". Class not found.");
