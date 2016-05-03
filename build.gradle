@@ -1,5 +1,3 @@
-import org.gradle.api.artifacts.*
-
 buildscript {
     repositories {
         jcenter()
@@ -12,7 +10,6 @@ buildscript {
 
 apply plugin: 'base'
 apply from: file('version.gradle')
-apply from: file('upload.gradle')
 
 // This is applied to all sub projects
 subprojects {
@@ -118,7 +115,7 @@ task mergedSource(type: Copy){
 }
 
 task wrapper(type: Wrapper, description: 'Creates and deploys the Gradle wrapper to the current directory.') {
-    gradleVersion = '2.2.1'
+    gradleVersion = '2.13'
 }
 
 ext {

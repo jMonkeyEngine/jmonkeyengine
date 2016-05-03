@@ -1,16 +1,16 @@
 language: java
 sudo: false
-env:
- - GRADLE_USER_HOME=gradle-cache
+
+addons:
+  ssh_known_hosts: updates.jmonkeyengine.org
+
+before_cache:
+  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
  
 cache:
   directories:
-   - gradle-cache
-   - netbeans
-
-# branches:
-#   only:
-#   - master
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
 
 notifications:
   slack:
@@ -20,13 +20,13 @@ notifications:
       secure: "PWEk4+VL986c3gAjWp12nqyifvxCjBqKoESG9d7zWh1uiTLadTHhZJRMdsye36FCpz/c/Jt7zCRO/5y7FaubQptnRrkrRfjp5f99MJRzQVXnUAM+y385qVkXKRKd/PLpM7XPm4AvjvxHCyvzX2wamRvul/TekaXKB9Ti5FCN87s="
 
 install:
-  -  ./gradlew assemble
+  - ./gradlew assemble
 
 script:
   - ./gradlew check
-  - ./gradlew createZipDistribution
 
 before_deploy:
+  - ./gradlew createZipDistribution
   - export RELEASE_DIST=$(ls build/distributions/*.zip)
 
 deploy:
