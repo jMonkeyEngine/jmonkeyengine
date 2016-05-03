@@ -4,15 +4,21 @@ import android.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import com.jme3.system.JmeSystem;
 
 public class TestActivity extends AppCompatActivity {
+    JmeFragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
 
-        JmeFragment fragment = new JmeFragment();
+        fragment = new JmeFragment();
+
         // Supply index input as an argument.
         Bundle args = new Bundle();
 
@@ -55,4 +61,52 @@ public class TestActivity extends AppCompatActivity {
         transaction.commit();
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.test_menu_items, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu (Menu menu) {
+        MenuItem item;
+
+        item = menu.findItem(R.id.optionToggleKeyboard);
+        if (item != null) {
+//            Log.d(this.getClass().getSimpleName(), "Found ToggleKeyboard menu item");
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.optionToggleKeyboard:
+                toggleKeyboard(true);
+//                Log.d(this.getClass().getSimpleName(), "showing soft keyboard");
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+        return true;
+
+    }
+
+    private void toggleKeyboard(final boolean show) {
+        fragment.getView().getHandler().post(new Runnable() {
+
+            @Override
+            public void run() {
+                JmeSystem.showSoftKeyboard(show);
+            }
+        });
+
+    }
+
+
 }

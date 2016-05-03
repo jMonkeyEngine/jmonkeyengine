@@ -18,4 +18,9 @@
     <string name="strOptionDisableKeyEventsTitle">Disable Key Events</string>
     <string name="strOptionEnableVerboseLoggingTitle">Enable Verbose Logging</string>
     <string name="strOptionDisableVerboseLoggingTitle">Disable Verbose Logging</string>
+
+    <!-- TestActivity Menu Labels -->
+    <string name="strOptionShowKeyboard">Show Keyboard</string>
+    <string name="strOptionHideKeyboard">Show Keyboard</string>
+
 </resources>
