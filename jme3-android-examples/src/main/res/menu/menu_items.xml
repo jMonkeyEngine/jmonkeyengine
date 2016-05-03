@@ -3,8 +3,6 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="org.jmonkeyengine.jme3androidexamples.MainActivity">
 
-    This menu should show up as 3 icons in the app toolbar.
-
     <item
         android:id="@+id/optionMouseEvents"
         android:orderInCategory="100"
