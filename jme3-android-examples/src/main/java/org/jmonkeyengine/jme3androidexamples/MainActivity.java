@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -30,7 +31,7 @@ import java.util.List;
  * applications that are started via TestsHarness Activity.
  * @author iwgeric
  */
-public class MainActivity extends Activity implements OnItemClickListener, View.OnClickListener, TextWatcher {
+public class MainActivity extends AppCompatActivity implements OnItemClickListener, View.OnClickListener, TextWatcher {
     private static final String TAG = "MainActivity";
 
     /**
