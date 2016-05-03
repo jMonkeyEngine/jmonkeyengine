@@ -7,7 +7,7 @@
         android:id="@+id/optionToggleKeyboard"
         android:orderInCategory="100"
         android:title="@string/strOptionShowKeyboard"
-        app:showAsAction="never"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/keyboard"
     />
 
