@@ -16,14 +16,20 @@
         android:title="@string/strOptionEnableJoystickEventsTitle"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/optionKeyEvents"
-        android:orderInCategory="300"
-        android:title="@string/strOptionEnableKeyEventsTitle"
-        app:showAsAction="ifRoom" />
+            android:id="@+id/optionKeyEvents"
+            android:orderInCategory="300"
+            android:title="@string/strOptionEnableKeyEventsTitle"
+            app:showAsAction="ifRoom" />
 
-<!--
-        android:icon="@mipmap/redmonkey"
-        android:icon="@mipmap/greenmonkey"
-        android:icon="@mipmap/bluemonkey"
--->
+    <item
+            android:id="@+id/optionVerboseLogging"
+            android:orderInCategory="300"
+            android:title="@string/strOptionEnableVerboseLoggingTitle"
+            app:showAsAction="ifRoom" />
+
+    <!--
+                android:icon="@mipmap/redmonkey"
+                android:icon="@mipmap/greenmonkey"
+                android:icon="@mipmap/bluemonkey"
+        -->
 </menu>

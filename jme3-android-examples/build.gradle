@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId "org.jmonkeyengine.jme3androidexamples"
-        minSdkVersion 11       // Android 2.3 GINGERBREAD
+        minSdkVersion 15       // Android 4.0.3 ICE CREAM SANDWICH
         targetSdkVersion 22    // Android 5.1 LOLLIPOP
         versionCode 1
         versionName "1.0" // TODO: from settings.gradle

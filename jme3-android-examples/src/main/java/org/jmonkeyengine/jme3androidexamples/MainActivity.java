@@ -65,6 +65,12 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
      */
     public static final String ENABLE_KEY_EVENTS = "Enable_Key_Events";
 
+    /**
+     * Static String to pass the key for the setting for verbose logging to the
+     * savedInstanceState Bundle.
+     */
+    public static final String VERBOSE_LOGGING = "Verbose_Logging";
+
     /* Fields to contain the current position and display contents of the spinner */
     private int currentPosition = 0;
     private String currentSelection = "";
@@ -89,6 +95,7 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
     private boolean enableMouseEvents = true;
     private boolean enableJoystickEvents = false;
     private boolean enableKeyEvents = true;
+    private boolean verboseLogging = true;
 
 
     /**
@@ -108,6 +115,7 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
             enableMouseEvents = savedInstanceState.getBoolean(ENABLE_MOUSE_EVENTS, true);
             enableJoystickEvents = savedInstanceState.getBoolean(ENABLE_JOYSTICK_EVENTS, false);
             enableKeyEvents = savedInstanceState.getBoolean(ENABLE_KEY_EVENTS, true);
+            verboseLogging = savedInstanceState.getBoolean(VERBOSE_LOGGING, true);
         }
 
 
@@ -232,6 +240,9 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
             args.putBoolean(MainActivity.ENABLE_KEY_EVENTS, enableKeyEvents);
 //            Log.d(TestActivity.class.getSimpleName(), "KeyEnabled="+enableKeyEvents);
 
+            args.putBoolean(MainActivity.VERBOSE_LOGGING, verboseLogging);
+//            Log.d(TestActivity.class.getSimpleName(), "VerboseLogging="+verboseLogging);
+
             intent.putExtras(args);
 
             startActivity(intent);
@@ -314,6 +325,8 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
                 + "class: " + currentSelection + ", "
                 + "mouseEvents: " + enableMouseEvents + ", "
                 + "joystickEvents: " + enableJoystickEvents + ", "
+                + "keyEvents: " + enableKeyEvents + ", "
+                + "VerboseLogging: " + verboseLogging + ", "
         );
         // Save current selections to the savedInstanceState.
         // This bundle will be passed to onCreate if the process is
@@ -322,6 +335,8 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
         savedInstanceState.putInt(SELECTED_LIST_POSITION, currentPosition);
         savedInstanceState.putBoolean(ENABLE_MOUSE_EVENTS, enableMouseEvents);
         savedInstanceState.putBoolean(ENABLE_JOYSTICK_EVENTS, enableJoystickEvents);
+        savedInstanceState.putBoolean(ENABLE_KEY_EVENTS, enableKeyEvents);
+        savedInstanceState.putBoolean(VERBOSE_LOGGING, verboseLogging);
     }
 
     @Override
@@ -397,6 +412,16 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
             }
         }
 
+        item = menu.findItem(R.id.optionVerboseLogging);
+        if (item != null) {
+            Log.i(TAG, "Found EnableVerboseLogging menu item");
+            if (verboseLogging) {
+                item.setTitle(R.string.strOptionDisableVerboseLoggingTitle);
+            } else {
+                item.setTitle(R.string.strOptionEnableVerboseLoggingTitle);
+            }
+        }
+
         return true;
     }
 
@@ -414,6 +439,10 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
             case R.id.optionKeyEvents:
                 enableKeyEvents = !enableKeyEvents;
                 Log.i(TAG, "enableKeyEvents set to: " + enableKeyEvents);
+                break;
+            case R.id.optionVerboseLogging:
+                verboseLogging = !verboseLogging;
+                Log.i(TAG, "verboseLogging set to: " + verboseLogging);
                 break;
             default:
                 return super.onOptionsItemSelected(item);

@@ -74,6 +74,15 @@ public class JmeFragment extends AndroidHarnessFragment {
 //        Log.d(this.getClass().getSimpleName(), "KeyEventsEnabled: " + keyEventsEnabled);
         mouseEventsEnabled = bundle.getBoolean(ENABLE_MOUSE_EVENTS);
 //        Log.d(this.getClass().getSimpleName(), "MouseEventsEnabled: " + mouseEventsEnabled);
+        boolean verboseLogging = bundle.getBoolean(VERBOSE_LOGGING);
+//        Log.d(this.getClass().getSimpleName(), "VerboseLogging: " + verboseLogging);
+        if (verboseLogging) {
+            // Set the default logging level (default=Level.INFO, Level.ALL=All Debug Info)
+            LogManager.getLogManager().getLogger("").setLevel(Level.ALL);
+        } else {
+            // Set the default logging level (default=Level.INFO, Level.ALL=All Debug Info)
+            LogManager.getLogManager().getLogger("").setLevel(Level.INFO);
+        }
 
         super.onCreate(savedInstanceState);
     }

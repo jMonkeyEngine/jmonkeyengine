@@ -16,4 +16,6 @@
     <string name="strOptionDisableJoystickEventsTitle">Disable Joystick Events</string>
     <string name="strOptionEnableKeyEventsTitle">Enable Key Events</string>
     <string name="strOptionDisableKeyEventsTitle">Disable Key Events</string>
+    <string name="strOptionEnableVerboseLoggingTitle">Enable Verbose Logging</string>
+    <string name="strOptionDisableVerboseLoggingTitle">Disable Verbose Logging</string>
 </resources>

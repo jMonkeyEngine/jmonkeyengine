@@ -37,6 +37,10 @@ public class TestActivity extends AppCompatActivity {
         args.putBoolean(MainActivity.ENABLE_KEY_EVENTS, keyEnabled);
 //        Log.d(TestActivity.class.getSimpleName(), "KeyEnabled="+keyEnabled);
 
+        boolean verboseLogging = bundle.getBoolean(MainActivity.VERBOSE_LOGGING, true);
+        args.putBoolean(MainActivity.VERBOSE_LOGGING, verboseLogging);
+//        Log.d(TestActivity.class.getSimpleName(), "VerboseLogging="+verboseLogging);
+
         fragment.setArguments(args);
 
 
