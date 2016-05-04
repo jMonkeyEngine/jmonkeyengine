@@ -67,7 +67,7 @@ task javadocJar(type: Jar, dependsOn: javadoc, description: 'Creates a jar from 
     from javadoc.destinationDir
 }
 
-def pomConfig = {
+ext.pomConfig = {
     name POM_NAME
     description POM_DESCRIPTION
     url POM_URL
@@ -103,6 +103,7 @@ task writeFullPom {
         }.writeTo(pomFile)
     }
 }
+
 assemble.dependsOn(writeFullPom)
 install.dependsOn(writeFullPom)
 uploadArchives.dependsOn(writeFullPom)
