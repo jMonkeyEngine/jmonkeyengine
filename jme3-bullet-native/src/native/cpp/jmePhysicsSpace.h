@@ -48,6 +48,7 @@
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 #include "BulletCollision/NarrowPhaseCollision/btManifoldPoint.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
+#include "BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h"
 
 /**
  * Author: Normen Hansen
