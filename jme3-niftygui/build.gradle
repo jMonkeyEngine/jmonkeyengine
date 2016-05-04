@@ -15,15 +15,33 @@ dependencies {
     compile 'lessvoid:nifty-style-black:1.4.1'
 }
 
-uploadArchives {
-    repositories.mavenDeployer {
-        pom.project {
-            repositories {
-                repository {
-                    id "nifty-maven-repo.sourceforge.net"
-                    url "http://nifty-gui.sourceforge.net/nifty-maven-repo"
-                }
-            }
+ext.pomConfig = {
+    name POM_NAME
+    description POM_DESCRIPTION
+    url POM_URL
+    inceptionYear POM_INCEPTION_YEAR
+    scm {
+        url POM_SCM_URL
+        connection POM_SCM_CONNECTION
+        developerConnection POM_SCM_DEVELOPER_CONNECTION
+    }
+    licenses {
+        license {
+            name POM_LICENSE_NAME
+            url POM_LICENSE_URL
+            distribution POM_LICENSE_DISTRIBUTION
+        }
+    }
+    developers {
+        developer {
+            name 'jMonkeyEngine Team'
+            id 'jMonkeyEngine'
+        }
+    }
+    repositories {
+        repository {
+            id "nifty-maven-repo.sourceforge.net"
+            url "http://nifty-gui.sourceforge.net/nifty-maven-repo"
         }
     }
 }
