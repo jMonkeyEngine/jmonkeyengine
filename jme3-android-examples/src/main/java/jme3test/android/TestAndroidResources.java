@@ -37,13 +37,5 @@ public class TestAndroidResources extends SimpleApplication {
         box2.setLocalTranslation(2, 0, 0);
         rootNode.attachChild(box2);
 
-        PointLight pl = new PointLight();
-        pl.setColor(ColorRGBA.White);
-        pl.setPosition(new Vector3f(4f, 0f, 0f));
-        rootNode.addLight(pl);
-
-        AmbientLight al = new AmbientLight();
-        al.setColor(ColorRGBA.White);
-        rootNode.addLight(al);
     }
 }
