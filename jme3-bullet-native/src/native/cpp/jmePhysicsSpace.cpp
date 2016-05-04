@@ -147,6 +147,8 @@ void jmePhysicsSpace::createPhysicsSpace(jfloat minX, jfloat minY, jfloat minZ, 
     } else {
         dispatcher = new btCollisionDispatcher(collisionConfiguration);
     }
+    btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
+    
 
     // the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
     if (threading) {
