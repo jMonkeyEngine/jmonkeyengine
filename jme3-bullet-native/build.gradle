@@ -168,7 +168,7 @@ model {
                 assembler.executable "i686-w64-mingw32-g++"
                 staticLibArchiver.executable "i686-w64-mingw32-gcc-ar"
             }
-            target("windows_x86")
+            target("Windows32")
         }
         mingw_x86_64(Gcc) {
             eachPlatform() {
@@ -178,7 +178,7 @@ model {
                 assembler.executable "x86_64-w64-mingw32-g++"
                 staticLibArchiver.executable "x86_64-w64-mingw32-gcc-ar"
             }
-            target("windows_x86_64")
+            target("Windows64")
         }
     }
 }
