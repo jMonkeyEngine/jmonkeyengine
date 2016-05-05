@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     private boolean enableMouseEvents = true;
     private boolean enableJoystickEvents = false;
     private boolean enableKeyEvents = true;
-    private boolean verboseLogging = true;
+    private boolean verboseLogging = false;
 
 
     /**
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null) {
-            Log.i(TAG, "Restoring selections in onCreate: "
+            Log.d(TAG, "Restoring selections in onCreate: "
                     + "position: " + savedInstanceState.getInt(SELECTED_LIST_POSITION, 0)
                     + "class: " + savedInstanceState.getString(SELECTED_APP_CLASS)
             );
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
          * name and super class.
          */
 
-        Log.i(TAG, "Composing Test list...");
+        Log.d(TAG, "Composing Test list...");
 
         ApplicationInfo ai = this.getApplicationInfo();
         String classPath = ai.sourceDir;
@@ -180,12 +180,12 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         );
 
         /* Set the resource id for selected and non selected backgrounds */
-        Log.i(TAG, "Setting Adapter Background Resource IDs");
+        Log.d(TAG, "Setting Adapter Background Resource IDs");
         arrayAdapter.setSelectedBackgroundResource(R.drawable.selected);
         arrayAdapter.setNonSelectedBackgroundResource(R.drawable.nonselected);
 
         /* Attach the Adapter to the spinner */
-        Log.i(TAG, "Setting ListView Adapter");
+        Log.d(TAG, "Setting ListView Adapter");
         listClasses.setAdapter(arrayAdapter);
 
         /* Set initial selection for the list */
@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     public void onClick(View view) {
         if (view.equals(btnOK)) {
             /* Get selected class, pack it in the intent and start the test app */
-            Log.i(TAG, "User selected OK for class: " + currentSelection);
+            Log.d(TAG, "User selected OK for class: " + currentSelection);
             Intent intent = new Intent(this, TestActivity.class);
 //            intent.putExtra(SELECTED_APP_CLASS, currentSelection);
 //            intent.putExtra(ENABLE_MOUSE_EVENTS, enableMouseEvents);
@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
             startActivity(intent);
         } else if (view.equals(btnCancel)) {
             /* Exit */
-            Log.i(TAG, "User selected Cancel");
+            Log.d(TAG, "User selected Cancel");
             finish();
         }
     }
@@ -267,14 +267,14 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
             /* check to see if the class contains any of the exlusion strings */
             for (int i = 0; i < exclusions.size(); i++) {
                 if (className.contains(exclusions.get(i))) {
-                    Log.i(TAG, "Skipping Class " + className + ". Includes exclusion string: " + exclusions.get(i) + ".");
+                    Log.d(TAG, "Skipping Class " + className + ". Includes exclusion string: " + exclusions.get(i) + ".");
                     include = false;
                     break;
                 }
             }
         } else {
             include = false;
-            Log.i(TAG, "Skipping Class " + className + ". Not in the root package: " + rootPackage + ".");
+            Log.d(TAG, "Skipping Class " + className + ". Not in the root package: " + rootPackage + ".");
         }
         return include;
     }
@@ -289,18 +289,18 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         try {
             Class<?> clazz = (Class<?>) Class.forName(className);
             if (Application.class.isAssignableFrom(clazz)) {
-                Log.i(TAG, "Class " + className + " is a jME Application");
+                Log.d(TAG, "Class " + className + " is a jME Application");
             } else {
                 include = false;
-                Log.i(TAG, "Skipping Class " + className + ". Not a jME Application");
+                Log.d(TAG, "Skipping Class " + className + ". Not a jME Application");
             }
 
         } catch (NoClassDefFoundError ncdf) {
             include = false;
-            Log.i(TAG, "Skipping Class " + className + ". No Class Def found.");
+            Log.d(TAG, "Skipping Class " + className + ". No Class Def found.");
         } catch (ClassNotFoundException cnfe) {
             include = false;
-            Log.i(TAG, "Skipping Class " + className + ". Class not found.");
+            Log.d(TAG, "Skipping Class " + className + ". Class not found.");
         }
         return include;
     }
@@ -324,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        Log.i(TAG, "Saving selections in onSaveInstanceState: "
+        Log.d(TAG, "Saving selections in onSaveInstanceState: "
                 + "position: " + currentPosition + ", "
                 + "class: " + currentSelection + ", "
                 + "mouseEvents: " + enableMouseEvents + ", "
@@ -360,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
     }
 
     public void onTextChanged(CharSequence cs, int startPos, int beforePos, int count) {
-        Log.i(TAG, "onTextChanged with cs: " + cs + ", startPos: " + startPos + ", beforePos: " + beforePos + ", count: " + count);
+        Log.d(TAG, "onTextChanged with cs: " + cs + ", startPos: " + startPos + ", beforePos: " + beforePos + ", count: " + count);
         arrayAdapter.getFilter().filter(cs.toString());
         setSelection(-1);
     }
@@ -388,7 +388,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
         item = menu.findItem(R.id.optionMouseEvents);
         if (item != null) {
-            Log.i(TAG, "Found EnableMouseEvents menu item");
+            Log.d(TAG, "Found EnableMouseEvents menu item");
             if (enableMouseEvents) {
                 item.setTitle(R.string.strOptionDisableMouseEventsTitle);
             } else {
@@ -398,7 +398,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
         item = menu.findItem(R.id.optionJoystickEvents);
         if (item != null) {
-            Log.i(TAG, "Found EnableJoystickEvents menu item");
+            Log.d(TAG, "Found EnableJoystickEvents menu item");
             if (enableJoystickEvents) {
                 item.setTitle(R.string.strOptionDisableJoystickEventsTitle);
             } else {
@@ -408,7 +408,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
         item = menu.findItem(R.id.optionKeyEvents);
         if (item != null) {
-            Log.i(TAG, "Found EnableKeyEvents menu item");
+            Log.d(TAG, "Found EnableKeyEvents menu item");
             if (enableKeyEvents) {
                 item.setTitle(R.string.strOptionDisableKeyEventsTitle);
             } else {
@@ -418,7 +418,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
         item = menu.findItem(R.id.optionVerboseLogging);
         if (item != null) {
-            Log.i(TAG, "Found EnableVerboseLogging menu item");
+            Log.d(TAG, "Found EnableVerboseLogging menu item");
             if (verboseLogging) {
                 item.setTitle(R.string.strOptionDisableVerboseLoggingTitle);
             } else {
@@ -434,19 +434,19 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
         switch (item.getItemId()) {
             case R.id.optionMouseEvents:
                 enableMouseEvents = !enableMouseEvents;
-                Log.i(TAG, "enableMouseEvents set to: " + enableMouseEvents);
+                Log.d(TAG, "enableMouseEvents set to: " + enableMouseEvents);
                 break;
             case R.id.optionJoystickEvents:
                 enableJoystickEvents = !enableJoystickEvents;
-                Log.i(TAG, "enableJoystickEvents set to: " + enableJoystickEvents);
+                Log.d(TAG, "enableJoystickEvents set to: " + enableJoystickEvents);
                 break;
             case R.id.optionKeyEvents:
                 enableKeyEvents = !enableKeyEvents;
-                Log.i(TAG, "enableKeyEvents set to: " + enableKeyEvents);
+                Log.d(TAG, "enableKeyEvents set to: " + enableKeyEvents);
                 break;
             case R.id.optionVerboseLogging:
                 verboseLogging = !verboseLogging;
-                Log.i(TAG, "verboseLogging set to: " + verboseLogging);
+                Log.d(TAG, "verboseLogging set to: " + verboseLogging);
                 break;
             default:
                 return super.onOptionsItemSelected(item);
