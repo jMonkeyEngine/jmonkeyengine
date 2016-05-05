@@ -60,6 +60,21 @@ public class ProgramCache {
     private final File tmpFolder;
 
     /**
+     * Creates a "disabled" program cache, no caching is done.
+     * {@link #loadFromCache(java.lang.String) } will always return {@code null}
+     * and {@link #saveToCache(java.lang.String, com.jme3.opencl.Program) } does
+     * nothing.<br>
+     * Use this during development if you still modify your kernel code.
+     * (Otherwise, you don't see the changes because you are still use the 
+     * cached version of your program)
+     */
+    public ProgramCache() {
+        this.context = null;
+        this.device = null;
+        this.tmpFolder = null;
+    }
+    
+    /**
      * Creates a new program cache associated with the specified context and
      * devices.
      * The cached programs are built against the specified device and also
