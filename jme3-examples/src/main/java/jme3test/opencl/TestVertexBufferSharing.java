@@ -146,12 +146,12 @@ public class TestVertexBufferSharing extends SimpleApplication {
             program = clContext.createProgramFromSourceCode(source);
             program.build();
             //Save binary
-            ByteBuffer bb = program.getBinary(device);
-            byte[] bytes = new byte[bb.remaining()];
-            bb.get(bytes);
             try {
+                ByteBuffer bb = program.getBinary(device);
+                byte[] bytes = new byte[bb.remaining()];
+                bb.get(bytes);
                 Files.write(binaryFile.toPath(), bytes);
-            } catch (IOException ex) {
+            } catch (UnsupportedOperationException | OpenCLException | IOException ex) {
                LOG.log(Level.SEVERE, "Unable to save program binaries", ex);
             }
             LOG.info("create new program from sources");
