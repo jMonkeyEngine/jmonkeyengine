@@ -161,6 +161,7 @@ public class LwjglContext extends Context {
 
     @Override
     public Buffer bindVertexBuffer(VertexBuffer vb, MemoryAccess access) {
+        Utils.assertSharingPossible();
         int id = vb.getId();
         if (id == -1) {
             throw new IllegalArgumentException("vertex buffer was not yet uploaded to the GPU or is CPU only");
@@ -174,6 +175,7 @@ public class LwjglContext extends Context {
 
     @Override
     public Image bindImage(com.jme3.texture.Image image, Texture.Type textureType, int miplevel, MemoryAccess access) {
+        Utils.assertSharingPossible();
         int imageID = image.getId();
         if (imageID == -1) {
             throw new IllegalArgumentException("image was not yet uploaded to the GPU");
@@ -188,6 +190,7 @@ public class LwjglContext extends Context {
 
     @Override
     protected Image bindPureRenderBuffer(FrameBuffer.RenderBuffer buffer, MemoryAccess access) {
+        Utils.assertSharingPossible();
         int renderbuffer = buffer.getId();
         if (renderbuffer == -1) {
             throw new IllegalArgumentException("renderbuffer was not yet uploaded to the GPU");

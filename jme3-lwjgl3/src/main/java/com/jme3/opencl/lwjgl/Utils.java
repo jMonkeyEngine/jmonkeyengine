@@ -50,6 +50,12 @@ public class Utils {
     private static final Logger LOG = Logger.getLogger(Utils.class.getName());
     private Utils() {}
    
+    public static final boolean CL_GL_SHARING_POSSIBLE = com.jme3.system.lwjgl.LwjglContext.CL_GL_SHARING_POSSIBLE;
+    public static void assertSharingPossible() {
+        if (!CL_GL_SHARING_POSSIBLE) {
+            throw new OpenCLException("OpenGL/CL sharing not possible");
+        }
+    }
     
     public static int getMajorVersion(String version, String prefix) {
         String s = version.substring(prefix.length());

@@ -153,7 +153,7 @@ public class LwjglProgram extends Program {
         ByteBuffer binaries = ByteBuffer.allocateDirect(size);
         binaryPointers.put(index, binaries);
         
-        //TODO: why the hell does this throw a segfault ?!?
+        //Fixme: why the hell does this line throw a segfault ?!?
         ret = CL10.clGetProgramInfo(program, CL10.CL_PROGRAM_BINARIES, binaryPointers, null);
         Utils.checkError(ret, "clGetProgramInfo: CL_PROGRAM_BINARIES");
         

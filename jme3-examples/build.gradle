@@ -32,6 +32,7 @@ dependencies {
     compile project(':jme3-jogg')
     compile project(':jme3-jogl')
     compile project(':jme3-lwjgl')
+//    compile project(':jme3-lwjgl3')
     compile project(':jme3-networking')
     compile project(':jme3-niftygui')
     compile project(':jme3-plugins')

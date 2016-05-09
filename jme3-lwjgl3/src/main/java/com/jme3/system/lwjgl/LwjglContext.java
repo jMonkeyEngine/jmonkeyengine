@@ -75,6 +75,10 @@ public abstract class LwjglContext implements JmeContext {
 
     private static final Logger logger = Logger.getLogger(LwjglContext.class.getName());
 
+    //Fixme: OpenGL/CL sharing does not work yet, this line disables the sharing methods
+    //(They will throw an OpenCLException)
+    public static final boolean CL_GL_SHARING_POSSIBLE = false;
+    
     protected static final String THREAD_NAME = "jME3 Main";
 
     protected AtomicBoolean created = new AtomicBoolean(false);
@@ -296,6 +300,11 @@ public abstract class LwjglContext implements JmeContext {
         logger.info("OpenCL context created");
     }
     private long createContext(final CLPlatform platform, final List<CLDevice> devices) throws Exception {
+        
+        //Fixme: OpenGL/CL sharing does not work. The properties seem to be setup wrongly
+        // If it works, set CL_GL_SHARING_POSSIBLE to true to enable the sharing
+        // methods again
+        
         final int propertyCount = 2 + 4 + 1;
 
         final PointerBuffer properties = PointerBuffer.allocateDirect(propertyCount + devices.size());

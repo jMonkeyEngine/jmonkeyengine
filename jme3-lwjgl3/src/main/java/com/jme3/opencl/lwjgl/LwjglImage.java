@@ -544,6 +544,7 @@ public class LwjglImage extends Image {
     }
     @Override
     public Event releaseImageForSharingAsync(CommandQueue queue) {
+        Utils.assertSharingPossible();
         Utils.pointerBuffers[0].rewind();
         long q = ((LwjglCommandQueue) queue).getQueue();
         int ret = CL10GL.clEnqueueReleaseGLObjects(q, image, null, Utils.pointerBuffers[0]);
@@ -553,6 +554,7 @@ public class LwjglImage extends Image {
     }
     @Override
     public void releaseImageForSharingNoEvent(CommandQueue queue) {
+        Utils.assertSharingPossible();
         long q = ((LwjglCommandQueue) queue).getQueue();
         int ret = CL10GL.clEnqueueReleaseGLObjects(q, image, null, null);
         Utils.checkError(ret, "clEnqueueReleaseGLObjects");

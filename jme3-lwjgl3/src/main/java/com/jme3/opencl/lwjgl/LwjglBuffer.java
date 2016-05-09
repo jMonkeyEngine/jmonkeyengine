@@ -203,6 +203,7 @@ public class LwjglBuffer extends Buffer {
 
     @Override
     public Event releaseBufferForSharingAsync(CommandQueue queue) {
+        Utils.assertSharingPossible();
         Utils.pointerBuffers[0].rewind();
         long q = ((LwjglCommandQueue) queue).getQueue();
         int ret = CL10GL.clEnqueueReleaseGLObjects(q, buffer, null, Utils.pointerBuffers[0]);
@@ -212,6 +213,7 @@ public class LwjglBuffer extends Buffer {
     }
     @Override
     public void releaseBufferForSharingNoEvent(CommandQueue queue) {
+        Utils.assertSharingPossible();
         long q = ((LwjglCommandQueue) queue).getQueue();
         int ret = CL10GL.clEnqueueReleaseGLObjects(q, buffer, null, null);
         Utils.checkError(ret, "clEnqueueReleaseGLObjects");
