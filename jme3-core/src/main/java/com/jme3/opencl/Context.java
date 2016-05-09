@@ -34,6 +34,7 @@ package com.jme3.opencl;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.opencl.Image.ImageDescriptor;
 import com.jme3.opencl.Image.ImageFormat;
 import com.jme3.opencl.Image.ImageType;
@@ -43,6 +44,7 @@ import com.jme3.texture.Texture;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
@@ -283,6 +285,52 @@ public abstract class Context extends AbstractOpenCLObject {
     public abstract Program createProgramFromSourceCode(String sourceCode);
     
     /**
+     * Resolves dependencies (using {@code #include } in the source code)
+     * and delegates the combined source code to
+     * {@link #createProgramFromSourceCode(java.lang.String) }.
+     * Important: only absolute paths are allowed.
+     * @param sourceCode the original source code
+     * @param assetManager the asset manager to load the files
+     * @return the created program object
+     * @throws AssetNotFoundException if a dependency could not be loaded
+     */
+    public Program createProgramFromSourceCodeWithDependencies(String sourceCode, AssetManager assetManager) {
+        StringBuilder builder = new StringBuilder(sourceCode.length());
+        BufferedReader reader = new BufferedReader(new StringReader(sourceCode));
+        try {
+            buildSourcesRec(reader, builder, assetManager);
+        } catch (IOException ex) {
+            throw new AssetNotFoundException("Unable to read a dependency file", ex);
+        }
+        return createProgramFromSourceCode(builder.toString());
+    }
+    private void buildSourcesRec(BufferedReader reader, StringBuilder builder, AssetManager assetManager) throws IOException {
+        String ln;
+        while ((ln = reader.readLine()) != null) {
+            if (ln.trim().startsWith("#import ")) {
+                ln = ln.trim().substring(8).trim();
+                if (ln.startsWith("\"")) {
+                    ln = ln.substring(1);
+                }
+                if (ln.endsWith("\"")) {
+                    ln = ln.substring(0, ln.length()-1);
+                }
+                AssetInfo info = assetManager.locateAsset(new AssetKey<String>(ln));
+                if (info == null) {
+                    throw new AssetNotFoundException("Unable to load source file \""+ln+"\"");
+                }
+                try (BufferedReader r = new BufferedReader(new InputStreamReader(info.openStream()))) {
+                    builder.append("//-- begin import ").append(ln).append(" --\n");
+                    buildSourcesRec(r, builder, assetManager);
+                    builder.append("//-- end import ").append(ln).append(" --\n");
+                }
+            } else {
+                builder.append(ln).append('\n');
+            }
+        }
+    }
+    
+    /**
      * Creates a program object from the provided source code and files.
      * The source code is made up from the specified include string first, 
      * then all files specified by the resource array (array of asset paths)
@@ -294,14 +342,15 @@ public abstract class Context extends AbstractOpenCLObject {
      *  <li>Some common OpenCL files used as libraries (Convention: file names end with {@code .clh}</li>
      *  <li>One main OpenCL file containing the actual kernels (Convention: file name ends with {@code .cl})</li>
      * </ul>
-     * Note: Files that can't be loaded are skipped.<br>
      * 
-     * The actual creation is handled by {@link #createProgramFromSourceCode(java.lang.String) }.
+     * After the files were combined, additional include statements are resolved
+     * by {@link #createProgramFromSourceCodeWithDependencies(java.lang.String, com.jme3.asset.AssetManager) }.
      * 
      * @param assetManager the asset manager used to load the files
      * @param include an additional include string
      * @param resources an array of asset paths pointing to OpenCL source files
      * @return the new program objects
+     * @throws AssetNotFoundException if a file could not be loaded
      */
     public Program createProgramFromSourceFilesWithInclude(AssetManager assetManager, String include, String... resources) {
         return createProgramFromSourceFilesWithInclude(assetManager, include, Arrays.asList(resources));
@@ -319,14 +368,15 @@ public abstract class Context extends AbstractOpenCLObject {
      *  <li>Some common OpenCL files used as libraries (Convention: file names end with {@code .clh}</li>
      *  <li>One main OpenCL file containing the actual kernels (Convention: file name ends with {@code .cl})</li>
      * </ul>
-     * Note: Files that can't be loaded are skipped.<br>
      * 
-     * The actual creation is handled by {@link #createProgramFromSourceCode(java.lang.String) }.
+     * After the files were combined, additional include statements are resolved
+     * by {@link #createProgramFromSourceCodeWithDependencies(java.lang.String, com.jme3.asset.AssetManager) }.
      * 
      * @param assetManager the asset manager used to load the files
      * @param include an additional include string
      * @param resources an array of asset paths pointing to OpenCL source files
      * @return the new program objects
+     * @throws AssetNotFoundException if a file could not be loaded
      */
     public Program createProgramFromSourceFilesWithInclude(AssetManager assetManager, String include, List<String> resources) {
         StringBuilder str = new StringBuilder();
@@ -334,8 +384,7 @@ public abstract class Context extends AbstractOpenCLObject {
         for (String res : resources) {
             AssetInfo info = assetManager.locateAsset(new AssetKey<String>(res));
             if (info == null) {
-                LOG.log(Level.WARNING, "unable to load source file ''{0}''", res);
-                continue;
+                throw new AssetNotFoundException("Unable to load source file \""+res+"\"");
             }
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(info.openStream()))) {
                 while (true) {
@@ -349,12 +398,13 @@ public abstract class Context extends AbstractOpenCLObject {
                 LOG.log(Level.WARNING, "unable to load source file '"+res+"'", ex);
             }
         }
-        return createProgramFromSourceCode(str.toString());
+        return createProgramFromSourceCodeWithDependencies(str.toString(), assetManager);
     }
 
     /**
      * Alternative version of {@link #createProgramFromSourceFilesWithInclude(com.jme3.asset.AssetManager, java.lang.String, java.lang.String...) }
      * with an empty include string
+     * @throws AssetNotFoundException if a file could not be loaded
      */
     public Program createProgramFromSourceFiles(AssetManager assetManager, String... resources) {
         return createProgramFromSourceFilesWithInclude(assetManager, "", resources);
@@ -363,6 +413,7 @@ public abstract class Context extends AbstractOpenCLObject {
     /**
      * Alternative version of {@link #createProgramFromSourceFilesWithInclude(com.jme3.asset.AssetManager, java.lang.String, java.util.List) }
      * with an empty include string
+     * @throws AssetNotFoundException if a file could not be loaded
      */
     public Program createProgramFromSourceFiles(AssetManager assetManager, List<String> resources) {
         return createProgramFromSourceFilesWithInclude(assetManager, "", resources);
