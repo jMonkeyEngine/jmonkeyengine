@@ -95,6 +95,8 @@ public class MatParamTexture extends MatParam {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(0, "texture_unit", -1);
         oc.write(texture, "texture", null); // For backwards compatibility
+
+        oc.write(colorSpace, "colorSpace", null);
     }
 
     @Override
@@ -102,5 +104,6 @@ public class MatParamTexture extends MatParam {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         texture = (Texture) value;
+        colorSpace = (ColorSpace) ic.readEnum("colorSpace", ColorSpace.class, null);
     }
 }
