@@ -35,7 +35,7 @@ import com.jme3.asset.*;
 import com.jme3.material.*;
 import com.jme3.material.plugin.export.materialdef.J3mdExporter;
 import com.jme3.material.plugins.J3MLoader;
-import com.jme3.shader.UniformBinding;
+import com.jme3.shader.*;
 import com.jme3.system.JmeSystem;
 import org.junit.*;
 
@@ -73,7 +73,7 @@ public class TestMaterialDefWrite {
             e.printStackTrace();
         }
 
-        System.err.println(stream.toString());
+     //   System.err.println(stream.toString());
 
         J3MLoader loader = new J3MLoader();
         AssetInfo info = new AssetInfo(assetManager, new AssetKey("test")) {
@@ -124,8 +124,41 @@ public class TestMaterialDefWrite {
         //forced renderState
         assertEquals(def1.getForcedRenderState(), def2.getForcedRenderState());
 
+        assertEquals(def1.isUsingShaderNodes(), def2.isUsingShaderNodes());
+
+        if(def1.isUsingShaderNodes()){
+            for (int i = 0; i < def1.getShaderNodes().size(); i++) {
+                ShaderNode sh1 = def1.getShaderNodes().get(i);
+                ShaderNode sh2 = def2.getShaderNodes().get(i);
+                assertEquals(sh1.getName(), sh2.getName());
+                assertEquals(sh1.getCondition(), sh2.getCondition());
+                assertEquals(sh1.getDefinition().getName(), sh2.getDefinition().getName());
+                for (int i1 = 0; i1 < sh1.getInputMapping().size(); i1++) {
+                    VariableMapping im1 = sh1.getInputMapping().get(i);
+                    VariableMapping im2 = sh2.getInputMapping().get(i);
+                    assertEqualsVariableMapping(im1, im2);
+                }
+            }
+        }
+
         //no render
         assertEquals(def1.isNoRender(), def2.isNoRender());
+    }
+
+    private void assertEqualsVariableMapping(VariableMapping im1, VariableMapping im2) {
+        assertEquals(im1.getCondition(), im2.getCondition());
+        assertEquals(im1.getLeftSwizzling(), im2.getLeftSwizzling());
+        assertEquals(im1.getRightSwizzling(), im2.getRightSwizzling());
+        assertEqualsVariables(im1.getRightVariable(), im2.getRightVariable());
+        assertEqualsVariables(im1.getLeftVariable(), im2.getLeftVariable());
+    }
+
+    private void assertEqualsVariables(ShaderNodeVariable v1, ShaderNodeVariable v2) {
+        assertEquals(v1.getName(), v2.getName());
+        assertEquals(v1.getNameSpace(), v2.getNameSpace());
+        assertEquals(v1.getMultiplicity(), v2.getMultiplicity());
+        assertEquals(v1.getType(), v2.getType());
+        assertEquals(v1.getCondition(), v2.getCondition());
     }
 
 }
