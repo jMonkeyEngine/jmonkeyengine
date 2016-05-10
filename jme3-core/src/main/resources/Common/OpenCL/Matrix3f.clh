@@ -1,0 +1,224 @@
+
+#ifndef MATRIX3_H
+#define MATRIX3_H
+
+//Simple matrix library.
+//A 3x3 matrix is represented as a float16 in row major order
+
+typedef float16 mat3;
+
+//All matrix functions are prefixed with mat3 or mat4
+
+//Returns the zero matrix
+inline mat3 mat3Zero() {
+	return (float16)(0);
+}
+
+//Returns the identity matrix
+inline mat3 mat3Identity() {
+	return (float16)
+		(1, 0, 0, 0,
+		 0, 1, 0, 0,
+		 0, 0, 1, 0,
+		 0, 0, 0, 1);
+}
+
+inline mat3 mat3FromRows(float3 row1, float3 row2, float3 row3) {
+	return (float16) 
+		(row1.x, row1.y, row1.z, 0,
+		 row2.x, row2.y, row2.z, 0,
+		 row3.x, row3.y, row3.z, 0,
+		 0, 0, 0, 1);
+}
+
+inline mat3 mat3FromColumns(float3 col1, float3 col2, float3 col3) {
+	return (float16)
+		(col1.x, col2.x, col3.x, 0,
+		 col1.y, col2.y, col3.y, 0,
+		 col1.z, col2.z, col3.z, 0,
+		 0, 0, 0, 1);
+}
+
+inline mat3 mat3FromDiagonal(float3 diag) {
+	return (float16)
+		(diag.x, 0, 0, 0,
+		 0, diag.y, 0, 0,
+		 0, 0, diag.z, 0,
+		 0, 0, 0, 1);
+}
+
+//Returns the i-th row (0-based)
+inline float3 mat3GetRow(mat3 mat, int i) {
+	if (i==0) return mat.s012;
+	else if (i==1) return mat.s456;
+	else return mat.s89a;
+}
+
+//Sets the i-th row (0-based)
+inline mat3 mat3SetRow(mat3 mat, int i, float3 row) {
+	if (i==0) mat.s012 = row;
+	else if (i==1) mat.s456 = row;
+	else mat.s89a = row;
+	return mat;
+}
+
+//Returns the i-th column (0-based)
+inline float3 mat3GetColumn(mat3 mat, int i) {
+	if (i==0) return mat.s048;
+	else if (i==1) return mat.s159;
+	else return mat.s26a;
+}
+
+//Sets the i-th column (0-based)
+inline mat3 mat3SetColumn(mat3 mat, int i, float3 col) {
+	if (i==0) mat.s048 = col;
+	else if (i==1) mat.s159 = col;
+	else mat.s26a = col;
+	return mat;
+}
+
+//Returns the diagonal
+inline float3 mat3GetDiagonal(mat3 mat) {
+	return mat.s05a;
+}
+
+//Sets the diagonal
+inline mat3 mat3SetDiagonal(mat3 mat, float3 diag) {
+	mat.s05a = diag;
+	return mat;
+}
+
+mat3 mat3FromAngleNormalAxis(float angle, float3 axis) {
+	float fCos = cos(angle);
+	float fSin = sin(angle);
+	float fOneMinusCos = 1.0f - fCos;
+	float fX2 = axis.x * axis.x;
+	float fY2 = axis.y * axis.y;
+	float fZ2 = axis.z * axis.z;
+	float fXYM = axis.x * axis.y * fOneMinusCos;
+	float fXZM = axis.x * axis.z * fOneMinusCos;
+	float fYZM = axis.y * axis.z * fOneMinusCos;
+	float fXSin = axis.x * fSin;
+	float fYSin = axis.y * fSin;
+	float fZSin = axis.z * fSin;
+
+	return (float16) (
+		fX2 * fOneMinusCos + fCos,
+		fXYM - fZSin,
+		fXZM + fYSin,
+		0,
+		fXYM + fZSin,
+		fY2 * fOneMinusCos + fCos,
+		fYZM - fXSin,
+		0,
+		fXZM - fYSin,
+		fYZM + fXSin,
+		fZ2 * fOneMinusCos + fCos,
+		0,
+		0, 0, 0, 1
+	);
+}
+
+mat3 mat3FromAngleAxis(float angle, float3 axis) {
+	return mat3FromAngleNormalAxis(angle, normalize(axis));
+}
+
+//Multiplies the two matrices A and B
+inline mat3 mat3Mult(mat3 A, mat3 B) {
+	return (float16) (
+		dot(A.s012, B.s048),
+		dot(A.s012, B.s159),
+		dot(A.s012, B.s26a),
+		0,
+		dot(A.s456, B.s048),
+		dot(A.s456, B.s159),
+		dot(A.s456, B.s26a),
+		0,
+		dot(A.s89a, B.s048),
+		dot(A.s89a, B.s159),
+		dot(A.s89a, B.s26a),
+		0,
+		0, 0, 0, 1
+	);
+}
+
+//Computes Av (right multiply of a vector to a matrix)
+inline float3 mat3VMult(mat3 A, float3 v) {
+	return (float3) (
+		dot(A.s012, v),
+		dot(A.s456, v),
+		dot(A.s89a, v));
+}
+
+//Computes vA (left multiply of a vector to a matrix)
+inline float3 mat3VMult2(float3 v, mat3 A) {
+	return (float3) (
+		dot(v, A.s048),
+		dot(v, A.s159),
+		dot(v, A.s26a));
+}
+
+//Scales this matrix by a constant
+inline mat3 mat3Scale(mat3 mat, float s) {
+	return s*mat;
+}
+
+//Transposes this matrix
+inline mat3 mat3Transpose(mat3 mat) {
+	return mat.s048c159d26ae37bf; //magic
+}
+
+//Computes the determinant
+inline float mat3Determinant(mat3 mat) {
+	float fCo00 = mat.s5 * mat.sa - mat.s6 * mat.s9;
+	float fCo10 = mat.s6 * mat.s8 - mat.s4 * mat.sa;
+	float fCo20 = mat.s4 * mat.s9 - mat.s5 * mat.s8;
+	float fDet = mat.s0 * fCo00 + mat.s1 * fCo10 + mat.s2 * fCo20;
+	return fDet;
+}
+
+//Creates the adjoint
+inline mat3 mat3Adjoint(mat3 mat) {
+	return (float16) (
+		mat.s5 * mat.sa - mat.s6 * mat.s9,
+		mat.s2 * mat.s9 - mat.s1 * mat.sa,
+		mat.s1 * mat.s6 - mat.s2 * mat.s5,
+		0,
+		mat.s6 * mat.s8 - mat.s4 * mat.sa,
+		mat.s0 * mat.sa - mat.s2 * mat.s8,
+		mat.s2 * mat.s4 - mat.s0 * mat.s6,
+		0,
+		mat.s4 * mat.s9 - mat.s5 * mat.s8,
+		mat.s1 * mat.s8 - mat.s0 * mat.s9,
+		mat.s0 * mat.s5 - mat.s1 * mat.s4,
+		0,
+		0, 0, 0, 1
+	);
+}
+
+//Inverts this matrix
+inline mat3 mat3Invert(mat3 mat) {
+	float det = mat3Determinant(mat);
+	if (fabs(det) <= 1.1920928955078125E-7f) return mat3Zero();
+	mat3 m = mat3Adjoint(mat);
+	return m / det;
+}
+
+//Computes A+B
+inline mat3 mat3Add(mat3 A, mat3 B) {
+	return A + B;
+}
+
+inline bool mat3Equals(mat3 A, mat3 B, float epsilon) {
+	return fabs(A.s0 - B.s0)<epsilon
+		&& fabs(A.s1 - B.s1)<epsilon
+		&& fabs(A.s2 - B.s2)<epsilon
+		&& fabs(A.s4 - B.s4)<epsilon
+		&& fabs(A.s5 - B.s5)<epsilon
+		&& fabs(A.s6 - B.s6)<epsilon
+		&& fabs(A.s8 - B.s8)<epsilon
+		&& fabs(A.s9 - B.s9)<epsilon
+		&& fabs(A.sa - B.sa)<epsilon;
+}
+
+#endif

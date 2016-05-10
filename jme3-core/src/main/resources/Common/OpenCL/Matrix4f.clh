@@ -1,0 +1,12 @@
+
+#ifndef MATRIX4_H
+#define MATRIX4_H
+
+//Simple matrix library.
+//A 4x4 matrix is represented as a float16 in row major order
+
+typedef float16 mat4;
+
+//All matrix functions are prefixed with mat3 or mat4
+
+#endif

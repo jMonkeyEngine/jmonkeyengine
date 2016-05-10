@@ -162,6 +162,7 @@ public class LwjglKernel extends Kernel {
         buf.put(m.m00).put(m.m01).put(m.m02).put(m.m03);
         buf.put(m.m10).put(m.m11).put(m.m12).put(m.m13);
         buf.put(m.m20).put(m.m21).put(m.m22).put(m.m23);
+        buf.position(0);
         buf.put(m.m30).put(m.m31).put(m.m32).put(m.m33);
         int ret = CL10.clSetKernelArg(kernel, index, buf);
         Utils.checkError(ret, "clSetKernelArg");

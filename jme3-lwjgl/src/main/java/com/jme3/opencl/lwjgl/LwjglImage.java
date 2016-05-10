@@ -447,6 +447,7 @@ public class LwjglImage extends Image {
 
     @Override
     public void unmap(CommandQueue queue, ImageMapping mapping) {
+        mapping.buffer.position(0);
         CLCommandQueue q = ((LwjglCommandQueue) queue).getQueue();
         Utils.pointerBuffers[0].rewind();
         int ret = CL10.clEnqueueUnmapMemObject(q, image, mapping.buffer, null, Utils.pointerBuffers[0]);

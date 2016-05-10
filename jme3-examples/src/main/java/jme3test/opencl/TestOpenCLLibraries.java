@@ -36,6 +36,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Matrix3f;
 import com.jme3.opencl.*;
 import com.jme3.system.AppSettings;
 import com.jme3.util.BufferUtils;
@@ -82,6 +83,7 @@ public class TestOpenCLLibraries extends SimpleApplication {
                 .append("\n  Devices: ").append(clContext.getDevices());
         str.append("\nTests:");
         str.append("\n  Random numbers: ").append(testRandom(clContext, clQueue));
+        str.append("\n  Matrix3f: ").append(testMatrix3f(clContext, clQueue));
         
         clQueue.release();
         
@@ -244,6 +246,66 @@ public class TestOpenCLLibraries extends SimpleApplication {
             resultBuffer.release();
             program.release();
 
+        } catch (AssertionError ex) {
+            LOG.log(Level.SEVERE, "kernel test failed with an assertion error");
+            return false;
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "kernel test failed with:", ex);
+            return false;
+        }
+        return true;
+    }
+    
+    private boolean testMatrix3f(Context clContext, CommandQueue clQueue) {
+        try {
+            
+            String code = ""
+                    + "#import \"Common/OpenCL/Matrix3f.clh\"\n"
+                    + "\n"
+                    + "__kernel void TestMatrix3f_1(__global char* result)\n"
+                    + "{\n"
+                    + "  mat3 id = mat3Identity();\n"
+                    + "  mat3 m1 = mat3FromRows( (float3)(23,-3,10.4f), (float3)(5,-8,2.22f), (float3)(-1,0,34) );\n"
+                    + "  mat3 m1Inv = mat3Invert(m1);\n"
+                    + "  mat3 m1Res = mat3Mult(m1, m1Inv);\n"
+                    + "  result[0] = mat3Equals(id, m1Res, 0.0001f) ? 1 : 0;\n"
+                    + "}\n"
+                    + "\n"
+                    + "__kernel void TestMatrix3f_2(mat3 m1, float a, mat3 m2, mat3 mRes, __global char* result)\n"
+                    + "{\n"
+                    + "  mat3 m = mat3Transpose(m1);\n"
+                    + "  m = mat3Add(mat3Scale(m, a), m2);\n"
+                    + "  result[0] = mat3Equals(mRes, m, 0.01f) ? 1 : 0;\n"
+                    + "}\n";
+            Program program = clContext.createProgramFromSourceCodeWithDependencies(code, assetManager);
+            program.build();
+            com.jme3.opencl.Buffer buffer = clContext.createBuffer(4 * 1);
+            
+            Kernel testMatrix3fKernel1 = program.createKernel("TestMatrix3f_1");
+            testMatrix3fKernel1.Run1NoEvent(clQueue, new Kernel.WorkSize(1), buffer);
+            ByteBuffer bb = buffer.map(clQueue, MappingAccess.MAP_READ_ONLY);
+            if (bb.get() == 0) {
+                LOG.severe("Matrix inversion failed");
+                return false;
+            }
+            buffer.unmap(clQueue, bb);
+            testMatrix3fKernel1.release();
+            
+            Kernel testMatrix3fKernel2 = program.createKernel("TestMatrix3f_2");
+            Matrix3f m1 = new Matrix3f(13.24f, -0.234f, 42, 83.23f, -34.2f, 3.2f, 0.25f, -42, 7.64f);
+            Matrix3f m2 = new Matrix3f(-5.2f, 0.757f, 2.01f, 12.0f, -6, 2, 0.01f, 9, 2.255f);
+            Matrix3f mRes = new Matrix3f(-31.68f, -165.703f, 1.51f, 12.468f, 62.4f, 86, -83.99f, 2.6f, -13.025f);
+            testMatrix3fKernel2.Run1NoEvent(clQueue, new Kernel.WorkSize(1), m1, -2.0f, m2, mRes, buffer);
+            bb = buffer.map(clQueue, MappingAccess.MAP_READ_ONLY);
+            if (bb.get() == 0) {
+                LOG.severe("Matrix add, multiply, transpose failed");
+                return false;
+            }
+            buffer.unmap(clQueue, bb);
+            testMatrix3fKernel2.release();
+            
+            buffer.release();
+            
         } catch (AssertionError ex) {
             LOG.log(Level.SEVERE, "kernel test failed with an assertion error");
             return false;
