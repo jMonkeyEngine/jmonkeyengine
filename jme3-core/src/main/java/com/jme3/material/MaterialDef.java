@@ -33,7 +33,6 @@ package com.jme3.material;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.export.*;
-import com.jme3.renderer.Caps;
 import com.jme3.shader.VarType;
 import com.jme3.texture.image.ColorSpace;
 
@@ -47,7 +46,7 @@ import java.util.logging.Logger;
  * 
  * @author Kirill Vainer
  */
-public class MaterialDef implements Savable{
+public class MaterialDef{
 
     private static final Logger logger = Logger.getLogger(MaterialDef.class.getName());
 
@@ -189,57 +188,12 @@ public class MaterialDef implements Savable{
         return techniques.get(name);
     }
 
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        OutputCapsule out = ex.getCapsule(this);
-        out.write(name, "name" , null);
-        out.writeStringSavableMap(matParams, "matParams", null);
-
-        Map<String, SavableListWrapper> wrapper = new HashMap<String, SavableListWrapper>();
-
-        for (String key : techniques.keySet()) {
-            List<TechniqueDef> defs = techniques.get(key);
-            wrapper.put(key, new SavableListWrapper(defs));
-        }
-
-        out.writeStringSavableMap(wrapper, "techniques", null);
-
-    }
-
-    @Override
-    public void read(JmeImporter im) throws IOException {
-        InputCapsule in = im.getCapsule(this);
-        name = in.readString("name", null);
-        matParams = (Map<String, MatParam>)in.readStringSavableMap("matPrams", null);
-        Map<String, SavableListWrapper> wrapper = (Map<String, SavableListWrapper>)in.readStringSavableMap("techniques", null);
-        techniques = new HashMap<String, List<TechniqueDef>>();
-        for (String key : wrapper.keySet()) {
-            SavableListWrapper w = wrapper.get(key);
-            techniques.put(key, w.defs);
-        }
-    }
-
     /**
-     * A wrapper to be able to save a List<TechniqueDef> to save the Map<String, List<TechniqueDefs>>
+     *
+     * @return the list of all the technique definitions names.
      */
-    public static class SavableListWrapper implements Savable{
-        List<TechniqueDef> defs;
-
-        public SavableListWrapper(List<TechniqueDef> defs) {
-            this.defs = defs;
-        }
-
-        @Override
-        public void write(JmeExporter ex) throws IOException {
-            OutputCapsule out = ex.getCapsule(this);
-            out.writeSavableArrayList((ArrayList)defs, "defs", null);
-
-        }
-
-        @Override
-        public void read(JmeImporter im) throws IOException {
-            InputCapsule in = im.getCapsule(this);
-            defs = in.readSavableArrayList("defs", null);
-        }
+    public Collection<String> getTechniqueDefsNames(){
+        return techniques.keySet();
     }
+
 }

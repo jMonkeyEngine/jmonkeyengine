@@ -35,11 +35,15 @@ import com.jme3.asset.*;
 import com.jme3.material.*;
 import com.jme3.material.plugin.export.materialdef.J3mdExporter;
 import com.jme3.material.plugins.J3MLoader;
+import com.jme3.shader.UniformBinding;
 import com.jme3.system.JmeSystem;
 import org.junit.*;
 
 import java.io.*;
+import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class TestMaterialDefWrite {
@@ -58,26 +62,7 @@ public class TestMaterialDefWrite {
     @Test
     public void testWriteMat() throws Exception {
 
-        Material mat = new Material(assetManager,"Common/MatDefs/Light/Lighting.j3md");
-//
-//        mat.setBoolean("UseMaterialColors", true);
-//        mat.setColor("Diffuse", ColorRGBA.White);
-//        mat.setColor("Ambient", ColorRGBA.DarkGray);
-//        mat.setFloat("AlphaDiscardThreshold", 0.5f);
-//
-//        mat.setFloat("Shininess", 2.5f);
-//
-//        Texture tex = assetManager.loadTexture("Common/Textures/MissingTexture.png");
-//        tex.setMagFilter(Texture.MagFilter.Nearest);
-//        tex.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-//        tex.setWrap(Texture.WrapAxis.S, Texture.WrapMode.Repeat);
-//        tex.setWrap(Texture.WrapAxis.T, Texture.WrapMode.MirroredRepeat);
-//
-//        mat.setTexture("DiffuseMap", tex);
-//        mat.getAdditionalRenderState().setDepthWrite(false);
-//        mat.getAdditionalRenderState().setDepthTest(false);
-//        mat.getAdditionalRenderState().setLineWidth(5);
-//        mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+        Material mat = new Material(assetManager,"example.j3md");
 
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
@@ -88,7 +73,7 @@ public class TestMaterialDefWrite {
             e.printStackTrace();
         }
 
-       // System.err.println(stream.toString());
+        System.err.println(stream.toString());
 
         J3MLoader loader = new J3MLoader();
         AssetInfo info = new AssetInfo(assetManager, new AssetKey("test")) {
@@ -100,11 +85,47 @@ public class TestMaterialDefWrite {
         MaterialDef matDef = (MaterialDef)loader.load(info);
         MaterialDef ref = mat.getMaterialDef();
 
-        for (MatParam matParam : matDef.getMaterialParams()) {
-            MatParam refParam = ref.getMaterialParam(matParam.getName());
+        for (MatParam refParam : ref.getMaterialParams()) {
+            MatParam matParam = matDef.getMaterialParam(refParam.getName());
             assertTrue(refParam != null);
-            assertTrue(refParam.equals(matParam));
+            assertEquals(refParam,matParam);
         }
+
+        for (String key : ref.getTechniqueDefsNames()) {
+            List<TechniqueDef> refDefs = ref.getTechniqueDefs(key);
+            List<TechniqueDef> defs = matDef.getTechniqueDefs(key);
+
+            assertNotNull(defs);
+            assertTrue(refDefs.size() == defs.size());
+            for (int i = 0; i < refDefs.size(); i++) {
+                assertEqualTechniqueDefs(refDefs.get(i), defs.get(i));
+            }
+        }
+    }
+
+    private void assertEqualTechniqueDefs(TechniqueDef def1, TechniqueDef def2){
+        assertEquals(def1.getName(), def2.getName());
+        assertEquals(def1.getLightMode(), def2.getLightMode());
+        assertEquals(def1.getShadowMode(), def2.getShadowMode());
+        assertEquals(def1.getShaderProgramNames().size(), def2.getShaderProgramNames().size());
+
+        //World params
+        assertEquals(def1.getWorldBindings().size(), def2.getWorldBindings().size());
+        for (UniformBinding uniformBinding : def1.getWorldBindings()) {
+            assertTrue(def2.getWorldBindings().contains(uniformBinding));
+        }
+
+        //defines
+        assertEquals(def1.getDefineNames().length, def2.getDefineNames().length);
+
+        //renderState
+        assertEquals(def1.getRenderState(), def2.getRenderState());
+
+        //forced renderState
+        assertEquals(def1.getForcedRenderState(), def2.getForcedRenderState());
+
+        //no render
+        assertEquals(def1.isNoRender(), def2.isNoRender());
     }
 
 }

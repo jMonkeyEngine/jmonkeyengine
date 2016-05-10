@@ -11,6 +11,7 @@ import com.jme3.export.Savable;
 import com.jme3.material.*;
 
 import java.io.*;
+import java.util.List;
 
 /**
  * Saves a Material to a j3m file with proper formatting.
@@ -26,47 +27,53 @@ import java.io.*;
  * @author tsr
  * @author nehon (documentation and safety check)
  */
-public class J3mdExporter implements JmeExporter {
+public class J3mdExporter {
 
-    private final J3mdMatDefOutputCapsule rootCapsule;
 
     /**
      * Create a J3mdExporter
      */
     public J3mdExporter() {
-        rootCapsule = new J3mdMatDefOutputCapsule(this);
     }
 
-    @Override
-    public void save(Savable object, OutputStream f) throws IOException {
 
-        if (!(object instanceof MaterialDef)) {
-            throw new IllegalArgumentException("J3mdExporter can only save com.jme3.material.MaterialDef class");
-        }
+    public void save(MaterialDef matDef, OutputStream f) throws IOException {
 
         OutputStreamWriter out = new OutputStreamWriter(f);
+        J3mdMatParamWriter paramWriter = new J3mdMatParamWriter();
+        J3mdTechniqueDefWriter techniqueWriter = new J3mdTechniqueDefWriter();
 
-        rootCapsule.clear();
-        object.write(this);
-        rootCapsule.writeToStream(out);
+//        for (MatParam matParam : matDef.getMaterialParams()) {
+//            System.err.println(matParam.toString());
+//        }
+//
+//        for (String key : matDef.getTechniqueDefsNames()) {
+//            System.err.println(matDef.getTechniqueDefs(key).toString());
+//        }
 
+        out.write("MaterialDef " + matDef.getName() + " {\n");
+        out.write("    MaterialParameters {\n");
+        for (MatParam matParam : matDef.getMaterialParams()) {
+            paramWriter.write(matParam, out);
+        }
+        out.write("    }\n\n");
+
+        for (String key : matDef.getTechniqueDefsNames()) {
+            List<TechniqueDef> defs = matDef.getTechniqueDefs(key);
+            for (TechniqueDef def : defs) {
+                techniqueWriter.write(def, matDef.getMaterialParams(), out);
+            }
+        }
+
+        out.write("}\n");
         out.flush();
     }
 
-    @Override
-    public void save(Savable object, File f) throws IOException {
+
+    public void save(MaterialDef matDef, File f) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(f)) {
-            save(object, fos);
+            save(matDef, fos);
         }
-    }
-
-    @Override
-    public OutputCapsule getCapsule(Savable object) {
-        if (object instanceof MaterialDef) {
-            return rootCapsule;
-        }
-
-        return rootCapsule.getCapsule(object);
     }
 
 }
