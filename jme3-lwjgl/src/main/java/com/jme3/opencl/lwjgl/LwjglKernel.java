@@ -31,6 +31,7 @@
  */
 package com.jme3.opencl.lwjgl;
 
+import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector4f;
@@ -193,6 +194,19 @@ public class LwjglKernel extends Kernel {
         buf.put(1, q.getY());
         buf.put(2, q.getZ());
         buf.put(3, q.getW());
+        int ret = CL10.clSetKernelArg(kernel, index, buf);
+        Utils.checkError(ret, "clSetKernelArg");
+    }
+    
+    @Override
+    public void setArg(int index, Matrix4f m) {
+        FloatBuffer buf = Utils.b80f;
+        buf.position(0);
+        buf.limit(16);
+        buf.put(m.m00).put(m.m01).put(m.m02).put(m.m03);
+        buf.put(m.m10).put(m.m11).put(m.m12).put(m.m13);
+        buf.put(m.m20).put(m.m21).put(m.m22).put(m.m23);
+        buf.put(m.m30).put(m.m31).put(m.m32).put(m.m33);
         int ret = CL10.clSetKernelArg(kernel, index, buf);
         Utils.checkError(ret, "clSetKernelArg");
     }

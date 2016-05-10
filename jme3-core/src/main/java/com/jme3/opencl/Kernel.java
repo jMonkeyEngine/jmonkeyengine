@@ -31,9 +31,8 @@
  */
 package com.jme3.opencl;
 
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector4f;
+import com.jme3.math.*;
+import com.jme3.util.TempVars;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -237,6 +236,24 @@ public abstract class Kernel extends AbstractOpenCLObject {
 
     public abstract void setArg(int index, Quaternion q);
     
+    public abstract void setArg(int index, Matrix4f mat);
+    
+    public void setArg(int index, Matrix3f mat) {
+        TempVars vars = TempVars.get();
+        try {
+            Matrix4f m = vars.tempMat4;
+            m.zero();
+            for (int i=0; i<3; ++i) {
+                for (int j=0; j<3; ++j) {
+                    m.set(i, j, mat.get(i, j));
+                }
+            }
+            setArg(index, m);
+        } finally {
+            vars.release();
+        }
+    }
+    
     /**
      * Raw version to set an argument.
      * {@code size} bytes of the provided byte buffer are copied to the kernel
@@ -253,7 +270,9 @@ public abstract class Kernel extends AbstractOpenCLObject {
      * Sets the kernel argument at the specified index.<br>
      * The argument must be a known type:
      * {@code LocalMemPerElement, LocalMem, Image, Buffer, byte, short, int,
-     * long, float, double, Vector2f, Vector4f, Quaternion}
+     * long, float, double, Vector2f, Vector4f, Quaternion, Matrix3f, Matrix4f}.
+     * <br>
+     * Note: Matrix3f and Matrix4f will be mapped to a {@code float16} (row major).
      * @param index the index of the argument, from 0 to {@link #getArgCount()}-1
      * @param arg the argument
      * @throws IllegalArgumentException if the argument type is not one of the listed ones
@@ -277,6 +296,10 @@ public abstract class Kernel extends AbstractOpenCLObject {
             setArg(index, (Vector4f) arg);
         } else if (arg instanceof Quaternion) {
             setArg(index, (Quaternion) arg);
+        } else if (arg instanceof Matrix3f) {
+            setArg(index, (Matrix3f) arg);
+        } else if (arg instanceof Matrix4f) {
+            setArg(index, (Matrix4f) arg);
         } else if (arg instanceof LocalMemPerElement) {
             setArg(index, (LocalMemPerElement) arg);
         } else if (arg instanceof LocalMem) {

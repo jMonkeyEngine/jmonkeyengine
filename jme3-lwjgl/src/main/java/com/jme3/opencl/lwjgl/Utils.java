@@ -89,8 +89,9 @@ public class Utils {
             b16d = b16.asDoubleBuffer();
         }
     }
-    public static final ByteBuffer b80; //needed for ImageDescriptor
+    public static final ByteBuffer b80; //needed for ImageDescriptor and Matrix4f
     public static final LongBuffer b80l;
+    public static final FloatBuffer b80f;
     public static final TempBuffer[] tempBuffers = new TempBuffer[8];
     public static final PointerBuffer[] pointerBuffers = new PointerBuffer[8];
     static {
@@ -101,6 +102,7 @@ public class Utils {
         errorBuffer = BufferUtils.createIntBuffer(1);
         b80 = BufferUtils.createByteBuffer(80);
         b80l = b80.asLongBuffer();
+        b80f = b80.asFloatBuffer();
     }
     
     public static IntBuffer errorBuffer;
