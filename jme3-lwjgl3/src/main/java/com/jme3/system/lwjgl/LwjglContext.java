@@ -77,7 +77,7 @@ public abstract class LwjglContext implements JmeContext {
 
     //Fixme: OpenGL/CL sharing does not work yet, this line disables the sharing methods
     //(They will throw an OpenCLException)
-    public static final boolean CL_GL_SHARING_POSSIBLE = false;
+    public static final boolean CL_GL_SHARING_POSSIBLE = true;
     
     protected static final String THREAD_NAME = "jME3 Main";
 
@@ -198,12 +198,9 @@ public abstract class LwjglContext implements JmeContext {
         }
         renderable.set(true);
         
-        if (settings.isOpenCLSupport()) {
-            initOpenCL();
-        }
     }
     
-    protected void initOpenCL() {
+    protected void initOpenCL(long window) {
         logger.info("Initialize OpenCL with LWJGL3");
         
 //        try {
@@ -290,7 +287,7 @@ public abstract class LwjglContext implements JmeContext {
         
         //create context
         try {
-            long c = createContext(platform.getPlatform(), devices);
+            long c = createContext(platform.getPlatform(), devices, window);
             clContext = new com.jme3.opencl.lwjgl.LwjglContext(c, (List<LwjglDevice>) choosenDevices);
         } catch (Exception ex) {
             logger.log(Level.SEVERE, "Unable to create OpenCL context", ex);
@@ -299,7 +296,7 @@ public abstract class LwjglContext implements JmeContext {
         
         logger.info("OpenCL context created");
     }
-    private long createContext(final CLPlatform platform, final List<CLDevice> devices) throws Exception {
+    private long createContext(final CLPlatform platform, final List<CLDevice> devices, long window) throws Exception {
         
         //Fixme: OpenGL/CL sharing does not work. The properties seem to be setup wrongly
         // If it works, set CL_GL_SHARING_POSSIBLE to true to enable the sharing
@@ -311,27 +308,31 @@ public abstract class LwjglContext implements JmeContext {
         
         //set sharing properties
         //https://github.com/glfw/glfw/issues/104
+        //https://github.com/LWJGL/lwjgl3/blob/master/modules/core/src/test/java/org/lwjgl/demo/opencl/Mandelbrot.java
         //TODO: test on Linus and MacOSX
-        switch ( org.lwjgl.system.Platform.get() ) {
+        switch (org.lwjgl.system.Platform.get()) {
             case WINDOWS:
-                long wglContext = org.lwjgl.opengl.WGL.wglGetCurrentContext();
-                long wglDC = org.lwjgl.opengl.WGL.wglGetCurrentDC();
-                properties.put(KHRGLSharing.CL_GL_CONTEXT_KHR).put(wglContext);
-                properties.put(KHRGLSharing.CL_WGL_HDC_KHR).put(wglDC);
+                properties
+                        .put(KHRGLSharing.CL_GL_CONTEXT_KHR)
+                        .put(org.lwjgl.glfw.GLFWNativeWGL.glfwGetWGLContext(window))
+                        .put(KHRGLSharing.CL_WGL_HDC_KHR)
+                        .put(org.lwjgl.opengl.WGL.wglGetCurrentDC());
                 break;
             case LINUX:
-                properties.put(KHRGLSharing.CL_GL_CONTEXT_KHR).put(org.lwjgl.opengl.GLX.glXGetCurrentContext());
-                properties.put(KHRGLSharing.CL_GLX_DISPLAY_KHR).put(org.lwjgl.opengl.GLX.glXGetCurrentDrawable());
+                properties
+                        .put(KHRGLSharing.CL_GL_CONTEXT_KHR)
+                        .put(org.lwjgl.glfw.GLFWNativeGLX.glfwGetGLXContext(window))
+                        .put(KHRGLSharing.CL_GLX_DISPLAY_KHR)
+                        .put(org.lwjgl.glfw.GLFWNativeX11.glfwGetX11Display());
                 break;
             case MACOSX:
-                properties.put(APPLEGLSharing.CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE)
+                properties
+                        .put(APPLEGLSharing.CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE)
                         .put(org.lwjgl.opengl.CGL.CGLGetShareGroup(org.lwjgl.opengl.CGL.CGLGetCurrentContext()));
-                break;
-            default:
-                throw new UnsupportedOperationException("CL/GL context sharing is not supported on this platform.");
         }
         properties.put(CL_CONTEXT_PLATFORM).put(platform);
         properties.put(0);
+        properties.flip();
 
         Utils.errorBuffer.rewind();
         PointerBuffer deviceBuffer = PointerBuffer.allocateDirect(devices.size());

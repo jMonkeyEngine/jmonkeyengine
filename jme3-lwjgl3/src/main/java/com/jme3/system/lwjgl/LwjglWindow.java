@@ -326,6 +326,13 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
             created.set(true);
             super.internalCreate();
+            
+            //create OpenCL
+            //Must be done here because the window handle is needed
+            if (settings.isOpenCLSupport()) {
+                initOpenCL(window);
+            }
+            
         } catch (Exception ex) {
             try {
                 if (window != NULL) {
