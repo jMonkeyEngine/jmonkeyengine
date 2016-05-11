@@ -250,10 +250,10 @@ public class TestOpenCLLibraries extends SimpleApplication {
             program.release();
 
         } catch (AssertionError ex) {
-            LOG.log(Level.SEVERE, "kernel test failed with an assertion error");
+            LOG.log(Level.SEVERE, "random test failed with an assertion error");
             return false;
         } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "kernel test failed with:", ex);
+            LOG.log(Level.SEVERE, "random test failed with:", ex);
             return false;
         }
         return true;
@@ -310,10 +310,10 @@ public class TestOpenCLLibraries extends SimpleApplication {
             buffer.release();
             
         } catch (AssertionError ex) {
-            LOG.log(Level.SEVERE, "kernel test failed with an assertion error");
+            LOG.log(Level.SEVERE, "matrix3f test failed with an assertion error");
             return false;
         } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "kernel test failed with:", ex);
+            LOG.log(Level.SEVERE, "matrix3f test failed with:", ex);
             return false;
         }
         return true;
@@ -392,10 +392,10 @@ public class TestOpenCLLibraries extends SimpleApplication {
             buffer.release();
             
         } catch (AssertionError ex) {
-            LOG.log(Level.SEVERE, "kernel test failed with an assertion error");
+            LOG.log(Level.SEVERE, "matrix4f test failed with an assertion error");
             return false;
         } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "kernel test failed with:", ex);
+            LOG.log(Level.SEVERE, "matrix4f test failed with:", ex);
             return false;
         }
         return true;

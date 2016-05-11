@@ -448,6 +448,7 @@ public class JoclImage extends Image {
     public void unmap(CommandQueue queue, ImageMapping mapping) {
         long q = ((JoclCommandQueue)queue).id;
         Utils.pointers[0].rewind();
+        mapping.buffer.position(0);
         int ret = cl.clEnqueueUnmapMemObject(q, id, mapping.buffer, 0, null, Utils.pointers[0]);
         Utils.checkError(ret, "clEnqueueUnmapMemObject");
         ret = cl.clWaitForEvents(1, Utils.pointers[0]);

@@ -140,6 +140,7 @@ public class JoclBuffer extends Buffer {
     public void unmap(CommandQueue queue, ByteBuffer ptr) {
         long q = ((JoclCommandQueue)queue).id;
         Utils.pointers[0].rewind();
+        ptr.position(0);
         int ret = cl.clEnqueueUnmapMemObject(q, id, ptr, 0, null, Utils.pointers[0]);
         Utils.checkError(ret, "clEnqueueUnmapMemObject");
         ret = cl.clWaitForEvents(1, Utils.pointers[0]);

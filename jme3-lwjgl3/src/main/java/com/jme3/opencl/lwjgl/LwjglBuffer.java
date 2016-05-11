@@ -136,6 +136,7 @@ public class LwjglBuffer extends Buffer {
 
     @Override
     public void unmap(CommandQueue queue, ByteBuffer ptr) {
+        ptr.position(0);
         long q = ((LwjglCommandQueue) queue).getQueue();
         Utils.pointerBuffers[0].rewind();
         int ret = CL10.clEnqueueUnmapMemObject(q, buffer, ptr, null, Utils.pointerBuffers[0]);
