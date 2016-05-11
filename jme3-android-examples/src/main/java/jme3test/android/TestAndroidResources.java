@@ -12,7 +12,9 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.util.TangentBinormalGenerator;
 
 /**
- * Test case to look for images stored in the Android drawable and mipmap directories.
+ * Test case to look for images stored in the Android drawable and mipmap directories.  Image files are
+ * stored in the main->res->drawable-xxxx directories and main->res->mipmap-xxxx directories.  The Android OS
+ * will choose the best matching image based on the device capabilities.
  *
  * @author iwgeric
  */
