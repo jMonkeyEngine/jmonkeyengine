@@ -12,7 +12,9 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.util.TangentBinormalGenerator;
 
 /**
- * Created by potterec on 4/29/2016.
+ * Test case to look for images stored in the Android drawable and mipmap directories.
+ *
+ * @author iwgeric
  */
 public class TestAndroidResources extends SimpleApplication {
 
