@@ -43,7 +43,7 @@ public class SoundTrack extends SoundEvent {
 
     /**
      * creates a sound track from the given resource path
-     * @param path the path to an audi file (ie : "Sounds/mySound.wav")
+     * @param path the path to an audio file (ie : "Sounds/mySound.wav")
      */    
     public SoundTrack(String path) {
         super(path);
@@ -51,7 +51,7 @@ public class SoundTrack extends SoundEvent {
 
     /**
      * creates a sound track from the given resource path
-     * @param path the path to an audi file (ie : "Sounds/mySound.wav")
+     * @param path the path to an audio file (ie : "Sounds/mySound.wav")
      * @param stream true to make the audio data streamed
      */    
     public SoundTrack(String path, boolean stream) {

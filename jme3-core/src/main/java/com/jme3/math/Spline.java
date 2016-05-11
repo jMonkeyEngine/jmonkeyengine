@@ -273,8 +273,8 @@ public class Spline implements Savable {
     }
 
     /**
-     * Iterpolate a position on the spline
-     * @param value a value from 0 to 1 that represent the postion between the curent control point and the next one
+     * Interpolate a position on the spline
+     * @param value a value from 0 to 1 that represent the position between the current control point and the next one
      * @param currentControlPoint the current control point
      * @param store a vector to store the result (use null to create a new one that will be returned by the method)
      * @return the position
@@ -350,7 +350,7 @@ public class Spline implements Savable {
     }
 
     /**
-     * return the total lenght of the spline
+     * return the total length of the spline
      */
     public float getTotalLength() {
         return totalLength;
@@ -380,7 +380,7 @@ public class Spline implements Savable {
     }
 
     /**
-     * returns a list of float representing the segments lenght
+     * returns a list of float representing the segments length
      */
     public List<Float> getSegmentsLength() {
         return segmentsLength;

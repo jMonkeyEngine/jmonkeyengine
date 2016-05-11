@@ -44,10 +44,10 @@ import com.jme3.math.Vector3f;
  * Usage is : <br>
  * - Create the AnimationHelper<br>
  * - add some keyFrames<br>
- * - call the buildAnimation() method that will retruna new Animation<br>
+ * - call the buildAnimation() method that will return a new Animation<br>
  * - add the generated Animation to any existing AnimationControl<br>
  * <br><br>
- * Note that the first keyFrame (index 0) is defaulted with the identy transforms.
+ * Note that the first keyFrame (index 0) is defaulted with the identity transforms.
  * If you want to change that you have to replace this keyFrame with any transform you want.
  * 
  * @author Nehon
@@ -55,7 +55,7 @@ import com.jme3.math.Vector3f;
 public class AnimationFactory {
 
     /**
-     * step for splitting rotation that have a n ange above PI/2
+     * step for splitting rotation that have a n angle above PI/2
      */
     private final static float EULER_STEP = FastMath.QUARTER_PI * 3;
 

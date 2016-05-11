@@ -124,7 +124,7 @@ public class ListSort<T> {
     }
 
     /**
-     * Allocate temp veriables for the given length This method should be called
+     * Allocate temp variables for the given length This method should be called
      * at least once, but only if the length of the list to sort changed before
      * sorting
      *
@@ -427,7 +427,7 @@ public class ListSort<T> {
     /**
      * Merge runs A and B where A index in the stack is idx and B index is idx+1
      *
-     * @param idx index of the firts of two runs to merge
+     * @param idx index of the first of two runs to merge
      */
     private void mergeRuns(int idx) {
 

@@ -67,10 +67,10 @@ import java.util.logging.Logger;
  * This appState is for debug purpose only, and was made to provide an easy way 
  * to test shaders, with a live update capability.
  * 
- * This calss provides and easy way to reload a material and catches compilation
+ * This class provides and easy way to reload a material and catches compilation
  * errors when needed and displays the error in the console.
  * 
- * If no error accur on compilation, the material is reloaded in the scene.
+ * If no error occur on compilation, the material is reloaded in the scene.
  * 
  * You can either trigger the reload when pressing a key (or whatever input is 
  * supported by Triggers you can attach to the input manager), or trigger it 

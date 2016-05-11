@@ -325,7 +325,7 @@ public final class BufferUtils {
      * @param buf
      *            the buffer to insert into
      * @param index
-     *            the postion to place the data; in terms of quaternions not floats
+     *            the position to place the data; in terms of quaternions not floats
      */
     public static void setInBuffer(Quaternion quat, FloatBuffer buf,
             int index) {
@@ -345,7 +345,7 @@ public final class BufferUtils {
      * @param buf
      *            the buffer to insert into
      * @param index
-     *            the postion to place the data; in terms of vector4 not floats
+     *            the position to place the data; in terms of vector4 not floats
      */
     public static void setInBuffer(Vector4f vec, FloatBuffer buf,
             int index) {
@@ -438,7 +438,7 @@ public final class BufferUtils {
 
     /**
      * Copies a Vector3f from one position in the buffer to another. The index
-     * values are in terms of vector number (eg, vector number 0 is postions 0-2
+     * values are in terms of vector number (eg, vector number 0 is positions 0-2
      * in the FloatBuffer.)
      * 
      * @param buf
@@ -600,7 +600,7 @@ public final class BufferUtils {
      * @param buf
      *            the buffer to insert into
      * @param index
-     *            the postion to place the data; in terms of vectors not floats
+     *            the position to place the data; in terms of vectors not floats
      */
     public static void setInBuffer(Vector2f vector, FloatBuffer buf, int index) {
         buf.put(index * 2, vector.x);
@@ -643,7 +643,7 @@ public final class BufferUtils {
 
     /**
      * Copies a Vector2f from one position in the buffer to another. The index
-     * values are in terms of vector number (eg, vector number 0 is postions 0-1
+     * values are in terms of vector number (eg, vector number 0 is positions 0-1
      * in the FloatBuffer.)
      * 
      * @param buf
@@ -835,7 +835,7 @@ public final class BufferUtils {
 
     /**
      * Creates a new DoubleBuffer with the same contents as the given
-     * DoubleBuffer. The new DoubleBuffer is seperate from the old one and
+     * DoubleBuffer. The new DoubleBuffer is separate from the old one and
      * changes are not reflected across. If you want to reflect changes,
      * consider using Buffer.duplicate().
      * 
@@ -897,7 +897,7 @@ public final class BufferUtils {
 
     /**
      * Creates a new FloatBuffer with the same contents as the given
-     * FloatBuffer. The new FloatBuffer is seperate from the old one and changes
+     * FloatBuffer. The new FloatBuffer is separate from the old one and changes
      * are not reflected across. If you want to reflect changes, consider using
      * Buffer.duplicate().
      * 
@@ -960,7 +960,7 @@ public final class BufferUtils {
 
     /**
      * Creates a new IntBuffer with the same contents as the given IntBuffer.
-     * The new IntBuffer is seperate from the old one and changes are not
+     * The new IntBuffer is separate from the old one and changes are not
      * reflected across. If you want to reflect changes, consider using
      * Buffer.duplicate().
      * 
@@ -1116,7 +1116,7 @@ public final class BufferUtils {
 
     /**
      * Creates a new ShortBuffer with the same contents as the given ShortBuffer.
-     * The new ShortBuffer is seperate from the old one and changes are not
+     * The new ShortBuffer is separate from the old one and changes are not
      * reflected across. If you want to reflect changes, consider using
      * Buffer.duplicate().
      * 

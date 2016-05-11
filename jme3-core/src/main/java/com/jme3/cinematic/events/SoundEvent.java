@@ -54,7 +54,7 @@ public class SoundEvent extends AbstractCinematicEvent {
 
     /**
      * creates a sound track from the given resource path
-     * @param path the path to an audi file (ie : "Sounds/mySound.wav")
+     * @param path the path to an audio file (ie : "Sounds/mySound.wav")
      */
     public SoundEvent(String path) {
         this.path = path;
@@ -62,7 +62,7 @@ public class SoundEvent extends AbstractCinematicEvent {
 
     /**
      * creates a sound track from the given resource path
-     * @param path the path to an audi file (ie : "Sounds/mySound.wav")
+     * @param path the path to an audio file (ie : "Sounds/mySound.wav")
      * @param stream true to make the audio data streamed
      */
     public SoundEvent(String path, boolean stream) {
@@ -72,9 +72,9 @@ public class SoundEvent extends AbstractCinematicEvent {
 
     /**
      * creates a sound track from the given resource path
-     * @param path the path to an audi file (ie : "Sounds/mySound.wav")
+     * @param path the path to an audio file (ie : "Sounds/mySound.wav")
      * @param stream true to make the audio data streamed
-     * @param initialDuration the nitial duration of the event
+     * @param initialDuration the initial duration of the event
      */
     public SoundEvent(String path, boolean stream, float initialDuration) {
         super(initialDuration);
@@ -84,7 +84,7 @@ public class SoundEvent extends AbstractCinematicEvent {
 
     /**
      * creates a sound track from the given resource path
-     * @param path the path to an audi file (ie : "Sounds/mySound.wav")
+     * @param path the path to an audio file (ie : "Sounds/mySound.wav")
      * @param stream true to make the audio data streamed
      * @param loopMode the loopMode 
      * @see LoopMode
@@ -97,9 +97,9 @@ public class SoundEvent extends AbstractCinematicEvent {
 
      /**
      * creates a sound track from the given resource path
-     * @param path the path to an audi file (ie : "Sounds/mySound.wav")
+     * @param path the path to an audio file (ie : "Sounds/mySound.wav")
      * @param stream true to make the audio data streamed
-     * @param initialDuration the nitial duration of the event
+     * @param initialDuration the initial duration of the event
      * @param loopMode the loopMode 
      * @see LoopMode
      */
@@ -111,8 +111,8 @@ public class SoundEvent extends AbstractCinematicEvent {
 
      /**
      * creates a sound track from the given resource path
-     * @param path the path to an audi file (ie : "Sounds/mySound.wav")    
-     * @param initialDuration the nitial duration of the event
+     * @param path the path to an audio file (ie : "Sounds/mySound.wav")    
+     * @param initialDuration the initial duration of the event
      */
     public SoundEvent(String path, float initialDuration) {
         super(initialDuration);
@@ -121,7 +121,7 @@ public class SoundEvent extends AbstractCinematicEvent {
 
      /**
      * creates a sound track from the given resource path
-     * @param path the path to an audi file (ie : "Sounds/mySound.wav")   
+     * @param path the path to an audio file (ie : "Sounds/mySound.wav")   
      * @param loopMode the loopMode 
      * @see LoopMode
      */
@@ -132,8 +132,8 @@ public class SoundEvent extends AbstractCinematicEvent {
 
      /**
      * creates a sound track from the given resource path
-     * @param path the path to an audi file (ie : "Sounds/mySound.wav")    
-     * @param initialDuration the nitial duration of the event
+     * @param path the path to an audio file (ie : "Sounds/mySound.wav")    
+     * @param initialDuration the initial duration of the event
      * @param loopMode the loopMode 
      * @see LoopMode
      */
@@ -192,7 +192,7 @@ public class SoundEvent extends AbstractCinematicEvent {
     }
 
     /**
-     *  Returns the underlying audion node of this sound track
+     *  Returns the underlying audio node of this sound track
      * @return
      */
     public AudioNode getAudioNode() {

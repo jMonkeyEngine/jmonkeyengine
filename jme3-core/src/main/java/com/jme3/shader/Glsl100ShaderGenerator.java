@@ -66,7 +66,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     }
 
     /**
-     * decalre a list of uniforms
+     * declare a list of uniforms
      *
      * @param source the source to append to
      * @param uniforms the list of uniforms
@@ -81,7 +81,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     /**
      * {@inheritDoc}
      *
-     * attributes are all declared, inPositon is decalred even if it's not in
+     * attributes are all declared, inPositon is declared even if it's not in
      * the list and it's condition is nulled.
      */
     @Override
@@ -187,7 +187,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     }
 
     /**
-     * Appends an ouput assignment to a shader globalOutputName =
+     * Appends an output assignment to a shader globalOutputName =
      * nameSpace_varName;
      *
      * @param source the source StringBuilter to append the code.
@@ -212,7 +212,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * 
      * 1. declaring and mapping input<br>
      * variables : variable replaced with MatParams or WorldParams are not
-     * declared and are replaced by the parma acual name in the code. For others
+     * declared and are replaced by the param actual name in the code. For others
      * variables, the name space is appended with a "_" before the variable name
      * in the code to avoid names collision between shaderNodes. <br>
      * 
@@ -227,7 +227,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * 4. mapping outputs to global output if needed<br>
      * 
      *<br>
-     * All of this is embed in a #if coditional statement if needed
+     * All of this is embed in a #if conditional statement if needed
      */
     @Override
     protected void generateNodeMainSection(StringBuilder source, ShaderNode shaderNode, String nodeSource, ShaderGenerationInfo info) {
@@ -432,7 +432,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     /**
      * replaces a variable name in a shaderNode source code by prefixing it 
      * with its nameSpace and "_" if needed.
-     * @param nodeSource the source ot modify
+     * @param nodeSource the source to modify
      * @param var the variable to replace
      * @return the modified source
      */
@@ -476,7 +476,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
 
     /**
      * returns the name space to append for a variable. 
-     * Attributes, WorldParam and MatParam names psace must not be appended
+     * Attributes, WorldParam and MatParam names space must not be appended
      * @param var the variable
      * @return the namespace to append for this variable
      */
@@ -493,7 +493,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * One can use a #if defined(inputVariableName) in a shaderNode code.
      * This method is responsible for changing the variable name with the 
      * appropriate defined based on the mapping condition of this variable.
-     * Complex condition synthax are handled.     
+     * Complex condition syntax are handled.     
      * 
      * @param nodeSource the sahderNode source code
      * @param shaderNode the ShaderNode being processed
@@ -574,7 +574,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * @param source the StringBuilder to use
      * @param var the variable to declare as an varying
      * @param input a boolean set to true if the this varying is an input.
-     * this in not used in this implementaiton but can be used in overidings 
+     * this in not used in this implementation but can be used in overridings 
      * implementation
      */
     protected void declareVarying(StringBuilder source, ShaderNodeVariable var, boolean input) {
