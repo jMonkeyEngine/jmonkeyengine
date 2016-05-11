@@ -36,7 +36,9 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Matrix3f;
+import com.jme3.math.Matrix4f;
 import com.jme3.opencl.*;
 import com.jme3.system.AppSettings;
 import com.jme3.util.BufferUtils;
@@ -84,6 +86,7 @@ public class TestOpenCLLibraries extends SimpleApplication {
         str.append("\nTests:");
         str.append("\n  Random numbers: ").append(testRandom(clContext, clQueue));
         str.append("\n  Matrix3f: ").append(testMatrix3f(clContext, clQueue));
+        str.append("\n  Matrix4f: ").append(testMatrix4f(clContext, clQueue));
         
         clQueue.release();
         
@@ -279,7 +282,7 @@ public class TestOpenCLLibraries extends SimpleApplication {
                     + "}\n";
             Program program = clContext.createProgramFromSourceCodeWithDependencies(code, assetManager);
             program.build();
-            com.jme3.opencl.Buffer buffer = clContext.createBuffer(4 * 1);
+            com.jme3.opencl.Buffer buffer = clContext.createBuffer(1);
             
             Kernel testMatrix3fKernel1 = program.createKernel("TestMatrix3f_1");
             testMatrix3fKernel1.Run1NoEvent(clQueue, new Kernel.WorkSize(1), buffer);
@@ -316,4 +319,85 @@ public class TestOpenCLLibraries extends SimpleApplication {
         return true;
     }
     
+    private boolean testMatrix4f(Context clContext, CommandQueue clQueue) {
+        try {
+            
+            String code = ""
+                    + "#import \"Common/OpenCL/Matrix4f.clh\"\n"
+                    + "\n"
+                    + "__kernel void TestMatrix4f_1(mat4 m1, __global char* result)\n"
+                    + "{\n"
+                    + "  mat4 id = mat4Identity();\n"
+                    + "  mat4 m1Inv = mat4Invert(m1);\n"
+                    + "  mat4 m1Res = mat4Mult(m1, m1Inv);\n"
+                    + "  result[0] = mat4Equals(id, m1Res, 0.0001f) ? 1 : 0;\n"
+                    + "}\n"
+                    + "\n"
+                    + "__kernel void TestMatrix4f_2(mat4 m1, float d, mat4 m2, mat4 m3, __global char* result)\n"
+                    + "{\n"
+                    + "  float d2 = mat4Determinant(m1);\n"
+                    + "  result[0] = fabs(d - d2) < 0.0001f ? 1 : 0;\n"
+                    + "  mat4 res = mat4Transpose(m1);\n"
+                    + "  result[1] = mat4Equals(res, m2, 0.0001f) ? 1 : 0;\n"
+                    + "  res = mat4Adjoint(m1);\n"
+                    + "  result[2] = mat4Equals(res, m3, 0.0001f) ? 1 : 0;\n"
+                    + "}\n";
+            Program program = clContext.createProgramFromSourceCodeWithDependencies(code, assetManager);
+            program.build();
+            com.jme3.opencl.Buffer buffer = clContext.createBuffer(3);
+            
+            Random rand = new Random(1561);
+            
+            Kernel testMatrix4fKernel1 = program.createKernel("TestMatrix4f_1");
+            Matrix4f m1 = new Matrix4f();
+            do {
+                for (int i=0; i<4; ++i) {
+                    for (int j=0; j<4; ++j) {
+                        m1.set(i, j, rand.nextFloat()*20 - 10);
+                    }
+                }
+            } while (FastMath.abs(m1.determinant()) < 0.00001f);
+            testMatrix4fKernel1.Run1NoEvent(clQueue, new Kernel.WorkSize(1), m1, buffer);
+            ByteBuffer bb = buffer.map(clQueue, MappingAccess.MAP_READ_ONLY);
+            if (bb.get() == 0) {
+                LOG.severe("Matrix inversion failed");
+                return false;
+            }
+            buffer.unmap(clQueue, bb);
+            testMatrix4fKernel1.release();
+            
+            Kernel testMatrix4fKernel2 = program.createKernel("TestMatrix4f_2");
+            for (int i=0; i<4; ++i) {
+                for (int j=0; j<4; ++j) {
+                    m1.set(i, j, rand.nextFloat()*20 - 10);
+                }
+            }
+            testMatrix4fKernel2.Run1NoEvent(clQueue, new Kernel.WorkSize(1), m1, m1.determinant(), m1.transpose(), m1.adjoint(), buffer);
+            bb = buffer.map(clQueue, MappingAccess.MAP_READ_ONLY);
+            if (bb.get() == 0) {
+                LOG.severe("Matrix determinant computation failed");
+                return false;
+            }
+            if (bb.get() == 0) {
+                LOG.severe("Matrix transposing failed");
+                return false;
+            }
+            if (bb.get() == 0) {
+                LOG.severe("Matrix adjoint computation failed");
+                return false;
+            }
+            buffer.unmap(clQueue, bb);
+            testMatrix4fKernel2.release();
+            
+            buffer.release();
+            
+        } catch (AssertionError ex) {
+            LOG.log(Level.SEVERE, "kernel test failed with an assertion error");
+            return false;
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "kernel test failed with:", ex);
+            return false;
+        }
+        return true;
+    }
 }
