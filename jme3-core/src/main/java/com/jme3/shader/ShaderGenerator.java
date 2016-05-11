@@ -41,7 +41,7 @@ import java.util.List;
 
 /**
  * This class is the base for a shader generator using the ShaderNodes system,
- * it contains basis mechnaism of generation, but no actual generation code.
+ * it contains basis mechanism of generation, but no actual generation code.
  * This class is abstract, any Shader generator must extend it.
  *
  * @author Nehon
@@ -205,10 +205,10 @@ public abstract class ShaderGenerator {
     }
 
     /**
-     * returns the laguage + version of the shader should be somthing like
+     * returns the language + version of the shader should be something like
      * "GLSL100" for glsl 1.0 "GLSL150" for glsl 1.5.
      *
-     * @param type the shader type for wich the version should be returned.
+     * @param type the shader type for which the version should be returned.
      *
      * @return the shaderLanguage and version.
      */
@@ -282,7 +282,7 @@ public abstract class ShaderGenerator {
 
     /**
      * Appends the given shaderNode main part to the shader declarative part. If
-     * needed the sahder type can be determined by fetching the shaderNode's
+     * needed the shader type can be determined by fetching the shaderNode's
      * definition type.
      *
      * @see ShaderNode#getDefinition()

@@ -102,7 +102,7 @@ public class VariableMapping implements Savable {
     /**
      * sets the right variable
      *
-     * @param leftVariable the right variable
+     * @param rightVariable the right variable
      */
     public void setRightVariable(ShaderNodeVariable rightVariable) {
         this.rightVariable = rightVariable;
@@ -153,18 +153,19 @@ public class VariableMapping implements Savable {
     /**
      * sets the right swizzle
      *
-     * @param leftSwizzling the right swizzle
+     * @param rightSwizzling the right swizzle
      */
     public void setRightSwizzling(String rightSwizzling) {
         this.rightSwizzling = rightSwizzling;
     }
 
     /**
-     * jme seralization (not used)
+     * jme serialization (not used)
      *
      * @param ex the exporter
      * @throws IOException
      */
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
         oc.write(leftVariable, "leftVariable", null);
@@ -175,11 +176,12 @@ public class VariableMapping implements Savable {
     }
 
     /**
-     * jme seralization (not used)
+     * jme serialization (not used)
      *
      * @param im the importer
      * @throws IOException
      */
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = (InputCapsule) im.getCapsule(this);
         leftVariable = (ShaderNodeVariable) ic.readSavable("leftVariable", null);

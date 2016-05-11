@@ -69,7 +69,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
      *
      * @param type the glsl type of the variable
      * @param nameSpace the nameSpace (can be the name of the shaderNode or
-     * Globel,Attr,MatParam,WorldParam)
+     * Global,Attr,MatParam,WorldParam)
      * @param name the name of the variable
      * @param multiplicity the number of element if this variable is an array. Can be an Int of a declared material parameter
      */
@@ -85,7 +85,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
      *
      * @param type the glsl type of the variable
      * @param nameSpace the nameSpace (can be the name of the shaderNode or
-     * Globel,Attr,MatParam,WorldParam)
+     * Global,Attr,MatParam,WorldParam)
      * @param name the name of the variable
      */
     public ShaderNodeVariable(String type, String nameSpace, String name) {
@@ -132,7 +132,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
     /**
      *
      * @return the name space (can be the name of the shaderNode or
-     * Globel,Attr,MatParam,WorldParam)
+     * Global,Attr,MatParam,WorldParam)
      */
     public String getNameSpace() {
         return nameSpace;
@@ -140,7 +140,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
 
     /**
      * sets the nameSpace (can be the name of the shaderNode or
-     * Globel,Attr,MatParam,WorldParam)
+     * Global,Attr,MatParam,WorldParam)
      *
      * @param nameSpace
      */
@@ -176,11 +176,12 @@ public class ShaderNodeVariable implements Savable, Cloneable {
     }
 
     /**
-     * jme seralization (not used)
+     * jme serialization (not used)
      *
      * @param ex the exporter
      * @throws IOException
      */
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
         oc.write(name, "name", "");
@@ -193,11 +194,12 @@ public class ShaderNodeVariable implements Savable, Cloneable {
     }
 
     /**
-     * jme seralization (not used)
+     * jme serialization (not used)
      *
      * @param im the importer
      * @throws IOException
      */
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = (InputCapsule) im.getCapsule(this);
         name = ic.readString("name", "");
