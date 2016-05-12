@@ -69,10 +69,10 @@ public class MotionPath implements Savable {
     }
 
     /**
-     * interpolate the path giving the time since the beginnin and the motionControl     
+     * interpolate the path giving the time since the beginning and the motionControl     
      * this methods sets the new localTranslation to the spatial of the MotionEvent control.
      * @param time the time since the animation started
-     * @param control the ocntrol over the moving spatial
+     * @param control the control over the moving spatial
      */
     public float interpolatePath(float time, MotionEvent control, float tpf) {
 

@@ -51,7 +51,7 @@ import java.io.IOException;
 /**
  *
  * Generic abstract filter that holds common implementations for the different
- * shadow filtesr
+ * shadow filters
  *
  * @author Rémy Bouquet aka Nehon
  */
@@ -140,7 +140,7 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
 
     /**
      * Set the distance from the eye where the shadows will be rendered default
-     * value is dynamicaly computed to the shadow casters/receivers union bound
+     * value is dynamically computed to the shadow casters/receivers union bound
      * zFar, capped to view frustum far value.
      *
      * @param zFar the zFar values that override the computed one
@@ -181,7 +181,7 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
 
     /**
      * Set the shadowIntensity, the value should be between 0 and 1, a 0 value
-     * gives a bright and invisilble shadow, a 1 value gives a pitch black
+     * gives a bright and invisible shadow, a 1 value gives a pitch black
      * shadow, default is 0.7
      *
      * @param shadowIntensity the darkness of the shadow
@@ -285,7 +285,7 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     /**
      * returns the pre shadows pass render state.
      * use it to adjust the RenderState parameters of the pre shadow pass.
-     * Note that this will be overriden if the preShadow technique in the material has a ForcedRenderState
+     * Note that this will be overridden if the preShadow technique in the material has a ForcedRenderState
      * @return the pre shadow render state.
      */
     public RenderState getPreShadowForcedRenderState() {

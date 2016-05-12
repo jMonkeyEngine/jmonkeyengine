@@ -90,8 +90,8 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
          */
         Path,
         /**
-         * The target rotates with the direction of the path but with the additon of a rtotation
-         * you need to use the setRotation mathod when using this Direction
+         * The target rotates with the direction of the path but with the addition of a rotation
+         * you need to use the setRotation method when using this Direction
          */
         PathAndRotation,
         /**

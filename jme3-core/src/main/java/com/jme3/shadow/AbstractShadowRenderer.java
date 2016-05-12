@@ -621,7 +621,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
 
     /**
      * Set the distance from the eye where the shadows will be rendered default
-     * value is dynamicaly computed to the shadow casters/receivers union bound
+     * value is dynamically computed to the shadow casters/receivers union bound
      * zFar, capped to view frustum far value.
      *
      * @param zFar the zFar values that override the computed one
@@ -752,7 +752,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     /**
      * returns the pre shadows pass render state.
      * use it to adjust the RenderState parameters of the pre shadow pass.
-     * Note that this will be overriden if the preShadow technique in the material has a ForcedRenderState
+     * Note that this will be overridden if the preShadow technique in the material has a ForcedRenderState
      * @return the pre shadow render state.
      */
     public RenderState getPreShadowForcedRenderState() {

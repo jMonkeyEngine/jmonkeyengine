@@ -77,7 +77,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
 
     /**
      * used for serialization don't call directly use one of the following
-     * contructors
+     * constructors
      */
     public AnimationEvent() {
     }
@@ -99,7 +99,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      *
      * @param model the model on which the animation will be played
      * @param animationName the name of the animation to play
-     * @param initialDuration the initialduration of the event
+     * @param initialDuration the initial duration of the event
      */
     public AnimationEvent(Spatial model, String animationName, float initialDuration) {
         super(initialDuration);
@@ -127,7 +127,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      *
      * @param model the model on which the animation will be played
      * @param animationName the name of the animation to play
-     * @param initialDuration the initialduration of the event
+     * @param initialDuration the initial duration of the event
      * @param loopMode the loopMode
      * @see LoopMode
      */
@@ -142,7 +142,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      *
      * @param model the model on which the animation will be played
      * @param animationName the name of the animation to play
-     * @param initialDuration the initialduration of the event
+     * @param initialDuration the initial duration of the event
      * @param blendTime the time during the animation are gonna be blended
      * @see AnimChannel#setAnim(java.lang.String, float)
      */
@@ -176,7 +176,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      *
      * @param model the model on which the animation will be played
      * @param animationName the name of the animation to play
-     * @param initialDuration the initialduration of the event
+     * @param initialDuration the initial duration of the event
      * @param loopMode the loopMode
      * @see LoopMode
      * @param blendTime the time during the animation are gonna be blended
@@ -245,7 +245,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      *
      * @param model the model on which the animation will be played
      * @param animationName the name of the animation to play
-     * @param initialDuration the initialduration of the event
+     * @param initialDuration the initial duration of the event
      * @param channelIndex the index of the channel default is 0. Events on the
      * same channelIndex will use the same channel.
      */
@@ -261,7 +261,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      *
      * @param model the model on which the animation will be played
      * @param animationName the name of the animation to play
-     * @param initialDuration the initialduration of the event
+     * @param initialDuration the initial duration of the event
      * @param loopMode the loopMode
      * @see LoopMode
      * @param channelIndex the index of the channel default is 0. Events on the

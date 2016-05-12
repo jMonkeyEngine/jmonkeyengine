@@ -267,8 +267,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     }
 
     /**
-     * Sets custom triggers for toggleing the rotation of the cam
-     * deafult are
+     * Sets custom triggers for toggling the rotation of the cam
+     * default are
      * new MouseButtonTrigger(MouseInput.BUTTON_LEFT)  left mouse button
      * new MouseButtonTrigger(MouseInput.BUTTON_RIGHT)  right mouse button
      * @param triggers
@@ -280,7 +280,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     }
 
     /**
-     * Sets custom triggers for zomming in the cam
+     * Sets custom triggers for zooming in the cam
      * default is
      * new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true)  mouse wheel up
      * @param triggers
@@ -292,7 +292,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     }
 
     /**
-     * Sets custom triggers for zomming out the cam
+     * Sets custom triggers for zooming out the cam
      * default is
      * new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false)  mouse wheel down
      * @param triggers
@@ -719,7 +719,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     }
 
     /**
-     * Sets the rotation sensitivity, the lower the value the slower the camera will rotates around the target when draging with the mouse
+     * Sets the rotation sensitivity, the lower the value the slower the camera will rotates around the target when dragging with the mouse
      * default is 5, values over 5 should have no effect.
      * If you want a significant slow down try values below 1.
      * Only has an effect if smoothMotion is set to true
@@ -820,7 +820,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     }
 
     /**
-     * Sets the default distance at start of applicaiton
+     * Sets the default distance at start of application
      * @param defaultDistance
      */
     public void setDefaultDistance(float defaultDistance) {

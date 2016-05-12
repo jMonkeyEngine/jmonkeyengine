@@ -46,7 +46,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * AudioTrack is a track to add to an existing animation, to paly a sound during
+ * AudioTrack is a track to add to an existing animation, to play a sound during
  * an animations for example : gun shot, foot step, shout, etc...
  *
  * usage is
@@ -144,7 +144,7 @@ public class AudioTrack implements ClonableTrack {
     }
 
     /**
-     * Retruns the length of the track
+     * Return the length of the track
      *
      * @return length of the track
      */
@@ -170,7 +170,7 @@ public class AudioTrack implements ClonableTrack {
     /**
      * This method clone the Track and search for the cloned counterpart of the
      * original audio node in the given cloned spatial. The spatial is assumed
-     * to be the Spatial holding the AnimControl controling the animation using
+     * to be the Spatial holding the AnimControl controlling the animation using
      * this Track.
      *
      * @param spatial the Spatial holding the AnimControl

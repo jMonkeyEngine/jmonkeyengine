@@ -85,7 +85,7 @@ public class Glsl150ShaderGenerator extends Glsl100ShaderGenerator {
      * "out" keyword.
      *
      * after the "void main(){", the vertex output are declared and initialized
-     * and the frgament outputs are declared
+     * and the fragment outputs are declared
      */
     @Override
     protected void generateStartOfMainSection(StringBuilder source, ShaderGenerationInfo info, Shader.ShaderType type) {

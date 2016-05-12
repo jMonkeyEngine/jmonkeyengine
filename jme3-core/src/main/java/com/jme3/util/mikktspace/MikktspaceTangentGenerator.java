@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  * https://developer.blender.org/diffusion/B/browse/master/intern/mikktspace/mikktspace.c
  * https://developer.blender.org/diffusion/B/browse/master/intern/mikktspace/mikktspace.h
  * 
- * MikkTspace looks like the new standard of tengent generation in 3D softwares.
+ * MikkTspace looks like the new standard of tangent generation in 3D softwares.
  * Xnormal, Blender, Substance painter, and many more use it.
  * 
  * Usage is :
