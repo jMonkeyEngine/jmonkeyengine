@@ -150,7 +150,12 @@ public class ShaderNodeVariable implements Savable, Cloneable {
 
     @Override
     public int hashCode() {
-        int hash = 5;
+        int hash = 7;
+        hash = 29 * hash + (name != null?name.hashCode():0);
+        hash = 29 * hash + (type != null?type.hashCode():0);
+        hash = 29 * hash + (nameSpace != null?nameSpace.hashCode():0);
+        hash = 29 * hash + (condition != null?condition.hashCode():0);
+        hash = 29 * hash + (multiplicity != null?multiplicity.hashCode():0);
         return hash;
     }
 
@@ -170,6 +175,12 @@ public class ShaderNodeVariable implements Savable, Cloneable {
             return false;
         }
         if ((this.nameSpace == null) ? (other.nameSpace != null) : !this.nameSpace.equals(other.nameSpace)) {
+            return false;
+        }
+        if ((this.condition == null) ? (other.condition != null) : !this.condition.equals(other.condition)) {
+            return false;
+        }
+        if ((this.multiplicity == null) ? (other.multiplicity != null) : !this.multiplicity.equals(other.multiplicity)) {
             return false;
         }
         return true;
