@@ -209,7 +209,6 @@ public class SubdivisionSurfaceModifier extends Modifier {
      * @param temporalMesh
      *            the mesh to be subdivided
      */
-    @SuppressWarnings("unchecked")
     private void subdivideSimple(TemporalMesh temporalMesh) {
         Map<Edge, Integer> edgePoints = new HashMap<Edge, Integer>();
         Map<Face, Integer> facePoints = new HashMap<Face, Integer>();

@@ -46,6 +46,8 @@ public final class MaterialContext implements Savable {
     public static final int                  MTEX_ALPHA = 0x80;
     public static final int                  MTEX_AMB   = 0x800;
 
+    public static final int                  FLAG_TRANSPARENT   = 0x10000;
+    
     /* package */final String                name;
     /* package */final List<CombinedTexture> loadedTextures;
 
@@ -96,20 +98,25 @@ public final class MaterialContext implements Savable {
         TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
         loadedTextures = textureHelper.readTextureData(structure, new float[] { diffuseColor.r, diffuseColor.g, diffuseColor.b, diffuseColor.a }, false);
 
-        // veryfying if the transparency is present
-        // (in blender transparent mask is 0x10000 but its better to verify it because blender can indicate transparency when
-        // it is not required
-        boolean transparent = false;
-        if (diffuseColor != null) {
-            transparent = diffuseColor.a < 1.0f;
-            if (loadedTextures.size() > 0) {// texutre covers the material color
-                diffuseColor.set(1, 1, 1, 1);
+        long flag = ((Number)structure.getFieldValue("flag")).longValue();
+        if((flag & FLAG_TRANSPARENT) != 0) {
+            // veryfying if the transparency is present
+            // (in blender transparent mask is 0x10000 but its better to verify it because blender can indicate transparency when
+            // it is not required
+            boolean transparent = false;
+            if (diffuseColor != null) {
+                transparent = diffuseColor.a < 1.0f;
+                if (loadedTextures.size() > 0) {// texutre covers the material color
+                    diffuseColor.set(1, 1, 1, 1);
+                }
             }
+            if (specularColor != null) {
+                transparent = transparent || specularColor.a < 1.0f;
+            }
+            this.transparent = transparent;
+        } else {
+            transparent = false;
         }
-        if (specularColor != null) {
-            transparent = transparent || specularColor.a < 1.0f;
-        }
-        this.transparent = transparent;
     }
 
     /**
