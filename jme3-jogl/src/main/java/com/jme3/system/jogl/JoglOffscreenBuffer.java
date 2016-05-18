@@ -37,14 +37,13 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
+import com.jme3.system.AppSettings;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GLCapabilities;
-import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLDrawableFactory;
 import com.jogamp.opengl.GLOffscreenAutoDrawable;
 import com.jogamp.opengl.GLProfile;
@@ -61,14 +60,19 @@ public class JoglOffscreenBuffer extends JoglContext implements Runnable {
     private GLCapabilities caps;
 
     protected void initInThread(){
-        GL gl = GLContext.getCurrentGL();
-        if (!gl.hasFullFBOSupport()){
-            logger.severe("Offscreen surfaces are not supported.");
-            return;
+    	// not necessary as JOGL can create an offscreen buffer even without full FBO support
+//        if (!GLContext.getCurrent().hasFullFBOSupport()){
+//            logger.severe("Offscreen surfaces are not supported.");
+//            return;
+//        }
+    	final GLProfile profile;
+    	if (settings.getRenderer().equals(AppSettings.JOGL_OPENGL_FORWARD_COMPATIBLE)) {
+    		profile = GLProfile.getMaxProgrammable(true);
+        } else {
+        	profile = GLProfile.getMaxFixedFunc(true);
         }
-
+    	caps = new GLCapabilities(profile);
         int samples = getNumSamplesToUse();
-        caps = new GLCapabilities(GLProfile.getMaxFixedFunc(true));
         caps.setHardwareAccelerated(true);
         caps.setDoubleBuffered(true);
         caps.setStencilBits(settings.getStencilBits());
@@ -77,7 +81,7 @@ public class JoglOffscreenBuffer extends JoglContext implements Runnable {
         caps.setSampleBuffers(true);
         caps.setNumSamples(samples);
 
-        offscreenDrawable = GLDrawableFactory.getFactory(GLProfile.getMaxFixedFunc(true)).createOffscreenAutoDrawable(null, caps, null, width, height);
+        offscreenDrawable = GLDrawableFactory.getFactory(profile).createOffscreenAutoDrawable(null, caps, null, width, height);
         
         offscreenDrawable.display();
         
@@ -87,6 +91,16 @@ public class JoglOffscreenBuffer extends JoglContext implements Runnable {
         
         super.internalCreate();
         listener.initialize();
+    }
+    
+    @Override
+	protected void initContextFirstTime(){
+    	offscreenDrawable.getContext().makeCurrent();
+    	try {
+    	    super.initContextFirstTime();
+    	} finally {
+    	    offscreenDrawable.getContext().release();
+    	}
     }
 
     protected boolean checkGLError(){
