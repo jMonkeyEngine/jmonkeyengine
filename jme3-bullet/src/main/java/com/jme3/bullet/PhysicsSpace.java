@@ -788,7 +788,7 @@ public class PhysicsSpace {
      * PhysicsRayTestResults ordered by it hitFraction (lower to higher)
      */
     public List rayTest(Vector3f from, Vector3f to) {
-        LinkedList<PhysicsRayTestResult> results = new LinkedList<PhysicsRayTestResult>();
+        List<PhysicsRayTestResult> results = new ArrayList<PhysicsRayTestResult>();
         rayTest(from, to, results);
         
         return results;
@@ -799,7 +799,7 @@ public class PhysicsSpace {
      * PhysicsRayTestResults without performing any sort operation
      */
     public List rayTestRaw(Vector3f from, Vector3f to) {
-        LinkedList<PhysicsRayTestResult> results = new LinkedList<PhysicsRayTestResult>();
+        List<PhysicsRayTestResult> results = new ArrayList<PhysicsRayTestResult>();
         rayTestRaw(from, to, results);
         
         return results;
