@@ -49,10 +49,12 @@ import com.jme3.scene.Spatial;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Comparator;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -780,15 +782,27 @@ public class PhysicsSpace {
     public void removeCollisionGroupListener(int collisionGroup) {
         collisionGroupListeners.remove(collisionGroup);
     }
-
+    
     /**
      * Performs a ray collision test and returns the results as a list of
-     * PhysicsRayTestResults
+     * PhysicsRayTestResults ordered by it hitFraction (lower to higher)
      */
     public List rayTest(Vector3f from, Vector3f to) {
-        List results = new LinkedList();
+        List<PhysicsRayTestResult> results = new ArrayList<PhysicsRayTestResult>();
         rayTest(from, to, results);
-        return (List<PhysicsRayTestResult>) results;
+        
+        return results;
+    }
+    
+    /**
+     * Performs a ray collision test and returns the results as a list of
+     * PhysicsRayTestResults without performing any sort operation
+     */
+    public List rayTestRaw(Vector3f from, Vector3f to) {
+        List<PhysicsRayTestResult> results = new ArrayList<PhysicsRayTestResult>();
+        rayTestRaw(from, to, results);
+        
+        return results;
     }
 
     /**
@@ -808,11 +822,31 @@ public class PhysicsSpace {
         return rayTestFlags;
     }
 
+    private static Comparator<PhysicsRayTestResult> hitFractionComparator = new Comparator<PhysicsRayTestResult>() {
+        @Override
+        public int compare(PhysicsRayTestResult r1, PhysicsRayTestResult r2) {
+            float comp = r1.getHitFraction() - r2.getHitFraction();
+            return comp > 0 ? 1 : -1;
+        }
+    };
+    
     /**
      * Performs a ray collision test and returns the results as a list of
-     * PhysicsRayTestResults
+     * PhysicsRayTestResults ordered by it hitFraction (lower to higher)
      */
     public List<PhysicsRayTestResult> rayTest(Vector3f from, Vector3f to, List<PhysicsRayTestResult> results) {
+        results.clear();
+        rayTest_native(from, to, physicsSpaceId, results, rayTestFlags);
+        
+        Collections.sort(results, hitFractionComparator);
+        return results;
+    }
+    
+    /**
+     * Performs a ray collision test and returns the results as a list of
+     * PhysicsRayTestResults without performing any sort operation
+     */
+    public List<PhysicsRayTestResult> rayTestRaw(Vector3f from, Vector3f to, List<PhysicsRayTestResult> results) {
         results.clear();
         rayTest_native(from, to, physicsSpaceId, results, rayTestFlags);
         return results;
