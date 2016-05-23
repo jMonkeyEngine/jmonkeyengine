@@ -224,8 +224,21 @@ public class JoclContext extends Context {
 
     @Override
     public Program createProgramFromBinary(ByteBuffer binaries, Device device) {
-        //Not supported because JoclProgram.getBinaries is also not supported.
-        throw new UnsupportedOperationException("No supported by Jocl");
+        binaries.rewind();
+        Utils.errorBuffer.rewind();
+        Utils.tempBuffers[0].b16i.rewind();
+        Utils.pointers[0].rewind();
+        Utils.pointers[0].put(0, ((JoclDevice) device).id);
+        Utils.pointers[1].rewind();
+        Utils.pointers[1].put(0, binaries.remaining());
+        Utils.pointers[2].rewind();
+        Utils.pointers[2].referenceBuffer(0, binaries);
+        long p = cl.clCreateProgramWithBinary(id, 1, Utils.pointers[0], 
+                Utils.pointers[1], Utils.pointers[2], Utils.tempBuffers[0].b16i, 
+                Utils.errorBuffer);
+        Utils.checkError(Utils.errorBuffer, "clCreateProgramWithBinary");
+        Utils.checkError(Utils.tempBuffers[0].b16i, "clCreateProgramWithBinary");
+        return new JoclProgram(p, this);
     }
 
     private static class ReleaserImpl implements ObjectReleaser {

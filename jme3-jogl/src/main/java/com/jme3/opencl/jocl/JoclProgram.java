@@ -32,6 +32,7 @@
 package com.jme3.opencl.jocl;
 
 import com.jme3.opencl.*;
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.common.nio.PointerBuffer;
 import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.CLProgram;
@@ -133,16 +134,47 @@ public class JoclProgram extends Program {
     }
 
     @Override
-    public ByteBuffer getBinary(Device device) {
-        //There is no way to do this in Jocl:
-        //The low-level bindings need a buffer of adresses to buffers. For that
-        //the class InternalBufferUtil is used, but this class is not public.
-        //I also can't create a temporal instance of CLProgram because the constructor
-        //that takes only the native pointer is private.
-        //So the only way would be to create the CLProgram directly from the beginning.
-        //I don't want to do this because then I would have to use the whole 
-        //bunch of garbage the CLProgram class is doing in background.
-        throw new UnsupportedOperationException("Jocl does not expose this operation");
+    public ByteBuffer getBinary(Device d) {
+        
+        JoclDevice device = (JoclDevice) d;
+        
+        Utils.tempBuffers[0].b16i.rewind();
+        int ret = cl.clGetProgramInfo(program, CL.CL_PROGRAM_NUM_DEVICES, 4, Utils.tempBuffers[0].b16i, null);
+        Utils.checkError(ret, "clGetProgramInfo: CL_PROGRAM_NUM_DEVICES");
+        int numDevices = Utils.tempBuffers[0].b16i.get(0);
+        
+        PointerBuffer devices = PointerBuffer.allocateDirect(numDevices);
+        ret = cl.clGetProgramInfo(program, CL.CL_PROGRAM_DEVICES, numDevices * PointerBuffer.ELEMENT_SIZE, devices.getBuffer(), null);
+        Utils.checkError(ret, "clGetProgramInfo: CL_PROGRAM_DEVICES");
+        int index = -1;
+        for (int i=0; i<numDevices; ++i) {
+            if (devices.get(i) == device.id) {
+                index = i;
+            }
+        }
+        if (index == -1) {
+             throw new com.jme3.opencl.OpenCLException("Program was not built against the specified device "+device);
+        }
+        
+        final PointerBuffer sizes = PointerBuffer.allocateDirect(numDevices);
+        ret = cl.clGetProgramInfo(program, CL.CL_PROGRAM_BINARY_SIZES, numDevices * PointerBuffer.ELEMENT_SIZE, sizes.getBuffer(), null);
+        Utils.checkError(ret, "clGetProgramInfo: CL_PROGRAM_BINARY_SIZES");
+
+        final ByteBuffer binaries = Buffers.newDirectByteBuffer((int) sizes.get(index));
+        final PointerBuffer addresses = PointerBuffer.allocateDirect(numDevices);
+        for (int i=0; i<numDevices; ++i) {
+            if (index == i) {
+                addresses.referenceBuffer(binaries);
+            } else {
+                addresses.put(0);
+            }
+        }
+        addresses.rewind();
+
+        ret = cl.clGetProgramInfo(program, CL.CL_PROGRAM_BINARIES, numDevices * PointerBuffer.ELEMENT_SIZE, addresses.getBuffer(), null);
+        Utils.checkError(ret, "clGetProgramInfo: CL_PROGRAM_BINARIES");
+
+        return binaries;
     }
 
     private static class ReleaserImpl implements ObjectReleaser {

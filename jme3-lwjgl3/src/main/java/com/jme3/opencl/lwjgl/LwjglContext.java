@@ -229,8 +229,8 @@ public class LwjglContext extends Context {
         Utils.pointerBuffers[0].put(0, ((LwjglDevice) device).getDevice());
         long p = CL10.clCreateProgramWithBinary(context, Utils.pointerBuffers[0], 
                 binaries, Utils.tempBuffers[0].b16i, Utils.errorBuffer);
-        Utils.checkError(Utils.errorBuffer, "clCreateProgramWithSource");
-        Utils.checkError(Utils.tempBuffers[0].b16i, "clCreateProgramWithSource");
+        Utils.checkError(Utils.errorBuffer, "clCreateProgramWithBinary");
+        Utils.checkError(Utils.tempBuffers[0].b16i, "clCreateProgramWithBinary");
         return new LwjglProgram(p, this);
     }
 
