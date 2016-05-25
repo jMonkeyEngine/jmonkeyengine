@@ -86,12 +86,24 @@ public class LwjglProgram extends Program {
         }
     }
     
+    private String Log(long device) {
+        Utils.pointerBuffers[0].rewind();
+        int ret = CL10.clGetProgramBuildInfo(program, device, CL10.CL_PROGRAM_BUILD_LOG, (ByteBuffer) null, Utils.pointerBuffers[0]);
+        Utils.checkError(ret, "clGetProgramBuildInfo");
+        int count = (int) Utils.pointerBuffers[0].get(0);
+        final ByteBuffer buffer = BufferUtils.createByteBuffer(count);
+        ret = CL10.clGetProgramBuildInfo(program, device, CL10.CL_PROGRAM_BUILD_LOG, buffer, null);
+        Utils.checkError(ret, "clGetProgramBuildInfo");
+        return MemoryUtil.memDecodeASCII(buffer);
+    }
+    
     private String Log() {
         StringBuilder str = new StringBuilder();
         for (LwjglDevice device : context.getDevices()) {
             long d = device.getDevice();
             str.append(device.getName()).append(":\n");
-            str.append(Info.clGetProgramBuildInfoStringASCII(program, d, CL10.CL_PROGRAM_BUILD_LOG));
+            //str.append(Info.clGetProgramBuildInfoStringASCII(program, d, CL10.CL_PROGRAM_BUILD_LOG)); //This throws an IllegalArgumentException in Buffer.limit()
+            str.append(Log(d));
             str.append('\n');
         }
         return str.toString();
@@ -122,8 +134,8 @@ public class LwjglProgram extends Program {
 
     @Override
     public ByteBuffer getBinary(Device d) {
-        throw new UnsupportedOperationException("Not supported yet, would crash the JVM");
-        /*
+        //throw new UnsupportedOperationException("Not supported yet, would crash the JVM");
+        
         LwjglDevice device = (LwjglDevice) d;
         int numDevices = Info.clGetProgramInfoInt(program, CL10.CL_PROGRAM_NUM_DEVICES);
         
@@ -145,7 +157,7 @@ public class LwjglProgram extends Program {
         Utils.checkError(ret, "clGetProgramInfo: CL_PROGRAM_BINARY_SIZES");
         int size = (int) sizes.get(index);
         
-        PointerBuffer binaryPointers = PointerBuffer.allocateDirect(numDevices * 8);
+        PointerBuffer binaryPointers = PointerBuffer.allocateDirect(numDevices);
         for (int i=0; i<binaryPointers.capacity(); ++i) {
             binaryPointers.put(0L);
         }
@@ -158,7 +170,6 @@ public class LwjglProgram extends Program {
         Utils.checkError(ret, "clGetProgramInfo: CL_PROGRAM_BINARIES");
         
         return binaries;
-        */
     }
 
     private static class ReleaserImpl implements ObjectReleaser {
