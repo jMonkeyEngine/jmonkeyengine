@@ -458,7 +458,7 @@ public class Geometry extends Spatial {
     }
 
     @Override
-    public void depthFirstTraversal(SceneGraphVisitor visitor) {
+    public void depthFirstTraversal(SceneGraphVisitor visitor, DFSMode mode) {
         visitor.visit(this);
     }
 
