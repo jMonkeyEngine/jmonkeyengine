@@ -35,6 +35,12 @@ package com.jme3.system.jogl;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+import com.jme3.opencl.Context;
+import com.jme3.opencl.DefaultPlatformChooser;
+import com.jme3.opencl.Device;
+import com.jme3.opencl.PlatformChooser;
+import com.jme3.opencl.jocl.JoclDevice;
+import com.jme3.opencl.jocl.JoclPlatform;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.jogl.JoglGL;
@@ -55,6 +61,10 @@ import com.jme3.system.JmeContext;
 import com.jme3.system.NanoTimer;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
+import com.jogamp.opencl.CLDevice;
+import com.jogamp.opencl.CLPlatform;
+import com.jogamp.opencl.gl.CLGLContext;
+import com.jogamp.opencl.llb.CL;
 
 import java.nio.IntBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -64,6 +74,8 @@ import java.util.logging.Logger;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2GL3;
 import com.jogamp.opengl.GLContext;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class JoglContext implements JmeContext {
 
@@ -84,6 +96,8 @@ public abstract class JoglContext implements JmeContext {
     protected MouseInput mouseInput;
     protected JoyInput joyInput;
 
+    protected com.jme3.opencl.Context clContext;
+    
     @Override
 	public void setSystemListener(SystemListener listener){
         this.listener = listener;
@@ -209,6 +223,101 @@ public abstract class JoglContext implements JmeContext {
         if (joyInput != null) {
             joyInput.initialize();
         }
+        
+        if (settings.isOpenCLSupport()) {
+            initOpenCL();
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    protected void initOpenCL() {
+        logger.info("Initialize OpenCL with JOGL");
+        
+        //load platforms and devices
+        StringBuilder platformInfos = new StringBuilder();
+        ArrayList<JoclPlatform> platforms = new ArrayList<JoclPlatform>();
+        for (CLPlatform p : CLPlatform.listCLPlatforms()) {
+            platforms.add(new JoclPlatform(p));
+        }
+        platformInfos.append("Available OpenCL platforms:");
+        for (int i=0; i<platforms.size(); ++i) {
+            JoclPlatform platform = platforms.get(i);
+            platformInfos.append("\n * Platform ").append(i+1);
+            platformInfos.append("\n *   Name: ").append(platform.getName());
+            platformInfos.append("\n *   Vendor: ").append(platform.getVendor());
+            platformInfos.append("\n *   Version: ").append(platform.getVersion());
+            platformInfos.append("\n *   Profile: ").append(platform.getProfile());
+            platformInfos.append("\n *   Supports interop: ").append(platform.hasOpenGLInterop());
+            List<JoclDevice> devices = platform.getDevices();
+            platformInfos.append("\n *   Available devices:");
+            for (int j=0; j<devices.size(); ++j) {
+                JoclDevice device = devices.get(j);
+                platformInfos.append("\n *    * Device ").append(j+1);
+                platformInfos.append("\n *    *   Name: ").append(device.getName());
+                platformInfos.append("\n *    *   Vendor: ").append(device.getVendor());
+                platformInfos.append("\n *    *   Version: ").append(device.getVersion());
+                platformInfos.append("\n *    *   Profile: ").append(device.getProfile());
+                platformInfos.append("\n *    *   Compiler version: ").append(device.getCompilerVersion());
+                platformInfos.append("\n *    *   Device type: ").append(device.getDeviceType());
+                platformInfos.append("\n *    *   Compute units: ").append(device.getComputeUnits());
+                platformInfos.append("\n *    *   Work group size: ").append(device.getMaxiumWorkItemsPerGroup());
+                platformInfos.append("\n *    *   Global memory: ").append(device.getGlobalMemorySize()).append("B");
+                platformInfos.append("\n *    *   Local memory: ").append(device.getLocalMemorySize()).append("B");
+                platformInfos.append("\n *    *   Constant memory: ").append(device.getMaximumConstantBufferSize()).append("B");
+                platformInfos.append("\n *    *   Supports double: ").append(device.hasDouble());
+                platformInfos.append("\n *    *   Supports half floats: ").append(device.hasHalfFloat());
+                platformInfos.append("\n *    *   Supports writable 3d images: ").append(device.hasWritableImage3D());
+                platformInfos.append("\n *    *   Supports interop: ").append(device.hasOpenGLInterop());
+            }
+        }
+        logger.info(platformInfos.toString());
+        
+        //choose devices
+        PlatformChooser chooser = null;
+        if (settings.getOpenCLPlatformChooser() != null) {
+            try {
+                chooser = (PlatformChooser) Class.forName(settings.getOpenCLPlatformChooser()).newInstance();
+            } catch (Exception ex) {
+                logger.log(Level.WARNING, "unable to instantiate custom PlatformChooser", ex);
+            }
+        }
+        if (chooser == null) {
+            chooser = new DefaultPlatformChooser();
+        }
+        List<? extends Device> choosenDevices = chooser.chooseDevices(platforms);
+        List<CLDevice> devices = new ArrayList<>(choosenDevices.size());
+        JoclPlatform platform = null;
+        for (Device d : choosenDevices) {
+            if (!(d instanceof JoclDevice)) {
+                logger.log(Level.SEVERE, "attempt to return a custom Device implementation from PlatformChooser: {0}", d);
+                return;
+            }
+            JoclDevice ld = (JoclDevice) d;
+            if (platform == null) {
+                platform = ld.getPlatform();
+            } else if (platform != ld.getPlatform()) {
+                logger.severe("attempt to use devices from different platforms");
+                return;
+            }
+            devices.add(ld.getDevice());
+        }
+        if (devices.isEmpty()) {
+            logger.warning("no devices specified, no OpenCL context created");
+            return;
+        }
+        logger.log(Level.INFO, "chosen platform: {0}", platform.getName());
+        logger.log(Level.INFO, "chosen devices: {0}", choosenDevices);
+        
+        //create context
+        try {
+            CLGLContext c = CLGLContext.create(GLContext.getCurrent(), devices.toArray(new CLDevice[devices.size()]));
+            clContext = new com.jme3.opencl.jocl.JoclContext(c, (List<JoclDevice>) choosenDevices);
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE, "Unable to create OpenCL context", ex);
+            return;
+        }
+        
+        logger.info("OpenCL context created");
     }
 
     public void internalCreate() {
@@ -266,4 +375,10 @@ public abstract class JoglContext implements JmeContext {
         }
         return samples;
     }
+
+    @Override
+    public Context getOpenCLContext() {
+        return clContext;
+    }
+    
 }

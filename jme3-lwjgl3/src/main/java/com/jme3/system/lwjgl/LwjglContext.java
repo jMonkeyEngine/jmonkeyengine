@@ -35,6 +35,13 @@ package com.jme3.system.lwjgl;
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
+import com.jme3.opencl.Context;
+import com.jme3.opencl.DefaultPlatformChooser;
+import com.jme3.opencl.Device;
+import com.jme3.opencl.PlatformChooser;
+import com.jme3.opencl.lwjgl.LwjglDevice;
+import com.jme3.opencl.lwjgl.LwjglPlatform;
+import com.jme3.opencl.lwjgl.Utils;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.lwjgl.LwjglGL;
@@ -43,17 +50,21 @@ import com.jme3.renderer.lwjgl.LwjglGLFboEXT;
 import com.jme3.renderer.lwjgl.LwjglGLFboGL3;
 import com.jme3.renderer.opengl.*;
 import com.jme3.system.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opencl.*;
+import org.lwjgl.opengl.ARBDebugOutput;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.EXTFramebufferMultisample;
 import org.lwjgl.opengl.GLCapabilities;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
-import org.lwjgl.opengl.ARBDebugOutput;
-
+import static org.lwjgl.opencl.CL10.CL_CONTEXT_PLATFORM;
 import static org.lwjgl.opengl.GL.createCapabilities;
 import static org.lwjgl.opengl.GL11.glGetInteger;
 
@@ -64,6 +75,8 @@ public abstract class LwjglContext implements JmeContext {
 
     private static final Logger logger = Logger.getLogger(LwjglContext.class.getName());
 
+    public static final boolean CL_GL_SHARING_POSSIBLE = true;
+    
     protected static final String THREAD_NAME = "jME3 Main";
 
     protected AtomicBoolean created = new AtomicBoolean(false);
@@ -77,6 +90,8 @@ public abstract class LwjglContext implements JmeContext {
     protected GlfwJoystickInput joyInput;
     protected Timer timer;
     protected SystemListener listener;
+    
+    protected com.jme3.opencl.lwjgl.LwjglContext clContext;
 
     public void setSystemListener(SystemListener listener) {
         this.listener = listener;
@@ -180,6 +195,149 @@ public abstract class LwjglContext implements JmeContext {
             joyInput.initialize();
         }
         renderable.set(true);
+        
+    }
+    
+    protected void initOpenCL(long window) {
+        logger.info("Initialize OpenCL with LWJGL3");
+        
+//        try {
+//            CL.create();
+//        } catch (Exception ex) {
+//            logger.log(Level.SEVERE, "Unable to initialize OpenCL", ex);
+//            return;
+//        }
+        
+        //load platforms and devices
+        StringBuilder platformInfos = new StringBuilder();
+        ArrayList<LwjglPlatform> platforms = new ArrayList<>();
+        for (CLPlatform p : CLPlatform.getPlatforms()) {
+            platforms.add(new LwjglPlatform(p));
+        }
+        platformInfos.append("Available OpenCL platforms:");
+        for (int i=0; i<platforms.size(); ++i) {
+            LwjglPlatform platform = platforms.get(i);
+            platformInfos.append("\n * Platform ").append(i+1);
+            platformInfos.append("\n *   Name: ").append(platform.getName());
+            platformInfos.append("\n *   Vendor: ").append(platform.getVendor());
+            platformInfos.append("\n *   Version: ").append(platform.getVersion());
+            platformInfos.append("\n *   Profile: ").append(platform.getProfile());
+            platformInfos.append("\n *   Supports interop: ").append(platform.hasOpenGLInterop());
+            List<LwjglDevice> devices = platform.getDevices();
+            platformInfos.append("\n *   Available devices:");
+            for (int j=0; j<devices.size(); ++j) {
+                LwjglDevice device = devices.get(j);
+                platformInfos.append("\n *    * Device ").append(j+1);
+                platformInfos.append("\n *    *   Name: ").append(device.getName());
+                platformInfos.append("\n *    *   Vendor: ").append(device.getVendor());
+                platformInfos.append("\n *    *   Version: ").append(device.getVersion());
+                platformInfos.append("\n *    *   Profile: ").append(device.getProfile());
+                platformInfos.append("\n *    *   Compiler version: ").append(device.getCompilerVersion());
+                platformInfos.append("\n *    *   Device type: ").append(device.getDeviceType());
+                platformInfos.append("\n *    *   Compute units: ").append(device.getComputeUnits());
+                platformInfos.append("\n *    *   Work group size: ").append(device.getMaxiumWorkItemsPerGroup());
+                platformInfos.append("\n *    *   Global memory: ").append(device.getGlobalMemorySize()).append("B");
+                platformInfos.append("\n *    *   Local memory: ").append(device.getLocalMemorySize()).append("B");
+                platformInfos.append("\n *    *   Constant memory: ").append(device.getMaximumConstantBufferSize()).append("B");
+                platformInfos.append("\n *    *   Supports double: ").append(device.hasDouble());
+                platformInfos.append("\n *    *   Supports half floats: ").append(device.hasHalfFloat());
+                platformInfos.append("\n *    *   Supports writable 3d images: ").append(device.hasWritableImage3D());
+                platformInfos.append("\n *    *   Supports interop: ").append(device.hasOpenGLInterop());
+            }
+        }
+        logger.info(platformInfos.toString());
+        
+        //choose devices
+        PlatformChooser chooser = null;
+        if (settings.getOpenCLPlatformChooser() != null) {
+            try {
+                chooser = (PlatformChooser) Class.forName(settings.getOpenCLPlatformChooser()).newInstance();
+            } catch (Exception ex) {
+                logger.log(Level.WARNING, "unable to instantiate custom PlatformChooser", ex);
+            }
+        }
+        if (chooser == null) {
+            chooser = new DefaultPlatformChooser();
+        }
+        List<? extends Device> choosenDevices = chooser.chooseDevices(platforms);
+        List<CLDevice> devices = new ArrayList<>(choosenDevices.size());
+        LwjglPlatform platform = null;
+        for (Device d : choosenDevices) {
+            if (!(d instanceof LwjglDevice)) {
+                logger.log(Level.SEVERE, "attempt to return a custom Device implementation from PlatformChooser: {0}", d);
+                return;
+            }
+            LwjglDevice ld = (LwjglDevice) d;
+            if (platform == null) {
+                platform = ld.getPlatform();
+            } else if (platform != ld.getPlatform()) {
+                logger.severe("attempt to use devices from different platforms");
+                return;
+            }
+            devices.add(ld.getCLDevice());
+        }
+        if (devices.isEmpty()) {
+            logger.warning("no devices specified, no OpenCL context created");
+            return;
+        }
+        logger.log(Level.INFO, "chosen platform: {0}", platform.getName());
+        logger.log(Level.INFO, "chosen devices: {0}", choosenDevices);
+        
+        //create context
+        try {
+            long c = createContext(platform.getPlatform(), devices, window);
+            clContext = new com.jme3.opencl.lwjgl.LwjglContext(c, (List<LwjglDevice>) choosenDevices);
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE, "Unable to create OpenCL context", ex);
+            return;
+        }
+        
+        logger.info("OpenCL context created");
+    }
+    private long createContext(final CLPlatform platform, final List<CLDevice> devices, long window) throws Exception {
+        
+        final int propertyCount = 2 + 4 + 1;
+
+        final PointerBuffer properties = PointerBuffer.allocateDirect(propertyCount + devices.size());
+        
+        //set sharing properties
+        //https://github.com/glfw/glfw/issues/104
+        //https://github.com/LWJGL/lwjgl3/blob/master/modules/core/src/test/java/org/lwjgl/demo/opencl/Mandelbrot.java
+        //TODO: test on Linus and MacOSX
+        switch (org.lwjgl.system.Platform.get()) {
+            case WINDOWS:
+                properties
+                        .put(KHRGLSharing.CL_GL_CONTEXT_KHR)
+                        .put(org.lwjgl.glfw.GLFWNativeWGL.glfwGetWGLContext(window))
+                        .put(KHRGLSharing.CL_WGL_HDC_KHR)
+                        .put(org.lwjgl.opengl.WGL.wglGetCurrentDC());
+                break;
+            case LINUX:
+                properties
+                        .put(KHRGLSharing.CL_GL_CONTEXT_KHR)
+                        .put(org.lwjgl.glfw.GLFWNativeGLX.glfwGetGLXContext(window))
+                        .put(KHRGLSharing.CL_GLX_DISPLAY_KHR)
+                        .put(org.lwjgl.glfw.GLFWNativeX11.glfwGetX11Display());
+                break;
+            case MACOSX:
+                properties
+                        .put(APPLEGLSharing.CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE)
+                        .put(org.lwjgl.opengl.CGL.CGLGetShareGroup(org.lwjgl.opengl.CGL.CGLGetCurrentContext()));
+        }
+        properties.put(CL_CONTEXT_PLATFORM).put(platform);
+        properties.put(0);
+        properties.flip();
+
+        Utils.errorBuffer.rewind();
+        PointerBuffer deviceBuffer = PointerBuffer.allocateDirect(devices.size());
+        for (CLDevice d : devices) {
+            deviceBuffer.put(d);
+        }
+        deviceBuffer.flip();
+        long context = CL10.clCreateContext(properties, deviceBuffer, null, 0, Utils.errorBuffer);
+        Utils.checkError(Utils.errorBuffer, "clCreateContext");
+        
+        return context;
     }
 
     public void internalDestroy() {
@@ -248,6 +406,11 @@ public abstract class LwjglContext implements JmeContext {
     @Override
     public Timer getTimer() {
         return timer;
+    }
+
+    @Override
+    public Context getOpenCLContext() {
+        return clContext;
     }
 
 }

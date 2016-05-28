@@ -31,6 +31,8 @@
  */
 package com.jme3.system;
 
+import com.jme3.opencl.DefaultPlatformChooser;
+import com.jme3.opencl.PlatformChooser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -160,7 +162,9 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("GammaCorrection", false);
         defaults.put("Resizable", false);
         defaults.put("SwapBuffers", true);
-      //  defaults.put("Icons", null);
+        defaults.put("OpenCL", false);
+        defaults.put("OpenCLPlatformChooser", DefaultPlatformChooser.class.getName());
+        //  defaults.put("Icons", null);
     }
 
     /**
@@ -1018,5 +1022,34 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public boolean isSwapBuffers() {
         return getBoolean("SwapBuffers");
+    }
+
+    /**
+     * True to enable the creation of an OpenCL context.
+     *
+     * @param support
+     */
+    public void setOpenCLSupport(boolean support) {
+        putBoolean("OpenCL", support);
+    }
+
+    public boolean isOpenCLSupport() {
+        return getBoolean("OpenCL");
+    }
+    
+    /**
+     * Sets a custom platform chooser. This chooser specifies which platform and
+     * which devices are used for the OpenCL context.
+     * 
+     * Default: an implementation defined one.
+     * 
+     * @param chooser the class of the chooser, must have a default constructor
+     */
+    public void setOpenCLPlatformChooser(Class<? extends PlatformChooser> chooser) {
+        putString("OpenCLPlatformChooser", chooser.getName());
+    }
+    
+    public String getOpenCLPlatformChooser() {
+        return getString("OpenCLPlatformChooser");
     }
 }

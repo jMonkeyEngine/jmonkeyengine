@@ -1,0 +1,185 @@
+//This is a port of java.util.Random to OpenCL
+
+//Because not all devices support doubles, the double returning functions 
+//must be explicit activated with the following preprocessor macro:
+//#define RANDOM_DOUBLES
+
+#ifdef RANDOM_DOUBLES
+//#ifdef cl_khr_fp64
+#pragma OPENCL EXTENSION cl_khr_fp64 : enable
+//#elif defined(cl_amd_fp64)
+//#pragma OPENCL EXTENSION cl_amd_fp64 : enable
+//#else
+//#error "Double precision floating point not supported by OpenCL implementation."
+//#endif
+#endif
+
+inline int randNext(int bits, __global ulong* seed)
+{
+	*seed = (*seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
+	return (int)(*seed >> (48 - bits));
+}
+
+/**
+ * Retrieves the next random integer value.
+ * The buffer used as seed must be read-write.
+ * Usage: 
+ * <code>
+ *  __kernel void TestRandom(__global ulong* seeds) {
+ *    // ...
+ *    int i = randInt(seeds + get_global_id(0));
+ *    // ---
+ * }
+ * </code>
+ */
+inline int randInt(__global ulong* seed) {
+	return randNext(32, seed);
+}
+
+/**
+ * Retrieves the next random integer value between 0 (inclusive) and n (exclusive).
+ * The buffer used as seed must be read-write.
+ * Usage: 
+ * <code>
+ *  __kernel void TestRandom(__global ulong* seeds) {
+ *    // ...
+ *    int i = randIntN(n, seeds + get_global_id(0));
+ *    // ---
+ * }
+ * </code>
+ */
+inline int randIntN(int n, __global ulong* seed) {
+	if (n <= 0)
+		return 0;
+
+	if ((n & -n) == n)  // i.e., n is a power of 2
+		return (int)((n * (long)randNext(31, seed)) >> 31);
+
+	int bits, val;
+	do {
+		bits = randNext(31, seed);
+		val = bits % n;
+	} while (bits - val + (n-1) < 0);
+	return val;
+}
+
+/**
+ * Retrieves the next random long value.
+ * The buffer used as seed must be read-write.
+ * Usage: 
+ * <code>
+ *  __kernel void TestRandom(__global ulong* seeds) {
+ *    // ...
+ *    long l = randLong(seeds + get_global_id(0));
+ *    // ---
+ * }
+ * </code>
+ */
+inline long randLong(__global ulong* seed) {
+	// it's okay that the bottom word remains signed.
+	return ((long)(randNext(32, seed)) << 32) + randNext(32, seed);
+}
+
+/**
+ * Retrieves the next random boolean value.
+ * The buffer used as seed must be read-write.
+ * Usage: 
+ * <code>
+ *  __kernel void TestRandom(__global ulong* seeds) {
+ *    // ...
+ *    bool b = randBool(seeds + get_global_id(0));
+ *    // ---
+ * }
+ * </code>
+ */
+inline bool randBool(__global ulong* seed) {
+	return randNext(1, seed) != 0;
+}
+
+#ifdef RANDOM_DOUBLES
+/**
+ * Retrieves the next random double value.
+ * The buffer used as seed must be read-write.
+ * To use this function, the preprocessor define RANDOM_DOUBLES must be set.
+ * Usage: 
+ * <code>
+ *  __kernel void TestRandom(__global ulong* seeds) {
+ *    // ...
+ *    double d = randDouble(seeds + get_global_id(0));
+ *    // ---
+ * }
+ * </code>
+ */
+inline double randDouble(__global ulong* seed) {
+	return (((long)(randNext(26, seed)) << 27) + randNext(27, seed))
+		/ (double)(1L << 53);
+}
+#endif
+
+/**
+ * Retrieves the next random float value.
+ * The buffer used as seed must be read-write.
+ * Usage: 
+ * <code>
+ *  __kernel void TestRandom(__global ulong* seeds) {
+ *    // ...
+ *    float f = randFloat(seeds + get_global_id(0));
+ *    // ---
+ * }
+ * </code>
+ */
+inline float randFloat(__global ulong* seed)
+{
+	return randNext(24, seed) / ((float)(1 << 24));
+}
+
+/**
+ * Retrieves the next random float values with a gaussian distribution of mean 0
+ * and derivation 1.
+ * The buffer used as seed must be read-write.
+ * Usage: 
+ * <code>
+ *  __kernel void TestRandom(__global ulong* seeds) {
+ *    // ...
+ *    float2 f2 = randGausianf(seeds + get_global_id(0));
+ *    // ---
+ * }
+ * </code>
+ */
+inline float2 randGaussianf(__global ulong* seed) {
+	float v1, v2, s;
+	do {
+		v1 = 2 * randFloat(seed) - 1; // between -1 and 1
+		v2 = 2 * randFloat(seed) - 1; // between -1 and 1
+		s = v1 * v1 + v2 * v2;
+	} while (s >= 1 || s == 0);
+	float multiplier = sqrt(-2 * log(s)/s);
+	return (float2) (v1 * multiplier, v2 * multiplier);
+}
+
+#ifdef RANDOM_DOUBLES
+/**
+ * Retrieves the next random double values with a gaussian distribution of mean 0
+ * and derivation 1.
+ * The buffer used as seed must be read-write.
+ * To use this function, the preprocessor define RANDOM_DOUBLES must be set.
+ * Usage: 
+ * <code>
+ *  __kernel void TestRandom(__global ulong* seeds) {
+ *    // ...
+ *    double2 f2 = randGausian(seeds + get_global_id(0));
+ *    // ---
+ * }
+ * </code>
+ */
+inline double2 randGaussian(__global ulong* seed) {
+	double v1, v2, s;
+	do {
+		v1 = 2 * randDouble(seed) - 1; // between -1 and 1
+		v2 = 2 * randDouble(seed) - 1; // between -1 and 1
+		s = v1 * v1 + v2 * v2;
+	} while (s >= 1 || s == 0);
+	double multiplier = sqrt(-2 * log(s)/s);
+	return (double2) (v1 * multiplier, v2 * multiplier);
+}
+#endif

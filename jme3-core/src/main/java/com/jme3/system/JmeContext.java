@@ -111,6 +111,11 @@ public interface JmeContext {
     public Renderer getRenderer();
 
     /**
+     * @return The OpenCL context if available.
+     */
+    public com.jme3.opencl.Context getOpenCLContext();
+
+    /**
      * @return Mouse input implementation. May be null if not available.
      */
     public MouseInput getMouseInput();

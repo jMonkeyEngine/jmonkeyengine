@@ -35,6 +35,11 @@ package com.jme3.system.lwjgl;
 import com.jme3.input.lwjgl.JInputJoyInput;
 import com.jme3.input.lwjgl.LwjglKeyInput;
 import com.jme3.input.lwjgl.LwjglMouseInput;
+import com.jme3.opencl.Device;
+import com.jme3.opencl.PlatformChooser;
+import com.jme3.opencl.lwjgl.LwjglDevice;
+import com.jme3.opencl.lwjgl.LwjglPlatform;
+import com.jme3.opencl.DefaultPlatformChooser;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.lwjgl.LwjglGL;
@@ -54,12 +59,15 @@ import com.jme3.renderer.opengl.GLTimingState;
 import com.jme3.renderer.opengl.GLTracer;
 import com.jme3.system.*;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.Sys;
+import org.lwjgl.opencl.*;
 import org.lwjgl.opengl.*;
 
 /**
@@ -81,6 +89,9 @@ public abstract class LwjglContext implements JmeContext {
     protected JInputJoyInput joyInput;
     protected Timer timer;
     protected SystemListener listener;
+    
+    protected LwjglPlatform clPlatform;
+    protected com.jme3.opencl.lwjgl.LwjglContext clContext;
 
     public void setSystemListener(SystemListener listener) {
         this.listener = listener;
@@ -245,8 +256,108 @@ public abstract class LwjglContext implements JmeContext {
         if (joyInput != null) {
             joyInput.initialize();
         }
+        
     }
 
+    @SuppressWarnings("unchecked")
+    protected void initOpenCL() {
+        logger.info("Initialize OpenCL wiht LWJGL2");
+        
+        try {
+            CL.create();
+        } catch (LWJGLException ex) {
+            logger.log(Level.SEVERE, "Unable to initialize OpenCL", ex);
+            return;
+        }
+        
+        //load platforms and devices
+        StringBuilder platformInfos = new StringBuilder();
+        ArrayList<LwjglPlatform> platforms = new ArrayList<>();
+        for (CLPlatform p : CLPlatform.getPlatforms()) {
+            platforms.add(new LwjglPlatform(p));
+        }
+        platformInfos.append("Available OpenCL platforms:");
+        for (int i=0; i<platforms.size(); ++i) {
+            LwjglPlatform platform = platforms.get(i);
+            platformInfos.append("\n * Platform ").append(i+1);
+            platformInfos.append("\n *   Name: ").append(platform.getName());
+            platformInfos.append("\n *   Vendor: ").append(platform.getVendor());
+            platformInfos.append("\n *   Version: ").append(platform.getVersion());
+            platformInfos.append("\n *   Profile: ").append(platform.getProfile());
+            platformInfos.append("\n *   Supports interop: ").append(platform.hasOpenGLInterop());
+            List<LwjglDevice> devices = platform.getDevices();
+            platformInfos.append("\n *   Available devices:");
+            for (int j=0; j<devices.size(); ++j) {
+                LwjglDevice device = devices.get(j);
+                platformInfos.append("\n *    * Device ").append(j+1);
+                platformInfos.append("\n *    *   Name: ").append(device.getName());
+                platformInfos.append("\n *    *   Vendor: ").append(device.getVendor());
+                platformInfos.append("\n *    *   Version: ").append(device.getVersion());
+                platformInfos.append("\n *    *   Profile: ").append(device.getProfile());
+                platformInfos.append("\n *    *   Compiler version: ").append(device.getCompilerVersion());
+                platformInfos.append("\n *    *   Device type: ").append(device.getDeviceType());
+                platformInfos.append("\n *    *   Compute units: ").append(device.getComputeUnits());
+                platformInfos.append("\n *    *   Work group size: ").append(device.getMaxiumWorkItemsPerGroup());
+                platformInfos.append("\n *    *   Global memory: ").append(device.getGlobalMemorySize()).append("B");
+                platformInfos.append("\n *    *   Local memory: ").append(device.getLocalMemorySize()).append("B");
+                platformInfos.append("\n *    *   Constant memory: ").append(device.getMaximumConstantBufferSize()).append("B");
+                platformInfos.append("\n *    *   Supports double: ").append(device.hasDouble());
+                platformInfos.append("\n *    *   Supports half floats: ").append(device.hasHalfFloat());
+                platformInfos.append("\n *    *   Supports writable 3d images: ").append(device.hasWritableImage3D());
+                platformInfos.append("\n *    *   Supports interop: ").append(device.hasOpenGLInterop());
+            }
+        }
+        logger.info(platformInfos.toString());
+        
+        //choose devices
+        PlatformChooser chooser = null;
+        if (settings.getOpenCLPlatformChooser() != null) {
+            try {
+                chooser = (PlatformChooser) Class.forName(settings.getOpenCLPlatformChooser()).newInstance();
+            } catch (Exception ex) {
+                logger.log(Level.WARNING, "unable to instantiate custom PlatformChooser", ex);
+            }
+        }
+        if (chooser == null) {
+            chooser = new DefaultPlatformChooser();
+        }
+        List<? extends Device> choosenDevices = chooser.chooseDevices(platforms);
+        List<CLDevice> devices = new ArrayList<>(choosenDevices.size());
+        LwjglPlatform platform = null;
+        for (Device d : choosenDevices) {
+            if (!(d instanceof LwjglDevice)) {
+                logger.log(Level.SEVERE, "attempt to return a custom Device implementation from PlatformChooser: {0}", d);
+                return;
+            }
+            LwjglDevice ld = (LwjglDevice) d;
+            if (platform == null) {
+                platform = ld.getPlatform();
+            } else if (platform != ld.getPlatform()) {
+                logger.severe("attempt to use devices from different platforms");
+                return;
+            }
+            devices.add(ld.getDevice());
+        }
+        if (devices.isEmpty()) {
+            logger.warning("no devices specified, no OpenCL context created");
+            return;
+        }
+        clPlatform = platform;
+        logger.log(Level.INFO, "chosen platform: {0}", platform.getName());
+        logger.log(Level.INFO, "chosen devices: {0}", choosenDevices);
+        
+        //create context
+        try {
+            CLContext c = CLContext.create(platform.getPlatform(), devices, null, Display.getDrawable(), null);
+            clContext = new com.jme3.opencl.lwjgl.LwjglContext(c, (List<LwjglDevice>) choosenDevices);
+        } catch (LWJGLException ex) {
+            logger.log(Level.SEVERE, "Unable to create OpenCL context", ex);
+            return;
+        }
+        
+        logger.info("OpenCL context created");
+    }
+    
     public void internalDestroy() {
         renderer = null;
         timer = null;
@@ -311,4 +422,8 @@ public abstract class LwjglContext implements JmeContext {
         return timer;
     }
 
+    @Override
+    public com.jme3.opencl.Context getOpenCLContext() {
+        return clContext;
+    }
 }
