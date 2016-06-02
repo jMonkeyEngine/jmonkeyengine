@@ -448,7 +448,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         cameraInit = true;
         computeDepth = false;
 
-        if (renderFrameBuffer == null) {
+        if (renderFrameBuffer == null && renderFrameBufferMS == null) {
             outputBuffer = viewPort.getOutputFrameBuffer();
         }
 
