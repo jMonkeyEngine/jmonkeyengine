@@ -1635,6 +1635,12 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         //controls = ic.readSavableArrayList("controlsList", null));
         controls.addAll(0, ic.readSavableArrayList("controlsList", null));
 
+        // remove all controls which wasn't loaded.
+        for (Iterator<Control> iterator = controls.iterator(); iterator.hasNext(); ) {
+            final Control control = iterator.next();
+            if(control == null) iterator.remove();
+        }
+
         userData = (HashMap<String, Savable>) ic.readStringSavableMap("user_data", null);
     }
 
