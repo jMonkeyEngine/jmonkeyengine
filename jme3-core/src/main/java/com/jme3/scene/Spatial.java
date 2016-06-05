@@ -1798,10 +1798,35 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     }
 
     /**
-     * Visit each scene graph element ordered by DFS
+     * Visit each scene graph element ordered by DFS with the default post order mode.
      * @param visitor
+     * @see #depthFirstTraversal(com.jme3.scene.SceneGraphVisitor, com.jme3.scene.Spatial.DFSMode) 
      */
-    public abstract void depthFirstTraversal(SceneGraphVisitor visitor);
+    public void depthFirstTraversal(SceneGraphVisitor visitor) {
+        depthFirstTraversal(visitor, DFSMode.POST_ORDER);
+    }
+    
+    /**
+     * Specifies the mode of the depth first search.
+     */
+    public static enum DFSMode {
+        /**
+         * Pre order: the current spatial is visited first, then its children.
+         */
+        PRE_ORDER,
+        /**
+         * Post order: the children are visited first, then the parent.
+         */
+        POST_ORDER;
+    }
+    
+    /**
+     * Visit each scene graph element ordered by DFS.
+     * There are two modes: pre order and post order.
+     * @param visitor
+     * @param mode the traversal mode: pre order or post order
+     */
+    public abstract void depthFirstTraversal(SceneGraphVisitor visitor, DFSMode mode);
 
     /**
      * Visit each scene graph element ordered by BFS
