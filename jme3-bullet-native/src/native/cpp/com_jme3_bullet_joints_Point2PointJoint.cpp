@@ -146,14 +146,11 @@ extern "C" {
         jmeClasses::initJavaClasses(env);
         btRigidBody* bodyA = reinterpret_cast<btRigidBody*>(bodyIdA);
         btRigidBody* bodyB = reinterpret_cast<btRigidBody*>(bodyIdB);
-        //TODO: matrix not needed?
-        btMatrix3x3 mtx1 = btMatrix3x3();
-        btMatrix3x3 mtx2 = btMatrix3x3();
-        btTransform transA = btTransform(mtx1);
-        jmeBulletUtil::convert(env, pivotA, &transA.getOrigin());
-        btTransform transB = btTransform(mtx2);
-        jmeBulletUtil::convert(env, pivotB, &transB.getOrigin());
-        btHingeConstraint* joint = new btHingeConstraint(*bodyA, *bodyB, transA, transB);
+        btVector3 pivotAIn;
+        btVector3 pivotBIn;
+        jmeBulletUtil::convert(env, pivotA, &pivotAIn);
+        jmeBulletUtil::convert(env, pivotB, &pivotBIn);
+        btPoint2PointConstraint * joint = new btPoint2PointConstraint(*bodyA, *bodyB, pivotAIn, pivotBIn);
         return reinterpret_cast<jlong>(joint);
     }
 
