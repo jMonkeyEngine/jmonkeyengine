@@ -124,4 +124,9 @@ public final class JoclPlatform implements Platform {
         return platform.getExtensions();
     }
 
+	@Override
+	public String toString() {
+		return getName();
+	}
+
 }

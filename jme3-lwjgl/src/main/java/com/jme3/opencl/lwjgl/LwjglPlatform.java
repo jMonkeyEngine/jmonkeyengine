@@ -124,4 +124,9 @@ public final class LwjglPlatform implements Platform {
         return Arrays.asList(platform.getInfoString(CL10.CL_PLATFORM_EXTENSIONS).split(" "));
     }
 
+	@Override
+	public String toString() {
+		return getName();
+	}
+
 }

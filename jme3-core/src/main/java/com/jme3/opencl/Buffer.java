@@ -423,5 +423,10 @@ public abstract class Buffer extends AbstractOpenCLObject {
         //default implementation, overwrite for better performance
         releaseBufferForSharingAsync(queue).release();
     }
-    
+
+	@Override
+	public String toString() {
+		return "Buffer (" + getSize() + "B)";
+	}
+
 }

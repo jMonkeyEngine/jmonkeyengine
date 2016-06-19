@@ -436,4 +436,10 @@ public abstract class Context extends AbstractOpenCLObject {
      * @return the new program
      */
     public abstract Program createProgramFromBinary(ByteBuffer binaries, Device device);
+
+	@Override
+	public String toString() {
+		return "Context (" + getDevices() + ')';
+	}
+
 }
