@@ -43,10 +43,23 @@ package com.jme3.opencl;
  * @author shaman
  */
 public abstract class CommandQueue extends AbstractOpenCLObject {
+	
+	protected Device device;
 
-    protected CommandQueue(ObjectReleaser releaser) {
+    protected CommandQueue(ObjectReleaser releaser, Device device) {
         super(releaser);
+		this.device = device;
     }
+
+	/**
+	 * Returns the device associated with this command queue.
+	 * It can be used to query properties of the device that is used to execute
+	 * the commands issued to this command queue.
+	 * @return the associated device
+	 */
+	public Device getDevice() {
+		return device;
+	}
     
     /**
      * Issues all previously queued OpenCL commands in command_queue to the

@@ -88,7 +88,7 @@ public class JoclContext extends Context {
         long properties = 0;
         long q = cl.clCreateCommandQueue(id, d, properties, Utils.errorBuffer);
         Utils.checkError(Utils.errorBuffer, "clCreateCommandQueue");
-        return new JoclCommandQueue(q);
+        return new JoclCommandQueue(q, device);
     }
     
     @Override
