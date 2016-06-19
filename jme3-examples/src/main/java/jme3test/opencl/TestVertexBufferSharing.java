@@ -115,8 +115,7 @@ public class TestVertexBufferSharing extends SimpleApplication {
     private void initOpenCL1() {
         clContext = context.getOpenCLContext();
         Device device = clContext.getDevices().get(0);
-        clQueue = clContext.createQueue(device);
-        clQueue.register();
+        clQueue = clContext.createQueue(device).register();
         //create kernel
         Program program = null;
         File tmpFolder = JmeSystem.getStorageFolder();
@@ -156,15 +155,13 @@ public class TestVertexBufferSharing extends SimpleApplication {
             }
             LOG.info("create new program from sources");
         }
-        program.register();
-        kernel = program.createKernel("ScaleKernel");
-        kernel.register();
+		program.register();
+        kernel = program.createKernel("ScaleKernel").register();
     }
     private void initOpenCL2() {
         //bind vertex buffer to OpenCL
         VertexBuffer vb = geom.getMesh().getBuffer(VertexBuffer.Type.Position);
-        buffer = clContext.bindVertexBuffer(vb, MemoryAccess.READ_WRITE);
-        buffer.register();
+        buffer = clContext.bindVertexBuffer(vb, MemoryAccess.READ_WRITE).register();
         ws = new com.jme3.opencl.Kernel.WorkSize(geom.getMesh().getVertexCount());
     }
     private void updateOpenCL(float tpf) {

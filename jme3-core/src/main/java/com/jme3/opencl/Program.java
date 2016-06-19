@@ -49,6 +49,12 @@ public abstract class Program extends AbstractOpenCLObject {
     protected Program(ObjectReleaser releaser) {
         super(releaser);
     }
+	
+	@Override
+	public Program register() {
+		super.register();
+		return this;
+	}
     
     /**
      * Builds this program with the specified argument string on the specified

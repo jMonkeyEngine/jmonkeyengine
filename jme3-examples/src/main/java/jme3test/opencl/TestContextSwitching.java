@@ -131,8 +131,7 @@ public class TestContextSwitching extends SimpleApplication implements ScreenCon
         
         if (testBuffer == null && clContext != null && !bufferCreated) {
             try {
-                testBuffer = clContext.createBuffer(1024);
-                testBuffer.register();
+                testBuffer = clContext.createBuffer(1024).register();
                 LOG.info("Test buffer created");
             } catch (OpenCLException ex) {
                 LOG.log(Level.SEVERE, "Unable to create buffer", ex);

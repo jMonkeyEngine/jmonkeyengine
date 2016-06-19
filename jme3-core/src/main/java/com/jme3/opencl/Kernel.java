@@ -97,6 +97,12 @@ public abstract class Kernel extends AbstractOpenCLObject {
         this.workGroupSize = new WorkSize(0);
     }
 
+	@Override
+	public Kernel register() {
+		super.register();
+		return this;
+	}
+	
     /**
      * @return the name of the kernel as defined in the program source code
      */

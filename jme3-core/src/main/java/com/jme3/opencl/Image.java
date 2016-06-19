@@ -249,7 +249,13 @@ memory layout in which channels are stored in the image.
     protected Image(ObjectReleaser releaser) {
         super(releaser);
     }
-    
+	
+	@Override
+	public Image register() {
+		super.register();
+		return this;
+	}
+	
     /**
      * @return the width of the image
      */

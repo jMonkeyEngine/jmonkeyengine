@@ -51,6 +51,12 @@ public abstract class CommandQueue extends AbstractOpenCLObject {
 		this.device = device;
     }
 
+	@Override
+	public CommandQueue register() {
+		super.register();
+		return this;
+	}
+
 	/**
 	 * Returns the device associated with this command queue.
 	 * It can be used to query properties of the device that is used to execute

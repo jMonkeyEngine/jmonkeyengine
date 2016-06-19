@@ -52,6 +52,12 @@ public abstract class Buffer extends AbstractOpenCLObject {
     protected Buffer(ObjectReleaser releaser) {
         super(releaser);
     }
+
+	@Override
+	public Buffer register() {
+		super.register();
+		return this;
+	}
     
     /**
      * @return the size of the buffer in bytes.
