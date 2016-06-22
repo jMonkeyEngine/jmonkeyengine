@@ -52,7 +52,9 @@ extern "C" {
         btMotionState* motionState = reinterpret_cast<btMotionState*>(motionstatId);
         btCollisionShape* shape = reinterpret_cast<btCollisionShape*>(shapeId);
         btVector3 localInertia = btVector3();
-        shape->calculateLocalInertia(mass, localInertia);
+	if(mass > 0){
+	        shape->calculateLocalInertia(mass, localInertia);
+	}
         btRigidBody* body = new btRigidBody(mass, motionState, shape, localInertia);
         body->setUserPointer(NULL);
         return reinterpret_cast<jlong>(body);
