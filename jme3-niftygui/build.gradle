@@ -2,17 +2,11 @@ if (!hasProperty('mainClass')) {
     ext.mainClass = ''
 }
 
-repositories {
-    maven{
-        url 'http://nifty-gui.sourceforge.net/nifty-maven-repo'
-    }
-}
-
 dependencies {
     compile project(':jme3-core')
-    compile 'lessvoid:nifty:1.4.1'
-    compile 'lessvoid:nifty-default-controls:1.4.1'
-    compile 'lessvoid:nifty-style-black:1.4.1'
+    compile 'com.github.nifty-gui:nifty:1.4.2'
+    compile 'com.github.nifty-gui:nifty-default-controls:1.4.2'
+    compile 'com.github.nifty-gui:nifty-style-black:1.4.2'
 }
 
 ext.pomConfig = {
