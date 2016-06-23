@@ -608,7 +608,7 @@ public class EnvMapUtils {
         }
 
         for (int i = 0; i < 6; i++) {
-            ByteBuffer buf = BufferUtils.createByteBuffer(targetMapSize * targetMapSize * store.getImage().getFormat().getBitsPerPixel()/8);
+            ByteBuffer buf = BufferUtils.createByteBuffer(targetMapSize * targetMapSize * irrCubeMap.getImage().getFormat().getBitsPerPixel()/8);
             irrCubeMap.getImage().setData(i, buf);
         }
 
