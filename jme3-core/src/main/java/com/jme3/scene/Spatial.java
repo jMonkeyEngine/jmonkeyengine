@@ -1530,6 +1530,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
         if(data == null){
             userData.remove(key);
+            if(userData.isEmpty()) {
+                userData = null;
+            }
         }else if (data instanceof Savable) {
             userData.put(key, (Savable) data);
         } else {
