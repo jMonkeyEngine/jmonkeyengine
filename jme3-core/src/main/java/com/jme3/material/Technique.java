@@ -44,6 +44,7 @@ import com.jme3.shader.VarType;
 import com.jme3.util.ListMap;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -112,10 +113,12 @@ public final class Technique {
 
     private void applyOverrides(DefineList defineList, List<MatParamOverride> overrides) {
         MatParamOverride override;
+        boolean isArrayList = overrides instanceof ArrayList;
+        Iterator<MatParamOverride> iterator = isArrayList ? null : overrides.iterator();
 
-        // manual iteration is used to avoid iterator allocation and to increase iteration performance
+        // manual iteration is used to avoid iterator allocation and to increase iteration performance in case of ArrayList
         for (int i = 0, listSize = overrides.size(); i < listSize; i++) {
-            override = overrides.get(i);
+            override = isArrayList ? overrides.get(i) : iterator.next();
 
             if (!override.isEnabled()) {
                 continue;

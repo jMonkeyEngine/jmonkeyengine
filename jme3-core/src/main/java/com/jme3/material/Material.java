@@ -751,10 +751,12 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
     private int applyOverrides(Renderer renderer, Shader shader, List<MatParamOverride> overrides, int unit) {
         MatParamOverride override;
+        boolean isArrayList = overrides instanceof ArrayList;
+        Iterator<MatParamOverride> iterator = isArrayList ? null : overrides.iterator();
 
-        // manual iteration is used to avoid iterator allocation and to increase iteration performance
+        // manual iteration is used to avoid iterator allocation and to increase iteration performance in case of ArrayList
         for (int i = 0, listSize = overrides.size(); i < listSize; i++) {
-            override = overrides.get(i);
+            override = isArrayList ? overrides.get(i) : iterator.next();
 
             VarType type = override.getVarType();
 
