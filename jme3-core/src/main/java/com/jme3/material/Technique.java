@@ -111,7 +111,12 @@ public final class Technique {
     }
 
     private void applyOverrides(DefineList defineList, List<MatParamOverride> overrides) {
-        for (MatParamOverride override : overrides) {
+        MatParamOverride override;
+
+        // manual iteration is used to avoid iterator allocation and to increase iteration performance
+        for (int i = 0, listSize = overrides.size(); i < listSize; i++) {
+            override = overrides.get(i);
+
             if (!override.isEnabled()) {
                 continue;
             }
