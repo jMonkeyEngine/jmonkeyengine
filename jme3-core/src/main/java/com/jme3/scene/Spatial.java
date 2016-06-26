@@ -1524,16 +1524,22 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     }
 
     public void setUserData(String key, Object data) {
-        if (userData == null) {
-            userData = new HashMap<String, Savable>();
-        }
-
-        if(data == null){
-            userData.remove(key);
-        }else if (data instanceof Savable) {
-            userData.put(key, (Savable) data);
+        if (data == null) {
+            if (userData != null) {
+                userData.remove(key);
+                if(userData.isEmpty()) {
+                    userData = null;
+                }
+            }
         } else {
-            userData.put(key, new UserData(UserData.getObjectType(data), data));
+            if (userData == null) {
+                userData = new HashMap<String, Savable>();
+            }
+            if (data instanceof Savable) {
+                userData.put(key, (Savable) data);
+            } else {
+                userData.put(key, new UserData(UserData.getObjectType(data), data));
+            }
         }
     }
 
