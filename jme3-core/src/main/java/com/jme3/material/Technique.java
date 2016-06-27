@@ -31,10 +31,10 @@
  */
 package com.jme3.material;
 
-import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.LightList;
 import com.jme3.material.TechniqueDef.LightMode;
+import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
@@ -42,9 +42,8 @@ import com.jme3.shader.DefineList;
 import com.jme3.shader.Shader;
 import com.jme3.shader.VarType;
 import com.jme3.util.ListMap;
-import java.util.ArrayList;
+import com.jme3.util.SafeArrayList;
 import java.util.EnumSet;
-import java.util.List;
 
 /**
  * Represents a technique instance.
@@ -110,8 +109,8 @@ public final class Technique {
         }
     }
 
-    private void applyOverrides(DefineList defineList, List<MatParamOverride> overrides) {
-        for (MatParamOverride override : overrides) {
+    private void applyOverrides(DefineList defineList, SafeArrayList<MatParamOverride> overrides) {
+        for (MatParamOverride override : overrides.getArray()) {
             if (!override.isEnabled()) {
                 continue;
             }
@@ -134,8 +133,8 @@ public final class Technique {
      * @param rendererCaps The renderer capabilities which the shader should support.
      * @return A compatible shader.
      */
-    Shader makeCurrent(RenderManager renderManager, List<MatParamOverride> worldOverrides,
-            List<MatParamOverride> forcedOverrides,
+    Shader makeCurrent(RenderManager renderManager, SafeArrayList<MatParamOverride> worldOverrides,
+            SafeArrayList<MatParamOverride> forcedOverrides,
             LightList lights, EnumSet<Caps> rendererCaps) {
         TechniqueDefLogic logic = def.getLogic();
         AssetManager assetManager = owner.getMaterialDef().getAssetManager();
