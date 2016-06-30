@@ -138,8 +138,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     protected LightList localLights;
     protected transient LightList worldLights;
 
-    protected ArrayList<MatParamOverride> localOverrides;
-    protected ArrayList<MatParamOverride> worldOverrides;
+    protected SafeArrayList<MatParamOverride> localOverrides;
+    protected SafeArrayList<MatParamOverride> worldOverrides;
 
     /** 
      * This spatial's name.
@@ -207,8 +207,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         localLights = new LightList(this);
         worldLights = new LightList(this);
 
-        localOverrides = new ArrayList<>();
-        worldOverrides = new ArrayList<>();
+        localOverrides = new SafeArrayList<>(MatParamOverride.class);
+        worldOverrides = new SafeArrayList<>(MatParamOverride.class);
         refreshFlags |= RF_BOUND;
     }
 
@@ -432,7 +432,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      *
      * @return The list of local material parameter overrides.
      */
-    public List<MatParamOverride> getLocalMatParamOverrides() {
+    public SafeArrayList<MatParamOverride> getLocalMatParamOverrides() {
         return localOverrides;
     }
 
@@ -446,7 +446,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      *
      * @return The list of world material parameter overrides.
      */
-    public List<MatParamOverride> getWorldMatParamOverrides() {
+    public SafeArrayList<MatParamOverride> getWorldMatParamOverrides() {
         return worldOverrides;
     }
 
@@ -1384,8 +1384,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
             clone.localLights.setOwner(clone);
             clone.worldLights.setOwner(clone);
 
-            clone.worldOverrides = new ArrayList<MatParamOverride>();
-            clone.localOverrides = new ArrayList<MatParamOverride>();
+            clone.worldOverrides = new SafeArrayList<>(MatParamOverride.class);
+            clone.localOverrides = new SafeArrayList<>(MatParamOverride.class);
 
             for (MatParamOverride override : localOverrides) {
                 clone.localOverrides.add((MatParamOverride) override.clone());
@@ -1524,16 +1524,22 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     }
 
     public void setUserData(String key, Object data) {
-        if (userData == null) {
-            userData = new HashMap<String, Savable>();
-        }
-
-        if(data == null){
-            userData.remove(key);
-        }else if (data instanceof Savable) {
-            userData.put(key, (Savable) data);
+        if (data == null) {
+            if (userData != null) {
+                userData.remove(key);
+                if(userData.isEmpty()) {
+                    userData = null;
+                }
+            }
         } else {
-            userData.put(key, new UserData(UserData.getObjectType(data), data));
+            if (userData == null) {
+                userData = new HashMap<String, Savable>();
+            }
+            if (data instanceof Savable) {
+                userData.put(key, (Savable) data);
+            } else {
+                userData.put(key, new UserData(UserData.getObjectType(data), data));
+            }
         }
     }
 
@@ -1598,7 +1604,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         capsule.write(shadowMode, "shadow_mode", ShadowMode.Inherit);
         capsule.write(localTransform, "transform", Transform.IDENTITY);
         capsule.write(localLights, "lights", null);
-        capsule.writeSavableArrayList(localOverrides, "overrides", null);
+        capsule.writeSavableArrayList(new ArrayList(localOverrides), "overrides", null);
 
         // Shallow clone the controls array to convert its type.
         capsule.writeSavableArrayList(new ArrayList(controls), "controlsList", null);
@@ -1622,11 +1628,13 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         localLights = (LightList) ic.readSavable("lights", null);
         localLights.setOwner(this);
 
-        localOverrides = ic.readSavableArrayList("overrides", null);
-        if (localOverrides == null) {
-            localOverrides = new ArrayList<>();
+        ArrayList<MatParamOverride> localOverridesList = ic.readSavableArrayList("overrides", null);
+        if (localOverridesList == null) {
+            localOverrides = new SafeArrayList<>(MatParamOverride.class);
+        } else {
+            localOverrides = new SafeArrayList(MatParamOverride.class, localOverridesList);
         }
-        worldOverrides = new ArrayList<>();
+        worldOverrides = new SafeArrayList<>(MatParamOverride.class);
 
         //changed for backward compatibility with j3o files generated before the AnimControl/SkeletonControl split
         //the AnimControl creates the SkeletonControl for old files and add it to the spatial.
