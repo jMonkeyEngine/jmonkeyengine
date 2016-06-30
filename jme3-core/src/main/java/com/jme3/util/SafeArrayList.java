@@ -258,7 +258,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
             if( o1 == null || !o1.equals(o2) )
                 return false;
         }
-        return !(i1.hasNext() || !i2.hasNext());
+        return !(i1.hasNext() || i2.hasNext());
     }
 
     public int hashCode() {
