@@ -309,6 +309,8 @@ When arrays can be inserted in J3M files
         } else if (value instanceof Boolean) {
             Boolean b = (Boolean) value;
             oc.write(b.booleanValue(), "value_bool", false);
+        } else if (value.getClass().isArray() && value instanceof Savable[]) {
+            oc.write((Savable[])value, "value_savable_array", null);
         }
     }
 
@@ -326,6 +328,41 @@ When arrays can be inserted in J3M files
                 break;
             case Int:
                 value = ic.readInt("value_int", 0);
+                break;
+            case Vector2Array:
+                Savable[] savableArray = ic.readSavableArray("value_savable_array", null);
+                if (savableArray != null) {
+                    value = new Vector2f[savableArray.length];
+                    System.arraycopy(savableArray, 0, value, 0, savableArray.length);
+                }
+                break;
+            case Vector3Array:
+                savableArray = ic.readSavableArray("value_savable_array", null);
+                if (savableArray != null) {
+                    value = new Vector3f[savableArray.length];
+                    System.arraycopy(savableArray, 0, value, 0, savableArray.length);
+                }
+                break;
+            case Vector4Array:
+                savableArray = ic.readSavableArray("value_savable_array", null);
+                if (savableArray != null) {
+                    value = new Vector4f[savableArray.length];
+                    System.arraycopy(savableArray, 0, value, 0, savableArray.length);
+                }
+                break;
+            case Matrix3Array:
+                savableArray = ic.readSavableArray("value_savable_array", null);
+                if (savableArray != null) {
+                    value = new Matrix3f[savableArray.length];
+                    System.arraycopy(savableArray, 0, value, 0, savableArray.length);
+                }
+                break;
+            case Matrix4Array:
+                savableArray = ic.readSavableArray("value_savable_array", null);
+                if (savableArray != null) {
+                    value = new Matrix4f[savableArray.length];
+                    System.arraycopy(savableArray, 0, value, 0, savableArray.length);
+                }
                 break;
             default:
                 value = ic.readSavable("value_savable", null);
