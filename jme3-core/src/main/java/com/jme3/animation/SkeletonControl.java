@@ -255,7 +255,8 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
                     // is operating on this material, in that case, user
                     // is sharing materials between models which is NOT allowed
                     // when hardware skinning used.
-                    throw new UnsupportedOperationException(
+                    
+                    Logger.getLogger(SkeletonControl.class.getName()).log(Level.SEVERE,
                             "Material instances cannot be shared when hardware skinning is used. " +
                             "Ensure all models use unique material instances."
                     );
