@@ -317,11 +317,17 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
 
     @Override
     public void setNativeCursor(JmeCursor cursor) {
-        final ByteBuffer pixels = Buffers.copyIntBufferAsByteBuffer(cursor.getImagesData());
-        final DimensionImmutable size = new Dimension(cursor.getWidth(), cursor.getHeight());
-        final PixelFormat pixFormat = PixelFormat.RGBA8888;
-        final PixelRectangle.GenericPixelRect rec = new PixelRectangle.GenericPixelRect(pixFormat, size, 0, true, pixels);
-        final PointerIcon joglCursor = component.getScreen().getDisplay().createPointerIcon(rec, cursor.getXHotSpot(), cursor.getHeight() - cursor.getYHotSpot());
-        component.setPointerIcon(joglCursor);
+        PointerIcon pointerIcon = null;
+        if (cursor != null) {
+            final ByteBuffer pixels = Buffers.copyIntBufferAsByteBuffer(cursor.getImagesData());
+            final DimensionImmutable size = new Dimension(cursor.getWidth(), cursor.getHeight());
+            final PixelFormat pixFormat = PixelFormat.RGBA8888;
+            final PixelRectangle.GenericPixelRect rec =
+                    new PixelRectangle.GenericPixelRect(pixFormat, size, 0, true, pixels);
+            pointerIcon = component.getScreen().getDisplay()
+                    .createPointerIcon(rec, cursor.getXHotSpot(), cursor.getHeight() - cursor.getYHotSpot());
+        }
+
+        component.setPointerIcon(pointerIcon);
     }
 }
