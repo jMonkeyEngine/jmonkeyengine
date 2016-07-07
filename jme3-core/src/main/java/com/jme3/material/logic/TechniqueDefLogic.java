@@ -93,5 +93,5 @@ public interface TechniqueDefLogic {
      * @param geometry The geometry to render
      * @param lights Lights which influence the geometry.
      */
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights);
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit);
 }

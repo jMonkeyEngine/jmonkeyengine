@@ -1,0 +1,22 @@
+ShaderNodeDefinitions{ 
+    ShaderNodeDefinition EnvMapping {      
+        Type: Fragment
+
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Environment/envMapping100.frag
+        Shader GLSL130: Common/MatDefs/ShaderNodes/Environment/envMapping130.frag
+        
+        Documentation{
+            fetches a texel in a cube map            
+            @input vec3 refVec the reflection vector
+            @input samplerCube cubeMap the cube map
+            @output vec4 color the output color
+        }
+        Input {
+            vec3 refVec
+            samplerCube cubeMap
+        }
+        Output {
+             vec4 color
+        }
+    }
+}

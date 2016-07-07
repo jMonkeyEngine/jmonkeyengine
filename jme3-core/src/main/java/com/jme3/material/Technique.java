@@ -161,9 +161,9 @@ public final class Technique {
      * @param geometry The geometry to render
      * @param lights Lights which influence the geometry.
      */
-    void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights) {
+    void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit) {
         TechniqueDefLogic logic = def.getLogic();
-        logic.render(renderManager, shader, geometry, lights);
+        logic.render(renderManager, shader, geometry, lights, lastTexUnit);
     }
     
     /**

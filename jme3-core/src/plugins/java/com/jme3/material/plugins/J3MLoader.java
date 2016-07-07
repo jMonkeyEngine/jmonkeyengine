@@ -31,9 +31,7 @@
  */
 package com.jme3.material.plugins;
 
-import com.jme3.material.logic.MultiPassLightingLogic;
-import com.jme3.material.logic.SinglePassLightingLogic;
-import com.jme3.material.logic.DefaultTechniqueDefLogic;
+import com.jme3.material.logic.*;
 import com.jme3.asset.*;
 import com.jme3.material.*;
 import com.jme3.material.RenderState.BlendEquation;
@@ -121,8 +119,20 @@ public class J3MLoader implements AssetLoader {
         if (split.length != 2){
             throw new IOException("LightMode statement syntax incorrect");
         }
+
         LightMode lm = LightMode.valueOf(split[1]);
         technique.setLightMode(lm);
+    }
+    
+    
+    // LightMode <SPACE>
+    private void readLightSpace(String statement) throws IOException{
+        String[] split = statement.split(whitespacePattern);
+        if (split.length != 2){
+            throw new IOException("LightSpace statement syntax incorrect");
+        }
+        TechniqueDef.LightSpace ls = TechniqueDef.LightSpace.valueOf(split[1]);        
+        technique.setLightSpace(ls);
     }
 
     // ShadowMode <MODE>
@@ -543,6 +553,8 @@ public class J3MLoader implements AssetLoader {
             readShaderStatement(statement.getLine());
         }else if (split[0].equals("LightMode")){
             readLightMode(statement.getLine());
+        }else if (split[0].equals("LightSpace")){
+            readLightSpace(statement.getLine());
         }else if (split[0].equals("ShadowMode")){
             readShadowMode(statement.getLine());
         }else if (split[0].equals("WorldParameters")){
@@ -649,6 +661,9 @@ public class J3MLoader implements AssetLoader {
                 break;
             case StaticPass:
                 technique.setLogic(new StaticPassLightingLogic(technique));
+                break;
+            case SinglePassAndImageBased:
+                technique.setLogic(new SinglePassAndImageBasedLightingLogic(technique));
                 break;
             default:
                 throw new UnsupportedOperationException();

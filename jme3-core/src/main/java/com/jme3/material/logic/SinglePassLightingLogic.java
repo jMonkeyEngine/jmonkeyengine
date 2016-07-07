@@ -185,6 +185,8 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
                     lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), spotAngleCos, lightDataIndex);
                     lightDataIndex++;
                     break;
+                case Probe:
+                    break;
                 default:
                     throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
             }
@@ -199,7 +201,7 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit) {
         int nbRenderedLights = 0;
         Renderer renderer = renderManager.getRenderer();
         int batchSize = renderManager.getSinglePassLightBatchSize();

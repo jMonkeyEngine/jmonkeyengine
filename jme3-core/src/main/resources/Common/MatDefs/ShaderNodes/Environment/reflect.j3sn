@@ -1,0 +1,25 @@
+ShaderNodeDefinitions{ 
+    ShaderNodeDefinition Reflect {      
+        Type: Vertex
+
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Environment/reflect100.vert
+        
+        Documentation{
+            Computes the relfection vector necessary to do some environment mapping            
+            @input vec3 position position in model space
+            @input vec3 normal the normal of the vertex
+            @input vec3 camPosition camera position in world space
+            @input mat4 worldMatrix the world matrix
+            @output vec3 refVec the reflection vector
+        }
+        Input {
+            vec3 position
+            vec3 normal
+            vec3 camPosition
+            mat4 worldMatrix
+        }
+        Output {
+             vec3 refVec
+        }
+    }
+}

@@ -319,6 +319,13 @@ public class Geometry extends Spatial {
         worldLights.sort(true);
     }
 
+    @Override
+    protected void updateWorldLightList() {
+        super.updateWorldLightList();
+        // geometry requires lights to be sorted
+        worldLights.sort(true);
+    }
+
     /**
      * Associate this <code>Geometry</code> with a {@link GeometryGroupNode}.
      *

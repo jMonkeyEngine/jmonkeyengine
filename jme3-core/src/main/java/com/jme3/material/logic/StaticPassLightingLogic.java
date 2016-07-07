@@ -171,7 +171,7 @@ public final class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit) {
         Renderer renderer = renderManager.getRenderer();
         Matrix4f viewMatrix = renderManager.getCurrentCamera().getViewMatrix();
         updateLightListUniforms(viewMatrix, shader, lights);

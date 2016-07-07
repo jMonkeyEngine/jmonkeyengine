@@ -119,7 +119,7 @@ MaterialDef Phong Lighting {
 
     Technique {
         LightMode SinglePass
-        
+
         VertexShader GLSL100:   Common/MatDefs/Light/SPLighting.vert
         FragmentShader GLSL100: Common/MatDefs/Light/SPLighting.frag
 

@@ -804,6 +804,15 @@ public class RenderManager {
     public void setLightFilter(LightFilter lightFilter) {
         this.lightFilter = lightFilter;
     }
+    
+    /**
+     * Returns the current LightFilter.
+     * 
+     * @return the current light filter 
+     */
+    public LightFilter getLightFilter() {
+        return this.lightFilter;
+    }
 
     /**
      * Defines what light mode will be selected when a technique offers several light modes.

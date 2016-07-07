@@ -60,7 +60,7 @@ public class TestBatchNodeCluster extends SimpleApplication {
         settingst.setVSync(false);
         settingst.setFullscreen(false);
         app.setSettings(settingst);
-        app.setShowSettings(false);
+        app.setShowSettings(false); 
         app.start();
     }
     private ActionListener al = new ActionListener() {

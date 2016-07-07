@@ -73,7 +73,7 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit) {
         Renderer r = renderManager.getRenderer();
         Uniform lightDir = shader.getUniform("g_LightDirection");
         Uniform lightColor = shader.getUniform("g_LightColor");
@@ -156,6 +156,8 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
 
                     lightDir.setValue(VarType.Vector4, tmpLightDirection);
 
+                    break;
+                case Probe:
                     break;
                 default:
                     throw new UnsupportedOperationException("Unknown type of light: " + l.getType());

@@ -1,0 +1,307 @@
+MaterialDef PBR Lighting {
+
+    MaterialParameters {
+
+        // Alpha threshold for fragment discarding
+        Float AlphaDiscardThreshold (AlphaTestFallOff)
+
+        //metalness of the material
+        Float Metallic : 0.0
+        //Roughness of the material
+        Float Roughness : 1.0        
+        // Base material color
+        Color BaseColor
+        // The emissive color of the object
+        Color Emissive        
+        // the emissive power
+        Float EmissivePower : 3.0        
+        // the emissive intensity
+        Float EmissiveIntensity : 1.0
+
+        // BaseColor map
+        Texture2D BaseColorMap
+
+        // Specular/gloss map
+        Texture2D MetallicMap -LINEAR
+        
+        // Roughness Map
+        Texture2D RoughnessMap -LINEAR
+        
+        // Texture of the emissive parts of the material
+        Texture2D EmissiveMap
+
+        // Normal map
+        Texture2D NormalMap -LINEAR
+
+        // For Spec gloss pipeline
+        Texture2D SpecularMap
+        Texture2D GlossMap
+
+        Vector4 ProbeData
+
+        // Prefiltered Env Map for indirect specular lighting
+        TextureCubeMap PrefEnvMap -LINEAR
+        
+        // Irradiance map for indirect diffuse lighting
+        TextureCubeMap IrradianceMap -LINEAR
+
+        //integrate BRDF map for indirect Lighting
+        Texture2D IntegrateBRDF -LINEAR
+
+        // Parallax/height map
+        Texture2D ParallaxMap -LINEAR
+
+        //Set to true is parallax map is stored in the alpha channel of the normal map
+        Boolean PackedNormalParallax   
+
+        //Sets the relief height for parallax mapping
+        Float ParallaxHeight : 0.05       
+
+        //Set to true to activate Steep Parallax mapping
+        Boolean SteepParallax
+
+        // Set to Use Lightmap
+        Texture2D LightMap
+
+        // Set to use TexCoord2 for the lightmap sampling
+        Boolean SeparateTexCoord
+
+        //shadows
+        Int FilterMode
+        Boolean HardwareShadows
+
+        Texture2D ShadowMap0
+        Texture2D ShadowMap1
+        Texture2D ShadowMap2
+        Texture2D ShadowMap3
+        //pointLights
+        Texture2D ShadowMap4
+        Texture2D ShadowMap5
+        
+        Float ShadowIntensity
+        Vector4 Splits
+        Vector2 FadeInfo
+
+        Matrix4 LightViewProjectionMatrix0
+        Matrix4 LightViewProjectionMatrix1
+        Matrix4 LightViewProjectionMatrix2
+        Matrix4 LightViewProjectionMatrix3
+        //pointLight
+        Matrix4 LightViewProjectionMatrix4
+        Matrix4 LightViewProjectionMatrix5   
+        Vector3 LightPos
+        Vector3 LightDir
+
+        Float PCFEdge
+        Float ShadowMapSize
+
+        // For hardware skinning
+        Int NumberOfBones
+        Matrix4Array BoneMatrices
+                
+        //For instancing
+        Boolean UseInstancing
+
+        //For Vertex Color
+        Boolean UseVertexColor
+    }
+
+ Technique {
+        LightMode SinglePassAndImageBased
+        
+        VertexShader GLSL100:   Common/MatDefs/Light/PBRLighting.vert
+        FragmentShader GLSL100: Common/MatDefs/Light/PBRLighting.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            CameraPosition
+            WorldMatrix
+        }
+
+        Defines {         
+            BASECOLORMAP : BaseColorMap            
+            NORMALMAP : NormalMap
+            METALLICMAP : MetallicMap
+            ROUGHNESSMAP : RoughnessMap
+            EMISSIVEMAP : EmissiveMap
+            EMISSIVE : Emissive
+            SPECGLOSSPIPELINE : SpecularMap
+            PARALLAXMAP : ParallaxMap
+            NORMALMAP_PARALLAX : PackedNormalParallax
+            STEEP_PARALLAX : SteepParallax
+            LIGHTMAP : LightMap
+            SEPARATE_TEXCOORD : SeparateTexCoord
+            DISCARD_ALPHA : AlphaDiscardThreshold                        
+            NUM_BONES : NumberOfBones                        
+            INSTANCING : UseInstancing
+            //INDIRECT_LIGHTING : IntegrateBRDF
+            VERTEX_COLOR : UseVertexColor
+        }
+    }
+
+   
+
+    Technique PreShadow {
+
+        VertexShader GLSL100 :   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL100 : Common/MatDefs/Shadow/PreShadow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            COLOR_MAP : ColorMap
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+        }
+
+        ForcedRenderState {
+            FaceCull Off
+            DepthTest On
+            DepthWrite On
+            PolyOffset 5 3
+            ColorWrite Off
+        }
+
+    }
+
+
+    Technique PostShadow15{
+        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            HARDWARE_SHADOWS : HardwareShadows
+            FILTER_MODE : FilterMode
+            PCFEDGE : PCFEdge
+            DISCARD_ALPHA : AlphaDiscardThreshold           
+            COLOR_MAP : ColorMap
+            SHADOWMAP_SIZE : ShadowMapSize
+            FADE : FadeInfo
+            PSSM : Splits
+            POINTLIGHT : LightViewProjectionMatrix5
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+        }
+
+        ForcedRenderState {
+            Blend Modulate
+            DepthWrite Off                 
+            PolyOffset -0.1 0
+        }
+    }
+
+    Technique PostShadow{
+        VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            HARDWARE_SHADOWS : HardwareShadows
+            FILTER_MODE : FilterMode
+            PCFEDGE : PCFEdge
+            DISCARD_ALPHA : AlphaDiscardThreshold           
+            COLOR_MAP : ColorMap
+            SHADOWMAP_SIZE : ShadowMapSize
+            FADE : FadeInfo
+            PSSM : Splits
+            POINTLIGHT : LightViewProjectionMatrix5
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+        }
+
+        ForcedRenderState {
+            Blend Modulate
+            DepthWrite Off   
+            PolyOffset -0.1 0  
+        }
+    }
+
+  Technique PreNormalPass {
+
+        VertexShader GLSL100 :   Common/MatDefs/SSAO/normal.vert
+        FragmentShader GLSL100 : Common/MatDefs/SSAO/normal.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            NormalMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            DIFFUSEMAP_ALPHA : DiffuseMap
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+        }
+
+    }
+
+
+    Technique PreNormalPassDerivative {
+
+        VertexShader GLSL100 :   Common/MatDefs/MSSAO/normal.vert
+        FragmentShader GLSL100 : Common/MatDefs/MSSAO/normal.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            NormalMatrix                        
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            DIFFUSEMAP_ALPHA : DiffuseMap
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+        }
+
+    }
+
+    Technique GBuf {
+
+        VertexShader GLSL100:   Common/MatDefs/Light/GBuf.vert
+        FragmentShader GLSL100: Common/MatDefs/Light/GBuf.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            NormalMatrix
+            WorldViewMatrix
+            WorldMatrix
+        }
+
+        Defines {
+            VERTEX_COLOR : UseVertexColor
+            MATERIAL_COLORS : UseMaterialColors
+            V_TANGENT : VTangent
+            MINNAERT  : Minnaert
+            WARDISO   : WardIso
+
+            DIFFUSEMAP : DiffuseMap
+            NORMALMAP : NormalMap
+            SPECULARMAP : SpecularMap
+            PARALLAXMAP : ParallaxMap
+        }
+    }
+
+}
