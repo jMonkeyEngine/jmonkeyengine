@@ -778,7 +778,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         return unit;
     }
 
-    private void updateShaderMaterialParameters(Renderer renderer, Shader shader,
+    private int updateShaderMaterialParameters(Renderer renderer, Shader shader,
                  SafeArrayList<MatParamOverride> worldOverrides, SafeArrayList<MatParamOverride> forcedOverrides) {
 
         int unit = 0;
