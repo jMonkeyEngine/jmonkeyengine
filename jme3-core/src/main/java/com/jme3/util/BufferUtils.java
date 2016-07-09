@@ -55,6 +55,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.mockito.internal.stubbing.answers.ThrowsException;
+
 /**
  * <code>BufferUtils</code> is a helper class for generating nio buffers from
  * jME data classes such as Vectors and ColorRGBA.
@@ -75,7 +77,7 @@ public final class BufferUtils {
 	static {
 		try {
 			allocator = new ReflectionAllocator();
-		} catch (InaccessibleObjectException t) {
+		} catch (Throwable t) {
 			t.printStackTrace();
 			System.err.println("Error using ReflectionAllocator");
 		}
