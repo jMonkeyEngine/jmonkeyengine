@@ -43,7 +43,7 @@ import java.util.logging.Logger;
  * This class contains the reflection based way to remove DirectByteBuffers in java < 9,
  * allocation is done via ByteBuffer.allocateDirect
  */
-public final class ReflectionBufferUtils implements BufferAllocator {
+public final class ReflectionAllocator implements BufferAllocator {
 	private static Method	cleanerMethod		= null;
 	private static Method	cleanMethod			= null;
 	private static Method	viewedBufferMethod	= null;
