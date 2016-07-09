@@ -62,12 +62,20 @@ import java.util.logging.Logger;
  * @version $Id: BufferUtils.java,v 1.16 2007/10/29 16:56:18 nca Exp $
  */
 public final class BufferUtils {
-
+	private static BufferAllocator allocator = new ReflectionBufferUtils();
+	
     private static boolean trackDirectMemory = false;
     private static ReferenceQueue<Buffer> removeCollected = new ReferenceQueue<Buffer>();
     private static ConcurrentHashMap<BufferInfo, BufferInfo> trackedBuffers = new ConcurrentHashMap<BufferInfo, BufferInfo>();
     static ClearReferences cleanupthread;
 
+    /**
+     * Warning! do only set this before JME is started!
+     */
+    public static void setAllocator(BufferAllocator allocator) {
+		BufferUtils.allocator = allocator;
+	}
+    
     /**
      * Set it to true if you want to enable direct memory tracking for debugging purpose.
      * Default is false.
@@ -102,37 +110,7 @@ public final class BufferUtils {
     }
 
     private static void onBufferAllocated(Buffer buffer) {
-        /**
-         * StackTraceElement[] stackTrace = new Throwable().getStackTrace(); int
-         * initialIndex = 0;
-         * 
-         * for (int i = 0; i < stackTrace.length; i++){ if
-         * (!stackTrace[i].getClassName().equals(BufferUtils.class.getName())){
-         * initialIndex = i; break; } }
-         * 
-         * int allocated = buffer.capacity(); int size = 0;
-         * 
-         * if (buffer instanceof FloatBuffer){ size = 4; }else if (buffer
-         * instanceof ShortBuffer){ size = 2; }else if (buffer instanceof
-         * ByteBuffer){ size = 1; }else if (buffer instanceof IntBuffer){ size =
-         * 4; }else if (buffer instanceof DoubleBuffer){ size = 8; }
-         * 
-         * allocated *= size;
-         * 
-         * for (int i = initialIndex; i < stackTrace.length; i++){
-         * StackTraceElement element = stackTrace[i]; if
-         * (element.getClassName().startsWith("java")){ break; }
-         * 
-         * try { Class clazz = Class.forName(element.getClassName()); if (i ==
-         * initialIndex){
-         * System.out.println(clazz.getSimpleName()+"."+element.getMethodName
-         * ()+"():" + element.getLineNumber() + " allocated " + allocated);
-         * }else{ System.out.println(" at " +
-         * clazz.getSimpleName()+"."+element.getMethodName()+"()"); } } catch
-         * (ClassNotFoundException ex) { } }
-         */
         if (BufferUtils.trackDirectMemory) {
-
             if (BufferUtils.cleanupthread == null) {
                 BufferUtils.cleanupthread = new ClearReferences();
                 BufferUtils.cleanupthread.start();
@@ -806,7 +784,7 @@ public final class BufferUtils {
      * @return the new DoubleBuffer
      */
     public static DoubleBuffer createDoubleBuffer(int size) {
-        DoubleBuffer buf = ByteBuffer.allocateDirect(8 * size).order(ByteOrder.nativeOrder()).asDoubleBuffer();
+        DoubleBuffer buf = allocator.allocate(8 * size).order(ByteOrder.nativeOrder()).asDoubleBuffer();
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -869,7 +847,7 @@ public final class BufferUtils {
      * @return the new FloatBuffer
      */
     public static FloatBuffer createFloatBuffer(int size) {
-        FloatBuffer buf = ByteBuffer.allocateDirect(4 * size).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        FloatBuffer buf = allocator.allocate(4 * size).order(ByteOrder.nativeOrder()).asFloatBuffer();
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -931,7 +909,7 @@ public final class BufferUtils {
      * @return the new IntBuffer
      */
     public static IntBuffer createIntBuffer(int size) {
-        IntBuffer buf = ByteBuffer.allocateDirect(4 * size).order(ByteOrder.nativeOrder()).asIntBuffer();
+        IntBuffer buf = allocator.allocate(4 * size).order(ByteOrder.nativeOrder()).asIntBuffer();
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -994,7 +972,7 @@ public final class BufferUtils {
      * @return the new IntBuffer
      */
     public static ByteBuffer createByteBuffer(int size) {
-        ByteBuffer buf = ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder());
+        ByteBuffer buf = allocator.allocate(size).order(ByteOrder.nativeOrder());
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -1076,7 +1054,7 @@ public final class BufferUtils {
      * @return the new ShortBuffer
      */
     public static ShortBuffer createShortBuffer(int size) {
-        ShortBuffer buf = ByteBuffer.allocateDirect(2 * size).order(ByteOrder.nativeOrder()).asShortBuffer();
+        ShortBuffer buf = allocator.allocate(2 * size).order(ByteOrder.nativeOrder()).asShortBuffer();
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -1267,88 +1245,18 @@ public final class BufferUtils {
             System.out.println(store.toString());
         }
     }
-    private static Method cleanerMethod = null;
-    private static Method cleanMethod = null;
-    private static Method viewedBufferMethod = null;
-    private static Method freeMethod = null;
-
-    private static Method loadMethod(String className, String methodName) {
-        try {
-            Method method = Class.forName(className).getMethod(methodName);
-            method.setAccessible(true);
-            return method;
-        } catch (NoSuchMethodException ex) {
-            return null; // the method was not found
-        } catch (SecurityException ex) {
-            return null; // setAccessible not allowed by security policy
-        } catch (ClassNotFoundException ex) {
-            return null; // the direct buffer implementation was not found
-        }
-    }
-
-    static {
-        // Oracle JRE / OpenJDK
-        cleanerMethod = loadMethod("sun.nio.ch.DirectBuffer", "cleaner");
-        cleanMethod = loadMethod("sun.misc.Cleaner", "clean");
-        viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "viewedBuffer");
-        if (viewedBufferMethod == null) {
-            // They changed the name in Java 7 (???)
-            viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "attachment");
-        }
-
-        // Apache Harmony
-        ByteBuffer bb = BufferUtils.createByteBuffer(1);
-        Class<?> clazz = bb.getClass();
-        try {
-            freeMethod = clazz.getMethod("free");
-        } catch (NoSuchMethodException ex) {
-        } catch (SecurityException ex) {
-        }
-    }
-
+   
     /**
      * Direct buffers are garbage collected by using a phantom reference and a
      * reference queue. Every once a while, the JVM checks the reference queue and
      * cleans the direct buffers. However, as this doesn't happen
      * immediately after discarding all references to a direct buffer, it's
-     * easy to OutOfMemoryError yourself using direct buffers. This function
-     * explicitly calls the Cleaner method of a direct buffer.
-     * 
-     * @param toBeDestroyed
-     *          The direct buffer that will be "cleaned". Utilizes reflection.
-     * 
-     */
+     * easy to OutOfMemoryError yourself using direct buffers.**/
     public static void destroyDirectBuffer(Buffer toBeDestroyed) {
         if (!isDirect(toBeDestroyed)) {
             return;
         }
-
-        try {
-            if (freeMethod != null) {
-                freeMethod.invoke(toBeDestroyed);
-            } else {
-                Object cleaner = cleanerMethod.invoke(toBeDestroyed);
-                if (cleaner != null) {
-                    cleanMethod.invoke(cleaner);
-                } else {
-                    // Try the alternate approach of getting the viewed buffer first
-                    Object viewedBuffer = viewedBufferMethod.invoke(toBeDestroyed);
-                    if (viewedBuffer != null) {
-                        destroyDirectBuffer((Buffer) viewedBuffer);
-                    } else {
-                        Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "Buffer cannot be destroyed: {0}", toBeDestroyed);
-                    }
-                }
-            }
-        } catch (IllegalAccessException ex) {
-            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
-        } catch (IllegalArgumentException ex) {
-            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
-        } catch (InvocationTargetException ex) {
-            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
-        } catch (SecurityException ex) {
-            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
-        }
+        allocator.destroyDirectBuffer(toBeDestroyed);
     }
     
     /*
