@@ -36,15 +36,15 @@
 #include "BulletCollision/CollisionDispatch/btCollisionObject.h"
 #include "BulletCollision/CollisionDispatch/btGhostObject.h"
 #include "BulletDynamics/Character/btKinematicCharacterController.h"
-#ifdef _WIN32
-#include "BulletMultiThreaded/Win32ThreadSupport.h"
-#else
-#include "BulletMultiThreaded/PosixThreadSupport.h"
-#endif
-#include "BulletMultiThreaded/btParallelConstraintSolver.h"
-#include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
-#include "BulletMultiThreaded/SpuCollisionTaskProcess.h"
-#include "BulletMultiThreaded/SequentialThreadSupport.h"
+// #ifdef _WIN32
+// #include "BulletMultiThreaded/Win32ThreadSupport.h"
+// #else
+// #include "BulletMultiThreaded/PosixThreadSupport.h"
+// #endif
+// #include "BulletMultiThreaded/btParallelConstraintSolver.h"
+// #include "BulletMultiThreaded/SpuGatheringCollisionDispatcher.h"
+// #include "BulletMultiThreaded/SpuCollisionTaskProcess.h"
+// #include "BulletMultiThreaded/SequentialThreadSupport.h"
 #include "BulletCollision/CollisionDispatch/btSimulationIslandManager.h"
 #include "BulletCollision/NarrowPhaseCollision/btManifoldPoint.h"
 #include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
@@ -59,8 +59,8 @@ private:
 	JavaVM* vm;
 	btDynamicsWorld* dynamicsWorld;
 	jobject javaPhysicsSpace;
-        btThreadSupportInterface* createSolverThreadSupport(int);
-        btThreadSupportInterface* createDispatchThreadSupport(int);
+        // btThreadSupportInterface* createSolverThreadSupport(int);
+        // btThreadSupportInterface* createDispatchThreadSupport(int);
         void attachThread();
 public:
 	jmePhysicsSpace(){};
