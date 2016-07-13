@@ -27,12 +27,13 @@ model {
                     source {
                         srcDir 'src/native/cpp'
                         srcDir bulletSrcPath
-                        exclude 'BulletMultiThreaded/GpuSoftBodySolvers/**'
+                        exclude 'Bullet3OpenCL/**'
                         include '**/*.cpp'
                     }
                     exportedHeaders {
                         srcDir 'src/native/cpp'
                         srcDir bulletSrcPath
+                        exclude 'Bullet3OpenCL/**'
                         include '**/*.h'
                     }
                 }
@@ -88,6 +89,7 @@ model {
                 cppCompiler.args "-fvisibility=hidden"
                 cppCompiler.args '-I', "$javaHome/include/linux"
                 cppCompiler.args "-fPIC"
+ 
                 cppCompiler.args "-fpermissive"
                 linker.args "-fvisibility=hidden"
             } else if (os == "windows") {
