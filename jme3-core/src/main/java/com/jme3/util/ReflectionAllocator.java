@@ -60,7 +60,7 @@ public final class ReflectionAllocator implements BufferAllocator {
 		}
 
 		// Apache Harmony
-		ByteBuffer bb = BufferUtils.createByteBuffer(1);
+		ByteBuffer bb = ByteBuffer.allocateDirect(1);
 		Class<?> clazz = bb.getClass();
 		try {
 			freeMethod = clazz.getMethod("free");
