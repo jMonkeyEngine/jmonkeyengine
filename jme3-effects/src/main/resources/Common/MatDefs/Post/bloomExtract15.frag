@@ -24,7 +24,7 @@ void main(){
    #endif
 
    #ifdef HAS_GLOWMAP
-        vec4 glowColor = texture2D( m_GlowMap, texCoord );
+        vec4 glowColor = texture( m_GlowMap, texCoord );
         glowColor = pow(glowColor, vec4(m_ExposurePow));
         color += glowColor;
    #endif
