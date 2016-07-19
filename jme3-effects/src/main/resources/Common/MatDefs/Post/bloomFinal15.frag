@@ -10,7 +10,7 @@ out vec4 fragColor;
 
 void main(){
   vec4 colorRes = getColor(m_Texture,texCoord);
-  vec4 bloom = texture2D(m_BloomTex, texCoord);
+  vec4 bloom = texture(m_BloomTex, texCoord);
   fragColor = bloom * m_BloomIntensity + colorRes;
 }
 
