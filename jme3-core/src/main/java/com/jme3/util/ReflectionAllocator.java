@@ -59,8 +59,8 @@ public final class ReflectionAllocator implements BufferAllocator {
 			viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "attachment");
 		}
 
-		// Apache Harmony
-		ByteBuffer bb = BufferUtils.createByteBuffer(1);
+		// Apache Harmony (allocated directly, to not trigger allocator used logic in BufferUtils)
+		ByteBuffer bb = ByteBuffer.allocateDirect(1);
 		Class<?> clazz = bb.getClass();
 		try {
 			freeMethod = clazz.getMethod("free");
