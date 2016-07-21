@@ -35,95 +35,96 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class contains the reflection based way to remove DirectByteBuffers in java < 9,
- * allocation is done via ByteBuffer.allocateDirect
+ * This class contains the reflection based way to remove DirectByteBuffers in
+ * java < 9, allocation is done via ByteBuffer.allocateDirect
  */
 public final class ReflectionAllocator implements BufferAllocator {
-	private static Method	cleanerMethod		= null;
-	private static Method	cleanMethod			= null;
-	private static Method	viewedBufferMethod	= null;
-	private static Method	freeMethod			= null;
+    private static Method cleanerMethod = null;
+    private static Method cleanMethod = null;
+    private static Method viewedBufferMethod = null;
+    private static Method freeMethod = null;
 
-	static {
-		// Oracle JRE / OpenJDK
-		cleanerMethod = loadMethod("sun.nio.ch.DirectBuffer", "cleaner");
-		cleanMethod = loadMethod("sun.misc.Cleaner", "clean");
-		viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "viewedBuffer");
-		if (viewedBufferMethod == null) {
-			// They changed the name in Java 7 (???)
-			viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "attachment");
-		}
+    static {
+        // Oracle JRE / OpenJDK
+        cleanerMethod = loadMethod("sun.nio.ch.DirectBuffer", "cleaner");
+        cleanMethod = loadMethod("sun.misc.Cleaner", "clean");
+        viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "viewedBuffer");
+        if (viewedBufferMethod == null) {
+            // They changed the name in Java 7 (???)
+            viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "attachment");
+        }
 
-		// Apache Harmony (allocated directly, to not trigger allocator used logic in BufferUtils)
-		ByteBuffer bb = ByteBuffer.allocateDirect(1);
-		Class<?> clazz = bb.getClass();
-		try {
-			freeMethod = clazz.getMethod("free");
-		} catch (NoSuchMethodException ex) {
-		} catch (SecurityException ex) {
-		}
-	}
+        // Apache Harmony (allocated directly, to not trigger allocator used
+        // logic in BufferUtils)
+        ByteBuffer bb = ByteBuffer.allocateDirect(1);
+        Class<?> clazz = bb.getClass();
+        try {
+            freeMethod = clazz.getMethod("free");
+        } catch (NoSuchMethodException ex) {
+        } catch (SecurityException ex) {
+        }
+    }
 
-	private static Method loadMethod(String className, String methodName) {
-		try {
-			Method method = Class.forName(className).getMethod(methodName);
-			method.setAccessible(true);
-			return method;
-		} catch (NoSuchMethodException ex) {
-			return null; // the method was not found
-		} catch (SecurityException ex) {
-			return null; // setAccessible not allowed by security policy
-		} catch (ClassNotFoundException ex) {
-			return null; // the direct buffer implementation was not found
-		}
-	}
+    private static Method loadMethod(String className, String methodName) {
+        try {
+            Method method = Class.forName(className).getMethod(methodName);
+            method.setAccessible(true);
+            return method;
+        } catch (NoSuchMethodException ex) {
+            return null; // the method was not found
+        } catch (SecurityException ex) {
+            return null; // setAccessible not allowed by security policy
+        } catch (ClassNotFoundException ex) {
+            return null; // the direct buffer implementation was not found
+        }
+    }
 
-	@Override
-	/**
-	 * This function explicitly calls the Cleaner method of a direct buffer.
-	 * 
-	 * @param toBeDestroyed
-	 *            The direct buffer that will be "cleaned". Utilizes reflection.
-	 * 
-	 */
-	public void destroyDirectBuffer(Buffer toBeDestroyed) {
-		try {
-			if (freeMethod != null) {
-				freeMethod.invoke(toBeDestroyed);
-			} else {
-				Object cleaner = cleanerMethod.invoke(toBeDestroyed);
-				if (cleaner != null) {
-					cleanMethod.invoke(cleaner);
-				} else {
-					// Try the alternate approach of getting the viewed buffer
-					// first
-					Object viewedBuffer = viewedBufferMethod.invoke(toBeDestroyed);
-					if (viewedBuffer != null) {
-						destroyDirectBuffer((Buffer) viewedBuffer);
-					} else {
-						Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "Buffer cannot be destroyed: {0}", toBeDestroyed);
-					}
-				}
-			}
-		} catch (IllegalAccessException ex) {
-			Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
-		} catch (IllegalArgumentException ex) {
-			Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
-		} catch (InvocationTargetException ex) {
-			Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
-		} catch (SecurityException ex) {
-			Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
-		}
-	}
+    @Override
+    /**
+     * This function explicitly calls the Cleaner method of a direct buffer.
+     * 
+     * @param toBeDestroyed
+     *            The direct buffer that will be "cleaned". Utilizes reflection.
+     * 
+     */
+    public void destroyDirectBuffer(Buffer toBeDestroyed) {
+        try {
+            if (freeMethod != null) {
+                freeMethod.invoke(toBeDestroyed);
+            } else {
+                Object cleaner = cleanerMethod.invoke(toBeDestroyed);
+                if (cleaner != null) {
+                    cleanMethod.invoke(cleaner);
+                } else {
+                    // Try the alternate approach of getting the viewed buffer
+                    // first
+                    Object viewedBuffer = viewedBufferMethod.invoke(toBeDestroyed);
+                    if (viewedBuffer != null) {
+                        destroyDirectBuffer((Buffer) viewedBuffer);
+                    } else {
+                        Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE,
+                                "Buffer cannot be destroyed: {0}", toBeDestroyed);
+                    }
+                }
+            }
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
+        } catch (IllegalArgumentException ex) {
+            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
+        } catch (InvocationTargetException ex) {
+            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
+        } catch (SecurityException ex) {
+            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
+        }
+    }
 
-	@Override
-	public ByteBuffer allocate(int size) {
-		return ByteBuffer.allocateDirect(size);
-	}
+    @Override
+    public ByteBuffer allocate(int size) {
+        return ByteBuffer.allocateDirect(size);
+    }
 
 }

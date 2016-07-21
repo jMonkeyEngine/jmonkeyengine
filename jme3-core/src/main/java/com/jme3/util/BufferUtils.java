@@ -1347,6 +1347,6 @@ public final class BufferUtils {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
-	}
+        }
+    }
 }
