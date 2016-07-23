@@ -32,6 +32,7 @@
 package com.jme3.opencl.lwjgl;
 
 import com.jme3.opencl.CommandQueue;
+import com.jme3.opencl.Device;
 import com.jme3.opencl.OpenCLObjectManager;
 import org.lwjgl.opencl.CL10;
 import org.lwjgl.opencl.CLCommandQueue;
@@ -44,8 +45,8 @@ public class LwjglCommandQueue extends CommandQueue {
 
     private final CLCommandQueue queue;
 
-    public LwjglCommandQueue(CLCommandQueue queue) {
-        super(new ReleaserImpl(queue));
+    public LwjglCommandQueue(CLCommandQueue queue, Device device) {
+        super(new ReleaserImpl(queue), device);
         this.queue = queue;
     }
     

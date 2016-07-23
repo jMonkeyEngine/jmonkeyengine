@@ -249,7 +249,13 @@ memory layout in which channels are stored in the image.
     protected Image(ObjectReleaser releaser) {
         super(releaser);
     }
-    
+	
+	@Override
+	public Image register() {
+		super.register();
+		return this;
+	}
+	
     /**
      * @return the width of the image
      */
@@ -532,6 +538,26 @@ memory layout in which channels are stored in the image.
         //default implementation, overwrite it for performance improvements
         releaseImageForSharingAsync(queue).release();
     }
+
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+		str.append("Image (");
+		ImageType t = getImageType();
+		str.append(t);
+		str.append(", w=").append(getWidth());
+		if (t == ImageType.IMAGE_2D || t == ImageType.IMAGE_3D) {
+			str.append(", h=").append(getHeight());
+		}
+		if (t == ImageType.IMAGE_3D) {
+			str.append(", d=").append(getDepth());
+		}
+		if (t == ImageType.IMAGE_1D_ARRAY || t == ImageType.IMAGE_2D_ARRAY) {
+			str.append(", arrays=").append(getArraySize());
+		}
+		str.append(", ").append(getImageFormat());
+		str.append(')');
+		return str.toString();
+	}
     
-    //TODO: add variants of the above two methods that don't create the event object, but release the event immediately
 }

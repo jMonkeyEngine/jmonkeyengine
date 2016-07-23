@@ -43,6 +43,12 @@ public abstract class Event extends AbstractOpenCLObject {
     protected Event(ObjectReleaser releaser) {
         super(releaser);
     }
+
+	@Override
+	public Event register() {
+		super.register();
+		return this;
+	}
 	
     /**
      * Waits until the action has finished (blocking).

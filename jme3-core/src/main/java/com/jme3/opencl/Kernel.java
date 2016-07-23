@@ -97,6 +97,12 @@ public abstract class Kernel extends AbstractOpenCLObject {
         this.workGroupSize = new WorkSize(0);
     }
 
+	@Override
+	public Kernel register() {
+		super.register();
+		return this;
+	}
+	
     /**
      * @return the name of the kernel as defined in the program source code
      */
@@ -424,7 +430,12 @@ public abstract class Kernel extends AbstractOpenCLObject {
         setArgs(args);
         RunNoEvent(queue);
     }
-    
+
+	@Override
+	public String toString() {
+		return "Kernel (" + getName() + ")";
+	}
+	
     /**
      * A placeholder for kernel arguments representing local kernel memory.
      * This defines the size of available shared memory of a {@code __shared} kernel
@@ -468,6 +479,12 @@ public abstract class Kernel extends AbstractOpenCLObject {
             }
             return true;
         }
+
+		@Override
+		public String toString() {
+			return "LocalMem (" + size + "B)";
+		}
+		
     }
 
     /**
@@ -519,6 +536,12 @@ public abstract class Kernel extends AbstractOpenCLObject {
             }
             return true;
         }
+
+		@Override
+		public String toString() {
+			return "LocalMemPerElement (" + size + "B)";
+		}
+		
     }
 
     /**
@@ -623,6 +646,21 @@ public abstract class Kernel extends AbstractOpenCLObject {
             }
             return true;
         }
+
+		@Override
+		public String toString() {
+			StringBuilder str = new StringBuilder();
+			str.append("WorkSize[");
+			for (int i=0; i<dimension; ++i) {
+				if (i>0) {
+					str.append(", ");
+				}
+				str.append(sizes[i]);
+			}
+			str.append(']');
+			return str.toString();
+		}
+		
     }
     
 }

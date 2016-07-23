@@ -79,7 +79,7 @@ public class LwjglContext extends Context {
         long properties = 0;
         CLCommandQueue q = CL10.clCreateCommandQueue(context, d, properties, Utils.errorBuffer);
         Utils.checkError(Utils.errorBuffer, "clCreateCommandQueue");
-        return new LwjglCommandQueue(q);
+        return new LwjglCommandQueue(q, device);
     }
     
     @Override

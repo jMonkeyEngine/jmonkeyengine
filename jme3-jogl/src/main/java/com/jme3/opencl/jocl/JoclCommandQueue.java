@@ -32,11 +32,9 @@
 package com.jme3.opencl.jocl;
 
 import com.jme3.opencl.CommandQueue;
-import com.jme3.opencl.OpenCLObjectManager;
-import com.jogamp.opencl.CLCommandQueue;
+import com.jme3.opencl.Device;
 import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.llb.CL;
-import com.jogamp.opencl.llb.CLCommandQueueBinding;
 
 /**
  *
@@ -47,8 +45,8 @@ public class JoclCommandQueue extends CommandQueue {
     final CL cl;
     final long id;
 
-    public JoclCommandQueue(long id) {
-        super(new ReleaserImpl(id));
+    public JoclCommandQueue(long id, Device device) {
+        super(new ReleaserImpl(id), device);
         this.id = id;
         this.cl = CLPlatform.getLowLevelCLInterface();
     }

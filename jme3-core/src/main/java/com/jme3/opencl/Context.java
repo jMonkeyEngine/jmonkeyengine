@@ -72,6 +72,12 @@ public abstract class Context extends AbstractOpenCLObject {
         super(releaser);
     }
 
+	@Override
+	public Context register() {
+		super.register();
+		return this;
+	}
+
     /**
      * Returns all available devices for this context.
      * These devices all belong to the same {@link Platform}.
@@ -436,4 +442,10 @@ public abstract class Context extends AbstractOpenCLObject {
      * @return the new program
      */
     public abstract Program createProgramFromBinary(ByteBuffer binaries, Device device);
+
+	@Override
+	public String toString() {
+		return "Context (" + getDevices() + ')';
+	}
+
 }

@@ -122,8 +122,7 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
     
     private void initOpenCL1() {
         clContext = context.getOpenCLContext();
-        clQueue = clContext.createQueue();
-        clQueue.register();
+        clQueue = clContext.createQueue().register();
         programCache = new ProgramCache(clContext);
         //create kernel
         String cacheID = getClass().getName()+".Julia";
@@ -135,14 +134,12 @@ public class TestWriteToTexture extends SimpleApplication implements AnalogListe
             programCache.saveToCache(cacheID, program);
         }
         program.register();
-        kernel = program.createKernel("JuliaSet");
-        kernel.register();
+        kernel = program.createKernel("JuliaSet").register();
         C = new Vector2f(0.12f, -0.2f);
     }
     private void initOpenCL2() {
         //bind image to OpenCL
-        texCL = clContext.bindImage(tex, MemoryAccess.WRITE_ONLY);
-        texCL.register();
+        texCL = clContext.bindImage(tex, MemoryAccess.WRITE_ONLY).register();
     }
     private void updateOpenCL(float tpf) {
         //aquire resource
