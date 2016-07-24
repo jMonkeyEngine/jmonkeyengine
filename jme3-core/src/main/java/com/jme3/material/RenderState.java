@@ -1594,8 +1594,7 @@ public class RenderState implements Cloneable, Savable {
                 + "\noffsetFactor=" + offsetFactor
                 + "\noffsetUnits=" + offsetUnits
                 + "\nlineWidth=" + lineWidth
-                + (blendMode.equals(BlendMode.Custom)?
-                "\ncustomBlendFactors=("+sfactorRGB+", "+dfactorRGB+", "+sfactorAlpha+", "+dfactorAlpha+")":
-                "\n]");
+                + (blendMode.equals(BlendMode.Custom)? "\ncustomBlendFactors=("+sfactorRGB+", "+dfactorRGB+", "+sfactorAlpha+", "+dfactorAlpha+")":""
+                +"\n]");
     }
 }
