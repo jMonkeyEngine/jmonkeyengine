@@ -89,6 +89,11 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
     }
 
     @Override
+    public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha) {
+        GLContext.getCurrentGL().glBlendFuncSeparate(sfactorRGB, dfactorRGB, sfactorAlpha, dfactorAlpha);
+    }
+
+    @Override
 	public void glBufferData(int param1, long param2, int param3) {
         GLContext.getCurrentGL().glBufferData(param1, param2, null, param3);
     }
@@ -610,4 +615,5 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
     public void glFramebufferTextureLayer(int param1, int param2, int param3, int param4, int param5) {
         GLContext.getCurrentGL().getGL3().glFramebufferTextureLayer(param1, param2, param3, param4, param5);
     }
+
 }

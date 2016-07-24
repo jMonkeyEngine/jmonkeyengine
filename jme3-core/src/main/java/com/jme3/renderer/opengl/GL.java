@@ -197,6 +197,7 @@ public interface GL {
 	public void glBindTexture(int target, int texture);
 	public void glBlendEquationSeparate(int colorMode, int alphaMode);
 	public void glBlendFunc(int sfactor, int dfactor);
+        public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha);
         public void glBufferData(int target, long data_size, int usage);
 	public void glBufferData(int target, FloatBuffer data, int usage);
 	public void glBufferData(int target, ShortBuffer data, int usage);

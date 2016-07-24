@@ -103,6 +103,10 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     public void glBlendFunc(int sfactor, int dfactor) {
         GLES20.glBlendFunc(sfactor, dfactor);
     }
+    
+    public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha) {
+       GLES20.glBlendFuncSeparate(sfactorRGB, dfactorRGB, sfactorAlpha, dfactorAlpha);
+    }
 
     public void glBufferData(int target, FloatBuffer data, int usage) {
         GLES20.glBufferData(target, getLimitBytes(data), data, usage);

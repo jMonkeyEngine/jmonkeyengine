@@ -32,6 +32,7 @@
 package com.jme3.material;
 
 import com.jme3.export.*;
+import com.jme3.renderer.opengl.GL;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
 import java.io.IOException;
@@ -277,7 +278,13 @@ public class RenderState implements Cloneable, Savable {
          * Result = (Source Color * (1 - Dest Color)) + (Dest Color * (1 - Source Color))
          *  -> (GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR) 
          */
-        Exclusion
+        Exclusion,
+        /**
+         * Allows for custom blending by using glBlendFuncSeparate.
+         * <p>
+         * 
+         */
+        Custom
     }
 
     /**
@@ -408,7 +415,11 @@ public class RenderState implements Cloneable, Savable {
     TestFunction frontStencilFunction = TestFunction.Always;
     TestFunction backStencilFunction = TestFunction.Always;
     int cachedHashCode = -1;
-
+    int sfactorRGB=GL.GL_ONE;
+    int dfactorRGB=GL.GL_ZERO;
+    int sfactorAlpha=GL.GL_ONE;
+    int dfactorAlpha=GL.GL_ZERO;
+            
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(true, "pointSprite", false);
@@ -434,6 +445,10 @@ public class RenderState implements Cloneable, Savable {
         oc.write(blendEquationAlpha, "blendEquationAlpha", BlendEquationAlpha.InheritColor);
         oc.write(depthFunc, "depthFunc", TestFunction.LessOrEqual);
         oc.write(lineWidth, "lineWidth", 1);
+        oc.write(sfactorRGB, "sfactorRGB", GL.GL_ONE);
+        oc.write(dfactorRGB, "dfactorRGB", GL.GL_ZERO);
+        oc.write(sfactorAlpha, "sfactorAlpha", GL.GL_ONE);
+        oc.write(dfactorAlpha, "dfactorAlpha", GL.GL_ZERO);
 
         // Only "additional render state" has them set to false by default
         oc.write(applyWireFrame, "applyWireFrame", true);
@@ -474,6 +489,10 @@ public class RenderState implements Cloneable, Savable {
         blendEquationAlpha = ic.readEnum("blendEquationAlpha", BlendEquationAlpha.class, BlendEquationAlpha.InheritColor);
         depthFunc = ic.readEnum("depthFunc", TestFunction.class, TestFunction.LessOrEqual);
         lineWidth = ic.readFloat("lineWidth", 1);
+        sfactorRGB = ic.readInt("sfactorRGB", GL.GL_ONE);
+        dfactorAlpha = ic.readInt("dfactorRGB", GL.GL_ZERO);
+        sfactorRGB = ic.readInt("sfactorAlpha", GL.GL_ONE);
+        dfactorAlpha = ic.readInt("dfactorAlpha", GL.GL_ZERO);
 
 
         applyWireFrame = ic.readBoolean("applyWireFrame", true);
@@ -604,6 +623,14 @@ public class RenderState implements Cloneable, Savable {
 
         if(lineWidth != rs.lineWidth){
             return false;
+        }
+        
+        if (blendMode.equals(BlendMode.Custom)) {
+           return sfactorRGB==rs.getCustomSfactorRGB()
+               && dfactorRGB==rs.getCustomDfactorRGB()
+               && sfactorAlpha==rs.getCustomSfactorAlpha()
+               && dfactorAlpha==rs.getCustomDfactorAlpha();
+           
         }
 
         return true;
@@ -744,6 +771,26 @@ public class RenderState implements Cloneable, Savable {
         cachedHashCode = -1;
     }
 
+    
+    /**
+     * Sets the custom blend factors for <code>BlendMode.Custom</code> as 
+     * defined by glBlendFuncSeparate.
+     * 
+     * @param sfactorRGB   The source blend factor for RGB components.
+     * @param dfactorRGB   The destination blend factor for RGB components.
+     * @param sfactorAlpha The source blend factor for the alpha component.
+     * @param dfactorAlpha The destination blend factor for the alpha component.
+     */
+    public void setCustomBlendFactors(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha)
+    {
+       this.sfactorRGB = sfactorRGB;
+       this.dfactorRGB = dfactorRGB;
+       this.sfactorAlpha = sfactorAlpha;
+       this.dfactorAlpha = dfactorAlpha;
+       cachedHashCode = -1;
+    }
+    
+    
     /**
      * Enable depth testing.
      *
@@ -1084,7 +1131,47 @@ public class RenderState implements Cloneable, Savable {
     public BlendMode getBlendMode() {
         return blendMode;
     }
-
+    
+    /**
+     * Provides the source factor for the RGB components in 
+     * <code>BlendMode.Custom</code>.
+     * 
+     * @return the custom source factor for RGB components.
+     */
+    public int getCustomSfactorRGB() {
+       return sfactorRGB;
+    }
+    
+    /**
+     * Provides the destination factor for the RGB components in 
+     * <code>BlendMode.Custom</code>.
+     * 
+     * @return the custom destination factor for RGB components.
+     */
+    public int getCustomDfactorRGB() {
+       return dfactorRGB;
+    }
+    
+    /**
+     * Provides the source factor for the alpha component in 
+     * <code>BlendMode.Custom</code>.
+     * 
+     * @return the custom destination factor for alpha component.
+     */
+    public int getCustomSfactorAlpha() {
+       return sfactorAlpha;
+    }
+    
+    /**
+     * Provides the destination factor for the alpha component in 
+     * <code>BlendMode.Custom</code>.
+     * 
+     * @return the custom destination factor for alpha component.
+     */
+    public int getCustomDfactorAlpha() {
+       return dfactorAlpha;
+    }
+    
     /**
      * @return true
      * @deprecated Always returns true since point sprite is always enabled.
@@ -1306,6 +1393,11 @@ public class RenderState implements Cloneable, Savable {
             hash = 79 * hash + (this.frontStencilFunction != null ? this.frontStencilFunction.hashCode() : 0);
             hash = 79 * hash + (this.backStencilFunction != null ? this.backStencilFunction.hashCode() : 0);
             hash = 79 * hash + Float.floatToIntBits(this.lineWidth);
+            
+            hash = 79 * hash + this.sfactorRGB;
+            hash = 79 * hash + this.dfactorRGB;
+            hash = 79 * hash + this.sfactorAlpha;
+            hash = 79 * hash + this.dfactorAlpha;
             cachedHashCode = hash;
         }
         return cachedHashCode;
@@ -1380,6 +1472,13 @@ public class RenderState implements Cloneable, Savable {
         }        
         if (additionalState.applyBlendMode) {
             state.blendMode = additionalState.blendMode;
+            if (additionalState.getBlendMode().equals(BlendMode.Custom)) {
+               state.setCustomBlendFactors(
+                additionalState.getCustomSfactorRGB(),
+                additionalState.getCustomDfactorRGB(),
+                additionalState.getCustomSfactorAlpha(),
+                additionalState.getCustomDfactorAlpha());
+            }
         } else {
             state.blendMode = blendMode;
         }
@@ -1464,6 +1563,11 @@ public class RenderState implements Cloneable, Savable {
         applyPolyOffset =  true;
         applyDepthFunc = true;
         applyLineWidth = true;
+        
+        sfactorRGB = state.sfactorRGB;
+        dfactorRGB = state.dfactorRGB;
+        sfactorAlpha = state.sfactorAlpha;
+        dfactorAlpha = state.dfactorAlpha;
     }
 
     @Override
@@ -1490,6 +1594,8 @@ public class RenderState implements Cloneable, Savable {
                 + "\noffsetFactor=" + offsetFactor
                 + "\noffsetUnits=" + offsetUnits
                 + "\nlineWidth=" + lineWidth
-                + "\n]";
+                + (blendMode.equals(BlendMode.Custom)?
+                "\ncustomBlendFactors=("+sfactorRGB+", "+dfactorRGB+", "+sfactorAlpha+", "+dfactorAlpha+")":
+                "\n]");
     }
 }

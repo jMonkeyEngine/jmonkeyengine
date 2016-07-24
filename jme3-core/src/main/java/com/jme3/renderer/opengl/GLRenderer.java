@@ -748,6 +748,9 @@ public final class GLRenderer implements Renderer {
                     case Exclusion:
                         gl.glBlendFunc(GL.GL_ONE_MINUS_DST_COLOR, GL.GL_ONE_MINUS_SRC_COLOR);
                         break;
+                    case Custom:
+                       gl.glBlendFuncSeparate(state.getCustomSfactorRGB(), state.getCustomDfactorRGB(), state.getCustomSfactorAlpha(), state.getCustomDfactorAlpha());
+                       break;
                     default:
                         throw new UnsupportedOperationException("Unrecognized blend mode: "
                                 + state.getBlendMode());
