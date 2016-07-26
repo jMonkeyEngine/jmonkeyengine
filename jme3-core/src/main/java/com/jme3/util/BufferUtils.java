@@ -31,17 +31,10 @@
  */
 package com.jme3.util;
 
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
-import com.jme3.math.Vector4f;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -51,8 +44,12 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
 
 /**
  * <code>BufferUtils</code> is a helper class for generating nio buffers from
@@ -62,27 +59,52 @@ import java.util.logging.Logger;
  * @version $Id: BufferUtils.java,v 1.16 2007/10/29 16:56:18 nca Exp $
  */
 public final class BufferUtils {
+    private static BufferAllocator allocator = new PrimitiveAllocator();
 
     private static boolean trackDirectMemory = false;
     private static ReferenceQueue<Buffer> removeCollected = new ReferenceQueue<Buffer>();
     private static ConcurrentHashMap<BufferInfo, BufferInfo> trackedBuffers = new ConcurrentHashMap<BufferInfo, BufferInfo>();
     static ClearReferences cleanupthread;
 
+    private static boolean used;
+
+    static {
+        try {
+            allocator = new ReflectionAllocator();
+        } catch (Throwable t) {
+            t.printStackTrace();
+            System.err.println("Error using ReflectionAllocator");
+        }
+    }
+
     /**
-     * Set it to true if you want to enable direct memory tracking for debugging purpose.
-     * Default is false.
-     * To print direct memory usage use BufferUtils.printCurrentDirectMemory(StringBuilder store);
-     * @param enabled 
+     * Warning! do only set this before JME is started!
+     */
+    public static void setAllocator(BufferAllocator allocator) {
+        if (used) {
+            throw new IllegalStateException(
+                    "An Buffer was already allocated, since it is quite likely that other dispose methods will create native dangling pointers or other fun things, this is forbidden to be changed at runtime");
+        }
+        BufferUtils.allocator = allocator;
+    }
+
+    /**
+     * Set it to true if you want to enable direct memory tracking for debugging
+     * purpose. Default is false. To print direct memory usage use
+     * BufferUtils.printCurrentDirectMemory(StringBuilder store);
+     * 
+     * @param enabled
      */
     public static void setTrackDirectMemoryEnabled(boolean enabled) {
         trackDirectMemory = enabled;
     }
 
     /**
-     * Creates a clone of the given buffer. The clone's capacity is 
-     * equal to the given buffer's limit.
+     * Creates a clone of the given buffer. The clone's capacity is equal to the
+     * given buffer's limit.
      * 
-     * @param buf The buffer to clone
+     * @param buf
+     *            The buffer to clone
      * @return The cloned buffer
      */
     public static Buffer clone(Buffer buf) {
@@ -102,55 +124,31 @@ public final class BufferUtils {
     }
 
     private static void onBufferAllocated(Buffer buffer) {
-        /**
-         * StackTraceElement[] stackTrace = new Throwable().getStackTrace(); int
-         * initialIndex = 0;
-         * 
-         * for (int i = 0; i < stackTrace.length; i++){ if
-         * (!stackTrace[i].getClassName().equals(BufferUtils.class.getName())){
-         * initialIndex = i; break; } }
-         * 
-         * int allocated = buffer.capacity(); int size = 0;
-         * 
-         * if (buffer instanceof FloatBuffer){ size = 4; }else if (buffer
-         * instanceof ShortBuffer){ size = 2; }else if (buffer instanceof
-         * ByteBuffer){ size = 1; }else if (buffer instanceof IntBuffer){ size =
-         * 4; }else if (buffer instanceof DoubleBuffer){ size = 8; }
-         * 
-         * allocated *= size;
-         * 
-         * for (int i = initialIndex; i < stackTrace.length; i++){
-         * StackTraceElement element = stackTrace[i]; if
-         * (element.getClassName().startsWith("java")){ break; }
-         * 
-         * try { Class clazz = Class.forName(element.getClassName()); if (i ==
-         * initialIndex){
-         * System.out.println(clazz.getSimpleName()+"."+element.getMethodName
-         * ()+"():" + element.getLineNumber() + " allocated " + allocated);
-         * }else{ System.out.println(" at " +
-         * clazz.getSimpleName()+"."+element.getMethodName()+"()"); } } catch
-         * (ClassNotFoundException ex) { } }
-         */
+        used = true;
         if (BufferUtils.trackDirectMemory) {
-
             if (BufferUtils.cleanupthread == null) {
                 BufferUtils.cleanupthread = new ClearReferences();
                 BufferUtils.cleanupthread.start();
             }
             if (buffer instanceof ByteBuffer) {
-                BufferInfo info = new BufferInfo(ByteBuffer.class, buffer.capacity(), buffer, BufferUtils.removeCollected);
+                BufferInfo info = new BufferInfo(ByteBuffer.class, buffer.capacity(), buffer,
+                        BufferUtils.removeCollected);
                 BufferUtils.trackedBuffers.put(info, info);
             } else if (buffer instanceof FloatBuffer) {
-                BufferInfo info = new BufferInfo(FloatBuffer.class, buffer.capacity() * 4, buffer, BufferUtils.removeCollected);
+                BufferInfo info = new BufferInfo(FloatBuffer.class, buffer.capacity() * 4, buffer,
+                        BufferUtils.removeCollected);
                 BufferUtils.trackedBuffers.put(info, info);
             } else if (buffer instanceof IntBuffer) {
-                BufferInfo info = new BufferInfo(IntBuffer.class, buffer.capacity() * 4, buffer, BufferUtils.removeCollected);
+                BufferInfo info = new BufferInfo(IntBuffer.class, buffer.capacity() * 4, buffer,
+                        BufferUtils.removeCollected);
                 BufferUtils.trackedBuffers.put(info, info);
             } else if (buffer instanceof ShortBuffer) {
-                BufferInfo info = new BufferInfo(ShortBuffer.class, buffer.capacity() * 2, buffer, BufferUtils.removeCollected);
+                BufferInfo info = new BufferInfo(ShortBuffer.class, buffer.capacity() * 2, buffer,
+                        BufferUtils.removeCollected);
                 BufferUtils.trackedBuffers.put(info, info);
             } else if (buffer instanceof DoubleBuffer) {
-                BufferInfo info = new BufferInfo(DoubleBuffer.class, buffer.capacity() * 8, buffer, BufferUtils.removeCollected);
+                BufferInfo info = new BufferInfo(DoubleBuffer.class, buffer.capacity() * 8, buffer,
+                        BufferUtils.removeCollected);
                 BufferUtils.trackedBuffers.put(info, info);
             }
 
@@ -158,11 +156,12 @@ public final class BufferUtils {
     }
 
     /**
-     * Generate a new FloatBuffer using the given array of Vector3f objects. 
-     * The FloatBuffer will be 3 * data.length long and contain the vector data 
-     * as data[0].x, data[0].y, data[0].z, data[1].x... etc.
+     * Generate a new FloatBuffer using the given array of Vector3f objects. The
+     * FloatBuffer will be 3 * data.length long and contain the vector data as
+     * data[0].x, data[0].y, data[0].z, data[1].x... etc.
      * 
-     * @param data array of Vector3f objects to place into a new FloatBuffer
+     * @param data
+     *            array of Vector3f objects to place into a new FloatBuffer
      */
     public static FloatBuffer createFloatBuffer(Vector3f... data) {
         if (data == null) {
@@ -184,7 +183,8 @@ public final class BufferUtils {
      * Generate a new FloatBuffer using the given array of Quaternion objects.
      * The FloatBuffer will be 4 * data.length long and contain the vector data.
      * 
-     * @param data array of Quaternion objects to place into a new FloatBuffer
+     * @param data
+     *            array of Quaternion objects to place into a new FloatBuffer
      */
     public static FloatBuffer createFloatBuffer(Quaternion... data) {
         if (data == null) {
@@ -203,10 +203,11 @@ public final class BufferUtils {
     }
 
     /**
-     * Generate a new FloatBuffer using the given array of Vector4 objects.
-     * The FloatBuffer will be 4 * data.length long and contain the vector data.
+     * Generate a new FloatBuffer using the given array of Vector4 objects. The
+     * FloatBuffer will be 4 * data.length long and contain the vector data.
      *
-     * @param data array of Vector4 objects to place into a new FloatBuffer
+     * @param data
+     *            array of Vector4 objects to place into a new FloatBuffer
      */
     public static FloatBuffer createFloatBuffer(Vector4f... data) {
         if (data == null) {
@@ -228,7 +229,8 @@ public final class BufferUtils {
      * Generate a new FloatBuffer using the given array of ColorRGBA objects.
      * The FloatBuffer will be 4 * data.length long and contain the color data.
      *
-     * @param data array of ColorRGBA objects to place into a new FloatBuffer
+     * @param data
+     *            array of ColorRGBA objects to place into a new FloatBuffer
      */
     public static FloatBuffer createFloatBuffer(ColorRGBA... data) {
         if (data == null) {
@@ -248,7 +250,9 @@ public final class BufferUtils {
 
     /**
      * Generate a new FloatBuffer using the given array of float primitives.
-     * @param data array of float primitives to place into a new FloatBuffer
+     * 
+     * @param data
+     *            array of float primitives to place into a new FloatBuffer
      */
     public static FloatBuffer createFloatBuffer(float... data) {
         if (data == null) {
@@ -307,8 +311,7 @@ public final class BufferUtils {
      * @param index
      *            the postion to place the data; in terms of colors not floats
      */
-    public static void setInBuffer(ColorRGBA color, FloatBuffer buf,
-            int index) {
+    public static void setInBuffer(ColorRGBA color, FloatBuffer buf, int index) {
         buf.position(index * 4);
         buf.put(color.r);
         buf.put(color.g);
@@ -317,18 +320,18 @@ public final class BufferUtils {
     }
 
     /**
-     * Sets the data contained in the given quaternion into the FloatBuffer at the 
-     * specified index.
+     * Sets the data contained in the given quaternion into the FloatBuffer at
+     * the specified index.
      * 
      * @param quat
      *            the {@link Quaternion} to insert
      * @param buf
      *            the buffer to insert into
      * @param index
-     *            the position to place the data; in terms of quaternions not floats
+     *            the position to place the data; in terms of quaternions not
+     *            floats
      */
-    public static void setInBuffer(Quaternion quat, FloatBuffer buf,
-            int index) {
+    public static void setInBuffer(Quaternion quat, FloatBuffer buf, int index) {
         buf.position(index * 4);
         buf.put(quat.getX());
         buf.put(quat.getY());
@@ -347,8 +350,7 @@ public final class BufferUtils {
      * @param index
      *            the position to place the data; in terms of vector4 not floats
      */
-    public static void setInBuffer(Vector4f vec, FloatBuffer buf,
-            int index) {
+    public static void setInBuffer(Vector4f vec, FloatBuffer buf, int index) {
         buf.position(index * 4);
         buf.put(vec.getX());
         buf.put(vec.getY());
@@ -438,8 +440,8 @@ public final class BufferUtils {
 
     /**
      * Copies a Vector3f from one position in the buffer to another. The index
-     * values are in terms of vector number (eg, vector number 0 is positions 0-2
-     * in the FloatBuffer.)
+     * values are in terms of vector number (eg, vector number 0 is positions
+     * 0-2 in the FloatBuffer.)
      * 
      * @param buf
      *            the buffer to copy from/to
@@ -534,11 +536,12 @@ public final class BufferUtils {
 
     // // -- VECTOR2F METHODS -- ////
     /**
-     * Generate a new FloatBuffer using the given array of Vector2f objects.
-     * The FloatBuffer will be 2 * data.length long and contain the vector data
-     * as data[0].x, data[0].y, data[1].x... etc.
+     * Generate a new FloatBuffer using the given array of Vector2f objects. The
+     * FloatBuffer will be 2 * data.length long and contain the vector data as
+     * data[0].x, data[0].y, data[1].x... etc.
      * 
-     * @param data array of Vector2f objects to place into a new FloatBuffer
+     * @param data
+     *            array of Vector2f objects to place into a new FloatBuffer
      */
     public static FloatBuffer createFloatBuffer(Vector2f... data) {
         if (data == null) {
@@ -643,8 +646,8 @@ public final class BufferUtils {
 
     /**
      * Copies a Vector2f from one position in the buffer to another. The index
-     * values are in terms of vector number (eg, vector number 0 is positions 0-1
-     * in the FloatBuffer.)
+     * values are in terms of vector number (eg, vector number 0 is positions
+     * 0-1 in the FloatBuffer.)
      * 
      * @param buf
      *            the buffer to copy from/to
@@ -737,7 +740,7 @@ public final class BufferUtils {
         return eq;
     }
 
-    ////  -- INT METHODS -- ////
+    //// -- INT METHODS -- ////
     /**
      * Generate a new IntBuffer using the given array of ints. The IntBuffer
      * will be data.length long and contain the int data as data[0], data[1]...
@@ -806,7 +809,7 @@ public final class BufferUtils {
      * @return the new DoubleBuffer
      */
     public static DoubleBuffer createDoubleBuffer(int size) {
-        DoubleBuffer buf = ByteBuffer.allocateDirect(8 * size).order(ByteOrder.nativeOrder()).asDoubleBuffer();
+        DoubleBuffer buf = allocator.allocate(8 * size).order(ByteOrder.nativeOrder()).asDoubleBuffer();
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -869,7 +872,7 @@ public final class BufferUtils {
      * @return the new FloatBuffer
      */
     public static FloatBuffer createFloatBuffer(int size) {
-        FloatBuffer buf = ByteBuffer.allocateDirect(4 * size).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        FloatBuffer buf = allocator.allocate(4 * size).order(ByteOrder.nativeOrder()).asFloatBuffer();
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -931,7 +934,7 @@ public final class BufferUtils {
      * @return the new IntBuffer
      */
     public static IntBuffer createIntBuffer(int size) {
-        IntBuffer buf = ByteBuffer.allocateDirect(4 * size).order(ByteOrder.nativeOrder()).asIntBuffer();
+        IntBuffer buf = allocator.allocate(4 * size).order(ByteOrder.nativeOrder()).asIntBuffer();
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -994,7 +997,7 @@ public final class BufferUtils {
      * @return the new IntBuffer
      */
     public static ByteBuffer createByteBuffer(int size) {
-        ByteBuffer buf = ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder());
+        ByteBuffer buf = allocator.allocate(size).order(ByteOrder.nativeOrder());
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -1076,7 +1079,7 @@ public final class BufferUtils {
      * @return the new ShortBuffer
      */
     public static ShortBuffer createShortBuffer(int size) {
-        ShortBuffer buf = ByteBuffer.allocateDirect(2 * size).order(ByteOrder.nativeOrder()).asShortBuffer();
+        ShortBuffer buf = allocator.allocate(2 * size).order(ByteOrder.nativeOrder()).asShortBuffer();
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -1115,9 +1118,9 @@ public final class BufferUtils {
     }
 
     /**
-     * Creates a new ShortBuffer with the same contents as the given ShortBuffer.
-     * The new ShortBuffer is separate from the old one and changes are not
-     * reflected across. If you want to reflect changes, consider using
+     * Creates a new ShortBuffer with the same contents as the given
+     * ShortBuffer. The new ShortBuffer is separate from the old one and changes
+     * are not reflected across. If you want to reflect changes, consider using
      * Buffer.duplicate().
      * 
      * @param buf
@@ -1142,12 +1145,18 @@ public final class BufferUtils {
     }
 
     /**
-     * Ensures there is at least the <code>required</code> number of entries left after the current position of the
-     * buffer. If the buffer is too small a larger one is created and the old one copied to the new buffer.
-     * @param buffer buffer that should be checked/copied (may be null)
-     * @param required minimum number of elements that should be remaining in the returned buffer
-     * @return a buffer large enough to receive at least the <code>required</code> number of entries, same position as
-     * the input buffer, not null
+     * Ensures there is at least the <code>required</code> number of entries
+     * left after the current position of the buffer. If the buffer is too small
+     * a larger one is created and the old one copied to the new buffer.
+     * 
+     * @param buffer
+     *            buffer that should be checked/copied (may be null)
+     * @param required
+     *            minimum number of elements that should be remaining in the
+     *            returned buffer
+     * @return a buffer large enough to receive at least the
+     *         <code>required</code> number of entries, same position as the
+     *         input buffer, not null
      */
     public static FloatBuffer ensureLargeEnough(FloatBuffer buffer, int required) {
         if (buffer != null) {
@@ -1165,7 +1174,7 @@ public final class BufferUtils {
         }
         return buffer;
     }
-    
+
     public static IntBuffer ensureLargeEnough(IntBuffer buffer, int required) {
         if (buffer != null) {
             buffer.limit(buffer.capacity());
@@ -1182,7 +1191,6 @@ public final class BufferUtils {
         }
         return buffer;
     }
-    
 
     public static ShortBuffer ensureLargeEnough(ShortBuffer buffer, int required) {
         if (buffer != null) {
@@ -1255,108 +1263,46 @@ public final class BufferUtils {
             }
 
             store.append("Existing buffers: ").append(BufferUtils.trackedBuffers.size()).append("\n");
-            store.append("(b: ").append(bBufs).append("  f: ").append(fBufs).append("  i: ").append(iBufs).append("  s: ").append(sBufs).append("  d: ").append(dBufs).append(")").append("\n");
+            store.append("(b: ").append(bBufs).append("  f: ").append(fBufs).append("  i: ").append(iBufs)
+                    .append("  s: ").append(sBufs).append("  d: ").append(dBufs).append(")").append("\n");
             store.append("Total   heap memory held: ").append(heapMem / 1024).append("kb\n");
             store.append("Total direct memory held: ").append(totalHeld / 1024).append("kb\n");
-            store.append("(b: ").append(bBufsM / 1024).append("kb  f: ").append(fBufsM / 1024).append("kb  i: ").append(iBufsM / 1024).append("kb  s: ").append(sBufsM / 1024).append("kb  d: ").append(dBufsM / 1024).append("kb)").append("\n");
+            store.append("(b: ").append(bBufsM / 1024).append("kb  f: ").append(fBufsM / 1024).append("kb  i: ")
+                    .append(iBufsM / 1024).append("kb  s: ").append(sBufsM / 1024).append("kb  d: ")
+                    .append(dBufsM / 1024).append("kb)").append("\n");
         } else {
             store.append("Total   heap memory held: ").append(heapMem / 1024).append("kb\n");
-            store.append("Only heap memory available, if you want to monitor direct memory use BufferUtils.setTrackDirectMemoryEnabled(true) during initialization.").append("\n");
+            store.append(
+                    "Only heap memory available, if you want to monitor direct memory use BufferUtils.setTrackDirectMemoryEnabled(true) during initialization.")
+                    .append("\n");
         }
         if (printStout) {
             System.out.println(store.toString());
         }
     }
-    private static Method cleanerMethod = null;
-    private static Method cleanMethod = null;
-    private static Method viewedBufferMethod = null;
-    private static Method freeMethod = null;
-
-    private static Method loadMethod(String className, String methodName) {
-        try {
-            Method method = Class.forName(className).getMethod(methodName);
-            method.setAccessible(true);
-            return method;
-        } catch (NoSuchMethodException ex) {
-            return null; // the method was not found
-        } catch (SecurityException ex) {
-            return null; // setAccessible not allowed by security policy
-        } catch (ClassNotFoundException ex) {
-            return null; // the direct buffer implementation was not found
-        }
-    }
-
-    static {
-        // Oracle JRE / OpenJDK
-        cleanerMethod = loadMethod("sun.nio.ch.DirectBuffer", "cleaner");
-        cleanMethod = loadMethod("sun.misc.Cleaner", "clean");
-        viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "viewedBuffer");
-        if (viewedBufferMethod == null) {
-            // They changed the name in Java 7 (???)
-            viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "attachment");
-        }
-
-        // Apache Harmony
-        ByteBuffer bb = BufferUtils.createByteBuffer(1);
-        Class<?> clazz = bb.getClass();
-        try {
-            freeMethod = clazz.getMethod("free");
-        } catch (NoSuchMethodException ex) {
-        } catch (SecurityException ex) {
-        }
-    }
 
     /**
      * Direct buffers are garbage collected by using a phantom reference and a
-     * reference queue. Every once a while, the JVM checks the reference queue and
-     * cleans the direct buffers. However, as this doesn't happen
-     * immediately after discarding all references to a direct buffer, it's
-     * easy to OutOfMemoryError yourself using direct buffers. This function
-     * explicitly calls the Cleaner method of a direct buffer.
-     * 
-     * @param toBeDestroyed
-     *          The direct buffer that will be "cleaned". Utilizes reflection.
-     * 
-     */
+     * reference queue. Every once a while, the JVM checks the reference queue
+     * and cleans the direct buffers. However, as this doesn't happen
+     * immediately after discarding all references to a direct buffer, it's easy
+     * to OutOfMemoryError yourself using direct buffers.
+     **/
     public static void destroyDirectBuffer(Buffer toBeDestroyed) {
         if (!isDirect(toBeDestroyed)) {
             return;
         }
-
-        try {
-            if (freeMethod != null) {
-                freeMethod.invoke(toBeDestroyed);
-            } else {
-                Object cleaner = cleanerMethod.invoke(toBeDestroyed);
-                if (cleaner != null) {
-                    cleanMethod.invoke(cleaner);
-                } else {
-                    // Try the alternate approach of getting the viewed buffer first
-                    Object viewedBuffer = viewedBufferMethod.invoke(toBeDestroyed);
-                    if (viewedBuffer != null) {
-                        destroyDirectBuffer((Buffer) viewedBuffer);
-                    } else {
-                        Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "Buffer cannot be destroyed: {0}", toBeDestroyed);
-                    }
-                }
-            }
-        } catch (IllegalAccessException ex) {
-            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
-        } catch (IllegalArgumentException ex) {
-            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
-        } catch (InvocationTargetException ex) {
-            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
-        } catch (SecurityException ex) {
-            Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
-        }
+        allocator.destroyDirectBuffer(toBeDestroyed);
     }
-    
+
     /*
-     * FIXME when java 1.5 supprt is dropped - replace calls to this method with Buffer.isDirect 
+     * FIXME when java 1.5 supprt is dropped - replace calls to this method with
+     * Buffer.isDirect
      * 
-     * Buffer.isDirect() is only java 6. Java 5 only have this method on Buffer subclasses : 
-     * FloatBuffer, IntBuffer, ShortBuffer, ByteBuffer,DoubleBuffer, LongBuffer.   
-     * CharBuffer has been excluded as we don't use it.
+     * Buffer.isDirect() is only java 6. Java 5 only have this method on Buffer
+     * subclasses : FloatBuffer, IntBuffer, ShortBuffer,
+     * ByteBuffer,DoubleBuffer, LongBuffer. CharBuffer has been excluded as we
+     * don't use it.
      * 
      */
     private static boolean isDirect(Buffer buf) {
