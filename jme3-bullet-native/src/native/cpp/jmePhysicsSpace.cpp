@@ -31,7 +31,6 @@
  */
 #include "jmePhysicsSpace.h"
 #include "jmeBulletUtil.h"
-#include <stdio.h>
 
 /**
  * Author: Normen Hansen
@@ -66,49 +65,8 @@ void jmePhysicsSpace::stepSimulation(jfloat tpf, jint maxSteps, jfloat accuracy)
     dynamicsWorld->stepSimulation(tpf, maxSteps, accuracy);
 }
 
-btThreadSupportInterface* jmePhysicsSpace::createSolverThreadSupport(int maxNumThreads) {
-#ifdef _WIN32
-    Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("solverThreads", SolverThreadFunc, SolverlsMemoryFunc, maxNumThreads);
-    Win32ThreadSupport* threadSupport = new Win32ThreadSupport(threadConstructionInfo);
-    threadSupport->startSPU();
-#elif defined (USE_PTHREADS)
-    PosixThreadSupport::ThreadConstructionInfo constructionInfo("collision", SolverThreadFunc,
-            SolverlsMemoryFunc, maxNumThreads);
-    PosixThreadSupport* threadSupport = new PosixThreadSupport(constructionInfo);
-    threadSupport->startSPU();
-#else
-    SequentialThreadSupport::SequentialThreadConstructionInfo tci("solverThreads", SolverThreadFunc, SolverlsMemoryFunc);
-    SequentialThreadSupport* threadSupport = new SequentialThreadSupport(tci);
-    threadSupport->startSPU();
-#endif
-    return threadSupport;
-}
-
-btThreadSupportInterface* jmePhysicsSpace::createDispatchThreadSupport(int maxNumThreads) {
-#ifdef _WIN32
-    Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("solverThreads", processCollisionTask, createCollisionLocalStoreMemory, maxNumThreads);
-    Win32ThreadSupport* threadSupport = new Win32ThreadSupport(threadConstructionInfo);
-    threadSupport->startSPU();
-#elif defined (USE_PTHREADS)
-    PosixThreadSupport::ThreadConstructionInfo solverConstructionInfo("solver", processCollisionTask,
-            createCollisionLocalStoreMemory, maxNumThreads);
-    PosixThreadSupport* threadSupport = new PosixThreadSupport(solverConstructionInfo);
-    threadSupport->startSPU();
-#else
-    SequentialThreadSupport::SequentialThreadConstructionInfo tci("solverThreads", processCollisionTask, createCollisionLocalStoreMemory);
-    SequentialThreadSupport* threadSupport = new SequentialThreadSupport(tci);
-    threadSupport->startSPU();
-#endif
-    return threadSupport;
-}
-
-void jmePhysicsSpace::createPhysicsSpace(jfloat minX, jfloat minY, jfloat minZ, jfloat maxX, jfloat maxY, jfloat maxZ, jint broadphaseId, jboolean threading) {
-    // collision configuration contains default setup for memory, collision setup
-    btDefaultCollisionConstructionInfo cci;
-    //    if(threading){
-    //        cci.m_defaultMaxPersistentManifoldPoolSize = 32768;
-    //    }
-    btCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration(cci);
+void jmePhysicsSpace::createPhysicsSpace(jfloat minX, jfloat minY, jfloat minZ, jfloat maxX, jfloat maxY, jfloat maxZ, jint broadphaseId, jboolean threading /*unused*/) {
+    btCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
 
     btVector3 min = btVector3(minX, minY, minZ);
     btVector3 max = btVector3(maxX, maxY, maxZ);
@@ -129,50 +87,19 @@ void jmePhysicsSpace::createPhysicsSpace(jfloat minX, jfloat minY, jfloat minZ, 
         case 3:
             broadphase = new btDbvtBroadphase();
             break;
-        case 4:
-            //            broadphase = new btGpu3DGridBroadphase(
-            //                    min, max,
-            //                    20, 20, 20,
-            //                    10000, 1000, 25);
-            break;
     }
 
-    btCollisionDispatcher* dispatcher;
-    btConstraintSolver* solver;
-    // use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
-    if (threading) {
-        btThreadSupportInterface* dispatchThreads = createDispatchThreadSupport(4);
-        dispatcher = new SpuGatheringCollisionDispatcher(dispatchThreads, 4, collisionConfiguration);
-        dispatcher->setDispatcherFlags(btCollisionDispatcher::CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION);
-    } else {
-        dispatcher = new btCollisionDispatcher(collisionConfiguration);
-    }
+    btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
     btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
-    
 
-    // the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded)
-    if (threading) {
-        btThreadSupportInterface* solverThreads = createSolverThreadSupport(4);
-        solver = new btParallelConstraintSolver(solverThreads);
-    } else {
-        solver = new btSequentialImpulseConstraintSolver;
-    }
+    btConstraintSolver* solver = new btSequentialImpulseConstraintSolver();
 
     //create dynamics world
     btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
     dynamicsWorld = world;
     dynamicsWorld->setWorldUserInfo(this);
 
-    //parallel solver requires the contacts to be in a contiguous pool, so avoid dynamic allocation
-    if (threading) {
-        world->getSimulationIslandManager()->setSplitIslands(false);
-        world->getSolverInfo().m_numIterations = 4;
-        world->getSolverInfo().m_solverMode = SOLVER_SIMD + SOLVER_USE_WARMSTARTING; //+SOLVER_RANDMIZE_ORDER;
-        world->getDispatchInfo().m_enableSPU = true;
-    }
-
     broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
-
     dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
 
     struct jmeFilterCallback : public btOverlapFilterCallback {
