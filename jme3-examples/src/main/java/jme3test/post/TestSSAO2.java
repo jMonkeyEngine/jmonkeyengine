@@ -32,59 +32,70 @@
 package jme3test.post;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.light.AmbientLight;
+import com.jme3.light.*;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.ssao.SSAOFilter;
-import com.jme3.scene.Geometry;
+import com.jme3.scene.*;
+import com.jme3.scene.control.LodControl;
+import com.jme3.scene.shape.Box;
 import com.jme3.texture.Texture;
 
-public class TestSSAO extends SimpleApplication {
+public class TestSSAO2 extends SimpleApplication {
 
     Geometry model;
 
     public static void main(String[] args) {
-        TestSSAO app = new TestSSAO();
+        TestSSAO2 app = new TestSSAO2();
         app.start();
     }
 
     @Override
     public void simpleInitApp() {
-        cam.setLocation(new Vector3f(68.45442f, 8.235511f, 7.9676695f));
-        cam.setRotation(new Quaternion(0.046916496f, -0.69500375f, 0.045538206f, 0.7160271f));
-
-
-        flyCam.setMoveSpeed(50);
+        DirectionalLight dl = new DirectionalLight();
+        dl.setDirection(new Vector3f(-1,-1,-1).normalizeLocal());
+        rootNode.addLight(dl);
 
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Texture diff = assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg");
-        diff.setWrap(Texture.WrapMode.Repeat);
-        Texture norm = assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall_normal.jpg");
-        norm.setWrap(Texture.WrapMode.Repeat);
-        mat.setTexture("DiffuseMap", diff);
-        mat.setTexture("NormalMap", norm);
-        mat.setFloat("Shininess", 2.0f);
+        mat.setFloat("Shininess", 16f);
+        //mat.setBoolean("VertexLighting", true);
 
 
-        AmbientLight al = new AmbientLight();
-        al.setColor(new ColorRGBA(1.8f, 1.8f, 1.8f, 1.0f));
+        Geometry floor = new Geometry("floor", new Box(1000,0.1f,1000));
+        floor.setMaterial(mat);
+        rootNode.attachChild(floor);
 
-        rootNode.addLight(al);
+        Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.mesh.xml");
+        Geometry teapot = (Geometry) teapotNode.getChild(0);
+        teapot.setMaterial(mat);
+//        Sphere sph = new Sphere(16, 16, 4);
+//        Geometry teapot = new Geometry("teapot", sph);
 
-        model = (Geometry) assetManager.loadModel("Models/Sponza/Sponza.j3o");
-        model.getMesh().scaleTextureCoordinates(new Vector2f(2, 2));
 
-        model.setMaterial(mat);
 
-        rootNode.attachChild(model);
+        // show normals as material
+        //Material mat = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
+        for (int f = 10; f > 3; f--) {
+            for (int y = -f; y < f; y++) {
+                for (int x = -f; x < f; x++) {
+                    Geometry clonePot = teapot.clone();
+
+                    //clonePot.setMaterial(mat);
+                    clonePot.setLocalTranslation(x * .5f, 10 - f, y * .5f);
+                    clonePot.setLocalScale(.15f);
+
+                    rootNode.attachChild(clonePot);
+                }
+            }
+        }
+
+        cam.setLocation(new Vector3f(10.247649f, 8.275992f, 10.405156f));
+        cam.setRotation(new Quaternion(-0.083419204f, 0.90370524f, -0.20599906f, -0.36595422f));
+
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
-        SSAOFilter ssaoFilter = new SSAOFilter(2.9299974f,32.920483f,5.8100376f,0.091000035f);;
-        ssaoFilter.setApproximateNormals(true);
+        SSAOFilter ssaoFilter = new SSAOFilter(2.9299974f,25f,5.8100376f,0.091000035f);
         fpp.addFilter(ssaoFilter);
         SSAOUI ui = new SSAOUI(inputManager, ssaoFilter);
 

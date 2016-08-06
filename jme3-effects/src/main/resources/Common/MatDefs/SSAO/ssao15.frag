@@ -3,6 +3,7 @@
 uniform COLORTEXTURE m_Texture;
 uniform DEPTHTEXTURE m_DepthTexture;
 
+uniform vec2 g_ResolutionInverse;
 uniform vec2 g_Resolution;
 uniform vec2 m_FrustumNearFar;
 uniform sampler2D m_Normals;
@@ -18,12 +19,11 @@ in vec2 texCoord;
 
 out vec4 fragColor;
 
-float depthv;
 
-vec3 getPosition(in vec2 uv){
+
+vec3 getPosition(float depthv, in vec2 uv){
   //Reconstruction from depth
-  depthv =getDepth(m_DepthTexture,uv).r;
-  float depth= (2.0 * m_FrustumNearFar.x) / (m_FrustumNearFar.y + m_FrustumNearFar.x - depthv* (m_FrustumNearFar.y-m_FrustumNearFar.x));
+  float depth = (2.0 * m_FrustumNearFar.x) / (m_FrustumNearFar.y + m_FrustumNearFar.x - depthv * (m_FrustumNearFar.y-m_FrustumNearFar.x));
 
   //one frustum corner method
   float x = mix(-m_FrustumCorner.x, m_FrustumCorner.x, uv.x);
@@ -36,6 +36,19 @@ vec3 getNormal(in vec2 uv){
   return normalize(texture2D(m_Normals, uv).xyz * 2.0 - 1.0);
 }
 
+vec3 approximateNormal(in vec3 pos,in vec2 texCoord){
+    float step = g_ResolutionInverse.x ;
+    float stepy = g_ResolutionInverse.y ;
+    float depth2 = getDepth(m_DepthTexture,texCoord + vec2(step,-stepy)).r;
+    float depth3 = getDepth(m_DepthTexture,texCoord + vec2(-step,-stepy)).r;
+    vec3 pos2 = vec3(getPosition(depth2,texCoord + vec2(step,-stepy)));
+    vec3 pos3 = vec3(getPosition(depth3,texCoord + vec2(-step,-stepy)));
+
+    vec3 v1 = (pos - pos2).xyz;
+    vec3 v2 = (pos3 - pos2).xyz;
+    return normalize(cross(-v1, v2));
+}
+
 vec2 getRandom(in vec2 uv){
    //float rand=(fract(uv.x*(g_Resolution.x/2.0))*0.25)+(fract(uv.y*(g_Resolution.y/2.0))*0.5);
    vec4 rand=texture2D(m_RandomMap, g_Resolution * uv / 128.0 * 3.0)*2.0 -1.0;
@@ -44,7 +57,8 @@ vec2 getRandom(in vec2 uv){
 }
 
 float doAmbientOcclusion(in vec2 tc, in vec3 pos, in vec3 norm){
-   vec3 diff = getPosition(tc)- pos;
+   float depthv = getDepth(m_DepthTexture, tc).r;
+   vec3 diff = getPosition(depthv, tc)- pos;
    vec3 v = normalize(diff);
    float d = length(diff) * m_Scale;
 
@@ -63,13 +77,20 @@ void main(){
 
    float result;
 
-   vec3 position = getPosition(texCoord);
-    //optimization, do not calculate AO if depth is 1
-   if(depthv==1.0){
-        fragColor = vec4(1.0);
-        return;
+   float depthv = getDepth(m_DepthTexture, texCoord).r;
+   //optimization, do not calculate AO if depth is 1
+   if(depthv == 1.0){
+           fragColor = vec4(1.0);
+           return;
    }
-   vec3 normal = getNormal(texCoord);
+   vec3 position = getPosition(depthv, texCoord);
+
+   #ifdef APPROXIMATE_NORMALS
+        vec3 normal = approximateNormal(position, texCoord);
+   #else
+        vec3 normal = getNormal(texCoord);
+   #endif
+
    vec2 rand = getRandom(texCoord);
 
    float ao = 0.0;
