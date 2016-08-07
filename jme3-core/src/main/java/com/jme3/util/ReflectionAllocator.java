@@ -82,7 +82,7 @@ public final class ReflectionAllocator implements BufferAllocator {
             return null; // the direct buffer implementation was not found
         } catch (Throwable t) {
         	if (t.getClass().getName().equals("java.lang.reflect.InaccessibleObjectException")) {
-        		return null;// the class is in an exported module
+        		return null;// the class is in an unexported module
         	} else {
         		throw t;
         	}
