@@ -1,0 +1,33 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="org.jmonkeyengine.jme3androidexamples.MainActivity">
+
+    <item
+        android:id="@+id/optionMouseEvents"
+        android:orderInCategory="100"
+        android:title="@string/strOptionEnableMouseEventsTitle"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/optionJoystickEvents"
+        android:orderInCategory="200"
+        android:title="@string/strOptionEnableJoystickEventsTitle"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/optionKeyEvents"
+        android:orderInCategory="300"
+        android:title="@string/strOptionEnableKeyEventsTitle"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/optionVerboseLogging"
+        android:orderInCategory="300"
+        android:title="@string/strOptionEnableVerboseLoggingTitle"
+        app:showAsAction="never" />
+
+    <!--
+                android:icon="@mipmap/redmonkey"
+                android:icon="@mipmap/greenmonkey"
+                android:icon="@mipmap/bluemonkey"
+        -->
+</menu>

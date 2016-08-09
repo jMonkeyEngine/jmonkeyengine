@@ -32,6 +32,7 @@
 package com.jme3.app;
 
 import com.jme3.app.state.AppState;
+import com.jme3.audio.AudioListenerState;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.input.FlyByCamera;
@@ -59,17 +60,17 @@ import com.jme3.system.JmeSystem;
  * <tr><td>C</td><td>- Display the camera position and rotation in the console.</td></tr>
  * <tr><td>M</td><td>- Display memory usage in the console.</td></tr>
  * </table>
- * 
+ *
  * A {@link com.jme3.app.FlyCamAppState} is by default attached as well and can
  * be removed by calling <code>stateManager.detach( stateManager.getState(FlyCamAppState.class) );</code>
  */
-public abstract class SimpleApplication extends Application {
+public abstract class SimpleApplication extends LegacyApplication {
 
     public static final String INPUT_MAPPING_EXIT = "SIMPLEAPP_Exit";
     public static final String INPUT_MAPPING_CAMERA_POS = DebugKeysAppState.INPUT_MAPPING_CAMERA_POS;
     public static final String INPUT_MAPPING_MEMORY = DebugKeysAppState.INPUT_MAPPING_MEMORY;
     public static final String INPUT_MAPPING_HIDE_STATS = "SIMPLEAPP_HideStats";
-                                                                         
+
     protected Node rootNode = new Node("Root Node");
     protected Node guiNode = new Node("Gui Node");
     protected BitmapText fpsText;
@@ -77,7 +78,7 @@ public abstract class SimpleApplication extends Application {
     protected FlyByCamera flyCam;
     protected boolean showSettings = true;
     private AppActionListener actionListener = new AppActionListener();
-    
+
     private class AppActionListener implements ActionListener {
 
         public void onAction(String name, boolean value, float tpf) {
@@ -96,19 +97,11 @@ public abstract class SimpleApplication extends Application {
     }
 
     public SimpleApplication() {
-        this( new StatsAppState(), new FlyCamAppState(), new DebugKeysAppState() );
+        this(new StatsAppState(), new FlyCamAppState(), new AudioListenerState(), new DebugKeysAppState());
     }
 
     public SimpleApplication( AppState... initialStates ) {
-        super();
-        
-        if (initialStates != null) {
-            for (AppState a : initialStates) {
-                if (a != null) {
-                    stateManager.attach(a);
-                }
-            }
-        }
+        super(initialStates);
     }
 
     @Override
@@ -193,7 +186,7 @@ public abstract class SimpleApplication extends Application {
         guiViewPort.attachScene(guiNode);
 
         if (inputManager != null) {
-        
+
             // We have to special-case the FlyCamAppState because too
             // many SimpleApplication subclasses expect it to exist in
             // simpleInit().  But at least it only gets initialized if
@@ -201,7 +194,7 @@ public abstract class SimpleApplication extends Application {
             if (stateManager.getState(FlyCamAppState.class) != null) {
                 flyCam = new FlyByCamera(cam);
                 flyCam.setMoveSpeed(1f); // odd to set this here but it did it before
-                stateManager.getState(FlyCamAppState.class).setCamera( flyCam ); 
+                stateManager.getState(FlyCamAppState.class).setCamera( flyCam );
             }
 
             if (context.getType() == Type.Display) {
@@ -210,10 +203,10 @@ public abstract class SimpleApplication extends Application {
 
             if (stateManager.getState(StatsAppState.class) != null) {
                 inputManager.addMapping(INPUT_MAPPING_HIDE_STATS, new KeyTrigger(KeyInput.KEY_F5));
-                inputManager.addListener(actionListener, INPUT_MAPPING_HIDE_STATS);            
+                inputManager.addListener(actionListener, INPUT_MAPPING_HIDE_STATS);
             }
-            
-            inputManager.addListener(actionListener, INPUT_MAPPING_EXIT);            
+
+            inputManager.addListener(actionListener, INPUT_MAPPING_EXIT);
         }
 
         if (stateManager.getState(StatsAppState.class) != null) {
@@ -230,37 +223,37 @@ public abstract class SimpleApplication extends Application {
     @Override
     public void update() {
         if (prof!=null) prof.appStep(AppStep.BeginFrame);
-        
+
         super.update(); // makes sure to execute AppTasks
         if (speed == 0 || paused) {
             return;
         }
 
         float tpf = timer.getTimePerFrame() * speed;
-        
+
         // update states
         if (prof!=null) prof.appStep(AppStep.StateManagerUpdate);
         stateManager.update(tpf);
 
         // simple update and root node
         simpleUpdate(tpf);
- 
+
         if (prof!=null) prof.appStep(AppStep.SpatialUpdate);
         rootNode.updateLogicalState(tpf);
         guiNode.updateLogicalState(tpf);
-        
+
         rootNode.updateGeometricState();
         guiNode.updateGeometricState();
-        
+
         // render states
         if (prof!=null) prof.appStep(AppStep.StateManagerRender);
         stateManager.render(renderManager);
-        
+
         if (prof!=null) prof.appStep(AppStep.RenderFrame);
         renderManager.render(tpf, context.isRenderable());
         simpleRender(renderManager);
         stateManager.postRender();
-                
+
         if (prof!=null) prof.appStep(AppStep.EndFrame);
     }
 

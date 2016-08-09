@@ -43,13 +43,15 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
  * A camera that follows a spatial and can turn around it by dragging the mouse
  * @author nehon
  */
-public class ChaseCamera implements ActionListener, AnalogListener, Control {
+public class ChaseCamera implements ActionListener, AnalogListener, Control, JmeCloneable {
 
     protected Spatial target = null;
     protected float minVerticalRotation = 0.00f;
@@ -265,8 +267,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * Sets custom triggers for toggleing the rotation of the cam
-     * deafult are
+     * Sets custom triggers for toggling the rotation of the cam
+     * default are
      * new MouseButtonTrigger(MouseInput.BUTTON_LEFT)  left mouse button
      * new MouseButtonTrigger(MouseInput.BUTTON_RIGHT)  right mouse button
      * @param triggers
@@ -278,7 +280,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * Sets custom triggers for zomming in the cam
+     * Sets custom triggers for zooming in the cam
      * default is
      * new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true)  mouse wheel up
      * @param triggers
@@ -290,7 +292,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * Sets custom triggers for zomming out the cam
+     * Sets custom triggers for zooming out the cam
      * default is
      * new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false)  mouse wheel down
      * @param triggers
@@ -567,6 +569,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
      * @param spatial
      * @return
      */
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         ChaseCamera cc = new ChaseCamera(cam, spatial, inputManager);
         cc.setMaxDistance(getMaxDistance());
@@ -574,6 +577,23 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
         return cc;
     }
 
+    @Override   
+    public Object jmeClone() {
+        ChaseCamera cc = new ChaseCamera(cam, inputManager);
+        cc.target = target;
+        cc.setMaxDistance(getMaxDistance());
+        cc.setMinDistance(getMinDistance());
+        return cc;
+    }     
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) { 
+        this.target = cloner.clone(target);
+        computePosition();
+        prevPos = new Vector3f(target.getWorldTranslation());
+        cam.setLocation(pos);
+    }
+         
     /**
      * Sets the spacial for the camera control, should only be used internally
      * @param spatial
@@ -699,7 +719,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * Sets the rotation sensitivity, the lower the value the slower the camera will rotates around the target when draging with the mouse
+     * Sets the rotation sensitivity, the lower the value the slower the camera will rotates around the target when dragging with the mouse
      * default is 5, values over 5 should have no effect.
      * If you want a significant slow down try values below 1.
      * Only has an effect if smoothMotion is set to true
@@ -800,7 +820,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * Sets the default distance at start of applicaiton
+     * Sets the default distance at start of application
      * @param defaultDistance
      */
     public void setDefaultDistance(float defaultDistance) {

@@ -167,13 +167,14 @@ public class LightControl extends AbstractControl {
         // nothing to do
     }
 
-    @Override
-    public Control cloneForSpatial(Spatial newSpatial) {
-        LightControl control = new LightControl(light, controlDir);
-        control.setSpatial(newSpatial);
-        control.setEnabled(isEnabled());
-        return control;
-    }
+    // default implementation from AbstractControl is equivalent
+    //@Override
+    //public Control cloneForSpatial(Spatial newSpatial) {
+    //    LightControl control = new LightControl(light, controlDir);
+    //    control.setSpatial(newSpatial);
+    //    control.setEnabled(isEnabled());
+    //    return control;
+    //}
     private static final String CONTROL_DIR_NAME = "controlDir";
     private static final String LIGHT_NAME = "light";
     

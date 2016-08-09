@@ -1,11 +1,12 @@
 #import "Common/ShaderLib/Instancing.glsllib"
 #import "Common/ShaderLib/Skinning.glsllib"
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+
 uniform mat4 m_LightViewProjectionMatrix0;
 uniform mat4 m_LightViewProjectionMatrix1;
 uniform mat4 m_LightViewProjectionMatrix2;
 uniform mat4 m_LightViewProjectionMatrix3;
 
-uniform vec3 m_LightPos; 
 
 varying vec4 projCoord0;
 varying vec4 projCoord1;
@@ -15,12 +16,14 @@ varying vec4 projCoord3;
 #ifdef POINTLIGHT
     uniform mat4 m_LightViewProjectionMatrix4;
     uniform mat4 m_LightViewProjectionMatrix5;
+    uniform vec3 m_LightPos;
     varying vec4 projCoord4;
     varying vec4 projCoord5;
     varying vec4 worldPos;
 #else
+    uniform vec3 m_LightDir;
     #ifndef PSSM
-        uniform vec3 m_LightDir; 
+        uniform vec3 m_LightPos;
         varying float lightDot;
     #endif
 #endif
@@ -28,11 +31,14 @@ varying vec4 projCoord3;
 #if defined(PSSM) || defined(FADE)
 varying float shadowPosition;
 #endif
-varying vec3 lightVec;
 
 varying vec2 texCoord;
-
 attribute vec3 inPosition;
+
+#ifndef BACKFACE_SHADOWS
+    attribute vec3 inNormal;
+    varying float nDotL;
+#endif
 
 #ifdef DISCARD_ALPHA
     attribute vec2 inTexCoord;
@@ -51,16 +57,17 @@ void main(){
        Skinning_Compute(modelSpacePos);
    #endif
     gl_Position = TransformWorldViewProjection(modelSpacePos);
+    vec3 lightDir;
 
     #if defined(PSSM) || defined(FADE)
-         shadowPosition = gl_Position.z;
+        shadowPosition = gl_Position.z;
     #endif  
 
     #ifndef POINTLIGHT
         vec4 worldPos=vec4(0.0);
     #endif
     // get the vertex in world space
-    worldPos = g_WorldMatrix * modelSpacePos;
+    worldPos = TransformWorld(modelSpacePos);
 
     #ifdef DISCARD_ALPHA
        texCoord = inTexCoord;
@@ -75,8 +82,21 @@ void main(){
         projCoord5 = biasMat * m_LightViewProjectionMatrix5 * worldPos;
     #else
         #ifndef PSSM
-            vec3 lightDir = worldPos.xyz - m_LightPos;
+            //Spot light
+            lightDir = worldPos.xyz - m_LightPos;
             lightDot = dot(m_LightDir,lightDir);
         #endif
+    #endif
+
+    #ifndef BACKFACE_SHADOWS
+        vec3 normal = normalize(TransformWorld(vec4(inNormal,0.0))).xyz;
+        #ifdef POINTLIGHT
+            lightDir = worldPos.xyz - m_LightPos;
+        #else
+            #ifdef PSSM
+               lightDir = m_LightDir;
+            #endif
+        #endif
+        nDotL = dot(normal, lightDir);
     #endif
 }

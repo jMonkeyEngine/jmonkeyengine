@@ -64,8 +64,6 @@ public class GlfwJoystickInput implements JoyInput {
 
     @Override
     public Joystick[] loadJoysticks(final InputManager inputManager) {
-        // TODO: Implement
-
         for (int i = 0; i < GLFW_JOYSTICK_LAST; i++) {
             if (glfwJoystickPresent(i) == GL11.GL_TRUE) {
                 final String name = glfwGetJoystickName(i);

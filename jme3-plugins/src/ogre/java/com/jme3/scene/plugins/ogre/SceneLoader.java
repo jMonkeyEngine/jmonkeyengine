@@ -71,6 +71,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
     
     private static final Logger logger = Logger.getLogger(SceneLoader.class.getName());
     private SceneMaterialLoader materialLoader = new SceneMaterialLoader();
+    private SceneMeshLoader meshLoader=new SceneMeshLoader();
     private Stack<String> elementStack = new Stack<String>();
     private AssetKey key;
     private String sceneName;
@@ -99,6 +100,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
     }
 
     private void reset() {
+    	meshLoader.reset();
         elementStack.clear();
         nodeIdx = 0;
 
@@ -299,8 +301,12 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
         entityNode = new com.jme3.scene.Node(name);
         OgreMeshKey meshKey = new OgreMeshKey(meshFile, materialList);
         try {
-            Spatial ogreMesh = assetManager.loadModel(meshKey);
-            entityNode.attachChild(ogreMesh);
+			try{
+				Spatial ogreMesh=(Spatial)meshLoader.load(assetManager.locateAsset(meshKey));
+				entityNode.attachChild(ogreMesh);
+			}catch(IOException e){
+				throw new AssetNotFoundException(meshKey.toString());
+			}
         } catch (AssetNotFoundException ex) {
             if (ex.getMessage().equals(meshFile)) {
                 logger.log(Level.WARNING, "Cannot locate {0} for scene {1}", new Object[]{meshKey, key});

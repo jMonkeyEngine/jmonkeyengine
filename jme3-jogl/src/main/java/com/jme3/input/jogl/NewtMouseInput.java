@@ -50,6 +50,8 @@ import com.jogamp.nativewindow.util.DimensionImmutable;
 import com.jogamp.nativewindow.util.PixelFormat;
 import com.jogamp.nativewindow.util.PixelRectangle;
 import com.jogamp.nativewindow.util.Point;
+import com.jogamp.newt.event.WindowAdapter;
+import com.jogamp.newt.event.WindowEvent;
 
 public class NewtMouseInput  implements MouseInput, MouseListener {
     
@@ -73,17 +75,19 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
     private int wheelPos;
     private Point location;
     private Point centerLocation;
-    private Point centerLocationOnScreen;
     private Point lastKnownLocation;
+    private Point lockPosition;
     private boolean isRecentering;
     private boolean cursorMoved;
     private int eventsSinceRecenter;
+    private volatile int mousePressedX;
+    private volatile int mousePressedY;
 
     public NewtMouseInput() {
         location = new Point();
         centerLocation = new Point();
-        centerLocationOnScreen = new Point();
         lastKnownLocation = new Point();
+        lockPosition = new Point();
     }
 
     public void setInputSource(GLWindow comp) {
@@ -100,46 +104,70 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
             lastEventWheel = 0;
             location = new Point();
             centerLocation = new Point();
-            centerLocationOnScreen = new Point();
             lastKnownLocation = new Point();
+            lockPosition = new Point();
         }
 
         component = comp;
         component.addMouseListener(this);
+        component.addWindowListener(new WindowAdapter(){
+
+            @Override
+            public void windowGainedFocus(WindowEvent e) {
+                setCursorVisible(visible);
+            }
+
+            @Override
+            public void windowLostFocus(WindowEvent e) {
+                //without those lines,
+                //on Linux (OpenBox) the mouse is not restored if invisible (eg via Alt-Tab)
+                component.setPointerVisible(true);
+                component.confinePointer(false);
+            }
+            
+        });
     }
 
+    @Override
     public void initialize() {
     }
 
+    @Override
     public void destroy() {
     }
 
+    @Override
     public boolean isInitialized() {
         return true;
     }
 
+    @Override
     public void setInputListener(RawInputListener listener) {
         this.listener = listener;
     }
 
+    @Override
     public long getInputTimeNanos() {
         return System.nanoTime();
     }
 
+    @Override
     public void setCursorVisible(boolean visible) {
-        if (this.visible != visible) {
-            lastKnownLocation.setX(0);
-            lastKnownLocation.setY(0);
-
-            this.visible = visible;
-            component.setPointerVisible(visible);
-            if (!visible) {
-                recenterMouse(component);
-            }
-        }
+        this.visible = visible;
+        component.setPointerVisible(visible);
+        lockPosition.set(lastKnownLocation.getX(), lastKnownLocation.getY());
+        hack_confinePointer();
     }
 
+    private void hack_confinePointer() {
+      if (component.hasFocus() && !component.isPointerVisible()) {
+        recenterMouse(component);
+      }
+    }
+    
+    @Override
     public void update() {
+      if (!component.hasFocus()) return;
         if (cursorMoved) {
             int newX = location.getX();
             int newY = location.getY();
@@ -147,7 +175,7 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
 
             // invert DY
             int actualX = lastKnownLocation.getX();
-            int actualY = component.getHeight() - lastKnownLocation.getY();
+            int actualY = component.getSurfaceHeight() - lastKnownLocation.getY();
             MouseMotionEvent evt = new MouseMotionEvent(actualX, actualY,
                                                         newX - lastEventX,
                                                         lastEventY - newY,
@@ -173,43 +201,48 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
         }
     }
 
+    @Override
     public int getButtonCount() {
         return 3;
     }
 
+    @Override
     public void mouseClicked(MouseEvent awtEvt) {
 //        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(arg0), false);
 //        listener.onMouseButtonEvent(evt);
     }
 
+    @Override
     public void mousePressed(MouseEvent newtEvt) {
-        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(newtEvt), true, newtEvt.getX(), newtEvt.getY());
+        mousePressedX = newtEvt.getX();
+        mousePressedY = component.getSurfaceHeight() - newtEvt.getY();
+        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(newtEvt), true, mousePressedX, mousePressedY);
         evt.setTime(newtEvt.getWhen());
         synchronized (eventQueue) {
             eventQueue.add(evt);
         }
     }
 
-    public void mouseReleased(MouseEvent awtEvt) {
-        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(awtEvt), false, awtEvt.getX(), awtEvt.getY());
+    @Override
+     public void mouseReleased(MouseEvent awtEvt) {
+        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(awtEvt), false, awtEvt.getX(), component.getSurfaceHeight() - awtEvt.getY());
         evt.setTime(awtEvt.getWhen());
         synchronized (eventQueue) {
             eventQueue.add(evt);
         }
     }
 
+    @Override
     public void mouseEntered(MouseEvent awtEvt) {
-        if (!visible) {
-            recenterMouse(component);
-        }
+        hack_confinePointer();
     }
 
+    @Override
     public void mouseExited(MouseEvent awtEvt) {
-        if (!visible) {
-            recenterMouse(component);
-        }
+        hack_confinePointer();
     }
 
+    @Override
     public void mouseWheelMoved(MouseEvent awtEvt) {
         //FIXME not sure this is the right way to handle this case
         // [0] should be used when the shift key is down
@@ -218,16 +251,18 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
         cursorMoved = true;
     }
 
+    @Override
     public void mouseDragged(MouseEvent awtEvt) {
         mouseMoved(awtEvt);
     }
 
+    @Override
     public void mouseMoved(MouseEvent awtEvt) {
         if (isRecentering) {
             // MHenze (cylab) Fix Issue 35:
             // As long as the MouseInput is in recentering mode, nothing is done until the mouse is entered in the component
             // by the events generated by the robot. If this happens, the last known location is resetted.
-            if ((centerLocation.getX() == awtEvt.getX() && centerLocation.getY() == awtEvt.getY()) || eventsSinceRecenter++ == 5) {
+            if ((lockPosition.getX() == awtEvt.getX() && lockPosition.getY() == awtEvt.getY()) || eventsSinceRecenter++ == 5) {
                 lastKnownLocation.setX(awtEvt.getX());
                 lastKnownLocation.setY(awtEvt.getY());
                 isRecentering = false;
@@ -239,26 +274,19 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
             int dy = awtEvt.getY() - lastKnownLocation.getY();
             location.setX(location.getX() + dx);
             location.setY(location.getY() + dy);
-            if (!visible) {
-                recenterMouse(component);
-            }
+            hack_confinePointer();
             lastKnownLocation.setX(awtEvt.getX());
             lastKnownLocation.setY(awtEvt.getY());
 
             cursorMoved = true;
         }
     }
-
+    
     // MHenze (cylab) Fix Issue 35: A method to generate recenter the mouse to allow the InputSystem to "grab" the mouse
     private void recenterMouse(final GLWindow component) {
         eventsSinceRecenter = 0;
         isRecentering = true;
-        centerLocation.setX(component.getWidth() / 2);
-        centerLocation.setY(component.getHeight() / 2);
-        centerLocationOnScreen.setX(centerLocation.getX());
-        centerLocationOnScreen.setY(centerLocation.getY());
-        
-        component.warpPointer(centerLocationOnScreen.getX(), centerLocationOnScreen.getY());
+        component.warpPointer(lockPosition.getX(), lockPosition.getY());
     }
 
     private int getJMEButtonIndex(MouseEvent awtEvt) {
@@ -287,12 +315,13 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
         return index;
     }
 
+    @Override
     public void setNativeCursor(JmeCursor cursor) {
         final ByteBuffer pixels = Buffers.copyIntBufferAsByteBuffer(cursor.getImagesData());
         final DimensionImmutable size = new Dimension(cursor.getWidth(), cursor.getHeight());
         final PixelFormat pixFormat = PixelFormat.RGBA8888;
         final PixelRectangle.GenericPixelRect rec = new PixelRectangle.GenericPixelRect(pixFormat, size, 0, true, pixels);
-        final PointerIcon joglCursor = component.getScreen().getDisplay().createPointerIcon(rec, cursor.getXHotSpot(), cursor.getYHotSpot());
+        final PointerIcon joglCursor = component.getScreen().getDisplay().createPointerIcon(rec, cursor.getXHotSpot(), cursor.getHeight() - cursor.getYHotSpot());
         component.setPointerIcon(joglCursor);
     }
 }

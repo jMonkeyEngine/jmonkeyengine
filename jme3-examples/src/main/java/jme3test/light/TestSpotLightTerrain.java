@@ -95,7 +95,7 @@ public class TestSpotLightTerrain extends SimpleApplication {
         rootNode.addLight(sl);
 
         AmbientLight ambLight = new AmbientLight();
-        ambLight.setColor(new ColorRGBA(0.8f, 0.8f, 0.8f, 0.2f));
+        ambLight.setColor(ColorRGBA.Black);
         rootNode.addLight(ambLight);
 
         cam.setLocation(new Vector3f(-41.219646f, -84.8363f, -171.67267f));

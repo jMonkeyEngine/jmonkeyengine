@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="org.jmonkeyengine.jme3androidexamples.MainActivity">
+
+    <item
+        android:id="@+id/optionToggleKeyboard"
+        android:orderInCategory="100"
+        android:title="@string/strOptionShowKeyboard"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/keyboard"
+    />
+
+    <!--
+                android:icon="@mipmap/redmonkey"
+                android:icon="@mipmap/greenmonkey"
+                android:icon="@mipmap/bluemonkey"
+        -->
+</menu>

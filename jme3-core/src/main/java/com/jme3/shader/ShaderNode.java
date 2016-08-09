@@ -47,10 +47,10 @@ import java.util.List;
  *
  * A ShaderNode is based on a definition that has a shader code, inputs and
  * output variables. This node can be activated based on a condition, and has
- * input and ouput mapping.
+ * input and output mapping.
  *
  * This class is not intended to be used by JME users directly. It's the
- * stucture for loading shader nodes from a J3md ùaterial definition file
+ * structure for loading shader nodes from a J3md material definition file
  *
  * @author Nehon
  */
@@ -67,7 +67,7 @@ public class ShaderNode implements Savable {
      *
      * @param name the name
      * @param definition the ShaderNodeDefinition
-     * @param condition the conditionto activate this node
+     * @param condition the condition to activate this node
      */
     public ShaderNode(String name, ShaderNodeDefinition definition, String condition) {
         this.name = name;
@@ -125,7 +125,7 @@ public class ShaderNode implements Savable {
     }
 
     /**
-     * sets the ocndition
+     * sets the condition
      *
      * @param condition the condition
      */
@@ -165,14 +165,14 @@ public class ShaderNode implements Savable {
     /**
      * sets the output mappings
      *
-     * @param inputMapping the output mappings
+     * @param outputMapping the output mappings
      */
     public void setOutputMapping(List<VariableMapping> outputMapping) {
         this.outputMapping = outputMapping;
     }
 
     /**
-     * jme seralization
+     * jme serialization
      *
      * @param ex the exporter
      * @throws IOException
@@ -188,7 +188,7 @@ public class ShaderNode implements Savable {
     }
 
     /**
-     * jme seralization 
+     * jme serialization 
      *
      * @param im the importer
      * @throws IOException

@@ -17,23 +17,27 @@ sourceSets {
     }
 }
 
-task updateVersionPropertiesFile << {
-    def verfile = file('src/main/resources/com/jme3/system/version.properties')
-    verfile.text = "# THIS IS AN AUTO-GENERATED FILE..\n" +
-                   "# DO NOT MODIFY!\n" + 
-                   "build.date=${jmeBuildDate}\n" +
-                   "git.revision=${jmeRevision}\n" +
-                   "git.branch=${jmeBranchName}\n" + 
-                   "git.hash=${jmeGitHash}\n" + 
-                   "git.hash.short=${jmeShortGitHash}\n" + 
-                   "git.tag=${jmeGitTag}\n" + 
-                   "name.full=jMonkeyEngine ${jmeFullVersion}\n" +
-                   "version.full=${jmeFullVersion}\n" +
-                   "version.number=${jmeVersion}\n" + 
-                   "version.tag=${jmeVersionTag}"
+task updateVersionPropertiesFile {
+    def versionFile = file('src/main/resources/com/jme3/system/version.properties')
+    def versionFileText = "# THIS IS AN AUTO-GENERATED FILE..\n" +
+                          "# DO NOT MODIFY!\n" +
+                          "build.date=${jmeBuildDate}\n" +
+                          "git.revision=${jmeRevision}\n" +
+                          "git.branch=${jmeBranchName}\n" +
+                          "git.hash=${jmeGitHash}\n" +
+                          "git.hash.short=${jmeShortGitHash}\n" +
+                          "git.tag=${jmeGitTag}\n" +
+                          "name.full=jMonkeyEngine ${jmeFullVersion}\n" +
+                          "version.full=${jmeFullVersion}\n" +
+                          "version.number=${jmeVersion}\n" +
+                          "version.tag=${jmeVersionTag}"
+
+    outputs.upToDateWhen { 
+        versionFile.exists() && versionFile.text == versionFileText
+    }
+    doLast {
+        versionFile.text = versionFileText
+    }
 }
 
-compileJava.dependsOn(updateVersionPropertiesFile)
-
-dependencies {
-}
+processResources.dependsOn updateVersionPropertiesFile

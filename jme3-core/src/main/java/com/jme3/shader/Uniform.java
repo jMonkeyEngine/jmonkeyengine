@@ -39,7 +39,7 @@ import java.nio.IntBuffer;
 
 public class Uniform extends ShaderVariable {
 
-    private static final Integer ZERO_INT = Integer.valueOf(0);
+    private static final Integer ZERO_INT = 0;
     private static final Float ZERO_FLT = Float.valueOf(0);
     private static final FloatBuffer ZERO_BUF = BufferUtils.createFloatBuffer(4*4);
 
@@ -69,6 +69,30 @@ public class Uniform extends ShaderVariable {
      * values leaking from other materials that use that shader.
      */
     protected boolean setByCurrentMaterial = false;
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 31 * hash + (this.value != null ? this.value.hashCode() : 0);
+        hash = 31 * hash + (this.varType != null ? this.varType.hashCode() : 0);
+        hash = 31 * hash + (this.binding != null ? this.binding.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        final Uniform other = (Uniform) obj;
+        if (this.value != other.value && (this.value == null || !this.value.equals(other.value))) {
+            return false;
+        }
+        return this.binding == other.binding && this.varType == other.varType;
+    }
 
     @Override
     public String toString(){
@@ -102,6 +126,10 @@ public class Uniform extends ShaderVariable {
     public Object getValue(){
         return value;
     }
+    
+    public FloatBuffer getMultiData() {
+        return multiData;
+    }
 
     public boolean isSetByCurrentMaterial() {
         return setByCurrentMaterial;
@@ -111,21 +139,6 @@ public class Uniform extends ShaderVariable {
         setByCurrentMaterial = false;
     }
 
-    private static void setVector4(Vector4f vec, Object value) {
-        if (value instanceof ColorRGBA) {
-            ColorRGBA color = (ColorRGBA) value;
-            vec.set(color.r, color.g, color.b, color.a);
-        } else if (value instanceof Quaternion) {
-            Quaternion quat = (Quaternion) value;
-            vec.set(quat.getX(), quat.getY(), quat.getZ(), quat.getW());
-        } else if (value instanceof Vector4f) {
-            Vector4f vec4 = (Vector4f) value;
-            vec.set(vec4);
-        } else{
-            throw new IllegalArgumentException();
-        }
-    }
-    
     public void clearValue(){
         updateNeeded = true;
 
@@ -158,13 +171,25 @@ public class Uniform extends ShaderVariable {
                 this.value = ZERO_FLT; 
                 break;
             case Vector2:
-                this.value = Vector2f.ZERO;
+                if (this.value != null) {
+                    ((Vector2f) this.value).set(Vector2f.ZERO);
+                }
                 break;
             case Vector3:
-                this.value = Vector3f.ZERO;
+                if (this.value != null) {
+                    ((Vector3f) this.value).set(Vector3f.ZERO);
+                }
                 break;
             case Vector4:
-                this.value = Vector4f.ZERO;
+                if (this.value != null) {
+                    if (this.value instanceof ColorRGBA) {
+                        ((ColorRGBA) this.value).set(ColorRGBA.BlackNoAlpha);
+                    } else if (this.value instanceof Vector4f) {
+                        ((Vector4f) this.value).set(Vector4f.ZERO);
+                    } else {
+                        ((Quaternion) this.value).set(Quaternion.ZERO);
+                    }
+                }
                 break;
             default:
                 // won't happen because those are either textures
@@ -182,27 +207,43 @@ public class Uniform extends ShaderVariable {
         }
 
         if (value == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("for uniform " + name + ": value cannot be null");
         }
 
         setByCurrentMaterial = true;
 
         switch (type){
             case Matrix3:
+                if (value.equals(this.value)) {
+                    return;
+                }
                 Matrix3f m3 = (Matrix3f) value;
                 if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(9);
                 }
                 m3.fillFloatBuffer(multiData, true);
                 multiData.clear();
+                if (this.value == null) {
+                    this.value = new Matrix3f(m3);
+                } else {
+                    ((Matrix3f)this.value).set(m3);
+                }
                 break;
             case Matrix4:
+                if (value.equals(this.value)) {
+                    return;
+                }
                 Matrix4f m4 = (Matrix4f) value;
                 if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(16);
                 }
                 m4.fillFloatBuffer(multiData, true);
                 multiData.clear();
+                if (this.value == null) {
+                    this.value = new Matrix4f(m4);
+                } else {
+                    ((Matrix4f)this.value).copy(m4);
+                }
                 break;
             case IntArray:
                 int[] ia = (int[]) value;
@@ -283,11 +324,52 @@ public class Uniform extends ShaderVariable {
                 }
                 multiData.clear();
                 break;
+            case Vector2:
+                if (value.equals(this.value)) {
+                    return;
+                }
+                if (this.value == null) {
+                    this.value = new Vector2f((Vector2f) value);
+                } else {
+                    ((Vector2f) this.value).set((Vector2f) value);
+                }
+                break;
+            case Vector3:
+                if (value.equals(this.value)) {
+                    return;
+                }
+                if (this.value == null) {
+                    this.value = new Vector3f((Vector3f) value);
+                } else {
+                    ((Vector3f) this.value).set((Vector3f) value);
+                }
+                break;
+            case Vector4:
+                if (value.equals(this.value)) {
+                    return;
+                }
+                if (value instanceof ColorRGBA) {
+                    if (this.value == null) {
+                        this.value = new ColorRGBA();
+                    }
+                    ((ColorRGBA) this.value).set((ColorRGBA) value);
+                } else if (value instanceof Vector4f) {
+                    if (this.value == null) {
+                        this.value = new Vector4f();
+                    }
+                    ((Vector4f) this.value).set((Vector4f) value);
+                } else {
+                    if (this.value == null) {
+                        this.value = new Quaternion();
+                    }
+                    ((Quaternion) this.value).set((Quaternion) value);
+                }
+                break;
                 // Only use check if equals optimization for primitive values
             case Int:
             case Float:
             case Boolean:
-                if (this.value != null && this.value.equals(value)) {
+                if (value.equals(this.value)) {
                     return;
                 }
                 this.value = value;
@@ -297,39 +379,38 @@ public class Uniform extends ShaderVariable {
                 break;
         }
 
-        if (multiData != null) {
-            this.value = multiData;
-        }
+//        if (multiData != null) {
+//            this.value = multiData;
+//        }
 
         varType = type;
         updateNeeded = true;
     }
 
     public void setVector4Length(int length){
-        if (location == -1)
+        if (location == -1) {
             return;
-
-        FloatBuffer fb = (FloatBuffer) value;
-        if (fb == null || fb.capacity() < length * 4) {
-            value = BufferUtils.createFloatBuffer(length * 4);
         }
-
+        
+        multiData = BufferUtils.ensureLargeEnough(multiData, length * 4);
+        value = multiData;
         varType = VarType.Vector4Array;
         updateNeeded = true;
         setByCurrentMaterial = true;
     }
 
     public void setVector4InArray(float x, float y, float z, float w, int index){
-        if (location == -1)
+        if (location == -1) {
             return;
+        }
 
-        if (varType != null && varType != VarType.Vector4Array)
-            throw new IllegalArgumentException("Expected a "+varType.name()+" value!");
+        if (varType != null && varType != VarType.Vector4Array) {
+            throw new IllegalArgumentException("Expected a " + varType.name() + " value!");
+        }
 
-        FloatBuffer fb = (FloatBuffer) value;
-        fb.position(index * 4);
-        fb.put(x).put(y).put(z).put(w);
-        fb.rewind();
+        multiData.position(index * 4);
+        multiData.put(x).put(y).put(z).put(w);
+        multiData.rewind();
         updateNeeded = true;
         setByCurrentMaterial = true;
     }

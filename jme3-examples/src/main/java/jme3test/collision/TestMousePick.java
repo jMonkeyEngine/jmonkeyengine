@@ -107,8 +107,9 @@ public class TestMousePick extends SimpleApplication {
  
     /** A cube object for target practice */
     protected Geometry makeCube(String name, float x, float y, float z) {
-        Box box = new Box(new Vector3f(x, y, z), 1, 1, 1);
+        Box box = new Box(1, 1, 1);
         Geometry cube = new Geometry(name, box);
+        cube.setLocalTranslation(x, y, z);
         Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat1.setColor("Color", ColorRGBA.randomColor());
         cube.setMaterial(mat1);
@@ -117,8 +118,9 @@ public class TestMousePick extends SimpleApplication {
 
     /** A floor to show that the "shot" can go through several objects. */
     protected Geometry makeFloor() {
-        Box box = new Box(new Vector3f(0, -4, -5), 15, .2f, 15);
+        Box box = new Box(15, .2f, 15);
         Geometry floor = new Geometry("the Floor", box);
+        floor.setLocalTranslation(0, -4, -5);
         Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat1.setColor("Color", ColorRGBA.Gray);
         floor.setMaterial(mat1);
@@ -128,12 +130,12 @@ public class TestMousePick extends SimpleApplication {
     /** A red ball that marks the last spot that was "hit" by the "shot". */
     protected void initMark() {
         Arrow arrow = new Arrow(Vector3f.UNIT_Z.mult(2f));
-        arrow.setLineWidth(3);
 
         //Sphere sphere = new Sphere(30, 30, 0.2f);
         mark = new Geometry("BOOM!", arrow);
         //mark = new Geometry("BOOM!", sphere);
         Material mark_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mark_mat.getAdditionalRenderState().setLineWidth(3);
         mark_mat.setColor("Color", ColorRGBA.Red);
         mark.setMaterial(mark_mat);
     }

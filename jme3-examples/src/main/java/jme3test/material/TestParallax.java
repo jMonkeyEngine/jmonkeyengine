@@ -71,8 +71,7 @@ public class TestParallax extends SimpleApplication {
     Material mat;
 
     public void setupFloor() {
-        mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall2.j3m");
-        //mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall.j3m");
+        mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall.j3m");
                 
         Node floorGeom = new Node("floorGeom");
         Quad q = new Quad(100, 100);

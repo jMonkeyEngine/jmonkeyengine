@@ -230,18 +230,22 @@ public class BlenderKey extends ModelKey {
     }
 
     /**
+     * Not used any more.
      * This method sets the asset root path.
      * @param assetRootPath
      *            the assets root path
      */
+    @Deprecated
     public void setAssetRootPath(String assetRootPath) {
         this.assetRootPath = assetRootPath;
     }
 
     /**
+     * Not used any more.
      * This method returns the asset root path.
      * @return the asset root path
      */
+    @Deprecated
     public String getAssetRootPath() {
         return assetRootPath;
     }

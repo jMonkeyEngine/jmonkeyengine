@@ -108,8 +108,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
          * Do not use.
          */
         @Deprecated
-        MiscAttrib,
-
+        Reserved0,
         /**
          * Specifies the index buffer, must contain integer data
          * (ubyte, ushort, or uint).
@@ -522,6 +521,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
 //            throw new UnsupportedOperationException("Data has already been sent. Cannot set usage.");
 
         this.usage = usage;
+        this.setUpdateNeeded();
     }
 
     /**

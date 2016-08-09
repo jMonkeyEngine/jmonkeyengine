@@ -67,18 +67,18 @@ public class DefaultClient implements Client
     private static final int CH_UNRELIABLE = 1;
     private static final int CH_FIRST = 2;
         
-    private ThreadLocal<ByteBuffer> dataBuffer = new ThreadLocal<ByteBuffer>();
+    private final ThreadLocal<ByteBuffer> dataBuffer = new ThreadLocal<ByteBuffer>();
     
     private int id = -1;
     private boolean isRunning = false;
-    private CountDownLatch connecting = new CountDownLatch(1);
+    private final CountDownLatch connecting = new CountDownLatch(1);
     private String gameName;
     private int version;
-    private MessageListenerRegistry<Client> messageListeners = new MessageListenerRegistry<Client>();
-    private List<ClientStateListener> stateListeners = new CopyOnWriteArrayList<ClientStateListener>();
-    private List<ErrorListener<? super Client>> errorListeners = new CopyOnWriteArrayList<ErrorListener<? super Client>>();
-    private Redispatch dispatcher = new Redispatch();
-    private List<ConnectorAdapter> channels = new ArrayList<ConnectorAdapter>();    
+    private final MessageListenerRegistry<Client> messageListeners = new MessageListenerRegistry<Client>();
+    private final List<ClientStateListener> stateListeners = new CopyOnWriteArrayList<ClientStateListener>();
+    private final List<ErrorListener<? super Client>> errorListeners = new CopyOnWriteArrayList<ErrorListener<? super Client>>();
+    private final Redispatch dispatcher = new Redispatch();
+    private final List<ConnectorAdapter> channels = new ArrayList<ConnectorAdapter>();    
  
     private ConnectorFactory connectorFactory;
     
@@ -100,6 +100,7 @@ public class DefaultClient implements Client
     }
 
     protected void addStandardServices() {
+        log.fine("Adding standard services...");
         services.addService(new ClientSerializerRegistrationsService());
     }
 
@@ -128,6 +129,7 @@ public class DefaultClient implements Client
             throw new IllegalStateException( "Client is not started." );
     }
  
+    @Override
     public void start()
     {
         if( isRunning )
@@ -179,6 +181,7 @@ public class DefaultClient implements Client
         }
     }    
 
+    @Override
     public boolean isStarted() {
         return isRunning;
     }
@@ -195,33 +198,42 @@ public class DefaultClient implements Client
         }
     }
 
+    @Override
     public boolean isConnected()
     {
         return id != -1 && isRunning; 
     }     
 
+    @Override
     public int getId()
     {   
         return id;
     }     
  
+    @Override
     public String getGameName()
     {
         return gameName;
     }
 
+    @Override
     public int getVersion()
     {
         return version;
     }
     
+    @Override
     public ClientServiceManager getServices() 
     {
         return services;
     }
    
+    @Override
     public void send( Message message )
     {
+        if( log.isLoggable(Level.FINER) ) {
+            log.log(Level.FINER, "send({0})", message);
+        }
         if( message.isReliable() || channels.get(CH_UNRELIABLE) == null ) {
             send(CH_RELIABLE, message, true);
         } else {
@@ -229,8 +241,12 @@ public class DefaultClient implements Client
         }
     }
  
+    @Override
     public void send( int channel, Message message )
     {
+        if( log.isLoggable(Level.FINER) ) {
+            log.log(Level.FINER, "send({0}, {1})", new Object[]{channel, message});
+        }
         if( channel >= 0 ) {
             // Make sure we aren't still connecting.  Channels
             // won't be valid until we are fully connected since
@@ -275,6 +291,7 @@ public class DefaultClient implements Client
         channels.get(channel).write(buffer);
     }
  
+    @Override
     public void close()
     {
         checkRunning();
@@ -284,70 +301,83 @@ public class DefaultClient implements Client
 
     protected void closeConnections( DisconnectInfo info )
     {
-        if( !isRunning )
-            return;
+        synchronized(this) {
+            if( !isRunning )
+                return;
 
-        // Let the services get a chance to stop before we
-        // kill the connection.
-        services.stop();
+            if( services.isStarted() ) {
+                // Let the services get a chance to stop before we
+                // kill the connection.
+                services.stop();
+            }
         
-        // Send a close message
+            // Send a close message
     
-        // Tell the thread it's ok to die
-        for( ConnectorAdapter ca : channels ) {
-            if( ca == null )
-                continue;
-            ca.close();
+            // Tell the thread it's ok to die
+            for( ConnectorAdapter ca : channels ) {
+                if( ca == null )
+                    continue;
+                ca.close();
+            }
+        
+            // Wait for the threads?
+
+            // Just in case we never fully connected
+            connecting.countDown();
+        
+            isRunning = false;
+        
+            // Terminate the services
+            services.terminate();            
         }
         
-        // Wait for the threads?
-
-        // Just in case we never fully connected
-        connecting.countDown();
-        
-        fireDisconnected(info);
-        
-        isRunning = false;
-        
-        // Terminate the services
-        services.terminate();            
+        // Make sure we aren't synched while firing events
+        fireDisconnected(info);        
     }         
 
+    @Override
     public void addClientStateListener( ClientStateListener listener )
     {
         stateListeners.add( listener );
     } 
 
+    @Override
     public void removeClientStateListener( ClientStateListener listener )
     {
         stateListeners.remove( listener );
     } 
 
+    @Override
     public void addMessageListener( MessageListener<? super Client> listener )
     {
         messageListeners.addMessageListener( listener );
     } 
 
+    @Override
     public void addMessageListener( MessageListener<? super Client> listener, Class... classes )
     {
         messageListeners.addMessageListener( listener, classes );
     } 
 
+    @Override
     public void removeMessageListener( MessageListener<? super Client> listener )
     {
         messageListeners.removeMessageListener( listener );
     } 
 
+    @Override
     public void removeMessageListener( MessageListener<? super Client> listener, Class... classes )
     {
         messageListeners.removeMessageListener( listener, classes );
     } 
 
+    @Override
     public void addErrorListener( ErrorListener<? super Client> listener )
     {
         errorListeners.add( listener );
     } 
 
+    @Override
     public void removeErrorListener( ErrorListener<? super Client> listener )
     {
         errorListeners.remove( listener );
@@ -362,6 +392,7 @@ public class DefaultClient implements Client
 
     protected void startServices() 
     {
+        log.fine("Starting client services.");
         // Let the services know we are finally started
         services.start();      
     }
@@ -420,6 +451,10 @@ public class DefaultClient implements Client
  
     protected void dispatch( Message m )
     {
+        if( log.isLoggable(Level.FINER) ) {
+            log.log(Level.FINER, "{0} received:{1}", new Object[]{this, m});
+        }
+        
         // Pull off the connection management messages we're
         // interested in and then pass on the rest.
         if( m instanceof ClientRegistrationMessage ) {
@@ -430,11 +465,17 @@ public class DefaultClient implements Client
                 this.id = (int)crm.getId();
                 log.log( Level.FINE, "Connection established, id:{0}.", this.id );
                 connecting.countDown();
-                fireConnected();
+                //fireConnected();
             } else {
                 // Else it's a message letting us know that the 
                 // hosted services have been started
                 startServices();
+ 
+                // Delay firing 'connected' until the services have all
+                // been started to avoid odd race conditions.  If there is some
+                // need to get some kind of event before the services have been
+                // started then we should create a new event step.               
+                fireConnected();
             }
             return;
         } else if( m instanceof ChannelInfoMessage ) {
@@ -461,11 +502,13 @@ public class DefaultClient implements Client
  
     protected class Redispatch implements MessageListener<Object>, ErrorListener<Object>
     {
+        @Override
         public void messageReceived( Object source, Message m )
         {
             dispatch( m );
         }
         
+        @Override
         public void handleError( Object source, Throwable t )
         {
             // Only doing the DefaultClient.this to make the code

@@ -61,6 +61,8 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
@@ -92,7 +94,7 @@ import java.util.logging.Logger;
  *
  * @author Normen Hansen and Rémy Bouquet (Nehon)
  */
-public class KinematicRagdollControl extends AbstractPhysicsControl implements PhysicsCollisionListener {
+public class KinematicRagdollControl extends AbstractPhysicsControl implements PhysicsCollisionListener, JmeCloneable {
 
     protected static final Logger logger = Logger.getLogger(KinematicRagdollControl.class.getName());
     protected List<RagdollCollisionListener> listeners;
@@ -910,6 +912,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     public void render(RenderManager rm, ViewPort vp) {
     }
 
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         KinematicRagdollControl control = new KinematicRagdollControl(preset, weightThreshold);
         control.setMode(mode);
@@ -919,6 +922,17 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         return control;
     }
    
+    @Override   
+    public Object jmeClone() {
+        KinematicRagdollControl control = new KinematicRagdollControl(preset, weightThreshold);        
+        control.setMode(mode);
+        control.setRootMass(rootMass);
+        control.setWeightThreshold(weightThreshold);
+        control.setApplyPhysicsLocal(applyLocal);
+        control.spatial = this.spatial;
+        return control;
+    }     
+
     public Vector3f setIKTarget(Bone bone, Vector3f worldPos, int chainLength) {
         Vector3f target = worldPos.subtract(targetModel.getWorldTranslation());
         ikTargets.put(bone.getName(), target);

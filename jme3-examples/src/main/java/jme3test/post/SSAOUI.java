@@ -73,6 +73,7 @@ public class SSAOUI {
         inputManager.addMapping("outputConfig", new KeyTrigger(KeyInput.KEY_P));
         inputManager.addMapping("toggleUseAO", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addMapping("toggleUseOnlyAo", new KeyTrigger(KeyInput.KEY_NUMPAD0));
+        inputManager.addMapping("toggleApprox", new KeyTrigger(KeyInput.KEY_NUMPAD5));
 
         ActionListener acl = new ActionListener() {
 
@@ -82,6 +83,11 @@ public class SSAOUI {
                     filter.setEnabled(!filter.isEnabled());
                     // filter.setUseAo(!filter.isUseAo());
                     System.out.println("use AO : " + filter.isEnabled());
+                }
+                if (name.equals("toggleApprox") && keyPressed) {
+                    filter.setApproximateNormals(!filter.isApproximateNormals());
+                    System.out.println("Approximate Normals : " + filter.isApproximateNormals());
+
                 }
                 if (name.equals("toggleUseOnlyAo") && keyPressed) {
                     filter.setUseOnlyAo(!filter.isUseOnlyAo());
@@ -132,7 +138,7 @@ public class SSAOUI {
 
             }
         };
-        inputManager.addListener(acl, "toggleUseAO", "toggleUseOnlyAo", "outputConfig");
+        inputManager.addListener(acl, "toggleUseAO", "toggleApprox", "toggleUseOnlyAo", "outputConfig");
         inputManager.addListener(anl, "sampleRadiusUp", "sampleRadiusDown", "intensityUp", "intensityDown", "scaleUp", "scaleDown",
                 "biasUp", "biasDown");
 

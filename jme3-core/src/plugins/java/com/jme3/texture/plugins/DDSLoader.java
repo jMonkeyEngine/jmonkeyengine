@@ -296,6 +296,12 @@ public class DDSLoader implements AssetLoader {
                     // exit here, the rest of the structure is not valid
                     // the real format will be available in the DX10 header
                     return;
+                    
+                case 113:
+                    compressed = false;
+                    bpp = 64;
+                    pixelFormat = Image.Format.RGBA16F;
+                    break;
                 default:
                     throw new IOException("Unknown fourcc: " + string(fourcc) + ", " + Integer.toHexString(fourcc));
             }

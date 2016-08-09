@@ -31,8 +31,6 @@
  */
 package com.jme3.scene.plugins.blender;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -40,25 +38,17 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jme3.animation.Animation;
 import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.BlenderKey;
 import com.jme3.export.Savable;
-import com.jme3.light.Light;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
-import com.jme3.post.Filter;
-import com.jme3.renderer.Camera;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedDataType;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.materials.MaterialContext;
-import com.jme3.scene.plugins.blender.meshes.TemporalMesh;
 import com.jme3.scene.plugins.blender.objects.Properties;
-import com.jme3.texture.Texture;
 
 /**
  * A purpose of the helper class is to split calculation code into several classes. Each helper after use should be cleared because it can
@@ -157,7 +147,6 @@ public abstract class AbstractBlenderHelper {
      * @throws BlenderFileException
      *             and exception is throw when problems with reading a blend file occur
      */
-    @SuppressWarnings("unchecked")
     protected Object loadLibrary(Structure id) throws BlenderFileException {
         Pointer pLib = (Pointer) id.getFieldValue("lib");
         if (pLib.isNotNull()) {
@@ -167,79 +156,21 @@ public abstract class AbstractBlenderHelper {
             String path = library.getFieldValue("filepath").toString();
 
             if (!blenderContext.getLinkedFeatures().keySet().contains(path)) {
-                File file = new File(path);
-                List<String> pathsToCheck = new ArrayList<String>();
-                String currentPath = file.getName();
-                do {
-                    pathsToCheck.add(currentPath);
-                    file = file.getParentFile();
-                    if (file != null) {
-                        currentPath = file.getName() + '/' + currentPath;
-                    }
-                } while (file != null);
-
                 Spatial loadedAsset = null;
-                BlenderKey blenderKey = null;
-                for (String p : pathsToCheck) {
-                    blenderKey = new BlenderKey(p);
-                    blenderKey.setLoadUnlinkedAssets(true);
-                    try {
-                        loadedAsset = blenderContext.getAssetManager().loadAsset(blenderKey);
-                        break;// break if no exception was thrown
-                    } catch (AssetNotFoundException e) {
-                        LOGGER.log(Level.FINEST, "Cannot locate linked resource at path: {0}.", p);
-                    }
+                BlenderKey blenderKey = new BlenderKey(path);
+                blenderKey.setLoadUnlinkedAssets(true);
+                try {
+                    loadedAsset = blenderContext.getAssetManager().loadAsset(blenderKey);
+                } catch (AssetNotFoundException e) {
+                    LOGGER.log(Level.FINEST, "Cannot locate linked resource at path: {0}.", path);
                 }
-
+                
                 if (loadedAsset != null) {
                     Map<String, Map<String, Object>> linkedData = loadedAsset.getUserData("linkedData");
+                    
                     for (Entry<String, Map<String, Object>> entry : linkedData.entrySet()) {
                         String linkedDataFilePath = "this".equals(entry.getKey()) ? path : entry.getKey();
-
-                        List<Node> scenes = (List<Node>) entry.getValue().get("scenes");
-                        for (Node scene : scenes) {
-                            blenderContext.addLinkedFeature(linkedDataFilePath, "SC" + scene.getName(), scene);
-                        }
-                        List<Node> objects = (List<Node>) entry.getValue().get("objects");
-                        for (Node object : objects) {
-                            blenderContext.addLinkedFeature(linkedDataFilePath, "OB" + object.getName(), object);
-                        }
-                        List<TemporalMesh> meshes = (List<TemporalMesh>) entry.getValue().get("meshes");
-                        for (TemporalMesh mesh : meshes) {
-                            blenderContext.addLinkedFeature(linkedDataFilePath, "ME" + mesh.getName(), mesh);
-                        }
-                        List<MaterialContext> materials = (List<MaterialContext>) entry.getValue().get("materials");
-                        for (MaterialContext materialContext : materials) {
-                            blenderContext.addLinkedFeature(linkedDataFilePath, "MA" + materialContext.getName(), materialContext);
-                        }
-                        List<Texture> textures = (List<Texture>) entry.getValue().get("textures");
-                        for (Texture texture : textures) {
-                            blenderContext.addLinkedFeature(linkedDataFilePath, "TE" + texture.getName(), texture);
-                        }
-                        List<Texture> images = (List<Texture>) entry.getValue().get("images");
-                        for (Texture image : images) {
-                            blenderContext.addLinkedFeature(linkedDataFilePath, "IM" + image.getName(), image);
-                        }
-                        List<Animation> animations = (List<Animation>) entry.getValue().get("animations");
-                        for (Animation animation : animations) {
-                            blenderContext.addLinkedFeature(linkedDataFilePath, "AC" + animation.getName(), animation);
-                        }
-                        List<Camera> cameras = (List<Camera>) entry.getValue().get("cameras");
-                        for (Camera camera : cameras) {
-                            blenderContext.addLinkedFeature(linkedDataFilePath, "CA" + camera.getName(), camera);
-                        }
-                        List<Light> lights = (List<Light>) entry.getValue().get("lights");
-                        for (Light light : lights) {
-                            blenderContext.addLinkedFeature(linkedDataFilePath, "LA" + light.getName(), light);
-                        }
-                        Spatial sky = (Spatial) entry.getValue().get("sky");
-                        if (sky != null) {
-                            blenderContext.addLinkedFeature(linkedDataFilePath, sky.getName(), sky);
-                        }
-                        List<Filter> filters = (List<Filter>) entry.getValue().get("filters");
-                        for (Filter filter : filters) {
-                            blenderContext.addLinkedFeature(linkedDataFilePath, filter.getName(), filter);
-                        }
+                        blenderContext.getLinkedFeatures().put(linkedDataFilePath, entry.getValue());
                     }
                 } else {
                     LOGGER.log(Level.WARNING, "No features loaded from path: {0}.", path);

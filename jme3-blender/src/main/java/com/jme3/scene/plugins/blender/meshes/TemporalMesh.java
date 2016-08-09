@@ -34,6 +34,7 @@ import com.jme3.scene.plugins.blender.BlenderContext.LoadedDataType;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.materials.MaterialContext;
+import com.jme3.scene.plugins.blender.meshes.Face.TriangulationWarning;
 import com.jme3.scene.plugins.blender.meshes.MeshBuffers.BoneBuffersData;
 import com.jme3.scene.plugins.blender.modifiers.Modifier;
 import com.jme3.scene.plugins.blender.objects.Properties;
@@ -46,7 +47,9 @@ import com.jme3.scene.plugins.blender.objects.Properties;
  */
 public class TemporalMesh extends Geometry {
     private static final Logger        LOGGER                    = Logger.getLogger(TemporalMesh.class.getName());
-
+    /** A minimum weight value. */
+    private static final double 	   MINIMUM_BONE_WEIGHT 		 = FastMath.DBL_EPSILON;
+    
     /** The blender context. */
     protected final BlenderContext     blenderContext;
 
@@ -355,9 +358,22 @@ public class TemporalMesh extends Geometry {
      * Triangulates the mesh.
      */
     public void triangulate() {
+        Set<TriangulationWarning> warnings = new HashSet<>(TriangulationWarning.values().length - 1);
         LOGGER.fine("Triangulating temporal mesh.");
         for (Face face : faces) {
-            face.triangulate();
+            TriangulationWarning warning = face.triangulate();
+            if(warning != TriangulationWarning.NONE) {
+                warnings.add(warning);
+            }
+        }
+        
+        if(warnings.size() > 0 && LOGGER.isLoggable(Level.WARNING)) {
+            StringBuilder sb = new StringBuilder(512);
+            sb.append("There were problems with triangulating the faces of a mesh: ").append(name);
+            for(TriangulationWarning w : warnings) {
+                sb.append("\n\t").append(w);
+            }
+            LOGGER.warning(sb.toString());
         }
     }
 
@@ -530,7 +546,11 @@ public class TemporalMesh extends Geometry {
                         for (Entry<String, Integer> entry : boneIndexes.entrySet()) {
                             if (vertexGroupsForVertex.containsKey(entry.getKey())) {
                                 float weight = vertexGroupsForVertex.get(entry.getKey());
-                                if (weight > 0) {// no need to use such weights
+                                if (weight > MINIMUM_BONE_WEIGHT) {
+                                	// only values of weight greater than MINIMUM_BONE_WEIGHT are used
+                                	// if all non zero weights were used, and they were samm enough, problems with normalisation would occur
+                                	// because adding a very small value to 1.0 will give 1.0
+                                	// so in order to avoid such errors, which can cause severe animation artifacts we need to use some minimum weight value
                                     boneBuffersForVertex.put(weight, entry.getValue());
                                 }
                             }

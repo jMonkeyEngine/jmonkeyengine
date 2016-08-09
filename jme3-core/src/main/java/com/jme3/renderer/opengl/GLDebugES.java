@@ -560,4 +560,9 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
         checkError();
         return sync;
     }
+
+    public void glBlendEquationSeparate(int colorMode, int alphaMode) {
+        gl.glBlendEquationSeparate(colorMode, alphaMode);
+        checkError();
+    }
 }

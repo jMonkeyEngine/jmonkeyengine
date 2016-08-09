@@ -45,10 +45,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This call contains the basic behaviour of a cinematic event.
+ * This call contains the basic behavior of a cinematic event.
  * Every cinematic event must extend this class.
  * 
- * A cinematic event must be given an inital duration in seconds 
+ * A cinematic event must be given an initial duration in seconds 
  * (duration of the event at speed = 1). Default is 10 sec.
  * @author Nehon
  */
@@ -67,13 +67,13 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     protected List<CinematicEventListener> listeners;
 
     /**
-     * Contruct a cinematic event (empty constructor).
+     * Construct a cinematic event (empty constructor).
      */
     public AbstractCinematicEvent() {
     }
 
     /**
-     * Contruct a cinematic event with the given initial duration.
+     * Construct a cinematic event with the given initial duration.
      * @param initialDuration 
      */
     public AbstractCinematicEvent(float initialDuration) {
@@ -81,7 +81,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * Contruct a cinematic event with the given loopMode.
+     * Construct a cinematic event with the given loopMode.
      * @param loopMode 
      */
     public AbstractCinematicEvent(LoopMode loopMode) {
@@ -89,7 +89,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * Contruct a cinematic event with the given loopMode and the given initialDuration.
+     * Construct a cinematic event with the given loopMode and the given initialDuration.
      * @param initialDuration the duration of the event at speed = 1.
      * @param loopMode the loop mode of the event.
      */
@@ -199,7 +199,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     public abstract void onPause();
 
     /**
-     * Returns the actual duration of the animtion (initialDuration/speed)
+     * Returns the actual duration of the animation (initialDuration/speed)
      * @return
      */
     public float getDuration() {

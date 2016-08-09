@@ -101,14 +101,6 @@ public class WireBox extends Mesh {
         );
         updateBound();
     }
-
-    /**
-     * Old method retained for compatibility: use makeGeometry instead.
-     */
-    @Deprecated
-    public void fromBoundingBox(BoundingBox bbox) {
-        updatePositions(bbox.getXExtent(), bbox.getYExtent(), bbox.getZExtent());
-    }
     
     /**
      * Create a geometry suitable for visualizing the specified bounding box.

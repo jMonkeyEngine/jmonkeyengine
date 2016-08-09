@@ -1,6 +1,26 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">JMEAndroidTest</string>
-    <string name="about">About</string>
-    <string name="quit">Quit</string>
+    <!-- Main Application Title -->
+    <string name="app_name">jME3 Tests Android</string>
+
+    <!-- MainActivity UIF Labels -->
+    <string name="strLblTitle">Choose a demo to start:</string>
+    <string name="strLblFindTitle">Find:</string>
+    <string name="strTxtFilterHint">Enter a Filter</string>
+    <string name="strBtnOK">OK</string>
+    <string name="strBtnCancel">Cancel</string>
+
+    <!-- MainActivity Menu Labels -->
+    <string name="strOptionEnableMouseEventsTitle">Enable Mouse Events</string>
+    <string name="strOptionDisableMouseEventsTitle">Disable Mouse Events</string>
+    <string name="strOptionEnableJoystickEventsTitle">Enable Joystick Events</string>
+    <string name="strOptionDisableJoystickEventsTitle">Disable Joystick Events</string>
+    <string name="strOptionEnableKeyEventsTitle">Enable Key Events</string>
+    <string name="strOptionDisableKeyEventsTitle">Disable Key Events</string>
+    <string name="strOptionEnableVerboseLoggingTitle">Enable Verbose Logging</string>
+    <string name="strOptionDisableVerboseLoggingTitle">Disable Verbose Logging</string>
+
+    <!-- TestActivity Menu Labels -->
+    <string name="strOptionShowKeyboard">Show Keyboard</string>
+    <string name="strOptionHideKeyboard">Show Keyboard</string>
+
 </resources>

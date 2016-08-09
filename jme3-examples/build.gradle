@@ -5,11 +5,20 @@ if (!hasProperty('mainClass')) {
 }
 
 task run(dependsOn: 'build', type:JavaExec) {
-   main = mainClass
-   classpath = sourceSets.main.runtimeClasspath   
-   if( assertions  == "true" ){
-       enableAssertions = true;
-   }
+    main = mainClass
+    classpath = sourceSets.main.runtimeClasspath
+    if (System.properties['os.name'].toLowerCase().contains('mac')) {
+        jvmArgs "-XstartOnFirstThread"
+        jvmArgs "-Djava.awt.headless=true"
+    }
+
+    if (System.properties['java.util.logging.config.file'] != null) {
+        systemProperty "java.util.logging.config.file", System.properties['java.util.logging.config.file']
+    }
+
+    if( assertions  == "true" ){
+        enableAssertions = true;
+    }
 }
 
 dependencies {
@@ -23,6 +32,7 @@ dependencies {
     compile project(':jme3-jogg')
     compile project(':jme3-jogl')
     compile project(':jme3-lwjgl')
+//    compile project(':jme3-lwjgl3')
     compile project(':jme3-networking')
     compile project(':jme3-niftygui')
     compile project(':jme3-plugins')

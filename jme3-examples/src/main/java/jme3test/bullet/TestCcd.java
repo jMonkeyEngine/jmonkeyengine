@@ -98,7 +98,7 @@ public class TestCcd extends SimpleApplication implements ActionListener {
         Node node2 = new Node();
         node2.setName("mesh");
         node2.setLocalTranslation(new Vector3f(2.5f, 0, 0f));
-        node2.addControl(new RigidBodyControl(new MeshCollisionShape(new Box(Vector3f.ZERO, 4, 4, 0.1f)), 0));
+        node2.addControl(new RigidBodyControl(new MeshCollisionShape(new Box(4, 4, 0.1f)), 0));
         rootNode.attachChild(node2);
         getPhysicsSpace().add(node2);
 

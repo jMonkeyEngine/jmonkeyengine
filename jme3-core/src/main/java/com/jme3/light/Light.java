@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2015 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2015-2016 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package com.jme3.light;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.export.*;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.Camera;
@@ -77,7 +78,14 @@ public abstract class Light implements Savable, Cloneable {
          * 
          * @see AmbientLight
          */
-        Ambient(3);
+        Ambient(3),
+        
+        /**
+         * Light probe
+         * @see LightProbe
+         */
+        Probe(4);
+                
 
         private int typeId;
 
@@ -102,9 +110,6 @@ public abstract class Light implements Savable, Cloneable {
      */
     protected transient float lastDistance = -1;
 
-    /**
-     * If light is disabled, it will not have any 
-     */
     protected boolean enabled = true;
 
     /** 
@@ -120,22 +125,6 @@ public abstract class Light implements Savable, Cloneable {
 
     protected Light(ColorRGBA color) {
         setColor(color);
-    }
-
-    /**
-     * Default constructor for Light.
-     */
-    public Light() {
-
-    }
-
-    /**
-     * Constructor which allows setting of the color.
-     *
-     * @param color the color to apply to this light.
-     */
-    public Light(final ColorRGBA color) {
-        this.color = color;
     }
 
     /**
@@ -184,19 +173,39 @@ public abstract class Light implements Savable, Cloneable {
         this.color.set(color);
     }
 
-    
-    /*
-     * Returns true if the light is enabled
-     * 
-     * @return true if the light is enabled
-     * 
-     * @see Light#setEnabled(boolean)
+
+    /**
+     * Returns true if this light is enabled.
+     * @return true if enabled, otherwise false.
      */
-    /*
     public boolean isEnabled() {
         return enabled;
     }
-    */
+
+    /**
+     * Set to false in order to disable a light and have it filtered out from being included in rendering.
+     *
+     * @param enabled true to enable and false to disable the light.
+     */
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isFrustumCheckNeeded() {
+      return frustumCheckNeeded;
+    }
+
+    public void setFrustumCheckNeeded(boolean frustumCheckNeeded) {
+      this.frustumCheckNeeded = frustumCheckNeeded;
+    }
+
+    public boolean isIntersectsFrustum() {
+      return intersectsFrustum;
+    }
+
+    public void setIntersectsFrustum(boolean intersectsFrustum) {
+      this.intersectsFrustum = intersectsFrustum;
+    }
     
     /**
      * Determines if the light intersects with the given bounding box.
@@ -213,7 +222,21 @@ public abstract class Light implements Savable, Cloneable {
     public abstract boolean intersectsBox(BoundingBox box, TempVars vars);
     
     /**
-     * Determines if the lgiht intersects with the given camera frustum.
+     * Determines if the light intersects with the given bounding sphere.
+     * <p>
+     * For non-local lights, such as {@link DirectionalLight directional lights},
+     * {@link AmbientLight ambient lights}, or {@link PointLight point lights}
+     * without influence radius, this method should always return true.
+     * 
+     * @param sphere The sphere to check intersection against.
+     * @param vars TempVars in case it is needed.
+     * 
+     * @return True if the light intersects the sphere, false otherwise.
+     */
+    public abstract boolean intersectsSphere(BoundingSphere sphere, TempVars vars);
+
+    /**
+     * Determines if the light intersects with the given camera frustum.
      * 
      * For non-local lights, such as {@link DirectionalLight directional lights},
      * {@link AmbientLight ambient lights}, or {@link PointLight point lights}
@@ -228,7 +251,9 @@ public abstract class Light implements Savable, Cloneable {
     @Override
     public Light clone(){
         try {
-            return (Light) super.clone();
+            Light l = (Light) super.clone();
+            l.color = color.clone();
+            return l;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }

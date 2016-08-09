@@ -37,6 +37,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.awt.AwtMouseInput;
+import com.jme3.opencl.Context;
 import com.jme3.renderer.Renderer;
 import com.jme3.system.*;
 import java.util.ArrayList;
@@ -145,6 +146,11 @@ public class AwtPanelsContext implements JmeContext {
         return actualContext != null && actualContext.isRenderable();
     }
 
+    @Override
+    public Context getOpenCLContext() {
+        return actualContext.getOpenCLContext();
+    }
+    
     public AwtPanelsContext(){
     }
 

@@ -51,7 +51,7 @@ import com.jme3.scene.control.CameraControl;
 import com.jme3.util.TempVars;
 
 /**
- * This class is a camera controler that allow the camera to follow a target
+ * This class is a camera controller that allow the camera to follow a target
  * Spatial.
  *
  * @author Nehon
@@ -110,7 +110,6 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
     /**
      * Registers inputs with the input manager
      *
-     * @param inputManager
      */
     public final void registerWithInput() {
 
@@ -216,7 +215,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
     }
 
     /**
-     * Sets custom triggers for toggleing the rotation of the cam deafult are
+     * Sets custom triggers for toggling the rotation of the cam default are
      * new MouseButtonTrigger(MouseInput.BUTTON_LEFT) left mouse button new
      * MouseButtonTrigger(MouseInput.BUTTON_RIGHT) right mouse button
      *
@@ -232,7 +231,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
     }
 
     /**
-     * Sets custom triggers for zomming in the cam default is new
+     * Sets custom triggers for zooming in the cam default is new
      * MouseAxisTrigger(MouseInput.AXIS_WHEEL, true) mouse wheel up
      *
      * @param triggers
@@ -247,7 +246,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
     }
 
     /**
-     * Sets custom triggers for zomming out the cam default is new
+     * Sets custom triggers for zooming out the cam default is new
      * MouseAxisTrigger(MouseInput.AXIS_WHEEL, false) mouse wheel down
      *
      * @param triggers
@@ -293,6 +292,8 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
 
     /**
      * Sets the min zoom distance of the camera (default is 1)
+     * 
+     * @param minDistance
      */
     public void setMinDistance(float minDistance) {
         this.minDistance = minDistance;
@@ -383,7 +384,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
     }
 
     /**
-     * Sets the default distance at start of applicaiton
+     * Sets the default distance at start of application
      *
      * @param defaultDistance
      */

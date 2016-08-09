@@ -54,6 +54,8 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
@@ -63,12 +65,12 @@ import java.io.IOException;
  * Particle emitters can be used to simulate various kinds of phenomena,
  * such as fire, smoke, explosions and much more.
  * <p>
- * Particle emitters have many properties which are used to control the 
- * simulation. The interpretation of these properties depends on the 
+ * Particle emitters have many properties which are used to control the
+ * simulation. The interpretation of these properties depends on the
  * {@link ParticleInfluencer} that has been assigned to the emitter via
  * {@link ParticleEmitter#setParticleInfluencer(com.jme3.effect.influencers.ParticleInfluencer) }.
  * By default the implementation {@link DefaultParticleInfluencer} is used.
- * 
+ *
  * @author Kirill Vainer
  */
 public class ParticleEmitter extends Geometry {
@@ -98,7 +100,7 @@ public class ParticleEmitter extends Geometry {
     private Vector3f faceNormal = new Vector3f(Vector3f.NAN);
     private int imagesX = 1;
     private int imagesY = 1;
-   
+
     private ColorRGBA startColor = new ColorRGBA(0.4f, 0.4f, 0.4f, 0.5f);
     private ColorRGBA endColor = new ColorRGBA(0.1f, 0.1f, 0.1f, 0.0f);
     private float startSize = 0.2f;
@@ -106,8 +108,9 @@ public class ParticleEmitter extends Geometry {
     private boolean worldSpace = true;
     //variable that helps with computations
     private transient Vector3f temp = new Vector3f();
+    private transient Vector3f lastPos;
 
-    public static class ParticleEmitterControl implements Control {
+    public static class ParticleEmitterControl implements Control, JmeCloneable {
 
         ParticleEmitter parentEmitter;
 
@@ -118,9 +121,24 @@ public class ParticleEmitter extends Geometry {
             this.parentEmitter = parentEmitter;
         }
 
+        @Override
         public Control cloneForSpatial(Spatial spatial) {
             return this; // WARNING: Sets wrong control on spatial. Will be
             // fixed automatically by ParticleEmitter.clone() method.
+        }
+
+        @Override
+        public Object jmeClone() {
+            try {
+                return super.clone();
+            } catch( CloneNotSupportedException e ) {
+                throw new RuntimeException("Error cloning", e);
+            }
+        }
+
+        @Override
+        public void cloneFields( Cloner cloner, Object original ) {
+            this.parentEmitter = cloner.clone(parentEmitter);
         }
 
         public void setSpatial(Spatial spatial) {
@@ -156,6 +174,13 @@ public class ParticleEmitter extends Geometry {
 
     @Override
     public ParticleEmitter clone(boolean cloneMaterial) {
+        return (ParticleEmitter)super.clone(cloneMaterial);
+    }
+
+    /**
+     *  The old clone() method that did not use the new Cloner utility.
+     */
+    public ParticleEmitter oldClone(boolean cloneMaterial) {
         ParticleEmitter clone = (ParticleEmitter) super.clone(cloneMaterial);
         clone.shape = shape.deepClone();
 
@@ -193,6 +218,44 @@ public class ParticleEmitter extends Geometry {
         return clone;
     }
 
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
+        this.shape = cloner.clone(shape);
+        this.control = cloner.clone(control);
+        this.faceNormal = cloner.clone(faceNormal);
+        this.startColor = cloner.clone(startColor);
+        this.endColor = cloner.clone(endColor);
+        this.particleInfluencer = cloner.clone(particleInfluencer);
+
+        // change in behavior: gravity was not cloned before -pspeed
+        this.gravity = cloner.clone(gravity);
+
+        // So, simply setting the mesh type will cause all kinds of things
+        // to happen:
+        // 1) the new mesh gets created.
+        // 2) it is set to the Geometry
+        // 3) the particles array is recreated because setNumParticles()
+        //
+        // ...so this should be equivalent but simpler than half of the old clone()
+        // method.  Note: we do not ever want to share particleMesh so we do not
+        // clone it at all.
+        setMeshType(meshType);
+
+        // change in behavior: temp and lastPos were not cloned before...
+        // perhaps because it was believed that 'transient' fields were exluded
+        // from cloning?  (they aren't)
+        // If it was ok for these to be shared because of how they are used
+        // then they could just as well be made static... else I think it's clearer
+        // to clone them.
+        this.temp = cloner.clone(temp);
+        this.lastPos = cloner.clone(lastPos);
+    }
+
     public ParticleEmitter(String name, Type type, int numParticles) {
         super(name);
         setBatchHint(BatchHint.Never);
@@ -207,7 +270,7 @@ public class ParticleEmitter extends Geometry {
 
         meshType = type;
 
-        // Must create clone of shape/influencer so that a reference to a static is 
+        // Must create clone of shape/influencer so that a reference to a static is
         // not maintained
         shape = shape.deepClone();
         particleInfluencer = particleInfluencer.clone();
@@ -249,10 +312,10 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Set the {@link ParticleInfluencer} to influence this particle emitter.
-     * 
-     * @param particleInfluencer the {@link ParticleInfluencer} to influence 
+     *
+     * @param particleInfluencer the {@link ParticleInfluencer} to influence
      * this particle emitter.
-     * 
+     *
      * @see ParticleInfluencer
      */
     public void setParticleInfluencer(ParticleInfluencer particleInfluencer) {
@@ -260,12 +323,12 @@ public class ParticleEmitter extends Geometry {
     }
 
     /**
-     * Returns the {@link ParticleInfluencer} that influences this 
+     * Returns the {@link ParticleInfluencer} that influences this
      * particle emitter.
-     * 
-     * @return the {@link ParticleInfluencer} that influences this 
+     *
+     * @return the {@link ParticleInfluencer} that influences this
      * particle emitter.
-     * 
+     *
      * @see ParticleInfluencer
      */
     public ParticleInfluencer getParticleInfluencer() {
@@ -274,12 +337,12 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Returns the mesh type used by the particle emitter.
-     * 
-     * 
+     *
+     *
      * @return the mesh type used by the particle emitter.
-     * 
+     *
      * @see #setMeshType(com.jme3.effect.ParticleMesh.Type)
-     * @see ParticleEmitter#ParticleEmitter(java.lang.String, com.jme3.effect.ParticleMesh.Type, int) 
+     * @see ParticleEmitter#ParticleEmitter(java.lang.String, com.jme3.effect.ParticleMesh.Type, int)
      */
     public ParticleMesh.Type getMeshType() {
         return meshType;
@@ -307,26 +370,26 @@ public class ParticleEmitter extends Geometry {
     }
 
     /**
-     * Returns true if particles should spawn in world space. 
-     * 
-     * @return true if particles should spawn in world space. 
-     * 
-     * @see ParticleEmitter#setInWorldSpace(boolean) 
+     * Returns true if particles should spawn in world space.
+     *
+     * @return true if particles should spawn in world space.
+     *
+     * @see ParticleEmitter#setInWorldSpace(boolean)
      */
     public boolean isInWorldSpace() {
         return worldSpace;
     }
 
     /**
-     * Set to true if particles should spawn in world space. 
-     * 
+     * Set to true if particles should spawn in world space.
+     *
      * <p>If set to true and the particle emitter is moved in the scene,
      * then particles that have already spawned won't be effected by this
      * motion. If set to false, the particles will emit in local space
      * and when the emitter is moved, so are all the particles that
      * were emitted previously.
-     * 
-     * @param worldSpace true if particles should spawn in world space. 
+     *
+     * @param worldSpace true if particles should spawn in world space.
      */
     public void setInWorldSpace(boolean worldSpace) {
         this.setIgnoreTransform(worldSpace);
@@ -335,7 +398,7 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Returns the number of visible particles (spawned but not dead).
-     * 
+     *
      * @return the number of visible particles
      */
     public int getNumVisibleParticles() {
@@ -347,7 +410,7 @@ public class ParticleEmitter extends Geometry {
      * Set the maximum amount of particles that
      * can exist at the same time with this emitter.
      * Calling this method many times is not recommended.
-     * 
+     *
      * @param numParticles the maximum amount of particles that
      * can exist at the same time with this emitter.
      */
@@ -369,13 +432,13 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Returns a list of all particles (shouldn't be used in most cases).
-     * 
+     *
      * <p>
      * This includes both existing and non-existing particles.
      * The size of the array is set to the <code>numParticles</code> value
      * specified in the constructor or {@link ParticleEmitter#setNumParticles(int) }
-     * method. 
-     * 
+     * method.
+     *
      * @return a list of all particles.
      */
     public Particle[] getParticles() {
@@ -383,11 +446,11 @@ public class ParticleEmitter extends Geometry {
     }
 
     /**
-     * Get the normal which particles are facing. 
-     * 
-     * @return the normal which particles are facing. 
-     * 
-     * @see ParticleEmitter#setFaceNormal(com.jme3.math.Vector3f) 
+     * Get the normal which particles are facing.
+     *
+     * @return the normal which particles are facing.
+     *
+     * @see ParticleEmitter#setFaceNormal(com.jme3.math.Vector3f)
      */
     public Vector3f getFaceNormal() {
         if (Vector3f.isValidVector(faceNormal)) {
@@ -398,8 +461,8 @@ public class ParticleEmitter extends Geometry {
     }
 
     /**
-     * Sets the normal which particles are facing. 
-     * 
+     * Sets the normal which particles are facing.
+     *
      * <p>By default, particles
      * will face the camera, but for some effects (e.g shockwave) it may
      * be necessary to face a specific direction instead. To restore
@@ -419,10 +482,10 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Returns the rotation speed in radians/sec for particles.
-     * 
+     *
      * @return the rotation speed in radians/sec for particles.
-     * 
-     * @see ParticleEmitter#setRotateSpeed(float) 
+     *
+     * @see ParticleEmitter#setRotateSpeed(float)
      */
     public float getRotateSpeed() {
         return rotateSpeed;
@@ -431,7 +494,7 @@ public class ParticleEmitter extends Geometry {
     /**
      * Set the rotation speed in radians/sec for particles
      * spawned after the invocation of this method.
-     * 
+     *
      * @param rotateSpeed the rotation speed in radians/sec for particles
      * spawned after the invocation of this method.
      */
@@ -441,12 +504,12 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Returns true if every particle spawned
-     * should have a random facing angle. 
-     * 
+     * should have a random facing angle.
+     *
      * @return true if every particle spawned
-     * should have a random facing angle. 
-     * 
-     * @see ParticleEmitter#setRandomAngle(boolean) 
+     * should have a random facing angle.
+     *
+     * @see ParticleEmitter#setRandomAngle(boolean)
      */
     public boolean isRandomAngle() {
         return randomAngle;
@@ -454,8 +517,8 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Set to true if every particle spawned
-     * should have a random facing angle. 
-     * 
+     * should have a random facing angle.
+     *
      * @param randomAngle if every particle spawned
      * should have a random facing angle.
      */
@@ -466,11 +529,11 @@ public class ParticleEmitter extends Geometry {
     /**
      * Returns true if every particle spawned should get a random
      * image.
-     * 
+     *
      * @return True if every particle spawned should get a random
      * image.
-     * 
-     * @see ParticleEmitter#setSelectRandomImage(boolean) 
+     *
+     * @see ParticleEmitter#setSelectRandomImage(boolean)
      */
     public boolean isSelectRandomImage() {
         return selectRandomImage;
@@ -480,7 +543,7 @@ public class ParticleEmitter extends Geometry {
      * Set to true if every particle spawned
      * should get a random image from a pool of images constructed from
      * the texture, with X by Y possible images.
-     * 
+     *
      * <p>By default, X and Y are equal
      * to 1, thus allowing only 1 possible image to be selected, but if the
      * particle is configured with multiple images by using {@link ParticleEmitter#setImagesX(int) }
@@ -488,7 +551,7 @@ public class ParticleEmitter extends Geometry {
      * can be selected. Setting to false will cause each particle to have an animation
      * of images displayed, starting at image 1, and going until image X*Y when
      * the particle reaches its end of life.
-     * 
+     *
      * @param selectRandomImage True if every particle spawned should get a random
      * image.
      */
@@ -498,10 +561,10 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Check if particles spawned should face their velocity.
-     * 
+     *
      * @return True if particles spawned should face their velocity.
-     * 
-     * @see ParticleEmitter#setFacingVelocity(boolean) 
+     *
+     * @see ParticleEmitter#setFacingVelocity(boolean)
      */
     public boolean isFacingVelocity() {
         return facingVelocity;
@@ -510,11 +573,11 @@ public class ParticleEmitter extends Geometry {
     /**
      * Set to true if particles spawned should face
      * their velocity (or direction to which they are moving towards).
-     * 
+     *
      * <p>This is typically used for e.g spark effects.
-     * 
+     *
      * @param followVelocity True if particles spawned should face their velocity.
-     * 
+     *
      */
     public void setFacingVelocity(boolean followVelocity) {
         this.facingVelocity = followVelocity;
@@ -522,10 +585,10 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Get the end color of the particles spawned.
-     * 
+     *
      * @return the end color of the particles spawned.
-     * 
-     * @see ParticleEmitter#setEndColor(com.jme3.math.ColorRGBA) 
+     *
+     * @see ParticleEmitter#setEndColor(com.jme3.math.ColorRGBA)
      */
     public ColorRGBA getEndColor() {
         return endColor;
@@ -533,12 +596,12 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Set the end color of the particles spawned.
-     * 
+     *
      * <p>The
      * particle color at any time is determined by blending the start color
      * and end color based on the particle's current time of life relative
      * to its end of life.
-     * 
+     *
      * @param endColor the end color of the particles spawned.
      */
     public void setEndColor(ColorRGBA endColor) {
@@ -547,10 +610,10 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Get the end size of the particles spawned.
-     * 
+     *
      * @return the end size of the particles spawned.
-     * 
-     * @see ParticleEmitter#setEndSize(float) 
+     *
+     * @see ParticleEmitter#setEndSize(float)
      */
     public float getEndSize() {
         return endSize;
@@ -558,12 +621,12 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Set the end size of the particles spawned.
-     * 
+     *
      * <p>The
      * particle size at any time is determined by blending the start size
      * and end size based on the particle's current time of life relative
      * to its end of life.
-     * 
+     *
      * @param endSize the end size of the particles spawned.
      */
     public void setEndSize(float endSize) {
@@ -572,10 +635,10 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Get the gravity vector.
-     * 
+     *
      * @return the gravity vector.
-     * 
-     * @see ParticleEmitter#setGravity(com.jme3.math.Vector3f) 
+     *
+     * @see ParticleEmitter#setGravity(com.jme3.math.Vector3f)
      */
     public Vector3f getGravity() {
         return gravity;
@@ -583,7 +646,7 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * This method sets the gravity vector.
-     * 
+     *
      * @param gravity the gravity vector
      */
     public void setGravity(Vector3f gravity) {
@@ -592,7 +655,7 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Sets the gravity vector.
-     * 
+     *
      * @param x the x component of the gravity vector
      * @param y the y component of the gravity vector
      * @param z the z component of the gravity vector
@@ -605,10 +668,10 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Get the high value of life.
-     * 
+     *
      * @return the high value of life.
-     * 
-     * @see ParticleEmitter#setHighLife(float) 
+     *
+     * @see ParticleEmitter#setHighLife(float)
      */
     public float getHighLife() {
         return highLife;
@@ -616,10 +679,10 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Set the high value of life.
-     * 
+     *
      * <p>The particle's lifetime/expiration
      * is determined by randomly selecting a time between low life and high life.
-     * 
+     *
      * @param highLife the high value of life.
      */
     public void setHighLife(float highLife) {
@@ -628,10 +691,10 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Get the number of images along the X axis (width).
-     * 
+     *
      * @return the number of images along the X axis (width).
-     * 
-     * @see ParticleEmitter#setImagesX(int) 
+     *
+     * @see ParticleEmitter#setImagesX(int)
      */
     public int getImagesX() {
         return imagesX;
@@ -639,11 +702,11 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Set the number of images along the X axis (width).
-     * 
+     *
      * <p>To determine
      * how multiple particle images are selected and used, see the
      * {@link ParticleEmitter#setSelectRandomImage(boolean) } method.
-     * 
+     *
      * @param imagesX the number of images along the X axis (width).
      */
     public void setImagesX(int imagesX) {
@@ -653,10 +716,10 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Get the number of images along the Y axis (height).
-     * 
+     *
      * @return the number of images along the Y axis (height).
-     * 
-     * @see ParticleEmitter#setImagesY(int) 
+     *
+     * @see ParticleEmitter#setImagesY(int)
      */
     public int getImagesY() {
         return imagesY;
@@ -664,10 +727,10 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Set the number of images along the Y axis (height).
-     * 
+     *
      * <p>To determine how multiple particle images are selected and used, see the
      * {@link ParticleEmitter#setSelectRandomImage(boolean) } method.
-     * 
+     *
      * @param imagesY the number of images along the Y axis (height).
      */
     public void setImagesY(int imagesY) {
@@ -677,10 +740,10 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Get the low value of life.
-     * 
+     *
      * @return the low value of life.
-     * 
-     * @see ParticleEmitter#setLowLife(float) 
+     *
+     * @see ParticleEmitter#setLowLife(float)
      */
     public float getLowLife() {
         return lowLife;
@@ -688,10 +751,10 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Set the low value of life.
-     * 
+     *
      * <p>The particle's lifetime/expiration
      * is determined by randomly selecting a time between low life and high life.
-     * 
+     *
      * @param lowLife the low value of life.
      */
     public void setLowLife(float lowLife) {
@@ -701,11 +764,11 @@ public class ParticleEmitter extends Geometry {
     /**
      * Get the number of particles to spawn per
      * second.
-     * 
+     *
      * @return the number of particles to spawn per
      * second.
-     * 
-     * @see ParticleEmitter#setParticlesPerSec(float) 
+     *
+     * @see ParticleEmitter#setParticlesPerSec(float)
      */
     public float getParticlesPerSec() {
         return particlesPerSec;
@@ -714,7 +777,7 @@ public class ParticleEmitter extends Geometry {
     /**
      * Set the number of particles to spawn per
      * second.
-     * 
+     *
      * @param particlesPerSec the number of particles to spawn per
      * second.
      */
@@ -722,13 +785,13 @@ public class ParticleEmitter extends Geometry {
         this.particlesPerSec = particlesPerSec;
         timeDifference = 0;
     }
-    
+
     /**
      * Get the start color of the particles spawned.
-     * 
+     *
      * @return the start color of the particles spawned.
-     * 
-     * @see ParticleEmitter#setStartColor(com.jme3.math.ColorRGBA) 
+     *
+     * @see ParticleEmitter#setStartColor(com.jme3.math.ColorRGBA)
      */
     public ColorRGBA getStartColor() {
         return startColor;
@@ -736,11 +799,11 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Set the start color of the particles spawned.
-     * 
+     *
      * <p>The particle color at any time is determined by blending the start color
      * and end color based on the particle's current time of life relative
      * to its end of life.
-     * 
+     *
      * @param startColor the start color of the particles spawned
      */
     public void setStartColor(ColorRGBA startColor) {
@@ -749,10 +812,10 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Get the start color of the particles spawned.
-     * 
+     *
      * @return the start color of the particles spawned.
-     * 
-     * @see ParticleEmitter#setStartSize(float) 
+     *
+     * @see ParticleEmitter#setStartSize(float)
      */
     public float getStartSize() {
         return startSize;
@@ -760,11 +823,11 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Set the start size of the particles spawned.
-     * 
+     *
      * <p>The particle size at any time is determined by blending the start size
      * and end size based on the particle's current time of life relative
      * to its end of life.
-     * 
+     *
      * @param startSize the start size of the particles spawned.
      */
     public void setStartSize(float startSize) {
@@ -787,10 +850,10 @@ public class ParticleEmitter extends Geometry {
      * gravity.
      *
      * @deprecated
-     * This method is deprecated. 
+     * This method is deprecated.
      * Use ParticleEmitter.getParticleInfluencer().setInitialVelocity(initialVelocity); instead.
      *
-     * @see ParticleEmitter#setVelocityVariation(float) 
+     * @see ParticleEmitter#setVelocityVariation(float)
      * @see ParticleEmitter#setGravity(float)
      */
     @Deprecated
@@ -800,7 +863,7 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * @deprecated
-     * This method is deprecated. 
+     * This method is deprecated.
      * Use ParticleEmitter.getParticleInfluencer().getVelocityVariation(); instead.
      * @return the initial velocity variation factor
      */
@@ -815,9 +878,9 @@ public class ParticleEmitter extends Geometry {
      * from 0 to 1, where 0 means particles are to spawn with exactly
      * the velocity given in {@link ParticleEmitter#setStartVel(com.jme3.math.Vector3f) },
      * and 1 means particles are to spawn with a completely random velocity.
-     * 
+     *
      * @deprecated
-     * This method is deprecated. 
+     * This method is deprecated.
      * Use ParticleEmitter.getParticleInfluencer().setVelocityVariation(variation); instead.
      */
     @Deprecated
@@ -905,7 +968,7 @@ public class ParticleEmitter extends Geometry {
 
         vars.release();
     }
-    
+
     /**
      * Instantly kills all active particles, after this method is called, all
      * particles will be dead and no longer visible.
@@ -917,12 +980,12 @@ public class ParticleEmitter extends Geometry {
             }
         }
     }
-    
+
     /**
      * Kills the particle at the given index.
-     * 
+     *
      * @param index The index of the particle to kill
-     * @see #getParticles() 
+     * @see #getParticles()
      */
     public void killParticle(int index){
         freeParticle(index);
@@ -977,7 +1040,7 @@ public class ParticleEmitter extends Geometry {
             p.imageIndex = (int) (b * imagesX * imagesY);
         }
     }
-    
+
     private void updateParticleState(float tpf) {
         // Force world transform to update
         this.getWorldTransform();
@@ -1010,15 +1073,19 @@ public class ParticleEmitter extends Geometry {
                 firstUnUsed++;
             }
         }
-        
+
         // Spawns particles within the tpf timeslot with proper age
         float interval = 1f / particlesPerSec;
+        float originalTpf = tpf;
         tpf += timeDifference;
         while (tpf > interval){
             tpf -= interval;
             Particle p = emitParticle(min, max);
             if (p != null){
                 p.life -= tpf;
+                if (lastPos != null && isInWorldSpace()) {
+                    p.position.interpolateLocal(lastPos, 1 - tpf / originalTpf);
+                }
                 if (p.life <= 0){
                     freeParticle(lastUsed);
                 }else{
@@ -1027,6 +1094,12 @@ public class ParticleEmitter extends Geometry {
             }
         }
         timeDifference = tpf;
+
+        if (lastPos == null) {
+            lastPos = new Vector3f();
+        }
+
+        lastPos.set(getWorldTranslation());
 
         BoundingBox bbox = (BoundingBox) this.getMesh().getBound();
         bbox.setMinMax(min, max);
@@ -1037,10 +1110,10 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Set to enable or disable the particle emitter
-     * 
+     *
      * <p>When a particle is
      * disabled, it will be "frozen in time" and not update.
-     * 
+     *
      * @param enabled True to enable the particle emitter
      */
     public void setEnabled(boolean enabled) {
@@ -1049,10 +1122,10 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Check if a particle emitter is enabled for update.
-     * 
+     *
      * @return True if a particle emitter is enabled for update.
-     * 
-     * @see ParticleEmitter#setEnabled(boolean) 
+     *
+     * @see ParticleEmitter#setEnabled(boolean)
      */
     public boolean isEnabled() {
         return enabled;
@@ -1060,7 +1133,7 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Callback from Control.update(), do not use.
-     * @param tpf 
+     * @param tpf
      */
     public void updateFromControl(float tpf) {
         if (enabled) {
@@ -1070,9 +1143,9 @@ public class ParticleEmitter extends Geometry {
 
     /**
      * Callback from Control.render(), do not use.
-     * 
+     *
      * @param rm
-     * @param vp 
+     * @param vp
      */
     private void renderFromControl(RenderManager rm, ViewPort vp) {
         Camera cam = vp.getCamera();
@@ -1208,7 +1281,7 @@ public class ParticleEmitter extends Geometry {
                 gravity.y = ic.readFloat("gravity", 0);
             }
         } else {
-            // since the parentEmitter is not loaded, it must be 
+            // since the parentEmitter is not loaded, it must be
             // loaded separately
             control = getControl(ParticleEmitterControl.class);
             control.parentEmitter = this;

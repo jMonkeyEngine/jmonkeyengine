@@ -50,6 +50,10 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
         GL11.glBindTexture(param1, param2);
     }
 
+    public void glBlendEquationSeparate(int colorMode, int alphaMode){
+        GL20.glBlendEquationSeparate(colorMode,alphaMode);
+    }
+
     public void glBlendFunc(int param1, int param2) {
         GL11.glBlendFunc(param1, param2);
     }
@@ -456,5 +460,10 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
     public void glDeleteVertexArrays(IntBuffer arrays) {
         checkLimit(arrays);
         ARBVertexArrayObject.glDeleteVertexArrays(arrays);
+    }
+
+    @Override
+    public void glFramebufferTextureLayer(int param1, int param2, int param3, int param4, int param5) {
+        GL30.glFramebufferTextureLayer(param1, param2, param3, param4, param5);
     }
 }

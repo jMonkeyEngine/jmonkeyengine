@@ -116,7 +116,7 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
             frames ++;
             t = t2;
 
-            if (total > 1000){
+            if (total > timer.getResolution()) {
                 fps = frames;
                 total = 0;
                 frames = 0;
@@ -202,7 +202,7 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
         offView.setOutputFrameBuffer(offBuffer);
 
         // setup framebuffer's scene
-        Box boxMesh = new Box(Vector3f.ZERO, 1,1,1);
+        Box boxMesh = new Box(1, 1, 1);
         Material material = assetManager.loadMaterial("Interface/Logo/Logo.j3m");
         offBox = new Geometry("box", boxMesh);
         offBox.setMaterial(material);

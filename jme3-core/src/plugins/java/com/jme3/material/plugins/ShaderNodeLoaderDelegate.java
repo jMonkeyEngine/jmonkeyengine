@@ -44,6 +44,7 @@ import com.jme3.shader.ShaderNodeDefinition;
 import com.jme3.shader.ShaderNodeVariable;
 import com.jme3.shader.ShaderUtils;
 import com.jme3.shader.UniformBinding;
+import com.jme3.shader.VarType;
 import com.jme3.shader.VariableMapping;
 import com.jme3.util.blockparser.Statement;
 import java.io.IOException;
@@ -58,7 +59,7 @@ import java.util.Map;
  *
  * Also it allows to load the ShaderNodes from a j3md file and build the
  * ShaderNodes list of each technique and the ShaderGenerationInfo needed to
- * generate the sahders
+ * generate shaders
  *
  * @author Nehon
  */
@@ -208,9 +209,9 @@ public class ShaderNodeLoaderDelegate {
      * ShaderNodesDefinition This method is used by the j3m loader.
      *
      * When loaded in a material, the definitions are not stored as a list, but
-     * they are stores in Shadernodes based onthis definition.
+     * they are stores in Shadernodes based on this definition.
      *
-     * The map is here to map the defintion to the nodes, and ovoid reloading
+     * The map is here to map the definition to the nodes, and ovoid reloading
      * already loaded definitions
      *
      * @param statements the list of statements to parse
@@ -221,7 +222,7 @@ public class ShaderNodeLoaderDelegate {
     }
 
     /**
-     * effectiveliy reads the ShaderNodesDefinitions block
+     * effectively reads the ShaderNodesDefinitions block
      *
      * @param statements the list of statements to parse
      * @param key the ShaderNodeDefinitionKey
@@ -272,7 +273,7 @@ public class ShaderNodeLoaderDelegate {
      * reads a variable declaration statement &lt;glslType&gt; &lt;varName&gt;
      *
      * @param statement the statement to parse
-     * @return a ShaderNodeVariable axtracted from the statement
+     * @return a ShaderNodeVariable extracted from the statement
      * @throws IOException
      */
     protected ShaderNodeVariable readVariable(Statement statement) throws IOException {
@@ -447,7 +448,7 @@ public class ShaderNodeLoaderDelegate {
     }
 
     /**
-     * searcha variable in the given list and updates its type and namespace
+     * search a variable in the given list and updates its type and namespace
      *
      * @param var the variable to update
      * @param list the variables list
@@ -530,7 +531,7 @@ public class ShaderNodeLoaderDelegate {
 
     /**
      * updates the right variable of the given mapping from a UniformBinding (a
-     * WorldParam) it checks if the unifrom hasn't already been loaded, add it
+     * WorldParam) it checks if the uniform hasn't already been loaded, add it
      * to the maps if not.
      *
      * @param param the WorldParam UniformBinding
@@ -558,7 +559,7 @@ public class ShaderNodeLoaderDelegate {
 
     /**
      * updates the right variable of the given mapping from a MatParam (a
-     * WorldParam) it checks if the unifrom hasn't already been loaded, add it
+     * WorldParam) it checks if the uniform hasn't already been loaded, add it
      * to the maps if not.
      *
      * @param param the MatParam
@@ -583,7 +584,7 @@ public class ShaderNodeLoaderDelegate {
                     //multiplicity is not an int attempting to find for a material parameter.
                     MatParam mp = findMatParam(multiplicity);
                     if (mp != null) {
-                        addDefine(multiplicity);
+                        addDefine(multiplicity, VarType.Int);
                         multiplicity = multiplicity.toUpperCase();
                     } else {
                         throw new MatParseException("Wrong multiplicity for variable" + mapping.getLeftVariable().getName() + ". " + multiplicity + " should be an int or a declared material parameter.", statement);
@@ -621,13 +622,13 @@ public class ShaderNodeLoaderDelegate {
     }
 
     /**
-     * Adds a define to the techniquedef
+     * Adds a define to the technique def
      *
      * @param paramName
      */
-    public void addDefine(String paramName) {
+    public void addDefine(String paramName, VarType paramType) {
         if (techniqueDef.getShaderParamDefine(paramName) == null) {
-            techniqueDef.addShaderParamDefine(paramName, paramName.toUpperCase());
+            techniqueDef.addShaderParamDefine(paramName, paramType, paramName.toUpperCase());
         }
     }
 
@@ -660,7 +661,7 @@ public class ShaderNodeLoaderDelegate {
         for (String string : defines) {
             MatParam param = findMatParam(string);
             if (param != null) {
-                addDefine(param.getName());
+                addDefine(param.getName(), param.getVarType());
             } else {
                 throw new MatParseException("Invalid condition, condition must match a Material Parameter named " + cond, statement);
             }
@@ -752,6 +753,7 @@ public class ShaderNodeLoaderDelegate {
             }
             right.setNameSpace(node.getName());
             right.setType(var.getType());
+            right.setMultiplicity(var.getMultiplicity());
             mapping.setRightVariable(right);            
             storeVaryings(node, mapping.getRightVariable());
 
@@ -765,7 +767,7 @@ public class ShaderNodeLoaderDelegate {
     /**
      * reads an output mapping
      *
-     * @param statement1 the staement being read
+     * @param statement1 the statement being read
      * @return the mapping
      * @throws IOException
      */
@@ -801,7 +803,7 @@ public class ShaderNodeLoaderDelegate {
     }
 
     /**
-     * Reads alist of ShaderNodes
+     * Reads a list of ShaderNodes
      *
      * @param statements the list of statements to read
      * @throws IOException
@@ -841,7 +843,7 @@ public class ShaderNodeLoaderDelegate {
      * retrieve the leftType corresponding sampler type from the rightType
      *
      * @param leftType the left samplerType
-     * @param rightType the right sampler type (can be multiple types sparated
+     * @param rightType the right sampler type (can be multiple types separated
      * by "|"
      * @return the type or null if not found
      */
@@ -883,7 +885,7 @@ public class ShaderNodeLoaderDelegate {
     /**
      * store an attribute
      *
-     * @param var the variable ot store
+     * @param var the variable to store
      */
     public void storeAttribute(ShaderNodeVariable var) {
         storeVariable(var, techniqueDef.getShaderGenerationInfo().getAttributes());
@@ -892,7 +894,7 @@ public class ShaderNodeLoaderDelegate {
     /**
      * store a vertex uniform
      *
-     * @param var the variable ot store
+     * @param var the variable to store
      */
     public void storeVertexUniform(ShaderNodeVariable var) {
         storeVariable(var, techniqueDef.getShaderGenerationInfo().getVertexUniforms());
@@ -902,7 +904,7 @@ public class ShaderNodeLoaderDelegate {
     /**
      * store a fragment uniform
      *
-     * @param var the variable ot store
+     * @param var the variable to store
      */
     public void storeFragmentUniform(ShaderNodeVariable var) {
         storeVariable(var, techniqueDef.getShaderGenerationInfo().getFragmentUniforms());
@@ -919,7 +921,7 @@ public class ShaderNodeLoaderDelegate {
     }
 
     /**
-     * find the definiton from this statement (loads it if necessary)
+     * find the definition from this statement (loads it if necessary)
      *
      * @param statement the statement being read
      * @return the definition
@@ -1047,7 +1049,7 @@ public class ShaderNodeLoaderDelegate {
     }
 
     /**
-     * check the types of a mapping, left type must match right type tkae the
+     * check the types of a mapping, left type must match right type take the
      * swizzle into account
      *
      * @param mapping the mapping

@@ -40,6 +40,8 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 
@@ -67,13 +69,33 @@ public class NormalRecalcControl extends AbstractControl {
 
     }
 
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public Object jmeClone() {
+        NormalRecalcControl control = (NormalRecalcControl)super.jmeClone();
+        control.setEnabled(true);
+        return control;
+    }
+
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+        this.terrain = cloner.clone(terrain);
+    }
+
+    @Override
     public Control cloneForSpatial(Spatial spatial) {
         NormalRecalcControl control = new NormalRecalcControl(terrain);
         control.setSpatial(spatial);
         control.setEnabled(true);
         return control;
     }
-    
+
     @Override
     public void setSpatial(Spatial spatial) {
         super.setSpatial(spatial);

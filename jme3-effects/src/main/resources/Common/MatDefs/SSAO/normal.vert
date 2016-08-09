@@ -19,6 +19,6 @@ void main(void)
    #ifdef NUM_BONES
        Skinning_Compute(modelSpacePos,modelSpaceNormals);
    #endif
-   normal = normalize(g_NormalMatrix * modelSpaceNormals);
-   gl_Position = g_WorldViewProjectionMatrix * modelSpacePos;
+   normal = normalize(TransformNormal(modelSpaceNormals));
+   gl_Position = TransformWorldViewProjection(modelSpacePos);
 }

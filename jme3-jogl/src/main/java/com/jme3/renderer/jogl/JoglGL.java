@@ -79,6 +79,11 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
     }
 
     @Override
+    public void glBlendEquationSeparate(int colorMode, int alphaMode){
+        GLContext.getCurrentGL().glBlendEquationSeparate(colorMode, alphaMode);
+    }
+
+    @Override
 	public void glBlendFunc(int param1, int param2) {
         GLContext.getCurrentGL().glBlendFunc(param1, param2);
     }
@@ -519,19 +524,28 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
 
     @Override
 	public int glGetAttribLocation(int param1, String param2) {
-        // FIXME: Does JOGL require null-terminated strings?????
-        return GLContext.getCurrentGL().getGL2ES2().glGetAttribLocation(param1, param2 + "\0");
+    	// JOGL 2.0 doesn't need a null-terminated string
+        return GLContext.getCurrentGL().getGL2ES2().glGetAttribLocation(param1, param2);
     }
 
     @Override
 	public int glGetUniformLocation(int param1, String param2) {
-        // FIXME: Does JOGL require null-terminated strings????????
-        return GLContext.getCurrentGL().getGL2ES2().glGetUniformLocation(param1, param2 + "\0");
+    	// JOGL 2.0 doesn't need a null-terminated string
+        return GLContext.getCurrentGL().getGL2ES2().glGetUniformLocation(param1, param2);
     }
 
     @Override
 	public void glShaderSource(int param1, String[] param2, IntBuffer param3) {
         checkLimit(param3);
+        
+        int param3pos = param3.position();
+        try {
+        	for (final String param2string : param2) {
+        		param3.put(Math.max(param2string.length(), param2string.getBytes().length));
+        	}
+        } finally {
+        	param3.position(param3pos);
+        }
         GLContext.getCurrentGL().getGL2ES2().glShaderSource(param1, param2.length, param2, param3);
     }
 
@@ -590,5 +604,10 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
 	public void glDeleteVertexArrays(IntBuffer arrays) {
         checkLimit(arrays);
         GLContext.getCurrentGL().getGL2ES3().glDeleteVertexArrays(arrays.limit(), arrays);
+    }
+
+    @Override
+    public void glFramebufferTextureLayer(int param1, int param2, int param3, int param4, int param5) {
+        GLContext.getCurrentGL().getGL3().glFramebufferTextureLayer(param1, param2, param3, param4, param5);
     }
 }

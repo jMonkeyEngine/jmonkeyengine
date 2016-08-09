@@ -38,6 +38,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 
 /**
@@ -81,7 +82,7 @@ public class RadialParticleInfluencer extends DefaultParticleInfluencer {
 
     /**
      * the origin used for computing the radial velocity direction
-     * @param origin 
+     * @param origin
      */
     public void setOrigin(Vector3f origin) {
         this.origin = origin;
@@ -97,7 +98,7 @@ public class RadialParticleInfluencer extends DefaultParticleInfluencer {
 
     /**
      * the radial velocity
-     * @param radialVelocity 
+     * @param radialVelocity
      */
     public void setRadialVelocity(float radialVelocity) {
         this.radialVelocity = radialVelocity;
@@ -105,7 +106,7 @@ public class RadialParticleInfluencer extends DefaultParticleInfluencer {
 
     /**
      * nullify y component of particle velocity to make the effect expand only on x and z axis
-     * @return 
+     * @return
      */
     public boolean isHorizontal() {
         return horizontal;
@@ -113,11 +114,23 @@ public class RadialParticleInfluencer extends DefaultParticleInfluencer {
 
     /**
      * nullify y component of particle velocity to make the effect expand only on x and z axis
-     * @param horizontal 
+     * @param horizontal
      */
     public void setHorizontal(boolean horizontal) {
         this.horizontal = horizontal;
     }
+
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
+        // Change in behavior: the old origin was not cloned -pspeed
+        this.origin = cloner.clone(origin);
+    }
+
 
     @Override
     public void write(JmeExporter ex) throws IOException {

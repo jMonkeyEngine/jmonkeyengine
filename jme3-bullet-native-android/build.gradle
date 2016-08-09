@@ -186,7 +186,9 @@ task copyPreCompiledBulletLibs(type: Copy) {
     into outputDir
 }
 
-if (rootProject.ndkExists) {
+// ndkExists is a boolean from the build.gradle in the root project
+// buildNativeProjects is a string set to "true"
+if (ndkExists && buildNativeProjects == "true") {
     // build native libs and update stored pre-compiled libs to commit
     compileJava.dependsOn { updatePreCompiledBulletLibs }
 } else {

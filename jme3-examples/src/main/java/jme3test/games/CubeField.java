@@ -197,9 +197,9 @@ public class CubeField extends SimpleApplication implements AnalogListener {
     private Geometry createFirstCube() {
         Vector3f loc = player.getLocalTranslation();
         loc.addLocal(4, 0, 0);
-        Box b = new Box(loc, 1, 1, 1);
-
+        Box b = new Box(1, 1, 1);
         Geometry geom = new Geometry("Box", b);
+        geom.setLocalTranslation(loc);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.Blue);
         geom.setMaterial(mat);
@@ -216,9 +216,14 @@ public class CubeField extends SimpleApplication implements AnalogListener {
         playerMesh.setMaterial(playerMaterial);
         playerMesh.setName("player");
 
-        Box floor = new Box(Vector3f.ZERO.add(playerMesh.getLocalTranslation().getX(),
-                playerMesh.getLocalTranslation().getY() - 1, 0), 100, 0, 100);
+        Box floor = new Box(100, 0, 100);
+        
         Geometry floorMesh = new Geometry("Box", floor);
+
+        Vector3f translation = Vector3f.ZERO.add(playerMesh.getLocalTranslation().getX(),
+                playerMesh.getLocalTranslation().getY() - 1, 0);
+
+        floorMesh.setLocalTranslation(translation);
 
         floorMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         floorMaterial.setColor("Color", ColorRGBA.LightGray);

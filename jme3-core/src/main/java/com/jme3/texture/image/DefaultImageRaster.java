@@ -51,7 +51,8 @@ public class DefaultImageRaster extends ImageRaster {
     
     private void rangeCheck(int x, int y) {
         if (x < 0 || y < 0 || x >= width || y >= height) {
-            throw new IllegalArgumentException("x and y must be inside the image dimensions");
+            throw new IllegalArgumentException("x and y must be inside the image dimensions:" 
+                                                + x + ", " + y + " in:" + width + ", " + height);
         }
     }
     

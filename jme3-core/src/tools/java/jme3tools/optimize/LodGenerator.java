@@ -81,14 +81,14 @@ import java.util.logging.Logger;
  * informations can be found here http://www.melax.com/polychop
  * http://sajty.elementfx.com/progressivemesh/GSoC2012.pdf </p>
  *
- * <p>The algorithm sort the vertice according to their collapsse cost
+ * <p>The algorithm sort vertices according to their collapse cost
  * ascending. It collapse from the "cheapest" vertex to the more expensive.<br>
  * <strong>Usage : </strong><br>
  * <pre>
  *      LodGenerator lODGenerator = new LodGenerator(geometry);
  *      lODGenerator.bakeLods(reductionMethod,reductionvalue);
  * </pre> redutionMethod type is VertexReductionMethod described here
- * {@link TriangleReductionMethod} reductionvalue depends on the
+ * {@link TriangleReductionMethod} reduction value depends on the
  * reductionMethod<p>
  *
  *
@@ -111,7 +111,7 @@ public class LodGenerator {
     private Mesh mesh;
 
     /**
-     * Describe the way trinagles will be removed. <br> PROPORTIONAL :
+     * Describe the way triangles will be removed. <br> PROPORTIONAL :
      * Percentage of triangles to be removed from the mesh. Valid range is a
      * number between 0.0 and 1.0 <br> CONSTANT : Triangle count to be removed
      * from the mesh. Pass only integers or it will be rounded. <br>
@@ -240,7 +240,7 @@ public class LodGenerator {
         }
     }
     /**
-     * Compartator used to sort vertices according to their collapse cost
+     * Comparator used to sort vertices according to their collapse cost
      */
     private Comparator collapseComparator = new Comparator<Vertex>() {
         public int compare(Vertex o1, Vertex o2) {
@@ -525,14 +525,14 @@ public class LodGenerator {
 
     /**
      * Computes the lod and return a list of VertexBuffers that can then be used
-     * for lod (use Mesg.setLodLevels(VertexBuffer[]))<br>
+     * for lod (use Mesh.setLodLevels(VertexBuffer[]))<br>
      *
      * This method must be fed with the reduction method
      * {@link TriangleReductionMethod} and a list of reduction values.<br> for
      * each value a lod will be generated. <br> The resulting array will always
      * contain at index 0 the original index buffer of the mesh. <p>
      * <strong>Important note :</strong> some meshes cannot be decimated, so the
-     * result of this method can varry depending of the given mesh. Also the
+     * result of this method can vary depending of the given mesh. Also the
      * reduction values are indicative and the produces mesh will not always
      * meet the required reduction.
      *
@@ -597,7 +597,7 @@ public class LodGenerator {
      * This method must be fed with the reduction method
      * {@link TriangleReductionMethod} and a list of reduction values.<br> for
      * each value a lod will be generated. <p> <strong>Important note :</strong>
-     * some meshes cannot be decimated, so the result of this method can varry
+     * some meshes cannot be decimated, so the result of this method can vary
      * depending of the given mesh. Also the reduction values are indicative and
      * the produces mesh will not always meet the required reduction.
      *

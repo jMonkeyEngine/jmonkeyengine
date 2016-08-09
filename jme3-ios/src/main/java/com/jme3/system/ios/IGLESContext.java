@@ -36,6 +36,7 @@ import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.system.*;
 import com.jme3.input.ios.IosInputHandler;
+import com.jme3.opencl.Context;
 import com.jme3.renderer.ios.IosGL;
 import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GLDebugES;
@@ -211,5 +212,11 @@ public class IGLESContext implements JmeContext {
             } catch (InterruptedException ex) {
             }
         }
+    }
+
+    @Override
+    public Context getOpenCLContext() {
+        logger.warning("OpenCL not yet supported on this platform");
+        return null;
     }
 }

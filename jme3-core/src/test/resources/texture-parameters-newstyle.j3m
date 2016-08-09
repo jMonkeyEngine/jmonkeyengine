@@ -6,6 +6,7 @@ Material Test : matdef.j3md {
          Min: MinTrilinear "min.png"
          Mag: MagBilinear "mag.png"
          RepeatAxis: WrapRepeat_T "repeat-axis.png"
-         Combined: MagNearest MinBilinearNoMipMaps Flip WrapRepeat "combined.png"
+         Combined: Flip MagNearest MinBilinearNoMipMaps WrapRepeat "combined.png"
+         LooksLikeOldStyle: Flip WrapRepeat "oldstyle.png"
      }
 }

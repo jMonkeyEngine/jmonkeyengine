@@ -31,6 +31,8 @@
  */
 package com.jme3.system;
 
+import com.jme3.opencl.DefaultPlatformChooser;
+import com.jme3.opencl.PlatformChooser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -110,6 +112,33 @@ public final class AppSettings extends HashMap<String, Object> {
      * @see AppSettings#setAudioRenderer(java.lang.String)
      */
     public static final String ANDROID_OPENAL_SOFT = "OpenAL_SOFT";
+    
+    /**
+     * Use JogAmp's JOGL as the display system, with the OpenGL forward compatible profile
+     * <p>
+     * N.B: This backend is EXPERIMENTAL
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String JOGL_OPENGL_FORWARD_COMPATIBLE = "JOGL_OPENGL_FORWARD_COMPATIBLE";
+    
+    /**
+     * Use JogAmp's JOGL as the display system with the backward compatible profile
+     * <p>
+     * N.B: This backend is EXPERIMENTAL
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String JOGL_OPENGL_BACKWARD_COMPATIBLE = "JOGL_OPENGL_BACKWARD_COMPATIBLE";
+    
+    /**
+     * Use JogAmp's JOAL as the display system
+     * <p>
+     * N.B: This backend is EXPERIMENTAL
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String JOAL = "JOAL";
 
     static {
         defaults.put("Width", 640);
@@ -120,7 +149,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("StencilBits", 0);
         defaults.put("Samples", 0);
         defaults.put("Fullscreen", false);
-        defaults.put("Title", "jMonkey Engine 3.0");
+        defaults.put("Title", JmeVersion.FULL_NAME);
         defaults.put("Renderer", LWJGL_OPENGL2);
         defaults.put("AudioRenderer", LWJGL_OPENAL);
         defaults.put("DisableJoysticks", true);
@@ -133,7 +162,9 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("GammaCorrection", false);
         defaults.put("Resizable", false);
         defaults.put("SwapBuffers", true);
-      //  defaults.put("Icons", null);
+        defaults.put("OpenCL", false);
+        defaults.put("OpenCLPlatformChooser", DefaultPlatformChooser.class.getName());
+        //  defaults.put("Icons", null);
     }
 
     /**
@@ -936,7 +967,7 @@ public final class AppSettings extends HashMap<String, Object> {
         return getString("SettingsDialogImage");
     }
 
-    public boolean getGammaCorrection() {
+    public boolean isGammaCorrection() {
         return getBoolean("GammaCorrection");
     }
     
@@ -991,5 +1022,34 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public boolean isSwapBuffers() {
         return getBoolean("SwapBuffers");
+    }
+
+    /**
+     * True to enable the creation of an OpenCL context.
+     *
+     * @param support
+     */
+    public void setOpenCLSupport(boolean support) {
+        putBoolean("OpenCL", support);
+    }
+
+    public boolean isOpenCLSupport() {
+        return getBoolean("OpenCL");
+    }
+    
+    /**
+     * Sets a custom platform chooser. This chooser specifies which platform and
+     * which devices are used for the OpenCL context.
+     * 
+     * Default: an implementation defined one.
+     * 
+     * @param chooser the class of the chooser, must have a default constructor
+     */
+    public void setOpenCLPlatformChooser(Class<? extends PlatformChooser> chooser) {
+        putString("OpenCLPlatformChooser", chooser.getName());
+    }
+    
+    public String getOpenCLPlatformChooser() {
+        return getString("OpenCLPlatformChooser");
     }
 }

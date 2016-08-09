@@ -410,6 +410,19 @@ public abstract class Filter implements Savable {
     }
 
     /**
+     * Override this method and return true if you want the scene (input) texture
+     * to use bilinear filtering or false to use nearest filtering.
+     * 
+     * Typically filters that perform samples <em>in between</em> pixels 
+     * should enable filtering.
+     * 
+     * @return true to use linear filtering, false to use nearest filtering.
+     */
+    protected boolean isRequiresBilinear() {
+        return false;
+    }
+    
+    /**
      * returns the list of the postRender passes
      * @return
      */

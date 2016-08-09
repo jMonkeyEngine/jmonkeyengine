@@ -32,19 +32,21 @@
 package com.jme3.util;
 
 import com.jme3.util.IntMap.Entry;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
  * Similar to a {@link Map} except that ints are used as keys.
- * 
+ *
  * Taken from <a href="http://code.google.com/p/skorpios/">http://code.google.com/p/skorpios/</a>
- * 
- * @author Nate 
+ *
+ * @author Nate
  */
-public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable {
-            
+public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable, JmeCloneable {
+
     private Entry[] table;
     private final float loadFactor;
     private int size, mask, capacity, threshold;
@@ -91,6 +93,26 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable {
         }catch (CloneNotSupportedException ex){
         }
         return null;
+    }
+
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public Object jmeClone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new AssertionError();
+        }
+    }
+
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        this.table = cloner.clone(table);
     }
 
     public boolean containsValue(Object value) {
@@ -228,7 +250,7 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable {
             idx = 0;
             el = 0;
         }
-        
+
         public boolean hasNext() {
             return el < size;
         }
@@ -255,20 +277,20 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable {
                 // the entry was null. find another non-null entry.
                 cur = table[++idx];
             } while (cur == null);
-            
+
             Entry e = cur;
             cur = cur.next;
             el ++;
-            
+
             return e;
         }
 
         public void remove() {
         }
-        
+
     }
-    
-    public static final class Entry<T> implements Cloneable {
+
+    public static final class Entry<T> implements Cloneable, JmeCloneable {
 
         final int key;
         T value;
@@ -302,6 +324,21 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable {
             }catch (CloneNotSupportedException ex){
             }
             return null;
+        }
+
+        @Override
+        public Object jmeClone() {
+            try {
+                return super.clone();
+            } catch (CloneNotSupportedException ex) {
+                throw new AssertionError();
+            }
+        }
+
+        @Override
+        public void cloneFields( Cloner cloner, Object original ) {
+            this.value = cloner.clone(value);
+            this.next = cloner.clone(next);
         }
     }
 }

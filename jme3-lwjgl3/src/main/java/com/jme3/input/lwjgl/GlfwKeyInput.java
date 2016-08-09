@@ -35,15 +35,22 @@ package com.jme3.input.lwjgl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.KeyInputEvent;
-import com.jme3.system.lwjgl.LwjglTimer;
 import com.jme3.system.lwjgl.LwjglWindow;
+
+import org.lwjgl.glfw.GLFWCharCallback;
 import org.lwjgl.glfw.GLFWKeyCallback;
 
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Logger;
 
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_LAST;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.GLFW_REPEAT;
+import static org.lwjgl.glfw.GLFW.glfwGetTime;
+import static org.lwjgl.glfw.GLFW.glfwSetCharCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
 
 public class GlfwKeyInput implements KeyInput {
 
@@ -53,6 +60,7 @@ public class GlfwKeyInput implements KeyInput {
     private RawInputListener listener;
     private boolean initialized;
     private GLFWKeyCallback keyCallback;
+    private GLFWCharCallback charCallback;
     private Queue<KeyInputEvent> keyInputEvents = new LinkedList<KeyInputEvent>();
 
     public GlfwKeyInput(LwjglWindow context) {
@@ -67,20 +75,46 @@ public class GlfwKeyInput implements KeyInput {
         glfwSetKeyCallback(context.getWindowHandle(), keyCallback = new GLFWKeyCallback() {
             @Override
             public void invoke(long window, int key, int scancode, int action, int mods) {
-                final KeyInputEvent evt = new KeyInputEvent(scancode, (char) key, GLFW_PRESS == action, GLFW_REPEAT == action);
-                evt.setTime(getInputTimeNanos());
-                keyInputEvents.add(evt);
+
+                if (key < 0 || key > GLFW_KEY_LAST) {
+                    return;
+                }
+
+                int jmeKey = GlfwKeyMap.toJmeKeyCode(key);
+
+                final KeyInputEvent event = new KeyInputEvent(jmeKey, '\0', GLFW_PRESS == action, GLFW_REPEAT == action);
+                event.setTime(getInputTimeNanos());
+
+                keyInputEvents.add(event);
             }
         });
 
-        glfwSetInputMode(context.getWindowHandle(), GLFW_STICKY_KEYS, 1);
+        glfwSetCharCallback(context.getWindowHandle(), charCallback = new GLFWCharCallback() {
+
+            @Override
+            public void invoke(long window, int codepoint) {
+
+                final char keyChar = (char) codepoint;
+
+                final KeyInputEvent pressed = new KeyInputEvent(KeyInput.KEY_UNKNOWN, keyChar, true, false);
+                pressed.setTime(getInputTimeNanos());
+
+                keyInputEvents.add(pressed);
+
+                final KeyInputEvent released = new KeyInputEvent(KeyInput.KEY_UNKNOWN, keyChar, false, false);
+                released.setTime(getInputTimeNanos());
+
+                keyInputEvents.add(released);
+            }
+        });
 
         initialized = true;
         logger.fine("Keyboard created.");
     }
 
     public int getKeyCount() {
-        return 0; // TODO: How do we figure this out?
+        // This might not be correct
+        return GLFW_KEY_LAST - GLFW_KEY_SPACE;
     }
 
     public void update() {
@@ -99,6 +133,7 @@ public class GlfwKeyInput implements KeyInput {
         }
 
         keyCallback.release();
+        charCallback.release();
         logger.fine("Keyboard destroyed.");
     }
 
@@ -111,6 +146,6 @@ public class GlfwKeyInput implements KeyInput {
     }
 
     public long getInputTimeNanos() {
-        return (long) (glfwGetTime() * LwjglTimer.LWJGL_TIME_TO_NANOS);
+        return (long) (glfwGetTime() * 1000000000);
     }
 }

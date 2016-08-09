@@ -99,6 +99,7 @@ public class Grid extends Mesh {
 
         updateBound();
         updateCounts();
+        setStatic();
     }
     
 }

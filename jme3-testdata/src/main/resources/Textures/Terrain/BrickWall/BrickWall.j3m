@@ -1,7 +1,8 @@
 Material Pong Rock : Common/MatDefs/Light/Lighting.j3md {
      MaterialParameters {
-         Shininess: 2.0
-         DiffuseMap : Repeat Textures/Terrain/BrickWall/BrickWall.jpg                  
-         ParallaxMap : Repeat Textures/Terrain/BrickWall/BrickWall_height.jpg
+         Shininess            : 2.0
+         DiffuseMap           : Repeat Textures/Terrain/BrickWall/BrickWall.dds
+         NormalMap            : Repeat Textures/Terrain/BrickWall/BrickWall_normal_parallax.dds
+         PackedNormalParallax : true
      }
 }

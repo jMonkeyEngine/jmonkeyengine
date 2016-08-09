@@ -87,8 +87,25 @@ final public class FastMath {
         return (number > 0) && (number & (number - 1)) == 0;
     }
 
+    /**
+     * Get the next power of two of the given number.
+     * 
+     * E.g. for an input 100, this returns 128.
+     * Returns 1 for all numbers <= 1.
+     * 
+     * @param number The number to obtain the POT for.
+     * @return The next power of two.
+     */
     public static int nearestPowerOfTwo(int number) {
-        return (int) Math.pow(2, Math.ceil(Math.log(number) / Math.log(2)));
+        number--;
+        number |= number >> 1;
+        number |= number >> 2;
+        number |= number >> 4;
+        number |= number >> 8;
+        number |= number >> 16;
+        number++;
+        number += (number == 0) ? 1 : 0;
+        return number;
     }
 
     /**

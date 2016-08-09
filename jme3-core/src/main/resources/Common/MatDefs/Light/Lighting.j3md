@@ -113,11 +113,13 @@ MaterialDef Phong Lighting {
                 
         //For instancing
         Boolean UseInstancing
+
+        Boolean BackfaceShadows : false
     }
 
- Technique {
+    Technique {
         LightMode SinglePass
-        
+
         VertexShader GLSL100:   Common/MatDefs/Light/SPLighting.vert
         FragmentShader GLSL100: Common/MatDefs/Light/SPLighting.frag
 
@@ -147,7 +149,7 @@ MaterialDef Phong Lighting {
             SEPARATE_TEXCOORD : SeparateTexCoord
             DISCARD_ALPHA : AlphaDiscardThreshold
             USE_REFLECTION : EnvMap
-            SPHERE_MAP : SphereMap  
+            SPHERE_MAP : EnvMapAsSphereMap  
             NUM_BONES : NumberOfBones                        
             INSTANCING : UseInstancing
         }
@@ -186,7 +188,7 @@ MaterialDef Phong Lighting {
             SEPARATE_TEXCOORD : SeparateTexCoord
             DISCARD_ALPHA : AlphaDiscardThreshold
             USE_REFLECTION : EnvMap
-            SPHERE_MAP : SphereMap  
+            SPHERE_MAP : EnvMapAsSphereMap  
             NUM_BONES : NumberOfBones                        
             INSTANCING : UseInstancing
         }
@@ -207,46 +209,38 @@ MaterialDef Phong Lighting {
         }
 
         Defines {
-            COLOR_MAP : ColorMap
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
         }
 
-        ForcedRenderState {
-            FaceCull Off
-            DepthTest On
-            DepthWrite On
-            PolyOffset 5 3
-            ColorWrite Off
-        }
-
     }
 
 
-    Technique PostShadow15{
-        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow15.vert
-        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow15.frag
+    Technique PostShadow {
+        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
             WorldMatrix
             ViewProjectionMatrix
             ViewMatrix
+            NormalMatrix
         }
 
         Defines {
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
-            DISCARD_ALPHA : AlphaDiscardThreshold           
-            COLOR_MAP : ColorMap
+            DISCARD_ALPHA : AlphaDiscardThreshold
             SHADOWMAP_SIZE : ShadowMapSize
             FADE : FadeInfo
             PSSM : Splits
             POINTLIGHT : LightViewProjectionMatrix5
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            BACKFACE_SHADOWS: BackfaceShadows
         }
 
         ForcedRenderState {
@@ -265,14 +259,14 @@ MaterialDef Phong Lighting {
             WorldMatrix
             ViewProjectionMatrix
             ViewMatrix
+            NormalMatrix
         }
 
         Defines {
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
-            DISCARD_ALPHA : AlphaDiscardThreshold           
-            COLOR_MAP : ColorMap
+            DISCARD_ALPHA : AlphaDiscardThreshold
             SHADOWMAP_SIZE : ShadowMapSize
             FADE : FadeInfo
             PSSM : Splits
@@ -346,10 +340,6 @@ MaterialDef Phong Lighting {
         Defines {
             VERTEX_COLOR : UseVertexColor
             MATERIAL_COLORS : UseMaterialColors
-            V_TANGENT : VTangent
-            MINNAERT  : Minnaert
-            WARDISO   : WardIso
-
             DIFFUSEMAP : DiffuseMap
             NORMALMAP : NormalMap
             SPECULARMAP : SpecularMap

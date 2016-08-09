@@ -76,6 +76,18 @@ public abstract class AbstractKernel implements Kernel
         log.log( Level.SEVERE, "Unhanddled kernel error", e );
     }
 
+    protected void wakeupReader() {
+        // If there are no pending messages then add one so that the
+        // kernel-user knows to wake up if it is only listening for
+        // envelopes.
+        if( !hasEnvelopes() ) {
+            // Note: this is not really a race condition.  At worst, our
+            // event has already been handled by now and it does no harm
+            // to check again.
+            addEnvelope( EVENTS_PENDING );
+        }
+    }
+
     protected long nextEndpointId()
     {
         return nextId.getAndIncrement();

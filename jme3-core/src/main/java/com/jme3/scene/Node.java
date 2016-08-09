@@ -40,6 +40,7 @@ import com.jme3.export.Savable;
 import com.jme3.material.Material;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +54,7 @@ import java.util.logging.Logger;
  * node maintains a collection of children and handles merging said children
  * into a single bound to allow for very fast culling of multiple nodes. Node
  * allows for any number of children to be attached.
- * 
+ *
  * @author Mark Powell
  * @author Gregg Patton
  * @author Joshua Slack
@@ -62,26 +63,25 @@ public class Node extends Spatial {
 
     private static final Logger logger = Logger.getLogger(Node.class.getName());
 
-    /** 
+    /**
      * This node's children.
      */
     protected SafeArrayList<Spatial> children = new SafeArrayList<Spatial>(Spatial.class);
 
     /**
      * If this node is a root, this list will contain the current
-     * set of children (and children of children) that require 
+     * set of children (and children of children) that require
      * updateLogicalState() to be called as indicated by their
      * requiresUpdate() method.
      */
     private SafeArrayList<Spatial> updateList = null;
-    
     /**
      * False if the update list requires rebuilding.  This is Node.class
      * specific and therefore not included as part of the Spatial update flags.
      * A flag is used instead of nulling the updateList to avoid reallocating
      * a whole list every time the scene graph changes.
-     */     
-    private boolean updateListValid = false;    
+     */
+    private boolean updateListValid = false;
 
     /**
      * Serialization only. Do not use.
@@ -93,29 +93,28 @@ public class Node extends Spatial {
     /**
      * Constructor instantiates a new <code>Node</code> with a default empty
      * list for containing children.
-     * 
+     *
      * @param name the name of the scene element. This is required for
      * identification and comparison purposes.
      */
     public Node(String name) {
         super(name);
-        
         // For backwards compatibility, only clear the "requires
         // update" flag if we are not a subclass of Node.
         // This prevents subclass from silently failing to receive
         // updates when they upgrade.
-        setRequiresUpdates(Node.class != getClass()); 
+        setRequiresUpdates(Node.class != getClass());
     }
 
     /**
-     * 
+     *
      * <code>getQuantity</code> returns the number of children this node
      * maintains.
-     * 
+     *
      * @return the number of children this node maintains.
      */
     public int getQuantity() {
-        return children.size();        
+        return children.size();
     }
 
     @Override
@@ -141,9 +140,20 @@ public class Node extends Spatial {
     }
 
     @Override
+    protected void setMatParamOverrideRefresh() {
+        super.setMatParamOverrideRefresh();
+        for (Spatial child : children.getArray()) {
+            if ((child.refreshFlags & RF_MATPARAM_OVERRIDE) != 0) {
+                continue;
+            }
+
+            child.setMatParamOverrideRefresh();
+        }
+    }
+
+    @Override
     protected void updateWorldBound(){
         super.updateWorldBound();
-        
         // for a node, the world bound is a combination of all it's children
         // bounds
         BoundingVolume resultBound = null;
@@ -167,7 +177,7 @@ public class Node extends Spatial {
     protected void setParent(Node parent) {
         if( this.parent == null && parent != null ) {
             // We were a root before and now we aren't... make sure if
-            // we had an updateList then we clear it completely to 
+            // we had an updateList then we clear it completely to
             // avoid holding the dead array.
             updateList = null;
             updateListValid = false;
@@ -195,7 +205,7 @@ public class Node extends Spatial {
     void invalidateUpdateList() {
         updateListValid = false;
         if ( parent != null ) {
-          parent.invalidateUpdateList();
+            parent.invalidateUpdateList();
         }
     }
 
@@ -204,15 +214,15 @@ public class Node extends Spatial {
             return updateList;
         }
         if( updateList == null ) {
-            updateList = new SafeArrayList<Spatial>(Spatial.class);            
+            updateList = new SafeArrayList<Spatial>(Spatial.class);
         } else {
             updateList.clear();
         }
 
         // Build the list
         addUpdateChildren(updateList);
-        updateListValid = true;       
-        return updateList;   
+        updateListValid = true;
+        return updateList;
     }
 
     @Override
@@ -238,19 +248,19 @@ public class Node extends Spatial {
             // This branch has no geometric state that requires updates.
             return;
         }
-        
         if ((refreshFlags & RF_LIGHTLIST) != 0){
             updateWorldLightList();
         }
-
         if ((refreshFlags & RF_TRANSFORM) != 0){
             // combine with parent transforms- same for all spatial
             // subclasses.
             updateWorldTransforms();
         }
+        if ((refreshFlags & RF_MATPARAM_OVERRIDE) != 0) {
+            updateMatParamOverrides();
+        }
 
         refreshFlags &= ~RF_CHILD_LIGHTLIST;
-        
         if (!children.isEmpty()) {
             // the important part- make sure child geometric state is refreshed
             // first before updating own world bound. This saves
@@ -260,7 +270,7 @@ public class Node extends Spatial {
             for (Spatial child : children.getArray()) {
                 child.updateGeometricState();
             }
-        }            
+        }
 
         if ((refreshFlags & RF_BOUND) != 0){
             updateWorldBound();
@@ -272,7 +282,7 @@ public class Node extends Spatial {
     /**
      * <code>getTriangleCount</code> returns the number of triangles contained
      * in all sub-branches of this node that contain geometry.
-     * 
+     *
      * @return the triangle count of this branch.
      */
     @Override
@@ -286,11 +296,10 @@ public class Node extends Spatial {
 
         return count;
     }
-    
     /**
      * <code>getVertexCount</code> returns the number of vertices contained
      * in all sub-branches of this node that contain geometry.
-     * 
+     *
      * @return the vertex count of this branch.
      */
     @Override
@@ -311,7 +320,7 @@ public class Node extends Spatial {
      * returned.
      * <br>
      * If the child already had a parent it is detached from that former parent.
-     * 
+     *
      * @param child
      *            the child to attach to this node.
      * @return the number of children maintained by this node.
@@ -320,15 +329,14 @@ public class Node extends Spatial {
     public int attachChild(Spatial child) {
         return attachChildAt(child, children.size());
     }
-    
     /**
-     * 
+     *
      * <code>attachChildAt</code> attaches a child to this node at an index. This node
      * becomes the child's parent. The current number of children maintained is
      * returned.
      * <br>
      * If the child already had a parent it is detached from that former parent.
-     * 
+     *
      * @param child
      *            the child to attach to this node.
      * @return the number of children maintained by this node.
@@ -344,27 +352,25 @@ public class Node extends Spatial {
             }
             child.setParent(this);
             children.add(index, child);
-            
             // XXX: Not entirely correct? Forces bound update up the
             // tree stemming from the attached child. Also forces
             // transform update down the tree-
             child.setTransformRefresh();
             child.setLightListRefresh();
+            child.setMatParamOverrideRefresh();
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE,"Child ({0}) attached to this node ({1})",
                         new Object[]{child.getName(), getName()});
             }
-            
             invalidateUpdateList();
         }
-        
         return children.size();
     }
 
     /**
      * <code>detachChild</code> removes a given child from the node's list.
      * This child will no longer be maintained.
-     * 
+     *
      * @param child
      *            the child to remove.
      * @return the index the child was at. -1 if the child was not in the list.
@@ -379,16 +385,16 @@ public class Node extends Spatial {
                 detachChildAt(index);
             }
             return index;
-        } 
-            
-        return -1;        
+        }
+
+        return -1;
     }
 
     /**
      * <code>detachChild</code> removes a given child from the node's list.
      * This child will no longe be maintained. Only the first child with a
      * matching name is removed.
-     * 
+     *
      * @param childName
      *            the child to remove.
      * @return the index the child was at. -1 if the child was not in the list.
@@ -408,10 +414,10 @@ public class Node extends Spatial {
     }
 
     /**
-     * 
+     *
      * <code>detachChildAt</code> removes a child at a given index. That child
      * is returned for saving purposes.
-     * 
+     *
      * @param index
      *            the index of the child to be removed.
      * @return the child at the supplied index.
@@ -432,6 +438,7 @@ public class Node extends Spatial {
             child.setTransformRefresh();
             // lights are also inherited from parent
             child.setLightListRefresh();
+            child.setMatParamOverrideRefresh();
             
             invalidateUpdateList();
         }
@@ -439,7 +446,7 @@ public class Node extends Spatial {
     }
 
     /**
-     * 
+     *
      * <code>detachAllChildren</code> removes all children attached to this
      * node.
      */
@@ -458,7 +465,7 @@ public class Node extends Spatial {
      * in this node's list of children.
      * @param sp
      *          The spatial to look up
-     * @return 
+     * @return
      *          The index of the spatial in the node's children, or -1
      *          if the spatial is not attached to this node
      */
@@ -468,7 +475,7 @@ public class Node extends Spatial {
 
     /**
      * More efficient than e.g detaching and attaching as no updates are needed.
-     * 
+     *
      * @param index1 The index of the first child to swap
      * @param index2 The index of the second child to swap
      */
@@ -481,9 +488,9 @@ public class Node extends Spatial {
     }
 
     /**
-     * 
+     *
      * <code>getChild</code> returns a child at a given index.
-     * 
+     *
      * @param i
      *            the index to retrieve the child from.
      * @return the child at a specified index.
@@ -497,13 +504,13 @@ public class Node extends Spatial {
      * given name (case sensitive.) This method does a depth first recursive
      * search of all descendants of this node, it will return the first spatial
      * found with a matching name.
-     * 
+     *
      * @param name
      *            the name of the child to retrieve. If null, we'll return null.
      * @return the child if found, or null.
      */
     public Spatial getChild(String name) {
-        if (name == null) 
+        if (name == null)
             return null;
 
         for (Spatial child : children.getArray()) {
@@ -518,11 +525,10 @@ public class Node extends Spatial {
         }
         return null;
     }
-    
     /**
      * determines if the provided Spatial is contained in the children list of
      * this node.
-     * 
+     *
      * @param spat
      *            the child object to look for.
      * @return true if the object is contained, false otherwise.
@@ -566,10 +572,32 @@ public class Node extends Spatial {
 
     public int collideWith(Collidable other, CollisionResults results){
         int total = 0;
-        
         // optimization: try collideWith BoundingVolume to avoid possibly redundant tests on children
-        // number 4 in condition is somewhat arbitrary. When there is only one child, the boundingVolume test is redundant at all. 
+        // number 4 in condition is somewhat arbitrary. When there is only one child, the boundingVolume test is redundant at all.
         // The idea is when there are few children, it can be too expensive to test boundingVolume first.
+        /*
+        I'm removing this change until some issues can be addressed and I really
+        think it needs to be implemented a better way anyway.
+        First, it causes issues for anyone doing collideWith() with BoundingVolumes
+        and expecting it to trickle down to the children.  For example, children
+        with BoundingSphere bounding volumes and collideWith(BoundingSphere).  Doing
+        a collision check at the parent level then has to do a BoundingSphere to BoundingBox
+        collision which isn't resolved.  (Having to come up with a collision point in that
+        case is tricky and the first sign that this is the wrong approach.)
+        Second, the rippling changes this caused to 'optimize' collideWith() for this
+        special use-case are another sign that this approach was a bit dodgy.  The whole
+        idea of calculating a full collision just to see if the two shapes collide at all
+        is very wasteful.
+        A proper implementation should support a simpler boolean check that doesn't do
+        all of that calculation.  For example, if 'other' is also a BoundingVolume (ie: 99.9%
+        of all non-Ray cases) then a direct BV to BV intersects() test can be done.  So much
+        faster.  And if 'other' _is_ a Ray then the BV.intersects(Ray) call can be done.
+        I don't have time to do it right now but I'll at least un-break a bunch of peoples'
+        code until it can be 'optimized' properly.  Hopefully it's not too late to back out
+        the other dodgy ripples this caused.  -pspeed (hindsight-expert ;))
+        Note: the code itself is relatively simple to implement but I don't have time to
+        a) test it, and b) see if '> 4' is still a decent check for it.  Could be it's fast
+        enough to do all the time for > 1.
         if (children.size() > 4)
         {
           BoundingVolume bv = this.getWorldBound();
@@ -578,6 +606,7 @@ public class Node extends Spatial {
           // collideWith without CollisionResults parameter used to avoid allocation when possible
           if (bv.collideWith(other) == 0) return 0;
         }
+        */
         for (Spatial child : children.getArray()){
             total += child.collideWith(other, results);
         }
@@ -612,7 +641,7 @@ public class Node extends Spatial {
      * @return Non-null, but possibly 0-element, list of matching Spatials (also Instances extending Spatials).
      *
      * @see java.util.regex.Pattern
-     * @see Spatial#matches(java.lang.Class, java.lang.String) 
+     * @see Spatial#matches(java.lang.Class, java.lang.String)
      */
     @SuppressWarnings("unchecked")
     public <T extends Spatial>List<T> descendantMatches(
@@ -632,7 +661,7 @@ public class Node extends Spatial {
     /**
      * Convenience wrapper.
      *
-     * @see #descendantMatches(java.lang.Class, java.lang.String) 
+     * @see #descendantMatches(java.lang.Class, java.lang.String)
      */
     public <T extends Spatial>List<T> descendantMatches(
             Class<T> spatialSubclass) {
@@ -642,7 +671,7 @@ public class Node extends Spatial {
     /**
      * Convenience wrapper.
      *
-     * @see #descendantMatches(java.lang.Class, java.lang.String) 
+     * @see #descendantMatches(java.lang.Class, java.lang.String)
      */
     public <T extends Spatial>List<T> descendantMatches(String nameRegex) {
         return descendantMatches(null, nameRegex);
@@ -657,11 +686,25 @@ public class Node extends Spatial {
 //            childClone.parent = nodeClone;
 //            nodeClone.children.add(childClone);
 //        }
+
+        // Reset the fields of the clone that should be in a 'new' state.
+        nodeClone.updateList = null;
+        nodeClone.updateListValid = false; // safe because parent is nulled out in super.clone()
         return nodeClone;
     }
 
     @Override
-    public Spatial deepClone(){
+    public Spatial deepClone() {
+        Node nodeClone = (Node)super.deepClone();
+
+        // Reset the fields of the clone that should be in a 'new' state.
+        nodeClone.updateList = null;
+        nodeClone.updateListValid = false; // safe because parent is nulled out in super.clone()
+
+        return nodeClone;
+    }
+
+    public Spatial oldDeepClone(){
         Node nodeClone = (Node) super.clone();
         nodeClone.children = new SafeArrayList<Spatial>(Spatial.class);
         for (Spatial child : children){
@@ -672,6 +715,20 @@ public class Node extends Spatial {
         return nodeClone;
     }
 
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
+        this.children = cloner.clone(children);
+
+        // Only the outer cloning thing knows whether this should be nulled
+        // or not... after all, we might be cloning a root node in which case
+        // cloning this list is fine.
+        this.updateList = cloner.clone(updateList);
+    }
     @Override
     public void write(JmeExporter e) throws IOException {
         super.write(e);
@@ -683,8 +740,7 @@ public class Node extends Spatial {
         // XXX: Load children before loading itself!!
         // This prevents empty children list if controls query
         // it in Control.setSpatial().
-        
-        children = new SafeArrayList( Spatial.class, 
+        children = new SafeArrayList( Spatial.class,
                                       e.getCapsule(this).readSavableArrayList("children", null) );
 
         // go through children and set parent to this node
@@ -693,7 +749,6 @@ public class Node extends Spatial {
                 child.parent = this;
             }
         }
-        
         super.read(e);
     }
 
@@ -714,15 +769,20 @@ public class Node extends Spatial {
             }
         }
     }
-    
     @Override
-    public void depthFirstTraversal(SceneGraphVisitor visitor) {
-        for (Spatial child : children.getArray()) {
-            child.depthFirstTraversal(visitor);
+    public void depthFirstTraversal(SceneGraphVisitor visitor, DFSMode mode) {
+        if (mode == DFSMode.POST_ORDER) {
+            for (Spatial child : children.getArray()) {
+                child.depthFirstTraversal(visitor);
+            }
+            visitor.visit(this);
+        } else { //pre order
+            visitor.visit(this);
+            for (Spatial child : children.getArray()) {
+                child.depthFirstTraversal(visitor);
+            }
         }
-        visitor.visit(this);
     }
-    
     @Override
     protected void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue) {
         queue.addAll(children);

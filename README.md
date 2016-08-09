@@ -22,8 +22,8 @@ The engine is used by several commercial game studios and computer-science cours
 
 ## Getting started
 
-Go to http://hub.jmonkeyengine.org/downloads/ to download the jMonkeyEngine SDK.
-[Read the wiki](http://hub.jmonkeyengine.org/wiki/doku.php) for a complete install guide. Power up with some SDK Plugins and AssetPacks and you are off to the races. At this point you're gonna want to [join the forum](http://hub.jmonkeyengine.org/) so our tribe can grow stronger.
+Go to https://github.com/jMonkeyEngine/sdk/releases to download the jMonkeyEngine SDK.
+[Read the wiki](https://wiki.jmonkeyengine.org/wiki/doku.php) for a complete install guide. Power up with some SDK Plugins and AssetPacks and you are off to the races. At this point you're gonna want to [join the forum](http://hub.jmonkeyengine.org/) so our tribe can grow stronger.
 
 Note: The master branch on GitHub is a development version of the engine and is NOT MEANT TO BE USED IN PRODUCTION, it will break constantly during development of the stable jME versions!
 
@@ -37,7 +37,7 @@ Plus a bunch of awesome libraries & tight integrations like Bullet, Blender, Nif
  
 ### Documentation
 
-Did you miss it? Don't sweat it, [here it is again](http://hub.jmonkeyengine.org/wiki/doku.php).
+Did you miss it? Don't sweat it, [here it is again](https://wiki.jmonkeyengine.org/wiki/doku.php).
 
 ### Contributing
 
@@ -46,3 +46,4 @@ Read our [contribution guide](https://github.com/jMonkeyEngine/jmonkeyengine/blo
 ### License
 
 New BSD (3-clause) License. In other words, you do whatever makes you happy!
+

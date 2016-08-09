@@ -37,6 +37,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
+import com.jme3.opencl.Context;
 import com.jme3.renderer.Renderer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -128,12 +129,13 @@ public class NullContext implements JmeContext, Runnable {
     public void run(){
         initInThread();
 
-        while (!needClose.get()){
+        do {
             listener.update();
 
-            if (frameRate > 0)
+            if (frameRate > 0) {
                 sync(frameRate);
-        }
+            }
+        } while (!needClose.get());
 
         deinitInThread();
 
@@ -227,5 +229,10 @@ public class NullContext implements JmeContext, Runnable {
     public boolean isRenderable() {
         return true; // Doesn't really matter if true or false. Either way
                      // RenderManager won't render anything.
+    }
+
+    @Override
+    public Context getOpenCLContext() {
+        return null;
     }
 }

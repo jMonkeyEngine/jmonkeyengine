@@ -65,7 +65,7 @@ public class TestSpotLightShadows extends SimpleApplication {
 
     public void setupLighting() {
         AmbientLight al = new AmbientLight();
-        al.setColor(ColorRGBA.White.mult(0.3f));
+        al.setColor(ColorRGBA.White.mult(0.02f));
         rootNode.addLight(al);
 
         rootNode.setShadowMode(ShadowMode.CastAndReceive);
@@ -132,11 +132,6 @@ public class TestSpotLightShadows extends SimpleApplication {
         }, "stop");
 
         inputManager.addMapping("stop", new KeyTrigger(KeyInput.KEY_1));
-        
-        MaterialDebugAppState s = new MaterialDebugAppState();
-        s.registerBinding("Common/MatDefs/Shadow/PostShadow15.frag", rootNode);
-        s.registerBinding(new KeyTrigger(KeyInput.KEY_R), rootNode);
-        stateManager.attach(s);
         flyCam.setDragToRotate(true);
     }
 
@@ -153,7 +148,7 @@ public class TestSpotLightShadows extends SimpleApplication {
         //  mat.setBoolean("VertexLighting", true);
 
 
-        Box floor = new Box(Vector3f.ZERO, 50, 1f, 50);
+        Box floor = new Box(50, 1f, 50);
         TangentBinormalGenerator.generate(floor);
         floor.scaleTextureCoordinates(new Vector2f(5, 5));
         Geometry floorGeom = new Geometry("Floor", floor);

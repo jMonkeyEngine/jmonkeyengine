@@ -146,7 +146,6 @@ public class Face implements Comparator<Integer> {
     /**
      * @return current indexes of the face (if it is already triangulated then more than one index group will be in the result list)
      */
-    @SuppressWarnings("unchecked")
     public List<List<Integer>> getCurrentIndexes() {
         if (triangulatedFaces == null) {
             return Arrays.asList(indexes.getAll());
@@ -266,40 +265,52 @@ public class Face implements Comparator<Integer> {
     /**
      * The method triangulates the face.
      */
-    public void triangulate() {
+    public TriangulationWarning triangulate() {
         LOGGER.fine("Triangulating face.");
         assert indexes.size() >= 3 : "Invalid indexes amount for face. 3 is the required minimum!";
         triangulatedFaces = new ArrayList<IndexesLoop>(indexes.size() - 2);
         Integer[] indexes = new Integer[3];
-
+        TriangulationWarning warning = TriangulationWarning.NONE;
+        
         try {
             List<Face> facesToTriangulate = new ArrayList<Face>(Arrays.asList(this.clone()));
-            while (facesToTriangulate.size() > 0) {
+            while (facesToTriangulate.size() > 0 && warning == TriangulationWarning.NONE) {
                 Face face = facesToTriangulate.remove(0);
-                int previousIndex1 = -1, previousIndex2 = -1, previousIndex3 = -1;
-                while (face.vertexCount() > 0) {
-                    indexes[0] = face.getIndex(0);
-                    indexes[1] = face.findClosestVertex(indexes[0], -1);
-                    indexes[2] = face.findClosestVertex(indexes[0], indexes[1]);
+                // two special cases will improve the computations speed
+                if(face.getIndexes().size() == 3) {
+                	triangulatedFaces.add(face.getIndexes().clone());
+                } else {
+                	int previousIndex1 = -1, previousIndex2 = -1, previousIndex3 = -1;
+                    while (face.vertexCount() > 0) {
+                        indexes[0] = face.getIndex(0);
+                        indexes[1] = face.findClosestVertex(indexes[0], -1);
+                        indexes[2] = face.findClosestVertex(indexes[0], indexes[1]);
 
-                    LOGGER.finer("Veryfying improper triangulation of the temporal mesh.");
-                    if (indexes[0] < 0 || indexes[1] < 0 || indexes[2] < 0) {
-                        throw new BlenderFileException("Unable to find two closest vertices while triangulating face in mesh: " + temporalMesh + "Please apply triangulation modifier in blender as a workaround and load again!");
-                    }
-                    if (previousIndex1 == indexes[0] && previousIndex2 == indexes[1] && previousIndex3 == indexes[2]) {
-                        throw new BlenderFileException("Infinite loop detected during triangulation of mesh: " + temporalMesh + "Please apply triangulation modifier in blender as a workaround and load again!");
-                    }
-                    previousIndex1 = indexes[0];
-                    previousIndex2 = indexes[1];
-                    previousIndex3 = indexes[2];
+                        LOGGER.finer("Veryfying improper triangulation of the temporal mesh.");
+                        if (indexes[0] < 0 || indexes[1] < 0 || indexes[2] < 0) {
+                            warning = TriangulationWarning.CLOSEST_VERTS;
+                            break;
+                        }
+                        if (previousIndex1 == indexes[0] && previousIndex2 == indexes[1] && previousIndex3 == indexes[2]) {
+                            warning = TriangulationWarning.INFINITE_LOOP;
+                            break;
+                        }
+                        previousIndex1 = indexes[0];
+                        previousIndex2 = indexes[1];
+                        previousIndex3 = indexes[2];
 
-                    Arrays.sort(indexes, this);
-                    facesToTriangulate.addAll(face.detachTriangle(indexes));
-                    triangulatedFaces.add(new IndexesLoop(indexes));
+                        Arrays.sort(indexes, this);
+                        facesToTriangulate.addAll(face.detachTriangle(indexes));
+                        triangulatedFaces.add(new IndexesLoop(indexes));
+                    }
                 }
             }
         } catch (BlenderFileException e) {
-            LOGGER.log(Level.WARNING, "Errors occured during face triangulation: {0}. The face will be triangulated with the most direct algorithm, " + "but the results might not be identical to blender.", e.getLocalizedMessage());
+            LOGGER.log(Level.WARNING, "Errors occured during face triangulation: {0}. The face will be triangulated with the most direct algorithm, but the results might not be identical to blender.", e.getLocalizedMessage());
+            warning = TriangulationWarning.UNKNOWN;
+        }
+        if(warning != TriangulationWarning.NONE) {
+            LOGGER.finest("Triangulation the face using the most direct algorithm.");
             indexes[0] = this.getIndex(0);
             for (int i = 1; i < this.vertexCount() - 1; ++i) {
                 indexes[1] = this.getIndex(i);
@@ -307,8 +318,34 @@ public class Face implements Comparator<Integer> {
                 triangulatedFaces.add(new IndexesLoop(indexes));
             }
         }
+        return warning;
     }
+    
+    /**
+     * A warning that indicates a problem with face triangulation. The warnings are collected and displayed once for each type for a mesh to
+     * avoid multiple warning loggings during triangulation. The amount of iterations can be really huge and logging every single failure would
+     * really slow down the importing process and make logs unreadable.
+     * 
+     * @author Marcin Roguski (Kaelthas)
+     */
+    public static enum TriangulationWarning {
+        NONE(null), 
+        CLOSEST_VERTS("Unable to find two closest vertices while triangulating face."), 
+        INFINITE_LOOP("Infinite loop detected during triangulation."), 
+        UNKNOWN("There was an unknown problem with face triangulation. Please see log for details.");
 
+        private String description;
+
+        private TriangulationWarning(String description) {
+            this.description = description;
+        }
+
+        @Override
+        public String toString() {
+            return description;
+        }
+    }
+    
     /**
      * @return <b>true</b> if the face is smooth and <b>false</b> otherwise
      */
@@ -335,17 +372,23 @@ public class Face implements Comparator<Integer> {
         return "Face " + indexes;
     }
 
-    /**
-     * The method finds the closest vertex to the one specified by <b>index</b>.
-     * If the vertexToIgnore is positive than it will be ignored in the result.
-     * The closes vertex must be able to create an edge that is fully contained within the face and does not cross
-     * any other edges.
-     * @param index
-     *            the index of the vertex that needs to have found the nearest neighbour
-     * @param indexToIgnore
-     *            the index to ignore in the result (pass -1 if none is to be ignored)
-     * @return the index of the closest vertex to the given one
-     */
+	/**
+	 * The method finds the closest vertex to the one specified by <b>index</b>.
+	 * If the vertexToIgnore is positive than it will be ignored in the result.
+	 * The closest vertex must be able to create an edge that is fully contained
+	 * within the face and does not cross any other edges. Also if the
+	 * vertexToIgnore is not negative then the condition that the edge between
+	 * the found index and the one to ignore is inside the face must also be
+	 * met.
+	 * 
+	 * @param index
+	 *            the index of the vertex that needs to have found the nearest
+	 *            neighbour
+	 * @param indexToIgnore
+	 *            the index to ignore in the result (pass -1 if none is to be
+	 *            ignored)
+	 * @return the index of the closest vertex to the given one
+	 */
     private int findClosestVertex(int index, int indexToIgnore) {
         int result = -1;
         List<Vector3f> vertices = temporalMesh.getVertices();
@@ -355,7 +398,7 @@ public class Face implements Comparator<Integer> {
             if (i != index && i != indexToIgnore) {
                 Vector3f v2 = vertices.get(i);
                 float d = v2.distance(v1);
-                if (d < distance && this.contains(new Edge(index, i, 0, true, temporalMesh))) {
+                if (d < distance && this.contains(new Edge(index, i, 0, true, temporalMesh)) && (indexToIgnore < 0 || this.contains(new Edge(indexToIgnore, i, 0, true, temporalMesh)))) {
                     result = i;
                     distance = d;
                 }
@@ -376,11 +419,9 @@ public class Face implements Comparator<Integer> {
         int index2 = edge.getSecondIndex();
         // check if the line between the vertices is not a border edge of the face
         if (!indexes.areNeighbours(index1, index2)) {
-            List<Vector3f> vertices = temporalMesh.getVertices();
-
             for (int i = 0; i < indexes.size(); ++i) {
-                int i1 = this.getIndex(i);
-                int i2 = this.getIndex(i + 1);
+                int i1 = this.getIndex(i - 1);
+                int i2 = this.getIndex(i);
                 // check if the edges have no common verts (because if they do, they cannot cross)
                 if (i1 != index1 && i1 != index2 && i2 != index1 && i2 != index2) {
                     if (edge.cross(new Edge(i1, i2, 0, false, temporalMesh))) {
@@ -389,35 +430,53 @@ public class Face implements Comparator<Integer> {
                 }
             }
 
-            // the edge does NOT cross any of other edges, so now we need to verify if it is inside the face or outside
-            // we check it by comparing the angle that is created by vertices: [index1 - 1, index1, index1 + 1]
-            // with the one creaded by vertices: [index1 - 1, index1, index2]
-            // if the latter is greater than it means that the edge is outside the face
-            // IMPORTANT: we assume that all vertices are in one plane (this should be ensured before creating the Face)
-            int indexOfIndex1 = indexes.indexOf(index1);
-            int indexMinus1 = this.getIndex(indexOfIndex1 - 1);// indexOfIndex1 == 0 ? indexes.get(indexes.size() - 1) : indexes.get(indexOfIndex1 - 1);
-            int indexPlus1 = this.getIndex(indexOfIndex1 + 1);// indexOfIndex1 == indexes.size() - 1 ? 0 : indexes.get(indexOfIndex1 + 1);
-
-            Vector3f edge1 = vertices.get(indexMinus1).subtract(vertices.get(index1)).normalizeLocal();
-            Vector3f edge2 = vertices.get(indexPlus1).subtract(vertices.get(index1)).normalizeLocal();
-            Vector3f newEdge = vertices.get(index2).subtract(vertices.get(index1)).normalizeLocal();
-
-            // verify f the later computed angle is inside or outside the face
-            Vector3f direction1 = edge1.cross(edge2).normalizeLocal();
-            Vector3f direction2 = edge1.cross(newEdge).normalizeLocal();
-            Vector3f normal = temporalMesh.getNormals().get(index1);
-
-            boolean isAngle1Interior = normal.dot(direction1) < 0;
-            boolean isAngle2Interior = normal.dot(direction2) < 0;
-
-            float angle1 = isAngle1Interior ? edge1.angleBetween(edge2) : FastMath.TWO_PI - edge1.angleBetween(edge2);
-            float angle2 = isAngle2Interior ? edge1.angleBetween(newEdge) : FastMath.TWO_PI - edge1.angleBetween(newEdge);
-
-            return angle1 >= angle2;
+            // computing the edge's middle point
+            Vector3f edgeMiddlePoint = edge.computeCentroid();
+            // computing the edge that is perpendicular to the given edge and has a length of 1 (length actually does not matter)
+            Vector3f edgeVector = edge.getSecondVertex().subtract(edge.getFirstVertex());
+            Vector3f edgeNormal = temporalMesh.getNormals().get(index1).cross(edgeVector).normalizeLocal();
+            Edge e = new Edge(edgeMiddlePoint, edgeNormal.add(edgeMiddlePoint));
+            // compute the vectors from the middle point to the crossing between the extended edge 'e' and other edges of the face
+            List<Vector3f> crossingVectors = new ArrayList<Vector3f>();
+            for (int i = 0; i < indexes.size(); ++i) {
+                int i1 = this.getIndex(i);
+                int i2 = this.getIndex(i + 1);
+            	Vector3f crossPoint = e.getCrossPoint(new Edge(i1, i2, 0, false, temporalMesh), true, false);
+                if(crossPoint != null) {
+                	crossingVectors.add(crossPoint.subtractLocal(edgeMiddlePoint));
+                }
+            }
+            if(crossingVectors.size() == 0) {
+            	return false;// edges do not cross
+            }
+            
+            // use only distinct vertices (doubles may appear if the crossing point is a vertex)
+            List<Vector3f> distinctCrossingVectors = new ArrayList<Vector3f>();
+            for(Vector3f cv : crossingVectors) {
+        		double minDistance = Double.MAX_VALUE;
+        		for(Vector3f dcv : distinctCrossingVectors) {
+        			minDistance = Math.min(minDistance, dcv.distance(cv));
+        		}
+        		if(minDistance > FastMath.FLT_EPSILON) {
+        			distinctCrossingVectors.add(cv);
+        		}
+            }
+            
+            if(distinctCrossingVectors.size() == 0) {
+            	throw new IllegalStateException("There MUST be at least 2 crossing vertices!");
+            }
+            // checking if all crossing vectors point to the same direction (if yes then the edge is outside the face)
+            float direction = Math.signum(distinctCrossingVectors.get(0).dot(edgeNormal));// if at least one vector has different direction that this - it means that the edge is inside the face
+            for(int i=1;i<distinctCrossingVectors.size();++i) {
+            	if(direction != Math.signum(distinctCrossingVectors.get(i).dot(edgeNormal))) {
+            		return true;
+            	}
+            }
+            return false;
         }
         return true;
     }
-
+    
     @Override
     public int hashCode() {
         final int prime = 31;

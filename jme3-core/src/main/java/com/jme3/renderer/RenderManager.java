@@ -34,6 +34,7 @@ package com.jme3.renderer;
 import com.jme3.light.DefaultLightFilter;
 import com.jme3.light.LightFilter;
 import com.jme3.light.LightList;
+import com.jme3.material.MatParamOverride;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialDef;
 import com.jme3.material.RenderState;
@@ -49,7 +50,7 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.*;
-import com.jme3.shader.Uniform;
+import com.jme3.shader.Shader;
 import com.jme3.shader.UniformBinding;
 import com.jme3.shader.UniformBindingManager;
 import com.jme3.system.NullRenderer;
@@ -73,24 +74,25 @@ import java.util.logging.Logger;
 public class RenderManager {
 
     private static final Logger logger = Logger.getLogger(RenderManager.class.getName());
-    private Renderer renderer;
-    private UniformBindingManager uniformBindingManager = new UniformBindingManager();
-    private ArrayList<ViewPort> preViewPorts = new ArrayList<ViewPort>();
-    private ArrayList<ViewPort> viewPorts = new ArrayList<ViewPort>();
-    private ArrayList<ViewPort> postViewPorts = new ArrayList<ViewPort>();
+    private final Renderer renderer;
+    private final UniformBindingManager uniformBindingManager = new UniformBindingManager();
+    private final ArrayList<ViewPort> preViewPorts = new ArrayList<>();
+    private final ArrayList<ViewPort> viewPorts = new ArrayList<>();
+    private final ArrayList<ViewPort> postViewPorts = new ArrayList<>();
     private Camera prevCam = null;
     private Material forcedMaterial = null;
     private String forcedTechnique = null;
     private RenderState forcedRenderState = null;
+    private final SafeArrayList<MatParamOverride> forcedOverrides = new SafeArrayList<>(MatParamOverride.class);
     private int viewX, viewY, viewWidth, viewHeight;
-    private Matrix4f orthoMatrix = new Matrix4f();
-    private LightList filteredLightList = new LightList(null);
-    private String tmpTech;
+    private final Matrix4f orthoMatrix = new Matrix4f();
+    private final LightList filteredLightList = new LightList(null);
     private boolean handleTranlucentBucket = true;
     private AppProfiler prof;
     private LightFilter lightFilter = new DefaultLightFilter();
     private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
     private int singlePassLightBatchSize = 1;
+
 
     /**
      * Create a high-level rendering interface over the
@@ -427,6 +429,44 @@ public class RenderManager {
     }
 
     /**
+     * Adds a forced material parameter to use when rendering geometries.
+     * <p>
+     * The provided parameter takes precedence over parameters set on the
+     * material or any overrides that exist in the scene graph that have the
+     * same name.
+     *
+     * @param override The override to add
+     * @see MatParamOverride
+     * @see #removeForcedMatParam(com.jme3.material.MatParamOverride)
+     */
+    public void addForcedMatParam(MatParamOverride override) {
+        forcedOverrides.add(override);
+    }
+
+    /**
+     * Remove a forced material parameter previously added.
+     *
+     * @param override The override to remove.
+     * @see #addForcedMatParam(com.jme3.material.MatParamOverride)
+     */
+    public void removeForcedMatParam(MatParamOverride override) {
+        forcedOverrides.remove(override);
+    }
+
+    /**
+     * Get the forced material parameters applied to rendered geometries.
+     * <p>
+     * Forced parameters can be added via
+     * {@link #addForcedMatParam(com.jme3.material.MatParamOverride)} or removed
+     * via {@link #removeForcedMatParam(com.jme3.material.MatParamOverride)}.
+     *
+     * @return The forced material parameters.
+     */
+    public SafeArrayList<MatParamOverride> getForcedMatParams() {
+        return forcedOverrides;
+    }
+
+    /**
      * Enable or disable alpha-to-coverage. 
      * <p>
      * When alpha to coverage is enabled and the renderer implementation
@@ -483,8 +523,8 @@ public class RenderManager {
      * Updates the given list of uniforms with {@link UniformBinding uniform bindings}
      * based on the current world state.
      */
-    public void updateUniformBindings(List<Uniform> params) {
-        uniformBindingManager.updateUniformBindings(params);
+    public void updateUniformBindings(Shader shader) {
+        uniformBindingManager.updateUniformBindings(shader);
     }
 
     /**
@@ -511,61 +551,69 @@ public class RenderManager {
      * for rendering the material, and the material's own render state is ignored.
      * Otherwise, the material's render state is used as intended.
      * 
-     * @param g The geometry to render
-     * 
+     * @param geom The geometry to render
+       * 
      * @see Technique
      * @see RenderState
      * @see Material#selectTechnique(java.lang.String, com.jme3.renderer.RenderManager) 
      * @see Material#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager) 
      */
-    public void renderGeometry(Geometry g) {
-        if (g.isIgnoreTransform()) {
+    public void renderGeometry(Geometry geom) {
+        if (geom.isIgnoreTransform()) {
             setWorldMatrix(Matrix4f.IDENTITY);
         } else {
-            setWorldMatrix(g.getWorldMatrix());
+            setWorldMatrix(geom.getWorldMatrix());
         }
         
         // Perform light filtering if we have a light filter.
-        LightList lightList = g.getWorldLightList();
+        LightList lightList = geom.getWorldLightList();
         
         if (lightFilter != null) {
             filteredLightList.clear();
-            lightFilter.filterLights(g, filteredLightList);
+            lightFilter.filterLights(geom, filteredLightList);
             lightList = filteredLightList;
         }
-        
+
+        Material material = geom.getMaterial();
 
         //if forcedTechnique we try to force it for render,
         //if it does not exists in the mat def, we check for forcedMaterial and render the geom if not null
         //else the geom is not rendered
         if (forcedTechnique != null) {
-            if (g.getMaterial().getMaterialDef().getTechniqueDef(forcedTechnique) != null) {
-                tmpTech = g.getMaterial().getActiveTechnique() != null ? g.getMaterial().getActiveTechnique().getDef().getName() : "Default";
-                g.getMaterial().selectTechnique(forcedTechnique, this);
+            MaterialDef matDef = material.getMaterialDef();
+            if (matDef.getTechniqueDefs(forcedTechnique) != null) {
+
+                Technique activeTechnique = material.getActiveTechnique();
+
+                String previousTechniqueName = activeTechnique != null
+                        ? activeTechnique.getDef().getName()
+                        : TechniqueDef.DEFAULT_TECHNIQUE_NAME;
+
+                geom.getMaterial().selectTechnique(forcedTechnique, this);
                 //saving forcedRenderState for future calls
                 RenderState tmpRs = forcedRenderState;
-                if (g.getMaterial().getActiveTechnique().getDef().getForcedRenderState() != null) {
+                if (geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState() != null) {
                     //forcing forced technique renderState
-                    forcedRenderState = g.getMaterial().getActiveTechnique().getDef().getForcedRenderState();
+                    forcedRenderState = geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState();
                 }
                 // use geometry's material
-                g.getMaterial().render(g, lightList, this);
-                g.getMaterial().selectTechnique(tmpTech, this);
+                material.render(geom, lightList, this);
+                material.selectTechnique(previousTechniqueName, this);
 
                 //restoring forcedRenderState
                 forcedRenderState = tmpRs;
 
                 //Reverted this part from revision 6197
-                //If forcedTechnique does not exists, and frocedMaterial is not set, the geom MUST NOT be rendered
+                //If forcedTechnique does not exists, and forcedMaterial is not set, the geom MUST NOT be rendered
             } else if (forcedMaterial != null) {
                 // use forced material
-                forcedMaterial.render(g, lightList, this);
+                forcedMaterial.render(geom, lightList, this);
             }
         } else if (forcedMaterial != null) {
             // use forced material
-            forcedMaterial.render(g, lightList, this);
+            forcedMaterial.render(geom, lightList, this);
         } else {
-            g.getMaterial().render(g, lightList, this);
+            material.render(geom, lightList, this);
         }
     }
 
@@ -616,7 +664,9 @@ public class RenderManager {
 
             gm.getMaterial().preload(this);
             Mesh mesh = gm.getMesh();
-            if (mesh != null) {
+            if (mesh != null
+                    && mesh.getVertexCount() != 0
+                    && mesh.getTriangleCount() != 0) {
                 for (VertexBuffer vb : mesh.getBufferList().getArray()) {
                     if (vb.getData() != null && vb.getUsage() != VertexBuffer.Usage.CpuOnly) {
                         renderer.updateBufferData(vb);
@@ -746,29 +796,55 @@ public class RenderManager {
     }
 
     /**
-     * Sets the light filter to use when rendering Lighted Geometries
+     * Sets the light filter to use when rendering lit Geometries.
      * 
      * @see LightFilter
-     * @param lightFilter The light filter tose. Set it to null if you want all lights to be rendered
+     * @param lightFilter The light filter. Set it to null if you want all lights to be rendered.
      */
     public void setLightFilter(LightFilter lightFilter) {
         this.lightFilter = lightFilter;
     }
+    
+    /**
+     * Returns the current LightFilter.
+     * 
+     * @return the current light filter 
+     */
+    public LightFilter getLightFilter() {
+        return this.lightFilter;
+    }
 
+    /**
+     * Defines what light mode will be selected when a technique offers several light modes.
+     * @param preferredLightMode The light mode to use.
+     */
     public void setPreferredLightMode(TechniqueDef.LightMode preferredLightMode) {
         this.preferredLightMode = preferredLightMode;
     }
 
+    /**
+     * returns the preferred light mode.
+     * @return the light mode.
+     */
     public TechniqueDef.LightMode getPreferredLightMode() {
         return preferredLightMode;
     }
 
+    /**
+     * returns the number of lights used for each pass when the light mode is single pass.
+     * @return the number of lights.
+     */
     public int getSinglePassLightBatchSize() {
         return singlePassLightBatchSize;
     }
 
+    /**
+     * Sets the number of lights to use for each pass when the light mode is single pass.
+     * @param singlePassLightBatchSize the number of lights.
+     */
     public void setSinglePassLightBatchSize(int singlePassLightBatchSize) {
-        this.singlePassLightBatchSize = singlePassLightBatchSize;
+        // Ensure the batch size is no less than 1
+        this.singlePassLightBatchSize = singlePassLightBatchSize < 1 ? 1 : singlePassLightBatchSize;
     }
     
     
@@ -979,8 +1055,8 @@ public class RenderManager {
      * which were not rendered because of a missing shadow renderer.</li>
      * </ul>
      * 
-     * @param vp
-     * @param tpf 
+     * @param vp View port to render
+     * @param tpf Time per frame value
      */
     public void renderViewPort(ViewPort vp, float tpf) {
         if (!vp.isEnabled()) {

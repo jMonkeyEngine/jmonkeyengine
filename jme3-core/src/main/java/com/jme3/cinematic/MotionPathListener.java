@@ -34,7 +34,7 @@ package com.jme3.cinematic;
 import com.jme3.cinematic.events.MotionEvent;
 
 /**
- * Trigger the events appening on an motion path
+ * Trigger the events happening on an motion path
  * @author Nehon
  */
 public interface MotionPathListener {

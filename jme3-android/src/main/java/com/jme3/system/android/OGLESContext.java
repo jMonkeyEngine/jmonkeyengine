@@ -457,4 +457,10 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             }
         });
     }
+
+    @Override
+    public com.jme3.opencl.Context getOpenCLContext() {
+        logger.warning("OpenCL is not yet supported on android");
+        return null;
+    }
 }

@@ -53,9 +53,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * An appstate for composing and playing cut scenes in a game. The cineamtic
+ * An appstate for composing and playing cut scenes in a game. The cinematic
  * schedules CinematicEvents over a timeline. Once the Cinematic created it has
- * to be attched to the stateManager.
+ * to be attached to the stateManager.
  *
  * You can add various CinematicEvents to a Cinematic, see package
  * com.jme3.cinematic.events
@@ -70,7 +70,7 @@ import java.util.logging.Logger;
  * Cinematic#enqueueCinematicEvent(com.jme3.cinematic.events.CinematicEvent)
  * that enqueue events one after the other according to their initialDuration
  *
- * a cinematic has convenient mathods to handle the playback :
+ * a cinematic has convenient methods to handle the playback :
  * @see Cinematic#play()
  * @see Cinematic#pause()
  * @see Cinematic#stop()
@@ -214,7 +214,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     }
 
     /**
-     * used internally for srialization
+     * used internally for serialization
      *
      * @param im
      * @throws IOException
@@ -273,7 +273,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
 
     /**
      * passing true has the same effect as play() you should use play(),
-     * pause(), stop() to handle the cinemaic playing state.
+     * pause(), stop() to handle the cinematic playing state.
      *
      * @param enabled true or false
      */
@@ -349,7 +349,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     }
 
     /**
-     * This is used internally but can be alled to shuffle through the
+     * This is used internally but can be called to shuffle through the
      * cinematic.
      *
      * @param time the time to shuffle to.
@@ -386,7 +386,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * Adds a cinematic event to this cinematic at the given timestamp. This
      * operation returns a keyFrame
      *
-     * @param timeStamp the time when the event will start after the begining of
+     * @param timeStamp the time when the event will start after the beginning of
      * the cinematic
      * @param cinematicEvent the cinematic event
      * @return the keyFrame for that event.
@@ -411,7 +411,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * duration
      *
      * @param cinematicEvent the cinematic event to enqueue
-     * @return the timestamp the evnt was scheduled.
+     * @return the timestamp the event was scheduled.
      */
     public float enqueueCinematicEvent(CinematicEvent cinematicEvent) {
         float scheduleTime = nextEnqueue;
@@ -494,7 +494,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     }
 
     /**
-     * fits the duration of the cinamatic to the duration of all its child
+     * fits the duration of the cinematic to the duration of all its child
      * cinematic events
      */
     public void fitDuration() {
@@ -537,7 +537,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     /**
      * returns a cameraNode given its name
      *
-     * @param cameraName the camera name (as registerd in
+     * @param cameraName the camera name (as registered in
      * Cinematic#bindCamera())
      * @return the cameraNode for this name
      */
@@ -560,7 +560,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * Sets the active camera instantly (use activateCamera if you want to
      * schedule that event)
      *
-     * @param cameraName the camera name (as registerd in
+     * @param cameraName the camera name (as registered in
      * Cinematic#bindCamera())
      */
     public void setActiveCamera(String cameraName) {
@@ -576,7 +576,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * schedule an event that will activate the camera at the given time
      *
      * @param timeStamp the time to activate the cam
-     * @param cameraName the camera name (as registerd in
+     * @param cameraName the camera name (as registered in
      * Cinematic#bindCamera())
      */
     public void activateCamera(final float timeStamp, final String cameraName) {
@@ -680,7 +680,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * sets the scene to use for this cinematic it is expected that the scene is
      * added before adding events to the cinematic
      *
-     * @param scene the scene where the cinematic should ttake place.
+     * @param scene the scene where the cinematic should take place.
      */
     public void setScene(Node scene) {
         this.scene = scene;

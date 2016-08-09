@@ -32,7 +32,7 @@
 
 package jme3test.awt;
 
-import com.jme3.app.Application;
+import com.jme3.app.LegacyApplication;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeCanvasContext;
 import com.jme3.system.JmeSystem;
@@ -53,7 +53,7 @@ public class AppHarness extends Applet {
 
     private JmeCanvasContext context;
     private Canvas canvas;
-    private Application app;
+    private LegacyApplication app;
 
     private String appClass;
     private URL appCfg = null;
@@ -79,7 +79,7 @@ public class AppHarness extends Applet {
         JmeSystem.setLowPermissions(true);
 
         try{
-            Class<? extends Application> clazz = (Class<? extends Application>) Class.forName(appClass);
+            Class<? extends LegacyApplication> clazz = (Class<? extends LegacyApplication>) Class.forName(appClass);
             app = clazz.newInstance();
         }catch (ClassNotFoundException ex){
             ex.printStackTrace();
@@ -91,11 +91,11 @@ public class AppHarness extends Applet {
 
         app.setSettings(settings);
         app.createCanvas();
-        
+
         context = (JmeCanvasContext) app.getContext();
         canvas = context.getCanvas();
         canvas.setSize(getWidth(), getHeight());
-        
+
         add(canvas);
         app.startCanvas();
     }
@@ -110,14 +110,14 @@ public class AppHarness extends Applet {
         appClass = getParameter("AppClass");
         if (appClass == null)
             throw new RuntimeException("The required parameter AppClass isn't specified!");
-        
+
         try {
             appCfg = new URL(getParameter("AppSettingsURL"));
         } catch (MalformedURLException ex) {
             ex.printStackTrace();
             appCfg = null;
         }
-        
+
         createCanvas();
         System.out.println("applet:init");
     }

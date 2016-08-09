@@ -29,12 +29,14 @@ MaterialDef Post Shadow {
         Float PCFEdge
 
         Float ShadowMapSize
+
+        Boolean BackfaceShadows: false
 		
     }
 
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow15.vert
-        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow15.frag
+        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -49,6 +51,7 @@ MaterialDef Post Shadow {
             FADE : FadeInfo
             PSSM : Splits
             POINTLIGHT : LightViewProjectionMatrix5
+            BACKFACE_SHADOWS: BackfaceShadows
         }
 
         RenderState {
@@ -75,6 +78,7 @@ MaterialDef Post Shadow {
             FADE : FadeInfo
             PSSM : Splits
             POINTLIGHT : LightViewProjectionMatrix5
+            BACKFACE_SHADOWS: BackfaceShadows
         }
 
         RenderState {

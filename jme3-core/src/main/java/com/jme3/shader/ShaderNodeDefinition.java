@@ -43,7 +43,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Shader node definition structure meant for holding loaded datat from a
+ * Shader node definition structure meant for holding loaded data from a
  * material definition j3md file
  *
  * @author Nehon
@@ -109,7 +109,7 @@ public class ShaderNodeDefinition implements Savable {
     }
 
     /**
-     * sets the type of shader this def applies to
+     * sets the type of shader this definition applies to
      *
      * @param type the type
      */
@@ -119,14 +119,14 @@ public class ShaderNodeDefinition implements Savable {
 
     /**
      *
-     * @return the docuentation for tthis definition
+     * @return the documentation for this definition
      */
     public String getDocumentation() {
         return documentation;
     }
 
     /**
-     * sets the dcumentation
+     * sets the documentation
      *
      * @param documentation the documentation
      */
@@ -162,7 +162,7 @@ public class ShaderNodeDefinition implements Savable {
     /**
      * sets the output variables of this definition
      *
-     * @param inputs the output
+     * @param outputs the output
      */
     public void setOutputs(List<ShaderNodeVariable> outputs) {
         this.outputs = outputs;
@@ -187,11 +187,12 @@ public class ShaderNodeDefinition implements Savable {
     
 
     /**
-     * jme seralization (not used)
+     * jme serialization (not used)
      *
      * @param ex the exporter
      * @throws IOException
      */
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
         oc.write(name, "name", "");
@@ -222,11 +223,12 @@ public class ShaderNodeDefinition implements Savable {
     
     
     /**
-     * jme seralization (not used)
+     * jme serialization (not used)
      *
      * @param im the importer
      * @throws IOException
      */
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = (InputCapsule) im.getCapsule(this);
         name = ic.readString("name", "");

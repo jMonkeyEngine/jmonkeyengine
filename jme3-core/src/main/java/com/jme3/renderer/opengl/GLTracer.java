@@ -336,6 +336,21 @@ public final class GLTracer implements InvocationHandler {
         print(")");
     }
     
+    private void printArgsGetInteger(Object[] args) {
+        print("(");
+        int param = (Integer)args[0];
+        IntBuffer ib = (IntBuffer) args[1];
+        printEnum(param);
+        print(", ");
+        printOut();
+        if (param == GL2.GL_DRAW_BUFFER || param == GL2.GL_READ_BUFFER) {
+            printEnum(ib.get(0));
+        } else {
+            printInt(ib.get(0));
+        }
+        print(")");
+    }
+    
     private void printArgsTexParameter(Object[] args) {
         print("(");
 
@@ -388,6 +403,9 @@ public final class GLTracer implements InvocationHandler {
             return;
         } else if (methodName.equals("glTexParameteri")) {
             printArgsTexParameter(args);
+            return;
+        } else if (methodName.equals("glGetInteger")) {
+            printArgsGetInteger(args);
             return;
         }
         

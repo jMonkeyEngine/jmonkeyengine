@@ -39,12 +39,14 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * AudioTrack is a track to add to an existing animation, to paly a sound during
+ * AudioTrack is a track to add to an existing animation, to play a sound during
  * an animations for example : gun shot, foot step, shout, etc...
  *
  * usage is
@@ -142,7 +144,7 @@ public class AudioTrack implements ClonableTrack {
     }
 
     /**
-     * Retruns the length of the track
+     * Return the length of the track
      *
      * @return length of the track
      */
@@ -168,12 +170,13 @@ public class AudioTrack implements ClonableTrack {
     /**
      * This method clone the Track and search for the cloned counterpart of the
      * original audio node in the given cloned spatial. The spatial is assumed
-     * to be the Spatial holding the AnimControl controling the animation using
+     * to be the Spatial holding the AnimControl controlling the animation using
      * this Track.
      *
      * @param spatial the Spatial holding the AnimControl
      * @return the cloned Track with proper reference
      */
+    @Override
     public Track cloneForSpatial(Spatial spatial) {
         AudioTrack audioTrack = new AudioTrack();
         audioTrack.length = this.length;
@@ -192,7 +195,27 @@ public class AudioTrack implements ClonableTrack {
         return audioTrack;
     }
 
-    /**
+    @Override   
+    public Object jmeClone() {
+        try {
+            return super.clone();
+        } catch( CloneNotSupportedException e ) {
+            throw new RuntimeException("Error cloning", e);
+        }
+    }     
+
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) {
+        // Duplicating the old cloned state from cloneForSpatial()
+        this.initialized = false;
+        this.started = false;
+        this.played = false; 
+        this.audio = cloner.clone(audio);
+    }
+         
+         
+    /**    
      * recursive function responsible for finding the newly cloned AudioNode
      *
      * @param spat

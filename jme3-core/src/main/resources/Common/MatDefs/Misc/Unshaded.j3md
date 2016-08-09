@@ -51,6 +51,8 @@ MaterialDef Unshaded {
         Float PCFEdge
 
         Float ShadowMapSize
+
+        Boolean BackfaceShadows: true
     }
 
     Technique {
@@ -146,9 +148,9 @@ MaterialDef Unshaded {
     }
 
 
-    Technique PostShadow15{
-        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow15.vert
-        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow15.frag
+    Technique PostShadow {
+        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -169,6 +171,7 @@ MaterialDef Unshaded {
             POINTLIGHT : LightViewProjectionMatrix5
             NUM_BONES : NumberOfBones
 	    INSTANCING : UseInstancing
+	        BACKFACE_SHADOWS: BackfaceShadows
         }
 
         ForcedRenderState {
@@ -178,7 +181,7 @@ MaterialDef Unshaded {
         }
     }
 
-    Technique PostShadow{
+    Technique PostShadow {
         VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
         FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadow.frag
 
@@ -201,6 +204,7 @@ MaterialDef Unshaded {
             POINTLIGHT : LightViewProjectionMatrix5
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            BACKFACE_SHADOWS: BackfaceShadows
         }
 
         ForcedRenderState {

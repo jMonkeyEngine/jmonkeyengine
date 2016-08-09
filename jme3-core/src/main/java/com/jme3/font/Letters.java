@@ -53,7 +53,7 @@ class Letters {
     private ColorRGBA baseColor = null;
     private float baseAlpha = -1;
     private String plainText;
-    
+
     Letters(BitmapFont font, StringBlock bound, boolean rightToLeft) {
         final String text = bound.getText();
         this.block = bound;
@@ -78,10 +78,10 @@ class Letters {
                     // Give the letter a default color if
                     // one has been provided.
                     l.setColor( baseColor );
-                }                
+                }
             }
         }
-        
+
         LinkedList<Range> ranges = colorTags.getTags();
         if (!ranges.isEmpty()) {
             for (int i = 0; i < ranges.size()-1; i++) {
@@ -92,7 +92,7 @@ class Letters {
             Range end = ranges.getLast();
             setColor(end.start, plainText.length(), end.color);
         }
-        
+
         invalidate();
     }
 
@@ -103,17 +103,17 @@ class Letters {
     LetterQuad getTail() {
         return tail;
     }
-    
+
     void update() {
         LetterQuad l = head;
         int lineCount = 1;
         BitmapCharacter ellipsis = font.getCharSet().getCharacter(block.getEllipsisChar());
         float ellipsisWidth = ellipsis!=null? ellipsis.getWidth()*getScale(): 0;
- 
+
         while (!l.isTail()) {
             if (l.isInvalid()) {
                 l.update(block);
-                
+
                 if (l.isInvalid(block)) {
                     switch (block.getLineWrapMode()) {
                     case Character:
@@ -144,7 +144,7 @@ class Letters {
                             }
                         }
                         break;
-                    case NoWrap: 
+                    case NoWrap:
                         LetterQuad cursor = l.getPrevious();
                         while (cursor.isInvalid(block, ellipsisWidth) && !cursor.isLineStart()) {
                             cursor = cursor.getPrevious();
@@ -158,10 +158,10 @@ class Letters {
                             cursor = cursor.getNext();
                         }
                         break;
-                    case Clip: 
+                    case Clip:
                         // Clip the character that falls out of bounds
                         l.clip(block);
-                        
+
                         // Clear the rest up to the next line feed.
                         for( LetterQuad q = l.getNext(); !q.isTail() && !q.isLineFeed(); q = q.getNext() ) {
                             q.setBitmapChar(null);
@@ -178,12 +178,12 @@ class Letters {
             }
             l = l.getNext();
         }
-        
+
         align();
         block.setLineCount(lineCount);
         rewind();
     }
-    
+
     private void align() {
         final Align alignment = block.getAlignment();
         final VAlign valignment = block.getVerticalAlignment();
@@ -233,7 +233,7 @@ class Letters {
         l.invalidate();
         l.update(block); // TODO: update from l
     }
-    
+
     float getCharacterX0() {
         return current.getX0();
     }
@@ -241,54 +241,54 @@ class Letters {
     float getCharacterY0() {
         return current.getY0();
     }
-    
+
     float getCharacterX1() {
         return current.getX1();
     }
-    
+
     float getCharacterY1() {
         return current.getY1();
     }
-    
+
     float getCharacterAlignX() {
         return current.getAlignX();
     }
-    
+
     float getCharacterAlignY() {
         return current.getAlignY();
     }
-    
+
     float getCharacterWidth() {
         return current.getWidth();
     }
-    
+
     float getCharacterHeight() {
         return current.getHeight();
     }
-    
+
     public boolean nextCharacter() {
         if (current.isTail())
             return false;
         current = current.getNext();
         return true;
     }
-    
+
     public int getCharacterSetPage() {
         return current.getBitmapChar().getPage();
     }
-    
+
     public LetterQuad getQuad() {
         return current;
     }
-    
+
     public void rewind() {
         current = head;
     }
-    
+
     public void invalidate() {
         invalidate(head);
     }
-    
+
     public void invalidate(LetterQuad cursor) {
         totalWidth = -1;
         totalHeight = -1;
@@ -298,7 +298,7 @@ class Letters {
             cursor = cursor.getNext();
         }
     }
-    
+
     float getScale() {
         return block.getSize() / font.getCharSet().getRenderedSize();
     }
@@ -306,7 +306,7 @@ class Letters {
     public boolean isPrintable() {
         return current.getBitmapChar() != null;
     }
-    
+
     float getTotalWidth() {
         validateSize();
         return totalWidth;
@@ -316,7 +316,7 @@ class Letters {
         validateSize();
         return totalHeight;
     }
-    
+
     void validateSize() {
         if (totalWidth < 0) {
             LetterQuad l = head;
@@ -371,11 +371,11 @@ class Letters {
             cursor = cursor.getNext();
         }
     }
- 
+
     float getBaseAlpha() {
         return baseAlpha;
     }
-    
+
     void setBaseAlpha( float alpha ) {        this.baseAlpha = alpha;
         colorTags.setBaseAlpha(alpha);
 
@@ -409,7 +409,7 @@ class Letters {
                 setColor(end.start, plainText.length(), end.color);
             }
         }
-        
+
         invalidate();
     }
 

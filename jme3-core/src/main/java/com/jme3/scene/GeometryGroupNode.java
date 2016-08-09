@@ -83,5 +83,5 @@ public abstract class GeometryGroupNode extends Node {
      * 
      * @param geom The Geometry which is being unassociated.
      */
-    public abstract void onGeoemtryUnassociated(Geometry geom);
+    public abstract void onGeometryUnassociated(Geometry geom);
 }

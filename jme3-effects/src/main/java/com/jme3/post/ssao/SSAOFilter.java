@@ -78,6 +78,7 @@ public class SSAOFilter extends Filter {
     private float downSampleFactor = 1f;
     private RenderManager renderManager;
     private ViewPort viewPort;
+    private boolean approximateNormals = false;
 
     /**
      * Create a Screen Space Ambient Occlusion Filter
@@ -108,13 +109,15 @@ public class SSAOFilter extends Filter {
 
     @Override
     protected void postQueue(RenderQueue queue) {
-        Renderer r = renderManager.getRenderer();
-        r.setFrameBuffer(normalPass.getRenderFrameBuffer());
-        renderManager.getRenderer().clearBuffers(true, true, true);
-        renderManager.setForcedTechnique("PreNormalPass");
-        renderManager.renderViewPortQueues(viewPort, false);
-        renderManager.setForcedTechnique(null);
-        renderManager.getRenderer().setFrameBuffer(viewPort.getOutputFrameBuffer());
+        if(!approximateNormals) {
+            Renderer r = renderManager.getRenderer();
+            r.setFrameBuffer(normalPass.getRenderFrameBuffer());
+            renderManager.getRenderer().clearBuffers(true, true, true);
+            renderManager.setForcedTechnique("PreNormalPass");
+            renderManager.renderViewPortQueues(viewPort, false);
+            renderManager.setForcedTechnique(null);
+            renderManager.getRenderer().setFrameBuffer(viewPort.getOutputFrameBuffer());
+        }
     }
 
     @Override
@@ -178,6 +181,7 @@ public class SSAOFilter extends Filter {
         ssaoMat.setVector2("FrustumNearFar", frustumNearFar);
         material.setVector2("FrustumNearFar", frustumNearFar);
         ssaoMat.setParam("Samples", VarType.Vector2Array, samples);
+        ssaoMat.setBoolean("ApproximateNormals", approximateNormals);
 
         float xScale = 1.0f / w;
         float yScale = 1.0f / h;
@@ -292,6 +296,17 @@ public class SSAOFilter extends Filter {
             material.setBoolean("UseAo", useAo);
         }
 
+    }
+
+    public void setApproximateNormals(boolean approximateNormals) {
+        this.approximateNormals = approximateNormals;
+        if (ssaoMat != null) {
+            ssaoMat.setBoolean("ApproximateNormals", approximateNormals);
+        }
+    }
+
+    public boolean isApproximateNormals() {
+        return approximateNormals;
     }
 
     /**

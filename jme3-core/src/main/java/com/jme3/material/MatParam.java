@@ -34,7 +34,6 @@ package com.jme3.material;
 import com.jme3.asset.TextureKey;
 import com.jme3.export.*;
 import com.jme3.math.*;
-import com.jme3.renderer.Renderer;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
@@ -129,9 +128,6 @@ public class MatParam implements Savable, Cloneable {
         this.value = value;
     }
 
-    void apply(Renderer r, Technique technique) {
-        technique.updateUniformParam(getPrefixedName(), getVarType(), getValue());
-    }
 
     /**
      * Returns the material parameter value as it would appear in a J3M
@@ -248,14 +244,43 @@ When arrays can be inserted in J3M files
                 if (texKey.isFlipY()) {
                     ret += "Flip ";
                 }
-                if (texVal.getWrap(Texture.WrapAxis.S) == WrapMode.Repeat) {
-                    ret += "Repeat ";
+
+                //Wrap mode
+                ret += getWrapMode(texVal, Texture.WrapAxis.S);
+                ret += getWrapMode(texVal, Texture.WrapAxis.T);
+                ret += getWrapMode(texVal, Texture.WrapAxis.R);
+
+                //Min and Mag filter
+                Texture.MinFilter def =  Texture.MinFilter.BilinearNoMipMaps;
+                if(texVal.getImage().hasMipmaps() || texKey.isGenerateMips()){
+                    def = Texture.MinFilter.Trilinear;
+                }
+                if(texVal.getMinFilter() != def){
+                    ret += "Min" + texVal.getMinFilter().name()+ " ";
                 }
 
-                return ret + texKey.getName();
+                if(texVal.getMagFilter() != Texture.MagFilter.Bilinear){
+                    ret += "Mag" + texVal.getMagFilter().name()+ " ";
+                }
+
+                return ret + "\"" + texKey.getName() + "\"";
             default:
                 return null; // parameter type not supported in J3M
         }
+    }
+
+    private String getWrapMode(Texture texVal, Texture.WrapAxis axis) {
+        WrapMode mode = WrapMode.EdgeClamp;
+        try{
+            mode = texVal.getWrap(axis);
+        }catch (IllegalArgumentException e){
+            //this axis doesn't exist on the texture
+            return "";
+        }
+        if(mode != WrapMode.EdgeClamp){
+            return"Wrap"+ mode.name() + "_" + axis.name() + " ";
+        }
+        return "";
     }
 
     @Override
@@ -284,6 +309,8 @@ When arrays can be inserted in J3M files
         } else if (value instanceof Boolean) {
             Boolean b = (Boolean) value;
             oc.write(b.booleanValue(), "value_bool", false);
+        } else if (value.getClass().isArray() && value instanceof Savable[]) {
+            oc.write((Savable[])value, "value_savable_array", null);
         }
     }
 
@@ -301,6 +328,41 @@ When arrays can be inserted in J3M files
                 break;
             case Int:
                 value = ic.readInt("value_int", 0);
+                break;
+            case Vector2Array:
+                Savable[] savableArray = ic.readSavableArray("value_savable_array", null);
+                if (savableArray != null) {
+                    value = new Vector2f[savableArray.length];
+                    System.arraycopy(savableArray, 0, value, 0, savableArray.length);
+                }
+                break;
+            case Vector3Array:
+                savableArray = ic.readSavableArray("value_savable_array", null);
+                if (savableArray != null) {
+                    value = new Vector3f[savableArray.length];
+                    System.arraycopy(savableArray, 0, value, 0, savableArray.length);
+                }
+                break;
+            case Vector4Array:
+                savableArray = ic.readSavableArray("value_savable_array", null);
+                if (savableArray != null) {
+                    value = new Vector4f[savableArray.length];
+                    System.arraycopy(savableArray, 0, value, 0, savableArray.length);
+                }
+                break;
+            case Matrix3Array:
+                savableArray = ic.readSavableArray("value_savable_array", null);
+                if (savableArray != null) {
+                    value = new Matrix3f[savableArray.length];
+                    System.arraycopy(savableArray, 0, value, 0, savableArray.length);
+                }
+                break;
+            case Matrix4Array:
+                savableArray = ic.readSavableArray("value_savable_array", null);
+                if (savableArray != null) {
+                    value = new Matrix4f[savableArray.length];
+                    System.arraycopy(savableArray, 0, value, 0, savableArray.length);
+                }
                 break;
             default:
                 value = ic.readSavable("value_savable", null);

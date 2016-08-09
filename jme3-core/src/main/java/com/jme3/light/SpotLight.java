@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2015 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2015-2016 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,9 @@
 package com.jme3.light;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
+import com.jme3.bounding.Intersection;
 import com.jme3.export.*;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -46,7 +48,7 @@ import java.io.IOException;
 /**
  * Represents a spot light.
  * A spot light emits a cone of light from a position and in a direction.
- * It can be used to fake torch lights or cars' lights.
+ * It can be used to fake torch lights or car's lights.
  * <p>
  * In addition to a position and a direction, spot lights also have a range which 
  * can be used to attenuate the influence of the light depending on the 
@@ -188,9 +190,7 @@ public class SpotLight extends Light {
         if (this.spotRange > 0f) {
             // Check spot range first.
             // Sphere v. box collision
-            if (FastMath.abs(box.getCenter().x - position.x) >= spotRange + box.getXExtent()
-             || FastMath.abs(box.getCenter().y - position.y) >= spotRange + box.getYExtent()
-             || FastMath.abs(box.getCenter().z - position.z) >= spotRange + box.getZExtent()) {
+            if (!Intersection.intersect(box, position, spotRange)) {
                 return false;
             }
         }
@@ -226,8 +226,48 @@ public class SpotLight extends Light {
     }
     
     @Override
-    public boolean intersectsFrustum(Camera cam, TempVars vars) {
+    public boolean intersectsSphere(BoundingSphere sphere, TempVars vars) {
+        if (this.spotRange > 0f) {
+            // Check spot range first.
+            // Sphere v. sphere collision
+            if (!Intersection.intersect(sphere, position, spotRange)) {
+                return false;
+            }
+        }
+
+        float otherRadiusSquared = FastMath.sqr(sphere.getRadius());
+        float otherRadius = sphere.getRadius();
+
+        // Check if sphere is within spot angle.
+        // Cone v. sphere collision.
+        Vector3f E = direction.mult(otherRadius * outerAngleSinRcp, vars.vect1);
+        Vector3f U = position.subtract(E, vars.vect2);
+        Vector3f D = sphere.getCenter().subtract(U, vars.vect3);
+
+        float dsqr = D.dot(D);
+        float e = direction.dot(D);
+
+        if (e > 0f && e * e >= dsqr * outerAngleCosSqr) {
+            D = sphere.getCenter().subtract(position, vars.vect3);
+            dsqr = D.dot(D);
+            e = -direction.dot(D);
+
+            if (e > 0f && e * e >= dsqr * outerAngleSinSqr) {
+                return dsqr <= otherRadiusSquared;
+            } else {
+                return true;
+            }
+        }
         
+        return false;
+    }
+    
+    @Override
+    public boolean intersectsFrustum(Camera cam, TempVars vars) {
+        if (spotRange == 0) {
+            // The algorithm below does not support infinite spot range.
+            return true;
+        }
         Vector3f farPoint = vars.vect1.set(position).addLocal(vars.vect2.set(direction).multLocal(spotRange));
         for (int i = 5; i >= 0; i--) {
             //check origin against the plane
@@ -375,7 +415,7 @@ public class SpotLight extends Light {
 
     /**
      * for internal use only
-     * @return the cosines of the inner and outter angle packed in a float
+     * @return the cosines of the inner and outer angle packed in a float
      */
     public float getPackedAngleCos() {
         return packedAngleCos;
@@ -407,6 +447,14 @@ public class SpotLight extends Light {
         } else {
             this.invSpotRange = 0;
         }
+    }
+
+    @Override
+    public SpotLight clone() {
+        SpotLight s = (SpotLight)super.clone();
+        s.direction = direction.clone();
+        s.position = position.clone();
+        return s;
     }
 }
 

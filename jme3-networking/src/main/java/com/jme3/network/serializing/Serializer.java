@@ -45,6 +45,7 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.jar.Attributes;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**
@@ -129,7 +130,7 @@ public abstract class Serializer {
         registerClass(IdentityHashMap.class,            new MapSerializer());
         registerClass(TreeMap.class,                    new MapSerializer());
         registerClass(WeakHashMap.class,                new MapSerializer());
-        
+ 
         registerClass(Enum.class,      new EnumSerializer());
         registerClass(GZIPCompressedMessage.class, new GZIPSerializer());
         registerClass(ZIPCompressedMessage.class, new ZIPSerializer());
@@ -330,7 +331,7 @@ public abstract class Serializer {
     @SuppressWarnings("unchecked")
     public static SerializerRegistration getSerializerRegistration(Class cls, boolean failOnMiss) {
         SerializerRegistration reg = classRegistrations.get(cls);
-
+        
         if (reg != null) return reg;
 
         for (Map.Entry<Class, SerializerRegistration> entry : classRegistrations.entrySet()) {
@@ -403,6 +404,10 @@ public abstract class Serializer {
         if (reg == null) {
             throw new SerializerException( "Class not registered:" + type );
         }
+        
+        if( log.isLoggable(Level.FINER) ) {
+            log.log(Level.FINER, "writing class:{0} with ID:{1}", new Object[]{type, reg.getId()});
+        }
         buffer.putShort(reg.getId());
         return reg;
     }
@@ -420,6 +425,22 @@ public abstract class Serializer {
             return;
         }
         SerializerRegistration reg = writeClass(buffer, object.getClass());
+        
+        // If the caller (or us) has registered a generic base class (like Enum)
+        // that is meant to steer automatic resolution for things like FieldSerializer
+        // that have final classes in fields... then there are cases where the exact 
+        // type isn't known by the outer class.  (Think of a message object
+        // that has an Object field but tries to send an Enum subclass in it.)
+        // In that case, the SerializerRegistration object we get back isn't
+        // really going to be capable of recreating the object on the other
+        // end because it won't know what class to use.  This only comes up
+        // in writeclassAndObejct() because we just wrote an ID to a more generic
+        // class than will be readable on the other end.  The check is simple, though.
+        if( reg.getType() != object.getClass() ) {
+            throw new IllegalArgumentException("Class has not been registered:" 
+                    + object.getClass() + " but resolved to generic serializer for:" + reg.getType());
+        } 
+
         reg.getSerializer().writeObject(buffer, object);
     }
 

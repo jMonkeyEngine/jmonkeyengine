@@ -31,14 +31,6 @@
  */
 package com.jme3.scene;
 
-import com.jme3.export.*;
-import com.jme3.material.Material;
-import com.jme3.math.Matrix4f;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.mesh.IndexBuffer;
-import com.jme3.util.SafeArrayList;
-import com.jme3.util.TempVars;
-import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -48,18 +40,29 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.collision.Collidable;
+import com.jme3.collision.CollisionResults;
+import com.jme3.material.Material;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.mesh.IndexBuffer;
+import com.jme3.util.SafeArrayList;
+import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
+
 /**
  * BatchNode holds geometries that are a batched version of all the geometries that are in its sub scenegraph.
  * There is one geometry per different material in the sub tree.
  * The geometries are directly attached to the node in the scene graph.
  * Usage is like any other node except you have to call the {@link #batch()} method once all the geometries have been attached to the sub scene graph and their material set
  * (see todo more automagic for further enhancements)
- * All the geometries that have been batched are set to {@link CullHint#Always} to not render them.
+ * All the geometries that have been batched are set to not be rendered - {@link CullHint} is left intact.
  * The sub geometries can be transformed as usual, their transforms are used to update the mesh of the geometryBatch.
  * Sub geoms can be removed but it may be slower than the normal spatial removing
  * Sub geoms can be added after the batch() method has been called but won't be batched and will just be rendered as normal geometries.
  * To integrate them in the batch you have to call the batch() method again on the batchNode.
- * 
+ *
  * TODO normal or tangents or both looks a bit weird
  * TODO more automagic (batch when needed in the updateLogicalState)
  * @author Nehon
@@ -72,11 +75,11 @@ public class BatchNode extends GeometryGroupNode {
      */
     protected SafeArrayList<Batch> batches = new SafeArrayList<Batch>(Batch.class);
     /**
-     * a map storing he batches by geometry to quickly acces the batch when updating
+     * a map for storing the batches by geometry to quickly access the batch when updating
      */
     protected Map<Geometry, Batch> batchesByGeom = new HashMap<Geometry, Batch>();
     /**
-     * used to store transformed vectors before proceeding to a bulk put into the FloatBuffer 
+     * used to store transformed vectors before proceeding to a bulk put into the FloatBuffer
      */
     private float[] tmpFloat;
     private float[] tmpFloatN;
@@ -95,7 +98,7 @@ public class BatchNode extends GeometryGroupNode {
     public BatchNode(String name) {
         super(name);
     }
-    
+
     @Override
     public void onTransformChange(Geometry geom) {
         updateSubBatch(geom);
@@ -115,15 +118,14 @@ public class BatchNode extends GeometryGroupNode {
     }
 
     @Override
-    public void onGeoemtryUnassociated(Geometry geom) {
+    public void onGeometryUnassociated(Geometry geom) {
         setNeedsFullRebatch(true);
     }
-    
 
     protected Matrix4f getTransformMatrix(Geometry g){
         return g.cachedWorldMat;
     }
-    
+
     protected void updateSubBatch(Geometry bg) {
         Batch batch = batchesByGeom.get(bg);
         if (batch != null) {
@@ -134,13 +136,13 @@ public class BatchNode extends GeometryGroupNode {
             FloatBuffer posBuf = (FloatBuffer) pvb.getData();
             VertexBuffer nvb = mesh.getBuffer(VertexBuffer.Type.Normal);
             FloatBuffer normBuf = (FloatBuffer) nvb.getData();
-          
+
             VertexBuffer opvb = origMesh.getBuffer(VertexBuffer.Type.Position);
             FloatBuffer oposBuf = (FloatBuffer) opvb.getData();
             VertexBuffer onvb = origMesh.getBuffer(VertexBuffer.Type.Normal);
             FloatBuffer onormBuf = (FloatBuffer) onvb.getData();
             Matrix4f transformMat = getTransformMatrix(bg);
-            
+
             if (mesh.getBuffer(VertexBuffer.Type.Tangent) != null) {
 
                 VertexBuffer tvb = mesh.getBuffer(VertexBuffer.Type.Tangent);
@@ -166,7 +168,7 @@ public class BatchNode extends GeometryGroupNode {
      */
     public void batch() {
         doBatch();
-        //we set the batch geometries to ignore transforms to avoid transforms of parent nodes to be applied twice        
+        //we set the batch geometries to ignore transforms to avoid transforms of parent nodes to be applied twice
         for (Batch batch : batches.getArray()) {
             batch.geometry.setIgnoreTransform(true);
             batch.geometry.setUserData(UserData.JME_PHYSICSIGNORE, true);
@@ -174,22 +176,22 @@ public class BatchNode extends GeometryGroupNode {
     }
 
     protected void doBatch() {
-        Map<Material, List<Geometry>> matMap = new HashMap<Material, List<Geometry>>();    
+        Map<Material, List<Geometry>> matMap = new HashMap<Material, List<Geometry>>();
         int nbGeoms = 0;
 
-        gatherGeomerties(matMap, this, needsFullRebatch);
+        gatherGeometries(matMap, this, needsFullRebatch);
         if (needsFullRebatch) {
             for (Batch batch : batches.getArray()) {
                 batch.geometry.removeFromParent();
             }
             batches.clear();
             batchesByGeom.clear();
-        }        
+        }
         //only reset maxVertCount if there is something new to batch
         if (matMap.size() > 0) {
             maxVertCount = 0;
         }
-        
+
         for (Map.Entry<Material, List<Geometry>> entry : matMap.entrySet()) {
             Mesh m = new Mesh();
             Material material = entry.getKey();
@@ -221,7 +223,7 @@ public class BatchNode extends GeometryGroupNode {
 
             batch.geometry.setMesh(m);
             batch.geometry.getMesh().updateCounts();
-            batch.geometry.updateModelBound();            
+            batch.geometry.updateModelBound();
             batches.add(batch);
         }
         if (batches.size() > 0) {
@@ -255,7 +257,7 @@ public class BatchNode extends GeometryGroupNode {
 
     /**
      * recursively visit the subgraph and unbatch geometries
-     * @param s 
+     * @param s
      */
     private void unbatchSubGraph(Spatial s) {
         if (s instanceof Node) {
@@ -269,9 +271,9 @@ public class BatchNode extends GeometryGroupNode {
             }
         }
     }
-    
-    
-    private void gatherGeomerties(Map<Material, List<Geometry>> map, Spatial n, boolean rebatch) {
+
+
+    private void gatherGeometries(Map<Material, List<Geometry>> map, Spatial n, boolean rebatch) {
 
         if (n instanceof Geometry) {
 
@@ -283,7 +285,7 @@ public class BatchNode extends GeometryGroupNode {
                     }
                     List<Geometry> list = map.get(g.getMaterial());
                     if (list == null) {
-                        //trying to compare materials with the isEqual method 
+                        //trying to compare materials with the isEqual method
                         for (Map.Entry<Material, List<Geometry>> mat : map.entrySet()) {
                             if (g.getMaterial().contentEquals(mat.getKey())) {
                                 list = mat.getValue();
@@ -304,7 +306,7 @@ public class BatchNode extends GeometryGroupNode {
                 if (child instanceof BatchNode) {
                     continue;
                 }
-                gatherGeomerties(map, child, rebatch);
+                gatherGeometries(map, child, rebatch);
             }
         }
 
@@ -319,7 +321,7 @@ public class BatchNode extends GeometryGroupNode {
         return null;
     }
 
-    private boolean isBatch(Spatial s) {
+    public final boolean isBatch(Spatial s) {
         for (Batch batch : batches.getArray()) {
             if (batch.geometry == s) {
                 return true;
@@ -331,105 +333,35 @@ public class BatchNode extends GeometryGroupNode {
     /**
      * Sets the material to the all the batches of this BatchNode
      * use setMaterial(Material material,int batchIndex) to set a material to a specific batch
-     * 
+     *
      * @param material the material to use for this geometry
      */
     @Override
     public void setMaterial(Material material) {
-//        for (Batch batch : batches.values()) {
-//            batch.geometry.setMaterial(material);
-//        }
         throw new UnsupportedOperationException("Unsupported for now, please set the material on the geoms before batching");
     }
 
     /**
      * Returns the material that is used for the first batch of this BatchNode
-     * 
+     *
      * use getMaterial(Material material,int batchIndex) to get a material from a specific batch
-     * 
+     *
      * @return the material that is used for the first batch of this BatchNode
-     * 
-     * @see #setMaterial(com.jme3.material.Material) 
+     *
+     * @see #setMaterial(com.jme3.material.Material)
      */
     public Material getMaterial() {
         if (!batches.isEmpty()) {
             Batch b = batches.iterator().next();
             return b.geometry.getMaterial();
         }
-        return null;//material;
-    }
-
-//    /**
-//     * Sets the material to the a specific batch of this BatchNode
-//     * 
-//     * 
-//     * @param material the material to use for this geometry
-//     */   
-//    public void setMaterial(Material material,int batchIndex) {
-//        if (!batches.isEmpty()) {
-//            
-//        }
-//        
-//    }
-//
-//    /**
-//     * Returns the material that is used for the first batch of this BatchNode
-//     * 
-//     * use getMaterial(Material material,int batchIndex) to get a material from a specific batch
-//     * 
-//     * @return the material that is used for the first batch of this BatchNode
-//     * 
-//     * @see #setMaterial(com.jme3.material.Material) 
-//     */
-//    public Material getMaterial(int batchIndex) {
-//        if (!batches.isEmpty()) {
-//            Batch b = batches.get(batches.keySet().iterator().next());
-//            return b.geometry.getMaterial();
-//        }
-//        return null;//material;
-//    }
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        super.write(ex);
-        OutputCapsule oc = ex.getCapsule(this);
-//
-//        if (material != null) {
-//            oc.write(material.getAssetName(), "materialName", null);
-//        }
-//        oc.write(material, "material", null);
-
-    }
-
-    @Override
-    public void read(JmeImporter im) throws IOException {
-        super.read(im);
-        InputCapsule ic = im.getCapsule(this);
-
-
-//        material = null;
-//        String matName = ic.readString("materialName", null);
-//        if (matName != null) {
-//            // Material name is set,
-//            // Attempt to load material via J3M
-//            try {
-//                material = im.getAssetManager().loadMaterial(matName);
-//            } catch (AssetNotFoundException ex) {
-//                // Cannot find J3M file.
-//                logger.log(Level.FINE, "Could not load J3M file {0} for Geometry.",
-//                        matName);
-//            }
-//        }
-//        // If material is NULL, try to load it from the geometry
-//        if (material == null) {
-//            material = (Material) ic.readSavable("material", null);
-//        }
-
+        return null;
     }
 
     /**
      * Merges all geometries in the collection into
      * the output mesh. Does not take into account materials.
-     * 
+     *
      * @param geometries
      * @param outMesh
      */
@@ -453,7 +385,7 @@ public class BatchNode extends GeometryGroupNode {
                 maxVertCount = geom.getVertexCount();
             }
             Mesh.Mode listMode;
-            float listLineWidth = 1f;
+            //float listLineWidth = 1f;
             int components;
             switch (geom.getMesh().getMode()) {
                 case Points:
@@ -464,7 +396,7 @@ public class BatchNode extends GeometryGroupNode {
                 case LineStrip:
                 case Lines:
                     listMode = Mesh.Mode.Lines;
-                    listLineWidth = geom.getMesh().getLineWidth();
+                    //listLineWidth = geom.getMesh().getLineWidth();
                     components = 2;
                     break;
                 case TriangleFan:
@@ -488,30 +420,30 @@ public class BatchNode extends GeometryGroupNode {
                 formatForBuf[vb.getBufferType().ordinal()] = vb.getFormat();
                 normForBuf[vb.getBufferType().ordinal()] = vb.isNormalized();
             }
-            
+
             maxWeights = Math.max(maxWeights, geom.getMesh().getMaxNumWeights());
 
             if (mode != null && mode != listMode) {
                 throw new UnsupportedOperationException("Cannot combine different"
                         + " primitive types: " + mode + " != " + listMode);
-            }            
-            mode = listMode;
-            if (mode == Mesh.Mode.Lines) {
-                if (lineWidth != 1f && listLineWidth != lineWidth) {
-                    throw new UnsupportedOperationException("When using Mesh Line mode, cannot combine meshes with different line width "
-                            + lineWidth + " != " + listLineWidth);
-                }
-                lineWidth = listLineWidth;
             }
+            mode = listMode;
+            //Not needed anymore as lineWidth is now in RenderState and will be taken into account when merging according to the material
+//            if (mode == Mesh.Mode.Lines) {
+//                if (lineWidth != 1f && listLineWidth != lineWidth) {
+//                    throw new UnsupportedOperationException("When using Mesh Line mode, cannot combine meshes with different line width "
+//                            + lineWidth + " != " + listLineWidth);
+//                }
+//                lineWidth = listLineWidth;
+//            }
             compsForBuf[VertexBuffer.Type.Index.ordinal()] = components;
         }
 
         outMesh.setMaxNumWeights(maxWeights);
         outMesh.setMode(mode);
-        outMesh.setLineWidth(lineWidth);
+        //outMesh.setLineWidth(lineWidth);
         if (totalVerts >= 65536) {
-            // make sure we create an UnsignedInt buffer so
-            // we can fit all of the meshes
+            // make sure we create an UnsignedInt buffer so we can fit all of the meshes
             formatForBuf[VertexBuffer.Type.Index.ordinal()] = VertexBuffer.Format.UnsignedInt;
         } else {
             formatForBuf[VertexBuffer.Type.Index.ordinal()] = VertexBuffer.Format.UnsignedShort;
@@ -656,7 +588,7 @@ public class BatchNode extends GeometryGroupNode {
         int offset = start * 3;
         int tanOffset = start * 4;
 
-        
+
         bindBufPos.rewind();
         bindBufNorm.rewind();
         bindBufTangents.rewind();
@@ -732,11 +664,10 @@ public class BatchNode extends GeometryGroupNode {
         vars.release();
     }
 
-    protected class Batch {
-
+    protected class Batch implements JmeCloneable {
         /**
          * update the batchesByGeom map for this batch with the given List of geometries
-         * @param list 
+         * @param list
          */
         void updateGeomList(List<Geometry> list) {
             for (Geometry geom : list) {
@@ -745,7 +676,26 @@ public class BatchNode extends GeometryGroupNode {
                 }
             }
         }
-        Geometry geometry;        
+        Geometry geometry;
+
+        public final Geometry getGeometry() {
+            return geometry;
+        }
+
+        @Override
+        public Batch jmeClone() {
+            try {
+                return (Batch)super.clone();
+            } catch (CloneNotSupportedException ex) {
+                throw new AssertionError();
+            }
+        }
+
+        @Override
+        public void cloneFields( Cloner cloner, Object original ) {
+            this.geometry = cloner.clone(geometry);
+        }
+
     }
 
     protected void setNeedsFullRebatch(boolean needsFullRebatch) {
@@ -770,5 +720,36 @@ public class BatchNode extends GeometryGroupNode {
             clone.batch();
         }
         return clone;
+    }
+
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        super.cloneFields(cloner, original);
+
+        this.batches = cloner.clone(batches);
+        this.tmpFloat = cloner.clone(tmpFloat);
+        this.tmpFloatN = cloner.clone(tmpFloatN);
+        this.tmpFloatT = cloner.clone(tmpFloatT);
+
+
+        HashMap<Geometry, Batch> newBatchesByGeom = new HashMap<Geometry, Batch>();
+        for( Map.Entry<Geometry, Batch> e : batchesByGeom.entrySet() ) {
+            newBatchesByGeom.put(cloner.clone(e.getKey()), cloner.clone(e.getValue()));
+        }
+        this.batchesByGeom = newBatchesByGeom;
+    }
+
+    @Override
+    public int collideWith(Collidable other, CollisionResults results) {
+        int total = 0;
+        for (Spatial child : children.getArray()){
+            if (!isBatch(child)) {
+                total += child.collideWith(other, results);
+            }
+        }
+        return total;
     }
 }

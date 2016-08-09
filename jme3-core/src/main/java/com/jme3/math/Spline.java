@@ -90,7 +90,7 @@ public class Spline implements Savable {
         type = splineType;
         this.curveTension = curveTension;
         this.cycle = cycle;
-        this.computeTotalLentgh();
+        this.computeTotalLength();
     }
 
     /**
@@ -116,7 +116,7 @@ public class Spline implements Savable {
         this.controlPoints.addAll(controlPoints);
         this.curveTension = curveTension;
         this.cycle = cycle;
-        this.computeTotalLentgh();
+        this.computeTotalLength();
     }
     
     /**
@@ -144,7 +144,7 @@ public class Spline implements Savable {
         	this.weights[i] = controlPoint.w;
         }
         CurveAndSurfaceMath.prepareNurbsKnots(knots, basisFunctionDegree);
-        this.computeTotalLentgh();
+        this.computeTotalLength();
     }
 
     private void initCatmullRomWayPoints(List<Vector3f> list) {
@@ -186,7 +186,7 @@ public class Spline implements Savable {
             controlPoints.add(controlPoints.get(0).clone());
         }
         if (controlPoints.size() > 1) {
-            this.computeTotalLentgh();
+            this.computeTotalLength();
         }
     }
 
@@ -197,7 +197,7 @@ public class Spline implements Savable {
     public void removeControlPoint(Vector3f controlPoint) {
         controlPoints.remove(controlPoint);
         if (controlPoints.size() > 1) {
-            this.computeTotalLentgh();
+            this.computeTotalLength();
         }
     }
     
@@ -209,7 +209,7 @@ public class Spline implements Savable {
     /**
      * This method computes the total length of the curve.
      */
-    private void computeTotalLentgh() {
+    private void computeTotalLength() {
         totalLength = 0;
         float l = 0;
         if (segmentsLength == null) {
@@ -273,8 +273,8 @@ public class Spline implements Savable {
     }
 
     /**
-     * Iterpolate a position on the spline
-     * @param value a value from 0 to 1 that represent the postion between the curent control point and the next one
+     * Interpolate a position on the spline
+     * @param value a value from 0 to 1 that represent the position between the current control point and the next one
      * @param currentControlPoint the current control point
      * @param store a vector to store the result (use null to create a new one that will be returned by the method)
      * @return the position
@@ -317,7 +317,7 @@ public class Spline implements Savable {
     public void setCurveTension(float curveTension) {
         this.curveTension = curveTension;
         if(type==SplineType.CatmullRom && !getControlPoints().isEmpty()) {            
-        	this.computeTotalLentgh();
+        	this.computeTotalLength();
         }
     }
 
@@ -342,7 +342,7 @@ public class Spline implements Savable {
     				controlPoints.add(controlPoints.get(0));
     			}
     			this.cycle = cycle;
-    			this.computeTotalLentgh();
+    			this.computeTotalLength();
     		} else {
     			this.cycle = cycle;
     		}
@@ -350,7 +350,7 @@ public class Spline implements Savable {
     }
 
     /**
-     * return the total lenght of the spline
+     * return the total length of the spline
      */
     public float getTotalLength() {
         return totalLength;
@@ -369,7 +369,7 @@ public class Spline implements Savable {
      */
     public void setType(SplineType type) {
         this.type = type;
-        this.computeTotalLentgh();
+        this.computeTotalLength();
     }
 
     /**
@@ -380,7 +380,7 @@ public class Spline implements Savable {
     }
 
     /**
-     * returns a list of float representing the segments lenght
+     * returns a list of float representing the segments length
      */
     public List<Float> getSegmentsLength() {
         return segmentsLength;
@@ -435,9 +435,13 @@ public class Spline implements Savable {
         OutputCapsule oc = ex.getCapsule(this);
         oc.writeSavableArrayList((ArrayList) controlPoints, "controlPoints", null);
         oc.write(type, "type", SplineType.CatmullRom);
-        float list[] = new float[segmentsLength.size()];
-        for (int i = 0; i < segmentsLength.size(); i++) {
-            list[i] = segmentsLength.get(i);
+        
+        float list[] = null;
+        if (segmentsLength != null) {
+            list = new float[segmentsLength.size()];
+            for (int i = 0; i < segmentsLength.size(); i++) {
+                list[i] = segmentsLength.get(i);
+            }
         }
         oc.write(list, "segmentsLength", null);
 
@@ -454,7 +458,7 @@ public class Spline implements Savable {
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
 
-        controlPoints = (ArrayList<Vector3f>) in.readSavableArrayList("wayPoints", null);
+        controlPoints = (ArrayList<Vector3f>) in.readSavableArrayList("controlPoints", new ArrayList<Vector3f>()); /* Empty List as default, prevents null pointers */
         float list[] = in.readFloatArray("segmentsLength", null);
         if (list != null) {
             segmentsLength = new ArrayList<Float>();

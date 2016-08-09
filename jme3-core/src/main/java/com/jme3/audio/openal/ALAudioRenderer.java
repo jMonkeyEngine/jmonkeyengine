@@ -904,11 +904,12 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     } else {
                         // Buffer finished playing.
                         if (src.isLooping()) {
-                            throw new AssertionError("Unexpected state: " + 
-                                                     "A looping sound has stopped playing");
-                        } else {
-                            reclaimChannel = true;
+                            // When a device is disconnected, all sources
+                            // will enter the "stopped" state.
+                            logger.warning("A looping sound has stopped playing");
                         }
+
+                        reclaimChannel = true;
                     }
                     
                     if (reclaimChannel) {

@@ -355,12 +355,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     public void initialize(RenderManager rm, ViewPort vp) {
         renderManager = rm;
         viewPort = vp;
-        //checking for caps to chosse the appropriate post material technique
-        if (renderManager.getRenderer().getCaps().contains(Caps.GLSL150)) {
-            postTechniqueName = "PostShadow15";
-        } else {
-            postTechniqueName = "PostShadow";
-        }
+        postTechniqueName = "PostShadow";
     }
 
     public boolean isInitialized() {
@@ -486,7 +481,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     }
 
     /**
-     * For dubuging purpose Allow to "snapshot" the current frustrum to the
+     * For debugging purpose Allow to "snapshot" the current frustrum to the
      * scene
      */
     public void displayDebug() {
@@ -533,7 +528,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         for (int i = 0; i < l.size(); i++) {
             Material mat = l.get(i).getMaterial();
             //checking if the material has the post technique and adding it to the material cache
-            if (mat.getMaterialDef().getTechniqueDef(postTechniqueName) != null) {
+            if (mat.getMaterialDef().getTechniqueDefs(postTechniqueName) != null) {
                 if (!matCache.contains(mat)) {
                     matCache.add(mat);
                 }
@@ -596,7 +591,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     }
 
     /**
-     * returns the labda parameter see #setLambda(float lambda)
+     * returns the lambda parameter see #setLambda(float lambda)
      *
      * @return lambda
      */
@@ -628,7 +623,7 @@ public class PssmShadowRenderer implements SceneProcessor {
 
     /**
      * Set the distance from the eye where the shadows will be rendered default
-     * value is dynamicaly computed to the shadow casters/receivers union bound
+     * value is dynamically computed to the shadow casters/receivers union bound
      * zFar, capped to view frustum far value.
      *
      * @param zFar the zFar values that override the computed one
@@ -642,7 +637,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     }
 
     /**
-     * returns the shdaow intensity
+     * returns the shadow intensity
      *
      * @see #setShadowIntensity(float shadowIntensity)
      * @return shadowIntensity
@@ -653,7 +648,7 @@ public class PssmShadowRenderer implements SceneProcessor {
 
     /**
      * Set the shadowIntensity, the value should be between 0 and 1, a 0 value
-     * gives a bright and invisilble shadow, a 1 value gives a pitch black
+     * gives a bright and invisible shadow, a 1 value gives a pitch black
      * shadow, default is 0.7
      *
      * @param shadowIntensity the darkness of the shadow

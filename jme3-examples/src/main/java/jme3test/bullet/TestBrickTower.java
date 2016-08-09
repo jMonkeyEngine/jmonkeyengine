@@ -126,7 +126,7 @@ public class TestBrickTower extends SimpleApplication {
         bullet.setTextureMode(TextureMode.Projected);
         bulletCollisionShape = new SphereCollisionShape(0.4f);
 
-        brick = new Box(Vector3f.ZERO, brickWidth, brickHeight, brickDepth);
+        brick = new Box(brickWidth, brickHeight, brickDepth);
         brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
         //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         initMaterial();
@@ -204,7 +204,7 @@ public class TestBrickTower extends SimpleApplication {
     }
 
     public void initFloor() {
-        Box floorBox = new Box(Vector3f.ZERO, 10f, 0.1f, 5f);
+        Box floorBox = new Box(10f, 0.1f, 5f);
         floorBox.scaleTextureCoordinates(new Vector2f(3, 6));
 
         Geometry floor = new Geometry("floor", floorBox);

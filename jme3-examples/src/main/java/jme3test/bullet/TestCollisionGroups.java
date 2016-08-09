@@ -85,7 +85,7 @@ public class TestCollisionGroups extends SimpleApplication {
         getPhysicsSpace().add(node2);
 
         // the floor, does not move (mass=0)
-        Node node3 = PhysicsTestHelper.createPhysicsTestNode(assetManager, new MeshCollisionShape(new Box(Vector3f.ZERO, 100f, 0.2f, 100f)), 0);
+        Node node3 = PhysicsTestHelper.createPhysicsTestNode(assetManager, new MeshCollisionShape(new Box(100f, 0.2f, 100f)), 0);
         node3.getControl(RigidBodyControl.class).setPhysicsLocation(new Vector3f(0f, -6, 0f));
         rootNode.attachChild(node3);
         getPhysicsSpace().add(node3);

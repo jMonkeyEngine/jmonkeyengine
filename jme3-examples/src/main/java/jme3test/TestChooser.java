@@ -32,7 +32,7 @@
 
 package jme3test;
 
-import com.jme3.app.Application;
+import com.jme3.app.LegacyApplication;
 import com.jme3.app.SimpleApplication;
 import com.jme3.system.JmeContext;
 import java.awt.*;
@@ -260,15 +260,15 @@ public class TestChooser extends JDialog {
                     for (int i = 0; i < appClass.length; i++) {
                 	    Class<?> clazz = (Class)appClass[i];
                 		try {
-                			Object app = clazz.newInstance();
-                			if (app instanceof Application) {
+                			if (LegacyApplication.class.isAssignableFrom(clazz)) {
+                    			Object app = clazz.newInstance();
                 			    if (app instanceof SimpleApplication) {
                 			        final Method settingMethod = clazz.getMethod("setShowSettings", boolean.class);
                 			        settingMethod.invoke(app, showSetting);
                 			    }
                 			    final Method mainMethod = clazz.getMethod("start");
                 			    mainMethod.invoke(app);
-                			    Field contextField = Application.class.getDeclaredField("context");
+                			    Field contextField = LegacyApplication.class.getDeclaredField("context");
                 			    contextField.setAccessible(true);
                 			    JmeContext context = null; 
                 			    while (context == null) {
@@ -283,7 +283,7 @@ public class TestChooser extends JDialog {
                 			    }
                 			} else {
                                 final Method mainMethod = clazz.getMethod("main", (new String[0]).getClass());
-                                mainMethod.invoke(app, new Object[]{new String[0]});
+                                mainMethod.invoke(clazz, new Object[]{new String[0]});
                 			}
                 			// wait for destroy
                 			System.gc();

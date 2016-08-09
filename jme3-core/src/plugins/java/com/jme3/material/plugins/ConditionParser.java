@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
  * style.
  *
  * extractDefines is able to get a list of defines in an expression and update
- * the formatter expression with upercased defines
+ * the formatter expression with uppercased defines
  *
  * @author Nehon
  */
