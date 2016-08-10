@@ -31,7 +31,6 @@
  */
 package com.jme3.scene.control;
 
-import com.jme3.math.Quaternion;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 
@@ -40,8 +39,6 @@ public class RotationControl extends AbstractControl {
     private float xRotation = 0.0f;
     private float yRotation = 0.0f;
     private float zRotation = 0.0f;
-
-    private Quaternion bla = new Quaternion();
 
     @Override
     protected void controlUpdate(float tpf) {
