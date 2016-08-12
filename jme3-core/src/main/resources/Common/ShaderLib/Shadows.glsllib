@@ -15,7 +15,7 @@
         #define SHADOWGATHER(tex,coord) step(coord.z, textureGather(tex, coord.xy))
     #endif
 
-    #if FILTER_MODE == 0
+    #if FILTER_MODE == 10
         #define GETSHADOW Shadow_Nearest
         #define KERNEL 1.0
     #elif FILTER_MODE == 1
@@ -36,7 +36,7 @@
         #define SHADOWCOMPARE(tex,coord) step(coord.z, texture2DProj(tex, coord).r)
     #endif
 
-    #if FILTER_MODE == 0
+    #if FILTER_MODE == 10
         #define GETSHADOW Shadow_DoShadowCompare
         #define KERNEL 1.0
     #elif FILTER_MODE == 1
@@ -51,7 +51,7 @@
 
 #endif
 
-#if FILTER_MODE == 2
+#if (FILTER_MODE == 2)
     #define GETSHADOW Shadow_DoDither_2x2
     #define KERNEL 1.0
 #elif FILTER_MODE == 3
