@@ -1,4 +1,4 @@
-
+#extension GL_ARB_shader_texture_lod : require
 #ifndef PI
     #define PI 3.14159265358979323846264
 #endif
