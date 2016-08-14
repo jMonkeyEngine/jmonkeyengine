@@ -1,5 +1,7 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/Instancing.glsllib"
 #import "Common/ShaderLib/Skinning.glsllib"
+
 
 uniform vec4 m_BaseColor;
 

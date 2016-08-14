@@ -1,6 +1,8 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/Parallax.glsllib"
 #import "Common/ShaderLib/PBR.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
+
 
 varying vec2 texCoord;
 #ifdef SEPARATE_TEXCOORD
