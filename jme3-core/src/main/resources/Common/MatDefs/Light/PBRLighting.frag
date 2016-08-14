@@ -19,12 +19,12 @@ uniform float m_Metallic;
 varying vec3 wPosition;    
 
 
-//#ifdef INDIRECT_LIGHTING
+#ifdef INDIRECT_LIGHTING
 //  uniform sampler2D m_IntegrateBRDF;
   uniform samplerCube g_PrefEnvMap;
   uniform samplerCube g_IrradianceMap;
   uniform vec4 g_LightProbeData;
-//#endif
+#endif
 
 #ifdef BASECOLORMAP
   uniform sampler2D m_BaseColorMap;
@@ -201,27 +201,29 @@ void main(){
         gl_FragColor.rgb += directLighting * fallOff;
     }
 
-    vec3 rv = reflect(-viewDir.xyz, normal.xyz);
-    //prallax fix for spherical bounds from https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
-    // g_LightProbeData.w is 1/probe radius, g_LightProbeData.xyz is the position of the lightProbe.
-    rv = g_LightProbeData.w * (wPosition - g_LightProbeData.xyz) +rv;
+    #ifdef INDIRECT_LIGHTING
+        vec3 rv = reflect(-viewDir.xyz, normal.xyz);
+        //prallax fix for spherical bounds from https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
+        // g_LightProbeData.w is 1/probe radius, g_LightProbeData.xyz is the position of the lightProbe.
+        rv = g_LightProbeData.w * (wPosition - g_LightProbeData.xyz) +rv;
 
-     //horizon fade from http://marmosetco.tumblr.com/post/81245981087
-    float horiz = dot(rv, wNormal.xyz);
-    float horizFadePower= 1.0 - Roughness;
-    horiz = clamp( 1.0 + horizFadePower * horiz, 0.0, 1.0 );
-    horiz *= horiz;
+         //horizon fade from http://marmosetco.tumblr.com/post/81245981087
+        float horiz = dot(rv, wNormal.xyz);
+        float horizFadePower= 1.0 - Roughness;
+        horiz = clamp( 1.0 + horizFadePower * horiz, 0.0, 1.0 );
+        horiz *= horiz;
 
-    vec3 indirectDiffuse = vec3(0.0);
-    vec3 indirectSpecular = vec3(0.0);    
-    indirectDiffuse = textureCube(g_IrradianceMap, normal.xyz).rgb * diffuseColor.rgb;
+        vec3 indirectDiffuse = vec3(0.0);
+        vec3 indirectSpecular = vec3(0.0);
+        indirectDiffuse = textureCube(g_IrradianceMap, normal.xyz).rgb * diffuseColor.rgb;
 
-    indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, rv.xyz);
-    indirectSpecular *= vec3(horiz);
+        indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, rv.xyz);
+        indirectSpecular *= vec3(horiz);
 
-    vec3 indirectLighting =  indirectDiffuse + indirectSpecular;
+        vec3 indirectLighting =  indirectDiffuse + indirectSpecular;
 
-    gl_FragColor.rgb = gl_FragColor.rgb + indirectLighting * step( 0.0, g_LightProbeData.w);        
+        gl_FragColor.rgb = gl_FragColor.rgb + indirectLighting * step( 0.0, g_LightProbeData.w);
+    #endif
  
     #if defined(EMISSIVE) || defined (EMISSIVEMAP)
         #ifdef EMISSIVEMAP

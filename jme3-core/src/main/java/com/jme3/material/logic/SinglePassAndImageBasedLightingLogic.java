@@ -48,9 +48,11 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
 
     private static final String DEFINE_SINGLE_PASS_LIGHTING = "SINGLE_PASS_LIGHTING";
     private static final String DEFINE_NB_LIGHTS = "NB_LIGHTS";
+    private static final String DEFINE_INDIRECT_LIGHTING = "INDIRECT_LIGHTING";
     private static final RenderState ADDITIVE_LIGHT = new RenderState();
 
     private final ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
+    private LightProbe lightProbe = null;
 
     static {
         ADDITIVE_LIGHT.setBlendMode(BlendMode.AlphaAdditive);
@@ -59,11 +61,13 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
 
     private final int singlePassLightingDefineId;
     private final int nbLightsDefineId;
+    private final int indirectLightingDefineId;
 
     public SinglePassAndImageBasedLightingLogic(TechniqueDef techniqueDef) {
         super(techniqueDef);
         singlePassLightingDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_SINGLE_PASS_LIGHTING, VarType.Boolean);
         nbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_LIGHTS, VarType.Int);
+        indirectLightingDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_INDIRECT_LIGHTING, VarType.Boolean);
     }
 
     @Override
@@ -71,6 +75,18 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
             EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
         defines.set(nbLightsDefineId, renderManager.getSinglePassLightBatchSize() * 3);
         defines.set(singlePassLightingDefineId, true);
+
+
+        //TODO here we have a problem, this is called once before render, so the define will be set for all passes (in case we have more than NB_LIGHTS lights)
+        //Though the second pass should not render IBL as it is taken care of on first pass like ambient light in phong lighting.
+        //We cannot change the define between passes and the old technique, and for some reason the code fails on mac (renders nothing).
+        lightProbe = extractIndirectLights(lights,false);
+        if(lightProbe == null){
+            defines.set(indirectLightingDefineId, false);
+        } else {
+            defines.set(indirectLightingDefineId, true);
+        }
+
         return super.makeCurrent(assetManager, renderManager, rendererCaps, lights, defines);
     }
 
@@ -100,7 +116,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         Uniform lightProbeIrrMap = shader.getUniform("g_IrradianceMap");
         Uniform lightProbePemMap = shader.getUniform("g_PrefEnvMap");
 
-        LightProbe lightProbe = null;
+        lightProbe = null;
         if (startIndex != 0) {
             // apply additive blending for 2nd and future passes
             rm.getRenderer().applyRenderState(ADDITIVE_LIGHT);
@@ -132,7 +148,6 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         Vector4f tmpVec = vars.vect4f1;
         int curIndex;
         int endIndex = numLights + startIndex;
-        boolean useIBL = false;
         for (curIndex = startIndex; curIndex < endIndex && curIndex < lightList.size(); curIndex++) {
 
 

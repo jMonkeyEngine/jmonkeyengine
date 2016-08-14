@@ -57,7 +57,7 @@ public class TestParallaxPBR extends SimpleApplication {
     }
 
     public void setupSkyBox() {
-        rootNode.attachChild(SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", false));
+        rootNode.attachChild(SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", SkyFactory.EnvMapType.CubeMap));
     }
     DirectionalLight dl;
 
