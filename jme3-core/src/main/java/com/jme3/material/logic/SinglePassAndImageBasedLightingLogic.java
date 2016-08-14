@@ -80,11 +80,13 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         //TODO here we have a problem, this is called once before render, so the define will be set for all passes (in case we have more than NB_LIGHTS lights)
         //Though the second pass should not render IBL as it is taken care of on first pass like ambient light in phong lighting.
         //We cannot change the define between passes and the old technique, and for some reason the code fails on mac (renders nothing).
-        lightProbe = extractIndirectLights(lights,false);
-        if(lightProbe == null){
-            defines.set(indirectLightingDefineId, false);
-        } else {
-            defines.set(indirectLightingDefineId, true);
+        if(lights != null) {
+            lightProbe = extractIndirectLights(lights, false);
+            if (lightProbe == null) {
+                defines.set(indirectLightingDefineId, false);
+            } else {
+                defines.set(indirectLightingDefineId, true);
+            }
         }
 
         return super.makeCurrent(assetManager, renderManager, rendererCaps, lights, defines);
