@@ -9,7 +9,9 @@ varying vec2 texCoord;
   varying vec2 texCoord2;
 #endif
 
-varying vec4 Color;
+#ifndef BASECOLORMAP
+    varying vec4 Color;
+#endif
 
 uniform vec4 g_LightData[NB_LIGHTS];
 
@@ -122,7 +124,7 @@ void main(){
         float Metallic =  max(m_Metallic, 0.0);
     #endif
  
-    float alpha = Color.a * albedo.a;
+    float alpha = albedo.a;
 
     #ifdef DISCARD_ALPHA
         if(alpha < m_AlphaDiscardThreshold){
