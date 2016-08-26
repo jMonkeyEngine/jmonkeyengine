@@ -32,14 +32,15 @@
 package com.jme3.opencl.lwjgl;
 
 import com.jme3.opencl.*;
+import com.jme3.opencl.lwjgl.info.Info;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.opencl.*;
 import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.system.Pointer;
 
 /**
  *
@@ -94,7 +95,7 @@ public class LwjglProgram extends Program {
         final ByteBuffer buffer = BufferUtils.createByteBuffer(count);
         ret = CL10.clGetProgramBuildInfo(program, device, CL10.CL_PROGRAM_BUILD_LOG, buffer, null);
         Utils.checkError(ret, "clGetProgramBuildInfo");
-        return MemoryUtil.memDecodeASCII(buffer);
+        return MemoryUtil.memASCII(buffer);
     }
     
     private String Log() {
@@ -123,7 +124,7 @@ public class LwjglProgram extends Program {
         Utils.checkError(ret, "clCreateKernelsInProgram");
         int count = Utils.tempBuffers[0].b16i.get(0);
         PointerBuffer buf = PointerBuffer.allocateDirect(count);
-        ret = CL10.clCreateKernelsInProgram(program, buf, null);
+        ret = CL10.clCreateKernelsInProgram(program, buf, (IntBuffer) null);
         Utils.checkError(ret, "clCreateKernelsInProgram");
         Kernel[] kx = new Kernel[count];
         for (int i=0; i<count; ++i) {

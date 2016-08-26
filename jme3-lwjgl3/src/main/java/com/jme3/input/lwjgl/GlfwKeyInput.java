@@ -95,7 +95,7 @@ public class GlfwKeyInput implements KeyInput {
 
             @Override
             public void callback(long args) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                super.callback(args);
             }
         });
 
@@ -124,7 +124,7 @@ public class GlfwKeyInput implements KeyInput {
 
             @Override
             public void callback(long args) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                super.callback(args);
             }
         });
 

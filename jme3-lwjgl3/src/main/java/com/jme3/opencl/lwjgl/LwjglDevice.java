@@ -33,13 +33,12 @@ package com.jme3.opencl.lwjgl;
 
 import com.jme3.opencl.Device;
 import com.jme3.opencl.Platform;
+import com.jme3.opencl.lwjgl.info.Info;
 import java.util.Arrays;
 import java.util.Collection;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.opencl.CL10;
 import org.lwjgl.opencl.CL11;
-import org.lwjgl.opencl.CLDevice;
-import org.lwjgl.opencl.Info;
 
 /**
  *
@@ -47,18 +46,15 @@ import org.lwjgl.opencl.Info;
  */
 public final class LwjglDevice implements Device {
 
-    final CLDevice device;
+    final long device;
     final LwjglPlatform platform;
 
-    public LwjglDevice(CLDevice device, LwjglPlatform platform) {
+    public LwjglDevice(long device, LwjglPlatform platform) {
         this.device = device;
         this.platform = platform;
     }
     
     public long getDevice() {
-        return device.address();
-    }
-    public CLDevice getCLDevice() {
         return device;
     }
     
@@ -69,7 +65,7 @@ public final class LwjglDevice implements Device {
 
     @Override
     public DeviceType getDeviceType() {
-        int type = Info.clGetDeviceInfoInt(device.address(), CL10.CL_DEVICE_TYPE);
+        int type = Info.clGetDeviceInfoInt(device, CL10.CL_DEVICE_TYPE);
         switch (type) {
             case CL10.CL_DEVICE_TYPE_ACCELERATOR: return DeviceType.ACCELEARTOR;
             case CL10.CL_DEVICE_TYPE_CPU: return DeviceType.CPU;
@@ -80,17 +76,17 @@ public final class LwjglDevice implements Device {
 
     @Override
     public int getVendorId() {
-        return Info.clGetDeviceInfoInt(device.address(), CL10.CL_DEVICE_VENDOR_ID);
+        return Info.clGetDeviceInfoInt(device, CL10.CL_DEVICE_VENDOR_ID);
     }
 
     @Override
     public boolean isAvailable() {
-        return Info.clGetDeviceInfoBoolean(device.address(), CL10.CL_DEVICE_AVAILABLE);
+        return Info.clGetDeviceInfoBoolean(device, CL10.CL_DEVICE_AVAILABLE);
     }
 
     @Override
     public boolean hasCompiler() {
-        return Info.clGetDeviceInfoBoolean(device.address(), CL10.CL_DEVICE_COMPILER_AVAILABLE);
+        return Info.clGetDeviceInfoBoolean(device, CL10.CL_DEVICE_COMPILER_AVAILABLE);
     }
 
     @Override
@@ -105,17 +101,17 @@ public final class LwjglDevice implements Device {
 
     @Override
     public boolean hasErrorCorrectingMemory() {
-        return Info.clGetDeviceInfoBoolean(device.address(), CL10.CL_DEVICE_ERROR_CORRECTION_SUPPORT);
+        return Info.clGetDeviceInfoBoolean(device, CL10.CL_DEVICE_ERROR_CORRECTION_SUPPORT);
     }
 
     @Override
     public boolean hasUnifiedMemory() {
-        return Info.clGetDeviceInfoBoolean(device.address(), CL11.CL_DEVICE_HOST_UNIFIED_MEMORY);
+        return Info.clGetDeviceInfoBoolean(device, CL11.CL_DEVICE_HOST_UNIFIED_MEMORY);
     }
 
     @Override
     public boolean hasImageSupport() {
-        return Info.clGetDeviceInfoBoolean(device.address(), CL10.CL_DEVICE_IMAGE_SUPPORT);
+        return Info.clGetDeviceInfoBoolean(device, CL10.CL_DEVICE_IMAGE_SUPPORT);
     }
     
     @Override
@@ -135,39 +131,39 @@ public final class LwjglDevice implements Device {
 
     @Override
     public Collection<? extends String> getExtensions() {
-        return Arrays.asList(Info.clGetDeviceInfoStringASCII(device.address(), CL10.CL_DEVICE_EXTENSIONS).split(" "));
+        return Arrays.asList(Info.clGetDeviceInfoStringASCII(device, CL10.CL_DEVICE_EXTENSIONS).split(" "));
     }
 
     @Override
     public int getComputeUnits() {
-        return Info.clGetDeviceInfoInt(device.address(), CL10.CL_DEVICE_MAX_COMPUTE_UNITS);
+        return Info.clGetDeviceInfoInt(device, CL10.CL_DEVICE_MAX_COMPUTE_UNITS);
     }
 
     @Override
     public int getClockFrequency() {
-        return Info.clGetDeviceInfoInt(device.address(), CL10.CL_DEVICE_MAX_CLOCK_FREQUENCY);
+        return Info.clGetDeviceInfoInt(device, CL10.CL_DEVICE_MAX_CLOCK_FREQUENCY);
     }
 
     @Override
     public int getAddressBits() {
-        return Info.clGetDeviceInfoInt(device.address(), CL10.CL_DEVICE_ADDRESS_BITS);
+        return Info.clGetDeviceInfoInt(device, CL10.CL_DEVICE_ADDRESS_BITS);
     }
 
     @Override
     public boolean isLittleEndian() {
-        return Info.clGetDeviceInfoBoolean(device.address(), CL10.CL_DEVICE_ENDIAN_LITTLE);
+        return Info.clGetDeviceInfoBoolean(device, CL10.CL_DEVICE_ENDIAN_LITTLE);
     }
 
     @Override
     public long getMaximumWorkItemDimensions() {
-        return Info.clGetDeviceInfoInt(device.address(), CL10.CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
+        return Info.clGetDeviceInfoInt(device, CL10.CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
     }
 
     @Override
     public long[] getMaximumWorkItemSizes() {
         int dim = (int) getMaximumWorkItemDimensions();
         PointerBuffer sizes = PointerBuffer.allocateDirect(dim);
-        Info.clGetDeviceInfoPointers(device.address(), CL10.CL_DEVICE_MAX_WORK_ITEM_SIZES, sizes);
+        Info.clGetDeviceInfoPointers(device, CL10.CL_DEVICE_MAX_WORK_ITEM_SIZES, sizes);
         long[] sx = new long[dim];
         sizes.get(sx);
         return sx;
@@ -175,74 +171,74 @@ public final class LwjglDevice implements Device {
 
     @Override
     public long getMaxiumWorkItemsPerGroup() {
-        return Info.clGetDeviceInfoPointer(device.address(), CL10.CL_DEVICE_MAX_WORK_GROUP_SIZE);
+        return Info.clGetDeviceInfoPointer(device, CL10.CL_DEVICE_MAX_WORK_GROUP_SIZE);
     }
 
     @Override
     public int getMaximumSamplers() {
-        return Info.clGetDeviceInfoInt(device.address(), CL10.CL_DEVICE_MAX_SAMPLERS);
+        return Info.clGetDeviceInfoInt(device, CL10.CL_DEVICE_MAX_SAMPLERS);
     }
 
     @Override
     public int getMaximumReadImages() {
-        return Info.clGetDeviceInfoInt(device.address(), CL10.CL_DEVICE_MAX_READ_IMAGE_ARGS);
+        return Info.clGetDeviceInfoInt(device, CL10.CL_DEVICE_MAX_READ_IMAGE_ARGS);
     }
 
     @Override
     public int getMaximumWriteImages() {
-        return Info.clGetDeviceInfoInt(device.address(), CL10.CL_DEVICE_MAX_WRITE_IMAGE_ARGS);
+        return Info.clGetDeviceInfoInt(device, CL10.CL_DEVICE_MAX_WRITE_IMAGE_ARGS);
     }
 
     @Override
     public long[] getMaximumImage2DSize() {
         return new long[] {
-            Info.clGetDeviceInfoPointer(device.address(), CL10.CL_DEVICE_IMAGE2D_MAX_WIDTH),
-            Info.clGetDeviceInfoPointer(device.address(), CL10.CL_DEVICE_IMAGE2D_MAX_HEIGHT)
+            Info.clGetDeviceInfoPointer(device, CL10.CL_DEVICE_IMAGE2D_MAX_WIDTH),
+            Info.clGetDeviceInfoPointer(device, CL10.CL_DEVICE_IMAGE2D_MAX_HEIGHT)
         };
     }
 
     @Override
     public long[] getMaximumImage3DSize() {
         return new long[] {
-            Info.clGetDeviceInfoPointer(device.address(), CL10.CL_DEVICE_IMAGE3D_MAX_WIDTH),
-            Info.clGetDeviceInfoPointer(device.address(), CL10.CL_DEVICE_IMAGE3D_MAX_HEIGHT),
-            Info.clGetDeviceInfoPointer(device.address(), CL10.CL_DEVICE_IMAGE3D_MAX_DEPTH)
+            Info.clGetDeviceInfoPointer(device, CL10.CL_DEVICE_IMAGE3D_MAX_WIDTH),
+            Info.clGetDeviceInfoPointer(device, CL10.CL_DEVICE_IMAGE3D_MAX_HEIGHT),
+            Info.clGetDeviceInfoPointer(device, CL10.CL_DEVICE_IMAGE3D_MAX_DEPTH)
         };
     }
     
     @Override
     public long getMaximumAllocationSize() {
-        return Info.clGetDeviceInfoLong(device.address(), CL10.CL_DEVICE_MAX_MEM_ALLOC_SIZE);
+        return Info.clGetDeviceInfoLong(device, CL10.CL_DEVICE_MAX_MEM_ALLOC_SIZE);
     }
     
     @Override
     public long getGlobalMemorySize() {
-        return Info.clGetDeviceInfoLong(device.address(), CL10.CL_DEVICE_GLOBAL_MEM_SIZE);
+        return Info.clGetDeviceInfoLong(device, CL10.CL_DEVICE_GLOBAL_MEM_SIZE);
     }
     
     @Override
     public long getLocalMemorySize() {
-        return Info.clGetDeviceInfoLong(device.address(), CL10.CL_DEVICE_LOCAL_MEM_SIZE);
+        return Info.clGetDeviceInfoLong(device, CL10.CL_DEVICE_LOCAL_MEM_SIZE);
     }
     
     @Override
     public long getMaximumConstantBufferSize() {
-        return Info.clGetDeviceInfoLong(device.address(), CL10.CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE);
+        return Info.clGetDeviceInfoLong(device, CL10.CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE);
     }
     
     @Override
     public int getMaximumConstantArguments() {
-        return Info.clGetDeviceInfoInt(device.address(), CL10.CL_DEVICE_MAX_CONSTANT_ARGS);
+        return Info.clGetDeviceInfoInt(device, CL10.CL_DEVICE_MAX_CONSTANT_ARGS);
     }
 
     @Override
     public String getProfile() {
-        return Info.clGetDeviceInfoStringASCII(device.address(), CL10.CL_DEVICE_PROFILE);
+        return Info.clGetDeviceInfoStringASCII(device, CL10.CL_DEVICE_PROFILE);
     }
 
     @Override
     public String getVersion() {
-        return  Info.clGetDeviceInfoStringASCII(device.address(), CL10.CL_DEVICE_VERSION);
+        return  Info.clGetDeviceInfoStringASCII(device, CL10.CL_DEVICE_VERSION);
     }
 
     @Override
@@ -257,7 +253,7 @@ public final class LwjglDevice implements Device {
 
     @Override
     public String getCompilerVersion() {
-        return  Info.clGetDeviceInfoStringASCII(device.address(), CL11.CL_DEVICE_OPENCL_C_VERSION);
+        return  Info.clGetDeviceInfoStringASCII(device, CL11.CL_DEVICE_OPENCL_C_VERSION);
     }
 
     @Override
@@ -272,7 +268,7 @@ public final class LwjglDevice implements Device {
 
     @Override
     public String getDriverVersion() {
-        return  Info.clGetDeviceInfoStringASCII(device.address(), CL10.CL_DRIVER_VERSION);
+        return  Info.clGetDeviceInfoStringASCII(device, CL10.CL_DRIVER_VERSION);
     }
 
     @Override
@@ -287,12 +283,12 @@ public final class LwjglDevice implements Device {
 
     @Override
     public String getName() {
-        return  Info.clGetDeviceInfoStringASCII(device.address(), CL10.CL_DEVICE_NAME);
+        return  Info.clGetDeviceInfoStringASCII(device, CL10.CL_DEVICE_NAME);
     }
 
     @Override
     public String getVendor() {
-        return  Info.clGetDeviceInfoStringASCII(device.address(), CL10.CL_DEVICE_VENDOR);
+        return  Info.clGetDeviceInfoStringASCII(device, CL10.CL_DEVICE_VENDOR);
     }
 
     @Override

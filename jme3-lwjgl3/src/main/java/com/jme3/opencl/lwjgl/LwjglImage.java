@@ -33,6 +33,7 @@ package com.jme3.opencl.lwjgl;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.opencl.*;
+import com.jme3.opencl.lwjgl.info.Info;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -272,7 +273,10 @@ public class LwjglImage extends Image {
     public ImageFormat getImageFormat() {
         Utils.b80.rewind();
         CLImageFormat format = new CLImageFormat(Utils.b80);
-        int ret = CL10.clGetImageInfo(image, CL10.CL_IMAGE_FORMAT, format.sizeof(), Utils.b80, null);
+        int limit = Utils.b80.limit();
+        Utils.b80.limit(format.sizeof());
+        int ret = CL10.clGetImageInfo(image, CL10.CL_IMAGE_FORMAT, Utils.b80, null);
+        Utils.b80.limit(limit);
         Utils.checkError(ret, "clGetImageInfo");
         return new ImageFormat(encodeImageChannelOrder(format.image_channel_order()), encodeImageChannelType(format.image_channel_data_type()));
     }

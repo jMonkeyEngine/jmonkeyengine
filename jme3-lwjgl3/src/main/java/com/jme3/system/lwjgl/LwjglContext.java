@@ -50,6 +50,7 @@ import com.jme3.renderer.lwjgl.LwjglGLFboEXT;
 import com.jme3.renderer.lwjgl.LwjglGLFboGL3;
 import com.jme3.renderer.opengl.*;
 import com.jme3.system.*;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -105,9 +106,9 @@ public abstract class LwjglContext implements JmeContext {
 
     protected int determineMaxSamples() {
         // If we already have a valid context, determine samples using current context.
-        if (GLFW.glfwExtensionSupported("GL_ARB_framebuffer_object") == GLFW_TRUE) {
+        if (GLFW.glfwExtensionSupported("GL_ARB_framebuffer_object")) {
             return glGetInteger(ARBFramebufferObject.GL_MAX_SAMPLES);
-        } else if (GLFW.glfwExtensionSupported("GL_EXT_framebuffer_multisample") == GLFW_TRUE) {
+        } else if (GLFW.glfwExtensionSupported("GL_EXT_framebuffer_multisample")) {
             return glGetInteger(EXTFramebufferMultisample.GL_MAX_SAMPLES_EXT);
         }
 
@@ -197,7 +198,40 @@ public abstract class LwjglContext implements JmeContext {
         renderable.set(true);
         
     }
-    
+
+    /**
+     * Returns a list of the available platforms, filtered by the specified
+     * filter.
+     *
+     * Copied from the old release
+     *
+     * @param filter the platform filter
+     *
+     * @return the available platforms
+     */
+    private static long[] getPlatforms() {
+        int[] count = new int[1];
+        int errcode = CL10.clGetPlatformIDs(null, count);
+        Utils.checkError(errcode, "clGetDeviceIDs");
+
+        int num_platforms = count[0];
+        if (num_platforms == 0) {
+            return new long[0];
+        }
+
+        PointerBuffer platforms = PointerBuffer.allocateDirect(num_platforms);
+        errcode = CL10.clGetPlatformIDs(platforms, (IntBuffer) null);
+        Utils.checkError(errcode, "clGetDeviceIDs");
+
+        platforms.rewind();
+        long[] platformIDs = new long[num_platforms];
+        for (int i = 0; i < num_platforms; i++) {
+            platformIDs[i] = platforms.get();
+        }
+
+        return platformIDs;
+    }
+
     protected void initOpenCL(long window) {
         logger.info("Initialize OpenCL with LWJGL3");
         
@@ -211,7 +245,7 @@ public abstract class LwjglContext implements JmeContext {
         //load platforms and devices
         StringBuilder platformInfos = new StringBuilder();
         ArrayList<LwjglPlatform> platforms = new ArrayList<>();
-        for (CLPlatform p : CLPlatform.getPlatforms()) {
+        for (long p : getPlatforms()) {
             platforms.add(new LwjglPlatform(p));
         }
         platformInfos.append("Available OpenCL platforms:");
@@ -260,7 +294,7 @@ public abstract class LwjglContext implements JmeContext {
             chooser = new DefaultPlatformChooser();
         }
         List<? extends Device> choosenDevices = chooser.chooseDevices(platforms);
-        List<CLDevice> devices = new ArrayList<>(choosenDevices.size());
+        List<Long> devices = new ArrayList<>(choosenDevices.size());
         LwjglPlatform platform = null;
         for (Device d : choosenDevices) {
             if (!(d instanceof LwjglDevice)) {
@@ -274,7 +308,7 @@ public abstract class LwjglContext implements JmeContext {
                 logger.severe("attempt to use devices from different platforms");
                 return;
             }
-            devices.add(ld.getCLDevice());
+            devices.add(ld.getDevice());
         }
         if (devices.isEmpty()) {
             logger.warning("no devices specified, no OpenCL context created");
@@ -294,7 +328,7 @@ public abstract class LwjglContext implements JmeContext {
         
         logger.info("OpenCL context created");
     }
-    private long createContext(final CLPlatform platform, final List<CLDevice> devices, long window) throws Exception {
+    private long createContext(final long platform, final List<Long> devices, long window) throws Exception {
         
         final int propertyCount = 2 + 4 + 1;
 
@@ -330,7 +364,7 @@ public abstract class LwjglContext implements JmeContext {
 
         Utils.errorBuffer.rewind();
         PointerBuffer deviceBuffer = PointerBuffer.allocateDirect(devices.size());
-        for (CLDevice d : devices) {
+        for (long d : devices) {
             deviceBuffer.put(d);
         }
         deviceBuffer.flip();

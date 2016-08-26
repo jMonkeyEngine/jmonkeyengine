@@ -32,9 +32,9 @@
 package com.jme3.opencl.lwjgl;
 
 import com.jme3.opencl.Event;
+import com.jme3.opencl.lwjgl.info.Info;
 import java.util.logging.Logger;
 import org.lwjgl.opencl.CL10;
-import org.lwjgl.opencl.Info;
 
 /**
  *
