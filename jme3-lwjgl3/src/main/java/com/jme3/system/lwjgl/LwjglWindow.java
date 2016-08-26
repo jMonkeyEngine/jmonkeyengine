@@ -132,9 +132,19 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 final String message = GLFWErrorCallback.getDescription(description);
                 listener.handleError(message, new Exception(message));
             }
+
+            @Override
+            public void close(){
+                super.close();
+            }
+
+            @Override
+            public void callback(long args) {
+                super.callback(args);
+            }
         });
 
-        if (glfwInit() != GLFW_TRUE) {
+        if (!glfwInit()) {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
 
@@ -161,7 +171,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, settings.isResizable() ? GLFW_TRUE : GLFW_FALSE);
 
-        glfwWindowHint(GLFW_DOUBLE_BUFFER, GLFW_TRUE);
+        //glfwWindowHint(GLFW_DOUBLE_BUFFER, GLFW_TRUE);
         glfwWindowHint(GLFW_DEPTH_BITS, settings.getDepthBits());
         glfwWindowHint(GLFW_STENCIL_BITS, settings.getStencilBits());
         glfwWindowHint(GLFW_SAMPLES, settings.getSamples());
@@ -206,12 +216,21 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 settings.setResolution(width, height);
                 listener.reshape(width, height);
             }
+
+            @Override
+            public void close() {
+                super.close();
+            }
+
+            @Override
+            public void callback(long args) {
+                super.callback(args);
+            }
         });
 
         glfwSetWindowFocusCallback(window, windowFocusCallback = new GLFWWindowFocusCallback() {
             @Override
-            public void invoke(final long window, final int focused) {
-                final boolean focus = (focused == GL_TRUE);
+            public void invoke(final long window, final boolean focus) {
                 if (wasActive != focus) {
                     if (!wasActive) {
                         listener.gainFocus();
@@ -222,6 +241,16 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
                     wasActive = !wasActive;
                 }
+            }
+
+            @Override
+            public void close() {
+                super.close();
+            }
+
+            @Override
+            public void callback(long args) {
+                super.callback(args);
             }
         });
 
@@ -260,17 +289,17 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             }
 
             if (errorCallback != null) {
-                errorCallback.release();
+                errorCallback.close();
                 errorCallback = null;
             }
 
             if (windowSizeCallback != null) {
-                windowSizeCallback.release();
+                windowSizeCallback.close();
                 windowSizeCallback = null;
             }
 
             if (windowFocusCallback != null) {
-                windowFocusCallback.release();
+                windowFocusCallback.close();
                 windowFocusCallback = null;
             }
 
@@ -460,7 +489,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 break;
             }
 
-            if (glfwWindowShouldClose(window) == GL_TRUE) {
+            if (glfwWindowShouldClose(window)) {
                 listener.requestClose(false);
             }
         }
