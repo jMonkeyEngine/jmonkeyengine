@@ -1,6 +1,9 @@
 language: java
 sudo: false
 
+jdk:
+  - oraclejdk8
+
 addons:
   ssh_known_hosts: updates.jmonkeyengine.org
 
