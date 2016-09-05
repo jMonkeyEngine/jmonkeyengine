@@ -55,6 +55,7 @@ import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -1636,6 +1637,16 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         //When backward compatibility won't be needed anymore this can be replaced by :
         //controls = ic.readSavableArrayList("controlsList", null));
         controls.addAll(0, ic.readSavableArrayList("controlsList", null));
+
+        // remove all controls which wasn't loaded.
+        if(controls.contains(null)) {
+            logger.log(Level.WARNING, "This spatial has problems with loading controls.", this);
+
+            for (Iterator<Control> iterator = controls.iterator(); iterator.hasNext(); ) {
+                final Control control = iterator.next();
+                if(control == null) iterator.remove();
+            }
+        }
 
         userData = (HashMap<String, Savable>) ic.readStringSavableMap("user_data", null);
     }
