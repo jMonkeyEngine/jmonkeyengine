@@ -39,6 +39,8 @@ import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.system.lwjgl.LwjglAbstractDisplay;
 import com.jme3.system.lwjgl.LwjglTimer;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.LWJGLException;
@@ -56,6 +58,12 @@ public class LwjglMouseInput implements MouseInput {
 
     private boolean supportHardwareCursor = false;
     private boolean cursorVisible = true;
+
+    /**
+     * We need to cache the cursors
+     * (https://github.com/jMonkeyEngine/jmonkeyengine/issues/537)
+     */
+    private Map<JmeCursor, Cursor> cursorMap = new HashMap<JmeCursor, Cursor>();
 
     private int curX, curY, curWheel;
 
@@ -120,7 +128,7 @@ public class LwjglMouseInput implements MouseInput {
             }
             if (btn != -1){
                 MouseButtonEvent evt = new MouseButtonEvent(btn,
-                                                            Mouse.getEventButtonState(), x, y);
+                        Mouse.getEventButtonState(), x, y);
                 evt.setTime(Mouse.getEventNanoseconds());
                 listener.onMouseButtonEvent(evt);
             }
@@ -132,6 +140,13 @@ public class LwjglMouseInput implements MouseInput {
             return;
 
         Mouse.destroy();
+
+        // Destroy the cursor cache
+        for (Cursor cursor : cursorMap.values()) {
+            cursor.destroy();
+        }
+        cursorMap.clear();
+
         logger.fine("Mouse destroyed.");
     }
 
@@ -155,14 +170,20 @@ public class LwjglMouseInput implements MouseInput {
         try {
             Cursor newCursor = null;
             if (jmeCursor != null) {
-                 newCursor = new Cursor(
-                        jmeCursor.getWidth(),
-                        jmeCursor.getHeight(),
-                        jmeCursor.getXHotSpot(),
-                        jmeCursor.getYHotSpot(),
-                        jmeCursor.getNumImages(),
-                        jmeCursor.getImagesData(),
-                        jmeCursor.getImagesDelay());
+                newCursor = cursorMap.get(jmeCursor);
+                if (newCursor == null) {
+                    newCursor = new Cursor(
+                            jmeCursor.getWidth(),
+                            jmeCursor.getHeight(),
+                            jmeCursor.getXHotSpot(),
+                            jmeCursor.getYHotSpot(),
+                            jmeCursor.getNumImages(),
+                            jmeCursor.getImagesData(),
+                            jmeCursor.getImagesDelay());
+
+                    // Add to cache
+                    cursorMap.put(jmeCursor, newCursor);
+                }
             }
             Mouse.setNativeCursor(newCursor);
         } catch (LWJGLException ex) {
