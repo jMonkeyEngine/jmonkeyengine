@@ -49,7 +49,7 @@ package com.jme3.util.clone;
  *
  *  <p>Cloning of a JmeCloneable object is done in two parts.  First,
  *  the standard Java clone() method is called to create a shallow clone
- *  of the object.  Second, the cloner wil lcall the cloneFields() method
+ *  of the object.  Second, the cloner will call the cloneFields() method
  *  to let the object deep clone any of its fields that should be cloned.</p>
  *
  *  <p>This two part process is necessary to facilitate circular references.
