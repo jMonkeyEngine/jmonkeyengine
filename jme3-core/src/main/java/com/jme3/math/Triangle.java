@@ -44,7 +44,7 @@ import java.io.IOException;
  * @author Mark Powell
  * @author Joshua Slack
  */
-public class Triangle extends AbstractTriangle implements Savable, java.io.Serializable {
+public class Triangle extends AbstractTriangle implements Savable, Cloneable, java.io.Serializable {
 
     static final long serialVersionUID = 1;
 
