@@ -363,6 +363,30 @@ public class FrameBuffer extends NativeObject {
         colorBufs.clear();
     }
 
+	/**
+     * Add a color buffer without a texture bound to it.
+     * If MRT is enabled, then each subsequently added texture or buffer can be
+     * rendered to through a shader that writes to the array <code>gl_FragData</code>.
+     * If MRT is not enabled, then the index set with {@link FrameBuffer#setTargetIndex(int) }
+     * is rendered to by the shader.
+     * 
+     * @param format the format of the color buffer
+	 * @see #addColorTexture(com.jme3.texture.Texture2D) 
+     */
+	public void addColorBuffer(Image.Format format){
+        if (id != -1)
+            throw new UnsupportedOperationException("FrameBuffer already initialized.");
+
+        if (format.isDepthFormat())
+            throw new IllegalArgumentException("Color buffer format must be color/luminance.");
+        
+        RenderBuffer colorBuf = new RenderBuffer();
+        colorBuf.slot = colorBufs.size();
+        colorBuf.format = format;
+        
+        colorBufs.add(colorBuf);
+    }
+	
     /**
      * Add a color texture to use for this framebuffer.
      * If MRT is enabled, then each subsequently added texture can be
@@ -371,6 +395,7 @@ public class FrameBuffer extends NativeObject {
      * is rendered to by the shader.
      * 
      * @param tex The texture to add.
+	 * @see #addColorBuffer(com.jme3.texture.Image.Format) 
      */
     public void addColorTexture(Texture2D tex) {
         if (id != -1)

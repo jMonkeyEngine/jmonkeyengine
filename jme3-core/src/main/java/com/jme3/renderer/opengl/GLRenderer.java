@@ -1648,15 +1648,13 @@ public final class GLRenderer implements Renderer {
             if (fb.getNumColorBuffers() == 0) {
                 // make sure to select NONE as draw buf
                 // no color buffer attached.
-                if (gl2 != null) {
-                    if (context.boundDrawBuf != NONE) {
-                        gl2.glDrawBuffer(GL.GL_NONE);
-                        context.boundDrawBuf = NONE;
-                    }
-                    if (context.boundReadBuf != NONE) {
-                        gl2.glReadBuffer(GL.GL_NONE);
-                        context.boundReadBuf = NONE;
-                    }
+                if (context.boundDrawBuf != NONE) {
+                    gl2.glDrawBuffer(GL.GL_NONE);
+                    context.boundDrawBuf = NONE;
+                }
+                if (context.boundReadBuf != NONE) {
+                    gl2.glReadBuffer(GL.GL_NONE);
+                    context.boundReadBuf = NONE;
                 }
             } else {
                 if (fb.getNumColorBuffers() > limits.get(Limits.FrameBufferAttachments)) {
@@ -1675,24 +1673,21 @@ public final class GLRenderer implements Renderer {
                                 + " by the video hardware!");
                     }
 
-                    if (context.boundDrawBuf != MRT_OFF + fb.getNumColorBuffers()) {
-                        intBuf16.clear();
-                        for (int i = 0; i < fb.getNumColorBuffers(); i++) {
-                            intBuf16.put(GLFbo.GL_COLOR_ATTACHMENT0_EXT + i);
-                        }
-
-                        intBuf16.flip();
-                        glext.glDrawBuffers(intBuf16);
-                        context.boundDrawBuf = MRT_OFF + fb.getNumColorBuffers();
+                    intBuf16.clear();
+                    for (int i = 0; i < fb.getNumColorBuffers(); i++) {
+                        intBuf16.put(GLFbo.GL_COLOR_ATTACHMENT0_EXT + i);
                     }
+
+                    intBuf16.flip();
+                    glext.glDrawBuffers(intBuf16);
+                    context.boundDrawBuf = MRT_OFF + fb.getNumColorBuffers();
+                    
                 } else {
                     RenderBuffer rb = fb.getColorBuffer(fb.getTargetIndex());
                     // select this draw buffer
-                    if (gl2 != null) {
-                        if (context.boundDrawBuf != rb.getSlot()) {
-                            gl2.glDrawBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
-                            context.boundDrawBuf = rb.getSlot();
-                        }
+                    if (context.boundDrawBuf != rb.getSlot()) {
+                        gl2.glDrawBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
+                        context.boundDrawBuf = rb.getSlot();
                     }
                 }
             }

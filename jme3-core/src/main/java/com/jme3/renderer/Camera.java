@@ -991,7 +991,7 @@ public class Camera implements Savable, Cloneable {
      * Returns the pseudo distance from the given position to the near
      * plane of the camera. This is used for render queue sorting.
      * @param pos The position to compute a distance to.
-     * @return Distance from the far plane to the point.
+     * @return Distance from the near plane to the point.
      */
     public float distanceToNearPlane(Vector3f pos) {
         return worldPlane[NEAR_PLANE].pseudoDistance(pos);

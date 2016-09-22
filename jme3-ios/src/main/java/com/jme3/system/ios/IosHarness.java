@@ -31,7 +31,7 @@
  */
 package com.jme3.system.ios;
 
-import com.jme3.app.Application;
+import com.jme3.app.LegacyApplication;
 import com.jme3.system.JmeSystem;
 
 /**
@@ -39,7 +39,7 @@ import com.jme3.system.JmeSystem;
  */
 public abstract class IosHarness extends ObjcNativeObject {
 
-    protected Application app;
+    protected LegacyApplication app;
 
     public IosHarness(long appDelegate) {
         super(appDelegate);

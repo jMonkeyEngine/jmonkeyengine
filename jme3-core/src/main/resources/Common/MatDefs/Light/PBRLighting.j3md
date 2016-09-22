@@ -154,7 +154,6 @@ MaterialDef PBR Lighting {
         }
 
         Defines {
-            COLOR_MAP : ColorMap
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
@@ -187,7 +186,7 @@ MaterialDef PBR Lighting {
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
             DISCARD_ALPHA : AlphaDiscardThreshold           
-            COLOR_MAP : ColorMap
+            SHADOWMAP_SIZE : ShadowMapSize
             SHADOWMAP_SIZE : ShadowMapSize
             FADE : FadeInfo
             PSSM : Splits
@@ -219,7 +218,6 @@ MaterialDef PBR Lighting {
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
             DISCARD_ALPHA : AlphaDiscardThreshold           
-            COLOR_MAP : ColorMap
             SHADOWMAP_SIZE : ShadowMapSize
             FADE : FadeInfo
             PSSM : Splits
@@ -249,29 +247,6 @@ MaterialDef PBR Lighting {
         }
 
         Defines {
-            DIFFUSEMAP_ALPHA : DiffuseMap
-            NUM_BONES : NumberOfBones
-            INSTANCING : UseInstancing
-        }
-
-    }
-
-
-    Technique PreNormalPassDerivative {
-
-        VertexShader GLSL100 :   Common/MatDefs/MSSAO/normal.vert
-        FragmentShader GLSL100 : Common/MatDefs/MSSAO/normal.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            WorldViewMatrix
-            NormalMatrix                        
-            ViewProjectionMatrix
-            ViewMatrix
-        }
-
-        Defines {
-            DIFFUSEMAP_ALPHA : DiffuseMap
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
         }
@@ -292,12 +267,6 @@ MaterialDef PBR Lighting {
 
         Defines {
             VERTEX_COLOR : UseVertexColor
-            MATERIAL_COLORS : UseMaterialColors
-            V_TANGENT : VTangent
-            MINNAERT  : Minnaert
-            WARDISO   : WardIso
-
-            DIFFUSEMAP : DiffuseMap
             NORMALMAP : NormalMap
             SPECULARMAP : SpecularMap
             PARALLAXMAP : ParallaxMap
