@@ -51,26 +51,20 @@ import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowFocusCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
-import org.lwjgl.stb.STBImage;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.imageio.ImageIO;
-
 import static org.lwjgl.glfw.GLFW.GLFW_ALPHA_BITS;
 import static org.lwjgl.glfw.GLFW.GLFW_BLUE_BITS;
 import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MAJOR;
 import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MINOR;
 import static org.lwjgl.glfw.GLFW.GLFW_DEPTH_BITS;
-import static org.lwjgl.glfw.GLFW.GLFW_DOUBLEBUFFER;
 import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
 import static org.lwjgl.glfw.GLFW.GLFW_GREEN_BITS;
 import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_CORE_PROFILE;
@@ -223,8 +217,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, settings.isResizable() ? GLFW_TRUE : GLFW_FALSE);
-
-        glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
         glfwWindowHint(GLFW_DEPTH_BITS, settings.getDepthBits());
         glfwWindowHint(GLFW_STENCIL_BITS, settings.getStencilBits());
         glfwWindowHint(GLFW_SAMPLES, settings.getSamples());
@@ -324,12 +316,24 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             glfwSwapInterval(0);
         }
 
+        setWindowIcon(settings);
+
+        glfwShowWindow(window);
+
+        allowSwapBuffers = settings.isSwapBuffers();
+    }
+
+    /**
+     * Set custom icons to the window of this application.
+     */
+    private void setWindowIcon(final AppSettings settings) {
+
         final Object[] icons = settings.getIcons();
+        if (icons == null) return;
 
-        if (icons != null) {
+        final GLFWImage[] images = imagesToGLFWImages(icons);
 
-            final GLFWImage[] images = imagesToGLFWImages(icons);
-            final GLFWImage.Buffer iconSet = GLFWImage.malloc(images.length);
+        try (final GLFWImage.Buffer iconSet = GLFWImage.malloc(images.length)) {
 
             for (int i = images.length - 1; i >= 0; i--) {
                 final GLFWImage image = images[i];
@@ -338,16 +342,11 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
             glfwSetWindowIcon(window, iconSet);
 
-            iconSet.free();
-
+        } finally {
             for (final GLFWImage image : images) {
-                image.free();
+                image.close();
             }
         }
-
-        glfwShowWindow(window);
-
-        allowSwapBuffers = settings.isSwapBuffers();
     }
 
     /**
@@ -388,25 +387,22 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         final IntBuffer h = BufferUtils.createIntBuffer(1);
         final IntBuffer comp = BufferUtils.createIntBuffer(1);
 
-        final ByteArrayOutputStream bout = new ByteArrayOutputStream(4096);
-        try {
-            ImageIO.write(image, "png", bout);
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
+        final ByteBuffer buffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * 4);
+
+        for (int i = 0; i < image.getHeight(); i++) {
+            for (int j = 0; j < image.getWidth(); j++) {
+                int colorSpace = image.getRGB(j, i);
+                buffer.put((byte) ((colorSpace << 8) >> 24));
+                buffer.put((byte) ((colorSpace << 16) >> 24));
+                buffer.put((byte) ((colorSpace << 24) >> 24));
+                buffer.put((byte) (colorSpace >> 24));
+            }
         }
 
-        final byte[] bytes = bout.toByteArray();
-
-        final ByteBuffer buffer = BufferUtils.createByteBuffer(bytes.length);
-        buffer.put(bytes);
         buffer.flip();
 
-        final ByteBuffer pixels = STBImage.stbi_load_from_memory(buffer, h, w, comp, 4);
-
-        BufferUtils.destroyDirectBuffer(buffer);
-
         final GLFWImage result = GLFWImage.create();
-        result.set(w.get(0), h.get(0), pixels);
+        result.set(image.getWidth(), image.getHeight(), buffer);
 
         return result;
     }
