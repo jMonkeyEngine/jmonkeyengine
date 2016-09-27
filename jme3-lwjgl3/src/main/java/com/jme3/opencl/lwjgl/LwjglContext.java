@@ -146,7 +146,7 @@ public class LwjglContext extends Context {
         }
         //get formats
         CLImageFormat.Buffer formatsB = new CLImageFormat.Buffer(BufferUtils.createByteBuffer(count * CLImageFormat.SIZEOF));
-        ret = CL10.clGetSupportedImageFormats(context, memFlags, typeFlag, formatsB, null);
+        ret = CL10.clGetSupportedImageFormats(context, memFlags, typeFlag, formatsB, (IntBuffer) null);
         Utils.checkError(ret, "clGetSupportedImageFormats");
         //convert formats
         ImageFormat[] formats = new ImageFormat[count];

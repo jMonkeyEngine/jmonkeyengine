@@ -34,6 +34,7 @@ package com.jme3.opencl.lwjgl;
 import com.jme3.opencl.MappingAccess;
 import com.jme3.opencl.MemoryAccess;
 import com.jme3.opencl.OpenCLException;
+import com.jme3.opencl.lwjgl.info.CLUtil;
 import java.nio.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;

@@ -32,6 +32,7 @@
 package com.jme3.opencl.lwjgl;
 
 import com.jme3.opencl.*;
+import com.jme3.opencl.lwjgl.info.Info;
 import java.nio.ByteBuffer;
 import org.lwjgl.opencl.*;
 

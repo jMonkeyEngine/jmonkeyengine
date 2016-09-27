@@ -2,7 +2,9 @@ if (!hasProperty('mainClass')) {
     ext.mainClass = ''
 }
 
-def lwjglVersion = '3.0.0b'
+def lwjglVersion = '3.0.0'
+
+sourceCompatibility = '1.8'
 
 dependencies {
     compile project(':jme3-core')

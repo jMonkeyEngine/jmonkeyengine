@@ -133,6 +133,16 @@ public class GlfwMouseInput implements MouseInput {
             public void invoke(long window, double xpos, double ypos) {
                 onCursorPos(window, xpos, ypos);
             }
+
+            @Override
+            public void close() {
+                super.close();
+            }
+
+            @Override
+            public void callback(long args) {
+                super.callback(args);
+            }
         });
 
         glfwSetScrollCallback(context.getWindowHandle(), scrollCallback = new GLFWScrollCallback() {
@@ -140,12 +150,30 @@ public class GlfwMouseInput implements MouseInput {
             public void invoke(final long window, final double xOffset, final double yOffset) {
                 onWheelScroll(window, xOffset, yOffset * WHEEL_SCALE);
             }
+            @Override
+            public void close() {
+                super.close();
+            }
+
+            @Override
+            public void callback(long args) {
+                super.callback(args);
+            }
         });
 
         glfwSetMouseButtonCallback(context.getWindowHandle(), mouseButtonCallback = new GLFWMouseButtonCallback() {
             @Override
             public void invoke(final long window, final int button, final int action, final int mods) {
                 onMouseButton(window, button, action, mods);
+            }
+            @Override
+            public void close() {
+                super.close();
+            }
+
+            @Override
+            public void callback(long args) {
+                super.callback(args);
             }
         });
 
@@ -177,9 +205,9 @@ public class GlfwMouseInput implements MouseInput {
             return;
         }
 
-        cursorPosCallback.release();
-        scrollCallback.release();
-        mouseButtonCallback.release();
+        cursorPosCallback.close();
+        scrollCallback.close();
+        mouseButtonCallback.close();
 
         for (long glfwCursor : jmeToGlfwCursorMap.values()) {
             glfwDestroyCursor(glfwCursor);

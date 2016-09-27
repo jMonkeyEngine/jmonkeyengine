@@ -37,11 +37,10 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector4f;
 import com.jme3.opencl.*;
 import com.jme3.opencl.Buffer;
+import com.jme3.opencl.lwjgl.info.Info;
 import java.nio.*;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.opencl.CL10;
-import org.lwjgl.opencl.CLDevice;
-import org.lwjgl.opencl.Info;
 
 /**
  *

@@ -87,6 +87,16 @@ public class GlfwKeyInput implements KeyInput {
 
                 keyInputEvents.add(event);
             }
+
+            @Override
+            public void close() {
+                super.close();
+            }
+
+            @Override
+            public void callback(long args) {
+                super.callback(args);
+            }
         });
 
         glfwSetCharCallback(context.getWindowHandle(), charCallback = new GLFWCharCallback() {
@@ -105,6 +115,16 @@ public class GlfwKeyInput implements KeyInput {
                 released.setTime(getInputTimeNanos());
 
                 keyInputEvents.add(released);
+            }
+
+            @Override
+            public void close() {
+                super.close();
+            }
+
+            @Override
+            public void callback(long args) {
+                super.callback(args);
             }
         });
 
@@ -132,8 +152,8 @@ public class GlfwKeyInput implements KeyInput {
             return;
         }
 
-        keyCallback.release();
-        charCallback.release();
+        keyCallback.close();
+        charCallback.close();
         logger.fine("Keyboard destroyed.");
     }
 

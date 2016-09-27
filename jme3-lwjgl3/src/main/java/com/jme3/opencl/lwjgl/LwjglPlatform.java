@@ -31,16 +31,20 @@
  */
 package com.jme3.opencl.lwjgl;
 
+import com.jme3.lwjgl3.utils.APIBuffer;
+import static com.jme3.lwjgl3.utils.APIUtil.apiBuffer;
 import com.jme3.opencl.Device;
 import com.jme3.opencl.Platform;
+import com.jme3.opencl.lwjgl.info.Info;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.opencl.CL10;
-import org.lwjgl.opencl.CLDevice;
-import org.lwjgl.opencl.CLPlatform;
-import org.lwjgl.opencl.Info;
+import static org.lwjgl.system.Pointer.POINTER_SHIFT;
 
 /**
  *
@@ -48,14 +52,14 @@ import org.lwjgl.opencl.Info;
  */
 public final class LwjglPlatform implements Platform {
     
-    final CLPlatform platform;
+    final long platform;
     List<LwjglDevice> devices;
     
-    public LwjglPlatform(CLPlatform platform) {
+    public LwjglPlatform(long platform) {
         this.platform = platform;
     }
 
-    public CLPlatform getPlatform() {
+    public long getPlatform() {
         return platform;
     }
     
@@ -63,16 +67,54 @@ public final class LwjglPlatform implements Platform {
     public List<LwjglDevice> getDevices() {
         if (devices == null) {
             devices = new ArrayList<>();
-            for (CLDevice d : platform.getDevices(CL10.CL_DEVICE_TYPE_ALL)) {
+            for (long d : getDevices(CL10.CL_DEVICE_TYPE_ALL)) {
                 devices.add(new LwjglDevice(d, this));
             }
         }
         return devices;
     }
+    
+    /**
+     * Returns a list of the available devices on this platform that match the
+     * specified type, filtered by the specified filter.
+     * 
+     * Copied from the old release.
+     *
+     * @param device_type the device type
+     * @param filter the device filter
+     *
+     * @return the available devices
+     */
+    private long[] getDevices(int device_type) {
+        int[] count = new int[1];
+        int errcode = CL10.clGetDeviceIDs(platform, device_type, null, count);
+        if (errcode == CL10.CL_DEVICE_NOT_FOUND) {
+            return new long[0];
+        }
+        Utils.checkError(errcode, "clGetDeviceIDs");
+
+        int num_devices = count[0];
+        if (num_devices == 0) {
+            return new long[0];
+        }
+
+        PointerBuffer devices = PointerBuffer.allocateDirect(num_devices);
+
+        errcode = CL10.clGetDeviceIDs(platform, device_type,devices, (IntBuffer) null);
+        Utils.checkError(errcode, "clGetDeviceIDs");
+
+        long[] deviceIDs = new long[num_devices];
+        devices.rewind();
+        for (int i = 0; i < num_devices; i++) {
+            deviceIDs[i] = devices.get();
+        }
+
+        return deviceIDs;
+    }
 
     @Override
     public String getProfile() {
-        return Info.clGetPlatformInfoStringASCII(platform.address(), CL10.CL_PLATFORM_PROFILE);
+        return Info.clGetPlatformInfoStringASCII(platform, CL10.CL_PLATFORM_PROFILE);
     }
 
     @Override
@@ -87,7 +129,7 @@ public final class LwjglPlatform implements Platform {
 
     @Override
     public String getVersion() {
-        return Info.clGetPlatformInfoStringASCII(platform.address(), CL10.CL_PLATFORM_VERSION);
+        return Info.clGetPlatformInfoStringASCII(platform, CL10.CL_PLATFORM_VERSION);
     }
 
     @Override
@@ -102,12 +144,12 @@ public final class LwjglPlatform implements Platform {
 
     @Override
     public String getName() {
-        return Info.clGetPlatformInfoStringASCII(platform.address(), CL10.CL_PLATFORM_NAME);
+        return Info.clGetPlatformInfoStringASCII(platform, CL10.CL_PLATFORM_NAME);
     }
 
     @Override
     public String getVendor() {
-        return Info.clGetPlatformInfoStringASCII(platform.address(), CL10.CL_PLATFORM_VENDOR);
+        return Info.clGetPlatformInfoStringASCII(platform, CL10.CL_PLATFORM_VENDOR);
     }
 
     @Override
@@ -122,7 +164,7 @@ public final class LwjglPlatform implements Platform {
 
     @Override
     public Collection<? extends String> getExtensions() {
-        return Arrays.asList(Info.clGetPlatformInfoStringASCII(platform.address(), CL10.CL_PLATFORM_EXTENSIONS).split(" "));
+        return Arrays.asList(Info.clGetPlatformInfoStringASCII(platform, CL10.CL_PLATFORM_EXTENSIONS).split(" "));
     }
 
 	@Override
