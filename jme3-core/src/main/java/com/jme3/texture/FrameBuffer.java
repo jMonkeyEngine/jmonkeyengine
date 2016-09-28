@@ -510,14 +510,17 @@ public class FrameBuffer extends NativeObject {
     }
 
     /**
-     * @return The first color buffer attached to this FrameBuffer, or null
+     * @return The color buffer with the index set by {@link #setTargetIndex(int), or null
      * if no color buffers are attached.
+	 * If MRT is disabled, the first color buffer is returned.
      */
     public RenderBuffer getColorBuffer() {
         if (colorBufs.isEmpty())
             return null;
-        
-        return colorBufs.get(0);
+        if (colorBufIndex<0 || colorBufIndex>=colorBufs.size()) {
+			return colorBufs.get(0);
+		}
+        return colorBufs.get(colorBufIndex);
     }
 
     /**
