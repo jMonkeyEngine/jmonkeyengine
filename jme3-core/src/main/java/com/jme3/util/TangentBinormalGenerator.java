@@ -226,23 +226,7 @@ public class TangentBinormalGenerator {
         processTriangleData(mesh, vertices, approxTangents,splitMirrored);
 
         //if the mesh has a bind pose, we need to generate the bind pose for the tangent buffer
-        if (mesh.getBuffer(Type.BindPosePosition) != null) {
-            
-            VertexBuffer tangents = mesh.getBuffer(Type.Tangent);
-            if (tangents != null) {
-                VertexBuffer bindTangents = new VertexBuffer(Type.BindPoseTangent);
-                bindTangents.setupData(Usage.CpuOnly,
-                        4,
-                        Format.Float,
-                        BufferUtils.clone(tangents.getData()));
-                
-                if (mesh.getBuffer(Type.BindPoseTangent) != null) {
-                    mesh.clearBuffer(Type.BindPoseTangent);
-                }
-                mesh.setBuffer(bindTangents);
-                tangents.setUsage(Usage.Stream);
-            }
-        }
+        TangentUtils.generateBindPoseTangentsIfNecessary(mesh);
     }
     
     public static void generate(Mesh mesh, boolean approxTangents) {
