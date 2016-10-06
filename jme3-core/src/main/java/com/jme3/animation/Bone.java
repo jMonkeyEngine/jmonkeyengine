@@ -812,13 +812,47 @@ public final class Bone implements Savable {
         output.writeSavableArrayList(children, "children", null);
     }
 
+    /**
+     * Sets the rotation of the bone in object space.
+     * Warning: you need to call {@link #setUserControl(boolean)} with true to be able to do that operation
+     * @param rot
+     */
     public void setLocalRotation(Quaternion rot){
         if (!userControl) {
             throw new IllegalStateException("User control must be on bone to allow user transforms");
         }
-        this.localRot = rot;
+        this.localRot.set(rot);
     }
-    
+
+    /**
+     * Sets the position of the bone in object space.
+     * Warning: you need to call {@link #setUserControl(boolean)} with true to be able to do that operation
+     * @param pos
+     */
+    public void setLocalTranslation(Vector3f pos){
+        if (!userControl) {
+            throw new IllegalStateException("User control must be on bone to allow user transforms");
+        }
+        this.localPos.set(pos);
+    }
+
+    /**
+     * Sets the scale of the bone in object space.
+     * Warning: you need to call {@link #setUserControl(boolean)} with true to be able to do that operation
+     * @param scale the scale to apply
+     */
+    public void setLocalScale(Vector3f scale){
+        if (!userControl) {
+            throw new IllegalStateException("User control must be on bone to allow user transforms");
+        }
+        this.localScale.set(scale);
+    }
+
+    /**
+     * returns true if this bone can be directly manipulated by the user.
+     * @see #setUserControl(boolean)
+     * @return
+     */
     public boolean hasUserControl(){
         return userControl;
     }
