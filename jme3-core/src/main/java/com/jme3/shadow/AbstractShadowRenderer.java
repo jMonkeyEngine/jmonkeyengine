@@ -94,7 +94,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     protected CompareMode shadowCompareMode = CompareMode.Hardware;
     protected Picture[] dispPic;
     protected RenderState forcedRenderState = new RenderState();
-    protected Boolean renderBackFacesShadows;
+    protected Boolean renderBackFacesShadows = true;
 
     /**
      * true if the fallback material should be used, otherwise false
