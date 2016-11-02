@@ -136,11 +136,6 @@ vec4 main_multiSample(in int numSample){
 
 void main(){  
 
-    #if !defined( RENDER_SHADOWS )
-          outFragColor = fetchTextureSample(m_Texture,texCoord,0);
-          return;
-    #endif
-    
     #ifdef RESOLVE_MS
         vec4 color = vec4(0.0);
         for (int i = 0; i < m_NumSamples; i++){
