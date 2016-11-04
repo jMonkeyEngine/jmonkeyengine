@@ -981,9 +981,9 @@ final public class FastMath {
             return 0x7bff;
         } else if (flt < -65504f) {
             return (short) (0x7bff | 0x8000);
-        } else if (flt > 0f && flt < 5.96046E-8f) {
+        } else if (flt > 0f && flt < 3.054738E-5f) {
             return 0x0001;
-        } else if (flt < 0f && flt > -5.96046E-8f) {
+        } else if (flt < 0f && flt > -3.054738E-5f) {
             return (short) 0x8001;
         }
 
