@@ -725,7 +725,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     }
 
     /**
-     * Sets the shadow edges thickness. default is 1, setting it to lower values
+     * Sets the shadow edges thickness. default is 10, setting it to lower values
      * can help to reduce the jagged effect of the shadow edges
      *
      * @param edgesThickness
