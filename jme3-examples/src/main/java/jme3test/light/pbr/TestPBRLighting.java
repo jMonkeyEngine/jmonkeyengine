@@ -33,11 +33,11 @@ package jme3test.light.pbr;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingSphere;
+import com.jme3.environment.util.*;
 import com.jme3.light.LightProbe;
 import com.jme3.environment.LightProbeFactory;
 import com.jme3.environment.EnvironmentCamera;
 import com.jme3.environment.generation.JobProgressAdapter;
-import com.jme3.environment.util.LightsDebugState;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -71,6 +71,10 @@ public class TestPBRLighting extends SimpleApplication {
         TestPBRLighting app = new TestPBRLighting();
         app.start();
     }
+
+    private Node tex;
+    private Node tex2;
+
     private Geometry model;
     private DirectionalLight dl;
     private Node modelNode;
@@ -135,7 +139,17 @@ public class TestPBRLighting extends SimpleApplication {
             @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (name.equals("debug") && isPressed) {
-                    //envCam.toggleDebug();
+                    if (tex == null) {
+                        return;
+                    }
+                    if (tex.getParent() == null && tex2.getParent() == null) {
+                        guiNode.attachChild(tex);
+                    } else if (tex2.getParent() == null){
+                        tex.removeFromParent();
+                        guiNode.attachChild(tex2);
+                    } else {
+                        tex2.removeFromParent();
+                    }
                 }
 
                 if (name.equals("up") && isPressed) {
@@ -183,6 +197,8 @@ public class TestPBRLighting extends SimpleApplication {
                 @Override
                 public void done(LightProbe result) {
                     System.err.println("Done rendering env maps");
+                    tex = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(result.getPrefilteredEnvMap(), assetManager);
+                    tex2 = EnvMapUtils.getCubeMapCrossDebugView(result.getIrradianceMap(), assetManager);
                 }
             });
             ((BoundingSphere)probe.getBounds()).setRadius(100);
