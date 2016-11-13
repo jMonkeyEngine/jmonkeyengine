@@ -41,7 +41,9 @@ import java.nio.IntBuffer;
 public interface GL3 extends GL2 {
 
     public static final int GL_DEPTH_STENCIL_ATTACHMENT = 0x821A;
+    public static final int GL_DST_ALPHA = 0x0304;
     public static final int GL_GEOMETRY_SHADER = 0x8DD9;
+    public static final int GL_ONE_MINUS_DST_ALPHA = 0x0305;
     public static final int GL_NUM_EXTENSIONS = 0x821D;
     public static final int GL_R8 = 0x8229;
     public static final int GL_R16F = 0x822D;

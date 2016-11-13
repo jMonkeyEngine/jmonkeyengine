@@ -32,9 +32,7 @@
 package com.jme3.material;
 
 import com.jme3.export.*;
-import com.jme3.renderer.opengl.GL;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.Mesh.Mode;
 import java.io.IOException;
 
 /**
@@ -206,6 +204,77 @@ public class RenderState implements Cloneable, Savable {
          */
         Max
     }
+    
+    
+    /**
+     * <code>BlendFunc</code> defines the blending functions for use with 
+     * <code>BlendMode.Custom</code>.
+     * Source color components are referred to as (R_s0, G_s0, B_s0, A_s0).
+     * Destination color components are referred to as (R_d, G_d, B_d, A_d).
+     */
+    public enum BlendFunc {
+        /**
+         * RGB Factor (0, 0, 0), Alpha Factor (0)
+         */
+        Zero,
+        /**
+         * RGB Factor (1, 1, 1), Alpha Factor (1)
+         */
+        One,
+        /**
+         * RGB Factor (R_s0, G_s0, B_s0), Alpha Factor (A_s0)
+         */
+        Src_Color,
+        /**
+         * RGB Factor (1-R_s0, 1-G_s0, 1-B_s0), Alpha Factor (1-A_s0)
+         */
+        One_Minus_Src_Color,
+        /**
+         * RGB Factor (R_d, G_d, B_d), Alpha Factor (A_d)
+         */
+        Dst_Color,
+        /**
+         * RGB Factor (1-R_d, 1-G_d, 1-B_d), Alpha Factor (1-A_d)
+         */
+        One_Minus_Dst_Color,
+        /**
+         * RGB Factor (A_s0, A_s0, A_s0), Alpha Factor (A_s0)
+         */
+        Src_Alpha,
+        /**
+         * RGB Factor (1-A_s0, 1-A_s0, 1-A_s0), Alpha Factor (1-A_s0)
+         */
+        One_Minus_Src_Alpha,
+        /**
+         * RGB Factor (A_d, A_d, A_d), Alpha Factor (A_d)
+         */
+        Dst_Alpha,
+        /**
+         * RGB Factor (1-A_d, 1-A_d, 1-A_d), Alpha Factor (1-A_d)
+         */
+        One_Minus_Dst_Alpha,
+        /**
+         * RGB Factor (R_c, G_c, B_c), Alpha Factor (A_c)
+         */
+        //Constant_Color,
+        /**
+         * RGB Factor (1-R_c, 1-G_c, 1-B_c), Alpha Factor (1-A_c)
+         */
+        //One_Minus_Constant_Color,
+        /**
+         * RGB Factor (A_c, A_c, A_c), Alpha Factor (A_c)
+         */
+        //Constant_Alpha,
+        /**
+         * RGB Factor (1-A_c, 1-A_c, 1-A_c), Alpha Factor (A_c)
+         */
+        //One_Minus_Constant_Alpha,
+        /**
+         * RGB Factor (i, i, i), Alpha Factor (1)
+         */
+        Src_Alpha_Saturate
+    }
+    
 
     /**
      * <code>BlendMode</code> specifies the blending operation to use.
@@ -415,10 +484,10 @@ public class RenderState implements Cloneable, Savable {
     TestFunction frontStencilFunction = TestFunction.Always;
     TestFunction backStencilFunction = TestFunction.Always;
     int cachedHashCode = -1;
-    int sfactorRGB=GL.GL_ONE;
-    int dfactorRGB=GL.GL_ZERO;
-    int sfactorAlpha=GL.GL_ONE;
-    int dfactorAlpha=GL.GL_ZERO;
+    BlendFunc sfactorRGB=BlendFunc.One;
+    BlendFunc dfactorRGB=BlendFunc.Zero;
+    BlendFunc sfactorAlpha=BlendFunc.One;
+    BlendFunc dfactorAlpha=BlendFunc.Zero;
             
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
@@ -445,10 +514,10 @@ public class RenderState implements Cloneable, Savable {
         oc.write(blendEquationAlpha, "blendEquationAlpha", BlendEquationAlpha.InheritColor);
         oc.write(depthFunc, "depthFunc", TestFunction.LessOrEqual);
         oc.write(lineWidth, "lineWidth", 1);
-        oc.write(sfactorRGB, "sfactorRGB", GL.GL_ONE);
-        oc.write(dfactorRGB, "dfactorRGB", GL.GL_ZERO);
-        oc.write(sfactorAlpha, "sfactorAlpha", GL.GL_ONE);
-        oc.write(dfactorAlpha, "dfactorAlpha", GL.GL_ZERO);
+        oc.write(sfactorRGB, "sfactorRGB", sfactorRGB);
+        oc.write(dfactorRGB, "dfactorRGB", dfactorRGB);
+        oc.write(sfactorAlpha, "sfactorAlpha", sfactorAlpha);
+        oc.write(dfactorAlpha, "dfactorAlpha", dfactorAlpha);
 
         // Only "additional render state" has them set to false by default
         oc.write(applyWireFrame, "applyWireFrame", true);
@@ -489,10 +558,10 @@ public class RenderState implements Cloneable, Savable {
         blendEquationAlpha = ic.readEnum("blendEquationAlpha", BlendEquationAlpha.class, BlendEquationAlpha.InheritColor);
         depthFunc = ic.readEnum("depthFunc", TestFunction.class, TestFunction.LessOrEqual);
         lineWidth = ic.readFloat("lineWidth", 1);
-        sfactorRGB = ic.readInt("sfactorRGB", GL.GL_ONE);
-        dfactorAlpha = ic.readInt("dfactorRGB", GL.GL_ZERO);
-        sfactorRGB = ic.readInt("sfactorAlpha", GL.GL_ONE);
-        dfactorAlpha = ic.readInt("dfactorAlpha", GL.GL_ZERO);
+        sfactorRGB = ic.readEnum("sfactorRGB", BlendFunc.class, BlendFunc.One);
+        dfactorAlpha = ic.readEnum("dfactorRGB", BlendFunc.class, BlendFunc.Zero);
+        sfactorRGB = ic.readEnum("sfactorAlpha", BlendFunc.class, BlendFunc.One);
+        dfactorAlpha = ic.readEnum("dfactorAlpha", BlendFunc.class, BlendFunc.Zero);
 
 
         applyWireFrame = ic.readBoolean("applyWireFrame", true);
@@ -774,14 +843,14 @@ public class RenderState implements Cloneable, Savable {
     
     /**
      * Sets the custom blend factors for <code>BlendMode.Custom</code> as 
-     * defined by glBlendFuncSeparate.
+     * defined by the appropriate <code>BlendFunc</code>.
      * 
      * @param sfactorRGB   The source blend factor for RGB components.
      * @param dfactorRGB   The destination blend factor for RGB components.
      * @param sfactorAlpha The source blend factor for the alpha component.
      * @param dfactorAlpha The destination blend factor for the alpha component.
      */
-    public void setCustomBlendFactors(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha)
+    public void setCustomBlendFactors(BlendFunc sfactorRGB, BlendFunc dfactorRGB, BlendFunc sfactorAlpha, BlendFunc dfactorAlpha)
     {
        this.sfactorRGB = sfactorRGB;
        this.dfactorRGB = dfactorRGB;
@@ -1138,7 +1207,7 @@ public class RenderState implements Cloneable, Savable {
      * 
      * @return the custom source factor for RGB components.
      */
-    public int getCustomSfactorRGB() {
+    public BlendFunc getCustomSfactorRGB() {
        return sfactorRGB;
     }
     
@@ -1148,7 +1217,7 @@ public class RenderState implements Cloneable, Savable {
      * 
      * @return the custom destination factor for RGB components.
      */
-    public int getCustomDfactorRGB() {
+    public BlendFunc getCustomDfactorRGB() {
        return dfactorRGB;
     }
     
@@ -1158,7 +1227,7 @@ public class RenderState implements Cloneable, Savable {
      * 
      * @return the custom destination factor for alpha component.
      */
-    public int getCustomSfactorAlpha() {
+    public BlendFunc getCustomSfactorAlpha() {
        return sfactorAlpha;
     }
     
@@ -1168,7 +1237,7 @@ public class RenderState implements Cloneable, Savable {
      * 
      * @return the custom destination factor for alpha component.
      */
-    public int getCustomDfactorAlpha() {
+    public BlendFunc getCustomDfactorAlpha() {
        return dfactorAlpha;
     }
     
@@ -1394,10 +1463,10 @@ public class RenderState implements Cloneable, Savable {
             hash = 79 * hash + (this.backStencilFunction != null ? this.backStencilFunction.hashCode() : 0);
             hash = 79 * hash + Float.floatToIntBits(this.lineWidth);
             
-            hash = 79 * hash + this.sfactorRGB;
-            hash = 79 * hash + this.dfactorRGB;
-            hash = 79 * hash + this.sfactorAlpha;
-            hash = 79 * hash + this.dfactorAlpha;
+            hash = 79 * hash + this.sfactorRGB.hashCode();
+            hash = 79 * hash + this.dfactorRGB.hashCode();
+            hash = 79 * hash + this.sfactorAlpha.hashCode();
+            hash = 79 * hash + this.dfactorAlpha.hashCode();
             cachedHashCode = hash;
         }
         return cachedHashCode;

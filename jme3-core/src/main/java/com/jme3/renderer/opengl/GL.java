@@ -137,6 +137,7 @@ public interface GL {
     public static final int GL_SHADING_LANGUAGE_VERSION = 0x8B8C;
     public static final int GL_SHORT = 0x1402;
     public static final int GL_SRC_ALPHA = 0x302;
+    public static final int GL_SRC_ALPHA_SATURATE = 0x0308;
     public static final int GL_SRC_COLOR = 0x300;
     public static final int GL_STATIC_DRAW = 0x88E4;
     public static final int GL_STENCIL_BUFFER_BIT = 0x400;

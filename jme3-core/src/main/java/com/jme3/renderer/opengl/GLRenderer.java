@@ -32,6 +32,7 @@
 package com.jme3.renderer.opengl;
 
 import com.jme3.material.RenderState;
+import com.jme3.material.RenderState.BlendFunc;
 import com.jme3.material.RenderState.StencilOperation;
 import com.jme3.material.RenderState.TestFunction;
 import com.jme3.math.*;
@@ -749,8 +750,12 @@ public final class GLRenderer implements Renderer {
                         gl.glBlendFunc(GL.GL_ONE_MINUS_DST_COLOR, GL.GL_ONE_MINUS_SRC_COLOR);
                         break;
                     case Custom:
-                       gl.glBlendFuncSeparate(state.getCustomSfactorRGB(), state.getCustomDfactorRGB(), state.getCustomSfactorAlpha(), state.getCustomDfactorAlpha());
-                       break;
+                        gl.glBlendFuncSeparate(
+                            convertBlendFunc(state.getCustomSfactorRGB()), 
+                            convertBlendFunc(state.getCustomDfactorRGB()), 
+                            convertBlendFunc(state.getCustomSfactorAlpha()), 
+                            convertBlendFunc(state.getCustomDfactorAlpha()));
+                        break;
                     default:
                         throw new UnsupportedOperationException("Unrecognized blend mode: "
                                 + state.getBlendMode());
@@ -853,6 +858,35 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    private int convertBlendFunc(BlendFunc blendFunc) {
+       switch (blendFunc) {
+           case Zero:
+               return GL.GL_ZERO;
+           case One:
+               return GL.GL_ONE;
+           case Src_Color:
+               return GL.GL_SRC_COLOR;
+           case One_Minus_Src_Color:
+               return GL.GL_ONE_MINUS_SRC_COLOR;
+           case Dst_Color:
+               return GL.GL_DST_COLOR;
+           case One_Minus_Dst_Color:
+               return GL.GL_ONE_MINUS_DST_COLOR;
+           case Src_Alpha:
+               return GL.GL_SRC_ALPHA;
+           case One_Minus_Src_Alpha:
+               return GL.GL_ONE_MINUS_SRC_ALPHA;
+           case Dst_Alpha:
+               return GL3.GL_DST_ALPHA;
+           case One_Minus_Dst_Alpha:
+               return GL3.GL_ONE_MINUS_DST_ALPHA;
+           case Src_Alpha_Saturate:
+               return GL.GL_SRC_ALPHA_SATURATE;
+           default:
+              throw new UnsupportedOperationException("Unrecognized blend function: " + blendFunc);
+       }
+    }
+    
     private int convertStencilOperation(StencilOperation stencilOp) {
         switch (stencilOp) {
             case Keep:
