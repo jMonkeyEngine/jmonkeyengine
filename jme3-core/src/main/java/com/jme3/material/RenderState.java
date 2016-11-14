@@ -216,63 +216,64 @@ public class RenderState implements Cloneable, Savable {
         /**
          * RGB Factor (0, 0, 0), Alpha Factor (0)
          */
-        Zero,
+        Zero(0),
         /**
          * RGB Factor (1, 1, 1), Alpha Factor (1)
          */
-        One,
+        One(1),
         /**
          * RGB Factor (R_s0, G_s0, B_s0), Alpha Factor (A_s0)
          */
-        Src_Color,
+        Src_Color(2),
         /**
          * RGB Factor (1-R_s0, 1-G_s0, 1-B_s0), Alpha Factor (1-A_s0)
          */
-        One_Minus_Src_Color,
+        One_Minus_Src_Color(3),
         /**
          * RGB Factor (R_d, G_d, B_d), Alpha Factor (A_d)
          */
-        Dst_Color,
+        Dst_Color(4),
         /**
          * RGB Factor (1-R_d, 1-G_d, 1-B_d), Alpha Factor (1-A_d)
          */
-        One_Minus_Dst_Color,
+        One_Minus_Dst_Color(5),
         /**
          * RGB Factor (A_s0, A_s0, A_s0), Alpha Factor (A_s0)
          */
-        Src_Alpha,
+        Src_Alpha(6),
         /**
          * RGB Factor (1-A_s0, 1-A_s0, 1-A_s0), Alpha Factor (1-A_s0)
          */
-        One_Minus_Src_Alpha,
+        One_Minus_Src_Alpha(7),
         /**
          * RGB Factor (A_d, A_d, A_d), Alpha Factor (A_d)
          */
-        Dst_Alpha,
+        Dst_Alpha(8),
         /**
          * RGB Factor (1-A_d, 1-A_d, 1-A_d), Alpha Factor (1-A_d)
          */
-        One_Minus_Dst_Alpha,
-        /**
-         * RGB Factor (R_c, G_c, B_c), Alpha Factor (A_c)
-         */
-        //Constant_Color,
-        /**
-         * RGB Factor (1-R_c, 1-G_c, 1-B_c), Alpha Factor (1-A_c)
-         */
-        //One_Minus_Constant_Color,
-        /**
-         * RGB Factor (A_c, A_c, A_c), Alpha Factor (A_c)
-         */
-        //Constant_Alpha,
-        /**
-         * RGB Factor (1-A_c, 1-A_c, 1-A_c), Alpha Factor (A_c)
-         */
-        //One_Minus_Constant_Alpha,
+        One_Minus_Dst_Alpha(9),
         /**
          * RGB Factor (i, i, i), Alpha Factor (1)
          */
-        Src_Alpha_Saturate
+        Src_Alpha_Saturate(10);
+        
+        // Convenience value for easy use by the renderer.
+        private final int value;
+        
+        // Convenience constructor.
+        private BlendFunc(int value) {
+            this.value=value;
+        }
+        
+        /**
+         * Provides a predefined integer value for easy use by the renderer.
+         * 
+         * @return   The predefined integer value.
+         */
+        public int getIntValue() {
+            return value;
+        }
     }
     
 
