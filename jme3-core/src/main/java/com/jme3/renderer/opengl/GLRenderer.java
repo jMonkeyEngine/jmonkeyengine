@@ -751,10 +751,10 @@ public final class GLRenderer implements Renderer {
                         break;
                     case Custom:
                         gl.glBlendFuncSeparate(
-                            state.getCustomSfactorRGB().getIntValue(),
-                            state.getCustomDfactorRGB().getIntValue(),
-                            state.getCustomSfactorAlpha().getIntValue(),
-                            state.getCustomDfactorAlpha().getIntValue());
+                            convertBlendFunc(state.getCustomSfactorRGB()),
+                            convertBlendFunc(state.getCustomDfactorRGB()),
+                            convertBlendFunc(state.getCustomSfactorAlpha()),
+                            convertBlendFunc(state.getCustomDfactorAlpha()));
                         break;
                     default:
                         throw new UnsupportedOperationException("Unrecognized blend mode: "
@@ -856,6 +856,35 @@ public final class GLRenderer implements Renderer {
             default:
                 throw new UnsupportedOperationException("Unrecognized alpha blend operation: " + blendEquationAlpha);
         }
+    }
+    
+    private int convertBlendFunc(BlendFunc blendFunc) {
+        switch (blendFunc) {
+            case Zero:
+                return GL.GL_ZERO;
+            case One:
+                return GL.GL_ONE;
+            case Src_Color:
+                return GL.GL_SRC_COLOR;
+            case One_Minus_Src_Color:
+                return GL.GL_ONE_MINUS_SRC_COLOR;
+            case Dst_Color:
+                return GL.GL_DST_COLOR;
+            case One_Minus_Dst_Color:
+                return GL.GL_ONE_MINUS_DST_COLOR;
+            case Src_Alpha:
+                return GL.GL_SRC_ALPHA;
+            case One_Minus_Src_Alpha:
+                return GL.GL_ONE_MINUS_SRC_ALPHA;
+            case Dst_Alpha:
+                return GL.GL_DST_ALPHA;
+            case One_Minus_Dst_Alpha:
+                return GL.GL_ONE_MINUS_DST_ALPHA;
+            case Src_Alpha_Saturate:        
+                return GL.GL_SRC_ALPHA_SATURATE;
+            default:
+                throw new UnsupportedOperationException("Unrecognized blend function operation: " + blendFunc);
+         }
     }
 
     private int convertStencilOperation(StencilOperation stencilOp) {

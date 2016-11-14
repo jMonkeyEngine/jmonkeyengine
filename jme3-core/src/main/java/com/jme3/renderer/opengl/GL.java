@@ -62,6 +62,7 @@ public interface GL {
     public static final int GL_DEPTH_COMPONENT16 = 0x81A5;
     public static final int GL_DEPTH_TEST = 0xB71;
     public static final int GL_DOUBLE = 0x140A;
+    public static final int GL_DST_ALPHA = 0x0304;
     public static final int GL_DST_COLOR = 0x306;
     public static final int GL_DYNAMIC_DRAW = 0x88E8;
     public static final int GL_ELEMENT_ARRAY_BUFFER = 0x8893;
@@ -118,6 +119,7 @@ public interface GL {
     public static final int GL_NONE = 0x0;
     public static final int GL_NOTEQUAL = 0x205;
     public static final int GL_ONE = 0x1;
+    public static final int GL_ONE_MINUS_DST_ALPHA = 0x0305;
     public static final int GL_ONE_MINUS_DST_COLOR = 0x307;
     public static final int GL_ONE_MINUS_SRC_ALPHA = 0x303;
     public static final int GL_ONE_MINUS_SRC_COLOR = 0x301;
