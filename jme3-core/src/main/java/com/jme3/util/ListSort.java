@@ -698,9 +698,11 @@ public class ListSort<T> {
             System.arraycopy(arr, iterB, arr, dest, lengthB);
             // The last element of run A belongs at the end of the merge.
             arr[dest + lengthB] = tempArray[iterA];
-        } else if(lengthA== 0){
+        } else if(lengthA == 0){
             throw new UnsupportedOperationException("Compare function result changed! " +
-                                                    "Make sure you do not modify the scene from another thread!");
+                                                    "Make sure you do not modify the scene from"
+                                                    + " another thread and that the comparisons are not based"
+                                                    + " on NaN values.");
         } else {//Fail label
             System.arraycopy(tempArray, iterA, arr, dest, lengthA);
         }
