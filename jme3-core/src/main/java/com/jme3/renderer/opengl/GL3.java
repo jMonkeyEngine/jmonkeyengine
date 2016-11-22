@@ -54,6 +54,34 @@ public interface GL3 extends GL2 {
     public static final int GL_TEXTURE_SWIZZLE_B = 0x8E44;
     public static final int GL_TEXTURE_SWIZZLE_G = 0x8E43;
     public static final int GL_TEXTURE_SWIZZLE_R = 0x8E42;
+    public static final int GL_R8I = 33329;
+    public static final int GL_R8UI = 33330;
+    public static final int GL_R16I = 33331;
+    public static final int GL_R16UI = 33332;
+    public static final int GL_R32I = 33333;
+    public static final int GL_R32UI = 33334;
+    public static final int GL_RG8I = 33335;
+    public static final int GL_RG8UI = 33336;
+    public static final int GL_RG16I = 33337;
+    public static final int GL_RG16UI = 33338;
+    public static final int GL_RG32I = 33339;
+    public static final int GL_RG32UI = 33340;  
+    public static final int GL_RGBA32UI = 36208;
+    public static final int GL_RGB32UI = 36209;
+    public static final int GL_RGBA16UI = 36214;
+    public static final int GL_RGB16UI = 36215;
+    public static final int GL_RGBA8UI = 36220;
+    public static final int GL_RGB8UI = 36221;
+    public static final int GL_RGBA32I = 36226;
+    public static final int GL_RGB32I = 36227;
+    public static final int GL_RGBA16I = 36232;
+    public static final int GL_RGB16I = 36233;
+    public static final int GL_RGBA8I = 36238;
+    public static final int GL_RGB8I = 36239;
+    public static final int GL_RED_INTEGER = 36244;
+    public static final int GL_RG_INTEGER = 33320;
+    public static final int GL_RGB_INTEGER = 36248;
+    public static final int GL_RGBA_INTEGER = 36249;
     
     public void glBindFragDataLocation(int param1, int param2, String param3); /// GL3+
     public void glBindVertexArray(int param1); /// GL3+
