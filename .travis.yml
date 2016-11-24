@@ -1,6 +1,11 @@
 language: java
 sudo: false
 
+branches:
+  only:
+  - master
+  - v3.1
+
 jdk:
   - oraclejdk8
 
