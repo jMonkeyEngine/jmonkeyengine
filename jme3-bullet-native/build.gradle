@@ -215,7 +215,7 @@ unzipBullet.dependsOn {
     }
 }
 
-task unzipBulletIfNeeded << {
+task unzipBulletIfNeeded {
 }
 
 unzipBulletIfNeeded.dependsOn {
