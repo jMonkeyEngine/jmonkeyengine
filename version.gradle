@@ -1,7 +1,7 @@
 /*
  Version Info Examples
  =====================
- 
+
  Nightly Build Snapshot
  * git tag:
  * Full Version: 3.1-5124
@@ -22,14 +22,14 @@
  * POM Version: 3.1.0-alpha1
  * NBM Revision: 0
  * NBM UC Suffix: stable/3.1/plugins
- 
+
  Final Release
  * git tag: v3.1.0
  * Full Version: 3.1
  * POM Version: 3.1.0
  * NBM Revision: 0
  * NBM UC Suffix: stable/3.1/plugins
- */ 
+ */
 
 import java.text.SimpleDateFormat
 import org.ajoberstar.grgit.*
@@ -45,7 +45,6 @@ buildscript {
 
 ext {
     jmeRevision     = 0
-    jmeNbmRevision  = 0
     jmeGitHash      = ""
     jmeGitTag       = ""
     jmeShortGitHash = ""
@@ -53,7 +52,6 @@ ext {
     jmeBranchName   = "unknown"
     jmeFullVersion  = "${jmeVersion}-UNKNOWN"
     jmePomVersion   = "unknown"
-    jmeNbmUcSuffix  = "unknown"
 }
 
 def getReleaseInfo(String tag) {
@@ -122,7 +120,7 @@ task configureVersionInfo {
         jmeShortGitHash = head.abbreviatedId
         jmeBranchName = grgit.branch.current.name
         jmeGitTag = grgit.tag.list().find { it.commit == head }
-        
+
         if (jmeGitTag != null) {
             jmeGitTag = jmeGitTag.name
         } else {
@@ -133,8 +131,6 @@ task configureVersionInfo {
         if (releaseInfo != null) {
             jmeFullVersion = "${releaseInfo.baseVersion}${releaseInfo.releaseSuffix}"
             jmePomVersion = "${releaseInfo.mainVersion}${releaseInfo.releaseSuffix}"
-            jmeNbmRevision = "0"
-            jmeNbmUcSuffix = "stable/${releaseInfo.baseVersion}/plugins"
         } else {
             // SNAPSHOT
             jmeFullVersion = jmeMainVersion
@@ -142,27 +138,20 @@ task configureVersionInfo {
             if (System.env.TRAVIS_BRANCH != null) {
                 jmeBranchName = System.env.TRAVIS_BRANCH
             }
-            if (System.env.TRAVIS_PULL_REQUEST != null && 
+            if (System.env.TRAVIS_PULL_REQUEST != null &&
                 System.env.TRAVIS_PULL_REQUEST != "false") {
                 jmeBranchName += "-pr-" + System.env.TRAVIS_PULL_REQUEST
             }
             if (jmeBranchName != "master") {
                 jmeFullVersion += "-${jmeBranchName}"
                 jmePomVersion  += "-${jmeBranchName}"
-                jmeNbmUcSuffix = "${jmeBranchName}-"
-            } else {
-                jmeNbmUcSuffix = ""
             }
-            jmeNbmUcSuffix += "nightly/" + jmeMainVersion + "/plugins"
             jmeFullVersion += "-${jmeRevision}"
             jmePomVersion  += "-SNAPSHOT"
-            jmeNbmRevision = jmeRevision
         }
-            
+
         logger.warn("Full Version: ${jmeFullVersion}")
         logger.warn("POM Version: ${jmePomVersion}")
-        logger.warn("NBM Revision: ${jmeNbmRevision}")
-        logger.warn("NBM UC Suffix: ${jmeNbmUcSuffix}")
     } catch (ex) {
         // Failed to get repo info
         logger.warn("Failed to get repository info: " + ex.message + ". " + \
