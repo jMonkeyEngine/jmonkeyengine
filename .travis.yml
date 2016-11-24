@@ -6,6 +6,14 @@ branches:
   - master
   - v3.1
 
+matrix:
+  include:
+  - jdk: openjdk8
+    os: linux
+    env: UPLOAD_ALL=true
+  - jdk: openjdk7
+    os: linux
+  - os: osx
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -15,6 +23,11 @@ cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+
+before_script:
+  - 'echo "Tag: $TRAVIS_TAG"'
+  - 'echo "OS: $TRAVIS_OS_NAME"'
+  - 'echo "PR: $TRAVIS_PULL_REQUEST"'
 
 notifications:
   slack:
