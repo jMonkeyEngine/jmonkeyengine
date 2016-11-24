@@ -18,16 +18,11 @@ repositories {
     }
 }
 
-configurations {
-    deployerJars
-}
-
 dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.0.28-beta'
     testCompile group: 'org.easytesting', name: 'fest-assert-core', version: '2.0M10'
-    deployerJars "org.apache.maven.wagon:wagon-ssh:2.9"
 }
 
 jar {
@@ -116,17 +111,3 @@ artifacts {
     archives writeFullPom.outputs.files[0]
 }
 
-uploadArchives {
-    repositories.mavenDeployer {
-        configuration = configurations.deployerJars
-        
-        // disable this otherwise it will fill up the server with stale jars
-        uniqueVersion = false
-        
-        repository(url: "scp://updates.jmonkeyengine.org/var/www/updates/maven") {
-             authentication(userName: "www-updater", privateKey: "private/www-updater.key")
-        }
-        
-        pom.project pomConfig
-    }
-}
