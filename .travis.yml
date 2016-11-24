@@ -31,7 +31,7 @@ script:
   - ./gradlew check
 
 after_success:
-  - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && ./gradlew bintrayUpload || :'
+  - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD_ALL" ] && ./gradlew bintrayUpload || :'
 
 notifications:
   slack:
