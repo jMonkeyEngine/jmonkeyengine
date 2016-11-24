@@ -24,10 +24,6 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
-before_script:
-  - 'echo "Tag: $TRAVIS_TAG"'
-  - 'echo "OS: $TRAVIS_OS_NAME"'
-  - 'echo "PR: $TRAVIS_PULL_REQUEST"'
 
 notifications:
   slack:
