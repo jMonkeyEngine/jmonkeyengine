@@ -10,16 +10,16 @@ matrix:
   include:
   - jdk: oraclejdk8
     os: linux
-    env: UPLOAD_ALL=true
-  - jdk: openjdk7
-    os: linux
-  - os: osx
+  # env: UPLOAD_ALL=true
+  # - jdk: openjdk7
+  #   os: linux
+  # - os: osx
 
 addons:
   apt:
     packages:
     - gcc-multilib
-    - lib32stdc++6
+    - ia32-libs
 
 before_install:
   - git fetch --unshallow
@@ -33,8 +33,11 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
+install:
+
 script:
-  - ./gradlew check
+  - ./gradlew :jme3-bullet-native:build
+  # - ./gradlew check
 
 after_success:
   - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD_ALL" ] && ./gradlew bintrayUpload || :'
