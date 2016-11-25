@@ -19,7 +19,7 @@ addons:
   apt:
     packages:
     - gcc-multilib
-    - ia32-libs
+    - g++-multilib
 
 before_install:
   - git fetch --unshallow
