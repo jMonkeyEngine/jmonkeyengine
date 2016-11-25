@@ -142,7 +142,7 @@ task configureVersionInfo {
             if (System.env.TRAVIS_BRANCH != null) {
                 jmeBranchName = System.env.TRAVIS_BRANCH
             } else if (System.env.APPVEYOR_REPO_BRANCH != null) {
-                jmeBranchName = APPVEYOR_REPO_BRANCH
+                jmeBranchName = System.env.APPVEYOR_REPO_BRANCH
             }
             if (System.env.TRAVIS_PULL_REQUEST != null &&
                 System.env.TRAVIS_PULL_REQUEST != "false") {
