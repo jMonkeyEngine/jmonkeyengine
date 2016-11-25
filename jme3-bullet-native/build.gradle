@@ -163,31 +163,6 @@ model {
             operatingSystem "linux"
         }
     }
-
-    toolChains {
-        gcc(Gcc)
-	clang(Clang)
-        mingw_x86(Gcc) {
-            eachPlatform() {
-                cCompiler.executable "i686-w64-mingw32-gcc"
-                cppCompiler.executable "i686-w64-mingw32-g++"
-                linker.executable "i686-w64-mingw32-g++"
-                assembler.executable "i686-w64-mingw32-g++"
-                staticLibArchiver.executable "i686-w64-mingw32-gcc-ar"
-            }
-            target("Windows32")
-        }
-        mingw_x86_64(Gcc) {
-            eachPlatform() {
-                cCompiler.executable "x86_64-w64-mingw32-gcc"
-                cppCompiler.executable "x86_64-w64-mingw32-g++"
-                linker.executable "x86_64-w64-mingw32-g++"
-                assembler.executable "x86_64-w64-mingw32-g++"
-                staticLibArchiver.executable "x86_64-w64-mingw32-gcc-ar"
-            }
-            target("Windows64")
-        }
-    }
 }
 
 // Java source sets for IDE access and source jar bundling / mavenization
