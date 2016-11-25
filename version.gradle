@@ -124,7 +124,11 @@ task configureVersionInfo {
         if (jmeGitTag != null) {
             jmeGitTag = jmeGitTag.name
         } else {
-            jmeGitTag = System.env.TRAVIS_TAG
+            if (System.env.APPVEYOR_REPO_TAG == "true") {
+                jmeGitTag = System.env.APPVEYOR_REPO_TAG_NAME
+            } else {
+                jmeGitTag = System.env.TRAVIS_TAG
+            }
         }
 
         def releaseInfo = getReleaseInfo(jmeGitTag)
@@ -137,10 +141,14 @@ task configureVersionInfo {
             jmePomVersion  = jmeVersion
             if (System.env.TRAVIS_BRANCH != null) {
                 jmeBranchName = System.env.TRAVIS_BRANCH
+            } else if (System.env.APPVEYOR_REPO_BRANCH != null) {
+                jmeBranchName = APPVEYOR_REPO_BRANCH
             }
             if (System.env.TRAVIS_PULL_REQUEST != null &&
                 System.env.TRAVIS_PULL_REQUEST != "false") {
                 jmeBranchName += "-pr-" + System.env.TRAVIS_PULL_REQUEST
+            } else if (System.env.APPVEYOR_PULL_REQUEST_NUMBER != null) {
+                jmeBranchName += "-pr-" + System.env.APPVEYOR_PULL_REQUEST_NUMBER
             }
             if (jmeBranchName != "master") {
                 jmeFullVersion += "-${jmeBranchName}"
