@@ -15,6 +15,11 @@ matrix:
     os: linux
   - os: osx
 
+addons:
+  apt:
+    packages:
+      gcc-multilib
+
 before_install:
   - git fetch --unshallow
 
