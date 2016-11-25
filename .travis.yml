@@ -18,7 +18,8 @@ matrix:
 addons:
   apt:
     packages:
-      gcc-multilib
+    - gcc-multilib
+    - lib32stdc++6
 
 before_install:
   - git fetch --unshallow
