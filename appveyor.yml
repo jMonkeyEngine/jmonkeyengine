@@ -12,7 +12,7 @@ skip_tags: true
 
 max_jobs: 1
 
-shallow_clone: true
+clone_depth: 1
 
 image: Visual Studio 2013
 
