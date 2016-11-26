@@ -39,7 +39,7 @@ script:
   - ./gradlew check
 
 after_success:
-  - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD_NATIVE" ] && ./private/upload_native.sh || :'
+  - '[ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD_NATIVE" ] && ./private/upload_native.sh || :'
   - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD" ] && ./gradlew bintrayUpload || :'
 
 notifications:
