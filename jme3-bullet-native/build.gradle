@@ -40,7 +40,7 @@ model {
             }
         }
     }
-    
+
     binaries {
         withType(SharedLibraryBinarySpec) {
             def projectPath = project.projectDir.absolutePath
@@ -48,10 +48,10 @@ model {
             def os = targetPlatform.operatingSystem.name
             def arch = targetPlatform.architecture.name
             def fileName = sharedLibraryFile.name
-            
+
             // Gradle decided to change underscores to dashes - fix that.
             arch = arch.replaceAll('-', '_')
-            
+
             // For all binaries that can't be built on the current system
             if (buildNativeProjects != "true") {
                 buildable = false
@@ -114,14 +114,14 @@ model {
                 }
                 cppCompiler.define('WIN32')
             }
-            
+
             tasks.all { dependsOn unzipBulletIfNeeded }
 
             // Add output to jar file
             jar.into("native/${os}/${arch}") {
                 from sharedLibraryFile
             }
-            
+
             // Add depend on build
             jar.dependsOn tasks
             // Add output to libs folder
@@ -189,6 +189,7 @@ unzipBullet.dependsOn {
         downloadBullet
     }
 }
+
 
 task unzipBulletIfNeeded {
 }
