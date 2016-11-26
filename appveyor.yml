@@ -8,6 +8,12 @@ only_commits:
   files:
     - jme3-bullet-native/
 
+skip_tags: true
+
+max_jobs: 1
+
+shallow_clone: true
+
 image: Visual Studio 2013
 
 environment:
