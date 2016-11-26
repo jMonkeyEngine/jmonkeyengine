@@ -8,14 +8,9 @@ branches:
 
 matrix:
   include:
-  - os: osx
-    env: BUILD_TASK=":jme3-bullet-native:build" UPLOAD_TASK=":jme3-bullet-native:bintrayUpload"
-  # - jdk: oraclejdk8
-  #   os: linux
-  #   env: GRADLE_TASK="check"
-  # - jdk: openjdk7
-  #   os: linux
-  #   env: GRADLE_TASK="check"
+  - os: linux
+    jdk: oraclejdk8
+    env: UPLOAD=true
 
 addons:
   apt:
@@ -36,12 +31,13 @@ cache:
     - $HOME/.gradle/wrapper/
 
 install:
+  - ./gradlew assemble
 
 script:
-  - './gradlew "$BUILD_TASK"'
+  - ./gradlew check
 
 after_success:
-  - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && ./gradlew "$UPLOAD_TASK" || :'
+  - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD" ] && ./gradlew bintrayUpload || :'
 
 notifications:
   slack:
