@@ -17,7 +17,7 @@ clone_depth: 1
 image: Visual Studio 2013
 
 init:
-- cmd: openssl aes-256-cbc -K %encrypted_f0a0b284e2e8_key% -iv %encrypted_f0a0b284e2e8_iv% -in private/key.enc -out c:\users\appveyor\.ssh\id_rsa -d
+- cmd: openssl aes-256-cbc -K %encrypted_f0a0b284e2e8_key% -iv %encrypted_f0a0b284e2e8_iv% -in private\key.enc -out c:\users\appveyor\.ssh\id_rsa -d
 
 environment:
   encrypted_f0a0b284e2e8_iv:
