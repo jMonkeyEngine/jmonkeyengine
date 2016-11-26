@@ -30,7 +30,7 @@ init:
 install:
   - cmd: del C:\Users\appveyor\.gradle\caches\modules-2\modules-2.lock
 
-build:
+build_script:
   - cmd: gradlew.bat --no-daemon :jme3-bullet-native:assemble
 
 cache:
