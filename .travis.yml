@@ -37,6 +37,8 @@ install:
 
 script:
   - ./gradlew check
+  - 'export UPLOAD_NATIVE=$(git diff-tree --name-only $TRAVIS_COMMIT -- jme3-bullet-native/)'
+  - '[ "$UPLOAD_NATIVE" != "" ] && echo will upload native || echo not uploading native'
 
 after_success:
   - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD" ] && ./gradlew bintrayUpload || :'
