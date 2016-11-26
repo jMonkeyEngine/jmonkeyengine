@@ -23,8 +23,11 @@ environment:
 init:
 - ps: >-
     $fileContent = "-----BEGIN EC PRIVATE KEY-----`n"
+
     $fileContent += $env:priv_key.Replace(' ', "`n")
+
     $fileContent += "`n-----END EC PRIVATE KEY-----`n"
+
     Set-Content c:\users\appveyor\.ssh\id_rsa $fileContent
 
 install:
