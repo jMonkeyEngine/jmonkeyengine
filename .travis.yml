@@ -10,9 +10,9 @@ matrix:
   include:
   - os: linux
     jdk: oraclejdk8
-    env: UPLOAD=true
-  - os: linux
-    jdk: openjdk7
+    env: UPLOAD=true UPLOAD_NATIVE=true
+  # - os: linux
+  #   jdk: openjdk7
 
 addons:
   apt:
@@ -21,7 +21,7 @@ addons:
     - g++-multilib
 
 before_install:
-  - git fetch --unshallow
+  - '[ -n "$UPLOAD" ] && git fetch --unshallow || :'
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -37,10 +37,9 @@ install:
 
 script:
   - ./gradlew check
-  - 'export UPLOAD_NATIVE=$(git diff-tree --name-only $TRAVIS_COMMIT -- jme3-bullet-native/)'
-  - '[ "$UPLOAD_NATIVE" != "" ] && echo will upload native || echo not uploading native'
 
 after_success:
+  - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD_NATIVE" ] && ./private/upload_native.sh || :'
   - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD" ] && ./gradlew bintrayUpload || :'
 
 notifications:
