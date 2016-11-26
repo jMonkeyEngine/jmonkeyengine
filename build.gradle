@@ -29,31 +29,32 @@ task run(dependsOn: ':jme3-examples:run') {
 
 defaultTasks 'run'
 
-task libDist(dependsOn: subprojects.build) << {
-//    description 'Builds and copies the engine binaries, sources and javadoc to build/libDist'
-    File libFolder = mkdir("$buildDir/libDist/lib")
-    File sourceFolder = mkdir("$buildDir/libDist/sources")
-    File javadocFolder = mkdir("$buildDir/libDist/javadoc")
-    subprojects.each {project ->
-        if(project.ext.mainClass == ''){
-            project.tasks.withType(Jar).each {archiveTask ->
-                if(archiveTask.classifier == "sources"){
-                    copy {
-                        from archiveTask.archivePath
-                        into sourceFolder
-                        rename {project.name + '-' + archiveTask.classifier +'.'+ archiveTask.extension}
-                    }
-                } else if(archiveTask.classifier == "javadoc"){
-                    copy {
-                        from archiveTask.archivePath
-                        into javadocFolder
-                        rename {project.name + '-' + archiveTask.classifier +'.'+ archiveTask.extension}
-                    }
-                } else{
-                    copy {
-                        from archiveTask.archivePath
-                        into libFolder
-                        rename {project.name + '.' + archiveTask.extension}
+task libDist(dependsOn: subprojects.build, description: 'Builds and copies the engine binaries, sources and javadoc to build/libDist') {
+    doLast {
+        File libFolder = mkdir("$buildDir/libDist/lib")
+        File sourceFolder = mkdir("$buildDir/libDist/sources")
+        File javadocFolder = mkdir("$buildDir/libDist/javadoc")
+        subprojects.each {project ->
+            if(project.ext.mainClass == ''){
+                project.tasks.withType(Jar).each {archiveTask ->
+                    if(archiveTask.classifier == "sources"){
+                        copy {
+                            from archiveTask.archivePath
+                                into sourceFolder
+                                rename {project.name + '-' + archiveTask.classifier +'.'+ archiveTask.extension}
+                        }
+                    } else if(archiveTask.classifier == "javadoc"){
+                        copy {
+                            from archiveTask.archivePath
+                                into javadocFolder
+                                rename {project.name + '-' + archiveTask.classifier +'.'+ archiveTask.extension}
+                        }
+                    } else{
+                        copy {
+                            from archiveTask.archivePath
+                                into libFolder
+                                rename {project.name + '.' + archiveTask.extension}
+                        }
                     }
                 }
             }
@@ -115,7 +116,7 @@ task mergedSource(type: Copy){
 }
 
 task wrapper(type: Wrapper, description: 'Creates and deploys the Gradle wrapper to the current directory.') {
-    gradleVersion = '2.13'
+    gradleVersion = '3.2.1'
 }
 
 ext {
