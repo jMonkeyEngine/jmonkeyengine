@@ -11,6 +11,8 @@ matrix:
   - os: linux
     jdk: oraclejdk8
     env: UPLOAD=true
+  - os: linux
+    jdk: openjdk7
 
 addons:
   apt:
