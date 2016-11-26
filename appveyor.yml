@@ -1,0 +1,44 @@
+version: 1.0.{build}.{branch}
+
+branches:
+  only:
+  - master
+
+only_commits:
+  files:
+    - jme3-bullet-native/
+
+image: Visual Studio 2013
+
+environment:
+  priv_key:
+    secure: g0Q/3gQcGBr74DyDiaTi48DSKEuNAympaHF0pjWeeQgKlPZEBUNPKbBM+okJn13/IvEo5YiQO19l/0G0B6J0oiEAm9h8x+I31jskKFUD5Og9xZkZB0m0aI7zoBReiZTqojIBw8zZo4xXCkOhFTrzxaeJtqdtcObPFGWk4uUdPlcne3e81NHj6TWax2tx+yqA0i6Jkz+Jd+XvbicskgthjCmcNz07XhS7F6niC8REbSU=
+
+init:
+- ps: >-
+    $fileContent = "-----BEGIN EC PRIVATE KEY-----`n"
+    $fileContent += $env:priv_key.Replace(' ', "`n")
+    $fileContent += "`n-----END EC PRIVATE KEY-----`n"
+    Set-Content c:\users\appveyor\.ssh\id_rsa $fileContent
+
+install:
+  - cmd: del C:\Users\appveyor\.gradle\caches\modules-2\modules-2.lock
+
+build:
+  - cmd: gradlew.bat --no-daemon :jme3-bullet-native:assemble
+
+cache:
+- C:\Users\appveyor\.gradle\caches
+- C:\Users\appveyor\.gradle\wrapper
+- jme3-bullet-native\bullet3.zip
+
+test: off
+deploy: off
+
+on_success:
+- cmd: >-
+    git checkout -q %APPVEYOR_REPO_BRANCH%
+    git add -- jme3-bullet-native/libs/native/windows/
+    git commit -m "[ci skip] bullet: update windows natives"
+    git pull -q --rebase
+    git push git@github.com:jMonkeyEngine/jmonkeyengine.git
