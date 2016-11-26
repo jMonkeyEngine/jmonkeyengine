@@ -45,9 +45,8 @@ test: off
 deploy: off
 
 on_success:
-- cmd: >-
-    git checkout -q %APPVEYOR_REPO_BRANCH%
-    git add -- jme3-bullet-native/libs/native/windows/
-    git commit -m "[ci skip] bullet: update windows natives"
-    git pull -q --rebase
-    git push git@github.com:jMonkeyEngine/jmonkeyengine.git
+- cmd: git checkout -q %APPVEYOR_REPO_BRANCH%
+- cmd: git add -- jme3-bullet-native/libs/native/windows/
+- cmd: git commit -m "[ci skip] bullet: update windows natives"
+- cmd: git pull -q --rebase
+- cmd: git push git@github.com:jMonkeyEngine/jmonkeyengine.git
