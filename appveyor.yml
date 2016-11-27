@@ -26,7 +26,7 @@ install:
   - cmd: del C:\Users\appveyor\.gradle\caches\modules-2\modules-2.lock
 
 build_script:
-  - cmd: gradlew.bat --no-daemon -PbuildNativeProjects=true :jme3-bullet-native:assemble
+  - cmd: gradlew.bat -PbuildNativeProjects=true :jme3-bullet-native:assemble
 
 cache:
 - C:\Users\appveyor\.gradle\caches
