@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
-# NATIVE_CHANGES="$(git diff-tree --name-only "$TRAVIS_COMMIT" -- jme3-bullet-native/)"
-# if [ "$NATIVE_CHANGES" != "" ]; then
+NATIVE_CHANGES="$(git diff-tree --name-only "$TRAVIS_COMMIT" -- jme3-bullet-native/)"
+if [ "$NATIVE_CHANGES" != "" ]; then
     git config --global user.email "travis-ci"
     git config --global user.name "travis-ci"
     ./gradlew -PbuildNativeProjects=true :jme3-bullet-native:assemble
@@ -13,4 +13,4 @@ set -euo pipefail
     git commit -v -m "[ci skip] bullet: update $TRAVIS_OS_NAME natives"
     git pull -q --rebase
     git push git@github.com:jMonkeyEngine/jmonkeyengine.git
-# fi
+fi
