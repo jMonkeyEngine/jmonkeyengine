@@ -36,7 +36,7 @@ cache:
     - $HOME/.gradle/wrapper/
 
 install:
-  - ./gradlew assemble
+  - '[ -n "$UPLOAD_NATIVE" ] && ./gradlew -PbuildNativeProjects=true assemble || ./gradlew assemble'
 
 script:
   - ./gradlew check
