@@ -6,9 +6,6 @@ branches:
   - master
   - v3.1
 
-addons:
-  ssh_known_hosts: github.com
-
 matrix:
   include:
   - os: linux
@@ -20,6 +17,7 @@ matrix:
     env: UPLOAD_NATIVE=true
 
 addons:
+  ssh_known_hosts: github.com
   apt:
     packages:
     - gcc-multilib
