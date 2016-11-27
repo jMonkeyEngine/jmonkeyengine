@@ -8,63 +8,67 @@ branches:
 
 matrix:
   include:
-  - os: linux
-    jdk: oraclejdk8
-    env: UPLOAD=true UPLOAD_NATIVE=true
-  - os: linux
-    jdk: openjdk7
   - os: osx
     env: UPLOAD_NATIVE=true
+  # - os: linux
+  #   jdk: oraclejdk8
+  #   env: UPLOAD=true UPLOAD_NATIVE=true
+  # - os: linux
+  #   jdk: openjdk7
 
-addons:
-  apt:
-    packages:
-    - gcc-multilib
-    - g++-multilib
-
-before_install:
-  - '[ -n "$UPLOAD" ] && git fetch --unshallow || :'
-
-before_cache:
-  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-
-cache:
-  directories:
-    - $HOME/.gradle/caches/
-    - $HOME/.gradle/wrapper/
-
-install:
-  - ./gradlew assemble
-
+# TODO: Temporary - remove me.
 script:
-  - ./gradlew check
+ - ./private/upload_native.sh
 
-after_success:
-  - '[ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD_NATIVE" ] && ./private/upload_native.sh || :'
-  - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD" ] && ./gradlew bintrayUpload || :'
+# addons:
+#   apt:
+#     packages:
+#     - gcc-multilib
+#     - g++-multilib
 
-notifications:
-  slack:
-    on_success: change
-    on_failure: always
-    rooms:
-      secure: "PWEk4+VL986c3gAjWp12nqyifvxCjBqKoESG9d7zWh1uiTLadTHhZJRMdsye36FCpz/c/Jt7zCRO/5y7FaubQptnRrkrRfjp5f99MJRzQVXnUAM+y385qVkXKRKd/PLpM7XPm4AvjvxHCyvzX2wamRvul/TekaXKB9Ti5FCN87s="
+# before_install:
+#   - '[ -n "$UPLOAD" ] && git fetch --unshallow || :'
 
-before_deploy:
-  - ./gradlew createZipDistribution
-  - export RELEASE_DIST=$(ls build/distributions/*.zip)
+# before_cache:
+#   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+#   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 
-deploy:
-  provider: releases
-  api_key:
-    secure: PuEsJd6juXBH29ByITW3ntSAyrwWs0IeFvXJ5Y2YlhojhSMtTwkoWeB6YmDJWP4fhzbajk4TQ1HlOX2IxJXSW/8ShOEIUlGXz9fHiST0dkSM+iRAUgC5enCLW5ITPTiem7eY9ZhS9miIam7ngce9jHNMh75PTzZrEJtezoALT9w=
-  file_glob: true
-  file: "${RELEASE_DIST}"
-  skip_cleanup: true
-  on:
-    repo: jMonkeyEngine/jmonkeyengine
-    tags: true
+# cache:
+#   directories:
+#     - $HOME/.gradle/caches/
+#     - $HOME/.gradle/wrapper/
+
+# install:
+#   - ./gradlew assemble
+
+# script:
+#   - ./gradlew check
+
+# after_success:
+#   - '[ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD_NATIVE" ] && ./private/upload_native.sh || :'
+#   - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD" ] && ./gradlew bintrayUpload || :'
+
+# notifications:
+#   slack:
+#     on_success: change
+#     on_failure: always
+#     rooms:
+#       secure: "PWEk4+VL986c3gAjWp12nqyifvxCjBqKoESG9d7zWh1uiTLadTHhZJRMdsye36FCpz/c/Jt7zCRO/5y7FaubQptnRrkrRfjp5f99MJRzQVXnUAM+y385qVkXKRKd/PLpM7XPm4AvjvxHCyvzX2wamRvul/TekaXKB9Ti5FCN87s="
+
+# before_deploy:
+#   - ./gradlew createZipDistribution
+#   - export RELEASE_DIST=$(ls build/distributions/*.zip)
+
+# deploy:
+#   provider: releases
+#   api_key:
+#     secure: PuEsJd6juXBH29ByITW3ntSAyrwWs0IeFvXJ5Y2YlhojhSMtTwkoWeB6YmDJWP4fhzbajk4TQ1HlOX2IxJXSW/8ShOEIUlGXz9fHiST0dkSM+iRAUgC5enCLW5ITPTiem7eY9ZhS9miIam7ngce9jHNMh75PTzZrEJtezoALT9w=
+#   file_glob: true
+#   file: "${RELEASE_DIST}"
+#   skip_cleanup: true
+#   on:
+#     repo: jMonkeyEngine/jmonkeyengine
+#     tags: true
 
 
 # before_install:
