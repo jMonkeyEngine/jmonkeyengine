@@ -6,6 +6,9 @@ branches:
   - master
   - v3.1
 
+addons:
+  ssh_known_hosts: github.com
+
 matrix:
   include:
   - os: osx
@@ -15,6 +18,9 @@ matrix:
   #   env: UPLOAD=true UPLOAD_NATIVE=true
   # - os: linux
   #   jdk: openjdk7
+
+install:
+ - echo hello
 
 # TODO: Temporary - remove me.
 script:
