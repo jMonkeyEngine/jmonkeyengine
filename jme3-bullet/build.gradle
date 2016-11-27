@@ -15,3 +15,54 @@ dependencies {
     compile project(':jme3-core')
     compile project(':jme3-terrain')
 }
+
+task generateNativeHeaders(type: Exec, dependsOn: classes) {
+    def classes = " \
+        com.jme3.bullet.PhysicsSpace, \
+        \
+        com.jme3.bullet.collision.PhysicsCollisionEvent, \
+        com.jme3.bullet.collision.PhysicsCollisionObject,\
+        com.jme3.bullet.objects.PhysicsCharacter, \
+        com.jme3.bullet.objects.PhysicsGhostObject, \
+        com.jme3.bullet.objects.PhysicsRigidBody, \
+        com.jme3.bullet.objects.PhysicsVehicle, \
+        com.jme3.bullet.objects.VehicleWheel, \
+        com.jme3.bullet.objects.infos.RigidBodyMotionState, \
+        \
+        com.jme3.bullet.collision.shapes.CollisionShape, \
+        com.jme3.bullet.collision.shapes.BoxCollisionShape, \
+        com.jme3.bullet.collision.shapes.CapsuleCollisionShape, \
+        com.jme3.bullet.collision.shapes.CompoundCollisionShape, \
+        com.jme3.bullet.collision.shapes.ConeCollisionShape, \
+        com.jme3.bullet.collision.shapes.CylinderCollisionShape, \
+        com.jme3.bullet.collision.shapes.GImpactCollisionShape, \
+        com.jme3.bullet.collision.shapes.HeightfieldCollisionShape, \
+        com.jme3.bullet.collision.shapes.HullCollisionShape, \
+        com.jme3.bullet.collision.shapes.MeshCollisionShape, \
+        com.jme3.bullet.collision.shapes.PlaneCollisionShape, \
+        com.jme3.bullet.collision.shapes.SimplexCollisionShape, \
+        com.jme3.bullet.collision.shapes.SphereCollisionShape, \
+        \
+        com.jme3.bullet.joints.PhysicsJoint, \
+        com.jme3.bullet.joints.ConeJoint, \
+        com.jme3.bullet.joints.HingeJoint, \
+        com.jme3.bullet.joints.Point2PointJoint, \
+        com.jme3.bullet.joints.SixDofJoint, \
+        com.jme3.bullet.joints.SixDofSpringJoint, \
+        com.jme3.bullet.joints.SliderJoint, \
+        com.jme3.bullet.joints.motors.RotationalLimitMotor, \
+        com.jme3.bullet.joints.motors.TranslationalLimitMotor, \
+        \
+        com.jme3.bullet.util.NativeMeshUtil, \
+        com.jme3.bullet.util.DebugShapeFactory"
+
+    def classpath = sourceSets.main.runtimeClasspath.asPath
+    def nativeIncludes = new File(project(":jme3-bullet-native").projectDir, "src/native/cpp")
+
+    executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
+    args "-d", nativeIncludes
+    args "-classpath", classpath
+    args classes.split(",").collect { it.trim() }
+}
+
+assemble.dependsOn(generateNativeHeaders)
