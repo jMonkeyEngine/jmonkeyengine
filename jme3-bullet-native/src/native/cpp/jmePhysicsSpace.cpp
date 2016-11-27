@@ -100,7 +100,7 @@ void jmePhysicsSpace::createPhysicsSpace(jfloat minX, jfloat minY, jfloat minZ, 
     dynamicsWorld->setWorldUserInfo(this);
 
     broadphase->getOverlappingPairCache()->setInternalGhostPairCallback(new btGhostPairCallback());
-    dynamicsWorld->setGravity(btVector3(0, -9.85f, 0));
+    dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
 
     struct jmeFilterCallback : public btOverlapFilterCallback {
         // return true when pairs need collision
