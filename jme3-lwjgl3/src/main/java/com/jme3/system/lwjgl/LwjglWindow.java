@@ -341,11 +341,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             }
 
             glfwSetWindowIcon(window, iconSet);
-
-        } finally {
-            for (final GLFWImage image : images) {
-                image.close();
-            }
         }
     }
 
