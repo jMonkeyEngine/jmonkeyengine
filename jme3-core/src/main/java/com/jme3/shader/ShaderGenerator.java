@@ -38,6 +38,7 @@ import com.jme3.material.Technique;
 import com.jme3.material.TechniqueDef;
 import com.jme3.shader.Shader.ShaderType;
 import java.util.List;
+import java.util.regex.*;
 
 /**
  * This class is the base for a shader generator using the ShaderNodes system,
@@ -59,7 +60,11 @@ public abstract class ShaderGenerator {
     /**
      * the technique def to use for the shader generation
      */
-    protected TechniqueDef techniqueDef = null;    
+    protected TechniqueDef techniqueDef = null;
+    /**
+     * Extension pattern
+     */
+    Pattern extensions = Pattern.compile("(#extension.*\\s+)");
 
     /**
      * Build a shaderGenerator
@@ -142,7 +147,23 @@ public abstract class ShaderGenerator {
 
         sourceDeclaration.append(source);
 
-        return sourceDeclaration.toString();
+        return moveExtensionsUp(sourceDeclaration);
+    }
+
+    /**
+     * parses the source and moves all the extensions at the top of the shader source as having extension declarations
+     * in the middle of a shader is against the specs and not supported by all drivers.
+     * @param sourceDeclaration
+     * @return
+     */
+    private String moveExtensionsUp(StringBuilder sourceDeclaration) {
+        Matcher m = extensions.matcher( sourceDeclaration.toString());
+        StringBuilder finalSource = new StringBuilder();
+        while(m.find()){
+            finalSource.append(m.group());
+        }
+        finalSource.append(m.replaceAll(""));
+        return finalSource.toString();
     }
 
     /**

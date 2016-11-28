@@ -942,8 +942,7 @@ final public class FastMath {
      * Converts a single precision (32 bit) floating point value
      * into half precision (16 bit).
      *
-     * <p>Source: <a href="http://www.fox-toolkit.org/ftp/fasthalffloatconversion.pdf">
-     * http://www.fox-toolkit.org/ftp/fasthalffloatconversion.pdf</a><br><strong>broken link</strong>
+     * <p>Source: <a href="ftp://www.fox-toolkit.org/pub/fasthalffloatconversion.pdf</a>
      *
      * @param half The half floating point value as a short.
      * @return floating point value of the half.
@@ -982,9 +981,9 @@ final public class FastMath {
             return 0x7bff;
         } else if (flt < -65504f) {
             return (short) (0x7bff | 0x8000);
-        } else if (flt > 0f && flt < 5.96046E-8f) {
+        } else if (flt > 0f && flt < 3.054738E-5f) {
             return 0x0001;
-        } else if (flt < 0f && flt > -5.96046E-8f) {
+        } else if (flt < 0f && flt > -3.054738E-5f) {
             return (short) 0x8001;
         }
 

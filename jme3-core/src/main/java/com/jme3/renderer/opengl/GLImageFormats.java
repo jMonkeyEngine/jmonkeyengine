@@ -233,6 +233,37 @@ public final class GLImageFormats {
             formatComp(formatToGL, Format.ETC1, GLExt.GL_ETC1_RGB8_OES,        GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
         }
         
+        // Integer formats
+        if(caps.contains(Caps.IntegerTexture)) {     
+            format(formatToGL, Format.R8I, GL3.GL_R8I, GL3.GL_RED_INTEGER, GL.GL_BYTE);
+            format(formatToGL, Format.R8UI, GL3.GL_R8UI, GL3.GL_RED_INTEGER, GL.GL_UNSIGNED_BYTE);
+            format(formatToGL, Format.R16I, GL3.GL_R16I, GL3.GL_RED_INTEGER, GL.GL_SHORT);
+            format(formatToGL, Format.R16UI, GL3.GL_R16UI, GL3.GL_RED_INTEGER, GL.GL_UNSIGNED_SHORT);
+            format(formatToGL, Format.R32I, GL3.GL_R32I, GL3.GL_RED_INTEGER, GL.GL_INT);
+            format(formatToGL, Format.R32UI, GL3.GL_R32UI, GL3.GL_RED_INTEGER, GL.GL_UNSIGNED_INT);
+            
+            format(formatToGL, Format.RG8I, GL3.GL_RG8I, GL3.GL_RG_INTEGER, GL.GL_BYTE);
+            format(formatToGL, Format.RG8UI, GL3.GL_RG8UI, GL3.GL_RG_INTEGER, GL.GL_UNSIGNED_BYTE);
+            format(formatToGL, Format.RG16I, GL3.GL_RG16I, GL3.GL_RG_INTEGER, GL.GL_SHORT);
+            format(formatToGL, Format.RG16UI, GL3.GL_RG16UI, GL3.GL_RG_INTEGER, GL.GL_UNSIGNED_SHORT);
+            format(formatToGL, Format.RG32I, GL3.GL_RG32I, GL3.GL_RG_INTEGER, GL.GL_INT);
+            format(formatToGL, Format.RG32UI, GL3.GL_RG32UI, GL3.GL_RG_INTEGER, GL.GL_UNSIGNED_INT);
+            
+            format(formatToGL, Format.RGB8I, GL3.GL_RGB8I, GL3.GL_RGB_INTEGER, GL.GL_BYTE);
+            format(formatToGL, Format.RGB8UI, GL3.GL_RGB8UI, GL3.GL_RGB_INTEGER, GL.GL_UNSIGNED_BYTE);
+            format(formatToGL, Format.RGB16I, GL3.GL_RGB16I, GL3.GL_RGB_INTEGER, GL.GL_SHORT);
+            format(formatToGL, Format.RGB16UI, GL3.GL_RGB16UI, GL3.GL_RGB_INTEGER, GL.GL_UNSIGNED_SHORT);
+            format(formatToGL, Format.RGB32I, GL3.GL_RGB32I, GL3.GL_RGB_INTEGER, GL.GL_INT);
+            format(formatToGL, Format.RGB32UI, GL3.GL_RGB32UI, GL3.GL_RGB_INTEGER, GL.GL_UNSIGNED_INT);
+            
+            format(formatToGL, Format.RGBA8I, GL3.GL_RGBA8I, GL3.GL_RGBA_INTEGER, GL.GL_BYTE);
+            format(formatToGL, Format.RGBA8UI, GL3.GL_RGBA8UI, GL3.GL_RGBA_INTEGER, GL.GL_UNSIGNED_BYTE);
+            format(formatToGL, Format.RGBA16I, GL3.GL_RGBA16I, GL3.GL_RGBA_INTEGER, GL.GL_SHORT);
+            format(formatToGL, Format.RGBA16UI, GL3.GL_RGBA16UI, GL3.GL_RGBA_INTEGER, GL.GL_UNSIGNED_SHORT);
+            format(formatToGL, Format.RGBA32I, GL3.GL_RGBA32I, GL3.GL_RGBA_INTEGER, GL.GL_INT);
+            format(formatToGL, Format.RGBA32UI, GL3.GL_RGBA32UI, GL3.GL_RGBA_INTEGER, GL.GL_UNSIGNED_INT);
+        }
+        
         return formatToGL;
     }
 }

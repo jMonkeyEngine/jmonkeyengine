@@ -201,7 +201,12 @@ public enum Caps {
      * Supports floating point & half textures (Format.RGB16F)
      */
     FloatTexture,
-
+    
+    /**
+     * Supports integer textures
+     */
+    IntegerTexture,
+    
     /**
      * Supports floating point FBO color buffers (Format.RGB16F)
      */

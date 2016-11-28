@@ -298,6 +298,10 @@ public final class GLRenderer implements Renderer {
         if (hasFloatTexture) {
             caps.add(Caps.FloatTexture);
         }
+        
+        // integer texture format extensions
+        if(hasExtension("GL_EXT_texture_integer") || caps.contains(Caps.OpenGL30))
+            caps.add(Caps.IntegerTexture);
 
         if (hasExtension("GL_OES_depth_texture") || gl2 != null) {
             caps.add(Caps.DepthTexture);

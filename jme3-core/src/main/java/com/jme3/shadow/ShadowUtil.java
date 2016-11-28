@@ -465,7 +465,7 @@ public class ShadowUtil {
         shadowCam.setProjectionMatrix(null);
 
         if (ortho) {
-            shadowCam.setFrustum(-1, 1, -1, 1, 1, -1);
+            shadowCam.setFrustum(-shadowCam.getFrustumFar(), shadowCam.getFrustumFar(), -1, 1, 1, -1);
         }
 
         // create transform to rotate points to viewspace        
