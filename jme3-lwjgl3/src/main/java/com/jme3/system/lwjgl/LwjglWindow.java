@@ -315,18 +315,20 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             glfwSwapInterval(0);
         }
 
-        if(type != Type.OffscreenSurface) {
-            setWindowIcon(settings);
-            glfwShowWindow(window);
-        }
+        setWindowIcon(settings);
+        showWindow();
 
         allowSwapBuffers = settings.isSwapBuffers();
+    }
+
+    protected void showWindow() {
+        glfwShowWindow(window);
     }
 
     /**
      * Set custom icons to the window of this application.
      */
-    private void setWindowIcon(final AppSettings settings) {
+    protected void setWindowIcon(final AppSettings settings) {
 
         final Object[] icons = settings.getIcons();
         if (icons == null) return;

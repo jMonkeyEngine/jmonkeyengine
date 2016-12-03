@@ -31,6 +31,7 @@
  */
 package com.jme3.system.lwjgl;
 
+import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 
 /**
@@ -40,5 +41,13 @@ public class LwjglOffscreenBuffer extends LwjglWindow {
 
     public LwjglOffscreenBuffer() {
         super(JmeContext.Type.OffscreenSurface);
+    }
+
+    @Override
+    protected void showWindow() {
+    }
+
+    @Override
+    protected void setWindowIcon(final AppSettings settings) {
     }
 }
