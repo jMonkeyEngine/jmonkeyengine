@@ -32,34 +32,6 @@
 
 package com.jme3.system.lwjgl;
 
-import com.jme3.input.JoyInput;
-import com.jme3.input.KeyInput;
-import com.jme3.input.MouseInput;
-import com.jme3.input.TouchInput;
-import com.jme3.input.lwjgl.GlfwJoystickInput;
-import com.jme3.input.lwjgl.GlfwKeyInput;
-import com.jme3.input.lwjgl.GlfwMouseInput;
-import com.jme3.system.AppSettings;
-import com.jme3.system.JmeContext;
-import com.jme3.system.JmeSystem;
-import com.jme3.system.NanoTimer;
-import com.jme3.util.BufferUtils;
-
-import org.lwjgl.Version;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWImage;
-import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.glfw.GLFWWindowFocusCallback;
-import org.lwjgl.glfw.GLFWWindowSizeCallback;
-
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import static org.lwjgl.glfw.GLFW.GLFW_ALPHA_BITS;
 import static org.lwjgl.glfw.GLFW.GLFW_BLUE_BITS;
 import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MAJOR;
@@ -101,6 +73,33 @@ import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.system.MemoryUtil.NULL;
+
+import com.jme3.input.JoyInput;
+import com.jme3.input.KeyInput;
+import com.jme3.input.MouseInput;
+import com.jme3.input.TouchInput;
+import com.jme3.input.lwjgl.GlfwJoystickInput;
+import com.jme3.input.lwjgl.GlfwKeyInput;
+import com.jme3.input.lwjgl.GlfwMouseInput;
+import com.jme3.system.AppSettings;
+import com.jme3.system.JmeContext;
+import com.jme3.system.JmeSystem;
+import com.jme3.system.NanoTimer;
+import com.jme3.util.BufferUtils;
+
+import org.lwjgl.Version;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWImage;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWWindowFocusCallback;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
+
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A wrapper class over the GLFW framework in LWJGL 3.
@@ -316,9 +315,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             glfwSwapInterval(0);
         }
 
-        setWindowIcon(settings);
-
-        glfwShowWindow(window);
+        if(type != Type.OffscreenSurface) {
+            setWindowIcon(settings);
+            glfwShowWindow(window);
+        }
 
         allowSwapBuffers = settings.isSwapBuffers();
     }
@@ -377,10 +377,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
             image = convertedImage;
         }
-
-        final IntBuffer w = BufferUtils.createIntBuffer(1);
-        final IntBuffer h = BufferUtils.createIntBuffer(1);
-        final IntBuffer comp = BufferUtils.createIntBuffer(1);
 
         final ByteBuffer buffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * 4);
 
@@ -478,13 +474,13 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
             created.set(true);
             super.internalCreate();
-            
+
             //create OpenCL
             //Must be done here because the window handle is needed
             if (settings.isOpenCLSupport()) {
                 initOpenCL(window);
             }
-            
+
         } catch (Exception ex) {
             try {
                 if (window != NULL) {
@@ -665,45 +661,5 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     public long getWindowHandle() {
         return window;
-    }
-
-
-    // TODO: Implement support for window icon when GLFW supports it.
-
-    private ByteBuffer[] imagesToByteBuffers(Object[] images) {
-        ByteBuffer[] out = new ByteBuffer[images.length];
-        for (int i = 0; i < images.length; i++) {
-            BufferedImage image = (BufferedImage) images[i];
-            out[i] = imageToByteBuffer(image);
-        }
-        return out;
-    }
-
-    private ByteBuffer imageToByteBuffer(BufferedImage image) {
-        if (image.getType() != BufferedImage.TYPE_INT_ARGB_PRE) {
-            BufferedImage convertedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
-            Graphics2D g = convertedImage.createGraphics();
-            double width = image.getWidth() * (double) 1;
-            double height = image.getHeight() * (double) 1;
-            g.drawImage(image, (int) ((convertedImage.getWidth() - width) / 2),
-                    (int) ((convertedImage.getHeight() - height) / 2),
-                    (int) (width), (int) (height), null);
-            g.dispose();
-            image = convertedImage;
-        }
-
-        byte[] imageBuffer = new byte[image.getWidth() * image.getHeight() * 4];
-        int counter = 0;
-        for (int i = 0; i < image.getHeight(); i++) {
-            for (int j = 0; j < image.getWidth(); j++) {
-                int colorSpace = image.getRGB(j, i);
-                imageBuffer[counter + 0] = (byte) ((colorSpace << 8) >> 24);
-                imageBuffer[counter + 1] = (byte) ((colorSpace << 16) >> 24);
-                imageBuffer[counter + 2] = (byte) ((colorSpace << 24) >> 24);
-                imageBuffer[counter + 3] = (byte) (colorSpace >> 24);
-                counter += 4;
-            }
-        }
-        return ByteBuffer.wrap(imageBuffer);
     }
 }
