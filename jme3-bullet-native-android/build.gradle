@@ -50,6 +50,7 @@ task unzipBullet(type: Copy) {
     from zipTree(zipFile)
     into outputDir
 }
+
 unzipBullet.dependsOn {
     def zipFile = file(localZipFile)
 //    println "zipFile path: " + zipFile.absolutePath
@@ -70,6 +71,7 @@ task copyBullet(type: Copy) {
     from sourceDir
     into outputDir
 }
+
 copyBullet.dependsOn {
     def bulletUnzipDir = file(localZipFolder)
 //    println "bulletUnzipDir: " + bulletUnzipDir.absolutePath
@@ -81,7 +83,7 @@ copyBullet.dependsOn {
 }
 
 // Copy jME cpp native files to jni directory
-task copyJmeCpp(type: Copy, dependsOn:copyBullet) {
+task copyJmeCpp(type: Copy) {
     def sourceDir = new File(jmeCppPath)
     def outputDir = new File(jniPath)
 //    println "copyJmeCpp sourceDir = " + sourceDir
@@ -92,7 +94,7 @@ task copyJmeCpp(type: Copy, dependsOn:copyBullet) {
 }
 
 // Copy jME android native files to jni directory
-task copyJmeAndroid(type: Copy, dependsOn:copyJmeCpp) {
+task copyJmeAndroid(type: Copy) {
     def sourceDir = new File(jmeAndroidPath)
     def outputDir = new File(jniPath)
 //    println "copyJmeAndroid sourceDir = " + sourceDir
@@ -102,60 +104,7 @@ task copyJmeAndroid(type: Copy, dependsOn:copyJmeCpp) {
     into outputDir
 }
 
-task generateNativeHeaders(dependsOn: copyJmeAndroid) << {
-    String destDirPath = jniPath
-    String classes = " \
-            com.jme3.bullet.PhysicsSpace, \
-            \
-            com.jme3.bullet.collision.PhysicsCollisionEvent, \
-            com.jme3.bullet.collision.PhysicsCollisionObject,\
-            com.jme3.bullet.objects.PhysicsCharacter, \
-            com.jme3.bullet.objects.PhysicsGhostObject, \
-            com.jme3.bullet.objects.PhysicsRigidBody, \
-            com.jme3.bullet.objects.PhysicsVehicle, \
-            com.jme3.bullet.objects.VehicleWheel, \
-            com.jme3.bullet.objects.infos.RigidBodyMotionState, \
-            \
-            com.jme3.bullet.collision.shapes.CollisionShape, \
-            com.jme3.bullet.collision.shapes.BoxCollisionShape, \
-            com.jme3.bullet.collision.shapes.CapsuleCollisionShape, \
-            com.jme3.bullet.collision.shapes.CompoundCollisionShape, \
-            com.jme3.bullet.collision.shapes.ConeCollisionShape, \
-            com.jme3.bullet.collision.shapes.CylinderCollisionShape, \
-            com.jme3.bullet.collision.shapes.GImpactCollisionShape, \
-            com.jme3.bullet.collision.shapes.HeightfieldCollisionShape, \
-            com.jme3.bullet.collision.shapes.HullCollisionShape, \
-            com.jme3.bullet.collision.shapes.MeshCollisionShape, \
-            com.jme3.bullet.collision.shapes.PlaneCollisionShape, \
-            com.jme3.bullet.collision.shapes.SimplexCollisionShape, \
-            com.jme3.bullet.collision.shapes.SphereCollisionShape, \
-            \
-            com.jme3.bullet.joints.PhysicsJoint, \
-            com.jme3.bullet.joints.ConeJoint, \
-            com.jme3.bullet.joints.HingeJoint, \
-            com.jme3.bullet.joints.Point2PointJoint, \
-            com.jme3.bullet.joints.SixDofJoint, \
-            com.jme3.bullet.joints.SixDofSpringJoint, \
-            com.jme3.bullet.joints.SliderJoint, \
-            com.jme3.bullet.joints.motors.RotationalLimitMotor, \
-            com.jme3.bullet.joints.motors.TranslationalLimitMotor, \
-            \
-            com.jme3.bullet.util.NativeMeshUtil, \
-            com.jme3.bullet.util.DebugShapeFactory"
-
-    String projectClassPath = configurations.runtime.asFileTree.matching {
-        exclude ".gradle"
-    }.asPath
-
-    exec {
-        executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
-        args '-d', destDirPath
-        args '-classpath', projectClassPath
-        args classes.split(",").collect { it.trim() }
-    }
-}
-
-task buildBulletNativeLib(type: Exec, dependsOn: generateNativeHeaders) {
+task buildBulletNativeLib(type: Exec, dependsOn: [copyJmeAndroid, copyJmeCpp, copyBullet]) {
 //    args 'TARGET_PLATFORM=android-9'
 //    println "buildBulletNativeLib ndkWorkingPath: " + ndkWorkingPath
 //    println "buildBulletNativeLib rootProject.ndkCommandPath: " + rootProject.ndkCommandPath

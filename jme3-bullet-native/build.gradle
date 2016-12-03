@@ -40,7 +40,7 @@ model {
             }
         }
     }
-    
+
     binaries {
         withType(SharedLibraryBinarySpec) {
             def projectPath = project.projectDir.absolutePath
@@ -48,10 +48,10 @@ model {
             def os = targetPlatform.operatingSystem.name
             def arch = targetPlatform.architecture.name
             def fileName = sharedLibraryFile.name
-            
+
             // Gradle decided to change underscores to dashes - fix that.
             arch = arch.replaceAll('-', '_')
-            
+
             // For all binaries that can't be built on the current system
             if (buildNativeProjects != "true") {
                 buildable = false
@@ -114,14 +114,14 @@ model {
                 }
                 cppCompiler.define('WIN32')
             }
-            
+
             tasks.all { dependsOn unzipBulletIfNeeded }
 
             // Add output to jar file
             jar.into("native/${os}/${arch}") {
                 from sharedLibraryFile
             }
-            
+
             // Add depend on build
             jar.dependsOn tasks
             // Add output to libs folder
@@ -163,31 +163,6 @@ model {
             operatingSystem "linux"
         }
     }
-
-    toolChains {
-        gcc(Gcc)
-	clang(Clang)
-        mingw_x86(Gcc) {
-            eachPlatform() {
-                cCompiler.executable "i686-w64-mingw32-gcc"
-                cppCompiler.executable "i686-w64-mingw32-g++"
-                linker.executable "i686-w64-mingw32-g++"
-                assembler.executable "i686-w64-mingw32-g++"
-                staticLibArchiver.executable "i686-w64-mingw32-gcc-ar"
-            }
-            target("Windows32")
-        }
-        mingw_x86_64(Gcc) {
-            eachPlatform() {
-                cCompiler.executable "x86_64-w64-mingw32-gcc"
-                cppCompiler.executable "x86_64-w64-mingw32-g++"
-                linker.executable "x86_64-w64-mingw32-g++"
-                assembler.executable "x86_64-w64-mingw32-g++"
-                staticLibArchiver.executable "x86_64-w64-mingw32-gcc-ar"
-            }
-            target("Windows64")
-        }
-    }
 }
 
 // Java source sets for IDE access and source jar bundling / mavenization
@@ -215,7 +190,7 @@ unzipBullet.dependsOn {
     }
 }
 
-task unzipBulletIfNeeded << {
+task unzipBulletIfNeeded {
 }
 
 unzipBulletIfNeeded.dependsOn {

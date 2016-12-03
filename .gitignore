@@ -14,10 +14,12 @@
 *.jnilib
 *.dylib
 *.iml
+.gradletasknamecache
 .DS_Store
 /jme3-core/src/main/resources/com/jme3/system/version.properties
 /jme3-*/build/
 /jme3-bullet-native/bullet.zip
+/jme3-bullet-native/bullet3.zip
 /jme3-bullet-native/bullet-2.82-r2704/
 /jme3-bullet-native/bullet3-2.83.7/
 /jme3-android-native/openal-soft/

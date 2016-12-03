@@ -1,19 +1,49 @@
 language: java
 sudo: false
 
-jdk:
-  - oraclejdk8
+branches:
+  only:
+  - master
+  - v3.1
+
+matrix:
+  include:
+  # - os: linux
+  #   jdk: oraclejdk8
+  #   env: UPLOAD=true UPLOAD_NATIVE=true
+  # - os: linux
+  #   jdk: openjdk7
+  - os: osx
+    env: UPLOAD_NATIVE=true
 
 addons:
-  ssh_known_hosts: updates.jmonkeyengine.org
+  ssh_known_hosts: github.com
+  apt:
+    packages:
+    - gcc-multilib
+    - g++-multilib
+
+before_install:
+  - '[ -n "$UPLOAD" ] && git fetch --unshallow || :'
 
 before_cache:
-  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
- 
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
 cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+
+install:
+  - '[ -n "$UPLOAD_NATIVE" ] && ./gradlew -PbuildNativeProjects=true assemble || ./gradlew assemble'
+
+script:
+  - ./gradlew check
+
+after_success:
+  - '[ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD_NATIVE" ] && ./private/upload_native.sh || :'
+  - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD" ] && ./gradlew bintrayUpload || :'
 
 notifications:
   slack:
@@ -21,12 +51,6 @@ notifications:
     on_failure: always
     rooms:
       secure: "PWEk4+VL986c3gAjWp12nqyifvxCjBqKoESG9d7zWh1uiTLadTHhZJRMdsye36FCpz/c/Jt7zCRO/5y7FaubQptnRrkrRfjp5f99MJRzQVXnUAM+y385qVkXKRKd/PLpM7XPm4AvjvxHCyvzX2wamRvul/TekaXKB9Ti5FCN87s="
-
-install:
-  - ./gradlew assemble
-
-script:
-  - ./gradlew check
 
 before_deploy:
   - ./gradlew createZipDistribution
@@ -43,9 +67,6 @@ deploy:
     repo: jMonkeyEngine/jmonkeyengine
     tags: true
 
-before_install:
-  - git fetch --unshallow
-  - "[ $TRAVIS_PULL_REQUEST == 'false' ] && openssl aes-256-cbc -K $encrypted_a1949b55824a_key -iv $encrypted_a1949b55824a_iv -in private/www-updater.key.enc -out private/www-updater.key -d || :"
 
 # before_install:
   # required libs for android build tools
@@ -57,6 +78,4 @@ before_install:
   # 7z x ndk.bin -y > /dev/null
   # export ANDROID_NDK=`pwd`/android-ndk-r10c
 
-after_success:
-  - '[ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && ./gradlew uploadArchives || :'
-  - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && ./gradlew uploadArchives bintrayUpload || :'
+
