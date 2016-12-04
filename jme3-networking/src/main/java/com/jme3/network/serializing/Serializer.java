@@ -77,6 +77,20 @@ public abstract class Serializer {
 
     // Registers the classes we already have serializers for.
     static {
+        initialize();
+    }
+    
+    public static void initialize() {
+
+        // Reset all of the inexes and tracking variables just in case
+        idRegistrations.clear();
+        classRegistrations.clear();
+        registrations.clear();        
+
+        nextAvailableId = -2; // historically the first ID was always -2
+
+        // Obviously need to be unlocked...
+        locked = false;
 
         // Preregister some fixed serializers so that they don't move
         // if the list below is modified.  Automatic ID generation will
