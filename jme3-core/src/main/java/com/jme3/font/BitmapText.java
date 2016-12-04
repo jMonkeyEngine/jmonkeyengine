@@ -105,7 +105,7 @@ public class BitmapText extends Node {
         // Change in behavior: The 'letters' field was not cloned or recreated
         // before.  I'm not sure how this worked and suspect BitmapText was just
         // not cloneable if you planned to change the text later. -pspeed
-        this.letters = new Letters(font, block, letters.getQuad().isRightToLeft());
+        this.letters = new Letters(font, this.block, letters.getQuad().isRightToLeft());
 
         // Just noticed BitmapText is not even writable/readable really...
         // so I guess cloning doesn't come up that often.
