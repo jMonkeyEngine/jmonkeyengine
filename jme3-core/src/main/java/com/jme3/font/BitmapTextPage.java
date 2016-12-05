@@ -38,9 +38,11 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.clone.Cloner;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import java.util.LinkedList;
 import java.util.LinkedList;
 
 /**
@@ -119,9 +121,28 @@ class BitmapTextPage extends Geometry {
     @Override
     public BitmapTextPage clone() {
         BitmapTextPage clone = (BitmapTextPage) super.clone();
-        clone.mesh = mesh.deepClone();
+        //clone.mesh = mesh.deepClone();
         return clone;
     }
+
+    /**
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     */
+    @Override
+    public void cloneFields( Cloner cloner, Object original ) {
+        
+        Mesh originalMesh = this.mesh;
+    
+        super.cloneFields(cloner, original);
+        
+        // BitmapTextPage always requires a new mesh or different
+        // BitmapText instances will clobber one another.
+        // But if we were already deep cloning meshes then we don't
+        // want to do it again... so we'll check first.
+        if( this.mesh == originalMesh ) {
+            this.mesh = mesh.deepClone();
+        }        
+    }        
 
     // Here is where one might add JmeCloneable related stuff except
     // the old clone() method doesn't actually bother to clone anything.
