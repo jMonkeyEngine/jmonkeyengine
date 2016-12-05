@@ -54,16 +54,15 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 
 /**
- * Validates how {@link MatParamOverride MPOs} work on the material level.
+ * Validates {@link MatParam}s.
  *
  * @author Kirill Vainer
  */
-public class MaterialMatParamOverrideTest {
+public class MaterialMatParamTest {
 
     private static final HashSet<String> IGNORED_UNIFORMS = new HashSet<String>(
             Arrays.asList(new String[]{"m_ParallaxHeight", "m_Shininess", "m_BackfaceShadows"}));
@@ -84,6 +83,14 @@ public class MaterialMatParamOverrideTest {
         outUniforms(uniform("UseMaterialColors", VarType.Boolean, true));
     }
 
+    @Test
+    public void testBoolMpFalse() {
+        material("Common/MatDefs/Light/Lighting.j3md");
+        inputMp(mpoBool("UseMaterialColors", false));
+        outDefines(def("MATERIAL_COLORS", VarType.Boolean, false));
+        outUniforms(uniform("UseMaterialColors", VarType.Boolean, false));
+    }
+    
     @Test
     public void testBoolOverrideFalse() {
         material("Common/MatDefs/Light/Lighting.j3md");
@@ -118,6 +125,14 @@ public class MaterialMatParamOverrideTest {
         outUniforms(uniform("AlphaDiscardThreshold", VarType.Float, 3.12f));
     }
 
+    @Test
+    public void testFloatMpZero() {
+        material("Common/MatDefs/Light/Lighting.j3md");
+        inputMp(mpoFloat("AlphaDiscardThreshold", 0.0f));
+        outDefines(def("DISCARD_ALPHA", VarType.Float, 0.0f));
+        outUniforms(uniform("AlphaDiscardThreshold", VarType.Float, 0.0f));
+    }
+    
     @Test
     public void testFloatOverride() {
         material("Common/MatDefs/Light/Lighting.j3md");
@@ -189,6 +204,14 @@ public class MaterialMatParamOverrideTest {
         inputMp(mpoInt("NumberOfBones", 1234));
         outDefines(def("NUM_BONES", VarType.Int, 1234));
         outUniforms(uniform("NumberOfBones", VarType.Int, 1234));
+    }
+    
+    @Test
+    public void testIntMpZero() {
+        material("Common/MatDefs/Light/Lighting.j3md");
+        inputMp(mpoInt("NumberOfBones", 0));
+        outDefines(def("NUM_BONES", VarType.Int, 0));
+        outUniforms(uniform("NumberOfBones", VarType.Int, 0));
     }
 
     @Test
@@ -377,25 +400,31 @@ public class MaterialMatParamOverrideTest {
         outTextures(tex1);
     }
 
-    private static final class Define {
+    private static class Define {
 
         public String name;
         public VarType type;
         public Object value;
 
         @Override
-        public int hashCode() {
-            int hash = 3;
-            hash = 89 * hash + this.name.hashCode();
-            hash = 89 * hash + this.type.hashCode();
-            hash = 89 * hash + this.value.hashCode();
-            return hash;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            final Define other = (Define) obj;
-            return this.name.equals(other.name) && this.type.equals(other.type) && this.value.equals(other.value);
+        public String toString() {
+            switch (type) {
+                case Boolean:
+                    if ((Boolean)value) {
+                        return "#define " + name + " 1\n";
+                    } else {
+                        return "";
+                    }
+                case Int:
+                case Float:
+                    return "#define " + name + " " + value + "\n";
+                default:
+                    if (value != null) {
+                        return "#define " + name + " 1\n";
+                    } else {
+                        return "";
+                    }
+            }
         }
     }
 
@@ -411,13 +440,13 @@ public class MaterialMatParamOverrideTest {
     private final NullRenderer renderer = new NullRenderer() {
         @Override
         public void setShader(Shader shader) {
-            MaterialMatParamOverrideTest.this.usedShader = shader;
+            MaterialMatParamTest.this.usedShader = shader;
             evaluated = true;
         }
 
         @Override
         public void setTexture(int unit, Texture texture) {
-            MaterialMatParamOverrideTest.this.usedTextures[unit] = texture;
+            MaterialMatParamTest.this.usedTextures[unit] = texture;
         }
     };
     private final RenderManager renderManager = new RenderManager(renderer);
@@ -512,11 +541,11 @@ public class MaterialMatParamOverrideTest {
     }
 
     private void outDefines(Define... expectedDefinesArray) {
-        Map<String, Define> nameToDefineMap = new HashMap<String, Define>();
+        StringBuilder expectedDefineSource = new StringBuilder();
         for (Define define : expectedDefinesArray) {
-            nameToDefineMap.put(define.name, define);
+            expectedDefineSource.append(define.toString());
         }
-
+        
         if (!evaluated) {
             evaluateTechniqueDef();
         }
@@ -525,56 +554,11 @@ public class MaterialMatParamOverrideTest {
         Technique tech = mat.getActiveTechnique();
         TechniqueDef def = tech.getDef();
         DefineList actualDefines = tech.getDynamicDefines();
-
         String[] defineNames = def.getDefineNames();
         VarType[] defineTypes = def.getDefineTypes();
+        String actualDefineSource = actualDefines.generateSource(Arrays.asList(defineNames), Arrays.asList(defineTypes));
 
-        Assert.assertEquals(defineNames.length, defineTypes.length);
-
-        for (int index = 0; index < defineNames.length; index++) {
-            String name = defineNames[index];
-            VarType type = defineTypes[index];
-            Define expectedDefine = nameToDefineMap.remove(name);
-            Object expectedValue = null;
-
-            if (expectedDefine != null) {
-                Assert.assertEquals(expectedDefine.type, type);
-                expectedValue = expectedDefine.value;
-            }
-
-            switch (type) {
-                case Boolean:
-                    if (expectedValue != null) {
-                        Assert.assertEquals((boolean) (Boolean) expectedValue, actualDefines.getBoolean(index));
-                    } else {
-                        Assert.assertEquals(false, actualDefines.getBoolean(index));
-                    }
-                    break;
-                case Int:
-                    if (expectedValue != null) {
-                        Assert.assertEquals((int) (Integer) expectedValue, actualDefines.getInt(index));
-                    } else {
-                        Assert.assertEquals(0, actualDefines.getInt(index));
-                    }
-                    break;
-                case Float:
-                    if (expectedValue != null) {
-                        Assert.assertEquals((float) (Float) expectedValue, actualDefines.getFloat(index), 0f);
-                    } else {
-                        Assert.assertEquals(0f, actualDefines.getFloat(index), 0f);
-                    }
-                    break;
-                default:
-                    if (expectedValue != null) {
-                        Assert.assertEquals(1, actualDefines.getInt(index));
-                    } else {
-                        Assert.assertEquals(0, actualDefines.getInt(index));
-                    }
-                    break;
-            }
-        }
-
-        Assert.assertTrue(nameToDefineMap.isEmpty());
+        assertEquals(expectedDefineSource.toString(), actualDefineSource);
     }
 
     private void outUniforms(Uniform... uniforms) {
