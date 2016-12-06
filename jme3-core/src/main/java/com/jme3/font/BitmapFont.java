@@ -86,6 +86,8 @@ public class BitmapFont implements Savable {
         Bottom
     }
 
+    static final float DEFAULT_TAB_WIDTH = 50.0f;
+
     private BitmapCharacterSet charSet;
     private Material[] pages;
 
@@ -215,6 +217,11 @@ public class BitmapFont implements Savable {
                 firstCharOfLine = true;
                 continue;
             }
+            if(theChar == '\t') {
+                lineWidth = (float)Math.floor(lineWidth / DEFAULT_TAB_WIDTH) * DEFAULT_TAB_WIDTH;
+                lineWidth += DEFAULT_TAB_WIDTH;
+            }
+
             BitmapCharacter c = charSet.getCharacter((int) theChar);
             if (c != null){
                 if (theChar == '\\' && i<text.length()-1 && text.charAt(i+1)=='#'){

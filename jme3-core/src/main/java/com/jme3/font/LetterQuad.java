@@ -306,8 +306,6 @@ class LetterQuad {
     }
 
     void update(StringBlock block) {
-        final float[] tabs = block.getTabPosition();
-        final float tabWidth = block.getTabWidth();
         final Rectangle bound = getBound(block);
         sizeScale = block.getSize() / font.getCharSet().getRenderedSize();
         lineY = computeLineY(block);
@@ -320,16 +318,9 @@ class LetterQuad {
             xAdvance = 0;
         } else if (isTab()) {
             x0 = previous.getNextX();
-            width = tabWidth;
+            width = block.calcNextTabPosition(x0) - x0;
             y0 = lineY;
             height = 0;
-            if (tabs != null && x0 < tabs[tabs.length-1]) {
-                for (int i = 0; i < tabs.length-1; i++) {
-                    if (x0 > tabs[i] && x0 < tabs[i+1]) {
-                        width = tabs[i+1] - x0;
-                    }
-                }
-            }
             xAdvance = width;
         } else if (bitmapChar == null) {
             x0 = getPrevious().getX1();

@@ -53,7 +53,7 @@ class StringBlock implements Cloneable {
     private int lineCount;
     private LineWrapMode wrapType = LineWrapMode.Word;
     private float[] tabPos;
-    private float tabWidth = 50;
+    private float tabWidth = BitmapFont.DEFAULT_TAB_WIDTH;
     private char ellipsisChar = 0x2026;
 
     /**
@@ -91,6 +91,7 @@ class StringBlock implements Cloneable {
             clone.color = color.clone();
             if (textBox != null)
                 clone.textBox = textBox.clone();
+            // tabPos is read-only and replaced on write.
             return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
@@ -172,22 +173,6 @@ class StringBlock implements Cloneable {
     void setLineWrapMode(LineWrapMode wrap) {
         this.wrapType = wrap;
     }
-    
-    void setTabWidth(float tabWidth) {
-        this.tabWidth = tabWidth;
-    }
-
-    void setTabPosition(float[] tabs) {
-        this.tabPos = tabs;
-    }
-    
-    float getTabWidth() {
-        return tabWidth;
-    }
-    
-    float[] getTabPosition() {
-        return tabPos;
-    }
 
     void setEllipsisChar(char c) {
         this.ellipsisChar = c;
@@ -195,5 +180,31 @@ class StringBlock implements Cloneable {
 
     int getEllipsisChar() {
         return ellipsisChar;
+    }
+    
+    void setTabWidth(float tabWidth) {
+        this.tabWidth = tabWidth;
+    }
+
+    void setTabPosition(float[] tabs) {
+        if(tabs != null && tabs.length > 0) {
+            this.tabPos = tabs.clone();
+        } else {
+            this.tabPos = null;
+        }
+    }
+
+    float calcNextTabPosition(float posX) {
+        // If there is an upcoming user-set tab stop, use that one.
+        if (tabPos != null && posX < tabPos[tabPos.length-1]) {
+            for (int i = 0; i < tabPos.length; i++) {
+                if (posX < tabPos[i]) {
+                    return tabPos[i];
+                }
+            }
+        }
+
+        // No upcoming tab stops available, use default tab width.
+        return (float)Math.floor(posX / tabWidth) * tabWidth + tabWidth;
     }
 }
