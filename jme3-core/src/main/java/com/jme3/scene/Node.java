@@ -809,15 +809,15 @@ public class Node extends Spatial {
       if (refreshFlags != 0) {
         ArrayList<Spatial> aspt = recursiveFindModifications(null);
         
-        String strSpatialNames = getName();
+        String strSpatialDebugNames = getDebugName();
         for(Spatial spt : aspt){
-          strSpatialNames+=","+spt.getName();
+          strSpatialDebugNames+=","+spt.getDebugName();
         }
         
         throw new IllegalStateException("Scene graph is not properly updated for rendering.\n"
           + "State was changed after rootNode.updateGeometricState() call. \n"
           + "Make sure you do not modify the scene from another thread!\n"
-          + "Problem spatial name(s): " + strSpatialNames);
+          + "Problem spatial DEBUG name(s): " + strSpatialDebugNames);
       }
       
       return super.checkCulling(cam);

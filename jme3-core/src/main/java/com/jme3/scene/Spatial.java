@@ -391,19 +391,42 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * @param name
      *            The spatial's new name.
      */
+    @Deprecated
     public void setName(String name) {
         this.name = name;
     }
-
+    
+    /**
+     * Sets the DEBUG name of this spatial.
+     * Use solely for DEBUG purposes.
+     *
+     * @param name
+     *            The spatial's new DEBUG name.
+     */
+    public void setDebugName(String debugName) {
+      this.name = debugName;
+    }
+    
     /**
      * Returns the name of this spatial.
      *
      * @return This spatial's name.
      */
+    @Deprecated
     public String getName() {
         return name;
     }
 
+    /**
+     * Returns the DEBUG name of this spatial.
+     * Use solely for DEBUG purposes.
+     *
+     * @return This spatial's DEBUG name.
+     */
+    public String getDebugName() {
+        return name;
+    }
+    
     /**
      * Returns the local {@link LightList}, which are the lights
      * that were directly attached to this <code>Spatial</code> through the
