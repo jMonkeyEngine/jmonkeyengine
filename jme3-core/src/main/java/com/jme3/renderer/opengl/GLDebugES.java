@@ -44,6 +44,12 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
         gl.glBlendFunc(sfactor, dfactor);
         checkError();
     }
+    
+    public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dFactorAlpha)
+    {
+       gl.glBlendFuncSeparate(sfactorRGB, dfactorRGB, sfactorAlpha, dFactorAlpha);
+       checkError();
+    }
 
     public void glBufferData(int target, FloatBuffer data, int usage) {
         gl.glBufferData(target, data, usage);

@@ -62,6 +62,7 @@ public interface GL {
     public static final int GL_DEPTH_COMPONENT16 = 0x81A5;
     public static final int GL_DEPTH_TEST = 0xB71;
     public static final int GL_DOUBLE = 0x140A;
+    public static final int GL_DST_ALPHA = 0x0304;
     public static final int GL_DST_COLOR = 0x306;
     public static final int GL_DYNAMIC_DRAW = 0x88E8;
     public static final int GL_ELEMENT_ARRAY_BUFFER = 0x8893;
@@ -118,6 +119,7 @@ public interface GL {
     public static final int GL_NONE = 0x0;
     public static final int GL_NOTEQUAL = 0x205;
     public static final int GL_ONE = 0x1;
+    public static final int GL_ONE_MINUS_DST_ALPHA = 0x0305;
     public static final int GL_ONE_MINUS_DST_COLOR = 0x307;
     public static final int GL_ONE_MINUS_SRC_ALPHA = 0x303;
     public static final int GL_ONE_MINUS_SRC_COLOR = 0x301;
@@ -137,6 +139,7 @@ public interface GL {
     public static final int GL_SHADING_LANGUAGE_VERSION = 0x8B8C;
     public static final int GL_SHORT = 0x1402;
     public static final int GL_SRC_ALPHA = 0x302;
+    public static final int GL_SRC_ALPHA_SATURATE = 0x0308;
     public static final int GL_SRC_COLOR = 0x300;
     public static final int GL_STATIC_DRAW = 0x88E4;
     public static final int GL_STENCIL_BUFFER_BIT = 0x400;
@@ -197,6 +200,7 @@ public interface GL {
 	public void glBindTexture(int target, int texture);
 	public void glBlendEquationSeparate(int colorMode, int alphaMode);
 	public void glBlendFunc(int sfactor, int dfactor);
+        public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha);
         public void glBufferData(int target, long data_size, int usage);
 	public void glBufferData(int target, FloatBuffer data, int usage);
 	public void glBufferData(int target, ShortBuffer data, int usage);

@@ -144,6 +144,7 @@ public class JmeIosGLES {
 //	public static native void glBindVertexArray // TODO: Investigate this 
     public static native void glBlendEquationSeparate(int colorMode, int alphaMode);
 	public static native void glBlendFunc(int sfactor, int dfactor);
+	public static native void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha);
 	public static native void glBufferData(int target, int size, Buffer data, int usage);
 	public static native void glBufferData2(int target, int size, byte[] data, int offset, int usage);
 	public static native void glBufferSubData(int target, int offset, int size, Buffer data);

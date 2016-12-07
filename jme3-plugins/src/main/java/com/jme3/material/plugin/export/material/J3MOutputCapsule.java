@@ -367,7 +367,11 @@ public class J3MOutputCapsule implements OutputCapsule {
 
     @Override
     public void write(int value, String name, int defVal) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (value == defVal) {
+            return;
+        }
+
+        putParameter(name, Integer.toString(value));
     }
 
     @Override

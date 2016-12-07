@@ -58,6 +58,10 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
         GL11.glBlendFunc(param1, param2);
     }
 
+    public void glBlendFuncSeparate(int param1, int param2, int param3, int param4) {
+        GL14.glBlendFuncSeparate(param1, param2, param3, param4);
+    }
+
     public void glBufferData(int param1, long param2, int param3) {
         GL15.glBufferData(param1, param2, param3);
     }

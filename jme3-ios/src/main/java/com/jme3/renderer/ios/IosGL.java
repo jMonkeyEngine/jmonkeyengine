@@ -135,6 +135,11 @@ public class IosGL implements GL, GLExt, GLFbo {
     public void glBlendFunc(int sfactor, int dfactor) {
         JmeIosGLES.glBlendFunc(sfactor, dfactor);
     }
+    
+    public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha) {
+        JmeIosGLES.glBlendFuncSeparate(sfactorRGB, dfactorRGB, sfactorAlpha, dfactorAlpha);
+    }
+
 
     public void glBufferData(int target, FloatBuffer data, int usage) {
         JmeIosGLES.glBufferData(target, getLimitBytes(data), data, usage);
