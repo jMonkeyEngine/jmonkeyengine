@@ -38,6 +38,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.Savable;
 import com.jme3.material.Material;
+import com.jme3.renderer.Camera;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
@@ -47,7 +48,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /**
  * <code>Node</code> defines an internal node of a scene graph. The internal
@@ -787,4 +787,40 @@ public class Node extends Spatial {
     protected void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue) {
         queue.addAll(children);
     }
+    
+    protected ArrayList<Spatial> recursiveFindModifications(ArrayList<Spatial> asptIn){
+      if(asptIn==null)asptIn = new ArrayList<Spatial>();
+      
+      for(Spatial sptChild : getChildren()){
+        if(sptChild.refreshFlags!=0){
+          asptIn.add(sptChild);
+        }
+        
+        if(sptChild instanceof Node){
+          ((Node) sptChild).recursiveFindModifications(asptIn);
+        }
+      }
+      
+      return asptIn;
+    }
+
+    @Override
+    public boolean checkCulling(Camera cam) {
+      if (refreshFlags != 0) {
+        ArrayList<Spatial> aspt = recursiveFindModifications(null);
+        
+        String strSpatialNames = getName();
+        for(Spatial spt : aspt){
+          strSpatialNames+=","+spt.getName();
+        }
+        
+        throw new IllegalStateException("Scene graph is not properly updated for rendering.\n"
+          + "State was changed after rootNode.updateGeometricState() call. \n"
+          + "Make sure you do not modify the scene from another thread!\n"
+          + "Problem spatial name(s): " + strSpatialNames);
+      }
+      
+      return super.checkCulling(cam);
+    }
+    
 }
