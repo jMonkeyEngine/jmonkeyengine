@@ -36,7 +36,6 @@
  * Author: Normen Hansen
  */
 jmePhysicsSpace::jmePhysicsSpace(JNIEnv* env, jobject javaSpace) {
-    printf("hello\n");
     //TODO: global ref? maybe not -> cleaning, rather callback class?
     this->javaPhysicsSpace = env->NewWeakGlobalRef(javaSpace);
     this->env = env;

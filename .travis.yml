@@ -8,11 +8,11 @@ branches:
 
 matrix:
   include:
-  # - os: linux
-  #   jdk: oraclejdk8
-  #   env: UPLOAD=true UPLOAD_NATIVE=true
-  # - os: linux
-  #   jdk: openjdk7
+  - os: linux
+    jdk: oraclejdk8
+    env: UPLOAD=true UPLOAD_NATIVE=true
+  - os: linux
+    jdk: openjdk7
   - os: osx
     env: UPLOAD_NATIVE=true
 
