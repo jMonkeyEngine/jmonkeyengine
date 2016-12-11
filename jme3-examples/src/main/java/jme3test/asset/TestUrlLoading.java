@@ -60,7 +60,7 @@ public class TestUrlLoading extends SimpleApplication {
 
         Geometry quad = new Geometry("Textured Quad", quadMesh);
 
-        assetManager.registerLocator("https://jmonkeyengine.googlecode.com/svn/BookSamples/assets/Textures/",
+        assetManager.registerLocator("https://raw.githubusercontent.com/jMonkeyEngine/BookSamples/master/assets/Textures/",
                                 UrlLocator.class);
         TextureKey key = new TextureKey("mucha-window.png", false);
         key.setGenerateMips(true);
