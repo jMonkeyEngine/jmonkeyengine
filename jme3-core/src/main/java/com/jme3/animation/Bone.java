@@ -35,6 +35,8 @@ import com.jme3.export.*;
 import com.jme3.math.*;
 import com.jme3.scene.Node;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.JmeCloneable;
+import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -62,13 +64,13 @@ import java.util.ArrayList;
  * @author Kirill Vainer
  * @author Rémy Bouquet
  */
-public final class Bone implements Savable {
+public final class Bone implements Savable, JmeCloneable {
 
     // Version #2: Changed naming of transforms as they were misleading
     public static final int SAVABLE_VERSION = 2;
     private String name;
     private Bone parent;
-    private final ArrayList<Bone> children = new ArrayList<Bone>();
+    private ArrayList<Bone> children = new ArrayList<Bone>();
     /**
      * If enabled, user can control bone transform with setUserTransforms.
      * Animation transforms are not applied to this bone when enabled.
@@ -166,6 +168,43 @@ public final class Bone implements Savable {
      * Serialization only. Do not use.
      */
     public Bone() {
+    }
+    
+    @Override   
+    public Object jmeClone() {
+        try {
+            Bone clone = (Bone)super.clone();
+            return clone;
+        } catch (CloneNotSupportedException ex) {
+            throw new AssertionError();
+        }
+    }     
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) {
+    
+        this.parent = cloner.clone(parent);
+        this.children = cloner.clone(children);    
+        
+        this.attachNode = cloner.clone(attachNode);
+        
+        this.bindPos = cloner.clone(bindPos);
+        this.bindRot = cloner.clone(bindRot);
+        this.bindScale = cloner.clone(bindScale);
+        
+        this.modelBindInversePos = cloner.clone(modelBindInversePos);
+        this.modelBindInverseRot = cloner.clone(modelBindInverseRot);
+        this.modelBindInverseScale = cloner.clone(modelBindInverseScale);
+    
+        this.localPos = cloner.clone(localPos);
+        this.localRot = cloner.clone(localRot);
+        this.localScale = cloner.clone(localScale);
+        
+        this.modelPos = cloner.clone(modelPos);
+        this.modelRot = cloner.clone(modelRot);
+        this.modelScale = cloner.clone(modelScale);
+    
+        this.tmpTransform = cloner.clone(tmpTransform);
     }
 
     /**
