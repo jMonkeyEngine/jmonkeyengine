@@ -38,6 +38,7 @@ import com.jme3.renderer.RenderManager;
  * <code>AbstractAppState</code> implements some common methods
  * that make creation of AppStates easier.
  * @author Kirill Vainer
+ * @see com.jme3.app.state.BaseAppState
  */
 public class AbstractAppState implements AppState {
 
