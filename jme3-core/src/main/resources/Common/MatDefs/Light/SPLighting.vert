@@ -1,6 +1,7 @@
 #import "Common/ShaderLib/Instancing.glsllib"
 #import "Common/ShaderLib/Skinning.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #ifdef VERTEX_LIGHTING
     #import "Common/ShaderLib/BlinnPhongLighting.glsllib"
 #endif

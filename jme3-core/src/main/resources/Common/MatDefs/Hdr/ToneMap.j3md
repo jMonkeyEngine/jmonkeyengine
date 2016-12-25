@@ -8,6 +8,20 @@ MaterialDef Tone Mapper {
         Float A
         Float Gamma
     }
+
+    Technique {
+        VertexShader GLSL150:   Common/MatDefs/Gui/Gui.vert
+        FragmentShader GLSL150: Common/MatDefs/Hdr/ToneMap.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+
+        Defines {
+            TEXTURE
+        }
+    }
+
     Technique {
         VertexShader GLSL100:   Common/MatDefs/Gui/Gui.vert
         FragmentShader GLSL100: Common/MatDefs/Hdr/ToneMap.frag

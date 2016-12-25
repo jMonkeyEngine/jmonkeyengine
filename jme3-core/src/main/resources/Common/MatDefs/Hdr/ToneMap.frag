@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/Hdr.glsllib"
 
 varying vec2 texCoord;

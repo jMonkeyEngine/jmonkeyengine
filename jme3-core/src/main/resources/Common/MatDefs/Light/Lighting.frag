@@ -1,5 +1,6 @@
 #import "Common/ShaderLib/Parallax.glsllib"
 #import "Common/ShaderLib/Optics.glsllib"
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #ifndef VERTEX_LIGHTING
     #import "Common/ShaderLib/BlinnPhongLighting.glsllib"
     #import "Common/ShaderLib/Lighting.glsllib"

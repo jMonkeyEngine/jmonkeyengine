@@ -1,17 +1,13 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/MultiSample.glsllib"
 
 uniform COLORTEXTURE m_Texture;
 uniform vec3 m_WhitePoint;
 
-#if __VERSION__ >= 150
-in vec2 texCoord;
-out vec4 outFragColor;
-#else
 varying vec2 texCoord;
-#endif
 
-vec3 FilmicCurve(in vec3 x)
-{
+vec3 FilmicCurve(in vec3 x) {
+
     const float A = 0.22;
     const float B = 0.30;
     const float C = 0.10;
@@ -24,8 +20,7 @@ vec3 FilmicCurve(in vec3 x)
 
 // whitePoint should be 11.2
 
-vec3 ToneMap_Filmic(vec3 color, vec3 whitePoint)
-{
+vec3 ToneMap_Filmic(vec3 color, vec3 whitePoint) {
     return FilmicCurve(color) / FilmicCurve(whitePoint);
 }
 

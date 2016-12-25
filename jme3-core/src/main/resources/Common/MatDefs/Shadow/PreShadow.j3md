@@ -1,5 +1,23 @@
 MaterialDef Pre Shadow {
     Technique {
+        VertexShader GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+        }
+
+        RenderState {
+            FaceCull Off
+            DepthTest On
+            DepthWrite On
+            PolyOffset 5 3
+            ColorWrite Off
+        }
+    }
+
+    Technique {
         VertexShader GLSL100 :   Common/MatDefs/Shadow/PreShadow.vert
         FragmentShader GLSL100 : Common/MatDefs/Shadow/PreShadow.frag
 

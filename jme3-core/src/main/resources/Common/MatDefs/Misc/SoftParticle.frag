@@ -1,3 +1,5 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+
 uniform sampler2D m_DepthTexture;
 uniform float m_Softness; // Power used in the contrast function
 varying vec2 vPos; // Position of the pixel

@@ -1,5 +1,7 @@
 #extension GL_EXT_gpu_shader4 : enable
 
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+
 uniform sampler2D m_Texture;
 uniform vec2 g_ResolutionInverse;
 
@@ -71,18 +73,14 @@ vec3 FxaaPixelShader(
 
     float lumaB = dot(rgbB, luma);
 
-    if ((lumaB < lumaMin) || (lumaB > lumaMax))
-    {
+    if ((lumaB < lumaMin) || (lumaB > lumaMax)) {
         return rgbA;
     }
-    else
-    {
+    else {
         return rgbB; 
     }
 }
 
-void main()
-{
-
+void main() {
     gl_FragColor = vec4(FxaaPixelShader(posPos, m_Texture, g_ResolutionInverse), 1.0);
 }
