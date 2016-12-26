@@ -28,7 +28,7 @@ MaterialDef Post Shadow {
 
         Float PCFEdge
 
-        Float ShadowMapSize
+        Float ShadowMapSize : 1.0
 
         Matrix4 ViewProjectionMatrixInverse
         Vector4 ViewProjectionMatrixRow2
@@ -84,8 +84,4 @@ MaterialDef Post Shadow {
         }
       
     }
-
-    
-
-
 }

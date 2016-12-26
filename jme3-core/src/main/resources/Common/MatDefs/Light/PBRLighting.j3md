@@ -142,8 +142,8 @@ MaterialDef PBR Lighting {
     Technique {
         LightMode SinglePassAndImageBased
 
-        VertexShader GLSL110:   Common/MatDefs/Light/PBRLighting.vert
-        FragmentShader GLSL110: Common/MatDefs/Light/PBRLighting.frag
+        VertexShader GLSL100:   Common/MatDefs/Light/PBRLighting.vert
+        FragmentShader GLSL100: Common/MatDefs/Light/PBRLighting.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

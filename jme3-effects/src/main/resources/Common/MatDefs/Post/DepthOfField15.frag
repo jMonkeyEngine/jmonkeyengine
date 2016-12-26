@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/MultiSample.glsllib"
 
 uniform COLORTEXTURE m_Texture;
