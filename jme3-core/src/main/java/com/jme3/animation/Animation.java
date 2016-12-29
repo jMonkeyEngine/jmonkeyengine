@@ -85,6 +85,15 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
     }
 
     /**
+     * Changes the name of the bone animation.
+     *
+     * @param name the new name.
+     */
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    /**
      * Returns the length in seconds of this animation
      * 
      * @return the length in seconds of this animation
