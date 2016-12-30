@@ -32,6 +32,10 @@
 
 package com.jme3.system.lwjgl;
 
+import static org.lwjgl.opencl.CL10.CL_CONTEXT_PLATFORM;
+import static org.lwjgl.opengl.GL.createCapabilities;
+import static org.lwjgl.opengl.GL11.glGetInteger;
+
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
@@ -48,14 +52,24 @@ import com.jme3.renderer.lwjgl.LwjglGL;
 import com.jme3.renderer.lwjgl.LwjglGLExt;
 import com.jme3.renderer.lwjgl.LwjglGLFboEXT;
 import com.jme3.renderer.lwjgl.LwjglGLFboGL3;
-import com.jme3.renderer.opengl.*;
-import com.jme3.system.*;
-import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.jme3.renderer.opengl.GL;
+import com.jme3.renderer.opengl.GL2;
+import com.jme3.renderer.opengl.GL3;
+import com.jme3.renderer.opengl.GL4;
+import com.jme3.renderer.opengl.GLDebugDesktop;
+import com.jme3.renderer.opengl.GLExt;
+import com.jme3.renderer.opengl.GLFbo;
+import com.jme3.renderer.opengl.GLRenderer;
+import com.jme3.renderer.opengl.GLTiming;
+import com.jme3.renderer.opengl.GLTimingState;
+import com.jme3.renderer.opengl.GLTracer;
+import com.jme3.system.AppSettings;
+import com.jme3.system.JmeContext;
+import com.jme3.system.SystemListener;
+import com.jme3.system.Timer;
+import com.jme3.util.BufferAllocatorFactory;
+import com.jme3.util.LWJGLBufferAllocator;
+
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opencl.*;
@@ -63,18 +77,25 @@ import org.lwjgl.opengl.ARBDebugOutput;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.EXTFramebufferMultisample;
 import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl.system.Platform;
 
-import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
-import static org.lwjgl.opencl.CL10.CL_CONTEXT_PLATFORM;
-import static org.lwjgl.opengl.GL.createCapabilities;
-import static org.lwjgl.opengl.GL11.glGetInteger;
+import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A LWJGL implementation of a graphics context.
  */
 public abstract class LwjglContext implements JmeContext {
 
-    private static final Logger logger = Logger.getLogger(LwjglContext.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(LwjglContext.class.getName());
+
+    static {
+        System.setProperty(BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION, LWJGLBufferAllocator.class.getName());
+    }
 
     public static final boolean CL_GL_SHARING_POSSIBLE = true;
     
@@ -99,8 +120,8 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     protected void printContextInitInfo() {
-        logger.log(Level.INFO, "LWJGL {0} context running on thread {1}\n"
-                + " * Graphics Adapter: GLFW {2}",
+        LOGGER.log(Level.INFO, "LWJGL {0} context running on thread {1}\n"
+                        + " * Graphics Adapter: GLFW {2}",
                 new Object[]{org.lwjgl.Version.getVersion(), Thread.currentThread().getName(), GLFW.glfwGetVersionString()});
     }
 
@@ -121,7 +142,7 @@ public abstract class LwjglContext implements JmeContext {
             samples = settings.getSamples();
             final int supportedSamples = determineMaxSamples();
             if (supportedSamples < samples) {
-                logger.log(Level.WARNING,
+                LOGGER.log(Level.WARNING,
                         "Couldn't satisfy antialiasing samples requirement: x{0}. "
                                 + "Video hardware only supports: x{1}",
                         new Object[]{samples, supportedSamples});
@@ -205,8 +226,6 @@ public abstract class LwjglContext implements JmeContext {
      *
      * Copied from the old release
      *
-     * @param filter the platform filter
-     *
      * @return the available platforms
      */
     private static long[] getPlatforms() {
@@ -233,12 +252,12 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     protected void initOpenCL(long window) {
-        logger.info("Initialize OpenCL with LWJGL3");
+        LOGGER.info("Initialize OpenCL with LWJGL3");
         
 //        try {
 //            CL.create();
 //        } catch (Exception ex) {
-//            logger.log(Level.SEVERE, "Unable to initialize OpenCL", ex);
+//            LOGGER.log(Level.SEVERE, "Unable to initialize OpenCL", ex);
 //            return;
 //        }
         
@@ -279,7 +298,7 @@ public abstract class LwjglContext implements JmeContext {
                 platformInfos.append("\n *    *   Supports interop: ").append(device.hasOpenGLInterop());
             }
         }
-        logger.info(platformInfos.toString());
+        LOGGER.info(platformInfos.toString());
         
         //choose devices
         PlatformChooser chooser = null;
@@ -287,7 +306,7 @@ public abstract class LwjglContext implements JmeContext {
             try {
                 chooser = (PlatformChooser) Class.forName(settings.getOpenCLPlatformChooser()).newInstance();
             } catch (Exception ex) {
-                logger.log(Level.WARNING, "unable to instantiate custom PlatformChooser", ex);
+                LOGGER.log(Level.WARNING, "unable to instantiate custom PlatformChooser", ex);
             }
         }
         if (chooser == null) {
@@ -298,35 +317,35 @@ public abstract class LwjglContext implements JmeContext {
         LwjglPlatform platform = null;
         for (Device d : choosenDevices) {
             if (!(d instanceof LwjglDevice)) {
-                logger.log(Level.SEVERE, "attempt to return a custom Device implementation from PlatformChooser: {0}", d);
+                LOGGER.log(Level.SEVERE, "attempt to return a custom Device implementation from PlatformChooser: {0}", d);
                 return;
             }
             LwjglDevice ld = (LwjglDevice) d;
             if (platform == null) {
                 platform = ld.getPlatform();
             } else if (platform != ld.getPlatform()) {
-                logger.severe("attempt to use devices from different platforms");
+                LOGGER.severe("attempt to use devices from different platforms");
                 return;
             }
             devices.add(ld.getDevice());
         }
         if (devices.isEmpty()) {
-            logger.warning("no devices specified, no OpenCL context created");
+            LOGGER.warning("no devices specified, no OpenCL context created");
             return;
         }
-        logger.log(Level.INFO, "chosen platform: {0}", platform.getName());
-        logger.log(Level.INFO, "chosen devices: {0}", choosenDevices);
+        LOGGER.log(Level.INFO, "chosen platform: {0}", platform.getName());
+        LOGGER.log(Level.INFO, "chosen devices: {0}", choosenDevices);
         
         //create context
         try {
             long c = createContext(platform.getPlatform(), devices, window);
             clContext = new com.jme3.opencl.lwjgl.LwjglContext(c, (List<LwjglDevice>) choosenDevices);
-        } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Unable to create OpenCL context", ex);
+        } catch (final Exception ex) {
+            LOGGER.log(Level.SEVERE, "Unable to create OpenCL context", ex);
             return;
         }
         
-        logger.info("OpenCL context created");
+        LOGGER.info("OpenCL context created");
     }
     private long createContext(final long platform, final List<Long> devices, long window) throws Exception {
         
@@ -338,7 +357,7 @@ public abstract class LwjglContext implements JmeContext {
         //https://github.com/glfw/glfw/issues/104
         //https://github.com/LWJGL/lwjgl3/blob/master/modules/core/src/test/java/org/lwjgl/demo/opencl/Mandelbrot.java
         //TODO: test on Linus and MacOSX
-        switch (org.lwjgl.system.Platform.get()) {
+        switch (Platform.get()) {
             case WINDOWS:
                 properties
                         .put(KHRGLSharing.CL_GL_CONTEXT_KHR)
@@ -446,5 +465,4 @@ public abstract class LwjglContext implements JmeContext {
     public Context getOpenCLContext() {
         return clContext;
     }
-
 }

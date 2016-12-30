@@ -31,6 +31,12 @@
  */
 package com.jme3.util;
 
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
+
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.Reference;
@@ -45,12 +51,6 @@ import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
-import com.jme3.math.Vector4f;
-
 /**
  * <code>BufferUtils</code> is a helper class for generating nio buffers from
  * jME data classes such as Vectors and ColorRGBA.
@@ -59,7 +59,11 @@ import com.jme3.math.Vector4f;
  * @version $Id: BufferUtils.java,v 1.16 2007/10/29 16:56:18 nca Exp $
  */
 public final class BufferUtils {
-    private static BufferAllocator allocator = new PrimitiveAllocator();
+
+    /**
+     * The field should be final to support thread-safe.
+     */
+    private static final BufferAllocator ALLOCATOR = BufferAllocatorFactory.create();
 
     private static boolean trackDirectMemory = false;
     private static ReferenceQueue<Buffer> removeCollected = new ReferenceQueue<Buffer>();
@@ -67,26 +71,6 @@ public final class BufferUtils {
     static ClearReferences cleanupthread;
 
     private static boolean used;
-
-    static {
-        try {
-            allocator = new ReflectionAllocator();
-        } catch (Throwable t) {
-            t.printStackTrace();
-            System.err.println("Error using ReflectionAllocator");
-        }
-    }
-
-    /**
-     * Warning! do only set this before JME is started!
-     */
-    public static void setAllocator(BufferAllocator allocator) {
-        if (used) {
-            throw new IllegalStateException(
-                    "An Buffer was already allocated, since it is quite likely that other dispose methods will create native dangling pointers or other fun things, this is forbidden to be changed at runtime");
-        }
-        BufferUtils.allocator = allocator;
-    }
 
     /**
      * Set it to true if you want to enable direct memory tracking for debugging
@@ -809,7 +793,7 @@ public final class BufferUtils {
      * @return the new DoubleBuffer
      */
     public static DoubleBuffer createDoubleBuffer(int size) {
-        DoubleBuffer buf = allocator.allocate(8 * size).order(ByteOrder.nativeOrder()).asDoubleBuffer();
+        DoubleBuffer buf = ALLOCATOR.allocate(8 * size).order(ByteOrder.nativeOrder()).asDoubleBuffer();
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -872,7 +856,7 @@ public final class BufferUtils {
      * @return the new FloatBuffer
      */
     public static FloatBuffer createFloatBuffer(int size) {
-        FloatBuffer buf = allocator.allocate(4 * size).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        FloatBuffer buf = ALLOCATOR.allocate(4 * size).order(ByteOrder.nativeOrder()).asFloatBuffer();
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -934,7 +918,7 @@ public final class BufferUtils {
      * @return the new IntBuffer
      */
     public static IntBuffer createIntBuffer(int size) {
-        IntBuffer buf = allocator.allocate(4 * size).order(ByteOrder.nativeOrder()).asIntBuffer();
+        IntBuffer buf = ALLOCATOR.allocate(4 * size).order(ByteOrder.nativeOrder()).asIntBuffer();
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -997,7 +981,7 @@ public final class BufferUtils {
      * @return the new IntBuffer
      */
     public static ByteBuffer createByteBuffer(int size) {
-        ByteBuffer buf = allocator.allocate(size).order(ByteOrder.nativeOrder());
+        ByteBuffer buf = ALLOCATOR.allocate(size).order(ByteOrder.nativeOrder());
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -1079,7 +1063,7 @@ public final class BufferUtils {
      * @return the new ShortBuffer
      */
     public static ShortBuffer createShortBuffer(int size) {
-        ShortBuffer buf = allocator.allocate(2 * size).order(ByteOrder.nativeOrder()).asShortBuffer();
+        ShortBuffer buf = ALLOCATOR.allocate(2 * size).order(ByteOrder.nativeOrder()).asShortBuffer();
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -1292,7 +1276,7 @@ public final class BufferUtils {
         if (!isDirect(toBeDestroyed)) {
             return;
         }
-        allocator.destroyDirectBuffer(toBeDestroyed);
+        ALLOCATOR.destroyDirectBuffer(toBeDestroyed);
     }
 
     /*
