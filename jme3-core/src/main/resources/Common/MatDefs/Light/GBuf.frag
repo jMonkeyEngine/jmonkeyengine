@@ -1,5 +1,5 @@
-#import "Common/ShaderLib/Optics.glsllib"
 #import "Common/ShaderLib/GLSLCompat.glsllib"
+#import "Common/ShaderLib/Optics.glsllib"
 
 uniform float m_Shininess;
 

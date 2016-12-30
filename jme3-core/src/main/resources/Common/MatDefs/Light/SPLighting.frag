@@ -2,9 +2,9 @@
     #extension GL_NV_shadow_samplers_cube : enable
 #endif
 
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/Parallax.glsllib"
 #import "Common/ShaderLib/Optics.glsllib"
-#import "Common/ShaderLib/GLSLCompat.glsllib"
 
 #ifndef VERTEX_LIGHTING
     #import "Common/ShaderLib/BlinnPhongLighting.glsllib"
