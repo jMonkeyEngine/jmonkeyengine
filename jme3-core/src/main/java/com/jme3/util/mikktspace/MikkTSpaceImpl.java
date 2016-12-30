@@ -21,13 +21,10 @@ public class MikkTSpaceImpl implements MikkTSpaceContext {
 
     public MikkTSpaceImpl(Mesh mesh) {
         this.mesh = mesh;
-        VertexBuffer tangentBuffer = mesh.getBuffer(VertexBuffer.Type.Tangent);
-        if(tangentBuffer == null){
-            FloatBuffer fb = BufferUtils.createFloatBuffer(mesh.getVertexCount() * 4);
-            mesh.setBuffer(VertexBuffer.Type.Tangent, 4, fb);            
-        }
-        
-        //TODO ensure the Tangent buffer exists, else create one.
+        //replacing any existing tangent buffer, if you came here you want them new.
+        mesh.clearBuffer(VertexBuffer.Type.Tangent);
+        FloatBuffer fb = BufferUtils.createFloatBuffer(mesh.getVertexCount() * 4);
+        mesh.setBuffer(VertexBuffer.Type.Tangent, 4, fb);
     }
 
     @Override
