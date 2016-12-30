@@ -37,6 +37,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.scene.Spatial;
+import com.jme3.system.Annotations.Internal;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
@@ -94,6 +95,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
      *
      * @param name the new name.
      */
+    @Internal
     public void setName(final String name) {
         this.name = name;
     }

@@ -41,6 +41,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
+import com.jme3.system.Annotations.Internal;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
@@ -211,6 +212,7 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
      * @param prevName the previous name of an animation.
      * @param newName  the new name of an animation.
      */
+    @Internal
     public void changeAnimName(String prevName, String newName) {
 
         if (!animationMap.containsKey(prevName)) {
