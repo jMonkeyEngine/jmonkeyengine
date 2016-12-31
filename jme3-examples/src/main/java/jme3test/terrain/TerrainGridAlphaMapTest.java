@@ -75,7 +75,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
 
         File file = new File("TerrainGridTestData.zip");
         if (!file.exists()) {
-            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/TerrainGridTestData.zip", HttpZipLocator.class);
+            assetManager.registerLocator("https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/TerrainGridTestData.zip", HttpZipLocator.class);
         } else {
             assetManager.registerLocator("TerrainGridTestData.zip", ZipLocator.class);
         }
