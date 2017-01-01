@@ -70,8 +70,6 @@ public final class BufferUtils {
     private static ConcurrentHashMap<BufferInfo, BufferInfo> trackedBuffers = new ConcurrentHashMap<BufferInfo, BufferInfo>();
     static ClearReferences cleanupthread;
 
-    private static boolean used;
-
     /**
      * Set it to true if you want to enable direct memory tracking for debugging
      * purpose. Default is false. To print direct memory usage use
@@ -108,7 +106,7 @@ public final class BufferUtils {
     }
 
     private static void onBufferAllocated(Buffer buffer) {
-        used = true;
+
         if (BufferUtils.trackDirectMemory) {
             if (BufferUtils.cleanupthread == null) {
                 BufferUtils.cleanupthread = new ClearReferences();
