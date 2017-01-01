@@ -72,7 +72,9 @@ import com.jme3.util.LWJGLBufferAllocator;
 
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opencl.*;
+import org.lwjgl.opencl.APPLEGLSharing;
+import org.lwjgl.opencl.CL10;
+import org.lwjgl.opencl.KHRGLSharing;
 import org.lwjgl.opengl.ARBDebugOutput;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.EXTFramebufferMultisample;
@@ -94,7 +96,10 @@ public abstract class LwjglContext implements JmeContext {
     private static final Logger logger = Logger.getLogger(LwjglContext.class.getName());
 
     static {
-        System.setProperty(BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION, LWJGLBufferAllocator.class.getName());
+        final String implementation = BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION;
+        if(System.getProperty(implementation) == null) {
+            System.setProperty(implementation, LWJGLBufferAllocator.class.getName());
+        }
     }
 
     public static final boolean CL_GL_SHARING_POSSIBLE = true;
