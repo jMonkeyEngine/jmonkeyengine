@@ -63,7 +63,7 @@ public final class BufferUtils {
     /**
      * The field should be final to support thread-safe.
      */
-    private static final BufferAllocator ALLOCATOR = BufferAllocatorFactory.create();
+    private static final BufferAllocator allocator = BufferAllocatorFactory.create();
 
     private static boolean trackDirectMemory = false;
     private static ReferenceQueue<Buffer> removeCollected = new ReferenceQueue<Buffer>();
@@ -791,7 +791,7 @@ public final class BufferUtils {
      * @return the new DoubleBuffer
      */
     public static DoubleBuffer createDoubleBuffer(int size) {
-        DoubleBuffer buf = ALLOCATOR.allocate(8 * size).order(ByteOrder.nativeOrder()).asDoubleBuffer();
+        DoubleBuffer buf = allocator.allocate(8 * size).order(ByteOrder.nativeOrder()).asDoubleBuffer();
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -854,7 +854,7 @@ public final class BufferUtils {
      * @return the new FloatBuffer
      */
     public static FloatBuffer createFloatBuffer(int size) {
-        FloatBuffer buf = ALLOCATOR.allocate(4 * size).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        FloatBuffer buf = allocator.allocate(4 * size).order(ByteOrder.nativeOrder()).asFloatBuffer();
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -916,7 +916,7 @@ public final class BufferUtils {
      * @return the new IntBuffer
      */
     public static IntBuffer createIntBuffer(int size) {
-        IntBuffer buf = ALLOCATOR.allocate(4 * size).order(ByteOrder.nativeOrder()).asIntBuffer();
+        IntBuffer buf = allocator.allocate(4 * size).order(ByteOrder.nativeOrder()).asIntBuffer();
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -979,7 +979,7 @@ public final class BufferUtils {
      * @return the new IntBuffer
      */
     public static ByteBuffer createByteBuffer(int size) {
-        ByteBuffer buf = ALLOCATOR.allocate(size).order(ByteOrder.nativeOrder());
+        ByteBuffer buf = allocator.allocate(size).order(ByteOrder.nativeOrder());
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -1061,7 +1061,7 @@ public final class BufferUtils {
      * @return the new ShortBuffer
      */
     public static ShortBuffer createShortBuffer(int size) {
-        ShortBuffer buf = ALLOCATOR.allocate(2 * size).order(ByteOrder.nativeOrder()).asShortBuffer();
+        ShortBuffer buf = allocator.allocate(2 * size).order(ByteOrder.nativeOrder()).asShortBuffer();
         buf.clear();
         onBufferAllocated(buf);
         return buf;
@@ -1274,7 +1274,7 @@ public final class BufferUtils {
         if (!isDirect(toBeDestroyed)) {
             return;
         }
-        ALLOCATOR.destroyDirectBuffer(toBeDestroyed);
+        allocator.destroyDirectBuffer(toBeDestroyed);
     }
 
     /*
