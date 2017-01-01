@@ -91,7 +91,7 @@ import java.util.logging.Logger;
  */
 public abstract class LwjglContext implements JmeContext {
 
-    private static final Logger LOGGER = Logger.getLogger(LwjglContext.class.getName());
+    private static final Logger logger = Logger.getLogger(LwjglContext.class.getName());
 
     static {
         System.setProperty(BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION, LWJGLBufferAllocator.class.getName());
@@ -120,7 +120,7 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     protected void printContextInitInfo() {
-        LOGGER.log(Level.INFO, "LWJGL {0} context running on thread {1}\n"
+        logger.log(Level.INFO, "LWJGL {0} context running on thread {1}\n"
                         + " * Graphics Adapter: GLFW {2}",
                 new Object[]{org.lwjgl.Version.getVersion(), Thread.currentThread().getName(), GLFW.glfwGetVersionString()});
     }
@@ -142,7 +142,7 @@ public abstract class LwjglContext implements JmeContext {
             samples = settings.getSamples();
             final int supportedSamples = determineMaxSamples();
             if (supportedSamples < samples) {
-                LOGGER.log(Level.WARNING,
+                logger.log(Level.WARNING,
                         "Couldn't satisfy antialiasing samples requirement: x{0}. "
                                 + "Video hardware only supports: x{1}",
                         new Object[]{samples, supportedSamples});
@@ -252,12 +252,12 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     protected void initOpenCL(long window) {
-        LOGGER.info("Initialize OpenCL with LWJGL3");
+        logger.info("Initialize OpenCL with LWJGL3");
         
 //        try {
 //            CL.create();
 //        } catch (Exception ex) {
-//            LOGGER.log(Level.SEVERE, "Unable to initialize OpenCL", ex);
+//            logger.log(Level.SEVERE, "Unable to initialize OpenCL", ex);
 //            return;
 //        }
         
@@ -298,7 +298,7 @@ public abstract class LwjglContext implements JmeContext {
                 platformInfos.append("\n *    *   Supports interop: ").append(device.hasOpenGLInterop());
             }
         }
-        LOGGER.info(platformInfos.toString());
+        logger.info(platformInfos.toString());
         
         //choose devices
         PlatformChooser chooser = null;
@@ -306,7 +306,7 @@ public abstract class LwjglContext implements JmeContext {
             try {
                 chooser = (PlatformChooser) Class.forName(settings.getOpenCLPlatformChooser()).newInstance();
             } catch (Exception ex) {
-                LOGGER.log(Level.WARNING, "unable to instantiate custom PlatformChooser", ex);
+                logger.log(Level.WARNING, "unable to instantiate custom PlatformChooser", ex);
             }
         }
         if (chooser == null) {
@@ -317,35 +317,35 @@ public abstract class LwjglContext implements JmeContext {
         LwjglPlatform platform = null;
         for (Device d : choosenDevices) {
             if (!(d instanceof LwjglDevice)) {
-                LOGGER.log(Level.SEVERE, "attempt to return a custom Device implementation from PlatformChooser: {0}", d);
+                logger.log(Level.SEVERE, "attempt to return a custom Device implementation from PlatformChooser: {0}", d);
                 return;
             }
             LwjglDevice ld = (LwjglDevice) d;
             if (platform == null) {
                 platform = ld.getPlatform();
             } else if (platform != ld.getPlatform()) {
-                LOGGER.severe("attempt to use devices from different platforms");
+                logger.severe("attempt to use devices from different platforms");
                 return;
             }
             devices.add(ld.getDevice());
         }
         if (devices.isEmpty()) {
-            LOGGER.warning("no devices specified, no OpenCL context created");
+            logger.warning("no devices specified, no OpenCL context created");
             return;
         }
-        LOGGER.log(Level.INFO, "chosen platform: {0}", platform.getName());
-        LOGGER.log(Level.INFO, "chosen devices: {0}", choosenDevices);
+        logger.log(Level.INFO, "chosen platform: {0}", platform.getName());
+        logger.log(Level.INFO, "chosen devices: {0}", choosenDevices);
         
         //create context
         try {
             long c = createContext(platform.getPlatform(), devices, window);
             clContext = new com.jme3.opencl.lwjgl.LwjglContext(c, (List<LwjglDevice>) choosenDevices);
         } catch (final Exception ex) {
-            LOGGER.log(Level.SEVERE, "Unable to create OpenCL context", ex);
+            logger.log(Level.SEVERE, "Unable to create OpenCL context", ex);
             return;
         }
         
-        LOGGER.info("OpenCL context created");
+        logger.info("OpenCL context created");
     }
     private long createContext(final long platform, final List<Long> devices, long window) throws Exception {
         
