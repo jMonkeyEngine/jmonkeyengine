@@ -41,15 +41,18 @@ import java.util.Arrays;
 import java.util.zip.InflaterInputStream;
 
 public class FbxReader {
-
+	
 	public static final int BLOCK_SENTINEL_LENGTH = 13;
+	public static final int BLOCK_SENTINEL_LENGTH2 = 25;
 	public static final byte[] BLOCK_SENTINEL_DATA = new byte[BLOCK_SENTINEL_LENGTH];
+	public static final byte[] BLOCK_SENTINEL_DATA2 = new byte[BLOCK_SENTINEL_LENGTH2];
 	/**
 	 * Majic string at start:
 	 * "Kaydara FBX Binary\x20\x20\x00\x1a\x00"
 	 */
 	public static final byte[] HEAD_MAGIC = new byte[]{0x4b, 0x61, 0x79, 0x64, 0x61, 0x72, 0x61, 0x20, 0x46, 0x42, 0x58, 0x20, 0x42, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x20, 0x20, 0x00, 0x1a, 0x00};
-
+	public static final int NEW_FORMAT = 7500;
+	
 	public static FbxFile readFBX(InputStream stream) throws IOException {
 		FbxFile fbxFile = new FbxFile();
 		// Read file to byte buffer so we can know current position in file
@@ -61,27 +64,27 @@ public class FbxReader {
 		// Check majic header
 		byte[] majic = getBytes(byteBuffer, HEAD_MAGIC.length);
 		if(!Arrays.equals(HEAD_MAGIC, majic))
-			throw new IOException("Either ASCII FBX or corrupt file. "
-                                            + "Only binary FBX files are supported");
-
+			throw new IOException("Not FBX file");
 		// Read version
 		fbxFile.version = getUInt(byteBuffer);
-		// Read root elements
 		while(true) {
-			FbxElement e = readFBXElement(byteBuffer);
+			FbxElement e = readFBXElement(byteBuffer, fbxFile);
 			if(e == null)
 				break;
 			fbxFile.rootElements.add(e);
 		}
 		return fbxFile;
 	}
-
-	private static FbxElement readFBXElement(ByteBuffer byteBuffer) throws IOException {
-		long endOffset = getUInt(byteBuffer);
+	
+	private static FbxElement readFBXElement(ByteBuffer byteBuffer, FbxFile file) throws IOException {
+		long endOffset = file.version >= NEW_FORMAT ? getULong(byteBuffer) : getUInt(byteBuffer);
 		if(endOffset == 0)
 			return null;
-		long propCount = getUInt(byteBuffer);
-		getUInt(byteBuffer); // Properties length unused
+		long propCount = file.version >= NEW_FORMAT ? getULong(byteBuffer) : getUInt(byteBuffer);
+		if(file.version >= NEW_FORMAT)
+			getULong(byteBuffer);
+		else
+			getUInt(byteBuffer); // Properties length unused
 		
 		FbxElement element = new FbxElement((int) propCount);
 		element.id = new String(getBytes(byteBuffer, getUByte(byteBuffer)));
@@ -92,11 +95,16 @@ public class FbxReader {
 			element.propertiesTypes[i] = dataType;
 		}
 		if(byteBuffer.position() < endOffset) {
-			while(byteBuffer.position() < (endOffset - BLOCK_SENTINEL_LENGTH))
-				element.children.add(readFBXElement(byteBuffer));
+			while(byteBuffer.position() < (endOffset - (file.version >= NEW_FORMAT ? BLOCK_SENTINEL_LENGTH2 : BLOCK_SENTINEL_LENGTH)))
+				element.children.add(readFBXElement(byteBuffer, file));
 			
-			if(!Arrays.equals(BLOCK_SENTINEL_DATA, getBytes(byteBuffer, BLOCK_SENTINEL_LENGTH)))
-				throw new IOException("Failed to read block sentinel, expected 13 zero bytes");
+			if(file.version >= NEW_FORMAT) {
+				if(!Arrays.equals(BLOCK_SENTINEL_DATA2, getBytes(byteBuffer, BLOCK_SENTINEL_LENGTH2)))
+					throw new IOException("Failed to read block sentinel, expected 25 zero bytes");
+			} else {
+				if(!Arrays.equals(BLOCK_SENTINEL_DATA, getBytes(byteBuffer, BLOCK_SENTINEL_LENGTH)))
+					throw new IOException("Failed to read block sentinel, expected 13 zero bytes");
+			}
 		}
 		if(byteBuffer.position() != endOffset)
 			throw new IOException("Data length not equal to expected");
@@ -203,6 +211,15 @@ public class FbxReader {
 		return byteBuffer.getInt() & 0x00000000ffffffffL;
 	}
 	
+	/**
+	 * Not really UNSIGNED
+	 * @param byteBuffer
+	 * @return
+	 */
+	private static long getULong(ByteBuffer byteBuffer) {
+		return byteBuffer.getLong();
+	}
+	
 	private static int getUByte(ByteBuffer byteBuffer) {
 		return byteBuffer.get() & 0xFF;
 	}
@@ -215,13 +232,18 @@ public class FbxReader {
 	
 	private static ByteBuffer readToByteBuffer(InputStream input) throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(2048);
+		
 		byte[] tmp = new byte[2048];
+		
 		while(true) {
 			int r = input.read(tmp);
 			if(r == -1)
 				break;
+			
 			out.write(tmp, 0, r);
 		}
-		return ByteBuffer.wrap(out.toByteArray()).order(ByteOrder.LITTLE_ENDIAN);
+		
+		ByteBuffer bb = ByteBuffer.wrap(out.toByteArray());
+		return bb.order(ByteOrder.LITTLE_ENDIAN);
 	}
 }
