@@ -33,7 +33,6 @@ package com.jme3.scene.plugins.fbx;
 
 import com.jme3.asset.TextureKey;
 import com.jme3.asset.cache.AssetCache;
-import com.jme3.asset.cache.WeakRefCloneAssetCache;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;

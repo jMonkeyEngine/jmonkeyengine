@@ -1,48 +1,50 @@
 package com.jme3.scene.plugins.fbx.objects;
 
-import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.jme3.asset.AssetLoadException;
+import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.plugins.fbx.FBXLoadingException;
 import com.jme3.scene.plugins.fbx.SceneLoader;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.Node;
 import com.jme3.util.BufferUtils;
-import com.jme3.util.IntMap;
-import com.jme3.util.IntMap.Entry;
 
 public class FbxMesh extends FbxObject {
 	
 	public double[] vertices;
 	public int[] indices;
 	public int[] edges;
-	public String normalsMapping;
-	public String normalsReference;
+	public String normalsMapping = "";
+	public String normalsReference = "";
 	public double[] normals;
-	public String tangentsMapping;
-	public String tangentsReference;
+	public String tangentsMapping = "";
+	public String tangentsReference = "";
 	public double[] tangents;
-	public String binormalsMapping;
-	public String binormalsReference;
+	public String binormalsMapping = "";
+	public String binormalsReference = "";
 	public double[] binormals;
-	public String uvMapping;
-	public String uvReference;
+	public String uvMapping = "";
+	public String uvReference = "";
 	public double[] uv;
 	public int[] uvIndex;
-	public List<int[]> uvIndexes = new ArrayList<>();
-	public List<double[]> uvs = new ArrayList<>();
-	public String smoothingMapping;
-	public String smoothingReference;
+	public List<int[]> uvIndexes = new ArrayList<int[]>();
+	public List<double[]> uvs = new ArrayList<double[]>();
+	public String smoothingMapping = "";
+	public String smoothingReference = "";
 	public int[] smoothing;
-	public String materialsMapping;
-	public String materialsReference;
+	public String materialsMapping = "";
+	public String materialsReference = "";
 	public int[] materials;
 	// Build helping data
 	public int iCount;
@@ -56,7 +58,7 @@ public class FbxMesh extends FbxObject {
 	public FbxNode parent;
 	public int lastMaterialId = 0;
 	
-	public FbxMesh(SceneLoader scene, FbxElement element) throws IOException {
+	public FbxMesh(SceneLoader scene, FbxElement element) {
 		super(scene, element);
 		if(type.equals("Mesh")) {
 			data: for(FbxElement e : element.children) {
@@ -228,6 +230,8 @@ public class FbxMesh extends FbxObject {
 	}
 	
 	public void setParent(Node node) {
+		if(geometries == null)
+			return;
 		for(int i = 0; i < geometries.size(); ++i) {
 			Geometry geom = geometries.get(i);
 			geom.setName(node.getName() + (i > 0 ? "-" + i : ""));
@@ -242,6 +246,8 @@ public class FbxMesh extends FbxObject {
 	}
 	
 	public void clearMaterials() {
+		if(geometries == null)
+			return;
 		for(Geometry g : geometries) {
 			if(g.getUserData("FBXMaterial") != null)
 				g.setUserData("FBXMaterial", null);
@@ -256,7 +262,7 @@ public class FbxMesh extends FbxObject {
 		}
 	}
 	
-	private List<Geometry> createGeometries() throws IOException {
+	private List<Geometry> createGeometries() {
 		Mesh mesh = new Mesh();
 		mesh.setMode(Mode.Triangles);
 		// Since each vertex should contain unique texcoord and normal we should unroll vertex indexing
@@ -285,8 +291,8 @@ public class FbxMesh extends FbxObject {
 				}
 			}
 			// Unroll index array into vertex mapping
-			vertexMap = new ArrayList<>(vCount);
-			indexMap = new ArrayList<>(vCount);
+			vertexMap = new ArrayList<Integer>(vCount);
+			indexMap = new ArrayList<Integer>(vCount);
 			polyVertCount = 0;
 			for(int i = 0; i < iCount; ++i) {
 				int index = indices[i];
@@ -318,7 +324,7 @@ public class FbxMesh extends FbxObject {
 				}
 			}
 			// Build reverse vertex mapping
-			reverseVertexMap = new ArrayList<>(srcVertexCount);
+			reverseVertexMap = new ArrayList<List<Integer>>(srcVertexCount);
 			for(int i = 0; i < srcVertexCount; ++i)
 				reverseVertexMap.add(new ArrayList<Integer>());
 			for(int i = 0; i < vCount; ++i) {
@@ -328,15 +334,15 @@ public class FbxMesh extends FbxObject {
 		} else {
 			// Stub for no vertex indexing (direct mapping)
 			iCount = vCount = srcVertexCount;
-			vertexMap = new ArrayList<>(vCount);
-			indexMap = new ArrayList<>(vCount);
-			reverseVertexMap = new ArrayList<>(vCount);
+			vertexMap = new ArrayList<Integer>(vCount);
+			indexMap = new ArrayList<Integer>(vCount);
+			reverseVertexMap = new ArrayList<List<Integer>>(vCount);
 			for(int i = 0; i < vCount; ++i) {
 				vertexMap.set(i, i);
 				indexMap.set(i, i);
-				List<Integer> l = new ArrayList<Integer>(1);
-				l.add(i);
-				reverseVertexMap.add(l);
+				ArrayList<Integer> list = new ArrayList<Integer>();
+				list.add(i);
+				reverseVertexMap.add(list);
 			}
 		}
 		if(vertices != null) {
@@ -364,7 +370,7 @@ public class FbxMesh extends FbxObject {
 			else if(normalsMapping.equals("ByPolygonVertex"))
 				mapping = indexMap;
 			else
-				throw new IOException("Unknown normals mapping type: " + normalsMapping);
+				throw new FBXLoadingException("Unknown normals mapping type: " + normalsMapping);
 			int srcCount = normals.length / 3;
 			for(int i = 0; i < vCount; ++i) {
 				int index = mapping.get(i);
@@ -386,7 +392,7 @@ public class FbxMesh extends FbxObject {
 			else if(tangentsMapping.equals("ByPolygonVertex"))
 				mapping = indexMap;
 			else
-				throw new IOException("Unknown tangents mapping type: " + tangentsMapping);
+				throw new FBXLoadingException("Unknown tangents mapping type: " + tangentsMapping);
 			int srcCount = tangents.length / 3;
 			for(int i = 0; i < vCount; ++i) {
 				int index = mapping.get(i);
@@ -408,7 +414,7 @@ public class FbxMesh extends FbxObject {
 			else if(binormalsMapping.equals("ByPolygonVertex"))
 				mapping = indexMap;
 			else
-				throw new IOException("Unknown binormals mapping type: " + binormalsMapping);
+				throw new FBXLoadingException("Unknown binormals mapping type: " + binormalsMapping);
 			int srcCount = binormals.length / 3;
 			for(int i = 0; i < vCount; ++i) {
 				int index = mapping.get(i);
@@ -429,7 +435,7 @@ public class FbxMesh extends FbxObject {
 				if(uvIndexSrcCount != iCount)
 					throw new AssetLoadException("Invalid number of texcoord index data " + uvIndexSrcCount + " expected " + iCount);
 				// Unroll UV index array
-				unIndexMap = new ArrayList<>(vCount);
+				unIndexMap = new ArrayList<Integer>(vCount);
 				int polyVertCount = 0;
 				for(int i = 0; i < iCount; ++i) {
 					int index = indices[i];
@@ -490,29 +496,33 @@ public class FbxMesh extends FbxObject {
 		}
 		List<Geometry> geometries = new ArrayList<Geometry>();
 		if(materialsReference.equals("IndexToDirect") && materialsMapping.equals("ByPolygon")) {
-			IntMap<List<Integer>> indexBuffers = new IntMap<>();
+			Map<Integer,List<Integer>> indexBuffers = new HashMap<Integer,List<Integer>>();
 			for(int polygon = 0; polygon < materials.length; ++polygon) {
 				int material = materials[polygon];
 				List<Integer> list = indexBuffers.get(material);
 				if(list == null) {
-					list = new ArrayList<>();
+					list = new ArrayList<Integer>();
 					indexBuffers.put(material, list);
 				}
 				list.add(polygon * 3 + 0);
 				list.add(polygon * 3 + 1);
 				list.add(polygon * 3 + 2);
 			}
-			Iterator<Entry<List<Integer>>> iterator = indexBuffers.iterator();
+			Iterator<Entry<Integer,List<Integer>>> iterator = indexBuffers.entrySet().iterator();
 			while(iterator.hasNext()) {
-				Entry<List<Integer>> e = iterator.next();
+				Entry<Integer,List<Integer>> e = iterator.next();
 				int materialId = e.getKey();
 				List<Integer> indexes = e.getValue();
 				Mesh newMesh = mesh.clone();
-				newMesh.setBuffer(VertexBuffer.Type.Index, 3, toArray(indexes.toArray(new Integer[indexes.size()])));
+				int[] array = new int[indexes.size()];
+				for(int i = 0; i < indexes.size(); ++i)
+					array[i] = indexes.get(i);
+				newMesh.setBuffer(VertexBuffer.Type.Index, 3, array);
 				newMesh.setStatic();
 				newMesh.updateBound();
 				newMesh.updateCounts();
 				Geometry geom = new Geometry();
+				setupEmptyMaterial(geom);
 				geom.setMesh(newMesh);
 				geometries.add(geom);
 				geom.setUserData("FBXMaterial", materialId);
@@ -522,16 +532,14 @@ public class FbxMesh extends FbxObject {
 			mesh.updateBound();
 			mesh.updateCounts();
 			Geometry geom = new Geometry();
+			setupEmptyMaterial(geom);
 			geom.setMesh(mesh);
 			geometries.add(geom);
 		}
 		return geometries;
 	}
 	
-	private static int[] toArray(Integer[] arr) {
-		int[] ret = new int[arr.length];
-		for(int i = 0; i < arr.length; ++i)
-			ret[i] = arr[i].intValue();
-		return ret;
+	protected void setupEmptyMaterial(Geometry g) {
+		g.setMaterial(new Material(scene.assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
 	}
 }

@@ -68,19 +68,26 @@ public class FbxAnimNode extends FbxObject {
 	public void exportTimes(Collection<Long> stamps) {
 		if(xCurve != null)
 			for(long t : xCurve.keyTimes)
-				stamps.add(t);
+				if(t != 0)
+					stamps.add(t);
 		if(yCurve != null)
 			for(long t : yCurve.keyTimes)
-				stamps.add(t);
+				if(t != 0)
+					stamps.add(t);
 		if(zCurve != null)
 			for(long t : zCurve.keyTimes)
-				stamps.add(t);
+				if(t != 0)
+					stamps.add(t);
+	}
+	
+	public boolean hasValue(long time) {
+		return xCurve.hasValue(time) || yCurve.hasValue(time) || zCurve.hasValue(time);
 	}
 	
 	public Vector3f getValue(long time, Vector3f defaultValue) {
-		float xValue = (xCurve != null) ? xCurve.getValue(time) : defaultValue.x;
-		float yValue = (yCurve != null) ? yCurve.getValue(time) : defaultValue.y;
-		float zValue = (zCurve != null) ? zCurve.getValue(time) : defaultValue.z;
+		float xValue = (xCurve != null) ? xCurve.getValue(time, defaultValue.x) : defaultValue.x;
+		float yValue = (yCurve != null) ? yCurve.getValue(time, defaultValue.y) : defaultValue.y;
+		float zValue = (zCurve != null) ? zCurve.getValue(time, defaultValue.z) : defaultValue.z;
 		return new Vector3f(xValue, yValue, zValue);
 	}
 }
