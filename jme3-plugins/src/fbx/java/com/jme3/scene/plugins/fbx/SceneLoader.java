@@ -467,7 +467,6 @@ public class SceneLoader implements AssetLoader {
 							scales[i] = tvec;
 						}
 					}
-					haveScale = false;
 					// We need to transform animation from parent-space transforms to bone-space transforms
 					// JME uses bone-space transforms and FBx uses parent-space transforms
 					Transform transformBase = limb.localTransform;
