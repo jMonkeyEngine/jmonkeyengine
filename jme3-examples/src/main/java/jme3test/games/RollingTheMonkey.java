@@ -59,8 +59,6 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.DirectionalLightShadowFilter;
-import com.jme3.system.AppSettings;
-import com.jme3.util.TempVars;
 import java.util.concurrent.Callable;
 
 /**
@@ -97,14 +95,7 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
     private static final String INPUT_MAPPING_RESET     = "INPUT_MAPPING_RESET";
     
     public static void main(String[] args) {
-        AppSettings settings = new AppSettings(true);
-        settings.setTitle(TITLE);
-        settings.setResolution(1440, 810);
-        settings.setFullscreen(false);
-        
         RollingTheMonkey app = new RollingTheMonkey();
-        app.setShowSettings(false);
-        app.setSettings(settings);
         app.start();
     }
     
