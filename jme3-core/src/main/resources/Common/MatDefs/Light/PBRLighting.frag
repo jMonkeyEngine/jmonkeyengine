@@ -1,3 +1,5 @@
+#extension GL_NV_shadow_samplers_cube : enable
+
 #import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/PBR.glsllib"
 #import "Common/ShaderLib/Parallax.glsllib"
