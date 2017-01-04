@@ -328,9 +328,7 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
             pickUp.rotate(pickUpSpeed, pickUpSpeed, pickUpSpeed);
         }
         
-        TempVars tempVars = TempVars.get();
-        
-        Vector3f centralForce = tempVars.vect1.set(Vector3f.ZERO);
+        Vector3f centralForce = new Vector3f();
         
         if(keyForward) centralForce.addLocal(cam.getDirection());
         if(keyBackward) centralForce.addLocal(cam.getDirection().negate());
@@ -344,7 +342,6 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
 
             player.applyCentralForce(centralForce); // apply force to player
         }
-        tempVars.release();
         
         cam.lookAt(player.getPhysicsLocation(), Vector3f.UNIT_Y);
     }
