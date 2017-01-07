@@ -1,4 +1,4 @@
-#if __VERSION__ >= 150
+#if __VERSION__ <= 120
     #extension GL_NV_shadow_samplers_cube : enable
 #endif
 

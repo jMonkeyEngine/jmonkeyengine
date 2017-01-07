@@ -33,3 +33,7 @@ out vec4 outFragColor;
 #    define gl_FragColor outFragColor
 #  endif
 #endif
+
+#if __VERSION__ >= 120
+#  define textureCube texture
+#endif
