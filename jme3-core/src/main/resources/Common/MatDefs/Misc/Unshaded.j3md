@@ -56,8 +56,8 @@ MaterialDef Unshaded {
     }
 
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL150: Common/MatDefs/Misc/Unshaded.frag
+        VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL100: Common/MatDefs/Misc/Unshaded.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -78,8 +78,8 @@ MaterialDef Unshaded {
     }
 
     Technique {
-        VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL100: Common/MatDefs/Misc/Unshaded.frag
+        VertexShader GLSL150:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL150: Common/MatDefs/Misc/Unshaded.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

@@ -1,7 +1,3 @@
-#if __VERSION__ <= 120
-    #extension GL_NV_shadow_samplers_cube : enable
-#endif
-
 #import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/PBR.glsllib"
 #import "Common/ShaderLib/Parallax.glsllib"

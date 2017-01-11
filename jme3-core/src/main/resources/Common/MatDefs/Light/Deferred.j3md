@@ -34,30 +34,6 @@ MaterialDef Phong Lighting Deferred {
     Technique {
         LightMode MultiPass
 
-        VertexShader GLSL150:   Common/MatDefs/Light/Deferred.vert
-        FragmentShader GLSL150: Common/MatDefs/Light/Deferred.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            WorldViewMatrix
-            ViewMatrix
-            CameraPosition
-        }
-
-        Defines {
-            ATTENUATION : Attenuation
-            V_TANGENT : VTangent
-            MINNAERT  : Minnaert
-            WARDISO   : WardIso
-            LOW_QUALITY : LowQuality
-            HQ_ATTENUATION : HighQuality
-            COLORRAMP : ColorRamp
-        }
-    }
-
-    Technique {
-        LightMode MultiPass
-
         VertexShader GLSL100:   Common/MatDefs/Light/Deferred.vert
         FragmentShader GLSL100: Common/MatDefs/Light/Deferred.frag
 
@@ -80,6 +56,26 @@ MaterialDef Phong Lighting Deferred {
     }
 
     Technique {
-    }
+        LightMode MultiPass
 
+        VertexShader GLSL150:   Common/MatDefs/Light/Deferred.vert
+        FragmentShader GLSL150: Common/MatDefs/Light/Deferred.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            ViewMatrix
+            CameraPosition
+        }
+
+        Defines {
+            ATTENUATION : Attenuation
+            V_TANGENT : VTangent
+            MINNAERT  : Minnaert
+            WARDISO   : WardIso
+            LOW_QUALITY : LowQuality
+            HQ_ATTENUATION : HighQuality
+            COLORRAMP : ColorRamp
+        }
+    }
 }
