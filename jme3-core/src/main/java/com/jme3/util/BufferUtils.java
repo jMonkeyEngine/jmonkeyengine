@@ -31,6 +31,12 @@
  */
 package com.jme3.util;
 
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
+
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.Reference;
@@ -45,12 +51,6 @@ import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
-import com.jme3.math.Vector4f;
-
 /**
  * <code>BufferUtils</code> is a helper class for generating nio buffers from
  * jME data classes such as Vectors and ColorRGBA.
@@ -59,34 +59,16 @@ import com.jme3.math.Vector4f;
  * @version $Id: BufferUtils.java,v 1.16 2007/10/29 16:56:18 nca Exp $
  */
 public final class BufferUtils {
-    private static BufferAllocator allocator = new PrimitiveAllocator();
+
+    /**
+     * The field should be final to support thread-safe.
+     */
+    private static final BufferAllocator allocator = BufferAllocatorFactory.create();
 
     private static boolean trackDirectMemory = false;
     private static ReferenceQueue<Buffer> removeCollected = new ReferenceQueue<Buffer>();
     private static ConcurrentHashMap<BufferInfo, BufferInfo> trackedBuffers = new ConcurrentHashMap<BufferInfo, BufferInfo>();
     static ClearReferences cleanupthread;
-
-    private static boolean used;
-
-    static {
-        try {
-            allocator = new ReflectionAllocator();
-        } catch (Throwable t) {
-            t.printStackTrace();
-            System.err.println("Error using ReflectionAllocator");
-        }
-    }
-
-    /**
-     * Warning! do only set this before JME is started!
-     */
-    public static void setAllocator(BufferAllocator allocator) {
-        if (used) {
-            throw new IllegalStateException(
-                    "An Buffer was already allocated, since it is quite likely that other dispose methods will create native dangling pointers or other fun things, this is forbidden to be changed at runtime");
-        }
-        BufferUtils.allocator = allocator;
-    }
 
     /**
      * Set it to true if you want to enable direct memory tracking for debugging
@@ -124,7 +106,7 @@ public final class BufferUtils {
     }
 
     private static void onBufferAllocated(Buffer buffer) {
-        used = true;
+
         if (BufferUtils.trackDirectMemory) {
             if (BufferUtils.cleanupthread == null) {
                 BufferUtils.cleanupthread = new ClearReferences();
