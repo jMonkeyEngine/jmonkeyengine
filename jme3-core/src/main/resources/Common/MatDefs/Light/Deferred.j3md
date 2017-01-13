@@ -34,8 +34,8 @@ MaterialDef Phong Lighting Deferred {
     Technique {
         LightMode MultiPass
 
-        VertexShader GLSL100:   Common/MatDefs/Light/Deferred.vert
-        FragmentShader GLSL100: Common/MatDefs/Light/Deferred.frag
+        VertexShader GLSL150:   Common/MatDefs/Light/Deferred.vert
+        FragmentShader GLSL150: Common/MatDefs/Light/Deferred.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -58,8 +58,8 @@ MaterialDef Phong Lighting Deferred {
     Technique {
         LightMode MultiPass
 
-        VertexShader GLSL150:   Common/MatDefs/Light/Deferred.vert
-        FragmentShader GLSL150: Common/MatDefs/Light/Deferred.frag
+        VertexShader GLSL100:   Common/MatDefs/Light/Deferred.vert
+        FragmentShader GLSL100: Common/MatDefs/Light/Deferred.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

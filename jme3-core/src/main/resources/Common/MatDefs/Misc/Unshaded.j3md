@@ -56,28 +56,6 @@ MaterialDef Unshaded {
     }
 
     Technique {
-        VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL100: Common/MatDefs/Misc/Unshaded.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            ViewProjectionMatrix
-            ViewMatrix
-        }
-
-        Defines {
-            INSTANCING : UseInstancing
-            SEPARATE_TEXCOORD : SeparateTexCoord
-            HAS_COLORMAP : ColorMap
-            HAS_LIGHTMAP : LightMap
-            HAS_VERTEXCOLOR : VertexColor
-            HAS_COLOR : Color
-            NUM_BONES : NumberOfBones
-            DISCARD_ALPHA : AlphaDiscardThreshold
-        }
-    }
-
-    Technique {
         VertexShader GLSL150:   Common/MatDefs/Misc/Unshaded.vert
         FragmentShader GLSL150: Common/MatDefs/Misc/Unshaded.frag
 
@@ -99,24 +77,93 @@ MaterialDef Unshaded {
         }
     }
 
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL100: Common/MatDefs/Misc/Unshaded.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            INSTANCING : UseInstancing
+            SEPARATE_TEXCOORD : SeparateTexCoord
+            HAS_COLORMAP : ColorMap
+            HAS_LIGHTMAP : LightMap
+            HAS_VERTEXCOLOR : VertexColor
+            HAS_COLOR : Color
+            NUM_BONES : NumberOfBones
+            DISCARD_ALPHA : AlphaDiscardThreshold
+        }
+    }
+
     Technique PreNormalPass {
 
-          VertexShader GLSL100 :   Common/MatDefs/SSAO/normal.vert
-          FragmentShader GLSL100 : Common/MatDefs/SSAO/normal.frag
+        VertexShader GLSL150 :   Common/MatDefs/SSAO/normal.vert
+        FragmentShader GLSL150 : Common/MatDefs/SSAO/normal.frag
 
-          WorldParameters {
-              WorldViewProjectionMatrix
-              WorldViewMatrix
-              NormalMatrix
-              ViewProjectionMatrix
-              ViewMatrix
-          }
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            NormalMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
 
-          Defines {
-              NUM_BONES : NumberOfBones
-              INSTANCING : UseInstancing
-          }
+        Defines {
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+        }
    }
+
+    Technique PreNormalPass {
+
+        VertexShader GLSL100 :   Common/MatDefs/SSAO/normal.vert
+        FragmentShader GLSL100 : Common/MatDefs/SSAO/normal.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            NormalMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+        }
+   }
+
+    Technique PreShadow {
+
+        VertexShader GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            COLOR_MAP : ColorMap
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+        }
+
+        ForcedRenderState {
+            FaceCull Off
+            DepthTest On
+            DepthWrite On
+            PolyOffset 5 3
+            ColorWrite Off
+        }
+    }
 
     Technique PreShadow {
 
@@ -144,9 +191,7 @@ MaterialDef Unshaded {
             PolyOffset 5 3
             ColorWrite Off
         }
-
     }
-
 
     Technique PostShadow {
         VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
@@ -216,6 +261,26 @@ MaterialDef Unshaded {
 
     Technique Glow {
 
+        VertexShader GLSL150:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL150: Common/MatDefs/Light/Glow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            NEED_TEXCOORD1
+            HAS_GLOWMAP : GlowMap
+            HAS_GLOWCOLOR : GlowColor
+            NUM_BONES : NumberOfBones
+	        INSTANCING : UseInstancing
+        }
+    }
+
+    Technique Glow {
+
         VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
         FragmentShader GLSL100: Common/MatDefs/Light/Glow.frag
 
@@ -230,7 +295,7 @@ MaterialDef Unshaded {
             HAS_GLOWMAP : GlowMap
             HAS_GLOWCOLOR : GlowColor
             NUM_BONES : NumberOfBones
-	    INSTANCING : UseInstancing
+            INSTANCING : UseInstancing
         }
     }
 }
