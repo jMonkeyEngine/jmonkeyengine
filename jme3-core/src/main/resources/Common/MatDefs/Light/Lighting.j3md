@@ -281,6 +281,7 @@ MaterialDef Phong Lighting {
             POINTLIGHT : LightViewProjectionMatrix5
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            BACKFACE_SHADOWS: BackfaceShadows
         }
 
         ForcedRenderState {
