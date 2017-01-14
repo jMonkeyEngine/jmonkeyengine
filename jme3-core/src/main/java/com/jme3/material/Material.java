@@ -34,13 +34,21 @@ package com.jme3.material;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.CloneableSmartAsset;
-import com.jme3.export.*;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.material.TechniqueDef.LightMode;
 import com.jme3.material.TechniqueDef.ShadowMode;
-import com.jme3.math.*;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
@@ -57,7 +65,11 @@ import com.jme3.util.ListMap;
 import com.jme3.util.SafeArrayList;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -710,34 +722,57 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         // When choosing technique, we choose one that
         // supports all the caps.
         if (tech == null) {
-            EnumSet<Caps> rendererCaps = renderManager.getRenderer().getCaps();
-            List<TechniqueDef> techDefs = def.getTechniqueDefs(name);
+
+            final LightMode preferredLightMode = renderManager.getPreferredLightMode();
+            final EnumSet<Caps> rendererCaps = renderManager.getRenderer().getCaps();
+            final List<TechniqueDef> techDefs = def.getTechniqueDefs(name);
 
             if (techDefs == null || techDefs.isEmpty()) {
                 throw new IllegalArgumentException(
                         String.format("The requested technique %s is not available on material %s", name, def.getName()));
             }
 
+            final ThreadLocalTechDefList defList = ThreadLocalTechDefList.get();
+
+            // if we find the best option
+            TechniqueDef bestTechDef = null;
+            // if we don't find any supported tech
             TechniqueDef lastTech = null;
-            for (TechniqueDef techDef : techDefs) {
-                if (rendererCaps.containsAll(techDef.getRequiredCaps())) {
-                    // use the first one that supports all the caps
-                    tech = new Technique(this, techDef);
-                    techniques.put(name, tech);
-                    if (tech.getDef().getLightMode() == renderManager.getPreferredLightMode()
-                            || tech.getDef().getLightMode() == LightMode.Disable) {
-                        break;
-                    }
-                }
+
+            for (final TechniqueDef techDef : techDefs) {
                 lastTech = techDef;
+
+                if (!rendererCaps.containsAll(techDef.getRequiredCaps())) {
+                    continue;
+                }
+
+                defList.add(techDef);
+
+                final LightMode lightMode = techDef.getLightMode();
+
+                if (lightMode == preferredLightMode || lightMode == LightMode.Disable) {
+                    bestTechDef = techDef;
+                    break;
+                }
             }
+
+            // if we don't have the best option, we try to get the option
+            // with greatest GLSL from available list.
+            bestTechDef = bestTechDef == null ? defList.getWithGreatestGLSL() : bestTechDef;
+
+            if (bestTechDef != null) {
+                tech = new Technique(this, bestTechDef);
+                techniques.put(name, tech);
+            }
+
             if (tech == null) {
                 throw new UnsupportedOperationException(
                         String.format("No technique '%s' on material "
-                                + "'%s' is supported by the video hardware. "
-                                + "The capabilities %s are required.",
+                                        + "'%s' is supported by the video hardware. "
+                                        + "The capabilities %s are required.",
                                 name, def.getName(), lastTech.getRequiredCaps()));
             }
+
         } else if (technique == tech) {
             // attempting to switch to an already
             // active technique.
