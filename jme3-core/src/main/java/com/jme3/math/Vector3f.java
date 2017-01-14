@@ -416,7 +416,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * or false otherwise.
      */
     public boolean isUnitVector(){
-        float len = length();
+        float len = lengthSquared();
         return 0.99f < len && len < 1.01f;
     }
 
