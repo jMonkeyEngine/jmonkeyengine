@@ -18,6 +18,30 @@ MaterialDef Point Sprite {
 
     Technique {
 
+        VertexShader   GLSL150 : Common/MatDefs/Misc/Particle.vert
+        FragmentShader GLSL150 : Common/MatDefs/Misc/Particle.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            WorldMatrix
+            CameraPosition
+        }
+
+        RenderState {
+            Blend AlphaAdditive
+            DepthWrite Off
+            PointSprite On
+        }
+
+        Defines {
+            USE_TEXTURE : Texture
+            POINT_SPRITE : PointSprite
+        }
+    }
+
+    Technique {
+
         VertexShader   GLSL100 : Common/MatDefs/Misc/Particle.vert
         FragmentShader GLSL120 : Common/MatDefs/Misc/Particle.frag
 
@@ -72,6 +96,29 @@ MaterialDef Point Sprite {
 
     Technique PreShadow {
 
+        VertexShader   GLSL150 : Common/MatDefs/Misc/Particle.vert
+        FragmentShader GLSL150 : Common/MatDefs/Misc/Particle.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            WorldMatrix
+            CameraPosition
+        }
+
+        Defines {
+            USE_TEXTURE : Texture
+            PRE_SHADOW
+        }
+
+        ForcedRenderState {
+            DepthWrite On
+            ColorWrite Off
+        }
+    }
+
+    Technique PreShadow {
+
         VertexShader   GLSL100 : Common/MatDefs/Misc/Particle.vert
         FragmentShader GLSL100 : Common/MatDefs/Misc/Particle.frag
 
@@ -93,32 +140,10 @@ MaterialDef Point Sprite {
         }
     }
 
-    Technique SoftParticles{
+    Technique SoftParticles {
 
-        VertexShader   GLSL100 : Common/MatDefs/Misc/SoftParticle.vert
-        FragmentShader GLSL100 : Common/MatDefs/Misc/SoftParticle.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            WorldViewMatrix
-            WorldMatrix
-            CameraPosition
-        }
-
-        RenderState {
-            Blend AlphaAdditive
-            DepthWrite Off
-        }
-
-        Defines {
-            USE_TEXTURE : Texture
-        }
-    }
-
-    Technique SoftParticles15{
-
-        VertexShader   GLSL100 : Common/MatDefs/Misc/SoftParticle.vert
-        FragmentShader GLSL150 : Common/MatDefs/Misc/SoftParticle15.frag
+        VertexShader   GLSL150 : Common/MatDefs/Misc/SoftParticle.vert
+        FragmentShader GLSL150 : Common/MatDefs/Misc/SoftParticle.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -140,6 +165,31 @@ MaterialDef Point Sprite {
         }
     }
 
+    Technique SoftParticles {
+
+        VertexShader   GLSL100 : Common/MatDefs/Misc/SoftParticle.vert
+        FragmentShader GLSL100 : Common/MatDefs/Misc/SoftParticle.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            WorldMatrix
+            CameraPosition
+        }
+
+        RenderState {
+            Blend AlphaAdditive
+            DepthWrite Off
+            PointSprite On
+        }
+
+        Defines {
+            USE_TEXTURE : Texture
+            POINT_SPRITE : PointSprite
+            RESOLVE_DEPTH_MS : NumSamplesDepth
+        }
+    }
+
     Technique {
         RenderState {
             Blend AlphaAdditive
@@ -148,7 +198,29 @@ MaterialDef Point Sprite {
         }
     }
 
-   Technique Glow {
+    Technique Glow {
+
+        VertexShader GLSL150:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL150: Common/MatDefs/Light/Glow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+
+        Defines {
+            NEED_TEXCOORD1
+            HAS_GLOWMAP : GlowMap
+            HAS_GLOWCOLOR : GlowColor
+        }
+
+        RenderState {
+            PointSprite On
+            Blend AlphaAdditive
+            DepthWrite Off
+        }
+    }
+
+    Technique Glow {
 
         VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
         FragmentShader GLSL100: Common/MatDefs/Light/Glow.frag

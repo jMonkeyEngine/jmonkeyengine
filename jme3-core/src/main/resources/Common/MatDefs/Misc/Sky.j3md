@@ -6,6 +6,26 @@ MaterialDef Sky Plane {
         Vector3 NormalScale
     }
     Technique {
+        VertexShader GLSL150:   Common/MatDefs/Misc/Sky.vert
+        FragmentShader GLSL150: Common/MatDefs/Misc/Sky.frag
+
+        WorldParameters {
+            ViewMatrix
+            ProjectionMatrix
+            WorldMatrix
+        }
+
+        Defines {
+            SPHERE_MAP : SphereMap
+        EQUIRECT_MAP : EquirectMap
+        }
+
+        RenderState {
+            DepthWrite Off
+            DepthFunc Equal
+        }
+    }
+    Technique {
         VertexShader GLSL100:   Common/MatDefs/Misc/Sky.vert
         FragmentShader GLSL100: Common/MatDefs/Misc/Sky.frag
 

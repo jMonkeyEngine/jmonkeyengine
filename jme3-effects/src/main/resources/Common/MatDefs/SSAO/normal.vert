@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/Instancing.glsllib"
 #import "Common/ShaderLib/Skinning.glsllib"
 // These are included in the above now
@@ -11,8 +12,7 @@ attribute vec4 inTexCoord;
 varying vec3 normal;
 varying vec2 texCoord;
 
-void main(void)
-{
+void main(void) {
    texCoord=inTexCoord.xy;
    vec4 modelSpacePos = vec4(inPosition, 1.0);
    vec3 modelSpaceNormals = inNormal;

@@ -106,11 +106,11 @@ MaterialDef PBR Lighting {
         Boolean UseVertexColor
     }
 
- Technique {
+    Technique {
         LightMode SinglePassAndImageBased
-        
-        VertexShader GLSL110:   Common/MatDefs/Light/PBRLighting.vert
-        FragmentShader GLSL110: Common/MatDefs/Light/PBRLighting.frag
+
+        VertexShader GLSL150:   Common/MatDefs/Light/PBRLighting.vert
+        FragmentShader GLSL150: Common/MatDefs/Light/PBRLighting.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -118,8 +118,8 @@ MaterialDef PBR Lighting {
             WorldMatrix
         }
 
-        Defines {         
-            BASECOLORMAP : BaseColorMap            
+        Defines {
+            BASECOLORMAP : BaseColorMap
             NORMALMAP : NormalMap
             METALLICMAP : MetallicMap
             ROUGHNESSMAP : RoughnessMap
@@ -131,15 +131,73 @@ MaterialDef PBR Lighting {
             STEEP_PARALLAX : SteepParallax
             LIGHTMAP : LightMap
             SEPARATE_TEXCOORD : SeparateTexCoord
-            DISCARD_ALPHA : AlphaDiscardThreshold                        
-            NUM_BONES : NumberOfBones                        
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
             //INDIRECT_LIGHTING : IntegrateBRDF
             VERTEX_COLOR : UseVertexColor
         }
     }
 
-   
+    Technique {
+        LightMode SinglePassAndImageBased
+
+        VertexShader GLSL110:   Common/MatDefs/Light/PBRLighting.vert
+        FragmentShader GLSL110: Common/MatDefs/Light/PBRLighting.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            CameraPosition
+            WorldMatrix
+        }
+
+        Defines {
+            BASECOLORMAP : BaseColorMap
+            NORMALMAP : NormalMap
+            METALLICMAP : MetallicMap
+            ROUGHNESSMAP : RoughnessMap
+            EMISSIVEMAP : EmissiveMap
+            EMISSIVE : Emissive
+            SPECGLOSSPIPELINE : SpecularMap
+            PARALLAXMAP : ParallaxMap
+            NORMALMAP_PARALLAX : PackedNormalParallax
+            STEEP_PARALLAX : SteepParallax
+            LIGHTMAP : LightMap
+            SEPARATE_TEXCOORD : SeparateTexCoord
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+            //INDIRECT_LIGHTING : IntegrateBRDF
+            VERTEX_COLOR : UseVertexColor
+        }
+    }
+
+    Technique PreShadow {
+
+        VertexShader GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+        }
+
+        ForcedRenderState {
+            FaceCull Off
+            DepthTest On
+            DepthWrite On
+            PolyOffset 5 3
+            ColorWrite Off
+        }
+    }
 
     Technique PreShadow {
 
@@ -166,11 +224,9 @@ MaterialDef PBR Lighting {
             PolyOffset 5 3
             ColorWrite Off
         }
-
     }
 
-
-    Technique PostShadow15{
+    Technique PostShadow {
         VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
         FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow.frag
 
@@ -202,7 +258,7 @@ MaterialDef PBR Lighting {
         }
     }
 
-    Technique PostShadow{
+    Technique PostShadow {
         VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
         FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadow.frag
 
@@ -233,7 +289,27 @@ MaterialDef PBR Lighting {
         }
     }
 
-  Technique PreNormalPass {
+    Technique PreNormalPass {
+
+        VertexShader GLSL150 :   Common/MatDefs/SSAO/normal.vert
+        FragmentShader GLSL150 : Common/MatDefs/SSAO/normal.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            NormalMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+        }
+
+    }
+
+    Technique PreNormalPass {
 
         VertexShader GLSL100 :   Common/MatDefs/SSAO/normal.vert
         FragmentShader GLSL100 : Common/MatDefs/SSAO/normal.frag
@@ -250,7 +326,26 @@ MaterialDef PBR Lighting {
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
         }
+    }
 
+    Technique GBuf {
+
+        VertexShader GLSL150:   Common/MatDefs/Light/GBuf.vert
+        FragmentShader GLSL150: Common/MatDefs/Light/GBuf.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            NormalMatrix
+            WorldViewMatrix
+            WorldMatrix
+        }
+
+        Defines {
+            VERTEX_COLOR : UseVertexColor
+            NORMALMAP : NormalMap
+            SPECULARMAP : SpecularMap
+            PARALLAXMAP : ParallaxMap
+        }
     }
 
     Technique GBuf {
@@ -272,5 +367,4 @@ MaterialDef PBR Lighting {
             PARALLAXMAP : ParallaxMap
         }
     }
-
 }

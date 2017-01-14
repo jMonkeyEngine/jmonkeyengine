@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 /*
 GLSL conversion of Michael Horsch water demo
 http://www.bonzaisoftware.com/wfs.html

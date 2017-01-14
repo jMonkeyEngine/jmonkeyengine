@@ -1,10 +1,10 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 
 #if defined(NEED_TEXCOORD1) 
     varying vec2 texCoord1;
 #else 
     varying vec2 texCoord;
 #endif
-
 
 #ifdef HAS_GLOWMAP
   uniform sampler2D m_GlowMap;
@@ -13,7 +13,6 @@
 #ifdef HAS_GLOWCOLOR
   uniform vec4 m_GlowColor;
 #endif
-
 
 void main(){
     #ifdef HAS_GLOWMAP

@@ -1,3 +1,5 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+
 uniform mat4 g_ViewMatrix;
 uniform mat4 g_ProjectionMatrix;
 uniform mat4 g_WorldMatrix;
@@ -9,7 +11,7 @@ attribute vec3 inNormal;
 
 varying vec3 direction;
 
-void main(){
+void main() {
     // set w coordinate to 0
     vec4 pos = vec4(inPosition, 0.0);
 

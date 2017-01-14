@@ -1,3 +1,5 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+
 #define ATTENUATION
 //#define HQ_ATTENUATION
 
@@ -21,7 +23,7 @@ uniform mat4 m_ViewProjectionMatrixInverse;
   uniform sampler2D m_ColorRamp;
 #endif
 
-float lightComputeDiffuse(in vec3 norm, in vec3 lightdir, in vec3 viewdir){
+float lightComputeDiffuse(in vec3 norm, in vec3 lightdir, in vec3 viewdir) {
     #ifdef MINNAERT
         float NdotL = max(0.0, dot(norm, lightdir));
         float NdotV = max(0.0, dot(norm, viewdir));
@@ -31,7 +33,7 @@ float lightComputeDiffuse(in vec3 norm, in vec3 lightdir, in vec3 viewdir){
     #endif
 }
 
-float lightComputeSpecular(in vec3 norm, in vec3 viewdir, in vec3 lightdir, in float shiny){
+float lightComputeSpecular(in vec3 norm, in vec3 viewdir, in vec3 lightdir, in float shiny) {
 //#ifdef LOW_QUALITY
        // Blinn-Phong
        // Note: preferably, H should be computed in the vertex shader
@@ -61,7 +63,7 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec4 w
    return vec2(diffuseFactor, specularFactor) * vec2(wvLightDir.w);
 }
 
-vec3 decodeNormal(in vec4 enc){
+vec3 decodeNormal(in vec4 enc) {
     vec4 nn = enc * vec4(2.0,2.0,0.0,0.0) + vec4(-1.0,-1.0,1.0,-1.0);
     float l = dot(nn.xyz, -nn.xyw);
     nn.z = l;
@@ -69,7 +71,7 @@ vec3 decodeNormal(in vec4 enc){
     return nn.xyz * vec3(2.0) + vec3(0.0,0.0,-1.0);
 }
 
-vec3 getPosition(in vec2 newTexCoord){
+vec3 getPosition(in vec2 newTexCoord) {
   //Reconstruction from depth
   float depth = texture2D(m_DepthData, newTexCoord).r;
   //if (depth == 1.0)
@@ -118,7 +120,7 @@ void lightComputeDir(in vec3 worldPos, in vec4 color, in vec4 position, out vec4
 */
 }
 
-void main(){
+void main() {
     vec2 newTexCoord = texCoord;
     vec4 diffuseColor = texture2D(m_DiffuseData,  newTexCoord);
     if (diffuseColor.a == 0.0)

@@ -1,5 +1,11 @@
+#if __VERSION__ <= 120
+    #extension GL_NV_shadow_samplers_cube : enable
+#endif
+
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/Parallax.glsllib"
 #import "Common/ShaderLib/Optics.glsllib"
+
 #ifndef VERTEX_LIGHTING
     #import "Common/ShaderLib/BlinnPhongLighting.glsllib"
     #import "Common/ShaderLib/Lighting.glsllib"
