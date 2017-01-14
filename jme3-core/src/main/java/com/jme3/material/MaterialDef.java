@@ -55,7 +55,6 @@ public class MaterialDef{
 
     private Map<String, List<TechniqueDef>> techniques;
     private Map<String, MatParam> matParams;
-    private TechDefComparator comparator = new TechDefComparator();
 
     /**
      * Serialization only. Do not use.
@@ -188,17 +187,6 @@ public class MaterialDef{
         return techniques.get(name);
     }
 
-    public List<TechniqueDef> getSortedTechniqueDefs(String name, RenderManager rm) {
-        List<TechniqueDef> techDefs = getTechniqueDefs(name);
-        if (techDefs == null) {
-            return null;
-        }
-        //Sorting the techdef depending on their weight (depending on their glsl version) and on the preferred light mode)
-        comparator.rm = rm;
-        Collections.sort(techDefs, comparator);
-        return techDefs;
-    }
-
     /**
      *
      * @return the list of all the technique definitions names.
@@ -206,18 +194,5 @@ public class MaterialDef{
     public Collection<String> getTechniqueDefsNames(){
         return techniques.keySet();
     }
-
-    public static class TechDefComparator implements Comparator<TechniqueDef> {
-
-        RenderManager rm;
-
-        @Override
-        public int compare(TechniqueDef o1, TechniqueDef o2) {
-            float o1Weight = o1.getWeight() + (o1.getLightMode() == rm.getPreferredLightMode() ? 10f : 0);
-            float o2Weight = o2.getWeight() + (o2.getLightMode() == rm.getPreferredLightMode() ? 10f : 0);
-            return (int) Math.signum(o2Weight - o1Weight);
-        }
-    }
-
 
 }

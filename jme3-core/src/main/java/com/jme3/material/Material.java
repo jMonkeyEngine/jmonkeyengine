@@ -711,19 +711,22 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         // supports all the caps.
         if (tech == null) {
             EnumSet<Caps> rendererCaps = renderManager.getRenderer().getCaps();
-            List<TechniqueDef> techDefs = def.getSortedTechniqueDefs(name, renderManager);
+            List<TechniqueDef> techDefs = def.getTechniqueDefs(name);
             if (techDefs == null || techDefs.isEmpty()) {
                 throw new IllegalArgumentException(
                         String.format("The requested technique %s is not available on material %s", name, def.getName()));
             }
 
             TechniqueDef lastTech = null;
+            float weight = 0;
             for (TechniqueDef techDef : techDefs) {
                 if (rendererCaps.containsAll(techDef.getRequiredCaps())) {
-                    // use the first one that supports all the caps
-                    tech = new Technique(this, techDef);
-                    techniques.put(name, tech);
-                    break;
+                    float techWeight = techDef.getWeight() + (techDef.getLightMode() == renderManager.getPreferredLightMode() ? 10f : 0);
+                    if (techWeight > weight) {
+                        tech = new Technique(this, techDef);
+                        techniques.put(name, tech);
+                        weight = techWeight;
+                    }
                 }
                 lastTech = techDef;
             }
@@ -734,6 +737,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                                 + "The capabilities %s are required.",
                                 name, def.getName(), lastTech.getRequiredCaps()));
             }
+            logger.log(Level.FINE, this.getMaterialDef().getName() + " selected technique def " + tech.getDef());
         } else if (technique == tech) {
             // attempting to switch to an already
             // active technique.
