@@ -31,9 +31,9 @@
  */
 package com.jme3.material;
 
-import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.asset.AssetManager;
 import com.jme3.export.*;
+import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.renderer.Caps;
 import com.jme3.shader.*;
 import com.jme3.shader.Shader.ShaderType;
@@ -160,6 +160,9 @@ public class TechniqueDef implements Savable {
     private ArrayList<UniformBinding> worldBinds;
     //The space in which the light should be transposed before sending to the shader.
     private LightSpace lightSpace;
+
+    //used to find the best fit technique
+    private float weight = 0;
 
     /**
      * Creates a new technique definition.
@@ -341,6 +344,8 @@ public class TechniqueDef implements Savable {
         requiredCaps.add(vertCap);
         Caps fragCap = Caps.valueOf(fragLanguage);
         requiredCaps.add(fragCap);
+
+        weight = Math.max(vertCap.ordinal(), fragCap.ordinal());
     }
 
     /**
@@ -534,6 +539,7 @@ public class TechniqueDef implements Savable {
     public void setShaderFile(EnumMap<Shader.ShaderType, String> shaderNames, EnumMap<Shader.ShaderType, String> shaderLanguages) {
         requiredCaps.clear();
 
+        int maxCap = 0;
         for (Shader.ShaderType shaderType : shaderNames.keySet()) {
             String language = shaderLanguages.get(shaderType);
             String shaderFile = shaderNames.get(shaderType);
@@ -541,8 +547,9 @@ public class TechniqueDef implements Savable {
             this.shaderLanguages.put(shaderType, language);
             this.shaderNames.put(shaderType, shaderFile);
 
-            Caps vertCap = Caps.valueOf(language);
-            requiredCaps.add(vertCap);
+            Caps cap = Caps.valueOf(language);
+            requiredCaps.add(cap);
+            maxCap = Math.max(maxCap, cap.ordinal());
 
             if (shaderType.equals(Shader.ShaderType.Geometry)) {
                 requiredCaps.add(Caps.GeometryShader);
@@ -550,6 +557,7 @@ public class TechniqueDef implements Savable {
                 requiredCaps.add(Caps.TesselationShader);
             }
         }
+        weight = maxCap;
     }
 
     /**
@@ -598,6 +606,15 @@ public class TechniqueDef implements Savable {
      */
     public String getShaderProgramName(Shader.ShaderType shaderType){
         return shaderNames.get(shaderType);
+    }
+
+    /**
+     * returns the weight of the technique def
+     *
+     * @return
+     */
+    public float getWeight() {
+        return weight;
     }
 
     /**
