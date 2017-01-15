@@ -12,6 +12,23 @@ MaterialDef Log Lum 2D {
     }
 
     Technique {
+        VertexShader GLSL150:   Common/MatDefs/Gui/Gui.vert
+        FragmentShader GLSL150: Common/MatDefs/Hdr/LogLum.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+
+        Defines {
+            TEXTURE
+            ENCODE_LUM : EncodeLum
+            DECODE_LUM : DecodeLum
+            BLOCKS : Blocks
+            COMPUTE_MAX : ComputeMax
+        }
+    }
+
+    Technique {
         VertexShader GLSL100:   Common/MatDefs/Gui/Gui.vert
         FragmentShader GLSL100: Common/MatDefs/Hdr/LogLum.frag
 
@@ -27,5 +44,4 @@ MaterialDef Log Lum 2D {
             COMPUTE_MAX : ComputeMax
         }
     }
-
 }
