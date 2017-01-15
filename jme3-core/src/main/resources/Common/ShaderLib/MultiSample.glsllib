@@ -15,12 +15,6 @@ uniform int m_NumSamplesDepth;
     #define DEPTHTEXTURE sampler2D
 #endif
 
-#if __VERSION__ >= 150
-    #define TEXTURE texture
-#else
-    #define TEXTURE texture2D
-#endif
-
 // NOTE: Only define multisample functions if multisample is available
 #if defined(GL_ARB_texture_multisample)
 vec4 textureFetch(in sampler2DMS tex,in vec2 texC, in int numSamples){
@@ -32,9 +26,9 @@ vec4 textureFetch(in sampler2DMS tex,in vec2 texC, in int numSamples){
       return color / float(numSamples);
 }
 
-vec4 fetchTextureSample(in sampler2DMS tex,in vec2 texC,in int sample){
+vec4 fetchTextureSample(in sampler2DMS tex,in vec2 texC,in int sampleId){
     ivec2 iTexC = ivec2(texC * vec2(textureSize(tex)));
-    return texelFetch(tex, iTexC, sample);
+    return texelFetch(tex, iTexC, sampleId);
 }
 
 vec4 getColor(in sampler2DMS tex, in vec2 texC){
@@ -52,19 +46,19 @@ vec4 getDepth(in sampler2DMS tex,in vec2 texC){
 
 #endif
 
-vec4 fetchTextureSample(in sampler2D tex,in vec2 texC,in int sample){
-    return TEXTURE(tex,texC);
+vec4 fetchTextureSample(in sampler2D tex,in vec2 texC,in int sampleId){
+    return texture2D(tex,texC);
 }
 
 vec4 getColor(in sampler2D tex, in vec2 texC){
-    return TEXTURE(tex,texC);
+    return texture2D(tex,texC);
 }
 
 vec4 getColorSingle(in sampler2D tex, in vec2 texC){
-    return TEXTURE(tex, texC);
+    return texture2D(tex, texC);
 }
 
 vec4 getDepth(in sampler2D tex,in vec2 texC){
-    return TEXTURE(tex,texC);
+    return texture2D(tex,texC);
 }
 

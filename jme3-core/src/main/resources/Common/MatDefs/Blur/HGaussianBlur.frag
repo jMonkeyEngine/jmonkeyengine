@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 uniform sampler2D m_Texture; // this should hold the texture rendered by the horizontal blur pass
 uniform float m_Size;
 uniform float m_Scale;

@@ -47,6 +47,10 @@ import com.jme3.ui.Picture;
 import java.util.Collection;
 import java.util.logging.Logger;
 
+/**
+ * @deprecated use the ToneMappingFilter.
+ */
+@Deprecated
 public class HDRRenderer implements SceneProcessor {
 
     private static final int LUMMODE_NONE = 0x1,

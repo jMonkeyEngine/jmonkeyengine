@@ -1,17 +1,12 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/MultiSample.glsllib"
 
 uniform COLORTEXTURE m_Texture;
 uniform vec3 m_WhitePoint;
 
-#if __VERSION__ >= 150
-in vec2 texCoord;
-out vec4 outFragColor;
-#else
 varying vec2 texCoord;
-#endif
 
-vec3 FilmicCurve(in vec3 x)
-{
+vec3 FilmicCurve(in vec3 x){
     const float A = 0.22;
     const float B = 0.30;
     const float C = 0.10;
@@ -24,21 +19,27 @@ vec3 FilmicCurve(in vec3 x)
 
 // whitePoint should be 11.2
 
-vec3 ToneMap_Filmic(vec3 color, vec3 whitePoint)
-{
+vec3 ToneMap_Filmic(vec3 color, vec3 whitePoint){
     return FilmicCurve(color) / FilmicCurve(whitePoint);
 }
 
-void main() {
-    // TODO: This is incorrect if multi-sampling is used.
-    // The tone-mapping should be performed for each sample independently.
+vec4 tonemap(int i) {
 
-    vec4 texVal = getColor(m_Texture, texCoord);
+    vec4 texVal = fetchTextureSample(m_Texture, texCoord, i);
     vec3 toneMapped = ToneMap_Filmic(texVal.rgb, m_WhitePoint);
 
-    #if __VERSION__ >= 150
-        outFragColor = vec4(toneMapped, texVal.a);
+    return vec4(toneMapped, texVal.a);
+}
+
+
+void main() {
+    #ifdef RESOLVE_MS
+        vec4 color = vec4(0.0);
+        for (int i = 0; i < m_NumSamples; i++){
+            color += tonemap(i);
+        }
+        gl_FragColor = color / m_NumSamples;
     #else
-        gl_FragColor = vec4(toneMapped, texVal.a);
+        gl_FragColor = tonemap(0);
     #endif
 }

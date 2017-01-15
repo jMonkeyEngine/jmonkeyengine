@@ -6,8 +6,8 @@ MaterialDef Basic Post Shadow {
     }
 
     Technique {
-        VertexShader GLSL100:   Common/MatDefs/Shadow/BasicPostShadow.vert
-        FragmentShader GLSL100: Common/MatDefs/Shadow/BasicPostShadow.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Shadow/BasicPostShadow.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Shadow/BasicPostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

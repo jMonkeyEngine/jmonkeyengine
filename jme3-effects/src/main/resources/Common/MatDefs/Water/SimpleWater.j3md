@@ -18,8 +18,8 @@ MaterialDef Simple Water {
     }
 
     Technique {
-        VertexShader GLSL100:   Common/MatDefs/Water/simple_water.vert
-        FragmentShader GLSL100: Common/MatDefs/Water/simple_water.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Water/simple_water.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Water/simple_water.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

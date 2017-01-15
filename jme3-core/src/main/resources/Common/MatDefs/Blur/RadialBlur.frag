@@ -1,7 +1,11 @@
-uniform sampler2D m_Texture;
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+#import "Common/ShaderLib/MultiSample.glsllib"
+
+uniform COLORTEXTURE m_Texture;
 uniform float m_SampleDist;
 uniform float m_SampleStrength;
 uniform float m_Samples[10];
+
 varying vec2 texCoord;
 
 void main(void)
@@ -22,15 +26,14 @@ void main(void)
 
     // this is the original colour of this fragment
     // using only this would result in a nonblurred version
-    vec4 colorRes = texture2D(m_Texture,texCoord);
+    vec4 colorRes = getColor(m_Texture,texCoord);
 
     vec4 sum = colorRes;
 
     // take 10 additional blur samples in the direction towards
     // the center of the screen
-    for (int i = 0; i < 10; i++)
-    {
-      sum += texture2D( m_Texture, texCoord + dir * m_Samples[i] * m_SampleDist );
+    for (int i = 0; i < 10; i++){
+      sum += getColor( m_Texture, texCoord + dir * m_Samples[i] * m_SampleDist );
     }
 
     // we have taken eleven samples
@@ -42,6 +45,6 @@ void main(void)
     t = clamp( t ,0.0,1.0); //0 &lt;= t &lt;= 1
 
     //Blend the original color with the averaged pixels
-    gl_FragColor =mix( colorRes, sum, t );
+    gl_FragColor = mix( colorRes, sum, t );
      
 }
