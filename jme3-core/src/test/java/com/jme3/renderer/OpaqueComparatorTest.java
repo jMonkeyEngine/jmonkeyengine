@@ -168,14 +168,11 @@ public class OpaqueComparatorTest {
         lightingMatPreNormalPass.setName("TechNorm");
         lightingMatPreNormalPass.selectTechnique("PreNormalPass", renderManager);
         
-        lightingMatGBuf.setName("TechGBuf");
-        lightingMatGBuf.selectTechnique("GBuf", renderManager);
-        
         lightingMatGlow.setName("TechGlow");
         lightingMatGlow.selectTechnique("Glow", renderManager);
         
         testSort(lightingMatGlow, lightingPreShadow, lightingMatPreNormalPass,
-                 lightingMatDefault, lightingPostShadow, lightingMatGBuf);
+                lightingMatDefault, lightingPostShadow);
     }
     
     @Test(expected = AssertionError.class)
