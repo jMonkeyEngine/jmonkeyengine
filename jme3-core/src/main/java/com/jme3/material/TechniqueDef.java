@@ -39,6 +39,7 @@ import com.jme3.shader.*;
 import com.jme3.shader.Shader.ShaderType;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -46,7 +47,7 @@ import java.util.*;
  *
  * @author Kirill Vainer
  */
-public class TechniqueDef implements Savable {
+public class TechniqueDef implements Savable, Cloneable {
 
     /**
      * Version #1: Separate shader language for each shader source.
@@ -539,7 +540,7 @@ public class TechniqueDef implements Savable {
     public void setShaderFile(EnumMap<Shader.ShaderType, String> shaderNames, EnumMap<Shader.ShaderType, String> shaderLanguages) {
         requiredCaps.clear();
 
-        int maxCap = 0;
+        weight = 0;
         for (Shader.ShaderType shaderType : shaderNames.keySet()) {
             String language = shaderLanguages.get(shaderType);
             String shaderFile = shaderNames.get(shaderType);
@@ -549,7 +550,7 @@ public class TechniqueDef implements Savable {
 
             Caps cap = Caps.valueOf(language);
             requiredCaps.add(cap);
-            maxCap = Math.max(maxCap, cap.ordinal());
+            weight = Math.max(weight, cap.ordinal());
 
             if (shaderType.equals(Shader.ShaderType.Geometry)) {
                 requiredCaps.add(Caps.GeometryShader);
@@ -557,7 +558,6 @@ public class TechniqueDef implements Savable {
                 requiredCaps.add(Caps.TesselationShader);
             }
         }
-        weight = maxCap;
     }
 
     /**
@@ -775,5 +775,56 @@ public class TechniqueDef implements Savable {
      */
     public void setLightSpace(LightSpace lightSpace) {
         this.lightSpace = lightSpace;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        //cannot use super.clone because of the final fields instance that would be shared by the clones.
+        TechniqueDef clone = new TechniqueDef(name, sortId);
+
+        clone.noRender = noRender;
+        clone.lightMode = lightMode;
+        clone.shadowMode = shadowMode;
+        clone.lightSpace = lightSpace;
+        clone.usesNodes = usesNodes;
+        clone.shaderPrologue = shaderPrologue;
+
+        clone.setShaderFile(shaderNames, shaderLanguages);
+
+        clone.defineNames = new ArrayList<>(defineNames.size());
+        clone.defineNames.addAll(defineNames);
+
+        clone.defineTypes = new ArrayList<>(defineTypes.size());
+        clone.defineTypes.addAll(defineTypes);
+
+        clone.paramToDefineId = new HashMap<>(paramToDefineId.size());
+        clone.paramToDefineId.putAll(paramToDefineId);
+
+        if (shaderNodes != null) {
+            for (ShaderNode shaderNode : shaderNodes) {
+                clone.shaderNodes.add((ShaderNode) shaderNode.clone());
+            }
+            clone.shaderGenerationInfo = (ShaderGenerationInfo) shaderGenerationInfo.clone();
+        }
+
+        if (renderState != null) {
+            clone.setRenderState(renderState.clone());
+        }
+        if (forcedRenderState != null) {
+            clone.setForcedRenderState(forcedRenderState.clone());
+        }
+
+        try {
+            clone.logic = logic.getClass().getConstructor(TechniqueDef.class).newInstance(clone);
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
+        if (worldBinds != null) {
+            clone.worldBinds = new ArrayList<>(worldBinds.size());
+            clone.worldBinds.addAll(worldBinds);
+        }
+
+        return clone;
     }
 }

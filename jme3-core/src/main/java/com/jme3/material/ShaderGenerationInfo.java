@@ -48,7 +48,7 @@ import java.util.List;
  *
  * @author Nehon
  */
-public class ShaderGenerationInfo implements Savable {
+public class ShaderGenerationInfo implements Savable, Cloneable {
 
     /**
      * the list of attributes of the vertex shader
@@ -186,5 +186,37 @@ public class ShaderGenerationInfo implements Savable {
         fragmentGlobals = ic.readSavableArrayList("fragmentGlobals", new ArrayList<ShaderNodeVariable>());
         vertexGlobal = (ShaderNodeVariable) ic.readSavable("vertexGlobal", null);
 
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        ShaderGenerationInfo clone = (ShaderGenerationInfo) super.clone();
+
+        for (ShaderNodeVariable attribute : attributes) {
+            clone.attributes.add((ShaderNodeVariable) attribute.clone());
+        }
+
+        for (ShaderNodeVariable uniform : vertexUniforms) {
+            clone.vertexUniforms.add((ShaderNodeVariable) uniform.clone());
+        }
+
+        clone.vertexGlobal = (ShaderNodeVariable) vertexGlobal.clone();
+
+
+        for (ShaderNodeVariable varying : varyings) {
+            clone.varyings.add((ShaderNodeVariable) varying.clone());
+        }
+
+        for (ShaderNodeVariable uniform : fragmentUniforms) {
+            clone.fragmentUniforms.add((ShaderNodeVariable) uniform.clone());
+        }
+
+        for (ShaderNodeVariable globals : fragmentGlobals) {
+            clone.fragmentGlobals.add((ShaderNodeVariable) globals.clone());
+        }
+
+        clone.unusedNodes.addAll(unusedNodes);
+
+        return clone;
     }
 }
