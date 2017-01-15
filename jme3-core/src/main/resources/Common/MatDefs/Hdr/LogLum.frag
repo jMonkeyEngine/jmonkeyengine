@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/Hdr.glsllib"
 
 uniform sampler2D m_Texture;
@@ -9,7 +10,7 @@ varying vec2 texCoord;
  uniform float m_NumPixels;
 #endif
 
-vec4 blocks(vec2 halfBlockSize, vec2 pixelSize, float numPixels){
+vec4 blocks(vec2 halfBlockSize, vec2 pixelSize, float numPixels) {
     vec2 startUV = texCoord - halfBlockSize;
     vec2 endUV = texCoord + halfBlockSize;
 
@@ -43,7 +44,7 @@ vec4 blocks(vec2 halfBlockSize, vec2 pixelSize, float numPixels){
     return sum;
 }
 
-vec4 fetch(){
+vec4 fetch() {
     vec4 color = texture2D(m_Texture, texCoord);
     #ifdef ENCODE_LUM
        return HDR_EncodeLum(HDR_GetLum(color.rgb));
