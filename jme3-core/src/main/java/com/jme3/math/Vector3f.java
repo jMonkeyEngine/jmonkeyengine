@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2017 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -392,7 +392,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     public Vector3f project(Vector3f other){
         float n = this.dot(other); // A . B
         float d = other.lengthSquared(); // |B|^2
-        return new Vector3f(other).normalizeLocal().multLocal(n/d);
+        return new Vector3f(other).multLocal(n/d);
     }
 
     /**
@@ -405,7 +405,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
     public Vector3f projectLocal(Vector3f other){
         float n = this.dot(other); // A . B
         float d = other.lengthSquared(); // |B|^2
-        return set(other).normalizeLocal().multLocal(n/d);
+        return set(other).multLocal(n/d);
     }
     
     /**
