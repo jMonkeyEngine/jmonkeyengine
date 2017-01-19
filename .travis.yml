@@ -5,6 +5,7 @@ branches:
   only:
   - master
   - v3.1
+  - native-compilation-test
 
 matrix:
   include:

@@ -34,7 +34,7 @@
 #include "BulletCollision/NarrowPhaseCollision/btManifoldPoint.h"
 #include "com_jme3_bullet_collision_PhysicsCollisionEvent.h"
 
-// Change to trigger build...
+// Change to trigger build..
 
 /*
  * Class:     com_jme3_bullet_collision_PhysicsCollisionEvent
