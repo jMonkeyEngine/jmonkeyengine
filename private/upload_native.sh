@@ -1,7 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 echo " - Checking if natives changed in commit $TRAVIS_COMMIT.."
+git status -v
 NATIVE_CHANGES="$(git diff-tree --name-only "$TRAVIS_COMMIT" -- jme3-bullet-native/)"
+git status -v
+git log -n 2
 if [ "$NATIVE_CHANGES" != "" ]; then
     echo " - Configuring GIT user"
     git config --global user.email "travis-ci"
