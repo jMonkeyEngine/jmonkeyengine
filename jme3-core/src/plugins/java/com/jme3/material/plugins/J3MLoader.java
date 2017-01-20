@@ -615,6 +615,7 @@ public class J3MLoader implements AssetLoader {
     private void readTechnique(Statement techStat) throws IOException{
         isUseNodes = false;
         String[] split = techStat.getLine().split(whitespacePattern);
+        Cloner cloner = new Cloner();
 
         String name;
         if (split.length == 1) {
@@ -669,12 +670,8 @@ public class J3MLoader implements AssetLoader {
         }else if (shaderNames.containsKey(Shader.ShaderType.Vertex) && shaderNames.containsKey(Shader.ShaderType.Fragment)) {
             if (shaderLanguages.size() > 1) {
                 for (int i = 1; i < shaderLanguages.size(); i++) {
-                    TechniqueDef td = null;
-                    try {
-                        td = (TechniqueDef) technique.clone();
-                    } catch (CloneNotSupportedException e) {
-                        e.printStackTrace();
-                    }
+                    cloner.clearIndex();
+                    TechniqueDef td = cloner.clone(technique);
                     td.setShaderFile(shaderNames, shaderLanguages.get(i));
                     techniqueDefs.add(td);
                 }

@@ -778,7 +778,7 @@ public class TechniqueDef implements Savable, Cloneable {
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
+    public TechniqueDef clone() throws CloneNotSupportedException {
         //cannot use super.clone because of the final fields instance that would be shared by the clones.
         TechniqueDef clone = new TechniqueDef(name, sortId);
 
@@ -802,9 +802,9 @@ public class TechniqueDef implements Savable, Cloneable {
 
         if (shaderNodes != null) {
             for (ShaderNode shaderNode : shaderNodes) {
-                clone.shaderNodes.add((ShaderNode) shaderNode.clone());
+                clone.shaderNodes.add(shaderNode.clone());
             }
-            clone.shaderGenerationInfo = (ShaderGenerationInfo) shaderGenerationInfo.clone();
+            clone.shaderGenerationInfo = shaderGenerationInfo.clone();
         }
 
         if (renderState != null) {

@@ -197,11 +197,11 @@ public class VariableMapping implements Savable, Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
+    protected VariableMapping clone() throws CloneNotSupportedException {
         VariableMapping clone = (VariableMapping) super.clone();
 
-        clone.leftVariable = (ShaderNodeVariable) leftVariable.clone();
-        clone.rightVariable = (ShaderNodeVariable) rightVariable.clone();
+        clone.leftVariable = leftVariable.clone();
+        clone.rightVariable = rightVariable.clone();
 
         return clone;
     }

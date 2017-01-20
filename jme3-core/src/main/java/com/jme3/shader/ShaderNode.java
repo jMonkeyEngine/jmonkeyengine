@@ -214,7 +214,7 @@ public class ShaderNode implements Savable, Cloneable {
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
+    public ShaderNode clone() throws CloneNotSupportedException {
         ShaderNode clone = (ShaderNode) super.clone();
 
         //No need to clone the definition.

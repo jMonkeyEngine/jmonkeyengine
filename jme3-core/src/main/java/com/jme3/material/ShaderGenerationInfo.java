@@ -189,30 +189,30 @@ public class ShaderGenerationInfo implements Savable, Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
+    protected ShaderGenerationInfo clone() throws CloneNotSupportedException {
         ShaderGenerationInfo clone = (ShaderGenerationInfo) super.clone();
 
         for (ShaderNodeVariable attribute : attributes) {
-            clone.attributes.add((ShaderNodeVariable) attribute.clone());
+            clone.attributes.add(attribute.clone());
         }
 
         for (ShaderNodeVariable uniform : vertexUniforms) {
-            clone.vertexUniforms.add((ShaderNodeVariable) uniform.clone());
+            clone.vertexUniforms.add(uniform.clone());
         }
 
-        clone.vertexGlobal = (ShaderNodeVariable) vertexGlobal.clone();
+        clone.vertexGlobal = vertexGlobal.clone();
 
 
         for (ShaderNodeVariable varying : varyings) {
-            clone.varyings.add((ShaderNodeVariable) varying.clone());
+            clone.varyings.add(varying.clone());
         }
 
         for (ShaderNodeVariable uniform : fragmentUniforms) {
-            clone.fragmentUniforms.add((ShaderNodeVariable) uniform.clone());
+            clone.fragmentUniforms.add(uniform.clone());
         }
 
         for (ShaderNodeVariable globals : fragmentGlobals) {
-            clone.fragmentGlobals.add((ShaderNodeVariable) globals.clone());
+            clone.fragmentGlobals.add(globals.clone());
         }
 
         clone.unusedNodes.addAll(unusedNodes);
