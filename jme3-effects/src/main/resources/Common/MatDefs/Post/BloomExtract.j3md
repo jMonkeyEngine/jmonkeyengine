@@ -10,8 +10,8 @@ MaterialDef Bloom {
     }
 
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
-        FragmentShader GLSL150: Common/MatDefs/Post/bloomExtract15.frag
+        VertexShader GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL150 GLSL100: Common/MatDefs/Post/bloomExtract.frag
 
         WorldParameters {
         }
@@ -20,19 +20,6 @@ MaterialDef Bloom {
             HAS_GLOWMAP : GlowMap
             DO_EXTRACT : Extract
             RESOLVE_MS : NumSamples
-        }
-    }
-
-    Technique {
-        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL100: Common/MatDefs/Post/bloomExtract.frag
-
-        WorldParameters {
-        }
-
-        Defines {
-            HAS_GLOWMAP : GlowMap
-            DO_EXTRACT : Extract
         }
     }
 }

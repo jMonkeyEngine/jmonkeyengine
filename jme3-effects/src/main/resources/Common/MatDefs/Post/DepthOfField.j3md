@@ -12,8 +12,8 @@ MaterialDef Depth Of Field {
     }
 
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
-        FragmentShader GLSL150: Common/MatDefs/Post/DepthOfField15.frag
+        VertexShader GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL150 GLSL100: Common/MatDefs/Post/DepthOfField.frag
 
         WorldParameters {
         }
@@ -24,11 +24,4 @@ MaterialDef Depth Of Field {
         }
     }
 
-    Technique {
-        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL100: Common/MatDefs/Post/DepthOfField.frag
-
-        WorldParameters {
-        }
-    }
 }

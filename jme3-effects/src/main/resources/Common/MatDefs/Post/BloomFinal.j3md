@@ -8,8 +8,8 @@ MaterialDef Bloom Final {
     }
 
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
-        FragmentShader GLSL150: Common/MatDefs/Post/bloomFinal15.frag
+        VertexShader GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL150 GLSL100: Common/MatDefs/Post/bloomFinal.frag
 
         WorldParameters {
         }
@@ -19,11 +19,4 @@ MaterialDef Bloom Final {
         }
     }
 
-    Technique {
-        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL100: Common/MatDefs/Post/bloomFinal.frag
-
-        WorldParameters {
-        }
-    }
 }

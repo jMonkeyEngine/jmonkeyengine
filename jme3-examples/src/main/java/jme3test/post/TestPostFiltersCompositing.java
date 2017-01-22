@@ -34,13 +34,16 @@ package jme3test.post;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.HttpZipLocator;
 import com.jme3.light.DirectionalLight;
+import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.ColorOverlayFilter;
 import com.jme3.post.filters.ComposeFilter;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
@@ -55,18 +58,19 @@ import com.jme3.util.SkyFactory;
 public class TestPostFiltersCompositing extends SimpleApplication {
 
     public static void main(String[] args) {
-        TestPostFiltersCompositing app = new TestPostFiltersCompositing();        
-        AppSettings settings = new AppSettings(true);
-        settings.putBoolean("GraphicsDebug", false);
-        app.setSettings(settings);
+        TestPostFiltersCompositing app = new TestPostFiltersCompositing();
+//        AppSettings settings = new AppSettings(true);
+//        settings.putBoolean("GraphicsDebug", false);
+//        app.setSettings(settings);
         app.start();        
         
     }
 
     public void simpleInitApp() {
         this.flyCam.setMoveSpeed(10);
-        cam.setLocation(new Vector3f(6.0344796f, 1.5054002f, 55.572033f));
-        cam.setRotation(new Quaternion(0.0016069f, 0.9810479f, -0.008143323f, 0.19358753f));
+        cam.setLocation(new Vector3f(0.028406568f, 2.015769f, 7.386517f));
+        cam.setRotation(new Quaternion(-1.0729783E-5f, 0.9999721f, -0.0073241726f, -0.0014647911f));
+
 
         makeScene();
 
@@ -80,15 +84,16 @@ public class TestPostFiltersCompositing extends SimpleApplication {
         Texture2D mainVPTexture = new Texture2D(cam.getWidth(), cam.getHeight(), Image.Format.RGBA8);
         mainVPFrameBuffer.addColorTexture(mainVPTexture);
         mainVPFrameBuffer.setDepthBuffer(Image.Format.Depth);
-        viewPort.setOutputFrameBuffer(mainVPFrameBuffer);     
+        viewPort.setOutputFrameBuffer(mainVPFrameBuffer);
 
         //creating the post processor for the gui viewport
-        final FilterPostProcessor guifpp = new FilterPostProcessor(assetManager);           
-        guifpp.addFilter(new ColorOverlayFilter(ColorRGBA.Red));       
+        final FilterPostProcessor guifpp = new FilterPostProcessor(assetManager);
+        guifpp.setFrameBufferFormat(Image.Format.RGBA8);
+        guifpp.addFilter(new ColorOverlayFilter(ColorRGBA.Red));
         //this will compose the main viewport texture with the guiviewport back buffer.
-        //Note that you can swich the order of the filters so that guiviewport filters are applied or not to the main viewport texture    
+        //Note that you can switch the order of the filters so that guiviewport filters are applied or not to the main viewport texture
         guifpp.addFilter(new ComposeFilter(mainVPTexture));
-        
+
         guiViewPort.addProcessor(guifpp);
         
         //compositing is done by mixing texture depending on the alpha channel, 
@@ -102,12 +107,12 @@ public class TestPostFiltersCompositing extends SimpleApplication {
     private void makeScene() {
         // load sky
         rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", SkyFactory.EnvMapType.CubeMap));
-        assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/wildhouse.zip", HttpZipLocator.class);        
-        Spatial scene = assetManager.loadModel("main.scene");
+        //assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/wildhouse.zip", HttpZipLocator.class);
+        Spatial scene = assetManager.loadModel("Models/Test/CornellBox.j3o");
         DirectionalLight sun = new DirectionalLight();
         sun.setDirection(new Vector3f(-0.4790551f, -0.39247334f, -0.7851566f));
-        sun.setColor(ColorRGBA.White.clone().multLocal(2));
         scene.addLight(sun);
         rootNode.attachChild(scene);
+
     }
 }

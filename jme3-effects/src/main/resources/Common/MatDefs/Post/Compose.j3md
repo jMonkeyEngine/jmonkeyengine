@@ -8,8 +8,8 @@ MaterialDef Default GUI {
     }
 
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
-        FragmentShader GLSL150: Common/MatDefs/Post/Compose15.frag
+        VertexShader GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL150 GLSL100: Common/MatDefs/Post/Compose.frag
 
         WorldParameters {
         }
@@ -20,12 +20,4 @@ MaterialDef Default GUI {
 
     }
 
-    Technique {
-        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL100: Common/MatDefs/Post/Compose.frag
-
-        WorldParameters {
-        }
-
-    }
 }

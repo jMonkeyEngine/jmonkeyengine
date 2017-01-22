@@ -1,4 +1,7 @@
-uniform sampler2D m_Texture;
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+#import "Common/ShaderLib/MultiSample.glsllib"
+
+uniform COLORTEXTURE m_Texture;
 varying vec2 texCoord;
  
 uniform vec4 m_LineColor;
@@ -17,7 +20,7 @@ uniform float m_LineDistance;
 uniform float m_LineThickness;
  
 void main() {
-    vec4 texVal = texture2D(m_Texture, texCoord);
+    vec4 texVal = getColor(m_Texture, texCoord);
     float linePixel = 0.0;
  
     float lum = texVal.r*0.2126 + texVal.g*0.7152 + texVal.b*0.0722;

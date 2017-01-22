@@ -60,9 +60,9 @@ public class TestPostFilters extends SimpleApplication implements ActionListener
 
     public static void main(String[] args) {
         TestPostFilters app = new TestPostFilters();
-        AppSettings settings = new AppSettings(true);
-        settings.setRenderer(AppSettings.LWJGL_OPENGL2);
-        app.setSettings(settings);
+//        AppSettings settings = new AppSettings(true);
+//        settings.setRenderer(AppSettings.LWJGL_OPENGL2);
+//        app.setSettings(settings);
         app.start();
     }
 

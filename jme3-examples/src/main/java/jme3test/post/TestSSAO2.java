@@ -96,6 +96,7 @@ public class TestSSAO2 extends SimpleApplication {
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         SSAOFilter ssaoFilter = new SSAOFilter(2.9299974f,25f,5.8100376f,0.091000035f);
+        ssaoFilter.setApproximateNormals(true);
         fpp.addFilter(ssaoFilter);
         SSAOUI ui = new SSAOUI(inputManager, ssaoFilter);
 

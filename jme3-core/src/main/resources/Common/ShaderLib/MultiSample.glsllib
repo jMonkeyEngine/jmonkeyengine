@@ -1,5 +1,4 @@
 #extension GL_ARB_texture_multisample : enable
-#import "Common/ShaderLib/GLSLCompat.glsllib"
 
 uniform int m_NumSamples;
 uniform int m_NumSamplesDepth;
