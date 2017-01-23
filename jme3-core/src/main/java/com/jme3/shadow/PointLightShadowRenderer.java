@@ -174,7 +174,7 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
 
     @Override
     protected void setMaterialParameters(Material material) {
-        material.setVector3("LightPos", light.getPosition());
+        material.setVector3("LightPos", light == null ? new Vector3f() : light.getPosition());
     }
 
     @Override

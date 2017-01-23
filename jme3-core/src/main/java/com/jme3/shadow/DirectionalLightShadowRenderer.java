@@ -221,7 +221,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     @Override
     protected void setMaterialParameters(Material material) {
         material.setColor("Splits", splits);
-        material.setVector3("LightDir", light.getDirection());
+        material.setVector3("LightDir", light == null ? new Vector3f() : light.getDirection());
         if (fadeInfo != null) {
             material.setVector2("FadeInfo", fadeInfo);
         }
