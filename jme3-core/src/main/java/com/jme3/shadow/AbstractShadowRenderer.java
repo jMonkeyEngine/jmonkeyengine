@@ -204,7 +204,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      *
      * @param postShadowMat
      */
-    protected void setPostShadowMaterial(Material postShadowMat) {
+    protected final void setPostShadowMaterial(Material postShadowMat) {
         this.postshadowMat = postShadowMat;
         postshadowMat.setFloat("ShadowMapSize", shadowMapSize);
         for (int i = 0; i < nbShadowMaps; i++) {

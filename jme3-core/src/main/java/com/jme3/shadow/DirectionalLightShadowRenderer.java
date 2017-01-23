@@ -136,7 +136,6 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     @Override
     protected void updateShadowCams(Camera viewCam) {
 
-        // it needs to support for editors
         if (light == null) {
             logger.warning("The light can't be null for a " + getClass().getName());
             return;
