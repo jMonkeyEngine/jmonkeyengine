@@ -45,7 +45,6 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
-import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
@@ -148,7 +147,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
 
     }
 
-    private void init(AssetManager assetManager, int nbShadowMaps, int shadowMapSize) {
+    protected void init(AssetManager assetManager, int nbShadowMaps, int shadowMapSize) {
         this.postshadowMat = new Material(assetManager, "Common/MatDefs/Shadow/PostShadow.j3md");
         shadowFB = new FrameBuffer[nbShadowMaps];
         shadowMaps = new Texture2D[nbShadowMaps];
@@ -200,7 +199,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
      *
      * @param postShadowMat
      */
-    protected final void setPostShadowMaterial(Material postShadowMat) {
+    protected void setPostShadowMaterial(Material postShadowMat) {
         this.postshadowMat = postShadowMat;
         postshadowMat.setFloat("ShadowMapSize", shadowMapSize);
         for (int i = 0; i < nbShadowMaps; i++) {
