@@ -229,7 +229,12 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
      * @return 
      */
     @Override
-    protected boolean checkCulling(Camera viewCam) {      
+    protected boolean checkCulling(Camera viewCam) {
+
+        if (light == null) {
+            return false;
+        }
+
         Camera cam = viewCam;
         if(frustumCam != null){
             cam = frustumCam;            
