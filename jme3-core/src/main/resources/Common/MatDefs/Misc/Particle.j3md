@@ -59,10 +59,7 @@ MaterialDef Point Sprite {
         }
 
         Defines {
-            COLOR_MAP : ColorMap
-            DISCARD_ALPHA : AlphaDiscardThreshold
-            NUM_BONES : NumberOfBones
-            INSTANCING : UseInstancing
+            COLOR_MAP : Texture
         }
 
         ForcedRenderState {
@@ -77,30 +74,8 @@ MaterialDef Point Sprite {
 
     Technique SoftParticles{
 
-        VertexShader   GLSL100 : Common/MatDefs/Misc/SoftParticle.vert
-        FragmentShader GLSL100 : Common/MatDefs/Misc/SoftParticle.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            WorldViewMatrix
-            WorldMatrix
-            CameraPosition
-        }
-
-        RenderState {
-            Blend AlphaAdditive
-            DepthWrite Off
-        }
-
-        Defines {
-            USE_TEXTURE : Texture
-        }
-    }
-
-    Technique SoftParticles15{
-
-        VertexShader   GLSL150 : Common/MatDefs/Misc/SoftParticle.vert
-        FragmentShader GLSL150 : Common/MatDefs/Misc/SoftParticle15.frag
+        VertexShader  GLSL100 GLSL150 : Common/MatDefs/Misc/SoftParticle.vert
+        FragmentShader GLSL120 GLSL150 : Common/MatDefs/Misc/SoftParticle.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -119,14 +94,6 @@ MaterialDef Point Sprite {
             USE_TEXTURE : Texture
             POINT_SPRITE : PointSprite
             RESOLVE_DEPTH_MS : NumSamplesDepth
-        }
-    }
-
-    Technique {
-        RenderState {
-            Blend AlphaAdditive
-            // DepthWrite Off
-            // AlphaTestFalloff 0.01
         }
     }
 
