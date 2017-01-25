@@ -79,7 +79,6 @@ public class LightProbe extends Light implements Savable {
     private TextureCubeMap prefilteredEnvMap;
     private BoundingVolume bounds = new BoundingSphere(1.0f, Vector3f.ZERO);
     private boolean ready = false;
-    private Vector3f position = new Vector3f();
     private Node debugNode;
 
     /**
@@ -129,7 +128,6 @@ public class LightProbe extends Light implements Savable {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(irradianceMap, "irradianceMap", null);
         oc.write(prefilteredEnvMap, "prefilteredEnvMap", null);
-        oc.write(position, "position", null);
         oc.write(bounds, "bounds", new BoundingSphere(1.0f, Vector3f.ZERO));
         oc.write(ready, "ready", false);
     }
@@ -140,7 +138,6 @@ public class LightProbe extends Light implements Savable {
         InputCapsule ic = im.getCapsule(this);
         irradianceMap = (TextureCubeMap) ic.readSavable("irradianceMap", null);
         prefilteredEnvMap = (TextureCubeMap) ic.readSavable("prefilteredEnvMap", null);
-        position = (Vector3f) ic.readSavable("position", this);
         bounds = (BoundingVolume) ic.readSavable("bounds", new BoundingSphere(1.0f, Vector3f.ZERO));
         ready = ic.readBoolean("ready", false);
     }
@@ -207,23 +204,6 @@ public class LightProbe extends Light implements Savable {
         }
 
         return debugNode;
-    }
-
-    /**
-     * Returns the position of the LightProbe in world space
-     * @return the wolrd space position
-     */
-    public Vector3f getPosition() {
-        return position;
-    }
-
-    /**
-     * Sets the position of the LightProbe in world space
-     * @param position the wolrd space position
-     */
-    public void setPosition(Vector3f position) {
-        this.position.set(position);
-        getBounds().setCenter(position);
     }
 
     @Override

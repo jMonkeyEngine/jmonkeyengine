@@ -35,6 +35,7 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingSphere;
 import com.jme3.export.*;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
@@ -103,7 +104,9 @@ public abstract class Light implements Savable, Cloneable {
     }
 
     protected ColorRGBA color = new ColorRGBA(ColorRGBA.White);
-    
+
+    protected Vector3f position = new Vector3f();
+
     /**
      * Used in LightList for caching the distance 
      * to the owner spatial. Should be reset after the sorting.
@@ -152,6 +155,26 @@ public abstract class Light implements Savable, Cloneable {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Returns the world space position of the light.
+     *
+     * @return the world space position of the light.
+     *
+     * @see Light#setPosition(com.jme3.math.Vector3f)
+     */
+    public Vector3f getPosition() {
+        return position;
+    }
+
+    /**
+     * Set the world space position of the light.
+     *
+     * @param position the world space position of the light.
+     */
+    public final void setPosition(Vector3f position) {
+        this.position.set(position);
     }
 
     /*
@@ -253,6 +276,7 @@ public abstract class Light implements Savable, Cloneable {
         try {
             Light l = (Light) super.clone();
             l.color = color.clone();
+            l.position = position.clone();
             return l;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
@@ -261,13 +285,25 @@ public abstract class Light implements Savable, Cloneable {
 
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
+        oc.write(position, "position", null);
         oc.write(color, "color", null);
         oc.write(enabled, "enabled", true);
         oc.write(name, "name", null);
     }
 
     public void read(JmeImporter im) throws IOException {
+
         InputCapsule ic = im.getCapsule(this);
+
+        // for compatibility
+        final Vector3f position = (Vector3f) ic.readSavable("position", null);
+
+        if(position != null) {
+            this.position.set(position);
+        } else {
+            this.position = new Vector3f();
+        }
+
         color = (ColorRGBA) ic.readSavable("color", null);
         enabled = ic.readBoolean("enabled", true);
         name = ic.readString("name", null);
