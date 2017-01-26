@@ -93,9 +93,9 @@ public abstract class LwjglContextVR implements JmeContext {
     	logger.log(Level.SEVERE, "glfwExtensionSupported(\"GL_ARB_framebuffer_object\"): "+GLFW.glfwExtensionSupported("GL_ARB_framebuffer_object"));
     	logger.log(Level.SEVERE, "glfwExtensionSupported(\"GL_EXT_framebuffer_multisample\"): "+GLFW.glfwExtensionSupported("GL_ARB_framebuffer_object"));
     	
-        if (GLFW.glfwExtensionSupported("GL_ARB_framebuffer_object") != 0) {
+        if (GLFW.glfwExtensionSupported("GL_ARB_framebuffer_object")) {
             return glGetInteger(ARBFramebufferObject.GL_MAX_SAMPLES);
-        } else if (GLFW.glfwExtensionSupported("GL_EXT_framebuffer_multisample") != 0) {
+        } else if (GLFW.glfwExtensionSupported("GL_EXT_framebuffer_multisample")) {
             return glGetInteger(EXTFramebufferMultisample.GL_MAX_SAMPLES_EXT);
         }
 

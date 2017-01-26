@@ -70,7 +70,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
 
     protected AtomicBoolean needClose = new AtomicBoolean(false);
     protected final AtomicBoolean needRestart = new AtomicBoolean(false);
-    protected int wasActive = GL.GL_FALSE;
+    protected boolean wasActive = false;
     protected boolean autoFlush = true;
     protected boolean allowSwapBuffers = false;
     private long window = NULL;
@@ -138,7 +138,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
             }
         });
 
-        if ( glfwInit() == GLFW_FALSE ) {
+        if ( glfwInit() == false ) {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
 
@@ -165,7 +165,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
 
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, settings.isResizable() ? GLFW_TRUE : GLFW_FALSE);
-        glfwWindowHint(GLFW_DOUBLE_BUFFER, GLFW_TRUE);
+        glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
         glfwWindowHint(GLFW_DEPTH_BITS, settings.getDepthBits());
         glfwWindowHint(GLFW_STENCIL_BITS, settings.getStencilBits());
         glfwWindowHint(GLFW_SAMPLES, settings.getSamples());
@@ -206,15 +206,15 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
         glfwSetWindowFocusCallback(window, windowFocusCallback = new GLFWWindowFocusCallback() {
 
 			@Override
-			public void invoke(long window, int focused) {
+			public void invoke(long window, boolean focused) {
 				if (wasActive != focused) {
-                    if (wasActive == GL11.GL_FALSE) {
+                    if (wasActive == false) {
                         listener.gainFocus();
                         timer.reset();
-                        wasActive = GL11.GL_TRUE;
+                        wasActive = true;
                     } else {
                         listener.loseFocus();
-                        wasActive = GL11.GL_FALSE;
+                        wasActive = false;
                     }
 
                     
@@ -273,28 +273,20 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
             }
 
             if (errorCallback != null) {
-            	
-            	//FIXME: Needs LWJGL 3.1.0
-                //errorCallback.free();
-            	errorCallback.release();
-            	
+                errorCallback.free();
             	errorCallback = null;
             }
 
             if (windowSizeCallback != null) {
-            	
-            	//FIXME: Needs LWJGL 3.1.0
-                //windowSizeCallback.free();
-            	windowSizeCallback.release();
+
+                windowSizeCallback.free();
                 
                 windowSizeCallback = null;
             }
 
             if (windowFocusCallback != null) {
             	
-            	//FIXME: Needs LWJGL 3.1.0
-                //windowFocusCallback.free();
-            	windowFocusCallback.release();
+                windowFocusCallback.free();
                 
                 windowFocusCallback = null;
             }
@@ -479,7 +471,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
                 break;
             }
 
-            if (glfwWindowShouldClose(window) == GLFW_TRUE) {
+            if (glfwWindowShouldClose(window) == true) {
                 listener.requestClose(false);
             }
         }

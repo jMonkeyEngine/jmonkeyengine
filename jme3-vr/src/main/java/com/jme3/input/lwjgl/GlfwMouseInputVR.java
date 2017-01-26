@@ -241,15 +241,11 @@ public class GlfwMouseInputVR implements MouseInput {
         if (!context.isRenderable()) {
             return;
         }
-
-        cursorPosCallback.release();
-        scrollCallback.release();
-        mouseButtonCallback.release();
         
         //FIXME: Needs LWJGL 3.1.0
-        //cursorPosCallback.free();
-        //scrollCallback.free();
-        //mouseButtonCallback.free();
+        cursorPosCallback.free();
+        scrollCallback.free();
+        mouseButtonCallback.free();
         
         for (long glfwCursor : jmeToGlfwCursorMap.values()) {
             glfwDestroyCursor(glfwCursor);

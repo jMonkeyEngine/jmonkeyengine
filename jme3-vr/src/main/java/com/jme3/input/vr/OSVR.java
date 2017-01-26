@@ -175,7 +175,7 @@ public class OSVR implements VRAPI {
      * @return <code>true</code> if the context is successfully shared and <code>false</code> otherwise.
      */
     public boolean shareContext() {
-        if( org.lwjgl.opengl.WGL.wglShareLists(wglRM, wglGLFW) == 0) {
+        if( org.lwjgl.opengl.WGL.wglShareLists(wglRM, wglGLFW)) {
             System.out.println("Context sharing success!");
             return true;
         } else {

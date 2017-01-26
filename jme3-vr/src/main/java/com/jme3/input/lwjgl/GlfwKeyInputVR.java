@@ -121,9 +121,7 @@ public class GlfwKeyInputVR implements KeyInput {
             return;
         }
 
-        //FIXME: Needs LWJGL 3.1.0
-        //keyCallback.free();
-        keyCallback.release();
+        keyCallback.free();
         
         logger.fine("Keyboard destroyed.");
     }

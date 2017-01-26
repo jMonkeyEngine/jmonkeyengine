@@ -13,4 +13,5 @@ dependencies {
 	
 	// https://mvnrepository.com/artifact/net.java.dev.jna/jna
     compile group: 'net.java.dev.jna', name: 'jna', version: '4.3.0'
+    compile 'com.nativelibs4java:jnaerator-runtime:0.12'
 }

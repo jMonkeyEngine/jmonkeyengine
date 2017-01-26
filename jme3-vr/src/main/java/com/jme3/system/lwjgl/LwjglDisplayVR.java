@@ -31,6 +31,7 @@
  */
 package com.jme3.system.lwjgl;
 
+import com.jme3.opencl.Context;
 
 /**
  * A VR oriented LWJGL display.
@@ -46,6 +47,11 @@ public class LwjglDisplayVR extends LwjglWindowVR {
     public LwjglDisplayVR() {
         super(Type.Display);
     }
+
+	@Override
+	public Context getOpenCLContext() {
+		return null;
+	}
 
    
 }
