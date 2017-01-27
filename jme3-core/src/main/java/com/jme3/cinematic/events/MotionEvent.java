@@ -214,6 +214,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
         oc.write(rotation, "rotation", null);
         oc.write(directionType, "directionType", Direction.None);
         oc.write(path, "path", null);
+        oc.write(spatial, "spatial", null);
     }
 
     @Override
@@ -225,6 +226,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
         rotation = (Quaternion) in.readSavable("rotation", null);
         directionType = in.readEnum("directionType", Direction.class, Direction.None);
         path = (MotionPath) in.readSavable("path", null);
+        spatial = (Spatial) in.readSavable("spatial", null);
     }
 
     /**
