@@ -269,7 +269,7 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
     public void render(RenderManager rm, ViewPort vp) {
     }
 
-    public void setPhysicsSpace(final PhysicsSpace space) {
+    public void setPhysicsSpace(PhysicsSpace space) {
         if (space == null) {
             if (this.space != null) {
                 this.space.removeCollisionObject(this);
