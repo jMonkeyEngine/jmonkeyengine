@@ -53,6 +53,7 @@ import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 
 /**
@@ -143,6 +144,8 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
         }
         control.setApplyPhysicsLocal(isApplyPhysicsLocal());
         control.spatial = this.spatial;
+        control.setEnabled(isEnabled());
+
         return control;
     }     
 
@@ -266,16 +269,20 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
     public void render(RenderManager rm, ViewPort vp) {
     }
 
-    public void setPhysicsSpace(PhysicsSpace space) {
+    public void setPhysicsSpace(final PhysicsSpace space) {
+        final PhysicsSpace currentSpace = getPhysicsSpace();
         if (space == null) {
-            if (this.space != null) {
-                this.space.removeCollisionObject(this);
+            if (currentSpace != null) {
+                currentSpace.removeCollisionObject(this);
                 added = false;
             }
         } else {
-            if(this.space==space) return;
-            space.addCollisionObject(this);
-            added = true;
+            if (currentSpace == space) return;
+            // if this object isn't enabled, it will be added when it will be enabled.
+            if (isEnabled()) {
+                space.addCollisionObject(this);
+                added = true;
+            }
         }
         this.space = space;
     }
