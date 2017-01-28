@@ -20,6 +20,7 @@ The engine is used by several commercial game studios and computer-science cours
  - [3089 (on steam)](http://store.steampowered.com/app/263360/)
  - [3079 (on steam)](http://store.steampowered.com/app/259620/)
  - [Lightspeed Frontier](http://www.lightspeedfrontier.com/)
+ - [Skullstone](http://www.skullstonegame.com/)
 
 ## Getting started
 
