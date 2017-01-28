@@ -270,14 +270,13 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
     }
 
     public void setPhysicsSpace(final PhysicsSpace space) {
-        final PhysicsSpace currentSpace = getPhysicsSpace();
         if (space == null) {
-            if (currentSpace != null) {
-                currentSpace.removeCollisionObject(this);
+            if (this.space != null) {
+                this.space.removeCollisionObject(this);
                 added = false;
             }
         } else {
-            if (currentSpace == space) return;
+            if (this.space == space) return;
             // if this object isn't enabled, it will be added when it will be enabled.
             if (isEnabled()) {
                 space.addCollisionObject(this);
