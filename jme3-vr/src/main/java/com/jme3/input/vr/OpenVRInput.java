@@ -5,18 +5,20 @@
  */
 package com.jme3.input.vr;
 
+import java.util.logging.Logger;
+
 import com.jme3.app.VRApplication;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
+import com.jme3.system.jopenvr.JOpenVRLibrary;
+import com.jme3.system.jopenvr.VRControllerState_t;
+import com.jme3.system.jopenvr.VR_IVRSystem_FnTable;
 
 import jmevr.util.VRUtil;
 import jmevr.util.VRViewManager;
-import jopenvr.JOpenVRLibrary;
-import jopenvr.VRControllerState_t;
-import jopenvr.VR_IVRSystem_FnTable;
 
 /*
 make helper functions to pull the following easily from raw data (DONE)
@@ -64,32 +66,44 @@ Button press: 2, touch: 2
  */
 public class OpenVRInput implements VRInputAPI {
         
-    private static final VRControllerState_t[] cStates = new VRControllerState_t[JOpenVRLibrary.k_unMaxTrackedDeviceCount];
+	private static final Logger logger = Logger.getLogger(OpenVRInput.class.getName());
+	
+    private final VRControllerState_t[] cStates = new VRControllerState_t[JOpenVRLibrary.k_unMaxTrackedDeviceCount];
     
-    private static final Quaternion[] rotStore = new Quaternion[JOpenVRLibrary.k_unMaxTrackedDeviceCount];
+    private final Quaternion[] rotStore = new Quaternion[JOpenVRLibrary.k_unMaxTrackedDeviceCount];
     
-    private static final Vector3f[] posStore   = new Vector3f[JOpenVRLibrary.k_unMaxTrackedDeviceCount];
+    private final Vector3f[] posStore   = new Vector3f[JOpenVRLibrary.k_unMaxTrackedDeviceCount];
     
     private static final int[] controllerIndex = new int[JOpenVRLibrary.k_unMaxTrackedDeviceCount];
     
-    private static int controllerCount = 0;
+    private int controllerCount = 0;
     
-    private static final Vector2f tempAxis = new Vector2f(), temp2Axis = new Vector2f();
+    private final Vector2f tempAxis = new Vector2f(), temp2Axis = new Vector2f();
     
-    private static final Vector2f lastCallAxis[] = new Vector2f[JOpenVRLibrary.k_unMaxTrackedDeviceCount];
+    private final Vector2f lastCallAxis[] = new Vector2f[JOpenVRLibrary.k_unMaxTrackedDeviceCount];
     
-    private static final boolean needsNewVelocity[]    = new boolean[JOpenVRLibrary.k_unMaxTrackedDeviceCount];
+    private final boolean needsNewVelocity[]    = new boolean[JOpenVRLibrary.k_unMaxTrackedDeviceCount];
     
-    private static final boolean needsNewAngVelocity[] = new boolean[JOpenVRLibrary.k_unMaxTrackedDeviceCount];
+    private final boolean needsNewAngVelocity[] = new boolean[JOpenVRLibrary.k_unMaxTrackedDeviceCount];
     
-    private static final boolean buttonDown[][]        = new boolean[JOpenVRLibrary.k_unMaxTrackedDeviceCount][16];
+    private final boolean buttonDown[][]        = new boolean[JOpenVRLibrary.k_unMaxTrackedDeviceCount][16];
     
-    private static float axisMultiplier = 1f;
+    private float axisMultiplier = 1f;
     
-    private static final Vector3f tempVel = new Vector3f();
+    private final Vector3f tempVel = new Vector3f();
     
-    private static final Quaternion tempq = new Quaternion();
+    private final Quaternion tempq = new Quaternion();
 
+    private VRApplication application;
+    
+    /**
+     * Create a new <a href="https://github.com/ValveSoftware/openvr/wiki/API-Documentation">OpenVR</a> input attached to the given application.
+     * @param application the application to which the input is attached.
+     */
+    public OpenVRInput(VRApplication application){
+      this.application = application;
+    }
+    
     @Override
     public float getAxisMultiplier() {
         return axisMultiplier;
@@ -229,6 +243,9 @@ public class OpenVRInput implements VRInputAPI {
     
     @Override
     public boolean init() {
+    	
+    	logger.config("Initialize OpenVR input.");
+    	
         for(int i=0;i<JOpenVRLibrary.k_unMaxTrackedDeviceCount;i++) {
             rotStore[i] = new Quaternion();
             posStore[i] = new Vector3f();
@@ -262,7 +279,7 @@ public class OpenVRInput implements VRInputAPI {
     
     @Override
     public boolean isInputFocused() {
-        return ((VR_IVRSystem_FnTable)VRApplication.getVRHardware().getVRSystem()).IsInputFocusCapturedByAnotherProcess.apply() == 0;       
+        return ((VR_IVRSystem_FnTable)application.getVRHardware().getVRSystem()).IsInputFocusCapturedByAnotherProcess.apply() == 0;       
     }
     
     @Override
@@ -292,9 +309,9 @@ public class OpenVRInput implements VRInputAPI {
     
     @Override
     public Quaternion getFinalObserverRotation(int index) {
-        VRViewManager vrvm = VRApplication.getVRViewManager();
+        VRViewManager vrvm = application.getVRViewManager();
         if( vrvm == null || isInputDeviceTracking(index) == false ) return null;
-        Object obs = VRApplication.getObserver();
+        Object obs = application.getObserver();
         if( obs instanceof Camera ) {
             tempq.set(((Camera)obs).getRotation());
         } else {
@@ -305,9 +322,9 @@ public class OpenVRInput implements VRInputAPI {
     
     @Override 
     public Vector3f getFinalObserverPosition(int index) {
-        VRViewManager vrvm = VRApplication.getVRViewManager();
+        VRViewManager vrvm = application.getVRViewManager();
         if( vrvm == null || isInputDeviceTracking(index) == false ) return null;
-        Object obs = VRApplication.getObserver();
+        Object obs = application.getObserver();
         Vector3f pos = getPosition(index);
         if( obs instanceof Camera ) {
             ((Camera)obs).getRotation().mult(pos, pos);
@@ -320,9 +337,9 @@ public class OpenVRInput implements VRInputAPI {
     
     @Override
     public void triggerHapticPulse(int controllerIndex, float seconds) {
-        if( VRApplication.isInVR() == false || isInputDeviceTracking(controllerIndex) == false ) return;
+        if( application.isInVR() == false || isInputDeviceTracking(controllerIndex) == false ) return;
         // apparently only axis ID of 0 works
-        ((VR_IVRSystem_FnTable)VRApplication.getVRHardware().getVRSystem()).TriggerHapticPulse.apply(OpenVRInput.controllerIndex[controllerIndex],
+        ((VR_IVRSystem_FnTable)application.getVRHardware().getVRSystem()).TriggerHapticPulse.apply(OpenVRInput.controllerIndex[controllerIndex],
                                                                                                      0, (short)Math.round(3f * seconds / 1e-3f));
     }
     
@@ -330,7 +347,7 @@ public class OpenVRInput implements VRInputAPI {
     public void updateConnectedControllers() {
     	controllerCount = 0;
     	for(int i=0;i<JOpenVRLibrary.k_unMaxTrackedDeviceCount;i++) {
-    		if( ((OpenVR)VRApplication.getVRHardware()).getVRSystem().GetTrackedDeviceClass.apply(i) == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_Controller ) {
+    		if( ((OpenVR)application.getVRHardware()).getVRSystem().GetTrackedDeviceClass.apply(i) == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_Controller ) {
     			controllerIndex[controllerCount] = i;
     			controllerCount++;
     		}
@@ -341,11 +358,16 @@ public class OpenVRInput implements VRInputAPI {
     public void updateControllerStates() {
     	for(int i=0;i<controllerCount;i++) {
     		int index = controllerIndex[i];
-    		((OpenVR)VRApplication.getVRHardware()).getVRSystem().GetControllerState.apply(index, cStates[index]);
+    		((OpenVR)application.getVRHardware()).getVRSystem().GetControllerState.apply(index, cStates[index]);
     		cStates[index].readField("ulButtonPressed");
     		cStates[index].readField("rAxis");
     		needsNewVelocity[index] = true;
     		needsNewAngVelocity[index] = true;
     	}
     }
+
+	@Override
+	public VRApplication getApplication() {
+		return application;
+	}
 }

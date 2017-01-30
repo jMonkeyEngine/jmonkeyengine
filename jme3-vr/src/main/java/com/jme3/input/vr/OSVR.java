@@ -9,6 +9,7 @@ https://github.com/sensics/OSVR-RenderManager/blob/master/examples/RenderManager
  */
 package com.jme3.input.vr;
 
+import com.jme3.app.VRApplication;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
@@ -19,6 +20,7 @@ import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
 import java.nio.FloatBuffer;
+import java.util.logging.Logger;
 
 import osvrclientkit.OsvrClientKitLibrary;
 import osvrdisplay.OsvrDisplayLibrary;
@@ -39,6 +41,8 @@ import osvrrendermanageropengl.OsvrRenderManagerOpenGLLibrary;
  */
 public class OSVR implements VRAPI {
 
+	private static final Logger logger = Logger.getLogger(OSVR.class.getName());
+	
 	/**
 	 * The first viewer index.
 	 */
@@ -106,6 +110,16 @@ public class OSVR implements VRAPI {
     boolean initSuccess = false;
     boolean flipEyes = false;
     
+    private VRApplication application = null;
+    
+    /**
+     * Create a new <a href="http://www.osvr.org/">OSVR</a> system attached to the given application.
+     * @param application the application to which the input is attached.
+     */
+    public OSVR(VRApplication application){
+    	this.application = application;
+    }
+    
     /**
      * Access to the underlying OSVR structures.
      * @param leftView the left viewport.
@@ -130,9 +144,12 @@ public class OSVR implements VRAPI {
      
     @Override
     public boolean initialize() {
+    	
+    	logger.config("Initialize OSVR system.");
+    	
         hmdPose.setAutoSynch(false);
         context = OsvrClientKitLibrary.osvrClientInit(defaultJString, 0);
-        VRinput = new OSVRInput();
+        VRinput = new OSVRInput(application);
         initSuccess = context != null && VRinput.init();
         if( initSuccess ) {
             PointerByReference grabDisplay = new PointerByReference();
@@ -443,5 +460,10 @@ public class OSVR implements VRAPI {
     public HmdType getType() {
         return HmdType.OSVR;
     }
+
+	@Override
+	public VRApplication getApplication() {
+		return application;
+	}
 
 }

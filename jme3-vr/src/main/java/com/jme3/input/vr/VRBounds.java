@@ -1,9 +1,10 @@
 package com.jme3.input.vr;
 
 import com.jme3.math.Vector2f;
+import com.jme3.system.jopenvr.JOpenVRLibrary;
+import com.jme3.system.jopenvr.VR_IVRChaperone_FnTable;
+
 import java.nio.FloatBuffer;
-import jopenvr.JOpenVRLibrary;
-import jopenvr.VR_IVRChaperone_FnTable;
 
 /**
  * A class that represents VR world bounds.

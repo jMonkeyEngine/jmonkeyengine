@@ -5,6 +5,7 @@
  */
 package com.jme3.input.vr;
 
+import com.jme3.app.VRApplication;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -185,4 +186,10 @@ public interface VRInputAPI {
      * @param seconds the duration of the pulse in seconds.
      */
     public void triggerHapticPulse(int controllerIndex, float seconds);
+    
+    /**
+     * Get the VR application to which this input is attached.
+     * @return the VR application to which this input is attached.
+     */
+    public VRApplication getApplication();
 }

@@ -5,6 +5,8 @@
  */
 package com.jme3.input.vr;
 
+import java.util.logging.Logger;
+
 import com.jme3.app.VRApplication;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
@@ -32,6 +34,8 @@ import osvrtimevalue.OSVR_TimeValue;
  */
 public class OSVRInput implements VRInputAPI {
 
+	private static final Logger logger = Logger.getLogger(OSVRInput.class.getName());
+	
     // position example: https://github.com/OSVR/OSVR-Core/blob/master/examples/clients/TrackerState.c
     // button example: https://github.com/OSVR/OSVR-Core/blob/master/examples/clients/ButtonCallback.c
     // analog example: https://github.com/OSVR/OSVR-Core/blob/master/examples/clients/AnalogCallback.c
@@ -59,6 +63,8 @@ public class OSVRInput implements VRInputAPI {
     private static final Vector2f lastCallAxis[] = new Vector2f[16];
     private static float axisMultiplier = 1f;
     
+    private VRApplication application = null;
+    
     /**
      * Get the system String that identifies a controller.
      * @param left is the controller is the left one (<code>false</code> if the right controller is needed).
@@ -82,6 +88,16 @@ public class OSVRInput implements VRInputAPI {
      */
     public static byte[] rightHand = { '/', 'm', 'e', '/', 'h', 'a', 'n', 'd', 's', '/', 'r', 'i', 'g', 'h', 't', (byte)0 };
 
+    
+    /**
+     * Create a new <a href="http://www.osvr.org/">OSVR</a> input attached to the given application.
+     * @param application the application to which the input is attached.
+     */
+    public OSVRInput(VRApplication application){
+      this.application = application;
+    }
+    
+    
     @Override
     public boolean isButtonDown(int controllerIndex, VRInputType checkButton) {
         return buttonState[controllerIndex][checkButton.getValue()] != 0f;
@@ -150,13 +166,15 @@ public class OSVRInput implements VRInputAPI {
     
     private OSVR_ClientInterface getInterface(byte[] str) {
         PointerByReference pbr = new PointerByReference();
-        OsvrClientKitLibrary.osvrClientGetInterface((OsvrClientKitLibrary.OSVR_ClientContext)VRApplication.getVRHardware().getVRSystem(), str, pbr);
+        OsvrClientKitLibrary.osvrClientGetInterface((OsvrClientKitLibrary.OSVR_ClientContext)application.getVRHardware().getVRSystem(), str, pbr);
         return new OSVR_ClientInterface(pbr.getValue());
     }
 
     @Override
     public boolean init() {
         
+    	logger.config("Initialize OSVR input.");
+    	
         buttonHandler = new Callback() {
             @SuppressWarnings("unused")
 			public void invoke(Pointer userdata, Pointer timeval, OSVR_ButtonReport report) {
@@ -284,9 +302,9 @@ public class OSVRInput implements VRInputAPI {
 
     @Override
     public Quaternion getFinalObserverRotation(int index) {
-        VRViewManager vrvm = VRApplication.getVRViewManager();
+        VRViewManager vrvm = application.getVRViewManager();
         if( vrvm == null || isInputDeviceTracking(index) == false ) return null;
-        Object obs = VRApplication.getObserver();
+        Object obs = application.getObserver();
         if( obs instanceof Camera ) {
             tempq.set(((Camera)obs).getRotation());
         } else {
@@ -297,9 +315,9 @@ public class OSVRInput implements VRInputAPI {
     
     @Override
     public Vector3f getFinalObserverPosition(int index) {
-        VRViewManager vrvm = VRApplication.getVRViewManager();
+        VRViewManager vrvm = application.getVRViewManager();
         if( vrvm == null || isInputDeviceTracking(index) == false ) return null;
-        Object obs = VRApplication.getObserver();
+        Object obs = application.getObserver();
         Vector3f pos = getPosition(index);
         if( obs instanceof Camera ) {
             ((Camera)obs).getRotation().mult(pos, pos);
@@ -329,5 +347,11 @@ public class OSVRInput implements VRInputAPI {
     public void setAxisMultiplier(float set) {
         axisMultiplier = set;
     }
+
+
+	@Override
+	public VRApplication getApplication() {
+		return application;
+	}
     
 }

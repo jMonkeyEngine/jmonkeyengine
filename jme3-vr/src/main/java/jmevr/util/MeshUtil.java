@@ -7,10 +7,9 @@ package jmevr.util;
 import com.jme3.app.VRApplication;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
-
-import jopenvr.DistortionCoordinates_t;
-import jopenvr.JOpenVRLibrary;
-import jopenvr.VR_IVRSystem_FnTable;
+import com.jme3.system.jopenvr.DistortionCoordinates_t;
+import com.jme3.system.jopenvr.JOpenVRLibrary;
+import com.jme3.system.jopenvr.VR_IVRSystem_FnTable;
 
 /**
  *
@@ -18,7 +17,7 @@ import jopenvr.VR_IVRSystem_FnTable;
  */
 public class MeshUtil {
 
-    public static Mesh setupDistortionMesh(int eye) {
+    public static Mesh setupDistortionMesh(int eye, VRApplication application) {
         Mesh distortionMesh = new Mesh();
         float m_iLensGridSegmentCountH = 43, m_iLensGridSegmentCountV = 43;
         
@@ -46,7 +45,7 @@ public class MeshUtil {
                 vertPos += 3;
 
                 DistortionCoordinates_t dc0;
-                if( VRApplication.getVRHardware().getVRSystem() == null ) {
+                if( application.getVRHardware().getVRSystem() == null ) {
                     // default to no distortion
                     texcoordR[coordPos] = u;
                     texcoordR[coordPos + 1] = 1 - v;
@@ -55,7 +54,7 @@ public class MeshUtil {
                     texcoordB[coordPos] = u;
                     texcoordB[coordPos + 1] = 1 - v;                    
                 } else {
-                    dc0 = ((VR_IVRSystem_FnTable)VRApplication.getVRHardware().getVRSystem()).ComputeDistortion.apply(eye, u, v);
+                    dc0 = ((VR_IVRSystem_FnTable)application.getVRHardware().getVRSystem()).ComputeDistortion.apply(eye, u, v);
                     
                     texcoordR[coordPos] = dc0.rfRed[0];
                     texcoordR[coordPos + 1] = 1 - dc0.rfRed[1];

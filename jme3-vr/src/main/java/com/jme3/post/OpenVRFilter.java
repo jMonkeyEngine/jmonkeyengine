@@ -13,11 +13,10 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
+import com.jme3.system.jopenvr.DistortionCoordinates_t;
+import com.jme3.system.jopenvr.JOpenVRLibrary;
+import com.jme3.system.jopenvr.VR_IVRSystem_FnTable;
 import com.jme3.texture.FrameBuffer;
-
-import jopenvr.DistortionCoordinates_t;
-import jopenvr.JOpenVRLibrary;
-import jopenvr.VR_IVRSystem_FnTable;
 
 /**
  * DO NOT USE
@@ -29,11 +28,14 @@ public class OpenVRFilter extends Filter {
 
     private Mesh distortionMesh;
     
+    private VRApplication application = null;
+    
     /**
      * DO NOT USE
+     * @param application the VR application.
      */
-    public OpenVRFilter() {
-        
+    public OpenVRFilter(VRApplication application) {
+        this.application = application;
     }
     
     /**
@@ -104,7 +106,7 @@ public class OpenVRFilter extends Filter {
                         verts[vertPos+2] = 0f; // z
                         vertPos += 3;
 
-			DistortionCoordinates_t dc0 = ((VR_IVRSystem_FnTable)VRApplication.getVRHardware().getVRSystem()).ComputeDistortion.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Left, u, v);
+			DistortionCoordinates_t dc0 = ((VR_IVRSystem_FnTable)application.getVRHardware().getVRSystem()).ComputeDistortion.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Left, u, v);
 
 			texcoordR[coordPos]   = dc0.rfRed[0];
                         texcoordR[coordPos+1] = 1 - dc0.rfRed[1];
@@ -128,7 +130,7 @@ public class OpenVRFilter extends Filter {
                         verts[vertPos+2] = 0f; // z
                         vertPos += 3;
 
-			DistortionCoordinates_t dc0 = ((VR_IVRSystem_FnTable)VRApplication.getVRHardware().getVRSystem()).ComputeDistortion.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Right, u, v);
+			DistortionCoordinates_t dc0 = ((VR_IVRSystem_FnTable)application.getVRHardware().getVRSystem()).ComputeDistortion.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Right, u, v);
 
 			texcoordR[coordPos]   = dc0.rfRed[0];
                         texcoordR[coordPos+1] = 1 - dc0.rfRed[1];

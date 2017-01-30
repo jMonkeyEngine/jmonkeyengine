@@ -245,8 +245,7 @@ public abstract class LwjglWindowVR extends LwjglContextVR implements Runnable {
         if (Type.Display.equals(type)) {
             glfwShowWindow(window);
             
-            //FIXME: Needs LGJGL 3.1.0
-            //glfwFocusWindow(window);
+            glfwFocusWindow(window);
         }
 
         // Add a resize callback which delegates to the listener

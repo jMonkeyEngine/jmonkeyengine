@@ -5,7 +5,6 @@
  */
 package com.jme3.post;
 
-import com.jme3.app.VRApplication;
 import com.jme3.post.Filter.Pass;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
@@ -54,11 +53,12 @@ public class PreNormalCaching {
         renderManager.getRenderer().setFrameBuffer(viewPort.getOutputFrameBuffer());
     }
     
-    /**
-     * 
-     */
-    public static void resetCache() {
-        if( VRApplication.isInVR() == false ) {
+   /**
+    * Reset the cache
+    * @param stereo <code>true</code> if the rendering is stereo based and <code>false</code> otherwise.
+    */
+    public static void resetCache(boolean stereo) {
+        if( stereo == false ) {
             // only use this feature if we are NOT in VR
             // we can't use the same normal information for another eye,
             // because it will be different!

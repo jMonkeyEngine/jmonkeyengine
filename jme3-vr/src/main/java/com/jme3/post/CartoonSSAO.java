@@ -4,7 +4,6 @@
 */
 package com.jme3.post;
 
-import com.jme3.app.VRApplication;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
@@ -28,22 +27,27 @@ public class CartoonSSAO extends Filter{
     private boolean useOutline = true;
     private float downsample = 1f, applyDistance = 0.0005f;
 
+    private boolean instancedRendering = false;
+    
     RenderManager renderManager;
     ViewPort viewPort;
 
     /**
-    * Create a Screen Space Ambient Occlusion Filter
+    * Create a Screen Space Ambient Occlusion Filter.
+    * @param instancedRendering <code>true</code> if this filter has to use instance rendering and <code>false</code> (default) otherwise.
     */
-    public CartoonSSAO() {
+    public CartoonSSAO(boolean instancedRendering) {
         super("CartoonSSAO");
+        this.instancedRendering = instancedRendering;
     }
 
     /**
-    * Create a Screen Space Ambient Occlusion Filter
-    * @param downsample factor to divide resolution by for filter, >1 increases speed but degrades quality
+    * Create a Screen Space Ambient Occlusion Filter.
+    * @param downsample factor to divide resolution by for filter, >1 increases speed but degrades quality.
+    * @param instancedRendering <code>true</code> if this filter has to use instance rendering and <code>false</code> (default) otherwise.
     */
-    public CartoonSSAO(float downsample) {
-        this();
+    public CartoonSSAO(float downsample, boolean instancedRendering) {
+        this(instancedRendering);
         this.downsample = downsample;
     }
     
@@ -52,7 +56,7 @@ public class CartoonSSAO extends Filter{
      * @param cloneFrom the original filter.
      */
     public CartoonSSAO(CartoonSSAO cloneFrom) {
-        this(cloneFrom.downsample);
+        this(cloneFrom.downsample, cloneFrom.instancedRendering);
     }
 
     @Override
@@ -149,7 +153,7 @@ public class CartoonSSAO extends Filter{
         material.setVector2("FrustumNearFar", frustumNearFar);
         material.setFloat("Distance", applyDistance);
         if( useOutline == false ) material.setBoolean("disableOutline", true);
-        if( VRApplication.isInstanceVRRendering() ) material.setBoolean("useInstancing", true);
+        if( instancedRendering ) material.setBoolean("useInstancing", true);
     }
 
 }

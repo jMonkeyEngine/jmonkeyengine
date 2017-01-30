@@ -5,6 +5,7 @@
  */
 package com.jme3.input.vr;
 
+import com.jme3.app.VRApplication;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
@@ -30,6 +31,12 @@ public interface VRAPI {
      * @return <code>true</code> if the initialization is a success and <code>false</code> otherwise.
      */
     public boolean initVRCompositor(boolean allowed);
+    
+    /**
+     * Get the VR application to which this input is attached.
+     * @return the VR application to which this input is attached.
+     */
+    public VRApplication getApplication();
     
     /**
      * Get the object that wraps natively the VR system.

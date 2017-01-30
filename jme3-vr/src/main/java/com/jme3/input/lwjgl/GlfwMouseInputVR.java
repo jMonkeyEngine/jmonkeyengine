@@ -242,7 +242,6 @@ public class GlfwMouseInputVR implements MouseInput {
             return;
         }
         
-        //FIXME: Needs LWJGL 3.1.0
         cursorPosCallback.free();
         scrollCallback.free();
         mouseButtonCallback.free();

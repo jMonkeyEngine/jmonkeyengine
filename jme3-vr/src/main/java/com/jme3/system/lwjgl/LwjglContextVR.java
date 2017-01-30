@@ -44,6 +44,7 @@ import com.jme3.renderer.opengl.*;
 import com.jme3.system.*;
 
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.ARBDebugOutput;
 import org.lwjgl.opengl.ARBFramebufferObject;
 import org.lwjgl.opengl.EXTFramebufferMultisample;
 import org.lwjgl.opengl.GLCapabilities;
@@ -189,12 +190,10 @@ public abstract class LwjglContextVR implements JmeContext {
             throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
         }
 
-        //FIXME: Needs LWJGL 3.1.0
-        /*
         if (capabilities.GL_ARB_debug_output && settings.getBoolean("GraphicsDebug")) {
             ARBDebugOutput.glDebugMessageCallbackARB(new LwjglGLDebugOutputHandler(), 0);
         }
-        */
+        
         renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
         renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
 
