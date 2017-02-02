@@ -31,7 +31,7 @@ public class JOpenVRLibrary implements Library {
 	static {
 		Native.register(JOpenVRLibrary.class, JOpenVRLibrary.JNA_NATIVE_LIB);
 	}
-	
+
 	// OpenVR Constants
 	public static final int k_unMaxDriverDebugResponseSize = 32768;
 	public static final int k_unTrackedDeviceIndex_Hmd     = 0;
@@ -237,32 +237,7 @@ public class JOpenVRLibrary implements Library {
 	};
 	
 	
-	public static String getETextureTypeString(int type){
-		
-		String str = "";
-		
-		switch(type){
-		  case ETextureType.ETextureType_TextureType_DirectX:
-			  str = "DirectX";
-			  break;
-		  case ETextureType.ETextureType_TextureType_OpenGL:
-			  str = "OpenGL";
-			  break;
-		  case ETextureType.ETextureType_TextureType_Vulkan:
-			  str = "Vulkan";
-			  break;
-		  case ETextureType.ETextureType_TextureType_IOSurface:
-			  str = "IOSurface";
-			  break;
-		  case ETextureType.ETextureType_TextureType_DirectX12:
-			  str = "DirectX12";
-			  break;
-		  default: 
-			  str = "Unknown ("+type+")";
-		}
-		
-		return str;
-	}
+
 	
 	/**
 	 * <i>native declaration : headers\openvr_capi.h:190</i><br>
@@ -277,25 +252,7 @@ public class JOpenVRLibrary implements Library {
 		public static final int EColorSpace_ColorSpace_Linear = 2;
 	};
 	
-	public static String getEColorSpaceString(int eColorSpace){
-		String str = "";
-		
-		switch(eColorSpace){
-		  case EColorSpace.EColorSpace_ColorSpace_Auto:
-			  str = "Auto";
-			  break;
-		  case EColorSpace.EColorSpace_ColorSpace_Gamma:
-			  str = "Gamma";
-			  break;
-		  case EColorSpace.EColorSpace_ColorSpace_Linear:
-			  str = "Linear";
-			  break;
-		  default:
-			  str = "Unknown ("+eColorSpace+")";
-		}
-		
-		return str;
-	}
+
 	
 	/**
 	 * <i>native declaration : headers\openvr_capi.h:197</i><br>
@@ -354,29 +311,58 @@ public class JOpenVRLibrary implements Library {
 		public static final int ETrackingUniverseOrigin_TrackingUniverseRawAndUncalibrated = 2;
 	};
 	/**
-	 * <i>native declaration : headers\openvr_capi.h:325</i><br>
-	 * enum values
+     * The enumeration of tracked devices properties.
 	 */
 	public static interface ETrackedDeviceProperty {
-		/** <i>native declaration : headers\openvr_capi.h:216</i> */
+
+        /**
+         * An invalid property.
+         */
 		public static final int ETrackedDeviceProperty_Prop_Invalid = 0;
-		/** <i>native declaration : headers\openvr_capi.h:217</i> */
+		
+		/**
+		 * The tracking system name property (String).
+		 */
 		public static final int ETrackedDeviceProperty_Prop_TrackingSystemName_String = 1000;
-		/** <i>native declaration : headers\openvr_capi.h:218</i> */
+		
+		/**
+		 * The tracking system <code>model number</code> property (String).
+		 */
 		public static final int ETrackedDeviceProperty_Prop_ModelNumber_String = 1001;
-		/** <i>native declaration : headers\openvr_capi.h:219</i> */
+		
+		/**
+		 * The tracking system <code>serial number</code> property (String).
+		 */
 		public static final int ETrackedDeviceProperty_Prop_SerialNumber_String = 1002;
-		/** <i>native declaration : headers\openvr_capi.h:220</i> */
+		
+		/**
+		 * The tracking system <code>render model name</code> property (String).
+		 */
 		public static final int ETrackedDeviceProperty_Prop_RenderModelName_String = 1003;
-		/** <i>native declaration : headers\openvr_capi.h:221</i> */
+		
+		/**
+		 * The tracking system <code>will drift in yaw</code> property (<code>bool</code>).
+		 */
 		public static final int ETrackedDeviceProperty_Prop_WillDriftInYaw_Bool = 1004;
-		/** <i>native declaration : headers\openvr_capi.h:222</i> */
+		
+		/**
+		 * The tracking system <code>manufacturer name</code> property (String).
+		 */
 		public static final int ETrackedDeviceProperty_Prop_ManufacturerName_String = 1005;
-		/** <i>native declaration : headers\openvr_capi.h:223</i> */
+		
+		/**
+		 * The tracking system <code>tracking firmware version</code> property (String).
+		 */
 		public static final int ETrackedDeviceProperty_Prop_TrackingFirmwareVersion_String = 1006;
-		/** <i>native declaration : headers\openvr_capi.h:224</i> */
+		
+		/**
+		 * The tracking system <code>hardware revision</code> property (String).
+		 */
 		public static final int ETrackedDeviceProperty_Prop_HardwareRevision_String = 1007;
-		/** <i>native declaration : headers\openvr_capi.h:225</i> */
+		
+		/**
+		 * The tracking system <code>all wireless dongle descriptions</code> property (String).
+		 */
 		public static final int ETrackedDeviceProperty_Prop_AllWirelessDongleDescriptions_String = 1008;
 		/** <i>native declaration : headers\openvr_capi.h:226</i> */
 		public static final int ETrackedDeviceProperty_Prop_ConnectedWirelessDongle_String = 1009;
@@ -1257,195 +1243,7 @@ public class JOpenVRLibrary implements Library {
 		public static final int EVRInitError_VRInitError_Steam_SteamInstallationNotFound = 2000;
 	};
 	
-	public static String getEVRInitErrorString(int error){
-		String str = "";
-		
-		switch(error){
-		
-		
-		case EVRInitError.EVRInitError_VRInitError_None: 
-			str="None"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Unknown: 
-			str="Unknown"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_InstallationNotFound: 
-			str="Installation not found"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_InstallationCorrupt: 
-			str="Installation corrupt"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_VRClientDLLNotFound: 
-			str="VR Client DLL not found"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_FileNotFound: 
-			str="File not found"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_FactoryNotFound: 
-			str="Factory not found"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_InterfaceNotFound: 
-			str="Interface not found"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_InvalidInterface: 
-			str="Invalid interface"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_UserConfigDirectoryInvalid: 
-			str="User config directory invalid"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_HmdNotFound: 
-			str="HMD not found"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_NotInitialized: 
-			str="Not initialized"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_PathRegistryNotFound: 
-			str="Path registry not found"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_NoConfigPath: 
-			str="No config path"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_NoLogPath: 
-			str="No log path"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_PathRegistryNotWritable: 
-			str="Path registry not writable"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_AppInfoInitFailed: 
-			str="AppInfo init failed"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_Retry: 
-			str="Init retry";
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_InitCanceledByUser: 
-			str="Init canceled by user"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_AnotherAppLaunching: 
-			str="Another app launching"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_SettingsInitFailed: 
-			str="Setting init failed"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_ShuttingDown: 
-			str="Shutting down"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_TooManyObjects: 
-			str="Too many objects"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_NoServerForBackgroundApp: 
-			str="No server background app"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_NotSupportedWithCompositor: 
-			str="Not supported with compositor"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_NotAvailableToUtilityApps: 
-			str="Not available to utility apps"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_Internal: 
-			str="Internal"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_HmdDriverIdIsNone: 
-			str="Driver Id is None"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_HmdNotFoundPresenceFailed: 
-			str="HMD not found presence failed"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_VRMonitorNotFound: 
-			str="VR monitor not found"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_VRMonitorStartupFailed: 
-			str="VR monitor startup failed"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_LowPowerWatchdogNotSupported: 
-			str="Low power watchdog not supported"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_InvalidApplicationType: 
-			str="Invalid application type"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_NotAvailableToWatchdogApps: 
-			str="Not available to watchdog apps"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_WatchdogDisabledInSettings: 
-			str="Watchdog disabled in settings"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_VRDashboardNotFound: 
-			str="VR dashboard not found"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Init_VRDashboardStartupFailed: 
-			str="VR dashboard setup failed"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Driver_Failed: 
-			str="Driver failed"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Driver_Unknown: 
-			str="Driver unknown"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Driver_HmdUnknown: 
-			str="HMD unknown"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Driver_NotLoaded: 
-			str="Driver not loaded"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Driver_RuntimeOutOfDate: 
-			str="Driver runtime out of date"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Driver_HmdInUse: 
-			str="HMD in use"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Driver_NotCalibrated: 
-			str="Not calibrated"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Driver_CalibrationInvalid: 
-			str="Calibration invalid"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Driver_HmdDisplayNotFound: 
-			str="HMD display not found"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Driver_TrackedDeviceInterfaceUnknown: 
-			str="Tracked device interface unknown"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Driver_HmdDriverIdOutOfBounds: 
-			str="HMD driver Id out of bounds"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_Driver_HmdDisplayMirrored: 
-			str="HMD display mirrored"; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_IPC_ServerInitFailed: 
-			str=""; 
-			break;
-		case EVRInitError.EVRInitError_VRInitError_IPC_ConnectFailed: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_IPC_SharedStateInitFailed: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_IPC_CompositorInitFailed: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_IPC_MutexInitFailed: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_IPC_Failed: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_IPC_CompositorConnectFailed: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_IPC_CompositorInvalidConnectResponse: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_IPC_ConnectFailedAfterMultipleAttempts: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_Compositor_Failed: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_Compositor_D3D11HardwareRequired: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_Compositor_FirmwareRequiresUpdate: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_Compositor_OverlayInitFailed: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_Compositor_ScreenshotsInitFailed: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_VendorSpecific_UnableToConnectToOculusRuntime: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_VendorSpecific_HmdFound_CantOpenDevice: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_VendorSpecific_HmdFound_UnableToRequestConfigStart: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_VendorSpecific_HmdFound_NoStoredConfig: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_VendorSpecific_HmdFound_ConfigTooBig: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_VendorSpecific_HmdFound_ConfigTooSmall: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_VendorSpecific_HmdFound_UnableToInitZLib: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_VendorSpecific_HmdFound_CantReadFirmwareVersion: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_VendorSpecific_HmdFound_UnableToSendUserDataStart: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_VendorSpecific_HmdFound_UnableToGetUserDataStart: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_VendorSpecific_HmdFound_UnableToGetUserDataNext: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_VendorSpecific_HmdFound_UserDataAddressRange: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_VendorSpecific_HmdFound_UserDataError: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_VendorSpecific_HmdFound_ConfigFailedSanityCheck: str=""; break;
-		case EVRInitError.EVRInitError_VRInitError_Steam_SteamInstallationNotFound: str=""; break;
-		default:
-	    }
-		
-		return str;
-	}
+	
 	
 	/**
 	 * <i>native declaration : headers\openvr_capi.h:656</i><br>
@@ -1698,46 +1496,7 @@ public class JOpenVRLibrary implements Library {
 		public static final int EVRCompositorError_VRCompositorError_AlreadySubmitted = 108;
 	};
 	
-	public static String getEVRCompositorErrorString(int error){
-		String str ="";
-		
-		switch(error){
-		  case EVRCompositorError.EVRCompositorError_VRCompositorError_None: 
-			  str = "None"; 
-		  break;
-		  case EVRCompositorError.EVRCompositorError_VRCompositorError_RequestFailed: 
-			  str = "Request failed"; 
-		  break;
-		  case EVRCompositorError.EVRCompositorError_VRCompositorError_IncompatibleVersion: 
-			  str = "Incompatible version"; 
-		  break;
-		  case EVRCompositorError.EVRCompositorError_VRCompositorError_DoNotHaveFocus: 
-			  str = "Do not have focus"; 
-		  break;
-		  case EVRCompositorError.EVRCompositorError_VRCompositorError_InvalidTexture: 
-             str = "Invalid texture"; 
-		  break;
-		  case EVRCompositorError.EVRCompositorError_VRCompositorError_IsNotSceneApplication: 
-			  str = "Is not scene application"; 
-		  break;
-		  case EVRCompositorError.EVRCompositorError_VRCompositorError_TextureIsOnWrongDevice: 
-			  str = "Texture is on wrong device"; 
-		  break;
-		  case EVRCompositorError.EVRCompositorError_VRCompositorError_TextureUsesUnsupportedFormat: 
-			  str = "Texture uses unsupported format"; 
-		  break;
-		  case EVRCompositorError.EVRCompositorError_VRCompositorError_SharedTexturesNotSupported: 
-			  str = "Shared textures not supported"; 
-		  break;
-		  case EVRCompositorError.EVRCompositorError_VRCompositorError_IndexOutOfRange: 
-			  str = "Index out of range"; 
-		  break;
-		  case EVRCompositorError.EVRCompositorError_VRCompositorError_AlreadySubmitted: 
-			  str = "Already submitted"; 
-		  break;
-		}
-		return str;
-	}
+	
 	
 	/**
 	 * <i>native declaration : headers\openvr_capi.h:766</i><br>

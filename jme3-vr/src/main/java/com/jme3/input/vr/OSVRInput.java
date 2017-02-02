@@ -353,5 +353,12 @@ public class OSVRInput implements VRInputAPI {
 	public VRApplication getApplication() {
 		return application;
 	}
+
+
+	@Override
+	public VRTrackedController getTrackedController(int index) {
+		// TODO Auto-generated method stub
+		return null;
+	}
     
 }

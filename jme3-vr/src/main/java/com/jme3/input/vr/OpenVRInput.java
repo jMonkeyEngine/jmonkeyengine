@@ -5,6 +5,8 @@
  */
 package com.jme3.input.vr;
 
+import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.app.VRApplication;
@@ -14,6 +16,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
 import com.jme3.system.jopenvr.JOpenVRLibrary;
+import com.jme3.system.jopenvr.OpenVRUtil;
 import com.jme3.system.jopenvr.VRControllerState_t;
 import com.jme3.system.jopenvr.VR_IVRSystem_FnTable;
 
@@ -95,6 +98,8 @@ public class OpenVRInput implements VRInputAPI {
     private final Quaternion tempq = new Quaternion();
 
     private VRApplication application;
+
+    private List<VRTrackedController> trackedControllers = null;
     
     /**
      * Create a new <a href="https://github.com/ValveSoftware/openvr/wiki/API-Documentation">OpenVR</a> input attached to the given application.
@@ -256,10 +261,21 @@ public class OpenVRInput implements VRInputAPI {
             lastCallAxis[i] = new Vector2f();
             needsNewVelocity[i] = true;
             needsNewAngVelocity[i] = true;
-            logger.config("  Input "+(i+1)+"/"+JOpenVRLibrary.k_unMaxTrackedDeviceCount+" initialized.");
+            logger.config("  Input "+(i+1)+"/"+JOpenVRLibrary.k_unMaxTrackedDeviceCount+" binded.");
         }        
         
         return true;
+    }
+    
+    @Override
+    public VRTrackedController getTrackedController(int index){
+    	if (trackedControllers != null){
+    		if ((trackedControllers.size() > 0) && (index < trackedControllers.size())){
+    			return trackedControllers.get(index);
+    		}
+    	}
+    	
+    	return null;
     }
     
     @Override
@@ -350,9 +366,23 @@ public class OpenVRInput implements VRInputAPI {
     	controllerCount = 0;
     	for(int i=0;i<JOpenVRLibrary.k_unMaxTrackedDeviceCount;i++) {
     		if( ((OpenVR)application.getVRHardware()).getVRSystem().GetTrackedDeviceClass.apply(i) == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_Controller ) {
+    			
+    			String controllerName   = "Unknown";
+				String manufacturerName = "Unknown";
+				try {
+					controllerName = OpenVRUtil.getTrackedDeviceStringProperty(((OpenVR)application.getVRHardware()).getVRSystem(), i, JOpenVRLibrary.ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_TrackingSystemName_String);
+					manufacturerName = OpenVRUtil.getTrackedDeviceStringProperty(((OpenVR)application.getVRHardware()).getVRSystem(), i, JOpenVRLibrary.ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_ManufacturerName_String);
+				} catch (Exception e) {
+                  logger.log(Level.WARNING, e.getMessage(), e);
+				}
+    			
     			controllerIndex[controllerCount] = i;
+    			
+    			// Send an Haptic pulse to the controller
+    			triggerHapticPulse(controllerCount, 1.0f);
+    			
     			controllerCount++;
-    			logger.config("  Controller "+(i+1)+"/"+JOpenVRLibrary.k_unMaxTrackedDeviceCount+" attached.");
+    			logger.config("  Tracked controller "+(i+1)+"/"+JOpenVRLibrary.k_unMaxTrackedDeviceCount+" "+controllerName+" ("+manufacturerName+") attached.");
     		} else {
     			logger.config("  Controller "+(i+1)+"/"+JOpenVRLibrary.k_unMaxTrackedDeviceCount+" ignored.");
     		}
@@ -375,4 +405,5 @@ public class OpenVRInput implements VRInputAPI {
 	public VRApplication getApplication() {
 		return application;
 	}
+
 }

@@ -29,6 +29,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.shadow.VRDirectionalLightShadowRenderer;
 import com.jme3.system.jopenvr.JOpenVRLibrary;
+import com.jme3.system.jopenvr.OpenVRUtil;
 import com.jme3.system.jopenvr.Texture_t;
 import com.jme3.system.jopenvr.VRTextureBounds_t;
 import com.jme3.system.lwjgl.LwjglWindow;
@@ -272,8 +273,8 @@ public class VRViewManager {
             logger.config("  Left eye texture");
             logger.config("           address: "+leftTextureType.getPointer());
             logger.config("              size: "+leftTextureType.size()+" bytes");
-            logger.config("       color space: "+JOpenVRLibrary.getEColorSpaceString(leftTextureType.eColorSpace));
-            logger.config("              type: "+JOpenVRLibrary.getETextureTypeString(leftTextureType.eType));
+            logger.config("       color space: "+OpenVRUtil.getEColorSpaceString(leftTextureType.eColorSpace));
+            logger.config("              type: "+OpenVRUtil.getETextureTypeString(leftTextureType.eType));
             logger.config("         auto read: "+leftTextureType.getAutoRead());
             logger.config("        auto write: "+leftTextureType.getAutoWrite());
             logger.config("    handle address: "+leftTextureType.handle);
@@ -282,8 +283,8 @@ public class VRViewManager {
             logger.config("  Right eye texture");
             logger.config("           address: "+rightTextureType.getPointer());
             logger.config("              size: "+rightTextureType.size()+" bytes");
-            logger.config("       color space: "+JOpenVRLibrary.getEColorSpaceString(rightTextureType.eColorSpace));
-            logger.config("              type: "+JOpenVRLibrary.getETextureTypeString(rightTextureType.eType));
+            logger.config("       color space: "+OpenVRUtil.getEColorSpaceString(rightTextureType.eColorSpace));
+            logger.config("              type: "+OpenVRUtil.getETextureTypeString(rightTextureType.eType));
             logger.config("         auto read: "+rightTextureType.getAutoRead());
             logger.config("        auto write: "+rightTextureType.getAutoWrite());
             logger.config("    handle address: "+rightTextureType.handle);
@@ -400,9 +401,9 @@ public class VRViewManager {
                 }
                 
                 if( errl != 0 ){
-                	logger.severe("Submit to left compositor error: " + JOpenVRLibrary.getEVRCompositorErrorString(errl)+" ("+Integer.toString(errl)+")");
-                	logger.severe("  Texture color space: "+JOpenVRLibrary.getEColorSpaceString(leftTextureType.eColorSpace));
-                	logger.severe("  Texture type: "+JOpenVRLibrary.getETextureTypeString(leftTextureType.eType));
+                	logger.severe("Submit to left compositor error: " + OpenVRUtil.getEVRCompositorErrorString(errl)+" ("+Integer.toString(errl)+")");
+                	logger.severe("  Texture color space: "+OpenVRUtil.getEColorSpaceString(leftTextureType.eColorSpace));
+                	logger.severe("  Texture type: "+OpenVRUtil.getETextureTypeString(leftTextureType.eType));
                 	logger.severe("  Texture handle: "+leftTextureType.handle);
                 	
                     logger.severe("  Left eye texture "+leftEyeTexture.getName()+" ("+leftEyeTexture.getImage().getId()+")");
@@ -415,9 +416,9 @@ public class VRViewManager {
                 }
                 
                 if( errr != 0 ){
-                	logger.severe("Submit to right compositor error: " + JOpenVRLibrary.getEVRCompositorErrorString(errl)+" ("+Integer.toString(errl)+")");
-                	logger.severe("  Texture color space: "+JOpenVRLibrary.getEColorSpaceString(rightTextureType.eColorSpace));
-                	logger.severe("  Texture type: "+JOpenVRLibrary.getETextureTypeString(rightTextureType.eType));
+                	logger.severe("Submit to right compositor error: " + OpenVRUtil.getEVRCompositorErrorString(errl)+" ("+Integer.toString(errl)+")");
+                	logger.severe("  Texture color space: "+OpenVRUtil.getEColorSpaceString(rightTextureType.eColorSpace));
+                	logger.severe("  Texture type: "+OpenVRUtil.getETextureTypeString(rightTextureType.eType));
                 	logger.severe("  Texture handle: "+rightTextureType.handle);
                 	
                     logger.severe("  Right eye texture "+rightEyeTexture.getName()+" ("+rightEyeTexture.getImage().getId()+")");

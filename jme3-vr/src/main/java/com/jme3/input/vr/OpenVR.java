@@ -14,6 +14,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.system.jopenvr.HmdMatrix34_t;
 import com.jme3.system.jopenvr.HmdMatrix44_t;
 import com.jme3.system.jopenvr.JOpenVRLibrary;
+import com.jme3.system.jopenvr.OpenVRUtil;
 import com.jme3.system.jopenvr.TrackedDevicePose_t;
 import com.jme3.system.jopenvr.VR_IVRCompositor_FnTable;
 import com.jme3.system.jopenvr.VR_IVRSystem_FnTable;
@@ -214,12 +215,12 @@ public class OpenVR implements VRAPI {
                         compositorFunctions = null;
                     }
         		} else {
-        			logger.log(Level.SEVERE, "Cannot get valid pointer for generic interface \""+JOpenVRLibrary.IVRCompositor_Version+"\", "+JOpenVRLibrary.getEVRInitErrorString(hmdErrorStore.getValue())+" ("+hmdErrorStore.getValue()+")");
+        			logger.log(Level.SEVERE, "Cannot get valid pointer for generic interface \""+JOpenVRLibrary.IVRCompositor_Version+"\", "+OpenVRUtil.getEVRInitErrorString(hmdErrorStore.getValue())+" ("+hmdErrorStore.getValue()+")");
         			compositorFunctions = null;
         		}
 
         	} else {
-        		logger.log(Level.SEVERE, "Cannot get generic interface for \""+JOpenVRLibrary.IVRCompositor_Version+"\", "+JOpenVRLibrary.getEVRInitErrorString(hmdErrorStore.getValue())+" ("+hmdErrorStore.getValue()+")");
+        		logger.log(Level.SEVERE, "Cannot get generic interface for \""+JOpenVRLibrary.IVRCompositor_Version+"\", "+OpenVRUtil.getEVRInitErrorString(hmdErrorStore.getValue())+" ("+hmdErrorStore.getValue()+")");
         		compositorFunctions = null;
         	}
         	
