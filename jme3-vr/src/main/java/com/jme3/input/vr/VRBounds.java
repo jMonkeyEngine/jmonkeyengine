@@ -3,8 +3,9 @@ package com.jme3.input.vr;
 import com.jme3.math.Vector2f;
 import com.jme3.system.jopenvr.JOpenVRLibrary;
 import com.jme3.system.jopenvr.VR_IVRChaperone_FnTable;
+import com.sun.jna.ptr.FloatByReference;
 
-import java.nio.FloatBuffer;
+import java.util.logging.Logger;
 
 /**
  * A class that represents VR world bounds.
@@ -13,6 +14,8 @@ import java.nio.FloatBuffer;
  */
 public class VRBounds {
 
+	private static Logger logger = Logger.getLogger(VRBounds.class.getName());
+	
     private static VR_IVRChaperone_FnTable vrChaperone;
     private static Vector2f playSize;
     
@@ -21,19 +24,28 @@ public class VRBounds {
      * @return <code>true</code> if the initialization is a success and <code>false</code> otherwise.
      */
     public static boolean init() {
+    	
+    	logger.config("Initialize VR bounds...");
+    	
         if( vrChaperone == null ) {
-            vrChaperone = new VR_IVRChaperone_FnTable(JOpenVRLibrary.VR_GetGenericInterface(JOpenVRLibrary.IVRChaperone_Version, OpenVR.hmdErrorStore));
+            vrChaperone = new VR_IVRChaperone_FnTable(JOpenVRLibrary.VR_GetGenericInterface(JOpenVRLibrary.IVRChaperone_Version, OpenVR.hmdErrorStore).getPointer());
             if( vrChaperone != null ) {
                 vrChaperone.setAutoSynch(false);
                 vrChaperone.read();
-                FloatBuffer fbX = FloatBuffer.allocate(1);
-                FloatBuffer fbZ = FloatBuffer.allocate(1);
+                FloatByReference fbX = new FloatByReference();
+                FloatByReference fbZ = new FloatByReference();
                 vrChaperone.GetPlayAreaSize.apply(fbX, fbZ);
-                playSize = new Vector2f(fbX.get(0), fbZ.get(0));
+                playSize = new Vector2f(fbX.getValue(), fbZ.getValue());
+                
+                logger.config("Initialize VR bounds [SUCCESS]");
                 return true; // init success
             }
+            
+            logger.warning("Initialize VR bounds [FAILED].");
             return false; // failed to init
         }
+        
+        logger.config("Initialize VR bounds already done.");
         return true; // already initialized
     }
     

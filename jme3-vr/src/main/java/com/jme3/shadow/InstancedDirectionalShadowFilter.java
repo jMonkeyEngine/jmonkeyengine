@@ -37,8 +37,8 @@ public class InstancedDirectionalShadowFilter extends DirectionalLightShadowFilt
     protected void preFrame(float tpf) {
         shadowRenderer.preFrame(tpf);
         if( application.isInstanceVRRendering() ) {
-            material.setMatrix4("ViewProjectionMatrixInverseRight", application.getVRViewManager().getCamRight().getViewProjectionMatrix().invert());
-            Matrix4f m = application.getVRViewManager().getCamRight().getViewProjectionMatrix();
+            material.setMatrix4("ViewProjectionMatrixInverseRight", application.getVRViewManager().getRightCamera().getViewProjectionMatrix().invert());
+            Matrix4f m = application.getVRViewManager().getRightCamera().getViewProjectionMatrix();
             material.setVector4("ViewProjectionMatrixRow2Right", temp4f2.set(m.m20, m.m21, m.m22, m.m23));
         }
         material.setMatrix4("ViewProjectionMatrixInverse", viewPort.getCamera().getViewProjectionMatrix().invert());

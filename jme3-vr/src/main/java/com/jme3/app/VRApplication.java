@@ -48,6 +48,7 @@ import com.jme3.system.lwjgl.LwjglOffscreenBufferVR;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -274,11 +275,11 @@ public abstract class VRApplication implements Application, SystemListener {
         	logger.warning("VR disabled via code.");
         } else if( VRSupportedOS && DISABLE_VR == false ) {
             if( CONSTRUCT_WITH_OSVR ) {
-            	logger.config("Initializing OSVR...");
                 VRhardware = new OSVR(this);
+                logger.config("Creating OSVR wrapper [SUCCESS]");
             } else {
-            	logger.config("Initializing OpenVR...");
                 VRhardware = new OpenVR(this);
+                logger.config("Creating OpenVR wrapper [SUCCESS]");
             }
             if( VRhardware.initialize() ) {
                 setPauseOnLostFocus(false);
@@ -395,7 +396,7 @@ public abstract class VRApplication implements Application, SystemListener {
     */
     @Override
     public Camera getCamera() {
-        if( isInVR() && viewmanager != null && viewmanager.getCamLeft() != null ) {
+        if( isInVR() && viewmanager != null && viewmanager.getLeftCamera() != null ) {
             return dummyCam;
         }
         return cam;
@@ -619,6 +620,9 @@ public abstract class VRApplication implements Application, SystemListener {
     
     @Override
     public void start() {
+    	
+    	logger.config("Starting application...");
+    	
         // set some default settings in-case
         // settings dialog is not shown
         boolean loadSettings = false;
@@ -627,9 +631,16 @@ public abstract class VRApplication implements Application, SystemListener {
             loadSettings = true;
         }
         
-        GraphicsDevice defDev = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-                                    
+        GraphicsDevice defDev = null;
+		try {
+			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			defDev = ge.getDefaultScreenDevice();
+		} catch (Throwable e1) {
+			logger.log(Level.SEVERE, "Cannot access default screen device: "+e1.getMessage(), e1);
+		}
+		
         if( isInVR() && !compositorAllowed() ) {
+        	logger.warning("VR Composition is not allowed.");
             // "easy extended" mode
             // TO-DO: JFrame was removed in LWJGL 3, need to use new GLFW library to pick "monitor" display of VR device
             // first, find the VR device
@@ -676,17 +687,22 @@ public abstract class VRApplication implements Application, SystemListener {
                     //VRwindow.pack();
                     //VRwindow.setVisible(true);
                     //startCanvas();
+                    logger.config("Starting application [SUCCESS]");
                     return;
                 } catch(Exception e) { 
-                    
+                	logger.log(Level.SEVERE, "Error during application start: "+e.getMessage(), e);
                 }
             }
         }
         
         if( !isInVR() ) {
+        	
+        	logger.config("VR mode disabled.");
+        	
             // not in VR, show settings dialog
             if( Platform.get() != Platform.MACOSX ) {
                 if (!JmeSystem.showSettingsDialog(settings, loadSettings)) {
+                	logger.config("Starting application [SUCCESS]");
                     return;
                 }            
             } else {
@@ -720,6 +736,9 @@ public abstract class VRApplication implements Application, SystemListener {
             }
             settings.setSwapBuffers(true);
         } else {
+        	
+        	logger.config("VR mode enabled.");
+        	
             // use basic mirroring window, skip settings window
             settings.setWidth(xWin);
             settings.setHeight(yWin);
@@ -734,16 +753,20 @@ public abstract class VRApplication implements Application, SystemListener {
         }
         
         if( forceDisableMSAA ) {
+        	logger.config("Disabling multisampling.");
             // disable multisampling, which is more likely to break things than be useful
             settings.setSamples(1);
         }
         
         // set opengl mode
         if( tryOpenGL3 ) {
+        	logger.config("Using LWJGL OpenGL 3 renderer.");
             settings.setRenderer(AppSettings.LWJGL_OPENGL3);
         } else {
+        	logger.config("Using LWJGL OpenGL 2 renderer.");
             settings.setRenderer(AppSettings.LWJGL_OPENGL2);
         }
+
         
         setSettings(settings);     
         start(JmeContext.Type.Display, false);
@@ -914,9 +937,39 @@ public abstract class VRApplication implements Application, SystemListener {
     /**
      * Get the GUI node from the application.
      * @return the GUI node from the application.
+     * @see #setGuiNode(Node)
      */
     public Node getGuiNode(){
         return guiNode;
+    }
+    
+    /**
+     * Set the GUI node that is displayed within the GUI viewport. 
+     * Calling this method involve clearing all the scenes previously attached to the gui viewport.
+     * @param node the GUI node to attach.
+     * @see #getGuiNode()
+     */
+    public void setGuiNode(Node node){
+    	if (node != null){
+    		if (guiViewPort != null){
+        		  
+                enqueue(new Callable<Object>(){
+
+				  @Override
+				  public Object call() throws Exception {
+				    guiViewPort.clearScenes();
+				    guiViewPort.attachScene(node);
+					guiNode = node;
+					return null;
+				  }
+        			  
+        		});
+
+        	} else {
+        		throw new IllegalArgumentException("GUI view port is not initialized.");
+        	}
+    	}
+    	
     }
     
     /**
@@ -1028,7 +1081,7 @@ public abstract class VRApplication implements Application, SystemListener {
      */
     public ViewPort getLeftViewPort() {
         if( viewmanager == null ) return getViewPort();
-        return viewmanager.getViewPortLeft();
+        return viewmanager.getLeftViewport();
     }
     
     /**
@@ -1038,7 +1091,7 @@ public abstract class VRApplication implements Application, SystemListener {
      */
     public ViewPort getRightViewPort() {
         if( viewmanager == null ) return getViewPort();
-        return viewmanager.getViewPortRight();
+        return viewmanager.getRightViewport();
     }
     
     
@@ -1049,9 +1102,9 @@ public abstract class VRApplication implements Application, SystemListener {
     public void setBackgroundColors(ColorRGBA clr) {
         if( viewmanager == null ) {
             getViewPort().setBackgroundColor(clr);
-        } else if( viewmanager.getViewPortLeft() != null ) {
-        	viewmanager.getViewPortLeft().setBackgroundColor(clr);
-            if( viewmanager.getViewPortRight() != null ) viewmanager.getViewPortRight().setBackgroundColor(clr);
+        } else if( viewmanager.getLeftViewport() != null ) {
+        	viewmanager.getLeftViewport().setBackgroundColor(clr);
+            if( viewmanager.getRightViewport() != null ) viewmanager.getRightViewport().setBackgroundColor(clr);
         }
     }
     
@@ -1116,6 +1169,7 @@ public abstract class VRApplication implements Application, SystemListener {
             getCamera().setFrame(observer.getWorldTranslation(), observer.getWorldRotation());
         }
         
+        //FIXME: check if this code is necessary.
         // Updates scene and gui states.
         rootNode.updateLogicalState(tpf);
         guiNode.updateLogicalState(tpf);
@@ -1284,21 +1338,28 @@ public abstract class VRApplication implements Application, SystemListener {
     @Override
     public void initialize() {
     	
-    	logger.config("Initialize VR application.");
+    	logger.config("Initialize VR application...");
     	
         initialize_internal();
         cam.setFrustumFar(fFar);
         cam.setFrustumNear(fNear);
         dummyCam = cam.clone();
         if( isInVR() ) {
+        	
+        	logger.config("VR mode enabled.");
+        	
             if( VRhardware != null ) {
                 VRhardware.initVRCompositor(compositorAllowed());
+            } else {
+            	logger.warning("No VR system found.");
             }
+            
             viewmanager = new VRViewManager(this);
             viewmanager.setResolutionMultiplier(resMult);
             inputManager.addMapping(RESET_HMD, new KeyTrigger(KeyInput.KEY_F9));
             setLostFocusBehavior(LostFocusBehavior.Disabled);
         } else {
+        	logger.config("VR mode disabled.");
             viewPort.attachScene(rootNode);
             guiViewPort.attachScene(guiNode);
         }
@@ -1316,12 +1377,12 @@ public abstract class VRApplication implements Application, SystemListener {
             // print out camera information
             if( isInVR() ) {
                 logger.info("VR Initialization Information");
-                if( viewmanager.getCamLeft() != null ){ 
-                  logger.info("camLeft: " + viewmanager.getCamLeft().toString());
+                if( viewmanager.getLeftCamera() != null ){ 
+                  logger.info("camLeft: " + viewmanager.getLeftCamera().toString());
                 }
                 
-                if( viewmanager.getCamRight() != null ){ 
-                  logger.info("camRight: " + viewmanager.getCamRight().toString());
+                if( viewmanager.getRightCamera() != null ){ 
+                  logger.info("camRight: " + viewmanager.getRightCamera().toString());
                 }
             }
         }

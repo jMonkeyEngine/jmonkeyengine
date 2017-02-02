@@ -44,7 +44,7 @@ public class MeshUtil {
                 verts[vertPos + 2] = 0f; // z
                 vertPos += 3;
 
-                DistortionCoordinates_t dc0;
+                DistortionCoordinates_t dc0 = new DistortionCoordinates_t();
                 if( application.getVRHardware().getVRSystem() == null ) {
                     // default to no distortion
                     texcoordR[coordPos] = u;
@@ -54,7 +54,7 @@ public class MeshUtil {
                     texcoordB[coordPos] = u;
                     texcoordB[coordPos + 1] = 1 - v;                    
                 } else {
-                    dc0 = ((VR_IVRSystem_FnTable)application.getVRHardware().getVRSystem()).ComputeDistortion.apply(eye, u, v);
+                    ((VR_IVRSystem_FnTable)application.getVRHardware().getVRSystem()).ComputeDistortion.apply(eye, u, v, dc0);
                     
                     texcoordR[coordPos] = dc0.rfRed[0];
                     texcoordR[coordPos + 1] = 1 - dc0.rfRed[1];

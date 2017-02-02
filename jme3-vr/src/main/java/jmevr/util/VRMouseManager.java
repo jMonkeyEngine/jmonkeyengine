@@ -14,6 +14,7 @@ import com.jme3.input.lwjgl.GlfwMouseInputVR;
 import com.jme3.input.vr.VRInputType;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.Vector2f;
+import com.jme3.scene.Node;
 import com.jme3.system.AppSettings;
 import com.jme3.system.lwjgl.LwjglWindowVR;
 import com.jme3.texture.Texture;
@@ -203,9 +204,12 @@ public class VRMouseManager {
             Vector2f currentPos = getCursorPosition();
             mouseImage.setLocalTranslation(currentPos.x, currentPos.y - ySize, application.getVRGUIManager().getGuiDistance() + 1f);
             mouseImage.updateGeometricState();
+            mouseImage.getParent().updateGeometricState();
             
         } else if( mouseImage.getParent() != null ) {
+        	Node n = mouseImage.getParent();
             mouseImage.removeFromParent();
+            n.updateGeometricState();
         }
     }    
 }

@@ -38,6 +38,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
 import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 import java.awt.GraphicsEnvironment;
@@ -48,105 +49,247 @@ import osvrrendermanageropengl.OSVR_ViewportDescription;
 import osvrrendermanageropengl.OsvrRenderManagerOpenGLLibrary;
 
 /**
- *
- * @author reden
+ * A VR view manager. This class enable to submit 3D views to the VR compositor.
+ * @author reden - phr00t - https://github.com/phr00t
+ * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
  */
 public class VRViewManager {
 
 	private static final Logger logger = Logger.getLogger(VRViewManager.class.getName());
 	
+    /**
+     * The name of the left view.
+     */
+    public final static String LEFT_VIEW_NAME = "Left View";
+    
+    /**
+     * The name of the right view.
+     */
+    public final static String RIGHT_VIEW_NAME = "Right View";
+	
     private final VRApplication app;
-    private Camera camLeft,camRight;
-    private ViewPort viewPortLeft, viewPortRight;
-    private FilterPostProcessor ppLeft, ppRight;
+    
+    private Camera leftCamera;
+    private ViewPort leftViewport;
+    private FilterPostProcessor leftPostProcessor;
+    private Texture2D leftEyeTexture;
+    private Texture2D leftEyeDepth;
+    
+    private Camera rightCamera;
+    private ViewPort rightViewport;
+    private FilterPostProcessor rightPostProcessor;
+    private Texture2D rightEyeTexture;
+    private Texture2D rightEyeDepth;
     
     // OpenVR values
-    private VRTextureBounds_t texBoundsLeft, texBoundsRight;
-    private Texture_t texTypeLeft, texTypeRight;
+    private VRTextureBounds_t leftTextureBounds;
+    private Texture_t leftTextureType;
+    
+    private VRTextureBounds_t rightTextureBounds;
+    private Texture_t rightTextureType;
     
     // OSVR values
     OSVR_RenderBufferOpenGL.ByValue[] osvr_renderBuffer;
-    OSVR_ViewportDescription.ByValue osvr_viewDescFull, osvr_viewDescLeft, osvr_viewDescRight;
+    OSVR_ViewportDescription.ByValue osvr_viewDescFull;
+    OSVR_ViewportDescription.ByValue osvr_viewDescLeft;
+    OSVR_ViewportDescription.ByValue osvr_viewDescRight;
     Pointer osvr_rmBufferState;
     
     //private static boolean useCustomDistortion;
     private float heightAdjustment;
-    
-    private Texture2D leftEyeTex, rightEyeTex, dualEyeTex;
-    private Texture2D leftEyeDepth, rightEyeDepth;
-    
-    private final static String LEFT_VIEW_NAME = "Left View";
-    private final static String RIGHT_VIEW_NAME = "Right View";
 
-    /*
-        do not use. set via preconfigure routine in VRApplication
-    */
-    @Deprecated
-    public static void _setCustomDistortion(boolean set) {
-        //useCustomDistortion = set;
+    private Texture2D dualEyeTex;
+
+    private final PointerByReference grabRBS = new PointerByReference();
+    
+    private float resMult = 1f;
+    
+    //final & temp values for camera calculations
+    private final Vector3f finalPosition   = new Vector3f();
+    private final Quaternion finalRotation = new Quaternion();
+    private final Vector3f hmdPos          = new Vector3f();
+    private final Quaternion hmdRot        = new Quaternion();
+    
+    /**
+     * Create a new VR view manager attached to the given {@link VRApplication VR application}.
+     * @param application the {@link VRApplication VR application} to which this manager is linked.
+     */
+    public VRViewManager(VRApplication application){
+        this.app = application;
     }
     
-    public VRViewManager(VRApplication forVRApp){
-        app = forVRApp;
+    /**
+     * Get the {@link Camera camera} attached to the left eye.
+     * @return the {@link Camera camera} attached to the left eye.
+     * @see #getRightCamera()
+     */
+    public Camera getLeftCamera() {
+        return leftCamera;
     }
     
+    /**
+     * Get the {@link Camera camera} attached to the right eye.
+     * @return the {@link Camera camera} attached to the right eye.
+     * @see #getLeftCamera()
+     */
+    public Camera getRightCamera() {
+        return rightCamera;
+    }
+    
+    /**
+     * Get the {@link ViewPort viewport} attached to the left eye.
+     * @return the {@link ViewPort viewport} attached to the left eye.
+     * @see #getRightViewport()
+     */
+    public ViewPort getLeftViewport() {
+        return leftViewport;
+    }
+    
+    /**
+     * Get the {@link ViewPort viewport} attached to the right eye.
+     * @return the {@link ViewPort viewport} attached to the right eye.
+     * @see #getLeftViewport()
+     */
+    public ViewPort getRightViewport() {
+        return rightViewport;
+    }
+    
+    /**
+     * Get the identifier of the left eye texture.
+     * @return the identifier of the left eye texture.
+     * @see #getRightTexId()
+     * @see #getFullTexId()
+     */
+    private int getLeftTexId() {
+        return (int)leftEyeTexture.getImage().getId();
+    }
+    
+    /**
+     * Get the identifier of the right eye texture.
+     * @return the identifier of the right eye texture.
+     * @see #getLeftTexId()
+     * @see #getFullTexId()
+     */
     private int getRightTexId() {
-        return (int)rightEyeTex.getImage().getId();
+        return (int)rightEyeTexture.getImage().getId();
     }
     
+    /**
+     * Get the identifier of the full (dual eye) texture.
+     * @return the identifier of the full (dual eye) texture.
+     * @see #getLeftTexId()
+     * @see #getRightTexId()
+     */
     private int getFullTexId() {
         return (int)dualEyeTex.getImage().getId();
     }
     
-    private int getLeftTexId() {
-        return (int)leftEyeTex.getImage().getId();
-    }
-    
+    /**
+     * Get the height adjustment to apply to the cameras before rendering.
+     * @return the height adjustment to apply to the cameras before rendering.
+     * @see #setHeightAdjustment(float)
+     */
     public float getHeightAdjustment() {
         return heightAdjustment;
     }
     
+    /**
+     * Set the height adjustment to apply to the cameras before rendering.
+     * @param amount the height adjustment to apply to the cameras before rendering.
+     * @see #getHeightAdjustment()
+     */
     public void setHeightAdjustment(float amount) {
         heightAdjustment = amount;
     }
     
+    /**
+     * Get the resolution multiplier.
+     * @return the resolution multiplier.
+     * @see #setResolutionMultiplier(float)
+     */
+    public float getResolutionMuliplier() {
+        return resMult;
+    }
+    
+    /**
+     * Set the resolution multiplier.
+     * @param resMult the resolution multiplier.
+     * @see #getResolutionMuliplier()
+     */
+    public void setResolutionMultiplier(float resMult) {
+        this.resMult = resMult;
+    }
+    
+    /**
+     * Initialize the system binds of the textures.
+     */
     private void initTextureSubmitStructs() {
-        texTypeLeft = new Texture_t();
-        texTypeRight = new Texture_t();
+        leftTextureType = new Texture_t();
+        rightTextureType = new Texture_t();
+        
+
         if( app.getVRHardware() instanceof OpenVR ) {
-            texBoundsLeft = new VRTextureBounds_t();
-            texBoundsRight = new VRTextureBounds_t();
+            leftTextureBounds = new VRTextureBounds_t();
+            rightTextureBounds = new VRTextureBounds_t();
             // left eye
-            texBoundsLeft.uMax = 0.5f;
-            texBoundsLeft.uMin = 0f;
-            texBoundsLeft.vMax = 1f;
-            texBoundsLeft.vMin = 0f;
-            texBoundsLeft.setAutoSynch(false);
-            texBoundsLeft.setAutoRead(false);
-            texBoundsLeft.setAutoWrite(false);
-            texBoundsLeft.write();
+            leftTextureBounds.uMax = 0.5f;
+            leftTextureBounds.uMin = 0f;
+            leftTextureBounds.vMax = 1f;
+            leftTextureBounds.vMin = 0f;
+            leftTextureBounds.setAutoSynch(false);
+            leftTextureBounds.setAutoRead(false);
+            leftTextureBounds.setAutoWrite(false);
+            leftTextureBounds.write();
             // right eye
-            texBoundsRight.uMax = 1f;
-            texBoundsRight.uMin = 0.5f;
-            texBoundsRight.vMax = 1f;
-            texBoundsRight.vMin = 0f;
-            texBoundsRight.setAutoSynch(false);
-            texBoundsRight.setAutoRead(false);
-            texBoundsRight.setAutoWrite(false);
-            texBoundsRight.write();
+            rightTextureBounds.uMax = 1f;
+            rightTextureBounds.uMin = 0.5f;
+            rightTextureBounds.vMax = 1f;
+            rightTextureBounds.vMin = 0f;
+            rightTextureBounds.setAutoSynch(false);
+            rightTextureBounds.setAutoRead(false);
+            rightTextureBounds.setAutoWrite(false);
+            rightTextureBounds.write();
             // texture type
-            texTypeLeft.eColorSpace = JOpenVRLibrary.EColorSpace.EColorSpace_ColorSpace_Gamma;
-            texTypeLeft.eType = JOpenVRLibrary.EGraphicsAPIConvention.EGraphicsAPIConvention_API_OpenGL;
-            texTypeLeft.setAutoSynch(false);
-            texTypeLeft.setAutoRead(false);
-            texTypeLeft.setAutoWrite(false);
-            texTypeLeft.handle = -1;
-            texTypeRight.eColorSpace = JOpenVRLibrary.EColorSpace.EColorSpace_ColorSpace_Gamma;
-            texTypeRight.eType = JOpenVRLibrary.EGraphicsAPIConvention.EGraphicsAPIConvention_API_OpenGL;
-            texTypeRight.setAutoSynch(false);
-            texTypeRight.setAutoRead(false);
-            texTypeRight.setAutoWrite(false);
-            texTypeRight.handle = -1;
+            // FIXME: Synchronize with JMonkey given texture (at this time is linear but was Gamma with phr00t implementation)
+            leftTextureType.eColorSpace = JOpenVRLibrary.EColorSpace.EColorSpace_ColorSpace_Gamma;
+            //leftTextureType.eColorSpace = JOpenVRLibrary.EColorSpace.EColorSpace_ColorSpace_Linear;
+            leftTextureType.eType = JOpenVRLibrary.ETextureType.ETextureType_TextureType_OpenGL;
+            leftTextureType.setAutoSynch(false);
+            leftTextureType.setAutoRead(false);
+            leftTextureType.setAutoWrite(false);
+            leftTextureType.handle = -1;
+            // FIXME: Synchronize with JMonkey given texture (at this time is linear but was Gamma with phr00t implementation)
+            rightTextureType.eColorSpace = JOpenVRLibrary.EColorSpace.EColorSpace_ColorSpace_Gamma;
+            //rightTextureType.eColorSpace = JOpenVRLibrary.EColorSpace.EColorSpace_ColorSpace_Linear;
+            rightTextureType.eType = JOpenVRLibrary.ETextureType.ETextureType_TextureType_OpenGL;
+            rightTextureType.setAutoSynch(false);
+            rightTextureType.setAutoRead(false);
+            rightTextureType.setAutoWrite(false);
+            rightTextureType.handle = -1;
+            
+            
+            logger.config("Init eyes native texture binds");
+            logger.config("  Left eye texture");
+            logger.config("           address: "+leftTextureType.getPointer());
+            logger.config("              size: "+leftTextureType.size()+" bytes");
+            logger.config("       color space: "+JOpenVRLibrary.getEColorSpaceString(leftTextureType.eColorSpace));
+            logger.config("              type: "+JOpenVRLibrary.getETextureTypeString(leftTextureType.eType));
+            logger.config("         auto read: "+leftTextureType.getAutoRead());
+            logger.config("        auto write: "+leftTextureType.getAutoWrite());
+            logger.config("    handle address: "+leftTextureType.handle);
+            logger.config("      handle value: "+leftTextureType.handle);
+            logger.config("");
+            logger.config("  Right eye texture");
+            logger.config("           address: "+rightTextureType.getPointer());
+            logger.config("              size: "+rightTextureType.size()+" bytes");
+            logger.config("       color space: "+JOpenVRLibrary.getEColorSpaceString(rightTextureType.eColorSpace));
+            logger.config("              type: "+JOpenVRLibrary.getETextureTypeString(rightTextureType.eType));
+            logger.config("         auto read: "+rightTextureType.getAutoRead());
+            logger.config("        auto write: "+rightTextureType.getAutoWrite());
+            logger.config("    handle address: "+rightTextureType.handle);
+            logger.config("      handle value: "+rightTextureType.handle);
+            
+            
         } else if( app.getVRHardware() instanceof OSVR ) {
             // must be OSVR
             osvr_renderBuffer = new OSVR_RenderBufferOpenGL.ByValue[2];
@@ -178,14 +321,20 @@ public class VRViewManager {
             osvr_renderBuffer[OSVR.EYE_RIGHT].colorBufferName = -1;
         }
     }
-    
-    private final PointerByReference grabRBS = new PointerByReference();
+
+    /**
+     * Register the OSVR OpenGL buffer.
+     * @param buf the OSVR OpenGL buffer.
+     */
     private void registerOSVRBuffer(OSVR_RenderBufferOpenGL.ByValue buf) {
         OsvrRenderManagerOpenGLLibrary.osvrRenderManagerStartRegisterRenderBuffers(grabRBS);
         OsvrRenderManagerOpenGLLibrary.osvrRenderManagerRegisterRenderBufferOpenGL(grabRBS.getValue(), buf);
         OsvrRenderManagerOpenGLLibrary.osvrRenderManagerFinishRegisterRenderBuffers(((OSVR)app.getVRHardware()).getCompositor(), grabRBS.getValue(), (byte)0);
     }
     
+    /**
+     * Send the textures to the two eyes.
+     */
     public void sendTextures() {
         if( app.isInVR() ) {
             VRAPI api = app.getVRHardware();
@@ -193,12 +342,12 @@ public class VRViewManager {
                 // using the compositor...
                 int errl = 0, errr = 0;
                 if( app.isInstanceVRRendering() ) {
-                    if( texTypeLeft.handle == -1 || texTypeLeft.handle != getFullTexId() ) {
-                        texTypeLeft.handle = getFullTexId();
-                        if( texTypeLeft.handle != -1 ) {
-                            texTypeLeft.write();
+                    if( leftTextureType.handle == -1 || leftTextureType.handle != getFullTexId() ) {
+                    	leftTextureType.handle = getFullTexId();
+                        if( leftTextureType.handle != -1 ) {
+                            leftTextureType.write();
                             if( api instanceof OSVR ) {
-                                osvr_renderBuffer[OSVR.EYE_LEFT].colorBufferName = texTypeLeft.handle;
+                                osvr_renderBuffer[OSVR.EYE_LEFT].colorBufferName = leftTextureType.handle;
                                 osvr_renderBuffer[OSVR.EYE_LEFT].depthStencilBufferName = dualEyeTex.getImage().getId();
                                 osvr_renderBuffer[OSVR.EYE_LEFT].write();
                                 registerOSVRBuffer(osvr_renderBuffer[OSVR.EYE_LEFT]);
@@ -207,30 +356,32 @@ public class VRViewManager {
                     } else {
                         if( api instanceof OpenVR ) {
                             int submitFlag = JOpenVRLibrary.EVRSubmitFlags.EVRSubmitFlags_Submit_Default;
-                            errr = ((OpenVR)api).getCompositor().Submit.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Right, texTypeLeft, texBoundsRight, submitFlag);
-                            errl = ((OpenVR)api).getCompositor().Submit.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Left, texTypeLeft, texBoundsLeft, submitFlag);
+                            errr = ((OpenVR)api).getCompositor().Submit.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Right, leftTextureType, rightTextureBounds, submitFlag);
+                            errl = ((OpenVR)api).getCompositor().Submit.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Left, leftTextureType, leftTextureBounds, submitFlag);
                         } else if( api instanceof OSVR ) {
                             ((OSVR)api).handleRenderBufferPresent(osvr_viewDescLeft, osvr_viewDescRight,
                                                                   osvr_renderBuffer[OSVR.EYE_LEFT], osvr_renderBuffer[OSVR.EYE_LEFT]);
                         }
                     }
-                } else if( texTypeLeft.handle == -1 || texTypeRight.handle == -1 ||
-                           texTypeLeft.handle != getLeftTexId() || texTypeRight.handle != getRightTexId() ) {
-                    texTypeLeft.handle = getLeftTexId();
-                    if( texTypeLeft.handle != -1 ) {
-                        texTypeLeft.write();
+                } else if( leftTextureType.handle == -1 || rightTextureType.handle == -1 ||
+                           leftTextureType.handle != getLeftTexId() || rightTextureType.handle != getRightTexId() ) {
+                    leftTextureType.handle = getLeftTexId();
+                    if( leftTextureType.handle != -1 ) {
+                    	logger.fine("Writing Left texture to native memory at " + leftTextureType.getPointer());
+                        leftTextureType.write();
                         if( api instanceof OSVR ) {
-                            osvr_renderBuffer[OSVR.EYE_LEFT].colorBufferName = texTypeLeft.handle;
+                            osvr_renderBuffer[OSVR.EYE_LEFT].colorBufferName = leftTextureType.handle;
                             if( leftEyeDepth != null ) osvr_renderBuffer[OSVR.EYE_LEFT].depthStencilBufferName = leftEyeDepth.getImage().getId();
                             osvr_renderBuffer[OSVR.EYE_LEFT].write();
                             registerOSVRBuffer(osvr_renderBuffer[OSVR.EYE_LEFT]);
                         }
                     }
-                    texTypeRight.handle = getRightTexId();
-                    if( texTypeRight.handle != -1 ) {
-                        texTypeRight.write();
+                    rightTextureType.handle = getRightTexId();
+                    if( rightTextureType.handle != -1 ) {
+                    	logger.fine("Writing Right texture to native memory at " + leftTextureType.getPointer());
+                        rightTextureType.write();
                         if( api instanceof OSVR ) {
-                            osvr_renderBuffer[OSVR.EYE_RIGHT].colorBufferName = texTypeRight.handle;
+                            osvr_renderBuffer[OSVR.EYE_RIGHT].colorBufferName = rightTextureType.handle;
                             if( rightEyeDepth != null ) osvr_renderBuffer[OSVR.EYE_RIGHT].depthStencilBufferName = rightEyeDepth.getImage().getId();
                             osvr_renderBuffer[OSVR.EYE_RIGHT].write();
                             registerOSVRBuffer(osvr_renderBuffer[OSVR.EYE_RIGHT]);
@@ -238,37 +389,52 @@ public class VRViewManager {
                     }                    
                 } else {
                     if( api instanceof OpenVR ) {
-                        errl = ((OpenVR)api).getCompositor().Submit.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Left, texTypeLeft, null,
+                        errl = ((OpenVR)api).getCompositor().Submit.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Left, leftTextureType, null,
                                                                JOpenVRLibrary.EVRSubmitFlags.EVRSubmitFlags_Submit_Default);
-                        errr = ((OpenVR)api).getCompositor().Submit.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Right, texTypeRight, null,
+                        errr = ((OpenVR)api).getCompositor().Submit.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Right, rightTextureType, null,
                                                                JOpenVRLibrary.EVRSubmitFlags.EVRSubmitFlags_Submit_Default);
                     } else if( api instanceof OSVR ) {
                         ((OSVR)api).handleRenderBufferPresent(osvr_viewDescFull, osvr_viewDescFull,
                                                               osvr_renderBuffer[OSVR.EYE_LEFT], osvr_renderBuffer[OSVR.EYE_RIGHT]);
                     }
                 }
-                if( errl != 0 ) System.out.println("Submit left compositor error: " + Integer.toString(errl));
-                if( errr != 0 ) System.out.println("Submit right compositor error: " + Integer.toString(errr));
+                
+                if( errl != 0 ){
+                	logger.severe("Submit to left compositor error: " + JOpenVRLibrary.getEVRCompositorErrorString(errl)+" ("+Integer.toString(errl)+")");
+                	logger.severe("  Texture color space: "+JOpenVRLibrary.getEColorSpaceString(leftTextureType.eColorSpace));
+                	logger.severe("  Texture type: "+JOpenVRLibrary.getETextureTypeString(leftTextureType.eType));
+                	logger.severe("  Texture handle: "+leftTextureType.handle);
+                	
+                    logger.severe("  Left eye texture "+leftEyeTexture.getName()+" ("+leftEyeTexture.getImage().getId()+")");
+                    logger.severe("                 Type: "+leftEyeTexture.getType());
+                    logger.severe("                 Size: "+leftEyeTexture.getImage().getWidth()+"x"+leftEyeTexture.getImage().getHeight());
+                    logger.severe("          Image depth: "+leftEyeTexture.getImage().getDepth());
+                    logger.severe("         Image format: "+leftEyeTexture.getImage().getFormat());
+                    logger.severe("    Image color space: "+leftEyeTexture.getImage().getColorSpace());
+                	
+                }
+                
+                if( errr != 0 ){
+                	logger.severe("Submit to right compositor error: " + JOpenVRLibrary.getEVRCompositorErrorString(errl)+" ("+Integer.toString(errl)+")");
+                	logger.severe("  Texture color space: "+JOpenVRLibrary.getEColorSpaceString(rightTextureType.eColorSpace));
+                	logger.severe("  Texture type: "+JOpenVRLibrary.getETextureTypeString(rightTextureType.eType));
+                	logger.severe("  Texture handle: "+rightTextureType.handle);
+                	
+                    logger.severe("  Right eye texture "+rightEyeTexture.getName()+" ("+rightEyeTexture.getImage().getId()+")");
+                    logger.severe("                 Type: "+rightEyeTexture.getType());
+                    logger.severe("                 Size: "+rightEyeTexture.getImage().getWidth()+"x"+rightEyeTexture.getImage().getHeight());
+                    logger.severe("          Image depth: "+rightEyeTexture.getImage().getDepth());
+                    logger.severe("         Image format: "+rightEyeTexture.getImage().getFormat());
+                    logger.severe("    Image color space: "+rightEyeTexture.getImage().getColorSpace());
+                }
             }
         }                
     }
 
-    public Camera getCamLeft() {
-        return camLeft;
-    }
-    
-    public Camera getCamRight() {
-        return camRight;
-    }
-    
-    public ViewPort getViewPortLeft() {
-        return viewPortLeft;
-    }
-    
-    public ViewPort getViewPortRight() {
-        return viewPortRight;
-    }
-    
+
+    /**
+     * Initialize the VR view manager.
+     */
     public void initialize() {     
     	
     	logger.config("Initializing VR view manager.");
@@ -292,7 +458,7 @@ public class VRViewManager {
             long window = ((LwjglWindow)app.getContext()).getWindowHandle();
             Vector2f windowSize = new Vector2f();
             ((OSVR)app.getVRHardware()).getRenderSize(windowSize);
-            windowSize.x = Math.max(windowSize.x * 2f, camLeft.getWidth());
+            windowSize.x = Math.max(windowSize.x * 2f, leftCamera.getWidth());
             org.lwjgl.glfw.GLFW.glfwSetWindowSize(window, (int)windowSize.x, (int)windowSize.y);
             app.getContext().getSettings().setResolution((int)windowSize.x, (int)windowSize.y);
             app.reshape((int)windowSize.x, (int)windowSize.y);            
@@ -304,15 +470,11 @@ public class VRViewManager {
         }       
     }
     
-    private float resMult = 1f;
-    public void setResolutionMultiplier(float resMult) {
-        this.resMult = resMult;
-    }
-    
-    public float getResolutionMuliplier() {
-        return resMult;
-    }
-    
+    /**
+     * Prepare the size of the given {@link Camera camera} to adapt it to the underlying rendering context.
+     * @param cam the {@link Camera camera} to prepare.
+     * @param xMult the camera width multiplier.
+     */
     private void prepareCameraSize(Camera cam, float xMult) {
         Vector2f size = new Vector2f();
         VRAPI vrhmd = app.getVRHardware();
@@ -354,10 +516,39 @@ public class VRViewManager {
             return;
         }
         
-        leftEyeTex = (Texture2D)viewPortLeft.getOutputFrameBuffer().getColorBuffer().getTexture();
-        rightEyeTex = (Texture2D)viewPortRight.getOutputFrameBuffer().getColorBuffer().getTexture();        
-        leftEyeDepth = (Texture2D)viewPortLeft.getOutputFrameBuffer().getDepthBuffer().getTexture();
-        rightEyeDepth = (Texture2D)viewPortRight.getOutputFrameBuffer().getDepthBuffer().getTexture();        
+        leftEyeTexture  = (Texture2D) leftViewport.getOutputFrameBuffer().getColorBuffer().getTexture();
+        rightEyeTexture = (Texture2D)rightViewport.getOutputFrameBuffer().getColorBuffer().getTexture();        
+        leftEyeDepth    = (Texture2D) leftViewport.getOutputFrameBuffer().getDepthBuffer().getTexture();
+        rightEyeDepth   = (Texture2D)rightViewport.getOutputFrameBuffer().getDepthBuffer().getTexture();        
+/*        
+        logger.config("Left eye texture "+leftEyeTexture.getName()+" ("+leftEyeTexture.getImage().getId()+")");
+        logger.config("               Type: "+leftEyeTexture.getType());
+        logger.config("               Size: "+leftEyeTexture.getImage().getWidth()+"x"+leftEyeTexture.getImage().getHeight());
+        logger.config("        Image depth: "+leftEyeTexture.getImage().getDepth());
+        logger.config("       Image format: "+leftEyeTexture.getImage().getFormat());
+        logger.config("  Image color space: "+leftEyeTexture.getImage().getColorSpace());
+        
+        logger.config("Left eye depth "+leftEyeDepth.getName()+" ("+leftEyeDepth.getImage().getId()+")");
+        logger.config("               Type: "+leftEyeDepth.getType());
+        logger.config("               Size: "+leftEyeDepth.getImage().getWidth()+"x"+leftEyeDepth.getImage().getHeight());
+        logger.config("        Image depth: "+leftEyeDepth.getImage().getDepth());
+        logger.config("       Image format: "+leftEyeDepth.getImage().getFormat());
+        logger.config("  Image color space: "+leftEyeDepth.getImage().getColorSpace());
+        
+        logger.config("Right eye texture "+rightEyeTexture.getName()+" ("+rightEyeTexture.getImage().getId()+")");
+        logger.config("               Type: "+rightEyeTexture.getType());
+        logger.config("               Size: "+rightEyeTexture.getImage().getWidth()+"x"+rightEyeTexture.getImage().getHeight());
+        logger.config("        Image depth: "+rightEyeTexture.getImage().getDepth());
+        logger.config("       Image format: "+rightEyeTexture.getImage().getFormat());
+        logger.config("  Image color space: "+rightEyeTexture.getImage().getColorSpace());
+        
+        logger.config("Right eye depth "+rightEyeDepth.getName()+" ("+rightEyeDepth.getImage().getId()+")");
+        logger.config("               Type: "+rightEyeDepth.getType());
+        logger.config("               Size: "+rightEyeDepth.getImage().getWidth()+"x"+rightEyeDepth.getImage().getHeight());
+        logger.config("        Image depth: "+rightEyeDepth.getImage().getDepth());
+        logger.config("       Image format: "+rightEyeDepth.getImage().getFormat());
+        logger.config("  Image color space: "+rightEyeDepth.getImage().getColorSpace());
+*/        
         // main viewport is either going to be a distortion scene or nothing
         // mirroring is handled by copying framebuffers
         app.getViewPort().detachScene(app.getRootNode());
@@ -367,13 +558,13 @@ public class VRViewManager {
         if( app.getVRHardware().getCompositor() == null ) {
             Node distortionScene = new Node();
             Material leftMat = new Material(app.getAssetManager(), "Common/MatDefs/VR/OpenVR.j3md");
-            leftMat.setTexture("Texture", leftEyeTex);
+            leftMat.setTexture("Texture", leftEyeTexture);
             Geometry leftEye = new Geometry("box", MeshUtil.setupDistortionMesh(JOpenVRLibrary.EVREye.EVREye_Eye_Left, app));
             leftEye.setMaterial(leftMat);
             distortionScene.attachChild(leftEye);
 
             Material rightMat = new Material(app.getAssetManager(), "Common/MatDefs/VR/OpenVR.j3md");
-            rightMat.setTexture("Texture", rightEyeTex);
+            rightMat.setTexture("Texture", rightEyeTexture);
             Geometry rightEye = new Geometry("box", MeshUtil.setupDistortionMesh(JOpenVRLibrary.EVREye.EVREye_Eye_Right, app));
             rightEye.setMaterial(rightMat);
             distortionScene.attachChild(rightEye);
@@ -386,16 +577,15 @@ public class VRViewManager {
         }
         
         if( app.getContext().getSettings().isSwapBuffers() ) {
-            setupMirrorBuffers(app.getCamera(), leftEyeTex, false);
+            setupMirrorBuffers(app.getCamera(), leftEyeTexture, false);
         }       
     }
     
-    //final & temp values for camera calculations
-    private final Vector3f finalPosition = new Vector3f();
-    private final Quaternion finalRotation = new Quaternion();
-    private final Vector3f hmdPos = new Vector3f();
-    private final Quaternion hmdRot = new Quaternion();
-    
+    /**
+     * Update the VR view manager. 
+     * This method is called by the attached {@link VRApplication VR application} and should not be called manually.
+     * @param tpf the time per frame.
+     */
     public void update(float tpf) {
         
         // grab the observer
@@ -422,11 +612,11 @@ public class VRViewManager {
                 finalRotation.multLocal(hmdRot);
             }
             
-            finalizeCamera(dev.getHMDVectorPoseLeftEye(), objPos, camLeft);
-            finalizeCamera(dev.getHMDVectorPoseRightEye(), objPos, camRight);
+            finalizeCamera(dev.getHMDVectorPoseLeftEye(), objPos, leftCamera);
+            finalizeCamera(dev.getHMDVectorPoseRightEye(), objPos, rightCamera);
         } else {
-            camLeft.setFrame(objPos, objRot);
-            camRight.setFrame(objPos, objRot);
+            leftCamera.setFrame(objPos, objRot);
+            rightCamera.setFrame(objPos, objRot);
         }
         
         if( app.hasTraditionalGUIOverlay() ) {
@@ -441,6 +631,12 @@ public class VRViewManager {
         }
     }
     
+    /**
+     * Place the camera within the scene.
+     * @param eyePos the eye position.
+     * @param obsPosition the observer position.
+     * @param cam the camera to place.
+     */
     private void finalizeCamera(Vector3f eyePos, Vector3f obsPosition, Camera cam) {
         finalRotation.mult(eyePos, finalPosition);
         finalPosition.addLocal(hmdPos);
@@ -449,35 +645,36 @@ public class VRViewManager {
         cam.setFrame(finalPosition, finalRotation);
     }
     
-    /*
-        handles moving filters from the main view to each eye
-    */
+    /**
+     * Handles moving filters from the main view to each eye
+     */
     public void moveScreenProcessingToEyes() {
-        if( viewPortRight == null ) return;
+        if( rightViewport == null ) return;
         syncScreenProcessing(app.getViewPort());
         app.getViewPort().clearProcessors();
     }
     
-    /*
-        sets the two views to use the list of processors
-    */
+    /**
+     * Sets the two views to use the list of {@link SceneProcessor processors}.
+     * @param sourceViewport the {@link ViewPort viewport} that contains the processors to use.
+     */
     public void syncScreenProcessing(ViewPort sourceViewport) {
-        if( viewPortRight == null ) return;
+        if( rightViewport == null ) return;
         // setup post processing filters
-        if( ppRight == null ) {
-            ppRight = new FilterPostProcessor(app.getAssetManager());               
-            ppLeft =  new FilterPostProcessor(app.getAssetManager());
+        if( rightPostProcessor == null ) {
+            rightPostProcessor = new FilterPostProcessor(app.getAssetManager());               
+            leftPostProcessor =  new FilterPostProcessor(app.getAssetManager());
         }
         // clear out all filters & processors, to start from scratch
-        ppRight.removeAllFilters();
-        ppLeft.removeAllFilters();
-        viewPortLeft.clearProcessors();
-        viewPortRight.clearProcessors();
+        rightPostProcessor.removeAllFilters();
+        leftPostProcessor.removeAllFilters();
+        leftViewport.clearProcessors();
+        rightViewport.clearProcessors();
         // if we have no processors to sync, don't add the FilterPostProcessor
         if( sourceViewport.getProcessors().isEmpty() ) return;
         // add post processors we just made, which are empty
-        viewPortLeft.addProcessor(ppLeft);
-        viewPortRight.addProcessor(ppRight);
+        leftViewport.addProcessor(leftPostProcessor);
+        rightViewport.addProcessor(rightPostProcessor);
         // go through all of the filters in the processors list
         // add them to the left viewport processor & clone them to the right
         for(SceneProcessor sceneProcessor : sourceViewport.getProcessors()) {
@@ -487,7 +684,7 @@ public class VRViewManager {
                         // just remove this filter, we will add it at the end manually
                         ((FilterPostProcessor)sceneProcessor).removeFilter(f);
                     } else {
-                        ppLeft.addFilter(f);
+                        leftPostProcessor.addFilter(f);
                         // clone to the right
                         Filter f2;
                         if(f instanceof FogFilter){
@@ -501,7 +698,7 @@ public class VRViewManager {
                         } else {
                             f2 = f; // dof, bloom, lightscattering etc.
                         }                    
-                        ppRight.addFilter(f2);
+                        rightPostProcessor.addFilter(f2);
                     }
                 }
             } else if (sceneProcessor instanceof VRDirectionalLightShadowRenderer) {
@@ -510,13 +707,13 @@ public class VRViewManager {
                 VRDirectionalLightShadowRenderer dlsr = (VRDirectionalLightShadowRenderer) sceneProcessor;
                 VRDirectionalLightShadowRenderer dlsrRight = dlsr.clone();
                 dlsrRight.setLight(dlsr.getLight());
-                viewPortRight.getProcessors().add(0, dlsrRight);
-                viewPortLeft.getProcessors().add(0, sceneProcessor);
+                rightViewport.getProcessors().add(0, dlsrRight);
+                leftViewport.getProcessors().add(0, sceneProcessor);
             }
         }
         // make sure each has a translucent filter renderer
-        ppLeft.addFilter(new TranslucentBucketFilter());
-        ppRight.addFilter(new TranslucentBucketFilter());
+        leftPostProcessor.addFilter(new TranslucentBucketFilter());
+        rightPostProcessor.addFilter(new TranslucentBucketFilter());
     }
     
     private void setupCamerasAndViews() {        
@@ -532,32 +729,32 @@ public class VRViewManager {
         
         // restore frustrum on distortion scene cam, if needed
         if( app.isInstanceVRRendering() ) {
-            camLeft = origCam;
+            leftCamera = origCam;
         } else if( app.compositorAllowed() == false ) {
             origCam.setFrustumFar(100f);
             origCam.setFrustumNear(1f); 
-            camLeft = origCam.clone();  
+            leftCamera = origCam.clone();  
             prepareCameraSize(origCam, 2f);
         } else {
-            camLeft = origCam.clone();
+            leftCamera = origCam.clone();
         }
         
-        camLeft.setFrustumPerspective(app.DEFAULT_FOV, app.DEFAULT_ASPECT, fNear, fFar);                     
+        leftCamera.setFrustumPerspective(app.DEFAULT_FOV, app.DEFAULT_ASPECT, fNear, fFar);                     
                 
-        prepareCameraSize(camLeft, 1f);
-        if( app.getVRHardware() != null ) camLeft.setProjectionMatrix(app.getVRHardware().getHMDMatrixProjectionLeftEye(camLeft));
+        prepareCameraSize(leftCamera, 1f);
+        if( app.getVRHardware() != null ) leftCamera.setProjectionMatrix(app.getVRHardware().getHMDMatrixProjectionLeftEye(leftCamera));
         //org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_SRGB);
         
         if( app.isInstanceVRRendering() == false ) {
-            viewPortLeft = setupViewBuffers(camLeft, LEFT_VIEW_NAME);
-            camRight = camLeft.clone();
-            if( app.getVRHardware() != null ) camRight.setProjectionMatrix(app.getVRHardware().getHMDMatrixProjectionRightEye(camRight));
-            viewPortRight = setupViewBuffers(camRight, RIGHT_VIEW_NAME);
+            leftViewport = setupViewBuffers(leftCamera, LEFT_VIEW_NAME);
+            rightCamera = leftCamera.clone();
+            if( app.getVRHardware() != null ) rightCamera.setProjectionMatrix(app.getVRHardware().getHMDMatrixProjectionRightEye(rightCamera));
+            rightViewport = setupViewBuffers(rightCamera, RIGHT_VIEW_NAME);
         } else {
-            viewPortLeft = app.getViewPort();
-            viewPortLeft.attachScene(app.getRootNode());
-            camRight = camLeft.clone();
-            if( app.getVRHardware() != null ) camRight.setProjectionMatrix(app.getVRHardware().getHMDMatrixProjectionRightEye(camRight));
+            leftViewport = app.getViewPort();
+            leftViewport.attachScene(app.getRootNode());
+            rightCamera = leftCamera.clone();
+            if( app.getVRHardware() != null ) rightCamera.setProjectionMatrix(app.getVRHardware().getHMDMatrixProjectionRightEye(rightCamera));
             
             org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL30.GL_CLIP_DISTANCE0);
             
@@ -568,7 +765,7 @@ public class VRViewManager {
         }
         
         // setup gui
-        app.getVRGUIManager().setupGui(camLeft, camRight, viewPortLeft, viewPortRight);
+        app.getVRGUIManager().setupGui(leftCamera, rightCamera, leftViewport, rightViewport);
         
         if( app.getVRHardware() != null ) {
             // call these to cache the results internally
@@ -611,6 +808,13 @@ public class VRViewManager {
         dualEyeTex.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
         dualEyeTex.setMagFilter(Texture.MagFilter.Bilinear);
 
+        logger.config("Dual eye texture "+dualEyeTex.getName()+" ("+dualEyeTex.getImage().getId()+")");
+        logger.config("               Type: "+dualEyeTex.getType());
+        logger.config("               Size: "+dualEyeTex.getImage().getWidth()+"x"+dualEyeTex.getImage().getHeight());
+        logger.config("        Image depth: "+dualEyeTex.getImage().getDepth());
+        logger.config("       Image format: "+dualEyeTex.getImage().getFormat());
+        logger.config("  Image color space: "+dualEyeTex.getImage().getColorSpace());
+        
         //setup framebuffer to use texture
         out.setDepthBuffer(Image.Format.Depth);
         out.setColorTexture(dualEyeTex);       

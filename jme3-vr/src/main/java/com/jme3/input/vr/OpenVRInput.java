@@ -256,6 +256,7 @@ public class OpenVRInput implements VRInputAPI {
             lastCallAxis[i] = new Vector2f();
             needsNewVelocity[i] = true;
             needsNewAngVelocity[i] = true;
+            logger.config("  Input "+(i+1)+"/"+JOpenVRLibrary.k_unMaxTrackedDeviceCount+" initialized.");
         }        
         
         return true;
@@ -345,11 +346,15 @@ public class OpenVRInput implements VRInputAPI {
     
     @Override
     public void updateConnectedControllers() {
+    	logger.config("Updating connected controllers.");
     	controllerCount = 0;
     	for(int i=0;i<JOpenVRLibrary.k_unMaxTrackedDeviceCount;i++) {
     		if( ((OpenVR)application.getVRHardware()).getVRSystem().GetTrackedDeviceClass.apply(i) == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_Controller ) {
     			controllerIndex[controllerCount] = i;
     			controllerCount++;
+    			logger.config("  Controller "+(i+1)+"/"+JOpenVRLibrary.k_unMaxTrackedDeviceCount+" attached.");
+    		} else {
+    			logger.config("  Controller "+(i+1)+"/"+JOpenVRLibrary.k_unMaxTrackedDeviceCount+" ignored.");
     		}
     	}
     }
@@ -358,7 +363,7 @@ public class OpenVRInput implements VRInputAPI {
     public void updateControllerStates() {
     	for(int i=0;i<controllerCount;i++) {
     		int index = controllerIndex[i];
-    		((OpenVR)application.getVRHardware()).getVRSystem().GetControllerState.apply(index, cStates[index]);
+    		((OpenVR)application.getVRHardware()).getVRSystem().GetControllerState.apply(index, cStates[index], 5);
     		cStates[index].readField("ulButtonPressed");
     		cStates[index].readField("rAxis");
     		needsNewVelocity[index] = true;

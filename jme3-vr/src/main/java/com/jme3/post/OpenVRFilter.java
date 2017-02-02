@@ -106,7 +106,8 @@ public class OpenVRFilter extends Filter {
                         verts[vertPos+2] = 0f; // z
                         vertPos += 3;
 
-			DistortionCoordinates_t dc0 = ((VR_IVRSystem_FnTable)application.getVRHardware().getVRSystem()).ComputeDistortion.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Left, u, v);
+			DistortionCoordinates_t dc0 = new DistortionCoordinates_t();
+		    ((VR_IVRSystem_FnTable)application.getVRHardware().getVRSystem()).ComputeDistortion.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Left, u, v, dc0);
 
 			texcoordR[coordPos]   = dc0.rfRed[0];
                         texcoordR[coordPos+1] = 1 - dc0.rfRed[1];
@@ -130,7 +131,8 @@ public class OpenVRFilter extends Filter {
                         verts[vertPos+2] = 0f; // z
                         vertPos += 3;
 
-			DistortionCoordinates_t dc0 = ((VR_IVRSystem_FnTable)application.getVRHardware().getVRSystem()).ComputeDistortion.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Right, u, v);
+            DistortionCoordinates_t dc0 = new DistortionCoordinates_t();
+			((VR_IVRSystem_FnTable)application.getVRHardware().getVRSystem()).ComputeDistortion.apply(JOpenVRLibrary.EVREye.EVREye_Eye_Right, u, v, dc0);
 
 			texcoordR[coordPos]   = dc0.rfRed[0];
                         texcoordR[coordPos+1] = 1 - dc0.rfRed[1];
