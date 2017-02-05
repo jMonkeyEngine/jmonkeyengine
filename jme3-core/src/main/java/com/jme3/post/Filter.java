@@ -85,6 +85,14 @@ public abstract class Filter implements Savable {
         protected Texture2D renderedTexture;
         protected Texture2D depthTexture;
         protected Material passMaterial;
+        protected String name;
+
+        public Pass(String name) {
+            this.name = name;
+        }
+
+        public Pass() {
+        }
 
         /**
          * init the pass called internally
@@ -196,6 +204,11 @@ public abstract class Filter implements Savable {
             if(depthTexture!=null){
                 depthTexture.getImage().dispose();
             }  
+        }
+
+        @Override
+        public String toString() {
+            return name == null ? super.toString() : name;
         }
     }
 

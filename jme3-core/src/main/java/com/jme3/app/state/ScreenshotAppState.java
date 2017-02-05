@@ -37,6 +37,7 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.post.SceneProcessor;
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
@@ -67,6 +68,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     private String shotName;
     private long shotIndex = 0;
     private int width, height;
+    private AppProfiler prof;
 
     /**
      * Using this constructor, the screenshot files will be written sequentially to the system
@@ -256,7 +258,12 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             }                
         }
     }
-    
+
+    @Override
+    public void setProfiler(AppProfiler profiler) {
+        this.prof = profiler;
+    }
+
     /**
      *  Called by postFrame() once the screen has been captured to outBuf.
      */

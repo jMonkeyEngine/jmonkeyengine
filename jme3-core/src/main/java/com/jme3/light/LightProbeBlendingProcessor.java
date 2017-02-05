@@ -33,6 +33,7 @@ package com.jme3.light;
 
 import com.jme3.bounding.BoundingSphere;
 import com.jme3.post.SceneProcessor;
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
@@ -56,6 +57,7 @@ public class LightProbeBlendingProcessor implements SceneProcessor {
     private RenderManager renderManager;
     private LightProbe probe = new LightProbe();
     private Spatial poi;
+    private AppProfiler prof;
 
     public LightProbeBlendingProcessor(Spatial poi) {        
         this.poi = poi;
@@ -177,8 +179,12 @@ public class LightProbeBlendingProcessor implements SceneProcessor {
     public void setPoi(Spatial poi) {
         this.poi = poi;
     }
-    
-    
+
+    @Override
+    public void setProfiler(AppProfiler profiler) {
+        this.prof = profiler;
+    }
+
     private class BlendFactor implements Comparable<BlendFactor>{
         
         LightProbe lightProbe;

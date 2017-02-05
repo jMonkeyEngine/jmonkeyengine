@@ -38,6 +38,7 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
@@ -75,6 +76,8 @@ import java.util.List;
  */
 @Deprecated
 public class PssmShadowRenderer implements SceneProcessor {
+
+    private AppProfiler prof;
 
     /**
      * <code>FilterMode</code> specifies how shadows are filtered
@@ -723,6 +726,11 @@ public class PssmShadowRenderer implements SceneProcessor {
             fadeLength = length;
             postshadowMat.setVector2("FadeInfo", fadeInfo);
         }
+    }
+
+    @Override
+    public void setProfiler(AppProfiler profiler) {
+        this.prof = profiler;
     }
 
     /**

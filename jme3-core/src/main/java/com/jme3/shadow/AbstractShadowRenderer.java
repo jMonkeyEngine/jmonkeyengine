@@ -44,6 +44,7 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
@@ -99,6 +100,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     protected Picture[] dispPic;
     protected RenderState forcedRenderState = new RenderState();
     protected Boolean renderBackFacesShadows = true;
+    protected AppProfiler prof;
 
     /**
      * true if the fallback material should be used, otherwise false
@@ -805,6 +807,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     public void cloneFields(final Cloner cloner, final Object original) {
         forcedRenderState = cloner.clone(forcedRenderState);
         init(assetManager, nbShadowMaps, (int) shadowMapSize);
+    }
+
+    public void setProfiler(AppProfiler profiler) {
+        this.prof = profiler;
     }
 
     /**

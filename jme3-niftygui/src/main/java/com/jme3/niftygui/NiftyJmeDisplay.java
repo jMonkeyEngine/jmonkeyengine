@@ -42,6 +42,7 @@ import com.jme3.audio.AudioRenderer;
 import com.jme3.input.InputManager;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.post.SceneProcessor;
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
@@ -71,6 +72,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
     protected ResourceLocationJme resourceLocation;
 
     protected int w, h;
+    private AppProfiler prof;
 
     protected class ResourceLocationJme implements ResourceLocation {
 
@@ -357,6 +359,11 @@ public class NiftyJmeDisplay implements SceneProcessor {
         if (inputManager != null) {
             inputManager.removeRawInputListener(inputSys);
         }
+    }
+
+    @Override
+    public void setProfiler(AppProfiler profiler) {
+        this.prof = profiler;
     }
 
 }
