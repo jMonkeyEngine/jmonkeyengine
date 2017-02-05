@@ -5,12 +5,7 @@ import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GL2;
 import com.jme3.renderer.opengl.GL3;
 
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
+import java.nio.*;
 
 import com.jme3.renderer.opengl.GL4;
 import com.jogamp.opengl.GLContext;
@@ -69,7 +64,12 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
     }
 
     @Override
-	public void glBindBuffer(int param1, int param2) {
+    public void glBeginQuery(int target, int query) {
+        GLContext.getCurrentGL().getGL2ES2().glBeginQuery(target, query);
+    }
+
+    @Override
+    public void glBindBuffer(int param1, int param2) {
         GLContext.getCurrentGL().glBindBuffer(param1, param2);
     }
 
@@ -271,13 +271,23 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
     }
 
     @Override
-	public void glGenBuffers(IntBuffer param1) {
+    public void glEndQuery(int target) {
+        GLContext.getCurrentGL().getGL2ES2().glEndQuery(target);
+    }
+
+    @Override
+    public void glGenBuffers(IntBuffer param1) {
         checkLimit(param1);
         GLContext.getCurrentGL().glGenBuffers(param1.limit(), param1);
     }
 
     @Override
-	public void glGenTextures(IntBuffer param1) {
+    public void glGenQueries(int num, IntBuffer buff) {
+        GLContext.getCurrentGL().getGL2ES2().glGenQueries(num, buff);
+    }
+
+    @Override
+    public void glGenTextures(IntBuffer param1) {
         checkLimit(param1);
         GLContext.getCurrentGL().glGenTextures(param1.limit(), param1);
     }
@@ -567,6 +577,20 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
 		byte[] bytes = new byte[numBytes];
 		buffer.get(bytes);
 		return new String(bytes);
+    }
+
+    @Override
+    public long glGetQueryObjectui64(int query, int target) {
+        LongBuffer buff = LongBuffer.allocate(1);
+        GLContext.getCurrentGL().getGL2ES2().glGetQueryObjectui64v(query, target, buff);
+        return buff.get(0);
+    }
+
+    @Override
+    public int glGetQueryObjectiv(int query, int pname) {
+        IntBuffer buff = IntBuffer.allocate(1);
+        GLContext.getCurrentGL().getGL2ES2().glGetQueryObjectiv(query, pname, buff);
+        return buff.get(0);
     }
 
     @Override

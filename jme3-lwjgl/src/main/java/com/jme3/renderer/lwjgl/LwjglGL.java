@@ -11,9 +11,12 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import com.jme3.renderer.opengl.GL4;
+import com.jme3.util.BufferUtils;
 import org.lwjgl.opengl.*;
 
 public final class LwjglGL implements GL, GL2, GL3, GL4 {
+
+    IntBuffer tmpBuff = BufferUtils.createIntBuffer(1);
     
     private static void checkLimit(Buffer buffer) {
         if (buffer == null) {
@@ -40,6 +43,11 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
 
     public void glAttachShader(int param1, int param2) {
         GL20.glAttachShader(param1, param2);
+    }
+
+    @Override
+    public void glBeginQuery(int target, int query) {
+        GL15.glBeginQuery(target, query);
     }
 
     public void glBindBuffer(int param1, int param2) {
@@ -206,9 +214,19 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
         GL20.glEnableVertexAttribArray(param1);
     }
 
+    @Override
+    public void glEndQuery(int target) {
+        GL15.glEndQuery(target);
+    }
+
     public void glGenBuffers(IntBuffer param1) {
         checkLimit(param1);
         GL15.glGenBuffers(param1);
+    }
+
+    @Override
+    public void glGenQueries(int num, IntBuffer ids) {
+        GL15.glGenQueries(ids);
     }
 
     public void glGenTextures(IntBuffer param1) {
@@ -433,6 +451,16 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
 
     public String glGetProgramInfoLog(int program, int maxSize) {
         return GL20.glGetProgramInfoLog(program, maxSize);
+    }
+
+    @Override
+    public long glGetQueryObjectui64(int query, int target) {
+        return ARBTimerQuery.glGetQueryObjectui64(query, target);
+    }
+
+    @Override
+    public int glGetQueryObjectiv(int query, int pname) {
+        return GL15.glGetQueryObjecti(query, pname);
     }
 
     public String glGetShaderInfoLog(int shader, int maxSize) {

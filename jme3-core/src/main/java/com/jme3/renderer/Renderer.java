@@ -387,4 +387,46 @@ public interface Renderer {
       */
      public void setLinearizeSrgbImages(boolean linearize);
 
+
+    /**
+     * Generates a pool of gpu queries meant to use as profiling tasks
+     *
+     * @param numTasks the number of task ids to generate
+     * @return an array of tasks ids.
+     */
+    public int[] generateProfilingTasks(int numTasks);
+
+    /**
+     * Starts a time profiling task on the GPU.
+     * This will profile all operations called between startProfiling and stopProfiling
+     *
+     * @param taskId the id of the task to start profiling.
+     */
+    public void startProfiling(int taskId);
+
+    /**
+     * Will stop the last profiling task started with startProfiling
+     */
+    public void stopProfiling();
+
+    /**
+     * Returns the time in nano seconds elapsed for the task with the given id.
+     * Note that the result may not be available right after stopProfiling has been called.
+     * You need to check if the result is available with isTaskResultAvailable.
+     * Also note that it's guaranteed that the result will be available on next frame.
+     * If you use getProfilingTime on the next frame you called stopProfiling, you don't need to check the result availability with isTaskResultAvailable
+     *
+     * @param taskId the id of the task given by startProfiling.
+     * @return the time in nano second of the profiling task with the given id.
+     */
+    public long getProfilingTime(int taskId);
+
+    /**
+     * Check if the profiling results are available
+     *
+     * @param taskId the id of the task provided by startProfiling
+     * @return true if the resulst of the task with the given task id are available.
+     */
+    public boolean isTaskResultAvailable(int taskId);
+
 }

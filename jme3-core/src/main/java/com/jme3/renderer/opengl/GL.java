@@ -126,6 +126,8 @@ public interface GL {
     public static final int GL_OUT_OF_MEMORY = 0x505;
     public static final int GL_POINTS = 0x0;
     public static final int GL_POLYGON_OFFSET_FILL = 0x8037;
+    public static final int GL_QUERY_RESULT = 0x8866;
+    public static final int GL_QUERY_RESULT_AVAILABLE = 0x8867;
     public static final int GL_RED = 0x1903;
     public static final int GL_RENDERER = 0x1F01;
     public static final int GL_REPEAT = 0x2901;
@@ -177,6 +179,7 @@ public interface GL {
     public static final int GL_TEXTURE_MIN_FILTER = 0x2801;
     public static final int GL_TEXTURE_WRAP_S = 0x2802;
     public static final int GL_TEXTURE_WRAP_T = 0x2803;
+    public static final int GL_TIME_ELAPSED = 0x88BF;
     public static final int GL_TRIANGLES = 0x4;
     public static final int GL_TRIANGLE_FAN = 0x6;
     public static final int GL_TRIANGLE_STRIP = 0x5;
@@ -196,6 +199,7 @@ public interface GL {
         
 	public void glActiveTexture(int texture);
 	public void glAttachShader(int program, int shader);
+    public void glBeginQuery(int target, int query);
 	public void glBindBuffer(int target, int buffer);
 	public void glBindTexture(int target, int texture);
 	public void glBlendEquationSeparate(int colorMode, int alphaMode);
@@ -232,8 +236,10 @@ public interface GL {
 	public void glDrawRangeElements(int mode, int start, int end, int count, int type, long indices); /// GL2+
 	public void glEnable(int cap);
 	public void glEnableVertexAttribArray(int index);
+    public void glEndQuery(int target);
 	public void glGenBuffers(IntBuffer buffers);
 	public void glGenTextures(IntBuffer textures);
+    public void glGenQueries(int number, IntBuffer ids);
 	public int glGetAttribLocation(int program, String name);
 	public void glGetBoolean(int pname, ByteBuffer params);
         public void glGetBufferSubData(int target, long offset, ByteBuffer data);
@@ -241,7 +247,9 @@ public interface GL {
 	public void glGetInteger(int pname, IntBuffer params);
 	public void glGetProgram(int program, int pname, IntBuffer params);
 	public String glGetProgramInfoLog(int program, int maxSize);
-	public void glGetShader(int shader, int pname, IntBuffer params);
+    public long glGetQueryObjectui64(int query, int pname);
+    public int glGetQueryObjectiv(int query, int pname);
+    public void glGetShader(int shader, int pname, IntBuffer params);
 	public String glGetShaderInfoLog(int shader, int maxSize);
 	public String glGetString(int name);
 	public int glGetUniformLocation(int program, String name);
