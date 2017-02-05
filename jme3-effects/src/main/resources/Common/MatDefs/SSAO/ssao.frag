@@ -33,8 +33,8 @@ vec3 getPosition(float depthv, in vec2 uv){
 vec3 approximateNormal(in vec3 pos,in vec2 texCoord){
     float step = g_ResolutionInverse.x ;
     float stepy = g_ResolutionInverse.y ;
-    float depth2 = texture2D(m_DepthTexture,texCoord + vec2(step,-stepy)).r;
-    float depth3 = texture2D(m_DepthTexture,texCoord + vec2(-step,-stepy)).r;
+    float depth2 = getDepth(m_DepthTexture,texCoord + vec2(step,-stepy)).r;
+    float depth3 = getDepth(m_DepthTexture,texCoord + vec2(-step,-stepy)).r;
     vec3 pos2 = vec3(getPosition(depth2,texCoord + vec2(step,-stepy)));
     vec3 pos3 = vec3(getPosition(depth3,texCoord + vec2(-step,-stepy)));
 
