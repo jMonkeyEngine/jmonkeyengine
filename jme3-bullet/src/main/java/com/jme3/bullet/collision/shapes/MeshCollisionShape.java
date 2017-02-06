@@ -122,7 +122,7 @@ public class MeshCollisionShape extends CollisionShape {
         this.vertexStride = 12;
         this.triangleIndexStride = 12;
         this.memoryOptimized = memoryOptimized;
-        this.createShape(true);
+        this.createShape(null);
     }
     
     private void createCollisionMesh(Mesh mesh) {
@@ -150,7 +150,7 @@ public class MeshCollisionShape extends CollisionShape {
         vertices.rewind();
         vertices.clear();
 
-        this.createShape(true);
+        this.createShape(null);
     }
 
     @Override
@@ -191,25 +191,19 @@ public class MeshCollisionShape extends CollisionShape {
         this.vertexBase = BufferUtils.createByteBuffer(capsule.readByteArray(MeshCollisionShape.VERTEX_BASE, null));
 
         byte[] nativeBvh = capsule.readByteArray(MeshCollisionShape.NATIVE_BVH, null);
-        if (nativeBvh == null) {
-            // Either using non memory optimized BVH or old J3O file
-            memoryOptimized = false;
-            createShape(true);
-        } else {
-            // Using memory optimized BVH, load from J3O, then assign it.
-            memoryOptimized = true;
-            createShape(false);
-            nativeBVHBuffer = setBVH(nativeBvh, this.objectId);
-        }
+        memoryOptimized=nativeBvh != null;
+        createShape(nativeBvh);
     }
 
-    private void createShape(boolean buildBvt) {
+    private void createShape(byte bvh[]) {
+        boolean buildBvh=bvh==null||bvh.length==0;
         this.meshId = NativeMeshUtil.createTriangleIndexVertexArray(this.triangleIndexBase, this.vertexBase, this.numTriangles, this.numVertices, this.vertexStride, this.triangleIndexStride);
         Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Mesh {0}", Long.toHexString(this.meshId));
-        this.objectId = createShape(memoryOptimized, buildBvt, this.meshId);
+        this.objectId = createShape(memoryOptimized, buildBvh, this.meshId);
         Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Shape {0}", Long.toHexString(this.objectId));
+        if(!buildBvh)   nativeBVHBuffer = setBVH(bvh, this.objectId);                
         this.setScale(this.scale);
-        this.setMargin(this.margin);
+        this.setMargin(this.margin);        
     }
 
     /**
