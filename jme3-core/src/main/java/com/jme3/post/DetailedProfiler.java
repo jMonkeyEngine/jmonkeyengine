@@ -215,8 +215,8 @@ public class DetailedProfiler implements AppProfiler {
         private int startCursor = 0;
         private int cpuCursor = 0;
         private int gpuCursor = 0;
-        private int cpuSum = 0;
-        private int gpuSum = 0;
+        private long cpuSum = 0;
+        private long gpuSum = 0;
         private long lastValue = 0;
         private int nbFramesCpu;
         private int nbFramesGpu;

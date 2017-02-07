@@ -263,10 +263,10 @@ public class DetailedProfilerState extends BaseAppState {
         boolean dimmed = isParent && expended;
         boolean insignificant = false;
 
-        if (value > 1000000000.0 / 60.0) {
-            t.setColor(dimmed ? dimmedOrange : ColorRGBA.Orange);
-        } else if (value > 1000000000f / 30f) {
+        if (value > 1000000000.0 / 30.0) {
             t.setColor(dimmed ? dimmedRed : ColorRGBA.Red);
+        } else if (value > 1000000000.0 / 60.0) {
+            t.setColor(dimmed ? dimmedOrange : ColorRGBA.Orange);
         } else if (value > totalTime / 3) {
             t.setColor(dimmed ? dimmedGreen : ColorRGBA.Green);
         } else if (value < 30000) {
