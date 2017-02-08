@@ -237,7 +237,11 @@ When arrays can be inserted in J3M files
                 Texture texVal = (Texture) value;
                 TextureKey texKey = (TextureKey) texVal.getKey();
                 if (texKey == null){
-                    throw new UnsupportedOperationException("The specified MatParam cannot be represented in J3M");
+                  //throw new UnsupportedOperationException("The specified MatParam cannot be represented in J3M");
+                    // this is used in toString and the above line causes blender materials to throw this exception. 
+                    // toStrings should be very robust IMO as even debuggers often invoke toString and logging code
+                    // often does as well, even implicitly. 
+                    return texVal+":returned null key";
                 }
 
                 String ret = "";
