@@ -42,6 +42,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
@@ -76,6 +77,8 @@ public class DirectionalLightShadowRendererVR extends AbstractShadowRendererVR {
     //Holding the info for fading shadows in the far distance   
     private boolean stabilize = true;
 
+    private AppProfiler profiler = null;
+    
     /**
      * Used for serialzation use
      * DirectionalLightShadowRenderer#DirectionalLightShadowRenderer(AssetManager
@@ -301,4 +304,9 @@ public class DirectionalLightShadowRendererVR extends AbstractShadowRendererVR {
     protected boolean checkCulling(Camera viewCam) {
         return true;
     }
+
+	@Override
+	public void setProfiler(AppProfiler profiler) {
+		this.profiler = profiler;
+	}
 }
