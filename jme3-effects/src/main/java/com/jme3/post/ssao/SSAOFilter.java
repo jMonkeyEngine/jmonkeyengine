@@ -156,7 +156,7 @@ public class SSAOFilter extends Filter {
         random.setWrap(Texture.WrapMode.Repeat);
         ssaoMat.setTexture("RandomMap", random);
 
-        ssaoPass = new Pass() {
+        ssaoPass = new Pass("SSAO pass") {
 
             @Override
             public boolean requiresDepthAsTexture() {

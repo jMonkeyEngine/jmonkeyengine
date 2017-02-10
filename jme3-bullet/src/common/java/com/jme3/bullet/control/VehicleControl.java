@@ -200,6 +200,7 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
             newWheel.setWheelSpatial(wheel.getWheelSpatial());
         }
         control.setApplyPhysicsLocal(isApplyPhysicsLocal());
+        control.setEnabled(isEnabled());
         
         control.spatial = spatial;
         return control;
@@ -268,9 +269,12 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
                 added = false;
             }
         } else {
-            if(this.space==space) return;
-            space.addCollisionObject(this);
-            added = true;
+            if(this.space == space) return;
+            // if this object isn't enabled, it will be added when it will be enabled.
+            if (isEnabled()) {
+                space.addCollisionObject(this);
+                added = true;
+            }
         }
         this.space = space;
     }

@@ -31,11 +31,10 @@
  */
 package com.jme3.renderer.android;
 
-import android.opengl.GLES20;
+import android.opengl.*;
 import com.jme3.renderer.RendererException;
-import com.jme3.renderer.opengl.GL;
-import com.jme3.renderer.opengl.GLExt;
-import com.jme3.renderer.opengl.GLFbo;
+import com.jme3.renderer.opengl.*;
+
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -90,6 +89,11 @@ public class AndroidGL implements GL, GLExt, GLFbo {
 
     public void glAttachShader(int program, int shader) {
         GLES20.glAttachShader(program, shader);
+    }
+
+    @Override
+    public void glBeginQuery(int target, int query) {
+        GLES30.glBeginQuery(target, query);
     }
 
     public void glBindBuffer(int target, int buffer) {
@@ -234,6 +238,11 @@ public class AndroidGL implements GL, GLExt, GLFbo {
         GLES20.glEnableVertexAttribArray(index);
     }
 
+    @Override
+    public void glEndQuery(int target) {
+        GLES30.glEndQuery(target);
+    }
+
     public void glGenBuffers(IntBuffer buffers) {
         checkLimit(buffers);
         GLES20.glGenBuffers(buffers.limit(), buffers);
@@ -242,6 +251,11 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     public void glGenTextures(IntBuffer textures) {
         checkLimit(textures);
         GLES20.glGenTextures(textures.limit(), textures);
+    }
+
+    @Override
+    public void glGenQueries(int num, IntBuffer buff) {
+        GLES30.glGenQueries(num, buff);
     }
 
     public int glGetAttribLocation(int program, String name) {
@@ -269,6 +283,21 @@ public class AndroidGL implements GL, GLExt, GLFbo {
 
     public String glGetProgramInfoLog(int program, int maxLength) {
         return GLES20.glGetProgramInfoLog(program);
+    }
+
+    @Override
+    public long glGetQueryObjectui64(int query, int pname) {
+        IntBuffer buff = IntBuffer.allocate(1);
+        //FIXME This is wrong IMO should be glGetQueryObjectui64v with a LongBuffer but it seems the API doesn't provide it.
+        GLES30.glGetQueryObjectuiv(query, pname, buff);
+        return buff.get(0);
+    }
+
+    @Override
+    public int glGetQueryObjectiv(int query, int pname) {
+        IntBuffer buff = IntBuffer.allocate(1);
+        GLES30.glGetQueryiv(query, pname, buff);
+        return buff.get(0);
     }
 
     public void glGetShader(int shader, int pname, IntBuffer params) {

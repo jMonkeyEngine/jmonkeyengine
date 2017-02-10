@@ -33,6 +33,7 @@ package com.jme3.app.state;
 
 import com.jme3.app.Application;
 import com.jme3.post.SceneProcessor;
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
@@ -220,6 +221,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         private LinkedBlockingQueue<WorkItem> freeItems;
         private LinkedBlockingQueue<WorkItem> usedItems = new LinkedBlockingQueue<WorkItem>();
         private MjpegFileWriter writer;
+        private AppProfiler prof;
 
         public void addImage(Renderer renderer, FrameBuffer out) {
             if (freeItems == null) {
@@ -297,6 +299,11 @@ public class VideoRecorderAppState extends AbstractAppState {
                 Logger.getLogger(VideoRecorderAppState.class.getName()).log(Level.SEVERE, "Error closing video: {0}", ex);
             }
             writer = null;
+        }
+
+        @Override
+        public void setProfiler(AppProfiler profiler) {
+            this.prof = profiler;
         }
     }
 

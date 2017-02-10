@@ -41,6 +41,7 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
@@ -229,6 +230,11 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
     }
 
     public void cleanup() {
+    }
+
+    @Override
+    public void setProfiler(AppProfiler profiler) {
+
     }
 
 }

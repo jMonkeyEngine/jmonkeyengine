@@ -30,6 +30,12 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
         checkError();
     }
 
+    @Override
+    public void glBeginQuery(int target, int query) {
+        gl.glBeginQuery(target, query);
+        checkError();
+    }
+
     public void glBindBuffer(int target, int buffer) {
         gl.glBindBuffer(target, buffer);
         checkError();
@@ -198,6 +204,11 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
         checkError();
     }
 
+    @Override
+    public void glEndQuery(int target) {
+        checkError();
+    }
+
     public void glGenBuffers(IntBuffer buffers) {
         gl.glGenBuffers(buffers);
         checkError();
@@ -205,6 +216,12 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
 
     public void glGenTextures(IntBuffer textures) {
         gl.glGenTextures(textures);
+        checkError();
+    }
+
+    @Override
+    public void glGenQueries(int num, IntBuffer ids) {
+        glGenQueries(num, ids);
         checkError();
     }
 
@@ -238,6 +255,20 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
         String infoLog =  gl.glGetProgramInfoLog(program, maxSize);
         checkError();
         return infoLog;
+    }
+
+    @Override
+    public long glGetQueryObjectui64(int query, int pname) {
+        long res = gl.glGetQueryObjectui64(query, pname);
+        checkError();
+        return res;
+    }
+
+    @Override
+    public int glGetQueryObjectiv(int query, int pname) {
+        int res = gl.glGetQueryObjectiv(query, pname);
+        checkError();
+        return res;
     }
 
     public void glGetShader(int shader, int pname, IntBuffer params) {

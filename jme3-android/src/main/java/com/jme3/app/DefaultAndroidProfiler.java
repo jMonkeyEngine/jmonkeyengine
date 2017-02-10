@@ -33,8 +33,8 @@
 package com.jme3.app;
 
 import android.os.Build;
-import com.jme3.profile.AppProfiler;
-import com.jme3.profile.AppStep;
+import com.jme3.profile.*;
+
 import static com.jme3.profile.AppStep.BeginFrame;
 import static com.jme3.profile.AppStep.EndFrame;
 import static com.jme3.profile.AppStep.ProcessAudio;
@@ -47,7 +47,6 @@ import static com.jme3.profile.AppStep.RenderPreviewViewPorts;
 import static com.jme3.profile.AppStep.SpatialUpdate;
 import static com.jme3.profile.AppStep.StateManagerRender;
 import static com.jme3.profile.AppStep.StateManagerUpdate;
-import com.jme3.profile.VpStep;
 import static com.jme3.profile.VpStep.BeginRender;
 import static com.jme3.profile.VpStep.EndRender;
 import static com.jme3.profile.VpStep.FlushQueue;
@@ -164,4 +163,10 @@ public class DefaultAndroidProfiler implements AppProfiler {
             }
         }
     }
+
+    @Override
+    public void spStep(SpStep step, String... additionalInfo) {
+
+    }
+
 }

@@ -42,9 +42,7 @@ import com.jme3.material.Technique;
 import com.jme3.material.TechniqueDef;
 import com.jme3.math.*;
 import com.jme3.post.SceneProcessor;
-import com.jme3.profile.AppProfiler;
-import com.jme3.profile.AppStep;
-import com.jme3.profile.VpStep;
+import com.jme3.profile.*;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -1070,10 +1068,13 @@ public class RenderManager {
         }
 
         if (processors != null) {
+            if (prof != null) prof.vpStep(VpStep.PreFrame, vp, null);
             for (SceneProcessor proc : processors.getArray()) {
                 if (!proc.isInitialized()) {
                     proc.initialize(this, vp);
                 }
+                proc.setProfiler(this.prof);
+                if (prof != null) prof.spStep(SpStep.ProcPreFrame, proc.getClass().getSimpleName());
                 proc.preFrame(tpf);
             }
         }
@@ -1098,6 +1099,7 @@ public class RenderManager {
         if (processors != null) {
             if (prof!=null) prof.vpStep(VpStep.PostQueue, vp, null);
             for (SceneProcessor proc : processors.getArray()) {
+                if (prof != null) prof.spStep(SpStep.ProcPostQueue, proc.getClass().getSimpleName());
                 proc.postQueue(vp.getQueue());
             }
         }
@@ -1108,14 +1110,16 @@ public class RenderManager {
         if (processors != null) {
             if (prof!=null) prof.vpStep(VpStep.PostFrame, vp, null);
             for (SceneProcessor proc : processors.getArray()) {
+                if (prof != null) prof.spStep(SpStep.ProcPostFrame, proc.getClass().getSimpleName());
                 proc.postFrame(vp.getOutputFrameBuffer());
             }
+            if (prof != null) prof.vpStep(VpStep.ProcEndRender, vp, null);
         }
         //renders the translucent objects queue after processors have been rendered
         renderTranslucentQueue(vp);
         // clear any remaining spatials that were not rendered.
         clearQueue(vp);
-        
+
         if (prof!=null) prof.vpStep(VpStep.EndRender, vp, null);
     }
     

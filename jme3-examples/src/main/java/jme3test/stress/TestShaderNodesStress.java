@@ -6,9 +6,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.profile.AppProfiler;
-import com.jme3.profile.AppStep;
-import com.jme3.profile.VpStep;
+import com.jme3.profile.*;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
@@ -95,6 +93,11 @@ public class TestShaderNodesStress extends SimpleApplication {
 
         @Override
         public void vpStep(VpStep step, ViewPort vp, RenderQueue.Bucket bucket) {
+
+        }
+
+        @Override
+        public void spStep(SpStep step, String... additionalInfo) {
 
         }
 
