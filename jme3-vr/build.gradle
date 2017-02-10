@@ -1,0 +1,17 @@
+if (!hasProperty('mainClass')) {
+    ext.mainClass = ''
+}
+
+def lwjglVersion = '3.0.0'
+
+sourceCompatibility = '1.8'
+
+dependencies {
+    compile project(':jme3-core')
+    compile project(':jme3-lwjgl3')
+    compile project(':jme3-effects')
+	
+	// https://mvnrepository.com/artifact/net.java.dev.jna/jna
+    compile group: 'net.java.dev.jna', name: 'jna', version: '4.3.0'
+    compile 'com.nativelibs4java:jnaerator-runtime:0.12'
+}

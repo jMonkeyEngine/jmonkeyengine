@@ -1,0 +1,47 @@
+MaterialDef CartoonSSAO {
+
+    MaterialParameters {
+        Int NumSamples
+        Int NumSamplesDepth
+        Texture2D DepthTexture
+        Texture2D Texture
+        Texture2D Normals
+        Vector3 FrustumCorner
+        Float Distance
+        Boolean disableOutline
+        Boolean useInstancing
+        Vector2 FrustumNearFar
+    }
+
+    Technique {
+            VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
+            FragmentShader GLSL150: Common/MatDefs/VR/CartoonSSAO.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            ResolutionInverse
+        }
+
+        Defines {
+            NO_OUTLINE : disableOutline
+            INSTANCING : useInstancing
+        }
+    }
+
+    Technique {
+            VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
+            FragmentShader GLSL100: Common/MatDefs/VR/CartoonSSAO.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            ResolutionInverse
+        }
+
+        Defines {
+            NO_OUTLINE : disableOutline
+            INSTANCING : useInstancing
+        }
+    }
+}
