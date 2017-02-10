@@ -5,9 +5,15 @@
  */
 package jmevr.util;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.lwjgl.glfw.GLFW;
+
+import com.jme3.app.Application;
+import com.jme3.app.VRAppState;
 import com.jme3.app.VRApplication;
+import com.jme3.app.state.AppState;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.lwjgl.GlfwMouseInputVR;
@@ -16,6 +22,7 @@ import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.Vector2f;
 import com.jme3.scene.Node;
 import com.jme3.system.AppSettings;
+import com.jme3.system.lwjgl.LwjglWindow;
 import com.jme3.system.lwjgl.LwjglWindowVR;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
@@ -29,8 +36,9 @@ public class VRMouseManager {
  
 	private static final Logger logger = Logger.getLogger(VRMouseManager.class.getName());
 	
-	private VRApplication application = null;
-
+	private Application application = null;
+	private VRAppState app = null;
+	
 	private final int AVERAGE_AMNT = 4;
     private int avgCounter;
     
@@ -48,16 +56,20 @@ public class VRMouseManager {
         return amt / arr.length;
     }
     
-    public VRMouseManager(VRApplication application){
-      this.application = application;
+    public VRMouseManager(){
     }
     
     /**
-     * Get the VR application to which this mouse manager is attached.
-     * @return the VR application to which this mouse manager is attached.
+     * Attach the mouse manager to an app state and an Application. 
+     * The application has to be the one that the app state is attached.
+     * This method should be called from the {@link AppState#initialize(com.jme3.app.state.AppStateManager, Application) initialize} 
+     * method of the {@link AppState} instance.
+     * @param app the VR app state that this manager is attached to.
+     * @param application the application to whitch the app state is attcached.
      */
-    public VRApplication getApplication(){
-    	return application;
+    public void attach(VRAppState app, Application application){
+    	this.app = app;
+    	this.application = application;
     }
     
     protected void init() {
@@ -73,6 +85,8 @@ public class VRMouseManager {
         	((GlfwMouseInputVR)mi).hideActiveCursor();
         }
         centerMouse();
+        
+        logger.config("Initialized VR mouse manager [SUCCESS]");
     }
     
     public void setThumbstickMode(boolean set) {
@@ -101,7 +115,7 @@ public class VRMouseManager {
     }
     
     public void setImage(String texture) {
-        if( application.isInVR() == false ){
+        if( app.isInVR() == false ){
         	Texture tex = application.getAssetManager().loadTexture(texture);
             mouseImage.setTexture(application.getAssetManager(), (Texture2D)tex, true);
             ySize = tex.getImage().getHeight();
@@ -123,14 +137,14 @@ public class VRMouseManager {
     
     public void updateAnalogAsMouse(int inputIndex, AnalogListener mouseListener, String mouseXName, String mouseYName, float tpf) {
         // got a tracked controller to use as the "mouse"
-        if( application.isInVR() == false || 
-            application.getVRinput() == null ||
-        	application.getVRinput().isInputDeviceTracking(inputIndex) == false ) return;
+        if( app.isInVR() == false || 
+        	app.getVRinput() == null ||
+        	app.getVRinput().isInputDeviceTracking(inputIndex) == false ) return;
         Vector2f tpDelta;
         if( thumbstickMode ) {
-            tpDelta = application.getVRinput().getAxis(inputIndex, VRInputType.ViveTrackpadAxis);
+            tpDelta = app.getVRinput().getAxis(inputIndex, VRInputType.ViveTrackpadAxis);
         } else {
-            tpDelta = application.getVRinput().getAxisDeltaSinceLastCall(inputIndex, VRInputType.ViveTrackpadAxis);            
+            tpDelta = app.getVRinput().getAxisDeltaSinceLastCall(inputIndex, VRInputType.ViveTrackpadAxis);            
         }
         float Xamount = (float)Math.pow(Math.abs(tpDelta.x) * sensitivity, acceleration);
         float Yamount = (float)Math.pow(Math.abs(tpDelta.y) * sensitivity, acceleration);
@@ -147,7 +161,7 @@ public class VRMouseManager {
             lastYmv[index] = Yamount * 133f;
             cursorPos.x -= avg(lastXmv);
             cursorPos.y -= avg(lastYmv);
-            Vector2f maxsize = application.getVRGUIManager().getCanvasSize();
+            Vector2f maxsize = app.getVRGUIManager().getCanvasSize();
             if( cursorPos.x > maxsize.x ) cursorPos.x = maxsize.x;
             if( cursorPos.x < 0f ) cursorPos.x = 0f;
             if( cursorPos.y > maxsize.y ) cursorPos.y = maxsize.y;
@@ -156,7 +170,7 @@ public class VRMouseManager {
     }
     
     public Vector2f getCursorPosition() {
-        if( application.isInVR() ) {
+        if( app.isInVR() ) {
             return cursorPos;
         }
         return application.getInputManager().getCursorPosition();
@@ -164,11 +178,11 @@ public class VRMouseManager {
     
     public void centerMouse() {
         // set mouse in center of the screen if newly added
-        Vector2f size = application.getVRGUIManager().getCanvasSize();
+        Vector2f size = app.getVRGUIManager().getCanvasSize();
         MouseInput mi = application.getContext().getMouseInput();
         AppSettings as = application.getContext().getSettings();
         if( mi instanceof GlfwMouseInputVR ) ((GlfwMouseInputVR)mi).setCursorPosition((int)(as.getWidth() / 2f), (int)(as.getHeight() / 2f));
-        if( application.isInVR() ) {
+        if( app.isInVR() ) {
             cursorPos.x = size.x / 2f;
             cursorPos.y = size.y / 2f;
             recentCenterCount = 2;
@@ -180,11 +194,13 @@ public class VRMouseManager {
 
         if( application.getInputManager().isCursorVisible() ) {
             if( mouseImage.getParent() == null ) {
-            	application.getGuiNode().attachChild(mouseImage);                
+            	
+            	application.getGuiViewPort().attachScene(mouseImage);         
                 centerMouse();
                 // the "real" mouse pointer should stay hidden
-                org.lwjgl.glfw.GLFW.glfwSetInputMode(((LwjglWindowVR)application.getContext()).getWindowHandle(),
-                                                      org.lwjgl.glfw.GLFW.GLFW_CURSOR, org.lwjgl.glfw.GLFW.GLFW_CURSOR_DISABLED);
+                if (application.getContext() instanceof LwjglWindow){
+                	GLFW.glfwSetInputMode(((LwjglWindow)application.getContext()).getWindowHandle(), GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
+                }
             }
             // handle mouse movements, which may be in addition to (or exclusive from) tracked movement
             MouseInput mi = application.getContext().getMouseInput();
@@ -195,21 +211,24 @@ public class VRMouseManager {
                     cursorPos.y += ((GlfwMouseInputVR)mi).getLastDeltaY();// * winratio.y;
                     if( cursorPos.x < 0f ) cursorPos.x = 0f;
                     if( cursorPos.y < 0f ) cursorPos.y = 0f;
-                    if( cursorPos.x > application.getVRGUIManager().getCanvasSize().x ) cursorPos.x = application.getVRGUIManager().getCanvasSize().x;
-                    if( cursorPos.y > application.getVRGUIManager().getCanvasSize().y ) cursorPos.y = application.getVRGUIManager().getCanvasSize().y;
+                    if( cursorPos.x > app.getVRGUIManager().getCanvasSize().x ) cursorPos.x = app.getVRGUIManager().getCanvasSize().x;
+                    if( cursorPos.y > app.getVRGUIManager().getCanvasSize().y ) cursorPos.y = app.getVRGUIManager().getCanvasSize().y;
                 } else recentCenterCount--;
                 ((GlfwMouseInputVR)mi).clearDeltas();
             }
             // ok, update the cursor graphic position
             Vector2f currentPos = getCursorPosition();
-            mouseImage.setLocalTranslation(currentPos.x, currentPos.y - ySize, application.getVRGUIManager().getGuiDistance() + 1f);
+            mouseImage.setLocalTranslation(currentPos.x, currentPos.y - ySize, app.getVRGUIManager().getGuiDistance() + 1f);
+		    
             mouseImage.updateGeometricState();
-            mouseImage.getParent().updateGeometricState();
             
         } else if( mouseImage.getParent() != null ) {
         	Node n = mouseImage.getParent();
             mouseImage.removeFromParent();
-            n.updateGeometricState();
+            
+            if (n != null){
+              n.updateGeometricState();
+            }
         }
     }    
 }

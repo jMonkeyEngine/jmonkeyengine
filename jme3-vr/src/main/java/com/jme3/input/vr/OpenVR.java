@@ -5,6 +5,7 @@
  */
 package com.jme3.input.vr;
 
+import com.jme3.app.VRAppState;
 import com.jme3.app.VRApplication;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
@@ -83,14 +84,15 @@ public class OpenVR implements VRAPI {
     private static long frameCount;
     private static OpenVRInput VRinput;
     
-    private VRApplication application = null;
+    private VRAppState app = null;
     
     /**
-     * Create a new <a href="https://github.com/ValveSoftware/openvr/wiki/API-Documentation">OpenVR</a> system attached to the given application.
-     * @param application the application to which the input is attached.
+     * Create a new <a href="https://github.com/ValveSoftware/openvr/wiki/API-Documentation">OpenVR</a> system 
+     * attached to the given {@link VRAppState VR app state}.
+     * @param appState the VR app state to which the api is attached.
      */
-    public OpenVR(VRApplication application){
-      this.application = application;
+    public OpenVR(VRAppState appState){
+      this.app = appState;
     }
     
     @Override
@@ -178,7 +180,7 @@ public class OpenVR implements VRAPI {
             }
             
             // init controllers for the first time
-            VRinput = new OpenVRInput(application);
+            VRinput = new OpenVRInput(app);
             VRinput.init();
             VRinput.updateConnectedControllers();
             
@@ -204,7 +206,7 @@ public class OpenVR implements VRAPI {
                     if(compositorFunctions != null && hmdErrorStore.getValue() == 0 ){          
                         compositorFunctions.setAutoSynch(false);
                         compositorFunctions.read();
-                        if( application.isSeatedExperience() ) {                    
+                        if( app.isSeatedExperience() ) {                    
                             compositorFunctions.SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseSeated);
                         } else {
                             compositorFunctions.SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseStanding);                
@@ -354,7 +356,7 @@ public class OpenVR implements VRAPI {
             frameCount = nowCount;
             
             vrsystemFunctions.GetDeviceToAbsoluteTrackingPose.apply(
-                    application.isSeatedExperience()?JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseSeated:
+                    app.isSeatedExperience()?JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseSeated:
                                                        JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseStanding,
                     fSecondsUntilPhotons, hmdTrackedDevicePoseReference, JOpenVRLibrary.k_unMaxTrackedDeviceCount);   
         }
@@ -371,7 +373,7 @@ public class OpenVR implements VRAPI {
             VRInput._updateConnectedControllers();
         }*/
         //update controllers pose information
-        application.getVRinput().updateControllerStates();
+        app.getVRinput().updateControllerStates();
                 
         // read pose data from native
         for (int nDevice = 0; nDevice < JOpenVRLibrary.k_unMaxTrackedDeviceCount; ++nDevice ){
@@ -445,7 +447,7 @@ public class OpenVR implements VRAPI {
     
     @Override
     public Vector3f getSeatedToAbsolutePosition() {
-        if( application.isSeatedExperience() == false ) return Vector3f.ZERO;
+        if( app.isSeatedExperience() == false ) return Vector3f.ZERO;
         if( hmdSeatToStand == null ) {
             hmdSeatToStand = new Vector3f();
             HmdMatrix34_t mat = vrsystemFunctions.GetSeatedZeroPoseToStandingAbsoluteTrackingPose.apply();
@@ -524,8 +526,8 @@ public class OpenVR implements VRAPI {
     }
 
 	@Override
-	public VRApplication getApplication() {
-		return application;
+	public VRAppState getVRAppState() {
+		return app;
 	}
     
 }

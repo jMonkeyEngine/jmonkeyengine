@@ -9,6 +9,7 @@ https://github.com/sensics/OSVR-RenderManager/blob/master/examples/RenderManager
  */
 package com.jme3.input.vr;
 
+import com.jme3.app.VRAppState;
 import com.jme3.app.VRApplication;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
@@ -110,14 +111,14 @@ public class OSVR implements VRAPI {
     boolean initSuccess = false;
     boolean flipEyes = false;
     
-    private VRApplication application = null;
+    private VRAppState app = null;
     
     /**
-     * Create a new <a href="http://www.osvr.org/">OSVR</a> system attached to the given application.
-     * @param application the application to which the input is attached.
+     * Create a new <a href="http://www.osvr.org/">OSVR</a> system attached to the given {@link VRAppState app state}.
+     * @param app the app state to which the input is attached.
      */
-    public OSVR(VRApplication application){
-    	this.application = application;
+    public OSVR(VRAppState app){
+    	this.app = app;
     }
     
     /**
@@ -149,7 +150,7 @@ public class OSVR implements VRAPI {
     	
         hmdPose.setAutoSynch(false);
         context = OsvrClientKitLibrary.osvrClientInit(defaultJString, 0);
-        VRinput = new OSVRInput(application);
+        VRinput = new OSVRInput(app);
         initSuccess = context != null && VRinput.init();
         if( initSuccess ) {
             PointerByReference grabDisplay = new PointerByReference();
@@ -462,8 +463,8 @@ public class OSVR implements VRAPI {
     }
 
 	@Override
-	public VRApplication getApplication() {
-		return application;
+	public VRAppState getVRAppState() {
+		return app;
 	}
 
 }

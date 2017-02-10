@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.app.VRAppState;
 import com.jme3.app.VRApplication;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
@@ -97,7 +98,7 @@ public class OpenVRInput implements VRInputAPI {
     
     private final Quaternion tempq = new Quaternion();
 
-    private VRApplication application;
+    private VRAppState app;
 
     private List<VRTrackedController> trackedControllers = null;
     
@@ -105,8 +106,8 @@ public class OpenVRInput implements VRInputAPI {
      * Create a new <a href="https://github.com/ValveSoftware/openvr/wiki/API-Documentation">OpenVR</a> input attached to the given application.
      * @param application the application to which the input is attached.
      */
-    public OpenVRInput(VRApplication application){
-      this.application = application;
+    public OpenVRInput(VRAppState appState){
+      this.app = appState;
     }
     
     @Override
@@ -296,7 +297,7 @@ public class OpenVRInput implements VRInputAPI {
     
     @Override
     public boolean isInputFocused() {
-        return ((VR_IVRSystem_FnTable)application.getVRHardware().getVRSystem()).IsInputFocusCapturedByAnotherProcess.apply() == 0;       
+        return ((VR_IVRSystem_FnTable)app.getVRHardware().getVRSystem()).IsInputFocusCapturedByAnotherProcess.apply() == 0;       
     }
     
     @Override
@@ -326,9 +327,9 @@ public class OpenVRInput implements VRInputAPI {
     
     @Override
     public Quaternion getFinalObserverRotation(int index) {
-        VRViewManager vrvm = application.getVRViewManager();
+        VRViewManager vrvm = app.getVRViewManager();
         if( vrvm == null || isInputDeviceTracking(index) == false ) return null;
-        Object obs = application.getObserver();
+        Object obs = app.getObserver();
         if( obs instanceof Camera ) {
             tempq.set(((Camera)obs).getRotation());
         } else {
@@ -339,9 +340,9 @@ public class OpenVRInput implements VRInputAPI {
     
     @Override 
     public Vector3f getFinalObserverPosition(int index) {
-        VRViewManager vrvm = application.getVRViewManager();
+        VRViewManager vrvm = app.getVRViewManager();
         if( vrvm == null || isInputDeviceTracking(index) == false ) return null;
-        Object obs = application.getObserver();
+        Object obs = app.getObserver();
         Vector3f pos = getPosition(index);
         if( obs instanceof Camera ) {
             ((Camera)obs).getRotation().mult(pos, pos);
@@ -354,9 +355,9 @@ public class OpenVRInput implements VRInputAPI {
     
     @Override
     public void triggerHapticPulse(int controllerIndex, float seconds) {
-        if( application.isInVR() == false || isInputDeviceTracking(controllerIndex) == false ) return;
+        if( app.isInVR() == false || isInputDeviceTracking(controllerIndex) == false ) return;
         // apparently only axis ID of 0 works
-        ((VR_IVRSystem_FnTable)application.getVRHardware().getVRSystem()).TriggerHapticPulse.apply(OpenVRInput.controllerIndex[controllerIndex],
+        ((VR_IVRSystem_FnTable)app.getVRHardware().getVRSystem()).TriggerHapticPulse.apply(OpenVRInput.controllerIndex[controllerIndex],
                                                                                                      0, (short)Math.round(3f * seconds / 1e-3f));
     }
     
@@ -365,13 +366,13 @@ public class OpenVRInput implements VRInputAPI {
     	logger.config("Updating connected controllers.");
     	controllerCount = 0;
     	for(int i=0;i<JOpenVRLibrary.k_unMaxTrackedDeviceCount;i++) {
-    		if( ((OpenVR)application.getVRHardware()).getVRSystem().GetTrackedDeviceClass.apply(i) == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_Controller ) {
+    		if( ((OpenVR)app.getVRHardware()).getVRSystem().GetTrackedDeviceClass.apply(i) == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_Controller ) {
     			
     			String controllerName   = "Unknown";
 				String manufacturerName = "Unknown";
 				try {
-					controllerName = OpenVRUtil.getTrackedDeviceStringProperty(((OpenVR)application.getVRHardware()).getVRSystem(), i, JOpenVRLibrary.ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_TrackingSystemName_String);
-					manufacturerName = OpenVRUtil.getTrackedDeviceStringProperty(((OpenVR)application.getVRHardware()).getVRSystem(), i, JOpenVRLibrary.ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_ManufacturerName_String);
+					controllerName = OpenVRUtil.getTrackedDeviceStringProperty(((OpenVR)app.getVRHardware()).getVRSystem(), i, JOpenVRLibrary.ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_TrackingSystemName_String);
+					manufacturerName = OpenVRUtil.getTrackedDeviceStringProperty(((OpenVR)app.getVRHardware()).getVRSystem(), i, JOpenVRLibrary.ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_ManufacturerName_String);
 				} catch (Exception e) {
                   logger.log(Level.WARNING, e.getMessage(), e);
 				}
@@ -393,7 +394,7 @@ public class OpenVRInput implements VRInputAPI {
     public void updateControllerStates() {
     	for(int i=0;i<controllerCount;i++) {
     		int index = controllerIndex[i];
-    		((OpenVR)application.getVRHardware()).getVRSystem().GetControllerState.apply(index, cStates[index], 5);
+    		((OpenVR)app.getVRHardware()).getVRSystem().GetControllerState.apply(index, cStates[index], 5);
     		cStates[index].readField("ulButtonPressed");
     		cStates[index].readField("rAxis");
     		needsNewVelocity[index] = true;
@@ -402,8 +403,8 @@ public class OpenVRInput implements VRInputAPI {
     }
 
 	@Override
-	public VRApplication getApplication() {
-		return application;
+	public VRAppState getVRAppState() {
+		return app;
 	}
 
 }

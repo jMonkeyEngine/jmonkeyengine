@@ -255,13 +255,13 @@ public abstract class VRApplication implements Application, SystemListener {
         initStateManager();
         
         // Create the GUI manager.
-        guiManager = new VRGuiManager(this);
+        guiManager = new VRGuiManager();
         
         // Create a new view manager.
-        viewmanager = new VRViewManager(this);
+        viewmanager = new VRViewManager();
         
         // Create a new mouse manager.
-        mouseManager = new VRMouseManager(this);
+        mouseManager = new VRMouseManager();
         
         // we are going to use OpenVR now, not the Oculus Rift
         // OpenVR does support the Rift
@@ -275,10 +275,12 @@ public abstract class VRApplication implements Application, SystemListener {
         	logger.warning("VR disabled via code.");
         } else if( VRSupportedOS && DISABLE_VR == false ) {
             if( CONSTRUCT_WITH_OSVR ) {
-                VRhardware = new OSVR(this);
+            	//FIXME: WARNING !!
+                VRhardware = new OSVR(null);
                 logger.config("Creating OSVR wrapper [SUCCESS]");
             } else {
-                VRhardware = new OpenVR(this);
+            	//FIXME: WARNING !!
+                VRhardware = new OpenVR(null);
                 logger.config("Creating OpenVR wrapper [SUCCESS]");
             }
             if( VRhardware.initialize() ) {
@@ -821,6 +823,16 @@ public abstract class VRApplication implements Application, SystemListener {
     }    
     
     /**
+     * Move filters from the main scene into the eye's.
+     * This removes filters from the main scene.
+     */
+    public void moveScreenProcessingToVR() {
+        if( isInVR() ) {
+        	viewmanager.moveScreenProcessingToEyes();
+        }
+    }
+    
+    /**
      * Set VR application {@link PreconfigParameter specific parameter}.
      * If making changes to default values, this must be called before the VRApplication starts
      * @param parm the parameter to set.
@@ -924,15 +936,6 @@ public abstract class VRApplication implements Application, SystemListener {
         return DISABLE_VR == false && (forceVR || VRSupportedOS && VRhardware != null && VRhardware.isInitialized());
     }  
 
-    /**
-     * Move filters from the main scene into the eye's.
-     * This removes filters from the main scene.
-     */
-    public void moveScreenProcessingToVR() {
-        if( isInVR() ) {
-        	viewmanager.moveScreenProcessingToEyes();
-        }
-    }
     
     /**
      * Get the GUI node from the application.
@@ -1354,7 +1357,8 @@ public abstract class VRApplication implements Application, SystemListener {
             	logger.warning("No VR system found.");
             }
             
-            viewmanager = new VRViewManager(this);
+            //FIXME: WARNING !!
+            viewmanager = new VRViewManager();
             viewmanager.setResolutionMultiplier(resMult);
             inputManager.addMapping(RESET_HMD, new KeyTrigger(KeyInput.KEY_F9));
             setLostFocusBehavior(LostFocusBehavior.Disabled);
