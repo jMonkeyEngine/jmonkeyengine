@@ -1,7 +1,5 @@
-package com.jme3.post;
+package com.jme3.app;
 
-import com.jme3.app.Application;
-import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.BaseAppState;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
@@ -17,8 +15,6 @@ import com.jme3.scene.shape.Quad;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
-
-import static com.jme3.post.DetailedProfiler.*;
 
 /**
  * Created by Nehon on 25/01/2017.
@@ -164,7 +160,7 @@ public class DetailedProfilerState extends BaseAppState {
             }
             maxLevel = Math.max(maxLevel, path.split("/").length);
             StatLineView line = getStatLineView(path);
-            StatLine statLine = data.get(path);
+            DetailedProfiler.StatLine statLine = data.get(path);
             line.updateValues(statLine.getAverageCpu(), statLine.getAverageGpu());
             String parent = getParent(path);
             while (parent != null) {
@@ -236,10 +232,14 @@ public class DetailedProfilerState extends BaseAppState {
     public void postRender() {
         if (time > REFRESH_TIME) {
             prof.appStep(AppStep.EndFrame);
-            Map<String, StatLine> data = prof.getStats();
+            Map<String, DetailedProfiler.StatLine> data = prof.getStats();
             displayData(data);
             time = 0;
         }
+    }
+
+    public Node getUiNode() {
+        return ui;
     }
 
     private double getMsFromNs(double time) {

@@ -36,7 +36,7 @@ import com.jme3.light.*;
 import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.DetailedProfilerState;
+import com.jme3.app.DetailedProfilerState;
 import com.jme3.post.ssao.SSAOFilter;
 import com.jme3.scene.*;
 import com.jme3.scene.shape.Box;

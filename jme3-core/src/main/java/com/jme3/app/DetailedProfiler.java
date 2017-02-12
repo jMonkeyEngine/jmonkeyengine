@@ -1,4 +1,4 @@
-package com.jme3.post;
+package com.jme3.app;
 
 import com.jme3.profile.*;
 import com.jme3.renderer.Renderer;
