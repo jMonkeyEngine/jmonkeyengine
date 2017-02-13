@@ -71,8 +71,11 @@ import org.lwjgl.system.Platform;
 
 /**
  * A JMonkey application dedicated to Virtual Reality. An application that use VR devices (HTC vive, ...) has to extends this one.<br>
+ * <p>
+ * <b>This class is no more functional and is deprecated. Please use {@link VRAppState VRAppState} instead.</b>
  * @author reden - phr00t - https://github.com/phr00t
  * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @deprecated use {@link VRAppState VRAppState} instead.
  */
 public abstract class VRApplication implements Application, SystemListener {
 
