@@ -39,14 +39,12 @@ import com.jme3.input.TouchInput;
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInputVR;
 import com.jme3.input.lwjgl.GlfwMouseInputVR;
-import com.jme3.renderer.opengl.GL;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.NanoTimer;
 
 import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.GL11;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;

@@ -45,6 +45,7 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
@@ -100,6 +101,8 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     protected RenderState forcedRenderState = new RenderState();
     protected Boolean renderBackFacesShadows;
 
+    protected AppProfiler profiler = null;
+    
     /**
      * true if the fallback material should be used, otherwise false
      */
@@ -379,6 +382,11 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      */
     protected abstract Camera getShadowCam(int shadowMapIndex);
 
+	@Override
+	public void setProfiler(AppProfiler profiler) {
+		this.profiler = profiler;
+	}
+    
     /**
      * responsible for displaying the frustum of the shadow cam for debug
      * purpose
