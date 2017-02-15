@@ -9,31 +9,28 @@ https://github.com/sensics/OSVR-RenderManager/blob/master/examples/RenderManager
  */
 package com.jme3.input.vr;
 
-import com.jme3.app.VRAppState;
-import com.jme3.app.VRApplication;
+import com.jme3.app.VREnvironment;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import com.jme3.system.osvr.osvrclientkit.OsvrClientKitLibrary;
+import com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary;
+import com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig;
+import com.jme3.system.osvr.osvrmatrixconventions.OSVR_Pose3;
+import com.jme3.system.osvr.osvrrendermanageropengl.OSVR_OpenResultsOpenGL;
+import com.jme3.system.osvr.osvrrendermanageropengl.OSVR_RenderBufferOpenGL;
+import com.jme3.system.osvr.osvrrendermanageropengl.OSVR_RenderInfoOpenGL;
+import com.jme3.system.osvr.osvrrendermanageropengl.OSVR_RenderParams;
+import com.jme3.system.osvr.osvrrendermanageropengl.OSVR_ViewportDescription;
+import com.jme3.system.osvr.osvrrendermanageropengl.OsvrRenderManagerOpenGLLibrary;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
 import java.nio.FloatBuffer;
 import java.util.logging.Logger;
-
-import osvrclientkit.OsvrClientKitLibrary;
-import osvrdisplay.OsvrDisplayLibrary;
-import osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig;
-import osvrmatrixconventions.OSVR_Pose3;
-
-import osvrrendermanageropengl.OSVR_OpenResultsOpenGL;
-import osvrrendermanageropengl.OSVR_RenderBufferOpenGL;
-import osvrrendermanageropengl.OSVR_RenderInfoOpenGL;
-import osvrrendermanageropengl.OSVR_RenderParams;
-import osvrrendermanageropengl.OSVR_ViewportDescription;
-import osvrrendermanageropengl.OsvrRenderManagerOpenGLLibrary;
 
 /**
  * A class that wraps an <a href="http://www.osvr.org/">OSVR</a> system. 
@@ -87,7 +84,7 @@ public class OSVR implements VRAPI {
     
     OSVR_RenderParams.ByValue renderParams;
     OsvrClientKitLibrary.OSVR_ClientContext context;
-    osvrrendermanageropengl.OSVR_GraphicsLibraryOpenGL.ByValue graphicsLibrary;
+    com.jme3.system.osvr.osvrrendermanageropengl.OSVR_GraphicsLibraryOpenGL.ByValue graphicsLibrary;
     Pointer renderManager, renderManagerOpenGL, renderInfoCollection, registerBufferState;
     OSVRInput VRinput;
     NativeSize numRenderInfo;
@@ -111,14 +108,14 @@ public class OSVR implements VRAPI {
     boolean initSuccess = false;
     boolean flipEyes = false;
     
-    private VRAppState app = null;
+    private VREnvironment environment = null;
     
     /**
-     * Create a new <a href="http://www.osvr.org/">OSVR</a> system attached to the given {@link VRAppState app state}.
-     * @param app the app state to which the input is attached.
+     * Create a new <a href="http://www.osvr.org/">OSVR</a> system attached to the given {@link VREnvironment VR environment}.
+     * @param environment the {@link VREnvironment VR environment} to which the input is attached.
      */
-    public OSVR(VRAppState app){
-    	this.app = app;
+    public OSVR(VREnvironment environment){
+    	this.environment = environment;
     }
     
     /**
@@ -150,7 +147,7 @@ public class OSVR implements VRAPI {
     	
         hmdPose.setAutoSynch(false);
         context = OsvrClientKitLibrary.osvrClientInit(defaultJString, 0);
-        VRinput = new OSVRInput(app);
+        VRinput = new OSVRInput(environment);
         initSuccess = context != null && VRinput.init();
         if( initSuccess ) {
             PointerByReference grabDisplay = new PointerByReference();
@@ -206,7 +203,7 @@ public class OSVR implements VRAPI {
     public boolean initVRCompositor(boolean allowed) {
         if( !allowed || renderManager != null ) return false;
         grabGLFWContext();
-        graphicsLibrary = new osvrrendermanageropengl.OSVR_GraphicsLibraryOpenGL.ByValue();
+        graphicsLibrary = new com.jme3.system.osvr.osvrrendermanageropengl.OSVR_GraphicsLibraryOpenGL.ByValue();
         graphicsLibrary.toolkit = null;
         graphicsLibrary.setAutoSynch(false);
         grabRM = new PointerByReference(); grabRMOGL = new PointerByReference();
@@ -272,7 +269,7 @@ public class OSVR implements VRAPI {
     }
 
     @Override
-    public void _setFlipEyes(boolean set) {
+    public void setFlipEyes(boolean set) {
         flipEyes = set;
     }
 
@@ -376,7 +373,7 @@ public class OSVR implements VRAPI {
         if( eyeLeftInfo == null ) return cam.getProjectionMatrix();
         if( eyeMatrix[EYE_LEFT] == null ) {
             FloatBuffer tfb = FloatBuffer.allocate(16);
-            osvrdisplay.OsvrDisplayLibrary.osvrClientGetViewerEyeSurfaceProjectionMatrixf(displayConfig, 0, (byte)EYE_LEFT, 0, cam.getFrustumNear(), cam.getFrustumFar(), (short)0, tfb);
+            com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.osvrClientGetViewerEyeSurfaceProjectionMatrixf(displayConfig, 0, (byte)EYE_LEFT, 0, cam.getFrustumNear(), cam.getFrustumFar(), (short)0, tfb);
             eyeMatrix[EYE_LEFT] = new Matrix4f();
             eyeMatrix[EYE_LEFT].set(tfb.get(0), tfb.get(4), tfb.get(8), tfb.get(12),
                                     tfb.get(1), tfb.get(5), tfb.get(9), tfb.get(13),
@@ -391,7 +388,7 @@ public class OSVR implements VRAPI {
         if( eyeRightInfo == null ) return cam.getProjectionMatrix();
         if( eyeMatrix[EYE_RIGHT] == null ) {
             FloatBuffer tfb = FloatBuffer.allocate(16);
-            osvrdisplay.OsvrDisplayLibrary.osvrClientGetViewerEyeSurfaceProjectionMatrixf(displayConfig, 0, (byte)EYE_RIGHT, 0, cam.getFrustumNear(), cam.getFrustumFar(), (short)0, tfb);
+            com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.osvrClientGetViewerEyeSurfaceProjectionMatrixf(displayConfig, 0, (byte)EYE_RIGHT, 0, cam.getFrustumNear(), cam.getFrustumFar(), (short)0, tfb);
             eyeMatrix[EYE_RIGHT] = new Matrix4f();
             eyeMatrix[EYE_RIGHT].set(tfb.get(0), tfb.get(4), tfb.get(8), tfb.get(12),
                                     tfb.get(1), tfb.get(5), tfb.get(9), tfb.get(13),
@@ -461,10 +458,4 @@ public class OSVR implements VRAPI {
     public HmdType getType() {
         return HmdType.OSVR;
     }
-
-	@Override
-	public VRAppState getVRAppState() {
-		return app;
-	}
-
 }

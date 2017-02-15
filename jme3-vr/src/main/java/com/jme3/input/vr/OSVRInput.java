@@ -7,26 +7,24 @@ package com.jme3.input.vr;
 
 import java.util.logging.Logger;
 
-import com.jme3.app.VRAppState;
-import com.jme3.app.VRApplication;
+import com.jme3.app.VREnvironment;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
+import com.jme3.system.osvr.osvrclientkit.OsvrClientKitLibrary;
+import com.jme3.system.osvr.osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface;
+import com.jme3.system.osvr.osvrclientreporttypes.OSVR_AnalogReport;
+import com.jme3.system.osvr.osvrclientreporttypes.OSVR_ButtonReport;
+import com.jme3.system.osvr.osvrclientreporttypes.OSVR_Pose3;
+import com.jme3.system.osvr.osvrinterface.OsvrInterfaceLibrary;
+import com.jme3.system.osvr.osvrtimevalue.OSVR_TimeValue;
+import com.jme3.util.VRViewManagerOSVR;
 import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
 
-import jmevr.util.VRViewManager;
-
-import osvrclientkit.OsvrClientKitLibrary;
-import osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface;
-import osvrclientreporttypes.OSVR_AnalogReport;
-import osvrclientreporttypes.OSVR_ButtonReport;
-import osvrclientreporttypes.OSVR_Pose3;
-import osvrinterface.OsvrInterfaceLibrary;
-import osvrtimevalue.OSVR_TimeValue;
 
 /**
  * A class that wraps an <a href="http://www.osvr.org/">OSVR</a> input. 
@@ -64,7 +62,7 @@ public class OSVRInput implements VRInputAPI {
     private static final Vector2f lastCallAxis[] = new Vector2f[16];
     private static float axisMultiplier = 1f;
     
-    private VRAppState app = null;
+    private VREnvironment environment = null;
     
     /**
      * Get the system String that identifies a controller.
@@ -91,11 +89,11 @@ public class OSVRInput implements VRInputAPI {
 
     
     /**
-     * Create a new <a href="http://www.osvr.org/">OSVR</a> input attached to the given {@link VRAppState app state}.
-     * @param app the app state to which the input is attached.
+     * Create a new <a href="http://www.osvr.org/">OSVR</a> input attached to the given {@link VREnvironment VR environment}.
+     * @param environment the {@link VREnvironment VR environment} to which the input is attached.
      */
-    public OSVRInput(VRAppState app){
-      this.app = app;
+    public OSVRInput(VREnvironment environment){
+      this.environment = environment;
     }
     
     
@@ -167,7 +165,7 @@ public class OSVRInput implements VRInputAPI {
     
     private OSVR_ClientInterface getInterface(byte[] str) {
         PointerByReference pbr = new PointerByReference();
-        OsvrClientKitLibrary.osvrClientGetInterface((OsvrClientKitLibrary.OSVR_ClientContext)app.getVRHardware().getVRSystem(), str, pbr);
+        OsvrClientKitLibrary.osvrClientGetInterface((OsvrClientKitLibrary.OSVR_ClientContext)environment.getVRHardware().getVRSystem(), str, pbr);
         return new OSVR_ClientInterface(pbr.getValue());
     }
 
@@ -303,9 +301,9 @@ public class OSVRInput implements VRInputAPI {
 
     @Override
     public Quaternion getFinalObserverRotation(int index) {
-        VRViewManager vrvm = app.getVRViewManager();
+    	VRViewManagerOSVR vrvm = (VRViewManagerOSVR)environment.getVRViewManager();
         if( vrvm == null || isInputDeviceTracking(index) == false ) return null;
-        Object obs = app.getObserver();
+        Object obs = environment.getObserver();
         if( obs instanceof Camera ) {
             tempq.set(((Camera)obs).getRotation());
         } else {
@@ -316,9 +314,9 @@ public class OSVRInput implements VRInputAPI {
     
     @Override
     public Vector3f getFinalObserverPosition(int index) {
-        VRViewManager vrvm = app.getVRViewManager();
+    	VRViewManagerOSVR vrvm = (VRViewManagerOSVR) environment.getVRViewManager();
         if( vrvm == null || isInputDeviceTracking(index) == false ) return null;
-        Object obs = app.getObserver();
+        Object obs = environment.getObserver();
         Vector3f pos = getPosition(index);
         if( obs instanceof Camera ) {
             ((Camera)obs).getRotation().mult(pos, pos);
@@ -348,13 +346,6 @@ public class OSVRInput implements VRInputAPI {
     public void setAxisMultiplier(float set) {
         axisMultiplier = set;
     }
-
-
-	@Override
-	public VRAppState getVRAppState() {
-		return app;
-	}
-
 
 	@Override
 	public VRTrackedController getTrackedController(int index) {

@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jme3.app.VRAppState;
-import com.jme3.app.VRApplication;
+import com.jme3.app.VREnvironment;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -20,9 +19,8 @@ import com.jme3.system.jopenvr.JOpenVRLibrary;
 import com.jme3.system.jopenvr.OpenVRUtil;
 import com.jme3.system.jopenvr.VRControllerState_t;
 import com.jme3.system.jopenvr.VR_IVRSystem_FnTable;
-
-import jmevr.util.VRUtil;
-import jmevr.util.VRViewManager;
+import com.jme3.util.VRUtil;
+import com.jme3.util.VRViewManagerOpenVR;
 
 /*
 make helper functions to pull the following easily from raw data (DONE)
@@ -98,16 +96,16 @@ public class OpenVRInput implements VRInputAPI {
     
     private final Quaternion tempq = new Quaternion();
 
-    private VRAppState app;
+    private VREnvironment environment;
 
     private List<VRTrackedController> trackedControllers = null;
     
     /**
-     * Create a new <a href="https://github.com/ValveSoftware/openvr/wiki/API-Documentation">OpenVR</a> input attached to the given application.
-     * @param application the application to which the input is attached.
+     * Create a new <a href="https://github.com/ValveSoftware/openvr/wiki/API-Documentation">OpenVR</a> input attached to the given VR environment.
+     * @param environment the VR environment to which the input is attached.
      */
-    public OpenVRInput(VRAppState appState){
-      this.app = appState;
+    public OpenVRInput(VREnvironment environment){
+      this.environment = environment;
     }
     
     @Override
@@ -297,18 +295,28 @@ public class OpenVRInput implements VRInputAPI {
     
     @Override
     public boolean isInputFocused() {
-        return ((VR_IVRSystem_FnTable)app.getVRHardware().getVRSystem()).IsInputFocusCapturedByAnotherProcess.apply() == 0;       
+    	
+    	if (environment != null){
+    		return ((VR_IVRSystem_FnTable)environment.getVRHardware().getVRSystem()).IsInputFocusCapturedByAnotherProcess.apply() == 0;
+    	} else {
+    		throw new IllegalStateException("VR input is not attached to a VR environment.");
+    	}      
     }
     
     @Override
     public boolean isInputDeviceTracking(int index) {
-        if( index < 0 || index >= controllerCount ) return false;
+        if( index < 0 || index >= controllerCount ){
+        	return false;
+        }
+        
         return OpenVR.hmdTrackedDevicePoses[controllerIndex[index]].bPoseIsValid != 0;
     }
     
     @Override
     public Quaternion getOrientation(int index) {
-        if( isInputDeviceTracking(index) == false ) return null;
+        if( isInputDeviceTracking(index) == false ){
+        	return null;
+        }
         index = controllerIndex[index];
         VRUtil.convertMatrix4toQuat(OpenVR.poseMatrices[index], rotStore[index]);
         return rotStore[index];
@@ -316,7 +324,10 @@ public class OpenVRInput implements VRInputAPI {
 
     @Override
     public Vector3f getPosition(int index) {
-        if( isInputDeviceTracking(index) == false ) return null;
+        if( isInputDeviceTracking(index) == false ){
+        	return null;
+        }
+        
         // the hmdPose comes in rotated funny, fix that here
         index = controllerIndex[index];
         OpenVR.poseMatrices[index].toTranslationVector(posStore[index]);
@@ -327,84 +338,122 @@ public class OpenVRInput implements VRInputAPI {
     
     @Override
     public Quaternion getFinalObserverRotation(int index) {
-        VRViewManager vrvm = app.getVRViewManager();
-        if( vrvm == null || isInputDeviceTracking(index) == false ) return null;
-        Object obs = app.getObserver();
-        if( obs instanceof Camera ) {
-            tempq.set(((Camera)obs).getRotation());
-        } else {
-            tempq.set(((Spatial)obs).getWorldRotation());
-        }
-        return tempq.multLocal(getOrientation(index));
+    	
+    	if (environment != null){
+            VRViewManagerOpenVR vrvm = (VRViewManagerOpenVR)environment.getVRViewManager();
+            
+            if (vrvm != null){
+                if(isInputDeviceTracking(index) == false ){
+                	return null;
+                }
+                
+                Object obs = environment.getObserver();
+                if( obs instanceof Camera ) {
+                    tempq.set(((Camera)obs).getRotation());
+                } else {
+                    tempq.set(((Spatial)obs).getWorldRotation());
+                }
+                
+                return tempq.multLocal(getOrientation(index));
+            } else {
+            	throw new IllegalStateException("VR environment has no valid view manager.");
+            }
+            
+
+    	} else {
+    		throw new IllegalStateException("VR input is not attached to a VR environment.");
+    	}
     }
     
     @Override 
     public Vector3f getFinalObserverPosition(int index) {
-        VRViewManager vrvm = app.getVRViewManager();
-        if( vrvm == null || isInputDeviceTracking(index) == false ) return null;
-        Object obs = app.getObserver();
-        Vector3f pos = getPosition(index);
-        if( obs instanceof Camera ) {
-            ((Camera)obs).getRotation().mult(pos, pos);
-            return pos.addLocal(((Camera)obs).getLocation());
-        } else {
-            ((Spatial)obs).getWorldRotation().mult(pos, pos);
-            return pos.addLocal(((Spatial)obs).getWorldTranslation());
-        }
+    	
+    	if (environment != null){
+            VRViewManagerOpenVR vrvm = (VRViewManagerOpenVR)environment.getVRViewManager();
+            
+            if (vrvm != null){
+                if(isInputDeviceTracking(index) == false ){
+                	return null;
+                }
+                Object obs = environment.getObserver();
+                Vector3f pos = getPosition(index);
+                if( obs instanceof Camera ) {
+                    ((Camera)obs).getRotation().mult(pos, pos);
+                    return pos.addLocal(((Camera)obs).getLocation());
+                } else {
+                    ((Spatial)obs).getWorldRotation().mult(pos, pos);
+                    return pos.addLocal(((Spatial)obs).getWorldTranslation());
+                }
+            } else {
+            	throw new IllegalStateException("VR environment has no valid view manager.");
+            }
+            
+    	} else {
+    		throw new IllegalStateException("VR input is not attached to a VR environment.");
+    	}
     }    
     
     @Override
     public void triggerHapticPulse(int controllerIndex, float seconds) {
-        if( app.isInVR() == false || isInputDeviceTracking(controllerIndex) == false ) return;
+        if( environment.isInVR() == false || isInputDeviceTracking(controllerIndex) == false ){
+        	return;
+        }
+        
         // apparently only axis ID of 0 works
-        ((VR_IVRSystem_FnTable)app.getVRHardware().getVRSystem()).TriggerHapticPulse.apply(OpenVRInput.controllerIndex[controllerIndex],
+        ((VR_IVRSystem_FnTable)environment.getVRHardware().getVRSystem()).TriggerHapticPulse.apply(OpenVRInput.controllerIndex[controllerIndex],
                                                                                                      0, (short)Math.round(3f * seconds / 1e-3f));
     }
     
     @Override
     public void updateConnectedControllers() {
     	logger.config("Updating connected controllers.");
-    	controllerCount = 0;
-    	for(int i=0;i<JOpenVRLibrary.k_unMaxTrackedDeviceCount;i++) {
-    		if( ((OpenVR)app.getVRHardware()).getVRSystem().GetTrackedDeviceClass.apply(i) == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_Controller ) {
-    			
-    			String controllerName   = "Unknown";
-				String manufacturerName = "Unknown";
-				try {
-					controllerName = OpenVRUtil.getTrackedDeviceStringProperty(((OpenVR)app.getVRHardware()).getVRSystem(), i, JOpenVRLibrary.ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_TrackingSystemName_String);
-					manufacturerName = OpenVRUtil.getTrackedDeviceStringProperty(((OpenVR)app.getVRHardware()).getVRSystem(), i, JOpenVRLibrary.ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_ManufacturerName_String);
-				} catch (Exception e) {
-                  logger.log(Level.WARNING, e.getMessage(), e);
-				}
-    			
-    			controllerIndex[controllerCount] = i;
-    			
-    			// Send an Haptic pulse to the controller
-    			triggerHapticPulse(controllerCount, 1.0f);
-    			
-    			controllerCount++;
-    			logger.config("  Tracked controller "+(i+1)+"/"+JOpenVRLibrary.k_unMaxTrackedDeviceCount+" "+controllerName+" ("+manufacturerName+") attached.");
-    		} else {
-    			logger.config("  Controller "+(i+1)+"/"+JOpenVRLibrary.k_unMaxTrackedDeviceCount+" ignored.");
-    		}
+    	
+    	if (environment != null){
+    		controllerCount = 0;
+        	for(int i=0;i<JOpenVRLibrary.k_unMaxTrackedDeviceCount;i++) {
+        		if( ((OpenVR)environment.getVRHardware()).getVRSystem().GetTrackedDeviceClass.apply(i) == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_Controller ) {
+        			
+        			String controllerName   = "Unknown";
+    				String manufacturerName = "Unknown";
+    				try {
+    					controllerName = OpenVRUtil.getTrackedDeviceStringProperty(((OpenVR)environment.getVRHardware()).getVRSystem(), i, JOpenVRLibrary.ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_TrackingSystemName_String);
+    					manufacturerName = OpenVRUtil.getTrackedDeviceStringProperty(((OpenVR)environment.getVRHardware()).getVRSystem(), i, JOpenVRLibrary.ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_ManufacturerName_String);
+    				} catch (Exception e) {
+                      logger.log(Level.WARNING, e.getMessage(), e);
+    				}
+        			
+        			controllerIndex[controllerCount] = i;
+        			
+        			// Send an Haptic pulse to the controller
+        			triggerHapticPulse(controllerCount, 1.0f);
+        			
+        			controllerCount++;
+        			logger.config("  Tracked controller "+(i+1)+"/"+JOpenVRLibrary.k_unMaxTrackedDeviceCount+" "+controllerName+" ("+manufacturerName+") attached.");
+        		} else {
+        			logger.config("  Controller "+(i+1)+"/"+JOpenVRLibrary.k_unMaxTrackedDeviceCount+" ignored.");
+        		}
+        	}
+    	} else {
+    	  throw new IllegalStateException("VR input is not attached to a VR environment.");
     	}
     }
 
     @Override
     public void updateControllerStates() {
-    	for(int i=0;i<controllerCount;i++) {
-    		int index = controllerIndex[i];
-    		((OpenVR)app.getVRHardware()).getVRSystem().GetControllerState.apply(index, cStates[index], 5);
-    		cStates[index].readField("ulButtonPressed");
-    		cStates[index].readField("rAxis");
-    		needsNewVelocity[index] = true;
-    		needsNewAngVelocity[index] = true;
+    	
+    	if (environment != null){
+        	for(int i=0;i<controllerCount;i++) {
+        		int index = controllerIndex[i];
+        		((OpenVR)environment.getVRHardware()).getVRSystem().GetControllerState.apply(index, cStates[index], 5);
+        		cStates[index].readField("ulButtonPressed");
+        		cStates[index].readField("rAxis");
+        		needsNewVelocity[index] = true;
+        		needsNewAngVelocity[index] = true;
+        	}
+    	} else {
+    		throw new IllegalStateException("VR input is not attached to a VR environment.");
     	}
-    }
 
-	@Override
-	public VRAppState getVRAppState() {
-		return app;
-	}
+    }
 
 }

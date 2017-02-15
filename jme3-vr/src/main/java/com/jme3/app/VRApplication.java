@@ -45,10 +45,13 @@ import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 import com.jme3.system.lwjgl.LwjglDisplayVR;
 import com.jme3.system.lwjgl.LwjglOffscreenBufferVR;
+import com.jme3.util.VRGUIPositioningMode;
+import com.jme3.util.VRGuiManager;
+import com.jme3.util.VRMouseManager;
+import com.jme3.util.VRViewManagerOpenVR;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.HeadlessException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -60,11 +63,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import jmevr.util.VRViewManager;
-import jmevr.util.VRGuiManager;
-import jmevr.util.VRGuiManager.POSITIONING_MODE;
-import jmevr.util.VRMouseManager;
 
 import org.lwjgl.system.Platform;
 
@@ -174,7 +172,7 @@ public abstract class VRApplication implements Application, SystemListener {
     private VRAPI VRhardware            = null;
     private VRGuiManager guiManager     = null;
     private VRMouseManager mouseManager = null;
-    private VRViewManager viewmanager   = null;
+    private VRViewManagerOpenVR viewmanager   = null;
     
     private String OS;
      
@@ -258,13 +256,13 @@ public abstract class VRApplication implements Application, SystemListener {
         initStateManager();
         
         // Create the GUI manager.
-        guiManager = new VRGuiManager();
+        guiManager = new VRGuiManager(null);
         
         // Create a new view manager.
-        viewmanager = new VRViewManager();
+        viewmanager = new VRViewManagerOpenVR(null);
         
         // Create a new mouse manager.
-        mouseManager = new VRMouseManager();
+        mouseManager = new VRMouseManager(null);
         
         // we are going to use OpenVR now, not the Oculus Rift
         // OpenVR does support the Rift
@@ -313,7 +311,7 @@ public abstract class VRApplication implements Application, SystemListener {
      * Get the VR view manager.
      * @return the VR view manager.
      */
-    public VRViewManager getVRViewManager() {
+    public VRViewManagerOpenVR getVRViewManager() {
         return viewmanager;
     }
     
@@ -844,10 +842,10 @@ public abstract class VRApplication implements Application, SystemListener {
     public void preconfigureVRApp(PreconfigParameter parm, boolean value) {        
         switch( parm ) {
             case SET_GUI_OVERDRAW:
-                guiManager._enableGuiOverdraw(value);
+                guiManager.setGuiOverdraw(value);
                 break;
             case SET_GUI_CURVED_SURFACE:
-            	guiManager._enableCurvedSuface(value);
+            	guiManager.setCurvedSurface(value);
                 break;
             case FORCE_VR_MODE:
                 forceVR = value;
@@ -861,7 +859,7 @@ public abstract class VRApplication implements Application, SystemListener {
                 break;
             case FLIP_EYES:
                 if( VRhardware == null ) return;
-                VRhardware._setFlipEyes(value);
+                VRhardware.setFlipEyes(value);
                 break;
             case INSTANCE_VR_RENDERING:
                 instanceVR = value;
@@ -1182,7 +1180,7 @@ public abstract class VRApplication implements Application, SystemListener {
         
         rootNode.updateGeometricState();
         
-        if( isInVR() == false || guiManager.getPositioningMode() == POSITIONING_MODE.MANUAL ) {
+        if( isInVR() == false || guiManager.getPositioningMode() == VRGUIPositioningMode.MANUAL ) {
             // only update geometric state here if GUI is in manual mode, or not in VR
             // it will get updated automatically in the viewmanager update otherwise
             guiNode.updateGeometricState();
@@ -1194,7 +1192,7 @@ public abstract class VRApplication implements Application, SystemListener {
         
         // update compositor?
         if( viewmanager != null ) {
-        	viewmanager.sendTextures();
+        	viewmanager.postRender();
         }
     }
 
@@ -1361,7 +1359,7 @@ public abstract class VRApplication implements Application, SystemListener {
             }
             
             //FIXME: WARNING !!
-            viewmanager = new VRViewManager();
+            viewmanager = new VRViewManagerOpenVR(null);
             viewmanager.setResolutionMultiplier(resMult);
             inputManager.addMapping(RESET_HMD, new KeyTrigger(KeyInput.KEY_F9));
             setLostFocusBehavior(LostFocusBehavior.Disabled);

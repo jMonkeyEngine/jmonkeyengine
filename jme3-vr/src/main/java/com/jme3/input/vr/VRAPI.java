@@ -5,7 +5,6 @@
  */
 package com.jme3.input.vr;
 
-import com.jme3.app.VRAppState;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
@@ -31,13 +30,7 @@ public interface VRAPI {
      * @return <code>true</code> if the initialization is a success and <code>false</code> otherwise.
      */
     public boolean initVRCompositor(boolean allowed);
-    
-    /**
-     * Get the {@link VRAppState VR app state} to which this api is attached.
-     * @return the VR app state to which this input is attached.
-     */
-    public VRAppState getVRAppState();
-    
+       
     /**
      * Get the object that wraps natively the VR system.
      * @return the object that wraps natively the VR system.
@@ -63,10 +56,10 @@ public interface VRAPI {
     public VRInputAPI getVRinput();
     
     /**
-     * Do not use. Prefers the preconfigure routine from the VRApplication.
+     * Flip the left and right eye..
      * @param set <code>true</code> if the eyes has to be flipped and <code>false</code> otherwise.
      */
-    public void _setFlipEyes(boolean set);
+    public void setFlipEyes(boolean set);
     
     /**
      * Set if latency information has to be logged.

@@ -1,23 +1,53 @@
 package com.jme3.app;
 
-
+/*
+ * Copyright (c) 2009-2012 jMonkeyEngine
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
+ *
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
+ *   without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
-import com.jme3.input.vr.OSVR;
-import com.jme3.input.vr.OpenVR;
 import com.jme3.input.vr.VRAPI;
 import com.jme3.input.vr.VRInputAPI;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.post.PreNormalCaching;
-import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
-import com.jme3.system.jopenvr.JOpenVRLibrary;
+import com.jme3.util.VRGUIPositioningMode;
+import com.jme3.util.VRGuiManager;
+import com.jme3.util.VRMouseManager;
+import com.jme3.util.VRViewManager;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -29,11 +59,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import jmevr.util.VRGuiManager;
-import jmevr.util.VRMouseManager;
-import jmevr.util.VRViewManager;
-import jmevr.util.VRGuiManager.POSITIONING_MODE;
 
 /**
  * A JMonkey app state dedicated to Virtual Reality. 
@@ -54,49 +79,19 @@ public class VRAppState extends AbstractAppState {
     private static final Logger logger = Logger.getLogger(VRAppState.class.getName());
     
     /**
-     * The underlying system VR API. By default set to {@link VRConstants#SETTING_VRAPI_OPENVR_VALUE}.
-     */
-    public int vrBinding = VRConstants.SETTING_VRAPI_OPENVR_VALUE;
-    
-    /**
      * Is the application has not to start within VR mode (default is <code>false</code>).
      */
     public boolean DISABLE_VR = false;
     
-    private VRAPI VRhardware            = null;
-    private VRGuiManager guiManager     = null;
-    private VRMouseManager mouseManager = null;
-    private VRViewManager viewmanager   = null;
-    
-    private String OS;
-    
-    private Camera dummyCam;
-    
-    private Spatial observer = null;
-    
-    private boolean VRSupportedOS;
-    private boolean forceVR            = false;;
-    private boolean disableSwapBuffers = true;
-    private boolean disableVR          = false;
-    private boolean seated;
-    private boolean nogui;
-    private boolean instanceVR         = false;
 
-	private float defaultFOV           = 108f;
-    private float defaultAspect        = 1f;
-    
-   
-    
+
     private float fFar  = 1000f;
     private float fNear = 0.1f;
     private int xWin    = 1920;
     private int yWin    = 1080;
     
     private float resMult = 1f;
-    
-    private boolean useCompositor = true;
-    private boolean compositorOS;
-    
+ 
     /*
      where is the headset pointing, after all rotations are combined?
      depends on observer rotation, if any
@@ -107,32 +102,27 @@ public class VRAppState extends AbstractAppState {
     private AppStateManager stateManager = null;
     private AppSettings settings         = null;
     
+    private VREnvironment environment    = null;
     
     /**
-     * Create a new default VR app state.
+     * Create a new default VR app state that relies on the given {@link VREnvironment VR environment}.
+     * @param environment the {@link VREnvironment VR environment} that this app state is using.
      */
-    public VRAppState() {
-        super();
+    public VRAppState(VREnvironment environment) {
+      super();
 
-        dummyCam = new Camera();
-        
-        // Create the GUI manager.
-        guiManager = new VRGuiManager();
-        
-        // Create a new view manager.
-        viewmanager = new VRViewManager();
-
-        // Create a new mouse manager.
-        mouseManager = new VRMouseManager();
+      this.environment = environment; 
       
+      this.setSettings(environment.getSettings());
      }
     
     /**
-     * Create a new VR app state with given settings. 
+     * Create a new VR app state with given settings. The app state relies on the the given {@link VREnvironment VR environment}.
      * @param settings the settings to use.
+     * @param environment the {@link VREnvironment VR environment} that this app state is using.
      */
-    public VRAppState(AppSettings settings){
-      this();
+    public VRAppState(AppSettings settings, VREnvironment environment){
+      this(environment);
       this.settings = settings;
       processSettings(settings);
     }
@@ -152,7 +142,7 @@ public class VRAppState extends AbstractAppState {
      * @param renderManager the {@link RenderManager render manager}.
      */
     public void simpleRender(RenderManager renderManager) {
-        PreNormalCaching.resetCache(isInVR());
+        PreNormalCaching.resetCache(environment.isInVR());
     }
 
     /**
@@ -181,163 +171,18 @@ public class VRAppState extends AbstractAppState {
      */
     public void setResolutionMultiplier(float val) {
         resMult = val;
-        if( viewmanager != null ){
-        	viewmanager.setResolutionMultiplier(resMult);
+        if( environment.getVRViewManager() != null ){
+        	environment.getVRViewManager().setResolutionMultiplier(resMult);
         }
     }
-
-    /**
-     * Is the VR compositor is active.
-     * @return <code>true</code> if the VR compositor is active and <code>false</code> otherwise.
-     */
-    public boolean compositorAllowed() {
-        return useCompositor && compositorOS;
-    }
-    
-    /**
-     * Get if the system currently support VR.
-     * @return <code>true</code> if the system currently support VR and <code>false</Code> otherwise.
-     */
-    public boolean isVRSupported() {
-        return VRSupportedOS;
-    }
-    
-    /**
-     * Get the {@link Camera camera} attached to this application state. 
-     * If the VR mode is {@link #isInVR() active}, this method return a dummy camera, otherwise, 
-     * this method return the camera of the attached application.
-     * @return the camera attached to this application state.
-     */
-    public Camera getCamera() {
-        if( isInVR() && viewmanager != null && viewmanager.getLeftCamera() != null ) {
-            return dummyCam;
-        }
-        
-        return application.getCamera();
-    }
-
-    /**
-     * Can be used to change seated experience during runtime.
-     * @param isSeated <code>true</code> if designed for sitting, <code>false</code> for standing/roomscale
-     * @see #isSeatedExperience()
-     */
-    public void setSeatedExperience(boolean isSeated) {
-        seated = isSeated;
-        if( VRhardware instanceof OpenVR ) {
-            if( VRhardware.getCompositor() == null ) return;
-            if( seated ) {
-                ((OpenVR)VRhardware).getCompositor().SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseSeated);
-            } else {
-                ((OpenVR)VRhardware).getCompositor().SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseStanding);                
-            }        
-        }
-    }
-    
-    /**
-     * Check if the application is configured as a seated experience.
-     * @return <code>true</code> if the application is configured as a seated experience and <code>false</code> otherwise.
-     * @see #setSeatedExperience(boolean)
-     */
-    public boolean isSeatedExperience() {
-        return seated;
-    }
-    
-    /**
-     * Reset headset pose if seating experience.
-     */
-    public void resetSeatedPose(){
-        if( VRSupportedOS == false || isSeatedExperience() == false ) return;
-        VRhardware.reset();
-    }
-    
-    /**
-     * Check if the rendering is instanced (see <a href="https://en.wikipedia.org/wiki/Geometry_instancing">Geometry instancing</a>).
-     * @return <code>true</code> if the rendering is instanced and <code>false</code> otherwise.
-     */
-    public boolean isInstanceVRRendering() {
-        return instanceVR && isInVR();
-    }
-    
-    /**
-     * Check if the VR mode is enabled.
-     * @return <code>true</code> if the VR mode is enabled and <code>false</code> otherwise.
-     */
-    public boolean isInVR() {
-        return DISABLE_VR == false && (forceVR || VRSupportedOS && VRhardware != null && VRhardware.isInitialized());
-    }
-    
-    /**
-     * Get the default Field Of View (FOV) value.
-     * @return the default Field Of View (FOV) value.
-     * @see #setDefaultFOV(float)
-     */
-    public float getDefaultFOV() {
-		return defaultFOV;
-	}
-
-    /**
-     * Set the default Field Of View (FOV) value.
-     * @param defaultFOV the default Field Of View (FOV) value.
-     * @see #getDefaultFOV()
-     */
-	public void setDefaultFOV(float defaultFOV) {
-		this.defaultFOV = defaultFOV;
-	}
-
-	/**
-	 * Get the default aspect ratio.
-	 * @return the default aspect ratio.
-	 * @see #setDefaultAspect(float)
-	 */
-	public float getDefaultAspect() {
-		return defaultAspect;
-	}
-
-	/**
-	 * Set the default aspect ratio.
-	 * @param defaultAspect the default aspect ratio.
-	 * @see #getDefaultAspect()
-	 */
-	public void setDefaultAspect(float defaultAspect) {
-		this.defaultAspect = defaultAspect;
-	}
+   
 	
     /**
      * Move filters from the main scene into the eye's.
      * This removes filters from the main scene.
      */
     public void moveScreenProcessingToVR() {
-        if( isInVR() ) {
-        	viewmanager.moveScreenProcessingToEyes();
-        }
-    }
- 
-    /**
-     * Check if the application has a GUI overlay attached.
-     * @return <code>true</code> if the application has a GUI overlay attached and <code>false</code> otherwise.
-     */
-    public boolean hasTraditionalGUIOverlay() {
-        return !nogui;
-    }
-    
-    /**
-     * Get the scene observer. If no observer has been set, this method return the application {@link #getCamera() camera}.
-     * @return the scene observer. 
-     * @see #setObserver(Spatial)
-     */
-    public Object getObserver() {
-        if( observer == null ) {
-            return getCamera();
-        }
-        return observer;
-    }
-    
-    /**
-     * Set the scene observer. The VR headset will be linked to it. If no observer is set, the VR headset is linked to the the application {@link #getCamera() camera}.
-     * @param observer the scene observer.
-     */
-    public void setObserver(Spatial observer) {
-       this.observer = observer;
+      environment.getVRViewManager().moveScreenProcessingToEyes();
     }
     
     /**
@@ -346,17 +191,20 @@ public class VRAppState extends AbstractAppState {
      * @see #getFinalObserverPosition()
      */
     public Quaternion getFinalObserverRotation() {
-        if( viewmanager == null ) {
-            if( observer == null ) {
-                return getCamera().getRotation();
-            } else return observer.getWorldRotation();
-        }        
-        if( observer == null ) {
-            tempq.set(dummyCam.getRotation());
+        if( environment.getVRViewManager() == null ) {
+            if( environment.getObserver() == null ) {
+                return environment.getCamera().getRotation();
+            } else {
+            	return ((Spatial)environment.getObserver()).getWorldRotation();
+            }
+        }  
+        
+        if( environment.getObserver() == null ) {
+            tempq.set(environment.getDummyCamera().getRotation());
         } else {
-            tempq.set(observer.getWorldRotation());
+            tempq.set(((Spatial)environment.getObserver()).getWorldRotation());
         }
-        return tempq.multLocal(VRhardware.getOrientation());
+        return tempq.multLocal(environment.getVRHardware().getOrientation());
     }
     
     /**
@@ -365,40 +213,22 @@ public class VRAppState extends AbstractAppState {
      * @see #getFinalObserverRotation()
      */
     public Vector3f getFinalObserverPosition() {
-        if( viewmanager == null ) {
-            if( observer == null ) {
-                return getCamera().getLocation();
-            } else return observer.getWorldTranslation();            
+        if( environment.getVRViewManager() == null ) {
+            if( environment.getObserver() == null ) {
+                return environment.getCamera().getLocation();
+            } else{
+            	return ((Spatial)environment.getObserver()).getWorldTranslation();            
+            }
         }
-        Vector3f pos = VRhardware.getPosition();
-        if( observer == null ) {
-            dummyCam.getRotation().mult(pos, pos);
-            return pos.addLocal(dummyCam.getLocation());
+        
+        Vector3f pos = environment.getVRHardware().getPosition();
+        if( environment.getObserver() == null ) {
+        	environment.getDummyCamera().getRotation().mult(pos, pos);
+            return pos.addLocal(environment.getDummyCamera().getLocation());
         } else {
-            observer.getWorldRotation().mult(pos, pos);
-            return pos.addLocal(observer.getWorldTranslation());
+        	((Spatial)environment.getObserver()).getWorldRotation().mult(pos, pos);
+            return pos.addLocal(((Spatial)environment.getObserver()).getWorldTranslation());
         }
-    }
-    
-    /**
-     * Set the VR headset height from the ground.
-     * @param amount the VR headset height from the ground.
-     * @see #getVRHeightAdjustment()
-     */
-    public void setVRHeightAdjustment(float amount) {
-        if( viewmanager != null ) viewmanager.setHeightAdjustment(amount);
-    }
-    
-    /**
-     * Get the VR headset height from the ground.
-     * @return the VR headset height from the ground.
-     * @see #setVRHeightAdjustment(float)
-     */
-    public float getVRHeightAdjustment() {
-        if( viewmanager != null ){
-        	return viewmanager.getHeightAdjustment();
-        }
-        return 0f;
     }
     
     /**
@@ -407,8 +237,11 @@ public class VRAppState extends AbstractAppState {
      * @see #getRightViewPort()
      */
     public ViewPort getLeftViewPort() {
-        if( viewmanager == null ) return application.getViewPort();
-        return viewmanager.getLeftViewport();
+        if( environment.getVRViewManager() == null ){
+        	return application.getViewPort();
+        }
+        
+        return environment.getVRViewManager().getLeftViewport();
     }
     
     /**
@@ -417,8 +250,10 @@ public class VRAppState extends AbstractAppState {
      * @see #getLeftViewPort()
      */
     public ViewPort getRightViewPort() {
-        if( viewmanager == null ) return application.getViewPort();
-        return viewmanager.getRightViewport();
+        if( environment.getVRViewManager() == null ){
+        	return application.getViewPort();
+        }
+        return environment.getVRViewManager().getRightViewport();
     }
     
     /**
@@ -426,11 +261,15 @@ public class VRAppState extends AbstractAppState {
      * @param clr the background color.
      */
     public void setBackgroundColors(ColorRGBA clr) {
-        if( viewmanager == null ) {
+        if( environment.getVRViewManager() == null ) {
             application.getViewPort().setBackgroundColor(clr);
-        } else if( viewmanager.getLeftViewport() != null ) {
-        	viewmanager.getLeftViewport().setBackgroundColor(clr);
-            if( viewmanager.getRightViewport() != null ) viewmanager.getRightViewport().setBackgroundColor(clr);
+        } else if( environment.getVRViewManager().getLeftViewport() != null ) {
+        	
+        	environment.getVRViewManager().getLeftViewport().setBackgroundColor(clr);
+            
+        	if( environment.getVRViewManager().getRightViewport() != null ){
+            	environment.getVRViewManager().getRightViewport().setBackgroundColor(clr);
+            }
         }
     }
     
@@ -452,12 +291,45 @@ public class VRAppState extends AbstractAppState {
     	return stateManager;
     }
     
+    /**
+     * Get the scene observer. If no observer has been set, this method return the application {@link #getCamera() camera}.
+     * @return the scene observer. 
+     * @see #setObserver(Spatial)
+     */
+    public Object getObserver() {
+        return environment.getObserver();
+    }
+    
+    /**
+     * Set the scene observer. The VR headset will be linked to it. If no observer is set, the VR headset is linked to the the application {@link #getCamera() camera}.
+     * @param observer the scene observer.
+     */
+    public void setObserver(Spatial observer) {
+       environment.setObserver(observer);
+    }
+    
+    /**
+     * Check if the rendering is instanced (see <a href="https://en.wikipedia.org/wiki/Geometry_instancing">Geometry instancing</a>).
+     * @return <code>true</code> if the rendering is instanced and <code>false</code> otherwise.
+     */
+    public boolean isInstanceRendering() {
+        return environment.isInstanceRendering();
+    }
+    
+    /**
+     * Return the {@link VREnvironment VR environment} on which this app state relies. 
+     * @return the {@link VREnvironment VR environment} on which this app state relies. 
+     */
+    public VREnvironment getVREnvironment(){
+    	return environment;
+    }
+    
 	/**
 	 * Get the VR underlying hardware.
 	 * @return the VR underlying hardware.
 	 */
 	public VRAPI getVRHardware() {
-	    return VRhardware;
+	    return getVREnvironment().getVRHardware();
 	}
 	
 	/**
@@ -465,11 +337,11 @@ public class VRAppState extends AbstractAppState {
 	 * @return the VR dedicated input.
 	 */
 	public VRInputAPI getVRinput() {
-	    if( VRhardware == null ){
+	    if( getVREnvironment().getVRHardware() == null ){
 	    	return null;
 	    }
 	    
-	    return VRhardware.getVRinput();
+	    return getVREnvironment().getVRHardware().getVRinput();
 	}
 	
 	/**
@@ -477,23 +349,23 @@ public class VRAppState extends AbstractAppState {
 	 * @return the VR view manager.
 	 */
 	public VRViewManager getVRViewManager() {
-	    return viewmanager;
+	    return getVREnvironment().getVRViewManager();
 	}
 	
 	/**
-	 * Get the GUI manager attached to this application.
-	 * @return the GUI manager attached to this application.
+	 * Get the GUI manager attached to this app state.
+	 * @return the GUI manager attached to this app state.
 	 */
 	public VRGuiManager getVRGUIManager(){
-		return guiManager;
+		return getVREnvironment().getVRGUIManager();
 	}
 	
 	/**
-	 * Get the VR mouse manager attached to this application.
+	 * Get the VR mouse manager attached to this app state.
 	 * @return the VR mouse manager attached to this application.
 	 */
 	public VRMouseManager getVRMouseManager(){
-		return mouseManager;
+		return getVREnvironment().getVRMouseManager();
 	}
     
 	/**
@@ -519,10 +391,10 @@ public class VRAppState extends AbstractAppState {
     public void update(float tpf) {    
         
         // update VR pose & cameras
-        if( viewmanager != null ) {
-        	viewmanager.update(tpf);    
-        } else if( observer != null ) {
-            getCamera().setFrame(observer.getWorldTranslation(), observer.getWorldRotation());
+        if( environment.getVRViewManager() != null ) {
+        	environment.getVRViewManager().update(tpf);    
+        } else if( environment.getObserver() != null ) {
+            environment.getCamera().setFrame(((Spatial)environment.getObserver()).getWorldTranslation(), ((Spatial)environment.getObserver()).getWorldRotation());
         }
         
         //FIXME: check if this code is necessary.
@@ -535,7 +407,7 @@ public class VRAppState extends AbstractAppState {
         	spatial.updateGeometricState();
         }        
         
-        if( isInVR() == false || guiManager.getPositioningMode() == POSITIONING_MODE.MANUAL ) {
+        if( environment.isInVR() == false || environment.getVRGUIManager().getPositioningMode() == VRGUIPositioningMode.MANUAL ) {
             // only update geometric state here if GUI is in manual mode, or not in VR
             // it will get updated automatically in the viewmanager update otherwise
         	spatialIter = application.getGuiViewPort().getScenes().iterator();
@@ -546,17 +418,17 @@ public class VRAppState extends AbstractAppState {
             }    
         }
         
-        
         // use the analog control on the first tracked controller to push around the mouse
-        getVRMouseManager().updateAnalogAsMouse(0, null, null, null, tpf);
+        environment.getVRMouseManager().updateAnalogAsMouse(0, null, null, null, tpf);
     }
 
     @Override
     public void postRender() {
         super.postRender();
-        // update compositor?
-        if( viewmanager != null ) {
-        	viewmanager.sendTextures();
+        
+        // update compositor
+        if( environment.getVRViewManager() != null ) {
+        	environment.getVRViewManager().postRender();
         }
     }
 
@@ -571,27 +443,21 @@ public class VRAppState extends AbstractAppState {
         // for late GUI placement for VR purposes
         Logger.getLogger("com.jme3").setLevel(Level.SEVERE);     
         
-        // VR module attch
-        guiManager.attach(this, app);
-        viewmanager.attach(this, app);
-        mouseManager.attach(this,  app);
-        
         app.getCamera().setFrustumFar(fFar);
         app.getCamera().setFrustumNear(fNear);
-        dummyCam = app.getCamera().clone();
-        
-        if( isInVR() ) {
+
+        if( environment.isInVR() ) {
         	
         	logger.config("VR mode enabled.");
         	
-            if( VRhardware != null ) {
-                VRhardware.initVRCompositor(compositorAllowed());
+            if( environment.getVRHardware() != null ) {
+            	environment.getVRHardware().initVRCompositor(environment.compositorAllowed());
             } else {
             	logger.warning("No VR system found.");
             }
             
             
-            viewmanager.setResolutionMultiplier(resMult);
+            environment.getVRViewManager().setResolutionMultiplier(resMult);
             //inputManager.addMapping(RESET_HMD, new KeyTrigger(KeyInput.KEY_F9));
             //setLostFocusBehavior(LostFocusBehavior.Disabled);
         } else {
@@ -600,8 +466,8 @@ public class VRAppState extends AbstractAppState {
             //guiViewPort.attachScene(guiNode);
         }
         
-        if( viewmanager != null ) {
-        	viewmanager.initialize();
+        if( environment.getVRViewManager() != null ) {
+        	environment.getVRViewManager().initialize();
         }
     }
     
@@ -615,34 +481,21 @@ public class VRAppState extends AbstractAppState {
         } else {
         	logger.config("Using given settings.");
         }
+   
+        // Attach VR environment to the application
+        if (!environment.isInitialized()){
+        	environment.initialize();
+        }
         
-        // we are going to use OpenVR now, not the Oculus Rift
-        // OpenVR does support the Rift
-        OS            = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
-        VRSupportedOS = !OS.contains("nux") && System.getProperty("sun.arch.data.model").equalsIgnoreCase("64"); //for the moment, linux/unix causes crashes, 64-bit only
-        compositorOS  = OS.contains("indows");
-        
-        if( VRSupportedOS && disableVR == false ) {
-        	if( vrBinding == VRConstants.SETTING_VRAPI_OSVR_VALUE ) {
-                VRhardware = new OSVR(this);
-                logger.config("Creating OSVR wrapper [SUCCESS]");
-            } else if( vrBinding == VRConstants.SETTING_VRAPI_OPENVR_VALUE ) {
-                VRhardware = new OpenVR(this);
-                logger.config("Creating OpenVR wrapper [SUCCESS]");
-            } else {
-            	logger.config("Cannot create VR binding: "+vrBinding+" [FAILED]");
-            }
-        	
-            if( VRhardware.initialize() ) {
-            	logger.config("VR native wrapper initialized [SUCCESS]");
-            } else {
-            	logger.warning("VR native wrapper initialized [FAILED]");
-            }
-            }
-        
+        if (environment.isInitialized()){
+        	environment.atttach(this, stateManager.getApplication());
+        } else {
+        	logger.severe("Cannot attach VR environment to the VR app state as its not initialized.");
+        }
+
         GraphicsDevice defDev = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
                                     
-        if( isInVR() && !compositorAllowed() ) {
+        if( environment.isInVR() && !environment.compositorAllowed() ) {
             // "easy extended" mode
             // setup experimental JFrame on external device
             // first, find the VR device
@@ -694,14 +547,14 @@ public class VRAppState extends AbstractAppState {
             	logger.config("Cannot access to external screen.");
             }
         } else {
-        	if (!isInVR()){
+        	if (!environment.isInVR()){
         	  logger.config("Cannot switch to VR mode (VR disabled by user).");
-        	} else if (!compositorAllowed()){
+        	} else if (!environment.compositorAllowed()){
         	  logger.warning("Cannot switch to VR mode (VR not supported).");
         	}
         }
         
-        if( !isInVR() ) {
+        if( !environment.isInVR() ) {
         	
         	//FIXME: Handling GLFW workaround on MacOS
         	boolean macOs = false;
@@ -742,10 +595,10 @@ public class VRAppState extends AbstractAppState {
             settings.setHeight(yWin);
             settings.setBitsPerPixel(32);     
             settings.setFrameRate(0);
-            settings.setFrequency(VRhardware.getDisplayFrequency());
+            settings.setFrequency(environment.getVRHardware().getDisplayFrequency());
             settings.setFullscreen(false);
             settings.setVSync(false); // stop vsyncing on primary monitor!
-            settings.setSwapBuffers(disableSwapBuffers);
+            settings.setSwapBuffers(environment.isSwapBuffers());
         }
 
         // Updating application settings
@@ -756,11 +609,9 @@ public class VRAppState extends AbstractAppState {
 
     @Override
     public void cleanup() {
-        if( VRhardware != null ) {
-            VRhardware.destroy();
-            VRhardware = null;
+        if( environment.getVRHardware() != null ) {
+        	environment.getVRHardware().destroy();
         }        
-        disableVR = true;
         
         this.application  = null;
         this.stateManager = null;
@@ -777,67 +628,10 @@ public class VRAppState extends AbstractAppState {
      */
     protected void processSettings(AppSettings settings){
     	if (settings != null){
-    		if (settings.get(VRConstants.SETTING_USE_COMPOSITOR) != null){
-    			useCompositor = settings.getBoolean(VRConstants.SETTING_USE_COMPOSITOR);
-                if( useCompositor == false ){
-                	disableSwapBuffers = false;
-                }
-    		}
 
-            if (settings.get(VRConstants.SETTING_VR_FORCE) != null){
-            	forceVR = settings.getBoolean(VRConstants.SETTING_VR_FORCE);
-    		}
-    		
-            if (settings.get(VRConstants.SETTING_FLIP_EYES) != null){
-                if( VRhardware != null ){
-                	VRhardware._setFlipEyes(settings.getBoolean(VRConstants.SETTING_FLIP_EYES));
-                } 
-    		}
-    	    
-            if (settings.get(VRConstants.SETTING_GUI_OVERDRAW) != null){
-            	guiManager._enableGuiOverdraw(settings.getBoolean(VRConstants.SETTING_GUI_OVERDRAW));
-    		}
-    	    
-            if (settings.get(VRConstants.SETTING_GUI_CURVED_SURFACE) != null){
-            	guiManager._enableCurvedSuface(settings.getBoolean(VRConstants.SETTING_GUI_CURVED_SURFACE));
-    		}
-    	    
-            if (settings.get(VRConstants.SETTING_ENABLE_MIRROR_WINDOW) != null){
-                if( useCompositor == false ) {
-                    disableSwapBuffers = false;
-                } else {
-                	disableSwapBuffers = !settings.getBoolean(VRConstants.SETTING_ENABLE_MIRROR_WINDOW);
-                }
-    		}
-    	    
             if (settings.get(VRConstants.SETTING_DISABLE_VR) != null){
                 DISABLE_VR = settings.getBoolean(VRConstants.SETTING_DISABLE_VR);
     		}
-    	    
-            if (settings.get(VRConstants.SETTING_SEATED_EXPERIENCE) != null){
-            	seated = settings.getBoolean(VRConstants.SETTING_SEATED_EXPERIENCE);
-    		}
-    	    
-            if (settings.get(VRConstants.SETTING_NO_GUI) != null){
-            	nogui = settings.getBoolean(VRConstants.SETTING_NO_GUI);
-    		}
-    	    
-            if (settings.get(VRConstants.SETTING_INSTANCE_RENDERING) != null){
-            	instanceVR = settings.getBoolean(VRConstants.SETTING_INSTANCE_RENDERING);
-    		}
-
-            if (settings.get(VRConstants.SETTING_DEFAULT_FOV) != null){
-            	defaultFOV = settings.getFloat(VRConstants.SETTING_DEFAULT_FOV);
-    		}
-            
-            if (settings.get(VRConstants.SETTING_DEFAULT_ASPECT_RATIO) != null){
-            	defaultAspect = settings.getFloat(VRConstants.SETTING_DEFAULT_ASPECT_RATIO);
-    		}
-            
-            if (settings.get(VRConstants.SETTING_VRAPI) != null){
-            	vrBinding = settings.getInteger(VRConstants.SETTING_VRAPI);
-    		}
-            
     	}
     }
 }
