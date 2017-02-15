@@ -119,14 +119,6 @@ public class CompoundCollisionShape extends CollisionShape {
         return children;
     }
 
-    /**
-     * WARNING - CompoundCollisionShape scaling has no effect.
-     */
-    @Override
-    public void setScale(Vector3f scale) {
-        Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "CompoundCollisionShape cannot be scaled");
-    }
-
     private native long createShape();
     
     private native long addChildShape(long objectId, long childId, Vector3f location, Matrix3f rotation);
