@@ -14,7 +14,6 @@
 *.jnilib
 *.dylib
 *.iml
-.gradletasknamecache
 .DS_Store
 /jme3-core/src/main/resources/com/jme3/system/version.properties
 /jme3-*/build/
