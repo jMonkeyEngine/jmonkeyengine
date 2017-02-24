@@ -29,7 +29,7 @@ public class LWJGLBufferAllocator implements BufferAllocator {
         /**
          * The address of LWJGL byte buffer.
          */
-        private Long address;
+        private volatile Long address;
 
         public Deallocator(final ByteBuffer referent, final ReferenceQueue<? super ByteBuffer> queue,
                            final Long address) {
