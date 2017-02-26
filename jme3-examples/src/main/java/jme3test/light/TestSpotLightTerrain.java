@@ -98,7 +98,7 @@ public class TestSpotLightTerrain extends SimpleApplication {
         ambLight.setColor(ColorRGBA.Black);
         rootNode.addLight(ambLight);
 
-        cam.setLocation(new Vector3f(-41.219646f, -84.8363f, -171.67267f));
+        cam.setLocation(new Vector3f(-41.219646f, 0.8363f, -171.67267f));
         cam.setRotation(new Quaternion(-0.04562731f, 0.89917684f, -0.09668826f, -0.4243236f));
         sl.setDirection(cam.getDirection());
         sl.setPosition(cam.getLocation());
