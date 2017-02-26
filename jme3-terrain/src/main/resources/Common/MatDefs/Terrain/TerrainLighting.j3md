@@ -272,29 +272,7 @@ MaterialDef Terrain Lighting {
 
     }
 
-    Technique GBuf {
 
-        VertexShader GLSL100:   Common/MatDefs/Light/GBuf.vert
-        FragmentShader GLSL100: Common/MatDefs/Light/GBuf.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            WorldMatrix
-        }
-
-        Defines {
-            VERTEX_COLOR : UseVertexColor
-            MATERIAL_COLORS : UseMaterialColors
-            V_TANGENT : VTangent
-            MINNAERT  : Minnaert
-            WARDISO   : WardIso
-
-            DIFFUSEMAP : DiffuseMap
-            NORMALMAP : NormalMap
-            SPECULARMAP : SpecularMap
-            PARALLAXMAP : ParallaxMap
-        }
-    }
 
     Technique Glow {
 
