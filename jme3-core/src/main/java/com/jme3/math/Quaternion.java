@@ -308,9 +308,9 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
             angles[2] = -FastMath.HALF_PI;
             angles[0] = 0;
         } else {
-            angles[1] = FastMath.atan2(2 * y * w - 2 * x * z, sqx - sqy - sqz + sqw); // roll or heading 
-            angles[2] = FastMath.asin(2 * test / unit); // pitch or attitude
-            angles[0] = FastMath.atan2(2 * x * w - 2 * y * z, -sqx + sqy - sqz + sqw); // yaw or bank
+            angles[1] = FastMath.atan2(2 * y * w - 2 * x * z, sqx - sqy - sqz + sqw);
+            angles[2] = FastMath.asin(2 * test / unit);
+            angles[0] = FastMath.atan2(2 * x * w - 2 * y * z, -sqx + sqy - sqz + sqw);
         }
         return angles;
     }
