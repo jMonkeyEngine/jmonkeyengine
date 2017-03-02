@@ -4,10 +4,10 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
+import java.nio.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 /**
  * The implementation of the {@link BufferAllocator} which use {@link MemoryUtil} to manage memory.
@@ -15,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author JavaSaBr
  */
 public class LWJGLBufferAllocator implements BufferAllocator {
+
+    private static final Logger LOGGER = Logger.getLogger(LWJGLBufferAllocator.class.getName());
 
     /**
      * The reference queue.
@@ -31,8 +33,7 @@ public class LWJGLBufferAllocator implements BufferAllocator {
          */
         private volatile Long address;
 
-        public Deallocator(final ByteBuffer referent, final ReferenceQueue<? super ByteBuffer> queue,
-                           final Long address) {
+        Deallocator(final ByteBuffer referent, final ReferenceQueue<? super ByteBuffer> queue, final Long address) {
             super(referent, queue);
             this.address = address;
         }
@@ -75,7 +76,7 @@ public class LWJGLBufferAllocator implements BufferAllocator {
      */
     private static void freeByteBuffers() {
         try {
-            for (;;) {
+            for (; ; ) {
                 final Deallocator deallocator = (Deallocator) DUMMY_QUEUE.remove();
                 deallocator.free();
             }
@@ -87,13 +88,51 @@ public class LWJGLBufferAllocator implements BufferAllocator {
     @Override
     public void destroyDirectBuffer(final Buffer buffer) {
 
-        final long address = MemoryUtil.memAddress((ByteBuffer) buffer);
+        final long address = getAddress(buffer);
+
+        if (address == -1) {
+            LOGGER.warning("Not found address of the " + buffer);
+            return;
+        }
 
         // disable deallocator
         final Deallocator deallocator = DEALLOCATORS.remove(address);
-        if (deallocator != null) deallocator.setAddress(null);
+
+        if (deallocator == null) {
+            LOGGER.warning("Not found a deallocator for address " + address);
+            return;
+        }
+
+        deallocator.setAddress(null);
 
         MemoryUtil.memFree(buffer);
+    }
+
+    /**
+     * Get memory address of the buffer.
+     *
+     * @param buffer the buffer.
+     * @return the address or -1.
+     */
+    private long getAddress(final Buffer buffer) {
+
+        if (buffer instanceof ByteBuffer) {
+            return MemoryUtil.memAddress((ByteBuffer) buffer, 0);
+        } else if (buffer instanceof ShortBuffer) {
+            return MemoryUtil.memAddress((ShortBuffer) buffer, 0);
+        } else if (buffer instanceof CharBuffer) {
+            return MemoryUtil.memAddress((CharBuffer) buffer, 0);
+        } else if (buffer instanceof IntBuffer) {
+            return MemoryUtil.memAddress((IntBuffer) buffer, 0);
+        } else if (buffer instanceof FloatBuffer) {
+            return MemoryUtil.memAddress((FloatBuffer) buffer, 0);
+        } else if (buffer instanceof LongBuffer) {
+            return MemoryUtil.memAddress((LongBuffer) buffer, 0);
+        } else if (buffer instanceof DoubleBuffer) {
+            return MemoryUtil.memAddress((DoubleBuffer) buffer, 0);
+        }
+
+        return -1;
     }
 
     @Override
