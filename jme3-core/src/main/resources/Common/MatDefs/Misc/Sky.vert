@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 uniform mat4 g_ViewMatrix;
 uniform mat4 g_ProjectionMatrix;
 uniform mat4 g_WorldMatrix;

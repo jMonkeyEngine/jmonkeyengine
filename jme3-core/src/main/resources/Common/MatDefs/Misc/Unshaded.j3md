@@ -56,30 +56,8 @@ MaterialDef Unshaded {
     }
 
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL150: Common/MatDefs/Misc/Unshaded.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            ViewProjectionMatrix
-            ViewMatrix
-        }
-
-        Defines {
-            INSTANCING : UseInstancing
-            SEPARATE_TEXCOORD : SeparateTexCoord
-            HAS_COLORMAP : ColorMap
-            HAS_LIGHTMAP : LightMap
-            HAS_VERTEXCOLOR : VertexColor
-            HAS_COLOR : Color
-            NUM_BONES : NumberOfBones
-            DISCARD_ALPHA : AlphaDiscardThreshold
-        }
-    }
-
-    Technique {
-        VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL100: Common/MatDefs/Misc/Unshaded.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Misc/Unshaded.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -101,8 +79,8 @@ MaterialDef Unshaded {
 
     Technique PreNormalPass {
 
-          VertexShader GLSL100 :   Common/MatDefs/SSAO/normal.vert
-          FragmentShader GLSL100 : Common/MatDefs/SSAO/normal.frag
+          VertexShader GLSL100 GLSL150 :   Common/MatDefs/SSAO/normal.vert
+          FragmentShader GLSL100 GLSL150 : Common/MatDefs/SSAO/normal.frag
 
           WorldParameters {
               WorldViewProjectionMatrix
@@ -120,8 +98,8 @@ MaterialDef Unshaded {
 
     Technique PreShadow {
 
-        VertexShader GLSL100 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL100 : Common/MatDefs/Shadow/PreShadow.frag
+        VertexShader GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -149,8 +127,8 @@ MaterialDef Unshaded {
 
 
     Technique PostShadow {
-        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -181,43 +159,10 @@ MaterialDef Unshaded {
         }
     }
 
-    Technique PostShadow {
-        VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadow.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            WorldMatrix
-            ViewProjectionMatrix
-            ViewMatrix
-        }
-
-        Defines {
-            HARDWARE_SHADOWS : HardwareShadows
-            FILTER_MODE : FilterMode
-            PCFEDGE : PCFEdge
-            DISCARD_ALPHA : AlphaDiscardThreshold           
-            COLOR_MAP : ColorMap
-            SHADOWMAP_SIZE : ShadowMapSize
-            FADE : FadeInfo
-            PSSM : Splits
-            POINTLIGHT : LightViewProjectionMatrix5
-            NUM_BONES : NumberOfBones
-            INSTANCING : UseInstancing
-            BACKFACE_SHADOWS: BackfaceShadows
-        }
-
-        ForcedRenderState {
-            Blend Modulate
-            DepthWrite Off   
-            PolyOffset -0.1 0  
-        }
-    }
-
     Technique Glow {
 
-        VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL100: Common/MatDefs/Light/Glow.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Light/Glow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

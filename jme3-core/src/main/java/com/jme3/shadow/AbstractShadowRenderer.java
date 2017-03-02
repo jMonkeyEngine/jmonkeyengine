@@ -44,8 +44,8 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.Camera;
-import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
@@ -63,10 +63,13 @@ import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.ShadowCompareMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * abstract shadow renderer that holds commons feature to have for a shadow
@@ -74,7 +77,9 @@ import java.util.List;
  *
  * @author Rémy Bouquet aka Nehon
  */
-public abstract class AbstractShadowRenderer implements SceneProcessor, Savable {
+public abstract class AbstractShadowRenderer implements SceneProcessor, Savable, JmeCloneable, Cloneable {
+
+    protected static final Logger logger = Logger.getLogger(AbstractShadowRenderer.class.getName());
 
     protected int nbShadowMaps = 1;
     protected float shadowMapSize;
@@ -95,6 +100,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     protected Picture[] dispPic;
     protected RenderState forcedRenderState = new RenderState();
     protected Boolean renderBackFacesShadows = true;
+    protected AppProfiler prof;
 
     /**
      * true if the fallback material should be used, otherwise false
@@ -678,8 +684,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     }
     
     /**
-     * returns true if the light source bounding box is in the view frustum
-     * @return 
+     * @return true if the light source bounding box is in the view frustum
      */
     protected abstract boolean checkCulling(Camera viewCam);
     
@@ -748,7 +753,6 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     @Deprecated
     public void setFlushQueues(boolean flushQueues) {}
 
-
     /**
      * returns the pre shadows pass render state.
      * use it to adjust the RenderState parameters of the pre shadow pass.
@@ -790,13 +794,32 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         return renderBackFacesShadows != null?renderBackFacesShadows:false;
     }
 
+    @Override
+    public Object jmeClone() {
+        try {
+            return super.clone();
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void cloneFields(final Cloner cloner, final Object original) {
+        forcedRenderState = cloner.clone(forcedRenderState);
+        init(assetManager, nbShadowMaps, (int) shadowMapSize);
+    }
+
+    public void setProfiler(AppProfiler profiler) {
+        this.prof = profiler;
+    }
+
     /**
      * De-serialize this instance, for example when loading from a J3O file.
      *
      * @param im importer (not null)
      */
     public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        InputCapsule ic = im.getCapsule(this);
         assetManager = im.getAssetManager();
         nbShadowMaps = ic.readInt("nbShadowMaps", 1);
         shadowMapSize = ic.readFloat("shadowMapSize", 0f);
@@ -815,7 +838,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
      * @param ex exporter (not null)
      */
     public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(nbShadowMaps, "nbShadowMaps", 1);
         oc.write(shadowMapSize, "shadowMapSize", 0);
         oc.write(shadowIntensity, "shadowIntensity", 0.7f);

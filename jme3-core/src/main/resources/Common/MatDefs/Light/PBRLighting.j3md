@@ -104,13 +104,15 @@ MaterialDef PBR Lighting {
 
         //For Vertex Color
         Boolean UseVertexColor
+
+        Boolean BackfaceShadows : false
     }
 
- Technique {
+    Technique {
         LightMode SinglePassAndImageBased
         
-        VertexShader GLSL110:   Common/MatDefs/Light/PBRLighting.vert
-        FragmentShader GLSL110: Common/MatDefs/Light/PBRLighting.frag
+        VertexShader GLSL110 GLSL150:   Common/MatDefs/Light/PBRLighting.vert
+        FragmentShader GLSL110 GLSL150: Common/MatDefs/Light/PBRLighting.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -139,12 +141,11 @@ MaterialDef PBR Lighting {
         }
     }
 
-   
 
     Technique PreShadow {
 
-        VertexShader GLSL100 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL100 : Common/MatDefs/Shadow/PreShadow.frag
+        VertexShader GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -170,7 +171,7 @@ MaterialDef PBR Lighting {
     }
 
 
-    Technique PostShadow15{
+    Technique PostShadow{
         VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
         FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow.frag
 
@@ -193,6 +194,7 @@ MaterialDef PBR Lighting {
             POINTLIGHT : LightViewProjectionMatrix5
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            BACKFACE_SHADOWS: BackfaceShadows
         }
 
         ForcedRenderState {
@@ -224,6 +226,7 @@ MaterialDef PBR Lighting {
             POINTLIGHT : LightViewProjectionMatrix5
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            BACKFACE_SHADOWS: BackfaceShadows
         }
 
         ForcedRenderState {

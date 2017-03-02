@@ -243,11 +243,6 @@ public class ShaderNodeVariable implements Savable, Cloneable {
         return "\n" + type + ' ' + (nameSpace != null ? (nameSpace + '.') : "") + name;
     }
 
-    @Override
-    public ShaderNodeVariable clone() {
-        return new ShaderNodeVariable(type, nameSpace, name);
-    }
-
     /**
      *
      * @return true if this variable is a shader output
@@ -281,6 +276,9 @@ public class ShaderNodeVariable implements Savable, Cloneable {
     public void setMultiplicity(String multiplicity) {
         this.multiplicity = multiplicity;
     }
-    
-    
+
+    @Override
+    public ShaderNodeVariable clone() throws CloneNotSupportedException {
+        return (ShaderNodeVariable) super.clone();
+    }
 }

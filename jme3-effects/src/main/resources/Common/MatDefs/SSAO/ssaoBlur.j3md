@@ -14,29 +14,13 @@ MaterialDef SSAOBlur {
     }
 
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
-        FragmentShader GLSL150: Common/MatDefs/SSAO/ssaoBlur15.frag
+        VertexShader GLSL150 GLSL120:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL150 GLSL120: Common/MatDefs/SSAO/ssaoBlur.frag
 
         WorldParameters {
             WorldViewMatrix
         }
 
-        Defines {
-            USE_AO : UseAo
-            USE_ONLY_AO : UseOnlyAo
-            RESOLVE_MS : NumSamples
-            RESOLVE_DEPTH_MS : NumSamplesDepth
-        }
-    }
-
-    Technique {
-        VertexShader GLSL120:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL120: Common/MatDefs/SSAO/ssaoBlur.frag
-
-        WorldParameters {            
-            WorldViewMatrix
-        }
-        
         Defines {
             USE_AO : UseAo
             USE_ONLY_AO : UseOnlyAo

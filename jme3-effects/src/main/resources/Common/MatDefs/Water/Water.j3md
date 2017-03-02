@@ -51,8 +51,8 @@ MaterialDef Advanced Water {
     }
 
     Technique {
-        VertexShader   GLSL150 : Common/MatDefs/Post/Post15.vert
-        FragmentShader GLSL150 : Common/MatDefs/Water/Water15.frag
+        VertexShader   GLSL150 GLSL120 : Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL150 GLSL120: Common/MatDefs/Water/Water.frag
 
         WorldParameters {
             ViewProjectionMatrixInverse
@@ -72,22 +72,4 @@ MaterialDef Advanced Water {
         }
     }
 
-    Technique {
-        VertexShader   GLSL100 : Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL120 : Common/MatDefs/Water/Water.frag
-
-        WorldParameters {
-            ViewProjectionMatrixInverse
-        }
-        Defines {
-            ENABLE_RIPPLES : UseRipples
-            ENABLE_HQ_SHORELINE : UseHQShoreline
-            ENABLE_SPECULAR : UseSpecular
-            ENABLE_FOAM : UseFoam
-            ENABLE_CAUSTICS : UseCaustics
-            ENABLE_REFRACTION : UseRefraction
-            ENABLE_AREA : Center
-            SQUARE_AREA : SquareArea
-        }
-    }
 }

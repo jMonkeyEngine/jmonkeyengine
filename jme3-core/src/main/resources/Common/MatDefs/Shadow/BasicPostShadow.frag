@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/BasicShadow.glsllib"
 
 uniform SHADOWMAP m_ShadowMap;

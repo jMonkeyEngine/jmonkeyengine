@@ -43,7 +43,7 @@ import java.io.IOException;
  *
  * @author Nehon
  */
-public class VariableMapping implements Savable {
+public class VariableMapping implements Savable, Cloneable {
 
     private ShaderNodeVariable leftVariable;
     private ShaderNodeVariable rightVariable;
@@ -194,5 +194,15 @@ public class VariableMapping implements Savable {
     @Override
     public String toString() {
         return "\n{" + leftVariable.toString() + (leftSwizzling.length() > 0 ? ("." + leftSwizzling) : "") + " = " + rightVariable.getType() + " " + rightVariable.getNameSpace() + "." + rightVariable.getName() + (rightSwizzling.length() > 0 ? ("." + rightSwizzling) : "") + " : " + condition + "}";
+    }
+
+    @Override
+    protected VariableMapping clone() throws CloneNotSupportedException {
+        VariableMapping clone = (VariableMapping) super.clone();
+
+        clone.leftVariable = leftVariable.clone();
+        clone.rightVariable = rightVariable.clone();
+
+        return clone;
     }
 }

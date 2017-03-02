@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #ifdef POINT_SPRITE
 #  if !defined(GL_ES) && __VERSION__ < 120
 #    error Point sprite is not supported by the video hardware!

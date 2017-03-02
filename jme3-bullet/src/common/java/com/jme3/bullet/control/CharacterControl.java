@@ -121,6 +121,7 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         control.setUpAxis(getUpAxis());
         control.setApplyPhysicsLocal(isApplyPhysicsLocal());
         control.spatial = this.spatial;
+        control.setEnabled(isEnabled());
         return control;
     }     
 
@@ -207,11 +208,12 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
                 added = false;
             }
         } else {
-            if (this.space == space) {
-                return;
+            if(this.space == space) return;
+            // if this object isn't enabled, it will be added when it will be enabled.
+            if (isEnabled()) {
+                space.addCollisionObject(this);
+                added = true;
             }
-            space.addCollisionObject(this);
-            added = true;
         }
         this.space = space;
     }

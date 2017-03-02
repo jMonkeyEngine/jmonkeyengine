@@ -120,8 +120,8 @@ MaterialDef Phong Lighting {
     Technique {
         LightMode SinglePass
 
-        VertexShader GLSL100:   Common/MatDefs/Light/SPLighting.vert
-        FragmentShader GLSL100: Common/MatDefs/Light/SPLighting.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Light/SPLighting.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Light/SPLighting.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -159,8 +159,8 @@ MaterialDef Phong Lighting {
 
         LightMode MultiPass
 
-        VertexShader GLSL100:   Common/MatDefs/Light/Lighting.vert
-        FragmentShader GLSL100: Common/MatDefs/Light/Lighting.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Light/Lighting.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Light/Lighting.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -194,12 +194,10 @@ MaterialDef Phong Lighting {
         }
     }
 
-   
-
     Technique PreShadow {
 
-        VertexShader GLSL100 :   Common/MatDefs/Shadow/PreShadow.vert
-        FragmentShader GLSL100 : Common/MatDefs/Shadow/PreShadow.frag
+        VertexShader GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -226,8 +224,8 @@ MaterialDef Phong Lighting {
 
 
     Technique PostShadow {
-        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -258,42 +256,11 @@ MaterialDef Phong Lighting {
         }
     }
 
-    Technique PostShadow{
-        VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadow.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            WorldMatrix
-            ViewProjectionMatrix
-            ViewMatrix
-            NormalMatrix
-        }
-
-        Defines {
-            HARDWARE_SHADOWS : HardwareShadows
-            FILTER_MODE : FilterMode
-            PCFEDGE : PCFEdge
-            DISCARD_ALPHA : AlphaDiscardThreshold
-            SHADOWMAP_SIZE : ShadowMapSize
-            FADE : FadeInfo
-            PSSM : Splits
-            POINTLIGHT : LightViewProjectionMatrix5
-            NUM_BONES : NumberOfBones
-            INSTANCING : UseInstancing
-        }
-
-        ForcedRenderState {
-            Blend Modulate
-            DepthWrite Off   
-            PolyOffset -0.1 0  
-        }
-    }
 
   Technique PreNormalPass {
 
-        VertexShader GLSL100 :   Common/MatDefs/SSAO/normal.vert
-        FragmentShader GLSL100 : Common/MatDefs/SSAO/normal.frag
+        VertexShader GLSL100 GLSL150 :   Common/MatDefs/SSAO/normal.vert
+        FragmentShader GLSL100 GLSL150 : Common/MatDefs/SSAO/normal.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -309,56 +276,12 @@ MaterialDef Phong Lighting {
             INSTANCING : UseInstancing
         }
 
-    }
-
-
-    Technique PreNormalPassDerivative {
-
-        VertexShader GLSL100 :   Common/MatDefs/MSSAO/normal.vert
-        FragmentShader GLSL100 : Common/MatDefs/MSSAO/normal.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            WorldViewMatrix
-            NormalMatrix                        
-            ViewProjectionMatrix
-            ViewMatrix
-        }
-
-        Defines {
-            DIFFUSEMAP_ALPHA : DiffuseMap
-            NUM_BONES : NumberOfBones
-            INSTANCING : UseInstancing
-        }
-
-    }
-
-    Technique GBuf {
-
-        VertexShader GLSL100:   Common/MatDefs/Light/GBuf.vert
-        FragmentShader GLSL100: Common/MatDefs/Light/GBuf.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            NormalMatrix
-            WorldViewMatrix
-            WorldMatrix
-        }
-
-        Defines {
-            VERTEX_COLOR : UseVertexColor
-            MATERIAL_COLORS : UseMaterialColors
-            DIFFUSEMAP : DiffuseMap
-            NORMALMAP : NormalMap
-            SPECULARMAP : SpecularMap
-            PARALLAXMAP : ParallaxMap
-        }
     }
 
     Technique Glow {
 
-        VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL100: Common/MatDefs/Light/Glow.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Light/Glow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

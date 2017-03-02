@@ -32,6 +32,7 @@
 package com.jme3.system.awt;
 
 import com.jme3.post.SceneProcessor;
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
@@ -79,6 +80,7 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     private int newHeight = 1;
     private AtomicBoolean reshapeNeeded = new AtomicBoolean(false);
     private final Object lock = new Object();
+    private AppProfiler prof;
 
     public AwtPanel(PaintMode paintMode) {
         this(paintMode, false);
@@ -332,5 +334,10 @@ public class AwtPanel extends Canvas implements SceneProcessor {
 
     @Override
     public void cleanup() {
+    }
+
+    @Override
+    public void setProfiler(AppProfiler profiler) {
+        this.prof = profiler;
     }
 }

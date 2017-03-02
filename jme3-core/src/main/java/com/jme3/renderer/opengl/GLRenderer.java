@@ -2851,4 +2851,31 @@ public final class GLRenderer implements Renderer {
             linearizeSrgbImages = linearize;
         }
     }
+
+    @Override
+    public int[] generateProfilingTasks(int numTasks) {
+        IntBuffer ids = BufferUtils.createIntBuffer(numTasks);
+        gl.glGenQueries(numTasks, ids);
+        return BufferUtils.getIntArray(ids);
+    }
+
+    @Override
+    public void startProfiling(int taskId) {
+        gl.glBeginQuery(GL.GL_TIME_ELAPSED, taskId);
+    }
+
+    @Override
+    public void stopProfiling() {
+        gl.glEndQuery(GL.GL_TIME_ELAPSED);
+    }
+
+    @Override
+    public long getProfilingTime(int taskId) {
+        return gl.glGetQueryObjectui64(taskId, GL.GL_QUERY_RESULT);
+    }
+
+    @Override
+    public boolean isTaskResultAvailable(int taskId) {
+        return gl.glGetQueryObjectiv(taskId, GL.GL_QUERY_RESULT_AVAILABLE) == 1;
+    }
 }

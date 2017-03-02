@@ -172,6 +172,31 @@ public class NullRenderer implements Renderer {
     public void setLinearizeSrgbImages(boolean linearize) {    
     }
 
+    @Override
+    public int[] generateProfilingTasks(int numTasks) {
+        return new int[0];
+    }
+
+    @Override
+    public void startProfiling(int id) {
+
+    }
+
+    @Override
+    public void stopProfiling() {
+
+    }
+
+    @Override
+    public long getProfilingTime(int taskId) {
+        return 0;
+    }
+
+    @Override
+    public boolean isTaskResultAvailable(int taskId) {
+        return false;
+    }
+
     public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {        
     }
 

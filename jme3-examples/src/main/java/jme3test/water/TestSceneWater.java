@@ -76,7 +76,7 @@ public class TestSceneWater extends SimpleApplication {
         // create the geometry and attach it
         // load the level from zip or http zip
         if (useHttp) {
-            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/wildhouse.zip", HttpZipLocator.class);
+            assetManager.registerLocator("https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/wildhouse.zip", HttpZipLocator.class);
         } else {
             assetManager.registerLocator("wildhouse.zip", ZipLocator.class);
         }

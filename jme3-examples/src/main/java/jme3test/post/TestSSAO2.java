@@ -36,11 +36,10 @@ import com.jme3.light.*;
 import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.post.FilterPostProcessor;
+import com.jme3.app.DetailedProfilerState;
 import com.jme3.post.ssao.SSAOFilter;
 import com.jme3.scene.*;
-import com.jme3.scene.control.LodControl;
 import com.jme3.scene.shape.Box;
-import com.jme3.texture.Texture;
 
 public class TestSSAO2 extends SimpleApplication {
 
@@ -56,6 +55,11 @@ public class TestSSAO2 extends SimpleApplication {
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-1,-1,-1).normalizeLocal());
         rootNode.addLight(dl);
+
+        flyCam.setDragToRotate(true);
+        setPauseOnLostFocus(false);
+
+        getStateManager().attach(new DetailedProfilerState());
 
         Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat.setFloat("Shininess", 16f);
@@ -96,6 +100,12 @@ public class TestSSAO2 extends SimpleApplication {
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         SSAOFilter ssaoFilter = new SSAOFilter(2.9299974f,25f,5.8100376f,0.091000035f);
+        int numSamples = context.getSettings().getSamples();
+        if (numSamples > 0) {
+            fpp.setNumSamples(numSamples);
+        }
+
+        //ssaoFilter.setApproximateNormals(true);
         fpp.addFilter(ssaoFilter);
         SSAOUI ui = new SSAOUI(inputManager, ssaoFilter);
 

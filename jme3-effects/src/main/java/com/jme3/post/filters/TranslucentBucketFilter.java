@@ -165,11 +165,9 @@ public final class TranslucentBucketFilter extends Filter {
             if (enabled) {
                 enabledSoftParticles = enabled;
 
+                emitter.getMaterial().selectTechnique("SoftParticles", renderManager);
                 if( processor.getNumSamples()>1){
-                    emitter.getMaterial().selectTechnique("SoftParticles15", renderManager);
                     emitter.getMaterial().setInt("NumSamplesDepth", processor.getNumSamples());
-                }else{
-                    emitter.getMaterial().selectTechnique("SoftParticles", renderManager);
                 }
                 emitter.getMaterial().setTexture("DepthTexture", processor.getDepthTexture());               
                 emitter.setQueueBucket(RenderQueue.Bucket.Translucent);

@@ -46,6 +46,8 @@ import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.util.clone.Cloner;
+
 import java.io.IOException;
 
 /**
@@ -112,8 +114,6 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     protected void initFrustumCam() {
         //nothing to do
     }
-    
-    
 
     /**
      * return the light used to cast shadows
@@ -135,6 +135,11 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
 
     @Override
     protected void updateShadowCams(Camera viewCam) {
+
+        if (light == null) {
+            logger.warning("The light can't be null for a " + getClass().getName());
+            return;
+        }
 
         float zFar = zFarOverride;
         if (zFar == 0) {
@@ -215,7 +220,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     @Override
     protected void setMaterialParameters(Material material) {
         material.setColor("Splits", splits);
-        material.setVector3("LightDir", light.getDirection());
+        material.setVector3("LightDir", light == null ? new Vector3f() : light.getDirection());
         if (fadeInfo != null) {
             material.setVector2("FadeInfo", fadeInfo);
         }
@@ -248,11 +253,9 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     public void setLambda(float lambda) {
         this.lambda = lambda;
     }
-
     
     /**
-     * retruns true if stabilization is enabled
-     * @return 
+     * @return true if stabilization is enabled
      */
     public boolean isEnabledStabilization() {
         return stabilize;
@@ -267,11 +270,18 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     public void setEnabledStabilization(boolean stabilize) {
         this.stabilize = stabilize;
     }
-    
+
+    @Override
+    public void cloneFields(final Cloner cloner, final Object original) {
+        light = cloner.clone(light);
+        init(nbShadowMaps, (int) shadowMapSize);
+        super.cloneFields(cloner, original);
+    }
+
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
-        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        InputCapsule ic = im.getCapsule(this);
         lambda = ic.readFloat("lambda", 0.65f);
         zFarOverride = ic.readInt("zFarOverride", 0);
         light = (DirectionalLight) ic.readSavable("light", null);
@@ -283,7 +293,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
-        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(lambda, "lambda", 0.65f);
         oc.write(zFarOverride, "zFarOverride", 0);
         oc.write(light, "light", null);

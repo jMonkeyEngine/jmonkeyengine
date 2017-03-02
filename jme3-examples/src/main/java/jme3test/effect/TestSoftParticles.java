@@ -95,6 +95,10 @@ public class TestSoftParticles extends SimpleApplication {
         fpp = new FilterPostProcessor(assetManager);        
         tbf = new TranslucentBucketFilter(true);
         fpp.addFilter(tbf);
+        int samples = context.getSettings().getSamples();
+        if (samples > 0) {
+            fpp.setNumSamples(samples);
+        }
         viewPort.addProcessor(fpp);
 
         particleNode = new Node("particleNode");

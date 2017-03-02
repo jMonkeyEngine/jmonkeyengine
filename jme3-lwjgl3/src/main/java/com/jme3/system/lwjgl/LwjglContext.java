@@ -32,6 +32,10 @@
 
 package com.jme3.system.lwjgl;
 
+import static org.lwjgl.opencl.CL10.CL_CONTEXT_PLATFORM;
+import static org.lwjgl.opengl.GL.createCapabilities;
+import static org.lwjgl.opengl.GL11.glGetInteger;
+
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
@@ -48,26 +52,41 @@ import com.jme3.renderer.lwjgl.LwjglGL;
 import com.jme3.renderer.lwjgl.LwjglGLExt;
 import com.jme3.renderer.lwjgl.LwjglGLFboEXT;
 import com.jme3.renderer.lwjgl.LwjglGLFboGL3;
-import com.jme3.renderer.opengl.*;
-import com.jme3.system.*;
+import com.jme3.renderer.opengl.GL;
+import com.jme3.renderer.opengl.GL2;
+import com.jme3.renderer.opengl.GL3;
+import com.jme3.renderer.opengl.GL4;
+import com.jme3.renderer.opengl.GLDebugDesktop;
+import com.jme3.renderer.opengl.GLExt;
+import com.jme3.renderer.opengl.GLFbo;
+import com.jme3.renderer.opengl.GLRenderer;
+import com.jme3.renderer.opengl.GLTiming;
+import com.jme3.renderer.opengl.GLTimingState;
+import com.jme3.renderer.opengl.GLTracer;
+import com.jme3.system.AppSettings;
+import com.jme3.system.JmeContext;
+import com.jme3.system.SystemListener;
+import com.jme3.system.Timer;
+import com.jme3.util.BufferAllocatorFactory;
+import com.jme3.util.LWJGLBufferAllocator;
+
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opencl.APPLEGLSharing;
+import org.lwjgl.opencl.CL10;
+import org.lwjgl.opencl.KHRGLSharing;
+import org.lwjgl.opengl.ARBDebugOutput;
+import org.lwjgl.opengl.ARBFramebufferObject;
+import org.lwjgl.opengl.EXTFramebufferMultisample;
+import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl.system.Platform;
+
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opencl.*;
-import org.lwjgl.opengl.ARBDebugOutput;
-import org.lwjgl.opengl.ARBFramebufferObject;
-import org.lwjgl.opengl.EXTFramebufferMultisample;
-import org.lwjgl.opengl.GLCapabilities;
-
-import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
-import static org.lwjgl.opencl.CL10.CL_CONTEXT_PLATFORM;
-import static org.lwjgl.opengl.GL.createCapabilities;
-import static org.lwjgl.opengl.GL11.glGetInteger;
 
 /**
  * A LWJGL implementation of a graphics context.
@@ -75,6 +94,13 @@ import static org.lwjgl.opengl.GL11.glGetInteger;
 public abstract class LwjglContext implements JmeContext {
 
     private static final Logger logger = Logger.getLogger(LwjglContext.class.getName());
+
+    static {
+        final String implementation = BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION;
+        if(System.getProperty(implementation) == null) {
+            System.setProperty(implementation, LWJGLBufferAllocator.class.getName());
+        }
+    }
 
     public static final boolean CL_GL_SHARING_POSSIBLE = true;
     
@@ -100,7 +126,7 @@ public abstract class LwjglContext implements JmeContext {
 
     protected void printContextInitInfo() {
         logger.log(Level.INFO, "LWJGL {0} context running on thread {1}\n"
-                + " * Graphics Adapter: GLFW {2}",
+                        + " * Graphics Adapter: GLFW {2}",
                 new Object[]{org.lwjgl.Version.getVersion(), Thread.currentThread().getName(), GLFW.glfwGetVersionString()});
     }
 
@@ -204,8 +230,6 @@ public abstract class LwjglContext implements JmeContext {
      * filter.
      *
      * Copied from the old release
-     *
-     * @param filter the platform filter
      *
      * @return the available platforms
      */
@@ -321,7 +345,7 @@ public abstract class LwjglContext implements JmeContext {
         try {
             long c = createContext(platform.getPlatform(), devices, window);
             clContext = new com.jme3.opencl.lwjgl.LwjglContext(c, (List<LwjglDevice>) choosenDevices);
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             logger.log(Level.SEVERE, "Unable to create OpenCL context", ex);
             return;
         }
@@ -338,7 +362,7 @@ public abstract class LwjglContext implements JmeContext {
         //https://github.com/glfw/glfw/issues/104
         //https://github.com/LWJGL/lwjgl3/blob/master/modules/core/src/test/java/org/lwjgl/demo/opencl/Mandelbrot.java
         //TODO: test on Linus and MacOSX
-        switch (org.lwjgl.system.Platform.get()) {
+        switch (Platform.get()) {
             case WINDOWS:
                 properties
                         .put(KHRGLSharing.CL_GL_CONTEXT_KHR)
@@ -446,5 +470,4 @@ public abstract class LwjglContext implements JmeContext {
     public Context getOpenCLContext() {
         return clContext;
     }
-
 }

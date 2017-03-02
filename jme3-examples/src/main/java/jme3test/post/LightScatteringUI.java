@@ -54,9 +54,7 @@ public class LightScatteringUI {
         System.out.println("-- blur start : press U to increase, J to decrease");
         System.out.println("-- blur width : press I to increase, K to decrease");
         System.out.println("-- Light density : press O to increase, P to decrease");
-//        System.out.println("-- Toggle AO on/off : press space bar");
-//        System.out.println("-- Use only AO : press Num pad 0");
-//        System.out.println("-- Output config declaration : press P");
+        System.out.println("-- Toggle LS on/off : press space bar");
         System.out.println("-------------------------------------------------------");
     
         inputManager.addMapping("sampleUp", new KeyTrigger(KeyInput.KEY_Y));
@@ -68,9 +66,9 @@ public class LightScatteringUI {
         inputManager.addMapping("lightDensityUp", new KeyTrigger(KeyInput.KEY_O));
         inputManager.addMapping("lightDensityDown", new KeyTrigger(KeyInput.KEY_L));
         inputManager.addMapping("outputConfig", new KeyTrigger(KeyInput.KEY_P));
-//        inputManager.addMapping("toggleUseAO", new KeyTrigger(KeyInput.KEY_SPACE));
-//        inputManager.addMapping("toggleUseOnlyAo", new KeyTrigger(KeyInput.KEY_NUMPAD0));
-        
+        inputManager.addMapping("toggle", new KeyTrigger(KeyInput.KEY_SPACE));
+
+
         ActionListener acl = new ActionListener() {
 
             public void onAction(String name, boolean keyPressed, float tpf) {
@@ -82,6 +80,9 @@ public class LightScatteringUI {
                 if (name.equals("sampleDown")) {
                    filter.setNbSamples(filter.getNbSamples()-1);
                    System.out.println("Nb Samples : "+filter.getNbSamples());
+                }
+                if (name.equals("toggle") && keyPressed) {
+                    filter.setEnabled(!filter.isEnabled());
                 }
                 if (name.equals("outputConfig") && keyPressed) {
                    System.out.println("lightScatteringFilter.setNbSamples("+filter.getNbSamples()+");");
@@ -123,9 +124,10 @@ public class LightScatteringUI {
                     System.out.println("light Density : "+filter.getLightDensity());
                 }
 
+
             }
         };
-        inputManager.addListener(acl,"sampleUp","sampleDown","outputConfig");
+        inputManager.addListener(acl, "sampleUp", "sampleDown", "outputConfig", "toggle");
 
         inputManager.addListener(anl, "blurStartUp","blurStartDown","blurWidthUp", "blurWidthDown","lightDensityUp", "lightDensityDown");
      

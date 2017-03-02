@@ -7,8 +7,8 @@ MaterialDef Fade {
     }
 
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
-        FragmentShader GLSL150: Common/MatDefs/Post/Fade15.frag
+        VertexShader GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL150 GLSL100: Common/MatDefs/Post/Fade.frag
 
         WorldParameters {
         }
@@ -18,11 +18,4 @@ MaterialDef Fade {
         }
     }
 
-    Technique {
-        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL100: Common/MatDefs/Post/Fade.frag
-
-        WorldParameters {
-        }
-    }
 }

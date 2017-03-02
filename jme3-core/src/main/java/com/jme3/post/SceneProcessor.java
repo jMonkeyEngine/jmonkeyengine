@@ -31,6 +31,7 @@
  */
 package com.jme3.post;
 
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
@@ -89,5 +90,12 @@ public interface SceneProcessor {
      * Called when the SP is removed from the RM.
      */
     public void cleanup();
+
+    /**
+     * Sets a profiler Instance for this processor.
+     *
+     * @param profiler the profiler instance.
+     */
+    public void setProfiler(AppProfiler profiler);
 
 }

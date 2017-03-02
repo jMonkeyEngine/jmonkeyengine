@@ -34,6 +34,7 @@ package com.jme3.post;
 import com.jme3.asset.AssetManager;
 import com.jme3.export.*;
 import com.jme3.material.Material;
+import com.jme3.profile.*;
 import com.jme3.renderer.*;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.FrameBuffer;
@@ -56,6 +57,7 @@ import java.util.List;
  */
 public class FilterPostProcessor implements SceneProcessor, Savable {
 
+    public static final String FPP = FilterPostProcessor.class.getSimpleName();
     private RenderManager renderManager;
     private Renderer renderer;
     private ViewPort viewPort;
@@ -80,6 +82,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private int lastFilterIndex = -1;
     private boolean cameraInit = false;
     private boolean multiView = false;
+    private AppProfiler prof;
 
     private Format fbFormat = Format.RGB111110F;
     
@@ -216,7 +219,6 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         r.setFrameBuffer(buff);        
         r.clearBuffers(true, true, true);
         renderManager.renderGeometry(fsQuad);
-
     }
     
     public boolean isInitialized() {
@@ -224,13 +226,12 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     }
 
     public void postQueue(RenderQueue rq) {
-
         for (Filter filter : filters.getArray()) {
             if (filter.isEnabled()) {
+                if (prof != null) prof.spStep(SpStep.ProcPostQueue, FPP, filter.getName());
                 filter.postQueue(rq);
             }
         }
-
     }   
 
     /**
@@ -244,10 +245,12 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         boolean msDepth = depthTexture != null && depthTexture.getImage().getMultiSamples() > 1;
         for (int i = 0; i < filters.size(); i++) {
             Filter filter = filters.get(i);
+            if (prof != null) prof.spStep(SpStep.ProcPostFrame, FPP, filter.getName());
             if (filter.isEnabled()) {
                 if (filter.getPostRenderPasses() != null) {
                     for (Iterator<Filter.Pass> it1 = filter.getPostRenderPasses().iterator(); it1.hasNext();) {
                         Filter.Pass pass = it1.next();
+                        if (prof != null) prof.spStep(SpStep.ProcPostFrame, FPP, filter.getName(), pass.toString());
                         pass.beforeRender();
                         if (pass.requiresSceneAsTexture()) {
                             pass.getPassMaterial().setTexture("Texture", tex);
@@ -269,7 +272,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                         renderProcessing(r, pass.getRenderFrameBuffer(), pass.getPassMaterial());
                     }
                 }
-
+                if (prof != null) prof.spStep(SpStep.ProcPostFrame, FPP, filter.getName(), "postFrame");
                 filter.postFrame(renderManager, viewPort, buff, sceneFb);
 
                 Material mat = filter.getMaterial();
@@ -298,7 +301,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                     tex = filter.getRenderedTexture();
 
                 }
+                if (prof != null) prof.spStep(SpStep.ProcPostFrame, FPP, filter.getName(), "render");
                 renderProcessing(r, buff, mat);
+                if (prof != null) prof.spStep(SpStep.ProcPostFrame, FPP, filter.getName(), "postFilter");
                 filter.postFilter(r, buff);
                 
                 if (wantsBilinear) {
@@ -324,7 +329,6 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         if (viewPort != null) {
             renderManager.setCamera(viewPort.getCamera(), false);
         }
-
     }
 
     public void preFrame(float tpf) {
@@ -351,6 +355,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
         for (Filter filter : filters.getArray()) {
             if (filter.isEnabled()) {
+                if (prof != null) prof.spStep(SpStep.ProcPreFrame, FPP, filter.getName());
                 filter.preFrame(tpf);
             }
         }
@@ -417,6 +422,11 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             }
         }
 
+    }
+
+    @Override
+    public void setProfiler(AppProfiler profiler) {
+        this.prof = profiler;
     }
 
     public void reshape(ViewPort vp, int w, int h) {

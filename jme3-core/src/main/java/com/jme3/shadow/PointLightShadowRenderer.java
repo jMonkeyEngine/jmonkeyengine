@@ -46,6 +46,8 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+
 import java.io.IOException;
 
 /**
@@ -100,7 +102,8 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
     protected void updateShadowCams(Camera viewCam) {
 
         if (light == null) {
-            throw new IllegalStateException("The light can't be null for a " + this.getClass().getName());
+            logger.warning("The light can't be null for a " + getClass().getName());
+            return;
         }
 
         //bottom
@@ -171,7 +174,7 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
 
     @Override
     protected void setMaterialParameters(Material material) {
-        material.setVector3("LightPos", light.getPosition());
+        material.setVector3("LightPos", light == null ? new Vector3f() : light.getPosition());
     }
 
     @Override
@@ -198,9 +201,17 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
     }
 
     @Override
+    public void cloneFields(final Cloner cloner, final Object original) {
+        light = cloner.clone(light);
+        init((int) shadowMapSize);
+        frustums = null;
+        super.cloneFields(cloner, original);
+    }
+
+    @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
-        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        InputCapsule ic = im.getCapsule(this);
         light = (PointLight) ic.readSavable("light", null);
         init((int) shadowMapSize);
     }
@@ -208,7 +219,7 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
-        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(light, "light", null);
     }
     
@@ -218,7 +229,12 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
      * @return 
      */
     @Override
-    protected boolean checkCulling(Camera viewCam) {      
+    protected boolean checkCulling(Camera viewCam) {
+
+        if (light == null) {
+            return false;
+        }
+
         Camera cam = viewCam;
         if(frustumCam != null){
             cam = frustumCam;            

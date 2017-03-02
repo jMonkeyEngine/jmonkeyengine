@@ -18,38 +18,14 @@ MaterialDef Point Sprite {
 
     Technique {
 
-        VertexShader   GLSL100 : Common/MatDefs/Misc/Particle.vert
-        FragmentShader GLSL120 : Common/MatDefs/Misc/Particle.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            WorldViewMatrix
-            WorldMatrix
-            CameraPosition
-        }
-
-        RenderState {
-            Blend AlphaAdditive
-            DepthWrite Off
-            PointSprite On
-        }
-
-        Defines {
-            USE_TEXTURE : Texture
-            POINT_SPRITE : PointSprite
-        }
-    }
-
-    Technique {
-
-        // This technique is used in two cases:
+        // The GLSL100 technique is used in two cases:
         // - When the driver doesn't support GLSL 1.2
         // - When running on OpenGL ES 2.0
         // Point sprite should be used if running on ES2, but crash
         // if on desktop (because its not supported by HW)
 
-        VertexShader   GLSL100 : Common/MatDefs/Misc/Particle.vert
-        FragmentShader GLSL100 : Common/MatDefs/Misc/Particle.frag
+        VertexShader   GLSL100 GLSL100 GLSL150 : Common/MatDefs/Misc/Particle.vert
+        FragmentShader GLSL100 GLSL120 GLSL150 : Common/MatDefs/Misc/Particle.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -72,53 +48,34 @@ MaterialDef Point Sprite {
 
     Technique PreShadow {
 
-        VertexShader   GLSL100 : Common/MatDefs/Misc/Particle.vert
-        FragmentShader GLSL100 : Common/MatDefs/Misc/Particle.frag
+        VertexShader GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
             WorldViewMatrix
-            WorldMatrix
-            CameraPosition
+            ViewProjectionMatrix
+            ViewMatrix
         }
 
         Defines {
-            USE_TEXTURE : Texture
-            PRE_SHADOW
+            COLOR_MAP : Texture
         }
 
         ForcedRenderState {
+            FaceCull Off
+            DepthTest On
             DepthWrite On
+            PolyOffset 5 3
             ColorWrite Off
         }
+
     }
 
     Technique SoftParticles{
 
-        VertexShader   GLSL100 : Common/MatDefs/Misc/SoftParticle.vert
-        FragmentShader GLSL100 : Common/MatDefs/Misc/SoftParticle.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            WorldViewMatrix
-            WorldMatrix
-            CameraPosition
-        }
-
-        RenderState {
-            Blend AlphaAdditive
-            DepthWrite Off
-        }
-
-        Defines {
-            USE_TEXTURE : Texture
-        }
-    }
-
-    Technique SoftParticles15{
-
-        VertexShader   GLSL100 : Common/MatDefs/Misc/SoftParticle.vert
-        FragmentShader GLSL150 : Common/MatDefs/Misc/SoftParticle15.frag
+        VertexShader  GLSL100 GLSL150 : Common/MatDefs/Misc/SoftParticle.vert
+        FragmentShader GLSL120 GLSL150 : Common/MatDefs/Misc/SoftParticle.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -140,18 +97,10 @@ MaterialDef Point Sprite {
         }
     }
 
-    Technique {
-        RenderState {
-            Blend AlphaAdditive
-            // DepthWrite Off
-            // AlphaTestFalloff 0.01
-        }
-    }
-
    Technique Glow {
 
-        VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
-        FragmentShader GLSL100: Common/MatDefs/Light/Glow.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Light/Glow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

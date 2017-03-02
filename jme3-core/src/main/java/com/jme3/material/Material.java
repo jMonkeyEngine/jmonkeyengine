@@ -704,7 +704,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @throws UnsupportedOperationException If no candidate technique supports
      * the system capabilities.
      */
-    public void selectTechnique(String name, RenderManager renderManager) {
+    public void selectTechnique(String name, final RenderManager renderManager) {
         // check if already created
         Technique tech = techniques.get(name);
         // When choosing technique, we choose one that
@@ -712,21 +712,20 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         if (tech == null) {
             EnumSet<Caps> rendererCaps = renderManager.getRenderer().getCaps();
             List<TechniqueDef> techDefs = def.getTechniqueDefs(name);
-
             if (techDefs == null || techDefs.isEmpty()) {
                 throw new IllegalArgumentException(
                         String.format("The requested technique %s is not available on material %s", name, def.getName()));
             }
 
             TechniqueDef lastTech = null;
+            float weight = 0;
             for (TechniqueDef techDef : techDefs) {
                 if (rendererCaps.containsAll(techDef.getRequiredCaps())) {
-                    // use the first one that supports all the caps
-                    tech = new Technique(this, techDef);
-                    techniques.put(name, tech);
-                    if (tech.getDef().getLightMode() == renderManager.getPreferredLightMode()
-                            || tech.getDef().getLightMode() == LightMode.Disable) {
-                        break;
+                    float techWeight = techDef.getWeight() + (techDef.getLightMode() == renderManager.getPreferredLightMode() ? 10f : 0);
+                    if (techWeight > weight) {
+                        tech = new Technique(this, techDef);
+                        techniques.put(name, tech);
+                        weight = techWeight;
                     }
                 }
                 lastTech = techDef;
@@ -738,6 +737,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                                 + "The capabilities %s are required.",
                                 name, def.getName(), lastTech.getRequiredCaps()));
             }
+            logger.log(Level.FINE, this.getMaterialDef().getName() + " selected technique def " + tech.getDef());
         } else if (technique == tech) {
             // attempting to switch to an already
             // active technique.
@@ -779,7 +779,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     private int updateShaderMaterialParameters(Renderer renderer, Shader shader,
-                 SafeArrayList<MatParamOverride> worldOverrides, SafeArrayList<MatParamOverride> forcedOverrides) {
+                                               SafeArrayList<MatParamOverride> worldOverrides, SafeArrayList<MatParamOverride> forcedOverrides) {
 
         int unit = 0;
         if (worldOverrides != null) {

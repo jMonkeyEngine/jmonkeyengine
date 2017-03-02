@@ -1,4 +1,7 @@
 **/nbproject/private/
+**/.classpath
+**/.settings
+**/.project
 /.gradle/
 /.nb-gradle/
 /.idea/
@@ -35,3 +38,8 @@
 !/jme3-bullet-native/libs/native/osx/x86_64/libbulletjme.dylib
 !/jme3-bullet-native/libs/native/linux/x86/libbulletjme.so
 !/jme3-bullet-native/libs/native/linux/x86_64/libbulletjme.so
+!/jme3-vr/src/main/resources/**/*.dylib
+!/jme3-vr/src/main/resources/**/*.so
+!/jme3-vr/src/main/resources/**/*.so.dbg
+!/jme3-vr/src/main/resources/**/*.dll
+!/jme3-vr/src/main/resources/**/*.pdb

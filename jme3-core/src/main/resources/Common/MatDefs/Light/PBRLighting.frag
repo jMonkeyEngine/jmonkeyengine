@@ -1,5 +1,5 @@
-#import "Common/ShaderLib/PBR.glsllib"
 #import "Common/ShaderLib/GLSLCompat.glsllib"
+#import "Common/ShaderLib/PBR.glsllib"
 #import "Common/ShaderLib/Parallax.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
 
@@ -148,18 +148,6 @@ void main(){
       vec3 normal = normalize(wNormal);            
     #endif
 
-   
-    #ifdef LIGHTMAP
-       vec3 lightMapColor;
-       #ifdef SEPARATE_TEXCOORD
-          lightMapColor = texture2D(m_LightMap, texCoord2).rgb;
-       #else
-          lightMapColor = texture2D(m_LightMap, texCoord).rgb;
-       #endif
-       specularColor.rgb *= lightMapColor;
-       albedo.rgb  *= lightMapColor;
-    #endif
-
     float specular = 0.5;
     #ifdef SPECGLOSSPIPELINE
           vec4 specularColor = texture2D(m_SpecularMap, newTexCoord);
@@ -169,6 +157,17 @@ void main(){
         float nonMetalSpec = 0.08 * specular;
         vec4 specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
         vec4 diffuseColor = albedo - albedo * Metallic;
+    #endif
+
+    #ifdef LIGHTMAP
+       vec3 lightMapColor;
+       #ifdef SEPARATE_TEXCOORD
+          lightMapColor = texture2D(m_LightMap, texCoord2).rgb;
+       #else
+          lightMapColor = texture2D(m_LightMap, texCoord).rgb;
+       #endif
+       specularColor.rgb *= lightMapColor;
+       albedo.rgb  *= lightMapColor;
     #endif
 
     gl_FragColor.rgb = vec3(0.0);

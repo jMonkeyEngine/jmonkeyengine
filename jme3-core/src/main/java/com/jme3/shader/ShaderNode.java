@@ -54,7 +54,7 @@ import java.util.List;
  *
  * @author Nehon
  */
-public class ShaderNode implements Savable {
+public class ShaderNode implements Savable, Cloneable {
 
     private String name;
     private ShaderNodeDefinition definition;
@@ -211,5 +211,25 @@ public class ShaderNode implements Savable {
     @Override
     public String toString() {
         return "\nShaderNode{" + "\nname=" + name + ", \ndefinition=" + definition.getName() + ", \ncondition=" + condition + ", \ninputMapping=" + inputMapping + ", \noutputMapping=" + outputMapping + '}';
+    }
+
+    @Override
+    public ShaderNode clone() throws CloneNotSupportedException {
+        ShaderNode clone = (ShaderNode) super.clone();
+
+        //No need to clone the definition.
+        clone.definition = definition;
+
+        clone.inputMapping = new ArrayList<>();
+        for (VariableMapping variableMapping : inputMapping) {
+            clone.inputMapping.add((VariableMapping) variableMapping.clone());
+        }
+
+        clone.outputMapping = new ArrayList<>();
+        for (VariableMapping variableMapping : outputMapping) {
+            clone.outputMapping.add((VariableMapping) variableMapping.clone());
+        }
+
+        return clone;
     }
 }
