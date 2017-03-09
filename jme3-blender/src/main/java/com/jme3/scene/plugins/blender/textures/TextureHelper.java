@@ -42,6 +42,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.BlenderKey;
@@ -486,7 +487,7 @@ public class TextureHelper extends AbstractBlenderHelper {
                 key.setGenerateMips(generateMipmaps);
                 result = assetManager.loadTexture(key);
                 result.setKey(key);
-            } catch (AssetNotFoundException e) {
+            } catch (AssetNotFoundException | AssetLoadException e) {
                 LOGGER.fine(e.getLocalizedMessage());
             }
         } else {
@@ -522,7 +523,7 @@ public class TextureHelper extends AbstractBlenderHelper {
                         // If texture is found return it;
                         return result;
                     }
-                } catch (AssetNotFoundException e) {
+                } catch (AssetNotFoundException | AssetLoadException e) {
                     LOGGER.fine(e.getLocalizedMessage());
                 }
             }
@@ -532,7 +533,7 @@ public class TextureHelper extends AbstractBlenderHelper {
             try {
                 TextureKey key = new TextureKey(name);
                 assetManager.loadTexture(key);
-            } catch (AssetNotFoundException e) {
+            } catch (AssetNotFoundException | AssetLoadException e) {
                 LOGGER.fine(e.getLocalizedMessage());
             }
         }
