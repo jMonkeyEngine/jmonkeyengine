@@ -982,7 +982,7 @@ public final class AppSettings extends HashMap<String, Object> {
      * size window.
      */
     public void setResizable(boolean resizable) {
-        putBoolean("Resizable", true);
+        putBoolean("Resizable", resizable);
     }
     
     /**
