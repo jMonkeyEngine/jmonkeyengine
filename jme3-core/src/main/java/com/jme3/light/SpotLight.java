@@ -102,7 +102,7 @@ public class SpotLight extends Light {
         this();
         setPosition(position);
         setDirection(direction);
-        this.spotRange = range;
+        setSpotRange(range);
     }
 
     /**
@@ -133,7 +133,7 @@ public class SpotLight extends Light {
         computeAngleParameters();
         setPosition(position);
         setDirection(direction);
-        this.spotRange = range;
+        setSpotRange(range);
     }
     
     /**
@@ -158,7 +158,7 @@ public class SpotLight extends Light {
         computeAngleParameters();
         setPosition(position);
         setDirection(direction);
-        this.spotRange = range;
+        setSpotRange(range);
     }  
     
 

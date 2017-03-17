@@ -1101,9 +1101,12 @@ public class ParticleEmitter extends Geometry {
 
         lastPos.set(getWorldTranslation());
 
-        BoundingBox bbox = (BoundingBox) this.getMesh().getBound();
-        bbox.setMinMax(min, max);
-        this.setBoundRefresh();
+        //This check avoids a NaN bounds when all the particles are dead during the first update.
+        if (!min.equals(Vector3f.POSITIVE_INFINITY) && !max.equals(Vector3f.NEGATIVE_INFINITY)) {
+            BoundingBox bbox = (BoundingBox) this.getMesh().getBound();
+            bbox.setMinMax(min, max);
+            this.setBoundRefresh();
+        }
 
         vars.release();
     }

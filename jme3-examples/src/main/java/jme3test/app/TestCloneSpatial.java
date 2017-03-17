@@ -35,6 +35,8 @@ package jme3test.app;
 import java.lang.reflect.*;
 import java.util.*;
 
+import com.jme3.asset.*;
+import com.jme3.font.*;
 import com.jme3.light.*;
 import com.jme3.material.*;
 import com.jme3.math.*;
@@ -97,6 +99,19 @@ public class TestCloneSpatial {
         System.out.println("-------- cloning spatial without cloning material --------------");
         clone = root.clone(false);
         dump("", clone);
+        
+        System.out.println("-------- cloning BitmapText ------------");
+        DesktopAssetManager assets = new DesktopAssetManager(true);
+        BitmapFont font = assets.loadFont("Interface/Fonts/Console.fnt");
+        BitmapText text1 = new BitmapText(font);
+        text1.setText("Testing");
+        System.out.println("Original:");
+        dump("", text1);
+ 
+        System.out.println("Clone:");       
+        clone = text1.clone();
+        dump("", clone);
+        
     }
 
 

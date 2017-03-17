@@ -40,7 +40,7 @@ public enum EdgeFilteringMode {
      * Shadows are not filtered. Nearest sample is used, causing in blocky
      * shadows.
      */
-    Nearest(0),
+    Nearest(10),
     /**
      * Bilinear filtering is used. Has the potential of being hardware
      * accelerated on some GPUs

@@ -7,9 +7,9 @@ package com.jme3.util.mikktspace;
 
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
+import com.jme3.scene.*;
+import com.jme3.util.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -84,6 +84,7 @@ public class MikktspaceTangentGenerator {
             if(!genTangSpaceDefault(context)){
                 Logger.getLogger(MikktspaceTangentGenerator.class.getName()).log(Level.SEVERE, "Failed to generate tangents for geometry " + g.getName());
             }
+            TangentUtils.generateBindPoseTangentsIfNecessary(g.getMesh());
         }
     }
     
@@ -511,7 +512,7 @@ public class MikktspaceTangentGenerator {
         }
     }
 
-    //TODO Nehon : Not used...seemsit's used in the original version if the structure to store the data in the regular method failed...
+    //TODO Nehon : Not used...seems it's used in the original version if the structure to store the data in the regular method failed...
     static void generateSharedVerticesIndexListSlow(int piTriList_in_and_out[], final MikkTSpaceContext mikkTSpace, final int iNrTrianglesIn) {
         int iNumUniqueVerts = 0;
         for (int t = 0; t < iNrTrianglesIn; t++) {

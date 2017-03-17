@@ -59,8 +59,6 @@ MaterialDef Post Shadow {
             FADE : FadeInfo
             PSSM : Splits
             POINTLIGHT : LightViewProjectionMatrix5
-            //if no shadow map don't render shadows
-            RENDER_SHADOWS : ShadowMap0
             BACKFACE_SHADOWS : BackfaceShadows
         }
       

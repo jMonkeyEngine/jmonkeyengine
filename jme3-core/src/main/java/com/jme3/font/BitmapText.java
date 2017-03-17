@@ -50,7 +50,7 @@ public class BitmapText extends Node {
     private BitmapFont font;
     private StringBlock block;
     private boolean needRefresh = true;
-    private final BitmapTextPage[] textPages;
+    private BitmapTextPage[] textPages;
     private Letters letters;
 
     public BitmapText(BitmapFont font) {
@@ -76,13 +76,7 @@ public class BitmapText extends Node {
 
     @Override
     public BitmapText clone() {
-        BitmapText clone = (BitmapText) super.clone();
-        for (int i = 0; i < textPages.length; i++) {
-            clone.textPages[i] = textPages[i].clone();
-        }
-        clone.block = block.clone();
-        clone.needRefresh = true;
-        return clone;
+        return (BitmapText)super.clone(false);
     }
 
     /**
@@ -92,10 +86,16 @@ public class BitmapText extends Node {
     public void cloneFields( Cloner cloner, Object original ) {
         super.cloneFields(cloner, original);
 
+        textPages = textPages.clone();
         for( int i = 0; i < textPages.length; i++ ) {
             textPages[i] = cloner.clone(textPages[i]);
         }
-        this.block = cloner.clone(block);
+        
+        // Cannot use the cloner to clone the StringBlock because it
+        // is package private... so we'll forgo the (probably unnecessary)
+        // reference fixup in this case and just clone it directly.
+        //this.block = cloner.clone(block);
+        this.block = block != null ? block.clone() : null;
 
         // Change in behavior: The 'letters' field was not cloned or recreated
         // before.  I'm not sure how this worked and suspect BitmapText was just

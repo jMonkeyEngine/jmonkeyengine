@@ -1672,16 +1672,15 @@ public final class GLRenderer implements Renderer {
                                 + " by the video hardware!");
                     }
 
-                    if (context.boundDrawBuf != MRT_OFF + fb.getNumColorBuffers()) {
-                        intBuf16.clear();
-                        for (int i = 0; i < fb.getNumColorBuffers(); i++) {
-                            intBuf16.put(GLFbo.GL_COLOR_ATTACHMENT0_EXT + i);
-                        }
-
-                        intBuf16.flip();
-                        glext.glDrawBuffers(intBuf16);
-                        context.boundDrawBuf = MRT_OFF + fb.getNumColorBuffers();
+                    intBuf16.clear();
+                    for (int i = 0; i < fb.getNumColorBuffers(); i++) {
+                        intBuf16.put(GLFbo.GL_COLOR_ATTACHMENT0_EXT + i);
                     }
+
+                    intBuf16.flip();
+                    glext.glDrawBuffers(intBuf16);
+                    context.boundDrawBuf = MRT_OFF + fb.getNumColorBuffers();
+                    
                 } else {
                     RenderBuffer rb = fb.getColorBuffer(fb.getTargetIndex());
                     // select this draw buffer

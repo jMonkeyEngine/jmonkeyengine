@@ -151,6 +151,7 @@ varying vec3 lightVec;
 
   vec4 calculateDiffuseBlend(in vec2 texCoord) {
     vec4 alphaBlend   = texture2D( m_AlphaMap, texCoord.xy );
+    vec4 diffuseColor = vec4(1.0);
     
     #ifdef ALPHAMAP_1
       vec4 alphaBlend1   = texture2D( m_AlphaMap_1, texCoord.xy );
@@ -158,9 +159,10 @@ varying vec3 lightVec;
     #ifdef ALPHAMAP_2
       vec4 alphaBlend2   = texture2D( m_AlphaMap_2, texCoord.xy );
     #endif
-
-    vec4 diffuseColor = texture2D(m_DiffuseMap, texCoord * m_DiffuseMap_0_scale);
-    diffuseColor *= alphaBlend.r;
+    #ifdef DIFFUSEMAP
+        diffuseColor = texture2D(m_DiffuseMap, texCoord * m_DiffuseMap_0_scale);
+        diffuseColor *= alphaBlend.r;
+    #endif
     #ifdef DIFFUSEMAP_1
         vec4 diffuseColor1 = texture2D(m_DiffuseMap_1, texCoord * m_DiffuseMap_1_scale);
         diffuseColor = mix( diffuseColor, diffuseColor1, alphaBlend.g );

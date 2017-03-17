@@ -994,8 +994,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     @Override
     public String toString() {
         return "Material[name=" + name + 
-                ", def=" + def.getName() + 
-                ", tech=" + technique.getDef().getName() + 
+                ", def=" + (def != null ? def.getName() : null) + 
+                ", tech=" + (technique != null && technique.getDef() != null ? technique.getDef().getName() : null) + 
                 "]";
     }
 
