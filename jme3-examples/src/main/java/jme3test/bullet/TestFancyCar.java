@@ -31,7 +31,6 @@
  */
 package jme3test.bullet;
 
-import com.jme3.app.SettingsDialog;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.BulletAppState;
@@ -52,7 +51,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.shadow.BasicShadowRenderer;
-import com.jme3.system.AppSettings;
 
 public class TestFancyCar extends SimpleApplication implements ActionListener {
 
