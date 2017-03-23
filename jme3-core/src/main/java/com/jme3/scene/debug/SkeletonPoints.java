@@ -84,7 +84,6 @@ public class SkeletonPoints extends Mesh {
         pb.setupData(Usage.Stream, 3, Format.Float, fpb);
         this.setBuffer(pb);
 
-        this.setPointSize(7);
         this.updateCounts();
 
     }
