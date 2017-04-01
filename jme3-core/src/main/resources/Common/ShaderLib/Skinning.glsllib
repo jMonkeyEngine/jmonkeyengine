@@ -46,7 +46,7 @@ void Skinning_Compute(inout vec4 position, inout vec3 normal){
     }
 }
  
-void Skinning_Compute(inout vec4 position, , inout vec3 normal, inout vec3 tangent){
+void Skinning_Compute(inout vec4 position, inout vec3 normal, inout vec3 tangent){
     if (inHWBoneWeight.x != 0.0) {
 #if NUM_WEIGHTS_PER_VERT == 1
         position = m_BoneMatrices[int(inHWBoneIndex.x)] * position;
