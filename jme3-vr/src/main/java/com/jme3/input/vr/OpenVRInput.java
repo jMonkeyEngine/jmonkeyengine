@@ -411,7 +411,7 @@ public class OpenVRInput implements VRInputAPI {
     	if (environment != null){
     		controllerCount = 0;
         	for(int i=0;i<JOpenVRLibrary.k_unMaxTrackedDeviceCount;i++) {
-        		if( ((OpenVR)environment.getVRHardware()).getVRSystem().GetTrackedDeviceClass.apply(i) == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_Controller ) {
+        		if( ((OpenVR)environment.getVRHardware()).getVRSystem().GetTrackedDeviceClass.apply(i) == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_Controller || ((OpenVR)environment.getVRHardware()).getVRSystem().GetTrackedDeviceClass.apply(i) == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_GenericTracker) {
         			
         			String controllerName   = "Unknown";
     				String manufacturerName = "Unknown";
