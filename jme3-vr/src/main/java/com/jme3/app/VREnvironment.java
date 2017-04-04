@@ -73,7 +73,7 @@ public class VREnvironment {
     	
         guiManager   = new VRGuiManager(this);
         mouseManager = new VRMouseManager(this);
-        dummyCam = new Camera();
+        dummyCam = new Camera(settings.getWidth(), settings.getHeight());
         
         processSettings();
     }
@@ -347,7 +347,7 @@ public class VREnvironment {
     			if (application.getCamera() != null){
     				dummyCam = application.getCamera().clone();
     			} else {
-    				return new Camera();
+    				return new Camera(settings.getWidth(), settings.getHeight());
     			}
     		} else {
     			throw new IllegalStateException("VR environment is not attached to any application.");
