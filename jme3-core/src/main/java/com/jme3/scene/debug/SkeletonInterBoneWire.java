@@ -73,7 +73,6 @@ public class SkeletonInterBoneWire extends Mesh {
         }
 
         this.setMode(Mode.Points);
-        this.setPointSize(1);
         this.boneLengths = boneLengths;
 
         VertexBuffer pb = new VertexBuffer(Type.Position);

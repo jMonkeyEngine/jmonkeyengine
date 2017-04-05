@@ -5,6 +5,7 @@ MaterialDef Unshaded {
         Texture2D LightMap
         Color Color (Color)
         Boolean VertexColor (UseVertexColor)
+        Float PointSize : 1.0
         Boolean SeparateTexCoord
 
         // Texture of the glowing parts of the material
@@ -71,6 +72,7 @@ MaterialDef Unshaded {
             HAS_COLORMAP : ColorMap
             HAS_LIGHTMAP : LightMap
             HAS_VERTEXCOLOR : VertexColor
+            HAS_POINTSIZE : PointSize
             HAS_COLOR : Color
             NUM_BONES : NumberOfBones
             DISCARD_ALPHA : AlphaDiscardThreshold
@@ -176,6 +178,7 @@ MaterialDef Unshaded {
             HAS_GLOWCOLOR : GlowColor
             NUM_BONES : NumberOfBones
 	    INSTANCING : UseInstancing
+            HAS_POINTSIZE : PointSize
         }
     }
 }
