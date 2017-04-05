@@ -16,7 +16,9 @@ varying vec2 texCoord1;
 varying vec2 texCoord2;
 
 varying vec4 vertColor;
-uniform float m_PointSize;
+#ifdef HAS_POINTSIZE
+    uniform float m_PointSize;
+#endif
 
 void main(){
     #ifdef NEED_TEXCOORD1
