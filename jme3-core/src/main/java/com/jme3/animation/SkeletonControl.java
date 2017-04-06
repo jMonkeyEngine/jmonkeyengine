@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2017 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,6 @@ import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -71,10 +70,12 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      * The skeleton of the model.
      */
     private Skeleton skeleton;
+
     /**
-     * List of targets which this controller effects.
+     * List of geometries affected by this control.
      */
-    private SafeArrayList<Mesh> targets = new SafeArrayList<Mesh>(Mesh.class);
+    private SafeArrayList<Geometry> targets = new SafeArrayList<Geometry>(Geometry.class);
+
     /**
      * Used to track when a mesh was updated. Meshes are only updated if they
      * are visible in at least one camera.
@@ -124,8 +125,9 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         for (Material m : materials) {
             m.setInt("NumberOfBones", numBones);
         }
-        for (Mesh mesh : targets) {
-            if (mesh.isAnimated()) {
+        for (Geometry geometry : targets) {
+            Mesh mesh = geometry.getMesh();
+            if (mesh != null && mesh.isAnimated()) {
                 mesh.prepareForAnim(false);
             }
         }
@@ -137,8 +139,9 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
                 m.clearParam("NumberOfBones");
             }
         }
-        for (Mesh mesh : targets) {
-            if (mesh.isAnimated()) {
+        for (Geometry geometry : targets) {
+            Mesh mesh = geometry.getMesh();
+            if (mesh != null && mesh.isAnimated()) {
                 mesh.prepareForAnim(true);
             }
         }
@@ -210,15 +213,22 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         this.skeleton = skeleton;
     }
 
+    /**
+     * If specified the geometry has an animated mesh, add its mesh and material
+     * to the lists of animation targets.
+     */
+    private void findTargets(Geometry geometry) {
+        Mesh mesh = geometry.getMesh();
+        if (mesh != null && mesh.isAnimated()) {
+            targets.add(geometry);
+            materials.add(geometry.getMaterial());
+        }
+    }
+
     private void findTargets(Node node) {
         for (Spatial child : node.getChildren()) {
             if (child instanceof Geometry) {
-                Geometry geom = (Geometry) child;
-                Mesh mesh = geom.getMesh();
-                if (mesh.isAnimated()) {
-                    targets.add(mesh);
-                    materials.add(geom.getMaterial());
-                }
+                findTargets((Geometry) child);
             } else if (child instanceof Node) {
                 findTargets((Node) child);
             }
@@ -236,10 +246,11 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
         offsetMatrices = skeleton.computeSkinningMatrices();
 
-        for (Mesh mesh : targets) {
-            // NOTE: This assumes that code higher up
-            // Already ensured those targets are animated
-            // otherwise a crash will happen in skin update
+        for (Geometry geometry : targets) {
+            Mesh mesh = geometry.getMesh();
+            // NOTE: This assumes code higher up has
+            // already ensured this mesh is animated.
+            // Otherwise a crash will happen in skin update.
             softwareSkinUpdate(mesh, offsetMatrices);
         }     
     }
@@ -313,8 +324,9 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
     //only do this for software updates
     void resetToBind() {
-        for (Mesh mesh : targets) {
-            if (mesh.isAnimated()) {
+        for (Geometry geometry : targets) {
+            Mesh mesh = geometry.getMesh();
+            if (mesh != null && mesh.isAnimated()) {
                 Buffer bwBuff = mesh.getBuffer(Type.BoneWeight).getData();
                 Buffer biBuff = mesh.getBuffer(Type.BoneIndex).getData();
                 if (!biBuff.hasArray() || !bwBuff.hasArray()) {
@@ -432,9 +444,13 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     }
          
     /**
+     * Access the attachments node of the named bone. If the bone doesn't
+     * already have an attachments node, create one and attach it to the scene
+     * graph. Models and effects attached to the attachments node will follow
+     * the bone's motions.
      *
      * @param boneName the name of the bone
-     * @return the node attached to this bone
+     * @return the attachments node of the bone
      */
     public Node getAttachmentsNode(String boneName) {
         Bone b = skeleton.getBone(boneName);
@@ -443,9 +459,20 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
                     + "in the skeleton.");
         }
 
-        Node n = b.getAttachmentsNode();
-        Node model = (Node) spatial;
-        model.attachChild(n);
+        updateTargetsAndMaterials(spatial);
+        int boneIndex = skeleton.getBoneIndex(b);
+        Node n = b.getAttachmentsNode(boneIndex, targets);
+        /*
+         * Select a node to parent the attachments node.
+         */
+        Node parent;
+        if (spatial instanceof Node) {
+            parent = (Node) spatial; // the usual case
+        } else {
+            parent = spatial.getParent();
+        }
+        parent.attachChild(n);
+
         return n;
     }
 
@@ -459,12 +486,20 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     }
 
     /**
-     * returns a copy of array of the targets meshes of this control
+     * Enumerate the target meshes of this control.
      *
-     * @return
+     * @return a new array
      */
-    public Mesh[] getTargets() {        
-        return targets.toArray(new Mesh[targets.size()]);
+    public Mesh[] getTargets() {
+        Mesh[] result = new Mesh[targets.size()];
+        int i = 0;
+        for (Geometry geometry : targets) {
+            Mesh mesh = geometry.getMesh();
+            result[i] = mesh;
+            i++;
+        }
+
+        return result;
     }
 
     /**
@@ -758,12 +793,19 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         skeleton = (Skeleton) in.readSavable("skeleton", null);
     }
 
+    /**
+     * Update the lists of animation targets.
+     *
+     * @param spatial the controlled spatial
+     */
     private void updateTargetsAndMaterials(Spatial spatial) {
         targets.clear();
-        materials.clear();           
-        if (spatial != null && spatial instanceof Node) {
-            Node node = (Node) spatial;                        
-            findTargets(node);
+        materials.clear();
+
+        if (spatial instanceof Node) {
+            findTargets((Node) spatial);
+        } else if (spatial instanceof Geometry) {
+            findTargets((Geometry) spatial);
         }
     }
 }
