@@ -34,8 +34,10 @@ package com.jme3.animation;
 import com.jme3.export.*;
 import com.jme3.math.*;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.JmeCloneable;
 import com.jme3.util.clone.Cloner;
@@ -701,16 +703,27 @@ public final class Bone implements Savable, JmeCloneable {
      * have an attachments node, create one. Models and effects attached to the
      * attachments node will follow this bone's motions.
      *
-     * @param target a geometry animated by this bone, or null to indicate that
-     * all geometries affected by this bone have the same global transform as
-     * the attachment node's parent
+     * @param boneIndex this bone's index in its skeleton (&ge;0)
+     * @param targets a list of geometries animated by this bone's skeleton (not
+     * null, unaffected)
      */
-    Node getAttachmentsNode(Geometry target) {
+    Node getAttachmentsNode(int boneIndex, SafeArrayList<Geometry> targets) {
+        targetGeometry = null;
+        /*
+         * Search for a geometry animated by this particular bone.
+         */
+        for (Geometry geometry : targets) {
+            Mesh mesh = geometry.getMesh();
+            if (mesh != null && mesh.isAnimatedByBone(boneIndex)) {
+                targetGeometry = geometry;
+                break;
+            }
+        }
+
         if (attachNode == null) {
             attachNode = new Node(name + "_attachnode");
             attachNode.setUserData("AttachedBone", this);
         }
-        targetGeometry = target;
 
         return attachNode;
     }
