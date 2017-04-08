@@ -203,9 +203,10 @@ public class DDSLoader implements AssetLoader {
         texture3D = false;
 
         if (!directx10) {
-//            if (!is(caps1, DDSCAPS_TEXTURE)) {
+            if (!is(caps1, DDSCAPS_TEXTURE)) {
+				logger.warning("Texture is missing the DDSCAPS_TEXTURE-flag");
 //                throw new IOException("File is not a texture");
-//            }
+            }
 
             if (depth <= 0) {
                 depth = 1;
