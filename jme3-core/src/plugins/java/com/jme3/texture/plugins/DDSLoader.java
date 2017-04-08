@@ -203,9 +203,9 @@ public class DDSLoader implements AssetLoader {
         texture3D = false;
 
         if (!directx10) {
-            if (!is(caps1, DDSCAPS_TEXTURE)) {
-                throw new IOException("File is not a texture");
-            }
+//            if (!is(caps1, DDSCAPS_TEXTURE)) {
+//                throw new IOException("File is not a texture");
+//            }
 
             if (depth <= 0) {
                 depth = 1;
