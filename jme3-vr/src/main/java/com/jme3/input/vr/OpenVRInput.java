@@ -411,7 +411,8 @@ public class OpenVRInput implements VRInputAPI {
     	if (environment != null){
     		controllerCount = 0;
         	for(int i=0;i<JOpenVRLibrary.k_unMaxTrackedDeviceCount;i++) {
-        		if( ((OpenVR)environment.getVRHardware()).getVRSystem().GetTrackedDeviceClass.apply(i) == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_Controller || ((OpenVR)environment.getVRHardware()).getVRSystem().GetTrackedDeviceClass.apply(i) == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_GenericTracker) {
+                    int classCallback = ((OpenVR)environment.getVRHardware()).getVRSystem().GetTrackedDeviceClass.apply(i);
+        		if( classCallback == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_Controller || classCallback == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_GenericTracker) {
         			
         			String controllerName   = "Unknown";
     				String manufacturerName = "Unknown";
@@ -444,7 +445,7 @@ public class OpenVRInput implements VRInputAPI {
     	if (environment != null){
         	for(int i=0;i<controllerCount;i++) {
         		int index = controllerIndex[i];
-        		((OpenVR)environment.getVRHardware()).getVRSystem().GetControllerState.apply(index, cStates[index], 5);
+        		((OpenVR)environment.getVRHardware()).getVRSystem().GetControllerState.apply(index, cStates[index], 64);
         		cStates[index].readField("ulButtonPressed");
         		cStates[index].readField("rAxis");
         		needsNewVelocity[index] = true;
