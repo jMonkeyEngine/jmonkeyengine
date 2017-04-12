@@ -334,7 +334,7 @@ public class InstancedGeometry extends Geometry {
 
     @Override
     protected void updateWorldBound() {
-        refreshFlagAnd(~RF_BOUND);
+        refreshFlags &= ~RF_BOUND;
         BoundingVolume resultBound = null;
 
         for (int i = 0; i < firstUnusedIndex; i++) {
