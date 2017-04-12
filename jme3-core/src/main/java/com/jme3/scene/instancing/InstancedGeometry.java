@@ -31,6 +31,7 @@
  */
 package com.jme3.scene.instancing;
 
+import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -309,6 +310,7 @@ public class InstancedGeometry extends Geometry {
         } else {
             // Deleting element in the middle
         }
+        setBoundRefresh();
     }
 
     public void addInstance(Geometry geometry) {
@@ -327,6 +329,31 @@ public class InstancedGeometry extends Geometry {
 
         geometries[freeIndex] = geometry;
         InstancedNode.setGeometryStartIndex2(geometry, freeIndex);
+        setBoundRefresh();
+    }
+
+    @Override
+    protected void updateWorldBound() {
+        refreshFlagAnd(~RF_BOUND);
+        BoundingVolume resultBound = null;
+
+        for (int i = 0; i < firstUnusedIndex; i++) {
+            Geometry geom = geometries[i];
+
+            if (geom != null) {
+                if (resultBound != null) {
+                    // merge current world bound with child world bound
+                    resultBound.mergeLocal(geom.getWorldBound());
+                } else {
+                    // set world bound to first non-null child world bound
+                    if (geom.getWorldBound() != null) {
+                        resultBound = geom.getWorldBound().clone(this.worldBound);
+                    }
+                }
+            }
+        }
+
+        this.worldBound = resultBound;
     }
 
     public Geometry[] getGeometries() {
