@@ -46,14 +46,14 @@ public class OpenVR implements VRAPI {
     private static boolean initSuccess = false;
     private static boolean flipEyes    = false;
     
-    private IntBuffer hmdDisplayFrequency;
-    private TrackedDevicePose_t.ByReference hmdTrackedDevicePoseReference;
-    protected TrackedDevicePose_t[] hmdTrackedDevicePoses;
+    private static IntBuffer hmdDisplayFrequency;
+    private static TrackedDevicePose_t.ByReference hmdTrackedDevicePoseReference;
+    protected static TrackedDevicePose_t[] hmdTrackedDevicePoses;
     
-    protected IntByReference hmdErrorStore;
+    protected static IntByReference hmdErrorStore;
     
-    private final Quaternion rotStore = new Quaternion();
-    private final Vector3f posStore = new Vector3f();
+    private static final Quaternion rotStore = new Quaternion();
+    private static final Vector3f posStore = new Vector3f();
     
     private static FloatByReference tlastVsync;
     
@@ -65,21 +65,20 @@ public class OpenVR implements VRAPI {
     // for debugging latency
     private int frames = 0;    
     
-    protected Matrix4f[] poseMatrices;
+    protected static Matrix4f[] poseMatrices;
     
-    private final Matrix4f hmdPose = Matrix4f.IDENTITY.clone();
-    private Matrix4f hmdProjectionLeftEye;
-    private Matrix4f hmdProjectionRightEye;
-    private Matrix4f hmdPoseLeftEye;
-    private Matrix4f hmdPoseRightEye;
+    private static final Matrix4f hmdPose = Matrix4f.IDENTITY.clone();
+    private static Matrix4f hmdProjectionLeftEye;
+    private static Matrix4f hmdProjectionRightEye;
+    private static Matrix4f hmdPoseLeftEye;
+    private static Matrix4f hmdPoseRightEye;
     
-    private Vector3f hmdPoseLeftEyeVec, hmdPoseRightEyeVec, hmdSeatToStand;
+    private static Vector3f hmdPoseLeftEyeVec, hmdPoseRightEyeVec, hmdSeatToStand;
     
-    private float vsyncToPhotons;
-    private double timePerFrame, frameCountRun;
-    private long frameCount;
-    private OpenVRInput VRinput;
-    
+    private static float vsyncToPhotons;
+    private static double timePerFrame, frameCountRun;
+    private static long frameCount;
+    private static OpenVRInput VRinput;
     
     private VREnvironment environment = null;
     
@@ -182,7 +181,7 @@ public class OpenVR implements VRAPI {
             VRinput.updateConnectedControllers();
             
             // init bounds & chaperone info
-            environment.getVRBounds().init(this);
+            VRBounds.init();
             
             logger.config("Initializing OpenVR system [SUCCESS]");
             initSuccess = true;
