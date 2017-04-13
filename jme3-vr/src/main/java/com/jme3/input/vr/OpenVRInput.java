@@ -5,7 +5,6 @@
  */
 package com.jme3.input.vr;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -184,50 +183,28 @@ public class OpenVRInput implements VRInputAPI {
     
     @Override
     public Vector3f getVelocity(int controllerIndex) {
-    	
-    	if (environment != null){
-    		
-    		if (environment.getVRHardware() instanceof OpenVR){
-                int index = OpenVRInput.controllerIndex[controllerIndex];
-                if( needsNewVelocity[index] ) {
-                    ((OpenVR)environment.getVRHardware()).hmdTrackedDevicePoses[index].readField("vVelocity");
-                    needsNewVelocity[index] = false;
-                }
-                tempVel.x = ((OpenVR)environment.getVRHardware()).hmdTrackedDevicePoses[index].vVelocity.v[0];
-                tempVel.y = ((OpenVR)environment.getVRHardware()).hmdTrackedDevicePoses[index].vVelocity.v[1];
-                tempVel.z = ((OpenVR)environment.getVRHardware()).hmdTrackedDevicePoses[index].vVelocity.v[2];
-                return tempVel;
-    		} else {
-        		throw new IllegalStateException("VR hardware "+environment.getVRHardware().getClass().getSimpleName()+" is not a subclass of "+OpenVR.class.getSimpleName());
-        	}
-    	} else {
-    		throw new IllegalStateException("VR input is not attached to a VR environment.");
-    	}
+        int index = OpenVRInput.controllerIndex[controllerIndex];
+        if( needsNewVelocity[index] ) {
+            OpenVR.hmdTrackedDevicePoses[index].readField("vVelocity");
+            needsNewVelocity[index] = false;
+        }
+        tempVel.x = OpenVR.hmdTrackedDevicePoses[index].vVelocity.v[0];
+        tempVel.y = OpenVR.hmdTrackedDevicePoses[index].vVelocity.v[1];
+        tempVel.z = OpenVR.hmdTrackedDevicePoses[index].vVelocity.v[2];
+        return tempVel;
     }
     
     @Override
     public Vector3f getAngularVelocity(int controllerIndex) {
-    	
-    	if (environment != null){
-    		
-    		if (environment.getVRHardware() instanceof OpenVR){
-    	    	
-    	        int index = OpenVRInput.controllerIndex[controllerIndex];
-    	        if( needsNewAngVelocity[index] ) {
-    	        	((OpenVR)environment.getVRHardware()).hmdTrackedDevicePoses[index].readField("vAngularVelocity");
-    	            needsNewAngVelocity[index] = false;
-    	        }
-    	        tempVel.x = ((OpenVR)environment.getVRHardware()).hmdTrackedDevicePoses[index].vAngularVelocity.v[0];
-    	        tempVel.y = ((OpenVR)environment.getVRHardware()).hmdTrackedDevicePoses[index].vAngularVelocity.v[1];
-    	        tempVel.z = ((OpenVR)environment.getVRHardware()).hmdTrackedDevicePoses[index].vAngularVelocity.v[2];
-    	        return tempVel;
-    		} else {
-        		throw new IllegalStateException("VR hardware "+environment.getVRHardware().getClass().getSimpleName()+" is not a subclass of "+OpenVR.class.getSimpleName());
-        	}
-    	} else {
-    		throw new IllegalStateException("VR input is not attached to a VR environment.");
-    	}
-
+        int index = OpenVRInput.controllerIndex[controllerIndex];
+        if( needsNewAngVelocity[index] ) {
+            OpenVR.hmdTrackedDevicePoses[index].readField("vAngularVelocity");
+            needsNewAngVelocity[index] = false;
+        }
+        tempVel.x = OpenVR.hmdTrackedDevicePoses[index].vAngularVelocity.v[0];
+        tempVel.y = OpenVR.hmdTrackedDevicePoses[index].vAngularVelocity.v[1];
+        tempVel.z = OpenVR.hmdTrackedDevicePoses[index].vAngularVelocity.v[2];
+        return tempVel;
     }
     
     @Override
@@ -332,16 +309,7 @@ public class OpenVRInput implements VRInputAPI {
         	return false;
         }
         
-    	if (environment != null){
-    		
-    		if (environment.getVRHardware() instanceof OpenVR){
-    			 return ((OpenVR)environment.getVRHardware()).hmdTrackedDevicePoses[controllerIndex[index]].bPoseIsValid != 0;
-    		} else {
-        		throw new IllegalStateException("VR hardware "+environment.getVRHardware().getClass().getSimpleName()+" is not a subclass of "+OpenVR.class.getSimpleName());
-        	}
-    	} else {
-    		throw new IllegalStateException("VR input is not attached to a VR environment.");
-    	}
+        return OpenVR.hmdTrackedDevicePoses[controllerIndex[index]].bPoseIsValid != 0;
     }
     
     @Override
@@ -349,19 +317,9 @@ public class OpenVRInput implements VRInputAPI {
         if( isInputDeviceTracking(index) == false ){
         	return null;
         }
-        
-        if (environment != null){
-    		
-    		if (environment.getVRHardware() instanceof OpenVR){
-    	        index = controllerIndex[index];
-    	        VRUtil.convertMatrix4toQuat(((OpenVR)environment.getVRHardware()).poseMatrices[index], rotStore[index]);
-    	        return rotStore[index];
-    		} else {
-        		throw new IllegalStateException("VR hardware "+environment.getVRHardware().getClass().getSimpleName()+" is not a subclass of "+OpenVR.class.getSimpleName());
-        	}
-    	} else {
-    		throw new IllegalStateException("VR input is not attached to a VR environment.");
-    	}
+        index = controllerIndex[index];
+        VRUtil.convertMatrix4toQuat(OpenVR.poseMatrices[index], rotStore[index]);
+        return rotStore[index];
     }
 
     @Override
@@ -370,23 +328,12 @@ public class OpenVRInput implements VRInputAPI {
         	return null;
         }
         
-        if (environment != null){
-    		
-    		if (environment.getVRHardware() instanceof OpenVR){
-    	        // the hmdPose comes in rotated funny, fix that here
-    	        index = controllerIndex[index];
-    	        ((OpenVR)environment.getVRHardware()).poseMatrices[index].toTranslationVector(posStore[index]);
-    	        posStore[index].x = -posStore[index].x;
-    	        posStore[index].z = -posStore[index].z;
-    	        return posStore[index];
-    		} else {
-        		throw new IllegalStateException("VR hardware "+environment.getVRHardware().getClass().getSimpleName()+" is not a subclass of "+OpenVR.class.getSimpleName());
-        	}
-    	} else {
-    		throw new IllegalStateException("VR input is not attached to a VR environment.");
-    	}
-        
-
+        // the hmdPose comes in rotated funny, fix that here
+        index = controllerIndex[index];
+        OpenVR.poseMatrices[index].toTranslationVector(posStore[index]);
+        posStore[index].x = -posStore[index].x;
+        posStore[index].z = -posStore[index].z;
+        return posStore[index];
     }
     
     @Override
@@ -464,7 +411,8 @@ public class OpenVRInput implements VRInputAPI {
     	if (environment != null){
     		controllerCount = 0;
         	for(int i=0;i<JOpenVRLibrary.k_unMaxTrackedDeviceCount;i++) {
-        		if( ((OpenVR)environment.getVRHardware()).getVRSystem().GetTrackedDeviceClass.apply(i) == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_Controller ) {
+                    int classCallback = ((OpenVR)environment.getVRHardware()).getVRSystem().GetTrackedDeviceClass.apply(i);
+        		if( classCallback == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_Controller || classCallback == JOpenVRLibrary.ETrackedDeviceClass.ETrackedDeviceClass_TrackedDeviceClass_GenericTracker) {
         			
         			String controllerName   = "Unknown";
     				String manufacturerName = "Unknown";
@@ -476,12 +424,6 @@ public class OpenVRInput implements VRInputAPI {
     				}
         			
         			controllerIndex[controllerCount] = i;
-        			
-        			// Adding tracked controller to control.
-        			if (trackedControllers == null){
-        				trackedControllers = new ArrayList<VRTrackedController>(JOpenVRLibrary.k_unMaxTrackedDeviceCount);
-        			}
-        			trackedControllers.add(new OpenVRTrackedController(i, this, controllerName, manufacturerName, environment));
         			
         			// Send an Haptic pulse to the controller
         			triggerHapticPulse(controllerCount, 1.0f);
@@ -503,7 +445,7 @@ public class OpenVRInput implements VRInputAPI {
     	if (environment != null){
         	for(int i=0;i<controllerCount;i++) {
         		int index = controllerIndex[i];
-        		((OpenVR)environment.getVRHardware()).getVRSystem().GetControllerState.apply(index, cStates[index], 5);
+        		((OpenVR)environment.getVRHardware()).getVRSystem().GetControllerState.apply(index, cStates[index], 64);
         		cStates[index].readField("ulButtonPressed");
         		cStates[index].readField("rAxis");
         		needsNewVelocity[index] = true;

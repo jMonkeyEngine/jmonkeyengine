@@ -8,7 +8,6 @@ import com.jme3.app.state.AppState;
 import com.jme3.input.vr.OSVR;
 import com.jme3.input.vr.OpenVR;
 import com.jme3.input.vr.VRAPI;
-import com.jme3.input.vr.VRBounds;
 import com.jme3.input.vr.VRInputAPI;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
@@ -28,8 +27,6 @@ public class VREnvironment {
     private VRGuiManager guiManager     = null;
     private VRMouseManager mouseManager = null;
     private VRViewManager viewmanager   = null;
-    private VRBounds bounds             = null;
-    
     
     /**
      * The underlying system VR API. By default set to {@link VRConstants#SETTING_VRAPI_OPENVR_VALUE}.
@@ -76,10 +73,7 @@ public class VREnvironment {
     	
         guiManager   = new VRGuiManager(this);
         mouseManager = new VRMouseManager(this);
-        
-        bounds = new VRBounds();
-        
-        dummyCam = new Camera();
+//        dummyCam = new Camera(settings.getWidth(), settings.getHeight());
         
         processSettings();
     }
@@ -90,14 +84,6 @@ public class VREnvironment {
 	 */
 	public VRAPI getVRHardware() {
 	    return hardware;
-	}
-	
-	/**
-	 * Get the VR bounds.
-	 * @return the VR bounds.
-	 */
-	public VRBounds getVRBounds(){
-		return bounds;
 	}
 	
 	/**
@@ -346,7 +332,7 @@ public class VREnvironment {
      */
     public Camera getCamera() {
         if( isInVR() && getVRViewManager() != null && getVRViewManager().getLeftCamera() != null ) {
-            return dummyCam;
+            return getDummyCamera();
         }
         
         return application.getCamera();
@@ -361,13 +347,12 @@ public class VREnvironment {
     			if (application.getCamera() != null){
     				dummyCam = application.getCamera().clone();
     			} else {
-    				return new Camera();
+    				return new Camera(settings.getWidth(), settings.getHeight());
     			}
     		} else {
     			throw new IllegalStateException("VR environment is not attached to any application.");
     		}
     	}
-    	
     	return dummyCam;
     }
     
