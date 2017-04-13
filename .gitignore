@@ -43,3 +43,4 @@
 !/jme3-vr/src/main/resources/**/*.so.dbg
 !/jme3-vr/src/main/resources/**/*.dll
 !/jme3-vr/src/main/resources/**/*.pdb
+/buildMaven.bat
