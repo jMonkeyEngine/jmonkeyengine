@@ -8,6 +8,7 @@ import com.jme3.app.state.AppState;
 import com.jme3.input.vr.OSVR;
 import com.jme3.input.vr.OpenVR;
 import com.jme3.input.vr.VRAPI;
+import com.jme3.input.vr.VRBounds;
 import com.jme3.input.vr.VRInputAPI;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
@@ -27,6 +28,8 @@ public class VREnvironment {
     private VRGuiManager guiManager     = null;
     private VRMouseManager mouseManager = null;
     private VRViewManager viewmanager   = null;
+    private VRBounds bounds             = null;
+    
     
     /**
      * The underlying system VR API. By default set to {@link VRConstants#SETTING_VRAPI_OPENVR_VALUE}.
@@ -73,6 +76,9 @@ public class VREnvironment {
     	
         guiManager   = new VRGuiManager(this);
         mouseManager = new VRMouseManager(this);
+        
+        bounds = new VRBounds();
+        
         dummyCam = new Camera();
         
         processSettings();
@@ -84,6 +90,14 @@ public class VREnvironment {
 	 */
 	public VRAPI getVRHardware() {
 	    return hardware;
+	}
+	
+	/**
+	 * Get the VR bounds.
+	 * @return the VR bounds.
+	 */
+	public VRBounds getVRBounds(){
+		return bounds;
 	}
 	
 	/**

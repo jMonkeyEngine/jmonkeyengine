@@ -241,7 +241,7 @@ public class VRAppState extends AbstractAppState {
         	return application.getViewPort();
         }
         
-        return environment.getVRViewManager().getLeftViewport();
+        return environment.getVRViewManager().getLeftViewPort();
     }
     
     /**
@@ -253,7 +253,7 @@ public class VRAppState extends AbstractAppState {
         if( environment.getVRViewManager() == null ){
         	return application.getViewPort();
         }
-        return environment.getVRViewManager().getRightViewport();
+        return environment.getVRViewManager().getRightViewPort();
     }
     
     /**
@@ -263,12 +263,12 @@ public class VRAppState extends AbstractAppState {
     public void setBackgroundColors(ColorRGBA clr) {
         if( environment.getVRViewManager() == null ) {
             application.getViewPort().setBackgroundColor(clr);
-        } else if( environment.getVRViewManager().getLeftViewport() != null ) {
+        } else if( environment.getVRViewManager().getLeftViewPort() != null ) {
         	
-        	environment.getVRViewManager().getLeftViewport().setBackgroundColor(clr);
+        	environment.getVRViewManager().getLeftViewPort().setBackgroundColor(clr);
             
-        	if( environment.getVRViewManager().getRightViewport() != null ){
-            	environment.getVRViewManager().getRightViewport().setBackgroundColor(clr);
+        	if( environment.getVRViewManager().getRightViewPort() != null ){
+            	environment.getVRViewManager().getRightViewPort().setBackgroundColor(clr);
             }
         }
     }
