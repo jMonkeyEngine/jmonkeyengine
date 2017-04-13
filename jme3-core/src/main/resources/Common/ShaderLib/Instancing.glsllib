@@ -38,15 +38,16 @@ uniform mat3 g_NormalMatrix;
 // 2 vertex attributes which now can be used for additional per-vertex data.
 attribute mat4 inInstanceData;
 
-// Extract the world matrix out of the instance data, leaving out the 
-// quaternion at the end.
-mat4 worldMatrix = mat4(vec4(inInstanceData[0].xyz, 0.0), 
-                            vec4(inInstanceData[1].xyz, 0.0), 
-                            vec4(inInstanceData[2].xyz, 0.0), 
-                            vec4(inInstanceData[3].xyz, 1.0));
+
 
 vec4 TransformWorld(vec4 position)
 {
+    // Extract the world matrix out of the instance data, leaving out the
+    // quaternion at the end.
+    mat4 worldMatrix = mat4(vec4(inInstanceData[0].xyz, 0.0),
+    vec4(inInstanceData[1].xyz, 0.0),
+    vec4(inInstanceData[2].xyz, 0.0),
+    vec4(inInstanceData[3].xyz, 1.0));
     return (worldMatrix * position);
 }
 

@@ -238,17 +238,35 @@ public class GlfwMouseInput implements MouseInput {
         return (long) (glfwGetTime() * 1000000000);
     }
 
-    private long createGlfwCursor(JmeCursor jmeCursor) {
-        GLFWImage glfwImage = new GLFWImage(BufferUtils.createByteBuffer(GLFWImage.SIZEOF));
+    private ByteBuffer transformCursorImage(IntBuffer imageData, int w, int h) {
+        ByteBuffer buf = BufferUtils.createByteBuffer(imageData.capacity() * 4);
 
+        // Transform image: ARGB -> RGBA, vertical flip
+        for (int y = h-1; y >= 0; --y) {
+            for (int x = 0; x < w; ++x) {
+                int pixel = imageData.get(y*w + x);
+                buf.put((byte) ((pixel >> 16) & 0xFF));  // red
+                buf.put((byte) ((pixel >> 8)  & 0xFF));  // green
+                buf.put((byte) ( pixel        & 0xFF));  // blue
+                buf.put((byte) ((pixel >> 24) & 0xFF));  // alpha
+            }
+        }
+
+        buf.flip();
+        return buf;
+    }
+
+    private long createGlfwCursor(JmeCursor jmeCursor) {
         // TODO: currently animated cursors are not supported
         IntBuffer imageData = jmeCursor.getImagesData();
-        ByteBuffer buf = BufferUtils.createByteBuffer(imageData.capacity() * 4);
-        buf.asIntBuffer().put(imageData);
+        ByteBuffer buf = transformCursorImage(imageData, jmeCursor.getWidth(), jmeCursor.getHeight());
 
+        GLFWImage glfwImage = new GLFWImage(BufferUtils.createByteBuffer(GLFWImage.SIZEOF));
         glfwImage.set(jmeCursor.getWidth(), jmeCursor.getHeight(), buf);
 
-        return glfwCreateCursor(glfwImage, jmeCursor.getXHotSpot(), jmeCursor.getYHotSpot());
+        int hotspotX = jmeCursor.getXHotSpot();
+        int hotspotY = jmeCursor.getHeight() - jmeCursor.getYHotSpot();
+        return glfwCreateCursor(glfwImage, hotspotX, hotspotY);
     }
 
     public void setNativeCursor(JmeCursor jmeCursor) {

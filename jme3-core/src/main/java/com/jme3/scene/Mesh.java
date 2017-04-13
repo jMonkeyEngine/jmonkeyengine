@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2017 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1406,6 +1406,45 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     public boolean isAnimated() {
         return getBuffer(Type.BoneIndex) != null ||
                getBuffer(Type.HWBoneIndex) != null;
+    }
+
+    /**
+     * Test whether the specified bone animates this mesh.
+     *
+     * @param boneIndex the bone's index in its skeleton
+     * @return true if the specified bone animates this mesh, otherwise false
+     */
+    public boolean isAnimatedByBone(int boneIndex) {
+        VertexBuffer biBuf = getBuffer(VertexBuffer.Type.BoneIndex);
+        VertexBuffer wBuf = getBuffer(VertexBuffer.Type.BoneWeight);
+        if (biBuf == null || wBuf == null) {
+            return false; // no bone animation data
+        }
+
+        ByteBuffer boneIndexBuffer = (ByteBuffer) biBuf.getData();
+        boneIndexBuffer.rewind();
+        int numBoneIndices = boneIndexBuffer.remaining();
+        assert numBoneIndices % 4 == 0 : numBoneIndices;
+        int numVertices = boneIndexBuffer.remaining() / 4;
+
+        FloatBuffer weightBuffer = (FloatBuffer) wBuf.getData();
+        weightBuffer.rewind();
+        int numWeights = weightBuffer.remaining();
+        assert numWeights == numVertices * 4 : numWeights;
+        /*
+         * Test each vertex to determine whether the bone affects it.
+         */
+        byte biByte = (byte) boneIndex; // bone indices wrap after 127
+        for (int vIndex = 0; vIndex < numVertices; vIndex++) {
+            for (int wIndex = 0; wIndex < 4; wIndex++) {
+                byte bIndex = boneIndexBuffer.get();
+                float weight = weightBuffer.get();
+                if (wIndex < maxNumWeights && bIndex == biByte && weight != 0f) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
