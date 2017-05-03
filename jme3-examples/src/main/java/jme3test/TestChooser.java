@@ -271,16 +271,23 @@ public class TestChooser extends JDialog {
                 			    Field contextField = LegacyApplication.class.getDeclaredField("context");
                 			    contextField.setAccessible(true);
                 			    JmeContext context = null; 
-                			    while (context == null) {
-                			        context = (JmeContext) contextField.get(app);
-                			        Thread.sleep(100);
-                			    }
-                			    while (!context.isCreated()) {
-                			        Thread.sleep(100);
-                			    }
-                			    while (context.isCreated()) {
-                			        Thread.sleep(100);
-                			    }
+                			    int count = 0;
+                                while (context == null) {
+                                    context = (JmeContext) contextField.get(app);
+                                    Thread.sleep(100);
+                                    count++;
+                                    if (count >= 20) {
+                                        break;
+                                    }
+                                }
+                                if (context != null) {
+                                    while (!context.isCreated()) {
+                                        Thread.sleep(100);
+                                    }
+                                    while (context.isCreated()) {
+                                    Thread.sleep(100);
+                                    }
+                                }
                 			} else {
                                 final Method mainMethod = clazz.getMethod("main", (new String[0]).getClass());
                                 mainMethod.invoke(clazz, new Object[]{new String[0]});
