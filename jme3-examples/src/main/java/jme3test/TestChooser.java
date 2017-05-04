@@ -343,16 +343,28 @@ public class TestChooser extends JDialog {
                 }
             }
         });
-        list.addKeyListener(new KeyAdapter() {
+        //For key typed events, the getKeyCode method always returns VK_UNDEFINED.
+        //Use Key Bindings instead.
+        Action doEnter = new AbstractAction() {
             @Override
-            public void keyTyped(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    startApp(selectedClass);
-                } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    dispose();
-                }
+            public void actionPerformed(ActionEvent e) {
+                startApp(selectedClass);
             }
-        });
+        };
+        KeyStroke enterKey = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+        list.getInputMap().put(enterKey, "doEnter");
+        list.getActionMap().put("doEnter", doEnter);
+        //For key typed events, the getKeyCode method always returns VK_UNDEFINED.         
+        //Use Key Bindings instead.
+        Action doEscape = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        };
+        KeyStroke escapeKey = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+        list.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKey, "doEscape");
+        list.getActionMap().put("doEscape", doEscape);
 
         final JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         mainPanel.add(buttonPanel, BorderLayout.PAGE_END);
