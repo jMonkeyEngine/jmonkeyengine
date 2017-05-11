@@ -57,7 +57,7 @@ import java.io.IOException;
 /**
  * The WaterFilter is a 2D post process that simulate water.
  * It renders water above and under water.
- * See this blog post for more info <a href="http://jmonkeyengine.org/2011/01/15/new-advanced-water-effect-for-jmonkeyengine-3/">http://jmonkeyengine.org/2011/01/15/new-advanced-water-effect-for-jmonkeyengine-3/</a>
+ * See the jMonkeyEngine wiki for more info <a href="https://jmonkeyengine.github.io/wiki/jme3/advanced/post-processor_water.html">https://jmonkeyengine.github.io/wiki/jme3/advanced/post-processor_water.html</a>.
  * 
  * 
  * @author Rémy Bouquet aka Nehon
