@@ -115,7 +115,8 @@ public class TestAnimBlendBug extends SimpleApplication implements ActionListene
         SkeletonDebugger skeletonDebug = new SkeletonDebugger("skeleton1", control1.getSkeleton());
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.getAdditionalRenderState().setWireframe(true);
-        mat.setColor("Color", ColorRGBA.Green);
+        mat.setColor("Color", ColorRGBA.Red);
+        mat.setFloat("PointSize", 7f);
         mat.getAdditionalRenderState().setDepthTest(false);
         skeletonDebug.setMaterial(mat);
         model1.attachChild(skeletonDebug);

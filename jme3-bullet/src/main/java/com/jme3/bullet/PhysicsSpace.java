@@ -489,9 +489,10 @@ public class PhysicsSpace {
      * @param spatial the rootnode containing the physics objects
      */
     public void addAll(Spatial spatial) {
+        add(spatial);
+
         if (spatial.getControl(RigidBodyControl.class) != null) {
             RigidBodyControl physicsNode = spatial.getControl(RigidBodyControl.class);
-            add(physicsNode);
             //add joints with physicsNode as BodyA
             List<PhysicsJoint> joints = physicsNode.getJoints();
             for (Iterator<PhysicsJoint> it1 = joints.iterator(); it1.hasNext();) {
@@ -501,8 +502,6 @@ public class PhysicsSpace {
                     add(physicsJoint);
                 }
             }
-        } else {
-            add(spatial);
         }
         //recursion
         if (spatial instanceof Node) {
@@ -531,10 +530,9 @@ public class PhysicsSpace {
                     //remove(physicsJoint.getBodyB());
                 }
             }
-            remove(physicsNode);
-        } else if (spatial.getControl(PhysicsControl.class) != null) {
-            remove(spatial);
         }
+            
+        remove(spatial);
         //recursion
         if (spatial instanceof Node) {
             List<Spatial> children = ((Node) spatial).getChildren();
