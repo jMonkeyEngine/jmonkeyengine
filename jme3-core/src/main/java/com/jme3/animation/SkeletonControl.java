@@ -294,8 +294,9 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
                 if (hwSkinningSupported) {
                     hwSkinningEnabled = true;
-                    
-                    Logger.getLogger(SkeletonControl.class.getName()).log(Level.INFO, "Hardware skinning engaged for " + spatial);
+                    if (Logger.getLogger(SkeletonControl.class.getName()).isLoggable(Level.FINE)) {
+                        Logger.getLogger(SkeletonControl.class.getName()).log(Level.FINE, "Hardware skinning engaged for " + spatial);
+                    }
                 } else {
                     switchToSoftware();
                 }
