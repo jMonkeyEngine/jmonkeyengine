@@ -145,7 +145,9 @@ public abstract class NativeObject implements Cloneable {
 
     @Override
     public String toString(){
-        return "Native" + getClass().getSimpleName() + " " + id;
+        return new StringBuilder("Native")
+                .append(getClass().getSimpleName()).append(" ").append(id)
+                .toString();
     }
 
     /**
