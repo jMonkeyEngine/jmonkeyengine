@@ -850,7 +850,7 @@ public class PhysicsSpace {
         return results;
     }
 
-    public native void rayTest_native(Vector3f from, Vector3f to, long physicsSpaceId, List<PhysicsRayTestResult> results, int flags);
+    public native void rayTest_native(Vector3f from, Vector3f to, long objectId, List<PhysicsRayTestResult> results, int flags);
 
 //    private class InternalRayListener extends CollisionWorld.RayResultCallback {
 //
@@ -888,7 +888,7 @@ public class PhysicsSpace {
         return sweepTest(shape, start, end, results, 0.0f);
     }
 
-    public native void sweepTest_native(long shape, Transform from, Transform to, long physicsSpaceId, List<PhysicsSweepTestResult> results, float allowedCcdPenetration);
+    public native void sweepTest_native(long shape, Transform from, Transform to, long objectId, List<PhysicsSweepTestResult> results, float allowedCcdPenetration);
     /**
      * Performs a sweep collision test and returns the results as a list of
      * PhysicsSweepTestResults<br/> You have to use different Transforms for
