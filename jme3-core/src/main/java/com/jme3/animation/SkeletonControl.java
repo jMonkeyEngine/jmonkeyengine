@@ -577,7 +577,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
                 // Skip this vertex if the first weight is zero.
                 if (weights[idxWeights] == 0) {
                     idxPositions += 3;
-                    idxWeights += 4;
+                    idxWeights += maxWeightsPerVert;
                     continue;
                 }
 
