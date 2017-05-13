@@ -38,6 +38,12 @@ import com.jme3.math.FastMath;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.util.BufferUtils;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.Raster;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -48,13 +54,13 @@ import java.nio.ByteBuffer;
  * <code>TextureManager</code> provides static methods for building a
  * <code>Texture</code> object. Typically, the information supplied is the
  * filename and the texture properties.
- * 
+ *
  * @author Mark Powell
  * @author Joshua Slack - cleaned, commented, added ability to read 16bit true color and color-mapped TGAs.
  * @author Kirill Vainer - ported to jME3
  * @version $Id: TGALoader.java 4131 2009-03-19 20:15:28Z blaine.dev $
  */
-public final class TGALoader implements AssetLoader {
+public class TGALoader implements AssetLoader {
 
     // 0 - no image data in file
     public static final int TYPE_NO_IMAGE = 0;
@@ -71,7 +77,18 @@ public final class TGALoader implements AssetLoader {
     // 11 - run-length encoded, black and white image
     public static final int TYPE_BLACKANDWHITE_RLE = 11;
 
+    protected static TGALoader loader;
+
+    public static void setLoader(TGALoader loader) {
+        TGALoader.loader = loader;
+    }
+
+    public TGALoader() {
+        setLoader(this);
+    }
+
     public Object load(AssetInfo info) throws IOException {
+
         if (!(info.getKey() instanceof TextureKey)) {
             throw new IllegalArgumentException("Texture assets must be loaded using a TextureKey");
         }
@@ -80,7 +97,7 @@ public final class TGALoader implements AssetLoader {
         InputStream in = null;
         try {
             in = info.openStream();
-            Image img = load(in, flip);
+            Image img = loadImage(in, flip);
             return img;
         } finally {
             if (in != null) {
@@ -92,9 +109,9 @@ public final class TGALoader implements AssetLoader {
     /**
      * <code>loadImage</code> is a manual image loader which is entirely
      * independent of AWT. OUT: RGB888 or RGBA8888 Image object
-     * 
-     * 
-    
+     *
+     *
+
      * @param in
      *            InputStream of an uncompressed 24b RGB or 32b RGBA TGA
      * @param flip
@@ -104,6 +121,28 @@ public final class TGALoader implements AssetLoader {
      * @throws java.io.IOException
      */
     public static Image load(InputStream in, boolean flip) throws IOException {
+
+        if(loader == null) {
+            loader = new TGALoader();
+        }
+
+        return loader.loadImage(in, flip);
+    }
+    /**
+     * <code>loadImage</code> is a manual image loader which is entirely
+     * independent of AWT. OUT: RGB888 or RGBA8888 Image object
+     *
+     *
+
+     * @param in
+     *            InputStream of an uncompressed 24b RGB or 32b RGBA TGA
+     * @param flip
+     *            Flip the image vertically
+     * @return <code>Image</code> object that contains the
+     *         image, either as a RGB888 or RGBA8888
+     * @throws java.io.IOException
+     */
+    public Image loadImage(InputStream in, boolean flip) throws IOException {
         boolean flipH = false;
 
         // open a stream to the file
@@ -463,29 +502,139 @@ public final class TGALoader implements AssetLoader {
 
 
         in.close();
+
+        return resizeImage(width, height, pixelDepth, format, rawData);
+    }
+
+    /**
+     * Change this image if need.
+     *
+     * @param width current width of image
+     * @param height current height of image
+     * @param pixelDepth pixel depth of image
+     * @param format format of image.
+     * @param rawData data of image.
+     * @return result image.
+     */
+    protected Image resizeImage(int width, int height, final int pixelDepth, final Format format, byte[] rawData) {
+
+        final int newWidth = getNewWidth(width);
+        final int newHeight = getNewHeight(height);
+
+        if(width != newWidth || height != newHeight) {
+
+            final int bufferedImageType = format == Format.RGBA8 ? BufferedImage.TYPE_4BYTE_ABGR : BufferedImage.TYPE_3BYTE_BGR;
+            final DataBufferByte sourceData = new DataBufferByte(rawData, rawData.length);
+
+            final BufferedImage sourceImage = new BufferedImage(width, height, bufferedImageType);
+            sourceImage.setData(Raster.createRaster(sourceImage.getSampleModel(), sourceData, null));
+
+            final Graphics2D graphics = sourceImage.createGraphics();
+
+            if (format == Format.RGBA8) {
+                graphics.setComposite(AlphaComposite.Src);
+            }
+
+            graphics.drawImage(sourceImage, 0, 0, newWidth, newHeight, null);
+            graphics.dispose();
+
+            final Raster newRaster = sourceImage.getData();
+            final DataBuffer newDataBuffer = newRaster.getDataBuffer();
+
+            if (pixelDepth == 32) {
+
+                rawData = new byte[width * height * 4];
+
+                for(int i = 0, g = 0, length = newDataBuffer.getSize(); i < length; i++) {
+
+                    final int value = newDataBuffer.getElem(i);
+
+                    final byte read = (byte) value;
+                    final byte green = (byte) (value >>  8);
+                    final byte blue = (byte) (value >> 16);
+                    final byte alpha = (byte) (value >> 24);
+
+                    rawData[g++] = alpha;
+                    rawData[g++] = read;
+                    rawData[g++] = green;
+                    rawData[g++] = blue;
+                }
+
+            } else {
+
+                rawData = new byte[width * height * 3];
+
+                for(int i = 0, g = 0, length = newDataBuffer.getSize(); i < length; i++) {
+
+                    final int value = newDataBuffer.getElem(i);
+
+                    final byte red = (byte) value;
+                    final byte green = (byte) (value >>  8);
+                    final byte blue = (byte) (value >> 16);
+
+                    rawData[g++] = red;
+                    rawData[g++] = green;
+                    rawData[g++] = blue;
+                }
+            }
+
+            width = newWidth;
+            height = newHeight;
+        }
+
+        return createImage(width, height, format, rawData);
+    }
+
+    /**
+     * Get the new height if need to scale.
+     *
+     * @param height height of source image.
+     * @return result height.
+     */
+    protected int getNewHeight(int height) {
+        return height;
+    }
+
+    /**
+     * Get the new width if need to scale.
+     *
+     * @param width width of source image.
+     * @return result width.
+     */
+    protected int getNewWidth(int width) {
+        return width;
+    }
+
+    protected Image createImage(int width, int height, Format format, byte[] rawData) {
+
         // Get a pointer to the image memory
-        ByteBuffer scratch = BufferUtils.createByteBuffer(rawData.length);
+        final ByteBuffer scratch = BufferUtils.createByteBuffer(rawData.length);
         scratch.clear();
         scratch.put(rawData);
         scratch.rewind();
+
         // Create the Image object
-        Image textureImage = new Image();
+        final Image textureImage = new Image();
         textureImage.setFormat(format);
         textureImage.setWidth(width);
         textureImage.setHeight(height);
         textureImage.setData(scratch);
+
         return textureImage;
     }
 
     private static byte getBitsAsByte(byte[] data, int offset, int length) {
+
         int offsetBytes = offset / 8;
         int indexBits = offset % 8;
         int rVal = 0;
 
         // start at data[offsetBytes]...  spill into next byte as needed.
         for (int i = length; --i >= 0;) {
+
             byte b = data[offsetBytes];
             int test = indexBits == 7 ? 1 : 2 << (6 - indexBits);
+
             if ((b & test) != 0) {
                 if (i == 0) {
                     rVal++;
@@ -493,7 +642,9 @@ public final class TGALoader implements AssetLoader {
                     rVal += (2 << i - 1);
                 }
             }
+
             indexBits++;
+
             if (indexBits == 8) {
                 indexBits = 0;
                 offsetBytes++;
@@ -506,7 +657,7 @@ public final class TGALoader implements AssetLoader {
     /**
      * <code>flipEndian</code> is used to flip the endian bit of the header
      * file.
-     * 
+     *
      * @param signedShort
      *            the bit to flip.
      * @return the flipped bit.
@@ -516,9 +667,9 @@ public final class TGALoader implements AssetLoader {
         return (short) (input << 8 | (input & 0xFF00) >>> 8);
     }
 
-    static class ColorMapEntry {
+    protected static class ColorMapEntry {
 
-        byte red, green, blue, alpha;
+        protected byte red, green, blue, alpha;
 
         @Override
         public String toString() {
