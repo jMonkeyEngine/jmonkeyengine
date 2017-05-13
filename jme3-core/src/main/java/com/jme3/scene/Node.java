@@ -220,6 +220,9 @@ public class Node extends Spatial {
         }
 
         // Build the list
+        if( requiresUpdates() ) {
+            updateList.add(this);
+        }
         addUpdateChildren(updateList);
         updateListValid = true;
         return updateList;
