@@ -2355,17 +2355,13 @@ public final class GLRenderer implements Renderer {
 
     public void updateBufferData(VertexBuffer vb) {
         int bufId = vb.getId();
-        boolean created = false;
         if (bufId == -1) {
             // create buffer
             gl.glGenBuffers(intBuf1);
             bufId = intBuf1.get(0);
             vb.setId(bufId);
             objManager.registerObject(vb);
-
             //statistics.onNewVertexBuffer();
-
-            created = true;
         }
 
         // bind buffer
@@ -2412,7 +2408,6 @@ public final class GLRenderer implements Renderer {
             default:
                 throw new UnsupportedOperationException("Unknown buffer format.");
         }
-
         vb.clearUpdateNeeded();
     }
 
@@ -2454,7 +2449,8 @@ public final class GLRenderer implements Renderer {
         Attribute attrib = context.boundShader.getAttribute(vb.getBufferType());
         int loc = attrib.getLocation();
         if (loc == -1) {
-            return; // not defined
+        	vb.setUnused(true);
+        	return; // not defined
         }
         if (loc == -2) {
             loc = gl.glGetAttribLocation(context.boundShaderProgram, "in" + vb.getBufferType().name());
@@ -2462,12 +2458,15 @@ public final class GLRenderer implements Renderer {
             // not really the name of it in the shader (inPosition) but
             // the internal name of the enum (Position).
             if (loc < 0) {
+            	vb.setUnused(true);
                 attrib.setLocation(-1);
                 return; // not available in shader.
             } else {
                 attrib.setLocation(loc);
             }
         }
+
+    	vb.setUnused(false);
 
         if (vb.isInstanced()) {
             if (!caps.contains(Caps.MeshInstancing)) {
