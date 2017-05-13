@@ -93,7 +93,12 @@ public class AndroidLocator implements AssetLocator {
 
         AndroidAssetInfo(AssetManager assetManager, AssetKey<?> key, String assetPath, InputStream in, int resourceId) {
             super(assetManager, key);
-            this.assetPath = assetPath;
+            //to keep compatiblity with asset paths allowed in 3.0
+            if(assetPath.startsWith("/")){
+                this.assetPath=assetPath.substring(1);
+            }else {
+                this.assetPath = assetPath;
+            }
             this.in = in;
             this.resourceId = resourceId;
         }
