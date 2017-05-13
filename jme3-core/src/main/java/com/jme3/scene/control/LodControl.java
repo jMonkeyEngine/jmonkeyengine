@@ -58,7 +58,7 @@ import java.io.IOException;
  * and will update the spatial's LOD if the camera has moved by a specified
  * amount.
  */
-public class LodControl extends AbstractControl implements Cloneable, JmeCloneable {
+public class LodControl extends AbstractControl implements Cloneable {
 
     private float trisPerPixel = 1f;
     private float distTolerance = 1f;
