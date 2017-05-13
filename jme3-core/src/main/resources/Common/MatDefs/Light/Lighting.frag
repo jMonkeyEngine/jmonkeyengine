@@ -104,7 +104,12 @@ void main(){
       vec4 diffuseColor = vec4(1.0);
     #endif
 
-    float alpha = DiffuseSum.a * diffuseColor.a;
+    #ifdef USE_ALPHA
+        float alpha = DiffuseSum.a * diffuseColor.a;
+    #else
+        float alpha = DiffuseSum.a;
+    #endif
+    
     #ifdef ALPHAMAP
        alpha = alpha * texture2D(m_AlphaMap, newTexCoord).r;
     #endif
