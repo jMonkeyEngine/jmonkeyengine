@@ -103,6 +103,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
         if (removed) {
             PhysicsSpace.getPhysicsSpace().add(this);
         }
+        setAngularFactor(1.f);
     }
 
     protected void preRebuild() {
