@@ -10,7 +10,7 @@ import com.jme3.scene.plugins.fbx.file.FbxElement;
 
 public class FbxBindPose extends FbxObject {
 	
-	public Map<Long, Matrix4f> nodeTransforms = new HashMap<>();
+	public Map<Long, Matrix4f> nodeTransforms = new HashMap<Long, Matrix4f>();
 	
 	public FbxBindPose(SceneLoader scene, FbxElement element) {
 		super(scene, element);
@@ -38,7 +38,7 @@ public class FbxBindPose extends FbxObject {
 	}
 	
 	public void fillBindTransforms() {
-		for(long nodeId : nodeTransforms.keySet()) {
+		for(Long nodeId : nodeTransforms.keySet()) {
 			FbxNode node = scene.modelMap.get(nodeId);
 			node.bindTransform = nodeTransforms.get(nodeId).clone();
 		}

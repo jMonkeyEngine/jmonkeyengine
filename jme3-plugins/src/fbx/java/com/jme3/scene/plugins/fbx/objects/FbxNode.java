@@ -1,24 +1,29 @@
 package com.jme3.scene.plugins.fbx.objects;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.Matrix4f;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.plugins.fbx.InheritType;
 import com.jme3.scene.plugins.fbx.RotationOrder;
 import com.jme3.scene.plugins.fbx.SceneLoader;
 import com.jme3.scene.plugins.fbx.file.FbxElement;
 
 public class FbxNode extends FbxObject {
 	
+	public Map<String, Object> userData = new HashMap<String, Object>();
 	public FaceCullMode cullMode = FaceCullMode.Back;
 	public Transform localTransform;
 	public Node node;
@@ -26,33 +31,42 @@ public class FbxNode extends FbxObject {
 	
 	public boolean rotationActive = false;
 	public RotationOrder rotationOrder = RotationOrder.EULER_XYZ;
+	public InheritType inheritType = InheritType.RrSs;
 	
 	
 	// For bones and animation, in world space
 	public Matrix4f bindTransform = null;
 	public int boneIndex;
-	public Map<Long, FbxAnimNode> animTranslations = new HashMap<>();
-	public Map<Long, FbxAnimNode> animRotations = new HashMap<>();
-	public Map<Long, FbxAnimNode> animScales = new HashMap<>();
+	public Map<Long,FbxAnimNode> animTranslations = new HashMap<Long,FbxAnimNode>();
+	public Map<Long,FbxAnimNode> animRotations = new HashMap<Long,FbxAnimNode>();
+	public Map<Long,FbxAnimNode> animScales = new HashMap<Long,FbxAnimNode>();
 	public Bone bone;
 	private FbxAnimNode lastAnimTranslation;
 	private FbxAnimNode lastAnimRotation;
 	private FbxAnimNode lastAnimScale;
 	private FbxMesh mesh;
-	public Map<Long, FbxCluster> skinToCluster = new HashMap<>();
+	public Map<Long,FbxCluster> skinToCluster = new HashMap<Long,FbxCluster>();
+	public List<FbxNode> children = new ArrayList<FbxNode>();
+	
+	/**
+	 * Cache to store materials if linking order is wrong
+	 */
+	private List<Material> wrongOrderMaterial = new ArrayList<Material>();
+	
+	public Vector3f translationLocalRaw = new Vector3f();
+	public Vector3f rotationOffsetRaw = new Vector3f();
+	public Vector3f rotationPivotRaw = new Vector3f();
+	public Vector3f rotationPreRaw = new Vector3f();
+	public Vector3f rotationLocalRaw = new Vector3f();
+	public Vector3f rotationPostRaw = new Vector3f();
+	public Vector3f scaleOffsetRaw = new Vector3f();
+	public Vector3f scalePivotRaw = new Vector3f();
+	public Vector3f scaleLocalRaw = new Vector3f(1, 1, 1);
+	
+	public Matrix4f transformMatrix;
 	
 	public FbxNode(SceneLoader scene, FbxElement element) {
 		super(scene, element);
-		node = new Node(name);
-		Vector3f translationLocalRaw = new Vector3f();
-		Vector3f rotationOffsetRaw = new Vector3f();
-		Vector3f rotationPivotRaw = new Vector3f();
-		Vector3f rotationPreRaw = new Vector3f();
-		Vector3f rotationLocalRaw = new Vector3f();
-		Vector3f rotationPostRaw = new Vector3f();
-		Vector3f scaleOffsetRaw = new Vector3f();
-		Vector3f scalePivotRaw = new Vector3f();
-		Vector3f scaleLocalRaw = new Vector3f(1, 1, 1);
 		for(FbxElement prop : element.getFbxProperties()) {
 			double x, y, z;
 			String propName = (String) prop.properties.get(0);
@@ -87,6 +101,9 @@ public class FbxNode extends FbxObject {
 			case "ScalePivot":
 				readVectorFromProp(scalePivotRaw, prop);
 				break;
+			case "InheritType":
+				inheritType = InheritType.values[(Integer) prop.properties.get(4)];
+				break;
 			case "U":
 				String userDataKey = (String) prop.properties.get(0);
 				String userDataType = (String) prop.properties.get(1);
@@ -108,7 +125,7 @@ public class FbxNode extends FbxObject {
 					scene.warning("Unsupported user data type: " + userDataType + ". Ignoring.");
 					continue;
 				}
-				node.setUserData(userDataKey, userDataValue);
+				userData.put(userDataKey, userDataValue);
 				break;
 			}
 		}
@@ -136,40 +153,54 @@ public class FbxNode extends FbxObject {
 		ScalingPivotInverse: inverse of ScalingPivot
 		*/
 		
-		RotationOrder rotOrder = rotationActive ? rotationOrder : RotationOrder.EULER_XYZ;
+		transformMatrix = computeTransformationMatrix(translationLocalRaw, rotationLocalRaw, scaleLocalRaw, rotationOrder);
 		
-		Matrix4f transformMatrix = new Matrix4f();
-		transformMatrix.setTranslation(translationLocalRaw.x + rotationOffsetRaw.x + rotationPivotRaw.x, translationLocalRaw.y + rotationOffsetRaw.y + rotationPivotRaw.y, translationLocalRaw.z + rotationOffsetRaw.z + rotationPivotRaw.z);
-		
-		if(rotationActive) {
-			Quaternion postRotation = rotOrder.rotate(rotationPostRaw.x, rotationPostRaw.y, rotationPostRaw.z);
-			Quaternion localRotation = rotOrder.rotate(rotationLocalRaw.x, rotationLocalRaw.y, rotationLocalRaw.z);
-			Quaternion preRotation = rotOrder.rotate(rotationPreRaw.x, rotationPreRaw.y, rotationPreRaw.z);
-			//preRotation.multLocal(localRotation).multLocal(postRotation);
-			postRotation.multLocal(localRotation).multLocal(preRotation);
-			transformMatrix.multLocal(postRotation);
-		} else {
-			transformMatrix.multLocal(rotOrder.rotate(rotationLocalRaw.x, rotationLocalRaw.y, rotationLocalRaw.z));
+		localTransform = new Transform(transformMatrix.toTranslationVector(), transformMatrix.toRotationQuat(), transformMatrix.toScaleVector());
+			
+		node = new Node(name);
+		if(userData.size() > 0) {
+			Iterator<Entry<String,Object>> iterator = userData.entrySet().iterator();
+			while(iterator.hasNext()) {
+				Entry<String,Object> e = iterator.next();
+				node.setUserData(e.getKey(), e.getValue());
+			}
 		}
+		node.setLocalTransform(localTransform);
+	}
+	
+	public Matrix4f computeTransformationMatrix(Vector3f rawTranslation, Vector3f rawRotation, Vector3f rawScale, RotationOrder rotOrder) {
+		Matrix4f transformMatrix = new Matrix4f();
 		
 		Matrix4f mat = new Matrix4f();
-		mat.setTranslation(scaleOffsetRaw.x + scalePivotRaw.x - rotationPivotRaw.x, scaleOffsetRaw.y + scalePivotRaw.y - rotationPivotRaw.y, scaleOffsetRaw.z + scalePivotRaw.z - rotationPivotRaw.z);
+		mat.setTranslation(rawTranslation.x + rotationOffsetRaw.x + rotationPivotRaw.x, rawTranslation.y + rotationOffsetRaw.y + rotationPivotRaw.y, rawTranslation.z + rotationOffsetRaw.z + rotationPivotRaw.z);
 		transformMatrix.multLocal(mat);
 		
-		transformMatrix.scale(scaleLocalRaw);
-		transformMatrix.scale(new Vector3f(scene.unitSize, scene.unitSize, scene.unitSize));
-		
+		if(rotationActive) {
+			// Because of majic, FBX uses rotation order only to Lcl Rotations. Pre Rotations (Joint Orient) uses always XYZ order
+			// What is Post Rotations is still a mystery
+			Matrix4f preRotation = RotationOrder.EULER_XYZ.rotateToMatrix(rotationPreRaw.x, rotationPreRaw.y, rotationPreRaw.z);
+			Matrix4f localRotation = rotOrder.rotateToMatrix(rawRotation.x, rawRotation.y, rawRotation.z);
+			Matrix4f postRotation = RotationOrder.EULER_XYZ.rotateToMatrix(rotationPostRaw.x, rotationPostRaw.y, rotationPostRaw.z);
+			transformMatrix.multLocal(preRotation);
+			transformMatrix.multLocal(localRotation);
+			transformMatrix.multLocal(postRotation);
+		} else {
+			transformMatrix.multLocal(RotationOrder.EULER_XYZ.rotate(rawRotation.x, rawRotation.y, rawRotation.z));
+		}
+		mat.setTranslation(scaleOffsetRaw.x + scalePivotRaw.x - rotationPivotRaw.x, scaleOffsetRaw.y + scalePivotRaw.y - rotationPivotRaw.y, scaleOffsetRaw.z + scalePivotRaw.z - rotationPivotRaw.z);
+		transformMatrix.multLocal(mat);
+		transformMatrix.scale(rawScale);
 		mat.setTranslation(scalePivotRaw.negate());
 		transformMatrix.multLocal(mat);
 		
-		localTransform = new Transform(transformMatrix.toTranslationVector(), transformMatrix.toRotationQuat(), transformMatrix.toScaleVector());
+		return transformMatrix;
 		
-		node.setLocalTransform(localTransform);
 	}
 	
 	@Override
 	public void linkToZero() {
 		scene.sceneNode.attachChild(node);
+		scene.rootNodes.add(this);
 	}
 	
 	public void setSkeleton(Skeleton skeleton) {
@@ -236,6 +267,10 @@ public class FbxNode extends FbxObject {
 		if(otherObject instanceof FbxMaterial) {
 			FbxMaterial m = (FbxMaterial) otherObject;
 			Material mat = m.material;
+			if(mesh == null) {
+				wrongOrderMaterial.add(mat);
+				return;
+			}
 			if(cullMode != FaceCullMode.Back)
 				mat.getAdditionalRenderState().setFaceCullMode(cullMode);
 			for(Geometry g : mesh.geometries) {
@@ -250,6 +285,11 @@ public class FbxNode extends FbxObject {
 		} else if(otherObject instanceof FbxNode) {
 			FbxNode n = (FbxNode) otherObject;
 			node.attachChild(n.node);
+			children.add(n);
+			if(n.inheritType == InheritType.Rrs) {
+				Vector3f scale = node.getWorldScale();
+				n.node.scale(1f / scale.x, 1f / scale.y, 1f / scale.z);
+			}
 			n.parentFbxNode = this;
 			if(isLimb() && n.isLimb()) {
 				if(bone == null)
@@ -263,6 +303,20 @@ public class FbxNode extends FbxObject {
 			m.setParent(node);
 			m.parent = this;
 			mesh = m;
+			if(wrongOrderMaterial.size() > 0) {
+				for(int i = 0; i < wrongOrderMaterial.size(); ++i) {
+					Material mat = wrongOrderMaterial.remove(i--);
+					for(Geometry g : mesh.geometries) {
+						if(g.getUserData("FBXMaterial") != null) {
+							if((Integer) g.getUserData("FBXMaterial") == mesh.lastMaterialId)
+								g.setMaterial(mat);
+						} else {
+							g.setMaterial(mat);
+						}
+					}
+					mesh.lastMaterialId++;
+				}
+			}
 		}
 	}
 	

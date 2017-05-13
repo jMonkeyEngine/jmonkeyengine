@@ -22,7 +22,10 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.AssetManager;
+import com.jme3.math.FastMath;
+import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
+import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.plugins.fbx.AnimationList.AnimInverval;
@@ -31,6 +34,8 @@ import com.jme3.scene.plugins.fbx.file.FbxFile;
 import com.jme3.scene.plugins.fbx.file.FbxReader;
 import com.jme3.scene.plugins.fbx.objects.FbxAnimCurve;
 import com.jme3.scene.plugins.fbx.objects.FbxAnimNode;
+import com.jme3.scene.plugins.fbx.objects.FbxAnimationLayer;
+import com.jme3.scene.plugins.fbx.objects.FbxAnimationStack;
 import com.jme3.scene.plugins.fbx.objects.FbxBindPose;
 import com.jme3.scene.plugins.fbx.objects.FbxCluster;
 import com.jme3.scene.plugins.fbx.objects.FbxImage;
@@ -46,6 +51,8 @@ import com.jme3.scene.plugins.fbx.objects.FbxTexture;
  * <p> Loads scene meshes, materials, textures, skeleton and skeletal animation.
  * Multiple animations can be defined with {@link AnimationList} passing into {@link SceneKey}
  * or loaded from different animation layer.</p>
+ * 
+ * @author Aleksandra Menshchikova, Eirenliel
  */
 public class SceneLoader implements AssetLoader {
 	
@@ -63,23 +70,27 @@ public class SceneLoader implements AssetLoader {
 	public AssetInfo currentAssetInfo;
 	
 	// Scene global settings
-	private float animFrameRate;
-	public float unitSize;
+	private float animFrameRate = 30;
+	// Untested
+	public float unitSize = 1.0f;
 	public int xAxis = 1;
 	public int yAxis = 1;
 	public int zAxis = 1;
 	
 	// Scene objects
-	private Map<Long, FbxObject> allObjects = new HashMap<>(); // All supported FBX objects
-	private Map<Long, FbxSkin> skinMap = new HashMap<>(); // Skin for bone clusters
-	private Map<Long, FbxObject> alayerMap = new HashMap<>(); // Amination layers
-	public Map<Long, FbxNode> modelMap = new HashMap<>(); // Nodes
-	private Map<Long, FbxNode> limbMap = new HashMap<>(); // Nodes that are actually bones
-	private Map<Long, FbxBindPose> bindMap = new HashMap<>(); // Node bind poses
-	private Map<Long, FbxMesh> geomMap = new HashMap<>(); // Mesh geometries
+	private Map<Long,FbxObject> allObjects = new HashMap<Long,FbxObject>(); // All supported FBX objects
+	private Map<Long,FbxSkin> skinMap = new HashMap<Long,FbxSkin>(); // Skin for bone clusters
+	private Map<Long,FbxAnimationLayer> alayerMap = new HashMap<Long,FbxAnimationLayer>(); // Amination layers
+	private Map<Long,FbxAnimationStack> astackMap = new HashMap<Long,FbxAnimationStack>(); // Amination stacks
+	public Map<Long,FbxNode> modelMap = new HashMap<Long,FbxNode>(); // Nodes
+	private Map<Long,FbxNode> limbMap = new HashMap<Long,FbxNode>(); // Nodes that are actually bones
+	private Map<Long,FbxBindPose> bindMap = new HashMap<Long,FbxBindPose>(); // Node bind poses
+	private Map<Long,FbxMesh> geomMap = new HashMap<Long,FbxMesh>(); // Mesh geometries
 	private Skeleton skeleton;
 	private AnimControl animControl;
 	public Node sceneNode;
+	public FbxFile sceneFile;
+	public List<FbxNode> rootNodes = new ArrayList<>();
 	
 	public void warning(String warning) {
 		warnings.add(warning);
@@ -103,8 +114,15 @@ public class SceneLoader implements AssetLoader {
 				sceneName = sceneName.substring(sceneFolderName.length());
 			loadScene(stream);
 			linkScene();
-			if(warnings.size() > 0)
-				logger.log(Level.WARNING, "Model load finished with warnings:\n" + join(warnings, "\n"));
+			if(warnings.size() > 0) {
+				StringBuilder sb = new StringBuilder();
+				for(int i = 0; i < warnings.size(); ++i) {
+					if(i != 0)
+						sb.append("\n");
+					sb.append(warnings.get(i));
+				}
+				logger.log(Level.WARNING, "Model load finished with warnings:\n" + sb.toString());
+			}
 		} finally {
 			releaseObjects();
 			if(stream != null)
@@ -116,8 +134,8 @@ public class SceneLoader implements AssetLoader {
 	private void loadScene(InputStream stream) throws IOException {
 		logger.log(Level.FINE, "Loading scene {0}", sceneFilename);
 		long startTime = System.currentTimeMillis();
-		FbxFile scene = FbxReader.readFBX(stream);
-		for(FbxElement e : scene.rootElements) {
+		sceneFile = FbxReader.readFBX(stream);
+		for(FbxElement e : sceneFile.rootElements) {
 			// Is it possible for elements to be in wrong order?
 			switch(e.id) {
 			case "GlobalSettings":
@@ -160,7 +178,7 @@ public class SceneLoader implements AssetLoader {
 		}
 	}
 	
-	private void loadObjects(FbxElement element) throws IOException {
+	private void loadObjects(FbxElement element) {
 		FbxObject obj = null;
 		for(FbxElement e : element.children) {
 			switch(e.id) {
@@ -195,9 +213,14 @@ public class SceneLoader implements AssetLoader {
 				obj = loadDeformer(e);
 				break;
 			case "AnimationLayer":
-				FbxObject layer = new FbxObject(this, e);
+				FbxAnimationLayer layer = new FbxAnimationLayer(this, e);
 				obj = layer;
 				alayerMap.put(layer.id, layer);
+				break;
+			case "AnimationStack":
+				FbxAnimationStack stack = new FbxAnimationStack(this, e);
+				obj = stack;
+				astackMap.put(stack.id, stack);
 				break;
 			case "AnimationCurve":
 				obj = new FbxAnimCurve(this, e);
@@ -265,9 +288,16 @@ public class SceneLoader implements AssetLoader {
 		long startTime = System.currentTimeMillis();
 		applySkinning();
 		buildAnimations();
+		if(skeleton != null) {
+			// Bind pose may have been changed when loading animations (from frame 0)
+			// Reapply bone transforms as bind pose
+			skeleton.updateWorldVectors();
+			skeleton.setBindingPose();
+			skeleton.resetAndUpdate();
+		}
 		for(FbxMesh mesh : geomMap.values())
 			mesh.clearMaterials();
-		// Remove bones from node structures : JME creates attach node by itself
+		// Remove bones from node structures : JME creates attach nodes by itself
 		for(FbxNode limb : limbMap.values())
 			limb.node.removeFromParent();
 		long estimatedTime = System.currentTimeMillis() - startTime;
@@ -297,125 +327,164 @@ public class SceneLoader implements AssetLoader {
 		sceneNode.addControl(animControl);
 		SkeletonControl control = new SkeletonControl(skeleton);
 		sceneNode.addControl(control);
+		if(unitSize != 1.0) {
+			sceneNode.scale(unitSize); // Should it be `1f / unitSize`? Who knows... need testing
+		}
 	}
 	
 	private void buildAnimations() {
-		if(skeleton == null)
+		if(skeleton == null || astackMap.size() == 0)
 			return;
 		if(animList == null || animList.list.size() == 0) {
 			animList = new AnimationList();
-			for(long layerId : alayerMap.keySet()) {
-				FbxObject layer = alayerMap.get(layerId);
-				animList.add(layer.name, layer.name, 0, -1);
+			for(long layerId : astackMap.keySet()) {
+				FbxAnimationStack stack = astackMap.get(layerId);
+				animList.add(stack.name, stack.name, 0, -1);
 			}
 		}
 		// Extract aminations
 		HashMap<String, Animation> anims = new HashMap<String, Animation>();
 		for(AnimInverval animInfo : animList.list) {
+			// Search stacks
+			long animationStack = 0L;
+			for(long stackId : astackMap.keySet()) {
+				FbxAnimationStack stack = astackMap.get(stackId);
+				if(stack.name.equals(animInfo.layerName)) {
+					animationStack = stackId;
+					break;
+				}
+			}
+			if(animationStack == 0 && astackMap.size() > 0) {
+				animationStack = astackMap.keySet().iterator().next();
+			}
+			FbxAnimationStack stack = astackMap.get(animationStack);
+			if(stack == null)
+				continue;
+			// TODO Read animation length from AnimationStacks?
 			float realLength = 0;
 			float length = (animInfo.lastFrame - animInfo.firstFrame) / this.animFrameRate;
 			float animStart = animInfo.firstFrame / this.animFrameRate;
 			float animStop = animInfo.lastFrame / this.animFrameRate;
 			Animation anim = new Animation(animInfo.name, length);
-			// Search source layer for animation nodes
-			long sourceLayerId = 0L;
-			for(long layerId : alayerMap.keySet()) {
-				FbxObject layer = alayerMap.get(layerId);
-				if(layer.name.equals(animInfo.layerName)) {
-					sourceLayerId = layerId;
-					break;
-				}
-			}
-			// Build bone tracks
-			for(FbxNode limb : limbMap.values()) {
-				// Animation channels may have different keyframes (non-baked animation).
-				//   So we have to restore intermediate values for all channels cause of JME requires
-				//   a bone track as a single channel with collective transformation for each keyframe
-				Set<Long> stamps = new TreeSet<Long>(); // Sorted unique timestamps
-				FbxAnimNode animTranslation = limb.animTranslation(sourceLayerId);
-				FbxAnimNode animRotation = limb.animRotation(sourceLayerId);
-				FbxAnimNode animScale = limb.animScale(sourceLayerId);
-				boolean haveTranslation = haveAnyChannel(animTranslation);
-				boolean haveRotation = haveAnyChannel(animRotation);
-				boolean haveScale = haveAnyChannel(animScale);
-				// Collect keyframes stamps
-				if(haveTranslation)
-					animTranslation.exportTimes(stamps);
-				if(haveRotation)
-					animRotation.exportTimes(stamps);
-				if(haveScale)
-					animScale.exportTimes(stamps);
-				if(stamps.isEmpty())
-					continue;
-				long[] keyTimes = new long[stamps.size()];
-				int cnt = 0;
-				for(long t : stamps)
-					keyTimes[cnt++] = t;
-				// Calculate keys interval by animation time interval
-				int firstKeyIndex = 0;
-				int lastKeyIndex = keyTimes.length - 1;
-				for(int i = 0; i < keyTimes.length; ++i) {
-					float time = (float) (((double) keyTimes[i]) * secondsPerUnit); // Translate into seconds
-					if(time <= animStart)
-						firstKeyIndex = i;
-					if(time >= animStop && animStop >= 0) {
-						lastKeyIndex = i;
-						break;
+			for(int ll = 0; ll < stack.animationLayers.size(); ++ll) {
+				long sourceLayerId = stack.animationLayers.get(ll);
+				// Build bone tracks
+				for(FbxNode limb : limbMap.values()) {
+					// Animation channels may have different keyframes (non-baked animation).
+					//   So we have to restore intermediate values for all channels cause of JME requires
+					//   a bone track as a single channel with collective transformation for each keyframe
+					Set<Long> stamps = new TreeSet<Long>(); // Sorted unique timestamps
+					FbxAnimNode animTranslation = limb.animTranslation(sourceLayerId);
+					FbxAnimNode animRotation = limb.animRotation(sourceLayerId);
+					FbxAnimNode animScale = limb.animScale(sourceLayerId);
+					boolean haveTranslation = haveAnyChannel(animTranslation);
+					boolean haveRotation = haveAnyChannel(animRotation);
+					boolean haveScale = haveAnyChannel(animScale);
+					// Collect keyframes stamps
+					if(haveTranslation)
+						animTranslation.exportTimes(stamps);
+					if(haveRotation)
+						animRotation.exportTimes(stamps);
+					if(haveScale)
+						animScale.exportTimes(stamps);
+					if(stamps.isEmpty())
+						continue;
+					long[] keyTimes = new long[stamps.size()];
+					int cnt = 0;
+					for(long t : stamps)
+						keyTimes[cnt++] = t;
+					// Calculate keys interval by animation time interval
+					int firstKeyIndex = 0;
+					int lastKeyIndex = keyTimes.length - 1;
+					for(int i = 0; i < keyTimes.length; ++i) {
+						float time = (float) (((double) keyTimes[i]) * secondsPerUnit); // Translate into seconds
+						if(time <= animStart)
+							firstKeyIndex = i;
+						if(time >= animStop && animStop >= 0) {
+							lastKeyIndex = i;
+							break;
+						}
 					}
-				}
-				int keysCount = lastKeyIndex - firstKeyIndex + 1;
-				if(keysCount <= 0)
-					continue;
-				float[] times = new float[keysCount];
-				Vector3f[] translations = new Vector3f[keysCount];
-				Quaternion[] rotations = new Quaternion[keysCount];
-				Vector3f[] scales = null;
-				// Calculate keyframes times
-				for(int i = 0; i < keysCount; ++i) {
-					int keyIndex = firstKeyIndex + i;
-					float time = (float) (((double) keyTimes[keyIndex]) * secondsPerUnit); // Translate into seconds
-					times[i] = time - animStart;
-					realLength = Math.max(realLength, times[i]);
-				}
-				// Load keyframes from animation curves
-				if(haveTranslation) {
+					int keysCount = lastKeyIndex - firstKeyIndex + 1;
+					if(keysCount <= 0)
+						continue;
+					float[] times = new float[keysCount];
+					Vector3f[] translations = new Vector3f[keysCount];
+					Quaternion[] rotations = new Quaternion[keysCount];
+					Vector3f[] rotationsRaw = new Vector3f[keysCount];
+					Vector3f[] scales = new Vector3f[keysCount];
+					// Calculate keyframes times
 					for(int i = 0; i < keysCount; ++i) {
 						int keyIndex = firstKeyIndex + i;
-						FbxAnimNode n = animTranslation;
-						Vector3f tvec = n.getValue(keyTimes[keyIndex], n.value).subtractLocal(n.value); // Why do it here but not in other places? FBX magic?
-						translations[i] = tvec.divideLocal(unitSize);
+						float time = (float) (((double) keyTimes[keyIndex]) * secondsPerUnit); // Translate into seconds
+						times[i] = time - animStart;
+						realLength = Math.max(realLength, times[i]);
 					}
-				} else {
-					for(int i = 0; i < keysCount; ++i)
-						translations[i] = Vector3f.ZERO;
-				}
-				RotationOrder ro = RotationOrder.EULER_XYZ;
-				if(haveRotation) {
+					Vector3f translationBase = animTranslation.value;
+					if(animTranslation.hasValue(0))
+						translationBase = animTranslation.getValue(0, translationBase);
+					Vector3f rotationBase = animRotation.value;
+					if(animRotation.hasValue(0))
+						rotationBase = animRotation.getValue(0, rotationBase);
+					Vector3f scaleBase = haveScale ? animScale.value : Vector3f.UNIT_XYZ;
+					if(haveScale && animScale.hasValue(0))
+						scaleBase = animScale.getValue(0, scaleBase);
+					
+					// Sometimes bind pose is saved in 0 frame (why? because FBX & Maya...)
+					if(animTranslation.hasValue(0) && animRotation.hasValue(0)) {
+						limb.transformMatrix = limb.computeTransformationMatrix(translationBase, rotationBase, scaleBase, limb.rotationOrder);
+						limb.localTransform = new Transform(limb.transformMatrix.toTranslationVector(), limb.transformMatrix.toRotationQuat(), limb.transformMatrix.toScaleVector());
+						limb.node.setLocalTransform(limb.localTransform);
+						limb.bone.setBindTransforms(limb.node.getLocalTranslation(), limb.node.getLocalRotation(), limb.node.getLocalScale());
+						// TODO This ruins InheritType.Rrs
+					}
+					
+					// Load keyframes from animation curves
+					if(haveTranslation) {
+						for(int i = 0; i < keysCount; ++i) {
+							int keyIndex = firstKeyIndex + i;
+							FbxAnimNode n = animTranslation;
+							Vector3f tvec = n.getValue(keyTimes[keyIndex], translationBase);
+							translations[i] = tvec.multLocal(unitSize);
+						}
+					}
+					if(haveRotation) {
+						for(int i = 0; i < keysCount; ++i) {
+							int keyIndex = firstKeyIndex + i;
+							FbxAnimNode n = animRotation;
+							Vector3f tvec = n.getValue(keyTimes[keyIndex], rotationBase);
+							rotationsRaw[i] = tvec;
+						}
+					}
+					if(haveScale) {
+						for(int i = 0; i < keysCount; ++i) {
+							int keyIndex = firstKeyIndex + i;
+							FbxAnimNode n = animScale;
+							Vector3f tvec = n.getValue(keyTimes[keyIndex], scaleBase);
+							if(limb.inheritType == InheritType.Rrs) {
+								tvec.multLocal(limb.node.getLocalScale());
+							}
+							scales[i] = tvec;
+						}
+					}
+					// We need to transform animation from parent-space transforms to bone-space transforms
+					// JME uses bone-space transforms and FBx uses parent-space transforms
+					Transform transformBase = limb.localTransform;
 					for(int i = 0; i < keysCount; ++i) {
-						int keyIndex = firstKeyIndex + i;
-						FbxAnimNode n = animRotation;
-						Vector3f tvec = n.getValue(keyTimes[keyIndex], n.value);
-						rotations[i] = ro.rotate(tvec);
+						Matrix4f transformation = limb.computeTransformationMatrix(haveTranslation ? translations[i] : translationBase, haveRotation ? rotationsRaw[i] : rotationBase, haveScale ? scales[i] : scaleBase, limb.rotationOrder);
+						translations[i] = transformation.toTranslationVector().subtractLocal(transformBase.getTranslation());
+						rotations[i] = transformBase.getRotation().inverse().multLocal(transformation.toRotationQuat());
+						scales[i] = transformation.toScaleVector().divideLocal(transformBase.getScale());
+						if(haveScale || scales[i].subtract(Vector3f.UNIT_XYZ).lengthSquared() > FastMath.FLT_EPSILON)
+							haveScale = true;
 					}
-				} else {
-					for(int i = 0; i < keysCount; ++i)
-						rotations[i] = Quaternion.IDENTITY;
+					BoneTrack track = null;
+					if(haveScale)
+						track = new BoneTrack(limb.boneIndex, times, translations, rotations, scales);
+					else // No scale or scale was compensated
+						track = new BoneTrack(limb.boneIndex, times, translations, rotations);
+					anim.addTrack(track);
 				}
-				if(haveScale) {
-					scales = new Vector3f[keysCount];
-					for(int i = 0; i < keysCount; ++i) {
-						int keyIndex = firstKeyIndex + i;
-						FbxAnimNode n = animScale;
-						Vector3f tvec = n.getValue(keyTimes[keyIndex], n.value);
-						scales[i] = tvec;
-					}
-				}
-				BoneTrack track = null;
-				if(haveScale)
-					track = new BoneTrack(limb.boneIndex, times, translations, rotations, scales);
-				else
-					track = new BoneTrack(limb.boneIndex, times, translations, rotations);
-				anim.addTrack(track);
 			}
 			if(realLength != length && animInfo.lastFrame == -1) {
 				Track[] tracks = anim.getTracks();
@@ -430,8 +499,13 @@ public class SceneLoader implements AssetLoader {
 		animControl.setAnimations(anims);
 	}
 	
+	private static boolean haveAnyChannel(FbxAnimNode anims) {
+		return anims != null && anims.haveAnyChannel();
+	}
+	
 	private void releaseObjects() {
 		// Reset settings
+		sceneFile = null;
 		unitSize = 1;
 		animFrameRate = 30;
 		xAxis = 1;
@@ -453,23 +527,10 @@ public class SceneLoader implements AssetLoader {
 		limbMap.clear();
 		bindMap.clear();
 		geomMap.clear();
+		astackMap.clear();
+		rootNodes.clear();
 		skeleton = null;
 		animControl = null;
 		sceneNode = null;
-	}
-	
-	
-	private static boolean haveAnyChannel(FbxAnimNode anims) {
-		return anims != null && anims.haveAnyChannel();
-	}
-	
-	private static String join(List<String> list, String glue) {
-		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i < list.size(); ++i) {
-			if(sb.length() != 0)
-				sb.append(glue);
-			sb.append(list.get(i));
-		}
-		return sb.toString();
 	}
 }
