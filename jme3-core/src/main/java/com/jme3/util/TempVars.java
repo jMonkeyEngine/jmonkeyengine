@@ -37,6 +37,7 @@ import com.jme3.collision.CollisionResults;
 import com.jme3.collision.bih.BIHNode.BIHStackData;
 import com.jme3.math.*;
 import com.jme3.scene.Spatial;
+import java.io.Closeable;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -47,8 +48,16 @@ import java.util.ArrayList;
  * instances must be returned via TempVars.release().
  * This returns an available instance of the TempVar class ensuring this 
  * particular instance is never used elsewhere in the mean time.
+ * <p>
+ * This class implements Closeable. Therefore you can use the try-with-resource
+ * construct to acquire and release TempVar instances (on Java 7 or higher):
+ * <pre><code>
+ * try (TempVars vars = TempVars.get()) {
+ *     //do something
+ * }
+ * </code></pre>
  */
-public class TempVars {
+public class TempVars implements Closeable {
 
     /**
      * Allow X instances of TempVars in a single thread.
@@ -140,6 +149,25 @@ public class TempVars {
             throw new IllegalStateException("An instance of TempVars has not been released in a called method!");
         }
     }
+
+    /**
+     * Releases this instance of TempVars.
+     * It delegates to {@link #release() }.
+     * <p>
+     * Description copied from {@link #release()}:<br>
+     * Once released, the contents of the TempVars are undefined.
+     * The TempVars must be released in the opposite order that they are retrieved,
+     * e.g. Acquiring vars1, then acquiring vars2, vars2 MUST be released 
+     * first otherwise an exception will be thrown.
+     * 
+     * @throws IllegalStateException throws when a) the instance was already released,
+     * or b) if the TempVars instances were not released in the opposite order than acquired.
+     */
+    @Override
+    public void close() throws IllegalStateException {
+        release();
+    }
+    
     /**
      * For interfacing with OpenGL in Renderer.
      */
