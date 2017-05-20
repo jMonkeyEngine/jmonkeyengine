@@ -302,6 +302,12 @@ public class DDSLoader implements AssetLoader {
                     bpp = 64;
                     pixelFormat = Image.Format.RGBA16F;
                     break;
+                case 111:
+                    compressed = false;
+                    bpp = 16;
+                    pixelFormat = Format.Luminance16F;
+                    grayscaleOrAlpha = true;
+                    break;
                 default:
                     throw new IOException("Unknown fourcc: " + string(fourcc) + ", " + Integer.toHexString(fourcc));
             }
