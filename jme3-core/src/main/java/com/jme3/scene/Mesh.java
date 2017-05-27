@@ -64,7 +64,7 @@ import java.util.ArrayList;
  * Meshes may contain three types of geometric primitives:
  * <ul>
  * <li>Points - Every vertex represents a single point in space,
- * the size of each point is specified via {@link Mesh#setPointSize(float) }.
+ * the size of {@link Mode#Points points} is determined via the vertex shader's <code>gl_PointSize</code> output.
  * Points can also be used for {@link RenderState#setPointSprite(boolean) point
  * sprite} mode.</li>
  * <li>Lines - 2 vertices represent a line segment, with the width specified
