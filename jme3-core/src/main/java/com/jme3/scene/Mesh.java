@@ -63,8 +63,7 @@ import java.util.ArrayList;
  * All visible elements in a scene are represented by meshes.
  * Meshes may contain three types of geometric primitives:
  * <ul>
- * <li>Points - Every vertex represents a single point in space,
- * the size of {@link Mode#Points points} is determined via the vertex shader's <code>gl_PointSize</code> output.
+ * <li>Points - Every vertex represents a single point in space.
  * Points can also be used for {@link RenderState#setPointSprite(boolean) point
  * sprite} mode.</li>
  * <li>Lines - 2 vertices represent a line segment, with the width specified
@@ -82,8 +81,8 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      */
     public enum Mode {
         /**
-         * A primitive is a single point in space. The size of the points
-         * can be specified with {@link Mesh#setPointSize(float) }.
+         * A primitive is a single point in space. The size of {@link Mode#Points points} are
+         * determined via the vertex shader's <code>gl_PointSize</code> output.
          */
         Points(true),
 
