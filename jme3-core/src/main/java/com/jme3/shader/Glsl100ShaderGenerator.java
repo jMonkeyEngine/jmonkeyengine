@@ -243,7 +243,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
             //all variables fed with a matparam or world param are replaced but the matparam itself
             //it avoids issue with samplers that have to be uniforms, and it optimize a but the shader code.
             if (isWorldOrMaterialParam(mapping.getRightVariable())) {
-                nodeSource = replace(nodeSource, mapping.getLeftVariable(), mapping.getRightVariable().getName());
+                nodeSource = replace(nodeSource, mapping.getLeftVariable(), mapping.getRightVariable().getPrefix() + mapping.getRightVariable().getName());
             } else {
                 if (mapping.getLeftVariable().getType().startsWith("sampler")) {
                     throw new IllegalArgumentException("a Sampler must be a uniform");
@@ -338,6 +338,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
             source.append(var.getNameSpace());
             source.append("_");
         }
+        source.append(var.getPrefix());
         source.append(var.getName());
         if (var.getMultiplicity() != null) {
             source.append("[");

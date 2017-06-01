@@ -542,11 +542,13 @@ public class ShaderNodeLoaderDelegate {
      */
     protected boolean updateRightFromUniforms(UniformBinding param, VariableMapping mapping, Map<String, DeclaredVariable> map) {
         ShaderNodeVariable right = mapping.getRightVariable();
-        String name = "g_" + param.toString();
+        String name = param.toString();
+
         DeclaredVariable dv = map.get(name);
         if (dv == null) {
             right.setType(param.getGlslType());
             right.setName(name);
+            right.setPrefix("g_");
             dv = new DeclaredVariable(right);
             map.put(right.getName(), dv);
             dv.addNode(shaderNode);
@@ -570,10 +572,11 @@ public class ShaderNodeLoaderDelegate {
      */
     public boolean updateRightFromUniforms(MatParam param, VariableMapping mapping, Map<String, DeclaredVariable> map, Statement statement) throws MatParseException {
         ShaderNodeVariable right = mapping.getRightVariable();
-        DeclaredVariable dv = map.get(param.getPrefixedName());
+        DeclaredVariable dv = map.get(param.getName());
         if (dv == null) {
             right.setType(param.getVarType().getGlslType());
-            right.setName(param.getPrefixedName());     
+            right.setName(param.getName());
+            right.setPrefix("m_");
             if(mapping.getLeftVariable().getMultiplicity() != null){
                 if(!param.getVarType().name().endsWith("Array")){
                     throw new MatParseException(param.getName() + " is not of Array type", statement);
