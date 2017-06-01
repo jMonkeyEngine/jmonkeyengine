@@ -193,6 +193,7 @@ public class ShaderNodeLoaderDelegate {
                     shaderNodeDefinition = new ShaderNodeDefinition();
                     getNodeDefinitions().put(name, shaderNodeDefinition);
                     shaderNodeDefinition.setName(name);
+                    shaderNodeDefinition.setPath(key.getName());
                     readShaderNodeDefinition(statement.getContents(), key);
 
                 }
@@ -942,7 +943,6 @@ public class ShaderNodeLoaderDelegate {
                 }
 
                 for (ShaderNodeDefinition definition : defs) {
-                    definition.setPath(defLine[2].trim());
                     if (defName.equals(definition.getName())) {
                         def = definition;
                     }
