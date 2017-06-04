@@ -506,6 +506,7 @@ public class Geometry extends Spatial {
     /**
      *  The old clone() method that did not use the new Cloner utility.
      */
+    @Override
     public Geometry oldClone(boolean cloneMaterial) {
         Geometry geomClone = (Geometry) super.clone(cloneMaterial);
 
