@@ -332,6 +332,11 @@ public class WaterFilter extends Filter {
         oc.write(causticsIntensity, "causticsIntensity", 0.5f);
 
         oc.write(useCaustics, "useCaustics", true);
+        
+        //positional attributes
+        oc.write(center, "center", null);
+        oc.write(radius, "radius", 0f);
+        oc.write(shapeType.ordinal(), "shapeType", AreaShape.Circular.ordinal());
     }
 
     @Override
@@ -377,6 +382,11 @@ public class WaterFilter extends Filter {
 
         useCaustics = ic.readBoolean("useCaustics", true);
 
+        //positional attributes
+        center = (Vector3f) ic.readSavable("center", null);
+        radius = ic.readFloat("radius", 0f);
+        int shapeType = ic.readInt("shapeType", AreaShape.Circular.ordinal());
+        this.shapeType = AreaShape.values()[shapeType];
     }
 
     /**
