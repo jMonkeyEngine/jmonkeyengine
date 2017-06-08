@@ -31,12 +31,18 @@
  */
 package com.jme3.animation;
 
-import com.jme3.export.*;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.scene.Spatial;
+import com.jme3.system.Annotations.Internal;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 
 /**
@@ -82,6 +88,16 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Changes the name of the bone animation.
+     *
+     * @param name the new name.
+     */
+    @Internal
+    public void setName(final String name) {
+        this.name = name;
     }
 
     /**

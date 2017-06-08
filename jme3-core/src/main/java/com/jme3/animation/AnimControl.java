@@ -31,16 +31,21 @@
  */
 package com.jme3.animation;
 
-import com.jme3.export.*;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
+import com.jme3.system.Annotations.Internal;
+import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
-import com.jme3.util.TempVars;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -199,6 +204,31 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
         }
 
         animationMap.remove(anim.getName());
+    }
+
+    /**
+     * Changes a name of an animation in this control.
+     *
+     * @param prevName the previous name of an animation.
+     * @param newName  the new name of an animation.
+     */
+    @Internal
+    public void changeAnimName(String prevName, String newName) {
+
+        if (!animationMap.containsKey(prevName)) {
+            throw new IllegalArgumentException("Given animation does not exist "
+                    + "in this AnimControl");
+        }
+
+        if (animationMap.containsKey(newName)) {
+            throw new IllegalArgumentException("The same animation exist "
+                    + "in this AnimControl");
+        }
+
+        final Animation animation = animationMap.remove(prevName);
+        animation.setName(newName);
+
+        animationMap.put(newName, animation);
     }
 
     /**
