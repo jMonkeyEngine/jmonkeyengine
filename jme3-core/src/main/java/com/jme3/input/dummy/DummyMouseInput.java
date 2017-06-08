@@ -54,4 +54,8 @@ public class DummyMouseInput extends DummyInput implements MouseInput {
     public void setNativeCursor(JmeCursor cursor) {
     }
 
+    @Override
+    public boolean isNeedFlipYCursor() {
+        return true;
+    }
 }

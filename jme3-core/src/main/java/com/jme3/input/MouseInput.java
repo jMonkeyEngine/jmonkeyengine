@@ -87,4 +87,9 @@ public interface MouseInput extends Input {
      * @param cursor The cursor to use.
      */
     public void setNativeCursor(JmeCursor cursor);
+
+    /**
+     * @return is need the flip by Y of cursor.
+     */
+    public boolean isNeedFlipYCursor();
 }

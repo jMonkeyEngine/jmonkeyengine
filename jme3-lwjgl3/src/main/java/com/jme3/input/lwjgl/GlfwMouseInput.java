@@ -304,4 +304,9 @@ public class GlfwMouseInput implements MouseInput {
                 return glfwButton;
         }
     }
+
+    @Override
+    public boolean isNeedFlipYCursor() {
+        return false;
+    }
 }

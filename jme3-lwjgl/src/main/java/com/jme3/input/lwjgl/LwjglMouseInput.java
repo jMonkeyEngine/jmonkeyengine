@@ -191,4 +191,8 @@ public class LwjglMouseInput implements MouseInput {
         }
     }
 
+    @Override
+    public boolean isNeedFlipYCursor() {
+        return true;
+    }
 }

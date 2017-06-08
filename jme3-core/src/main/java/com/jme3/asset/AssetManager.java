@@ -31,6 +31,7 @@
  */
 package com.jme3.asset;
 
+import com.jme3.app.Application;
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.audio.AudioData;
@@ -86,6 +87,16 @@ import java.util.List;
  * so that modifications to one instance do not leak onto others.
  */
 public interface AssetManager {
+
+    /**
+     * @param application the application of this manager.
+     */
+    public void setApplication(final Application application);
+
+    /**
+     * @return the application of this manager.
+     */
+    public Application getApplication();
 
     /**
      * Adds a {@link ClassLoader} that is used to load {@link Class classes}
