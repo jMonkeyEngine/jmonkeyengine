@@ -61,7 +61,6 @@ import java.io.IOException;
  */
 public class SpotLight extends Light {
 
-    protected Vector3f position = new Vector3f();
     protected Vector3f direction = new Vector3f(0, -1, 0);
     protected float spotInnerAngle = FastMath.QUARTER_PI / 8;
     protected float spotOuterAngle = FastMath.QUARTER_PI / 6;
@@ -319,14 +318,6 @@ public class SpotLight extends Light {
         this.direction.set(direction);
     }
 
-    public Vector3f getPosition() {
-        return position;
-    }
-
-    public final void setPosition(Vector3f position) {
-        this.position.set(position);
-    }
-
     public float getSpotRange() {
         return spotRange;
     }
@@ -426,7 +417,6 @@ public class SpotLight extends Light {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(direction, "direction", new Vector3f());
-        oc.write(position, "position", new Vector3f());
         oc.write(spotInnerAngle, "spotInnerAngle", FastMath.QUARTER_PI / 8);
         oc.write(spotOuterAngle, "spotOuterAngle", FastMath.QUARTER_PI / 6);
         oc.write(spotRange, "spotRange", 100);
@@ -440,7 +430,6 @@ public class SpotLight extends Light {
         spotOuterAngle = ic.readFloat("spotOuterAngle", FastMath.QUARTER_PI / 6);
         computeAngleParameters();
         direction = (Vector3f) ic.readSavable("direction", new Vector3f());
-        position = (Vector3f) ic.readSavable("position", new Vector3f());
         spotRange = ic.readFloat("spotRange", 100);
         if (spotRange != 0) {
             this.invSpotRange = 1 / spotRange;
@@ -453,7 +442,6 @@ public class SpotLight extends Light {
     public SpotLight clone() {
         SpotLight s = (SpotLight)super.clone();
         s.direction = direction.clone();
-        s.position = position.clone();
         return s;
     }
 }

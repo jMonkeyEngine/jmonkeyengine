@@ -39,12 +39,12 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.math.FastMath;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
+
 import java.io.IOException;
 
 /**
@@ -59,7 +59,6 @@ import java.io.IOException;
  */
 public class PointLight extends Light {
 
-    protected Vector3f position = new Vector3f();
     protected float radius = 0;
     protected float invRadius = 0;
 
@@ -117,26 +116,6 @@ public class PointLight extends Light {
         } else {
             lastDistance = owner.getWorldTranslation().distanceSquared(position);
         }
-    }
-
-    /**
-     * Returns the world space position of the light.
-     * 
-     * @return the world space position of the light.
-     * 
-     * @see PointLight#setPosition(com.jme3.math.Vector3f) 
-     */
-    public Vector3f getPosition() {
-        return position;
-    }
-
-    /**
-     * Set the world space position of the light.
-     * 
-     * @param position the world space position of the light.
-     */
-    public final void setPosition(Vector3f position) {
-        this.position.set(position);
     }
 
     /**
@@ -225,7 +204,6 @@ public class PointLight extends Light {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(position, "position", null);
         oc.write(radius, "radius", 0f);
     }
 
@@ -233,19 +211,11 @@ public class PointLight extends Light {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        position = (Vector3f) ic.readSavable("position", null);
         radius = ic.readFloat("radius", 0f);
         if(radius!=0){
             this.invRadius = 1 / radius;
         }else{
             this.invRadius = 0;
         }
-    }
-
-    @Override
-    public PointLight clone() {
-        PointLight p = (PointLight)super.clone();
-        p.position = position.clone();
-        return p;
     }
 }
