@@ -44,7 +44,7 @@ import com.jme3.util.BufferUtils;
 import java.io.IOException;
 
 /**
- * A simple cylinder, defined by its height and radius.
+ * A simple cylinder, defined by it's height and radius.
  * (Ported to jME3)
  *
  * @author Mark Powell
@@ -211,13 +211,13 @@ public class Cylinder extends Mesh {
     public void updateGeometry(int axisSamples, int radialSamples,
             float topRadius, float bottomRadius, float height, boolean closed, boolean inverted)
 	{
-		// Ensure there's at least two axis samples and 3 radial samples, and positive geometries.
+		// Ensure there's at least two axis samples and 3 radial samples, and positive dimensions.
 		if( axisSamples < 2
 			|| radialSamples < 3
 			|| topRadius <= 0
 			|| bottomRadius <= 0
 			|| height <= 0 )
-			return;
+			throw new IllegalArgumentException("Cylinders must have at least 2 axis samples and 3 radial samples, and positive dimensions.");
 		
 		this.axisSamples = axisSamples;
         this.radialSamples = radialSamples;
