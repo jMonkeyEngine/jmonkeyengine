@@ -125,9 +125,9 @@ public class Cylinder extends Mesh {
      * a suited distorted texture.
      *
      * @param axisSamples The number of vertices samples along the axis. It is equal to the number of segments + 1; so 
-	 * that, for instance, 4 samples mean the cylinder will be made of 3 segments.
+     * that, for instance, 4 samples mean the cylinder will be made of 3 segments.
      * @param radialSamples The number of triangle samples along the radius. For instance, 4 means that the sides of the
-	 * cylinder are made of 4 rectangles, and the top and bottom are made of 4 triangles.
+     * cylinder are made of 4 rectangles, and the top and bottom are made of 4 triangles.
      * @param radius
      *            The radius of the cylinder.
      * @param height
@@ -199,27 +199,27 @@ public class Cylinder extends Mesh {
      * Rebuilds the cylinder based on a new set of parameters.
      *
      * @param axisSamples The number of vertices samples along the axis. It is equal to the number of segments + 1; so 
-	 * that, for instance, 4 samples mean the cylinder will be made of 3 segments.
+     * that, for instance, 4 samples mean the cylinder will be made of 3 segments.
      * @param radialSamples The number of triangle samples along the radius. For instance, 4 means that the sides of the
-	 * cylinder are made of 4 rectangles, and the top and bottom are made of 4 triangles.
+     * cylinder are made of 4 rectangles, and the top and bottom are made of 4 triangles.
      * @param topRadius the radius of the top of the cylinder.
-	 * @param bottomRadius the radius of the bottom of the cylinder.
+     * @param bottomRadius the radius of the bottom of the cylinder.
      * @param height the cylinder's height.
      * @param closed should the cylinder have top and bottom surfaces.
      * @param inverted is the cylinder is meant to be viewed from the inside.
      */
     public void updateGeometry(int axisSamples, int radialSamples,
-            float topRadius, float bottomRadius, float height, boolean closed, boolean inverted)
-	{
-		// Ensure there's at least two axis samples and 3 radial samples, and positive dimensions.
-		if( axisSamples < 2
-			|| radialSamples < 3
-			|| topRadius <= 0
-			|| bottomRadius <= 0
-			|| height <= 0 )
-			throw new IllegalArgumentException("Cylinders must have at least 2 axis samples and 3 radial samples, and positive dimensions.");
-		
-		this.axisSamples = axisSamples;
+            float topRadius, float bottomRadius, float height, boolean closed, boolean inverted) {
+        // Ensure there's at least two axis samples and 3 radial samples, and positive dimensions.
+        if( axisSamples < 2
+            || radialSamples < 3
+            || topRadius <= 0
+            || bottomRadius <= 0
+            || height <= 0 ) {
+            throw new IllegalArgumentException("Cylinders must have at least 2 axis samples and 3 radial samples, and positive dimensions.");
+        }
+        
+        this.axisSamples = axisSamples;
         this.radialSamples = radialSamples;
         this.radius = bottomRadius;
         this.radius2 = topRadius;
@@ -229,209 +229,194 @@ public class Cylinder extends Mesh {
 
         // Vertices : One per radial sample plus one duplicate for texture closing around the sides.
         int verticesCount = axisSamples * (radialSamples +1);
-		// Triangles: Two per side rectangle, which is the product of numbers of samples.
-		int trianglesCount = axisSamples * radialSamples * 2 ;
-		if( closed )
-		{
-			// If there are caps, add two additional rims and two summits.
-			verticesCount += 2 + 2 * (radialSamples +1);
-			// Add one triangle per radial sample, twice, to form the caps.
-			trianglesCount += 2 * radialSamples ;
-		}
+        // Triangles: Two per side rectangle, which is the product of numbers of samples.
+        int trianglesCount = axisSamples * radialSamples * 2 ;
+        if( closed ) {
+            // If there are caps, add two additional rims and two summits.
+            verticesCount += 2 + 2 * (radialSamples +1);
+            // Add one triangle per radial sample, twice, to form the caps.
+            trianglesCount += 2 * radialSamples ;
+        }
 
-		// Compute the points along a unit circle:
-		float[][] circlePoints = new float[radialSamples+1][2];
-		for (int circlePoint = 0; circlePoint < radialSamples; circlePoint++)
-		{
+        // Compute the points along a unit circle:
+        float[][] circlePoints = new float[radialSamples+1][2];
+        for (int circlePoint = 0; circlePoint < radialSamples; circlePoint++) {
             float angle = FastMath.TWO_PI / radialSamples * circlePoint;
             circlePoints[circlePoint][0] = FastMath.cos(angle);
             circlePoints[circlePoint][1] = FastMath.sin(angle);
         }
-		// Add an additional point for closing the texture around the side of the cylinder.
-		circlePoints[radialSamples][0] = circlePoints[0][0];
+        // Add an additional point for closing the texture around the side of the cylinder.
+        circlePoints[radialSamples][0] = circlePoints[0][0];
         circlePoints[radialSamples][1] = circlePoints[0][1];
-		
+        
         // Calculate normals.
-		// 
-		// A---------B
-		//  \        |
-		//   \       |
-		//    \      |
-		//     D-----C
-		//
-		// Let be B and C the top and bottom points of the axis, and A and D the top and bottom edges.
-		// The normal in A and D is simply orthogonal to AD, which means we can get it once per sample.
-		//
-		Vector3f[] circleNormals = new Vector3f[radialSamples+1];
-		for (int circlePoint = 0; circlePoint < radialSamples+1; circlePoint++)
-		{
+        // 
+        // A---------B
+        //  \        |
+        //   \       |
+        //    \      |
+        //     D-----C
+        //
+        // Let be B and C the top and bottom points of the axis, and A and D the top and bottom edges.
+        // The normal in A and D is simply orthogonal to AD, which means we can get it once per sample.
+        //
+        Vector3f[] circleNormals = new Vector3f[radialSamples+1];
+        for (int circlePoint = 0; circlePoint < radialSamples+1; circlePoint++) {
             // The normal is the orthogonal to the side, which can be got without trigonometry.
-			// The edge direction is oriented so that it goes up by Height, and out by the radius difference; let's use
-			// those values in reverse order.
-			Vector3f normal = new Vector3f(height * circlePoints[circlePoint][0], height * circlePoints[circlePoint][1], bottomRadius - topRadius );
-			circleNormals[circlePoint] = normal.normalizeLocal();
+            // The edge direction is oriented so that it goes up by Height, and out by the radius difference; let's use
+            // those values in reverse order.
+            Vector3f normal = new Vector3f(height * circlePoints[circlePoint][0], height * circlePoints[circlePoint][1], bottomRadius - topRadius );
+            circleNormals[circlePoint] = normal.normalizeLocal();
         }
 
-		float[] vertices = new float[verticesCount * 3];
-		float[] normals = new float[verticesCount * 3];
-		float[] textureCoords = new float[verticesCount * 2];
-		int currentIndex = 0;
-		
-		// Add a circle of points for each axis sample.
-		for(int axisSample = 0; axisSample < axisSamples; axisSample++ )
-		{
-			float currentHeight = -height / 2 + height * axisSample / (axisSamples-1);
-			float currentRadius = bottomRadius + (topRadius - bottomRadius) * axisSample / (axisSamples-1);
-			
-			for (int circlePoint = 0; circlePoint < radialSamples + 1; circlePoint++)
-			{
-				// Position, by multipliying the position on a unit circle with the current radius.
-				vertices[currentIndex*3] = circlePoints[circlePoint][0] * currentRadius;
-				vertices[currentIndex*3 +1] = circlePoints[circlePoint][1] * currentRadius;
-				vertices[currentIndex*3 +2] = currentHeight;
-				
-				// Normal
-				Vector3f currentNormal = circleNormals[circlePoint];
-				normals[currentIndex*3] = currentNormal.x;
-				normals[currentIndex*3+1] = currentNormal.y;
-				normals[currentIndex*3+2] = currentNormal.z;
-						
-				// Texture
-				// The X is the angular position of the point.
-				textureCoords[currentIndex *2] = (float) circlePoint / radialSamples;
-				// Depending on whether there is a cap, the Y is either the height scaled to [0,1], or the radii of 
-				// the cap count as well.
-				if (closed)
-					textureCoords[currentIndex *2 +1] = (bottomRadius + height / 2 + currentHeight) / (bottomRadius + height + topRadius);
-				else
-					textureCoords[currentIndex *2 +1] = height / 2 + currentHeight;
-				
-				currentIndex++;
-			}
-		}
-		
-		// If closed, add duplicate rims on top and bottom, with normals facing up and down.
-		if (closed)
-		{
-			// Bottom
-			for (int circlePoint = 0; circlePoint < radialSamples + 1; circlePoint++)
-			{
-				vertices[currentIndex*3] = circlePoints[circlePoint][0] * bottomRadius;
-				vertices[currentIndex*3 +1] = circlePoints[circlePoint][1] * bottomRadius;
-				vertices[currentIndex*3 +2] = -height/2;
+        float[] vertices = new float[verticesCount * 3];
+        float[] normals = new float[verticesCount * 3];
+        float[] textureCoords = new float[verticesCount * 2];
+        int currentIndex = 0;
+        
+        // Add a circle of points for each axis sample.
+        for(int axisSample = 0; axisSample < axisSamples; axisSample++ ) {
+            float currentHeight = -height / 2 + height * axisSample / (axisSamples-1);
+            float currentRadius = bottomRadius + (topRadius - bottomRadius) * axisSample / (axisSamples-1);
+            
+            for (int circlePoint = 0; circlePoint < radialSamples + 1; circlePoint++) {
+                // Position, by multipliying the position on a unit circle with the current radius.
+                vertices[currentIndex*3] = circlePoints[circlePoint][0] * currentRadius;
+                vertices[currentIndex*3 +1] = circlePoints[circlePoint][1] * currentRadius;
+                vertices[currentIndex*3 +2] = currentHeight;
+                
+                // Normal
+                Vector3f currentNormal = circleNormals[circlePoint];
+                normals[currentIndex*3] = currentNormal.x;
+                normals[currentIndex*3+1] = currentNormal.y;
+                normals[currentIndex*3+2] = currentNormal.z;
+                        
+                // Texture
+                // The X is the angular position of the point.
+                textureCoords[currentIndex *2] = (float) circlePoint / radialSamples;
+                // Depending on whether there is a cap, the Y is either the height scaled to [0,1], or the radii of 
+                // the cap count as well.
+                if (closed)
+                    textureCoords[currentIndex *2 +1] = (bottomRadius + height / 2 + currentHeight) / (bottomRadius + height + topRadius);
+                else
+                    textureCoords[currentIndex *2 +1] = height / 2 + currentHeight;
+                
+                currentIndex++;
+            }
+        }
+        
+        // If closed, add duplicate rims on top and bottom, with normals facing up and down.
+        if (closed) {
+            // Bottom
+            for (int circlePoint = 0; circlePoint < radialSamples + 1; circlePoint++) {
+                vertices[currentIndex*3] = circlePoints[circlePoint][0] * bottomRadius;
+                vertices[currentIndex*3 +1] = circlePoints[circlePoint][1] * bottomRadius;
+                vertices[currentIndex*3 +2] = -height/2;
 
-				normals[currentIndex*3] = 0;
-				normals[currentIndex*3+1] = 0;
-				normals[currentIndex*3+2] = -1;
+                normals[currentIndex*3] = 0;
+                normals[currentIndex*3+1] = 0;
+                normals[currentIndex*3+2] = -1;
 
-				textureCoords[currentIndex *2] = (float) circlePoint / radialSamples;
-				textureCoords[currentIndex *2 +1] = bottomRadius / (bottomRadius + height + topRadius);
+                textureCoords[currentIndex *2] = (float) circlePoint / radialSamples;
+                textureCoords[currentIndex *2 +1] = bottomRadius / (bottomRadius + height + topRadius);
 
-				currentIndex++;
-			}
-			// Top
-			for (int circlePoint = 0; circlePoint < radialSamples + 1; circlePoint++)
-			{
-				vertices[currentIndex*3] = circlePoints[circlePoint][0] * topRadius;
-				vertices[currentIndex*3 +1] = circlePoints[circlePoint][1] * topRadius;
-				vertices[currentIndex*3 +2] = height/2;
+                currentIndex++;
+            }
+            // Top
+            for (int circlePoint = 0; circlePoint < radialSamples + 1; circlePoint++) {
+                vertices[currentIndex*3] = circlePoints[circlePoint][0] * topRadius;
+                vertices[currentIndex*3 +1] = circlePoints[circlePoint][1] * topRadius;
+                vertices[currentIndex*3 +2] = height/2;
 
-				normals[currentIndex*3] = 0;
-				normals[currentIndex*3+1] = 0;
-				normals[currentIndex*3+2] = 1;
+                normals[currentIndex*3] = 0;
+                normals[currentIndex*3+1] = 0;
+                normals[currentIndex*3+2] = 1;
 
-				textureCoords[currentIndex *2] = (float) circlePoint / radialSamples;
-				textureCoords[currentIndex *2 +1] = (bottomRadius + height) / (bottomRadius + height + topRadius);
+                textureCoords[currentIndex *2] = (float) circlePoint / radialSamples;
+                textureCoords[currentIndex *2 +1] = (bottomRadius + height) / (bottomRadius + height + topRadius);
 
-				currentIndex++;
-			}
-			
-			// Add the centers of the caps.
-			vertices[currentIndex*3] = 0;
-			vertices[currentIndex*3 +1] = 0;
-			vertices[currentIndex*3 +2] = -height/2;
-			
-			normals[currentIndex*3] = 0;
-			normals[currentIndex*3+1] = 0;
-			normals[currentIndex*3+2] = -1;
-			
-			textureCoords[currentIndex *2] = 0.5f;
-			textureCoords[currentIndex *2+1] = 0f;
-			
-			currentIndex++;
-			
-			vertices[currentIndex*3] = 0;
-			vertices[currentIndex*3 +1] = 0;
-			vertices[currentIndex*3 +2] = height/2;
-			
-			normals[currentIndex*3] = 0;
-			normals[currentIndex*3+1] = 0;
-			normals[currentIndex*3+2] = 1;
-			
-			textureCoords[currentIndex *2] = 0.5f;
-			textureCoords[currentIndex *2+1] = 1f;
+                currentIndex++;
+            }
+            
+            // Add the centers of the caps.
+            vertices[currentIndex*3] = 0;
+            vertices[currentIndex*3 +1] = 0;
+            vertices[currentIndex*3 +2] = -height/2;
+            
+            normals[currentIndex*3] = 0;
+            normals[currentIndex*3+1] = 0;
+            normals[currentIndex*3+2] = -1;
+            
+            textureCoords[currentIndex *2] = 0.5f;
+            textureCoords[currentIndex *2+1] = 0f;
+            
+            currentIndex++;
+            
+            vertices[currentIndex*3] = 0;
+            vertices[currentIndex*3 +1] = 0;
+            vertices[currentIndex*3 +2] = height/2;
+            
+            normals[currentIndex*3] = 0;
+            normals[currentIndex*3+1] = 0;
+            normals[currentIndex*3+2] = 1;
+            
+            textureCoords[currentIndex *2] = 0.5f;
+            textureCoords[currentIndex *2+1] = 1f;
         }
 
-		// Add the triangles indexes.
+        // Add the triangles indexes.
         short[] indices = new short[trianglesCount * 3];
-		currentIndex = 0;
-		for (short axisSample = 0; axisSample < axisSamples - 1; axisSample++)
-		{
-			for (int circlePoint = 0; circlePoint < radialSamples; circlePoint++)
-			{
-				indices[currentIndex++] = (short) (axisSample * (radialSamples + 1) + circlePoint);
-				indices[currentIndex++] =  (short) (axisSample * (radialSamples + 1) + circlePoint + 1);
-				indices[currentIndex++] =  (short) ((axisSample + 1) * (radialSamples + 1) + circlePoint);
+        currentIndex = 0;
+        for (short axisSample = 0; axisSample < axisSamples - 1; axisSample++) {
+            for (int circlePoint = 0; circlePoint < radialSamples; circlePoint++) {
+                indices[currentIndex++] = (short) (axisSample * (radialSamples + 1) + circlePoint);
+                indices[currentIndex++] =  (short) (axisSample * (radialSamples + 1) + circlePoint + 1);
+                indices[currentIndex++] =  (short) ((axisSample + 1) * (radialSamples + 1) + circlePoint);
 
-				indices[currentIndex++] =  (short) ((axisSample + 1) * (radialSamples + 1) + circlePoint);
-				indices[currentIndex++] =  (short) (axisSample * (radialSamples + 1) + circlePoint + 1);
-				indices[currentIndex++] =  (short) ((axisSample + 1) * (radialSamples + 1) + circlePoint + 1);
-			}
-		}
-		// Add caps if needed.
-		if(closed)
-		{
-			short bottomCapIndex = (short) (verticesCount - 2);
-			short topCapIndex = (short) (verticesCount - 1);
-			
-			int bottomRowOffset = (axisSamples) * (radialSamples +1 );
-			int topRowOffset = (axisSamples+1) * (radialSamples +1 );
-			
-			for (int circlePoint = 0; circlePoint < radialSamples; circlePoint++)
-			{
-				indices[currentIndex++] =  (short) (bottomRowOffset + circlePoint +1);
-				indices[currentIndex++] = (short) (bottomRowOffset + circlePoint);
-				indices[currentIndex++] =  bottomCapIndex;
+                indices[currentIndex++] =  (short) ((axisSample + 1) * (radialSamples + 1) + circlePoint);
+                indices[currentIndex++] =  (short) (axisSample * (radialSamples + 1) + circlePoint + 1);
+                indices[currentIndex++] =  (short) ((axisSample + 1) * (radialSamples + 1) + circlePoint + 1);
+            }
+        }
+        // Add caps if needed.
+        if(closed) {
+            short bottomCapIndex = (short) (verticesCount - 2);
+            short topCapIndex = (short) (verticesCount - 1);
+            
+            int bottomRowOffset = (axisSamples) * (radialSamples +1 );
+            int topRowOffset = (axisSamples+1) * (radialSamples +1 );
+            
+            for (int circlePoint = 0; circlePoint < radialSamples; circlePoint++) {
+                indices[currentIndex++] =  (short) (bottomRowOffset + circlePoint +1);
+                indices[currentIndex++] = (short) (bottomRowOffset + circlePoint);
+                indices[currentIndex++] =  bottomCapIndex;
 
-				
-				indices[currentIndex++] = (short) (topRowOffset + circlePoint);
-				indices[currentIndex++] =  (short) (topRowOffset + circlePoint +1);
-				indices[currentIndex++] =  topCapIndex;
-			}
-		}
+                
+                indices[currentIndex++] = (short) (topRowOffset + circlePoint);
+                indices[currentIndex++] =  (short) (topRowOffset + circlePoint +1);
+                indices[currentIndex++] =  topCapIndex;
+            }
+        }
 
-		// If inverted, the triangles and normals are all reverted.
-		if (inverted)
-		{
-			for (int i = 0; i < indices.length / 2; i++)
-			{
-				short temp = indices[i];
-				indices[i] = indices[indices.length - 1 - i];
-				indices[indices.length - 1 - i] = temp;
-			}
-			
-			for(int i = 0; i< normals.length; i++)
-			{
-				normals[i] = -normals[i];
-			}
-		}
-		
-		// Fill in the buffers.
-		setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(vertices));
-		setBuffer(Type.Normal, 3, BufferUtils.createFloatBuffer(normals));
-		setBuffer(Type.TexCoord, 2, BufferUtils.createFloatBuffer(textureCoords));
+        // If inverted, the triangles and normals are all reverted.
+        if (inverted) {
+            for (int i = 0; i < indices.length / 2; i++) {
+                short temp = indices[i];
+                indices[i] = indices[indices.length - 1 - i];
+                indices[indices.length - 1 - i] = temp;
+            }
+            
+            for(int i = 0; i< normals.length; i++) {
+                normals[i] = -normals[i];
+            }
+        }
+        
+        // Fill in the buffers.
+        setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(vertices));
+        setBuffer(Type.Normal, 3, BufferUtils.createFloatBuffer(normals));
+        setBuffer(Type.TexCoord, 2, BufferUtils.createFloatBuffer(textureCoords));
         setBuffer(Type.Index, 3, BufferUtils.createShortBuffer(indices));
-		
+        
         updateBound();
         setStatic();
     }
