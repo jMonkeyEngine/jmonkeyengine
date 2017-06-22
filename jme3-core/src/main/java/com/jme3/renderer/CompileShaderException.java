@@ -32,56 +32,17 @@
 package com.jme3.renderer;
 
 /**
- * <code>RendererException</code> is raised when a renderer encounters
- * a fatal rendering error.
+ * <code>CompileShaderException</code> is raised when a renderer can't compile a shader.
  *
- * @author Kirill Vainer
+ * @author JavaSaBr
  */
-public class RendererException extends RuntimeException {
+public class CompileShaderException extends RendererException {
 
-    /**
-     * The attachment to this exception.
-     */
-    private Object attachment;
-
-    /**
-     * Creates a new instance of <code>RendererException</code>
-     *
-     * @param message the message
-     */
-    public RendererException(final String message){
+    public CompileShaderException(final String message) {
         super(message);
     }
 
-    /**
-     * Instantiates a new Renderer exception.
-     *
-     * @param message    the message
-     * @param attachment the attachment
-     */
-    public RendererException(final String message, final Object attachment) {
-        super(message);
-        this.attachment = attachment;
-    }
-
-    /**
-     * Instantiates a new Renderer exception.
-     *
-     * @param message    the message
-     * @param cause      the cause
-     * @param attachment the attachment
-     */
-    public RendererException(final String message, final Throwable cause, final Object attachment) {
-        super(message, cause);
-        this.attachment = attachment;
-    }
-
-    /**
-     * Gets attachment.
-     *
-     * @return attachment attachment
-     */
-    public Object getAttachment() {
-        return attachment;
+    public CompileShaderException(final String message, final Object attachment) {
+        super(message, attachment);
     }
 }

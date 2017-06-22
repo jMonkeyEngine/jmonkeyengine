@@ -60,17 +60,17 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.MipMapGenerator;
 import com.jme3.util.NativeObjectManager;
-import java.nio.*;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
+import jme3tools.shader.ShaderDebug;
+
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import jme3tools.shader.ShaderDebug;
 
 public final class GLRenderer implements Renderer {
 
@@ -1241,9 +1241,9 @@ public final class GLRenderer implements Renderer {
             logger.log(Level.WARNING, "Bad compile of:\n{0}",
                     new Object[]{ShaderDebug.formatShaderSource(stringBuf.toString())});
             if (infoLog != null) {
-                throw new RendererException("compile error in: " + source + "\n" + infoLog);
+                throw new CompileShaderException("compile error in: " + source + "\n" + infoLog);
             } else {
-                throw new RendererException("compile error in: " + source + "\nerror: <not provided>");
+                throw new CompileShaderException("compile error in: " + source + "\nerror: <not provided>");
             }
         }
     }
