@@ -117,18 +117,18 @@ public class VRViewManagerOSVR extends AbstractVRViewManager{
     /**
      * Get the {@link ViewPort viewport} attached to the left eye.
      * @return the {@link ViewPort viewport} attached to the left eye.
-     * @see #getRightViewport()
+     * @see #getRightViewPort()
      */
-    public ViewPort getLeftViewport() {
+    public ViewPort getLeftViewPort() {
         return leftViewport;
     }
     
     /**
      * Get the {@link ViewPort viewport} attached to the right eye.
      * @return the {@link ViewPort viewport} attached to the right eye.
-     * @see #getLeftViewport()
+     * @see #getLeftViewPort()
      */
-    public ViewPort getRightViewport() {
+    public ViewPort getRightViewPort() {
         return rightViewport;
     }
     

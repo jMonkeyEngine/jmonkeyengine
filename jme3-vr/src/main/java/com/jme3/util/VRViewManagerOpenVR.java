@@ -7,6 +7,7 @@ package com.jme3.util;
 import com.jme3.app.VREnvironment;
 import com.jme3.input.vr.OpenVR;
 import com.jme3.input.vr.VRAPI;
+import com.jme3.input.vr.VRTrackedController;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
@@ -346,10 +347,10 @@ public class VRViewManagerOpenVR extends AbstractVRViewManager {
     	            return;
     	        }
     	        
-    	        leftEyeTexture  = (Texture2D) getLeftViewport().getOutputFrameBuffer().getColorBuffer().getTexture();
-    	        rightEyeTexture = (Texture2D)getRightViewport().getOutputFrameBuffer().getColorBuffer().getTexture();        
-    	        leftEyeDepth    = (Texture2D) getLeftViewport().getOutputFrameBuffer().getDepthBuffer().getTexture();
-    	        rightEyeDepth   = (Texture2D)getRightViewport().getOutputFrameBuffer().getDepthBuffer().getTexture();        
+    	        leftEyeTexture  = (Texture2D) getLeftViewPort().getOutputFrameBuffer().getColorBuffer().getTexture();
+    	        rightEyeTexture = (Texture2D)getRightViewPort().getOutputFrameBuffer().getColorBuffer().getTexture();        
+    	        leftEyeDepth    = (Texture2D) getLeftViewPort().getOutputFrameBuffer().getDepthBuffer().getTexture();
+    	        rightEyeDepth   = (Texture2D)getRightViewPort().getOutputFrameBuffer().getDepthBuffer().getTexture();        
     	      
     	        // main viewport is either going to be a distortion scene or nothing
     	        // mirroring is handled by copying framebuffers
@@ -387,6 +388,7 @@ public class VRViewManagerOpenVR extends AbstractVRViewManager {
     	        
     	        if( environment.getApplication().getContext().getSettings().isSwapBuffers() ) {
     	            setupMirrorBuffers(environment.getCamera(), leftEyeTexture, false);
+    	            
     	        } 
     		} else {
     			throw new IllegalStateException("This VR environment is not attached to any application.");
@@ -414,9 +416,35 @@ public class VRViewManagerOpenVR extends AbstractVRViewManager {
             // grab the hardware handle
             VRAPI dev = environment.getVRHardware();
             if( dev != null ) {
+            	
+
                 // update the HMD's position & orientation
                 dev.updatePose();
                 dev.getPositionAndOrientation(hmdPos, hmdRot);
+/*                
+                // TOREMOVE
+                Vector3f v   = dev.getVRinput().getTrackedController(0).getPosition();
+                Quaternion q = dev.getVRinput().getTrackedController(0).getOrientation();
+                if ((v != null)&&(q != null)){
+                    hmdPos.set(v);
+                    hmdRot.set(q);
+                }
+                
+            	logger.severe("HMD controller ");
+            	logger.severe("  Position "+hmdPos);
+            	logger.severe("  Orientation "+hmdRot);
+            	
+            	VRTrackedController tc = null;
+                for(int i = 0; i < dev.getVRinput().getTrackedControllerCount(); i++){
+                	tc = dev.getVRinput().getTrackedController(i);
+                	logger.severe("Tracked controller "+i+": "+tc.getControllerName());
+                	logger.severe("  Position "+tc.getPosition());
+                	logger.severe("  Orientation "+tc.getOrientation());
+                	logger.severe("");
+                }
+*/                
+                // TOREMOVE
+                
                 if( obs != null ) {
                     // update hmdPos based on obs rotation
                     finalRotation.set(objRot);
@@ -490,18 +518,18 @@ public class VRViewManagerOpenVR extends AbstractVRViewManager {
             //org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_SRGB);
             
             if( !environment.isInstanceRendering()) {
-                leftViewport = setupViewBuffers(getLeftCamera(), LEFT_VIEW_NAME);
+                leftViewPort = setupViewBuffers(getLeftCamera(), LEFT_VIEW_NAME);
                 rightCamera = getLeftCamera().clone();
                 if( environment.getVRHardware() != null ){
                 	getRightCamera().setProjectionMatrix(environment.getVRHardware().getHMDMatrixProjectionRightEye(getRightCamera()));
                 }
-                rightViewport = setupViewBuffers(getRightCamera(), RIGHT_VIEW_NAME);
+                rightViewPort = setupViewBuffers(getRightCamera(), RIGHT_VIEW_NAME);
             } else {
             	
             	if (environment.getApplication() != null){
                 	
                 	logger.severe("THIS CODE NEED CHANGES !!!");
-                    leftViewport = environment.getApplication().getViewPort();
+                    leftViewPort = environment.getApplication().getViewPort();
                     //leftViewport.attachScene(app.getRootNode());
                     rightCamera = getLeftCamera().clone();
                     if( environment.getVRHardware() != null ){
@@ -520,7 +548,7 @@ public class VRViewManagerOpenVR extends AbstractVRViewManager {
             }
             
             // setup gui
-            environment.getVRGUIManager().setupGui(getLeftCamera(), getRightCamera(), getLeftViewport(), getRightViewport());
+            environment.getVRGUIManager().setupGui(getLeftCamera(), getRightCamera(), getLeftViewPort(), getRightViewPort());
             
             if( environment.getVRHardware() != null ) {
                 // call these to cache the results internally
