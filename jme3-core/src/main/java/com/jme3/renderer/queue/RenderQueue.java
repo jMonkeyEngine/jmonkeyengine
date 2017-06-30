@@ -33,7 +33,9 @@ package com.jme3.renderer.queue;
 
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
+import com.jme3.renderer.CompileShaderException;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.RendererException;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 
@@ -260,12 +262,21 @@ public class RenderQueue {
     private void renderGeometryList(GeometryList list, RenderManager rm, Camera cam, boolean clear) {
         list.setCamera(cam); // select camera for sorting
         list.sort();
+
         for (int i = 0; i < list.size(); i++) {
-            Geometry obj = list.get(i);
-            assert obj != null;
-            rm.renderGeometry(obj);
-            obj.queueDistance = Float.NEGATIVE_INFINITY;
+
+            Geometry geometry = list.get(i);
+            assert geometry != null;
+
+            try {
+                rm.renderGeometry(geometry);
+            } catch (final CompileShaderException e) {
+                throw new RendererException("An error occurred during rendering of the geometry.", e, geometry);
+            }
+
+            geometry.queueDistance = Float.NEGATIVE_INFINITY;
         }
+
         if (clear) {
             list.clear();
         }
