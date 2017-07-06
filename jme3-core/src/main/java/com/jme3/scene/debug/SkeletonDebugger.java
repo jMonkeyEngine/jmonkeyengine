@@ -31,12 +31,13 @@
  */
 package com.jme3.scene.debug;
 
-import java.util.Map;
-
 import com.jme3.animation.Skeleton;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.util.clone.Cloner;
+
+import java.util.Map;
 
 /**
  * The class that creates a mesh to display how bones behave.
@@ -121,5 +122,14 @@ public class SkeletonDebugger extends Node {
      */
     public SkeletonInterBoneWire getInterBoneWires() {
         return interBoneWires;
+    }
+
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        super.cloneFields(cloner, original);
+
+        this.wires = cloner.clone(wires);
+        this.points = cloner.clone(points);
+        this.interBoneWires = cloner.clone(interBoneWires);
     }
 }
