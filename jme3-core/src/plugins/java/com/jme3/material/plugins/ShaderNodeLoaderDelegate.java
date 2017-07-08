@@ -232,40 +232,52 @@ public class ShaderNodeLoaderDelegate {
     protected void readShaderNodeDefinition(List<Statement> statements, ShaderNodeDefinitionKey key) throws IOException {
         boolean isLoadDoc = key instanceof ShaderNodeDefinitionKey && ((ShaderNodeDefinitionKey) key).isLoadDocumentation();
         for (Statement statement : statements) {
-            String[] split = statement.getLine().split("[ \\{]");
-            String line = statement.getLine();
+            try {
+                String[] split = statement.getLine().split("[ \\{]");
+                String line = statement.getLine();
 
-            if (line.startsWith("Type")) {
-                String type = line.substring(line.lastIndexOf(':') + 1).trim();
-                shaderNodeDefinition.setType(Shader.ShaderType.valueOf(type));
-            } else if (line.startsWith("Shader ")) {
-                readShaderStatement(statement);
-                shaderNodeDefinition.getShadersLanguage().add(shaderLanguage);
-                shaderNodeDefinition.getShadersPath().add(shaderName);
-            } else if (line.startsWith("Documentation")) {
-                if (isLoadDoc) {
-                    String doc = "";
+                if (line.startsWith("Type")) {
+                    String type = line.substring(line.lastIndexOf(':') + 1).trim();
+                    shaderNodeDefinition.setType(Shader.ShaderType.valueOf(type));
+                } else if (line.startsWith("Shader ")) {
+                    readShaderStatement(statement);
+                    shaderNodeDefinition.getShadersLanguage().add(shaderLanguage);
+                    shaderNodeDefinition.getShadersPath().add(shaderName);
+                } else if (line.startsWith("Documentation")) {
+                    if (isLoadDoc) {
+                        String doc = "";
+                        for (Statement statement1 : statement.getContents()) {
+                            doc += "\n" + statement1.getLine();
+                        }
+                        shaderNodeDefinition.setDocumentation(doc);
+                    }
+                } else if (line.startsWith("Input")) {
+                    varNames = "";
                     for (Statement statement1 : statement.getContents()) {
-                        doc += "\n" + statement1.getLine();
+                        try {
+                            shaderNodeDefinition.getInputs().add(readVariable(statement1));
+                        } catch (RuntimeException e) {
+                            throw new MatParseException(e.getMessage(), statement1, e);
+                        }
                     }
-                    shaderNodeDefinition.setDocumentation(doc);
-                }
-            } else if (line.startsWith("Input")) {
-                varNames = "";
-                for (Statement statement1 : statement.getContents()) {
-                    shaderNodeDefinition.getInputs().add(readVariable(statement1));
-                }
-            } else if (line.startsWith("Output")) {
-                varNames = "";
-                for (Statement statement1 : statement.getContents()) {
-                    if(statement1.getLine().trim().equals("None")){
-                        shaderNodeDefinition.setNoOutput(true);
-                    }else{
-                        shaderNodeDefinition.getOutputs().add(readVariable(statement1));
+                } else if (line.startsWith("Output")) {
+                    varNames = "";
+                    for (Statement statement1 : statement.getContents()) {
+                        try {
+                            if (statement1.getLine().trim().equals("None")) {
+                                shaderNodeDefinition.setNoOutput(true);
+                            } else {
+                                shaderNodeDefinition.getOutputs().add(readVariable(statement1));
+                            }
+                        } catch (RuntimeException e) {
+                            throw new MatParseException(e.getMessage(), statement1, e);
+                        }
                     }
+                } else {
+                    throw new MatParseException("one of Type, Shader, Documentation, Input, Output", split[0], statement);
                 }
-            } else {
-                throw new MatParseException("one of Type, Shader, Documentation, Input, Output", split[0], statement);
+            } catch (RuntimeException e) {
+                throw new MatParseException(e.getMessage(), statement, e);
             }
         }
     }
@@ -280,6 +292,9 @@ public class ShaderNodeLoaderDelegate {
     protected ShaderNodeVariable readVariable(Statement statement) throws IOException {
         String line = statement.getLine().trim().replaceAll("\\s*\\[", "[");
         String[] splitVar = line.split("\\s");
+        if (splitVar.length != 2) {
+            throw new MatParseException("2 arguments", splitVar.length + "", statement);
+        }
         String varName = splitVar[1];
         String varType = splitVar[0];
         String multiplicity = null;
