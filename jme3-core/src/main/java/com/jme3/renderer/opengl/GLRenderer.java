@@ -180,23 +180,38 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.OpenGL20);
             if (oglVer >= 210) {
                 caps.add(Caps.OpenGL21);
-                if (oglVer >= 300) {
-                    caps.add(Caps.OpenGL30);
-                    if (oglVer >= 310) {
-                        caps.add(Caps.OpenGL31);
-                        if (oglVer >= 320) {
-                            caps.add(Caps.OpenGL32);
-                        }
-                        if (oglVer >= 330) {
-                            caps.add(Caps.OpenGL33);
-                            caps.add(Caps.GeometryShader);
-                        }
-                        if (oglVer >= 400) {
-                            caps.add(Caps.OpenGL40);
-                            caps.add(Caps.TesselationShader);
-                        }
-                    }
-                }
+            }
+            if (oglVer >= 300) {
+                caps.add(Caps.OpenGL30);
+            }
+            if (oglVer >= 310) {
+                caps.add(Caps.OpenGL31);
+            }
+            if (oglVer >= 320) {
+                caps.add(Caps.OpenGL32);
+            }
+            if (oglVer >= 330) {
+                caps.add(Caps.OpenGL33);
+                caps.add(Caps.GeometryShader);
+            }
+            if (oglVer >= 400) {
+                caps.add(Caps.OpenGL40);
+                caps.add(Caps.TesselationShader);
+            }
+            if (oglVer >= 410) {
+                caps.add(Caps.OpenGL41);
+            }
+            if (oglVer >= 420) {
+                caps.add(Caps.OpenGL42);
+            }
+            if (oglVer >= 430) {
+                caps.add(Caps.OpenGL43);
+            }
+            if (oglVer >= 440) {
+                caps.add(Caps.OpenGL44);
+            }
+            if (oglVer >= 450) {
+                caps.add(Caps.OpenGL45);
             }
         }
 
@@ -209,6 +224,16 @@ public final class GLRenderer implements Renderer {
                 }
                 // so that future OpenGL revisions wont break jme3
                 // fall through intentional
+            case 450:
+                caps.add(Caps.GLSL450);
+            case 440:
+                caps.add(Caps.GLSL440);
+            case 430:
+                caps.add(Caps.GLSL430);
+            case 420:
+                caps.add(Caps.GLSL420);
+            case 410:
+                caps.add(Caps.GLSL410);
             case 400:
                 caps.add(Caps.GLSL400);
             case 330:

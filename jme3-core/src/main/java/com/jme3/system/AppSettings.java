@@ -85,6 +85,76 @@ public final class AppSettings extends HashMap<String, Object> {
     public static final String LWJGL_OPENGL3 = "LWJGL-OpenGL3";
 
     /**
+     * Use LWJGL as the display system and force using the OpenGL3.3 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL3.3, then the context
+     * initialization will throw an exception.
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String LWJGL_OPENGL33 = "LWJGL-OpenGL33";
+
+    /**
+     * Use LWJGL as the display system and force using the OpenGL4.0 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL4.0, then the context
+     * initialization will throw an exception.
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String LWJGL_OPENGL4 = "LWJGL-OpenGL4";
+
+    /**
+     * Use LWJGL as the display system and force using the OpenGL4.1 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL4.1, then the context
+     * initialization will throw an exception.
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String LWJGL_OPENGL41 = "LWJGL-OpenGL41";
+
+    /**
+     * Use LWJGL as the display system and force using the OpenGL4.2 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL4.2, then the context
+     * initialization will throw an exception.
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String LWJGL_OPENGL42 = "LWJGL-OpenGL42";
+
+    /**
+     * Use LWJGL as the display system and force using the OpenGL4.3 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL4.3, then the context
+     * initialization will throw an exception.
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String LWJGL_OPENGL43 = "LWJGL-OpenGL43";
+
+    /**
+     * Use LWJGL as the display system and force using the OpenGL4.4 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL4.4, then the context
+     * initialization will throw an exception.
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String LWJGL_OPENGL44 = "LWJGL-OpenGL44";
+
+    /**
+     * Use LWJGL as the display system and force using the OpenGL4.5 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL4.5, then the context
+     * initialization will throw an exception.
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String LWJGL_OPENGL45 = "LWJGL-OpenGL45";
+
+    /**
      * Use the LWJGL OpenAL based renderer for audio capabilities.
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
