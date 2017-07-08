@@ -529,24 +529,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         checkSetParam(type, name);
         MatParamTexture val = getTextureParam(name);
         if (val == null) {
-            MatParamTexture paramDef = (MatParamTexture) def.getMaterialParam(name);
-            if (paramDef.getColorSpace() != null && paramDef.getColorSpace() != value.getImage().getColorSpace()) {
-                value.getImage().setColorSpace(paramDef.getColorSpace());
-                logger.log(Level.FINE, "Material parameter {0} needs a {1} texture, "
-                        + "texture {2} was switched to {3} color space.",
-                        new Object[]{name, paramDef.getColorSpace().toString(),
-                            value.getName(),
-                            value.getImage().getColorSpace().name()});
-            } else if (paramDef.getColorSpace() == null && value.getName() != null && value.getImage().getColorSpace() == ColorSpace.Linear) {
-                logger.log(Level.WARNING,
-                        "The texture {0} has linear color space, but the material "
-                        + "parameter {2} specifies no color space requirement, this may "
-                        + "lead to unexpected behavior.\nCheck if the image "
-                        + "was not set to another material parameter with a linear "
-                        + "color space, or that you did not set the ColorSpace to "
-                        + "Linear using texture.getImage.setColorSpace().",
-                        new Object[]{value.getName(), value.getImage().getColorSpace().name(), name});
-            }
+            checkTextureParamColorSpace(name, value);
             paramValues.put(name, new MatParamTexture(type, name, value, null));
         } else {
             val.setTextureValue(value);
@@ -558,6 +541,27 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
         // need to recompute sort ID
         sortingId = -1;
+    }
+
+    private void checkTextureParamColorSpace(String name, Texture value) {
+        MatParamTexture paramDef = (MatParamTexture) def.getMaterialParam(name);
+        if (paramDef.getColorSpace() != null && paramDef.getColorSpace() != value.getImage().getColorSpace()) {
+            value.getImage().setColorSpace(paramDef.getColorSpace());
+            logger.log(Level.FINE, "Material parameter {0} needs a {1} texture, "
+                            + "texture {2} was switched to {3} color space.",
+                    new Object[]{name, paramDef.getColorSpace().toString(),
+                            value.getName(),
+                            value.getImage().getColorSpace().name()});
+        } else if (paramDef.getColorSpace() == null && value.getName() != null && value.getImage().getColorSpace() == ColorSpace.Linear) {
+            logger.log(Level.WARNING,
+                    "The texture {0} has linear color space, but the material "
+                            + "parameter {2} specifies no color space requirement, this may "
+                            + "lead to unexpected behavior.\nCheck if the image "
+                            + "was not set to another material parameter with a linear "
+                            + "color space, or that you did not set the ColorSpace to "
+                            + "Linear using texture.getImage.setColorSpace().",
+                    new Object[]{value.getName(), value.getImage().getColorSpace().name(), name});
+        }
     }
 
     /**
@@ -1062,6 +1066,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 if (texVal.getTextureValue() == null || texVal.getTextureValue().getImage() == null) {
                     continue;
                 }
+                checkTextureParamColorSpace(texVal.getName(), texVal.getTextureValue());
             }
 
             if (im.getFormatVersion() == 0 && param.getName().startsWith("m_")) {
