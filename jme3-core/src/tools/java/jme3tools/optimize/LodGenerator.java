@@ -255,6 +255,16 @@ public class LodGenerator {
     };
 
     /**
+     * Construct a LodGenerator for the given mesh
+     *
+     * @param mesh the mesh to consider to generate de Lods.
+     */
+    public LodGenerator(Mesh mesh) {
+        this.mesh = mesh;
+        build();
+    }
+
+    /**
      * Construct a LodGenerator for the given geometry
      *
      * @param geom the geometry to consider to generate de Lods.

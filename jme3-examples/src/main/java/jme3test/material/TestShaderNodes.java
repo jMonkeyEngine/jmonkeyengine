@@ -31,10 +31,9 @@ public class TestShaderNodes extends SimpleApplication {
         mat.selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
         Technique t = mat.getActiveTechnique();
 
-//        for (Shader.ShaderSource shaderSource : t.getShader().getSources()) {
-//            System.out.println(shaderSource.getSource());
-//        }
-
+        for (Shader.ShaderSource shaderSource : t.getDef().getShader(assetManager, renderer.getCaps(), t.getDynamicDefines()).getSources()) {
+            System.out.println(shaderSource.getSource());
+        }
         
         mat.setColor("Color", ColorRGBA.Yellow);
         mat.setTexture("ColorMap", tex);

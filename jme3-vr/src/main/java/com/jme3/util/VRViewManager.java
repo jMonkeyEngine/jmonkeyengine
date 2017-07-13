@@ -42,17 +42,25 @@ public interface VRViewManager {
     /**
      * Get the {@link ViewPort viewport} attached to the left eye.
      * @return the {@link ViewPort viewport} attached to the left eye.
-     * @see #getRightViewport()
+     * @see #getRightViewPort()
      */
-    public ViewPort getLeftViewport();
+    public ViewPort getLeftViewPort();
     
     
     /**
      * Get the {@link ViewPort viewport} attached to the right eye.
      * @return the {@link ViewPort viewport} attached to the right eye.
-     * @see #getLeftViewport()
+     * @see #getLeftViewPort()
      */
-    public ViewPort getRightViewport();
+    public ViewPort getRightViewPort();
+    
+    /**
+     * Get the {@link ViewPort view port} attached to the mirror display.
+     * @return the view port attached to the mirror display.
+     * @see #getLeftViewPort()
+     * @see #getRightViewPort()
+     */
+    public ViewPort getMirrorViewPort();
     
     /**
      * Get the texture attached to the left eye.

@@ -16,19 +16,19 @@ public class VRBounds {
 
 	private static Logger logger = Logger.getLogger(VRBounds.class.getName());
 	
-    private static VR_IVRChaperone_FnTable vrChaperone;
-    private static Vector2f playSize;
+    private VR_IVRChaperone_FnTable vrChaperone;
+    private Vector2f playSize;
     
     /**
      * Initialize the VR bounds.
      * @return <code>true</code> if the initialization is a success and <code>false</code> otherwise.
      */
-    public static boolean init() {
+    public boolean init(OpenVR api) {
     	
     	logger.config("Initialize VR bounds...");
     	
         if( vrChaperone == null ) {
-            vrChaperone = new VR_IVRChaperone_FnTable(JOpenVRLibrary.VR_GetGenericInterface(JOpenVRLibrary.IVRChaperone_Version, OpenVR.hmdErrorStore).getPointer());
+            vrChaperone = new VR_IVRChaperone_FnTable(JOpenVRLibrary.VR_GetGenericInterface(JOpenVRLibrary.IVRChaperone_Version, api.hmdErrorStore).getPointer());
             if( vrChaperone != null ) {
                 vrChaperone.setAutoSynch(false);
                 vrChaperone.read();
@@ -53,7 +53,7 @@ public class VRBounds {
      * Get the size of the VR world.
      * @return the size of the VR world.
      */
-    public static Vector2f getPlaySize() {
+    public Vector2f getPlaySize() {
         return playSize;
     }
     

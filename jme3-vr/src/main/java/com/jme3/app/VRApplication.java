@@ -254,7 +254,7 @@ public abstract class VRApplication implements Application, SystemListener {
         dummyCam = new Camera();
         
         initStateManager();
-        
+
         // Create the GUI manager.
         guiManager = new VRGuiManager(null);
         
@@ -1085,7 +1085,7 @@ public abstract class VRApplication implements Application, SystemListener {
      */
     public ViewPort getLeftViewPort() {
         if( viewmanager == null ) return getViewPort();
-        return viewmanager.getLeftViewport();
+        return viewmanager.getLeftViewPort();
     }
     
     /**
@@ -1095,7 +1095,7 @@ public abstract class VRApplication implements Application, SystemListener {
      */
     public ViewPort getRightViewPort() {
         if( viewmanager == null ) return getViewPort();
-        return viewmanager.getRightViewport();
+        return viewmanager.getRightViewPort();
     }
     
     
@@ -1106,9 +1106,9 @@ public abstract class VRApplication implements Application, SystemListener {
     public void setBackgroundColors(ColorRGBA clr) {
         if( viewmanager == null ) {
             getViewPort().setBackgroundColor(clr);
-        } else if( viewmanager.getLeftViewport() != null ) {
-        	viewmanager.getLeftViewport().setBackgroundColor(clr);
-            if( viewmanager.getRightViewport() != null ) viewmanager.getRightViewport().setBackgroundColor(clr);
+        } else if( viewmanager.getLeftViewPort() != null ) {
+        	viewmanager.getLeftViewPort().setBackgroundColor(clr);
+            if( viewmanager.getRightViewPort() != null ) viewmanager.getRightViewPort().setBackgroundColor(clr);
         }
     }
     

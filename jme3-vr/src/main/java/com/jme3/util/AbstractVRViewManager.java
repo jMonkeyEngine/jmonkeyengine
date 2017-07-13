@@ -28,18 +28,20 @@ public abstract class AbstractVRViewManager implements VRViewManager {
     protected  VREnvironment environment = null;
     
     protected Camera leftCamera;
-    protected ViewPort leftViewport;
+    protected ViewPort leftViewPort;
     protected FilterPostProcessor leftPostProcessor;
     protected Texture2D leftEyeTexture;
     protected Texture2D leftEyeDepth;
     
     protected Camera rightCamera;
-    protected ViewPort rightViewport;
+    protected ViewPort rightViewPort;
     protected FilterPostProcessor rightPostProcessor;
     protected Texture2D rightEyeTexture;
     protected Texture2D rightEyeDepth;
 	
-    private float resMult = 1f;
+    protected ViewPort mirrorViewPort; 
+
+	private float resMult = 1f;
     
     private float heightAdjustment;
     
@@ -54,14 +56,23 @@ public abstract class AbstractVRViewManager implements VRViewManager {
     }
     
     @Override
-    public ViewPort getLeftViewport() {
-        return leftViewport;
+    public ViewPort getLeftViewPort() {
+        return leftViewPort;
     }
     
     @Override
-    public ViewPort getRightViewport() {
-        return rightViewport;
+    public ViewPort getRightViewPort() {
+        return rightViewPort;
     }
+    
+    /**
+     * Get the {@link ViewPort view port} attached to the mirror display.
+     * @return the view port attached to the mirror display.
+     */
+    public ViewPort getMirrorViewPort() {
+		return mirrorViewPort;
+	}
+
     
     @Override
     public Texture2D getLeftTexture(){
@@ -124,7 +135,7 @@ public abstract class AbstractVRViewManager implements VRViewManager {
     public void moveScreenProcessingToEyes() {
     	
     	if (environment != null){
-            if( getRightViewport() == null ){
+            if( getRightViewPort() == null ){
             	return;
             }
             
@@ -150,7 +161,7 @@ public abstract class AbstractVRViewManager implements VRViewManager {
     public void syncScreenProcessing(ViewPort sourceViewport) {
     	
     	if (environment != null){
-    		if(  getRightViewport() == null ){
+    		if(  getRightViewPort() == null ){
     			return;
     		}
     		
@@ -163,13 +174,13 @@ public abstract class AbstractVRViewManager implements VRViewManager {
                 // clear out all filters & processors, to start from scratch
                 getRightPostProcessor().removeAllFilters();
                 getLeftPostProcessor().removeAllFilters();
-                getLeftViewport().clearProcessors();
-                getRightViewport().clearProcessors();
+                getLeftViewPort().clearProcessors();
+                getRightViewPort().clearProcessors();
                 // if we have no processors to sync, don't add the FilterPostProcessor
                 if( sourceViewport.getProcessors().isEmpty() ) return;
                 // add post processors we just made, which are empty
-                getLeftViewport().addProcessor(getLeftPostProcessor());
-                getRightViewport().addProcessor(getRightPostProcessor());
+                getLeftViewPort().addProcessor(getLeftPostProcessor());
+                getRightViewPort().addProcessor(getRightPostProcessor());
                 // go through all of the filters in the processors list
                 // add them to the left viewport processor & clone them to the right
                 for(SceneProcessor sceneProcessor : sourceViewport.getProcessors()) {
@@ -202,8 +213,8 @@ public abstract class AbstractVRViewManager implements VRViewManager {
                         VRDirectionalLightShadowRenderer dlsr = (VRDirectionalLightShadowRenderer) sceneProcessor;
                         VRDirectionalLightShadowRenderer dlsrRight = dlsr.clone();
                         dlsrRight.setLight(dlsr.getLight());
-                        getRightViewport().getProcessors().add(0, dlsrRight);
-                        getLeftViewport().getProcessors().add(0, sceneProcessor);
+                        getRightViewPort().getProcessors().add(0, dlsrRight);
+                        getLeftViewPort().getProcessors().add(0, sceneProcessor);
                     }
                 }
                 // make sure each has a translucent filter renderer

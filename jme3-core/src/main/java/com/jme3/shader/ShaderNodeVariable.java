@@ -45,6 +45,7 @@ import java.io.IOException;
  */
 public class ShaderNodeVariable implements Savable, Cloneable {
 
+    private String prefix = "";
     private String name;
     private String type;
     private String nameSpace;
@@ -62,8 +63,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
         this.name = name;
         this.type = type;
     }
-    
-    
+
     /**
      * creates a ShaderNodeVariable
      *
@@ -78,6 +78,22 @@ public class ShaderNodeVariable implements Savable, Cloneable {
         this.nameSpace = nameSpace;
         this.type = type;
         this.multiplicity = multiplicity;
+    }
+
+
+    /**
+     * creates a ShaderNodeVariable
+     *
+     * @param type         the glsl type of the variable
+     * @param nameSpace    the nameSpace (can be the name of the shaderNode or
+     *                     Global,Attr,MatParam,WorldParam)
+     * @param name         the name of the variable
+     * @param multiplicity the number of element if this variable is an array. Can be an Int of a declared material parameter
+     * @param prefix       the variable prefix to append at generation times. This is mostly to add the g_ and m_ for uniforms
+     */
+    public ShaderNodeVariable(String type, String nameSpace, String name, String multiplicity, String prefix) {
+        this(type, nameSpace, name, multiplicity);
+        this.prefix = prefix;
     }
 
     /**
@@ -139,6 +155,22 @@ public class ShaderNodeVariable implements Savable, Cloneable {
     }
 
     /**
+     * @return the variable prefix
+     */
+    public String getPrefix() {
+        return prefix;
+    }
+
+    /**
+     * Sets the variable prefix (m_ or g_)
+     *
+     * @param prefix
+     */
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    /**
      * sets the nameSpace (can be the name of the shaderNode or
      * Global,Attr,MatParam,WorldParam)
      *
@@ -153,6 +185,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
         int hash = 7;
         hash = 29 * hash + (name != null?name.hashCode():0);
         hash = 29 * hash + (type != null?type.hashCode():0);
+        hash = 29 * hash + (prefix != null ? prefix.hashCode() : 0);
         hash = 29 * hash + (nameSpace != null?nameSpace.hashCode():0);
         hash = 29 * hash + (condition != null?condition.hashCode():0);
         hash = 29 * hash + (multiplicity != null?multiplicity.hashCode():0);
@@ -172,6 +205,9 @@ public class ShaderNodeVariable implements Savable, Cloneable {
             return false;
         }
         if ((this.type == null) ? (other.type != null) : !this.type.equals(other.type)) {
+            return false;
+        }
+        if ((this.prefix == null) ? (other.prefix != null) : !this.prefix.equals(other.prefix)) {
             return false;
         }
         if ((this.nameSpace == null) ? (other.nameSpace != null) : !this.nameSpace.equals(other.nameSpace)) {
@@ -197,6 +233,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
         OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
         oc.write(name, "name", "");
         oc.write(type, "type", "");
+        oc.write(prefix, "prefix", "");
         oc.write(nameSpace, "nameSpace", "");
         oc.write(condition, "condition", null);
         oc.write(shaderOutput, "shaderOutput", false);
@@ -215,6 +252,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
         InputCapsule ic = (InputCapsule) im.getCapsule(this);
         name = ic.readString("name", "");
         type = ic.readString("type", "");
+        prefix = ic.readString("pefix", "");
         nameSpace = ic.readString("nameSpace", "");
         condition = ic.readString("condition", null);        
         shaderOutput = ic.readBoolean("shaderOutput", false);
