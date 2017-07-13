@@ -174,13 +174,13 @@ public enum UniformBinding {
     FrameRate("float"),
     
     /**
-     * The light position when rendering in multi pass mode
+     * The light direction when rendering in multi pass mode
      * Type: vec4
      */
     LightDirection("vec4"),
     
     /**
-     * The light direction when rendering in multi pass mode
+     * The light position when rendering in multi pass mode
      * Type: vec4
      */
     LightPosition("vec4"),
