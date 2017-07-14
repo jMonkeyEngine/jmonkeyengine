@@ -159,14 +159,24 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     protected void initContextFirstTime() {
-        final GLCapabilities capabilities = createCapabilities(settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3));
+
+        final String renderer = settings.getRenderer();
+        final GLCapabilities capabilities = createCapabilities(!renderer.equals(AppSettings.LWJGL_OPENGL2));
 
         if (!capabilities.OpenGL20) {
             throw new RendererException("OpenGL 2.0 or higher is required for jMonkeyEngine");
         }
 
-        if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL2)
-                || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
+        if (renderer.equals(AppSettings.LWJGL_OPENGL2)
+                || renderer.equals(AppSettings.LWJGL_OPENGL3)
+                || renderer.equals(AppSettings.LWJGL_OPENGL33)
+                || renderer.equals(AppSettings.LWJGL_OPENGL4)
+                || renderer.equals(AppSettings.LWJGL_OPENGL41)
+                || renderer.equals(AppSettings.LWJGL_OPENGL42)
+                || renderer.equals(AppSettings.LWJGL_OPENGL43)
+                || renderer.equals(AppSettings.LWJGL_OPENGL44)
+                || renderer.equals(AppSettings.LWJGL_OPENGL45)) {
+
             GL gl = new LwjglGL();
             GLExt glext = new LwjglGLExt();
             GLFbo glfbo;
@@ -196,18 +206,18 @@ public abstract class LwjglContext implements JmeContext {
                 glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
             }
 
-            renderer = new GLRenderer(gl, glext, glfbo);
-            renderer.initialize();
+            this.renderer = new GLRenderer(gl, glext, glfbo);
+            this.renderer.initialize();
         } else {
-            throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
+            throw new UnsupportedOperationException("Unsupported renderer: " + renderer);
         }
 
         if (capabilities.GL_ARB_debug_output && settings.getBoolean("GraphicsDebug")) {
             ARBDebugOutput.glDebugMessageCallbackARB(new LwjglGLDebugOutputHandler(), 0);
         }
 
-        renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
-        renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
+        this.renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
+        this.renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
 
         // Init input
         if (keyInput != null) {
