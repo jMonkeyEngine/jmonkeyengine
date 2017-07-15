@@ -211,7 +211,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * this methods does things in this order : 
      * 
      * 1. declaring and mapping input<br>
-     * variables : variable replaced with MatParams or WorldParams are not
+     * variables : variable replaced with MatParams or WorldParams that are Samplers are not
      * declared and are replaced by the param actual name in the code. For others
      * variables, the name space is appended with a "_" before the variable name
      * in the code to avoid names collision between shaderNodes. <br>
@@ -240,9 +240,9 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         List<String> declaredInputs = new ArrayList<String>();
         for (VariableMapping mapping : shaderNode.getInputMapping()) {
 
-            //all variables fed with a matparam or world param are replaced but the matparam itself
-            //it avoids issue with samplers that have to be uniforms, and it optimize a but the shader code.
-            if (isWorldOrMaterialParam(mapping.getRightVariable())) {
+            //Variables fed with a sampler matparam or world param are replaced by the matparam itself
+            //It avoids issue with samplers that have to be uniforms.
+            if (isWorldOrMaterialParam(mapping.getRightVariable()) && mapping.getRightVariable().getType().startsWith("sampler")) {
                 nodeSource = replace(nodeSource, mapping.getLeftVariable(), mapping.getRightVariable().getPrefix() + mapping.getRightVariable().getName());
             } else {
                 if (mapping.getLeftVariable().getType().startsWith("sampler")) {
@@ -421,6 +421,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         source.append(" = ");
         String namePrefix = getAppendableNameSpace(mapping.getRightVariable());
         source.append(namePrefix);
+        source.append(mapping.getRightVariable().getPrefix());
         source.append(mapping.getRightVariable().getName());
         if (mapping.getRightSwizzling().length() > 0) {
             source.append(".");
