@@ -174,6 +174,8 @@ public class TextureBlenderAWT extends AbstractTextureBlender {
         // float blendFactor = this.blendFactor * (1f - ((1f - pixelColor[3]) * materialColor[3]));
         // float oneMinusFactor = 1f - blendFactor;
 
+        float col;
+        
         switch (blendType) {
             case MTEX_BLEND:
                 result[0] = blendFactor * pixelColor[0] + oneMinusFactor * materialColor[0];
