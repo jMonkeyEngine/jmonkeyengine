@@ -38,7 +38,7 @@ public class LWJGLBufferAllocator implements BufferAllocator {
         }
 
         @Override
-        public synchronized void destroyDirectBuffer(final Buffer buffer) {
+        public void destroyDirectBuffer(final Buffer buffer) {
             final long stamp = stampedLock.writeLock();
             try {
                 super.destroyDirectBuffer(buffer);
@@ -48,7 +48,7 @@ public class LWJGLBufferAllocator implements BufferAllocator {
         }
 
         @Override
-        public synchronized ByteBuffer allocate(final int size) {
+        public ByteBuffer allocate(final int size) {
             final long stamp = stampedLock.writeLock();
             try {
                 return super.allocate(size);
