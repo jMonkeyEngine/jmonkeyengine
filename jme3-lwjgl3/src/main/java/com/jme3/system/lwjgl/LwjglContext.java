@@ -32,10 +32,10 @@
 
 package com.jme3.system.lwjgl;
 
+import static com.jme3.util.LWJGLBufferAllocator.PROPERTY_CONCURRENT_BUFFER_ALLOCATOR;
 import static org.lwjgl.opencl.CL10.CL_CONTEXT_PLATFORM;
 import static org.lwjgl.opengl.GL.createCapabilities;
 import static org.lwjgl.opengl.GL11.glGetInteger;
-
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
@@ -52,24 +52,14 @@ import com.jme3.renderer.lwjgl.LwjglGL;
 import com.jme3.renderer.lwjgl.LwjglGLExt;
 import com.jme3.renderer.lwjgl.LwjglGLFboEXT;
 import com.jme3.renderer.lwjgl.LwjglGLFboGL3;
-import com.jme3.renderer.opengl.GL;
-import com.jme3.renderer.opengl.GL2;
-import com.jme3.renderer.opengl.GL3;
-import com.jme3.renderer.opengl.GL4;
-import com.jme3.renderer.opengl.GLDebugDesktop;
-import com.jme3.renderer.opengl.GLExt;
-import com.jme3.renderer.opengl.GLFbo;
-import com.jme3.renderer.opengl.GLRenderer;
-import com.jme3.renderer.opengl.GLTiming;
-import com.jme3.renderer.opengl.GLTimingState;
-import com.jme3.renderer.opengl.GLTracer;
+import com.jme3.renderer.opengl.*;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 import com.jme3.util.BufferAllocatorFactory;
 import com.jme3.util.LWJGLBufferAllocator;
-
+import com.jme3.util.LWJGLBufferAllocator.ConcurrentLWJGLBufferAllocator;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opencl.APPLEGLSharing;
@@ -96,9 +86,15 @@ public abstract class LwjglContext implements JmeContext {
     private static final Logger logger = Logger.getLogger(LwjglContext.class.getName());
 
     static {
+
         final String implementation = BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION;
-        if(System.getProperty(implementation) == null) {
-            System.setProperty(implementation, LWJGLBufferAllocator.class.getName());
+
+        if (System.getProperty(implementation) == null) {
+            if (Boolean.parseBoolean(System.getProperty(PROPERTY_CONCURRENT_BUFFER_ALLOCATOR, "true"))) {
+                System.setProperty(implementation, ConcurrentLWJGLBufferAllocator.class.getName());
+            } else {
+                System.setProperty(implementation, LWJGLBufferAllocator.class.getName());
+            }
         }
     }
 
