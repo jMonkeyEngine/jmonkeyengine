@@ -10,10 +10,22 @@ dependencies {
     compile project(':jme3-core')
     compile project(':jme3-desktop')
 
-    compile group: 'org.lwjgl', name: 'lwjgl', version: lwjglVersion
-    compile group: 'org.lwjgl', name: 'lwjgl-glfw', version: lwjglVersion
-    compile group: 'org.lwjgl', name: 'lwjgl-openal', version: lwjglVersion
-    compile group: 'org.lwjgl', name: 'lwjgl-opencl', version: lwjglVersion
-    compile group: 'org.lwjgl', name: 'lwjgl-opengl', version: lwjglVersion
-    compile group: 'org.lwjgl', name: 'lwjgl-jemalloc', version: lwjglVersion
+    compile "org.lwjgl:lwjgl:${lwjglVersion}"
+    compile "org.lwjgl:lwjgl-glfw:${lwjglVersion}"
+    compile "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}"
+    compile "org.lwjgl:lwjgl-openal:${lwjglVersion}"
+    compile "org.lwjgl:lwjgl-opencl:${lwjglVersion}"
+    compile "org.lwjgl:lwjgl-opengl:${lwjglVersion}"
+    runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows"
+    runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux"
+    runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-macos"
+    runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-windows"
+    runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux"
+    runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-macos"
+    runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-windows"
+    runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-linux"
+    runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-macos"
+    runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-windows"
+    runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux"
+    runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-macos"
 }
