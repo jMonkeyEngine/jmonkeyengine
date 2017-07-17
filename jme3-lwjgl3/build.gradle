@@ -2,7 +2,7 @@ if (!hasProperty('mainClass')) {
     ext.mainClass = ''
 }
 
-def lwjglVersion = '3.0.0'
+def lwjglVersion = '3.1.0'
 
 sourceCompatibility = '1.8'
 
@@ -10,8 +10,10 @@ dependencies {
     compile project(':jme3-core')
     compile project(':jme3-desktop')
 
-    compile "org.lwjgl:lwjgl:${lwjglVersion}"
-    compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"
-    compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-linux"
-    compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
+    compile group: 'org.lwjgl', name: 'lwjgl', version: lwjglVersion
+    compile group: 'org.lwjgl', name: 'lwjgl-glfw', version: lwjglVersion
+    compile group: 'org.lwjgl', name: 'lwjgl-openal', version: lwjglVersion
+    compile group: 'org.lwjgl', name: 'lwjgl-opencl', version: lwjglVersion
+    compile group: 'org.lwjgl', name: 'lwjgl-opengl', version: lwjglVersion
+    compile group: 'org.lwjgl', name: 'lwjgl-jemalloc', version: lwjglVersion
 }
