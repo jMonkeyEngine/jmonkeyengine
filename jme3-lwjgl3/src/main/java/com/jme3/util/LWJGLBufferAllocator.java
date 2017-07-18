@@ -7,6 +7,7 @@ import java.lang.ref.ReferenceQueue;
 import java.nio.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.StampedLock;
 import java.util.logging.Logger;
 
 /**
@@ -18,10 +19,49 @@ public class LWJGLBufferAllocator implements BufferAllocator {
 
     private static final Logger LOGGER = Logger.getLogger(LWJGLBufferAllocator.class.getName());
 
+    public static final String PROPERTY_CONCURRENT_BUFFER_ALLOCATOR = "com.jme3.lwjgl3.ConcurrentBufferAllocator";
+
+    /**
+     * Threadsafe implementation of the {@link LWJGLBufferAllocator}.
+     *
+     * @author JavaSaBr
+     */
+    public static class ConcurrentLWJGLBufferAllocator extends LWJGLBufferAllocator {
+
+        /**
+         * The synchronizer.
+         */
+        private final StampedLock stampedLock;
+
+        public ConcurrentLWJGLBufferAllocator() {
+            this.stampedLock = new StampedLock();
+        }
+
+        @Override
+        public void destroyDirectBuffer(final Buffer buffer) {
+            final long stamp = stampedLock.writeLock();
+            try {
+                super.destroyDirectBuffer(buffer);
+            } finally {
+                stampedLock.unlockWrite(stamp);
+            }
+        }
+
+        @Override
+        public ByteBuffer allocate(final int size) {
+            final long stamp = stampedLock.writeLock();
+            try {
+                return super.allocate(size);
+            } finally {
+                stampedLock.unlockWrite(stamp);
+            }
+        }
+    }
+
     /**
      * The reference queue.
      */
-    private static final ReferenceQueue<Buffer> DUMMY_QUEUE = new ReferenceQueue<Buffer>();
+    private static final ReferenceQueue<Buffer> DUMMY_QUEUE = new ReferenceQueue<>();
 
     /**
      * The LWJGL byte buffer deallocator.
@@ -76,7 +116,7 @@ public class LWJGLBufferAllocator implements BufferAllocator {
      */
     private static void freeByteBuffers() {
         try {
-            for (; ; ) {
+            for (;;) {
                 final Deallocator deallocator = (Deallocator) DUMMY_QUEUE.remove();
                 deallocator.free();
             }
