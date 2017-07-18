@@ -91,85 +91,12 @@ public class ShaderNodeLoaderDelegate {
             this.var = var;
         }
 
-        public void makeCondition() {
-            var.setCondition(null);
-
-            for (ShaderNode node : nodes) {
-                String condition = null;
-                for (VariableMapping mapping : node.getInputMapping()) {
-                    if (mapping.getRightVariable().equals(var)) {
-                        if (mapping.getCondition() == null) {
-                            condition = null;
-                            break;
-                        }
-                        if (condition == null) {
-                            condition = "(" + mapping.getCondition() + ")";
-                        } else {
-                            if (!condition.contains(mapping.getCondition())) {
-                                condition = condition + " || (" + mapping.getCondition() + ")";
-                            }
-                        }
-                    }
-                }
-                if (node.getCondition() == null && condition == null) {
-                    var.setCondition(null);
-                    return;
-                }
-                if (node.getCondition() != null) {
-                    if (condition == null) {
-                        condition = node.getCondition();
-                    } else {
-                        if (!condition.contains(node.getCondition())) {
-                            condition = "(" + node.getCondition() + ") && (" + condition + ")";
-                        }
-                    }
-                }
-                if (var.getCondition() == null) {
-                    var.setCondition(condition);
-                } else {
-                    if (!var.getCondition().contains(condition)) {
-                        var.setCondition("(" + var.getCondition() + ") || (" + condition + ")");
-                    }
-                }
-
-            }
-        }
-
         public final void addNode(ShaderNode c) {
             if (!nodes.contains(c)) {
                 nodes.add(c);
             }
         }
     }
-
-    protected void computeConditions() {
-
-        updateConditions(vertexDeclaredUniforms);
-        updateConditions(fragmentDeclaredUniforms);
-        updateConditions(varyings);
-
-        for (DeclaredVariable v : varyings.values()) {
-            for (ShaderNode sn : techniqueDef.getShaderNodes()) {
-                if (sn.getDefinition().getType() == Shader.ShaderType.Vertex) {
-                    for (VariableMapping mapping : sn.getInputMapping()) {
-                        if (mapping.getLeftVariable().equals(v.var)) {
-                            if (mapping.getCondition() == null || v.var.getCondition() == null) {
-                                mapping.setCondition(v.var.getCondition());
-                            } else {
-                                mapping.setCondition("(" + mapping.getCondition() + ") || (" + v.var.getCondition() + ")");
-                            }
-                        }
-                    }
-                }
-
-            }
-        }
-
-        updateConditions(attributes);
-//        updateConditions(fragmentGlobals);
-//        vertexGlobal.makeCondition();
-    }
-
     /**
      * Read the ShaderNodesDefinitions block and returns a list of
      * ShaderNodesDefinition This method is used by the j3sn loader
@@ -603,13 +530,19 @@ public class ShaderNodeLoaderDelegate {
                     //multiplicity is not an int attempting to find for a material parameter.
                     MatParam mp = findMatParam(multiplicity);
                     if (mp != null) {
+                        //It's tied to a material param, let's create a define and use this as the multiplicity
                         addDefine(multiplicity, VarType.Int);
                         multiplicity = multiplicity.toUpperCase();
+                        mapping.getLeftVariable().setMultiplicity(multiplicity);
+                        //only declare the variable if the define is defined.
+                        mapping.getLeftVariable().setCondition(mergeConditions(mapping.getLeftVariable().getCondition(), "defined(" + multiplicity + ")", "||"));
                     } else {
                         throw new MatParseException("Wrong multiplicity for variable" + mapping.getLeftVariable().getName() + ". " + multiplicity + " should be an int or a declared material parameter.", statement);
                     }
                 }
-                 right.setMultiplicity(multiplicity);       
+                //the right variable must have the same multiplicity and the same condition.
+                right.setMultiplicity(multiplicity);
+                right.setCondition(mapping.getLeftVariable().getCondition());
             }       
             dv = new DeclaredVariable(right);
             map.put(right.getName(), dv);
@@ -713,7 +646,6 @@ public class ShaderNodeLoaderDelegate {
 
         if (right.getNameSpace().equals("Global")) {
             right.setType("vec4");//Globals are all vec4 for now (maybe forever...)
-            //        updateCondition(right, mapping);
             storeGlobal(right, statement1);
 
         } else if (right.getNameSpace().equals("Attr")) {
@@ -721,7 +653,6 @@ public class ShaderNodeLoaderDelegate {
                 throw new MatParseException("Cannot have an attribute as input in a fragment shader" + right.getName(), statement1);
             }
             updateVarFromAttributes(mapping.getRightVariable(), mapping);
-            //          updateCondition(mapping.getRightVariable(), mapping);
             storeAttribute(mapping.getRightVariable());
         } else if (right.getNameSpace().equals("MatParam")) {
             MatParam param = findMatParam(right.getName());
@@ -888,8 +819,6 @@ public class ShaderNodeLoaderDelegate {
         if (shaderNode.getDefinition().getType() == Shader.ShaderType.Vertex) {
             ShaderNodeVariable global = techniqueDef.getShaderGenerationInfo().getVertexGlobal();
             if (global != null) {
-//                global.setCondition(mergeConditions(global.getCondition(), var.getCondition(), "||"));
-//                var.setCondition(global.getCondition());
                 if (!global.getName().equals(var.getName())) {
                     throw new MatParseException("A global output is already defined for the vertex shader: " + global.getName() + ". vertex shader can only have one global output", statement1);
                 }
@@ -977,27 +906,6 @@ public class ShaderNodeLoaderDelegate {
     }
 
     /**
-     * updates a variable condition form a mapping condition
-     *
-     * @param var the variable
-     * @param mapping the mapping
-     */
-//    public void updateCondition(ShaderNodeVariable var, VariableMapping mapping) {
-//
-//        String condition = mergeConditions(shaderNode.getCondition(), mapping.getCondition(), "&&");
-//
-//        if (var.getCondition() == null) {
-//            if (!nulledConditions.contains(var.getNameSpace() + "." + var.getName())) {
-//                var.setCondition(condition);
-//            }
-//        } else {
-//            var.setCondition(mergeConditions(var.getCondition(), condition, "||"));
-//            if (var.getCondition() == null) {
-//                nulledConditions.add(var.getNameSpace() + "." + var.getName());
-//            }
-//        }
-//    }
-    /**
      * store a varying
      *
      * @param node the shaderNode
@@ -1033,9 +941,6 @@ public class ShaderNodeLoaderDelegate {
      * @return the merged condition
      */
     public String mergeConditions(String condition1, String condition2, String operator) {
-        if (operator.equals("||") && (condition1 == null || condition2 == null)) {
-            return null;
-        }
         if (condition1 != null) {
             if (condition2 == null) {
                 return condition1;
@@ -1058,8 +963,6 @@ public class ShaderNodeLoaderDelegate {
     public void storeVariable(ShaderNodeVariable variable, List<ShaderNodeVariable> varList) {
         for (ShaderNodeVariable var : varList) {
             if (var.getName().equals(variable.getName())) {
-//                var.setCondition(mergeConditions(var.getCondition(), variable.getCondition(), "||"));
-//                variable.setCondition(var.getCondition());
                 return;
             }
         }
@@ -1094,12 +997,7 @@ public class ShaderNodeLoaderDelegate {
         return nodeDefinitions;
     }
 
-    private void updateConditions(Map<String, DeclaredVariable> map) {
-        for (DeclaredVariable declaredVariable : map.values()) {
-            declaredVariable.makeCondition();
-        }
-    }
-  
+
     public void clear() {
         nodeDefinitions.clear();
         nodes.clear();

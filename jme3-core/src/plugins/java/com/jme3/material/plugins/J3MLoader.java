@@ -658,8 +658,6 @@ public class J3MLoader implements AssetLoader {
         List<TechniqueDef> techniqueDefs = new ArrayList<>();
 
         if(isUseNodes){
-            nodesLoaderDelegate.computeConditions();
-            
             //used for caching later, the shader here is not a file.
             
             // KIRILL 9/19/2015
