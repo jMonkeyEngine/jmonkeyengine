@@ -93,7 +93,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     protected CompareMode shadowCompareMode = CompareMode.Hardware;
     protected Picture[] dispPic;
     protected RenderState forcedRenderState = new RenderState();
-    protected Boolean renderBackFacesShadows;
+    protected boolean renderBackFacesShadows;
 
     protected AppProfiler profiler = null;
     
@@ -567,11 +567,10 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
             mat.setInt("FilterMode", edgeFilteringMode.getMaterialParamValue());
             mat.setFloat("PCFEdge", edgesThickness);
             mat.setFloat("ShadowIntensity", shadowIntensity);
+            mat.setBoolean("BackfaceShadows", renderBackFacesShadows);
+
             if (fadeInfo != null) {
                mat.setVector2("FadeInfo", fadeInfo);
-            }
-            if(renderBackFacesShadows != null){
-                mat.setBoolean("BackfaceShadows", renderBackFacesShadows);
             }
 
             setMaterialParameters(mat);
@@ -612,9 +611,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         if (fadeInfo != null) {
             postshadowMat.setVector2("FadeInfo", fadeInfo);
         }
-        if(renderBackFacesShadows != null){
-            postshadowMat.setBoolean("BackfaceShadows", renderBackFacesShadows);
-        }
+        postshadowMat.setBoolean("BackfaceShadows", renderBackFacesShadows);
     }
     
     /**
@@ -799,7 +796,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      * @return true if this processor renders back faces shadows
      */
     public boolean isRenderBackFacesShadows() {
-        return renderBackFacesShadows == Boolean.TRUE;
+        return renderBackFacesShadows;
     }
 
     /**

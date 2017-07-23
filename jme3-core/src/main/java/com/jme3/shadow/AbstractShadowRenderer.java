@@ -95,7 +95,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     protected CompareMode shadowCompareMode = CompareMode.Hardware;
     protected Picture[] dispPic;
     protected RenderState forcedRenderState = new RenderState();
-    protected Boolean renderBackFacesShadows = true;
+    protected boolean renderBackFacesShadows = true;
     protected AppProfiler prof;
 
     /**
@@ -555,18 +555,19 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
             for (int j = 0; j < nbShadowMaps; j++) {
                 mat.setMatrix4(lightViewStringCache[j], lightViewProjectionsMatrices[j]);
             }
+
             for (int j = 0; j < nbShadowMaps; j++) {
                 mat.setTexture(shadowMapStringCache[j], shadowMaps[j]);
             }
+
             mat.setBoolean("HardwareShadows", shadowCompareMode == CompareMode.Hardware);
             mat.setInt("FilterMode", edgeFilteringMode.getMaterialParamValue());
             mat.setFloat("PCFEdge", edgesThickness);
             mat.setFloat("ShadowIntensity", shadowIntensity);
+            mat.setBoolean("BackfaceShadows", renderBackFacesShadows);
+
             if (fadeInfo != null) {
                mat.setVector2("FadeInfo", fadeInfo);
-            }
-            if(renderBackFacesShadows != null){
-                mat.setBoolean("BackfaceShadows", renderBackFacesShadows);
             }
 
             setMaterialParameters(mat);
@@ -607,9 +608,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         if (fadeInfo != null) {
             postshadowMat.setVector2("FadeInfo", fadeInfo);
         }
-        if(renderBackFacesShadows != null){
-            postshadowMat.setBoolean("BackfaceShadows", renderBackFacesShadows);
-        }
+        postshadowMat.setBoolean("BackfaceShadows", renderBackFacesShadows);
     }
     
     /**
@@ -789,7 +788,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      * @return true if this processor renders back faces shadows
      */
     public boolean isRenderBackFacesShadows() {
-        return renderBackFacesShadows == Boolean.TRUE;
+        return renderBackFacesShadows;
     }
 
     @Override
