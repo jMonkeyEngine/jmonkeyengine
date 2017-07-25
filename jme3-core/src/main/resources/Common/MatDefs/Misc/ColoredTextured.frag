@@ -1,3 +1,5 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+
 varying vec2 texCoord;
 
 uniform sampler2D m_ColorMap;

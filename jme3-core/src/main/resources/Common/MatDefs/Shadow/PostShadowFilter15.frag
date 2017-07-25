@@ -1,6 +1,6 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/MultiSample.glsllib"
 #import "Common/ShaderLib/Shadows.glsllib"
-
 
 uniform COLORTEXTURE m_Texture;
 uniform DEPTHTEXTURE m_DepthTexture;
