@@ -1,5 +1,3 @@
-#import "Common/ShaderLib/GLSLCompat.glsllib"
-
 #define ATTENUATION
 //#define HQ_ATTENUATION
 
