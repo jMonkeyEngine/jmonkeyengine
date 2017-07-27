@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/Shadows.glsllib"
 
 uniform sampler2D m_Texture;
