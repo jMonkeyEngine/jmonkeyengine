@@ -42,7 +42,7 @@ MaterialDef Post Shadow {
     }
 
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadowFilter15.vert
+        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadowFilter.vert
         FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadowFilter15.frag
 
         WorldParameters {
