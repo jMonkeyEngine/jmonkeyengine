@@ -41,7 +41,6 @@ import com.jme3.light.Light;
 import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.post.Filter;
-import com.jme3.post.Filter.Pass;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
@@ -51,7 +50,9 @@ import com.jme3.scene.Spatial;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
-import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 
 /**
@@ -62,7 +63,7 @@ import java.io.IOException;
  * 
  * @author Rémy Bouquet aka Nehon
  */
-public class WaterFilter extends Filter {
+public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
     private Pass reflectionPass;
     protected Spatial reflectionScene;
@@ -120,7 +121,7 @@ public class WaterFilter extends Filter {
     private Vector3f center;
     private float radius;
     private AreaShape shapeType = AreaShape.Circular;
-    
+
     public enum AreaShape{
         Circular,
         Square
@@ -201,16 +202,22 @@ public class WaterFilter extends Filter {
         return null;
     }
 
+    /**
+     * @return true if need to try to use direction light from a scene.
+     */
+    protected boolean useDirectionLightFromScene() {
+        return true;
+    }
+
     @Override
     protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
 
         if (reflectionScene == null) {
             reflectionScene = vp.getScenes().get(0);
-            DirectionalLight l = findLight((Node) reflectionScene);
-            if (l != null) {
-                lightDirection = l.getDirection();
+            DirectionalLight directionalLight = findLight((Node) reflectionScene);
+            if (directionalLight != null && useDirectionLightFromScene()) {
+                lightDirection = directionalLight.getDirection();
             }
-
         }
 
         this.renderManager = renderManager;
@@ -414,11 +421,32 @@ public class WaterFilter extends Filter {
     }
 
     /**
-     * sets the scene to render in the reflection map
-     * @param reflectionScene 
+     * Sets the scene to render in the reflection map.
+     *
+     * @param reflectionScene the refraction scene.
      */
     public void setReflectionScene(Spatial reflectionScene) {
+
+        final Spatial currentScene = getReflectionScene();
+
+        if (reflectionView != null && currentScene != null) {
+            reflectionView.detachScene(currentScene);
+        }
+
         this.reflectionScene = reflectionScene;
+
+        if (reflectionView != null && reflectionScene != null) {
+            reflectionView.attachScene(reflectionScene);
+        }
+    }
+
+    /**
+     * Gets the scene which is used to render in the reflection map.
+     *
+     * @return the refraction scene.
+     */
+    public Spatial getReflectionScene() {
+        return reflectionScene;
     }
 
     /**
@@ -696,8 +724,9 @@ public class WaterFilter extends Filter {
     }
 
     /**
-     * Sets the foam texture
-     * @param foamTexture
+     * Sets the foam texture.
+     *
+     * @param foamTexture the foam texture.
      */
     public void setFoamTexture(Texture2D foamTexture) {
         this.foamTexture = foamTexture;
@@ -708,7 +737,17 @@ public class WaterFilter extends Filter {
     }
 
     /**
+     * Gets the foam texture.
+     *
+     * @return the foam texture.
+     */
+    public Texture2D getFoamTexture() {
+        return foamTexture;
+    }
+
+    /**
      * Sets the height texture
+     *
      * @param heightTexture
      */
     public void setHeightTexture(Texture2D heightTexture) {
@@ -720,8 +759,18 @@ public class WaterFilter extends Filter {
     }
 
     /**
-     * Sets the normal Texture
-     * @param normalTexture
+     * Gets the height texture.
+     *
+     * @return the height texture.
+     */
+    public Texture2D getHeightTexture() {
+        return heightTexture;
+    }
+
+    /**
+     * Sets the normal texture.
+     *
+     * @param normalTexture the normal texture.
      */
     public void setNormalTexture(Texture2D normalTexture) {
         this.normalTexture = normalTexture;
@@ -729,6 +778,15 @@ public class WaterFilter extends Filter {
         if (material != null) {
             material.setTexture("NormalMap", normalTexture);
         }
+    }
+
+    /**
+     * Gets the normal texture.
+     *
+     * @return the normal texture.
+     */
+    public Texture2D getNormalTexture() {
+        return normalTexture;
     }
 
     /**
@@ -878,14 +936,24 @@ public class WaterFilter extends Filter {
     }
 
     /**
-     * sets the texture to use to render caustics on the ground underwater
-     * @param causticsTexture 
+     * Sets the texture to use to render caustics on the ground underwater.
+     *
+     * @param causticsTexture the caustics texture.
      */
     public void setCausticsTexture(Texture2D causticsTexture) {
         this.causticsTexture = causticsTexture;
         if (material != null) {
             material.setTexture("causticsMap", causticsTexture);
         }
+    }
+
+    /**
+     * Gets the texture which is used to render caustics on the ground underwater.
+     *
+     * @return the caustics texture.
+     */
+    public Texture2D getCausticsTexture() {
+        return causticsTexture;
     }
 
     /**
@@ -1132,6 +1200,31 @@ public class WaterFilter extends Filter {
             material.setBoolean("SquareArea", shapeType==AreaShape.Square);
         }
     }
-    
-    
+
+    @Override
+    public Object jmeClone() {
+        try {
+            return super.clone();
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void cloneFields(final Cloner cloner, final Object original) {
+        this.normalTexture = cloner.clone(normalTexture);
+        this.foamTexture = cloner.clone(foamTexture);
+        this.causticsTexture = cloner.clone(causticsTexture);
+        this.heightTexture = cloner.clone(heightTexture);
+        this.targetLocation = cloner.clone(targetLocation);
+        this.biasMatrix = cloner.clone(biasMatrix);
+        this.textureProjMatrix = cloner.clone(textureProjMatrix);
+        this.lightDirection = cloner.clone(lightDirection);
+        this.lightColor = cloner.clone(lightColor);
+        this.waterColor = cloner.clone(waterColor);
+        this.deepWaterColor = cloner.clone(deepWaterColor);
+        this.colorExtinction = cloner.clone(colorExtinction);
+        this.foamExistence = cloner.clone(foamExistence);
+        this.windDirection = cloner.clone(windDirection);
+    }
 }
