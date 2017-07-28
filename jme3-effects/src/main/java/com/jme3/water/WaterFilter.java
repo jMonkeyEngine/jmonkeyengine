@@ -67,6 +67,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
     private Pass reflectionPass;
     protected Spatial reflectionScene;
+    protected Spatial rootScene;
     protected ViewPort reflectionView;
     private Texture2D normalTexture;
     private Texture2D foamTexture;
@@ -213,9 +214,10 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
     @Override
     protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+        rootScene = vp.getScenes().get(0);
 
         if (reflectionScene == null) {
-            reflectionScene = vp.getScenes().get(0);
+            reflectionScene = rootScene;
             DirectionalLight directionalLight = findLight((Node) reflectionScene);
             if (directionalLight != null && useDirectionLightFromScene()) {
                 lightDirection = directionalLight.getDirection();
@@ -447,18 +449,18 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      *
      * @param reflectionScene the refraction scene.
      */
-    public void setReflectionScene(Spatial reflectionScene) {
+    public void setReflectionScene(final Spatial reflectionScene) {
 
         final Spatial currentScene = getReflectionScene();
 
-        if (reflectionView != null && currentScene != null) {
-            reflectionView.detachScene(currentScene);
+        if (reflectionView != null) {
+            reflectionView.detachScene(currentScene == null? rootScene : currentScene);
         }
 
         this.reflectionScene = reflectionScene;
 
-        if (reflectionView != null && reflectionScene != null) {
-            reflectionView.attachScene(reflectionScene);
+        if (reflectionView != null) {
+            reflectionView.attachScene(reflectionScene == null? rootScene : reflectionScene);
         }
     }
 
