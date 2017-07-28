@@ -122,6 +122,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     private float radius;
     private AreaShape shapeType = AreaShape.Circular;
 
+    private boolean needSaveReflectionScene;
+
     public enum AreaShape{
         Circular,
         Square
@@ -299,7 +301,19 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
+
         OutputCapsule oc = ex.getCapsule(this);
+
+        final Spatial reflectionScene = getReflectionScene();
+        final boolean needSaveReflectionScene = isNeedSaveReflectionScene();
+
+        oc.write(causticsTexture, "causticsTexture", null);
+        oc.write(heightTexture, "heightTexture", null);
+        oc.write(normalTexture, "normalTexture", null);
+        oc.write(foamTexture, "foamTexture", null);
+        oc.write(needSaveReflectionScene, "needSaveReflectionScene", false);
+        oc.write(needSaveReflectionScene ? reflectionScene : null, "reflectionScene",
+                needSaveReflectionScene ? null : reflectionScene);
 
         oc.write(speed, "speed", 1f);
         oc.write(lightDirection, "lightDirection", new Vector3f(0, -1, 0));
@@ -388,6 +402,14 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
         causticsIntensity = ic.readFloat("causticsIntensity", 0.5f);
 
         useCaustics = ic.readBoolean("useCaustics", true);
+
+        causticsTexture = (Texture2D) ic.readSavable("causticsTexture", null);
+        heightTexture = (Texture2D) ic.readSavable("heightTexture", null);
+        normalTexture = (Texture2D) ic.readSavable("normalTexture", null);
+        foamTexture = (Texture2D) ic.readSavable("foamTexture", null);
+        needSaveReflectionScene = ic.readBoolean("needSaveReflectionScene", false);
+        reflectionScene = (Spatial) ic.readSavable("reflectionScene", null);
+
 
         //positional attributes
         center = (Vector3f) ic.readSavable("center", null);
@@ -1226,5 +1248,21 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
         this.colorExtinction = cloner.clone(colorExtinction);
         this.foamExistence = cloner.clone(foamExistence);
         this.windDirection = cloner.clone(windDirection);
+    }
+
+    /**
+     * Sets the flag.
+     *
+     * @param needSaveReflectionScene true if need to save reflection scene.
+     */
+    public void setNeedSaveReflectionScene(final boolean needSaveReflectionScene) {
+        this.needSaveReflectionScene = needSaveReflectionScene;
+    }
+
+    /**
+     * @return true if need to save reflection scene.
+     */
+    public boolean isNeedSaveReflectionScene() {
+        return needSaveReflectionScene;
     }
 }
