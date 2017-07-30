@@ -32,6 +32,7 @@
 package com.jme3.water;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.TextureKey;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -59,8 +60,8 @@ import java.io.IOException;
  * The WaterFilter is a 2D post process that simulate water.
  * It renders water above and under water.
  * See the jMonkeyEngine wiki for more info <a href="https://jmonkeyengine.github.io/wiki/jme3/advanced/post-processor_water.html">https://jmonkeyengine.github.io/wiki/jme3/advanced/post-processor_water.html</a>.
- * 
- * 
+ *
+ *
  * @author Rémy Bouquet aka Nehon
  */
 public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
@@ -70,11 +71,14 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     protected Spatial rootScene;
     protected ViewPort reflectionView;
     private Texture2D normalTexture;
+    private TextureKey normalTextureKey;
     private Texture2D foamTexture;
+    private TextureKey foamTextureKey;
     private Texture2D causticsTexture;
+    private TextureKey causticsTextureKey;
     private Texture2D heightTexture;
+    private TextureKey heightTextureKey;
     private Camera reflectionCam;
-    protected Ray ray = new Ray();
     private Vector3f targetLocation = new Vector3f();
     private ReflectionProcessor reflectionProcessor;
     private Matrix4f biasMatrix = new Matrix4f(0.5f, 0.0f, 0.0f, 0.5f,
@@ -238,19 +242,25 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
         reflectionProcessor.setReflectionClipPlane(plane);
         reflectionView.addProcessor(reflectionProcessor);
 
-        normalTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/water_normalmap.dds");
+        if (normalTexture == null) {
+            normalTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/water_normalmap.dds");
+            normalTexture.setWrap(WrapMode.Repeat);
+        }
+
         if (foamTexture == null) {
             foamTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/foam.jpg");
+            foamTexture.setWrap(WrapMode.Repeat);
         }
+
         if (causticsTexture == null) {
             causticsTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/caustics.jpg");
+            causticsTexture.setWrap(WrapMode.Repeat);
         }
-        heightTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/heightmap.jpg");
 
-        normalTexture.setWrap(WrapMode.Repeat);
-        foamTexture.setWrap(WrapMode.Repeat);
-        causticsTexture.setWrap(WrapMode.Repeat);
-        heightTexture.setWrap(WrapMode.Repeat);
+        if (heightTexture == null) {
+            heightTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/heightmap.jpg");
+            heightTexture.setWrap(WrapMode.Repeat);
+        }
 
         material = new Material(manager, "Common/MatDefs/Water/Water.j3md");
         material.setTexture("HeightMap", heightTexture);
@@ -289,10 +299,9 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
         if (center != null) {
             material.setVector3("Center", center);
             material.setFloat("Radius", radius * radius);
-            material.setBoolean("SquareArea", shapeType==AreaShape.Square);
+            material.setBoolean("SquareArea", shapeType == AreaShape.Square);
         }
         material.setFloat("WaterHeight", waterHeight);
-
     }
 
     @Override
@@ -309,10 +318,10 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
         final Spatial reflectionScene = getReflectionScene();
         final boolean needSaveReflectionScene = isNeedSaveReflectionScene();
 
-        oc.write(causticsTexture, "causticsTexture", null);
-        oc.write(heightTexture, "heightTexture", null);
-        oc.write(normalTexture, "normalTexture", null);
-        oc.write(foamTexture, "foamTexture", null);
+        oc.write(causticsTextureKey, "causticsTexture", null);
+        oc.write(heightTextureKey, "heightTexture", null);
+        oc.write(normalTextureKey, "normalTexture", null);
+        oc.write(foamTextureKey, "foamTexture", null);
         oc.write(needSaveReflectionScene, "needSaveReflectionScene", false);
         oc.write(needSaveReflectionScene ? reflectionScene : null, "reflectionScene",
                 needSaveReflectionScene ? null : reflectionScene);
@@ -405,13 +414,27 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
         useCaustics = ic.readBoolean("useCaustics", true);
 
-        causticsTexture = (Texture2D) ic.readSavable("causticsTexture", null);
-        heightTexture = (Texture2D) ic.readSavable("heightTexture", null);
-        normalTexture = (Texture2D) ic.readSavable("normalTexture", null);
-        foamTexture = (Texture2D) ic.readSavable("foamTexture", null);
+        causticsTextureKey = (TextureKey) ic.readSavable("causticsTexture", null);
+        heightTextureKey = (TextureKey) ic.readSavable("heightTexture", null);
+        normalTextureKey = (TextureKey) ic.readSavable("normalTexture", null);
+        foamTextureKey = (TextureKey) ic.readSavable("foamTexture", null);
         needSaveReflectionScene = ic.readBoolean("needSaveReflectionScene", false);
         reflectionScene = (Spatial) ic.readSavable("reflectionScene", null);
 
+        final AssetManager assetManager = im.getAssetManager();
+
+        if (causticsTextureKey != null) {
+            setCausticsTexture((Texture2D) assetManager.loadTexture(causticsTextureKey));
+        }
+        if (heightTextureKey != null) {
+            setHeightTexture((Texture2D) assetManager.loadTexture(heightTextureKey));
+        }
+        if (normalTextureKey != null) {
+            setNormalTexture((Texture2D) assetManager.loadTexture(normalTextureKey));
+        }
+        if (foamTextureKey != null) {
+            setFoamTexture((Texture2D) assetManager.loadTexture(foamTextureKey));
+        }
 
         //positional attributes
         center = (Vector3f) ic.readSavable("center", null);
@@ -441,7 +464,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
         }
         if (reflectionProcessor != null) {
             reflectionProcessor.setReflectionClipPlane(plane);
-        }                
+        }
     }
 
     /**
@@ -754,6 +777,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      */
     public void setFoamTexture(Texture2D foamTexture) {
         this.foamTexture = foamTexture;
+        this.foamTextureKey = (TextureKey) foamTexture.getKey();
         foamTexture.setWrap(WrapMode.Repeat);
         if (material != null) {
             material.setTexture("FoamMap", foamTexture);
@@ -776,6 +800,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      */
     public void setHeightTexture(Texture2D heightTexture) {
         this.heightTexture = heightTexture;
+        this.heightTextureKey = (TextureKey) heightTexture.getKey();
         heightTexture.setWrap(WrapMode.Repeat);
         if (material != null) {
             material.setTexture("HeightMap", heightTexture);
@@ -798,6 +823,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      */
     public void setNormalTexture(Texture2D normalTexture) {
         this.normalTexture = normalTexture;
+        this.normalTextureKey = (TextureKey) normalTexture.getKey();
         normalTexture.setWrap(WrapMode.Repeat);
         if (material != null) {
             material.setTexture("NormalMap", normalTexture);
@@ -966,6 +992,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      */
     public void setCausticsTexture(Texture2D causticsTexture) {
         this.causticsTexture = causticsTexture;
+        this.causticsTextureKey = (TextureKey) causticsTexture.getKey();
         if (material != null) {
             material.setTexture("causticsMap", causticsTexture);
         }
@@ -1237,9 +1264,13 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     @Override
     public void cloneFields(final Cloner cloner, final Object original) {
         this.normalTexture = cloner.clone(normalTexture);
+        this.normalTextureKey = cloner.clone(normalTextureKey);
         this.foamTexture = cloner.clone(foamTexture);
+        this.foamTextureKey = cloner.clone(foamTextureKey);
         this.causticsTexture = cloner.clone(causticsTexture);
+        this.causticsTextureKey = cloner.clone(causticsTextureKey);
         this.heightTexture = cloner.clone(heightTexture);
+        this.heightTextureKey = cloner.clone(heightTextureKey);
         this.targetLocation = cloner.clone(targetLocation);
         this.biasMatrix = cloner.clone(biasMatrix);
         this.textureProjMatrix = cloner.clone(textureProjMatrix);
