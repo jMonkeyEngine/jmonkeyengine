@@ -31,7 +31,9 @@
  */
 package com.jme3.water;
 
+import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.TextureKey;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -41,7 +43,6 @@ import com.jme3.light.Light;
 import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.post.Filter;
-import com.jme3.post.Filter.Pass;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
@@ -51,28 +52,35 @@ import com.jme3.scene.Spatial;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
-import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 
 /**
  * The WaterFilter is a 2D post process that simulate water.
  * It renders water above and under water.
  * See the jMonkeyEngine wiki for more info <a href="https://jmonkeyengine.github.io/wiki/jme3/advanced/post-processor_water.html">https://jmonkeyengine.github.io/wiki/jme3/advanced/post-processor_water.html</a>.
- * 
- * 
+ *
+ *
  * @author Rémy Bouquet aka Nehon
  */
-public class WaterFilter extends Filter {
+public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
+
+    public static final String DEFAULT_NORMAL_MAP = "Common/MatDefs/Water/Textures/water_normalmap.dds";
+    public static final String DEFAULT_FOAM = "Common/MatDefs/Water/Textures/foam.jpg";
+    public static final String DEFAULT_CAUSTICS = "Common/MatDefs/Water/Textures/caustics.jpg";
+    public static final String DEFAULT_HEIGHT_MAP = "Common/MatDefs/Water/Textures/heightmap.jpg";
 
     private Pass reflectionPass;
     protected Spatial reflectionScene;
+    protected Spatial rootScene;
     protected ViewPort reflectionView;
     private Texture2D normalTexture;
     private Texture2D foamTexture;
     private Texture2D causticsTexture;
     private Texture2D heightTexture;
     private Camera reflectionCam;
-    protected Ray ray = new Ray();
     private Vector3f targetLocation = new Vector3f();
     private ReflectionProcessor reflectionProcessor;
     private Matrix4f biasMatrix = new Matrix4f(0.5f, 0.0f, 0.0f, 0.5f,
@@ -120,7 +128,9 @@ public class WaterFilter extends Filter {
     private Vector3f center;
     private float radius;
     private AreaShape shapeType = AreaShape.Circular;
-    
+
+    private boolean needSaveReflectionScene;
+
     public enum AreaShape{
         Circular,
         Square
@@ -201,16 +211,23 @@ public class WaterFilter extends Filter {
         return null;
     }
 
+    /**
+     * @return true if need to try to use direction light from a scene.
+     */
+    protected boolean useDirectionLightFromScene() {
+        return true;
+    }
+
     @Override
     protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+        rootScene = vp.getScenes().get(0);
 
         if (reflectionScene == null) {
-            reflectionScene = vp.getScenes().get(0);
-            DirectionalLight l = findLight((Node) reflectionScene);
-            if (l != null) {
-                lightDirection = l.getDirection();
+            reflectionScene = rootScene;
+            DirectionalLight directionalLight = findLight((Node) reflectionScene);
+            if (directionalLight != null && useDirectionLightFromScene()) {
+                lightDirection = directionalLight.getDirection();
             }
-
         }
 
         this.renderManager = renderManager;
@@ -227,19 +244,25 @@ public class WaterFilter extends Filter {
         reflectionProcessor.setReflectionClipPlane(plane);
         reflectionView.addProcessor(reflectionProcessor);
 
-        normalTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/water_normalmap.dds");
-        if (foamTexture == null) {
-            foamTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/foam.jpg");
+        if (normalTexture == null) {
+            normalTexture = (Texture2D) manager.loadTexture(DEFAULT_NORMAL_MAP);
+            normalTexture.setWrap(WrapMode.Repeat);
         }
-        if (causticsTexture == null) {
-            causticsTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/caustics.jpg");
-        }
-        heightTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/heightmap.jpg");
 
-        normalTexture.setWrap(WrapMode.Repeat);
-        foamTexture.setWrap(WrapMode.Repeat);
-        causticsTexture.setWrap(WrapMode.Repeat);
-        heightTexture.setWrap(WrapMode.Repeat);
+        if (foamTexture == null) {
+            foamTexture = (Texture2D) manager.loadTexture(DEFAULT_FOAM);
+            foamTexture.setWrap(WrapMode.Repeat);
+        }
+
+        if (causticsTexture == null) {
+            causticsTexture = (Texture2D) manager.loadTexture(DEFAULT_CAUSTICS);
+            causticsTexture.setWrap(WrapMode.Repeat);
+        }
+
+        if (heightTexture == null) {
+            heightTexture = (Texture2D) manager.loadTexture(DEFAULT_HEIGHT_MAP);
+            heightTexture.setWrap(WrapMode.Repeat);
+        }
 
         material = new Material(manager, "Common/MatDefs/Water/Water.j3md");
         material.setTexture("HeightMap", heightTexture);
@@ -278,10 +301,9 @@ public class WaterFilter extends Filter {
         if (center != null) {
             material.setVector3("Center", center);
             material.setFloat("Radius", radius * radius);
-            material.setBoolean("SquareArea", shapeType==AreaShape.Square);
+            material.setBoolean("SquareArea", shapeType == AreaShape.Square);
         }
         material.setFloat("WaterHeight", waterHeight);
-
     }
 
     @Override
@@ -292,7 +314,35 @@ public class WaterFilter extends Filter {
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
+
         OutputCapsule oc = ex.getCapsule(this);
+
+        final Spatial reflectionScene = getReflectionScene();
+        final boolean needSaveReflectionScene = isNeedSaveReflectionScene();
+
+        final AssetKey causticsTextureKey = causticsTexture.getKey();
+        final AssetKey heightTextureKey = heightTexture.getKey();
+        final AssetKey normalTextureKey = normalTexture.getKey();
+        final AssetKey foamTextureKey = foamTexture.getKey();
+
+        if (causticsTextureKey != null && !DEFAULT_CAUSTICS.equals(causticsTextureKey.getName())) {
+            oc.write(causticsTextureKey, "causticsTexture", null);
+        }
+        if (heightTextureKey != null && !DEFAULT_HEIGHT_MAP.equals(heightTextureKey.getName())) {
+            oc.write(heightTextureKey, "heightTexture", null);
+        }
+        if (normalTextureKey != null && !DEFAULT_NORMAL_MAP.equals(normalTextureKey.getName())) {
+            oc.write(normalTextureKey, "normalTexture", null);
+        }
+        if (foamTextureKey != null && !DEFAULT_FOAM.equals(foamTextureKey.getName())) {
+            oc.write(foamTextureKey, "foamTexture", null);
+        }
+
+        oc.write(needSaveReflectionScene, "needSaveReflectionScene", false);
+
+        if (needSaveReflectionScene) {
+            oc.write(reflectionScene, "reflectionScene", null);
+        }
 
         oc.write(speed, "speed", 1f);
         oc.write(lightDirection, "lightDirection", new Vector3f(0, -1, 0));
@@ -382,6 +432,29 @@ public class WaterFilter extends Filter {
 
         useCaustics = ic.readBoolean("useCaustics", true);
 
+        final TextureKey causticsTextureKey = (TextureKey) ic.readSavable("causticsTexture", null);
+        final TextureKey heightTextureKey = (TextureKey) ic.readSavable("heightTexture", null);
+        final TextureKey normalTextureKey = (TextureKey) ic.readSavable("normalTexture", null);
+        final TextureKey foamTextureKey = (TextureKey) ic.readSavable("foamTexture", null);
+
+        needSaveReflectionScene = ic.readBoolean("needSaveReflectionScene", false);
+        reflectionScene = (Spatial) ic.readSavable("reflectionScene", null);
+
+        final AssetManager assetManager = im.getAssetManager();
+
+        if (causticsTextureKey != null) {
+            setCausticsTexture((Texture2D) assetManager.loadTexture(causticsTextureKey));
+        }
+        if (heightTextureKey != null) {
+            setHeightTexture((Texture2D) assetManager.loadTexture(heightTextureKey));
+        }
+        if (normalTextureKey != null) {
+            setNormalTexture((Texture2D) assetManager.loadTexture(normalTextureKey));
+        }
+        if (foamTextureKey != null) {
+            setFoamTexture((Texture2D) assetManager.loadTexture(foamTextureKey));
+        }
+
         //positional attributes
         center = (Vector3f) ic.readSavable("center", null);
         radius = ic.readFloat("radius", 0f);
@@ -410,15 +483,36 @@ public class WaterFilter extends Filter {
         }
         if (reflectionProcessor != null) {
             reflectionProcessor.setReflectionClipPlane(plane);
-        }                
+        }
     }
 
     /**
-     * sets the scene to render in the reflection map
-     * @param reflectionScene 
+     * Sets the scene to render in the reflection map.
+     *
+     * @param reflectionScene the refraction scene.
      */
-    public void setReflectionScene(Spatial reflectionScene) {
+    public void setReflectionScene(final Spatial reflectionScene) {
+
+        final Spatial currentScene = getReflectionScene();
+
+        if (reflectionView != null) {
+            reflectionView.detachScene(currentScene == null? rootScene : currentScene);
+        }
+
         this.reflectionScene = reflectionScene;
+
+        if (reflectionView != null) {
+            reflectionView.attachScene(reflectionScene == null? rootScene : reflectionScene);
+        }
+    }
+
+    /**
+     * Gets the scene which is used to render in the reflection map.
+     *
+     * @return the refraction scene.
+     */
+    public Spatial getReflectionScene() {
+        return reflectionScene;
     }
 
     /**
@@ -696,8 +790,9 @@ public class WaterFilter extends Filter {
     }
 
     /**
-     * Sets the foam texture
-     * @param foamTexture
+     * Sets the foam texture.
+     *
+     * @param foamTexture the foam texture.
      */
     public void setFoamTexture(Texture2D foamTexture) {
         this.foamTexture = foamTexture;
@@ -708,7 +803,17 @@ public class WaterFilter extends Filter {
     }
 
     /**
+     * Gets the foam texture.
+     *
+     * @return the foam texture.
+     */
+    public Texture2D getFoamTexture() {
+        return foamTexture;
+    }
+
+    /**
      * Sets the height texture
+     *
      * @param heightTexture
      */
     public void setHeightTexture(Texture2D heightTexture) {
@@ -720,8 +825,18 @@ public class WaterFilter extends Filter {
     }
 
     /**
-     * Sets the normal Texture
-     * @param normalTexture
+     * Gets the height texture.
+     *
+     * @return the height texture.
+     */
+    public Texture2D getHeightTexture() {
+        return heightTexture;
+    }
+
+    /**
+     * Sets the normal texture.
+     *
+     * @param normalTexture the normal texture.
      */
     public void setNormalTexture(Texture2D normalTexture) {
         this.normalTexture = normalTexture;
@@ -729,6 +844,15 @@ public class WaterFilter extends Filter {
         if (material != null) {
             material.setTexture("NormalMap", normalTexture);
         }
+    }
+
+    /**
+     * Gets the normal texture.
+     *
+     * @return the normal texture.
+     */
+    public Texture2D getNormalTexture() {
+        return normalTexture;
     }
 
     /**
@@ -878,14 +1002,24 @@ public class WaterFilter extends Filter {
     }
 
     /**
-     * sets the texture to use to render caustics on the ground underwater
-     * @param causticsTexture 
+     * Sets the texture to use to render caustics on the ground underwater.
+     *
+     * @param causticsTexture the caustics texture.
      */
     public void setCausticsTexture(Texture2D causticsTexture) {
         this.causticsTexture = causticsTexture;
         if (material != null) {
             material.setTexture("causticsMap", causticsTexture);
         }
+    }
+
+    /**
+     * Gets the texture which is used to render caustics on the ground underwater.
+     *
+     * @return the caustics texture.
+     */
+    public Texture2D getCausticsTexture() {
+        return causticsTexture;
     }
 
     /**
@@ -1132,6 +1266,47 @@ public class WaterFilter extends Filter {
             material.setBoolean("SquareArea", shapeType==AreaShape.Square);
         }
     }
-    
-    
+
+    @Override
+    public Object jmeClone() {
+        try {
+            return super.clone();
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void cloneFields(final Cloner cloner, final Object original) {
+        this.normalTexture = cloner.clone(normalTexture);
+        this.foamTexture = cloner.clone(foamTexture);
+        this.causticsTexture = cloner.clone(causticsTexture);
+        this.heightTexture = cloner.clone(heightTexture);
+        this.targetLocation = cloner.clone(targetLocation);
+        this.biasMatrix = cloner.clone(biasMatrix);
+        this.textureProjMatrix = cloner.clone(textureProjMatrix);
+        this.lightDirection = cloner.clone(lightDirection);
+        this.lightColor = cloner.clone(lightColor);
+        this.waterColor = cloner.clone(waterColor);
+        this.deepWaterColor = cloner.clone(deepWaterColor);
+        this.colorExtinction = cloner.clone(colorExtinction);
+        this.foamExistence = cloner.clone(foamExistence);
+        this.windDirection = cloner.clone(windDirection);
+    }
+
+    /**
+     * Sets the flag.
+     *
+     * @param needSaveReflectionScene true if need to save reflection scene.
+     */
+    public void setNeedSaveReflectionScene(final boolean needSaveReflectionScene) {
+        this.needSaveReflectionScene = needSaveReflectionScene;
+    }
+
+    /**
+     * @return true if need to save reflection scene.
+     */
+    public boolean isNeedSaveReflectionScene() {
+        return needSaveReflectionScene;
+    }
 }
