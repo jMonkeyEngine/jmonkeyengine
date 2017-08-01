@@ -332,15 +332,28 @@ public class TerrainPatch extends Geometry {
      * recalculate all of the normal vectors in this terrain patch
      */
     protected void updateNormals() {
-        FloatBuffer newNormalBuffer = geomap.writeNormalArray(null, getWorldScale());
-        getMesh().getBuffer(Type.Normal).updateData(newNormalBuffer);
-        FloatBuffer newTangentBuffer = null;
-        FloatBuffer newBinormalBuffer = null;
-        FloatBuffer[] tb = geomap.writeTangentArray(newNormalBuffer, newTangentBuffer, newBinormalBuffer, (FloatBuffer)getMesh().getBuffer(Type.TexCoord).getData(), getWorldScale());
-        newTangentBuffer = tb[0];
-        newBinormalBuffer = tb[1];
-        getMesh().getBuffer(Type.Tangent).updateData(newTangentBuffer);
-        getMesh().getBuffer(Type.Binormal).updateData(newBinormalBuffer);
+
+        final Mesh mesh = getMesh();
+        final VertexBuffer normalVertexBuffer = mesh.getBuffer(Type.Normal);
+        final VertexBuffer tangentVertexBuffer = mesh.getBuffer(Type.Tangent);
+        final VertexBuffer binormalVertexBuffer = mesh.getBuffer(Type.Binormal);
+        final VertexBuffer textCoordsVertexBuffer = mesh.getBuffer(Type.TexCoord);
+
+        FloatBuffer normalData = (FloatBuffer) normalVertexBuffer.getData();
+        FloatBuffer tangentData = (FloatBuffer) tangentVertexBuffer.getData();
+        FloatBuffer binormalData = (FloatBuffer) binormalVertexBuffer.getData();
+        FloatBuffer textCoordsData = (FloatBuffer) textCoordsVertexBuffer.getData();
+
+        normalData = geomap.writeNormalArray(normalData, getWorldScale());
+
+        FloatBuffer[] buffers = geomap.writeTangentArray(normalData, tangentData, binormalData, textCoordsData, getWorldScale());
+
+        tangentData = buffers[0];
+        binormalData = buffers[1];
+
+        normalVertexBuffer.updateData(normalData);
+        textCoordsVertexBuffer.updateData(tangentData);
+        binormalVertexBuffer.updateData(binormalData);
     }
 
     private void setInBuffer(Mesh mesh, int index, Vector3f normal, Vector3f tangent, Vector3f binormal) {
