@@ -108,6 +108,9 @@ public class EnvironmentCamera extends BaseAppState {
     protected Vector3f position = new Vector3f();
     protected ColorRGBA backGroundColor;
 
+    /**
+     * The size of environment cameras.
+     */
     protected int size = 128;
 
     private final List<SnapshotJob> jobs = new ArrayList<SnapshotJob>();
@@ -194,8 +197,36 @@ public class EnvironmentCamera extends BaseAppState {
         jobs.remove(0);
     }
 
+    /**
+     * Gets the size of environment cameras.
+     *
+     * @return the size of environment cameras.
+     */
     public int getSize() {
         return size;
+    }
+
+    /**
+     * Sets the size of environment cameras and rebuild this state if it was initialized.
+     *
+     * @param size the size of environment cameras.
+     */
+    public void setSize(final int size) {
+        this.size = size;
+        rebuild();
+    }
+
+    /**
+     * Rebuild all environment cameras.
+     */
+    protected void rebuild() {
+
+        if (!isInitialized()) {
+            return;
+        }
+
+        cleanup(getApplication());
+        initialize(getApplication());
     }
 
     public Vector3f getPosition() {
@@ -224,8 +255,7 @@ public class EnvironmentCamera extends BaseAppState {
         this.backGroundColor = app.getViewPort().getBackgroundColor();
 
         final Camera[] cameras = new Camera[6];
-
-        Texture2D[] textures = new Texture2D[6];
+        final Texture2D[] textures = new Texture2D[6];
 
         viewports = new ViewPort[6];
         framebuffers = new FrameBuffer[6];
@@ -240,6 +270,7 @@ public class EnvironmentCamera extends BaseAppState {
             framebuffers[i].setColorTexture(textures[i]);
         }
     }
+
 
     @Override
     protected void cleanup(Application app) {
