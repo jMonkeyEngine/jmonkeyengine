@@ -31,6 +31,7 @@
  */
 package com.jme3.terrain.geomipmap;
 
+import static java.util.Collections.singletonList;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -267,11 +268,8 @@ public class TerrainLodControl extends AbstractControl {
 
         prepareTerrain();
 
-        final SafeArrayList<Vector3f> locations = new SafeArrayList<>(Vector3f.class, 1);
-        locations.add(currentLocation);
-
         final TerrainExecutorService executorService = TerrainExecutorService.getInstance();
-        indexer = executorService.submit(createLodUpdateTask(locations, lodCalculator));
+        indexer = executorService.submit(createLodUpdateTask(singletonList(currentLocation), lodCalculator));
     }
 
     // do all of the LOD calculations
@@ -348,7 +346,7 @@ public class TerrainLodControl extends AbstractControl {
         terrain.cacheTerrainTransforms();
     }
 
-    protected UpdateLOD createLodUpdateTask(final SafeArrayList<Vector3f> locations, final LodCalculator lodCalculator) {
+    protected UpdateLOD createLodUpdateTask(final List<Vector3f> locations, final LodCalculator lodCalculator) {
         return new UpdateLOD(locations, lodCalculator);
     }
 
@@ -378,9 +376,9 @@ public class TerrainLodControl extends AbstractControl {
         }
     }
 
-    private SafeArrayList<Vector3f> cloneVectorList(SafeArrayList<Vector3f> locations) {
+    private List<Vector3f> cloneVectorList(SafeArrayList<Vector3f> locations) {
 
-        final SafeArrayList<Vector3f> cloned = new SafeArrayList<>(Vector3f.class, locations.size());
+        final List<Vector3f> cloned = new ArrayList<>(locations.size());
 
         for (final Vector3f location : locations.getArray()) {
             cloned.add(location.clone());
@@ -468,10 +466,10 @@ public class TerrainLodControl extends AbstractControl {
      */
     protected class UpdateLOD implements Callable<HashMap<String, UpdatedTerrainPatch>> {
 
-        protected final SafeArrayList<Vector3f> camLocations;
+        protected final List<Vector3f> camLocations;
         protected final LodCalculator lodCalculator;
 
-        protected UpdateLOD(final SafeArrayList<Vector3f> camLocations, final LodCalculator lodCalculator) {
+        protected UpdateLOD(final List<Vector3f> camLocations, final LodCalculator lodCalculator) {
             this.camLocations = camLocations;
             this.lodCalculator = lodCalculator;
         }
