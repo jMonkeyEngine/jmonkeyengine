@@ -92,9 +92,21 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
         this.elementType = elementType;
     }
 
-    public SafeArrayList(Class<E> elementType, Collection<? extends E> c) {
+    public SafeArrayList(final Class<E> elementType, final int capacity) {
         this.elementType = elementType;
-        addAll(c);
+        this.buffer = new ArrayList<>(capacity);
+    }
+
+    public SafeArrayList(final Class<E> elementType, final Collection<? extends E> collection) {
+        this.elementType = elementType;
+
+        if (collection instanceof SafeArrayList) {
+            this.buffer = Arrays.asList(((SafeArrayList<E>) collection).getArray());
+        } else {
+            this.buffer = new ArrayList<>(collection);
+        }
+
+        this.size = buffer.size();
     }
 
     public SafeArrayList<E> clone() {
@@ -150,12 +162,12 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
             return buffer;
 
         if( backingArray == null ) {
-            buffer = new ArrayList();
+            buffer = new ArrayList<>();
         } else {
             // Only keep the array or the buffer but never both at
             // the same time.  1) it saves space, 2) it keeps the rest
             // of the code safer.
-            buffer = new ArrayList( Arrays.asList(backingArray) );
+            buffer = new ArrayList<>( Arrays.asList(backingArray) );
             backingArray = null;
         }
         return buffer;
@@ -243,10 +255,19 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
     }
 
     public boolean equals(Object o) {
-        if( o == this )
+
+        if (o == this) {
             return true;
-        if( !(o instanceof List) ) //covers null too
+        } else if (o instanceof SafeArrayList) {
+
+            final Object[] targetArray = ((SafeArrayList) o).getArray();
+            final E[] array = getArray();
+
+            return Arrays.equals(targetArray, array);
+        } else if (!(o instanceof List)) {//covers null too
             return false;
+        }
+
         List other = (List)o;
         Iterator i1 = iterator();
         Iterator i2 = other.iterator();
