@@ -107,7 +107,7 @@ public class MultiTerrainLodControl extends TerrainLodControl {
     }
     
     @Override
-    protected UpdateLOD createLodUpdateTask(final SafeArrayList<Vector3f> locations,
+    protected UpdateLOD createLodUpdateTask(final List<Vector3f> locations,
                                             final LodCalculator lodCalculator) {
         return new UpdateMultiLOD(locations, lodCalculator);
     }
@@ -140,7 +140,7 @@ public class MultiTerrainLodControl extends TerrainLodControl {
      */
     protected class UpdateMultiLOD extends UpdateLOD {
 
-        protected UpdateMultiLOD(final SafeArrayList<Vector3f> camLocations, final LodCalculator lodCalculator) {
+        protected UpdateMultiLOD(final List<Vector3f> camLocations, final LodCalculator lodCalculator) {
             super(camLocations, lodCalculator);
         }
         

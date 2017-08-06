@@ -4,7 +4,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * The class to provide single executor service to run background tasks of terrain staff.
+ * The class to provide single executor service to run background tasks of terrain stuff.
  *
  * @author JavaSaBr
  */
