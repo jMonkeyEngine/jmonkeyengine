@@ -35,7 +35,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.terrain.Terrain;
 import com.jme3.terrain.geomipmap.lodcalc.LodCalculator;
-import java.util.List;
+import com.jme3.util.SafeArrayList;
 
 /**
  * Updates grid offsets and cell positions.
@@ -50,7 +50,7 @@ public class TerrainGridLodControl extends TerrainLodControl {
     }
     
     @Override
-    protected void updateLOD(List<Vector3f> locations, LodCalculator lodCalculator) {
+    protected void updateLOD(SafeArrayList<Vector3f> locations, LodCalculator lodCalculator) {
         TerrainGrid terrainGrid = (TerrainGrid)getSpatial();
         
         // for now, only the first camera is handled.
