@@ -39,7 +39,7 @@ public class TerrainExecutorService {
      *
      * @param constructor the constructor.
      */
-    private static void setConstructor(final Callable<ExecutorService> constructor) {
+    public static void setConstructor(final Callable<ExecutorService> constructor) {
         TerrainExecutorService.constructor = constructor;
     }
 
