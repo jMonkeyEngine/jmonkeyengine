@@ -75,7 +75,7 @@ public class OpenCLObjectManager {
     private void deleteObject(OpenCLObjectRef ref) {
         LOG.log(LOG_LEVEL1, "deleting OpenCL object by: {0}", ref.releaser);
         ref.releaser.release();
-		ref.clear();
+        ref.clear();
         activeObjects.remove(ref);
     }
         
@@ -104,7 +104,7 @@ public class OpenCLObjectManager {
         for (OpenCLObjectRef ref : activeObjects) {
             LOG.log(LOG_LEVEL1, "deleting OpenCL object by: {0}", ref.releaser);
             ref.releaser.release();
-			ref.clear();
+            ref.clear();
         }
         activeObjects.clear();
     }
