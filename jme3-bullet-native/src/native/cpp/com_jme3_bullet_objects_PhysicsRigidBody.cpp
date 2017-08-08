@@ -217,8 +217,8 @@ extern "C" {
             body->setActivationState(DISABLE_DEACTIVATION);
         } else {
             body->setCollisionFlags(body->getCollisionFlags() & ~btCollisionObject::CF_KINEMATIC_OBJECT);
-            //body->setActivationState(ACTIVE_TAG);
-	    body->activate(false);
+	    body->activate(true);
+	    body->forceActivationState(ACTIVE_TAG);
         }
     }
 
