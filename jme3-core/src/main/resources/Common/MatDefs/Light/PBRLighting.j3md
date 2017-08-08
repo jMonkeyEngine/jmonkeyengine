@@ -236,7 +236,7 @@ MaterialDef PBR Lighting {
         }
     }
 
-  Technique PreNormalPass {
+    Technique PreNormalPass {
 
         VertexShader GLSL100 :   Common/MatDefs/SSAO/normal.vert
         FragmentShader GLSL100 : Common/MatDefs/SSAO/normal.frag
@@ -256,23 +256,24 @@ MaterialDef PBR Lighting {
 
     }
 
-    Technique GBuf {
+    Technique Glow {
 
-        VertexShader GLSL100:   Common/MatDefs/Light/GBuf.vert
-        FragmentShader GLSL100: Common/MatDefs/Light/GBuf.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Light/Glow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
-            NormalMatrix
-            WorldViewMatrix
-            WorldMatrix
+            ViewProjectionMatrix
+            ViewMatrix
         }
 
         Defines {
-            VERTEX_COLOR : UseVertexColor
-            NORMALMAP : NormalMap
-            SPECULARMAP : SpecularMap
-            PARALLAXMAP : ParallaxMap
+            NEED_TEXCOORD1
+            HAS_GLOWMAP : GlowMap
+            HAS_GLOWCOLOR : GlowColor
+
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
         }
     }
 
