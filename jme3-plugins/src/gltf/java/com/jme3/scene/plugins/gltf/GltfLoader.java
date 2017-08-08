@@ -4,13 +4,17 @@ import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.jme3.asset.*;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
 import com.jme3.math.*;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.*;
 
 import java.io.*;
 import java.nio.Buffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.jme3.scene.plugins.gltf.GltfUtils.*;
 
@@ -19,6 +23,8 @@ import static com.jme3.scene.plugins.gltf.GltfUtils.*;
  * Created by Nehon on 07/08/2017.
  */
 public class GltfLoader implements AssetLoader {
+
+    private static final Logger logger = Logger.getLogger(GltfLoader.class.getName());
 
     //Data cache for already parsed JME objects
     private Map<String, Object[]> dataCache = new HashMap<>();
@@ -30,8 +36,13 @@ public class GltfLoader implements AssetLoader {
     private JsonArray buffers;
     private JsonArray materials;
     private Material defaultMat;
-    private byte[] tmpByteArray;
     private AssetInfo info;
+
+    private static Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
+
+    static {
+        defaultMaterialAdapters.put("pbrMetallicRoughness", new PBRMaterialAdapter());
+    }
 
     @Override
     public Object load(AssetInfo assetInfo) throws IOException {
@@ -45,7 +56,6 @@ public class GltfLoader implements AssetLoader {
                 defaultMat.setFloat("Metallic", 0f);
                 defaultMat.setFloat("Roughness", 1f);
             }
-
 
             JsonObject root = new JsonParser().parse(new JsonReader(new InputStreamReader(assetInfo.openStream()))).getAsJsonObject();
 
@@ -66,8 +76,6 @@ public class GltfLoader implements AssetLoader {
             buffers = root.getAsJsonArray("buffers");
             materials = root.getAsJsonArray("materials");
 
-            allocatedTmpByteArray();
-
             JsonPrimitive defaultScene = root.getAsJsonPrimitive("scene");
 
             Node n = loadScenes(defaultScene);
@@ -83,21 +91,6 @@ public class GltfLoader implements AssetLoader {
         } catch (Exception e) {
             throw new AssetLoadException("An error occurred loading " + assetInfo.getKey().getName(), e);
         }
-    }
-
-    private void allocatedTmpByteArray() {
-        //Allocate the tmpByteArray to the biggest bufferView
-        if (bufferViews == null) {
-            throw new AssetLoadException("No buffer view defined but one is referenced by an accessor");
-        }
-        int maxLength = 0;
-        for (JsonElement bufferView : bufferViews) {
-            Integer byteLength = getAsInteger(bufferView.getAsJsonObject(), "byteLength");
-            if (byteLength != null && maxLength < byteLength) {
-                maxLength = byteLength;
-            }
-        }
-        tmpByteArray = new byte[maxLength];
     }
 
     private boolean isSupported(String version, String minVersion) {
@@ -152,25 +145,18 @@ public class GltfLoader implements AssetLoader {
 
             //there is a mesh in this node, however gltf can split meshes in primitives (some kind of sub meshes),
             //We don't have this in JME so we have to make one mesh and one Geometry for each primitive.
-            Mesh[] primitives = loadMeshPrimitives(meshIndex);
+            Geometry[] primitives = loadMeshPrimitives(meshIndex);
             if (primitives.length > 1) {
-                //only one mesh, lets just make a geometry.
-                Geometry geometry = new Geometry(null, primitives[0]);
-                geometry.setMaterial(mat);
-                geometry.updateModelBound();
-                spatial = geometry;
+                //only one geometry, let's not wrap it in another node.
+                spatial = primitives[0];
             } else {
-                //several meshes, let's make a parent Node and attach several geometries to it
+                //several geometries, let's make a parent Node and attach them to it
                 Node node = new Node();
-                for (Mesh primitive : primitives) {
-                    Geometry geom = new Geometry(null, primitive);
-                    geom.setMaterial(mat);
-                    geom.updateModelBound();
-                    node.attachChild(geom);
+                for (Geometry primitive : primitives) {
+                    node.attachChild(primitive);
                 }
                 spatial = node;
             }
-
 
             spatial.setName(loadMeshName(meshIndex));
 
@@ -235,10 +221,15 @@ public class GltfLoader implements AssetLoader {
         return transform;
     }
 
-    private Mesh[] loadMeshPrimitives(int meshIndex) throws IOException {
-        Mesh[] meshArray = (Mesh[]) fetchFromCache("meshes", meshIndex, Object.class);
-        if (meshArray != null) {
-            return meshArray;
+    private Geometry[] loadMeshPrimitives(int meshIndex) throws IOException {
+        Geometry[] geomArray = (Geometry[]) fetchFromCache("meshes", meshIndex, Object.class);
+        if (geomArray != null) {
+            //cloning the geoms.
+            Geometry[] geoms = new Geometry[geomArray.length];
+            for (int i = 0; i < geoms.length; i++) {
+                geoms[i] = geomArray[i].clone(false);
+            }
+            return geoms;
         }
         JsonObject meshData = meshes.get(meshIndex).getAsJsonObject();
         JsonArray primitives = meshData.getAsJsonArray("primitives");
@@ -246,7 +237,7 @@ public class GltfLoader implements AssetLoader {
             throw new AssetLoadException("Can't find any primitives in mesh " + meshIndex);
         }
 
-        meshArray = new Mesh[primitives.size()];
+        geomArray = new Geometry[primitives.size()];
         int index = 0;
         for (JsonElement primitive : primitives) {
             JsonObject meshObject = primitive.getAsJsonObject();
@@ -263,14 +254,28 @@ public class GltfLoader implements AssetLoader {
             for (Map.Entry<String, JsonElement> entry : attributes.entrySet()) {
                 mesh.setBuffer(loadVertexBuffer(entry.getValue().getAsInt(), getVertexBufferType(entry.getKey())));
             }
-            meshArray[index] = mesh;
+            Geometry geom = new Geometry(null, mesh);
+
+            Integer materialIndex = getAsInteger(meshObject, "material");
+            if (materialIndex == null) {
+                geom.setMaterial(defaultMat);
+            } else {
+                geom.setMaterial(loadMaterial(materialIndex));
+                if (geom.getMaterial().getAdditionalRenderState().getBlendMode() == RenderState.BlendMode.Alpha) {
+                    //Alpha blending is on on this material let's place the geom in the transparent bucket
+                    geom.setQueueBucket(RenderQueue.Bucket.Transparent);
+                }
+            }
+
+            geom.updateModelBound();
+            geomArray[index] = geom;
             index++;
 
             //TODO material, targets(morph anim...)
         }
 
-        addToCache("meshes", meshIndex, meshArray, meshes.size());
-        return meshArray;
+        addToCache("meshes", meshIndex, geomArray, meshes.size());
+        return geomArray;
     }
 
     private VertexBuffer loadVertexBuffer(int accessorIndex, VertexBuffer.Type bufferType) throws IOException {
@@ -371,6 +376,46 @@ public class GltfLoader implements AssetLoader {
             throw new AssetLoadException("Binary gltf is not supported yet");
         }
 
+    }
+
+    private Material loadMaterial(int materialIndex) {
+        if (materials == null) {
+            throw new AssetLoadException("There is no material defined yet a mesh references one");
+        }
+        JsonObject matData = materials.get(materialIndex).getAsJsonObject();
+        JsonObject pbrMat = matData.getAsJsonObject("pbrMetallicRoughness");
+
+        if (pbrMat == null) {
+            logger.log(Level.WARNING, "Unable to find any pbrMetallicRoughness material entry in material " + materialIndex + ". Only PBR material is supported for now");
+            return defaultMat;
+        }
+        MaterialAdapter adapter = null;
+        if (info.getKey() instanceof GltfModelKey) {
+            adapter = ((GltfModelKey) info.getKey()).getAdapterForMaterial("pbrMetallicRoughness");
+        }
+        if (adapter == null) {
+            adapter = defaultMaterialAdapters.get("pbrMetallicRoughness");
+        }
+
+        Material mat = adapter.getMaterial(info.getManager());
+        mat.setName(getAsString(matData, "name"));
+
+        adapter.setParam(mat, "baseColorFactor", getAsColor(pbrMat, "baseColorFactor", ColorRGBA.White));
+        adapter.setParam(mat, "metallicFactor", getAsFloat(pbrMat, "metallicFactor", 1f));
+        adapter.setParam(mat, "roughnessFactor", getAsFloat(pbrMat, "roughnessFactor", 1f));
+        adapter.setParam(mat, "emissiveFactor", getAsColor(matData, "emissiveFactor", ColorRGBA.Black));
+        adapter.setParam(mat, "alphaMode", getAsString(matData, "alphaMode"));
+        adapter.setParam(mat, "alphaCutoff", getAsFloat(matData, "alphaCutoff"));
+        adapter.setParam(mat, "doubleSided", getAsBoolean(matData, "doubleSided"));
+
+        //TODO textures
+        //adapter.setParam(mat, "baseColorTexture", readTexture);
+        //adapter.setParam(mat, "metallicRoughnessTexture", readTexture);
+        //adapter.setParam(mat, "normalTexture", readTexture);
+        //adapter.setParam(mat, "occlusionTexture", readTexture);
+        //adapter.setParam(mat, "emissiveTexture", readTexture);
+
+        return mat;
     }
 
     private String loadMeshName(int meshIndex) {

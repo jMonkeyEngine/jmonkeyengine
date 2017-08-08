@@ -1,8 +1,8 @@
 package com.jme3.scene.plugins.gltf;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.jme3.asset.AssetLoadException;
+import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.LittleEndien;
@@ -229,6 +229,16 @@ public class GltfUtils {
         return el == null ? defaultValue : el.getAsInt();
     }
 
+    public static Float getAsFloat(JsonObject parent, String name) {
+        JsonElement el = parent.get(name);
+        return el == null ? null : el.getAsFloat();
+    }
+
+    public static Float getAsFloat(JsonObject parent, String name, float defaultValue) {
+        JsonElement el = parent.get(name);
+        return el == null ? defaultValue : el.getAsFloat();
+    }
+
     public static Boolean getAsBoolean(JsonObject parent, String name) {
         JsonElement el = parent.get(name);
         return el == null ? null : el.getAsBoolean();
@@ -238,6 +248,21 @@ public class GltfUtils {
         JsonElement el = parent.get(name);
         return el == null ? defaultValue : el.getAsBoolean();
     }
+
+    public static ColorRGBA getAsColor(JsonObject parent, String name) {
+        JsonElement el = parent.get(name);
+        if (el == null) {
+            return null;
+        }
+        JsonArray color = el.getAsJsonArray();
+        return new ColorRGBA(color.get(0).getAsFloat(), color.get(1).getAsFloat(), color.get(2).getAsFloat(), color.get(3).getAsFloat());
+    }
+
+    public static ColorRGBA getAsColor(JsonObject parent, String name, ColorRGBA defaultValue) {
+        ColorRGBA color = getAsColor(parent, name);
+        return color == null ? defaultValue : color;
+    }
+
 
     public static void assertNotNull(Object o, String errorMessage) {
         if (o == null) {
