@@ -37,6 +37,7 @@ import com.jme3.light.PointLight;
 import com.jme3.math.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.plugins.gltf.GltfModelKey;
 import com.jme3.scene.shape.Sphere;
 
 public class TestGltfLoading extends SimpleApplication {
@@ -67,8 +68,8 @@ public class TestGltfLoading extends SimpleApplication {
         PointLight pl1 = new PointLight(new Vector3f(-5.0f, -5.0f, -5.0f), ColorRGBA.White.mult(0.5f), 50);
         rootNode.addLight(pl1);
 
-        //rootNode.attachChild(assetManager.loadModel("Models/gltf/box/box.gltf"));
-        rootNode.attachChild(assetManager.loadModel("Models/gltf/duck/Duck.gltf"));
+        rootNode.attachChild(assetManager.loadModel("Models/gltf/box/box.gltf"));
+        //rootNode.attachChild(assetManager.loadModel(new GltfModelKey("Models/gltf/duck/Duck.gltf")));
 
         //rootNode.attachChild(assetManager.loadModel("Models/gltf/hornet/scene.gltf"));
     }
