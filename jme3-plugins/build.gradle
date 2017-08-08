@@ -6,6 +6,7 @@ sourceSets {
     main {
         java {
             srcDir 'src/ogre/java'
+            srcDir 'src/gltf/java'
             srcDir 'src/fbx/java'
             srcDir 'src/xml/java'
         }
@@ -14,5 +15,6 @@ sourceSets {
 
 dependencies {
     compile project(':jme3-core')
+    compile 'com.google.code.gson:gson:2.8.1'
     testCompile project(':jme3-desktop')
 }
