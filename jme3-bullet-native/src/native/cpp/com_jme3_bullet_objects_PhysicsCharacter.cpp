@@ -129,19 +129,99 @@ extern "C" {
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsCharacter
-     * Method:    setUpAxis
-     * Signature: (JI)V
+     * Method:    setUp
+     * Signature: (JLcom/jme3/math/Vector3f;)V
      */
-    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setUpAxis
-    (JNIEnv *env, jobject object, jlong objectId, jint value) {
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setUp
+    (JNIEnv *env, jobject object, jlong objectId, jobject value) {
         btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
         if (character == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        character->setUpAxis(value);
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env,  value, &vec);
+        character->setUp(vec);
     }
+
+     /*
+     * Class:     com_jme3_bullet_objects_PhysicsCharacter
+     * Method:    setAngularVelocity
+     * Signature: (JLcom/jme3/math/Vector3f;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setAngularVelocity
+    (JNIEnv *env, jobject object, jlong objectId, jobject value) {
+        btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, value, &vec);
+        character->setAngularVelocity(vec);
+    }
+
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsCharacter
+     * Method:    getAngularVelocity
+     * Signature: (JLcom/jme3/math/Vector3f;)V
+     */
+     
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getAngularVelocity
+    (JNIEnv *env, jobject object, jlong objectId, jobject value) {
+        btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        btVector3 a_vel = character->getAngularVelocity();
+        jmeBulletUtil::convert(env, &a_vel, value);
+    }
+
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsCharacter
+     * Method:    setLinearVelocity
+     * Signature: (JLcom/jme3/math/Vector3f;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setLinearVelocity
+    (JNIEnv *env, jobject object, jlong objectId, jobject value) {
+        btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, value, &vec);
+        character->setLinearVelocity(vec);
+    }
+
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsCharacter
+     * Method:    getLinearVelocity
+     * Signature: (JLcom/jme3/math/Vector3f;)V
+     */
+     
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getLinearVelocity
+    (JNIEnv *env, jobject object, jlong objectId, jobject value) {
+        btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        btVector3 l_vel = character->getLinearVelocity();
+        jmeBulletUtil::convert(env, &l_vel, value);
+    }
+
+
+
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsCharacter
@@ -178,25 +258,62 @@ extern "C" {
     /*
      * Class:     com_jme3_bullet_objects_PhysicsCharacter
      * Method:    setGravity
-     * Signature: (JF)V
+     * Signature:  (JLcom/jme3/math/Vector3f;)V
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setGravity
-    (JNIEnv *env, jobject object, jlong objectId, jfloat value) {
+    (JNIEnv *env, jobject object, jlong objectId, jobject value) {
         btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
         if (character == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        character->setGravity(value);
+
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, value, &vec);
+        character->setGravity(vec);
     }
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsCharacter
      * Method:    getGravity
+     * Signature:  (JLcom/jme3/math/Vector3f;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getGravity
+    (JNIEnv *env, jobject object, jlong objectId,jobject value) {
+        btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        btVector3 g = character->getGravity();
+        jmeBulletUtil::convert(env, &g, value);
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsCharacter
+     * Method:    setLinearDamping
+     * Signature: (JF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setLinearDamping
+    (JNIEnv *env, jobject object, jlong objectId,jfloat value) {
+        btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return ;
+        }
+        character->setLinearDamping(value);
+    }
+
+
+   /*
+     * Class:     com_jme3_bullet_objects_PhysicsCharacter
+     * Method:    getLinearDamping
      * Signature: (J)F
      */
-    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getGravity
+    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getLinearDamping
     (JNIEnv *env, jobject object, jlong objectId) {
         btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
         if (character == NULL) {
@@ -204,8 +321,77 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        return character->getGravity();
+        return character->getLinearDamping();
     }
+
+
+      /*
+     * Class:     com_jme3_bullet_objects_PhysicsCharacter
+     * Method:    setAngularDamping
+     * Signature: (JF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setAngularDamping
+    (JNIEnv *env, jobject object, jlong objectId,jfloat value) {
+        btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        character->setAngularDamping(value);
+    }
+
+
+   /*
+     * Class:     com_jme3_bullet_objects_PhysicsCharacter
+     * Method:    getAngularDamping
+     * Signature: (J)F
+     */
+    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getAngularDamping
+    (JNIEnv *env, jobject object, jlong objectId) {
+        btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return character->getAngularDamping();
+    }
+
+
+        /*
+     * Class:     com_jme3_bullet_objects_PhysicsCharacter
+     * Method:    setStepHeight
+     * Signature: (JF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setStepHeight
+    (JNIEnv *env, jobject object, jlong objectId,jfloat value) {
+        btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        character->setStepHeight(value);
+    }
+
+
+   /*
+     * Class:     com_jme3_bullet_objects_PhysicsCharacter
+     * Method:    getStepHeight
+     * Signature: (J)F
+     */
+    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getStepHeight
+    (JNIEnv *env, jobject object, jlong objectId) {
+        btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return character->getStepHeight();
+    }
+
 
     /*
      * Class:     com_jme3_bullet_objects_PhysicsCharacter
@@ -239,6 +425,39 @@ extern "C" {
         return character->getMaxSlope();
     }
 
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsCharacter
+     * Method:    setMaxPenetrationDepth
+     * Signature: (JF)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setMaxPenetrationDepth
+    (JNIEnv *env, jobject object, jlong objectId, jfloat value) {
+        btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        character->setMaxPenetrationDepth(value);
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsCharacter
+     * Method:    getMaxPenetrationDepth
+     * Signature: (J)F
+     */
+    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getMaxPenetrationDepth
+    (JNIEnv *env, jobject object, jlong objectId) {
+        btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+        return character->getMaxPenetrationDepth();
+    }
+
     /*
      * Class:     com_jme3_bullet_objects_PhysicsCharacter
      * Method:    onGround
@@ -258,17 +477,37 @@ extern "C" {
     /*
      * Class:     com_jme3_bullet_objects_PhysicsCharacter
      * Method:    jump
-     * Signature: (J)V
+     * Signature: (JLcom/jme3/math/Vector3f;)V
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_jump
-    (JNIEnv *env, jobject object, jlong objectId) {
+    (JNIEnv *env, jobject object, jlong objectId,jobject value) {
         btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
         if (character == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        character->jump();
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, value, &vec);
+        character->jump(vec);
+    }
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsCharacter
+     * Method:    applyImpulse
+     * Signature: (JLcom/jme3/math/Vector3f;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_applyImpulse
+    (JNIEnv *env, jobject object, jlong objectId,jobject value) {
+        btKinematicCharacterController* character = reinterpret_cast<btKinematicCharacterController*>(objectId);
+        if (character == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, value, &vec);
+        character->applyImpulse(vec);
     }
 
     /*
