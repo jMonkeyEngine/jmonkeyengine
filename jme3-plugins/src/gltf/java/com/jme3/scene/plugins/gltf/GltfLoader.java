@@ -10,6 +10,7 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.*;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 import java.io.*;
 import java.nio.Buffer;
@@ -44,6 +45,7 @@ public class GltfLoader implements AssetLoader {
     private AssetInfo info;
 
     private static Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
+    private boolean useNormalsFlag = false;
 
     static {
         defaultMaterialAdapters.put("pbrMetallicRoughness", new PBRMaterialAdapter());
@@ -131,11 +133,9 @@ public class GltfLoader implements AssetLoader {
             activeChild = defaultScene.getAsInt();
         }
         root.getChild(activeChild).setCullHint(Spatial.CullHint.Inherit);
-        System.err.println(nbPrim + " Geoms loaded");
         return root;
     }
 
-    int nbPrim = 0;
     private Spatial loadNode(int nodeIndex) throws IOException {
         Spatial spatial = fetchFromCache("nodes", nodeIndex, Spatial.class);
         if (spatial != null) {
@@ -165,7 +165,6 @@ public class GltfLoader implements AssetLoader {
                 }
                 spatial = node;
             }
-            nbPrim += primitives.length;
             spatial.setName(loadMeshName(meshIndex));
 
         } else {
@@ -271,10 +270,15 @@ public class GltfLoader implements AssetLoader {
             if (materialIndex == null) {
                 geom.setMaterial(defaultMat);
             } else {
+                useNormalsFlag = false;
                 geom.setMaterial(loadMaterial(materialIndex));
                 if (geom.getMaterial().getAdditionalRenderState().getBlendMode() == RenderState.BlendMode.Alpha) {
                     //Alpha blending is on on this material let's place the geom in the transparent bucket
                     geom.setQueueBucket(RenderQueue.Bucket.Transparent);
+                }
+                if (useNormalsFlag && mesh.getBuffer(VertexBuffer.Type.Tangent) == null) {
+                    //No tangent buffer, but there is a normal map, we have to generate them using MiiktSpace
+                    MikktspaceTangentGenerator.generate(geom);
                 }
             }
 
@@ -428,7 +432,11 @@ public class GltfLoader implements AssetLoader {
 
         adapter.setParam(mat, "baseColorTexture", readTexture(pbrMat.getAsJsonObject("baseColorTexture")));
         adapter.setParam(mat, "metallicRoughnessTexture", readTexture(pbrMat.getAsJsonObject("metallicRoughnessTexture")));
-        adapter.setParam(mat, "normalTexture", readTexture(matData.getAsJsonObject("normalTexture")));
+        Texture2D normal = readTexture(matData.getAsJsonObject("normalTexture"));
+        adapter.setParam(mat, "normalTexture", normal);
+        if (normal != null) {
+            useNormalsFlag = true;
+        }
         adapter.setParam(mat, "occlusionTexture", readTexture(matData.getAsJsonObject("occlusionTexture")));
         adapter.setParam(mat, "emissiveTexture", readTexture(matData.getAsJsonObject("emissiveTexture")));
 
