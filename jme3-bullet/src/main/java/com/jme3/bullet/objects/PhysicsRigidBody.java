@@ -185,6 +185,21 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
         getPhysicsRotation(objectId, rot);
         return rot;
     }
+    
+    public void setInverseInertiaLocal(Vector3f gravity) {
+    	setInverseInertiaLocal(objectId, gravity);
+    }
+    private native void setInverseInertiaLocal(long objectId, Vector3f gravity);
+    
+    public Vector3f getInverseInertiaLocal(Vector3f trans) {
+        if (trans == null) {
+            trans = new Vector3f();
+        }
+        getInverseInertiaLocal(objectId, trans);
+        return trans;
+    }
+    
+    private native void getInverseInertiaLocal(long objectId, Vector3f vector);
 
     private native void getPhysicsRotation(long objectId, Quaternion rot);
 
@@ -352,7 +367,6 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     public void setGravity(Vector3f gravity) {
         setGravity(objectId, gravity);
     }
-
     private native void setGravity(long objectId, Vector3f gravity);
 
     public float getFriction() {
