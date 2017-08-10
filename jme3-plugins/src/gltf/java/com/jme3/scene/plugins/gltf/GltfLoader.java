@@ -8,6 +8,8 @@ import com.jme3.material.RenderState;
 import com.jme3.math.*;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.*;
+import com.jme3.texture.Texture;
+import com.jme3.texture.Texture2D;
 
 import java.io.*;
 import java.nio.Buffer;
@@ -35,6 +37,9 @@ public class GltfLoader implements AssetLoader {
     private JsonArray bufferViews;
     private JsonArray buffers;
     private JsonArray materials;
+    private JsonArray textures;
+    private JsonArray images;
+    private JsonArray samplers;
     private Material defaultMat;
     private AssetInfo info;
 
@@ -75,6 +80,9 @@ public class GltfLoader implements AssetLoader {
             bufferViews = root.getAsJsonArray("bufferViews");
             buffers = root.getAsJsonArray("buffers");
             materials = root.getAsJsonArray("materials");
+            textures = root.getAsJsonArray("textures");
+            images = root.getAsJsonArray("images");
+            samplers = root.getAsJsonArray("samplers");
 
             JsonPrimitive defaultScene = root.getAsJsonPrimitive("scene");
 
@@ -123,9 +131,11 @@ public class GltfLoader implements AssetLoader {
             activeChild = defaultScene.getAsInt();
         }
         root.getChild(activeChild).setCullHint(Spatial.CullHint.Inherit);
+        System.err.println(nbPrim + " Geoms loaded");
         return root;
     }
 
+    int nbPrim = 0;
     private Spatial loadNode(int nodeIndex) throws IOException {
         Spatial spatial = fetchFromCache("nodes", nodeIndex, Spatial.class);
         if (spatial != null) {
@@ -134,20 +144,18 @@ public class GltfLoader implements AssetLoader {
             return spatial.clone();
         }
         JsonObject nodeData = nodes.get(nodeIndex).getAsJsonObject();
+        JsonArray children = nodeData.getAsJsonArray("children");
         Integer meshIndex = getAsInteger(nodeData, "mesh");
         if (meshIndex != null) {
             if (meshes == null) {
                 throw new AssetLoadException("Can't find any mesh data, yet a node references a mesh");
             }
 
-            //TODO material
-            Material mat = defaultMat;
-
             //there is a mesh in this node, however gltf can split meshes in primitives (some kind of sub meshes),
             //We don't have this in JME so we have to make one mesh and one Geometry for each primitive.
             Geometry[] primitives = loadMeshPrimitives(meshIndex);
-            if (primitives.length > 1) {
-                //only one geometry, let's not wrap it in another node.
+            if (primitives.length == 1 && children == null) {
+                //only one geometry, let's not wrap it in another node unless the node has children.
                 spatial = primitives[0];
             } else {
                 //several geometries, let's make a parent Node and attach them to it
@@ -157,21 +165,23 @@ public class GltfLoader implements AssetLoader {
                 }
                 spatial = node;
             }
-
+            nbPrim += primitives.length;
             spatial.setName(loadMeshName(meshIndex));
 
         } else {
             //no mesh, we have a node. Can be a camera node or a regular node.
             //TODO handle camera nodes?
             Node node = new Node();
-            JsonArray children = nodeData.getAsJsonArray("children");
-            if (children != null) {
-                for (JsonElement child : children) {
-                    node.attachChild(loadNode(child.getAsInt()));
-                }
-            }
+
             spatial = node;
         }
+
+        if (children != null) {
+            for (JsonElement child : children) {
+                ((Node) spatial).attachChild(loadNode(child.getAsInt()));
+            }
+        }
+
         if (spatial.getName() == null) {
             spatial.setName(getAsString(nodeData.getAsJsonObject(), "name"));
         }
@@ -236,6 +246,7 @@ public class GltfLoader implements AssetLoader {
         if (primitives == null) {
             throw new AssetLoadException("Can't find any primitives in mesh " + meshIndex);
         }
+        String name = getAsString(meshData, "name");
 
         geomArray = new Geometry[primitives.size()];
         int index = 0;
@@ -267,11 +278,15 @@ public class GltfLoader implements AssetLoader {
                 }
             }
 
+            if (name != null) {
+                geom.setName(name + (primitives.size() > 1 ? ("_" + index) : ""));
+            }
+
             geom.updateModelBound();
             geomArray[index] = geom;
             index++;
 
-            //TODO material, targets(morph anim...)
+            //TODO targets(morph anim...)
         }
 
         addToCache("meshes", meshIndex, geomArray, meshes.size());
@@ -404,18 +419,84 @@ public class GltfLoader implements AssetLoader {
         adapter.setParam(mat, "metallicFactor", getAsFloat(pbrMat, "metallicFactor", 1f));
         adapter.setParam(mat, "roughnessFactor", getAsFloat(pbrMat, "roughnessFactor", 1f));
         adapter.setParam(mat, "emissiveFactor", getAsColor(matData, "emissiveFactor", ColorRGBA.Black));
-        adapter.setParam(mat, "alphaMode", getAsString(matData, "alphaMode"));
-        adapter.setParam(mat, "alphaCutoff", getAsFloat(matData, "alphaCutoff"));
+        String alphaMode = getAsString(matData, "alphaMode");
+        adapter.setParam(mat, "alphaMode", alphaMode);
+        if (alphaMode != null && alphaMode.equals("MASK")) {
+            adapter.setParam(mat, "alphaCutoff", getAsFloat(matData, "alphaCutoff"));
+        }
         adapter.setParam(mat, "doubleSided", getAsBoolean(matData, "doubleSided"));
 
-        //TODO textures
-        //adapter.setParam(mat, "baseColorTexture", readTexture);
-        //adapter.setParam(mat, "metallicRoughnessTexture", readTexture);
-        //adapter.setParam(mat, "normalTexture", readTexture);
-        //adapter.setParam(mat, "occlusionTexture", readTexture);
-        //adapter.setParam(mat, "emissiveTexture", readTexture);
+        adapter.setParam(mat, "baseColorTexture", readTexture(pbrMat.getAsJsonObject("baseColorTexture")));
+        adapter.setParam(mat, "metallicRoughnessTexture", readTexture(pbrMat.getAsJsonObject("metallicRoughnessTexture")));
+        adapter.setParam(mat, "normalTexture", readTexture(matData.getAsJsonObject("normalTexture")));
+        adapter.setParam(mat, "occlusionTexture", readTexture(matData.getAsJsonObject("occlusionTexture")));
+        adapter.setParam(mat, "emissiveTexture", readTexture(matData.getAsJsonObject("emissiveTexture")));
 
         return mat;
+    }
+
+    private Texture2D readTexture(JsonObject texture) {
+        if (texture == null) {
+            return null;
+        }
+        Integer textureIndex = getAsInteger(texture, "index");
+        if (textureIndex == null) {
+            throw new AssetLoadException("Texture as no index");
+        }
+        if (textures == null) {
+            throw new AssetLoadException("There are no textures, yet one is referenced by a material");
+        }
+        JsonObject textureData = textures.get(textureIndex).getAsJsonObject();
+        Integer sourceIndex = getAsInteger(textureData, "source");
+        Integer samplerIndex = getAsInteger(textureData, "sampler");
+
+        Texture2D texture2d = loadImage(sourceIndex);
+        readSampler(samplerIndex, texture2d);
+
+        return texture2d;
+    }
+
+    private Texture2D loadImage(int sourceIndex) {
+        if (images == null) {
+            throw new AssetLoadException("No image defined");
+        }
+
+        JsonObject image = images.get(sourceIndex).getAsJsonObject();
+        String uri = getAsString(image, "uri");
+        if (uri == null) {
+            //Image is embed in a buffer not supported yet
+            //TODO support images embed in a buffer
+            throw new AssetLoadException("Images embed in a buffer are not supported yet");
+        } else if (uri.startsWith("data:")) {
+            //base64 encoded image, not supported yet
+            //TODO support base64 encoded images
+            throw new AssetLoadException("Base64 encoded embed images are not supported yet");
+        } else {
+            TextureKey key = new TextureKey(info.getKey().getFolder() + uri, false);
+            Texture tex = info.getManager().loadTexture(key);
+            return (Texture2D) tex;
+        }
+
+    }
+
+    private void readSampler(int samplerIndex, Texture2D texture) {
+        if (samplers == null) {
+            throw new AssetLoadException("No samplers defined");
+        }
+        JsonObject sampler = samplers.get(samplerIndex).getAsJsonObject();
+        Texture.MagFilter magFilter = getMagFilter(getAsInteger(sampler, "magFilter"));
+        Texture.MinFilter minFilter = getMinFilter(getAsInteger(sampler, "minFilter"));
+        Texture.WrapMode wrapS = getWrapMode(getAsInteger(sampler, "wrapS"));
+        Texture.WrapMode wrapT = getWrapMode(getAsInteger(sampler, "wrapT"));
+
+        if (magFilter != null) {
+            texture.setMagFilter(magFilter);
+        }
+        if (minFilter != null) {
+            texture.setMinFilter(minFilter);
+        }
+        texture.setWrap(Texture.WrapAxis.S, wrapS);
+        texture.setWrap(Texture.WrapAxis.T, wrapT);
     }
 
     private String loadMeshName(int meshIndex) {

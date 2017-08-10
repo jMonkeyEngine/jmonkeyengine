@@ -16,10 +16,10 @@ public class PBRMaterialAdapter extends MaterialAdapter {
         addParamMapping("metallicRoughnessTexture", "MetallicRoughnessMap");
         addParamMapping("normalTexture", "NormalMap");
         addParamMapping("occlusionTexture", "LightMap");
-        addParamMapping("emisiveTexture", "EmissiveMap");
-        addParamMapping("emisiveFactor", "Emissive");
+        addParamMapping("emissiveTexture", "EmissiveMap");
+        addParamMapping("emissiveFactor", "Emissive");
         addParamMapping("alphaMode", "alpha");
-        addParamMapping("alphaCutoff", "AlphaDiscardThreshold");
+        //   addParamMapping("alphaCutoff", "AlphaDiscardThreshold");
         addParamMapping("doubleSided", "doubleSided");
     }
 
@@ -47,9 +47,9 @@ public class PBRMaterialAdapter extends MaterialAdapter {
             }
             return null;
         }
-        if (param.getName().equals("MetallicRoughnessMap")) {
-            //use packed Metallic/Roughness
-            mat.setBoolean("UsePackedMR", true);
+        if (param.getName().equals("NormalMap")) {
+            //Set the normal map type to OpenGl
+            mat.setFloat("NormalType", 1.0f);
         }
 
 
