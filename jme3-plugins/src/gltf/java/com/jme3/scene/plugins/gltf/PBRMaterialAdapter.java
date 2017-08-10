@@ -19,7 +19,7 @@ public class PBRMaterialAdapter extends MaterialAdapter {
         addParamMapping("emissiveTexture", "EmissiveMap");
         addParamMapping("emissiveFactor", "Emissive");
         addParamMapping("alphaMode", "alpha");
-        //   addParamMapping("alphaCutoff", "AlphaDiscardThreshold");
+        addParamMapping("alphaCutoff", "AlphaDiscardThreshold");
         addParamMapping("doubleSided", "doubleSided");
     }
 
