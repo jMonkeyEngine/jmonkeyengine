@@ -5,6 +5,7 @@ import com.jme3.asset.AssetLoadException;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
+import com.jme3.texture.Texture;
 import com.jme3.util.LittleEndien;
 
 import java.io.*;
@@ -113,6 +114,55 @@ public class GltfUtils {
             default:
                 throw new AssetLoadException("Unsupported buffer attribute: " + attribute);
 
+        }
+    }
+
+    public static Texture.MagFilter getMagFilter(Integer value) {
+        if (value == null) {
+            return null;
+        }
+        switch (value) {
+            case 9728:
+                return Texture.MagFilter.Nearest;
+            case 9729:
+                return Texture.MagFilter.Bilinear;
+        }
+        return null;
+    }
+
+    public static Texture.MinFilter getMinFilter(Integer value) {
+        if (value == null) {
+            return null;
+        }
+        switch (value) {
+            case 9728:
+                return Texture.MinFilter.NearestNoMipMaps;
+            case 9729:
+                return Texture.MinFilter.BilinearNoMipMaps;
+            case 9984:
+                return Texture.MinFilter.NearestNearestMipMap;
+            case 9985:
+                return Texture.MinFilter.BilinearNearestMipMap;
+            case 9986:
+                return Texture.MinFilter.NearestLinearMipMap;
+            case 9987:
+                return Texture.MinFilter.Trilinear;
+
+        }
+        return null;
+    }
+
+    public static Texture.WrapMode getWrapMode(Integer value) {
+        if (value == null) {
+            return Texture.WrapMode.Repeat;
+        }
+        switch (value) {
+            case 33071:
+                return Texture.WrapMode.EdgeClamp;
+            case 33648:
+                return Texture.WrapMode.MirroredRepeat;
+            default:
+                return Texture.WrapMode.Repeat;
         }
     }
 
@@ -255,7 +305,7 @@ public class GltfUtils {
             return null;
         }
         JsonArray color = el.getAsJsonArray();
-        return new ColorRGBA(color.get(0).getAsFloat(), color.get(1).getAsFloat(), color.get(2).getAsFloat(), color.get(3).getAsFloat());
+        return new ColorRGBA(color.get(0).getAsFloat(), color.get(1).getAsFloat(), color.get(2).getAsFloat(), color.size() > 3 ? color.get(3).getAsFloat() : 1f);
     }
 
     public static ColorRGBA getAsColor(JsonObject parent, String name, ColorRGBA defaultValue) {

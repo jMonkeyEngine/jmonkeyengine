@@ -81,6 +81,7 @@ public abstract class MaterialAdapter {
         if (value instanceof Vector2f) return VarType.Vector2;
         if (value instanceof Matrix3f) return VarType.Matrix3;
         if (value instanceof Matrix4f) return VarType.Matrix4;
+        if (value instanceof String) return VarType.Boolean;
         throw new AssetLoadException("Unsupported material parameter type : " + value.getClass().getSimpleName());
     }
 }
