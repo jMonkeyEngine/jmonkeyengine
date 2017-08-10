@@ -3,6 +3,8 @@ package com.jme3.scene.plugins.gltf;
 import com.google.gson.*;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.texture.Texture;
@@ -109,7 +111,7 @@ public class GltfUtils {
                 return VertexBuffer.Type.Color;
             case "JOINTS_0":
                 return VertexBuffer.Type.BoneIndex;
-            case "WEIGHT_0":
+            case "WEIGHTS_0":
                 return VertexBuffer.Type.BoneWeight;
             default:
                 throw new AssetLoadException("Unsupported buffer attribute: " + attribute);
@@ -166,48 +168,79 @@ public class GltfUtils {
         }
     }
 
-    public static void padBuffer(Buffer buffer, int bufferSize) {
-        buffer.clear();
-        if (buffer instanceof IntBuffer) {
-            IntBuffer ib = (IntBuffer) buffer;
-            for (int i = 0; i < bufferSize; i++) {
-                ib.put(0);
+    public static void padBuffer(Object store, int bufferSize) {
+        if (store instanceof Buffer) {
+            Buffer buffer = (Buffer) store;
+            buffer.clear();
+            if (buffer instanceof IntBuffer) {
+                IntBuffer ib = (IntBuffer) buffer;
+                for (int i = 0; i < bufferSize; i++) {
+                    ib.put(0);
+                }
+            } else if (buffer instanceof FloatBuffer) {
+                FloatBuffer fb = (FloatBuffer) buffer;
+                for (int i = 0; i < bufferSize; i++) {
+                    fb.put(0);
+                }
+            } else if (buffer instanceof ShortBuffer) {
+                ShortBuffer sb = (ShortBuffer) buffer;
+                for (int i = 0; i < bufferSize; i++) {
+                    sb.put((short) 0);
+                }
+            } else if (buffer instanceof ByteBuffer) {
+                ByteBuffer bb = (ByteBuffer) buffer;
+                for (int i = 0; i < bufferSize; i++) {
+                    bb.put((byte) 0);
+                }
             }
-        } else if (buffer instanceof FloatBuffer) {
-            FloatBuffer fb = (FloatBuffer) buffer;
-            for (int i = 0; i < bufferSize; i++) {
-                fb.put(0);
+            buffer.rewind();
+        }
+        if (store instanceof float[]) {
+            float[] array = (float[]) store;
+            for (int i = 0; i < array.length; i++) {
+                array[i] = 0;
             }
-        } else if (buffer instanceof ShortBuffer) {
-            ShortBuffer sb = (ShortBuffer) buffer;
-            for (int i = 0; i < bufferSize; i++) {
-                sb.put((short) 0);
+        } else if (store instanceof Vector3f[]) {
+            Vector3f[] array = (Vector3f[]) store;
+            for (int i = 0; i < array.length; i++) {
+                array[i] = new Vector3f();
             }
-        } else if (buffer instanceof ByteBuffer) {
-            ByteBuffer bb = (ByteBuffer) buffer;
-            for (int i = 0; i < bufferSize; i++) {
-                bb.put((byte) 0);
+        } else if (store instanceof Quaternion[]) {
+            Quaternion[] array = (Quaternion[]) store;
+            for (int i = 0; i < array.length; i++) {
+                array[i] = new Quaternion();
             }
         }
-        buffer.rewind();
     }
 
-    public static void populateBuffer(Buffer buffer, byte[] source, int length, int byteOffset, int byteStride, int numComponents) throws IOException {
-        buffer.clear();
+    public static void populateBuffer(Object store, byte[] source, int length, int byteOffset, int byteStride, int numComponents) throws IOException {
 
-        if (buffer instanceof ByteBuffer) {
-            populateByteBuffer((ByteBuffer) buffer, source, length, byteOffset, byteStride, numComponents);
+        if (store instanceof Buffer) {
+            Buffer buffer = (Buffer) store;
+            buffer.clear();
+            if (buffer instanceof ByteBuffer) {
+                populateByteBuffer((ByteBuffer) buffer, source, length, byteOffset, byteStride, numComponents);
+                return;
+            }
+            LittleEndien stream = getStream(source);
+            if (buffer instanceof ShortBuffer) {
+                populateShortBuffer((ShortBuffer) buffer, stream, length, byteOffset, byteStride, numComponents);
+            } else if (buffer instanceof IntBuffer) {
+                populateIntBuffer((IntBuffer) buffer, stream, length, byteOffset, byteStride, numComponents);
+            } else if (buffer instanceof FloatBuffer) {
+                populateFloatBuffer((FloatBuffer) buffer, stream, length, byteOffset, byteStride, numComponents);
+            }
+            buffer.rewind();
             return;
         }
         LittleEndien stream = getStream(source);
-        if (buffer instanceof ShortBuffer) {
-            populateShortBuffer((ShortBuffer) buffer, stream, length, byteOffset, byteStride, numComponents);
-        } else if (buffer instanceof IntBuffer) {
-            populateIntBuffer((IntBuffer) buffer, stream, length, byteOffset, byteStride, numComponents);
-        } else if (buffer instanceof FloatBuffer) {
-            populateFloatBuffer((FloatBuffer) buffer, stream, length, byteOffset, byteStride, numComponents);
+        if (store instanceof float[]) {
+            populateFloatArray((float[]) store, stream, length, byteOffset, byteStride, numComponents);
+        } else if (store instanceof Vector3f[]) {
+            populateVector3fArray((Vector3f[]) store, stream, length, byteOffset, byteStride, numComponents);
+        } else if (store instanceof Quaternion[]) {
+            populateQuaternionArray((Quaternion[]) store, stream, length, byteOffset, byteStride, numComponents);
         }
-        buffer.rewind();
     }
 
     private static void populateByteBuffer(ByteBuffer buffer, byte[] source, int length, int byteOffset, int byteStride, int numComponents) {
@@ -256,6 +289,61 @@ public class GltfUtils {
             for (int i = 0; i < numComponents; i++) {
                 buffer.put(stream.readFloat());
             }
+            index += Math.max(componentSize * numComponents, byteStride);
+        }
+    }
+
+    private static void populateFloatArray(float[] array, LittleEndien stream, int length, int byteOffset, int byteStride, int numComponents) throws IOException {
+        int index = byteOffset;
+        int componentSize = 4;
+        int end = length * componentSize + byteOffset;
+        stream.skipBytes(byteOffset);
+        int arrayIndex = 0;
+        while (index < end) {
+            for (int i = 0; i < numComponents; i++) {
+                array[arrayIndex] = stream.readFloat();
+                arrayIndex++;
+            }
+
+            index += Math.max(componentSize * numComponents, byteStride);
+        }
+    }
+
+    private static void populateVector3fArray(Vector3f[] array, LittleEndien stream, int length, int byteOffset, int byteStride, int numComponents) throws IOException {
+        int index = byteOffset;
+        int componentSize = 4;
+        int end = length * componentSize + byteOffset;
+        stream.skipBytes(byteOffset);
+        int arrayIndex = 0;
+        while (index < end) {
+            array[arrayIndex] = new Vector3f(
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat()
+            );
+
+            arrayIndex++;
+
+            index += Math.max(componentSize * numComponents, byteStride);
+        }
+    }
+
+    private static void populateQuaternionArray(Quaternion[] array, LittleEndien stream, int length, int byteOffset, int byteStride, int numComponents) throws IOException {
+        int index = byteOffset;
+        int componentSize = 4;
+        int end = length * componentSize + byteOffset;
+        stream.skipBytes(byteOffset);
+        int arrayIndex = 0;
+        while (index < end) {
+            array[arrayIndex] = new Quaternion(
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat()
+            );
+
+            arrayIndex++;
+
             index += Math.max(componentSize * numComponents, byteStride);
         }
     }

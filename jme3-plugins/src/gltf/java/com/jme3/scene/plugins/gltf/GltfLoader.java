@@ -2,6 +2,9 @@ package com.jme3.scene.plugins.gltf;
 
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
+import com.jme3.animation.AnimControl;
+import com.jme3.animation.Animation;
+import com.jme3.animation.SpatialTrack;
 import com.jme3.asset.*;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
@@ -41,9 +44,14 @@ public class GltfLoader implements AssetLoader {
     private JsonArray textures;
     private JsonArray images;
     private JsonArray samplers;
+    private JsonArray animations;
+
     private Material defaultMat;
     private AssetInfo info;
 
+    private FloatArrayPopulator floatArrayPopulator = new FloatArrayPopulator();
+    private Vector3fArrayPopulator vector3fArrayPopulator = new Vector3fArrayPopulator();
+    private QuaternionArrayPopulator quaternionArrayPopulator = new QuaternionArrayPopulator();
     private static Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
     private boolean useNormalsFlag = false;
 
@@ -85,6 +93,7 @@ public class GltfLoader implements AssetLoader {
             textures = root.getAsJsonArray("textures");
             images = root.getAsJsonArray("images");
             samplers = root.getAsJsonArray("samplers");
+            animations = root.getAsJsonArray("animations");
 
             JsonPrimitive defaultScene = root.getAsJsonPrimitive("scene");
 
@@ -127,6 +136,13 @@ public class GltfLoader implements AssetLoader {
             root.attachChild(sceneNode);
         }
 
+        //Loading animations
+        if (animations != null) {
+            for (JsonElement animation : animations) {
+                loadAnimation(animation.getAsJsonObject());
+            }
+        }
+
         //Setting the default scene cul hint to inherit.
         int activeChild = 0;
         if (defaultScene != null) {
@@ -147,9 +163,7 @@ public class GltfLoader implements AssetLoader {
         JsonArray children = nodeData.getAsJsonArray("children");
         Integer meshIndex = getAsInteger(nodeData, "mesh");
         if (meshIndex != null) {
-            if (meshes == null) {
-                throw new AssetLoadException("Can't find any mesh data, yet a node references a mesh");
-            }
+            assertNotNull(meshes, "Can't find any mesh data, yet a node references a mesh");
 
             //there is a mesh in this node, however gltf can split meshes in primitives (some kind of sub meshes),
             //We don't have this in JME so we have to make one mesh and one Geometry for each primitive.
@@ -242,9 +256,8 @@ public class GltfLoader implements AssetLoader {
         }
         JsonObject meshData = meshes.get(meshIndex).getAsJsonObject();
         JsonArray primitives = meshData.getAsJsonArray("primitives");
-        if (primitives == null) {
-            throw new AssetLoadException("Can't find any primitives in mesh " + meshIndex);
-        }
+        assertNotNull(primitives, "Can't find any primitives in mesh " + meshIndex);
+
         String name = getAsString(meshData, "name");
 
         geomArray = new Geometry[primitives.size()];
@@ -256,13 +269,12 @@ public class GltfLoader implements AssetLoader {
             mesh.setMode(getMeshMode(mode));
             Integer indices = getAsInteger(meshObject, "indices");
             if (indices != null) {
-                mesh.setBuffer(loadVertexBuffer(indices, VertexBuffer.Type.Index));
-
+                mesh.setBuffer(loadAccessorData(indices, new VertexBufferPopulator(VertexBuffer.Type.Index)));
             }
             JsonObject attributes = meshObject.getAsJsonObject("attributes");
             assertNotNull(attributes, "No attributes defined for mesh " + mesh);
             for (Map.Entry<String, JsonElement> entry : attributes.entrySet()) {
-                mesh.setBuffer(loadVertexBuffer(entry.getValue().getAsInt(), getVertexBufferType(entry.getKey())));
+                mesh.setBuffer(loadAccessorData(entry.getValue().getAsInt(), new VertexBufferPopulator(getVertexBufferType(entry.getKey()))));
             }
             Geometry geom = new Geometry(null, mesh);
 
@@ -297,11 +309,10 @@ public class GltfLoader implements AssetLoader {
         return geomArray;
     }
 
-    private VertexBuffer loadVertexBuffer(int accessorIndex, VertexBuffer.Type bufferType) throws IOException {
+    private <R> R loadAccessorData(int accessorIndex, Populator<R> populator) throws IOException {
 
-        if (accessors == null) {
-            throw new AssetLoadException("No accessor attribute in the gltf file");
-        }
+        assertNotNull(accessors, "No accessor attribute in the gltf file");
+
         JsonObject accessor = accessors.get(accessorIndex).getAsJsonObject();
         Integer bufferViewIndex = getAsInteger(accessor, "bufferView");
         int byteOffset = getAsInteger(accessor, "byteOffset", 0);
@@ -313,30 +324,16 @@ public class GltfLoader implements AssetLoader {
         String type = getAsString(accessor, "type");
         assertNotNull(type, "No type attribute defined for accessor " + accessorIndex);
 
-        VertexBuffer vb = new VertexBuffer(bufferType);
-        VertexBuffer.Format format = getVertexBufferFormat(componentType);
-        int numComponents = getNumberOfComponents(type);
-
-        Buffer buff = VertexBuffer.createBuffer(format, numComponents, count);
-        readBuffer(bufferViewIndex, byteOffset, numComponents * count, buff, numComponents);
-        if (bufferType == VertexBuffer.Type.Index) {
-            numComponents = 3;
-        }
-        vb.setupData(VertexBuffer.Usage.Dynamic, numComponents, format, buff);
-
         //TODO min / max
         //TODO sparse
         //TODO extensions?
         //TODO extras?
-        return vb;
+
+        return populator.populate(bufferViewIndex, componentType, type, count, byteOffset);
     }
 
-    private void readBuffer(Integer bufferViewIndex, int byteOffset, int bufferSize, Buffer buff, int numComponents) throws IOException {
-        if (bufferViewIndex == null) {
-            //no referenced buffer, specs says to pad the buffer with zeros.
-            padBuffer(buff, bufferSize);
-            return;
-        }
+    private void readBuffer(Integer bufferViewIndex, int byteOffset, int bufferSize, Object store, int numComponents) throws IOException {
+
 
         JsonObject bufferView = bufferViews.get(bufferViewIndex).getAsJsonObject();
         Integer bufferIndex = getAsInteger(bufferView, "buffer");
@@ -351,7 +348,7 @@ public class GltfLoader implements AssetLoader {
         //int target = getAsInteger(bufferView, "target", 0);
 
         byte[] data = readData(bufferIndex);
-        populateBuffer(buff, data, bufferSize, byteOffset + bvByteOffset, byteStride, numComponents);
+        populateBuffer(store, data, bufferSize, byteOffset + bvByteOffset, byteStride, numComponents);
 
         //TODO extensions?
         //TODO extras?
@@ -360,9 +357,8 @@ public class GltfLoader implements AssetLoader {
 
     private byte[] readData(int bufferIndex) throws IOException {
 
-        if (buffers == null) {
-            throw new AssetLoadException("No buffer defined");
-        }
+        assertNotNull(buffers, "No buffer defined");
+
         JsonObject buffer = buffers.get(bufferIndex).getAsJsonObject();
         String uri = getAsString(buffer, "uri");
         Integer bufferLength = getAsInteger(buffer, "byteLength");
@@ -398,9 +394,8 @@ public class GltfLoader implements AssetLoader {
     }
 
     private Material loadMaterial(int materialIndex) {
-        if (materials == null) {
-            throw new AssetLoadException("There is no material defined yet a mesh references one");
-        }
+        assertNotNull(materials, "There is no material defined yet a mesh references one");
+
         JsonObject matData = materials.get(materialIndex).getAsJsonObject();
         JsonObject pbrMat = matData.getAsJsonObject("pbrMetallicRoughness");
 
@@ -448,12 +443,9 @@ public class GltfLoader implements AssetLoader {
             return null;
         }
         Integer textureIndex = getAsInteger(texture, "index");
-        if (textureIndex == null) {
-            throw new AssetLoadException("Texture as no index");
-        }
-        if (textures == null) {
-            throw new AssetLoadException("There are no textures, yet one is referenced by a material");
-        }
+        assertNotNull(textureIndex, "Texture as no index");
+        assertNotNull(textures, "There are no textures, yet one is referenced by a material");
+
         JsonObject textureData = textures.get(textureIndex).getAsJsonObject();
         Integer sourceIndex = getAsInteger(textureData, "source");
         Integer samplerIndex = getAsInteger(textureData, "sampler");
@@ -486,6 +478,115 @@ public class GltfLoader implements AssetLoader {
         }
 
     }
+
+    private void loadAnimation(JsonObject animation) throws IOException {
+        JsonArray channels = animation.getAsJsonArray("channels");
+        JsonArray samplers = animation.getAsJsonArray("samplers");
+        String name = getAsString(animation, "name");
+        assertNotNull(channels, "No channels for animation " + name);
+        assertNotNull(samplers, "No samplers for animation " + name);
+
+        //temp data storage of track data
+        AnimData[] animatedNodes = new AnimData[nodes.size()];
+
+        for (JsonElement channel : channels) {
+
+            JsonObject target = channel.getAsJsonObject().getAsJsonObject("target");
+
+            Integer targetNode = getAsInteger(target, "node");
+            String targetPath = getAsString(target, "path");
+            if (targetNode == null) {
+                //no target node for the channel, specs say to ignore the channel.
+                continue;
+            }
+            assertNotNull(targetPath, "No target path for channel");
+
+            if (targetPath.equals("weight")) {
+                //Morph animation, not implemented in JME, let's warn the user and skip the channel
+                logger.log(Level.WARNING, "Morph animation is not supported by JME yet, skipping animation");
+                continue;
+            }
+            AnimData animData = animatedNodes[targetNode];
+            if (animData == null) {
+                animData = new AnimData();
+                animatedNodes[targetNode] = animData;
+            }
+
+            Integer samplerIndex = getAsInteger(channel.getAsJsonObject(), "sampler");
+            assertNotNull(samplerIndex, "No animation sampler provided for channel");
+            JsonObject sampler = samplers.get(samplerIndex).getAsJsonObject();
+            Integer timeIndex = getAsInteger(sampler, "input");
+            assertNotNull(timeIndex, "No input accessor Provided for animation sampler");
+            Integer dataIndex = getAsInteger(sampler, "output");
+            assertNotNull(dataIndex, "No output accessor Provided for animation sampler");
+
+            String interpolation = getAsString(sampler, "interpolation");
+            if (interpolation == null || !interpolation.equals("LINEAR")) {
+                //JME anim system only supports Linear interpolation (will be possible with monkanim though)
+                //TODO rework this once monkanim is core, or allow a hook for animation loading to fit custom animation systems
+                logger.log(Level.WARNING, "JME only supports linear interpolation for animations");
+            }
+
+            float[] times = fetchFromCache("accessors", timeIndex, float[].class);
+            if (times == null) {
+                times = loadAccessorData(timeIndex, floatArrayPopulator);
+                addToCache("accessors", timeIndex, times, accessors.size());
+            }
+            if (animData.times == null) {
+                animData.times = times;
+            } else {
+                //check if we are loading the same time array
+                if (animData.times != times) {
+                    throw new AssetLoadException("Channel has different input accessors for samplers");
+                }
+            }
+            if (animData.length == null) {
+                //animation length is the last timestamp
+                animData.length = times[times.length - 1];
+            }
+            if (targetPath.equals("translation")) {
+                Vector3f[] translations = loadAccessorData(dataIndex, vector3fArrayPopulator);
+                animData.translations = translations;
+            } else if (targetPath.equals("scale")) {
+                Vector3f[] scales = loadAccessorData(dataIndex, vector3fArrayPopulator);
+                animData.scales = scales;
+            } else if (targetPath.equals("rotation")) {
+                Quaternion[] rotations = loadAccessorData(dataIndex, quaternionArrayPopulator);
+                animData.rotations = rotations;
+            }
+
+        }
+
+        for (int i = 0; i < animatedNodes.length; i++) {
+            AnimData animData = animatedNodes[i];
+            if (animData == null) {
+                continue;
+            }
+            Object node = fetchFromCache("nodes", i, Object.class);
+            if (node instanceof Spatial) {
+                Spatial s = (Spatial) node;
+                AnimControl control = s.getControl(AnimControl.class);
+                if (control == null) {
+                    control = new AnimControl();
+                    s.addControl(control);
+                }
+                if (name == null) {
+                    name = s.getName() + "_anim_" + control.getAnimationNames().size();
+                }
+                Animation anim = new Animation(name, animData.length);
+                anim.addTrack(new SpatialTrack(animData.times, animData.translations, animData.rotations, animData.scales));
+                control.addAnim(anim);
+
+            } else {
+                //At some pont we'll have bone animation
+                //TODO support for bone animation.
+            }
+        }
+
+
+    }
+
+    //private void readAnimationSampler()
 
     private void readSampler(int samplerIndex, Texture2D texture) {
         if (samplers == null) {
@@ -529,5 +630,112 @@ public class GltfLoader implements AssetLoader {
         data[index] = object;
     }
 
+    private class AnimData {
+        Float length;
+        float[] times;
+        Vector3f[] translations;
+        Quaternion[] rotations;
+        Vector3f[] scales;
+        float[] weights;
+    }
+
+    private interface Populator<T> {
+        T populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException;
+    }
+
+    private class VertexBufferPopulator implements Populator<VertexBuffer> {
+        VertexBuffer.Type bufferType;
+
+        public VertexBufferPopulator(VertexBuffer.Type bufferType) {
+            this.bufferType = bufferType;
+        }
+
+        @Override
+        public VertexBuffer populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException {
+
+            VertexBuffer vb = new VertexBuffer(bufferType);
+            VertexBuffer.Format format = getVertexBufferFormat(componentType);
+            int numComponents = getNumberOfComponents(type);
+
+            Buffer buff = VertexBuffer.createBuffer(format, numComponents, count);
+            int bufferSize = numComponents * count;
+            if (bufferViewIndex == null) {
+                //no referenced buffer, specs says to pad the buffer with zeros.
+                padBuffer(buff, bufferSize);
+            } else {
+                readBuffer(bufferViewIndex, byteOffset, bufferSize, buff, numComponents);
+            }
+
+            if (bufferType == VertexBuffer.Type.Index) {
+                numComponents = 3;
+            }
+            vb.setupData(VertexBuffer.Usage.Dynamic, numComponents, format, buff);
+
+
+            return vb;
+        }
+
+    }
+
+    private class FloatArrayPopulator implements Populator<float[]> {
+
+        @Override
+        public float[] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException {
+
+            int numComponents = getNumberOfComponents(type);
+            int dataSize = numComponents * count;
+            float[] data = new float[count];
+
+            if (bufferViewIndex == null) {
+                //no referenced buffer, specs says to pad the data with zeros.
+                padBuffer(data, dataSize);
+            } else {
+                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents);
+            }
+
+            return data;
+        }
+
+    }
+
+    private class Vector3fArrayPopulator implements Populator<Vector3f[]> {
+
+        @Override
+        public Vector3f[] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException {
+
+            int numComponents = getNumberOfComponents(type);
+            int dataSize = numComponents * count;
+            Vector3f[] data = new Vector3f[count];
+
+            if (bufferViewIndex == null) {
+                //no referenced buffer, specs says to pad the data with zeros.
+                padBuffer(data, dataSize);
+            } else {
+                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents);
+            }
+
+            return data;
+        }
+    }
+
+    private class QuaternionArrayPopulator implements Populator<Quaternion[]> {
+
+        @Override
+        public Quaternion[] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException {
+
+            int numComponents = getNumberOfComponents(type);
+            int dataSize = numComponents * count;
+            Quaternion[] data = new Quaternion[count];
+
+            if (bufferViewIndex == null) {
+                //no referenced buffer, specs says to pad the data with zeros.
+                padBuffer(data, dataSize);
+            } else {
+                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents);
+            }
+
+            return data;
+        }
+    }
 }
 
