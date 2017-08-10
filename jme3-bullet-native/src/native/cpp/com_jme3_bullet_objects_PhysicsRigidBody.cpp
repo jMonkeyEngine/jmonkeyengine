@@ -151,6 +151,41 @@ extern "C" {
         //        }
     }
 
+
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsRigidBody
+     * Method:    setInverseInertiaLocal
+     * Signature: (JLcom/jme3/math/Vector3f;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_setInverseInertiaLocal
+    (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        btVector3 vec = btVector3();
+        jmeBulletUtil::convert(env, value, &vec);
+        body->setInvInertiaDiagLocal(vec);
+    }
+    
+    /*
+     * Class:     com_jme3_bullet_objects_PhysicsRigidBody
+     * Method:    getInverseInertiaLocal
+     * Signature: (JLcom/jme3/math/Vector3f;)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsRigidBody_getInverseInertiaLocal
+    (JNIEnv *env, jobject object, jlong bodyId, jobject value) {
+        btRigidBody* body = reinterpret_cast<btRigidBody*>(bodyId);
+        if (body == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        jmeBulletUtil::convert(env, &body->getInvInertiaDiagLocal(), value);
+    }
+
     /*
      * Class:     com_jme3_bullet_objects_PhysicsRigidBody
      * Method:    getPhysicsLocation
