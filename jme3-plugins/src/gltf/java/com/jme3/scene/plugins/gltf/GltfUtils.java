@@ -3,15 +3,21 @@ package com.jme3.scene.plugins.gltf;
 import com.google.gson.*;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.texture.Texture;
 import com.jme3.util.LittleEndien;
 
 import java.io.*;
 import java.nio.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Nehon on 07/08/2017.
@@ -210,6 +216,11 @@ public class GltfUtils {
             for (int i = 0; i < array.length; i++) {
                 array[i] = new Quaternion();
             }
+        } else if (store instanceof Matrix4f[]) {
+            Matrix4f[] array = (Matrix4f[]) store;
+            for (int i = 0; i < array.length; i++) {
+                array[i] = new Matrix4f();
+            }
         }
     }
 
@@ -240,6 +251,8 @@ public class GltfUtils {
             populateVector3fArray((Vector3f[]) store, stream, length, byteOffset, byteStride, numComponents);
         } else if (store instanceof Quaternion[]) {
             populateQuaternionArray((Quaternion[]) store, stream, length, byteOffset, byteStride, numComponents);
+        } else if (store instanceof Matrix4f[]) {
+            populateMatrix4fArray((Matrix4f[]) store, stream, length, byteOffset, byteStride, numComponents);
         }
     }
 
@@ -348,6 +361,38 @@ public class GltfUtils {
         }
     }
 
+    private static void populateMatrix4fArray(Matrix4f[] array, LittleEndien stream, int length, int byteOffset, int byteStride, int numComponents) throws IOException {
+        int index = byteOffset;
+        int componentSize = 4;
+        int end = length * componentSize + byteOffset;
+        stream.skipBytes(byteOffset);
+        int arrayIndex = 0;
+        while (index < end) {
+            array[arrayIndex] = new Matrix4f(
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat(),
+                    stream.readFloat()
+            );
+
+            arrayIndex++;
+
+            index += Math.max(componentSize * numComponents, byteStride);
+        }
+    }
+
     private static LittleEndien getStream(byte[] buffer) {
         return new LittleEndien(new DataInputStream(new ByteArrayInputStream(buffer)));
     }
@@ -406,6 +451,45 @@ public class GltfUtils {
         if (o == null) {
             throw new AssetLoadException(errorMessage);
         }
+    }
+
+    public static Spatial findCommonAncestor(List<Spatial> spatials) {
+        Map<Spatial, List<Spatial>> flatParents = new HashMap<>();
+
+        for (Spatial spatial : spatials) {
+            List<Spatial> parents = new ArrayList<>();
+            Spatial parent = spatial.getParent();
+            while (parent != null) {
+                parents.add(0, parent);
+                parent = parent.getParent();
+            }
+            flatParents.put(spatial, parents);
+        }
+
+        int index = 0;
+        Spatial lastCommonParent = null;
+        Spatial parent = null;
+        while (true) {
+            for (Spatial spatial : flatParents.keySet()) {
+                List<Spatial> parents = flatParents.get(spatial);
+                if (index == parents.size()) {
+                    //we reached the end of a spatial hierarchy let's return;
+                    return lastCommonParent;
+                }
+                Spatial p = parents.get(index);
+                if (parent == null) {
+                    parent = p;
+                } else if (p != parent) {
+                    return lastCommonParent;
+                }
+            }
+            lastCommonParent = parent;
+            parent = null;
+            index++;
+        }
+
+
+
     }
 
     public static void dumpMesh(Mesh m) {

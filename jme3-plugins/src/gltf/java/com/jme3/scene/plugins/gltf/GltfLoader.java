@@ -2,9 +2,7 @@ package com.jme3.scene.plugins.gltf;
 
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.Animation;
-import com.jme3.animation.SpatialTrack;
+import com.jme3.animation.*;
 import com.jme3.asset.*;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
@@ -17,7 +15,9 @@ import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 import java.io.*;
 import java.nio.Buffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,6 +45,7 @@ public class GltfLoader implements AssetLoader {
     private JsonArray images;
     private JsonArray samplers;
     private JsonArray animations;
+    private JsonArray skins;
 
     private Material defaultMat;
     private AssetInfo info;
@@ -52,8 +53,11 @@ public class GltfLoader implements AssetLoader {
     private FloatArrayPopulator floatArrayPopulator = new FloatArrayPopulator();
     private Vector3fArrayPopulator vector3fArrayPopulator = new Vector3fArrayPopulator();
     private QuaternionArrayPopulator quaternionArrayPopulator = new QuaternionArrayPopulator();
+    private Matrix4fArrayPopulator matrix4fArrayPopulator = new Matrix4fArrayPopulator();
     private static Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
     private boolean useNormalsFlag = false;
+
+    Map<Skeleton, List<Spatial>> skinnedSpatials = new HashMap<>();
 
     static {
         defaultMaterialAdapters.put("pbrMetallicRoughness", new PBRMaterialAdapter());
@@ -94,10 +98,16 @@ public class GltfLoader implements AssetLoader {
             images = root.getAsJsonArray("images");
             samplers = root.getAsJsonArray("samplers");
             animations = root.getAsJsonArray("animations");
+            skins = root.getAsJsonArray("skins");
+
+            readSkins();
 
             JsonPrimitive defaultScene = root.getAsJsonPrimitive("scene");
 
             Node n = loadScenes(defaultScene);
+
+            setupControls();
+
             //only one scene let's not return the root.
             if (n.getChildren().size() == 1) {
                 n = (Node) n.getChild(0);
@@ -131,7 +141,7 @@ public class GltfLoader implements AssetLoader {
             sceneNode.setName(getAsString(scene.getAsJsonObject(), "name"));
             JsonArray sceneNodes = scene.getAsJsonObject().getAsJsonArray("nodes");
             for (JsonElement node : sceneNodes) {
-                sceneNode.attachChild(loadNode(node.getAsInt()));
+                loadChild(sceneNode, node);
             }
             root.attachChild(sceneNode);
         }
@@ -152,13 +162,19 @@ public class GltfLoader implements AssetLoader {
         return root;
     }
 
-    private Spatial loadNode(int nodeIndex) throws IOException {
-        Spatial spatial = fetchFromCache("nodes", nodeIndex, Spatial.class);
-        if (spatial != null) {
-            //If a spatial is referenced several times, it may be attached to different parents,
-            // and it's not possible in JME, so we have to clone it.
-            return spatial.clone();
+    private Object loadNode(int nodeIndex) throws IOException {
+        Object obj = fetchFromCache("nodes", nodeIndex, Object.class);
+        if (obj != null) {
+            if (obj instanceof Bone) {
+                //the node can be a previously loaded bone let's return it
+                return obj;
+            } else {
+                //If a spatial is referenced several times, it may be attached to different parents,
+                // and it's not possible in JME, so we have to clone it.
+                return ((Spatial) obj).clone();
+            }
         }
+        Spatial spatial;
         JsonObject nodeData = nodes.get(nodeIndex).getAsJsonObject();
         JsonArray children = nodeData.getAsJsonArray("children");
         Integer meshIndex = getAsInteger(nodeData, "mesh");
@@ -189,9 +205,16 @@ public class GltfLoader implements AssetLoader {
             spatial = node;
         }
 
+        Integer skinIndex = getAsInteger(nodeData, "skin");
+        if (skinIndex != null) {
+            Skeleton skeleton = fetchFromCache("skins", skinIndex, Skeleton.class);
+            List<Spatial> spatials = skinnedSpatials.get(skeleton);
+            spatials.add(spatial);
+        }
+
         if (children != null) {
             for (JsonElement child : children) {
-                ((Node) spatial).attachChild(loadNode(child.getAsInt()));
+                loadChild(spatial, child);
             }
         }
 
@@ -202,6 +225,19 @@ public class GltfLoader implements AssetLoader {
 
         addToCache("nodes", nodeIndex, spatial, nodes.size());
         return spatial;
+    }
+
+    private void loadChild(Spatial parent, JsonElement child) throws IOException {
+        int index = child.getAsInt();
+        Object loaded = loadNode(child.getAsInt());
+        if (loaded instanceof Spatial) {
+            ((Node) parent).attachChild((Spatial) loaded);
+        } else if (loaded instanceof Bone) {
+            //fetch the skeleton and add a skeletonControl to the node.
+            // Skeleton skeleton = fetchFromCache("skeletons", index, Skeleton.class);
+            // SkeletonControl control = new SkeletonControl(skeleton);
+            // parent.addControl(control);
+        }
     }
 
     private Transform loadTransforms(JsonObject nodeData) {
@@ -276,6 +312,21 @@ public class GltfLoader implements AssetLoader {
             for (Map.Entry<String, JsonElement> entry : attributes.entrySet()) {
                 mesh.setBuffer(loadAccessorData(entry.getValue().getAsInt(), new VertexBufferPopulator(getVertexBufferType(entry.getKey()))));
             }
+
+            if (mesh.getBuffer(VertexBuffer.Type.BoneIndex) != null) {
+                //the mesh has some skinning let's create needed buffers for HW skinning
+                //creating empty buffers for HW skinning
+                //the buffers will be setup if ever used.
+                VertexBuffer weightsHW = new VertexBuffer(VertexBuffer.Type.HWBoneWeight);
+                VertexBuffer indicesHW = new VertexBuffer(VertexBuffer.Type.HWBoneIndex);
+                //setting usage to cpuOnly so that the buffer is not send empty to the GPU
+                indicesHW.setUsage(VertexBuffer.Usage.CpuOnly);
+                weightsHW.setUsage(VertexBuffer.Usage.CpuOnly);
+                mesh.setBuffer(weightsHW);
+                mesh.setBuffer(indicesHW);
+                mesh.generateBindPose();
+            }
+
             Geometry geom = new Geometry(null, mesh);
 
             Integer materialIndex = getAsInteger(meshObject, "material");
@@ -302,6 +353,7 @@ public class GltfLoader implements AssetLoader {
             geomArray[index] = geom;
             index++;
 
+            //TODO skins
             //TODO targets(morph anim...)
         }
 
@@ -318,12 +370,14 @@ public class GltfLoader implements AssetLoader {
         int byteOffset = getAsInteger(accessor, "byteOffset", 0);
         Integer componentType = getAsInteger(accessor, "componentType");
         assertNotNull(componentType, "No component type defined for accessor " + accessorIndex);
-        boolean normalized = getAsBoolean(accessor, "normalized", false);
         Integer count = getAsInteger(accessor, "count");
         assertNotNull(count, "No count attribute defined for accessor " + accessorIndex);
         String type = getAsString(accessor, "type");
         assertNotNull(type, "No type attribute defined for accessor " + accessorIndex);
 
+        boolean normalized = getAsBoolean(accessor, "normalized", false);
+        //Some float data can be packed into short buffers, "normalized" means they have to be unpacked.
+        //TODO support packed data
         //TODO min / max
         //TODO sparse
         //TODO extensions?
@@ -578,8 +632,10 @@ public class GltfLoader implements AssetLoader {
                 control.addAnim(anim);
 
             } else {
-                //At some pont we'll have bone animation
+                //At some point we'll have bone animation
                 //TODO support for bone animation.
+                System.err.println("animated");
+                System.err.println(node);
             }
         }
 
@@ -606,6 +662,100 @@ public class GltfLoader implements AssetLoader {
         }
         texture.setWrap(Texture.WrapAxis.S, wrapS);
         texture.setWrap(Texture.WrapAxis.T, wrapT);
+    }
+
+    private void readSkins() throws IOException {
+        if (skins == null) {
+            //no skins, no bone animation.
+            return;
+        }
+        for (int index = 0; index < skins.size(); index++) {
+            JsonObject skin = skins.get(index).getAsJsonObject();
+
+            //each skin is a skeleton.
+            Integer rootIndex = getAsInteger(skin, "skeleton");
+            JsonArray joints = skin.getAsJsonArray("joints");
+            assertNotNull(joints, "No joints defined for skin");
+            Integer matricesIndex = getAsInteger(skin, "inverseBindMatrices");
+            Matrix4f[] inverseBindMatrices = null;
+            if (matricesIndex != null) {
+                inverseBindMatrices = loadAccessorData(matricesIndex, matrix4fArrayPopulator);
+            } else {
+                inverseBindMatrices = new Matrix4f[joints.size()];
+                for (int i = 0; i < inverseBindMatrices.length; i++) {
+                    inverseBindMatrices[i] = new Matrix4f();
+                }
+            }
+
+            System.err.println(inverseBindMatrices);
+
+            rootIndex = joints.get(0).getAsInt();
+
+            Bone[] bones = new Bone[joints.size()];
+            for (int i = 0; i < joints.size(); i++) {
+                bones[i] = loadNodeAsBone(joints.get(i).getAsInt(), inverseBindMatrices[i]);
+            }
+            for (int i = 0; i < joints.size(); i++) {
+                findChildren(joints.get(i).getAsInt());
+            }
+
+            Skeleton skeleton = new Skeleton(bones);
+            addToCache("skins", index, skeleton, nodes.size());
+            skinnedSpatials.put(skeleton, new ArrayList<Spatial>());
+
+            System.err.println(skeleton);
+
+        }
+
+    }
+
+    private Bone loadNodeAsBone(int nodeIndex, Matrix4f inverseBindMatrix) throws IOException {
+
+        Bone bone = fetchFromCache("nodes", nodeIndex, Bone.class);
+        if (bone != null) {
+            return bone;
+        }
+        JsonObject nodeData = nodes.get(nodeIndex).getAsJsonObject();
+        JsonArray children = nodeData.getAsJsonArray("children");
+        String name = getAsString(nodeData, "name");
+        if (name == null) {
+            name = "Bone_" + nodeIndex;
+        }
+        bone = new Bone(name);
+        Transform boneTransforms = loadTransforms(nodeData);
+        Transform inverseBind = new Transform();
+        inverseBind.fromTransformMatrix(inverseBindMatrix);
+        //  boneTransforms.combineWithParent(inverseBind);
+        bone.setBindTransforms(boneTransforms.getTranslation(), boneTransforms.getRotation(), boneTransforms.getScale());
+
+
+        addToCache("nodes", nodeIndex, bone, nodes.size());
+        return bone;
+    }
+
+    private void findChildren(int nodeIndex) {
+        Bone bone = fetchFromCache("nodes", nodeIndex, Bone.class);
+        JsonObject nodeData = nodes.get(nodeIndex).getAsJsonObject();
+        JsonArray children = nodeData.getAsJsonArray("children");
+        if (children != null) {
+            for (JsonElement child : children) {
+                bone.addChild(fetchFromCache("nodes", child.getAsInt(), Bone.class));
+            }
+        }
+    }
+
+    private void setupControls() {
+        for (Skeleton skeleton : skinnedSpatials.keySet()) {
+            List<Spatial> spatials = skinnedSpatials.get(skeleton);
+            Spatial spatial = null;
+            if (spatials.size() >= 1) {
+                spatial = findCommonAncestor(spatials);
+            } else {
+                spatial = spatials.get(0);
+            }
+            SkeletonControl control = new SkeletonControl(skeleton);
+            spatial.addControl(control);
+        }
     }
 
     private String loadMeshName(int meshIndex) {
@@ -726,6 +876,26 @@ public class GltfLoader implements AssetLoader {
             int numComponents = getNumberOfComponents(type);
             int dataSize = numComponents * count;
             Quaternion[] data = new Quaternion[count];
+
+            if (bufferViewIndex == null) {
+                //no referenced buffer, specs says to pad the data with zeros.
+                padBuffer(data, dataSize);
+            } else {
+                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents);
+            }
+
+            return data;
+        }
+    }
+
+    private class Matrix4fArrayPopulator implements Populator<Matrix4f[]> {
+
+        @Override
+        public Matrix4f[] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException {
+
+            int numComponents = getNumberOfComponents(type);
+            int dataSize = numComponents * count;
+            Matrix4f[] data = new Matrix4f[count];
 
             if (bufferViewIndex == null) {
                 //no referenced buffer, specs says to pad the data with zeros.
