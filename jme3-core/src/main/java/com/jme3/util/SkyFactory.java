@@ -44,8 +44,8 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.TextureCubeMap;
+
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 /**
  * <code>SkyFactory</code> is used to create jME {@link Spatial}s that can
@@ -177,42 +177,48 @@ public class SkyFactory {
      */
      public static Spatial createSky(AssetManager assetManager, Texture texture,
             Vector3f normalScale, EnvMapType envMapType, float sphereRadius) {
-        if (texture == null) {
-            throw new IllegalArgumentException("texture cannot be null");
-        }
-        final Sphere sphereMesh = new Sphere(10, 10, sphereRadius, false, true);
+         if (texture == null) {
+             throw new IllegalArgumentException("texture cannot be null");
+         }
+         final Sphere sphereMesh = new Sphere(10, 10, sphereRadius, false, true);
 
-        Geometry sky = new Geometry("Sky", sphereMesh);
-        sky.setQueueBucket(Bucket.Sky);
-        sky.setCullHint(Spatial.CullHint.Never);
-        sky.setModelBound(new BoundingSphere(Float.POSITIVE_INFINITY, Vector3f.ZERO));
+         Geometry sky = new Geometry("Sky", sphereMesh);
+         sky.setQueueBucket(Bucket.Sky);
+         sky.setCullHint(Spatial.CullHint.Never);
+         sky.setModelBound(new BoundingSphere(Float.POSITIVE_INFINITY, Vector3f.ZERO));
 
-        Material skyMat = new Material(assetManager, "Common/MatDefs/Misc/Sky.j3md");
-        skyMat.setVector3("NormalScale", normalScale);
-        switch (envMapType){
-            case CubeMap : 
-                // make sure its a cubemap
-                if (!(texture instanceof TextureCubeMap)) {
-                    Image img = texture.getImage();
-                    texture = new TextureCubeMap();
-                    texture.setImage(img);
-                }
-                break;
-            case SphereMap :     
-                skyMat.setBoolean("SphereMap", true);
-                break;
-            case EquirectMap : 
-                skyMat.setBoolean("EquirectMap", true);
-                break;
-        }
-        texture.setMagFilter(Texture.MagFilter.Bilinear);
-        texture.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-        texture.setAnisotropicFilter(0);
-        texture.setWrap(Texture.WrapMode.EdgeClamp);
-        skyMat.setTexture("Texture", texture);
-        sky.setMaterial(skyMat);
+         Material skyMat = new Material(assetManager, "Common/MatDefs/Misc/Sky.j3md");
+         skyMat.setVector3("NormalScale", normalScale);
+         switch (envMapType) {
+             case CubeMap:
+                 // make sure its a cubemap
+                 if (!(texture instanceof TextureCubeMap)) {
+                     Image img = texture.getImage();
+                     texture = new TextureCubeMap();
+                     texture.setImage(img);
+                 }
+                 break;
+             case SphereMap:
+                 skyMat.setBoolean("SphereMap", true);
+                 break;
+             case EquirectMap:
+                 skyMat.setBoolean("EquirectMap", true);
+                 break;
+         }
+         texture.setMagFilter(Texture.MagFilter.Bilinear);
+         texture.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
+         texture.setAnisotropicFilter(0);
+         texture.setWrap(Texture.WrapMode.EdgeClamp);
 
-        return sky;
+         if (texture instanceof TextureCubeMap) {
+             skyMat.setTexture("Texture", texture);
+         } else {
+             skyMat.setTexture("SimpleTexture", texture);
+         }
+
+         sky.setMaterial(skyMat);
+
+         return sky;
     }
      
     /**
