@@ -1,8 +1,11 @@
 #import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/Optics.glsllib"
 
-uniform textureCube m_Texture;
-uniform sampler2D m_SimpleTexture;
+#if defined(CUBE_MAP)
+    uniform ENVMAP m_Texture;
+#else
+    uniform sampler2D m_SimpleTexture;
+#endif
 
 varying vec3 direction;
 
