@@ -60,6 +60,11 @@ public class SkeletonDebugAppState extends AbstractAppState {
     public SkeletonDebugger addSkeleton(SkeletonControl skeletonControl, boolean guessBonesOrientation) {
         Skeleton skeleton = skeletonControl.getSkeleton();
         Spatial forSpatial = skeletonControl.getSpatial();
+        return addSkeleton(skeleton, forSpatial, guessBonesOrientation);
+    }
+
+    public SkeletonDebugger addSkeleton(Skeleton skeleton, Spatial forSpatial, boolean guessBonesOrientation) {
+
         SkeletonDebugger sd = new SkeletonDebugger(forSpatial.getName() + "_Skeleton", skeleton, guessBonesOrientation);
         sd.setLocalTransform(forSpatial.getWorldTransform());
         if (forSpatial instanceof Node) {
@@ -113,6 +118,7 @@ public class SkeletonDebugAppState extends AbstractAppState {
                             selectedBones.put(skeleton.getSkeleton(), selectedBone);
                             System.err.println("-----------------------");
                             System.err.println("Selected Bone : " + selectedBone.getName() + " in skeleton " + skeleton.getName());
+                            System.err.println("Root Bone : " + (selectedBone.getParent() == null));
                             System.err.println("-----------------------");
                             System.err.println("Bind translation: " + selectedBone.getBindPosition());
                             System.err.println("Bind rotation: " + selectedBone.getBindRotation());

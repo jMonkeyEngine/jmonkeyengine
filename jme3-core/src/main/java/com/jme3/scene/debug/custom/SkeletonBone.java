@@ -36,6 +36,7 @@ import java.util.Map;
 
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
+import com.jme3.bounding.*;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -94,6 +95,32 @@ public class SkeletonBone extends Node {
         for (Bone bone : skeleton.getRoots()) {
             createSkeletonGeoms(bone, boneShape, jointShape, boneLengths, skeleton, this, guessBonesOrientation);
         }
+        this.updateModelBound();
+
+
+        Sphere originShape = new Sphere(10, 10, 0.02f);
+        originShape.setBuffer(VertexBuffer.Type.Color, 4, createFloatBuffer(originShape.getVertexCount() * 4));
+        cb = originShape.getFloatBuffer(VertexBuffer.Type.Color);
+        cb.rewind();
+        for (int i = 0; i < jointShape.getVertexCount(); i++) {
+            cb.put(0.4f).put(0.4f).put(0.05f).put(1f);
+        }
+
+        Geometry origin = new Geometry("origin", originShape);
+        BoundingVolume bv = this.getWorldBound();
+        float scale = 1;
+        if (bv.getType() == BoundingVolume.Type.AABB) {
+            BoundingBox bb = (BoundingBox) bv;
+            scale = (bb.getXExtent() + bb.getYExtent() + bb.getZExtent()) / 3f;
+        } else if (bv.getType() == BoundingVolume.Type.Sphere) {
+            BoundingSphere bs = (BoundingSphere) bv;
+            scale = bs.getRadius();
+        }
+        origin.scale(scale);
+        attachChild(origin);
+
+
+
     }
 
     protected final void createSkeletonGeoms(Bone bone, Mesh boneShape, Mesh jointShape, Map<Integer, Float> boneLengths, Skeleton skeleton, Node parent, boolean guessBonesOrientation) {
@@ -120,6 +147,7 @@ public class SkeletonBone extends Node {
                 Quaternion q = new Quaternion();
                 q.lookAt(v, Vector3f.UNIT_Z);
                 bGeom.setLocalRotation(q);
+                boneLength = v.length();
             }
             //no child, the bone has the same direction as the parent bone.
             if (bone.getChildren().isEmpty()) {
@@ -184,12 +212,6 @@ public class SkeletonBone extends Node {
     }
 
 
-//    private Quaternion getRotationBetweenVect(Vector3f v1, Vector3f v2){       
-//        Vector3f a =v1.cross(v2);
-//        float w = FastMath.sqrt((v1.length() * v1.length()) * (v2.length() * v2.length())) + v1.dot(v2);       
-//        return new Quaternion(a.x, a.y, a.z, w).normalizeLocal() ;
-//    }
-
     protected final void updateSkeletonGeoms(Bone bone) {
         if (guessBonesOrientation && bone.getName().equalsIgnoreCase("Site")) {
             return;
@@ -205,7 +227,7 @@ public class SkeletonBone extends Node {
     }
 
     /**
-     * The method updates the geometry according to the poitions of the bones.
+     * The method updates the geometry according to the positions of the bones.
      */
     public void updateGeometry() {
 

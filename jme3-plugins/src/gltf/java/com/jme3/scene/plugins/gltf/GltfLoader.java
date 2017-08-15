@@ -15,10 +15,7 @@ import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 import java.io.*;
 import java.nio.Buffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,8 +53,9 @@ public class GltfLoader implements AssetLoader {
     private Matrix4fArrayPopulator matrix4fArrayPopulator = new Matrix4fArrayPopulator();
     private static Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
     private boolean useNormalsFlag = false;
+    private Transform tmpTransforms = new Transform();
 
-    Map<Skeleton, List<Spatial>> skinnedSpatials = new HashMap<>();
+    Map<SkinData, List<Spatial>> skinnedSpatials = new HashMap<>();
 
     static {
         defaultMaterialAdapters.put("pbrMetallicRoughness", new PBRMaterialAdapter());
@@ -146,6 +144,13 @@ public class GltfLoader implements AssetLoader {
             root.attachChild(sceneNode);
         }
 
+        //update skeletons
+        for (int i = 0; i < skins.size(); i++) {
+            SkinData sd = fetchFromCache("skins", i, SkinData.class);
+            sd.skeletonControl.getSkeleton().resetAndUpdate();
+            sd.skeletonControl.getSkeleton().setBindingPose();
+        }
+
         //Loading animations
         if (animations != null) {
             for (int i = 0; i < animations.size(); i++) {
@@ -165,7 +170,7 @@ public class GltfLoader implements AssetLoader {
     private Object readNode(int nodeIndex) throws IOException {
         Object obj = fetchFromCache("nodes", nodeIndex, Object.class);
         if (obj != null) {
-            if (obj instanceof Bone) {
+            if (obj instanceof BoneWrapper) {
                 //the node can be a previously loaded bone let's return it
                 return obj;
             } else {
@@ -207,10 +212,12 @@ public class GltfLoader implements AssetLoader {
 
         Integer skinIndex = getAsInteger(nodeData, "skin");
         if (skinIndex != null) {
-            Skeleton skeleton = fetchFromCache("skins", skinIndex, Skeleton.class);
-            List<Spatial> spatials = skinnedSpatials.get(skeleton);
+            SkinData skinData = fetchFromCache("skins", skinIndex, SkinData.class);
+            List<Spatial> spatials = skinnedSpatials.get(skinData);
             spatials.add(spatial);
         }
+
+        spatial.setLocalTransform(readTransforms(nodeData));
 
         if (children != null) {
             for (JsonElement child : children) {
@@ -221,7 +228,6 @@ public class GltfLoader implements AssetLoader {
         if (spatial.getName() == null) {
             spatial.setName(getAsString(nodeData.getAsJsonObject(), "name"));
         }
-        spatial.setLocalTransform(readTransforms(nodeData));
 
         addToCache("nodes", nodeIndex, spatial, nodes.size());
         return spatial;
@@ -232,12 +238,32 @@ public class GltfLoader implements AssetLoader {
         Object loaded = readNode(child.getAsInt());
         if (loaded instanceof Spatial) {
             ((Node) parent).attachChild((Spatial) loaded);
-        } else if (loaded instanceof Bone) {
-            //fetch the skeleton and add a skeletonControl to the node.
-            // Skeleton skeleton = fetchFromCache("skeletons", index, Skeleton.class);
-            // SkeletonControl control = new SkeletonControl(skeleton);
-            // parent.addControl(control);
+        } else if (loaded instanceof BoneWrapper) {
+            //parent is the Armature Node, we have to apply its transforms to all the Bones' bind pose
+            BoneWrapper bw = (BoneWrapper) loaded;
+            //TODO this part is still not woking properly.
+            applyTransformsToArmature(bw, parent.getLocalTransform());
+
+            //now we can remove the parent node as it's not meant as a real node.
+            parent.removeFromParent();
         }
+    }
+
+    private void applyTransformsToArmature(BoneWrapper boneWrapper, Transform transforms) {
+        //Transforms are mean in model space, so we need some tricky transformation
+        //We have this inverseBindMatrix provided in the gltf for each bone that transforms a vector from mesh's model space to bone's local space.
+        //So it's inverse, transforms from bone's local space to mesh model space.
+        // we need to transform the bone's bind transforms in this mesh model space, transform them with the transform given in this method,
+        // then recompute their local space value according to parents model space
+        Bone bone = boneWrapper.bone;
+        tmpTransforms.setTranslation(bone.getBindPosition());
+        tmpTransforms.setRotation(bone.getBindRotation());
+        tmpTransforms.setScale(bone.getBindScale());
+
+        tmpTransforms.combineWithParent(transforms);
+
+        bone.setBindTransforms(tmpTransforms.getTranslation(), tmpTransforms.getRotation(), tmpTransforms.getScale());
+
     }
 
     private Transform readTransforms(JsonObject nodeData) {
@@ -592,7 +618,7 @@ public class GltfLoader implements AssetLoader {
             } else {
                 //check if we are loading the same time array
                 if (animData.times != times) {
-                    throw new AssetLoadException("Channel has different input accessors for samplers");
+                    //            throw new AssetLoadException("Channel has different input accessors for samplers");
                 }
             }
             if (animData.length == null) {
@@ -619,6 +645,7 @@ public class GltfLoader implements AssetLoader {
         List<Spatial> spatials = new ArrayList<>();
         Animation anim = new Animation();
         anim.setName(name);
+        int skinIndex = -1;
 
         for (int i = 0; i < animatedNodes.length; i++) {
             AnimData animData = animatedNodes[i];
@@ -635,28 +662,58 @@ public class GltfLoader implements AssetLoader {
                 SpatialTrack track = new SpatialTrack(animData.times, animData.translations, animData.rotations, animData.scales);
                 track.setTrackSpatial(s);
                 anim.addTrack(track);
-            } else {
-                //At some point we'll have bone animation
-                //TODO support for bone animation.
-                System.err.println("animated");
-                System.err.println(node);
+            } else if (node instanceof BoneWrapper) {
+                BoneWrapper b = (BoneWrapper) node;
+                //apply the inverseBindMatrix to animation data.
+                b.update(animData);
+                BoneTrack track = new BoneTrack(b.boneIndex, animData.times, animData.translations, animData.rotations, animData.scales);
+                anim.addTrack(track);
+                if (skinIndex == -1) {
+                    skinIndex = b.skinIndex;
+                } else {
+                    //Check if all bones affected by this animation are from the same skin, otherwise raise an error.
+                    if (skinIndex != b.skinIndex) {
+                        throw new AssetLoadException("Animation " + animationIndex + " (" + name + ") applies to bones that are not from the same skin: skin " + skinIndex + ", bone " + b.bone.getName() + " from skin " + b.skinIndex);
+                    }
+                    //else everything is fine.
+                }
             }
         }
 
-        if (!spatials.isEmpty()) {
-            Spatial spatial = null;
-            if (spatials.size() == 1) {
-                spatial = spatials.get(0);
-            } else {
-                spatial = findCommonAncestor(spatials);
+        if (skinIndex != -1) {
+            //we have a bone animation.
+            SkinData skin = fetchFromCache("skins", skinIndex, SkinData.class);
+            if (skin.animControl == null) {
+                skin.animControl = new AnimControl(skin.skeletonControl.getSkeleton());
             }
+            skin.animControl.addAnim(anim);
+            //the controls will be added to the right spatial in setupControls()
+        }
 
-            AnimControl control = spatial.getControl(AnimControl.class);
-            if (control == null) {
-                control = new AnimControl();
-                spatial.addControl(control);
+
+        if (!spatials.isEmpty()) {
+            //Note that it's pretty unlikely to have an animation that is both a spatial animation and a bone animation...But you never know. The specs doesn't forbids it
+            if (skinIndex != -1) {
+                //there are some spatial tracks in this bone animation... or the other way around. Let's add the spatials in the skinnedSpatials.
+                SkinData skin = fetchFromCache("skins", skinIndex, SkinData.class);
+                List<Spatial> spat = skinnedSpatials.get(skin);
+                spat.addAll(spatials);
+                //the animControl will be added in the setupControls();
+            } else {
+                Spatial spatial = null;
+                if (spatials.size() == 1) {
+                    spatial = spatials.get(0);
+                } else {
+                    spatial = findCommonAncestor(spatials);
+                }
+
+                AnimControl control = spatial.getControl(AnimControl.class);
+                if (control == null) {
+                    control = new AnimControl();
+                    spatial.addControl(control);
+                }
+                control.addAnim(anim);
             }
-            control.addAnim(anim);
         }
     }
 
@@ -703,74 +760,113 @@ public class GltfLoader implements AssetLoader {
                 }
             }
 
-            System.err.println(inverseBindMatrices);
-
-            rootIndex = joints.get(0).getAsInt();
-
+            boolean addRootIndex = true;
             Bone[] bones = new Bone[joints.size()];
             for (int i = 0; i < joints.size(); i++) {
-                bones[i] = readNodeAsBone(joints.get(i).getAsInt(), inverseBindMatrices[i]);
+                int boneIndex = joints.get(i).getAsInt();
+                if (boneIndex == rootIndex) {
+                    addRootIndex = false;
+                }
+                bones[i] = readNodeAsBone(boneIndex, inverseBindMatrices[i], i, index);
             }
+
+            if (addRootIndex) {
+                //sometimes the root bone is not part of the joint array. in that case we add it at the end of the bone list.
+                //The bone won't deform the mesh, but that's pretty common with the root bone.
+                Bone[] newBones = new Bone[bones.length + 1];
+                System.arraycopy(bones, 0, newBones, 0, bones.length);
+                //TODO actually a regular node or a geometry can be attached to a bone, we have to handle this and attach it ti the AttachementNode.
+                newBones[bones.length] = readNodeAsBone(rootIndex, new Matrix4f(), bones.length, index);
+                findChildren(rootIndex);
+                bones = newBones;
+            }
+
             for (int i = 0; i < joints.size(); i++) {
                 findChildren(joints.get(i).getAsInt());
             }
 
             Skeleton skeleton = new Skeleton(bones);
-            addToCache("skins", index, skeleton, nodes.size());
-            skinnedSpatials.put(skeleton, new ArrayList<Spatial>());
 
-            System.err.println(skeleton);
+            SkinData skinData = new SkinData();
+            skinData.skeletonControl = new SkeletonControl(skeleton);
+            addToCache("skins", index, skinData, nodes.size());
+            skinnedSpatials.put(skinData, new ArrayList<Spatial>());
 
         }
 
     }
 
-    private Bone readNodeAsBone(int nodeIndex, Matrix4f inverseBindMatrix) throws IOException {
+    private Bone readNodeAsBone(int nodeIndex, Matrix4f inverseBindMatrix, int boneIndex, int skinIndex) throws IOException {
 
-        Bone bone = fetchFromCache("nodes", nodeIndex, Bone.class);
-        if (bone != null) {
-            return bone;
+        BoneWrapper boneWrapper = fetchFromCache("nodes", nodeIndex, BoneWrapper.class);
+        if (boneWrapper != null) {
+            return boneWrapper.bone;
         }
         JsonObject nodeData = nodes.get(nodeIndex).getAsJsonObject();
-        JsonArray children = nodeData.getAsJsonArray("children");
         String name = getAsString(nodeData, "name");
         if (name == null) {
             name = "Bone_" + nodeIndex;
         }
-        bone = new Bone(name);
+        Bone bone = new Bone(name);
         Transform boneTransforms = readTransforms(nodeData);
-        Transform inverseBind = new Transform();
-        inverseBind.fromTransformMatrix(inverseBindMatrix);
-        //  boneTransforms.combineWithParent(inverseBind);
         bone.setBindTransforms(boneTransforms.getTranslation(), boneTransforms.getRotation(), boneTransforms.getScale());
 
+        addToCache("nodes", nodeIndex, new BoneWrapper(bone, boneIndex, skinIndex, inverseBindMatrix), nodes.size());
+//
+//        System.err.println(bone.getName() + " " + inverseBindMatrix);
+//        tmpTransforms.fromTransformMatrix(inverseBindMatrix);
+//        System.err.println("t: " + tmpTransforms.getTranslation());
+//        System.err.println("r: " + tmpTransforms.getRotation());
+//        Quaternion q = tmpTransforms.getRotation();
+//        float[] axis = new float[3];
+//        q.toAngles(axis);
+//        for (int i = 0; i < axis.length; i++) {
+//            System.err.print(axis[i] + ", ");
+//        }
+//        System.err.println("");
+//        System.err.println("s: " + tmpTransforms.getScale());
 
-        addToCache("nodes", nodeIndex, bone, nodes.size());
         return bone;
     }
 
     private void findChildren(int nodeIndex) {
-        Bone bone = fetchFromCache("nodes", nodeIndex, Bone.class);
+        BoneWrapper bw = fetchFromCache("nodes", nodeIndex, BoneWrapper.class);
         JsonObject nodeData = nodes.get(nodeIndex).getAsJsonObject();
         JsonArray children = nodeData.getAsJsonArray("children");
         if (children != null) {
             for (JsonElement child : children) {
-                bone.addChild(fetchFromCache("nodes", child.getAsInt(), Bone.class));
+                int childIndex = child.getAsInt();
+                BoneWrapper cbw = fetchFromCache("nodes", childIndex, BoneWrapper.class);
+                if (cbw != null) {
+                    bw.bone.addChild(cbw.bone);
+                    bw.children.add(childIndex);
+                }
             }
         }
     }
 
     private void setupControls() {
-        for (Skeleton skeleton : skinnedSpatials.keySet()) {
-            List<Spatial> spatials = skinnedSpatials.get(skeleton);
-            Spatial spatial = null;
+        for (SkinData skinData : skinnedSpatials.keySet()) {
+            List<Spatial> spatials = skinnedSpatials.get(skinData);
+            Spatial spatial;
             if (spatials.size() >= 1) {
                 spatial = findCommonAncestor(spatials);
             } else {
                 spatial = spatials.get(0);
             }
-            SkeletonControl control = new SkeletonControl(skeleton);
-            spatial.addControl(control);
+
+            AnimControl animControl = spatial.getControl(AnimControl.class);
+            if (animControl != null) {
+                //The spatial already has an anim control, we need to merge it with the one in skinData. Then remove it.
+                for (String name : animControl.getAnimationNames()) {
+                    Animation anim = animControl.getAnim(name);
+                    skinData.animControl.addAnim(anim);
+                }
+                spatial.removeControl(animControl);
+            }
+
+            spatial.addControl(skinData.animControl);
+            spatial.addControl(skinData.skeletonControl);
         }
     }
 
@@ -805,6 +901,43 @@ public class GltfLoader implements AssetLoader {
         float[] weights;
     }
 
+    private class BoneWrapper {
+        Bone bone;
+        int boneIndex;
+        int skinIndex;
+        Matrix4f bindMatrix = new Matrix4f();
+        List<Integer> children = new ArrayList<>();
+
+        public BoneWrapper(Bone bone, int boneIndex, int skinIndex, Matrix4f inverseBindMatrix) {
+            this.bone = bone;
+            this.boneIndex = boneIndex;
+            this.skinIndex = skinIndex;
+            this.bindMatrix.set(inverseBindMatrix).invertLocal();
+        }
+
+        /**
+         * Applies the inverseBindMatrix to anim data.
+         */
+        public void update(AnimData data) {
+            Transform invBind = new Transform(bone.getBindPosition(), bone.getBindRotation(), bone.getBindScale());
+            invBind = invBind.invert();
+            //invBind.fromTransformMatrix(bindMatrix);
+            for (int i = 0; i < data.translations.length; i++) {
+                Transform t = new Transform(data.translations[i], data.rotations[i], data.scales[i]);
+                t.combineWithParent(invBind);
+                data.translations[i] = t.getTranslation();
+                data.rotations[i] = t.getRotation();
+                data.scales[i] = t.getScale();
+
+            }
+        }
+    }
+
+    private class SkinData {
+        SkeletonControl skeletonControl;
+        AnimControl animControl;
+    }
+
     private interface Populator<T> {
         T populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException;
     }
@@ -836,7 +969,6 @@ public class GltfLoader implements AssetLoader {
                 numComponents = 3;
             }
             vb.setupData(VertexBuffer.Usage.Dynamic, numComponents, format, buff);
-
 
             return vb;
         }
