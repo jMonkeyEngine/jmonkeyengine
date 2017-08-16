@@ -153,12 +153,15 @@ public class GltfLoader implements AssetLoader {
         }
 
         //update skeletons
-        for (int i = 0; i < skins.size(); i++) {
-            SkinData sd = fetchFromCache("skins", i, SkinData.class);
-            sd.skeletonControl.getSkeleton().resetAndUpdate();
-            sd.skeletonControl.getSkeleton().setBindingPose();
+        if (skins != null) {
+            for (int i = 0; i < skins.size(); i++) {
+                SkinData sd = fetchFromCache("skins", i, SkinData.class);
+                //reset to bind pose and update model transforms of each bones.
+                sd.skeletonControl.getSkeleton().resetAndUpdate();
+                //Compute sthe inverse bind transforms needed for skinning.
+                sd.skeletonControl.getSkeleton().setBindingPose();
+            }
         }
-        //applyTransformsToArmature(rootBone, rootBoneTransforms);
 
         //Setting the default scene cul hint to inherit.
         int activeChild = 0;
@@ -230,7 +233,6 @@ public class GltfLoader implements AssetLoader {
     }
 
     private void readChild(Spatial parent, JsonElement nodeIndex) throws IOException {
-        int index = nodeIndex.getAsInt();
         Object loaded = readNode(nodeIndex.getAsInt());
         if (loaded instanceof Spatial) {
             Spatial spatial = ((Spatial) loaded);
@@ -243,28 +245,12 @@ public class GltfLoader implements AssetLoader {
                 }
             }
         } else if (loaded instanceof BoneWrapper) {
-            //parent is the Armature Node, we have to apply its transforms to all the Bones' bind pose
+            //parent is the Armature Node, we have to apply its transforms to the root bone's bind pose and to its animation data
             BoneWrapper bw = (BoneWrapper) loaded;
-            //TODO this part is still not working properly.
-            //   applyTransformsToArmature(bw, parent.getWorldTransform());
             bw.isRoot = true;
             SkinData skinData = fetchFromCache("skins", bw.skinIndex, SkinData.class);
             skinData.armatureTransforms = parent.getLocalTransform();
         }
-
-    }
-
-
-    private void applyTransformsToArmature(BoneWrapper boneWrapper, Transform transforms) {
-
-        Bone bone = boneWrapper.bone;
-        tmpTransforms.setTranslation(bone.getBindPosition());
-        tmpTransforms.setRotation(bone.getBindRotation());
-        tmpTransforms.setScale(bone.getBindScale());
-
-        tmpTransforms.combineWithParent(transforms);
-
-        bone.setBindTransforms(tmpTransforms.getTranslation(), tmpTransforms.getRotation(), tmpTransforms.getScale());
 
     }
 
@@ -381,7 +367,6 @@ public class GltfLoader implements AssetLoader {
             geomArray[index] = geom;
             index++;
 
-            //TODO skins
             //TODO targets(morph anim...)
         }
 
@@ -748,40 +733,21 @@ public class GltfLoader implements AssetLoader {
         for (int index = 0; index < skins.size(); index++) {
             JsonObject skin = skins.get(index).getAsJsonObject();
 
-            //each skin is a skeleton.
-            Integer rootIndex = getAsInteger(skin, "skeleton");
+            //Note that the "skeleton" index is intentionally ignored.
+            //It's not mandatory and exporters tends to mix up how it should be used because the specs are not clear.
+            //Anyway we have other means to detect both armature structures and root bones.
+
             JsonArray joints = skin.getAsJsonArray("joints");
             assertNotNull(joints, "No joints defined for skin");
-            Integer matricesIndex = getAsInteger(skin, "inverseBindMatrices");
-            Matrix4f[] inverseBindMatrices = null;
-            if (matricesIndex != null) {
-                inverseBindMatrices = readAccessorData(matricesIndex, matrix4fArrayPopulator);
-            } else {
-                inverseBindMatrices = new Matrix4f[joints.size()];
-                for (int i = 0; i < inverseBindMatrices.length; i++) {
-                    inverseBindMatrices[i] = new Matrix4f();
-                }
-            }
 
-            boolean addRootIndex = true;
+            //inverseBindMatrices are also intentionally ignored. JME computes them from the bind transforms when initializing the skeleton.
+            //Integer matricesIndex = getAsInteger(skin, "inverseBindMatrices");
+
             Bone[] bones = new Bone[joints.size()];
             for (int i = 0; i < joints.size(); i++) {
                 int boneIndex = joints.get(i).getAsInt();
-                if (boneIndex == rootIndex) {
-                    addRootIndex = false;
-                }
+                //TODO actually a regular node or a geometry can be attached to a bone, we have to handle this and attach it to the AttachementNode.
                 bones[i] = readNodeAsBone(boneIndex, i, index);
-            }
-
-            if (addRootIndex) {
-                //sometimes the root bone is not part of the joint array. in that case we add it at the end of the bone list.
-                //The bone won't deform the mesh, but that's pretty common with the root bone.
-                Bone[] newBones = new Bone[bones.length + 1];
-                System.arraycopy(bones, 0, newBones, 0, bones.length);
-                //TODO actually a regular node or a geometry can be attached to a bone, we have to handle this and attach it ti the AttachementNode.
-                newBones[bones.length] = readNodeAsBone(rootIndex, bones.length, index);
-                findChildren(rootIndex);
-                bones = newBones;
             }
 
             for (int i = 0; i < joints.size(); i++) {
@@ -815,19 +781,6 @@ public class GltfLoader implements AssetLoader {
         bone.setBindTransforms(boneTransforms.getTranslation(), boneTransforms.getRotation(), boneTransforms.getScale());
 
         addToCache("nodes", nodeIndex, new BoneWrapper(bone, boneIndex, skinIndex), nodes.size());
-//
-//        System.err.println(bone.getName() + " " + inverseBindMatrix);
-//        tmpTransforms.fromTransformMatrix(inverseBindMatrix);
-//        System.err.println("t: " + tmpTransforms.getTranslation());
-//        System.err.println("r: " + tmpTransforms.getRotation());
-//        Quaternion q = tmpTransforms.getRotation();
-//        float[] axis = new float[3];
-//        q.toAngles(axis);
-//        for (int i = 0; i < axis.length; i++) {
-//            System.err.print(axis[i] + ", ");
-//        }
-//        System.err.println("");
-//        System.err.println("s: " + tmpTransforms.getScale());
 
         return bone;
     }
@@ -842,7 +795,6 @@ public class GltfLoader implements AssetLoader {
                 BoneWrapper cbw = fetchFromCache("nodes", childIndex, BoneWrapper.class);
                 if (cbw != null) {
                     bw.bone.addChild(cbw.bone);
-                    //bw.children.add(childIndex);
                 }
             }
         }
@@ -901,6 +853,7 @@ public class GltfLoader implements AssetLoader {
         Vector3f[] translations;
         Quaternion[] rotations;
         Vector3f[] scales;
+        //not used for now
         float[] weights;
     }
 
@@ -917,7 +870,7 @@ public class GltfLoader implements AssetLoader {
         }
 
         /**
-         * Applies the inverseBindMatrix to anim data.
+         * Applies the inverse Bind transforms to anim data. and the armature transforms if relevant.
          */
         public void update(AnimData data) {
             Transform bindTransforms = new Transform(bone.getBindPosition(), bone.getBindRotation(), bone.getBindScale());
