@@ -105,25 +105,25 @@ public class TestGltfLoading extends SimpleApplication {
 //        PointLight pl1 = new PointLight(new Vector3f(-5.0f, -5.0f, -5.0f), ColorRGBA.White.mult(0.5f), 50);
 //        rootNode.addLight(pl1);
 
-//        loadModel("Models/gltf/box/box.gltf", Vector3f.ZERO, 1);
-//        loadModel("Models/gltf/duck/Duck.gltf", new Vector3f(0, -1, 0), 1);
-        //loadModel("Models/gltf/damagedHelmet/damagedHelmet.gltf", Vector3f.ZERO, 1);
-        //loadModel("Models/gltf/hornet/scene.gltf", new Vector3f(0, -0.5f, 0), 0.4f);
+        loadModel("Models/gltf/box/box.gltf", Vector3f.ZERO, 1);
+        loadModel("Models/gltf/duck/Duck.gltf", new Vector3f(0, -1, 0), 1);
+        loadModel("Models/gltf/damagedHelmet/damagedHelmet.gltf", Vector3f.ZERO, 1);
+        loadModel("Models/gltf/hornet/scene.gltf", new Vector3f(0, -0.5f, 0), 0.4f);
 //        loadModel("Models/gltf/adamHead/adamHead.gltf", Vector3f.ZERO, 0.6f);
-        //loadModel("Models/gltf/busterDrone/busterDrone.gltf", new Vector3f(0, 0f, 0), 0.8f);
-        //loadModel("Models/gltf/animatedCube/AnimatedCube.gltf", Vector3f.ZERO, 0.5f);
+        loadModel("Models/gltf/busterDrone/busterDrone.gltf", new Vector3f(0, 0f, 0), 0.8f);
+        loadModel("Models/gltf/animatedCube/AnimatedCube.gltf", Vector3f.ZERO, 0.5f);
 
         //TODO need to pad tracks that doesn't have the same length than the animation.
         //loadModel("Models/gltf/BoxAnimated/BoxAnimated.gltf", new Vector3f(0, 0f, 0), 0.8f);
 
-        //loadModel("Models/gltf/RiggedFigure/RiggedSimple.gltf", new Vector3f(0, -0.3f, 0), 0.2f);
-        //loadModel("Models/gltf/RiggedFigure/RiggedFigure.gltf", new Vector3f(0, -1f, 0), 1f);
-        //loadModel("Models/gltf/CesiumMan/CesiumMan.gltf", new Vector3f(0, -1, 0), 1f);
-        //loadModel("Models/gltf/BrainStem/BrainStem.gltf", new Vector3f(0, -1, 0), 1f);
+        loadModel("Models/gltf/RiggedFigure/RiggedSimple.gltf", new Vector3f(0, -0.3f, 0), 0.2f);
+        loadModel("Models/gltf/RiggedFigure/RiggedFigure.gltf", new Vector3f(0, -1f, 0), 1f);
+        loadModel("Models/gltf/CesiumMan/CesiumMan.gltf", new Vector3f(0, -1, 0), 1f);
+        loadModel("Models/gltf/BrainStem/BrainStem.gltf", new Vector3f(0, -1, 0), 1f);
         //loadModel("Models/gltf/Jaime/Jaime.gltf", new Vector3f(0, -1, 0), 1f);
         //loadModel("Models/gltf/GiantWorm/GiantWorm.gltf", new Vector3f(0, -1, 0), 1f);
         //loadModel("Models/gltf/RiggedFigure/WalkingLady.gltf", new Vector3f(0, -0.f, 0), 1f);
-//        loadModel("Models/gltf/Monster/Monster.gltf", Vector3f.ZERO, 0.03f);
+        loadModel("Models/gltf/Monster/Monster.gltf", Vector3f.ZERO, 0.03f);
 
 
         probeNode.attachChild(assets.get(0));
@@ -145,7 +145,6 @@ public class TestGltfLoading extends SimpleApplication {
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (isPressed) {
                     useAutoRotate = !useAutoRotate;
-
                 }
             }
         }, "autorotate");
