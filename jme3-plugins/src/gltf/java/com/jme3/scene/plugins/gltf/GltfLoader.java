@@ -11,6 +11,8 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.*;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.util.BufferUtils;
+import com.jme3.util.IntMap;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 import java.io.*;
@@ -50,13 +52,12 @@ public class GltfLoader implements AssetLoader {
     private FloatArrayPopulator floatArrayPopulator = new FloatArrayPopulator();
     private Vector3fArrayPopulator vector3fArrayPopulator = new Vector3fArrayPopulator();
     private QuaternionArrayPopulator quaternionArrayPopulator = new QuaternionArrayPopulator();
-    private Matrix4fArrayPopulator matrix4fArrayPopulator = new Matrix4fArrayPopulator();
     private static Map<String, MaterialAdapter> defaultMaterialAdapters = new HashMap<>();
     private boolean useNormalsFlag = false;
-    private Transform tmpTransforms = new Transform();
     private Quaternion tmpQuat = new Quaternion();
 
     Map<SkinData, List<Spatial>> skinnedSpatials = new HashMap<>();
+    IntMap<SkinBuffers> skinBuffers = new IntMap<>();
 
     static {
         defaultMaterialAdapters.put("pbrMetallicRoughness", new PBRMaterialAdapter());
@@ -323,9 +324,29 @@ public class GltfLoader implements AssetLoader {
             }
             JsonObject attributes = meshObject.getAsJsonObject("attributes");
             assertNotNull(attributes, "No attributes defined for mesh " + mesh);
+
+            skinBuffers.clear();
+
             for (Map.Entry<String, JsonElement> entry : attributes.entrySet()) {
-                mesh.setBuffer(readAccessorData(entry.getValue().getAsInt(), new VertexBufferPopulator(getVertexBufferType(entry.getKey()))));
+                //special case for joints and weights buffer. If there are more than 4 bones per vertex, there might be several of them
+                //we need to read them all and to keep only the 4 that have the most weight on the vertex.
+                String bufferType = entry.getKey();
+                if (bufferType.startsWith("JOINTS")) {
+                    SkinBuffers buffs = getSkinBuffers(bufferType);
+                    SkinBuffers buffer = readAccessorData(entry.getValue().getAsInt(), new JointArrayPopulator());
+                    buffs.joints = buffer.joints;
+                    buffs.componentSize = buffer.componentSize;
+                } else if (bufferType.startsWith("WEIGHTS")) {
+                    SkinBuffers buffs = getSkinBuffers(bufferType);
+                    buffs.weights = readAccessorData(entry.getValue().getAsInt(), new FloatArrayPopulator());
+                } else {
+                    VertexBuffer vb = readAccessorData(entry.getValue().getAsInt(), new VertexBufferPopulator(getVertexBufferType(bufferType)));
+                    if (vb != null) {
+                        mesh.setBuffer(vb);
+                    }
+                }
             }
+            handleSkinningBuffers(mesh, skinBuffers);
 
             if (mesh.getBuffer(VertexBuffer.Type.BoneIndex) != null) {
                 //the mesh has some skinning let's create needed buffers for HW skinning
@@ -374,6 +395,28 @@ public class GltfLoader implements AssetLoader {
         return geomArray;
     }
 
+    public static class WeightData {
+        float value;
+        short index;
+        int componentSize;
+
+        public WeightData(float value, short index, int componentSize) {
+            this.value = value;
+            this.index = index;
+            this.componentSize = componentSize;
+        }
+    }
+
+    private SkinBuffers getSkinBuffers(String bufferType) {
+        int bufIndex = getIndex(bufferType);
+        SkinBuffers buffs = skinBuffers.get(bufIndex);
+        if (buffs == null) {
+            buffs = new SkinBuffers();
+            skinBuffers.put(bufIndex, buffs);
+        }
+        return buffs;
+    }
+
     private <R> R readAccessorData(int accessorIndex, Populator<R> populator) throws IOException {
 
         assertNotNull(accessors, "No accessor attribute in the gltf file");
@@ -399,8 +442,7 @@ public class GltfLoader implements AssetLoader {
         return populator.populate(bufferViewIndex, componentType, type, count, byteOffset);
     }
 
-    private void readBuffer(Integer bufferViewIndex, int byteOffset, int bufferSize, Object store, int numComponents) throws IOException {
-
+    private void readBuffer(Integer bufferViewIndex, int byteOffset, int bufferSize, Object store, int numComponents, int componentSize) throws IOException {
 
         JsonObject bufferView = bufferViews.get(bufferViewIndex).getAsJsonObject();
         Integer bufferIndex = getAsInteger(bufferView, "buffer");
@@ -415,7 +457,7 @@ public class GltfLoader implements AssetLoader {
         //int target = getAsInteger(bufferView, "target", 0);
 
         byte[] data = readData(bufferIndex);
-        populateBuffer(store, data, bufferSize, byteOffset + bvByteOffset, byteStride, numComponents);
+        populateBuffer(store, data, bufferSize, byteOffset + bvByteOffset, byteStride, numComponents, componentSize);
 
         //TODO extensions?
         //TODO extras?
@@ -606,7 +648,15 @@ public class GltfLoader implements AssetLoader {
                 //check if we are loading the same time array
                 //TODO specs actually don't forbid this...maybe remove this check and handle it.
                 if (animData.times != times) {
-                    throw new AssetLoadException("Channel has different input accessors for samplers");
+                    logger.log(Level.WARNING, "Channel has different input accessors for samplers");
+//                    for (float time : animData.times) {
+//                        System.err.print(time + ", ");
+//                    }
+//                    System.err.println("");
+//                    for (float time : times) {
+//                        System.err.print(time + ", ");
+//                    }
+//                    System.err.println("");
                 }
             }
             if (animData.length == null) {
@@ -623,7 +673,6 @@ public class GltfLoader implements AssetLoader {
                 Quaternion[] rotations = readAccessorData(dataIndex, quaternionArrayPopulator);
                 animData.rotations = rotations;
             }
-
         }
 
         if (name == null) {
@@ -911,6 +960,20 @@ public class GltfLoader implements AssetLoader {
         Transform armatureTransforms;
     }
 
+    public static class SkinBuffers {
+        short[] joints;
+        float[] weights;
+        int componentSize;
+
+        public SkinBuffers(short[] joints, int componentSize) {
+            this.joints = joints;
+            this.componentSize = componentSize;
+        }
+
+        public SkinBuffers() {
+        }
+    }
+
     private interface Populator<T> {
         T populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException;
     }
@@ -925,6 +988,11 @@ public class GltfLoader implements AssetLoader {
         @Override
         public VertexBuffer populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException {
 
+            if (bufferType == null) {
+                logger.log(Level.WARNING, "could not assign data to any VertexBuffer type for buffer view " + bufferViewIndex);
+                return null;
+            }
+
             VertexBuffer vb = new VertexBuffer(bufferType);
             VertexBuffer.Format format = getVertexBufferFormat(componentType);
             int numComponents = getNumberOfComponents(type);
@@ -935,7 +1003,7 @@ public class GltfLoader implements AssetLoader {
                 //no referenced buffer, specs says to pad the buffer with zeros.
                 padBuffer(buff, bufferSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, bufferSize, buff, numComponents);
+                readBuffer(bufferViewIndex, byteOffset, bufferSize, buff, numComponents, format.getComponentSize());
             }
 
             if (bufferType == VertexBuffer.Type.Index) {
@@ -955,13 +1023,13 @@ public class GltfLoader implements AssetLoader {
 
             int numComponents = getNumberOfComponents(type);
             int dataSize = numComponents * count;
-            float[] data = new float[count];
+            float[] data = new float[dataSize];
 
             if (bufferViewIndex == null) {
                 //no referenced buffer, specs says to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents);
+                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, 4);
             }
 
             return data;
@@ -982,9 +1050,8 @@ public class GltfLoader implements AssetLoader {
                 //no referenced buffer, specs says to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents);
+                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, 4);
             }
-
             return data;
         }
     }
@@ -1002,30 +1069,47 @@ public class GltfLoader implements AssetLoader {
                 //no referenced buffer, specs says to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents);
+                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, 4);
             }
 
             return data;
         }
     }
 
-    private class Matrix4fArrayPopulator implements Populator<Matrix4f[]> {
+    private class JointData {
+        short[] joints;
+        int componentSize;
+
+        public JointData(short[] joints, int componentSize) {
+            this.joints = joints;
+            this.componentSize = componentSize;
+        }
+    }
+
+    private class JointArrayPopulator implements Populator<SkinBuffers> {
 
         @Override
-        public Matrix4f[] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException {
+        public SkinBuffers populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException {
 
             int numComponents = getNumberOfComponents(type);
+
+            //can be bytes or shorts.
+            int componentSize = 1;
+            if (componentType == 5123) {
+                componentSize = 2;
+            }
+
             int dataSize = numComponents * count;
-            Matrix4f[] data = new Matrix4f[count];
+            short[] data = new short[dataSize];
 
             if (bufferViewIndex == null) {
                 //no referenced buffer, specs says to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents);
+                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, componentSize);
             }
 
-            return data;
+            return new SkinBuffers(data, componentSize);
         }
     }
 }
