@@ -14,6 +14,7 @@ import com.jme3.texture.Texture2D;
 import com.jme3.util.IntMap;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.Buffer;
 import java.util.*;
@@ -466,10 +467,8 @@ public class GltfLoader implements AssetLoader {
         assertNotNull(bufferLength, "No byteLength defined for buffer " + bufferIndex);
         if (uri != null) {
             if (uri.startsWith("data:")) {
-                //inlined base64 data
-                //data:<mimeType>;base64,<base64 data>
-                //TODO handle inlined base64
-                throw new AssetLoadException("Inlined base64 data is not supported yet");
+                //base 64 embed data
+                return DatatypeConverter.parseBase64Binary(uri.substring(uri.indexOf(",") + 1));
             } else {
                 //external file let's load it
                 if (!uri.endsWith(".bin")) {
@@ -567,10 +566,15 @@ public class GltfLoader implements AssetLoader {
             //TODO support images embed in a buffer
             throw new AssetLoadException("Images embed in a buffer are not supported yet");
         } else if (uri.startsWith("data:")) {
-            //base64 encoded image, not supported yet
-            //TODO support base64 encoded images
-            throw new AssetLoadException("Base64 encoded embed images are not supported yet");
+            //base64 encoded image
+            String[] uriInfo = uri.split(",");
+            byte[] data = DatatypeConverter.parseBase64Binary(uriInfo[1]);
+            String headerInfo = uriInfo[0].split(";")[0];
+            String extension = headerInfo.split("/")[1];
+            TextureKey key = new TextureKey("image" + sourceIndex + "." + extension, false);
+            return (Texture2D) info.getManager().loadAssetFromStream(key, new ByteArrayInputStream(data));
         } else {
+            //external file image
             TextureKey key = new TextureKey(info.getKey().getFolder() + uri, false);
             Texture tex = info.getManager().loadTexture(key);
             return (Texture2D) tex;
