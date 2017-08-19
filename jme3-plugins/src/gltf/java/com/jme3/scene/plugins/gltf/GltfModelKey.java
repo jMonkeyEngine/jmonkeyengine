@@ -11,6 +11,7 @@ import java.util.Map;
 public class GltfModelKey extends ModelKey {
 
     private Map<String, MaterialAdapter> materialAdapters = new HashMap<>();
+    private boolean keepSkeletonPose = false;
 
     public GltfModelKey(String name) {
         super(name);
@@ -25,5 +26,13 @@ public class GltfModelKey extends ModelKey {
 
     public MaterialAdapter getAdapterForMaterial(String gltfMaterialName) {
         return materialAdapters.get(gltfMaterialName);
+    }
+
+    public boolean isKeepSkeletonPose() {
+        return keepSkeletonPose;
+    }
+
+    public void setKeepSkeletonPose(boolean keepSkeletonPose) {
+        this.keepSkeletonPose = keepSkeletonPose;
     }
 }

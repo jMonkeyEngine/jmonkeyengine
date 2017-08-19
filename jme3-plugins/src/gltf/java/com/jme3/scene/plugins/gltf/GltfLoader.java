@@ -156,17 +156,6 @@ public class GltfLoader implements AssetLoader {
             }
         }
 
-        //update skeletons
-        if (skins != null) {
-            for (int i = 0; i < skins.size(); i++) {
-                SkinData sd = fetchFromCache("skins", i, SkinData.class);
-                //reset to bind pose and update model transforms of each bones.
-                sd.skeletonControl.getSkeleton().resetAndUpdate();
-                //Compute sthe inverse bind transforms needed for skinning.
-                sd.skeletonControl.getSkeleton().setBindingPose();
-            }
-        }
-
         //Setting the default scene cul hint to inherit.
         int activeChild = 0;
         if (defaultScene != null) {
@@ -515,10 +504,8 @@ public class GltfLoader implements AssetLoader {
             logger.log(Level.WARNING, "Unable to find any pbrMetallicRoughness material entry in material " + materialIndex + ". Only PBR material is supported for now");
             return defaultMat;
         }
-        MaterialAdapter adapter = null;
-        if (info.getKey() instanceof GltfModelKey) {
-            adapter = ((GltfModelKey) info.getKey()).getAdapterForMaterial("pbrMetallicRoughness");
-        }
+
+        MaterialAdapter adapter = getAdapterForMaterial(info, "pbrMetallicRoughness");
         if (adapter == null) {
             adapter = defaultMaterialAdapters.get("pbrMetallicRoughness");
         }
@@ -820,9 +807,18 @@ public class GltfLoader implements AssetLoader {
 
             Skeleton skeleton = new Skeleton(bones);
 
+            //Compute bind transforms. We need to do it from root bone to leaves bone.
             for (Bone bone : skeleton.getRoots()) {
                 BoneWrapper bw = findBoneWrapper(bone);
                 computeBindTransforms(bw, skeleton);
+            }
+
+            if (isKeepSkeletonPose(info)) {
+                //Set local transforms. The skeleton may come in a given pose, that is not the rest pose, so let's apply it.
+                for (int i = 0; i < joints.size(); i++) {
+                    applyPose(joints.get(i).getAsInt());
+                }
+                skeleton.updateWorldVectors();
             }
 
             SkinData skinData = new SkinData();
@@ -830,6 +826,14 @@ public class GltfLoader implements AssetLoader {
             addToCache("skins", index, skinData, nodes.size());
             skinnedSpatials.put(skinData, new ArrayList<Spatial>());
         }
+    }
+
+    private void applyPose(int index) {
+        BoneWrapper bw = fetchFromCache("nodes", index, BoneWrapper.class);
+        bw.bone.setUserControl(true);
+        bw.bone.setLocalTranslation(bw.localTransform.getTranslation());
+        bw.bone.setLocalRotation(bw.localTransform.getRotation());
+        bw.bone.setLocalScale(bw.localTransform.getScale());
     }
 
     private void computeBindTransforms(BoneWrapper boneWrapper, Skeleton skeleton) {
@@ -880,10 +884,11 @@ public class GltfLoader implements AssetLoader {
             name = "Bone_" + nodeIndex;
         }
         Bone bone = new Bone(name);
-        Transform boneTransforms = readTransforms(nodeData);
-        bone.setBindTransforms(boneTransforms.getTranslation(), boneTransforms.getRotation(), boneTransforms.getScale());
-
-        addToCache("nodes", nodeIndex, new BoneWrapper(bone, boneIndex, skinIndex, modelBindMatrix), nodes.size());
+        Transform boneTransforms = null;
+        if (isKeepSkeletonPose(info)) {
+            boneTransforms = readTransforms(nodeData);
+        }
+        addToCache("nodes", nodeIndex, new BoneWrapper(bone, boneIndex, skinIndex, modelBindMatrix, boneTransforms), nodes.size());
 
         return bone;
     }
@@ -965,15 +970,17 @@ public class GltfLoader implements AssetLoader {
         Bone bone;
         int boneIndex;
         int skinIndex;
+        Transform localTransform;
         Matrix4f modelBindMatrix;
         boolean isRoot = false;
         List<Integer> children = new ArrayList<>();
 
-        public BoneWrapper(Bone bone, int boneIndex, int skinIndex, Matrix4f modelBindMatrix) {
+        public BoneWrapper(Bone bone, int boneIndex, int skinIndex, Matrix4f modelBindMatrix, Transform localTransform) {
             this.bone = bone;
             this.boneIndex = boneIndex;
             this.skinIndex = skinIndex;
             this.modelBindMatrix = modelBindMatrix;
+            this.localTransform = localTransform;
         }
 
         /**
