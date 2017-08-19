@@ -636,17 +636,10 @@ public class GltfLoader implements AssetLoader {
                 animData.times = times;
             } else {
                 //check if we are loading the same time array
-                //TODO specs actually don't forbid this...maybe remove this check and handle it.
                 if (animData.times != times) {
+                    //TODO there might be work to do here... if the inputs are different we might want to merge the different times array...
+                    //easier said than done.
                     logger.log(Level.WARNING, "Channel has different input accessors for samplers");
-//                    for (float time : animData.times) {
-//                        System.err.print(time + ", ");
-//                    }
-//                    System.err.println("");
-//                    for (float time : times) {
-//                        System.err.print(time + ", ");
-//                    }
-//                    System.err.println("");
                 }
             }
             if (animData.length == null) {
@@ -682,6 +675,7 @@ public class GltfLoader implements AssetLoader {
             if (animData.length > anim.getLength()) {
                 anim.setLength(animData.length);
             }
+            animData.update();
             Object node = fetchFromCache("nodes", i, Object.class);
             if (node instanceof Spatial) {
                 Spatial s = (Spatial) node;
@@ -964,6 +958,37 @@ public class GltfLoader implements AssetLoader {
         Vector3f[] scales;
         //not used for now
         float[] weights;
+
+        public void update() {
+            if (times[0] > 0) {
+                //Anim doesn't start at 0, JME can't handle that and will interpolate transforms linearly from 0 to the first frame of the anim.
+                //we need to add a frame at 0 that copies the first real frame
+
+                float[] newTimes = new float[times.length + 1];
+                newTimes[0] = 0f;
+                System.arraycopy(times, 0, newTimes, 1, times.length);
+                times = newTimes;
+
+                if (translations != null) {
+                    Vector3f[] newTranslations = new Vector3f[translations.length + 1];
+                    newTranslations[0] = translations[0];
+                    System.arraycopy(translations, 0, newTranslations, 1, translations.length);
+                    translations = newTranslations;
+                }
+                if (rotations != null) {
+                    Quaternion[] newRotations = new Quaternion[rotations.length + 1];
+                    newRotations[0] = rotations[0];
+                    System.arraycopy(rotations, 0, newRotations, 1, rotations.length);
+                    rotations = newRotations;
+                }
+                if (scales != null) {
+                    Vector3f[] newScales = new Vector3f[scales.length + 1];
+                    newScales[0] = scales[0];
+                    System.arraycopy(scales, 0, newScales, 1, scales.length);
+                    scales = newScales;
+                }
+            }
+        }
     }
 
     private class BoneWrapper {
