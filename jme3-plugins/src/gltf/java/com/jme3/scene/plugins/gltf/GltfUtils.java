@@ -1,6 +1,7 @@
 package com.jme3.scene.plugins.gltf;
 
 import com.google.gson.*;
+import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
@@ -493,6 +494,29 @@ public class GltfUtils {
                                       float m20, float m21, float m22, float m23,
                                       float m30, float m31, float m32, float m33) {
         return new Matrix4f(m00, m10, m20, m30, m01, m11, m21, m31, m02, m12, m22, m32, m03, m13, m23, m33);
+    }
+
+    public static GltfModelKey getKey(AssetInfo info) {
+        if (info.getKey() instanceof GltfModelKey) {
+            return (GltfModelKey) info.getKey();
+        }
+        return null;
+    }
+
+    public static MaterialAdapter getAdapterForMaterial(AssetInfo info, String defName) {
+        GltfModelKey key = getKey(info);
+        if (key == null) {
+            return null;
+        }
+        return key.getAdapterForMaterial(defName);
+    }
+
+    public static boolean isKeepSkeletonPose(AssetInfo info) {
+        GltfModelKey key = getKey(info);
+        if (key == null) {
+            return false;
+        }
+        return key.isKeepSkeletonPose();
     }
 
     private static LittleEndien getStream(byte[] buffer) {
