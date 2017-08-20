@@ -23,7 +23,10 @@ environment:
     secure: Ek2lqC2e19qQDRRdlvnYyLFBq3TNj6YwKTAPuJ2VElJsxi9lQg+9ZP+VbP4kbHTx6Zaa++vtmOuxLZL7gdILrEEPa1Jix2BBLBfcxBUxe6w=
 
 install:
-  - cmd: del C:\Users\appveyor\.gradle\caches\modules-2\modules-2.lock
+- cmd: >-
+    set GRADLE_LOCK=C:\Users\appveyor\.gradle\caches\modules-2\modules-2.lock
+
+    if exist %GRADLE_LOCK% del %GRADLE_LOCK%
 
 build_script:
   - cmd: gradlew.bat -PbuildNativeProjects=true :jme3-bullet-native:assemble
@@ -39,6 +42,10 @@ deploy: off
 on_success:
 - cmd: >-
     openssl aes-256-cbc -K %encrypted_f0a0b284e2e8_key% -iv %encrypted_f0a0b284e2e8_iv% -in private\key.enc -out c:\users\appveyor\.ssh\id_rsa -d
+
+    git config --global user.email "appveyor"
+
+    git config --global user.name "appveyor"
 
     git checkout -q %APPVEYOR_REPO_BRANCH%
 
