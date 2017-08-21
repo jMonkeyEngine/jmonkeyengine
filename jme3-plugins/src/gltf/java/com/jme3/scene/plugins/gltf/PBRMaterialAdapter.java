@@ -5,15 +5,10 @@ import com.jme3.material.*;
 /**
  * Created by Nehon on 08/08/2017.
  */
-public class PBRMaterialAdapter extends MaterialAdapter {
+public abstract class PBRMaterialAdapter extends MaterialAdapter {
 
 
     public PBRMaterialAdapter() {
-        addParamMapping("baseColorFactor", "BaseColor");
-        addParamMapping("baseColorTexture", "BaseColorMap");
-        addParamMapping("metallicFactor", "Metallic");
-        addParamMapping("roughnessFactor", "Roughness");
-        addParamMapping("metallicRoughnessTexture", "MetallicRoughnessMap");
         addParamMapping("normalTexture", "NormalMap");
         addParamMapping("occlusionTexture", "LightMap");
         addParamMapping("emissiveTexture", "EmissiveMap");
@@ -29,13 +24,13 @@ public class PBRMaterialAdapter extends MaterialAdapter {
     }
 
     @Override
-    protected MatParam adaptMatParam(Material mat, MatParam param) {
+    protected MatParam adaptMatParam(MatParam param) {
         if (param.getName().equals("alpha")) {
             String alphaMode = (String) param.getValue();
             switch (alphaMode) {
                 case "MASK":
                 case "BLEND":
-                    mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+                    getMaterial().getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
             }
             return null;
         }
@@ -43,13 +38,13 @@ public class PBRMaterialAdapter extends MaterialAdapter {
             boolean doubleSided = (boolean) param.getValue();
             if (doubleSided) {
                 //Note that this is not completely right as normals on the back side will be in the wrong direction.
-                mat.getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Off);
+                getMaterial().getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Off);
             }
             return null;
         }
         if (param.getName().equals("NormalMap")) {
             //Set the normal map type to OpenGl
-            mat.setFloat("NormalType", 1.0f);
+            getMaterial().setFloat("NormalType", 1.0f);
         }
 
 

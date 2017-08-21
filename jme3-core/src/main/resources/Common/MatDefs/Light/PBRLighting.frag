@@ -55,8 +55,15 @@ varying vec3 wPosition;
 #endif 
 
 #ifdef SPECGLOSSPIPELINE
-  uniform sampler2D m_SpecularMap;
-  uniform sampler2D m_GlossMap;
+
+  uniform vec4 m_Specular;
+  uniform float m_Glossiness;
+  #ifdef USE_PACKED_SG
+    uniform sampler2D m_SpecularGlossinessMap;
+  #else
+    uniform sampler2D m_SpecularMap;
+    uniform sampler2D m_GlossinessMap;
+  #endif
 #endif
 
 #ifdef PARALLAXMAP
@@ -160,9 +167,26 @@ void main(){
 
     float specular = 0.5;
     #ifdef SPECGLOSSPIPELINE
-          vec4 specularColor = texture2D(m_SpecularMap, newTexCoord);
-          vec4 diffuseColor = albedo;
-          Roughness = 1.0 - texture2D(m_GlossMap, newTexCoord).r;          
+
+        #ifdef USE_PACKED_SG
+            vec4 specularColor = texture2D(m_SpecularGlossinessMap, newTexCoord);
+            float glossiness = specularColor.a * m_Glossiness;
+            specularColor *= m_Specular;
+        #else
+            #ifdef SPECULARMAP
+                vec4 specularColor = texture2D(m_SpecularMap, newTexCoord);
+            #else
+                vec4 specularColor = vec4(1.0);
+            #endif
+            #ifdef GLOSSINESSMAP
+                float glossiness = texture2D(m_GlossinesMap, newTexCoord).r * m_Glossiness;
+            #else
+                float glossiness = m_Glossiness;
+            #endif
+            specularColor *= m_Specular;
+        #endif
+        vec4 diffuseColor = albedo * (1.0 - max(max(specularColor.r, specularColor.g), specularColor.b));
+        Roughness = 1.0 - glossiness;
     #else      
         float nonMetalSpec = 0.08 * specular;
         vec4 specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
