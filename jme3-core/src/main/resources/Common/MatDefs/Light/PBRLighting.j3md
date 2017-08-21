@@ -40,8 +40,12 @@ MaterialDef PBR Lighting {
         Float NormalType : -1.0
 
         // For Spec gloss pipeline
+        Boolean UseSpecGloss
         Texture2D SpecularMap
-        Texture2D GlossMap
+        Texture2D GlossinessMap
+        Texture2D SpecularGlossinessMap
+        Color Specular : 1.0 1.0 1.0 1.0
+        Float Glossiness : 1.0
 
         Vector4 ProbeData
 
@@ -135,7 +139,7 @@ MaterialDef PBR Lighting {
             ROUGHNESSMAP : RoughnessMap
             EMISSIVEMAP : EmissiveMap
             EMISSIVE : Emissive
-            SPECGLOSSPIPELINE : SpecularMap
+            SPECGLOSSPIPELINE : UseSpecGloss
             PARALLAXMAP : ParallaxMap
             NORMALMAP_PARALLAX : PackedNormalParallax
             STEEP_PARALLAX : SteepParallax
@@ -145,6 +149,9 @@ MaterialDef PBR Lighting {
             NUM_BONES : NumberOfBones                        
             INSTANCING : UseInstancing
             USE_PACKED_MR: MetallicRoughnessMap
+            USE_PACKED_SG: SpecularGlossinessMap
+            SPECULARMAP : SpecularMap
+            GLOSSINESSMAP : GlossinessMap
             NORMAL_TYPE: NormalType
             VERTEX_COLOR : UseVertexColor
         }

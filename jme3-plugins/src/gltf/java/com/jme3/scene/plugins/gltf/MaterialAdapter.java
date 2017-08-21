@@ -20,6 +20,8 @@ import java.util.Map;
 public abstract class MaterialAdapter {
 
     private Map<String, String> paramsMapping = new HashMap<>();
+    private Material mat;
+    private AssetManager assetManager;
 
     /**
      * Should return the material definition used by this material adapter
@@ -28,13 +30,24 @@ public abstract class MaterialAdapter {
      */
     protected abstract String getMaterialDefPath();
 
-    protected abstract MatParam adaptMatParam(Material mat, MatParam param);
+    protected abstract MatParam adaptMatParam(MatParam param);
 
-    public Material getMaterial(AssetManager assetManager) {
-        return new Material(assetManager, getMaterialDefPath());
+    protected void init(AssetManager assetManager) {
+        this.assetManager = assetManager;
     }
 
-    public void setParam(Material mat, String gltfParamName, Object value) {
+    void reset() {
+        mat = null;
+    }
+
+    protected Material getMaterial() {
+        if (mat == null) {
+            mat = new Material(assetManager, getMaterialDefPath());
+        }
+        return mat;
+    }
+
+    public void setParam(String gltfParamName, Object value) {
         String name = getJmeParamName(gltfParamName);
         if (name == null || value == null) {
             //no mapping registered or value is null, let's ignore this param
@@ -42,7 +55,7 @@ public abstract class MaterialAdapter {
         }
         MatParam param;
         if (value instanceof Texture) {
-            MatParam defParam = mat.getMaterialDef().getMaterialParam(name);
+            MatParam defParam = getMaterial().getMaterialDef().getMaterialParam(name);
             if (defParam == null) {
                 throw new AssetLoadException("Material definition " + getMaterialDefPath() + " has not param with name" + name);
             }
@@ -50,15 +63,15 @@ public abstract class MaterialAdapter {
                 throw new AssetLoadException("param with name" + name + "in material definition " + getMaterialDefPath() + " should be a texture param");
             }
             param = new MatParamTexture(VarType.Texture2D, name, (Texture) value, ((MatParamTexture) defParam).getColorSpace());
-            param = adaptMatParam(mat, param);
+            param = adaptMatParam(param);
             if (param != null) {
-                mat.setTextureParam(param.getName(), param.getVarType(), (Texture) param.getValue());
+                getMaterial().setTextureParam(param.getName(), param.getVarType(), (Texture) param.getValue());
             }
         } else {
             param = new MatParam(getVarType(value), name, value);
-            param = adaptMatParam(mat, param);
+            param = adaptMatParam(param);
             if (param != null) {
-                mat.setParam(param.getName(), param.getVarType(), param.getValue());
+                getMaterial().setParam(param.getName(), param.getVarType(), param.getValue());
             }
         }
     }
