@@ -7,8 +7,10 @@ import com.jme3.asset.*;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.*;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.*;
+import com.jme3.scene.control.CameraControl;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.IntMap;
@@ -45,6 +47,7 @@ public class GltfLoader implements AssetLoader {
     private JsonArray samplers;
     private JsonArray animations;
     private JsonArray skins;
+    private JsonArray cameras;
 
     private Material defaultMat;
     private AssetInfo info;
@@ -107,11 +110,12 @@ public class GltfLoader implements AssetLoader {
             samplers = docRoot.getAsJsonArray("samplers");
             animations = docRoot.getAsJsonArray("animations");
             skins = docRoot.getAsJsonArray("skins");
-
+            cameras = docRoot.getAsJsonArray("cameras");
 
             customContentManager.init(this);
 
             readSkins();
+            readCameras();
 
             JsonPrimitive defaultScene = docRoot.getAsJsonPrimitive("scene");
 
@@ -219,10 +223,16 @@ public class GltfLoader implements AssetLoader {
 
         } else {
             //no mesh, we have a node. Can be a camera node or a regular node.
-            //TODO handle camera nodes?
-            Node node = new Node();
-
-            spatial = node;
+            Integer camIndex = getAsInteger(nodeData, "camera");
+            if (camIndex != null) {
+                Camera cam = fetchFromCache("cameras", camIndex, Camera.class);
+                CameraNode node = new CameraNode(null, cam);
+                node.setControlDir(CameraControl.ControlDirection.SpatialToCamera);
+                spatial = node;
+            } else {
+                Node node = new Node();
+                spatial = node;
+            }
         }
 
         Integer skinIndex = getAsInteger(nodeData, "skin");
@@ -564,6 +574,51 @@ public class GltfLoader implements AssetLoader {
 
 
         return adapter.getMaterial();
+    }
+
+    public void readCameras() {
+        if (cameras == null) {
+            return;
+        }
+        for (int i = 0; i < cameras.size(); i++) {
+
+            //Can't access resolution here... actually it's a shame we can't access settings from anywhere.
+            //users will have to call resize ont he camera.
+            Camera cam = new Camera(1, 1);
+
+            JsonObject camObj = cameras.get(i).getAsJsonObject();
+            String type = getAsString(camObj, "type");
+            assertNotNull(type, "No type defined ofr camera");
+            JsonObject camData = camObj.getAsJsonObject(type);
+            if (type.equals("perspective")) {
+                float aspectRatio = getAsFloat(camData, "aspectRation", 1f);
+                Float yfov = getAsFloat(camData, "yfov");
+                assertNotNull(yfov, "No yfov for perspective camera");
+                Float znear = getAsFloat(camData, "znear");
+                assertNotNull(znear, "No znear for perspective camere");
+                Float zfar = getAsFloat(camData, "zfar", znear * 1000f);
+
+                cam.setFrustumPerspective(yfov * FastMath.RAD_TO_DEG, aspectRatio, znear, zfar);
+                cam = customContentManager.readExtension(camData, cam);
+
+            } else {
+                Float xmag = getAsFloat(camData, "xmag");
+                assertNotNull(xmag, "No xmag for orthographic camera");
+                Float ymag = getAsFloat(camData, "ymag");
+                assertNotNull(ymag, "No ymag for orthographic camera");
+                Float znear = getAsFloat(camData, "znear");
+                assertNotNull(znear, "No znear for orthographic camere");
+                Float zfar = getAsFloat(camData, "zfar", znear * 1000f);
+                assertNotNull(zfar, "No zfar for orthographic camere");
+
+                cam.setParallelProjection(true);
+                cam.setFrustum(znear, zfar, -xmag, xmag, ymag, -ymag);
+
+                cam = customContentManager.readExtension(camData, cam);
+            }
+
+            addToCache("cameras", i, cam, cameras.size());
+        }
     }
 
     public Texture2D readTexture(JsonObject texture) {
