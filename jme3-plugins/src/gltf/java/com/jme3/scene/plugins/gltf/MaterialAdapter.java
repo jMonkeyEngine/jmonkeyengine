@@ -34,6 +34,7 @@ public abstract class MaterialAdapter {
 
     protected void init(AssetManager assetManager) {
         this.assetManager = assetManager;
+        this.reset();
     }
 
     void reset() {
