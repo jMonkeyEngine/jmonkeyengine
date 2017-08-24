@@ -53,6 +53,8 @@ import com.jme3.util.IntMap.Entry;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+import com.sun.javaws.exceptions.InvalidArgumentException;
+
 import java.io.IOException;
 import java.nio.*;
 import java.util.ArrayList;
@@ -402,11 +404,20 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
             // convert indices to ubytes on the heap
             VertexBuffer indices = getBuffer(Type.BoneIndex);
             if (!indices.getData().hasArray()) {
-                ByteBuffer originalIndex = (ByteBuffer) indices.getData();
-                ByteBuffer arrayIndex = ByteBuffer.allocate(originalIndex.capacity());
-                originalIndex.clear();
-                arrayIndex.put(originalIndex);
-                indices.updateData(arrayIndex);
+                if (indices.getFormat() == Format.UnsignedByte) {
+                    ByteBuffer originalIndex = (ByteBuffer) indices.getData();
+                    ByteBuffer arrayIndex = ByteBuffer.allocate(originalIndex.capacity());
+                    originalIndex.clear();
+                    arrayIndex.put(originalIndex);
+                    indices.updateData(arrayIndex);
+                } else {
+                    //bone indices can be stored in an UnsignedShort buffer
+                    ShortBuffer originalIndex = (ShortBuffer) indices.getData();
+                    ShortBuffer arrayIndex = ShortBuffer.allocate(originalIndex.capacity());
+                    originalIndex.clear();
+                    arrayIndex.put(originalIndex);
+                    indices.updateData(arrayIndex);
+                }
             }
             indices.setUsage(Usage.CpuOnly);
 
@@ -1437,7 +1448,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
             return false; // no bone animation data
         }
 
-        ByteBuffer boneIndexBuffer = (ByteBuffer) biBuf.getData();
+        BufferUtils.ByteShortIntBufferReader boneIndexBuffer = new BufferUtils.ByteShortIntBufferReader(biBuf.getData());
         boneIndexBuffer.rewind();
         int numBoneIndices = boneIndexBuffer.remaining();
         assert numBoneIndices % 4 == 0 : numBoneIndices;
@@ -1450,10 +1461,10 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         /*
          * Test each vertex to determine whether the bone affects it.
          */
-        byte biByte = (byte) boneIndex; // bone indices wrap after 127
+        int biByte = boneIndex;
         for (int vIndex = 0; vIndex < numVertices; vIndex++) {
             for (int wIndex = 0; wIndex < 4; wIndex++) {
-                byte bIndex = boneIndexBuffer.get();
+                int bIndex = boneIndexBuffer.get();
                 float weight = weightBuffer.get();
                 if (wIndex < maxNumWeights && bIndex == biByte && weight != 0f) {
                     return true;

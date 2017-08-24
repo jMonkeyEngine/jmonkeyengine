@@ -2592,6 +2592,7 @@ public final class GLRenderer implements Renderer {
         }
 
         switch (indexBuf.getFormat()) {
+            case UnsignedByte:
             case UnsignedShort:
                 // OK: Works on all platforms.
                 break;
