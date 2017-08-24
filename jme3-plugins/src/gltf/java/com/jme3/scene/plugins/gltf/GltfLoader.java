@@ -894,7 +894,6 @@ public class GltfLoader implements AssetLoader {
                 int boneIndex = joints.get(i).getAsInt();
                 //we don't need the inverse bind matrix, we need the bind matrix so let's invert it.
                 Matrix4f modelBindMatrix = inverseBindMatrices[i].invertLocal();
-                //TODO actually a regular node or a geometry can be attached to a bone, we have to handle this and attach it to the AttachementNode.
                 bones[i] = readNodeAsBone(boneIndex, i, index, modelBindMatrix);
             }
 
@@ -990,10 +989,11 @@ public class GltfLoader implements AssetLoader {
         return bone;
     }
 
-    private void findChildren(int nodeIndex) {
+    private void findChildren(int nodeIndex) throws IOException {
         BoneWrapper bw = fetchFromCache("nodes", nodeIndex, BoneWrapper.class);
         JsonObject nodeData = nodes.get(nodeIndex).getAsJsonObject();
         JsonArray children = nodeData.getAsJsonArray("children");
+
         if (children != null) {
             for (JsonElement child : children) {
                 int childIndex = child.getAsInt();
@@ -1001,8 +1001,18 @@ public class GltfLoader implements AssetLoader {
                 if (cbw != null) {
                     bw.bone.addChild(cbw.bone);
                     bw.children.add(childIndex);
+                } else {
+                    JsonObject childNode = nodes.get(childIndex).getAsJsonObject();
+                    //The child might be a Geom
+                    if (getAsInteger(childNode, "mesh") != null) {
+                        //this is a geometry, let's load it as a spatial
+                        Spatial s = (Spatial) readNode(childIndex);
+                        bw.attachedSpatial = s;
+                        //   addToCache("nodes", nodeIndex, s, nodes.size());
+                    }
                 }
             }
+
         }
     }
 
@@ -1010,6 +1020,10 @@ public class GltfLoader implements AssetLoader {
         for (SkinData skinData : skinnedSpatials.keySet()) {
             List<Spatial> spatials = skinnedSpatials.get(skinData);
             Spatial spatial;
+            if (spatials.isEmpty()) {
+                //can happen when a file contains a skin that is not used by any mesh...
+                continue;
+            }
             if (spatials.size() >= 1) {
                 spatial = findCommonAncestor(spatials);
             } else {
@@ -1028,9 +1042,17 @@ public class GltfLoader implements AssetLoader {
 
             if (skinData.animControl != null) {
                 spatial.addControl(skinData.animControl);
-                spatial.addControl(skinData.skeletonControl);
             }
+            spatial.addControl(skinData.skeletonControl);
+        }
 
+        for (int i = 0; i < nodes.size(); i++) {
+            BoneWrapper bw = fetchFromCache("nodes", i, BoneWrapper.class);
+            if (bw == null || bw.attachedSpatial == null) {
+                continue;
+            }
+            SkinData skinData = fetchFromCache("skins", bw.skinIndex, SkinData.class);
+            skinData.skeletonControl.getAttachmentsNode(bw.bone.getName()).attachChild(bw.attachedSpatial);
         }
     }
 
@@ -1044,7 +1066,13 @@ public class GltfLoader implements AssetLoader {
         if (data == null) {
             return null;
         }
-        return type.cast(data[index]);
+        try {
+            T ret = type.cast(data[index]);
+            return ret;
+        } catch (ClassCastException e) {
+            return null;
+        }
+
     }
 
     public void addToCache(String name, int index, Object object, int maxLength) {
@@ -1128,6 +1156,7 @@ public class GltfLoader implements AssetLoader {
         Transform localTransform;
         Matrix4f modelBindMatrix;
         boolean isRoot = false;
+        Spatial attachedSpatial;
         List<Integer> children = new ArrayList<>();
 
         public BoneWrapper(Bone bone, int boneIndex, int skinIndex, Matrix4f modelBindMatrix, Transform localTransform) {
