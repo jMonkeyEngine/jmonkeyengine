@@ -285,7 +285,7 @@ public class GltfLoader implements AssetLoader {
             for (int i = 0; i < tmpArray.length; i++) {
                 tmpArray[i] = matrix.get(i).getAsFloat();
             }
-            Matrix4f mat = new Matrix4f(tmpArray);
+            Matrix4f mat = toRowMajor(tmpArray);
             transform.fromTransformMatrix(mat);
             return transform;
         }
