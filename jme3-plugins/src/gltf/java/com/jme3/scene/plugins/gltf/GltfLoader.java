@@ -285,7 +285,8 @@ public class GltfLoader implements AssetLoader {
             for (int i = 0; i < tmpArray.length; i++) {
                 tmpArray[i] = matrix.get(i).getAsFloat();
             }
-            Matrix4f mat = toRowMajor(tmpArray);
+            //creates a row major matrix from color major data
+            Matrix4f mat = new Matrix4f(tmpArray);
             transform.fromTransformMatrix(mat);
             return transform;
         }
@@ -446,19 +447,18 @@ public class GltfLoader implements AssetLoader {
         assertNotNull(type, "No type attribute defined for accessor " + accessorIndex);
 
         boolean normalized = getAsBoolean(accessor, "normalized", false);
-        //Some float data can be packed into short buffers, "normalized" means they have to be unpacked.
+
         //TODO support packed data
         //TODO min / max
         //TODO sparse
-        //TODO extensions?
         //TODO extras?
 
-        R data = populator.populate(bufferViewIndex, componentType, type, count, byteOffset);
+        R data = populator.populate(bufferViewIndex, componentType, type, count, byteOffset, normalized);
         data = customContentManager.readExtension(accessor, data);
         return data;
     }
 
-    public void readBuffer(Integer bufferViewIndex, int byteOffset, int bufferSize, Object store, int numComponents, int componentSize) throws IOException {
+    public void readBuffer(Integer bufferViewIndex, int byteOffset, int bufferSize, Object store, int numComponents, VertexBuffer.Format format) throws IOException {
 
         JsonObject bufferView = bufferViews.get(bufferViewIndex).getAsJsonObject();
         Integer bufferIndex = getAsInteger(bufferView, "buffer");
@@ -476,7 +476,7 @@ public class GltfLoader implements AssetLoader {
 
         data = customContentManager.readExtension(bufferView, data);
 
-        populateBuffer(store, data, bufferSize, byteOffset + bvByteOffset, byteStride, numComponents, componentSize);
+        populateBuffer(store, data, bufferSize, byteOffset + bvByteOffset, byteStride, numComponents, format);
 
 
         //TODO extras?
@@ -1219,7 +1219,7 @@ public class GltfLoader implements AssetLoader {
     }
 
     private interface Populator<T> {
-        T populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException;
+        T populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset, boolean normalized) throws IOException;
     }
 
     private class VertexBufferPopulator implements Populator<VertexBuffer> {
@@ -1230,15 +1230,22 @@ public class GltfLoader implements AssetLoader {
         }
 
         @Override
-        public VertexBuffer populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException {
+        public VertexBuffer populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset, boolean normalized) throws IOException {
 
             if (bufferType == null) {
                 logger.log(Level.WARNING, "could not assign data to any VertexBuffer type for buffer view " + bufferViewIndex);
                 return null;
             }
 
+
             VertexBuffer vb = new VertexBuffer(bufferType);
             VertexBuffer.Format format = getVertexBufferFormat(componentType);
+            VertexBuffer.Format originalFormat = format;
+            if (normalized) {
+                //Some float data can be packed into short buffers, "normalized" means they have to be unpacked.
+                //In that case the buffer is a FloatBuffer
+                format = VertexBuffer.Format.Float;
+            }
             int numComponents = getNumberOfComponents(type);
 
             Buffer buff = VertexBuffer.createBuffer(format, numComponents, count);
@@ -1247,7 +1254,7 @@ public class GltfLoader implements AssetLoader {
                 //no referenced buffer, specs says to pad the buffer with zeros.
                 padBuffer(buff, bufferSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, bufferSize, buff, numComponents, format.getComponentSize());
+                readBuffer(bufferViewIndex, byteOffset, bufferSize, buff, numComponents, originalFormat);
             }
 
             if (bufferType == VertexBuffer.Type.Index) {
@@ -1263,7 +1270,7 @@ public class GltfLoader implements AssetLoader {
     private class FloatArrayPopulator implements Populator<float[]> {
 
         @Override
-        public float[] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException {
+        public float[] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset, boolean normalized) throws IOException {
 
             int numComponents = getNumberOfComponents(type);
             int dataSize = numComponents * count;
@@ -1273,7 +1280,7 @@ public class GltfLoader implements AssetLoader {
                 //no referenced buffer, specs says to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, 4);
+                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, getVertexBufferFormat(componentType));
             }
 
             return data;
@@ -1284,7 +1291,7 @@ public class GltfLoader implements AssetLoader {
     private class Vector3fArrayPopulator implements Populator<Vector3f[]> {
 
         @Override
-        public Vector3f[] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException {
+        public Vector3f[] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset, boolean normalized) throws IOException {
 
             int numComponents = getNumberOfComponents(type);
             int dataSize = numComponents * count;
@@ -1294,7 +1301,7 @@ public class GltfLoader implements AssetLoader {
                 //no referenced buffer, specs says to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, 4);
+                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, getVertexBufferFormat(componentType));
             }
             return data;
         }
@@ -1303,7 +1310,7 @@ public class GltfLoader implements AssetLoader {
     private class QuaternionArrayPopulator implements Populator<Quaternion[]> {
 
         @Override
-        public Quaternion[] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException {
+        public Quaternion[] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset, boolean normalized) throws IOException {
 
             int numComponents = getNumberOfComponents(type);
             int dataSize = numComponents * count;
@@ -1313,7 +1320,7 @@ public class GltfLoader implements AssetLoader {
                 //no referenced buffer, specs says to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, 4);
+                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, getVertexBufferFormat(componentType));
             }
 
             return data;
@@ -1323,7 +1330,7 @@ public class GltfLoader implements AssetLoader {
     private class Matrix4fArrayPopulator implements Populator<Matrix4f[]> {
 
         @Override
-        public Matrix4f[] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException {
+        public Matrix4f[] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset, boolean normalized) throws IOException {
 
             int numComponents = getNumberOfComponents(type);
             int dataSize = numComponents * count;
@@ -1333,7 +1340,7 @@ public class GltfLoader implements AssetLoader {
                 //no referenced buffer, specs says to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, 4);
+                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, getVertexBufferFormat(componentType));
             }
 
             return data;
@@ -1343,14 +1350,14 @@ public class GltfLoader implements AssetLoader {
     private class JointArrayPopulator implements Populator<SkinBuffers> {
 
         @Override
-        public SkinBuffers populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset) throws IOException {
+        public SkinBuffers populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset, boolean normalized) throws IOException {
 
             int numComponents = getNumberOfComponents(type);
 
             //can be bytes or shorts.
-            int componentSize = 1;
+            VertexBuffer.Format format = VertexBuffer.Format.Byte;
             if (componentType == 5123) {
-                componentSize = 2;
+                format = VertexBuffer.Format.Short;
             }
 
             int dataSize = numComponents * count;
@@ -1360,10 +1367,10 @@ public class GltfLoader implements AssetLoader {
                 //no referenced buffer, specs says to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, componentSize);
+                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, format);
             }
 
-            return new SkinBuffers(data, componentSize);
+            return new SkinBuffers(data, format.getComponentSize());
         }
     }
 }
