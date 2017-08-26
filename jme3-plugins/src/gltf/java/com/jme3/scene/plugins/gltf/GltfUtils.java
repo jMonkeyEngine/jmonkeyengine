@@ -496,6 +496,10 @@ public class GltfUtils {
         return new Matrix4f(m00, m10, m20, m30, m01, m11, m21, m31, m02, m12, m22, m32, m03, m13, m23, m33);
     }
 
+    public static Matrix4f toRowMajor(float[] a) {
+        return new Matrix4f(a[0], a[4], a[8], a[12], a[1], a[5], a[9], a[13], a[2], a[5], a[10], a[14], a[3], a[7], a[11], a[15]);
+    }
+
     public static GltfModelKey getKey(AssetInfo info) {
         if (info.getKey() instanceof GltfModelKey) {
             return (GltfModelKey) info.getKey();
