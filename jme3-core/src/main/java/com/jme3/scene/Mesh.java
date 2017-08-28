@@ -53,7 +53,6 @@ import com.jme3.util.IntMap.Entry;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
-import com.sun.javaws.exceptions.InvalidArgumentException;
 
 import java.io.IOException;
 import java.nio.*;
