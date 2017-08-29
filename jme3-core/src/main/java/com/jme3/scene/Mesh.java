@@ -990,6 +990,18 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
             return 0;
         }
 
+        switch (mode) {
+            case Points:
+            case Lines:
+            case LineStrip:
+            case LineLoop:
+                /*
+                 * Collisions can be detected only with triangles,
+                 * and there are no triangles in this mesh.
+                 */
+                return 0;
+        }
+
         if (collisionTree == null){
             createCollisionData();
         }
