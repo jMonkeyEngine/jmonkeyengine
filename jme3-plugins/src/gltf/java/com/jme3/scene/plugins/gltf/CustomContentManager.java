@@ -56,7 +56,13 @@ public class CustomContentManager {
         }
     }
 
-    public <T> T readExtension(JsonElement el, T input) throws AssetLoadException {
+    public <T> T readExtensionAndExtras(String name, JsonElement el, T input) throws AssetLoadException {
+        T output = readExtension(name, el, input);
+        output = readExtras(name, el, output);
+        return output;
+    }
+
+    private <T> T readExtension(String name, JsonElement el, T input) throws AssetLoadException {
         JsonElement extensions = el.getAsJsonObject().getAsJsonObject("extensions");
         if (extensions == null) {
             return input;
@@ -77,7 +83,7 @@ public class CustomContentManager {
             }
 
             try {
-                return (T) loader.handleExtension(gltfLoader, el, ext.getValue(), input);
+                return (T) loader.handleExtension(gltfLoader, name, el, ext.getValue(), input);
             } catch (ClassCastException e) {
                 throw new AssetLoadException("Extension loader " + loader.getClass().getName() + " for extension " + ext.getKey() + " is incompatible with type " + input.getClass(), e);
             }
@@ -85,5 +91,28 @@ public class CustomContentManager {
 
         return input;
     }
+
+    private <T> T readExtras(String name, JsonElement el, T input) throws AssetLoadException {
+        if (key == null) {
+            return input;
+        }
+        ExtrasLoader loader;
+        loader = key.getExtrasLoader();
+        if (loader == null) {
+            return input;
+        }
+        JsonElement extras = el.getAsJsonObject().getAsJsonObject("extras");
+        if (extras == null) {
+            return input;
+        }
+
+        try {
+            return (T) loader.handleExtras(gltfLoader, name, el, extras, input);
+        } catch (ClassCastException e) {
+            throw new AssetLoadException("Extra loader " + loader.getClass().getName() + " for " + name + " is incompatible with type " + input.getClass(), e);
+        }
+
+    }
+
 
 }
