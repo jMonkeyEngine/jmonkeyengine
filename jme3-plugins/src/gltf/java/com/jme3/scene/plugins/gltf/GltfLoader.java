@@ -94,8 +94,7 @@ public class GltfLoader implements AssetLoader {
             String version = getAsString(asset, "version");
             String minVersion = getAsString(asset, "minVersion");
             if (!isSupported(version, minVersion)) {
-                //TODO maybe just warn. gltf specs claims it will be backward compatible so at worst the user will miss some data.
-                throw new AssetLoadException("Gltf Loader doesn't support this gltf version: " + version + (minVersion != null ? ("/" + minVersion) : ""));
+                logger.log(Level.SEVERE, "Gltf Loader doesn't support this gltf version: " + version + (minVersion != null ? ("/" + minVersion) : ""));
             }
 
             scenes = docRoot.getAsJsonArray("scenes");
@@ -448,10 +447,8 @@ public class GltfLoader implements AssetLoader {
 
         boolean normalized = getAsBoolean(accessor, "normalized", false);
 
-        //TODO support packed data
-        //TODO min / max
+        //TODO min / max...don't know what to do about them.
         //TODO sparse
-        //TODO extras?
 
         R data = populator.populate(bufferViewIndex, componentType, type, count, byteOffset, normalized);
         data = customContentManager.readExtensionAndExtras("accessor", accessor, data);
@@ -477,9 +474,6 @@ public class GltfLoader implements AssetLoader {
         data = customContentManager.readExtensionAndExtras("bufferView", bufferView, data);
 
         populateBuffer(store, data, bufferSize, byteOffset + bvByteOffset, byteStride, numComponents, format);
-
-
-        //TODO extras?
 
     }
 
@@ -1015,9 +1009,7 @@ public class GltfLoader implements AssetLoader {
                     //The child might be a Geom
                     if (getAsInteger(childNode, "mesh") != null) {
                         //this is a geometry, let's load it as a spatial
-                        Spatial s = (Spatial) readNode(childIndex);
-                        bw.attachedSpatial = s;
-                        //   addToCache("nodes", nodeIndex, s, nodes.size());
+                        bw.attachedSpatial = (Spatial) readNode(childIndex);
                     }
                 }
             }
