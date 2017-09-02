@@ -633,7 +633,12 @@ public class GltfLoader implements AssetLoader {
         Integer samplerIndex = getAsInteger(textureData, "sampler");
 
         Texture2D texture2d = readImage(sourceIndex, flip);
-        texture2d = readSampler(samplerIndex, texture2d);
+
+        if (samplerIndex != null) {
+            texture2d = readSampler(samplerIndex, texture2d);
+        } else {
+            texture2d.setWrap(Texture.WrapMode.Repeat);
+        }
 
         texture2d = customContentManager.readExtensionAndExtras("texture", texture, texture2d);
 

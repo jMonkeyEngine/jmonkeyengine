@@ -75,6 +75,8 @@ MaterialDef PBR Lighting {
 
         // Set to use TexCoord2 for the lightmap sampling
         Boolean SeparateTexCoord
+        // the light map is a gray scale ao map, on ly the r channel will be read.
+        Boolean LightMapAsAOMap
 
         //shadows
         Int FilterMode
@@ -154,6 +156,7 @@ MaterialDef PBR Lighting {
             GLOSSINESSMAP : GlossinessMap
             NORMAL_TYPE: NormalType
             VERTEX_COLOR : UseVertexColor
+            AO_MAP: LightMapAsAOMap
         }
     }
 

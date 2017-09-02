@@ -200,6 +200,9 @@ void main(){
        #else
           lightMapColor = texture2D(m_LightMap, texCoord).rgb;
        #endif
+       #ifdef AO_MAP
+         lightMapColor.gb = lightMapColor.rr;
+       #endif
        specularColor.rgb *= lightMapColor;
        albedo.rgb  *= lightMapColor;
     #endif
