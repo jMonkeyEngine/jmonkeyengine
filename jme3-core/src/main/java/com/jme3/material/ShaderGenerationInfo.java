@@ -190,7 +190,13 @@ public class ShaderGenerationInfo implements Savable, Cloneable {
 
     @Override
     protected ShaderGenerationInfo clone() throws CloneNotSupportedException {
-        ShaderGenerationInfo clone = (ShaderGenerationInfo) super.clone();
+        final ShaderGenerationInfo clone = (ShaderGenerationInfo) super.clone();
+        clone.attributes = new ArrayList<>();
+        clone.vertexUniforms = new ArrayList<>();
+        clone.fragmentUniforms = new ArrayList<>();
+        clone.fragmentGlobals = new ArrayList<>();
+        clone.unusedNodes = new ArrayList<>();
+
 
         for (ShaderNodeVariable attribute : attributes) {
             clone.attributes.add(attribute.clone());
