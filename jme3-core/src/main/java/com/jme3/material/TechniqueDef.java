@@ -801,6 +801,7 @@ public class TechniqueDef implements Savable, Cloneable {
         clone.paramToDefineId.putAll(paramToDefineId);
 
         if (shaderNodes != null) {
+            clone.shaderNodes = new ArrayList<>();
             for (ShaderNode shaderNode : shaderNodes) {
                 clone.shaderNodes.add(shaderNode.clone());
             }
