@@ -1344,6 +1344,9 @@ public final class BufferUtils {
     public static class ByteShortIntBufferReader {
         Buffer buffer;
 
+        public ByteShortIntBufferReader() {
+        }
+
         public ByteShortIntBufferReader(Buffer buffer) {
             this.buffer = buffer;
         }
@@ -1370,6 +1373,22 @@ public final class BufferUtils {
             } else {
                 throw new UnsupportedOperationException("Buffer must be a ByteBuffer, a ShortBuffer or an IntBuffer");
             }
+        }
+
+        public int getUnsigned(int index) {
+            if (buffer instanceof ByteBuffer) {
+                return ((ByteBuffer) buffer).get(index) & 0xff;
+            } else if (buffer instanceof ShortBuffer) {
+                return ((ShortBuffer) buffer).get(index) & 0xffff;
+            } else if (buffer instanceof IntBuffer) {
+                return ((IntBuffer) buffer).get(index) & 0xffffff;
+            } else {
+                throw new UnsupportedOperationException("Buffer must be a ByteBuffer, a ShortBuffer or an IntBuffer");
+            }
+        }
+
+        public void setBuffer(Buffer buffer) {
+            this.buffer = buffer;
         }
 
         public void rewind() {

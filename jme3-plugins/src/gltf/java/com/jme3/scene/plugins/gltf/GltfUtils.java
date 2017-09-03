@@ -382,49 +382,58 @@ public class GltfUtils {
 
     public static void handleSkinningBuffers(Mesh mesh, IntMap<GltfLoader.SkinBuffers> skinBuffers) {
         if (skinBuffers.size() > 0) {
-            if (skinBuffers.size() == 1) {
-                GltfLoader.SkinBuffers buffs = skinBuffers.get(0);
-                setSkinBuffers(mesh, buffs.joints, skinBuffers.get(0).weights, buffs.componentSize);
-            } else {
+            int length = skinBuffers.get(0).joints.length;
+            short[] jointsArray = new short[length];
+            float[] weightsArray = new float[length];
+            List<GltfLoader.WeightData> weightData = new ArrayList<>();
+            int componentSize = 1;
 
-                int length = skinBuffers.get(0).joints.length;
-                short[] jointsArray = new short[length];
-                float[] weightsArray = new float[length];
-                List<GltfLoader.WeightData> weightData = new ArrayList<>();
-                int componentSize = 1;
-
-                for (int i = 0; i < weightsArray.length; i += 4) {
-                    weightData.clear();
-                    for (int j = 0; j < skinBuffers.size(); j++) {
-                        GltfLoader.SkinBuffers buffs = skinBuffers.get(j);
-                        for (int k = 0; k < 4; k++) {
-                            weightData.add(new GltfLoader.WeightData(buffs.weights[i + k], buffs.joints[i + k], buffs.componentSize));
-                        }
-
+            for (int i = 0; i < weightsArray.length; i += 4) {
+                weightData.clear();
+                for (int j = 0; j < skinBuffers.size(); j++) {
+                    GltfLoader.SkinBuffers buffs = skinBuffers.get(j);
+                    for (int k = 0; k < 4; k++) {
+                        weightData.add(new GltfLoader.WeightData(buffs.weights[i + k], buffs.joints[i + k], buffs.componentSize));
                     }
-                    Collections.sort(weightData, new Comparator<GltfLoader.WeightData>() {
-                        @Override
-                        public int compare(GltfLoader.WeightData o1, GltfLoader.WeightData o2) {
-                            if (o1.value > o2.value) {
-                                return -1;
-                            } else if (o1.value < o2.value) {
-                                return 1;
-                            } else {
-                                return 0;
-                            }
+
+                }
+                Collections.sort(weightData, new Comparator<GltfLoader.WeightData>() {
+                    @Override
+                    public int compare(GltfLoader.WeightData o1, GltfLoader.WeightData o2) {
+                        if (o1.value > o2.value) {
+                            return -1;
+                        } else if (o1.value < o2.value) {
+                            return 1;
+                        } else {
+                            return 0;
                         }
-                    });
-                    for (int j = 0; j < 4; j++) {
-                        GltfLoader.WeightData data = weightData.get(j);
-                        jointsArray[i + j] = data.index;
-                        weightsArray[i + j] = data.value;
-                        if (data.componentSize > componentSize) {
-                            componentSize = data.componentSize;
-                        }
+                    }
+                });
+
+                float sum = 0;
+                for (int j = 0; j < 4; j++) {
+                    GltfLoader.WeightData data = weightData.get(j);
+                    jointsArray[i + j] = data.index;
+                    weightsArray[i + j] = data.value;
+                    sum += data.value;
+                    if (data.value > 0 && (j + 1) > mesh.getMaxNumWeights()) {
+                        mesh.setMaxNumWeights(j + 1);
+                    }
+                    if (data.componentSize > componentSize) {
+                        componentSize = data.componentSize;
                     }
                 }
-                setSkinBuffers(mesh, jointsArray, weightsArray, componentSize);
+
+                if (sum != 1f) {
+                    // compute new vals based on sum
+                    float sumToB = sum == 0 ? 0 : 1f / sum;
+                    weightsArray[i] *= sumToB;
+                    weightsArray[i + 1] *= sumToB;
+                    weightsArray[i + 2] *= sumToB;
+                    weightsArray[i + 3] *= sumToB;
+                }
             }
+            setSkinBuffers(mesh, jointsArray, weightsArray, componentSize);
         }
     }
 
