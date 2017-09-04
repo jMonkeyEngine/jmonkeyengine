@@ -70,7 +70,7 @@ public final class Skeleton implements Savable, JmeCloneable {
     public Skeleton(Bone[] boneList) {
         this.boneList = boneList;
 
-        List<Bone> rootBoneList = new ArrayList<Bone>();
+        List<Bone> rootBoneList = new ArrayList<>();
         for (int i = boneList.length - 1; i >= 0; i--) {
             Bone b = boneList[i];
             if (b.getParent() == null) {
@@ -289,6 +289,7 @@ public final class Skeleton implements Savable, JmeCloneable {
         return sb.toString();
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule input = im.getCapsule(this);
 
@@ -308,6 +309,7 @@ public final class Skeleton implements Savable, JmeCloneable {
         }
     }
 
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule output = ex.getCapsule(this);
         output.write(rootBones, "rootBones", null);
