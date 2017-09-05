@@ -196,7 +196,7 @@ public class ShaderGenerationInfo implements Savable, Cloneable {
         clone.fragmentUniforms = new ArrayList<>();
         clone.fragmentGlobals = new ArrayList<>();
         clone.unusedNodes = new ArrayList<>();
-
+        clone.varyings = new ArrayList<>();
 
         for (ShaderNodeVariable attribute : attributes) {
             clone.attributes.add(attribute.clone());
@@ -207,7 +207,6 @@ public class ShaderGenerationInfo implements Savable, Cloneable {
         }
 
         clone.vertexGlobal = vertexGlobal.clone();
-
 
         for (ShaderNodeVariable varying : varyings) {
             clone.varyings.add(varying.clone());
