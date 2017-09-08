@@ -44,8 +44,7 @@ import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
 import com.jme3.shader.VarType;
-import com.jme3.util.SafeArrayList;
-import com.jme3.util.TempVars;
+import com.jme3.util.*;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
@@ -112,7 +111,9 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
      * Material references used for hardware skinning
      */
     private Set<Material> materials = new HashSet<Material>();
-    
+
+    //temp reader
+    private BufferUtils.ByteShortIntBufferReader indexReader = new BufferUtils.ByteShortIntBufferReader();
     /**
      * Serialization only. Do not use.
      */
@@ -533,7 +534,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         if (maxWeightsPerVert <= 0) {
             throw new IllegalStateException("Max weights per vert is incorrectly set!");
         }
-
         int fourMinusMaxWeights = 4 - maxWeightsPerVert;
 
         // NOTE: This code assumes the vertex buffer is in bind pose
@@ -547,14 +547,13 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
         fnb.rewind();
 
         // get boneIndexes and weights for mesh
-        ByteBuffer ib = (ByteBuffer) mesh.getBuffer(Type.BoneIndex).getData();
+        indexReader.setBuffer(mesh.getBuffer(Type.BoneIndex).getData());
         FloatBuffer wb = (FloatBuffer) mesh.getBuffer(Type.BoneWeight).getData();
 
-        ib.rewind();
+        indexReader.rewind();
         wb.rewind();
 
         float[] weights = wb.array();
-        byte[] indices = ib.array();
         int idxWeights = 0;
 
         TempVars vars = TempVars.get();
@@ -592,7 +591,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
                 for (int w = maxWeightsPerVert - 1; w >= 0; w--) {
                     float weight = weights[idxWeights];
-                    Matrix4f mat = offsetMatrices[indices[idxWeights++] & 0xff];
+                    Matrix4f mat = offsetMatrices[indexReader.getUnsigned(idxWeights++)];
 
                     rx += (mat.m00 * vtx + mat.m01 * vty + mat.m02 * vtz + mat.m03) * weight;
                     ry += (mat.m10 * vtx + mat.m11 * vty + mat.m12 * vtz + mat.m13) * weight;
@@ -665,14 +664,13 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
 
         // get boneIndexes and weights for mesh
-        ByteBuffer ib = (ByteBuffer) mesh.getBuffer(Type.BoneIndex).getData();
+        indexReader.setBuffer(mesh.getBuffer(Type.BoneIndex).getData());
         FloatBuffer wb = (FloatBuffer) mesh.getBuffer(Type.BoneWeight).getData();
 
-        ib.rewind();
+        indexReader.rewind();
         wb.rewind();
 
         float[] weights = wb.array();
-        byte[] indices = ib.array();
         int idxWeights = 0;
 
         TempVars vars = TempVars.get();
@@ -725,7 +723,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
                 for (int w = maxWeightsPerVert - 1; w >= 0; w--) {
                     float weight = weights[idxWeights];
-                    Matrix4f mat = offsetMatrices[indices[idxWeights++] & 0xff];
+                    Matrix4f mat = offsetMatrices[indexReader.getUnsigned(idxWeights++)];
 
                     rx += (mat.m00 * vtx + mat.m01 * vty + mat.m02 * vtz + mat.m03) * weight;
                     ry += (mat.m10 * vtx + mat.m11 * vty + mat.m12 * vtz + mat.m13) * weight;

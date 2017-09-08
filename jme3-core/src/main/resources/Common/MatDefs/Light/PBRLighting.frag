@@ -9,9 +9,7 @@ varying vec2 texCoord;
   varying vec2 texCoord2;
 #endif
 
-#ifndef BASECOLORMAP
-    varying vec4 Color;
-#endif
+varying vec4 Color;
 
 uniform vec4 g_LightData[NB_LIGHTS];
 
@@ -33,11 +31,16 @@ varying vec3 wPosition;
 #ifdef BASECOLORMAP
   uniform sampler2D m_BaseColorMap;
 #endif
-#ifdef METALLICMAP
-  uniform sampler2D m_MetallicMap;
-#endif
-#ifdef ROUGHNESSMAP
-  uniform sampler2D m_RoughnessMap;
+
+#ifdef USE_PACKED_MR
+     uniform sampler2D m_MetallicRoughnessMap;
+#else
+    #ifdef METALLICMAP
+      uniform sampler2D m_MetallicMap;
+    #endif
+    #ifdef ROUGHNESSMAP
+      uniform sampler2D m_RoughnessMap;
+    #endif
 #endif
 
 #ifdef EMISSIVE
@@ -52,8 +55,15 @@ varying vec3 wPosition;
 #endif 
 
 #ifdef SPECGLOSSPIPELINE
-  uniform sampler2D m_SpecularMap;
-  uniform sampler2D m_GlossMap;
+
+  uniform vec4 m_Specular;
+  uniform float m_Glossiness;
+  #ifdef USE_PACKED_SG
+    uniform sampler2D m_SpecularGlossinessMap;
+  #else
+    uniform sampler2D m_SpecularMap;
+    uniform sampler2D m_GlossinessMap;
+  #endif
 #endif
 
 #ifdef PARALLAXMAP
@@ -109,19 +119,26 @@ void main(){
     #endif
     
     #ifdef BASECOLORMAP
-        vec4 albedo = texture2D(m_BaseColorMap, newTexCoord);
+        vec4 albedo = texture2D(m_BaseColorMap, newTexCoord) * Color;
     #else
         vec4 albedo = Color;
     #endif
-    #ifdef ROUGHNESSMAP
-        float Roughness = texture2D(m_RoughnessMap, newTexCoord).r * max(m_Roughness, 1e-8);
+
+    #ifdef USE_PACKED_MR
+        vec2 rm = texture2D(m_MetallicRoughnessMap, newTexCoord).gb;
+        float Roughness = rm.x * max(m_Roughness, 1e-8);
+        float Metallic = rm.y * max(m_Metallic, 0.0);
     #else
-        float Roughness =  max(m_Roughness, 1e-8);
-    #endif
-    #ifdef METALLICMAP   
-        float Metallic = texture2D(m_MetallicMap, newTexCoord).r;
-    #else
-        float Metallic =  max(m_Metallic, 0.0);
+        #ifdef ROUGHNESSMAP
+            float Roughness = texture2D(m_RoughnessMap, newTexCoord).r * max(m_Roughness, 1e-8);
+        #else
+            float Roughness =  max(m_Roughness, 1e-8);
+        #endif
+        #ifdef METALLICMAP
+            float Metallic = texture2D(m_MetallicMap, newTexCoord).r * max(m_Metallic, 0.0);
+        #else
+            float Metallic =  max(m_Metallic, 0.0);
+        #endif
     #endif
  
     float alpha = albedo.a;
@@ -141,7 +158,7 @@ void main(){
       //as it's complient with normal maps generated with blender.
       //see http://hub.jmonkeyengine.org/forum/topic/parallax-mapping-fundamental-bug/#post-256898
       //for more explanation.
-      vec3 normal = normalize((normalHeight.xyz * vec3(2.0,-2.0,2.0) - vec3(1.0,-1.0,1.0)));
+      vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)));
       normal = normalize(tbnMat * normal);
       //normal = normalize(normal * inverse(tbnMat));
     #else
@@ -150,9 +167,26 @@ void main(){
 
     float specular = 0.5;
     #ifdef SPECGLOSSPIPELINE
-          vec4 specularColor = texture2D(m_SpecularMap, newTexCoord);
-          vec4 diffuseColor = albedo;
-          Roughness = 1.0 - texture2D(m_GlossMap, newTexCoord).r;          
+
+        #ifdef USE_PACKED_SG
+            vec4 specularColor = texture2D(m_SpecularGlossinessMap, newTexCoord);
+            float glossiness = specularColor.a * m_Glossiness;
+            specularColor *= m_Specular;
+        #else
+            #ifdef SPECULARMAP
+                vec4 specularColor = texture2D(m_SpecularMap, newTexCoord);
+            #else
+                vec4 specularColor = vec4(1.0);
+            #endif
+            #ifdef GLOSSINESSMAP
+                float glossiness = texture2D(m_GlossinesMap, newTexCoord).r * m_Glossiness;
+            #else
+                float glossiness = m_Glossiness;
+            #endif
+            specularColor *= m_Specular;
+        #endif
+        vec4 diffuseColor = albedo * (1.0 - max(max(specularColor.r, specularColor.g), specularColor.b));
+        Roughness = 1.0 - glossiness;
     #else      
         float nonMetalSpec = 0.08 * specular;
         vec4 specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
@@ -165,6 +199,9 @@ void main(){
           lightMapColor = texture2D(m_LightMap, texCoord2).rgb;
        #else
           lightMapColor = texture2D(m_LightMap, texCoord).rgb;
+       #endif
+       #ifdef AO_MAP
+         lightMapColor.gb = lightMapColor.rr;
        #endif
        specularColor.rgb *= lightMapColor;
        albedo.rgb  *= lightMapColor;
@@ -238,6 +275,5 @@ void main(){
     #endif
            
     gl_FragColor.a = alpha;
-    
    
 }
