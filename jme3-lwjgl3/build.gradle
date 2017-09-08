@@ -2,7 +2,7 @@ if (!hasProperty('mainClass')) {
     ext.mainClass = ''
 }
 
-def lwjglVersion = '3.1.0'
+def lwjglVersion = '3.1.2'
 
 sourceCompatibility = '1.8'
 
@@ -25,6 +25,9 @@ dependencies {
     runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-windows"
     runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-linux"
     runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-macos"
+    runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-windows"
+    runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-linux"
+    runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-macos"
     runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-windows"
     runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux"
     runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-macos"
