@@ -67,7 +67,7 @@ public class LwjglBuffer extends Buffer {
         //Note: LWJGL does not support the size parameter, I have to set the buffer limit
         dest.limit((int) (dest.position() + size));
         int ret = CL10.clEnqueueReadBuffer(((LwjglCommandQueue)queue).getQueue(), 
-                buffer, CL10.CL_TRUE, offset, dest, null, null);
+                buffer, true, offset, dest, null, null);
         Utils.checkError(ret, "clEnqueueReadBuffer");
     }
 
@@ -77,7 +77,7 @@ public class LwjglBuffer extends Buffer {
         dest.limit((int) (dest.position() + size));
         Utils.pointerBuffers[0].rewind();
         long q = ((LwjglCommandQueue)queue).getQueue();
-        int ret = CL10.clEnqueueReadBuffer(q, buffer, CL10.CL_FALSE, offset, dest, null, Utils.pointerBuffers[0]);
+        int ret = CL10.clEnqueueReadBuffer(q, buffer, false, offset, dest, null, Utils.pointerBuffers[0]);
         Utils.checkError(ret, "clEnqueueReadBuffer");
         long event = Utils.pointerBuffers[0].get(0);
         return new LwjglEvent(event);
@@ -88,7 +88,7 @@ public class LwjglBuffer extends Buffer {
         //Note: LWJGL does not support the size parameter, I have to set the buffer limit
         src.limit((int) (src.position() + size));
         long q = ((LwjglCommandQueue)queue).getQueue();
-        int ret = CL10.clEnqueueWriteBuffer(q, buffer, CL10.CL_TRUE, offset, src, null, null);
+        int ret = CL10.clEnqueueWriteBuffer(q, buffer, true, offset, src, null, null);
         Utils.checkError(ret, "clEnqueueWriteBuffer");
     }
 
@@ -98,7 +98,7 @@ public class LwjglBuffer extends Buffer {
         src.limit((int) (src.position() + size));
         Utils.pointerBuffers[0].rewind();
         long q = ((LwjglCommandQueue)queue).getQueue();
-        int ret = CL10.clEnqueueWriteBuffer(q, buffer, CL10.CL_FALSE, offset, src, null, Utils.pointerBuffers[0]);
+        int ret = CL10.clEnqueueWriteBuffer(q, buffer, false, offset, src, null, Utils.pointerBuffers[0]);
         Utils.checkError(ret, "clEnqueueWriteBuffer");
         long event = Utils.pointerBuffers[0].get(0);
         return new LwjglEvent(event);
@@ -130,7 +130,7 @@ public class LwjglBuffer extends Buffer {
         long q = ((LwjglCommandQueue) queue).getQueue();
         long flags = Utils.getMappingAccessFlags(access);
         Utils.errorBuffer.rewind();
-        ByteBuffer b = CL10.clEnqueueMapBuffer(q, buffer, CL10.CL_TRUE, flags, offset, size, null, null, Utils.errorBuffer, null);
+        ByteBuffer b = CL10.clEnqueueMapBuffer(q, buffer, true, flags, offset, size, null, null, Utils.errorBuffer, null);
         Utils.checkError(Utils.errorBuffer, "clEnqueueMapBuffer");
         return b;
     }
@@ -153,7 +153,7 @@ public class LwjglBuffer extends Buffer {
         Utils.errorBuffer.rewind();
         long q = ((LwjglCommandQueue) queue).getQueue();
         long flags = Utils.getMappingAccessFlags(access);
-        ByteBuffer buf = CL10.clEnqueueMapBuffer(q, buffer, CL10.CL_FALSE, flags, offset, size, null, Utils.pointerBuffers[0], Utils.errorBuffer, null);
+        ByteBuffer buf = CL10.clEnqueueMapBuffer(q, buffer, false, flags, offset, size, null, Utils.pointerBuffers[0], Utils.errorBuffer, null);
         Utils.checkError(Utils.errorBuffer, "clEnqueueMapBuffer");
         long event = Utils.pointerBuffers[0].get(0);
         return new com.jme3.opencl.Buffer.AsyncMapping(new LwjglEvent(event), buf);

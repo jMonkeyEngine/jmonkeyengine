@@ -4,7 +4,7 @@
  */
 package com.jme3.opencl.lwjgl.info;
 
-import com.jme3.lwjgl3.utils.APIUtil.TokenFilter;
+import static com.jme3.lwjgl3.utils.APIUtil.apiOptionalClass;
 import com.jme3.opencl.OpenCLException;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;

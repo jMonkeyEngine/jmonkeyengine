@@ -455,7 +455,7 @@ public class GltfLoader implements AssetLoader {
         return data;
     }
 
-    public void readBuffer(Integer bufferViewIndex, int byteOffset, int bufferSize, Object store, int numComponents, VertexBuffer.Format format) throws IOException {
+    public void readBuffer(Integer bufferViewIndex, int byteOffset, int count, Object store, int numComponents, VertexBuffer.Format format) throws IOException {
 
         JsonObject bufferView = bufferViews.get(bufferViewIndex).getAsJsonObject();
         Integer bufferIndex = getAsInteger(bufferView, "buffer");
@@ -473,7 +473,7 @@ public class GltfLoader implements AssetLoader {
 
         data = customContentManager.readExtensionAndExtras("bufferView", bufferView, data);
 
-        populateBuffer(store, data, bufferSize, byteOffset + bvByteOffset, byteStride, numComponents, format);
+        populateBuffer(store, data, count, byteOffset + bvByteOffset, byteStride, numComponents, format);
 
     }
 
@@ -499,7 +499,8 @@ public class GltfLoader implements AssetLoader {
                     throw new AssetLoadException("Cannot load " + uri + ", a .bin extension is required.");
                 }
 
-                InputStream input = (InputStream) info.getManager().loadAsset(info.getKey().getFolder() + uri);
+                BinDataKey key = new BinDataKey(info.getKey().getFolder() + uri);
+                InputStream input = (InputStream) info.getManager().loadAsset(key);
                 data = new byte[bufferLength];
                 input.read(data);
             }
@@ -1260,7 +1261,7 @@ public class GltfLoader implements AssetLoader {
                 //no referenced buffer, specs says to pad the buffer with zeros.
                 padBuffer(buff, bufferSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, bufferSize, buff, numComponents, originalFormat);
+                readBuffer(bufferViewIndex, byteOffset, count, buff, numComponents, originalFormat);
             }
 
             if (bufferType == VertexBuffer.Type.Index) {
@@ -1286,7 +1287,7 @@ public class GltfLoader implements AssetLoader {
                 //no referenced buffer, specs says to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, getVertexBufferFormat(componentType));
+                readBuffer(bufferViewIndex, byteOffset, count, data, numComponents, getVertexBufferFormat(componentType));
             }
 
             return data;
@@ -1307,7 +1308,7 @@ public class GltfLoader implements AssetLoader {
                 //no referenced buffer, specs says to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, getVertexBufferFormat(componentType));
+                readBuffer(bufferViewIndex, byteOffset, count, data, numComponents, getVertexBufferFormat(componentType));
             }
             return data;
         }
@@ -1326,7 +1327,7 @@ public class GltfLoader implements AssetLoader {
                 //no referenced buffer, specs says to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, getVertexBufferFormat(componentType));
+                readBuffer(bufferViewIndex, byteOffset, count, data, numComponents, getVertexBufferFormat(componentType));
             }
 
             return data;
@@ -1346,7 +1347,7 @@ public class GltfLoader implements AssetLoader {
                 //no referenced buffer, specs says to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, getVertexBufferFormat(componentType));
+                readBuffer(bufferViewIndex, byteOffset, count, data, numComponents, getVertexBufferFormat(componentType));
             }
 
             return data;
@@ -1373,7 +1374,7 @@ public class GltfLoader implements AssetLoader {
                 //no referenced buffer, specs says to pad the data with zeros.
                 padBuffer(data, dataSize);
             } else {
-                readBuffer(bufferViewIndex, byteOffset, dataSize, data, numComponents, format);
+                readBuffer(bufferViewIndex, byteOffset, count, data, numComponents, format);
             }
 
             return new SkinBuffers(data, format.getComponentSize());
