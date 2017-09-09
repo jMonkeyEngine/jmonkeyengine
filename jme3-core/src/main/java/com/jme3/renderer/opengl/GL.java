@@ -50,6 +50,7 @@ public interface GL {
     public static final int GL_ARRAY_BUFFER = 0x8892;
     public static final int GL_BACK = 0x405;
     public static final int GL_BLEND = 0xBE2;
+    public static final int GL_BLUE = 0x1905;
     public static final int GL_BYTE = 0x1400;
     public static final int GL_CLAMP_TO_EDGE = 0x812F;
     public static final int GL_COLOR_BUFFER_BIT = 0x4000;
