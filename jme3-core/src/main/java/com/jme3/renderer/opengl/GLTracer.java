@@ -99,6 +99,7 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glEnableVertexAttribArray", 0);
         noEnumArgs("glDisableVertexAttribArray", 0);
         noEnumArgs("glVertexAttribPointer", 0, 1, 4, 5);
+        noEnumArgs("glVertexAttribDivisorARB", 0, 1);
         noEnumArgs("glDrawRangeElements", 1, 2, 3, 5);
         noEnumArgs("glDrawArrays", 1, 2);
         noEnumArgs("glDeleteBuffers", 0);
@@ -302,7 +303,8 @@ public final class GLTracer implements InvocationHandler {
             // will be printed in darker color
             methodName = methodName.substring(2);
             if (methodName.equals("Clear")
-                    || methodName.equals("DrawRangeElements")) {
+                    || methodName.equals("DrawRangeElements")
+                    || methodName.equals("DrawElementsInstancedARB")) {
                 print(methodName);
             } else {
                 if (methodName.endsWith("EXT")) {
