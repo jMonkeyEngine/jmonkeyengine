@@ -94,7 +94,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     protected EdgeFilteringMode edgeFilteringMode = EdgeFilteringMode.Bilinear;
     protected CompareMode shadowCompareMode = CompareMode.Hardware;
     protected Picture[] dispPic;
-    protected RenderState forcedRenderState = new RenderState();
+    protected RenderState forcedRenderState = RenderState.ADDITIONAL.clone();
     protected boolean renderBackFacesShadows = true;
     protected AppProfiler prof;
 

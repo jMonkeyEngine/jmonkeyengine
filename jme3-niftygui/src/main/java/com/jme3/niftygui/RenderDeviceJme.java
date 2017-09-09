@@ -73,7 +73,7 @@ public class RenderDeviceJme implements RenderDevice {
     private VertexBuffer quadColor;
     private Matrix4f tempMat = new Matrix4f();
     private ColorRGBA tempColor = new ColorRGBA();
-    private RenderState renderState = new RenderState();
+    private RenderState renderState = RenderState.ADDITIONAL.clone();
     
     private Material colorMaterial;
     private Material textureColorMaterial;
