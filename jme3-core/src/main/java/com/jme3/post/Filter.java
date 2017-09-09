@@ -213,13 +213,10 @@ public abstract class Filter implements Savable {
     }
 
     /**
-     * returns the default pass texture format
-     * default is {@link Format#RGB111110F}
-     * 
-     * @return
+     * returns the default pass texture format.
      */
     protected Format getDefaultPassTextureFormat() {
-        return Format.RGB111110F;
+        return processor.getDefaultPassTextureFormat();
     }
 
     /**

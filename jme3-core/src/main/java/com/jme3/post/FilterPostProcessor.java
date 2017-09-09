@@ -143,9 +143,13 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         fsQuad = new Picture("filter full screen quad");
         fsQuad.setWidth(1);
         fsQuad.setHeight(1);
-        
-        if (fbFormat == Format.RGB111110F && !renderer.getCaps().contains(Caps.PackedFloatTexture)) {
-            fbFormat = Format.RGB8;
+
+        if (!renderer.getCaps().contains(Caps.PackedFloatTexture)) {
+            if (!renderer.getCaps().contains(Caps.FloatTexture)) {
+                fbFormat = Format.RGB8;
+            } else {
+                fbFormat = Format.RGB16F;
+            }
         }
         
         Camera cam = vp.getCamera();
@@ -161,6 +165,10 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         reshape(vp, cam.getWidth(), cam.getHeight());
     }
 
+    public Format getDefaultPassTextureFormat() {
+        return fbFormat;
+    }
+    
     /**
      * init the given filter
      * @param filter
