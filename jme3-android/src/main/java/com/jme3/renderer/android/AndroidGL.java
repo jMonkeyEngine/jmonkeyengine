@@ -561,4 +561,9 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     public void glBlendEquationSeparate(int colorMode, int alphaMode) {
         GLES20.glBlendEquationSeparate(colorMode, alphaMode);
     }
+    
+    @Override
+    public void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer) {
+        throw new UnsupportedOperationException("OpenGL ES 2 does not support texture arrays");
+    }
 }

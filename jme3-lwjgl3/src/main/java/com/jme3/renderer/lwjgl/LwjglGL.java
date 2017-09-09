@@ -36,8 +36,6 @@ import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GL2;
 import com.jme3.renderer.opengl.GL3;
 import com.jme3.renderer.opengl.GL4;
-import com.jme3.system.NativeLibraryLoader;
-import com.jme3.system.Platform;
 import org.lwjgl.opengl.*;
 
 import java.nio.*;
@@ -518,10 +516,5 @@ public class LwjglGL implements GL, GL2, GL3, GL4 {
     public void glDeleteVertexArrays(IntBuffer arrays) {
         checkLimit(arrays);
         ARBVertexArrayObject.glDeleteVertexArrays(arrays);
-    }
-
-    @Override
-    public void glFramebufferTextureLayer(int param1, int param2, int param3, int param4, int param5) {
-        GL30.glFramebufferTextureLayer(param1, param2, param3, param4, param5);
     }
 }

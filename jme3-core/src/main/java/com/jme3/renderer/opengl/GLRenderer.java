@@ -1581,7 +1581,7 @@ public final class GLRenderer implements Renderer {
                     image.getId(),
                     0);
         } else {
-            gl3.glFramebufferTextureLayer(GLFbo.GL_FRAMEBUFFER_EXT, 
+            glfbo.glFramebufferTextureLayerEXT(GLFbo.GL_FRAMEBUFFER_EXT, 
                     convertAttachmentSlot(rb.getSlot()), 
                     image.getId(), 
                     0,
