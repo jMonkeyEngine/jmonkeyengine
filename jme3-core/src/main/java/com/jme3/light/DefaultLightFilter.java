@@ -42,7 +42,7 @@ import java.util.HashSet;
 public final class DefaultLightFilter implements LightFilter {
 
     private Camera camera;
-    private final HashSet<Light> processedLights = new HashSet<Light>();
+    private final HashSet<Light> processedLights = new HashSet<>();
     private final LightProbeBlendingStrategy probeBlendStrat;
 
     public DefaultLightFilter() {
@@ -59,6 +59,7 @@ public final class DefaultLightFilter implements LightFilter {
         for (Light light : processedLights) {
             light.frustumCheckNeeded = true;
         }
+        processedLights.clear();
     }
 
     @Override
