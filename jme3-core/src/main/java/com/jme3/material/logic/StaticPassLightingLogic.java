@@ -57,23 +57,29 @@ import java.util.EnumSet;
  *
  * @author Kirill Vainer
  */
-public final class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
+public class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
 
-    private static final String DEFINE_NUM_DIR_LIGHTS = "NUM_DIR_LIGHTS";
-    private static final String DEFINE_NUM_POINT_LIGHTS = "NUM_POINT_LIGHTS";
-    private static final String DEFINE_NUM_SPOT_LIGHTS = "NUM_SPOT_LIGHTS";
+    protected static final String DEFINE_NUM_DIR_LIGHTS = "NUM_DIR_LIGHTS";
+    protected static final String DEFINE_NUM_POINT_LIGHTS = "NUM_POINT_LIGHTS";
+    protected static final String DEFINE_NUM_SPOT_LIGHTS = "NUM_SPOT_LIGHTS";
 
-    private final int numDirLightsDefineId;
-    private final int numPointLightsDefineId;
-    private final int numSpotLightsDefineId;
+    protected final int numDirLightsDefineId;
+    protected final int numPointLightsDefineId;
+    protected final int numSpotLightsDefineId;
 
-    private final ArrayList<DirectionalLight> tempDirLights = new ArrayList<DirectionalLight>();
-    private final ArrayList<PointLight> tempPointLights = new ArrayList<PointLight>();
-    private final ArrayList<SpotLight> tempSpotLights = new ArrayList<SpotLight>();
+    protected final ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
+    protected final Vector3f tempPosition = new Vector3f();
+    protected final Vector3f tempDirection = new Vector3f();
 
-    private final ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
-    private final Vector3f tempPosition = new Vector3f();
-    private final Vector3f tempDirection = new Vector3f();
+    protected final ArrayList<DirectionalLight> tempDirLights = new ArrayList<>();
+    protected final ArrayList<PointLight> tempPointLights = new ArrayList<>();
+    protected final ArrayList<SpotLight> tempSpotLights = new ArrayList<>();
+
+    protected static final Matrix4f BIAS_MATRIX = new Matrix4f(
+            0.5f, 0.0f, 0.0f, 0.5f,
+            0.0f, 0.5f, 0.0f, 0.5f,
+            0.0f, 0.0f, 0.5f, 0.5f,
+            0.0f, 0.0f, 0.0f, 1.0f);
 
     public StaticPassLightingLogic(TechniqueDef techniqueDef) {
         super(techniqueDef);
@@ -83,8 +89,7 @@ public final class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
         numSpotLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NUM_SPOT_LIGHTS, VarType.Int);
     }
 
-    @Override
-    public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
+    protected void makeCurrentBase(AssetManager assetManager, RenderManager renderManager,
             EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
 
         // TODO: if it ever changes that render isn't called
@@ -94,6 +99,8 @@ public final class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
         tempDirLights.clear();
         tempPointLights.clear();
         tempSpotLights.clear();
+        ambientLightColor.set(0, 0, 0, 1);
+
         for (Light light : lights) {
             switch (light.getType()) {
                 case Directional:
@@ -105,27 +112,41 @@ public final class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
                 case Spot:
                     tempSpotLights.add((SpotLight) light);
                     break;
+                case Ambient:
+                    ambientLightColor.addLocal(light.getColor());
+                    break;
             }
         }
+        ambientLightColor.a = 1.0f;
 
         defines.set(numDirLightsDefineId, tempDirLights.size());
         defines.set(numPointLightsDefineId, tempPointLights.size());
         defines.set(numSpotLightsDefineId, tempSpotLights.size());
+    }
 
+    @Override
+    public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
+            EnumSet<Caps> rendererCaps, Geometry geometry, DefineList defines) {
+        LightList lights = getFilteredLightList(renderManager, geometry);
+        makeCurrentBase(assetManager, renderManager, rendererCaps, lights, defines);
         return techniqueDef.getShader(assetManager, rendererCaps, defines);
     }
 
-    private void transformDirection(Matrix4f viewMatrix, Vector3f direction) {
+    protected void transformDirection(Matrix4f viewMatrix, Vector3f direction) {
         viewMatrix.multNormal(direction, direction);
     }
 
-    private void transformPosition(Matrix4f viewMatrix, Vector3f location) {
+    protected void transformPosition(Matrix4f viewMatrix, Vector3f location) {
         viewMatrix.mult(location, location);
     }
 
-    private void updateLightListUniforms(Matrix4f viewMatrix, Shader shader, LightList lights) {
+    protected float getShadowMapIndex(Light light) {
+        return 1.0f;
+    }
+
+    protected void updateLightListUniforms(Matrix4f viewMatrix, Shader shader) {
         Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
-        ambientColor.setValue(VarType.Vector4, getAmbientColor(lights, true, ambientLightColor));
+        ambientColor.setValue(VarType.Vector4, ambientLightColor);
 
         Uniform lightData = shader.getUniform("g_LightData");
 
@@ -137,25 +158,26 @@ public final class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
         int index = 0;
         for (DirectionalLight light : tempDirLights) {
             ColorRGBA color = light.getColor();
+            float shadowMapIndex = getShadowMapIndex(light);
             tempDirection.set(light.getDirection());
             transformDirection(viewMatrix, tempDirection);
-            lightData.setVector4InArray(color.r, color.g, color.b, 1f, index++);
+            lightData.setVector4InArray(color.r, color.g, color.b, shadowMapIndex, index++);
             lightData.setVector4InArray(tempDirection.x, tempDirection.y, tempDirection.z, 1f, index++);
         }
 
         for (PointLight light : tempPointLights) {
             ColorRGBA color = light.getColor();
+            float shadowMapIndex = getShadowMapIndex(light);
             tempPosition.set(light.getPosition());
             float invRadius = light.getInvRadius();
             transformPosition(viewMatrix, tempPosition);
-            lightData.setVector4InArray(color.r, color.g, color.b, 1f, index++);
+            lightData.setVector4InArray(color.r, color.g, color.b, shadowMapIndex, index++);
             lightData.setVector4InArray(tempPosition.x, tempPosition.y, tempPosition.z, invRadius, index++);
         }
 
         for (SpotLight light : tempSpotLights) {
             ColorRGBA color = light.getColor();
-            Vector3f pos = light.getPosition();
-            Vector3f dir = light.getDirection();
+            float shadowMapIndex = getShadowMapIndex(light);
 
             tempPosition.set(light.getPosition());
             tempDirection.set(light.getDirection());
@@ -164,17 +186,21 @@ public final class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
 
             float invRange = light.getInvSpotRange();
             float spotAngleCos = light.getPackedAngleCos();
-            lightData.setVector4InArray(color.r, color.g, color.b, 1f, index++);
+            lightData.setVector4InArray(color.r, color.g, color.b, shadowMapIndex, index++);
             lightData.setVector4InArray(tempPosition.x, tempPosition.y, tempPosition.z, invRange, index++);
             lightData.setVector4InArray(tempDirection.x, tempDirection.y, tempDirection.z, spotAngleCos, index++);
         }
     }
 
+    protected void updateShadowUniforms(Renderer renderer, Shader shader, int nextTextureUnit) {
+    }
+
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, int nextTextureUnit) {
         Renderer renderer = renderManager.getRenderer();
         Matrix4f viewMatrix = renderManager.getCurrentCamera().getViewMatrix();
-        updateLightListUniforms(viewMatrix, shader, lights);
+        updateLightListUniforms(viewMatrix, shader);
+        updateShadowUniforms(renderer, shader, nextTextureUnit);
         renderer.setShader(shader);
         renderMeshFromGeometry(renderer, geometry);
     }
