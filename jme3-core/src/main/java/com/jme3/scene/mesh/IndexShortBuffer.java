@@ -49,6 +49,10 @@ public class IndexShortBuffer extends IndexBuffer {
     }
 
     @Override
+    public int get() {
+        return buf.get() & 0x0000FFFF;
+    }
+    @Override
     public int get(int i) {
         return buf.get(i) & 0x0000FFFF;
     }
