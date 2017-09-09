@@ -1447,7 +1447,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
             return false; // no bone animation data
         }
 
-        BufferUtils.ByteShortIntBufferReader boneIndexBuffer = new BufferUtils.ByteShortIntBufferReader(biBuf.getData());
+        IndexBuffer boneIndexBuffer = IndexBuffer.wrapIndexBuffer(biBuf.getData());
         boneIndexBuffer.rewind();
         int numBoneIndices = boneIndexBuffer.remaining();
         assert numBoneIndices % 4 == 0 : numBoneIndices;
