@@ -499,7 +499,8 @@ public class GltfLoader implements AssetLoader {
                     throw new AssetLoadException("Cannot load " + uri + ", a .bin extension is required.");
                 }
 
-                InputStream input = (InputStream) info.getManager().loadAsset(info.getKey().getFolder() + uri);
+                BinDataKey key = new BinDataKey(info.getKey().getFolder() + uri);
+                InputStream input = (InputStream) info.getManager().loadAsset(key);
                 data = new byte[bufferLength];
                 input.read(data);
             }
