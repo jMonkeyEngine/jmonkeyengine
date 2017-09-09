@@ -819,7 +819,14 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
     private void updateRenderState(RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {
         if (renderManager.getForcedRenderState() != null) {
-            renderer.applyRenderState(renderManager.getForcedRenderState());
+            if (techniqueDef.getForcedRenderState() != null) {
+                renderer.applyRenderState(
+                        techniqueDef.getForcedRenderState().copyMergedTo(
+                                renderManager.getForcedRenderState(),
+                                mergedRenderState));
+            } else {
+                renderer.applyRenderState(renderManager.getForcedRenderState());
+            }
         } else {
             if (techniqueDef.getRenderState() != null) {
                 renderer.applyRenderState(techniqueDef.getRenderState().copyMergedTo(additionalState, mergedRenderState));

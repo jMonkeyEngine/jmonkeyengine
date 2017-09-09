@@ -578,18 +578,10 @@ public class RenderManager {
                         : TechniqueDef.DEFAULT_TECHNIQUE_NAME;
 
                 geom.getMaterial().selectTechnique(forcedTechnique, this);
-                //saving forcedRenderState for future calls
-                RenderState tmpRs = forcedRenderState;
-                if (geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState() != null) {
-                    //forcing forced technique renderState
-                    forcedRenderState = geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState();
-                }
+
                 // use geometry's material
                 material.render(geom, this);
                 material.selectTechnique(previousTechniqueName, this);
-
-                //restoring forcedRenderState
-                forcedRenderState = tmpRs;
 
                 //Reverted this part from revision 6197
                 //If forcedTechnique does not exists, and forcedMaterial is not set, the geom MUST NOT be rendered
