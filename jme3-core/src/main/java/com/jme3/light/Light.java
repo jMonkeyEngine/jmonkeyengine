@@ -37,6 +37,7 @@ import com.jme3.export.*;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
+import com.jme3.shadow.next.ShadowMap;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 
@@ -120,6 +121,8 @@ public abstract class Light implements Savable, Cloneable {
     boolean frustumCheckNeeded = true;
     boolean intersectsFrustum  = false;
 
+    protected ShadowMap shadowMap;
+    
     protected Light() {
     }
 
@@ -163,6 +166,22 @@ public abstract class Light implements Savable, Cloneable {
         return lastDistance;
     }
     */
+    
+    /**
+     * @return the light's shadow map, or null if none was assigned.
+     */
+    public ShadowMap getShadowMap() {
+        return shadowMap;
+    }
+ 
+    /**
+     * Used internally to associate the light with a shadow map
+     * 
+     * @param shadowMap the light's shadow map
+     */
+    public void setShadowMap(ShadowMap shadowMap) {
+        this.shadowMap = shadowMap;
+    }
 
     /**
      * Sets the light color.
