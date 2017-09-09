@@ -165,16 +165,17 @@ public final class GLTracer implements InvocationHandler {
     
     /**
      * Creates a tracer implementation that wraps OpenGL ES 2.
-     * 
+     *
      * @param glInterface OGL object to wrap
-     * @param glInterfaceClass The interface to implement
+     * @param glInterfaceClasses The interface(s) to implement
      * @return A tracer that implements the given interface
      */
-    public static Object createGlesTracer(Object glInterface, Class<?> glInterfaceClass) {
-        IntMap<String> constMap = generateConstantMap(GL.class, GLFbo.class, GLExt.class);
-        return Proxy.newProxyInstance(glInterface.getClass().getClassLoader(),
-                                      new Class<?>[] { glInterfaceClass }, 
-                                      new GLTracer(glInterface, constMap));
+    public static Object createGlesTracer(Object glInterface, Class<?>... glInterfaceClasses) {
+        IntMap<String> constMap = generateConstantMap(GL.class, GL2.class, GL3.class, GLFbo.class, GLExt.class);
+        return Proxy.newProxyInstance(
+                glInterface.getClass().getClassLoader(),
+                glInterfaceClasses,
+                new GLTracer(glInterface, constMap));
     }
 
     /**
