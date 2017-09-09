@@ -366,8 +366,8 @@ public final class GLTracer implements InvocationHandler {
         printEnum(param);
         print(", ");
         
-        if (param == GL.GL_TEXTURE_BASE_LEVEL
-                || param == GL.GL_TEXTURE_MAX_LEVEL) {
+        if (param == GL2.GL_TEXTURE_BASE_LEVEL
+                || param == GL2.GL_TEXTURE_MAX_LEVEL) {
             printInt(value);
         } else {
             printEnum(value);
