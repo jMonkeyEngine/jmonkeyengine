@@ -429,6 +429,9 @@ public class RenderState implements Cloneable, Savable {
         ADDITIONAL.applyBlendEquationAlpha = false;
         ADDITIONAL.applyBlendMode = false;
         ADDITIONAL.applyPolyOffset = false;
+        ADDITIONAL.applyStencilTest = false;
+        ADDITIONAL.applyLineWidth = false;
+        ADDITIONAL.applyDepthFunc = false;
     }
     boolean wireframe = false;
     boolean applyWireFrame = true;
