@@ -49,7 +49,7 @@ import java.util.*;
 public class GLSLLoader implements AssetLoader {
 
     private AssetManager assetManager;
-    private Map<String, ShaderDependencyNode> dependCache = new HashMap<String, ShaderDependencyNode>();
+    private final Map<String, ShaderDependencyNode> dependCache = new HashMap<>();
 
     /**
      * Used to load {@link ShaderDependencyNode}s.
@@ -168,7 +168,7 @@ public class GLSLLoader implements AssetLoader {
             return node.getSource();
         } else {
             StringBuilder sb = new StringBuilder(node.getSource());
-            List<String> resolvedShaderNodes = new ArrayList<String>();
+            List<String> resolvedShaderNodes = new ArrayList<>();
 
             for (ShaderDependencyNode dependencyNode : node.getDependencies()) {
                 resolvedShaderNodes.add(resolveDependencies(dependencyNode, alreadyInjectedSet, extensions));
@@ -187,7 +187,8 @@ public class GLSLLoader implements AssetLoader {
         // to retrieve the fragment shader, use the content manager
         this.assetManager = info.getManager();
         Reader reader = new InputStreamReader(info.openStream());
-        if (info.getKey().getExtension().equals("glsllib")) {
+        String extension = info.getKey().getExtension();
+        if (extension.equals("glsllib") || extension.equals("glsl")) {
             // NOTE: Loopback, GLSLLIB is loaded by this loader
             // and needs data as InputStream
             return reader;

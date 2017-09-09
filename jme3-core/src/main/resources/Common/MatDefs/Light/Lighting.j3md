@@ -27,6 +27,9 @@ MaterialDef Phong Lighting {
         // Specular power/shininess
         Float Shininess : 1
 
+        // Ambient map
+        Texture2D AmbientMap
+
         // Diffuse map
         Texture2D DiffuseMap
 
@@ -79,7 +82,7 @@ MaterialDef Phong Lighting {
         Boolean EnvMapAsSphereMap
 
         //shadows
-         Int FilterMode
+        Int FilterMode
         Boolean HardwareShadows
 
         Texture2D ShadowMap0
@@ -115,6 +118,27 @@ MaterialDef Phong Lighting {
         Boolean UseInstancing
 
         Boolean BackfaceShadows : false
+    }
+
+    Technique {
+        LightMode StaticPass
+ 
+        VertexShader   GLSL100 GLSL150 : Common/MatDefs/Light/StaticLighting.vert
+        FragmentShader GLSL100 GLSL150 : Common/MatDefs/Light/StaticLighting.frag
+ 
+        WorldParameters {
+            WorldViewProjectionMatrix
+            NormalMatrix
+            WorldViewMatrix
+            ViewMatrix
+            CameraPosition
+            WorldMatrix
+            ViewProjectionMatrix
+        }
+ 
+        Defines {
+            AMBIENTMAP : AmbientMap
+        }
     }
 
     Technique {

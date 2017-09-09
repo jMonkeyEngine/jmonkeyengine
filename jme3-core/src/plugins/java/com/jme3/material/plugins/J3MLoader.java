@@ -646,7 +646,7 @@ public class J3MLoader implements AssetLoader {
                 technique.setLogic(new SinglePassLightingLogic(technique));
                 break;
             case StaticPass:
-                technique.setLogic(new StaticPassLightingLogic(technique));
+                technique.setLogic(new ShadowStaticPassLightingLogic(technique));
                 break;
             case SinglePassAndImageBased:
                 technique.setLogic(new SinglePassAndImageBasedLightingLogic(technique));
