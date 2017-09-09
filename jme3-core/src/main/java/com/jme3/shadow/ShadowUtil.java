@@ -96,7 +96,6 @@ public class ShadowUtil {
     public static void updateFrustumPoints(Camera viewCam,
             float nearOverride,
             float farOverride,
-            float scale,
             Vector3f[] points) {
 
         Vector3f pos = viewCam.getLocation();
@@ -149,22 +148,6 @@ public class ShadowUtil {
         points[5].set(farCenter).addLocal(farUp).subtractLocal(farRight);
         points[6].set(farCenter).addLocal(farUp).addLocal(farRight);
         points[7].set(farCenter).subtractLocal(farUp).addLocal(farRight);
-
-        if (scale != 1.0f) {
-            // find center of frustum
-            Vector3f center = new Vector3f();
-            for (int i = 0; i < 8; i++) {
-                center.addLocal(points[i]);
-            }
-            center.divideLocal(8f);
-
-            Vector3f cDir = new Vector3f();
-            for (int i = 0; i < 8; i++) {
-                cDir.set(points[i]).subtractLocal(center);
-                cDir.multLocal(scale - 1.0f);
-                points[i].addLocal(cDir);
-            }
-        }
     }
 
     /**

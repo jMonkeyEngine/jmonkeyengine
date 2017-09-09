@@ -137,7 +137,7 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
 
         //We prevent computing the frustum points and splits with zeroed or negative near clip value
         float frustumNear = Math.max(viewCam.getFrustumNear(), 0.001f);
-        ShadowUtil.updateFrustumPoints(viewCam, frustumNear, zFar, 1.0f, points);
+        ShadowUtil.updateFrustumPoints(viewCam, frustumNear, zFar, points);
         //shadowCam.setDirection(direction);
 
         shadowCam.setFrustumPerspective(light.getSpotOuterAngle() * FastMath.RAD_TO_DEG * 2.0f, 1, 1f, light.getSpotRange());
