@@ -72,15 +72,18 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
 
     @Override
     public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
-            EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
+            EnumSet<Caps> rendererCaps, Geometry geometry, DefineList defines) {
         defines.set(nbLightsDefineId, renderManager.getSinglePassLightBatchSize() * 3);
         defines.set(singlePassLightingDefineId, true);
 
-
-        //TODO here we have a problem, this is called once before render, so the define will be set for all passes (in case we have more than NB_LIGHTS lights)
-        //Though the second pass should not render IBL as it is taken care of on first pass like ambient light in phong lighting.
-        //We cannot change the define between passes and the old technique, and for some reason the code fails on mac (renders nothing).
-        if(lights != null) {
+        // TODO: here we have a problem, this is called once before render, 
+        // so the define will be set for all passes (in case we have more than NB_LIGHTS lights)
+        // Though the second pass should not render IBL as it is taken care of on 
+        // first pass like ambient light in phong lighting.
+        // We cannot change the define between passes and the old technique, and 
+        // for some reason the code fails on mac (renders nothing).
+        LightList lights = getFilteredLightList(renderManager, geometry);
+        if (lights != null) {
             lightProbe = extractIndirectLights(lights, false);
             if (lightProbe == null) {
                 defines.set(indirectLightingDefineId, false);
@@ -89,7 +92,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
             }
         }
 
-        return super.makeCurrent(assetManager, renderManager, rendererCaps, lights, defines);
+        return super.makeCurrent(assetManager, renderManager, rendererCaps, geometry, defines);
     }
 
     /**
@@ -224,10 +227,11 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, int lastTexUnit) {
         int nbRenderedLights = 0;
         Renderer renderer = renderManager.getRenderer();
         int batchSize = renderManager.getSinglePassLightBatchSize();
+        LightList lights = getFilteredLightList(renderManager, geometry);
         if (lights.size() == 0) {
             updateLightListUniforms(shader, geometry, lights,batchSize, renderManager, 0, lastTexUnit);
             renderer.setShader(shader);
@@ -239,7 +243,6 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
                 renderMeshFromGeometry(renderer, geometry);
             }
         }
-        return;
     }
 
     protected LightProbe extractIndirectLights(LightList lightList, boolean removeLights) {

@@ -31,7 +31,6 @@
  */
 package com.jme3.material.logic;
 
-import com.jme3.asset.AssetManager;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
@@ -41,20 +40,16 @@ import com.jme3.light.SpotLight;
 import com.jme3.material.RenderState;
 import com.jme3.material.TechniqueDef;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
-import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.scene.Geometry;
-import com.jme3.shader.DefineList;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Uniform;
 import com.jme3.shader.VarType;
 import com.jme3.util.TempVars;
-import java.util.EnumSet;
 
 public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
 
@@ -73,7 +68,7 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, int lastTexUnit) {
         Renderer r = renderManager.getRenderer();
         Uniform lightDir = shader.getUniform("g_LightDirection");
         Uniform lightColor = shader.getUniform("g_LightColor");
@@ -82,6 +77,7 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
         boolean isFirstLight = true;
         boolean isSecondLight = false;
         
+        LightList lights = getFilteredLightList(renderManager, geometry);
         getAmbientColor(lights, false, ambientLightColor);
 
         for (int i = 0; i < lights.size(); i++) {

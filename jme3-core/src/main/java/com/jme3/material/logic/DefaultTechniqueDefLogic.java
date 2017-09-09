@@ -48,6 +48,7 @@ import java.util.EnumSet;
 public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
 
     protected final TechniqueDef techniqueDef;
+    protected final LightList filteredLightList = new LightList(null);
 
     public DefaultTechniqueDefLogic(TechniqueDef techniqueDef) {
         this.techniqueDef = techniqueDef;
@@ -55,7 +56,7 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
 
     @Override
     public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
-            EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
+            EnumSet<Caps> rendererCaps, Geometry geometry, DefineList defines) {
         return techniqueDef.getShader(assetManager, rendererCaps, defines);
     }
 
@@ -69,6 +70,19 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
         } else {
             renderer.renderMesh(mesh, lodLevel, 1, null);
         }
+    }
+    
+    @Override
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, int lastTexUnit) {
+        Renderer renderer = renderManager.getRenderer();
+        renderer.setShader(shader);
+        renderMeshFromGeometry(renderer, geometry);
+    }
+    
+    protected LightList getFilteredLightList(RenderManager renderManager, Geometry geom) {
+        filteredLightList.clear();
+        renderManager.getLightFilter().filterLights(geom, filteredLightList);
+        return filteredLightList;
     }
 
     protected static ColorRGBA getAmbientColor(LightList lightList, boolean removeLights, ColorRGBA ambientLightColor) {
@@ -84,14 +98,5 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
         }
         ambientLightColor.a = 1.0f;
         return ambientLightColor;
-    }
-
-
-
-    @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit) {
-        Renderer renderer = renderManager.getRenderer();
-        renderer.setShader(shader);
-        renderMeshFromGeometry(renderer, geometry);
     }
 }

@@ -81,9 +81,9 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     private AssetKey key;
     private String name;
     private MaterialDef def;
-    private ListMap<String, MatParam> paramValues = new ListMap<String, MatParam>();
+    private ListMap<String, MatParam> paramValues = new ListMap<>();
     private Technique technique;
-    private HashMap<String, Technique> techniques = new HashMap<String, Technique>();
+    private HashMap<String, Technique> techniques = new HashMap<>();
     private RenderState additionalState = null;
     private RenderState mergedRenderState = new RenderState();
     private boolean transparent = false;
@@ -143,10 +143,12 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         this.name = name;
     }
 
+    @Override
     public void setKey(AssetKey key) {
         this.key = key;
     }
 
+    @Override
     public AssetKey getKey() {
         return key;
     }
@@ -200,9 +202,9 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 mat.additionalState = additionalState.clone();
             }
             mat.technique = null;
-            mat.techniques = new HashMap<String, Technique>();
+            mat.techniques = new HashMap<>();
 
-            mat.paramValues = new ListMap<String, MatParam>();
+            mat.paramValues = new ListMap<>();
             for (int i = 0; i < paramValues.size(); i++) {
                 Map.Entry<String, MatParam> entry = paramValues.getEntry(i);
                 mat.paramValues.put(entry.getKey(), entry.getValue().clone());
@@ -933,10 +935,9 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * </ul>
      *
      * @param geometry The geometry to render
-     * @param lights Presorted and filtered light list to use for rendering
      * @param renderManager The render manager requesting the rendering
      */
-    public void render(Geometry geometry, LightList lights, RenderManager renderManager) {
+    public void render(Geometry geometry, RenderManager renderManager) {
         if (technique == null) {
             selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
         }
@@ -956,7 +957,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         SafeArrayList<MatParamOverride> overrides = geometry.getWorldMatParamOverrides();
 
         // Select shader to use
-        Shader shader = technique.makeCurrent(renderManager, overrides, renderManager.getForcedMatParams(), lights, rendererCaps);
+        Shader shader = technique.makeCurrent(renderManager, geometry, overrides, renderManager.getForcedMatParams(), rendererCaps);
         
         // Begin tracking which uniforms were changed by material.
         clearUniformsSetByCurrent(shader);
@@ -965,29 +966,24 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         renderManager.updateUniformBindings(shader);
         
         // Set material parameters
-        int unit = updateShaderMaterialParameters(renderer, shader, overrides, renderManager.getForcedMatParams());
+        int nextTextureUnit = updateShaderMaterialParameters(renderer, shader, overrides, renderManager.getForcedMatParams());
 
         // Clear any uniforms not changed by material.
         resetUniformsNotSetByCurrent(shader);
         
         // Delegate rendering to the technique
-        technique.render(renderManager, shader, geometry, lights, unit);
+        technique.render(renderManager, shader, geometry, nextTextureUnit);
     }
 
-    /**
-     * Called by {@link RenderManager} to render the geometry by
-     * using this material.
-     *
-     * Note that this version of the render method
-     * does not perform light filtering.
-     *
-     * @param geom The geometry to render
-     * @param rm The render manager requesting the rendering
-     */
-    public void render(Geometry geom, RenderManager rm) {
-        render(geom, geom.getWorldLightList(), rm);
+    @Override
+    public String toString() {
+        return "Material[name=" + name + 
+                ", def=" + (def != null ? def.getName() : null) + 
+                ", tech=" + (technique != null && technique.getDef() != null ? technique.getDef().getName() : null) + 
+                "]";
     }
-
+    
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(def.getAssetName(), "material_def", null);
@@ -998,13 +994,6 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
     
     @Override
-    public String toString() {
-        return "Material[name=" + name + 
-                ", def=" + (def != null ? def.getName() : null) + 
-                ", tech=" + (technique != null && technique.getDef() != null ? technique.getDef().getName() : null) + 
-                "]";
-    }
-
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
 
@@ -1054,7 +1043,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
 
         def = (MaterialDef) im.getAssetManager().loadAsset(new AssetKey(defName));
-        paramValues = new ListMap<String, MatParam>();
+        paramValues = new ListMap<>();
 
         // load the textures and update nextTexUnit
         for (Map.Entry<String, MatParam> entry : params.entrySet()) {
