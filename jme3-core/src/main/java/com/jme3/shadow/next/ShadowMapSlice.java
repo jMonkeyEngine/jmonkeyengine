@@ -39,12 +39,20 @@ import com.jme3.renderer.queue.GeometryList;
 
 /**
  * Represents a single slice of a shadow map.
- *
+ * 
+ * @param <T> Type of light
+ * 
  * @author Kirill Vainer
  */
 public interface ShadowMapSlice<T extends Light> {
 
-    public Matrix4f getViewProjectionMatrix();
+    public static final Matrix4f BIAS_MATRIX = new Matrix4f(
+            0.5f, 0.0f, 0.0f, 0.5f,
+            0.0f, 0.5f, 0.0f, 0.5f,
+            0.0f, 0.0f, 0.5f, 0.5f,
+            0.0f, 0.0f, 0.0f, 1.0f);
+
+    public Matrix4f getBiasedViewProjectionMatrix();
 
     public void renderShadowMap(RenderManager renderManager, T light, ViewPort viewPort, GeometryList shadowCasters);
 }

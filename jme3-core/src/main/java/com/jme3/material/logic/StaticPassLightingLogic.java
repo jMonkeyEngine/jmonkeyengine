@@ -75,12 +75,6 @@ public class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
     protected final ArrayList<PointLight> tempPointLights = new ArrayList<>();
     protected final ArrayList<SpotLight> tempSpotLights = new ArrayList<>();
 
-    protected static final Matrix4f BIAS_MATRIX = new Matrix4f(
-            0.5f, 0.0f, 0.0f, 0.5f,
-            0.0f, 0.5f, 0.0f, 0.5f,
-            0.0f, 0.0f, 0.5f, 0.5f,
-            0.0f, 0.0f, 0.0f, 1.0f);
-
     public StaticPassLightingLogic(TechniqueDef techniqueDef) {
         super(techniqueDef);
 

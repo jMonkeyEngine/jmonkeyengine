@@ -52,6 +52,7 @@ public class BaseArrayShadowMapSlice<T extends Light> implements ArrayShadowMapS
     protected final FrameBuffer frameBuffer;
     protected final Camera shadowCamera;
     protected final Vector3f[] points;
+    protected final Matrix4f biasedViewProjectionMatrix = new Matrix4f();
 
     public BaseArrayShadowMapSlice(TextureArray array, int layer, int textureSize, Vector3f[] points) {
         this.shadowCamera = new Camera(textureSize, textureSize);
@@ -67,8 +68,8 @@ public class BaseArrayShadowMapSlice<T extends Light> implements ArrayShadowMapS
     }
 
     @Override
-    public Matrix4f getViewProjectionMatrix() {
-        return shadowCamera.getViewProjectionMatrix();
+    public Matrix4f getBiasedViewProjectionMatrix() {
+        return biasedViewProjectionMatrix;
     }
 
     @Override
@@ -80,6 +81,7 @@ public class BaseArrayShadowMapSlice<T extends Light> implements ArrayShadowMapS
         renderer.clearBuffers(false, true, false);
 
         viewPort.getQueue().renderShadowQueue(shadowCasters, renderManager, shadowCamera, true);
+        
+        BIAS_MATRIX.mult(shadowCamera.getViewProjectionMatrix(), biasedViewProjectionMatrix);
     }
-
 }

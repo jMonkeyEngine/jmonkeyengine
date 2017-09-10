@@ -33,7 +33,6 @@ package com.jme3.shadow.next.array;
 
 import com.jme3.light.SpotLight;
 import com.jme3.math.FastMath;
-import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
@@ -42,7 +41,6 @@ import com.jme3.shadow.ShadowUtil;
 import com.jme3.texture.TextureArray;
 
 /**
- *
  * @author Kirill Vainer
  */
 public class SpotArrayShadowMapSlice extends BaseArrayShadowMapSlice<SpotLight> {

@@ -197,7 +197,7 @@ public class Uniform extends ShaderVariable {
         }
     }
     
-    public void setValue(VarType type, Object value){
+    public void setValue(VarType type, Object value) {
         if (location == LOC_NOT_DEFINED) {
             return;
         }
@@ -386,12 +386,40 @@ public class Uniform extends ShaderVariable {
         varType = type;
         updateNeeded = true;
     }
-
-    public void setVector4Length(int length){
-        if (location == -1) {
+    
+    public void setMatrix4Length(int length) {
+        if (location == LOC_NOT_DEFINED) {
             return;
         }
-        
+
+        multiData = BufferUtils.ensureLargeEnough(multiData, length * 4 * 4);
+        value = multiData;
+        varType = VarType.Matrix4Array;
+        updateNeeded = true;
+        setByCurrentMaterial = true;
+    }
+    
+    public void setMatrix4InArray(Matrix4f matrix, int index) {
+        if (location == LOC_NOT_DEFINED) {
+            return;
+        }
+
+        if (varType != null && varType != VarType.Matrix4Array) {
+            throw new IllegalArgumentException("Expected a " + varType.name() + " value!");
+        }
+
+        multiData.position(index * 4 * 4);
+        matrix.fillFloatBuffer(multiData, true);
+        multiData.rewind();
+        updateNeeded = true;
+        setByCurrentMaterial = true;
+    }
+
+    public void setVector4Length(int length) {
+        if (location == LOC_NOT_DEFINED) {
+            return;
+        }
+
         multiData = BufferUtils.ensureLargeEnough(multiData, length * 4);
         value = multiData;
         varType = VarType.Vector4Array;
@@ -399,8 +427,8 @@ public class Uniform extends ShaderVariable {
         setByCurrentMaterial = true;
     }
 
-    public void setVector4InArray(float x, float y, float z, float w, int index){
-        if (location == -1) {
+    public void setVector4InArray(float x, float y, float z, float w, int index) {
+        if (location == LOC_NOT_DEFINED) {
             return;
         }
 
@@ -414,7 +442,7 @@ public class Uniform extends ShaderVariable {
         updateNeeded = true;
         setByCurrentMaterial = true;
     }
-    
+
     public boolean isUpdateNeeded(){
         return updateNeeded;
     }

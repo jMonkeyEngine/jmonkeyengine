@@ -69,7 +69,6 @@ public class ShadowStaticPassLightingLogic extends StaticPassLightingLogic {
     private int numShadowDirLights = 0;
     private int numShadowPointLights = 0;
     private int numShadowSpotLights = 0;
-    private final Matrix4f[] shadowMatrices = new Matrix4f[5];
 
     public ShadowStaticPassLightingLogic(TechniqueDef techniqueDef) {
         super(techniqueDef);
@@ -77,10 +76,6 @@ public class ShadowStaticPassLightingLogic extends StaticPassLightingLogic {
         numShadowDirLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NUM_SHADOW_DIR_LIGHTS, VarType.Int);
         numShadowPointLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NUM_SHADOW_POINT_LIGHTS, VarType.Int);
         numShadowSpotLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NUM_SHADOW_SPOT_LIGHTS, VarType.Int);
-
-        for (int i = 0; i < shadowMatrices.length; i++) {
-            shadowMatrices[i] = new Matrix4f();
-        }
     }
 
     @Override
@@ -157,6 +152,9 @@ public class ShadowStaticPassLightingLogic extends StaticPassLightingLogic {
         Vector4f pssmSplits = null;
 
         Uniform shadowMatricesUniform = shader.getUniform("g_ShadowMatrices");
+        
+        shadowMatricesUniform.setMatrix4Length(numShadowDirLights * 4 + numShadowSpotLights);
+
         int shadowMatrixIndex = 0;
         for (int i = 0; i < numShadowDirLights; i++) {
             DirectionalArrayShadowMap map = (DirectionalArrayShadowMap) tempDirLights.get(i).getShadowMap();
@@ -164,7 +162,9 @@ public class ShadowStaticPassLightingLogic extends StaticPassLightingLogic {
             pssmSplits = map.getProjectionSplitPositions();
             for (int j = 0; j < map.getNumSlices(); j++) {
                 ArrayShadowMapSlice slice = (ArrayShadowMapSlice) map.getSlice(j);
-                BIAS_MATRIX.mult(slice.getViewProjectionMatrix(), shadowMatrices[shadowMatrixIndex]);
+                shadowMatricesUniform.setMatrix4InArray(
+                        slice.getBiasedViewProjectionMatrix(),
+                        shadowMatrixIndex);
                 shadowMatrixIndex++;
             }
         }
@@ -173,16 +173,18 @@ public class ShadowStaticPassLightingLogic extends StaticPassLightingLogic {
             SpotArrayShadowMap map = (SpotArrayShadowMap) tempSpotLights.get(i).getShadowMap();
             array = map.getArray();
             SpotArrayShadowMapSlice slice = map.getSlice(0);
-            BIAS_MATRIX.mult(slice.getViewProjectionMatrix(), shadowMatrices[shadowMatrixIndex]);
+            shadowMatricesUniform.setMatrix4InArray(
+                        slice.getBiasedViewProjectionMatrix(),
+                        shadowMatrixIndex);
             shadowMatrixIndex++;
         }
 
-        shadowMatricesUniform.setValue(VarType.Matrix4Array, shadowMatrices);
         if (array != null) {
             renderer.setTexture(nextTextureUnit, array);
             Uniform shadowMapArrayUniform = shader.getUniform("g_ShadowMapArray");
             shadowMapArrayUniform.setValue(VarType.Int, nextTextureUnit);
         }
+        
         if (pssmSplits != null) {
             Uniform pssmSplitsUniform = shader.getUniform("g_PssmSplits");
             pssmSplitsUniform.setValue(VarType.Vector4, pssmSplits);

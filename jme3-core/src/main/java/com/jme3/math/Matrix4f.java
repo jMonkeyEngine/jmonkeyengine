@@ -752,7 +752,6 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 
         TempVars vars = TempVars.get();
 
-
         fillFloatArray(vars.matrixWrite, columnMajor);
         fb.put(vars.matrixWrite, 0, 16);
 

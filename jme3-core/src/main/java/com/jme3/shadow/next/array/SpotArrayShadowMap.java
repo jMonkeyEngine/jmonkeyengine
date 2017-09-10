@@ -64,5 +64,4 @@ public class SpotArrayShadowMap extends BaseArrayShadowMap<SpotArrayShadowMapSli
     public Light.Type getLightType() {
         return Light.Type.Spot;
     }
-
 }
