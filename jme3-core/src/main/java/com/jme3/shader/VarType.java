@@ -59,16 +59,24 @@ public enum VarType {
     TextureCubeMap(false,true,"samplerCube"),
     Int("int");
 
+    private static final VarType[] VALUES = values();
+
+    public static VarType valueOf(final int ordinal) {
+        if (ordinal < 0 || ordinal >= VALUES.length) {
+            throw new IllegalArgumentException("The ordinal is out of values range.");
+        }
+        return VALUES[ordinal];
+    }
+
     private boolean usesMultiData = false;
     private boolean textureType = false;
     private String glslType;
 
-    
-    VarType(String glslType){
+    VarType(String glslType) {
         this.glslType = glslType;
     }
 
-    VarType(boolean multiData, boolean textureType,String glslType){
+    VarType(boolean multiData, boolean textureType, String glslType) {
         usesMultiData = multiData;
         this.textureType = textureType;
         this.glslType = glslType;
@@ -84,6 +92,5 @@ public enum VarType {
 
     public String getGlslType() {
         return glslType;
-    }    
-
+    }
 }
