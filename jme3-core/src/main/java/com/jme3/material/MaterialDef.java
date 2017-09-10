@@ -32,10 +32,14 @@
 package com.jme3.material;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.renderer.RenderManager;
+import com.jme3.export.*;
 import com.jme3.shader.VarType;
+import com.jme3.system.Annotations;
 import com.jme3.texture.image.ColorSpace;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,6 +52,9 @@ import java.util.logging.Logger;
 public class MaterialDef{
 
     private static final Logger logger = Logger.getLogger(MaterialDef.class.getName());
+
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
+    private static final Savable[][] EMPTY_SAVABLE_2D_ARRAY = new Savable[0][0];
 
     private String name;
     private String assetName;
@@ -71,8 +78,8 @@ public class MaterialDef{
     public MaterialDef(AssetManager assetManager, String name){
         this.assetManager = assetManager;
         this.name = name;
-        techniques = new HashMap<String, List<TechniqueDef>>();
-        matParams = new HashMap<String, MatParam>();
+        techniques = new HashMap<>();
+        matParams = new HashMap<>();
         logger.log(Level.FINE, "Loaded material definition: {0}", name);
     }
 
@@ -129,8 +136,6 @@ public class MaterialDef{
      * 
      * @param type Type of the parameter
      * @param name Name of the parameter
-     * @param value Default value of the parameter
-     * @param ffBinding Fixed function binding for the parameter
      * @param colorSpace the color space of the texture required by thiis texture param
      * @see ColorSpace
      */
@@ -195,4 +200,85 @@ public class MaterialDef{
         return techniques.keySet();
     }
 
+    @Override
+    public MaterialDef jmeClone() {
+        try {
+            return (MaterialDef) super.clone();
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void cloneFields(final Cloner cloner, final Object original) {
+
+        final Map<String, MatParam> oldMatParams = matParams;
+
+        matParams = new HashMap<>();
+
+        for (final Map.Entry<String, MatParam> entry : oldMatParams.entrySet()) {
+            matParams.put(entry.getKey(), cloner.clone(entry.getValue()));
+        }
+
+        final Map<String, List<TechniqueDef>> oldTechniques = this.techniques;
+
+        techniques = new HashMap<>();
+
+        for (final Map.Entry<String, List<TechniqueDef>> entry : oldTechniques.entrySet()) {
+            techniques.put(entry.getKey(), cloner.clone(entry.getValue()));
+        }
+    }
+
+    @Override
+    public void write(final JmeExporter ex) throws IOException {
+
+        final OutputCapsule out = ex.getCapsule(this);
+        out.write(name, "name", null);
+        out.write(assetName, "assetName", null);
+        out.writeStringSavableMap(matParams, "matParams", null);
+
+        final String[] techniquesNames = new String[techniques.size()];
+        final Savable[][] savableTechniques = new Savable[techniques.size()][];
+        int index = 0;
+
+        for (final Map.Entry<String, List<TechniqueDef>> entry : techniques.entrySet()) {
+
+            final String name = entry.getKey();
+            final List<TechniqueDef> techniqueDefs = entry.getValue();
+            final Savable[] savables = techniqueDefs.toArray(new Savable[techniqueDefs.size()]);
+
+            techniquesNames[index] = name;
+            savableTechniques[index++] = savables;
+        }
+
+        out.write(techniquesNames, "techniquesKeys", EMPTY_STRING_ARRAY);
+        out.write(savableTechniques, "techniquesValues", EMPTY_SAVABLE_2D_ARRAY);
+    }
+
+    @Override
+    public void read(final JmeImporter im) throws IOException {
+
+        final InputCapsule in = im.getCapsule(this);
+        name = in.readString("name", null);
+        assetName = in.readString("assetName", null);
+        matParams = (Map<String, MatParam>) in.readStringSavableMap("matParams", null);
+        assetManager = im.getAssetManager();
+
+        final String[] techniquesNames = in.readStringArray("techniquesKeys", EMPTY_STRING_ARRAY);
+        final Savable[][] savableTechniques = in.readSavableArray2D("techniquesValues", EMPTY_SAVABLE_2D_ARRAY);
+
+        techniques = new HashMap<>();
+
+        for (int i = 0; i < techniquesNames.length; i++) {
+
+            final Savable[] savables = savableTechniques[i];
+            final List<TechniqueDef> techniqueDefs = new ArrayList<>(savables.length);
+
+            for (final Savable savable : savables) {
+                techniqueDefs.add((TechniqueDef) savable);
+            }
+
+            techniques.put(techniquesNames[i], techniqueDefs);
+        }
+    }
 }
