@@ -37,8 +37,11 @@ import com.jme3.material.logic.TechniqueDefLogic;
 import com.jme3.renderer.Caps;
 import com.jme3.shader.*;
 import com.jme3.shader.Shader.ShaderType;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
@@ -47,7 +50,7 @@ import java.util.*;
  *
  * @author Kirill Vainer
  */
-public class TechniqueDef implements Savable, Cloneable {
+public class TechniqueDef implements Savable, JmeCloneable {
 
     /**
      * Version #1: Separate shader language for each shader source.
@@ -61,6 +64,9 @@ public class TechniqueDef implements Savable, Cloneable {
      * requested by the user. Currently set to "Default".
      */
     public static final String DEFAULT_TECHNIQUE_NAME = "Default";
+
+    private static final int[] EMPTY_INT_ARRAY = new int[0];
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     /**
      * Describes light rendering mode.
@@ -133,10 +139,10 @@ public class TechniqueDef implements Savable, Cloneable {
         Legacy
     }
 
-    private final EnumSet<Caps> requiredCaps = EnumSet.noneOf(Caps.class);
+    private EnumSet<Caps> requiredCaps = EnumSet.noneOf(Caps.class);
     private String name;
     private int sortId;
-    
+
     private EnumMap<Shader.ShaderType,String> shaderLanguages;
     private EnumMap<Shader.ShaderType,String> shaderNames;
 
@@ -144,8 +150,8 @@ public class TechniqueDef implements Savable, Cloneable {
     private ArrayList<String> defineNames;
     private ArrayList<VarType> defineTypes;
     private HashMap<String, Integer> paramToDefineId;
-    private final HashMap<DefineList, Shader> definesToShaderMap;
-    
+    private HashMap<DefineList, Shader> definesToShaderMap;
+
     private boolean usesNodes = false;
     private List<ShaderNode> shaderNodes;
     private ShaderGenerationInfo shaderGenerationInfo;
@@ -655,6 +661,57 @@ public class TechniqueDef implements Savable, Cloneable {
         return worldBinds;
     }
 
+    @Override
+    public TechniqueDef jmeClone() {
+        try {
+            return (TechniqueDef) super.clone();
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void cloneFields(final Cloner cloner, final Object original) {
+        logic = createLogic(logic.getClass());
+        definesToShaderMap = new HashMap<>();
+
+        final EnumMap<ShaderType, String> oldShaderNames = this.shaderNames;
+        shaderNames = new EnumMap<>(oldShaderNames);
+
+        final EnumMap<ShaderType, String> oldShaderLanguages = this.shaderLanguages;
+        shaderLanguages = new EnumMap<>(oldShaderLanguages);
+
+        renderState = cloner.clone(renderState);
+        forcedRenderState = cloner.clone(forcedRenderState);
+        shaderNodes = cloner.clone(shaderNodes);
+        shaderGenerationInfo = cloner.clone(shaderGenerationInfo);
+
+        final ArrayList<UniformBinding> oldWorldBinds = this.worldBinds;
+        worldBinds = new ArrayList<>(oldWorldBinds == null ? Collections.<UniformBinding>emptyList() : oldWorldBinds);
+
+        final ArrayList<VarType> oldDefineTypes = this.defineTypes;
+        defineTypes = new ArrayList<>(oldDefineTypes == null ? Collections.<VarType>emptyList() : oldDefineTypes);
+
+        final ArrayList<String> oldDefineNames = this.defineNames;
+        defineNames = new ArrayList<>(oldDefineNames == null ? Collections.<String>emptyList() : oldDefineNames);
+
+        final EnumSet<Caps> oldRequiredCaps = this.requiredCaps;
+        requiredCaps = EnumSet.noneOf(Caps.class);
+        requiredCaps.addAll(oldRequiredCaps);
+
+        final HashMap<String, Integer> oldParamToDefineId = this.paramToDefineId;
+        paramToDefineId = new HashMap<>(oldParamToDefineId);
+    }
+
+    private TechniqueDefLogic createLogic(final Class<?> type) {
+        try {
+            final Constructor<?> constructor = type.getConstructor(TechniqueDef.class);
+            return (TechniqueDefLogic) constructor.newInstance(this);
+        } catch (final InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void write(JmeExporter ex) throws IOException{
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", null);
@@ -678,11 +735,46 @@ public class TechniqueDef implements Savable, Cloneable {
         oc.write(usesNodes, "usesNodes", false);
         oc.writeSavableArrayList((ArrayList)shaderNodes,"shaderNodes", null);
         oc.write(shaderGenerationInfo, "shaderGenerationInfo", null);
+        oc.write(logic.getClass().getName(), "logic", null);
+        oc.write(weight, "weight", 0F);
 
-        // TODO: Finish this when Map<String, String> export is available
-//        oc.write(defineParams, "defineParams", null);
-        // TODO: Finish this when List<Enum> export is available
-//        oc.write(worldBinds, "worldBinds", null);
+        final int worldBindOrdinals[] = new int[worldBinds.size()];
+
+        for (int i = 0; i < worldBinds.size(); i++) {
+            worldBindOrdinals[i] = worldBinds.get(i).ordinal();
+        }
+
+        oc.write(worldBindOrdinals, "worldBinds", EMPTY_INT_ARRAY);
+
+        final int defineTypesOrdinals[] = new int[defineTypes.size()];
+
+        for (int i = 0; i < defineTypes.size(); i++) {
+            defineTypesOrdinals[i] = defineTypes.get(i).ordinal();
+        }
+
+        oc.write(defineTypesOrdinals, "defineTypes", EMPTY_INT_ARRAY);
+        oc.write(defineNames.toArray(new String[defineNames.size()]), "defineNames", EMPTY_STRING_ARRAY);
+
+        final int requiredCapsOrdinals[] = new int[requiredCaps.size()];
+        int index = 0;
+
+        for (final Iterator<Caps> iterator = requiredCaps.iterator(); iterator.hasNext(); ) {
+            requiredCapsOrdinals[index++] = iterator.next().ordinal();
+        }
+
+        oc.write(requiredCapsOrdinals, "requiredCaps", EMPTY_INT_ARRAY);
+
+        final String[] paramNames = new String[paramToDefineId.size()];
+        final int[] defineIds = new int[paramToDefineId.size()];
+        index = 0;
+
+        for (final Map.Entry<String, Integer> entry : paramToDefineId.entrySet()) {
+            paramNames[index] = entry.getKey();
+            defineIds[index++] = entry.getValue();
+        }
+
+        oc.write(paramNames, "paramToDefineIdKeys", EMPTY_STRING_ARRAY);
+        oc.write(defineIds, "paramToDefineIdValues", EMPTY_INT_ARRAY);
     }
 
     public void read(JmeImporter im) throws IOException{
@@ -698,6 +790,15 @@ public class TechniqueDef implements Savable, Cloneable {
         shadowMode = ic.readEnum("shadowMode", ShadowMode.class, ShadowMode.Disable);
         renderState = (RenderState) ic.readSavable("renderState", null);
         noRender = ic.readBoolean("noRender", false);
+        weight = ic.readFloat("weight", 0F);
+
+        final String logicClass = ic.readString("logic", null);
+
+        try {
+            logic = createLogic(Class.forName(logicClass));
+        } catch (final ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         if (ic.getSavableVersion(TechniqueDef.class) == 0) {
             // Old version
@@ -715,6 +816,46 @@ public class TechniqueDef implements Savable, Cloneable {
         usesNodes = ic.readBoolean("usesNodes", false);
         shaderNodes = ic.readSavableArrayList("shaderNodes", null);
         shaderGenerationInfo = (ShaderGenerationInfo) ic.readSavable("shaderGenerationInfo", null);
+
+        final int worldBindOrdinals[] = ic.readIntArray("worldBinds", EMPTY_INT_ARRAY);
+
+        worldBinds = new ArrayList<>(worldBindOrdinals.length);
+
+        for (final int ordinal : worldBindOrdinals) {
+            worldBinds.add(UniformBinding.valueOf(ordinal));
+        }
+
+        final int defineTypesOrdinals[] = ic.readIntArray("defineTypes", EMPTY_INT_ARRAY);
+
+        defineTypes = new ArrayList<>(defineTypesOrdinals.length);
+
+        for (final int ordinal : defineTypesOrdinals) {
+            defineTypes.add(VarType.valueOf(ordinal));
+        }
+
+        final String[] defineNamesArray = ic.readStringArray("defineNames", EMPTY_STRING_ARRAY);
+
+        defineNames = new ArrayList<>(defineNamesArray.length);
+
+        for (final String defineName : defineNamesArray) {
+            defineNames.add(defineName);
+        }
+
+        final int requiredCapsOrdinals[] = ic.readIntArray("requiredCaps", EMPTY_INT_ARRAY);
+        requiredCaps = EnumSet.noneOf(Caps.class);
+
+        for (final int ordinal : requiredCapsOrdinals) {
+            requiredCaps.add(Caps.valueOf(ordinal));
+        }
+
+        final String[] paramNames = ic.readStringArray("paramToDefineIdKeys", EMPTY_STRING_ARRAY);
+        final int[] defineIds = ic.readIntArray("paramToDefineIdValues", EMPTY_INT_ARRAY);
+
+        paramToDefineId = new HashMap<>();
+
+        for (int i = 0; i < paramNames.length; i++) {
+            paramToDefineId.put(paramNames[i], defineIds[i]);
+        }
     }
 
     public List<ShaderNode> getShaderNodes() {
@@ -775,57 +916,5 @@ public class TechniqueDef implements Savable, Cloneable {
      */
     public void setLightSpace(LightSpace lightSpace) {
         this.lightSpace = lightSpace;
-    }
-
-    @Override
-    public TechniqueDef clone() throws CloneNotSupportedException {
-        //cannot use super.clone because of the final fields instance that would be shared by the clones.
-        TechniqueDef clone = new TechniqueDef(name, sortId);
-
-        clone.noRender = noRender;
-        clone.lightMode = lightMode;
-        clone.shadowMode = shadowMode;
-        clone.lightSpace = lightSpace;
-        clone.usesNodes = usesNodes;
-        clone.shaderPrologue = shaderPrologue;
-
-        clone.setShaderFile(shaderNames, shaderLanguages);
-
-        clone.defineNames = new ArrayList<>(defineNames.size());
-        clone.defineNames.addAll(defineNames);
-
-        clone.defineTypes = new ArrayList<>(defineTypes.size());
-        clone.defineTypes.addAll(defineTypes);
-
-        clone.paramToDefineId = new HashMap<>(paramToDefineId.size());
-        clone.paramToDefineId.putAll(paramToDefineId);
-
-        if (shaderNodes != null) {
-            clone.shaderNodes = new ArrayList<>();
-            for (ShaderNode shaderNode : shaderNodes) {
-                clone.shaderNodes.add(shaderNode.clone());
-            }
-            clone.shaderGenerationInfo = shaderGenerationInfo.clone();
-        }
-
-        if (renderState != null) {
-            clone.setRenderState(renderState.clone());
-        }
-        if (forcedRenderState != null) {
-            clone.setForcedRenderState(forcedRenderState.clone());
-        }
-
-        try {
-            clone.logic = logic.getClass().getConstructor(TechniqueDef.class).newInstance(clone);
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-
-        if (worldBinds != null) {
-            clone.worldBinds = new ArrayList<>(worldBinds.size());
-            clone.worldBinds.addAll(worldBinds);
-        }
-
-        return clone;
     }
 }
