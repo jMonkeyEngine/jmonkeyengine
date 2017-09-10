@@ -196,19 +196,26 @@ public enum UniformBinding {
      * Type: vec4
      */
     LightColor("vec4");
-    
-    String glslType;
 
-    private UniformBinding() {
+    private static final UniformBinding[] VALUES = values();
+
+    public static UniformBinding valueOf(final int ordinal) {
+        if (ordinal < 0 || ordinal >= VALUES.length) {
+            throw new IllegalArgumentException("The ordinal is out of values range.");
+        }
+        return VALUES[ordinal];
     }
 
-    private UniformBinding(String glslType) {
+    String glslType;
+
+    UniformBinding() {
+    }
+
+    UniformBinding(String glslType) {
         this.glslType = glslType;
     }
 
     public String getGlslType() {
         return glslType;
     }
-    
-    
 }
