@@ -37,6 +37,9 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
 import com.jme3.shader.ShaderNodeVariable;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +51,7 @@ import java.util.List;
  *
  * @author Nehon
  */
-public class ShaderGenerationInfo implements Savable, Cloneable {
+public class ShaderGenerationInfo implements Savable, JmeCloneable {
 
     /**
      * the list of attributes of the vertex shader
@@ -162,8 +165,24 @@ public class ShaderGenerationInfo implements Savable, Cloneable {
         return "ShaderGenerationInfo{" + "attributes=" + attributes + ", vertexUniforms=" + vertexUniforms + ", vertexGlobal=" + vertexGlobal + ", varyings=" + varyings + ", fragmentUniforms=" + fragmentUniforms + ", fragmentGlobals=" + fragmentGlobals + '}';
     }
 
-    
-    
+    @Override
+    public ShaderGenerationInfo jmeClone() {
+        try {
+            return (ShaderGenerationInfo) super.clone();
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void cloneFields(final Cloner cloner, final Object original) {
+        attributes = cloner.clone(attributes);
+        vertexUniforms = cloner.clone(vertexUniforms);
+        varyings = cloner.clone(varyings);
+        fragmentGlobals = cloner.clone(fragmentGlobals);
+        fragmentUniforms = cloner.clone(fragmentUniforms);
+        vertexGlobal = cloner.clone(vertexGlobal);
+    }
 
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -185,43 +204,5 @@ public class ShaderGenerationInfo implements Savable, Cloneable {
         fragmentUniforms = ic.readSavableArrayList("fragmentUniforms", new ArrayList<ShaderNodeVariable>());
         fragmentGlobals = ic.readSavableArrayList("fragmentGlobals", new ArrayList<ShaderNodeVariable>());
         vertexGlobal = (ShaderNodeVariable) ic.readSavable("vertexGlobal", null);
-
-    }
-
-    @Override
-    protected ShaderGenerationInfo clone() throws CloneNotSupportedException {
-        final ShaderGenerationInfo clone = (ShaderGenerationInfo) super.clone();
-        clone.attributes = new ArrayList<>();
-        clone.vertexUniforms = new ArrayList<>();
-        clone.fragmentUniforms = new ArrayList<>();
-        clone.fragmentGlobals = new ArrayList<>();
-        clone.unusedNodes = new ArrayList<>();
-        clone.varyings = new ArrayList<>();
-
-        for (ShaderNodeVariable attribute : attributes) {
-            clone.attributes.add(attribute.clone());
-        }
-
-        for (ShaderNodeVariable uniform : vertexUniforms) {
-            clone.vertexUniforms.add(uniform.clone());
-        }
-
-        clone.vertexGlobal = vertexGlobal.clone();
-
-        for (ShaderNodeVariable varying : varyings) {
-            clone.varyings.add(varying.clone());
-        }
-
-        for (ShaderNodeVariable uniform : fragmentUniforms) {
-            clone.fragmentUniforms.add(uniform.clone());
-        }
-
-        for (ShaderNodeVariable globals : fragmentGlobals) {
-            clone.fragmentGlobals.add(globals.clone());
-        }
-
-        clone.unusedNodes.addAll(unusedNodes);
-
-        return clone;
     }
 }
