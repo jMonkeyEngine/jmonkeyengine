@@ -85,7 +85,7 @@ public class Material implements CloneableSmartAsset, JmeCloneable, Savable {
     private MaterialDef def;
     private ListMap<String, MatParam> paramValues = new ListMap<String, MatParam>();
     private Technique technique;
-    private HashMap<String, Technique> techniques = new HashMap<String, Technique>();
+    private HashMap<String, Technique> techniques = new HashMap<>();
     private RenderState additionalState = null;
     private RenderState mergedRenderState = new RenderState();
     private boolean transparent = false;
@@ -192,16 +192,19 @@ public class Material implements CloneableSmartAsset, JmeCloneable, Savable {
 
     @Override
     public Material clone() {
-        try {
-            return (Material) super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+        final Cloner cloner = new Cloner();
+        final Material clone = jmeClone();
+        clone.cloneFields(cloner, this);
+        return clone;
     }
 
     @Override
     public Material jmeClone() {
-        return clone();
+        try {
+            return (Material) super.clone();
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -218,6 +221,7 @@ public class Material implements CloneableSmartAsset, JmeCloneable, Savable {
             paramValues.put(entry.getKey(), cloner.clone(entry.getValue()));
         }
 
+        techniques = new HashMap<>();
         technique = null;
         sortingId = -1;
     }
@@ -1068,7 +1072,7 @@ public class Material implements CloneableSmartAsset, JmeCloneable, Savable {
         }
 
         if (defName != null) {
-            def = im.getAssetManager().loadAsset(new AssetKey<>(defName));
+            def = (MaterialDef) im.getAssetManager().loadAsset(new AssetKey<>(defName));
         } else {
             def = (MaterialDef) ic.readSavable("material_def_embedded", null);
         }

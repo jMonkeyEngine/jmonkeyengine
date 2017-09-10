@@ -34,7 +34,6 @@ package com.jme3.material;
 import com.jme3.asset.AssetManager;
 import com.jme3.export.*;
 import com.jme3.shader.VarType;
-import com.jme3.system.Annotations;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
@@ -49,7 +48,7 @@ import java.util.logging.Logger;
  * 
  * @author Kirill Vainer
  */
-public class MaterialDef{
+public class MaterialDef implements Savable, JmeCloneable {
 
     private static final Logger logger = Logger.getLogger(MaterialDef.class.getName());
 

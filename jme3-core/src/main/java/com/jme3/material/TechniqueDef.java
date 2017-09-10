@@ -452,9 +452,15 @@ public class TechniqueDef implements Savable, JmeCloneable {
             throw new IllegalStateException("Cannot have more than " + 
                     DefineList.MAX_DEFINES + " defines on a technique.");
         }
-        
-        defineNames.add(defineName);
-        defineTypes.add(defineType);
+
+        if (!defineNames.contains(defineName)) {
+            defineNames.add(defineName);
+        }
+
+        if (!defineTypes.contains(defineType)) {
+            defineTypes.add(defineType);
+        }
+
         return defineId;
     }
 
@@ -687,13 +693,25 @@ public class TechniqueDef implements Savable, JmeCloneable {
         shaderGenerationInfo = cloner.clone(shaderGenerationInfo);
 
         final ArrayList<UniformBinding> oldWorldBinds = this.worldBinds;
-        worldBinds = new ArrayList<>(oldWorldBinds == null ? Collections.<UniformBinding>emptyList() : oldWorldBinds);
+        worldBinds = new ArrayList<>();
+
+        if (oldWorldBinds != null) {
+            worldBinds.addAll(oldWorldBinds);
+        }
 
         final ArrayList<VarType> oldDefineTypes = this.defineTypes;
-        defineTypes = new ArrayList<>(oldDefineTypes == null ? Collections.<VarType>emptyList() : oldDefineTypes);
+        defineTypes = new ArrayList<>();
+
+        if (oldDefineTypes != null) {
+            defineTypes.addAll(oldDefineTypes);
+        }
 
         final ArrayList<String> oldDefineNames = this.defineNames;
-        defineNames = new ArrayList<>(oldDefineNames == null ? Collections.<String>emptyList() : oldDefineNames);
+        defineNames = new ArrayList<>();
+
+        if (oldDefineNames != null) {
+            defineNames.addAll(oldDefineNames);
+        }
 
         final EnumSet<Caps> oldRequiredCaps = this.requiredCaps;
         requiredCaps = EnumSet.noneOf(Caps.class);
