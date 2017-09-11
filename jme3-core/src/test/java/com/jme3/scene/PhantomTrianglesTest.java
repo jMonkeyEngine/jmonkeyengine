@@ -45,10 +45,11 @@ import org.junit.Test;
 
 /**
  * Verify that collideWith() doesn't reports collisions with phantom triangles.
+ * This was issue #710 at GitHub.
  *
  * @author Stephen Gold
  */
-public class Issue770Test {
+public class PhantomTrianglesTest {
 
     AssetManager assetManager;
 
@@ -77,8 +78,8 @@ public class Issue770Test {
     }
 
     /**
-     * Attach a red square with its lower left corner at (0, 0, 0). It is
-     * composed of 2 triangles.
+     * Attach a red square in the XY plane with its lower left corner at
+     * (0, 0, 0). It is composed of 2 triangles.
      */
     void createRedSquare() {
         Mesh quadMesh = new Quad(1f, 1f);
@@ -112,7 +113,7 @@ public class Issue770Test {
     }
 
     @Test
-    public void testIssue770() {
+    public void testPhantomTriangles() {
         assetManager = new DesktopAssetManager();
         assetManager.registerLocator(null, ClasspathLocator.class);
         assetManager.registerLoader(J3MLoader.class, "j3m", "j3md");
