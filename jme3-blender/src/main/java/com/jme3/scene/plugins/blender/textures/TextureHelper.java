@@ -72,6 +72,7 @@ import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.PlaceholderAssets;
 
 /**
  * A class that is used in texture calculations.
@@ -256,7 +257,8 @@ public class TextureHelper extends AbstractBlenderHelper {
                     if (img != null) {
                         result = new Texture2D(img);
                     } else {
-                        LOGGER.fine("ImageLoader returned null. It probably failed to load the packed texture");
+                        result = new Texture2D(PlaceholderAssets.getPlaceholderImage(blenderContext.getAssetManager()));
+                        LOGGER.fine("ImageLoader returned null. It probably failed to load the packed texture, using placeholder asset");
                     }
                 }
             }
