@@ -251,7 +251,13 @@ public class TextureHelper extends AbstractBlenderHelper {
                     blenderContext.getInputStream().setPosition(dataFileBlock.getBlockPosition());
 
                     // Should the texture be flipped? It works for sinbad ..
-                    result = new Texture2D(new ImageLoader().loadImage(blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true));
+                    Image img = new ImageLoader().loadImage(blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true);
+                    
+                    if (img != null) {
+                        result = new Texture2D(img);
+                    } else {
+                        LOGGER.fine("ImageLoader returned null. It probably failed to load the packed texture");
+                    }
                 }
             }
         //} else {
