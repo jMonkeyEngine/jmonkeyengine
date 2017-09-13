@@ -37,8 +37,8 @@ import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.plugins.AWTLoader;
-import com.jme3.texture.plugins.DDSLoader;
 import com.jme3.texture.plugins.HDRLoader;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -49,6 +49,24 @@ import java.util.logging.Logger;
  */
 /* package */class ImageLoader extends AWTLoader {
     private static final Logger LOGGER    = Logger.getLogger(ImageLoader.class.getName());
+    
+    /**
+     * List of Blender-Supported Texture Extensions (we have to guess them, so
+     * the AssetLoader can find them. Not good, but better than nothing.
+     * Source: https://docs.blender.org/manual/en/dev/data_system/files/media/image_formats.html
+     */
+    private static final String[] extensions = new String[]
+        { /* Windows Bitmap */".bmp",
+          /* Iris */ ".sgi", ".rgb", ".bw",
+          /* PNG */ ".png",
+          /* JPEG */ ".jpg", ".jpeg",
+          /* JPEG 2000 */ ".jp2", ".j2c",
+          /* Targa */".tga",
+          /* Cineon & DPX */".cin", ".dpx",
+          /* OpenEXR */ ".exr",
+          /* Radiance HDR */ ".hdr",
+          /* TIFF */ ".tif", ".tiff",
+          /* DDS (Direct X) */ ".dds" };
 
     /**
      * This method loads a image which is packed into the blender file.
@@ -88,12 +106,29 @@ import java.util.logging.Logger;
      */
     public Texture loadTexture(AssetManager assetManager, BlenderInputStream inputStream, int startPosition, boolean flipY) {
         inputStream.setPosition(startPosition);
-        TextureKey tKey = new TextureKey();
-        tKey.setFlipY(flipY);
-        Texture result = assetManager.loadAssetFromStream(tKey, inputStream);
+        TextureKey tKey;
+        Texture result = null;
+
+        Logger hdrLogger = Logger.getLogger(HDRLoader.class.getName());
+        hdrLogger.setLevel(Level.SEVERE); // When we bruteforce try HDR on a non hdr file, it prints unreadable chars
+        
+        for (String ext: extensions) {
+            tKey = new TextureKey("dummy" + ext, flipY);
+            try {
+                result = assetManager.loadAssetFromStream(tKey, inputStream);
+            } catch (Exception e) {
+                continue;
+            }
+            
+            if (result != null) {
+                break; // Could locate a possible asset
+            }
+        }
         
         if (result == null) {
-            LOGGER.warning("Texture could not be loaded by any of the available loaders!");
+            LOGGER.warning("Texture could not be loaded by any of the available loaders!\n"
+                    + "Since the file has been packed into the blender file, there is no"
+                    + "way for us to tell you which texture it was.");
         }
         
         return result;
