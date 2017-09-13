@@ -35,6 +35,7 @@ import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.texture.Image;
 import com.jme3.texture.plugins.AWTLoader;
 import com.jme3.texture.plugins.DDSLoader;
+import com.jme3.texture.plugins.HDRLoader;
 import com.jme3.texture.plugins.TGALoader;
 import java.io.InputStream;
 import java.util.logging.Logger;
@@ -49,6 +50,7 @@ import java.util.logging.Logger;
     private static final Logger LOGGER    = Logger.getLogger(ImageLoader.class.getName());
 
     protected DDSLoader         ddsLoader = new DDSLoader();                              // DirectX image loader
+    protected HDRLoader         hdrLoader = new HDRLoader();
 
     /**
      * This method loads the image from the blender file itself. It tries each loader to load the image.
@@ -74,6 +76,11 @@ import java.util.logging.Logger;
         if (result == null) {
             inputStream.setPosition(startPosition);
             result = this.loadImage(inputStream, ImageType.DDS, flipY);
+        }
+        // loading using HDR loader
+        if (result == null) {
+            inputStream.setPosition(startPosition);
+            result = this.loadImage(inputStream, ImageType.HDR, flipY);
         }
 
         if (result == null) {
@@ -118,6 +125,13 @@ import java.util.logging.Logger;
                     LOGGER.warning("Unable to load image using TGA loader!");
                 }
                 break;
+            case HDR:
+                try {
+                    result = hdrLoader.load(inputStream, flipY);
+                } catch (Exception e) {
+                    LOGGER.warning("Unable to load image using HDR loader!");
+                }
+                break;
             default:
                 throw new IllegalStateException("Unknown image type: " + imageType);
         }
@@ -125,11 +139,15 @@ import java.util.logging.Logger;
     }
 
     /**
-     * Image types that can be loaded. AWT: png, jpg, jped or bmp TGA: tga DDS: DirectX image files
+     * Image types that can be loaded.<br>
+     * AWT: png, jpg, jped or bmp<br>
+     * TGA: tga<br>
+     * DDS: DirectX image files<br>
+     * HDR: hdr<br>
      * 
      * @author Marcin Roguski (Kaelthas)
      */
     private static enum ImageType {
-        AWT, TGA, DDS;
+        AWT, TGA, DDS, HDR;
     }
 }
