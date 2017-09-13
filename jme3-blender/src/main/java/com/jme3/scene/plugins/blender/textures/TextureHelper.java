@@ -72,6 +72,7 @@ import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.PlaceholderAssets;
 
 /**
  * A class that is used in texture calculations.
@@ -251,7 +252,14 @@ public class TextureHelper extends AbstractBlenderHelper {
                     blenderContext.getInputStream().setPosition(dataFileBlock.getBlockPosition());
 
                     // Should the texture be flipped? It works for sinbad ..
-                    result = new ImageLoader().loadTexture(blenderContext.getAssetManager(), blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true);
+                    Image img = new ImageLoader().loadImage(blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true);
+                    
+                    if (img != null) {
+                        result = new Texture2D(img);
+                    } else {
+                        result = new Texture2D(PlaceholderAssets.getPlaceholderImage(blenderContext.getAssetManager()));
+                        LOGGER.fine("ImageLoader returned null. It probably failed to load the packed texture, using placeholder asset");
+                    }
                 }
             }
         //} else {
