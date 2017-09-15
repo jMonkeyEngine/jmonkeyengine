@@ -3,6 +3,8 @@ package com.jme3.scene.plugins.gltf;
 import com.google.gson.JsonElement;
 import com.jme3.asset.AssetKey;
 
+import java.io.IOException;
+
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsColor;
 import static com.jme3.scene.plugins.gltf.GltfUtils.getAsFloat;
 
@@ -15,7 +17,7 @@ public class PBRSpecGlossExtensionLoader implements ExtensionLoader {
     private PBRSpecGlossMaterialAdapter materialAdapter = new PBRSpecGlossMaterialAdapter();
 
     @Override
-    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) {
+    public Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException {
         MaterialAdapter adapter = materialAdapter;
         AssetKey key = loader.getInfo().getKey();
         //check for a custom adapter for spec/gloss pipeline
