@@ -135,16 +135,26 @@ public class BatchNode extends GeometryGroupNode {
             VertexBuffer pvb = mesh.getBuffer(VertexBuffer.Type.Position);
             FloatBuffer posBuf = (FloatBuffer) pvb.getData();
             VertexBuffer nvb = mesh.getBuffer(VertexBuffer.Type.Normal);
-            FloatBuffer normBuf = (FloatBuffer) nvb.getData();
+            
+            FloatBuffer normBuf = null;
+            FloatBuffer onormBuf = null;
+            if(nvb != null) {
+                normBuf = (FloatBuffer) nvb.getData();
+                
+                VertexBuffer onvb = origMesh.getBuffer(VertexBuffer.Type.Normal);
+                onormBuf = (FloatBuffer) onvb.getData();
+            }
 
             VertexBuffer opvb = origMesh.getBuffer(VertexBuffer.Type.Position);
             FloatBuffer oposBuf = (FloatBuffer) opvb.getData();
-            VertexBuffer onvb = origMesh.getBuffer(VertexBuffer.Type.Normal);
-            FloatBuffer onormBuf = (FloatBuffer) onvb.getData();
+            
             Matrix4f transformMat = getTransformMatrix(bg);
 
             if (mesh.getBuffer(VertexBuffer.Type.Tangent) != null) {
-
+                if(normBuf == null) {
+                    throw new IllegalArgumentException("Geometry " + bg.getName() + " has a " + VertexBuffer.Type.Tangent + " buffer but no " + VertexBuffer.Type.Normal + " buffer");
+                }
+                
                 VertexBuffer tvb = mesh.getBuffer(VertexBuffer.Type.Tangent);
                 FloatBuffer tanBuf = (FloatBuffer) tvb.getData();
                 VertexBuffer otvb = origMesh.getBuffer(VertexBuffer.Type.Tangent);
@@ -155,8 +165,12 @@ public class BatchNode extends GeometryGroupNode {
                 doTransforms(oposBuf, onormBuf, posBuf, normBuf, bg.startIndex, bg.startIndex + bg.getVertexCount(), transformMat);
             }
             pvb.updateData(posBuf);
-            nvb.updateData(normBuf);
+            
+            if(normBuf != null) {
+                nvb.updateData(normBuf);
+            }
 
+            
 
             batch.geometry.updateModelBound();
         }
@@ -531,7 +545,6 @@ public class BatchNode extends GeometryGroupNode {
     private void doTransforms(FloatBuffer bindBufPos, FloatBuffer bindBufNorm, FloatBuffer bufPos, FloatBuffer bufNorm, int start, int end, Matrix4f transform) {
         TempVars vars = TempVars.get();
         Vector3f pos = vars.vect1;
-        Vector3f norm = vars.vect2;
 
         int length = (end - start) * 3;
 
@@ -539,39 +552,56 @@ public class BatchNode extends GeometryGroupNode {
         // convert to be in component units
         int offset = start * 3;
         bindBufPos.rewind();
-        bindBufNorm.rewind();
+
         //bufPos.position(offset);
         //bufNorm.position(offset);
         bindBufPos.get(tmpFloat, 0, length);
-        bindBufNorm.get(tmpFloatN, 0, length);
+
         int index = 0;
         while (index < length) {
             pos.x = tmpFloat[index];
-            norm.x = tmpFloatN[index++];
-            pos.y = tmpFloat[index];
-            norm.y = tmpFloatN[index++];
-            pos.z = tmpFloat[index];
-            norm.z = tmpFloatN[index];
+            pos.y = tmpFloat[index+1];
+            pos.z = tmpFloat[index+2];
 
             transform.mult(pos, pos);
-            transform.multNormal(norm, norm);
 
-            index -= 2;
-            tmpFloat[index] = pos.x;
-            tmpFloatN[index++] = norm.x;
-            tmpFloat[index] = pos.y;
-            tmpFloatN[index++] = norm.y;
-            tmpFloat[index] = pos.z;
-            tmpFloatN[index++] = norm.z;
+//            index -= 2;
+            tmpFloat[index++] = pos.x;
+            tmpFloat[index++] = pos.y;
+            tmpFloat[index++] = pos.z;
 
         }
+
+        if(bufNorm != null) {
+            Vector3f norm = vars.vect1;
+            
+            bindBufNorm.rewind();
+            bindBufNorm.get(tmpFloatN, 0, length);
+
+            index = 0;
+            while (index < length) {
+                norm.x = tmpFloatN[index];
+                norm.y = tmpFloatN[index+1];
+                norm.z = tmpFloatN[index+2];
+
+                transform.multNormal(norm, norm);
+
+//                index -= 2;
+                tmpFloatN[index++] = norm.x;
+                tmpFloatN[index++] = norm.y;
+                tmpFloatN[index++] = norm.z;
+            }
+
+            bufNorm.position(offset);
+            //using bulk put as it's faster
+            bufNorm.put(tmpFloatN, 0, length);
+        }
+
         vars.release();
+
         bufPos.position(offset);
         //using bulk put as it's faster
         bufPos.put(tmpFloat, 0, length);
-        bufNorm.position(offset);
-        //using bulk put as it's faster
-        bufNorm.put(tmpFloatN, 0, length);
     }
 
     private void doTransformsTangents(FloatBuffer bindBufPos, FloatBuffer bindBufNorm, FloatBuffer bindBufTangents,FloatBuffer bufPos, FloatBuffer bufNorm, FloatBuffer bufTangents, int start, int end, Matrix4f transform) {
