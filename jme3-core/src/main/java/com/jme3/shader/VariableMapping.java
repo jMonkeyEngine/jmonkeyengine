@@ -36,6 +36,9 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 
 /**
@@ -43,7 +46,7 @@ import java.io.IOException;
  *
  * @author Nehon
  */
-public class VariableMapping implements Savable, Cloneable {
+public class VariableMapping implements Savable, JmeCloneable {
 
     private ShaderNodeVariable leftVariable;
     private ShaderNodeVariable rightVariable;
@@ -159,6 +162,21 @@ public class VariableMapping implements Savable, Cloneable {
         this.rightSwizzling = rightSwizzling;
     }
 
+    @Override
+    public VariableMapping jmeClone() {
+        try {
+            return (VariableMapping) super.clone();
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void cloneFields(final Cloner cloner, final Object original) {
+        leftVariable = cloner.clone(leftVariable);
+        rightVariable = cloner.clone(rightVariable);
+    }
+
     /**
      * jme serialization (not used)
      *
@@ -167,7 +185,7 @@ public class VariableMapping implements Savable, Cloneable {
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(leftVariable, "leftVariable", null);
         oc.write(rightVariable, "rightVariable", null);
         oc.write(condition, "condition", "");
@@ -183,7 +201,7 @@ public class VariableMapping implements Savable, Cloneable {
      */
     @Override
     public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        InputCapsule ic = im.getCapsule(this);
         leftVariable = (ShaderNodeVariable) ic.readSavable("leftVariable", null);
         rightVariable = (ShaderNodeVariable) ic.readSavable("rightVariable", null);
         condition = ic.readString("condition", "");
@@ -194,15 +212,5 @@ public class VariableMapping implements Savable, Cloneable {
     @Override
     public String toString() {
         return "\n{" + leftVariable.toString() + (leftSwizzling.length() > 0 ? ("." + leftSwizzling) : "") + " = " + rightVariable.getType() + " " + rightVariable.getNameSpace() + "." + rightVariable.getName() + (rightSwizzling.length() > 0 ? ("." + rightSwizzling) : "") + " : " + condition + "}";
-    }
-
-    @Override
-    protected VariableMapping clone() throws CloneNotSupportedException {
-        VariableMapping clone = (VariableMapping) super.clone();
-
-        clone.leftVariable = leftVariable.clone();
-        clone.rightVariable = rightVariable.clone();
-
-        return clone;
     }
 }

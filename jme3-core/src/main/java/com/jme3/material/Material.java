@@ -55,6 +55,8 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.ListMap;
 import com.jme3.util.SafeArrayList;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 
 import java.io.IOException;
 import java.util.*;
@@ -72,7 +74,7 @@ import java.util.logging.Logger;
  *
  * @author Kirill Vainer
  */
-public class Material implements CloneableSmartAsset, Cloneable, Savable {
+public class Material implements CloneableSmartAsset, JmeCloneable, Savable {
 
     // Version #2: Fixed issue with RenderState.apply*** flags not getting exported
     public static final int SAVABLE_VERSION = 2;
@@ -83,7 +85,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     private MaterialDef def;
     private ListMap<String, MatParam> paramValues = new ListMap<String, MatParam>();
     private Technique technique;
-    private HashMap<String, Technique> techniques = new HashMap<String, Technique>();
+    private HashMap<String, Technique> techniques = new HashMap<>();
     private RenderState additionalState = null;
     private RenderState mergedRenderState = new RenderState();
     private boolean transparent = false;
@@ -188,32 +190,40 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         return sortingId;
     }
 
-    /**
-     * Clones this material. The result is returned.
-     */
     @Override
     public Material clone() {
+        final Cloner cloner = new Cloner();
+        final Material clone = jmeClone();
+        clone.cloneFields(cloner, this);
+        return clone;
+    }
+
+    @Override
+    public Material jmeClone() {
         try {
-            Material mat = (Material) super.clone();
-
-            if (additionalState != null) {
-                mat.additionalState = additionalState.clone();
-            }
-            mat.technique = null;
-            mat.techniques = new HashMap<String, Technique>();
-
-            mat.paramValues = new ListMap<String, MatParam>();
-            for (int i = 0; i < paramValues.size(); i++) {
-                Map.Entry<String, MatParam> entry = paramValues.getEntry(i);
-                mat.paramValues.put(entry.getKey(), entry.getValue().clone());
-            }
-
-            mat.sortingId = -1;
-            
-            return mat;
-        } catch (CloneNotSupportedException ex) {
-            throw new AssertionError(ex);
+            return (Material) super.clone();
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void cloneFields(final Cloner cloner, final Object original) {
+        additionalState = cloner.clone(additionalState);
+        def = cloner.clone(def);
+
+        final ListMap<String, MatParam> oldParamValues = this.paramValues;
+
+        paramValues = new ListMap<>();
+
+        for (int i = 0; i < oldParamValues.size(); i++) {
+            Map.Entry<String, MatParam> entry = oldParamValues.getEntry(i);
+            paramValues.put(entry.getKey(), cloner.clone(entry.getValue()));
+        }
+
+        techniques = new HashMap<>();
+        technique = null;
+        sortingId = -1;
     }
 
     /**
@@ -990,7 +1000,15 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(def.getAssetName(), "material_def", null);
+
+        final String defAssetName = def.getAssetName();
+
+        oc.write(defAssetName, "material_def", null);
+
+        if (defAssetName == null) {
+            oc.write(def, "material_def_embedded", null);
+        }
+
         oc.write(additionalState, "render_state", null);
         oc.write(transparent, "is_transparent", false);
         oc.write(name, "name", null);
@@ -1028,7 +1046,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         if (ver < 2) {
             guessRenderStateApply = true;
         }
-        if (im.getFormatVersion() == 0) {
+        if (im.getFormatVersion() == 0 && defName != null) {
             // Enable compatibility with old models
             if (defName.equalsIgnoreCase("Common/MatDefs/Misc/VertexColor.j3md")) {
                 // Using VertexColor, switch to Unshaded and set VertexColor=true
@@ -1053,7 +1071,12 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             assert applyDefaultValues && guessRenderStateApply;
         }
 
-        def = (MaterialDef) im.getAssetManager().loadAsset(new AssetKey(defName));
+        if (defName != null) {
+            def = (MaterialDef) im.getAssetManager().loadAsset(new AssetKey<>(defName));
+        } else {
+            def = (MaterialDef) ic.readSavable("material_def_embedded", null);
+        }
+
         paramValues = new ListMap<String, MatParam>();
 
         // load the textures and update nextTexUnit

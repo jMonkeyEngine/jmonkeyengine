@@ -31,12 +31,11 @@
  */
 package com.jme3.shader;
 
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
-import com.jme3.export.Savable;
+import com.jme3.export.*;
 import com.jme3.shader.Shader.ShaderType;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,7 +47,7 @@ import java.util.List;
  *
  * @author Nehon
  */
-public class ShaderNodeDefinition implements Savable {
+public class ShaderNodeDefinition implements Savable, JmeCloneable {
 
     private String name;
     private Shader.ShaderType type;
@@ -183,8 +182,23 @@ public class ShaderNodeDefinition implements Savable {
     public void setPath(String path) {
         this.path = path;
     }
-    
-    
+
+    @Override
+    public ShaderNodeDefinition jmeClone() {
+        try {
+            return (ShaderNodeDefinition) super.clone();
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void cloneFields(final Cloner cloner, final Object original) {
+        shadersLanguage = new ArrayList<>(shadersLanguage);
+        shadersPath = new ArrayList<>(shadersPath);
+        inputs = cloner.clone(inputs);
+        outputs = cloner.clone(outputs);
+    }
 
     /**
      * jme serialization (not used)
@@ -194,14 +208,14 @@ public class ShaderNodeDefinition implements Savable {
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", "");
         String[] str = new String[shadersLanguage.size()];
         oc.write(shadersLanguage.toArray(str), "shadersLanguage", null);
         oc.write(shadersPath.toArray(str), "shadersPath", null);
         oc.write(type, "type", null);
         oc.writeSavableArrayList((ArrayList) inputs, "inputs", new ArrayList<ShaderNodeVariable>());
-        oc.writeSavableArrayList((ArrayList) outputs, "inputs", new ArrayList<ShaderNodeVariable>());
+        oc.writeSavableArrayList((ArrayList) outputs, "outputs", new ArrayList<ShaderNodeVariable>());
     }
 
     public List<String> getShadersLanguage() {
@@ -230,7 +244,7 @@ public class ShaderNodeDefinition implements Savable {
      */
     @Override
     public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        InputCapsule ic = im.getCapsule(this);
         name = ic.readString("name", "");
 
         String[] str = ic.readStringArray("shadersLanguage", null);

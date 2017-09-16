@@ -36,6 +36,9 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 
 /**
@@ -43,7 +46,7 @@ import java.io.IOException;
  *
  * @author Nehon
  */
-public class ShaderNodeVariable implements Savable, Cloneable {
+public class ShaderNodeVariable implements Savable, JmeCloneable {
 
     private String prefix = "";
     private String name;
@@ -52,6 +55,9 @@ public class ShaderNodeVariable implements Savable, Cloneable {
     private String condition;
     private boolean shaderOutput = false;
     private String multiplicity;
+
+    public ShaderNodeVariable() {
+    }
 
     /**
      * creates a ShaderNodeVariable
@@ -222,6 +228,19 @@ public class ShaderNodeVariable implements Savable, Cloneable {
         return true;
     }
 
+    @Override
+    public ShaderNodeVariable jmeClone() {
+        try {
+            return (ShaderNodeVariable) super.clone();
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void cloneFields(final Cloner cloner, final Object original) {
+    }
+
     /**
      * jme serialization (not used)
      *
@@ -230,7 +249,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", "");
         oc.write(type, "type", "");
         oc.write(prefix, "prefix", "");
@@ -249,12 +268,12 @@ public class ShaderNodeVariable implements Savable, Cloneable {
      */
     @Override
     public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        InputCapsule ic = im.getCapsule(this);
         name = ic.readString("name", "");
         type = ic.readString("type", "");
-        prefix = ic.readString("pefix", "");
+        prefix = ic.readString("prefix", "");
         nameSpace = ic.readString("nameSpace", "");
-        condition = ic.readString("condition", null);        
+        condition = ic.readString("condition", null);
         shaderOutput = ic.readBoolean("shaderOutput", false);
         multiplicity = ic.readString("multiplicity", null);
     }
@@ -313,10 +332,5 @@ public class ShaderNodeVariable implements Savable, Cloneable {
      */
     public void setMultiplicity(String multiplicity) {
         this.multiplicity = multiplicity;
-    }
-
-    @Override
-    public ShaderNodeVariable clone() throws CloneNotSupportedException {
-        return (ShaderNodeVariable) super.clone();
     }
 }

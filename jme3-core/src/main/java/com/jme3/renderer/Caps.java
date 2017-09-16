@@ -38,6 +38,7 @@ import com.jme3.texture.FrameBuffer.RenderBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
+
 import java.util.Collection;
 
 /**
@@ -395,6 +396,15 @@ public enum Caps {
      * GPU can provide and accept binary shaders.
      */
     BinaryShader;
+
+    private static final Caps[] VALUES = values();
+
+    public static Caps valueOf(final int ordinal) {
+        if (ordinal < 0 || ordinal >= VALUES.length) {
+            throw new IllegalArgumentException("The ordinal is out of values range.");
+        }
+        return VALUES[ordinal];
+    }
 
     /**
      * Returns true if given the renderer capabilities, the texture

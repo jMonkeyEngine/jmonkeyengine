@@ -37,6 +37,9 @@ import com.jme3.math.*;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 
 /**
@@ -45,7 +48,7 @@ import java.io.IOException;
  *
  * @author Kirill Vainer
  */
-public class MatParam implements Savable, Cloneable {
+public class MatParam implements Savable, JmeCloneable {
 
     protected VarType type;
     protected String name;
@@ -288,12 +291,18 @@ When arrays can be inserted in J3M files
     }
 
     @Override
-    public MatParam clone() {
+    public MatParam jmeClone() {
         try {
-            MatParam param = (MatParam) super.clone();
-            return param;
-        } catch (CloneNotSupportedException ex) {
-            throw new AssertionError();
+            return (MatParam) clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void cloneFields(final Cloner cloner, final Object original) {
+        if (!(value instanceof Number || value instanceof Boolean || value instanceof String)) {
+            value = cloner.clone(value);
         }
     }
 
@@ -313,8 +322,8 @@ When arrays can be inserted in J3M files
         } else if (value instanceof Boolean) {
             Boolean b = (Boolean) value;
             oc.write(b.booleanValue(), "value_bool", false);
-        } else if (value.getClass().isArray() && value instanceof Savable[]) {
-            oc.write((Savable[])value, "value_savable_array", null);
+        } else if (value != null && value.getClass().isArray() && value instanceof Savable[]) {
+            oc.write((Savable[]) value, "value_savable_array", null);
         }
     }
 

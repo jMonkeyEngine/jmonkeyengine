@@ -38,6 +38,8 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
 import com.jme3.texture.image.ColorSpace;
+import com.jme3.util.clone.Cloner;
+
 import java.io.IOException;
 
 public class MatParamTexture extends MatParam {
@@ -90,12 +92,17 @@ public class MatParamTexture extends MatParam {
     }
 
     @Override
+    public void cloneFields(final Cloner cloner, final Object original) {
+        super.cloneFields(cloner, original);
+        texture = cloner.clone(texture);
+    }
+
+    @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(0, "texture_unit", -1);
         oc.write(texture, "texture", null); // For backwards compatibility
-
         oc.write(colorSpace, "colorSpace", null);
     }
 
@@ -104,6 +111,6 @@ public class MatParamTexture extends MatParam {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         texture = (Texture) value;
-        colorSpace = (ColorSpace) ic.readEnum("colorSpace", ColorSpace.class, null);
+        colorSpace = ic.readEnum("colorSpace", ColorSpace.class, null);
     }
 }

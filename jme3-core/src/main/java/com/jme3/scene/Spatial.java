@@ -38,6 +38,7 @@ import com.jme3.collision.Collidable;
 import com.jme3.export.*;
 import com.jme3.light.Light;
 import com.jme3.light.LightList;
+import com.jme3.material.MatParam;
 import com.jme3.material.MatParamOverride;
 import com.jme3.material.Material;
 import com.jme3.math.*;
@@ -48,11 +49,12 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.control.Control;
+import com.jme3.util.SafeArrayList;
+import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
 import com.jme3.util.clone.JmeCloneable;
-import com.jme3.util.SafeArrayList;
-import com.jme3.util.TempVars;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -1385,8 +1387,12 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
             clone.worldOverrides = new SafeArrayList<>(MatParamOverride.class);
             clone.localOverrides = new SafeArrayList<>(MatParamOverride.class);
 
+            final Cloner cloner = new Cloner();
+
             for (MatParamOverride override : localOverrides) {
-                clone.localOverrides.add((MatParamOverride) override.clone());
+                final MatParam clonedParam = override.jmeClone();
+                clonedParam.cloneFields(cloner, override);
+                clone.localOverrides.add((MatParamOverride) clonedParam);
             }
 
             // No need to force cloned to update.
