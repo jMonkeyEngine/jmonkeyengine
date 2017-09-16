@@ -62,9 +62,10 @@ import com.jme3.util.clone.JmeCloneable;
  * Sub geoms can be removed but it may be slower than the normal spatial removing
  * Sub geoms can be added after the batch() method has been called but won't be batched and will just be rendered as normal geometries.
  * To integrate them in the batch you have to call the batch() method again on the batchNode.
- *
+ * <p>
  * TODO normal or tangents or both looks a bit weird
  * TODO more automagic (batch when needed in the updateLogicalState)
+ *
  * @author Nehon
  */
 public class BatchNode extends GeometryGroupNode {
@@ -108,7 +109,7 @@ public class BatchNode extends GeometryGroupNode {
     public void onMaterialChange(Geometry geom) {
         throw new UnsupportedOperationException(
                 "Cannot set the material of a batched geometry, "
-                + "change the material of the parent BatchNode.");
+                        + "change the material of the parent BatchNode.");
     }
 
     @Override
@@ -122,7 +123,7 @@ public class BatchNode extends GeometryGroupNode {
         setNeedsFullRebatch(true);
     }
 
-    protected Matrix4f getTransformMatrix(Geometry g){
+    protected Matrix4f getTransformMatrix(Geometry g) {
         return g.cachedWorldMat;
     }
 
@@ -234,7 +235,7 @@ public class BatchNode extends GeometryGroupNode {
         logger.log(Level.FINE, "Batched {0} geometries in {1} batches.", new Object[]{nbGeoms, batches.size()});
 
         //init the temp arrays if something has been batched only.
-        if(matMap.size()>0){
+        if (matMap.size() > 0) {
             //TODO these arrays should be allocated by chunk instead to avoid recreating them each time the batch is changed.
             //init temp float arrays
             tmpFloat = new float[maxVertCount * 3];
@@ -257,6 +258,7 @@ public class BatchNode extends GeometryGroupNode {
 
     /**
      * recursively visit the subgraph and unbatch geometries
+     *
      * @param s
      */
     private void unbatchSubGraph(Spatial s) {
@@ -343,11 +345,10 @@ public class BatchNode extends GeometryGroupNode {
 
     /**
      * Returns the material that is used for the first batch of this BatchNode
-     *
+     * <p>
      * use getMaterial(Material material,int batchIndex) to get a material from a specific batch
      *
      * @return the material that is used for the first batch of this BatchNode
-     *
      * @see #setMaterial(com.jme3.material.Material)
      */
     public Material getMaterial() {
@@ -428,14 +429,6 @@ public class BatchNode extends GeometryGroupNode {
                         + " primitive types: " + mode + " != " + listMode);
             }
             mode = listMode;
-            //Not needed anymore as lineWidth is now in RenderState and will be taken into account when merging according to the material
-//            if (mode == Mesh.Mode.Lines) {
-//                if (lineWidth != 1f && listLineWidth != lineWidth) {
-//                    throw new UnsupportedOperationException("When using Mesh Line mode, cannot combine meshes with different line width "
-//                            + lineWidth + " != " + listLineWidth);
-//                }
-//                lineWidth = listLineWidth;
-//            }
             compsForBuf[VertexBuffer.Type.Index.ordinal()] = components;
         }
 
@@ -574,7 +567,7 @@ public class BatchNode extends GeometryGroupNode {
         bufNorm.put(tmpFloatN, 0, length);
     }
 
-    private void doTransformsTangents(FloatBuffer bindBufPos, FloatBuffer bindBufNorm, FloatBuffer bindBufTangents,FloatBuffer bufPos, FloatBuffer bufNorm, FloatBuffer bufTangents, int start, int end, Matrix4f transform) {
+    private void doTransformsTangents(FloatBuffer bindBufPos, FloatBuffer bindBufNorm, FloatBuffer bindBufTangents, FloatBuffer bufPos, FloatBuffer bufNorm, FloatBuffer bufTangents, int start, int end, Matrix4f transform) {
         TempVars vars = TempVars.get();
         Vector3f pos = vars.vect1;
         Vector3f norm = vars.vect2;
@@ -667,6 +660,7 @@ public class BatchNode extends GeometryGroupNode {
     protected class Batch implements JmeCloneable {
         /**
          * update the batchesByGeom map for this batch with the given List of geometries
+         *
          * @param list
          */
         void updateGeomList(List<Geometry> list) {
@@ -676,6 +670,7 @@ public class BatchNode extends GeometryGroupNode {
                 }
             }
         }
+
         Geometry geometry;
 
         public final Geometry getGeometry() {
@@ -685,14 +680,14 @@ public class BatchNode extends GeometryGroupNode {
         @Override
         public Batch jmeClone() {
             try {
-                return (Batch)super.clone();
+                return (Batch) super.clone();
             } catch (CloneNotSupportedException ex) {
                 throw new AssertionError();
             }
         }
 
         @Override
-        public void cloneFields( Cloner cloner, Object original ) {
+        public void cloneFields(Cloner cloner, Object original) {
             this.geometry = cloner.clone(geometry);
         }
 
@@ -704,11 +699,11 @@ public class BatchNode extends GeometryGroupNode {
 
     @Override
     public Node clone(boolean cloneMaterials) {
-        BatchNode clone = (BatchNode)super.clone(cloneMaterials);
-        if ( batches.size() > 0) {
-            for ( Batch b : batches ) {
-                for ( int i =0; i < clone.children.size(); i++ ) {
-                    if ( clone.children.get(i).getName().equals(b.geometry.getName())) {
+        BatchNode clone = (BatchNode) super.clone(cloneMaterials);
+        if (batches.size() > 0) {
+            for (Batch b : batches) {
+                for (int i = 0; i < clone.children.size(); i++) {
+                    if (clone.children.get(i).getName().equals(b.geometry.getName())) {
                         clone.children.remove(i);
                         break;
                     }
@@ -723,10 +718,10 @@ public class BatchNode extends GeometryGroupNode {
     }
 
     /**
-     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     * Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
 
         this.batches = cloner.clone(batches);
@@ -736,7 +731,7 @@ public class BatchNode extends GeometryGroupNode {
 
 
         HashMap<Geometry, Batch> newBatchesByGeom = new HashMap<Geometry, Batch>();
-        for( Map.Entry<Geometry, Batch> e : batchesByGeom.entrySet() ) {
+        for (Map.Entry<Geometry, Batch> e : batchesByGeom.entrySet()) {
             newBatchesByGeom.put(cloner.clone(e.getKey()), cloner.clone(e.getValue()));
         }
         this.batchesByGeom = newBatchesByGeom;
@@ -745,7 +740,7 @@ public class BatchNode extends GeometryGroupNode {
     @Override
     public int collideWith(Collidable other, CollisionResults results) {
         int total = 0;
-        for (Spatial child : children.getArray()){
+        for (Spatial child : children.getArray()) {
             if (!isBatch(child)) {
                 total += child.collideWith(other, results);
             }
