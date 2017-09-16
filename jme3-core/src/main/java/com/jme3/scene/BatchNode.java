@@ -63,7 +63,6 @@ import com.jme3.util.clone.JmeCloneable;
  * Sub geoms can be added after the batch() method has been called but won't be batched and will just be rendered as normal geometries.
  * To integrate them in the batch you have to call the batch() method again on the batchNode.
  * <p>
- * TODO normal or tangents or both looks a bit weird
  * TODO more automagic (batch when needed in the updateLogicalState)
  *
  * @author Nehon
@@ -134,33 +133,42 @@ public class BatchNode extends GeometryGroupNode {
             Mesh origMesh = bg.getMesh();
 
             VertexBuffer pvb = mesh.getBuffer(VertexBuffer.Type.Position);
-            FloatBuffer posBuf = (FloatBuffer) pvb.getData();
             VertexBuffer nvb = mesh.getBuffer(VertexBuffer.Type.Normal);
-            FloatBuffer normBuf = (FloatBuffer) nvb.getData();
+            VertexBuffer tvb = mesh.getBuffer(VertexBuffer.Type.Tangent);
 
             VertexBuffer opvb = origMesh.getBuffer(VertexBuffer.Type.Position);
-            FloatBuffer oposBuf = (FloatBuffer) opvb.getData();
             VertexBuffer onvb = origMesh.getBuffer(VertexBuffer.Type.Normal);
-            FloatBuffer onormBuf = (FloatBuffer) onvb.getData();
+            VertexBuffer otvb = origMesh.getBuffer(VertexBuffer.Type.Tangent);
+
+            FloatBuffer posBuf = getFloatBuffer(pvb);
+            FloatBuffer normBuf = getFloatBuffer(nvb);
+            FloatBuffer tanBuf = getFloatBuffer(tvb);
+
+            FloatBuffer oposBuf = getFloatBuffer(opvb);
+            FloatBuffer onormBuf = getFloatBuffer(onvb);
+            FloatBuffer otanBuf = getFloatBuffer(otvb);
+
             Matrix4f transformMat = getTransformMatrix(bg);
+            doTransforms(oposBuf, onormBuf, otanBuf, posBuf, normBuf, tanBuf, bg.startIndex, bg.startIndex + bg.getVertexCount(), transformMat);
 
-            if (mesh.getBuffer(VertexBuffer.Type.Tangent) != null) {
-
-                VertexBuffer tvb = mesh.getBuffer(VertexBuffer.Type.Tangent);
-                FloatBuffer tanBuf = (FloatBuffer) tvb.getData();
-                VertexBuffer otvb = origMesh.getBuffer(VertexBuffer.Type.Tangent);
-                FloatBuffer otanBuf = (FloatBuffer) otvb.getData();
-                doTransformsTangents(oposBuf, onormBuf, otanBuf, posBuf, normBuf, tanBuf, bg.startIndex, bg.startIndex + bg.getVertexCount(), transformMat);
-                tvb.updateData(tanBuf);
-            } else {
-                doTransforms(oposBuf, onormBuf, posBuf, normBuf, bg.startIndex, bg.startIndex + bg.getVertexCount(), transformMat);
-            }
             pvb.updateData(posBuf);
-            nvb.updateData(normBuf);
 
+            if (nvb != null) {
+                nvb.updateData(normBuf);
+            }
+            if (tvb != null) {
+                tvb.updateData(tanBuf);
+            }
 
             batch.geometry.updateModelBound();
         }
+    }
+
+    private FloatBuffer getFloatBuffer(VertexBuffer vb) {
+        if (vb == null) {
+            return null;
+        }
+        return (FloatBuffer) vb.getData();
     }
 
     /**
@@ -521,53 +529,7 @@ public class BatchNode extends GeometryGroupNode {
         }
     }
 
-    private void doTransforms(FloatBuffer bindBufPos, FloatBuffer bindBufNorm, FloatBuffer bufPos, FloatBuffer bufNorm, int start, int end, Matrix4f transform) {
-        TempVars vars = TempVars.get();
-        Vector3f pos = vars.vect1;
-        Vector3f norm = vars.vect2;
-
-        int length = (end - start) * 3;
-
-        // offset is given in element units
-        // convert to be in component units
-        int offset = start * 3;
-        bindBufPos.rewind();
-        bindBufNorm.rewind();
-        //bufPos.position(offset);
-        //bufNorm.position(offset);
-        bindBufPos.get(tmpFloat, 0, length);
-        bindBufNorm.get(tmpFloatN, 0, length);
-        int index = 0;
-        while (index < length) {
-            pos.x = tmpFloat[index];
-            norm.x = tmpFloatN[index++];
-            pos.y = tmpFloat[index];
-            norm.y = tmpFloatN[index++];
-            pos.z = tmpFloat[index];
-            norm.z = tmpFloatN[index];
-
-            transform.mult(pos, pos);
-            transform.multNormal(norm, norm);
-
-            index -= 2;
-            tmpFloat[index] = pos.x;
-            tmpFloatN[index++] = norm.x;
-            tmpFloat[index] = pos.y;
-            tmpFloatN[index++] = norm.y;
-            tmpFloat[index] = pos.z;
-            tmpFloatN[index++] = norm.z;
-
-        }
-        vars.release();
-        bufPos.position(offset);
-        //using bulk put as it's faster
-        bufPos.put(tmpFloat, 0, length);
-        bufNorm.position(offset);
-        //using bulk put as it's faster
-        bufNorm.put(tmpFloatN, 0, length);
-    }
-
-    private void doTransformsTangents(FloatBuffer bindBufPos, FloatBuffer bindBufNorm, FloatBuffer bindBufTangents, FloatBuffer bufPos, FloatBuffer bufNorm, FloatBuffer bufTangents, int start, int end, Matrix4f transform) {
+    private void doTransforms(FloatBuffer bindBufPos, FloatBuffer bindBufNorm, FloatBuffer bindBufTangents, FloatBuffer bufPos, FloatBuffer bufNorm, FloatBuffer bufTangents, int start, int end, Matrix4f transform) {
         TempVars vars = TempVars.get();
         Vector3f pos = vars.vect1;
         Vector3f norm = vars.vect2;
@@ -581,60 +543,76 @@ public class BatchNode extends GeometryGroupNode {
         int offset = start * 3;
         int tanOffset = start * 4;
 
-
         bindBufPos.rewind();
-        bindBufNorm.rewind();
-        bindBufTangents.rewind();
         bindBufPos.get(tmpFloat, 0, length);
-        bindBufNorm.get(tmpFloatN, 0, length);
-        bindBufTangents.get(tmpFloatT, 0, tanLength);
+
+        if (bindBufNorm != null) {
+            bindBufNorm.rewind();
+            bindBufNorm.get(tmpFloatN, 0, length);
+        }
+
+        if (bindBufTangents != null) {
+            bindBufTangents.rewind();
+            bindBufTangents.get(tmpFloatT, 0, tanLength);
+        }
 
         int index = 0;
         int tanIndex = 0;
+        int index1, index2, tanIndex1, tanIndex2;
+
         while (index < length) {
+            index1 = index + 1;
+            index2 = index + 2;
+
             pos.x = tmpFloat[index];
-            norm.x = tmpFloatN[index++];
-            pos.y = tmpFloat[index];
-            norm.y = tmpFloatN[index++];
-            pos.z = tmpFloat[index];
-            norm.z = tmpFloatN[index];
-
-            tan.x = tmpFloatT[tanIndex++];
-            tan.y = tmpFloatT[tanIndex++];
-            tan.z = tmpFloatT[tanIndex++];
-
+            pos.y = tmpFloat[index1];
+            pos.z = tmpFloat[index2];
             transform.mult(pos, pos);
-            transform.multNormal(norm, norm);
-            transform.multNormal(tan, tan);
-
-            index -= 2;
-            tanIndex -= 3;
-
             tmpFloat[index] = pos.x;
-            tmpFloatN[index++] = norm.x;
-            tmpFloat[index] = pos.y;
-            tmpFloatN[index++] = norm.y;
-            tmpFloat[index] = pos.z;
-            tmpFloatN[index++] = norm.z;
+            tmpFloat[index1] = pos.y;
+            tmpFloat[index2] = pos.z;
 
-            tmpFloatT[tanIndex++] = tan.x;
-            tmpFloatT[tanIndex++] = tan.y;
-            tmpFloatT[tanIndex++] = tan.z;
+            if (bindBufNorm != null) {
+                norm.x = tmpFloatN[index];
+                norm.y = tmpFloatN[index1];
+                norm.z = tmpFloatN[index2];
+                transform.multNormal(norm, norm);
+                tmpFloatN[index] = norm.x;
+                tmpFloatN[index1] = norm.y;
+                tmpFloatN[index2] = norm.z;
+            }
 
-            //Skipping 4th element of tangent buffer (handedness)
-            tanIndex++;
+            index += 3;
+
+            if (bindBufTangents != null) {
+                tanIndex1 = tanIndex + 1;
+                tanIndex2 = tanIndex + 2;
+                tan.x = tmpFloatT[tanIndex];
+                tan.y = tmpFloatT[tanIndex1];
+                tan.z = tmpFloatT[tanIndex2];
+                transform.multNormal(tan, tan);
+                tmpFloatT[tanIndex] = tan.x;
+                tmpFloatT[tanIndex1] = tan.y;
+                tmpFloatT[tanIndex2] = tan.z;
+                tanIndex += 4;
+            }
 
         }
         vars.release();
+
+        //using bulk put as it's faster
         bufPos.position(offset);
-        //using bulk put as it's faster
         bufPos.put(tmpFloat, 0, length);
-        bufNorm.position(offset);
-        //using bulk put as it's faster
-        bufNorm.put(tmpFloatN, 0, length);
-        bufTangents.position(tanOffset);
-        //using bulk put as it's faster
-        bufTangents.put(tmpFloatT, 0, tanLength);
+
+        if (bindBufNorm != null) {
+            bufNorm.position(offset);
+            bufNorm.put(tmpFloatN, 0, length);
+        }
+
+        if (bindBufTangents != null) {
+            bufTangents.position(tanOffset);
+            bufTangents.put(tmpFloatT, 0, tanLength);
+        }
     }
 
     private void doCopyBuffer(FloatBuffer inBuf, int offset, FloatBuffer outBuf, int componentSize) {
@@ -646,11 +624,11 @@ public class BatchNode extends GeometryGroupNode {
         offset *= componentSize;
 
         for (int i = 0; i < inBuf.limit() / componentSize; i++) {
-            pos.x = inBuf.get(i * componentSize + 0);
+            pos.x = inBuf.get(i * componentSize);
             pos.y = inBuf.get(i * componentSize + 1);
             pos.z = inBuf.get(i * componentSize + 2);
 
-            outBuf.put(offset + i * componentSize + 0, pos.x);
+            outBuf.put(offset + i * componentSize, pos.x);
             outBuf.put(offset + i * componentSize + 1, pos.y);
             outBuf.put(offset + i * componentSize + 2, pos.z);
         }
