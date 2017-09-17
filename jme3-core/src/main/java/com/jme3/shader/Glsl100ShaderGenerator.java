@@ -251,7 +251,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
                     throw new IllegalArgumentException("a Sampler must be a uniform");
                 }
 
-                map(info, mapping, source);
+                map(mapping, source);
             }
 
             String newName = shaderNode.getName() + "_" + leftVariable.getName();
@@ -288,7 +288,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         source.append(nodeSource);
    
         for (VariableMapping mapping : shaderNode.getOutputMapping()) {
-            map(info, mapping, source);
+            map(mapping, source);
         }
         endCondition(shaderNode.getCondition(), source);
         comment(source, shaderNode, "End");
@@ -403,11 +403,10 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     /**
      * Appends a mapping to the source, embed in a conditional block if needed, 
      * with variables nameSpaces and swizzle.
-     * @param info
      * @param mapping the VariableMapping to append
      * @param source the StringBuilder to use
      */
-    protected void map(final ShaderGenerationInfo info, VariableMapping mapping, StringBuilder source) {
+    protected void map(VariableMapping mapping, StringBuilder source) {
         startCondition(mapping.getCondition(), source);
         appendIndent(source);
         if (!mapping.getLeftVariable().isShaderOutput()) {
