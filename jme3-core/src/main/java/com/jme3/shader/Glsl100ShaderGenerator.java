@@ -234,27 +234,48 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         comment(source, shaderNode, "Begin");
         startCondition(shaderNode.getCondition(), source);
 
-        List<String> declaredInputs = new ArrayList<String>();
+        final List<String> declaredInputs = new ArrayList<>();
+
         for (VariableMapping mapping : shaderNode.getInputMapping()) {
+
+            final ShaderNodeVariable rightVariable = mapping.getRightVariable();
+            final ShaderNodeVariable leftVariable = mapping.getLeftVariable();
 
             //Variables fed with a sampler matparam or world param are replaced by the matparam itself
             //It avoids issue with samplers that have to be uniforms.
-            if (isWorldOrMaterialParam(mapping.getRightVariable()) && mapping.getRightVariable().getType().startsWith("sampler")) {
-                nodeSource = replace(nodeSource, mapping.getLeftVariable(), mapping.getRightVariable().getPrefix() + mapping.getRightVariable().getName());
+            if (isWorldOrMaterialParam(rightVariable) && rightVariable.getType().startsWith("sampler")) {
+                nodeSource = replace(nodeSource, leftVariable, rightVariable.getPrefix() + rightVariable.getName());
             } else {
-                if (mapping.getLeftVariable().getType().startsWith("sampler")) {
+
+                if (leftVariable.getType().startsWith("sampler")) {
                     throw new IllegalArgumentException("a Sampler must be a uniform");
                 }
+
                 map(info, mapping, source);
-                String newName = shaderNode.getName() + "_" + mapping.getLeftVariable().getName();
-                if (!declaredInputs.contains(newName)) {
-                    nodeSource = replace(nodeSource, mapping.getLeftVariable(), newName);
-                    declaredInputs.add(newName);
-                }
+            }
+
+            String newName = shaderNode.getName() + "_" + leftVariable.getName();
+            if (!declaredInputs.contains(newName)) {
+                nodeSource = replace(nodeSource, leftVariable, newName);
+                declaredInputs.add(newName);
             }
         }
-       
-        for (ShaderNodeVariable var : shaderNode.getDefinition().getOutputs()) {
+
+        final ShaderNodeDefinition definition = shaderNode.getDefinition();
+
+        for (final ShaderNodeVariable var : definition.getInputs()) {
+            final ShaderNodeVariable variable = new ShaderNodeVariable(var.getType(), shaderNode.getName(), var.getName(), var.getMultiplicity());
+            final String fullName = shaderNode.getName() + "_" + var.getName();
+            if (!declaredInputs.contains(fullName)) {
+                if (!isVarying(info, variable)) {
+                    declareVariable(source, variable);
+                }
+                nodeSource = replaceVariableName(nodeSource, variable);
+                declaredInputs.add(fullName);
+            }
+        }
+
+        for (ShaderNodeVariable var : definition.getOutputs()) {
             ShaderNodeVariable v = new ShaderNodeVariable(var.getType(), shaderNode.getName(), var.getName(), var.getMultiplicity());
             if (!declaredInputs.contains(shaderNode.getName() + "_" + var.getName())) {
                 if (!isVarying(info, v)) {
@@ -389,7 +410,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     protected void map(final ShaderGenerationInfo info, VariableMapping mapping, StringBuilder source) {
         startCondition(mapping.getCondition(), source);
         appendIndent(source);
-        if (!isVarying(info, mapping.getLeftVariable()) && !mapping.getLeftVariable().isShaderOutput()) {
+        if (!mapping.getLeftVariable().isShaderOutput()) {
             source.append(mapping.getLeftVariable().getType());
             source.append(" ");
         }
