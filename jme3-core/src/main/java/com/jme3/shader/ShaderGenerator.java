@@ -34,11 +34,12 @@ package com.jme3.shader;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.ShaderGenerationInfo;
-import com.jme3.material.Technique;
 import com.jme3.material.TechniqueDef;
 import com.jme3.shader.Shader.ShaderType;
+
 import java.util.List;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class is the base for a shader generator using the ShaderNodes system,
@@ -48,6 +49,30 @@ import java.util.regex.*;
  * @author Nehon
  */
 public abstract class ShaderGenerator {
+
+    protected static final char[] EMPTY_CHARS = new char[0];
+
+    /**
+     * Calculate the indent using space characters.
+     *
+     * @param level the level.
+     * @return the result indent.
+     */
+    protected static char[] getIndent(final int level) {
+
+        if (level == 0) {
+            return EMPTY_CHARS;
+        }
+
+        final int characters = level * 4;
+        final char[] result = new char[characters];
+
+        for (int i = 0; i < result.length; i++) {
+            result[i] = ' ';
+        }
+
+        return result;
+    }
 
     /**
      * the asset manager

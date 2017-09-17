@@ -35,6 +35,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.material.ShaderGenerationInfo;
 import com.jme3.material.plugins.ConditionParser;
 import com.jme3.shader.Shader.ShaderType;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,10 +47,6 @@ import java.util.List;
  */
 public class Glsl100ShaderGenerator extends ShaderGenerator {
 
-    /**
-     * the indentation characters 1à tabulation characters
-     */
-    private final static String INDENTCHAR = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
     private ShaderNodeVariable inPosTmp;
 
     /**
@@ -141,7 +138,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     @Override
     protected void generateStartOfMainSection(StringBuilder source, ShaderGenerationInfo info, ShaderType type) {
         source.append("\n");
-        source.append("void main(){\n");
+        source.append("void main() {\n");
         indent();
         appendIndent(source);
         if (type == ShaderType.Vertex) {
@@ -248,7 +245,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
                 if (mapping.getLeftVariable().getType().startsWith("sampler")) {
                     throw new IllegalArgumentException("a Sampler must be a uniform");
                 }
-                map(mapping, source);
+                map(info, mapping, source);
                 String newName = shaderNode.getName() + "_" + mapping.getLeftVariable().getName();
                 if (!declaredInputs.contains(newName)) {
                     nodeSource = replace(nodeSource, mapping.getLeftVariable(), newName);
@@ -270,7 +267,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         source.append(nodeSource);
    
         for (VariableMapping mapping : shaderNode.getOutputMapping()) {
-            map(mapping, source);
+            map(info, mapping, source);
         }
         endCondition(shaderNode.getCondition(), source);
         comment(source, shaderNode, "End");
@@ -385,13 +382,14 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     /**
      * Appends a mapping to the source, embed in a conditional block if needed, 
      * with variables nameSpaces and swizzle.
+     * @param info
      * @param mapping the VariableMapping to append
-     * @param source the StringBuilder to use    
+     * @param source the StringBuilder to use
      */
-    protected void map(VariableMapping mapping, StringBuilder source) {
+    protected void map(final ShaderGenerationInfo info, VariableMapping mapping, StringBuilder source) {
         startCondition(mapping.getCondition(), source);
         appendIndent(source);
-        if (!mapping.getLeftVariable().isShaderOutput()) {
+        if (!isVarying(info, mapping.getLeftVariable()) && !mapping.getLeftVariable().isShaderOutput()) {
             source.append(mapping.getLeftVariable().getType());
             source.append(" ");
         }
@@ -477,7 +475,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     }
 
     /**
-     * returns the name space to append for a variable. 
+     * returns the name space to append for a variable.
      * Attributes, WorldParam and MatParam names space must not be appended
      * @param var the variable
      * @return the namespace to append for this variable
@@ -559,7 +557,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * @param source 
      */
     protected void appendIndent(StringBuilder source) {
-        source.append(INDENTCHAR.substring(0, indent));
+        source.append(getIndent(indent));
     }
 
     /**

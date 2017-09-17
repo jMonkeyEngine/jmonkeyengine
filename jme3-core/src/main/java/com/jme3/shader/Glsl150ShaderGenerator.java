@@ -35,8 +35,6 @@ import com.jme3.asset.AssetManager;
 import com.jme3.material.ShaderGenerationInfo;
 import com.jme3.shader.Shader.ShaderType;
 
-import java.util.List;
-
 /**
  * This shader Generator can generate Vertex and Fragment shaders from
  * ShaderNodes for GLSL 1.5
@@ -120,7 +118,7 @@ public class Glsl150ShaderGenerator extends Glsl100ShaderGenerator {
         source.append("\n");
 
         appendIndent(source);
-        source.append("void main(){\n");
+        source.append("void main() {\n");
         indent();
 
         if (type == Shader.ShaderType.Vertex) {
