@@ -81,6 +81,7 @@ public class LightProbe extends Light implements Savable {
     private boolean ready = false;
     private Vector3f position = new Vector3f();
     private Node debugNode;
+    private int nbMipMaps;
 
     /**
      * Empty constructor used for serialization. 
@@ -224,6 +225,14 @@ public class LightProbe extends Light implements Savable {
     public void setPosition(Vector3f position) {
         this.position.set(position);
         getBounds().setCenter(position);
+    }
+
+    public int getNbMipMaps() {
+        return nbMipMaps;
+    }
+
+    public void setNbMipMaps(int nbMipMaps) {
+        this.nbMipMaps = nbMipMaps;
     }
 
     @Override

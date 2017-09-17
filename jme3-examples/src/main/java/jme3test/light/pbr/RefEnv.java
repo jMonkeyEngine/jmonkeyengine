@@ -18,7 +18,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.ui.Picture;
-import com.jme3.util.MaterialDebugAppState;
+import com.jme3.util.SkyFactory;
 
 /**
  * test
@@ -29,8 +29,7 @@ public class RefEnv extends SimpleApplication {
 
     private Node tex;
     private Node ref;
-    private Picture refDE;
-    private Picture refM;
+    private Picture refImg;
 
     public static void main(String[] args) {
         RefEnv app = new RefEnv();
@@ -40,25 +39,25 @@ public class RefEnv extends SimpleApplication {
     @Override
     public void simpleInitApp() {
 
-        cam.setLocation(new Vector3f(-2.3324413f, 2.9567573f, 4.6054406f));
-        cam.setRotation(new Quaternion(0.06310794f, 0.9321281f, -0.29613864f, 0.1986369f));
-        Spatial sc = assetManager.loadModel("Scenes/PBR/spheres.j3o");
+        cam.setLocation(new Vector3f(-17.713732f, 1.8661976f, 17.156784f));
+        cam.setRotation(new Quaternion(0.021403445f, 0.9428821f, -0.06178002f, 0.32664734f));
+        flyCam.setDragToRotate(true);
+        flyCam.setMoveSpeed(5);
+        Spatial sc = assetManager.loadModel("Models/gltf/ref/scene.gltf");
         rootNode.attachChild(sc);
-        rootNode.getChild("Scene").setCullHint(Spatial.CullHint.Always);
+        Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Path.hdr", SkyFactory.EnvMapType.EquirectMap);
+        rootNode.attachChild(sky);
+        rootNode.getChild(0).setCullHint(Spatial.CullHint.Always);
 
         ref = new Node("reference pictures");
-        refDE = new Picture("refDE");
-        refDE.setHeight(cam.getHeight());
-        refDE.setWidth(cam.getWidth());
-        refDE.setImage(assetManager,"jme3test/light/pbr/spheresRefDE.png", false);
-        refM = new Picture("refM");
-        refM.setImage(assetManager,"jme3test/light/pbr/spheresRefM.png", false);
-        refM.setHeight(cam.getHeight());
-        refM.setWidth(cam.getWidth());
+        refImg = new Picture("refImg");
+        refImg.setHeight(cam.getHeight());
+        refImg.setWidth(cam.getWidth());
+        refImg.setImage(assetManager, "jme3test/light/pbr/ref.png", false);
 
-        ref.attachChild(refDE);
+        ref.attachChild(refImg);
 
-        stateManager.attach(new EnvironmentCamera());
+        stateManager.attach(new EnvironmentCamera(256, Vector3f.ZERO));
 
         inputManager.addMapping("tex", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addMapping("switch", new KeyTrigger(KeyInput.KEY_RETURN));
@@ -105,13 +104,11 @@ public class RefEnv extends SimpleApplication {
             if (((Float) mat.getParam("Metallic").getValue()) == 1f) {
                 mat.setFloat("Metallic", 0);
                 mat.setColor("BaseColor", ColorRGBA.Black);
-                ref.attachChild(refDE);
-                refM.removeFromParent();
+                ref.attachChild(refImg);
             } else {
                 mat.setFloat("Metallic", 1);
                 mat.setColor("BaseColor", ColorRGBA.White);
-                ref.attachChild(refM);
-                refDE.removeFromParent();
+                refImg.removeFromParent();
             }
         }
     }
@@ -130,7 +127,7 @@ public class RefEnv extends SimpleApplication {
                     System.err.println("Done rendering env maps");
                     tex = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(result.getPrefilteredEnvMap(), assetManager);
                   //  guiNode.attachChild(tex);
-                    rootNode.getChild("Scene").setCullHint(Spatial.CullHint.Dynamic);
+                    rootNode.getChild(0).setCullHint(Spatial.CullHint.Dynamic);
                 }
             });
             ((BoundingSphere) probe.getBounds()).setRadius(100);

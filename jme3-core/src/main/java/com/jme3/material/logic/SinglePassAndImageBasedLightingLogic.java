@@ -128,10 +128,10 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
             ambientColor.setValue(VarType.Vector4, ambientLightColor);
         }
 
-        //If there is a lightProbe in the list we force it's render on the first pass
+        //If there is a lightProbe in the list we force its render on the first pass
         if(lightProbe != null){
             BoundingSphere s = (BoundingSphere)lightProbe.getBounds();
-            lightProbeData.setVector4InArray(lightProbe.getPosition().x, lightProbe.getPosition().y, lightProbe.getPosition().z, 1f/s.getRadius(), 0);
+            lightProbeData.setVector4InArray(lightProbe.getPosition().x, lightProbe.getPosition().y, lightProbe.getPosition().z, 1f / s.getRadius() + lightProbe.getNbMipMaps(), 0);
             //assigning new texture indexes
             int irrUnit = lastTexUnit++;
             int pemUnit = lastTexUnit++;
