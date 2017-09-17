@@ -78,8 +78,9 @@ public class TestPBRLighting extends SimpleApplication {
     private Geometry model;
     private DirectionalLight dl;
     private Node modelNode;
-    private int frame = 0;   
-    private Material pbrMat;    
+    private int frame = 0;
+    private Material pbrMat;
+    private float roughness = 1.0f;
 
     @Override
     public void simpleInitApp() {
@@ -93,16 +94,16 @@ public class TestPBRLighting extends SimpleApplication {
 
         dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
-        rootNode.addLight(dl);
+        //       rootNode.addLight(dl);
         dl.setColor(ColorRGBA.White);
         rootNode.attachChild(modelNode);
 
-      
+
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
 //        fpp.addFilter(new FXAAFilter());
         fpp.addFilter(new ToneMapFilter(Vector3f.UNIT_XYZ.mult(4.0f)));
 //        fpp.addFilter(new SSAOFilter(0.5f, 3, 0.2f, 0.2f));
-        viewPort.addProcessor(fpp);
+        // viewPort.addProcessor(fpp);
 
         //Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Sky_Cloudy.hdr", SkyFactory.EnvMapType.EquirectMap);
         Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Path.hdr", SkyFactory.EnvMapType.EquirectMap);
@@ -114,17 +115,17 @@ public class TestPBRLighting extends SimpleApplication {
         model.setMaterial(pbrMat);
 
 
-        final EnvironmentCamera envCam = new EnvironmentCamera(128, new Vector3f(0, 3f, 0));
+        final EnvironmentCamera envCam = new EnvironmentCamera(256, new Vector3f(0, 3f, 0));
         stateManager.attach(envCam);
-        
+
 //        EnvironmentManager envManager = new EnvironmentManager();
 //        stateManager.attach(envManager);
-        
- //       envManager.setScene(rootNode);
-        
+
+        //       envManager.setScene(rootNode);
+
         LightsDebugState debugState = new LightsDebugState();
         stateManager.attach(debugState);
-        
+
         ChaseCamera chaser = new ChaseCamera(cam, modelNode, inputManager);
         chaser.setDragToRotate(true);
         chaser.setMinVerticalRotation(-FastMath.HALF_PI);
@@ -144,13 +145,23 @@ public class TestPBRLighting extends SimpleApplication {
                     }
                     if (tex.getParent() == null && tex2.getParent() == null) {
                         guiNode.attachChild(tex);
-                    } else if (tex2.getParent() == null){
+                    } else if (tex2.getParent() == null) {
                         tex.removeFromParent();
                         guiNode.attachChild(tex2);
                     } else {
                         tex2.removeFromParent();
                     }
                 }
+
+                if (name.equals("rup") && isPressed) {
+                    roughness = FastMath.clamp(roughness + 0.1f, 0.0f, 1.0f);
+                    pbrMat.setFloat("Roughness", roughness);
+                }
+                if (name.equals("rdown") && isPressed) {
+                    roughness = FastMath.clamp(roughness - 0.1f, 0.0f, 1.0f);
+                    pbrMat.setFloat("Roughness", roughness);
+                }
+
 
                 if (name.equals("up") && isPressed) {
                     model.move(0, tpf * 100f, 0);
@@ -169,7 +180,7 @@ public class TestPBRLighting extends SimpleApplication {
                     dl.setDirection(cam.getDirection().normalize());
                 }
             }
-        }, "toggle", "light", "up", "down", "left", "right", "debug");
+        }, "toggle", "light", "up", "down", "left", "right", "debug", "rup", "rdown");
 
         inputManager.addMapping("toggle", new KeyTrigger(KeyInput.KEY_RETURN));
         inputManager.addMapping("light", new KeyTrigger(KeyInput.KEY_F));
@@ -178,8 +189,10 @@ public class TestPBRLighting extends SimpleApplication {
         inputManager.addMapping("left", new KeyTrigger(KeyInput.KEY_LEFT));
         inputManager.addMapping("right", new KeyTrigger(KeyInput.KEY_RIGHT));
         inputManager.addMapping("debug", new KeyTrigger(KeyInput.KEY_D));
-        
-        
+        inputManager.addMapping("rup", new KeyTrigger(KeyInput.KEY_T));
+        inputManager.addMapping("rdown", new KeyTrigger(KeyInput.KEY_G));
+
+
         MaterialDebugAppState debug = new MaterialDebugAppState();
         debug.registerBinding("Common/MatDefs/Light/PBRLighting.frag", rootNode);
         getStateManager().attach(debug);
@@ -201,10 +214,10 @@ public class TestPBRLighting extends SimpleApplication {
                     tex2 = EnvMapUtils.getCubeMapCrossDebugView(result.getIrradianceMap(), assetManager);
                 }
             });
-            ((BoundingSphere)probe.getBounds()).setRadius(100);
+            ((BoundingSphere) probe.getBounds()).setRadius(100);
             rootNode.addLight(probe);
             //getStateManager().getState(EnvironmentManager.class).addEnvProbe(probe);
-            
+
         }
         if (frame > 10 && modelNode.getParent() == null) {
             rootNode.attachChild(modelNode);

@@ -44,7 +44,7 @@ import java.util.concurrent.Callable;
 
 /**
  *
- * Generates the Irrafiance map for PBR. This job can be lauched from a separate
+ * Generates the Irradiance map for PBR. This job can be lauched from a separate
  * thread.
  *
  * TODO there is a lot of duplicate code here with the EnvMapUtils.

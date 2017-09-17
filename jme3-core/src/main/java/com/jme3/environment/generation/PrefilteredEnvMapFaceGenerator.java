@@ -34,13 +34,13 @@ package com.jme3.environment.generation;
 import com.jme3.environment.util.CubeMapWrapper;
 import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.app.Application;
-import com.jme3.math.ColorRGBA;
+import com.jme3.math.*;
+
 import static com.jme3.math.FastMath.abs;
 import static com.jme3.math.FastMath.clamp;
 import static com.jme3.math.FastMath.pow;
 import static com.jme3.math.FastMath.sqrt;
-import com.jme3.math.Vector3f;
-import com.jme3.math.Vector4f;
+
 import com.jme3.texture.TextureCubeMap;
 import static com.jme3.environment.util.EnvMapUtils.getHammersleyPoint;
 import static com.jme3.environment.util.EnvMapUtils.getRoughnessFromMip;
@@ -184,7 +184,7 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
             for (int y = 0; y < targetMipMapSize; y++) {
                 for (int x = 0; x < targetMipMapSize; x++) {
                     color.set(0, 0, 0);
-                    getVectorFromCubemapFaceTexCoord(x, y, targetMipMapSize, face, texelVect, EnvMapUtils.FixSeamsMethod.Wrap);
+                    getVectorFromCubemapFaceTexCoord(x, y, targetMipMapSize, face, texelVect, EnvMapUtils.FixSeamsMethod.None);
                     prefilterEnvMapTexel(sourceWrapper, roughness, texelVect, nbSamples, color);
                     
                     outColor.set(Math.max(color.x, 0.0001f), Math.max(color.y,0.0001f), Math.max(color.z, 0.0001f), 1);
@@ -207,7 +207,6 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
         // a = roughness² and a2 = a²
         float a2 = roughness * roughness;
         a2 *= a2;
-        a2 *= 10;
         for (int i = 0; i < numSamples; i++) {
             Xi = getHammersleyPoint(i, numSamples, Xi);
             H = importanceSampleGGX(Xi, a2, N, H);
@@ -227,8 +226,11 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
                 totalWeight += NoL;
             }
         }
+        if (totalWeight > 0) {
+            prefilteredColor.divideLocal(totalWeight);
+        }
 
-        return prefilteredColor.divideLocal(totalWeight);
+        return prefilteredColor;
     }
 
     public Vector3f importanceSampleGGX(Vector4f xi, float a2, Vector3f normal, Vector3f store) {
