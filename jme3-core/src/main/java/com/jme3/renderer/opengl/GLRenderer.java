@@ -2206,22 +2206,17 @@ public final class GLRenderer implements Renderer {
             } else if (img.hasMipmaps()) {
                 // Image already has mipmaps, set the max level based on the 
                 // number of mipmaps we have.
-                gl.glTexParameteri(target, GL.GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
+                gl.glTexParameteri(target, GL2.GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
             } else {
                 // Image does not have mipmaps and they are not required.
                 // Specify that that the texture has no mipmaps.
-                gl.glTexParameteri(target, GL.GL_TEXTURE_MAX_LEVEL, 0);
+                gl.glTexParameteri(target, GL2.GL_TEXTURE_MAX_LEVEL, 0);
             }
-(??)        } else if (img.hasMipmaps()) {
-(??)            // Image already has mipmaps, set the max level based on the 
-(??)            // number of mipmaps we have.
-(??)            gl.glTexParameteri(target, GL.GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
         } else {
             // Check if graphics card doesn't support multisample textures
             if (!caps.contains(Caps.TextureMultisample)) {
                 throw new RendererException("Multisample textures are not supported by the video hardware");
             }
-(??)
 
             if (img.isGeneratedMipmapsRequired() || img.hasMipmaps()) {
                 throw new RendererException("Multisample textures do not support mipmaps");
