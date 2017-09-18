@@ -187,7 +187,7 @@ public class ShadowStaticPassLightingLogic extends StaticPassLightingLogic {
         
         if (pssmSplits != null) {
             Uniform pssmSplitsUniform = shader.getUniform("g_PssmSplits");
-            pssmSplitsUniform.setValue(VarType.Vector4, pssmSplits);
+            pssmSplitsUniform.setValue(VarType.Vector3, pssmSplits);
         }
     }
 }

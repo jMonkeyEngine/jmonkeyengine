@@ -27,22 +27,13 @@
         }
     #else
         uniform sampler2DArrayShadow g_ShadowMapArray;
-        uniform vec4 g_PssmSplits;
+        uniform vec3 g_PssmSplits;
 
         int pssmSliceOffset;
 
         void Shadow_ProcessPssmSlice() {
-            #ifdef NUM_PSSM_SPLITS
-                float z = gl_FragCoord.z;
-                if (z < g_PssmSplits[0]) {
-                    pssmSliceOffset = 0;
-                } else if (z < g_PssmSplits[1]) {
-                    pssmSliceOffset = 1;
-                } else if (z < g_PssmSplits[2]) {
-                    pssmSliceOffset = 2;
-                } else {
-                    pssmSliceOffset = 3;
-                }
+            #if defined(NUM_PSSM_SPLITS) && NUM_PSSM_SPLITS > 1
+                pssmSliceOffset = int(dot(step(g_PssmSplits.xyz, gl_FragCoord.zzz), vec3(1.0)));
             #else
                 pssmSliceOffset = 0;
             #endif
