@@ -236,7 +236,7 @@ void main(){
                             lightColor.rgb,specular, Roughness, ndotv,
                             directDiffuse,  directSpecular);
 
-        vec3 directLighting = diffuseColor.rgb *directDiffuse + directSpecular * specularColor.rgb;
+        vec3 directLighting = diffuseColor.rgb *directDiffuse + directSpecular;
         
         gl_FragColor.rgb += directLighting * fallOff;
     }
@@ -251,7 +251,7 @@ void main(){
 
          //horizon fade from http://marmosetco.tumblr.com/post/81245981087
         float horiz = dot(rv, wNormal.xyz);
-        float horizFadePower= 1.0 - Roughness;
+        float horizFadePower = 1.0 - Roughness;
         horiz = clamp( 1.0 + horizFadePower * horiz, 0.0, 1.0 );
         horiz *= horiz;
 

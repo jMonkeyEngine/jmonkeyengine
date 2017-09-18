@@ -273,8 +273,7 @@ public class LightProbeFactory {
 
             jobState.done[index] = true;
             if (jobState.isDone()) {
-                int nbMipMap = (int) (Math.log(probe.getPrefilteredEnvMap().getImage().getWidth()) / Math.log(2) - 1);
-                probe.setNbMipMaps(nbMipMap);
+                probe.setNbMipMaps(probe.getPrefilteredEnvMap().getImage().getMipMapSizes().length);
                 probe.setReady(true);
                 if (globalListener != null) {
                     globalListener.done(probe);
