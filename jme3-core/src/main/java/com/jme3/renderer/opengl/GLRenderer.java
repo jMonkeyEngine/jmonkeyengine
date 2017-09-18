@@ -2203,14 +2203,16 @@ public final class GLRenderer implements Renderer {
                     // For OpenGL3 and up.
                     // We'll generate mipmaps via glGenerateMipmapEXT (see below)
                 }
-            } else if (img.hasMipmaps()) {
-                // Image already has mipmaps, set the max level based on the 
-                // number of mipmaps we have.
-                gl.glTexParameteri(target, GL.GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
-            } else {
-                // Image does not have mipmaps and they are not required.
-                // Specify that that the texture has no mipmaps.
-                gl.glTexParameteri(target, GL.GL_TEXTURE_MAX_LEVEL, 0);
+            } else if (caps.contains(Caps.OpenGL20)) {
+                if (img.hasMipmaps()) {
+                    // Image already has mipmaps, set the max level based on the 
+                    // number of mipmaps we have.
+                    gl.glTexParameteri(target, GL2.GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
+                } else {
+                    // Image does not have mipmaps and they are not required.
+                    // Specify that that the texture has no mipmaps.
+                    gl.glTexParameteri(target, GL2.GL_TEXTURE_MAX_LEVEL, 0);
+                }
             }
         } else {
             // Check if graphics card doesn't support multisample textures
