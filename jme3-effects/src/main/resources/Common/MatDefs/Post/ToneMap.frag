@@ -21,25 +21,22 @@ vec3 ToneMap_Filmic(vec3 color, vec3 whitePoint) {
 uniform vec3 m_WhitePoint;
 varying vec2 texCoord;
  
-#ifdef RESOLVE_MS
- 
-uniform int m_NumSamples;
+#ifdef NUM_SAMPLES
+
 uniform sampler2DMS m_Texture;
 
-// Multisampling - tonemap done for each sample individually
- 
 vec4 ToneMap_TextureFilmic() {
     ivec2 iTexC = ivec2(texCoord * vec2(textureSize(m_Texture)));
     vec4 color = vec4(0.0);
-    for (int i = 0; i < m_NumSamples; i++){
+    for (int i = 0; i < NUM_SAMPLES; i++) {
         vec4 hdrColor = texelFetch(m_Texture, iTexC, i);
         vec3 ldrColor = FilmicCurve(hdrColor.rgb);
         color += vec4(ldrColor, hdrColor.a);
     }
     color.rgb /= FilmicCurve(m_WhitePoint);
-    return color / float(m_NumSamples);
+    return color / float(NUM_SAMPLES);
 }
- 
+
 #else
  
 uniform sampler2D m_Texture;
