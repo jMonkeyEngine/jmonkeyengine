@@ -22,8 +22,8 @@ void main() {
         Skinning_Compute(modelSpacePos, modelSpaceNorm);
     #endif
 
-    vPos = TransformWorldView(modelSpacePos).xyz;
-    vNormal = TransformNormal(modelSpaceNorm);
+    vPos = TransformWorld(modelSpacePos).xyz;
+    vNormal = TransformWorldNormal(modelSpaceNorm);
 
     vec3 shadowPos = TransformWorld(modelSpacePos).xyz;
     Shadow_ProcessProjCoord(shadowPos);

@@ -162,7 +162,7 @@ surface_t getSurface() {
     if (!gl_FrontFacing) {
         s.normal = -s.normal;
     }
-    s.viewDir = normalize(-vPos);
+    s.viewDir = normalize(g_CameraPosition - s.position);
 #ifdef AMBIENTMAP
     s.ambient = texture2D(m_AmbientMap, vTexCoord).rgb;
 #else

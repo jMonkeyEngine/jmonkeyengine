@@ -126,14 +126,6 @@ public class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
         return techniqueDef.getShader(assetManager, rendererCaps, defines);
     }
 
-    protected void transformDirection(Matrix4f viewMatrix, Vector3f direction) {
-        viewMatrix.multNormal(direction, direction);
-    }
-
-    protected void transformPosition(Matrix4f viewMatrix, Vector3f location) {
-        viewMatrix.mult(location, location);
-    }
-
     protected float getShadowMapIndex(Light light) {
         return 1.0f;
     }
@@ -154,7 +146,6 @@ public class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
             ColorRGBA color = light.getColor();
             float shadowMapIndex = getShadowMapIndex(light);
             tempDirection.set(light.getDirection());
-            transformDirection(viewMatrix, tempDirection);
             lightData.setVector4InArray(color.r, color.g, color.b, shadowMapIndex, index++);
             lightData.setVector4InArray(tempDirection.x, tempDirection.y, tempDirection.z, 1f, index++);
         }
@@ -164,7 +155,6 @@ public class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
             float shadowMapIndex = getShadowMapIndex(light);
             tempPosition.set(light.getPosition());
             float invRadius = light.getInvRadius();
-            transformPosition(viewMatrix, tempPosition);
             lightData.setVector4InArray(color.r, color.g, color.b, shadowMapIndex, index++);
             lightData.setVector4InArray(tempPosition.x, tempPosition.y, tempPosition.z, invRadius, index++);
         }
@@ -175,8 +165,6 @@ public class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
 
             tempPosition.set(light.getPosition());
             tempDirection.set(light.getDirection());
-            transformPosition(viewMatrix, tempPosition);
-            transformDirection(viewMatrix, tempDirection);
 
             float invRange = light.getInvSpotRange();
             float spotAngleCos = light.getPackedAngleCos();
