@@ -2,6 +2,7 @@
 #import "Common/ShaderLib/BlinnPhongLighting.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
 #import "Common/ShaderLib/InPassShadows.glsl"
+#import "Common/ShaderLib/PBR.glsllib"
 
 #ifndef NUM_DIR_LIGHTS
 #define NUM_DIR_LIGHTS 0
@@ -59,50 +60,76 @@ struct surface_t {
     vec3 ambient;
     vec4 diffuse;
     vec4 specular;
-    float shininess;
+    float roughness;
+    float ndotv;
 };
-
-vec2 Lighting_ProcessLighting(vec3 norm, vec3 viewDir, vec3 lightDir, float attenuation, float shininess) {
-    float diffuseFactor = max(0.0, dot(norm, lightDir));
-    vec3 H = normalize(viewDir + lightDir);
-    float HdotN = max(0.0, dot(H, norm));
-    float specularFactor = pow(HdotN, shininess);
-    return vec2(diffuseFactor, diffuseFactor * specularFactor) * vec2(attenuation);
-}
-
-vec2 Lighting_ProcessDirectional(int lightIndex, surface_t surface) {
-    vec3 lightDirection = g_LightData[lightIndex + 1].xyz;
-    vec2 light = Lighting_ProcessLighting(surface.normal, surface.viewDir, -lightDirection, 1.0, surface.shininess);
-    return light;
-}
 
 float Lighting_ProcessAttenuation(float invRadius, float dist) {
     #ifdef SRGB
-        float atten = (1.0 - invRadius * dist) / (1.0 + invRadius * dist * dist);
+        float invRadTimesDist = invRadius * dist;
+        float atten = (1.0 - invRadTimesDist) / (1.0 + invRadTimesDist * dist);
         return clamp(atten, 0.0, 1.0);
     #else
         return max(0.0, 1.0 - invRadius * dist);
     #endif
 }
 
-vec2 Lighting_ProcessPoint(int lightIndex, surface_t surface) {
+void Lighting_ProcessDirectional(int lightIndex, surface_t surface, out vec3 outDiffuse, out vec3 outSpecular) {
+    vec4 lightColor = g_LightData[lightIndex];
+    vec3 lightDirection = g_LightData[lightIndex + 1].xyz;
+
+    PBR_ComputeDirectLightSpecWF(surface.normal, -lightDirection, surface.viewDir,
+                                 lightColor.rgb, surface.specular.rgb, surface.roughness, surface.ndotv,
+                                 outDiffuse, outSpecular);
+}
+
+vec3 Lighting_ProcessPoint(in int lightIndex, in surface_t surface, out vec3 outDiffuse, out vec3 outSpecular) {
+    vec4 lightColor     = g_LightData[lightIndex];
     vec4 lightPosition  = g_LightData[lightIndex + 1];
     vec3 lightDirection = lightPosition.xyz - surface.position;
     float dist = length(lightDirection);
     lightDirection /= vec3(dist);
     float atten = Lighting_ProcessAttenuation(lightPosition.w, dist);
-    return Lighting_ProcessLighting(surface.normal, surface.viewDir, lightDirection, atten, surface.shininess);
+    if (atten == 0.0) {
+        outDiffuse = vec3(0.0);
+        outSpecular = vec3(0.0);
+        return lightDirection;
+    }
+    PBR_ComputeDirectLightSpecWF(surface.normal, lightDirection, surface.viewDir,
+                                 lightColor.rgb, surface.specular.rgb, surface.roughness, surface.ndotv,
+                                 outDiffuse, outSpecular);
+
+    outDiffuse *= atten;
+    outSpecular *= atten;
+
+    return lightDirection;
 }
 
-vec2 Lighting_ProcessSpot(int lightIndex, surface_t surface) {
+void Lighting_ProcessSpot(in int lightIndex, in surface_t surface, out vec3 outDiffuse, out vec3 outSpecular) {
+    vec4 lightColor     = g_LightData[lightIndex];
     vec4 lightPosition  = g_LightData[lightIndex + 1];
     vec4 lightDirection = g_LightData[lightIndex + 2];
     vec3 lightVector    = lightPosition.xyz - surface.position;
     float dist          = length(lightVector);
     lightVector        /= vec3(dist);
-    float atten         = Lighting_ProcessAttenuation(lightPosition.w, dist);
-    atten              *= computeSpotFalloff(lightDirection, lightVector);
-    return Lighting_ProcessLighting(surface.normal, surface.viewDir, lightVector, atten, surface.shininess);
+    float atten         = computeSpotFalloff(lightDirection, lightVector);
+    if (atten == 0.0) {
+        outDiffuse = vec3(0.0);
+        outSpecular = vec3(0.0);
+        return;
+    }
+    atten *= Lighting_ProcessAttenuation(lightPosition.w, dist);
+    if (atten == 0.0) {
+        outDiffuse = vec3(0.0);
+        outSpecular = vec3(0.0);
+        return;
+    }
+    PBR_ComputeDirectLightSpecWF(surface.normal, lightVector, surface.viewDir,
+                                 lightColor.rgb, surface.specular.rgb, surface.roughness, surface.ndotv,
+                                 outDiffuse, outSpecular);
+
+    outDiffuse *= atten;
+    outSpecular *= atten;
 }
 
 void Lighting_ProcessAll(surface_t surface, out vec3 ambient, out vec3 diffuse, out vec3 specular) {
@@ -117,44 +144,59 @@ void Lighting_ProcessAll(surface_t surface, out vec3 ambient, out vec3 diffuse, 
     int projIndex = 0;
 
     for (int i = DIR_SHADOW_LIGHT_START; i < DIR_SHADOW_LIGHT_END; i += 2) {
-        vec4 lightColor = g_LightData[i];
-        vec2 lightDiffSpec = Lighting_ProcessDirectional(i, surface);
-        float shadow = Shadow_ProcessDirectional(projIndex, lightColor.w);
-        lightDiffSpec *= vec2(shadow);
-        diffuse  += lightColor.rgb * lightDiffSpec.x;
-        specular += lightColor.rgb * lightDiffSpec.y;
-        projIndex += NUM_PSSM_SPLITS;
+        vec3 outDiffuse, outSpecular;
+        Lighting_ProcessDirectional(i, surface, outDiffuse, outSpecular);
+
+        float shadow = Shadow_Process(0, vec3(0.0), g_LightData[i].w, projIndex);
+        outDiffuse *= shadow;
+        outSpecular *= shadow;
+
+        diffuse   += outDiffuse;
+        specular  += outSpecular;
     }
 
     for (int i = DIR_LIGHT_START; i < DIR_LIGHT_END; i += 2) {
-        vec3 lightColor = g_LightData[i].rgb;
-        vec2 lightDiffSpec = Lighting_ProcessDirectional(i, surface);
-        diffuse  += lightColor.rgb * lightDiffSpec.x;
-        specular += lightColor.rgb * lightDiffSpec.y;
+        vec3 outDiffuse, outSpecular;
+        Lighting_ProcessDirectional(i, surface, outDiffuse, outSpecular);
+        diffuse   += outDiffuse;
+        specular  += outSpecular;
     }
 
+    for (int i = POINT_SHADOW_LIGHT_START; i < POINT_SHADOW_LIGHT_END; i += 2) {
+        vec3 outDiffuse, outSpecular;
+        vec3 lightDir = Lighting_ProcessPoint(i, surface, outDiffuse, outSpecular);
+
+        float shadow = Shadow_Process(1, lightDir, g_LightData[i].w, projIndex);
+        outDiffuse *= shadow;
+        outSpecular *= shadow;
+
+        diffuse   += outDiffuse;
+        specular  += outSpecular;
+    }
     for (int i = POINT_LIGHT_START; i < POINT_LIGHT_END; i += 2) {
-        vec3 lightColor = g_LightData[i].rgb;
-        vec2 lightDiffSpec = Lighting_ProcessPoint(i, surface);
-        diffuse  += lightColor.rgb * lightDiffSpec.x;
-        specular += lightColor.rgb * lightDiffSpec.y;
+        vec3 outDiffuse, outSpecular;
+        Lighting_ProcessPoint(i, surface, outDiffuse, outSpecular);
+        diffuse   += outDiffuse;
+        specular  += outSpecular;
     }
 
     for (int i = SPOT_SHADOW_LIGHT_START; i < SPOT_SHADOW_LIGHT_END; i += 3) {
-        vec4 lightColor = g_LightData[i];
-        vec2 lightDiffSpec = Lighting_ProcessSpot(i, surface);
-        float shadow = Shadow_ProcessSpot(projIndex, lightColor.w);
-        lightDiffSpec *= vec2(shadow);
-        diffuse  += lightColor.rgb * lightDiffSpec.x;
-        specular += lightColor.rgb * lightDiffSpec.y;
-        projIndex++;
+        vec3 outDiffuse, outSpecular;
+        Lighting_ProcessSpot(i, surface, outDiffuse, outSpecular);
+
+        float shadow = Shadow_Process(2, vec3(0.0), g_LightData[i].w, projIndex);
+        outDiffuse *= shadow;
+        outSpecular *= shadow;
+
+        diffuse   += outDiffuse;
+        specular  += outSpecular;
     }
 
     for (int i = SPOT_LIGHT_START; i < SPOT_LIGHT_END; i += 3) {
-        vec3 lightColor = g_LightData[i].rgb;
-        vec2 lightDiffSpec = Lighting_ProcessSpot(i, surface);
-        diffuse  += lightColor * lightDiffSpec.x;
-        specular += lightColor * lightDiffSpec.y;
+        vec3 outDiffuse, outSpecular;
+        Lighting_ProcessSpot(i, surface, outDiffuse, outSpecular);
+        diffuse   += outDiffuse;
+        specular  += outSpecular;
     }
 
 #endif
@@ -174,8 +216,9 @@ surface_t getSurface() {
     s.ambient = vec3(1.0);
 #endif
     s.diffuse = vec4(1.0);
-    s.specular = vec4(1.0);
-    s.shininess = m_Shininess;
+    s.specular = vec4(0.04, 0.04, 0.04, 1.0);
+    s.roughness = 0.1;
+    s.ndotv = max(0.0, dot(s.viewDir, s.normal));
     return s;
 }
 
@@ -186,9 +229,9 @@ void main() {
     Lighting_ProcessAll(surface, ambient, diffuse, specular);
 
     vec4 color = vec4(1.0);
-    color.rgb = surface.ambient.rgb  * ambient +
-                surface.diffuse.rgb  * diffuse +
-                surface.specular.rgb * specular;
+    color.rgb = ambient * surface.ambient.rgb +
+                diffuse * surface.diffuse.rgb +
+                specular;
 
     #ifdef DISCARD_ALPHA
         if (color.a < m_AlphaDiscardThreshold) {
