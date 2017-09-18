@@ -24,7 +24,7 @@ varying vec3 wPosition;
 #ifdef INDIRECT_LIGHTING
 //  uniform sampler2D m_IntegrateBRDF;
   uniform samplerCube g_PrefEnvMap;
-  uniform samplerCube g_IrradianceMap;
+  uniform vec3 g_ShCoeffs[9];
   uniform vec4 g_LightProbeData;
 #endif
 
@@ -257,9 +257,9 @@ void main(){
 
         vec3 indirectDiffuse = vec3(0.0);
         vec3 indirectSpecular = vec3(0.0);
-        indirectDiffuse = textureCube(g_IrradianceMap, normal.xyz).rgb * diffuseColor.rgb;
-
-        indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, rv.xyz, nbMipMaps);
+        indirectDiffuse = sphericalHarmonics(normal.xyz, g_ShCoeffs) * diffuseColor.rgb;
+        vec3 dominantR = getSpecularDominantDir( normal, rv.xyz, Roughness*Roughness );
+        indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, dominantR, nbMipMaps);
         indirectSpecular *= vec3(horiz);
 
         vec3 indirectLighting =  indirectDiffuse + indirectSpecular;

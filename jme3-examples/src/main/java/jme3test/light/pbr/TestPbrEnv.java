@@ -306,16 +306,7 @@ public class TestPbrEnv extends SimpleApplication implements ActionListener {
         }
 
         if (name.equals("debugProbe") && keyPressed) {
-            //getStateManager().getState(EnvironmentCamera.class).toggleDebug();
-            if (!debugState.isEnabled()) {
-                debugState.setEnabled(true);
-                debugState.setDebugMode(LightsDebugState.DebugMode.IrradianceMap);
-            } else if (debugState.getDebugMode() == LightsDebugState.DebugMode.IrradianceMap) {
-                debugState.setDebugMode(LightsDebugState.DebugMode.PrefilteredEnvMap);
-            } else if (debugState.getDebugMode() == LightsDebugState.DebugMode.PrefilteredEnvMap) {
-                debugState.setEnabled(false);
-            }
-
+            debugState.setEnabled(!debugState.isEnabled());
         }
         
         if (name.equals("debugTex") && keyPressed) {

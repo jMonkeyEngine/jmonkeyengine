@@ -73,7 +73,6 @@ public class TestPBRLighting extends SimpleApplication {
     }
 
     private Node tex;
-    private Node tex2;
 
     private Geometry model;
     private DirectionalLight dl;
@@ -94,7 +93,7 @@ public class TestPBRLighting extends SimpleApplication {
 
         dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
-        //       rootNode.addLight(dl);
+        rootNode.addLight(dl);
         dl.setColor(ColorRGBA.White);
         rootNode.attachChild(modelNode);
 
@@ -103,7 +102,7 @@ public class TestPBRLighting extends SimpleApplication {
 //        fpp.addFilter(new FXAAFilter());
         fpp.addFilter(new ToneMapFilter(Vector3f.UNIT_XYZ.mult(4.0f)));
 //        fpp.addFilter(new SSAOFilter(0.5f, 3, 0.2f, 0.2f));
-        // viewPort.addProcessor(fpp);
+        viewPort.addProcessor(fpp);
 
         //Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Sky_Cloudy.hdr", SkyFactory.EnvMapType.EquirectMap);
         Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Path.hdr", SkyFactory.EnvMapType.EquirectMap);
@@ -143,13 +142,10 @@ public class TestPBRLighting extends SimpleApplication {
                     if (tex == null) {
                         return;
                     }
-                    if (tex.getParent() == null && tex2.getParent() == null) {
+                    if (tex.getParent() == null) {
                         guiNode.attachChild(tex);
-                    } else if (tex2.getParent() == null) {
-                        tex.removeFromParent();
-                        guiNode.attachChild(tex2);
                     } else {
-                        tex2.removeFromParent();
+                        tex.removeFromParent();
                     }
                 }
 
@@ -195,6 +191,7 @@ public class TestPBRLighting extends SimpleApplication {
 
         MaterialDebugAppState debug = new MaterialDebugAppState();
         debug.registerBinding("Common/MatDefs/Light/PBRLighting.frag", rootNode);
+        debug.registerBinding("Common/ShaderLib/PBR.glsllib", rootNode);
         getStateManager().attach(debug);
 
     }
@@ -211,7 +208,6 @@ public class TestPBRLighting extends SimpleApplication {
                 public void done(LightProbe result) {
                     System.err.println("Done rendering env maps");
                     tex = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(result.getPrefilteredEnvMap(), assetManager);
-                    tex2 = EnvMapUtils.getCubeMapCrossDebugView(result.getIrradianceMap(), assetManager);
                 }
             });
             ((BoundingSphere) probe.getBounds()).setRadius(100);

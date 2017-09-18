@@ -61,25 +61,9 @@ public class LightsDebugState extends BaseAppState {
     private Geometry debugGeom;
     private Geometry debugBounds;
     private Material debugMaterial;
-    private DebugMode debugMode = DebugMode.PrefilteredEnvMap;
     private float probeScale = 1.0f;
     private Spatial scene = null;
     private final List<LightProbe> probes = new ArrayList<LightProbe>();
-
-    /**
-     * Debug mode for light probes
-     */
-    public enum DebugMode {
-
-        /**
-         * Displays the prefiltered env maps on the debug sphere
-         */
-        PrefilteredEnvMap,
-        /**
-         * displays the Irradiance map on the debug sphere
-         */
-        IrradianceMap
-    }
 
     @Override
     protected void initialize(Application app) {
@@ -114,11 +98,7 @@ public class LightsDebugState extends BaseAppState {
                     Material m = probeGeom.getMaterial();
                     probeGeom.setLocalScale(probeScale);
                     if (probe.isReady()) {
-                        if (debugMode == DebugMode.IrradianceMap) {
-                            m.setTexture("CubeMap", probe.getIrradianceMap());
-                        } else {
-                            m.setTexture("CubeMap", probe.getPrefilteredEnvMap());
-                        }
+                        m.setTexture("CubeMap", probe.getPrefilteredEnvMap());
                     }
                     n.setLocalTranslation(probe.getPosition());
                     n.getChild(1).setLocalScale(((BoundingSphere) probe.getBounds()).getRadius());
@@ -161,24 +141,6 @@ public class LightsDebugState extends BaseAppState {
         rm.renderScene(debugNode, getApplication().getViewPort());
     }
 
-    /**
-     * 
-     * @see DebugMode
-     * @return the debug mode
-     */
-    public DebugMode getDebugMode() {
-        return debugMode;
-    }
-
-    /**
-     * sets the debug mode
-     * @see DebugMode
-     * @param debugMode the debug mode
-     */
-    public void setDebugMode(DebugMode debugMode) {
-        this.debugMode = debugMode;
-
-    }
 
     /**
      * returns the scale of the probe's debug sphere

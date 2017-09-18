@@ -59,6 +59,12 @@ import com.jme3.util.TempVars;
  */
 public class EnvMapUtils {
 
+
+    private static final float sqrtPi = sqrt(PI);
+    private static final float sqrt3Pi = sqrt(3f / PI);
+    private static final float sqrt5Pi = sqrt(5f / PI);
+    private static final float sqrt15Pi = sqrt(15f / PI);
+
     public final static int NUM_SH_COEFFICIENT = 9;
     // See Peter-Pike Sloan paper for these coefficients
     //http://www.ppsloan.org/publications/StupidSH36.pdf
@@ -79,7 +85,7 @@ public class EnvMapUtils {
         /**
          * No seams fix
          */
-        None;
+        None
     }
 
     /**
@@ -111,18 +117,6 @@ public class EnvMapUtils {
         cubeImage.addData(backImg.getData(0));
         cubeImage.addData(frontImg.getData(0));
 
-        if (leftImg.getEfficentData() != null) {
-            // also consilidate efficient data
-            ArrayList<Object> efficientData = new ArrayList<Object>(6);
-            efficientData.add(rightImg.getEfficentData());
-            efficientData.add(leftImg.getEfficentData());
-            efficientData.add(upImg.getEfficentData());
-            efficientData.add(downImg.getEfficentData());
-            efficientData.add(backImg.getEfficentData());
-            efficientData.add(frontImg.getEfficentData());
-            cubeImage.setEfficentData(efficientData);
-        }
-
         TextureCubeMap cubeMap = new TextureCubeMap(cubeImage);
         cubeMap.setAnisotropicFilter(0);
         cubeMap.setMagFilter(Texture.MagFilter.Bilinear);
@@ -152,13 +146,6 @@ public class EnvMapUtils {
 
         for (ByteBuffer d : srcImg.getData()) {
             cubeImage.addData(d.duplicate());
-        }
-
-        if (srcImg.getEfficentData() != null) {
-            // also consilidate efficient data
-            ArrayList<Object> efficientData = new ArrayList<Object>(6);
-            efficientData.add(srcImg.getEfficentData());
-            cubeImage.setEfficentData(efficientData);
         }
 
         TextureCubeMap cubeMap = new TextureCubeMap(cubeImage);
@@ -196,7 +183,7 @@ public class EnvMapUtils {
     static float getSolidAngleAndVector(int x, int y, int mapSize, int face, Vector3f store, FixSeamsMethod fixSeamsMethod) {
 
         if (store == null) {
-            throw new IllegalArgumentException("the store parameter ust not be null");
+            throw new IllegalArgumentException("the store parameter must not be null");
         }
 
         /* transform from [0..res - 1] to [- (1 - 1 / res) .. (1 - 1 / res)]
@@ -438,7 +425,7 @@ public class EnvMapUtils {
         float weight;
 
         if (cubeMap.getImage().getData(0) == null) {
-            throw new IllegalStateException("The cube map must contain Efficient data, if you rendered the cube map on the GPU plase use renderer.readFrameBuffer, to create a CPU image");
+            throw new IllegalStateException("The cube map must contain Efficient data, if you rendered the cube map on the GPU please use renderer.readFrameBuffer, to create a CPU image");
         }
 
         int width = cubeMap.getImage().getWidth();
@@ -495,12 +482,6 @@ public class EnvMapUtils {
         float yV = texelVect.y;
         float zV = texelVect.z;
 
-        float pi = PI;
-        float sqrtPi = sqrt(pi);
-        float sqrt3Pi = sqrt(3f / pi);
-        float sqrt5Pi = sqrt(5f / pi);
-        float sqrt15Pi = sqrt(15f / pi);
-
         float x2 = xV * xV;
         float y2 = yV * yV;
         float z2 = zV * zV;
@@ -514,8 +495,31 @@ public class EnvMapUtils {
         shDir[6] = (sqrt5Pi * (-1f + 3f * z2)) / 4f;
         shDir[7] = -(sqrt15Pi * xV * zV) / 2f;
         shDir[8] = sqrt15Pi * (x2 - y2) / 4f;
-        
     }
+
+    public static void prepareShCoefs(Vector3f[] shCoefs) {
+
+        float coef0 = (1f / (2f * sqrtPi));
+        float coef1 = -sqrt3Pi / 2f;
+        float coef2 = -coef1;
+        float coef3 = coef1;
+        float coef4 = sqrt15Pi / 2f;
+        float coef5 = -coef4;
+        float coef6 = sqrt5Pi / 4f;
+        float coef7 = coef5;
+        float coef8 = sqrt15Pi / 4f;
+
+        shCoefs[0].multLocal(coef0);
+        shCoefs[1].multLocal(coef1);
+        shCoefs[2].multLocal(coef2);
+        shCoefs[3].multLocal(coef3);
+        shCoefs[4].multLocal(coef4);
+        shCoefs[5].multLocal(coef5);
+        shCoefs[6].multLocal(coef6);
+        shCoefs[7].multLocal(coef7);
+        shCoefs[8].multLocal(coef8);
+    }
+
 
     public static Vector4f getHammersleyPoint(int i, final int nbrSample, Vector4f store) {
         if (store == null) {
@@ -732,5 +736,6 @@ public class EnvMapUtils {
         return pem;
     }
 }
+
 
 
