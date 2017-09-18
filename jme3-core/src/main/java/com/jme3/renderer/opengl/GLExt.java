@@ -61,6 +61,7 @@ public interface GLExt {
 	public static final int GL_FRAMEBUFFER_SRGB_CAPABLE_EXT = 0x8DBA;
 	public static final int GL_FRAMEBUFFER_SRGB_EXT = 0x8DB9;
 	public static final int GL_HALF_FLOAT_ARB = 0x140B;
+        public static final int GL_HALF_FLOAT_OES = 0x8D61;
 	public static final int GL_LUMINANCE16F_ARB = 0x881E;
 	public static final int GL_LUMINANCE32F_ARB = 0x8818;
 	public static final int GL_LUMINANCE_ALPHA16F_ARB = 0x881F;

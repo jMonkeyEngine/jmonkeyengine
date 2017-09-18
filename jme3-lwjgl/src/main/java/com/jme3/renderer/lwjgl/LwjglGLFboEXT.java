@@ -7,6 +7,7 @@ import java.nio.IntBuffer;
 import org.lwjgl.opengl.EXTFramebufferBlit;
 import org.lwjgl.opengl.EXTFramebufferMultisample;
 import org.lwjgl.opengl.EXTFramebufferObject;
+import org.lwjgl.opengl.EXTTextureArray;
 
 /**
  * Implements GLFbo via GL_EXT_framebuffer_object.
@@ -94,5 +95,10 @@ public final class LwjglGLFboEXT implements GLFbo {
     @Override
     public void glRenderbufferStorageEXT(int param1, int param2, int param3, int param4) {
         EXTFramebufferObject.glRenderbufferStorageEXT(param1, param2, param3, param4);
+    }
+    
+    @Override
+    public void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer) {
+        EXTTextureArray.glFramebufferTextureLayerEXT(target, attachment, texture, level, layer);
     }
 }

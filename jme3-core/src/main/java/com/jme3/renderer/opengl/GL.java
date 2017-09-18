@@ -50,6 +50,7 @@ public interface GL {
     public static final int GL_ARRAY_BUFFER = 0x8892;
     public static final int GL_BACK = 0x405;
     public static final int GL_BLEND = 0xBE2;
+    public static final int GL_BLUE = 0x1905;
     public static final int GL_BYTE = 0x1400;
     public static final int GL_CLAMP_TO_EDGE = 0x812F;
     public static final int GL_COLOR_BUFFER_BIT = 0x4000;
@@ -173,9 +174,7 @@ public interface GL {
     public static final int GL_TEXTURE_CUBE_MAP_NEGATIVE_Y = 0x8518;
     public static final int GL_TEXTURE_CUBE_MAP_POSITIVE_Z = 0x8519;
     public static final int GL_TEXTURE_CUBE_MAP_NEGATIVE_Z = 0x851A;
-    public static final int GL_TEXTURE_BASE_LEVEL = 0x813C;
     public static final int GL_TEXTURE_MAG_FILTER = 0x2800;
-    public static final int GL_TEXTURE_MAX_LEVEL = 0x813D;
     public static final int GL_TEXTURE_MIN_FILTER = 0x2801;
     public static final int GL_TEXTURE_WRAP_S = 0x2802;
     public static final int GL_TEXTURE_WRAP_T = 0x2803;

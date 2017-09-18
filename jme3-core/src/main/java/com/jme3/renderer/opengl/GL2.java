@@ -65,6 +65,8 @@ public interface GL2 extends GL {
     public static final int GL_STACK_OVERFLOW = 0x503;
     public static final int GL_STACK_UNDERFLOW = 0x504;
     public static final int GL_TEXTURE_3D = 0x806F;
+    public static final int GL_TEXTURE_BASE_LEVEL = 0x813C;
+    public static final int GL_TEXTURE_MAX_LEVEL = 0x813D;
     public static final int GL_POINT_SPRITE = 0x8861;
     public static final int GL_TEXTURE_COMPARE_FUNC = 0x884D;
     public static final int GL_TEXTURE_COMPARE_MODE = 0x884C;

@@ -95,12 +95,6 @@ public class GLDebugDesktop extends GLDebugES implements GL2, GL3, GL4 {
         checkError();
     }
 
-    @Override
-    public void glFramebufferTextureLayer(int param1, int param2, int param3, int param4, int param5) {
-        gl3.glFramebufferTextureLayer(param1, param2, param3, param4, param5);
-        checkError();
-    }
-
     public void glBlendEquationSeparate(int colorMode, int alphaMode) {
         gl.glBlendEquationSeparate(colorMode, alphaMode);
         checkError();

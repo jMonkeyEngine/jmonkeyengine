@@ -86,7 +86,6 @@ public interface GL3 extends GL2 {
     public void glBindFragDataLocation(int param1, int param2, String param3); /// GL3+
     public void glBindVertexArray(int param1); /// GL3+
     public void glDeleteVertexArrays(IntBuffer arrays); /// GL3+
-    public void glFramebufferTextureLayer(int param1, int param2, int param3, int param4, int param5); /// GL3+
     public void glGenVertexArrays(IntBuffer param1); /// GL3+
     public String glGetString(int param1, int param2); /// GL3+
 }
