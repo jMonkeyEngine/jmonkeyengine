@@ -31,6 +31,7 @@
  */
 package com.jme3.shadow.next.pssm;
 
+import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
 import com.jme3.renderer.Camera;
 import com.jme3.shadow.PssmShadowUtil;
@@ -45,7 +46,7 @@ public final class DirectionalShadowParameters implements ShadowParameters {
     private int numSplits = 4;
     protected float zFarOverride = 0;
     private float[] splitPositions = new float[numSplits + 1];
-    private final Vector4f projectionSplitPositions = new Vector4f();
+    private final Vector3f projectionSplitPositions = new Vector3f();
 
     public float getLambda() {
         return lambda;
@@ -69,7 +70,7 @@ public final class DirectionalShadowParameters implements ShadowParameters {
         return splitPositions;
     }
 
-    public Vector4f getProjectionSplitPositions() {
+    public Vector3f getProjectionSplitPositions() {
         return projectionSplitPositions;
     }
 
@@ -124,7 +125,7 @@ public final class DirectionalShadowParameters implements ShadowParameters {
 
         switch (splitPositions.length) {
             case 5:
-                projectionSplitPositions.w = 1.0f; // = viewCamera.getViewToProjectionZ(splitPositions[4]);
+//                projectionSplitPositions.w = 1.0f;
             case 4:
                 projectionSplitPositions.z = viewCamera.getViewToProjectionZ(splitPositions[3]);
             case 3:

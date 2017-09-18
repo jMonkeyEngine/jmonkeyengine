@@ -39,7 +39,7 @@ import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.material.TechniqueDef;
 import com.jme3.math.Matrix4f;
-import com.jme3.math.Vector4f;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
@@ -149,7 +149,7 @@ public class ShadowStaticPassLightingLogic extends StaticPassLightingLogic {
     @Override
     protected void updateShadowUniforms(Renderer renderer, Shader shader, int nextTextureUnit) {
         TextureArray array = null;
-        Vector4f pssmSplits = null;
+        Vector3f pssmSplits = null;
 
         Uniform shadowMatricesUniform = shader.getUniform("g_ShadowMatrices");
         
@@ -187,7 +187,7 @@ public class ShadowStaticPassLightingLogic extends StaticPassLightingLogic {
         
         if (pssmSplits != null) {
             Uniform pssmSplitsUniform = shader.getUniform("g_PssmSplits");
-            pssmSplitsUniform.setValue(VarType.Vector4, pssmSplits);
+            pssmSplitsUniform.setValue(VarType.Vector3, pssmSplits);
         }
     }
 }

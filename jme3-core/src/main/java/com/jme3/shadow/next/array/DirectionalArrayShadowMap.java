@@ -34,7 +34,6 @@ package com.jme3.shadow.next.array;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.math.Vector3f;
-import com.jme3.math.Vector4f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.GeometryList;
@@ -47,7 +46,7 @@ import com.jme3.texture.TextureArray;
 public class DirectionalArrayShadowMap extends BaseArrayShadowMap<DirectionalArrayShadowMapSlice> {
 
     private final DirectionalLight light;
-    private final Vector4f projectionSplitPositions = new Vector4f();
+    private final Vector3f projectionSplitPositions = new Vector3f();
 
     public DirectionalArrayShadowMap(DirectionalLight light, TextureArray array, int firstArraySlice, int textureSize, int numSplits, Vector3f[] points) {
         super(array, firstArraySlice);
@@ -70,7 +69,7 @@ public class DirectionalArrayShadowMap extends BaseArrayShadowMap<DirectionalArr
         }
     }
 
-    public Vector4f getProjectionSplitPositions() {
+    public Vector3f getProjectionSplitPositions() {
         return projectionSplitPositions;
     }
 
