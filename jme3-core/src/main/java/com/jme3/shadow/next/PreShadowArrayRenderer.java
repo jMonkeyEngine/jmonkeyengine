@@ -34,6 +34,7 @@ package com.jme3.shadow.next;
 import com.jme3.shadow.next.pssm.DirectionalShadowParameters;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
+import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.material.RenderState;
 import com.jme3.math.Vector3f;
@@ -46,6 +47,7 @@ import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.shadow.next.array.DirectionalArrayShadowMap;
+import com.jme3.shadow.next.array.PointArrayShadowMap;
 import com.jme3.shadow.next.array.SpotArrayShadowMap;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
@@ -150,6 +152,13 @@ public class PreShadowArrayRenderer implements SceneProcessor {
                         textureSize,
                         directionalParams.getNumSplits());
                 break;
+            case Point:
+                shadowMap = new PointArrayShadowMap(
+                        (PointLight) light,
+                        array,
+                        nextArraySlice,
+                        textureSize);
+                break;
             case Spot:
                 shadowMap = new SpotArrayShadowMap(
                         (SpotLight) light,
@@ -201,6 +210,10 @@ public class PreShadowArrayRenderer implements SceneProcessor {
                 case Directional:
                     DirectionalArrayShadowMap directionalShadow = (DirectionalArrayShadowMap) shadowMap;
                     directionalShadow.renderShadowMap(renderManager, viewPort, directionalParams, shadowCasters, points);
+                    break;
+                case Point:
+                    PointArrayShadowMap pointShadow = (PointArrayShadowMap) shadowMap;
+                    pointShadow.renderShadowMap(renderManager, viewPort, shadowCasters);
                     break;
                 case Spot:
                     SpotArrayShadowMap spotShadow = (SpotArrayShadowMap) shadowMap;

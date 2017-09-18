@@ -50,6 +50,7 @@ import com.jme3.shader.VarType;
 import com.jme3.shadow.next.array.ArrayShadowMap;
 import com.jme3.shadow.next.array.ArrayShadowMapSlice;
 import com.jme3.shadow.next.array.DirectionalArrayShadowMap;
+import com.jme3.shadow.next.array.PointArrayShadowMap;
 import com.jme3.shadow.next.array.SpotArrayShadowMap;
 import com.jme3.shadow.next.array.SpotArrayShadowMapSlice;
 import com.jme3.texture.TextureArray;
@@ -163,6 +164,18 @@ public class ShadowStaticPassLightingLogic extends StaticPassLightingLogic {
             DirectionalArrayShadowMap map = (DirectionalArrayShadowMap) tempDirLights.get(i).getShadowMap();
             array = map.getArray();
             pssmSplits = map.getProjectionSplitPositions();
+            for (int j = 0; j < map.getNumSlices(); j++) {
+                ArrayShadowMapSlice slice = (ArrayShadowMapSlice) map.getSlice(j);
+                shadowMatricesUniform.setMatrix4InArray(
+                        slice.getBiasedViewProjectionMatrix(),
+                        shadowMatrixIndex);
+                shadowMatrixIndex++;
+            }
+        }
+        
+        for (int i = 0; i < numShadowPointLights; i++) {
+            PointArrayShadowMap map = (PointArrayShadowMap) tempPointLights.get(i).getShadowMap();
+            array = map.getArray();
             for (int j = 0; j < map.getNumSlices(); j++) {
                 ArrayShadowMapSlice slice = (ArrayShadowMapSlice) map.getSlice(j);
                 shadowMatricesUniform.setMatrix4InArray(
