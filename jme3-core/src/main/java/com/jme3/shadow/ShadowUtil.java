@@ -32,7 +32,9 @@
 package com.jme3.shadow;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
+import com.jme3.collision.UnsupportedCollisionException;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Transform;
@@ -42,6 +44,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -295,46 +298,64 @@ public class ShadowUtil {
             return casterCount;
         }
         
+        private boolean intersectsIgnoreNearZ(BoundingBox splitBB, BoundingSphere occSphere) {
+            float distSqr = occSphere.getRadius() * occSphere.getRadius();
+
+            float minX = splitBB.getCenter().x - splitBB.getXExtent();
+            float maxX = splitBB.getCenter().x + splitBB.getXExtent();
+
+            float minY = splitBB.getCenter().y - splitBB.getYExtent();
+            float maxY = splitBB.getCenter().y + splitBB.getYExtent();
+
+            float maxZ = splitBB.getCenter().z + splitBB.getZExtent();
+
+            if      (occSphere.getCenter().x < minX) distSqr -= FastMath.sqr(occSphere.getCenter().x - minX);
+            else if (occSphere.getCenter().x > maxX) distSqr -= FastMath.sqr(occSphere.getCenter().x - maxX);
+
+            if      (occSphere.getCenter().y < minY) distSqr -= FastMath.sqr(occSphere.getCenter().y - minY);
+            else if (occSphere.getCenter().y > maxY) distSqr -= FastMath.sqr(occSphere.getCenter().y - maxY);
+
+            if (occSphere.getCenter().z > maxZ) distSqr -= FastMath.sqr(occSphere.getCenter().z - maxZ);
+
+            return distSqr > 0;
+        }
+        
+        private boolean intersectsIgnoreNearZ(BoundingBox splitBB, BoundingBox occBB) {
+            if (splitBB.getCenter().x + splitBB.getXExtent() < occBB.getCenter().x - occBB.getXExtent()
+                    || splitBB.getCenter().x - splitBB.getXExtent() > occBB.getCenter().x + occBB.getXExtent()) {
+                return false;
+            } else if (splitBB.getCenter().y + splitBB.getYExtent() < occBB.getCenter().y - occBB.getYExtent()
+                    || splitBB.getCenter().y - splitBB.getYExtent() > occBB.getCenter().y + occBB.getYExtent()) {
+                return false;
+            } else if (splitBB.getCenter().z + splitBB.getZExtent() < occBB.getCenter().z - occBB.getZExtent()) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        
+        private boolean intersectsIgnoreNearZ(BoundingBox splitBB, BoundingVolume occBV) {
+            if (occBV instanceof BoundingBox) {
+                return intersectsIgnoreNearZ(splitBB, (BoundingBox) occBV);
+            } else if (occBV instanceof BoundingSphere) {
+                return intersectsIgnoreNearZ(splitBB, (BoundingSphere) occBV);
+            } else {
+                throw new UnsupportedCollisionException("With: " + occBV.getClass().getSimpleName());
+            }
+        }
+
         private void process(Spatial scene) {
             if (scene.getCullHint() == Spatial.CullHint.Always) return;
 
-            RenderQueue.ShadowMode shadowMode = scene.getShadowMode();
-            if ( scene instanceof Geometry )
-            {
+            if (scene instanceof Geometry) {
                 // convert bounding box to light's viewproj space
-                Geometry occluder = (Geometry)scene;
-                if (shadowMode != RenderQueue.ShadowMode.Off && shadowMode != RenderQueue.ShadowMode.Receive
-                        && !occluder.isGrouped() && occluder.getWorldBound()!=null) {
+                Geometry occluder = (Geometry) scene;
+                ShadowMode shadowMode = scene.getShadowMode();
+                if (shadowMode != ShadowMode.Off && shadowMode != ShadowMode.Receive
+                        && !occluder.isGrouped()) {
                     BoundingVolume bv = occluder.getWorldBound();
                     BoundingVolume occBox = bv.transform(viewProjMatrix, vars.bbox);
-          
-                    boolean intersects = splitBB.intersects(occBox);
-                    if (!intersects && occBox instanceof BoundingBox) {
-                        BoundingBox occBB = (BoundingBox) occBox;
-                        //Kirill 01/10/2011
-                        // Extend the occluder further into the frustum
-                        // This fixes shadow dissapearing issues when
-                        // the caster itself is not in the view camera
-                        // but its shadow is in the camera
-                        //      The number is in world units
-                        occBB.setZExtent(occBB.getZExtent() + 50);
-                        occBB.setCenter(occBB.getCenter().addLocal(0, 0, 25));
-                        if (splitBB.intersects(occBB)) {
-                            //Nehon : prevent NaN and infinity values to screw the final bounding box
-                            if (!Float.isNaN(occBox.getCenter().x) && !Float.isInfinite(occBox.getCenter().x)) {
-                                // To prevent extending the depth range too much
-                                // We return the bound to its former shape
-                                // Before adding it
-                                occBB.setZExtent(occBB.getZExtent() - 50);
-                                occBB.setCenter(occBB.getCenter().subtractLocal(0, 0, 25));                    
-                                casterBB.mergeLocal(occBox);
-                                casterCount++;
-                            }
-                            if (splitOccluders != null) {
-                                splitOccluders.add(occluder);
-                            }
-                        }
-                    } else if (intersects) {
+                    if (intersectsIgnoreNearZ(splitBB, occBox)) {
                         casterBB.mergeLocal(occBox);
                         casterCount++;
                         if (splitOccluders != null) {
@@ -342,30 +363,10 @@ public class ShadowUtil {
                         }
                     }
                 }
-            }
-            else if ( scene instanceof Node && ((Node)scene).getWorldBound()!=null )
-            {
-                Node nodeOcc = (Node)scene;
-                boolean intersects = false;
-                // some 
-                BoundingVolume bv = nodeOcc.getWorldBound();
+            } else if (scene instanceof Node) {
+                BoundingVolume bv = scene.getWorldBound();
                 BoundingVolume occBox = bv.transform(viewProjMatrix, vars.bbox);
-      
-                intersects = splitBB.intersects(occBox);
-                if (!intersects && occBox instanceof BoundingBox) {
-                    BoundingBox occBB = (BoundingBox) occBox;
-                    //Kirill 01/10/2011
-                    // Extend the occluder further into the frustum
-                    // This fixes shadow dissapearing issues when
-                    // the caster itself is not in the view camera
-                    // but its shadow is in the camera
-                    //      The number is in world units
-                    occBB.setZExtent(occBB.getZExtent() + 50);
-                    occBB.setCenter(occBB.getCenter().addLocal(0, 0, 25));
-                    intersects = splitBB.intersects(occBB);
-                }
- 
-                if ( intersects ) {
+                if (intersectsIgnoreNearZ(splitBB, occBox)) {
                     for (Spatial child : ((Node)scene).getChildren()) {
                         process(child);
                     }
