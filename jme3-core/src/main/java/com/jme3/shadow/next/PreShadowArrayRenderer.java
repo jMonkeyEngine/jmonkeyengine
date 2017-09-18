@@ -93,7 +93,7 @@ public class PreShadowArrayRenderer implements SceneProcessor {
             points[i] = new Vector3f();
         }
 
-        prePassRenderState.setFaceCullMode(RenderState.FaceCullMode.Front);
+        prePassRenderState.setFaceCullMode(RenderState.FaceCullMode.Back);
         prePassRenderState.setColorWrite(false);
         prePassRenderState.setDepthWrite(true);
         prePassRenderState.setDepthTest(true);
@@ -134,7 +134,7 @@ public class PreShadowArrayRenderer implements SceneProcessor {
     public void addLight(Light light) {
         if (array.getImage() == null) {
             array.setImage(new Image(
-                    Format.Depth32F,
+                    Format.Depth16,
                     textureSize,
                     textureSize,
                     0,
