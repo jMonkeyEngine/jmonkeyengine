@@ -2,6 +2,8 @@ package com.jme3.scene.plugins.gltf;
 
 import com.google.gson.JsonElement;
 
+import java.io.IOException;
+
 /**
  * Base Interface for extension loading implementation.
  *
@@ -19,6 +21,6 @@ public interface ExtensionLoader {
      * @param input      an object containing already loaded data from the element, this is most probably a JME object
      * @return An object of the same type as input, containing the data from the input object and the eventual additional data read from the extension
      */
-    Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input);
+    Object handleExtension(GltfLoader loader, String parentName, JsonElement parent, JsonElement extension, Object input) throws IOException;
 
 }

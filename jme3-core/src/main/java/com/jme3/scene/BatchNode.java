@@ -62,9 +62,9 @@ import com.jme3.util.clone.JmeCloneable;
  * Sub geoms can be removed but it may be slower than the normal spatial removing
  * Sub geoms can be added after the batch() method has been called but won't be batched and will just be rendered as normal geometries.
  * To integrate them in the batch you have to call the batch() method again on the batchNode.
- *
- * TODO normal or tangents or both looks a bit weird
+ * <p>
  * TODO more automagic (batch when needed in the updateLogicalState)
+ *
  * @author Nehon
  */
 public class BatchNode extends GeometryGroupNode {
@@ -108,7 +108,7 @@ public class BatchNode extends GeometryGroupNode {
     public void onMaterialChange(Geometry geom) {
         throw new UnsupportedOperationException(
                 "Cannot set the material of a batched geometry, "
-                + "change the material of the parent BatchNode.");
+                        + "change the material of the parent BatchNode.");
     }
 
     @Override
@@ -122,7 +122,7 @@ public class BatchNode extends GeometryGroupNode {
         setNeedsFullRebatch(true);
     }
 
-    protected Matrix4f getTransformMatrix(Geometry g){
+    protected Matrix4f getTransformMatrix(Geometry g) {
         return g.cachedWorldMat;
     }
 
@@ -133,33 +133,42 @@ public class BatchNode extends GeometryGroupNode {
             Mesh origMesh = bg.getMesh();
 
             VertexBuffer pvb = mesh.getBuffer(VertexBuffer.Type.Position);
-            FloatBuffer posBuf = (FloatBuffer) pvb.getData();
             VertexBuffer nvb = mesh.getBuffer(VertexBuffer.Type.Normal);
-            FloatBuffer normBuf = (FloatBuffer) nvb.getData();
+            VertexBuffer tvb = mesh.getBuffer(VertexBuffer.Type.Tangent);
 
             VertexBuffer opvb = origMesh.getBuffer(VertexBuffer.Type.Position);
-            FloatBuffer oposBuf = (FloatBuffer) opvb.getData();
             VertexBuffer onvb = origMesh.getBuffer(VertexBuffer.Type.Normal);
-            FloatBuffer onormBuf = (FloatBuffer) onvb.getData();
+            VertexBuffer otvb = origMesh.getBuffer(VertexBuffer.Type.Tangent);
+
+            FloatBuffer posBuf = getFloatBuffer(pvb);
+            FloatBuffer normBuf = getFloatBuffer(nvb);
+            FloatBuffer tanBuf = getFloatBuffer(tvb);
+
+            FloatBuffer oposBuf = getFloatBuffer(opvb);
+            FloatBuffer onormBuf = getFloatBuffer(onvb);
+            FloatBuffer otanBuf = getFloatBuffer(otvb);
+
             Matrix4f transformMat = getTransformMatrix(bg);
+            doTransforms(oposBuf, onormBuf, otanBuf, posBuf, normBuf, tanBuf, bg.startIndex, bg.startIndex + bg.getVertexCount(), transformMat);
 
-            if (mesh.getBuffer(VertexBuffer.Type.Tangent) != null) {
-
-                VertexBuffer tvb = mesh.getBuffer(VertexBuffer.Type.Tangent);
-                FloatBuffer tanBuf = (FloatBuffer) tvb.getData();
-                VertexBuffer otvb = origMesh.getBuffer(VertexBuffer.Type.Tangent);
-                FloatBuffer otanBuf = (FloatBuffer) otvb.getData();
-                doTransformsTangents(oposBuf, onormBuf, otanBuf, posBuf, normBuf, tanBuf, bg.startIndex, bg.startIndex + bg.getVertexCount(), transformMat);
-                tvb.updateData(tanBuf);
-            } else {
-                doTransforms(oposBuf, onormBuf, posBuf, normBuf, bg.startIndex, bg.startIndex + bg.getVertexCount(), transformMat);
-            }
             pvb.updateData(posBuf);
-            nvb.updateData(normBuf);
 
+            if (nvb != null) {
+                nvb.updateData(normBuf);
+            }
+            if (tvb != null) {
+                tvb.updateData(tanBuf);
+            }
 
             batch.geometry.updateModelBound();
         }
+    }
+
+    private FloatBuffer getFloatBuffer(VertexBuffer vb) {
+        if (vb == null) {
+            return null;
+        }
+        return (FloatBuffer) vb.getData();
     }
 
     /**
@@ -234,7 +243,7 @@ public class BatchNode extends GeometryGroupNode {
         logger.log(Level.FINE, "Batched {0} geometries in {1} batches.", new Object[]{nbGeoms, batches.size()});
 
         //init the temp arrays if something has been batched only.
-        if(matMap.size()>0){
+        if (matMap.size() > 0) {
             //TODO these arrays should be allocated by chunk instead to avoid recreating them each time the batch is changed.
             //init temp float arrays
             tmpFloat = new float[maxVertCount * 3];
@@ -257,6 +266,7 @@ public class BatchNode extends GeometryGroupNode {
 
     /**
      * recursively visit the subgraph and unbatch geometries
+     *
      * @param s
      */
     private void unbatchSubGraph(Spatial s) {
@@ -343,11 +353,10 @@ public class BatchNode extends GeometryGroupNode {
 
     /**
      * Returns the material that is used for the first batch of this BatchNode
-     *
+     * <p>
      * use getMaterial(Material material,int batchIndex) to get a material from a specific batch
      *
      * @return the material that is used for the first batch of this BatchNode
-     *
      * @see #setMaterial(com.jme3.material.Material)
      */
     public Material getMaterial() {
@@ -428,14 +437,6 @@ public class BatchNode extends GeometryGroupNode {
                         + " primitive types: " + mode + " != " + listMode);
             }
             mode = listMode;
-            //Not needed anymore as lineWidth is now in RenderState and will be taken into account when merging according to the material
-//            if (mode == Mesh.Mode.Lines) {
-//                if (lineWidth != 1f && listLineWidth != lineWidth) {
-//                    throw new UnsupportedOperationException("When using Mesh Line mode, cannot combine meshes with different line width "
-//                            + lineWidth + " != " + listLineWidth);
-//                }
-//                lineWidth = listLineWidth;
-//            }
             compsForBuf[VertexBuffer.Type.Index.ordinal()] = components;
         }
 
@@ -528,53 +529,7 @@ public class BatchNode extends GeometryGroupNode {
         }
     }
 
-    private void doTransforms(FloatBuffer bindBufPos, FloatBuffer bindBufNorm, FloatBuffer bufPos, FloatBuffer bufNorm, int start, int end, Matrix4f transform) {
-        TempVars vars = TempVars.get();
-        Vector3f pos = vars.vect1;
-        Vector3f norm = vars.vect2;
-
-        int length = (end - start) * 3;
-
-        // offset is given in element units
-        // convert to be in component units
-        int offset = start * 3;
-        bindBufPos.rewind();
-        bindBufNorm.rewind();
-        //bufPos.position(offset);
-        //bufNorm.position(offset);
-        bindBufPos.get(tmpFloat, 0, length);
-        bindBufNorm.get(tmpFloatN, 0, length);
-        int index = 0;
-        while (index < length) {
-            pos.x = tmpFloat[index];
-            norm.x = tmpFloatN[index++];
-            pos.y = tmpFloat[index];
-            norm.y = tmpFloatN[index++];
-            pos.z = tmpFloat[index];
-            norm.z = tmpFloatN[index];
-
-            transform.mult(pos, pos);
-            transform.multNormal(norm, norm);
-
-            index -= 2;
-            tmpFloat[index] = pos.x;
-            tmpFloatN[index++] = norm.x;
-            tmpFloat[index] = pos.y;
-            tmpFloatN[index++] = norm.y;
-            tmpFloat[index] = pos.z;
-            tmpFloatN[index++] = norm.z;
-
-        }
-        vars.release();
-        bufPos.position(offset);
-        //using bulk put as it's faster
-        bufPos.put(tmpFloat, 0, length);
-        bufNorm.position(offset);
-        //using bulk put as it's faster
-        bufNorm.put(tmpFloatN, 0, length);
-    }
-
-    private void doTransformsTangents(FloatBuffer bindBufPos, FloatBuffer bindBufNorm, FloatBuffer bindBufTangents,FloatBuffer bufPos, FloatBuffer bufNorm, FloatBuffer bufTangents, int start, int end, Matrix4f transform) {
+    private void doTransforms(FloatBuffer bindBufPos, FloatBuffer bindBufNorm, FloatBuffer bindBufTangents, FloatBuffer bufPos, FloatBuffer bufNorm, FloatBuffer bufTangents, int start, int end, Matrix4f transform) {
         TempVars vars = TempVars.get();
         Vector3f pos = vars.vect1;
         Vector3f norm = vars.vect2;
@@ -588,60 +543,76 @@ public class BatchNode extends GeometryGroupNode {
         int offset = start * 3;
         int tanOffset = start * 4;
 
-
         bindBufPos.rewind();
-        bindBufNorm.rewind();
-        bindBufTangents.rewind();
         bindBufPos.get(tmpFloat, 0, length);
-        bindBufNorm.get(tmpFloatN, 0, length);
-        bindBufTangents.get(tmpFloatT, 0, tanLength);
+
+        if (bindBufNorm != null) {
+            bindBufNorm.rewind();
+            bindBufNorm.get(tmpFloatN, 0, length);
+        }
+
+        if (bindBufTangents != null) {
+            bindBufTangents.rewind();
+            bindBufTangents.get(tmpFloatT, 0, tanLength);
+        }
 
         int index = 0;
         int tanIndex = 0;
+        int index1, index2, tanIndex1, tanIndex2;
+
         while (index < length) {
+            index1 = index + 1;
+            index2 = index + 2;
+
             pos.x = tmpFloat[index];
-            norm.x = tmpFloatN[index++];
-            pos.y = tmpFloat[index];
-            norm.y = tmpFloatN[index++];
-            pos.z = tmpFloat[index];
-            norm.z = tmpFloatN[index];
-
-            tan.x = tmpFloatT[tanIndex++];
-            tan.y = tmpFloatT[tanIndex++];
-            tan.z = tmpFloatT[tanIndex++];
-
+            pos.y = tmpFloat[index1];
+            pos.z = tmpFloat[index2];
             transform.mult(pos, pos);
-            transform.multNormal(norm, norm);
-            transform.multNormal(tan, tan);
-
-            index -= 2;
-            tanIndex -= 3;
-
             tmpFloat[index] = pos.x;
-            tmpFloatN[index++] = norm.x;
-            tmpFloat[index] = pos.y;
-            tmpFloatN[index++] = norm.y;
-            tmpFloat[index] = pos.z;
-            tmpFloatN[index++] = norm.z;
+            tmpFloat[index1] = pos.y;
+            tmpFloat[index2] = pos.z;
 
-            tmpFloatT[tanIndex++] = tan.x;
-            tmpFloatT[tanIndex++] = tan.y;
-            tmpFloatT[tanIndex++] = tan.z;
+            if (bindBufNorm != null) {
+                norm.x = tmpFloatN[index];
+                norm.y = tmpFloatN[index1];
+                norm.z = tmpFloatN[index2];
+                transform.multNormal(norm, norm);
+                tmpFloatN[index] = norm.x;
+                tmpFloatN[index1] = norm.y;
+                tmpFloatN[index2] = norm.z;
+            }
 
-            //Skipping 4th element of tangent buffer (handedness)
-            tanIndex++;
+            index += 3;
+
+            if (bindBufTangents != null) {
+                tanIndex1 = tanIndex + 1;
+                tanIndex2 = tanIndex + 2;
+                tan.x = tmpFloatT[tanIndex];
+                tan.y = tmpFloatT[tanIndex1];
+                tan.z = tmpFloatT[tanIndex2];
+                transform.multNormal(tan, tan);
+                tmpFloatT[tanIndex] = tan.x;
+                tmpFloatT[tanIndex1] = tan.y;
+                tmpFloatT[tanIndex2] = tan.z;
+                tanIndex += 4;
+            }
 
         }
         vars.release();
+
+        //using bulk put as it's faster
         bufPos.position(offset);
-        //using bulk put as it's faster
         bufPos.put(tmpFloat, 0, length);
-        bufNorm.position(offset);
-        //using bulk put as it's faster
-        bufNorm.put(tmpFloatN, 0, length);
-        bufTangents.position(tanOffset);
-        //using bulk put as it's faster
-        bufTangents.put(tmpFloatT, 0, tanLength);
+
+        if (bindBufNorm != null) {
+            bufNorm.position(offset);
+            bufNorm.put(tmpFloatN, 0, length);
+        }
+
+        if (bindBufTangents != null) {
+            bufTangents.position(tanOffset);
+            bufTangents.put(tmpFloatT, 0, tanLength);
+        }
     }
 
     private void doCopyBuffer(FloatBuffer inBuf, int offset, FloatBuffer outBuf, int componentSize) {
@@ -653,11 +624,11 @@ public class BatchNode extends GeometryGroupNode {
         offset *= componentSize;
 
         for (int i = 0; i < inBuf.limit() / componentSize; i++) {
-            pos.x = inBuf.get(i * componentSize + 0);
+            pos.x = inBuf.get(i * componentSize);
             pos.y = inBuf.get(i * componentSize + 1);
             pos.z = inBuf.get(i * componentSize + 2);
 
-            outBuf.put(offset + i * componentSize + 0, pos.x);
+            outBuf.put(offset + i * componentSize, pos.x);
             outBuf.put(offset + i * componentSize + 1, pos.y);
             outBuf.put(offset + i * componentSize + 2, pos.z);
         }
@@ -667,6 +638,7 @@ public class BatchNode extends GeometryGroupNode {
     protected class Batch implements JmeCloneable {
         /**
          * update the batchesByGeom map for this batch with the given List of geometries
+         *
          * @param list
          */
         void updateGeomList(List<Geometry> list) {
@@ -676,6 +648,7 @@ public class BatchNode extends GeometryGroupNode {
                 }
             }
         }
+
         Geometry geometry;
 
         public final Geometry getGeometry() {
@@ -685,14 +658,14 @@ public class BatchNode extends GeometryGroupNode {
         @Override
         public Batch jmeClone() {
             try {
-                return (Batch)super.clone();
+                return (Batch) super.clone();
             } catch (CloneNotSupportedException ex) {
                 throw new AssertionError();
             }
         }
 
         @Override
-        public void cloneFields( Cloner cloner, Object original ) {
+        public void cloneFields(Cloner cloner, Object original) {
             this.geometry = cloner.clone(geometry);
         }
 
@@ -704,11 +677,11 @@ public class BatchNode extends GeometryGroupNode {
 
     @Override
     public Node clone(boolean cloneMaterials) {
-        BatchNode clone = (BatchNode)super.clone(cloneMaterials);
-        if ( batches.size() > 0) {
-            for ( Batch b : batches ) {
-                for ( int i =0; i < clone.children.size(); i++ ) {
-                    if ( clone.children.get(i).getName().equals(b.geometry.getName())) {
+        BatchNode clone = (BatchNode) super.clone(cloneMaterials);
+        if (batches.size() > 0) {
+            for (Batch b : batches) {
+                for (int i = 0; i < clone.children.size(); i++) {
+                    if (clone.children.get(i).getName().equals(b.geometry.getName())) {
                         clone.children.remove(i);
                         break;
                     }
@@ -723,10 +696,10 @@ public class BatchNode extends GeometryGroupNode {
     }
 
     /**
-     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     * Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
 
         this.batches = cloner.clone(batches);
@@ -736,7 +709,7 @@ public class BatchNode extends GeometryGroupNode {
 
 
         HashMap<Geometry, Batch> newBatchesByGeom = new HashMap<Geometry, Batch>();
-        for( Map.Entry<Geometry, Batch> e : batchesByGeom.entrySet() ) {
+        for (Map.Entry<Geometry, Batch> e : batchesByGeom.entrySet()) {
             newBatchesByGeom.put(cloner.clone(e.getKey()), cloner.clone(e.getValue()));
         }
         this.batchesByGeom = newBatchesByGeom;
@@ -745,7 +718,7 @@ public class BatchNode extends GeometryGroupNode {
     @Override
     public int collideWith(Collidable other, CollisionResults results) {
         int total = 0;
-        for (Spatial child : children.getArray()){
+        for (Spatial child : children.getArray()) {
             if (!isBatch(child)) {
                 total += child.collideWith(other, results);
             }
