@@ -48,23 +48,23 @@ public class DirectionalArrayShadowMap extends BaseArrayShadowMap<DirectionalArr
     private final DirectionalLight light;
     private final Vector3f projectionSplitPositions = new Vector3f();
 
-    public DirectionalArrayShadowMap(DirectionalLight light, TextureArray array, int firstArraySlice, int textureSize, int numSplits, Vector3f[] points) {
+    public DirectionalArrayShadowMap(DirectionalLight light, TextureArray array, int firstArraySlice, int textureSize, int numSplits) {
         super(array, firstArraySlice);
         this.light = light;
         this.slices = new DirectionalArrayShadowMapSlice[numSplits];
         for (int i = 0; i < numSplits; i++) {
-            this.slices[i] = new DirectionalArrayShadowMapSlice(array, firstArraySlice + i, textureSize, points);
+            this.slices[i] = new DirectionalArrayShadowMapSlice(array, firstArraySlice + i, textureSize);
         }
     }
 
-    public void renderShadowMap(RenderManager renderManager, ViewPort viewPort, DirectionalShadowParameters params, GeometryList shadowCasters) {
+    public void renderShadowMap(RenderManager renderManager, ViewPort viewPort, DirectionalShadowParameters params, GeometryList shadowCasters, Vector3f[] points) {
         projectionSplitPositions.set(params.getProjectionSplitPositions());
         float[] splitPositionsViewSpace = params.getSplitPositions();
         for (int i = 0; i < slices.length; i++) {
             float near = splitPositionsViewSpace[i];
             float far = splitPositionsViewSpace[i + 1];
             shadowCasters.clear();
-            slices[i].updateShadowCamera(viewPort, light, shadowCasters, near, far);
+            slices[i].updateShadowCamera(viewPort, light, shadowCasters, near, far, points);
             slices[i].renderShadowMap(renderManager, light, viewPort, shadowCasters);
         }
     }

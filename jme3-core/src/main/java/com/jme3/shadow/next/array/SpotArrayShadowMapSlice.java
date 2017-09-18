@@ -34,9 +34,10 @@ package com.jme3.shadow.next.array;
 import com.jme3.light.SpotLight;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.GeometryList;
+import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.scene.Spatial;
 import com.jme3.shadow.ShadowUtil;
 import com.jme3.texture.TextureArray;
 
@@ -45,26 +46,16 @@ import com.jme3.texture.TextureArray;
  */
 public class SpotArrayShadowMapSlice extends BaseArrayShadowMapSlice<SpotLight> {
 
-    public SpotArrayShadowMapSlice(TextureArray array, int layer, int textureSize, Vector3f[] points) {
-        super(array, layer, textureSize, points);
+    public SpotArrayShadowMapSlice(TextureArray array, int layer, int textureSize) {
+        super(array, layer, textureSize, true);
     }
 
-    public void updateShadowCamera(
-            ViewPort viewPort,
-            SpotLight light,
-            GeometryList shadowCasters) {
-
-        Camera viewCamera = viewPort.getCamera();
-        float near = viewCamera.getFrustumNear();
-        float far = viewCamera.getFrustumFar();
-
-        ShadowUtil.updateFrustumPoints(viewCamera, near, far, points);
-
-        shadowCamera.setFrustumPerspective(light.getSpotOuterAngle() * FastMath.RAD_TO_DEG * 2.0f, 1, 1, light.getSpotRange());
-        shadowCamera.lookAtDirection(light.getDirection(), shadowCamera.getUp());
+    public void updateShadowCamera(ViewPort viewPort, SpotLight light, GeometryList shadowCasters) {
         shadowCamera.setLocation(light.getPosition());
-
-        int textureSize = frameBuffer.getWidth();
-        ShadowUtil.updateShadowCamera(viewPort, null, shadowCamera, points, shadowCasters, textureSize);
+        shadowCamera.lookAtDirection(light.getDirection(), Vector3f.UNIT_Y);
+        shadowCamera.setFrustumPerspective(light.getSpotOuterAngle() * FastMath.RAD_TO_DEG * 2.0f, 1, 1, light.getSpotRange());
+        for (Spatial scene : viewPort.getScenes()) {
+            ShadowUtil.getGeometriesInCamFrustum(scene, shadowCamera, RenderQueue.ShadowMode.Cast, shadowCasters);
+        }
     }
 }

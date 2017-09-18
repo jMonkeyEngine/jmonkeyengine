@@ -33,7 +33,6 @@ package com.jme3.shadow.next.array;
 
 import com.jme3.light.Light;
 import com.jme3.light.SpotLight;
-import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.GeometryList;
@@ -46,11 +45,11 @@ public class SpotArrayShadowMap extends BaseArrayShadowMap<SpotArrayShadowMapSli
 
     private final SpotLight light;
 
-    public SpotArrayShadowMap(SpotLight light, TextureArray array, int firstArraySlice, int textureSize, Vector3f[] points) {
+    public SpotArrayShadowMap(SpotLight light, TextureArray array, int firstArraySlice, int textureSize) {
         super(array, firstArraySlice);
         this.light = light;
         slices = new SpotArrayShadowMapSlice[]{
-            new SpotArrayShadowMapSlice(array, firstArraySlice, textureSize, points)
+            new SpotArrayShadowMapSlice(array, firstArraySlice, textureSize)
         };
     }
 

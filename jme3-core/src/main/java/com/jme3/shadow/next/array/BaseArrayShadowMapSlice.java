@@ -33,7 +33,6 @@ package com.jme3.shadow.next.array;
 
 import com.jme3.light.Light;
 import com.jme3.math.Matrix4f;
-import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
@@ -51,12 +50,18 @@ public class BaseArrayShadowMapSlice<T extends Light> implements ArrayShadowMapS
 
     protected final FrameBuffer frameBuffer;
     protected final Camera shadowCamera;
-    protected final Vector3f[] points;
     protected final Matrix4f biasedViewProjectionMatrix = new Matrix4f();
 
-    public BaseArrayShadowMapSlice(TextureArray array, int layer, int textureSize, Vector3f[] points) {
+    protected boolean fbNeedClear = true;
+
+    public BaseArrayShadowMapSlice(TextureArray array, int layer, int textureSize, boolean useBorder) {
         this.shadowCamera = new Camera(textureSize, textureSize);
-        this.shadowCamera.setParallelProjection(true);
+
+        if (useBorder) {
+            float onePx = 1f / textureSize;
+            this.shadowCamera.setViewPort(onePx, 1f - onePx, onePx, 1f - onePx);
+        }
+
         this.frameBuffer = new FrameBuffer(textureSize, textureSize, 1);
 
         Image image = array.getImage();
@@ -64,7 +69,6 @@ public class BaseArrayShadowMapSlice<T extends Light> implements ArrayShadowMapS
         image.addData(null);
 
         this.frameBuffer.setDepthTexture(array, layer);
-        this.points = points;
     }
 
     @Override
@@ -76,12 +80,18 @@ public class BaseArrayShadowMapSlice<T extends Light> implements ArrayShadowMapS
     public void renderShadowMap(RenderManager renderManager, Light light, ViewPort viewPort, GeometryList shadowCasters) {
         Renderer renderer = renderManager.getRenderer();
 
-        renderer.setFrameBuffer(frameBuffer);
-        renderManager.setCamera(shadowCamera, false);
-        renderer.clearBuffers(false, true, false);
+        if (fbNeedClear) {
+            renderer.setFrameBuffer(frameBuffer);
+            renderer.clearBuffers(false, true, false);
+            fbNeedClear = false;
+        }
 
-        viewPort.getQueue().renderShadowQueue(shadowCasters, renderManager, shadowCamera, true);
-        
+        if (shadowCasters.size() > 0) {
+            renderManager.setCamera(shadowCamera, false);
+            viewPort.getQueue().renderShadowQueue(shadowCasters, renderManager, shadowCamera, true);
+            fbNeedClear = true;
+        }
+
         BIAS_MATRIX.mult(shadowCamera.getViewProjectionMatrix(), biasedViewProjectionMatrix);
     }
 }

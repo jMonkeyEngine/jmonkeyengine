@@ -148,16 +148,14 @@ public class PreShadowArrayRenderer implements SceneProcessor {
                         array,
                         nextArraySlice,
                         textureSize,
-                        directionalParams.getNumSplits(),
-                        points);
+                        directionalParams.getNumSplits());
                 break;
             case Spot:
                 shadowMap = new SpotArrayShadowMap(
                         (SpotLight) light,
                         array,
                         nextArraySlice,
-                        textureSize,
-                        points);
+                        textureSize);
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -202,7 +200,7 @@ public class PreShadowArrayRenderer implements SceneProcessor {
             switch (shadowMap.getLightType()) {
                 case Directional:
                     DirectionalArrayShadowMap directionalShadow = (DirectionalArrayShadowMap) shadowMap;
-                    directionalShadow.renderShadowMap(renderManager, viewPort, directionalParams, shadowCasters);
+                    directionalShadow.renderShadowMap(renderManager, viewPort, directionalParams, shadowCasters, points);
                     break;
                 case Spot:
                     SpotArrayShadowMap spotShadow = (SpotArrayShadowMap) shadowMap;

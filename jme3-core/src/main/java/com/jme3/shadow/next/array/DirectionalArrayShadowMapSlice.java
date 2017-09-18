@@ -39,13 +39,12 @@ import com.jme3.shadow.ShadowUtil;
 import com.jme3.texture.TextureArray;
 
 /**
- *
  * @author Kirill Vainer
  */
 public class DirectionalArrayShadowMapSlice extends BaseArrayShadowMapSlice<DirectionalLight> {
 
-    public DirectionalArrayShadowMapSlice(TextureArray array, int layer, int textureSize, Vector3f[] points) {
-        super(array, layer, textureSize, points);
+    public DirectionalArrayShadowMapSlice(TextureArray array, int layer, int textureSize) {
+        super(array, layer, textureSize, true);
         this.shadowCamera.setParallelProjection(true);
     }
 
@@ -54,12 +53,12 @@ public class DirectionalArrayShadowMapSlice extends BaseArrayShadowMapSlice<Dire
             DirectionalLight light,
             GeometryList shadowCasters,
             float near,
-            float far) {
-        
-        ShadowUtil.updateFrustumPoints(viewPort.getCamera(), near, far, points);
+            float far,
+            Vector3f[] points) {
         shadowCamera.lookAtDirection(light.getDirection(), shadowCamera.getUp());
-        
+
         int textureSize = frameBuffer.getWidth();
+        ShadowUtil.updateFrustumPoints(viewPort.getCamera(), near, far, points);
         ShadowUtil.updateShadowCamera(viewPort, null, shadowCamera, points, shadowCasters, textureSize);
     }
 
