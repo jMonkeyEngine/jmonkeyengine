@@ -1,7 +1,7 @@
 #import "Common/ShaderLib/GLSLCompat.glsllib"
 uniform mat4 g_ViewMatrix;
 uniform mat4 g_ProjectionMatrix;
-uniform mat4 g_WorldMatrix;
+uniform mat4 g_WorldMatrixInverse;
 
 uniform vec3 m_NormalScale;
 
@@ -22,5 +22,5 @@ void main(){
     gl_Position = g_ProjectionMatrix * pos;
 
     vec4 normal = vec4(inNormal * m_NormalScale, 0.0);
-    direction = (g_WorldMatrix * normal).xyz;
+    direction = (g_WorldMatrixInverse * normal).xyz;
 }
