@@ -15,9 +15,7 @@ MaterialDef Default GUI {
         }
 
         Defines {
-            RESOLVE_MS : NumSamples
+            NUM_SAMPLES : NumSamples
         }
-
     }
-
 }
