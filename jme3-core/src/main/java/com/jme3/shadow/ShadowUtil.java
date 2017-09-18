@@ -253,65 +253,8 @@ public class ShadowUtil {
             max.maxLocal(temp);
         }
         vars.release();
-        Vector3f center = min.add(max).multLocal(0.5f);
-        Vector3f extent = max.subtract(min).multLocal(0.5f);
-        //Nehon 08/18/2010 : Added an offset to the extend to avoid banding artifacts when the frustum are aligned
-        return new BoundingBox(center, extent.x + 2.0f, extent.y + 2.0f, extent.z + 2.5f);
-    }
-
-    /**
-     * Updates the shadow camera to properly contain the given points (which
-     * contain the eye camera frustum corners)
-     *
-     * @param shadowCam
-     * @param points
-     */
-    public static void updateShadowCamera(Camera shadowCam, Vector3f[] points) {
-        boolean ortho = shadowCam.isParallelProjection();
-        shadowCam.setProjectionMatrix(null);
-
-        if (ortho) {
-            shadowCam.setFrustum(-1, 1, -1, 1, 1, -1);
-        } else {
-            shadowCam.setFrustumPerspective(45, 1, 1, 150);
-        }
-
-        Matrix4f viewProjMatrix = shadowCam.getViewProjectionMatrix();
-        Matrix4f projMatrix = shadowCam.getProjectionMatrix();
-
-        BoundingBox splitBB = computeBoundForPoints(points, viewProjMatrix);
-
-        TempVars vars = TempVars.get();
-
-        Vector3f splitMin = splitBB.getMin(vars.vect1);
-        Vector3f splitMax = splitBB.getMax(vars.vect2);
-
-//        splitMin.z = 0;
-
-        // Create the crop matrix.
-        float scaleX, scaleY, scaleZ;
-        float offsetX, offsetY, offsetZ;
-
-        scaleX = 2.0f / (splitMax.x - splitMin.x);
-        scaleY = 2.0f / (splitMax.y - splitMin.y);
-        offsetX = -0.5f * (splitMax.x + splitMin.x) * scaleX;
-        offsetY = -0.5f * (splitMax.y + splitMin.y) * scaleY;
-        scaleZ = 1.0f / (splitMax.z - splitMin.z);
-        offsetZ = -splitMin.z * scaleZ;
-
-        Matrix4f cropMatrix = vars.tempMat4;
-        cropMatrix.set(scaleX, 0f, 0f, offsetX,
-                0f, scaleY, 0f, offsetY,
-                0f, 0f, scaleZ, offsetZ,
-                0f, 0f, 0f, 1f);
-
-
-        Matrix4f result = new Matrix4f();
-        result.set(cropMatrix);
-        result.multLocal(projMatrix);
-
-        vars.release();
-        shadowCam.setProjectionMatrix(result);
+        
+        return new BoundingBox(min, max);
     }
 
     /**

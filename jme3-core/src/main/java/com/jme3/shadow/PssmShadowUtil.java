@@ -67,15 +67,4 @@ public final class PssmShadowUtil {
         splits[0] = near;
         splits[splits.length - 1] = far;
     }
-
-    /**
-     * Compute the Zfar in the model vieuw to adjust the Zfar distance for the splits calculation
-     */
-    public static float computeZFar(GeometryList occ, GeometryList recv, Camera cam) {
-        Matrix4f mat = cam.getViewMatrix();
-        BoundingBox bbOcc = ShadowUtil.computeUnionBound(occ, mat);
-        BoundingBox bbRecv = ShadowUtil.computeUnionBound(recv, mat);
-
-        return min(max(bbOcc.getZExtent() - bbOcc.getCenter().z, bbRecv.getZExtent() - bbRecv.getCenter().z), cam.getFrustumFar());
-    }
 }
