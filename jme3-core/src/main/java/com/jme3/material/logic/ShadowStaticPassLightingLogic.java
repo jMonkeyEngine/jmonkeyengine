@@ -126,9 +126,9 @@ public class ShadowStaticPassLightingLogic extends StaticPassLightingLogic {
         }
         ambientLightColor.a = 1.0f;
 
-        defines.set(numDirLightsDefineId, tempDirLights.size());
-        defines.set(numPointLightsDefineId, tempPointLights.size());
-        defines.set(numSpotLightsDefineId, tempSpotLights.size());
+        defines.set(numDirLightsDefineId, tempDirLights.size() - numShadowDirLights);
+        defines.set(numPointLightsDefineId, tempPointLights.size() - numShadowPointLights);
+        defines.set(numSpotLightsDefineId, tempSpotLights.size() - numShadowSpotLights);
 
         defines.set(numShadowDirLightsDefineId, numShadowDirLights);
         defines.set(numShadowPointLightsDefineId, numShadowPointLights);
@@ -153,7 +153,10 @@ public class ShadowStaticPassLightingLogic extends StaticPassLightingLogic {
 
         Uniform shadowMatricesUniform = shader.getUniform("g_ShadowMatrices");
         
-        shadowMatricesUniform.setMatrix4Length(numShadowDirLights * 4 + numShadowSpotLights);
+        shadowMatricesUniform.setMatrix4Length(
+                numShadowDirLights * 4 + 
+                numShadowPointLights * 6 +
+                numShadowSpotLights);
 
         int shadowMatrixIndex = 0;
         for (int i = 0; i < numShadowDirLights; i++) {

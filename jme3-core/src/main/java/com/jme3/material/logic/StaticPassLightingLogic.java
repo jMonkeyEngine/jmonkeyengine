@@ -127,7 +127,7 @@ public class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     protected float getShadowMapIndex(Light light) {
-        return 1.0f;
+        return -1.0f;
     }
 
     protected void updateLightListUniforms(Matrix4f viewMatrix, Shader shader) {

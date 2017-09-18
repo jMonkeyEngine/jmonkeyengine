@@ -19,9 +19,12 @@
 #define DIR_SHADOW_LIGHT_END      (NUM_SHADOW_DIR_LIGHTS * 2)
 
 #define DIR_LIGHT_START           (DIR_SHADOW_LIGHT_END)
-#define DIR_LIGHT_END             (NUM_DIR_LIGHTS * 2)
+#define DIR_LIGHT_END             (DIR_LIGHT_START + NUM_DIR_LIGHTS * 2)
 
-#define POINT_LIGHT_START         (DIR_LIGHT_END)
+#define POINT_SHADOW_LIGHT_START  (DIR_LIGHT_END)
+#define POINT_SHADOW_LIGHT_END    (POINT_SHADOW_LIGHT_START + NUM_SHADOW_POINT_LIGHTS * 2)
+
+#define POINT_LIGHT_START         (POINT_SHADOW_LIGHT_END)
 #define POINT_LIGHT_END           (POINT_LIGHT_START + NUM_POINT_LIGHTS * 2)
 
 #define SPOT_SHADOW_LIGHT_START   (POINT_LIGHT_END)
@@ -31,6 +34,8 @@
 #define SPOT_LIGHT_END            (SPOT_LIGHT_START + NUM_SPOT_LIGHTS * 3)
 
 #define LIGHT_DATA_SIZE           (SPOT_LIGHT_END)
+
+uniform vec3 g_CameraPosition;
 
 uniform sampler2D m_AmbientMap;
 uniform float m_AlphaDiscardThreshold;
