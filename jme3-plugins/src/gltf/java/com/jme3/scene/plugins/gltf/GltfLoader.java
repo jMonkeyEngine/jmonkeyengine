@@ -75,6 +75,11 @@ public class GltfLoader implements AssetLoader {
 
     @Override
     public Object load(AssetInfo assetInfo) throws IOException {
+        return loadFromStream(assetInfo, assetInfo.openStream());
+    }
+
+
+    protected Object loadFromStream(AssetInfo assetInfo, InputStream stream) throws IOException {
         try {
             dataCache.clear();
             info = assetInfo;
@@ -87,7 +92,7 @@ public class GltfLoader implements AssetLoader {
                 defaultMat.setFloat("Roughness", 1f);
             }
 
-            docRoot = new JsonParser().parse(new JsonReader(new InputStreamReader(assetInfo.openStream()))).getAsJsonObject();
+            docRoot = new JsonParser().parse(new JsonReader(new InputStreamReader(stream))).getAsJsonObject();
 
             JsonObject asset = docRoot.getAsJsonObject().get("asset").getAsJsonObject();
             String generator = getAsString(asset, "generator");
@@ -455,7 +460,7 @@ public class GltfLoader implements AssetLoader {
         return data;
     }
 
-    public void readBuffer(Integer bufferViewIndex, int byteOffset, int count, Object store, int numComponents, VertexBuffer.Format format) throws IOException {
+    public Object readBuffer(Integer bufferViewIndex, int byteOffset, int count, Object store, int numComponents, VertexBuffer.Format format) throws IOException {
 
         JsonObject bufferView = bufferViews.get(bufferViewIndex).getAsJsonObject();
         Integer bufferIndex = getAsInteger(bufferView, "buffer");
@@ -473,8 +478,17 @@ public class GltfLoader implements AssetLoader {
 
         data = customContentManager.readExtensionAndExtras("bufferView", bufferView, data);
 
+        if (store == null) {
+            store = new byte[byteLength];
+        }
+
+        if (count == -1) {
+            count = byteLength;
+        }
+
         populateBuffer(store, data, count, byteOffset + bvByteOffset, byteStride, numComponents, format);
 
+        return store;
     }
 
     public byte[] readData(int bufferIndex) throws IOException {
@@ -489,6 +503,17 @@ public class GltfLoader implements AssetLoader {
         if (data != null) {
             return data;
         }
+        data = getBytes(bufferIndex, uri, bufferLength);
+
+        data = customContentManager.readExtensionAndExtras("buffer", buffer, data);
+
+        addToCache("buffers", bufferIndex, data, buffers.size());
+        return data;
+
+    }
+
+    protected byte[] getBytes(int bufferIndex, String uri, Integer bufferLength) throws IOException {
+        byte[] data;
         if (uri != null) {
             if (uri.startsWith("data:")) {
                 //base 64 embed data
@@ -505,19 +530,13 @@ public class GltfLoader implements AssetLoader {
                 input.read(data);
             }
         } else {
-            //no URI we are in a binary file so the data is in the 2nd chunk
-            //TODO handle binary GLTF (GLB)
-            throw new AssetLoadException("Binary gltf is not supported yet");
+            //no URI this should not happen in a gltf file, only in glb files.
+            throw new AssetLoadException("Buffer " + bufferIndex + " has no uri");
         }
-
-        data = customContentManager.readExtensionAndExtras("buffer", buffer, data);
-
-        addToCache("buffers", bufferIndex, data, buffers.size());
         return data;
-
     }
 
-    public Material readMaterial(int materialIndex) {
+    public Material readMaterial(int materialIndex) throws IOException {
         assertNotNull(materials, "There is no material defined yet a mesh references one");
 
         JsonObject matData = materials.get(materialIndex).getAsJsonObject();
@@ -571,7 +590,7 @@ public class GltfLoader implements AssetLoader {
         return adapter.getMaterial();
     }
 
-    public void readCameras() {
+    public void readCameras() throws IOException {
         if (cameras == null) {
             return;
         }
@@ -616,12 +635,12 @@ public class GltfLoader implements AssetLoader {
         }
     }
 
-    public Texture2D readTexture(JsonObject texture) {
+    public Texture2D readTexture(JsonObject texture) throws IOException {
         return readTexture(texture, false);
 
     }
 
-    public Texture2D readTexture(JsonObject texture, boolean flip) {
+    public Texture2D readTexture(JsonObject texture, boolean flip) throws IOException {
         if (texture == null) {
             return null;
         }
@@ -646,18 +665,24 @@ public class GltfLoader implements AssetLoader {
         return texture2d;
     }
 
-    public Texture2D readImage(int sourceIndex, boolean flip) {
+    public Texture2D readImage(int sourceIndex, boolean flip) throws IOException {
         if (images == null) {
             throw new AssetLoadException("No image defined");
         }
 
         JsonObject image = images.get(sourceIndex).getAsJsonObject();
         String uri = getAsString(image, "uri");
+        Integer bufferView = getAsInteger(image, "bufferView");
+        String mimeType = getAsString(image, "mimeType");
         Texture2D result;
         if (uri == null) {
-            //Image is embed in a buffer not supported yet
-            //TODO support images embed in a buffer
-            throw new AssetLoadException("Images embed in a buffer are not supported yet");
+            assertNotNull(bufferView, "Image " + sourceIndex + " should either have an uri or a bufferView");
+            assertNotNull(mimeType, "Image " + sourceIndex + " should have a mimeType");
+            byte[] data = (byte[]) readBuffer(bufferView, 0, -1, null, 1, VertexBuffer.Format.Byte);
+            String extension = mimeType.split("/")[1];
+            TextureKey key = new TextureKey("image" + sourceIndex + "." + extension, flip);
+            result = (Texture2D) info.getManager().loadAssetFromStream(key, new ByteArrayInputStream(data));
+
         } else if (uri.startsWith("data:")) {
             //base64 encoded image
             String[] uriInfo = uri.split(",");
@@ -672,11 +697,7 @@ public class GltfLoader implements AssetLoader {
             Texture tex = info.getManager().loadTexture(key);
             result = (Texture2D) tex;
         }
-
-        result = customContentManager.readExtensionAndExtras("image", image, result);
-
         return result;
-
     }
 
     public void readAnimation(int animationIndex) throws IOException {
@@ -844,7 +865,7 @@ public class GltfLoader implements AssetLoader {
         }
     }
 
-    public Texture2D readSampler(int samplerIndex, Texture2D texture) {
+    public Texture2D readSampler(int samplerIndex, Texture2D texture) throws IOException {
         if (samplers == null) {
             throw new AssetLoadException("No samplers defined");
         }
@@ -1225,6 +1246,10 @@ public class GltfLoader implements AssetLoader {
         }
     }
 
+    private class TextureData {
+        byte[] data;
+    }
+
     private interface Populator<T> {
         T populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset, boolean normalized) throws IOException;
     }
@@ -1380,5 +1405,6 @@ public class GltfLoader implements AssetLoader {
             return new SkinBuffers(data, format.getComponentSize());
         }
     }
+
 }
 

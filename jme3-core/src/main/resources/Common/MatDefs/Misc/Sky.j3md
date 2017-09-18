@@ -12,7 +12,7 @@ MaterialDef Sky Plane {
         WorldParameters {
             ViewMatrix
             ProjectionMatrix
-            WorldMatrix
+            WorldMatrixInverse
         }
 
         Defines {

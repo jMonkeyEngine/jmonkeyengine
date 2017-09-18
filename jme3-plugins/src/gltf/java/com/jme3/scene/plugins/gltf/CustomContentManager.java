@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.jme3.asset.AssetLoadException;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -56,13 +57,13 @@ public class CustomContentManager {
         }
     }
 
-    public <T> T readExtensionAndExtras(String name, JsonElement el, T input) throws AssetLoadException {
+    public <T> T readExtensionAndExtras(String name, JsonElement el, T input) throws AssetLoadException, IOException {
         T output = readExtension(name, el, input);
         output = readExtras(name, el, output);
         return output;
     }
 
-    private <T> T readExtension(String name, JsonElement el, T input) throws AssetLoadException {
+    private <T> T readExtension(String name, JsonElement el, T input) throws AssetLoadException, IOException {
         JsonElement extensions = el.getAsJsonObject().getAsJsonObject("extensions");
         if (extensions == null) {
             return input;

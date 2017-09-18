@@ -35,7 +35,6 @@ import com.jme3.math.FastMath;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.management.JMException;
 
 /**
  * <code>MidpointDisplacementHeightMap</code> generates an heightmap based on
@@ -72,11 +71,11 @@ public class MidpointDisplacementHeightMap extends AbstractHeightMap {
      *          typically a good choice
      * @param seed
      *          A seed to feed the random number generator.
-     * @throw JMException if size is not a power of two plus one.
+     * @throw IllegalArgumentException if size is not a power of two plus one.
      */
-    public MidpointDisplacementHeightMap(int size, float range, float persistence, long seed) throws Exception {
+    public MidpointDisplacementHeightMap(int size, float range, float persistence, long seed) {
         if (size < 0 || !FastMath.isPowerOfTwo(size - 1)) {
-            throw new JMException("The size is negative or not of the form 2^N +1"
+            throw new IllegalArgumentException("The size is negative or not of the form 2^N +1"
                     + " (a power of two plus one)");
         }
         this.size = size;
