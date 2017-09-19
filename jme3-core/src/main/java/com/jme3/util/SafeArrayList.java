@@ -99,13 +99,7 @@ public class SafeArrayList<E> implements List<E>, Cloneable {
 
     public SafeArrayList(final Class<E> elementType, final Collection<? extends E> collection) {
         this.elementType = elementType;
-
-        if (collection instanceof SafeArrayList) {
-            this.buffer = Arrays.asList(((SafeArrayList<E>) collection).getArray());
-        } else {
-            this.buffer = new ArrayList<>(collection);
-        }
-
+        this.buffer = new ArrayList<>(collection);
         this.size = buffer.size();
     }
 
