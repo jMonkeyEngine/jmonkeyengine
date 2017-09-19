@@ -50,17 +50,19 @@ import com.jme3.scene.Spatial;
 import com.jme3.texture.TextureCubeMap;
 import com.jme3.util.TempVars;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A LightProbe is not exactly a light. It holds environment map information used for Image Based Lighting.
  * This is used for indirect lighting in the Physically Based Rendering pipeline.
  * 
  * A light probe has a position in world space. This is the position from where the Environment Map are rendered.
- * There are two environment maps held by the LightProbe :
- * - The irradiance map (used for indirect diffuse lighting in the PBR pipeline).
+ * There are two environment data structure  held by the LightProbe :
+ * - The irradiance spherical harmonics factors (used for indirect diffuse lighting in the PBR pipeline).
  * - The prefiltered environment map (used for indirect specular lighting and reflection in the PBE pipeline).
- * Note that when instanciating the LightProbe, both those maps are null. 
- * To render them see {@link LightProbeFactory#makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Node)}
+ * Note that when instantiating the LightProbe, both of those structures are null.
+ * To compute them see {@link LightProbeFactory#makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Node)}
  * and {@link EnvironmentCamera}.
  * 
  * The light probe has an area of effect that is a bounding volume centered on its position. (for now only Bounding spheres are supported).
@@ -75,35 +77,21 @@ import java.io.IOException;
  */
 public class LightProbe extends Light implements Savable {
 
-    private TextureCubeMap irradianceMap;
+    private static final Logger logger = Logger.getLogger(LightProbe.class.getName());
+
+    private Vector3f[] shCoeffs;
     private TextureCubeMap prefilteredEnvMap;
     private BoundingVolume bounds = new BoundingSphere(1.0f, Vector3f.ZERO);
     private boolean ready = false;
     private Vector3f position = new Vector3f();
     private Node debugNode;
+    private int nbMipMaps;
 
     /**
      * Empty constructor used for serialization. 
      * You should never call it, use {@link LightProbeFactory#makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Node)} instead
      */
     public LightProbe() {        
-    }
-
-    /**
-     * returns the irradiance map texture of this Light probe.
-     * Note that this Texture may not have image data yet if the LightProbe is not ready
-     * @return the irradiance map 
-     */
-    public TextureCubeMap getIrradianceMap() {
-        return irradianceMap;
-    }
-
-    /**
-     * Sets the irradiance map
-     * @param irradianceMap the irradiance map
-     */
-    public void setIrradianceMap(TextureCubeMap irradianceMap) {
-        this.irradianceMap = irradianceMap;
     }
 
     /**
@@ -127,7 +115,7 @@ public class LightProbe extends Light implements Savable {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(irradianceMap, "irradianceMap", null);
+        oc.write(shCoeffs, "shCoeffs", null);
         oc.write(prefilteredEnvMap, "prefilteredEnvMap", null);
         oc.write(position, "position", null);
         oc.write(bounds, "bounds", new BoundingSphere(1.0f, Vector3f.ZERO));
@@ -138,11 +126,15 @@ public class LightProbe extends Light implements Savable {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        irradianceMap = (TextureCubeMap) ic.readSavable("irradianceMap", null);
+        shCoeffs = (Vector3f[]) ic.readSavableArray("shCoeffs", null);
         prefilteredEnvMap = (TextureCubeMap) ic.readSavable("prefilteredEnvMap", null);
         position = (Vector3f) ic.readSavable("position", this);
         bounds = (BoundingVolume) ic.readSavable("bounds", new BoundingSphere(1.0f, Vector3f.ZERO));
         ready = ic.readBoolean("ready", false);
+        if (shCoeffs == null) {
+            ready = false;
+            logger.log(Level.WARNING, "LightProbe is missing parameters, it should be recomputed. Please use lightProbeFactory.updateProbe()");
+        }
     }
 
     /**
@@ -194,19 +186,24 @@ public class LightProbe extends Light implements Savable {
      */
     public Node getDebugGui(AssetManager manager) {
         if (!ready) {
-            throw new UnsupportedOperationException("This EnvProbeis not ready yet, try to test isReady()");
+            throw new UnsupportedOperationException("This EnvProbe is not ready yet, try to test isReady()");
         }
         if (debugNode == null) {
             debugNode = new Node("debug gui probe");
             Node debugPfemCm = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(getPrefilteredEnvMap(), manager);
-            Node debugIrrCm = EnvMapUtils.getCubeMapCrossDebugView(getIrradianceMap(), manager);
-
-            debugNode.attachChild(debugIrrCm);
             debugNode.attachChild(debugPfemCm);
             debugPfemCm.setLocalTranslation(520, 0, 0);
         }
 
         return debugNode;
+    }
+
+    public Vector3f[] getShCoeffs() {
+        return shCoeffs;
+    }
+
+    public void setShCoeffs(Vector3f[] shCoeffs) {
+        this.shCoeffs = shCoeffs;
     }
 
     /**
@@ -224,6 +221,14 @@ public class LightProbe extends Light implements Savable {
     public void setPosition(Vector3f position) {
         this.position.set(position);
         getBounds().setCenter(position);
+    }
+
+    public int getNbMipMaps() {
+        return nbMipMaps;
+    }
+
+    public void setNbMipMaps(int nbMipMaps) {
+        this.nbMipMaps = nbMipMaps;
     }
 
     @Override

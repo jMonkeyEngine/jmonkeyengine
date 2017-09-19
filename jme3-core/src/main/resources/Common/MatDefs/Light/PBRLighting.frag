@@ -24,7 +24,7 @@ varying vec3 wPosition;
 #ifdef INDIRECT_LIGHTING
 //  uniform sampler2D m_IntegrateBRDF;
   uniform samplerCube g_PrefEnvMap;
-  uniform samplerCube g_IrradianceMap;
+  uniform vec3 g_ShCoeffs[9];
   uniform vec4 g_LightProbeData;
 #endif
 
@@ -236,7 +236,7 @@ void main(){
                             lightColor.rgb,specular, Roughness, ndotv,
                             directDiffuse,  directSpecular);
 
-        vec3 directLighting = diffuseColor.rgb *directDiffuse + directSpecular * specularColor.rgb;
+        vec3 directLighting = diffuseColor.rgb *directDiffuse + directSpecular;
         
         gl_FragColor.rgb += directLighting * fallOff;
     }
@@ -244,20 +244,22 @@ void main(){
     #ifdef INDIRECT_LIGHTING
         vec3 rv = reflect(-viewDir.xyz, normal.xyz);
         //prallax fix for spherical bounds from https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
-        // g_LightProbeData.w is 1/probe radius, g_LightProbeData.xyz is the position of the lightProbe.
-        rv = g_LightProbeData.w * (wPosition - g_LightProbeData.xyz) +rv;
+        // g_LightProbeData.w is 1/probe radius + nbMipMaps, g_LightProbeData.xyz is the position of the lightProbe.
+        float invRadius = fract( g_LightProbeData.w);
+        float nbMipMaps = g_LightProbeData.w - invRadius;
+        rv = invRadius * (wPosition - g_LightProbeData.xyz) +rv;
 
          //horizon fade from http://marmosetco.tumblr.com/post/81245981087
         float horiz = dot(rv, wNormal.xyz);
-        float horizFadePower= 1.0 - Roughness;
+        float horizFadePower = 1.0 - Roughness;
         horiz = clamp( 1.0 + horizFadePower * horiz, 0.0, 1.0 );
         horiz *= horiz;
 
         vec3 indirectDiffuse = vec3(0.0);
         vec3 indirectSpecular = vec3(0.0);
-        indirectDiffuse = textureCube(g_IrradianceMap, normal.xyz).rgb * diffuseColor.rgb;
-
-        indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, rv.xyz);
+        indirectDiffuse = sphericalHarmonics(normal.xyz, g_ShCoeffs) * diffuseColor.rgb;
+        vec3 dominantR = getSpecularDominantDir( normal, rv.xyz, Roughness*Roughness );
+        indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, dominantR, nbMipMaps);
         indirectSpecular *= vec3(horiz);
 
         vec3 indirectLighting =  indirectDiffuse + indirectSpecular;
@@ -273,7 +275,6 @@ void main(){
         #endif
         gl_FragColor += emissive * pow(emissive.a, m_EmissivePower) * m_EmissiveIntensity;
     #endif
-           
     gl_FragColor.a = alpha;
    
 }

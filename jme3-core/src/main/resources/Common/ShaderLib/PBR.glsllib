@@ -53,6 +53,29 @@ void PBR_ComputeDirectLightSpecWF(vec3 normal, vec3 lightDir, vec3 viewDir,
     outSpecular = fresnel * vec3(specular) * lightColor;
 }
 
+vec3 sphericalHarmonics( const in vec3 normal, const vec3 sph[9] ){
+    float x = normal.x;
+    float y = normal.y;
+    float z = normal.z;
+
+    vec3 result = (
+        sph[0] +
+
+        sph[1] * y +
+        sph[2] * z +
+        sph[3] * x +
+
+        sph[4] * y * x +
+        sph[5] * y * z +
+        sph[6] * (3.0 * z * z - 1.0) +
+        sph[7] * (z * x) +
+        sph[8] * (x*x - y*y)
+    );
+
+    return max(result, vec3(0.0));
+}
+
+
 void PBR_ComputeDirectLight(vec3 normal, vec3 lightDir, vec3 viewDir,
                             vec3 lightColor, float fZero, float roughness, float ndotv,
                             out vec3 outDiffuse, out vec3 outSpecular){
@@ -106,46 +129,38 @@ void PBR_ComputeDirectLight(vec3 normal, vec3 lightDir, vec3 viewDir,
     outSpecular = vec3(specular) * lightColor;
 }
 
-//https://knarkowicz.wordpress.com/2014/12/27/analytical-dfg-term-for-ibl/
-vec3 EnvDFGPolynomial( vec3 specularColor, float roughness, float ndotv ){
-    float x = 1.0 - roughness;
-    float y = ndotv;
- 
-    float b1 = -0.1688;
-    float b2 = 1.895;
-    float b3 = 0.9903;
-    float b4 = -4.853;
-    float b5 = 8.404;
-    float b6 = -5.069;
-    float bias = clamp( min( b1 * x + b2 * x * x, b3 + b4 * y + b5 * y * y + b6 * y * y * y ), 0.0, 1.0 );
- 
-    float d0 = 0.6045;
-    float d1 = 1.699;
-    float d2 = -0.5228;
-    float d3 = -3.603;
-    float d4 = 1.404;
-    float d5 = 0.1939;
-    float d6 = 2.661;
-    float delta = clamp(( d0 + d1 * x + d2 * y + d3 * x * x + d4 * x * y + d5 * y * y + d6 * x * x * x ), 0.0, 1.0);
-    float scale = delta - bias;
- 
-    bias *= clamp( 2.5 / (roughness) * specularColor.y, 0.0, 1.0 );
-    return specularColor * scale + bias;
+vec3 integrateBRDFApprox( const in vec3 specular, float roughness, float NoV ){
+    const vec4 c0 = vec4( -1, -0.0275, -0.572, 0.022 );
+    const vec4 c1 = vec4( 1, 0.0425, 1.04, -0.04 );
+    vec4 r = roughness * c0 + c1;
+    float a004 = min( r.x * r.x, exp2( -9.28 * NoV ) ) * r.x + r.y;
+    vec2 AB = vec2( -1.04, 1.04 ) * a004 + r.zw;
+    return specular * AB.x + AB.y;
 }
 
-vec3 ApproximateSpecularIBL(samplerCube envMap,sampler2D integrateBRDF, vec3 SpecularColor , float Roughness, float ndotv, vec3 refVec){
-    //TODO magic values should be replaced by defines.
-    float Lod = log2(Roughness) * 1.1 + 6.0 - 2.0;
+// from Sebastien Lagarde https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf page 69
+vec3 getSpecularDominantDir(const in vec3 N, const in vec3 R, const in float realRoughness){
+    vec3 dominant;
+
+    float smoothness = 1.0 - realRoughness;
+    float lerpFactor = smoothness * (sqrt(smoothness) + realRoughness);
+    // The result is not normalized as we fetch in a cubemap
+    dominant = mix(N, R, lerpFactor);
+
+    return dominant;
+}
+
+vec3 ApproximateSpecularIBL(samplerCube envMap,sampler2D integrateBRDF, vec3 SpecularColor , float Roughness, float ndotv, vec3 refVec, float nbMipMaps){
+    float Lod = sqrt( Roughness ) * (nbMipMaps - 1.0);
     vec3 PrefilteredColor =  textureCubeLod(envMap, refVec.xyz,Lod).rgb;
     vec2 EnvBRDF = texture2D(integrateBRDF,vec2(Roughness, ndotv)).rg;
     return PrefilteredColor * ( SpecularColor * EnvBRDF.x+ EnvBRDF.y );    
 }
 
-vec3 ApproximateSpecularIBLPolynomial(samplerCube envMap, vec3 SpecularColor , float Roughness, float ndotv, vec3 refVec){
-    //TODO magic values should be replaced by defines.
-    float Lod = log2(Roughness) * 1.6 + 5.0;
+vec3 ApproximateSpecularIBLPolynomial(samplerCube envMap, vec3 SpecularColor , float Roughness, float ndotv, vec3 refVec, float nbMipMaps){
+    float Lod = sqrt( Roughness ) * (nbMipMaps - 1.0);
     vec3 PrefilteredColor =  textureCubeLod(envMap, refVec.xyz, Lod).rgb;
-    return PrefilteredColor * EnvDFGPolynomial(SpecularColor, Roughness, ndotv);
+    return PrefilteredColor * integrateBRDFApprox(SpecularColor, Roughness, ndotv);
 }
 
 

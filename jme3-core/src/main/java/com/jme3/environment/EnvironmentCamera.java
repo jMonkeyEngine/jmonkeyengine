@@ -111,7 +111,7 @@ public class EnvironmentCamera extends BaseAppState {
     /**
      * The size of environment cameras.
      */
-    protected int size = 128;
+    protected int size = 256;
 
     private final List<SnapshotJob> jobs = new ArrayList<SnapshotJob>();
 

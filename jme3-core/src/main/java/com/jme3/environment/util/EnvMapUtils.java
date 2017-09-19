@@ -33,9 +33,7 @@ package com.jme3.environment.util;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
-import com.jme3.math.Vector4f;
+import com.jme3.math.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Quad;
@@ -49,8 +47,7 @@ import com.jme3.util.BufferUtils;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import static com.jme3.math.FastMath.*;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector2f;
+
 import com.jme3.util.TempVars;
 
 /**
@@ -61,6 +58,12 @@ import com.jme3.util.TempVars;
  * @author Nehon
  */
 public class EnvMapUtils {
+
+
+    private static final float sqrtPi = sqrt(PI);
+    private static final float sqrt3Pi = sqrt(3f / PI);
+    private static final float sqrt5Pi = sqrt(5f / PI);
+    private static final float sqrt15Pi = sqrt(15f / PI);
 
     public final static int NUM_SH_COEFFICIENT = 9;
     // See Peter-Pike Sloan paper for these coefficients
@@ -82,7 +85,7 @@ public class EnvMapUtils {
         /**
          * No seams fix
          */
-        None;
+        None
     }
 
     /**
@@ -114,18 +117,6 @@ public class EnvMapUtils {
         cubeImage.addData(backImg.getData(0));
         cubeImage.addData(frontImg.getData(0));
 
-        if (leftImg.getEfficentData() != null) {
-            // also consilidate efficient data
-            ArrayList<Object> efficientData = new ArrayList<Object>(6);
-            efficientData.add(rightImg.getEfficentData());
-            efficientData.add(leftImg.getEfficentData());
-            efficientData.add(upImg.getEfficentData());
-            efficientData.add(downImg.getEfficentData());
-            efficientData.add(backImg.getEfficentData());
-            efficientData.add(frontImg.getEfficentData());
-            cubeImage.setEfficentData(efficientData);
-        }
-
         TextureCubeMap cubeMap = new TextureCubeMap(cubeImage);
         cubeMap.setAnisotropicFilter(0);
         cubeMap.setMagFilter(Texture.MagFilter.Bilinear);
@@ -155,13 +146,6 @@ public class EnvMapUtils {
 
         for (ByteBuffer d : srcImg.getData()) {
             cubeImage.addData(d.duplicate());
-        }
-
-        if (srcImg.getEfficentData() != null) {
-            // also consilidate efficient data
-            ArrayList<Object> efficientData = new ArrayList<Object>(6);
-            efficientData.add(srcImg.getEfficentData());
-            cubeImage.setEfficentData(efficientData);
         }
 
         TextureCubeMap cubeMap = new TextureCubeMap(cubeImage);
@@ -199,7 +183,7 @@ public class EnvMapUtils {
     static float getSolidAngleAndVector(int x, int y, int mapSize, int face, Vector3f store, FixSeamsMethod fixSeamsMethod) {
 
         if (store == null) {
-            throw new IllegalArgumentException("the store parameter ust not be null");
+            throw new IllegalArgumentException("the store parameter must not be null");
         }
 
         /* transform from [0..res - 1] to [- (1 - 1 / res) .. (1 - 1 / res)]
@@ -254,7 +238,7 @@ public class EnvMapUtils {
         float v;
 
         if (fixSeamsMethod == FixSeamsMethod.Stretch) {
-            /* Code from Nvtt : http://code.google.com/p/nvidia-texture-tools/source/browse/trunk/src/nvtt/CubeSurface.cpp		
+            /* Code from Nvtt : https://github.com/castano/nvidia-texture-tools/blob/master/src/nvtt/CubeSurface.cpp#L77
              * transform from [0..res - 1] to [-1 .. 1], match up edges exactly. */
             u = (2.0f * (float) x / ((float) mapSize - 1.0f)) - 1.0f;
             v = (2.0f * (float) y / ((float) mapSize - 1.0f)) - 1.0f;
@@ -274,7 +258,7 @@ public class EnvMapUtils {
         }
 
         //compute vector depending on the face
-        // Code from Nvtt : http://code.google.com/p/nvidia-texture-tools/source/browse/trunk/src/nvtt/CubeSurface.cpp	
+        // Code from Nvtt : https://github.com/castano/nvidia-texture-tools/blob/master/src/nvtt/CubeSurface.cpp#L101
         switch (face) {
             case 0:
                 store.set(1f, -v, -u);
@@ -387,62 +371,21 @@ public class EnvMapUtils {
         return face;
     }
 
-    /*
-    public static void main(String... argv) {
-
-//        for (int givenFace = 0; givenFace < 6; givenFace++) {
-//
-//            //int givenFace = 1;
-//            for (int x = 0; x < 128; x++) {
-//                for (int y = 0; y < 128; y++) {
-//                    Vector3f v = EnvMapUtils.getVectorFromCubemapFaceTexCoord(x, y, 128, givenFace, null, FixSeamsMethod.None);
-//                    Vector2f uvs = new Vector2f();
-//                    int face = EnvMapUtils.getCubemapFaceTexCoordFromVector(v, 128, uvs, FixSeamsMethod.None);
-//
-//                    if ((int) uvs.x != x || (int) uvs.y != y) {
-//                        System.err.println("error " + uvs + " should be " + x + "," + y + " vect was " + v);
-//                    }
-//                    if (givenFace != face) {
-//                        System.err.println("error face: " + face + " should be " + givenFace);
-//                    }
-//                }
-//            }
-//        }
-//        System.err.println("done ");
-        int total = 0;
-        for (int i = 0; i < 6; i++) {
-            int size = (int) pow(2, 7 - i);
-            int samples = EnvMapUtils.getSampleFromMip(i, 6);
-            int iterations = (samples * size * size);
-            total += iterations;
-            float roughness = EnvMapUtils.getRoughnessFromMip(i, 6);
-            System.err.println("roughness " + i + " : " + roughness + " , map : " + size + " , samples : " + samples + " , iterations : " + iterations);
-            System.err.println("reverse " + EnvMapUtils.getMipFromRoughness(roughness, 6));
-
-        }
-        System.err.println("total " + total);
-        System.err.println(128 * 128 * 1024);
-        System.err.println("test " + EnvMapUtils.getMipFromRoughness(0.9999f, 6));
-        System.err.println("nb mip = " + (Math.log(128) / Math.log(2) - 1));
-
-    }*/
-
-    public static int getSampleFromMip(int mipLevel, int miptot) {        
-        return mipLevel==0?1:Math.min(1 << (miptot - 1 + (mipLevel) * 2 ), 8192);
+    public static int getSampleFromMip(int mipLevel, int miptot) {
+        return mipLevel == 0 ? 1 : Math.min(1 << (miptot - 1 + (mipLevel) * 2), 8192);
     }
 
-    public static float getRoughnessFromMip(int miplevel, int miptot) {
-        float mipScale = 1.0f;
-        float mipOffset = -0.3f;
 
-        return pow(2, (miplevel - (miptot - 1) + mipOffset) / mipScale);
+    //see lagarde's paper https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+    //linear roughness
+    public static float getRoughnessFromMip(int miplevel, int miptot) {
+        float step = 1f / ((float) miptot - 1);
+        step *= miplevel;
+        return step * step;
     }
 
     public static float getMipFromRoughness(float roughness, int miptot) {
-        float mipScale = 1.0f;
-        float Lod = (float) (Math.log(roughness) / Math.log(2)) * mipScale + miptot - 1.0f;       
-
-        return (float) Math.max(0.0, Lod);
+        return FastMath.sqrt(roughness) * (miptot - 1);
     }
 
     /**
@@ -482,7 +425,7 @@ public class EnvMapUtils {
         float weight;
 
         if (cubeMap.getImage().getData(0) == null) {
-            throw new IllegalStateException("The cube map must contain Efficient data, if you rendered the cube map on the GPU plase use renderer.readFrameBuffer, to create a CPU image");
+            throw new IllegalStateException("The cube map must contain Efficient data, if you rendered the cube map on the GPU please use renderer.readFrameBuffer, to create a CPU image");
         }
 
         int width = cubeMap.getImage().getWidth();
@@ -539,12 +482,6 @@ public class EnvMapUtils {
         float yV = texelVect.y;
         float zV = texelVect.z;
 
-        float pi = PI;
-        float sqrtPi = sqrt(pi);
-        float sqrt3Pi = sqrt(3f / pi);
-        float sqrt5Pi = sqrt(5f / pi);
-        float sqrt15Pi = sqrt(15f / pi);
-
         float x2 = xV * xV;
         float y2 = yV * yV;
         float z2 = zV * zV;
@@ -558,140 +495,31 @@ public class EnvMapUtils {
         shDir[6] = (sqrt5Pi * (-1f + 3f * z2)) / 4f;
         shDir[7] = -(sqrt15Pi * xV * zV) / 2f;
         shDir[8] = sqrt15Pi * (x2 - y2) / 4f;
-        
-//        shDir[0]  = (1f/(2.f*sqrtPi));
-//
-//	shDir[1]  = -(sqrt(3f/pi)*yV)/2.f;
-//	shDir[2]  = (sqrt(3/pi)*zV)/2.f;
-//	shDir[3]  = -(sqrt(3/pi)*xV)/2.f;
-//
-//	shDir[4]  = (sqrt(15f/pi)*xV*yV)/2.f;
-//	shDir[5]  = -(sqrt(15f/pi)*yV*zV)/2.f;
-//	shDir[6]  = (sqrt(5f/pi)*(-1 + 3f*z2))/4.f;
-//	shDir[7]  = -(sqrt(15f/pi)*xV*zV)/2.f;
-//	shDir[8]  = sqrt(15f/pi)*(x2 - y2)/4.f;
-
-
     }
 
-    /**
-     * {@link EnvMapUtils#generateIrradianceMap(com.jme3.math.Vector3f[], com.jme3.texture.TextureCubeMap, int, com.jme3.utils.EnvMapUtils.FixSeamsMethod)
-     * }
-     *
-     * @param shCoeffs the spherical harmonics coefficients to use
-     * @param targetMapSize the size of the target map
-     * @return the irradiance map.
-     */
-    public static TextureCubeMap generateIrradianceMap(Vector3f[] shCoeffs, int targetMapSize) {
-        return generateIrradianceMap(shCoeffs, targetMapSize, FixSeamsMethod.Wrap, null);
+    public static void prepareShCoefs(Vector3f[] shCoefs) {
+
+        float coef0 = (1f / (2f * sqrtPi));
+        float coef1 = -sqrt3Pi / 2f;
+        float coef2 = -coef1;
+        float coef3 = coef1;
+        float coef4 = sqrt15Pi / 2f;
+        float coef5 = -coef4;
+        float coef6 = sqrt5Pi / 4f;
+        float coef7 = coef5;
+        float coef8 = sqrt15Pi / 4f;
+
+        shCoefs[0].multLocal(coef0);
+        shCoefs[1].multLocal(coef1);
+        shCoefs[2].multLocal(coef2);
+        shCoefs[3].multLocal(coef3);
+        shCoefs[4].multLocal(coef4);
+        shCoefs[5].multLocal(coef5);
+        shCoefs[6].multLocal(coef6);
+        shCoefs[7].multLocal(coef7);
+        shCoefs[8].multLocal(coef8);
     }
 
-    /**
-     * Generates the Irradiance map (used for image based difuse lighting) from
-     * Spherical Harmonics coefficients previously computed with
-     * {@link EnvMapUtils#getSphericalHarmonicsCoefficents(com.jme3.texture.TextureCubeMap)}
-     * Note that the output cube map is in RGBA8 format.
-     *
-     * @param shCoeffs the SH coeffs
-     * @param targetMapSize the size of the irradiance map to generate
-     * @param fixSeamsMethod the method to fix seams
-     * @param store
-     * @return The irradiance cube map for the given coefficients
-     */
-    public static TextureCubeMap generateIrradianceMap(Vector3f[] shCoeffs, int targetMapSize, FixSeamsMethod fixSeamsMethod, TextureCubeMap store) {
-        TextureCubeMap irrCubeMap = store;
-        if (irrCubeMap == null) {
-            irrCubeMap = new TextureCubeMap(targetMapSize, targetMapSize, Image.Format.RGB16F);
-            irrCubeMap.setMagFilter(Texture.MagFilter.Bilinear);
-            irrCubeMap.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-            irrCubeMap.getImage().setColorSpace(ColorSpace.Linear);
-        }
-
-        for (int i = 0; i < 6; i++) {
-            ByteBuffer buf = BufferUtils.createByteBuffer(targetMapSize * targetMapSize * irrCubeMap.getImage().getFormat().getBitsPerPixel()/8);
-            irrCubeMap.getImage().setData(i, buf);
-        }
-
-        Vector3f texelVect = new Vector3f();
-        ColorRGBA color = new ColorRGBA(ColorRGBA.Black);
-        float[] shDir = new float[9];
-        CubeMapWrapper envMapWriter = new CubeMapWrapper(irrCubeMap);
-        for (int face = 0; face < 6; face++) {
-
-            for (int y = 0; y < targetMapSize; y++) {
-                for (int x = 0; x < targetMapSize; x++) {
-                    getVectorFromCubemapFaceTexCoord(x, y, targetMapSize, face, texelVect, fixSeamsMethod);
-                    evalShBasis(texelVect, shDir);
-                    color.set(0, 0, 0, 0);
-                    for (int i = 0; i < NUM_SH_COEFFICIENT; i++) {
-                        color.set(color.r + shCoeffs[i].x * shDir[i] * shBandFactor[i],
-                                color.g + shCoeffs[i].y * shDir[i] * shBandFactor[i],
-                                color.b + shCoeffs[i].z * shDir[i] * shBandFactor[i],
-                                1.0f);
-                    }
-                    
-                    //clamping the color because very low value close to zero produce artifacts
-                    color.r = Math.max(0.0001f, color.r);
-                    color.g = Math.max(0.0001f, color.g);
-                    color.b = Math.max(0.0001f, color.b);
-                    envMapWriter.setPixel(x, y, face, color);
-                }
-            }
-        }
-        return irrCubeMap;
-    }
-
-    /**
-     * Generates the prefiltered env map (used for image based specular
-     * lighting) With the GGX/Shlick brdf
-     * {@link EnvMapUtils#getSphericalHarmonicsCoefficents(com.jme3.texture.TextureCubeMap)}
-     * Note that the output cube map is in RGBA8 format.
-     *
-     * @param sourceEnvMap
-     * @param targetMapSize the size of the irradiance map to generate
-     * @param store
-     * @param fixSeamsMethod the method to fix seams
-     * @return The irradiance cube map for the given coefficients
-     */
-    public static TextureCubeMap generatePrefilteredEnvMap(TextureCubeMap sourceEnvMap, int targetMapSize, FixSeamsMethod fixSeamsMethod, TextureCubeMap store) {
-        TextureCubeMap pem = store;
-        if (pem == null) {
-            pem = new TextureCubeMap(targetMapSize, targetMapSize, Image.Format.RGB16F);
-            pem.setMagFilter(Texture.MagFilter.Bilinear);
-            pem.setMinFilter(Texture.MinFilter.Trilinear);
-            pem.getImage().setColorSpace(ColorSpace.Linear);
-        }
-
-        int nbMipMap = (int) (Math.log(targetMapSize) / Math.log(2) - 1);
-
-        CubeMapWrapper sourceWrapper = new CubeMapWrapper(sourceEnvMap);
-        CubeMapWrapper targetWrapper = new CubeMapWrapper(pem);
-        targetWrapper.initMipMaps(nbMipMap);
-
-        Vector3f texelVect = new Vector3f();
-        Vector3f color = new Vector3f();
-        ColorRGBA outColor = new ColorRGBA();
-        for (int mipLevel = 0; mipLevel < nbMipMap; mipLevel++) {
-            System.err.println("mip level " + mipLevel);
-            float roughness = getRoughnessFromMip(mipLevel, nbMipMap);
-            int nbSamples = getSampleFromMip(mipLevel, nbMipMap);
-            int targetMipMapSize = (int) pow(2, nbMipMap + 1 - mipLevel);
-            for (int face = 0; face < 6; face++) {
-                System.err.println("face " + face);
-                for (int y = 0; y < targetMipMapSize; y++) {
-                    for (int x = 0; x < targetMipMapSize; x++) {
-                        color.set(0, 0, 0);
-                        getVectorFromCubemapFaceTexCoord(x, y, targetMipMapSize, face, texelVect, FixSeamsMethod.Wrap);
-                        prefilterEnvMapTexel(sourceWrapper, roughness, texelVect, nbSamples, color);
-                        outColor.set(color.x, color.y, color.z, 1.0f);
-                        // System.err.println("coords " + x + "," + y);
-                        targetWrapper.setPixel(x, y, face, mipLevel, outColor);
-                    }
-                }
-            }
-        }
-        return pem;
-    }
 
     public static Vector4f getHammersleyPoint(int i, final int nbrSample, Vector4f store) {
         if (store == null) {
@@ -717,43 +545,6 @@ public class EnvMapUtils {
         store.setW(sin(phi));
 
         return store;
-    }
-
-    private static Vector3f prefilterEnvMapTexel(CubeMapWrapper envMapReader, float roughness, Vector3f N, int numSamples, Vector3f store) {        
-
-        Vector3f prefilteredColor = store;
-        float totalWeight = 0.0f;
-
-        TempVars vars = TempVars.get();
-        Vector4f Xi = vars.vect4f1;
-        Vector3f H = vars.vect1;
-        Vector3f tmp = vars.vect2;
-        ColorRGBA c = vars.color;
-        // a = roughness² and a2 = a²
-        float a2 = roughness * roughness;
-        a2 *= a2;
-        a2 *= 10;
-        for (int i = 0; i < numSamples; i++) {
-            Xi = getHammersleyPoint(i, numSamples, Xi);            
-            H = importanceSampleGGX(Xi, a2, N, H, vars);
-
-            H.normalizeLocal();
-            tmp.set(H);
-            float NoH = N.dot(tmp);
-
-            Vector3f L = tmp.multLocal(NoH * 2).subtractLocal(N);
-            float NoL = clamp(N.dot(L), 0.0f, 1.0f);
-            if (NoL > 0) {
-                envMapReader.getPixel(L, c);
-                prefilteredColor.setX(prefilteredColor.x + c.r * NoL);
-                prefilteredColor.setY(prefilteredColor.y + c.g * NoL);
-                prefilteredColor.setZ(prefilteredColor.z + c.b * NoL);
-
-                totalWeight += NoL;
-            }
-        }
-        vars.release();
-        return prefilteredColor.divideLocal(totalWeight);
     }
 
     public static Vector3f importanceSampleGGX(Vector4f xi, float a2, Vector3f normal, Vector3f store, TempVars vars) {
@@ -945,3 +736,6 @@ public class EnvMapUtils {
         return pem;
     }
 }
+
+
+
