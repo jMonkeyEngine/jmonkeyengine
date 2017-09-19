@@ -302,8 +302,12 @@ When arrays can be inserted in J3M files
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(type, "varType", null);
         oc.write(name, "name", null);
+
         if (value == null) {
-        } else if (value instanceof Savable) {
+            return;
+        }
+
+        if (value instanceof Savable) {
             oc.write((Savable) value, "value_savable", null);
         } else if (value instanceof Float) {
             oc.write((Float) value, "value_float", 0f);
