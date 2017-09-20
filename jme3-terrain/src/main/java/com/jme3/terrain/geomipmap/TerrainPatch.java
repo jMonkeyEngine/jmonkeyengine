@@ -146,7 +146,7 @@ public class TerrainPatch extends Geometry {
      *			the origin offset of the patch.
      */
     public TerrainPatch(String name, int size, Vector3f stepScale,
-                    float[] heightMap, Vector3f origin) {
+                        float[] heightMap, Vector3f origin) {
         this(name, size, stepScale, heightMap, origin, size, new Vector2f(), 0);
     }
 
@@ -174,8 +174,8 @@ public class TerrainPatch extends Geometry {
      *			the total offset amount. Used for texture coordinates.
      */
     public TerrainPatch(String name, int size, Vector3f stepScale,
-                    float[] heightMap, Vector3f origin, int totalSize,
-                    Vector2f offset, float offsetAmount) {
+                        float[] heightMap, Vector3f origin, int totalSize,
+                        Vector2f offset, float offsetAmount) {
         super(name);
         setBatchHint(BatchHint.Never);
         this.size = size;
@@ -332,15 +332,32 @@ public class TerrainPatch extends Geometry {
      * recalculate all of the normal vectors in this terrain patch
      */
     protected void updateNormals() {
-        FloatBuffer newNormalBuffer = geomap.writeNormalArray(null, getWorldScale());
-        getMesh().getBuffer(Type.Normal).updateData(newNormalBuffer);
-        FloatBuffer newTangentBuffer = null;
-        FloatBuffer newBinormalBuffer = null;
-        FloatBuffer[] tb = geomap.writeTangentArray(newNormalBuffer, newTangentBuffer, newBinormalBuffer, (FloatBuffer)getMesh().getBuffer(Type.TexCoord).getData(), getWorldScale());
-        newTangentBuffer = tb[0];
-        newBinormalBuffer = tb[1];
-        getMesh().getBuffer(Type.Tangent).updateData(newTangentBuffer);
-        getMesh().getBuffer(Type.Binormal).updateData(newBinormalBuffer);
+
+        final Mesh mesh = getMesh();
+        final VertexBuffer normalVertexBuffer = mesh.getBuffer(Type.Normal);
+        final VertexBuffer tangentVertexBuffer = mesh.getBuffer(Type.Tangent);
+        final VertexBuffer binormalVertexBuffer = mesh.getBuffer(Type.Binormal);
+        final VertexBuffer textCoordsVertexBuffer = mesh.getBuffer(Type.TexCoord);
+
+        final FloatBuffer textCoordsData = (FloatBuffer) textCoordsVertexBuffer.getData();
+
+        FloatBuffer normalData = (FloatBuffer) normalVertexBuffer.getData();
+        normalData.clear();
+        FloatBuffer tangentData = (FloatBuffer) tangentVertexBuffer.getData();
+        tangentData.clear();
+        FloatBuffer binormalData = (FloatBuffer) binormalVertexBuffer.getData();
+        binormalData.clear();
+
+        normalData = geomap.writeNormalArray(normalData, getWorldScale());
+
+        FloatBuffer[] buffers = geomap.writeTangentArray(normalData, tangentData, binormalData, textCoordsData, getWorldScale());
+
+        tangentData = buffers[0];
+        binormalData = buffers[1];
+
+        normalVertexBuffer.updateData(normalData);
+        tangentVertexBuffer.updateData(tangentData);
+        binormalVertexBuffer.updateData(binormalData);
     }
 
     private void setInBuffer(Mesh mesh, int index, Vector3f normal, Vector3f tangent, Vector3f binormal) {
@@ -372,13 +389,13 @@ public class TerrainPatch extends Geometry {
      * left to the right.
      */
     protected void fixNormalEdges(TerrainPatch right,
-                                TerrainPatch bottom,
-                                TerrainPatch top,
-                                TerrainPatch left,
-                                TerrainPatch bottomRight,
-                                TerrainPatch bottomLeft,
-                                TerrainPatch topRight,
-                                TerrainPatch topLeft)
+                                  TerrainPatch bottom,
+                                  TerrainPatch top,
+                                  TerrainPatch left,
+                                  TerrainPatch bottomRight,
+                                  TerrainPatch bottomLeft,
+                                  TerrainPatch topRight,
+                                  TerrainPatch topLeft)
     {
         Vector3f rootPoint = new Vector3f();
         Vector3f rightPoint = new Vector3f();
@@ -1034,6 +1051,4 @@ public class TerrainPatch extends Geometry {
             bottomNeighbour = null;
         }
     }
-
-
 }

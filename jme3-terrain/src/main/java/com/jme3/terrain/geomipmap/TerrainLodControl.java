@@ -47,17 +47,12 @@ import com.jme3.terrain.Terrain;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.geomipmap.lodcalc.LodCalculator;
 import com.jme3.util.clone.Cloner;
-import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -297,19 +292,13 @@ public class TerrainLodControl extends AbstractControl {
         return cloned;
     }
 
-
-
-
-
     @Override
     public Object jmeClone() {
-        if (spatial instanceof Terrain) {
-            TerrainLodControl cloned = new TerrainLodControl((Terrain) spatial, cameras);
-            cloned.setLodCalculator(lodCalculator.clone());
-            cloned.spatial = spatial;
-            return cloned;
+        try {
+            return super.clone();
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     @Override
@@ -317,7 +306,6 @@ public class TerrainLodControl extends AbstractControl {
         super.cloneFields(cloner, original);
 
         this.lodCalculator = cloner.clone(lodCalculator);
-
         try {
             // Not deep clone of the cameras themselves
             this.cameras = cloner.javaClone(cameras);
@@ -452,5 +440,4 @@ public class TerrainLodControl extends AbstractControl {
         terrain = (Terrain) ic.readSavable("terrain", null);
         lodCalculator = (LodCalculator) ic.readSavable("lodCalculator", new DistanceLodCalculator());
     }
-
 }
