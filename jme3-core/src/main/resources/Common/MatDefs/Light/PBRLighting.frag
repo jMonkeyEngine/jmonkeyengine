@@ -91,8 +91,10 @@ void main(){
     vec2 newTexCoord;
     vec3 viewDir = normalize(g_CameraPosition - wPosition);
 
+    vec3 norm = normalize(wNormal);
     #if defined(NORMALMAP) || defined(PARALLAXMAP)
-        mat3 tbnMat = mat3(wTangent.xyz, wTangent.w * cross( (wNormal), (wTangent.xyz)), wNormal.xyz);
+        vec3 tan = normalize(wTangent.xyz);
+        mat3 tbnMat = mat3(tan, wTangent.w * cross( (norm), (tan)), norm);
     #endif
 
     #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP)))
@@ -162,7 +164,7 @@ void main(){
       normal = normalize(tbnMat * normal);
       //normal = normalize(normal * inverse(tbnMat));
     #else
-      vec3 normal = normalize(wNormal);            
+      vec3 normal = norm;
     #endif
 
     float specular = 0.5;
@@ -250,7 +252,7 @@ void main(){
         rv = invRadius * (wPosition - g_LightProbeData.xyz) +rv;
 
          //horizon fade from http://marmosetco.tumblr.com/post/81245981087
-        float horiz = dot(rv, wNormal.xyz);
+        float horiz = dot(rv, norm);
         float horizFadePower = 1.0 - Roughness;
         horiz = clamp( 1.0 + horizFadePower * horiz, 0.0, 1.0 );
         horiz *= horiz;
