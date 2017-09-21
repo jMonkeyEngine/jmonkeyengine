@@ -37,6 +37,7 @@ import com.jme3.math.*;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
+
 import java.io.IOException;
 
 /**
@@ -301,20 +302,21 @@ When arrays can be inserted in J3M files
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(type, "varType", null);
         oc.write(name, "name", null);
+
+        if (value == null) {
+            return;
+        }
+
         if (value instanceof Savable) {
-            Savable s = (Savable) value;
-            oc.write(s, "value_savable", null);
+            oc.write((Savable) value, "value_savable", null);
         } else if (value instanceof Float) {
-            Float f = (Float) value;
-            oc.write(f.floatValue(), "value_float", 0f);
+            oc.write((Float) value, "value_float", 0f);
         } else if (value instanceof Integer) {
-            Integer i = (Integer) value;
-            oc.write(i.intValue(), "value_int", 0);
+            oc.write((Integer) value, "value_int", 0);
         } else if (value instanceof Boolean) {
-            Boolean b = (Boolean) value;
-            oc.write(b.booleanValue(), "value_bool", false);
+            oc.write((Boolean) value, "value_bool", false);
         } else if (value.getClass().isArray() && value instanceof Savable[]) {
-            oc.write((Savable[])value, "value_savable_array", null);
+            oc.write((Savable[]) value, "value_savable_array", null);
         }
     }
 
