@@ -139,8 +139,10 @@ public class AndroidInputHandler14 extends AndroidInputHandler implements View.O
         boolean isJoystick =
                 ((source & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) ||
                 ((source & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK);
+        boolean isUnknown =
+                (source & android.view.InputDevice.SOURCE_UNKNOWN) == android.view.InputDevice.SOURCE_UNKNOWN;
 
-        if (isTouch && touchInput != null) {
+        if (touchInput != null && (isTouch || (isUnknown && this.touchInput.isSimulateKeyboard()))) {
 //            logger.log(Level.INFO, "onKey source: {0}, isTouch: {1}",
 //                    new Object[]{source, isTouch});
             consumed = touchInput.onKey(event);
