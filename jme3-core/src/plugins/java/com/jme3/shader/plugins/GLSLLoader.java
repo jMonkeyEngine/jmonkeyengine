@@ -31,12 +31,9 @@
  */
 package com.jme3.shader.plugins;
 
-import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetKey;
-import com.jme3.asset.AssetLoadException;
-import com.jme3.asset.AssetLoader;
-import com.jme3.asset.AssetManager;
+import com.jme3.asset.*;
 import com.jme3.asset.cache.AssetCache;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -49,7 +46,7 @@ import java.util.*;
 public class GLSLLoader implements AssetLoader {
 
     private AssetManager assetManager;
-    private Map<String, ShaderDependencyNode> dependCache = new HashMap<String, ShaderDependencyNode>();
+    private Map<String, ShaderDependencyNode> dependCache = new HashMap<>();
 
     /**
      * Used to load {@link ShaderDependencyNode}s.
@@ -70,25 +67,27 @@ public class GLSLLoader implements AssetLoader {
 
     /**
      * Creates a {@link ShaderDependencyNode} from a stream representing shader code.
-     * 
-     * @param in The input stream containing shader code
-     * @param nodeName
-     * @return
-     * @throws IOException 
+     *
+     * @param reader   the reader with shader code
+     * @param nodeName the node name.
+     * @return the shader dependency node
+     * @throws AssetLoadException if we failed to load the shader code.
      */
     private ShaderDependencyNode loadNode(Reader reader, String nodeName) {
-        ShaderDependencyNode node = new ShaderDependencyNode(nodeName);
 
+        ShaderDependencyNode node = new ShaderDependencyNode(nodeName);
         StringBuilder sb = new StringBuilder();
         StringBuilder sbExt = new StringBuilder();
-        BufferedReader bufReader = null;
-        try {
-            bufReader = new BufferedReader(reader);
+
+        try (final BufferedReader bufferedReader = new BufferedReader(reader)) {
+
             String ln;
+
             if (!nodeName.equals("[main]")) {
                 sb.append("// -- begin import ").append(nodeName).append(" --\n");
             }
-            while ((ln = bufReader.readLine()) != null) {
+
+            while ((ln = bufferedReader.readLine()) != null) {
                 if (ln.trim().startsWith("#import ")) {
                     ln = ln.trim().substring(8).trim();
                     if (ln.startsWith("\"") && ln.endsWith("\"") && ln.length() > 3) {
@@ -118,13 +117,7 @@ public class GLSLLoader implements AssetLoader {
             if (!nodeName.equals("[main]")) {
                 sb.append("// -- end import ").append(nodeName).append(" --\n");
             }
-        } catch (IOException ex) {
-            if (bufReader != null) {
-                try {
-                    bufReader.close();
-                } catch (IOException ex1) {
-                }
-            }
+        } catch (final IOException ex) {
             throw new AssetLoadException("Failed to load shader node: " + nodeName, ex);
         }
 
@@ -137,7 +130,7 @@ public class GLSLLoader implements AssetLoader {
     private ShaderDependencyNode nextIndependentNode() throws IOException {
         Collection<ShaderDependencyNode> allNodes = dependCache.values();
         
-        if (allNodes == null || allNodes.isEmpty()) {
+        if (allNodes.isEmpty()) {
             return null;
         }
         
@@ -168,7 +161,7 @@ public class GLSLLoader implements AssetLoader {
             return node.getSource();
         } else {
             StringBuilder sb = new StringBuilder(node.getSource());
-            List<String> resolvedShaderNodes = new ArrayList<String>();
+            List<String> resolvedShaderNodes = new ArrayList<>();
 
             for (ShaderDependencyNode dependencyNode : node.getDependencies()) {
                 resolvedShaderNodes.add(resolveDependencies(dependencyNode, alreadyInjectedSet, extensions));
@@ -182,8 +175,9 @@ public class GLSLLoader implements AssetLoader {
         }
     }
 
+    @Override
     public Object load(AssetInfo info) throws IOException {
-        // The input stream provided is for the vertex shader, 
+        // The input stream provided is for the vertex shader,
         // to retrieve the fragment shader, use the content manager
         this.assetManager = info.getManager();
         Reader reader = new InputStreamReader(info.openStream());
