@@ -288,9 +288,6 @@ MaterialDef PBR Lighting {
 
         Defines {
             NEED_TEXCOORD1
-            HAS_GLOWMAP : GlowMap
-            HAS_GLOWCOLOR : GlowColor
-
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
         }

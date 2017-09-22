@@ -91,8 +91,10 @@ void main(){
     vec2 newTexCoord;
     vec3 viewDir = normalize(g_CameraPosition - wPosition);
 
+    vec3 norm = normalize(wNormal);
     #if defined(NORMALMAP) || defined(PARALLAXMAP)
-        mat3 tbnMat = mat3(wTangent.xyz, wTangent.w * cross( (wNormal), (wTangent.xyz)), wNormal.xyz);
+        vec3 tan = normalize(wTangent.xyz);
+        mat3 tbnMat = mat3(tan, wTangent.w * cross( (norm), (tan)), norm);
     #endif
 
     #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP)))
@@ -126,13 +128,13 @@ void main(){
 
     #ifdef USE_PACKED_MR
         vec2 rm = texture2D(m_MetallicRoughnessMap, newTexCoord).gb;
-        float Roughness = rm.x * max(m_Roughness, 1e-8);
+        float Roughness = rm.x * max(m_Roughness, 1e-4);
         float Metallic = rm.y * max(m_Metallic, 0.0);
     #else
         #ifdef ROUGHNESSMAP
-            float Roughness = texture2D(m_RoughnessMap, newTexCoord).r * max(m_Roughness, 1e-8);
+            float Roughness = texture2D(m_RoughnessMap, newTexCoord).r * max(m_Roughness, 1e-4);
         #else
-            float Roughness =  max(m_Roughness, 1e-8);
+            float Roughness =  max(m_Roughness, 1e-4);
         #endif
         #ifdef METALLICMAP
             float Metallic = texture2D(m_MetallicMap, newTexCoord).r * max(m_Metallic, 0.0);
@@ -162,7 +164,7 @@ void main(){
       normal = normalize(tbnMat * normal);
       //normal = normalize(normal * inverse(tbnMat));
     #else
-      vec3 normal = normalize(wNormal);            
+      vec3 normal = norm;
     #endif
 
     float specular = 0.5;
@@ -185,7 +187,7 @@ void main(){
             #endif
             specularColor *= m_Specular;
         #endif
-        vec4 diffuseColor = albedo * (1.0 - max(max(specularColor.r, specularColor.g), specularColor.b));
+        vec4 diffuseColor = albedo;// * (1.0 - max(max(specularColor.r, specularColor.g), specularColor.b));
         Roughness = 1.0 - glossiness;
     #else      
         float nonMetalSpec = 0.08 * specular;
@@ -250,7 +252,7 @@ void main(){
         rv = invRadius * (wPosition - g_LightProbeData.xyz) +rv;
 
          //horizon fade from http://marmosetco.tumblr.com/post/81245981087
-        float horiz = dot(rv, wNormal.xyz);
+        float horiz = dot(rv, norm);
         float horizFadePower = 1.0 - Roughness;
         horiz = clamp( 1.0 + horizFadePower * horiz, 0.0, 1.0 );
         horiz *= horiz;

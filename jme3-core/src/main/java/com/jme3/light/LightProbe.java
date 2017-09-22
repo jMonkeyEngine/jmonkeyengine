@@ -120,20 +120,32 @@ public class LightProbe extends Light implements Savable {
         oc.write(position, "position", null);
         oc.write(bounds, "bounds", new BoundingSphere(1.0f, Vector3f.ZERO));
         oc.write(ready, "ready", false);
+        oc.write(nbMipMaps, "nbMipMaps", 0);
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        shCoeffs = (Vector3f[]) ic.readSavableArray("shCoeffs", null);
+
+
         prefilteredEnvMap = (TextureCubeMap) ic.readSavable("prefilteredEnvMap", null);
         position = (Vector3f) ic.readSavable("position", this);
         bounds = (BoundingVolume) ic.readSavable("bounds", new BoundingSphere(1.0f, Vector3f.ZERO));
+        nbMipMaps = ic.readInt("nbMipMaps", 0);
         ready = ic.readBoolean("ready", false);
-        if (shCoeffs == null) {
+
+
+        Savable[] coeffs = ic.readSavableArray("shCoeffs", null);
+        if (coeffs == null) {
             ready = false;
             logger.log(Level.WARNING, "LightProbe is missing parameters, it should be recomputed. Please use lightProbeFactory.updateProbe()");
+        } else {
+            shCoeffs = new Vector3f[coeffs.length];
+            for (int i = 0; i < coeffs.length; i++) {
+                shCoeffs[i] = (Vector3f) coeffs[i];
+            }
+
         }
     }
 
