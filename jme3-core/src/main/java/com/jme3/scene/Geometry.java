@@ -398,6 +398,9 @@ public class Geometry extends Spatial {
 
         // Compute the cached world matrix
         cachedWorldMat.loadIdentity();
+        if (ignoreTransform) {
+            return;
+        }
         cachedWorldMat.setRotationQuaternion(worldTransform.getRotation());
         cachedWorldMat.setTranslation(worldTransform.getTranslation());
 
