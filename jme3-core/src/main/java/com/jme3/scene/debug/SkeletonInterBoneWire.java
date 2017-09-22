@@ -84,7 +84,7 @@ public class SkeletonInterBoneWire extends Mesh {
     }
 
     /**
-     * The method updates the geometry according to the positions of the bones.
+     * The method updates the geometry according to the poitions of the bones.
      */
     public void updateGeometry() {
         VertexBuffer vb = this.getBuffer(Type.Position);
@@ -92,7 +92,7 @@ public class SkeletonInterBoneWire extends Mesh {
         posBuf.clear();
         for (int i = 0; i < skeleton.getBoneCount(); ++i) {
             Bone bone = skeleton.getBone(i);
-            Vector3f parentTail = bone.getModelSpacePosition().add(bone.getModelSpaceRotation().mult(Vector3f.UNIT_XYZ.mult(boneLengths.get(i))));
+            Vector3f parentTail = bone.getModelSpacePosition().add(bone.getModelSpaceRotation().mult(Vector3f.UNIT_Y.mult(boneLengths.get(i))));
 
             for (Bone child : bone.getChildren()) {
                 Vector3f childHead = child.getModelSpacePosition();
