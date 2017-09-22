@@ -509,15 +509,15 @@ public class EnvMapUtils {
         float coef7 = coef5;
         float coef8 = sqrt15Pi / 4f;
 
-        shCoefs[0].multLocal(coef0);
-        shCoefs[1].multLocal(coef1);
-        shCoefs[2].multLocal(coef2);
-        shCoefs[3].multLocal(coef3);
-        shCoefs[4].multLocal(coef4);
-        shCoefs[5].multLocal(coef5);
-        shCoefs[6].multLocal(coef6);
-        shCoefs[7].multLocal(coef7);
-        shCoefs[8].multLocal(coef8);
+        shCoefs[0].multLocal(coef0).multLocal(shBandFactor[0]);
+        shCoefs[1].multLocal(coef1).multLocal(shBandFactor[1]);
+        shCoefs[2].multLocal(coef2).multLocal(shBandFactor[2]);
+        shCoefs[3].multLocal(coef3).multLocal(shBandFactor[3]);
+        shCoefs[4].multLocal(coef4).multLocal(shBandFactor[4]);
+        shCoefs[5].multLocal(coef5).multLocal(shBandFactor[5]);
+        shCoefs[6].multLocal(coef6).multLocal(shBandFactor[6]);
+        shCoefs[7].multLocal(coef7).multLocal(shBandFactor[7]);
+        shCoefs[8].multLocal(coef8).multLocal(shBandFactor[8]);
     }
 
 
