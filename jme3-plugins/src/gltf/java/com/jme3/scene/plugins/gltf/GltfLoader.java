@@ -367,7 +367,6 @@ public class GltfLoader implements AssetLoader {
                     buffs.weights = readAccessorData(entry.getValue().getAsInt(), new FloatArrayPopulator());
                 } else {
                     VertexBuffer vb = readAccessorData(entry.getValue().getAsInt(), new VertexBufferPopulator(getVertexBufferType(bufferType)));
-                    System.err.println(bufferType);
                     if (vb != null) {
                         mesh.setBuffer(vb);
                     }
