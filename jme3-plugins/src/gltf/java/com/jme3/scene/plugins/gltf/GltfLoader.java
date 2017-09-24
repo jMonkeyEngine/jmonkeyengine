@@ -367,6 +367,7 @@ public class GltfLoader implements AssetLoader {
                     buffs.weights = readAccessorData(entry.getValue().getAsInt(), new FloatArrayPopulator());
                 } else {
                     VertexBuffer vb = readAccessorData(entry.getValue().getAsInt(), new VertexBufferPopulator(getVertexBufferType(bufferType)));
+                    System.err.println(bufferType);
                     if (vb != null) {
                         mesh.setBuffer(vb);
                     }
@@ -527,7 +528,8 @@ public class GltfLoader implements AssetLoader {
                 BinDataKey key = new BinDataKey(info.getKey().getFolder() + uri);
                 InputStream input = (InputStream) info.getManager().loadAsset(key);
                 data = new byte[bufferLength];
-                input.read(data);
+                DataInputStream dataStream = new DataInputStream(input);
+                dataStream.readFully(data);
             }
         } else {
             //no URI this should not happen in a gltf file, only in glb files.
