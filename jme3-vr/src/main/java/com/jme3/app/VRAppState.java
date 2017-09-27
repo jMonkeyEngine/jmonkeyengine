@@ -433,6 +433,16 @@ public class VRAppState extends AbstractAppState {
     }
 
     @Override
+    public void render(RenderManager rm) {
+        super.render(rm);
+
+        // update compositor
+        if( environment.getVRViewManager() != null ) {
+            environment.getVRViewManager().render();
+        }
+    }
+
+    @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
         
