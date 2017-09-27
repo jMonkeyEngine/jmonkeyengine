@@ -45,6 +45,10 @@ import java.nio.ShortBuffer;
  */
 public class Grid extends Mesh {
 
+    public Grid() {
+        this(5, 5, 0.5f);
+    }
+
     /**
      * Creates a grid debug shape.
      * @param xLines
