@@ -128,6 +128,10 @@ public abstract class AbstractVRViewManager implements VRViewManager {
     public VREnvironment getVREnvironment(){
     	return environment;
     }
+
+    @Override
+    public void render() {
+    }
     
     /**
      * Handles moving filters from the main view to each eye
