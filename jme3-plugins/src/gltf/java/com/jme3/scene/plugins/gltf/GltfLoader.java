@@ -140,6 +140,8 @@ public class GltfLoader implements AssetLoader {
             return rootNode;
         } catch (Exception e) {
             throw new AssetLoadException("An error occurred loading " + assetInfo.getKey().getName(), e);
+        } finally {
+            stream.close();
         }
     }
 
@@ -529,6 +531,7 @@ public class GltfLoader implements AssetLoader {
                 data = new byte[bufferLength];
                 DataInputStream dataStream = new DataInputStream(input);
                 dataStream.readFully(data);
+                dataStream.close();
             }
         } else {
             //no URI this should not happen in a gltf file, only in glb files.
@@ -1147,6 +1150,25 @@ public class GltfLoader implements AssetLoader {
         float[] weights;
 
         public void update() {
+            if (translations == null) {
+                translations = new Vector3f[times.length];
+                for (int i = 0; i < translations.length; i++) {
+                    translations[i] = new Vector3f();
+                }
+            }
+            if (rotations == null) {
+                rotations = new Quaternion[times.length];
+                for (int i = 0; i < rotations.length; i++) {
+                    rotations[i] = new Quaternion();
+                }
+            }
+            if (scales == null) {
+                scales = new Vector3f[times.length];
+                for (int i = 0; i < scales.length; i++) {
+                    scales[i] = new Vector3f().set(Vector3f.UNIT_XYZ);
+                }
+            }
+
             if (times[0] > 0) {
                 //Anim doesn't start at 0, JME can't handle that and will interpolate transforms linearly from 0 to the first frame of the anim.
                 //we need to add a frame at 0 that copies the first real frame
