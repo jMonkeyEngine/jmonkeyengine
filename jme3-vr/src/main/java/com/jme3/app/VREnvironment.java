@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import com.jme3.app.state.AppState;
 import com.jme3.input.vr.OSVR;
 import com.jme3.input.vr.OpenVR;
+import com.jme3.input.vr.OculusVR;
 import com.jme3.input.vr.VRAPI;
 import com.jme3.input.vr.VRBounds;
 import com.jme3.input.vr.VRInputAPI;
@@ -18,6 +19,7 @@ import com.jme3.util.VRGuiManager;
 import com.jme3.util.VRMouseManager;
 import com.jme3.util.VRViewManager;
 import com.jme3.util.VRViewManagerOSVR;
+import com.jme3.util.VRViewManagerOculus;
 import com.jme3.util.VRViewManagerOpenVR;
 
 public class VREnvironment {
@@ -388,6 +390,8 @@ public class VREnvironment {
     		viewmanager = new VRViewManagerOpenVR(this);
     	} else if (vrBinding == VRConstants.SETTING_VRAPI_OSVR_VALUE){
     		viewmanager = new VRViewManagerOSVR(this);
+        } else if (vrBinding == VRConstants.SETTING_VRAPI_OCULUSVR_VALUE) {
+            viewmanager = new VRViewManagerOculus(this);
     	} else {
     		logger.severe("Cannot instanciate view manager, unknown VRAPI type: "+vrBinding);
     	}
@@ -419,6 +423,10 @@ public class VREnvironment {
             	hardware = new OpenVR(this);
             	initialized = true;
                 logger.config("Creating OpenVR wrapper [SUCCESS]");
+            } else if (vrBinding == VRConstants.SETTING_VRAPI_OCULUSVR_VALUE) {
+                hardware = new OculusVR(this);
+                initialized = true;
+                logger.config("Creating LibOVR wrapper [SUCCESS]");
             } else {
             	logger.config("Cannot create VR binding: "+vrBinding+" [FAILED]");
             	logger.log(Level.SEVERE, "Cannot initialize VR environment [FAILED]");
