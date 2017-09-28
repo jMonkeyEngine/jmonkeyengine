@@ -65,24 +65,6 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
     private final VREnvironment environment;
     private final OculusVR hardware;
 
-    // The size of the texture drawn onto the HMD
-    private int textureW;
-    private int textureH;
-
-    // Layers to render into
-    private PointerBuffer layers;
-    private OVRLayerEyeFov layer0;
-
-    /**
-     * Chain texture set thing.
-     */
-    private long chain;
-
-    /**
-     * Frame buffers we can draw into.
-     */
-    private FrameBuffer framebuffers[];
-
     public VRViewManagerOculus(VREnvironment environment) {
         this.environment = environment;
 
@@ -101,122 +83,10 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
     @Override
     public void initialize() {
         setupCamerasAndViews();
-
-        findHMDTextureSize();
-        setupLayers();
-        setupFramebuffers();
-    }
-
-    private void findHMDTextureSize() {
-        OVRFovPort fovPorts[] = hardware.getFovPorts();
-
-        // Texture sizes
-        float pixelScaling = 1.0f; // pixelsPerDisplayPixel
-
-        OVRSizei leftTextureSize = OVRSizei.malloc();
-        ovr_GetFovTextureSize(session(), ovrEye_Left, fovPorts[ovrEye_Left], pixelScaling, leftTextureSize);
-        System.out.println("leftTextureSize W=" + leftTextureSize.w() + ", H=" + leftTextureSize.h());
-
-        OVRSizei rightTextureSize = OVRSizei.malloc();
-        ovr_GetFovTextureSize(session(), ovrEye_Right, fovPorts[ovrEye_Right], pixelScaling, rightTextureSize);
-        System.out.println("rightTextureSize W=" + rightTextureSize.w() + ", H=" + rightTextureSize.h());
-
-        textureW = leftTextureSize.w() + rightTextureSize.w();
-        textureH = Math.max(leftTextureSize.h(), rightTextureSize.h());
-
-        leftTextureSize.free();
-        rightTextureSize.free();
     }
 
     private long session() {
         return hardware.getSessionPointer();
-    }
-
-    private PointerBuffer setupTextureChain() {
-        // Set up the information for the texture buffer chain thing
-        OVRTextureSwapChainDesc swapChainDesc = OVRTextureSwapChainDesc.calloc()
-                .Type(ovrTexture_2D)
-                .ArraySize(1)
-                .Format(OVR_FORMAT_R8G8B8A8_UNORM_SRGB)
-                .Width(textureW)
-                .Height(textureH)
-                .MipLevels(1)
-                .SampleCount(1)
-                .StaticImage(false); // ovrFalse
-
-        // Create the chain
-        PointerBuffer textureSetPB = createPointerBuffer(1);
-        if (OVRGL.ovr_CreateTextureSwapChainGL(session(), swapChainDesc, textureSetPB) != ovrSuccess) {
-            throw new RuntimeException("Failed to create Swap Texture Set");
-        }
-        chain = textureSetPB.get(0);
-        swapChainDesc.free();
-        System.out.println("done chain creation");
-
-        return textureSetPB;
-    }
-
-    private void setupLayers() {
-        PointerBuffer chainPtr = setupTextureChain();
-
-        //Layers
-        layer0 = OVRLayerEyeFov.calloc();
-        layer0.Header().Type(ovrLayerType_EyeFov);
-        layer0.Header().Flags(ovrLayerFlag_TextureOriginAtBottomLeft);
-
-        for (int eye = 0; eye < 2; eye++) {
-            OVRRecti viewport = OVRRecti.calloc();
-            viewport.Pos().x(0);
-            viewport.Pos().y(0);
-            viewport.Size().w(textureW);
-            viewport.Size().h(textureH);
-
-            layer0.ColorTexture(chainPtr);
-            layer0.Viewport(eye, viewport);
-            layer0.Fov(eye, hardware.getFovPorts()[eye]);
-
-            viewport.free();
-            // we update pose only when we have it in the render loop
-        }
-
-        layers = createPointerBuffer(1);
-        layers.put(0, layer0);
-    }
-
-    /**
-     * Create framebuffers bound to each of the eye textures
-     */
-    private void setupFramebuffers() {
-        // Find the chain length
-        IntBuffer length = BufferUtils.createIntBuffer(1);
-        ovr_GetTextureSwapChainLength(session(), chain, length);
-        int chainLength = length.get();
-
-        System.out.println("chain length=" + chainLength);
-
-        // Create the frame buffers
-        framebuffers = new FrameBuffer[chainLength];
-        for (int i = 0; i < chainLength; i++) {
-            // find the GL texture ID for this texture
-            IntBuffer textureIdB = BufferUtils.createIntBuffer(1);
-            OVRGL.ovr_GetTextureSwapChainBufferGL(session(), chain, i, textureIdB);
-            int textureId = textureIdB.get();
-
-            // TODO less hacky way of getting our texture into JMonkeyEngine
-            Image img = new Image();
-            img.setId(textureId);
-            img.setFormat(Image.Format.RGBA8);
-            img.setWidth(textureW);
-            img.setHeight(textureH);
-
-            Texture2D tex = new Texture2D(img);
-
-            FrameBuffer buffer = new FrameBuffer(textureW, textureH, 1);
-            buffer.setDepthBuffer(Image.Format.Depth);
-            buffer.setColorTexture(tex);
-
-            framebuffers[i] = buffer;
-        }
     }
 
     @Override
@@ -234,10 +104,10 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
 //            layer0.RenderPose(eye, eyePose);
 
             IntBuffer currentIndexB = BufferUtils.createIntBuffer(1);
-            ovr_GetTextureSwapChainCurrentIndex(session(), chain, currentIndexB);
+            ovr_GetTextureSwapChainCurrentIndex(session(), hardware.getChain(), currentIndexB);
             int index = currentIndexB.get();
 
-            (eye == 0 ? leftViewPort : rightViewPort).setOutputFrameBuffer(framebuffers[index]);
+            (eye == 0 ? leftViewPort : rightViewPort).setOutputFrameBuffer(hardware.getFramebuffers()[index]);
         }
 
         // Now the game will render into the buffers given to us by LibOVR
@@ -246,10 +116,10 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
     @Override
     public void postRender() {
         // We're done with our textures now - the game is done drawing into them.
-        ovr_CommitTextureSwapChain(session(), chain);
+        ovr_CommitTextureSwapChain(session(), hardware.getChain());
 
         // Send the result to the HMD
-        int result = ovr_SubmitFrame(session(), 0, null, layers);
+        int result = ovr_SubmitFrame(session(), 0, null, hardware.getLayers());
         if (result != ovrSuccess) {
             throw new IllegalStateException("Failed to submit frame!");
         }
