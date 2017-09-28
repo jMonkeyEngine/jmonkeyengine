@@ -45,6 +45,7 @@ import com.jme3.texture.*;
 
 import java.nio.IntBuffer;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import org.lwjgl.ovr.*;
@@ -75,6 +76,7 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
         this.environment = environment;
 
         VRAPI hardware = environment.getVRHardware();
+        Objects.requireNonNull(hardware, "Attached VR Hardware cannot be null");
         if (!(hardware instanceof OculusVR)) {
             throw new IllegalStateException("Cannot use Oculus VR view manager on non-Oculus hardware state!");
         }
@@ -102,49 +104,43 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
         hardware.updatePose();
 
         // TODO deduplicate
-        if (environment != null) {
-            // grab the observer
-            Object obs = environment.getObserver();
-            Quaternion objRot;
-            Vector3f objPos;
-            if (obs instanceof Camera) {
-                objRot = ((Camera) obs).getRotation();
-                objPos = ((Camera) obs).getLocation();
-            } else {
-                objRot = ((Spatial) obs).getWorldRotation();
-                objPos = ((Spatial) obs).getWorldTranslation();
-            }
-            // grab the hardware handle
-            VRAPI dev = environment.getVRHardware();
-            if (dev != null) {
-                // update the HMD's position & orientation
-                dev.getPositionAndOrientation(hmdPos, hmdRot);
-                if (obs != null) {
-                    // update hmdPos based on obs rotation
-                    finalRotation.set(objRot);
-                    finalRotation.mult(hmdPos, hmdPos);
-                    finalRotation.multLocal(hmdRot);
-                }
-
-                finalizeCamera(dev.getHMDVectorPoseLeftEye(), objPos, leftCamera);
-                finalizeCamera(dev.getHMDVectorPoseRightEye(), objPos, rightCamera);
-            } else {
-                leftCamera.setFrame(objPos, objRot);
-                rightCamera.setFrame(objPos, objRot);
-            }
-
-            if (environment.hasTraditionalGUIOverlay()) {
-                // update the mouse?
-                environment.getVRMouseManager().update(tpf);
-
-                // update GUI position?
-                if (environment.getVRGUIManager().wantsReposition || environment.getVRGUIManager().getPositioningMode() != VRGUIPositioningMode.MANUAL) {
-                    environment.getVRGUIManager().positionGuiNow(tpf);
-                    environment.getVRGUIManager().updateGuiQuadGeometricState();
-                }
-            }
-        } else {
+        if (environment == null) {
             throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
+        }
+
+        // grab the observer
+        Object obs = environment.getObserver();
+        Quaternion objRot;
+        Vector3f objPos;
+        if (obs instanceof Camera) {
+            objRot = ((Camera) obs).getRotation();
+            objPos = ((Camera) obs).getLocation();
+        } else {
+            objRot = ((Spatial) obs).getWorldRotation();
+            objPos = ((Spatial) obs).getWorldTranslation();
+        }
+
+        // update the HMD's position & orientation
+        hardware.getPositionAndOrientation(hmdPos, hmdRot);
+        if (obs != null) {
+            // update hmdPos based on obs rotation
+            finalRotation.set(objRot);
+            finalRotation.mult(hmdPos, hmdPos);
+            finalRotation.multLocal(hmdRot);
+        }
+
+        finalizeCamera(hardware.getHMDVectorPoseLeftEye(), objPos, leftCamera);
+        finalizeCamera(hardware.getHMDVectorPoseRightEye(), objPos, rightCamera);
+
+        if (environment.hasTraditionalGUIOverlay()) {
+            // update the mouse?
+            environment.getVRMouseManager().update(tpf);
+
+            // update GUI position?
+            if (environment.getVRGUIManager().wantsReposition || environment.getVRGUIManager().getPositioningMode() != VRGUIPositioningMode.MANUAL) {
+                environment.getVRGUIManager().positionGuiNow(tpf);
+                environment.getVRGUIManager().updateGuiQuadGeometricState();
+            }
         }
     }
 
