@@ -87,6 +87,11 @@ public class OculusVR implements VRAPI {
      */
     private final Matrix4f[] eyePoses = new Matrix4f[2];
 
+    /**
+     * The eye poses, as used during rendering.
+     */
+    private final OVRPosef eyePosesPtr[] = new OVRPosef[2];
+
     // The size of the texture drawn onto the HMD
     private int textureW;
     private int textureH;
@@ -239,6 +244,22 @@ public class OculusVR implements VRAPI {
         double ftiming = ovr_GetPredictedDisplayTime(session, 0);
         OVRTrackingState hmdState = OVRTrackingState.malloc();
         ovr_GetTrackingState(session, ftiming, true, hmdState);
+
+        //get head pose
+        OVRPosef headPose = hmdState.HeadPose().ThePose();
+        hmdState.free();
+
+        //build view offsets struct
+        OVRPosef.Buffer hmdToEyeOffsets = OVRPosef.calloc(2);
+        hmdToEyeOffsets.put(0, eyeRenderDesc[ovrEye_Left].HmdToEyePose());
+        hmdToEyeOffsets.put(1, eyeRenderDesc[ovrEye_Right].HmdToEyePose());
+
+        //calculate eye poses
+        OVRPosef.Buffer outEyePoses = OVRPosef.create(2);
+        OVRUtil.ovr_CalcEyePoses(headPose, hmdToEyeOffsets, outEyePoses);
+        hmdToEyeOffsets.free();
+        eyePosesPtr[ovrEye_Left] = outEyePoses.get(0);
+        eyePosesPtr[ovrEye_Right] = outEyePoses.get(1);
 
         // TODO
     }
@@ -558,6 +579,14 @@ public class OculusVR implements VRAPI {
 
     public PointerBuffer getLayers() {
         return layers;
+    }
+
+    public OVRLayerEyeFov getLayer0() {
+        return layer0;
+    }
+
+    public OVRPosef[] getEyePosesPtr() {
+        return eyePosesPtr;
     }
 }
 

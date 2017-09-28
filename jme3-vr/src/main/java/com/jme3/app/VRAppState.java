@@ -399,14 +399,14 @@ public class VRAppState extends AbstractAppState {
         
         //FIXME: check if this code is necessary.
         // Updates scene and gui states.
-        Iterator<Spatial> spatialIter = application.getViewPort().getScenes().iterator();
+        Iterator<Spatial> spatialIter = getLeftViewPort().getScenes().iterator();
         Spatial spatial = null;
         while(spatialIter.hasNext()){
         	spatial = spatialIter.next();
         	spatial.updateLogicalState(tpf);
         	spatial.updateGeometricState();
-        }        
-        
+        }
+
         if( environment.isInVR() == false || environment.getVRGUIManager().getPositioningMode() == VRGUIPositioningMode.MANUAL ) {
             // only update geometric state here if GUI is in manual mode, or not in VR
             // it will get updated automatically in the viewmanager update otherwise
@@ -419,7 +419,7 @@ public class VRAppState extends AbstractAppState {
         }
         
         // use the analog control on the first tracked controller to push around the mouse
-        environment.getVRMouseManager().updateAnalogAsMouse(0, null, null, null, tpf);
+        // environment.getVRMouseManager().updateAnalogAsMouse(0, null, null, null, tpf);
     }
 
     @Override
