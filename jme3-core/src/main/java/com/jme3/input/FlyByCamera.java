@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2017 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,11 @@
 package com.jme3.input;
 
 import com.jme3.collision.MotionAllowedListener;
-import com.jme3.input.controls.*;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.AnalogListener;
+import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.MouseAxisTrigger;
+import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
@@ -40,12 +44,13 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 
 /**
- * A first person view camera controller.
- * After creation, you must register the camera controller with the
- * dispatcher using #registerWithDispatcher().
+ * A first-person camera controller.
+ *
+ * After creation, you (or FlyCamAppState) must register the controller using
+ * {@link #registerWithInput(com.jme3.input.InputManager)}.
  *
  * Controls:
- *  - Move the mouse to rotate the camera
+ *  - Move (or, in drag-to-rotate mode, drag) the mouse to rotate the camera
  *  - Mouse wheel for zooming in or out
  *  - WASD keys for moving forward/backward and strafing
  *  - QZ keys raise or lower the camera
@@ -53,41 +58,62 @@ import com.jme3.renderer.Camera;
 public class FlyByCamera implements AnalogListener, ActionListener {
 
     private static String[] mappings = new String[]{
-            CameraInput.FLYCAM_LEFT,
-            CameraInput.FLYCAM_RIGHT,
-            CameraInput.FLYCAM_UP,
-            CameraInput.FLYCAM_DOWN,
+        CameraInput.FLYCAM_LEFT,
+        CameraInput.FLYCAM_RIGHT,
+        CameraInput.FLYCAM_UP,
+        CameraInput.FLYCAM_DOWN,
 
-            CameraInput.FLYCAM_STRAFELEFT,
-            CameraInput.FLYCAM_STRAFERIGHT,
-            CameraInput.FLYCAM_FORWARD,
-            CameraInput.FLYCAM_BACKWARD,
+        CameraInput.FLYCAM_STRAFELEFT,
+        CameraInput.FLYCAM_STRAFERIGHT,
+        CameraInput.FLYCAM_FORWARD,
+        CameraInput.FLYCAM_BACKWARD,
 
-            CameraInput.FLYCAM_ZOOMIN,
-            CameraInput.FLYCAM_ZOOMOUT,
-            CameraInput.FLYCAM_ROTATEDRAG,
+        CameraInput.FLYCAM_ZOOMIN,
+        CameraInput.FLYCAM_ZOOMOUT,
+        CameraInput.FLYCAM_ROTATEDRAG,
 
-            CameraInput.FLYCAM_RISE,
-            CameraInput.FLYCAM_LOWER,
-            
-            CameraInput.FLYCAM_INVERTY
-        };
+        CameraInput.FLYCAM_RISE,
+        CameraInput.FLYCAM_LOWER,
 
+        CameraInput.FLYCAM_INVERTY
+    };
+    /**
+     * camera controlled by this controller (not null)
+     */
     protected Camera cam;
+    /**
+     * normalized "up" direction (a unit vector)
+     */
     protected Vector3f initialUpVec;
+    /**
+     * rotation-rate multiplier (1=default)
+     */
     protected float rotationSpeed = 1f;
+    /**
+     * translation speed (in world units per second)
+     */
     protected float moveSpeed = 3f;
+    /**
+     * zoom-rate multiplier (1=default)
+     */
     protected float zoomSpeed = 1f;
     protected MotionAllowedListener motionAllowed = null;
+    /**
+     * enable flag for controller (false&rarr;ignoring input)
+     */
     protected boolean enabled = true;
+    /**
+     * drag-to-rotate mode flag
+     */
     protected boolean dragToRotate = false;
     protected boolean canRotate = false;
     protected boolean invertY = false;
     protected InputManager inputManager;
-    
+
     /**
-     * Creates a new FlyByCamera to control the given Camera object.
-     * @param cam
+     * Creates a new FlyByCamera to control the specified camera.
+     *
+     * @param cam camera to be controlled (not null)
      */
     public FlyByCamera(Camera cam){
         this.cam = cam;
@@ -96,10 +122,11 @@ public class FlyByCamera implements AnalogListener, ActionListener {
 
     /**
      * Sets the up vector that should be used for the camera.
+     *
      * @param upVec
      */
     public void setUpVector(Vector3f upVec) {
-       initialUpVec.set(upVec);
+        initialUpVec.set(upVec);
     }
 
     public void setMotionAllowedListener(MotionAllowedListener listener){
@@ -107,56 +134,68 @@ public class FlyByCamera implements AnalogListener, ActionListener {
     }
 
     /**
-     * Sets the move speed. The speed is given in world units per second.
-     * @param moveSpeed
+     * Set the translation speed.
+     *
+     * @param moveSpeed new speed (in world units per second)
      */
     public void setMoveSpeed(float moveSpeed){
         this.moveSpeed = moveSpeed;
     }
-    
+
     /**
-     * Gets the move speed. The speed is given in world units per second.
-     * @return moveSpeed
+     * Read the translation speed.
+     *
+     * @return current speed (in world units per second)
      */
     public float getMoveSpeed(){
         return moveSpeed;
     }
 
     /**
-     * Sets the rotation speed.
-     * @param rotationSpeed
+     * Set the rotation-rate multiplier. The bigger the multiplier, the more
+     * rotation for a given movement of the mouse.
+     *
+     * @param rotationSpeed new rate multiplier (1=default)
      */
     public void setRotationSpeed(float rotationSpeed){
         this.rotationSpeed = rotationSpeed;
     }
-    
+
     /**
-     * Gets the move speed. The speed is given in world units per second.
-     * @return rotationSpeed
+     * Read the rotation-rate multiplier. The bigger the multiplier, the more
+     * rotation for a given movement of the mouse.
+     *
+     * @return current rate multiplier (1=default)
      */
     public float getRotationSpeed(){
         return rotationSpeed;
     }
-    
+
     /**
-     * Sets the zoom speed.
-     * @param zoomSpeed 
+     * Set the zoom-rate multiplier. The bigger the multiplier, the more zoom
+     * for a given movement of the mouse wheel.
+     *
+     * @param zoomSpeed new rate multiplier (1=default)
      */
     public void setZoomSpeed(float zoomSpeed) {
         this.zoomSpeed = zoomSpeed;
     }
-    
+
     /**
-     * Gets the zoom speed.  The speed is a multiplier to increase/decrease
-     * the zoom rate.
-     * @return zoomSpeed
+     * Read the zoom-rate multiplier. The bigger the multiplier, the more zoom
+     * for a given movement of the mouse wheel.
+     *
+     * @return current rate multiplier (1=default)
      */
     public float getZoomSpeed() {
         return zoomSpeed;
     }
 
     /**
-     * @param enable If false, the camera will ignore input.
+     * Enable or disable this controller. When disabled, the controller ignored
+     * input.
+     *
+     * @param enable true to enable, false to disable
      */
     public void setEnabled(boolean enable){
         if (enabled && !enable){
@@ -168,32 +207,36 @@ public class FlyByCamera implements AnalogListener, ActionListener {
     }
 
     /**
-     * @return If enabled
-     * @see FlyByCamera#setEnabled(boolean)
+     * Test whether this controller is enabled.
+     *
+     * @return true if enabled, otherwise false
+     * @see #setEnabled(boolean)
      */
     public boolean isEnabled(){
         return enabled;
     }
 
     /**
+     * Test whether drag-to-rotate mode is enabled.
+     *
      * @return If drag to rotate feature is enabled.
      *
-     * @see FlyByCamera#setDragToRotate(boolean) 
+     * @see #setDragToRotate(boolean)
      */
     public boolean isDragToRotate() {
         return dragToRotate;
     }
 
     /**
-     * Set if drag to rotate mode is enabled.
-     * 
-     * When true, the user must hold the mouse button
-     * and drag over the screen to rotate the camera, and the cursor is
-     * visible until dragged. Otherwise, the cursor is invisible at all times
-     * and holding the mouse button is not needed to rotate the camera.
-     * This feature is disabled by default.
-     * 
-     * @param dragToRotate True if drag to rotate mode is enabled.
+     * Enable or disable drag-to-rotate mode.
+     *
+     * When drag-to-rotate mode is enabled, the user must hold the mouse button
+     * and drag over the screen to rotate the camera, and the cursor is visible
+     * until dragged. When drag-to-rotate mode is disabled, the cursor is
+     * invisible at all times and holding the mouse button is not needed to
+     * rotate the camera. This mode is disabled by default.
+     *
+     * @param dragToRotate true to enable, false to disable
      */
     public void setDragToRotate(boolean dragToRotate) {
         this.dragToRotate = dragToRotate;
@@ -203,25 +246,26 @@ public class FlyByCamera implements AnalogListener, ActionListener {
     }
 
     /**
-     * Registers the FlyByCamera to receive input events from the provided
-     * Dispatcher.
+     * Register this controller to receive input events from the specified input
+     * manager.
+     *
      * @param inputManager
      */
     public void registerWithInput(InputManager inputManager){
         this.inputManager = inputManager;
-        
+
         // both mouse and button - rotation of cam
         inputManager.addMapping(CameraInput.FLYCAM_LEFT, new MouseAxisTrigger(MouseInput.AXIS_X, true),
-                                               new KeyTrigger(KeyInput.KEY_LEFT));
+                new KeyTrigger(KeyInput.KEY_LEFT));
 
         inputManager.addMapping(CameraInput.FLYCAM_RIGHT, new MouseAxisTrigger(MouseInput.AXIS_X, false),
-                                                new KeyTrigger(KeyInput.KEY_RIGHT));
+                new KeyTrigger(KeyInput.KEY_RIGHT));
 
         inputManager.addMapping(CameraInput.FLYCAM_UP, new MouseAxisTrigger(MouseInput.AXIS_Y, false),
-                                             new KeyTrigger(KeyInput.KEY_UP));
+                new KeyTrigger(KeyInput.KEY_UP));
 
         inputManager.addMapping(CameraInput.FLYCAM_DOWN, new MouseAxisTrigger(MouseInput.AXIS_Y, true),
-                                               new KeyTrigger(KeyInput.KEY_DOWN));
+                new KeyTrigger(KeyInput.KEY_DOWN));
 
         // mouse only - zoom in/out with wheel, and rotate drag
         inputManager.addMapping(CameraInput.FLYCAM_ZOOMIN, new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false));
@@ -248,43 +292,42 @@ public class FlyByCamera implements AnalogListener, ActionListener {
     }
 
     protected void mapJoystick( Joystick joystick ) {
-        
+
         // Map it differently if there are Z axis
         if( joystick.getAxis( JoystickAxis.Z_ROTATION ) != null && joystick.getAxis( JoystickAxis.Z_AXIS ) != null ) {
- 
+
             // Make the left stick move
             joystick.getXAxis().assignAxis( CameraInput.FLYCAM_STRAFERIGHT, CameraInput.FLYCAM_STRAFELEFT );
             joystick.getYAxis().assignAxis( CameraInput.FLYCAM_BACKWARD, CameraInput.FLYCAM_FORWARD );
-            
-            // And the right stick control the camera                       
+
+            // And the right stick control the camera
             joystick.getAxis( JoystickAxis.Z_ROTATION ).assignAxis( CameraInput.FLYCAM_DOWN, CameraInput.FLYCAM_UP );
             joystick.getAxis( JoystickAxis.Z_AXIS ).assignAxis(  CameraInput.FLYCAM_RIGHT, CameraInput.FLYCAM_LEFT );
- 
-            // And let the dpad be up and down           
+
+            // And let the dpad be up and down
             joystick.getPovYAxis().assignAxis(CameraInput.FLYCAM_RISE, CameraInput.FLYCAM_LOWER);
- 
-            if( joystick.getButton( "Button 8" ) != null ) { 
+
+            if( joystick.getButton( "Button 8" ) != null ) {
                 // Let the stanard select button be the y invert toggle
                 joystick.getButton( "Button 8" ).assignButton( CameraInput.FLYCAM_INVERTY );
-            }                
-            
-        } else {             
+            }
+
+        } else {
             joystick.getPovXAxis().assignAxis(CameraInput.FLYCAM_STRAFERIGHT, CameraInput.FLYCAM_STRAFELEFT);
             joystick.getPovYAxis().assignAxis(CameraInput.FLYCAM_FORWARD, CameraInput.FLYCAM_BACKWARD);
             joystick.getXAxis().assignAxis(CameraInput.FLYCAM_RIGHT, CameraInput.FLYCAM_LEFT);
             joystick.getYAxis().assignAxis(CameraInput.FLYCAM_DOWN, CameraInput.FLYCAM_UP);
-        }                
+        }
     }
 
     /**
-     * Unregisters the FlyByCamera from the event Dispatcher.
+     * Unregister this controller from its input manager.
      */
     public void unregisterInput(){
-    
         if (inputManager == null) {
             return;
         }
-    
+
         for (String s : mappings) {
             if (inputManager.hasMapping(s)) {
                 inputManager.deleteMapping( s );
@@ -296,12 +339,16 @@ public class FlyByCamera implements AnalogListener, ActionListener {
 
         Joystick[] joysticks = inputManager.getJoysticks();
         if (joysticks != null && joysticks.length > 0){
-            Joystick joystick = joysticks[0];
-            
-            // No way to unassing axis
+            // No way to unassign axis
         }
     }
 
+    /**
+     * Rotate the camera by the specified amount around the specified axis.
+     *
+     * @param value rotation amount
+     * @param axis direction of rotation (a unit vector)
+     */
     protected void rotateCamera(float value, Vector3f axis){
         if (dragToRotate){
             if (canRotate){
@@ -329,6 +376,11 @@ public class FlyByCamera implements AnalogListener, ActionListener {
         cam.setAxes(q);
     }
 
+    /**
+     * Zoom the camera by the specified amount.
+     *
+     * @param value zoom amount
+     */
     protected void zoomCamera(float value){
         // derive fovY value
         float h = cam.getFrustumTop();
@@ -338,7 +390,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
         float near = cam.getFrustumNear();
 
         float fovY = FastMath.atan(h / near)
-                  / (FastMath.DEG_TO_RAD * .5f);
+                / (FastMath.DEG_TO_RAD * .5f);
         float newFovY = fovY + value * 0.1f * zoomSpeed;
         if (newFovY > 0f) {
             // Don't let the FOV go zero or negative.
@@ -354,6 +406,11 @@ public class FlyByCamera implements AnalogListener, ActionListener {
         cam.setFrustumRight(w);
     }
 
+    /**
+     * Translate the camera upward by the specified amount.
+     *
+     * @param value translation amount
+     */
     protected void riseCamera(float value){
         Vector3f vel = new Vector3f(0, value * moveSpeed, 0);
         Vector3f pos = cam.getLocation().clone();
@@ -366,6 +423,12 @@ public class FlyByCamera implements AnalogListener, ActionListener {
         cam.setLocation(pos);
     }
 
+    /**
+     * Translate the camera left or forward by the specified amount.
+     *
+     * @param value translation amount
+     * @param sideways true&rarr;left, false&rarr;forward
+     */
     protected void moveCamera(float value, boolean sideways){
         Vector3f vel = new Vector3f();
         Vector3f pos = cam.getLocation().clone();
@@ -385,6 +448,14 @@ public class FlyByCamera implements AnalogListener, ActionListener {
         cam.setLocation(pos);
     }
 
+    /**
+     * Callback to notify this controller of an analog input event.
+     *
+     * @param name name of the input event
+     * @param value value of the axis (from 0 to 1)
+     * @param tpf time per frame (in seconds)
+     */
+    @Override
     public void onAnalog(String name, float value, float tpf) {
         if (!enabled)
             return;
@@ -416,6 +487,14 @@ public class FlyByCamera implements AnalogListener, ActionListener {
         }
     }
 
+    /**
+     * Callback to notify this controller of an action input event.
+     *
+     * @param name name of the input event
+     * @param value true if the action is "pressed", false otherwise
+     * @param tpf time per frame (in seconds)
+     */
+    @Override
     public void onAction(String name, boolean value, float tpf) {
         if (!enabled)
             return;
@@ -424,11 +503,10 @@ public class FlyByCamera implements AnalogListener, ActionListener {
             canRotate = value;
             inputManager.setCursorVisible(!value);
         } else if (name.equals(CameraInput.FLYCAM_INVERTY)) {
-            // Toggle on the up.
-            if( !value ) {  
+            // Invert the "up" direction.
+            if( !value ) {
                 invertY = !invertY;
             }
-        }        
+        }
     }
-
 }
