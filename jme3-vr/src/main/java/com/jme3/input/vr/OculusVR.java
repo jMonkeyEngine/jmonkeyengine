@@ -8,11 +8,17 @@ package com.jme3.input.vr;
 import com.jme3.app.VREnvironment;
 import com.jme3.math.*;
 import com.jme3.renderer.Camera;
+import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.Image;
+import com.jme3.texture.Texture2D;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.ovr.*;
 
+import java.nio.IntBuffer;
 import java.util.logging.Logger;
 
+import static org.lwjgl.BufferUtils.createPointerBuffer;
 import static org.lwjgl.ovr.OVR.*;
 import static org.lwjgl.ovr.OVRErrorCode.ovrSuccess;
 import static org.lwjgl.ovr.OVRUtil.ovr_Detect;
@@ -80,6 +86,24 @@ public class OculusVR implements VRAPI {
      * @see #getHMDMatrixPoseLeftEye()
      */
     private final Matrix4f[] eyePoses = new Matrix4f[2];
+
+    // The size of the texture drawn onto the HMD
+    private int textureW;
+    private int textureH;
+
+    // Layers to render into
+    private PointerBuffer layers;
+    private OVRLayerEyeFov layer0;
+
+    /**
+     * Chain texture set thing.
+     */
+    private long chain;
+
+    /**
+     * Frame buffers we can draw into.
+     */
+    private FrameBuffer framebuffers[];
 
     public OculusVR(VREnvironment environment) {
         this.environment = environment;
@@ -226,7 +250,32 @@ public class OculusVR implements VRAPI {
 
     @Override
     public void destroy() {
-        throw new UnsupportedOperationException();
+        // fovPorts: contents are managed by LibOVR, no need to do anything.
+
+        // Check if we've set up rendering - if so, clean that up.
+        if (chain != 0) {
+            // Destroy our set of huge buffer images.
+            ovr_DestroyTextureSwapChain(session, chain);
+
+            // Free up the layer
+            layer0.free();
+
+            // The layers array apparently takes care of itself (and crashes if we try to free it)
+        }
+
+        for (OVREyeRenderDesc eye : eyeRenderDesc) {
+            eye.free();
+        }
+        for (OVRMatrix4f projection : projections) {
+            projection.free();
+        }
+
+        hmdDesc.free();
+        sessionStatus.free();
+
+        // Wrap everything up
+        ovr_Destroy(session);
+        ovr_Shutdown();
     }
 
     @Override
@@ -305,6 +354,10 @@ public class OculusVR implements VRAPI {
             throw new UnsupportedOperationException("Cannot use LibOVR without compositor!");
         }
 
+        findHMDTextureSize();
+        setupLayers();
+        setupFramebuffers();
+
         // TODO move initialization code here from VRViewManagerOculus
         return true;
     }
@@ -323,6 +376,114 @@ public class OculusVR implements VRAPI {
 
     public Void getVRSystem() {
         throw new UnsupportedOperationException("Not yet implemented!");
+    }
+
+    // Rendering-type stuff
+
+    public void findHMDTextureSize() {
+        // Texture sizes
+        float pixelScaling = 1.0f; // pixelsPerDisplayPixel
+
+        OVRSizei leftTextureSize = OVRSizei.malloc();
+        ovr_GetFovTextureSize(session, ovrEye_Left, fovPorts[ovrEye_Left], pixelScaling, leftTextureSize);
+        System.out.println("leftTextureSize W=" + leftTextureSize.w() + ", H=" + leftTextureSize.h());
+
+        OVRSizei rightTextureSize = OVRSizei.malloc();
+        ovr_GetFovTextureSize(session, ovrEye_Right, fovPorts[ovrEye_Right], pixelScaling, rightTextureSize);
+        System.out.println("rightTextureSize W=" + rightTextureSize.w() + ", H=" + rightTextureSize.h());
+
+        textureW = leftTextureSize.w() + rightTextureSize.w();
+        textureH = Math.max(leftTextureSize.h(), rightTextureSize.h());
+
+        leftTextureSize.free();
+        rightTextureSize.free();
+    }
+
+    private PointerBuffer setupTextureChain() {
+        // Set up the information for the texture buffer chain thing
+        OVRTextureSwapChainDesc swapChainDesc = OVRTextureSwapChainDesc.calloc()
+                .Type(ovrTexture_2D)
+                .ArraySize(1)
+                .Format(OVR_FORMAT_R8G8B8A8_UNORM_SRGB)
+                .Width(textureW)
+                .Height(textureH)
+                .MipLevels(1)
+                .SampleCount(1)
+                .StaticImage(false); // ovrFalse
+
+        // Create the chain
+        PointerBuffer textureSetPB = createPointerBuffer(1);
+        if (OVRGL.ovr_CreateTextureSwapChainGL(session, swapChainDesc, textureSetPB) != ovrSuccess) {
+            throw new RuntimeException("Failed to create Swap Texture Set");
+        }
+        chain = textureSetPB.get(0);
+        swapChainDesc.free();
+        System.out.println("done chain creation");
+
+        return textureSetPB;
+    }
+
+    public void setupLayers() {
+        PointerBuffer chainPtr = setupTextureChain();
+
+        //Layers
+        layer0 = OVRLayerEyeFov.calloc();
+        layer0.Header().Type(ovrLayerType_EyeFov);
+        layer0.Header().Flags(ovrLayerFlag_TextureOriginAtBottomLeft);
+
+        for (int eye = 0; eye < 2; eye++) {
+            OVRRecti viewport = OVRRecti.calloc();
+            viewport.Pos().x(0);
+            viewport.Pos().y(0);
+            viewport.Size().w(textureW);
+            viewport.Size().h(textureH);
+
+            layer0.ColorTexture(chainPtr);
+            layer0.Viewport(eye, viewport);
+            layer0.Fov(eye, fovPorts[eye]);
+
+            viewport.free();
+            // we update pose only when we have it in the render loop
+        }
+
+        layers = createPointerBuffer(1);
+        layers.put(0, layer0);
+    }
+
+    /**
+     * Create framebuffers bound to each of the eye textures
+     */
+    public void setupFramebuffers() {
+        // Find the chain length
+        IntBuffer length = BufferUtils.createIntBuffer(1);
+        ovr_GetTextureSwapChainLength(session, chain, length);
+        int chainLength = length.get();
+
+        System.out.println("chain length=" + chainLength);
+
+        // Create the frame buffers
+        framebuffers = new FrameBuffer[chainLength];
+        for (int i = 0; i < chainLength; i++) {
+            // find the GL texture ID for this texture
+            IntBuffer textureIdB = BufferUtils.createIntBuffer(1);
+            OVRGL.ovr_GetTextureSwapChainBufferGL(session, chain, i, textureIdB);
+            int textureId = textureIdB.get();
+
+            // TODO less hacky way of getting our texture into JMonkeyEngine
+            Image img = new Image();
+            img.setId(textureId);
+            img.setFormat(Image.Format.RGBA8);
+            img.setWidth(textureW);
+            img.setHeight(textureH);
+
+            Texture2D tex = new Texture2D(img);
+
+            FrameBuffer buffer = new FrameBuffer(textureW, textureH, 1);
+            buffer.setDepthBuffer(Image.Format.Depth);
+            buffer.setColorTexture(tex);
+
+            framebuffers[i] = buffer;
+        }
     }
 
     // UTILITIES
@@ -382,16 +543,21 @@ public class OculusVR implements VRAPI {
     }
 
     // Getters, intended for VRViewManager.
-    public OVRHmdDesc getHmdDesc() {
-        return hmdDesc;
-    }
-
-    public OVRFovPort[] getFovPorts() {
-        return fovPorts;
-    }
 
     public long getSessionPointer() {
         return session;
+    }
+
+    public long getChain() {
+        return chain;
+    }
+
+    public FrameBuffer[] getFramebuffers() {
+        return framebuffers;
+    }
+
+    public PointerBuffer getLayers() {
+        return layers;
     }
 }
 
