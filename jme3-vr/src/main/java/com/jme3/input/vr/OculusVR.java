@@ -8,25 +8,15 @@ package com.jme3.input.vr;
 import com.jme3.app.VREnvironment;
 import com.jme3.math.*;
 import com.jme3.renderer.Camera;
-import com.jme3.util.VRUtil;
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.ovr.*;
 
-import java.nio.IntBuffer;
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.ovr.OVR.*;
-
-import static org.lwjgl.ovr.OVRErrorCode.*;
-import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.ovr.OVRErrorCode.ovrSuccess;
 import static org.lwjgl.ovr.OVRUtil.ovr_Detect;
-
-import org.lwjgl.BufferUtils;
-import org.lwjgl.PointerBuffer;
-
-import org.lwjgl.ovr.*;
+import static org.lwjgl.system.MemoryUtil.*;
 
 /**
  * Oculus VR (LibOVR 1.3.0) Native support.
@@ -385,6 +375,19 @@ public class OculusVR implements VRAPI {
         );
 
         return to;
+    }
+
+    // Getters, intended for VRViewManager.
+    public OVRHmdDesc getHmdDesc() {
+        return hmdDesc;
+    }
+
+    public OVRFovPort[] getFovPorts() {
+        return fovPorts;
+    }
+
+    public long getSessionPointer() {
+        return session;
     }
 }
 
