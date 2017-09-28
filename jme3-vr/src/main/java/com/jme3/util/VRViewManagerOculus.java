@@ -32,6 +32,7 @@
 package com.jme3.util;
 
 import com.jme3.app.VREnvironment;
+import com.jme3.input.vr.OculusVR;
 import com.jme3.input.vr.VRAPI;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
@@ -39,13 +40,12 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.*;
+
 import java.nio.IntBuffer;
 import java.util.Iterator;
 import java.util.logging.Logger;
-import org.lwjgl.PointerBuffer;
 
-import static com.jme3.util.VRViewManager.LEFT_VIEW_NAME;
-import static com.jme3.util.VRViewManager.RIGHT_VIEW_NAME;
+import org.lwjgl.PointerBuffer;
 
 import org.lwjgl.ovr.*;
 
@@ -63,12 +63,11 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
     private static final Logger LOG = Logger.getLogger(VRViewManagerOculus.class.getName());
 
     private final VREnvironment environment;
+    private final OculusVR hardware;
 
     // The size of the texture drawn onto the HMD
     private int textureW;
     private int textureH;
-
-    long session = 0; // TODO take from OculusVR input
 
     // Layers to render into
     private PointerBuffer layers;
@@ -77,12 +76,7 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
     /**
      * Chain texture set thing.
      */
-    long chain;
-
-    /**
-     * The definitions of the up/down/left/right parts of the FOV for each eye.
-     */
-    private final OVRFovPort fovPorts[] = new OVRFovPort[2];
+    private long chain;
 
     /**
      * Frame buffers we can draw into.
@@ -91,6 +85,13 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
 
     public VRViewManagerOculus(VREnvironment environment) {
         this.environment = environment;
+
+        VRAPI hardware = environment.getVRHardware();
+        if (!(hardware instanceof OculusVR)) {
+            throw new IllegalStateException("Cannot use Oculus VR view manager on non-Oculus hardware state!");
+        }
+
+        this.hardware = (OculusVR) hardware;
 
         if (!environment.compositorAllowed()) {
             throw new UnsupportedOperationException("Cannot render without compositor on LibOVR");
@@ -101,36 +102,23 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
     public void initialize() {
         setupCamerasAndViews();
 
-        OVRHmdDesc hmdDesc = null;  // TODO take from OculusVR input
-
-        for (int eye = 0; eye < 2; eye++) {
-            fovPorts[eye] = hmdDesc.DefaultEyeFov(eye);
-            System.out.println("eye " + eye + " = "
-                    + fovPorts[eye].UpTan() + ", "
-                    + fovPorts[eye].DownTan() + ", "
-                    + fovPorts[eye].LeftTan() + ", "
-                    + fovPorts[eye].RightTan()
-            );
-        }
-
         findHMDTextureSize();
-        setupTextureChain();
         setupLayers();
         setupFramebuffers();
     }
 
     private void findHMDTextureSize() {
-        OVRFovPort fovPorts[] = null;
+        OVRFovPort fovPorts[] = hardware.getFovPorts();
 
         // Texture sizes
         float pixelScaling = 1.0f; // pixelsPerDisplayPixel
 
         OVRSizei leftTextureSize = OVRSizei.malloc();
-        ovr_GetFovTextureSize(session, ovrEye_Left, fovPorts[ovrEye_Left], pixelScaling, leftTextureSize);
+        ovr_GetFovTextureSize(session(), ovrEye_Left, fovPorts[ovrEye_Left], pixelScaling, leftTextureSize);
         System.out.println("leftTextureSize W=" + leftTextureSize.w() + ", H=" + leftTextureSize.h());
 
         OVRSizei rightTextureSize = OVRSizei.malloc();
-        ovr_GetFovTextureSize(session, ovrEye_Right, fovPorts[ovrEye_Right], pixelScaling, rightTextureSize);
+        ovr_GetFovTextureSize(session(), ovrEye_Right, fovPorts[ovrEye_Right], pixelScaling, rightTextureSize);
         System.out.println("rightTextureSize W=" + rightTextureSize.w() + ", H=" + rightTextureSize.h());
 
         textureW = leftTextureSize.w() + rightTextureSize.w();
@@ -138,6 +126,10 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
 
         leftTextureSize.free();
         rightTextureSize.free();
+    }
+
+    private long session() {
+        return hardware.getSessionPointer();
     }
 
     private PointerBuffer setupTextureChain() {
@@ -154,7 +146,7 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
 
         // Create the chain
         PointerBuffer textureSetPB = createPointerBuffer(1);
-        if (OVRGL.ovr_CreateTextureSwapChainGL(session, swapChainDesc, textureSetPB) != ovrSuccess) {
+        if (OVRGL.ovr_CreateTextureSwapChainGL(session(), swapChainDesc, textureSetPB) != ovrSuccess) {
             throw new RuntimeException("Failed to create Swap Texture Set");
         }
         chain = textureSetPB.get(0);
@@ -181,7 +173,7 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
 
             layer0.ColorTexture(chainPtr);
             layer0.Viewport(eye, viewport);
-            layer0.Fov(eye, fovPorts[eye]);
+            layer0.Fov(eye, hardware.getFovPorts()[eye]);
 
             viewport.free();
             // we update pose only when we have it in the render loop
@@ -197,7 +189,7 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
     private void setupFramebuffers() {
         // Find the chain length
         IntBuffer length = BufferUtils.createIntBuffer(1);
-        ovr_GetTextureSwapChainLength(session, chain, length);
+        ovr_GetTextureSwapChainLength(session(), chain, length);
         int chainLength = length.get();
 
         System.out.println("chain length=" + chainLength);
@@ -207,12 +199,17 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
         for (int i = 0; i < chainLength; i++) {
             // find the GL texture ID for this texture
             IntBuffer textureIdB = BufferUtils.createIntBuffer(1);
-            OVRGL.ovr_GetTextureSwapChainBufferGL(session, chain, i, textureIdB);
+            OVRGL.ovr_GetTextureSwapChainBufferGL(session(), chain, i, textureIdB);
             int textureId = textureIdB.get();
 
             // TODO less hacky way of getting our texture into JMonkeyEngine
-            Texture2D tex = new Texture2D(new Image());
-            tex.getImage().setId(textureId);
+            Image img = new Image();
+            img.setId(textureId);
+            img.setFormat(Image.Format.RGBA8);
+            img.setWidth(textureW);
+            img.setHeight(textureH);
+
+            Texture2D tex = new Texture2D(img);
 
             FrameBuffer buffer = new FrameBuffer(textureW, textureH, 1);
             buffer.setDepthBuffer(Image.Format.Depth);
@@ -235,7 +232,7 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
 //            layer0.RenderPose(eye, eyePose);
 
             IntBuffer currentIndexB = BufferUtils.createIntBuffer(1);
-            ovr_GetTextureSwapChainCurrentIndex(session, chain, currentIndexB);
+            ovr_GetTextureSwapChainCurrentIndex(session(), chain, currentIndexB);
             int index = currentIndexB.get();
 
             (eye == 0 ? leftViewPort : rightViewPort).setOutputFrameBuffer(framebuffers[index]);
@@ -247,10 +244,10 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
     @Override
     public void postRender() {
         // We're done with our textures now - the game is done drawing into them.
-        ovr_CommitTextureSwapChain(session, chain);
+        ovr_CommitTextureSwapChain(session(), chain);
 
         // Send the result to the HMD
-        int result = ovr_SubmitFrame(session, 0, null, layers);
+        int result = ovr_SubmitFrame(session(), 0, null, layers);
         if (result != ovrSuccess) {
             throw new IllegalStateException("Failed to submit frame!");
         }
@@ -261,6 +258,7 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
      *  Show's over, now it's just boring camera stuff etc.  *
      *********************************************************
      */
+
     /**
      * Set up the cameras and views for each eye and the mirror display.
      */
