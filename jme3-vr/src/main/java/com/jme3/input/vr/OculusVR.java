@@ -92,6 +92,16 @@ public class OculusVR implements VRAPI {
      */
     private final OVRPosef eyePosesPtr[] = new OVRPosef[2];
 
+    /**
+     * The eye positions relative to the world, as used by jME.
+     */
+    private final Vector3f eyePositions[] = new Vector3f[2];
+
+    /**
+     * The position and orientation of the user's head.
+     */
+    private OVRPosef headPose;
+
     // The size of the texture drawn onto the HMD
     private int textureW;
     private int textureH;
@@ -229,6 +239,7 @@ public class OculusVR implements VRAPI {
             jPose.setRotationQuaternion(quatO2J(pose.Orientation(), new Quaternion()));
 
             eyePoses[eye] = jPose;
+            eyePositions[eye] = new Vector3f(); // Set the absolute position up for later.
         }
 
         // step 7 - recenter
@@ -246,7 +257,7 @@ public class OculusVR implements VRAPI {
         ovr_GetTrackingState(session, ftiming, true, hmdState);
 
         //get head pose
-        OVRPosef headPose = hmdState.HeadPose().ThePose();
+        headPose = hmdState.HeadPose().ThePose();
         hmdState.free();
 
         //build view offsets struct
@@ -261,7 +272,9 @@ public class OculusVR implements VRAPI {
         eyePosesPtr[ovrEye_Left] = outEyePoses.get(0);
         eyePosesPtr[ovrEye_Right] = outEyePoses.get(1);
 
-        // TODO
+        for (int i = 0; i < eyePosesPtr.length; i++) {
+            vecO2J(eyePosesPtr[i].Position(), eyePositions[i]);
+        }
     }
 
     @Override
@@ -317,17 +330,18 @@ public class OculusVR implements VRAPI {
 
     @Override
     public Quaternion getOrientation() {
-        throw new UnsupportedOperationException();
+        return quatO2J(headPose.Orientation(), new Quaternion());
     }
 
     @Override
     public Vector3f getPosition() {
-        throw new UnsupportedOperationException();
+        return vecO2J(headPose.Position(), new Vector3f());
     }
 
     @Override
     public void getPositionAndOrientation(Vector3f storePos, Quaternion storeRot) {
-        throw new UnsupportedOperationException();
+        vecO2J(headPose.Position(), storePos);
+        quatO2J(headPose.Orientation(), storeRot);
     }
 
     @Override
@@ -342,12 +356,12 @@ public class OculusVR implements VRAPI {
 
     @Override
     public Vector3f getHMDVectorPoseLeftEye() {
-        throw new UnsupportedOperationException();
+        return eyePositions[ovrEye_Left];
     }
 
     @Override
     public Vector3f getHMDVectorPoseRightEye() {
-        throw new UnsupportedOperationException();
+        return eyePositions[ovrEye_Right];
     }
 
     @Override
