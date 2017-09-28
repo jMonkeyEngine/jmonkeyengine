@@ -211,6 +211,15 @@ public class OculusVR implements VRAPI {
     }
 
     @Override
+    public void updatePose() {
+        double ftiming = ovr_GetPredictedDisplayTime(session, 0);
+        OVRTrackingState hmdState = OVRTrackingState.malloc();
+        ovr_GetTrackingState(session, ftiming, true, hmdState);
+
+        // TODO
+    }
+
+    @Override
     public boolean isInitialized() {
         return initialized;
     }
@@ -248,11 +257,6 @@ public class OculusVR implements VRAPI {
 
     @Override
     public void getPositionAndOrientation(Vector3f storePos, Quaternion storeRot) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void updatePose() {
         throw new UnsupportedOperationException();
     }
 

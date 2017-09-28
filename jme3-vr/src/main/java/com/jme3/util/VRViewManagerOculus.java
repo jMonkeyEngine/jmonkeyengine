@@ -222,6 +222,8 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
     @Override
     public void update(float tpf) {
         // TODO
+
+        hardware.updatePose();
     }
 
     @Override
