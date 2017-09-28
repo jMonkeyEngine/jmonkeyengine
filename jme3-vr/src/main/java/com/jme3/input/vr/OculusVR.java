@@ -81,14 +81,14 @@ public class OculusVR implements VRAPI {
     private final OVRMatrix4f[] projections = new OVRMatrix4f[2];
 
     /**
-     * Store the poses for each eye.
+     * Store the poses for each eye, relative to the HMD.
      *
      * @see #getHMDMatrixPoseLeftEye()
      */
-    private final Matrix4f[] eyePoses = new Matrix4f[2];
+    private final Matrix4f[] hmdRelativeEyePoses = new Matrix4f[2];
 
     /**
-     * The eye poses, as used during rendering.
+     * The eye poses relative to the world, as used during rendering.
      */
     private final OVRPosef eyePosesPtr[] = new OVRPosef[2];
 
@@ -238,7 +238,7 @@ public class OculusVR implements VRAPI {
             jPose.setTranslation(vecO2J(pose.Position(), new Vector3f()));
             jPose.setRotationQuaternion(quatO2J(pose.Orientation(), new Quaternion()));
 
-            eyePoses[eye] = jPose;
+            hmdRelativeEyePoses[eye] = jPose;
             eyePositions[eye] = new Vector3f(); // Set the absolute position up for later.
         }
 
@@ -371,17 +371,17 @@ public class OculusVR implements VRAPI {
 
     @Override
     public Matrix4f getHMDMatrixPoseLeftEye() {
-        return eyePoses[ovrEye_Left];
+        return hmdRelativeEyePoses[ovrEye_Left];
     }
 
     @Override
     public Matrix4f getHMDMatrixPoseRightEye() {
-        return eyePoses[ovrEye_Left];
+        return hmdRelativeEyePoses[ovrEye_Left];
     }
 
     @Override
     public HmdType getType() {
-        throw new UnsupportedOperationException();
+        return HmdType.OCULUS_RIFT;
     }
 
     public boolean initVRCompositor(boolean set) {
