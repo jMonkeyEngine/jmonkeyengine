@@ -113,12 +113,12 @@ public class OculusVR implements VRAPI {
     /**
      * Chain texture set thing.
      */
-    private long chain;
+    private long chains[];
 
     /**
      * Frame buffers we can draw into.
      */
-    private FrameBuffer framebuffers[];
+    private FrameBuffer framebuffers[][];
 
     public OculusVR(VREnvironment environment) {
         this.environment = environment;
@@ -287,9 +287,11 @@ public class OculusVR implements VRAPI {
         // fovPorts: contents are managed by LibOVR, no need to do anything.
 
         // Check if we've set up rendering - if so, clean that up.
-        if (chain != 0) {
+        if (chains != null) {
             // Destroy our set of huge buffer images.
-            ovr_DestroyTextureSwapChain(session, chain);
+            for (long chain : chains) {
+                ovr_DestroyTextureSwapChain(session, chain);
+            }
 
             // Free up the layer
             layer0.free();
@@ -391,7 +393,10 @@ public class OculusVR implements VRAPI {
 
         findHMDTextureSize();
         setupLayers();
-        setupFramebuffers();
+
+        framebuffers = new FrameBuffer[2][];
+        for (int eye = 0; eye < 2; eye++)
+            setupFramebuffers(eye);
 
         // TODO move initialization code here from VRViewManagerOculus
         return true;
@@ -427,14 +432,21 @@ public class OculusVR implements VRAPI {
         ovr_GetFovTextureSize(session, ovrEye_Right, fovPorts[ovrEye_Right], pixelScaling, rightTextureSize);
         System.out.println("rightTextureSize W=" + rightTextureSize.w() + ", H=" + rightTextureSize.h());
 
-        textureW = leftTextureSize.w() + rightTextureSize.w();
-        textureH = Math.max(leftTextureSize.h(), rightTextureSize.h());
+        if (leftTextureSize.w() != rightTextureSize.w()) {
+            throw new IllegalStateException("Texture sizes do not match [horizontal]");
+        }
+        if (leftTextureSize.h() != rightTextureSize.h()) {
+            throw new IllegalStateException("Texture sizes do not match [vertical]");
+        }
+
+        textureW = leftTextureSize.w();
+        textureH = leftTextureSize.h();
 
         leftTextureSize.free();
         rightTextureSize.free();
     }
 
-    private PointerBuffer setupTextureChain() {
+    private long setupTextureChain() {
         // Set up the information for the texture buffer chain thing
         OVRTextureSwapChainDesc swapChainDesc = OVRTextureSwapChainDesc.calloc()
                 .Type(ovrTexture_2D)
@@ -451,29 +463,30 @@ public class OculusVR implements VRAPI {
         if (OVRGL.ovr_CreateTextureSwapChainGL(session, swapChainDesc, textureSetPB) != ovrSuccess) {
             throw new RuntimeException("Failed to create Swap Texture Set");
         }
-        chain = textureSetPB.get(0);
         swapChainDesc.free();
         System.out.println("done chain creation");
 
-        return textureSetPB;
+        return textureSetPB.get(); // TODO is this a memory leak?
     }
 
     public void setupLayers() {
-        PointerBuffer chainPtr = setupTextureChain();
-
         //Layers
         layer0 = OVRLayerEyeFov.calloc();
         layer0.Header().Type(ovrLayerType_EyeFov);
         layer0.Header().Flags(ovrLayerFlag_TextureOriginAtBottomLeft);
 
+        chains = new long[2];
         for (int eye = 0; eye < 2; eye++) {
+            long eyeChain = setupTextureChain();
+            chains[eye] = eyeChain;
+
             OVRRecti viewport = OVRRecti.calloc();
             viewport.Pos().x(0);
             viewport.Pos().y(0);
             viewport.Size().w(textureW);
             viewport.Size().h(textureH);
 
-            layer0.ColorTexture(chainPtr);
+            layer0.ColorTexture(eye, eyeChain);
             layer0.Viewport(eye, viewport);
             layer0.Fov(eye, fovPorts[eye]);
 
@@ -486,22 +499,22 @@ public class OculusVR implements VRAPI {
     }
 
     /**
-     * Create framebuffers bound to each of the eye textures
+     * Create a framebuffer for an eye.
      */
-    public void setupFramebuffers() {
+    public void setupFramebuffers(int eye) {
         // Find the chain length
         IntBuffer length = BufferUtils.createIntBuffer(1);
-        ovr_GetTextureSwapChainLength(session, chain, length);
+        ovr_GetTextureSwapChainLength(session, chains[eye], length);
         int chainLength = length.get();
 
         System.out.println("chain length=" + chainLength);
 
         // Create the frame buffers
-        framebuffers = new FrameBuffer[chainLength];
+        framebuffers[eye] = new FrameBuffer[chainLength];
         for (int i = 0; i < chainLength; i++) {
             // find the GL texture ID for this texture
             IntBuffer textureIdB = BufferUtils.createIntBuffer(1);
-            OVRGL.ovr_GetTextureSwapChainBufferGL(session, chain, i, textureIdB);
+            OVRGL.ovr_GetTextureSwapChainBufferGL(session, chains[eye], i, textureIdB);
             int textureId = textureIdB.get();
 
             // TODO less hacky way of getting our texture into JMonkeyEngine
@@ -517,7 +530,7 @@ public class OculusVR implements VRAPI {
             buffer.setDepthBuffer(Image.Format.Depth);
             buffer.setColorTexture(tex);
 
-            framebuffers[i] = buffer;
+            framebuffers[eye][i] = buffer;
         }
     }
 
@@ -583,12 +596,12 @@ public class OculusVR implements VRAPI {
         return session;
     }
 
-    public long getChain() {
-        return chain;
+    public long getChain(int eye) {
+        return chains[eye];
     }
 
-    public FrameBuffer[] getFramebuffers() {
-        return framebuffers;
+    public FrameBuffer[] getFramebuffers(int eye) {
+        return framebuffers[eye];
     }
 
     public PointerBuffer getLayers() {
