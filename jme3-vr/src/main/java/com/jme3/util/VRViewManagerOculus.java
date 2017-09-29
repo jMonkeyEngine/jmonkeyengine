@@ -34,10 +34,7 @@ package com.jme3.util;
 import com.jme3.app.VREnvironment;
 import com.jme3.input.vr.OculusVR;
 import com.jme3.input.vr.VRAPI;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
@@ -213,16 +210,14 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
             // restore frustrum on distortion scene cam, if needed
             if (environment.isInstanceRendering()) {
                 leftCamera = origCam;
-            } else if (environment.compositorAllowed() == false) {
-                origCam.setFrustumFar(100f);
-                origCam.setFrustumNear(1f);
-                leftCamera = origCam.clone();
-                prepareCameraSize(origCam, 2f);
             } else {
                 leftCamera = origCam.clone();
             }
 
-            getLeftCamera().setFrustumPerspective(environment.getDefaultFOV(), environment.getDefaultAspect(), fNear, fFar);
+            OVRFovPort fp = hardware.getFovPort();
+            float hFov = fp.LeftTan() + fp.RightTan();
+            float vFov = fp.UpTan() + fp.DownTan();
+            getLeftCamera().setFrustumPerspective(hFov / FastMath.TWO_PI * 360, vFov / hFov, fNear, fFar);
 
             prepareCameraSize(getLeftCamera(), 1f);
             if (environment.getVRHardware() != null) {
@@ -238,33 +233,13 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
                 }
                 rightViewPort = setupViewBuffers(getRightCamera(), RIGHT_VIEW_NAME);
             } else if (environment.getApplication() != null) {
-
-                LOG.severe("THIS CODE NEED CHANGES !!!");
-                leftViewPort = environment.getApplication().getViewPort();
-                //leftViewport.attachScene(app.getRootNode());
-                rightCamera = getLeftCamera().clone();
-                if (environment.getVRHardware() != null) {
-                    getRightCamera().setProjectionMatrix(environment.getVRHardware().getHMDMatrixProjectionRightEye(getRightCamera()));
-                }
-
-                org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL30.GL_CLIP_DISTANCE0);
-
-                //FIXME: [jme-vr] Fix with JMonkey next release
-                //RenderManager._VRInstancing_RightCamProjection = camRight.getViewProjectionMatrix();
-                // TODO: Add LibOVR support
-                // setupFinalFullTexture(environment.getApplication().getViewPort().getCamera());
+                throw new UnsupportedOperationException("Not yet implemented!");
             } else {
                 throw new IllegalStateException("This VR environment is not attached to any application.");
             }
 
             // setup gui
             environment.getVRGUIManager().setupGui(getLeftCamera(), getRightCamera(), getLeftViewPort(), getRightViewPort());
-
-            if (environment.getVRHardware() != null) {
-                // call these to cache the results internally
-                environment.getVRHardware().getHMDMatrixPoseLeftEye();
-                environment.getVRHardware().getHMDMatrixPoseRightEye();
-            }
         } else {
             throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
         }

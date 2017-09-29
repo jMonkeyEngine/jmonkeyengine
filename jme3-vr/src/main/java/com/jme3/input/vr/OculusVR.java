@@ -26,6 +26,13 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 /**
  * Oculus VR (LibOVR 1.3.0) Native support.
+ * <p>
+ * A few notes about the Oculus coordinate system:
+ * <ul>
+ * <li>Matrices should be transposed</li>
+ * <li>Quaternions should be inverted<li/>
+ * <li>Vectors should have their X and Z axes flipped, but apparently not Y.</li>
+ * </ul>
  *
  * @author Campbell Suter <znix@znix.xyz>
  */
@@ -219,7 +226,6 @@ public class OculusVR implements VRAPI {
         System.out.println("step 5 - projections");
         for (int eye = 0; eye < 2; eye++) {
             projections[eye] = OVRMatrix4f.malloc();
-            OVRUtil.ovrMatrix4f_Projection(fovPorts[eye], 0.5f, 500f, OVRUtil.ovrProjection_None, projections[eye]);
             //1.3 was right handed, now none flag
         }
 
@@ -332,7 +338,7 @@ public class OculusVR implements VRAPI {
 
     @Override
     public Quaternion getOrientation() {
-        return quatO2J(headPose.Orientation(), new Quaternion());
+        return quatO2J(headPose.Orientation(), new Quaternion()).inverseLocal();
     }
 
     @Override
@@ -342,18 +348,31 @@ public class OculusVR implements VRAPI {
 
     @Override
     public void getPositionAndOrientation(Vector3f storePos, Quaternion storeRot) {
-        vecO2J(headPose.Position(), storePos);
-        quatO2J(headPose.Orientation(), storeRot);
+        storePos.set(getPosition());
+        storeRot.set(getOrientation());
+    }
+
+    private Matrix4f calculateProjection(int eye, Camera cam) {
+        Matrix4f mat = new Matrix4f();
+
+        // Get LibOVR to find the correct projection
+        OVRUtil.ovrMatrix4f_Projection(fovPorts[eye], cam.getFrustumNear(), cam.getFrustumFar(), OVRUtil.ovrProjection_None, projections[eye]);
+
+        matrixO2J(projections[eye], mat);
+
+        mat.transposeLocal(); // Apparently LibOVR has a different coordinate set - yay for us.
+
+        return mat;
     }
 
     @Override
     public Matrix4f getHMDMatrixProjectionLeftEye(Camera cam) {
-        return matrixO2J(projections[ovrEye_Left], new Matrix4f());
+        return calculateProjection(ovrEye_Left, cam);
     }
 
     @Override
     public Matrix4f getHMDMatrixProjectionRightEye(Camera cam) {
-        return matrixO2J(projections[ovrEye_Right], new Matrix4f());
+        return calculateProjection(ovrEye_Right, cam);
     }
 
     @Override
@@ -610,6 +629,10 @@ public class OculusVR implements VRAPI {
 
     public OVRLayerEyeFov getLayer0() {
         return layer0;
+    }
+
+    public OVRFovPort getFovPort() {
+        return fovPorts[ovrEye_Left]; // TODO checking the left and right eyes match
     }
 
     public OVRPosef[] getEyePosesPtr() {
