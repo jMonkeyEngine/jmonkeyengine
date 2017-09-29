@@ -169,10 +169,11 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
             hardware.getLayer0().RenderPose(eye, eyePose);
 
             IntBuffer currentIndexB = BufferUtils.createIntBuffer(1);
-            ovr_GetTextureSwapChainCurrentIndex(session(), hardware.getChain(), currentIndexB);
+            ovr_GetTextureSwapChainCurrentIndex(session(), hardware.getChain(eye), currentIndexB);
             int index = currentIndexB.get();
 
-            (eye == ovrEye_Left ? leftViewPort : rightViewPort).setOutputFrameBuffer(hardware.getFramebuffers()[index]);
+            // FIXME eyes inverted
+            (eye != ovrEye_Left ? leftViewPort : rightViewPort).setOutputFrameBuffer(hardware.getFramebuffers(eye)[index]);
         }
 
         // Now the game will render into the buffers given to us by LibOVR
@@ -181,7 +182,9 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
     @Override
     public void postRender() {
         // We're done with our textures now - the game is done drawing into them.
-        ovr_CommitTextureSwapChain(session(), hardware.getChain());
+        for (int eye = 0; eye < 2; eye++) {
+            ovr_CommitTextureSwapChain(session(), hardware.getChain(eye));
+        }
 
         // Send the result to the HMD
         int result = ovr_SubmitFrame(session(), 0, null, hardware.getLayers());
