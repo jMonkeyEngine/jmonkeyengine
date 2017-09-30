@@ -173,7 +173,7 @@ void main(){
         // allow use of control flow
         if(g_LightDirection.w != 0.0){
        #endif
-          spotFallOff =  computeSpotFalloff(g_LightDirection, lightVec);
+          spotFallOff =  computeSpotFalloff(g_LightDirection, lightDir.xyz);
        #if __VERSION__ >= 110
           if(spotFallOff <= 0.0){
               gl_FragColor.rgb = AmbientSum * diffuseColor.rgb;

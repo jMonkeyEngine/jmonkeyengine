@@ -223,14 +223,13 @@ void main(){
             // allow use of control flow
         if(lightColor.w > 1.0){
         #endif
-            fallOff =  computeSpotFalloff(g_LightData[i+2], lightVec);
+            fallOff =  computeSpotFalloff(g_LightData[i+2], lightDir.xyz);
         #if __VERSION__ >= 110
         }
         #endif
         //point light attenuation
         fallOff *= lightDir.w;
 
-        lightDir.xyz = normalize(lightDir.xyz);            
         vec3 directDiffuse;
         vec3 directSpecular;
         

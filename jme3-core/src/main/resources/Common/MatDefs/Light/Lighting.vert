@@ -158,7 +158,7 @@ void main(){
             // allow use of control flow
         if(lightColor.w > 1.0){
         #endif           
-           spotFallOff = computeSpotFalloff(g_LightDirection, lightVec);
+           spotFallOff = computeSpotFalloff(g_LightDirection, vLightDir.xyz);
         #if __VERSION__ >= 110           
         }
         #endif
