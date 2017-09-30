@@ -1,11 +1,24 @@
 MaterialDef Pre Shadow {
+
+    MaterialParameters {
+        // PreShadow: use point light mode for depth
+        Boolean IsPointLight
+    }
+
     Technique {
         VertexShader GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
         FragmentShader GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
 
+        Defines {
+            POINT_LIGHT : IsPointLight
+        }
+
         WorldParameters {
             WorldViewProjectionMatrix
             WorldViewMatrix
+            WorldMatrix
+            CameraPosition
+            FrustumNearFar
         }
 
         RenderState {

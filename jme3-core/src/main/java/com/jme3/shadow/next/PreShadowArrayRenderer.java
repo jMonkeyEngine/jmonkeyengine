@@ -34,8 +34,10 @@ package com.jme3.shadow.next;
 import com.jme3.shadow.next.pssm.DirectionalShadowParameters;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
+import com.jme3.light.Light.Type;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
+import com.jme3.material.MatParamOverride;
 import com.jme3.material.RenderState;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
@@ -46,6 +48,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.shader.VarType;
 import com.jme3.shadow.next.array.DirectionalArrayShadowMap;
 import com.jme3.shadow.next.array.PointArrayShadowMap;
 import com.jme3.shadow.next.array.SpotArrayShadowMap;
@@ -80,6 +83,7 @@ public class PreShadowArrayRenderer implements SceneProcessor {
     private final GeometryList shadowCasters = new GeometryList(new OpaqueComparator());
     private final ListMap<Light, ShadowMap> shadowedLights = new ListMap<>();
     private final RenderState prePassRenderState = RenderState.ADDITIONAL.clone();
+    private final MatParamOverride pointLightOverride = new MatParamOverride(VarType.Boolean, "IsPointLight", true);
     private final TextureArray array = new TextureArray();
     
     private int textureSize = 1024;
@@ -190,6 +194,7 @@ public class PreShadowArrayRenderer implements SceneProcessor {
     private void renderShadowMaps(ViewPort viewPort) {
         renderManager.setForcedRenderState(prePassRenderState);
         renderManager.setForcedTechnique(PRE_SHADOW_TECHNIQUE_NAME);
+        renderManager.addForcedMatParam(pointLightOverride);
 
         for (int i = 0; i < shadowedLights.size(); i++) {
             Light light = shadowedLights.getKey(i);
@@ -206,6 +211,8 @@ public class PreShadowArrayRenderer implements SceneProcessor {
                 vars.release();
             }
 
+            pointLightOverride.setEnabled(shadowMap.getLightType() == Type.Point);
+            
             switch (shadowMap.getLightType()) {
                 case Directional:
                     DirectionalArrayShadowMap directionalShadow = (DirectionalArrayShadowMap) shadowMap;
@@ -228,6 +235,7 @@ public class PreShadowArrayRenderer implements SceneProcessor {
 
         Renderer renderer = renderManager.getRenderer();
         renderer.setFrameBuffer(viewPort.getOutputFrameBuffer());
+        renderManager.removeForcedMatParam(pointLightOverride);
         renderManager.setForcedRenderState(null);
         renderManager.setForcedTechnique(null);
         renderManager.setCamera(viewPort.getCamera(), false);

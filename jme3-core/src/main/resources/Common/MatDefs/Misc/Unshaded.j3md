@@ -54,6 +54,9 @@ MaterialDef Unshaded {
         Float ShadowMapSize
 
         Boolean BackfaceShadows: true
+
+        // PreShadow: use point light mode for depth
+        Boolean IsPointLight
     }
 
     Technique {
@@ -108,6 +111,9 @@ MaterialDef Unshaded {
             WorldViewMatrix
             ViewProjectionMatrix
             ViewMatrix
+            WorldMatrix
+            CameraPosition
+            FrustumNearFar
         }
 
         Defines {
@@ -115,6 +121,7 @@ MaterialDef Unshaded {
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            POINT_LIGHT : IsPointLight
         }
 
         ForcedRenderState {

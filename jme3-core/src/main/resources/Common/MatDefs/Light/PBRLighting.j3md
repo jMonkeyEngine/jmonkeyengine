@@ -118,6 +118,9 @@ MaterialDef PBR Lighting {
         Boolean UseVertexColor
 
         Boolean BackfaceShadows : false
+
+        // PreShadow: use point light mode for depth
+        Boolean IsPointLight
     }
 
     Technique {
@@ -171,12 +174,16 @@ MaterialDef PBR Lighting {
             WorldViewMatrix
             ViewProjectionMatrix
             ViewMatrix
+            WorldMatrix
+            CameraPosition
+            FrustumNearFar
         }
 
         Defines {
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            POINT_LIGHT : IsPointLight
         }
 
         ForcedRenderState {
