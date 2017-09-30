@@ -90,6 +90,7 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glTexImage3D", 1, 3, 4, 5, 6);
         noEnumArgs("glTexSubImage2D", 1, 2, 3, 4, 5);
         noEnumArgs("glTexSubImage3D", 1, 2, 3, 4, 5, 6, 7);
+        noEnumArgs("glTexImage2DMultisample", 1, 3, 4);
         noEnumArgs("glCompressedTexImage2D", 1, 3, 4, 5);
         noEnumArgs("glCompressedTexSubImage3D", 1, 2, 3, 4, 5, 6, 7);
         noEnumArgs("glDeleteTextures", 0);
@@ -101,6 +102,7 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glVertexAttribPointer", 0, 1, 4, 5);
         noEnumArgs("glVertexAttribDivisorARB", 0, 1);
         noEnumArgs("glDrawRangeElements", 1, 2, 3, 5);
+        noEnumArgs("glDrawElementsInstancedARB", 1, 3, 4);
         noEnumArgs("glDrawArrays", 1, 2);
         noEnumArgs("glDeleteBuffers", 0);
         noEnumArgs("glBindVertexArray", 0);
