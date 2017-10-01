@@ -169,11 +169,20 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
 
     @Override
     public void render() {
-        for (int eye = 0; eye < 2; eye++) {
-            // TODO do we need this? Don't we set the camera positions ourselves?
-            OVRPosef eyePose = hardware.getEyePosesPtr()[eye];
-            hardware.getLayer0().RenderPose(eye, eyePose);
 
+        // Calculate the render pose (translation/rotation) for each eye.
+        // LibOVR takes the difference between this and the real position of each eye at display time
+        // to apply AZW (timewarp).
+
+        OVRPosef.Buffer hmdToEyeOffsets = OVRPosef.calloc(2);
+        hmdToEyeOffsets.put(0, hardware.getEyePose(ovrEye_Left));
+        hmdToEyeOffsets.put(1, hardware.getEyePose(ovrEye_Right));
+
+        //calculate eye poses
+        OVRUtil.ovr_CalcEyePoses(hardware.getHeadPose(), hmdToEyeOffsets, hardware.getLayer0().RenderPose());
+        hmdToEyeOffsets.free();
+
+        for (int eye = 0; eye < 2; eye++) {
             IntBuffer currentIndexB = BufferUtils.createIntBuffer(1);
             ovr_GetTextureSwapChainCurrentIndex(session(), hardware.getChain(eye), currentIndexB);
             int index = currentIndexB.get();
