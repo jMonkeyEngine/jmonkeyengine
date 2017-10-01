@@ -88,6 +88,15 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
     @Override
     public void initialize() {
         setupCamerasAndViews();
+
+        if (environment.hasTraditionalGUIOverlay()) {
+
+            environment.getVRMouseManager().initialize();
+
+            // update the pose to position the gui correctly on start
+            update(0f);
+            environment.getVRGUIManager().positionGui();
+        }
     }
 
     private long session() {
