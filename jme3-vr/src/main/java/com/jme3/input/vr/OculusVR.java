@@ -252,6 +252,9 @@ public class OculusVR implements VRAPI {
         System.out.println("step 7 - recenter");
         ovr_RecenterTrackingOrigin(session);
 
+        // Do this so others relying on our texture size get it correct.
+        findHMDTextureSize();
+
         // throw new UnsupportedOperationException("Not yet implemented!");
         return true;
     }
@@ -327,8 +330,11 @@ public class OculusVR implements VRAPI {
 
     @Override
     public void getRenderSize(Vector2f store) {
-        store.x = resolutionW;
-        store.y = resolutionH;
+        if(!isInitialized()) {
+            throw new IllegalStateException("Cannot call getRenderSize() before initialized!");
+        }
+        store.x = textureW;
+        store.y = textureH;
     }
 
     @Override
@@ -410,7 +416,6 @@ public class OculusVR implements VRAPI {
             throw new UnsupportedOperationException("Cannot use LibOVR without compositor!");
         }
 
-        findHMDTextureSize();
         setupLayers();
 
         framebuffers = new FrameBuffer[2][];
