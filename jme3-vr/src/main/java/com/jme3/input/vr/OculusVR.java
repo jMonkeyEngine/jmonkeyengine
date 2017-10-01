@@ -327,7 +327,7 @@ public class OculusVR implements VRAPI {
 
     @Override
     public Quaternion getOrientation() {
-        return quatO2J(headPose.Orientation(), new Quaternion()).inverseLocal();
+        return quatO2J(headPose.Orientation(), new Quaternion());
     }
 
     @Override
@@ -348,8 +348,6 @@ public class OculusVR implements VRAPI {
         OVRUtil.ovrMatrix4f_Projection(fovPorts[eye], cam.getFrustumNear(), cam.getFrustumFar(), OVRUtil.ovrProjection_None, projections[eye]);
 
         matrixO2J(projections[eye], mat);
-
-        mat.transposeLocal(); // Apparently LibOVR has a different coordinate set - yay for us.
 
         return mat;
     }
@@ -552,12 +550,16 @@ public class OculusVR implements VRAPI {
      * @return The {@code to} argument.
      */
     public static Matrix4f matrixO2J(OVRMatrix4f from, Matrix4f to) {
+        to.loadIdentity(); // For the additional columns (unless I'm badly misunderstanding matricies)
+
         for (int x = 0; x < 4; x++) {
             for (int y = 0; y < 4; y++) {
                 float val = from.M(x + y * 4); // TODO verify this
                 to.set(x, y, val);
             }
         }
+
+        to.transposeLocal(); // jME vs LibOVR coordinate spaces - Yay!
 
         return to;
     }
@@ -570,12 +572,15 @@ public class OculusVR implements VRAPI {
      * @return The {@code to} argument.
      */
     public static Quaternion quatO2J(OVRQuatf from, Quaternion to) {
+        // jME and LibOVR do their coordinate spaces differently for rotations, so flip Y and W (thanks, jMonkeyVR).
         to.set(
                 from.x(),
-                from.y(),
+                -from.y(),
                 from.z(),
-                from.w()
+                -from.w()
         );
+
+        to.normalizeLocal();
 
         return to;
     }
@@ -588,10 +593,11 @@ public class OculusVR implements VRAPI {
      * @return The {@code to} argument.
      */
     public static Vector3f vecO2J(OVRVector3f from, Vector3f to) {
+        // jME and LibOVR disagree on which way X and Z is, too.
         to.set(
-                from.x(),
+                -from.x(),
                 from.y(),
-                from.z()
+                -from.z()
         );
 
         return to;

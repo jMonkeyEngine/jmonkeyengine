@@ -187,8 +187,9 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
             ovr_GetTextureSwapChainCurrentIndex(session(), hardware.getChain(eye), currentIndexB);
             int index = currentIndexB.get();
 
-            // FIXME eyes inverted
-            (eye != ovrEye_Left ? leftViewPort : rightViewPort).setOutputFrameBuffer(hardware.getFramebuffers(eye)[index]);
+            // Constantly (each frame) rotating through a series of
+            // frame buffers, so make sure we write into the correct one.
+            (eye == ovrEye_Left ? leftViewPort : rightViewPort).setOutputFrameBuffer(hardware.getFramebuffers(eye)[index]);
         }
 
         // Now the game will render into the buffers given to us by LibOVR
