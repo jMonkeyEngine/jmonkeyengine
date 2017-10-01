@@ -95,14 +95,11 @@ public class OculusVR implements VRAPI {
     private final Matrix4f[] hmdRelativeEyePoses = new Matrix4f[2];
 
     /**
-     * The eye poses relative to the world, as used during rendering.
+     * Store the positions for each eye, relative to the HMD.
+     *
+     * @see #getHMDVectorPoseLeftEye()
      */
-    private final OVRPosef eyePosesPtr[] = new OVRPosef[2];
-
-    /**
-     * The eye positions relative to the world, as used by jME.
-     */
-    private final Vector3f eyePositions[] = new Vector3f[2];
+    private final Vector3f[] hmdRelativeEyePositions = new Vector3f[2];
 
     /**
      * The position and orientation of the user's head.
@@ -227,6 +224,9 @@ public class OculusVR implements VRAPI {
         for (int eye = 0; eye < 2; eye++) {
             projections[eye] = OVRMatrix4f.malloc();
             //1.3 was right handed, now none flag
+
+            hmdRelativeEyePoses[eye] = new Matrix4f();
+            hmdRelativeEyePositions[eye] = new Vector3f();
         }
 
         // step 6 - render desc
@@ -240,12 +240,11 @@ public class OculusVR implements VRAPI {
 
             OVRPosef pose = eyeRenderDesc[eye].HmdToEyePose();
 
-            Matrix4f jPose = new Matrix4f();
-            jPose.setTranslation(vecO2J(pose.Position(), new Vector3f()));
-            jPose.setRotationQuaternion(quatO2J(pose.Orientation(), new Quaternion()));
+            vecO2J(pose.Position(), hmdRelativeEyePositions[eye]);
 
-            hmdRelativeEyePoses[eye] = jPose;
-            eyePositions[eye] = new Vector3f(); // Set the absolute position up for later.
+            hmdRelativeEyePoses[eye].loadIdentity();
+            hmdRelativeEyePoses[eye].setTranslation(hmdRelativeEyePositions[eye]);
+            hmdRelativeEyePoses[eye].setRotationQuaternion(quatO2J(pose.Orientation(), new Quaternion()));
         }
 
         // step 7 - recenter
@@ -268,22 +267,6 @@ public class OculusVR implements VRAPI {
         //get head pose
         headPose = hmdState.HeadPose().ThePose();
         hmdState.free();
-
-        //build view offsets struct
-        OVRPosef.Buffer hmdToEyeOffsets = OVRPosef.calloc(2);
-        hmdToEyeOffsets.put(0, eyeRenderDesc[ovrEye_Left].HmdToEyePose());
-        hmdToEyeOffsets.put(1, eyeRenderDesc[ovrEye_Right].HmdToEyePose());
-
-        //calculate eye poses
-        OVRPosef.Buffer outEyePoses = OVRPosef.create(2);
-        OVRUtil.ovr_CalcEyePoses(headPose, hmdToEyeOffsets, outEyePoses);
-        hmdToEyeOffsets.free();
-        eyePosesPtr[ovrEye_Left] = outEyePoses.get(0);
-        eyePosesPtr[ovrEye_Right] = outEyePoses.get(1);
-
-        for (int i = 0; i < eyePosesPtr.length; i++) {
-            vecO2J(eyePosesPtr[i].Position(), eyePositions[i]);
-        }
     }
 
     @Override
@@ -383,12 +366,12 @@ public class OculusVR implements VRAPI {
 
     @Override
     public Vector3f getHMDVectorPoseLeftEye() {
-        return eyePositions[ovrEye_Left];
+        return hmdRelativeEyePositions[ovrEye_Left];
     }
 
     @Override
     public Vector3f getHMDVectorPoseRightEye() {
-        return eyePositions[ovrEye_Right];
+        return hmdRelativeEyePositions[ovrEye_Right];
     }
 
     @Override
@@ -640,8 +623,12 @@ public class OculusVR implements VRAPI {
         return fovPorts[ovrEye_Left]; // TODO checking the left and right eyes match
     }
 
-    public OVRPosef[] getEyePosesPtr() {
-        return eyePosesPtr;
+    public OVRPosef getHeadPose() {
+        return headPose;
+    }
+
+    public OVRPosef getEyePose(int eye) {
+        return eyeRenderDesc[eye].HmdToEyePose();
     }
 }
 
