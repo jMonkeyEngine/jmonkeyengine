@@ -19,6 +19,7 @@ import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.Buffer;
+import java.sql.Time;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -140,6 +141,8 @@ public class GltfLoader implements AssetLoader {
             return rootNode;
         } catch (Exception e) {
             throw new AssetLoadException("An error occurred loading " + assetInfo.getKey().getName(), e);
+        } finally {
+            stream.close();
         }
     }
 
@@ -527,7 +530,9 @@ public class GltfLoader implements AssetLoader {
                 BinDataKey key = new BinDataKey(info.getKey().getFolder() + uri);
                 InputStream input = (InputStream) info.getManager().loadAsset(key);
                 data = new byte[bufferLength];
-                input.read(data);
+                DataInputStream dataStream = new DataInputStream(input);
+                dataStream.readFully(data);
+                dataStream.close();
             }
         } else {
             //no URI this should not happen in a gltf file, only in glb files.
@@ -756,27 +761,27 @@ public class GltfLoader implements AssetLoader {
                 times = readAccessorData(timeIndex, floatArrayPopulator);
                 addToCache("accessors", timeIndex, times, accessors.size());
             }
-            if (animData.times == null) {
-                animData.times = times;
-            } else {
-                //check if we are loading the same time array
-                if (animData.times != times) {
-                    //TODO there might be work to do here... if the inputs are different we might want to merge the different times array...
-                    //easier said than done.
-                    logger.log(Level.WARNING, "Channel has different input accessors for samplers");
-                }
-            }
-            if (animData.length == null) {
-                //animation length is the last timestamp
-                animData.length = times[times.length - 1];
-            }
+//            if (animData.times == null) {
+//                animData.times = times;
+//            } else {
+//                //check if we are loading the same time array
+//                if (animData.times != times) {
+//                    //TODO there might be work to do here... if the inputs are different we might want to merge the different times array...
+//                    //easier said than done.
+//                    logger.log(Level.WARNING, "Channel has different input accessors for samplers");
+//                }
+//            }
+
             if (targetPath.equals("translation")) {
+                animData.timeArrays.add(new AnimData.TimeData(times, AnimData.Type.Translation));
                 Vector3f[] translations = readAccessorData(dataIndex, vector3fArrayPopulator);
                 animData.translations = translations;
             } else if (targetPath.equals("scale")) {
+                animData.timeArrays.add(new AnimData.TimeData(times, AnimData.Type.Scale));
                 Vector3f[] scales = readAccessorData(dataIndex, vector3fArrayPopulator);
                 animData.scales = scales;
             } else if (targetPath.equals("rotation")) {
+                animData.timeArrays.add(new AnimData.TimeData(times, AnimData.Type.Rotation));
                 Quaternion[] rotations = readAccessorData(dataIndex, quaternionArrayPopulator);
                 animData.rotations = rotations;
             }
@@ -797,10 +802,10 @@ public class GltfLoader implements AssetLoader {
             if (animData == null) {
                 continue;
             }
+            animData.update();
             if (animData.length > anim.getLength()) {
                 anim.setLength(animData.length);
             }
-            animData.update();
             Object node = fetchFromCache("nodes", i, Object.class);
             if (node instanceof Spatial) {
                 Spatial s = (Spatial) node;
@@ -1136,46 +1141,6 @@ public class GltfLoader implements AssetLoader {
         }
     }
 
-    private class AnimData {
-        Float length;
-        float[] times;
-        Vector3f[] translations;
-        Quaternion[] rotations;
-        Vector3f[] scales;
-        //not used for now
-        float[] weights;
-
-        public void update() {
-            if (times[0] > 0) {
-                //Anim doesn't start at 0, JME can't handle that and will interpolate transforms linearly from 0 to the first frame of the anim.
-                //we need to add a frame at 0 that copies the first real frame
-
-                float[] newTimes = new float[times.length + 1];
-                newTimes[0] = 0f;
-                System.arraycopy(times, 0, newTimes, 1, times.length);
-                times = newTimes;
-
-                if (translations != null) {
-                    Vector3f[] newTranslations = new Vector3f[translations.length + 1];
-                    newTranslations[0] = translations[0];
-                    System.arraycopy(translations, 0, newTranslations, 1, translations.length);
-                    translations = newTranslations;
-                }
-                if (rotations != null) {
-                    Quaternion[] newRotations = new Quaternion[rotations.length + 1];
-                    newRotations[0] = rotations[0];
-                    System.arraycopy(rotations, 0, newRotations, 1, rotations.length);
-                    rotations = newRotations;
-                }
-                if (scales != null) {
-                    Vector3f[] newScales = new Vector3f[scales.length + 1];
-                    newScales[0] = scales[0];
-                    System.arraycopy(scales, 0, newScales, 1, scales.length);
-                    scales = newScales;
-                }
-            }
-        }
-    }
 
     private class BoneWrapper {
         Bone bone;

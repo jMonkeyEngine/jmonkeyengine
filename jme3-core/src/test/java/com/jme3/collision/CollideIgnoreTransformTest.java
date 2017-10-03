@@ -42,6 +42,8 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Quad;
+import com.jme3.system.JmeSystem;
+import com.jme3.system.MockJmeSystemDelegate;
 import org.junit.Test;
 
 /**
@@ -87,6 +89,7 @@ public class CollideIgnoreTransformTest {
 
     @Test
     public void testPhantomTriangles() {
+        JmeSystem.setSystemDelegate(new MockJmeSystemDelegate());
         assetManager = new DesktopAssetManager();
         assetManager.registerLocator(null, ClasspathLocator.class);
         assetManager.registerLoader(J3MLoader.class, "j3m", "j3md");
