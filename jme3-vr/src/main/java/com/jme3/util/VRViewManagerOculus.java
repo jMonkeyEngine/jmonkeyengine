@@ -135,8 +135,18 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
             finalRotation.multLocal(hmdRot);
         }
 
+        // Update both eye cameras
         finalizeCamera(hardware.getHMDVectorPoseLeftEye(), objPos, leftCamera);
         finalizeCamera(hardware.getHMDVectorPoseRightEye(), objPos, rightCamera);
+
+        // Update the main camera, so it shows the same basic view the HMD is getting
+        // TODO: Do this in VRAppState, so it works on all HMDs.
+        // I only have a Rift, so I can't test it on anything else.
+        if(!environment.isInstanceRendering()) { // We use the app camera as the left camera here
+            // TODO: Double up on rendering and use one eye, to reduce GPU load rendering the scene again.
+            // TODO: Snip at the image to remove the distorted corners from a very high FOV.
+            finalizeCamera(Vector3f.ZERO, objPos, environment.getApplication().getCamera());
+        }
 
         if (environment.hasTraditionalGUIOverlay()) {
             // update the mouse?

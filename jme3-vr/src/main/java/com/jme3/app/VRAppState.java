@@ -34,6 +34,7 @@ package com.jme3.app;
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
+import com.jme3.input.vr.OculusVR;
 import com.jme3.input.vr.VRAPI;
 import com.jme3.input.vr.VRInputAPI;
 import com.jme3.math.ColorRGBA;
@@ -608,7 +609,11 @@ public class VRAppState extends AbstractAppState {
             settings.setFrequency(environment.getVRHardware().getDisplayFrequency());
             settings.setFullscreen(false);
             settings.setVSync(false); // stop vsyncing on primary monitor!
-            settings.setSwapBuffers(environment.isSwapBuffers());
+
+            // TODO: Is this preventing desktop display on _ALL_ HMDs?
+            if(!(getVRHardware() instanceof OculusVR)) {
+                settings.setSwapBuffers(environment.isSwapBuffers());
+            }
         }
 
         // Updating application settings
