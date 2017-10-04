@@ -319,19 +319,6 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
         // TODO this function is identical to that in VRViewManagerOpenVR; merge the two.
         if (environment != null) {
             if (environment.getApplication() != null) {
-                // create offscreen framebuffer
-                FrameBuffer offBufferLeft = new FrameBuffer(cam.getWidth(), cam.getHeight(), 1);
-                //offBufferLeft.setSrgb(true);
-
-                //setup framebuffer's texture
-                Texture2D offTex = new Texture2D(cam.getWidth(), cam.getHeight(), Image.Format.RGBA8);
-                offTex.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
-                offTex.setMagFilter(Texture.MagFilter.Bilinear);
-
-                //setup framebuffer to use texture
-                offBufferLeft.setDepthBuffer(Image.Format.Depth);
-                offBufferLeft.setColorTexture(offTex);
-
                 ViewPort viewPort = environment.getApplication().getRenderManager().createPreView(viewName, cam);
                 viewPort.setClearFlags(true, true, true);
                 viewPort.setBackgroundColor(ColorRGBA.Black);
@@ -341,8 +328,7 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
                     viewPort.attachScene(spatialIter.next());
                 }
 
-                //set viewport to render to offscreen framebuffer
-                viewPort.setOutputFrameBuffer(offBufferLeft);
+                // The viewbuffer to render into will be set during prerender.
                 return viewPort;
             } else {
                 throw new IllegalStateException("This VR environment is not attached to any application.");
