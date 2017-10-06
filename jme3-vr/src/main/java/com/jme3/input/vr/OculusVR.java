@@ -102,9 +102,19 @@ public class OculusVR implements VRAPI {
     private final Vector3f[] hmdRelativeEyePositions = new Vector3f[2];
 
     /**
+     * The current state of the tracked components (HMD, touch)
+     */
+    private OVRTrackingState trackingState;
+
+    /**
      * The position and orientation of the user's head.
      */
     private OVRPosef headPose;
+
+    /**
+     * The state of the Touch controllers.
+     */
+    private OculusVRInput input;
 
     // The size of the texture drawn onto the HMD
     private int textureW;
@@ -129,8 +139,8 @@ public class OculusVR implements VRAPI {
     }
 
     @Override
-    public OpenVRInput getVRinput() {
-        throw new UnsupportedOperationException();
+    public OculusVRInput getVRinput() {
+        return input;
     }
 
     @Override
@@ -184,7 +194,7 @@ public class OculusVR implements VRAPI {
         if (ovr_Create(pHmd, luid) != ovrSuccess) {
             System.out.println("create failed, try debug");
             //debug headset is now enabled via the Oculus Configuration util . tools -> Service -> Configure
-            return false;
+            return false; // TODO fix memory leak - destroy() is not called
         }
         session = pHmd.get(0);
         memFree(pHmd);
@@ -198,7 +208,7 @@ public class OculusVR implements VRAPI {
         System.out.println("ovr_GetHmdDesc = " + hmdDesc.ManufacturerString() + " " + hmdDesc.ProductNameString() + " " + hmdDesc.SerialNumberString() + " " + hmdDesc.Type());
         if (hmdDesc.Type() == ovrHmd_None) {
             System.out.println("missing init");
-            return false;
+            return false; // TODO fix memory leak - destroy() is not called
         }
 
         resolutionW = hmdDesc.Resolution().w();
@@ -206,7 +216,7 @@ public class OculusVR implements VRAPI {
         System.out.println("resolution W=" + resolutionW + ", H=" + resolutionH);
         if (resolutionW == 0) {
             System.out.println("Huh - width=0");
-            return false;
+            return false; // TODO fix memory leak - destroy() is not called
         }
 
         // FOV
@@ -254,6 +264,12 @@ public class OculusVR implements VRAPI {
         // Do this so others relying on our texture size get it correct.
         findHMDTextureSize();
 
+        // Set up the tracking system
+        trackingState = OVRTrackingState.malloc();
+
+        // Set up the input
+        input = new OculusVRInput(this, session, sessionStatus, trackingState);
+
         // throw new UnsupportedOperationException("Not yet implemented!");
         return true;
     }
@@ -261,12 +277,13 @@ public class OculusVR implements VRAPI {
     @Override
     public void updatePose() {
         double ftiming = ovr_GetPredictedDisplayTime(session, 0);
-        OVRTrackingState hmdState = OVRTrackingState.malloc();
-        ovr_GetTrackingState(session, ftiming, true, hmdState);
+        ovr_GetTrackingState(session, ftiming, true, trackingState);
+        ovr_GetSessionStatus(session, sessionStatus);
+
+        input.updateControllerStates();
 
         //get head pose
-        headPose = hmdState.HeadPose().ThePose();
-        hmdState.free();
+        headPose = trackingState.HeadPose().ThePose();
     }
 
     @Override
@@ -277,6 +294,9 @@ public class OculusVR implements VRAPI {
     @Override
     public void destroy() {
         // fovPorts: contents are managed by LibOVR, no need to do anything.
+
+        // Clean up the input
+        input.dispose();
 
         // Check if we've set up rendering - if so, clean that up.
         if (chains != null) {
@@ -299,6 +319,7 @@ public class OculusVR implements VRAPI {
         }
 
         hmdDesc.free();
+        trackingState.free();
         sessionStatus.free();
 
         // Wrap everything up
@@ -635,6 +656,10 @@ public class OculusVR implements VRAPI {
 
     public OVRPosef getEyePose(int eye) {
         return eyeRenderDesc[eye].HmdToEyePose();
+    }
+
+    public VREnvironment getEnvironment() {
+        return environment;
     }
 }
 
