@@ -761,16 +761,6 @@ public class GltfLoader implements AssetLoader {
                 times = readAccessorData(timeIndex, floatArrayPopulator);
                 addToCache("accessors", timeIndex, times, accessors.size());
             }
-//            if (animData.times == null) {
-//                animData.times = times;
-//            } else {
-//                //check if we are loading the same time array
-//                if (animData.times != times) {
-//                    //TODO there might be work to do here... if the inputs are different we might want to merge the different times array...
-//                    //easier said than done.
-//                    logger.log(Level.WARNING, "Channel has different input accessors for samplers");
-//                }
-//            }
 
             if (targetPath.equals("translation")) {
                 animData.timeArrays.add(new AnimData.TimeData(times, AnimData.Type.Translation));
@@ -784,6 +774,12 @@ public class GltfLoader implements AssetLoader {
                 animData.timeArrays.add(new AnimData.TimeData(times, AnimData.Type.Rotation));
                 Quaternion[] rotations = readAccessorData(dataIndex, quaternionArrayPopulator);
                 animData.rotations = rotations;
+            } else {
+                //TODO support weights
+                logger.log(Level.WARNING, "Morph animation is not supported");
+                animatedNodes[targetNode] = null;
+                continue;
+
             }
             animatedNodes[targetNode] = customContentManager.readExtensionAndExtras("channel", channel, animData);
         }
