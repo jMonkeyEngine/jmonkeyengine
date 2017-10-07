@@ -329,12 +329,12 @@ public class OculusVR implements VRAPI {
 
     @Override
     public void reset() {
-        throw new UnsupportedOperationException();
+        ovr_RecenterTrackingOrigin(session);
     }
 
     @Override
     public void getRenderSize(Vector2f store) {
-        if(!isInitialized()) {
+        if (!isInitialized()) {
             throw new IllegalStateException("Cannot call getRenderSize() before initialized!");
         }
         store.x = textureW;
