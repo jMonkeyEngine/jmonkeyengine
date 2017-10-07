@@ -8,11 +8,8 @@ package com.jme3.input.vr;
 import com.jme3.app.VREnvironment;
 import com.jme3.math.*;
 import com.jme3.renderer.Camera;
-import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture2D;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.PointerBuffer;
+import com.jme3.texture.*;
+import org.lwjgl.*;
 import org.lwjgl.ovr.*;
 
 import java.nio.IntBuffer;
@@ -157,43 +154,43 @@ public class OculusVR implements VRAPI {
 
     @Override
     public boolean initialize() {
+        // Check to make sure the HMD is connected
         OVRDetectResult detect = OVRDetectResult.calloc();
         ovr_Detect(0, detect);
         boolean connected = detect.IsOculusHMDConnected();
-        LOGGER.info("OVRDetectResult.IsOculusHMDConnected = " + connected);
-        LOGGER.info("OVRDetectResult.IsOculusServiceRunning = " + detect.IsOculusServiceRunning());
+        LOGGER.config("OVRDetectResult.IsOculusHMDConnected = " + connected);
+        LOGGER.config("OVRDetectResult.IsOculusServiceRunning = " + detect.IsOculusServiceRunning());
         detect.free();
 
         if (!connected) {
+            LOGGER.info("Oculus Rift not connected");
             return false;
         }
 
         initialized = true;
 
-        // step 1 - hmd init
-        System.out.println("step 1 - hmd init");
+        // Set up the HMD
         OVRLogCallback callback = new OVRLogCallback() {
             @Override
             public void invoke(long userData, int level, long message) {
-                System.out.println("LibOVR [" + userData + "] [" + level + "] " + memASCII(message));
+                LOGGER.fine("LibOVR [" + userData + "] [" + level + "] " + memASCII(message));
             }
         };
         OVRInitParams initParams = OVRInitParams.calloc();
         initParams.LogCallback(callback);
-        //initParams.Flags(ovrInit_Debug);
         if (ovr_Initialize(initParams) != ovrSuccess) {
-            System.out.println("init failed");
+            LOGGER.severe("LibOVR Init Failed");
+            return false; // TODO fix memory leak - destroy() is not called
         }
-        System.out.println("OVR SDK " + ovr_GetVersionString());
+        LOGGER.config("LibOVR Version " + ovr_GetVersionString());
         initParams.free();
 
-        // step 2 - hmd create
-        System.out.println("step 2 - hmd create");
+        // Get access to the HMD
+        LOGGER.info("Initialize HMD Session");
         PointerBuffer pHmd = memAllocPointer(1);
         OVRGraphicsLuid luid = OVRGraphicsLuid.calloc();
         if (ovr_Create(pHmd, luid) != ovrSuccess) {
-            System.out.println("create failed, try debug");
-            //debug headset is now enabled via the Oculus Configuration util . tools -> Service -> Configure
+            LOGGER.severe("Failed to create HMD");
             return false; // TODO fix memory leak - destroy() is not called
         }
         session = pHmd.get(0);
@@ -201,74 +198,74 @@ public class OculusVR implements VRAPI {
         luid.free();
         sessionStatus = OVRSessionStatus.calloc();
 
-        // step 3 - hmdDesc queries
-        System.out.println("step 3 - hmdDesc queries");
+        // Get the information about the HMD
+        LOGGER.fine("Get HMD properties");
         hmdDesc = OVRHmdDesc.malloc();
         ovr_GetHmdDesc(session, hmdDesc);
-        System.out.println("ovr_GetHmdDesc = " + hmdDesc.ManufacturerString() + " " + hmdDesc.ProductNameString() + " " + hmdDesc.SerialNumberString() + " " + hmdDesc.Type());
         if (hmdDesc.Type() == ovrHmd_None) {
-            System.out.println("missing init");
+            LOGGER.warning("No HMD connected");
             return false; // TODO fix memory leak - destroy() is not called
         }
 
         resolutionW = hmdDesc.Resolution().w();
         resolutionH = hmdDesc.Resolution().h();
-        System.out.println("resolution W=" + resolutionW + ", H=" + resolutionH);
+
+        LOGGER.config("HMD Properties: "
+                + "\t Manufacturer: " + hmdDesc.ManufacturerString()
+                + "\t Product: " + hmdDesc.ProductNameString()
+                + "\t Serial: <hidden>" // + hmdDesc.SerialNumberString() // Hidden for privacy reasons
+                + "\t Type: " + hmdDesc.Type()
+                + "\t Resolution (total): " + resolutionW + "," + resolutionH);
+
         if (resolutionW == 0) {
-            System.out.println("Huh - width=0");
+            LOGGER.severe("HMD witdth=0 : aborting");
             return false; // TODO fix memory leak - destroy() is not called
         }
 
-        // FOV
+        // Find the FOV for each eye
         for (int eye = 0; eye < 2; eye++) {
             fovPorts[eye] = hmdDesc.DefaultEyeFov(eye);
-            System.out.println("eye " + eye + " = " + fovPorts[eye].UpTan() + ", " + fovPorts[eye].DownTan() + ", " + fovPorts[eye].LeftTan() + ", " + fovPorts[eye].RightTan());
         }
-        // TODO what does this do? I think it might be the height of the player, for correct floor heights?
-        // playerEyePos = new Vector3f(0.0f, -ovr_GetFloat(session, OVR_KEY_EYE_HEIGHT, 1.65f), 0.0f);
 
-        // step 4 - tracking - no longer needed as of 0.8.0.0
-
-        // step 5 - projections
-        System.out.println("step 5 - projections");
+        // Get the pose for each eye, and cache it for later.
         for (int eye = 0; eye < 2; eye++) {
+            // Create the projection objects
             projections[eye] = OVRMatrix4f.malloc();
-            //1.3 was right handed, now none flag
-
             hmdRelativeEyePoses[eye] = new Matrix4f();
             hmdRelativeEyePositions[eye] = new Vector3f();
-        }
 
-        // step 6 - render desc
-        System.out.println("step 6 - render desc");
-        for (int eye = 0; eye < 2; eye++) {
+            // Find the eye render information - we use this in the
+            // view manager for giving LibOVR it's timewarp information.
             eyeRenderDesc[eye] = OVREyeRenderDesc.malloc();
             ovr_GetRenderDesc(session, eye, fovPorts[eye], eyeRenderDesc[eye]);
 
-            // Changed from an offset to a pose, so there is also a rotation.
-            System.out.println("ipd eye " + eye + " = " + eyeRenderDesc[eye].HmdToEyePose().Position().x());
-
+            // Get the pose of the eye
             OVRPosef pose = eyeRenderDesc[eye].HmdToEyePose();
 
+            // Get the position and rotation of the eye
             vecO2J(pose.Position(), hmdRelativeEyePositions[eye]);
+            Quaternion rotation = quatO2J(pose.Orientation(), new Quaternion());
 
+            // Put it into a matrix for the get eye pose functions
             hmdRelativeEyePoses[eye].loadIdentity();
             hmdRelativeEyePoses[eye].setTranslation(hmdRelativeEyePositions[eye]);
-            hmdRelativeEyePoses[eye].setRotationQuaternion(quatO2J(pose.Orientation(), new Quaternion()));
+            hmdRelativeEyePoses[eye].setRotationQuaternion(rotation);
         }
 
-        // step 7 - recenter
-        System.out.println("step 7 - recenter");
-        ovr_RecenterTrackingOrigin(session);
+        // Recenter the HMD. The game itself should do this too, but just in case / before they do.
+        reset();
 
-        // Do this so others relying on our texture size get it correct.
+        // Do this so others relying on our texture size (the GUI in particular) get it correct.
         findHMDTextureSize();
 
-        // Set up the tracking system
-        trackingState = OVRTrackingState.malloc();
+        // Allocate the memory for the tracking state - we actually
+        // set it up later, but Input uses it so calloc it now.
+        trackingState = OVRTrackingState.calloc();
 
         // Set up the input
         input = new OculusVRInput(this, session, sessionStatus, trackingState);
+
+        // TODO find some way to get in ovrTrackingOrigin_FloorLevel
 
         // throw new UnsupportedOperationException("Not yet implemented!");
         return true;
@@ -282,7 +279,6 @@ public class OculusVR implements VRAPI {
 
         input.updateControllerStates();
 
-        //get head pose
         headPose = trackingState.HeadPose().ThePose();
     }
 
@@ -329,6 +325,7 @@ public class OculusVR implements VRAPI {
 
     @Override
     public void reset() {
+        // Reset the coordinate system - where the user's head is now is facing forwards from [0,0,0]
         ovr_RecenterTrackingOrigin(session);
     }
 
@@ -452,11 +449,9 @@ public class OculusVR implements VRAPI {
 
         OVRSizei leftTextureSize = OVRSizei.malloc();
         ovr_GetFovTextureSize(session, ovrEye_Left, fovPorts[ovrEye_Left], pixelScaling, leftTextureSize);
-        System.out.println("leftTextureSize W=" + leftTextureSize.w() + ", H=" + leftTextureSize.h());
 
         OVRSizei rightTextureSize = OVRSizei.malloc();
         ovr_GetFovTextureSize(session, ovrEye_Right, fovPorts[ovrEye_Right], pixelScaling, rightTextureSize);
-        System.out.println("rightTextureSize W=" + rightTextureSize.w() + ", H=" + rightTextureSize.h());
 
         if (leftTextureSize.w() != rightTextureSize.w()) {
             throw new IllegalStateException("Texture sizes do not match [horizontal]");
@@ -490,7 +485,6 @@ public class OculusVR implements VRAPI {
             throw new RuntimeException("Failed to create Swap Texture Set");
         }
         swapChainDesc.free();
-        System.out.println("done chain creation");
 
         return textureSetPB.get(); // TODO is this a memory leak?
     }
@@ -533,7 +527,7 @@ public class OculusVR implements VRAPI {
         ovr_GetTextureSwapChainLength(session, chains[eye], length);
         int chainLength = length.get();
 
-        System.out.println("chain length=" + chainLength);
+        LOGGER.fine("HMD Eye #" + eye + " texture chain length: " + chainLength);
 
         // Create the frame buffers
         framebuffers[eye] = new FrameBuffer[chainLength];
