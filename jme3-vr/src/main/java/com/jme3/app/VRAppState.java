@@ -35,6 +35,7 @@ import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.input.vr.OculusVR;
+import com.jme3.input.vr.OpenVR;
 import com.jme3.input.vr.VRAPI;
 import com.jme3.input.vr.VRInputAPI;
 import com.jme3.math.ColorRGBA;
@@ -420,7 +421,10 @@ public class VRAppState extends AbstractAppState {
         }
         
         // use the analog control on the first tracked controller to push around the mouse
-        // environment.getVRMouseManager().updateAnalogAsMouse(0, null, null, null, tpf);
+        // FIXME crashes on Rift/Touch (and probably OSVR), as it assumes the presence of the Vive touchpads
+        if(getVRHardware() instanceof OpenVR) {
+            environment.getVRMouseManager().updateAnalogAsMouse(0, null, null, null, tpf);
+        }
     }
 
     @Override
