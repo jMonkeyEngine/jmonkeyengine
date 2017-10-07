@@ -86,7 +86,8 @@ public interface VRAPI {
     public boolean isInitialized();
 
     /**
-     * Reset the VR system.
+     * Reset (recenter) the VR system. The current position of the HMD is
+     * now considered the origin (observer+[0,0,0]).
      */
     public void reset();
 
