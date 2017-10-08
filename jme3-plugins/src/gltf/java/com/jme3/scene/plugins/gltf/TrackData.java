@@ -4,7 +4,7 @@ import com.jme3.math.*;
 
 import java.util.*;
 
-public class AnimData {
+public class TrackData {
 
     public enum Type {
         Translation,
@@ -27,7 +27,6 @@ public class AnimData {
 
         if (equalTimes(timeArrays)) {
             times = timeArrays.get(0).times;
-            ensureArraysInit();
         } else {
             //Times array are different and contains different sampling times.
             //We have to merge them because JME needs the 3 types of transforms for each keyFrame.
@@ -69,7 +68,7 @@ public class AnimData {
             // populating transforms array from the keyframes, interpolating
             times = new float[keyFrames.size()];
 
-            ensureArraysInit();
+            ensureArraysLength();
 
             TransformIndices translationIndices = new TransformIndices();
             TransformIndices rotationIndices = new TransformIndices();
@@ -79,13 +78,17 @@ public class AnimData {
                 KeyFrame kf = keyFrames.get(i);
                 //we need Interpolate between keyframes when transforms are sparse.
                 times[i] = kf.time;
-                populateTransform(Type.Translation, i, keyFrames, kf, translationIndices);
-                populateTransform(Type.Rotation, i, keyFrames, kf, rotationIndices);
-                populateTransform(Type.Scale, i, keyFrames, kf, scaleIndices);
+                if(translations != null) {
+                    populateTransform(Type.Translation, i, keyFrames, kf, translationIndices);
+                }
+                if(rotations != null) {
+                    populateTransform(Type.Rotation, i, keyFrames, kf, rotationIndices);
+                }
+                if(scales != null) {
+                    populateTransform(Type.Scale, i, keyFrames, kf, scaleIndices);
+                }
             }
         }
-
-        ensureArraysInit();
 
         if (times[0] > 0) {
             //Anim doesn't start at 0, JME can't handle that and will interpolate transforms linearly from 0 to the first frame of the anim.
@@ -174,6 +177,19 @@ public class AnimData {
         return -1;
     }
 
+    public int getNbKeyFrames(){
+        if(translations != null){
+            return translations.length;
+        }
+        if(rotations != null){
+            return rotations.length;
+        }
+        if(scales != null){
+            return scales.length;
+        }
+        return 0;
+    }
+
     private void interpolate(Type type, float ratio, KeyFrame lastKeyFrame, KeyFrame nextKeyFrame, int currentIndex) {
         //TODO here we should interpolate differently according to the interpolation given in the gltf file.
         switch (type) {
@@ -217,23 +233,32 @@ public class AnimData {
         }
     }
 
-    private void ensureArraysInit() {
-        if (translations == null || translations.length < times.length) {
+    private void ensureArraysLength() {
+        if (translations != null && translations.length < times.length) {
+            translations = new Vector3f[times.length];
+        }
+        if (rotations != null && rotations.length < times.length) {
+            rotations = new Quaternion[times.length];
+        }
+        if (scales != null && scales.length < times.length) {
+            scales = new Vector3f[times.length];
+        }
+    }
+
+
+    //JME assumes there are translation and rotation track every time, so we create them with identity transforms if they don't exist
+    //TODO change this behavior in BoneTrack.
+    public void ensureTranslationRotations() {
+        if (translations == null) {
             translations = new Vector3f[times.length];
             for (int i = 0; i < translations.length; i++) {
                 translations[i] = new Vector3f();
             }
         }
-        if (rotations == null || rotations.length < times.length) {
+        if (rotations == null) {
             rotations = new Quaternion[times.length];
             for (int i = 0; i < rotations.length; i++) {
                 rotations[i] = new Quaternion();
-            }
-        }
-        if (scales == null || scales.length < times.length) {
-            scales = new Vector3f[times.length];
-            for (int i = 0; i < scales.length; i++) {
-                scales[i] = new Vector3f().set(Vector3f.UNIT_XYZ);
             }
         }
     }
