@@ -18,7 +18,6 @@ import com.jme3.system.jopenvr.OpenVRUtil;
 import com.jme3.system.jopenvr.TrackedDevicePose_t;
 import com.jme3.system.jopenvr.VR_IVRCompositor_FnTable;
 import com.jme3.system.jopenvr.VR_IVRSystem_FnTable;
-import com.jme3.system.jopenvr.VR_IVRTrackedCamera_FnTable;
 import com.jme3.util.VRUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
@@ -42,20 +41,19 @@ public class OpenVR implements VRAPI {
 	private static final Logger logger = Logger.getLogger(OpenVR.class.getName());
 	
     private static VR_IVRCompositor_FnTable compositorFunctions;
-    private static VR_IVRTrackedCamera_FnTable cameraFunctions;
     private static VR_IVRSystem_FnTable vrsystemFunctions;
     
     private static boolean initSuccess = false;
     private static boolean flipEyes    = false;
     
-    private static IntBuffer hmdDisplayFrequency;
-    private static TrackedDevicePose_t.ByReference hmdTrackedDevicePoseReference;
-    protected static TrackedDevicePose_t[] hmdTrackedDevicePoses;
+    private IntBuffer hmdDisplayFrequency;
+    private TrackedDevicePose_t.ByReference hmdTrackedDevicePoseReference;
+    protected TrackedDevicePose_t[] hmdTrackedDevicePoses;
     
-    protected static IntByReference hmdErrorStore;
+    protected IntByReference hmdErrorStore;
     
-    private static final Quaternion rotStore = new Quaternion();
-    private static final Vector3f posStore = new Vector3f();
+    private final Quaternion rotStore = new Quaternion();
+    private final Vector3f posStore = new Vector3f();
     
     private static FloatByReference tlastVsync;
     
@@ -67,20 +65,21 @@ public class OpenVR implements VRAPI {
     // for debugging latency
     private int frames = 0;    
     
-    protected static Matrix4f[] poseMatrices;
+    protected Matrix4f[] poseMatrices;
     
-    private static final Matrix4f hmdPose = Matrix4f.IDENTITY.clone();
-    private static Matrix4f hmdProjectionLeftEye;
-    private static Matrix4f hmdProjectionRightEye;
-    private static Matrix4f hmdPoseLeftEye;
-    private static Matrix4f hmdPoseRightEye;
+    private final Matrix4f hmdPose = Matrix4f.IDENTITY.clone();
+    private Matrix4f hmdProjectionLeftEye;
+    private Matrix4f hmdProjectionRightEye;
+    private Matrix4f hmdPoseLeftEye;
+    private Matrix4f hmdPoseRightEye;
     
-    private static Vector3f hmdPoseLeftEyeVec, hmdPoseRightEyeVec, hmdSeatToStand;
+    private Vector3f hmdPoseLeftEyeVec, hmdPoseRightEyeVec, hmdSeatToStand;
     
-    private static float vsyncToPhotons;
-    private static double timePerFrame, frameCountRun;
-    private static long frameCount;
-    private static OpenVRInput VRinput;
+    private float vsyncToPhotons;
+    private double timePerFrame, frameCountRun;
+    private long frameCount;
+    private OpenVRInput VRinput;
+    
     
     private VREnvironment environment = null;
     
@@ -106,10 +105,6 @@ public class OpenVR implements VRAPI {
     @Override
     public VR_IVRCompositor_FnTable getCompositor() {
         return compositorFunctions;
-    }
-    
-    public VR_IVRTrackedCamera_FnTable getTrackedCamera(){
-        return cameraFunctions;
     }
     
     @Override
@@ -239,21 +234,6 @@ public class OpenVR implements VRAPI {
             }
         }
         return compositorFunctions != null;
-    }
-    
-    public void initCamera(boolean allowed) {
-        hmdErrorStore.setValue(0); // clear the error store
-        if( allowed && vrsystemFunctions != null ) {
-        	IntByReference intptr = JOpenVRLibrary.VR_GetGenericInterface(JOpenVRLibrary.IVRTrackedCamera_Version, hmdErrorStore);
-                if (intptr != null){
-                    cameraFunctions = new VR_IVRTrackedCamera_FnTable(intptr.getPointer());
-                    if(cameraFunctions != null && hmdErrorStore.getValue() == 0 ){
-                        cameraFunctions.setAutoSynch(false);
-                        cameraFunctions.read();
-                        logger.config("OpenVR Camera initialized");
-                    }
-                }
-        }
     }
 
     @Override
