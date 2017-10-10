@@ -32,6 +32,7 @@
 package com.jme3.asset;
 
 import com.jme3.asset.cache.AssetCache;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -282,6 +283,7 @@ final class ImplHandler {
             ImplThreadLocal local = classToLoaderMap.get(loaderType);
             // Remove it from the class->loader map
             classToLoaderMap.remove(loaderType);
+            if (local == null) return;
             // Remove it from the extension->loader map
             for (String extension : local.getExtensions()){
                 extensionToLoaderMap.remove(extension);
