@@ -151,6 +151,12 @@ public interface VRViewManager {
     public void update(float tpf);
     
     /**
+     * Set up the scene for rendering.
+     * This method should be called before any rendering takes place.
+     */
+    public void render();
+
+    /**
      * Send the rendering result as textures to the two eyes. 
      * This method should be called after all the rendering operations 
      * (for example at the end of the {@link AppState#postRender() postRender()} method of the attached app state.)

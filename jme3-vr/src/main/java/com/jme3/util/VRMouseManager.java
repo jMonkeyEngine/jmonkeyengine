@@ -182,6 +182,7 @@ public class VRMouseManager {
     	        }
     	        
     	        Vector2f tpDelta;
+    	        // TODO option to use Touch joysticks
     	        if( thumbstickMode ) {
     	            tpDelta = environment.getVRinput().getAxis(inputIndex, VRInputType.ViveTrackpadAxis);
     	        } else {

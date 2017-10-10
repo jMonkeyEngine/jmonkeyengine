@@ -141,6 +141,13 @@ public class VRConstants {
      * @see #SETTING_VRAPI
      */
     public static final int SETTING_VRAPI_OPENVR_LWJGL_VALUE = 3;
+
+    /**
+     * The identifier of the LibOVR (Oculus) system.
+     *
+     * @see #SETTING_VRAPI
+     */
+    public static final int SETTING_VRAPI_OCULUSVR_VALUE = 4;
     
     
     
