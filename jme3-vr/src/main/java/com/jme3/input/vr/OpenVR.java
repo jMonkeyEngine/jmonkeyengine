@@ -18,6 +18,7 @@ import com.jme3.system.jopenvr.OpenVRUtil;
 import com.jme3.system.jopenvr.TrackedDevicePose_t;
 import com.jme3.system.jopenvr.VR_IVRCompositor_FnTable;
 import com.jme3.system.jopenvr.VR_IVRSystem_FnTable;
+import com.jme3.system.jopenvr.VR_IVRTrackedCamera_FnTable;
 import com.jme3.util.VRUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
@@ -41,6 +42,7 @@ public class OpenVR implements VRAPI {
 	private static final Logger logger = Logger.getLogger(OpenVR.class.getName());
 	
     private static VR_IVRCompositor_FnTable compositorFunctions;
+    private static VR_IVRTrackedCamera_FnTable cameraFunctions;
     private static VR_IVRSystem_FnTable vrsystemFunctions;
     
     private static boolean initSuccess = false;
@@ -105,6 +107,10 @@ public class OpenVR implements VRAPI {
     @Override
     public VR_IVRCompositor_FnTable getCompositor() {
         return compositorFunctions;
+    }
+    
+    public VR_IVRTrackedCamera_FnTable getTrackedCamera(){
+        return cameraFunctions;
     }
     
     @Override
@@ -234,6 +240,21 @@ public class OpenVR implements VRAPI {
             }
         }
         return compositorFunctions != null;
+    }
+    
+    public void initCamera(boolean allowed) {
+        hmdErrorStore.setValue(0); // clear the error store
+        if( allowed && vrsystemFunctions != null ) {
+        	IntByReference intptr = JOpenVRLibrary.VR_GetGenericInterface(JOpenVRLibrary.IVRTrackedCamera_Version, hmdErrorStore);
+                if (intptr != null){
+                    cameraFunctions = new VR_IVRTrackedCamera_FnTable(intptr.getPointer());
+                    if(cameraFunctions != null && hmdErrorStore.getValue() == 0 ){
+                        cameraFunctions.setAutoSynch(false);
+                        cameraFunctions.read();
+                        logger.config("OpenVR Camera initialized");
+                    }
+                }
+        }
     }
 
     @Override
