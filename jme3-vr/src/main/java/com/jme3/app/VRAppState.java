@@ -398,24 +398,12 @@ public class VRAppState extends AbstractAppState {
         } else if( environment.getObserver() != null ) {
             environment.getCamera().setFrame(((Spatial)environment.getObserver()).getWorldTranslation(), ((Spatial)environment.getObserver()).getWorldRotation());
         }
-        
-        //FIXME: check if this code is necessary.
-        // Updates scene and gui states.
-        Iterator<Spatial> spatialIter = getLeftViewPort().getScenes().iterator();
-        Spatial spatial = null;
-        while(spatialIter.hasNext()){
-        	spatial = spatialIter.next();
-        	spatial.updateLogicalState(tpf);
-        	spatial.updateGeometricState();
-        }
 
         if( environment.isInVR() == false || environment.getVRGUIManager().getPositioningMode() == VRGUIPositioningMode.MANUAL ) {
             // only update geometric state here if GUI is in manual mode, or not in VR
             // it will get updated automatically in the viewmanager update otherwise
-        	spatialIter = application.getGuiViewPort().getScenes().iterator();
-            spatial = null;
-            while(spatialIter.hasNext()){
-            	spatial = spatialIter.next();
+            // TODO isn't this done by SimpleApplication?
+            for (Spatial spatial : application.getGuiViewPort().getScenes()) {
             	spatial.updateGeometricState();
             }    
         }
