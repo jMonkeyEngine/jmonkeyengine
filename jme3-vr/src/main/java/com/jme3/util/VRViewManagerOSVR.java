@@ -50,18 +50,6 @@ import com.sun.jna.ptr.PointerByReference;
 public class VRViewManagerOSVR extends AbstractVRViewManager{
 	private static final Logger logger = Logger.getLogger(VRViewManagerOpenVR.class.getName());
     
-    private Camera leftCamera;
-    private ViewPort leftViewport;
-    private FilterPostProcessor leftPostProcessor;
-    private Texture2D leftEyeTexture;
-    private Texture2D leftEyeDepth;
-    
-    private Camera rightCamera;
-    private ViewPort rightViewport;
-    private FilterPostProcessor rightPostProcessor;
-    private Texture2D rightEyeTexture;
-    private Texture2D rightEyeDepth;
-    
     // OpenVR values  
     private Texture_t leftTextureType;
     private Texture_t rightTextureType;
@@ -73,14 +61,9 @@ public class VRViewManagerOSVR extends AbstractVRViewManager{
     OSVR_ViewportDescription.ByValue osvr_viewDescRight;
     Pointer osvr_rmBufferState;
     
-    //private static boolean useCustomDistortion;
-    private float heightAdjustment;
-
     private Texture2D dualEyeTex;
 
     private final PointerByReference grabRBS = new PointerByReference();
-    
-    private float resMult = 1f;
     
     //final & temp values for camera calculations
     private final Vector3f finalPosition   = new Vector3f();
@@ -94,42 +77,6 @@ public class VRViewManagerOSVR extends AbstractVRViewManager{
      */
     public VRViewManagerOSVR(VREnvironment environment){
     	this.environment = environment;
-    }
-    
-    /**
-     * Get the {@link Camera camera} attached to the left eye.
-     * @return the {@link Camera camera} attached to the left eye.
-     * @see #getRightCamera()
-     */
-    public Camera getLeftCamera() {
-        return leftCamera;
-    }
-    
-    /**
-     * Get the {@link Camera camera} attached to the right eye.
-     * @return the {@link Camera camera} attached to the right eye.
-     * @see #getLeftCamera()
-     */
-    public Camera getRightCamera() {
-        return rightCamera;
-    }
-    
-    /**
-     * Get the {@link ViewPort viewport} attached to the left eye.
-     * @return the {@link ViewPort viewport} attached to the left eye.
-     * @see #getRightViewPort()
-     */
-    public ViewPort getLeftViewPort() {
-        return leftViewport;
-    }
-    
-    /**
-     * Get the {@link ViewPort viewport} attached to the right eye.
-     * @return the {@link ViewPort viewport} attached to the right eye.
-     * @see #getLeftViewPort()
-     */
-    public ViewPort getRightViewPort() {
-        return rightViewport;
     }
     
     /**
@@ -160,42 +107,6 @@ public class VRViewManagerOSVR extends AbstractVRViewManager{
      */
     private int getFullTexId() {
         return (int)dualEyeTex.getImage().getId();
-    }
-    
-    /**
-     * Get the height adjustment to apply to the cameras before rendering.
-     * @return the height adjustment to apply to the cameras before rendering.
-     * @see #setHeightAdjustment(float)
-     */
-    public float getHeightAdjustment() {
-        return heightAdjustment;
-    }
-    
-    /**
-     * Set the height adjustment to apply to the cameras before rendering.
-     * @param amount the height adjustment to apply to the cameras before rendering.
-     * @see #getHeightAdjustment()
-     */
-    public void setHeightAdjustment(float amount) {
-        heightAdjustment = amount;
-    }
-    
-    /**
-     * Get the resolution multiplier.
-     * @return the resolution multiplier.
-     * @see #setResolutionMultiplier(float)
-     */
-    public float getResolutionMuliplier() {
-        return resMult;
-    }
-    
-    /**
-     * Set the resolution multiplier.
-     * @param resMult the resolution multiplier.
-     * @see #getResolutionMuliplier()
-     */
-    public void setResolutionMultiplier(float resMult) {
-        this.resMult = resMult;
     }
     
     /**
@@ -442,8 +353,8 @@ public class VRViewManagerOSVR extends AbstractVRViewManager{
             
             // other adjustments
             size.x *= xMult;
-            size.x *= resMult;
-            size.y *= resMult;
+            size.x *= getResolutionMuliplier();
+            size.y *= getResolutionMuliplier();
             
             if( cam.getWidth() != size.x || cam.getHeight() != size.y ){
             	cam.resize((int)size.x, (int)size.y, false);
@@ -469,10 +380,10 @@ public class VRViewManagerOSVR extends AbstractVRViewManager{
     	            return;
     	        }
     	        
-    	        leftEyeTexture  = (Texture2D) leftViewport.getOutputFrameBuffer().getColorBuffer().getTexture();
-    	        rightEyeTexture = (Texture2D)rightViewport.getOutputFrameBuffer().getColorBuffer().getTexture();        
-    	        leftEyeDepth    = (Texture2D) leftViewport.getOutputFrameBuffer().getDepthBuffer().getTexture();
-    	        rightEyeDepth   = (Texture2D)rightViewport.getOutputFrameBuffer().getDepthBuffer().getTexture();        
+    	        leftEyeTexture  = (Texture2D) getLeftViewPort().getOutputFrameBuffer().getColorBuffer().getTexture();
+    	        rightEyeTexture = (Texture2D)getRightViewPort().getOutputFrameBuffer().getColorBuffer().getTexture();        
+    	        leftEyeDepth    = (Texture2D) getLeftViewPort().getOutputFrameBuffer().getDepthBuffer().getTexture();
+    	        rightEyeDepth   = (Texture2D)getRightViewPort().getOutputFrameBuffer().getDepthBuffer().getTexture();        
     	      
     	        // main viewport is either going to be a distortion scene or nothing
     	        // mirroring is handled by copying framebuffers
@@ -587,7 +498,7 @@ public class VRViewManagerOSVR extends AbstractVRViewManager{
         if( obsPosition != null ){
         	finalPosition.addLocal(obsPosition);
         }
-        finalPosition.y += heightAdjustment;
+        finalPosition.y += getHeightAdjustment();
         cam.setFrame(finalPosition, finalRotation);
     }
     
@@ -595,7 +506,7 @@ public class VRViewManagerOSVR extends AbstractVRViewManager{
      * Handles moving filters from the main view to each eye
      */
     public void moveScreenProcessingToEyes() {
-        if( rightViewport == null ){
+        if( getRightViewPort() == null ){
         	return;
         }
         
@@ -617,7 +528,7 @@ public class VRViewManagerOSVR extends AbstractVRViewManager{
      * @param sourceViewport the {@link ViewPort viewport} that contains the processors to use.
      */
     public void syncScreenProcessing(ViewPort sourceViewport) {
-        if( rightViewport == null ){
+        if( getRightViewPort() == null ){
         	return;
         }
         
@@ -631,13 +542,13 @@ public class VRViewManagerOSVR extends AbstractVRViewManager{
     	        // clear out all filters & processors, to start from scratch
     	        rightPostProcessor.removeAllFilters();
     	        leftPostProcessor.removeAllFilters();
-    	        leftViewport.clearProcessors();
-    	        rightViewport.clearProcessors();
+    	        getLeftViewPort().clearProcessors();
+    	        getRightViewPort().clearProcessors();
     	        // if we have no processors to sync, don't add the FilterPostProcessor
     	        if( sourceViewport.getProcessors().isEmpty() ) return;
     	        // add post processors we just made, which are empty
-    	        leftViewport.addProcessor(leftPostProcessor);
-    	        rightViewport.addProcessor(rightPostProcessor);
+    	        getLeftViewPort().addProcessor(leftPostProcessor);
+    	        getRightViewPort().addProcessor(rightPostProcessor);
     	        // go through all of the filters in the processors list
     	        // add them to the left viewport processor & clone them to the right
     	        for(SceneProcessor sceneProcessor : sourceViewport.getProcessors()) {
@@ -670,8 +581,8 @@ public class VRViewManagerOSVR extends AbstractVRViewManager{
     	                VRDirectionalLightShadowRenderer dlsr = (VRDirectionalLightShadowRenderer) sceneProcessor;
     	                VRDirectionalLightShadowRenderer dlsrRight = dlsr.clone();
     	                dlsrRight.setLight(dlsr.getLight());
-    	                rightViewport.getProcessors().add(0, dlsrRight);
-    	                leftViewport.getProcessors().add(0, sceneProcessor);
+    	                getRightViewPort().getProcessors().add(0, dlsrRight);
+    	                getLeftViewPort().getProcessors().add(0, sceneProcessor);
     	            }
     	        }
     	        // make sure each has a translucent filter renderer
@@ -718,16 +629,16 @@ public class VRViewManagerOSVR extends AbstractVRViewManager{
     	        //org.lwjgl.opengl.GL11.glEnable(org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_SRGB);
     	        
     	        if( !environment.isInstanceRendering()) {
-    	            leftViewport = setupViewBuffers(leftCamera, LEFT_VIEW_NAME);
+    	            leftViewPort = setupViewBuffers(leftCamera, LEFT_VIEW_NAME);
     	            rightCamera = leftCamera.clone();
     	            if( environment.getVRHardware() != null ){
     	            	rightCamera.setProjectionMatrix(environment.getVRHardware().getHMDMatrixProjectionRightEye(rightCamera));
     	            }
-    	            rightViewport = setupViewBuffers(rightCamera, RIGHT_VIEW_NAME);
+    	            rightViewPort = setupViewBuffers(rightCamera, RIGHT_VIEW_NAME);
     	        } else {
     	        	
     	        	System.err.println("[VRViewManager] THIS CODE NEED CHANGES !!!");
-    	            leftViewport = environment.getApplication().getViewPort();
+    	            leftViewPort = environment.getApplication().getViewPort();
     	            //leftViewport.attachScene(app.getRootNode());
     	            rightCamera = leftCamera.clone();
     	            if( environment.getVRHardware() != null ){
@@ -742,7 +653,7 @@ public class VRViewManagerOSVR extends AbstractVRViewManager{
     	        }
     	        
     	        // setup gui
-    	        environment.getVRGUIManager().setupGui(leftCamera, rightCamera, leftViewport, rightViewport);
+    	        environment.getVRGUIManager().setupGui(leftCamera, rightCamera, getLeftViewPort(), getRightViewPort());
     	        
     	        if( environment.getVRHardware() != null ) {
     	            // call these to cache the results internally
