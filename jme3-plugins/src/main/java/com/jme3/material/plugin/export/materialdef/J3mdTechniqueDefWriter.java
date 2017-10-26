@@ -168,13 +168,13 @@ public class J3mdTechniqueDefWriter {
         out.write(shaderNode.getDefinition().getPath());
         out.write("\n");
 
-        out.write("                InputMappings{\n");
+        out.write("                InputMappings {\n");
         for (VariableMapping mapping : shaderNode.getInputMapping()) {
             writeVariableMapping(out, shaderNode, mapping, matParams);
         }
         out.write("                }\n");
 
-        out.write("                OutputMappings{\n");
+        out.write("                OutputMappings {\n");
         for (VariableMapping mapping : shaderNode.getOutputMapping()) {
             writeVariableMapping(out, shaderNode, mapping, matParams);
         }
@@ -288,7 +288,4 @@ public class J3mdTechniqueDefWriter {
         }
         return null;
     }
-
 }
-
-

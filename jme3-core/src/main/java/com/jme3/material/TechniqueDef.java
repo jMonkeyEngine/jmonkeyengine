@@ -655,6 +655,15 @@ public class TechniqueDef implements Savable, Cloneable {
         return worldBinds;
     }
 
+    /**
+     * Sets the list of world bindings.
+     *
+     * @param worldBinds the list of world bindings.
+     */
+    public void setWorldBinds(final ArrayList<UniformBinding> worldBinds) {
+        this.worldBinds = worldBinds;
+    }
+
     public void write(JmeExporter ex) throws IOException{
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", null);

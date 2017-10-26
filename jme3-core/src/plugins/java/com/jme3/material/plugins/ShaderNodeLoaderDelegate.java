@@ -157,7 +157,9 @@ public class ShaderNodeLoaderDelegate {
      * @throws IOException
      */
     protected void readShaderNodeDefinition(List<Statement> statements, ShaderNodeDefinitionKey key) throws IOException {
-        boolean isLoadDoc = key instanceof ShaderNodeDefinitionKey && ((ShaderNodeDefinitionKey) key).isLoadDocumentation();
+
+        boolean isLoadDoc = key != null && key.isLoadDocumentation();
+
         for (Statement statement : statements) {
             try {
                 String[] split = statement.getLine().split("[ \\{]");
@@ -200,8 +202,26 @@ public class ShaderNodeLoaderDelegate {
                             throw new MatParseException(e.getMessage(), statement1, e);
                         }
                     }
+                } else if (line.startsWith("Defines")) {
+                    for (final Statement sub : statement.getContents()) {
+                        try {
+                            final String[] values = sub.getLine().split("[ \\{]");
+                            shaderNodeDefinition.getDefines().add(values[0]);
+                        } catch (final RuntimeException e) {
+                            throw new MatParseException(e.getMessage(), sub, e);
+                        }
+                    }
+                } else if (line.startsWith("Imports")) {
+                    for (final Statement sub : statement.getContents()) {
+                        try {
+                            final String[] values = sub.getLine().split("[ \\{]");
+                            shaderNodeDefinition.getImports().add(values[0]);
+                        } catch (final RuntimeException e) {
+                            throw new MatParseException(e.getMessage(), sub, e);
+                        }
+                    }
                 } else {
-                    throw new MatParseException("one of Type, Shader, Documentation, Input, Output", split[0], statement);
+                    throw new MatParseException("One of Type, Shader, Documentation, Input, Output, Defines, Imports", split[0], statement);
                 }
             } catch (RuntimeException e) {
                 throw new MatParseException(e.getMessage(), statement, e);
@@ -217,11 +237,15 @@ public class ShaderNodeLoaderDelegate {
      * @throws IOException
      */
     protected ShaderNodeVariable readVariable(Statement statement) throws IOException {
+
         String line = statement.getLine().trim().replaceAll("\\s*\\[", "[");
         String[] splitVar = line.split("\\s");
-        if (splitVar.length != 2) {
-            throw new MatParseException("2 arguments", splitVar.length + "", statement);
+
+        if (splitVar.length > 3) {
+            throw new MatParseException("More than 3 arguments", splitVar.length + "", statement);
         }
+
+        String defaultValue = splitVar.length > 2? splitVar[2] : null;
         String varName = splitVar[1];
         String varType = splitVar[0];
         String multiplicity = null;
@@ -230,13 +254,19 @@ public class ShaderNodeLoaderDelegate {
             //we have an array
             String[] arr = splitVar[1].split("\\[");
             varName = arr[0].trim();
-            multiplicity = arr[1].replaceAll("\\]", "").trim();          
+            multiplicity = arr[1].replaceAll("\\]", "").trim();
         }
+
         if (varNames.contains(varName + ";")) {
             throw new MatParseException("Duplicate variable name " + varName, statement);
         }
+
         varNames += varName + ";";
-        return new ShaderNodeVariable(varType, "", varName, multiplicity);
+
+        final ShaderNodeVariable variable = new ShaderNodeVariable(varType, "", varName, multiplicity);
+        variable.setDefaultValue(defaultValue);
+
+        return variable;
     }
 
     /**
@@ -660,19 +690,13 @@ public class ShaderNodeLoaderDelegate {
                 throw new MatParseException("Could not find a Material Parameter named " + right.getName(), statement1);
             }
             if (shaderNode.getDefinition().getType() == Shader.ShaderType.Vertex) {
-                if (updateRightFromUniforms(param, mapping, vertexDeclaredUniforms, statement1)) {                  
+                if (updateRightFromUniforms(param, mapping, vertexDeclaredUniforms, statement1)) {
+                    updateMaterialTextureType(statement1, mapping, left, param);
                     storeVertexUniform(mapping.getRightVariable());
                 }
             } else {
                 if (updateRightFromUniforms(param, mapping, fragmentDeclaredUniforms, statement1)) {
-                    if (mapping.getRightVariable().getType().contains("|")) {
-                        String type = fixSamplerType(left.getType(), mapping.getRightVariable().getType());
-                        if (type != null) {
-                            mapping.getRightVariable().setType(type);
-                        } else {
-                            throw new MatParseException(param.getVarType().toString() + " can only be matched to one of " + param.getVarType().getGlslType().replaceAll("\\|", ",") + " found " + left.getType(), statement1);
-                        }
-                    }                
+                    updateMaterialTextureType(statement1, mapping, left, param);
                     storeFragmentUniform(mapping.getRightVariable());
                 }
             }
@@ -712,6 +736,32 @@ public class ShaderNodeLoaderDelegate {
         checkTypes(mapping, statement1);
 
         return mapping;
+    }
+
+    /**
+     * Updated the material texture type of the variable mapping.
+     *
+     * @param statement the statement.
+     * @param mapping the variable mapping.
+     * @param left the left variable.
+     * @param param the material parameter.
+     * @throws MatParseException
+     */
+    private void updateMaterialTextureType(final Statement statement, final VariableMapping mapping,
+                                           final ShaderNodeVariable left, final MatParam param) throws MatParseException {
+
+        if (!mapping.getRightVariable().getType().contains("|")) {
+            return;
+        }
+
+        final String type = fixSamplerType(left.getType(), mapping.getRightVariable().getType());
+
+        if (type != null) {
+            mapping.getRightVariable().setType(type);
+        } else {
+            throw new MatParseException(param.getVarType().toString() + " can only be matched to one of " +
+                    param.getVarType().getGlslType().replaceAll("\\|", ",") + " found " + left.getType(), statement);
+        }
     }
 
     /**
@@ -926,9 +976,9 @@ public class ShaderNodeLoaderDelegate {
             for (VariableMapping variableMapping : node.getInputMapping()) {
                 if (variableMapping.getLeftVariable().getName().equals(variable.getName())) {
                     variableMapping.getLeftVariable().setShaderOutput(true);
-                }
             }
         }
+    }
 
     }
 

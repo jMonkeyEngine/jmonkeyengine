@@ -659,7 +659,11 @@ public class J3MLoader implements AssetLoader {
 
         if(isUseNodes){
             //used for caching later, the shader here is not a file.
-            
+
+            if (technique.getWorldBindings() == null) {
+                technique.setWorldBinds(new ArrayList<UniformBinding>());
+            }
+
             // KIRILL 9/19/2015
             // Not sure if this is needed anymore, since shader caching
             // is now done by TechniqueDef.
