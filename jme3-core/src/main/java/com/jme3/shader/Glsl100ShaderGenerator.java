@@ -628,7 +628,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      */
     protected void indent() {
         indent++;
-        indent = Math.max(indent, 10);
+        indent = Math.min(10, indent);
     }
 
     /**
