@@ -282,7 +282,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
                     var.getName(), var.getMultiplicity());
 
             if (!isVarying(info, variable)) {
-                declareVariable(source, variable);
+                declareVariable(source, variable, var.getDefaultValue(), true, null);
             }
 
             nodeSource = replaceVariableName(nodeSource, variable);
