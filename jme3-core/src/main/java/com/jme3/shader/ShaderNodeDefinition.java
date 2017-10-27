@@ -31,16 +31,11 @@
  */
 package com.jme3.shader;
 
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
-import com.jme3.export.Savable;
+import com.jme3.export.*;
 import com.jme3.shader.Shader.ShaderType;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Shader node definition structure meant for holding loaded data from a
@@ -50,10 +45,11 @@ import java.util.List;
  */
 public class ShaderNodeDefinition implements Savable {
 
+    private static final String[] EMPTY_STRINGS = new String[0];
+
     private List<ShaderNodeVariable> inputs = new ArrayList<>();
     private List<ShaderNodeVariable> outputs = new ArrayList<>();
-    private List<String> defines = new ArrayList<>();
-    private List<String> imports = new ArrayList<>();
+    private Map<String, List<String>> additionalValues = new HashMap<>();
 
     private List<String> shadersLanguage = new ArrayList<>();
     private List<String> shadersPath = new ArrayList<>();
@@ -88,39 +84,41 @@ public class ShaderNodeDefinition implements Savable {
     }
 
     /**
-     * Gets the list of defines of this definition.
+     * Gets the list of additional values.
      *
-     * @return the list of defines of this definition.
+     * @param name the name of values type.
+     * @return the list of values or null.
      */
-    public List<String> getDefines() {
-        return defines;
+    public List<String> getAdditionalValues(final String name) {
+        return additionalValues.get(name);
     }
 
     /**
-     * Sets the list of defines of this definition.
+     * Gets the list of names of additional values.
      *
-     * @param defines the list of defines of this definition.
+     * @return the list of names of values.
      */
-    public void setDefines(final List<String> defines) {
-        this.defines = defines;
+    public Set<String> getAdditionalValuesNames() {
+        return additionalValues.keySet();
     }
 
     /**
-     * Gets the list of imports.
+     * Sets the list of values by the values name.
      *
-     * @return the list of imports.
+     * @param name   the name of values type.
+     * @param values the list of values.
      */
-    public List<String> getImports() {
-        return imports;
+    public void setAdditionalValues(final String name, final List<String> values) {
+        additionalValues.put(name, values);
     }
 
     /**
-     * Sets the list of imports.
+     * Removes the list of values by the values name.
      *
-     * @param imports the list of imports.
+     * @param name the name of values type.
      */
-    public void setImports(final List<String> imports) {
-        this.imports = imports;
+    public void removeAdditionalValues(final String name) {
+        additionalValues.remove(name);
     }
 
     /**
@@ -235,14 +233,34 @@ public class ShaderNodeDefinition implements Savable {
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = ex.getCapsule(this);
+
+        final OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", "");
-        String[] str = new String[shadersLanguage.size()];
-        oc.write(shadersLanguage.toArray(str), "shadersLanguage", null);
-        oc.write(shadersPath.toArray(str), "shadersPath", null);
+
+        if (!shadersLanguage.isEmpty()) {
+            final String[] array = new String[shadersLanguage.size()];
+            oc.write(shadersLanguage.toArray(array), "shadersLanguage", null);
+            oc.write(shadersPath.toArray(array), "shadersPath", null);
+        }
+
         oc.write(type, "type", null);
-        oc.write(imports.toArray(new String[imports.size()]), "imports", null);
-        oc.write(defines.toArray(new String[defines.size()]), "defines", null);
+
+        final Set<String> additionalValuesNames = getAdditionalValuesNames();
+        if (!additionalValuesNames.isEmpty()) {
+            final String[] names = additionalValuesNames.toArray(new String[additionalValuesNames.size()]);
+            oc.write(names, "additionalValuesNames", null);
+            for (final String name : names) {
+
+                final List<String> valuesList = getAdditionalValues(name);
+                if (valuesList.isEmpty()) {
+                    continue;
+                }
+
+                final String[] values = valuesList.toArray(new String[valuesList.size()]);
+                oc.write(values, "additionalValuesNames_" + name, null);
+            }
+        }
+
         oc.writeSavableArrayList((ArrayList) inputs, "inputs", new ArrayList<ShaderNodeVariable>());
         oc.writeSavableArrayList((ArrayList) outputs, "outputs", new ArrayList<ShaderNodeVariable>());
     }
@@ -271,7 +289,8 @@ public class ShaderNodeDefinition implements Savable {
      */
     @Override
     public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = im.getCapsule(this);
+
+        final InputCapsule ic = im.getCapsule(this);
         name = ic.readString("name", "");
 
         String[] str = ic.readStringArray("shadersLanguage", null);
@@ -288,18 +307,21 @@ public class ShaderNodeDefinition implements Savable {
             shadersPath = new ArrayList<>();
         }
 
-        str = ic.readStringArray("imports", null);
-        if (str != null) {
-            imports = Arrays.asList(str);
-        } else {
-            imports = new ArrayList<>();
-        }
+        final String[] additionalValuesNames = ic.readStringArray("additionalValuesNames", null);
 
-        str = ic.readStringArray("defines", null);
-        if (str != null) {
-            defines = Arrays.asList(str);
-        } else {
-            defines = new ArrayList<>();
+        if (additionalValuesNames != null) {
+            for (final String valuesName : additionalValuesNames) {
+
+                final String[] values = ic.readStringArray("additionalValuesNames_" + valuesName, null);
+                if (values == null || values.length < 1) {
+                    continue;
+                }
+
+                final List<String> valuesList = new ArrayList<>(values.length);
+                valuesList.addAll(Arrays.asList(values));
+
+                setAdditionalValues(valuesName, valuesList);
+            }
         }
 
         type = ic.readEnum("type", Shader.ShaderType.class, null);

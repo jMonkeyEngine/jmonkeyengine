@@ -38,15 +38,9 @@ import com.jme3.material.MatParam;
 import com.jme3.material.MaterialDef;
 import com.jme3.material.ShaderGenerationInfo;
 import com.jme3.material.TechniqueDef;
-import com.jme3.shader.Shader;
-import com.jme3.shader.ShaderNode;
-import com.jme3.shader.ShaderNodeDefinition;
-import com.jme3.shader.ShaderNodeVariable;
-import com.jme3.shader.ShaderUtils;
-import com.jme3.shader.UniformBinding;
-import com.jme3.shader.VarType;
-import com.jme3.shader.VariableMapping;
+import com.jme3.shader.*;
 import com.jme3.util.blockparser.Statement;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -202,27 +196,23 @@ public class ShaderNodeLoaderDelegate {
                             throw new MatParseException(e.getMessage(), statement1, e);
                         }
                     }
-                } else if (line.startsWith("Defines")) {
-                    for (final Statement sub : statement.getContents()) {
-                        try {
-                            final String[] values = sub.getLine().split("[ \\{]");
-                            shaderNodeDefinition.getDefines().add(values[0]);
-                        } catch (final RuntimeException e) {
-                            throw new MatParseException(e.getMessage(), sub, e);
-                        }
-                    }
-                } else if (line.startsWith("Imports")) {
-                    for (final Statement sub : statement.getContents()) {
-                        try {
-                            final String[] values = sub.getLine().split("[ \\{]");
-                            shaderNodeDefinition.getImports().add(values[0]);
-                        } catch (final RuntimeException e) {
-                            throw new MatParseException(e.getMessage(), sub, e);
-                        }
-                    }
                 } else {
-                    throw new MatParseException("One of Type, Shader, Documentation, Input, Output, Defines, Imports", split[0], statement);
+
+                    final String additionalValuesName = split[0];
+                    final List<String> valueList = new ArrayList<>();
+
+                    for (final Statement sub : statement.getContents()) {
+                        try {
+                            final String[] values = sub.getLine().split("[ \\{]");
+                            valueList.add(values[0]);
+                        } catch (final RuntimeException e) {
+                            throw new MatParseException(e.getMessage(), sub, e);
+                        }
+                    }
+
+                    shaderNodeDefinition.setAdditionalValues(additionalValuesName, valueList);
                 }
+
             } catch (RuntimeException e) {
                 throw new MatParseException(e.getMessage(), statement, e);
             }
@@ -974,12 +964,12 @@ public class ShaderNodeLoaderDelegate {
             dv.addNode(shaderNode);
             //if a variable is declared with the same name as an input and an output and is a varying, set it as a shader output so it's declared as a varying only once.
             for (VariableMapping variableMapping : node.getInputMapping()) {
-                if (variableMapping.getLeftVariable().getName().equals(variable.getName())) {
-                    variableMapping.getLeftVariable().setShaderOutput(true);
+                final ShaderNodeVariable leftVariable = variableMapping.getLeftVariable();
+                if (leftVariable.getName().equals(variable.getName())) {
+                    leftVariable.setShaderOutput(true);
+                }
             }
         }
-    }
-
     }
 
     /**
