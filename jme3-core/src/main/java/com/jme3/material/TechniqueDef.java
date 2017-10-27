@@ -514,12 +514,8 @@ public class TechniqueDef implements Savable, Cloneable {
             }
         }
 
-        final List<UniformBinding> worldBindings = getWorldBindings();
-
-        if (!worldBindings.isEmpty()) {
-            for (UniformBinding binding : worldBindings) {
-                shader.addUniformBinding(binding);
-            }
+        for (final UniformBinding binding : getWorldBindings()) {
+            shader.addUniformBinding(binding);
         }
         
         return shader;
