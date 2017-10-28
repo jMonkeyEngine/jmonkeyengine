@@ -31,14 +31,15 @@
  */
 package com.jme3.shader;
 
-import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.ShaderGenerationInfo;
-import com.jme3.material.Technique;
 import com.jme3.material.TechniqueDef;
 import com.jme3.shader.Shader.ShaderType;
-import java.util.List;
-import java.util.regex.*;
+import com.jme3.shader.plugins.ShaderAssetKey;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class is the base for a shader generator using the ShaderNodes system,
@@ -65,6 +66,8 @@ public abstract class ShaderGenerator {
      * Extension pattern
      */
     Pattern extensions = Pattern.compile("(#extension.*\\s+)");
+
+    private Map<String, String> imports = new LinkedHashMap<>();
 
     /**
      * Build a shaderGenerator
@@ -126,7 +129,9 @@ public abstract class ShaderGenerator {
             // Too much code assumes that type is either Vertex or Fragment
             return null;
         }
-        
+
+        imports.clear();
+
         indent = 0;
 
         StringBuilder sourceDeclaration = new StringBuilder();
@@ -144,6 +149,12 @@ public abstract class ShaderGenerator {
         generateDeclarationAndMainBody(shaderNodes, sourceDeclaration, source, info, type);
 
         generateEndOfMainSection(source, info, type);
+
+        //insert imports backward
+        int insertIndex = sourceDeclaration.length();
+        for (String importSource : imports.values()) {
+            sourceDeclaration.insert(insertIndex, importSource);
+        }
 
         sourceDeclaration.append(source);
 
@@ -186,7 +197,13 @@ public abstract class ShaderGenerator {
             if (shaderNode.getDefinition().getType() == type) {
                 int index = findShaderIndexFromVersion(shaderNode, type);
                 String shaderPath = shaderNode.getDefinition().getShadersPath().get(index);
-                String loadedSource = (String) assetManager.loadAsset(new AssetKey(shaderPath));
+                Map<String, String> sources = (Map<String, String>) assetManager.loadAsset(new ShaderAssetKey(shaderPath, false));
+                String loadedSource = sources.get("[main]");
+                for (String name : sources.keySet()) {
+                    if (!name.equals("[main]")) {
+                        imports.put(name, sources.get(name));
+                    }
+                }
                 appendNodeDeclarationAndMain(loadedSource, sourceDeclaration, source, shaderNode, info, shaderPath);
             }
         }
