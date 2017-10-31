@@ -50,8 +50,10 @@ public class ShaderNodeVariable implements Savable, Cloneable {
     private String type;
     private String nameSpace;
     private String condition;
-    private boolean shaderOutput = false;
     private String multiplicity;
+    private String defaultValue;
+
+    private boolean shaderOutput = false;
 
     /**
      * creates a ShaderNodeVariable
@@ -180,6 +182,24 @@ public class ShaderNodeVariable implements Savable, Cloneable {
         this.nameSpace = nameSpace;
     }
 
+    /**
+     * Gets the default value of this variable.
+     *
+     * @return the default value of this variable.
+     */
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    /**
+     * Sets the default value of this variable.
+     *
+     * @param defaultValue the default value of this variable.
+     */
+    public void setDefaultValue(final String defaultValue) {
+        this.defaultValue = defaultValue;
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -230,7 +250,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", "");
         oc.write(type, "type", "");
         oc.write(prefix, "prefix", "");
@@ -238,7 +258,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
         oc.write(condition, "condition", null);
         oc.write(shaderOutput, "shaderOutput", false);
         oc.write(multiplicity, "multiplicity", null);
-
+        oc.write(defaultValue, "defaultValue", null);
     }
 
     /**
@@ -249,14 +269,15 @@ public class ShaderNodeVariable implements Savable, Cloneable {
      */
     @Override
     public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        InputCapsule ic = im.getCapsule(this);
         name = ic.readString("name", "");
         type = ic.readString("type", "");
         prefix = ic.readString("pefix", "");
         nameSpace = ic.readString("nameSpace", "");
-        condition = ic.readString("condition", null);        
+        condition = ic.readString("condition", null);
         shaderOutput = ic.readBoolean("shaderOutput", false);
         multiplicity = ic.readString("multiplicity", null);
+        defaultValue = ic.readString("defaultValue", null);
     }
 
     /**
