@@ -230,7 +230,7 @@ public class ShaderNodeLoaderDelegate {
             //we have an array
             String[] arr = splitVar[1].split("\\[");
             varName = arr[0].trim();
-            multiplicity = arr[1].replaceAll("\\]", "").trim();          
+            multiplicity = arr[1].replaceAll("\\]", "").trim();
         }
         if (varNames.contains(varName + ";")) {
             throw new MatParseException("Duplicate variable name " + varName, statement);
@@ -262,7 +262,7 @@ public class ShaderNodeLoaderDelegate {
             String[] split = statement.getLine().split("[ \\{]");
             if (line.startsWith("Definition")) {
                 ShaderNodeDefinition def = findDefinition(statement);
-                shaderNode.setDefinition(def);                
+                shaderNode.setDefinition(def);
                 if(def.isNoOutput()){
                     techniqueDef.getShaderGenerationInfo().getUnusedNodes().remove(shaderNode.getName());
                 }
@@ -276,12 +276,12 @@ public class ShaderNodeLoaderDelegate {
                     techniqueDef.getShaderGenerationInfo().getUnusedNodes().remove(mapping.getRightVariable().getNameSpace());
                     shaderNode.getInputMapping().add(mapping);
                 }
-            } else if (line.startsWith("OutputMapping")) {                
+            } else if (line.startsWith("OutputMapping")) {
                 for (Statement statement1 : statement.getContents()) {
                     VariableMapping mapping = readOutputMapping(statement1);
                     techniqueDef.getShaderGenerationInfo().getUnusedNodes().remove(shaderNode.getName());
                     shaderNode.getOutputMapping().add(mapping);
-                }               
+                }
             } else {
                 throw new MatParseException("ShaderNodeDefinition", split[0], statement);
             }
@@ -298,7 +298,7 @@ public class ShaderNodeLoaderDelegate {
      * Format : <nameSpace>.<varName>[.<swizzling>] =
      * <nameSpace>.<varName>[.<swizzling>][:Condition]
      * </code>
-     * 
+     *
      * @param statement the statement to read
      * @return the read mapping
      */
@@ -543,13 +543,13 @@ public class ShaderNodeLoaderDelegate {
                 //the right variable must have the same multiplicity and the same condition.
                 right.setMultiplicity(multiplicity);
                 right.setCondition(mapping.getLeftVariable().getCondition());
-            }       
+            }
             dv = new DeclaredVariable(right);
             map.put(right.getName(), dv);
-            dv.addNode(shaderNode);  
+            dv.addNode(shaderNode);
             mapping.setRightVariable(right);
             return true;
-        }      
+        }
         dv.addNode(shaderNode);
         mapping.setRightVariable(dv.var);
         return false;
@@ -660,7 +660,7 @@ public class ShaderNodeLoaderDelegate {
                 throw new MatParseException("Could not find a Material Parameter named " + right.getName(), statement1);
             }
             if (shaderNode.getDefinition().getType() == Shader.ShaderType.Vertex) {
-                if (updateRightFromUniforms(param, mapping, vertexDeclaredUniforms, statement1)) {                  
+                if (updateRightFromUniforms(param, mapping, vertexDeclaredUniforms, statement1)) {
                     storeVertexUniform(mapping.getRightVariable());
                 }
             } else {
@@ -672,7 +672,7 @@ public class ShaderNodeLoaderDelegate {
                         } else {
                             throw new MatParseException(param.getVarType().toString() + " can only be matched to one of " + param.getVarType().getGlslType().replaceAll("\\|", ",") + " found " + left.getType(), statement1);
                         }
-                    }                
+                    }
                     storeFragmentUniform(mapping.getRightVariable());
                 }
             }
@@ -683,11 +683,11 @@ public class ShaderNodeLoaderDelegate {
                 throw new MatParseException("Could not find a World Parameter named " + right.getName(), statement1);
             }
             if (shaderNode.getDefinition().getType() == Shader.ShaderType.Vertex) {
-                if (updateRightFromUniforms(worldParam, mapping, vertexDeclaredUniforms)) {                    
+                if (updateRightFromUniforms(worldParam, mapping, vertexDeclaredUniforms)) {
                     storeVertexUniform(mapping.getRightVariable());
                 }
             } else {
-                if (updateRightFromUniforms(worldParam, mapping, fragmentDeclaredUniforms)) {                    
+                if (updateRightFromUniforms(worldParam, mapping, fragmentDeclaredUniforms)) {
                     storeFragmentUniform(mapping.getRightVariable());
                 }
             }
@@ -704,7 +704,7 @@ public class ShaderNodeLoaderDelegate {
             right.setNameSpace(node.getName());
             right.setType(var.getType());
             right.setMultiplicity(var.getMultiplicity());
-            mapping.setRightVariable(right);            
+            mapping.setRightVariable(right);
             storeVaryings(node, mapping.getRightVariable());
 
         }

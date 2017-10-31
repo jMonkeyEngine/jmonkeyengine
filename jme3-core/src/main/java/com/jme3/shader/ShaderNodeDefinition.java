@@ -170,7 +170,7 @@ public class ShaderNodeDefinition implements Savable {
 
     /**
      * retrun the path of this definition
-     * @return 
+     * @return
      */
     public String getPath() {
         return path;
@@ -178,13 +178,13 @@ public class ShaderNodeDefinition implements Savable {
 
     /**
      * sets the path of this definition
-     * @param path 
+     * @param path
      */
     public void setPath(String path) {
         this.path = path;
     }
-    
-    
+
+
 
     /**
      * jme serialization (not used)
@@ -220,8 +220,8 @@ public class ShaderNodeDefinition implements Savable {
         this.noOutput = noOutput;
     }
 
-    
-    
+
+
     /**
      * jme serialization (not used)
      *

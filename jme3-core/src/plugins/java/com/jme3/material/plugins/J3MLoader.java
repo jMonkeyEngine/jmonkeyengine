@@ -31,7 +31,6 @@
  */
 package com.jme3.material.plugins;
 
-import com.jme3.material.logic.*;
 import com.jme3.asset.*;
 import com.jme3.material.*;
 import com.jme3.material.RenderState.BlendEquation;
@@ -39,11 +38,13 @@ import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.material.TechniqueDef.LightMode;
 import com.jme3.material.TechniqueDef.ShadowMode;
-import com.jme3.material.logic.StaticPassLightingLogic;
+import com.jme3.material.logic.*;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.shader.*;
+import com.jme3.shader.DefineList;
+import com.jme3.shader.Shader;
+import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
@@ -54,7 +55,10 @@ import com.jme3.util.clone.Cloner;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -63,7 +67,7 @@ import java.util.regex.Pattern;
 public class J3MLoader implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(J3MLoader.class.getName());
-   // private ErrorLogger errors;
+    // private ErrorLogger errors;
     private ShaderNodeLoaderDelegate nodesLoaderDelegate;
     boolean isUseNodes = false;
     int langSize = 0;
@@ -331,9 +335,9 @@ public class J3MLoader implements AssetLoader {
                         throw new IOException("Vector4 value parameter must have 4 entries: " + value);
                     }
                     return new ColorRGBA(Float.parseFloat(split[0]),
-                                                                Float.parseFloat(split[1]),
-                                                                Float.parseFloat(split[2]),
-                                                                Float.parseFloat(split[3]));
+                            Float.parseFloat(split[1]),
+                            Float.parseFloat(split[2]),
+                            Float.parseFloat(split[3]));
                 case Int:
                     if (split.length != 1){
                         throw new IOException("Int value parameter must have 1 entry: " + value);
@@ -659,12 +663,14 @@ public class J3MLoader implements AssetLoader {
 
         if(isUseNodes){
             //used for caching later, the shader here is not a file.
-            
             // KIRILL 9/19/2015
             // Not sure if this is needed anymore, since shader caching
             // is now done by TechniqueDef.
-            technique.setShaderFile(technique.hashCode() + "", technique.hashCode() + "", "GLSL100", "GLSL100");
+            technique.setShaderFile(technique.hashCode() + "", technique.hashCode() + "",
+                    "GLSL100", "GLSL100");
+
             techniqueDefs.add(technique);
+
         }else if (shaderNames.containsKey(Shader.ShaderType.Vertex) && shaderNames.containsKey(Shader.ShaderType.Fragment)) {
             if (shaderLanguages.size() > 1) {
                 for (int i = 1; i < shaderLanguages.size(); i++) {
