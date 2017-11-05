@@ -48,6 +48,7 @@ import com.jme3.texture.Texture2D;
 import com.jme3.texture.TextureCubeMap;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.MipMapGenerator;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -71,6 +72,8 @@ public class EnvironmentCamera extends BaseAppState {
     protected static Vector3f[] axisZ = new Vector3f[6];
 
     protected Image.Format imageFormat = Image.Format.RGB16F;
+
+    public TextureCubeMap debugEnv;
 
     //Axis for cameras
     static {
@@ -188,10 +191,11 @@ public class EnvironmentCamera extends BaseAppState {
             buffers[i] = BufferUtils.createByteBuffer(size * size * imageFormat.getBitsPerPixel() / 8);
             renderManager.getRenderer().readFrameBufferWithFormat(framebuffers[i], buffers[i], imageFormat);
             images[i] = new Image(imageFormat, size, size, buffers[i], ColorSpace.Linear);
+            MipMapGenerator.generateMipMaps(images[i]);
         }
 
         final TextureCubeMap map = EnvMapUtils.makeCubeMap(images[0], images[1], images[2], images[3], images[4], images[5], imageFormat);
-
+            debugEnv = map;
         job.callback.done(map);
         map.getImage().dispose();
         jobs.remove(0);

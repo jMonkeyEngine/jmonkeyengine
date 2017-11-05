@@ -110,7 +110,7 @@ class ByteAlignedImageCodec extends ImageCodec {
     }
     
     public void readComponents(ByteBuffer buf, int x, int y, int width, int offset, int[] components, byte[] tmp) {
-        readPixelRaw(buf, (x + y * width + offset) * bpp + offset, bpp, tmp);
+        readPixelRaw(buf, (x + y * width ) * bpp + offset, bpp, tmp);
         components[0] = readComponent(tmp, ap, az);
         components[1] = readComponent(tmp, rp, rz);
         components[2] = readComponent(tmp, gp, gz);

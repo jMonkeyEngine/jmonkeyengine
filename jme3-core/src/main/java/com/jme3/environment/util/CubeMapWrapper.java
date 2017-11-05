@@ -31,16 +31,14 @@
  */
 package com.jme3.environment.util;
 
-import com.jme3.environment.util.EnvMapUtils;
-import com.jme3.math.ColorRGBA;
-import static com.jme3.math.FastMath.pow;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import com.jme3.texture.Image;
 import com.jme3.texture.TextureCubeMap;
 import com.jme3.texture.image.DefaultImageRaster;
 import com.jme3.texture.image.MipMapImageRaster;
 import com.jme3.util.BufferUtils;
+
+import static com.jme3.math.FastMath.pow;
 
 /**
  * Wraps a Cube map and allows to read from or write pixels into it.
@@ -56,6 +54,8 @@ public class CubeMapWrapper {
     private int[] sizes;
     private final Vector2f uvs = new Vector2f();
     private final Image image;
+
+    private final ColorRGBA tmpColor = new ColorRGBA();
 
     /**
      * Creates a CubeMapWrapper for the given cube map
@@ -105,7 +105,7 @@ public class CubeMapWrapper {
      * @param store the color in which to store the pixel color read.
      * @return the color of the pixel read.
      */
-    public ColorRGBA getPixel(Vector3f vector, int mipLevel, ColorRGBA store) {
+    public ColorRGBA getPixel(Vector3f vector, float mipLevel, ColorRGBA store) {
         if (mipMapRaster == null) {
             throw new IllegalArgumentException("This cube map has no mip maps");
         }
@@ -113,10 +113,26 @@ public class CubeMapWrapper {
             store = new ColorRGBA();
         }
 
-        int face = EnvMapUtils.getCubemapFaceTexCoordFromVector(vector, sizes[mipLevel], uvs, EnvMapUtils.FixSeamsMethod.Stretch);
+        int lowerMipLevel = (int) mipLevel;
+        int higherMipLevel = (int) FastMath.ceil(mipLevel);
+        float ratio = mipLevel - lowerMipLevel;
+
+        int face = EnvMapUtils.getCubemapFaceTexCoordFromVector(vector, sizes[lowerMipLevel], uvs, EnvMapUtils.FixSeamsMethod.Stretch);
         mipMapRaster.setSlice(face);
-        mipMapRaster.setMipLevel(mipLevel);
-        return mipMapRaster.getPixel((int) uvs.x, (int) uvs.y, store);
+        mipMapRaster.setMipLevel(lowerMipLevel);
+        mipMapRaster.getPixel((int) uvs.x, (int) uvs.y, store);
+
+        face = EnvMapUtils.getCubemapFaceTexCoordFromVector(vector, sizes[higherMipLevel], uvs, EnvMapUtils.FixSeamsMethod.Stretch);
+        mipMapRaster.setSlice(face);
+        mipMapRaster.setMipLevel(higherMipLevel);
+        mipMapRaster.getPixel((int) uvs.x, (int) uvs.y, tmpColor);
+
+        store.r = FastMath.interpolateLinear(ratio, store.r, tmpColor.r);
+        store.g = FastMath.interpolateLinear(ratio, store.g, tmpColor.g);
+        store.b = FastMath.interpolateLinear(ratio, store.b, tmpColor.b);
+        store.a = FastMath.interpolateLinear(ratio, store.a, tmpColor.a);
+
+        return store;
     }
 
     /**
