@@ -11,12 +11,8 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.LightProbe;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
+import com.jme3.math.*;
+import com.jme3.scene.*;
 import com.jme3.ui.Picture;
 import com.jme3.util.SkyFactory;
 
@@ -39,11 +35,13 @@ public class RefEnv extends SimpleApplication {
     @Override
     public void simpleInitApp() {
 
-        cam.setLocation(new Vector3f(-17.713732f, 1.8661976f, 17.156784f));
-        cam.setRotation(new Quaternion(0.021403445f, 0.9428821f, -0.06178002f, 0.32664734f));
+        cam.setLocation(new Vector3f(-17.95047f, 4.917353f, -17.970531f));
+        cam.setRotation(new Quaternion(0.11724457f, 0.29356146f, -0.03630452f, 0.94802815f));
+//        cam.setLocation(new Vector3f(14.790441f, 7.164179f, 19.720007f));
+//        cam.setRotation(new Quaternion(-0.038261678f, 0.9578362f, -0.15233073f, -0.24058504f));
         flyCam.setDragToRotate(true);
         flyCam.setMoveSpeed(5);
-        Spatial sc = assetManager.loadModel("Models/gltf/ref/scene.gltf");
+        Spatial sc = assetManager.loadModel("Scenes/PBR/ref/scene.gltf");
         rootNode.attachChild(sc);
         Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Path.hdr", SkyFactory.EnvMapType.EquirectMap);
         rootNode.attachChild(sky);
@@ -68,7 +66,7 @@ public class RefEnv extends SimpleApplication {
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (name.equals("tex") && isPressed) {
                     if (tex == null) {
-                        return;
+                        tex = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(stateManager.getState(EnvironmentCamera.class).debugEnv, assetManager);
                     }
                     if (tex.getParent() == null) {
                         guiNode.attachChild(tex);
@@ -120,13 +118,12 @@ public class RefEnv extends SimpleApplication {
         frame++;
 
         if (frame == 2) {
-            final LightProbe probe = LightProbeFactory.makeProbe(stateManager.getState(EnvironmentCamera.class), rootNode, new JobProgressAdapter<LightProbe>() {
+            final LightProbe probe = LightProbeFactory.makeProbe(stateManager.getState(EnvironmentCamera.class), rootNode, EnvMapUtils.GenerationType.Fast, new JobProgressAdapter<LightProbe>() {
 
                 @Override
                 public void done(LightProbe result) {
                     System.err.println("Done rendering env maps");
                     tex = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(result.getPrefilteredEnvMap(), assetManager);
-                  //  guiNode.attachChild(tex);
                     rootNode.getChild(0).setCullHint(Spatial.CullHint.Dynamic);
                 }
             });
