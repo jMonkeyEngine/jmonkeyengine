@@ -127,14 +127,12 @@ public class LightProbe extends Light implements Savable {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-
-
+        
         prefilteredEnvMap = (TextureCubeMap) ic.readSavable("prefilteredEnvMap", null);
-        position = (Vector3f) ic.readSavable("position", this);
+        position = (Vector3f) ic.readSavable("position", null);
         bounds = (BoundingVolume) ic.readSavable("bounds", new BoundingSphere(1.0f, Vector3f.ZERO));
         nbMipMaps = ic.readInt("nbMipMaps", 0);
         ready = ic.readBoolean("ready", false);
-
 
         Savable[] coeffs = ic.readSavableArray("shCoeffs", null);
         if (coeffs == null) {
@@ -145,7 +143,6 @@ public class LightProbe extends Light implements Savable {
             for (int i = 0; i < coeffs.length; i++) {
                 shCoeffs[i] = (Vector3f) coeffs[i];
             }
-
         }
     }
 
