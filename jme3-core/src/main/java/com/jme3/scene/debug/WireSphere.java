@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2017 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -106,6 +106,9 @@ public class WireSphere extends Mesh {
 //        pb.put(0).put(0).put(radius);
 //        pb.put(0).put(0).put(-radius);
 
+        /*
+         * Update vertex positions for the great circle in the X-Y plane.
+         */
         float rate = FastMath.TWO_PI / (float) samples;
         float angle = 0;
         for (int i = 0; i < samples; i++) {
@@ -114,7 +117,9 @@ public class WireSphere extends Mesh {
             pb.put(x).put(y).put(0);
             angle += rate;
         }
-
+        /*
+         * Update vertex positions for the great circle in the Y-Z plane.
+         */
         angle = 0;
         for (int i = 0; i < samples; i++) {
             float x = radius * FastMath.cos(angle);
@@ -122,23 +127,20 @@ public class WireSphere extends Mesh {
             pb.put(0).put(x).put(y);
             angle += rate;
         }
-
+        /*
+         * Update vertex positions for 'zSamples' parallel circles.
+         */
         float zRate = (radius * 2) / (float) (zSamples);
         float zHeight = -radius + (zRate / 2f);
-
-
         float rb = 1f / zSamples;
         float b = rb / 2f;
-
         for (int k = 0; k < zSamples; k++) {
             angle = 0;
-            float scale = FastMath.sin(b * FastMath.PI);
+            float scale = 2f * FastMath.sqrt(b - b * b);
             for (int i = 0; i < samples; i++) {
                 float x = radius * FastMath.cos(angle);
                 float y = radius * FastMath.sin(angle);
-
                 pb.put(x * scale).put(zHeight).put(y * scale);
-
                 angle += rate;
             }
             zHeight += zRate;
