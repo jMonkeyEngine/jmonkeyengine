@@ -115,7 +115,9 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
         Uniform lightProbeData = shader.getUniform("g_LightProbeData");
         lightProbeData.setVector4Length(1);
-        Uniform lightProbeIrrMap = shader.getUniform("g_IrradianceMap");
+
+        //TODO These 2 uniforms should be packed in an array, to ba able to have several probes and blend between them.
+        Uniform shCoeffs = shader.getUniform("g_ShCoeffs");
         Uniform lightProbePemMap = shader.getUniform("g_PrefEnvMap");
 
         lightProbe = null;
@@ -128,16 +130,13 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
             ambientColor.setValue(VarType.Vector4, ambientLightColor);
         }
 
-        //If there is a lightProbe in the list we force it's render on the first pass
+        //If there is a lightProbe in the list we force its render on the first pass
         if(lightProbe != null){
             BoundingSphere s = (BoundingSphere)lightProbe.getBounds();
-            lightProbeData.setVector4InArray(lightProbe.getPosition().x, lightProbe.getPosition().y, lightProbe.getPosition().z, 1f/s.getRadius(), 0);
+            lightProbeData.setVector4InArray(lightProbe.getPosition().x, lightProbe.getPosition().y, lightProbe.getPosition().z, 1f / s.getRadius() + lightProbe.getNbMipMaps(), 0);
+            shCoeffs.setValue(VarType.Vector3Array, lightProbe.getShCoeffs());
             //assigning new texture indexes
-            int irrUnit = lastTexUnit++;
             int pemUnit = lastTexUnit++;
-
-            rm.getRenderer().setTexture(irrUnit, lightProbe.getIrradianceMap());
-            lightProbeIrrMap.setValue(VarType.Int, irrUnit);
             rm.getRenderer().setTexture(pemUnit, lightProbe.getPrefilteredEnvMap());
             lightProbePemMap.setValue(VarType.Int, pemUnit);
         } else {

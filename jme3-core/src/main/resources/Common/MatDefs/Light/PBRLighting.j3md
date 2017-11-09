@@ -6,26 +6,29 @@ MaterialDef PBR Lighting {
         Float AlphaDiscardThreshold (AlphaTestFallOff)
 
         //metalness of the material
-        Float Metallic : 0.0
+        Float Metallic : 1.0
         //Roughness of the material
         Float Roughness : 1.0        
         // Base material color
-        Color BaseColor
+        Color BaseColor : 1.0 1.0 1.0 1.0
         // The emissive color of the object
         Color Emissive        
         // the emissive power
         Float EmissivePower : 3.0        
         // the emissive intensity
-        Float EmissiveIntensity : 1.0
+        Float EmissiveIntensity : 2.0
 
         // BaseColor map
         Texture2D BaseColorMap
 
-        // Specular/gloss map
+        // Metallic map
         Texture2D MetallicMap -LINEAR
         
         // Roughness Map
         Texture2D RoughnessMap -LINEAR
+
+        //Metallic and Roughness are packed respectively in the b and g channel of a single map
+        Texture2D MetallicRoughnessMap -LINEAR
         
         // Texture of the emissive parts of the material
         Texture2D EmissiveMap
@@ -33,9 +36,16 @@ MaterialDef PBR Lighting {
         // Normal map
         Texture2D NormalMap -LINEAR
 
+        //The type of normal map: -1.0 (DirectX), 1.0 (OpenGl)
+        Float NormalType : -1.0
+
         // For Spec gloss pipeline
+        Boolean UseSpecGloss
         Texture2D SpecularMap
-        Texture2D GlossMap
+        Texture2D GlossinessMap
+        Texture2D SpecularGlossinessMap
+        Color Specular : 1.0 1.0 1.0 1.0
+        Float Glossiness : 1.0
 
         Vector4 ProbeData
 
@@ -65,6 +75,8 @@ MaterialDef PBR Lighting {
 
         // Set to use TexCoord2 for the lightmap sampling
         Boolean SeparateTexCoord
+        // the light map is a gray scale ao map, on ly the r channel will be read.
+        Boolean LightMapAsAOMap
 
         //shadows
         Int FilterMode
@@ -129,7 +141,7 @@ MaterialDef PBR Lighting {
             ROUGHNESSMAP : RoughnessMap
             EMISSIVEMAP : EmissiveMap
             EMISSIVE : Emissive
-            SPECGLOSSPIPELINE : SpecularMap
+            SPECGLOSSPIPELINE : UseSpecGloss
             PARALLAXMAP : ParallaxMap
             NORMALMAP_PARALLAX : PackedNormalParallax
             STEEP_PARALLAX : SteepParallax
@@ -138,8 +150,13 @@ MaterialDef PBR Lighting {
             DISCARD_ALPHA : AlphaDiscardThreshold                        
             NUM_BONES : NumberOfBones                        
             INSTANCING : UseInstancing
-            //INDIRECT_LIGHTING : IntegrateBRDF
+            USE_PACKED_MR: MetallicRoughnessMap
+            USE_PACKED_SG: SpecularGlossinessMap
+            SPECULARMAP : SpecularMap
+            GLOSSINESSMAP : GlossinessMap
+            NORMAL_TYPE: NormalType
             VERTEX_COLOR : UseVertexColor
+            AO_MAP: LightMapAsAOMap
         }
     }
 
@@ -271,9 +288,6 @@ MaterialDef PBR Lighting {
 
         Defines {
             NEED_TEXCOORD1
-            HAS_GLOWMAP : GlowMap
-            HAS_GLOWCOLOR : GlowColor
-
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
         }

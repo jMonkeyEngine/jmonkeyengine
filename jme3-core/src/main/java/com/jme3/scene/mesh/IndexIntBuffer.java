@@ -49,6 +49,10 @@ public class IndexIntBuffer extends IndexBuffer {
     }
 
     @Override
+    public int get() {
+        return buf.get();
+    }
+    @Override
     public int get(int i) {
         return buf.get(i);
     }

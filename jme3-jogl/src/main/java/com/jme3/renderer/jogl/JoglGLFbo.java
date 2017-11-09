@@ -94,4 +94,9 @@ public class JoglGLFbo implements GLFbo {
     public void glRenderbufferStorageEXT(int param1, int param2, int param3, int param4) {
         GLContext.getCurrentGL().glRenderbufferStorage(param1, param2, param3, param4);
     }
+    
+    @Override
+    public void glFramebufferTextureLayerEXT(int param1, int param2, int param3, int param4, int param5) {
+        GLContext.getCurrentGL().getGL3().glFramebufferTextureLayer(param1, param2, param3, param4, param5);
+    }
 }

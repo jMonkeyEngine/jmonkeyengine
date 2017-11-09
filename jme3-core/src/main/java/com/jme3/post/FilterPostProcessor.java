@@ -66,7 +66,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private FrameBuffer renderFrameBuffer;
     private Texture2D filterTexture;
     private Texture2D depthTexture;
-    private SafeArrayList<Filter> filters = new SafeArrayList<Filter>(Filter.class);
+    private SafeArrayList<Filter> filters = new SafeArrayList<>(Filter.class);
     private AssetManager assetManager;        
     private Picture fsQuad;
     private boolean computeDepth = false;
@@ -85,6 +85,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private AppProfiler prof;
 
     private Format fbFormat = Format.RGB111110F;
+    private Format depthFormat = Format.Depth;
     
     /**
      * Create a FilterProcessor 
@@ -143,9 +144,13 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         fsQuad = new Picture("filter full screen quad");
         fsQuad.setWidth(1);
         fsQuad.setHeight(1);
-        
-        if (fbFormat == Format.RGB111110F && !renderer.getCaps().contains(Caps.PackedFloatTexture)) {
-            fbFormat = Format.RGB8;
+
+        if (!renderer.getCaps().contains(Caps.PackedFloatTexture)) {
+            if (!renderer.getCaps().contains(Caps.FloatTexture)) {
+                fbFormat = Format.RGB8;
+            } else {
+                fbFormat = Format.RGB16F;
+            }
         }
         
         Camera cam = vp.getCamera();
@@ -161,6 +166,10 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         reshape(vp, cam.getWidth(), cam.getHeight());
     }
 
+    public Format getDefaultPassTextureFormat() {
+        return fbFormat;
+    }
+    
     /**
      * init the given filter
      * @param filter
@@ -170,7 +179,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         filter.setProcessor(this);
         if (filter.isRequiresDepthTexture()) {
             if (!computeDepth && renderFrameBuffer != null) {
-                depthTexture = new Texture2D(width, height, Format.Depth24);
+                depthTexture = new Texture2D(width, height, depthFormat);
                 renderFrameBuffer.setDepthTexture(depthTexture);
             }
             computeDepth = true;
@@ -469,20 +478,20 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             renderFrameBufferMS = new FrameBuffer(width, height, numSamples);
             if (caps.contains(Caps.OpenGL32)) {
                 Texture2D msColor = new Texture2D(width, height, numSamples, fbFormat);
-                Texture2D msDepth = new Texture2D(width, height, numSamples, Format.Depth);
+                Texture2D msDepth = new Texture2D(width, height, numSamples, depthFormat);
                 renderFrameBufferMS.setDepthTexture(msDepth);
                 renderFrameBufferMS.setColorTexture(msColor);
                 filterTexture = msColor;
                 depthTexture = msDepth;
             } else {
-                renderFrameBufferMS.setDepthBuffer(Format.Depth);
+                renderFrameBufferMS.setDepthBuffer(depthFormat);
                 renderFrameBufferMS.setColorBuffer(fbFormat);
             }
         }
 
         if (numSamples <= 1 || !caps.contains(Caps.OpenGL32)) {
             renderFrameBuffer = new FrameBuffer(width, height, 1);
-            renderFrameBuffer.setDepthBuffer(Format.Depth);
+            renderFrameBuffer.setDepthBuffer(depthFormat);
             filterTexture = new Texture2D(width, height, fbFormat);
             renderFrameBuffer.setColorTexture(filterTexture);
         }

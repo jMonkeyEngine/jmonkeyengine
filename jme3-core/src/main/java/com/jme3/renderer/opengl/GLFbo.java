@@ -89,6 +89,7 @@ public interface GLFbo {
     public void glDeleteRenderbuffersEXT(IntBuffer param1);
     public void glFramebufferRenderbufferEXT(int param1, int param2, int param3, int param4);
     public void glFramebufferTexture2DEXT(int param1, int param2, int param3, int param4, int param5);
+    public void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer);
     public void glGenFramebuffersEXT(IntBuffer param1);
     public void glGenRenderbuffersEXT(IntBuffer param1);
     public void glGenerateMipmapEXT(int param1);

@@ -493,9 +493,4 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
         checkLimit(arrays);
         ARBVertexArrayObject.glDeleteVertexArrays(arrays);
     }
-
-    @Override
-    public void glFramebufferTextureLayer(int param1, int param2, int param3, int param4, int param5) {
-        GL30.glFramebufferTextureLayer(param1, param2, param3, param4, param5);
-    }
 }

@@ -34,8 +34,8 @@ package com.jme3.util;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
 import com.jme3.texture.image.ImageRaster;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
@@ -58,8 +58,8 @@ public class MipMapGenerator {
         
         float xRatio = ((float)(input.getWidth()  - 1)) / output.getWidth();
         float yRatio = ((float)(input.getHeight() - 1)) / output.getHeight();
-        
-        ColorRGBA outputColor = new ColorRGBA();
+
+        ColorRGBA outputColor = new ColorRGBA(0, 0, 0, 0);
         ColorRGBA bottomLeft = new ColorRGBA();
         ColorRGBA bottomRight = new ColorRGBA();
         ColorRGBA topLeft = new ColorRGBA();
@@ -72,29 +72,21 @@ public class MipMapGenerator {
                 
                 int x2 = (int)x2f;
                 int y2 = (int)y2f;
-                
-                float xDiff = x2f - x2;
-                float yDiff = y2f - y2;
-                
+
                 input.getPixel(x2,     y2,     bottomLeft);
                 input.getPixel(x2 + 1, y2,     bottomRight);
                 input.getPixel(x2,     y2 + 1, topLeft);
                 input.getPixel(x2 + 1, y2 + 1, topRight);
-                
-                bottomLeft.multLocal(  (1f - xDiff) * (1f - yDiff) );
-                bottomRight.multLocal( (xDiff)      * (1f - yDiff) );
-                topLeft.multLocal(     (1f - xDiff) * (yDiff) );
-                topRight.multLocal(    (xDiff)      * (yDiff) );
-                
+
                 outputColor.set(bottomLeft).addLocal(bottomRight)
                            .addLocal(topLeft).addLocal(topRight);
-                
+                outputColor.multLocal(1f / 4f);
                 output.setPixel(x, y, outputColor);
             }
         }
         return outputImage;
     }
-    
+
     public static Image resizeToPowerOf2(Image original){
         int potWidth = FastMath.nearestPowerOfTwo(original.getWidth());
         int potHeight = FastMath.nearestPowerOfTwo(original.getHeight());

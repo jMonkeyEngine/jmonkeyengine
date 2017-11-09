@@ -34,6 +34,8 @@ package com.jme3.app;
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
+import com.jme3.input.vr.OculusVR;
+import com.jme3.input.vr.OpenVR;
 import com.jme3.input.vr.VRAPI;
 import com.jme3.input.vr.VRInputAPI;
 import com.jme3.math.ColorRGBA;
@@ -396,30 +398,21 @@ public class VRAppState extends AbstractAppState {
         } else if( environment.getObserver() != null ) {
             environment.getCamera().setFrame(((Spatial)environment.getObserver()).getWorldTranslation(), ((Spatial)environment.getObserver()).getWorldRotation());
         }
-        
-        //FIXME: check if this code is necessary.
-        // Updates scene and gui states.
-        Iterator<Spatial> spatialIter = application.getViewPort().getScenes().iterator();
-        Spatial spatial = null;
-        while(spatialIter.hasNext()){
-        	spatial = spatialIter.next();
-        	spatial.updateLogicalState(tpf);
-        	spatial.updateGeometricState();
-        }        
-        
+
         if( environment.isInVR() == false || environment.getVRGUIManager().getPositioningMode() == VRGUIPositioningMode.MANUAL ) {
             // only update geometric state here if GUI is in manual mode, or not in VR
             // it will get updated automatically in the viewmanager update otherwise
-        	spatialIter = application.getGuiViewPort().getScenes().iterator();
-            spatial = null;
-            while(spatialIter.hasNext()){
-            	spatial = spatialIter.next();
+            // TODO isn't this done by SimpleApplication?
+            for (Spatial spatial : application.getGuiViewPort().getScenes()) {
             	spatial.updateGeometricState();
             }    
         }
         
         // use the analog control on the first tracked controller to push around the mouse
-        environment.getVRMouseManager().updateAnalogAsMouse(0, null, null, null, tpf);
+        // FIXME crashes on Rift/Touch (and probably OSVR), as it assumes the presence of the Vive touchpads
+        if(getVRHardware() instanceof OpenVR) {
+            environment.getVRMouseManager().updateAnalogAsMouse(0, null, null, null, tpf);
+        }
     }
 
     @Override
@@ -429,6 +422,16 @@ public class VRAppState extends AbstractAppState {
         // update compositor
         if( environment.getVRViewManager() != null ) {
         	environment.getVRViewManager().postRender();
+        }
+    }
+
+    @Override
+    public void render(RenderManager rm) {
+        super.render(rm);
+
+        // update compositor
+        if( environment.getVRViewManager() != null ) {
+            environment.getVRViewManager().render();
         }
     }
 
@@ -598,7 +601,11 @@ public class VRAppState extends AbstractAppState {
             settings.setFrequency(environment.getVRHardware().getDisplayFrequency());
             settings.setFullscreen(false);
             settings.setVSync(false); // stop vsyncing on primary monitor!
-            settings.setSwapBuffers(environment.isSwapBuffers());
+
+            // TODO: Is this preventing desktop display on _ALL_ HMDs?
+            if(!(getVRHardware() instanceof OculusVR)) {
+                settings.setSwapBuffers(environment.isSwapBuffers());
+            }
         }
 
         // Updating application settings

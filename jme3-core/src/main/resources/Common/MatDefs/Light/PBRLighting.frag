@@ -9,9 +9,7 @@ varying vec2 texCoord;
   varying vec2 texCoord2;
 #endif
 
-#ifndef BASECOLORMAP
-    varying vec4 Color;
-#endif
+varying vec4 Color;
 
 uniform vec4 g_LightData[NB_LIGHTS];
 
@@ -26,18 +24,23 @@ varying vec3 wPosition;
 #ifdef INDIRECT_LIGHTING
 //  uniform sampler2D m_IntegrateBRDF;
   uniform samplerCube g_PrefEnvMap;
-  uniform samplerCube g_IrradianceMap;
+  uniform vec3 g_ShCoeffs[9];
   uniform vec4 g_LightProbeData;
 #endif
 
 #ifdef BASECOLORMAP
   uniform sampler2D m_BaseColorMap;
 #endif
-#ifdef METALLICMAP
-  uniform sampler2D m_MetallicMap;
-#endif
-#ifdef ROUGHNESSMAP
-  uniform sampler2D m_RoughnessMap;
+
+#ifdef USE_PACKED_MR
+     uniform sampler2D m_MetallicRoughnessMap;
+#else
+    #ifdef METALLICMAP
+      uniform sampler2D m_MetallicMap;
+    #endif
+    #ifdef ROUGHNESSMAP
+      uniform sampler2D m_RoughnessMap;
+    #endif
 #endif
 
 #ifdef EMISSIVE
@@ -52,8 +55,15 @@ varying vec3 wPosition;
 #endif 
 
 #ifdef SPECGLOSSPIPELINE
-  uniform sampler2D m_SpecularMap;
-  uniform sampler2D m_GlossMap;
+
+  uniform vec4 m_Specular;
+  uniform float m_Glossiness;
+  #ifdef USE_PACKED_SG
+    uniform sampler2D m_SpecularGlossinessMap;
+  #else
+    uniform sampler2D m_SpecularMap;
+    uniform sampler2D m_GlossinessMap;
+  #endif
 #endif
 
 #ifdef PARALLAXMAP
@@ -81,8 +91,10 @@ void main(){
     vec2 newTexCoord;
     vec3 viewDir = normalize(g_CameraPosition - wPosition);
 
+    vec3 norm = normalize(wNormal);
     #if defined(NORMALMAP) || defined(PARALLAXMAP)
-        mat3 tbnMat = mat3(wTangent.xyz, wTangent.w * cross( (wNormal), (wTangent.xyz)), wNormal.xyz);
+        vec3 tan = normalize(wTangent.xyz);
+        mat3 tbnMat = mat3(tan, wTangent.w * cross( (norm), (tan)), norm);
     #endif
 
     #if (defined(PARALLAXMAP) || (defined(NORMALMAP_PARALLAX) && defined(NORMALMAP)))
@@ -109,19 +121,26 @@ void main(){
     #endif
     
     #ifdef BASECOLORMAP
-        vec4 albedo = texture2D(m_BaseColorMap, newTexCoord);
+        vec4 albedo = texture2D(m_BaseColorMap, newTexCoord) * Color;
     #else
         vec4 albedo = Color;
     #endif
-    #ifdef ROUGHNESSMAP
-        float Roughness = texture2D(m_RoughnessMap, newTexCoord).r * max(m_Roughness, 1e-8);
+
+    #ifdef USE_PACKED_MR
+        vec2 rm = texture2D(m_MetallicRoughnessMap, newTexCoord).gb;
+        float Roughness = rm.x * max(m_Roughness, 1e-4);
+        float Metallic = rm.y * max(m_Metallic, 0.0);
     #else
-        float Roughness =  max(m_Roughness, 1e-8);
-    #endif
-    #ifdef METALLICMAP   
-        float Metallic = texture2D(m_MetallicMap, newTexCoord).r;
-    #else
-        float Metallic =  max(m_Metallic, 0.0);
+        #ifdef ROUGHNESSMAP
+            float Roughness = texture2D(m_RoughnessMap, newTexCoord).r * max(m_Roughness, 1e-4);
+        #else
+            float Roughness =  max(m_Roughness, 1e-4);
+        #endif
+        #ifdef METALLICMAP
+            float Metallic = texture2D(m_MetallicMap, newTexCoord).r * max(m_Metallic, 0.0);
+        #else
+            float Metallic =  max(m_Metallic, 0.0);
+        #endif
     #endif
  
     float alpha = albedo.a;
@@ -141,18 +160,35 @@ void main(){
       //as it's complient with normal maps generated with blender.
       //see http://hub.jmonkeyengine.org/forum/topic/parallax-mapping-fundamental-bug/#post-256898
       //for more explanation.
-      vec3 normal = normalize((normalHeight.xyz * vec3(2.0,-2.0,2.0) - vec3(1.0,-1.0,1.0)));
+      vec3 normal = normalize((normalHeight.xyz * vec3(2.0, NORMAL_TYPE * 2.0, 2.0) - vec3(1.0, NORMAL_TYPE * 1.0, 1.0)));
       normal = normalize(tbnMat * normal);
       //normal = normalize(normal * inverse(tbnMat));
     #else
-      vec3 normal = normalize(wNormal);            
+      vec3 normal = norm;
     #endif
 
     float specular = 0.5;
     #ifdef SPECGLOSSPIPELINE
-          vec4 specularColor = texture2D(m_SpecularMap, newTexCoord);
-          vec4 diffuseColor = albedo;
-          Roughness = 1.0 - texture2D(m_GlossMap, newTexCoord).r;          
+
+        #ifdef USE_PACKED_SG
+            vec4 specularColor = texture2D(m_SpecularGlossinessMap, newTexCoord);
+            float glossiness = specularColor.a * m_Glossiness;
+            specularColor *= m_Specular;
+        #else
+            #ifdef SPECULARMAP
+                vec4 specularColor = texture2D(m_SpecularMap, newTexCoord);
+            #else
+                vec4 specularColor = vec4(1.0);
+            #endif
+            #ifdef GLOSSINESSMAP
+                float glossiness = texture2D(m_GlossinesMap, newTexCoord).r * m_Glossiness;
+            #else
+                float glossiness = m_Glossiness;
+            #endif
+            specularColor *= m_Specular;
+        #endif
+        vec4 diffuseColor = albedo;// * (1.0 - max(max(specularColor.r, specularColor.g), specularColor.b));
+        Roughness = 1.0 - glossiness;
     #else      
         float nonMetalSpec = 0.08 * specular;
         vec4 specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
@@ -165,6 +201,9 @@ void main(){
           lightMapColor = texture2D(m_LightMap, texCoord2).rgb;
        #else
           lightMapColor = texture2D(m_LightMap, texCoord).rgb;
+       #endif
+       #ifdef AO_MAP
+         lightMapColor.gb = lightMapColor.rr;
        #endif
        specularColor.rgb *= lightMapColor;
        albedo.rgb  *= lightMapColor;
@@ -199,7 +238,7 @@ void main(){
                             lightColor.rgb,specular, Roughness, ndotv,
                             directDiffuse,  directSpecular);
 
-        vec3 directLighting = diffuseColor.rgb *directDiffuse + directSpecular * specularColor.rgb;
+        vec3 directLighting = diffuseColor.rgb *directDiffuse + directSpecular;
         
         gl_FragColor.rgb += directLighting * fallOff;
     }
@@ -207,20 +246,22 @@ void main(){
     #ifdef INDIRECT_LIGHTING
         vec3 rv = reflect(-viewDir.xyz, normal.xyz);
         //prallax fix for spherical bounds from https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
-        // g_LightProbeData.w is 1/probe radius, g_LightProbeData.xyz is the position of the lightProbe.
-        rv = g_LightProbeData.w * (wPosition - g_LightProbeData.xyz) +rv;
+        // g_LightProbeData.w is 1/probe radius + nbMipMaps, g_LightProbeData.xyz is the position of the lightProbe.
+        float invRadius = fract( g_LightProbeData.w);
+        float nbMipMaps = g_LightProbeData.w - invRadius;
+        rv = invRadius * (wPosition - g_LightProbeData.xyz) +rv;
 
          //horizon fade from http://marmosetco.tumblr.com/post/81245981087
-        float horiz = dot(rv, wNormal.xyz);
-        float horizFadePower= 1.0 - Roughness;
+        float horiz = dot(rv, norm);
+        float horizFadePower = 1.0 - Roughness;
         horiz = clamp( 1.0 + horizFadePower * horiz, 0.0, 1.0 );
         horiz *= horiz;
 
         vec3 indirectDiffuse = vec3(0.0);
         vec3 indirectSpecular = vec3(0.0);
-        indirectDiffuse = textureCube(g_IrradianceMap, normal.xyz).rgb * diffuseColor.rgb;
-
-        indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, rv.xyz);
+        indirectDiffuse = sphericalHarmonics(normal.xyz, g_ShCoeffs) * diffuseColor.rgb;
+        vec3 dominantR = getSpecularDominantDir( normal, rv.xyz, Roughness*Roughness );
+        indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, dominantR, nbMipMaps);
         indirectSpecular *= vec3(horiz);
 
         vec3 indirectLighting =  indirectDiffuse + indirectSpecular;
@@ -236,8 +277,6 @@ void main(){
         #endif
         gl_FragColor += emissive * pow(emissive.a, m_EmissivePower) * m_EmissiveIntensity;
     #endif
-           
     gl_FragColor.a = alpha;
-    
    
 }

@@ -1581,7 +1581,7 @@ public final class GLRenderer implements Renderer {
                     image.getId(),
                     0);
         } else {
-            gl3.glFramebufferTextureLayer(GLFbo.GL_FRAMEBUFFER_EXT, 
+            glfbo.glFramebufferTextureLayerEXT(GLFbo.GL_FRAMEBUFFER_EXT, 
                     convertAttachmentSlot(rb.getSlot()), 
                     image.getId(), 
                     0,
@@ -1980,7 +1980,13 @@ public final class GLRenderer implements Renderer {
     @SuppressWarnings("fallthrough")
     private void setupTextureParams(int unit, Texture tex) {
         Image image = tex.getImage();
-        int target = convertTextureType(tex.getType(), image != null ? image.getMultiSamples() : 1, -1);
+        int samples = image != null ? image.getMultiSamples() : 1;
+        int target = convertTextureType(tex.getType(), samples, -1);
+
+        if (samples > 1) {
+            bindTextureOnly(target, image, unit);
+            return;
+        }
 
         boolean haveMips = true;
         if (image != null) {
@@ -2183,41 +2189,48 @@ public final class GLRenderer implements Renderer {
         int target = convertTextureType(type, img.getMultiSamples(), -1);
         bindTextureAndUnit(target, img, unit);
 
-        if (!img.hasMipmaps() && img.isGeneratedMipmapsRequired()) {
-            // Image does not have mipmaps, but they are required.
-            // Generate from base level.
-
-            if (!caps.contains(Caps.FrameBuffer) && gl2 != null) {
-                gl2.glTexParameteri(target, GL2.GL_GENERATE_MIPMAP, GL.GL_TRUE);
-                img.setMipmapsGenerated(true);
-            } else {
-                // For OpenGL3 and up.
-                // We'll generate mipmaps via glGenerateMipmapEXT (see below)
-            }
-        } else if (img.hasMipmaps()) {
-            // Image already has mipmaps, set the max level based on the 
-            // number of mipmaps we have.
-            gl.glTexParameteri(target, GL.GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
-        } else {
-            // Image does not have mipmaps and they are not required.
-            // Specify that that the texture has no mipmaps.
-            gl.glTexParameteri(target, GL.GL_TEXTURE_MAX_LEVEL, 0);
-        }
-
         int imageSamples = img.getMultiSamples();
-        if (imageSamples > 1) {
+
+        if (imageSamples <= 1) {
+            if (!img.hasMipmaps() && img.isGeneratedMipmapsRequired()) {
+                // Image does not have mipmaps, but they are required.
+                // Generate from base level.
+
+                if (!caps.contains(Caps.FrameBuffer) && gl2 != null) {
+                    gl2.glTexParameteri(target, GL2.GL_GENERATE_MIPMAP, GL.GL_TRUE);
+                    img.setMipmapsGenerated(true);
+                } else {
+                    // For OpenGL3 and up.
+                    // We'll generate mipmaps via glGenerateMipmapEXT (see below)
+                }
+            } else if (caps.contains(Caps.OpenGL20)) {
+                if (img.hasMipmaps()) {
+                    // Image already has mipmaps, set the max level based on the 
+                    // number of mipmaps we have.
+                    gl.glTexParameteri(target, GL2.GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
+                } else {
+                    // Image does not have mipmaps and they are not required.
+                    // Specify that that the texture has no mipmaps.
+                    gl.glTexParameteri(target, GL2.GL_TEXTURE_MAX_LEVEL, 0);
+                }
+            }
+        } else {
+            // Check if graphics card doesn't support multisample textures
+            if (!caps.contains(Caps.TextureMultisample)) {
+                throw new RendererException("Multisample textures are not supported by the video hardware");
+            }
+
+            if (img.isGeneratedMipmapsRequired() || img.hasMipmaps()) {
+                throw new RendererException("Multisample textures do not support mipmaps");
+            }
+
             if (img.getFormat().isDepthFormat()) {
                 img.setMultiSamples(Math.min(limits.get(Limits.DepthTextureSamples), imageSamples));
             } else {
                 img.setMultiSamples(Math.min(limits.get(Limits.ColorTextureSamples), imageSamples));
             }
-        }
 
-        // Check if graphics card doesn't support multisample textures
-        if (!caps.contains(Caps.TextureMultisample)) {
-            if (img.getMultiSamples() > 1) {
-                throw new RendererException("Multisample textures are not supported by the video hardware");
-            }
+            scaleToPot = false;
         }
 
         // Check if graphics card doesn't support depth textures
@@ -2592,6 +2605,7 @@ public final class GLRenderer implements Renderer {
         }
 
         switch (indexBuf.getFormat()) {
+            case UnsignedByte:
             case UnsignedShort:
                 // OK: Works on all platforms.
                 break;

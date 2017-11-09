@@ -1,12 +1,7 @@
+#extension GL_ARB_texture_multisample : enable
 #import "Common/ShaderLib/GLSLCompat.glsllib"
-#import "Common/ShaderLib/MultiSample.glsllib"
 
-uniform COLORTEXTURE m_Texture;
-uniform vec3 m_WhitePoint;
-
-varying vec2 texCoord;
-
-vec3 FilmicCurve(in vec3 x){
+vec3 FilmicCurve(in vec3 x) {
     const float A = 0.22;
     const float B = 0.30;
     const float C = 0.10;
@@ -19,27 +14,40 @@ vec3 FilmicCurve(in vec3 x){
 
 // whitePoint should be 11.2
 
-vec3 ToneMap_Filmic(vec3 color, vec3 whitePoint){
+vec3 ToneMap_Filmic(vec3 color, vec3 whitePoint) {
     return FilmicCurve(color) / FilmicCurve(whitePoint);
 }
 
-vec4 tonemap(int i) {
+uniform vec3 m_WhitePoint;
+varying vec2 texCoord;
+ 
+#ifdef NUM_SAMPLES
 
-    vec4 texVal = fetchTextureSample(m_Texture, texCoord, i);
-    vec3 toneMapped = ToneMap_Filmic(texVal.rgb, m_WhitePoint);
+uniform sampler2DMS m_Texture;
 
-    return vec4(toneMapped, texVal.a);
+vec4 ToneMap_TextureFilmic() {
+    ivec2 iTexC = ivec2(texCoord * vec2(textureSize(m_Texture)));
+    vec4 color = vec4(0.0);
+    for (int i = 0; i < NUM_SAMPLES; i++) {
+        vec4 hdrColor = texelFetch(m_Texture, iTexC, i);
+        vec3 ldrColor = FilmicCurve(hdrColor.rgb);
+        color += vec4(ldrColor, hdrColor.a);
+    }
+    color.rgb /= FilmicCurve(m_WhitePoint);
+    return color / float(NUM_SAMPLES);
 }
 
+#else
+ 
+uniform sampler2D m_Texture;
+ 
+vec4 ToneMap_TextureFilmic() {
+    vec4 texVal = texture2D(m_Texture, texCoord);
+    return vec4(ToneMap_Filmic(texVal.rgb, m_WhitePoint), texVal.a);
+}
+ 
+#endif
 
 void main() {
-    #ifdef RESOLVE_MS
-        vec4 color = vec4(0.0);
-        for (int i = 0; i < m_NumSamples; i++){
-            color += tonemap(i);
-        }
-        gl_FragColor = color / m_NumSamples;
-    #else
-        gl_FragColor = tonemap(0);
-    #endif
+    gl_FragColor = ToneMap_TextureFilmic();
 }

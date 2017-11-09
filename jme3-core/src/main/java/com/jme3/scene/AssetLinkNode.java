@@ -31,16 +31,15 @@
  */
 package com.jme3.scene;
 
-import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.ModelKey;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.export.binary.BinaryImporter;
-import com.jme3.util.clone.Cloner;
 import com.jme3.util.SafeArrayList;
+import com.jme3.util.clone.Cloner;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
@@ -164,25 +163,24 @@ public class AssetLinkNode extends Node {
     @Override
     public void read(JmeImporter e) throws IOException {
         super.read(e);
-        InputCapsule capsule = e.getCapsule(this);
-        BinaryImporter importer = BinaryImporter.getInstance();
-        AssetManager loaderManager = e.getAssetManager();
+
+        final InputCapsule capsule = e.getCapsule(this);
+        final AssetManager assetManager = e.getAssetManager();
 
         assetLoaderKeys = (ArrayList<ModelKey>) capsule.readSavableArrayList("assetLoaderKeyList", new ArrayList<ModelKey>());
-        for (Iterator<ModelKey> it = assetLoaderKeys.iterator(); it.hasNext();) {
-            ModelKey modelKey = it.next();
-            AssetInfo info = loaderManager.locateAsset(modelKey);
-            Spatial child = null;
-            if (info != null) {
-                child = (Spatial) importer.load(info);
-            }
+
+        for (final Iterator<ModelKey> iterator = assetLoaderKeys.iterator(); iterator.hasNext(); ) {
+
+            final ModelKey modelKey = iterator.next();
+            final Spatial child = assetManager.loadAsset(modelKey);
+
             if (child != null) {
                 child.parent = this;
                 children.add(child);
                 assetChildren.put(modelKey, child);
             } else {
-                Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Cannot locate {0} for asset link node {1}",
-                                                                    new Object[]{ modelKey, key });
+                Logger.getLogger(this.getClass().getName()).log(Level.WARNING,
+                        "Cannot locate {0} for asset link node {1}", new Object[]{modelKey, key});
             }
         }
     }
@@ -190,7 +188,7 @@ public class AssetLinkNode extends Node {
     @Override
     public void write(JmeExporter e) throws IOException {
         SafeArrayList<Spatial> childs = children;
-        children = new SafeArrayList<Spatial>(Spatial.class);
+        children = new SafeArrayList<>(Spatial.class);
         super.write(e);
         OutputCapsule capsule = e.getCapsule(this);
         capsule.writeSavableArrayList(assetLoaderKeys, "assetLoaderKeyList", null);
