@@ -1,6 +1,6 @@
 package com.jme3.system.jopenvr;
 
-import com.jme3.input.vr.OpenVRInput;
+import com.jme3.input.vr.openvr.OpenVRInput;
 import com.jme3.system.jopenvr.JOpenVRLibrary.EColorSpace;
 import com.jme3.system.jopenvr.JOpenVRLibrary.ETextureType;
 import com.jme3.system.jopenvr.JOpenVRLibrary.ETrackedDeviceProperty;
@@ -13,8 +13,7 @@ import com.sun.jna.ptr.IntByReference;
 
 /**
  * A utility class that provide helper methods for OpenVR system.
- * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
- *
+ * @author Julien Seinturier - 2017 - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public class OpenVRUtil {
 
@@ -675,9 +674,6 @@ public class OpenVRUtil {
 			str = "";
 			break;
 		case ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_DisplayMCImageData_Binary:
-			str = "";
-			break;
-		case ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_UsesDriverDirectMode_Bool:
 			str = "";
 			break;
 		case ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_AttachedDeviceId_String:
