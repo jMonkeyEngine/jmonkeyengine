@@ -1,11 +1,9 @@
 package com.jme3.input.vr;
 
-import static org.lwjgl.ovr.OVR.*; // For the button constants
-
 /**
  * The type of a VR input. This enumeration enables to determine which part of the VR device is involved within input callback.
  * @author reden - phr00t - https://github.com/phr00t
- * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  *
  */
 public enum VRInputType {
@@ -59,18 +57,18 @@ public enum VRInputType {
 	/**
 	 * The upper buttons on the Oculus Touch controllers - B on the right controller, and Y on the left.
 	 */
-	OculusTopButton(ovrButton_B | ovrButton_Y),
+	OculusTopButton(org.lwjgl.ovr.OVR.ovrButton_B | org.lwjgl.ovr.OVR.ovrButton_Y),
 
 	/**
 	 * The lower (not counting menu) buttons on the Oculus Touch
 	 * controllers - A on the right controller, and X on the left.
 	 */
-	OculusBottomButton(ovrButton_A | ovrButton_X),
+	OculusBottomButton(org.lwjgl.ovr.OVR.ovrButton_A | org.lwjgl.ovr.OVR.ovrButton_X),
 
 	/**
 	 * The 'click' button on the Oculus Touch thumbsticks.
 	 */
-	OculusThumbstickButton(ovrButton_LThumb | ovrButton_RThumb),
+	OculusThumbstickButton(org.lwjgl.ovr.OVR.ovrButton_LThumb | org.lwjgl.ovr.OVR.ovrButton_RThumb),
 
 	/**
 	 * The game-usable menu button, under and to the left of the 'X' button on the left controller.
@@ -78,22 +76,22 @@ public enum VRInputType {
 	 * Most games use this to pause - it preferably should be used for at least that purpose, and is
 	 * uncomfortable to rest your thumb on (in games where you suddenly have to pause/open a menu).
 	 */
-	OculusMenuButton(ovrButton_Enter),
+	OculusMenuButton(org.lwjgl.ovr.OVR.ovrButton_Enter),
 
 	/**
 	 * The capacitive touch sensors on the top buttons (Y and B) of the Oculus Touch.
 	 */
-	OculusTopTouch(ovrTouch_B | ovrTouch_Y),
+	OculusTopTouch(org.lwjgl.ovr.OVR.ovrTouch_B | org.lwjgl.ovr.OVR.ovrTouch_Y),
 
 	/**
 	 * The capacitive touch sensors on the lower buttons (X and A) of the Oculus Touch.
 	 */
-	OculusBottomTouch(ovrTouch_A | ovrTouch_X),
+	OculusBottomTouch(org.lwjgl.ovr.OVR.ovrTouch_A | org.lwjgl.ovr.OVR.ovrTouch_X),
 
 	/**
 	 * The capacitive touch sensors on the thumbsticks of the Oculus Touch.
 	 */
-	OculusThumbstickTouch(ovrTouch_LThumb | ovrTouch_RThumb),
+	OculusThumbstickTouch(org.lwjgl.ovr.OVR.ovrTouch_LThumb | org.lwjgl.ovr.OVR.ovrTouch_RThumb),
 
 	/**
 	 * The capacitive touch sensors on the thumbrests of the Oculus Touch - this is a textured pad
@@ -102,7 +100,7 @@ public enum VRInputType {
 	 * While it probably goes without saying, only use this for gesture support and do not bind game
 	 * elements to it.
 	 */
-	OculusThumbrestTouch(ovrTouch_LThumbRest | ovrTouch_RThumbRest),
+	OculusThumbrestTouch(org.lwjgl.ovr.OVR.ovrTouch_LThumbRest | org.lwjgl.ovr.OVR.ovrTouch_RThumbRest),
 
 	/**
 	 * The state of a software calculation based on the capacitive touch sensor values that determine if
@@ -111,12 +109,12 @@ public enum VRInputType {
 	 * This should be used instead of calculating this yourself based on the touch results of all the other
 	 * parts of the controller.
 	 */
-	OculusThumbUp(ovrTouch_LThumbUp | ovrTouch_RThumbUp),
+	OculusThumbUp(org.lwjgl.ovr.OVR.ovrTouch_LThumbUp | org.lwjgl.ovr.OVR.ovrTouch_RThumbUp),
 
 	/**
 	 * Is the user resting their finger on the trigger of an Oculus Touch controller?
 	 */
-	OculusIndexTouch(ovrTouch_LIndexPointing | ovrTouch_RIndexPointing),
+	OculusIndexTouch(org.lwjgl.ovr.OVR.ovrTouch_LIndexPointing | org.lwjgl.ovr.OVR.ovrTouch_RIndexPointing),
 
 	/**
 	 * Is the user pointing their finger forwards, as if to press a button?
@@ -124,7 +122,7 @@ public enum VRInputType {
 	 * This is internally calculated from proximity and filtering is applied - it should be used rather
 	 * than !OculusIndexTouch, as it will probably lead to better results.
 	 */
-	OculusIndexPointing(ovrTouch_LIndexPointing | ovrTouch_RIndexPointing);
+	OculusIndexPointing(org.lwjgl.ovr.OVR.ovrTouch_LIndexPointing | org.lwjgl.ovr.OVR.ovrTouch_RIndexPointing);
     
     /**
      * The value that codes the input type.

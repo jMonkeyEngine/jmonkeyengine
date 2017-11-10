@@ -29,16 +29,18 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.util;
+package com.jme3.input.vr.oculus;
 
 import com.jme3.app.VREnvironment;
-import com.jme3.input.vr.OculusVR;
+import com.jme3.input.vr.AbstractVRViewManager;
 import com.jme3.input.vr.VRAPI;
 import com.jme3.math.*;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.*;
+import com.jme3.util.BufferUtils;
+import com.jme3.util.VRGUIPositioningMode;
 
 import java.nio.IntBuffer;
 import java.util.Iterator;
@@ -55,9 +57,9 @@ import static org.lwjgl.ovr.OVRErrorCode.*;
  *
  * @author Campbell Suter <znix@znix.xyz>
  */
-public class VRViewManagerOculus extends AbstractVRViewManager {
+public class OculusViewManager extends AbstractVRViewManager {
 
-    private static final Logger LOG = Logger.getLogger(VRViewManagerOculus.class.getName());
+    private static final Logger LOG = Logger.getLogger(OculusViewManager.class.getName());
 
     private final VREnvironment environment;
     private final OculusVR hardware;
@@ -69,7 +71,7 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
     private final Vector3f hmdPos = new Vector3f();
     private final Quaternion hmdRot = new Quaternion();
 
-    public VRViewManagerOculus(VREnvironment environment) {
+    public OculusViewManager(VREnvironment environment) {
         this.environment = environment;
 
         VRAPI hardware = environment.getVRHardware();
@@ -153,7 +155,7 @@ public class VRViewManagerOculus extends AbstractVRViewManager {
             environment.getVRMouseManager().update(tpf);
 
             // update GUI position?
-            if (environment.getVRGUIManager().wantsReposition || environment.getVRGUIManager().getPositioningMode() != VRGUIPositioningMode.MANUAL) {
+            if (environment.getVRGUIManager().isWantsReposition() || environment.getVRGUIManager().getPositioningMode() != VRGUIPositioningMode.MANUAL) {
                 environment.getVRGUIManager().positionGuiNow(tpf);
                 environment.getVRGUIManager().updateGuiQuadGeometricState();
             }

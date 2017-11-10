@@ -7,9 +7,12 @@ https://github.com/sensics/OSVR-RenderManager/blob/master/examples/RenderManager
 - render manager looks good, but left eye seems stretched
 
  */
-package com.jme3.input.vr;
+package com.jme3.input.vr.osvr;
 
 import com.jme3.app.VREnvironment;
+import com.jme3.input.vr.HmdType;
+import com.jme3.input.vr.VRAPI;
+import com.jme3.input.vr.VRInputAPI;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
@@ -35,7 +38,7 @@ import java.util.logging.Logger;
 /**
  * A class that wraps an <a href="http://www.osvr.org/">OSVR</a> system. 
  * @author reden - phr00t - https://github.com/phr00t
- * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public class OSVR implements VRAPI {
 

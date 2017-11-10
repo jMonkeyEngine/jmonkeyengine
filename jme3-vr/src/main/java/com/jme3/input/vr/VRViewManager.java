@@ -1,4 +1,4 @@
-package com.jme3.util;
+package com.jme3.input.vr;
 
 import com.jme3.app.VRAppState;
 import com.jme3.app.VREnvironment;
@@ -11,7 +11,7 @@ import com.jme3.texture.Texture2D;
 /**
  * A VR view manager. This interface describes methods that enable to submit 3D views to the VR compositor.
  * @author reden - phr00t - https://github.com/phr00t
- * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public interface VRViewManager {
 
@@ -151,15 +151,17 @@ public interface VRViewManager {
     public void update(float tpf);
     
     /**
-     * Set up the scene for rendering.
-     * This method should be called before any rendering takes place.
+     * This method contains action to be done during the rendering phase. 
+     * This method should be called for example from the {@link com.jme3.app.state.AppState#render(com.jme3.renderer.RenderManager) render} method of an {@link com.jme3.app.state.AppState app state}.
+     * @see #postRender()
      */
     public void render();
-
+    
     /**
      * Send the rendering result as textures to the two eyes. 
      * This method should be called after all the rendering operations 
      * (for example at the end of the {@link AppState#postRender() postRender()} method of the attached app state.)
+     * @see #preRender()
      */
     public void postRender();
     

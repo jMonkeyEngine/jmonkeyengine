@@ -12,7 +12,11 @@ import com.jme3.system.jopenvr.HmdMatrix44_t;
 
 import java.util.concurrent.TimeUnit;
 
-
+/**
+ * 
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
+ *
+ */
 public class VRUtil {
 
     private static final long SLEEP_PRECISION = TimeUnit.MILLISECONDS.toNanos(4);
