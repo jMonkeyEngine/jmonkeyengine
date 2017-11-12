@@ -53,6 +53,7 @@ public class CameraNode extends Node {
      * Serialization only. Do not use.
      */
     public CameraNode() {
+        super();
     }
 
     public CameraNode(String name, Camera camera) {

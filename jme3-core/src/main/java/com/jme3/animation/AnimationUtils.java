@@ -41,7 +41,9 @@ import static com.jme3.animation.LoopMode.Loop;
  */
 public class AnimationUtils {
     
-    
+    public AnimationUtils(){
+        
+    }
     /**
      * Clamps the time according to duration and loopMode
      * @param time
