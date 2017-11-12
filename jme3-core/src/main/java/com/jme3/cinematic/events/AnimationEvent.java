@@ -80,8 +80,9 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * constructors
      */
     public AnimationEvent() {
+        super();
     }
-
+    
     /**
      * creates an animation event
      *

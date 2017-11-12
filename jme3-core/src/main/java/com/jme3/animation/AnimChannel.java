@@ -68,7 +68,11 @@ public final class AnimChannel {
     private float blendAmount = 1f;
     private float blendRate   = 0;
     
-    AnimChannel(AnimControl control){
+    public AnimChannel(){
+        
+    }
+    
+    public AnimChannel(AnimControl control){
         this.control = control;
     }
 

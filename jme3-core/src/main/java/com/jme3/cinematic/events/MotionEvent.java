@@ -112,7 +112,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     public MotionEvent() {
         super();
     }
-
+    
     /**
      * Creates a MotionPath for the given spatial on the given motion path.
      * @param spatial

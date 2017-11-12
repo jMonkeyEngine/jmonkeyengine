@@ -147,6 +147,7 @@ public class SoundEvent extends AbstractCinematicEvent {
      * used for serialization
      */
     public SoundEvent() {
+        super();
     }
 
     @Override
