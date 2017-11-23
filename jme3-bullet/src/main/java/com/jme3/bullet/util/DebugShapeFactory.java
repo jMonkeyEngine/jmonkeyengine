@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2017 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@ import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
 import com.jme3.bullet.collision.shapes.infos.ChildCollisionShape;
 import com.jme3.math.Matrix3f;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
@@ -111,9 +112,16 @@ public class DebugShapeFactory {
 
     public static Mesh getDebugMesh(CollisionShape shape) {
         Mesh mesh = new Mesh();
-        mesh = new Mesh();
         DebugMeshCallback callback = new DebugMeshCallback();
+        /*
+         * Populate the mesh based on an unscaled shape;
+         * the shape's scale will be applied later, to the geometry.
+         */
+        Vector3f savedScale = shape.getScale().clone();
+        shape.setScale(Vector3f.UNIT_XYZ);
         getVertices(shape.getObjectId(), callback);
+        shape.setScale(savedScale);
+
         mesh.setBuffer(Type.Position, 3, callback.getVertices());
         mesh.getFloatBuffer(Type.Position).clear();
         return mesh;
