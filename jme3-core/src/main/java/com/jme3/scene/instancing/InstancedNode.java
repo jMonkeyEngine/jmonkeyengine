@@ -31,21 +31,18 @@
  */
 package com.jme3.scene.instancing;
 
-import com.jme3.material.Material;
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.GeometryGroupNode;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.UserData;
-import com.jme3.scene.control.Control;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.material.MatParam;
+import com.jme3.material.Material;
+import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.scene.*;
+import com.jme3.scene.control.Control;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -217,6 +214,7 @@ public class InstancedNode extends GeometryGroupNode {
             ig.setMesh(lookUp.mesh);
             ig.setUserData(UserData.JME_PHYSICSIGNORE, true);
             ig.setCullHint(CullHint.Never);
+            ig.setShadowMode(RenderQueue.ShadowMode.Inherit);
             instancesMap.put(lookUp.clone(), ig);
             attachChild(ig);
         }
