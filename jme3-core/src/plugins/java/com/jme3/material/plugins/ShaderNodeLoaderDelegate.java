@@ -899,39 +899,51 @@ public class ShaderNodeLoaderDelegate {
     }
 
     /**
-     * find the definition from this statement (loads it if necessary)
+     * Find the definition from this statement (loads it if necessary)
      *
      * @param statement the statement being read
      * @return the definition
      * @throws IOException
      */
     public ShaderNodeDefinition findDefinition(Statement statement) throws IOException {
-        String defLine[] = statement.getLine().split(":");
-        String defName = defLine[1].trim();
 
-        ShaderNodeDefinition def = getNodeDefinitions().get(defName);
-        if (def == null) {
-            if (defLine.length == 3) {
-                List<ShaderNodeDefinition> defs = null;
-                try {
-                    defs = assetManager.loadAsset(new ShaderNodeDefinitionKey(defLine[2].trim()));
-                } catch (AssetNotFoundException e) {
-                    throw new MatParseException("Couldn't find " + defLine[2].trim(), statement, e);
-                }
+        final String defLine[] = statement.getLine().split(":");
 
-                for (ShaderNodeDefinition definition : defs) {
-                    if (defName.equals(definition.getName())) {
-                        def = definition;
-                    }
-                    if (!(getNodeDefinitions().containsKey(definition.getName()))) {
-                        getNodeDefinitions().put(definition.getName(), definition);
-                    }
-                }
+        if (defLine.length != 3) {
+            throw new MatParseException("Can't find shader node definition for: ", statement);
+        }
+
+        final Map<String, ShaderNodeDefinition> nodeDefinitions = getNodeDefinitions();
+        final String definitionName = defLine[1].trim();
+        final String definitionPath = defLine[2].trim();
+        final String fullName = definitionName + ":" + definitionPath;
+
+        ShaderNodeDefinition def = nodeDefinitions.get(fullName);
+        if (def != null) {
+            return def;
+        }
+
+        List<ShaderNodeDefinition> defs;
+        try {
+            defs = assetManager.loadAsset(new ShaderNodeDefinitionKey(definitionPath));
+        } catch (final AssetNotFoundException e) {
+            throw new MatParseException("Couldn't find " + definitionPath, statement, e);
+        }
+
+        for (final ShaderNodeDefinition definition : defs) {
+            if (definitionName.equals(definition.getName())) {
+                def = definition;
             }
-            if (def == null) {
-                throw new MatParseException(defName + " is not a declared as Shader Node Definition", statement);
+            final String key = definition.getName() + ":" + definitionPath;
+            if (!(nodeDefinitions.containsKey(key))) {
+                nodeDefinitions.put(key, definition);
             }
         }
+
+        if (def == null) {
+            throw new MatParseException(definitionName + " is not a declared as Shader Node Definition", statement);
+        }
+
         return def;
     }
 
