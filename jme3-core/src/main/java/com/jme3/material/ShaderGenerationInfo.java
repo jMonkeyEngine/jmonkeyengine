@@ -206,7 +206,9 @@ public class ShaderGenerationInfo implements Savable, Cloneable {
             clone.vertexUniforms.add(uniform.clone());
         }
 
-        clone.vertexGlobal = vertexGlobal.clone();
+        if (vertexGlobal != null) {
+            clone.vertexGlobal = vertexGlobal.clone();
+        }
 
         for (ShaderNodeVariable varying : varyings) {
             clone.varyings.add(varying.clone());
