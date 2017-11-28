@@ -41,10 +41,10 @@ public abstract class AstShaderGenerator extends Glsl100ShaderGenerator {
 
     public static final String PROP_USE_CASE = "AstShaderGenerator.useCache";
 
-    public static final String SD_DEF_IMPORTS = "Imports";
-    public static final String SD_DEF_DEFINES = "Defines";
-
     private static final boolean USE_AST_CACHE;
+
+    private static final String INPUT_VAR_DEFINITION_PREFIX = "HAS_INPUT_";
+    private static final String OUTPUT_VAR_DEFINITION_PREFIX = "HAS_OUTPUT_";
 
     static {
         USE_AST_CACHE = Boolean.parseBoolean(getProperty(PROP_USE_CASE, "true"));
@@ -315,7 +315,7 @@ public abstract class AstShaderGenerator extends Glsl100ShaderGenerator {
         generateStartOfMainSection(mainSource, info, type);
         generateDeclarationAndMainBody(shaderNodes, null, mainSource, info, type);
         generateEndOfMainSection(mainSource, info, type);
-        generateVarDefines(headerSource, state.getResultDefines());
+        generateVariableDefinitions(headerSource, state.getResultUsedVariableDefinitions());
         generateCompatibilityDefines(headerSource, type);
         generateShaderNodeHeaders(shaderNodes, info, type, headerSource);
 
@@ -381,7 +381,7 @@ public abstract class AstShaderGenerator extends Glsl100ShaderGenerator {
                 defineValueNodes.clear();
                 findAllByType(child, defineValueNodes, DefineValueAstNode.class);
 
-                final String code = updateDefineNames(shaderNode, child.getText(), defineValueNodes);
+                final String code = updateDefinitionNames(shaderNode, child.getText(), defineValueNodes);
 
                 headerSource.append(code).append('\n').append('\n');
             }
@@ -398,18 +398,18 @@ public abstract class AstShaderGenerator extends Glsl100ShaderGenerator {
     }
 
     /**
-     * Generates variable defines.
+     * Generates variable definitions.
      *
      * @param headerSource  the header source.
-     * @param resultDefines the result defines list.
+     * @param result the result definition list.
      */
-    private void generateVarDefines(final StringBuilder headerSource, final List<String> resultDefines) {
+    private void generateVariableDefinitions(final StringBuilder headerSource, final List<String> result) {
 
-        if (resultDefines.isEmpty()) {
+        if (result.isEmpty()) {
             return;
         }
 
-        for (final String define : resultDefines) {
+        for (final String define : result) {
             headerSource.append("#define ").append(define).append(" 1").append('\n');
         }
 
@@ -455,9 +455,9 @@ public abstract class AstShaderGenerator extends Glsl100ShaderGenerator {
         final List<String> unusedNodes = info.getUnusedNodes();
 
         final List<DefineValueAstNode> defineValueNodes = state.getDefineValueNodes();
-        final List<String> definedVariables = state.getDefinedVariables();
-        final List<String> resultDefines = state.getResultDefines();
-        resultDefines.clear();
+        final List<String> usedVariableDefinitions = state.getUsedVariableDefinitions();
+        final List<String> resultUsedVariableDefinitions = state.getResultUsedVariableDefinitions();
+        resultUsedVariableDefinitions.clear();
 
         for (final ShaderNode shaderNode : shaderNodes) {
 
@@ -471,7 +471,7 @@ public abstract class AstShaderGenerator extends Glsl100ShaderGenerator {
             }
 
             methods.clear();
-            definedVariables.clear();
+            usedVariableDefinitions.clear();
             defineValueNodes.clear();
 
             final FileDeclarationAstNode shaderFile = shaderNodeSources.get(shaderNode);
@@ -480,8 +480,8 @@ public abstract class AstShaderGenerator extends Glsl100ShaderGenerator {
 
             AstUtils.removeDefineValueDuplicates(defineValueNodes);
 
-            copyDefinedVariables(defineValueNodes, definedVariables);
-            findAvailableDefinesToDefine(shaderNode, definedVariables, resultDefines);
+            copyVariableDefinitions(defineValueNodes, usedVariableDefinitions);
+            findAvailableDefinesToDefine(shaderNode, shaderNodes, usedVariableDefinitions, resultUsedVariableDefinitions);
 
             final MethodDeclarationAstNode mainMethod = findMainMethod(methods);
 
@@ -494,7 +494,7 @@ public abstract class AstShaderGenerator extends Glsl100ShaderGenerator {
 
             String methodBodySource = updateMethodCalls(shaderNode, mainMethod, methods);
             methodBodySource = updateLocalVarNames(shaderNode, methodBodySource, localVariables);
-            methodBodySource = updateDefineNames(shaderNode, methodBodySource, defineValueNodes);
+            methodBodySource = updateDefinitionNames(shaderNode, methodBodySource, defineValueNodes);
 
             generateNodeMainSection(source, shaderNode, methodBodySource, info);
         }
@@ -688,42 +688,102 @@ public abstract class AstShaderGenerator extends Glsl100ShaderGenerator {
     }
 
     /**
-     * Calculate used define names in the shader source which need to define in the top of the result shader..
+     * Calculate used definition names in the shader source which need to define in the top of the result shader.
      *
-     * @param shaderNode    the shader node.
-     * @param definedVars   the defined vars.
-     * @param resultDefines the result defines.
+     * @param shaderNode                    the shader node.
+     * @param shaderNodes                   the list of shader nodes.
+     * @param usedVariableDefinitions       the used variable definitions.
+     * @param resultUsedVariableDefinitions the result used variable definitions.
      */
-    private void findAvailableDefinesToDefine(final ShaderNode shaderNode, final List<String> definedVars,
-                                              final List<String> resultDefines) {
+    private void findAvailableDefinesToDefine(final ShaderNode shaderNode, final List<ShaderNode> shaderNodes,
+                                              final List<String> usedVariableDefinitions,
+                                              final List<String> resultUsedVariableDefinitions) {
 
-        if (definedVars.isEmpty()) {
+        if (usedVariableDefinitions.isEmpty()) {
             return;
         }
 
         final List<VariableMapping> inputMapping = shaderNode.getInputMapping();
+        final List<VariableMapping> outputMapping = shaderNode.getOutputMapping();
 
-        for (final String defineName : definedVars) {
+        for (final String definitionName : usedVariableDefinitions) {
+
+            if (!isShaderNodeInputVarDefinition(definitionName)) {
+                continue;
+            }
+
             for (final VariableMapping mapping : inputMapping) {
+
                 final ShaderNodeVariable variable = mapping.getLeftVariable();
-                if (variable.getName().equals(defineName)) {
-                    resultDefines.add(toResultDefineVarName(shaderNode, defineName));
+                final String variableName = variable.getName();
+
+                final int resultLength = INPUT_VAR_DEFINITION_PREFIX.length() + variableName.length();
+
+                if (definitionName.length() == resultLength && definitionName.endsWith(variableName)) {
+                    resultUsedVariableDefinitions.add(toResultShaderNodeInputVarDefinition(shaderNode, definitionName));
                     break;
+                }
+            }
+        }
+
+        for (final String definitionName : usedVariableDefinitions) {
+
+            if (!isShaderNodeOutputVarDefinition(definitionName)) {
+                continue;
+            }
+
+            boolean exists = false;
+
+            for (final VariableMapping mapping : outputMapping) {
+
+                final ShaderNodeVariable variable = mapping.getRightVariable();
+                final String variableName = variable.getName();
+
+                final int resultLength = OUTPUT_VAR_DEFINITION_PREFIX.length() + variableName.length();
+
+                if (definitionName.length() == resultLength && definitionName.endsWith(variableName)) {
+                    resultUsedVariableDefinitions.add(toResultShaderNodeOutputVarDefinition(shaderNode, definitionName));
+                    exists = true;
+                    break;
+                }
+            }
+
+            if (exists) continue;
+
+            for (final ShaderNode otherNode : shaderNodes) {
+                if(otherNode == shaderNode) continue;
+
+                final List<VariableMapping> otherInputMapping = otherNode.getInputMapping();
+
+                for (final VariableMapping mapping : otherInputMapping) {
+
+                    final ShaderNodeVariable variable = mapping.getRightVariable();
+                    if (!shaderNode.getName().equals(variable.getNameSpace())) {
+                        continue;
+                    }
+
+                    final String variableName = variable.getName();
+                    final int resultLength = OUTPUT_VAR_DEFINITION_PREFIX.length() + variableName.length();
+
+                    if (definitionName.length() == resultLength && definitionName.endsWith(variableName)) {
+                        resultUsedVariableDefinitions.add(toResultShaderNodeInputVarDefinition(shaderNode, definitionName));
+                        break;
+                    }
                 }
             }
         }
     }
 
     /**
-     * Updates the define names in the source code.
+     * Updates the definition names in the source code.
      *
      * @param shaderNode       the shader node.
      * @param source           the current source.
      * @param defineValueNodes the define value nodes.
      * @return the updated source.
      */
-    private String updateDefineNames(final ShaderNode shaderNode, String source,
-                                     final List<DefineValueAstNode> defineValueNodes) {
+    private String updateDefinitionNames(final ShaderNode shaderNode, String source,
+                                         final List<DefineValueAstNode> defineValueNodes) {
 
         if (defineValueNodes.isEmpty()) {
             return source;
@@ -736,7 +796,7 @@ public abstract class AstShaderGenerator extends Glsl100ShaderGenerator {
         for (final DefineValueAstNode defineValueNode : defineValueNodes) {
 
             final String define = defineValueNode.getValue();
-            if (!isShaderNodeDefine(define)) {
+            if (!isShaderNodeDefinition(define)) {
                 continue;
             }
 
@@ -1063,44 +1123,66 @@ public abstract class AstShaderGenerator extends Glsl100ShaderGenerator {
     /* ======== UTILITY METHODS ============== */
 
     /**
-     * Checks the name of define.
+     * Checks the name of definition.
      *
-     * @param defineName the define name.
-     * @return true if this define is shader node define.
+     * @param definitionName the definition name.
+     * @return true if this definition is shader node definition.
      */
-    protected boolean isShaderNodeDefine(final String defineName) {
-        return defineName.startsWith("SD_IS_SET_");
+    protected boolean isShaderNodeDefinition(final String definitionName) {
+        return definitionName.startsWith(INPUT_VAR_DEFINITION_PREFIX) ||
+                definitionName.startsWith(OUTPUT_VAR_DEFINITION_PREFIX);
     }
 
     /**
      * Checks the name of define.
      *
-     * @param defineName the define name.
-     * @return true if this define is shader node variable define.
+     * @param definitionName the definition name.
+     * @return true if this definition is input variable shader node definition.
      */
-    protected boolean isShaderNodeVarDefine(final String defineName) {
-        return defineName.startsWith("SD_IS_SET_");
+    protected boolean isShaderNodeInputVarDefinition(final String definitionName) {
+        return definitionName.startsWith(INPUT_VAR_DEFINITION_PREFIX);
     }
 
     /**
-     * Converts the define name to the result define name.
+     * Checks the name of define.
+     *
+     * @param definitionName the definition name.
+     * @return true if this definition is output variable shader node definition.
+     */
+    protected boolean isShaderNodeOutputVarDefinition(final String definitionName) {
+        return definitionName.startsWith(OUTPUT_VAR_DEFINITION_PREFIX);
+    }
+
+    /**
+     * Converts the definition name to the result definition name.
      *
      * @param shaderNode the shader node.
-     * @param defineName the define name.
-     * @return the result define name.
+     * @param definitionName the definition name.
+     * @return the result definition name.
      */
-    protected String toResultDefineVarName(final ShaderNode shaderNode, final String defineName) {
-        return shaderNode.getName() + "_SD_IS_SET_" + defineName;
+    protected String toResultShaderNodeInputVarDefinition(final ShaderNode shaderNode, final String definitionName) {
+        return shaderNode.getName() + "_" + definitionName;
     }
 
     /**
-     * Copies defined variables from the list of define value nodes.
+     * Converts the definition name to the result definition name.
      *
-     * @param defineValueNodes the list of all define value nodes.
-     * @param definedVariables the lit of defined variables.
+     * @param shaderNode the shader node.
+     * @param definitionName the definition name.
+     * @return the result definition name.
      */
-    protected void copyDefinedVariables(final List<DefineValueAstNode> defineValueNodes,
-                                        final List<String> definedVariables) {
+    protected String toResultShaderNodeOutputVarDefinition(final ShaderNode shaderNode, final String definitionName) {
+        return shaderNode.getName() + "_" + definitionName;
+    }
+
+    /**
+     * Copies variable definitions from the list of define value nodes.
+     *
+     * @param defineValueNodes        the list of all define value nodes.
+     * @param usedVariableDefinitions the lit of used variable definitions.
+     */
+    protected void copyVariableDefinitions(final List<DefineValueAstNode> defineValueNodes,
+                                           final List<String> usedVariableDefinitions) {
 
         if (defineValueNodes.isEmpty()) {
             return;
@@ -1108,11 +1190,9 @@ public abstract class AstShaderGenerator extends Glsl100ShaderGenerator {
 
         for (final DefineValueAstNode defineValueNode : defineValueNodes) {
             final String value = defineValueNode.getValue();
-            if (!isShaderNodeVarDefine(value)) {
-                continue;
+            if (isShaderNodeInputVarDefinition(value) || isShaderNodeOutputVarDefinition(value)) {
+                usedVariableDefinitions.add(value);
             }
-
-            definedVariables.add(value.substring("SD_IS_SET_".length(), value.length()));
         }
     }
 

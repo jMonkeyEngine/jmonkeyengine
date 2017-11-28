@@ -43,14 +43,14 @@ public class AstShaderGeneratorState {
     private final List<ImportPreprocessorAstNode> importNodes;
 
     /**
-     * The list of defined variables.
+     * The list of used variable definitions.
      */
-    private final List<String> definedVariables;
+    private final List<String> usedVariableDefinitions;
 
     /**
-     * The list of result defines.
+     * The list of result used variable definitions.
      */
-    private final List<String> resultDefines;
+    private final List<String> resultUsedVariableDefinitions;
 
     /**
      * The list of define value nodes.
@@ -127,8 +127,8 @@ public class AstShaderGeneratorState {
         this.shaderNodeSources = new HashMap<>();
         this.extensionNodes = new ArrayList<>();
         this.importNodes = new ArrayList<>();
-        this.definedVariables = new ArrayList<>();
-        this.resultDefines = new ArrayList<>();
+        this.usedVariableDefinitions = new ArrayList<>();
+        this.resultUsedVariableDefinitions = new ArrayList<>();
         this.defineValueNodes = new ArrayList<>();
         this.importedUnforms = new ArrayList<>();
         this.importedGlobalUniforms = new ArrayList<>();
@@ -225,21 +225,21 @@ public class AstShaderGeneratorState {
     }
 
     /**
-     * Gets the list of defined variables.
+     * Gets the list of used variable definitions.
      *
-     * @return the list of defined variables.
+     * @return the list of used variable definitions.
      */
-    public List<String> getDefinedVariables() {
-        return definedVariables;
+    public List<String> getUsedVariableDefinitions() {
+        return usedVariableDefinitions;
     }
 
     /**
-     * Gets the list of result defines.
+     * Gets the list of result used variable definitions.
      *
-     * @return the list of result defines.
+     * @return the list of result used variable definitions.
      */
-    public List<String> getResultDefines() {
-        return resultDefines;
+    public List<String> getResultUsedVariableDefinitions() {
+        return resultUsedVariableDefinitions;
     }
 
     /**
