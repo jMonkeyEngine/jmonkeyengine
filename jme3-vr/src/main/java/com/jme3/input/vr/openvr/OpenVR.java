@@ -3,9 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jme3.input.vr;
+package com.jme3.input.vr.openvr;
 
 import com.jme3.app.VREnvironment;
+import com.jme3.input.vr.HmdType;
+import com.jme3.input.vr.VRAPI;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
@@ -35,15 +37,15 @@ import java.util.logging.Logger;
 /**
  * A class that wraps an <a href="https://github.com/ValveSoftware/openvr/wiki/API-Documentation">OpenVR</a> system. 
  * @author reden - phr00t - https://github.com/phr00t
- * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public class OpenVR implements VRAPI {
     
 	private static final Logger logger = Logger.getLogger(OpenVR.class.getName());
 	
     private static VR_IVRCompositor_FnTable compositorFunctions;
-    private static VR_IVRTrackedCamera_FnTable cameraFunctions;
     private static VR_IVRSystem_FnTable vrsystemFunctions;
+    private static VR_IVRTrackedCamera_FnTable cameraFunctions;
     
     private static boolean initSuccess = false;
     private static boolean flipEyes    = false;
@@ -110,7 +112,7 @@ public class OpenVR implements VRAPI {
     }
     
     public VR_IVRTrackedCamera_FnTable getTrackedCamera(){
-        return cameraFunctions;
+      return cameraFunctions;
     }
     
     @Override
@@ -145,7 +147,17 @@ public class OpenVR implements VRAPI {
     	
         hmdErrorStore = new IntByReference();
         vrsystemFunctions = null;
+        
+        // Init the native linking to the OpenVR library.
+        try{
+          JOpenVRLibrary.init();
+        } catch(Throwable t){
+          logger.log(Level.SEVERE, "Cannot link to OpenVR system library: "+t.getMessage(), t);
+          return false;
+        }
+        
         JOpenVRLibrary.VR_InitInternal(hmdErrorStore, JOpenVRLibrary.EVRApplicationType.EVRApplicationType_VRApplication_Scene);
+        
         if( hmdErrorStore.getValue() == 0 ) {
             vrsystemFunctions = new VR_IVRSystem_FnTable(JOpenVRLibrary.VR_GetGenericInterface(JOpenVRLibrary.IVRSystem_Version, hmdErrorStore).getPointer());
         }
@@ -159,6 +171,7 @@ public class OpenVR implements VRAPI {
             
             vrsystemFunctions.setAutoSynch(false);
             vrsystemFunctions.read();
+            
             
             tlastVsync = new FloatByReference();
             _tframeCount = new LongByReference();
@@ -188,7 +201,9 @@ public class OpenVR implements VRAPI {
             VRinput.updateConnectedControllers();
             
             // init bounds & chaperone info
-            environment.getVRBounds().init(this);
+            OpenVRBounds bounds = new OpenVRBounds();
+            bounds.init(this);
+            environment.setVRBounds(bounds);
             
             logger.config("Initializing OpenVR system [SUCCESS]");
             initSuccess = true;
@@ -241,22 +256,27 @@ public class OpenVR implements VRAPI {
         }
         return compositorFunctions != null;
     }
-    
-    public void initCamera(boolean allowed) {
-        hmdErrorStore.setValue(0); // clear the error store
-        if( allowed && vrsystemFunctions != null ) {
-        	IntByReference intptr = JOpenVRLibrary.VR_GetGenericInterface(JOpenVRLibrary.IVRTrackedCamera_Version, hmdErrorStore);
-                if (intptr != null){
-                    cameraFunctions = new VR_IVRTrackedCamera_FnTable(intptr.getPointer());
-                    if(cameraFunctions != null && hmdErrorStore.getValue() == 0 ){
-                        cameraFunctions.setAutoSynch(false);
-                        cameraFunctions.read();
-                        logger.config("OpenVR Camera initialized");
-                    }
-                }
-        }
-    }
 
+    /**
+     * Initialize the headset camera.
+     * @param allowed <code>true</code> is the use of the headset camera is allowed and <code>false</code> otherwise.
+     */
+    public void initCamera(boolean allowed) {
+      hmdErrorStore.setValue(0); // clear the error store
+      
+      if( allowed && vrsystemFunctions != null ) {
+        IntByReference intptr = JOpenVRLibrary.VR_GetGenericInterface(JOpenVRLibrary.IVRTrackedCamera_Version, hmdErrorStore);
+    	  if (intptr != null){
+    	    cameraFunctions = new VR_IVRTrackedCamera_FnTable(intptr.getPointer());
+    	    if(cameraFunctions != null && hmdErrorStore.getValue() == 0 ){
+    	      cameraFunctions.setAutoSynch(false);
+    	        cameraFunctions.read();
+    	        logger.config("OpenVR Camera initialized");
+    	    }
+    	  }
+       }
+    }
+    
     @Override
     public void destroy() {
         JOpenVRLibrary.VR_ShutdownInternal();

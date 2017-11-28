@@ -1,12 +1,13 @@
-package com.jme3.util;
+package com.jme3.input.vr.osvr;
 
 import java.awt.GraphicsEnvironment;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
 import com.jme3.app.VREnvironment;
-import com.jme3.input.vr.OSVR;
+import com.jme3.input.vr.AbstractVRViewManager;
 import com.jme3.input.vr.VRAPI;
+import com.jme3.input.vr.openvr.OpenVRViewManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
@@ -44,11 +45,17 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
+import com.jme3.util.VRGUIPositioningMode;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
 
-public class VRViewManagerOSVR extends AbstractVRViewManager{
-	private static final Logger logger = Logger.getLogger(VRViewManagerOpenVR.class.getName());
+/**
+ * 
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
+ *
+ */
+public class OSVRViewManager extends AbstractVRViewManager{
+	private static final Logger logger = Logger.getLogger(OpenVRViewManager.class.getName());
     
     // OpenVR values  
     private Texture_t leftTextureType;
@@ -75,7 +82,7 @@ public class VRViewManagerOSVR extends AbstractVRViewManager{
      * Create a new VR view manager attached to the given {@link VREnvironment VR environment}.
      * @param environment the {@link VREnvironment VR environment} to which this view manager is attached.
      */
-    public VRViewManagerOSVR(VREnvironment environment){
+    public OSVRViewManager(VREnvironment environment){
     	this.environment = environment;
     }
     
@@ -476,7 +483,7 @@ public class VRViewManagerOSVR extends AbstractVRViewManager{
             	environment.getVRMouseManager().update(tpf);
             
                 // update GUI position?
-                if( environment.getVRGUIManager().wantsReposition || environment.getVRGUIManager().getPositioningMode() != VRGUIPositioningMode.MANUAL ) {
+                if( environment.getVRGUIManager().isWantsReposition() || environment.getVRGUIManager().getPositioningMode() != VRGUIPositioningMode.MANUAL ) {
                 	environment.getVRGUIManager().positionGuiNow(tpf);
                 	environment.getVRGUIManager().updateGuiQuadGeometricState();
                 }
@@ -864,5 +871,11 @@ public class VRViewManagerOSVR extends AbstractVRViewManager{
         distortionMesh.setBuffer(VertexBuffer.Type.TexCoord3, 2, texcoordB);
         distortionMesh.setStatic();
         return distortionMesh;
-    }
+  }
+
+	@Override
+	public void render() {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -2,12 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jme3.util;
+package com.jme3.input.vr.openvr;
 
 import com.jme3.app.VREnvironment;
-import com.jme3.input.vr.OpenVR;
+import com.jme3.input.vr.AbstractVRViewManager;
 import com.jme3.input.vr.VRAPI;
-import com.jme3.input.vr.VRTrackedController;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
@@ -32,6 +31,7 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
+import com.jme3.util.VRGUIPositioningMode;
 
 import java.util.Iterator;
 import java.util.logging.Logger;
@@ -39,11 +39,11 @@ import java.util.logging.Logger;
 /**
  * A VR view manager based on OpenVR. This class enable to submit 3D views to the VR compositor.
  * @author reden - phr00t - https://github.com/phr00t
- * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
-public class VRViewManagerOpenVR extends AbstractVRViewManager {
+public class OpenVRViewManager extends AbstractVRViewManager {
 
-	private static final Logger logger = Logger.getLogger(VRViewManagerOpenVR.class.getName());
+	private static final Logger logger = Logger.getLogger(OpenVRViewManager.class.getName());
 
     // OpenVR values
     private VRTextureBounds_t leftTextureBounds;
@@ -64,7 +64,7 @@ public class VRViewManagerOpenVR extends AbstractVRViewManager {
      * Create a new VR view manager attached to the given {@link VREnvironment VR environment}.
      * @param environment the {@link VREnvironment VR environment} to which this view manager is attached.
      */
-    public VRViewManagerOpenVR(VREnvironment environment){
+    public OpenVRViewManager(VREnvironment environment){
     	this.environment = environment;
     }
     
@@ -166,6 +166,11 @@ public class VRViewManagerOpenVR extends AbstractVRViewManager {
         } else {
     		throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
     	}
+    }
+    
+    @Override
+    public void render() {
+    	
     }
     
     @Override
@@ -464,7 +469,7 @@ public class VRViewManagerOpenVR extends AbstractVRViewManager {
             	environment.getVRMouseManager().update(tpf);
             
                 // update GUI position?
-                if( environment.getVRGUIManager().wantsReposition || environment.getVRGUIManager().getPositioningMode() != VRGUIPositioningMode.MANUAL ) {
+                if( environment.getVRGUIManager().isWantsReposition() || environment.getVRGUIManager().getPositioningMode() != VRGUIPositioningMode.MANUAL ) {
                 	environment.getVRGUIManager().positionGuiNow(tpf);
                 	environment.getVRGUIManager().updateGuiQuadGeometricState();
                 }
