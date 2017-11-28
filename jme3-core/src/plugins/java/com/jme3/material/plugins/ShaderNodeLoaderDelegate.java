@@ -70,10 +70,10 @@ public class ShaderNodeLoaderDelegate {
     protected ShaderNodeDefinition shaderNodeDefinition;
     protected ShaderNode shaderNode;
     protected TechniqueDef techniqueDef;
-    protected Map<String, DeclaredVariable> attributes = new HashMap<String, DeclaredVariable>();
-    protected Map<String, DeclaredVariable> vertexDeclaredUniforms = new HashMap<String, DeclaredVariable>();
-    protected Map<String, DeclaredVariable> fragmentDeclaredUniforms = new HashMap<String, DeclaredVariable>();
-    protected Map<String, DeclaredVariable> varyings = new HashMap<String, DeclaredVariable>();
+    protected Map<String, DeclaredVariable> attributes = new HashMap<>();
+    protected Map<String, DeclaredVariable> vertexDeclaredUniforms = new HashMap<>();
+    protected Map<String, DeclaredVariable> fragmentDeclaredUniforms = new HashMap<>();
+    protected Map<String, DeclaredVariable> varyings = new HashMap<>();
     protected MaterialDef materialDef;
     protected String shaderLanguage;
     protected String shaderName;
@@ -217,11 +217,15 @@ public class ShaderNodeLoaderDelegate {
      * @throws IOException
      */
     protected ShaderNodeVariable readVariable(Statement statement) throws IOException {
+
         String line = statement.getLine().trim().replaceAll("\\s*\\[", "[");
         String[] splitVar = line.split("\\s");
-        if (splitVar.length != 2) {
-            throw new MatParseException("2 arguments", splitVar.length + "", statement);
+
+        if (splitVar.length > 3) {
+            throw new MatParseException("More than 3 arguments", splitVar.length + "", statement);
         }
+
+        String defaultValue = splitVar.length > 2? splitVar[2] : null;
         String varName = splitVar[1];
         String varType = splitVar[0];
         String multiplicity = null;
@@ -230,13 +234,19 @@ public class ShaderNodeLoaderDelegate {
             //we have an array
             String[] arr = splitVar[1].split("\\[");
             varName = arr[0].trim();
-            multiplicity = arr[1].replaceAll("\\]", "").trim();          
+            multiplicity = arr[1].replaceAll("\\]", "").trim();
         }
+
         if (varNames.contains(varName + ";")) {
             throw new MatParseException("Duplicate variable name " + varName, statement);
         }
+
         varNames += varName + ";";
-        return new ShaderNodeVariable(varType, "", varName, multiplicity);
+
+        final ShaderNodeVariable variable = new ShaderNodeVariable(varType, "", varName, multiplicity);
+        variable.setDefaultValue(defaultValue);
+
+        return variable;
     }
 
     /**
@@ -262,7 +272,7 @@ public class ShaderNodeLoaderDelegate {
             String[] split = statement.getLine().split("[ \\{]");
             if (line.startsWith("Definition")) {
                 ShaderNodeDefinition def = findDefinition(statement);
-                shaderNode.setDefinition(def);                
+                shaderNode.setDefinition(def);
                 if(def.isNoOutput()){
                     techniqueDef.getShaderGenerationInfo().getUnusedNodes().remove(shaderNode.getName());
                 }
@@ -276,12 +286,12 @@ public class ShaderNodeLoaderDelegate {
                     techniqueDef.getShaderGenerationInfo().getUnusedNodes().remove(mapping.getRightVariable().getNameSpace());
                     shaderNode.getInputMapping().add(mapping);
                 }
-            } else if (line.startsWith("OutputMapping")) {                
+            } else if (line.startsWith("OutputMapping")) {
                 for (Statement statement1 : statement.getContents()) {
                     VariableMapping mapping = readOutputMapping(statement1);
                     techniqueDef.getShaderGenerationInfo().getUnusedNodes().remove(shaderNode.getName());
                     shaderNode.getOutputMapping().add(mapping);
-                }               
+                }
             } else {
                 throw new MatParseException("ShaderNodeDefinition", split[0], statement);
             }
@@ -298,7 +308,7 @@ public class ShaderNodeLoaderDelegate {
      * Format : <nameSpace>.<varName>[.<swizzling>] =
      * <nameSpace>.<varName>[.<swizzling>][:Condition]
      * </code>
-     * 
+     *
      * @param statement the statement to read
      * @return the read mapping
      */
@@ -543,13 +553,13 @@ public class ShaderNodeLoaderDelegate {
                 //the right variable must have the same multiplicity and the same condition.
                 right.setMultiplicity(multiplicity);
                 right.setCondition(mapping.getLeftVariable().getCondition());
-            }       
+            }
             dv = new DeclaredVariable(right);
             map.put(right.getName(), dv);
-            dv.addNode(shaderNode);  
+            dv.addNode(shaderNode);
             mapping.setRightVariable(right);
             return true;
-        }      
+        }
         dv.addNode(shaderNode);
         mapping.setRightVariable(dv.var);
         return false;
@@ -660,19 +670,13 @@ public class ShaderNodeLoaderDelegate {
                 throw new MatParseException("Could not find a Material Parameter named " + right.getName(), statement1);
             }
             if (shaderNode.getDefinition().getType() == Shader.ShaderType.Vertex) {
-                if (updateRightFromUniforms(param, mapping, vertexDeclaredUniforms, statement1)) {                  
+                if (updateRightFromUniforms(param, mapping, vertexDeclaredUniforms, statement1)) {
+                    updateMaterialTextureType(statement1, mapping, left, param);
                     storeVertexUniform(mapping.getRightVariable());
                 }
             } else {
                 if (updateRightFromUniforms(param, mapping, fragmentDeclaredUniforms, statement1)) {
-                    if (mapping.getRightVariable().getType().contains("|")) {
-                        String type = fixSamplerType(left.getType(), mapping.getRightVariable().getType());
-                        if (type != null) {
-                            mapping.getRightVariable().setType(type);
-                        } else {
-                            throw new MatParseException(param.getVarType().toString() + " can only be matched to one of " + param.getVarType().getGlslType().replaceAll("\\|", ",") + " found " + left.getType(), statement1);
-                        }
-                    }                
+                    updateMaterialTextureType(statement1, mapping, left, param);
                     storeFragmentUniform(mapping.getRightVariable());
                 }
             }
@@ -683,11 +687,11 @@ public class ShaderNodeLoaderDelegate {
                 throw new MatParseException("Could not find a World Parameter named " + right.getName(), statement1);
             }
             if (shaderNode.getDefinition().getType() == Shader.ShaderType.Vertex) {
-                if (updateRightFromUniforms(worldParam, mapping, vertexDeclaredUniforms)) {                    
+                if (updateRightFromUniforms(worldParam, mapping, vertexDeclaredUniforms)) {
                     storeVertexUniform(mapping.getRightVariable());
                 }
             } else {
-                if (updateRightFromUniforms(worldParam, mapping, fragmentDeclaredUniforms)) {                    
+                if (updateRightFromUniforms(worldParam, mapping, fragmentDeclaredUniforms)) {
                     storeFragmentUniform(mapping.getRightVariable());
                 }
             }
@@ -704,7 +708,7 @@ public class ShaderNodeLoaderDelegate {
             right.setNameSpace(node.getName());
             right.setType(var.getType());
             right.setMultiplicity(var.getMultiplicity());
-            mapping.setRightVariable(right);            
+            mapping.setRightVariable(right);
             storeVaryings(node, mapping.getRightVariable());
 
         }
@@ -712,6 +716,32 @@ public class ShaderNodeLoaderDelegate {
         checkTypes(mapping, statement1);
 
         return mapping;
+    }
+
+    /**
+     * Updated the material texture type of the variable mapping.
+     *
+     * @param statement the statement.
+     * @param mapping the variable mapping.
+     * @param left the left variable.
+     * @param param the material parameter.
+     * @throws MatParseException
+     */
+    private void updateMaterialTextureType(final Statement statement, final VariableMapping mapping,
+                                           final ShaderNodeVariable left, final MatParam param) throws MatParseException {
+
+        if (!mapping.getRightVariable().getType().contains("|")) {
+            return;
+        }
+
+        final String type = fixSamplerType(left.getType(), mapping.getRightVariable().getType());
+
+        if (type != null) {
+            mapping.getRightVariable().setType(type);
+        } else {
+            throw new MatParseException(param.getVarType().toString() + " can only be matched to one of " +
+                    param.getVarType().getGlslType().replaceAll("\\|", ",") + " found " + left.getType(), statement);
+        }
     }
 
     /**
@@ -869,39 +899,51 @@ public class ShaderNodeLoaderDelegate {
     }
 
     /**
-     * find the definition from this statement (loads it if necessary)
+     * Find the definition from this statement (loads it if necessary)
      *
      * @param statement the statement being read
      * @return the definition
      * @throws IOException
      */
     public ShaderNodeDefinition findDefinition(Statement statement) throws IOException {
-        String defLine[] = statement.getLine().split(":");
-        String defName = defLine[1].trim();
 
-        ShaderNodeDefinition def = getNodeDefinitions().get(defName);
-        if (def == null) {
-            if (defLine.length == 3) {
-                List<ShaderNodeDefinition> defs = null;
-                try {
-                    defs = assetManager.loadAsset(new ShaderNodeDefinitionKey(defLine[2].trim()));
-                } catch (AssetNotFoundException e) {
-                    throw new MatParseException("Couldn't find " + defLine[2].trim(), statement, e);
-                }
+        final String defLine[] = statement.getLine().split(":");
 
-                for (ShaderNodeDefinition definition : defs) {
-                    if (defName.equals(definition.getName())) {
-                        def = definition;
-                    }
-                    if (!(getNodeDefinitions().containsKey(definition.getName()))) {
-                        getNodeDefinitions().put(definition.getName(), definition);
-                    }
-                }
+        if (defLine.length != 3) {
+            throw new MatParseException("Can't find shader node definition for: ", statement);
+        }
+
+        final Map<String, ShaderNodeDefinition> nodeDefinitions = getNodeDefinitions();
+        final String definitionName = defLine[1].trim();
+        final String definitionPath = defLine[2].trim();
+        final String fullName = definitionName + ":" + definitionPath;
+
+        ShaderNodeDefinition def = nodeDefinitions.get(fullName);
+        if (def != null) {
+            return def;
+        }
+
+        List<ShaderNodeDefinition> defs;
+        try {
+            defs = assetManager.loadAsset(new ShaderNodeDefinitionKey(definitionPath));
+        } catch (final AssetNotFoundException e) {
+            throw new MatParseException("Couldn't find " + definitionPath, statement, e);
+        }
+
+        for (final ShaderNodeDefinition definition : defs) {
+            if (definitionName.equals(definition.getName())) {
+                def = definition;
             }
-            if (def == null) {
-                throw new MatParseException(defName + " is not a declared as Shader Node Definition", statement);
+            final String key = definition.getName() + ":" + definitionPath;
+            if (!(nodeDefinitions.containsKey(key))) {
+                nodeDefinitions.put(key, definition);
             }
         }
+
+        if (def == null) {
+            throw new MatParseException(definitionName + " is not a declared as Shader Node Definition", statement);
+        }
+
         return def;
     }
 
@@ -913,23 +955,35 @@ public class ShaderNodeLoaderDelegate {
      */
     public void storeVaryings(ShaderNode node, ShaderNodeVariable variable) {
         variable.setShaderOutput(true);
-        if (node.getDefinition().getType() == Shader.ShaderType.Vertex && shaderNode.getDefinition().getType() == Shader.ShaderType.Fragment) {
-            DeclaredVariable dv = varyings.get(variable.getName());
-            if (dv == null) {
-                techniqueDef.getShaderGenerationInfo().getVaryings().add(variable);
-                dv = new DeclaredVariable(variable);
 
-                varyings.put(variable.getName(), dv);
-            }
-            dv.addNode(shaderNode);
-            //if a variable is declared with the same name as an input and an output and is a varying, set it as a shader output so it's declared as a varying only once.
-            for (VariableMapping variableMapping : node.getInputMapping()) {
-                if (variableMapping.getLeftVariable().getName().equals(variable.getName())) {
-                    variableMapping.getLeftVariable().setShaderOutput(true);
-                }
-            }
+        final ShaderNodeDefinition nodeDefinition = node.getDefinition();
+        final ShaderNodeDefinition currentDefinition = shaderNode.getDefinition();
+
+        if (nodeDefinition.getType() != Shader.ShaderType.Vertex ||
+                currentDefinition.getType() != Shader.ShaderType.Fragment) {
+            return;
         }
 
+        final String fullName = node.getName() + "." + variable.getName();
+
+        DeclaredVariable declaredVar = varyings.get(fullName);
+
+        if (declaredVar == null) {
+            techniqueDef.getShaderGenerationInfo().getVaryings().add(variable);
+            declaredVar = new DeclaredVariable(variable);
+            varyings.put(fullName, declaredVar);
+        }
+
+        declaredVar.addNode(shaderNode);
+
+        // if a variable is declared with the same name as an input and an output and is a varying,
+        // set it as a shader output so it's declared as a varying only once.
+        for (final VariableMapping variableMapping : node.getInputMapping()) {
+            final ShaderNodeVariable leftVariable = variableMapping.getLeftVariable();
+            if (leftVariable.getName().equals(variable.getName())) {
+                leftVariable.setShaderOutput(true);
+            }
+        }
     }
 
     /**
@@ -992,7 +1046,7 @@ public class ShaderNodeLoaderDelegate {
 
     private Map<String, ShaderNodeDefinition> getNodeDefinitions() {
         if (nodeDefinitions == null) {
-            nodeDefinitions = new HashMap<String, ShaderNodeDefinition>();
+            nodeDefinitions = new HashMap<>();
         }
         return nodeDefinitions;
     }

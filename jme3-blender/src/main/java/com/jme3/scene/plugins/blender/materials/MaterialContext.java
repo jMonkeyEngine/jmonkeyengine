@@ -1,6 +1,7 @@
 package com.jme3.scene.plugins.blender.materials;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -163,6 +164,12 @@ public final class MaterialContext implements Savable {
 
             material.setColor("Ambient", new ColorRGBA(ambientFactor, ambientFactor, ambientFactor, 1f));
         }
+        
+        // initializing unused "user-defined UV coords" to all available
+        Map<String, List<Vector2f>> unusedUserDefinedUVCoords = Collections.emptyMap();
+        if(userDefinedUVCoordinates != null && !userDefinedUVCoordinates.isEmpty()) {
+            unusedUserDefinedUVCoords = new HashMap<>(userDefinedUVCoordinates);
+        }
 
         // applying textures
         int textureIndex = 0;
@@ -175,16 +182,19 @@ public final class MaterialContext implements Savable {
                     String usedUserUVSet = combinedTexture.flatten(geometry, geometriesOMA, userDefinedUVCoordinates, blenderContext);
 
                     this.setTexture(material, combinedTexture.getMappingType(), combinedTexture.getResultTexture());
-                    List<Vector2f> uvs = combinedTexture.getResultUVS();
-                    if(uvs != null && uvs.size() > 0) {
-                        VertexBuffer uvCoordsBuffer = new VertexBuffer(TextureHelper.TEXCOORD_TYPES[textureIndex++]);
-                        uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(uvs.toArray(new Vector2f[uvs.size()])));
-                        geometry.getMesh().setBuffer(uvCoordsBuffer);
-                    }//uvs might be null if the user assigned non existing UV coordinates group name to the mesh (this should be fixed in blender file)
                     
-                    if(usedUserUVSet != null) {
-                    	userDefinedUVCoordinates = new HashMap<>(userDefinedUVCoordinates);
-                    	userDefinedUVCoordinates.remove(usedUserUVSet);
+                    if(usedUserUVSet == null || unusedUserDefinedUVCoords.containsKey(usedUserUVSet)) {
+                        List<Vector2f> uvs = combinedTexture.getResultUVS();
+                        if(uvs != null && uvs.size() > 0) {
+                            VertexBuffer uvCoordsBuffer = new VertexBuffer(TextureHelper.TEXCOORD_TYPES[textureIndex++]);
+                            uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(uvs.toArray(new Vector2f[uvs.size()])));
+                            geometry.getMesh().setBuffer(uvCoordsBuffer);
+                        }//uvs might be null if the user assigned non existing UV coordinates group name to the mesh (this should be fixed in blender file)
+
+                        // Remove used "user-defined UV coords" from the unused collection
+                        if(usedUserUVSet != null) {
+                	       unusedUserDefinedUVCoords.remove(usedUserUVSet);
+                        }
                     }
                 } else {
                     LOGGER.log(Level.WARNING, "The texture could not be applied because JME only supports up to {0} different UV's.", TextureHelper.TEXCOORD_TYPES.length);
@@ -192,12 +202,12 @@ public final class MaterialContext implements Savable {
             }
         }
 
-        if (userDefinedUVCoordinates != null && userDefinedUVCoordinates.size() > 0) {
+        if (unusedUserDefinedUVCoords != null && unusedUserDefinedUVCoords.size() > 0) {
             LOGGER.fine("Storing unused, user defined UV coordinates sets.");
-            if (userDefinedUVCoordinates.size() > TextureHelper.TEXCOORD_TYPES.length) {
+            if (unusedUserDefinedUVCoords.size() > TextureHelper.TEXCOORD_TYPES.length) {
                 LOGGER.log(Level.WARNING, "The blender file has defined more than {0} different UV coordinates for the mesh. JME supports only {0} UV coordinates buffers.", TextureHelper.TEXCOORD_TYPES.length);
             }
-            for (Entry<String, List<Vector2f>> entry : userDefinedUVCoordinates.entrySet()) {
+            for (Entry<String, List<Vector2f>> entry : unusedUserDefinedUVCoords.entrySet()) {
                 if (textureIndex < TextureHelper.TEXCOORD_TYPES.length) {
                     List<Vector2f> uvs = entry.getValue();
                     VertexBuffer uvCoordsBuffer = new VertexBuffer(TextureHelper.TEXCOORD_TYPES[textureIndex++]);

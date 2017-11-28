@@ -188,6 +188,7 @@ public class TechniqueDef implements Savable, Cloneable {
         defineTypes = new ArrayList<VarType>();
         paramToDefineId = new HashMap<String, Integer>();
         definesToShaderMap = new HashMap<DefineList, Shader>();
+        worldBinds = new ArrayList<>();
     }
     
     /**
@@ -513,10 +514,8 @@ public class TechniqueDef implements Savable, Cloneable {
             }
         }
 
-        if (getWorldBindings() != null) {
-           for (UniformBinding binding : getWorldBindings()) {
-               shader.addUniformBinding(binding);
-           }
+        for (final UniformBinding binding : getWorldBindings()) {
+            shader.addUniformBinding(binding);
         }
         
         return shader;
@@ -625,14 +624,10 @@ public class TechniqueDef implements Savable, Cloneable {
      * to the list of world parameters, false otherwise.
      */
     public boolean addWorldParam(String name) {
-        if (worldBinds == null){
-            worldBinds = new ArrayList<UniformBinding>();
-        }
-
         try {
-            worldBinds.add( UniformBinding.valueOf(name) );
+            worldBinds.add(UniformBinding.valueOf(name));
             return true;
-        } catch (IllegalArgumentException ex){
+        } catch (IllegalArgumentException ex) {
             return false;
         }
     }
@@ -821,10 +816,8 @@ public class TechniqueDef implements Savable, Cloneable {
             e.printStackTrace();
         }
 
-        if (worldBinds != null) {
-            clone.worldBinds = new ArrayList<>(worldBinds.size());
-            clone.worldBinds.addAll(worldBinds);
-        }
+        clone.worldBinds = new ArrayList<>(worldBinds.size());
+        clone.worldBinds.addAll(worldBinds);
 
         return clone;
     }

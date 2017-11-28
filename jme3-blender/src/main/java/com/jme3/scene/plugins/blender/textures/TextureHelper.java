@@ -72,6 +72,7 @@ import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.PlaceholderAssets;
 
 /**
  * A class that is used in texture calculations.
@@ -251,7 +252,14 @@ public class TextureHelper extends AbstractBlenderHelper {
                     blenderContext.getInputStream().setPosition(dataFileBlock.getBlockPosition());
 
                     // Should the texture be flipped? It works for sinbad ..
-                    result = new Texture2D(new ImageLoader().loadImage(blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true));
+                    Image img = new ImageLoader().loadImage(blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true);
+                    
+                    if (img != null) {
+                        result = new Texture2D(img);
+                    } else {
+                        result = new Texture2D(PlaceholderAssets.getPlaceholderImage(blenderContext.getAssetManager()));
+                        LOGGER.fine("ImageLoader returned null. It probably failed to load the packed texture, using placeholder asset");
+                    }
                 }
             }
         //} else {
@@ -614,8 +622,15 @@ public class TextureHelper extends AbstractBlenderHelper {
                     int texflag = ((Number) textureData.mtex.getFieldValue("texflag")).intValue();
                     boolean negateTexture = (texflag & 0x04) != 0;
 
+                    boolean colorSet = false;
                     for (int i = 0; i < mappings.length; ++i) {
                         if ((mappings[i] & mapto.intValue()) != 0) {
+                            if(mappings[i] == MaterialContext.MTEX_COL) {
+                                colorSet = true;
+                            } else if(colorSet && mappings[i] == MaterialContext.MTEX_ALPHA) {
+                                continue;
+                            }
+                            
                             CombinedTexture combinedTexture = new CombinedTexture(mappings[i], !skyTexture);
                             int blendType = ((Number) textureData.mtex.getFieldValue("blendtype")).intValue();
                             float[] color = new float[] { ((Number) textureData.mtex.getFieldValue("r")).floatValue(), ((Number) textureData.mtex.getFieldValue("g")).floatValue(), ((Number) textureData.mtex.getFieldValue("b")).floatValue() };
@@ -646,8 +661,16 @@ public class TextureHelper extends AbstractBlenderHelper {
         Map<Number, List<TextureData>> result = new HashMap<Number, List<TextureData>>();
         for (TextureData data : textures) {
             Number mapto = (Number) data.mtex.getFieldValue("mapto");
+            
+            boolean colorSet = false;
             for (int i = 0; i < mappings.length; ++i) {
                 if ((mappings[i] & mapto.intValue()) != 0) {
+                    if(mappings[i] == MaterialContext.MTEX_COL) {
+                        colorSet = true;
+                    } else if(colorSet && mappings[i] == MaterialContext.MTEX_ALPHA) {
+                        continue;
+                    }
+                    
                     List<TextureData> datas = result.get(mappings[i]);
                     if (datas == null) {
                         datas = new ArrayList<TextureData>();
