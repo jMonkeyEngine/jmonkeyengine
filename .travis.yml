@@ -6,6 +6,7 @@ branches:
   only:
   - master
   - v3.1
+  - /^v3.2.0-.*$/
 
 matrix:
   include:
