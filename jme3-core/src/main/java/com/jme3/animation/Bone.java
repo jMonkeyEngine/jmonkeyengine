@@ -32,15 +32,15 @@
 package com.jme3.animation;
 
 import com.jme3.export.*;
+import com.jme3.material.MatParamOverride;
 import com.jme3.math.*;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
+import com.jme3.scene.*;
+import com.jme3.shader.VarType;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
-import com.jme3.util.clone.JmeCloneable;
 import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -723,6 +723,8 @@ public final class Bone implements Savable, JmeCloneable {
         if (attachNode == null) {
             attachNode = new Node(name + "_attachnode");
             attachNode.setUserData("AttachedBone", this);
+            //We don't want the node to have a numBone set by a parent node so we force it to null
+            attachNode.addMatParamOverride(new MatParamOverride(VarType.Int, "NumberOfBones", null));
         }
 
         return attachNode;
