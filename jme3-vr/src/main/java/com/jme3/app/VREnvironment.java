@@ -8,7 +8,9 @@ import com.jme3.app.state.AppState;
 import com.jme3.input.vr.VRAPI;
 import com.jme3.input.vr.VRBounds;
 import com.jme3.input.vr.VRInputAPI;
+import com.jme3.input.vr.VRMouseManager;
 import com.jme3.input.vr.VRViewManager;
+import com.jme3.input.vr.oculus.OculusMouseManager;
 import com.jme3.input.vr.oculus.OculusVR;
 import com.jme3.input.vr.oculus.OculusViewManager;
 import com.jme3.input.vr.openvr.OpenVR;
@@ -33,7 +35,7 @@ public class VREnvironment {
 	
     private VRAPI hardware              = null;
     private VRGuiManager guiManager     = null;
-    private OpenVRMouseManager mouseManager = null;
+    private VRMouseManager mouseManager = null;
     private VRViewManager viewmanager   = null;
     
     private VRBounds bounds             = null;
@@ -79,10 +81,7 @@ public class VREnvironment {
     public VREnvironment(AppSettings settings){
     	
     	this.settings = settings;
-    	
-        guiManager   = new VRGuiManager(this);
-        mouseManager = new OpenVRMouseManager(this);
-        
+
         bounds       = null;
         
         processSettings();
@@ -146,7 +145,7 @@ public class VREnvironment {
 	 * Get the VR mouse manager attached to this environment.
 	 * @return the VR mouse manager attached to this environment.
 	 */
-	public OpenVRMouseManager getVRMouseManager(){
+	public VRMouseManager getVRMouseManager(){
 		return mouseManager;
 	}
 
@@ -431,14 +430,26 @@ public class VREnvironment {
         
         if( vrSupportedOS) {
         	if( vrBinding == VRConstants.SETTING_VRAPI_OSVR_VALUE ) {
+        		
+                guiManager   = new VRGuiManager(this);
+                mouseManager = new OpenVRMouseManager(this);
+        		
                 hardware = new OSVR(this);
                 initialized = true;
                 logger.config("Creating OSVR wrapper [SUCCESS]");
             } else if( vrBinding == VRConstants.SETTING_VRAPI_OPENVR_VALUE ) {
+            	
+                guiManager   = new VRGuiManager(this);
+                mouseManager = new OpenVRMouseManager(this);
+
             	hardware = new OpenVR(this);
             	initialized = true;
                 logger.config("Creating OpenVR wrapper [SUCCESS]");
             } else if (vrBinding == VRConstants.SETTING_VRAPI_OCULUSVR_VALUE) {
+            	
+                guiManager   = new VRGuiManager(this);
+                mouseManager = new OculusMouseManager(this);
+            	
                 hardware = new OculusVR(this);
             	initialized = true;
             	logger.config("Creating Occulus Rift wrapper [SUCCESS]");

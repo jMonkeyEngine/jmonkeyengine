@@ -36,8 +36,8 @@ import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.input.vr.VRAPI;
 import com.jme3.input.vr.VRInputAPI;
+import com.jme3.input.vr.VRMouseManager;
 import com.jme3.input.vr.VRViewManager;
-import com.jme3.input.vr.openvr.OpenVRMouseManager;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -364,7 +364,7 @@ public class VRAppState extends AbstractAppState {
 	 * Get the VR mouse manager attached to this app state.
 	 * @return the VR mouse manager attached to this application.
 	 */
-	public OpenVRMouseManager getVRMouseManager(){
+	public VRMouseManager getVRMouseManager(){
 		return getVREnvironment().getVRMouseManager();
 	}
     
