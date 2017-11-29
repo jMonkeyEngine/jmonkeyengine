@@ -6,7 +6,7 @@ import com.jme3.system.AppSettings;
 
 /**
  * Some constants dedicated to the VR module.
- * @author Julien Seinturier - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  * @since 3.1.0
  */
 public class VRConstants {
@@ -117,6 +117,7 @@ public class VRConstants {
      * <li>{@link VRConstants#SETTING_VRAPI_OPENVR_VALUE SETTING_VRAPI_OPENVR_VALUE}: Use OpenVR binding.
      * <li>{@link VRConstants#SETTING_VRAPI_OSVR_VALUE SETTING_VRAPI_OSVR_VALUE}: Use OSVR binding.
      * <li>{@link VRConstants#SETTING_VRAPI_OPENVR_LWJGL_VALUE SETTING_VRAPI_OPENVR_LWJGL_VALUE}: Use OpenVR binding from LWJGL.
+     * <li>{@link VRConstants#SETTING_VRAPI_OCULUSVR_VALUE SETTING_VRAPI_OCULUSVR_VALUE}: Use Occulus Rift binding binding.
      * </ul>
      * <b>Type: </b><code>int</code><br>
 	 * <b>Usage: </b><code>{@link AppSettings appSettings}.{@link HashMap#put(Object, Object) put}(VRConstants.SETTING_VRAPI, value)</code>
@@ -126,29 +127,34 @@ public class VRConstants {
     
     /**
      * The identifier of the OpenVR system.
-     * @see #SETTING_VRAPI
+     * @see #SETTING_VRAPI_OSVR_VALUE
+     * @see #SETTING_VRAPI_OPENVR_LWJGL_VALUE
+     * @see #SETTING_VRAPI_OCULUSVR_VALUE
      */
     public static final int SETTING_VRAPI_OPENVR_VALUE       = 1;
     
     /**
      * The identifier of the OSVR system.
-     * @see #SETTING_VRAPI
+     * @see #SETTING_VRAPI_OPENVR_VALUE
+     * @see #SETTING_VRAPI_OPENVR_LWJGL_VALUE
+     * @see #SETTING_VRAPI_OCULUSVR_VALUE
      */
     public static final int SETTING_VRAPI_OSVR_VALUE         = 2;
     
     /**
      * The identifier of the OpenVR from LWJGL system.
-     * @see #SETTING_VRAPI
+     * @see #SETTING_VRAPI_OPENVR_VALUE
+     * @see #SETTING_VRAPI_OSVR_VALUE
+     * @see #SETTING_VRAPI_OCULUSVR_VALUE
      */
     public static final int SETTING_VRAPI_OPENVR_LWJGL_VALUE = 3;
-
+    
     /**
-     * The identifier of the LibOVR (Oculus) system.
-     *
-     * @see #SETTING_VRAPI
+     * The identifier of the Oculus Rift system.
+     * @see #SETTING_VRAPI_OPENVR_VALUE
+     * @see #SETTING_VRAPI_OSVR_VALUE
+     * @see #SETTING_VRAPI_OPENVR_LWJGL_VALUE
      */
-    public static final int SETTING_VRAPI_OCULUSVR_VALUE = 4;
-    
-    
+    public static final int SETTING_VRAPI_OCULUSVR_VALUE    = 4;
     
 }

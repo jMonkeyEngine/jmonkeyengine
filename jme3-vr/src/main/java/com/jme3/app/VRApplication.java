@@ -18,10 +18,12 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.controls.KeyTrigger;
-import com.jme3.input.vr.OSVR;
-import com.jme3.input.vr.OpenVR;
 import com.jme3.input.vr.VRAPI;
 import com.jme3.input.vr.VRInputAPI;
+import com.jme3.input.vr.openvr.OpenVR;
+import com.jme3.input.vr.openvr.OpenVRMouseManager;
+import com.jme3.input.vr.openvr.OpenVRViewManager;
+import com.jme3.input.vr.osvr.OSVR;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -47,8 +49,6 @@ import com.jme3.system.lwjgl.LwjglDisplayVR;
 import com.jme3.system.lwjgl.LwjglOffscreenBufferVR;
 import com.jme3.util.VRGUIPositioningMode;
 import com.jme3.util.VRGuiManager;
-import com.jme3.util.VRMouseManager;
-import com.jme3.util.VRViewManagerOpenVR;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -72,7 +72,7 @@ import org.lwjgl.system.Platform;
  * <p>
  * <b>This class is no more functional and is deprecated. Please use {@link VRAppState VRAppState} instead.</b>
  * @author reden - phr00t - https://github.com/phr00t
- * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  * @deprecated use {@link VRAppState VRAppState} instead.
  */
 public abstract class VRApplication implements Application, SystemListener {
@@ -171,8 +171,8 @@ public abstract class VRApplication implements Application, SystemListener {
     
     private VRAPI VRhardware            = null;
     private VRGuiManager guiManager     = null;
-    private VRMouseManager mouseManager = null;
-    private VRViewManagerOpenVR viewmanager   = null;
+    private OpenVRMouseManager mouseManager = null;
+    private OpenVRViewManager viewmanager   = null;
     
     private String OS;
      
@@ -259,10 +259,10 @@ public abstract class VRApplication implements Application, SystemListener {
         guiManager = new VRGuiManager(null);
         
         // Create a new view manager.
-        viewmanager = new VRViewManagerOpenVR(null);
+        viewmanager = new OpenVRViewManager(null);
         
         // Create a new mouse manager.
-        mouseManager = new VRMouseManager(null);
+        mouseManager = new OpenVRMouseManager(null);
         
         // we are going to use OpenVR now, not the Oculus Rift
         // OpenVR does support the Rift
@@ -311,7 +311,7 @@ public abstract class VRApplication implements Application, SystemListener {
      * Get the VR view manager.
      * @return the VR view manager.
      */
-    public VRViewManagerOpenVR getVRViewManager() {
+    public OpenVRViewManager getVRViewManager() {
         return viewmanager;
     }
     
@@ -327,7 +327,7 @@ public abstract class VRApplication implements Application, SystemListener {
      * Get the VR mouse manager attached to this application.
      * @return the VR mouse manager attached to this application.
      */
-    public VRMouseManager getVRMouseManager(){
+    public OpenVRMouseManager getVRMouseManager(){
     	return mouseManager;
     }
     
@@ -1359,7 +1359,7 @@ public abstract class VRApplication implements Application, SystemListener {
             }
             
             //FIXME: WARNING !!
-            viewmanager = new VRViewManagerOpenVR(null);
+            viewmanager = new OpenVRViewManager(null);
             viewmanager.setResolutionMultiplier(resMult);
             inputManager.addMapping(RESET_HMD, new KeyTrigger(KeyInput.KEY_F9));
             setLostFocusBehavior(LostFocusBehavior.Disabled);

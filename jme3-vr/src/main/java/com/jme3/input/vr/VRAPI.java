@@ -14,7 +14,7 @@ import com.jme3.renderer.Camera;
 /**
  * An interface that represents a VR system. This interface has to be implemented in order to wrap underlying VR system (OpenVR, OSVR, ...)
  * @author reden - phr00t - https://github.com/phr00t
- * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public interface VRAPI {
     
@@ -86,8 +86,8 @@ public interface VRAPI {
     public boolean isInitialized();
 
     /**
-     * Reset (recenter) the VR system. The current position of the HMD is
-     * now considered the origin (observer+[0,0,0]).
+     * Reset the VR system. After a call to this method, the current position of the HMD should be
+     * the origin (i-e the observer without any combined transformation).
      */
     public void reset();
 

@@ -3,11 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jme3.input.vr;
+package com.jme3.input.vr.osvr;
 
 import java.util.logging.Logger;
 
 import com.jme3.app.VREnvironment;
+import com.jme3.input.vr.VRInputAPI;
+import com.jme3.input.vr.VRInputType;
+import com.jme3.input.vr.VRTrackedController;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -20,7 +23,6 @@ import com.jme3.system.osvr.osvrclientreporttypes.OSVR_ButtonReport;
 import com.jme3.system.osvr.osvrclientreporttypes.OSVR_Pose3;
 import com.jme3.system.osvr.osvrinterface.OsvrInterfaceLibrary;
 import com.jme3.system.osvr.osvrtimevalue.OSVR_TimeValue;
-import com.jme3.util.VRViewManagerOSVR;
 import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
@@ -29,7 +31,7 @@ import com.sun.jna.ptr.PointerByReference;
 /**
  * A class that wraps an <a href="http://www.osvr.org/">OSVR</a> input. 
  * @author reden - phr00t - https://github.com/phr00t
- * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public class OSVRInput implements VRInputAPI {
 
@@ -301,7 +303,7 @@ public class OSVRInput implements VRInputAPI {
 
     @Override
     public Quaternion getFinalObserverRotation(int index) {
-    	VRViewManagerOSVR vrvm = (VRViewManagerOSVR)environment.getVRViewManager();
+    	OSVRViewManager vrvm = (OSVRViewManager)environment.getVRViewManager();
         if( vrvm == null || isInputDeviceTracking(index) == false ) return null;
         Object obs = environment.getObserver();
         if( obs instanceof Camera ) {
@@ -314,7 +316,7 @@ public class OSVRInput implements VRInputAPI {
     
     @Override
     public Vector3f getFinalObserverPosition(int index) {
-    	VRViewManagerOSVR vrvm = (VRViewManagerOSVR) environment.getVRViewManager();
+    	OSVRViewManager vrvm = (OSVRViewManager) environment.getVRViewManager();
         if( vrvm == null || isInputDeviceTracking(index) == false ) return null;
         Object obs = environment.getObserver();
         Vector3f pos = getPosition(index);
