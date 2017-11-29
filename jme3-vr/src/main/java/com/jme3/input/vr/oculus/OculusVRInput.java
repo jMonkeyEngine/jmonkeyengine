@@ -1,10 +1,13 @@
-package com.jme3.input.vr;
+package com.jme3.input.vr.oculus;
 
 import com.jme3.app.VREnvironment;
+import com.jme3.input.vr.VRInputAPI;
+import com.jme3.input.vr.VRInputType;
+import com.jme3.input.vr.VRTrackedController;
 import com.jme3.math.*;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
-import com.jme3.util.VRViewManagerOculus;
+
 import org.lwjgl.ovr.*;
 
 import static org.lwjgl.ovr.OVR.*;
@@ -129,7 +132,7 @@ public class OculusVRInput implements VRInputAPI {
         // Copied from OpenVRInput
 
         VREnvironment env = hardware.getEnvironment();
-        VRViewManagerOculus vrvm = (VRViewManagerOculus) hardware.getEnvironment().getVRViewManager();
+        OculusViewManager vrvm = (OculusViewManager) hardware.getEnvironment().getVRViewManager();
 
         Object obs = env.getObserver();
         Quaternion tempq = new Quaternion(); // TODO move to class scope?
@@ -147,7 +150,7 @@ public class OculusVRInput implements VRInputAPI {
         // Copied from OpenVRInput
 
         VREnvironment env = hardware.getEnvironment();
-        VRViewManagerOculus vrvm = (VRViewManagerOculus) hardware.getEnvironment().getVRViewManager();
+        OculusViewManager vrvm = (OculusViewManager) hardware.getEnvironment().getVRViewManager();
 
         Object obs = env.getObserver();
         Vector3f pos = getPosition(index);

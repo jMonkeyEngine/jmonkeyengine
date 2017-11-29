@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jme3.input.vr;
+package com.jme3.input.vr.openvr;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.app.VREnvironment;
+import com.jme3.input.vr.VRInputAPI;
+import com.jme3.input.vr.VRInputType;
+import com.jme3.input.vr.VRTrackedController;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -21,7 +24,6 @@ import com.jme3.system.jopenvr.OpenVRUtil;
 import com.jme3.system.jopenvr.VRControllerState_t;
 import com.jme3.system.jopenvr.VR_IVRSystem_FnTable;
 import com.jme3.util.VRUtil;
-import com.jme3.util.VRViewManagerOpenVR;
 
 /*
 make helper functions to pull the following easily from raw data (DONE)
@@ -65,7 +67,7 @@ Button press: 2, touch: 2
  * <code>null</code> values will be returned if no valid pose exists, or that input device isn't available
  * user code should check for <code>null</code> values.
  * @author reden - phr00t - https://github.com/phr00t
- * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public class OpenVRInput implements VRInputAPI {
         
@@ -393,7 +395,7 @@ public class OpenVRInput implements VRInputAPI {
     public Quaternion getFinalObserverRotation(int index) {
     	
     	if (environment != null){
-            VRViewManagerOpenVR vrvm = (VRViewManagerOpenVR)environment.getVRViewManager();
+            OpenVRViewManager vrvm = (OpenVRViewManager)environment.getVRViewManager();
             
             if (vrvm != null){
                 if(isInputDeviceTracking(index) == false ){
@@ -422,7 +424,7 @@ public class OpenVRInput implements VRInputAPI {
     public Vector3f getFinalObserverPosition(int index) {
     	
     	if (environment != null){
-            VRViewManagerOpenVR vrvm = (VRViewManagerOpenVR)environment.getVRViewManager();
+            OpenVRViewManager vrvm = (OpenVRViewManager)environment.getVRViewManager();
             
             if (vrvm != null){
                 if(isInputDeviceTracking(index) == false ){

@@ -1,10 +1,16 @@
-package com.jme3.input.vr;
+package com.jme3.input.vr.openvr;
 
 import com.jme3.app.VREnvironment;
+import com.jme3.input.vr.VRTrackedController;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 
+/**
+ * 
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
+ *
+ */
 public class OpenVRTrackedController implements VRTrackedController{
 
 	/**
