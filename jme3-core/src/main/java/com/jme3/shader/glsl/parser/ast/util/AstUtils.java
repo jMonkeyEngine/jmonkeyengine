@@ -88,6 +88,8 @@ public class AstUtils {
         }
     };
 
+    public static final BiPredicate<GlslParser, char[]> ELSE_WITHOUT_BRACES = IF_WITHOUT_BRACES;
+
     /**
      * Find all existing nodes.
      *
@@ -397,5 +399,4 @@ public class AstUtils {
             }
         }
     }
-
 }

@@ -384,15 +384,61 @@ public class GlslParser {
             }
 
             if (nextToken.getType() == TOKEN_LEFT_BRACE) {
+
                 node.setBody(parseBody(content, AstUtils.RIGHT_BRACE));
                 nextToken = findToken(content, TOKEN_RIGHT_BRACE, TOKEN_KEYWORD);
 
-                if (nextToken.getType() == TOKEN_WORD && GlslLang.KW_ELSE.equals(nextToken.getText())) {
-                    node.setElseNode(parseValue(nextToken));
-                    node.setElseBody(parseBody(content, AstUtils.RIGHT_BRACE));
-                    parseSymbol(findToken(content, TOKEN_RIGHT_BRACE));
-                } else if (nextToken.getType() == TOKEN_RIGHT_BRACE) {
+                // if this IF is closed
+                if (nextToken.getType() == TOKEN_RIGHT_BRACE) {
                     parseSymbol(nextToken);
+
+                    // try to find next potential tokens
+                    saveState();
+                    try {
+                        nextToken = findToken(content, TOKEN_RIGHT_BRACE, TOKEN_WORD, TOKEN_KEYWORD);
+                    } finally {
+                        restoreState();
+                    }
+
+                    // if we have the next token "else", we need to re-take it without saving state
+                    if (nextToken.getType() == TOKEN_KEYWORD && GlslLang.KW_ELSE.equals(nextToken.getText())) {
+                        nextToken = findToken(content, TOKEN_WORD, TOKEN_KEYWORD);
+                    }
+                }
+
+                if (nextToken.getType() == TOKEN_KEYWORD && GlslLang.KW_ELSE.equals(nextToken.getText())) {
+                    node.setElseNode(parseValue(nextToken));
+
+                    saveState();
+                    try {
+                        nextToken = findToken(content, TOKEN_LEFT_BRACE, TOKEN_WORD, TOKEN_KEYWORD);
+                    } finally {
+                        restoreState();
+                    }
+
+                    if (nextToken.getType() == TOKEN_KEYWORD) {
+
+                        final BodyAstNode bodyNode = new BodyAstNode();
+                        bodyNode.setParent(node);
+
+                        nodeStack.addLast(bodyNode);
+                        try {
+                            parseIf(findToken(content, TOKEN_KEYWORD), content);
+                        } finally {
+                            nodeStack.removeLast();
+                        }
+
+                        AstUtils.updateOffsetAndLengthAndText(bodyNode, content);
+
+                        node.addChild(bodyNode);
+                        node.setBody(bodyNode);
+
+                    } else if (nextToken.getType() == TOKEN_LEFT_BRACE) {
+                        node.setElseBody(parseBody(content, AstUtils.RIGHT_BRACE));
+                        parseSymbol(findToken(content, TOKEN_RIGHT_BRACE));
+                    } else if (nextToken.getType() == TOKEN_LEFT_BRACE) {
+                        node.setElseBody(parseBody(content, AstUtils.ELSE_WITHOUT_BRACES));
+                    }
                 }
 
             } else {
