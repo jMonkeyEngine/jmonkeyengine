@@ -151,16 +151,9 @@ public final class ReflectionAllocator implements BufferAllocator {
 							if (viewedBuffer != null) {
                                 if (viewedBuffer instanceof Buffer) {
                                     destroyDirectBuffer((Buffer) viewedBuffer);
-                                } else {
-                                    //on android there is an internal MemoryRef class that is returned and has a "free" method.
-                                    Method freeMethod = loadMethod(viewedBuffer.getClass().getName(), "free");
-                                    if (freeMethod != null) {
-                                        freeMethod.invoke(viewedBuffer);
-                                    } else {
-                                        Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE,
-                                                "Buffer cannot be destroyed: {0}, {1}", new Object[]{toBeDestroyed, viewedBuffer});
-                                    }
                                 }
+                                // Else nothing to do, we may be on android which has an
+                                // internal system for freeing direct buffers
                             } else {
                                 Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE,
                                         "Buffer cannot be destroyed: {0}", toBeDestroyed);
