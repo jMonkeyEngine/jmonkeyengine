@@ -1,8 +1,6 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/Instancing.glsllib"
 #import "Common/ShaderLib/Skinning.glsllib"
-// These are included in the above now
-//uniform mat4 g_WorldViewProjectionMatrix;
-//uniform mat3 g_NormalMatrix;
 
 attribute vec3 inPosition;
 attribute vec3 inNormal;

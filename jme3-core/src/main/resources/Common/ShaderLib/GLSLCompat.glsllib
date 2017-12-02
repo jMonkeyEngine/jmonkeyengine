@@ -23,6 +23,7 @@ out vec4 outFragColor;
 #  define texture1D texture
 #  define texture2D texture
 #  define texture3D texture
+#  define textureCube texture
 #  define texture2DLod textureLod
 #  define textureCubeLod textureLod
 #  if defined VERTEX_SHADER

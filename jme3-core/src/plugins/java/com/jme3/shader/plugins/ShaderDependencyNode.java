@@ -36,7 +36,8 @@ import java.util.Collections;
 import java.util.List;
 
 class ShaderDependencyNode {
-    
+
+    private String extensions;
     private String shaderSource;
     private String shaderName;
 
@@ -62,6 +63,14 @@ class ShaderDependencyNode {
 
     public void setName(String shaderName) {
         this.shaderName = shaderName;
+    }
+
+    public String getExtensions() {
+        return extensions;
+    }
+
+    public void setExtensions(String extensions) {
+        this.extensions = extensions;
     }
 
     public void addDependency(int index, ShaderDependencyNode node){

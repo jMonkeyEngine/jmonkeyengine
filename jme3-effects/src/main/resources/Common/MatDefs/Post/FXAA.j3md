@@ -8,8 +8,8 @@ MaterialDef FXAA {
         Float ReduceMul
     }
     Technique {
-        VertexShader GLSL100:   Common/MatDefs/Post/FXAA.vert
-        FragmentShader GLSL100: Common/MatDefs/Post/FXAA.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Post/FXAA.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Post/FXAA.frag
         WorldParameters {
             ResolutionInverse
         }

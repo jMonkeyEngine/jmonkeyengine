@@ -33,6 +33,7 @@ package com.jme3.water;
 
 import com.jme3.math.Plane;
 import com.jme3.post.SceneProcessor;
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -50,6 +51,7 @@ public class ReflectionProcessor implements SceneProcessor {
     private Camera reflectionCam;
     private FrameBuffer reflectionBuffer;
     private Plane reflectionClipPlane;
+    private AppProfiler prof;
 
     /**
      * Creates a ReflectionProcessor
@@ -98,6 +100,11 @@ public class ReflectionProcessor implements SceneProcessor {
     }
 
     public void cleanup() {
+    }
+
+    @Override
+    public void setProfiler(AppProfiler profiler) {
+        this.prof = profiler;
     }
 
     /**

@@ -204,7 +204,7 @@ public class DDSLoader implements AssetLoader {
 
         if (!directx10) {
             if (!is(caps1, DDSCAPS_TEXTURE)) {
-                throw new IOException("File is not a texture");
+                logger.warning("Texture is missing the DDSCAPS_TEXTURE-flag");
             }
 
             if (depth <= 0) {
@@ -301,6 +301,12 @@ public class DDSLoader implements AssetLoader {
                     compressed = false;
                     bpp = 64;
                     pixelFormat = Image.Format.RGBA16F;
+                    break;
+                case 111:
+                    compressed = false;
+                    bpp = 16;
+                    pixelFormat = Format.Luminance16F;
+                    grayscaleOrAlpha = true;
                     break;
                 default:
                     throw new IOException("Unknown fourcc: " + string(fourcc) + ", " + Integer.toHexString(fourcc));

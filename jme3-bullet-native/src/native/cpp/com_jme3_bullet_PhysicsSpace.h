@@ -144,10 +144,26 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_setGravity
 /*
  * Class:     com_jme3_bullet_PhysicsSpace
  * Method:    rayTest_native
- * Signature: (Lcom/jme3/math/Vector3f;Lcom/jme3/math/Vector3f;JLjava/util/List;)V
+ * Signature: (Lcom/jme3/math/Vector3f;Lcom/jme3/math/Vector3f;JLjava/util/List;I)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_rayTest_1native
   (JNIEnv *, jobject, jobject, jobject, jlong, jobject, jint);
+
+/*
+ * Class:     com_jme3_bullet_PhysicsSpace
+ * Method:    sweepTest_native
+ * Signature: (JLcom/jme3/math/Transform;Lcom/jme3/math/Transform;JLjava/util/List;F)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_sweepTest_1native
+  (JNIEnv *, jobject, jlong, jobject, jobject, jlong, jobject, jfloat);
+
+/*
+ * Class:     com_jme3_bullet_PhysicsSpace
+ * Method:    setSolverNumIterations
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_setSolverNumIterations
+  (JNIEnv *, jobject, jlong, jint);
 
 /*
  * Class:     com_jme3_bullet_PhysicsSpace
@@ -164,23 +180,6 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_initNativePhysics
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_finalizeNative
   (JNIEnv *, jobject, jlong);
-
-
-/*
-* Class:     com_jme3_bullet_PhysicsSpace
-* Method : sweepTest_native
-* Signature: (J;L;Lcom/jme3/math/Transform;Lcom/jme3/math/Transform;L;JLjava/util/List;F)V
-*/
-JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_sweepTest_1native
-(JNIEnv *, jobject, jlong, jobject, jobject, jlong, jobject, jfloat);
-
-/*
- * Class:     com_jme3_bullet_PhysicsSpace
- * Method:    setSolverNumIterations
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_setSolverNumIterations
-(JNIEnv *, jobject, jlong, jint);
 
 #ifdef __cplusplus
 }

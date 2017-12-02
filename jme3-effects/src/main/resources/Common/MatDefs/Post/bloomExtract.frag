@@ -1,6 +1,9 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+#import "Common/ShaderLib/MultiSample.glsllib"
+
 uniform float m_ExposurePow;
 uniform float m_ExposureCutoff;
-uniform sampler2D m_Texture;
+uniform COLORTEXTURE m_Texture;
 
 varying vec2 texCoord;
 
@@ -11,7 +14,7 @@ varying vec2 texCoord;
 void main(){ 
    vec4 color = vec4(0.0);
    #ifdef DO_EXTRACT
-    color = texture2D( m_Texture, texCoord );
+    color = getColorSingle( m_Texture, texCoord );
     if ( (color.r+color.g+color.b)/3.0 < m_ExposureCutoff ) {
           color = vec4(0.0);
     }else{

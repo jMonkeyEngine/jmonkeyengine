@@ -1,4 +1,4 @@
-MaterialDef Bloom {
+MaterialDef VGaussianBlur {
 
     MaterialParameters {
         Int NumSamples
@@ -8,8 +8,8 @@ MaterialDef Bloom {
     }
 
     Technique {
-        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL100: Common/MatDefs/Blur/VGaussianBlur.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Blur/VGaussianBlur.frag
 
         WorldParameters {
         }

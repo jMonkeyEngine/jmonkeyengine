@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #extension GL_EXT_gpu_shader4 : enable
 
 uniform sampler2D m_Texture;

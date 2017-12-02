@@ -60,9 +60,9 @@ public class TestOnlineJar extends SimpleApplication {
 
         Geometry quad = new Geometry("Textured Quad", quadMesh);
         
-        assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/town.zip", 
+        assetManager.registerLocator("https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/town.zip", 
                                      HttpZipLocator.class);
-        assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/wildhouse.zip", 
+        assetManager.registerLocator("https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/wildhouse.zip", 
                                      HttpZipLocator.class);
 
         Picture pic1 = new Picture("Picture1");

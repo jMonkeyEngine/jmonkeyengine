@@ -57,7 +57,12 @@ public interface AppProfiler {
      *  steps the Bucket parameter will be non-null.
      */
     public void vpStep(VpStep step, ViewPort vp, Bucket bucket);
-    
+
+    /**
+     * Called at the beginning of the specified SpStep (SceneProcessor step).
+     * For more detailed steps it is possible to provide additional information as strings, like the name of the processor.
+     */
+    public void spStep(SpStep step, String... additionalInfo);
 }
 
 

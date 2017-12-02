@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2017 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,14 @@ package com.jme3.animation;
 
 import com.jme3.export.*;
 import com.jme3.math.*;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
+import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.JmeCloneable;
+import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -62,13 +68,13 @@ import java.util.ArrayList;
  * @author Kirill Vainer
  * @author Rémy Bouquet
  */
-public final class Bone implements Savable {
+public final class Bone implements Savable, JmeCloneable {
 
     // Version #2: Changed naming of transforms as they were misleading
     public static final int SAVABLE_VERSION = 2;
     private String name;
     private Bone parent;
-    private final ArrayList<Bone> children = new ArrayList<Bone>();
+    private ArrayList<Bone> children = new ArrayList<Bone>();
     /**
      * If enabled, user can control bone transform with setUserTransforms.
      * Animation transforms are not applied to this bone when enabled.
@@ -78,7 +84,10 @@ public final class Bone implements Savable {
      * The attachment node.
      */
     private Node attachNode;
-    
+    /**
+     * A geometry animated by this node, used when updating the attachments node.
+     */
+    private Geometry targetGeometry = null;
     /**
      * Bind transform is the local bind transform of this bone. (local space)
      */
@@ -166,6 +175,44 @@ public final class Bone implements Savable {
      * Serialization only. Do not use.
      */
     public Bone() {
+    }
+    
+    @Override   
+    public Object jmeClone() {
+        try {
+            Bone clone = (Bone)super.clone();
+            return clone;
+        } catch (CloneNotSupportedException ex) {
+            throw new AssertionError();
+        }
+    }     
+
+    @Override   
+    public void cloneFields( Cloner cloner, Object original ) {
+    
+        this.parent = cloner.clone(parent);
+        this.children = cloner.clone(children);    
+        
+        this.attachNode = cloner.clone(attachNode);
+        this.targetGeometry = cloner.clone(targetGeometry);
+
+        this.bindPos = cloner.clone(bindPos);
+        this.bindRot = cloner.clone(bindRot);
+        this.bindScale = cloner.clone(bindScale);
+        
+        this.modelBindInversePos = cloner.clone(modelBindInversePos);
+        this.modelBindInverseRot = cloner.clone(modelBindInverseRot);
+        this.modelBindInverseScale = cloner.clone(modelBindInverseScale);
+    
+        this.localPos = cloner.clone(localPos);
+        this.localRot = cloner.clone(localRot);
+        this.localScale = cloner.clone(localScale);
+        
+        this.modelPos = cloner.clone(modelPos);
+        this.modelRot = cloner.clone(modelRot);
+        this.modelScale = cloner.clone(modelScale);
+    
+        this.tmpTransform = cloner.clone(tmpTransform);
     }
 
     /**
@@ -466,9 +513,39 @@ public final class Bone implements Savable {
         }
 
         if (attachNode != null) {
+            updateAttachNode();
+        }
+    }
+
+    /**
+     * Update the local transform of the attachments node.
+     */
+    private void updateAttachNode() {
+        Node attachParent = attachNode.getParent();
+        if (attachParent == null || targetGeometry == null
+                || targetGeometry.getParent() == attachParent
+                && targetGeometry.getLocalTransform().isIdentity()) {
+            /*
+             * The animated meshes are in the same coordinate system as the
+             * attachments node: no further transforms are needed.
+             */
             attachNode.setLocalTranslation(modelPos);
             attachNode.setLocalRotation(modelRot);
             attachNode.setLocalScale(modelScale);
+
+        } else {
+            Spatial loopSpatial = targetGeometry;
+            Transform combined = new Transform(modelPos, modelRot, modelScale);
+            /*
+             * Climb the scene graph applying local transforms until the 
+             * attachments node's parent is reached.
+             */
+            while (loopSpatial != attachParent && loopSpatial != null) {
+                Transform localTransform = loopSpatial.getLocalTransform();
+                combined.combineWithParent(localTransform);
+                loopSpatial = loopSpatial.getParent();
+            }
+            attachNode.setLocalTransform(combined);
         }
     }
 
@@ -622,15 +699,32 @@ public final class Bone implements Savable {
     }
 
     /**
-     * Returns the attachment node.
-     * Attach models and effects to this node to make
-     * them follow this bone's motions.
+     * Access the attachments node of this bone. If this bone doesn't already
+     * have an attachments node, create one. Models and effects attached to the
+     * attachments node will follow this bone's motions.
+     *
+     * @param boneIndex this bone's index in its skeleton (&ge;0)
+     * @param targets a list of geometries animated by this bone's skeleton (not
+     * null, unaffected)
      */
-    Node getAttachmentsNode() {
+    Node getAttachmentsNode(int boneIndex, SafeArrayList<Geometry> targets) {
+        targetGeometry = null;
+        /*
+         * Search for a geometry animated by this particular bone.
+         */
+        for (Geometry geometry : targets) {
+            Mesh mesh = geometry.getMesh();
+            if (mesh != null && mesh.isAnimatedByBone(boneIndex)) {
+                targetGeometry = geometry;
+                break;
+            }
+        }
+
         if (attachNode == null) {
             attachNode = new Node(name + "_attachnode");
             attachNode.setUserData("AttachedBone", this);
         }
+
         return attachNode;
     }
 
@@ -784,6 +878,7 @@ public final class Bone implements Savable {
         }
         
         attachNode = (Node) input.readSavable("attachNode", null);
+        targetGeometry = (Geometry) input.readSavable("targetGeometry", null);
 
         localPos.set(bindPos);
         localRot.set(bindRot);
@@ -806,6 +901,7 @@ public final class Bone implements Savable {
 
         output.write(name, "name", null);
         output.write(attachNode, "attachNode", null);
+        output.write(targetGeometry, "targetGeometry", null);
         output.write(bindPos, "bindPos", null);
         output.write(bindRot, "bindRot", null);
         output.write(bindScale, "bindScale", new Vector3f(1.0f, 1.0f, 1.0f));

@@ -265,6 +265,22 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
         inputManager.addListener(this, inputs);
     }
+    
+    /**
+    * Cleans up the input mappings from the input manager.
+    * Undoes the work of registerWithInput().
+    * @param inputManager InputManager from which to cleanup mappings.
+    */
+    public void cleanupWithInput(InputManager mgr){
+        mgr.deleteMapping(CameraInput.CHASECAM_TOGGLEROTATE);
+        mgr.deleteMapping(CameraInput.CHASECAM_DOWN);
+        mgr.deleteMapping(CameraInput.CHASECAM_UP);
+        mgr.deleteMapping(CameraInput.CHASECAM_MOVELEFT);
+        mgr.deleteMapping(CameraInput.CHASECAM_MOVERIGHT);
+        mgr.deleteMapping(CameraInput.CHASECAM_ZOOMIN);
+        mgr.deleteMapping(CameraInput.CHASECAM_ZOOMOUT);
+        mgr.removeListener(this);
+    }
 
     /**
      * Sets custom triggers for toggling the rotation of the cam

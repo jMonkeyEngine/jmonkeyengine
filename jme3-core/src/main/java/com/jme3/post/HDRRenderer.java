@@ -34,6 +34,7 @@ package com.jme3.post;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.*;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.FrameBuffer;
@@ -47,6 +48,10 @@ import com.jme3.ui.Picture;
 import java.util.Collection;
 import java.util.logging.Logger;
 
+/**
+ * @deprecated use the ToneMappingFilter.
+ */
+@Deprecated
 public class HDRRenderer implements SceneProcessor {
 
     private static final int LUMMODE_NONE = 0x1,
@@ -57,6 +62,7 @@ public class HDRRenderer implements SceneProcessor {
     private RenderManager renderManager;
     private ViewPort viewPort;
     private static final Logger logger = Logger.getLogger(HDRRenderer.class.getName());
+    private AppProfiler prof;
 
     private Camera fbCam = new Camera(1, 1);
 
@@ -412,6 +418,11 @@ public class HDRRenderer implements SceneProcessor {
             renderer.deleteFrameBuffer(scene1FB[0]);
             renderer.deleteFrameBuffer(scene1FB[1]);
         }
+    }
+
+    @Override
+    public void setProfiler(AppProfiler profiler) {
+        this.prof = profiler;
     }
 
 }

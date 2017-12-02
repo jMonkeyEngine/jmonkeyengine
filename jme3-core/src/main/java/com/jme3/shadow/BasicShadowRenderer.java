@@ -35,6 +35,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
@@ -75,7 +76,8 @@ public class BasicShadowRenderer implements SceneProcessor {
 
     protected GeometryList lightReceivers = new GeometryList(new OpaqueComparator());
     protected GeometryList shadowOccluders = new GeometryList(new OpaqueComparator());
-    
+    private AppProfiler prof;
+
     /**
      * Creates a BasicShadowRenderer
      * @param manager the asset manager
@@ -219,6 +221,11 @@ public class BasicShadowRenderer implements SceneProcessor {
     }
 
     public void cleanup() {
+    }
+
+    @Override
+    public void setProfiler(AppProfiler profiler) {
+        this.prof = profiler;
     }
 
     public void reshape(ViewPort vp, int w, int h) {

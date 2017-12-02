@@ -141,7 +141,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     protected SafeArrayList<MatParamOverride> localOverrides;
     protected SafeArrayList<MatParamOverride> worldOverrides;
 
-    /** 
+    /**
      * This spatial's name.
      */
     protected String name;
@@ -909,7 +909,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         if ((refreshFlags & RF_MATPARAM_OVERRIDE) != 0) {
             updateMatParamOverrides();
         }
-        
         assert refreshFlags == 0;
     }
 
@@ -1128,8 +1127,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     }
 
     /**
-     * <code>addLight</code> adds the given light to the Spatial; causing
- all
+     * <code>addLight</code> adds the given light to the Spatial; causing all
      * child Spatials to be affected by it.
      *
      * @param light The light to add.

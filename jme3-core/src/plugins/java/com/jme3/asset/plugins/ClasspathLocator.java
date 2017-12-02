@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -90,6 +91,17 @@ public class ClasspathLocator implements AssetLocator {
         }else{
             url = Thread.currentThread().getContextClassLoader().getResource(name);
         }
+
+        if (url == null) {
+            final List<ClassLoader> classLoaders = manager.getClassLoaders();
+            for (final ClassLoader classLoader : classLoaders) {
+                url = classLoader.getResource(name);
+                if(url != null) {
+                    break;
+                }
+            }
+        }
+
         if (url == null)
             return null;
         

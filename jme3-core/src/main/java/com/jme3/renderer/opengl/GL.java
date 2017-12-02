@@ -50,6 +50,7 @@ public interface GL {
     public static final int GL_ARRAY_BUFFER = 0x8892;
     public static final int GL_BACK = 0x405;
     public static final int GL_BLEND = 0xBE2;
+    public static final int GL_BLUE = 0x1905;
     public static final int GL_BYTE = 0x1400;
     public static final int GL_CLAMP_TO_EDGE = 0x812F;
     public static final int GL_COLOR_BUFFER_BIT = 0x4000;
@@ -62,6 +63,7 @@ public interface GL {
     public static final int GL_DEPTH_COMPONENT16 = 0x81A5;
     public static final int GL_DEPTH_TEST = 0xB71;
     public static final int GL_DOUBLE = 0x140A;
+    public static final int GL_DST_ALPHA = 0x0304;
     public static final int GL_DST_COLOR = 0x306;
     public static final int GL_DYNAMIC_DRAW = 0x88E8;
     public static final int GL_ELEMENT_ARRAY_BUFFER = 0x8893;
@@ -118,12 +120,15 @@ public interface GL {
     public static final int GL_NONE = 0x0;
     public static final int GL_NOTEQUAL = 0x205;
     public static final int GL_ONE = 0x1;
+    public static final int GL_ONE_MINUS_DST_ALPHA = 0x0305;
     public static final int GL_ONE_MINUS_DST_COLOR = 0x307;
     public static final int GL_ONE_MINUS_SRC_ALPHA = 0x303;
     public static final int GL_ONE_MINUS_SRC_COLOR = 0x301;
     public static final int GL_OUT_OF_MEMORY = 0x505;
     public static final int GL_POINTS = 0x0;
     public static final int GL_POLYGON_OFFSET_FILL = 0x8037;
+    public static final int GL_QUERY_RESULT = 0x8866;
+    public static final int GL_QUERY_RESULT_AVAILABLE = 0x8867;
     public static final int GL_RED = 0x1903;
     public static final int GL_RENDERER = 0x1F01;
     public static final int GL_REPEAT = 0x2901;
@@ -137,6 +142,7 @@ public interface GL {
     public static final int GL_SHADING_LANGUAGE_VERSION = 0x8B8C;
     public static final int GL_SHORT = 0x1402;
     public static final int GL_SRC_ALPHA = 0x302;
+    public static final int GL_SRC_ALPHA_SATURATE = 0x0308;
     public static final int GL_SRC_COLOR = 0x300;
     public static final int GL_STATIC_DRAW = 0x88E4;
     public static final int GL_STENCIL_BUFFER_BIT = 0x400;
@@ -168,12 +174,11 @@ public interface GL {
     public static final int GL_TEXTURE_CUBE_MAP_NEGATIVE_Y = 0x8518;
     public static final int GL_TEXTURE_CUBE_MAP_POSITIVE_Z = 0x8519;
     public static final int GL_TEXTURE_CUBE_MAP_NEGATIVE_Z = 0x851A;
-    public static final int GL_TEXTURE_BASE_LEVEL = 0x813C;
     public static final int GL_TEXTURE_MAG_FILTER = 0x2800;
-    public static final int GL_TEXTURE_MAX_LEVEL = 0x813D;
     public static final int GL_TEXTURE_MIN_FILTER = 0x2801;
     public static final int GL_TEXTURE_WRAP_S = 0x2802;
     public static final int GL_TEXTURE_WRAP_T = 0x2803;
+    public static final int GL_TIME_ELAPSED = 0x88BF;
     public static final int GL_TRIANGLES = 0x4;
     public static final int GL_TRIANGLE_FAN = 0x6;
     public static final int GL_TRIANGLE_STRIP = 0x5;
@@ -193,10 +198,12 @@ public interface GL {
         
 	public void glActiveTexture(int texture);
 	public void glAttachShader(int program, int shader);
+    public void glBeginQuery(int target, int query);
 	public void glBindBuffer(int target, int buffer);
 	public void glBindTexture(int target, int texture);
 	public void glBlendEquationSeparate(int colorMode, int alphaMode);
 	public void glBlendFunc(int sfactor, int dfactor);
+        public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha);
         public void glBufferData(int target, long data_size, int usage);
 	public void glBufferData(int target, FloatBuffer data, int usage);
 	public void glBufferData(int target, ShortBuffer data, int usage);
@@ -228,8 +235,10 @@ public interface GL {
 	public void glDrawRangeElements(int mode, int start, int end, int count, int type, long indices); /// GL2+
 	public void glEnable(int cap);
 	public void glEnableVertexAttribArray(int index);
+    public void glEndQuery(int target);
 	public void glGenBuffers(IntBuffer buffers);
 	public void glGenTextures(IntBuffer textures);
+    public void glGenQueries(int number, IntBuffer ids);
 	public int glGetAttribLocation(int program, String name);
 	public void glGetBoolean(int pname, ByteBuffer params);
         public void glGetBufferSubData(int target, long offset, ByteBuffer data);
@@ -237,7 +246,9 @@ public interface GL {
 	public void glGetInteger(int pname, IntBuffer params);
 	public void glGetProgram(int program, int pname, IntBuffer params);
 	public String glGetProgramInfoLog(int program, int maxSize);
-	public void glGetShader(int shader, int pname, IntBuffer params);
+    public long glGetQueryObjectui64(int query, int pname);
+    public int glGetQueryObjectiv(int query, int pname);
+    public void glGetShader(int shader, int pname, IntBuffer params);
 	public String glGetShaderInfoLog(int shader, int maxSize);
 	public String glGetString(int name);
 	public int glGetUniformLocation(int program, String name);

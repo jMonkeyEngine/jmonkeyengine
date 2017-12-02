@@ -52,9 +52,9 @@ import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 /**
- * A MotionTrack is a control over the spatial that manage the position and direction of the spatial while following a motion Path
+ * A MotionEvent is a control over the spatial that manages the position and direction of the spatial while following a motion Path.
  *
- * You must first create a MotionPath and then create a MotionTrack to associate a spatial and the path.
+ * You must first create a MotionPath and then create a MotionEvent to associate a spatial and the path.
  *
  * @author Nehon
  */
@@ -77,44 +77,44 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     protected float traveledDistance = 0;
 
     /**
-     * Enum for the different type of target direction behavior
+     * Enum for the different type of target direction behavior.
      */
     public enum Direction {
 
         /**
-         * the target stay in the starting direction
+         * The target stays in the starting direction.
          */
         None,
         /**
-         * The target rotates with the direction of the path
+         * The target rotates with the direction of the path.
          */
         Path,
         /**
-         * The target rotates with the direction of the path but with the addition of a rotation
-         * you need to use the setRotation method when using this Direction
+         * The target rotates with the direction of the path but with the addition of a rotation.
+         * You need to use the setRotation method when using this Direction.
          */
         PathAndRotation,
         /**
-         * The target rotates with the given rotation
+         * The target rotates with the given rotation.
          */
         Rotation,
         /**
-         * The target looks at a point
-         * You need to use the setLookAt method when using this direction
+         * The target looks at a point.
+         * You need to use the setLookAt method when using this direction.
          */
         LookAt
     }
 
     /**
-     * Create MotionTrack,
-     * when using this constructor don't forget to assign spatial and path
+     * Create MotionEvent,
+     * when using this constructor don't forget to assign spatial and path.
      */
     public MotionEvent() {
         super();
     }
 
     /**
-     * Creates a MotionPath for the given spatial on the given motion path
+     * Creates a MotionPath for the given spatial on the given motion path.
      * @param spatial
      * @param path
      */
@@ -125,7 +125,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     /**
-     * Creates a MotionPath for the given spatial on the given motion path
+     * Creates a MotionPath for the given spatial on the given motion path.
      * @param spatial
      * @param path
      */
@@ -136,7 +136,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     /**
-     * Creates a MotionPath for the given spatial on the given motion path
+     * Creates a MotionPath for the given spatial on the given motion path.
      * @param spatial
      * @param path
      */
@@ -148,7 +148,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     /**
-     * Creates a MotionPath for the given spatial on the given motion path
+     * Creates a MotionPath for the given spatial on the given motion path.
      * @param spatial
      * @param path
      */
@@ -214,6 +214,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
         oc.write(rotation, "rotation", null);
         oc.write(directionType, "directionType", Direction.None);
         oc.write(path, "path", null);
+        oc.write(spatial, "spatial", null);
     }
 
     @Override
@@ -225,10 +226,11 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
         rotation = (Quaternion) in.readSavable("rotation", null);
         directionType = in.readEnum("directionType", Direction.class, Direction.None);
         path = (MotionPath) in.readSavable("path", null);
+        spatial = (Spatial) in.readSavable("spatial", null);
     }
 
     /**
-     * this method is meant to be called by the motion path only
+     * This method is meant to be called by the motion path only.
      * @return
      */
     public boolean needsDirection() {
@@ -268,7 +270,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     /**
-     * Clone this control for the given spatial
+     * Clone this control for the given spatial.
      * @param spatial
      * @return
      */
@@ -331,7 +333,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     /**
-     * this method is meant to be called by the motion path only
+     * This method is meant to be called by the motion path only.
      * @return
      */
     public float getCurrentValue() {
@@ -339,7 +341,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     /**
-     * this method is meant to be called by the motion path only
+     * This method is meant to be called by the motion path only.
      *
      */
     public void setCurrentValue(float currentValue) {
@@ -347,7 +349,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     /**
-     * this method is meant to be called by the motion path only
+     * This method is meant to be called by the motion path only.
      * @return
      */
     public int getCurrentWayPoint() {
@@ -355,7 +357,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     /**
-     * this method is meant to be called by the motion path only
+     * This method is meant to be called by the motion path only.
      *
      */
     public void setCurrentWayPoint(int currentWayPoint) {
@@ -363,7 +365,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     /**
-     * returns the direction the spatial is moving
+     * Returns the direction the spatial is moving.
      * @return
      */
     public Vector3f getDirection() {
@@ -371,7 +373,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     /**
-     * Sets the direction of the spatial, using the Y axis as the up vector
+     * Sets the direction of the spatial, using the Y axis as the up vector.
      * Use MotionEvent#setDirection((Vector3f direction,Vector3f upVector) if 
      * you want a custum up vector.
      * This method is used by the motion path.
@@ -382,10 +384,10 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
    }
     
     /**
-     * Sets the direction of the spatial witht ht egiven up vector
+     * Sets the direction of the spatial with the given up vector.
      * This method is used by the motion path.
      * @param direction
-     * @param upVector the up vector to consider for this direction
+     * @param upVector the up vector to consider for this direction.
      */
     public void setDirection(Vector3f direction,Vector3f upVector) {
         this.direction.set(direction);
@@ -393,28 +395,28 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     /**
-     * returns the direction type of the target
-     * @return the direction type
+     * Returns the direction type of the target.
+     * @return the direction type.
      */
     public Direction getDirectionType() {
         return directionType;
     }
 
     /**
-     * Sets the direction type of the target
-     * On each update the direction given to the target can have different behavior
-     * See the Direction Enum for explanations
-     * @param directionType the direction type
+     * Sets the direction type of the target.
+     * On each update the direction given to the target can have different behavior.
+     * See the Direction Enum for explanations.
+     * @param directionType the direction type.
      */
     public void setDirectionType(Direction directionType) {
         this.directionType = directionType;
     }
 
     /**
-     * Set the lookAt for the target
-     * This can be used only if direction Type is Direction.LookAt
-     * @param lookAt the position to look at
-     * @param upVector the up vector
+     * Set the lookAt for the target.
+     * This can be used only if direction Type is Direction.LookAt.
+     * @param lookAt the position to look at.
+     * @param upVector the up vector.
      */
     public void setLookAt(Vector3f lookAt, Vector3f upVector) {
         this.lookAt = lookAt;
@@ -422,26 +424,26 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     /**
-     * returns the rotation of the target
-     * @return the rotation quaternion
+     * Returns the rotation of the target.
+     * @return the rotation quaternion.
      */
     public Quaternion getRotation() {
         return rotation;
     }
 
     /**
-     * sets the rotation of the target
-     * This can be used only if direction Type is Direction.PathAndRotation or Direction.Rotation
+     * Sets the rotation of the target.
+     * This can be used only if direction Type is Direction.PathAndRotation or Direction.Rotation.
      * With PathAndRotation the target will face the direction of the path multiplied by the given Quaternion.
      * With Rotation the rotation of the target will be set with the given Quaternion.
-     * @param rotation the rotation quaternion
+     * @param rotation the rotation quaternion.
      */
     public void setRotation(Quaternion rotation) {
         this.rotation = rotation;
     }
 
     /**
-     * retun the motion path this control follows
+     * Return the motion path this control follows.
      * @return
      */
     public MotionPath getPath() {
@@ -449,7 +451,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     /**
-     * Sets the motion path to follow
+     * Sets the motion path to follow.
      * @param path
      */
     public void setPath(MotionPath path) {
@@ -480,7 +482,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     }
 
     /**
-     * return the distance traveled by the spatial on the path
+     * Return the distance traveled by the spatial on the path.
      * @return 
      */
     public float getTraveledDistance() {

@@ -303,22 +303,29 @@ public class TerrainPatch extends Geometry {
 
     protected void setHeight(List<LocationHeight> locationHeights, boolean overrideHeight) {
 
+        final float[] heightArray = geomap.getHeightArray();
+        final VertexBuffer vertexBuffer = mesh.getBuffer(Type.Position);
+        final FloatBuffer floatBuffer = mesh.getFloatBuffer(Type.Position);
+
         for (LocationHeight lh : locationHeights) {
-            if (lh.x < 0 || lh.z < 0 || lh.x >= size || lh.z >= size)
+
+            if (lh.x < 0 || lh.z < 0 || lh.x >= size || lh.z >= size) {
                 continue;
-            int idx = lh.z * size + lh.x;
-            if (overrideHeight) {
-                geomap.getHeightArray()[idx] = lh.h;
-            } else {
-                float h = getMesh().getFloatBuffer(Type.Position).get(idx*3+1);
-                geomap.getHeightArray()[idx] = h+lh.h;
             }
 
+            int idx = lh.z * size + lh.x;
+
+            if (overrideHeight) {
+                heightArray[idx] = lh.h;
+            } else {
+                float currentHeight = floatBuffer.get(idx * 3 + 1);
+                heightArray[idx] = currentHeight + lh.h;
+            }
         }
 
-        FloatBuffer newVertexBuffer = geomap.writeVertexArray(null, stepScale, false);
-        getMesh().clearBuffer(Type.Position);
-        getMesh().setBuffer(Type.Position, 3, newVertexBuffer);
+        floatBuffer.clear();
+        geomap.writeVertexArray(floatBuffer, stepScale, false);
+        vertexBuffer.setUpdateNeeded();
     }
 
     /**

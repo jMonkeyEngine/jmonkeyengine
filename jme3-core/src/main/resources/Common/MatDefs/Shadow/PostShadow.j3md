@@ -35,8 +35,8 @@ MaterialDef Post Shadow {
     }
 
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -58,33 +58,6 @@ MaterialDef Post Shadow {
             Blend Modulate
             DepthWrite Off   
             PolyOffset -0.1 0             
-        }
-    }
-
-    Technique {
-        VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadow.frag
-
-        WorldParameters {
-            WorldViewProjectionMatrix
-            WorldMatrix
-        }
-
-        Defines {
-            HARDWARE_SHADOWS : HardwareShadows
-            FILTER_MODE : FilterMode
-            PCFEDGE : PCFEdge
-            SHADOWMAP_SIZE : ShadowMapSize
-            FADE : FadeInfo
-            PSSM : Splits
-            POINTLIGHT : LightViewProjectionMatrix5
-            BACKFACE_SHADOWS: BackfaceShadows
-        }
-
-        RenderState {
-            Blend Modulate
-            DepthWrite Off    
-            PolyOffset -0.1 0
         }
     }
 

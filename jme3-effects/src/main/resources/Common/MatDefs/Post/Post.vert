@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 attribute vec4 inPosition;
 attribute vec2 inTexCoord;
 

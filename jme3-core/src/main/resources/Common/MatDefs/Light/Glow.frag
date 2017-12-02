@@ -1,4 +1,4 @@
-
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #if defined(NEED_TEXCOORD1) 
     varying vec2 texCoord1;
 #else 

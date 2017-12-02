@@ -39,6 +39,9 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -47,7 +50,7 @@ import java.util.Arrays;
  * 
  * @author Marcin Roguski (Kaelthas)
  */
-public class SpatialTrack implements Track {
+public class SpatialTrack implements Track, JmeCloneable {
     
     /** 
      * Translations of the track. 
@@ -63,7 +66,13 @@ public class SpatialTrack implements Track {
      * Scales of the track. 
      */
     private CompactVector3Array scales;
-    
+
+    /**
+     * The spatial to which this track applies.
+     * Note that this is optional, if no spatial is defined, the AnimControl's Spatial will be used.
+     */
+    private Spatial trackSpatial;
+
     /** 
      * The times of the animations frames. 
      */
@@ -97,8 +106,11 @@ public class SpatialTrack implements Track {
      *            the current time of the animation
      */
     public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars) {
-        Spatial spatial = control.getSpatial();
-        
+        Spatial spatial = trackSpatial;
+        if (spatial == null) {
+            spatial = control.getSpatial();
+        }
+
         Vector3f tempV = vars.vect1;
         Vector3f tempS = vars.vect2;
         Quaternion tempQ = vars.quat1;
@@ -152,11 +164,13 @@ public class SpatialTrack implements Track {
             tempV.interpolateLocal(tempV2, blend);
             tempS.interpolateLocal(tempS2, blend);
         }
-        
-        if (translations != null)
+
+        if (translations != null) {
             spatial.setLocalTranslation(tempV);
-        if (rotations != null)
+        }
+        if (rotations != null) {
             spatial.setLocalRotation(tempQ);
+        }
         if (scales != null) {
             spatial.setLocalScale(tempS);
         }
@@ -235,18 +249,27 @@ public class SpatialTrack implements Track {
     public float getLength() {
             return times == null ? 0 : times[times.length - 1] - times[0];
     }
-    
+
+    @Override
+    public Track clone() {
+        return (Track) jmeClone();
+    }
+
     @Override
     public float[] getKeyFrameTimes() {
         return times;
     }
 
-    /**
-     * This method creates a clone of the current object.
-     * @return a clone of the current object
-     */
+    public void setTrackSpatial(Spatial trackSpatial) {
+        this.trackSpatial = trackSpatial;
+    }
+
+    public Spatial getTrackSpatial() {
+        return trackSpatial;
+    }
+
     @Override
-    public SpatialTrack clone() {
+    public Object jmeClone() {
         int tablesLength = times.length;
 
         float[] timesCopy = this.times.clone();
@@ -257,6 +280,11 @@ public class SpatialTrack implements Track {
         //need to use the constructor here because of the final fields used in this class
         return new SpatialTrack(timesCopy, translationsCopy, rotationsCopy, scalesCopy);
     }
+
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        this.trackSpatial = cloner.clone(((SpatialTrack) original).trackSpatial);
+    }
 	
     @Override
     public void write(JmeExporter ex) throws IOException {
@@ -265,6 +293,7 @@ public class SpatialTrack implements Track {
         oc.write(rotations, "rotations", null);
         oc.write(times, "times", null);
         oc.write(scales, "scales", null);
+        oc.write(trackSpatial, "trackSpatial", null);
     }
 
     @Override
@@ -274,5 +303,6 @@ public class SpatialTrack implements Track {
         rotations = (CompactQuaternionArray) ic.readSavable("rotations", null);
         times = ic.readFloatArray("times", null);
         scales = (CompactVector3Array) ic.readSavable("scales", null);
+        trackSpatial = (Spatial) ic.readSavable("trackSpatial", null);
     }
 }

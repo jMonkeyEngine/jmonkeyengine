@@ -47,6 +47,8 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+
 import java.io.IOException;
 
 /**
@@ -123,6 +125,11 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     @Override
     protected void updateShadowCams(Camera viewCam) {
 
+        if (light == null) {
+            logger.warning("The light can't be null for a " + getClass().getName());
+            return;
+        }
+
         float zFar = zFarOverride;
         if (zFar == 0) {
             zFar = viewCam.getFrustumFar();
@@ -139,7 +146,6 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
 
         shadowCam.update();
         shadowCam.updateViewProjection();
-
     }
 
     @Override
@@ -186,11 +192,17 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
         material.clearParam("LightDir");
     }
 
-    
+    @Override
+    public void cloneFields(final Cloner cloner, final Object original) {
+        light = cloner.clone(light);
+        init((int) shadowMapSize);
+        super.cloneFields(cloner, original);
+    }
+
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
-        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        InputCapsule ic = im.getCapsule(this);
         zFarOverride = ic.readInt("zFarOverride", 0);
         light = (SpotLight) ic.readSavable("light", null);
         fadeInfo = (Vector2f) ic.readSavable("fadeInfo", null);
@@ -202,7 +214,7 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
-        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);        
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(zFarOverride, "zFarOverride", 0);
         oc.write(light, "light", null);
         oc.write(fadeInfo, "fadeInfo", null);

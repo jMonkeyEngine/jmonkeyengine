@@ -2,6 +2,7 @@ MaterialDef Posterization {
  
     MaterialParameters {
         Int NumSamples
+        Int NumSamplesDepth
         Texture2D Texture;
         Int NumColors;
         Float Gamma;
@@ -9,18 +10,15 @@ MaterialDef Posterization {
     }
  
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
-        FragmentShader GLSL150: Common/MatDefs/Post/Posterization15.frag
+        VertexShader GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL150 GLSL100: Common/MatDefs/Post/Posterization.frag
  
         WorldParameters {
         }
-    }
- 
-    Technique {
-        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL100: Common/MatDefs/Post/Posterization.frag
- 
-        WorldParameters {   
+
+        Defines {
+           RESOLVE_MS : NumSamples
         }
+
     }
 }

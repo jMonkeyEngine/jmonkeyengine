@@ -96,8 +96,8 @@ public class NullContext implements JmeContext, Runnable {
         }
     }
 
-    private static long timeThen;
-    private static long timeLate;
+    private long timeThen;
+    private long timeLate;
 
     public void sync(int fps) {
         long timeNow;

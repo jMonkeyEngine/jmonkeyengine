@@ -39,15 +39,14 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.ColorOverlayFilter;
-import com.jme3.post.filters.FadeFilter;
-import com.jme3.post.filters.RadialBlurFilter;
+import com.jme3.post.filters.*;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.shape.Box;
+import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
@@ -61,17 +60,21 @@ public class TestPostFilters extends SimpleApplication implements ActionListener
 
     public static void main(String[] args) {
         TestPostFilters app = new TestPostFilters();
+//        AppSettings settings = new AppSettings(true);
+//        settings.setRenderer(AppSettings.LWJGL_OPENGL2);
+//        app.setSettings(settings);
         app.start();
     }
 
     public void setupFilters() {
         if (renderer.getCaps().contains(Caps.GLSL100)) {
             fpp = new FilterPostProcessor(assetManager);
+            //     fpp.setNumSamples(4);
             // fpp.setNumSamples(4);
-            fpp.addFilter(new ColorOverlayFilter(ColorRGBA.LightGray));
+            //fpp.addFilter(new ColorOverlayFilter(ColorRGBA.LightGray));
             fpp.addFilter(new RadialBlurFilter());
-            //fade=new FadeFilter(1.0f);
-            //fpp.addFilter(fade);
+            fade = new FadeFilter(1.0f);
+            fpp.addFilter(fade);
 
 
             viewPort.addProcessor(fpp);
@@ -102,7 +105,7 @@ public class TestPostFilters extends SimpleApplication implements ActionListener
 
         dl.setColor(new ColorRGBA(.4f, .4f, .4f, 1));
 
-        rootNode.addLight(dl);
+        //   rootNode.addLight(dl);
     }
 
     public void setupFloor() {
@@ -131,12 +134,6 @@ public class TestPostFilters extends SimpleApplication implements ActionListener
     public void simpleInitApp() {
         cam.setLocation(new Vector3f(-32.295086f, 54.80136f, 79.59805f));
         cam.setRotation(new Quaternion(0.074364014f, 0.92519957f, -0.24794696f, 0.27748522f));
-        cam.update();
-
-        cam.setFrustumFar(300);
-        flyCam.setMoveSpeed(30);
-
-        rootNode.setCullHint(CullHint.Never);
 
         setupLighting();
         setupSkyBox();
@@ -153,7 +150,7 @@ public class TestPostFilters extends SimpleApplication implements ActionListener
     }
 
     protected void initInput() {
-        flyCam.setMoveSpeed(3);
+        flyCam.setMoveSpeed(50);
         //init input
         inputManager.addMapping("fadein", new KeyTrigger(KeyInput.KEY_I));
         inputManager.addListener(this, "fadein");

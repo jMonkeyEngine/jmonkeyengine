@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 varying vec2 texCoord;
 
 #ifdef DISCARD_ALPHA

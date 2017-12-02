@@ -124,6 +124,11 @@ public class IosGL implements GL, GLExt, GLFbo {
         JmeIosGLES.glAttachShader(program, shader);
     }
 
+    @Override
+    public void glBeginQuery(int target, int query) {
+        throw new UnsupportedOperationException("Today is not a good day for this");
+    }
+
     public void glBindBuffer(int target, int buffer) {
         JmeIosGLES.glBindBuffer(target, buffer);
     }
@@ -135,6 +140,11 @@ public class IosGL implements GL, GLExt, GLFbo {
     public void glBlendFunc(int sfactor, int dfactor) {
         JmeIosGLES.glBlendFunc(sfactor, dfactor);
     }
+    
+    public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha) {
+        JmeIosGLES.glBlendFuncSeparate(sfactorRGB, dfactorRGB, sfactorAlpha, dfactorAlpha);
+    }
+
 
     public void glBufferData(int target, FloatBuffer data, int usage) {
         JmeIosGLES.glBufferData(target, getLimitBytes(data), data, usage);
@@ -264,6 +274,11 @@ public class IosGL implements GL, GLExt, GLFbo {
         JmeIosGLES.glEnableVertexAttribArray(index);
     }
 
+    @Override
+    public void glEndQuery(int target) {
+        throw new UnsupportedOperationException("Today is not a good day for this");
+    }
+
     public void glGenBuffers(IntBuffer buffers) {
         checkLimit(buffers);
         JmeIosGLES.glGenBuffers(buffers.remaining(), temp_array, 0);
@@ -274,6 +289,11 @@ public class IosGL implements GL, GLExt, GLFbo {
         checkLimit(textures);
         JmeIosGLES.glGenTextures(textures.remaining(), temp_array, 0);
         fromArray(textures.remaining(), temp_array, textures);
+    }
+
+    @Override
+    public void glGenQueries(int num, IntBuffer buff) {
+        throw new UnsupportedOperationException("Today is not a good day for this");
     }
 
     public int glGetAttribLocation(int program, String name) {
@@ -304,6 +324,16 @@ public class IosGL implements GL, GLExt, GLFbo {
 
     public String glGetProgramInfoLog(int program, int maxLength) {
         return JmeIosGLES.glGetProgramInfoLog(program);
+    }
+
+    @Override
+    public long glGetQueryObjectui64(int query, int pname) {
+        throw new UnsupportedOperationException("Today is not a good day for this");
+    }
+
+    @Override
+    public int glGetQueryObjectiv(int query, int pname) {
+        throw new UnsupportedOperationException("Today is not a good day for this");
     }
 
     public void glGetShader(int shader, int pname, IntBuffer params) {
@@ -580,5 +610,10 @@ public class IosGL implements GL, GLExt, GLFbo {
     @Override
     public Object glFenceSync(int condition, int flags) {
         throw new UnsupportedOperationException("OpenGL ES 2 does not support sync fences");
+    }
+    
+    @Override
+    public void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer) {
+        throw new UnsupportedOperationException("OpenGL ES 2 does not support texture arrays");
     }
 }

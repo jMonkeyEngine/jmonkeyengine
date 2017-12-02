@@ -16,6 +16,9 @@ varying vec2 texCoord1;
 varying vec2 texCoord2;
 
 varying vec4 vertColor;
+#ifdef HAS_POINTSIZE
+    uniform float m_PointSize;
+#endif
 
 void main(){
     #ifdef NEED_TEXCOORD1
@@ -28,6 +31,10 @@ void main(){
 
     #ifdef HAS_VERTEXCOLOR
         vertColor = inColor;
+    #endif
+
+    #ifdef HAS_POINTSIZE
+        gl_PointSize = m_PointSize;
     #endif
 
     vec4 modelSpacePos = vec4(inPosition, 1.0);

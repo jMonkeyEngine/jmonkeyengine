@@ -32,9 +32,7 @@
  
 package com.jme3.app;
 
-import com.jme3.profile.AppProfiler;
-import com.jme3.profile.AppStep;
-import com.jme3.profile.VpStep;
+import com.jme3.profile.*;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Mesh;
@@ -191,7 +189,13 @@ public class BasicProfiler implements AppProfiler {
     
     @Override
     public void vpStep( VpStep step, ViewPort vp, Bucket bucket ) {
-    }    
+    }
+
+    @Override
+    public void spStep(SpStep step, String... additionalInfo) {
+
+    }
+
 }
 
 

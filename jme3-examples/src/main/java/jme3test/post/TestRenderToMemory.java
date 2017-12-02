@@ -39,6 +39,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -254,6 +255,11 @@ public class TestRenderToMemory extends SimpleApplication implements SceneProces
     }
 
     public void cleanup() {
+    }
+
+    @Override
+    public void setProfiler(AppProfiler profiler) {
+
     }
 
 

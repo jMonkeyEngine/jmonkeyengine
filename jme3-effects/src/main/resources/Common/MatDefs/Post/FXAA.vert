@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 uniform mat4 g_WorldViewProjectionMatrix;
 uniform vec2 g_ResolutionInverse;
 

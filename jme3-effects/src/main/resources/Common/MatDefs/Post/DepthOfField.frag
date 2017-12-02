@@ -1,5 +1,8 @@
-uniform sampler2D m_Texture;
-uniform sampler2D m_DepthTexture;
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+#import "Common/ShaderLib/MultiSample.glsllib"
+
+uniform COLORTEXTURE m_Texture;
+uniform DEPTHTEXTURE m_DepthTexture;
 varying vec2 texCoord;
 
 uniform float m_FocusRange;
@@ -11,9 +14,9 @@ vec2 m_NearFar = vec2( 0.1, 1000.0 );
 
 void main() {
 
-    vec4 texVal = texture2D( m_Texture, texCoord );
+    vec4 texVal = getColor( m_Texture, texCoord );
 
-    float zBuffer = texture2D( m_DepthTexture, texCoord ).r;
+    float zBuffer = getDepth( m_DepthTexture, texCoord ).r;
 
     //
     // z_buffer_value = a + b / z;

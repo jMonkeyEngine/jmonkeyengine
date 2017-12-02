@@ -1,0 +1,121 @@
+// Instancing GLSL library. Modified for VR use.
+// 
+// When the INSTANCING define is set in the shader, 
+// all global matrices are replaced with "instanced" versions.
+// One exception is g_NormalMatrix which becomes unusable,
+// instead the function ApplyNormalTransform is used to transform
+// the normal and tangent vectors into world view space.
+
+// The world matrix and normal transform quaternion need to be passed
+// as vertex attributes "inWorldMatrix" and "inNormalRotationQuaternion"
+// respectively. 
+// The VertexBuffers for those two attributes 
+// need to be configured into instanced mode (VertexBuffer.setInstanced(true)). 
+//  - inWorldMatrix should have 12 * numInstances floats.
+//  - inNormalRotationQuaternion should have 4 * numInstances.
+// Thus, instancing data occupies 4 vertex attributes (16 / 4 = 4).
+// 
+// The GL_ARB_draw_instanced and GL_ARB_instanced_arrays extensions 
+// are required (OGL 3.3).
+
+#if defined INSTANCING
+
+uniform mat4 g_ViewProjectionMatrix;
+uniform mat4 g_ViewMatrix;
+uniform mat4 m_RightEyeViewProjectionMatrix;
+
+// World Matrix + Normal Rotation Quaternion. 
+// The World Matrix is the top 3 rows - 
+//     since the bottom row is always 0,0,0,1 for this transform.
+// The bottom row is the transpose of the inverse of WorldView Transform 
+//     as a quaternion. i.e. g_NormalMatrix converted to a quaternion.
+//
+// Using a quaternion instead of a matrix here allows saving approximately
+// 2 vertex attributes which now can be used for additional per-vertex data.
+attribute mat4 inInstanceData;
+
+// Extract the world matrix out of the instance data, leaving out the 
+// quaternion at the end.
+mat4 worldMatrix = mat4(vec4(inInstanceData[0].xyz, 0.0), 
+                            vec4(inInstanceData[1].xyz, 0.0), 
+                            vec4(inInstanceData[2].xyz, 0.0), 
+                            vec4(inInstanceData[3].xyz, 1.0));
+
+vec4 TransformWorld(vec4 position)
+{
+    return (worldMatrix * position);
+}
+
+vec4 TransformWorldView(vec4 position)
+{
+    return g_ViewMatrix * TransformWorld(position);
+}
+
+vec4 TransformWorldViewProjection(vec4 position)
+{
+    return g_ViewProjectionMatrix * TransformWorld(position);
+}
+
+// VR specific variables
+const float EyeOffsetScale[2] = float[](-0.5, 0.5);
+const vec4 EyeClipEdge[2] = vec4[](vec4(-1.0,0.0,0.0,1.0), vec4(1.0,0.0,0.0,1.0));
+out float gl_ClipDistance[1];
+in int gl_InstanceID;
+
+vec4 TransformWorldViewProjectionVR(vec4 position)
+{
+    vec4 clipPos = (gl_InstanceID == 0 ? g_ViewProjectionMatrix : m_RightEyeViewProjectionMatrix) * TransformWorld(position);
+    gl_ClipDistance[0] = dot(clipPos, EyeClipEdge[gl_InstanceID]);
+    clipPos.x *= 0.5; // shrink to half of the screen
+    clipPos.x += EyeOffsetScale[gl_InstanceID] * clipPos.w; // scoot left or right.
+    return clipPos;    
+}
+
+vec3 TransformNormal(vec3 vec)
+{
+    vec4 quat = vec4(inInstanceData[0].w, inInstanceData[1].w,
+                     inInstanceData[2].w, inInstanceData[3].w);
+
+    vec3 worldNormal = vec + vec3(2.0) * cross(cross(vec, quat.xyz) + vec3(quat.w) * vec, quat.xyz);
+    
+    return (g_ViewMatrix * vec4(worldNormal, 0.0)).xyz;
+}
+
+// Prevent user from using g_** matrices which will have invalid data in this case.
+#define g_WorldMatrix               use_TransformWorld_not_gWorldMatrix
+#define g_WorldViewMatrix           use_TransformWorldView_not_gWorldMatrix
+#define g_WorldViewProjectionMatrix use_TransformWorldViewProjectionVR_not_gWorldViewProjectionMatrix
+#define g_NormalMatrix              use_TransformNormal_not_gNormalMatrix
+
+#else
+
+uniform mat4 g_WorldMatrix;
+uniform mat4 g_WorldViewMatrix;
+uniform mat4 g_WorldViewProjectionMatrix;
+uniform mat3 g_NormalMatrix;
+
+vec4 TransformWorld(vec4 position)
+{
+    return g_WorldMatrix * position;
+}
+
+vec4 TransformWorldView(vec4 position)
+{
+    return g_WorldViewMatrix * position;
+}
+
+vec4 TransformWorldViewProjection(vec4 position)
+{
+    return g_WorldViewProjectionMatrix * position;
+}
+
+vec4 TransformWorldViewProjectionVR(vec4 position)
+{
+    return g_WorldViewProjectionMatrix * position;
+}
+
+vec3 TransformNormal(vec3 normal) {
+	return g_NormalMatrix * normal;
+}
+
+#endif

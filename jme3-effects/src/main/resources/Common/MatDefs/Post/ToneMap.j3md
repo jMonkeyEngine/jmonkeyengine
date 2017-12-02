@@ -8,24 +8,14 @@ MaterialDef Default GUI {
     }
 
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
-        FragmentShader GLSL150: Common/MatDefs/Post/ToneMap.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Post/ToneMap.frag
 
         WorldParameters {
         }
 
         Defines {
-            RESOLVE_MS : NumSamples
+            NUM_SAMPLES : NumSamples
         }
-
-    }
-
-    Technique {
-        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL100: Common/MatDefs/Post/ToneMap.frag
-
-        WorldParameters {  
-        }
-
     }
 }

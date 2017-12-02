@@ -85,6 +85,14 @@ public abstract class Filter implements Savable {
         protected Texture2D renderedTexture;
         protected Texture2D depthTexture;
         protected Material passMaterial;
+        protected String name;
+
+        public Pass(String name) {
+            this.name = name;
+        }
+
+        public Pass() {
+        }
 
         /**
          * init the pass called internally
@@ -197,16 +205,18 @@ public abstract class Filter implements Savable {
                 depthTexture.getImage().dispose();
             }  
         }
+
+        @Override
+        public String toString() {
+            return name == null ? super.toString() : name;
+        }
     }
 
     /**
-     * returns the default pass texture format
-     * default is {@link Format#RGB111110F}
-     * 
-     * @return
+     * returns the default pass texture format.
      */
     protected Format getDefaultPassTextureFormat() {
-        return Format.RGB111110F;
+        return processor.getDefaultPassTextureFormat();
     }
 
     /**

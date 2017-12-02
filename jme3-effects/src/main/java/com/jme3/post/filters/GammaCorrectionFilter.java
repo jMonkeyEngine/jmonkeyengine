@@ -41,8 +41,9 @@ import com.jme3.renderer.ViewPort;
  *
  * @author Phate666
  * @version 1.0 initial version
- * 
+ * @deprecated use the Gama Correction setting instead.
  */
+@Deprecated
 public class GammaCorrectionFilter extends Filter {
 
     private float gamma = 2.2f;   

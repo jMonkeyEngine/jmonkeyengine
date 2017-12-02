@@ -129,6 +129,26 @@ public enum Caps {
      */
     OpenGL40,
     /**
+     * Supports OpenGL 4.1
+     */
+    OpenGL41,
+    /**
+     * Supports OpenGL 4.2
+     */
+    OpenGL42,
+    /**
+     * Supports OpenGL 4.3
+     */
+    OpenGL43,
+    /**
+     * Supports OpenGL 4.4
+     */
+    OpenGL44,
+    /**
+     * Supports OpenGL 4.5
+     */
+    OpenGL45,
+    /**
      * Do not use.
      * 
      * @deprecated do not use.
@@ -174,6 +194,26 @@ public enum Caps {
      * Supports GLSL 4.0
      */
     GLSL400,
+    /**
+     * Supports GLSL 4.1
+     */
+    GLSL410,
+    /**
+     * Supports GLSL 4.2
+     */
+    GLSL420,
+    /**
+     * Supports GLSL 4.3
+     */
+    GLSL430,
+    /**
+     * Supports GLSL 4.4
+     */
+    GLSL440,
+    /**
+     * Supports GLSL 4.5
+     */
+    GLSL450,
     /**
      * Supports reading from textures inside the vertex shader.
      */
@@ -486,6 +526,18 @@ public enum Caps {
                         if (!caps.contains(Caps.GLSL150)) return false;
                     case 330:
                         if (!caps.contains(Caps.GLSL330)) return false;
+                    case 400:
+                        if (!caps.contains(Caps.GLSL400)) return false;
+                    case 410:
+                        if (!caps.contains(Caps.GLSL410)) return false;
+                    case 420:
+                        if (!caps.contains(Caps.GLSL420)) return false;
+                    case 430:
+                        if (!caps.contains(Caps.GLSL430)) return false;
+                    case 440:
+                        if (!caps.contains(Caps.GLSL440)) return false;
+                    case 450:
+                        if (!caps.contains(Caps.GLSL450)) return false;
                     default:
                         return false;
                 }

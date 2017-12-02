@@ -5,8 +5,8 @@ MaterialDef Debug Normals {
     }
 
     Technique {
-        VertexShader GLSL100:   Common/MatDefs/Misc/ShowNormals.vert
-        FragmentShader GLSL100: Common/MatDefs/Misc/ShowNormals.frag
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/ShowNormals.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Misc/ShowNormals.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

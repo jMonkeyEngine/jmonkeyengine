@@ -34,27 +34,28 @@ package com.jme3.environment.generation;
 import com.jme3.environment.util.CubeMapWrapper;
 import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.app.Application;
-import com.jme3.math.ColorRGBA;
+import com.jme3.math.*;
+
 import static com.jme3.math.FastMath.abs;
 import static com.jme3.math.FastMath.clamp;
 import static com.jme3.math.FastMath.pow;
 import static com.jme3.math.FastMath.sqrt;
-import com.jme3.math.Vector3f;
-import com.jme3.math.Vector4f;
+
 import com.jme3.texture.TextureCubeMap;
+
 import static com.jme3.environment.util.EnvMapUtils.getHammersleyPoint;
 import static com.jme3.environment.util.EnvMapUtils.getRoughnessFromMip;
 import static com.jme3.environment.util.EnvMapUtils.getSampleFromMip;
 import static com.jme3.environment.util.EnvMapUtils.getVectorFromCubemapFaceTexCoord;
+
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * Generates one face of the prefiltered environnement map for PBR. This job can
  * be lauched from a separate thread.
- *
+ * <p>
  * TODO there is a lot of duplicate code here with the EnvMapUtils.
  *
  * @author Nehon
@@ -85,8 +86,8 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
      * the call to the EnvironmentCamera when the generation is done, so that
      * this process is thread safe.
      *
-     * @param app the Application
-     * @param face the face to generate
+     * @param app      the Application
+     * @param face     the face to generate
      * @param listener
      */
     public PrefilteredEnvMapFaceGenerator(Application app, int face, JobProgressListener<Integer> listener) {
@@ -95,18 +96,16 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
         this.face = face;
     }
 
-    
-    
+
     /**
      * Fills all the genration parameters
      *
-     * @param sourceMap the source cube map
-     * @param targetMapSize the size of the generated map (width or height in
-     * pixel)
+     * @param sourceMap      the source cube map
+     * @param targetMapSize  the size of the generated map (width or height in
+     *                       pixel)
      * @param fixSeamsMethod the method used to fix seams as described here
-     * {@link EnvMapUtils.FixSeamsMethod}
-     *
-     * @param store The cube map to store the result in.
+     *                       {@link EnvMapUtils.FixSeamsMethod}
+     * @param store          The cube map to store the result in.
      */
     public void setGenerationParam(TextureCubeMap sourceMap, int targetMapSize, EnvMapUtils.FixSeamsMethod fixSeamsMethod, TextureCubeMap store) {
         this.sourceMap = sourceMap;
@@ -115,16 +114,16 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
         this.store = store;
         init();
     }
-    
-    private void init(){
-         Xi.set(0, 0, 0, 0);
-         H.set(0, 0, 0);
-         tmp.set(0, 0, 0);
-         c.set(1, 1, 1, 1);
-         tmp1.set(0, 0, 0);
-         tmp2.set(0, 0, 0);
-         tmp3.set(0, 0, 0);
-         reset();
+
+    private void init() {
+        Xi.set(0, 0, 0, 0);
+        H.set(0, 0, 0);
+        tmp.set(0, 0, 0);
+        c.set(1, 1, 1, 1);
+        tmp1.set(0, 0, 0);
+        tmp2.set(0, 0, 0);
+        tmp3.set(0, 0, 0);
+        reset();
 
     }
 
@@ -157,7 +156,7 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
      * Note that the output cube map is in RGBA8 format.
      *
      * @param sourceEnvMap
-     * @param targetMapSize the size of the irradiance map to generate
+     * @param targetMapSize  the size of the irradiance map to generate
      * @param store
      * @param fixSeamsMethod the method to fix seams
      * @return The irradiance cube map for the given coefficients
@@ -168,7 +167,7 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
         int nbMipMap = (int) (Math.log(targetMapSize) / Math.log(2) - 1);
 
         setEnd(nbMipMap);
-        
+
 
         CubeMapWrapper sourceWrapper = new CubeMapWrapper(sourceEnvMap);
         CubeMapWrapper targetWrapper = new CubeMapWrapper(pem);
@@ -184,10 +183,10 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
             for (int y = 0; y < targetMipMapSize; y++) {
                 for (int x = 0; x < targetMipMapSize; x++) {
                     color.set(0, 0, 0);
-                    getVectorFromCubemapFaceTexCoord(x, y, targetMipMapSize, face, texelVect, EnvMapUtils.FixSeamsMethod.Wrap);
+                    getVectorFromCubemapFaceTexCoord(x, y, targetMipMapSize, face, texelVect, fixSeamsMethod);
                     prefilterEnvMapTexel(sourceWrapper, roughness, texelVect, nbSamples, color);
-                    
-                    outColor.set(Math.max(color.x, 0.0001f), Math.max(color.y,0.0001f), Math.max(color.z, 0.0001f), 1);
+
+                    outColor.set(Math.max(color.x, 0.0001f), Math.max(color.y, 0.0001f), Math.max(color.z, 0.0001f), 1);
                     log.log(Level.FINE, "coords {0},{1}", new Object[]{x, y});
                     targetWrapper.setPixel(x, y, face, mipLevel, outColor);
 
@@ -207,7 +206,6 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
         // a = roughness² and a2 = a²
         float a2 = roughness * roughness;
         a2 *= a2;
-        a2 *= 10;
         for (int i = 0; i < numSamples; i++) {
             Xi = getHammersleyPoint(i, numSamples, Xi);
             H = importanceSampleGGX(Xi, a2, N, H);
@@ -227,8 +225,11 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
                 totalWeight += NoL;
             }
         }
+        if (totalWeight > 0) {
+            prefilteredColor.divideLocal(totalWeight);
+        }
 
-        return prefilteredColor.divideLocal(totalWeight);
+        return prefilteredColor;
     }
 
     public Vector3f importanceSampleGGX(Vector4f xi, float a2, Vector3f normal, Vector3f store) {

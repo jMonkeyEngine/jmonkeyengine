@@ -117,16 +117,16 @@ void jmePhysicsSpace::createPhysicsSpace(jfloat minX, jfloat minY, jfloat minZ, 
                 jmeUserPointer *up1 = (jmeUserPointer*) co1 -> getUserPointer();
                 if (up0 != NULL && up1 != NULL) {
                     collides = (up0->group & up1->groups) != 0 || (up1->group & up0->groups) != 0;
-                    
+
                     if(collides){
                         jmePhysicsSpace *dynamicsWorld = (jmePhysicsSpace *)up0->space;
                         JNIEnv* env = dynamicsWorld->getEnv();
                         jobject javaPhysicsSpace = env->NewLocalRef(dynamicsWorld->getJavaPhysicsSpace());
                         jobject javaCollisionObject0 = env->NewLocalRef(up0->javaCollisionObject);
                         jobject javaCollisionObject1 = env->NewLocalRef(up1->javaCollisionObject);
-                        
+
                         jboolean notifyResult = env->CallBooleanMethod(javaPhysicsSpace, jmeClasses::PhysicsSpace_notifyCollisionGroupListeners, javaCollisionObject0, javaCollisionObject1);
-                        
+
                         env->DeleteLocalRef(javaPhysicsSpace);
                         env->DeleteLocalRef(javaCollisionObject0);
                         env->DeleteLocalRef(javaCollisionObject1);
@@ -135,7 +135,7 @@ void jmePhysicsSpace::createPhysicsSpace(jfloat minX, jfloat minY, jfloat minZ, 
                             env->Throw(env->ExceptionOccurred());
                             return collides;
                         }
-                        
+
                         collides = (bool) notifyResult;
                     }
 

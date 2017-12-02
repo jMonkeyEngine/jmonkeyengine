@@ -11,9 +11,12 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import com.jme3.renderer.opengl.GL4;
+import com.jme3.util.BufferUtils;
 import org.lwjgl.opengl.*;
 
 public final class LwjglGL implements GL, GL2, GL3, GL4 {
+
+    IntBuffer tmpBuff = BufferUtils.createIntBuffer(1);
     
     private static void checkLimit(Buffer buffer) {
         if (buffer == null) {
@@ -42,6 +45,11 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
         GL20.glAttachShader(param1, param2);
     }
 
+    @Override
+    public void glBeginQuery(int target, int query) {
+        GL15.glBeginQuery(target, query);
+    }
+
     public void glBindBuffer(int param1, int param2) {
         GL15.glBindBuffer(param1, param2);
     }
@@ -56,6 +64,10 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
 
     public void glBlendFunc(int param1, int param2) {
         GL11.glBlendFunc(param1, param2);
+    }
+
+    public void glBlendFuncSeparate(int param1, int param2, int param3, int param4) {
+        GL14.glBlendFuncSeparate(param1, param2, param3, param4);
     }
 
     public void glBufferData(int param1, long param2, int param3) {
@@ -202,9 +214,19 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
         GL20.glEnableVertexAttribArray(param1);
     }
 
+    @Override
+    public void glEndQuery(int target) {
+        GL15.glEndQuery(target);
+    }
+
     public void glGenBuffers(IntBuffer param1) {
         checkLimit(param1);
         GL15.glGenBuffers(param1);
+    }
+
+    @Override
+    public void glGenQueries(int num, IntBuffer ids) {
+        GL15.glGenQueries(ids);
     }
 
     public void glGenTextures(IntBuffer param1) {
@@ -431,6 +453,16 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
         return GL20.glGetProgramInfoLog(program, maxSize);
     }
 
+    @Override
+    public long glGetQueryObjectui64(int query, int target) {
+        return ARBTimerQuery.glGetQueryObjectui64(query, target);
+    }
+
+    @Override
+    public int glGetQueryObjectiv(int query, int pname) {
+        return GL15.glGetQueryObjecti(query, pname);
+    }
+
     public String glGetShaderInfoLog(int shader, int maxSize) {
         return GL20.glGetShaderInfoLog(shader, maxSize);
     }
@@ -460,10 +492,5 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
     public void glDeleteVertexArrays(IntBuffer arrays) {
         checkLimit(arrays);
         ARBVertexArrayObject.glDeleteVertexArrays(arrays);
-    }
-
-    @Override
-    public void glFramebufferTextureLayer(int param1, int param2, int param3, int param4, int param5) {
-        GL30.glFramebufferTextureLayer(param1, param2, param3, param4, param5);
     }
 }

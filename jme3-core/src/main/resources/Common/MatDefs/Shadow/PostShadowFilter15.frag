@@ -1,14 +1,13 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/MultiSample.glsllib"
 #import "Common/ShaderLib/Shadows.glsllib"
-
 
 uniform COLORTEXTURE m_Texture;
 uniform DEPTHTEXTURE m_DepthTexture;
 uniform mat4 m_ViewProjectionMatrixInverse;
 uniform vec4 m_ViewProjectionMatrixRow2;
 
-in vec2 texCoord;
-out vec4 outFragColor;
+varying vec2 texCoord;
 
 const mat4 biasMat = mat4(0.5, 0.0, 0.0, 0.0,
                           0.0, 0.5, 0.0, 0.0,
@@ -134,18 +133,17 @@ vec4 main_multiSample(in int numSample){
     return color * vec4(shadow, shadow, shadow, 1.0);
 }
 
-void main(){  
+void main() {
 
     #ifdef RESOLVE_MS
         vec4 color = vec4(0.0);
         for (int i = 0; i < m_NumSamples; i++){
             color += main_multiSample(i);
         }
-        outFragColor = color / m_NumSamples;
+        gl_FragColor = color / m_NumSamples;
     #else
-        outFragColor = main_multiSample(0);
-    #endif  
-
+        gl_FragColor = main_multiSample(0);
+    #endif
 }
 
 

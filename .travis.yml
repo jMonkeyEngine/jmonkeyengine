@@ -1,5 +1,6 @@
 language: java
 sudo: false
+dist: precise
 
 branches:
   only:
@@ -17,6 +18,10 @@ matrix:
     env: UPLOAD_NATIVE=true
 
 addons:
+  ssh_known_hosts: github.com
+  hosts:
+    - travisci
+  hostname: travisci
   apt:
     packages:
     - gcc-multilib
@@ -35,7 +40,7 @@ cache:
     - $HOME/.gradle/wrapper/
 
 install:
-  - ./gradlew assemble
+  - '[ -n "$UPLOAD_NATIVE" ] && ./gradlew -PbuildNativeProjects=true assemble || ./gradlew assemble'
 
 script:
   - ./gradlew check

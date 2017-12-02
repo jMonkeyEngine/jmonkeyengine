@@ -18,19 +18,11 @@ MaterialDef CrossHatch {
     }
  
     Technique {
-        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
-        FragmentShader GLSL150: Common/MatDefs/Post/CrossHatch15.frag
+        VertexShader GLSL150 GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL150 GLSL100: Common/MatDefs/Post/CrossHatch.frag
  
         WorldParameters {
         }
     }
- 
-    Technique {
-        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL100: Common/MatDefs/Post/CrossHatch.frag
- 
-        WorldParameters {
-            WorldViewProjectionMatrix
-        }
-    }
+
 }

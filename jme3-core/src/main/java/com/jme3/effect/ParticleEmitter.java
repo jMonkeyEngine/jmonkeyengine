@@ -1016,7 +1016,7 @@ public class ParticleEmitter extends Geometry {
         particles[idx2] = p1;
     }
 
-    private void updateParticle(Particle p, float tpf, Vector3f min, Vector3f max){
+    protected void updateParticle(Particle p, float tpf, Vector3f min, Vector3f max){
         // applying gravity
         p.velocity.x -= gravity.x * tpf;
         p.velocity.y -= gravity.y * tpf;
@@ -1101,9 +1101,12 @@ public class ParticleEmitter extends Geometry {
 
         lastPos.set(getWorldTranslation());
 
-        BoundingBox bbox = (BoundingBox) this.getMesh().getBound();
-        bbox.setMinMax(min, max);
-        this.setBoundRefresh();
+        //This check avoids a NaN bounds when all the particles are dead during the first update.
+        if (!min.equals(Vector3f.POSITIVE_INFINITY) && !max.equals(Vector3f.NEGATIVE_INFINITY)) {
+            BoundingBox bbox = (BoundingBox) this.getMesh().getBound();
+            bbox.setMinMax(min, max);
+            this.setBoundRefresh();
+        }
 
         vars.release();
     }

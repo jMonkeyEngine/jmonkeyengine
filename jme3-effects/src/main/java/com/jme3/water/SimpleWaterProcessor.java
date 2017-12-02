@@ -35,21 +35,16 @@ import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.post.SceneProcessor;
-import com.jme3.renderer.Camera;
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.Renderer;
-import com.jme3.renderer.ViewPort;
+import com.jme3.profile.AppProfiler;
+import com.jme3.renderer.*;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.*;
 import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
-import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
-import com.jme3.util.TempVars;
 
 /**
  *
@@ -125,8 +120,9 @@ public class SimpleWaterProcessor implements SceneProcessor {
     private float distortionScale = 0.2f;
     private float distortionMix = 0.5f;
     private float texScale = 1f;
-    
-       
+    private AppProfiler prof;
+
+
     /**
      * Creates a SimpleWaterProcessor
      * @param manager the asset manager
@@ -220,6 +216,11 @@ public class SimpleWaterProcessor implements SceneProcessor {
     }
 
     public void cleanup() {
+    }
+
+    @Override
+    public void setProfiler(AppProfiler profiler) {
+        this.prof = profiler;
     }
 
     //debug only : displays maps
@@ -585,6 +586,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
         RenderManager rm;
         ViewPort vp;
+        private AppProfiler prof;
 
         public void initialize(RenderManager rm, ViewPort vp) {
             this.rm = rm;
@@ -610,6 +612,11 @@ public class SimpleWaterProcessor implements SceneProcessor {
         }
 
         public void cleanup() {
+        }
+
+        @Override
+        public void setProfiler(AppProfiler profiler) {
+            this.prof = profiler;
         }
     }
 }

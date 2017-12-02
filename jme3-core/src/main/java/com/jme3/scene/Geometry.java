@@ -398,6 +398,9 @@ public class Geometry extends Spatial {
 
         // Compute the cached world matrix
         cachedWorldMat.loadIdentity();
+        if (ignoreTransform) {
+            return;
+        }
         cachedWorldMat.setRotationQuaternion(worldTransform.getRotation());
         cachedWorldMat.setTranslation(worldTransform.getTranslation());
 
@@ -506,6 +509,7 @@ public class Geometry extends Spatial {
     /**
      *  The old clone() method that did not use the new Cloner utility.
      */
+    @Override
     public Geometry oldClone(boolean cloneMaterial) {
         Geometry geomClone = (Geometry) super.clone(cloneMaterial);
 

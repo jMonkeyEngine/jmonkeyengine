@@ -55,6 +55,7 @@ public class VirtualIndexBuffer extends IndexBuffer {
     protected int numVerts = 0;
     protected int numIndices = 0;
     protected Mode meshMode;
+    protected int position = 0;
  
     public VirtualIndexBuffer(int numVerts, Mode meshMode){
         this.numVerts = numVerts;
@@ -84,6 +85,23 @@ public class VirtualIndexBuffer extends IndexBuffer {
             case Hybrid:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    @Override
+    public int get() {
+        int i = get(position);
+        position++;
+        return i;
+    }
+
+    @Override
+    public void rewind() {
+        position = 0;
+    }
+
+    @Override
+    public int remaining() {
+        return numIndices - position;
     }
 
     @Override

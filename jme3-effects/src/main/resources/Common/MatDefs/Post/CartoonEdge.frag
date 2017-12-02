@@ -1,3 +1,6 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+#import "Common/ShaderLib/MultiSample.glsllib"
+
 uniform vec4 m_EdgeColor;
 
 uniform float m_EdgeWidth;
@@ -11,21 +14,21 @@ uniform float m_DepthSensitivity;
 
 varying vec2 texCoord;
 
-uniform sampler2D m_Texture;
+uniform COLORTEXTURE m_Texture;
 uniform sampler2D m_NormalsTexture;
-uniform sampler2D m_DepthTexture;
+uniform DEPTHTEXTURE m_DepthTexture;
 
 uniform vec2 g_ResolutionInverse;
 
 vec4 fetchNormalDepth(vec2 tc){
     vec4 nd;
     nd.xyz = texture2D(m_NormalsTexture, tc).rgb;
-    nd.w   = texture2D(m_DepthTexture,   tc).r;
+    nd.w   = fetchTextureSample(m_DepthTexture,   tc, 0).r;
     return nd;
 }
 
 void main(){
-    vec3 color = texture2D(m_Texture, texCoord).rgb;
+    vec3 color = getColor(m_Texture, texCoord).rgb;
 
     vec2 edgeOffset = vec2(m_EdgeWidth) * g_ResolutionInverse;
 

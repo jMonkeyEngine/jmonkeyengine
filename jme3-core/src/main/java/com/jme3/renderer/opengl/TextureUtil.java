@@ -32,7 +32,6 @@
 package com.jme3.renderer.opengl;
 
 import com.jme3.renderer.Caps;
-import com.jme3.renderer.RenderContext;
 import com.jme3.renderer.RendererException;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
@@ -91,7 +90,7 @@ final class TextureUtil {
 
     public GLImageFormat getImageFormatWithError(Format fmt, boolean isSrgb) {
         //if the passed format is one kind of depth there isno point in getting the srgb format;
-        isSrgb = isSrgb && fmt != Format.Depth && fmt != Format.Depth16 && fmt != Format.Depth24 && fmt != Format.Depth24Stencil8 && fmt != Format.Depth32 && fmt != Format.Depth32F;
+        isSrgb = isSrgb && !fmt.isDepthFormat();
         GLImageFormat glFmt = getImageFormat(fmt, isSrgb);
         if (glFmt == null && isSrgb) {
             glFmt = getImageFormat(fmt, false);               
@@ -127,6 +126,14 @@ final class TextureUtil {
                 gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_B, GL.GL_RED);
                 gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_A, GL.GL_GREEN);
                 break;
+            case ABGR8:
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_R, GL.GL_ALPHA);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_G, GL.GL_BLUE);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_B, GL.GL_GREEN);
+                gl.glTexParameteri(target, GL3.GL_TEXTURE_SWIZZLE_A, GL.GL_RED);
+                break;
+            default:
+                throw new UnsupportedOperationException();
         }
     }
     

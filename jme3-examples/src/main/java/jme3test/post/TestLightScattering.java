@@ -84,32 +84,16 @@ public class TestLightScattering extends SimpleApplication {
         sun.setColor(ColorRGBA.White.clone().multLocal(2));
         scene.addLight(sun);
 
-        PssmShadowRenderer pssmRenderer = new PssmShadowRenderer(assetManager,1024,4);
-        pssmRenderer.setDirection(lightDir);
-        pssmRenderer.setShadowIntensity(0.55f);
-     //   viewPort.addProcessor(pssmRenderer);
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
-//        SSAOFilter ssaoFilter= new SSAOFilter(viewPort, new SSAOConfig(0.36f,1.8f,0.84f,0.16f,false,true));
-//        fpp.addFilter(ssaoFilter);
-
-
-//           Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//        mat2.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
-//
-//        Sphere lite=new Sphere(8, 8, 10.0f);
-//        Geometry lightSphere=new Geometry("lightsphere", lite);
-//        lightSphere.setMaterial(mat2);
+        int numSamples = getContext().getSettings().getSamples();
+        if (numSamples > 0) {
+            fpp.setNumSamples(numSamples);
+        }
         Vector3f lightPos = lightDir.multLocal(-3000);
-//        lightSphere.setLocalTranslation(lightPos);
-        // rootNode.attachChild(lightSphere);
         LightScatteringFilter filter = new LightScatteringFilter(lightPos);
         LightScatteringUI ui = new LightScatteringUI(inputManager, filter);
         fpp.addFilter(filter);
-//fpp.setNumSamples(4);
-        //fpp.addFilter(new RadialBlurFilter(0.3f,15.0f));
-        //    SSAOUI ui=new SSAOUI(inputManager, ssaoFilter.getConfig());
-
         viewPort.addProcessor(fpp);
     }
 

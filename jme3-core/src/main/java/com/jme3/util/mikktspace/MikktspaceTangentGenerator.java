@@ -512,7 +512,7 @@ public class MikktspaceTangentGenerator {
         }
     }
 
-    //TODO Nehon : Not used...seemsit's used in the original version if the structure to store the data in the regular method failed...
+    //TODO Nehon : Not used...seems it's used in the original version if the structure to store the data in the regular method failed...
     static void generateSharedVerticesIndexListSlow(int piTriList_in_and_out[], final MikkTSpaceContext mikkTSpace, final int iNrTrianglesIn) {
         int iNumUniqueVerts = 0;
         for (int t = 0; t < iNrTrianglesIn; t++) {

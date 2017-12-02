@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2017 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -186,27 +186,24 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Changes the values of this matrix acording to it's parent.  Very similar to the concept of Node/Spatial transforms.
+     * Changes the values of this matrix according to it's parent.  Very similar to the concept of Node/Spatial transforms.
      * @param parent The parent matrix.
      * @return This matrix, after combining.
      */
     public Transform combineWithParent(Transform parent) {
+        //applying parent scale to local scale
         scale.multLocal(parent.scale);
-//        rot.multLocal(parent.rot);
+        //applying parent rotation to local rotation.
         parent.rot.mult(rot, rot);
-
-        // This here, is evil code
-//        parent
-//            .rot
-//            .multLocal(translation)
-//            .multLocal(parent.scale)
-//            .addLocal(parent.translation);
-
+        //applying parent scale to local translation.
         translation.multLocal(parent.scale);
+        //applying parent rotation to local translation, then applying parent translation to local translation.
+        //Note that parent.rot.multLocal(translation) doesn't modify "parent.rot" but "translation"
         parent
             .rot
             .multLocal(translation)
             .addLocal(parent.translation);
+
         return this;
     }
 
@@ -286,6 +283,17 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
         translation.set(0, 0, 0);
         scale.set(1, 1, 1);
         rot.set(0, 0, 0, 1);
+    }
+
+    /**
+     * Test for exact identity.
+     *
+     * @return true if exactly equal to {@link #IDENTITY}, otherwise false
+     */
+    public boolean isIdentity() {
+        return translation.x == 0f && translation.y == 0f && translation.z == 0f
+                && scale.x == 1f && scale.y == 1f && scale.z == 1f
+                && rot.w == 1f && rot.x == 0f && rot.y == 0f && rot.z == 0f;
     }
 
     @Override

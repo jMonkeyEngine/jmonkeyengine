@@ -41,6 +41,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+
 import java.io.IOException;
 
 /** 
@@ -69,8 +70,6 @@ public class ColorOverlayFilter extends Filter {
 
     @Override
     protected Material getMaterial() {
-
-        material.setColor("Color", color);
         return material;
     }
 
@@ -86,13 +85,17 @@ public class ColorOverlayFilter extends Filter {
      * sets the color 
      * @param color 
      */
-    public void setColor(ColorRGBA color) {
+    public void setColor(final ColorRGBA color) {
         this.color = color;
+        if (material != null) {
+            material.setColor("Color", color);
+        }
     }
 
     @Override
     protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         material = new Material(manager, "Common/MatDefs/Post/Overlay.j3md");
+        material.setColor("Color", color);
     }
 
     @Override

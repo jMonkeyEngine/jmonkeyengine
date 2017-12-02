@@ -35,6 +35,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.material.RenderState.FaceCullMode;
+import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
@@ -51,6 +52,7 @@ public class PreDepthProcessor implements SceneProcessor {
     private AssetManager assetManager;
     private Material preDepth;
     private RenderState forcedRS;
+    private AppProfiler prof;
 
     public PreDepthProcessor(AssetManager assetManager){
         this.assetManager = assetManager;
@@ -94,6 +96,11 @@ public class PreDepthProcessor implements SceneProcessor {
 
     public void cleanup() {
         vp = null;
+    }
+
+    @Override
+    public void setProfiler(AppProfiler profiler) {
+        this.prof = profiler;
     }
 
 }

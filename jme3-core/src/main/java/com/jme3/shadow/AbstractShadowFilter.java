@@ -45,6 +45,8 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.FrameBuffer;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 
 import java.io.IOException;
 
@@ -55,7 +57,7 @@ import java.io.IOException;
  *
  * @author Rémy Bouquet aka Nehon
  */
-public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> extends Filter {
+public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> extends Filter implements Cloneable, JmeCloneable {
 
     protected T shadowRenderer;
     protected ViewPort viewPort;
@@ -304,16 +306,30 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     }
 
     @Override
+    public AbstractShadowFilter<T> jmeClone() {
+        try {
+            return (AbstractShadowFilter<T>) super.clone();
+        } catch (final CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void cloneFields(final Cloner cloner, final Object original) {
+        material = cloner.clone(material);
+        shadowRenderer = cloner.clone(shadowRenderer);
+        shadowRenderer.setPostShadowMaterial(material);
+    }
+
+    @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-
     }
 }

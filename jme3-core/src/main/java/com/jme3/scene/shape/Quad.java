@@ -32,8 +32,13 @@
 
 package com.jme3.scene.shape;
 
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
+import java.io.IOException;
 
 /**
  * <code>Quad</code> represents a rectangular plane in space
@@ -126,6 +131,20 @@ public class Quad extends Mesh {
         updateBound();
         setStatic();
     }
+    
+    @Override
+    public void read(JmeImporter e) throws IOException {
+        super.read(e);
+        InputCapsule capsule = e.getCapsule(this);
+        width = capsule.readFloat("width", 0);
+        height = capsule.readFloat("height", 0);
+    }
 
-
+    @Override
+    public void write(JmeExporter e) throws IOException {
+        super.write(e);
+        OutputCapsule capsule = e.getCapsule(this);
+        capsule.write(width, "width", 0);
+        capsule.write(height, "height", 0);
+    }
 }

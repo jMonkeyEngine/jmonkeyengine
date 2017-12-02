@@ -1,0 +1,99 @@
+MaterialDef Post Shadow {
+
+    MaterialParameters {
+        Int FilterMode
+        Boolean HardwareShadows
+
+        Texture2D ShadowMap0
+        Texture2D ShadowMap1
+        Texture2D ShadowMap2
+        Texture2D ShadowMap3
+        //pointLights
+        Texture2D ShadowMap4
+        Texture2D ShadowMap5
+
+        Float ShadowIntensity
+        Vector4 Splits
+        Vector2 FadeInfo
+
+        Matrix4 LightViewProjectionMatrix0
+        Matrix4 LightViewProjectionMatrix1
+        Matrix4 LightViewProjectionMatrix2
+        Matrix4 LightViewProjectionMatrix3  
+        //pointLight
+        Matrix4 LightViewProjectionMatrix4
+        Matrix4 LightViewProjectionMatrix5  
+        Vector3 LightPos 
+        Vector3 LightDir
+
+        Float PCFEdge
+
+        Float ShadowMapSize
+
+        Matrix4 ViewProjectionMatrixInverse
+        Vector4 ViewProjectionMatrixRow2
+        
+        Int NumSamples
+        Int NumSamplesDepth
+        Texture2D Texture        
+        Texture2D DepthTexture
+
+        // is VR instancing?
+        Matrix4 ViewProjectionMatrixInverseRight
+        Vector4 ViewProjectionMatrixRow2Right
+
+        Boolean BackfaceShadows: true
+    }
+
+    Technique {
+        VertexShader GLSL150:   Common/MatDefs/VR/PostShadowFilter.vert
+        FragmentShader GLSL150: Common/MatDefs/VR/PostShadowFilter.frag
+
+        WorldParameters {         
+            ResolutionInverse
+        }
+
+        Defines {
+            RESOLVE_MS : NumSamples
+            RESOLVE_DEPTH_MS : NumSamplesDepth
+            HARDWARE_SHADOWS : HardwareShadows
+            FILTER_MODE : FilterMode
+            PCFEDGE : PCFEdge
+            SHADOWMAP_SIZE : ShadowMapSize
+            FADE : FadeInfo
+            PSSM : Splits
+            POINTLIGHT : LightViewProjectionMatrix5
+            //if no shadow map don't render shadows
+            RENDER_SHADOWS : ShadowMap0
+            INSTANCING : ViewProjectionMatrixInverseRight
+            BACKFACE_SHADOWS : BackfaceShadows
+        }
+      
+    }
+
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadowFilter.vert
+        FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadowFilter.frag
+
+        WorldParameters {         
+            ResolutionInverse
+        }
+
+        Defines {
+            HARDWARE_SHADOWS : HardwareShadows
+            FILTER_MODE : FilterMode
+            PCFEDGE : PCFEdge
+            SHADOWMAP_SIZE : ShadowMapSize
+            FADE : FadeInfo
+            PSSM : Splits
+            POINTLIGHT : LightViewProjectionMatrix5
+            INSTANCING : ViewProjectionMatrixInverseRight
+            BACKFACE_SHADOWS : BackfaceShadows
+        }
+      
+    }
+
+    
+
+
+}

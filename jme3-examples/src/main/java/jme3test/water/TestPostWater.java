@@ -140,9 +140,12 @@ public class TestPostWater extends SimpleApplication {
         fpp.addFilter(lsf);
         fpp.addFilter(new FXAAFilter());
         
-//      fpp.addFilter(new GammaCorrectionFilter());
 //      fpp.addFilter(new TranslucentBucketFilter());
-//      fpp.setNumSamples(4);    
+        int numSamples = getContext().getSettings().getSamples();
+        if (numSamples > 0) {
+            fpp.setNumSamples(numSamples);
+        }
+
         
         uw = cam.getLocation().y < waterHeight;
 
