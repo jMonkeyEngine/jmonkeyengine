@@ -1033,12 +1033,14 @@ public class GltfLoader implements AssetLoader {
                     bw.bone.addChild(cbw.bone);
                     bw.children.add(childIndex);
                 } else {
-                    JsonObject childNode = nodes.get(childIndex).getAsJsonObject();
-                    //The child might be a Geom
-                    if (getAsInteger(childNode, "mesh") != null) {
-                        //this is a geometry, let's load it as a spatial
-                        bw.attachedSpatial = (Spatial) readNode(childIndex);
-                    }
+                    //The child might be a Node
+                    //Creating a dummy node to reed the subgraph
+                    Node n = new Node();
+                    readChild(n, child);
+                    Spatial s = n.getChild(0);
+                    //removing the spatial from the dummy node, it will be attached to the attachment node of the bone
+                    s.removeFromParent();
+                    bw.attachedSpatial = s;
                 }
             }
 

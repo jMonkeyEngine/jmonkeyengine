@@ -1,5 +1,6 @@
 package com.jme3.scene.plugins.gltf;
 
+import com.jme3.asset.AssetLoadException;
 import com.jme3.math.*;
 
 import java.util.*;
@@ -119,7 +120,17 @@ public class TrackData {
             }
         }
 
+        checkTimesConsistantcy();
+
         length = times[times.length - 1];
+    }
+
+    public void checkTimesConsistantcy() {
+        if ((translations != null && times.length != translations.length)
+                || (rotations != null && times.length != rotations.length)
+                || (scales != null && times.length != scales.length)) {
+            throw new AssetLoadException("Inconsistent animation sampling ");
+        }
     }
 
     private void populateTransform(Type type, int index, List<KeyFrame> keyFrames, KeyFrame currentKeyFrame, TransformIndices transformIndices) {
@@ -178,14 +189,8 @@ public class TrackData {
     }
 
     public int getNbKeyFrames(){
-        if(translations != null){
-            return translations.length;
-        }
-        if(rotations != null){
-            return rotations.length;
-        }
-        if(scales != null){
-            return scales.length;
+        if (times != null) {
+            return times.length;
         }
         return 0;
     }
@@ -234,13 +239,13 @@ public class TrackData {
     }
 
     private void ensureArraysLength() {
-        if (translations != null && translations.length < times.length) {
+        if (translations != null && translations.length != times.length) {
             translations = new Vector3f[times.length];
         }
-        if (rotations != null && rotations.length < times.length) {
+        if (rotations != null && rotations.length != times.length) {
             rotations = new Quaternion[times.length];
         }
-        if (scales != null && scales.length < times.length) {
+        if (scales != null && scales.length != times.length) {
             scales = new Vector3f[times.length];
         }
     }
