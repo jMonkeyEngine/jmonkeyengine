@@ -38,15 +38,9 @@ import com.jme3.material.MatParam;
 import com.jme3.material.MaterialDef;
 import com.jme3.material.ShaderGenerationInfo;
 import com.jme3.material.TechniqueDef;
-import com.jme3.shader.Shader;
-import com.jme3.shader.ShaderNode;
-import com.jme3.shader.ShaderNodeDefinition;
-import com.jme3.shader.ShaderNodeVariable;
-import com.jme3.shader.ShaderUtils;
-import com.jme3.shader.UniformBinding;
-import com.jme3.shader.VarType;
-import com.jme3.shader.VariableMapping;
+import com.jme3.shader.*;
 import com.jme3.util.blockparser.Statement;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,6 +58,33 @@ import java.util.Map;
  * @author Nehon
  */
 public class ShaderNodeLoaderDelegate {
+
+    private static final ThreadLocal<Boolean> FORCE_LOAD_DOCUMENTATION = new ThreadLocal<Boolean>() {
+
+        @Override
+        protected Boolean initialValue() {
+            return Boolean.FALSE;
+        }
+    };
+
+    /**
+     * Sets the thread local flag of force documentation loading.
+     * How to use:
+     * <pre>
+     *     {@code
+     *     ShaderNodeLoaderDelegate.setForceLoadDocumentation(true);
+     *     try {
+     *         // loading material definition
+     *     } finally {
+     *         ShaderNodeLoaderDelegate.setForceLoadDocumentation(false);
+     *     }}
+     * </pre>
+     *
+     * @param needForceLoadDocumentation true if the loader should load documentation.
+     */
+    public static void setForceLoadDocumentation(final boolean needForceLoadDocumentation) {
+        FORCE_LOAD_DOCUMENTATION.set(needForceLoadDocumentation);
+    }
 
     protected Map<String, ShaderNodeDefinition> nodeDefinitions;
     protected Map<String, ShaderNode> nodes;
@@ -171,7 +192,7 @@ public class ShaderNodeLoaderDelegate {
                     shaderNodeDefinition.getShadersLanguage().add(shaderLanguage);
                     shaderNodeDefinition.getShadersPath().add(shaderName);
                 } else if (line.startsWith("Documentation")) {
-                    if (isLoadDoc) {
+                    if (isLoadDoc || FORCE_LOAD_DOCUMENTATION.get()) {
                         String doc = "";
                         for (Statement statement1 : statement.getContents()) {
                             doc += "\n" + statement1.getLine();
