@@ -36,8 +36,15 @@ public class TrackData {
             List<KeyFrame> keyFrames = new ArrayList<>();
             TimeData timeData = timeArrays.get(0);
             Type type = timeData.type;
+            float lastTime = -1f;
             for (int i = 0; i < timeData.times.length; i++) {
                 float time = timeData.times[i];
+                //avoid some double keyframes that can have bad effects on interpolation
+                if (Float.floatToIntBits(time) == Float.floatToIntBits(lastTime)) {
+                    lastTime = time;
+                    continue;
+                }
+                lastTime = time;
                 KeyFrame keyFrame = new KeyFrame();
                 keyFrame.time = time;
                 setKeyFrameTransforms(type, keyFrame, timeData.times);
@@ -79,13 +86,13 @@ public class TrackData {
                 KeyFrame kf = keyFrames.get(i);
                 //we need Interpolate between keyframes when transforms are sparse.
                 times[i] = kf.time;
-                if(translations != null) {
+                if (translations != null) {
                     populateTransform(Type.Translation, i, keyFrames, kf, translationIndices);
                 }
-                if(rotations != null) {
+                if (rotations != null) {
                     populateTransform(Type.Rotation, i, keyFrames, kf, rotationIndices);
                 }
-                if(scales != null) {
+                if (scales != null) {
                     populateTransform(Type.Scale, i, keyFrames, kf, scaleIndices);
                 }
             }
@@ -188,7 +195,7 @@ public class TrackData {
         return -1;
     }
 
-    public int getNbKeyFrames(){
+    public int getNbKeyFrames() {
         if (times != null) {
             return times.length;
         }
