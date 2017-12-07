@@ -685,6 +685,47 @@ public class GltfUtils {
         }
     }
 
+    public static void dumpArray(Object[] array) {
+        if (array == null) {
+            System.err.println("null");
+            return;
+        }
+        for (int i = 0; i < array.length; i++) {
+            Object o = array[i];
+            System.err.print(i + ": ");
+            if (o instanceof Quaternion) {
+                Quaternion q = (Quaternion) o;
+                System.err.print("(");
+                if (q.getX() > 0.00001) System.err.print(q.getX() + ", ");
+                else System.err.print("0.0, ");
+                if (q.getY() > 0.00001) System.err.print(q.getY() + ", ");
+                else System.err.print("0.0, ");
+                if (q.getZ() > 0.00001) System.err.print(q.getZ() + ", ");
+                else System.err.print("0.0, ");
+                if (q.getW() > 0.00001) System.err.print(q.getW() + ", ");
+                else System.err.print("0.0, ");
+                System.err.println(")");
+            } else {
+                System.err.println(o.toString() + ", ");
+            }
+        }
+        System.err.println("");
+    }
+
+    public static void dumpArray(float[] array) {
+        if (array == null) {
+            System.err.println("null");
+            return;
+        }
+
+        for (int i = 0; i < array.length; i++) {
+            float o = array[i];
+            System.err.println(i + ": " + o);
+        }
+
+        System.err.println("");
+    }
+
     public static Spatial findCommonAncestor(List<Spatial> spatials) {
         Map<Spatial, List<Spatial>> flatParents = new HashMap<>();
 
@@ -704,6 +745,9 @@ public class GltfUtils {
         while (true) {
             for (Spatial spatial : flatParents.keySet()) {
                 List<Spatial> parents = flatParents.get(spatial);
+                if (parents.isEmpty()) {
+                    continue;
+                }
                 if (index == parents.size()) {
                     //we reached the end of a spatial hierarchy let's return;
                     return lastCommonParent;
