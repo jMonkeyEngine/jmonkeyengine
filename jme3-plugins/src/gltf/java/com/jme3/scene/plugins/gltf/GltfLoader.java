@@ -713,7 +713,7 @@ public class GltfLoader implements AssetLoader {
         assertNotNull(samplers, "No samplers for animation " + name);
 
         //temp data storage of track data
-        TrackData[] animatedNodes = new TrackData[nodes.size()];
+        TrackData[] tracks = new TrackData[nodes.size()];
 
         for (JsonElement channel : channels) {
 
@@ -732,10 +732,10 @@ public class GltfLoader implements AssetLoader {
                 logger.log(Level.WARNING, "Morph animation is not supported by JME yet, skipping animation");
                 continue;
             }
-            TrackData trackData = animatedNodes[targetNode];
+            TrackData trackData = tracks[targetNode];
             if (trackData == null) {
                 trackData = new TrackData();
-                animatedNodes[targetNode] = trackData;
+                tracks[targetNode] = trackData;
             }
 
             Integer samplerIndex = getAsInteger(channel.getAsJsonObject(), "sampler");
@@ -776,11 +776,9 @@ public class GltfLoader implements AssetLoader {
             } else {
                 //TODO support weights
                 logger.log(Level.WARNING, "Morph animation is not supported");
-                animatedNodes[targetNode] = null;
                 continue;
-
             }
-            animatedNodes[targetNode] = customContentManager.readExtensionAndExtras("channel", channel, trackData);
+            tracks[targetNode] = customContentManager.readExtensionAndExtras("channel", channel, trackData);
         }
 
         if (name == null) {
@@ -792,9 +790,9 @@ public class GltfLoader implements AssetLoader {
         anim.setName(name);
         int skinIndex = -1;
 
-        for (int i = 0; i < animatedNodes.length; i++) {
-            TrackData trackData = animatedNodes[i];
-            if (trackData == null) {
+        for (int i = 0; i < tracks.length; i++) {
+            TrackData trackData = tracks[i];
+            if (trackData == null || trackData.timeArrays.isEmpty()) {
                 continue;
             }
             trackData.update();
@@ -938,7 +936,7 @@ public class GltfLoader implements AssetLoader {
             }
 
             if (isKeepSkeletonPose(info)) {
-                //Set local transforms. The skeleton may come in a given pose, that is not the rest pose, so let's apply it.
+                //Set local transforms.The skeleton may come in a given pose, that is not the rest pose, so let 's apply it.
                 for (int i = 0; i < joints.size(); i++) {
                     applyPose(joints.get(i).getAsInt());
                 }
@@ -960,7 +958,6 @@ public class GltfLoader implements AssetLoader {
         bw.bone.setLocalTranslation(bw.localTransform.getTranslation());
         bw.bone.setLocalRotation(bw.localTransform.getRotation());
         bw.bone.setLocalScale(bw.localTransform.getScale());
-        bw.bone.setUserControl(false);
     }
 
     private void computeBindTransforms(BoneWrapper boneWrapper, Skeleton skeleton) {
@@ -986,7 +983,6 @@ public class GltfLoader implements AssetLoader {
             BoneWrapper child = fetchFromCache("nodes", childIndex, BoneWrapper.class);
             computeBindTransforms(child, skeleton);
         }
-
     }
 
     private BoneWrapper findBoneWrapper(Bone bone) {
@@ -1012,9 +1008,8 @@ public class GltfLoader implements AssetLoader {
         }
         Bone bone = new Bone(name);
         Transform boneTransforms = null;
-        if (isKeepSkeletonPose(info)) {
-            boneTransforms = readTransforms(nodeData);
-        }
+        boneTransforms = readTransforms(nodeData);
+
         addToCache("nodes", nodeIndex, new BoneWrapper(bone, boneIndex, skinIndex, modelBindMatrix, boneTransforms), nodes.size());
 
         return bone;
@@ -1147,6 +1142,7 @@ public class GltfLoader implements AssetLoader {
         Transform localTransform;
         Matrix4f modelBindMatrix;
         boolean isRoot = false;
+        boolean localUpdated = false;
         Spatial attachedSpatial;
         List<Integer> children = new ArrayList<>();
 
@@ -1165,6 +1161,13 @@ public class GltfLoader implements AssetLoader {
             Transform bindTransforms = new Transform(bone.getBindPosition(), bone.getBindRotation(), bone.getBindScale());
             SkinData skinData = fetchFromCache("skins", skinIndex, SkinData.class);
 
+            if (!localUpdated) {
+                //LocalTransform of the bone are default position to use for animations when there is no track.
+                //We need to transform them so that JME can us them in blendAnimTransform.
+                reverseBlendAnimTransforms(localTransform, bindTransforms);
+                localUpdated = true;
+            }
+
             for (int i = 0; i < data.getNbKeyFrames(); i++) {
 
                 Vector3f translation = getTranslation(data, bindTransforms, i);
@@ -1177,15 +1180,7 @@ public class GltfLoader implements AssetLoader {
                     t.combineWithParent(skinData.armatureTransforms);
                 }
 
-                //This is wrong
-                //You'd normally combine those transforms with transform.combineWithParent()
-                //Here we actually do in reverse what JME does to combine anim transforms with bind transfoms (add trans/mult rot/ mult scale)
-                //The code to fix is in Bone.blendAnimTransforms
-                //TODO fix blendAnimTransforms
-                t.getTranslation().subtractLocal(bindTransforms.getTranslation());
-                t.getScale().divideLocal(bindTransforms.getScale());
-                tmpQuat.set(bindTransforms.getRotation()).inverseLocal().multLocal(t.getRotation());
-                t.setRotation(tmpQuat);
+                reverseBlendAnimTransforms(t, bindTransforms);
 
                 if(data.translations != null) {
                     data.translations[i] = t.getTranslation();
@@ -1198,12 +1193,24 @@ public class GltfLoader implements AssetLoader {
                 }
             }
 
-            data.ensureTranslationRotations();
+            data.ensureTranslationRotations(localTransform);
+        }
+
+        private void reverseBlendAnimTransforms(Transform t, Transform bindTransforms) {
+            //This is wrong
+            //You'd normally combine those transforms with transform.combineWithParent()
+            //Here we actually do in reverse what JME does to combine anim transforms with bind transfoms (add trans/mult rot/ mult scale)
+            //The code to fix is in Bone.blendAnimTransforms
+            //TODO fix blendAnimTransforms
+            t.getTranslation().subtractLocal(bindTransforms.getTranslation());
+            t.getScale().divideLocal(bindTransforms.getScale());
+            tmpQuat.set(bindTransforms.getRotation()).inverseLocal().multLocal(t.getRotation());
+            t.setRotation(tmpQuat);
         }
 
         private Vector3f getTranslation(TrackData data, Transform bindTransforms, int i) {
             Vector3f translation;
-            if(data.translations == null){
+            if (data.translations == null) {
                 translation = bindTransforms.getTranslation();
             } else {
                 translation = data.translations[i];
@@ -1213,7 +1220,7 @@ public class GltfLoader implements AssetLoader {
 
         private Quaternion getRotation(TrackData data, Transform bindTransforms, int i) {
             Quaternion rotation;
-            if(data.rotations == null){
+            if (data.rotations == null) {
                 rotation = bindTransforms.getRotation();
             } else {
                 rotation = data.rotations[i];
@@ -1223,7 +1230,7 @@ public class GltfLoader implements AssetLoader {
 
         private Vector3f getScale(TrackData data, Transform bindTransforms, int i) {
             Vector3f scale;
-            if(data.scales == null){
+            if (data.scales == null) {
                 scale = bindTransforms.getScale();
             } else {
                 scale = data.scales[i];

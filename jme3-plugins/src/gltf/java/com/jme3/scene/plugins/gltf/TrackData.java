@@ -260,17 +260,23 @@ public class TrackData {
 
     //JME assumes there are translation and rotation track every time, so we create them with identity transforms if they don't exist
     //TODO change this behavior in BoneTrack.
-    public void ensureTranslationRotations() {
+    public void ensureTranslationRotations(Transform localTransforms) {
         if (translations == null) {
             translations = new Vector3f[times.length];
             for (int i = 0; i < translations.length; i++) {
-                translations[i] = new Vector3f();
+                translations[i] = localTransforms.getTranslation();
             }
         }
         if (rotations == null) {
             rotations = new Quaternion[times.length];
             for (int i = 0; i < rotations.length; i++) {
-                rotations[i] = new Quaternion();
+                rotations[i] = localTransforms.getRotation();
+            }
+        }
+        if (scales == null) {
+            scales = new Vector3f[times.length];
+            for (int i = 0; i < scales.length; i++) {
+                scales[i] = localTransforms.getScale();
             }
         }
     }
