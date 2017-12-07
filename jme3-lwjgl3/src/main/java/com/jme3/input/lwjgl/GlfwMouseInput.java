@@ -71,7 +71,7 @@ public class GlfwMouseInput implements MouseInput {
     private final LwjglWindow context;
     private RawInputListener listener;
     private boolean cursorVisible = true;
-    private Long[] currentCursor;
+    private long[] currentCursor;
     private IntBuffer currentCursorDelays;
     private int currentCursorFrame = 0;
     private double currentCursorFrameStartTime = 0.0;
@@ -82,10 +82,10 @@ public class GlfwMouseInput implements MouseInput {
     private GLFWCursorPosCallback cursorPosCallback;
     private GLFWScrollCallback scrollCallback;
     private GLFWMouseButtonCallback mouseButtonCallback;
-    private final Queue<MouseMotionEvent> mouseMotionEvents = new ArrayDeque<MouseMotionEvent>();
-    private final Queue<MouseButtonEvent> mouseButtonEvents = new ArrayDeque<MouseButtonEvent>();
+    private final Queue<MouseMotionEvent> mouseMotionEvents = new ArrayDeque<>();
+    private final Queue<MouseButtonEvent> mouseButtonEvents = new ArrayDeque<>();
 
-    private final Map<JmeCursor, Long[]> jmeToGlfwCursorMap = new HashMap<JmeCursor, Long[]>();
+    private final Map<JmeCursor, long[]> jmeToGlfwCursorMap = new HashMap<>();
 
     public GlfwMouseInput(LwjglWindow context) {
         this.context = context;
@@ -234,8 +234,8 @@ public class GlfwMouseInput implements MouseInput {
 
         currentCursor = null;
         currentCursorDelays = null;
-        for (Long[] glfwCursors : jmeToGlfwCursorMap.values()) {
-            for (Long glfwCursor : glfwCursors) {
+        for (long[] glfwCursors : jmeToGlfwCursorMap.values()) {
+            for (long glfwCursor : glfwCursors) {
                 glfwDestroyCursor(glfwCursor);
             }
         }
@@ -287,8 +287,8 @@ public class GlfwMouseInput implements MouseInput {
         return buf;
     }
 
-    private Long[] createGlfwCursor(JmeCursor jmeCursor) {
-        Long[] cursorArray = new Long[jmeCursor.getNumImages()];
+    private long[] createGlfwCursor(JmeCursor jmeCursor) {
+        long[] cursorArray = new long[jmeCursor.getNumImages()];
         for (int i = 0; i < jmeCursor.getNumImages(); i++) {
             ByteBuffer buf = transformCursorImage(jmeCursor.getImagesData(), jmeCursor.getWidth(), jmeCursor.getHeight(), i);
 
@@ -306,7 +306,7 @@ public class GlfwMouseInput implements MouseInput {
     @Override
     public void setNativeCursor(JmeCursor jmeCursor) {
         if (jmeCursor != null) {
-            Long[] glfwCursor = jmeToGlfwCursorMap.get(jmeCursor);
+            long[] glfwCursor = jmeToGlfwCursorMap.get(jmeCursor);
 
             if (glfwCursor == null) {
                 glfwCursor = createGlfwCursor(jmeCursor);
