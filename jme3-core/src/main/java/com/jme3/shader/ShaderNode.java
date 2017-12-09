@@ -31,11 +31,8 @@
  */
 package com.jme3.shader;
 
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
-import com.jme3.export.Savable;
+import com.jme3.export.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,8 +56,14 @@ public class ShaderNode implements Savable, Cloneable {
     private String name;
     private ShaderNodeDefinition definition;
     private String condition;
-    private List<VariableMapping> inputMapping = new ArrayList<VariableMapping>();
-    private List<VariableMapping> outputMapping = new ArrayList<VariableMapping>();
+
+    private List<VariableMapping> inputMapping = new ArrayList<>();
+    private List<VariableMapping> outputMapping = new ArrayList<>();
+
+    /**
+     * The mapping with values of some input variables.
+     */
+    private List<ValueMapping> valueMapping = new ArrayList<>();
 
     /**
      * creates a ShaderNode
@@ -172,6 +175,24 @@ public class ShaderNode implements Savable, Cloneable {
     }
 
     /**
+     * Gets the value mapping.
+     *
+     * @return the value mapping.
+     */
+    public List<ValueMapping> getValueMapping() {
+        return valueMapping;
+    }
+
+    /**
+     * Sets the value mapping.
+     *
+     * @param valueMapping the value mapping.
+     */
+    public void setValueMapping(final List<ValueMapping> valueMapping) {
+        this.valueMapping = valueMapping;
+    }
+
+    /**
      * jme serialization
      *
      * @param ex the exporter
@@ -179,28 +200,30 @@ public class ShaderNode implements Savable, Cloneable {
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", "");
         oc.write(definition, "definition", null);
         oc.write(condition, "condition", null);
         oc.writeSavableArrayList((ArrayList) inputMapping, "inputMapping", new ArrayList<VariableMapping>());
         oc.writeSavableArrayList((ArrayList) outputMapping, "outputMapping", new ArrayList<VariableMapping>());
+        oc.writeSavableArrayList((ArrayList) valueMapping, "valueMapping", new ArrayList<ValueMapping>());
     }
 
     /**
-     * jme serialization 
+     * jme serialization
      *
      * @param im the importer
      * @throws IOException
      */
     @Override
     public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        InputCapsule ic = im.getCapsule(this);
         name = ic.readString("name", "");
         definition = (ShaderNodeDefinition) ic.readSavable("definition", null);
         condition = ic.readString("condition", null);
         inputMapping = (List<VariableMapping>) ic.readSavableArrayList("inputMapping", new ArrayList<VariableMapping>());
         outputMapping = (List<VariableMapping>) ic.readSavableArrayList("outputMapping", new ArrayList<VariableMapping>());
+        valueMapping = (List<ValueMapping>) ic.readSavableArrayList("valueMapping", new ArrayList<ValueMapping>());
     }
 
     /**
@@ -210,24 +233,60 @@ public class ShaderNode implements Savable, Cloneable {
      */
     @Override
     public String toString() {
-        return "\nShaderNode{" + "\nname=" + name + ", \ndefinition=" + definition.getName() + ", \ncondition=" + condition + ", \ninputMapping=" + inputMapping + ", \noutputMapping=" + outputMapping + '}';
+
+        final StringBuilder builder = new StringBuilder("ShaderNode:");
+        builder.append("\n\tname=").append(name)
+                .append("\n\tdefinition=").append(definition.getName())
+                .append("\n\tcondition=").append(condition);
+
+        if (!inputMapping.isEmpty()) {
+            builder.append("\n\tinputMapping:\n");
+            for (final VariableMapping mapping : inputMapping) {
+                builder.append("\t\t").append(mapping).append('\n');
+            }
+        }
+
+        if (!outputMapping.isEmpty()) {
+            builder.append("\n\toutputMapping:\n");
+            for (final VariableMapping mapping : outputMapping) {
+                builder.append("\t\t").append(mapping).append('\n');
+            }
+        }
+
+        if (!valueMapping.isEmpty()) {
+            builder.append("\n\tvalueMapping:\n");
+            for (final ValueMapping mapping : valueMapping) {
+                builder.append("\t\t").append(mapping).append('\n');
+            }
+        }
+
+        if (builder.charAt(builder.length() - 1) == '\n') {
+            builder.delete(builder.length() - 1, builder.length());
+        }
+
+        return builder.toString();
     }
 
     @Override
     public ShaderNode clone() throws CloneNotSupportedException {
         ShaderNode clone = (ShaderNode) super.clone();
 
-        //No need to clone the definition.
+        // No need to clone the definition.
         clone.definition = definition;
 
         clone.inputMapping = new ArrayList<>();
         for (VariableMapping variableMapping : inputMapping) {
-            clone.inputMapping.add((VariableMapping) variableMapping.clone());
+            clone.inputMapping.add(variableMapping.clone());
         }
 
         clone.outputMapping = new ArrayList<>();
         for (VariableMapping variableMapping : outputMapping) {
-            clone.outputMapping.add((VariableMapping) variableMapping.clone());
+            clone.outputMapping.add(variableMapping.clone());
+        }
+
+        clone.valueMapping = new ArrayList<>();
+        for (final ValueMapping valueMapping : valueMapping) {
+            clone.valueMapping.add(valueMapping.clone());
         }
 
         return clone;

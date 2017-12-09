@@ -5,14 +5,17 @@
  */
 package com.jme3.material.plugin.export.materialdef;
 
-import com.jme3.material.*;
+import com.jme3.material.MatParam;
+import com.jme3.material.RenderState;
+import com.jme3.material.TechniqueDef;
 import com.jme3.shader.*;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Collection;
-import java.util.regex.*;
-
-import static java.util.regex.Pattern.compile;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author nehon
@@ -168,49 +171,94 @@ public class J3mdTechniqueDefWriter {
         out.write(shaderNode.getDefinition().getPath());
         out.write("\n");
 
-        out.write("                InputMappings {\n");
-        for (VariableMapping mapping : shaderNode.getInputMapping()) {
-            writeVariableMapping(out, shaderNode, mapping, matParams);
-        }
-        out.write("                }\n");
+        final List<VariableMapping> inputMapping = shaderNode.getInputMapping();
+        final List<VariableMapping> outputMapping = shaderNode.getOutputMapping();
+        final List<ValueMapping> valueMapping = shaderNode.getValueMapping();
 
-        out.write("                OutputMappings {\n");
-        for (VariableMapping mapping : shaderNode.getOutputMapping()) {
-            writeVariableMapping(out, shaderNode, mapping, matParams);
+        if (!inputMapping.isEmpty()) {
+            out.write("                InputMappings {\n");
+            for (VariableMapping mapping : inputMapping) {
+                writeVariableMapping(out, shaderNode, mapping, matParams);
+            }
+            out.write("                }\n");
         }
-        out.write("                }\n");
 
+        if (!outputMapping.isEmpty()) {
+            out.write("                OutputMappings {\n");
+            for (VariableMapping mapping : outputMapping) {
+                writeVariableMapping(out, shaderNode, mapping, matParams);
+            }
+            out.write("                }\n");
+        }
+
+        if (!valueMapping.isEmpty()) {
+            out.write("                ValueMappings {\n");
+            for (ValueMapping mapping : valueMapping) {
+                writeValueMapping(out, mapping);
+            }
+            out.write("                }\n");
+        }
 
         out.write("            }\n");
     }
 
-    private void writeVariableMapping(OutputStreamWriter out, ShaderNode shaderNode, VariableMapping mapping, Collection<MatParam> matParams) throws IOException {
+    private void writeVariableMapping(final OutputStreamWriter out, final ShaderNode shaderNode,
+                                      final VariableMapping mapping, final Collection<MatParam> matParams)
+            throws IOException {
+
+        final ShaderNodeVariable leftVar = mapping.getLeftVariable();
+        final ShaderNodeVariable rightVar = mapping.getRightVariable();
+
         out.write("                    ");
-        if(!mapping.getLeftVariable().getNameSpace().equals(shaderNode.getName())) {
-            out.write(mapping.getLeftVariable().getNameSpace());
+
+        if (!leftVar.getNameSpace().equals(shaderNode.getName())) {
+            out.write(leftVar.getNameSpace());
             out.write(".");
         }
-        out.write(mapping.getLeftVariable().getName());
-        if(!mapping.getLeftSwizzling().equals("")){
+
+        out.write(leftVar.getName());
+
+        if (!mapping.getLeftSwizzling().equals("")) {
             out.write(".");
             out.write(mapping.getLeftSwizzling());
         }
+
         out.write(" = ");
-        if(!mapping.getRightVariable().getNameSpace().equals(shaderNode.getName())) {
-            out.write(mapping.getRightVariable().getNameSpace());
+
+        if (!rightVar.getNameSpace().equals(shaderNode.getName())) {
+            out.write(rightVar.getNameSpace());
             out.write(".");
         }
-        out.write(mapping.getRightVariable().getName().replaceFirst("g_","").replaceFirst("m_",""));
-        if(!mapping.getRightSwizzling().equals("")){
+
+        String rightVarName = rightVar.getName();
+        if (rightVarName.startsWith("g_") || rightVarName.startsWith("m_")) {
+            rightVarName = rightVarName.substring(2, rightVarName.length());
+        }
+
+        out.write(rightVarName);
+
+        if (!mapping.getRightSwizzling().equals("")) {
             out.write(".");
             out.write(mapping.getRightSwizzling());
         }
 
-        if (mapping.getCondition() != null){
+        if (mapping.getCondition() != null) {
             out.write(" : ");
-            out.write(formatCondition(mapping.getCondition(),matParams));
+            out.write(formatCondition(mapping.getCondition(), matParams));
         }
 
+        out.write("\n");
+    }
+
+    private void writeValueMapping(final OutputStreamWriter out, final ValueMapping mapping) throws IOException {
+
+        final ShaderNodeVariable variable = mapping.getVariable();
+        final String value = mapping.getValue();
+
+        out.write("                    ");
+        out.write(variable.getName());
+        out.write(" = ");
+        out.write(value);
         out.write("\n");
     }
 

@@ -38,15 +38,9 @@ import com.jme3.material.MatParam;
 import com.jme3.material.MaterialDef;
 import com.jme3.material.ShaderGenerationInfo;
 import com.jme3.material.TechniqueDef;
-import com.jme3.shader.Shader;
-import com.jme3.shader.ShaderNode;
-import com.jme3.shader.ShaderNodeDefinition;
-import com.jme3.shader.ShaderNodeVariable;
-import com.jme3.shader.ShaderUtils;
-import com.jme3.shader.UniformBinding;
-import com.jme3.shader.VarType;
-import com.jme3.shader.VariableMapping;
+import com.jme3.shader.*;
 import com.jme3.util.blockparser.Statement;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -280,17 +274,22 @@ public class ShaderNodeLoaderDelegate {
                 String condition = line.substring(line.lastIndexOf(":") + 1).trim();
                 extractCondition(condition, statement);
                 shaderNode.setCondition(conditionParser.getFormattedExpression());
-            } else if (line.startsWith("InputMapping")) {
+            } else if (line.startsWith("InputMappings")) {
                 for (Statement statement1 : statement.getContents()) {
                     VariableMapping mapping = readInputMapping(statement1);
                     techniqueDef.getShaderGenerationInfo().getUnusedNodes().remove(mapping.getRightVariable().getNameSpace());
                     shaderNode.getInputMapping().add(mapping);
                 }
-            } else if (line.startsWith("OutputMapping")) {
+            } else if (line.startsWith("OutputMappings")) {
                 for (Statement statement1 : statement.getContents()) {
                     VariableMapping mapping = readOutputMapping(statement1);
                     techniqueDef.getShaderGenerationInfo().getUnusedNodes().remove(shaderNode.getName());
                     shaderNode.getOutputMapping().add(mapping);
+                }
+            } else if (line.startsWith("ValueMappings")) {
+                for (final Statement mappingStatement : statement.getContents()) {
+                    final ValueMapping mapping = readValueMapping(mappingStatement);
+                    shaderNode.getValueMapping().add(mapping);
                 }
             } else {
                 throw new MatParseException("ShaderNodeDefinition", split[0], statement);
@@ -349,6 +348,32 @@ public class ShaderNodeLoaderDelegate {
             extractCondition(cond[1], statement);
             mapping.setCondition(conditionParser.getFormattedExpression());
         }
+
+        return mapping;
+    }
+
+    /**
+     * Reads a value mapping.
+     * <pre>
+     *  Format : &lt;varName&gt; = &lt;value&gt;
+     * </pre>
+     *
+     * @param statement the statement to read.
+     * @return the read mapping
+     */
+    protected ValueMapping parseValueMapping(final Statement statement) throws IOException {
+
+        final String[] vars = statement.getLine().split("=");
+
+        checkMappingFormat(vars, statement);
+
+        final String[] expression = vars[0].trim().split("\\.");
+        final ShaderNodeVariable variable = new ShaderNodeVariable("", expression[0].trim());
+        final String value = vars[1].trim();
+
+        final ValueMapping mapping = new ValueMapping();
+        mapping.setVariable(variable);
+        mapping.setValue(value);
 
         return mapping;
     }
@@ -783,6 +808,33 @@ public class ShaderNodeLoaderDelegate {
     }
 
     /**
+     * Reads a value mapping.
+     *
+     * @param statement the statement to read.
+     * @return the value mapping.
+     * @throws IOException
+     */
+    public ValueMapping readValueMapping(final Statement statement) throws IOException {
+
+        ValueMapping mapping;
+        try {
+            mapping = parseValueMapping(statement);
+        } catch (final Exception e) {
+            throw new MatParseException("Unexpected mapping format", statement, e);
+        }
+
+        final ShaderNodeVariable variable = mapping.getVariable();
+        final ShaderNodeDefinition definition = shaderNode.getDefinition();
+
+        if (!updateVariableFromList(variable, definition.getInputs())) {
+            throw new MatParseException(variable.getName() + " is not an input variable of " +
+                    definition.getName(), statement);
+        }
+
+        return mapping;
+    }
+
+    /**
      * Reads a list of ShaderNodes
      *
      * @param statements the list of statements to read
@@ -805,7 +857,6 @@ public class ShaderNodeLoaderDelegate {
                     shaderNode = new ShaderNode();
                     shaderNode.setName(name);
                     techniqueDef.getShaderGenerationInfo().getUnusedNodes().add(name);
-
                     readShaderNode(statement.getContents());
                     nodes.put(name, shaderNode);
                     techniqueDef.getShaderNodes().add(shaderNode);
