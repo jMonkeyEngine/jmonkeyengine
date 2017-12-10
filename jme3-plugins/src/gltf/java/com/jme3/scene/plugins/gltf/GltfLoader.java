@@ -127,6 +127,13 @@ public class GltfLoader implements AssetLoader {
 
             rootNode = customContentManager.readExtensionAndExtras("root", docRoot, rootNode);
 
+            //Loading animations
+            if (animations != null) {
+                for (int i = 0; i < animations.size(); i++) {
+                    readAnimation(i);
+                }
+            }
+
             setupControls();
 
             //only one scene let's not return the root.
@@ -175,13 +182,6 @@ public class GltfLoader implements AssetLoader {
                 readChild(sceneNode, node);
             }
 
-        }
-
-        //Loading animations
-        if (animations != null) {
-            for (int i = 0; i < animations.size(); i++) {
-                readAnimation(i);
-            }
         }
 
         //Setting the default scene cul hint to inherit.
@@ -278,7 +278,10 @@ public class GltfLoader implements AssetLoader {
             BoneWrapper bw = (BoneWrapper) loaded;
             bw.isRoot = true;
             SkinData skinData = fetchFromCache("skins", bw.skinIndex, SkinData.class);
-            skinData.armatureTransforms = parent.getLocalTransform();
+            if (skinData == null) {
+                return;
+            }
+            skinData.parent = parent;
         }
 
     }
@@ -1086,15 +1089,13 @@ public class GltfLoader implements AssetLoader {
     private void setupControls() {
         for (SkinData skinData : skinnedSpatials.keySet()) {
             List<Spatial> spatials = skinnedSpatials.get(skinData);
-            Spatial spatial;
             if (spatials.isEmpty()) {
                 //can happen when a file contains a skin that is not used by any mesh...
                 continue;
             }
+            Spatial spatial = skinData.parent;
             if (spatials.size() >= 1) {
                 spatial = findCommonAncestor(spatials);
-            } else {
-                spatial = spatials.get(0);
             }
 
             AnimControl animControl = spatial.getControl(AnimControl.class);
@@ -1220,7 +1221,7 @@ public class GltfLoader implements AssetLoader {
                 Transform t = new Transform(translation, rotation, scale);
                 if (isRoot) {
                     //Apply the armature transforms to the root bone anim track.
-                    t.combineWithParent(skinData.armatureTransforms);
+                    t.combineWithParent(skinData.parent.getLocalTransform());
                 }
 
                 reverseBlendAnimTransforms(t, bindTransforms);
@@ -1285,48 +1286,9 @@ public class GltfLoader implements AssetLoader {
     private class SkinData {
         SkeletonControl skeletonControl;
         AnimControl animControl;
-        Transform armatureTransforms;
+        Spatial parent;
         Bone[] bones;
         boolean used = false;
-    }
-
-    private class PartialTransforms {
-        Vector3f translation;
-        Quaternion rotation;
-        Vector3f scale;
-        Transform transform;
-
-        Transform getTransforms() {
-            if (transform == null) {
-                if (translation == null) {
-                    translation = new Vector3f();
-                }
-                if (rotation == null) {
-                    rotation = new Quaternion();
-                }
-                if (scale == null) {
-                    scale = new Vector3f(1, 1, 1);
-                }
-                transform = new Transform(translation, rotation, scale);
-            }
-            return transform;
-        }
-
-        Transform getTransforms(Transform bindTransforms) {
-            if (transform == null) {
-                if (translation == null) {
-                    translation = bindTransforms.getTranslation();
-                }
-                if (rotation == null) {
-                    rotation = bindTransforms.getRotation();
-                }
-                if (scale == null) {
-                    scale = bindTransforms.getScale();
-                }
-                transform = new Transform(translation, rotation, scale);
-            }
-            return transform;
-        }
     }
 
     public static class SkinBuffers {
@@ -1341,10 +1303,6 @@ public class GltfLoader implements AssetLoader {
 
         public SkinBuffers() {
         }
-    }
-
-    private class TextureData {
-        byte[] data;
     }
 
     private interface Populator<T> {
