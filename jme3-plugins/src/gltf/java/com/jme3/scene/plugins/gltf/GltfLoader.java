@@ -734,16 +734,6 @@ public class GltfLoader implements AssetLoader {
                 continue;
             }
 
-            //if targetNode is a bone, check if it's in a used skin.
-            BoneWrapper bw = fetchFromCache("nodes", targetNode, BoneWrapper.class);
-            if (bw != null) {
-                SkinData skin = fetchFromCache("skins", bw.skinIndex, SkinData.class);
-                if (skin == null || !skin.used) {
-                    //this skin is not referenced by any mesh, let's not load animation for it.
-                    continue;
-                }
-            }
-
             TrackData trackData = tracks[targetNode];
             if (trackData == null) {
                 trackData = new TrackData();
@@ -824,17 +814,20 @@ public class GltfLoader implements AssetLoader {
                 //apply the inverseBindMatrix to animation data.
                 b.update(trackData);
                 usedBones.add(b.bone);
-                BoneTrack track = new BoneTrack(b.boneIndex, trackData.times, trackData.translations, trackData.rotations, trackData.scales);
-                anim.addTrack(track);
+
                 if (skinIndex == -1) {
                     skinIndex = b.skinIndex;
                 } else {
-                    //Check if all bones affected by this animation are from the same skin, otherwise raise an error.
+                    //Check if all bones affected by this animation are from the same skin, the track will be skipped.
                     if (skinIndex != b.skinIndex) {
-                        throw new AssetLoadException("Animation " + animationIndex + " (" + name + ") applies to bones that are not from the same skin: skin " + skinIndex + ", bone " + b.bone.getName() + " from skin " + b.skinIndex);
+                        logger.log(Level.WARNING, "Animation " + animationIndex + " (" + name + ") applies to bones that are not from the same skin: skin " + skinIndex + ", bone " + b.bone.getName() + " from skin " + b.skinIndex);
+                        continue;
                     }
-                    //else everything is fine.
                 }
+
+                BoneTrack track = new BoneTrack(b.boneIndex, trackData.times, trackData.translations, trackData.rotations, trackData.scales);
+                anim.addTrack(track);
+
             }
         }
 
@@ -1232,13 +1225,13 @@ public class GltfLoader implements AssetLoader {
 
                 reverseBlendAnimTransforms(t, bindTransforms);
 
-                if(data.translations != null) {
+                if (data.translations != null) {
                     data.translations[i] = t.getTranslation();
                 }
-                if(data.rotations != null) {
+                if (data.rotations != null) {
                     data.rotations[i] = t.getRotation();
                 }
-                if(data.scales != null) {
+                if (data.scales != null) {
                     data.scales[i] = t.getScale();
                 }
             }
