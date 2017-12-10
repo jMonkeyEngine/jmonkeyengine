@@ -83,6 +83,7 @@ public class GltfLoader implements AssetLoader {
         try {
             dataCache.clear();
             info = assetInfo;
+            skinnedSpatials.clear();
             rootNode = new Node();
 
             if (defaultMat == null) {
@@ -127,14 +128,14 @@ public class GltfLoader implements AssetLoader {
 
             rootNode = customContentManager.readExtensionAndExtras("root", docRoot, rootNode);
 
+            setupControls();
+
             //Loading animations
             if (animations != null) {
                 for (int i = 0; i < animations.size(); i++) {
                     readAnimation(i);
                 }
             }
-
-            setupControls();
 
             //only one scene let's not return the root.
             if (rootNode.getChildren().size() == 1) {
@@ -865,16 +866,10 @@ public class GltfLoader implements AssetLoader {
         if (skinIndex != -1) {
             //we have a bone animation.
             SkinData skin = fetchFromCache("skins", skinIndex, SkinData.class);
-            if (skin.animControl == null) {
-                skin.animControl = new AnimControl(skin.skeletonControl.getSkeleton());
-            }
             skin.animControl.addAnim(anim);
-            //the controls will be added to the right spatial in setupControls()
         }
 
-
         if (!spatials.isEmpty()) {
-            //Note that it's pretty unlikely to have an animation that is both a spatial animation and a bone animation...But you never know. The specs doesn't forbids it
             if (skinIndex != -1) {
                 //there are some spatial tracks in this bone animation... or the other way around. Let's add the spatials in the skinnedSpatials.
                 SkinData skin = fetchFromCache("skins", skinIndex, SkinData.class);
@@ -882,6 +877,7 @@ public class GltfLoader implements AssetLoader {
                 spat.addAll(spatials);
                 //the animControl will be added in the setupControls();
             } else {
+                //Spatial animation
                 Spatial spatial = null;
                 if (spatials.size() == 1) {
                     spatial = spatials.get(0);
@@ -971,6 +967,14 @@ public class GltfLoader implements AssetLoader {
                 computeBindTransforms(bw, skeleton);
             }
 
+            skeleton = customContentManager.readExtensionAndExtras("skin", skin, skeleton);
+            SkinData skinData = new SkinData();
+            skinData.bones = bones;
+            skinData.skeletonControl = new SkeletonControl(skeleton);
+            skinData.animControl = new AnimControl(skinData.skeletonControl.getSkeleton());
+            addToCache("skins", index, skinData, nodes.size());
+            skinnedSpatials.put(skinData, new ArrayList<Spatial>());
+
             // Set local transforms.
             // The skeleton may come in a given pose, that is not the rest pose, so let 's apply it.
             // We will need it later for animation
@@ -985,14 +989,6 @@ public class GltfLoader implements AssetLoader {
                     bone.setUserControl(false);
                 }
             }
-
-            skeleton = customContentManager.readExtensionAndExtras("skin", skin, skeleton);
-
-            SkinData skinData = new SkinData();
-            skinData.bones = bones;
-            skinData.skeletonControl = new SkeletonControl(skeleton);
-            addToCache("skins", index, skinData, nodes.size());
-            skinnedSpatials.put(skinData, new ArrayList<Spatial>());
         }
     }
 
@@ -1089,26 +1085,18 @@ public class GltfLoader implements AssetLoader {
     private void setupControls() {
         for (SkinData skinData : skinnedSpatials.keySet()) {
             List<Spatial> spatials = skinnedSpatials.get(skinData);
-            if (spatials.isEmpty()) {
-                //can happen when a file contains a skin that is not used by any mesh...
-                continue;
-            }
             Spatial spatial = skinData.parent;
+
             if (spatials.size() >= 1) {
                 spatial = findCommonAncestor(spatials);
             }
 
-            AnimControl animControl = spatial.getControl(AnimControl.class);
-            if (animControl != null) {
-                //The spatial already has an anim control, we need to merge it with the one in skinData. Then remove it.
-                for (String name : animControl.getAnimationNames()) {
-                    Animation anim = animControl.getAnim(name);
-                    skinData.animControl.addAnim(anim);
-                }
-                spatial.removeControl(animControl);
+            if (spatial != skinData.parent) {
+                skinData.rootBoneTransformOffset = spatial.getWorldTransform().invert();
+                skinData.rootBoneTransformOffset.combineWithParent(skinData.parent.getWorldTransform());
             }
 
-            if (skinData.animControl != null) {
+            if (skinData.animControl != null && skinData.animControl.getSpatial() == null) {
                 spatial.addControl(skinData.animControl);
             }
             spatial.addControl(skinData.skeletonControl);
@@ -1219,9 +1207,9 @@ public class GltfLoader implements AssetLoader {
                 Vector3f scale = getScale(data, i);
 
                 Transform t = new Transform(translation, rotation, scale);
-                if (isRoot) {
+                if (isRoot && skinData.rootBoneTransformOffset != null) {
                     //Apply the armature transforms to the root bone anim track.
-                    t.combineWithParent(skinData.parent.getLocalTransform());
+                    t.combineWithParent(skinData.rootBoneTransformOffset);
                 }
 
                 reverseBlendAnimTransforms(t, bindTransforms);
@@ -1287,6 +1275,7 @@ public class GltfLoader implements AssetLoader {
         SkeletonControl skeletonControl;
         AnimControl animControl;
         Spatial parent;
+        Transform rootBoneTransformOffset;
         Bone[] bones;
         boolean used = false;
     }
