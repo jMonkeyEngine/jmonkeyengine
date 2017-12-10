@@ -173,7 +173,6 @@ public class J3mdTechniqueDefWriter {
 
         final List<VariableMapping> inputMapping = shaderNode.getInputMapping();
         final List<VariableMapping> outputMapping = shaderNode.getOutputMapping();
-        final List<ValueMapping> valueMapping = shaderNode.getValueMapping();
 
         if (!inputMapping.isEmpty()) {
             out.write("                InputMappings {\n");
@@ -191,14 +190,6 @@ public class J3mdTechniqueDefWriter {
             out.write("                }\n");
         }
 
-        if (!valueMapping.isEmpty()) {
-            out.write("                ValueMappings {\n");
-            for (ValueMapping mapping : valueMapping) {
-                writeValueMapping(out, mapping);
-            }
-            out.write("                }\n");
-        }
-
         out.write("            }\n");
     }
 
@@ -208,6 +199,7 @@ public class J3mdTechniqueDefWriter {
 
         final ShaderNodeVariable leftVar = mapping.getLeftVariable();
         final ShaderNodeVariable rightVar = mapping.getRightVariable();
+        final String rightExpression = mapping.getRightExpression();
 
         out.write("                    ");
 
@@ -225,21 +217,28 @@ public class J3mdTechniqueDefWriter {
 
         out.write(" = ");
 
-        if (!rightVar.getNameSpace().equals(shaderNode.getName())) {
-            out.write(rightVar.getNameSpace());
-            out.write(".");
-        }
+        if (rightVar != null) {
 
-        String rightVarName = rightVar.getName();
-        if (rightVarName.startsWith("g_") || rightVarName.startsWith("m_")) {
-            rightVarName = rightVarName.substring(2, rightVarName.length());
-        }
+            if (!rightVar.getNameSpace().equals(shaderNode.getName())) {
+                out.write(rightVar.getNameSpace());
+                out.write(".");
+            }
 
-        out.write(rightVarName);
+            String rightVarName = rightVar.getName();
+            if (rightVarName.startsWith("g_") || rightVarName.startsWith("m_")) {
+                rightVarName = rightVarName.substring(2, rightVarName.length());
+            }
 
-        if (!mapping.getRightSwizzling().equals("")) {
-            out.write(".");
-            out.write(mapping.getRightSwizzling());
+            out.write(rightVarName);
+
+            if (!mapping.getRightSwizzling().equals("")) {
+                out.write(".");
+                out.write(mapping.getRightSwizzling());
+            }
+        } else {
+            out.write("%%");
+            out.write(rightExpression);
+            out.write("%%");
         }
 
         if (mapping.getCondition() != null) {
@@ -247,18 +246,6 @@ public class J3mdTechniqueDefWriter {
             out.write(formatCondition(mapping.getCondition(), matParams));
         }
 
-        out.write("\n");
-    }
-
-    private void writeValueMapping(final OutputStreamWriter out, final ValueMapping mapping) throws IOException {
-
-        final ShaderNodeVariable variable = mapping.getVariable();
-        final String value = mapping.getValue();
-
-        out.write("                    ");
-        out.write(variable.getName());
-        out.write(" = ");
-        out.write(value);
         out.write("\n");
     }
 

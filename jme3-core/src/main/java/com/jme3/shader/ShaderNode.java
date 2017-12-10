@@ -61,16 +61,11 @@ public class ShaderNode implements Savable, Cloneable {
     private List<VariableMapping> outputMapping = new ArrayList<>();
 
     /**
-     * The mapping with values of some input variables.
-     */
-    private List<ValueMapping> valueMapping = new ArrayList<>();
-
-    /**
-     * creates a ShaderNode
+     * Creates a shader node.
      *
-     * @param name the name
-     * @param definition the ShaderNodeDefinition
-     * @param condition the condition to activate this node
+     * @param name       the name.
+     * @param definition the shader node definition.
+     * @param condition  the condition to activate this node.
      */
     public ShaderNode(String name, ShaderNodeDefinition definition, String condition) {
         this.name = name;
@@ -79,12 +74,13 @@ public class ShaderNode implements Savable, Cloneable {
     }
 
     /**
-     * creates a ShaderNode
+     * Creates a shader node.
      */
     public ShaderNode() {
     }
 
     /**
+     * Gets the name of the node.
      *
      * @return the name of the node
      */
@@ -93,103 +89,86 @@ public class ShaderNode implements Savable, Cloneable {
     }
 
     /**
-     * sets the name of th node
+     * Sets the name of the node.
      *
-     * @param name the name
+     * @param name the name of the node.
      */
     public void setName(String name) {
         this.name = name;
     }
 
     /**
-     * returns the definition
+     * Returns the shader node definition.
      *
-     * @return the ShaderNodeDefinition
+     * @return the shader node definition.
      */
     public ShaderNodeDefinition getDefinition() {
         return definition;
     }
 
     /**
-     * sets the definition
+     * Sets the shader node definition.
      *
-     * @param definition the ShaderNodeDefinition
+     * @param definition the shader node definition.
      */
     public void setDefinition(ShaderNodeDefinition definition) {
         this.definition = definition;
     }
 
     /**
+     * Gets the condition.
      *
-     * @return the condition
+     * @return the condition.
      */
     public String getCondition() {
         return condition;
     }
 
     /**
-     * sets the condition
+     * Sets the condition.
      *
-     * @param condition the condition
+     * @param condition the condition.
      */
     public void setCondition(String condition) {
         this.condition = condition;
     }
 
     /**
-     * return a list of VariableMapping representing the input mappings of this
-     * node
+     * Returns a list of variable mapping representing the input mappings of this
+     * node.
      *
-     * @return the input mappings
+     * @return the input mappings.
      */
     public List<VariableMapping> getInputMapping() {
         return inputMapping;
     }
 
     /**
-     * sets the input mappings
+     * Sets the input mappings.
      *
-     * @param inputMapping the input mappings
+     * @param inputMapping the input mappings.
      */
     public void setInputMapping(List<VariableMapping> inputMapping) {
         this.inputMapping = inputMapping;
     }
 
     /**
-     * return a list of VariableMapping representing the output mappings of this
-     * node
+     * Returns a list of variable mapping representing the output mappings of this
+     * node.
      *
-     * @return the output mappings
+     * @return the output mappings.
      */
     public List<VariableMapping> getOutputMapping() {
         return outputMapping;
     }
 
     /**
-     * sets the output mappings
+     * Sets the output mappings.
      *
-     * @param outputMapping the output mappings
+     * @param outputMapping the output mappings.
      */
     public void setOutputMapping(List<VariableMapping> outputMapping) {
         this.outputMapping = outputMapping;
-    }
-
-    /**
-     * Gets the value mapping.
-     *
-     * @return the value mapping.
-     */
-    public List<ValueMapping> getValueMapping() {
-        return valueMapping;
-    }
-
-    /**
-     * Sets the value mapping.
-     *
-     * @param valueMapping the value mapping.
-     */
-    public void setValueMapping(final List<ValueMapping> valueMapping) {
-        this.valueMapping = valueMapping;
     }
 
     /**
@@ -206,7 +185,6 @@ public class ShaderNode implements Savable, Cloneable {
         oc.write(condition, "condition", null);
         oc.writeSavableArrayList((ArrayList) inputMapping, "inputMapping", new ArrayList<VariableMapping>());
         oc.writeSavableArrayList((ArrayList) outputMapping, "outputMapping", new ArrayList<VariableMapping>());
-        oc.writeSavableArrayList((ArrayList) valueMapping, "valueMapping", new ArrayList<ValueMapping>());
     }
 
     /**
@@ -223,7 +201,6 @@ public class ShaderNode implements Savable, Cloneable {
         condition = ic.readString("condition", null);
         inputMapping = (List<VariableMapping>) ic.readSavableArrayList("inputMapping", new ArrayList<VariableMapping>());
         outputMapping = (List<VariableMapping>) ic.readSavableArrayList("outputMapping", new ArrayList<VariableMapping>());
-        valueMapping = (List<ValueMapping>) ic.readSavableArrayList("valueMapping", new ArrayList<ValueMapping>());
     }
 
     /**
@@ -253,13 +230,6 @@ public class ShaderNode implements Savable, Cloneable {
             }
         }
 
-        if (!valueMapping.isEmpty()) {
-            builder.append("\n\tvalueMapping:\n");
-            for (final ValueMapping mapping : valueMapping) {
-                builder.append("\t\t").append(mapping).append('\n');
-            }
-        }
-
         if (builder.charAt(builder.length() - 1) == '\n') {
             builder.delete(builder.length() - 1, builder.length());
         }
@@ -282,11 +252,6 @@ public class ShaderNode implements Savable, Cloneable {
         clone.outputMapping = new ArrayList<>();
         for (VariableMapping variableMapping : outputMapping) {
             clone.outputMapping.add(variableMapping.clone());
-        }
-
-        clone.valueMapping = new ArrayList<>();
-        for (final ValueMapping valueMapping : valueMapping) {
-            clone.valueMapping.add(valueMapping.clone());
         }
 
         return clone;

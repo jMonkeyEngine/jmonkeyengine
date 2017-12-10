@@ -51,6 +51,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * the indentation characters 1à tabulation characters
      */
     private final static String INDENTCHAR = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+
     protected ShaderNodeVariable inPosTmp;
 
     /**
@@ -247,7 +248,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
 
             //Variables fed with a sampler matparam or world param are replaced by the matparam itself
             //It avoids issue with samplers that have to be uniforms.
-            if (isWorldOrMaterialParam(rightVariable) && rightVariable.getType().startsWith("sampler")) {
+            if (rightVariable != null && isWorldOrMaterialParam(rightVariable) && rightVariable.getType().startsWith("sampler")) {
                 nodeSource = replace(nodeSource, leftVariable, rightVariable.getPrefix() + rightVariable.getName());
             } else {
 
@@ -266,22 +267,6 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         }
 
         final ShaderNodeDefinition definition = shaderNode.getDefinition();
-        final List<ValueMapping> valueMapping = shaderNode.getValueMapping();
-
-        for (final ValueMapping mapping : valueMapping) {
-
-            final ShaderNodeVariable variable = mapping.getVariable();
-
-            String newName = shaderNode.getName() + "_" + variable.getName();
-            if (declaredInputs.contains(newName)) {
-                continue;
-            }
-
-            map(mapping, source);
-
-            nodeSource = replace(nodeSource, variable, newName);
-            declaredInputs.add(newName);
-        }
 
         for (final ShaderNodeVariable var : definition.getInputs()) {
 
@@ -434,13 +419,15 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     /**
      * Appends a mapping to the source, embed in a conditional block if needed,
      * with variables nameSpaces and swizzle.
+     *
      * @param mapping the VariableMapping to append
-     * @param source the StringBuilder to use
+     * @param source  the StringBuilder to use
      */
     protected void map(VariableMapping mapping, StringBuilder source) {
 
         final ShaderNodeVariable leftVariable = mapping.getLeftVariable();
         final ShaderNodeVariable rightVariable = mapping.getRightVariable();
+        final String rightExpression = mapping.getRightExpression();
 
         startCondition(mapping.getCondition(), source);
         appendIndent(source);
@@ -457,14 +444,14 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
             source.append("]");
         }
 
-        //left swizzle, the variable can't be declared and assigned on the same line.
+        // left swizzle, the variable can't be declared and assigned on the same line.
         if (mapping.getLeftSwizzling().length() > 0) {
             //initialize the declared variable to 0.0
             source.append(" = ");
             source.append(leftVariable.getType());
             source.append("(0.0);\n");
             appendIndent(source);
-            //assign the value on a new line
+            // assign the value on a new line
             source.append(leftVariable.getNameSpace());
             source.append("_");
             source.append(leftVariable.getName());
@@ -472,72 +459,29 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
             source.append(mapping.getLeftSwizzling());
         }
         source.append(" = ");
-        String namePrefix = getAppendableNameSpace(rightVariable);
-        source.append(namePrefix);
-        source.append(rightVariable.getPrefix());
-        source.append(rightVariable.getName());
-        if (mapping.getRightSwizzling().length() > 0) {
-            source.append(".");
-            source.append(mapping.getRightSwizzling());
+
+        if (rightVariable != null) {
+
+            String namePrefix = getAppendableNameSpace(rightVariable);
+            source.append(namePrefix);
+            source.append(rightVariable.getPrefix());
+            source.append(rightVariable.getName());
+
+            if (mapping.getRightSwizzling().length() > 0) {
+                source.append(".");
+                source.append(mapping.getRightSwizzling());
+            }
+
+        } else {
+            source.append(rightExpression);
         }
+
         source.append(";\n");
         endCondition(mapping.getCondition(), source);
     }
 
     /**
-     * Appends the value mapping to the source.
-     *
-     * @param mapping the value mapping.
-     * @param source  the source.
-     */
-    protected void map(final ValueMapping mapping, final StringBuilder source) {
-
-        final ShaderNodeVariable variable = mapping.getVariable();
-        final String type = variable.getType();
-        final String value = mapping.getValue();
-
-        appendIndent(source);
-
-        source.append(variable.getType());
-        source.append(" ");
-        source.append(variable.getNameSpace());
-        source.append("_");
-        source.append(variable.getName());
-        source.append(" = ");
-
-        appendValue(type, value, source);
-
-        source.append(";\n");
-    }
-
-    /**
-     * Append the value of the type to the source.
-     *
-     * @param type   the value type.
-     * @param value  the value.
-     * @param source the source.
-     */
-    protected void appendValue(final String type, final String value, final StringBuilder source) {
-        switch (type) {
-            case "int":
-            case "bool":
-            case "unit":
-            case "double":
-            case "float":
-                source.append(value);
-                return;
-        }
-
-        if (type.contains("vec")) {
-            source.append(type).append('(').append(value).append(')');
-            return;
-        }
-
-        throw new IllegalArgumentException("The value " + value + " with the type " + type + " doesn't support here.");
-    }
-
-    /**
-     * replaces a variable name in a shaderNode source code by prefixing it 
+     * replaces a variable name in a shaderNode source code by prefixing it
      * with its nameSpace and "_" if needed.
      * @param nodeSource the source to modify
      * @param var the variable to replace
