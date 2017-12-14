@@ -48,7 +48,8 @@ public class TestEnvironmentMapping extends SimpleApplication {
         chaseCam.setLookAtOffset(new Vector3f(0,0.5f,-1.0f));
         buggy.addControl(chaseCam);
         rootNode.attachChild(buggy);
-        rootNode.attachChild(SkyFactory.createSky(assetManager, tex, false));
+        rootNode.attachChild(SkyFactory.createSky(assetManager, tex,
+                SkyFactory.EnvMapType.CubeMap));
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         BloomFilter bf = new BloomFilter(BloomFilter.GlowMode.Objects);

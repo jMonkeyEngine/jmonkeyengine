@@ -29,6 +29,7 @@
 package jme3test.audio;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.audio.AudioData.DataType;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.Environment;
 import com.jme3.material.Material;
@@ -55,13 +56,15 @@ public class TestAmbient extends SimpleApplication {
     Environment env = new Environment(eax);
     audioRenderer.setEnvironment(env);
 
-    waves = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg", false);
+    waves = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg",
+            DataType.Buffer);
     waves.setPositional(true);
     waves.setLocalTranslation(new Vector3f(0, 0,0));
     waves.setMaxDistance(100);
     waves.setRefDistance(5);
 
-    nature = new AudioNode(assetManager, "Sound/Environment/Nature.ogg", true);
+    nature = new AudioNode(assetManager, "Sound/Environment/Nature.ogg",
+            DataType.Stream);
     nature.setPositional(false);
     nature.setVolume(3);
     
