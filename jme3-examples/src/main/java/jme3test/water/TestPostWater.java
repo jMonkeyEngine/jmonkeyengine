@@ -1,6 +1,7 @@
 package jme3test.water;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.audio.AudioData.DataType;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.LowPassFilter;
 import com.jme3.effect.ParticleEmitter;
@@ -35,6 +36,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.SkyFactory;
+import com.jme3.util.SkyFactory.EnvMapType;
 import com.jme3.water.WaterFilter;
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +95,8 @@ public class TestPostWater extends SimpleApplication {
 
 
 
-        Spatial sky = SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", false);
+        Spatial sky = SkyFactory.createSky(assetManager, 
+                "Scenes/Beach/FullskiesSunset0068.dds", EnvMapType.CubeMap);
         sky.setLocalScale(350);
 
         mainScene.attachChild(sky);
@@ -149,7 +152,8 @@ public class TestPostWater extends SimpleApplication {
         
         uw = cam.getLocation().y < waterHeight;
 
-        waves = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg", false);
+        waves = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg",
+                DataType.Buffer);
         waves.setLooping(true);
         waves.setReverbEnabled(true);
         if (uw) {

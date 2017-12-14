@@ -93,7 +93,7 @@ public class TestCustomAnim extends SimpleApplication {
         box.setBuffer(indicesBuf);
 
         // Create bind pose buffers
-        box.generateBindPose(true);
+        box.generateBindPose();
 
         // Create skeleton
         bone = new Bone("root");

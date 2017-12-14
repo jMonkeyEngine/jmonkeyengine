@@ -126,7 +126,9 @@ public class TestMultiViewsFilters extends SimpleApplication {
 
         
         
-        rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
+        rootNode.attachChild(SkyFactory.createSky(assetManager, 
+                "Textures/Sky/Bright/BrightSky.dds", 
+                SkyFactory.EnvMapType.CubeMap));
 
         final FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         final FilterPostProcessor fpp2 = new FilterPostProcessor(assetManager);

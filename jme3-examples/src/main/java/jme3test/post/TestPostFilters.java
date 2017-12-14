@@ -50,6 +50,7 @@ import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
+import com.jme3.util.SkyFactory.EnvMapType;
 import com.jme3.util.TangentBinormalGenerator;
 
 public class TestPostFilters extends SimpleApplication implements ActionListener {
@@ -88,7 +89,9 @@ public class TestPostFilters extends SimpleApplication implements ActionListener
         } else {
             envMap = assetManager.loadTexture("Textures/Sky/St Peters/StPeters.jpg");
         }
-        rootNode.attachChild(SkyFactory.createSky(assetManager, envMap, new Vector3f(-1, -1, -1), true));
+        Spatial sky = SkyFactory.createSky(assetManager, envMap, 
+                new Vector3f(-1f, -1f, -1f), EnvMapType.SphereMap);
+        rootNode.attachChild(sky);
     }
 
     public void setupLighting() {
