@@ -39,18 +39,11 @@ import com.jme3.collision.bih.BIHTree;
 import com.jme3.export.*;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
-import com.jme3.math.Matrix4f;
-import com.jme3.math.Triangle;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.VertexBuffer.Format;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.math.*;
+import com.jme3.scene.VertexBuffer.*;
 import com.jme3.scene.mesh.*;
-import com.jme3.util.BufferUtils;
-import com.jme3.util.IntMap;
+import com.jme3.util.*;
 import com.jme3.util.IntMap.Entry;
-import com.jme3.util.SafeArrayList;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 
@@ -1447,12 +1440,22 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     }
 
     /**
+     * @deprecated use isAnimatedByJoint
+     * @param boneIndex
+     * @return
+     */
+    @Deprecated
+    public boolean isAnimatedByBone(int boneIndex) {
+        return isAnimatedByJoint(boneIndex);
+    }
+
+    /**
      * Test whether the specified bone animates this mesh.
      *
-     * @param boneIndex the bone's index in its skeleton
+     * @param jointIndex the bone's index in its skeleton
      * @return true if the specified bone animates this mesh, otherwise false
      */
-    public boolean isAnimatedByBone(int boneIndex) {
+    public boolean isAnimatedByJoint(int jointIndex) {
         VertexBuffer biBuf = getBuffer(VertexBuffer.Type.BoneIndex);
         VertexBuffer wBuf = getBuffer(VertexBuffer.Type.BoneWeight);
         if (biBuf == null || wBuf == null) {
@@ -1472,7 +1475,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         /*
          * Test each vertex to determine whether the bone affects it.
          */
-        int biByte = boneIndex;
+        int biByte = jointIndex;
         for (int vIndex = 0; vIndex < numVertices; vIndex++) {
             for (int wIndex = 0; wIndex < 4; wIndex++) {
                 int bIndex = boneIndexBuffer.get();

@@ -32,6 +32,7 @@
 package com.jme3.math;
 
 import com.jme3.export.*;
+
 import java.io.IOException;
 
 /**
@@ -257,11 +258,17 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     public Matrix4f toTransformMatrix() {
-        Matrix4f trans = new Matrix4f();
-        trans.setTranslation(translation);
-        trans.setRotationQuaternion(rot);
-        trans.setScale(scale);
-        return trans;
+        return toTransformMatrix(null);
+    }
+
+    public Matrix4f toTransformMatrix(Matrix4f store) {
+        if (store == null) {
+            store = new Matrix4f();
+        }
+        store.setTranslation(translation);
+        store.setRotationQuaternion(rot);
+        store.setScale(scale);
+        return store;
     }
     
     public void fromTransformMatrix(Matrix4f mat) {
