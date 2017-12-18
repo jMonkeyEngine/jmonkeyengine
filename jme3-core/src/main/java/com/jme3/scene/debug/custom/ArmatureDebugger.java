@@ -32,46 +32,37 @@ package com.jme3.scene.debug.custom;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.jme3.animation.Bone;
-
-import java.util.Map;
-
-import com.jme3.animation.Skeleton;
+import com.jme3.animation.*;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.scene.BatchNode;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.*;
 
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * The class that creates a mesh to display how bones behave. If it is supplied
  * with the bones' lengths it will show exactly how the bones look like on the
  * scene. If not then only connections between each bone heads will be shown.
  */
-public class SkeletonDebugger extends BatchNode {
+public class ArmatureDebugger extends BatchNode {
 
     /**
      * The lines of the bones or the wires between their heads.
      */
-    private SkeletonBone bones;
+    private ArmatureBone bones;
 
-    private Skeleton skeleton;
+    private Armature armature;
     /**
      * The dotted lines between a bone's tail and the had of its children. Not
      * available if the length data was not provided.
      */
-    private SkeletonInterBoneWire interBoneWires;
-    private List<Bone> selectedBones = new ArrayList<Bone>();
+    private ArmatureInterJointsWire interJointWires;
+    private Geometry wires;
+    private List<Bone> selectedJoints = new ArrayList<Bone>();
 
-    public SkeletonDebugger() {
+    public ArmatureDebugger() {
     }
 
     /**
@@ -80,38 +71,42 @@ public class SkeletonDebugger extends BatchNode {
      * and no dotted line of inter bones connection will be visible.
      *
      * @param name     the name of the debugger's node
-     * @param skeleton the skeleton that will be shown
+     * @param armature the armature that will be shown
      */
-    public SkeletonDebugger(String name, Skeleton skeleton, boolean guessBonesOrientation) {
+    public ArmatureDebugger(String name, Armature armature, boolean guessJointsOrientation) {
         super(name);
-        this.skeleton = skeleton;
-        skeleton.reset();
-        skeleton.updateWorldVectors();
-        Map<Integer, Float> boneLengths = new HashMap<Integer, Float>();
+        this.armature = armature;
+//        armature.reset();
+        armature.update();
+        //Joints have no length we want to display the as bones so we compute their length
+        Map<Integer, Float> bonesLength = new HashMap<Integer, Float>();
 
-        for (Bone bone : skeleton.getRoots()) {
-            computeLength(bone, boneLengths, skeleton);
+        for (Joint joint : armature.getRoots()) {
+            computeLength(joint, bonesLength, armature);
         }
 
-        bones = new SkeletonBone(skeleton, boneLengths, guessBonesOrientation);
+        bones = new ArmatureBone(armature, bonesLength, guessJointsOrientation);
 
         this.attachChild(bones);
 
-        interBoneWires = new SkeletonInterBoneWire(skeleton, boneLengths, guessBonesOrientation);
-        Geometry g = new Geometry(name + "_interwires", interBoneWires);
-        g.setBatchHint(BatchHint.Never);
-        this.attachChild(g);
+        interJointWires = new ArmatureInterJointsWire(armature, bonesLength, guessJointsOrientation);
+        wires = new Geometry(name + "_interwires", interJointWires);
+        this.attachChild(wires);
     }
 
     protected void initialize(AssetManager assetManager) {
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", new ColorRGBA(0.05f, 0.05f, 0.05f, 1.0f));//new ColorRGBA(0.1f, 0.1f, 0.1f, 1.0f)   
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/fakeLighting.j3md");
+        mat.setColor("Color", new ColorRGBA(0.2f, 0.2f, 0.2f, 1));
         setMaterial(mat);
-        Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat2.setBoolean("VertexColor", true);
-        bones.setMaterial(mat2);
-        batch();
 
+        Material matWires = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        matWires.setColor("Color", ColorRGBA.Black);
+        wires.setMaterial(matWires);
+        //wires.setQueueBucket(RenderQueue.Bucket.Transparent);
+//        Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//        mat2.setBoolean("VertexColor", true);
+//        bones.setMaterial(mat2);
+//        batch();
     }
 
     @Override
@@ -125,29 +120,29 @@ public class SkeletonDebugger extends BatchNode {
         }
     }
 
-    public Skeleton getSkeleton() {
-        return skeleton;
+    public Armature getArmature() {
+        return armature;
     }
 
 
-    private void computeLength(Bone b, Map<Integer, Float> boneLengths, Skeleton skeleton) {
-        if (b.getChildren().isEmpty()) {
-            if (b.getParent() != null) {
-                boneLengths.put(skeleton.getBoneIndex(b), boneLengths.get(skeleton.getBoneIndex(b.getParent())) * 0.75f);
+    private void computeLength(Joint joint, Map<Integer, Float> jointsLength, Armature armature) {
+        if (joint.getChildren().isEmpty()) {
+            if (joint.getParent() != null) {
+                jointsLength.put(armature.getJointIndex(joint), jointsLength.get(armature.getJointIndex(joint.getParent())) * 0.75f);
             } else {
-                boneLengths.put(skeleton.getBoneIndex(b), 0.1f);
+                jointsLength.put(armature.getJointIndex(joint), 0.1f);
             }
         } else {
             float length = Float.MAX_VALUE;
-            for (Bone bone : b.getChildren()) {
-                float len = b.getModelSpacePosition().subtract(bone.getModelSpacePosition()).length();
+            for (Joint child : joint.getChildren()) {
+                float len = joint.getModelTransform().getTranslation().subtract(child.getModelTransform().getTranslation()).length();
                 if (len < length) {
                     length = len;
                 }
             }
-            boneLengths.put(skeleton.getBoneIndex(b), length);
-            for (Bone bone : b.getChildren()) {
-                computeLength(bone, boneLengths, skeleton);
+            jointsLength.put(armature.getJointIndex(joint), length);
+            for (Joint child : joint.getChildren()) {
+                computeLength(child, jointsLength, armature);
             }
         }
     }
@@ -156,17 +151,17 @@ public class SkeletonDebugger extends BatchNode {
     public void updateLogicalState(float tpf) {
         super.updateLogicalState(tpf);
         bones.updateGeometry();
-        if (interBoneWires != null) {
-            interBoneWires.updateGeometry();
+        if (interJointWires != null) {
+            interJointWires.updateGeometry();
         }
     }
 
     ColorRGBA selectedColor = ColorRGBA.Orange;
     ColorRGBA baseColor = new ColorRGBA(0.05f, 0.05f, 0.05f, 1f);
 
-    protected Bone select(Geometry g) {
+    protected Joint select(Geometry g) {
         Node oldNode = bones.getSelectedNode();
-        Bone b = bones.select(g);
+        Joint b = bones.select(g);
         if (b == null) {
             return null;
         }
@@ -178,17 +173,17 @@ public class SkeletonDebugger extends BatchNode {
     }
 
     /**
-     * @return the skeleton wires
+     * @return the armature wires
      */
-    public SkeletonBone getBoneShapes() {
+    public ArmatureBone getBoneShapes() {
         return bones;
     }
 
     /**
      * @return the dotted line between bones (can be null)
      */
-    public SkeletonInterBoneWire getInterBoneWires() {
-        return interBoneWires;
+    public ArmatureInterJointsWire getInterJointWires() {
+        return interJointWires;
     }
 
     protected void markSelected(Node n, boolean selected) {

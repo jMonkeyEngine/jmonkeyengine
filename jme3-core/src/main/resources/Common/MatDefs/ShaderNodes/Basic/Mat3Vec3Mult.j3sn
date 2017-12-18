@@ -1,0 +1,31 @@
+ShaderNodeDefinitions{
+    ShaderNodeDefinition Mat3Vec3Mult {
+        //Vertex/Fragment
+        Type: Vertex
+
+        //Shader GLSL<version>: <Path to shader>
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Basic/Mat3Vec3Mult100.frag
+
+        Documentation{
+            //type documentation here. This is optional but recommended
+
+            //@input <glsltype> <varName> <description>
+            @input mat3 matrix3 the mat3
+            @input vec3 vector3 the vec3
+
+            //@output <glslType> <varName> <description>
+            @output vec3 outVector3 the output vector
+        }
+        Input {
+            //all the node inputs
+            //<glslType> <varName>
+            mat3 matrix3
+            vec3 vector3
+        }
+        Output {
+            //all the node outputs
+            //<glslType> <varName>
+            vec3 outVector3
+        }
+    }
+}
