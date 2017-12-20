@@ -44,6 +44,7 @@ import com.jme3.util.clone.JmeCloneable;
  *
  * @author Nehon
  */
+@Deprecated
 public interface ClonableTrack extends Track, JmeCloneable {
 
     /**

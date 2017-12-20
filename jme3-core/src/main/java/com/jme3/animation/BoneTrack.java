@@ -35,8 +35,12 @@ import com.jme3.export.*;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.util.TempVars;
+<<<<<<< HEAD
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+=======
+
+>>>>>>> Draft of the new animation system
 import java.io.IOException;
 import java.util.BitSet;
 
@@ -44,7 +48,9 @@ import java.util.BitSet;
  * Contains a list of transforms and times for each keyframe.
  * 
  * @author Kirill Vainer
+ * @deprecated use {@link com.jme3.anim.JointTrack}
  */
+@Deprecated
 public final class BoneTrack implements JmeCloneable, Track {
 
     /**

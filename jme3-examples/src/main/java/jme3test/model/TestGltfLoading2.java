@@ -42,10 +42,11 @@ import com.jme3.renderer.Limits;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
-import com.jme3.scene.debug.custom.SkeletonDebugAppState;
 import com.jme3.scene.plugins.gltf.GltfModelKey;
 
 import java.util.*;
+
+//import com.jme3.scene.debug.custom.SkeletonDebugAppState;
 
 public class TestGltfLoading2 extends SimpleApplication {
 
@@ -73,8 +74,8 @@ public class TestGltfLoading2 extends SimpleApplication {
      */
     public void simpleInitApp() {
 
-        SkeletonDebugAppState skeletonDebugAppState = new SkeletonDebugAppState();
-        getStateManager().attach(skeletonDebugAppState);
+//        SkeletonDebugAppState skeletonDebugAppState = new SkeletonDebugAppState();
+//        getStateManager().attach(skeletonDebugAppState);
 
         // cam.setLocation(new Vector3f(4.0339394f, 2.645184f, 6.4627485f));
         // cam.setRotation(new Quaternion(-0.013950467f, 0.98604023f, -0.119502485f, -0.11510504f));
@@ -226,7 +227,7 @@ public class TestGltfLoading2 extends SimpleApplication {
         if (ctrl == null) {
             return;
         }
-        //System.err.println(ctrl.getSkeleton().toString());
+        //System.err.println(ctrl.getArmature().toString());
         //ctrl.setHardwareSkinningPreferred(false);
         // getStateManager().getState(SkeletonDebugAppState.class).addSkeleton(ctrl, true);
 //        AnimControl aCtrl = findControl(s, AnimControl.class);
@@ -234,8 +235,8 @@ public class TestGltfLoading2 extends SimpleApplication {
 //        if (aCtrl == null) {
 //            return;
 //        }
-//        if (aCtrl.getSkeleton() != null) {
-//            getStateManager().getState(SkeletonDebugAppState.class).addSkeleton(aCtrl.getSkeleton(), aCtrl.getSpatial(), true);
+//        if (aCtrl.getArmature() != null) {
+//            getStateManager().getState(SkeletonDebugAppState.class).addSkeleton(aCtrl.getArmature(), aCtrl.getSpatial(), true);
 //        }
 
     }

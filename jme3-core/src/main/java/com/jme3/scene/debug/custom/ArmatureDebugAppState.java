@@ -4,7 +4,7 @@
  */
 package com.jme3.scene.debug.custom;
 
-import com.jme3.animation.*;
+import com.jme3.anim.*;
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
@@ -55,9 +55,9 @@ public class ArmatureDebugAppState extends AbstractAppState {
         debugNode.updateGeometricState();
     }
 
-    public ArmatureDebugger addArmature(ArmatureControl armatureControl, boolean guessJointsOrientation) {
-        Armature armature = armatureControl.getArmature();
-        Spatial forSpatial = armatureControl.getSpatial();
+    public ArmatureDebugger addArmature(SkinningControl skinningControl, boolean guessJointsOrientation) {
+        Armature armature = skinningControl.getArmature();
+        Spatial forSpatial = skinningControl.getSpatial();
         return addArmature(armature, forSpatial, guessJointsOrientation);
     }
 

@@ -31,6 +31,7 @@
  */
 package com.jme3.animation;
 
+import com.jme3.anim.SkinningControl;
 import com.jme3.export.*;
 import com.jme3.material.MatParamOverride;
 import com.jme3.math.FastMath;
@@ -57,7 +58,9 @@ import java.util.logging.Logger;
  * the mesh
  *
  * @author Rémy Bouquet Based on AnimControl by Kirill Vainer
+ * @deprecated use {@link SkinningControl}
  */
+@Deprecated
 public class SkeletonControl extends AbstractControl implements Cloneable, JmeCloneable {
 
     /**

@@ -43,10 +43,11 @@ import com.jme3.renderer.Limits;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
-import com.jme3.scene.debug.custom.SkeletonDebugAppState;
 
 import java.util.ArrayList;
 import java.util.List;
+
+//import com.jme3.scene.debug.custom.SkeletonDebugAppState;
 
 public class TestGltfLoading extends SimpleApplication {
 
@@ -74,8 +75,8 @@ public class TestGltfLoading extends SimpleApplication {
      */
     public void simpleInitApp() {
 
-        SkeletonDebugAppState skeletonDebugAppState = new SkeletonDebugAppState();
-        getStateManager().attach(skeletonDebugAppState);
+//        SkeletonDebugAppState skeletonDebugAppState = new SkeletonDebugAppState();
+//        getStateManager().attach(skeletonDebugAppState);
 
         String folder = System.getProperty("user.home");
         assetManager.registerLocator(folder, FileLocator.class);
@@ -112,7 +113,7 @@ public class TestGltfLoading extends SimpleApplication {
 //        loadModel("Models/gltf/box/box.gltf", Vector3f.ZERO, 1);
 //        loadModel("Models/gltf/duck/Duck.gltf", new Vector3f(0, -1, 0), 1);
 //        loadModel("Models/gltf/damagedHelmet/damagedHelmet.gltf", Vector3f.ZERO, 1);
-//        loadModel("Models/gltf/hornet/scene.gltf", new Vector3f(0, -0.5f, 0), 0.4f);
+        loadModel("Models/gltf/hornet/scene.gltf", new Vector3f(0, -0.5f, 0), 0.4f);
 ////        loadModel("Models/gltf/adamHead/adamHead.gltf", Vector3f.ZERO, 0.6f);
         //      loadModel("Models/gltf/busterDrone/busterDrone.gltf", new Vector3f(0, 0f, 0), 0.8f);
 //        loadModel("Models/gltf/animatedCube/AnimatedCube.gltf", Vector3f.ZERO, 0.5f);
@@ -206,14 +207,14 @@ public class TestGltfLoading extends SimpleApplication {
             return;
         }
         ctrl.setHardwareSkinningPreferred(false);
-        getStateManager().getState(SkeletonDebugAppState.class).addSkeleton(ctrl, true);
+        //getStateManager().getState(SkeletonDebugAppState.class).addSkeleton(ctrl, true);
 //        AnimControl aCtrl = findControl(s, AnimControl.class);
 //        //ctrl.getSpatial().removeControl(ctrl);
 //        if (aCtrl == null) {
 //            return;
 //        }
-//        if (aCtrl.getSkeleton() != null) {
-//            getStateManager().getState(SkeletonDebugAppState.class).addSkeleton(aCtrl.getSkeleton(), aCtrl.getSpatial(), true);
+//        if (aCtrl.getArmature() != null) {
+//            getStateManager().getState(SkeletonDebugAppState.class).addSkeleton(aCtrl.getArmature(), aCtrl.getSpatial(), true);
 //        }
 
     }

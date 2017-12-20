@@ -33,8 +33,8 @@ package com.jme3.scene.debug.custom;
  */
 
 
-import com.jme3.animation.Armature;
-import com.jme3.animation.Joint;
+import com.jme3.anim.Armature;
+import com.jme3.anim.Joint;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;

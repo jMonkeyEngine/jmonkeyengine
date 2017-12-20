@@ -32,7 +32,9 @@ package com.jme3.scene.debug.custom;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.jme3.animation.*;
+import com.jme3.anim.Armature;
+import com.jme3.anim.Joint;
+import com.jme3.animation.Bone;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -91,7 +93,7 @@ public class ArmatureDebugger extends BatchNode {
 
         interJointWires = new ArmatureInterJointsWire(armature, bonesLength, guessJointsOrientation);
         wires = new Geometry(name + "_interwires", interJointWires);
-        this.attachChild(wires);
+        //       this.attachChild(wires);
     }
 
     protected void initialize(AssetManager assetManager) {
@@ -152,7 +154,7 @@ public class ArmatureDebugger extends BatchNode {
         super.updateLogicalState(tpf);
         bones.updateGeometry();
         if (interJointWires != null) {
-            interJointWires.updateGeometry();
+            //        interJointWires.updateGeometry();
         }
     }
 
