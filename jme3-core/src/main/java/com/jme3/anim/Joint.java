@@ -1,4 +1,4 @@
-package com.jme3.animation;
+package com.jme3.anim;
 
 import com.jme3.export.*;
 import com.jme3.material.MatParamOverride;
@@ -23,13 +23,6 @@ public class Joint implements Savable, JmeCloneable {
     private ArrayList<Joint> children = new ArrayList<>();
     private Geometry targetGeometry;
 
-    public Joint() {
-    }
-
-    public Joint(String name) {
-        this.name = name;
-    }
-
     /**
      * The attachment node.
      */
@@ -43,20 +36,28 @@ public class Joint implements Savable, JmeCloneable {
 
     /**
      * The base transform of the joint in local space.
-     * Those transform are the bone's initial value.
+     * Those transform are the joint's initial value.
      */
     private Transform baseLocalTransform = new Transform();
 
     /**
-     * The transform of the bone in model space. Relative to the origin of the model.
+     * The transform of the joint in model space. Relative to the origin of the model.
      */
     private Transform modelTransform = new Transform();
 
     /**
-     * The matrix used to transform affected vertices position into the bone model space.
+     * The matrix used to transform affected vertices position into the joint model space.
      * Used for skinning.
      */
     private Matrix4f inverseModelBindMatrix = new Matrix4f();
+
+
+    public Joint() {
+    }
+
+    public Joint(String name) {
+        this.name = name;
+    }
 
     /**
      * Updates world transforms for this bone and it's children.
@@ -64,8 +65,8 @@ public class Joint implements Savable, JmeCloneable {
     public final void update() {
         this.updateModelTransforms();
 
-        for (int i = children.size() - 1; i >= 0; i--) {
-            children.get(i).update();
+        for (Joint child : children) {
+            child.update();
         }
     }
 
@@ -128,7 +129,7 @@ public class Joint implements Savable, JmeCloneable {
      *
      * @param outTransform
      */
-    void getOffsetTransform(Matrix4f outTransform, Quaternion tmp1, Vector3f tmp2, Vector3f tmp3, Matrix3f tmp4) {
+    void getOffsetTransform(Matrix4f outTransform) {
         modelTransform.toTransformMatrix(outTransform).mult(inverseModelBindMatrix, outTransform);
     }
 
@@ -136,6 +137,19 @@ public class Joint implements Savable, JmeCloneable {
         //Note that the whole Armature must be updated before calling this method.
         modelTransform.toTransformMatrix(inverseModelBindMatrix);
         inverseModelBindMatrix.invertLocal();
+        baseLocalTransform.set(localTransform);
+    }
+
+    protected void resetToBindPose() {
+        localTransform.fromTransformMatrix(inverseModelBindMatrix.invert()); // local = modelBind
+        if (parent != null) {
+            localTransform.combineWithParent(parent.modelTransform.invert()); // local = local Bind
+        }
+        updateModelTransforms();
+
+        for (Joint child : children) {
+            child.resetToBindPose();
+        }
     }
 
     public Vector3f getLocalTranslation() {

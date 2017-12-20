@@ -1,8 +1,7 @@
-package com.jme3.animation;
+package com.jme3.anim;
 
 import com.jme3.export.*;
 import com.jme3.math.Matrix4f;
-import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 
@@ -59,33 +58,6 @@ public class Armature implements JmeCloneable, Savable {
             rootJoint.update();
         }
     }
-
-//
-//    /**
-//     * Special-purpose copy constructor.
-//     * <p>
-//     * Shallow copies bind pose data from the source skeleton, does not
-//     * copy any other data.
-//     *
-//     * @param source The source Skeleton to copy from
-//     */
-//    public Armature(Armature source) {
-//        Joint[] sourceList = source.jointList;
-//        jointList = new Joint[sourceList.length];
-//        for (int i = 0; i < sourceList.length; i++) {
-//            jointList[i] = new Joint(sourceList[i]);
-//        }
-//
-//        rootJoints = new Bone[source.rootJoints.length];
-//        for (int i = 0; i < rootJoints.length; i++) {
-//            rootJoints[i] = recreateBoneStructure(source.rootJoints[i]);
-//        }
-//        createSkinningMatrices();
-//
-//        for (int i = rootJoints.length - 1; i >= 0; i--) {
-//            rootJoints[i].update();
-//        }
-//    }
 
     /**
      * Update all joints sin this Amature.
@@ -176,8 +148,18 @@ public class Armature implements JmeCloneable, Savable {
         //make sure all bones are updated
         update();
         //Save the current pose as bind pose
-        for (Joint rootJoint : rootJoints) {
-            rootJoint.setBindPose();
+        for (Joint joint : jointList) {
+            joint.setBindPose();
+        }
+    }
+
+    /**
+     * This methods sets this armature in its bind pose (aligned with the undeformed mesh)
+     * Note that this is only useful for debugging porpose.
+     */
+    public void resetToBindPose() {
+        for (Joint joint : rootJoints) {
+            joint.resetToBindPose();
         }
     }
 
@@ -187,11 +169,9 @@ public class Armature implements JmeCloneable, Savable {
      * @return
      */
     public Matrix4f[] computeSkinningMatrices() {
-        TempVars vars = TempVars.get();
         for (int i = 0; i < jointList.length; i++) {
-            jointList[i].getOffsetTransform(skinningMatrixes[i], vars.quat1, vars.vect1, vars.vect2, vars.tempMat3);
+            jointList[i].getOffsetTransform(skinningMatrixes[i]);
         }
-        vars.release();
         return skinningMatrixes;
     }
 
@@ -247,5 +227,4 @@ public class Armature implements JmeCloneable, Savable {
         output.write(rootJoints, "rootJoints", null);
         output.write(jointList, "jointList", null);
     }
-
 }

@@ -32,8 +32,8 @@ package com.jme3.scene.debug.custom;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.jme3.animation.Armature;
-import com.jme3.animation.Joint;
+import com.jme3.anim.Armature;
+import com.jme3.anim.Joint;
 import com.jme3.bounding.*;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;

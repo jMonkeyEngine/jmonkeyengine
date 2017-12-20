@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.animation;
+package com.jme3.anim;
 
 import com.jme3.export.*;
 import com.jme3.material.MatParamOverride;
@@ -53,15 +53,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * The Skeleton control deforms a model according to a armature, It handles the
+ * The Skinning control deforms a model according to an armature, It handles the
  * computation of the deformation matrices and performs the transformations on
  * the mesh
+ * <p>
+ * It can perform software skinning or Hardware skinning
  *
- * @author Rémy Bouquet Based on AnimControl by Kirill Vainer
+ * @author Rémy Bouquet Based on SkeletonControl by Kirill Vainer
  */
-public class ArmatureControl extends AbstractControl implements Cloneable, JmeCloneable {
+public class SkinningControl extends AbstractControl implements Cloneable, JmeCloneable {
 
-    private static final Logger logger = Logger.getLogger(ArmatureControl.class.getName());
+    private static final Logger logger = Logger.getLogger(SkinningControl.class.getName());
 
     /**
      * The armature of the model.
@@ -71,7 +73,7 @@ public class ArmatureControl extends AbstractControl implements Cloneable, JmeCl
     /**
      * List of geometries affected by this control.
      */
-    private SafeArrayList<Geometry> targets = new SafeArrayList<Geometry>(Geometry.class);
+    private SafeArrayList<Geometry> targets = new SafeArrayList<>(Geometry.class);
 
     /**
      * Used to track when a mesh was updated. Meshes are only updated if they
@@ -113,16 +115,16 @@ public class ArmatureControl extends AbstractControl implements Cloneable, JmeCl
     /**
      * Serialization only. Do not use.
      */
-    public ArmatureControl() {
+    public SkinningControl() {
     }
 
     /**
      * Creates a armature control. The list of targets will be acquired
      * automatically when the control is attached to a node.
      *
-     * @param skeleton the armature
+     * @param armature the armature
      */
-    public ArmatureControl(Armature armature) {
+    public SkinningControl(Armature armature) {
         if (armature == null) {
             throw new IllegalArgumentException("armature cannot be null");
         }
@@ -283,7 +285,7 @@ public class ArmatureControl extends AbstractControl implements Cloneable, JmeCl
                 if (hwSkinningSupported) {
                     hwSkinningEnabled = true;
 
-                    Logger.getLogger(ArmatureControl.class.getName()).log(Level.INFO, "Hardware skinning engaged for {0}", spatial);
+                    Logger.getLogger(SkinningControl.class.getName()).log(Level.INFO, "Hardware skinning engaged for {0}", spatial);
                 } else {
                     switchToSoftware();
                 }
@@ -308,6 +310,7 @@ public class ArmatureControl extends AbstractControl implements Cloneable, JmeCl
     @Override
     protected void controlUpdate(float tpf) {
         wasMeshUpdated = false;
+        armature.update();
     }
 
     //only do this for software updates
@@ -558,10 +561,9 @@ public class ArmatureControl extends AbstractControl implements Cloneable, JmeCl
      * has additional indexes since tangent has 4 components instead of 3 for
      * pos and norm
      *
-     * @param maxWeightsPerVert maximum number of weights per vertex
-     * @param mesh              the mesh
-     * @param offsetMatrices    the offsetMaytrices to apply
-     * @param tb                the tangent vertexBuffer
+     * @param mesh           the mesh
+     * @param offsetMatrices the offsetMatrices to apply
+     * @param tb             the tangent vertexBuffer
      */
     private void applySkinningTangents(Mesh mesh, Matrix4f[] offsetMatrices, VertexBuffer tb) {
         int maxWeightsPerVert = mesh.getMaxNumWeights();

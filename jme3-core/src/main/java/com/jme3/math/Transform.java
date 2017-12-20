@@ -181,7 +181,8 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
      * @param delta An amount between 0 and 1 representing how far to interpolate from t1 to t2.
      */
     public void interpolateTransforms(Transform t1, Transform t2, float delta) {
-        this.rot.slerp(t1.rot,t2.rot,delta);
+        t1.rot.nlerp(t2.rot, delta);
+        this.rot.set(t1.rot);
         this.translation.interpolateLocal(t1.translation,t2.translation,delta);
         this.scale.interpolateLocal(t1.scale,t2.scale,delta);
     }

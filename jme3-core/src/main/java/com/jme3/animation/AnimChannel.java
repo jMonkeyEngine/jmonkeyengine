@@ -33,6 +33,7 @@ package com.jme3.animation;
 
 import com.jme3.math.FastMath;
 import com.jme3.util.TempVars;
+
 import java.util.BitSet;
 
 /**
@@ -46,6 +47,7 @@ import java.util.BitSet;
  * 
  * @author Kirill Vainer
  */
+@Deprecated
 public final class AnimChannel {
 
     private static final float DEFAULT_BLEND_TIME = 0.15f;

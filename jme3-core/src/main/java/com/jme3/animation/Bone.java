@@ -67,7 +67,9 @@ import java.util.ArrayList;
  *
  * @author Kirill Vainer
  * @author Rémy Bouquet
+ * @deprecated use {@link com.jme3.anim.Joint}
  */
+@Deprecated
 public final class Bone implements Savable, JmeCloneable {
 
     // Version #2: Changed naming of transforms as they were misleading

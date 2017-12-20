@@ -64,7 +64,9 @@ import java.util.Map;
  * 1) Morph/Pose animation
  *
  * @author Kirill Vainer
+ * @deprecated use {@link com.jme3.anim.AnimComposer}
  */
+@Deprecated
 public final class AnimControl extends AbstractControl implements Cloneable, JmeCloneable {
 
     /**
