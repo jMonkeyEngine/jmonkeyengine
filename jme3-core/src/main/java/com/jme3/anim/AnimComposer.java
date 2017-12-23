@@ -4,8 +4,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.control.AbstractControl;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Nehon on 20/12/2017.
@@ -63,6 +62,14 @@ public class AnimComposer extends AbstractControl {
     public void reset() {
         currentAnimClip = null;
         time = 0;
+    }
+
+    public Collection<AnimClip> getAnimClips() {
+        return Collections.unmodifiableCollection(animClipMap.values());
+    }
+
+    public Collection<String> getAnimClipsNames() {
+        return Collections.unmodifiableCollection(animClipMap.keySet());
     }
 
     @Override

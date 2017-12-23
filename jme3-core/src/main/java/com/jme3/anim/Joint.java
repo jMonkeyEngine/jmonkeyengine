@@ -34,11 +34,6 @@ public class Joint implements Savable, JmeCloneable {
      * Or relative to the model's origin for the root joint.
      */
     private Transform localTransform = new Transform();
-    /**
-     * The base transform of the joint in local space.
-     * Those transform are the joint's initial value.
-     */
-    private Transform baseLocalTransform = new Transform();
 
     /**
      * The transform of the joint in model space. Relative to the origin of the model.
@@ -134,7 +129,6 @@ public class Joint implements Savable, JmeCloneable {
         //Note that the whole Armature must be updated before calling this method.
         getModelTransform().toTransformMatrix(inverseModelBindMatrix);
         inverseModelBindMatrix.invertLocal();
-        baseLocalTransform.set(localTransform);
     }
 
     protected void resetToBindPose() {
@@ -267,8 +261,6 @@ public class Joint implements Savable, JmeCloneable {
         this.children = cloner.clone(children);
         this.attachedNode = cloner.clone(attachedNode);
         this.targetGeometry = cloner.clone(targetGeometry);
-
-        this.baseLocalTransform = cloner.clone(baseLocalTransform);
         this.localTransform = cloner.clone(localTransform);
         this.jointModelTransform = cloner.clone(jointModelTransform);
         this.inverseModelBindMatrix = cloner.clone(inverseModelBindMatrix);
@@ -283,8 +275,6 @@ public class Joint implements Savable, JmeCloneable {
         name = input.readString("name", null);
         attachedNode = (Node) input.readSavable("attachedNode", null);
         targetGeometry = (Geometry) input.readSavable("targetGeometry", null);
-        baseLocalTransform = (Transform) input.readSavable("baseLocalTransforms", baseLocalTransform);
-        localTransform.set(baseLocalTransform);
         inverseModelBindMatrix = (Matrix4f) input.readSavable("inverseModelBindMatrix", inverseModelBindMatrix);
         jointModelTransform = (JointModelTransform) input.readSavable("jointModelTransform", null);
 
@@ -301,7 +291,6 @@ public class Joint implements Savable, JmeCloneable {
         output.write(name, "name", null);
         output.write(attachedNode, "attachedNode", null);
         output.write(targetGeometry, "targetGeometry", null);
-        output.write(baseLocalTransform, "baseLocalTransform", new Transform());
         output.write(inverseModelBindMatrix, "inverseModelBindMatrix", new Matrix4f());
         output.writeSavableArrayList(children, "children", null);
         output.write(jointModelTransform, "jointModelTransform", null);
