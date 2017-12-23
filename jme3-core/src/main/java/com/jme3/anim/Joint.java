@@ -33,7 +33,6 @@ public class Joint implements Savable, JmeCloneable {
      * Or relative to the model's origin for the root joint.
      */
     private Transform localTransform = new Transform();
-
     /**
      * The base transform of the joint in local space.
      * Those transform are the joint's initial value.
@@ -44,6 +43,7 @@ public class Joint implements Savable, JmeCloneable {
      * The transform of the joint in model space. Relative to the origin of the model.
      */
     private Transform modelTransform = new Transform();
+    private Matrix4f modelTransformMatrix = new Matrix4f();
 
     /**
      * The matrix used to transform affected vertices position into the joint model space.
@@ -78,10 +78,11 @@ public class Joint implements Savable, JmeCloneable {
      * model transform with this bones' local transform.
      */
     public final void updateModelTransforms() {
-        modelTransform.set(localTransform);
+        localTransform.toTransformMatrix(modelTransformMatrix);
         if (parent != null) {
-            modelTransform.combineWithParent(parent.getModelTransform());
+            parent.modelTransformMatrix.mult(modelTransformMatrix, modelTransformMatrix);
         }
+        modelTransform.fromTransformMatrix(modelTransformMatrix);
 
         updateAttachNode();
     }
@@ -130,21 +131,23 @@ public class Joint implements Savable, JmeCloneable {
      * @param outTransform
      */
     void getOffsetTransform(Matrix4f outTransform) {
-        modelTransform.toTransformMatrix(outTransform).mult(inverseModelBindMatrix, outTransform);
+        outTransform.set(modelTransformMatrix).mult(inverseModelBindMatrix, outTransform);
     }
 
     protected void setBindPose() {
         //Note that the whole Armature must be updated before calling this method.
-        modelTransform.toTransformMatrix(inverseModelBindMatrix);
+        inverseModelBindMatrix.set(modelTransformMatrix);
         inverseModelBindMatrix.invertLocal();
         baseLocalTransform.set(localTransform);
     }
 
     protected void resetToBindPose() {
-        localTransform.fromTransformMatrix(inverseModelBindMatrix.invert()); // local = modelBind
+        //just using modelTransformMatrix as a temp matrix here
+        modelTransformMatrix.set(inverseModelBindMatrix).invertLocal(); // model transform = model bind
         if (parent != null) {
-            localTransform.combineWithParent(parent.modelTransform.invert()); // local = local Bind
+            parent.modelTransformMatrix.invert().mult(modelTransformMatrix, modelTransformMatrix);
         }
+        localTransform.fromTransformMatrix(modelTransformMatrix);
         updateModelTransforms();
 
         for (Joint child : children) {
