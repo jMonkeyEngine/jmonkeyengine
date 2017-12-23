@@ -6,7 +6,6 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
-import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.scene.*;
@@ -37,6 +36,7 @@ public class TestArmature extends SimpleApplication {
         //cam.setFrustumPerspective(90f, (float) cam.getWidth() / cam.getHeight(), 0.01f, 10f);
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
 
+        //create armature
         Joint root = new Joint("Root_Joint");
         j1 = new Joint("Joint_1");
         j2 = new Joint("Joint_2");
@@ -52,9 +52,9 @@ public class TestArmature extends SimpleApplication {
 
         final Armature armature = new Armature(joints);
 //        armature.setModelTransformClass(SeparateJointModelTransform.class);
-
         armature.setBindPose();
 
+        //create animations
         AnimClip clip = new AnimClip("anim");
         float[] times = new float[]{0, 2, 4};
         Quaternion[] rotations = new Quaternion[]{
@@ -83,15 +83,18 @@ public class TestArmature extends SimpleApplication {
         clip.addTrack(track1);
         clip.addTrack(track2);
 
+        //create the animComposer control
         final AnimComposer composer = new AnimComposer();
         composer.addAnimClip(clip);
 
+        //create the SkinningControl
         SkinningControl ac = new SkinningControl(armature);
         ac.setHardwareSkinningPreferred(false);
         Node node = new Node("Test Armature");
 
         rootNode.attachChild(node);
 
+        //Create the mesh to deform.
         Geometry cylinder = new Geometry("cylinder", createMesh());
         Material m = new Material(assetManager, "Common/MatDefs/Misc/fakeLighting.j3md");
         m.setColor("Color", ColorRGBA.randomColor());
@@ -103,13 +106,8 @@ public class TestArmature extends SimpleApplication {
         composer.setCurrentAnimClip("anim");
 
         ArmatureDebugAppState debugAppState = new ArmatureDebugAppState();
-        debugAppState.addArmature(ac);
+        debugAppState.addArmatureFrom(ac);
         stateManager.attach(debugAppState);
-
-        rootNode.addLight(new DirectionalLight(new Vector3f(-1f, -1f, -1f).normalizeLocal()));
-
-        rootNode.addLight(new DirectionalLight(new Vector3f(1f, 1f, 1f).normalizeLocal(), new ColorRGBA(0.7f, 0.7f, 0.7f, 1.0f)));
-
 
         flyCam.setEnabled(false);
 
@@ -132,12 +130,10 @@ public class TestArmature extends SimpleApplication {
             @Override
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (isPressed) {
-                    play = false;
                     composer.reset();
                     armature.resetToBindPose();
 
                 } else {
-                    play = true;
                     composer.setCurrentAnimClip("anim");
                 }
             }
@@ -202,12 +198,10 @@ public class TestArmature extends SimpleApplication {
 
         c.updateCounts();
         c.updateBound();
-        //the mesh has some skinning let's create needed buffers for HW skinning
-        //creating empty buffers for HW skinning
-        //the buffers will be setup if ever used.
+
         VertexBuffer weightsHW = new VertexBuffer(VertexBuffer.Type.HWBoneWeight);
         VertexBuffer indicesHW = new VertexBuffer(VertexBuffer.Type.HWBoneIndex);
-        //setting usage to cpuOnly so that the buffer is not send empty to the GPU
+
         indicesHW.setUsage(VertexBuffer.Usage.CpuOnly);
         weightsHW.setUsage(VertexBuffer.Usage.CpuOnly);
         c.setBuffer(weightsHW);
@@ -220,20 +214,4 @@ public class TestArmature extends SimpleApplication {
     }
 
 
-    float time = 0;
-    boolean play = true;
-
-    @Override
-    public void simpleUpdate(float tpf) {
-
-
-//        if (play == false) {
-//            return;
-//        }
-//        time += tpf;
-//        float rot = FastMath.sin(time);
-//        j1.setLocalRotation(new Quaternion().fromAngleAxis(FastMath.HALF_PI * rot, Vector3f.UNIT_Z));
-//        j2.setLocalRotation(new Quaternion().fromAngleAxis(FastMath.HALF_PI * rot, Vector3f.UNIT_Z));
-
-    }
 }

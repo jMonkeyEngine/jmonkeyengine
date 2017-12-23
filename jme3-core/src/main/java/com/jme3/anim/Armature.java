@@ -169,7 +169,7 @@ public class Armature implements JmeCloneable, Savable {
     }
 
     /**
-     * Saves the current Armature state as it's bind pose.
+     * Saves the current Armature state as its bind pose.
      */
     public void setBindPose() {
         //make sure all bones are updated

@@ -6,8 +6,7 @@ package com.jme3.scene.debug.custom;
 
 import com.jme3.anim.*;
 import com.jme3.app.Application;
-import com.jme3.app.state.AbstractAppState;
-import com.jme3.app.state.AppStateManager;
+import com.jme3.app.state.BaseAppState;
 import com.jme3.collision.CollisionResults;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
@@ -22,15 +21,17 @@ import java.util.*;
 /**
  * @author Nehon
  */
-public class ArmatureDebugAppState extends AbstractAppState {
+public class ArmatureDebugAppState extends BaseAppState {
 
     private Node debugNode = new Node("debugNode");
     private Map<Armature, ArmatureDebugger> armatures = new HashMap<>();
     private Map<Armature, Joint> selectedBones = new HashMap<>();
     private Application app;
+    ViewPort vp;
+
     @Override
-    public void initialize(AppStateManager stateManager, Application app) {
-        ViewPort vp = app.getRenderManager().createMainView("debug", app.getCamera());
+    protected void initialize(Application app) {
+        vp = app.getRenderManager().createMainView("debug", app.getCamera());
         vp.attachScene(debugNode);
         vp.setClearDepth(true);
         this.app = app;
@@ -39,12 +40,26 @@ public class ArmatureDebugAppState extends AbstractAppState {
         }
         app.getInputManager().addListener(actionListener, "shoot");
         app.getInputManager().addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT), new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
-        super.initialize(stateManager, app);
-
 
         debugNode.addLight(new DirectionalLight(new Vector3f(-1f, -1f, -1f).normalizeLocal()));
 
         debugNode.addLight(new DirectionalLight(new Vector3f(1f, 1f, 1f).normalizeLocal(), new ColorRGBA(0.5f, 0.5f, 0.5f, 1.0f)));
+        vp.setEnabled(false);
+    }
+
+    @Override
+    protected void cleanup(Application app) {
+
+    }
+
+    @Override
+    protected void onEnable() {
+        vp.setEnabled(true);
+    }
+
+    @Override
+    protected void onDisable() {
+        vp.setEnabled(false);
     }
 
     @Override
@@ -53,13 +68,13 @@ public class ArmatureDebugAppState extends AbstractAppState {
         debugNode.updateGeometricState();
     }
 
-    public ArmatureDebugger addArmature(SkinningControl skinningControl) {
+    public ArmatureDebugger addArmatureFrom(SkinningControl skinningControl) {
         Armature armature = skinningControl.getArmature();
         Spatial forSpatial = skinningControl.getSpatial();
-        return addArmature(armature, forSpatial);
+        return addArmatureFrom(armature, forSpatial);
     }
 
-    public ArmatureDebugger addArmature(Armature armature, Spatial forSpatial) {
+    public ArmatureDebugger addArmatureFrom(Armature armature, Spatial forSpatial) {
 
         ArmatureDebugger ad = new ArmatureDebugger(forSpatial.getName() + "_Armature", armature);
         ad.setLocalTransform(forSpatial.getWorldTransform());
