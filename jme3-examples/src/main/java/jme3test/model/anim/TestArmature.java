@@ -40,12 +40,15 @@ public class TestArmature extends SimpleApplication {
         Joint root = new Joint("Root_Joint");
         j1 = new Joint("Joint_1");
         j2 = new Joint("Joint_2");
+        Joint j3 = new Joint("Joint_3");
         root.addChild(j1);
         j1.addChild(j2);
+        j2.addChild(j3);
         root.setLocalTranslation(new Vector3f(0, 0, 0.5f));
         j1.setLocalTranslation(new Vector3f(0, 0.0f, -0.5f));
-        j2.setLocalTranslation(new Vector3f(0, 0.0f, -0.2f));
-        Joint[] joints = new Joint[]{root, j1, j2};
+        j2.setLocalTranslation(new Vector3f(0, 0.0f, -0.3f));
+        j3.setLocalTranslation(new Vector3f(0, 0, -0.2f));
+        Joint[] joints = new Joint[]{root, j1, j2, j3};
 
         final Armature armature = new Armature(joints);
         armature.setBindPose();
@@ -64,16 +67,16 @@ public class TestArmature extends SimpleApplication {
         };
         Vector3f[] scales = new Vector3f[]{
                 new Vector3f(1, 1, 1),
-                new Vector3f(2, 2, 2),
+                new Vector3f(1, 1, 2),
                 new Vector3f(1, 1, 1),
         };
         Vector3f[] scales2 = new Vector3f[]{
                 new Vector3f(1, 1, 1),
-                new Vector3f(0.5f, 0.5f, 0.5f),
+                new Vector3f(1, 1, 0.5f),
                 new Vector3f(1, 1, 1),
         };
 
-        JointTrack track1 = new JointTrack(j1, times, null, rotations, null);
+        JointTrack track1 = new JointTrack(j1, times, null, rotations, scales);
         JointTrack track2 = new JointTrack(j2, times, null, rotations, null);
         clip.addTrack(track1);
         clip.addTrack(track2);
@@ -98,7 +101,7 @@ public class TestArmature extends SimpleApplication {
         composer.setCurrentAnimClip("anim");
 
         ArmatureDebugAppState debugAppState = new ArmatureDebugAppState();
-        debugAppState.addArmature(ac, true);
+        debugAppState.addArmature(ac);
         stateManager.attach(debugAppState);
 
         rootNode.addLight(new DirectionalLight(new Vector3f(-1f, -1f, -1f).normalizeLocal()));
