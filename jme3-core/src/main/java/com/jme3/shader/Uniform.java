@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2017 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -348,21 +348,51 @@ public class Uniform extends ShaderVariable {
                 if (value.equals(this.value)) {
                     return;
                 }
-                if (value instanceof ColorRGBA) {
-                    if (this.value == null) {
-                        this.value = new ColorRGBA();
+                if (this.value instanceof ColorRGBA) {
+                    ColorRGBA thisValue = (ColorRGBA) this.value;
+                    if (value instanceof ColorRGBA) {
+                        thisValue.set((ColorRGBA) value);
+                    } else if (value instanceof Quaternion) {
+                        Quaternion q = (Quaternion) value;
+                        thisValue.set(q.getX(), q.getY(), q.getZ(), q.getW());
+                    } else if (value instanceof Vector4f) {
+                        Vector4f v = (Vector4f) value;
+                        thisValue.set(v.x, v.y, v.z, v.w);
                     }
-                    ((ColorRGBA) this.value).set((ColorRGBA) value);
-                } else if (value instanceof Vector4f) {
-                    if (this.value == null) {
-                        this.value = new Vector4f();
+                } else if (this.value instanceof Quaternion) {
+                    Quaternion thisValue = (Quaternion) this.value;
+                    if (value instanceof ColorRGBA) {
+                        ColorRGBA c = (ColorRGBA) value;
+                        thisValue.set(c.r, c.g, c.b, c.a);
+                    } else if (value instanceof Quaternion) {
+                        thisValue.set((Quaternion) value);
+                    } else if (value instanceof Vector4f) {
+                        Vector4f v = (Vector4f) value;
+                        thisValue.set(v.x, v.y, v.z, v.w);
                     }
-                    ((Vector4f) this.value).set((Vector4f) value);
+                } else if (this.value instanceof Vector4f) {
+                    Vector4f thisValue = (Vector4f) this.value;
+                    if (value instanceof ColorRGBA) {
+                        ColorRGBA c = (ColorRGBA) value;
+                        thisValue.set(c.r, c.g, c.b, c.a);
+                    } else if (value instanceof Quaternion) {
+                        Quaternion q = (Quaternion) value;
+                        thisValue.set(q.getX(), q.getY(), q.getZ(), q.getW());
+                    } else if (value instanceof Vector4f) {
+                        thisValue.set((Vector4f) value);
+                    }
                 } else {
-                    if (this.value == null) {
-                        this.value = new Quaternion();
+                    assert this.value == null;
+                    if (value instanceof ColorRGBA) {
+                        ColorRGBA c = (ColorRGBA) value;
+                        this.value = c.clone();
+                    } else if (value instanceof Quaternion) {
+                        Quaternion q = (Quaternion) value;
+                        this.value = q.clone();
+                    } else if (value instanceof Vector4f) {
+                        Vector4f v = (Vector4f) value;
+                        this.value = v.clone();
                     }
-                    ((Quaternion) this.value).set((Quaternion) value);
                 }
                 break;
                 // Only use check if equals optimization for primitive values
