@@ -51,6 +51,8 @@ public class TestArmature extends SimpleApplication {
         Joint[] joints = new Joint[]{root, j1, j2, j3};
 
         final Armature armature = new Armature(joints);
+//        armature.setModelTransformClass(SeparateJointModelTransform.class);
+
         armature.setBindPose();
 
         AnimClip clip = new AnimClip("anim");
