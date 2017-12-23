@@ -1,5 +1,7 @@
 package com.jme3.math;
 
+import com.jme3.util.TempVars;
+
 /**
  * Created by Nehon on 23/04/2017.
  */
@@ -161,5 +163,66 @@ public class MathUtils {
 //        return slerpNoInvert(c, d, 2 * t * (1 - t));
     }
 
+
+    public static float raySegmentShortestDistance(Ray ray, Vector3f segStart, Vector3f segEnd) {
+        // Algorithm is ported from the C algorithm of
+        // Paul Bourke at http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/
+        TempVars vars = TempVars.get();
+        Vector3f resultSegmentPoint1 = vars.vect1;
+        Vector3f resultSegmentPoint2 = vars.vect2;
+
+        Vector3f p1 = segStart;
+        Vector3f p2 = segEnd;
+        Vector3f p3 = ray.origin;
+        Vector3f p4 = vars.vect3.set(ray.getDirection()).multLocal(Math.min(ray.getLimit(), 1000)).addLocal(ray.getOrigin());
+        Vector3f p13 = vars.vect4.set(p1).subtractLocal(p3);
+        Vector3f p43 = vars.vect5.set(p4).subtractLocal(p3);
+
+        if (p43.lengthSquared() < 0.0001) {
+            vars.release();
+            return -1;
+        }
+        Vector3f p21 = vars.vect6.set(p2).subtractLocal(p1);
+        if (p21.lengthSquared() < 0.0001) {
+            vars.release();
+            return -1;
+        }
+
+        double d1343 = p13.x * (double) p43.x + (double) p13.y * p43.y + (double) p13.z * p43.z;
+        double d4321 = p43.x * (double) p21.x + (double) p43.y * p21.y + (double) p43.z * p21.z;
+        double d1321 = p13.x * (double) p21.x + (double) p13.y * p21.y + (double) p13.z * p21.z;
+        double d4343 = p43.x * (double) p43.x + (double) p43.y * p43.y + (double) p43.z * p43.z;
+        double d2121 = p21.x * (double) p21.x + (double) p21.y * p21.y + (double) p21.z * p21.z;
+
+        double denom = d2121 * d4343 - d4321 * d4321;
+        if (Math.abs(denom) < 0.0001) {
+            vars.release();
+            return -1;
+        }
+        double numer = d1343 * d4321 - d1321 * d4343;
+
+        double mua = numer / denom;
+        double mub = (d1343 + d4321 * (mua)) / d4343;
+
+        resultSegmentPoint1.x = (float) (p1.x + mua * p21.x);
+        resultSegmentPoint1.y = (float) (p1.y + mua * p21.y);
+        resultSegmentPoint1.z = (float) (p1.z + mua * p21.z);
+        resultSegmentPoint2.x = (float) (p3.x + mub * p43.x);
+        resultSegmentPoint2.y = (float) (p3.y + mub * p43.y);
+        resultSegmentPoint2.z = (float) (p3.z + mub * p43.z);
+
+        //check if result 1 is in the segment section.
+        float startToPoint = vars.vect3.set(resultSegmentPoint1).subtractLocal(segStart).lengthSquared();
+        float endToPoint = vars.vect3.set(resultSegmentPoint1).subtractLocal(segEnd).lengthSquared();
+        float segLength = vars.vect3.set(segEnd).subtractLocal(segStart).lengthSquared();
+        if (startToPoint > segLength || endToPoint > segLength) {
+            vars.release();
+            return -1;
+        }
+
+        float length = resultSegmentPoint1.subtractLocal(resultSegmentPoint2).length();
+        vars.release();
+        return length;
+    }
 
 }
