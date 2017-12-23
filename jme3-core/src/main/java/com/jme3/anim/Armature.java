@@ -1,5 +1,6 @@
 package com.jme3.anim;
 
+import com.jme3.anim.util.JointModelTransform;
 import com.jme3.export.*;
 import com.jme3.math.Matrix4f;
 import com.jme3.util.clone.Cloner;
@@ -22,7 +23,7 @@ public class Armature implements JmeCloneable, Savable {
      * will cause it to go to the animated position.
      */
     private transient Matrix4f[] skinningMatrixes;
-
+    private Class<? extends JointModelTransform> modelTransformClass = MatrixJointModelTransform.class;
 
     /**
      * Serialization only
@@ -44,9 +45,14 @@ public class Armature implements JmeCloneable, Savable {
 
         List<Joint> rootJointList = new ArrayList<>();
         for (int i = jointList.length - 1; i >= 0; i--) {
-            Joint b = jointList[i];
-            if (b.getParent() == null) {
-                rootJointList.add(b);
+            Joint joint = jointList[i];
+            try {
+                joint.setJointModelTransform(modelTransformClass.newInstance());
+            } catch (InstantiationException | IllegalAccessException e) {
+                throw new IllegalArgumentException(e);
+            }
+            if (joint.getParent() == null) {
+                rootJointList.add(joint);
             }
         }
         rootJoints = rootJointList.toArray(new Joint[rootJointList.size()]);
@@ -72,6 +78,27 @@ public class Armature implements JmeCloneable, Savable {
         skinningMatrixes = new Matrix4f[jointList.length];
         for (int i = 0; i < skinningMatrixes.length; i++) {
             skinningMatrixes[i] = new Matrix4f();
+        }
+    }
+
+    /**
+     * Sets the JointModelTransform implementation
+     * Default is {@link MatrixJointModelTransform}
+     *
+     * @param modelTransformClass
+     * @see {@link JointModelTransform},{@link MatrixJointModelTransform},{@link SeparateJointModelTransform},
+     */
+    public void setModelTransformClass(Class<? extends JointModelTransform> modelTransformClass) {
+        this.modelTransformClass = modelTransformClass;
+        if (jointList == null) {
+            return;
+        }
+        for (Joint joint : jointList) {
+            try {
+                joint.setJointModelTransform(modelTransformClass.newInstance());
+            } catch (InstantiationException | IllegalAccessException e) {
+                throw new IllegalArgumentException(e);
+            }
         }
     }
 
