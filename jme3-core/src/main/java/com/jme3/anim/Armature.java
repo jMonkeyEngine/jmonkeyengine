@@ -1,6 +1,7 @@
 package com.jme3.anim;
 
 import com.jme3.anim.util.JointModelTransform;
+import com.jme3.asset.AssetLoadException;
 import com.jme3.export.*;
 import com.jme3.math.Matrix4f;
 import com.jme3.util.clone.Cloner;
@@ -46,11 +47,7 @@ public class Armature implements JmeCloneable, Savable {
         List<Joint> rootJointList = new ArrayList<>();
         for (int i = jointList.length - 1; i >= 0; i--) {
             Joint joint = jointList[i];
-            try {
-                joint.setJointModelTransform(modelTransformClass.newInstance());
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new IllegalArgumentException(e);
-            }
+            instanciateJointModelTransform(joint);
             if (joint.getParent() == null) {
                 rootJointList.add(joint);
             }
@@ -94,11 +91,15 @@ public class Armature implements JmeCloneable, Savable {
             return;
         }
         for (Joint joint : jointList) {
-            try {
-                joint.setJointModelTransform(modelTransformClass.newInstance());
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new IllegalArgumentException(e);
-            }
+            instanciateJointModelTransform(joint);
+        }
+    }
+
+    private void instanciateJointModelTransform(Joint joint) {
+        try {
+            joint.setJointModelTransform(modelTransformClass.newInstance());
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -226,6 +227,9 @@ public class Armature implements JmeCloneable, Savable {
         this.rootJoints = cloner.clone(rootJoints);
         this.jointList = cloner.clone(jointList);
         this.skinningMatrixes = cloner.clone(skinningMatrixes);
+        for (Joint joint : jointList) {
+            instanciateJointModelTransform(joint);
+        }
     }
 
 
@@ -241,11 +245,22 @@ public class Armature implements JmeCloneable, Savable {
         jointList = new Joint[jointListAsSavable.length];
         System.arraycopy(jointListAsSavable, 0, jointList, 0, jointListAsSavable.length);
 
+        String className = input.readString("modelTransformClass", MatrixJointModelTransform.class.getCanonicalName());
+        try {
+            modelTransformClass = (Class<? extends JointModelTransform>) Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new AssetLoadException("Cannnot find class for name " + className);
+        }
+
+        for (Joint joint : jointList) {
+            instanciateJointModelTransform(joint);
+        }
         createSkinningMatrices();
 
         for (Joint rootJoint : rootJoints) {
             rootJoint.update();
         }
+        resetToBindPose();
     }
 
     @Override
@@ -253,5 +268,6 @@ public class Armature implements JmeCloneable, Savable {
         OutputCapsule output = ex.getCapsule(this);
         output.write(rootJoints, "rootJoints", null);
         output.write(jointList, "jointList", null);
+        output.write(modelTransformClass.getCanonicalName(), "modelTransformClass", MatrixJointModelTransform.class.getCanonicalName());
     }
 }

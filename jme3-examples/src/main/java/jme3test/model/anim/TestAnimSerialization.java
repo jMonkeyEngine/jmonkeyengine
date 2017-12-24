@@ -5,6 +5,8 @@ import com.jme3.anim.SkinningControl;
 import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.asset.plugins.FileLocator;
+import com.jme3.export.binary.BinaryExporter;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -14,22 +16,26 @@ import com.jme3.math.*;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.custom.ArmatureDebugAppState;
+import com.jme3.system.JmeSystem;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
 /**
  * Created by Nehon on 18/12/2017.
  */
-public class TestAnimMigration extends SimpleApplication {
+public class TestAnimSerialization extends SimpleApplication {
 
     ArmatureDebugAppState debugAppState;
     AnimComposer composer;
     Queue<String> anims = new LinkedList<>();
     boolean playAnim = true;
+    File file;
 
     public static void main(String... argv) {
-        TestAnimMigration app = new TestAnimMigration();
+        TestAnimSerialization app = new TestAnimSerialization();
         app.start();
     }
 
@@ -41,18 +47,26 @@ public class TestAnimMigration extends SimpleApplication {
         rootNode.addLight(new DirectionalLight(new Vector3f(-1, -1, -1).normalizeLocal()));
         rootNode.addLight(new AmbientLight(ColorRGBA.DarkGray));
 
-        //Spatial model = assetManager.loadModel("Models/Jaime/Jaime.j3o");
-        //Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-        Spatial model = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
-        //Spatial model = assetManager.loadModel("Models/Elephant/Elephant.mesh.xml");
+        Spatial model = assetManager.loadModel("Models/Jaime/Jaime.j3o");
 
         AnimMigrationUtils.migrate(model);
 
+        File storageFolder = JmeSystem.getStorageFolder();
+        file = new File(storageFolder.getPath() + File.separator + "newJaime.j3o");
+        BinaryExporter be = new BinaryExporter();
+        try {
+            be.save(model, file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        assetManager.registerLocator(storageFolder.getPath(), FileLocator.class);
+        model = assetManager.loadModel("newJaime.j3o");
+
         rootNode.attachChild(model);
 
-
         debugAppState = new ArmatureDebugAppState();
-        //stateManager.attach(debugAppState);
+        stateManager.attach(debugAppState);
 
         setupModel(model);
 
@@ -118,8 +132,8 @@ public class TestAnimMigration extends SimpleApplication {
         if (composer != null) {
 
             SkinningControl sc = model.getControl(SkinningControl.class);
-            debugAppState.addArmatureFrom(sc);
 
+            debugAppState.addArmatureFrom(sc);
             anims.clear();
             for (String name : composer.getAnimClipsNames()) {
                 anims.add(name);
@@ -143,5 +157,12 @@ public class TestAnimMigration extends SimpleApplication {
             }
         }
 
+    }
+
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        file.delete();
     }
 }

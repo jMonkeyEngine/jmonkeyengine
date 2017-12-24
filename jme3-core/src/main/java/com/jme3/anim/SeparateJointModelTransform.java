@@ -1,12 +1,8 @@
 package com.jme3.anim;
 
 import com.jme3.anim.util.JointModelTransform;
-import com.jme3.export.*;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Transform;
-import com.jme3.util.clone.Cloner;
-
-import java.io.IOException;
 
 /**
  * This JointModelTransform implementation accumulates model transform in a Transform class
@@ -33,8 +29,7 @@ public class SeparateJointModelTransform implements JointModelTransform {
 
     @Override
     public void applyBindPose(Transform localTransform, Matrix4f inverseModelBindMatrix, Joint parent) {
-        localTransform.fromTransformMatrix(inverseModelBindMatrix);
-        localTransform.invert(); //model transform
+        localTransform.fromTransformMatrix(inverseModelBindMatrix.invert());
         if (parent != null) {
             localTransform.combineWithParent(parent.getModelTransform().invert());
         }
@@ -45,30 +40,4 @@ public class SeparateJointModelTransform implements JointModelTransform {
         return modelTransform;
     }
 
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = ex.getCapsule(this);
-        oc.write(modelTransform, "modelTransform", new Transform());
-    }
-
-    @Override
-    public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = im.getCapsule(this);
-        modelTransform = (Transform) ic.readSavable("modelTransform", new Transform());
-    }
-
-    @Override
-    public Object jmeClone() {
-        try {
-            SeparateJointModelTransform clone = (SeparateJointModelTransform) super.clone();
-            return clone;
-        } catch (CloneNotSupportedException ex) {
-            throw new AssertionError();
-        }
-    }
-
-    @Override
-    public void cloneFields(Cloner cloner, Object original) {
-        modelTransform = modelTransform.clone();
-    }
 }

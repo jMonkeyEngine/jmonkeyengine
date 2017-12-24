@@ -105,7 +105,7 @@ public class AnimClip implements Tween, JmeCloneable, Savable {
         if (arr != null) {
             tracks = new SafeArrayList<>(Tween.class);
             for (Savable savable : arr) {
-                tracks.add((Tween) savable);
+                addTrack((Tween) savable);
             }
         }
     }

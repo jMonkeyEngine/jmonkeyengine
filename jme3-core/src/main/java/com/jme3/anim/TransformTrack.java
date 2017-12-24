@@ -307,6 +307,7 @@ public abstract class TransformTrack implements Tween, JmeCloneable, Savable {
         rotations = (CompactQuaternionArray) ic.readSavable("rotations", null);
         times = ic.readFloatArray("times", null);
         scales = (CompactVector3Array) ic.readSavable("scales", null);
+        setTimes(times);
     }
 
     @Override
@@ -322,23 +323,33 @@ public abstract class TransformTrack implements Tween, JmeCloneable, Savable {
     public void cloneFields(Cloner cloner, Object original) {
         int tablesLength = times.length;
 
-        times = this.times.clone();
-        Vector3f[] sourceTranslations = this.getTranslations();
-        Quaternion[] sourceRotations = this.getRotations();
-        Vector3f[] sourceScales = this.getScales();
-
-        Vector3f[] translations = new Vector3f[tablesLength];
-        Quaternion[] rotations = new Quaternion[tablesLength];
-        Vector3f[] scales = new Vector3f[tablesLength];
-        for (int i = 0; i < tablesLength; ++i) {
-            translations[i] = sourceTranslations[i].clone();
-            rotations[i] = sourceRotations[i].clone();
-            scales[i] = sourceScales != null ? sourceScales[i].clone() : new Vector3f(1.0f, 1.0f, 1.0f);
+        setTimes(this.times.clone());
+        if (translations != null) {
+            Vector3f[] sourceTranslations = this.getTranslations();
+            Vector3f[] translations = new Vector3f[tablesLength];
+            for (int i = 0; i < tablesLength; ++i) {
+                translations[i] = sourceTranslations[i].clone();
+            }
+            setKeyframesTranslation(translations);
+        }
+        if (rotations != null) {
+            Quaternion[] sourceRotations = this.getRotations();
+            Quaternion[] rotations = new Quaternion[tablesLength];
+            for (int i = 0; i < tablesLength; ++i) {
+                rotations[i] = sourceRotations[i].clone();
+            }
+            setKeyframesRotation(rotations);
         }
 
-        setKeyframesTranslation(translations);
-        setKeyframesScale(scales);
-        setKeyframesRotation(rotations);
+        if (scales != null) {
+            Vector3f[] sourceScales = this.getScales();
+            Vector3f[] scales = new Vector3f[tablesLength];
+            for (int i = 0; i < tablesLength; ++i) {
+                scales[i] = sourceScales[i].clone();
+            }
+            setKeyframesScale(scales);
+        }
+
         setFrameInterpolator(this.interpolator);
     }
 }
