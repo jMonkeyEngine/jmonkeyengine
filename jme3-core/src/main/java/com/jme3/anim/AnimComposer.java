@@ -1,9 +1,12 @@
 package com.jme3.anim;
 
+import com.jme3.export.*;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.control.AbstractControl;
+import com.jme3.util.clone.Cloner;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -86,5 +89,39 @@ public class AnimComposer extends AbstractControl {
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
 
+    }
+
+    @Override
+    public Object jmeClone() {
+        try {
+            AnimComposer clone = (AnimComposer) super.clone();
+            return clone;
+        } catch (CloneNotSupportedException ex) {
+            throw new AssertionError();
+        }
+    }
+
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        super.cloneFields(cloner, original);
+        Map<String, AnimClip> clips = new HashMap<>();
+        for (String key : animClipMap.keySet()) {
+            clips.put(key, cloner.clone(animClipMap.get(key)));
+        }
+        animClipMap = clips;
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule ic = im.getCapsule(this);
+        animClipMap = (Map<String, AnimClip>) ic.readStringSavableMap("animClipMap", new HashMap<String, AnimClip>());
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.writeStringSavableMap(animClipMap, "animClipMap", new HashMap<String, AnimClip>());
     }
 }

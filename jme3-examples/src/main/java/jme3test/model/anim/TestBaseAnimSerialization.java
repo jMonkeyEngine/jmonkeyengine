@@ -3,6 +3,8 @@ package jme3test.model.anim;
 import com.jme3.anim.*;
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.asset.plugins.FileLocator;
+import com.jme3.export.binary.BinaryExporter;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -11,21 +13,26 @@ import com.jme3.math.*;
 import com.jme3.scene.*;
 import com.jme3.scene.debug.custom.ArmatureDebugAppState;
 import com.jme3.scene.shape.Cylinder;
-import com.jme3.util.TangentBinormalGenerator;
+import com.jme3.system.JmeSystem;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
 /**
  * Created by Nehon on 18/12/2017.
  */
-public class TestArmature extends SimpleApplication {
+public class TestBaseAnimSerialization extends SimpleApplication {
 
     Joint j1;
     Joint j2;
+    AnimComposer composer;
+    Armature armature;
+    File file;
 
     public static void main(String... argv) {
-        TestArmature app = new TestArmature();
+        TestBaseAnimSerialization app = new TestBaseAnimSerialization();
         app.start();
     }
 
@@ -50,7 +57,7 @@ public class TestArmature extends SimpleApplication {
         j3.setLocalTranslation(new Vector3f(0, 0, -0.2f));
         Joint[] joints = new Joint[]{root, j1, j2, j3};
 
-        final Armature armature = new Armature(joints);
+        armature = new Armature(joints);
         //armature.setModelTransformClass(SeparateJointModelTransform.class);
         armature.setBindPose();
 
@@ -84,15 +91,12 @@ public class TestArmature extends SimpleApplication {
         clip.addTrack(track2);
 
         //create the animComposer control
-        final AnimComposer composer = new AnimComposer();
+        composer = new AnimComposer();
         composer.addAnimClip(clip);
 
         //create the SkinningControl
         SkinningControl ac = new SkinningControl(armature);
-        ac.setHardwareSkinningPreferred(false);
         Node node = new Node("Test Armature");
-
-        rootNode.attachChild(node);
 
         //Create the mesh to deform.
         Geometry cylinder = new Geometry("cylinder", createMesh());
@@ -103,6 +107,24 @@ public class TestArmature extends SimpleApplication {
         node.addControl(composer);
         node.addControl(ac);
 
+        File storageFolder = JmeSystem.getStorageFolder();
+        file = new File(storageFolder.getPath() + File.separator + "test.j3o");
+        BinaryExporter be = new BinaryExporter();
+        try {
+            be.save(node, file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        assetManager.registerLocator(storageFolder.getPath(), FileLocator.class);
+        Node newNode = (Node) assetManager.loadModel("test.j3o");
+
+        rootNode.attachChild(newNode);
+
+        composer = newNode.getControl(AnimComposer.class);
+        ac = newNode.getControl(SkinningControl.class);
+        ac.setHardwareSkinningPreferred(false);
+        armature = ac.getArmature();
         composer.setCurrentAnimClip("anim");
 
         ArmatureDebugAppState debugAppState = new ArmatureDebugAppState();
@@ -138,32 +160,6 @@ public class TestArmature extends SimpleApplication {
                 }
             }
         }, "bind");
-    }
-
-
-    private void displayNormals(Spatial s) {
-        final Node debugTangents = new Node("debug tangents");
-        debugTangents.setCullHint(Spatial.CullHint.Never);
-
-        rootNode.attachChild(debugTangents);
-
-        final Material debugMat = assetManager.loadMaterial("Common/Materials/VertexColor.j3m");
-        debugMat.getAdditionalRenderState().setLineWidth(2);
-
-        s.depthFirstTraversal(new SceneGraphVisitorAdapter() {
-            @Override
-            public void visit(Geometry g) {
-                Mesh m = g.getMesh();
-                Geometry debug = new Geometry(
-                        "debug tangents geom",
-                        TangentBinormalGenerator.genNormalLines(m, 0.1f)
-                );
-                debug.setMaterial(debugMat);
-                debug.setCullHint(Spatial.CullHint.Never);
-                debug.setLocalTransform(g.getWorldTransform());
-                debugTangents.attachChild(debug);
-            }
-        });
     }
 
     private Mesh createMesh() {
@@ -213,5 +209,9 @@ public class TestArmature extends SimpleApplication {
         return c;
     }
 
-
+    @Override
+    public void destroy() {
+        super.destroy();
+        file.delete();
+    }
 }

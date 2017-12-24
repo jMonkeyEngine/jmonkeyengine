@@ -259,10 +259,10 @@ public class Joint implements Savable, JmeCloneable {
     @Override
     public void cloneFields(Cloner cloner, Object original) {
         this.children = cloner.clone(children);
+        this.parent = cloner.clone(parent);
         this.attachedNode = cloner.clone(attachedNode);
         this.targetGeometry = cloner.clone(targetGeometry);
         this.localTransform = cloner.clone(localTransform);
-        this.jointModelTransform = cloner.clone(jointModelTransform);
         this.inverseModelBindMatrix = cloner.clone(inverseModelBindMatrix);
     }
 
@@ -276,7 +276,6 @@ public class Joint implements Savable, JmeCloneable {
         attachedNode = (Node) input.readSavable("attachedNode", null);
         targetGeometry = (Geometry) input.readSavable("targetGeometry", null);
         inverseModelBindMatrix = (Matrix4f) input.readSavable("inverseModelBindMatrix", inverseModelBindMatrix);
-        jointModelTransform = (JointModelTransform) input.readSavable("jointModelTransform", null);
 
         ArrayList<Joint> childList = input.readSavableArrayList("children", null);
         for (int i = childList.size() - 1; i >= 0; i--) {
@@ -293,7 +292,6 @@ public class Joint implements Savable, JmeCloneable {
         output.write(targetGeometry, "targetGeometry", null);
         output.write(inverseModelBindMatrix, "inverseModelBindMatrix", new Matrix4f());
         output.writeSavableArrayList(children, "children", null);
-        output.write(jointModelTransform, "jointModelTransform", null);
     }
 
 }
