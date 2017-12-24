@@ -33,6 +33,7 @@ package com.jme3.anim;
 
 import com.jme3.export.*;
 import com.jme3.math.*;
+import com.jme3.scene.Spatial;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 
@@ -43,27 +44,27 @@ import java.io.IOException;
  *
  * @author Rémy Bouquet
  */
-public final class JointTrack extends TransformTrack implements JmeCloneable, Savable {
+public final class SpatialTrack extends TransformTrack implements JmeCloneable, Savable {
 
-    private Joint target;
+    private Spatial target;
 
     /**
      * Serialization-only. Do not use.
      */
-    public JointTrack() {
+    public SpatialTrack() {
         super();
     }
 
     /**
-     * Creates a joint track for the given joint index
+     * Creates a spatial track for the given Spatial
      *
-     * @param target       The Joint target of this track
+     * @param target       The Spatial target of this track
      * @param times        a float array with the time of each frame
      * @param translations the translation of the bone for each frame
      * @param rotations    the rotation of the bone for each frame
      * @param scales       the scale of the bone for each frame
      */
-    public JointTrack(Joint target, float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
+    public SpatialTrack(Spatial target, float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
         super(times, translations, rotations, scales);
         this.target = target;
     }
@@ -77,7 +78,7 @@ public final class JointTrack extends TransformTrack implements JmeCloneable, Sa
         return running;
     }
 
-    public void setTarget(Joint target) {
+    public void setTarget(Spatial target) {
         this.target = target;
     }
 
@@ -107,7 +108,7 @@ public final class JointTrack extends TransformTrack implements JmeCloneable, Sa
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        target = (Joint) ic.readSavable("target", null);
+        target = (Spatial) ic.readSavable("target", null);
     }
 
 }

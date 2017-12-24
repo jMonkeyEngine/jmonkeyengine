@@ -31,7 +31,8 @@
  */
 package jme3test.model;
 
-import com.jme3.animation.*;
+import com.jme3.anim.AnimComposer;
+import com.jme3.anim.SkinningControl;
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.FileLocator;
@@ -43,11 +44,10 @@ import com.jme3.renderer.Limits;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
+import com.jme3.scene.debug.custom.ArmatureDebugAppState;
+import com.jme3.scene.plugins.gltf.GltfModelKey;
 
-import java.util.ArrayList;
-import java.util.List;
-
-//import com.jme3.scene.debug.custom.SkeletonDebugAppState;
+import java.util.*;
 
 public class TestGltfLoading extends SimpleApplication {
 
@@ -75,8 +75,8 @@ public class TestGltfLoading extends SimpleApplication {
      */
     public void simpleInitApp() {
 
-//        SkeletonDebugAppState skeletonDebugAppState = new SkeletonDebugAppState();
-//        getStateManager().attach(skeletonDebugAppState);
+        ArmatureDebugAppState armatureDebugappState = new ArmatureDebugAppState();
+        getStateManager().attach(armatureDebugappState);
 
         String folder = System.getProperty("user.home");
         assetManager.registerLocator(folder, FileLocator.class);
@@ -109,28 +109,40 @@ public class TestGltfLoading extends SimpleApplication {
 //        rootNode.addLight(pl);
 //        PointLight pl1 = new PointLight(new Vector3f(-5.0f, -5.0f, -5.0f), ColorRGBA.White.mult(0.5f), 50);
 //        rootNode.addLight(pl1);
-
+        //loadModel("Models/gltf/nier/scene.gltf", new Vector3f(0, -1.5f, 0), 0.01f);
+        //loadModel("Models/gltf/izzy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
+        //loadModel("Models/gltf/darth/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
+        //loadModel("Models/gltf/mech/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
+        //loadModel("Models/gltf/elephant/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
+        //loadModel("Models/gltf/buffalo/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
+        //loadModel("Models/gltf/war/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
+        //loadModel("Models/gltf/ganjaarl/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
+        //loadModel("Models/gltf/hero/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
+        //loadModel("Models/gltf/mercy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
+        //loadModel("Models/gltf/crab/scene.gltf", Vector3f.ZERO, 1);
+        //loadModel("Models/gltf/manta/scene.gltf", Vector3f.ZERO, 0.2f);
+//        loadModel("Models/gltf/bone/scene.gltf", Vector3f.ZERO, 0.1f);
 //        loadModel("Models/gltf/box/box.gltf", Vector3f.ZERO, 1);
 //        loadModel("Models/gltf/duck/Duck.gltf", new Vector3f(0, -1, 0), 1);
 //        loadModel("Models/gltf/damagedHelmet/damagedHelmet.gltf", Vector3f.ZERO, 1);
-        loadModel("Models/gltf/hornet/scene.gltf", new Vector3f(0, -0.5f, 0), 0.4f);
+//        loadModel("Models/gltf/hornet/scene.gltf", new Vector3f(0, -0.5f, 0), 0.4f);
 ////        loadModel("Models/gltf/adamHead/adamHead.gltf", Vector3f.ZERO, 0.6f);
-        //      loadModel("Models/gltf/busterDrone/busterDrone.gltf", new Vector3f(0, 0f, 0), 0.8f);
+        //loadModel("Models/gltf/busterDrone/busterDrone.gltf", new Vector3f(0, 0f, 0), 0.8f);
 //        loadModel("Models/gltf/animatedCube/AnimatedCube.gltf", Vector3f.ZERO, 0.5f);
 //
-//        //loadModel("Models/gltf/BoxAnimated/BoxAnimated.gltf", new Vector3f(0, 0f, 0), 0.8f);
+        //loadModel("Models/gltf/BoxAnimated/BoxAnimated.gltf", new Vector3f(0, 0f, 0), 0.8f);
 //
-//        loadModel("Models/gltf/RiggedFigure/RiggedSimple.gltf", new Vector3f(0, -0.3f, 0), 0.2f);
+        //loadModel("Models/gltf/RiggedFigure/RiggedSimple.gltf", new Vector3f(0, -0.3f, 0), 0.2f);
         //loadModel("Models/gltf/RiggedFigure/RiggedFigure.gltf", new Vector3f(0, -1f, 0), 1f);
         //loadModel("Models/gltf/CesiumMan/CesiumMan.gltf", new Vector3f(0, -1, 0), 1f);
         //loadModel("Models/gltf/BrainStem/BrainStem.gltf", new Vector3f(0, -1, 0), 1f);
         //loadModel("Models/gltf/Jaime/Jaime.gltf", new Vector3f(0, -1, 0), 1f);
-//        loadModel("Models/gltf/GiantWorm/GiantWorm.gltf", new Vector3f(0, -1, 0), 1f);
-//        //loadModel("Models/gltf/RiggedFigure/WalkingLady.gltf", new Vector3f(0, -0.f, 0), 1f);
-//        loadModel("Models/gltf/Monster/Monster.gltf", Vector3f.ZERO, 0.03f);
+        // loadModel("Models/gltf/GiantWorm/GiantWorm.gltf", new Vector3f(0, -1, 0), 1f);
+        //loadModel("Models/gltf/RiggedFigure/WalkingLady.gltf", new Vector3f(0, -0.f, 0), 1f);
+        //loadModel("Models/gltf/Monster/Monster.gltf", Vector3f.ZERO, 0.03f);
 
 //        loadModel("Models/gltf/corset/Corset.gltf", new Vector3f(0, -1, 0), 20f);
-        loadModel("Models/gltf/boxInter/BoxInterleaved.gltf", new Vector3f(0, 0, 0), 1f);
+        //    loadModel("Models/gltf/boxInter/BoxInterleaved.gltf", new Vector3f(0, 0, 0), 1f);
 
 
         probeNode.attachChild(assets.get(0));
@@ -157,6 +169,7 @@ public class TestGltfLoading extends SimpleApplication {
         }, "autorotate");
 
         inputManager.addMapping("toggleAnim", new KeyTrigger(KeyInput.KEY_RETURN));
+
         inputManager.addListener(new ActionListener() {
             @Override
             public void onAction(String name, boolean isPressed, float tpf) {
@@ -170,6 +183,17 @@ public class TestGltfLoading extends SimpleApplication {
                 }
             }
         }, "toggleAnim");
+        inputManager.addMapping("nextAnim", new KeyTrigger(KeyInput.KEY_RIGHT));
+        inputManager.addListener(new ActionListener() {
+            @Override
+            public void onAction(String name, boolean isPressed, float tpf) {
+                if (isPressed && composer != null) {
+                    String anim = anims.poll();
+                    anims.add(anim);
+                    composer.setCurrentAnimClip(anim);
+                }
+            }
+        }, "nextAnim");
 
         dumpScene(rootNode, 0);
     }
@@ -192,7 +216,9 @@ public class TestGltfLoading extends SimpleApplication {
     }
 
     private void loadModel(String path, Vector3f offset, float scale) {
-        Spatial s = assetManager.loadModel(path);
+        GltfModelKey k = new GltfModelKey(path);
+        //k.setKeepSkeletonPose(true);
+        Spatial s = assetManager.loadModel(k);
         s.scale(scale);
         s.move(offset);
         assets.add(s);
@@ -200,14 +226,15 @@ public class TestGltfLoading extends SimpleApplication {
             playFirstAnim(s);
         }
 
-        SkeletonControl ctrl = findControl(s, SkeletonControl.class);
+        SkinningControl ctrl = findControl(s, SkinningControl.class);
 
-//        //ctrl.getSpatial().removeControl(ctrl);
+        //  ctrl.getSpatial().removeControl(ctrl);
         if (ctrl == null) {
             return;
         }
-        ctrl.setHardwareSkinningPreferred(false);
-        //getStateManager().getState(SkeletonDebugAppState.class).addSkeleton(ctrl, true);
+        //System.err.println(ctrl.getArmature().toString());
+        //ctrl.setHardwareSkinningPreferred(false);
+        getStateManager().getState(ArmatureDebugAppState.class).addArmatureFrom(ctrl);
 //        AnimControl aCtrl = findControl(s, AnimControl.class);
 //        //ctrl.getSpatial().removeControl(ctrl);
 //        if (aCtrl == null) {
@@ -219,17 +246,24 @@ public class TestGltfLoading extends SimpleApplication {
 
     }
 
+    Queue<String> anims = new LinkedList<>();
+    AnimComposer composer;
+
     private void playFirstAnim(Spatial s) {
 
-        AnimControl control = s.getControl(AnimControl.class);
+        AnimComposer control = s.getControl(AnimComposer.class);
         if (control != null) {
-//            if (control.getAnimationNames().size() > 0) {
-//                control.createChannel().setAnim(control.getAnimationNames().iterator().next());
-//            }
-            for (String name : control.getAnimationNames()) {
-                control.createChannel().setAnim(name);
+            anims.clear();
+            for (String name : control.getAnimClipsNames()) {
+                anims.add(name);
             }
-
+            if (anims.isEmpty()) {
+                return;
+            }
+            String anim = anims.poll();
+            anims.add(anim);
+            control.setCurrentAnimClip(anim);
+            composer = control;
         }
         if (s instanceof Node) {
             Node n = (Node) s;
@@ -241,17 +275,9 @@ public class TestGltfLoading extends SimpleApplication {
 
     private void stopAnim(Spatial s) {
 
-        AnimControl control = s.getControl(AnimControl.class);
+        AnimComposer control = s.getControl(AnimComposer.class);
         if (control != null) {
-            for (int i = 0; i < control.getNumChannels(); i++) {
-                AnimChannel ch = control.getChannel(i);
-                ch.reset(true);
-            }
-            control.clearChannels();
-            if (control.getSkeleton() != null) {
-                control.getSkeleton().reset();
-            }
-
+            control.reset();
         }
         if (s instanceof Node) {
             Node n = (Node) s;
