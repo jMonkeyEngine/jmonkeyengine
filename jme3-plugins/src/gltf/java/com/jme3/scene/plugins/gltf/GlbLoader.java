@@ -22,9 +22,6 @@ public class GlbLoader extends GltfLoader {
         int magic = stream.readInt();
         int version = stream.readInt();
         int length = stream.readInt();
-        System.err.println(magic == GLTF_MAGIC ? "gltf" : "no no no");
-        System.err.println(version);
-        System.err.println(length);
 
         byte[] json = null;
 
@@ -37,7 +34,6 @@ public class GlbLoader extends GltfLoader {
             if (chunkType == JSON_TYPE) {
                 json = new byte[chunkLength];
                 stream.read(json);
-                System.err.println(new String(json));
             } else {
                 byte[] bin = new byte[chunkLength];
                 stream.read(bin);
