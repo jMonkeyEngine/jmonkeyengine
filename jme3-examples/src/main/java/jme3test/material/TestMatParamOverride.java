@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2017 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,8 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.MatParamOverride;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector4f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.shader.VarType;
@@ -50,7 +52,15 @@ import com.jme3.shader.VarType;
 public class TestMatParamOverride extends SimpleApplication {
 
     private Box box = new Box(1, 1, 1);
-    private MatParamOverride override = new MatParamOverride(VarType.Vector4, "Color", ColorRGBA.Yellow);
+    final MatParamOverride overrideYellow
+            = new MatParamOverride(VarType.Vector4, "Color",
+                    ColorRGBA.Yellow);
+    final MatParamOverride overrideWhite
+            = new MatParamOverride(VarType.Vector4, "Color",
+                    Vector4f.UNIT_XYZW);
+    final MatParamOverride overrideGray
+            = new MatParamOverride(VarType.Vector4, "Color",
+                    new Quaternion(0.5f, 0.5f, 0.5f, 1f));
 
     public static void main(String[] args) {
         TestMatParamOverride app = new TestMatParamOverride();
@@ -74,19 +84,30 @@ public class TestMatParamOverride extends SimpleApplication {
         createBox(0, ColorRGBA.Green);
         createBox(3, ColorRGBA.Blue);
 
-        inputManager.addMapping("override", new KeyTrigger(KeyInput.KEY_SPACE));
+        System.out.println("Press G, W, Y, or space bar ...");
+        inputManager.addMapping("overrideClear", new KeyTrigger(KeyInput.KEY_SPACE));
+        inputManager.addMapping("overrideGray", new KeyTrigger(KeyInput.KEY_G));
+        inputManager.addMapping("overrideWhite", new KeyTrigger(KeyInput.KEY_W));
+        inputManager.addMapping("overrideYellow", new KeyTrigger(KeyInput.KEY_Y));
         inputManager.addListener(new ActionListener() {
             @Override
             public void onAction(String name, boolean isPressed, float tpf) {
-                if (name.equals("override") && isPressed) {
-                    if (!rootNode.getLocalMatParamOverrides().isEmpty()) {
+                if (isPressed) {
+                    if (name.equals("overrideClear")) {
                         rootNode.clearMatParamOverrides();
-                    } else {
-                        rootNode.addMatParamOverride(override);
+                    } else if (name.equals("overrideGray")) {
+                        rootNode.clearMatParamOverrides();
+                        rootNode.addMatParamOverride(overrideGray);
+                    } else if (name.equals("overrideWhite")) {
+                        rootNode.clearMatParamOverrides();
+                        rootNode.addMatParamOverride(overrideWhite);
+                    } else if (name.equals("overrideYellow")) {
+                        rootNode.clearMatParamOverrides();
+                        rootNode.addMatParamOverride(overrideYellow);
                     }
                     System.out.println(rootNode.getLocalMatParamOverrides());
                 }
             }
-        }, "override");
+        }, "overrideClear", "overrideGray", "overrideWhite", "overrideYellow");
     }
 }
