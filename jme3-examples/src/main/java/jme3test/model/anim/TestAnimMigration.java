@@ -41,9 +41,9 @@ public class TestAnimMigration extends SimpleApplication {
         rootNode.addLight(new DirectionalLight(new Vector3f(-1, -1, -1).normalizeLocal()));
         rootNode.addLight(new AmbientLight(ColorRGBA.DarkGray));
 
-        //Spatial model = assetManager.loadModel("Models/Jaime/Jaime.j3o");
+        Spatial model = assetManager.loadModel("Models/Jaime/Jaime.j3o");
         //Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-        Spatial model = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
+        //Spatial model = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
         //Spatial model = assetManager.loadModel("Models/Elephant/Elephant.mesh.xml");
 
         AnimMigrationUtils.migrate(model);
@@ -52,7 +52,7 @@ public class TestAnimMigration extends SimpleApplication {
 
 
         debugAppState = new ArmatureDebugAppState();
-        //stateManager.attach(debugAppState);
+        stateManager.attach(debugAppState);
 
         setupModel(model);
 
@@ -108,6 +108,15 @@ public class TestAnimMigration extends SimpleApplication {
                 }
             }
         }, "nextAnim");
+        inputManager.addMapping("toggleArmature", new KeyTrigger(KeyInput.KEY_SPACE));
+        inputManager.addListener(new ActionListener() {
+            @Override
+            public void onAction(String name, boolean isPressed, float tpf) {
+                if (isPressed) {
+                    debugAppState.setEnabled(!debugAppState.isEnabled());
+                }
+            }
+        }, "toggleArmature");
     }
 
     private void setupModel(Spatial model) {

@@ -41,8 +41,7 @@ import com.jme3.scene.*;
 import com.jme3.scene.shape.Line;
 
 import java.nio.FloatBuffer;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The class that displays either wires between the bones' heads if no length
@@ -74,17 +73,17 @@ public class ArmatureNode extends Node {
      *
      * @param armature the armature that will be shown
      */
-    public ArmatureNode(Armature armature, Node joints, Node wires, Node outlines) {
+    public ArmatureNode(Armature armature, Node joints, Node wires, Node outlines, List<Joint> deformingJoints) {
         this.armature = armature;
 
         for (Joint joint : armature.getRoots()) {
-            createSkeletonGeoms(joint, joints, wires, outlines);
+            createSkeletonGeoms(joint, joints, wires, outlines, deformingJoints);
         }
         this.updateModelBound();
 
     }
 
-    protected final void createSkeletonGeoms(Joint joint, Node joints, Node wires, Node outlines) {
+    protected final void createSkeletonGeoms(Joint joint, Node joints, Node wires, Node outlines, List<Joint> deformingJoints) {
         Vector3f start = joint.getModelTransform().getTranslation().clone();
         Vector3f end = null;
 
@@ -93,9 +92,11 @@ public class ArmatureNode extends Node {
             end = joint.getChildren().get(0).getModelTransform().getTranslation().clone();
         }
 
+        boolean deforms = deformingJoints.contains(joint);
+
         Geometry jGeom = new Geometry(joint.getName() + "Joint", new JointShape());
         jGeom.setLocalTranslation(start);
-        joints.attachChild(jGeom);
+        attach(joints, deforms, jGeom);
         Geometry bGeom = null;
         Geometry bGeomO = null;
         if (end != null) {
@@ -107,14 +108,22 @@ public class ArmatureNode extends Node {
             bGeom.setUserData("start", wires.getWorldTransform().transformVector(start, start));
             bGeom.setUserData("end", wires.getWorldTransform().transformVector(end, end));
             bGeom.setQueueBucket(RenderQueue.Bucket.Transparent);
-            wires.attachChild(bGeom);
-            outlines.attachChild(bGeomO);
+            attach(wires, deforms, bGeom);
+            attach(outlines, deforms, bGeomO);
         }
 
         jointToGeoms.put(joint, new Geometry[]{jGeom, bGeom, bGeomO});
 
         for (Joint child : joint.getChildren()) {
-            createSkeletonGeoms(child, joints, wires, outlines);
+            createSkeletonGeoms(child, joints, wires, outlines, deformingJoints);
+        }
+    }
+
+    private void attach(Node parent, boolean deforms, Geometry geom) {
+        if (deforms) {
+            parent.attachChild(geom);
+        } else {
+            ((Node) parent.getChild(0)).attachChild(geom);
         }
     }
 

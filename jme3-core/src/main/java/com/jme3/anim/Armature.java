@@ -8,8 +8,7 @@ import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Nehon on 15/12/2017.
@@ -104,12 +103,16 @@ public class Armature implements JmeCloneable, Savable {
     }
 
     /**
-     * returns the array of all root joints of this Armatire
+     * returns the array of all root joints of this Armature
      *
      * @return
      */
     public Joint[] getRoots() {
         return rootJoints;
+    }
+
+    public List<Joint> getJointList() {
+        return Arrays.asList(jointList);
     }
 
     /**
