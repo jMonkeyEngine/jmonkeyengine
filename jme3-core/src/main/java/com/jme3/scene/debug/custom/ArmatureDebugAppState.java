@@ -8,9 +8,9 @@ import com.jme3.anim.*;
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
 import com.jme3.collision.CollisionResults;
+import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
-import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.input.controls.*;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.*;
 import com.jme3.renderer.ViewPort;
@@ -27,6 +27,7 @@ public class ArmatureDebugAppState extends BaseAppState {
     private Map<Armature, ArmatureDebugger> armatures = new HashMap<>();
     private Map<Armature, Joint> selectedBones = new HashMap<>();
     private Application app;
+    private boolean displayAllJoints = false;
     ViewPort vp;
 
     @Override
@@ -38,8 +39,9 @@ public class ArmatureDebugAppState extends BaseAppState {
         for (ArmatureDebugger armatureDebugger : armatures.values()) {
             armatureDebugger.initialize(app.getAssetManager());
         }
-        app.getInputManager().addListener(actionListener, "shoot");
+        app.getInputManager().addListener(actionListener, "shoot", "toggleJoints");
         app.getInputManager().addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT), new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
+        app.getInputManager().addMapping("toggleJoints", new KeyTrigger(KeyInput.KEY_F10));
 
         debugNode.addLight(new DirectionalLight(new Vector3f(-1f, -1f, -1f).normalizeLocal()));
 
@@ -76,7 +78,10 @@ public class ArmatureDebugAppState extends BaseAppState {
 
     public ArmatureDebugger addArmatureFrom(Armature armature, Spatial forSpatial) {
 
-        ArmatureDebugger ad = new ArmatureDebugger(forSpatial.getName() + "_Armature", armature);
+        JointInfoVisitor visitor = new JointInfoVisitor(armature);
+        forSpatial.depthFirstTraversal(visitor);
+
+        ArmatureDebugger ad = new ArmatureDebugger(forSpatial.getName() + "_Armature", armature, visitor.deformingJoints);
         ad.setLocalTransform(forSpatial.getWorldTransform());
         if (forSpatial instanceof Node) {
             List<Geometry> geoms = new ArrayList<>();
@@ -149,6 +154,12 @@ public class ArmatureDebugAppState extends BaseAppState {
                     }
                 }
             }
+            if (name.equals("toggleJoints") && isPressed) {
+                displayAllJoints = !displayAllJoints;
+                for (ArmatureDebugger ad : armatures.values()) {
+                    ad.displayNonDeformingJoint(displayAllJoints);
+                }
+            }
         }
     };
 
@@ -162,5 +173,24 @@ public class ArmatureDebugAppState extends BaseAppState {
 
     public void setDebugNode(Node debugNode) {
         this.debugNode = debugNode;
+    }
+
+    private class JointInfoVisitor extends SceneGraphVisitorAdapter {
+
+        List<Joint> deformingJoints = new ArrayList<>();
+        Armature armature;
+
+        public JointInfoVisitor(Armature armature) {
+            this.armature = armature;
+        }
+
+        @Override
+        public void visit(Geometry g) {
+            for (Joint joint : armature.getJointList()) {
+                if (g.getMesh().isAnimatedByJoint(armature.getJointIndex(joint))) {
+                    deformingJoints.add(joint);
+                }
+            }
+        }
     }
 }

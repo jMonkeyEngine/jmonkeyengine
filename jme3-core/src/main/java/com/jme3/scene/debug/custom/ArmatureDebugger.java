@@ -60,9 +60,10 @@ public class ArmatureDebugger extends Node {
 
     private Armature armature;
 
-    Node joints;
-    Node outlines;
-    Node wires;
+    private Node joints;
+    private Node outlines;
+    private Node wires;
+    private List<Joint> deformingJoints;
 
     /**
      * The dotted lines between a bone's tail and the had of its children. Not
@@ -83,11 +84,11 @@ public class ArmatureDebugger extends Node {
      * @param name     the name of the debugger's node
      * @param armature the armature that will be shown
      */
-    public ArmatureDebugger(String name, Armature armature) {
+    public ArmatureDebugger(String name, Armature armature, List<Joint> deformingJoints) {
         super(name);
+        this.deformingJoints = deformingJoints;
         this.armature = armature;
         armature.update();
-
 
         joints = new Node("joints");
         outlines = new Node("outlines");
@@ -95,14 +96,28 @@ public class ArmatureDebugger extends Node {
         this.attachChild(joints);
         this.attachChild(outlines);
         this.attachChild(wires);
+        Node ndJoints = new Node("non deforming Joints");
+        Node ndOutlines = new Node("non deforming Joints outlines");
+        Node ndWires = new Node("non deforming Joints wires");
+        joints.attachChild(ndJoints);
+        outlines.attachChild(ndOutlines);
+        wires.attachChild(ndWires);
 
-        armatureNode = new ArmatureNode(armature, joints, wires, outlines);
+
+        armatureNode = new ArmatureNode(armature, joints, wires, outlines, deformingJoints);
 
         this.attachChild(armatureNode);
 
+        displayNonDeformingJoint(false);
         //interJointWires = new ArmatureInterJointsWire(armature, bonesLength, guessJointsOrientation);
         //wires = new Geometry(name + "_interwires", interJointWires);
         //       this.attachChild(wires);
+    }
+
+    public void displayNonDeformingJoint(boolean display) {
+        joints.getChild(0).setCullHint(display ? CullHint.Dynamic : CullHint.Always);
+        outlines.getChild(0).setCullHint(display ? CullHint.Dynamic : CullHint.Always);
+        wires.getChild(0).setCullHint(display ? CullHint.Dynamic : CullHint.Always);
     }
 
     protected void initialize(AssetManager assetManager) {
