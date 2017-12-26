@@ -26,7 +26,7 @@ public class TestAnimMigration extends SimpleApplication {
     ArmatureDebugAppState debugAppState;
     AnimComposer composer;
     Queue<String> anims = new LinkedList<>();
-    boolean playAnim = true;
+    boolean playAnim = false;
 
     public static void main(String... argv) {
         TestAnimMigration app = new TestAnimMigration();
@@ -36,15 +36,15 @@ public class TestAnimMigration extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         setTimer(new EraseTimer());
-        //cam.setFrustumPerspective(90f, (float) cam.getWidth() / cam.getHeight(), 0.01f, 10f);
+        cam.setFrustumPerspective(45f, (float) cam.getWidth() / cam.getHeight(), 0.1f, 100f);
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
         rootNode.addLight(new DirectionalLight(new Vector3f(-1, -1, -1).normalizeLocal()));
         rootNode.addLight(new AmbientLight(ColorRGBA.DarkGray));
 
-        Spatial model = assetManager.loadModel("Models/Jaime/Jaime.j3o");
-        //Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        //Spatial model = assetManager.loadModel("Models/Jaime/Jaime.j3o");
+        //Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml").scale(0.2f).move(0, 1, 0);
         //Spatial model = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
-        //Spatial model = assetManager.loadModel("Models/Elephant/Elephant.mesh.xml");
+        Spatial model = assetManager.loadModel("Models/Elephant/Elephant.mesh.xml").scale(0.02f);
 
         AnimMigrationUtils.migrate(model);
 

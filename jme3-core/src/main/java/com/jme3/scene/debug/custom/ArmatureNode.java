@@ -36,6 +36,7 @@ import com.jme3.anim.Armature;
 import com.jme3.anim.Joint;
 import com.jme3.collision.*;
 import com.jme3.math.*;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.*;
 import com.jme3.scene.shape.Line;
@@ -60,11 +61,13 @@ public class ArmatureNode extends Node {
     private Map<Geometry, Joint> geomToJoint = new HashMap<>();
     private Joint selectedJoint = null;
     private Vector3f tmpStart = new Vector3f();
-    private Vector3f tmpEnd = new Vector3f();
-    ColorRGBA selectedColor = ColorRGBA.Orange;
-    ColorRGBA selectedColorJ = ColorRGBA.Yellow;
-    ;//new ColorRGBA(0.2f, 1f, 1.0f, 1.0f);
-    ColorRGBA baseColor = new ColorRGBA(0.05f, 0.05f, 0.05f, 1f);
+    private List<Vector3f> tmpEnds = new ArrayList<>();
+    private final static ColorRGBA selectedColor = ColorRGBA.Orange;
+    private final static ColorRGBA selectedColorJ = ColorRGBA.Yellow;
+    private final static ColorRGBA outlineColor = ColorRGBA.LightGray;
+    private final static ColorRGBA baseColor = new ColorRGBA(0.05f, 0.05f, 0.05f, 1f);
+
+    private Camera camera;
 
 
     /**
@@ -85,11 +88,14 @@ public class ArmatureNode extends Node {
 
     protected final void createSkeletonGeoms(Joint joint, Node joints, Node wires, Node outlines, List<Joint> deformingJoints) {
         Vector3f start = joint.getModelTransform().getTranslation().clone();
-        Vector3f end = null;
 
-        //One child only, the bone direction is from the parent joint to the child joint.
-        if (joint.getChildren().size() == 1) {
-            end = joint.getChildren().get(0).getModelTransform().getTranslation().clone();
+        Vector3f[] ends = null;
+        if (!joint.getChildren().isEmpty()) {
+            ends = new Vector3f[joint.getChildren().size()];
+        }
+
+        for (int i = 0; i < joint.getChildren().size(); i++) {
+            ends[i] = joint.getChildren().get(i).getModelTransform().getTranslation().clone();
         }
 
         boolean deforms = deformingJoints.contains(joint);
@@ -99,24 +105,45 @@ public class ArmatureNode extends Node {
         attach(joints, deforms, jGeom);
         Geometry bGeom = null;
         Geometry bGeomO = null;
-        if (end != null) {
-            bGeom = new Geometry(joint.getName() + "Bone", new Line(start, end));
-            setColor(bGeom, baseColor);
+        if (ends != null) {
+            Mesh m = null;
+            Mesh mO = null;
+            Node wireAttach = wires;
+            Node outlinesAttach = outlines;
+            if (ends.length == 1) {
+                m = new Line(start, ends[0]);
+                mO = new Line(start, ends[0]);
+            } else {
+                m = new ArmatureInterJointsWire(start, ends);
+                mO = new ArmatureInterJointsWire(start, ends);
+                wireAttach = (Node) wires.getChild(1);
+                outlinesAttach = null;
+            }
+            bGeom = new Geometry(joint.getName() + "Bone", m);
+            setColor(bGeom, outlinesAttach == null ? outlineColor : baseColor);
             geomToJoint.put(bGeom, joint);
-            bGeomO = new Geometry(joint.getName() + "BoneOutline", new Line(start, end));
-            setColor(bGeomO, ColorRGBA.White);
-            bGeom.setUserData("start", wires.getWorldTransform().transformVector(start, start));
-            bGeom.setUserData("end", wires.getWorldTransform().transformVector(end, end));
+            bGeom.setUserData("start", getWorldTransform().transformVector(start, start));
+            for (int i = 0; i < ends.length; i++) {
+                getWorldTransform().transformVector(ends[i], ends[i]);
+            }
+            bGeom.setUserData("end", ends);
             bGeom.setQueueBucket(RenderQueue.Bucket.Transparent);
-            attach(wires, deforms, bGeom);
-            attach(outlines, deforms, bGeomO);
+            attach(wireAttach, deforms, bGeom);
+            if (outlinesAttach != null) {
+                bGeomO = new Geometry(joint.getName() + "BoneOutline", mO);
+                setColor(bGeomO, outlineColor);
+                attach(outlinesAttach, deforms, bGeomO);
+            }
         }
-
         jointToGeoms.put(joint, new Geometry[]{jGeom, bGeom, bGeomO});
 
         for (Joint child : joint.getChildren()) {
             createSkeletonGeoms(child, joints, wires, outlines, deformingJoints);
         }
+    }
+
+    public void setCamera(Camera camera) {
+        this.camera = camera;
     }
 
     private void attach(Node parent, boolean deforms, Geometry geom) {
@@ -142,7 +169,10 @@ public class ArmatureNode extends Node {
             Geometry[] geomArray = jointToGeoms.get(selectedJoint);
             setColor(geomArray[0], selectedColorJ);
             setColor(geomArray[1], selectedColor);
-            setColor(geomArray[2], baseColor);
+
+            if (geomArray[2] != null) {
+                setColor(geomArray[2], baseColor);
+            }
             return j;
         }
         return null;
@@ -154,8 +184,10 @@ public class ArmatureNode extends Node {
         }
         Geometry[] geoms = jointToGeoms.get(selectedJoint);
         setColor(geoms[0], ColorRGBA.White);
-        setColor(geoms[1], baseColor);
-        setColor(geoms[2], ColorRGBA.White);
+        setColor(geoms[1], geoms[2] == null ? outlineColor : baseColor);
+        if (geoms[2] != null) {
+            setColor(geoms[2], outlineColor);
+        }
         selectedJoint = null;
     }
 
@@ -171,20 +203,25 @@ public class ArmatureNode extends Node {
             jGeom.setLocalTranslation(joint.getModelTransform().getTranslation());
             Geometry bGeom = geoms[1];
             if (bGeom != null) {
-                tmpStart.set(joint.getModelTransform().getTranslation());
-                boolean hasEnd = false;
-                if (joint.getChildren().size() == 1) {
-                    tmpEnd.set(joint.getChildren().get(0).getModelTransform().getTranslation());
-                    hasEnd = true;
-                }
-                if (hasEnd) {
-                    updateBoneMesh(bGeom);
+                Vector3f start = bGeom.getUserData("start");
+                Vector3f[] ends = bGeom.getUserData("end");
+                start.set(joint.getModelTransform().getTranslation());
+                if (ends != null) {
+                    tmpEnds.clear();
+                    for (int i = 0; i < joint.getChildren().size(); i++) {
+                        ends[i].set(joint.getChildren().get(i).getModelTransform().getTranslation());
+                    }
+                    updateBoneMesh(bGeom, start, ends);
                     Geometry bGeomO = geoms[2];
-                    updateBoneMesh(bGeomO);
-                    Vector3f start = bGeom.getUserData("start");
-                    Vector3f end = bGeom.getUserData("end");
-                    bGeom.setUserData("start", bGeom.getParent().getWorldTransform().transformVector(tmpStart, start));
-                    bGeom.setUserData("end", bGeom.getParent().getWorldTransform().transformVector(tmpEnd, end));
+                    if (bGeomO != null) {
+                        updateBoneMesh(bGeomO, start, ends);
+                    }
+                    bGeom.setUserData("start", getWorldTransform().transformVector(start, start));
+                    for (int i = 0; i < ends.length; i++) {
+                        getWorldTransform().transformVector(ends[i], ends[i]);
+                    }
+                    bGeom.setUserData("end", ends);
+
                 }
             }
         }
@@ -201,25 +238,28 @@ public class ArmatureNode extends Node {
         }
         int nbCol = 0;
         for (Geometry g : geomToJoint.keySet()) {
-            float len = MathUtils.raySegmentShortestDistance((Ray) other, (Vector3f) g.getUserData("start"), (Vector3f) g.getUserData("end"));
-            if (len > 0 && len < 0.1f) {
-                CollisionResult res = new CollisionResult();
-                res.setGeometry(g);
-                results.addCollision(res);
-                nbCol++;
+            Vector3f start = g.getUserData("start");
+            Vector3f[] ends = g.getUserData("end");
+            for (int i = 0; i < ends.length; i++) {
+                float len = MathUtils.raySegmentShortestDistance((Ray) other, start, ends[i], camera);
+                if (len > 0 && len < 10f) {
+                    CollisionResult res = new CollisionResult();
+                    res.setGeometry(g);
+                    results.addCollision(res);
+                    nbCol++;
+                }
             }
         }
         return nbCol;
     }
 
-    private void updateBoneMesh(Geometry bGeom) {
+    private void updateBoneMesh(Geometry bGeom, Vector3f start, Vector3f[] ends) {
         VertexBuffer pos = bGeom.getMesh().getBuffer(VertexBuffer.Type.Position);
         FloatBuffer fb = (FloatBuffer) pos.getData();
         fb.rewind();
-        fb.put(new float[]{tmpStart.x, tmpStart.y, tmpStart.z,
-                tmpEnd.x, tmpEnd.y, tmpEnd.z,});
+        fb.put(new float[]{start.x, start.y, start.z,
+                ends[0].x, ends[0].y, ends[0].z,});
         pos.updateData(fb);
-
         bGeom.updateModelBound();
     }
 

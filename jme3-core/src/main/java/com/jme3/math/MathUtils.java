@@ -1,5 +1,6 @@
 package com.jme3.math;
 
+import com.jme3.renderer.Camera;
 import com.jme3.util.TempVars;
 
 /**
@@ -164,7 +165,19 @@ public class MathUtils {
     }
 
 
-    public static float raySegmentShortestDistance(Ray ray, Vector3f segStart, Vector3f segEnd) {
+    /**
+     * Returns the shortest distance between a Ray and a segment.
+     * The segment is defined by a start position and an end position in world space
+     * The distance returned will be in world space (world units).
+     * If the camera parameter is not null the distance will be returned in screen space (pixels)
+     *
+     * @param ray      The ray
+     * @param segStart The start position of the segment in world space
+     * @param segEnd   The end position of the segment in world space
+     * @param camera   The renderer camera if the distance is required in screen space. Null if the distance is required in world space
+     * @return the shortest distance between the ray and the segment or -1 if no solution is found.
+     */
+    public static float raySegmentShortestDistance(Ray ray, Vector3f segStart, Vector3f segEnd, Camera camera) {
         // Algorithm is ported from the C algorithm of
         // Paul Bourke at http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/
         TempVars vars = TempVars.get();
@@ -218,6 +231,12 @@ public class MathUtils {
         if (startToPoint > segLength || endToPoint > segLength) {
             vars.release();
             return -1;
+        }
+
+        if (camera != null) {
+            //camera is not null let's convert the points in screen space
+            camera.getScreenCoordinates(resultSegmentPoint1, resultSegmentPoint1);
+            camera.getScreenCoordinates(resultSegmentPoint2, resultSegmentPoint2);
         }
 
         float length = resultSegmentPoint1.subtractLocal(resultSegmentPoint2).length();

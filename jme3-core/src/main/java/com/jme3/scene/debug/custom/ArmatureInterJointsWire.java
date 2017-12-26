@@ -33,16 +33,12 @@ package com.jme3.scene.debug.custom;
  */
 
 
-import com.jme3.anim.Armature;
-import com.jme3.anim.Joint;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.*;
-import com.jme3.util.BufferUtils;
+import com.jme3.scene.VertexBuffer.Type;
 
 import java.nio.FloatBuffer;
-import java.util.Map;
 
 /**
  * A class that displays a dotted line between a bone tail and its childrens' heads.
@@ -50,90 +46,69 @@ import java.util.Map;
  * @author Marcin Roguski (Kaelthas)
  */
 public class ArmatureInterJointsWire extends Mesh {
-    private static final int POINT_AMOUNT = 50;
-    /**
-     * The amount of connections between bones.
-     */
-    private int connectionsAmount;
-    /**
-     * The armature that will be showed.
-     */
-    private Armature armature;
-    /**
-     * The map between the bone index and its length.
-     */
-    private Map<Integer, Float> boneLengths;
+    private Vector3f tmp = new Vector3f();
 
-    private boolean guessBonesOrientation = false;
 
-    /**
-     * Creates buffers for points. Each line has POINT_AMOUNT of points.
-     *
-     * @param armature    the armature that will be showed
-     * @param boneLengths the lengths of the bones
-     */
-    public ArmatureInterJointsWire(Armature armature, Map<Integer, Float> boneLengths, boolean guessBonesOrientation) {
-        this.armature = armature;
+    public ArmatureInterJointsWire(Vector3f start, Vector3f[] ends) {
+        setMode(Mode.Lines);
+        updateGeometry(start, ends);
+    }
 
-        for (Joint joint : armature.getRoots()) {
-            this.countConnections(joint);
+    protected void updateGeometry(Vector3f start, Vector3f[] ends) {
+        float[] pos = new float[ends.length * 3 + 3];
+        pos[0] = start.x;
+        pos[1] = start.y;
+        pos[2] = start.z;
+        int index;
+        for (int i = 0; i < ends.length; i++) {
+            index = i * 3 + 3;
+            pos[index] = ends[i].x;
+            pos[index + 1] = ends[i].y;
+            pos[index + 2] = ends[i].z;
         }
+        setBuffer(Type.Position, 3, pos);
 
-        this.setMode(Mode.Points);
-        this.boneLengths = boneLengths;
+        float[] texCoord = new float[ends.length * 2 + 2];
+        texCoord[0] = 0;
+        texCoord[1] = 0;
+        for (int i = 0; i < ends.length * 2; i++) {
+            texCoord[i + 2] = tmp.set(start).subtractLocal(ends[i / 2]).length();
+        }
+        setBuffer(Type.TexCoord, 2, texCoord);
 
-        VertexBuffer pb = new VertexBuffer(Type.Position);
-        FloatBuffer fpb = BufferUtils.createFloatBuffer(POINT_AMOUNT * connectionsAmount * 3);
-        pb.setupData(Usage.Stream, 3, Format.Float, fpb);
-        this.setBuffer(pb);
+        float[] normal = new float[ends.length * 3 + 3];
+        for (int i = 0; i < ends.length * 3 + 3; i += 3) {
+            normal[i] = start.x;
+            normal[i + 1] = start.y;
+            normal[i + 2] = start.z;
+        }
+        setBuffer(Type.Normal, 3, normal);
 
-        this.guessBonesOrientation = guessBonesOrientation;
-        this.updateCounts();
+        short[] id = new short[ends.length * 2];
+        index = 1;
+        for (int i = 0; i < ends.length * 2; i += 2) {
+            id[i] = 0;
+            id[i + 1] = (short) (index);
+            index++;
+        }
+        setBuffer(Type.Index, 2, id);
+        updateBound();
     }
 
     /**
-     * The method updates the geometry according to the positions of the bones.
+     * Update the start and end points of the line.
      */
-    public void updateGeometry() {
-        VertexBuffer vb = this.getBuffer(Type.Position);
-        FloatBuffer posBuf = this.getFloatBuffer(Type.Position);
-        posBuf.clear();
-        for (int i = 0; i < armature.getJointCount(); ++i) {
-            Joint joint = armature.getJoint(i);
-            Vector3f parentTail = joint.getModelTransform().getTranslation().add(joint.getModelTransform().getRotation().mult(Vector3f.UNIT_Y.mult(boneLengths.get(i))));
+    public void updatePoints(Vector3f start, Vector3f end) {
+        VertexBuffer posBuf = getBuffer(Type.Position);
 
-            if (guessBonesOrientation) {
-                parentTail = joint.getModelTransform().getTranslation();
-            }
+        FloatBuffer fb = (FloatBuffer) posBuf.getData();
+        fb.rewind();
+        fb.put(start.x).put(start.y).put(start.z);
+        fb.put(end.x).put(end.y).put(end.z);
 
-            for (Joint child : joint.getChildren()) {
-                Vector3f childHead = child.getModelTransform().getTranslation();
-                Vector3f v = childHead.subtract(parentTail);
-                float len = v.length();
-                float pointDelta = 1f / POINT_AMOUNT;
-                v.normalizeLocal().multLocal(pointDelta);
-                Vector3f pointPosition = parentTail.clone();
-                for (int j = 0; j < POINT_AMOUNT * len; ++j) {
-                    posBuf.put(pointPosition.getX()).put(pointPosition.getY()).put(pointPosition.getZ());
-                    pointPosition.addLocal(v);
-                }
-            }
-        }
-        posBuf.flip();
-        vb.updateData(posBuf);
+        posBuf.updateData(fb);
 
-        this.updateBound();
+        updateBound();
     }
 
-    /**
-     * Th method counts the connections between bones.
-     *
-     * @param joint the bone where counting starts
-     */
-    private void countConnections(Joint joint) {
-        for (Joint child : joint.getChildren()) {
-            ++connectionsAmount;
-            this.countConnections(child);
-        }
-    }
 }
