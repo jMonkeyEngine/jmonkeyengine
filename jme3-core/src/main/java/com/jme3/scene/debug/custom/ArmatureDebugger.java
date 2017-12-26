@@ -39,6 +39,7 @@ import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
+import com.jme3.math.Vector2f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
@@ -150,6 +151,10 @@ public class ArmatureDebugger extends Node {
         matWires2.getAdditionalRenderState().setLineWidth(1);
         wires.getChild(1).setMaterial(matWires2);
 
+    }
+
+    public int pick(Vector2f cursor, CollisionResults results) {
+        return armatureNode.pick(cursor, results);
     }
 
     public Armature getArmature() {
