@@ -31,16 +31,23 @@
  */
 package com.jme3.renderer.opengl;
 
-import java.nio.IntBuffer;
-
 /**
  * GL functions only available on vanilla desktop OpenGL 4.0.
  * 
  * @author Kirill Vainer
  */
 public interface GL4 extends GL3 {
-    public static final int GL_TESS_CONTROL_SHADER=0x8E88;
-    public static final int GL_TESS_EVALUATION_SHADER=0x8E87;
-    public static final int GL_PATCHES=0xE;
-    public void glPatchParameter(int count);
+
+    int GL_TESS_CONTROL_SHADER = 0x8E88;
+    int GL_TESS_EVALUATION_SHADER = 0x8E87;
+    int GL_PATCHES = 0xE;
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glPatchParameteri">Reference Page</a></p>
+     * <p>
+     * Specifies the integer value of the specified parameter for patch primitives.
+     *
+     * @param count the new value for the parameter given by {@code pname}
+     */
+    void glPatchParameter(int count);
 }
