@@ -37,7 +37,7 @@ public class ArmatureDebugAppState extends BaseAppState {
         vp.setClearDepth(true);
         this.app = app;
         for (ArmatureDebugger armatureDebugger : armatures.values()) {
-            armatureDebugger.initialize(app.getAssetManager());
+            armatureDebugger.initialize(app.getAssetManager(), app.getCamera());
         }
         app.getInputManager().addListener(actionListener, "shoot", "toggleJoints");
         app.getInputManager().addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT), new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
@@ -93,7 +93,7 @@ public class ArmatureDebugAppState extends BaseAppState {
         armatures.put(armature, ad);
         debugNode.attachChild(ad);
         if (isInitialized()) {
-            ad.initialize(app.getAssetManager());
+            ad.initialize(app.getAssetManager(), app.getCamera());
         }
         return ad;
     }
@@ -108,12 +108,6 @@ public class ArmatureDebugAppState extends BaseAppState {
         }
     }
 
-    /**
-     * Pick a Target Using the Mouse Pointer. <ol><li>Map "pick target" action
-     * to a MouseButtonTrigger. <li>flyCam.setEnabled(false);
-     * <li>inputManager.setCursorVisible(true); <li>Implement action in
-     * AnalogListener (TODO).</ol>
-     */
     private ActionListener actionListener = new ActionListener() {
         public void onAction(String name, boolean isPressed, float tpf) {
             if (name.equals("shoot") && isPressed) {

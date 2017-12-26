@@ -34,16 +34,17 @@ package com.jme3.scene.debug.custom;
 
 import com.jme3.anim.Armature;
 import com.jme3.anim.Joint;
-import com.jme3.animation.Bone;
 import com.jme3.asset.AssetManager;
+import com.jme3.collision.Collidable;
+import com.jme3.collision.CollisionResults;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.texture.Texture;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -63,15 +64,11 @@ public class ArmatureDebugger extends Node {
     private Node joints;
     private Node outlines;
     private Node wires;
-    private List<Joint> deformingJoints;
-
     /**
      * The dotted lines between a bone's tail and the had of its children. Not
      * available if the length data was not provided.
      */
     private ArmatureInterJointsWire interJointWires;
-    //private Geometry wires;
-    private List<Bone> selectedJoints = new ArrayList<Bone>();
 
     public ArmatureDebugger() {
     }
@@ -86,7 +83,6 @@ public class ArmatureDebugger extends Node {
      */
     public ArmatureDebugger(String name, Armature armature, List<Joint> deformingJoints) {
         super(name);
-        this.deformingJoints = deformingJoints;
         this.armature = armature;
         armature.update();
 
@@ -102,25 +98,40 @@ public class ArmatureDebugger extends Node {
         joints.attachChild(ndJoints);
         outlines.attachChild(ndOutlines);
         wires.attachChild(ndWires);
-
+        Node outlineDashed = new Node("Outlines Dashed");
+        Node wiresDashed = new Node("Wires Dashed");
+        wiresDashed.attachChild(new Node("dashed non defrom"));
+        outlineDashed.attachChild(new Node("dashed non defrom"));
+        outlines.attachChild(outlineDashed);
+        wires.attachChild(wiresDashed);
 
         armatureNode = new ArmatureNode(armature, joints, wires, outlines, deformingJoints);
 
         this.attachChild(armatureNode);
 
         displayNonDeformingJoint(false);
-        //interJointWires = new ArmatureInterJointsWire(armature, bonesLength, guessJointsOrientation);
-        //wires = new Geometry(name + "_interwires", interJointWires);
-        //       this.attachChild(wires);
     }
 
     public void displayNonDeformingJoint(boolean display) {
         joints.getChild(0).setCullHint(display ? CullHint.Dynamic : CullHint.Always);
         outlines.getChild(0).setCullHint(display ? CullHint.Dynamic : CullHint.Always);
         wires.getChild(0).setCullHint(display ? CullHint.Dynamic : CullHint.Always);
+        ((Node) outlines.getChild(1)).getChild(0).setCullHint(display ? CullHint.Dynamic : CullHint.Always);
+        ((Node) wires.getChild(1)).getChild(0).setCullHint(display ? CullHint.Dynamic : CullHint.Always);
     }
 
-    protected void initialize(AssetManager assetManager) {
+    protected void initialize(AssetManager assetManager, Camera camera) {
+
+        armatureNode.setCamera(camera);
+
+        Material matJoints = new Material(assetManager, "Common/MatDefs/Misc/Billboard.j3md");
+        Texture t = assetManager.loadTexture("Common/Textures/dot.png");
+        matJoints.setTexture("Texture", t);
+        matJoints.getAdditionalRenderState().setDepthTest(false);
+        matJoints.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
+        joints.setQueueBucket(RenderQueue.Bucket.Translucent);
+        joints.setMaterial(matJoints);
+
         Material matWires = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         matWires.setBoolean("VertexColor", true);
         matWires.getAdditionalRenderState().setLineWidth(3);
@@ -128,19 +139,16 @@ public class ArmatureDebugger extends Node {
 
         Material matOutline = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         matOutline.setBoolean("VertexColor", true);
-        //matOutline.setColor("Color", ColorRGBA.White);
         matOutline.getAdditionalRenderState().setLineWidth(5);
         outlines.setMaterial(matOutline);
 
-        Material matJoints = new Material(assetManager, "Common/MatDefs/Misc/Billboard.j3md");
-        Texture t = assetManager.loadTexture("Common/Textures/dot.png");
-//        matJoints.setBoolean("VertexColor", true);
-//        matJoints.setTexture("ColorMap", t);
-        matJoints.setTexture("Texture", t);
-        matJoints.getAdditionalRenderState().setDepthTest(false);
-        matJoints.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
-        joints.setQueueBucket(RenderQueue.Bucket.Translucent);
-        joints.setMaterial(matJoints);
+        Material matOutline2 = new Material(assetManager, "Common/MatDefs/Misc/DashedLine.j3md");
+        matOutline2.getAdditionalRenderState().setLineWidth(1);
+        outlines.getChild(1).setMaterial(matOutline2);
+
+        Material matWires2 = new Material(assetManager, "Common/MatDefs/Misc/DashedLine.j3md");
+        matWires2.getAdditionalRenderState().setLineWidth(1);
+        wires.getChild(1).setMaterial(matWires2);
 
     }
 
@@ -152,9 +160,13 @@ public class ArmatureDebugger extends Node {
     public void updateLogicalState(float tpf) {
         super.updateLogicalState(tpf);
         armatureNode.updateGeometry();
-        if (interJointWires != null) {
-            //        interJointWires.updateGeometry();
-        }
+    }
+
+    @Override
+    public int collideWith(Collidable other, CollisionResults results) {
+
+        return armatureNode.collideWith(other, results);
+
     }
 
     protected Joint select(Geometry g) {
