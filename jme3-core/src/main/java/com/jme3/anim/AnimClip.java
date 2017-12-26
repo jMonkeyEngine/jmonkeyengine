@@ -66,7 +66,9 @@ public class AnimClip implements Tween, JmeCloneable, Savable {
         }
 
         for (Tween track : tracks.getArray()) {
-            track.interpolate(t);
+            if (t <= track.getLength()) {
+                track.interpolate(t);
+            }
         }
         return t <= length;
     }

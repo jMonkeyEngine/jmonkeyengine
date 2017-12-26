@@ -34,6 +34,7 @@ package com.jme3.math;
 import com.jme3.export.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
+
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.logging.Logger;
@@ -1023,96 +1024,95 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
             store = new Matrix4f();
         }
 
-        float temp00, temp01, temp02, temp03;
-        float temp10, temp11, temp12, temp13;
-        float temp20, temp21, temp22, temp23;
-        float temp30, temp31, temp32, temp33;
+        TempVars v = TempVars.get();
+        float[] m = v.matrixWrite;
 
-        temp00 = m00 * in2.m00
+        m[0] = m00 * in2.m00
                 + m01 * in2.m10
                 + m02 * in2.m20
                 + m03 * in2.m30;
-        temp01 = m00 * in2.m01
+        m[1] = m00 * in2.m01
                 + m01 * in2.m11
                 + m02 * in2.m21
                 + m03 * in2.m31;
-        temp02 = m00 * in2.m02
+        m[2] = m00 * in2.m02
                 + m01 * in2.m12
                 + m02 * in2.m22
                 + m03 * in2.m32;
-        temp03 = m00 * in2.m03
+        m[3] = m00 * in2.m03
                 + m01 * in2.m13
                 + m02 * in2.m23
                 + m03 * in2.m33;
 
-        temp10 = m10 * in2.m00
+        m[4] = m10 * in2.m00
                 + m11 * in2.m10
                 + m12 * in2.m20
                 + m13 * in2.m30;
-        temp11 = m10 * in2.m01
+        m[5] = m10 * in2.m01
                 + m11 * in2.m11
                 + m12 * in2.m21
                 + m13 * in2.m31;
-        temp12 = m10 * in2.m02
+        m[6] = m10 * in2.m02
                 + m11 * in2.m12
                 + m12 * in2.m22
                 + m13 * in2.m32;
-        temp13 = m10 * in2.m03
+        m[7] = m10 * in2.m03
                 + m11 * in2.m13
                 + m12 * in2.m23
                 + m13 * in2.m33;
 
-        temp20 = m20 * in2.m00
+        m[8] = m20 * in2.m00
                 + m21 * in2.m10
                 + m22 * in2.m20
                 + m23 * in2.m30;
-        temp21 = m20 * in2.m01
+        m[9] = m20 * in2.m01
                 + m21 * in2.m11
                 + m22 * in2.m21
                 + m23 * in2.m31;
-        temp22 = m20 * in2.m02
+        m[10] = m20 * in2.m02
                 + m21 * in2.m12
                 + m22 * in2.m22
                 + m23 * in2.m32;
-        temp23 = m20 * in2.m03
+        m[11] = m20 * in2.m03
                 + m21 * in2.m13
                 + m22 * in2.m23
                 + m23 * in2.m33;
 
-        temp30 = m30 * in2.m00
+        m[12] = m30 * in2.m00
                 + m31 * in2.m10
                 + m32 * in2.m20
                 + m33 * in2.m30;
-        temp31 = m30 * in2.m01
+        m[13] = m30 * in2.m01
                 + m31 * in2.m11
                 + m32 * in2.m21
                 + m33 * in2.m31;
-        temp32 = m30 * in2.m02
+        m[14] = m30 * in2.m02
                 + m31 * in2.m12
                 + m32 * in2.m22
                 + m33 * in2.m32;
-        temp33 = m30 * in2.m03
+        m[15] = m30 * in2.m03
                 + m31 * in2.m13
                 + m32 * in2.m23
                 + m33 * in2.m33;
 
-        store.m00 = temp00;
-        store.m01 = temp01;
-        store.m02 = temp02;
-        store.m03 = temp03;
-        store.m10 = temp10;
-        store.m11 = temp11;
-        store.m12 = temp12;
-        store.m13 = temp13;
-        store.m20 = temp20;
-        store.m21 = temp21;
-        store.m22 = temp22;
-        store.m23 = temp23;
-        store.m30 = temp30;
-        store.m31 = temp31;
-        store.m32 = temp32;
-        store.m33 = temp33;
 
+        store.m00 = m[0];
+        store.m01 = m[1];
+        store.m02 = m[2];
+        store.m03 = m[3];
+        store.m10 = m[4];
+        store.m11 = m[5];
+        store.m12 = m[6];
+        store.m13 = m[7];
+        store.m20 = m[8];
+        store.m21 = m[9];
+        store.m22 = m[10];
+        store.m23 = m[11];
+        store.m30 = m[12];
+        store.m31 = m[13];
+        store.m32 = m[14];
+        store.m33 = m[15];
+        v.release();
         return store;
     }
 
@@ -1709,8 +1709,8 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         return new Vector3f(m03, m13, m23);
     }
 
-    public void toTranslationVector(Vector3f vector) {
-        vector.set(m03, m13, m23);
+    public Vector3f toTranslationVector(Vector3f vector) {
+        return vector.set(m03, m13, m23);
     }
 
     public Quaternion toRotationQuat() {
@@ -1719,8 +1719,9 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         return quat;
     }
 
-    public void toRotationQuat(Quaternion q) {
-        q.fromRotationMatrix(toRotationMatrix());
+    public Quaternion toRotationQuat(Quaternion q) {
+        return q.fromRotationMatrix(m00, m01, m02, m10,
+                m11, m12, m20, m21, m22);
     }
 
     public Matrix3f toRotationMatrix() {
@@ -1753,15 +1754,16 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 	/**
 	 * Retreives the scale vector from the matrix and stores it into a given
 	 * vector.
-	 * 
-	 * @param the
-	 *            vector where the scale will be stored
+     *
+     * @param store the vector where the scale will be stored
+     * @return the store vector
 	 */
-	public void toScaleVector(Vector3f vector) {
+    public Vector3f toScaleVector(Vector3f store) {
 		float scaleX = (float) Math.sqrt(m00 * m00 + m10 * m10 + m20 * m20);
 		float scaleY = (float) Math.sqrt(m01 * m01 + m11 * m11 + m21 * m21);
 		float scaleZ = (float) Math.sqrt(m02 * m02 + m12 * m12 + m22 * m22);
-		vector.set(scaleX, scaleY, scaleZ);
+        store.set(scaleX, scaleY, scaleZ);
+        return store;
     }
 
     /**
@@ -1775,25 +1777,30 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      *            the Z scale
      */
     public void setScale(float x, float y, float z) {
-        TempVars vars = TempVars.get();
-        vars.vect1.set(m00, m10, m20);
-        vars.vect1.normalizeLocal().multLocal(x);
-        m00 = vars.vect1.x;
-        m10 = vars.vect1.y;
-        m20 = vars.vect1.z;
 
-        vars.vect1.set(m01, m11, m21);
-        vars.vect1.normalizeLocal().multLocal(y);
-        m01 = vars.vect1.x;
-        m11 = vars.vect1.y;
-        m21 = vars.vect1.z;
+        float length = m00 * m00 + m10 * m10 + m20 * m20;
+        if (length != 0f) {
+            length = length == 1 ? x : (x / FastMath.sqrt(length));
+            m00 *= length;
+            m10 *= length;
+            m20 *= length;
+        }
 
-        vars.vect1.set(m02, m12, m22);
-        vars.vect1.normalizeLocal().multLocal(z);
-        m02 = vars.vect1.x;
-        m12 = vars.vect1.y;
-        m22 = vars.vect1.z;
-        vars.release();
+        length = m01 * m01 + m11 * m11 + m21 * m21;
+        if (length != 0f) {
+            length = length == 1 ? y : (y / FastMath.sqrt(length));
+            m01 *= length;
+            m11 *= length;
+            m21 *= length;
+        }
+
+        length = m02 * m02 + m12 * m12 + m22 * m22;
+        if (length != 0f) {
+            length = length == 1 ? z : (z / FastMath.sqrt(length));
+            m02 *= length;
+            m12 *= length;
+            m22 *= length;
+        }
     }
 
     /**
