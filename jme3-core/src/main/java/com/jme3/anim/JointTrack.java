@@ -66,11 +66,11 @@ public final class JointTrack extends TransformTrack implements JmeCloneable, Sa
     public JointTrack(Joint target, float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
         super(times, translations, rotations, scales);
         this.target = target;
+        this.defaultTransform = target.getLocalTransform();
     }
 
     @Override
     public boolean interpolate(double t) {
-        setDefaultTransform(target.getLocalTransform());
         boolean running = super.interpolate(t);
         Transform transform = getInterpolatedTransform();
         target.setLocalTransform(transform);
@@ -83,16 +83,11 @@ public final class JointTrack extends TransformTrack implements JmeCloneable, Sa
 
     @Override
     public Object jmeClone() {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException("Error cloning", e);
-        }
+        return super.clone();
     }
 
     @Override
     public void cloneFields(Cloner cloner, Object original) {
-        super.cloneFields(cloner, original);
         this.target = cloner.clone(target);
     }
 

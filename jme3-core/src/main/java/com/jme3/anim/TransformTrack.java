@@ -37,8 +37,6 @@ import com.jme3.animation.CompactQuaternionArray;
 import com.jme3.animation.CompactVector3Array;
 import com.jme3.export.*;
 import com.jme3.math.*;
-import com.jme3.util.clone.Cloner;
-import com.jme3.util.clone.JmeCloneable;
 
 import java.io.IOException;
 
@@ -47,7 +45,7 @@ import java.io.IOException;
  *
  * @author Rémy Bouquet
  */
-public abstract class TransformTrack implements Tween, JmeCloneable, Savable {
+public abstract class TransformTrack implements Tween, Cloneable, Savable {
 
     private double length;
 
@@ -58,7 +56,7 @@ public abstract class TransformTrack implements Tween, JmeCloneable, Savable {
     private CompactQuaternionArray rotations;
     private CompactVector3Array scales;
     private Transform transform = new Transform();
-    private Transform defaultTransform = new Transform();
+    protected Transform defaultTransform = new Transform();
     private FrameInterpolator interpolator = FrameInterpolator.DEFAULT;
     private float[] times;
 
@@ -283,10 +281,6 @@ public abstract class TransformTrack implements Tween, JmeCloneable, Savable {
         return transform;
     }
 
-    public void setDefaultTransform(Transform transforms) {
-        defaultTransform.set(transforms);
-    }
-
     public void setFrameInterpolator(FrameInterpolator interpolator) {
         this.interpolator = interpolator;
     }
@@ -311,7 +305,7 @@ public abstract class TransformTrack implements Tween, JmeCloneable, Savable {
     }
 
     @Override
-    public Object jmeClone() {
+    public Object clone() {
         try {
             return super.clone();
         } catch (CloneNotSupportedException e) {
@@ -319,37 +313,4 @@ public abstract class TransformTrack implements Tween, JmeCloneable, Savable {
         }
     }
 
-    @Override
-    public void cloneFields(Cloner cloner, Object original) {
-        int tablesLength = times.length;
-
-        setTimes(this.times.clone());
-        if (translations != null) {
-            Vector3f[] sourceTranslations = this.getTranslations();
-            Vector3f[] translations = new Vector3f[tablesLength];
-            for (int i = 0; i < tablesLength; ++i) {
-                translations[i] = sourceTranslations[i].clone();
-            }
-            setKeyframesTranslation(translations);
-        }
-        if (rotations != null) {
-            Quaternion[] sourceRotations = this.getRotations();
-            Quaternion[] rotations = new Quaternion[tablesLength];
-            for (int i = 0; i < tablesLength; ++i) {
-                rotations[i] = sourceRotations[i].clone();
-            }
-            setKeyframesRotation(rotations);
-        }
-
-        if (scales != null) {
-            Vector3f[] sourceScales = this.getScales();
-            Vector3f[] scales = new Vector3f[tablesLength];
-            for (int i = 0; i < tablesLength; ++i) {
-                scales[i] = sourceScales[i].clone();
-            }
-            setKeyframesScale(scales);
-        }
-
-        setFrameInterpolator(this.interpolator);
-    }
 }

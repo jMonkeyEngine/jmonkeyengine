@@ -12,6 +12,7 @@ import com.jme3.util.clone.JmeCloneable;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A Joint is the basic component of an armature designed to perform skeletal animation
@@ -21,7 +22,7 @@ public class Joint implements Savable, JmeCloneable {
 
     private String name;
     private Joint parent;
-    private ArrayList<Joint> children = new ArrayList<>();
+    private SafeArrayList<Joint> children = new SafeArrayList<>(Joint.class);
     private Geometry targetGeometry;
 
     /**
@@ -61,7 +62,7 @@ public class Joint implements Savable, JmeCloneable {
     public final void update() {
         this.updateModelTransforms();
 
-        for (Joint child : children) {
+        for (Joint child : children.getArray()) {
             child.update();
         }
     }
@@ -135,7 +136,7 @@ public class Joint implements Savable, JmeCloneable {
         jointModelTransform.applyBindPose(localTransform, inverseModelBindMatrix, parent);
         updateModelTransforms();
 
-        for (Joint child : children) {
+        for (Joint child : children.getArray()) {
             child.resetToBindPose();
         }
     }
@@ -197,7 +198,7 @@ public class Joint implements Savable, JmeCloneable {
         return parent;
     }
 
-    public ArrayList<Joint> getChildren() {
+    public List<Joint> getChildren() {
         return children;
     }
 
@@ -291,7 +292,7 @@ public class Joint implements Savable, JmeCloneable {
         output.write(attachedNode, "attachedNode", null);
         output.write(targetGeometry, "targetGeometry", null);
         output.write(inverseModelBindMatrix, "inverseModelBindMatrix", new Matrix4f());
-        output.writeSavableArrayList(children, "children", null);
+        output.writeSavableArrayList(new ArrayList(children), "children", null);
     }
 
 }

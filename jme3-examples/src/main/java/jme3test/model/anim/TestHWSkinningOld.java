@@ -31,8 +31,7 @@
  */
 package jme3test.model.anim;
 
-import com.jme3.anim.AnimComposer;
-import com.jme3.anim.SkinningControl;
+import com.jme3.animation.*;
 import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
@@ -45,18 +44,18 @@ import com.jme3.scene.Spatial;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestHWSkinning extends SimpleApplication implements ActionListener{
+public class TestHWSkinningOld extends SimpleApplication implements ActionListener {
 
-
-    private AnimComposer composer;
+    private AnimChannel channel;
+    private AnimControl control;
     private String[] animNames = {"Dodge", "Walk", "pull", "push"};
     private final static int SIZE = 50;
     private boolean hwSkinningEnable = true;
-    private List<SkinningControl> skControls = new ArrayList<SkinningControl>();
+    private List<SkeletonControl> skControls = new ArrayList<SkeletonControl>();
     private BitmapText hwsText;
 
     public static void main(String[] args) {
-        TestHWSkinning app = new TestHWSkinning();
+        TestHWSkinningOld app = new TestHWSkinningOld();
         app.start();
     }
 
@@ -67,9 +66,8 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
         setPauseOnLostFocus(false);
         cam.setLocation(new Vector3f(24.746134f, 13.081396f, 32.72753f));
         cam.setRotation(new Quaternion(-0.06867662f, 0.92435044f, -0.19981281f, -0.31770203f));
-
         makeHudText();
- 
+
         DirectionalLight dl = new DirectionalLight();
         dl.setDirection(new Vector3f(-0.1f, -0.7f, -1).normalizeLocal());
         dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
@@ -77,15 +75,16 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
 
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                Spatial model = (Spatial) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+                Spatial model = (Spatial) assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
                 model.setLocalScale(0.1f);
                 model.setLocalTranslation(i - SIZE / 2, 0, j - SIZE / 2);
-                composer = model.getControl(AnimComposer.class);
+                control = model.getControl(AnimControl.class);
 
-                composer.setCurrentAnimClip(animNames[(i + j) % 4]);
-                SkinningControl skinningControl = model.getControl(SkinningControl.class);
-                skinningControl.setHardwareSkinningPreferred(hwSkinningEnable);
-                skControls.add(skinningControl);
+                channel = control.createChannel();
+                channel.setAnim(animNames[(i + j) % 4]);
+                SkeletonControl skeletonControl = model.getControl(SkeletonControl.class);
+                skeletonControl.setHardwareSkinningPreferred(hwSkinningEnable);
+                skControls.add(skeletonControl);
                 rootNode.attachChild(model);
             }
         }
@@ -96,11 +95,11 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
 
     @Override
     public void onAction(String name, boolean isPressed, float tpf) {
-        if(isPressed && name.equals("toggleHWS")){
+        if (isPressed && name.equals("toggleHWS")) {
             hwSkinningEnable = !hwSkinningEnable;
-            for (SkinningControl control : skControls) {
+            for (SkeletonControl control : skControls) {
                 control.setHardwareSkinningPreferred(hwSkinningEnable);
-                hwsText.setText("HWS : "+ hwSkinningEnable);
+                hwsText.setText("HWS : " + hwSkinningEnable);
             }
         }
     }
@@ -109,7 +108,7 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
         hwsText = new BitmapText(guiFont, false);
         hwsText.setSize(guiFont.getCharSet().getRenderedSize());
-        hwsText.setText("HWS : "+ hwSkinningEnable);
+        hwsText.setText("HWS : " + hwSkinningEnable);
         hwsText.setLocalTranslation(0, cam.getHeight(), 0);
         guiNode.attachChild(hwsText);
     }

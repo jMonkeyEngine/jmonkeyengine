@@ -23,7 +23,7 @@ public class Armature implements JmeCloneable, Savable {
      * will cause it to go to the animated position.
      */
     private transient Matrix4f[] skinningMatrixes;
-    private Class<? extends JointModelTransform> modelTransformClass = MatrixJointModelTransform.class;
+    private Class<? extends JointModelTransform> modelTransformClass = SeparateJointModelTransform.class;
 
     /**
      * Serialization only
