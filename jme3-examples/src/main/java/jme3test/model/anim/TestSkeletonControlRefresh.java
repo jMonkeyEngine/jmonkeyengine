@@ -37,7 +37,6 @@ package jme3test.model.anim;
  */
 
 
- 
 import com.jme3.animation.*;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
@@ -47,11 +46,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.ssao.SSAOFilter;
 import com.jme3.renderer.queue.RenderQueue;
@@ -59,11 +54,11 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import com.jme3.shadow.DirectionalLightShadowFilter;
-import com.jme3.shadow.DirectionalLightShadowRenderer;
+
 import java.util.ArrayList;
 import java.util.List;
-import jme3test.post.SSAOUI;
- 
+
+//TODO rework this Test when the new animation system is done.
 public class TestSkeletonControlRefresh extends SimpleApplication implements ActionListener{
  
     private AnimChannel channel;
@@ -97,7 +92,7 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
  
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                Spatial model = (Spatial) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+                Spatial model = (Spatial) assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
                 //setting a different material
                 model.setMaterial(m.clone());
                 model.setLocalScale(0.1f);

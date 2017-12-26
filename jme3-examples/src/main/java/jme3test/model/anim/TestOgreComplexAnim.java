@@ -32,20 +32,15 @@
 
 package jme3test.model.anim;
 
-import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.Bone;
-import com.jme3.animation.LoopMode;
+import com.jme3.animation.*;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import com.jme3.scene.Node;
 import com.jme3.scene.debug.SkeletonDebugger;
 
+//TODO rework this Test when the new animation system is done.
 public class TestOgreComplexAnim extends SimpleApplication {
 
     private AnimControl control;
@@ -69,7 +64,7 @@ public class TestOgreComplexAnim extends SimpleApplication {
         dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
         rootNode.addLight(dl);
 
-        Node model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        Node model = (Node) assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
 
         control = model.getControl(AnimControl.class);
 
@@ -118,8 +113,8 @@ public class TestOgreComplexAnim extends SimpleApplication {
     public void simpleUpdate(float tpf){
         Bone b = control.getSkeleton().getBone("spinehigh");
         Bone b2 = control.getSkeleton().getBone("uparm.left");
-        
-        angle += tpf * rate;        
+
+        angle += tpf * rate;
         if (angle > FastMath.HALF_PI / 2f){
             angle = FastMath.HALF_PI / 2f;
             rate = -1;
@@ -133,11 +128,11 @@ public class TestOgreComplexAnim extends SimpleApplication {
 
         b.setUserControl(true);
         b.setUserTransforms(Vector3f.ZERO, q, Vector3f.UNIT_XYZ);
-        
+
         b2.setUserControl(true);
         b2.setUserTransforms(Vector3f.ZERO, Quaternion.IDENTITY, new Vector3f(1+angle,1+ angle, 1+angle));
-  
-  
+
+
     }
 
 }
