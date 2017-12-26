@@ -26,7 +26,7 @@ public class TestAnimMigration extends SimpleApplication {
     ArmatureDebugAppState debugAppState;
     AnimComposer composer;
     Queue<String> anims = new LinkedList<>();
-    boolean playAnim = false;
+    boolean playAnim = true;
 
     public static void main(String... argv) {
         TestAnimMigration app = new TestAnimMigration();
@@ -41,10 +41,10 @@ public class TestAnimMigration extends SimpleApplication {
         rootNode.addLight(new DirectionalLight(new Vector3f(-1, -1, -1).normalizeLocal()));
         rootNode.addLight(new AmbientLight(ColorRGBA.DarkGray));
 
-        //Spatial model = assetManager.loadModel("Models/Jaime/Jaime.j3o");
-        //Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml").scale(0.2f).move(0, 1, 0);
+//        Spatial model = assetManager.loadModel("Models/Jaime/Jaime.j3o");
+        Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml").scale(0.2f).move(0, 1, 0);
         //Spatial model = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
-        Spatial model = assetManager.loadModel("Models/Elephant/Elephant.mesh.xml").scale(0.02f);
+        //  Spatial model = assetManager.loadModel("Models/Elephant/Elephant.mesh.xml").scale(0.02f);
 
         AnimMigrationUtils.migrate(model);
 

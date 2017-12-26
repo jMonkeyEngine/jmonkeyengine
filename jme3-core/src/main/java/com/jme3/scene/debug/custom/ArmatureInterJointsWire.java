@@ -98,17 +98,27 @@ public class ArmatureInterJointsWire extends Mesh {
     /**
      * Update the start and end points of the line.
      */
-    public void updatePoints(Vector3f start, Vector3f end) {
+    public void updatePoints(Vector3f start, Vector3f[] ends) {
         VertexBuffer posBuf = getBuffer(Type.Position);
-
         FloatBuffer fb = (FloatBuffer) posBuf.getData();
         fb.rewind();
         fb.put(start.x).put(start.y).put(start.z);
-        fb.put(end.x).put(end.y).put(end.z);
-
+        for (int i = 0; i < ends.length; i++) {
+            fb.put(ends[i].x);
+            fb.put(ends[i].y);
+            fb.put(ends[i].z);
+        }
         posBuf.updateData(fb);
 
-        updateBound();
+        VertexBuffer normBuf = getBuffer(Type.Normal);
+        fb = (FloatBuffer) normBuf.getData();
+        fb.rewind();
+        for (int i = 0; i < ends.length * 3 + 3; i += 3) {
+            fb.put(start.x);
+            fb.put(start.y);
+            fb.put(start.z);
+        }
+        normBuf.updateData(fb);
     }
 
 }

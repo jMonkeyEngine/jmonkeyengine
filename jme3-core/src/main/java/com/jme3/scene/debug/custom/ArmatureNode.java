@@ -79,6 +79,10 @@ public class ArmatureNode extends Node {
     public ArmatureNode(Armature armature, Node joints, Node wires, Node outlines, List<Joint> deformingJoints) {
         this.armature = armature;
 
+        Geometry origin = new Geometry("Armature Origin", new JointShape());
+        setColor(origin, ColorRGBA.Green);
+        attach(joints, true, origin);
+
         for (Joint joint : armature.getRoots()) {
             createSkeletonGeoms(joint, joints, wires, outlines, deformingJoints);
         }
@@ -253,14 +257,13 @@ public class ArmatureNode extends Node {
         return nbCol;
     }
 
-    private void updateBoneMesh(Geometry bGeom, Vector3f start, Vector3f[] ends) {
-        VertexBuffer pos = bGeom.getMesh().getBuffer(VertexBuffer.Type.Position);
-        FloatBuffer fb = (FloatBuffer) pos.getData();
-        fb.rewind();
-        fb.put(new float[]{start.x, start.y, start.z,
-                ends[0].x, ends[0].y, ends[0].z,});
-        pos.updateData(fb);
-        bGeom.updateModelBound();
+    private void updateBoneMesh(Geometry geom, Vector3f start, Vector3f[] ends) {
+        if (geom.getMesh() instanceof ArmatureInterJointsWire) {
+            ((ArmatureInterJointsWire) geom.getMesh()).updatePoints(start, ends);
+        } else if (geom.getMesh() instanceof Line) {
+            ((Line) geom.getMesh()).updatePoints(start, ends[0]);
+        }
+        geom.updateModelBound();
     }
 
     private void setColor(Geometry g, ColorRGBA color) {
