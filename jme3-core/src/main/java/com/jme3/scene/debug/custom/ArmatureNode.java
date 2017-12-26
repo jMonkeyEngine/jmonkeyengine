@@ -50,6 +50,7 @@ import java.util.*;
  */
 public class ArmatureNode extends Node {
 
+    public static final float PIXEL_BOX = 10f;
     /**
      * The armature to be displayed.
      */
@@ -60,8 +61,7 @@ public class ArmatureNode extends Node {
     private Map<Joint, Geometry[]> jointToGeoms = new HashMap<>();
     private Map<Geometry, Joint> geomToJoint = new HashMap<>();
     private Joint selectedJoint = null;
-    private Vector3f tmpStart = new Vector3f();
-    private List<Vector3f> tmpEnds = new ArrayList<>();
+    private Vector3f tmp = new Vector3f();
     private final static ColorRGBA selectedColor = ColorRGBA.Orange;
     private final static ColorRGBA selectedColorJ = ColorRGBA.Yellow;
     private final static ColorRGBA outlineColor = ColorRGBA.LightGray;
@@ -109,7 +109,9 @@ public class ArmatureNode extends Node {
         attach(joints, deforms, jGeom);
         Geometry bGeom = null;
         Geometry bGeomO = null;
-        if (ends != null) {
+        if (ends == null) {
+            geomToJoint.put(jGeom, joint);
+        } else {
             Mesh m = null;
             Mesh mO = null;
             Node wireAttach = wires;
@@ -172,7 +174,10 @@ public class ArmatureNode extends Node {
             selectedJoint = j;
             Geometry[] geomArray = jointToGeoms.get(selectedJoint);
             setColor(geomArray[0], selectedColorJ);
-            setColor(geomArray[1], selectedColor);
+
+            if (geomArray[1] != null) {
+                setColor(geomArray[1], selectedColor);
+            }
 
             if (geomArray[2] != null) {
                 setColor(geomArray[2], baseColor);
@@ -188,7 +193,9 @@ public class ArmatureNode extends Node {
         }
         Geometry[] geoms = jointToGeoms.get(selectedJoint);
         setColor(geoms[0], ColorRGBA.White);
-        setColor(geoms[1], geoms[2] == null ? outlineColor : baseColor);
+        if (geoms[1] != null) {
+            setColor(geoms[1], geoms[2] == null ? outlineColor : baseColor);
+        }
         if (geoms[2] != null) {
             setColor(geoms[2], outlineColor);
         }
@@ -211,7 +218,6 @@ public class ArmatureNode extends Node {
                 Vector3f[] ends = bGeom.getUserData("end");
                 start.set(joint.getModelTransform().getTranslation());
                 if (ends != null) {
-                    tmpEnds.clear();
                     for (int i = 0; i < joint.getChildren().size(); i++) {
                         ends[i].set(joint.getChildren().get(i).getModelTransform().getTranslation());
                     }
@@ -235,6 +241,22 @@ public class ArmatureNode extends Node {
         }
     }
 
+    public int pick(Vector2f cursor, CollisionResults results) {
+
+        for (Geometry g : geomToJoint.keySet()) {
+            if (g.getMesh() instanceof JointShape) {
+                camera.getScreenCoordinates(g.getWorldTranslation(), tmp);
+                if (cursor.x <= tmp.x + PIXEL_BOX && cursor.x >= tmp.x - PIXEL_BOX
+                        && cursor.y <= tmp.y + PIXEL_BOX && cursor.y >= tmp.y - PIXEL_BOX) {
+                    CollisionResult res = new CollisionResult();
+                    res.setGeometry(g);
+                    results.addCollision(res);
+                }
+            }
+        }
+        return 0;
+    }
+
     @Override
     public int collideWith(Collidable other, CollisionResults results) {
         if (!(other instanceof Ray)) {
@@ -242,11 +264,14 @@ public class ArmatureNode extends Node {
         }
         int nbCol = 0;
         for (Geometry g : geomToJoint.keySet()) {
+            if (g.getMesh() instanceof JointShape) {
+                continue;
+            }
             Vector3f start = g.getUserData("start");
             Vector3f[] ends = g.getUserData("end");
             for (int i = 0; i < ends.length; i++) {
                 float len = MathUtils.raySegmentShortestDistance((Ray) other, start, ends[i], camera);
-                if (len > 0 && len < 10f) {
+                if (len > 0 && len < PIXEL_BOX) {
                     CollisionResult res = new CollisionResult();
                     res.setGeometry(g);
                     results.addCollision(res);

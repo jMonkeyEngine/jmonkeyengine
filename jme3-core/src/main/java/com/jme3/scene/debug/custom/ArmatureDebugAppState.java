@@ -23,11 +23,13 @@ import java.util.*;
  */
 public class ArmatureDebugAppState extends BaseAppState {
 
+    public static final float CLICK_MAX_DELAY = 0.2f;
     private Node debugNode = new Node("debugNode");
     private Map<Armature, ArmatureDebugger> armatures = new HashMap<>();
     private Map<Armature, Joint> selectedBones = new HashMap<>();
     private Application app;
     private boolean displayAllJoints = false;
+    private float clickDelay = -1;
     ViewPort vp;
 
     @Override
@@ -66,8 +68,12 @@ public class ArmatureDebugAppState extends BaseAppState {
 
     @Override
     public void update(float tpf) {
+        if (clickDelay > -1) {
+            clickDelay += tpf;
+        }
         debugNode.updateLogicalState(tpf);
         debugNode.updateGeometricState();
+
     }
 
     public ArmatureDebugger addArmatureFrom(SkinningControl skinningControl) {
@@ -111,19 +117,31 @@ public class ArmatureDebugAppState extends BaseAppState {
     private ActionListener actionListener = new ActionListener() {
         public void onAction(String name, boolean isPressed, float tpf) {
             if (name.equals("shoot") && isPressed) {
-                CollisionResults results = new CollisionResults();
+                clickDelay = 0;
+            }
+            if (name.equals("shoot") && !isPressed && clickDelay < CLICK_MAX_DELAY) {
                 Vector2f click2d = app.getInputManager().getCursorPosition();
-                Vector3f click3d = app.getCamera().getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 0f).clone();
-                Vector3f dir = app.getCamera().getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 1f).subtractLocal(click3d);
-                Ray ray = new Ray(click3d, dir);
+                CollisionResults results = new CollisionResults();
+                //first check 2d collision with joints
+                for (ArmatureDebugger ad : armatures.values()) {
+                    ad.pick(click2d, results);
+                }
 
-                debugNode.collideWith(ray, results);
+                if (results.size() == 0) {
+                    //no result, let's ray cast for bone geometries
+                    Vector3f click3d = app.getCamera().getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 0f).clone();
+                    Vector3f dir = app.getCamera().getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 1f).subtractLocal(click3d);
+                    Ray ray = new Ray(click3d, dir);
+                    debugNode.collideWith(ray, results);
+                }
+
                 if (results.size() == 0) {
                     for (ArmatureDebugger ad : armatures.values()) {
                         ad.select(null);
                     }
                     return;
                 }
+                
                 // The closest result is the target that the player picked:
                 Geometry target = results.getClosestCollision().getGeometry();
                 for (ArmatureDebugger ad : armatures.values()) {
