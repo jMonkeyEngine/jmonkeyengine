@@ -31,36 +31,23 @@
  */
 package com.jme3.bullet.control;
 
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.Bone;
-import com.jme3.animation.Skeleton;
-import com.jme3.animation.SkeletonControl;
+import com.jme3.animation.*;
 import com.jme3.bullet.PhysicsSpace;
-import com.jme3.bullet.collision.PhysicsCollisionEvent;
-import com.jme3.bullet.collision.PhysicsCollisionListener;
-import com.jme3.bullet.collision.PhysicsCollisionObject;
-import com.jme3.bullet.collision.RagdollCollisionListener;
+import com.jme3.bullet.collision.*;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.HullCollisionShape;
-import com.jme3.bullet.control.ragdoll.HumanoidRagdollPreset;
-import com.jme3.bullet.control.ragdoll.RagdollPreset;
-import com.jme3.bullet.control.ragdoll.RagdollUtils;
+import com.jme3.bullet.control.ragdoll.*;
 import com.jme3.bullet.joints.SixDofJoint;
 import com.jme3.bullet.objects.PhysicsRigidBody;
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
-import com.jme3.export.Savable;
-import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
+import com.jme3.export.*;
+import com.jme3.math.*;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
@@ -91,7 +78,10 @@ import java.util.logging.Logger;
  * </ul> </p>
  *
  * @author Normen Hansen and Rémy Bouquet (Nehon)
+ *
+ * TODO this needs to be redone with the new animation system
  */
+@Deprecated
 public class KinematicRagdollControl extends AbstractPhysicsControl implements PhysicsCollisionListener, JmeCloneable {
 
     protected static final Logger logger = Logger.getLogger(KinematicRagdollControl.class.getName());

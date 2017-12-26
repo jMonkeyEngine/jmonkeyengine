@@ -31,13 +31,9 @@
  */
 package jme3test.animation;
 
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.AnimationFactory;
-import com.jme3.animation.LoopMode;
+import com.jme3.animation.*;
 import com.jme3.app.SimpleApplication;
-import com.jme3.cinematic.Cinematic;
-import com.jme3.cinematic.MotionPath;
-import com.jme3.cinematic.PlayState;
+import com.jme3.cinematic.*;
 import com.jme3.cinematic.events.*;
 import com.jme3.font.BitmapText;
 import com.jme3.input.ChaseCamera;
@@ -45,21 +41,18 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import com.jme3.niftygui.NiftyJmeDisplay;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.FadeFilter;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
-import com.jme3.scene.CameraNode;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Spatial;
+import com.jme3.scene.*;
 import com.jme3.scene.shape.Box;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import de.lessvoid.nifty.Nifty;
 
+//TODO rework this Test when the new animation system is done.
 public class TestCinematic extends SimpleApplication {
 
     private Spatial model;
@@ -75,7 +68,6 @@ public class TestCinematic extends SimpleApplication {
     public static void main(String[] args) {
         TestCinematic app = new TestCinematic();
         app.start();
-
 
 
     }
@@ -202,7 +194,7 @@ public class TestCinematic extends SimpleApplication {
 
     private void createScene() {
 
-        model = (Spatial) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        model = assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
         model.center();
         model.setShadowMode(ShadowMode.CastAndReceive);
         rootNode.attachChild(model);

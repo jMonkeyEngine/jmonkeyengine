@@ -31,28 +31,28 @@
  */
 package jme3test.model.anim;
 
-import com.jme3.animation.*;
+import com.jme3.anim.AnimComposer;
+import com.jme3.anim.SkinningControl;
 import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import com.jme3.scene.Spatial;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class TestHWSkinning extends SimpleApplication implements ActionListener{
 
-    private AnimChannel channel;
-    private AnimControl control;
+
+    private AnimComposer composer;
     private String[] animNames = {"Dodge", "Walk", "pull", "push"};
     private final static int SIZE = 10;
     private boolean hwSkinningEnable = true;
-    private List<SkeletonControl> skControls = new ArrayList<SkeletonControl>();
+    private List<SkinningControl> skControls = new ArrayList<SkinningControl>();
     private BitmapText hwsText;
 
     public static void main(String[] args) {
@@ -77,13 +77,12 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
                 Spatial model = (Spatial) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
                 model.setLocalScale(0.1f);
                 model.setLocalTranslation(i - SIZE / 2, 0, j - SIZE / 2);
-                control = model.getControl(AnimControl.class);
+                composer = model.getControl(AnimComposer.class);
 
-                channel = control.createChannel();
-                channel.setAnim(animNames[(i + j) % 4]);
-                SkeletonControl skeletonControl = model.getControl(SkeletonControl.class);
-                skeletonControl.setHardwareSkinningPreferred(hwSkinningEnable);
-                skControls.add(skeletonControl);
+                composer.setCurrentAnimClip(animNames[(i + j) % 4]);
+                SkinningControl skinningControl = model.getControl(SkinningControl.class);
+                skinningControl.setHardwareSkinningPreferred(hwSkinningEnable);
+                skControls.add(skinningControl);
                 rootNode.attachChild(model);
             }
         }
@@ -96,7 +95,7 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
     public void onAction(String name, boolean isPressed, float tpf) {
         if(isPressed && name.equals("toggleHWS")){
             hwSkinningEnable = !hwSkinningEnable;
-            for (SkeletonControl control : skControls) {
+            for (SkinningControl control : skControls) {
                 control.setHardwareSkinningPreferred(hwSkinningEnable);
                 hwsText.setText("HWS : "+ hwSkinningEnable);
             }

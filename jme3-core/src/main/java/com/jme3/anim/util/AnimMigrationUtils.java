@@ -80,16 +80,7 @@ public class AnimMigrationUtils {
                     }
 
                     for (int i = 0; i < staticJoints.length; i++) {
-                        Joint j = staticJoints[i];
-                        if (j != null) {
-                            // joint has no track , we create one with the default pose
-                            float[] times = new float[]{0};
-                            Vector3f[] translations = new Vector3f[]{j.getLocalTranslation()};
-                            Quaternion[] rotations = new Quaternion[]{j.getLocalRotation()};
-                            Vector3f[] scales = new Vector3f[]{j.getLocalScale()};
-                            JointTrack track = new JointTrack(j, times, translations, rotations, scales);
-                            clip.addTrack(track);
-                        }
+                        padJointTracks(clip, staticJoints[i]);
                     }
 
                     composer.addAnimClip(clip);
@@ -101,6 +92,19 @@ public class AnimMigrationUtils {
 
         public void setMappings(Map<Skeleton, Armature> skeletonArmatureMap) {
             this.skeletonArmatureMap = skeletonArmatureMap;
+        }
+    }
+
+    public static void padJointTracks(AnimClip clip, Joint staticJoint) {
+        Joint j = staticJoint;
+        if (j != null) {
+            // joint has no track , we create one with the default pose
+            float[] times = new float[]{0};
+            Vector3f[] translations = new Vector3f[]{j.getLocalTranslation()};
+            Quaternion[] rotations = new Quaternion[]{j.getLocalRotation()};
+            Vector3f[] scales = new Vector3f[]{j.getLocalScale()};
+            JointTrack track = new JointTrack(j, times, translations, rotations, scales);
+            clip.addTrack(track);
         }
     }
 
