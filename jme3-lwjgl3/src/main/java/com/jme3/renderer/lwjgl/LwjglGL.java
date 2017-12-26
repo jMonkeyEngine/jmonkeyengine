@@ -31,449 +31,553 @@
  */
 package com.jme3.renderer.lwjgl;
 
-import com.jme3.renderer.RendererException;
 import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GL2;
 import com.jme3.renderer.opengl.GL3;
 import com.jme3.renderer.opengl.GL4;
 import org.lwjgl.opengl.*;
 
-import java.nio.*;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 
-public class LwjglGL implements GL, GL2, GL3, GL4 {
+/**
+ * The LWJGL implementation of interfaces {@link GL}, {@link GL2}, {@link GL3}, {@link GL4}.
+ */
+public class LwjglGL extends LwjglRender implements GL, GL2, GL3, GL4 {
 
-    private static void checkLimit(Buffer buffer) {
-        if (buffer == null) {
-            return;
-        }
-        if (buffer.limit() == 0) {
-            throw new RendererException("Attempting to upload empty buffer (limit = 0), that's an error");
-        }
-        if (buffer.remaining() == 0) {
-            throw new RendererException("Attempting to upload empty buffer (remaining = 0), that's an error");
-        }
-    }
-    
+    @Override
     public void resetStats() {
-    }
-    
-    public void glActiveTexture(int param1) {
-        GL13.glActiveTexture(param1);
-    }
-
-    public void glAlphaFunc(int param1, float param2) {
-        GL11.glAlphaFunc(param1, param2);
-    }
-
-    public void glAttachShader(int param1, int param2) {
-        GL20.glAttachShader(param1, param2);
     }
 
     @Override
-    public void glBeginQuery(int target, int query) {
+    public void glActiveTexture(final int texture) {
+        GL13.glActiveTexture(texture);
+    }
+
+    @Override
+    public void glAlphaFunc(final int func, final float ref) {
+        GL11.glAlphaFunc(func, ref);
+    }
+
+    @Override
+    public void glAttachShader(final int program, final int shader) {
+        GL20.glAttachShader(program, shader);
+    }
+
+    @Override
+    public void glBeginQuery(final int target, final int query) {
         GL15.glBeginQuery(target, query);
     }
 
-    public void glBindBuffer(int param1, int param2) {
-        GL15.glBindBuffer(param1, param2);
+    @Override
+    public void glBindBuffer(final int target, final int buffer) {
+        GL15.glBindBuffer(target, buffer);
     }
 
-    public void glBindTexture(int param1, int param2) {
-        GL11.glBindTexture(param1, param2);
+    @Override
+    public void glBindTexture(final int target, final int texture) {
+        GL11.glBindTexture(target, texture);
     }
 
-    public void glBlendEquationSeparate(int colorMode, int alphaMode){
-        GL20.glBlendEquationSeparate(colorMode,alphaMode);
+    @Override
+    public void glBlendEquationSeparate(final int colorMode, final int alphaMode) {
+        GL20.glBlendEquationSeparate(colorMode, alphaMode);
     }
 
-    public void glBlendFunc(int param1, int param2) {
-        GL11.glBlendFunc(param1, param2);
-    }
-    
-    public void glBlendFuncSeparate(int param1, int param2, int param3, int param4) {
-        GL14.glBlendFuncSeparate(param1, param2, param3, param4);
+    @Override
+    public void glBlendFunc(final int sfactor, final int dfactor) {
+        GL11.glBlendFunc(sfactor, dfactor);
     }
 
-    public void glBufferData(int param1, long param2, int param3) {
-        GL15.glBufferData(param1, param2, param3);
-    }
-    
-    public void glBufferData(int param1, FloatBuffer param2, int param3) {
-        checkLimit(param2);
-        GL15.glBufferData(param1, param2, param3);
+    @Override
+    public void glBlendFuncSeparate(final int sfactorRGB, final int dfactorRGB, final int sfactorAlpha,
+                                    final int dfactorAlpha) {
+        GL14.glBlendFuncSeparate(sfactorRGB, dfactorRGB, sfactorAlpha, dfactorAlpha);
     }
 
-    public void glBufferData(int param1, ShortBuffer param2, int param3) {
-        checkLimit(param2);
-        GL15.glBufferData(param1, param2, param3);
+    @Override
+    public void glBufferData(final int target, final long dataSize, final int usage) {
+        GL15.glBufferData(target, dataSize, usage);
     }
 
-    public void glBufferData(int param1, ByteBuffer param2, int param3) {
-        checkLimit(param2);
-        GL15.glBufferData(param1, param2, param3);
+    @Override
+    public void glBufferData(final int target, final FloatBuffer data, final int usage) {
+        checkLimit(data);
+        GL15.glBufferData(target, data, usage);
     }
 
-    public void glBufferSubData(int param1, long param2, FloatBuffer param3) {
-        checkLimit(param3);
-        GL15.glBufferSubData(param1, param2, param3);
+    @Override
+    public void glBufferData(final int target, final ShortBuffer data, final int usage) {
+        checkLimit(data);
+        GL15.glBufferData(target, data, usage);
     }
 
-    public void glBufferSubData(int param1, long param2, ShortBuffer param3) {
-        checkLimit(param3);
-        GL15.glBufferSubData(param1, param2, param3);
+    @Override
+    public void glBufferData(final int target, final ByteBuffer data, final int usage) {
+        checkLimit(data);
+        GL15.glBufferData(target, data, usage);
     }
 
-    public void glBufferSubData(int param1, long param2, ByteBuffer param3) {
-        checkLimit(param3);
-        GL15.glBufferSubData(param1, param2, param3);
+    @Override
+    public void glBufferSubData(final int target, final long offset, final FloatBuffer data) {
+        checkLimit(data);
+        GL15.glBufferSubData(target, offset, data);
     }
 
-    public void glClear(int param1) {
-        GL11.glClear(param1);
+    @Override
+    public void glBufferSubData(final int target, final long offset, final ShortBuffer data) {
+        checkLimit(data);
+        GL15.glBufferSubData(target, offset, data);
     }
 
-    public void glClearColor(float param1, float param2, float param3, float param4) {
-        GL11.glClearColor(param1, param2, param3, param4);
+    @Override
+    public void glBufferSubData(final int target, final long offset, final ByteBuffer data) {
+        checkLimit(data);
+        GL15.glBufferSubData(target, offset, data);
     }
 
-    public void glColorMask(boolean param1, boolean param2, boolean param3, boolean param4) {
-        GL11.glColorMask(param1, param2, param3, param4);
+    @Override
+    public void glClear(final int mask) {
+        GL11.glClear(mask);
     }
 
-    public void glCompileShader(int param1) {
-        GL20.glCompileShader(param1);
+    @Override
+    public void glClearColor(final float red, final float green, final float blue, final float alpha) {
+        GL11.glClearColor(red, green, blue, alpha);
     }
 
-    public void glCompressedTexImage2D(int param1, int param2, int param3, int param4, int param5, int param6, ByteBuffer param7) {
-        checkLimit(param7);
-        GL13.glCompressedTexImage2D(param1, param2, param3, param4, param5, param6, param7);
+    @Override
+    public void glColorMask(final boolean red, final boolean green, final boolean blue, final boolean alpha) {
+        GL11.glColorMask(red, green, blue, alpha);
     }
 
-    public void glCompressedTexImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, ByteBuffer param8) {
-        checkLimit(param8);
-        GL13.glCompressedTexImage3D(param1, param2, param3, param4, param5, param6, param7, param8);
+    @Override
+    public void glCompileShader(final int shader) {
+        GL20.glCompileShader(shader);
     }
 
-    public void glCompressedTexSubImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, ByteBuffer param8) {
-        checkLimit(param8);
-        GL13.glCompressedTexSubImage2D(param1, param2, param3, param4, param5, param6, param7, param8);
+    @Override
+    public void glCompressedTexImage2D(final int target, final int level, final int internalFormat, final int width,
+                                       final int height, final int border, final ByteBuffer data) {
+        checkLimit(data);
+        GL13.glCompressedTexImage2D(target, level, internalFormat, width, height, border, data);
     }
 
-    public void glCompressedTexSubImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, ByteBuffer param10) {
-        checkLimit(param10);
-        GL13.glCompressedTexSubImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
+    @Override
+    public void glCompressedTexImage3D(final int target, final int level, final int internalFormat, final int width,
+                                       final int height, final int depth, final int border, final ByteBuffer data) {
+        checkLimit(data);
+        GL13.glCompressedTexImage3D(target, level, internalFormat, width, height, depth, border, data);
     }
 
+    @Override
+    public void glCompressedTexSubImage2D(final int target, final int level, final int xoffset, final int yoffset,
+                                          final int width, final int height, final int format, final ByteBuffer data) {
+        checkLimit(data);
+        GL13.glCompressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, data);
+    }
+
+    @Override
+    public void glCompressedTexSubImage3D(final int target, final int level, final int xoffset, final int yoffset,
+                                          final int zoffset, final int width, final int height, final int depth,
+                                          final int format, final ByteBuffer data) {
+        checkLimit(data);
+        GL13.glCompressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, data);
+    }
+
+    @Override
     public int glCreateProgram() {
         return GL20.glCreateProgram();
     }
 
-    public int glCreateShader(int param1) {
-        return GL20.glCreateShader(param1);
-    }
-
-    public void glCullFace(int param1) {
-        GL11.glCullFace(param1);
-    }
-
-    public void glDeleteBuffers(IntBuffer param1) {
-        checkLimit(param1);
-        GL15.glDeleteBuffers(param1);
-    }
-
-    public void glDeleteProgram(int param1) {
-        GL20.glDeleteProgram(param1);
-    }
-
-    public void glDeleteShader(int param1) {
-        GL20.glDeleteShader(param1);
-    }
-
-    public void glDeleteTextures(IntBuffer param1) {
-        checkLimit(param1);
-        GL11.glDeleteTextures(param1);
-    }
-
-    public void glDepthFunc(int param1) {
-        GL11.glDepthFunc(param1);
-    }
-
-    public void glDepthMask(boolean param1) {
-        GL11.glDepthMask(param1);
-    }
-
-    public void glDepthRange(double param1, double param2) {
-        GL11.glDepthRange(param1, param2);
-    }
-
-    public void glDetachShader(int param1, int param2) {
-        GL20.glDetachShader(param1, param2);
-    }
-
-    public void glDisable(int param1) {
-        GL11.glDisable(param1);
-    }
-
-    public void glDisableVertexAttribArray(int param1) {
-        GL20.glDisableVertexAttribArray(param1);
-    }
-
-    public void glDrawArrays(int param1, int param2, int param3) {
-        GL11.glDrawArrays(param1, param2, param3);
-    }
-
-    public void glDrawBuffer(int param1) {
-        GL11.glDrawBuffer(param1);
-    }
-    
-    public void glDrawRangeElements(int param1, int param2, int param3, int param4, int param5, long param6) {
-        GL12.glDrawRangeElements(param1, param2, param3, param4, param5, param6);
-    }
-
-    public void glEnable(int param1) {
-        GL11.glEnable(param1);
-    }
-
-    public void glEnableVertexAttribArray(int param1) {
-        GL20.glEnableVertexAttribArray(param1);
+    @Override
+    public int glCreateShader(final int shaderType) {
+        return GL20.glCreateShader(shaderType);
     }
 
     @Override
-    public void glEndQuery(int target) {
+    public void glCullFace(final int mode) {
+        GL11.glCullFace(mode);
+    }
+
+    @Override
+    public void glDeleteBuffers(final IntBuffer buffers) {
+        checkLimit(buffers);
+        GL15.glDeleteBuffers(buffers);
+    }
+
+    @Override
+    public void glDeleteProgram(final int program) {
+        GL20.glDeleteProgram(program);
+    }
+
+    @Override
+    public void glDeleteShader(final int shader) {
+        GL20.glDeleteShader(shader);
+    }
+
+    @Override
+    public void glDeleteTextures(final IntBuffer textures) {
+        checkLimit(textures);
+        GL11.glDeleteTextures(textures);
+    }
+
+    @Override
+    public void glDepthFunc(final int func) {
+        GL11.glDepthFunc(func);
+    }
+
+    @Override
+    public void glDepthMask(final boolean flag) {
+        GL11.glDepthMask(flag);
+    }
+
+    @Override
+    public void glDepthRange(final double nearVal, final double farVal) {
+        GL11.glDepthRange(nearVal, farVal);
+    }
+
+    @Override
+    public void glDetachShader(final int program, final int shader) {
+        GL20.glDetachShader(program, shader);
+    }
+
+    @Override
+    public void glDisable(final int cap) {
+        GL11.glDisable(cap);
+    }
+
+    @Override
+    public void glDisableVertexAttribArray(final int index) {
+        GL20.glDisableVertexAttribArray(index);
+    }
+
+    @Override
+    public void glDrawArrays(final int mode, final int first, final int count) {
+        GL11.glDrawArrays(mode, first, count);
+    }
+
+    @Override
+    public void glDrawBuffer(final int mode) {
+        GL11.glDrawBuffer(mode);
+    }
+
+    @Override
+    public void glDrawRangeElements(final int mode, final int start, final int end, final int count, final int type,
+                                    final long indices) {
+        GL12.glDrawRangeElements(mode, start, end, count, type, indices);
+    }
+
+    @Override
+    public void glEnable(final int cap) {
+        GL11.glEnable(cap);
+    }
+
+    @Override
+    public void glEnableVertexAttribArray(final int index) {
+        GL20.glEnableVertexAttribArray(index);
+    }
+
+    @Override
+    public void glEndQuery(final int target) {
         GL15.glEndQuery(target);
     }
 
-    public void glGenBuffers(IntBuffer param1) {
-        checkLimit(param1);
-        GL15.glGenBuffers(param1);
-    }
-
-    public void glGenTextures(IntBuffer param1) {
-        checkLimit(param1);
-        GL11.glGenTextures(param1);
+    @Override
+    public void glGenBuffers(final IntBuffer buffers) {
+        checkLimit(buffers);
+        GL15.glGenBuffers(buffers);
     }
 
     @Override
-    public void glGenQueries(int num, IntBuffer ids) {
+    public void glGenTextures(final IntBuffer textures) {
+        checkLimit(textures);
+        GL11.glGenTextures(textures);
+    }
+
+    @Override
+    public void glGenQueries(final int num, final IntBuffer ids) {
         GL15.glGenQueries(ids);
     }
 
-    public void glGetBoolean(int param1, ByteBuffer param2) {
-        checkLimit(param2);
-        GL11.glGetBooleanv(param1, param2);
+    @Override
+    public void glGetBoolean(final int pname, final ByteBuffer params) {
+        checkLimit(params);
+        GL11.glGetBooleanv(pname, params);
     }
-    
-    public void glGetBufferSubData(int target, long offset, ByteBuffer data) {
+
+    @Override
+    public void glGetBufferSubData(final int target, final long offset, final ByteBuffer data) {
         checkLimit(data);
         GL15.glGetBufferSubData(target, offset, data);
     }
 
+    @Override
     public int glGetError() {
         return GL11.glGetError();
     }
-    
-    public void glGetInteger(int param1, IntBuffer param2) {
-        checkLimit(param2);
-        GL11.glGetIntegerv(param1, param2);
+
+    @Override
+    public void glGetInteger(final int pname, final IntBuffer params) {
+        checkLimit(params);
+        GL11.glGetIntegerv(pname, params);
     }
 
-    public void glGetProgram(int param1, int param2, IntBuffer param3) {
-        checkLimit(param3);
-        GL20.glGetProgramiv(param1, param2, param3);
+    @Override
+    public void glGetProgram(final int program, final int pname, final IntBuffer params) {
+        checkLimit(params);
+        GL20.glGetProgramiv(program, pname, params);
     }
 
-    public void glGetShader(int param1, int param2, IntBuffer param3) {
-        checkLimit(param3);
-        GL20.glGetShaderiv(param1, param2, param3);
+    @Override
+    public void glGetShader(final int shader, final int pname, final IntBuffer params) {
+        checkLimit(params);
+        GL20.glGetShaderiv(shader, pname, params);
     }
 
-    public String glGetString(int param1) {
-        return GL11.glGetString(param1);
-    }
-    
-    public String glGetString(int param1, int param2) {
-        return GL30.glGetStringi(param1, param2);
+    @Override
+    public String glGetString(final int name) {
+        return GL11.glGetString(name);
     }
 
-    public boolean glIsEnabled(int param1) {
-        return GL11.glIsEnabled(param1);
+    @Override
+    public String glGetString(final int name, final int index) {
+        return GL30.glGetStringi(name, index);
     }
 
-    public void glLineWidth(float param1) {
-        GL11.glLineWidth(param1);
+    @Override
+    public boolean glIsEnabled(final int cap) {
+        return GL11.glIsEnabled(cap);
     }
 
-    public void glLinkProgram(int param1) {
-        GL20.glLinkProgram(param1);
+    @Override
+    public void glLineWidth(final float width) {
+        GL11.glLineWidth(width);
     }
 
-    public void glPixelStorei(int param1, int param2) {
-        GL11.glPixelStorei(param1, param2);
+    @Override
+    public void glLinkProgram(final int program) {
+        GL20.glLinkProgram(program);
     }
 
-    public void glPointSize(float param1) {
-        GL11.glPointSize(param1);
+    @Override
+    public void glPixelStorei(final int pname, final int param) {
+        GL11.glPixelStorei(pname, param);
     }
 
-    public void glPolygonMode(int param1, int param2) {
-        GL11.glPolygonMode(param1, param2);
+    @Override
+    public void glPointSize(final float size) {
+        GL11.glPointSize(size);
     }
 
-    public void glPolygonOffset(float param1, float param2) {
-        GL11.glPolygonOffset(param1, param2);
+    @Override
+    public void glPolygonMode(final int face, final int mode) {
+        GL11.glPolygonMode(face, mode);
     }
 
-    public void glReadBuffer(int param1) {
-        GL11.glReadBuffer(param1);
+    @Override
+    public void glPolygonOffset(final float factor, final float units) {
+        GL11.glPolygonOffset(factor, units);
     }
 
-    public void glReadPixels(int param1, int param2, int param3, int param4, int param5, int param6, ByteBuffer param7) {
-        checkLimit(param7);
-        GL11.glReadPixels(param1, param2, param3, param4, param5, param6, param7);
-    }
-    
-    public void glReadPixels(int param1, int param2, int param3, int param4, int param5, int param6, long param7) {
-        GL11.glReadPixels(param1, param2, param3, param4, param5, param6, param7);
+    @Override
+    public void glReadBuffer(final int mode) {
+        GL11.glReadBuffer(mode);
     }
 
-    public void glScissor(int param1, int param2, int param3, int param4) {
-        GL11.glScissor(param1, param2, param3, param4);
+    @Override
+    public void glReadPixels(final int x, final int y, final int width, final int height, final int format,
+                             final int type, final ByteBuffer data) {
+        checkLimit(data);
+        GL11.glReadPixels(x, y, width, height, format, type, data);
     }
 
-    public void glStencilFuncSeparate(int param1, int param2, int param3, int param4) {
-        GL20.glStencilFuncSeparate(param1, param2, param3, param4);
+    @Override
+    public void glReadPixels(final int x, final int y, final int width, final int height, final int format,
+                             final int type, final long offset) {
+        GL11.glReadPixels(x, y, width, height, format, type, offset);
     }
 
-    public void glStencilOpSeparate(int param1, int param2, int param3, int param4) {
-        GL20.glStencilOpSeparate(param1, param2, param3, param4);
+    @Override
+    public void glScissor(final int x, final int y, final int width, final int height) {
+        GL11.glScissor(x, y, width, height);
     }
 
-    public void glTexImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, ByteBuffer param9) {
-        checkLimit(param9);
-        GL11.glTexImage2D(param1, param2, param3, param4, param5, param6, param7, param8, param9);
+    @Override
+    public void glStencilFuncSeparate(final int face, final int func, final int ref, final int mask) {
+        GL20.glStencilFuncSeparate(face, func, ref, mask);
     }
 
-    public void glTexImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, ByteBuffer param10) {
-        checkLimit(param10);
-        GL12.glTexImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
+    @Override
+    public void glStencilOpSeparate(final int face, final int sfail, final int dpfail, final int dppass) {
+        GL20.glStencilOpSeparate(face, sfail, dpfail, dppass);
     }
 
-    public void glTexParameterf(int param1, int param2, float param3) {
-        GL11.glTexParameterf(param1, param2, param3);
+    @Override
+    public void glTexImage2D(final int target, final int level, final int internalFormat, final int width,
+                             final int height, final int border, final int format, final int type,
+                             final ByteBuffer data) {
+        checkLimit(data);
+        GL11.glTexImage2D(target, level, internalFormat, width, height, border, format, type, data);
     }
 
-    public void glTexParameteri(int param1, int param2, int param3) {
-        GL11.glTexParameteri(param1, param2, param3);
+    @Override
+    public void glTexImage3D(final int target, final int level, final int internalFormat, final int width,
+                             final int height, final int depth, final int border, final int format, final int type,
+                             final ByteBuffer data) {
+        checkLimit(data);
+        GL12.glTexImage3D(target, level, internalFormat, width, height, depth, border, format, type, data);
     }
 
-    public void glTexSubImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, ByteBuffer param9) {
-        checkLimit(param9);
-        GL11.glTexSubImage2D(param1, param2, param3, param4, param5, param6, param7, param8, param9);
+    @Override
+    public void glTexParameterf(final int target, final int pname, final float param) {
+        GL11.glTexParameterf(target, pname, param);
     }
 
-    public void glTexSubImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10, ByteBuffer param11) {
-        checkLimit(param11);
-        GL12.glTexSubImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11);
+    @Override
+    public void glTexParameteri(final int target, final int pname, final int param) {
+        GL11.glTexParameteri(target, pname, param);
     }
 
-    public void glUniform1(int param1, FloatBuffer param2) {
-        checkLimit(param2);
-        GL20.glUniform1fv(param1, param2);
+    @Override
+    public void glTexSubImage2D(final int target, final int level, final int xoffset, final int yoffset,
+                                final int width, final int height, final int format, final int type,
+                                final ByteBuffer data) {
+        checkLimit(data);
+        GL11.glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, data);
     }
 
-    public void glUniform1(int param1, IntBuffer param2) {
-        checkLimit(param2);
-        GL20.glUniform1iv(param1, param2);
+    @Override
+    public void glTexSubImage3D(final int target, final int level, final int xoffset, final int yoffset,
+                                final int zoffset, final int width, final int height, final int depth, final int format,
+                                final int type, final ByteBuffer data) {
+        checkLimit(data);
+        GL12.glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, data);
     }
 
-    public void glUniform1f(int param1, float param2) {
-        GL20.glUniform1f(param1, param2);
+    @Override
+    public void glUniform1(final int location, final FloatBuffer value) {
+        checkLimit(value);
+        GL20.glUniform1fv(location, value);
     }
 
-    public void glUniform1i(int param1, int param2) {
-        GL20.glUniform1i(param1, param2);
+    @Override
+    public void glUniform1(final int location, final IntBuffer value) {
+        checkLimit(value);
+        GL20.glUniform1iv(location, value);
     }
 
-    public void glUniform2(int param1, IntBuffer param2) {
-        checkLimit(param2);
-        GL20.glUniform2iv(param1, param2);
+    @Override
+    public void glUniform1f(final int location, final float v0) {
+        GL20.glUniform1f(location, v0);
     }
 
-    public void glUniform2(int param1, FloatBuffer param2) {
-        checkLimit(param2);
-        GL20.glUniform2fv(param1, param2);
+    @Override
+    public void glUniform1i(final int location, final int v0) {
+        GL20.glUniform1i(location, v0);
     }
 
-    public void glUniform2f(int param1, float param2, float param3) {
-        GL20.glUniform2f(param1, param2, param3);
+    @Override
+    public void glUniform2(final int location, final IntBuffer value) {
+        checkLimit(value);
+        GL20.glUniform2iv(location, value);
     }
 
-    public void glUniform3(int param1, IntBuffer param2) {
-        checkLimit(param2);
-        GL20.glUniform3iv(param1, param2);
+    @Override
+    public void glUniform2(final int location, final FloatBuffer value) {
+        checkLimit(value);
+        GL20.glUniform2fv(location, value);
     }
 
-    public void glUniform3(int param1, FloatBuffer param2) {
-        checkLimit(param2);
-        GL20.glUniform3fv(param1, param2);
+    @Override
+    public void glUniform2f(final int location, final float v0, final float v1) {
+        GL20.glUniform2f(location, v0, v1);
     }
 
-    public void glUniform3f(int param1, float param2, float param3, float param4) {
-        GL20.glUniform3f(param1, param2, param3, param4);
+    @Override
+    public void glUniform3(final int location, final IntBuffer value) {
+        checkLimit(value);
+        GL20.glUniform3iv(location, value);
     }
 
-    public void glUniform4(int param1, FloatBuffer param2) {
-        checkLimit(param2);
-        GL20.glUniform4fv(param1, param2);
+    @Override
+    public void glUniform3(final int location, final FloatBuffer value) {
+        checkLimit(value);
+        GL20.glUniform3fv(location, value);
     }
 
-    public void glUniform4(int param1, IntBuffer param2) {
-        checkLimit(param2);
-        GL20.glUniform4iv(param1, param2);
+    @Override
+    public void glUniform3f(final int location, final float v0, final float v1, final float v2) {
+        GL20.glUniform3f(location, v0, v1, v2);
     }
 
-    public void glUniform4f(int param1, float param2, float param3, float param4, float param5) {
-        GL20.glUniform4f(param1, param2, param3, param4, param5);
+    @Override
+    public void glUniform4(final int location, final FloatBuffer value) {
+        checkLimit(value);
+        GL20.glUniform4fv(location, value);
     }
 
-    public void glUniformMatrix3(int param1, boolean param2, FloatBuffer param3) {
-        checkLimit(param3);
-        GL20.glUniformMatrix3fv(param1, param2, param3);
+    @Override
+    public void glUniform4(final int location, final IntBuffer value) {
+        checkLimit(value);
+        GL20.glUniform4iv(location, value);
     }
 
-    public void glUniformMatrix4(int param1, boolean param2, FloatBuffer param3) {
-        checkLimit(param3);
-        GL20.glUniformMatrix4fv(param1, param2, param3);
+    @Override
+    public void glUniform4f(final int location, final float v0, final float v1, final float v2, final float v3) {
+        GL20.glUniform4f(location, v0, v1, v2, v3);
     }
 
-    public void glUseProgram(int param1) {
-        GL20.glUseProgram(param1);
+    @Override
+    public void glUniformMatrix3(final int location, final boolean transpose, final FloatBuffer value) {
+        checkLimit(value);
+        GL20.glUniformMatrix3fv(location, transpose, value);
     }
 
-    public void glVertexAttribPointer(int param1, int param2, int param3, boolean param4, int param5, long param6) {
-        GL20.glVertexAttribPointer(param1, param2, param3, param4, param5, param6);
+    @Override
+    public void glUniformMatrix4(final int location, final boolean transpose, final FloatBuffer value) {
+        checkLimit(value);
+        GL20.glUniformMatrix4fv(location, transpose, value);
     }
 
-    public void glViewport(int param1, int param2, int param3, int param4) {
-        GL11.glViewport(param1, param2, param3, param4);
+    @Override
+    public void glUseProgram(final int program) {
+        GL20.glUseProgram(program);
     }
 
-    public int glGetAttribLocation(int param1, String param2) {
+    @Override
+    public void glVertexAttribPointer(final int index, final int size, final int type, final boolean normalized,
+                                      final int stride, final long pointer) {
+        GL20.glVertexAttribPointer(index, size, type, normalized, stride, pointer);
+    }
+
+    @Override
+    public void glViewport(final int x, final int y, final int width, final int height) {
+        GL11.glViewport(x, y, width, height);
+    }
+
+    @Override
+    public int glGetAttribLocation(final int program, final String name) {
         // NOTE: LWJGL requires null-terminated strings
-        return GL20.glGetAttribLocation(param1, param2 + "\0");
+        return GL20.glGetAttribLocation(program, name + "\0");
     }
 
-    public int glGetUniformLocation(int param1, String param2) {
+    @Override
+    public int glGetUniformLocation(final int program, final String name) {
         // NOTE: LWJGL requires null-terminated strings
-        return GL20.glGetUniformLocation(param1, param2 + "\0");
+        return GL20.glGetUniformLocation(program, name + "\0");
     }
 
-    public void glShaderSource(int param1, String[] param2, IntBuffer param3) {
-        checkLimit(param3);
-        GL20.glShaderSource(param1, param2);
+    @Override
+    public void glShaderSource(final int shader, final String[] strings, final IntBuffer length) {
+        checkLimit(length);
+        GL20.glShaderSource(shader, strings);
     }
 
-    public String glGetProgramInfoLog(int program, int maxSize) {
+    @Override
+    public String glGetProgramInfoLog(final int program, final int maxSize) {
         return GL20.glGetProgramInfoLog(program, maxSize);
     }
 
@@ -492,28 +596,28 @@ public class LwjglGL implements GL, GL2, GL3, GL4 {
     }
 
     @Override
-    public void glBindFragDataLocation(int param1, int param2, String param3) {
-        GL30.glBindFragDataLocation(param1, param2, param3);
+    public void glBindFragDataLocation(final int program, final int colorNumber, final String name) {
+        GL30.glBindFragDataLocation(program, colorNumber, name);
     }
 
     @Override
-    public void glBindVertexArray(int param1) {
-        GL30.glBindVertexArray(param1);
+    public void glBindVertexArray(final int array) {
+        GL30.glBindVertexArray(array);
     }
 
     @Override
-    public void glGenVertexArrays(IntBuffer param1) {
-        checkLimit(param1);
-        GL30.glGenVertexArrays(param1);
+    public void glGenVertexArrays(final IntBuffer arrays) {
+        checkLimit(arrays);
+        GL30.glGenVertexArrays(arrays);
     }
 
     @Override
-    public void glPatchParameter(int count) {
-        GL40.glPatchParameteri(GL40.GL_PATCH_VERTICES,count);
+    public void glPatchParameter(final int count) {
+        GL40.glPatchParameteri(GL40.GL_PATCH_VERTICES, count);
     }
-    
+
     @Override
-    public void glDeleteVertexArrays(IntBuffer arrays) {
+    public void glDeleteVertexArrays(final IntBuffer arrays) {
         checkLimit(arrays);
         ARBVertexArrayObject.glDeleteVertexArrays(arrays);
     }

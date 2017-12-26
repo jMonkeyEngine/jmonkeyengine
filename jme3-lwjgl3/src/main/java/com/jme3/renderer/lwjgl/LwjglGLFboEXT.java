@@ -31,106 +31,99 @@
  */
 package com.jme3.renderer.lwjgl;
 
-import com.jme3.renderer.RendererException;
 import com.jme3.renderer.opengl.GLFbo;
 import org.lwjgl.opengl.EXTFramebufferBlit;
 import org.lwjgl.opengl.EXTFramebufferMultisample;
 import org.lwjgl.opengl.EXTFramebufferObject;
-
-import java.nio.Buffer;
-import java.nio.IntBuffer;
 import org.lwjgl.opengl.EXTTextureArray;
+
+import java.nio.IntBuffer;
 
 /**
  * Implements GLFbo via GL_EXT_framebuffer_object.
- * 
+ *
  * @author Kirill Vainer
  */
-public class LwjglGLFboEXT implements GLFbo {
+public class LwjglGLFboEXT extends LwjglRender implements GLFbo {
 
-    private static void checkLimit(Buffer buffer) {
-        if (buffer == null) {
-            return;
-        }
-        if (buffer.limit() == 0) {
-            throw new RendererException("Attempting to upload empty buffer (limit = 0), that's an error");
-        }
-        if (buffer.remaining() == 0) {
-            throw new RendererException("Attempting to upload empty buffer (remaining = 0), that's an error");
-        }
-    }
-    
     @Override
-    public void glBlitFramebufferEXT(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, int mask, int filter) {
+    public void glBlitFramebufferEXT(final int srcX0, final int srcY0, final int srcX1, final int srcY1,
+                                     final int dstX0, final int dstY0, final int dstX1, final int dstY1, final int mask,
+                                     final int filter) {
         EXTFramebufferBlit.glBlitFramebufferEXT(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
     }
-    
+
     @Override
-    public void glRenderbufferStorageMultisampleEXT(int target, int samples, int internalformat, int width, int height) {
-        EXTFramebufferMultisample.glRenderbufferStorageMultisampleEXT(target, samples, internalformat, width, height);
+    public void glRenderbufferStorageMultisampleEXT(final int target, final int samples, final int internalFormat,
+                                                    final int width, final int height) {
+        EXTFramebufferMultisample.glRenderbufferStorageMultisampleEXT(target, samples, internalFormat, width, height);
     }
-    
+
     @Override
-    public void glBindFramebufferEXT(int param1, int param2) {
-        EXTFramebufferObject.glBindFramebufferEXT(param1, param2);
+    public void glBindFramebufferEXT(final int target, final int frameBuffer) {
+        EXTFramebufferObject.glBindFramebufferEXT(target, frameBuffer);
     }
-    
+
     @Override
-    public void glBindRenderbufferEXT(int param1, int param2) {
-        EXTFramebufferObject.glBindRenderbufferEXT(param1, param2);
+    public void glBindRenderbufferEXT(final int target, final int renderBuffer) {
+        EXTFramebufferObject.glBindRenderbufferEXT(target, renderBuffer);
     }
-    
+
     @Override
-    public int glCheckFramebufferStatusEXT(int param1) {
-        return EXTFramebufferObject.glCheckFramebufferStatusEXT(param1);
+    public int glCheckFramebufferStatusEXT(final int target) {
+        return EXTFramebufferObject.glCheckFramebufferStatusEXT(target);
     }
-    
+
     @Override
-    public void glDeleteFramebuffersEXT(IntBuffer param1) {
-        checkLimit(param1);
-        EXTFramebufferObject.glDeleteFramebuffersEXT(param1);
+    public void glDeleteFramebuffersEXT(final IntBuffer frameBuffers) {
+        checkLimit(frameBuffers);
+        EXTFramebufferObject.glDeleteFramebuffersEXT(frameBuffers);
     }
-    
+
     @Override
-    public void glDeleteRenderbuffersEXT(IntBuffer param1) {
-        checkLimit(param1);
-        EXTFramebufferObject.glDeleteRenderbuffersEXT(param1);
+    public void glDeleteRenderbuffersEXT(final IntBuffer renderBuffers) {
+        checkLimit(renderBuffers);
+        EXTFramebufferObject.glDeleteRenderbuffersEXT(renderBuffers);
     }
-    
+
     @Override
-    public void glFramebufferRenderbufferEXT(int param1, int param2, int param3, int param4) {
-        EXTFramebufferObject.glFramebufferRenderbufferEXT(param1, param2, param3, param4);
+    public void glFramebufferRenderbufferEXT(final int target, final int attachment, final int renderBufferTarget,
+                                             final int renderBuffer) {
+        EXTFramebufferObject.glFramebufferRenderbufferEXT(target, attachment, renderBufferTarget, renderBuffer);
     }
-    
+
     @Override
-    public void glFramebufferTexture2DEXT(int param1, int param2, int param3, int param4, int param5) {
-        EXTFramebufferObject.glFramebufferTexture2DEXT(param1, param2, param3, param4, param5);
+    public void glFramebufferTexture2DEXT(final int target, final int attachment, final int texTarget,
+                                          final int texture, final int level) {
+        EXTFramebufferObject.glFramebufferTexture2DEXT(target, attachment, texTarget, texture, level);
     }
-    
+
     @Override
-    public void glGenFramebuffersEXT(IntBuffer param1) {
-        checkLimit(param1);
-        EXTFramebufferObject.glGenFramebuffersEXT(param1);
+    public void glGenFramebuffersEXT(final IntBuffer frameBuffers) {
+        checkLimit(frameBuffers);
+        EXTFramebufferObject.glGenFramebuffersEXT(frameBuffers);
     }
-    
+
     @Override
-    public void glGenRenderbuffersEXT(IntBuffer param1) {
-        checkLimit(param1);
-        EXTFramebufferObject.glGenRenderbuffersEXT(param1);
+    public void glGenRenderbuffersEXT(final IntBuffer renderBuffers) {
+        checkLimit(renderBuffers);
+        EXTFramebufferObject.glGenRenderbuffersEXT(renderBuffers);
     }
-    
+
     @Override
-    public void glGenerateMipmapEXT(int param1) {
-        EXTFramebufferObject.glGenerateMipmapEXT(param1);
+    public void glGenerateMipmapEXT(final int target) {
+        EXTFramebufferObject.glGenerateMipmapEXT(target);
     }
-    
+
     @Override
-    public void glRenderbufferStorageEXT(int param1, int param2, int param3, int param4) {
-        EXTFramebufferObject.glRenderbufferStorageEXT(param1, param2, param3, param4);
+    public void glRenderbufferStorageEXT(final int target, final int internalFormat, final int width,
+                                         final int height) {
+        EXTFramebufferObject.glRenderbufferStorageEXT(target, internalFormat, width, height);
     }
-    
+
     @Override
-    public void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer) {
+    public void glFramebufferTextureLayerEXT(final int target, final int attachment, final int texture, final int level,
+                                             final int layer) {
         EXTTextureArray.glFramebufferTextureLayerEXT(target, attachment, texture, level, layer);
     }
 }
