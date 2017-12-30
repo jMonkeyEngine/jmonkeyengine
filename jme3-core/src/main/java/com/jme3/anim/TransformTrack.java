@@ -33,10 +33,13 @@ package com.jme3.anim;
 
 import com.jme3.anim.interpolator.FrameInterpolator;
 import com.jme3.anim.tween.Tween;
+import com.jme3.anim.util.HasLocalTransform;
 import com.jme3.animation.CompactQuaternionArray;
 import com.jme3.animation.CompactVector3Array;
 import com.jme3.export.*;
 import com.jme3.math.*;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 
 import java.io.IOException;
 
@@ -45,9 +48,10 @@ import java.io.IOException;
  *
  * @author Rémy Bouquet
  */
-public abstract class TransformTrack implements Tween, Cloneable, Savable {
+public class TransformTrack implements JmeCloneable, Savable {
 
     private double length;
+    private HasLocalTransform target;
 
     /**
      * Transforms and times for track.
@@ -55,8 +59,6 @@ public abstract class TransformTrack implements Tween, Cloneable, Savable {
     private CompactVector3Array translations;
     private CompactQuaternionArray rotations;
     private CompactVector3Array scales;
-    private Transform transform = new Transform();
-    protected Transform defaultTransform = new Transform();
     private FrameInterpolator interpolator = FrameInterpolator.DEFAULT;
     private float[] times;
 
@@ -74,7 +76,8 @@ public abstract class TransformTrack implements Tween, Cloneable, Savable {
      * @param rotations    the rotation of the bone for each frame
      * @param scales       the scale of the bone for each frame
      */
-    public TransformTrack(float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
+    public TransformTrack(HasLocalTransform target, float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
+        this.target = target;
         this.setKeyframes(times, translations, rotations, scales);
     }
 
@@ -216,16 +219,13 @@ public abstract class TransformTrack implements Tween, Cloneable, Savable {
         }
     }
 
-    @Override
     public double getLength() {
         return length;
     }
 
-    @Override
-    public boolean interpolate(double t) {
+    public void getTransformAtTime(double t, Transform transform) {
         float time = (float) t;
 
-        transform.set(defaultTransform);
         int lastFrame = times.length - 1;
         if (time < 0 || lastFrame == 0) {
             if (translations != null) {
@@ -237,7 +237,7 @@ public abstract class TransformTrack implements Tween, Cloneable, Savable {
             if (scales != null) {
                 scales.get(0, transform.getScale());
             }
-            return true;
+            return;
         }
 
         int startFrame = 0;
@@ -272,17 +272,18 @@ public abstract class TransformTrack implements Tween, Cloneable, Savable {
         if (scales != null) {
             transform.setScale(interpolated.getScale());
         }
-
-        return time < length;
-    }
-
-
-    public Transform getInterpolatedTransform() {
-        return transform;
     }
 
     public void setFrameInterpolator(FrameInterpolator interpolator) {
         this.interpolator = interpolator;
+    }
+
+    public HasLocalTransform getTarget() {
+        return target;
+    }
+
+    public void setTarget(HasLocalTransform target) {
+        this.target = target;
     }
 
     @Override
@@ -292,6 +293,7 @@ public abstract class TransformTrack implements Tween, Cloneable, Savable {
         oc.write(rotations, "rotations", null);
         oc.write(times, "times", null);
         oc.write(scales, "scales", null);
+        oc.write(target, "target", null);
     }
 
     @Override
@@ -301,16 +303,22 @@ public abstract class TransformTrack implements Tween, Cloneable, Savable {
         rotations = (CompactQuaternionArray) ic.readSavable("rotations", null);
         times = ic.readFloatArray("times", null);
         scales = (CompactVector3Array) ic.readSavable("scales", null);
+        target = (Joint) ic.readSavable("target", null);
         setTimes(times);
     }
 
     @Override
-    public Object clone() {
+    public Object jmeClone() {
         try {
-            return super.clone();
-        } catch (CloneNotSupportedException e) {
-            throw new RuntimeException("Error cloning", e);
+            TransformTrack clone = (TransformTrack) super.clone();
+            return clone;
+        } catch (CloneNotSupportedException ex) {
+            throw new AssertionError();
         }
     }
 
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        this.target = cloner.clone(target);
+    }
 }

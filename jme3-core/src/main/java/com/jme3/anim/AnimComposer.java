@@ -1,5 +1,9 @@
 package com.jme3.anim;
 
+import com.jme3.anim.tween.AnimClipTween;
+import com.jme3.anim.tween.Tween;
+import com.jme3.anim.tween.action.Action;
+import com.jme3.anim.tween.action.SequenceAction;
 import com.jme3.export.*;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -16,7 +20,8 @@ public class AnimComposer extends AbstractControl {
 
     private Map<String, AnimClip> animClipMap = new HashMap<>();
 
-    private AnimClip currentAnimClip;
+    private Action currentAction;
+    private Map<String, Action> actions = new HashMap<>();
     private float time;
 
     /**
@@ -54,16 +59,45 @@ public class AnimComposer extends AbstractControl {
         animClipMap.remove(anim.getName());
     }
 
-    public void setCurrentAnimClip(String name) {
-        currentAnimClip = animClipMap.get(name);
-        time = 0;
-        if (currentAnimClip == null) {
-            throw new IllegalArgumentException("Unknown clip " + name);
+    public void setCurrentAction(String name) {
+        Action action = action(name);
+        if (currentAction != null) {
+            currentAction.reset();
         }
+        currentAction = action;
+        time = 0;
+    }
+
+    public Action action(String name) {
+        Action action = actions.get(name);
+        if (action == null) {
+            AnimClipTween tween = tweenFromClip(name);
+            action = new SequenceAction(tween);
+            actions.put(name, action);
+        }
+        return action;
+    }
+
+    public AnimClipTween tweenFromClip(String clipName) {
+        AnimClip clip = animClipMap.get(clipName);
+        if (clip == null) {
+            throw new IllegalArgumentException("Cannot find clip named " + clipName);
+        }
+        return new AnimClipTween(clip);
+    }
+
+    public SequenceAction actionSequence(String name, Tween... tweens) {
+        SequenceAction action = new SequenceAction(tweens);
+        actions.put(name, action);
+        return action;
+    }
+
+    public Action actionBlended(String name, Tween... tweens) {
+        return null;
     }
 
     public void reset() {
-        currentAnimClip = null;
+        currentAction = null;
         time = 0;
     }
 
@@ -77,11 +111,11 @@ public class AnimComposer extends AbstractControl {
 
     @Override
     protected void controlUpdate(float tpf) {
-        if (currentAnimClip != null) {
+        if (currentAction != null) {
             time += tpf;
-            boolean running = currentAnimClip.interpolate(time);
+            boolean running = currentAction.interpolate(time);
             if (!running) {
-                time -= currentAnimClip.getLength();
+                time -= currentAction.getLength();
             }
         }
     }
@@ -108,6 +142,11 @@ public class AnimComposer extends AbstractControl {
         for (String key : animClipMap.keySet()) {
             clips.put(key, cloner.clone(animClipMap.get(key)));
         }
+        Map<String, Action> act = new HashMap<>();
+        for (String key : actions.keySet()) {
+            act.put(key, cloner.clone(actions.get(key)));
+        }
+        actions = act;
         animClipMap = clips;
     }
 
@@ -116,6 +155,7 @@ public class AnimComposer extends AbstractControl {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         animClipMap = (Map<String, AnimClip>) ic.readStringSavableMap("animClipMap", new HashMap<String, AnimClip>());
+        actions = (Map<String, Action>) ic.readStringSavableMap("actions", new HashMap<String, Action>());
     }
 
     @Override
@@ -123,5 +163,6 @@ public class AnimComposer extends AbstractControl {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.writeStringSavableMap(animClipMap, "animClipMap", new HashMap<String, AnimClip>());
+        oc.writeStringSavableMap(actions, "actions", new HashMap<String, Action>());
     }
 }

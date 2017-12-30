@@ -54,16 +54,16 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
     private Stack<String> elementStack = new Stack<String>();
     private HashMap<Integer, Joint> indexToJoint = new HashMap<>();
     private HashMap<String, Joint> nameToJoint = new HashMap<>();
-    private JointTrack track;
-    private ArrayList<JointTrack> tracks = new ArrayList<>();
+    private TransformTrack track;
+    private ArrayList<TransformTrack> tracks = new ArrayList<>();
     private AnimClip animClip;
     private ArrayList<AnimClip> animClips;
     private Joint joint;
     private Armature armature;
-    private ArrayList<Float> times = new ArrayList<Float>();
-    private ArrayList<Vector3f> translations = new ArrayList<Vector3f>();
-    private ArrayList<Quaternion> rotations = new ArrayList<Quaternion>();
-    private ArrayList<Vector3f> scales = new ArrayList<Vector3f>();
+    private ArrayList<Float> times = new ArrayList<>();
+    private ArrayList<Vector3f> translations = new ArrayList<>();
+    private ArrayList<Quaternion> rotations = new ArrayList<>();
+    private ArrayList<Vector3f> scales = new ArrayList<>();
     private float time = -1;
     private Vector3f position;
     private Quaternion rotation;
@@ -92,7 +92,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             assert elementStack.peek().equals("tracks");
             String jointName = SAXUtil.parseString(attribs.getValue("bone"));
             joint = nameToJoint.get(jointName);
-            track = new JointTrack();
+            track = new TransformTrack();
             track.setTarget(joint);
         } else if (qName.equals("boneparent")) {
             assert elementStack.peek().equals("bonehierarchy");
@@ -163,10 +163,6 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             armature = new Armature(joints);
             armature.setBindPose();
         } else if (qName.equals("animation")) {
-            //nameToJoint contains the joints with no track
-            for (Joint j : unusedJoints) {
-                AnimMigrationUtils.padJointTracks(animClip, j);
-            }
             animClips.add(animClip);
             animClip = null;
         } else if (qName.equals("track")) {
@@ -176,7 +172,11 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
                 track = null;
             }
         } else if (qName.equals("tracks")) {
-            JointTrack[] trackList = tracks.toArray(new JointTrack[tracks.size()]);
+            //nameToJoint contains the joints with no track
+            for (Joint j : unusedJoints) {
+                AnimMigrationUtils.padJointTracks(tracks, j);
+            }
+            TransformTrack[] trackList = tracks.toArray(new TransformTrack[tracks.size()]);
             animClip.setTracks(trackList);
             tracks.clear();
         } else if (qName.equals("keyframe")) {

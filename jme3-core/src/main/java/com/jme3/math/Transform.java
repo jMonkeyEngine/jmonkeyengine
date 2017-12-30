@@ -176,7 +176,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets this matrix to the interpolation between the first matrix and the second by delta amount.
+     * Sets this transform to the interpolation between the first transform and the second by delta amount.
      * @param t1 The beginning transform.
      * @param t2 The ending transform.
      * @param delta An amount between 0 and 1 representing how far to interpolate from t1 to t2.

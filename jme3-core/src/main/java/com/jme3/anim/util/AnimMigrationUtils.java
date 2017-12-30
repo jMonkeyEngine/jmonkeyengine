@@ -61,10 +61,14 @@ public class AnimMigrationUtils {
                 armature.setBindPose();
                 skeletonArmatureMap.put(skeleton, armature);
 
+                List<TransformTrack> tracks = new ArrayList<>();
+
                 for (String animName : control.getAnimationNames()) {
+                    tracks.clear();
                     Animation anim = control.getAnim(animName);
                     AnimClip clip = new AnimClip(animName);
                     Joint[] staticJoints = new Joint[joints.length];
+
                     System.arraycopy(joints, 0, staticJoints, 0, joints.length);
                     for (Track track : anim.getTracks()) {
                         if (track instanceof BoneTrack) {
@@ -72,16 +76,19 @@ public class AnimMigrationUtils {
                             int index = boneTrack.getTargetBoneIndex();
                             Bone bone = skeleton.getBone(index);
                             Joint joint = joints[index];
-                            JointTrack jointTrack = fromBoneTrack(boneTrack, bone, joint);
-                            clip.addTrack(jointTrack);
+                            TransformTrack jointTrack = fromBoneTrack(boneTrack, bone, joint);
+                            tracks.add(jointTrack);
                             //this joint is animated let's remove it from the static joints
                             staticJoints[index] = null;
                         }
+                        //TODO spatial tracks , Effect tracks, Audio tracks
                     }
 
                     for (int i = 0; i < staticJoints.length; i++) {
-                        padJointTracks(clip, staticJoints[i]);
+                        padJointTracks(tracks, staticJoints[i]);
                     }
+
+                    clip.setTracks(tracks.toArray(new TransformTrack[tracks.size()]));
 
                     composer.addAnimClip(clip);
                 }
@@ -95,7 +102,7 @@ public class AnimMigrationUtils {
         }
     }
 
-    public static void padJointTracks(AnimClip clip, Joint staticJoint) {
+    public static void padJointTracks(List<TransformTrack> tracks, Joint staticJoint) {
         Joint j = staticJoint;
         if (j != null) {
             // joint has no track , we create one with the default pose
@@ -103,8 +110,8 @@ public class AnimMigrationUtils {
             Vector3f[] translations = new Vector3f[]{j.getLocalTranslation()};
             Quaternion[] rotations = new Quaternion[]{j.getLocalRotation()};
             Vector3f[] scales = new Vector3f[]{j.getLocalScale()};
-            JointTrack track = new JointTrack(j, times, translations, rotations, scales);
-            clip.addTrack(track);
+            TransformTrack track = new TransformTrack(j, times, translations, rotations, scales);
+            tracks.add(track);
         }
     }
 
@@ -144,7 +151,7 @@ public class AnimMigrationUtils {
         }
     }
 
-    public static JointTrack fromBoneTrack(BoneTrack boneTrack, Bone bone, Joint joint) {
+    public static TransformTrack fromBoneTrack(BoneTrack boneTrack, Bone bone, Joint joint) {
         float[] times = new float[boneTrack.getTimes().length];
         int length = times.length;
         System.arraycopy(boneTrack.getTimes(), 0, times, 0, length);
@@ -178,8 +185,8 @@ public class AnimMigrationUtils {
                 scales[i] = newScale;
             }
         }
-
-        return new JointTrack(joint, times, translations, rotations, scales);
+        TransformTrack t = new TransformTrack(joint, times, translations, rotations, scales);
+        return t;
     }
 
     private static Joint fromBone(Bone b) {

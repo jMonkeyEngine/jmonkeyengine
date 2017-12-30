@@ -116,9 +116,9 @@ public class TestGltfLoading extends SimpleApplication {
         //loadModel("Models/gltf/elephant/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
         //loadModel("Models/gltf/buffalo/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
         //loadModel("Models/gltf/war/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
-        loadModel("Models/gltf/ganjaarl/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
+        //loadModel("Models/gltf/ganjaarl/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
         //loadModel("Models/gltf/hero/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
-        //loadModel("Models/gltf/mercy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
+        loadModel("Models/gltf/mercy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
         //loadModel("Models/gltf/crab/scene.gltf", Vector3f.ZERO, 1);
         //loadModel("Models/gltf/manta/scene.gltf", Vector3f.ZERO, 0.2f);
         //loadModel("Models/gltf/bone/scene.gltf", Vector3f.ZERO, 0.1f);
@@ -190,7 +190,7 @@ public class TestGltfLoading extends SimpleApplication {
                 if (isPressed && composer != null) {
                     String anim = anims.poll();
                     anims.add(anim);
-                    composer.setCurrentAnimClip(anim);
+                    composer.setCurrentAction(anim);
                 }
             }
         }, "nextAnim");
@@ -262,7 +262,7 @@ public class TestGltfLoading extends SimpleApplication {
             }
             String anim = anims.poll();
             anims.add(anim);
-            control.setCurrentAnimClip(anim);
+            control.setCurrentAction(anim);
             composer = control;
         }
         if (s instanceof Node) {

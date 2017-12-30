@@ -102,7 +102,7 @@ public class TestAnimSerialization extends SimpleApplication {
                     if (playAnim) {
                         String anim = anims.poll();
                         anims.add(anim);
-                        composer.setCurrentAnimClip(anim);
+                        composer.setCurrentAction(anim);
                         System.err.println(anim);
                     } else {
                         composer.reset();
@@ -117,7 +117,7 @@ public class TestAnimSerialization extends SimpleApplication {
                 if (isPressed && composer != null) {
                     String anim = anims.poll();
                     anims.add(anim);
-                    composer.setCurrentAnimClip(anim);
+                    composer.setCurrentAction(anim);
                     System.err.println(anim);
                 }
             }
@@ -144,7 +144,7 @@ public class TestAnimSerialization extends SimpleApplication {
             if (playAnim) {
                 String anim = anims.poll();
                 anims.add(anim);
-                composer.setCurrentAnimClip(anim);
+                composer.setCurrentAction(anim);
                 System.err.println(anim);
             }
 

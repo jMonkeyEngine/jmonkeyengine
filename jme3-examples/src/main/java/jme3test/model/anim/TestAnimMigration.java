@@ -2,6 +2,7 @@ package jme3test.model.anim;
 
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.SkinningControl;
+import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.KeyInput;
@@ -24,8 +25,8 @@ public class TestAnimMigration extends SimpleApplication {
 
     ArmatureDebugAppState debugAppState;
     AnimComposer composer;
-    Queue<String> anims = new LinkedList<>();
-    boolean playAnim = true;
+    LinkedList<String> anims = new LinkedList<>();
+    boolean playAnim = false;
 
     public static void main(String... argv) {
         TestAnimMigration app = new TestAnimMigration();
@@ -40,12 +41,12 @@ public class TestAnimMigration extends SimpleApplication {
         rootNode.addLight(new DirectionalLight(new Vector3f(-1, -1, -1).normalizeLocal()));
         rootNode.addLight(new AmbientLight(ColorRGBA.DarkGray));
 
-        //Spatial model = assetManager.loadModel("Models/Jaime/Jaime.j3o");
-        Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml").scale(0.2f).move(0, 1, 0);
+        Spatial model = assetManager.loadModel("Models/Jaime/Jaime.j3o");
+        // Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml").scale(0.2f).move(0, 1, 0);
         //Spatial model = assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
         //Spatial model = assetManager.loadModel("Models/Elephant/Elephant.mesh.xml").scale(0.02f);
 
-        // AnimMigrationUtils.migrate(model);
+        AnimMigrationUtils.migrate(model);
 
         rootNode.attachChild(model);
 
@@ -87,7 +88,7 @@ public class TestAnimMigration extends SimpleApplication {
                     if (playAnim) {
                         String anim = anims.poll();
                         anims.add(anim);
-                        composer.setCurrentAnimClip(anim);
+                        composer.setCurrentAction(anim);
                         System.err.println(anim);
                     } else {
                         composer.reset();
@@ -102,7 +103,7 @@ public class TestAnimMigration extends SimpleApplication {
                 if (isPressed && composer != null) {
                     String anim = anims.poll();
                     anims.add(anim);
-                    composer.setCurrentAnimClip(anim);
+                    composer.setCurrentAction(anim);
                     System.err.println(anim);
                 }
             }
@@ -132,13 +133,26 @@ public class TestAnimMigration extends SimpleApplication {
             for (String name : composer.getAnimClipsNames()) {
                 anims.add(name);
             }
+            composer.actionSequence("Sequence",
+                    composer.tweenFromClip("Walk"),
+                    composer.tweenFromClip("Run"),
+                    composer.tweenFromClip("Jumping"));
+
+//            composer.actionSequence("Sequence",
+//                    composer.tweenFromClip("Walk"),
+//                    composer.tweenFromClip("Dodge"),
+//                    composer.tweenFromClip("push"));
+
+
+            anims.addFirst("Sequence");
+
             if (anims.isEmpty()) {
                 return;
             }
             if (playAnim) {
                 String anim = anims.poll();
                 anims.add(anim);
-                composer.setCurrentAnimClip(anim);
+                composer.setCurrentAction(anim);
                 System.err.println(anim);
             }
 
