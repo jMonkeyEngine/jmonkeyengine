@@ -78,10 +78,10 @@ public class TestArmature extends SimpleApplication {
                 new Vector3f(1, 1, 1),
         };
 
-        JointTrack track1 = new JointTrack(j1, times, null, rotations, scales);
-        JointTrack track2 = new JointTrack(j2, times, null, rotations, null);
-        clip.addTrack(track1);
-        clip.addTrack(track2);
+        TransformTrack track1 = new TransformTrack(j1, times, null, rotations, scales);
+        TransformTrack track2 = new TransformTrack(j2, times, null, rotations, null);
+
+        clip.setTracks(new TransformTrack[]{track1, track2});
 
         //create the animComposer control
         final AnimComposer composer = new AnimComposer();
@@ -103,7 +103,7 @@ public class TestArmature extends SimpleApplication {
         node.addControl(composer);
         node.addControl(ac);
 
-        composer.setCurrentAnimClip("anim");
+        composer.setCurrentAction("anim");
 
         ArmatureDebugAppState debugAppState = new ArmatureDebugAppState();
         debugAppState.addArmatureFrom(ac);
@@ -134,7 +134,7 @@ public class TestArmature extends SimpleApplication {
                     armature.resetToBindPose();
 
                 } else {
-                    composer.setCurrentAnimClip("anim");
+                    composer.setCurrentAction("anim");
                 }
             }
         }, "bind");

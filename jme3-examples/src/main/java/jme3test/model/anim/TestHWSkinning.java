@@ -48,9 +48,9 @@ import java.util.List;
 public class TestHWSkinning extends SimpleApplication implements ActionListener{
 
 
-    private AnimComposer composer;
+    // private AnimComposer composer;
     private String[] animNames = {"Dodge", "Walk", "pull", "push"};
-    private final static int SIZE = 50;
+    private final static int SIZE = 40;
     private boolean hwSkinningEnable = true;
     private List<SkinningControl> skControls = new ArrayList<SkinningControl>();
     private BitmapText hwsText;
@@ -80,9 +80,9 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
                 Spatial model = (Spatial) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
                 model.setLocalScale(0.1f);
                 model.setLocalTranslation(i - SIZE / 2, 0, j - SIZE / 2);
-                composer = model.getControl(AnimComposer.class);
+                AnimComposer composer = model.getControl(AnimComposer.class);
 
-                composer.setCurrentAnimClip(animNames[(i + j) % 4]);
+                composer.setCurrentAction(animNames[(i + j) % 4]);
                 SkinningControl skinningControl = model.getControl(SkinningControl.class);
                 skinningControl.setHardwareSkinningPreferred(hwSkinningEnable);
                 skControls.add(skinningControl);

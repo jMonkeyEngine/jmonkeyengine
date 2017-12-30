@@ -71,7 +71,7 @@ public class TestOgreConvert extends SimpleApplication {
             Node ogreModelReloaded = (Node) imp.load(bais, null, null);
 
             AnimComposer composer = ogreModelReloaded.getControl(AnimComposer.class);
-            composer.setCurrentAnimClip("Walk");
+            composer.setCurrentAction("Walk");
 
             rootNode.attachChild(ogreModelReloaded);
         } catch (IOException ex){

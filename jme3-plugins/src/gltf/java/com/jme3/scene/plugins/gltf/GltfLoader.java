@@ -793,6 +793,7 @@ public class GltfLoader implements AssetLoader {
 
         List<Spatial> spatials = new ArrayList<>();
         AnimClip anim = new AnimClip(name);
+        List<TransformTrack> ttracks = new ArrayList<>();
         int skinIndex = -1;
 
         List<Joint> usedJoints = new ArrayList<>();
@@ -806,8 +807,8 @@ public class GltfLoader implements AssetLoader {
             if (node instanceof Spatial) {
                 Spatial s = (Spatial) node;
                 spatials.add(s);
-                SpatialTrack track = new SpatialTrack(s, trackData.times, trackData.translations, trackData.rotations, trackData.scales);
-                anim.addTrack(track);
+                TransformTrack track = new TransformTrack(s, trackData.times, trackData.translations, trackData.rotations, trackData.scales);
+                ttracks.add(track);
             } else if (node instanceof JointWrapper) {
                 JointWrapper jw = (JointWrapper) node;
                 usedJoints.add(jw.joint);
@@ -822,8 +823,8 @@ public class GltfLoader implements AssetLoader {
                     }
                 }
 
-                JointTrack track = new JointTrack(jw.joint, trackData.times, trackData.translations, trackData.rotations, trackData.scales);
-                anim.addTrack(track);
+                TransformTrack track = new TransformTrack(jw.joint, trackData.times, trackData.translations, trackData.rotations, trackData.scales);
+                ttracks.add(track);
 
             }
         }
@@ -834,18 +835,20 @@ public class GltfLoader implements AssetLoader {
         if (skinIndex != -1) {
             SkinData skin = fetchFromCache("skins", skinIndex, SkinData.class);
             for (Joint joint : skin.joints) {
-                if (!usedJoints.contains(joint)) {// && !equalBindAndLocalTransforms(joint)
+                if (!usedJoints.contains(joint)) {
                     //create a track
                     float[] times = new float[]{0};
 
                     Vector3f[] translations = new Vector3f[]{joint.getLocalTranslation()};
                     Quaternion[] rotations = new Quaternion[]{joint.getLocalRotation()};
                     Vector3f[] scales = new Vector3f[]{joint.getLocalScale()};
-                    JointTrack track = new JointTrack(joint, times, translations, rotations, scales);
-                    anim.addTrack(track);
+                    TransformTrack track = new TransformTrack(joint, times, translations, rotations, scales);
+                    ttracks.add(track);
                 }
             }
         }
+
+        anim.setTracks(ttracks.toArray(new TransformTrack[ttracks.size()]));
 
         anim = customContentManager.readExtensionAndExtras("animations", animation, anim);
 

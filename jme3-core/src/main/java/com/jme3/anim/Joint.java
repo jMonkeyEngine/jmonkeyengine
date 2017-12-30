@@ -1,5 +1,6 @@
 package com.jme3.anim;
 
+import com.jme3.anim.util.HasLocalTransform;
 import com.jme3.anim.util.JointModelTransform;
 import com.jme3.export.*;
 import com.jme3.material.MatParamOverride;
@@ -18,7 +19,7 @@ import java.util.List;
  * A Joint is the basic component of an armature designed to perform skeletal animation
  * Created by Nehon on 15/12/2017.
  */
-public class Joint implements Savable, JmeCloneable {
+public class Joint implements Savable, JmeCloneable, HasLocalTransform {
 
     private String name;
     private Joint parent;

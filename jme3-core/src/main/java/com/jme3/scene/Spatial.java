@@ -31,6 +31,7 @@
  */
 package com.jme3.scene;
 
+import com.jme3.anim.util.HasLocalTransform;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.CloneableSmartAsset;
 import com.jme3.bounding.BoundingVolume;
@@ -67,7 +68,7 @@ import java.util.logging.Logger;
  * @author Joshua Slack
  * @version $Revision: 4075 $, $Data$
  */
-public abstract class Spatial implements Savable, Cloneable, Collidable, CloneableSmartAsset, JmeCloneable {
+public abstract class Spatial implements Savable, Cloneable, Collidable, CloneableSmartAsset, JmeCloneable, HasLocalTransform {
 
     private static final Logger logger = Logger.getLogger(Spatial.class.getName());
 
