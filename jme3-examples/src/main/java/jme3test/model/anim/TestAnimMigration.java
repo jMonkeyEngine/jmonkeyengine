@@ -2,11 +2,14 @@ package jme3test.model.anim;
 
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.SkinningControl;
+import com.jme3.anim.tween.action.BlendAction;
+import com.jme3.anim.tween.action.LinearBlendSpace;
 import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
@@ -27,6 +30,8 @@ public class TestAnimMigration extends SimpleApplication {
     AnimComposer composer;
     LinkedList<String> anims = new LinkedList<>();
     boolean playAnim = false;
+    BlendAction action;
+    float blendValue = 2f;
 
     public static void main(String... argv) {
         TestAnimMigration app = new TestAnimMigration();
@@ -117,6 +122,26 @@ public class TestAnimMigration extends SimpleApplication {
                 }
             }
         }, "toggleArmature");
+
+        inputManager.addMapping("blendUp", new KeyTrigger(KeyInput.KEY_UP));
+        inputManager.addMapping("blendDown", new KeyTrigger(KeyInput.KEY_DOWN));
+        inputManager.addListener(new AnalogListener() {
+
+            @Override
+            public void onAnalog(String name, float value, float tpf) {
+                if (name.equals("blendUp")) {
+                    blendValue += value;
+                    blendValue = FastMath.clamp(blendValue, 0, 4);
+                    action.getBlendSpace().setValue(blendValue);
+                }
+                if (name.equals("blendDown")) {
+                    blendValue -= value;
+                    blendValue = FastMath.clamp(blendValue, 0, 4);
+                    action.getBlendSpace().setValue(blendValue);
+                }
+                System.err.println(blendValue);
+            }
+        }, "blendUp", "blendDown");
     }
 
     private void setupModel(Spatial model) {
@@ -138,6 +163,12 @@ public class TestAnimMigration extends SimpleApplication {
                     composer.tweenFromClip("Run"),
                     composer.tweenFromClip("Jumping"));
 
+            action = composer.actionBlended("Blend", new LinearBlendSpace(4),
+                    composer.tweenFromClip("Walk"),
+                    composer.tweenFromClip("Jumping"));
+
+            action.getBlendSpace().setValue(2);
+
 //            composer.actionSequence("Sequence",
 //                    composer.tweenFromClip("Walk"),
 //                    composer.tweenFromClip("Dodge"),
@@ -145,6 +176,7 @@ public class TestAnimMigration extends SimpleApplication {
 
 
             anims.addFirst("Sequence");
+            anims.addFirst("Blend");
 
             if (anims.isEmpty()) {
                 return;

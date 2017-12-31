@@ -43,6 +43,10 @@ public class AnimClipTween implements Tween, Weighted, JmeCloneable {
         if (parentAction != null) {
             weight = parentAction.getWeightForTween(this);
         }
+        if (weight == 0) {
+            //weight is 0 let's not interpolate
+            return t < clip.getLength();
+        }
         TransformTrack[] tracks = clip.getTracks();
         for (TransformTrack track : tracks) {
             HasLocalTransform target = track.getTarget();
@@ -60,17 +64,6 @@ public class AnimClipTween implements Tween, Weighted, JmeCloneable {
         return t < clip.getLength();
     }
 
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = ex.getCapsule(this);
-        oc.write(clip, "clip", null);
-    }
-
-    @Override
-    public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = im.getCapsule(this);
-        clip = (AnimClip) ic.readSavable("clip", null);
-    }
 
     @Override
     public Object jmeClone() {
@@ -86,11 +79,6 @@ public class AnimClipTween implements Tween, Weighted, JmeCloneable {
     public void cloneFields(Cloner cloner, Object original) {
         clip = cloner.clone(clip);
     }
-
-//    @Override
-//    public void setWeight(float weight) {
-//        this.weight = weight;
-//    }
 
     @Override
     public void setParentAction(Action action) {

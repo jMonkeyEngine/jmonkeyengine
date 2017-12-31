@@ -94,17 +94,4 @@ public abstract class AbstractTween implements Tween {
     }
 
     protected abstract void doInterpolate(double t);
-
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = ex.getCapsule(this);
-        oc.write(length, "length", 0);
-    }
-
-    @Override
-    public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = im.getCapsule(this);
-        length = ic.readDouble("length", 0);
-    }
 }
- 
