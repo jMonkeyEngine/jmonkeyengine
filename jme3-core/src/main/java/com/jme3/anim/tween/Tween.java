@@ -46,7 +46,7 @@ import com.jme3.export.Savable;
  *
  * @author Paul Speed
  */
-public interface Tween extends Savable, Cloneable {
+public interface Tween extends Cloneable {
 
     /**
      * Returns the length of the tween.  If 't' represents time in

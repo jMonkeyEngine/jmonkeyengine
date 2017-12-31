@@ -3,6 +3,8 @@ package com.jme3.anim;
 import com.jme3.anim.tween.AnimClipTween;
 import com.jme3.anim.tween.Tween;
 import com.jme3.anim.tween.action.Action;
+import com.jme3.anim.tween.action.BlendAction;
+import com.jme3.anim.tween.action.BlendSpace;
 import com.jme3.anim.tween.action.SequenceAction;
 import com.jme3.export.*;
 import com.jme3.renderer.RenderManager;
@@ -92,8 +94,10 @@ public class AnimComposer extends AbstractControl {
         return action;
     }
 
-    public Action actionBlended(String name, Tween... tweens) {
-        return null;
+    public BlendAction actionBlended(String name, BlendSpace blendSpace, Tween... tweens) {
+        BlendAction action = new BlendAction(blendSpace, tweens);
+        actions.put(name, action);
+        return action;
     }
 
     public void reset() {
@@ -155,7 +159,6 @@ public class AnimComposer extends AbstractControl {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         animClipMap = (Map<String, AnimClip>) ic.readStringSavableMap("animClipMap", new HashMap<String, AnimClip>());
-        actions = (Map<String, Action>) ic.readStringSavableMap("actions", new HashMap<String, Action>());
     }
 
     @Override
@@ -163,6 +166,5 @@ public class AnimComposer extends AbstractControl {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.writeStringSavableMap(animClipMap, "animClipMap", new HashMap<String, AnimClip>());
-        oc.writeStringSavableMap(actions, "actions", new HashMap<String, Action>());
     }
 }

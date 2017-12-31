@@ -2,10 +2,7 @@ package com.jme3.anim.tween.action;
 
 import com.jme3.anim.tween.Tween;
 import com.jme3.anim.util.Weighted;
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
+import com.jme3.export.*;
 
 import java.io.IOException;
 
@@ -48,17 +45,5 @@ public abstract class Action implements Tween, Weighted {
     @Override
     public void setParentAction(Action parentAction) {
         this.parentAction = parentAction;
-    }
-
-    @Override
-    public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = im.getCapsule(this);
-        tweens = (Tween[]) ic.readSavableArray("tweens", null);
-    }
-
-    @Override
-    public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = ex.getCapsule(this);
-        oc.write(tweens, "tweens", null);
     }
 }
