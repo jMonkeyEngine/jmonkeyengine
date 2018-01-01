@@ -195,6 +195,8 @@ void main(){
         vec4 diffuseColor = albedo - albedo * Metallic;
     #endif
 
+    gl_FragColor.rgb = vec3(0.0);
+
     #ifdef LIGHTMAP
        vec3 lightMapColor;
        #ifdef SEPARATE_TEXCOORD
@@ -204,12 +206,14 @@ void main(){
        #endif
        #ifdef AO_MAP
          lightMapColor.gb = lightMapColor.rr;
+         diffuseColor.rgb  *= lightMapColor;
+       #else
+         gl_FragColor.rgb += diffuseColor.rgb * lightMapColor;
        #endif
        specularColor.rgb *= lightMapColor;
-       albedo.rgb  *= lightMapColor;
     #endif
 
-    gl_FragColor.rgb = vec3(0.0);
+
     float ndotv = max( dot( normal, viewDir ),0.0);
     for( int i = 0;i < NB_LIGHTS; i+=3){
         vec4 lightColor = g_LightData[i];
