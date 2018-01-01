@@ -1,80 +1,129 @@
 package com.jme3.anim.tween.action;
 
-import com.jme3.anim.tween.Tween;
-import com.jme3.anim.tween.Tweens;
+import com.jme3.anim.util.HasLocalTransform;
+import com.jme3.math.Transform;
 
-public class BlendAction extends Action {
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
+public class BlendAction extends BlendableAction {
 
-    private Tween firstActiveTween;
-    private Tween secondActiveTween;
+    private int firstActiveIndex;
+    private int secondActiveIndex;
     private BlendSpace blendSpace;
     private float blendWeight;
+    private double[] timeFactor;
+    private Map<HasLocalTransform, Transform> targetMap = new HashMap<>();
 
-    public BlendAction(BlendSpace blendSpace, Tween... tweens) {
-        super(tweens);
+    public BlendAction(BlendSpace blendSpace, BlendableAction... actions) {
+        super(actions);
+        timeFactor = new double[actions.length];
         this.blendSpace = blendSpace;
         blendSpace.setBlendAction(this);
 
-        for (Tween tween : tweens) {
-            if (tween.getLength() > length) {
-                length = tween.getLength();
+        for (BlendableAction action : actions) {
+            if (action.getLength() > length) {
+                length = action.getLength();
+            }
+            Collection<HasLocalTransform> targets = action.getTargets();
+            for (HasLocalTransform target : targets) {
+                Transform t = targetMap.get(target);
+                if (t == null) {
+                    t = new Transform();
+                    targetMap.put(target, t);
+                }
             }
         }
 
         //Blending effect maybe unexpected when blended animation don't have the same length
-        //Stretching any tween that doesn't have the same length.
-        for (int i = 0; i < tweens.length; i++) {
-            if (tweens[i].getLength() != length) {
-                tweens[i] = Tweens.stretch(length, tweens[i]);
+        //Stretching any action that doesn't have the same length.
+        for (int i = 0; i < this.actions.length; i++) {
+            this.timeFactor[i] = 1;
+            if (this.actions[i].getLength() != length) {
+                double actionLength = this.actions[i].getLength();
+                if (actionLength > 0 && length > 0) {
+                    this.timeFactor[i] = this.actions[i].getLength() / length;
+                }
+            }
+        }
+    }
+
+    public void doInterpolate(double t) {
+        blendWeight = blendSpace.getWeight();
+        BlendableAction firstActiveAction = (BlendableAction) actions[firstActiveIndex];
+        BlendableAction secondActiveAction = (BlendableAction) actions[secondActiveIndex];
+        firstActiveAction.setCollectTransformDelegate(this);
+        secondActiveAction.setCollectTransformDelegate(this);
+
+        //only interpolate the first action if the weight if below 1.
+        if (blendWeight < 1f) {
+            firstActiveAction.setWeight(1f);
+            firstActiveAction.interpolate(t * timeFactor[firstActiveIndex]);
+            if (blendWeight == 0) {
+                for (HasLocalTransform target : targetMap.keySet()) {
+                    collect(target, targetMap.get(target));
+                }
             }
         }
 
-    }
+        //Second action should be interpolated
+        secondActiveAction.setWeight(blendWeight);
+        secondActiveAction.interpolate(t * timeFactor[secondActiveIndex]);
 
-    @Override
-    public float getWeightForTween(Tween tween) {
-        blendWeight = blendSpace.getWeight();
-        if (tween == firstActiveTween) {
-            return 1f;
-        }
-        return weight * blendWeight;
-    }
-
-    @Override
-    public boolean doInterpolate(double t) {
-        if (firstActiveTween == null) {
-            blendSpace.getWeight();
-        }
-
-        boolean running = this.firstActiveTween.interpolate(t);
-        this.secondActiveTween.interpolate(t);
-
-        if (!running) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public void reset() {
+        firstActiveAction.setCollectTransformDelegate(null);
+        secondActiveAction.setCollectTransformDelegate(null);
 
     }
 
-    protected Tween[] getTweens() {
-        return tweens;
+    protected Action[] getActions() {
+        return actions;
     }
 
     public BlendSpace getBlendSpace() {
         return blendSpace;
     }
 
-    protected void setFirstActiveTween(Tween firstActiveTween) {
-        this.firstActiveTween = firstActiveTween;
+    protected void setFirstActiveIndex(int index) {
+        this.firstActiveIndex = index;
     }
 
-    protected void setSecondActiveTween(Tween secondActiveTween) {
-        this.secondActiveTween = secondActiveTween;
+    protected void setSecondActiveIndex(int index) {
+        this.secondActiveIndex = index;
     }
+
+    @Override
+    public Collection<HasLocalTransform> getTargets() {
+        return targetMap.keySet();
+    }
+
+    @Override
+    public void collectTransform(HasLocalTransform target, Transform t, float weight, BlendableAction source) {
+
+        Transform tr = targetMap.get(target);
+        if (weight == 1) {
+            tr.set(t);
+        } else if (weight > 0) {
+            tr.interpolateTransforms(tr, t, weight);
+        }
+
+        if (source == actions[secondActiveIndex]) {
+            collect(target, tr);
+        }
+    }
+
+    private void collect(HasLocalTransform target, Transform tr) {
+        if (collectTransformDelegate != null) {
+            collectTransformDelegate.collectTransform(target, tr, this.weight, this);
+        } else {
+            if (getTransitionWeight() == 1) {
+                target.setLocalTransform(tr);
+            } else {
+                Transform trans = target.getLocalTransform();
+                trans.interpolateTransforms(trans, tr, getTransitionWeight());
+                target.setLocalTransform(trans);
+            }
+        }
+    }
+
 }

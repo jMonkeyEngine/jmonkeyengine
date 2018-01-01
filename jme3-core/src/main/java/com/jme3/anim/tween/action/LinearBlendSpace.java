@@ -1,7 +1,5 @@
 package com.jme3.anim.tween.action;
 
-import com.jme3.anim.tween.Tween;
-
 public class LinearBlendSpace implements BlendSpace {
 
     private BlendAction action;
@@ -17,24 +15,24 @@ public class LinearBlendSpace implements BlendSpace {
     @Override
     public void setBlendAction(BlendAction action) {
         this.action = action;
-        Tween[] tweens = action.getTweens();
-        step = maxValue / (float) (tweens.length - 1);
+        Action[] actions = action.getActions();
+        step = maxValue / (float) (actions.length - 1);
     }
 
     @Override
     public float getWeight() {
-        Tween[] tweens = action.getTweens();
+        Action[] actions = action.getActions();
         float lowStep = 0, highStep = 0;
         int lowIndex = 0, highIndex = 0;
-        for (int i = 0; i < tweens.length && highStep < value; i++) {
+        for (int i = 0; i < actions.length && highStep < value; i++) {
             lowStep = highStep;
             lowIndex = i;
             highStep += step;
         }
         highIndex = lowIndex + 1;
 
-        action.setFirstActiveTween(tweens[lowIndex]);
-        action.setSecondActiveTween(tweens[highIndex]);
+        action.setFirstActiveIndex(lowIndex);
+        action.setSecondActiveIndex(highIndex);
 
         if (highStep == lowStep) {
             return 0;

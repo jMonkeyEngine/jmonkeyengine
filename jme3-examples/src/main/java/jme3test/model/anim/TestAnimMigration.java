@@ -3,6 +3,7 @@ package jme3test.model.anim;
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.SkinningControl;
 import com.jme3.anim.tween.action.BlendAction;
+import com.jme3.anim.tween.action.BlendableAction;
 import com.jme3.anim.tween.action.LinearBlendSpace;
 import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.app.ChaseCameraAppState;
@@ -159,13 +160,12 @@ public class TestAnimMigration extends SimpleApplication {
                 anims.add(name);
             }
             composer.actionSequence("Sequence",
-                    composer.tweenFromClip("Walk"),
-                    composer.tweenFromClip("Run"),
-                    composer.tweenFromClip("Jumping"));
+                    composer.action("Walk"),
+                    composer.action("Run"),
+                    composer.action("Jumping"));
 
             action = composer.actionBlended("Blend", new LinearBlendSpace(4),
-                    composer.tweenFromClip("Walk"),
-                    composer.tweenFromClip("Jumping"));
+                    "Walk", "Punches", "Jumping", "Taunt");
 
             action.getBlendSpace().setValue(2);
 
