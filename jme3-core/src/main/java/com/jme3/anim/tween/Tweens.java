@@ -221,7 +221,7 @@ public class Tweens {
         }
     }
 
-    private static class Sequence implements Tween {
+    private static class Sequence implements Tween, ContainsTweens {
         private final Tween[] delegates;
         private int current = 0;
         private double baseTime;
@@ -279,9 +279,14 @@ public class Tweens {
         public String toString() {
             return getClass().getSimpleName() + "[delegates=" + Arrays.asList(delegates) + "]";
         }
+
+        @Override
+        public Tween[] getTweens() {
+            return delegates;
+        }
     }
 
-    private static class Parallel implements Tween {
+    private static class Parallel implements Tween, ContainsTweens {
         private final Tween[] delegates;
         private final boolean[] done;
         private double length;
@@ -343,6 +348,11 @@ public class Tweens {
         public String toString() {
             return getClass().getSimpleName() + "[delegates=" + Arrays.asList(delegates) + "]";
         }
+
+        @Override
+        public Tween[] getTweens() {
+            return delegates;
+        }
     }
 
     private static class Delay extends AbstractTween {
@@ -356,14 +366,15 @@ public class Tweens {
         }
     }
 
-    private static class Stretch implements Tween {
+    private static class Stretch implements Tween, ContainsTweens {
 
-        private final Tween delegate;
+        private final Tween[] delegate = new Tween[1];
         private final double length;
         private final double scale;
 
         public Stretch(Tween delegate, double length) {
-            this.delegate = delegate;
+            this.delegate[0] = delegate;
+
             this.length = length;
 
             // Caller desires delegate to be 'length' instead of
@@ -383,6 +394,11 @@ public class Tweens {
         }
 
         @Override
+        public Tween[] getTweens() {
+            return delegate;
+        }
+
+        @Override
         public boolean interpolate(double t) {
             if (t < 0) {
                 return true;
@@ -392,12 +408,12 @@ public class Tweens {
             } else {
                 t = length;
             }
-            return delegate.interpolate(t);
+            return delegate[0].interpolate(t);
         }
 
         @Override
         public String toString() {
-            return getClass().getSimpleName() + "[delegate=" + delegate + ", length=" + length + "]";
+            return getClass().getSimpleName() + "[delegate=" + delegate[0] + ", length=" + length + "]";
         }
     }
 

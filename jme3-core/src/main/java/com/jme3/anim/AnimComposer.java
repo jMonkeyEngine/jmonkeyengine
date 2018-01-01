@@ -1,11 +1,8 @@
 package com.jme3.anim;
 
-import com.jme3.anim.tween.AnimClipTween;
 import com.jme3.anim.tween.Tween;
-import com.jme3.anim.tween.action.Action;
-import com.jme3.anim.tween.action.BlendAction;
-import com.jme3.anim.tween.action.BlendSpace;
-import com.jme3.anim.tween.action.SequenceAction;
+import com.jme3.anim.tween.Tweens;
+import com.jme3.anim.tween.action.*;
 import com.jme3.export.*;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -62,40 +59,37 @@ public class AnimComposer extends AbstractControl {
     }
 
     public void setCurrentAction(String name) {
-        Action action = action(name);
-        if (currentAction != null) {
-            currentAction.reset();
-        }
-        currentAction = action;
+        currentAction = action(name);
         time = 0;
     }
 
     public Action action(String name) {
         Action action = actions.get(name);
         if (action == null) {
-            AnimClipTween tween = tweenFromClip(name);
-            action = new SequenceAction(tween);
+            AnimClip clip = animClipMap.get(name);
+            if (clip == null) {
+                throw new IllegalArgumentException("Cannot find clip named " + name);
+            }
+            action = new ClipAction(clip);
             actions.put(name, action);
         }
         return action;
     }
 
-    public AnimClipTween tweenFromClip(String clipName) {
-        AnimClip clip = animClipMap.get(clipName);
-        if (clip == null) {
-            throw new IllegalArgumentException("Cannot find clip named " + clipName);
-        }
-        return new AnimClipTween(clip);
-    }
 
-    public SequenceAction actionSequence(String name, Tween... tweens) {
-        SequenceAction action = new SequenceAction(tweens);
+    public BaseAction actionSequence(String name, Tween... tweens) {
+        BaseAction action = new BaseAction(Tweens.sequence(tweens));
         actions.put(name, action);
         return action;
     }
 
-    public BlendAction actionBlended(String name, BlendSpace blendSpace, Tween... tweens) {
-        BlendAction action = new BlendAction(blendSpace, tweens);
+    public BlendAction actionBlended(String name, BlendSpace blendSpace, String... clips) {
+        BlendableAction[] acts = new BlendableAction[clips.length];
+        for (int i = 0; i < acts.length; i++) {
+            BlendableAction ba = (BlendableAction) action(clips[i]);
+            acts[i] = ba;
+        }
+        BlendAction action = new BlendAction(blendSpace, acts);
         actions.put(name, action);
         return action;
     }
