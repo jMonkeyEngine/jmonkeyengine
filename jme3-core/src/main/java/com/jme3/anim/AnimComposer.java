@@ -21,6 +21,7 @@ public class AnimComposer extends AbstractControl {
 
     private Action currentAction;
     private Map<String, Action> actions = new HashMap<>();
+    private float globalSpeed = 1f;
     private float time;
 
     /**
@@ -66,13 +67,19 @@ public class AnimComposer extends AbstractControl {
     public Action action(String name) {
         Action action = actions.get(name);
         if (action == null) {
-            AnimClip clip = animClipMap.get(name);
-            if (clip == null) {
-                throw new IllegalArgumentException("Cannot find clip named " + name);
-            }
-            action = new ClipAction(clip);
+            action = makeAction(name);
             actions.put(name, action);
         }
+        return action;
+    }
+
+    public Action makeAction(String name) {
+        Action action;
+        AnimClip clip = animClipMap.get(name);
+        if (clip == null) {
+            throw new IllegalArgumentException("Cannot find clip named " + name);
+        }
+        action = new ClipAction(clip);
         return action;
     }
 
@@ -86,7 +93,7 @@ public class AnimComposer extends AbstractControl {
     public BlendAction actionBlended(String name, BlendSpace blendSpace, String... clips) {
         BlendableAction[] acts = new BlendableAction[clips.length];
         for (int i = 0; i < acts.length; i++) {
-            BlendableAction ba = (BlendableAction) action(clips[i]);
+            BlendableAction ba = (BlendableAction) makeAction(clips[i]);
             acts[i] = ba;
         }
         BlendAction action = new BlendAction(blendSpace, acts);
@@ -111,9 +118,9 @@ public class AnimComposer extends AbstractControl {
     protected void controlUpdate(float tpf) {
         if (currentAction != null) {
             time += tpf;
-            boolean running = currentAction.interpolate(time);
+            boolean running = currentAction.interpolate(time * globalSpeed);
             if (!running) {
-                time -= currentAction.getLength();
+                time = 0;
             }
         }
     }
@@ -121,6 +128,14 @@ public class AnimComposer extends AbstractControl {
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
 
+    }
+
+    public float getGlobalSpeed() {
+        return globalSpeed;
+    }
+
+    public void setGlobalSpeed(float globalSpeed) {
+        this.globalSpeed = globalSpeed;
     }
 
     @Override

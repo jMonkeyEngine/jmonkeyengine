@@ -5,8 +5,8 @@ import com.jme3.anim.tween.Tween;
 public abstract class Action implements Tween {
 
     protected Action[] actions;
-    protected float weight = 1;
-    protected double length;
+    private double length;
+    private double speed = 1;
 
     protected Action(Tween... tweens) {
         this.actions = new Action[tweens.length];
@@ -21,12 +21,26 @@ public abstract class Action implements Tween {
     }
 
     @Override
+    public boolean interpolate(double t) {
+        return subInterpolate(t * speed);
+    }
+
+    public abstract boolean subInterpolate(double t);
+
+    @Override
     public double getLength() {
         return length;
     }
 
-    public void setWeight(float weight) {
-        this.weight = weight;
+    protected void setLength(double length) {
+        this.length = length;
     }
 
+    public double getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
 }

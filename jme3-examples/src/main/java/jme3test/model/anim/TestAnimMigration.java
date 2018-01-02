@@ -2,6 +2,7 @@ package jme3test.model.anim;
 
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.SkinningControl;
+import com.jme3.anim.tween.action.Action;
 import com.jme3.anim.tween.action.BlendAction;
 import com.jme3.anim.tween.action.BlendableAction;
 import com.jme3.anim.tween.action.LinearBlendSpace;
@@ -32,7 +33,7 @@ public class TestAnimMigration extends SimpleApplication {
     LinkedList<String> anims = new LinkedList<>();
     boolean playAnim = false;
     BlendAction action;
-    float blendValue = 2f;
+    float blendValue = 1f;
 
     public static void main(String... argv) {
         TestAnimMigration app = new TestAnimMigration();
@@ -132,13 +133,15 @@ public class TestAnimMigration extends SimpleApplication {
             public void onAnalog(String name, float value, float tpf) {
                 if (name.equals("blendUp")) {
                     blendValue += value;
-                    blendValue = FastMath.clamp(blendValue, 0, 4);
+                    blendValue = FastMath.clamp(blendValue, 1, 4);
                     action.getBlendSpace().setValue(blendValue);
+                    action.setSpeed(blendValue);
                 }
                 if (name.equals("blendDown")) {
                     blendValue -= value;
-                    blendValue = FastMath.clamp(blendValue, 0, 4);
+                    blendValue = FastMath.clamp(blendValue, 1, 4);
                     action.getBlendSpace().setValue(blendValue);
+                    action.setSpeed(blendValue);
                 }
                 System.err.println(blendValue);
             }
@@ -160,14 +163,16 @@ public class TestAnimMigration extends SimpleApplication {
                 anims.add(name);
             }
             composer.actionSequence("Sequence",
-                    composer.action("Walk"),
-                    composer.action("Run"),
-                    composer.action("Jumping"));
+                    composer.makeAction("Walk"),
+                    composer.makeAction("Run"),
+                    composer.makeAction("Jumping")).setSpeed(4);
 
-            action = composer.actionBlended("Blend", new LinearBlendSpace(4),
-                    "Walk", "Punches", "Jumping", "Taunt");
+            action = composer.actionBlended("Blend", new LinearBlendSpace(1, 4),
+                    "Walk", "Run");
 
-            action.getBlendSpace().setValue(2);
+            action.getBlendSpace().setValue(1);
+
+            composer.action("Walk").setSpeed(2);
 
 //            composer.actionSequence("Sequence",
 //                    composer.tweenFromClip("Walk"),

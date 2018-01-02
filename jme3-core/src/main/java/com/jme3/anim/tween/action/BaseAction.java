@@ -11,7 +11,7 @@ public class BaseAction extends Action {
 
     public BaseAction(Tween tween) {
         this.tween = tween;
-        length = tween.getLength();
+        setLength(tween.getLength());
         gatherActions(tween);
     }
 
@@ -27,14 +27,7 @@ public class BaseAction extends Action {
     }
 
     @Override
-    public void setWeight(float weight) {
-        for (Action action : subActions.getArray()) {
-            action.setWeight(weight);
-        }
-    }
-
-    @Override
-    public boolean interpolate(double t) {
+    public boolean subInterpolate(double t) {
         return tween.interpolate(t);
     }
 }

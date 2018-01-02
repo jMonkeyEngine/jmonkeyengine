@@ -12,6 +12,7 @@ public abstract class BlendableAction extends Action {
     protected BlendableAction collectTransformDelegate;
     private float transitionWeight = 1.0f;
     private double transitionLength = 0.4f;
+    private float weight = 1f;
     private TransitionTween transition = new TransitionTween(transitionLength);
 
     public BlendableAction(Tween... tweens) {
@@ -24,7 +25,7 @@ public abstract class BlendableAction extends Action {
     }
 
     @Override
-    public boolean interpolate(double t) {
+    public boolean subInterpolate(double t) {
         // Sanity check the inputs
         if (t < 0) {
             return true;
@@ -47,6 +48,14 @@ public abstract class BlendableAction extends Action {
         doInterpolate(t);
 
         return t < getLength();
+    }
+
+    public float getWeight() {
+        return weight;
+    }
+
+    public void setWeight(float weight) {
+        this.weight = weight;
     }
 
     protected abstract void doInterpolate(double t);
