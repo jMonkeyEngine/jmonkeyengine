@@ -23,8 +23,8 @@ public class BlendAction extends BlendableAction {
         blendSpace.setBlendAction(this);
 
         for (BlendableAction action : actions) {
-            if (action.getLength() > length) {
-                length = action.getLength();
+            if (action.getLength() > getLength()) {
+                setLength(action.getLength());
             }
             Collection<HasLocalTransform> targets = action.getTargets();
             for (HasLocalTransform target : targets) {
@@ -40,10 +40,10 @@ public class BlendAction extends BlendableAction {
         //Stretching any action that doesn't have the same length.
         for (int i = 0; i < this.actions.length; i++) {
             this.timeFactor[i] = 1;
-            if (this.actions[i].getLength() != length) {
+            if (this.actions[i].getLength() != getLength()) {
                 double actionLength = this.actions[i].getLength();
-                if (actionLength > 0 && length > 0) {
-                    this.timeFactor[i] = this.actions[i].getLength() / length;
+                if (actionLength > 0 && getLength() > 0) {
+                    this.timeFactor[i] = this.actions[i].getLength() / getLength();
                 }
             }
         }
@@ -114,7 +114,7 @@ public class BlendAction extends BlendableAction {
 
     private void collect(HasLocalTransform target, Transform tr) {
         if (collectTransformDelegate != null) {
-            collectTransformDelegate.collectTransform(target, tr, this.weight, this);
+            collectTransformDelegate.collectTransform(target, tr, this.getWeight(), this);
         } else {
             if (getTransitionWeight() == 1) {
                 target.setLocalTransform(tr);

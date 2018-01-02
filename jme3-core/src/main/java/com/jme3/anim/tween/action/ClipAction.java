@@ -17,7 +17,7 @@ public class ClipAction extends BlendableAction {
 
     public ClipAction(AnimClip clip) {
         this.clip = clip;
-        length = clip.getLength();
+        setLength(clip.getLength());
     }
 
     @Override
@@ -29,7 +29,7 @@ public class ClipAction extends BlendableAction {
             track.getTransformAtTime(t, transform);
 
             if (collectTransformDelegate != null) {
-                collectTransformDelegate.collectTransform(target, transform, weight, this);
+                collectTransformDelegate.collectTransform(target, transform, getWeight(), this);
             } else {
                 this.collectTransform(target, transform, getTransitionWeight(), this);
             }
