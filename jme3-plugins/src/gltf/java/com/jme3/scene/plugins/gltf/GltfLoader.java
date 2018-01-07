@@ -924,6 +924,7 @@ public class GltfLoader implements AssetLoader {
             //no skins, no bone animation.
             return;
         }
+        List<JsonArray> allJoints = new ArrayList<>();
         for (int index = 0; index < skins.size(); index++) {
             JsonObject skin = skins.get(index).getAsJsonObject();
 
@@ -933,6 +934,15 @@ public class GltfLoader implements AssetLoader {
 
             JsonArray joints = skin.getAsJsonArray("joints");
             assertNotNull(joints, "No joints defined for skin");
+            int idx = allJoints.indexOf(joints);
+            if (idx >= 0) {
+                //skin already exists let's just set it in the cache
+                SkinData sd = fetchFromCache("skins", idx, SkinData.class);
+                addToCache("skins", index, sd, nodes.size());
+                continue;
+            } else {
+                allJoints.add(joints);
+            }
 
             //These inverse bind matrices, once inverted again, will give us the real bind pose of the bones (in model space),
             //since the skeleton in not guaranteed to be exported in bind pose.
@@ -1063,13 +1073,17 @@ public class GltfLoader implements AssetLoader {
         if (children != null) {
             for (JsonElement child : children) {
                 int childIndex = child.getAsInt();
+                if (bw.children.contains(childIndex)) {
+                    //bone already has the child in its children
+                    continue;
+                }
                 BoneWrapper cbw = fetchFromCache("nodes", childIndex, BoneWrapper.class);
                 if (cbw != null) {
                     bw.bone.addChild(cbw.bone);
                     bw.children.add(childIndex);
                 } else {
                     //The child might be a Node
-                    //Creating a dummy node to reed the subgraph
+                    //Creating a dummy node to read the subgraph
                     Node n = new Node();
                     readChild(n, child);
                     Spatial s = n.getChild(0);
@@ -1086,12 +1100,15 @@ public class GltfLoader implements AssetLoader {
         for (SkinData skinData : skinnedSpatials.keySet()) {
             List<Spatial> spatials = skinnedSpatials.get(skinData);
             Spatial spatial = skinData.parent;
+            if (spatials.isEmpty()) {
+                continue;
+            }
 
             if (spatials.size() >= 1) {
                 spatial = findCommonAncestor(spatials);
             }
 
-            if (spatial != skinData.parent) {
+            if (skinData.parent != null && spatial != skinData.parent) {
                 skinData.rootBoneTransformOffset = spatial.getWorldTransform().invert();
                 skinData.rootBoneTransformOffset.combineWithParent(skinData.parent.getWorldTransform());
             }
