@@ -245,9 +245,11 @@ public class GltfLoader implements AssetLoader {
         Integer skinIndex = getAsInteger(nodeData, "skin");
         if (skinIndex != null) {
             SkinData skinData = fetchFromCache("skins", skinIndex, SkinData.class);
-            List<Spatial> spatials = skinnedSpatials.get(skinData);
-            spatials.add(spatial);
-            skinData.used = true;
+            if (skinData != null) {
+                List<Spatial> spatials = skinnedSpatials.get(skinData);
+                spatials.add(spatial);
+                skinData.used = true;
+            }
         }
 
         spatial.setLocalTransform(readTransforms(nodeData));
@@ -1027,20 +1029,22 @@ public class GltfLoader implements AssetLoader {
     private void setupControls() {
         for (SkinData skinData : skinnedSpatials.keySet()) {
             List<Spatial> spatials = skinnedSpatials.get(skinData);
-            Spatial spatial = skinData.parent;
             if (spatials.isEmpty()) {
                 continue;
             }
+            Spatial spatial = skinData.parent;
 
             if (spatials.size() >= 1) {
                 spatial = findCommonAncestor(spatials);
             }
 
-            if (skinData.parent != null && spatial != skinData.parent) {
-                skinData.rootBoneTransformOffset = spatial.getWorldTransform().invert();
-                skinData.rootBoneTransformOffset.combineWithParent(skinData.parent.getWorldTransform());
-            }
-
+//            if (spatial != skinData.parent) {
+//                skinData.rootBoneTransformOffset = spatial.getWorldTransform().invert();
+//                if (skinData.parent != null) {
+//                    skinData.rootBoneTransformOffset.combineWithParent(skinData.parent.getWorldTransform());
+//                }
+//            }
+            
             if (skinData.animComposer != null && skinData.animComposer.getSpatial() == null) {
                 spatial.addControl(skinData.animComposer);
             }
