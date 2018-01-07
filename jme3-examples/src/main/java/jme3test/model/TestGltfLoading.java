@@ -109,6 +109,8 @@ public class TestGltfLoading extends SimpleApplication {
 //        rootNode.addLight(pl);
 //        PointLight pl1 = new PointLight(new Vector3f(-5.0f, -5.0f, -5.0f), ColorRGBA.White.mult(0.5f), 50);
 //        rootNode.addLight(pl1);
+
+        loadModel("Models/gltf/polly/project_polly.gltf", new Vector3f(0, 0, 0), 0.5f);
         //loadModel("Models/gltf/nier/scene.gltf", new Vector3f(0, -1.5f, 0), 0.01f);
         //loadModel("Models/gltf/izzy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
         //loadModel("Models/gltf/darth/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
@@ -118,7 +120,7 @@ public class TestGltfLoading extends SimpleApplication {
         //loadModel("Models/gltf/war/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
         //loadModel("Models/gltf/ganjaarl/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
         //loadModel("Models/gltf/hero/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
-        loadModel("Models/gltf/mercy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
+        ///    loadModel("Models/gltf/mercy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
         //loadModel("Models/gltf/crab/scene.gltf", Vector3f.ZERO, 1);
         //loadModel("Models/gltf/manta/scene.gltf", Vector3f.ZERO, 0.2f);
         //loadModel("Models/gltf/bone/scene.gltf", Vector3f.ZERO, 0.1f);
@@ -234,7 +236,7 @@ public class TestGltfLoading extends SimpleApplication {
         }
         //System.err.println(ctrl.getArmature().toString());
         //ctrl.setHardwareSkinningPreferred(false);
-        getStateManager().getState(ArmatureDebugAppState.class).addArmatureFrom(ctrl);
+        //     getStateManager().getState(ArmatureDebugAppState.class).addArmatureFrom(ctrl);
 //        AnimControl aCtrl = findControl(s, AnimControl.class);
 //        //ctrl.getSpatial().removeControl(ctrl);
 //        if (aCtrl == null) {
