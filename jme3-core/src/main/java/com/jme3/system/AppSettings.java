@@ -71,7 +71,7 @@ public final class AppSettings extends HashMap<String, Object> {
     public static final String LWJGL_OPENGL2 = "LWJGL-OpenGL2";
 
     /**
-     * Use LWJGL as the display system and force using the core OpenGL3.3 renderer.
+     * Use LWJGL as the display system and force using the core OpenGL3.2 renderer.
      * <p>
      * If the underlying system does not support OpenGL3.2, then the context
      * initialization will throw an exception. Note that currently jMonkeyEngine
