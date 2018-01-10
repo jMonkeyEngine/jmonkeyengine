@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,6 +85,10 @@ public class LwjglMouseInput implements MouseInput {
         } catch (LWJGLException ex) {
             logger.log(Level.SEVERE, "Error while creating mouse", ex);
         }
+
+        if (listener != null) {
+            sendFirstMouseEvent();
+        }
     }
 
     public boolean isInitialized(){
@@ -158,8 +162,32 @@ public class LwjglMouseInput implements MouseInput {
         Mouse.setGrabbed(!visible);
     }
 
+    @Override
     public void setInputListener(RawInputListener listener) {
         this.listener = listener;
+        if (listener != null && Mouse.isCreated()) {
+            sendFirstMouseEvent();
+        }
+    }
+
+    /**
+     * Send the input listener a special mouse-motion event with zero deltas in
+     * order to initialize the listener's cursor position.
+     */
+    private void sendFirstMouseEvent() {
+        assert listener != null;
+        assert Mouse.isCreated();
+
+        int x = Mouse.getX();
+        int y = Mouse.getY();
+        int xDelta = 0;
+        int yDelta = 0;
+        int wheelDelta = 0;
+        MouseMotionEvent evt = new MouseMotionEvent(x, y, xDelta, yDelta,
+                curWheel, wheelDelta);
+        evt.setTime(Mouse.getEventNanoseconds());
+
+        listener.onMouseMotionEvent(evt);
     }
 
     public long getInputTimeNanos() {
