@@ -598,8 +598,15 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
         return sync;
     }
 
+    @Override
     public void glBlendEquationSeparate(int colorMode, int alphaMode) {
         gl.glBlendEquationSeparate(colorMode, alphaMode);
+        checkError();
+    }
+    
+    @Override
+    public void glFramebufferTextureLayerEXT(int param1, int param2, int param3, int param4, int param5) {
+        glfbo.glFramebufferTextureLayerEXT(param1, param2, param3, param4, param5);
         checkError();
     }
 }

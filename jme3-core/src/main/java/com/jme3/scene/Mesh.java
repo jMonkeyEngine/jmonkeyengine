@@ -53,6 +53,7 @@ import com.jme3.util.IntMap.Entry;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 import java.nio.*;
 import java.util.ArrayList;
@@ -332,57 +333,63 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     }
 
     /**
+     * @param forSoftwareAnim
+     * @deprecated use generateBindPose();
+     */
+    @Deprecated
+    public void generateBindPose(boolean forSoftwareAnim) {
+        generateBindPose();
+    }
+
+    /**
      * Generates the {@link Type#BindPosePosition}, {@link Type#BindPoseNormal},
      * and {@link Type#BindPoseTangent}
      * buffers for this mesh by duplicating them based on the position and normal
      * buffers already set on the mesh.
      * This method does nothing if the mesh has no bone weight or index
      * buffers.
-     *
-     * @param forSoftwareAnim Should be true if the bind pose is to be generated.
      */
-    public void generateBindPose(boolean forSoftwareAnim){
-        if (forSoftwareAnim){
-            VertexBuffer pos = getBuffer(Type.Position);
-            if (pos == null || getBuffer(Type.BoneIndex) == null) {
-                // ignore, this mesh doesn't have positional data
-                // or it doesn't have bone-vertex assignments, so its not animated
-                return;
-            }
-
-            VertexBuffer bindPos = new VertexBuffer(Type.BindPosePosition);
-            bindPos.setupData(Usage.CpuOnly,
-                    pos.getNumComponents(),
-                    pos.getFormat(),
-                    BufferUtils.clone(pos.getData()));
-            setBuffer(bindPos);
-
-            // XXX: note that this method also sets stream mode
-            // so that animation is faster. this is not needed for hardware skinning
-            pos.setUsage(Usage.Stream);
-
-            VertexBuffer norm = getBuffer(Type.Normal);
-            if (norm != null) {
-                VertexBuffer bindNorm = new VertexBuffer(Type.BindPoseNormal);
-                bindNorm.setupData(Usage.CpuOnly,
-                        norm.getNumComponents(),
-                        norm.getFormat(),
-                        BufferUtils.clone(norm.getData()));
-                setBuffer(bindNorm);
-                norm.setUsage(Usage.Stream);
-            }
-
-            VertexBuffer tangents = getBuffer(Type.Tangent);
-            if (tangents != null) {
-                VertexBuffer bindTangents = new VertexBuffer(Type.BindPoseTangent);
-                bindTangents.setupData(Usage.CpuOnly,
-                        tangents.getNumComponents(),
-                        tangents.getFormat(),
-                        BufferUtils.clone(tangents.getData()));
-                setBuffer(bindTangents);
-                tangents.setUsage(Usage.Stream);
-            }// else hardware setup does nothing, mesh already in bind pose
+    public void generateBindPose() {
+        VertexBuffer pos = getBuffer(Type.Position);
+        if (pos == null || getBuffer(Type.BoneIndex) == null) {
+            // ignore, this mesh doesn't have positional data
+            // or it doesn't have bone-vertex assignments, so its not animated
+            return;
         }
+
+        VertexBuffer bindPos = new VertexBuffer(Type.BindPosePosition);
+        bindPos.setupData(Usage.CpuOnly,
+                pos.getNumComponents(),
+                pos.getFormat(),
+                BufferUtils.clone(pos.getData()));
+        setBuffer(bindPos);
+
+        // XXX: note that this method also sets stream mode
+        // so that animation is faster. this is not needed for hardware skinning
+        pos.setUsage(Usage.Stream);
+
+        VertexBuffer norm = getBuffer(Type.Normal);
+        if (norm != null) {
+            VertexBuffer bindNorm = new VertexBuffer(Type.BindPoseNormal);
+            bindNorm.setupData(Usage.CpuOnly,
+                    norm.getNumComponents(),
+                    norm.getFormat(),
+                    BufferUtils.clone(norm.getData()));
+            setBuffer(bindNorm);
+            norm.setUsage(Usage.Stream);
+        }
+
+        VertexBuffer tangents = getBuffer(Type.Tangent);
+        if (tangents != null) {
+            VertexBuffer bindTangents = new VertexBuffer(Type.BindPoseTangent);
+            bindTangents.setupData(Usage.CpuOnly,
+                    tangents.getNumComponents(),
+                    tangents.getFormat(),
+                    BufferUtils.clone(tangents.getData()));
+            setBuffer(bindTangents);
+            tangents.setUsage(Usage.Stream);
+        }// else hardware setup does nothing, mesh already in bind pose
+
     }
 
     /**
@@ -396,11 +403,20 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
             // convert indices to ubytes on the heap
             VertexBuffer indices = getBuffer(Type.BoneIndex);
             if (!indices.getData().hasArray()) {
-                ByteBuffer originalIndex = (ByteBuffer) indices.getData();
-                ByteBuffer arrayIndex = ByteBuffer.allocate(originalIndex.capacity());
-                originalIndex.clear();
-                arrayIndex.put(originalIndex);
-                indices.updateData(arrayIndex);
+                if (indices.getFormat() == Format.UnsignedByte) {
+                    ByteBuffer originalIndex = (ByteBuffer) indices.getData();
+                    ByteBuffer arrayIndex = ByteBuffer.allocate(originalIndex.capacity());
+                    originalIndex.clear();
+                    arrayIndex.put(originalIndex);
+                    indices.updateData(arrayIndex);
+                } else {
+                    //bone indices can be stored in an UnsignedShort buffer
+                    ShortBuffer originalIndex = (ShortBuffer) indices.getData();
+                    ShortBuffer arrayIndex = ShortBuffer.allocate(originalIndex.capacity());
+                    originalIndex.clear();
+                    arrayIndex.put(originalIndex);
+                    indices.updateData(arrayIndex);
+                }
             }
             indices.setUsage(Usage.CpuOnly);
 
@@ -429,13 +445,24 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
             //if HWBoneIndex and HWBoneWeight are empty, we setup them as direct
             //buffers with software anim buffers data
             VertexBuffer indicesHW = getBuffer(Type.HWBoneIndex);
+            Buffer result;
             if (indicesHW.getData() == null) {
                 VertexBuffer indices = getBuffer(Type.BoneIndex);
-                ByteBuffer originalIndex = (ByteBuffer) indices.getData();
-                ByteBuffer directIndex = BufferUtils.createByteBuffer(originalIndex.capacity());
-                originalIndex.clear();
-                directIndex.put(originalIndex);
-                indicesHW.setupData(Usage.Static, indices.getNumComponents(), indices.getFormat(), directIndex);
+                if (indices.getFormat() == Format.UnsignedByte) {
+                    ByteBuffer originalIndex = (ByteBuffer) indices.getData();
+                    ByteBuffer directIndex = BufferUtils.createByteBuffer(originalIndex.capacity());
+                    originalIndex.clear();
+                    directIndex.put(originalIndex);
+                    result = directIndex;
+                } else {
+                    //bone indices can be stored in an UnsignedShort buffer
+                    ShortBuffer originalIndex = (ShortBuffer) indices.getData();
+                    ShortBuffer directIndex = BufferUtils.createShortBuffer(originalIndex.capacity());
+                    originalIndex.clear();
+                    directIndex.put(originalIndex);
+                    result = directIndex;
+                }
+                indicesHW.setupData(Usage.Static, indices.getNumComponents(), indices.getFormat(), result);
             }
 
             VertexBuffer weightsHW = getBuffer(Type.HWBoneWeight);
@@ -986,6 +1013,18 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
                            BoundingVolume worldBound,
                            CollisionResults results){
 
+        switch (mode) {
+            case Points:
+            case Lines:
+            case LineStrip:
+            case LineLoop:
+                /*
+                 * Collisions can be detected only with triangles,
+                 * and there are no triangles in this mesh.
+                 */
+                return 0;
+        }
+
         if (getVertexCount() == 0) {
             return 0;
         }
@@ -1420,7 +1459,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
             return false; // no bone animation data
         }
 
-        ByteBuffer boneIndexBuffer = (ByteBuffer) biBuf.getData();
+        IndexBuffer boneIndexBuffer = IndexBuffer.wrapIndexBuffer(biBuf.getData());
         boneIndexBuffer.rewind();
         int numBoneIndices = boneIndexBuffer.remaining();
         assert numBoneIndices % 4 == 0 : numBoneIndices;
@@ -1433,10 +1472,10 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         /*
          * Test each vertex to determine whether the bone affects it.
          */
-        byte biByte = (byte) boneIndex; // bone indices wrap after 127
+        int biByte = boneIndex;
         for (int vIndex = 0; vIndex < numVertices; vIndex++) {
             for (int wIndex = 0; wIndex < 4; wIndex++) {
-                byte bIndex = boneIndexBuffer.get();
+                int bIndex = boneIndexBuffer.get();
                 float weight = weightBuffer.get();
                 if (wIndex < maxNumWeights && bIndex == biByte && weight != 0f) {
                     return true;

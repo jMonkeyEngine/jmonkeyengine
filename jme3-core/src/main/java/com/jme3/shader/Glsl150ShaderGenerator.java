@@ -35,6 +35,8 @@ import com.jme3.asset.AssetManager;
 import com.jme3.material.ShaderGenerationInfo;
 import com.jme3.shader.Shader.ShaderType;
 
+import java.util.List;
+
 /**
  * This shader Generator can generate Vertex and Fragment shaders from
  * ShaderNodes for GLSL 1.5
@@ -76,6 +78,25 @@ public class Glsl150ShaderGenerator extends Glsl100ShaderGenerator {
     @Override
     protected void declareVarying(StringBuilder source, ShaderNodeVariable var, boolean input) {
         declareVariable(source, var, true, input ? "in" : "out");
+    }
+
+    @Override
+    protected void generateUniforms(StringBuilder source, ShaderGenerationInfo info, ShaderType type) {
+        generateCompatibilityDefines(source, type);
+        super.generateUniforms(source, info, type);
+    }
+
+    private void generateCompatibilityDefines(StringBuilder source, ShaderType type) {
+        //Adding compatibility defines, as it's more efficient than replacing the function calls in the source code
+        if (type == ShaderType.Fragment) {
+            source.append("\n")
+                    .append("#define texture1D texture\n")
+                    .append("#define texture2D texture\n")
+                    .append("#define texture3D texture\n")
+                    .append("#define textureCube texture\n")
+                    .append("#define texture2DLod textureLod\n")
+                    .append("#define textureCubeLod textureLod\n");
+        }
     }
 
     /**

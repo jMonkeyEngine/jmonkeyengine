@@ -15,7 +15,7 @@ apply from: file('version.gradle')
 subprojects {
     if(!project.name.equals('jme3-android-examples')) {
         apply from: rootProject.file('common.gradle')
-        if (!['jme3-testdata', 'sdk'].contains(project.name)) {
+        if (!project.name.equals('jme3-testdata')) {
             apply from: rootProject.file('bintray.gradle')
         }
     } else {
@@ -66,9 +66,9 @@ task createZipDistribution(type:Zip,dependsOn:["dist","libDist"], description:"P
     archiveName "jME" + jmeFullVersion + ".zip"
     into("/") {
          from {"./dist"}
-    }            
+    }
     into("/sources") {
-        from {"$buildDir/libDist/sources"}     
+        from {"$buildDir/libDist/sources"}
     }
 }
 
@@ -88,14 +88,14 @@ task dist(dependsOn: [':jme3-examples:dist', 'mergedJavadoc']){
 task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the projects.') {
     title = 'jMonkeyEngine3'
     destinationDir = mkdir("dist/javadoc")
-    
+
     options.encoding = 'UTF-8'
 
     // Allows Javadoc to be generated on Java 8 despite doclint errors.
     if (JavaVersion.current().isJava8Compatible()) {
         options.addStringOption('Xdoclint:none', '-quiet')
     }
-    
+
     options.overview = file("javadoc-overview.html")
     // Note: The closures below are executed lazily.
     source subprojects.collect {project ->
@@ -116,7 +116,7 @@ task mergedSource(type: Copy){
 }
 
 task wrapper(type: Wrapper, description: 'Creates and deploys the Gradle wrapper to the current directory.') {
-    gradleVersion = '3.2.1'
+    gradleVersion = '4.1'
 }
 
 ext {
@@ -137,7 +137,7 @@ task configureAndroidNDK {
     if (System.env.ANDROID_NDK != null) {
         ndkBuildPath = System.env.ANDROID_NDK + File.separator + ndkBuildFile
     }
-    
+
     if (new File(ndkBuildPath).exists()) {
         ndkExists = true
         ndkCommandPath = ndkBuildPath

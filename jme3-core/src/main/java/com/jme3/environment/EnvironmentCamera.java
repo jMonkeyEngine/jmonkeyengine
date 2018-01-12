@@ -48,6 +48,7 @@ import com.jme3.texture.Texture2D;
 import com.jme3.texture.TextureCubeMap;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.MipMapGenerator;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -71,6 +72,8 @@ public class EnvironmentCamera extends BaseAppState {
     protected static Vector3f[] axisZ = new Vector3f[6];
 
     protected Image.Format imageFormat = Image.Format.RGB16F;
+
+    public TextureCubeMap debugEnv;
 
     //Axis for cameras
     static {
@@ -108,7 +111,10 @@ public class EnvironmentCamera extends BaseAppState {
     protected Vector3f position = new Vector3f();
     protected ColorRGBA backGroundColor;
 
-    protected int size = 128;
+    /**
+     * The size of environment cameras.
+     */
+    protected int size = 256;
 
     private final List<SnapshotJob> jobs = new ArrayList<SnapshotJob>();
 
@@ -185,17 +191,46 @@ public class EnvironmentCamera extends BaseAppState {
             buffers[i] = BufferUtils.createByteBuffer(size * size * imageFormat.getBitsPerPixel() / 8);
             renderManager.getRenderer().readFrameBufferWithFormat(framebuffers[i], buffers[i], imageFormat);
             images[i] = new Image(imageFormat, size, size, buffers[i], ColorSpace.Linear);
+            MipMapGenerator.generateMipMaps(images[i]);
         }
 
         final TextureCubeMap map = EnvMapUtils.makeCubeMap(images[0], images[1], images[2], images[3], images[4], images[5], imageFormat);
-
+            debugEnv = map;
         job.callback.done(map);
         map.getImage().dispose();
         jobs.remove(0);
     }
 
+    /**
+     * Gets the size of environment cameras.
+     *
+     * @return the size of environment cameras.
+     */
     public int getSize() {
         return size;
+    }
+
+    /**
+     * Sets the size of environment cameras and rebuild this state if it was initialized.
+     *
+     * @param size the size of environment cameras.
+     */
+    public void setSize(final int size) {
+        this.size = size;
+        rebuild();
+    }
+
+    /**
+     * Rebuild all environment cameras.
+     */
+    protected void rebuild() {
+
+        if (!isInitialized()) {
+            return;
+        }
+
+        cleanup(getApplication());
+        initialize(getApplication());
     }
 
     public Vector3f getPosition() {
@@ -224,8 +259,7 @@ public class EnvironmentCamera extends BaseAppState {
         this.backGroundColor = app.getViewPort().getBackgroundColor();
 
         final Camera[] cameras = new Camera[6];
-
-        Texture2D[] textures = new Texture2D[6];
+        final Texture2D[] textures = new Texture2D[6];
 
         viewports = new ViewPort[6];
         framebuffers = new FrameBuffer[6];
@@ -240,6 +274,7 @@ public class EnvironmentCamera extends BaseAppState {
             framebuffers[i].setColorTexture(textures[i]);
         }
     }
+
 
     @Override
     protected void cleanup(Application app) {

@@ -291,27 +291,30 @@ public class MeshHelper extends AbstractBlenderHelper {
         	Structure defbase = (Structure) parent.getFieldValue("defbase");
             List<String> groupNames = new ArrayList<String>();
             List<Structure> defs = defbase.evaluateListBase();
-            for (Structure def : defs) {
-                groupNames.add(def.getFieldValue("name").toString());
-            }
+            
+            if(!defs.isEmpty()) {
+                for (Structure def : defs) {
+                    groupNames.add(def.getFieldValue("name").toString());
+                }
 
-            Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert = DeformVERTices
-            if (pDvert.isNotNull()) {// assigning weights and bone indices
-                List<Structure> dverts = pDvert.fetchData();
-                for (Structure dvert : dverts) {
-                    Map<String, Float> weightsForVertex = new HashMap<String, Float>();
-                    Pointer pDW = (Pointer) dvert.getFieldValue("dw");
-                    if (pDW.isNotNull()) {
-                        List<Structure> dw = pDW.fetchData();
-                        for (Structure deformWeight : dw) {
-                            int groupIndex = ((Number) deformWeight.getFieldValue("def_nr")).intValue();
-                            float weight = ((Number) deformWeight.getFieldValue("weight")).floatValue();
-                            String groupName = groupNames.get(groupIndex);
+                Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert = DeformVERTices
+                if (pDvert.isNotNull()) {// assigning weights and bone indices
+                    List<Structure> dverts = pDvert.fetchData();
+                    for (Structure dvert : dverts) {
+                        Map<String, Float> weightsForVertex = new HashMap<String, Float>();
+                        Pointer pDW = (Pointer) dvert.getFieldValue("dw");
+                        if (pDW.isNotNull()) {
+                            List<Structure> dw = pDW.fetchData();
+                            for (Structure deformWeight : dw) {
+                                int groupIndex = ((Number) deformWeight.getFieldValue("def_nr")).intValue();
+                                float weight = ((Number) deformWeight.getFieldValue("weight")).floatValue();
+                                String groupName = groupNames.get(groupIndex);
 
-                            weightsForVertex.put(groupName, weight);
+                                weightsForVertex.put(groupName, weight);
+                            }
                         }
+                        result.add(weightsForVertex);
                     }
-                    result.add(weightsForVertex);
                 }
             }
         }

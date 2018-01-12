@@ -94,6 +94,24 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
     }
 
     /**
+     * Set the length of the animation
+     *
+     * @param length
+     */
+    public void setLength(float length) {
+        this.length = length;
+    }
+
+    /**
+     * Sets the name of the animation
+     *
+     * @param name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
      * This method sets the current time of the animation.
      * This method behaves differently for every known track type.
      * Override this method if you have your own type of track.
@@ -209,7 +227,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
         // isn't cloned at all... even though they all implement clone() methods. -pspeed
         SafeArrayList<Track> newTracks = new SafeArrayList<>(Track.class);
         for( Track track : tracks ) {
-            if( track instanceof ClonableTrack ) {
+            if (track instanceof JmeCloneable) {
                 newTracks.add(cloner.clone(track));
             } else {
                 // this is the part that seems fishy 

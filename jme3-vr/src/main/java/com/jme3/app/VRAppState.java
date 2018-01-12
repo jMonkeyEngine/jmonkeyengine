@@ -36,6 +36,8 @@ import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.input.vr.VRAPI;
 import com.jme3.input.vr.VRInputAPI;
+import com.jme3.input.vr.VRMouseManager;
+import com.jme3.input.vr.VRViewManager;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -46,8 +48,6 @@ import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
 import com.jme3.util.VRGUIPositioningMode;
 import com.jme3.util.VRGuiManager;
-import com.jme3.util.VRMouseManager;
-import com.jme3.util.VRViewManager;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -72,7 +72,7 @@ import java.util.logging.Logger;
  * <li>To start the main {@link Application application}.
  * </ul>
  * Attaching an instance of this app state to an already started application may cause crashes.
- * @author Julien Seinturier - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public class VRAppState extends AbstractAppState {
 
@@ -396,32 +396,31 @@ public class VRAppState extends AbstractAppState {
         } else if( environment.getObserver() != null ) {
             environment.getCamera().setFrame(((Spatial)environment.getObserver()).getWorldTranslation(), ((Spatial)environment.getObserver()).getWorldRotation());
         }
-        
-        //FIXME: check if this code is necessary.
-        // Updates scene and gui states.
-        Iterator<Spatial> spatialIter = application.getViewPort().getScenes().iterator();
-        Spatial spatial = null;
-        while(spatialIter.hasNext()){
-        	spatial = spatialIter.next();
-        	spatial.updateLogicalState(tpf);
-        	spatial.updateGeometricState();
-        }        
-        
+
         if( environment.isInVR() == false || environment.getVRGUIManager().getPositioningMode() == VRGUIPositioningMode.MANUAL ) {
             // only update geometric state here if GUI is in manual mode, or not in VR
             // it will get updated automatically in the viewmanager update otherwise
-        	spatialIter = application.getGuiViewPort().getScenes().iterator();
-            spatial = null;
-            while(spatialIter.hasNext()){
-            	spatial = spatialIter.next();
+            // TODO isn't this done by SimpleApplication?
+            for (Spatial spatial : application.getGuiViewPort().getScenes()) {
+            	//spatial.updateLogicalState(tpf);
             	spatial.updateGeometricState();
             }    
         }
-        
+
         // use the analog control on the first tracked controller to push around the mouse
         environment.getVRMouseManager().updateAnalogAsMouse(0, null, null, null, tpf);
     }
 
+    @Override
+    public void render(RenderManager rm) {
+      super.render(rm);
+      
+      // update compositor
+      if( environment.getVRViewManager() != null ) {
+        environment.getVRViewManager().render();
+      }
+    }
+    
     @Override
     public void postRender() {
         super.postRender();

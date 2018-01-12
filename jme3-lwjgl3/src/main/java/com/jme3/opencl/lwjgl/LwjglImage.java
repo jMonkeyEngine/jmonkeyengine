@@ -302,7 +302,7 @@ public class LwjglImage extends Image {
         Utils.pointerBuffers[1].put(origin).position(0);
         Utils.pointerBuffers[2].put(region).position(0);
         long q = ((LwjglCommandQueue) queue).getQueue();
-        int ret = CL10.clEnqueueReadImage(q, image, CL10.CL_TRUE, 
+        int ret = CL10.clEnqueueReadImage(q, image, true, 
                 Utils.pointerBuffers[1], Utils.pointerBuffers[2], 
                 rowPitch, slicePitch, dest, null, null);
         Utils.checkError(ret, "clEnqueueReadImage");
@@ -319,7 +319,7 @@ public class LwjglImage extends Image {
         Utils.pointerBuffers[1].put(origin).position(0);
         Utils.pointerBuffers[2].put(region).position(0);
         long q = ((LwjglCommandQueue) queue).getQueue();
-        int ret = CL10.clEnqueueReadImage(q, image, CL10.CL_FALSE, 
+        int ret = CL10.clEnqueueReadImage(q, image, false, 
                 Utils.pointerBuffers[1], Utils.pointerBuffers[2], 
                 rowPitch, slicePitch, dest, null, Utils.pointerBuffers[0]);
         Utils.checkError(ret, "clEnqueueReadImage");
@@ -337,7 +337,7 @@ public class LwjglImage extends Image {
         Utils.pointerBuffers[1].put(origin).position(0);
         Utils.pointerBuffers[2].put(region).position(0);
         long q = ((LwjglCommandQueue) queue).getQueue();
-        int ret = CL10.clEnqueueWriteImage(q, image, CL10.CL_TRUE, 
+        int ret = CL10.clEnqueueWriteImage(q, image, true, 
                 Utils.pointerBuffers[1], Utils.pointerBuffers[2], 
                 rowPitch, slicePitch, dest, null, null);
         Utils.checkError(ret, "clEnqueueWriteImage");
@@ -354,7 +354,7 @@ public class LwjglImage extends Image {
         Utils.pointerBuffers[1].put(origin).position(0);
         Utils.pointerBuffers[2].put(region).position(0);
         long q = ((LwjglCommandQueue) queue).getQueue();
-        int ret = CL10.clEnqueueWriteImage(q, image, CL10.CL_FALSE, 
+        int ret = CL10.clEnqueueWriteImage(q, image, false, 
                 Utils.pointerBuffers[1], Utils.pointerBuffers[2], 
                 rowPitch, slicePitch, dest, null, Utils.pointerBuffers[0]);
         Utils.checkError(ret, "clEnqueueWriteImage");
@@ -419,7 +419,7 @@ public class LwjglImage extends Image {
         long q = ((LwjglCommandQueue) queue).getQueue();
         long flags = Utils.getMappingAccessFlags(access);
         Utils.errorBuffer.rewind();
-        ByteBuffer buf = CL10.clEnqueueMapImage(q, image, CL10.CL_TRUE, flags, 
+        ByteBuffer buf = CL10.clEnqueueMapImage(q, image, true, flags, 
                 Utils.pointerBuffers[1], Utils.pointerBuffers[2], 
                 Utils.pointerBuffers[3], Utils.pointerBuffers[4], null, null, 
                 Utils.errorBuffer, null);
@@ -442,7 +442,7 @@ public class LwjglImage extends Image {
         long q = ((LwjglCommandQueue) queue).getQueue();
         long flags = Utils.getMappingAccessFlags(access);
         Utils.errorBuffer.rewind();
-        ByteBuffer buf = CL10.clEnqueueMapImage(q, image, CL10.CL_FALSE, flags, 
+        ByteBuffer buf = CL10.clEnqueueMapImage(q, image, false, flags, 
                 Utils.pointerBuffers[1], Utils.pointerBuffers[2], 
                 Utils.pointerBuffers[3], Utils.pointerBuffers[4], null, Utils.pointerBuffers[0], 
                 Utils.errorBuffer, null);

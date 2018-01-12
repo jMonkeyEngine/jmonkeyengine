@@ -43,7 +43,11 @@ import java.util.List;
  */
 public class KeyFrame implements Savable {
 
-    List<CinematicEvent> cinematicEvents = new ArrayList<CinematicEvent>();
+    public KeyFrame(){
+        
+    }
+    
+    List<CinematicEvent> cinematicEvents = new ArrayList<>();
     private int index;
 
     public List<CinematicEvent> getCinematicEvents() {

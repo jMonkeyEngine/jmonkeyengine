@@ -33,11 +33,7 @@ package com.jme3.shadow;
  */
 
 import com.jme3.asset.AssetManager;
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
-import com.jme3.export.Savable;
+import com.jme3.export.*;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
@@ -57,8 +53,6 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.WireFrustum;
-import com.jme3.shadow.CompareMode;
-import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture.MagFilter;
@@ -77,7 +71,7 @@ import java.util.List;
  *
  * @author Rémy Bouquet aka Nehon
  * @author reden - phr00t - https://github.com/phr00t
- * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public abstract class AbstractShadowRendererVR implements SceneProcessor, Savable {
 
@@ -99,7 +93,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     protected CompareMode shadowCompareMode = CompareMode.Hardware;
     protected Picture[] dispPic;
     protected RenderState forcedRenderState = new RenderState();
-    protected Boolean renderBackFacesShadows;
+    protected boolean renderBackFacesShadows;
 
     protected AppProfiler profiler = null;
     
@@ -193,6 +187,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         setEdgeFilteringMode(edgeFilteringMode);
         setShadowIntensity(shadowIntensity);
         initForcedRenderState();
+        setRenderBackFacesShadows(isRenderBackFacesShadows());
     }
 
     protected void initForcedRenderState() {
@@ -572,11 +567,10 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
             mat.setInt("FilterMode", edgeFilteringMode.getMaterialParamValue());
             mat.setFloat("PCFEdge", edgesThickness);
             mat.setFloat("ShadowIntensity", shadowIntensity);
+            mat.setBoolean("BackfaceShadows", renderBackFacesShadows);
+
             if (fadeInfo != null) {
                mat.setVector2("FadeInfo", fadeInfo);
-            }
-            if(renderBackFacesShadows != null){
-                mat.setBoolean("BackfaceShadows", renderBackFacesShadows);
             }
 
             setMaterialParameters(mat);
@@ -617,9 +611,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         if (fadeInfo != null) {
             postshadowMat.setVector2("FadeInfo", fadeInfo);
         }
-        if(renderBackFacesShadows != null){
-            postshadowMat.setBoolean("BackfaceShadows", renderBackFacesShadows);
-        }
+        postshadowMat.setBoolean("BackfaceShadows", renderBackFacesShadows);
     }
     
     /**
@@ -800,10 +792,11 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
 
     /**
      * if this processor renders back faces shadows
+     *
      * @return true if this processor renders back faces shadows
      */
     public boolean isRenderBackFacesShadows() {
-        return renderBackFacesShadows != null?renderBackFacesShadows:false;
+        return renderBackFacesShadows;
     }
 
     /**

@@ -32,10 +32,10 @@
 
 package com.jme3.system.lwjgl;
 
+import static com.jme3.util.LWJGLBufferAllocator.PROPERTY_CONCURRENT_BUFFER_ALLOCATOR;
 import static org.lwjgl.opencl.CL10.CL_CONTEXT_PLATFORM;
 import static org.lwjgl.opengl.GL.createCapabilities;
 import static org.lwjgl.opengl.GL11.glGetInteger;
-
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
@@ -52,24 +52,14 @@ import com.jme3.renderer.lwjgl.LwjglGL;
 import com.jme3.renderer.lwjgl.LwjglGLExt;
 import com.jme3.renderer.lwjgl.LwjglGLFboEXT;
 import com.jme3.renderer.lwjgl.LwjglGLFboGL3;
-import com.jme3.renderer.opengl.GL;
-import com.jme3.renderer.opengl.GL2;
-import com.jme3.renderer.opengl.GL3;
-import com.jme3.renderer.opengl.GL4;
-import com.jme3.renderer.opengl.GLDebugDesktop;
-import com.jme3.renderer.opengl.GLExt;
-import com.jme3.renderer.opengl.GLFbo;
-import com.jme3.renderer.opengl.GLRenderer;
-import com.jme3.renderer.opengl.GLTiming;
-import com.jme3.renderer.opengl.GLTimingState;
-import com.jme3.renderer.opengl.GLTracer;
+import com.jme3.renderer.opengl.*;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 import com.jme3.util.BufferAllocatorFactory;
 import com.jme3.util.LWJGLBufferAllocator;
-
+import com.jme3.util.LWJGLBufferAllocator.ConcurrentLWJGLBufferAllocator;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opencl.APPLEGLSharing;
@@ -96,9 +86,15 @@ public abstract class LwjglContext implements JmeContext {
     private static final Logger logger = Logger.getLogger(LwjglContext.class.getName());
 
     static {
+
         final String implementation = BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION;
-        if(System.getProperty(implementation) == null) {
-            System.setProperty(implementation, LWJGLBufferAllocator.class.getName());
+
+        if (System.getProperty(implementation) == null) {
+            if (Boolean.parseBoolean(System.getProperty(PROPERTY_CONCURRENT_BUFFER_ALLOCATOR, "true"))) {
+                System.setProperty(implementation, ConcurrentLWJGLBufferAllocator.class.getName());
+            } else {
+                System.setProperty(implementation, LWJGLBufferAllocator.class.getName());
+            }
         }
     }
 
@@ -159,14 +155,24 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     protected void initContextFirstTime() {
-        final GLCapabilities capabilities = createCapabilities(settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3));
+
+        final String renderer = settings.getRenderer();
+        final GLCapabilities capabilities = createCapabilities(!renderer.equals(AppSettings.LWJGL_OPENGL2));
 
         if (!capabilities.OpenGL20) {
             throw new RendererException("OpenGL 2.0 or higher is required for jMonkeyEngine");
         }
 
-        if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL2)
-                || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
+        if (renderer.equals(AppSettings.LWJGL_OPENGL2)
+                || renderer.equals(AppSettings.LWJGL_OPENGL3)
+                || renderer.equals(AppSettings.LWJGL_OPENGL33)
+                || renderer.equals(AppSettings.LWJGL_OPENGL4)
+                || renderer.equals(AppSettings.LWJGL_OPENGL41)
+                || renderer.equals(AppSettings.LWJGL_OPENGL42)
+                || renderer.equals(AppSettings.LWJGL_OPENGL43)
+                || renderer.equals(AppSettings.LWJGL_OPENGL44)
+                || renderer.equals(AppSettings.LWJGL_OPENGL45)) {
+
             GL gl = new LwjglGL();
             GLExt glext = new LwjglGLExt();
             GLFbo glfbo;
@@ -196,18 +202,18 @@ public abstract class LwjglContext implements JmeContext {
                 glfbo = (GLFbo) GLTracer.createDesktopGlTracer(glfbo, GLFbo.class);
             }
 
-            renderer = new GLRenderer(gl, glext, glfbo);
-            renderer.initialize();
+            this.renderer = new GLRenderer(gl, glext, glfbo);
+            this.renderer.initialize();
         } else {
-            throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
+            throw new UnsupportedOperationException("Unsupported renderer: " + renderer);
         }
 
         if (capabilities.GL_ARB_debug_output && settings.getBoolean("GraphicsDebug")) {
             ARBDebugOutput.glDebugMessageCallbackARB(new LwjglGLDebugOutputHandler(), 0);
         }
 
-        renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
-        renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
+        this.renderer.setMainFrameBufferSrgb(settings.isGammaCorrection());
+        this.renderer.setLinearizeSrgbImages(settings.isGammaCorrection());
 
         // Init input
         if (keyInput != null) {

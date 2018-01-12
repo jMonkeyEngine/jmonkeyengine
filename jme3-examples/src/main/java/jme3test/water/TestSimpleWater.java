@@ -103,7 +103,9 @@ public class TestSimpleWater extends SimpleApplication implements ActionListener
         sceneNode.attachChild(geom);
 
         // load sky
-        sceneNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
+        sceneNode.attachChild(SkyFactory.createSky(assetManager, 
+                "Textures/Sky/Bright/BrightSky.dds", 
+                SkyFactory.EnvMapType.CubeMap));
         rootNode.attachChild(sceneNode);
 
         //add lightPos Geometry

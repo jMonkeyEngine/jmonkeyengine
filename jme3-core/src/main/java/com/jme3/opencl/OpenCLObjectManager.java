@@ -45,10 +45,6 @@ public class OpenCLObjectManager {
     private static final Logger LOG = Logger.getLogger(OpenCLObjectManager.class.getName());
     private static final Level LOG_LEVEL1 = Level.FINER;
     private static final Level LOG_LEVEL2 = Level.FINE;
-    /**
-     * Call Runtime.getRuntime().gc() every these frames
-     */
-    private static final int GC_FREQUENCY = 10;
     
     private static final OpenCLObjectManager INSTANCE = new OpenCLObjectManager();
     private OpenCLObjectManager() {}
@@ -59,7 +55,6 @@ public class OpenCLObjectManager {
     
     private ReferenceQueue<Object> refQueue = new ReferenceQueue<Object>();
     private HashSet<OpenCLObjectRef> activeObjects = new HashSet<OpenCLObjectRef>();
-    private int gcCounter = 0;
     
     private static class OpenCLObjectRef extends PhantomReference<Object> {
         
@@ -80,6 +75,7 @@ public class OpenCLObjectManager {
     private void deleteObject(OpenCLObjectRef ref) {
         LOG.log(LOG_LEVEL1, "deleting OpenCL object by: {0}", ref.releaser);
         ref.releaser.release();
+        ref.clear();
         activeObjects.remove(ref);
     }
         
@@ -87,15 +83,6 @@ public class OpenCLObjectManager {
         if (activeObjects.isEmpty()) {
             LOG.log(LOG_LEVEL2, "no active natives");
             return; //nothing to do
-        }
-        
-        gcCounter++;
-        if (gcCounter >= GC_FREQUENCY) {
-            //The program is that the OpenCLObjects are so small that they are 
-            //enqueued for finalization very late. Therefore, without this
-            //hack, we are running out of host memory on the OpenCL side quickly.
-            gcCounter = 0;
-            Runtime.getRuntime().gc();
         }
         
         int removed = 0;
@@ -117,6 +104,7 @@ public class OpenCLObjectManager {
         for (OpenCLObjectRef ref : activeObjects) {
             LOG.log(LOG_LEVEL1, "deleting OpenCL object by: {0}", ref.releaser);
             ref.releaser.release();
+            ref.clear();
         }
         activeObjects.clear();
     }

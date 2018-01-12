@@ -1016,7 +1016,7 @@ public class ParticleEmitter extends Geometry {
         particles[idx2] = p1;
     }
 
-    private void updateParticle(Particle p, float tpf, Vector3f min, Vector3f max){
+    protected void updateParticle(Particle p, float tpf, Vector3f min, Vector3f max){
         // applying gravity
         p.velocity.x -= gravity.x * tpf;
         p.velocity.y -= gravity.y * tpf;

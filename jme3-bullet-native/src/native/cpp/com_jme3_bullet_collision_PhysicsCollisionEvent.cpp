@@ -209,7 +209,7 @@ JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_collision_PhysicsCollisionEvent_
         env->ThrowNew(newExc, "The manifoldPoint does not exist.");
         return 0;
     }
-    return mp -> m_lateralFrictionInitialized;
+    return (mp -> m_contactPointFlags) &  BT_CONTACT_FLAG_LATERAL_FRICTION_INITIALIZED;
 }
 
 /*

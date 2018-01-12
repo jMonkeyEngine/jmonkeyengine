@@ -41,7 +41,10 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -80,8 +83,9 @@ public class AnimationEvent extends AbstractCinematicEvent {
      * constructors
      */
     public AnimationEvent() {
+        super();
     }
-
+    
     /**
      * creates an animation event
      *
@@ -90,6 +94,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      */
     public AnimationEvent(Spatial model, String animationName) {
         this.model = model;
+        this.modelName = model.getName();
         this.animationName = animationName;
         initialDuration = model.getControl(AnimControl.class).getAnimationLength(animationName);
     }
@@ -104,6 +109,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
     public AnimationEvent(Spatial model, String animationName, float initialDuration) {
         super(initialDuration);
         this.model = model;
+        this.modelName = model.getName();
         this.animationName = animationName;
     }
 
@@ -119,6 +125,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
         super(loopMode);
         initialDuration = model.getControl(AnimControl.class).getAnimationLength(animationName);
         this.model = model;
+        this.modelName = model.getName();
         this.animationName = animationName;
     }
 
@@ -134,6 +141,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
     public AnimationEvent(Spatial model, String animationName, float initialDuration, LoopMode loopMode) {
         super(initialDuration, loopMode);
         this.model = model;
+        this.modelName = model.getName();
         this.animationName = animationName;
     }
 
@@ -149,6 +157,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
     public AnimationEvent(Spatial model, String animationName, float initialDuration, float blendTime) {
         super(initialDuration);
         this.model = model;
+        this.modelName = model.getName();
         this.animationName = animationName;
         this.blendTime = blendTime;
     }
@@ -167,6 +176,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
         super(loopMode);
         initialDuration = model.getControl(AnimControl.class).getAnimationLength(animationName);
         this.model = model;
+        this.modelName = model.getName();
         this.animationName = animationName;
         this.blendTime = blendTime;
     }
@@ -185,6 +195,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
     public AnimationEvent(Spatial model, String animationName, float initialDuration, LoopMode loopMode, float blendTime) {
         super(initialDuration, loopMode);
         this.model = model;
+        this.modelName = model.getName();
         this.animationName = animationName;
         this.blendTime = blendTime;
     }
@@ -203,6 +214,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
         super(loopMode);
         initialDuration = model.getControl(AnimControl.class).getAnimationLength(animationName);
         this.model = model;
+        this.modelName = model.getName();
         this.animationName = animationName;
         this.channelIndex = channelIndex;
     }
@@ -217,6 +229,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      */
     public AnimationEvent(Spatial model, String animationName, int channelIndex) {
         this.model = model;
+        this.modelName = model.getName();
         this.animationName = animationName;
         initialDuration = model.getControl(AnimControl.class).getAnimationLength(animationName);
         this.channelIndex = channelIndex;
@@ -233,6 +246,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
      */
     public AnimationEvent(Spatial model, String animationName, LoopMode loopMode, int channelIndex, float blendTime) {
         this.model = model;
+        this.modelName = model.getName();
         this.animationName = animationName;
         this.loopMode = loopMode;
         initialDuration = model.getControl(AnimControl.class).getAnimationLength(animationName);
@@ -252,6 +266,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
     public AnimationEvent(Spatial model, String animationName, float initialDuration, int channelIndex) {
         super(initialDuration);
         this.model = model;
+        this.modelName = model.getName();
         this.animationName = animationName;
         this.channelIndex = channelIndex;
     }
@@ -270,6 +285,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
     public AnimationEvent(Spatial model, String animationName, float initialDuration, LoopMode loopMode, int channelIndex) {
         super(initialDuration, loopMode);
         this.model = model;
+        this.modelName = model.getName();
         this.animationName = animationName;
         this.channelIndex = channelIndex;
     }
@@ -299,6 +315,18 @@ public class AnimationEvent extends AbstractCinematicEvent {
                     model = cinematic.getScene().getChild(modelName);
                 }
                 if (model != null) {
+                    if(cinematic.getScene() != null){
+                        Spatial sceneModel = cinematic.getScene().getChild(model.getName());
+                        if(sceneModel != null){
+                            Node parent = sceneModel.getParent();
+                            parent.detachChild(sceneModel);
+                            sceneModel = model;
+                            parent.attachChild(sceneModel);
+                        } else {
+                            cinematic.getScene().attachChild(model);
+                        }
+                    }
+                    
                     channel = model.getControl(AnimControl.class).createChannel();
                     map.put(channelIndex, channel);
                 } else {
@@ -401,6 +429,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
         OutputCapsule oc = ex.getCapsule(this);
 
         oc.write(model, "model", null);
+        oc.write(modelName, "modelName", null);
         oc.write(animationName, "animationName", "");
         oc.write(blendTime, "blendTime", 0f);
         oc.write(channelIndex, "channelIndex", 0);
@@ -411,9 +440,9 @@ public class AnimationEvent extends AbstractCinematicEvent {
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-        if (im.getFormatVersion() == 0) {
+//        if (im.getFormatVersion() == 0) {
             modelName = ic.readString("modelName", "");
-        }
+//        }
         //FIXME always the same issue, because of the clonning of assets, this won't work
         //we have to somehow store userdata in the spatial and then recurse the 
         //scene sub scenegraph to find the correct instance of the model

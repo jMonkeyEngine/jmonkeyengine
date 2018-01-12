@@ -50,7 +50,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * the indentation characters 1à tabulation characters
      */
     private final static String INDENTCHAR = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-    private ShaderNodeVariable inPosTmp;
+    protected ShaderNodeVariable inPosTmp;
 
     /**
      * creates a Glsl100ShaderGenerator
@@ -110,7 +110,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     protected void generateVaryings(StringBuilder source, ShaderGenerationInfo info, ShaderType type) {
         source.append("\n");
         for (ShaderNodeVariable var : info.getVaryings()) {
-            declareVarying(source, var, type == ShaderType.Vertex ? false : true);
+            declareVarying(source, var, type != ShaderType.Vertex);
         }
     }
 
@@ -141,7 +141,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     @Override
     protected void generateStartOfMainSection(StringBuilder source, ShaderGenerationInfo info, ShaderType type) {
         source.append("\n");
-        source.append("void main(){\n");
+        source.append("void main() {\n");
         indent();
         appendIndent(source);
         if (type == ShaderType.Vertex) {
@@ -211,7 +211,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * this methods does things in this order : 
      * 
      * 1. declaring and mapping input<br>
-     * variables : variable replaced with MatParams or WorldParams are not
+     * variables : variable replaced with MatParams or WorldParams that are Samplers are not
      * declared and are replaced by the param actual name in the code. For others
      * variables, the name space is appended with a "_" before the variable name
      * in the code to avoid names collision between shaderNodes. <br>
@@ -237,27 +237,59 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         comment(source, shaderNode, "Begin");
         startCondition(shaderNode.getCondition(), source);
 
-        List<String> declaredInputs = new ArrayList<String>();
+        final List<String> declaredInputs = new ArrayList<>();
+
         for (VariableMapping mapping : shaderNode.getInputMapping()) {
 
-            //all variables fed with a matparam or world param are replaced but the matparam itself
-            //it avoids issue with samplers that have to be uniforms, and it optimize a but the shader code.
-            if (isWorldOrMaterialParam(mapping.getRightVariable())) {
-                nodeSource = replace(nodeSource, mapping.getLeftVariable(), mapping.getRightVariable().getPrefix() + mapping.getRightVariable().getName());
+            final ShaderNodeVariable rightVariable = mapping.getRightVariable();
+            final ShaderNodeVariable leftVariable = mapping.getLeftVariable();
+
+            //Variables fed with a sampler matparam or world param are replaced by the matparam itself
+            //It avoids issue with samplers that have to be uniforms.
+            if (isWorldOrMaterialParam(rightVariable) && rightVariable.getType().startsWith("sampler")) {
+                nodeSource = replace(nodeSource, leftVariable, rightVariable.getPrefix() + rightVariable.getName());
             } else {
-                if (mapping.getLeftVariable().getType().startsWith("sampler")) {
+
+                if (leftVariable.getType().startsWith("sampler")) {
                     throw new IllegalArgumentException("a Sampler must be a uniform");
                 }
+
                 map(mapping, source);
-                String newName = shaderNode.getName() + "_" + mapping.getLeftVariable().getName();
-                if (!declaredInputs.contains(newName)) {
-                    nodeSource = replace(nodeSource, mapping.getLeftVariable(), newName);
-                    declaredInputs.add(newName);
-                }
+            }
+
+            String newName = shaderNode.getName() + "_" + leftVariable.getName();
+            if (!declaredInputs.contains(newName)) {
+                nodeSource = replace(nodeSource, leftVariable, newName);
+                declaredInputs.add(newName);
             }
         }
-       
-        for (ShaderNodeVariable var : shaderNode.getDefinition().getOutputs()) {
+
+        final ShaderNodeDefinition definition = shaderNode.getDefinition();
+
+        for (final ShaderNodeVariable var : definition.getInputs()) {
+
+            if (var.getDefaultValue() == null) {
+                continue;
+            }
+
+            final String fullName = shaderNode.getName() + "_" + var.getName();
+
+            if (declaredInputs.contains(fullName)) {
+                continue;
+            }
+
+            final ShaderNodeVariable variable = new ShaderNodeVariable(var.getType(), shaderNode.getName(),
+                    var.getName(), var.getMultiplicity());
+
+            if (!isVarying(info, variable)) {
+                declareVariable(source, variable, var.getDefaultValue(), true, null);
+            }
+
+            nodeSource = replaceVariableName(nodeSource, variable);
+            declaredInputs.add(fullName);
+        }
+
+        for (ShaderNodeVariable var : definition.getOutputs()) {
             ShaderNodeVariable v = new ShaderNodeVariable(var.getType(), shaderNode.getName(), var.getName(), var.getMultiplicity());
             if (!declaredInputs.contains(shaderNode.getName() + "_" + var.getName())) {
                 if (!isVarying(info, v)) {
@@ -421,6 +453,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         source.append(" = ");
         String namePrefix = getAppendableNameSpace(mapping.getRightVariable());
         source.append(namePrefix);
+        source.append(mapping.getRightVariable().getPrefix());
         source.append(mapping.getRightVariable().getName());
         if (mapping.getRightSwizzling().length() > 0) {
             source.append(".");
@@ -602,7 +635,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * makes sure inPosition attribute is of type vec3 or vec4
      * @param var the inPosition attribute
      */
-    private void fixInPositionType(ShaderNodeVariable var) {
+    protected void fixInPositionType(ShaderNodeVariable var) {
         if(!var.getType().equals("vec3") || !var.getType().equals("vec4")){
             var.setType("vec3");
         }

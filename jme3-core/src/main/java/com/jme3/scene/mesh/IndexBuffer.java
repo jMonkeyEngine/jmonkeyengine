@@ -75,7 +75,29 @@ public abstract class IndexBuffer {
             return new IndexShortBuffer(BufferUtils.createShortBuffer(indexCount));
         }
     }
-    
+
+    /**
+     * @see Buffer#rewind()
+     */
+    public void rewind() {
+        getBuffer().rewind();
+    }
+
+    /**
+     * @return
+     * @see Buffer#remaining()
+     */
+    public int remaining() {
+        return getBuffer().remaining();
+    }
+
+    /**
+     * Returns the vertex index for the current position.
+     *
+     * @return
+     */
+    public abstract int get();
+
     /**
      * Returns the vertex index for the given index in the index buffer.
      * 

@@ -53,9 +53,11 @@ import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.android.AndroidGL;
 import com.jme3.renderer.opengl.GL;
+import com.jme3.renderer.opengl.GLDebugES;
 import com.jme3.renderer.opengl.GLExt;
 import com.jme3.renderer.opengl.GLFbo;
 import com.jme3.renderer.opengl.GLRenderer;
+import com.jme3.renderer.opengl.GLTracer;
 import com.jme3.system.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -195,8 +197,12 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         timer = new NanoTimer();
         Object gl = new AndroidGL();
-        // gl = GLTracer.createGlesTracer((GL)gl, (GLExt)gl);
-        // gl = new GLDebugES((GL)gl, (GLExt)gl);
+        if (settings.getBoolean("GraphicsDebug")) {
+            gl = new GLDebugES((GL) gl, (GLExt) gl, (GLFbo) gl);
+        }
+        if (settings.getBoolean("GraphicsTrace")) {
+            gl = GLTracer.createGlesTracer(gl, GL.class, GLFbo.class, GLExt.class);
+        }
         renderer = new GLRenderer((GL)gl, (GLExt)gl, (GLFbo)gl);
         renderer.initialize();
 

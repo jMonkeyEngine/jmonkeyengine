@@ -13,9 +13,7 @@ varying vec2 texCoord;
   attribute vec2 inTexCoord2;
 #endif
 
-#ifndef BASECOLORMAP
-    varying vec4 Color;
-#endif
+varying vec4 Color;
 
 attribute vec3 inPosition;
 attribute vec2 inTexCoord;
@@ -61,9 +59,7 @@ void main(){
       wTangent = vec4(TransformWorldNormal(modelSpaceTan),inTangent.w);
     #endif
 
-    #ifndef BASECOLORMAP
-        Color = m_BaseColor;
-    #endif
+    Color = m_BaseColor;
     
     #ifdef VERTEX_COLOR                    
         Color *= inColor;

@@ -31,17 +31,15 @@
  */
 package com.jme3.animation;
 
-import static com.jme3.animation.LoopMode.Cycle;
-import static com.jme3.animation.LoopMode.DontLoop;
-import static com.jme3.animation.LoopMode.Loop;
-
 /**
  *
  * @author Nehon
  */
 public class AnimationUtils {
     
-    
+    public AnimationUtils(){
+        
+    }
     /**
      * Clamps the time according to duration and loopMode
      * @param time
@@ -50,7 +48,7 @@ public class AnimationUtils {
      * @return 
      */
      public static float clampWrapTime(float time, float duration, LoopMode loopMode){
-        if (time == 0) {
+         if (time == 0 || duration == 0) {
             return 0; // prevent division by 0 errors
         }        
         switch (loopMode) {

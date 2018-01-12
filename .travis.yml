@@ -1,5 +1,6 @@
 language: java
 sudo: false
+dist: precise
 
 branches:
   only:
@@ -18,6 +19,9 @@ matrix:
 
 addons:
   ssh_known_hosts: github.com
+  hosts:
+    - travisci
+  hostname: travisci
   apt:
     packages:
     - gcc-multilib

@@ -100,14 +100,12 @@ public class TestShadowBug extends SimpleApplication {
     slsr.setLight(spot);
     slsr.setEdgeFilteringMode(EdgeFilteringMode.Nearest);
     slsr.setShadowIntensity(0.6f);
-    slsr.setFlushQueues(false);
     viewPort.addProcessor(slsr);
 
     PointLightShadowRenderer plsr = new PointLightShadowRenderer(assetManager, 512);
     plsr.setLight(lamp_light);
     plsr.setShadowIntensity(0.6f);
     plsr.setEdgeFilteringMode(EdgeFilteringMode.Nearest);
-    plsr.setFlushQueues(false);
     viewPort.addProcessor(plsr);
 
     viewPort.getCamera().setLocation(new Vector3f(192.0f, 10f, 192f));

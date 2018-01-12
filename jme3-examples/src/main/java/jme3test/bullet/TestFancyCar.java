@@ -51,7 +51,6 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.shadow.BasicShadowRenderer;
 import com.jme3.system.AppSettings;
 
 public class TestFancyCar extends SimpleApplication implements ActionListener {
@@ -90,11 +89,6 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
 //        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
-        if (settings.getRenderer().startsWith("LWJGL")) {
-            BasicShadowRenderer bsr = new BasicShadowRenderer(assetManager, 512);
-            bsr.setDirection(new Vector3f(-0.5f, -0.3f, -0.3f).normalizeLocal());
-         //   viewPort.addProcessor(bsr);
-        }
         cam.setFrustumFar(150f);
         flyCam.setMoveSpeed(10);
 

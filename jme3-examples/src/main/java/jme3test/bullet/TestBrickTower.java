@@ -81,9 +81,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
-import com.jme3.shadow.PssmShadowRenderer;
-import com.jme3.shadow.PssmShadowRenderer.CompareMode;
-import com.jme3.shadow.PssmShadowRenderer.FilterMode;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
@@ -104,7 +101,6 @@ public class TestBrickTower extends SimpleApplication {
     Material mat;
     Material mat2;
     Material mat3;
-    PssmShadowRenderer bsr;
     private Sphere bullet;
     private Box brick;
     private SphereCollisionShape bulletCollisionShape;
@@ -139,13 +135,6 @@ public class TestBrickTower extends SimpleApplication {
         inputManager.addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         inputManager.addListener(actionListener, "shoot");
         rootNode.setShadowMode(ShadowMode.Off);
-        bsr = new PssmShadowRenderer(assetManager, 1024, 2);
-        bsr.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
-        bsr.setLambda(0.55f);
-        bsr.setShadowIntensity(0.6f);
-        bsr.setCompareMode(CompareMode.Hardware);
-        bsr.setFilterMode(FilterMode.PCF4);
-        viewPort.addProcessor(bsr);
     }
 
     private PhysicsSpace getPhysicsSpace() {
