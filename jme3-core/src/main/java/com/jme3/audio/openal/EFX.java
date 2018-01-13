@@ -4,42 +4,42 @@ import java.nio.IntBuffer;
 
 public interface EFX {
 
-    String ALC_EXT_EFX_NAME = "ALC_EXT_EFX";
+    static final String ALC_EXT_EFX_NAME = "ALC_EXT_EFX";
 
-    int ALC_EFX_MAJOR_VERSION = 0x20001;
-    int ALC_EFX_MINOR_VERSION = 0x20002;
-    int ALC_MAX_AUXILIARY_SENDS = 0x20003;
+    static final int ALC_EFX_MAJOR_VERSION = 0x20001;
+    static final int ALC_EFX_MINOR_VERSION = 0x20002;
+    static final int ALC_MAX_AUXILIARY_SENDS = 0x20003;
 
     /* Listener properties. */
     //#define AL_METERS_PER_UNIT                       0x20004
 
     /* Source properties. */
-    int AL_DIRECT_FILTER = 0x20005;
-    int AL_AUXILIARY_SEND_FILTER = 0x20006;
+    static final int AL_DIRECT_FILTER = 0x20005;
+    static final int AL_AUXILIARY_SEND_FILTER = 0x20006;
     //#define AL_AIR_ABSORPTION_FACTOR                 0x20007
     //#define AL_ROOM_ROLLOFF_FACTOR                   0x20008
     //#define AL_CONE_OUTER_GAINHF                     0x20009
 
-    int AL_DIRECT_FILTER_GAINHF_AUTO = 0x2000A;
+    static final int AL_DIRECT_FILTER_GAINHF_AUTO = 0x2000A;
     //#define AL_AUXILIARY_SEND_FILTER_GAIN_AUTO       0x2000B
     //#define AL_AUXILIARY_SEND_FILTER_GAINHF_AUTO     0x2000C
 
     /* Effect properties. */
 
     /* Reverb effect parameters */
-    int AL_REVERB_DENSITY = 0x0001;
-    int AL_REVERB_DIFFUSION = 0x0002;
-    int AL_REVERB_GAIN = 0x0003;
-    int AL_REVERB_GAINHF = 0x0004;
-    int AL_REVERB_DECAY_TIME = 0x0005;
-    int AL_REVERB_DECAY_HFRATIO = 0x0006;
-    int AL_REVERB_REFLECTIONS_GAIN = 0x0007;
-    int AL_REVERB_REFLECTIONS_DELAY = 0x0008;
-    int AL_REVERB_LATE_REVERB_GAIN = 0x0009;
-    int AL_REVERB_LATE_REVERB_DELAY = 0x000A;
-    int AL_REVERB_AIR_ABSORPTION_GAINHF = 0x000B;
-    int AL_REVERB_ROOM_ROLLOFF_FACTOR = 0x000C;
-    int AL_REVERB_DECAY_HFLIMIT = 0x000D;
+    static final int AL_REVERB_DENSITY = 0x0001;
+    static final int AL_REVERB_DIFFUSION = 0x0002;
+    static final int AL_REVERB_GAIN = 0x0003;
+    static final int AL_REVERB_GAINHF = 0x0004;
+    static final int AL_REVERB_DECAY_TIME = 0x0005;
+    static final int AL_REVERB_DECAY_HFRATIO = 0x0006;
+    static final int AL_REVERB_REFLECTIONS_GAIN = 0x0007;
+    static final int AL_REVERB_REFLECTIONS_DELAY = 0x0008;
+    static final int AL_REVERB_LATE_REVERB_GAIN = 0x0009;
+    static final int AL_REVERB_LATE_REVERB_DELAY = 0x000A;
+    static final int AL_REVERB_AIR_ABSORPTION_GAINHF = 0x000B;
+    static final int AL_REVERB_ROOM_ROLLOFF_FACTOR = 0x000C;
+    static final int AL_REVERB_DECAY_HFLIMIT = 0x000D;
 
     /* EAX Reverb effect parameters */
     //#define AL_EAXREVERB_DENSITY                     0x0001
@@ -142,11 +142,11 @@ public interface EFX {
     /* Effect type */
     //#define AL_EFFECT_FIRST_PARAMETER                0x0000
     //#define AL_EFFECT_LAST_PARAMETER                 0x8000
-    int AL_EFFECT_TYPE = 0x8001;
+    static final int AL_EFFECT_TYPE = 0x8001;
 
     /* Effect types, used with the AL_EFFECT_TYPE property */
     //#define AL_EFFECT_NULL                           0x0000
-    int AL_EFFECT_REVERB = 0x0001;
+    static final int AL_EFFECT_REVERB = 0x0001;
     //#define AL_EFFECT_CHORUS                         0x0002
     //#define AL_EFFECT_DISTORTION                     0x0003
     //#define AL_EFFECT_ECHO                           0x0004
@@ -161,7 +161,7 @@ public interface EFX {
     //#define AL_EFFECT_EAXREVERB                      0x8000
 
     /* Auxiliary Effect Slot properties. */
-    int AL_EFFECTSLOT_EFFECT = 0x0001;
+    static final int AL_EFFECTSLOT_EFFECT = 0x0001;
     //#define AL_EFFECTSLOT_GAIN                       0x0002
     //#define AL_EFFECTSLOT_AUXILIARY_SEND_AUTO        0x0003
 
@@ -171,8 +171,8 @@ public interface EFX {
     ///* Filter properties. */
 
     /* Lowpass filter parameters */
-    int AL_LOWPASS_GAIN = 0x0001;
-    int AL_LOWPASS_GAINHF = 0x0002;
+    static final int AL_LOWPASS_GAIN = 0x0001;
+    static final int AL_LOWPASS_GAINHF = 0x0002;
 
     ///* Highpass filter parameters */
     //#define AL_HIGHPASS_GAIN                         0x0001
@@ -186,12 +186,12 @@ public interface EFX {
     /* Filter type */
     //#define AL_FILTER_FIRST_PARAMETER                0x0000
     //#define AL_FILTER_LAST_PARAMETER                 0x8000
-    int AL_FILTER_TYPE = 0x8001;
+    static final int AL_FILTER_TYPE = 0x8001;
 
     /* Filter types, used with the AL_FILTER_TYPE property */
-    int AL_FILTER_NULL = 0x0000;
-    int AL_FILTER_LOWPASS = 0x0001;
-    int AL_FILTER_HIGHPASS = 0x0002;
+    static final int AL_FILTER_NULL = 0x0000;
+    static final int AL_FILTER_LOWPASS = 0x0001;
+    static final int AL_FILTER_HIGHPASS = 0x0002;
     //#define AL_FILTER_BANDPASS                       0x0003
 
     ///* Filter ranges and defaults. */
