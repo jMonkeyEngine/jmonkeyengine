@@ -227,7 +227,7 @@ public class PhysicsSpace {
                     collides = (bp1.collisionFilterGroup & bp.collisionFilterMask) != 0;
                 }
                 if (collides) {
-                    assert (bp.clientObject instanceof com.bulletphysics.collision.dispatch.CollisionObject && bp.clientObject instanceof com.bulletphysics.collision.dispatch.CollisionObject);
+                    assert (bp.clientObject instanceof com.bulletphysics.collision.dispatch.CollisionObject && bp1.clientObject instanceof com.bulletphysics.collision.dispatch.CollisionObject);
                     com.bulletphysics.collision.dispatch.CollisionObject colOb = (com.bulletphysics.collision.dispatch.CollisionObject) bp.clientObject;
                     com.bulletphysics.collision.dispatch.CollisionObject colOb1 = (com.bulletphysics.collision.dispatch.CollisionObject) bp1.clientObject;
                     assert (colOb.getUserPointer() != null && colOb1.getUserPointer() != null);
