@@ -39,12 +39,12 @@ public interface JoyInput extends Input {
     /**
      * The X axis for POV (point of view hat).
      */
-    int AXIS_POV_X = 254;
+    static final int AXIS_POV_X = 254;
     
     /**
      * The Y axis for POV (point of view hat).
      */
-    int AXIS_POV_Y = 255;
+    static final int AXIS_POV_Y = 255;
 
     /**
      * Causes the joystick at <code>joyId</code> index to rumble with

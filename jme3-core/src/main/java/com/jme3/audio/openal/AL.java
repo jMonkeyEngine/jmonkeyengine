@@ -19,7 +19,8 @@ public interface AL {
      */
     static final int AL_TRUE = 1;
 
-    /* "no distance model" or "no buffer" */ int AL_NONE = 0;
+    /* "no distance model" or "no buffer" */
+    static final int AL_NONE = 0;
 
     /**
      * Indicate Source has relative coordinates.
@@ -91,7 +92,8 @@ public interface AL {
      * Range:  [0.0 - 1.0]
      *
      * Logarthmic
-     */ int AL_MIN_GAIN = 0x100D;
+     */
+    static final int AL_MIN_GAIN = 0x100D;
 
     /**
      * Indicate maximum source attenuation Type: ALfloat Range: [0.0 - 1.0]
@@ -134,7 +136,8 @@ public interface AL {
      * Source is Static if a Buffer has been attached using AL_BUFFER
      * Source is Streaming if one or more Buffers have been attached using alSourceQueueBuffers
      * Source is undetermined when it has the NULL buffer attached
-     */ int AL_SOURCE_TYPE = 0x1027;
+     */
+    static final int AL_SOURCE_TYPE = 0x1027;
     static final int AL_STATIC = 0x1028;
     static final int AL_STREAMING = 0x1029;
     static final int AL_UNDETERMINED = 0x1030;
