@@ -217,7 +217,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * <code>fromAngles</code> builds a quaternion from the Euler rotation
-     * angles (y,r,p).
+     * angles (x,y,z) aka (pitch, yaw, rall).
      *
      * @param angles
      *            the Euler angles of rotation (in radians).
@@ -276,8 +276,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>toAngles</code> returns this quaternion converted to Euler
-     * rotation angles (roll,yaw,pitch).<br/>
+     * <code>toAngles</code> returns this quaternion converted to Euler rotation
+     * angles (x,y,z) aka (pitch, yaw, rall).<br/>  
      * Note that the result is not always 100% accurate due to the implications of euler angles.
      * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm</a>
      * 
@@ -310,8 +310,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
             angles[0] = 0;
         } else {
             angles[1] = FastMath.atan2(2 * y * w - 2 * x * z, sqx - sqy - sqz + sqw); // yaw or heading 
-            angles[2] = FastMath.asin(2 * test / unit); // pitch or attitude
-            angles[0] = FastMath.atan2(2 * x * w - 2 * y * z, -sqx + sqy - sqz + sqw); // roll or bank
+            angles[2] = FastMath.asin(2 * test / unit); // roll or bank
+            angles[0] = FastMath.atan2(2 * x * w - 2 * y * z, -sqx + sqy - sqz + sqw); // pitch or attitude
         }
         return angles;
     }
