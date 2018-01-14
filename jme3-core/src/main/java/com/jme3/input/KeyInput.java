@@ -446,6 +446,13 @@ public interface KeyInput extends Input {
      */
     public static final int KEY_UNLABELED = 0x97;
     /**
+     * Print Screen key.
+     * NOTE: Only use this if your Print Screen button
+     * is separated else LWJGL will interpret this key
+     * as <code>KEY_SYSRQ</code>
+     */
+    public static final int KEY_PRTSCREEN = 0x9A;
+    /**
      * Enter key (num pad).
      */
     public static final int KEY_NUMPADENTER = 0x9C;

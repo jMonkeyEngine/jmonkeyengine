@@ -371,6 +371,8 @@ public class AwtKeyInput implements KeyInput, KeyListener {
                 return KeyEvent.VK_ALT; //todo: location left
             case KEY_RMENU:
                 return KeyEvent.VK_ALT; //todo: location right
+            case KEY_PRTSCREEN:
+                return KeyEvent.VK_PRINTSCREEN;
         }
         logger.log(Level.WARNING, "unsupported key:{0}", key);
         return 0x10000 + key;
@@ -600,6 +602,8 @@ public class AwtKeyInput implements KeyInput, KeyListener {
                 return KEY_LMENU; //Left vs. Right need to improve
             case KeyEvent.VK_META:
             	return KEY_RCONTROL;
+            case KeyEvent.VK_PRINTSCREEN:
+                return KEY_PRTSCREEN;
 
         }
         logger.log( Level.WARNING, "unsupported key:{0}", key);
