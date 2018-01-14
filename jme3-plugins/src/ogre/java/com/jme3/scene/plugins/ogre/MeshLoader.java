@@ -38,6 +38,7 @@ import com.jme3.asset.*;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialList;
 import com.jme3.math.ColorRGBA;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.*;
 import com.jme3.scene.VertexBuffer.Format;
@@ -239,6 +240,10 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
         if (mat.isTransparent()) {
             geom.setQueueBucket(Bucket.Transparent);
+        }
+
+        if(mat.isReceivesShadows()){
+            geom.setShadowMode(RenderQueue.ShadowMode.Receive);
         }
 
         geom.setMaterial(mat);
