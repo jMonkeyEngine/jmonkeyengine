@@ -96,10 +96,12 @@ public class EmitterSphereShape implements EmitterShape {
     @Override
     public void getRandomPoint(Vector3f store) {
         do {
-            store.x = (FastMath.nextRandomFloat() * 2f - 1f) * radius;
-            store.y = (FastMath.nextRandomFloat() * 2f - 1f) * radius;
-            store.z = (FastMath.nextRandomFloat() * 2f - 1f) * radius;
-        } while (store.distance(center) > radius);
+            store.x = (FastMath.nextRandomFloat() * 2f - 1f);
+            store.y = (FastMath.nextRandomFloat() * 2f - 1f);
+            store.z = (FastMath.nextRandomFloat() * 2f - 1f);
+        } while (store.lengthSquared() > 1);
+        store.multLocal(radius);
+        store.addLocal(center);
     }
 
     @Override
