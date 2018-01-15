@@ -446,12 +446,15 @@ public interface KeyInput extends Input {
      */
     public static final int KEY_UNLABELED = 0x97;
     /**
-     * Print Screen key.
-     * NOTE: Only use this if your Print Screen button
-     * is separated else LWJGL will interpret this key
-     * as <code>KEY_SYSRQ</code>
+     * PrtScr key.
+     * Note: for use on keyboards with a PrtScr key that is
+     * separate from the SysRq key. Most keyboards combine
+     * SysRq and PrtScr so if the intent is to actually
+     * capture the user's desire to capture the screen
+     * then SysRq is the most likely scan code.
+     * Use PrtScr to catch the rest (laptops, mini-keyboards, etc.)
      */
-    public static final int KEY_PRTSCREEN = 0x9A;
+    public static final int KEY_PRTSCR = 0x9A;
     /**
      * Enter key (num pad).
      */
