@@ -63,6 +63,12 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     protected ViewPort viewPort;
 
     /**
+     * used for serialization
+     */
+    protected AbstractShadowFilter(){
+    }
+    
+    /**
      * Abstract class constructor
      *
      * @param manager the application asset manager

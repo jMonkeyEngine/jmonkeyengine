@@ -70,6 +70,16 @@ public class PssmShadowFilter extends Filter {
     private ViewPort viewPort;
 
     /**
+     * Used for serialization.
+     * Use PssmShadowFilter#PssmShadowFilter(AssetManager
+     * assetManager, int size, int nbSplits)
+     * instead.
+     */
+    public PssmShadowFilter() {
+        super();
+    }
+    
+    /**
      * Creates a PSSM Shadow Filter 
      * More info on the technique at <a href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>
      * @param manager the application asset manager
