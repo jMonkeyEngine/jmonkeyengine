@@ -430,7 +430,7 @@ public class InputManager implements RawInputListener {
     public void onMouseMotionEvent(MouseMotionEvent evt) {
         /*
          * If events aren't allowed, the event may be a "first mouse event"
-         * triggered by the constructor setting the the mouse listener.
+         * triggered by the constructor setting the mouse listener.
          * In that case, use the event to initialize the cursor position,
          * but don't queue it for futher processing.
          * This is part of the fix for issue #792.

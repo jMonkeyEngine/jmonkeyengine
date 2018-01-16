@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -186,7 +186,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Changes the values of this matrix according to it's parent.  Very similar to the concept of Node/Spatial transforms.
+     * Changes the values of this matrix according to its parent.  Very similar to the concept of Node/Spatial transforms.
      * @param parent The parent matrix.
      * @return This matrix, after combining.
      */

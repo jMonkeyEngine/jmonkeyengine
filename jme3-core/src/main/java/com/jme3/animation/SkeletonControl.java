@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -163,7 +163,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
     /**
      * Specifies if hardware skinning is preferred. If it is preferred and
-     * supported by GPU, it shall be enabled, if its not preferred, or not
+     * supported by GPU, it shall be enabled, if it's not preferred, or not
      * supported by GPU, then it shall be disabled.
      * 
      * @param preferred

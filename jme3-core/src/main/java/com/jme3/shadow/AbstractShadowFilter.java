@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -178,7 +178,7 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     }
 
     /**
-     * returns the shdaow intensity
+     * returns the shadow intensity
      *
      * @see #setShadowIntensity(float shadowIntensity)
      * @return shadowIntensity
@@ -302,7 +302,7 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
 
 
     /**
-     * returns the the edge filtering mode
+     * returns the edge filtering mode
      *
      * @see EdgeFilteringMode
      * @return

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -877,7 +877,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>hashCode</code> returns a unique code for this vector object based
-     * on it's values. If two vectors are logically equivalent, they will return
+     * on its values. If two vectors are logically equivalent, they will return
      * the same hash code value.
      * @return the hash code value of this vector.
      */

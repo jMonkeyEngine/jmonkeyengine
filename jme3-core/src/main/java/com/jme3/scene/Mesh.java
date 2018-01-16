@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -353,7 +353,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         VertexBuffer pos = getBuffer(Type.Position);
         if (pos == null || getBuffer(Type.BoneIndex) == null) {
             // ignore, this mesh doesn't have positional data
-            // or it doesn't have bone-vertex assignments, so its not animated
+            // or it doesn't have bone-vertex assignments, so it's not animated
             return;
         }
 

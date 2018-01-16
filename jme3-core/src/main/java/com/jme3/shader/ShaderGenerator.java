@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -220,7 +220,7 @@ public abstract class ShaderGenerator {
      * @see ShaderGenerator#generateNodeMainSection
      *
      * @param loadedSource the actual source code loaded for this node.
-     * @param shaderPath path the the shader file
+     * @param shaderPath path to the shader file
      * @param sourceDeclaration the Shader declaration part string builder.
      * @param source the Shader main part StringBuilder.
      * @param shaderNode the shader node.
@@ -283,7 +283,7 @@ public abstract class ShaderGenerator {
 
     /**
      * Appends the given shaderNode declarative part to the shader declarative
-     * part. If needed the sahder type can be determined by fetching the
+     * part. If needed the shader type can be determined by fetching the
      * shaderNode's definition type.
      *
      * @see ShaderNode#getDefinition()

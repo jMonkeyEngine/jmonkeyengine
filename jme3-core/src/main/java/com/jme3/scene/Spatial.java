@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ import java.util.logging.Logger;
 
 /**
  * <code>Spatial</code> defines the base class for scene graph nodes. It
- * maintains a link to a parent, it's local transforms and the world's
+ * maintains a link to a parent, its local transforms and the world's
  * transforms. All other scene graph elements, such as {@link Node} and
  * {@link Geometry} are subclasses of <code>Spatial</code>.
  *
@@ -567,8 +567,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * Should be overridden by Node and Geometry.
      */
     protected void updateWorldBound() {
-        // the world bound of a leaf is the same as it's model bound
-        // for a node, the world bound is a combination of all it's children
+        // the world bound of a leaf is the same as its model bound
+        // for a node, the world bound is a combination of all its children
         // bounds
         // -> handled by subclass
         refreshFlags &= ~RF_BOUND;
@@ -966,7 +966,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     }
 
     /**
-     * <code>removeFromParent</code> removes this Spatial from it's parent.
+     * <code>removeFromParent</code> removes this Spatial from its parent.
      *
      * @return true if it has a parent and performed the remove.
      */

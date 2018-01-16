@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -217,7 +217,7 @@ class SweepSphere implements Collidable {
 
         float signedDistanceToPlane = triPlane.pseudoDistance(sCenter);
         if (normalDotVelocity == 0.0f){
-            // we are travelling exactly parrallel to the plane
+            // we are travelling exactly parallel to the plane
             if (FastMath.abs(signedDistanceToPlane) >= 1.0f){
                 // no collision possible
                 return null;
