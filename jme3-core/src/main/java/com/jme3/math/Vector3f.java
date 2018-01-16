@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -321,7 +321,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      *            the vector to take the cross product of with this.
      * @param result
      *            the vector to store the cross product result.
-     * @return result, after recieving the cross product vector.
+     * @return result, after receiving the cross product vector.
      */
     public Vector3f cross(Vector3f v,Vector3f result) {
         return cross(v.x, v.y, v.z, result);
@@ -339,7 +339,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      *            z component of the vector to take the cross product of with this.
      * @param result
      *            the vector to store the cross product result.
-     * @return result, after recieving the cross product vector.
+     * @return result, after receiving the cross product vector.
      */
     public Vector3f cross(float otherX, float otherY, float otherZ, Vector3f result) {
         if (result == null) result = new Vector3f();
@@ -972,7 +972,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>hashCode</code> returns a unique code for this vector object based
-     * on it's values. If two vectors are logically equivalent, they will return
+     * on its values. If two vectors are logically equivalent, they will return
      * the same hash code value.
      * @return the hash code value of this vector.
      */

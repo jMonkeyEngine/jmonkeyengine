@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -169,7 +169,7 @@ public final class Skeleton implements Savable, JmeCloneable {
     }
 
     /**
-     * Saves the current skeleton state as it's binding pose.
+     * Saves the current skeleton state as its binding pose.
      */
     public void setBindingPose() {
         for (int i = rootBones.length - 1; i >= 0; i--) {

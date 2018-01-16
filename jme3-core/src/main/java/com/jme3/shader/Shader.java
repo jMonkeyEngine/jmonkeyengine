@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ public final class Shader extends NativeObject {
     private final IntMap<Attribute> attribs;
 
     /**
-     * Type of shader. The shader will control the pipeline of it's type.
+     * Type of shader. The shader will control the pipeline of its type.
      */
     public static enum ShaderType {
 
@@ -106,7 +106,7 @@ public final class Shader extends NativeObject {
 
     /**
      * Shader source describes a shader object in OpenGL. Each shader source
-     * is assigned a certain pipeline which it controls (described by it's type).
+     * is assigned a certain pipeline which it controls (described by its type).
      */
     public static class ShaderSource extends NativeObject {
 

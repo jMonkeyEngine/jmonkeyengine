@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -689,7 +689,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
             float invSinTheta = 1f / FastMath.sin(theta);
 
             // Calculate the scale for q1 and q2, according to the angle and
-            // it's sine value
+            // its sine
             scale0 = FastMath.sin((1 - t) * theta) * invSinTheta;
             scale1 = FastMath.sin((t * theta)) * invSinTheta;
         }
@@ -746,7 +746,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
             float invSinTheta = 1f / FastMath.sin(theta);
 
             // Calculate the scale for q1 and q2, according to the angle and
-            // it's sine value
+            // its sine
             scale0 = FastMath.sin((1 - changeAmnt) * theta) * invSinTheta;
             scale1 = FastMath.sin((changeAmnt * theta)) * invSinTheta;
         }
@@ -1161,7 +1161,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * <code>inverse</code> calculates the inverse of this quaternion and
      * returns this quaternion after it is calculated. If this quaternion does
-     * not have an inverse (if it's normal is 0 or less), nothing happens
+     * not have an inverse (if its normal is 0 or less), nothing happens
      *
      * @return the inverse of this quaternion
      */

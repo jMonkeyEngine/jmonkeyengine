@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -870,7 +870,7 @@ public final class GLRenderer implements Renderer {
     }
     
     private int convertBlendEquationAlpha(RenderState.BlendEquationAlpha blendEquationAlpha) {
-        //Note: InheritColor mode should already be handled, that is why it does not belong the the switch case.
+        //Note: InheritColor mode should already be handled, that is why it does not belong the switch case.
         switch (blendEquationAlpha) {
             case Add:
                 return GL2.GL_FUNC_ADD;

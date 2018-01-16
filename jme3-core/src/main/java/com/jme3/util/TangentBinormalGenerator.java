@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -266,7 +266,7 @@ public class TangentBinormalGenerator {
         return vertices;
     }
     
-    //Don't remove splitmirorred boolean,It's not used right now, but i intend to
+    //Don't remove splitmirorred boolean,It's not used right now, but I intend to
     //make this method also split vertice with rotated tangent space and I'll
     //add another splitRotated boolean 
     private static List<VertexData> splitVertices(Mesh mesh, List<VertexData> vertexData, boolean splitMirorred) {

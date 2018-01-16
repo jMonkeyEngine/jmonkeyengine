@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -550,7 +550,7 @@ public final class Bone implements Savable, JmeCloneable {
     }
 
     /**
-     * Updates world transforms for this bone and it's children.
+     * Updates world transforms for this bone and its children.
      */
     public final void update() {
         this.updateModelTransforms();
@@ -590,7 +590,7 @@ public final class Bone implements Savable, JmeCloneable {
     }
 
     /**
-     * Reset the bone and it's children to bind pose.
+     * Reset the bone and its children to bind pose.
      */
     final void reset() {
         if (!userControl) {
@@ -677,7 +677,7 @@ public final class Bone implements Savable, JmeCloneable {
         modelPos.set(translation);
         modelRot.set(rotation);
         
-        //if there is an attached Node we need to set it's local transforms too.
+        //if there is an attached Node we need to set its local transforms too.
         if(attachNode != null){
             attachNode.setLocalTranslation(translation);
             attachNode.setLocalRotation(rotation);

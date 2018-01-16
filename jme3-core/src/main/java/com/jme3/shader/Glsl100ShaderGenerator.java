@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,7 +82,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * {@inheritDoc}
      *
      * attributes are all declared, inPositon is declared even if it's not in
-     * the list and it's condition is nulled.
+     * the list and its condition is nulled.
      */
     @Override
     protected void generateAttributes(StringBuilder source, ShaderGenerationInfo info) {
@@ -331,7 +331,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * declares a variable, embed in a conditional block if needed. the namespace is appended with "_"
      * @param source the StringBuilder to use
      * @param var the variable to declare    
-     * @param value the initialization value to assign the the variable
+     * @param value the initialization value to assign the variable
      */
     protected void declareVariable(StringBuilder source, ShaderNodeVariable var, String value) {
         declareVariable(source, var, value, true, null);
@@ -352,7 +352,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * declares a variable, embed in a conditional block if needed.
      * @param source the StringBuilder to use
      * @param var the variable to declare    
-     * @param value the initialization value to assign the the variable
+     * @param value the initialization value to assign the variable
      * @param appendNameSpace true to append the nameSpace + "_"
      * @param modifier the modifier of the variable (attribute, varying, in , out,...)
      */
@@ -529,7 +529,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * appropriate defined based on the mapping condition of this variable.
      * Complex condition syntax are handled.     
      * 
-     * @param nodeSource the sahderNode source code
+     * @param nodeSource the shaderNode source code
      * @param shaderNode the ShaderNode being processed
      * @return the modified shaderNode source.
      */
@@ -608,7 +608,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * @param source the StringBuilder to use
      * @param var the variable to declare as an varying
      * @param input a boolean set to true if the this varying is an input.
-     * this in not used in this implementation but can be used in overridings 
+     * this in not used in this implementation but can be used in overriding 
      * implementation
      */
     protected void declareVarying(StringBuilder source, ShaderNodeVariable var, boolean input) {

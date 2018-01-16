@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -571,7 +571,7 @@ public class Geometry extends Spatial {
         super.cloneFields(cloner, original);
 
         // If this is a grouped node and if our group node is
-        // also cloned then we'll grab it's reference.
+        // also cloned then we'll grab its reference.
         if( groupNode != null ) {
             if( cloner.isCloned(groupNode) ) {
                 // Then resolve the reference

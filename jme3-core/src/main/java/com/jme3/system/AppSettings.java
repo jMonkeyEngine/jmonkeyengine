@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1084,7 +1084,7 @@ public final class AppSettings extends HashMap<String, Object> {
     }
    
     /**
-     * Determine if the the display context will swap buffers every frame.
+     * Determine if the display context will swap buffers every frame.
      * 
      * @return True if buffer swapping is enabled, false otherwise.
      * 
