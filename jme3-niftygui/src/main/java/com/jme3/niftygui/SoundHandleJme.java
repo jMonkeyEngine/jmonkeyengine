@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 package com.jme3.niftygui;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.AudioSource.Status;
 import com.jme3.audio.AudioRenderer;
@@ -77,7 +78,7 @@ public class SoundHandleJme implements SoundHandle {
                 node.stop();
             }
 
-            node = new AudioNode(am, fileName, true);
+            node = new AudioNode(am, fileName,AudioData.DataType.Stream);
             node.setPositional(false);
             node.setVolume(volume);
             node.play();
