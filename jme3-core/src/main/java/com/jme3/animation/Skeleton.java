@@ -53,7 +53,7 @@ public final class Skeleton implements Savable, JmeCloneable {
     private Bone[] boneList;
     
     /**
-     * Contains the skinning matrices, multiplying it by a vertex effected by a bone
+     * Contains the skinning matrices, multiplying it by a vertex affected by a bone
      * will cause it to go to the animated position.
      */
     private transient Matrix4f[] skinningMatrixes;

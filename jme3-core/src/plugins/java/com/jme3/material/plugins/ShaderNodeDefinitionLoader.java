@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * ShaderNodeDefnition file loader (.j3sn)
+ * ShaderNodeDefinition file loader (.j3sn)
  *
  * a j3sn file is a block style file like j3md or j3m. It must contain one
  * ShaderNodeDefinition{} block that contains several ShaderNodeDefinition{}

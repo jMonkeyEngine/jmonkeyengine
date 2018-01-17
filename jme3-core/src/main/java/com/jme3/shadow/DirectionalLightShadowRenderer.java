@@ -185,7 +185,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
         // update frustum points based on current camera and split
         ShadowUtil.updateFrustumPoints(viewPort.getCamera(), splitsArray[shadowMapIndex], splitsArray[shadowMapIndex + 1], 1.0f, points);
 
-        //Updating shadow cam with curent split frustra
+        //Updating shadow cam with current split frusta
         if (lightReceivers.size()==0) {
             for (Spatial scene : viewPort.getScenes()) {
               ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), RenderQueue.ShadowMode.Receive, lightReceivers);

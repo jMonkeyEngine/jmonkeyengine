@@ -81,7 +81,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     /**
      * {@inheritDoc}
      *
-     * attributes are all declared, inPositon is declared even if it's not in
+     * attributes are all declared, inPosition is declared even if it's not in
      * the list and its condition is nulled.
      */
     @Override

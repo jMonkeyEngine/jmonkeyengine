@@ -224,8 +224,8 @@ public class PssmShadowFilter extends Filter {
     }
 
     /**
-     * Set this to false if you want to use several PssmRederers to have multiple shadows cast by multiple light sources.
-     * Make sure the last PssmRenderer in the stack DO flush the queues, but not the others
+     * Set this to false if you want to use several PssmRenderers to have multiple shadows cast by multiple light sources.
+     * Make sure the last PssmRenderer in the stack DOES flush the queues, but not the others
      * @param flushQueues 
      */
     public void setFlushQueues(boolean flushQueues) {

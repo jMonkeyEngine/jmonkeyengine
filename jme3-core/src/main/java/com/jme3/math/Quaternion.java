@@ -1343,7 +1343,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @param store
      *            A Quaternion to store our result in. If null, a new one is
      *            created.
-     * @return The store quaternion (or a new Quaterion, if store is null) that
+     * @return The store quaternion (or a new Quaternion, if store is null) that
      *         describes a rotation that would point you in the exact opposite
      *         direction of this Quaternion.
      */

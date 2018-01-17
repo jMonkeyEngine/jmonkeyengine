@@ -222,7 +222,7 @@ public final class GLRenderer implements Renderer {
                 if (glslVer < 400) {
                     break;
                 }
-                // so that future OpenGL revisions wont break jme3
+                // so that future OpenGL revisions won't break jme3
                 // fall through intentional
             case 450:
                 caps.add(Caps.GLSL450);
@@ -450,7 +450,7 @@ public final class GLRenderer implements Renderer {
             logger.log(Level.FINER, "Samples: {0}", samples);
             boolean enabled = gl.glIsEnabled(GLExt.GL_MULTISAMPLE_ARB);
             if (samples > 0 && available && !enabled) {
-                // Doesn't seem to be neccessary .. OGL spec says its always
+                // Doesn't seem to be necessary .. OGL spec says it's always
                 // set by default?
                 gl.glEnable(GLExt.GL_MULTISAMPLE_ARB);
             }

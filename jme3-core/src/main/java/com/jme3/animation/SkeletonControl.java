@@ -331,7 +331,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
                 bpb.clear();
                 bnb.clear();
 
-                //reseting bind tangents if there is a bind tangent buffer
+                //reset bind tangents if there is a bind tangent buffer
                 VertexBuffer bindTangents = mesh.getBuffer(Type.BindPoseTangent);
                 if (bindTangents != null) {
                     VertexBuffer tangents = mesh.getBuffer(Type.Tangent);

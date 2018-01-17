@@ -1494,7 +1494,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     }
 
     /**
-     * Gets the amout of vertices used for each patch;
+     * Gets the amount of vertices used for each patch;
      * @return
      */
     public int getPatchVertexCount() {

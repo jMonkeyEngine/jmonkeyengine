@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,8 +45,8 @@ import static com.jme3.math.FastMath.abs;
 import static com.jme3.math.FastMath.sqrt;
 
 /**
- * Generates one face of the prefiltered environnement map for PBR. This job can
- * be lauched from a separate thread.
+ * Generates one face of the prefiltered environment map for PBR. This job can
+ * be launched from a separate thread.
  * <p>
  * TODO there is a lot of duplicate code here with the EnvMapUtils.
  *
@@ -91,7 +91,7 @@ public class PrefilteredEnvMapFaceGenerator extends RunnableWithProgress {
 
 
     /**
-     * Fills all the genration parameters
+     * Fills all the generation parameters
      *
      * @param sourceMap      the source cube map
      * @param targetMapSize  the size of the generated map (width or height in

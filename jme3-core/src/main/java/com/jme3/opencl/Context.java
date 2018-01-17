@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -434,7 +434,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * this method and {@code Program#build(..)} must be the same.
      * 
      * The binaries are used to build a program cache across multiple launches
-     * of the application. The programs build mach faster from binaries than
+     * of the application. The programs build much faster from binaries than
      * from sources.
      * 
      * @param binaries the binaries

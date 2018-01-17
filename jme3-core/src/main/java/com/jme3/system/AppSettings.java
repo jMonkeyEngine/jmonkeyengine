@@ -379,7 +379,7 @@ public final class AppSettings extends HashMap<String, Object> {
                     }
                 } else {
                     // Use old method for compatibility with older preferences
-                    // TODO: Remove when no longer neccessary
+                    // TODO: Remove when no longer necessary
                     Object defaultValue = defaults.get(key);
                     if (defaultValue instanceof Integer) {
                         put(key, prefs.getInt(key, (Integer) defaultValue));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -420,7 +420,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
                 //the user is rotating the cam by dragging the mouse
                 if (canRotate) {
-                    //reseting the trailing lerp factor
+                    //reset the trailing lerp factor
                     trailingLerpFactor = 0;
                     //stop trailing user has the control
                     trailing = false;

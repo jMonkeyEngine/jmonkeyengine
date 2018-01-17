@@ -430,7 +430,7 @@ public class PssmShadowRenderer implements SceneProcessor {
             // update frustum points based on current camera and split
             ShadowUtil.updateFrustumPoints(viewCam, splitsArray[i], splitsArray[i + 1], 1.0f, points);
 
-            //Updating shadow cam with curent split frustra
+            //Updating shadow cam with current split frusta
             ShadowUtil.updateShadowCamera(viewPort, lightReceivers, shadowCam, points, splitOccluders, shadowMapSize);
 
             //saving light view projection matrix for this split            
@@ -695,9 +695,9 @@ public class PssmShadowRenderer implements SceneProcessor {
     }
 
     /**
-     * Set this to false if you want to use several PssmRederers to have
+     * Set this to false if you want to use several PssmRenderers to have
      * multiple shadows cast by multiple light sources. Make sure the last
-     * PssmRenderer in the stack DO flush the queues, but not the others
+     * PssmRenderer in the stack DOES flush the queues, but not the others
      *
      * @param flushQueues
      */

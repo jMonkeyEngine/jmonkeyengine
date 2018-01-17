@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -101,7 +101,7 @@ public class PFMLoader implements AssetLoader {
         ByteOrder order = scale < 0 ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
         boolean needEndienFlip = order != ByteOrder.nativeOrder();
 
-        // make sure all unneccessary stuff gets deleted from heap
+        // make sure all unnecessary stuff gets deleted from heap
         // before allocating large amount of memory
         System.gc();
 

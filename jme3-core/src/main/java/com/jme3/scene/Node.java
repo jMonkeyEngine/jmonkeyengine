@@ -433,7 +433,7 @@ public class Node extends Spatial {
             setBoundRefresh();
 
             // our world transform no longer influences the child.
-            // XXX: Not neccessary? Since child will have transform updated
+            // XXX: Not necessary? Since child will have transform updated
             // when attached anyway.
             child.setTransformRefresh();
             // lights are also inherited from parent
