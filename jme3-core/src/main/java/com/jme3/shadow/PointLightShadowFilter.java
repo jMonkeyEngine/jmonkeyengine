@@ -57,6 +57,16 @@ import java.io.IOException;
 public class PointLightShadowFilter extends AbstractShadowFilter<PointLightShadowRenderer> {
 
     /**
+     * Used for serialization.
+     * Use PointLightShadowFilter#PointLightShadowFilter(AssetManager
+     * assetManager, int shadowMapSize)
+     * instead.
+     */
+    public PointLightShadowFilter() {
+        super();
+    }
+
+    /**
      * Creates a PointLightShadowFilter
      *
      * @param assetManager the application asset manager

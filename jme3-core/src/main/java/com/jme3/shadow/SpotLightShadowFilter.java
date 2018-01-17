@@ -57,6 +57,16 @@ import java.io.IOException;
 public class SpotLightShadowFilter extends AbstractShadowFilter<SpotLightShadowRenderer> {
 
     /**
+     * Used for serialization.
+     * Use SpotLightShadowFilter#SpotLightShadowFilter(AssetManager assetManager,
+     * int shadowMapSize)
+     * instead.
+     */
+    public SpotLightShadowFilter() {
+        super();
+    }
+    
+    /**
      * Creates a SpotLight Shadow Filter
      *
      * @param assetManager the application asset manager

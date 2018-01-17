@@ -57,6 +57,16 @@ import java.io.IOException;
 public class DirectionalLightShadowFilter extends AbstractShadowFilter<DirectionalLightShadowRenderer> {
 
     /**
+     * Used for serialzation.
+     * Use DirectionalLightShadowFilter#DirectionalLightShadowFilter
+     * (AssetManager assetManager, int shadowMapSize, int nbSplits)
+     * instead.
+     */
+    public DirectionalLightShadowFilter() {
+        super();
+    }
+    
+    /**
      * Creates a DirectionalLightShadowFilter Shadow Filter More info on the
      * technique at <a
      * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>

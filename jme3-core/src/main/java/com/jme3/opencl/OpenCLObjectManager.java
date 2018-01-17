@@ -43,8 +43,8 @@ import java.util.logging.Logger;
  */
 public class OpenCLObjectManager {
     private static final Logger LOG = Logger.getLogger(OpenCLObjectManager.class.getName());
-    private static final Level LOG_LEVEL1 = Level.FINER;
-    private static final Level LOG_LEVEL2 = Level.FINE;
+    private static final Level LOG_LEVEL1 = Level.FINEST;
+    private static final Level LOG_LEVEL2 = Level.FINER;
     
     private static final OpenCLObjectManager INSTANCE = new OpenCLObjectManager();
     private OpenCLObjectManager() {}

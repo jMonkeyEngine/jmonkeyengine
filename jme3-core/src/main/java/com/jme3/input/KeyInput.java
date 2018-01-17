@@ -446,6 +446,16 @@ public interface KeyInput extends Input {
      */
     public static final int KEY_UNLABELED = 0x97;
     /**
+     * PrtScr key.
+     * Note: for use on keyboards with a PrtScr key that is
+     * separate from the SysRq key. Most keyboards combine
+     * SysRq and PrtScr so if the intent is to actually
+     * capture the user's desire to capture the screen
+     * then SysRq is the most likely scan code.
+     * Use PrtScr to catch the rest (laptops, mini-keyboards, etc.)
+     */
+    public static final int KEY_PRTSCR = 0x9A;
+    /**
      * Enter key (num pad).
      */
     public static final int KEY_NUMPADENTER = 0x9C;
