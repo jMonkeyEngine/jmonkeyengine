@@ -607,7 +607,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
     	
     	if (environment != null){
     		if (environment.getApplication() != null){
-    			// get desired frustrum from original camera
+    			// get desired frustum from original camera
     	        Camera origCam = environment.getCamera();        
     	        float fFar = origCam.getFrustumFar();
     	        float fNear = origCam.getFrustumNear();
@@ -617,7 +617,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
     	            ((OSVR)environment.getVRHardware()).getEyeInfo();
     	        }
     	        
-    	        // restore frustrum on distortion scene cam, if needed
+    	        // restore frustum on distortion scene cam, if needed
     	        if( environment.isInstanceRendering() ) {
     	            leftCamera = origCam;
     	        } else if( environment.compositorAllowed() == false ) {
