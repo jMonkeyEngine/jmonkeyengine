@@ -55,5 +55,5 @@ We generally abide by the standard Java Code Conventions. Besides that, just mak
 
 ## Documentation
 
-- How to edit the wiki - WIP
+- How to edit the [wiki](https://github.com/jMonkeyEngine/wiki).
 - How to edit JavaDocs - WIP
