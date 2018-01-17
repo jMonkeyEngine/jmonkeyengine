@@ -219,7 +219,7 @@ public class VREnvironment {
     }
     
     /**
-     * Set the scene observer. The VR headset will be linked to it. If no observer is set, the VR headset is linked to the the application {@link #getCamera() camera}.
+     * Set the scene observer. The VR headset will be linked to it. If no observer is set, the VR headset is linked to the application {@link #getCamera() camera}.
      * @param observer the scene observer.
      */
     public void setObserver(Spatial observer) {

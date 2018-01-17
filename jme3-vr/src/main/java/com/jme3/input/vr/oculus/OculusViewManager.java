@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -233,12 +233,12 @@ public class OculusViewManager extends AbstractVRViewManager {
     private void setupCamerasAndViews() {
         // TODO: Use LobOVR IPD etc
         if (environment != null) {
-            // get desired frustrum from original camera
+            // get desired frustum from original camera
             Camera origCam = environment.getCamera();
             float fFar = origCam.getFrustumFar();
             float fNear = origCam.getFrustumNear();
 
-            // restore frustrum on distortion scene cam, if needed
+            // restore frustum on distortion scene cam, if needed
             if (environment.isInstanceRendering()) {
                 leftCamera = origCam;
             } else {
