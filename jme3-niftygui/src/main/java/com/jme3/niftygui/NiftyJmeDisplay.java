@@ -52,7 +52,7 @@ import com.jme3.texture.FrameBuffer;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.render.batch.BatchRenderConfiguration;
 import de.lessvoid.nifty.render.batch.BatchRenderDevice;
-import de.lessvoid.nifty.tools.TimeProvider;
+import de.lessvoid.nifty.spi.time.impl.AccurateTimeProvider;
 import de.lessvoid.nifty.tools.resourceloader.ResourceLocation;
 
 public class NiftyJmeDisplay implements SceneProcessor {
@@ -210,7 +210,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
           new BatchRenderDevice(batchRendererBackend, batchRenderConfiguration),
           soundDev,
           inputSys,
-          new TimeProvider());
+          new AccurateTimeProvider());
       inputSys.setNifty(nifty);
 
       resourceLocation = new ResourceLocationJme();
@@ -233,7 +233,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
           new BatchRenderDevice(batchRendererBackend, batchRenderConfiguration),
           soundDev,
           inputSys,
-          new TimeProvider());
+          new AccurateTimeProvider());
       inputSys.setNifty(nifty);
 
       resourceLocation = new ResourceLocationJme();
@@ -259,7 +259,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
         this.renderDev = new RenderDeviceJme(this);
         this.batchRendererBackend = null;
 
-        nifty = new Nifty(renderDev, soundDev, inputSys, new TimeProvider());
+        nifty = new Nifty(renderDev, soundDev, inputSys, new AccurateTimeProvider());
         inputSys.setNifty(nifty);
 
         resourceLocation = new ResourceLocationJme();
