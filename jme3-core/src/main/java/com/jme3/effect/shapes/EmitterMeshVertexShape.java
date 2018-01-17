@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * This emiter shape emits the particles from the given shape's vertices
+ * This emitter shape emits the particles from the given shape's vertices
  * @author Marcin Roguski (Kaelthas)
  */
 public class EmitterMeshVertexShape implements EmitterShape {
@@ -74,7 +74,7 @@ public class EmitterMeshVertexShape implements EmitterShape {
     }
 
     /**
-     * This method sets the meshes that will form the emiter's shape.
+     * This method sets the meshes that will form the emitter's shape.
      * @param meshes
      *        a list of meshes that will form the emitter's shape
      */

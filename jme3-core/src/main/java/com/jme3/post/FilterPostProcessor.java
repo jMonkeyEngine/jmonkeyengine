@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -410,7 +410,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     public void cleanup() {
         if (viewPort != null) {
-            //reseting the viewport camera viewport to its initial value
+            //reset the viewport camera viewport to its initial value
             viewPort.getCamera().resize(originalWidth, originalHeight, true);
             viewPort.getCamera().setViewPort(left, right, bottom, top);
             viewPort.setOutputFrameBuffer(outputBuffer);

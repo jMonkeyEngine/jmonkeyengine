@@ -175,7 +175,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
 
     /**
      * Sets this matrix to the interpolation between the first matrix and the second by delta amount.
-     * @param t1 The begining transform.
+     * @param t1 The beginning transform.
      * @param t2 The ending transform.
      * @param delta An amount between 0 and 1 representing how far to interpolate from t1 to t2.
      */
@@ -245,7 +245,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
             store = new Vector3f();
 
         // The author of this code should look above and take the inverse of that
-        // But for some reason, they didnt ..
+        // But for some reason, they didn't ..
 //        in.subtract(translation, store).divideLocal(scale);
 //        rot.inverse().mult(store, store);
 

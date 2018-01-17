@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -186,7 +186,7 @@ public abstract class CompactArray<T> {
     }
 
     /**
-     * retrun an array of indices for the given objects
+     * Return an array of indices for the given objects
      * @param objArray
      * @return 
      */

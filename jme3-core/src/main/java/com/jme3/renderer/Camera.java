@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1221,7 +1221,7 @@ public class Camera implements Savable, Cloneable {
         projectionMatrix.fromFrustum(frustumNear, frustumFar, frustumLeft, frustumRight, frustumTop, frustumBottom, parallelProjection);
 //        projectionMatrix.transposeLocal();
 
-        // The frame is effected by the frustum values
+        // The frame is affected by the frustum values
         // update it as well
         onFrameChange();
     }
