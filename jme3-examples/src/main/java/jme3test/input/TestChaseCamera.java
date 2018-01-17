@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -97,7 +97,7 @@ public class TestChaseCamera extends SimpleApplication implements AnalogListener
     //WARNING : setting this trigger disable the rotation on right and left mouse button click
     //chaseCam.setToggleRotationTrigger(new MouseButtonTrigger(MouseInput.BUTTON_MIDDLE));
 
-    //Uncomment this to set mutiple triggers to enable rotation of the cam
+    //Uncomment this to set multiple triggers to enable rotation of the cam
     //Here spade bar and middle mouse button
     //chaseCam.setToggleRotationTrigger(new MouseButtonTrigger(MouseInput.BUTTON_MIDDLE),new KeyTrigger(KeyInput.KEY_SPACE));
 

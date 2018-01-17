@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -101,7 +101,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     }
 
     /**
-     * Set the title if its a windowed display
+     * Set the title if it's a windowed display
      *
      * @param title the title to set
      */
@@ -112,7 +112,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     }
 
     /**
-     * Restart if its a windowed or full-screen display.
+     * Restart if it's a windowed or full-screen display.
      */
     public void restart() {
         if (created.get()) {

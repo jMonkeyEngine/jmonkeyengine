@@ -47,7 +47,7 @@ public class SubdivisionSurfaceModifier extends Modifier {
     private Set<Integer>        verticesOnOriginalEdges = new HashSet<Integer>();
 
     /**
-     * Constructor loads all neccessary modifier data.
+     * Constructor loads all necessary modifier data.
      * @param modifierStructure
      *            the modifier structure
      * @param blenderContext
@@ -193,7 +193,7 @@ public class SubdivisionSurfaceModifier extends Modifier {
                 // moving the vertex
                 v.addLocal(t);
 
-                // applying crease weight if neccessary
+                // applying crease weight if necessary
                 CreasePoint creasePoint = creasePoints.get(i);
                 if (creasePoint.getTarget() != null && creasePoint.getWeight() != 0) {
                     t = creasePoint.getTarget().subtractLocal(v).multLocal(creasePoint.getWeight());

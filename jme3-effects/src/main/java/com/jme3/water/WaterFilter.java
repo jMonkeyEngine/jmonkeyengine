@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -864,7 +864,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * Sets the shinines factor of the water
+     * Sets the shininess factor of the water
      * default is 0.7f
      * @param shininess
      */
@@ -876,7 +876,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * retruns the speed of the waves
+     * returns the speed of the waves
      * @return
      */
     public float getSpeed() {

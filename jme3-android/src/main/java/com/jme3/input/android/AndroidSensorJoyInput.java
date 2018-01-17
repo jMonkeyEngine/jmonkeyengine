@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -285,8 +285,8 @@ public class AndroidSensorJoyInput implements SensorEventListener {
     }
 
     /**
-     * Calculates the device orientation based off the data recieved from the
-     * Acceleration Sensor and Mangetic Field sensor
+     * Calculates the device orientation based off the data received from the
+     * Acceleration Sensor and Magnetic Field sensor
      * Values are returned relative to the Earth.
      *
      * From the Android Doc

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,13 +66,13 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
     public abstract Type getType();
 
     /**
-     * Set the title if its a windowed display
+     * Set the title if it's a windowed display
      * @param title
      */
     public abstract void setTitle(String title);
 
     /**
-     * Restart if its a windowed or full-screen display.
+     * Restart if it's a windowed or full-screen display.
      */
     public abstract void restart();
 
