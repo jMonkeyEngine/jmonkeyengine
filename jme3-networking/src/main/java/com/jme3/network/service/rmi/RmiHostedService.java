@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -167,7 +167,7 @@ public class RmiHostedService extends AbstractHostedService {
     }
 
     /**
-     *  Returns the RMI registry for the specific HostedConection.  Each connection
+     *  Returns the RMI registry for the specific HostedConnection.  Each connection
      *  has its own registry with its own connection-specific shared objects.
      */
     public RmiRegistry getRmiRegistry( HostedConnection hc ) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -167,7 +167,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
      *
      * Currently you have to make sure to not use more image space than this single texture provides. However, Nifty
      * tries to be smart about this and internally will make sure that only the images are uploaded that your GUI
-     * really needs. So in general this shoudln't be an issue.
+     * really needs. So in general this shouldn't be an issue.
      *
      * A complete re-organisation of the texture atlas happens when a Nifty screen ends and another begins. Dynamically
      * adding images while a screen is running is supported as well.

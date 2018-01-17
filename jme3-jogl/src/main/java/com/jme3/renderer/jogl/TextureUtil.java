@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -294,7 +294,7 @@ public class TextureUtil {
 
         int[] mipSizes = image.getMipMapSizes();
         int pos = 0;
-        // TODO: Remove unneccessary allocation
+        // TODO: Remove unnecessary allocation
         if (mipSizes == null){
             if (data != null)
                 mipSizes = new int[]{ data.capacity() };
@@ -473,7 +473,7 @@ public class TextureUtil {
       int[] mipSizes = image.getMipMapSizes();
       int pos = 0;
 
-      // TODO: Remove unneccessary allocation
+      // TODO: Remove unnecessary allocation
       if (mipSizes == null){
         if (data != null) {
           mipSizes = new int[]{ data.capacity() };

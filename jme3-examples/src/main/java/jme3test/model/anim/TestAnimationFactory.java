@@ -52,14 +52,14 @@ public class TestAnimationFactory extends SimpleApplication {
         
         //creating a translation keyFrame at time = 3 with a translation on the x axis of 5 WU        
         animationFactory.addTimeTranslation(3, new Vector3f(5, 0, 0));
-        //reseting the translation to the start position at time = 6
+        //resetting the translation to the start position at time = 6
         animationFactory.addTimeTranslation(6, new Vector3f(0, 0, 0));
 
         //Creating a scale keyFrame at time = 2 with the unit scale.
         animationFactory.addTimeScale(2, new Vector3f(1, 1, 1));
         //Creating a scale keyFrame at time = 4 scaling to 1.5
         animationFactory.addTimeScale(4, new Vector3f(1.5f, 1.5f, 1.5f));
-        //reseting the scale to the start value at time = 5
+        //resetting the scale to the start value at time = 5
         animationFactory.addTimeScale(5, new Vector3f(1, 1, 1));
 
         

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -169,7 +169,7 @@ public class Structure implements Cloneable {
     }
 
     /**
-     * This methos should be used on structures that are of a 'ListBase' type. It creates a List of structures that are
+     * This method should be used on structures that are of a 'ListBase' type. It creates a List of structures that are
      * held by this structure within the blend file.
      * @return a list of filled structures
      * @throws BlenderFileException
@@ -232,7 +232,7 @@ public class Structure implements Cloneable {
     }
 
     /**
-     * This method returns the address of the structure. The strucutre should be filled with data otherwise an exception
+     * This method returns the address of the structure. The structure should be filled with data otherwise an exception
      * is thrown.
      * @return the address of the feature stored in this structure
      */

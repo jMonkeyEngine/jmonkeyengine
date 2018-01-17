@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -144,7 +144,7 @@ public class MaterialLoader implements AssetLoader {
             textures[texUnit].setAnisotropicFilter(loadedTexture.getAnisotropicFilter());
             textures[texUnit].setKey(loadedTexture.getKey());
             
-            // XXX: Is this really neccessary?
+            // XXX: Is this really necessary?
             textures[texUnit].setWrap(WrapMode.Repeat);
             if (texName != null){
                 textures[texUnit].setName(texName);

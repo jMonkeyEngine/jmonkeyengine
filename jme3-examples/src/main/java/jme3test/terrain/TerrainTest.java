@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ import com.jme3.texture.Texture.WrapMode;
 /**
  * Demonstrates how to use terrain.
  * The base terrain class it uses is TerrainQuad, which is a quad tree of actual
- * meshes called TerainPatches.
+ * meshes called TerrainPatches.
  * There are a couple options for the terrain in this test:
  * The first is wireframe mode. Here you can see the underlying trianglestrip structure.
  * You will notice some off lines; these are degenerate triangles and are part of the
@@ -203,7 +203,7 @@ public class TerrainTest extends SimpleApplication {
                     matRock.setBoolean("useTriPlanarMapping", true);
                     // planar textures don't use the mesh's texture coordinates but real world coordinates,
                     // so we need to convert these texture coordinate scales into real world scales so it looks
-                    // the same when we switch to/from tr-planar mode
+                    // the same when we switch to/from tri-planar mode
                     matRock.setFloat("Tex1Scale", 1f / (float) (512f / grassScale));
                     matRock.setFloat("Tex2Scale", 1f / (float) (512f / dirtScale));
                     matRock.setFloat("Tex3Scale", 1f / (float) (512f / rockScale));

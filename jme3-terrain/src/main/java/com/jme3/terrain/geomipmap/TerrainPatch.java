@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,7 +74,7 @@ import java.util.List;
  * is a mathematical limit on the number of times the 'size' of the patch can be divided by two. However there is a -1 to that
  * for now until I add in a custom index buffer calculation for that max level, the current algorithm does not go that far.
  *
- * You can supply a LodThresholdCalculator for use in determining when the LOD should change. It's API will no doubt change
+ * You can supply a LodThresholdCalculator for use in determining when the LOD should change. Its API will no doubt change
  * in the near future. Right now it defaults to just changing LOD every two patch sizes. So if a patch has a size of 65,
  * then the LOD changes every 130 units away.
  *
@@ -86,7 +86,7 @@ public class TerrainPatch extends Geometry {
     protected int lod = 0; // this terrain patch's LOD
     private int maxLod = -1;
     protected int previousLod = -1;
-    protected int lodLeft, lodTop, lodRight, lodBottom; // it's neighbour's LODs
+    protected int lodLeft, lodTop, lodRight, lodBottom; // its neighbour's LODs
 
     protected int size;
 

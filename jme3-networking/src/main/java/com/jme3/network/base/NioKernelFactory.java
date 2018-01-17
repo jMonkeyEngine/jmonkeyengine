@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import java.io.IOException;
 
 
 /**
- *  KernelFactory implemention for creating TCP kernels
+ *  KernelFactory implementation for creating TCP kernels
  *  using the NIO selector model.
  *
  *  @version   $Revision$
