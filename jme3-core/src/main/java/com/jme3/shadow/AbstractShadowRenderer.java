@@ -726,6 +726,24 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     }
 
     /**
+     * Read the number of shadow maps rendered by this renderer.
+     *
+     * @return count
+     */
+    public int getNumShadowMaps() {
+        return nbShadowMaps;
+    }
+
+    /**
+     * Read the size of each shadow map rendered by this renderer.
+     *
+     * @return a map's height (which is also its width, in pixels)
+     */
+    public int getShadowMapSize() {
+        return (int) shadowMapSize;
+    }
+
+    /**
      * Sets the shadow edges thickness. default is 10, setting it to lower values
      * can help to reduce the jagged effect of the shadow edges
      *
