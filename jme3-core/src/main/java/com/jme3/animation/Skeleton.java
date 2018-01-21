@@ -304,6 +304,7 @@ public final class Skeleton implements Savable, JmeCloneable {
         createSkinningMatrices();
 
         for (Bone rootBone : rootBones) {
+            rootBone.reset();
             rootBone.update();
             rootBone.setBindingPose();
         }
