@@ -311,6 +311,24 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
         return shadowRenderer.getEdgeFilteringMode();
     }
 
+    /**
+     * Read the number of shadow maps rendered by this filter.
+     *
+     * @return count
+     */
+    public int getNumShadowMaps() {
+        return shadowRenderer.getNumShadowMaps();
+    }
+
+    /**
+     * Read the size of each shadow map rendered by this filter.
+     *
+     * @return a map's height (which is also its width, in pixels)
+     */
+    public int getShadowMapSize() {
+        return shadowRenderer.getShadowMapSize();
+    }
+
     @Override
     public AbstractShadowFilter<T> jmeClone() {
         try {
