@@ -33,6 +33,7 @@ package jme3test.model.anim;
 
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.SkinningControl;
+import com.jme3.app.DetailedProfilerState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
@@ -40,6 +41,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.math.*;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
 import java.util.ArrayList;
@@ -50,7 +52,7 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
 
     // private AnimComposer composer;
     private String[] animNames = {"Dodge", "Walk", "pull", "push"};
-    private final static int SIZE = 40;
+    private final static int SIZE = 60;
     private boolean hwSkinningEnable = true;
     private List<SkinningControl> skControls = new ArrayList<SkinningControl>();
     private BitmapText hwsText;
@@ -65,8 +67,8 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
         flyCam.setMoveSpeed(10f);
         flyCam.setDragToRotate(true);
         setPauseOnLostFocus(false);
-        cam.setLocation(new Vector3f(24.746134f, 13.081396f, 32.72753f));
-        cam.setRotation(new Quaternion(-0.06867662f, 0.92435044f, -0.19981281f, -0.31770203f));
+        cam.setLocation(new Vector3f(38.76639f, 14.744472f, 45.097454f));
+        cam.setRotation(new Quaternion(-0.06086266f, 0.92303723f, -0.1639443f, -0.34266636f));
 
         makeHudText();
  
@@ -75,23 +77,38 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
         dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
         rootNode.addLight(dl);
 
+        Spatial models[] = new Spatial[4];
+        for (int i = 0; i < 4; i++) {
+            models[i] =loadModel(i);
+        }
+
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                Spatial model = (Spatial) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-                model.setLocalScale(0.1f);
-                model.setLocalTranslation(i - SIZE / 2, 0, j - SIZE / 2);
-                AnimComposer composer = model.getControl(AnimComposer.class);
-
-                composer.setCurrentAction(animNames[(i + j) % 4]);
-                SkinningControl skinningControl = model.getControl(SkinningControl.class);
-                skinningControl.setHardwareSkinningPreferred(hwSkinningEnable);
-                skControls.add(skinningControl);
-                rootNode.attachChild(model);
+                Node model = (Node)models[(i + j) % 4];
+                Spatial s = model.getChild(0).clone();
+                model.attachChild(s);
+                float x = (float)(i - SIZE / 2) / 0.1f;
+                float z = (float)(j - SIZE / 2) / 0.1f;
+                s.setLocalTranslation(x, 0, z);
             }
         }
 
         inputManager.addListener(this, "toggleHWS");
         inputManager.addMapping("toggleHWS", new KeyTrigger(KeyInput.KEY_SPACE));
+
+    }
+
+    private Spatial loadModel(int i) {
+        Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        model.setLocalScale(0.1f);
+        AnimComposer composer = model.getControl(AnimComposer.class);
+
+        composer.setCurrentAction(animNames[i]);
+        SkinningControl skinningControl = model.getControl(SkinningControl.class);
+        skinningControl.setHardwareSkinningPreferred(hwSkinningEnable);
+        skControls.add(skinningControl);
+        rootNode.attachChild(model);
+        return model;
     }
 
     @Override
