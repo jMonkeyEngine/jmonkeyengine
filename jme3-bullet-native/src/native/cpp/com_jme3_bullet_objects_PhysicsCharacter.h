@@ -87,39 +87,43 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setWalkDire
  * Signature: (JLcom/jme3/math/Vector3f;)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setUp
-  (JNIEnv *, jobject, jlong, jobject);
+    (JNIEnv *, jobject , jlong , jobject );
+
 
 /*
- * Class:     com_jme3_bullet_objects_PhysicsCharacter
- * Method:    setAngularVelocity
- * Signature: (JLcom/jme3/math/Vector3f;)V
- */
+  * Class:     com_jme3_bullet_objects_PhysicsCharacter
+  * Method:    setAngularVelocity
+  * Signature: (JLcom/jme3/math/Vector3f;)V
+  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setAngularVelocity
-  (JNIEnv *, jobject, jlong, jobject);
+    (JNIEnv *, jobject , jlong , jobject ) ;
 
 /*
- * Class:     com_jme3_bullet_objects_PhysicsCharacter
- * Method:    getAngularVelocity
- * Signature: (JLcom/jme3/math/Vector3f;)V
- */
+  * Class:     com_jme3_bullet_objects_PhysicsCharacter
+  * Method:    getAngularVelocity
+  * Signature: (JLcom/jme3/math/Vector3f;)V
+  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getAngularVelocity
-  (JNIEnv *, jobject, jlong, jobject);
+   (JNIEnv *, jobject , jlong , jobject );
 
 /*
- * Class:     com_jme3_bullet_objects_PhysicsCharacter
- * Method:    setLinearVelocity
- * Signature: (JLcom/jme3/math/Vector3f;)V
- */
+  * Class:     com_jme3_bullet_objects_PhysicsCharacter
+  * Method:    setLinearVelocity
+  * Signature: (JLcom/jme3/math/Vector3f;)V
+  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setLinearVelocity
-  (JNIEnv *, jobject, jlong, jobject);
+    (JNIEnv *, jobject , jlong , jobject );
+
 
 /*
- * Class:     com_jme3_bullet_objects_PhysicsCharacter
- * Method:    getLinearVelocity
- * Signature: (JLcom/jme3/math/Vector3f;)V
- */
+  * Class:     com_jme3_bullet_objects_PhysicsCharacter
+  * Method:    getLinearVelocity
+  * Signature: (JLcom/jme3/math/Vector3f;)V
+  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getLinearVelocity
-  (JNIEnv *, jobject, jlong, jobject);
+   (JNIEnv *, jobject , jlong , jobject );
+
+
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsCharacter
@@ -140,7 +144,7 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setJumpSpee
 /*
  * Class:     com_jme3_bullet_objects_PhysicsCharacter
  * Method:    setGravity
- * Signature: (JLcom/jme3/math/Vector3f;)V
+ * Signature:  (JLcom/jme3/math/Vector3f;)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setGravity
   (JNIEnv *, jobject, jlong, jobject);
@@ -148,74 +152,64 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setGravity
 /*
  * Class:     com_jme3_bullet_objects_PhysicsCharacter
  * Method:    getGravity
- * Signature: (JLcom/jme3/math/Vector3f;)V
+ * Signature:  (JLcom/jme3/math/Vector3f;)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getGravity
   (JNIEnv *, jobject, jlong, jobject);
 
 /*
- * Class:     com_jme3_bullet_objects_PhysicsCharacter
- * Method:    getLinearDamping
- * Signature: (J)F
- */
-JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getLinearDamping
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_jme3_bullet_objects_PhysicsCharacter
- * Method:    setLinearDamping
- * Signature: (JF)V
- */
+  * Class:     com_jme3_bullet_objects_PhysicsCharacter
+  * Method:    setLinearDamping
+  * Signature: (JF)V
+  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setLinearDamping
-  (JNIEnv *, jobject, jlong, jfloat);
+   (JNIEnv *, jobject , jlong ,jfloat );
+
 
 /*
- * Class:     com_jme3_bullet_objects_PhysicsCharacter
- * Method:    getAngularDamping
- * Signature: (J)F
- */
-JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getAngularDamping
-  (JNIEnv *, jobject, jlong);
+  * Class:     com_jme3_bullet_objects_PhysicsCharacter
+  * Method:    getLinearDamping
+  * Signature: (J)F
+  */
+JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getLinearDamping
+    (JNIEnv *, jobject , jlong );
+
+
 
 /*
- * Class:     com_jme3_bullet_objects_PhysicsCharacter
- * Method:    setAngularDamping
- * Signature: (JF)V
- */
+  * Class:     com_jme3_bullet_objects_PhysicsCharacter
+  * Method:    setAngularDamping
+  * Signature: (JF)V
+  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setAngularDamping
-  (JNIEnv *, jobject, jlong, jfloat);
+    (JNIEnv *, jobject , jlong ,jfloat );
+
 
 /*
- * Class:     com_jme3_bullet_objects_PhysicsCharacter
- * Method:    getStepHeight
- * Signature: (J)F
- */
-JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getStepHeight
-  (JNIEnv *, jobject, jlong);
+  * Class:     com_jme3_bullet_objects_PhysicsCharacter
+  * Method:    getAngularDamping
+  * Signature: (J)F
+  */
+JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getAngularDamping
+    (JNIEnv *, jobject , jlong );
 
+  
 /*
- * Class:     com_jme3_bullet_objects_PhysicsCharacter
- * Method:    setStepHeight
- * Signature: (JF)V
- */
+  * Class:     com_jme3_bullet_objects_PhysicsCharacter
+  * Method:    setStepHeight
+  * Signature: (JF)V
+  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setStepHeight
-  (JNIEnv *, jobject, jlong, jfloat);
+    (JNIEnv *, jobject , jlong ,jfloat );
 
 /*
- * Class:     com_jme3_bullet_objects_PhysicsCharacter
- * Method:    getMaxPenetrationDepth
- * Signature: (J)F
- */
-JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getMaxPenetrationDepth
-  (JNIEnv *, jobject, jlong);
+  * Class:     com_jme3_bullet_objects_PhysicsCharacter
+  * Method:    getStepHeight
+  * Signature: (J)F
+  */
+JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getStepHeight
+    (JNIEnv *, jobject , jlong );
 
-/*
- * Class:     com_jme3_bullet_objects_PhysicsCharacter
- * Method:    setMaxPenetrationDepth
- * Signature: (JF)V
- */
-JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setMaxPenetrationDepth
-  (JNIEnv *, jobject, jlong, jfloat);
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsCharacter
@@ -233,6 +227,24 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setMaxSlope
 JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getMaxSlope
   (JNIEnv *, jobject, jlong);
 
+
+/*
+  * Class:     com_jme3_bullet_objects_PhysicsCharacter
+  * Method:    setMaxPenetrationDepth
+  * Signature: (JF)V
+  */
+  JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_setMaxPenetrationDepth
+    (JNIEnv *, jobject , jlong , jfloat );
+
+
+/*
+  * Class:     com_jme3_bullet_objects_PhysicsCharacter
+  * Method:    getMaxPenetrationDepth
+  * Signature: (J)F
+  */
+JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_getMaxPenetrationDepth
+    (JNIEnv *, jobject , jlong );
+
 /*
  * Class:     com_jme3_bullet_objects_PhysicsCharacter
  * Method:    onGround
@@ -248,6 +260,14 @@ JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_onGroun
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_jump
   (JNIEnv *, jobject, jlong, jobject);
+
+/*
+  * Class:     com_jme3_bullet_objects_PhysicsCharacter
+  * Method:    applyImpulse
+  * Signature: (JLcom/jme3/math/Vector3f;)V
+  */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_applyImpulse
+    (JNIEnv *, jobject , jlong ,jobject );
 
 /*
  * Class:     com_jme3_bullet_objects_PhysicsCharacter
@@ -309,3 +329,4 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_finalizeNat
 }
 #endif
 #endif
+
