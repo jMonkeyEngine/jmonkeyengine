@@ -31,7 +31,9 @@
  */
 package com.jme3.scene;
 
+import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.ModelKey;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -172,13 +174,15 @@ public class AssetLinkNode extends Node {
         for (final Iterator<ModelKey> iterator = assetLoaderKeys.iterator(); iterator.hasNext(); ) {
 
             final ModelKey modelKey = iterator.next();
-            final Spatial child = assetManager.loadAsset(modelKey);
+            try {
 
-            if (child != null) {
+                final Spatial child = assetManager.loadAsset(modelKey);
                 child.parent = this;
+
                 children.add(child);
                 assetChildren.put(modelKey, child);
-            } else {
+
+            } catch (final AssetNotFoundException | AssetLoadException ex) {
                 Logger.getLogger(this.getClass().getName()).log(Level.WARNING,
                         "Cannot locate {0} for asset link node {1}", new Object[]{modelKey, key});
             }
