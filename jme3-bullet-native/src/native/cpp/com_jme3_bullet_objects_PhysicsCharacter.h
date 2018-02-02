@@ -329,3 +329,4 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_objects_PhysicsCharacter_finalizeNat
 }
 #endif
 #endif
+

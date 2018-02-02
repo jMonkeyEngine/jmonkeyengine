@@ -752,7 +752,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     public void setEdgesThickness(int edgesThickness) {
         this.edgesThickness = Math.max(1, Math.min(edgesThickness, 10));
         this.edgesThickness *= 0.1f;
-        postshadowMat.setFloat("PCFEdge", edgesThickness);
+        postshadowMat.setFloat("PCFEdge", this.edgesThickness);
     }
 
     /**
