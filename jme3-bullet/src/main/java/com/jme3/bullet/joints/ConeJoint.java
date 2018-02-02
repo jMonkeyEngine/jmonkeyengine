@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import java.util.logging.Logger;
 
 /**
  * <i>From bullet manual:</i><br>
- * To create ragdolls, the conve twist constraint is very useful for limbs like the upper arm.
+ * To create ragdolls, the cone twist constraint is very useful for limbs like the upper arm.
  * It is a special point to point constraint that adds cone and twist axis limits.
  * The x-axis serves as twist axis.
  * @author normenhansen
