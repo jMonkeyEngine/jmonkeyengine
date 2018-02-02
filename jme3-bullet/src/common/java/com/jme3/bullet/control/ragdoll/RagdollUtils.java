@@ -123,7 +123,7 @@ public class RagdollUtils {
 
     /**
      * Create a hull collision shape from linked vertices to this bone.
-     * Vertices have to be previoulsly gathered in a map using buildPointMap method
+     * Vertices have to be previously gathered in a map using buildPointMap method
      * 
      * @param pointsMap
      * @param boneIndices

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -425,7 +425,7 @@ public interface Renderer {
      * Check if the profiling results are available
      *
      * @param taskId the id of the task provided by startProfiling
-     * @return true if the resulst of the task with the given task id are available.
+     * @return true if the results of the task with the given task id are available.
      */
     public boolean isTaskResultAvailable(int taskId);
 

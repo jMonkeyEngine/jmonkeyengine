@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ public interface PhysicsCollisionGroupListener {
     /**
      * Called when two physics objects of the registered group are about to collide, <i>called from physics thread</i>.<br>
      * This is only called when the collision will happen based on the collisionGroup and collideWithGroups
-     * settings in the PhysicsCollisionObject. That is the case when <b>one</b> of the partys has the
+     * settings in the PhysicsCollisionObject. That is the case when <b>one</b> of the parties has the
      * collisionGroup of the other in its collideWithGroups set.<br>
      * @param nodeA CollisionObject #1
      * @param nodeB CollisionObject #2
