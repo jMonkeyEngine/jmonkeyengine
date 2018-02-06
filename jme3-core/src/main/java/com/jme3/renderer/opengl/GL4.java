@@ -31,8 +31,6 @@
  */
 package com.jme3.renderer.opengl;
 
-import java.nio.IntBuffer;
-
 /**
  * GL functions only available on vanilla desktop OpenGL 4.0.
  * 
@@ -42,5 +40,16 @@ public interface GL4 extends GL3 {
     public static final int GL_TESS_CONTROL_SHADER=0x8E88;
     public static final int GL_TESS_EVALUATION_SHADER=0x8E87;
     public static final int GL_PATCHES=0xE;
+
+    /**
+     * Accepted by the {@code target} parameter of BindBufferBase and BindBufferRange.
+     */
+    public static final int GL_ATOMIC_COUNTER_BUFFER = 0x92C0;
+
+    /**
+     * Accepted by the {@code target} parameters of BindBuffer, BufferData, BufferSubData, MapBuffer, UnmapBuffer, GetBufferSubData, and GetBufferPointerv.
+     */
+    public static final int GL_SHADER_STORAGE_BUFFER = 0x90D2;
+
     public void glPatchParameter(int count);
 }

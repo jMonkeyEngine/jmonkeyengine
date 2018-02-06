@@ -82,10 +82,56 @@ public interface GL3 extends GL2 {
     public static final int GL_RG_INTEGER = 33320;
     public static final int GL_RGB_INTEGER = 36248;
     public static final int GL_RGBA_INTEGER = 36249;
-    
+    public static final int GL_UNIFORM_OFFSET = 0x8A3B;
+
+    /**
+     * Accepted by the {@code target} parameters of BindBuffer, BufferData, BufferSubData, MapBuffer, UnmapBuffer, GetBufferSubData, and GetBufferPointerv.
+     */
+    public static final int GL_UNIFORM_BUFFER = 0x8A11;
+
+    /**
+     * Accepted by the {@code pname} parameter of GetActiveUniformBlockiv.
+     */
+    public static final int GL_UNIFORM_BLOCK_BINDING = 0x8A3F;
+    public static final int GL_UNIFORM_BLOCK_DATA_SIZE = 0x8A40;
+    public static final int GL_UNIFORM_BLOCK_NAME_LENGTH = 0x8A41;
+    public static final int GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS = 0x8A42;
+    public static final int GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES = 0x8A43;
+    public static final int GL_UNIFORM_BLOCK_REFERENCED_BY_VERTEX_SHADER = 0x8A44;
+    public static final int GL_UNIFORM_BLOCK_REFERENCED_BY_GEOMETRY_SHADER = 0x8A45;
+    public static final int GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER = 0x8A46;
+
+    /**
+     * Accepted by the {@code target} parameters of BindBuffer, BufferData, BufferSubData, MapBuffer, UnmapBuffer, GetBufferSubData, GetBufferPointerv,
+     * BindBufferRange, BindBufferOffset and BindBufferBase.
+     */
+    public static final int GL_TRANSFORM_FEEDBACK_BUFFER = 0x8C8E;
+
     public void glBindFragDataLocation(int param1, int param2, String param3); /// GL3+
     public void glBindVertexArray(int param1); /// GL3+
     public void glDeleteVertexArrays(IntBuffer arrays); /// GL3+
     public void glGenVertexArrays(IntBuffer param1); /// GL3+
     public String glGetString(int param1, int param2); /// GL3+
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glGetUniformBlockIndex">Reference Page</a></p>
+     *
+     * Retrieves the index of a named uniform block.
+     *
+     * @param program          the name of a program containing the uniform block.
+     * @param uniformBlockName an array of characters to containing the name of the uniform block whose index to retrieve.
+     * @return the block index.
+     */
+    public int glGetUniformBlockIndex(int program, String uniformBlockName);
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glBindBufferBase">Reference Page</a></p>
+     *
+     * Binds a buffer object to an indexed buffer target.
+     *
+     * @param target the target of the bind operation. One of:<br><table><tr><td>{@link #GL_TRANSFORM_FEEDBACK_BUFFER TRANSFORM_FEEDBACK_BUFFER}</td><td>{@link #GL_UNIFORM_BUFFER UNIFORM_BUFFER}</td><td>{@link GL4#GL_ATOMIC_COUNTER_BUFFER ATOMIC_COUNTER_BUFFER}</td><td>{@link GL4#GL_SHADER_STORAGE_BUFFER SHADER_STORAGE_BUFFER}</td></tr></table>
+     * @param index  the index of the binding point within the array specified by {@code target}
+     * @param buffer a buffer object to bind to the specified binding point
+     */
+    public void glBindBufferBase(int target, int index, int buffer);
 }

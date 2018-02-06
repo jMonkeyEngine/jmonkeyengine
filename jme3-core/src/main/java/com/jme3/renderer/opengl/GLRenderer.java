@@ -60,17 +60,17 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.MipMapGenerator;
 import com.jme3.util.NativeObjectManager;
-import java.nio.*;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
+import jme3tools.shader.ShaderDebug;
+
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import jme3tools.shader.ShaderDebug;
 
 public final class GLRenderer implements Renderer {
 
@@ -1007,6 +1007,18 @@ public final class GLRenderer implements Renderer {
         gl.resetStats();
     }
 
+    protected void bindProgram(Shader shader) {
+        int shaderId = shader.getId();
+        if (context.boundShaderProgram != shaderId) {
+            gl.glUseProgram(shaderId);
+            statistics.onShaderUse(shader, true);
+            context.boundShader = shader;
+            context.boundShaderProgram = shaderId;
+        } else {
+            statistics.onShaderUse(shader, false);
+        }
+    }
+
     /*********************************************************************\
      |* Shaders                                                           *|
      \*********************************************************************/
@@ -1018,18 +1030,6 @@ public final class GLRenderer implements Renderer {
             logger.log(Level.FINE, "Uniform {0} is not declared in shader {1}.", new Object[]{uniform.getName(), shader.getSources()});
         } else {
             uniform.setLocation(loc);
-        }
-    }
-
-    protected void bindProgram(Shader shader) {
-        int shaderId = shader.getId();
-        if (context.boundShaderProgram != shaderId) {
-            gl.glUseProgram(shaderId);
-            statistics.onShaderUse(shader, true);
-            context.boundShader = shader;
-            context.boundShaderProgram = shaderId;
-        } else {
-            statistics.onShaderUse(shader, false);
         }
     }
 
@@ -1133,6 +1133,38 @@ public final class GLRenderer implements Renderer {
                 Integer i = (Integer) uniform.getValue();
                 gl.glUniform1i(loc, i.intValue());
                 break;
+            case Struct: {
+
+                final ByteBuffer data = (ByteBuffer) uniform.getValue();
+
+                intBuf1.clear();
+                gl3.glGenBuffers(intBuf1);
+
+                final int bufferAddress = intBuf1.get();
+                final int blockIndex = gl3.glGetUniformBlockIndex(shaderId, uniform.getName());
+
+                gl3.glBindBuffer(GL3.GL_UNIFORM_BUFFER, bufferAddress);
+                gl3.glBufferData(GL3.GL_UNIFORM_BUFFER, data, GL.GL_DYNAMIC_DRAW);
+                gl3.glBindBufferBase(GL3.GL_UNIFORM_BUFFER, blockIndex, bufferAddress);
+                break;
+            }
+            case StructArray: {
+
+                //TODO
+                final ByteBuffer data = (ByteBuffer) uniform.getValue();
+
+                intBuf1.clear();
+                gl3.glGenBuffers(intBuf1);
+
+                final int bufferAddress = intBuf1.get();
+                final int blockIndex = gl3.glGetUniformBlockIndex(shaderId, uniform.getName());
+
+                gl3.glBindBuffer(GL3.GL_UNIFORM_BUFFER, bufferAddress);
+                gl3.glBufferData(GL3.GL_UNIFORM_BUFFER, data, GL.GL_DYNAMIC_DRAW);
+                gl3.glBindBufferBase(GL3.GL_UNIFORM_BUFFER, blockIndex, bufferAddress);
+                break;
+            }
+
             default:
                 throw new UnsupportedOperationException("Unsupported uniform type: " + uniform.getVarType());
         }

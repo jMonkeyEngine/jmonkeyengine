@@ -57,7 +57,9 @@ public enum VarType {
     Texture3D(false,true,"sampler3D"),
     TextureArray(false,true,"sampler2DArray|sampler2DArrayShadow"),
     TextureCubeMap(false,true,"samplerCube"),
-    Int("int");
+    Int("int"),
+    Struct(false, false, "dynamic"),
+    StructArray(false, false, "dynamic");
 
     private boolean usesMultiData = false;
     private boolean textureType = false;
