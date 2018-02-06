@@ -84,6 +84,19 @@ public class GLDebugDesktop extends GLDebugES implements GL2, GL3, GL4 {
     }
 
     @Override
+    public int glGetUniformBlockIndex(final int program, final String uniformBlockName) {
+        final int result = gl3.glGetUniformBlockIndex(program, uniformBlockName);
+        checkError();
+        return result;
+    }
+
+    @Override
+    public void glBindBufferBase(final int target, final int index, final int buffer) {
+        gl3.glBindBufferBase(target, index, buffer);
+        checkError();
+    }
+
+    @Override
     public void glDeleteVertexArrays(IntBuffer arrays) {
         gl3.glDeleteVertexArrays(arrays);
         checkError();

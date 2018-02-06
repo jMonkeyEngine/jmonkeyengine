@@ -4,15 +4,11 @@ import com.jme3.renderer.RendererException;
 import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GL2;
 import com.jme3.renderer.opengl.GL3;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
-
 import com.jme3.renderer.opengl.GL4;
 import com.jme3.util.BufferUtils;
 import org.lwjgl.opengl.*;
+
+import java.nio.*;
 
 public final class LwjglGL implements GL, GL2, GL3, GL4 {
 
@@ -492,5 +488,15 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
     public void glDeleteVertexArrays(IntBuffer arrays) {
         checkLimit(arrays);
         ARBVertexArrayObject.glDeleteVertexArrays(arrays);
+    }
+
+    @Override
+    public int glGetUniformBlockIndex(final int program, final String uniformBlockName) {
+        return GL31.glGetUniformBlockIndex(program, uniformBlockName);
+    }
+
+    @Override
+    public void glBindBufferBase(final int target, final int index, final int buffer) {
+        GL30.glBindBufferBase(target, index, buffer);
     }
 }

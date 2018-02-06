@@ -4,11 +4,10 @@ import com.jme3.renderer.RendererException;
 import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GL2;
 import com.jme3.renderer.opengl.GL3;
-
-import java.nio.*;
-
 import com.jme3.renderer.opengl.GL4;
 import com.jogamp.opengl.GLContext;
+
+import java.nio.*;
 
 public class JoglGL implements GL, GL2, GL3, GL4 {
     
@@ -633,5 +632,15 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
 	public void glDeleteVertexArrays(IntBuffer arrays) {
         checkLimit(arrays);
         GLContext.getCurrentGL().getGL2ES3().glDeleteVertexArrays(arrays.limit(), arrays);
+    }
+
+    @Override
+    public int glGetUniformBlockIndex(final int program, final String uniformBlockName) {
+        return GLContext.getCurrentGL().getGL3bc().glGetUniformBlockIndex(program, uniformBlockName);
+    }
+
+    @Override
+    public void glBindBufferBase(final int target, final int index, final int buffer) {
+        GLContext.getCurrentGL().getGL3bc().glBindBufferBase(target, index, buffer);
     }
 }

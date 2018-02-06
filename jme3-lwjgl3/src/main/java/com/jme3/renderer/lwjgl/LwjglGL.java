@@ -621,4 +621,14 @@ public class LwjglGL extends LwjglRender implements GL, GL2, GL3, GL4 {
         checkLimit(arrays);
         ARBVertexArrayObject.glDeleteVertexArrays(arrays);
     }
+
+    @Override
+    public int glGetUniformBlockIndex(final int program, final String uniformBlockName) {
+        return GL31.glGetUniformBlockIndex(program, uniformBlockName);
+    }
+
+    @Override
+    public void glBindBufferBase(final int target, final int index, final int buffer) {
+        GL30.glBindBufferBase(target, index, buffer);
+    }
 }
