@@ -46,10 +46,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
-import com.jme3.shader.Shader;
-import com.jme3.shader.Uniform;
-import com.jme3.shader.UniformBindingManager;
-import com.jme3.shader.VarType;
+import com.jme3.shader.*;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.image.ColorSpace;
@@ -794,20 +791,29 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
 
         for (int i = 0; i < paramValues.size(); i++) {
+
             MatParam param = paramValues.getValue(i);
             VarType type = param.getVarType();
-            Uniform uniform = shader.getUniform(param.getPrefixedName());
 
-            if (uniform.isSetByCurrentMaterial()) {
-                continue;
-            }
+            if(type == VarType.ShaderStorageBufferObject) {
 
-            if (type.isTextureType()) {
-                renderer.setTexture(unit, (Texture) param.getValue());
-                uniform.setValue(VarType.Int, unit);
-                unit++;
+                final StorageBlock storageBlock = shader.getStorageBlock(name);
+                storageBlock.setValue(param.getValue());
+
             } else {
-                uniform.setValue(type, param.getValue());
+
+                Uniform uniform = shader.getUniform(param.getPrefixedName());
+                if (uniform.isSetByCurrentMaterial()) {
+                    continue;
+                }
+
+                if (type.isTextureType()) {
+                    renderer.setTexture(unit, (Texture) param.getValue());
+                    uniform.setValue(VarType.Int, unit);
+                    unit++;
+                } else {
+                    uniform.setValue(type, param.getValue());
+                }
             }
         }
 

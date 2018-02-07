@@ -44,12 +44,9 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
-import com.jme3.shader.Attribute;
-import com.jme3.shader.Shader;
+import com.jme3.shader.*;
 import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.shader.Shader.ShaderType;
-import com.jme3.shader.ShaderStorageBufferObject;
-import com.jme3.shader.Uniform;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.RenderBuffer;
 import com.jme3.texture.Image;
@@ -478,6 +475,10 @@ public final class GLRenderer implements Renderer {
             if (binaryFormats > 0) {
                 caps.add(Caps.BinaryShader);
             }
+        }
+
+        if (hasExtension("GL_ARB_shader_storage_buffer_object")) {
+            caps.add(Caps.ShaderStorageBufferObject);
         }
 
         // Print context information
@@ -1135,20 +1136,35 @@ public final class GLRenderer implements Renderer {
                 Integer i = (Integer) uniform.getValue();
                 gl.glUniform1i(loc, i.intValue());
                 break;
-            case ShaderStorageBufferObject: {
-
-                final ShaderStorageBufferObject ssbo = (ShaderStorageBufferObject) uniform.getValue();
-                if (ssbo.getUniqueId() == -1 || ssbo.isUpdateNeeded()) {
-                    updateBufferData(ssbo);
-                }
-
-
-
-                break;
-            }
             default:
                 throw new UnsupportedOperationException("Unsupported uniform type: " + uniform.getVarType());
         }
+    }
+
+    /**
+     * Update the storage block for the shader.
+     *
+     * @param shader the shader.
+     * @param storageBlock the storage block.
+     */
+    protected void updateShaderStorageBlock(final Shader shader, final StorageBlock storageBlock) {
+
+        int shaderId = shader.getId();
+
+        assert storageBlock.getName() != null;
+        assert shader.getId() > 0;
+
+        bindProgram(shader);
+
+        final ShaderStorageBufferObject storageData = (ShaderStorageBufferObject) storageBlock.getStorageData();
+        if (storageData.getUniqueId() == -1 || storageData.isUpdateNeeded()) {
+            updateBufferData(storageData);
+        }
+
+        final int blockIndex = gl4.glGetProgramResourceIndex(shaderId, GL4.GL_SHADER_STORAGE_BLOCK, storageBlock.getName());
+
+        gl4.glShaderStorageBlockBinding(shaderId, blockIndex, storageData.getBinding());
+        gl4.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, storageData.getBinding(), storageData.getId());
     }
 
     protected void updateShaderUniforms(Shader shader) {
@@ -1161,12 +1177,17 @@ public final class GLRenderer implements Renderer {
         }
     }
 
-    protected void updateShaderStorageBlocks(Shader shader) {
-        ListMap<String, Uniform> uniforms = shader.getUniformMap();
+    /**
+     * Updates all shader's storage blocks.
+     *
+     * @param shader the shader.
+     */
+    protected void updateShaderStorageBlocks(final Shader shader) {
+        final ListMap<String, StorageBlock> uniforms = shader.getStorageBlockMap();
         for (int i = 0; i < uniforms.size(); i++) {
-            Uniform uniform = uniforms.getValue(i);
-            if (uniform.isUpdateNeeded()) {
-                updateUniform(shader, uniform);
+            final StorageBlock storageBlock = uniforms.getValue(i);
+            if (storageBlock.isUpdateNeeded()) {
+                updateShaderStorageBlock(shader, storageBlock);
             }
         }
     }
@@ -1389,6 +1410,7 @@ public final class GLRenderer implements Renderer {
             assert shader.getId() > 0;
 
             updateShaderUniforms(shader);
+            updateShaderStorageBlocks(shader);
             bindProgram(shader);
         }
     }
@@ -2479,6 +2501,10 @@ public final class GLRenderer implements Renderer {
 
     @Override
     public void updateBufferData(final ShaderStorageBufferObject ssbo) {
+
+        if (!caps.contains(Caps.ShaderStorageBufferObject)) {
+            throw new IllegalArgumentException("The current video hardware doesn't support SSBO.");
+        }
 
         final ByteBuffer data = ssbo.getData();
         if (data == null) {
