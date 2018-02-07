@@ -139,8 +139,8 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
          */
         Hybrid(false),
         /**
-         * Used for Tesselation only. Requires to set the number of vertices
-         * for each patch (default is 3 for triangle tesselation)
+         * Used for Tessellation only. Requires to set the number of vertices
+         * for each patch (default is 3 for triangle tessellation)
          */
         Patch(true);
         private boolean listMode = false;
@@ -182,7 +182,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     private int vertCount = -1;
     private int elementCount = -1;
     private int instanceCount = -1;
-    private int patchVertexCount=3; //only used for tesselation
+    private int patchVertexCount=3; //only used for tessellation
     private int maxNumWeights = -1; // only if using skeletal animation
 
     private int[] elementLengths;
