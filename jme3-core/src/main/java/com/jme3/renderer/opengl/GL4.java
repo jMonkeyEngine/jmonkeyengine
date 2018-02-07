@@ -38,9 +38,9 @@ package com.jme3.renderer.opengl;
  */
 public interface GL4 extends GL3 {
 
-    static final int GL_TESS_CONTROL_SHADER = 0x8E88;
-    static final int GL_TESS_EVALUATION_SHADER = 0x8E87;
-    static final int GL_PATCHES = 0xE;
+    public static final int GL_TESS_CONTROL_SHADER = 0x8E88;
+    public static final int GL_TESS_EVALUATION_SHADER = 0x8E87;
+    public static final int GL_PATCHES = 0xE;
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glPatchParameteri">Reference Page</a></p>
@@ -49,5 +49,5 @@ public interface GL4 extends GL3 {
      *
      * @param count the new value for the parameter given by {@code pname}
      */
-    void glPatchParameter(int count);
+    public void glPatchParameter(int count);
 }

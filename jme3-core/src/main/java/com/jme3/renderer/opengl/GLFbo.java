@@ -43,70 +43,70 @@ import java.nio.IntBuffer;
  */
 public interface GLFbo {
 
-    static final int GL_COLOR_ATTACHMENT0_EXT = 0x8CE0;
-    static final int GL_COLOR_ATTACHMENT1_EXT = 0x8CE1;
-    static final int GL_COLOR_ATTACHMENT2_EXT = 0x8CE2;
-    static final int GL_COLOR_ATTACHMENT3_EXT = 0x8CE3;
-    static final int GL_COLOR_ATTACHMENT4_EXT = 0x8CE4;
-    static final int GL_COLOR_ATTACHMENT5_EXT = 0x8CE5;
-    static final int GL_COLOR_ATTACHMENT6_EXT = 0x8CE6;
-    static final int GL_COLOR_ATTACHMENT7_EXT = 0x8CE7;
-    static final int GL_COLOR_ATTACHMENT8_EXT = 0x8CE8;
-    static final int GL_COLOR_ATTACHMENT9_EXT = 0x8CE9;
-    static final int GL_COLOR_ATTACHMENT10_EXT = 0x8CEA;
-    static final int GL_COLOR_ATTACHMENT11_EXT = 0x8CEB;
-    static final int GL_COLOR_ATTACHMENT12_EXT = 0x8CEC;
-    static final int GL_COLOR_ATTACHMENT13_EXT = 0x8CED;
-    static final int GL_COLOR_ATTACHMENT14_EXT = 0x8CEE;
-    static final int GL_COLOR_ATTACHMENT15_EXT = 0x8CEF;
-    static final int GL_DEPTH_ATTACHMENT_EXT = 0x8D00;
-    static final int GL_DRAW_FRAMEBUFFER_BINDING_EXT = 0x8CA6;
-    static final int GL_DRAW_FRAMEBUFFER_EXT = 0x8CA9;
-    static final int GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT = 0x8CD1;
-    static final int GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT = 0x8CD0;
-    static final int GL_FRAMEBUFFER_COMPLETE_EXT = 0x8CD5;
-    static final int GL_FRAMEBUFFER_EXT = 0x8D40;
-    static final int GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT = 0x8CD6;
-    static final int GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT = 0x8CD9;
-    static final int GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT = 0x8CDB;
-    static final int GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT = 0x8CDA;
-    static final int GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT = 0x8CD7;
-    static final int GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_EXT = 0x8D56;
-    static final int GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT = 0x8CDC;
-    static final int GL_FRAMEBUFFER_UNSUPPORTED_EXT = 0x8CDD;
-    static final int GL_INVALID_FRAMEBUFFER_OPERATION_EXT = 0x506;
-    static final int GL_MAX_COLOR_ATTACHMENTS_EXT = 0x8CDF;
-    static final int GL_MAX_RENDERBUFFER_SIZE_EXT = 0x84E8;
-    static final int GL_READ_FRAMEBUFFER_BINDING_EXT = 0x8CAA;
-    static final int GL_READ_FRAMEBUFFER_EXT = 0x8CA8;
-    static final int GL_RENDERBUFFER_EXT = 0x8D41;
+    public static final int GL_COLOR_ATTACHMENT0_EXT = 0x8CE0;
+    public static final int GL_COLOR_ATTACHMENT1_EXT = 0x8CE1;
+    public static final int GL_COLOR_ATTACHMENT2_EXT = 0x8CE2;
+    public static final int GL_COLOR_ATTACHMENT3_EXT = 0x8CE3;
+    public static final int GL_COLOR_ATTACHMENT4_EXT = 0x8CE4;
+    public static final int GL_COLOR_ATTACHMENT5_EXT = 0x8CE5;
+    public static final int GL_COLOR_ATTACHMENT6_EXT = 0x8CE6;
+    public static final int GL_COLOR_ATTACHMENT7_EXT = 0x8CE7;
+    public static final int GL_COLOR_ATTACHMENT8_EXT = 0x8CE8;
+    public static final int GL_COLOR_ATTACHMENT9_EXT = 0x8CE9;
+    public static final int GL_COLOR_ATTACHMENT10_EXT = 0x8CEA;
+    public static final int GL_COLOR_ATTACHMENT11_EXT = 0x8CEB;
+    public static final int GL_COLOR_ATTACHMENT12_EXT = 0x8CEC;
+    public static final int GL_COLOR_ATTACHMENT13_EXT = 0x8CED;
+    public static final int GL_COLOR_ATTACHMENT14_EXT = 0x8CEE;
+    public static final int GL_COLOR_ATTACHMENT15_EXT = 0x8CEF;
+    public static final int GL_DEPTH_ATTACHMENT_EXT = 0x8D00;
+    public static final int GL_DRAW_FRAMEBUFFER_BINDING_EXT = 0x8CA6;
+    public static final int GL_DRAW_FRAMEBUFFER_EXT = 0x8CA9;
+    public static final int GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT = 0x8CD1;
+    public static final int GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT = 0x8CD0;
+    public static final int GL_FRAMEBUFFER_COMPLETE_EXT = 0x8CD5;
+    public static final int GL_FRAMEBUFFER_EXT = 0x8D40;
+    public static final int GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT = 0x8CD6;
+    public static final int GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT = 0x8CD9;
+    public static final int GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT = 0x8CDB;
+    public static final int GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT = 0x8CDA;
+    public static final int GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT = 0x8CD7;
+    public static final int GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_EXT = 0x8D56;
+    public static final int GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT = 0x8CDC;
+    public static final int GL_FRAMEBUFFER_UNSUPPORTED_EXT = 0x8CDD;
+    public static final int GL_INVALID_FRAMEBUFFER_OPERATION_EXT = 0x506;
+    public static final int GL_MAX_COLOR_ATTACHMENTS_EXT = 0x8CDF;
+    public static final int GL_MAX_RENDERBUFFER_SIZE_EXT = 0x84E8;
+    public static final int GL_READ_FRAMEBUFFER_BINDING_EXT = 0x8CAA;
+    public static final int GL_READ_FRAMEBUFFER_EXT = 0x8CA8;
+    public static final int GL_RENDERBUFFER_EXT = 0x8D41;
 
-    void glBindFramebufferEXT(int target, int frameBuffer);
+    public void glBindFramebufferEXT(int target, int frameBuffer);
 
-    void glBindRenderbufferEXT(int target, int renderBuffer);
+    public void glBindRenderbufferEXT(int target, int renderBuffer);
 
-    void glBlitFramebufferEXT(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1,
-                              int mask, int filter);
+    public void glBlitFramebufferEXT(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1,
+                                     int dstY1, int mask, int filter);
 
-    int glCheckFramebufferStatusEXT(int target);
+    public int glCheckFramebufferStatusEXT(int target);
 
-    void glDeleteFramebuffersEXT(IntBuffer frameBuffers);
+    public void glDeleteFramebuffersEXT(IntBuffer frameBuffers);
 
-    void glDeleteRenderbuffersEXT(IntBuffer renderBuffers);
+    public void glDeleteRenderbuffersEXT(IntBuffer renderBuffers);
 
-    void glFramebufferRenderbufferEXT(int target, int attachment, int renderBufferTarget, int renderBuffer);
+    public void glFramebufferRenderbufferEXT(int target, int attachment, int renderBufferTarget, int renderBuffer);
 
-    void glFramebufferTexture2DEXT(int target, int attachment, int texTarget, int texture, int level);
+    public void glFramebufferTexture2DEXT(int target, int attachment, int texTarget, int texture, int level);
 
-    void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer);
+    public void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer);
 
-    void glGenFramebuffersEXT(IntBuffer frameBuffers);
+    public void glGenFramebuffersEXT(IntBuffer frameBuffers);
 
-    void glGenRenderbuffersEXT(IntBuffer renderBuffers);
+    public void glGenRenderbuffersEXT(IntBuffer renderBuffers);
 
-    void glGenerateMipmapEXT(int target);
+    public void glGenerateMipmapEXT(int target);
 
-    void glRenderbufferStorageEXT(int target, int internalFormat, int width, int height);
+    public void glRenderbufferStorageEXT(int target, int internalFormat, int width, int height);
 
-    void glRenderbufferStorageMultisampleEXT(int target, int samples, int internalFormat, int width, int height);
+    public void glRenderbufferStorageMultisampleEXT(int target, int samples, int internalFormat, int width, int height);
 }

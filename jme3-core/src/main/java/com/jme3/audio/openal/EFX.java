@@ -4,42 +4,42 @@ import java.nio.IntBuffer;
 
 public interface EFX {
 
-    static final String ALC_EXT_EFX_NAME = "ALC_EXT_EFX";
+    public static final String ALC_EXT_EFX_NAME = "ALC_EXT_EFX";
 
-    static final int ALC_EFX_MAJOR_VERSION = 0x20001;
-    static final int ALC_EFX_MINOR_VERSION = 0x20002;
-    static final int ALC_MAX_AUXILIARY_SENDS = 0x20003;
+    public static final int ALC_EFX_MAJOR_VERSION = 0x20001;
+    public static final int ALC_EFX_MINOR_VERSION = 0x20002;
+    public static final int ALC_MAX_AUXILIARY_SENDS = 0x20003;
 
     /* Listener properties. */
     //#define AL_METERS_PER_UNIT                       0x20004
 
     /* Source properties. */
-    static final int AL_DIRECT_FILTER = 0x20005;
-    static final int AL_AUXILIARY_SEND_FILTER = 0x20006;
+    public static final int AL_DIRECT_FILTER = 0x20005;
+    public static final int AL_AUXILIARY_SEND_FILTER = 0x20006;
     //#define AL_AIR_ABSORPTION_FACTOR                 0x20007
     //#define AL_ROOM_ROLLOFF_FACTOR                   0x20008
     //#define AL_CONE_OUTER_GAINHF                     0x20009
 
-    static final int AL_DIRECT_FILTER_GAINHF_AUTO = 0x2000A;
+    public static final int AL_DIRECT_FILTER_GAINHF_AUTO = 0x2000A;
     //#define AL_AUXILIARY_SEND_FILTER_GAIN_AUTO       0x2000B
     //#define AL_AUXILIARY_SEND_FILTER_GAINHF_AUTO     0x2000C
 
     /* Effect properties. */
 
     /* Reverb effect parameters */
-    static final int AL_REVERB_DENSITY = 0x0001;
-    static final int AL_REVERB_DIFFUSION = 0x0002;
-    static final int AL_REVERB_GAIN = 0x0003;
-    static final int AL_REVERB_GAINHF = 0x0004;
-    static final int AL_REVERB_DECAY_TIME = 0x0005;
-    static final int AL_REVERB_DECAY_HFRATIO = 0x0006;
-    static final int AL_REVERB_REFLECTIONS_GAIN = 0x0007;
-    static final int AL_REVERB_REFLECTIONS_DELAY = 0x0008;
-    static final int AL_REVERB_LATE_REVERB_GAIN = 0x0009;
-    static final int AL_REVERB_LATE_REVERB_DELAY = 0x000A;
-    static final int AL_REVERB_AIR_ABSORPTION_GAINHF = 0x000B;
-    static final int AL_REVERB_ROOM_ROLLOFF_FACTOR = 0x000C;
-    static final int AL_REVERB_DECAY_HFLIMIT = 0x000D;
+    public static final int AL_REVERB_DENSITY = 0x0001;
+    public static final int AL_REVERB_DIFFUSION = 0x0002;
+    public static final int AL_REVERB_GAIN = 0x0003;
+    public static final int AL_REVERB_GAINHF = 0x0004;
+    public static final int AL_REVERB_DECAY_TIME = 0x0005;
+    public static final int AL_REVERB_DECAY_HFRATIO = 0x0006;
+    public static final int AL_REVERB_REFLECTIONS_GAIN = 0x0007;
+    public static final int AL_REVERB_REFLECTIONS_DELAY = 0x0008;
+    public static final int AL_REVERB_LATE_REVERB_GAIN = 0x0009;
+    public static final int AL_REVERB_LATE_REVERB_DELAY = 0x000A;
+    public static final int AL_REVERB_AIR_ABSORPTION_GAINHF = 0x000B;
+    public static final int AL_REVERB_ROOM_ROLLOFF_FACTOR = 0x000C;
+    public static final int AL_REVERB_DECAY_HFLIMIT = 0x000D;
 
     /* EAX Reverb effect parameters */
     //#define AL_EAXREVERB_DENSITY                     0x0001
@@ -142,11 +142,11 @@ public interface EFX {
     /* Effect type */
     //#define AL_EFFECT_FIRST_PARAMETER                0x0000
     //#define AL_EFFECT_LAST_PARAMETER                 0x8000
-    static final int AL_EFFECT_TYPE = 0x8001;
+    public static final int AL_EFFECT_TYPE = 0x8001;
 
     /* Effect types, used with the AL_EFFECT_TYPE property */
     //#define AL_EFFECT_NULL                           0x0000
-    static final int AL_EFFECT_REVERB = 0x0001;
+    public static final int AL_EFFECT_REVERB = 0x0001;
     //#define AL_EFFECT_CHORUS                         0x0002
     //#define AL_EFFECT_DISTORTION                     0x0003
     //#define AL_EFFECT_ECHO                           0x0004
@@ -161,7 +161,7 @@ public interface EFX {
     //#define AL_EFFECT_EAXREVERB                      0x8000
 
     /* Auxiliary Effect Slot properties. */
-    static final int AL_EFFECTSLOT_EFFECT = 0x0001;
+    public static final int AL_EFFECTSLOT_EFFECT = 0x0001;
     //#define AL_EFFECTSLOT_GAIN                       0x0002
     //#define AL_EFFECTSLOT_AUXILIARY_SEND_AUTO        0x0003
 
@@ -171,8 +171,8 @@ public interface EFX {
     ///* Filter properties. */
 
     /* Lowpass filter parameters */
-    static final int AL_LOWPASS_GAIN = 0x0001;
-    static final int AL_LOWPASS_GAINHF = 0x0002;
+    public static final int AL_LOWPASS_GAIN = 0x0001;
+    public static final int AL_LOWPASS_GAINHF = 0x0002;
 
     ///* Highpass filter parameters */
     //#define AL_HIGHPASS_GAIN                         0x0001
@@ -186,12 +186,12 @@ public interface EFX {
     /* Filter type */
     //#define AL_FILTER_FIRST_PARAMETER                0x0000
     //#define AL_FILTER_LAST_PARAMETER                 0x8000
-    static final int AL_FILTER_TYPE = 0x8001;
+    public static final int AL_FILTER_TYPE = 0x8001;
 
     /* Filter types, used with the AL_FILTER_TYPE property */
-    static final int AL_FILTER_NULL = 0x0000;
-    static final int AL_FILTER_LOWPASS = 0x0001;
-    static final int AL_FILTER_HIGHPASS = 0x0002;
+    public static final int AL_FILTER_NULL = 0x0000;
+    public static final int AL_FILTER_LOWPASS = 0x0001;
+    public static final int AL_FILTER_HIGHPASS = 0x0002;
     //#define AL_FILTER_BANDPASS                       0x0003
 
     ///* Filter ranges and defaults. */
@@ -668,7 +668,7 @@ public interface EFX {
      * @param numSlots the slots count.
      * @param buffers  the buffer that will receive the effect slots.
      */
-    void alGenAuxiliaryEffectSlots(int numSlots, IntBuffer buffers);
+    public void alGenAuxiliaryEffectSlots(int numSlots, IntBuffer buffers);
 
     /**
      * Requests a number of effects.
@@ -676,7 +676,7 @@ public interface EFX {
      * @param numEffects the effects count.
      * @param buffers    the buffer that will receive the effects.
      */
-    void alGenEffects(int numEffects, IntBuffer buffers);
+    public void alGenEffects(int numEffects, IntBuffer buffers);
 
     /**
      * Sets the integer value of an effect parameter.
@@ -685,7 +685,7 @@ public interface EFX {
      * @param param  the parameter to modify.
      * @param value  the parameter value.
      */
-    void alEffecti(int effect, int param, int value);
+    public void alEffecti(int effect, int param, int value);
 
     /**
      * Sets the integer value of an effect slot parameter.
@@ -694,7 +694,7 @@ public interface EFX {
      * @param param      the parameter to modify.
      * @param value      the parameter value.
      */
-    void alAuxiliaryEffectSloti(int effectSlot, int param, int value);
+    public void alAuxiliaryEffectSloti(int effectSlot, int param, int value);
 
     /**
      * Deletes a number of effects.
@@ -702,7 +702,7 @@ public interface EFX {
      * @param numEffects the effects count.
      * @param buffers    the effect to delete.
      */
-    void alDeleteEffects(int numEffects, IntBuffer buffers);
+    public void alDeleteEffects(int numEffects, IntBuffer buffers);
 
     /**
      * Deletes a number of effect slots.
@@ -710,7 +710,7 @@ public interface EFX {
      * @param numEffectSlots the effect slots count.
      * @param buffers        the effect slots to delete.
      */
-    void alDeleteAuxiliaryEffectSlots(int numEffectSlots, IntBuffer buffers);
+    public void alDeleteAuxiliaryEffectSlots(int numEffectSlots, IntBuffer buffers);
 
     /**
      * Requests a number of filters.
@@ -718,7 +718,7 @@ public interface EFX {
      * @param numFilters the filters count.
      * @param buffers    the buffer that will receive the filters.
      */
-    void alGenFilters(int numFilters, IntBuffer buffers);
+    public void alGenFilters(int numFilters, IntBuffer buffers);
 
     /**
      * Sets the integer value of a filter parameter.
@@ -727,7 +727,7 @@ public interface EFX {
      * @param param  the parameter to modify.
      * @param value  the parameter value.
      */
-    void alFilteri(int filter, int param, int value);
+    public void alFilteri(int filter, int param, int value);
 
     /**
      * Sets the float value of a filter parameter.
@@ -736,7 +736,7 @@ public interface EFX {
      * @param param  the parameter to modify.
      * @param value  the parameter value.
      */
-    void alFilterf(int filter, int param, float value);
+    public void alFilterf(int filter, int param, float value);
 
     /**
      * Deletes a number of filters.
@@ -744,7 +744,7 @@ public interface EFX {
      * @param numFilters the filters count.
      * @param buffers the filter to delete.
      */
-    void alDeleteFilters(int numFilters, IntBuffer buffers);
+    public void alDeleteFilters(int numFilters, IntBuffer buffers);
 
     /**
      * Sets the float value of an effect parameter.
@@ -753,5 +753,5 @@ public interface EFX {
      * @param param  the parameter to modify.
      * @param value  the parameter value.
      */
-    void alEffectf(int effect, int param, float value);
+    public void alEffectf(int effect, int param, float value);
 }

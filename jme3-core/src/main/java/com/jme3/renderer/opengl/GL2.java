@@ -40,40 +40,40 @@ import java.nio.ByteBuffer;
  */
 public interface GL2 extends GL {
 
-    static final int GL_ALPHA8 = 0x803C;
-    static final int GL_ALPHA_TEST = 0xBC0;
-    static final int GL_BGR = 0x80E0;
-    static final int GL_BGRA = 0x80E1;
-    static final int GL_COMPARE_REF_TO_TEXTURE = 0x884E;
-    static final int GL_DEPTH_COMPONENT24 = 0x81A6;
-    static final int GL_DEPTH_COMPONENT32 = 0x81A7;
-    static final int GL_DEPTH_TEXTURE_MODE = 0x884B;
-    static final int GL_DOUBLEBUFFER = 0xC32;
-    static final int GL_DRAW_BUFFER = 0xC01;
-    static final int GL_POINT = 0x1B00;
-    static final int GL_LINE = 0x1B01;
-    static final int GL_FILL = 0x1B02;
-    static final int GL_GENERATE_MIPMAP = 0x8191;
-    static final int GL_INTENSITY = 0x8049;
-    static final int GL_LUMINANCE8 = 0x8040;
-    static final int GL_LUMINANCE8_ALPHA8 = 0x8045;
-    static final int GL_MAX_ELEMENTS_INDICES = 0x80E9;
-    static final int GL_MAX_ELEMENTS_VERTICES = 0x80E8;
-    static final int GL_MAX_FRAGMENT_UNIFORM_COMPONENTS = 0x8B49;
-    static final int GL_MAX_VERTEX_UNIFORM_COMPONENTS = 0x8B4A;
-    static final int GL_READ_BUFFER = 0xC02;
-    static final int GL_RGB8 = 0x8051;
-    static final int GL_STACK_OVERFLOW = 0x503;
-    static final int GL_STACK_UNDERFLOW = 0x504;
-    static final int GL_TEXTURE_3D = 0x806F;
-    static final int GL_TEXTURE_BASE_LEVEL = 0x813C;
-    static final int GL_TEXTURE_MAX_LEVEL = 0x813D;
-    static final int GL_POINT_SPRITE = 0x8861;
-    static final int GL_TEXTURE_COMPARE_FUNC = 0x884D;
-    static final int GL_TEXTURE_COMPARE_MODE = 0x884C;
-    static final int GL_TEXTURE_WRAP_R = 0x8072;
-    static final int GL_VERTEX_PROGRAM_POINT_SIZE = 0x8642;
-    static final int GL_UNSIGNED_INT_8_8_8_8 = 0x8035;
+    public static final int GL_ALPHA8 = 0x803C;
+    public static final int GL_ALPHA_TEST = 0xBC0;
+    public static final int GL_BGR = 0x80E0;
+    public static final int GL_BGRA = 0x80E1;
+    public static final int GL_COMPARE_REF_TO_TEXTURE = 0x884E;
+    public static final int GL_DEPTH_COMPONENT24 = 0x81A6;
+    public static final int GL_DEPTH_COMPONENT32 = 0x81A7;
+    public static final int GL_DEPTH_TEXTURE_MODE = 0x884B;
+    public static final int GL_DOUBLEBUFFER = 0xC32;
+    public static final int GL_DRAW_BUFFER = 0xC01;
+    public static final int GL_POINT = 0x1B00;
+    public static final int GL_LINE = 0x1B01;
+    public static final int GL_FILL = 0x1B02;
+    public static final int GL_GENERATE_MIPMAP = 0x8191;
+    public static final int GL_INTENSITY = 0x8049;
+    public static final int GL_LUMINANCE8 = 0x8040;
+    public static final int GL_LUMINANCE8_ALPHA8 = 0x8045;
+    public static final int GL_MAX_ELEMENTS_INDICES = 0x80E9;
+    public static final int GL_MAX_ELEMENTS_VERTICES = 0x80E8;
+    public static final int GL_MAX_FRAGMENT_UNIFORM_COMPONENTS = 0x8B49;
+    public static final int GL_MAX_VERTEX_UNIFORM_COMPONENTS = 0x8B4A;
+    public static final int GL_READ_BUFFER = 0xC02;
+    public static final int GL_RGB8 = 0x8051;
+    public static final int GL_STACK_OVERFLOW = 0x503;
+    public static final int GL_STACK_UNDERFLOW = 0x504;
+    public static final int GL_TEXTURE_3D = 0x806F;
+    public static final int GL_TEXTURE_BASE_LEVEL = 0x813C;
+    public static final int GL_TEXTURE_MAX_LEVEL = 0x813D;
+    public static final int GL_POINT_SPRITE = 0x8861;
+    public static final int GL_TEXTURE_COMPARE_FUNC = 0x884D;
+    public static final int GL_TEXTURE_COMPARE_MODE = 0x884C;
+    public static final int GL_TEXTURE_WRAP_R = 0x8072;
+    public static final int GL_VERTEX_PROGRAM_POINT_SIZE = 0x8642;
+    public static final int GL_UNSIGNED_INT_8_8_8_8 = 0x8035;
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl3/glAlphaFunc">Reference Page</a> - <em>This function is deprecated and unavailable in the Core profile</em></p>
@@ -85,7 +85,7 @@ public interface GL2 extends GL {
      * @param func a symbolic constant indicating the alpha test function. One of:<br><table><tr><td>{@link #GL_NEVER NEVER}</td><td>{@link #GL_ALWAYS ALWAYS}</td><td>{@link #GL_LESS LESS}</td><td>{@link #GL_LEQUAL LEQUAL}</td><td>{@link #GL_EQUAL EQUAL}</td><td>{@link #GL_GEQUAL GEQUAL}</td><td>{@link #GL_GREATER GREATER}</td><td>{@link #GL_NOTEQUAL NOTEQUAL}</td></tr></table>
      * @param ref  a reference value clamped to the range [0, 1]. When performing the alpha test, the GL will convert the reference value to the same representation as the fragment's alpha value (floating-point or fixed-point).
      */
-    void glAlphaFunc(int func, float ref);
+    public void glAlphaFunc(int func, float ref);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glPointSize">Reference Page</a></p>
@@ -94,7 +94,7 @@ public interface GL2 extends GL {
      *
      * @param size the request size of a point.
      */
-    void glPointSize(float size);
+    public void glPointSize(float size);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glPolygonMode">Reference Page</a></p>
@@ -108,7 +108,7 @@ public interface GL2 extends GL {
      * @param face the face for which to set the rasterizing method. One of:<br><table><tr><td>{@link #GL_FRONT FRONT}</td><td>{@link #GL_BACK BACK}</td><td>{@link #GL_FRONT_AND_BACK FRONT_AND_BACK}</td></tr></table>
      * @param mode the rasterization mode. One of:<br><table><tr><td>{@link #GL_POINT POINT}</td><td>{@link #GL_LINE LINE}</td><td>{@link #GL_FILL FILL}</td></tr></table>
      */
-    void glPolygonMode(int face, int mode);
+    public void glPolygonMode(int face, int mode);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDrawBuffer">Reference Page</a></p>
@@ -117,7 +117,7 @@ public interface GL2 extends GL {
      *
      * @param mode the color buffer to draw to.
      */
-    void glDrawBuffer(int mode);
+    public void glDrawBuffer(int mode);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glReadBuffer">Reference Page</a></p>
@@ -126,7 +126,7 @@ public interface GL2 extends GL {
      *
      * @param mode the color buffer to read from.
      */
-    void glReadBuffer(int mode);
+    public void glReadBuffer(int mode);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glCompressedTexImage3D">Reference Page</a></p>
@@ -142,8 +142,8 @@ public interface GL2 extends GL {
      * @param border         must be 0
      * @param data           a pointer to the compressed image data
      */
-    void glCompressedTexImage3D(int target, int level, int internalFormat, int width, int height, int depth, int border,
-                                ByteBuffer data);
+    public void glCompressedTexImage3D(int target, int level, int internalFormat, int width, int height, int depth,
+                                       int border, ByteBuffer data);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glCompressedTexSubImage3D">Reference Page</a></p>
@@ -161,8 +161,8 @@ public interface GL2 extends GL {
      * @param format  the format of the compressed image data stored at address {@code data}.
      * @param data    a pointer to the compressed image data.
      */
-    void glCompressedTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width, int height,
-                                   int depth, int format, ByteBuffer data);
+    public void glCompressedTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width,
+                                          int height, int depth, int format, ByteBuffer data);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glTexImage3D">Reference Page</a></p>
@@ -180,8 +180,8 @@ public interface GL2 extends GL {
      * @param type           the texel data type.
      * @param data           the texel data.
      */
-    void glTexImage3D(int target, int level, int internalFormat, int width, int height, int depth, int border,
-                      int format, int type, ByteBuffer data);
+    public void glTexImage3D(int target, int level, int internalFormat, int width, int height, int depth, int border,
+                             int format, int type, ByteBuffer data);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glTexSubImage3D">Reference Page</a></p>
@@ -201,6 +201,6 @@ public interface GL2 extends GL {
      * @param type    the pixel data type.
      * @param data    the pixel data.
      */
-    void glTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth,
-                         int format, int type, ByteBuffer data);
+    public void glTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width, int height,
+                                int depth, int format, int type, ByteBuffer data);
 }
