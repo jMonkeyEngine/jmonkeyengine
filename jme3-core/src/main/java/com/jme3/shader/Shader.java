@@ -413,6 +413,11 @@ public final class Shader extends NativeObject {
                 uniform.reset(); // fixes issue with re-initialization
             }
         }
+        if (storageBlocks != null) {
+            for (StorageBlock storageBlock : storageBlocks.values()) {
+                storageBlock.reset();
+            }
+        }
         if (attribs != null) {
             for (Entry<Attribute> entry : attribs) {
                 entry.getValue().location = ShaderVariable.LOC_UNKNOWN;
