@@ -798,7 +798,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             if(type == VarType.ShaderStorageBufferObject) {
 
                 final StorageBlock storageBlock = shader.getStorageBlock(name);
-                storageBlock.setValue(param.getValue());
+                storageBlock.setStorageData(param.getValue());
 
             } else {
 

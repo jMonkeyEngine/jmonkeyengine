@@ -483,7 +483,17 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
     public void glPatchParameter(int count) {
         GL40.glPatchParameteri(GL40.GL_PATCH_VERTICES,count);
     }
-    
+
+    @Override
+    public int glGetProgramResourceIndex(final int program, final int programInterface, final String name) {
+        return GL43.glGetProgramResourceIndex(program, programInterface, name);
+    }
+
+    @Override
+    public void glShaderStorageBlockBinding(final int program, final int storageBlockIndex, final int storageBlockBinding) {
+        GL43.glShaderStorageBlockBinding(program, storageBlockIndex, storageBlockBinding);
+    }
+
     @Override
     public void glDeleteVertexArrays(IntBuffer arrays) {
         checkLimit(arrays);

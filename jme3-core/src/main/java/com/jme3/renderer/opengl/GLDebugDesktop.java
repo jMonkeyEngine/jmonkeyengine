@@ -108,6 +108,19 @@ public class GLDebugDesktop extends GLDebugES implements GL2, GL3, GL4 {
         checkError();
     }
 
+    @Override
+    public int glGetProgramResourceIndex(int program, int programInterface, String name) {
+        final int result = gl4.glGetProgramResourceIndex(program, programInterface, name);
+        checkError();
+        return result;
+    }
+
+    @Override
+    public void glShaderStorageBlockBinding(int program, int storageBlockIndex, int storageBlockBinding) {
+        gl4.glShaderStorageBlockBinding(program, storageBlockIndex, storageBlockBinding);
+        checkError();
+    }
+
     public void glBlendEquationSeparate(int colorMode, int alphaMode) {
         gl.glBlendEquationSeparate(colorMode, alphaMode);
         checkError();
