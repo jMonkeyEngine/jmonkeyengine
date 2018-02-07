@@ -66,6 +66,7 @@ public interface GL {
     public static final int GL_DST_ALPHA = 0x0304;
     public static final int GL_DST_COLOR = 0x306;
     public static final int GL_DYNAMIC_DRAW = 0x88E8;
+    public static final int GL_DYNAMIC_COPY = 0x88EA;
     public static final int GL_ELEMENT_ARRAY_BUFFER = 0x8893;
     public static final int GL_EQUAL = 0x202;
     public static final int GL_EXTENSIONS = 0x1F03;

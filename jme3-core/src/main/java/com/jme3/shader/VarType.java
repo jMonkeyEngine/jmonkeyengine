@@ -58,8 +58,7 @@ public enum VarType {
     TextureArray(false,true,"sampler2DArray|sampler2DArrayShadow"),
     TextureCubeMap(false,true,"samplerCube"),
     Int("int"),
-    Struct(false, false, "dynamic"),
-    StructArray(false, false, "dynamic");
+    ShaderStorageBufferObject(false, false, "dynamic");
 
     private boolean usesMultiData = false;
     private boolean textureType = false;

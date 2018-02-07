@@ -48,6 +48,7 @@ import com.jme3.shader.Attribute;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.shader.Shader.ShaderType;
+import com.jme3.shader.ShaderStorageBufferObject;
 import com.jme3.shader.Uniform;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.RenderBuffer;
@@ -1001,6 +1002,7 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void postFrame() {
         objManager.deleteUnused(this);
         OpenCLObjectManager.getInstance().deleteUnusedObjects();
@@ -1133,44 +1135,33 @@ public final class GLRenderer implements Renderer {
                 Integer i = (Integer) uniform.getValue();
                 gl.glUniform1i(loc, i.intValue());
                 break;
-            case Struct: {
+            case ShaderStorageBufferObject: {
 
-                final ByteBuffer data = (ByteBuffer) uniform.getValue();
+                final ShaderStorageBufferObject ssbo = (ShaderStorageBufferObject) uniform.getValue();
+                if (ssbo.getUniqueId() == -1 || ssbo.isUpdateNeeded()) {
+                    updateBufferData(ssbo);
+                }
 
-                intBuf1.clear();
-                gl3.glGenBuffers(intBuf1);
 
-                final int bufferAddress = intBuf1.get();
-                final int blockIndex = gl3.glGetUniformBlockIndex(shaderId, uniform.getName());
 
-                gl3.glBindBuffer(GL3.GL_UNIFORM_BUFFER, bufferAddress);
-                gl3.glBufferData(GL3.GL_UNIFORM_BUFFER, data, GL.GL_DYNAMIC_DRAW);
-                gl3.glBindBufferBase(GL3.GL_UNIFORM_BUFFER, blockIndex, bufferAddress);
                 break;
             }
-            case StructArray: {
-
-                //TODO
-                final ByteBuffer data = (ByteBuffer) uniform.getValue();
-
-                intBuf1.clear();
-                gl3.glGenBuffers(intBuf1);
-
-                final int bufferAddress = intBuf1.get();
-                final int blockIndex = gl3.glGetUniformBlockIndex(shaderId, uniform.getName());
-
-                gl3.glBindBuffer(GL3.GL_UNIFORM_BUFFER, bufferAddress);
-                gl3.glBufferData(GL3.GL_UNIFORM_BUFFER, data, GL.GL_DYNAMIC_DRAW);
-                gl3.glBindBufferBase(GL3.GL_UNIFORM_BUFFER, blockIndex, bufferAddress);
-                break;
-            }
-
             default:
                 throw new UnsupportedOperationException("Unsupported uniform type: " + uniform.getVarType());
         }
     }
 
     protected void updateShaderUniforms(Shader shader) {
+        ListMap<String, Uniform> uniforms = shader.getUniformMap();
+        for (int i = 0; i < uniforms.size(); i++) {
+            Uniform uniform = uniforms.getValue(i);
+            if (uniform.isUpdateNeeded()) {
+                updateUniform(shader, uniform);
+            }
+        }
+    }
+
+    protected void updateShaderStorageBlocks(Shader shader) {
         ListMap<String, Uniform> uniforms = shader.getUniformMap();
         for (int i = 0; i < uniforms.size(); i++) {
             Uniform uniform = uniforms.getValue(i);
@@ -2486,6 +2477,37 @@ public final class GLRenderer implements Renderer {
         vb.clearUpdateNeeded();
     }
 
+    @Override
+    public void updateBufferData(final ShaderStorageBufferObject ssbo) {
+
+        final ByteBuffer data = ssbo.getData();
+        if (data == null) {
+            throw new IllegalArgumentException("Can't upload SSBO without data.");
+        }
+
+        int bufferId = ssbo.getId();
+        if (bufferId == -1) {
+
+            // create buffer
+            intBuf1.clear();
+            gl.glGenBuffers(intBuf1);
+            bufferId = intBuf1.get(0);
+
+            ssbo.setId(bufferId);
+
+            objManager.registerObject(ssbo);
+        }
+
+        gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, bufferId);
+
+        data.rewind();
+
+        gl4.glBufferData(GL4.GL_SHADER_STORAGE_BUFFER, data, GL4.GL_DYNAMIC_COPY);
+        gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, 0);
+
+        ssbo.clearUpdateNeeded();
+    }
+
     public void deleteBuffer(VertexBuffer vb) {
         int bufId = vb.getId();
         if (bufId != -1) {
@@ -2497,6 +2519,23 @@ public final class GLRenderer implements Renderer {
 
             //statistics.onDeleteVertexBuffer();
         }
+    }
+
+    @Override
+    public void deleteBuffer(final ShaderStorageBufferObject ssbo) {
+
+        int bufferId = ssbo.getId();
+        if (bufferId == -1) {
+            return;
+        }
+
+        intBuf1.clear();
+        intBuf1.put(0, bufferId);
+        intBuf1.flip();
+
+        gl.glDeleteBuffers(intBuf1);
+
+        ssbo.resetObject();
     }
 
     public void clearVertexAttribs() {
