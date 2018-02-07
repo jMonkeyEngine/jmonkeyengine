@@ -37,6 +37,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
+import com.jme3.shader.ShaderStorageBufferObject;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
@@ -268,10 +269,24 @@ public interface Renderer {
     public void updateBufferData(VertexBuffer vb);
 
     /**
+     * Uploads a shader storage buffer object to the GPU.
+     *
+     * @param ssbo the shader storage buffer object to upload.
+     */
+    public void updateBufferData(ShaderStorageBufferObject ssbo);
+
+    /**
      * Deletes a vertex buffer from the GPU.
      * @param vb The vertex buffer to delete
      */
     public void deleteBuffer(VertexBuffer vb);
+
+    /**
+     * Deletes a shader storage buffer object from the GPU.
+     *
+     * @param ssbo the shader storage buffer object to delete.
+     */
+    public void deleteBuffer(ShaderStorageBufferObject ssbo);
 
     /**
      * Renders <code>count</code> meshes, with the geometry data supplied and
