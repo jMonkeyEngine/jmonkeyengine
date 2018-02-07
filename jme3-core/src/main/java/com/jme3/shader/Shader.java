@@ -301,9 +301,9 @@ public final class Shader extends NativeObject {
      * @param name the storage block's name.
      * @return the storage block.
      */
-    public StorageBlock getStorageBlock(String name) {
+    public StorageBlock getStorageBlock(final String name) {
 
-        assert name.startsWith("sb_");
+        assert name.startsWith("m_");
 
         StorageBlock storageBlock = storageBlocks.get(name);
 
@@ -325,7 +325,7 @@ public final class Shader extends NativeObject {
      *
      * @param name the storage block's name.
      */
-    public void removeStorageBlock(String name){
+    public void removeStorageBlock(final String name){
         storageBlocks.remove(name);
     }
 
