@@ -627,7 +627,7 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
 	public void glPatchParameter(int count) {
         GLContext.getCurrentGL().getGL3().glPatchParameteri(com.jogamp.opengl.GL3.GL_PATCH_VERTICES, count);
     }
-    
+
     @Override
 	public void glDeleteVertexArrays(IntBuffer arrays) {
         checkLimit(arrays);
@@ -642,5 +642,16 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
     @Override
     public void glBindBufferBase(final int target, final int index, final int buffer) {
         GLContext.getCurrentGL().getGL3bc().glBindBufferBase(target, index, buffer);
+    }
+
+    @Override
+    public int glGetProgramResourceIndex(final int program, final int programInterface, final String name) {
+        throw new UnsupportedOperationException();
+        //return GLContext.getCurrentGL().getGL4bc().glGetProgramResourceIndex(program, programInterface, name);
+    }
+
+    @Override
+    public void glShaderStorageBlockBinding(final int program, final int storageBlockIndex, final int storageBlockBinding) {
+        GLContext.getCurrentGL().getGL4bc().glShaderStorageBlockBinding(program, storageBlockIndex, storageBlockBinding);
     }
 }
