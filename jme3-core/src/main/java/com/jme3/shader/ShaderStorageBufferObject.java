@@ -117,7 +117,7 @@ public class ShaderStorageBufferObject extends NativeObject {
     @Override
     public void deleteObject(final Object rendererObject) {
 
-        if (rendererObject instanceof Renderer) {
+        if (!(rendererObject instanceof Renderer)) {
             throw new IllegalArgumentException("This ssbo can't be deleted from " + rendererObject);
         }
 
