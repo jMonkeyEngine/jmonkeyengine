@@ -177,14 +177,31 @@ public class BufferObject extends NativeObject {
                 return estimate((float[]) field.getValue());
             }
             case Vector2Array: {
-                return estimateVecArray(field.getValue(), 2);
+                return estimateArray(field.getValue(), 2);
             }
             case Vector3Array: {
                 final int multiplier = layout == Layout.std140? 4 : 3;
-                return estimateVecArray(field.getValue(), multiplier);
+                return estimateArray(field.getValue(), multiplier);
             }
             case Vector4Array: {
-                return estimateVecArray(field.getValue(), 4);
+                return estimateArray(field.getValue(), 4);
+            }
+            case Matrix3: {
+                final int multiplier = layout == Layout.std140? 4 : 3;
+                return 3 * multiplier;
+            }
+            case Matrix4: {
+                return 4 * 4;
+            }
+            case Matrix3Array: {
+                int multiplier = layout == Layout.std140? 4 : 3;
+                multiplier *= 3;
+                return estimateArray(field.getValue(), multiplier);
+            }
+            case Matrix4Array: {
+                int multiplier = layout == Layout.std140? 4 : 3;
+                multiplier *= 4;
+                return estimateArray(field.getValue(), multiplier);
             }
             default: {
                 throw new IllegalArgumentException("The type of BO field " + field.getType() + " doesn't support.");
@@ -199,7 +216,7 @@ public class BufferObject extends NativeObject {
      * @param multiplier the multiplier.
      * @return the estimated bytes cunt.
      */
-    protected int estimateVecArray(final Object value, final int multiplier) {
+    protected int estimateArray(final Object value, final int multiplier) {
 
         if (value instanceof Object[]) {
             return ((Object[]) value).length * multiplier;
@@ -279,11 +296,90 @@ public class BufferObject extends NativeObject {
                 writeVec4Array(data, value);
                 break;
             }
+            case Matrix3: {
+                write(data, (Matrix3f) value);
+                break;
+            }
+            case Matrix4: {
+                write(data, (Matrix4f) value);
+                break;
+            }
+            case Matrix3Array: {
+                writeMat3Array(data, value);
+                break;
+            }
+            case Matrix4Array: {
+                writeMat4Array(data, value);
+                break;
+            }
             default: {
                 throw new IllegalArgumentException("The type of BO field " + field.getType() + " doesn't support.");
             }
         }
     }
+
+    /**
+     * Writes the value to the data buffer.
+     *
+     * @param data  the data buffer.
+     * @param value the value.
+     */
+    protected void writeMat3Array(final ByteBuffer data, final Object value) {
+
+        if (value instanceof Matrix3f[]) {
+
+            final Matrix3f[] values = (Matrix3f[]) value;
+            for (final Matrix3f mat : values) {
+                write(data, mat);
+            }
+
+        } else if(value instanceof SafeArrayList) {
+
+            final SafeArrayList<Matrix3f> values = (SafeArrayList<Matrix3f>) value;
+            for (final Matrix3f mat : values.getArray()) {
+                write(data, mat);
+            }
+
+        } else if(value instanceof Collection) {
+
+            final Collection<Matrix3f> values = (Collection<Matrix3f>) value;
+            for (final Matrix3f mat : values) {
+                write(data, mat);
+            }
+        }
+    }
+
+    /**
+     * Writes the value to the data buffer.
+     *
+     * @param data  the data buffer.
+     * @param value the value.
+     */
+    protected void writeMat4Array(final ByteBuffer data, final Object value) {
+
+        if (value instanceof Matrix4f[]) {
+
+            final Matrix4f[] values = (Matrix4f[]) value;
+            for (final Matrix4f mat : values) {
+                write(data, mat);
+            }
+
+        } else if(value instanceof SafeArrayList) {
+
+            final SafeArrayList<Matrix4f> values = (SafeArrayList<Matrix4f>) value;
+            for (final Matrix4f mat : values.getArray()) {
+                write(data, mat);
+            }
+
+        } else if(value instanceof Collection) {
+
+            final Collection<Matrix4f> values = (Collection<Matrix4f>) value;
+            for (final Matrix4f mat : values) {
+                write(data, mat);
+            }
+        }
+    }
+
 
     /**
      * Writes the value to the data buffer.
@@ -457,11 +553,71 @@ public class BufferObject extends NativeObject {
      * Writes the value to the data buffer.
      *
      * @param data  the data buffer.
+     * @param x the x value.
+     * @param y the y value.
+     * @param z the z value.
+     */
+    protected void write(final ByteBuffer data, final float x, final float y, final float z) {
+
+        data.putFloat(x)
+            .putFloat(y)
+            .putFloat(z);
+
+        if (layout == Layout.std140) {
+            data.putInt(0);
+        }
+    }
+
+    /**
+     * Writes the value to the data buffer.
+     *
+     * @param data  the data buffer.
+     * @param x the x value.
+     * @param y the y value.
+     * @param z the z value.
+     * @param w the w value.
+     */
+    protected void write(final ByteBuffer data, final float x, final float y, final float z, final float w) {
+        data.putFloat(x)
+            .putFloat(y)
+            .putFloat(z)
+            .putFloat(w);
+    }
+
+    /**
+     * Writes the value to the data buffer.
+     *
+     * @param data  the data buffer.
      * @param value the value.
      */
     protected void write(final ByteBuffer data, final Vector2f value) {
         data.putFloat(value.getX())
             .putFloat(value.getY());
+    }
+
+    /**
+     * Writes the value to the data buffer.
+     *
+     * @param data  the data buffer.
+     * @param value the value.
+     */
+    protected void write(final ByteBuffer data, final Matrix3f value) {
+        write(data, value.get(0, 0), value.get(0, 1), value.get(0, 2));
+        write(data, value.get(1, 0), value.get(1, 1), value.get(1, 2));
+        write(data, value.get(2, 0), value.get(2, 1), value.get(2, 2));
+    }
+
+    /**
+     * Writes the value to the data buffer.
+     *
+     * @param data  the data buffer.
+     * @param value the value.
+     */
+    protected void write(final ByteBuffer data, final Matrix4f value) {
+        write(data, value.get(0, 0), value.get(0, 1), value.get(0, 2), value.get(0, 3));
+        write(data, value.get(1, 0), value.get(1, 1), value.get(1, 2), value.get(1, 3));
+        write(data, value.get(2, 0), value.get(2, 1), value.get(2, 2), value.get(2, 3));
+        write(data, value.get(3, 0), value.get(3, 1), value.get(3, 2), value.get(3, 3));
     }
 
     @Override
