@@ -1156,6 +1156,8 @@ public final class GLRenderer implements Renderer {
 
         bindProgram(shader);
 
+        storageBlock.clearUpdateNeeded();
+
         final ShaderStorageBufferObject storageData = (ShaderStorageBufferObject) storageBlock.getStorageData();
         if (storageData.getUniqueId() == -1 || storageData.isUpdateNeeded()) {
             updateBufferData(storageData);
@@ -1183,9 +1185,9 @@ public final class GLRenderer implements Renderer {
      * @param shader the shader.
      */
     protected void updateShaderStorageBlocks(final Shader shader) {
-        final ListMap<String, StorageBlock> uniforms = shader.getStorageBlockMap();
-        for (int i = 0; i < uniforms.size(); i++) {
-            final StorageBlock storageBlock = uniforms.getValue(i);
+        final ListMap<String, StorageBlock> storageBlocks = shader.getStorageBlockMap();
+        for (int i = 0; i < storageBlocks.size(); i++) {
+            final StorageBlock storageBlock = storageBlocks.getValue(i);
             if (storageBlock.isUpdateNeeded()) {
                 updateShaderStorageBlock(shader, storageBlock);
             }
