@@ -396,6 +396,10 @@ public enum Caps {
      */
     BinaryShader,
     /**
+     * Supporting working with UniformBufferObject.
+     */
+    UniformBufferObject,
+    /**
      * Supporting working with ShaderStorageBufferObjects.
      */
     ShaderStorageBufferObject;

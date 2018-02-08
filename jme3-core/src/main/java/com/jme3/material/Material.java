@@ -410,6 +410,17 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     /**
+     * Returns the current parameter's value.
+     *
+     * @param name the parameter name to look up.
+     * @return current value or null if the parameter wasn't set.
+     */
+    public <T> T getParamValue(final String name) {
+        final MatParam param = paramValues.get(name);
+        return param == null ? null : (T) param.getValue();
+    }
+
+    /**
      * Returns the texture parameter set on this material with the given name,
      * returns <code>null</code> if the parameter is not set.
      *
@@ -655,6 +666,22 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      */
     public void setColor(String name, ColorRGBA value) {
         setParam(name, VarType.Vector4, value);
+    }
+
+    /**
+     * Pass a buffer object to the material shader.
+     *
+     * @param name  the name of the buffer object defined in the material definition (j3md).
+     * @param value the buffer object.
+     */
+    public void setBufferObject(final String name, final BufferObject value) {
+        if (value instanceof UniformBufferObject) {
+            setParam(name, VarType.UniformBufferObject, value);
+        } else if (value instanceof ShaderStorageBufferObject) {
+            setParam(name, VarType.ShaderStorageBufferObject, value);
+        } else {
+            throw new IllegalArgumentException("Not expected value " + value);
+        }
     }
 
     /**

@@ -480,6 +480,22 @@ public final class GLRenderer implements Renderer {
 
         if (hasExtension("GL_ARB_shader_storage_buffer_object")) {
             caps.add(Caps.ShaderStorageBufferObject);
+            limits.put(Limits.ShaderStorageBufferObjectMaxBlockSize, getInteger(GL4.GL_MAX_SHADER_STORAGE_BLOCK_SIZE));
+            limits.put(Limits.ShaderStorageBufferObjectMaxComputeBlocks, getInteger(GL4.GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS));
+            limits.put(Limits.ShaderStorageBufferObjectMaxGeometryBlocks, getInteger(GL4.GL_MAX_GEOMETRY_SHADER_STORAGE_BLOCKS));
+            limits.put(Limits.ShaderStorageBufferObjectMaxFragmentBlocks, getInteger(GL4.GL_MAX_FRAGMENT_SHADER_STORAGE_BLOCKS));
+            limits.put(Limits.ShaderStorageBufferObjectMaxVertexBlocks, getInteger(GL4.GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS));
+            limits.put(Limits.ShaderStorageBufferObjectMaxTessControlBlocks, getInteger(GL4.GL_MAX_TESS_CONTROL_SHADER_STORAGE_BLOCKS));
+            limits.put(Limits.ShaderStorageBufferObjectMaxTessEvaluationBlocks, getInteger(GL4.GL_MAX_TESS_EVALUATION_SHADER_STORAGE_BLOCKS));
+            limits.put(Limits.ShaderStorageBufferObjectMaxCombineBlocks, getInteger(GL4.GL_MAX_COMBINED_SHADER_STORAGE_BLOCKS));
+        }
+
+        if (hasExtension("GL_ARB_uniform_buffer_object")) {
+            caps.add(Caps.UniformBufferObject);
+            limits.put(Limits.UniformBufferObjectMaxBlockSize, getInteger(GL3.GL_MAX_UNIFORM_BLOCK_SIZE));
+            limits.put(Limits.UniformBufferObjectMaxGeometryBlocks, getInteger(GL3.GL_MAX_GEOMETRY_UNIFORM_BLOCKS));
+            limits.put(Limits.UniformBufferObjectMaxFragmentBlocks, getInteger(GL3.GL_MAX_FRAGMENT_UNIFORM_BLOCKS));
+            limits.put(Limits.UniformBufferObjectMaxVertexBlocks, getInteger(GL3.GL_MAX_VERTEX_UNIFORM_BLOCKS));
         }
 
         // Print context information
@@ -2550,18 +2566,28 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void updateBufferData(final ShaderStorageBufferObject ssbo) {
+    public void updateBufferData(final BufferObject bo) {
 
-        if (!caps.contains(Caps.ShaderStorageBufferObject)) {
-            throw new IllegalArgumentException("The current video hardware doesn't support SSBO.");
+        int maxSize = Integer.MAX_VALUE;
+
+        if (bo instanceof UniformBufferObject) {
+            if (!caps.contains(Caps.UniformBufferObject)) {
+                throw new IllegalArgumentException("The current video hardware doesn't support UBO.");
+            }
+        } else if (bo instanceof ShaderStorageBufferObject) {
+            if (!caps.contains(Caps.ShaderStorageBufferObject)) {
+                throw new IllegalArgumentException("The current video hardware doesn't support SSBO.");
+            }
+        } else {
+            throw new IllegalArgumentException("Not expected type of the BO " + bo);
         }
 
-        final ByteBuffer data = ssbo.getData();
+        final ByteBuffer data = bo.computeData(maxSize);
         if (data == null) {
-            throw new IllegalArgumentException("Can't upload SSBO without data.");
+            throw new IllegalArgumentException("Can't upload BO without data.");
         }
 
-        int bufferId = ssbo.getId();
+        int bufferId = bo.getId();
         if (bufferId == -1) {
 
             // create buffer
@@ -2569,19 +2595,24 @@ public final class GLRenderer implements Renderer {
             gl.glGenBuffers(intBuf1);
             bufferId = intBuf1.get(0);
 
-            ssbo.setId(bufferId);
+            bo.setId(bufferId);
 
-            objManager.registerObject(ssbo);
+            objManager.registerObject(bo);
         }
-
-        gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, bufferId);
 
         data.rewind();
 
-        gl4.glBufferData(GL4.GL_SHADER_STORAGE_BUFFER, data, GL4.GL_DYNAMIC_COPY);
-        gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, 0);
+        if (bo instanceof UniformBufferObject) {
+            gl3.glBindBuffer(GL3.GL_UNIFORM_BUFFER, bufferId);
+            gl3.glBufferData(GL4.GL_UNIFORM_BUFFER, data, GL3.GL_DYNAMIC_DRAW);
+            gl3.glBindBuffer(GL4.GL_UNIFORM_BUFFER, 0);
+        } else {
+            gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, bufferId);
+            gl4.glBufferData(GL4.GL_SHADER_STORAGE_BUFFER, data, GL4.GL_DYNAMIC_COPY);
+            gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, 0);
+        }
 
-        ssbo.clearUpdateNeeded();
+        bo.clearUpdateNeeded();
     }
 
     public void deleteBuffer(VertexBuffer vb) {
@@ -2598,9 +2629,9 @@ public final class GLRenderer implements Renderer {
     }
 
     @Override
-    public void deleteBuffer(final ShaderStorageBufferObject ssbo) {
+    public void deleteBuffer(final BufferObject bo) {
 
-        int bufferId = ssbo.getId();
+        int bufferId = bo.getId();
         if (bufferId == -1) {
             return;
         }
@@ -2611,12 +2642,7 @@ public final class GLRenderer implements Renderer {
 
         gl.glDeleteBuffers(intBuf1);
 
-        ssbo.resetObject();
-    }
-
-    @Override
-    public void deleteBuffer(BufferObject bo) {
-        //TODO
+        bo.resetObject();
     }
 
     public void clearVertexAttribs() {
