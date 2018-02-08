@@ -20,6 +20,7 @@ public class BufferObject extends NativeObject {
 
     public enum Layout {
         std140,
+        std430,
     }
 
     /**
