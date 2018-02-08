@@ -11,6 +11,10 @@ public class ShaderStorageBufferObject extends BufferObject {
         super(binding, layout, fields);
     }
 
+    public ShaderStorageBufferObject(final int binding, final BufferObjectField... fields) {
+        super(binding, Layout.std430, fields);
+    }
+
     public ShaderStorageBufferObject(final int id) {
         super(id);
     }

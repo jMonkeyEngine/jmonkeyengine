@@ -7,8 +7,8 @@ package com.jme3.shader;
  */
 public class UniformBufferObject extends BufferObject {
 
-    public UniformBufferObject(final int binding, final Layout layout, final BufferObjectField... fields) {
-        super(binding, layout, fields);
+    public UniformBufferObject(final int binding, final BufferObjectField... fields) {
+        super(binding, Layout.std140, fields);
     }
 
     public UniformBufferObject(final int id) {
