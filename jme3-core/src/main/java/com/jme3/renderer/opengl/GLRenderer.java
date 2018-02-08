@@ -1198,24 +1198,26 @@ public final class GLRenderer implements Renderer {
      */
     protected void updateShaderStorageBlock(final Shader shader, final StorageBlock storageBlock) {
 
-        int shaderId = shader.getId();
-
         assert storageBlock.getName() != null;
         assert shader.getId() > 0;
-
-        bindProgram(shader);
-
-        storageBlock.clearUpdateNeeded();
 
         final ShaderStorageBufferObject storageData = (ShaderStorageBufferObject) storageBlock.getStorageData();
         if (storageData.getUniqueId() == -1 || storageData.isUpdateNeeded()) {
             updateBufferData(storageData);
         }
 
-        final int blockIndex = gl4.glGetProgramResourceIndex(shaderId, GL4.GL_SHADER_STORAGE_BLOCK, storageBlock.getName());
+        if (storageBlock.isUpdateNeeded()) {
 
-        gl4.glShaderStorageBlockBinding(shaderId, blockIndex, storageData.getBinding());
-        gl4.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, storageData.getBinding(), storageData.getId());
+            bindProgram(shader);
+
+            final int shaderId = shader.getId();
+            final int blockIndex = gl4.glGetProgramResourceIndex(shaderId, GL4.GL_SHADER_STORAGE_BLOCK, storageBlock.getName());
+
+            gl4.glShaderStorageBlockBinding(shaderId, blockIndex, storageData.getBinding());
+            gl4.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, storageData.getBinding(), storageData.getId());
+
+            storageBlock.clearUpdateNeeded();
+        }
     }
 
     protected void updateShaderUniforms(Shader shader) {
@@ -1236,10 +1238,7 @@ public final class GLRenderer implements Renderer {
     protected void updateShaderStorageBlocks(final Shader shader) {
         final ListMap<String, StorageBlock> storageBlocks = shader.getStorageBlockMap();
         for (int i = 0; i < storageBlocks.size(); i++) {
-            final StorageBlock storageBlock = storageBlocks.getValue(i);
-            if (storageBlock.isUpdateNeeded()) {
-                updateShaderStorageBlock(shader, storageBlock);
-            }
+            updateShaderStorageBlock(shader, storageBlocks.getValue(i));
         }
     }
 
