@@ -102,6 +102,21 @@ public interface GL3 extends GL2 {
     public static final int GL_UNIFORM_BLOCK_REFERENCED_BY_FRAGMENT_SHADER = 0x8A46;
 
     /**
+     *  Accepted by the &lt;pname&gt; parameter of GetBooleanv, GetIntegerv,
+     *  GetFloatv, and GetDoublev:
+     */
+    public static final int GL_MAX_VERTEX_UNIFORM_BLOCKS = 0x8A2B;
+    public static final int GL_MAX_GEOMETRY_UNIFORM_BLOCKS = 0x8A2C;
+    public static final int GL_MAX_FRAGMENT_UNIFORM_BLOCKS = 0x8A2D;
+    public static final int GL_MAX_COMBINED_UNIFORM_BLOCKS = 0x8A2E;
+    public static final int GL_MAX_UNIFORM_BUFFER_BINDINGS = 0x8A2F;
+    public static final int GL_MAX_UNIFORM_BLOCK_SIZE = 0x8A30;
+    public static final int GL_MAX_COMBINED_VERTEX_UNIFORM_COMPONENTS = 0x8A31;
+    public static final int GL_MAX_COMBINED_GEOMETRY_UNIFORM_COMPONENTS = 0x8A32;
+    public static final int GL_MAX_COMBINED_FRAGMENT_UNIFORM_COMPONENTS = 0x8A33;
+    public static final int GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT = 0x8A34;
+
+    /**
      * Accepted by the {@code target} parameters of BindBuffer, BufferData, BufferSubData, MapBuffer, UnmapBuffer, GetBufferSubData, GetBufferPointerv,
      * BindBufferRange, BindBufferOffset and BindBufferBase.
      */

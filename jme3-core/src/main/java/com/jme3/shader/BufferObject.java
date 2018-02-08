@@ -40,7 +40,7 @@ public class BufferObject extends NativeObject {
     /**
      * The previous data buffer.
      */
-    private ByteBuffer previosData;
+    private ByteBuffer previousData;
 
     public BufferObject(final int binding, final Layout layout, final BufferObjectField... fields) {
         this.handleRef = new Object();
@@ -128,14 +128,14 @@ public class BufferObject extends NativeObject {
                 "maximum available size " + maxSize);
         }
 
-        if (previosData != null) {
-            if (previosData.capacity() < estimateSize) {
-                BufferUtils.destroyDirectBuffer(previosData);
-                previosData = null;
+        if (previousData != null) {
+            if (previousData.capacity() < estimateSize) {
+                BufferUtils.destroyDirectBuffer(previousData);
+                previousData = null;
             }
         }
 
-        final ByteBuffer data = previosData == null ? BufferUtils.createByteBuffer((int) (estimateSize * 1.1F)) : previosData;
+        final ByteBuffer data = previousData == null ? BufferUtils.createByteBuffer((int) (estimateSize * 1.1F)) : previousData;
 
         for (final Map.Entry<String, BufferObjectField> entry : fields.entrySet()) {
             writeField(entry.getValue(), data);
@@ -481,9 +481,9 @@ public class BufferObject extends NativeObject {
     @Override
     protected void deleteNativeBuffers() {
         super.deleteNativeBuffers();
-        if (previosData != null) {
-            BufferUtils.destroyDirectBuffer(previosData);
-            previosData = null;
+        if (previousData != null) {
+            BufferUtils.destroyDirectBuffer(previousData);
+            previousData = null;
         }
     }
 

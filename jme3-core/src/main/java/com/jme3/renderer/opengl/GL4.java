@@ -52,7 +52,21 @@ public interface GL4 extends GL3 {
      */
     public static final int GL_SHADER_STORAGE_BUFFER = 0x90D2;
     public static final int GL_SHADER_STORAGE_BLOCK = 0x92E6;
+
+    /**
+     *  Accepted by the &lt;pname&gt; parameter of GetIntegerv, GetBooleanv,
+     *  GetInteger64v, GetFloatv, and GetDoublev:
+     */
+    public static final int GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS = 0x90D6;
+    public static final int GL_MAX_GEOMETRY_SHADER_STORAGE_BLOCKS = 0x90D7;
+    public static final int GL_MAX_TESS_CONTROL_SHADER_STORAGE_BLOCKS = 0x90D8;
+    public static final int GL_MAX_TESS_EVALUATION_SHADER_STORAGE_BLOCKS = 0x90D9;
+    public static final int GL_MAX_FRAGMENT_SHADER_STORAGE_BLOCKS = 0x90DA;
+    public static final int GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS = 0x90DB;
+    public static final int GL_MAX_COMBINED_SHADER_STORAGE_BLOCKS = 0x90DC;
     public static final int GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS = 0x90DD;
+    public static final int GL_MAX_SHADER_STORAGE_BLOCK_SIZE = 0x90DE;
+    public static final int GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT = 0x90DF;
 
     public void glPatchParameter(int count);
 
