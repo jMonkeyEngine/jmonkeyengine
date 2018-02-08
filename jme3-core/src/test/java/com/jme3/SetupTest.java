@@ -31,6 +31,13 @@
  */
 package com.jme3;
 
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.shader.BufferObject;
+import com.jme3.shader.BufferObject.Layout;
+import com.jme3.shader.BufferObjectField;
+import com.jme3.shader.UniformBufferObject;
+import com.jme3.shader.VarType;
 import org.junit.Test;
 
 /**
@@ -41,6 +48,20 @@ public class SetupTest {
     
    @Test(expected=AssertionError.class)
    public void testAssertionEnabled() {
+
+       Material material;
+
+       final UniformBufferObject ubo = new UniformBufferObject(3, Layout.std140,
+           new BufferObjectField("light_1", VarType.Vector4),
+           new BufferObjectField("light_2", VarType.Vector4),
+           new BufferObjectField("array", VarType.FloatArray)
+       );
+       ubo.setValue("light_1", ColorRGBA.Black);
+       ubo.setValue("light_2", ColorRGBA.Gray);
+       ubo.setValue("array", new float[] {1F, 2F, 3F});
+
+       material.setBufferObject("uboTest", ubo);
+
        assert false;
    }
 }

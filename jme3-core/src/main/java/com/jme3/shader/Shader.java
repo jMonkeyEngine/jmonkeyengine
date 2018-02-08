@@ -53,9 +53,9 @@ public final class Shader extends NativeObject {
     private final ListMap<String, Uniform> uniforms;
 
     /**
-     * Maps storage block name to the storage block variable.
+     * Maps storage block name to the buffer block variables.
      */
-    private final ListMap<String, StorageBlock> storageBlocks;
+    private final ListMap<String, ShaderBufferBlock> bufferBlocks;
     
     /**
      * Uniforms bound to {@link UniformBinding}s.
@@ -227,7 +227,7 @@ public final class Shader extends NativeObject {
         super();
         shaderSourceList = new ArrayList<>();
         uniforms = new ListMap<>();
-        storageBlocks = new ListMap<>();
+        bufferBlocks = new ListMap<>();
         attribs = new IntMap<>();
         boundUniforms = new ArrayList<>();
     }
@@ -246,7 +246,7 @@ public final class Shader extends NativeObject {
         }
         
         uniforms = null;
-        storageBlocks  = null;
+        bufferBlocks = null;
         boundUniforms = null;
         attribs = null;
     }
@@ -296,24 +296,24 @@ public final class Shader extends NativeObject {
     }
 
     /**
-     * Get or create a storage block by the name.
+     * Gets or creates a buffer block by the name.
      *
-     * @param name the storage block's name.
-     * @return the storage block.
+     * @param name the buffer block's name.
+     * @return the buffer block.
      */
-    public StorageBlock getStorageBlock(final String name) {
+    public ShaderBufferBlock getBufferBlock(final String name) {
 
         assert name.startsWith("m_");
 
-        StorageBlock storageBlock = storageBlocks.get(name);
+        ShaderBufferBlock block = bufferBlocks.get(name);
 
-        if (storageBlock == null) {
-            storageBlock = new StorageBlock();
-            storageBlock.name = name;
-            storageBlocks.put(name, storageBlock);
+        if (block == null) {
+            block = new ShaderBufferBlock();
+            block.name = name;
+            bufferBlocks.put(name, block);
         }
 
-        return storageBlock;
+        return block;
     }
 
     public void removeUniform(String name){
@@ -321,12 +321,12 @@ public final class Shader extends NativeObject {
     }
 
     /**
-     * Remove a storage block by the name.
+     * Removes a buffer block by the name.
      *
-     * @param name the storage block's name.
+     * @param name the buffer block's name.
      */
-    public void removeStorageBlock(final String name){
-        storageBlocks.remove(name);
+    public void removeBufferBlock(final String name){
+        bufferBlocks.remove(name);
     }
 
     public Attribute getAttribute(VertexBuffer.Type attribType){
@@ -345,12 +345,12 @@ public final class Shader extends NativeObject {
     }
 
     /**
-     * Get the storage blocks map.
+     * Get the buffer blocks map.
      *
-     * @return the storage blocks map.
+     * @return the buffer blocks map.
      */
-    public ListMap<String, StorageBlock> getStorageBlockMap() {
-        return storageBlocks;
+    public ListMap<String, ShaderBufferBlock> getBufferBlockMap() {
+        return bufferBlocks;
     }
 
     public ArrayList<Uniform> getBoundUniforms() {
@@ -366,7 +366,7 @@ public final class Shader extends NativeObject {
         return getClass().getSimpleName() + 
                 "[numSources=" + shaderSourceList.size() +
                 ", numUniforms=" + uniforms.size() +
-                ", numStorageBlocks=" + storageBlocks.size() +
+                ", numBufferBlocks=" + bufferBlocks.size() +
                 ", shaderSources=" + getSources() + "]";
     }
 
@@ -413,9 +413,9 @@ public final class Shader extends NativeObject {
                 uniform.reset(); // fixes issue with re-initialization
             }
         }
-        if (storageBlocks != null) {
-            for (StorageBlock storageBlock : storageBlocks.values()) {
-                storageBlock.reset();
+        if (bufferBlocks != null) {
+            for (ShaderBufferBlock shaderBufferBlock : bufferBlocks.values()) {
+                shaderBufferBlock.reset();
             }
         }
         if (attribs != null) {

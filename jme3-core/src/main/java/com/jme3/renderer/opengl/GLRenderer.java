@@ -1207,33 +1207,40 @@ public final class GLRenderer implements Renderer {
     }
 
     /**
-     * Update the storage block for the shader.
+     * Updates the buffer block for the shader.
      *
      * @param shader the shader.
-     * @param storageBlock the storage block.
+     * @param bufferBlock the storage block.
      */
-    protected void updateShaderStorageBlock(final Shader shader, final StorageBlock storageBlock) {
+    protected void updateShaderBufferBlock(final Shader shader, final ShaderBufferBlock bufferBlock) {
 
-        assert storageBlock.getName() != null;
+        assert bufferBlock.getName() != null;
         assert shader.getId() > 0;
 
-        final ShaderStorageBufferObject storageData = (ShaderStorageBufferObject) storageBlock.getStorageData();
-        if (storageData.getUniqueId() == -1 || storageData.isUpdateNeeded()) {
-            updateBufferData(storageData);
+        final BufferObject bufferObject = bufferBlock.getBufferObject();
+        if (bufferObject.getUniqueId() == -1 || bufferObject.isUpdateNeeded()) {
+            updateBufferData(bufferObject);
         }
 
-        if (storageBlock.isUpdateNeeded()) {
-
-            bindProgram(shader);
-
-            final int shaderId = shader.getId();
-            final int blockIndex = gl4.glGetProgramResourceIndex(shaderId, GL4.GL_SHADER_STORAGE_BLOCK, storageBlock.getName());
-
-            gl4.glShaderStorageBlockBinding(shaderId, blockIndex, storageData.getBinding());
-            gl4.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, storageData.getBinding(), storageData.getId());
-
-            storageBlock.clearUpdateNeeded();
+        if (!bufferBlock.isUpdateNeeded()) {
+            return;
         }
+
+        bindProgram(shader);
+
+        final int shaderId = shader.getId();
+
+        if (bufferObject instanceof ShaderStorageBufferObject) {
+            final int blockIndex = gl4.glGetProgramResourceIndex(shaderId, GL4.GL_SHADER_STORAGE_BLOCK, bufferBlock.getName());
+            gl4.glShaderStorageBlockBinding(shaderId, blockIndex, bufferObject.getBinding());
+            gl4.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, bufferObject.getBinding(), bufferObject.getId());
+        } else if (bufferObject instanceof UniformBufferObject) {
+            final int blockIndex = gl3.glGetUniformBlockIndex(shaderId, bufferBlock.getName());
+            gl3.glBindBufferBase(GL3.GL_UNIFORM_BUFFER, bufferObject.getBinding(), bufferObject.getId());
+            gl3.glUniformBlockBinding(GL3.GL_UNIFORM_BUFFER, blockIndex, bufferObject.getBinding());
+        }
+
+        bufferBlock.clearUpdateNeeded();
     }
 
     protected void updateShaderUniforms(Shader shader) {
@@ -1247,14 +1254,14 @@ public final class GLRenderer implements Renderer {
     }
 
     /**
-     * Updates all shader's storage blocks.
+     * Updates all shader's buffer blocks.
      *
      * @param shader the shader.
      */
-    protected void updateShaderStorageBlocks(final Shader shader) {
-        final ListMap<String, StorageBlock> storageBlocks = shader.getStorageBlockMap();
-        for (int i = 0; i < storageBlocks.size(); i++) {
-            updateShaderStorageBlock(shader, storageBlocks.getValue(i));
+    protected void updateShaderBufferBlocks(final Shader shader) {
+        final ListMap<String, ShaderBufferBlock> bufferBlocks = shader.getBufferBlockMap();
+        for (int i = 0; i < bufferBlocks.size(); i++) {
+            updateShaderBufferBlock(shader, bufferBlocks.getValue(i));
         }
     }
 
@@ -1476,7 +1483,7 @@ public final class GLRenderer implements Renderer {
             assert shader.getId() > 0;
 
             updateShaderUniforms(shader);
-            updateShaderStorageBlocks(shader);
+            updateShaderBufferBlocks(shader);
             bindProgram(shader);
         }
     }

@@ -271,13 +271,6 @@ public interface Renderer {
     public void updateBufferData(VertexBuffer vb);
 
     /**
-     * Uploads a shader storage buffer object to the GPU.
-     *
-     * @param ssbo the shader storage buffer object to upload.
-     */
-    public void updateBufferData(ShaderStorageBufferObject ssbo);
-
-    /**
      * Uploads data of the buffer object on the GPU.
      *
      * @param bo the buffer object to upload.

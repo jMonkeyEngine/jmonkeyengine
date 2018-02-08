@@ -654,4 +654,9 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
     public void glShaderStorageBlockBinding(final int program, final int storageBlockIndex, final int storageBlockBinding) {
         GLContext.getCurrentGL().getGL4bc().glShaderStorageBlockBinding(program, storageBlockIndex, storageBlockBinding);
     }
+
+    @Override
+    public void glUniformBlockBinding(final int program, final int uniformBlockIndex, final int uniformBlockBinding) {
+        GLContext.getCurrentGL().getGL3bc().glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+    }
 }

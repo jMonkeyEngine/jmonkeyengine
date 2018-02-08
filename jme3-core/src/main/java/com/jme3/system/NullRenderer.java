@@ -44,6 +44,7 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.Statistics;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
+import com.jme3.shader.BufferObject;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.shader.ShaderStorageBufferObject;
@@ -150,14 +151,14 @@ public class NullRenderer implements Renderer {
     }
 
     @Override
-    public void updateBufferData(ShaderStorageBufferObject ssbo) {
+    public void updateBufferData(BufferObject bo) {
     }
-
     public void deleteBuffer(VertexBuffer vb) {
     }
 
     @Override
-    public void deleteBuffer(ShaderStorageBufferObject ssbo) {
+    public void deleteBuffer(BufferObject bo) {
+
     }
 
     public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
