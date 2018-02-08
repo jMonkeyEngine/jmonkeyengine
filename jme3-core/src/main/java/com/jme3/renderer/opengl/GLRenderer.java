@@ -2614,6 +2614,11 @@ public final class GLRenderer implements Renderer {
         ssbo.resetObject();
     }
 
+    @Override
+    public void deleteBuffer(BufferObject bo) {
+        //TODO
+    }
+
     public void clearVertexAttribs() {
         IDList attribList = context.attribIndexList;
         for (int i = 0; i < attribList.oldLen; i++) {
