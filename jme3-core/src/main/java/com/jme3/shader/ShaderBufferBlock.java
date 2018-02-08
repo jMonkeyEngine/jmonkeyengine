@@ -32,29 +32,29 @@
 package com.jme3.shader;
 
 /**
- * Implementation of shader's storage block.
+ * Implementation of shader's buffer block.
  *
  * @author JavaSaBr
  */
-public class StorageBlock extends ShaderVariable {
+public class ShaderBufferBlock extends ShaderVariable {
 
     /**
      * Current used buffer object.
      */
-    protected Object storageData;
+    protected BufferObject bufferObject;
 
     /**
-     * Set the new storage data.
+     * Set the new buffer object.
      *
-     * @param storageData the new storage data
+     * @param bufferObject the new buffer object.
      */
-    public void setStorageData(final Object storageData) {
+    public void setBufferObject(final BufferObject bufferObject) {
 
-        if (storageData == null) {
+        if (bufferObject == null) {
             throw new IllegalArgumentException("for storage block " + name + ": storageData cannot be null");
         }
 
-        this.storageData = storageData;
+        this.bufferObject = bufferObject;
 
         updateNeeded = true;
     }
@@ -87,7 +87,7 @@ public class StorageBlock extends ShaderVariable {
      *
      * @return the current storage data.
      */
-    public Object getStorageData() {
-        return storageData;
+    public BufferObject getBufferObject() {
+        return bufferObject;
     }
 }

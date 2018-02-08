@@ -149,4 +149,24 @@ public interface GL3 extends GL2 {
      * @param buffer a buffer object to bind to the specified binding point
      */
     public void glBindBufferBase(int target, int index, int buffer);
+
+    /**
+     * Binding points for active uniform blocks are assigned using glUniformBlockBinding. Each of a program's active
+     * uniform blocks has a corresponding uniform buffer binding point. program is the name of a program object for
+     * which the command glLinkProgram has been issued in the past.
+     * <p>
+     * If successful, glUniformBlockBinding specifies that program will use the data store of the buffer object bound
+     * to the binding point uniformBlockBinding to extract the values of the uniforms in the uniform block identified
+     * by uniformBlockIndex.
+     * <p>
+     * When a program object is linked or re-linked, the uniform buffer object binding point assigned to each of its
+     * active uniform blocks is reset to zero.
+     *
+     * @param program             The name of a program object containing the active uniform block whose binding to
+     *                            assign.
+     * @param uniformBlockIndex   The index of the active uniform block within program whose binding to assign.
+     * @param uniformBlockBinding Specifies the binding point to which to bind the uniform block with index
+     *                            uniformBlockIndex within program.
+     */
+    public void glUniformBlockBinding(int program, int uniformBlockIndex, int uniformBlockBinding);
 }

@@ -509,4 +509,9 @@ public final class LwjglGL implements GL, GL2, GL3, GL4 {
     public void glBindBufferBase(final int target, final int index, final int buffer) {
         GL30.glBindBufferBase(target, index, buffer);
     }
+
+    @Override
+    public void glUniformBlockBinding(final int program, final int uniformBlockIndex, final int uniformBlockBinding) {
+        GL31.glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+    }
 }

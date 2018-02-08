@@ -822,10 +822,10 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             MatParam param = paramValues.getValue(i);
             VarType type = param.getVarType();
 
-            if(type == VarType.ShaderStorageBufferObject) {
+            if(isBO(type)) {
 
-                final StorageBlock storageBlock = shader.getStorageBlock(param.getPrefixedName());
-                storageBlock.setStorageData(param.getValue());
+                final ShaderBufferBlock bufferBlock = shader.getBufferBlock(param.getPrefixedName());
+                bufferBlock.setBufferObject((BufferObject) param.getValue());
 
             } else {
 
@@ -846,6 +846,16 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
         //TODO HACKY HACK remove this when texture unit is handled by the uniform.
         return unit;
+    }
+
+    /**
+     * Returns true if the type is Buffer Object's type.
+     *
+     * @param type the material parameter type.
+     * @return true if the type is Buffer Object's type.
+     */
+    private boolean isBO(final VarType type) {
+        return type == VarType.ShaderStorageBufferObject || type == VarType.UniformBufferObject;
     }
 
     private void updateRenderState(RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {

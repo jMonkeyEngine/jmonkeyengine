@@ -125,4 +125,10 @@ public class GLDebugDesktop extends GLDebugES implements GL2, GL3, GL4 {
         gl.glBlendEquationSeparate(colorMode, alphaMode);
         checkError();
     }
+
+    @Override
+    public void glUniformBlockBinding(final int program, final int uniformBlockIndex, final int uniformBlockBinding) {
+        gl3.glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+        checkError();
+    }
 }
