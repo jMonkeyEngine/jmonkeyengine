@@ -20,14 +20,20 @@ import java.util.regex.Pattern;
  */
 public final class APIUtil {
 
-    private static final ThreadLocal<APIBuffer> API_BUFFERS = new ThreadLocal<APIBuffer>() {
-        @Override
-        protected APIBuffer initialValue() {
-            return new APIBuffer();
-        }
-    };
+    private static final ThreadLocal<APIBuffer> API_BUFFERS = ThreadLocal.withInitial(APIBuffer::new);
 
     private APIUtil() {
+    }
+
+    /**
+     * Converts dynamic arguments to object array.
+     *
+     * @param arguments the list of arguments.
+     * @return the object array.
+     */
+    @SafeVarargs
+    public static <T> T[] toArray(T... arguments) {
+        return arguments;
     }
 
     /**
