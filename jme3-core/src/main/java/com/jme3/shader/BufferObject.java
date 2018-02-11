@@ -206,7 +206,7 @@ public class BufferObject extends NativeObject {
      * @param name  the field's name.
      * @param value the value.
      */
-    public void setValue(final String name, final Object value) {
+    public void setFieldValue(final String name, final Object value) {
 
         BufferObjectField field = fields.get(name);
 
@@ -226,7 +226,7 @@ public class BufferObject extends NativeObject {
      * @param <T> the value's type.
      * @return the current value.
      */
-    public <T> T getValue(final String name) {
+    public <T> T getFieldValue(final String name) {
 
         final BufferObjectField field = fields.get(name);
         if (field == null) {
