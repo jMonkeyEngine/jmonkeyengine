@@ -9,16 +9,6 @@ import static java.util.Objects.requireNonNull;
  */
 public class BufferObjectField {
 
-    /**
-     * The method to create a new field.
-     *
-     * @param name the field's name.
-     * @param type the field's type.
-     * @return the new field.
-     */
-    public static BufferObjectField field(final String name, final VarType type) {
-        return new BufferObjectField(name, type);
-    }
 
     /**
      * The field name.

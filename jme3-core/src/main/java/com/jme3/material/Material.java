@@ -676,7 +676,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      */
     public void setUniformBufferObject(final String name, final BufferObject value) {
         value.setBufferType(BufferObject.BufferType.UniformBufferObject);
-        setParam(name, VarType.UniformBufferObject, value);
+        setParam(name, VarType.BufferObject, value);
     }
 
     /**
@@ -687,7 +687,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      */
     public void setShaderStorageBufferObject(final String name, final BufferObject value) {
         value.setBufferType(BufferObject.BufferType.ShaderStorageBufferObject);
-        setParam(name, VarType.ShaderStorageBufferObject, value);
+        setParam(name, VarType.BufferObject, value);
     }
 
     /**
@@ -861,7 +861,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @return true if the type is Buffer Object's type.
      */
     private boolean isBO(final VarType type) {
-        return type == VarType.ShaderStorageBufferObject || type == VarType.UniformBufferObject;
+        return type == VarType.BufferObject;
     }
 
     private void updateRenderState(RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {

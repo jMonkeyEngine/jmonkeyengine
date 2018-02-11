@@ -1182,6 +1182,14 @@ public final class GLRenderer implements Renderer {
         final int shaderId = shader.getId();
         final BufferObject.BufferType bufferType = bufferObject.getBufferType();
 
+        bindBuffer(bufferBlock, bufferObject, shaderId, bufferType);
+
+        bufferBlock.clearUpdateNeeded();
+    }
+
+    private void bindBuffer(final ShaderBufferBlock bufferBlock, final BufferObject bufferObject, final int shaderId,
+                            final BufferObject.BufferType bufferType) {
+
         switch (bufferType) {
             case UniformBufferObject: {
                 final int blockIndex = gl3.glGetUniformBlockIndex(shaderId, bufferBlock.getName());
@@ -1199,8 +1207,6 @@ public final class GLRenderer implements Renderer {
                 throw new IllegalArgumentException("Doesn't support binding of " + bufferType);
             }
         }
-
-        bufferBlock.clearUpdateNeeded();
     }
 
     protected void updateShaderUniforms(Shader shader) {

@@ -9,7 +9,8 @@ import com.jme3.util.SafeArrayList;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,6 +19,46 @@ import java.util.Map;
  * @author JavaSaBr
  */
 public class BufferObject extends NativeObject {
+
+    private static final Map<Class<?>, VarType> CLASS_TO_VAR_TYPE = new HashMap<>();
+
+    static {
+        CLASS_TO_VAR_TYPE.put(Float.class, VarType.Float);
+        CLASS_TO_VAR_TYPE.put(Integer.class, VarType.Int);
+        CLASS_TO_VAR_TYPE.put(Boolean.class, VarType.Boolean);
+        CLASS_TO_VAR_TYPE.put(Vector2f.class, VarType.Vector2);
+        CLASS_TO_VAR_TYPE.put(Vector3f.class, VarType.Vector3);
+        CLASS_TO_VAR_TYPE.put(ColorRGBA.class, VarType.Vector4);
+        CLASS_TO_VAR_TYPE.put(Quaternion.class, VarType.Vector4);
+        CLASS_TO_VAR_TYPE.put(Vector4f.class, VarType.Vector4);
+
+        CLASS_TO_VAR_TYPE.put(Vector2f[].class, VarType.Vector2Array);
+        CLASS_TO_VAR_TYPE.put(Vector3f[].class, VarType.Vector3Array);
+        CLASS_TO_VAR_TYPE.put(Vector4f[].class, VarType.Vector4Array);
+        CLASS_TO_VAR_TYPE.put(ColorRGBA[].class, VarType.Vector4Array);
+        CLASS_TO_VAR_TYPE.put(Quaternion[].class, VarType.Vector4Array);
+
+        CLASS_TO_VAR_TYPE.put(Matrix3f.class, VarType.Matrix3);
+        CLASS_TO_VAR_TYPE.put(Matrix4f.class, VarType.Matrix4);
+        CLASS_TO_VAR_TYPE.put(Matrix3f[].class, VarType.Matrix3Array);
+        CLASS_TO_VAR_TYPE.put(Matrix4f[].class, VarType.Matrix4Array);
+    }
+
+    protected static VarType getVarTypeByValue(final Object value) {
+
+        final VarType varType = CLASS_TO_VAR_TYPE.get(value);
+        if (varType != null) {
+            return varType;
+        } else if (value instanceof Collection<?> && ((Collection) value).isEmpty()) {
+            throw new IllegalArgumentException("Can't calculate a var type for the empty collection value[" + value + "].");
+        } else if (value instanceof List<?>) {
+            return getVarTypeByValue(((List) value).get(0));
+        } else if (value instanceof Collection<?>) {
+            return getVarTypeByValue(((Collection) value).iterator().next());
+        }
+
+        throw new IllegalArgumentException("Can't calculate a var type for the value " + value);
+    }
 
     public enum Layout {
         std140,
@@ -55,7 +96,7 @@ public class BufferObject extends NativeObject {
     /**
      * The field's array.
      */
-    private final BufferObjectField[] fieldArray;
+    private final SafeArrayList<BufferObjectField> fieldArray;
 
     /**
      * The buffer's data layout.
@@ -77,36 +118,63 @@ public class BufferObject extends NativeObject {
      */
     private ByteBuffer previousData;
 
-    public BufferObject(final int binding, final Layout layout, final BufferType bufferType, final BufferObjectField... fields) {
+    public BufferObject(final int binding, final Layout layout, final BufferType bufferType) {
         this.handleRef = new Object();
         this.bufferType = bufferType;
         this.binding = binding;
         this.layout = layout;
-        this.fields = new LinkedHashMap<>(fields.length);
-        for (final BufferObjectField field : fields) {
-            this.fields.put(field.getName(), field);
-        }
-        this.fieldArray = fields;
+        this.fields = new HashMap<>();
+        this.fieldArray = new SafeArrayList<>(BufferObjectField.class);
     }
 
-    public BufferObject(final int binding, final Layout layout, final BufferObjectField... fields) {
-        this(binding, layout, BufferType.UniformBufferObject, fields);
+    public BufferObject(final int binding, final Layout layout) {
+        this(binding, layout, BufferType.UniformBufferObject);
     }
 
-    public BufferObject(final int binding, final BufferObjectField... fields) {
-        this(binding, Layout.std140, BufferType.UniformBufferObject, fields);
+    public BufferObject(final int binding, final BufferType bufferType) {
+        this(binding, Layout.std140, bufferType);
     }
 
-    public BufferObject(final BufferObjectField... fields) {
-        this(1, Layout.std140, BufferType.UniformBufferObject, fields);
+    public BufferObject(final BufferType bufferType) {
+        this(1, Layout.std140, bufferType);
     }
 
-    public BufferObject(final int id) {
+    public BufferObject(final Layout layout) {
+        this(1, layout, BufferType.UniformBufferObject);
+    }
+
+    public BufferObject(final int binding) {
+        this(binding, Layout.std140, BufferType.UniformBufferObject);
+    }
+
+    public BufferObject() {
+        this(1, Layout.std140, BufferType.UniformBufferObject);
+    }
+
+    private BufferObject(final Void unused, final int id) {
         super(id);
-        this.binding = -2;
+        this.fieldArray = null;
         this.fields = null;
         this.layout = null;
-        this.fieldArray = null;
+        this.binding = 0;
+    }
+
+    /**
+     * Declares a filed in this BO.
+     *
+     * @param name    the field's name.
+     * @param varType the field's type.
+     */
+    public void declareField(final String name, final VarType varType) {
+
+        if (fields.containsKey(name)) {
+            throw new IllegalArgumentException("The field " + name + " is already declared.");
+        }
+
+        final BufferObjectField field = new BufferObjectField(name, varType);
+
+        fields.put(name, field);
+        fieldArray.add(field);
     }
 
     /**
@@ -140,9 +208,11 @@ public class BufferObject extends NativeObject {
      */
     public void setValue(final String name, final Object value) {
 
-        final BufferObjectField field = fields.get(name);
+        BufferObjectField field = fields.get(name);
+
         if (field == null) {
-            throw new IllegalArgumentException("Unknown a field with the name " + name);
+            declareField(name, getVarTypeByValue(value));
+            field = fields.get(name);
         }
 
         field.setValue(value);
@@ -739,7 +809,7 @@ public class BufferObject extends NativeObject {
 
     @Override
     public NativeObject createDestructableClone() {
-        return new BufferObject(id);
+        return new BufferObject(null, getId());
     }
 
     @Override
