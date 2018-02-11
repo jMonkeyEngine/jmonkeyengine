@@ -1,6 +1,7 @@
 package com.jme3.shader;
 
 import com.jme3.math.*;
+import com.jme3.renderer.Caps;
 import com.jme3.renderer.Renderer;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObject;
@@ -23,10 +24,36 @@ public class BufferObject extends NativeObject {
         std430,
     }
 
+    public enum BufferType {
+        ShaderStorageBufferObject(Caps.ShaderStorageBufferObject),
+        UniformBufferObject(Caps.UniformBufferObject),
+        ;
+
+        private final Caps requiredCaps;
+
+        BufferType(final Caps requiredCaps) {
+            this.requiredCaps = requiredCaps;
+        }
+
+        /**
+         * Get the required caps.
+         *
+         * @return the required caps.
+         */
+        public Caps getRequiredCaps() {
+            return requiredCaps;
+        }
+    }
+
     /**
      * The fields of this BO.
      */
     private final Map<String, BufferObjectField> fields;
+
+    /**
+     * The field's array.
+     */
+    private final BufferObjectField[] fieldArray;
 
     /**
      * The buffer's data layout.
@@ -39,18 +66,37 @@ public class BufferObject extends NativeObject {
     private final int binding;
 
     /**
+     * The buffer's type.
+     */
+    private BufferType bufferType;
+
+    /**
      * The previous data buffer.
      */
     private ByteBuffer previousData;
 
-    public BufferObject(final int binding, final Layout layout, final BufferObjectField... fields) {
+    public BufferObject(final int binding, final Layout layout, final BufferType bufferType, final BufferObjectField... fields) {
         this.handleRef = new Object();
+        this.bufferType = bufferType;
         this.binding = binding;
         this.layout = layout;
         this.fields = new LinkedHashMap<>(fields.length);
         for (final BufferObjectField field : fields) {
             this.fields.put(field.getName(), field);
         }
+        this.fieldArray = fields;
+    }
+
+    public BufferObject(final int binding, final Layout layout, final BufferObjectField... fields) {
+        this(binding, layout, BufferType.UniformBufferObject, fields);
+    }
+
+    public BufferObject(final int binding, final BufferObjectField... fields) {
+        this(binding, Layout.std140, BufferType.UniformBufferObject, fields);
+    }
+
+    public BufferObject(final BufferObjectField... fields) {
+        this(1, Layout.std140, BufferType.UniformBufferObject, fields);
     }
 
     public BufferObject(final int id) {
@@ -58,6 +104,30 @@ public class BufferObject extends NativeObject {
         this.binding = -2;
         this.fields = null;
         this.layout = null;
+        this.fieldArray = null;
+    }
+
+    /**
+     * Gets the buffer's type.
+     *
+     * @return the buffer's type.
+     */
+    public BufferType getBufferType() {
+        return bufferType;
+    }
+
+    /**
+     * Sets the buffer's type.
+     *
+     * @param bufferType the buffer's type.
+     */
+    public void setBufferType(final BufferType bufferType) {
+
+        if (getId() != -1) {
+            throw new IllegalStateException("Can't change buffer's type when this buffer is already initialized.");
+        }
+
+        this.bufferType = bufferType;
     }
 
     /**
@@ -119,30 +189,33 @@ public class BufferObject extends NativeObject {
 
         int estimateSize = 0;
 
-        for (final Map.Entry<String, BufferObjectField> entry : fields.entrySet()) {
-            final BufferObjectField field = entry.getValue();
+        for (final BufferObjectField field : fieldArray) {
             estimateSize += estimateSize(field);
         }
 
         if(maxSize < estimateSize) {
             throw new IllegalStateException("The estimated size(" + estimateSize + ") of this BO is bigger than " +
-                "maximum available size " + maxSize);
+                    "maximum available size " + maxSize);
         }
 
         if (previousData != null) {
             if (previousData.capacity() < estimateSize) {
                 BufferUtils.destroyDirectBuffer(previousData);
                 previousData = null;
+            } else {
+                previousData.clear();
             }
         }
 
-        final ByteBuffer data = previousData == null ? BufferUtils.createByteBuffer((int) (estimateSize * 1.1F)) : previousData;
+        final ByteBuffer data = previousData == null ? BufferUtils.createByteBuffer(estimateSize) : previousData;
 
-        for (final Map.Entry<String, BufferObjectField> entry : fields.entrySet()) {
-            writeField(entry.getValue(), data);
+        for (final BufferObjectField field : fieldArray) {
+            writeField(field, data);
         }
 
         data.flip();
+
+        this.previousData = data;
 
         return data;
     }
@@ -510,25 +583,25 @@ public class BufferObject extends NativeObject {
 
             final Vector4f vec4 = (Vector4f) value;
             data.putFloat(vec4.getX())
-                .putFloat(vec4.getY())
-                .putFloat(vec4.getZ())
-                .putFloat(vec4.getW());
+                    .putFloat(vec4.getY())
+                    .putFloat(vec4.getZ())
+                    .putFloat(vec4.getW());
 
         } else if(value instanceof Quaternion) {
 
             final Quaternion vec4 = (Quaternion) value;
             data.putFloat(vec4.getX())
-                .putFloat(vec4.getY())
-                .putFloat(vec4.getZ())
-                .putFloat(vec4.getW());
+                    .putFloat(vec4.getY())
+                    .putFloat(vec4.getZ())
+                    .putFloat(vec4.getW());
 
         } else if(value instanceof ColorRGBA) {
 
             final ColorRGBA vec4 = (ColorRGBA) value;
             data.putFloat(vec4.getRed())
-                .putFloat(vec4.getGreen())
-                .putFloat(vec4.getBlue())
-                .putFloat(vec4.getAlpha());
+                    .putFloat(vec4.getGreen())
+                    .putFloat(vec4.getBlue())
+                    .putFloat(vec4.getAlpha());
         }
     }
 
@@ -541,8 +614,8 @@ public class BufferObject extends NativeObject {
     protected void write(final ByteBuffer data, final Vector3f value) {
 
         data.putFloat(value.getX())
-            .putFloat(value.getY())
-            .putFloat(value.getZ());
+                .putFloat(value.getY())
+                .putFloat(value.getZ());
 
         if (layout == Layout.std140) {
             data.putInt(0);
@@ -560,8 +633,8 @@ public class BufferObject extends NativeObject {
     protected void write(final ByteBuffer data, final float x, final float y, final float z) {
 
         data.putFloat(x)
-            .putFloat(y)
-            .putFloat(z);
+                .putFloat(y)
+                .putFloat(z);
 
         if (layout == Layout.std140) {
             data.putInt(0);
@@ -579,9 +652,9 @@ public class BufferObject extends NativeObject {
      */
     protected void write(final ByteBuffer data, final float x, final float y, final float z, final float w) {
         data.putFloat(x)
-            .putFloat(y)
-            .putFloat(z)
-            .putFloat(w);
+                .putFloat(y)
+                .putFloat(z)
+                .putFloat(w);
     }
 
     /**
@@ -592,7 +665,7 @@ public class BufferObject extends NativeObject {
      */
     protected void write(final ByteBuffer data, final Vector2f value) {
         data.putFloat(value.getX())
-            .putFloat(value.getY());
+                .putFloat(value.getY());
     }
 
     /**
