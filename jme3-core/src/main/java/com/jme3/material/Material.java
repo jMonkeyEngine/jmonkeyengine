@@ -828,7 +828,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             MatParam param = paramValues.getValue(i);
             VarType type = param.getVarType();
 
-            if(isBO(type)) {
+            if (isBO(type)) {
 
                 final ShaderBufferBlock bufferBlock = shader.getBufferBlock(param.getPrefixedName());
                 bufferBlock.setBufferObject((BufferObject) param.getValue());
