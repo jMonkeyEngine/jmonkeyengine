@@ -46,7 +46,7 @@ public class BufferObject extends NativeObject {
 
     protected static VarType getVarTypeByValue(final Object value) {
 
-        final VarType varType = CLASS_TO_VAR_TYPE.get(value);
+        final VarType varType = CLASS_TO_VAR_TYPE.get(value.getClass());
         if (varType != null) {
             return varType;
         } else if (value instanceof Collection<?> && ((Collection) value).isEmpty()) {
