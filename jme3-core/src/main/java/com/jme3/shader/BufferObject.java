@@ -21,6 +21,8 @@ public class BufferObject extends NativeObject {
 
     public enum Layout {
         std140,
+        /** unsupported yet */
+        @Deprecated
         std430,
     }
 
@@ -229,14 +231,22 @@ public class BufferObject extends NativeObject {
     protected int estimateSize(final BufferObjectField field) {
 
         switch (field.getType()) {
-            case Int:
-                return 4;
             case Float:
+            case Int: {
+                if (layout == Layout.std140) {
+                    return 16;
+                }
                 return 4;
-            case Boolean:
+            }
+            case Boolean: {
+                if (layout == Layout.std140) {
+                    return 16;
+                }
                 return 1;
-            case Vector2:
-                return 8;
+            }
+            case Vector2: {
+                return 4 * 2;
+            }
             case Vector3: {
                 final int multiplier = layout == Layout.std140 ? 4 : 3;
                 return 4 * multiplier;
@@ -250,30 +260,29 @@ public class BufferObject extends NativeObject {
                 return estimate((float[]) field.getValue());
             }
             case Vector2Array: {
-                return estimateArray(field.getValue(), 2);
+                return estimateArray(field.getValue(), 8);
             }
             case Vector3Array: {
-                final int multiplier = layout == Layout.std140? 4 : 3;
+                final int multiplier = layout == Layout.std140 ? 16 : 12;
                 return estimateArray(field.getValue(), multiplier);
             }
             case Vector4Array: {
-                return estimateArray(field.getValue(), 4);
+                return estimateArray(field.getValue(), 16);
             }
             case Matrix3: {
-                final int multiplier = layout == Layout.std140? 4 : 3;
-                return 3 * multiplier;
+                final int multiplier = layout == Layout.std140 ? 16 : 12;
+                return 3 * 3 * multiplier;
             }
             case Matrix4: {
-                return 4 * 4;
+                return 4 * 4 * 4;
             }
             case Matrix3Array: {
-                int multiplier = layout == Layout.std140? 4 : 3;
-                multiplier *= 3;
+                int multiplier = layout == Layout.std140 ? 16 : 12;
+                multiplier = 3 * 3 * multiplier;
                 return estimateArray(field.getValue(), multiplier);
             }
             case Matrix4Array: {
-                int multiplier = layout == Layout.std140? 4 : 3;
-                multiplier *= 4;
+                final int multiplier = 4 * 4 * 16;
                 return estimateArray(field.getValue(), multiplier);
             }
             default: {
@@ -331,14 +340,30 @@ public class BufferObject extends NativeObject {
         final Object value = field.getValue();
 
         switch (field.getType()) {
-            case Int:
+            case Int: {
                 data.putInt(((Number) value).intValue());
+                if (layout == Layout.std140) {
+                    data.putInt(0);
+                    data.putLong(0);
+                }
                 break;
-            case Float:
+            }
+            case Float: {
                 data.putFloat(((Number) value).floatValue());
+                if (layout == Layout.std140) {
+                    data.putInt(0);
+                    data.putLong(0);
+                }
                 break;
+            }
             case Boolean:
-                data.putInt(((Boolean) value) ? 1 : 0);
+                data.put((byte) (((Boolean) value) ? 1 : 0));
+                if (layout == Layout.std140) {
+                    data.putInt(0);
+                    data.putLong(0);
+                    data.putShort((short) 0);
+                    data.put((byte) 0);
+                }
                 break;
             case Vector2:
                 write(data, (Vector2f) value);
@@ -579,7 +604,9 @@ public class BufferObject extends NativeObject {
      */
     protected void writeVec4(final ByteBuffer data, final Object value) {
 
-        if(value instanceof Vector4f) {
+        if (value == null) {
+            data.putLong(0).putLong(0);
+        } else if (value instanceof Vector4f) {
 
             final Vector4f vec4 = (Vector4f) value;
             data.putFloat(vec4.getX())
@@ -613,9 +640,13 @@ public class BufferObject extends NativeObject {
      */
     protected void write(final ByteBuffer data, final Vector3f value) {
 
-        data.putFloat(value.getX())
-                .putFloat(value.getY())
-                .putFloat(value.getZ());
+        if (value == null) {
+            data.putLong(0).putInt(0);
+        } else {
+            data.putFloat(value.getX())
+                    .putFloat(value.getY())
+                    .putFloat(value.getZ());
+        }
 
         if (layout == Layout.std140) {
             data.putInt(0);
@@ -664,8 +695,11 @@ public class BufferObject extends NativeObject {
      * @param value the value.
      */
     protected void write(final ByteBuffer data, final Vector2f value) {
-        data.putFloat(value.getX())
-                .putFloat(value.getY());
+        if (value == null) {
+            data.putLong(0);
+        } else {
+            data.putFloat(value.getX()).putFloat(value.getY());
+        }
     }
 
     /**
@@ -675,9 +709,9 @@ public class BufferObject extends NativeObject {
      * @param value the value.
      */
     protected void write(final ByteBuffer data, final Matrix3f value) {
-        write(data, value.get(0, 0), value.get(0, 1), value.get(0, 2));
-        write(data, value.get(1, 0), value.get(1, 1), value.get(1, 2));
-        write(data, value.get(2, 0), value.get(2, 1), value.get(2, 2));
+        write(data, value.get(0, 0), value.get(1, 0), value.get(2, 0));
+        write(data, value.get(0, 1), value.get(1, 1), value.get(2, 1));
+        write(data, value.get(0, 2), value.get(1, 2), value.get(2, 2));
     }
 
     /**
@@ -687,10 +721,10 @@ public class BufferObject extends NativeObject {
      * @param value the value.
      */
     protected void write(final ByteBuffer data, final Matrix4f value) {
-        write(data, value.get(0, 0), value.get(0, 1), value.get(0, 2), value.get(0, 3));
-        write(data, value.get(1, 0), value.get(1, 1), value.get(1, 2), value.get(1, 3));
-        write(data, value.get(2, 0), value.get(2, 1), value.get(2, 2), value.get(2, 3));
-        write(data, value.get(3, 0), value.get(3, 1), value.get(3, 2), value.get(3, 3));
+        write(data, value.get(0, 0), value.get(1, 0), value.get(2, 0), value.get(3, 0));
+        write(data, value.get(0, 1), value.get(1, 1), value.get(2, 1), value.get(3, 1));
+        write(data, value.get(0, 2), value.get(1, 2), value.get(2, 2), value.get(3, 2));
+        write(data, value.get(0, 3), value.get(1, 3), value.get(2, 3), value.get(3, 3));
     }
 
     @Override
