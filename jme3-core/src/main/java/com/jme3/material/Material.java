@@ -669,19 +669,25 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     /**
-     * Pass a buffer object to the material shader.
+     * Pass an uniform buffer object to the material shader.
      *
      * @param name  the name of the buffer object defined in the material definition (j3md).
      * @param value the buffer object.
      */
-    public void setBufferObject(final String name, final BufferObject value) {
-        if (value instanceof UniformBufferObject) {
-            setParam(name, VarType.UniformBufferObject, value);
-        } else if (value instanceof ShaderStorageBufferObject) {
-            setParam(name, VarType.ShaderStorageBufferObject, value);
-        } else {
-            throw new IllegalArgumentException("Not expected value " + value);
-        }
+    public void setUniformBufferObject(final String name, final BufferObject value) {
+        value.setBufferType(BufferObject.BufferType.UniformBufferObject);
+        setParam(name, VarType.UniformBufferObject, value);
+    }
+
+    /**
+     * Pass a shader storage buffer object to the material shader.
+     *
+     * @param name  the name of the buffer object defined in the material definition (j3md).
+     * @param value the buffer object.
+     */
+    public void setShaderStorageBufferObject(final String name, final BufferObject value) {
+        value.setBufferType(BufferObject.BufferType.ShaderStorageBufferObject);
+        setParam(name, VarType.ShaderStorageBufferObject, value);
     }
 
     /**

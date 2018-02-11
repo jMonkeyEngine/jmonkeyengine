@@ -38,8 +38,6 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.BufferObject;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
-import com.jme3.shader.ShaderStorageBufferObject;
-import com.jme3.shader.UniformBufferObject;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;

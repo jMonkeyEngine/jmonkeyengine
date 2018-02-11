@@ -1180,15 +1180,24 @@ public final class GLRenderer implements Renderer {
         bindProgram(shader);
 
         final int shaderId = shader.getId();
+        final BufferObject.BufferType bufferType = bufferObject.getBufferType();
 
-        if (bufferObject instanceof ShaderStorageBufferObject) {
-            final int blockIndex = gl4.glGetProgramResourceIndex(shaderId, GL4.GL_SHADER_STORAGE_BLOCK, bufferBlock.getName());
-            gl4.glShaderStorageBlockBinding(shaderId, blockIndex, bufferObject.getBinding());
-            gl4.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, bufferObject.getBinding(), bufferObject.getId());
-        } else if (bufferObject instanceof UniformBufferObject) {
-            final int blockIndex = gl3.glGetUniformBlockIndex(shaderId, bufferBlock.getName());
-            gl3.glBindBufferBase(GL3.GL_UNIFORM_BUFFER, bufferObject.getBinding(), bufferObject.getId());
-            gl3.glUniformBlockBinding(GL3.GL_UNIFORM_BUFFER, blockIndex, bufferObject.getBinding());
+        switch (bufferType) {
+            case UniformBufferObject: {
+                final int blockIndex = gl3.glGetUniformBlockIndex(shaderId, bufferBlock.getName());
+                gl3.glBindBufferBase(GL3.GL_UNIFORM_BUFFER, bufferObject.getBinding(), bufferObject.getId());
+                gl3.glUniformBlockBinding(GL3.GL_UNIFORM_BUFFER, blockIndex, bufferObject.getBinding());
+                break;
+            }
+            case ShaderStorageBufferObject: {
+                final int blockIndex = gl4.glGetProgramResourceIndex(shaderId, GL4.GL_SHADER_STORAGE_BLOCK, bufferBlock.getName());
+                gl4.glShaderStorageBlockBinding(shaderId, blockIndex, bufferObject.getBinding());
+                gl4.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, bufferObject.getBinding(), bufferObject.getId());
+                break;
+            }
+            default: {
+                throw new IllegalArgumentException("Doesn't support binding of " + bufferType);
+            }
         }
 
         bufferBlock.clearUpdateNeeded();
@@ -2528,16 +2537,10 @@ public final class GLRenderer implements Renderer {
 
         int maxSize = Integer.MAX_VALUE;
 
-        if (bo instanceof UniformBufferObject) {
-            if (!caps.contains(Caps.UniformBufferObject)) {
-                throw new IllegalArgumentException("The current video hardware doesn't support UBO.");
-            }
-        } else if (bo instanceof ShaderStorageBufferObject) {
-            if (!caps.contains(Caps.ShaderStorageBufferObject)) {
-                throw new IllegalArgumentException("The current video hardware doesn't support SSBO.");
-            }
-        } else {
-            throw new IllegalArgumentException("Not expected type of the BO " + bo);
+        final BufferObject.BufferType bufferType = bo.getBufferType();
+
+        if (!caps.contains(bufferType.getRequiredCaps())) {
+            throw new IllegalArgumentException("The current video hardware doesn't support " + bufferType);
         }
 
         final ByteBuffer data = bo.computeData(maxSize);
@@ -2560,14 +2563,22 @@ public final class GLRenderer implements Renderer {
 
         data.rewind();
 
-        if (bo instanceof UniformBufferObject) {
-            gl3.glBindBuffer(GL3.GL_UNIFORM_BUFFER, bufferId);
-            gl3.glBufferData(GL4.GL_UNIFORM_BUFFER, data, GL3.GL_DYNAMIC_DRAW);
-            gl3.glBindBuffer(GL4.GL_UNIFORM_BUFFER, 0);
-        } else {
-            gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, bufferId);
-            gl4.glBufferData(GL4.GL_SHADER_STORAGE_BUFFER, data, GL4.GL_DYNAMIC_COPY);
-            gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, 0);
+        switch (bufferType) {
+            case UniformBufferObject: {
+                gl3.glBindBuffer(GL3.GL_UNIFORM_BUFFER, bufferId);
+                gl3.glBufferData(GL4.GL_UNIFORM_BUFFER, data, GL3.GL_DYNAMIC_DRAW);
+                gl3.glBindBuffer(GL4.GL_UNIFORM_BUFFER, 0);
+                break;
+            }
+            case ShaderStorageBufferObject: {
+                gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, bufferId);
+                gl4.glBufferData(GL4.GL_SHADER_STORAGE_BUFFER, data, GL4.GL_DYNAMIC_COPY);
+                gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, 0);
+                break;
+            }
+            default: {
+                throw new IllegalArgumentException("Doesn't support binding of " + bufferType);
+            }
         }
 
         bo.clearUpdateNeeded();
@@ -2595,7 +2606,7 @@ public final class GLRenderer implements Renderer {
         }
 
         intBuf1.clear();
-        intBuf1.put(0, bufferId);
+        intBuf1.put(bufferId);
         intBuf1.flip();
 
         gl.glDeleteBuffers(intBuf1);
