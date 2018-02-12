@@ -49,7 +49,7 @@ public class JmeVersion {
     static {
         try {
             props.load(JmeVersion.class.getResourceAsStream("version.properties"));
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             logger.log(Level.WARNING, "Unable to read version info!", ex);
         }
     }
