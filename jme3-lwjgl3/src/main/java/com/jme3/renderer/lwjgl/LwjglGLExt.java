@@ -31,74 +31,65 @@
  */
 package com.jme3.renderer.lwjgl;
 
-import com.jme3.renderer.RendererException;
 import com.jme3.renderer.opengl.GLExt;
 import org.lwjgl.opengl.*;
 
-import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-public class LwjglGLExt implements GLExt {
-
-    private static void checkLimit(Buffer buffer) {
-        if (buffer == null) {
-            return;
-        }
-        if (buffer.limit() == 0) {
-            throw new RendererException("Attempting to upload empty buffer (limit = 0), that's an error");
-        }
-        if (buffer.remaining() == 0) {
-            throw new RendererException("Attempting to upload empty buffer (remaining = 0), that's an error");
-        }
-    }
+/**
+ * The LWJGL implementation og {@link GLExt}.
+ */
+public class LwjglGLExt extends LwjglRender implements GLExt {
 
     @Override
-    public void glBufferData(int target, IntBuffer data, int usage) {
+    public void glBufferData(final int target, final IntBuffer data, final int usage) {
         checkLimit(data);
         GL15.glBufferData(target, data, usage);
     }
 
     @Override
-    public void glBufferSubData(int target, long offset, IntBuffer data) {
+    public void glBufferSubData(final int target, final long offset, final IntBuffer data) {
         checkLimit(data);
         GL15.glBufferSubData(target, offset, data);
     }
 
     @Override
-    public void glDrawArraysInstancedARB(int mode, int first, int count, int primcount) {
-        ARBDrawInstanced.glDrawArraysInstancedARB(mode, first, count, primcount);
+    public void glDrawArraysInstancedARB(final int mode, final int first, final int count, final int primCount) {
+        ARBDrawInstanced.glDrawArraysInstancedARB(mode, first, count, primCount);
     }
 
     @Override
-    public void glDrawBuffers(IntBuffer bufs) {
+    public void glDrawBuffers(final IntBuffer bufs) {
         checkLimit(bufs);
         GL20.glDrawBuffers(bufs);
     }
 
     @Override
-    public void glDrawElementsInstancedARB(int mode, int indices_count, int type, long indices_buffer_offset, int primcount) {
-        ARBDrawInstanced.glDrawElementsInstancedARB(mode, indices_count, type, indices_buffer_offset, primcount);
+    public void glDrawElementsInstancedARB(final int mode, final int indicesCount, final int type,
+                                           final long indicesBufferOffset, final int primCount) {
+        ARBDrawInstanced.glDrawElementsInstancedARB(mode, indicesCount, type, indicesBufferOffset, primCount);
     }
 
     @Override
-    public void glGetMultisample(int pname, int index, FloatBuffer val) {
+    public void glGetMultisample(final int pname, final int index, final FloatBuffer val) {
         checkLimit(val);
         ARBTextureMultisample.glGetMultisamplefv(pname, index, val);
     }
 
     @Override
-    public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedsamplelocations) {
-        ARBTextureMultisample.glTexImage2DMultisample(target, samples, internalformat, width, height, fixedsamplelocations);
+    public void glTexImage2DMultisample(final int target, final int samples, final int internalFormat, final int width,
+                                        final int height, final boolean fixedSampleLocations) {
+        ARBTextureMultisample.glTexImage2DMultisample(target, samples, internalFormat, width, height, fixedSampleLocations);
     }
 
     @Override
-    public void glVertexAttribDivisorARB(int index, int divisor) {
+    public void glVertexAttribDivisorARB(final int index, final int divisor) {
         ARBInstancedArrays.glVertexAttribDivisorARB(index, divisor);
     }
 
     @Override
-    public Object glFenceSync(int condition, int flags) {
+    public Object glFenceSync(final int condition, final int flags) {
         return ARBSync.glFenceSync(condition, flags);
     }
     
