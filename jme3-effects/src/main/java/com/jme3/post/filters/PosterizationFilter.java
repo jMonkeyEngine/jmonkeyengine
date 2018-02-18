@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -115,7 +115,7 @@ public class PosterizationFilter extends Filter {
     }
 
     /**
-     * Sets urrent strength value, i.e. influence on final image
+     * Sets current strength value, i.e. influence on final image
      */
     public void setStrength(float strength) {
         this.strength = strength;

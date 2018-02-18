@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -136,7 +136,7 @@ public class DepthOfFieldFilter extends Filter {
     /**
      *  Sets the blur amount by scaling the convolution filter up or
      *  down.  A value of 1 (the default) performs a sparse 5x5 evenly
-     *  distribubted convolution at pixel level accuracy.  Higher values skip
+     *  distributed convolution at pixel level accuracy.  Higher values skip
      *  more pixels, and so on until you are no longer blurring the image
      *  but simply hashing it.
      *
