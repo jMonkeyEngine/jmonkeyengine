@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ public class RadialBlurFilter extends Filter {
     /**
      * Creates a RadialBlurFilter
      * @param sampleDist the distance between samples
-     * @param sampleStrength the strenght of each sample
+     * @param sampleStrength the strength of each sample
      */
     public RadialBlurFilter(float sampleDist, float sampleStrength) {
         this();
