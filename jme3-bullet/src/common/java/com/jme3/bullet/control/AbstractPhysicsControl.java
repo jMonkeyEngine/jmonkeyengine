@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.control.Control;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
@@ -162,8 +163,14 @@ public abstract class AbstractPhysicsControl implements PhysicsControl, JmeClone
         }
 
     }
-    
-    @Override   
+
+    @Deprecated
+    @Override
+    public Control cloneForSpatial(Spatial spatial) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override  
     public void cloneFields( Cloner cloner, Object original ) { 
         this.spatial = cloner.clone(spatial);
         createSpatialData(this.spatial);

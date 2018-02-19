@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,6 @@ import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
-
 import java.io.IOException;
 
 /**
@@ -92,31 +91,10 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
         super(shape, mass);
     }
 
+    @Deprecated
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        RigidBodyControl control = new RigidBodyControl(collisionShape, mass);
-        control.setAngularFactor(getAngularFactor());
-        control.setAngularSleepingThreshold(getAngularSleepingThreshold());
-        control.setCcdMotionThreshold(getCcdMotionThreshold());
-        control.setCcdSweptSphereRadius(getCcdSweptSphereRadius());
-        control.setCollideWithGroups(getCollideWithGroups());
-        control.setCollisionGroup(getCollisionGroup());
-        control.setDamping(getLinearDamping(), getAngularDamping());
-        control.setFriction(getFriction());
-        control.setGravity(getGravity());
-        control.setKinematic(isKinematic());
-        control.setKinematicSpatial(isKinematicSpatial());
-        control.setLinearSleepingThreshold(getLinearSleepingThreshold());
-        control.setPhysicsLocation(getPhysicsLocation(null));
-        control.setPhysicsRotation(getPhysicsRotationMatrix(null));
-        control.setRestitution(getRestitution());
-
-        if (mass > 0) {
-            control.setAngularVelocity(getAngularVelocity());
-            control.setLinearVelocity(getLinearVelocity());
-        }
-        control.setApplyPhysicsLocal(isApplyPhysicsLocal());
-        return control;
+        throw new UnsupportedOperationException();
     }
 
     @Override   

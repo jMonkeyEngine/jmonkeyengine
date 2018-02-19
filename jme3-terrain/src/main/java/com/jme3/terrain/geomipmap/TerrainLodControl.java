@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
  */
 package com.jme3.terrain.geomipmap;
 
-import static java.util.Collections.singletonList;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -43,16 +42,15 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
-import com.jme3.scene.control.Control;
 import com.jme3.terrain.Terrain;
 import com.jme3.terrain.executor.TerrainExecutorService;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.geomipmap.lodcalc.LodCalculator;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.clone.Cloner;
-
 import java.io.IOException;
 import java.util.ArrayList;
+import static java.util.Collections.singletonList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -406,16 +404,6 @@ public class TerrainLodControl extends AbstractControl {
         this.lastCameraLocations = new SafeArrayList<>(Vector3f.class);
         this.lodCalcRunning = new AtomicBoolean();
         this.previousCameraLocation = new Vector3f();
-    }
-
-    @Override
-    public Control cloneForSpatial(final Spatial spatial) {
-        if (spatial instanceof Terrain) {
-            TerrainLodControl cloned = new TerrainLodControl((Terrain) spatial, new ArrayList<>(cameras));
-            cloned.setLodCalculator(lodCalculator.clone());
-            return cloned;
-        }
-        return null;
     }
 
     public void setCamera(final Camera camera) {

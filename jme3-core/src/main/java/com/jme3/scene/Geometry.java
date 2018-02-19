@@ -43,9 +43,9 @@ import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
-import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.Queue;
 import java.util.logging.Level;
@@ -504,36 +504,6 @@ public class Geometry extends Spatial {
     @Override
     public Geometry clone(boolean cloneMaterial) {
         return (Geometry)super.clone(cloneMaterial);
-    }
-
-    /**
-     *  The old clone() method that did not use the new Cloner utility.
-     */
-    @Override
-    public Geometry oldClone(boolean cloneMaterial) {
-        Geometry geomClone = (Geometry) super.clone(cloneMaterial);
-
-        // This geometry is managed,
-        // but the cloned one is not attached to anything, hence not managed.
-        if (geomClone.isGrouped()) {
-            geomClone.groupNode = null;
-            geomClone.startIndex = -1;
-        }
-
-        geomClone.cachedWorldMat = cachedWorldMat.clone();
-        if (material != null) {
-            if (cloneMaterial) {
-                geomClone.material = material.clone();
-            } else {
-                geomClone.material = material;
-            }
-        }
-
-        if (mesh != null && mesh.getBuffer(Type.BindPosePosition) != null) {
-            geomClone.mesh = mesh.cloneForAnim();
-        }
-
-        return geomClone;
     }
 
     /**

@@ -59,9 +59,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
-import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.*;
@@ -912,16 +910,6 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     public void render(RenderManager rm, ViewPort vp) {
     }
 
-    @Override
-    public Control cloneForSpatial(Spatial spatial) {
-        KinematicRagdollControl control = new KinematicRagdollControl(preset, weightThreshold);
-        control.setMode(mode);
-        control.setRootMass(rootMass);
-        control.setWeightThreshold(weightThreshold);
-        control.setApplyPhysicsLocal(applyLocal);
-        return control;
-    }
-   
     @Override   
     public Object jmeClone() {
         KinematicRagdollControl control = new KinematicRagdollControl(preset, weightThreshold);        

@@ -42,10 +42,8 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.control.AbstractControl;
-import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
-import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -131,19 +129,6 @@ public class EffectTrack implements ClonableTrack {
 
         @Override
         protected void controlRender(RenderManager rm, ViewPort vp) {
-        }
-
-        @Override
-        public Control cloneForSpatial(Spatial spatial) {
-
-            KillParticleControl c = new KillParticleControl();
-            //this control should be removed as it shouldn't have been persisted in the first place
-            //In the quest to find the less hackish solution to achieve this,
-            //making it remove itself from the spatial in the first update loop when loaded was the less bad.
-            c.remove = true;
-            c.setSpatial(spatial);
-            return c;
-
         }
     };
 

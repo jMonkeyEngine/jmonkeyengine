@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 jMonkeyEngine
+ * Copyright (c) 2014-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,6 @@ import com.jme3.scene.*;
 import com.jme3.scene.control.Control;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -132,11 +131,10 @@ public class InstancedNode extends GeometryGroupNode {
             this.node = node;
         }
 
+        @Deprecated
         @Override
         public Control cloneForSpatial(Spatial spatial) {
-            return this;
-            // WARNING: Sets wrong control on spatial. Will be
-            // fixed automatically by InstancedNode.clone() method.
+            throw new UnsupportedOperationException();
         }
 
         @Override
