@@ -623,7 +623,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     /**
      * Declares a varying
      * @param source the StringBuilder to use
-     * @param var the variable to declare as an varying
+     * @param var the variable to declare as a varying
      * @param input a boolean set to true if the this varying is an input.
      * this in not used in this implementation but can be used in overriding 
      * implementation

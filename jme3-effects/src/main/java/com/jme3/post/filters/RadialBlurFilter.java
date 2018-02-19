@@ -124,7 +124,7 @@ public class RadialBlurFilter extends Filter {
     }
 
     /**
-     * sets the sample streanght default is 2.2
+     * sets the sample strength default is 2.2
      * @param sampleStrength 
      */
     public void setSampleStrength(float sampleStrength) {

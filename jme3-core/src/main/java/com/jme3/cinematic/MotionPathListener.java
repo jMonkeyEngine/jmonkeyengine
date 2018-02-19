@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@ package com.jme3.cinematic;
 import com.jme3.cinematic.events.MotionEvent;
 
 /**
- * Trigger the events happening on an motion path
+ * Trigger the events happening on a motion path
  * @author Nehon
  */
 public interface MotionPathListener {

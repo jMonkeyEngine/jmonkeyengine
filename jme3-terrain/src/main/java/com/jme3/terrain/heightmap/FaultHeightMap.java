@@ -37,7 +37,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Creates an heightmap based on the fault algorithm. Each iteration, a random line
+ * Creates a heightmap based on the fault algorithm. Each iteration, a random line
  * crossing the map is generated. On one side height values are raised, on the other side
  * lowered.
  * @author cghislai
@@ -118,7 +118,7 @@ public class FaultHeightMap extends AbstractHeightMap {
     }
 
     /**
-     * Create an heightmap with linear step faults.
+     * Create a heightmap with linear step faults.
      * @param size size of heightmap
      * @param iterations number of iterations
      * @param minFaultHeight Height modified on each side
