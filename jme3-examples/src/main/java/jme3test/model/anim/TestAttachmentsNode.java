@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,7 +51,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 
 /**
- * Simple application to an test attachments node on the Jaime model.
+ * Simple application to test an attachments node on the Jaime model.
  *
  * Derived from {@link jme3test.model.anim.TestOgreAnim}.
  */

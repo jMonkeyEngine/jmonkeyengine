@@ -486,7 +486,7 @@ public class OpenVRInput implements VRInputAPI {
         			}
         			trackedControllers.add(new OpenVRTrackedController(i, this, controllerName, manufacturerName, environment));
         			
-        			// Send an Haptic pulse to the controller
+        			// Send a Haptic pulse to the controller
         			triggerHapticPulse(controllerCount, 1.0f);
         			
         			controllerCount++;
