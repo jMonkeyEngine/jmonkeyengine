@@ -62,7 +62,9 @@ public class TestPostWaterLake extends SimpleApplication {
       //  cam.setRotation(new Quaternion(0.03f, 0.9f, 0f, 0.4f));
 
         // load sky
-        rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
+        rootNode.attachChild(SkyFactory.createSky(assetManager, 
+                "Textures/Sky/Bright/BrightSky.dds", 
+                SkyFactory.EnvMapType.CubeMap));
 
         File file = new File("wildhouse.zip");
         

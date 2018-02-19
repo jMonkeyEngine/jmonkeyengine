@@ -41,12 +41,14 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.TextureCubeMap;
 import com.jme3.util.SkyFactory;
+import com.jme3.util.SkyFactory.EnvMapType;
 
 /**
  * Renders a rotating box to a cubemap texture, then applies the cubemap
@@ -114,7 +116,9 @@ public class TestRenderToCubemap  extends SimpleApplication {
         cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
  
         Texture offTex = setupOffscreenView();
-        rootNode.attachChild(SkyFactory.createSky(assetManager, offTex, false));
+        Spatial sky = SkyFactory.createSky(assetManager, offTex, 
+                EnvMapType.CubeMap);
+        rootNode.attachChild(sky);
     }
  
     @Override

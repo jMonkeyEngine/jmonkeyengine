@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -227,7 +227,7 @@ public class PhysicsSpace {
                     collides = (bp1.collisionFilterGroup & bp.collisionFilterMask) != 0;
                 }
                 if (collides) {
-                    assert (bp.clientObject instanceof com.bulletphysics.collision.dispatch.CollisionObject && bp.clientObject instanceof com.bulletphysics.collision.dispatch.CollisionObject);
+                    assert (bp.clientObject instanceof com.bulletphysics.collision.dispatch.CollisionObject && bp1.clientObject instanceof com.bulletphysics.collision.dispatch.CollisionObject);
                     com.bulletphysics.collision.dispatch.CollisionObject colOb = (com.bulletphysics.collision.dispatch.CollisionObject) bp.clientObject;
                     com.bulletphysics.collision.dispatch.CollisionObject colOb1 = (com.bulletphysics.collision.dispatch.CollisionObject) bp1.clientObject;
                     assert (colOb.getUserPointer() != null && colOb1.getUserPointer() != null);
@@ -827,7 +827,7 @@ public class PhysicsSpace {
      * when the fps is below the physics fps. Doing this maintains determinism in physics.
      * For example a maximum number of 2 can compensate for framerates as low as 30fps
      * when the physics has the default accuracy of 60 fps. Note that setting this
-     * value too high can make the physics drive down its own fps in case its overloaded.
+     * value too high can make the physics drive down its own fps in case it's overloaded.
      * @param steps The maximum number of extra steps, default is 4.
      */
     public void setMaxSubSteps(int steps) {

@@ -77,7 +77,9 @@ public class TestFog extends SimpleApplication {
         cam.setRotation(new Quaternion(0.023536969f, 0.9361278f, -0.016098259f, -0.35050195f));
 
         // load sky
-        mainScene.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
+        mainScene.attachChild(SkyFactory.createSky(assetManager, 
+                "Textures/Sky/Bright/BrightSky.dds", 
+                SkyFactory.EnvMapType.CubeMap));
         createTerrain(mainScene);
 
 

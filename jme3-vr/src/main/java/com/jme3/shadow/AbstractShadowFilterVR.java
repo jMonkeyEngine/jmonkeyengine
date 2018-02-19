@@ -1,7 +1,7 @@
 package com.jme3.shadow;
 
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -186,7 +186,7 @@ public abstract class AbstractShadowFilterVR<T extends AbstractShadowRendererVR>
     }
 
     /**
-     * returns the shdaow intensity
+     * returns the shadow intensity
      *
      * @see #setShadowIntensity(float shadowIntensity)
      * @return shadowIntensity
@@ -309,7 +309,7 @@ public abstract class AbstractShadowFilterVR<T extends AbstractShadowRendererVR>
 
 
     /**
-     * Get the the edge filtering mode.
+     * Get the edge filtering mode.
      * @return the edge filtering mode.
      */
     public EdgeFilteringMode getEdgeFilteringMode() {

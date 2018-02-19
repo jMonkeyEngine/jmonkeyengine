@@ -79,7 +79,7 @@ public interface AL {
     /**
      * Indicate the gain (volume amplification) applied. Type: ALfloat. Range:
      * ]0.0- ] A value of 1.0 means un-attenuated/unchanged. Each division by 2
-     * equals an attenuation of -6dB. Each multiplicaton with 2 equals an
+     * equals an attenuation of -6dB. Each multiplication by 2 equals an
      * amplification of +6dB. A value of 0.0 is meaningless with respect to a
      * logarithmic scale; it is interpreted as zero volume - the channel is
      * effectively disabled.
@@ -91,14 +91,14 @@ public interface AL {
      * Type: ALfloat
      * Range:  [0.0 - 1.0]
      *
-     * Logarthmic
+     * Logarithmic
      */
     static final int AL_MIN_GAIN = 0x100D;
 
     /**
      * Indicate maximum source attenuation Type: ALfloat Range: [0.0 - 1.0]
      *
-     * Logarthmic
+     * Logarithmic
      */
     static final int AL_MAX_GAIN = 0x100E;
 
@@ -203,7 +203,7 @@ public interface AL {
     static final int AL_NO_ERROR = 0;
 
     /**
-     * Invalid Name paramater passed to AL call.
+     * Invalid Name parameter passed to AL call.
      */
     static final int AL_INVALID_NAME = 0xA001;
 
@@ -258,7 +258,7 @@ public interface AL {
      *
      * used in conjunction with DistanceModel
      *
-     * implicit: NONE, which disances distance attenuation.
+     * implicit: NONE, which disables distance attenuation.
      */
     static final int AL_DISTANCE_MODEL = 0xD000;
     static final int AL_INVERSE_DISTANCE = 0xD001;

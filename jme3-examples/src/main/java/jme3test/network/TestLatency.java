@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,7 +85,7 @@ public class TestLatency {
                 long curTime = getTime();
                 //System.out.println("Time sent: " + timeMsg.timeSent);
                 //System.out.println("Time received by server: " + timeMsg.timeReceived);
-                //System.out.println("Time recieved by client: " + curTime);
+                //System.out.println("Time received by client: " + curTime);
 
                 long latency = (curTime - timeMsg.timeSent);
                 System.out.println("Latency: " + (latency) + " ms");

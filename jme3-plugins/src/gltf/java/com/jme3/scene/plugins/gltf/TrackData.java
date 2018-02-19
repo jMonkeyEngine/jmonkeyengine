@@ -1,5 +1,6 @@
 package com.jme3.scene.plugins.gltf;
 
+import com.jme3.asset.AssetLoadException;
 import com.jme3.math.*;
 
 import java.util.*;
@@ -35,8 +36,15 @@ public class TrackData {
             List<KeyFrame> keyFrames = new ArrayList<>();
             TimeData timeData = timeArrays.get(0);
             Type type = timeData.type;
+            float lastTime = -1f;
             for (int i = 0; i < timeData.times.length; i++) {
                 float time = timeData.times[i];
+                //avoid some double keyframes that can have bad effects on interpolation
+                if (Float.floatToIntBits(time) == Float.floatToIntBits(lastTime)) {
+                    lastTime = time;
+                    continue;
+                }
+                lastTime = time;
                 KeyFrame keyFrame = new KeyFrame();
                 keyFrame.time = time;
                 setKeyFrameTransforms(type, keyFrame, timeData.times);
@@ -78,13 +86,13 @@ public class TrackData {
                 KeyFrame kf = keyFrames.get(i);
                 //we need Interpolate between keyframes when transforms are sparse.
                 times[i] = kf.time;
-                if(translations != null) {
+                if (translations != null) {
                     populateTransform(Type.Translation, i, keyFrames, kf, translationIndices);
                 }
-                if(rotations != null) {
+                if (rotations != null) {
                     populateTransform(Type.Rotation, i, keyFrames, kf, rotationIndices);
                 }
-                if(scales != null) {
+                if (scales != null) {
                     populateTransform(Type.Scale, i, keyFrames, kf, scaleIndices);
                 }
             }
@@ -119,7 +127,17 @@ public class TrackData {
             }
         }
 
+        checkTimesConsistantcy();
+
         length = times[times.length - 1];
+    }
+
+    public void checkTimesConsistantcy() {
+        if ((translations != null && times.length != translations.length)
+                || (rotations != null && times.length != rotations.length)
+                || (scales != null && times.length != scales.length)) {
+            throw new AssetLoadException("Inconsistent animation sampling ");
+        }
     }
 
     private void populateTransform(Type type, int index, List<KeyFrame> keyFrames, KeyFrame currentKeyFrame, TransformIndices transformIndices) {
@@ -177,15 +195,9 @@ public class TrackData {
         return -1;
     }
 
-    public int getNbKeyFrames(){
-        if(translations != null){
-            return translations.length;
-        }
-        if(rotations != null){
-            return rotations.length;
-        }
-        if(scales != null){
-            return scales.length;
+    public int getNbKeyFrames() {
+        if (times != null) {
+            return times.length;
         }
         return 0;
     }
@@ -234,13 +246,13 @@ public class TrackData {
     }
 
     private void ensureArraysLength() {
-        if (translations != null && translations.length < times.length) {
+        if (translations != null && translations.length != times.length) {
             translations = new Vector3f[times.length];
         }
-        if (rotations != null && rotations.length < times.length) {
+        if (rotations != null && rotations.length != times.length) {
             rotations = new Quaternion[times.length];
         }
-        if (scales != null && scales.length < times.length) {
+        if (scales != null && scales.length != times.length) {
             scales = new Vector3f[times.length];
         }
     }
@@ -248,17 +260,23 @@ public class TrackData {
 
     //JME assumes there are translation and rotation track every time, so we create them with identity transforms if they don't exist
     //TODO change this behavior in BoneTrack.
-    public void ensureTranslationRotations() {
+    public void ensureTranslationRotations(Transform localTransforms) {
         if (translations == null) {
             translations = new Vector3f[times.length];
             for (int i = 0; i < translations.length; i++) {
-                translations[i] = new Vector3f();
+                translations[i] = localTransforms.getTranslation();
             }
         }
         if (rotations == null) {
             rotations = new Quaternion[times.length];
             for (int i = 0; i < rotations.length; i++) {
-                rotations[i] = new Quaternion();
+                rotations[i] = localTransforms.getRotation();
+            }
+        }
+        if (scales == null) {
+            scales = new Vector3f[times.length];
+            for (int i = 0; i < scales.length; i++) {
+                scales[i] = localTransforms.getScale();
             }
         }
     }

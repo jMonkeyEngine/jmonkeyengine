@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,10 +42,10 @@ import java.io.IOException;
 /**
  *
  * This Filter does basically the same as a DirectionalLightShadowRenderer
- * except it renders the post shadow pass as a fulscreen quad pass instead of a
+ * except it renders the post shadow pass as a fullscreen quad pass instead of a
  * geometry pass. It's mostly faster than PssmShadowRenderer as long as you have
- * more than a about ten shadow recieving objects. The expense is the draw back
- * that the shadow Recieve mode set on spatial is ignored. So basically all and
+ * more than a about ten shadow receiving objects. The expense is the draw back
+ * that the shadow Receive mode set on spatial is ignored. So basically all and
  * only objects that render depth in the scene receive shadows. See this post
  * for more details
  * http://jmonkeyengine.org/groups/general-2/forum/topic/silly-question-about-shadow-rendering/#post-191599
@@ -56,6 +56,16 @@ import java.io.IOException;
  */
 public class DirectionalLightShadowFilter extends AbstractShadowFilter<DirectionalLightShadowRenderer> {
 
+    /**
+     * Used for serialzation.
+     * Use DirectionalLightShadowFilter#DirectionalLightShadowFilter
+     * (AssetManager assetManager, int shadowMapSize, int nbSplits)
+     * instead.
+     */
+    public DirectionalLightShadowFilter() {
+        super();
+    }
+    
     /**
      * Creates a DirectionalLightShadowFilter Shadow Filter More info on the
      * technique at <a
@@ -90,7 +100,7 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
     }
 
     /**
-     * returns the labda parameter
+     * returns the lambda parameter
      *
      * @see #setLambda(float lambda)
      * @return lambda
@@ -101,12 +111,12 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
 
     /**
      * Adjust the repartition of the different shadow maps in the shadow extend
-     * usualy goes from 0.0 to 1.0 a low value give a more linear repartition
+     * usually goes from 0.0 to 1.0 a low value give a more linear repartition
      * resulting in a constant quality in the shadow over the extends, but near
      * shadows could look very jagged a high value give a more logarithmic
      * repartition resulting in a high quality for near shadows, but the quality
      * quickly decrease over the extend. the default value is set to 0.65f
-     * (theoric optimal value).
+     * (theoretic optimal value).
      *
      * @param lambda the lambda value.
      */
@@ -115,7 +125,7 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
     }
 
     /**
-     * retruns true if stabilization is enabled
+     * returns true if stabilization is enabled
      * @return 
      */
     public boolean isEnabledStabilization() {
@@ -123,8 +133,8 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
     }
     
     /**
-     * Enables the stabilization of the shadows's edges. (default is true)
-     * This prevents shadows' edges to flicker when the camera moves
+     * Enables the stabilization of the shadow's edges. (default is true)
+     * This prevents shadow edges from flickering when the camera moves.
      * However it can lead to some shadow quality loss in some particular scenes.
      * @param stabilize 
      */

@@ -195,6 +195,9 @@ void main(){
         vec4 diffuseColor = albedo - albedo * Metallic;
     #endif
 
+    gl_FragColor.rgb = vec3(0.0);
+    vec3 ao = vec3(1.0);
+
     #ifdef LIGHTMAP
        vec3 lightMapColor;
        #ifdef SEPARATE_TEXCOORD
@@ -204,12 +207,14 @@ void main(){
        #endif
        #ifdef AO_MAP
          lightMapColor.gb = lightMapColor.rr;
+         ao = lightMapColor;
+       #else
+         gl_FragColor.rgb += diffuseColor.rgb * lightMapColor;
        #endif
        specularColor.rgb *= lightMapColor;
-       albedo.rgb  *= lightMapColor;
     #endif
 
-    gl_FragColor.rgb = vec3(0.0);
+
     float ndotv = max( dot( normal, viewDir ),0.0);
     for( int i = 0;i < NB_LIGHTS; i+=3){
         vec4 lightColor = g_LightData[i];
@@ -264,7 +269,7 @@ void main(){
         indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, dominantR, nbMipMaps);
         indirectSpecular *= vec3(horiz);
 
-        vec3 indirectLighting =  indirectDiffuse + indirectSpecular;
+        vec3 indirectLighting = (indirectDiffuse + indirectSpecular) * ao;
 
         gl_FragColor.rgb = gl_FragColor.rgb + indirectLighting * step( 0.0, g_LightProbeData.w);
     #endif

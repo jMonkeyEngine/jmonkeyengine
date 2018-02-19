@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,7 +98,7 @@ public abstract class AbstractBox extends Mesh {
     /**
      * Update the points that define the texture of the box.
      * <p>
-     * It's a one-to-one ratio, where each plane of the box has it's own copy
+     * It's a one-to-one ratio, where each plane of the box has its own copy
      * of the texture. That is, the texture is repeated one time for each face.
      */
     protected abstract void duUpdateGeometryTextures();

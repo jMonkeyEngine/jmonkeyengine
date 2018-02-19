@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements OnItemClickListen
 
     /**
      * User clicked a view on the screen.  Check for the OK and Cancel buttons
-     * and either start the applicaiton or exit.
+     * and either start the application or exit.
      * @param view
      */
     public void onClick(View view) {

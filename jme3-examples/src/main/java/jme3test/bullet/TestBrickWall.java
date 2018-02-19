@@ -52,7 +52,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
-import com.jme3.shadow.BasicShadowRenderer;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 
@@ -68,7 +67,6 @@ public class TestBrickWall extends SimpleApplication {
     Material mat;
     Material mat2;
     Material mat3;
-    BasicShadowRenderer bsr;
     private static Sphere bullet;
     private static Box brick;
     private static SphereCollisionShape bulletCollisionShape;
@@ -106,9 +104,6 @@ public class TestBrickWall extends SimpleApplication {
         inputManager.addListener(actionListener, "gc");
 
         rootNode.setShadowMode(ShadowMode.Off);
-        bsr = new BasicShadowRenderer(assetManager, 256);
-        bsr.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
-        viewPort.addProcessor(bsr);
     }
 
     private PhysicsSpace getPhysicsSpace() {

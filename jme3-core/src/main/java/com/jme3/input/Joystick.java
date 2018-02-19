@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -123,7 +123,7 @@ public interface Joystick {
 
     /**
      * Returns the POV Y axis for this joystick.  This is a convenience axis 
-     * providing an y-axis subview of the HAT axis.
+     * providing a y-axis subview of the HAT axis.
      *
      * @see JoystickAxis#assignAxis(java.lang.String, java.lang.String)
      */

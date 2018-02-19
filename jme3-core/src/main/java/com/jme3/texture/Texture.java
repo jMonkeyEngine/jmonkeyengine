@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -525,7 +525,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
         final Texture other = (Texture) obj;
         
         // NOTE: Since images are generally considered unique assets in jME3,
-        // using the image's equals() implementation is not neccessary here
+        // using the image's equals() implementation is not necessary here
         // (would be too slow)
         if (this.image != other.image) {
             return false;
@@ -549,7 +549,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
     public int hashCode() {
         int hash = 5;
         // NOTE: Since images are generally considered unique assets in jME3,
-        // using the image's hashCode() implementation is not neccessary here
+        // using the image's hashCode() implementation is not necessary here
         // (would be too slow)
         hash = 67 * hash + (this.image != null ? System.identityHashCode(this.image) : 0);
         hash = 67 * hash + (this.minificationFilter != null ? this.minificationFilter.hashCode() : 0);

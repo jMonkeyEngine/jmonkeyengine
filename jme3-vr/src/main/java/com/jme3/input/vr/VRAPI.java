@@ -92,8 +92,8 @@ public interface VRAPI {
     public void reset();
 
     /**
-     * Get the size of an Head Mounted Device (HMD) rendering area in pixels.
-     * @param store the size of an Head Mounted Device (HMD) rendering area in pixels (modified).
+     * Get the size of a Head Mounted Device (HMD) rendering area in pixels.
+     * @param store the size of a Head Mounted Device (HMD) rendering area in pixels (modified).
      */
     public void getRenderSize(Vector2f store);
     

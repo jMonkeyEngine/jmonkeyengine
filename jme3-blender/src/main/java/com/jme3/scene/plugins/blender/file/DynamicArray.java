@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 package com.jme3.scene.plugins.blender.file;
 
 /**
- * An array that can be dynamically modified/
+ * An array that can be dynamically modified
  * @author Marcin Roguski
  * @param <T>
  *            the type of stored data in the array
@@ -42,7 +42,7 @@ public class DynamicArray<T> implements Cloneable {
     /** An array object that holds the required data. */
     private T[]   array;
     /**
-     * This table holds the sizes of dimetions of the dynamic table. It's length specifies the table dimension or a
+     * This table holds the sizes of dimensions of the dynamic table. Its length specifies the table dimension or a
      * pointer level. For example: if tableSizes.length == 3 then it either specifies a dynamic table of fixed lengths:
      * dynTable[a][b][c], where a,b,c are stored in the tableSizes table.
      */

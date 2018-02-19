@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -166,9 +166,9 @@ public class KTXLoader implements AssetLoader {
             int offset = 0;
             //iterate over data
             for (int mipLevel = 0; mipLevel < numberOfMipmapLevels; mipLevel++) {
-                //size of the image in byte.
+                //size of the image in bytes.
                 //this value is bogus in many example, when using mipmaps.
-                //instead we compute the theorical size and display a warning when it does not match.
+                //instead we compute the theoretical size and display a warning when it does not match.
                 int fileImageSize = in.readInt();
                 
                 int width = Math.max(1, pixelWidth >> mipLevel);
@@ -312,7 +312,7 @@ public class KTXLoader implements AssetLoader {
     }
 
     /**
-     * Chacks the file id
+     * Checks the file id
      * @param b
      * @return 
      */

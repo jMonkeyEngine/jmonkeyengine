@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -138,20 +138,6 @@ public class Geometry extends Spatial {
     }
 
     /**
-     * Update the world transform of this Geometry and clear the
-     * TRANSFORM refresh flag.
-     */
-    @Override
-    void checkDoTransformUpdate() {
-        if (ignoreTransform) {
-            worldTransform.loadIdentity();
-            refreshFlags &= ~RF_TRANSFORM;
-        } else {
-            super.checkDoTransformUpdate();
-        }    
-    }
-    
-    /**
      * @return If ignoreTransform mode is set.
      *
      * @see Geometry#setIgnoreTransform(boolean)
@@ -165,7 +151,6 @@ public class Geometry extends Spatial {
      */
     public void setIgnoreTransform(boolean ignoreTransform) {
         this.ignoreTransform = ignoreTransform;
-        setTransformRefresh();
     }
 
     /**
@@ -413,6 +398,9 @@ public class Geometry extends Spatial {
 
         // Compute the cached world matrix
         cachedWorldMat.loadIdentity();
+        if (ignoreTransform) {
+            return;
+        }
         cachedWorldMat.setRotationQuaternion(worldTransform.getRotation());
         cachedWorldMat.setTranslation(worldTransform.getTranslation());
 
@@ -583,7 +571,7 @@ public class Geometry extends Spatial {
         super.cloneFields(cloner, original);
 
         // If this is a grouped node and if our group node is
-        // also cloned then we'll grab it's reference.
+        // also cloned then we'll grab its reference.
         if( groupNode != null ) {
             if( cloner.isCloned(groupNode) ) {
                 // Then resolve the reference

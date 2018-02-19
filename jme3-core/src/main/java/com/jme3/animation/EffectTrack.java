@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,8 +52,8 @@ import java.util.logging.Logger;
 
 /**
  * EffectTrack is a track to add to an existing animation, to emit particles
- * during animations for example : exhausts, dust raised by foot steps, shock
- * waves, lightnings etc...
+ * during animations for example: exhaust, dust raised by footsteps, shock
+ * waves, lightning, etc...
  *
  * usage is
  * <pre>
@@ -62,9 +62,9 @@ import java.util.logging.Logger;
  * control.getAnim("TheAnim").addTrack(track);
  * </pre>
  *
- * if the emitter has emits 0 particles per seconds emmitAllPArticles will be
- * called on it at time 0 + startOffset. if it he it has more it will start
- * emit normally at time 0 + startOffset.
+ * if the emitter emits 0 particles per second, emitAllPArticles will be
+ * called on it at time 0 + startOffset. if it has more it will start
+ * emitting normally at time 0 + startOffset.
  *
  *
  * @author Nehon
@@ -430,7 +430,7 @@ public class EffectTrack implements ClonableTrack {
      */
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule out = ex.getCapsule(this);
-        //reseting the particle emission rate on the emitter before saving.
+        //reset the particle emission rate on the emitter before saving.
         emitter.setParticlesPerSec(particlesPerSeconds);
         out.write(emitter, "emitter", null);
         out.write(particlesPerSeconds, "particlesPerSeconds", 0);

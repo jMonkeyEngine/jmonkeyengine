@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -482,7 +482,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         getReceivers(lightReceivers);
 
         if (lightReceivers.size() != 0) {
-            //setting params to recieving geometry list
+            //setting params to receiving geometry list
             setMatParams(lightReceivers);
 
             Camera cam = viewPort.getCamera();
@@ -726,6 +726,24 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     }
 
     /**
+     * Read the number of shadow maps rendered by this renderer.
+     *
+     * @return count
+     */
+    public int getNumShadowMaps() {
+        return nbShadowMaps;
+    }
+
+    /**
+     * Read the size of each shadow map rendered by this renderer.
+     *
+     * @return a map's height (which is also its width, in pixels)
+     */
+    public int getShadowMapSize() {
+        return (int) shadowMapSize;
+    }
+
+    /**
      * Sets the shadow edges thickness. default is 10, setting it to lower values
      * can help to reduce the jagged effect of the shadow edges
      *
@@ -734,7 +752,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     public void setEdgesThickness(int edgesThickness) {
         this.edgesThickness = Math.max(1, Math.min(edgesThickness, 10));
         this.edgesThickness *= 0.1f;
-        postshadowMat.setFloat("PCFEdge", edgesThickness);
+        postshadowMat.setFloat("PCFEdge", this.edgesThickness);
     }
 
     /**

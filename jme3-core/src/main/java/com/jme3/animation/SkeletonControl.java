@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,21 +35,20 @@ import com.jme3.export.*;
 import com.jme3.material.MatParamOverride;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.RendererException;
-import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.*;
 import com.jme3.scene.*;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.shader.VarType;
-import com.jme3.util.*;
+import com.jme3.util.SafeArrayList;
+import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 import java.nio.Buffer;
-import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -145,6 +144,12 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     }
 
     private boolean testHardwareSupported(RenderManager rm) {
+
+        //Only 255 bones max supported with hardware skinning
+        if (skeleton.getBoneCount() > 255) {
+            return false;
+        }
+
         switchToHardware();
         
         try {
@@ -158,7 +163,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
 
     /**
      * Specifies if hardware skinning is preferred. If it is preferred and
-     * supported by GPU, it shall be enabled, if its not preferred, or not
+     * supported by GPU, it shall be enabled, if it's not preferred, or not
      * supported by GPU, then it shall be disabled.
      * 
      * @param preferred
@@ -326,7 +331,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
                 bpb.clear();
                 bnb.clear();
 
-                //reseting bind tangents if there is a bind tangent buffer
+                //reset bind tangents if there is a bind tangent buffer
                 VertexBuffer bindTangents = mesh.getBuffer(Type.BindPoseTangent);
                 if (bindTangents != null) {
                     VertexBuffer tangents = mesh.getBuffer(Type.Tangent);

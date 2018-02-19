@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -231,21 +231,21 @@ public class LightFilterTest {
         geom.setLocalTranslation(Vector3f.ZERO);
         geom.setModelBound(new BoundingSphere(1f, Vector3f.ZERO));
        
-        // Infinit spot lights are only filtered
+        // Infinite spot lights are only filtered
         // if the geometry is outside the infinite cone.
         sl.setSpotRange(0);
         checkFilteredLights(1);
        
-        //the geommetry is outside the infinit cone (cone direction going away from the geom)
+        //the geommetry is outside the infinite cone (cone direction going away from the geom)
         sl.setPosition(Vector3f.UNIT_Z.mult(1+FastMath.ZERO_TOLERANCE));
         checkFilteredLights(0);
        
-        //place the spote ligth in the corner of the box geom, (in order to test bounding sphere)
+        //place the spot light in the corner of the box geom, (in order to test bounding sphere)
         sl.setDirection(new Vector3f(1, 1, 0).normalizeLocal());
         geom.setLocalTranslation(0, 0, 10);
         sl.setPosition(sl.getDirection().mult(-2f).add(geom.getLocalTranslation()));
 
-        // make it barely reach the sphere, incorect with a box
+        // make it barely reach the sphere, incorrect with a box
         sl.setSpotRange(1f - FastMath.ZERO_TOLERANCE);
         checkFilteredLights(0);
        
@@ -253,7 +253,7 @@ public class LightFilterTest {
         sl.setSpotRange(1f + FastMath.ZERO_TOLERANCE);
         checkFilteredLights(1);
        
-        // extent the range
+        // extend the range
         sl.setPosition(Vector3f.ZERO);
         sl.setDirection(Vector3f.UNIT_Z);
         sl.setSpotRange(20);

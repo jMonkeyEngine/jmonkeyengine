@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -152,7 +152,7 @@ public class OGGLoader implements AssetLoader {
                 // HACK: Reload the logical and vorbis streams from scratch
                 // based on the existing ogg page data. 
                 // This fixes an audio discontinuity issue when looping
-                // an streaming OGG file via setTime(0).
+                // a streaming OGG file via setTime(0).
                 ls = ((CachedOggStream) ps).reloadLogicalOggStream();
                 vs = new VorbisStream(ls);
                 endOfStream = false;

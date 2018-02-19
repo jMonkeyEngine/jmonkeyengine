@@ -59,6 +59,8 @@ public class DetailedProfilerState extends BaseAppState {
     private ColorRGBA dimmedOrange = ColorRGBA.Orange.mult(0.7f);
     private ColorRGBA dimmedRed = ColorRGBA.Red.mult(0.7f);
 
+    private ProfilerInputListener inputListener = new ProfilerInputListener();
+
     public DetailedProfilerState() {
 
     }
@@ -119,23 +121,17 @@ public class DetailedProfilerState extends BaseAppState {
         if (inputManager != null) {
             inputManager.addMapping(TOGGLE_KEY, new KeyTrigger(KeyInput.KEY_F6));
             inputManager.addMapping(CLICK_KEY, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
-            inputManager.addListener(new ActionListener() {
-                @Override
-                public void onAction(String name, boolean isPressed, float tpf) {
-                    if (name.equals(TOGGLE_KEY) && isPressed) {
-                        setEnabled(!isEnabled());
-                    }
-                    if (isEnabled() && name.equals(CLICK_KEY) && isPressed) {
-                        handleClick(inputManager.getCursorPosition());
-                    }
-                }
-            }, TOGGLE_KEY, CLICK_KEY);
+            inputManager.addListener(inputListener, TOGGLE_KEY, CLICK_KEY);
         }
     }
 
     @Override
     protected void cleanup(Application app) {
-
+        ui.detachAllChildren();
+        InputManager manager = getApplication().getInputManager();
+        manager.deleteMapping(TOGGLE_KEY);
+        manager.deleteMapping(CLICK_KEY);
+        manager.removeListener(inputListener);
     }
 
     @Override
@@ -441,8 +437,18 @@ public class DetailedProfilerState extends BaseAppState {
         public String toString() {
             return label.getText() + " - " + df.format(getMsFromNs(cpuValue)) + "ms / " + df.format(getMsFromNs(gpuValue)) + "ms";
         }
+    }
 
-
+    private class ProfilerInputListener implements ActionListener {
+        @Override
+        public void onAction(String name, boolean isPressed, float tpf) {
+            if (name.equals(TOGGLE_KEY) && isPressed) {
+                setEnabled(!isEnabled());
+            }
+            if (isEnabled() && name.equals(CLICK_KEY) && isPressed) {
+                handleClick(getApplication().getInputManager().getCursorPosition());
+            }
+        }
     }
 }
 

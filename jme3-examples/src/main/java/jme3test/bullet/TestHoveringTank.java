@@ -54,9 +54,8 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
-import com.jme3.shadow.PssmShadowRenderer;
-import com.jme3.shadow.PssmShadowRenderer.CompareMode;
-import com.jme3.shadow.PssmShadowRenderer.FilterMode;
+import com.jme3.shadow.DirectionalLightShadowRenderer;
+import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.system.AppSettings;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
@@ -65,6 +64,7 @@ import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
+import com.jme3.util.SkyFactory.EnvMapType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,21 +113,22 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         stateManager.attach(bulletAppState);
 //        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         bulletAppState.getPhysicsSpace().setAccuracy(1f/30f);
-        rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
+        rootNode.attachChild(SkyFactory.createSky(assetManager, 
+                "Textures/Sky/Bright/BrightSky.dds", EnvMapType.CubeMap));
 
-        PssmShadowRenderer pssmr = new PssmShadowRenderer(assetManager, 2048, 3);
-        pssmr.setDirection(new Vector3f(-0.5f, -0.3f, -0.3f).normalizeLocal());
-        pssmr.setLambda(0.55f);
-        pssmr.setShadowIntensity(0.6f);
-        pssmr.setCompareMode(CompareMode.Hardware);
-        pssmr.setFilterMode(FilterMode.Bilinear);
-        viewPort.addProcessor(pssmr);
+        DirectionalLightShadowRenderer dlsr 
+                = new DirectionalLightShadowRenderer(assetManager, 2048, 3);
+        dlsr.setLambda(0.55f);
+        dlsr.setShadowIntensity(0.6f);
+        dlsr.setEdgeFilteringMode(EdgeFilteringMode.Bilinear);
+        viewPort.addProcessor(dlsr);
 
         setupKeys();
         createTerrain();
         buildPlayer();
 
         DirectionalLight dl = new DirectionalLight();
+        dlsr.setLight(dl);
         dl.setColor(new ColorRGBA(1.0f, 0.94f, 0.8f, 1f).multLocal(1.3f));
         dl.setDirection(new Vector3f(-0.5f, -0.3f, -0.3f).normalizeLocal());
         rootNode.addLight(dl);

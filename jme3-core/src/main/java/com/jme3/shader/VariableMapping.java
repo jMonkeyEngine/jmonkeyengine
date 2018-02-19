@@ -31,15 +31,13 @@
  */
 package com.jme3.shader;
 
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
-import com.jme3.export.Savable;
+import com.jme3.export.*;
+
 import java.io.IOException;
+import java.util.Objects;
 
 /**
- * represents a mapping between 2 ShaderNodeVariables
+ * Represents a mapping between 2 shader node variables or a left shader node variable and a value expression.
  *
  * @author Nehon
  */
@@ -47,68 +45,91 @@ public class VariableMapping implements Savable, Cloneable {
 
     private ShaderNodeVariable leftVariable;
     private ShaderNodeVariable rightVariable;
+    private String rightExpression;
     private String condition;
     private String leftSwizzling = "";
     private String rightSwizzling = "";
 
     /**
-     * creates a VariableMapping
+     * Creates a VariableMapping.
      */
     public VariableMapping() {
     }
 
     /**
-     * creates a VariableMapping
+     * Creates a VariableMapping.
      *
-     * @param leftVariable the left hand side variable of the expression
-     * @param leftSwizzling the swizzling of the left variable
-     * @param rightVariable the right hand side variable of the expression
+     * @param leftVariable   the left hand side variable of the expression
+     * @param leftSwizzling  the swizzling of the left variable
+     * @param rightVariable  the right hand side variable of the expression
      * @param rightSwizzling the swizzling of the right variable
-     * @param condition the condition for this mapping
+     * @param condition      the condition for this mapping
      */
-    public VariableMapping(ShaderNodeVariable leftVariable, String leftSwizzling, ShaderNodeVariable rightVariable, String rightSwizzling, String condition) {
+    public VariableMapping(ShaderNodeVariable leftVariable, String leftSwizzling, ShaderNodeVariable rightVariable,
+                           String rightSwizzling, String condition) {
         this.leftVariable = leftVariable;
         this.rightVariable = rightVariable;
         this.condition = condition;
-        this.leftSwizzling = leftSwizzling;
-        this.rightSwizzling = rightSwizzling;
+        this.leftSwizzling = Objects.requireNonNull(leftSwizzling);
+        this.rightSwizzling = Objects.requireNonNull(rightSwizzling);
     }
 
     /**
+     * Gets the left variable.
      *
-     * @return the left variable
+     * @return the left variable.
      */
     public ShaderNodeVariable getLeftVariable() {
         return leftVariable;
     }
 
     /**
-     * sets the left variable
+     * Sets the left variable.
      *
-     * @param leftVariable the left variable
+     * @param leftVariable the left variable.
      */
     public void setLeftVariable(ShaderNodeVariable leftVariable) {
         this.leftVariable = leftVariable;
     }
 
     /**
+     * Gets the right variable.
      *
-     * @return the right variable
+     * @return the right variable or null.
      */
     public ShaderNodeVariable getRightVariable() {
         return rightVariable;
     }
 
     /**
-     * sets the right variable
+     * Sets the right variable.
      *
-     * @param rightVariable the right variable
+     * @param rightVariable the right variable.
      */
     public void setRightVariable(ShaderNodeVariable rightVariable) {
         this.rightVariable = rightVariable;
     }
 
     /**
+     * Gets the right expression.
+     *
+     * @return the right expression or null.
+     */
+    public String getRightExpression() {
+        return rightExpression;
+    }
+
+    /**
+     * Sets the right expression.
+     *
+     * @param rightExpression the right expression.
+     */
+    public void setRightExpression(final String rightExpression) {
+        this.rightExpression = rightExpression;
+    }
+
+    /**
+     * Gets the condition.
      *
      * @return the condition
      */
@@ -117,46 +138,48 @@ public class VariableMapping implements Savable, Cloneable {
     }
 
     /**
-     * sets the condition
+     * Sets the condition.
      *
-     * @param condition the condition
+     * @param condition the condition or null.
      */
     public void setCondition(String condition) {
         this.condition = condition;
     }
 
     /**
+     * Gets the left swizzle.
      *
-     * @return the left swizzle
+     * @return the left swizzle or empty string.
      */
     public String getLeftSwizzling() {
         return leftSwizzling;
     }
 
     /**
-     * sets the left swizzle
+     * Sets the left swizzle.
      *
-     * @param leftSwizzling the left swizzle
+     * @param leftSwizzling the left swizzle.
      */
     public void setLeftSwizzling(String leftSwizzling) {
-        this.leftSwizzling = leftSwizzling;
+        this.leftSwizzling = Objects.requireNonNull(leftSwizzling);
     }
 
     /**
+     * Gets the right swizzle.
      *
-     * @return the right swizzle
+     * @return the right swizzle or empty string.
      */
     public String getRightSwizzling() {
         return rightSwizzling;
     }
 
     /**
-     * sets the right swizzle
+     * Sets the right swizzle.
      *
-     * @param rightSwizzling the right swizzle
+     * @param rightSwizzling the right swizzle.
      */
     public void setRightSwizzling(String rightSwizzling) {
-        this.rightSwizzling = rightSwizzling;
+        this.rightSwizzling = Objects.requireNonNull(rightSwizzling);
     }
 
     /**
@@ -167,9 +190,10 @@ public class VariableMapping implements Savable, Cloneable {
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(leftVariable, "leftVariable", null);
         oc.write(rightVariable, "rightVariable", null);
+        oc.write(rightExpression, "rightExpression", null);
         oc.write(condition, "condition", "");
         oc.write(leftSwizzling, "leftSwizzling", "");
         oc.write(rightSwizzling, "rightSwizzling", "");
@@ -183,9 +207,10 @@ public class VariableMapping implements Savable, Cloneable {
      */
     @Override
     public void read(JmeImporter im) throws IOException {
-        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        InputCapsule ic = im.getCapsule(this);
         leftVariable = (ShaderNodeVariable) ic.readSavable("leftVariable", null);
         rightVariable = (ShaderNodeVariable) ic.readSavable("rightVariable", null);
+        rightExpression = ic.readString("rightExpression", null);
         condition = ic.readString("condition", "");
         leftSwizzling = ic.readString("leftSwizzling", "");
         rightSwizzling = ic.readString("rightSwizzling", "");
@@ -193,16 +218,45 @@ public class VariableMapping implements Savable, Cloneable {
 
     @Override
     public String toString() {
-        return "\n{" + leftVariable.toString() + (leftSwizzling.length() > 0 ? ("." + leftSwizzling) : "") + " = " + rightVariable.getType() + " " + rightVariable.getNameSpace() + "." + rightVariable.getName() + (rightSwizzling.length() > 0 ? ("." + rightSwizzling) : "") + " : " + condition + "}";
+
+        final StringBuilder builder = new StringBuilder(leftVariable.toString());
+
+        if (!leftSwizzling.isEmpty()) {
+            builder.append('.').append(leftSwizzling);
+        }
+
+        builder.append(" = ");
+
+        if (rightVariable != null) {
+
+            builder.append(rightVariable.getType())
+                    .append(' ')
+                    .append(rightVariable.getNameSpace())
+                    .append('.')
+                    .append(rightVariable.getName());
+
+            if (!rightSwizzling.isEmpty()) {
+                builder.append('.').append(rightSwizzling);
+            }
+
+        } else if (rightExpression != null) {
+            builder.append(rightExpression);
+        }
+
+        if (condition != null && !condition.isEmpty()) {
+            builder.append(" : ").append(condition);
+        }
+
+        return builder.toString();
     }
 
     @Override
     protected VariableMapping clone() throws CloneNotSupportedException {
         VariableMapping clone = (VariableMapping) super.clone();
-
         clone.leftVariable = leftVariable.clone();
-        clone.rightVariable = rightVariable.clone();
-
+        if (rightVariable != null) {
+            clone.rightVariable = rightVariable.clone();
+        }
         return clone;
     }
 }

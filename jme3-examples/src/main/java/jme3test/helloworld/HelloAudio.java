@@ -1,6 +1,7 @@
 package jme3test.helloworld;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.audio.AudioData.DataType;
 import com.jme3.audio.AudioNode;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
@@ -42,14 +43,16 @@ public class HelloAudio extends SimpleApplication {
   /** We create two audio nodes. */
   private void initAudio() {
     /* gun shot sound is to be triggered by a mouse click. */
-    audio_gun = new AudioNode(assetManager, "Sound/Effects/Gun.wav", false);
+    audio_gun = new AudioNode(assetManager, 
+            "Sound/Effects/Gun.wav", DataType.Buffer);
     audio_gun.setPositional(false);
     audio_gun.setLooping(false);
     audio_gun.setVolume(2);
     rootNode.attachChild(audio_gun);
 
     /* nature sound - keeps playing in a loop. */
-    audio_nature = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg", true);
+    audio_nature = new AudioNode(assetManager, 
+            "Sound/Environment/Ocean Waves.ogg", DataType.Stream);
     audio_nature.setLooping(true);  // activate continuous playing
     audio_nature.setPositional(true);   
     audio_nature.setVolume(3);

@@ -66,7 +66,9 @@ public class TestSceneLoading extends SimpleApplication {
         this.flyCam.setMoveSpeed(10);
 
         // load sky
-        rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
+        rootNode.attachChild(SkyFactory.createSky(assetManager, 
+                "Textures/Sky/Bright/BrightSky.dds", 
+                SkyFactory.EnvMapType.CubeMap));
 
         File file = new File("wildhouse.zip");
         if (!file.exists()) {

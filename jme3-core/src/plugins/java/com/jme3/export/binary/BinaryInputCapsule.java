@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -975,7 +975,7 @@ final class BinaryInputCapsule implements InputCapsule {
     /*
      * UTF-8 crash course:
      *
-     * UTF-8 codepoints map to UTF-16 codepoints and vv, which is what Java uses for it's Strings.
+     * UTF-8 codepoints map to UTF-16 codepoints and vv, which is what Java uses for its Strings.
      * (so a UTF-8 codepoint can contain all possible values for a Java char)
      *
      * A UTF-8 codepoint can be 1, 2 or 3 bytes long. How long a codepint is can be told by reading the first byte:
@@ -1080,7 +1080,7 @@ final class BinaryInputCapsule implements InputCapsule {
                 // behaviour across platforms!
                 // Developers that have previously saved their exports using the old exporter (wich uses native encoding), can temporarly
                 // remove the ""ISO8859_1" parameter, and change the above if statement to "if (false)".
-                // They should then import and re-export their models using the same enviroment they were orginally created in.
+                // They should then import and re-export their models using the same enviroment they were originally created in.
                 return new String(bytes, "ISO8859_1");
             }
         } catch (UnsupportedEncodingException uee) {

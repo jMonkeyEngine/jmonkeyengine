@@ -1,6 +1,7 @@
 package com.jme3.scene.plugins.gltf;
 
 import com.google.gson.*;
+import com.jme3.animation.Bone;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.math.*;
@@ -685,6 +686,74 @@ public class GltfUtils {
         }
     }
 
+    public static boolean equalBindAndLocalTransforms(Bone b) {
+        return equalsEpsilon(b.getBindPosition(), b.getLocalPosition())
+                && equalsEpsilon(b.getBindRotation(), b.getLocalRotation())
+                && equalsEpsilon(b.getBindScale(), b.getLocalScale());
+    }
+
+    private static float epsilon = 0.0001f;
+
+    public static boolean equalsEpsilon(Vector3f v1, Vector3f v2) {
+        return FastMath.abs(v1.x - v2.x) < epsilon
+                && FastMath.abs(v1.y - v2.y) < epsilon
+                && FastMath.abs(v1.z - v2.z) < epsilon;
+    }
+
+    public static boolean equalsEpsilon(Quaternion q1, Quaternion q2) {
+        return (FastMath.abs(q1.getX() - q2.getX()) < epsilon
+                && FastMath.abs(q1.getY() - q2.getY()) < epsilon
+                && FastMath.abs(q1.getZ() - q2.getZ()) < epsilon
+                && FastMath.abs(q1.getW() - q2.getW()) < epsilon)
+                ||
+                (FastMath.abs(q1.getX() + q2.getX()) < epsilon
+                        && FastMath.abs(q1.getY() + q2.getY()) < epsilon
+                        && FastMath.abs(q1.getZ() + q2.getZ()) < epsilon
+                        && FastMath.abs(q1.getW() + q2.getW()) < epsilon);
+    }
+
+
+    public static void dumpArray(Object[] array) {
+        if (array == null) {
+            System.err.println("null");
+            return;
+        }
+        for (int i = 0; i < array.length; i++) {
+            Object o = array[i];
+            System.err.print(i + ": ");
+            if (o instanceof Quaternion) {
+                Quaternion q = (Quaternion) o;
+                System.err.print("(");
+                if (q.getX() > 0.00001) System.err.print(q.getX() + ", ");
+                else System.err.print("0.0, ");
+                if (q.getY() > 0.00001) System.err.print(q.getY() + ", ");
+                else System.err.print("0.0, ");
+                if (q.getZ() > 0.00001) System.err.print(q.getZ() + ", ");
+                else System.err.print("0.0, ");
+                if (q.getW() > 0.00001) System.err.print(q.getW() + ", ");
+                else System.err.print("0.0, ");
+                System.err.println(")");
+            } else {
+                System.err.println(o.toString() + ", ");
+            }
+        }
+        System.err.println("");
+    }
+
+    public static void dumpArray(float[] array) {
+        if (array == null) {
+            System.err.println("null");
+            return;
+        }
+
+        for (int i = 0; i < array.length; i++) {
+            float o = array[i];
+            System.err.println(i + ": " + o);
+        }
+
+        System.err.println("");
+    }
+
     public static Spatial findCommonAncestor(List<Spatial> spatials) {
         Map<Spatial, List<Spatial>> flatParents = new HashMap<>();
 
@@ -704,6 +773,9 @@ public class GltfUtils {
         while (true) {
             for (Spatial spatial : flatParents.keySet()) {
                 List<Spatial> parents = flatParents.get(spatial);
+                if (parents.isEmpty()) {
+                    continue;
+                }
                 if (index == parents.size()) {
                     //we reached the end of a spatial hierarchy let's return;
                     return lastCommonParent;

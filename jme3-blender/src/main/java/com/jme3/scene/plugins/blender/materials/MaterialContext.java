@@ -107,7 +107,7 @@ public final class MaterialContext implements Savable {
             boolean transparent = false;
             if (diffuseColor != null) {
                 transparent = diffuseColor.a < 1.0f;
-                if (loadedTextures.size() > 0) {// texutre covers the material color
+                if (loadedTextures.size() > 0) {// texture covers the material color
                     diffuseColor.set(1, 1, 1, 1);
                 }
             }

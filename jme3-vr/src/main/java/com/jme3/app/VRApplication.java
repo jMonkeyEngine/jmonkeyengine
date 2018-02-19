@@ -332,9 +332,9 @@ public abstract class VRApplication implements Application, SystemListener {
     }
     
     /**
-     * Set the frustrum values for the application.
-     * @param near the frustrum near value.
-     * @param far the frustrum far value.
+     * Set the frustum values for the application.
+     * @param near the frustum near value.
+     * @param far the frustum far value.
      */
     public void setFrustrumNearFar(float near, float far) {
         fNear = near;
@@ -1006,7 +1006,7 @@ public abstract class VRApplication implements Application, SystemListener {
     }
     
     /**
-     * Set the scene observer. The VR headset will be linked to it. If no observer is set, the VR headset is linked to the the application {@link #getCamera() camera}.
+     * Set the scene observer. The VR headset will be linked to it. If no observer is set, the VR headset is linked to the application {@link #getCamera() camera}.
      * @param observer the scene observer.
      */
     public void setObserver(Spatial observer) {
