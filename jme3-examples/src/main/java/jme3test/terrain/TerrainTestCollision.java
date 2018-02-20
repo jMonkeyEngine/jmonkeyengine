@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,7 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -176,16 +177,15 @@ public class TerrainTestCollision extends SimpleApplication {
         dl.setColor(new ColorRGBA(0.50f, 0.40f, 0.50f, 1.0f));
         rootNode.addLight(dl);
 
-        cam.setLocation(new Vector3f(0, 25, -10));
-        cam.lookAtDirection(new Vector3f(0, -1, 0).normalizeLocal(), Vector3f.UNIT_Y);
+        cam.setLocation(new Vector3f(43f, 121f, 10f));
+        cam.setRotation(new Quaternion(0.15824f, -0.79309f, 0.23223f, 0.5404f));
     }
 
     public void loadHintText() {
         hintText = new BitmapText(guiFont, false);
         hintText.setSize(guiFont.getCharSet().getRenderedSize());
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
-        //hintText.setText("Hit T to switch to wireframe");
-        hintText.setText("");
+        hintText.setText("Press T to toggle wireframe");
         guiNode.attachChild(hintText);
     }
 
@@ -241,7 +241,7 @@ public class TerrainTestCollision extends SimpleApplication {
         public void onAction(String binding, boolean keyPressed, float tpf) {
             if (binding.equals("wireframe") && !keyPressed) {
                 wireframe = !wireframe;
-                if (!wireframe) {
+                if (wireframe) {
                     terrain.setMaterial(matWire);
                 } else {
                     terrain.setMaterial(matRock);
