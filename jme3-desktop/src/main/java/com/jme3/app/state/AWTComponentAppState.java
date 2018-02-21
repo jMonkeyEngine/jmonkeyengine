@@ -36,6 +36,7 @@ import java.awt.Component;
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
+import com.jme3.system.AWTFrameProcessor;
 import com.jme3.system.AWTTaskExecutor;
 
 /**
@@ -48,9 +49,28 @@ public class AWTComponentAppState extends AbstractAppState {
   
   private Component component = null;
   
+  private AWTFrameProcessor processor = null;
+ 
+  private AWTFrameProcessor.TransferMode transferMode = AWTFrameProcessor.TransferMode.ON_CHANGES;
+  
   @Override
   public void initialize(AppStateManager stateManager, Application app) {
     super.initialize(stateManager, app);
+  }
+ 
+  @Override
+  public void stateAttached(final AppStateManager stateManager) {
+    processor = new AWTFrameProcessor();
+	processor.setTransferMode(transferMode);
+
+	AWTTaskExecutor.getInstance().addToExecute(new Runnable() {
+
+	  @Override
+	  public void run() {
+	    processor.bind(component, stateManager.getApplication(), stateManager.getApplication().getViewPort());
+	  }
+	      
+	});
   }
   
   @Override
@@ -93,5 +113,23 @@ public class AWTComponentAppState extends AbstractAppState {
    */
   public void setComponent(Component component) {
     this.component = component;
+  }
+  
+  /**
+   * Get the {@link AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
+   * @return the {@link AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
+   * @see #setTransferMode(com.jme3.system.AWTFrameProcessor.TransferMode)
+   */
+  public AWTFrameProcessor.TransferMode getTransferMode(){
+	  return transferMode;
+  }
+  
+  /**
+   * Set the {@link AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
+   * @param mode the {@link AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
+   * @see #getTransferMode()
+   */
+  public void setTransferMode(AWTFrameProcessor.TransferMode mode) {
+	  this.transferMode = mode;
   }
 }
