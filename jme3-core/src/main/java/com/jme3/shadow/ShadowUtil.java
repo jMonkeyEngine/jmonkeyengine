@@ -387,7 +387,7 @@ public class ShadowUtil {
                         BoundingBox occBB = (BoundingBox) occBox;
                         //Kirill 01/10/2011
                         // Extend the occluder further into the frustum
-                        // This fixes shadow dissapearing issues when
+                        // This fixes shadow disappearing issues when
                         // the caster itself is not in the view camera
                         // but its shadow is in the camera
                         //      The number is in world units
@@ -430,7 +430,7 @@ public class ShadowUtil {
                     BoundingBox occBB = (BoundingBox) occBox;
                     //Kirill 01/10/2011
                     // Extend the occluder further into the frustum
-                    // This fixes shadow dissapearing issues when
+                    // This fixes shadow disappearing issues when
                     // the caster itself is not in the view camera
                     // but its shadow is in the camera
                     //      The number is in world units

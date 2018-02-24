@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -726,7 +726,7 @@ public class RenderManager {
             // Saving cam state for culling
             int camState = vp.getCamera().getPlaneState();
             for (int i = 0; i < children.size(); i++) {
-                // Restoring cam state before proceeding children recusively
+                // Restoring cam state before proceeding children recursively
                 vp.getCamera().setPlaneState(camState);
                 renderSubScene(children.get(i), vp);
             }

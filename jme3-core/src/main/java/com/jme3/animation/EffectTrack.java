@@ -198,7 +198,7 @@ public class EffectTrack implements ClonableTrack {
             control.addListener(new OnEndListener());
             initialized = true;
         }
-        //checking fo time to trigger the effect
+        //checking for time to trigger the effect
         if (!emitted && time >= startOffset) {
             emitted = true;
             emitter.setCullHint(CullHint.Dynamic);
@@ -434,7 +434,7 @@ public class EffectTrack implements ClonableTrack {
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
         this.particlesPerSeconds = in.readFloat("particlesPerSeconds", 0);
-        //reading the emitter even if the track will then reference its cloned counter part if it's loaded with the assetManager.
+        //reading the emitter even if the track will then reference its cloned counterpart if it's loaded with the assetManager.
         //This also avoid null pointer exception if the model is not loaded via the AssetManager.
         emitter = (ParticleEmitter) in.readSavable("emitter", null);
         emitter.setParticlesPerSec(0);

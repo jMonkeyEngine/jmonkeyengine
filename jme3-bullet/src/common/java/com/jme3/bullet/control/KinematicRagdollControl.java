@@ -169,7 +169,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     }
 
     /**
-     * contruct a KinematicRagdollControl
+     * construct a KinematicRagdollControl
      */
     public KinematicRagdollControl() {
         baseRigidBody = new PhysicsRigidBody(new BoxCollisionShape(Vector3f.UNIT_XYZ.mult(0.1f)), 1);
@@ -253,7 +253,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
                     link.bone.setUserTransformsInModelSpace(position, tmpRot1);
                 } else {
                     //boneList is not empty, this means some bones of the skeleton might not be associated with a collision shape.
-                    //So we update them recusively
+                    //So we update them recursively
                     RagdollUtils.setTransform(link.bone, position, tmpRot1, false, boneList);
                 }
             }

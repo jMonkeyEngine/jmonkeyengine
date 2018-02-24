@@ -361,7 +361,7 @@ public final class Shader extends NativeObject {
      */
     public void resetLocations() {
         if (uniforms != null) {
-            // NOTE: Shader sources will be reset seperately from the shader itself.
+            // NOTE: Shader sources will be reset separately from the shader itself.
             for (Uniform uniform : uniforms.values()) {
                 uniform.reset(); // fixes issue with re-initialization
             }

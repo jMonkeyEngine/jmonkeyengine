@@ -59,7 +59,7 @@ import java.util.logging.Logger;
 /**
  * AndroidSensorJoyInput converts the Android Sensor system into Joystick events.
  * A single joystick is configured and includes data for all configured sensors
- * as seperate axes of the joystick.
+ * as separate axes of the joystick.
  *
  * Each axis is named according to the static strings in SensorJoystickAxis.
  * Refer to the strings defined in SensorJoystickAxis for a list of supported
