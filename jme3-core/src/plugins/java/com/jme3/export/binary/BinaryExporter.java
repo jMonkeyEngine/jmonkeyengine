@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -255,7 +255,7 @@ public class BinaryExporter implements JmeExporter {
         }
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        // write out data to a seperate stream
+        // write out data to a separate stream
         int location = 0;
         // keep track of location for each piece
         HashMap<String, ArrayList<BinaryIdContentPair>> alreadySaved = new HashMap<String, ArrayList<BinaryIdContentPair>>(

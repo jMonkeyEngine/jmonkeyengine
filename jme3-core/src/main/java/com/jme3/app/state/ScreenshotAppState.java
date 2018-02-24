@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,10 +80,10 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     /**
      * This constructor allows you to specify the output file path of the screenshot.
-     * Include the seperator at the end of the path.
-     * Use an emptry string to use the application folder. Use NULL to use the system
+     * Include the separator at the end of the path.
+     * Use an empty string to use the application folder. Use NULL to use the system
      * default storage folder.
-     * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
+     * @param filePath The screenshot file path to use. Include the separator at the end of the path.
      */
     public ScreenshotAppState(String filePath) {
         this.filePath = filePath;
@@ -91,11 +91,11 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     /**
      * This constructor allows you to specify the output file path of the screenshot.
-     * Include the seperator at the end of the path.
-     * Use an emptry string to use the application folder. Use NULL to use the system
+     * Include the separator at the end of the path.
+     * Use an empty string to use the application folder. Use NULL to use the system
      * default storage folder.
-     * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
-     * @param fileName The name of the file to save the screeshot as.
+     * @param filePath The screenshot file path to use. Include the separator at the end of the path.
+     * @param fileName The name of the file to save the screenshot as.
      */
     public ScreenshotAppState(String filePath, String fileName) {
         this.filePath = filePath;
@@ -105,10 +105,10 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     /**
      * This constructor allows you to specify the output file path of the screenshot and
      * a base index for the shot index.
-     * Include the seperator at the end of the path.
-     * Use an emptry string to use the application folder. Use NULL to use the system
+     * Include the separator at the end of the path.
+     * Use an empty string to use the application folder. Use NULL to use the system
      * default storage folder.
-     * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
+     * @param filePath The screenshot file path to use. Include the separator at the end of the path.
      * @param shotIndex The base index for screen shots.  The first screen shot will have
      *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
      */
@@ -120,11 +120,11 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     /**
      * This constructor allows you to specify the output file path of the screenshot and
      * a base index for the shot index.
-     * Include the seperator at the end of the path.
-     * Use an emptry string to use the application folder. Use NULL to use the system
+     * Include the separator at the end of the path.
+     * Use an empty string to use the application folder. Use NULL to use the system
      * default storage folder.
-     * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
-     * @param fileName The name of the file to save the screeshot as.
+     * @param filePath The screenshot file path to use. Include the separator at the end of the path.
+     * @param fileName The name of the file to save the screenshot as.
      * @param shotIndex The base index for screen shots.  The first screen shot will have
      *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
      */
@@ -136,10 +136,10 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     
     /**
      * Set the file path to store the screenshot.
-     * Include the seperator at the end of the path.
-     * Use an emptry string to use the application folder. Use NULL to use the system
+     * Include the separator at the end of the path.
+     * Use an empty string to use the application folder. Use NULL to use the system
      * default storage folder.
-     * @param filePath File path to use to store the screenshot. Include the seperator at the end of the path.
+     * @param filePath File path to use to store the screenshot. Include the separator at the end of the path.
      */
     public void setFilePath(String filePath) {
         this.filePath = filePath;

@@ -46,7 +46,7 @@ import java.util.BitSet;
 public final class BoneTrack implements Track {
 
     /**
-     * Bone index in the skeleton which this track effects.
+     * Bone index in the skeleton which this track affects.
      */
     private int targetBoneIndex;
     

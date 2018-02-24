@@ -278,8 +278,8 @@ public class AudioNode extends Node implements AudioSource {
      * the dry filter will only influence the "dry" portion of the audio,
      * e.g. not the reverberated parts of the AudioNode playing.
      *
-     * See the relevent documentation for the {@link Filter} to determine
-     * the effect.
+     * See the relevant documentation for the {@link Filter} to determine the
+     * effect.
      *
      * @param dryFilter The filter to set, or null to disable dry filter.
      */

@@ -206,7 +206,7 @@ public final class ImageUtils {
                 N.z = 1;
                 N.divideLocal(den);
 
-                // setting thge pixel in the result image
+                // setting the pixel in the result image
                 bumpMap.setRGB(x, y, ImageUtils.vectorToColor(N.x, N.y, N.z));
             }
         }
@@ -422,7 +422,7 @@ public final class ImageUtils {
      *            pixel's X coordinate
      * @param y
      *            pixel's Y coordinate
-     * @return height reprezented by the given texture in the specified location
+     * @return height represented by the given texture in the specified location
      */
     private static int getHeight(BufferedImage image, int x, int y) {
         if (x < 0) {

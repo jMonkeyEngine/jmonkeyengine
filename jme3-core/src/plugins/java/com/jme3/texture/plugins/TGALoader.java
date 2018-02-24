@@ -214,7 +214,7 @@ public final class TGALoader implements AssetLoader {
             byte alpha = 0;
 
             // Faster than doing a 16-or-24-or-32 check on each individual pixel,
-            // just make a seperate loop for each.
+            // just make a separate loop for each.
             if (pixelDepth == 16) {
                 byte[] data = new byte[2];
                 float scalar = 255f / 31f;
@@ -287,7 +287,7 @@ public final class TGALoader implements AssetLoader {
             byte blue = 0;
             byte alpha = 0;
             // Faster than doing a 16-or-24-or-32 check on each individual pixel,
-            // just make a seperate loop for each.
+            // just make a separate loop for each.
             if (pixelDepth == 32) {
                 for (int i = 0; i <= (height - 1); ++i) {
                     if (!flip) {
