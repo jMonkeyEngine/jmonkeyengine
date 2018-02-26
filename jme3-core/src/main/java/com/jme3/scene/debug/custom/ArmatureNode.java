@@ -62,6 +62,7 @@ public class ArmatureNode extends Node {
     private Map<Geometry, Joint> geomToJoint = new HashMap<>();
     private Joint selectedJoint = null;
     private Vector3f tmp = new Vector3f();
+    private Vector2f tmpv2 = new Vector2f();
     private final static ColorRGBA selectedColor = ColorRGBA.Orange;
     private final static ColorRGBA selectedColorJ = ColorRGBA.Yellow;
     private final static ColorRGBA outlineColor = ColorRGBA.LightGray;
@@ -262,7 +263,16 @@ public class ArmatureNode extends Node {
         if (!(other instanceof Ray)) {
             return 0;
         }
-        int nbCol = 0;
+
+        // first try a 2D pick;
+        camera.getScreenCoordinates(((Ray)other).getOrigin(),tmp);
+        tmpv2.x = tmp.x;
+        tmpv2.y = tmp.y;
+        int nbHit = pick(tmpv2, results);
+        if (nbHit > 0) {
+            return nbHit;
+        }
+
         for (Geometry g : geomToJoint.keySet()) {
             if (g.getMesh() instanceof JointShape) {
                 continue;
@@ -275,11 +285,11 @@ public class ArmatureNode extends Node {
                     CollisionResult res = new CollisionResult();
                     res.setGeometry(g);
                     results.addCollision(res);
-                    nbCol++;
+                    nbHit++;
                 }
             }
         }
-        return nbCol;
+        return nbHit;
     }
 
     private void updateBoneMesh(Geometry geom, Vector3f start, Vector3f[] ends) {

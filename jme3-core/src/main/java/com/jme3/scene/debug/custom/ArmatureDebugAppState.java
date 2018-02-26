@@ -30,6 +30,8 @@ public class ArmatureDebugAppState extends BaseAppState {
     private Application app;
     private boolean displayAllJoints = false;
     private float clickDelay = -1;
+    Vector3f tmp = new Vector3f();
+    Vector3f tmp2 = new Vector3f();
     ViewPort vp;
 
     @Override
@@ -84,10 +86,15 @@ public class ArmatureDebugAppState extends BaseAppState {
 
     public ArmatureDebugger addArmatureFrom(Armature armature, Spatial forSpatial) {
 
+        ArmatureDebugger ad = armatures.get(armature);
+        if(ad != null){
+            return ad;
+        }
+
         JointInfoVisitor visitor = new JointInfoVisitor(armature);
         forSpatial.depthFirstTraversal(visitor);
 
-        ArmatureDebugger ad = new ArmatureDebugger(forSpatial.getName() + "_Armature", armature, visitor.deformingJoints);
+        ad = new ArmatureDebugger(forSpatial.getName() + "_Armature", armature, visitor.deformingJoints);
         ad.setLocalTransform(forSpatial.getWorldTransform());
         if (forSpatial instanceof Node) {
             List<Geometry> geoms = new ArrayList<>();
@@ -122,18 +129,11 @@ public class ArmatureDebugAppState extends BaseAppState {
             if (name.equals("shoot") && !isPressed && clickDelay < CLICK_MAX_DELAY) {
                 Vector2f click2d = app.getInputManager().getCursorPosition();
                 CollisionResults results = new CollisionResults();
-                //first check 2d collision with joints
-                for (ArmatureDebugger ad : armatures.values()) {
-                    ad.pick(click2d, results);
-                }
 
-                if (results.size() == 0) {
-                    //no result, let's ray cast for bone geometries
-                    Vector3f click3d = app.getCamera().getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 0f).clone();
-                    Vector3f dir = app.getCamera().getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 1f).subtractLocal(click3d);
-                    Ray ray = new Ray(click3d, dir);
-                    debugNode.collideWith(ray, results);
-                }
+                Vector3f click3d = app.getCamera().getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 0f, tmp);
+                Vector3f dir = app.getCamera().getWorldCoordinates(new Vector2f(click2d.x, click2d.y), 1f, tmp2).subtractLocal(click3d);
+                Ray ray = new Ray(click3d, dir);
+                debugNode.collideWith(ray, results);
 
                 if (results.size() == 0) {
                     for (ArmatureDebugger ad : armatures.values()) {
