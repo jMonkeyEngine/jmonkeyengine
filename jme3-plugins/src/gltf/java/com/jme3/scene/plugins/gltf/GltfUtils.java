@@ -486,6 +486,8 @@ public class GltfUtils {
             mesh.setBuffer(VertexBuffer.Type.BoneIndex, 4, BufferUtils.createShortBuffer(jointsArray));
         }
         mesh.setBuffer(VertexBuffer.Type.BoneWeight, 4, BufferUtils.createFloatBuffer(weightsArray));
+        mesh.getBuffer(VertexBuffer.Type.BoneIndex).setUsage(VertexBuffer.Usage.CpuOnly);
+        mesh.getBuffer(VertexBuffer.Type.BoneWeight).setUsage(VertexBuffer.Usage.CpuOnly);
     }
 
     private static void populateFloatArray(float[] array, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, VertexBuffer.Format format) throws IOException {

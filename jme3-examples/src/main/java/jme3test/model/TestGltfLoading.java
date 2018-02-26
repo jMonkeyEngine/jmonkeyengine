@@ -41,11 +41,12 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.math.*;
 import com.jme3.renderer.Limits;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
+import com.jme3.scene.*;
 import com.jme3.scene.control.Control;
 import com.jme3.scene.debug.custom.ArmatureDebugAppState;
 import com.jme3.scene.plugins.gltf.GltfModelKey;
+import com.jme3.shader.VarType;
+import jme3test.model.anim.EraseTimer;
 
 import java.util.*;
 
@@ -58,8 +59,12 @@ public class TestGltfLoading extends SimpleApplication {
     int assetIndex = 0;
     boolean useAutoRotate = false;
     private final static String indentString = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-    int duration = 2;
+    int duration = 1;
     boolean playAnim = true;
+
+    Geometry g;
+    int morphIndex = 0;
+
 
     public static void main(String[] args) {
         TestGltfLoading app = new TestGltfLoading();
@@ -73,10 +78,12 @@ public class TestGltfLoading extends SimpleApplication {
     https://sketchfab.com/features/gltf
     You have to copy them in Model/gltf folder in the test-data project.
      */
+    @Override
     public void simpleInitApp() {
 
         ArmatureDebugAppState armatureDebugappState = new ArmatureDebugAppState();
         getStateManager().attach(armatureDebugappState);
+        setTimer(new EraseTimer());
 
         String folder = System.getProperty("user.home");
         assetManager.registerLocator(folder, FileLocator.class);
@@ -110,7 +117,14 @@ public class TestGltfLoading extends SimpleApplication {
 //        PointLight pl1 = new PointLight(new Vector3f(-5.0f, -5.0f, -5.0f), ColorRGBA.White.mult(0.5f), 50);
 //        rootNode.addLight(pl1);
 
-        loadModel("Models/gltf/polly/project_polly.gltf", new Vector3f(0, 0, 0), 0.5f);
+        //loadModel("Models/gltf/polly/project_polly.gltf", new Vector3f(0, 0, 0), 0.5f);
+        //loadModel("Models/gltf/zophrac/scene.gltf", new Vector3f(0, 0, 0), 0.1f);
+        loadModel("Models/gltf/scifigirl/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
+        //loadModel("Models/gltf/man/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
+       //loadModel("Models/gltf/torus/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
+        //loadModel("Models/gltf/morph/scene.gltf", new Vector3f(0, 0, 0), 0.2f);
+        //loadModel("Models/gltf/morphCube/AnimatedMorphCube.gltf", new Vector3f(0, 0, 0), 1f);
+       // loadModel("Models/gltf/morph/SimpleMorph.gltf", new Vector3f(0, 0, 0), 0.1f);
         //loadModel("Models/gltf/nier/scene.gltf", new Vector3f(0, -1.5f, 0), 0.01f);
         //loadModel("Models/gltf/izzy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
         //loadModel("Models/gltf/darth/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
@@ -148,6 +162,8 @@ public class TestGltfLoading extends SimpleApplication {
 
 
         probeNode.attachChild(assets.get(0));
+
+        // setMorphTarget(morphIndex);
 
         ChaseCameraAppState chaseCam = new ChaseCameraAppState();
         chaseCam.setTarget(probeNode);
@@ -198,6 +214,15 @@ public class TestGltfLoading extends SimpleApplication {
         }, "nextAnim");
 
         dumpScene(rootNode, 0);
+    }
+
+    public void setMorphTarget(int index) {
+        g = (Geometry) probeNode.getChild("0");
+        g.getMesh().setActiveMorphTargets(index);
+        g.getMaterial().setInt("NumberOfMorphTargets", 1);
+        g.getMaterial().setInt("NumberOfTargetsBuffers", 3);
+        float[] weights = {1.0f};
+        g.getMaterial().setParam("MorphWeights", VarType.FloatArray, weights);
     }
 
     private <T extends Control> T findControl(Spatial s, Class<T> controlClass) {
@@ -291,18 +316,19 @@ public class TestGltfLoading extends SimpleApplication {
 
     @Override
     public void simpleUpdate(float tpf) {
-
         if (!useAutoRotate) {
             return;
         }
         time += tpf;
-        autoRotate.rotate(0, tpf * 0.5f, 0);
+      //  autoRotate.rotate(0, tpf * 0.5f, 0);
         if (time > duration) {
+            // morphIndex++;
+            //  setMorphTarget(morphIndex);
             assets.get(assetIndex).removeFromParent();
             assetIndex = (assetIndex + 1) % assets.size();
-            if (assetIndex == 0) {
-                duration = 10;
-            }
+//            if (assetIndex == 0) {
+//                duration = 10;
+//            }
             probeNode.attachChild(assets.get(assetIndex));
             time = 0;
         }

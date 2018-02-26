@@ -52,9 +52,9 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
 
     // private AnimComposer composer;
     private String[] animNames = {"Dodge", "Walk", "pull", "push"};
-    private final static int SIZE = 60;
+    private final static int SIZE = 40;
     private boolean hwSkinningEnable = true;
-    private List<SkinningControl> skControls = new ArrayList<SkinningControl>();
+    private List<SkinningControl> skControls = new ArrayList<>();
     private BitmapText hwsText;
 
     public static void main(String[] args) {

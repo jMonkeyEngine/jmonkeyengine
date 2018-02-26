@@ -10,7 +10,8 @@ public class TrackData {
     public enum Type {
         Translation,
         Rotation,
-        Scale
+        Scale,
+        Morph
     }
 
     Float length;
@@ -21,7 +22,6 @@ public class TrackData {
     Vector3f[] translations;
     Quaternion[] rotations;
     Vector3f[] scales;
-    //not used for now
     float[] weights;
 
     public void update() {
@@ -124,6 +124,13 @@ public class TrackData {
                 newScales[0] = scales[0];
                 System.arraycopy(scales, 0, newScales, 1, scales.length);
                 scales = newScales;
+            }
+            if (weights != null) {
+                int nbMorph = weights.length / (times.length - 1);
+                float[] newWeights = new float[weights.length + nbMorph];
+                System.arraycopy(weights, 0, newWeights, 0, nbMorph);
+                System.arraycopy(weights, 0, newWeights, nbMorph, weights.length);
+                weights = newWeights;
             }
         }
 

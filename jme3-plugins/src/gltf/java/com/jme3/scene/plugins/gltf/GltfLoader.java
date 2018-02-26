@@ -11,6 +11,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.*;
 import com.jme3.scene.control.CameraControl;
+import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.IntMap;
@@ -19,6 +20,8 @@ import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.Buffer;
+import java.nio.FloatBuffer;
+import java.rmi.ServerError;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -128,14 +131,14 @@ public class GltfLoader implements AssetLoader {
 
             rootNode = customContentManager.readExtensionAndExtras("root", docRoot, rootNode);
 
-            setupControls();
-
             //Loading animations
             if (animations != null) {
                 for (int i = 0; i < animations.size(); i++) {
                     readAnimation(i);
                 }
             }
+
+            setupControls();
 
             //only one scene let's not return the root.
             if (rootNode.getChildren().size() == 1) {
@@ -389,12 +392,28 @@ public class GltfLoader implements AssetLoader {
                 //the buffers will be setup if ever used.
                 VertexBuffer weightsHW = new VertexBuffer(VertexBuffer.Type.HWBoneWeight);
                 VertexBuffer indicesHW = new VertexBuffer(VertexBuffer.Type.HWBoneIndex);
-                //setting usage to cpuOnly so that the buffer is not send empty to the GPU
+                //setting usage to cpuOnly so that the buffer is not sent empty to the GPU
                 indicesHW.setUsage(VertexBuffer.Usage.CpuOnly);
                 weightsHW.setUsage(VertexBuffer.Usage.CpuOnly);
                 mesh.setBuffer(weightsHW);
                 mesh.setBuffer(indicesHW);
                 mesh.generateBindPose();
+            }
+
+            JsonArray targets = meshObject.getAsJsonArray("targets");
+            if(targets != null){
+                for (JsonElement target : targets) {
+                    MorphTarget morphTarget = new MorphTarget();
+                    for (Map.Entry<String, JsonElement> entry : target.getAsJsonObject().entrySet()) {
+                        String bufferType = entry.getKey();
+                        VertexBuffer.Type type = getVertexBufferType(bufferType);
+                        VertexBuffer vb = readAccessorData(entry.getValue().getAsInt(), new VertexBufferPopulator(type));
+                        if (vb != null) {
+                            morphTarget.setBuffer(type, (FloatBuffer)vb.getData());
+                        }
+                    }
+                    mesh.addMorphTarget(morphTarget);
+                }
             }
 
             mesh = customContentManager.readExtensionAndExtras("primitive", meshObject, mesh);
@@ -425,7 +444,6 @@ public class GltfLoader implements AssetLoader {
             geomArray[index] = geom;
             index++;
 
-            //TODO targets(morph anim...)
         }
 
         geomArray = customContentManager.readExtensionAndExtras("mesh", meshData, geomArray);
@@ -721,6 +739,7 @@ public class GltfLoader implements AssetLoader {
 
         //temp data storage of track data
         TrackData[] tracks = new TrackData[nodes.size()];
+        boolean hasMorphTrack = false;
 
         for (JsonElement channel : channels) {
 
@@ -733,12 +752,12 @@ public class GltfLoader implements AssetLoader {
                 continue;
             }
             assertNotNull(targetPath, "No target path for channel");
-
-            if (targetPath.equals("weight")) {
-                //Morph animation, not implemented in JME, let's warn the user and skip the channel
-                logger.log(Level.WARNING, "Morph animation is not supported by JME yet, skipping animation");
-                continue;
-            }
+//
+//            if (targetPath.equals("weights")) {
+//                //Morph animation, not implemented in JME, let's warn the user and skip the channel
+//                logger.log(Level.WARNING, "Morph animation is not supported by JME yet, skipping animation track");
+//                continue;
+//            }
 
             TrackData trackData = tracks[targetNode];
             if (trackData == null) {
@@ -782,9 +801,15 @@ public class GltfLoader implements AssetLoader {
                 Quaternion[] rotations = readAccessorData(dataIndex, quaternionArrayPopulator);
                 trackData.rotations = rotations;
             } else {
-                //TODO support weights
-                logger.log(Level.WARNING, "Morph animation is not supported");
-                continue;
+                trackData.timeArrays.add(new TrackData.TimeData(times, TrackData.Type.Morph));
+                float[] weights = readAccessorData(dataIndex, floatArrayPopulator);
+                Geometry g = fetchFromCache("nodes", targetNode, Geometry.class);
+                int expectedSize = g.getMesh().getMorphTargets().length * times.length;
+                if( expectedSize != weights.length ){
+                    throw new AssetLoadException("Morph animation should contain " + expectedSize + " entries, got" + weights.length);
+                }
+                trackData.weights = weights;
+                hasMorphTrack = true;
             }
             tracks[targetNode] = customContentManager.readExtensionAndExtras("channel", channel, trackData);
         }
@@ -795,7 +820,7 @@ public class GltfLoader implements AssetLoader {
 
         List<Spatial> spatials = new ArrayList<>();
         AnimClip anim = new AnimClip(name);
-        List<TransformTrack> ttracks = new ArrayList<>();
+        List<AnimTrack> aTracks = new ArrayList<>();
         int skinIndex = -1;
 
         List<Joint> usedJoints = new ArrayList<>();
@@ -809,8 +834,22 @@ public class GltfLoader implements AssetLoader {
             if (node instanceof Spatial) {
                 Spatial s = (Spatial) node;
                 spatials.add(s);
-                TransformTrack track = new TransformTrack(s, trackData.times, trackData.translations, trackData.rotations, trackData.scales);
-                ttracks.add(track);
+                if (trackData.rotations != null || trackData.translations != null || trackData.scales != null) {
+                    TransformTrack track = new TransformTrack(s, trackData.times, trackData.translations, trackData.rotations, trackData.scales);
+                    aTracks.add(track);
+                }
+                if( trackData.weights != null && s instanceof Geometry){
+                    Geometry g = (Geometry)s;
+                    int nbMorph = g.getMesh().getMorphTargets().length;
+//                    for (int k = 0; k < trackData.weights.length; k++) {
+//                        System.err.print(trackData.weights[k] + ",");
+//                        if(k % nbMorph == 0 && k!=0){
+//                            System.err.println(" ");
+//                        }
+//                    }
+                    MorphTrack track = new MorphTrack(g, trackData.times, trackData.weights, nbMorph);
+                    aTracks.add(track);
+                }
             } else if (node instanceof JointWrapper) {
                 JointWrapper jw = (JointWrapper) node;
                 usedJoints.add(jw.joint);
@@ -826,8 +865,7 @@ public class GltfLoader implements AssetLoader {
                 }
 
                 TransformTrack track = new TransformTrack(jw.joint, trackData.times, trackData.translations, trackData.rotations, trackData.scales);
-                ttracks.add(track);
-
+                aTracks.add(track);
             }
         }
 
@@ -845,12 +883,12 @@ public class GltfLoader implements AssetLoader {
                     Quaternion[] rotations = new Quaternion[]{joint.getLocalRotation()};
                     Vector3f[] scales = new Vector3f[]{joint.getLocalScale()};
                     TransformTrack track = new TransformTrack(joint, times, translations, rotations, scales);
-                    ttracks.add(track);
+                    aTracks.add(track);
                 }
             }
         }
 
-        anim.setTracks(ttracks.toArray(new TransformTrack[ttracks.size()]));
+        anim.setTracks(aTracks.toArray(new AnimTrack[aTracks.size()]));
 
         anim = customContentManager.readExtensionAndExtras("animations", animation, anim);
 
@@ -862,11 +900,14 @@ public class GltfLoader implements AssetLoader {
 
         if (!spatials.isEmpty()) {
             if (skinIndex != -1) {
-                //there are some spatial tracks in this bone animation... or the other way around. Let's add the spatials in the skinnedSpatials.
+                //there are some spatial or moph tracks in this bone animation... or the other way around. Let's add the spatials in the skinnedSpatials.
                 SkinData skin = fetchFromCache("skins", skinIndex, SkinData.class);
                 List<Spatial> spat = skinnedSpatials.get(skin);
                 spat.addAll(spatials);
                 //the animControl will be added in the setupControls();
+                if (hasMorphTrack && skin.morphControl == null) {
+                    skin.morphControl = new MorphControl();
+                }
             } else {
                 //Spatial animation
                 Spatial spatial = null;
@@ -882,6 +923,9 @@ public class GltfLoader implements AssetLoader {
                     spatial.addControl(composer);
                 }
                 composer.addAnimClip(anim);
+                if (hasMorphTrack && spatial.getControl(MorphControl.class) == null) {
+                    spatial.addControl(new MorphControl());
+                }
             }
         }
     }
@@ -1049,6 +1093,9 @@ public class GltfLoader implements AssetLoader {
                 spatial.addControl(skinData.animComposer);
             }
             spatial.addControl(skinData.skinningControl);
+            if (skinData.morphControl != null) {
+                spatial.addControl(skinData.morphControl);
+            }
         }
 
         for (int i = 0; i < nodes.size(); i++) {
@@ -1131,7 +1178,9 @@ public class GltfLoader implements AssetLoader {
 
     private class SkinData {
         SkinningControl skinningControl;
+        MorphControl morphControl;
         AnimComposer animComposer;
+        Spatial spatial;
         Spatial parent;
         Transform rootBoneTransformOffset;
         Joint[] joints;
@@ -1221,6 +1270,27 @@ public class GltfLoader implements AssetLoader {
         }
 
     }
+//
+//    private class FloaGridPopulator implements Populator<float[]> {
+//
+//        @Override
+//        public float[][] populate(Integer bufferViewIndex, int componentType, String type, int count, int byteOffset, boolean normalized) throws IOException {
+//
+//            int numComponents = getNumberOfComponents(type);
+//            int dataSize = numComponents * count;
+//            float[] data = new float[dataSize];
+//
+//            if (bufferViewIndex == null) {
+//                //no referenced buffer, specs says to pad the data with zeros.
+//                padBuffer(data, dataSize);
+//            } else {
+//                readBuffer(bufferViewIndex, byteOffset, count, data, numComponents, getVertexBufferFormat(componentType));
+//            }
+//
+//            return data;
+//        }
+//
+//    }
 
     private class Vector3fArrayPopulator implements Populator<Vector3f[]> {
 

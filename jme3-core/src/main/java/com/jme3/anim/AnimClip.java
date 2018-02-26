@@ -16,7 +16,7 @@ public class AnimClip implements JmeCloneable, Savable {
     private String name;
     private double length;
 
-    private TransformTrack[] tracks;
+    private AnimTrack[] tracks;
 
     public AnimClip() {
     }
@@ -25,9 +25,9 @@ public class AnimClip implements JmeCloneable, Savable {
         this.name = name;
     }
 
-    public void setTracks(TransformTrack[] tracks) {
+    public void setTracks(AnimTrack[] tracks) {
         this.tracks = tracks;
-        for (TransformTrack track : tracks) {
+        for (AnimTrack track : tracks) {
             if (track.getLength() > length) {
                 length = track.getLength();
             }
@@ -44,7 +44,7 @@ public class AnimClip implements JmeCloneable, Savable {
     }
 
 
-    public TransformTrack[] getTracks() {
+    public AnimTrack[] getTracks() {
         return tracks;
     }
 
@@ -59,7 +59,7 @@ public class AnimClip implements JmeCloneable, Savable {
 
     @Override
     public void cloneFields(Cloner cloner, Object original) {
-        TransformTrack[] newTracks = new TransformTrack[tracks.length];
+        AnimTrack[] newTracks = new AnimTrack[tracks.length];
         for (int i = 0; i < tracks.length; i++) {
             newTracks[i] = (cloner.clone(tracks[i]));
         }
