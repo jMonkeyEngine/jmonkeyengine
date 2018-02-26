@@ -121,7 +121,7 @@ public class ArmatureDebugger extends Node {
         ((Node) wires.getChild(1)).getChild(0).setCullHint(display ? CullHint.Dynamic : CullHint.Always);
     }
 
-    protected void initialize(AssetManager assetManager, Camera camera) {
+    public void initialize(AssetManager assetManager, Camera camera) {
 
         armatureNode.setCamera(camera);
 
@@ -153,10 +153,6 @@ public class ArmatureDebugger extends Node {
 
     }
 
-    public int pick(Vector2f cursor, CollisionResults results) {
-        return armatureNode.pick(cursor, results);
-    }
-
     public Armature getArmature() {
         return armature;
     }
@@ -169,9 +165,7 @@ public class ArmatureDebugger extends Node {
 
     @Override
     public int collideWith(Collidable other, CollisionResults results) {
-
         return armatureNode.collideWith(other, results);
-
     }
 
     protected Joint select(Geometry g) {
