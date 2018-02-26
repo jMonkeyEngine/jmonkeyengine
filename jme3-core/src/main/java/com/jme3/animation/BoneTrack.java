@@ -35,6 +35,8 @@ import com.jme3.export.*;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.BitSet;
 
@@ -43,7 +45,7 @@ import java.util.BitSet;
  * 
  * @author Kirill Vainer
  */
-public final class BoneTrack implements Track {
+public final class BoneTrack implements JmeCloneable, Track {
 
     /**
      * Bone index in the skeleton which this track affects.
@@ -272,33 +274,48 @@ public final class BoneTrack implements Track {
     public float[] getKeyFrameTimes() {
         return times;
     }
-    
+
     /**
-     * This method creates a clone of the current object.
-     * @return a clone of the current object
+     * Create a deep clone of this track.
+     *
+     * @return a new track
      */
     @Override
     public BoneTrack clone() {
-        int tablesLength = times.length;
-
-        float[] times = this.times.clone();
-        Vector3f[] sourceTranslations = this.getTranslations();
-        Quaternion[] sourceRotations = this.getRotations();
-        Vector3f[] sourceScales = this.getScales();
-
-        Vector3f[] translations = new Vector3f[tablesLength];
-        Quaternion[] rotations = new Quaternion[tablesLength];
-        Vector3f[] scales = new Vector3f[tablesLength];
-        for (int i = 0; i < tablesLength; ++i) {
-            translations[i] = sourceTranslations[i].clone();
-            rotations[i] = sourceRotations[i].clone();
-            scales[i] = sourceScales != null ? sourceScales[i].clone() : new Vector3f(1.0f, 1.0f, 1.0f);
-        }
-        
-        // Need to use the constructor here because of the final fields used in this class
-        return new BoneTrack(targetBoneIndex, times, translations, rotations, scales);
+        return Cloner.deepClone(this);
     }
-    
+
+    /**
+     * Create a shallow clone for the JME cloner.
+     *
+     * @return a new track
+     */
+    @Override
+    public BoneTrack jmeClone() {
+        try {
+            return (BoneTrack) super.clone();
+        } catch (CloneNotSupportedException exception) {
+            throw new RuntimeException("Can't clone track", exception);
+        }
+    }
+
+    /**
+     * Callback from {@link com.jme3.util.clone.Cloner} to convert this
+     * shallow-cloned track into a deep-cloned one, using the specified cloner
+     * to resolve copied fields.
+     *
+     * @param cloner the cloner currently cloning this control (not null)
+     * @param original the track from which this track was shallow-cloned
+     * (unused)
+     */
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        translations = cloner.clone(translations);
+        rotations = cloner.clone(rotations);
+        scales = cloner.clone(scales);
+        times = cloner.clone(times);
+    }
+
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
