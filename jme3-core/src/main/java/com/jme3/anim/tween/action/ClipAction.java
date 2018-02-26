@@ -1,10 +1,10 @@
 package com.jme3.anim.tween.action;
 
-import com.jme3.anim.AnimClip;
-import com.jme3.anim.TransformTrack;
+import com.jme3.anim.*;
 import com.jme3.anim.tween.AbstractTween;
 import com.jme3.anim.util.HasLocalTransform;
 import com.jme3.math.Transform;
+import com.jme3.scene.Geometry;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,18 +22,39 @@ public class ClipAction extends BlendableAction {
 
     @Override
     public void doInterpolate(double t) {
-        TransformTrack[] tracks = clip.getTracks();
-        for (TransformTrack track : tracks) {
-            HasLocalTransform target = track.getTarget();
-            transform.set(target.getLocalTransform());
-            track.getTransformAtTime(t, transform);
-
-            if (collectTransformDelegate != null) {
-                collectTransformDelegate.collectTransform(target, transform, getWeight(), this);
-            } else {
-                this.collectTransform(target, transform, getTransitionWeight(), this);
+        AnimTrack[] tracks = clip.getTracks();
+        for (AnimTrack track : tracks) {
+            if (track instanceof TransformTrack) {
+                interpolateTransformTrack(t, (TransformTrack) track);
+            } else if (track instanceof MorphTrack) {
+                interpolateMorphTrack(t, (MorphTrack) track);
             }
         }
+    }
+
+    private void interpolateTransformTrack(double t, TransformTrack track) {
+        HasLocalTransform target = track.getTarget();
+        transform.set(target.getLocalTransform());
+        track.getDataAtTime(t, transform);
+
+        if (collectTransformDelegate != null) {
+            collectTransformDelegate.collectTransform(target, transform, getWeight(), this);
+        } else {
+            this.collectTransform(target, transform, getTransitionWeight(), this);
+        }
+    }
+    private void interpolateMorphTrack(double t, MorphTrack track) {
+        Geometry target = track.getTarget();
+        float[] weights = new float[target.getMesh().getMorphTargets().length];
+        track.getDataAtTime(t, weights);
+        target.getMesh().setMorphState(weights);
+
+
+//        if (collectTransformDelegate != null) {
+//            collectTransformDelegate.collectTransform(target, transform, getWeight(), this);
+//        } else {
+//            this.collectTransform(target, transform, getTransitionWeight(), this);
+//        }
     }
 
     public void reset() {
@@ -43,8 +64,10 @@ public class ClipAction extends BlendableAction {
     @Override
     public Collection<HasLocalTransform> getTargets() {
         List<HasLocalTransform> targets = new ArrayList<>(clip.getTracks().length);
-        for (TransformTrack track : clip.getTracks()) {
-            targets.add(track.getTarget());
+        for (AnimTrack track : clip.getTracks()) {
+            if (track instanceof TransformTrack) {
+                targets.add(((TransformTrack) track).getTarget());
+            }
         }
         return targets;
     }

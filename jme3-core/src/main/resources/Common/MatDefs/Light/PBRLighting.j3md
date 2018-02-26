@@ -110,6 +110,11 @@ MaterialDef PBR Lighting {
         // For hardware skinning
         Int NumberOfBones
         Matrix4Array BoneMatrices
+
+        // For Morph animation
+        FloatArray MorphWeights
+        Int NumberOfMorphTargets
+        Int NumberOfTargetsBuffers : 1
                 
         //For instancing
         Boolean UseInstancing
@@ -158,6 +163,8 @@ MaterialDef PBR Lighting {
             NORMAL_TYPE: NormalType
             VERTEX_COLOR : UseVertexColor
             AO_MAP: LightMapAsAOMap
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
     }
 
@@ -178,6 +185,8 @@ MaterialDef PBR Lighting {
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
 
         ForcedRenderState {
@@ -215,6 +224,8 @@ MaterialDef PBR Lighting {
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
             BACKFACE_SHADOWS: BackfaceShadows
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
 
         ForcedRenderState {
@@ -247,6 +258,8 @@ MaterialDef PBR Lighting {
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
             BACKFACE_SHADOWS: BackfaceShadows
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
 
         ForcedRenderState {
@@ -272,6 +285,8 @@ MaterialDef PBR Lighting {
         Defines {
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
 
     }
@@ -291,6 +306,8 @@ MaterialDef PBR Lighting {
             NEED_TEXCOORD1
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
     }
 

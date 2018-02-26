@@ -58,7 +58,6 @@ public class AnimInterpolators {
     };
 
     //Position / Scale interpolators
-
     public static final AnimInterpolator<Vector3f> LinearVec3f = new AnimInterpolator<Vector3f>() {
         private Vector3f next = new Vector3f();
 
@@ -70,7 +69,6 @@ public class AnimInterpolators {
             return store;
         }
     };
-
     /**
      * CatmullRom interpolation
      */

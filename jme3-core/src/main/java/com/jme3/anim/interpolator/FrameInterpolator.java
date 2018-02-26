@@ -20,6 +20,7 @@ public class FrameInterpolator {
     private TrackDataReader<Vector3f> scaleReader = new TrackDataReader<>();
     private TrackTimeReader timesReader = new TrackTimeReader();
 
+
     private Transform transforms = new Transform();
 
     public Transform interpolate(float t, int currentIndex, CompactVector3Array translations, CompactQuaternionArray rotations, CompactVector3Array scales, float[] times){
@@ -40,6 +41,20 @@ public class FrameInterpolator {
             scaleInterpolator.interpolate(t, currentIndex, scaleReader, timesReader, transforms.getScale());
         }
         return transforms;
+    }
+
+    public void interpolateWeights(float t, int currentIndex, float[] weights, int nbMorphTargets, float[] store) {
+        int start = currentIndex * nbMorphTargets;
+        for (int i = 0; i < nbMorphTargets; i++) {
+            int current = start + i;
+            int next = current + nbMorphTargets;
+            if (next >= weights.length) {
+                next = current;
+            }
+
+            float val =  FastMath.interpolateLinear(t, weights[current], weights[next]);
+            store[i] = val;
+        }
     }
 
     public void setTimeInterpolator(AnimInterpolator<Float> timeInterpolator) {

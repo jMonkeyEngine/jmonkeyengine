@@ -48,7 +48,7 @@ import java.io.IOException;
  *
  * @author Rémy Bouquet
  */
-public class TransformTrack implements JmeCloneable, Savable {
+public class TransformTrack implements AnimTrack<Transform> {
 
     private double length;
     private HasLocalTransform target;
@@ -79,15 +79,6 @@ public class TransformTrack implements JmeCloneable, Savable {
     public TransformTrack(HasLocalTransform target, float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
         this.target = target;
         this.setKeyframes(times, translations, rotations, scales);
-    }
-
-    /**
-     * Creates a bone track for the given bone index
-     *
-     * @param targetJointIndex the bone's index
-     */
-    public TransformTrack(int targetJointIndex) {
-        this();
     }
 
     /**
@@ -223,7 +214,7 @@ public class TransformTrack implements JmeCloneable, Savable {
         return length;
     }
 
-    public void getTransformAtTime(double t, Transform transform) {
+    public void getDataAtTime(double t, Transform transform) {
         float time = (float) t;
 
         int lastFrame = times.length - 1;
