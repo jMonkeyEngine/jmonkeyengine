@@ -34,15 +34,15 @@ package com.jme3.renderer.opengl;
 import java.nio.IntBuffer;
 
 /**
- * Framebuffer object functions. 
- * 
- * Available by default in OpenGL ES 2, but on desktop GL 2 
+ * Framebuffer object functions.
+ * <p>
+ * Available by default in OpenGL ES 2, but on desktop GL 2
  * an extension is required.
- * 
+ *
  * @author Kirill Vainer
  */
 public interface GLFbo {
-    
+
     public static final int GL_COLOR_ATTACHMENT0_EXT = 0x8CE0;
     public static final int GL_COLOR_ATTACHMENT1_EXT = 0x8CE1;
     public static final int GL_COLOR_ATTACHMENT2_EXT = 0x8CE2;
@@ -80,19 +80,33 @@ public interface GLFbo {
     public static final int GL_READ_FRAMEBUFFER_BINDING_EXT = 0x8CAA;
     public static final int GL_READ_FRAMEBUFFER_EXT = 0x8CA8;
     public static final int GL_RENDERBUFFER_EXT = 0x8D41;
-    
-    public void glBindFramebufferEXT(int param1, int param2);
-    public void glBindRenderbufferEXT(int param1, int param2);
-    public void glBlitFramebufferEXT(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1, int dstY1, int mask, int filter);
-    public int glCheckFramebufferStatusEXT(int param1);
-    public void glDeleteFramebuffersEXT(IntBuffer param1);
-    public void glDeleteRenderbuffersEXT(IntBuffer param1);
-    public void glFramebufferRenderbufferEXT(int param1, int param2, int param3, int param4);
-    public void glFramebufferTexture2DEXT(int param1, int param2, int param3, int param4, int param5);
+
+    public void glBindFramebufferEXT(int target, int frameBuffer);
+
+    public void glBindRenderbufferEXT(int target, int renderBuffer);
+
+    public void glBlitFramebufferEXT(int srcX0, int srcY0, int srcX1, int srcY1, int dstX0, int dstY0, int dstX1,
+                                     int dstY1, int mask, int filter);
+
+    public int glCheckFramebufferStatusEXT(int target);
+
+    public void glDeleteFramebuffersEXT(IntBuffer frameBuffers);
+
+    public void glDeleteRenderbuffersEXT(IntBuffer renderBuffers);
+
+    public void glFramebufferRenderbufferEXT(int target, int attachment, int renderBufferTarget, int renderBuffer);
+
+    public void glFramebufferTexture2DEXT(int target, int attachment, int texTarget, int texture, int level);
+
     public void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer);
-    public void glGenFramebuffersEXT(IntBuffer param1);
-    public void glGenRenderbuffersEXT(IntBuffer param1);
-    public void glGenerateMipmapEXT(int param1);
-    public void glRenderbufferStorageEXT(int param1, int param2, int param3, int param4);
-    public void glRenderbufferStorageMultisampleEXT(int target, int samples, int internalformat, int width, int height);
+
+    public void glGenFramebuffersEXT(IntBuffer frameBuffers);
+
+    public void glGenRenderbuffersEXT(IntBuffer renderBuffers);
+
+    public void glGenerateMipmapEXT(int target);
+
+    public void glRenderbufferStorageEXT(int target, int internalFormat, int width, int height);
+
+    public void glRenderbufferStorageMultisampleEXT(int target, int samples, int internalFormat, int width, int height);
 }
