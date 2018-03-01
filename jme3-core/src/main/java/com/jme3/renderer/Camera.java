@@ -373,8 +373,7 @@ public class Camera implements Savable, Cloneable {
      * <li><a href="http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html">http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html</a>
      * </ul>
      *
-     * Note that this will work properly only if it's called on each update, and be aware that it won't work properly with the sky bucket.
-     * if you want to handle the sky bucket, look at how it's done in SimpleWaterProcessor.java
+     * Note that this will work properly only if it's called on each update, and be aware that it won't work properly with the sky bucket. If you want to handle the sky bucket, look at how it's done in SimpleWaterProcessor.java
      * @param clipPlane the plane
      * @param side the side the camera stands from the plane
      */
@@ -431,12 +430,25 @@ public class Camera implements Savable, Cloneable {
      * http://hacksoflife.blogspot.com/2008/12/every-now-and-then-i-come-across.html</a></li>
      * </ul>
      *
-     * Note that this will work properly only if it's called on each update, and be aware that it won't work properly with the sky bucket.
-     * if you want to handle the sky bucket, look at how it's done in SimpleWaterProcessor.java
+     * Note that this will work properly only if it's called on each update, and be aware that it won't work properly with the sky bucket. If you want to handle the sky bucket, look at how it's done in SimpleWaterProcessor.java
      * @param clipPlane the plane
      */
     public void setClipPlane(Plane clipPlane) {
         setClipPlane(clipPlane, clipPlane.whichSide(location));
+    }
+
+    /**
+     * Sets a clip distance away from the camera by setting a clip plane. Geometries that are within {@code clipDistance} units of the camera in the direction the camera is pointing will be clipped.
+     * <p>
+     * All qualifiers that apply to {@link Camera#setClipPlane(Plane) setClipPlane} apply to this method as well.
+     * <p>
+     * Note that this will work properly only if it's called on each update, and be aware that it won't work properly with the sky bucket. If you want to handle the sky bucket, look at how it's done in SimpleWaterProcessor.java
+     *
+     * @param clipDistance the clip distance.
+     * @see Camera#setClipPlane(Plane)
+     */
+    public void setClipDistance(float clipDistance) {
+        setClipPlane(new Plane(getDirection(), getLocation().add(getDirection().mult(clipDistance))), Plane.Side.Positive);
     }
 
     /**
