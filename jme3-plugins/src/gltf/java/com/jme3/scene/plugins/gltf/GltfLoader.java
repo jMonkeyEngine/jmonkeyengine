@@ -803,11 +803,6 @@ public class GltfLoader implements AssetLoader {
             } else {
                 trackData.timeArrays.add(new TrackData.TimeData(times, TrackData.Type.Morph));
                 float[] weights = readAccessorData(dataIndex, floatArrayPopulator);
-                Geometry g = fetchFromCache("nodes", targetNode, Geometry.class);
-                int expectedSize = g.getMesh().getMorphTargets().length * times.length;
-                if( expectedSize != weights.length ){
-                    throw new AssetLoadException("Morph animation should contain " + expectedSize + " entries, got" + weights.length);
-                }
                 trackData.weights = weights;
                 hasMorphTrack = true;
             }
