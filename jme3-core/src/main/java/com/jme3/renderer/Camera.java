@@ -60,6 +60,7 @@ import java.util.logging.Logger;
  *
  * @author Mark Powell
  * @author Joshua Slack
+ * @author Ian McClean
  */
 public class Camera implements Savable, Cloneable {
 
