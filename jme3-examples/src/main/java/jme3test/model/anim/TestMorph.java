@@ -1,5 +1,6 @@
 package jme3test.model.anim;
 
+import com.jme3.anim.MorphControl;
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.KeyInput;
@@ -68,16 +69,16 @@ public class TestMorph extends SimpleApplication {
         target2.setBuffer(VertexBuffer.Type.Position, buffer);
         box.addMorphTarget(target2);
 
-        Geometry g = new Geometry("box", box);
-        final Material m = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        final Geometry g = new Geometry("box", box);
+        Material m = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         g.setMaterial(m);
         m.setColor("Color", ColorRGBA.Red);
         m.setInt("NumberOfMorphTargets", 2);
 
         rootNode.attachChild(g);
 
-        box.setActiveMorphTargets(0,1);
-        m.setParam("MorphWeights", VarType.FloatArray, weights);
+        g.setMorphState(weights);
+        g.addControl(new MorphControl());
 
         ChaseCameraAppState chase = new ChaseCameraAppState();
         chase.setTarget(rootNode);
@@ -104,7 +105,7 @@ public class TestMorph extends SimpleApplication {
                 if (name.equals("morphdown")) {
                     weights[1] -= tpf;
                 }
-                m.setParam("MorphWeights", VarType.FloatArray, weights);
+                g.setMorphState(weights);
 
             }
         }, "morphup", "morphdown", "morphleft", "morphright");

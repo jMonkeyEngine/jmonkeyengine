@@ -45,10 +45,9 @@ public class ClipAction extends BlendableAction {
     }
     private void interpolateMorphTrack(double t, MorphTrack track) {
         Geometry target = track.getTarget();
-        float[] weights = new float[target.getMesh().getMorphTargets().length];
+        float[] weights = target.getMorphState();
         track.getDataAtTime(t, weights);
-        target.getMesh().setMorphState(weights);
-
+        target.setMorphState(weights);
 
 //        if (collectTransformDelegate != null) {
 //            collectTransformDelegate.collectTransform(target, transform, getWeight(), this);

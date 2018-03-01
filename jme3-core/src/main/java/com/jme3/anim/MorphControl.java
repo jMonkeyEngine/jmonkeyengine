@@ -9,7 +9,9 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.shader.VarType;
+import com.jme3.util.BufferUtils;
 import com.jme3.util.SafeArrayList;
+import javafx.geometry.Pos;
 
 import java.nio.FloatBuffer;
 
@@ -17,6 +19,7 @@ import java.nio.FloatBuffer;
  * A control that handle morph animation for Position, Normal and Tangent buffers.
  * All stock shaders only support morphing these 3 buffers, but note that MorphTargets can have any type of buffers.
  * If you want to use other types of buffers you will need a custom MorphControl and a custom shader.
+ *
  * @author Rémy Bouquet
  */
 public class MorphControl extends AbstractControl {
@@ -30,8 +33,17 @@ public class MorphControl extends AbstractControl {
     private boolean approximateTangents = true;
     private MatParamOverride nullNumberOfBones = new MatParamOverride(VarType.Int, "NumberOfBones", null);
 
+    private float[] tmpPosArray;
+    private float[] tmpNormArray;
+    private float[] tmpTanArray;
+
+    private static final VertexBuffer.Type bufferTypes[] = VertexBuffer.Type.values();
+
     @Override
     protected void controlUpdate(float tpf) {
+        if (!enabled) {
+            return;
+        }
         // gathering geometries in the sub graph.
         // This must be done in the update phase as the gathering might add a matparam override
         targets.clear();
@@ -40,15 +52,18 @@ public class MorphControl extends AbstractControl {
 
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
+        if (!enabled) {
+            return;
+        }
         for (Geometry target : targets) {
             Mesh mesh = target.getMesh();
-            if (!mesh.isDirtyMorph()) {
+            if (!target.isDirtyMorph()) {
                 continue;
             }
             int nbMaxBuffers = getRemainingBuffers(mesh, rm.getRenderer());
             Material m = target.getMaterial();
 
-            float weights[] = mesh.getMorphState();
+            float weights[] = target.getMorphState();
             MorphTarget morphTargets[] = mesh.getMorphTargets();
             float matWeights[];
             MatParam param = m.getParam("MorphWeights");
@@ -69,45 +84,171 @@ public class MorphControl extends AbstractControl {
             m.setInt("NumberOfTargetsBuffers", targetNumBuffers);
 
             int nbGPUTargets = 0;
-            int nbCPUBuffers = 0;
+            int lastGpuTargetIndex = 0;
             int boundBufferIdx = 0;
+            float cpuWeightSum = 0;
+            // binding the morphTargets buffer to the mesh morph buffers
             for (int i = 0; i < morphTargets.length; i++) {
+                // discard weights below the threshold
                 if (weights[i] < MIN_WEIGHT) {
                     continue;
                 }
                 if (nbGPUTargets >= maxGPUTargets) {
-                    //TODO we should fallback to CPU there.
-                    nbCPUBuffers++;
+                    // we already bound all the available gpu slots we need to merge the remaining morph targets.
+                    cpuWeightSum += weights[i];
                     continue;
                 }
-                int start = VertexBuffer.Type.MorphTarget0.ordinal();
+                lastGpuTargetIndex = i;
+                // binding the morph target's buffers to the mesh morph buffers.
                 MorphTarget t = morphTargets[i];
-                if (targetNumBuffers >= 1) {
-                    activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Position));
-                    boundBufferIdx++;
-                }
-                if (targetNumBuffers >= 2) {
-                    activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Normal));
-                    boundBufferIdx++;
-                }
-                if (!approximateTangents && targetNumBuffers == 3) {
-                    activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Tangent));
-                    boundBufferIdx++;
-                }
+                boundBufferIdx = bindMorphtargetBuffer(mesh, targetNumBuffers, boundBufferIdx, t);
+                // setting the weight in the mat param array
                 matWeights[nbGPUTargets] = weights[i];
                 nbGPUTargets++;
-
             }
+
             if (nbGPUTargets < matWeights.length) {
+                // if we have less simultaneous GPU targets than the length of the weight array, the array is padded with 0
                 for (int i = nbGPUTargets; i < matWeights.length; i++) {
                     matWeights[i] = 0;
                 }
+            } else if (cpuWeightSum > 0) {
+                // we have more simultaneous morph targets than available gpu slots,
+                // we merge the additional morph targets and bind them to the last gpu slot
+                MorphTarget mt = target.getFallbackMorphTarget();
+                if (mt == null) {
+                    mt = initCpuMorphTarget(target);
+                    target.setFallbackMorphTarget(mt);
+                }
+                // adding the last Gpu target weight
+                cpuWeightSum += matWeights[nbGPUTargets - 1];
+                ensureTmpArraysCapacity(target.getVertexCount() * 3, targetNumBuffers);
+
+                // merging all remaining targets in tmp arrays
+                for (int i = lastGpuTargetIndex; i < morphTargets.length; i++) {
+                    if (weights[i] < MIN_WEIGHT) {
+                        continue;
+                    }
+                    float weight = weights[i] / cpuWeightSum;
+                    MorphTarget t = target.getMesh().getMorphTargets()[i];
+                    mergeMorphTargets(targetNumBuffers, weight, t, i == lastGpuTargetIndex);
+                }
+
+                // writing the tmp arrays to the float buffer
+                writeCpuBuffer(targetNumBuffers, mt);
+
+                // binding the merged morph target
+                bindMorphtargetBuffer(mesh, targetNumBuffers, (nbGPUTargets - 1) * targetNumBuffers, mt);
+
+                // setting the eight of the merged targets
+                matWeights[nbGPUTargets - 1] = cpuWeightSum;
             }
         }
     }
 
+    private int bindMorphtargetBuffer(Mesh mesh, int targetNumBuffers, int boundBufferIdx, MorphTarget t) {
+        int start = VertexBuffer.Type.MorphTarget0.ordinal();
+        if (targetNumBuffers >= 1) {
+            activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Position));
+            boundBufferIdx++;
+        }
+        if (targetNumBuffers >= 2) {
+            activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Normal));
+            boundBufferIdx++;
+        }
+        if (!approximateTangents && targetNumBuffers == 3) {
+            activateBuffer(mesh, boundBufferIdx, start, t.getBuffer(VertexBuffer.Type.Tangent));
+            boundBufferIdx++;
+        }
+        return boundBufferIdx;
+    }
+
+    private void writeCpuBuffer(int targetNumBuffers, MorphTarget mt) {
+        if (targetNumBuffers >= 1) {
+            FloatBuffer dest = mt.getBuffer(VertexBuffer.Type.Position);
+            dest.rewind();
+            dest.put(tmpPosArray, 0, dest.capacity());
+        }
+        if (targetNumBuffers >= 2) {
+            FloatBuffer dest = mt.getBuffer(VertexBuffer.Type.Normal);
+            dest.rewind();
+            dest.put(tmpNormArray, 0, dest.capacity());
+        }
+        if (!approximateTangents && targetNumBuffers == 3) {
+            FloatBuffer dest = mt.getBuffer(VertexBuffer.Type.Tangent);
+            dest.rewind();
+            dest.put(tmpTanArray, 0, dest.capacity());
+        }
+    }
+
+    private void mergeMorphTargets(int targetNumBuffers, float weight, MorphTarget t, boolean init) {
+        if (targetNumBuffers >= 1) {
+            mergeTargetBuffer(tmpPosArray, weight, t.getBuffer(VertexBuffer.Type.Position), init);
+        }
+        if (targetNumBuffers >= 2) {
+            mergeTargetBuffer(tmpNormArray, weight, t.getBuffer(VertexBuffer.Type.Normal), init);
+        }
+        if (!approximateTangents && targetNumBuffers == 3) {
+            mergeTargetBuffer(tmpTanArray, weight, t.getBuffer(VertexBuffer.Type.Tangent), init);
+        }
+    }
+
+    private void ensureTmpArraysCapacity(int capacity, int targetNumBuffers) {
+        if (targetNumBuffers >= 1) {
+            tmpPosArray = ensureCapacity(tmpPosArray, capacity);
+        }
+        if (targetNumBuffers >= 2) {
+            tmpNormArray = ensureCapacity(tmpNormArray, capacity);
+        }
+        if (!approximateTangents && targetNumBuffers == 3) {
+            tmpTanArray = ensureCapacity(tmpTanArray, capacity);
+        }
+    }
+
+    private void mergeTargetBuffer(float[] array, float weight, FloatBuffer src, boolean init) {
+        src.rewind();
+        for (int j = 0; j < src.capacity(); j++) {
+            if (init) {
+                array[j] = 0;
+            }
+            array[j] += weight * src.get();
+        }
+    }
+
     private void activateBuffer(Mesh mesh, int idx, int start, FloatBuffer b) {
-        mesh.setBuffer(VertexBuffer.Type.values()[start + idx], 3, b);
+        VertexBuffer.Type t = bufferTypes[start + idx];
+        VertexBuffer vb = mesh.getBuffer(t);
+        // only set the buffer if it's different
+        if (vb == null || vb.getData() != b) {
+            mesh.setBuffer(t, 3, b);
+        }
+    }
+
+    private float[] ensureCapacity(float[] tmpArray, int size) {
+        if (tmpArray == null || tmpArray.length < size) {
+            return new float[size];
+        }
+        return tmpArray;
+    }
+
+    private MorphTarget initCpuMorphTarget(Geometry geom) {
+        MorphTarget res = new MorphTarget();
+        MorphTarget mt = geom.getMesh().getMorphTargets()[0];
+        FloatBuffer b = mt.getBuffer(VertexBuffer.Type.Position);
+        if (b != null) {
+            res.setBuffer(VertexBuffer.Type.Position, BufferUtils.createFloatBuffer(b.capacity()));
+        }
+        b = mt.getBuffer(VertexBuffer.Type.Normal);
+        if (b != null) {
+            res.setBuffer(VertexBuffer.Type.Normal, BufferUtils.createFloatBuffer(b.capacity()));
+        }
+        if (!approximateTangents) {
+            b = mt.getBuffer(VertexBuffer.Type.Tangent);
+            if (b != null) {
+                res.setBuffer(VertexBuffer.Type.Tangent, BufferUtils.createFloatBuffer(b.capacity()));
+            }
+        }
+        return res;
     }
 
     private int getTargetNumBuffers(MorphTarget morphTarget) {

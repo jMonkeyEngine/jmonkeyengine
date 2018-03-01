@@ -1,13 +1,13 @@
 package com.jme3.scene.mesh;
 
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.Savable;
+import com.jme3.export.*;
 import com.jme3.scene.VertexBuffer;
 
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.util.EnumMap;
+import java.util.Map;
 
 public class MorphTarget implements Savable {
     private EnumMap<VertexBuffer.Type, FloatBuffer> buffers = new EnumMap<>(VertexBuffer.Type.class);
@@ -30,11 +30,22 @@ public class MorphTarget implements Savable {
 
     @Override
     public void write(JmeExporter ex) throws IOException {
-
+        OutputCapsule oc = ex.getCapsule(this);
+        for (Map.Entry<VertexBuffer.Type, FloatBuffer> entry : buffers.entrySet()) {
+            Buffer roData = entry.getValue().asReadOnlyBuffer();
+            oc.write((FloatBuffer) roData, entry.getKey().name(),null);
+        }
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
+        InputCapsule ic = im.getCapsule(this);
+        for (VertexBuffer.Type type : VertexBuffer.Type.values()) {
+            FloatBuffer b = ic.readFloatBuffer(type.name(), null);
+            if(b!= null){
+                setBuffer(type, b);
+            }
+        }
 
     }
 }

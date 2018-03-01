@@ -185,9 +185,6 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     private Mode mode = Mode.Triangles;
 
     private SafeArrayList<MorphTarget> morphTargets;
-    private int numMorphBuffers = 0;
-    private float[] morphState;
-    private boolean dirtyMorph = true;
 
     /**
      * Creates a new mesh with no {@link VertexBuffer vertex buffers}.
@@ -1527,50 +1524,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         if (morphTargets == null) {
             morphTargets = new SafeArrayList<>(MorphTarget.class);
         }
-//        if (numMorphBuffers == 0) {
-//            numMorphBuffers = target.getNumBuffers();
-//            int start = Type.MorphTarget0.ordinal();
-//            int end = start + numMorphBuffers;
-//            for (int i = start; i < end; i++) {
-//                VertexBuffer vb = new VertexBuffer(Type.values()[i]);
-//                setBuffer(vb);
-//            }
-//        } else if (target.getNumBuffers() != numMorphBuffers) {
-//            throw new IllegalArgumentException("Morph target has different number of buffers");
-//        }
-
         morphTargets.add(target);
-    }
-
-    public void setMorphState(float[] state) {
-        if (morphTargets.isEmpty()) {
-            return;
-        }
-        if (morphState == null) {
-            morphState = new float[morphTargets.size()];
-        }
-        System.arraycopy(state, 0, morphState, 0, morphState.length);
-        this.dirtyMorph = true;
-    }
-
-    public float[] getMorphState() {
-        if (morphState == null) {
-            morphState = new float[morphTargets.size()];
-        }
-        return morphState;
-    }
-
-    public void setActiveMorphTargets(int... targetsIndex) {
-        int start = Type.MorphTarget0.ordinal();
-        for (int i = 0; i < targetsIndex.length; i++) {
-            MorphTarget t = morphTargets.get(targetsIndex[i]);
-            int idx = 0;
-            for (Type type : t.getBuffers().keySet()) {
-                FloatBuffer b = t.getBuffer(type);
-                setBuffer(Type.values()[start + i + idx], 3, b);
-                idx++;
-            }
-        }
     }
 
     public MorphTarget[] getMorphTargets() {
@@ -1581,20 +1535,9 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         return morphTargets != null && !morphTargets.isEmpty();
     }
 
-    public boolean isDirtyMorph() {
-        return dirtyMorph;
-    }
-
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule out = ex.getCapsule(this);
-
-//        HashMap<String, VertexBuffer> map = new HashMap<String, VertexBuffer>();
-//        for (Entry<VertexBuffer> buf : buffers){
-//            if (buf.getValue() != null)
-//                map.put(buf.getKey()+"a", buf.getValue());
-//        }
-//        out.writeStringSavableMap(map, "buffers", null);
 
         out.write(meshBound, "modelBound", null);
         out.write(vertCount, "vertCount", -1);
@@ -1630,6 +1573,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         }
 
         out.write(lodLevels, "lodLevels", null);
+        out.writeSavableArrayList(new ArrayList(morphTargets), "morphTargets", null);
     }
 
     @Override
@@ -1668,6 +1612,11 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         if (lodLevelsSavable != null) {
             lodLevels = new VertexBuffer[lodLevelsSavable.length];
             System.arraycopy( lodLevelsSavable, 0, lodLevels, 0, lodLevels.length);
+        }
+
+        ArrayList<Savable> l = in.readSavableArrayList("morphTargets", null);
+        if (l != null) {
+            morphTargets = new SafeArrayList(MorphTarget.class, l);
         }
     }
 

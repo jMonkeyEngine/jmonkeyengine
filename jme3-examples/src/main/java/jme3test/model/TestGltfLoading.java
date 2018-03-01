@@ -33,8 +33,7 @@ package jme3test.model;
 
 import com.jme3.anim.AnimComposer;
 import com.jme3.anim.SkinningControl;
-import com.jme3.app.ChaseCameraAppState;
-import com.jme3.app.SimpleApplication;
+import com.jme3.app.*;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -45,7 +44,6 @@ import com.jme3.scene.*;
 import com.jme3.scene.control.Control;
 import com.jme3.scene.debug.custom.ArmatureDebugAppState;
 import com.jme3.scene.plugins.gltf.GltfModelKey;
-import com.jme3.shader.VarType;
 import jme3test.model.anim.EraseTimer;
 
 import java.util.*;
@@ -118,8 +116,8 @@ public class TestGltfLoading extends SimpleApplication {
 //        rootNode.addLight(pl1);
 
         //loadModel("Models/gltf/polly/project_polly.gltf", new Vector3f(0, 0, 0), 0.5f);
-        //loadModel("Models/gltf/zophrac/scene.gltf", new Vector3f(0, 0, 0), 0.1f);
-        loadModel("Models/gltf/scifigirl/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
+        loadModel("Models/gltf/zophrac/scene.gltf", new Vector3f(0, 0, 0), 0.1f);
+    //    loadModel("Models/gltf/scifigirl/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
         //loadModel("Models/gltf/man/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
        //loadModel("Models/gltf/torus/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
         //loadModel("Models/gltf/morph/scene.gltf", new Vector3f(0, 0, 0), 0.2f);
@@ -214,15 +212,8 @@ public class TestGltfLoading extends SimpleApplication {
         }, "nextAnim");
 
         dumpScene(rootNode, 0);
-    }
 
-    public void setMorphTarget(int index) {
-        g = (Geometry) probeNode.getChild("0");
-        g.getMesh().setActiveMorphTargets(index);
-        g.getMaterial().setInt("NumberOfMorphTargets", 1);
-        g.getMaterial().setInt("NumberOfTargetsBuffers", 3);
-        float[] weights = {1.0f};
-        g.getMaterial().setParam("MorphWeights", VarType.FloatArray, weights);
+        stateManager.attach(new DetailedProfilerState());
     }
 
     private <T extends Control> T findControl(Spatial s, Class<T> controlClass) {

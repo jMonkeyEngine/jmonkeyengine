@@ -43,6 +43,7 @@ import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
@@ -85,6 +86,15 @@ public class Geometry extends Spatial {
      * the {@link GeometryGroupNode}.
      */
     protected int startIndex = -1;
+
+    /**
+     * Morph state variable for morph animation
+     */
+    private float[] morphState;
+    private boolean dirtyMorph = true;
+    // a Morph target that will be used to merge all targets that
+    // can't be handled on the cpu on each frame.
+    private MorphTarget fallbackMorphTarget;
 
     /**
      * Serialization only. Do not use.
@@ -574,6 +584,39 @@ public class Geometry extends Spatial {
         }
 
         this.material = cloner.clone(material);
+    }
+
+    public void setMorphState(float[] state) {
+        if (mesh == null || mesh.getMorphTargets().length == 0){
+            return;
+        }
+
+        int nbMorphTargets = mesh.getMorphTargets().length;
+
+        if (morphState == null) {
+            morphState = new float[nbMorphTargets];
+        }
+        System.arraycopy(state, 0, morphState, 0, morphState.length);
+        this.dirtyMorph = true;
+    }
+
+    public boolean isDirtyMorph() {
+        return dirtyMorph;
+    }
+
+    public float[] getMorphState() {
+        if (morphState == null) {
+            morphState = new float[mesh.getMorphTargets().length];
+        }
+        return morphState;
+    }
+
+    public MorphTarget getFallbackMorphTarget() {
+        return fallbackMorphTarget;
+    }
+
+    public void setFallbackMorphTarget(MorphTarget fallbackMorphTarget) {
+        this.fallbackMorphTarget = fallbackMorphTarget;
     }
 
     @Override
