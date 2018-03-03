@@ -1,7 +1,6 @@
 package jme3test.model.anim;
 
-import com.jme3.anim.AnimComposer;
-import com.jme3.anim.SkinningControl;
+import com.jme3.anim.*;
 import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
@@ -26,7 +25,7 @@ import java.util.Queue;
 /**
  * Created by Nehon on 18/12/2017.
  */
-public class TestAnimSerialization extends SimpleApplication {
+public class TestAnimMorphSerialization extends SimpleApplication {
 
     ArmatureDebugAppState debugAppState;
     AnimComposer composer;
@@ -35,7 +34,7 @@ public class TestAnimSerialization extends SimpleApplication {
     File file;
 
     public static void main(String... argv) {
-        TestAnimSerialization app = new TestAnimSerialization();
+        TestAnimMorphSerialization app = new TestAnimMorphSerialization();
         app.start();
     }
 
@@ -44,15 +43,14 @@ public class TestAnimSerialization extends SimpleApplication {
         setTimer(new EraseTimer());
         //cam.setFrustumPerspective(90f, (float) cam.getWidth() / cam.getHeight(), 0.01f, 10f);
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
-        rootNode.addLight(new DirectionalLight(new Vector3f(-1, -1, -1).normalizeLocal()));
-        rootNode.addLight(new AmbientLight(ColorRGBA.DarkGray));
-
-        Spatial model = assetManager.loadModel("Models/Jaime/Jaime.j3o");
-
-        AnimMigrationUtils.migrate(model);
+        //rootNode.addLight(new DirectionalLight(new Vector3f(-1, -1, -1).normalizeLocal()));
+        //rootNode.addLight(new AmbientLight(ColorRGBA.DarkGray));
+        Node probeNode = (Node) assetManager.loadModel("Scenes/defaultProbe.j3o");
+        rootNode.attachChild(probeNode);
+        Spatial model = assetManager.loadModel("Models/gltf/zophrac/scene.gltf");
 
         File storageFolder = JmeSystem.getStorageFolder();
-        file = new File(storageFolder.getPath() + File.separator + "newJaime.j3o");
+        file = new File(storageFolder.getPath() + File.separator + "zophrac.j3o");
         BinaryExporter be = new BinaryExporter();
         try {
             be.save(model, file);
@@ -61,20 +59,20 @@ public class TestAnimSerialization extends SimpleApplication {
         }
 
         assetManager.registerLocator(storageFolder.getPath(), FileLocator.class);
-        model = assetManager.loadModel("newJaime.j3o");
-
-        rootNode.attachChild(model);
+        Spatial model2 = assetManager.loadModel("zophrac.j3o");
+        model2.setLocalScale(0.1f);
+        probeNode.attachChild(model2);
 
         debugAppState = new ArmatureDebugAppState();
         stateManager.attach(debugAppState);
 
-        setupModel(model);
+        setupModel(model2);
 
         flyCam.setEnabled(false);
 
         Node target = new Node("CamTarget");
         //target.setLocalTransform(model.getLocalTransform());
-        target.move(0, 1, 0);
+        target.move(0, 0, 0);
         ChaseCameraAppState chaseCam = new ChaseCameraAppState();
         chaseCam.setTarget(target);
         getStateManager().attach(chaseCam);
@@ -130,10 +128,14 @@ public class TestAnimSerialization extends SimpleApplication {
         }
         composer = model.getControl(AnimComposer.class);
         if (composer != null) {
+//            model.getControl(SkinningControl.class).setEnabled(false);
+//            model.getControl(MorphControl.class).setEnabled(false);
+//            composer.setEnabled(false);
+
 
             SkinningControl sc = model.getControl(SkinningControl.class);
-
             debugAppState.addArmatureFrom(sc);
+
             anims.clear();
             for (String name : composer.getAnimClipsNames()) {
                 anims.add(name);

@@ -80,9 +80,9 @@ public class AnimClip implements JmeCloneable, Savable {
         name = ic.readString("name", null);
         Savable[] arr = ic.readSavableArray("tracks", null);
         if (arr != null) {
-            tracks = new TransformTrack[arr.length];
+            tracks = new AnimTrack[arr.length];
             for (int i = 0; i < arr.length; i++) {
-                TransformTrack t = (TransformTrack) arr[i];
+                AnimTrack t = (AnimTrack) arr[i];
                 tracks[i] = t;
                 if (t.getLength() > length) {
                     length = t.getLength();

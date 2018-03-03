@@ -1573,7 +1573,9 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         }
 
         out.write(lodLevels, "lodLevels", null);
-        out.writeSavableArrayList(new ArrayList(morphTargets), "morphTargets", null);
+        if (morphTargets != null) {
+            out.writeSavableArrayList(new ArrayList(morphTargets), "morphTargets", null);
+        }
     }
 
     @Override

@@ -95,6 +95,7 @@ public class Geometry extends Spatial {
     // a Morph target that will be used to merge all targets that
     // can't be handled on the cpu on each frame.
     private MorphTarget fallbackMorphTarget;
+    private int nbSimultaneousGPUMorph = -1;
 
     /**
      * Serialization only. Do not use.
@@ -258,7 +259,7 @@ public class Geometry extends Spatial {
     @Override
     public void setMaterial(Material material) {
         this.material = material;
-
+        nbSimultaneousGPUMorph = -1;
         if (isGrouped()) {
             groupNode.onMaterialChange(this);
         }
@@ -600,15 +601,56 @@ public class Geometry extends Spatial {
         this.dirtyMorph = true;
     }
 
+    /**
+     * returns true if the morph state has changed on the last frame.
+     * @return
+     */
     public boolean isDirtyMorph() {
         return dirtyMorph;
     }
 
+    /**
+     * Seting this to true will stop this geometry morph buffer to be updated,
+     * unless the morph state changes
+     * @param dirtyMorph
+     */
+    public void setDirtyMorph(boolean dirtyMorph) {
+        this.dirtyMorph = dirtyMorph;
+    }
+
+    /**
+     * returns the morph state of this Geometry.
+     * Used internally by the MorphControl.
+     * @return
+     */
     public float[] getMorphState() {
         if (morphState == null) {
             morphState = new float[mesh.getMorphTargets().length];
         }
         return morphState;
+    }
+
+    /**
+     * Return the number of morph targets that can be handled on the GPU simultaneously for this geometry.
+     * Note that it depends on the material set on this geometry.
+     * This number is computed and set by the MorphControl, so it might be available only after the first frame.
+     * Else it's set to -1.
+     * @return the number of simultaneous morph targets handled on the GPU
+     */
+    public int getNbSimultaneousGPUMorph() {
+        return nbSimultaneousGPUMorph;
+    }
+
+    /**
+     * Sets the number of morph targets that can be handled on the GPU simultaneously for this geometry.
+     * Note that it depends on the material set on this geometry.
+     * This number is computed and set by the MorphControl, so it might be available only after the first frame.
+     * Else it's set to -1.
+     * WARNING: setting this manually might crash the shader compilation if set too high. Do it at your own risk.
+     * @param nbSimultaneousGPUMorph the number of simultaneous morph targets to be handled on the GPU.
+     */
+    public void setNbSimultaneousGPUMorph(int nbSimultaneousGPUMorph) {
+        this.nbSimultaneousGPUMorph = nbSimultaneousGPUMorph;
     }
 
     public MorphTarget getFallbackMorphTarget() {

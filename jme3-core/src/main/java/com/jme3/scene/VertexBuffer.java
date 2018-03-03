@@ -216,15 +216,16 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
 
         /**
          * Morph animations targets.
-         * Supports up tp 8 morph target buffers at the same time
+         * Supports up tp 14 morph target buffers at the same time
          * Limited due to the limited number of attributes you can bind to a vertex shader usually 16
          * <p>
          * MorphTarget buffers are either POSITION, NORMAL or TANGENT buffers.
          * So we can support up to
-         * 10 simultaneous POSITION targets
-         * 5 simultaneous POSITION and NORMAL targets
-         * 3 simultaneous POSTION, NORMAL and TANGENT targets.
+         * 14 simultaneous POSITION targets
+         * 7 simultaneous POSITION and NORMAL targets
+         * 4 simultaneous POSTION, NORMAL and TANGENT targets.
          * <p>
+         * Note that the MorphControl will find how many buffers can be supported for each mesh/material combination.
          * Note that all buffers have 3 components (Vector3f) even the Tangent buffer that
          * does not contain the w (handedness) component that will not be interpolated for morph animation.
          * <p>

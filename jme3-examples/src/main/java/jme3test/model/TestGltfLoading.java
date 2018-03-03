@@ -116,15 +116,15 @@ public class TestGltfLoading extends SimpleApplication {
 //        rootNode.addLight(pl1);
 
         //loadModel("Models/gltf/polly/project_polly.gltf", new Vector3f(0, 0, 0), 0.5f);
-        loadModel("Models/gltf/zophrac/scene.gltf", new Vector3f(0, 0, 0), 0.1f);
+        //loadModel("Models/gltf/zophrac/scene.gltf", new Vector3f(0, 0, 0), 0.1f);
     //    loadModel("Models/gltf/scifigirl/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
         //loadModel("Models/gltf/man/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
        //loadModel("Models/gltf/torus/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
         //loadModel("Models/gltf/morph/scene.gltf", new Vector3f(0, 0, 0), 0.2f);
         //loadModel("Models/gltf/morphCube/AnimatedMorphCube.gltf", new Vector3f(0, 0, 0), 1f);
-       // loadModel("Models/gltf/morph/SimpleMorph.gltf", new Vector3f(0, 0, 0), 0.1f);
+     //   loadModel("Models/gltf/morph/SimpleMorph.gltf", new Vector3f(0, 0, 0), 0.1f);
         //loadModel("Models/gltf/nier/scene.gltf", new Vector3f(0, -1.5f, 0), 0.01f);
-        //loadModel("Models/gltf/izzy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
+        loadModel("Models/gltf/izzy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
         //loadModel("Models/gltf/darth/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
         //loadModel("Models/gltf/mech/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
         //loadModel("Models/gltf/elephant/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
@@ -132,7 +132,7 @@ public class TestGltfLoading extends SimpleApplication {
         //loadModel("Models/gltf/war/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
         //loadModel("Models/gltf/ganjaarl/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
         //loadModel("Models/gltf/hero/scene.gltf", new Vector3f(0, -1, 0), 0.1f);
-        ///    loadModel("Models/gltf/mercy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
+        //loadModel("Models/gltf/mercy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
         //loadModel("Models/gltf/crab/scene.gltf", Vector3f.ZERO, 1);
         //loadModel("Models/gltf/manta/scene.gltf", Vector3f.ZERO, 0.2f);
         //loadModel("Models/gltf/bone/scene.gltf", Vector3f.ZERO, 0.1f);
@@ -213,7 +213,7 @@ public class TestGltfLoading extends SimpleApplication {
 
         dumpScene(rootNode, 0);
 
-        stateManager.attach(new DetailedProfilerState());
+      //  stateManager.attach(new DetailedProfilerState());
     }
 
     private <T extends Control> T findControl(Spatial s, Class<T> controlClass) {
