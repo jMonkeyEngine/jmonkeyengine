@@ -187,6 +187,7 @@ public class MorphTrack implements AnimTrack<float[]> {
         oc.write(weights, "weights", null);
         oc.write(times, "times", null);
         oc.write(target, "target", null);
+        oc.write(nbMorphTargets, "nbMorphTargets", 0);
     }
 
     @Override
@@ -195,6 +196,7 @@ public class MorphTrack implements AnimTrack<float[]> {
         weights = ic.readFloatArray("weights", null);
         times = ic.readFloatArray("times", null);
         target = (Geometry) ic.readSavable("target", null);
+        nbMorphTargets = ic.readInt("nbMorphTargets", 0);
         setTimes(times);
     }
 

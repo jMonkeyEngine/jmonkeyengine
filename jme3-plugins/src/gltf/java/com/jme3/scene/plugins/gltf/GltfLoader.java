@@ -1009,6 +1009,7 @@ public class GltfLoader implements AssetLoader {
             skinnedSpatials.put(skinData, new ArrayList<Spatial>());
 
             armature.update();
+            armature.saveInitialPose();
         }
     }
 

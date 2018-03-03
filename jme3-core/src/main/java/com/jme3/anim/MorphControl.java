@@ -1,11 +1,9 @@
 package com.jme3.anim;
 
+import com.jme3.export.*;
 import com.jme3.material.*;
 import com.jme3.renderer.*;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.SceneGraphVisitorAdapter;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.*;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.shader.VarType;
@@ -13,7 +11,10 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.SafeArrayList;
 import javafx.geometry.Pos;
 
+import java.io.IOException;
 import java.nio.FloatBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A control that handle morph animation for Position, Normal and Tangent buffers.
@@ -22,7 +23,9 @@ import java.nio.FloatBuffer;
  *
  * @author Rémy Bouquet
  */
-public class MorphControl extends AbstractControl {
+public class MorphControl extends AbstractControl implements Savable {
+
+    private static final Logger logger = Logger.getLogger(MorphControl.class.getName());
 
     private static final int MAX_MORPH_BUFFERS = 14;
     private final static float MIN_WEIGHT = 0.005f;
@@ -55,33 +58,23 @@ public class MorphControl extends AbstractControl {
         if (!enabled) {
             return;
         }
-        for (Geometry target : targets) {
-            Mesh mesh = target.getMesh();
-            if (!target.isDirtyMorph()) {
+        for (Geometry geom : targets) {
+            Mesh mesh = geom.getMesh();
+            if (!geom.isDirtyMorph()) {
                 continue;
             }
-            int nbMaxBuffers = getRemainingBuffers(mesh, rm.getRenderer());
-            Material m = target.getMaterial();
 
-            float weights[] = target.getMorphState();
+            Material m = geom.getMaterial();
+            float weights[] = geom.getMorphState();
             MorphTarget morphTargets[] = mesh.getMorphTargets();
             float matWeights[];
-            MatParam param = m.getParam("MorphWeights");
-
             //Number of buffer to handle for each morph target
             int targetNumBuffers = getTargetNumBuffers(morphTargets[0]);
-            // compute the max number of targets to send to the GPU
-            int maxGPUTargets = Math.min(nbMaxBuffers, MAX_MORPH_BUFFERS) / targetNumBuffers;
-            if (param == null) {
-                matWeights = new float[maxGPUTargets];
-                m.setParam("MorphWeights", VarType.FloatArray, matWeights);
-            } else {
-                matWeights = (float[]) param.getValue();
-            }
 
-            // setting the maximum number as the real number may change every frame and trigger a shader recompilation since it's bound to a define.
-            m.setInt("NumberOfMorphTargets", maxGPUTargets);
-            m.setInt("NumberOfTargetsBuffers", targetNumBuffers);
+            int maxGPUTargets = getMaxGPUTargets(rm, geom, m, targetNumBuffers);
+
+            MatParam param2 = m.getParam("MorphWeights");
+            matWeights = (float[]) param2.getValue();
 
             int nbGPUTargets = 0;
             int lastGpuTargetIndex = 0;
@@ -115,14 +108,14 @@ public class MorphControl extends AbstractControl {
             } else if (cpuWeightSum > 0) {
                 // we have more simultaneous morph targets than available gpu slots,
                 // we merge the additional morph targets and bind them to the last gpu slot
-                MorphTarget mt = target.getFallbackMorphTarget();
+                MorphTarget mt = geom.getFallbackMorphTarget();
                 if (mt == null) {
-                    mt = initCpuMorphTarget(target);
-                    target.setFallbackMorphTarget(mt);
+                    mt = initCpuMorphTarget(geom);
+                    geom.setFallbackMorphTarget(mt);
                 }
                 // adding the last Gpu target weight
                 cpuWeightSum += matWeights[nbGPUTargets - 1];
-                ensureTmpArraysCapacity(target.getVertexCount() * 3, targetNumBuffers);
+                ensureTmpArraysCapacity(geom.getVertexCount() * 3, targetNumBuffers);
 
                 // merging all remaining targets in tmp arrays
                 for (int i = lastGpuTargetIndex; i < morphTargets.length; i++) {
@@ -130,7 +123,7 @@ public class MorphControl extends AbstractControl {
                         continue;
                     }
                     float weight = weights[i] / cpuWeightSum;
-                    MorphTarget t = target.getMesh().getMorphTargets()[i];
+                    MorphTarget t = geom.getMesh().getMorphTargets()[i];
                     mergeMorphTargets(targetNumBuffers, weight, t, i == lastGpuTargetIndex);
                 }
 
@@ -143,7 +136,52 @@ public class MorphControl extends AbstractControl {
                 // setting the eight of the merged targets
                 matWeights[nbGPUTargets - 1] = cpuWeightSum;
             }
+            geom.setDirtyMorph(false);
         }
+    }
+
+    private int getMaxGPUTargets(RenderManager rm, Geometry geom, Material mat, int targetNumBuffers) {
+        if (geom.getNbSimultaneousGPUMorph() > -1) {
+            return geom.getNbSimultaneousGPUMorph();
+        }
+
+        // Evaluate the number of CPU slots remaining for morph buffers.
+        int nbMaxBuffers = getRemainingBuffers(geom.getMesh(), rm.getRenderer());
+
+        int realNumTargetsBuffers = geom.getMesh().getMorphTargets().length * targetNumBuffers;
+
+        // compute the max number of targets to send to the GPU
+        int maxGPUTargets = Math.min(realNumTargetsBuffers, Math.min(nbMaxBuffers, MAX_MORPH_BUFFERS)) / targetNumBuffers;
+
+        MatParam param = mat.getParam("MorphWeights");
+        if (param == null) {
+            // init the mat param if it doesn't exists.
+            float[] wts = new float[maxGPUTargets];
+            mat.setParam("MorphWeights", VarType.FloatArray, wts);
+        }
+
+        mat.setInt("NumberOfTargetsBuffers", targetNumBuffers);
+
+        // test compile the shader to find the accurate number of remaining attributes slots
+        boolean compilationOk = false;
+        // Note that if ever the shader has an unrelated issue we want to break at some point, hence the maxGPUTargets > 0
+        while (!compilationOk && maxGPUTargets > 0) {
+            // setting the maximum number as the real number may change every frame and trigger a shader recompilation since it's bound to a define.
+            mat.setInt("NumberOfMorphTargets", maxGPUTargets);
+            try {
+                // preload the spatial. this will trigger a shader compilation that will fail if the number of attributes is over the limit.
+                rm.preloadScene(spatial);
+                compilationOk = true;
+            } catch (RendererException e) {
+                logger.log(Level.FINE, geom.getName() + ": failed at " + maxGPUTargets);
+                // the compilation failed let's decrement the number of targets an try again.
+                maxGPUTargets--;
+            }
+        }
+        logger.log(Level.FINE, geom.getName() + ": " + maxGPUTargets);
+        // set the number of GPU morph on the geom to not have to recompute it next frame.
+        geom.setNbSimultaneousGPUMorph(maxGPUTargets);
+        return maxGPUTargets;
     }
 
     private int bindMorphtargetBuffer(Mesh mesh, int targetNumBuffers, int boundBufferIdx, MorphTarget t) {
@@ -263,6 +301,17 @@ public class MorphControl extends AbstractControl {
         return num;
     }
 
+    /**
+     * Computes the number of remaining buffers on this mesh.
+     * This is supposed to give a hint on how many attributes will be used in the material and computes the remaining available slots for the morph attributes.
+     * However, the shader can declare attributes that are not used and not bound to a real buffer.
+     * That's why we attempt to compile the shader later on to avoid any compilation crash.
+     * This method is here to avoid too much render test iteration.
+     *
+     * @param mesh
+     * @param renderer
+     * @return
+     */
     private int getRemainingBuffers(Mesh mesh, Renderer renderer) {
         int nbUsedBuffers = 0;
         for (VertexBuffer vb : mesh.getBufferList().getArray()) {

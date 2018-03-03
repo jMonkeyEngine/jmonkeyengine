@@ -52,7 +52,7 @@ public class TestArmature extends SimpleApplication {
 
         final Armature armature = new Armature(joints);
         //armature.setModelTransformClass(SeparateJointModelTransform.class);
-        armature.setBindPose();
+        armature.saveBindPose();
 
         //create animations
         AnimClip clip = new AnimClip("anim");
@@ -131,7 +131,7 @@ public class TestArmature extends SimpleApplication {
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (isPressed) {
                     composer.reset();
-                    armature.resetToBindPose();
+                    armature.applyBindPose();
 
                 } else {
                     composer.setCurrentAction("anim");

@@ -174,28 +174,49 @@ public class Armature implements JmeCloneable, Savable {
 
     /**
      * Saves the current Armature state as its bind pose.
+     * Note that the bind pose is supposed to be the one where the armature is aligned with the mesh to deform.
+     * Saving this pose will affect how skinning works.
      */
-    public void setBindPose() {
+    public void saveBindPose() {
         //make sure all bones are updated
         update();
         //Save the current pose as bind pose
         for (Joint joint : jointList) {
-            joint.setBindPose();
+            joint.saveBindPose();
         }
     }
 
     /**
-     * This methods sets this armature in its bind pose (aligned with the undeformed mesh)
-     * Note that this is only useful for debugging porpose.
+     * This methods sets this armature in its bind pose (aligned with the mesh to deform)
+     * Note that this is only useful for debugging purpose.
      */
-    public void resetToBindPose() {
+    public void applyBindPose() {
         for (Joint joint : rootJoints) {
-            joint.resetToBindPose();
+            joint.applyBindPose();
         }
     }
 
     /**
-     * Compute the skining matrices for each bone of the armature that would be used to transform vertices of associated meshes
+     * Saves the current local transform as the initial transform.
+     * Initial transform is the one applied to the armature when loaded.
+     */
+    public void saveInitialPose() {
+        for (Joint joint : jointList) {
+            joint.saveInitialPose();
+        }
+    }
+
+    /**
+     * Applies the initial pose to this armature
+     */
+    public void applyInitialPose() {
+        for (Joint rootJoint : rootJoints) {
+            rootJoint.applyInitialPose();
+        }
+    }
+
+    /**
+     * Compute the skinning matrices for each bone of the armature that would be used to transform vertices of associated meshes
      *
      * @return
      */
@@ -263,7 +284,7 @@ public class Armature implements JmeCloneable, Savable {
         for (Joint rootJoint : rootJoints) {
             rootJoint.update();
         }
-        resetToBindPose();
+        applyInitialPose();
     }
 
     @Override

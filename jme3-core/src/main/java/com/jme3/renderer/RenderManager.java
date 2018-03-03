@@ -660,7 +660,7 @@ public class RenderManager {
                 throw new IllegalStateException("No material is set for Geometry: " + gm.getName());
             }
 
-            gm.getMaterial().preload(this);
+            gm.getMaterial().preload(this, gm);
             Mesh mesh = gm.getMesh();
             if (mesh != null
                     && mesh.getVertexCount() != 0

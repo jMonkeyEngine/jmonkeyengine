@@ -38,6 +38,13 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
     private Transform localTransform = new Transform();
 
     /**
+     * The initial transform of the joint in local space. Relative to its parent.
+     * Or relative to the model's origin for the root joint.
+     * this transform is the transform applied when the armature is loaded.
+     */
+    private Transform initialTransform = new Transform();
+
+    /**
      * The transform of the joint in model space. Relative to the origin of the model.
      * this is either a MatrixJointModelTransform or a SeparateJointModelTransform
      */
@@ -127,18 +134,43 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
         jointModelTransform.getOffsetTransform(outTransform, inverseModelBindMatrix);
     }
 
-    protected void setBindPose() {
+    /**
+     * Sets the current localTransform as the Bind transform.
+     */
+    protected void saveBindPose() {
         //Note that the whole Armature must be updated before calling this method.
         getModelTransform().toTransformMatrix(inverseModelBindMatrix);
         inverseModelBindMatrix.invertLocal();
     }
 
-    protected void resetToBindPose() {
+    /**
+     * Sets the current local transforms as the initial transform.
+     */
+    protected void saveInitialPose() {
+        initialTransform.set(localTransform);
+    }
+
+    /**
+     * Sets the local transform with the bind transforms
+     */
+    protected void applyBindPose() {
         jointModelTransform.applyBindPose(localTransform, inverseModelBindMatrix, parent);
         updateModelTransforms();
 
         for (Joint child : children.getArray()) {
-            child.resetToBindPose();
+            child.applyBindPose();
+        }
+    }
+
+    /**
+     * Sets the local transform with the initial transform
+     */
+    protected void applyInitialPose() {
+        setLocalTransform(initialTransform);
+        updateModelTransforms();
+
+        for (Joint child : children.getArray()) {
+            child.applyInitialPose();
         }
     }
 
@@ -277,6 +309,7 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
         name = input.readString("name", null);
         attachedNode = (Node) input.readSavable("attachedNode", null);
         targetGeometry = (Geometry) input.readSavable("targetGeometry", null);
+        initialTransform = (Transform) input.readSavable("initialTransform", new Transform());
         inverseModelBindMatrix = (Matrix4f) input.readSavable("inverseModelBindMatrix", inverseModelBindMatrix);
 
         ArrayList<Joint> childList = input.readSavableArrayList("children", null);
@@ -292,6 +325,7 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
         output.write(name, "name", null);
         output.write(attachedNode, "attachedNode", null);
         output.write(targetGeometry, "targetGeometry", null);
+        output.write(initialTransform, "initialTransform", new Transform());
         output.write(inverseModelBindMatrix, "inverseModelBindMatrix", new Matrix4f());
         output.writeSavableArrayList(new ArrayList(children), "children", null);
     }

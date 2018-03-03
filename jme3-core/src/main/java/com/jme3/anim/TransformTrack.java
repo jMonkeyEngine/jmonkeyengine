@@ -294,7 +294,7 @@ public class TransformTrack implements AnimTrack<Transform> {
         rotations = (CompactQuaternionArray) ic.readSavable("rotations", null);
         times = ic.readFloatArray("times", null);
         scales = (CompactVector3Array) ic.readSavable("scales", null);
-        target = (Joint) ic.readSavable("target", null);
+        target = (HasLocalTransform) ic.readSavable("target", null);
         setTimes(times);
     }
 
