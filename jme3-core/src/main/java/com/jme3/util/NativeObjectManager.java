@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -158,7 +158,7 @@ public class NativeObjectManager {
         }
         if (deleteBufs && UNSAFE && realObj != null) {
             // Only the real object has native buffers. 
-            // The destructable clone has nothing and cannot be used in this case.
+            // The destructible clone has nothing and cannot be used in this case.
             realObj.deleteNativeBuffersInternal();
         }
     }

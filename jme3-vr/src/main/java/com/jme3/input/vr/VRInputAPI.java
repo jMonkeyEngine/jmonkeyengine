@@ -89,16 +89,16 @@ public interface VRInputAPI {
     public boolean init();
     
     /**
-     * Get the number of tracked controller (for example an hand controllers) attached to the VR system.
-     * @return the number of controller attached to the VR system.
+     * Get the number of tracked controllers (for example, hand controllers) attached to the VR system.
+     * @return the number of controllers attached to the VR system.
      * @see #getTrackedController(int)
      */
     public int getTrackedControllerCount();
     
     /**
-     * Get the tracked controller (for example an hand controllers) that is attached to the VR system.
+     * Get a tracked controller (for example, a hand controller) that is attached to the VR system.
      * @param index the index of the controller.
-     * @return the tracked controller (for example an hand controllers) that is attached to the VR system.
+     * @return the tracked controller (for example, a hand controller) that is attached to the VR system.
      * @see #getTrackedControllerCount()
      */
     public VRTrackedController getTrackedController(int index);
@@ -189,7 +189,7 @@ public interface VRInputAPI {
     public Vector3f getFinalObserverPosition(int index);
     
     /**
-     * Trigger an haptic pulse on the selected controller for the duration given in parameters (in seconds).
+     * Trigger a haptic pulse on the selected controller for the duration given in parameters (in seconds).
      * @param controllerIndex the index of the controller.
      * @param seconds the duration of the pulse in seconds.
      */

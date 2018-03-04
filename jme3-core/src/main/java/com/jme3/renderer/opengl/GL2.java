@@ -35,11 +35,11 @@ import java.nio.ByteBuffer;
 
 /**
  * GL functions only available on vanilla desktop OpenGL 2.
- * 
+ *
  * @author Kirill Vainer
  */
 public interface GL2 extends GL {
-    
+
     public static final int GL_ALPHA8 = 0x803C;
     public static final int GL_ALPHA_TEST = 0xBC0;
     public static final int GL_BGR = 0x80E0;
@@ -50,10 +50,11 @@ public interface GL2 extends GL {
     public static final int GL_DEPTH_TEXTURE_MODE = 0x884B;
     public static final int GL_DOUBLEBUFFER = 0xC32;
     public static final int GL_DRAW_BUFFER = 0xC01;
+    public static final int GL_POINT = 0x1B00;
+    public static final int GL_LINE = 0x1B01;
     public static final int GL_FILL = 0x1B02;
     public static final int GL_GENERATE_MIPMAP = 0x8191;
     public static final int GL_INTENSITY = 0x8049;
-    public static final int GL_LINE = 0x1B01;
     public static final int GL_LUMINANCE8 = 0x8040;
     public static final int GL_LUMINANCE8_ALPHA8 = 0x8045;
     public static final int GL_MAX_ELEMENTS_INDICES = 0x80E9;
@@ -73,14 +74,133 @@ public interface GL2 extends GL {
     public static final int GL_TEXTURE_WRAP_R = 0x8072;
     public static final int GL_VERTEX_PROGRAM_POINT_SIZE = 0x8642;
     public static final int GL_UNSIGNED_INT_8_8_8_8 = 0x8035;
-    
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl3/glAlphaFunc">Reference Page</a> - <em>This function is deprecated and unavailable in the Core profile</em></p>
+     *
+     * The alpha test discards a fragment conditionally based on the outcome of a comparison between the incoming fragment’s alpha value and a constant value.
+     * The comparison is enabled or disabled with the generic {@link #glEnable Enable} and {@link #glDisable Disable} commands using the symbolic constant {@link #GL_ALPHA_TEST ALPHA_TEST}.
+     * When disabled, it is as if the comparison always passes. The test is controlled with this method.
+     *
+     * @param func a symbolic constant indicating the alpha test function. One of:<br><table><tr><td>{@link #GL_NEVER NEVER}</td><td>{@link #GL_ALWAYS ALWAYS}</td><td>{@link #GL_LESS LESS}</td><td>{@link #GL_LEQUAL LEQUAL}</td><td>{@link #GL_EQUAL EQUAL}</td><td>{@link #GL_GEQUAL GEQUAL}</td><td>{@link #GL_GREATER GREATER}</td><td>{@link #GL_NOTEQUAL NOTEQUAL}</td></tr></table>
+     * @param ref  a reference value clamped to the range [0, 1]. When performing the alpha test, the GL will convert the reference value to the same representation as the fragment's alpha value (floating-point or fixed-point).
+     */
     public void glAlphaFunc(int func, float ref);
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glPointSize">Reference Page</a></p>
+     * <p>
+     * Controls the rasterization of points if no vertex, tessellation control, tessellation evaluation, or geometry shader is active. The default point size is 1.0.
+     *
+     * @param size the request size of a point.
+     */
     public void glPointSize(float size);
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glPolygonMode">Reference Page</a></p>
+     *
+     * Controls the interpretation of polygons for rasterization.
+     *
+     * <p>{@link #GL_FILL FILL} is the default mode of polygon rasterization. Note that these modes affect only the final rasterization of polygons: in particular, a
+     * polygon's vertices are lit, and the polygon is clipped and possibly culled before these modes are applied. Polygon antialiasing applies only to the
+     * {@link #GL_FILL FILL} state of PolygonMode. For {@link #GL_POINT POINT} or {@link #GL_LINE LINE}, point antialiasing or line segment antialiasing, respectively, apply.</p>
+     *
+     * @param face the face for which to set the rasterizing method. One of:<br><table><tr><td>{@link #GL_FRONT FRONT}</td><td>{@link #GL_BACK BACK}</td><td>{@link #GL_FRONT_AND_BACK FRONT_AND_BACK}</td></tr></table>
+     * @param mode the rasterization mode. One of:<br><table><tr><td>{@link #GL_POINT POINT}</td><td>{@link #GL_LINE LINE}</td><td>{@link #GL_FILL FILL}</td></tr></table>
+     */
     public void glPolygonMode(int face, int mode);
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glDrawBuffer">Reference Page</a></p>
+     * <p>
+     * Defines the color buffer to which fragment color zero is written.
+     *
+     * @param mode the color buffer to draw to.
+     */
     public void glDrawBuffer(int mode);
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glReadBuffer">Reference Page</a></p>
+     * <p>
+     * Defines the color buffer from which values are obtained.
+     *
+     * @param mode the color buffer to read from.
+     */
     public void glReadBuffer(int mode);
-    public void glCompressedTexImage3D(int target, int level, int internalformat, int width, int height, int depth, int border, ByteBuffer data);
-    public void glCompressedTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, ByteBuffer data);
-    public void glTexImage3D(int target, int level, int internalFormat, int width, int height, int depth, int border, int format, int type, ByteBuffer data);
-    public void glTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width, int height, int depth, int format, int type, ByteBuffer data);
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glCompressedTexImage3D">Reference Page</a></p>
+     * <p>
+     * Specifies a three-dimensional texture image in a compressed format.
+     *
+     * @param target         the target texture.
+     * @param level          the level-of-detail number. Level 0 is the base image level. Level n is the nth mipmap reduction image.
+     * @param internalFormat the format of the compressed image data.
+     * @param width          the width of the texture image
+     * @param height         the height of the texture image
+     * @param depth          the depth of the texture image
+     * @param border         must be 0
+     * @param data           a pointer to the compressed image data
+     */
+    public void glCompressedTexImage3D(int target, int level, int internalFormat, int width, int height, int depth,
+                                       int border, ByteBuffer data);
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glCompressedTexSubImage3D">Reference Page</a></p>
+     * <p>
+     * Respecifies only a cubic subregion of an existing 3D texel array, with incoming data stored in a specific compressed image format.
+     *
+     * @param target  the target texture.
+     * @param level   the level-of-detail number. Level 0 is the base image level. Level n is the nth mipmap reduction image.
+     * @param xoffset a texel offset in the x direction within the texture array.
+     * @param yoffset a texel offset in the y direction within the texture array.
+     * @param zoffset a texel offset in the z direction within the texture array.
+     * @param width   the width of the texture subimage.
+     * @param height  the height of the texture subimage.
+     * @param depth   the depth of the texture subimage.
+     * @param format  the format of the compressed image data stored at address {@code data}.
+     * @param data    a pointer to the compressed image data.
+     */
+    public void glCompressedTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width,
+                                          int height, int depth, int format, ByteBuffer data);
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glTexImage3D">Reference Page</a></p>
+     * <p>
+     * Specifies a three-dimensional texture image.
+     *
+     * @param target         the texture target.
+     * @param level          the level-of-detail number.
+     * @param internalFormat the texture internal format.
+     * @param width          the texture width.
+     * @param height         the texture height.
+     * @param depth          the texture depth.
+     * @param border         the texture border width.
+     * @param format         the texel data format.
+     * @param type           the texel data type.
+     * @param data           the texel data.
+     */
+    public void glTexImage3D(int target, int level, int internalFormat, int width, int height, int depth, int border,
+                             int format, int type, ByteBuffer data);
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glTexSubImage3D">Reference Page</a></p>
+     * <p>
+     * Respecifies a cubic subregion of an existing 3D texel array. No change is made to the internalformat, width, height, depth, or border parameters of
+     * the specified texel array, nor is any change made to texel values outside the specified subregion.
+     *
+     * @param target  the texture target.
+     * @param level   the level-of-detail-number.
+     * @param xoffset the x coordinate of the texel subregion.
+     * @param yoffset the y coordinate of the texel subregion.
+     * @param zoffset the z coordinate of the texel subregion.
+     * @param width   the subregion width.
+     * @param height  the subregion height.
+     * @param depth   the subregion depth.
+     * @param format  the pixel data format.
+     * @param type    the pixel data type.
+     * @param data    the pixel data.
+     */
+    public void glTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width, int height,
+                                int depth, int format, int type, ByteBuffer data);
 }

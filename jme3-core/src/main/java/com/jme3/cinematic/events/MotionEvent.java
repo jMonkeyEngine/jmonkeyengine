@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -274,23 +274,10 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
      * @param spatial
      * @return
      */
+    @Deprecated
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        MotionEvent control = new MotionEvent();
-        control.setPath(path);
-        control.playState = playState;
-        control.currentWayPoint = currentWayPoint;
-        control.currentValue = currentValue;
-        control.direction = direction.clone();
-        control.lookAt = lookAt;
-        control.upVector = upVector.clone();
-        control.rotation = rotation;
-        control.initialDuration = initialDuration;
-        control.speed = speed;
-        control.loopMode = loopMode;
-        control.directionType = directionType;
-
-        return control;
+        throw new UnsupportedOperationException();
     }
 
     @Override   

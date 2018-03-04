@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -95,20 +95,13 @@ public class GhostControl extends PhysicsGhostObject implements PhysicsControl, 
         return spatial.getWorldRotation();
     }
 
+    @Deprecated
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        GhostControl control = new GhostControl(collisionShape);
-        control.setCcdMotionThreshold(getCcdMotionThreshold());
-        control.setCcdSweptSphereRadius(getCcdSweptSphereRadius());
-        control.setCollideWithGroups(getCollideWithGroups());
-        control.setCollisionGroup(getCollisionGroup());
-        control.setPhysicsLocation(getPhysicsLocation());
-        control.setPhysicsRotation(getPhysicsRotationMatrix());
-        control.setApplyPhysicsLocal(isApplyPhysicsLocal());
-        return control;
+        throw new UnsupportedOperationException();
     }
 
-    @Override   
+    @Override
     public Object jmeClone() {
         GhostControl control = new GhostControl(collisionShape);
         control.setCcdMotionThreshold(getCcdMotionThreshold());

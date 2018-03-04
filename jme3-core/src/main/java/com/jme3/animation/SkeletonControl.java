@@ -39,14 +39,12 @@ import com.jme3.renderer.*;
 import com.jme3.scene.*;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.control.AbstractControl;
-import com.jme3.scene.control.Control;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.shader.VarType;
 import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
-
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
@@ -347,47 +345,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
                 nb.put(bnb).clear();
             }
         }
-    }
-
-    @Override
-    public Control cloneForSpatial(Spatial spatial) {
-        Node clonedNode = (Node) spatial;
-        SkeletonControl clone = new SkeletonControl();
-
-        AnimControl ctrl = spatial.getControl(AnimControl.class);
-        if (ctrl != null) {
-            // AnimControl is responsible for cloning the skeleton, not
-            // SkeletonControl.
-            clone.skeleton = ctrl.getSkeleton();
-        } else {
-            // If there's no AnimControl, create the clone ourselves.
-            clone.skeleton = new Skeleton(skeleton);
-        }
-        clone.hwSkinningDesired = this.hwSkinningDesired;
-        clone.hwSkinningEnabled = this.hwSkinningEnabled;
-        clone.hwSkinningSupported = this.hwSkinningSupported;
-        clone.hwSkinningTested = this.hwSkinningTested;
-        
-        clone.setSpatial(clonedNode);
-
-        // Fix attachments for the cloned node
-        for (int i = 0; i < clonedNode.getQuantity(); i++) {
-            // go through attachment nodes, apply them to correct bone
-            Spatial child = clonedNode.getChild(i);
-            if (child instanceof Node) {
-                Node clonedAttachNode = (Node) child;
-                Bone originalBone = (Bone) clonedAttachNode.getUserData("AttachedBone");
-
-                if (originalBone != null) {
-                    Bone clonedBone = clone.skeleton.getBone(originalBone.getName());
-
-                    clonedAttachNode.setUserData("AttachedBone", clonedBone);
-                    clonedBone.setAttachmentsNode(clonedAttachNode);
-                }
-            }
-        }
-
-        return clone;
     }
 
     @Override   

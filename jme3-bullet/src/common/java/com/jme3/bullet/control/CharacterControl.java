@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -89,21 +89,10 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         return spatial.getWorldTranslation();
     }
 
+    @Deprecated
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        CharacterControl control = new CharacterControl(collisionShape, stepHeight);
-        control.setCcdMotionThreshold(getCcdMotionThreshold());
-        control.setCcdSweptSphereRadius(getCcdSweptSphereRadius());
-        control.setCollideWithGroups(getCollideWithGroups());
-        control.setCollisionGroup(getCollisionGroup());
-        control.setFallSpeed(getFallSpeed());
-        control.setGravity(getGravity());
-        control.setJumpSpeed(getJumpSpeed());
-        control.setMaxSlope(getMaxSlope());
-        control.setPhysicsLocation(getPhysicsLocation());
-        control.setUpAxis(getUpAxis());
-        control.setApplyPhysicsLocal(isApplyPhysicsLocal());
-        return control;
+        throw new UnsupportedOperationException();
     }
 
     @Override

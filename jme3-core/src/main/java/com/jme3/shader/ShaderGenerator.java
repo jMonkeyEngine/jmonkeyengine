@@ -50,6 +50,11 @@ import java.util.regex.Pattern;
  */
 public abstract class ShaderGenerator {
 
+    public static final String NAME_SPACE_GLOBAL = "Global";
+    public static final String NAME_SPACE_VERTEX_ATTRIBUTE = "Attr";
+    public static final String NAME_SPACE_MAT_PARAM = "MatParam";
+    public static final String NAME_SPACE_WORLD_PARAM = "WorldParam";
+
     /**
      * the asset manager
      */

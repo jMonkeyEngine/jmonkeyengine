@@ -432,7 +432,7 @@ public class InputManager implements RawInputListener {
          * If events aren't allowed, the event may be a "first mouse event"
          * triggered by the constructor setting the mouse listener.
          * In that case, use the event to initialize the cursor position,
-         * but don't queue it for futher processing.
+         * but don't queue it for further processing.
          * This is part of the fix for issue #792.
          */
         cursorPos.set(evt.getX(), evt.getY());
@@ -874,7 +874,7 @@ public class InputManager implements RawInputListener {
             // larynx, 2011.06.10 - flag event as reusable because
             // the android input uses a non-allocating ringbuffer which
             // needs to know when the event is not anymore in inputQueue
-            // and therefor can be reused.
+            // and therefore can be reused.
             event.setConsumed();
         }
 

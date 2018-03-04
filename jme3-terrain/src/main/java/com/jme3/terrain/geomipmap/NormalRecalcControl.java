@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,9 +39,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
-import com.jme3.scene.control.Control;
 import com.jme3.util.clone.Cloner;
-import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
 
@@ -86,14 +84,6 @@ public class NormalRecalcControl extends AbstractControl {
     public void cloneFields( Cloner cloner, Object original ) {
         super.cloneFields(cloner, original);
         this.terrain = cloner.clone(terrain);
-    }
-
-    @Override
-    public Control cloneForSpatial(Spatial spatial) {
-        NormalRecalcControl control = new NormalRecalcControl(terrain);
-        control.setSpatial(spatial);
-        control.setEnabled(true);
-        return control;
     }
 
     @Override

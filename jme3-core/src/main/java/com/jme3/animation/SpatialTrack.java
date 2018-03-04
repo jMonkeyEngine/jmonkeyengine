@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -252,7 +252,9 @@ public class SpatialTrack implements Track, JmeCloneable {
 
     @Override
     public Track clone() {
-        return (Track) jmeClone();
+        SpatialTrack copy = (SpatialTrack) jmeClone();
+        copy.setTrackSpatial(trackSpatial);
+        return (Track) copy;
     }
 
     @Override

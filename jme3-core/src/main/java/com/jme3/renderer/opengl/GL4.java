@@ -68,6 +68,13 @@ public interface GL4 extends GL3 {
     public static final int GL_MAX_SHADER_STORAGE_BLOCK_SIZE = 0x90DE;
     public static final int GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT = 0x90DF;
 
+    /*
+     * <p><a target="_blank" href="http://docs.gl/gl4/glPatchParameteri">Reference Page</a></p>
+     * <p>
+     * Specifies the integer value of the specified parameter for patch primitives.
+     *
+     * @param count the new value for the parameter given by {@code pname}
+     */
     public void glPatchParameter(int count);
 
     /**

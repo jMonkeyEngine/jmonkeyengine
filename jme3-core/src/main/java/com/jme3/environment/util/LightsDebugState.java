@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -114,7 +114,7 @@ public class LightsDebugState extends BaseAppState {
     }
 
     /**
-     * Set the scenes for wich to render light gizmos.
+     * Set the scenes for which to render light gizmos.
      * @param scene 
      */
     public void setScene(Spatial scene) {

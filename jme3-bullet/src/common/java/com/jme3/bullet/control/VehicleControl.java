@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,6 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
 import com.jme3.util.clone.Cloner;
@@ -108,54 +107,10 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
         return spatial.getWorldRotation();
     }
 
+    @Deprecated
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        VehicleControl control = new VehicleControl(collisionShape, mass);
-        control.setAngularFactor(getAngularFactor());
-        control.setAngularSleepingThreshold(getAngularSleepingThreshold());
-        control.setAngularVelocity(getAngularVelocity());
-        control.setCcdMotionThreshold(getCcdMotionThreshold());
-        control.setCcdSweptSphereRadius(getCcdSweptSphereRadius());
-        control.setCollideWithGroups(getCollideWithGroups());
-        control.setCollisionGroup(getCollisionGroup());
-        control.setDamping(getLinearDamping(), getAngularDamping());
-        control.setFriction(getFriction());
-        control.setGravity(getGravity());
-        control.setKinematic(isKinematic());
-        control.setLinearSleepingThreshold(getLinearSleepingThreshold());
-        control.setLinearVelocity(getLinearVelocity());
-        control.setPhysicsLocation(getPhysicsLocation());
-        control.setPhysicsRotation(getPhysicsRotationMatrix());
-        control.setRestitution(getRestitution());
-
-        control.setFrictionSlip(getFrictionSlip());
-        control.setMaxSuspensionTravelCm(getMaxSuspensionTravelCm());
-        control.setSuspensionStiffness(getSuspensionStiffness());
-        control.setSuspensionCompression(tuning.suspensionCompression);
-        control.setSuspensionDamping(tuning.suspensionDamping);
-        control.setMaxSuspensionForce(getMaxSuspensionForce());
-
-        for (Iterator<VehicleWheel> it = wheels.iterator(); it.hasNext();) {
-            VehicleWheel wheel = it.next();
-            VehicleWheel newWheel = control.addWheel(wheel.getLocation(), wheel.getDirection(), wheel.getAxle(), wheel.getRestLength(), wheel.getRadius(), wheel.isFrontWheel());
-            newWheel.setFrictionSlip(wheel.getFrictionSlip());
-            newWheel.setMaxSuspensionTravelCm(wheel.getMaxSuspensionTravelCm());
-            newWheel.setSuspensionStiffness(wheel.getSuspensionStiffness());
-            newWheel.setWheelsDampingCompression(wheel.getWheelsDampingCompression());
-            newWheel.setWheelsDampingRelaxation(wheel.getWheelsDampingRelaxation());
-            newWheel.setMaxSuspensionForce(wheel.getMaxSuspensionForce());
-
-            //TODO: bad way finding children!
-            if (spatial instanceof Node) {
-                Node node = (Node) spatial;
-                Spatial wheelSpat = node.getChild(wheel.getWheelSpatial().getName());
-                if (wheelSpat != null) {
-                    newWheel.setWheelSpatial(wheelSpat);
-                }
-            }
-        }
-        control.setApplyPhysicsLocal(isApplyPhysicsLocal());
-        return control;
+        throw new UnsupportedOperationException();
     }
 
     @Override   

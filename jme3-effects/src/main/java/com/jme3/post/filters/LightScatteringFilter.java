@@ -67,7 +67,7 @@ public class LightScatteringFilter extends Filter {
     private ViewPort viewPort;
 
     /**
-     * creates a lightScatterring filter
+     * creates a lightScattering filter
      */
     public LightScatteringFilter() {
         super("Light Scattering");

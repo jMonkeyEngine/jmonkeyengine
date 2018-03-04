@@ -34,7 +34,6 @@ package com.jme3.input;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
 import com.jme3.input.controls.*;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
@@ -582,18 +581,17 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * clone this camera for a spatial
+     *
      * @param spatial
      * @return
      */
+    @Deprecated
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        ChaseCamera cc = new ChaseCamera(cam, spatial, inputManager);
-        cc.setMaxDistance(getMaxDistance());
-        cc.setMinDistance(getMinDistance());
-        return cc;
+        throw new UnsupportedOperationException();
     }
 
-    @Override   
+    @Override
     public Object jmeClone() {
         ChaseCamera cc = new ChaseCamera(cam, inputManager);
         cc.target = target;

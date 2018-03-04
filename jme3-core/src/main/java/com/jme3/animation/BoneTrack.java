@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import java.util.BitSet;
 public final class BoneTrack implements Track {
 
     /**
-     * Bone index in the skeleton which this track effects.
+     * Bone index in the skeleton which this track affects.
      */
     private int targetBoneIndex;
     
@@ -138,16 +138,23 @@ public final class BoneTrack implements Track {
 
     /**
      * Set the translations and rotations for this bone track
-     * @param times a float array with the time of each frame
-     * @param translations the translation of the bone for each frame
-     * @param rotations the rotation of the bone for each frame
+     *
+     * @param times the time of each frame, measured from the start of the track
+     * (not null, length&gt;0)
+     * @param translations the translation of the bone for each frame (not null,
+     * same length as times)
+     * @param rotations the rotation of the bone for each frame (not null, same
+     * length as times)
      */
     public void setKeyframes(float[] times, Vector3f[] translations, Quaternion[] rotations) {
         if (times.length == 0) {
             throw new RuntimeException("BoneTrack with no keyframes!");
         }
 
-        assert times.length == translations.length && times.length == rotations.length;
+        assert translations != null;
+        assert times.length == translations.length;
+        assert rotations != null;
+        assert times.length == rotations.length;
 
         this.times = times;
         this.translations = new CompactVector3Array();
@@ -160,15 +167,19 @@ public final class BoneTrack implements Track {
 
     /**
      * Set the translations, rotations and scales for this bone track
-     * @param times a float array with the time of each frame
-     * @param translations the translation of the bone for each frame
-     * @param rotations the rotation of the bone for each frame
-     * @param scales the scale of the bone for each frame
+     *
+     * @param times the time of each frame, measured from the start of the track
+     * (not null, length&gt;0)
+     * @param translations the translation of the bone for each frame (not null,
+     * same length as times)
+     * @param rotations the rotation of the bone for each frame (not null, same
+     * length as times)
+     * @param scales the scale of the bone for each frame (ignored if null)
      */
     public void setKeyframes(float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
         this.setKeyframes(times, translations, rotations);
-        assert times.length == scales.length;
         if (scales != null) {
+            assert times.length == scales.length;
             this.scales = new CompactVector3Array();
             this.scales.add(scales);
             this.scales.freeze();

@@ -59,9 +59,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
-import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.*;
@@ -171,7 +169,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     }
 
     /**
-     * contruct a KinematicRagdollControl
+     * construct a KinematicRagdollControl
      */
     public KinematicRagdollControl() {
         baseRigidBody = new PhysicsRigidBody(new BoxCollisionShape(Vector3f.UNIT_XYZ.mult(0.1f)), 1);
@@ -255,7 +253,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
                     link.bone.setUserTransformsInModelSpace(position, tmpRot1);
                 } else {
                     //boneList is not empty, this means some bones of the skeleton might not be associated with a collision shape.
-                    //So we update them recusively
+                    //So we update them recursively
                     RagdollUtils.setTransform(link.bone, position, tmpRot1, false, boneList);
                 }
             }
@@ -912,16 +910,6 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     public void render(RenderManager rm, ViewPort vp) {
     }
 
-    @Override
-    public Control cloneForSpatial(Spatial spatial) {
-        KinematicRagdollControl control = new KinematicRagdollControl(preset, weightThreshold);
-        control.setMode(mode);
-        control.setRootMass(rootMass);
-        control.setWeightThreshold(weightThreshold);
-        control.setApplyPhysicsLocal(applyLocal);
-        return control;
-    }
-   
     @Override   
     public Object jmeClone() {
         KinematicRagdollControl control = new KinematicRagdollControl(preset, weightThreshold);        

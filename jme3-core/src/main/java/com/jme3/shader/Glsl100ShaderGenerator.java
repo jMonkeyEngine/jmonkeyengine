@@ -35,6 +35,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.material.ShaderGenerationInfo;
 import com.jme3.material.plugins.ConditionParser;
 import com.jme3.shader.Shader.ShaderType;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,6 +51,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * the indentation characters 1à tabulation characters
      */
     private final static String INDENTCHAR = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+
     protected ShaderNodeVariable inPosTmp;
 
     /**
@@ -99,7 +101,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
             declareAttribute(source, var);
 
         }
-        if (!inPosition) {            
+        if (!inPosition) {
             inPosTmp = new ShaderNodeVariable("vec3", "inPosition");
             declareAttribute(source, inPosTmp);
         }
@@ -246,7 +248,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
 
             //Variables fed with a sampler matparam or world param are replaced by the matparam itself
             //It avoids issue with samplers that have to be uniforms.
-            if (isWorldOrMaterialParam(rightVariable) && rightVariable.getType().startsWith("sampler")) {
+            if (rightVariable != null && isWorldOrMaterialParam(rightVariable) && rightVariable.getType().startsWith("sampler")) {
                 nodeSource = replace(nodeSource, leftVariable, rightVariable.getPrefix() + rightVariable.getName());
             } else {
 
@@ -415,56 +417,71 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     }
 
     /**
-     * Appends a mapping to the source, embed in a conditional block if needed, 
+     * Appends a mapping to the source, embed in a conditional block if needed,
      * with variables nameSpaces and swizzle.
+     *
      * @param mapping the VariableMapping to append
-     * @param source the StringBuilder to use    
+     * @param source  the StringBuilder to use
      */
     protected void map(VariableMapping mapping, StringBuilder source) {
+
+        final ShaderNodeVariable leftVariable = mapping.getLeftVariable();
+        final ShaderNodeVariable rightVariable = mapping.getRightVariable();
+        final String rightExpression = mapping.getRightExpression();
+
         startCondition(mapping.getCondition(), source);
         appendIndent(source);
-        if (!mapping.getLeftVariable().isShaderOutput()) {
-            source.append(mapping.getLeftVariable().getType());
+        if (!leftVariable.isShaderOutput()) {
+            source.append(leftVariable.getType());
             source.append(" ");
         }
-        source.append(mapping.getLeftVariable().getNameSpace());
+        source.append(leftVariable.getNameSpace());
         source.append("_");
-        source.append(mapping.getLeftVariable().getName());
-        if (mapping.getLeftVariable().getMultiplicity() != null){
+        source.append(leftVariable.getName());
+        if (leftVariable.getMultiplicity() != null){
             source.append("[");
-            source.append(mapping.getLeftVariable().getMultiplicity());
+            source.append(leftVariable.getMultiplicity());
             source.append("]");
         }
-        
-        //left swizzle, the variable can't be declared and assigned on the same line. 
+
+        // left swizzle, the variable can't be declared and assigned on the same line.
         if (mapping.getLeftSwizzling().length() > 0) {
             //initialize the declared variable to 0.0
             source.append(" = ");
-            source.append(mapping.getLeftVariable().getType());
+            source.append(leftVariable.getType());
             source.append("(0.0);\n");
             appendIndent(source);
-            //assign the value on a new line
-            source.append(mapping.getLeftVariable().getNameSpace());
+            // assign the value on a new line
+            source.append(leftVariable.getNameSpace());
             source.append("_");
-            source.append(mapping.getLeftVariable().getName());
+            source.append(leftVariable.getName());
             source.append(".");
             source.append(mapping.getLeftSwizzling());
         }
         source.append(" = ");
-        String namePrefix = getAppendableNameSpace(mapping.getRightVariable());
-        source.append(namePrefix);
-        source.append(mapping.getRightVariable().getPrefix());
-        source.append(mapping.getRightVariable().getName());
-        if (mapping.getRightSwizzling().length() > 0) {
-            source.append(".");
-            source.append(mapping.getRightSwizzling());
+
+        if (rightVariable != null) {
+
+            String namePrefix = getAppendableNameSpace(rightVariable);
+            source.append(namePrefix);
+            source.append(rightVariable.getPrefix());
+            source.append(rightVariable.getName());
+
+            if (mapping.getRightSwizzling().length() > 0) {
+                source.append(".");
+                source.append(mapping.getRightSwizzling());
+            }
+
+        } else {
+            source.append(rightExpression);
         }
+
         source.append(";\n");
         endCondition(mapping.getCondition(), source);
     }
 
     /**
-     * replaces a variable name in a shaderNode source code by prefixing it 
+     * replaces a variable name in a shaderNode source code by prefixing it
      * with its nameSpace and "_" if needed.
      * @param nodeSource the source to modify
      * @param var the variable to replace
@@ -606,7 +623,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     /**
      * Declares a varying
      * @param source the StringBuilder to use
-     * @param var the variable to declare as an varying
+     * @param var the variable to declare as a varying
      * @param input a boolean set to true if the this varying is an input.
      * this in not used in this implementation but can be used in overriding 
      * implementation

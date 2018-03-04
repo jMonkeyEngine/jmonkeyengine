@@ -1003,7 +1003,7 @@ final class BinaryInputCapsule implements InputCapsule {
         /*
          * @see ISSUE 276
          *
-         * We'll transfer the bytes into a seperate byte array.
+         * We'll transfer the bytes into a separate byte array.
          * While we do that we'll take the opportunity to check if the byte data is valid UTF-8.
          *
          * If it is not UTF-8 it is most likely saved with the BinaryOutputCapsule bug, that saves Strings using their native
@@ -1020,7 +1020,7 @@ final class BinaryInputCapsule implements InputCapsule {
          *
          * It is impossible to detect which one-byte encoding is used. Since UTF8 and practically all 1-byte encodings share the most
          * used characters (the "none-high" ones) parsing them will give the same result. However, not all byte sequences are legal in
-         * UTF-8 (see explantion above). If not UTF-8 encoded content is detected we therefor fallback on latin1. We also log a warning.
+         * UTF-8 (see explantion above). If not UTF-8 encoded content is detected we therefore fall back on latin1. We also log a warning.
          *
          * By this method we detect all use of 1 byte encoding if they:
          * - use a "high" codepoint after a "low" codepoint or a sequence of codepoints that is valid as UTF-8 bytes, that starts with 1000
@@ -1078,9 +1078,9 @@ final class BinaryInputCapsule implements InputCapsule {
                 );
                 // We use ISO8859_1 to be consistent across platforms. We could default to native encoding, but this would lead to inconsistent
                 // behaviour across platforms!
-                // Developers that have previously saved their exports using the old exporter (wich uses native encoding), can temporarly
+                // Developers that have previously saved their exports using the old exporter (which uses native encoding), can temporarly
                 // remove the ""ISO8859_1" parameter, and change the above if statement to "if (false)".
-                // They should then import and re-export their models using the same enviroment they were originally created in.
+                // They should then import and re-export their models using the same environment they were originally created in.
                 return new String(bytes, "ISO8859_1");
             }
         } catch (UnsupportedEncodingException uee) {

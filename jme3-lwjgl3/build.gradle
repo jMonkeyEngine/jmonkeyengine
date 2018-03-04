@@ -2,7 +2,7 @@ if (!hasProperty('mainClass')) {
     ext.mainClass = ''
 }
 
-def lwjglVersion = '3.1.2'
+def lwjglVersion = '3.1.5'
 
 sourceCompatibility = '1.8'
 

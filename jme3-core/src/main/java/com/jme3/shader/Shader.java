@@ -88,12 +88,12 @@ public final class Shader extends NativeObject {
          */
         Geometry("geom"),
         /**
-         * Controls tesselation factor (e.g how often a input patch should be
+         * Controls tessellation factor (e.g how often a input patch should be
          * subdivided)
          */
         TessellationControl("tsctrl"),
         /**
-         * Controls tesselation transform (e.g similar to the vertex shader, but
+         * Controls tessellation transform (e.g similar to the vertex shader, but
          * required to mix inputs manual)
          */
         TessellationEvaluation("tseval");
@@ -132,7 +132,7 @@ public final class Shader extends NativeObject {
         protected ShaderSource(ShaderSource ss){
             super(ss.id);
             // No data needs to be copied.
-            // (This is a destructable clone)
+            // (This is a destructible clone)
         }
 
         public ShaderSource(){
@@ -233,7 +233,7 @@ public final class Shader extends NativeObject {
     }
 
     /**
-     * Do not use this constructor. Used for destructable clones only.
+     * Do not use this constructor. Used for destructible clones only.
      */
     protected Shader(Shader s){
         super(s.id);
@@ -408,7 +408,7 @@ public final class Shader extends NativeObject {
      */
     public void resetLocations() {
         if (uniforms != null) {
-            // NOTE: Shader sources will be reset seperately from the shader itself.
+            // NOTE: Shader sources will be reset separately from the shader itself.
             for (Uniform uniform : uniforms.values()) {
                 uniform.reset(); // fixes issue with re-initialization
             }
