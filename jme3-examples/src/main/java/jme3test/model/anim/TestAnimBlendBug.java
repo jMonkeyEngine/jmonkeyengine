@@ -40,6 +40,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
@@ -113,7 +114,7 @@ public class TestAnimBlendBug extends SimpleApplication implements ActionListene
         channel2 = control2.createChannel();
 
         SkeletonDebugger skeletonDebug = new SkeletonDebugger("skeleton1", control1.getSkeleton());
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.getAdditionalRenderState().setWireframe(true);
         mat.setColor("Color", ColorRGBA.Red);
         mat.setFloat("PointSize", 7f);

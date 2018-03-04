@@ -33,9 +33,9 @@
 package jme3test.light;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState;
 import com.jme3.material.TechniqueDef;
 import com.jme3.math.ColorRGBA;
@@ -45,7 +45,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.util.MaterialDebugAppState;
 import com.jme3.util.TangentBinormalGenerator;
 
 /**
@@ -88,7 +87,7 @@ public class TestTwoSideLighting extends SimpleApplication {
         Geometry teapot = (Geometry) assetManager.loadModel("Models/Teapot/Teapot.obj");
         teapot.move(-1, 0, 0);
         teapot.setLocalScale(2f);
-        Material mat2 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material mat2 = new Material(assetManager, Materials.LIGHTING);
         mat2.setFloat("Shininess", 25);
         mat2.setBoolean("UseMaterialColors", true);
         mat2.setColor("Ambient",  ColorRGBA.Black);

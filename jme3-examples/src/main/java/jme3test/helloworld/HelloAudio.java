@@ -7,6 +7,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
@@ -30,7 +31,7 @@ public class HelloAudio extends SimpleApplication {
     /** just a blue box floating in space */
     Box box1 = new Box(1, 1, 1);
     player = new Geometry("Player", box1);
-    Material mat1 = new Material(assetManager,"Common/MatDefs/Misc/Unshaded.j3md");
+    Material mat1 = new Material(assetManager, Materials.UNSHADED);
     mat1.setColor("Color", ColorRGBA.Blue);
     player.setMaterial(mat1);
     rootNode.attachChild(player);

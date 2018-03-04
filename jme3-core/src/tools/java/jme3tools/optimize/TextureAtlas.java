@@ -35,6 +35,7 @@ import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.MatParamTexture;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.Vector2f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -503,7 +504,7 @@ public class TextureAtlas {
         mesh.updateBound();
         geom.setMesh(mesh);
 
-        Material mat = new Material(mgr, "Common/MatDefs/Light/Lighting.j3md");
+        Material mat = new Material(mgr, Materials.LIGHTING);
         Texture diffuseMap = atlas.getAtlasTexture("DiffuseMap");
         Texture normalMap = atlas.getAtlasTexture("NormalMap");
         Texture specularMap = atlas.getAtlasTexture("SpecularMap");

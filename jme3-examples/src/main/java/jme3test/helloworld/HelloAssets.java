@@ -36,6 +36,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapText;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
@@ -62,7 +63,7 @@ public class HelloAssets extends SimpleApplication {
         /** Create a wall (Box with material and texture from test-data) */
         Box box = new Box(2.5f, 2.5f, 1.0f);
         Spatial wall = new Geometry("Box", box );
-        Material mat_brick = new Material( assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat_brick = new Material( assetManager, Materials.UNSHADED);
         mat_brick.setTexture("ColorMap", assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg"));
         wall.setMaterial(mat_brick);
         wall.setLocalTranslation(2.0f,-2.5f,0.0f);

@@ -37,6 +37,7 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -118,7 +119,7 @@ public class TestShadowBug extends SimpleApplication {
     box.scaleTextureCoordinates(new Vector2f(10, 10));
     Geometry floor = new Geometry("the Floor", box);
     floor.setLocalTranslation(200, -9, 200);
-    Material matGroundL = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+    Material matGroundL = new Material(assetManager, Materials.LIGHTING);
     Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
     grass.setWrap(WrapMode.Repeat);
     matGroundL.setTexture("DiffuseMap", grass);

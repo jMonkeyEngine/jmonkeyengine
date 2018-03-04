@@ -37,19 +37,20 @@ import com.jme3.font.BitmapCharacterSet;
 import com.jme3.font.BitmapFont;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialDef;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.texture.Texture;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 public class BitmapFontLoader implements AssetLoader {
 
     private BitmapFont load(AssetManager assetManager, String folder, InputStream in) throws IOException{
         MaterialDef spriteMat = 
-                (MaterialDef) assetManager.loadAsset(new AssetKey("Common/MatDefs/Misc/Unshaded.j3md"));
+                (MaterialDef) assetManager.loadAsset(new AssetKey(Materials.UNSHADED));
         BitmapCharacterSet charSet = new BitmapCharacterSet();
         Material[] matPages = null;
         BitmapFont font = new BitmapFont();

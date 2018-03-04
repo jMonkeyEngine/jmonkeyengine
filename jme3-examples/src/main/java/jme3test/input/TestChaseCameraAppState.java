@@ -39,6 +39,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -64,7 +65,7 @@ public class TestChaseCameraAppState extends SimpleApplication implements Analog
     rootNode.attachChild(teaGeom);
 
     // Load a floor model
-    Material mat_ground = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    Material mat_ground = new Material(assetManager, Materials.UNSHADED);
     mat_ground.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
     Geometry ground = new Geometry("ground", new Quad(50, 50));
     ground.setLocalRotation(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X));

@@ -35,6 +35,7 @@ package jme3test.helloworld;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -61,7 +62,7 @@ public class HelloMaterial extends SimpleApplication {
     Box cube1Mesh = new Box( 1f,1f,1f);
     Geometry cube1Geo = new Geometry("My Textured Box", cube1Mesh);
     cube1Geo.setLocalTranslation(new Vector3f(-3f,1.1f,0f));
-    Material cube1Mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    Material cube1Mat = new Material(assetManager, Materials.UNSHADED);
     Texture cube1Tex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
     cube1Mat.setTexture("ColorMap", cube1Tex);
     cube1Geo.setMaterial(cube1Mat);
@@ -70,7 +71,7 @@ public class HelloMaterial extends SimpleApplication {
     /** A translucent/transparent texture, similar to a window frame. */
     Box cube2Mesh = new Box( 1f,1f,0.01f);
     Geometry cube2Geo = new Geometry("window frame", cube2Mesh);
-    Material cube2Mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    Material cube2Mat = new Material(assetManager, Materials.UNSHADED);
     cube2Mat.setTexture("ColorMap", assetManager.loadTexture("Textures/ColoredTex/Monkey.png"));
     cube2Mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);  // activate transparency
     cube2Geo.setQueueBucket(Bucket.Transparent);
@@ -82,7 +83,7 @@ public class HelloMaterial extends SimpleApplication {
     Geometry sphereGeo = new Geometry("Shiny rock", sphereMesh);
     sphereMesh.setTextureMode(Sphere.TextureMode.Projected); // better quality on spheres
     TangentBinormalGenerator.generate(sphereMesh);           // for lighting effect
-    Material sphereMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+    Material sphereMat = new Material(assetManager, Materials.LIGHTING);
     sphereMat.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Terrain/Pond/Pond.jpg"));
     sphereMat.setTexture("NormalMap", assetManager.loadTexture("Textures/Terrain/Pond/Pond_normal.png"));
     sphereMat.setBoolean("UseMaterialColors",true);    

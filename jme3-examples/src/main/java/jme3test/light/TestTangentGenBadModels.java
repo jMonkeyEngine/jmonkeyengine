@@ -8,6 +8,7 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
@@ -40,7 +41,7 @@ public class TestTangentGenBadModels extends SimpleApplication {
         final Spatial badModel = assetManager.loadModel("Models/TangentBugs/test.blend");
 //        badModel.setLocalScale(1f);
         
-        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material mat = new Material(assetManager, Materials.LIGHTING);
         mat.setTexture("NormalMap", assetManager.loadTexture("Models/TangentBugs/test_normal.png"));
 //        Material mat = assetManager.loadMaterial("Textures/BumpMapTest/Tangent.j3m");
         badModel.setMaterial(mat);
@@ -112,7 +113,7 @@ public class TestTangentGenBadModels extends SimpleApplication {
                     mat = assetManager.loadMaterial("Textures/BumpMapTest/Tangent.j3m");
                     debugTangents.setCullHint(CullHint.Inherit);
                 }else{
-                    mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+                    mat = new Material(assetManager, Materials.LIGHTING);
                     mat.setTexture("NormalMap", assetManager.loadTexture("Models/TangentBugs/test_normal.png"));
                     debugTangents.setCullHint(CullHint.Always);
                 }

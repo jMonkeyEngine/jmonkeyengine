@@ -31,20 +31,20 @@
  */
 package com.jme3.material;
 
+import static org.junit.Assert.assertEquals;
 import com.jme3.asset.AssetManager;
-import com.jme3.light.LightList;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.NullRenderer;
 import com.jme3.system.TestUtil;
-import java.util.Arrays;
-import java.util.EnumSet;
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Arrays;
+import java.util.EnumSet;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MaterialTest {
@@ -114,7 +114,7 @@ public class MaterialTest {
     @Test
     public void testSelectNamedTechnique_GLSL150Cap() {
         supportGlsl(150);
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
 
         material.selectTechnique("PostShadow", renderManager);
 
@@ -124,7 +124,7 @@ public class MaterialTest {
     @Test
     public void testSelectNamedTechnique_GLSL100Cap() {
         supportGlsl(100);
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
 
         material.selectTechnique("PostShadow", renderManager);
 

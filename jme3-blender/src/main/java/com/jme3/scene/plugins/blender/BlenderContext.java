@@ -46,6 +46,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.BlenderKey;
 import com.jme3.light.Light;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.Filter;
 import com.jme3.renderer.Camera;
@@ -692,7 +693,7 @@ public class BlenderContext {
      */
     public synchronized Material getDefaultMaterial() {
         if (blenderKey.getDefaultMaterial() == null) {
-            Material defaultMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+            Material defaultMaterial = new Material(assetManager, Materials.UNSHADED);
             defaultMaterial.setColor("Color", ColorRGBA.DarkGray);
             blenderKey.setDefaultMaterial(defaultMaterial);
         }

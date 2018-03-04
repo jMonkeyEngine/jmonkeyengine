@@ -30,11 +30,11 @@ import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.MeshCollisionShape;
 import com.jme3.bullet.control.BetterCharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.bullet.debug.DebugTools;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -164,7 +164,7 @@ public class TestBetterCharacter extends SimpleApplication implements ActionList
     }
 
     private void setupPlanet() {
-        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material material = new Material(assetManager, Materials.UNSHADED);
         material.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
         //immovable sphere with mesh collision shape
         Sphere sphere = new Sphere(64, 64, 20);

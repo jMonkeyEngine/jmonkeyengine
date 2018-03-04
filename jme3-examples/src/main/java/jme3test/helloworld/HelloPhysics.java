@@ -41,6 +41,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -132,19 +133,19 @@ public class HelloPhysics extends SimpleApplication {
 
   /** Initialize the materials used in this scene. */
   public void initMaterials() {
-    wall_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    wall_mat = new Material(assetManager, Materials.UNSHADED);
     TextureKey key = new TextureKey("Textures/Terrain/BrickWall/BrickWall.jpg");
     key.setGenerateMips(true);
     Texture tex = assetManager.loadTexture(key);
     wall_mat.setTexture("ColorMap", tex);
 
-    stone_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    stone_mat = new Material(assetManager, Materials.UNSHADED);
     TextureKey key2 = new TextureKey("Textures/Terrain/Rock/Rock.PNG");
     key2.setGenerateMips(true);
     Texture tex2 = assetManager.loadTexture(key2);
     stone_mat.setTexture("ColorMap", tex2);
 
-    floor_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    floor_mat = new Material(assetManager, Materials.UNSHADED);
     TextureKey key3 = new TextureKey("Textures/Terrain/Pond/Pond.jpg");
     key3.setGenerateMips(true);
     Texture tex3 = assetManager.loadTexture(key3);

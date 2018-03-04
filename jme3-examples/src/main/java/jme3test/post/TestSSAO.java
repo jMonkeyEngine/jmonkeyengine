@@ -34,6 +34,7 @@ package jme3test.post;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.AmbientLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
@@ -60,7 +61,7 @@ public class TestSSAO extends SimpleApplication {
 
         flyCam.setMoveSpeed(50);
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material mat = new Material(assetManager, Materials.LIGHTING);
         Texture diff = assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg");
         diff.setWrap(Texture.WrapMode.Repeat);
         Texture norm = assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall_normal.jpg");

@@ -36,6 +36,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
@@ -63,7 +64,7 @@ public class TestLightRadius extends SimpleApplication {
         g.center();
 //        g.move(0, 1, 0);
         
-        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material mat = new Material(assetManager, Materials.LIGHTING);
         mat.setFloat("Shininess", 32f);
         mat.setBoolean("UseMaterialColors", true);
         mat.setColor("Ambient",  ColorRGBA.Black);

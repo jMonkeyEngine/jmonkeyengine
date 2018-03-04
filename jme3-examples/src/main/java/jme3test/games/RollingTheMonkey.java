@@ -47,6 +47,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -135,29 +136,29 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
         rootNode.addLight(sun); 
         
         // create materials
-        Material materialRed = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material materialRed = new Material(assetManager, Materials.LIGHTING);
         materialRed.setBoolean("UseMaterialColors",true);
         materialRed.setBoolean("HardwareShadows", true);
         materialRed.setColor("Diffuse", new ColorRGBA(0.9451f, 0.0078f, 0.0314f, 1.0f));
         materialRed.setColor("Specular", ColorRGBA.White);
         materialRed.setFloat("Shininess", 64.0f);
         
-        Material materialGreen = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material materialGreen = new Material(assetManager, Materials.LIGHTING);
         materialGreen.setBoolean("UseMaterialColors",true);
         materialGreen.setBoolean("HardwareShadows", true);
         materialGreen.setColor("Diffuse", new ColorRGBA(0.0431f, 0.7725f, 0.0078f, 1.0f));
         materialGreen.setColor("Specular", ColorRGBA.White);
         materialGreen.setFloat("Shininess", 64.0f);
         
-        Material logoMaterial = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material logoMaterial = new Material(assetManager, Materials.LIGHTING);
         logoMaterial.setBoolean("UseMaterialColors",true);
         logoMaterial.setBoolean("HardwareShadows", true);
-        logoMaterial.setTexture("DiffuseMap", assetManager.loadTexture("com/jme3/app/Monkey.png"));
+        logoMaterial.setTexture("DiffuseMap", assetManager.loadTexture(Materials.LIGHTING));
         logoMaterial.setColor("Diffuse", ColorRGBA.White);
         logoMaterial.setColor("Specular", ColorRGBA.White);
         logoMaterial.setFloat("Shininess", 32.0f);
         
-        Material materialYellow = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material materialYellow = new Material(assetManager, Materials.LIGHTING);
         materialYellow.setBoolean("UseMaterialColors",true);
         materialYellow.setBoolean("HardwareShadows", true);
         materialYellow.setColor("Diffuse", new ColorRGBA(0.9529f, 0.7843f, 0.0078f, 1.0f));

@@ -34,6 +34,7 @@ package jme3test.helloworld;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -57,8 +58,7 @@ public class HelloNode extends SimpleApplication {
         Box box1 = new Box(1,1,1);
         Geometry blue = new Geometry("Box", box1);
         blue.setLocalTranslation(new Vector3f(1,-1,1));
-        Material mat1 = new Material(assetManager, 
-                "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat1 = new Material(assetManager,  Materials.UNSHADED);
         mat1.setColor("Color", ColorRGBA.Blue);
         blue.setMaterial(mat1);
 
@@ -66,8 +66,7 @@ public class HelloNode extends SimpleApplication {
         Box box2 = new Box(1,1,1);      
         Geometry red = new Geometry("Box", box2);
         red.setLocalTranslation(new Vector3f(1,3,1));
-        Material mat2 = new Material(assetManager, 
-                "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat2 = new Material(assetManager, Materials.UNSHADED);
         mat2.setColor("Color", ColorRGBA.Red);
         red.setMaterial(mat2);
 

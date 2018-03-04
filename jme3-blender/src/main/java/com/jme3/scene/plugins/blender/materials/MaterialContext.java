@@ -1,18 +1,10 @@
 package com.jme3.scene.plugins.blender.materials;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.Savable;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.ColorRGBA;
@@ -31,6 +23,15 @@ import com.jme3.scene.plugins.blender.textures.CombinedTexture;
 import com.jme3.scene.plugins.blender.textures.TextureHelper;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class holds the data about the material.
@@ -142,7 +143,7 @@ public final class MaterialContext implements Savable {
     public void applyMaterial(Geometry geometry, Long geometriesOMA, Map<String, List<Vector2f>> userDefinedUVCoordinates, BlenderContext blenderContext) {
         Material material = null;
         if (shadeless) {
-            material = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+            material = new Material(blenderContext.getAssetManager(), Materials.UNSHADED);
 
             if (!transparent) {
                 diffuseColor.a = 1;
@@ -150,7 +151,7 @@ public final class MaterialContext implements Savable {
 
             material.setColor("Color", diffuseColor);
         } else {
-            material = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
+            material = new Material(blenderContext.getAssetManager(), Materials.LIGHTING);
             material.setBoolean("UseMaterialColors", Boolean.TRUE);
 
             // setting the colors

@@ -40,6 +40,7 @@ import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -59,7 +60,7 @@ public class HelloInput extends SimpleApplication {
   public void simpleInitApp() {
       Box b = new Box(1, 1, 1);
     player = new Geometry("Player", b);
-    Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    Material mat = new Material(assetManager, Materials.UNSHADED);
     mat.setColor("Color", ColorRGBA.Blue);
     player.setMaterial(mat);
     rootNode.attachChild(player);

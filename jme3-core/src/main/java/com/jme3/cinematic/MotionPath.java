@@ -35,6 +35,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.cinematic.events.MotionEvent;
 import com.jme3.export.*;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Spline;
 import com.jme3.math.Spline.SplineType;
@@ -145,7 +146,7 @@ public class MotionPath implements Savable {
 
     private Geometry CreateLinearPath() {
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.getAdditionalRenderState().setWireframe(true);
         mat.setColor("Color", ColorRGBA.Blue);
         Geometry lineGeometry = new Geometry("line", new Curve(spline, 0));
@@ -155,7 +156,7 @@ public class MotionPath implements Savable {
 
     private Geometry CreateCatmullRomPath() {
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.getAdditionalRenderState().setWireframe(true);
         mat.setColor("Color", ColorRGBA.Blue);
         Geometry lineGeometry = new Geometry("line", new Curve(spline, 10));

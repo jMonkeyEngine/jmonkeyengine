@@ -46,6 +46,7 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Ray;
@@ -106,11 +107,11 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
         cam.setLocation(Vector3f.ZERO);
         debugTools = new DebugTools(assetManager);
         rootNode.attachChild(debugTools.debugNode);
-        poiMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        poiMaterial = new Material(assetManager, Materials.UNSHADED);
         poiMaterial.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
         poiMesh = new Sphere(16, 16, 1f);
 
-        ballMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        ballMaterial = new Material(assetManager, Materials.UNSHADED);
         ballMaterial.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
         ballMaterial.setColor("Color", ColorRGBA.Red);
         ballMesh = new Sphere(16, 16, 1.0f);

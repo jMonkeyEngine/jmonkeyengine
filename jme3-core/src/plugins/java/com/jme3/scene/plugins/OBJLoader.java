@@ -34,6 +34,7 @@ package com.jme3.scene.plugins;
 import com.jme3.asset.*;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialList;
+import com.jme3.material.Materials;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
@@ -414,7 +415,7 @@ public final class OBJLoader implements AssetLoader {
         }
         if (material == null){
             // create default material
-            material = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+            material = new Material(assetManager, Materials.LIGHTING);
             material.setFloat("Shininess", 64);
         }
         geom.setMaterial(material);

@@ -34,6 +34,7 @@ package com.jme3.scene.plugins;
 import com.jme3.asset.*;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialList;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.texture.Texture;
@@ -128,12 +129,12 @@ public class MTLLoader implements AssetLoader {
         }
         
         if (shadeless){
-            material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+            material = new Material(assetManager, Materials.UNSHADED);
             material.setColor("Color", diffuse.clone());
             material.setTexture("ColorMap", diffuseMap);
             // TODO: Add handling for alpha map?
         }else{
-            material = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+            material = new Material(assetManager, Materials.UNSHADED);
             material.setBoolean("UseMaterialColors", true);
             material.setColor("Ambient",  ambient.clone());
             material.setColor("Diffuse",  diffuse.clone());

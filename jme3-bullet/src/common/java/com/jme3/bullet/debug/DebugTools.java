@@ -33,6 +33,7 @@ package com.jme3.bullet.debug;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
@@ -140,22 +141,22 @@ public class DebugTools {
     }
 
     protected void setupMaterials() {
-        DEBUG_BLUE = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+        DEBUG_BLUE = new Material(manager, Materials.UNSHADED);
         DEBUG_BLUE.getAdditionalRenderState().setWireframe(true);
         DEBUG_BLUE.setColor("Color", ColorRGBA.Blue);
-        DEBUG_GREEN = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+        DEBUG_GREEN = new Material(manager, Materials.UNSHADED);
         DEBUG_GREEN.getAdditionalRenderState().setWireframe(true);
         DEBUG_GREEN.setColor("Color", ColorRGBA.Green);
-        DEBUG_RED = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+        DEBUG_RED = new Material(manager, Materials.UNSHADED);
         DEBUG_RED.getAdditionalRenderState().setWireframe(true);
         DEBUG_RED.setColor("Color", ColorRGBA.Red);
-        DEBUG_YELLOW = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+        DEBUG_YELLOW = new Material(manager, Materials.UNSHADED);
         DEBUG_YELLOW.getAdditionalRenderState().setWireframe(true);
         DEBUG_YELLOW.setColor("Color", ColorRGBA.Yellow);
-        DEBUG_MAGENTA = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+        DEBUG_MAGENTA = new Material(manager, Materials.UNSHADED);
         DEBUG_MAGENTA.getAdditionalRenderState().setWireframe(true);
         DEBUG_MAGENTA.setColor("Color", ColorRGBA.Magenta);
-        DEBUG_PINK = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+        DEBUG_PINK = new Material(manager, Materials.UNSHADED);
         DEBUG_PINK.getAdditionalRenderState().setWireframe(true);
         DEBUG_PINK.setColor("Color", ColorRGBA.Pink);
     }

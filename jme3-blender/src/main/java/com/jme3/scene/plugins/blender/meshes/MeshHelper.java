@@ -31,16 +31,8 @@
  */
 package com.jme3.scene.plugins.blender.meshes;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -53,6 +45,11 @@ import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 import com.jme3.scene.plugins.blender.objects.Properties;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A class that is used in mesh calculations.
@@ -373,7 +370,7 @@ public class MeshHelper extends AbstractBlenderHelper {
      */
     public synchronized Material getBlackUnshadedMaterial(BlenderContext blenderContext) {
         if (blackUnshadedMaterial == null) {
-            blackUnshadedMaterial = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+            blackUnshadedMaterial = new Material(blenderContext.getAssetManager(), Materials.UNSHADED);
             blackUnshadedMaterial.setColor("Color", ColorRGBA.Black);
         }
         return blackUnshadedMaterial;

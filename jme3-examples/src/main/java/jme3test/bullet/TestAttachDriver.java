@@ -46,6 +46,7 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -105,7 +106,7 @@ public class TestAttachDriver extends SimpleApplication implements ActionListene
     }
 
     public void setupFloor() {
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         TextureKey key = new TextureKey("Interface/Logo/Monkey.jpg", true);
         key.setGenerateMips(true);
         Texture tex = assetManager.loadTexture(key);
@@ -123,7 +124,7 @@ public class TestAttachDriver extends SimpleApplication implements ActionListene
     }
 
     private void buildPlayer() {
-        Material mat = new Material(getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(getAssetManager(), Materials.UNSHADED);
         mat.getAdditionalRenderState().setWireframe(true);
         mat.setColor("Color", ColorRGBA.Red);
 

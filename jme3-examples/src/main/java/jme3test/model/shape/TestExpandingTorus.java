@@ -33,6 +33,7 @@ package jme3test.model.shape;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Torus;
 
@@ -52,7 +53,7 @@ public class TestExpandingTorus extends SimpleApplication {
     public void simpleInitApp() {
         torus = new Torus(30, 10, .5f, 1f);
         geom = new Geometry("Torus", torus);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         geom.setMaterial(mat);
         rootNode.attachChild(geom);
     }

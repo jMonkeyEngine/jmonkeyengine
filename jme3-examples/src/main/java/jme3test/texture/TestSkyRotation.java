@@ -36,6 +36,7 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -96,8 +97,7 @@ public class TestSkyRotation extends SimpleApplication implements ActionListener
          */
         Mesh floorMesh = new Box(10f, 0.1f, 10f);
         floor = new Geometry("floor", floorMesh);
-        Material floorMaterial = new Material(assetManager,
-                "Common/MatDefs/Misc/Unshaded.j3md");
+        Material floorMaterial = new Material(assetManager, Materials.UNSHADED);
         floorMaterial.setTexture("ColorMap",
                 assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
         floor.setMaterial(floorMaterial);

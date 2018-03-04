@@ -37,6 +37,7 @@ import com.jme3.asset.plugins.HttpZipLocator;
 import com.jme3.asset.plugins.ZipLocator;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.*;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
@@ -90,7 +91,7 @@ public class TestSceneWater extends SimpleApplication {
         sun.setColor(ColorRGBA.White.clone().multLocal(2));
         scene.addLight(sun);
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
            //add lightPos Geometry
         Sphere lite=new Sphere(8, 8, 3.0f);

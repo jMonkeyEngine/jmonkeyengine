@@ -37,6 +37,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.MatParamOverride;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector4f;
@@ -69,7 +70,7 @@ public class TestMatParamOverride extends SimpleApplication {
 
     private void createBox(float location, ColorRGBA color) {
         Geometry geom = new Geometry("Box", box);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", color);
         geom.setMaterial(mat);
         geom.move(location, 0, 0);

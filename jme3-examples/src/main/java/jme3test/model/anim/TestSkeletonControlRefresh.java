@@ -38,7 +38,10 @@ package jme3test.model.anim;
 
 
  
-import com.jme3.animation.*;
+import com.jme3.animation.AnimChannel;
+import com.jme3.animation.AnimControl;
+import com.jme3.animation.LoopMode;
+import com.jme3.animation.SkeletonControl;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.font.BitmapText;
@@ -47,11 +50,8 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
+import com.jme3.material.Materials;
+import com.jme3.math.*;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.ssao.SSAOFilter;
 import com.jme3.renderer.queue.RenderQueue;
@@ -59,10 +59,9 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import com.jme3.shadow.DirectionalLightShadowFilter;
-import com.jme3.shadow.DirectionalLightShadowRenderer;
+
 import java.util.ArrayList;
 import java.util.List;
-import jme3test.post.SSAOUI;
  
 public class TestSkeletonControlRefresh extends SimpleApplication implements ActionListener{
  
@@ -91,7 +90,7 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
         dl.setDirection(new Vector3f(-0.1f, -0.7f, -1).normalizeLocal());
         dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
         rootNode.addLight(dl);
-        Material m = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material m = new Material(assetManager, Materials.UNSHADED);
         TextureKey k = new TextureKey("Models/Oto/Oto.jpg", false);
         m.setTexture("ColorMap", assetManager.loadTexture(k));        
  
@@ -142,7 +141,7 @@ public class TestSkeletonControlRefresh extends SimpleApplication implements Act
         Quad q = new Quad(20, 20);
        q.scaleTextureCoordinates(Vector2f.UNIT_XY.mult(10));
        Geometry geom = new Geometry("floor", q);
-       Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+       Material mat = new Material(assetManager, Materials.UNSHADED);
        mat.setColor("Color", ColorRGBA.White);       
        geom.setMaterial(mat);
 

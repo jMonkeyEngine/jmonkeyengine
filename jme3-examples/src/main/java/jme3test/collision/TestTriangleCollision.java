@@ -40,6 +40,7 @@ import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -64,7 +65,7 @@ public class TestTriangleCollision extends SimpleApplication {
         Mesh mesh1 = new Box(0.5f, 0.5f, 0.5f);
         geom1 = new Geometry("Box", mesh1);
         geom1.move(2, 2, -.5f);
-        Material m1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material m1 = new Material(assetManager, Materials.UNSHADED);
         m1.setColor("Color", ColorRGBA.Blue);
         geom1.setMaterial(m1);
         rootNode.attachChild(geom1);

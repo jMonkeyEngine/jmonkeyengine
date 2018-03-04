@@ -33,6 +33,7 @@ package com.jme3.environment.util;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -638,7 +639,7 @@ public class EnvMapUtils {
 
         Quad q = new Quad(size * 4, size * 3);
         Geometry g = new Geometry("bg", q);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", ColorRGBA.Black);
         g.setMaterial(mat);
         g.setLocalTranslation(0, 0, 0);
@@ -699,7 +700,7 @@ public class EnvMapUtils {
 
         Quad q = new Quad(cubeMap.getImage().getWidth() * 4 + nbMips, guiOffset + size);
         Geometry g = new Geometry("bg", q);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", ColorRGBA.Black);
         g.setMaterial(mat);
         g.setLocalTranslation(0, 0, 0);

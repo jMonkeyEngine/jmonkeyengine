@@ -35,6 +35,7 @@ package jme3test.conversion;
 import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapText;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Image;
@@ -74,10 +75,10 @@ public class TestMipMapGen extends SimpleApplication {
         MipMapGenerator.generateMipMaps(imageCustomMip);
         texCustomMip.setImage(imageCustomMip);
 
-        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat1 = new Material(assetManager, Materials.UNSHADED);
         mat1.setTexture("ColorMap", tex);
 
-        Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat2 = new Material(assetManager, Materials.UNSHADED);
         mat2.setTexture("ColorMap", texCustomMip);
 
         quad1.setMaterial(mat1);

@@ -34,31 +34,11 @@
  
 package jme3test.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.RenderingHints;
-import java.awt.Toolkit;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.awt.font.TextAttribute;
-import java.io.IOException;
-import java.util.*;
-import javax.swing.*;
-
 import com.jme3.app.DebugKeysAppState;
-import com.jme3.app.StatsAppState;
 import com.jme3.app.SimpleApplication;
-import com.jme3.app.state.ScreenshotAppState; 
+import com.jme3.app.StatsAppState;
+import com.jme3.app.state.ScreenshotAppState;
 import com.jme3.bounding.BoundingBox;
-import com.jme3.font.BitmapCharacter;
 import com.jme3.font.BitmapCharacterSet;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
@@ -66,15 +46,24 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.*;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import com.jme3.scene.debug.WireBox;
-import com.jme3.scene.shape.*;
+import com.jme3.scene.shape.Line;
+import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.plugins.AWTLoader;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -213,7 +202,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
         // Add a bounding box visual
         WireBox box = new WireBox(bb.getXExtent(), bb.getYExtent(), bb.getZExtent());
         Geometry geom = new Geometry(test.name + " bounds", box);
-        geom.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
+        geom.setMaterial(new Material(assetManager, Materials.UNSHADED));
         geom.getMaterial().setColor("Color", ColorRGBA.Red);
         geom.setLocalTranslation(bb.getCenter());        
         result.attachChild(geom);
@@ -222,7 +211,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
         float size = bitmapText.getLineHeight() * 0.5f; 
         box = new WireBox(size, size, 0);
         geom = new Geometry(test.name + " metric", box);
-        geom.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
+        geom.setMaterial(new Material(assetManager, Materials.UNSHADED));
         geom.getMaterial().setColor("Color", ColorRGBA.Blue);
         geom.setLocalTranslation(size, -size, 0);
         result.attachChild(geom); 
@@ -230,7 +219,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
         float yBaseline = -charset.getBase();
         Line line = new Line(new Vector3f(0, yBaseline, 0), new Vector3f(50, yBaseline, 0));
         geom = new Geometry(test.name + " base", line);
-        geom.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
+        geom.setMaterial(new Material(assetManager, Materials.UNSHADED));
         geom.getMaterial().setColor("Color", ColorRGBA.Green);
         result.attachChild(geom); 
          
@@ -256,7 +245,7 @@ public class TestBitmapFontLayout extends SimpleApplication {
         Texture awtText = renderAwtFont(test, width, height, bitmapFont);
         Quad quad = new Quad(width, height);
         geom = new Geometry(test.name + " awt1", quad);
-        geom.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
+        geom.setMaterial(new Material(assetManager, Materials.UNSHADED));
         geom.getMaterial().setTexture("ColorMap", awtText);
         // Quads render from the lower left corner up
         geom.move(0, -height, 0);

@@ -39,6 +39,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.app.StatsAppState;
 import com.jme3.app.state.ScreenshotAppState;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -85,7 +86,7 @@ public class TestSceneStress extends SimpleApplication {
  
         stateManager.getState(FlyCamAppState.class).getCamera().setMoveSpeed(10);
     
-        mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", ColorRGBA.Blue);
 
         // Create a deep, mostly static scene        

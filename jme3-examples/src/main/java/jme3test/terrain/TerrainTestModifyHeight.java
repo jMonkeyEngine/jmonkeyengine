@@ -43,6 +43,7 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Ray;
@@ -136,7 +137,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         createMarker();
 
         // WIREFRAME material
-        matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        matWire = new Material(assetManager, Materials.UNSHADED);
         matWire.getAdditionalRenderState().setWireframe(true);
         matWire.setColor("Color", ColorRGBA.Green);
         
@@ -421,7 +422,7 @@ public class TerrainTestModifyHeight extends SimpleApplication {
         marker = new Geometry("Marker");
         marker.setMesh(sphere);
         
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", new ColorRGBA(251f/255f, 130f/255f, 0f, 0.6f));
         mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
         

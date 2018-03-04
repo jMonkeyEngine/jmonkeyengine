@@ -33,12 +33,11 @@ package jme3test.app;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class TestUseAfterFree extends SimpleApplication {
 
@@ -55,7 +54,7 @@ public class TestUseAfterFree extends SimpleApplication {
     public void simpleInitApp() {
         Box box = new Box(1, 1, 1);
         Geometry geom = new Geometry("Box", box);
-        mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat = new Material(assetManager, Materials.UNSHADED);
         mat.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
         geom.setMaterial(mat);
         rootNode.attachChild(geom);

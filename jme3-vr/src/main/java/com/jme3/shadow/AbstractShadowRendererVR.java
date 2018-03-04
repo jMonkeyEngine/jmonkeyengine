@@ -35,6 +35,7 @@ package com.jme3.shadow;
 import com.jme3.asset.AssetManager;
 import com.jme3.export.*;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
@@ -296,7 +297,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
         Geometry frustumMdl = new Geometry("f", frustum);
         frustumMdl.setCullHint(Spatial.CullHint.Never);
         frustumMdl.setShadowMode(ShadowMode.Off);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.getAdditionalRenderState().setWireframe(true);
         frustumMdl.setMaterial(mat);
         switch (i) {

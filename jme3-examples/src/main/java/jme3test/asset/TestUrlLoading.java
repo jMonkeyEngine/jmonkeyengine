@@ -36,6 +36,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.asset.plugins.UrlLocator;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Quad;
@@ -66,7 +67,7 @@ public class TestUrlLoading extends SimpleApplication {
         key.setGenerateMips(true);
         Texture tex = assetManager.loadTexture(key);
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setTexture("ColorMap", tex);
         quad.setMaterial(mat);
 

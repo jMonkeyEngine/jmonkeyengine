@@ -42,6 +42,7 @@ import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
@@ -136,7 +137,7 @@ public class TestPbrEnv extends SimpleApplication implements ActionListener {
         ground = new Geometry("soil", b);
         TangentBinormalGenerator.generate(ground);
         ground.setLocalTranslation(0, 10, 550);
-        matGroundU = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        matGroundU = new Material(assetManager, Materials.UNSHADED);
         matGroundU.setColor("Color", ColorRGBA.Green);
 
 //        matGroundL = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");

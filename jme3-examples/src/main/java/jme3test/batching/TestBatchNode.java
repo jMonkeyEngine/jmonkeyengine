@@ -35,6 +35,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -116,7 +117,7 @@ public class TestBatchNode extends SimpleApplication {
         frustum = new WireFrustum(points);
         frustumMdl = new Geometry("f", frustum);
         frustumMdl.setCullHint(Spatial.CullHint.Never);
-        frustumMdl.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
+        frustumMdl.setMaterial(new Material(assetManager, Materials.UNSHADED));
         frustumMdl.getMaterial().getAdditionalRenderState().setWireframe(true);
         frustumMdl.getMaterial().setColor("Color", ColorRGBA.Red);
         rootNode.attachChild(frustumMdl);

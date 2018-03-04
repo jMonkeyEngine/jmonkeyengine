@@ -32,8 +32,8 @@
 package jme3test.renderer;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.font.BitmapText;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.queue.RenderQueue;
@@ -59,7 +59,7 @@ public class TestDepthFuncChange extends SimpleApplication {
         //You should see a small part of the blue cube on the left and the whole red cube
         Box boxshape1 = new Box(1f, 1f, 1f);
         Geometry cube1 = new Geometry("box", boxshape1);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", ColorRGBA.Blue);
         
         cube1.setMaterial(mat);

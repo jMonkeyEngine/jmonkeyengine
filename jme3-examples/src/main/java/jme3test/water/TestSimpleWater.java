@@ -37,6 +37,7 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -95,7 +96,7 @@ public class TestSimpleWater extends SimpleApplication implements ActionListener
         cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
         //init scene
         sceneNode = new Node("Scene");
-        mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat = new Material(assetManager, Materials.UNSHADED);
         mat.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
         Box b = new Box(1, 1, 1);
         Geometry geom = new Geometry("Box", b);

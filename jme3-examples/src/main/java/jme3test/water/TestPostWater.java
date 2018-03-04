@@ -12,6 +12,7 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -202,7 +203,7 @@ public class TestPostWater extends SimpleApplication {
     private void createBox() {
         //creating a transluscent box
         box = new Geometry("box", new Box(50, 50, 50));
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", new ColorRGBA(1.0f, 0, 0, 0.3f));
         mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
         //mat.getAdditionalRenderState().setDepthWrite(false);

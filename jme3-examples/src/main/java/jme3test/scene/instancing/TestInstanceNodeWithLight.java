@@ -3,6 +3,7 @@ package jme3test.scene.instancing;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -27,7 +28,7 @@ public class TestInstanceNodeWithLight extends SimpleApplication {
         rootNode.attachChild(instancedNode);
 
         box = new Geometry("Box", new Box(0.5f, 0.5f, 0.5f));
-        Material material = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material material = new Material(assetManager, Materials.LIGHTING);
         material.setBoolean("UseInstancing", true);
         material.setColor("Diffuse", ColorRGBA.Red);
         material.setBoolean("UseMaterialColors", true);

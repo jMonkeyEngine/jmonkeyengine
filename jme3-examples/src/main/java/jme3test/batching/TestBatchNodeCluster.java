@@ -36,6 +36,7 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -105,19 +106,19 @@ public class TestBatchNodeCluster extends SimpleApplication {
         yPosition.add(0);
         zPosition.add(0);
 
-        mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat1 = new Material(assetManager, Materials.UNSHADED);
         mat1.setColor("Color", ColorRGBA.White);
         mat1.setColor("GlowColor", ColorRGBA.Blue.mult(10));
 
-        mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat2 = new Material(assetManager, Materials.UNSHADED);
         mat2.setColor("Color", ColorRGBA.White);
         mat2.setColor("GlowColor", ColorRGBA.Red.mult(10));
 
-        mat3 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat3 = new Material(assetManager, Materials.UNSHADED);
         mat3.setColor("Color", ColorRGBA.White);
         mat3.setColor("GlowColor", ColorRGBA.Yellow.mult(10));
 
-        mat4 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat4 = new Material(assetManager, Materials.UNSHADED);
         mat4.setColor("Color", ColorRGBA.White);
         mat4.setColor("GlowColor", ColorRGBA.Orange.mult(10));
 
@@ -149,7 +150,7 @@ public class TestBatchNodeCluster extends SimpleApplication {
         Arrow a = new Arrow(new Vector3f(0, 50, 0));
         Geometry g = new Geometry("a", a);
         g.setLocalTranslation(terrain.getLocalTranslation());
-        Material m = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material m = new Material(assetManager, Materials.UNSHADED);
         m.setColor("Color", ColorRGBA.Blue);
         g.setMaterial(m);
 

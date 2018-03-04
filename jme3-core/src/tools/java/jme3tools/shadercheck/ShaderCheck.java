@@ -4,6 +4,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.material.MaterialDef;
+import com.jme3.material.Materials;
 import com.jme3.material.TechniqueDef;
 import com.jme3.material.plugins.J3MLoader;
 import com.jme3.renderer.Caps;
@@ -61,12 +62,12 @@ public class ShaderCheck {
         checkMatDef("Common/MatDefs/Gui/Gui.j3md");
         checkMatDef("Common/MatDefs/Hdr/LogLum.j3md");
         checkMatDef("Common/MatDefs/Hdr/ToneMap.j3md");
-        checkMatDef("Common/MatDefs/Light/Lighting.j3md");
+        checkMatDef(Materials.LIGHTING);
         checkMatDef("Common/MatDefs/Misc/ColoredTextured.j3md");
         checkMatDef("Common/MatDefs/Misc/Particle.j3md");
         checkMatDef("Common/MatDefs/Misc/ShowNormals.j3md");
         checkMatDef("Common/MatDefs/Misc/Sky.j3md");
-        checkMatDef("Common/MatDefs/Misc/Unshaded.j3md");
+        checkMatDef(Materials.UNSHADED);
         
         checkMatDef("Common/MatDefs/Post/BloomExtract.j3md");
         checkMatDef("Common/MatDefs/Post/BloomFinal.j3md");

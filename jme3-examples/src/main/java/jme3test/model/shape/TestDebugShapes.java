@@ -34,6 +34,7 @@ package jme3test.model.shape;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -52,7 +53,7 @@ public class TestDebugShapes extends SimpleApplication {
 
     public Geometry putShape(Mesh shape, ColorRGBA color, float lineWidth){
         Geometry g = new Geometry("shape", shape);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.getAdditionalRenderState().setWireframe(true);
         mat.getAdditionalRenderState().setLineWidth(lineWidth);
         mat.setColor("Color", color);

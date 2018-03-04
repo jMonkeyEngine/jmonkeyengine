@@ -42,6 +42,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
@@ -86,11 +87,11 @@ public class TestCcd extends SimpleApplication implements ActionListener {
         bulletCollisionShape = new SphereCollisionShape(0.1f);
         setupKeys();
 
-        mat = new Material(getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        mat = new Material(getAssetManager(), Materials.UNSHADED);
         mat.getAdditionalRenderState().setWireframe(true);
         mat.setColor("Color", ColorRGBA.Green);
 
-        mat2 = new Material(getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        mat2 = new Material(getAssetManager(), Materials.UNSHADED);
         mat2.getAdditionalRenderState().setWireframe(true);
         mat2.setColor("Color", ColorRGBA.Red);
 

@@ -1,10 +1,15 @@
 package com.jme3.scene.plugins.gltf;
 
+import static com.jme3.scene.plugins.gltf.GltfUtils.*;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import com.jme3.animation.*;
-import com.jme3.asset.*;
+import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetLoadException;
+import com.jme3.asset.AssetLoader;
+import com.jme3.asset.TextureKey;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState;
 import com.jme3.math.*;
 import com.jme3.renderer.Camera;
@@ -19,11 +24,12 @@ import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.Buffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static com.jme3.scene.plugins.gltf.GltfUtils.*;
 
 /**
  * GLTF 2.0 loader
@@ -87,7 +93,7 @@ public class GltfLoader implements AssetLoader {
             rootNode = new Node();
 
             if (defaultMat == null) {
-                defaultMat = new Material(assetInfo.getManager(), "Common/MatDefs/Light/PBRLighting.j3md");
+                defaultMat = new Material(assetInfo.getManager(), Materials.PBR);
                 defaultMat.setColor("BaseColor", ColorRGBA.White);
                 defaultMat.setFloat("Metallic", 0f);
                 defaultMat.setFloat("Roughness", 1f);

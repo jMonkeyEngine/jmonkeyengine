@@ -34,6 +34,7 @@ package jme3test.model.shape;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -89,7 +90,7 @@ public class TestCustomMesh extends SimpleApplication {
 
         // Creating a geometry, and apply a single color material to it
         Geometry geom = new Geometry("OurMesh", m);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", ColorRGBA.Blue);
         geom.setMaterial(mat);
 
@@ -101,7 +102,7 @@ public class TestCustomMesh extends SimpleApplication {
         // *************************************************************************
         Mesh cMesh = m.clone();
         Geometry coloredMesh = new Geometry ("ColoredMesh", cMesh);
-        Material matVC = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material matVC = new Material(assetManager, Materials.UNSHADED);
         matVC.setBoolean("VertexColor", true);
 
         //We have 4 vertices and 4 color values for each of them.
@@ -142,7 +143,7 @@ public class TestCustomMesh extends SimpleApplication {
         // *************************************************************************
         Mesh wfMesh = m.clone();
         Geometry wfGeom = new Geometry("wireframeGeometry", wfMesh);
-        Material matWireframe = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material matWireframe = new Material(assetManager, Materials.UNSHADED);
         matWireframe.setColor("Color", ColorRGBA.Green);
         matWireframe.getAdditionalRenderState().setWireframe(true);
         wfGeom.setMaterial(matWireframe);

@@ -3,6 +3,7 @@ package jme3test.material;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -30,7 +31,7 @@ public class TestGeometryShader extends SimpleApplication {
         rootNode.attachChild(geometry);
 
         Geometry geometry1 = new Geometry("T1", new Sphere(10, 10, 1));
-        geometry1.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
+        geometry1.setMaterial(new Material(assetManager, Materials.UNSHADED));
         rootNode.attachChild(geometry1);
 
     }
