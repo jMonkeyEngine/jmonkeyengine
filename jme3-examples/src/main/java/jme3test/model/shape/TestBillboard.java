@@ -34,6 +34,7 @@ package jme3test.model.shape;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -53,13 +54,13 @@ public class TestBillboard extends SimpleApplication {
 
         Quad q = new Quad(2, 2);
         Geometry g = new Geometry("Quad", q);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", ColorRGBA.Blue);
         g.setMaterial(mat);
 
         Quad q2 = new Quad(1, 1);
         Geometry g3 = new Geometry("Quad2", q2);
-        Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat2 = new Material(assetManager, Materials.UNSHADED);
         mat2.setColor("Color", ColorRGBA.Yellow);
         g3.setMaterial(mat2);
         g3.setLocalTranslation(.5f, .5f, .01f);

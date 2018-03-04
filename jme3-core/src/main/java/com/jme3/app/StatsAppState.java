@@ -36,6 +36,7 @@ import com.jme3.app.state.AppStateManager;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
@@ -195,7 +196,7 @@ public class StatsAppState extends AbstractAppState {
     }
 
     public void loadDarken() {
-        Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(app.getAssetManager(), Materials.UNSHADED);
         mat.setColor("Color", new ColorRGBA(0,0,0,0.5f));
         mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
 

@@ -33,23 +33,18 @@ package com.jme3.scene.debug.custom;
  */
 
 import com.jme3.animation.Bone;
-
-import java.util.Map;
-
 import com.jme3.animation.Skeleton;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
-import com.jme3.scene.BatchNode;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.*;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The class that creates a mesh to display how bones behave. If it is supplied
@@ -104,10 +99,10 @@ public class SkeletonDebugger extends BatchNode {
     }
 
     protected void initialize(AssetManager assetManager) {
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", new ColorRGBA(0.05f, 0.05f, 0.05f, 1.0f));//new ColorRGBA(0.1f, 0.1f, 0.1f, 1.0f)   
         setMaterial(mat);
-        Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat2 = new Material(assetManager, Materials.UNSHADED);
         mat2.setBoolean("VertexColor", true);
         bones.setMaterial(mat2);
         batch();

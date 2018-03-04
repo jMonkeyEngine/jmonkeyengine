@@ -36,7 +36,6 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.cinematic.MotionPath;
 import com.jme3.cinematic.MotionPathListener;
 import com.jme3.cinematic.events.MotionEvent;
-import com.jme3.cinematic.events.MotionEvent;
 import com.jme3.font.BitmapText;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
@@ -44,6 +43,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Spline.SplineType;
 import com.jme3.math.Vector3f;
@@ -121,13 +121,13 @@ public class TestCameraMotionPath extends SimpleApplication {
     }
 
     private void createScene() {
-        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material mat = new Material(assetManager, Materials.LIGHTING);
         mat.setFloat("Shininess", 1f);
         mat.setBoolean("UseMaterialColors", true);
         mat.setColor("Ambient", ColorRGBA.Black);
         mat.setColor("Diffuse", ColorRGBA.DarkGray);
         mat.setColor("Specular", ColorRGBA.White.mult(0.6f));
-        Material matSoil = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material matSoil = new Material(assetManager, Materials.LIGHTING);
         matSoil.setBoolean("UseMaterialColors", true);
         matSoil.setColor("Ambient", ColorRGBA.Gray);
         matSoil.setColor("Diffuse", ColorRGBA.Gray);

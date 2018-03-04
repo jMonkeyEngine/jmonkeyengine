@@ -41,6 +41,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
@@ -133,7 +134,7 @@ public class TerrainTestReadWrite extends SimpleApplication {
         matTerrain.setTexture("NormalMap_1", normalMap2);
         matTerrain.setTexture("NormalMap_2", normalMap2);
 
-        matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        matWire = new Material(assetManager, Materials.UNSHADED);
         matWire.getAdditionalRenderState().setWireframe(true);
         matWire.setColor("Color", ColorRGBA.Green);
 

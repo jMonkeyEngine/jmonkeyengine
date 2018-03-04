@@ -34,6 +34,7 @@ package jme3test.stress;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -60,7 +61,7 @@ public class TestBatchLod extends SimpleApplication {
         Node teapotNode = (Node) assetManager.loadModel("Models/Teapot/Teapot.mesh.xml");
         Geometry teapot = (Geometry) teapotNode.getChild(0);
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material mat = new Material(assetManager, Materials.LIGHTING);
         mat.setFloat("Shininess", 16f);
         mat.setBoolean("VertexLighting", true);
         teapot.setMaterial(mat);

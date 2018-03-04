@@ -33,6 +33,7 @@ package com.jme3.scene.plugins.fbx.material;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.ColorRGBA;
@@ -298,7 +299,7 @@ public class FbxMaterial extends FbxObject<Material> {
             }
         }
         
-        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material mat = new Material(assetManager, Materials.LIGHTING);
         mat.setName(name);
         
         // TODO: load this from FBX material.

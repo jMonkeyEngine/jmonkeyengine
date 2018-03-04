@@ -1,6 +1,7 @@
 package com.jme3.scene.plugins.fbx.objects;
 
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -95,7 +96,7 @@ public class FbxMaterial extends FbxObject {
 	}
 	
 	private Material createMaterial() {
-		Material m = new Material(scene.assetManager, "Common/MatDefs/Light/Lighting.j3md");
+		Material m = new Material(scene.assetManager, Materials.LIGHTING);
 		m.setName(name);
 		ambientColor.multLocal(ambientFactor);
 		diffuseColor.multLocal(diffuseFactor);

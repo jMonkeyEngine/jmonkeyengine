@@ -6,6 +6,7 @@ import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.font.Rectangle;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue;
@@ -47,7 +48,7 @@ public class TestImageRaster extends SimpleApplication {
         tex.setMagFilter(MagFilter.Nearest);
         tex.setMinFilter(MinFilter.NearestNoMipMaps);
         tex.setAnisotropicFilter(16);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setTexture("ColorMap", tex);
 
         Quad q = new Quad(5, 5);

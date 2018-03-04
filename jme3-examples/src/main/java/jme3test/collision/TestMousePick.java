@@ -37,6 +37,7 @@ import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Ray;
@@ -110,7 +111,7 @@ public class TestMousePick extends SimpleApplication {
         Box box = new Box(1, 1, 1);
         Geometry cube = new Geometry(name, box);
         cube.setLocalTranslation(x, y, z);
-        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat1 = new Material(assetManager, Materials.UNSHADED);
         mat1.setColor("Color", ColorRGBA.randomColor());
         cube.setMaterial(mat1);
         return cube;
@@ -121,7 +122,7 @@ public class TestMousePick extends SimpleApplication {
         Box box = new Box(15, .2f, 15);
         Geometry floor = new Geometry("the Floor", box);
         floor.setLocalTranslation(0, -4, -5);
-        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat1 = new Material(assetManager, Materials.UNSHADED);
         mat1.setColor("Color", ColorRGBA.Gray);
         floor.setMaterial(mat1);
         return floor;
@@ -134,7 +135,7 @@ public class TestMousePick extends SimpleApplication {
         //Sphere sphere = new Sphere(30, 30, 0.2f);
         mark = new Geometry("BOOM!", arrow);
         //mark = new Geometry("BOOM!", sphere);
-        Material mark_mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mark_mat = new Material(assetManager, Materials.UNSHADED);
         mark_mat.getAdditionalRenderState().setLineWidth(3);
         mark_mat.setColor("Color", ColorRGBA.Red);
         mark.setMaterial(mark_mat);

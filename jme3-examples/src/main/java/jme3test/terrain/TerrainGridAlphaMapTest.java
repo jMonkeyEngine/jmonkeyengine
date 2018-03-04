@@ -15,6 +15,7 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -109,7 +110,7 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
         material.setFloat("DiffuseMap_2_scale", rockScale);
 
         // WIREFRAME material
-        matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        matWire = new Material(assetManager, Materials.UNSHADED);
         matWire.getAdditionalRenderState().setWireframe(true);
         matWire.setColor("Color", ColorRGBA.Green);
 
@@ -326,15 +327,15 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
     
     protected Node createAxisMarker(float arrowSize) {
 
-        Material redMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material redMat = new Material(assetManager, Materials.UNSHADED);
         redMat.getAdditionalRenderState().setWireframe(true);
         redMat.setColor("Color", ColorRGBA.Red);
         
-        Material greenMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material greenMat = new Material(assetManager, Materials.UNSHADED);
         greenMat.getAdditionalRenderState().setWireframe(true);
         greenMat.setColor("Color", ColorRGBA.Green);
         
-        Material blueMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material blueMat = new Material(assetManager, Materials.UNSHADED);
         blueMat.getAdditionalRenderState().setWireframe(true);
         blueMat.setColor("Color", ColorRGBA.Blue);
 

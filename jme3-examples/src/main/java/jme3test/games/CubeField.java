@@ -40,6 +40,7 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -200,7 +201,7 @@ public class CubeField extends SimpleApplication implements AnalogListener {
         Box b = new Box(1, 1, 1);
         Geometry geom = new Geometry("Box", b);
         geom.setLocalTranslation(loc);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", ColorRGBA.Blue);
         geom.setMaterial(mat);
 
@@ -211,7 +212,7 @@ public class CubeField extends SimpleApplication implements AnalogListener {
         Dome b = new Dome(Vector3f.ZERO, 10, 100, 1);
         Geometry playerMesh = new Geometry("Box", b);
 
-        playerMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        playerMaterial = new Material(assetManager, Materials.UNSHADED);
         playerMaterial.setColor("Color", ColorRGBA.Red);
         playerMesh.setMaterial(playerMaterial);
         playerMesh.setName("player");
@@ -225,7 +226,7 @@ public class CubeField extends SimpleApplication implements AnalogListener {
 
         floorMesh.setLocalTranslation(translation);
 
-        floorMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        floorMaterial = new Material(assetManager, Materials.UNSHADED);
         floorMaterial.setColor("Color", ColorRGBA.LightGray);
         floorMesh.setMaterial(floorMaterial);
         floorMesh.setName("floor");

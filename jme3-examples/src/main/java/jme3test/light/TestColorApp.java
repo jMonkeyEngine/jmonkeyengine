@@ -4,18 +4,17 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.AnalogListener;
-import com.jme3.light.DirectionalLight;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
  
 public class TestColorApp extends SimpleApplication {
@@ -55,7 +54,7 @@ public class TestColorApp extends SimpleApplication {
         float[] f = {-FastMath.PI / 2, 3 * FastMath.PI / 2, 0f};
         groundBoxWhite.setLocalRotation(new Quaternion(f));
         groundBoxWhite.move(7.5f, -.75f, 7.5f);
-        final Material groundMaterial = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        final Material groundMaterial = new Material(assetManager, Materials.LIGHTING);
         groundMaterial.setColor("Diffuse", new ColorRGBA(.9f, .9f, .9f, .9f));
         groundBoxWhite.setMaterial(groundMaterial);
         groundBoxWhite.addControl(chaseCam);
@@ -63,7 +62,7 @@ public class TestColorApp extends SimpleApplication {
  
         // Planter
         Geometry planterBox = new Geometry("Box", new Box(.5f, .5f, .5f));
-        final Material planterMaterial = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        final Material planterMaterial = new Material(assetManager, Materials.LIGHTING);
         planterMaterial.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg"));
         planterBox.setMaterial(groundMaterial);
         planterBox.setLocalTranslation(10, 0, 9);

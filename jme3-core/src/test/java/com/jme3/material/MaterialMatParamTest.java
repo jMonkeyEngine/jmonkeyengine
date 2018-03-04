@@ -31,31 +31,31 @@
  */
 package com.jme3.material;
 
+import static com.jme3.scene.MPOTestUtils.*;
+import static org.junit.Assert.assertEquals;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.LightList;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
+import com.jme3.shader.DefineList;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Uniform;
 import com.jme3.shader.VarType;
-import java.util.Arrays;
-import java.util.HashSet;
-import org.junit.Assert;
-import org.junit.Test;
-
-import static com.jme3.scene.MPOTestUtils.*;
-import com.jme3.scene.Node;
-import com.jme3.shader.DefineList;
 import com.jme3.system.NullRenderer;
 import com.jme3.system.TestUtil;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
-import java.util.ArrayList;
-import static org.junit.Assert.assertEquals;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * Validates {@link MatParam}s.
@@ -69,7 +69,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testBoolMpoOnly() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMpo(mpoBool("UseMaterialColors", true));
         outDefines(def("MATERIAL_COLORS", VarType.Boolean, true));
         outUniforms(uniform("UseMaterialColors", VarType.Boolean, true));
@@ -77,7 +77,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testBoolMpOnly() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMp(mpoBool("UseMaterialColors", true));
         outDefines(def("MATERIAL_COLORS", VarType.Boolean, true));
         outUniforms(uniform("UseMaterialColors", VarType.Boolean, true));
@@ -85,7 +85,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testBoolMpFalse() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMp(mpoBool("UseMaterialColors", false));
         outDefines(def("MATERIAL_COLORS", VarType.Boolean, false));
         outUniforms(uniform("UseMaterialColors", VarType.Boolean, false));
@@ -93,7 +93,7 @@ public class MaterialMatParamTest {
     
     @Test
     public void testBoolOverrideFalse() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMp(mpoBool("UseMaterialColors", true));
         inputMpo(mpoBool("UseMaterialColors", false));
         outDefines();
@@ -102,7 +102,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testBoolOverrideTrue() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMp(mpoBool("UseMaterialColors", false));
         inputMpo(mpoBool("UseMaterialColors", true));
         outDefines(def("MATERIAL_COLORS", VarType.Boolean, true));
@@ -111,7 +111,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testFloatMpoOnly() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMpo(mpoFloat("AlphaDiscardThreshold", 3.12f));
         outDefines(def("DISCARD_ALPHA", VarType.Float, 3.12f));
         outUniforms(uniform("AlphaDiscardThreshold", VarType.Float, 3.12f));
@@ -119,7 +119,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testFloatMpOnly() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMp(mpoFloat("AlphaDiscardThreshold", 3.12f));
         outDefines(def("DISCARD_ALPHA", VarType.Float, 3.12f));
         outUniforms(uniform("AlphaDiscardThreshold", VarType.Float, 3.12f));
@@ -127,7 +127,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testFloatMpZero() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMp(mpoFloat("AlphaDiscardThreshold", 0.0f));
         outDefines(def("DISCARD_ALPHA", VarType.Float, 0.0f));
         outUniforms(uniform("AlphaDiscardThreshold", VarType.Float, 0.0f));
@@ -135,7 +135,7 @@ public class MaterialMatParamTest {
     
     @Test
     public void testFloatOverride() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMp(mpoFloat("AlphaDiscardThreshold", 3.12f));
         inputMpo(mpoFloat("AlphaDiscardThreshold", 2.79f));
         outDefines(def("DISCARD_ALPHA", VarType.Float, 2.79f));
@@ -144,7 +144,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testForcedOverride() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMp(mpoFloat("AlphaDiscardThreshold", 3.12f));
         inputMpo(mpoFloat("AlphaDiscardThreshold", 2.79f));
         inputFpo(mpoFloat("AlphaDiscardThreshold", 1.23f));
@@ -160,7 +160,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testChildOverridesParent() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
 
         inputParentMpo(mpoFloat("AlphaDiscardThreshold", 3.12f));
         inputMpo(mpoFloat("AlphaDiscardThreshold", 2.79f));
@@ -171,7 +171,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testMpoDisable() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMp(mpoFloat("AlphaDiscardThreshold", 3.12f));
 
         MatParamOverride override = mpoFloat("AlphaDiscardThreshold", 2.79f);
@@ -192,7 +192,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testIntMpoOnly() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMpo(mpoInt("NumberOfBones", 1234));
         outDefines(def("NUM_BONES", VarType.Int, 1234));
         outUniforms(uniform("NumberOfBones", VarType.Int, 1234));
@@ -200,7 +200,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testIntMpOnly() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMp(mpoInt("NumberOfBones", 1234));
         outDefines(def("NUM_BONES", VarType.Int, 1234));
         outUniforms(uniform("NumberOfBones", VarType.Int, 1234));
@@ -208,7 +208,7 @@ public class MaterialMatParamTest {
     
     @Test
     public void testIntMpZero() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMp(mpoInt("NumberOfBones", 0));
         outDefines(def("NUM_BONES", VarType.Int, 0));
         outUniforms(uniform("NumberOfBones", VarType.Int, 0));
@@ -216,7 +216,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testIntOverride() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMp(mpoInt("NumberOfBones", 1234));
         inputMpo(mpoInt("NumberOfBones", 4321));
         outDefines(def("NUM_BONES", VarType.Int, 4321));
@@ -229,7 +229,7 @@ public class MaterialMatParamTest {
             new Matrix4f()
         };
 
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMpo(mpoMatrix4Array("BoneMatrices", matrices));
         outDefines();
         outUniforms(uniform("BoneMatrices", VarType.Matrix4Array, matrices));
@@ -237,7 +237,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testNonExistentParameter() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMpo(mpoInt("NonExistent", 4321));
         outDefines();
         outUniforms();
@@ -245,7 +245,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testWrongType() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMpo(mpoInt("UseMaterialColors", 4321));
         outDefines();
         outUniforms();
@@ -253,7 +253,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testParamOnly() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         inputMpo(mpoFloat("ShadowMapSize", 3.12f));
         outDefines();
         outUniforms(uniform("ShadowMapSize", VarType.Float, 3.12f));
@@ -261,7 +261,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testRemove() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
 
         reset();
         inputMp(mpoInt("NumberOfBones", 1234));
@@ -296,7 +296,7 @@ public class MaterialMatParamTest {
     }
 
     public void testRemoveOverride() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
 
         reset();
         inputMp(mpoInt("NumberOfBones", 1234));
@@ -316,7 +316,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testRemoveMpoOnly() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
 
         reset();
         inputMpo(mpoInt("NumberOfBones", 4321));
@@ -332,7 +332,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testTextureMpoOnly() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         Texture2D tex = new Texture2D(128, 128, Format.RGBA8);
 
         inputMpo(mpoTexture2D("DiffuseMap", tex));
@@ -343,7 +343,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testTextureOverride() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         Texture2D tex1 = new Texture2D(128, 128, Format.RGBA8);
         Texture2D tex2 = new Texture2D(128, 128, Format.RGBA8);
 
@@ -357,7 +357,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testRemoveTexture() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         Texture2D tex = new Texture2D(128, 128, Format.RGBA8);
 
         reset();
@@ -376,7 +376,7 @@ public class MaterialMatParamTest {
 
     @Test
     public void testRemoveTextureOverride() {
-        material("Common/MatDefs/Light/Lighting.j3md");
+        material(Materials.LIGHTING);
         Texture2D tex1 = new Texture2D(128, 128, Format.RGBA8);
         Texture2D tex2 = new Texture2D(128, 128, Format.RGBA8);
 

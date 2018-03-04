@@ -33,6 +33,7 @@ package com.jme3.renderer;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.TechniqueDef;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.queue.GeometryList;
@@ -47,12 +48,12 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 
 public class OpaqueComparatorTest {
     
@@ -135,9 +136,9 @@ public class OpaqueComparatorTest {
     
     @Test
     public void testSortByMaterialDef() {
-        Material lightingMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material lightingMat = new Material(assetManager, Materials.LIGHTING);
         Material particleMat = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
-        Material unshadedMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material unshadedMat = new Material(assetManager, Materials.UNSHADED);
         Material skyMat      = new Material(assetManager, "Common/MatDefs/Misc/Sky.j3md");
         
         lightingMat.setName("MatLight");
@@ -149,12 +150,12 @@ public class OpaqueComparatorTest {
     
     @Test
     public void testSortByTechnique() {
-        Material lightingMatDefault = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Material lightingPreShadow = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Material lightingPostShadow = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Material lightingMatPreNormalPass = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Material lightingMatGBuf = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Material lightingMatGlow = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material lightingMatDefault = new Material(assetManager, Materials.LIGHTING);
+        Material lightingPreShadow = new Material(assetManager, Materials.LIGHTING);
+        Material lightingPostShadow = new Material(assetManager, Materials.LIGHTING);
+        Material lightingMatPreNormalPass = new Material(assetManager, Materials.LIGHTING);
+        Material lightingMatGBuf = new Material(assetManager, Materials.LIGHTING);
+        Material lightingMatGlow = new Material(assetManager, Materials.LIGHTING);
         
         lightingMatDefault.setName("TechDefault");
         lightingMatDefault.selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
@@ -177,8 +178,8 @@ public class OpaqueComparatorTest {
     
     @Test(expected = AssertionError.class)
     public void testNoSortByParam() {
-        Material sameMat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        Material sameMat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material sameMat1 = new Material(assetManager, Materials.UNSHADED);
+        Material sameMat2 = new Material(assetManager, Materials.UNSHADED);
         
         sameMat1.setName("MatRed");
         sameMat1.setColor("Color", ColorRGBA.Red);
@@ -199,9 +200,9 @@ public class OpaqueComparatorTest {
     
     @Test
     public void testSortByTexture() {
-        Material texture1Mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        Material texture2Mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        Material texture3Mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material texture1Mat = new Material(assetManager, Materials.UNSHADED);
+        Material texture2Mat = new Material(assetManager, Materials.UNSHADED);
+        Material texture3Mat = new Material(assetManager, Materials.UNSHADED);
         
         Texture tex1 = createTexture("A");
         tex1.getImage().setId(1);
@@ -226,12 +227,12 @@ public class OpaqueComparatorTest {
     
     @Test
     public void testSortByShaderDefines() {
-        Material lightingMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Material lightingMatVColor = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Material lightingMatVLight = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Material lightingMatTC = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Material lightingMatVColorLight = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Material lightingMatTCVColorLight = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material lightingMat = new Material(assetManager, Materials.LIGHTING);
+        Material lightingMatVColor = new Material(assetManager, Materials.LIGHTING);
+        Material lightingMatVLight = new Material(assetManager, Materials.LIGHTING);
+        Material lightingMatTC = new Material(assetManager, Materials.LIGHTING);
+        Material lightingMatVColorLight = new Material(assetManager, Materials.LIGHTING);
+        Material lightingMatTCVColorLight = new Material(assetManager, Materials.LIGHTING);
         
         lightingMat.setName("DefNone");
         
@@ -259,8 +260,8 @@ public class OpaqueComparatorTest {
     
     @Test
     public void testSortByAll() {
-        Material matBase1 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        Material matBase2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material matBase1 = new Material(assetManager, Materials.LIGHTING);
+        Material matBase2 = new Material(assetManager, Materials.UNSHADED);
         
         Texture texBase = createTexture("BASE");
         texBase.getImage().setId(1);

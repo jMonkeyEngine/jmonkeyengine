@@ -34,6 +34,7 @@ package com.jme3.scene.plugins.ogre;
 import com.jme3.asset.*;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialList;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.plugins.ogre.matext.MaterialExtensionLoader;
@@ -331,9 +332,9 @@ public class MaterialLoader implements AssetLoader {
     private Material compileMaterial(){
         Material mat;
         if (noLight){
-           mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+           mat = new Material(assetManager, Materials.UNSHADED);
         }else{
-           mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+           mat = new Material(assetManager, Materials.LIGHTING);
         }
         mat.setName(matName);
 

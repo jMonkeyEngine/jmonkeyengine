@@ -38,16 +38,15 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.ColorOverlayFilter;
 import com.jme3.post.filters.PosterizationFilter;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.debug.WireFrustum;
 import com.jme3.scene.shape.Box;
 import com.jme3.util.SkyFactory;
 
@@ -67,14 +66,14 @@ public class TestPosterization extends SimpleApplication {
         cam.setLocation(new Vector3f(-2.336393f, 11.91392f, -7.139601f));
         cam.setRotation(new Quaternion(0.23602544f, 0.11321983f, -0.027698677f, 0.96473104f));
 
-        Material mat = new Material(assetManager,"Common/MatDefs/Light/Lighting.j3md");
+        Material mat = new Material(assetManager, Materials.LIGHTING);
         mat.setFloat("Shininess", 15f);
         mat.setBoolean("UseMaterialColors", true);
         mat.setColor("Ambient", ColorRGBA.Yellow.mult(0.2f));
         mat.setColor("Diffuse", ColorRGBA.Yellow.mult(0.2f));
         mat.setColor("Specular", ColorRGBA.Yellow.mult(0.8f));
 
-        Material matSoil = new Material(assetManager,"Common/MatDefs/Light/Lighting.j3md");
+        Material matSoil = new Material(assetManager,Materials.LIGHTING);
         matSoil.setFloat("Shininess", 15f);
         matSoil.setBoolean("UseMaterialColors", true);
         matSoil.setColor("Ambient", ColorRGBA.Gray);

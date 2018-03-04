@@ -33,6 +33,7 @@ package jme3test.renderer;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -63,7 +64,7 @@ public class TestInconsistentCompareDetection extends SimpleApplication {
         cam.setLocation(new Vector3f(-11.674385f, 7.892636f, 33.133106f));
         cam.setRotation(new Quaternion(0.06426433f, 0.90940624f, -0.15329266f, 0.38125014f));
         
-        Material m = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material m = new Material(assetManager, Materials.UNSHADED);
         m.setColor("Color", ColorRGBA.White);
         
         t1 = assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg");

@@ -2,6 +2,7 @@ package jme3test.app;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
@@ -19,7 +20,7 @@ public class TestEnqueueRunnable extends SimpleApplication{
     @Override
     public void simpleInitApp(){
         Geometry geom = new Geometry("Box", new Box(1, 1, 1));
-        Material material = new Material(getAssetManager(), "/Common/MatDefs/Misc/Unshaded.j3md");
+        Material material = new Material(getAssetManager(), Materials.UNSHADED);
         material.setColor("Color", ColorRGBA.Blue); //a color is needed to start with
         geom.setMaterial(material);
         getRootNode().attachChild(geom);

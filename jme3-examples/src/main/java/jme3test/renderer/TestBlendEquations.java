@@ -34,6 +34,7 @@ package jme3test.renderer;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -61,7 +62,7 @@ public class TestBlendEquations extends SimpleApplication {
         rootNode.addLight(dl);
         rootNode.attachChild(teaGeom);
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", new ColorRGBA(0.5f, 0f, 1f, 0.3f));
         mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Color);
         mat.getAdditionalRenderState().setBlendEquation(RenderState.BlendEquation.Subtract);
@@ -73,7 +74,7 @@ public class TestBlendEquations extends SimpleApplication {
 
         guiNode.attachChild(geo);
 
-        Material m = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material m = new Material(assetManager, Materials.UNSHADED);
         m.getAdditionalRenderState().setBlendEquation(RenderState.BlendEquation.ReverseSubtract);
         m.setColor("Color", new ColorRGBA(0.0f, 1f, 1.f, 1f));
         m.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.AlphaAdditive);
@@ -85,7 +86,7 @@ public class TestBlendEquations extends SimpleApplication {
         
         guiNode.attachChild(geo);
         
-        m = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        m = new Material(assetManager, Materials.UNSHADED);
         m.getAdditionalRenderState().setBlendEquation(RenderState.BlendEquation.Min);
         m.setColor("Color", new ColorRGBA(0.3f, 0f, 0.1f, 0.3f));
         m.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Additive);

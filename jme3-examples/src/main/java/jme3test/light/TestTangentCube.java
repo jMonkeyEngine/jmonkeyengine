@@ -33,9 +33,9 @@ package jme3test.light;
 
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
-import com.jme3.light.AmbientLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
@@ -60,7 +60,7 @@ public class TestTangentCube extends SimpleApplication {
         Geometry aGeometry = new Geometry("Box", aBox);
         TangentBinormalGenerator.generate(aBox);
 
-        Material aMaterial = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material aMaterial = new Material(assetManager, Materials.LIGHTING);
         aMaterial.setTexture("DiffuseMap",
                 assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg"));
         aMaterial.setTexture("NormalMap",

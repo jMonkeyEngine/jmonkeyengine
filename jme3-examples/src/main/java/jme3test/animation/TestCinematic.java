@@ -45,6 +45,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
@@ -207,7 +208,7 @@ public class TestCinematic extends SimpleApplication {
         model.setShadowMode(ShadowMode.CastAndReceive);
         rootNode.attachChild(model);
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", ColorRGBA.Cyan);
 
         teapot = assetManager.loadModel("Models/Teapot/Teapot.obj");
@@ -216,7 +217,7 @@ public class TestCinematic extends SimpleApplication {
         teapot.setShadowMode(ShadowMode.CastAndReceive);
         rootNode.attachChild(teapot);
 
-        Material matSoil = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material matSoil = new Material(assetManager, Materials.LIGHTING);
         matSoil.setBoolean("UseMaterialColors", true);
         matSoil.setColor("Ambient", ColorRGBA.Gray);
         matSoil.setColor("Diffuse", ColorRGBA.Green);

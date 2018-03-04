@@ -34,6 +34,7 @@ package jme3test.scene.instancing;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -80,27 +81,27 @@ public class TestInstanceNode extends SimpleApplication  {
         mesh1 = new Sphere(13, 13, 0.4f, true, false);
         mesh2 = new Box(0.4f, 0.4f, 0.4f);
         
-        materials[0] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        materials[0] = new Material(assetManager, Materials.UNSHADED);
         materials[0].setBoolean("UseInstancing", INSTANCING);
         materials[0].setColor("Color", ColorRGBA.Red);
         
-        materials[1] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        materials[1] = new Material(assetManager, Materials.UNSHADED);
         materials[1].setBoolean("UseInstancing", INSTANCING);
         materials[1].setColor("Color", ColorRGBA.Green);
         
-        materials[2] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        materials[2] = new Material(assetManager, Materials.UNSHADED);
         materials[2].setBoolean("UseInstancing", INSTANCING);
         materials[2].setColor("Color", ColorRGBA.Blue);
         
-        materials[3] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        materials[3] = new Material(assetManager, Materials.UNSHADED);
         materials[3].setBoolean("UseInstancing", INSTANCING);
         materials[3].setColor("Color", ColorRGBA.Cyan);
         
-        materials[4] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        materials[4] = new Material(assetManager, Materials.UNSHADED);
         materials[4].setBoolean("UseInstancing", INSTANCING);
         materials[4].setColor("Color", ColorRGBA.Magenta);
         
-        materials[5] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        materials[5] = new Material(assetManager, Materials.UNSHADED);
         materials[5].setBoolean("UseInstancing", INSTANCING);
         materials[5].setColor("Color", ColorRGBA.Yellow);
        

@@ -36,6 +36,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -62,7 +63,7 @@ public class TestSimpleLighting extends SimpleApplication {
         TangentBinormalGenerator.generate(teapot.getMesh(), true);
 
         teapot.setLocalScale(2f);
-        Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material mat = new Material(assetManager, Materials.LIGHTING);
 //        mat.selectTechnique("GBuf");
         mat.setFloat("Shininess", 25);
         mat.setBoolean("UseMaterialColors", true);

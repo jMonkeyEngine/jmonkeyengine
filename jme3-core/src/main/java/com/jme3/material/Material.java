@@ -1033,16 +1033,16 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             if (defName.equalsIgnoreCase("Common/MatDefs/Misc/VertexColor.j3md")) {
                 // Using VertexColor, switch to Unshaded and set VertexColor=true
                 enableVcolor = true;
-                defName = "Common/MatDefs/Misc/Unshaded.j3md";
+                defName = Materials.UNSHADED;
             } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/SimpleTextured.j3md")
                     || defName.equalsIgnoreCase("Common/MatDefs/Misc/SolidColor.j3md")) {
                 // Using SimpleTextured/SolidColor, just switch to Unshaded
-                defName = "Common/MatDefs/Misc/Unshaded.j3md";
+                defName = Materials.UNSHADED;
             } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/WireColor.j3md")) {
                 // Using WireColor, set wireframe renderstate = true and use Unshaded
                 getAdditionalRenderState().setWireframe(true);
-                defName = "Common/MatDefs/Misc/Unshaded.j3md";
-            } else if (defName.equalsIgnoreCase("Common/MatDefs/Misc/Unshaded.j3md")) {
+                defName = Materials.UNSHADED;
+            } else if (defName.equalsIgnoreCase(Materials.UNSHADED)) {
                 // Uses unshaded, ensure that the proper param is set
                 MatParam value = params.get("SeperateTexCoord");
                 if (value != null && ((Boolean) value.getValue()) == true) {

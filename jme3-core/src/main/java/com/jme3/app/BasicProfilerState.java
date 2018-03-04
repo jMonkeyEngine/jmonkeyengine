@@ -38,6 +38,7 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -177,7 +178,7 @@ public class BasicProfilerState extends BaseAppState {
         
         graph = new Geometry("profiler", profiler.getMesh());
         
-        Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(app.getAssetManager(), Materials.UNSHADED);
         mat.setBoolean("VertexColor", true);
         graph.setMaterial(mat);
         graph.setLocalTranslation(0, 300, 0);
@@ -185,7 +186,7 @@ public class BasicProfilerState extends BaseAppState {
                
         Mesh mesh = new Mesh();
         background = new Geometry("profiler.background", mesh);
-        mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        mat = new Material(app.getAssetManager(), Materials.UNSHADED);
         mat.setBoolean("VertexColor", true);
         mat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
         background.setMaterial(mat);

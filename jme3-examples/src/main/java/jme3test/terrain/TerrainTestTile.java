@@ -39,6 +39,7 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -89,7 +90,7 @@ public class TerrainTestTile extends SimpleApplication {
         setupKeys();
 
         // WIREFRAME material
-        matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        matWire = new Material(assetManager, Materials.UNSHADED);
         matWire.getAdditionalRenderState().setWireframe(true);
         matWire.setColor("Color", ColorRGBA.Green);
         
@@ -111,7 +112,7 @@ public class TerrainTestTile extends SimpleApplication {
         Sphere s = new Sphere(12, 12, 3);
         Geometry g = new Geometry("marker");
         g.setMesh(s);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", ColorRGBA.Red);
         g.setMaterial(mat);
         g.setLocalTranslation(0, -100, 0);

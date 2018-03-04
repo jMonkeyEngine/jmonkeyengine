@@ -38,7 +38,7 @@ public class TestTangentSpace extends SimpleApplication {
         Spatial s = assetManager.loadModel("Models/Test/BasicCubeLow.obj");
         rootNode.attachChild(s);
 
-        Material m = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        Material m = new Material(assetManager, Materials.LIGHTING);
         m.setTexture("NormalMap", assetManager.loadTexture("Models/Test/Normal_pixel.png"));
 
         Geometry g = (Geometry)s;

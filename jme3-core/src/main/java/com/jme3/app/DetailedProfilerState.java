@@ -6,6 +6,7 @@ import com.jme3.font.BitmapText;
 import com.jme3.input.*;
 import com.jme3.input.controls.*;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState;
 import com.jme3.math.*;
 import com.jme3.profile.AppStep;
@@ -67,7 +68,7 @@ public class DetailedProfilerState extends BaseAppState {
 
     @Override
     protected void initialize(Application app) {
-        Material mat = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(app.getAssetManager(), Materials.UNSHADED);
         mat.setColor("Color", new ColorRGBA(0, 0, 0, 0.5f));
         mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
         Geometry darkenStats = new Geometry("StatsDarken", new Quad(PANEL_WIDTH, app.getCamera().getHeight()));

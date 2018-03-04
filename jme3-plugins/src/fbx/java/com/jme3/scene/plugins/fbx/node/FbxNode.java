@@ -36,6 +36,7 @@ import com.jme3.animation.Skeleton;
 import com.jme3.animation.SkeletonControl;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
@@ -327,7 +328,7 @@ public class FbxNode extends FbxObject<Spatial> {
         Material jmeMat;
         if (materialIndex >= materials.size()) {
             // Material index does not exist. Create default material.
-            jmeMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+            jmeMat = new Material(assetManager, Materials.LIGHTING);
             jmeMat.setReceivesShadows(true);
         } else {
             FbxMaterial fbxMat = materials.get(materialIndex);
@@ -523,7 +524,7 @@ public class FbxNode extends FbxObject<Spatial> {
             jmeSpatial.addControl(new SkeletonControl(fbxNode.skeleton));
             
             SkeletonDebugger sd = new SkeletonDebugger("debug", fbxNode.skeleton);
-            Material mat = new Material(fbxNode.assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+            Material mat = new Material(fbxNode.assetManager, Materials.UNSHADED);
             mat.getAdditionalRenderState().setWireframe(true);
             mat.getAdditionalRenderState().setDepthTest(false);
             mat.setColor("Color", ColorRGBA.Green);

@@ -47,6 +47,7 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Ray;
@@ -122,7 +123,7 @@ public class TerrainTestCollision extends SimpleApplication {
         rock.setWrap(WrapMode.Repeat);
         matRock.setTexture("Tex3", rock);
         matRock.setFloat("Tex3Scale", 128f);
-        matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        matWire = new Material(assetManager, Materials.UNSHADED);
         matWire.getAdditionalRenderState().setWireframe(true);
         matWire.setColor("Color", ColorRGBA.Green);
         AbstractHeightMap heightmap = null;
@@ -231,7 +232,7 @@ public class TerrainTestCollision extends SimpleApplication {
         Sphere s = new Sphere(6, 6, 1);
         collisionMarker = new Geometry("collisionMarker");
         collisionMarker.setMesh(s);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", ColorRGBA.Orange);
         collisionMarker.setMaterial(mat);
         rootNode.attachChild(collisionMarker);

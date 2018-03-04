@@ -35,6 +35,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioBuffer;
 import com.jme3.audio.AudioData;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
@@ -83,7 +84,7 @@ public class PlaceholderAssets {
     }
     
     public static Material getPlaceholderMaterial(AssetManager assetManager){
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         Texture tex = assetManager.loadTexture("Common/Textures/MissingMaterial.png");
         tex.setWrap(Texture.WrapMode.Repeat);
         mat.setTexture("ColorMap", tex);
@@ -95,7 +96,7 @@ public class PlaceholderAssets {
         // the user's expected scale...
         Box box = new Box(1, 1, 1);
         Geometry geom = new Geometry("placeholder", box);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         Texture tex = assetManager.loadTexture("Common/Textures/MissingModel.png");
         tex.setWrap(Texture.WrapMode.Repeat);
         mat.setTexture("ColorMap", tex);

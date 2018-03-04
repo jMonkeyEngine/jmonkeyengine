@@ -45,6 +45,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
@@ -159,19 +160,19 @@ public class TestBrickWall extends SimpleApplication {
     }
 
     public void initMaterial() {
-        mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat = new Material(assetManager, Materials.UNSHADED);
         TextureKey key = new TextureKey("Textures/Terrain/BrickWall/BrickWall.jpg");
         key.setGenerateMips(true);
         Texture tex = assetManager.loadTexture(key);
         mat.setTexture("ColorMap", tex);
 
-        mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat2 = new Material(assetManager, Materials.UNSHADED);
         TextureKey key2 = new TextureKey("Textures/Terrain/Rock/Rock.PNG");
         key2.setGenerateMips(true);
         Texture tex2 = assetManager.loadTexture(key2);
         mat2.setTexture("ColorMap", tex2);
 
-        mat3 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat3 = new Material(assetManager, Materials.UNSHADED);
         TextureKey key3 = new TextureKey("Textures/Terrain/Pond/Pond.jpg");
         key3.setGenerateMips(true);
         Texture tex3 = assetManager.loadTexture(key3);

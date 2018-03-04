@@ -31,10 +31,12 @@
  */
 package com.jme3.material.plugin;
 
+import static org.junit.Assert.assertTrue;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState;
 import com.jme3.material.plugin.export.material.J3MExporter;
 import com.jme3.material.plugins.J3MLoader;
@@ -48,8 +50,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import static org.junit.Assert.assertTrue;
 
 public class TestMaterialWrite {
 
@@ -67,7 +67,7 @@ public class TestMaterialWrite {
     @Test
     public void testWriteMat() throws Exception {
 
-        Material mat = new Material(assetManager,"Common/MatDefs/Light/Lighting.j3md");
+        Material mat = new Material(assetManager, Materials.LIGHTING);
 
         mat.setBoolean("UseMaterialColors", true);
         mat.setColor("Diffuse", ColorRGBA.White);

@@ -2,6 +2,7 @@ package jme3test.scene;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
@@ -25,7 +26,7 @@ public class TestRefreshFlagBug extends SimpleApplication {
             
             Box b = new Box(1, 1, 1);
             Geometry geom = new Geometry("Box", b);
-            Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+            Material mat = new Material(assetManager, Materials.UNSHADED);
             geom.setMaterial(mat);
             
             inBetweenNode.attachChild(geom);

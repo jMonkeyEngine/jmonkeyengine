@@ -33,6 +33,7 @@ import com.jme3.audio.AudioData.DataType;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.Environment;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -74,8 +75,7 @@ public class TestAmbient extends SimpleApplication {
     // just a blue box to mark the spot
     Box box1 = new Box(.5f, .5f, .5f);
     Geometry player = new Geometry("Player", box1);
-    Material mat1 = new Material(assetManager,
-            "Common/MatDefs/Misc/Unshaded.j3md");
+    Material mat1 = new Material(assetManager, Materials.UNSHADED);
     mat1.setColor("Color", ColorRGBA.Blue);
     player.setMaterial(mat1);
     rootNode.attachChild(player);

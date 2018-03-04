@@ -38,6 +38,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -74,7 +75,7 @@ public class TestCrossHatch extends SimpleApplication {
         //cam.setFrustumFar(1000);
 
 
-        Material mat = new Material(assetManager,"Common/MatDefs/Light/Lighting.j3md");
+        Material mat = new Material(assetManager, Materials.LIGHTING);
         mat.setFloat("Shininess", 15f);
         mat.setBoolean("UseMaterialColors", true);
         mat.setColor("Ambient", ColorRGBA.Yellow.mult(0.2f));
@@ -84,7 +85,7 @@ public class TestCrossHatch extends SimpleApplication {
     
 
 
-        Material matSoil = new Material(assetManager,"Common/MatDefs/Light/Lighting.j3md");
+        Material matSoil = new Material(assetManager,Materials.LIGHTING);
         matSoil.setFloat("Shininess", 15f);
         matSoil.setBoolean("UseMaterialColors", true);
         matSoil.setColor("Ambient", ColorRGBA.Gray);

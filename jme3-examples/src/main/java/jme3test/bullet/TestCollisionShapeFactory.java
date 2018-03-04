@@ -36,6 +36,7 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -123,11 +124,11 @@ public class TestCollisionShapeFactory extends SimpleApplication {
     }
 
     private void createMaterial() {
-        mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat1 = new Material(assetManager, Materials.UNSHADED);
         mat1.setColor("Color", ColorRGBA.Green);
-        mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat2 = new Material(assetManager, Materials.UNSHADED);
         mat2.setColor("Color", ColorRGBA.Red);
-        mat3 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat3 = new Material(assetManager, Materials.UNSHADED);
         mat3.setColor("Color", ColorRGBA.Yellow);
     }
 

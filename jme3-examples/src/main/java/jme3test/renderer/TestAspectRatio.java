@@ -33,6 +33,7 @@ package jme3test.renderer;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
@@ -53,7 +54,7 @@ public class TestAspectRatio extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         Geometry cube = new Geometry("blue cube", new Box(1, 1, 1));
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", ColorRGBA.Blue);
         cube.setMaterial(mat);
 

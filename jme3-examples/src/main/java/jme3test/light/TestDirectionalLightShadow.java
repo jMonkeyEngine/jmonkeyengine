@@ -40,14 +40,9 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.material.RenderState;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
+import com.jme3.material.Materials;
+import com.jme3.math.*;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.ssao.SSAOFilter;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
@@ -132,11 +127,11 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
         b.scaleTextureCoordinates(new Vector2f(10, 10));
         ground = new Geometry("soil", b);
         ground.setLocalTranslation(0, 10, 550);
-        matGroundU = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        matGroundU = new Material(assetManager, Materials.UNSHADED);
         matGroundU.setColor("Color", ColorRGBA.Green);
 
 
-        matGroundL = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        matGroundL = new Material(assetManager, Materials.LIGHTING);
         Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
         matGroundL.setTexture("DiffuseMap", grass);

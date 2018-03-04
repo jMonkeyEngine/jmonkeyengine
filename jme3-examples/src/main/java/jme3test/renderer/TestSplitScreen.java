@@ -36,6 +36,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
@@ -61,7 +62,7 @@ public class TestSplitScreen extends SimpleApplication implements ActionListener
         flyCam.setEnabled(false);
 
         Geometry blueBox = new Geometry("blue box", mesh);
-        Material blueMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material blueMat = new Material(assetManager, Materials.UNSHADED);
         blueMat.setColor("Color", ColorRGBA.Blue);
         blueBox.setMaterial(blueMat);
         rootNode.attachChild(blueBox);
@@ -75,7 +76,7 @@ public class TestSplitScreen extends SimpleApplication implements ActionListener
         rightView.attachScene(rootNode);
 
         Geometry redBox = new Geometry("red box", mesh);
-        Material redMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material redMat = new Material(assetManager, Materials.UNSHADED);
         redMat.setColor("Color", ColorRGBA.Red);
         redBox.setMaterial(redMat);
         leftScene.attachChild(redBox);

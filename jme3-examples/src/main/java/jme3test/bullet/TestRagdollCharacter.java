@@ -46,6 +46,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -141,7 +142,7 @@ public class TestRagdollCharacter extends SimpleApplication implements AnimEvent
     public void initWall(float bLength, float bWidth, float bHeight) {
         Box brick = new Box(bLength, bHeight, bWidth);
         brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
-        Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat2 = new Material(assetManager, Materials.UNSHADED);
         TextureKey key = new TextureKey("Textures/Terrain/BrickWall/BrickWall.jpg");
         key.setGenerateMips(true);
         Texture tex = assetManager.loadTexture(key);

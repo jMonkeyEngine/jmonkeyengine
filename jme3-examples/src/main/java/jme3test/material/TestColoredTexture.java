@@ -34,6 +34,7 @@ package jme3test.material;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
@@ -57,7 +58,7 @@ public class TestColoredTexture extends SimpleApplication {
         Geometry quad = new Geometry("Quad", quadMesh);
         quad.setQueueBucket(Bucket.Gui);
 
-        mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat = new Material(assetManager, Materials.UNSHADED);
         mat.setTexture("ColorMap", assetManager.loadTexture("Textures/ColoredTex/Monkey.png"));
         quad.setMaterial(mat);
         guiNode.attachChildAt(quad, 0);

@@ -34,6 +34,7 @@ package com.jme3.niftygui;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
@@ -124,13 +125,13 @@ public class RenderDeviceJme implements RenderDevice {
         // reloading the shader when the defines change.
         
         // Material with a single color (no texture or vertex color)
-        colorMaterial = new Material(display.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        colorMaterial = new Material(display.getAssetManager(), Materials.UNSHADED);
         
         // Material with a texture and a color (no vertex color)
-        textureColorMaterial = new Material(display.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        textureColorMaterial = new Material(display.getAssetManager(), Materials.UNSHADED);
         
         // Material with vertex color, used for gradients (no texture)
-        vertexColorMaterial = new Material(display.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        vertexColorMaterial = new Material(display.getAssetManager(), Materials.UNSHADED);
         vertexColorMaterial.setBoolean("VertexColor", true);
         
         // Shared render state for all materials

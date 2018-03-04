@@ -34,6 +34,7 @@ package jme3test.material;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.system.JmeSystem;
@@ -46,7 +47,7 @@ public class TestMaterialCompare {
                 TestMaterialCompare.class.getResource("/com/jme3/asset/Desktop.cfg"));
         
         // Cloned materials
-        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat1 = new Material(assetManager, Materials.UNSHADED);
         mat1.setName("mat1");
         mat1.setColor("Color", ColorRGBA.Blue);
 
@@ -93,7 +94,7 @@ public class TestMaterialCompare {
         testEquality(mat4, mat5, false);
 
         // Two materials created the same way
-        Material mat6 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat6 = new Material(assetManager, Materials.UNSHADED);
         mat6.setName("mat6");
         mat6.setColor("Color", ColorRGBA.Blue);
         testEquality(mat1, mat6, true);

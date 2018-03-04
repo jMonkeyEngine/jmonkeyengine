@@ -38,6 +38,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -78,7 +79,7 @@ public class TestBloomAlphaThreshold extends SimpleApplication
 		cam.setRotation(new Quaternion(0.23602544f, 0.11321983f, -0.027698677f, 0.96473104f));
 		// cam.setFrustumFar(1000);
 
-		Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+		Material mat = new Material(assetManager, Materials.LIGHTING);
 
 		mat.setFloat("Shininess", 15f);
 		mat.setBoolean("UseMaterialColors", true);
@@ -87,7 +88,7 @@ public class TestBloomAlphaThreshold extends SimpleApplication
 		mat.setColor("Specular", ColorRGBA.Yellow.mult(0.8f));
 		mat.setColor("GlowColor", ColorRGBA.Green);
 
-		Material matSoil = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+		Material matSoil = new Material(assetManager, Materials.LIGHTING);
 		matSoil.setFloat("Shininess", 15f);
 		matSoil.setBoolean("UseMaterialColors", true);
 		matSoil.setColor("Ambient", ColorRGBA.Gray);
@@ -110,7 +111,7 @@ public class TestBloomAlphaThreshold extends SimpleApplication
 		soil.setShadowMode(ShadowMode.CastAndReceive);
 		rootNode.attachChild(soil);
 
-		Material matBox = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+		Material matBox = new Material(assetManager, Materials.UNSHADED);
 		matBox.setTexture("ColorMap", assetManager.loadTexture("Textures/ColoredTex/Monkey.png"));
 		matBox.setFloat("AlphaDiscardThreshold", 0.5f);
     

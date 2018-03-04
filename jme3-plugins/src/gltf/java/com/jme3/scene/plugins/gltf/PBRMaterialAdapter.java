@@ -20,7 +20,7 @@ public abstract class PBRMaterialAdapter extends MaterialAdapter {
 
     @Override
     protected String getMaterialDefPath() {
-        return "Common/MatDefs/Light/PBRLighting.j3md";
+        return Materials.PBR;
     }
 
     @Override

@@ -41,6 +41,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -78,7 +79,7 @@ public class TestSoftParticles extends SimpleApplication {
         // -------- floor
         Box b = new Box(10, 0.1f, 10);
         Geometry geom = new Geometry("Box", b);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat = new Material(assetManager, Materials.UNSHADED);
         mat.setColor("Color", ColorRGBA.Gray);
         mat.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
         geom.setMaterial(mat);
@@ -86,7 +87,7 @@ public class TestSoftParticles extends SimpleApplication {
 
         Box b2 = new Box(1, 1, 1);
         Geometry geom2 = new Geometry("Box", b2);
-        Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        Material mat2 = new Material(assetManager, Materials.UNSHADED);
         mat2.setColor("Color", ColorRGBA.DarkGray);
         geom2.setMaterial(mat2);
         rootNode.attachChild(geom2);

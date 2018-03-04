@@ -44,6 +44,7 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.math.*;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
@@ -77,7 +78,7 @@ public class TestConeVSFrustum extends SimpleApplication {
         ShadowUtil.updateFrustumPoints2(frustumCam, points);
         WireFrustum frustumShape = new WireFrustum(points);
         Geometry frustum = new Geometry("frustum", frustumShape);
-        frustum.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
+        frustum.setMaterial(new Material(assetManager, Materials.UNSHADED));
         rootNode.attachChild(frustum);
 
         rootNode.addLight(new DirectionalLight());
@@ -87,7 +88,7 @@ public class TestConeVSFrustum extends SimpleApplication {
 
         Grid grid = new Grid(50, 50, 5);
         Geometry gridGeom = new Geometry("grid", grid);
-        gridGeom.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
+        gridGeom.setMaterial(new Material(assetManager, Materials.UNSHADED));
         gridGeom.getMaterial().setColor("Color", ColorRGBA.Gray);
         rootNode.attachChild(gridGeom);
         gridGeom.setLocalTranslation(-125, -25, -125);
@@ -104,7 +105,7 @@ public class TestConeVSFrustum extends SimpleApplication {
 
         Cylinder cylinder = new Cylinder(5, 16, 0, radius, spotLight.getSpotRange(), true, false);
         geom = new Geometry("light", cylinder);
-        geom.setMaterial(new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md"));
+        geom.setMaterial(new Material(assetManager, Materials.LIGHTING));
         geom.getMaterial().setColor("Diffuse", ColorRGBA.White);
         geom.getMaterial().setColor("Ambient", ColorRGBA.DarkGray);
         geom.getMaterial().setBoolean("UseMaterialColors", true);

@@ -31,17 +31,9 @@
  */
 package com.jme3.niftygui;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jme3.asset.TextureKey;
 import com.jme3.material.Material;
+import com.jme3.material.Materials;
 import com.jme3.material.RenderState;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.RenderManager;
@@ -57,16 +49,24 @@ import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
-
-import de.lessvoid.nifty.render.batch.spi.BatchRenderBackend;
 import de.lessvoid.nifty.render.BlendMode;
+import de.lessvoid.nifty.render.batch.spi.BatchRenderBackend;
 import de.lessvoid.nifty.spi.render.MouseCursor;
 import de.lessvoid.nifty.tools.Color;
 import de.lessvoid.nifty.tools.Factory;
 import de.lessvoid.nifty.tools.ObjectPool;
 import de.lessvoid.nifty.tools.resourceloader.NiftyResourceLoader;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Nifty GUI BatchRenderBackend Implementation for jMonkeyEngine.
@@ -487,7 +487,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
       indexBufferBuffer = (ShortBuffer) indexBuffer.getData();
       mesh.setBuffer(indexBuffer);
 
-      material = new Material(display.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+      material = new Material(display.getAssetManager(), Materials.UNSHADED);
       material.setBoolean("VertexColor", true);
 
       renderState.setDepthTest(false);
