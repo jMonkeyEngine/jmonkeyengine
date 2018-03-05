@@ -116,12 +116,14 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
         control.setPhysicsRotation(getPhysicsRotationMatrix(null));
         control.setRestitution(getRestitution());
 
+
         if (mass > 0) {
             control.setAngularVelocity(getAngularVelocity());
             control.setLinearVelocity(getLinearVelocity());
         }
         control.setApplyPhysicsLocal(isApplyPhysicsLocal());
         control.spatial = this.spatial;
+        control.setUserObject(this.getUserObject());
         control.setEnabled(isEnabled());
 
         return control;

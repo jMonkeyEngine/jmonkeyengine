@@ -110,6 +110,7 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         control.setUpAxis(getUpAxis());
         control.setApplyPhysicsLocal(isApplyPhysicsLocal());
         control.spatial = this.spatial;
+        control.setUserObject(this.getUserObject());
         control.setEnabled(isEnabled());
         return control;
     }     

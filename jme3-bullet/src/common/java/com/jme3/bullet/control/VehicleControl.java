@@ -139,6 +139,7 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
         control.setSuspensionCompression(tuning.suspensionCompression);
         control.setSuspensionDamping(tuning.suspensionDamping);
         control.setMaxSuspensionForce(getMaxSuspensionForce());
+
     
         for (Iterator<VehicleWheel> it = wheels.iterator(); it.hasNext();) {
             VehicleWheel wheel = it.next();
@@ -158,6 +159,8 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
         control.setEnabled(isEnabled());
         
         control.spatial = spatial;
+        this.setUserObject(this.getUserObject());
+
         return control;
     }     
 
