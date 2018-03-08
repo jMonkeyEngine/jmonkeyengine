@@ -196,6 +196,10 @@ public final class GLImageFormats {
                 format(formatToGL, Format.Luminance32F,         GLExt.GL_LUMINANCE32F_ARB,       GL.GL_LUMINANCE,       GL.GL_FLOAT);
                 format(formatToGL, Format.Luminance16FAlpha16F, GLExt.GL_LUMINANCE_ALPHA16F_ARB, GL.GL_LUMINANCE_ALPHA, halfFloatFormat);
             }
+			format(formatToGL, Format.R16F,					GL3.GL_R16F,					 GL3.GL_RED,            halfFloatFormat);
+			format(formatToGL, Format.R32F,					GL3.GL_R32F,					 GL3.GL_RED,            GL.GL_FLOAT);
+			format(formatToGL, Format.RG16F,				GL3.GL_RG16F,					 GL3.GL_RG,             halfFloatFormat);
+			format(formatToGL, Format.RG32F,				GL3.GL_RG32F,					 GL3.GL_RG,             GL.GL_FLOAT);
             format(formatToGL, Format.RGB16F,               GLExt.GL_RGB16F_ARB,             GL.GL_RGB,             halfFloatFormat);
             format(formatToGL, Format.RGB32F,               GLExt.GL_RGB32F_ARB,             GL.GL_RGB,             GL.GL_FLOAT);
             format(formatToGL, Format.RGBA16F,              GLExt.GL_RGBA16F_ARB,            GL.GL_RGBA,            halfFloatFormat);
