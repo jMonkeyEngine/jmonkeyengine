@@ -34,6 +34,7 @@ package jme3test.model;
 import com.jme3.animation.*;
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.asset.plugins.FileLocator;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -75,6 +76,9 @@ public class TestGltfLoading extends SimpleApplication {
 
         SkeletonDebugAppState skeletonDebugAppState = new SkeletonDebugAppState();
         getStateManager().attach(skeletonDebugAppState);
+
+        String folder = System.getProperty("user.home");
+        assetManager.registerLocator(folder, FileLocator.class);
 
         // cam.setLocation(new Vector3f(4.0339394f, 2.645184f, 6.4627485f));
         // cam.setRotation(new Quaternion(-0.013950467f, 0.98604023f, -0.119502485f, -0.11510504f));

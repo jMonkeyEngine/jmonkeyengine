@@ -1,12 +1,11 @@
 Material Tank : Common/MatDefs/Light/PBRLighting.j3md {
      MaterialParameters {
         
-        MetallicMap : Flip Models/Tank/Tank_Metallic.png 
-        RoughnessMap : Flip Models/Tank/Tank_Roughness.png
+        MetallicRoughnessMap : Flip Models/Tank/Tank_Occ_Rough_Metal.png         
         NormalMap : Flip Models/Tank/Tank_Normal.png
         BaseColorMap : Flip Models/Tank/Tank_Base_Color.png
         EmissiveMap : Flip Models/Tank/Tank_Emissive.png
-        LightMap: Flip Models/Tank/Tank_AO.png
+        LightMap: Flip Models/Tank/Tank_Occ_Rough_Metal.png
         LightMapAsAOMap: true;
         EmissiveIntensity : 2.0
      
