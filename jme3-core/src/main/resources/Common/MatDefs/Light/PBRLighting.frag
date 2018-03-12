@@ -167,7 +167,6 @@ void main(){
       vec3 normal = norm;
     #endif
 
-    float specular = 0.5;
     #ifdef SPECGLOSSPIPELINE
 
         #ifdef USE_PACKED_SG
@@ -189,10 +188,13 @@ void main(){
         #endif
         vec4 diffuseColor = albedo;// * (1.0 - max(max(specularColor.r, specularColor.g), specularColor.b));
         Roughness = 1.0 - glossiness;
-    #else      
+        vec3 fZero = specularColor.xyz;
+    #else
+        float specular = 0.5;
         float nonMetalSpec = 0.08 * specular;
         vec4 specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
         vec4 diffuseColor = albedo - albedo * Metallic;
+        vec3 fZero = vec3(specular);
     #endif
 
     gl_FragColor.rgb = vec3(0.0);
@@ -239,8 +241,8 @@ void main(){
         vec3 directDiffuse;
         vec3 directSpecular;
         
-        PBR_ComputeDirectLight(normal, lightDir.xyz, viewDir,
-                            lightColor.rgb,specular, Roughness, ndotv,
+        float hdotv = PBR_ComputeDirectLight(normal, lightDir.xyz, viewDir,
+                            lightColor.rgb, fZero, Roughness, ndotv,
                             directDiffuse,  directSpecular);
 
         vec3 directLighting = diffuseColor.rgb *directDiffuse + directSpecular;
