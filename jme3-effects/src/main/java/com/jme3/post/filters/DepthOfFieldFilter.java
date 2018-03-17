@@ -54,10 +54,13 @@ public class DepthOfFieldFilter extends Filter {
     private float focusDistance = 50f;
     private float focusRange = 10f;
     private float blurScale = 1f;
+    private float blurThreshold = 0.2f;
     // These values are set internally based on the
     // viewport size.
     private float xScale;
     private float yScale;
+    
+    private boolean debugUnfocus;
 
     /**
      * Creates a DepthOfField filter
@@ -83,7 +86,8 @@ public class DepthOfFieldFilter extends Filter {
         material = new Material(assets, "Common/MatDefs/Post/DepthOfField.j3md");
         material.setFloat("FocusDistance", focusDistance);
         material.setFloat("FocusRange", focusRange);
-
+        material.setFloat("BlurThreshold", blurThreshold);
+        material.setBoolean("DebugUnfocus", debugUnfocus);
 
         xScale = 1.0f / w;
         yScale = 1.0f / h;
@@ -161,13 +165,62 @@ public class DepthOfFieldFilter extends Filter {
         return blurScale;
     }
 
+    /**
+     *  Sets the minimum blur factor before the convolution filter is
+     *  calculated.  The default is 0.2 which means if the "unfocus"
+     *  amount is less than 0.2 (where 0 is no blur and 1.0 is full blurScale) 
+     *  then no blur will be applied at all.  Depending on the GPU implementation,
+     *  this may be an optimization since it uses branching to skip the expensive
+     *  convolution filter.
+     *
+     *  <p>In scenes where the focus distance is close (like 0) and the focus range
+     *  is relatively large, this threshold will remove some subtlety in
+     *  the near-camera blurring and should be set smaller than the default
+     *  or to 0 to disable completely.  Sometimes that cut-off is desired if
+     *  mid-to-far field unfocusing is all that is desired.</p>
+     */
+    public void setBlurThreshold( float f ) {
+        this.blurThreshold = f;
+        if (material != null) {
+            material.setFloat("BlurThreshold", blurThreshold);
+        }
+    }
+
+    /**
+     * returns the blur threshold.
+     * @return 
+     */
+    public float getBlurThreshold() {
+        return blurThreshold;
+    }
+ 
+    /**
+     *  Turns on/off debugging of the 'unfocus' value that is used to
+     *  mix the convolution filter.  When this is on, the 'unfocus' value
+     *  is rendered as gray scale.  This can be used to more easily visualize
+     *  where in your view the focus is centered and how steep the gradient/cutoff
+     *  is, etc..
+     */
+    public void setDebugUnfocus( boolean b ) {
+        this.debugUnfocus = b;
+        if( material != null ) {
+            material.setBoolean("DebugUnfocus", debugUnfocus);
+        }
+    } 
+ 
+    public boolean getDebugUnfocus() {
+        return debugUnfocus;
+    }    
+    
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(blurScale, "blurScale", 1f);
+        oc.write(blurScale, "blurThreshold", 0.2f);
         oc.write(focusDistance, "focusDistance", 50f);
         oc.write(focusRange, "focusRange", 10f);
+        oc.write(debugUnfocus, "debugUnfocus", false); // strange to write this I guess
     }
 
     @Override
@@ -175,7 +228,9 @@ public class DepthOfFieldFilter extends Filter {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         blurScale = ic.readFloat("blurScale", 1f);
+        blurThreshold = ic.readFloat("blurThreshold", 0.2f);
         focusDistance = ic.readFloat("focusDistance", 50f);
         focusRange = ic.readFloat("focusRange", 10f);
+        debugUnfocus = ic.readBoolean("debugUnfocus", false);
     }
 }
