@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ public class Arrow extends Mesh {
         0.05f, 0, 0.9f, // tip right
         -0.05f, 0, 0.9f, // tip left
         0, 0.05f, 0.9f, // tip top
-        0, -0.05f, 0.9f, // tip buttom
+        0, -0.05f, 0.9f, // tip bottom
     };
 
     /**
