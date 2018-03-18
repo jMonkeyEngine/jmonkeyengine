@@ -95,7 +95,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
 
     /**
      * @param height The height of the viewport. Used to convert
-     * buttom-left origin to upper-left origin.
+     * bottom-left origin to upper-left origin.
      */
     public void setHeight(int height) {
         this.height = height;
