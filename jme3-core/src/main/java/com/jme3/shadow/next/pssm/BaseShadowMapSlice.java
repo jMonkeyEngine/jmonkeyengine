@@ -29,10 +29,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.shadow.next.array;
+package com.jme3.shadow.next.pssm;
 
 import com.jme3.light.Light;
 import com.jme3.math.Matrix4f;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
@@ -40,59 +41,47 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
-import com.jme3.texture.TextureArray;
+import com.jme3.texture.Texture.MagFilter;
+import com.jme3.texture.Texture.MinFilter;
+import com.jme3.texture.Texture.ShadowCompareMode;
+import com.jme3.texture.Texture2D;
+import com.jme3.shadow.next.ShadowMapSlice;
 
-/**
- * @param <T>
- * @author Kirill Vainer
- */
-public class BaseArrayShadowMapSlice<T extends Light> implements ArrayShadowMapSlice<T> {
+public abstract class BaseShadowMapSlice<T extends Light> implements ShadowMapSlice<T> {
 
     protected final FrameBuffer frameBuffer;
+    protected final Texture2D depthTexture;
     protected final Camera shadowCamera;
-    protected final Matrix4f biasedViewProjectionMatrix = new Matrix4f();
+    protected final Vector3f[] points;
 
-    protected boolean fbNeedClear = true;
-
-    public BaseArrayShadowMapSlice(TextureArray array, int layer, int textureSize, boolean useBorder) {
-        this.shadowCamera = new Camera(textureSize, textureSize);
-
-        if (useBorder) {
-            float onePx = 1f / textureSize;
-            this.shadowCamera.setViewPort(onePx, 1f - onePx, onePx, 1f - onePx);
-        }
-
-        this.frameBuffer = new FrameBuffer(textureSize, textureSize, 1);
-
-        Image image = array.getImage();
-        image.setDepth(image.getDepth() + 1);
-        image.addData(null);
-
-        this.frameBuffer.setDepthTexture(array, layer);
+    public BaseShadowMapSlice(int size, Vector3f[] points) {
+        this.depthTexture = new Texture2D(size, size, Image.Format.Depth16);
+        this.depthTexture.setAnisotropicFilter(1);
+        this.depthTexture.setShadowCompareMode(ShadowCompareMode.LessOrEqual);
+        this.depthTexture.setMagFilter(MagFilter.Bilinear);
+        this.depthTexture.setMinFilter(MinFilter.BilinearNoMipMaps);
+        this.shadowCamera = new Camera(size, size);
+        this.frameBuffer = new FrameBuffer(size, size, 1);
+        this.frameBuffer.setDepthTexture(depthTexture);
+        this.points = points;
     }
 
     @Override
-    public Matrix4f getBiasedViewProjectionMatrix() {
-        return biasedViewProjectionMatrix;
-    }
-
-    @Override
-    public void renderShadowMap(RenderManager renderManager, Light light, ViewPort viewPort, GeometryList shadowCasters) {
+    public void renderShadowMap(RenderManager renderManager, T light, ViewPort viewPort, GeometryList shadowCasters) {
         Renderer renderer = renderManager.getRenderer();
 
-        if (fbNeedClear) {
-            renderer.setFrameBuffer(frameBuffer);
-            renderer.clearClipRect();
-            renderer.clearBuffers(false, true, false);
-            fbNeedClear = false;
-        }
+        renderer.setFrameBuffer(frameBuffer);
+        renderer.clearBuffers(false, true, false);
 
         if (shadowCasters.size() > 0) {
             renderManager.setCamera(shadowCamera, false);
             viewPort.getQueue().renderShadowQueue(shadowCasters, renderManager, shadowCamera, true);
-            fbNeedClear = true;
         }
+    }
 
-        BIAS_MATRIX.mult(shadowCamera.getViewProjectionMatrix(), biasedViewProjectionMatrix);
+    @Override
+    public Matrix4f getBiasedViewProjectionMatrix() {
+//        return shadowCamera.getViewProjectionMatrix();
+        throw new UnsupportedOperationException();
     }
 }

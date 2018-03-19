@@ -43,6 +43,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.instancing.InstancedGeometry;
 import com.jme3.shader.DefineList;
 import com.jme3.shader.Shader;
+import com.jme3.shadow.next.array.ArrayShadowMap;
 import java.util.EnumSet;
 
 public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
@@ -83,6 +84,28 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
         filteredLightList.clear();
         renderManager.getLightFilter().filterLights(geom, filteredLightList);
         return filteredLightList;
+    }
+    
+    protected float encodeLightType(Light light) {
+        switch (light.getType()) {
+            case Directional:
+                return 0.125f;
+            case Point:
+                return 0.25f;
+            case Spot:
+                return 0.5f;
+            default:
+                throw new UnsupportedOperationException("Invalid light type: " + light.getType());
+        }
+    }
+    
+    protected float encodeLightTypeAndShadowMapIndex(Light light) {
+        if (light.getShadowMap() == null) {
+            return encodeLightType(light);
+        } else {
+            ArrayShadowMap map = (ArrayShadowMap) light.getShadowMap();
+            return -(encodeLightType(light) + map.getFirstArraySlice());
+        }
     }
 
     protected static ColorRGBA getAmbientColor(LightList lightList, boolean removeLights, ColorRGBA ambientLightColor) {

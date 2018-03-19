@@ -1,5 +1,4 @@
 #import "Common/ShaderLib/GLSLCompat.glsllib"
-#import "Common/ShaderLib/BlinnPhongLighting.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
 #import "Common/ShaderLib/InPassShadows.glsl"
 #import "Common/ShaderLib/PBR.glsllib"
@@ -34,7 +33,7 @@
 #define SPOT_LIGHT_START          (SPOT_SHADOW_LIGHT_END)
 #define SPOT_LIGHT_END            (SPOT_LIGHT_START + NUM_SPOT_LIGHTS * 3)
 
-#define LIGHT_DATA_SIZE           (SPOT_LIGHT_END)
+#define LIGHT_DATA_SIZE           (NUM_SHADOW_DIR_LIGHTS * 2 )
 
 uniform vec3 g_CameraPosition;
 
@@ -64,72 +63,34 @@ struct surface_t {
     float ndotv;
 };
 
-float Lighting_ProcessAttenuation(float invRadius, float dist) {
-    #ifdef SRGB
-        float invRadTimesDist = invRadius * dist;
-        float atten = (1.0 - invRadTimesDist) / (1.0 + invRadTimesDist * dist);
-        return clamp(atten, 0.0, 1.0);
-    #else
-        return max(0.0, 1.0 - invRadius * dist);
-    #endif
-}
-
-void Lighting_ProcessDirectional(int lightIndex, surface_t surface, out vec3 outDiffuse, out vec3 outSpecular) {
+void Lighting_Process(in int lightIndex, in surface_t surface, out vec3 outDiffuse, out vec3 outSpecular, inout int startProjIndex) {
     vec4 lightColor = g_LightData[lightIndex];
-    vec3 lightDirection = g_LightData[lightIndex + 1].xyz;
+    vec4 lightData1 = g_LightData[lightIndex + 1];
+    float shadowMapIndex = -1.0;
 
-    PBR_ComputeDirectLightSpecWF(surface.normal, -lightDirection, surface.viewDir,
+    if (lightColor.w < 0.0) {
+        lightColor.w = -lightColor.w;
+        shadowMapIndex = floor(lightColor.w);
+        lightColor.w = lightColor.w - shadowMapIndex;
+    }
+
+    vec4 lightDir;
+    vec3 lightVec;
+    lightComputeDir(surface.position, lightColor.w, lightData1, lightDir, lightVec);
+
+    if (shadowMapIndex >= 0.0) {
+        lightDir.w *= Shadow_Process(lightColor.w, lightDir.xyz, shadowMapIndex, startProjIndex);
+    }
+
+    if (lightColor.w >= 0.5) {
+        lightDir.w *= computeSpotFalloff(g_LightData[lightIndex + 2], lightDir.xyz);
+    }
+
+    lightColor.rgb *= lightDir.w;
+    
+    PBR_ComputeDirectLightSpecWF(surface.normal, lightDir.xyz, surface.viewDir,
                                  lightColor.rgb, surface.specular.rgb, surface.roughness, surface.ndotv,
                                  outDiffuse, outSpecular);
-}
-
-vec3 Lighting_ProcessPoint(in int lightIndex, in surface_t surface, out vec3 outDiffuse, out vec3 outSpecular) {
-    vec4 lightColor     = g_LightData[lightIndex];
-    vec4 lightPosition  = g_LightData[lightIndex + 1];
-    vec3 lightDirection = lightPosition.xyz - surface.position;
-    float dist = length(lightDirection);
-    lightDirection /= vec3(dist);
-    float atten = Lighting_ProcessAttenuation(lightPosition.w, dist);
-    if (atten == 0.0) {
-        outDiffuse = vec3(0.0);
-        outSpecular = vec3(0.0);
-        return lightDirection;
-    }
-    PBR_ComputeDirectLightSpecWF(surface.normal, lightDirection, surface.viewDir,
-                                 lightColor.rgb, surface.specular.rgb, surface.roughness, surface.ndotv,
-                                 outDiffuse, outSpecular);
-
-    outDiffuse *= atten;
-    outSpecular *= atten;
-
-    return lightDirection;
-}
-
-void Lighting_ProcessSpot(in int lightIndex, in surface_t surface, out vec3 outDiffuse, out vec3 outSpecular) {
-    vec4 lightColor     = g_LightData[lightIndex];
-    vec4 lightPosition  = g_LightData[lightIndex + 1];
-    vec4 lightDirection = g_LightData[lightIndex + 2];
-    vec3 lightVector    = lightPosition.xyz - surface.position;
-    float dist          = length(lightVector);
-    lightVector        /= vec3(dist);
-    float atten         = computeSpotFalloff(lightDirection, lightVector);
-    if (atten == 0.0) {
-        outDiffuse = vec3(0.0);
-        outSpecular = vec3(0.0);
-        return;
-    }
-    atten *= Lighting_ProcessAttenuation(lightPosition.w, dist);
-    if (atten == 0.0) {
-        outDiffuse = vec3(0.0);
-        outSpecular = vec3(0.0);
-        return;
-    }
-    PBR_ComputeDirectLightSpecWF(surface.normal, lightVector, surface.viewDir,
-                                 lightColor.rgb, surface.specular.rgb, surface.roughness, surface.ndotv,
-                                 outDiffuse, outSpecular);
-
-    outDiffuse *= atten;
-    outSpecular *= atten;
 }
 
 void Lighting_ProcessAll(surface_t surface, out vec3 ambient, out vec3 diffuse, out vec3 specular) {
@@ -143,61 +104,49 @@ void Lighting_ProcessAll(surface_t surface, out vec3 ambient, out vec3 diffuse, 
 #if LIGHT_DATA_SIZE > 0
     int projIndex = 0;
 
-    for (int i = DIR_SHADOW_LIGHT_START; i < DIR_SHADOW_LIGHT_END; i += 2) {
-        vec3 outDiffuse, outSpecular;
-        Lighting_ProcessDirectional(i, surface, outDiffuse, outSpecular);
-
-        float shadow = Shadow_Process(0, vec3(0.0), g_LightData[i].w, projIndex);
-        outDiffuse *= shadow;
-        outSpecular *= shadow;
-
-        diffuse   += outDiffuse;
-        specular  += outSpecular;
-    }
-
-    for (int i = DIR_LIGHT_START; i < DIR_LIGHT_END; i += 2) {
-        vec3 outDiffuse, outSpecular;
-        Lighting_ProcessDirectional(i, surface, outDiffuse, outSpecular);
-        diffuse   += outDiffuse;
-        specular  += outSpecular;
-    }
-
-    for (int i = POINT_SHADOW_LIGHT_START; i < POINT_SHADOW_LIGHT_END; i += 2) {
-        vec3 outDiffuse, outSpecular;
-        vec3 lightDir = Lighting_ProcessPoint(i, surface, outDiffuse, outSpecular);
-
-        float shadow = Shadow_Process(1, lightDir, g_LightData[i].w, projIndex);
-        outDiffuse *= shadow;
-        outSpecular *= shadow;
-
-        diffuse   += outDiffuse;
-        specular  += outSpecular;
-    }
-    for (int i = POINT_LIGHT_START; i < POINT_LIGHT_END; i += 2) {
-        vec3 outDiffuse, outSpecular;
-        Lighting_ProcessPoint(i, surface, outDiffuse, outSpecular);
-        diffuse   += outDiffuse;
-        specular  += outSpecular;
-    }
-
     for (int i = SPOT_SHADOW_LIGHT_START; i < SPOT_SHADOW_LIGHT_END; i += 3) {
         vec3 outDiffuse, outSpecular;
-        Lighting_ProcessSpot(i, surface, outDiffuse, outSpecular);
-
-        float shadow = Shadow_Process(2, vec3(0.0), g_LightData[i].w, projIndex);
-        outDiffuse *= shadow;
-        outSpecular *= shadow;
-
+        Lighting_Process(i, surface, outDiffuse, outSpecular, projIndex);
         diffuse   += outDiffuse;
         specular  += outSpecular;
     }
 
     for (int i = SPOT_LIGHT_START; i < SPOT_LIGHT_END; i += 3) {
         vec3 outDiffuse, outSpecular;
-        Lighting_ProcessSpot(i, surface, outDiffuse, outSpecular);
+        Lighting_Process(i, surface, outDiffuse, outSpecular, projIndex);
         diffuse   += outDiffuse;
         specular  += outSpecular;
     }
+
+    for (int i = DIR_SHADOW_LIGHT_START; i < DIR_SHADOW_LIGHT_END; i += 2) {
+        vec3 outDiffuse, outSpecular;
+        Lighting_Process(i, surface, outDiffuse, outSpecular, projIndex);
+        diffuse   += outDiffuse;
+        specular  += outSpecular;
+    }
+
+    for (int i = DIR_LIGHT_START; i < DIR_LIGHT_END; i += 2) {
+        vec3 outDiffuse, outSpecular;
+        Lighting_Process(i, surface, outDiffuse, outSpecular, projIndex);
+        diffuse   += outDiffuse;
+        specular  += outSpecular;
+    }
+
+    for (int i = POINT_SHADOW_LIGHT_START; i < POINT_SHADOW_LIGHT_END; i += 2) {
+        vec3 outDiffuse, outSpecular;
+        Lighting_Process(i, surface, outDiffuse, outSpecular, projIndex);
+        diffuse   += outDiffuse;
+        specular  += outSpecular;
+    }
+
+    for (int i = POINT_LIGHT_START; i < POINT_LIGHT_END; i += 2) {
+        vec3 outDiffuse, outSpecular;
+        Lighting_Process(i, surface, outDiffuse, outSpecular, projIndex);
+        diffuse   += outDiffuse;
+        specular  += outSpecular;
+    }
+
+    
 
 #endif
 }

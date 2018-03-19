@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2016 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,32 +29,39 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.shadow.next.array;
+package com.jme3.shadow.next.pssm;
 
-import com.jme3.light.PointLight;
-import com.jme3.math.Quaternion;
+import com.jme3.light.DirectionalLight;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.GeometryList;
-import com.jme3.renderer.queue.RenderQueue.ShadowMode;
-import com.jme3.scene.Spatial;
 import com.jme3.shadow.ShadowUtil;
-import com.jme3.texture.TextureArray;
+import com.jme3.texture.Texture2D;
 
 /**
  * @author Kirill Vainer
  */
-public class PointArrayShadowMapSlice extends BaseArrayShadowMapSlice<PointLight> {
+public class DirectionalShadowMapSlice extends BaseShadowMapSlice<DirectionalLight> {
 
-    public PointArrayShadowMapSlice(TextureArray array, int layer, int textureSize, Quaternion axes) {
-        super(array, layer, textureSize, false);
-        shadowCamera.setAxes(axes);
+    public DirectionalShadowMapSlice(int size, Vector3f[] points) {
+        super(size, points);
+        this.shadowCamera.setParallelProjection(true);
     }
 
-    public void updateShadowCamera(ViewPort viewPort, PointLight light, GeometryList shadowCasters) {
-        shadowCamera.setFrustumPerspective(90f, 1f, 0.5f, light.getRadius());
-        shadowCamera.setLocation(light.getPosition());
-        for (Spatial scene : viewPort.getScenes()) {
-            ShadowUtil.getGeometriesInCamFrustum(scene, shadowCamera, ShadowMode.Cast, shadowCasters);
-        }
+    public void updateShadowCamera(
+            ViewPort viewPort,
+            DirectionalLight light,
+            GeometryList shadowCasters,
+            float near,
+            float far) {
+        ShadowUtil.updateFrustumPoints(viewPort.getCamera(), near, far, points);
+        shadowCamera.lookAtDirection(light.getDirection(), shadowCamera.getUp());
+        
+        int textureSize = frameBuffer.getWidth();
+        ShadowUtil.updateShadowCamera(viewPort, null, shadowCamera, points, shadowCasters, textureSize);
+    }
+
+    public Texture2D getTexture() {
+        return depthTexture;
     }
 }

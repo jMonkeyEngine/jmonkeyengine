@@ -31,14 +31,9 @@
  */
 package com.jme3.shadow.next;
 
-import com.jme3.asset.AssetManager;
 import com.jme3.shadow.next.pssm.DirectionalShadowParameters;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
-import com.jme3.light.Light.Type;
-import com.jme3.light.PointLight;
-import com.jme3.light.SpotLight;
-import com.jme3.material.MatParamOverride;
 import com.jme3.material.RenderState;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
@@ -49,23 +44,10 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.scene.Node;
-import com.jme3.shader.VarType;
-import com.jme3.shadow.next.array.DirectionalArrayShadowMap;
-import com.jme3.shadow.next.array.PointArrayShadowMap;
-import com.jme3.shadow.next.array.SpotArrayShadowMap;
+import com.jme3.shadow.next.pssm.DirectionalShadowMap;
 import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture.MagFilter;
-import com.jme3.texture.Texture.MinFilter;
-import com.jme3.texture.Texture.ShadowCompareMode;
-import com.jme3.texture.TextureArray;
-import com.jme3.texture.image.ColorSpace;
-import com.jme3.util.ListMap;
-import com.jme3.util.TempVars;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The 4th generation of shadow mapping in jME3.
@@ -75,7 +57,7 @@ import java.util.ArrayList;
  *
  * @author Kirill Vainer
  */
-public class PreShadowArrayRenderer implements SceneProcessor {
+public class PreShadowRenderer implements SceneProcessor {
 
     private static final String PRE_SHADOW_TECHNIQUE_NAME = "PreShadow";
 
@@ -83,37 +65,24 @@ public class PreShadowArrayRenderer implements SceneProcessor {
     private ViewPort viewPort;
     private final Vector3f[] points = new Vector3f[8];
     private final GeometryList shadowCasters = new GeometryList(new OpaqueComparator());
-    private final ListMap<Light, ShadowMap> shadowedLights = new ListMap<>();
+    private final List<ShadowMap> shadowMaps = new ArrayList<>();
     private final RenderState prePassRenderState = RenderState.ADDITIONAL.clone();
-    private final MatParamOverride pointLightOverride = new MatParamOverride(VarType.Boolean, "IsPointLight", true);
-    private final TextureArray array = new TextureArray();
-    
-    private int textureSize = 1024;
-    private int nextArraySlice = 0;
 
+    private int textureSize = 1024;
+    
     // parameters for directional lights
     private final DirectionalShadowParameters directionalParams = new DirectionalShadowParameters();
 
-    public PreShadowArrayRenderer() {
+    public PreShadowRenderer() {
         for (int i = 0; i < points.length; i++) {
             points[i] = new Vector3f();
         }
 
-        prePassRenderState.setFaceCullMode(RenderState.FaceCullMode.Back);
+        prePassRenderState.setFaceCullMode(RenderState.FaceCullMode.Off);
         prePassRenderState.setColorWrite(false);
         prePassRenderState.setDepthWrite(true);
         prePassRenderState.setDepthTest(true);
-        prePassRenderState.setPolyOffset(0, 0);
-
-        array.setAnisotropicFilter(1);
-        array.setShadowCompareMode(ShadowCompareMode.LessOrEqual);
-        
-        array.setMagFilter(MagFilter.Bilinear);
-        array.setMinFilter(MinFilter.BilinearNoMipMaps);
-    }
-    
-    public void displayDebug(AssetManager assetManager, Node guiRoot) {
-        guiRoot.addControl(new ShadowDebugControl(assetManager, this));
+        prePassRenderState.setPolyOffset(1.2f, 0);
     }
 
     @Override
@@ -127,6 +96,7 @@ public class PreShadowArrayRenderer implements SceneProcessor {
     }
 
     public void setPolyOffset(float factor, float units) {
+        // TODO: might want to set this separately per model
         prePassRenderState.setPolyOffset(factor, units);
     }
 
@@ -139,51 +109,22 @@ public class PreShadowArrayRenderer implements SceneProcessor {
         this.textureSize = textureSize;
     }
     
-    public TextureArray getShadowMapTexture() {
-        return array;
-    }
-    
     public void addLight(Light light) {
-        if (array.getImage() == null) {
-            array.setImage(new Image(
-                    Format.Depth32F,
-                    textureSize,
-                    textureSize,
-                    0,
-                    new ArrayList<ByteBuffer>(),
-                    ColorSpace.Linear));
-        }
-
         ShadowMap shadowMap;
         switch (light.getType()) {
             case Directional:
-                shadowMap = new DirectionalArrayShadowMap(
+                shadowMap = new DirectionalShadowMap(
                         (DirectionalLight) light,
-                        array,
-                        nextArraySlice,
                         textureSize,
-                        directionalParams.getNumSplits());
-                break;
-            case Point:
-                shadowMap = new PointArrayShadowMap(
-                        (PointLight) light,
-                        array,
-                        nextArraySlice,
-                        textureSize);
-                break;
-            case Spot:
-                shadowMap = new SpotArrayShadowMap(
-                        (SpotLight) light,
-                        array,
-                        nextArraySlice,
-                        textureSize);
+                        directionalParams.getNumSplits(),
+                        points);
                 break;
             default:
                 throw new UnsupportedOperationException();
         }
         
-        shadowedLights.put(light, shadowMap);
-        nextArraySlice += shadowMap.getNumSlices();
+        light.setShadowMap(shadowMap);
+        shadowMaps.add(shadowMap);
     }
 
     @Override
@@ -199,51 +140,23 @@ public class PreShadowArrayRenderer implements SceneProcessor {
     public void preFrame(float tpf) {
     }
 
-    private void renderShadowMaps(ViewPort viewPort) {
+    private void renderShadowMaps() {
         renderManager.setForcedRenderState(prePassRenderState);
         renderManager.setForcedTechnique(PRE_SHADOW_TECHNIQUE_NAME);
-        renderManager.addForcedMatParam(pointLightOverride);
 
-        for (int i = 0; i < shadowedLights.size(); i++) {
-            Light light = shadowedLights.getKey(i);
-            ShadowMap shadowMap = shadowedLights.getValue(i);
-
-            TempVars vars = TempVars.get();
-            try {
-                light.setFrustumCheckNeeded(false);
-                light.setIntersectsFrustum(light.intersectsFrustum(viewPort.getCamera(), vars));
-                if (!light.isIntersectsFrustum()) {
-                    continue;
-                }
-            } finally {
-                vars.release();
-            }
-
-            pointLightOverride.setEnabled(shadowMap.getLightType() == Type.Point);
-            
+        for (ShadowMap shadowMap : shadowMaps) {
             switch (shadowMap.getLightType()) {
                 case Directional:
-                    DirectionalArrayShadowMap directionalShadow = (DirectionalArrayShadowMap) shadowMap;
-                    directionalShadow.renderShadowMap(renderManager, viewPort, directionalParams, shadowCasters, points);
-                    break;
-                case Point:
-                    PointArrayShadowMap pointShadow = (PointArrayShadowMap) shadowMap;
-                    pointShadow.renderShadowMap(renderManager, viewPort, shadowCasters);
-                    break;
-                case Spot:
-                    SpotArrayShadowMap spotShadow = (SpotArrayShadowMap) shadowMap;
-                    spotShadow.renderShadowMap(renderManager, viewPort, shadowCasters);
+                    DirectionalShadowMap directionalShadow = (DirectionalShadowMap) shadowMap;
+                    directionalShadow.renderShadowMap(renderManager, viewPort, directionalParams, shadowCasters);
                     break;
                 default:
                     throw new UnsupportedOperationException();
             }
-            
-            light.setShadowMap(shadowMap);
         }
 
         Renderer renderer = renderManager.getRenderer();
         renderer.setFrameBuffer(viewPort.getOutputFrameBuffer());
-        renderManager.removeForcedMatParam(pointLightOverride);
         renderManager.setForcedRenderState(null);
         renderManager.setForcedTechnique(null);
         renderManager.setCamera(viewPort.getCamera(), false);
@@ -252,16 +165,11 @@ public class PreShadowArrayRenderer implements SceneProcessor {
     @Override
     public void postQueue(RenderQueue rq) {
         directionalParams.updateSplitPositions(viewPort.getCamera());
-        renderShadowMaps(viewPort);
+        renderShadowMaps();
     }
 
     @Override
     public void postFrame(FrameBuffer out) {
-        // TODO: call discard contents on all the framebuffers.
-        for (int i = 0; i < shadowedLights.size(); i++) {
-            Light light = shadowedLights.getKey(i);
-            light.setShadowMap(null);
-        }
     }
 
     @Override

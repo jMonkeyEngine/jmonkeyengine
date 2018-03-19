@@ -139,15 +139,6 @@ public class ShadowStaticPassLightingLogic extends StaticPassLightingLogic {
     }
 
     @Override
-    protected float getShadowMapIndex(Light light) {
-        if (light.getShadowMap() == null) {
-            return -1.0f;
-        }
-        ArrayShadowMap map = (ArrayShadowMap) light.getShadowMap();
-        return (float) map.getFirstArraySlice();
-    }
-
-    @Override
     protected void updateShadowUniforms(Renderer renderer, Shader shader, int nextTextureUnit) {
         TextureArray array = null;
         Vector3f pssmSplits = null;

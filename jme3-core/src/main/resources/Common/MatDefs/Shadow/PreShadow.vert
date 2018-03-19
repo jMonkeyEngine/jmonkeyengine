@@ -29,7 +29,7 @@ void main() {
         vec3 lightDir = g_CameraPosition - TransformWorld(modelSpacePos).xyz;
 
         // The Z value to write into the depth map, should be [0.0, 1.0]
-        float z = length(lightDir) / g_FrustumNearFar.y;
+        float z = sqrt(length(lightDir) / g_FrustumNearFar.y);
 
         // Remap [0.0, 1.0] into [-1.0, 1.0]
         gl_Position.z = (clamp(z, 0.0, 1.0) * 2.0 - 1.0) * gl_Position.w;

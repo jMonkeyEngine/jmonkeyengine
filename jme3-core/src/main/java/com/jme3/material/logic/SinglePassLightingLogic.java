@@ -138,7 +138,7 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
             lightData.setVector4InArray(color.getRed(),
                     color.getGreen(),
                     color.getBlue(),
-                    l.getType().getId(),
+                    encodeLightType(l),
                     lightDataIndex);
             lightDataIndex++;
 

@@ -49,10 +49,20 @@ public class SpotArrayShadowMapSlice extends BaseArrayShadowMapSlice<SpotLight> 
     public SpotArrayShadowMapSlice(TextureArray array, int layer, int textureSize) {
         super(array, layer, textureSize, true);
     }
+    
+    private static boolean isParallelToYUp(Vector3f direction) {
+        return direction.x == 0 && direction.z == 0
+                && (direction.y == -1 || direction.y == 1);
+    }
 
     public void updateShadowCamera(ViewPort viewPort, SpotLight light, GeometryList shadowCasters) {
         shadowCamera.setLocation(light.getPosition());
-        shadowCamera.lookAtDirection(light.getDirection(), Vector3f.UNIT_Y);
+        if (isParallelToYUp(light.getDirection())) {
+            // direction and up cannot be parallel
+            shadowCamera.lookAtDirection(light.getDirection(), Vector3f.UNIT_Z);
+        } else {
+            shadowCamera.lookAtDirection(light.getDirection(), Vector3f.UNIT_Y);
+        }
         shadowCamera.setFrustumPerspective(light.getSpotOuterAngle() * FastMath.RAD_TO_DEG * 2.0f, 1, 1, light.getSpotRange());
         for (Spatial scene : viewPort.getScenes()) {
             ShadowUtil.getGeometriesInCamFrustum(scene, shadowCamera, RenderQueue.ShadowMode.Cast, shadowCasters);

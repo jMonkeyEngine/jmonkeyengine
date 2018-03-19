@@ -1,100 +1,98 @@
-#ifndef NUM_SHADOW_DIR_LIGHTS
-#define NUM_SHADOW_DIR_LIGHTS 0
-#endif
-#ifndef NUM_SHADOW_POINT_LIGHTS
-#define NUM_SHADOW_POINT_LIGHTS 0
-#endif
-#ifndef NUM_SHADOW_SPOT_LIGHTS
-#define NUM_SHADOW_SPOT_LIGHTS 0
-#endif
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+
+#extension GL_EXT_texture_array : enable
+
 #ifndef NUM_PSSM_SPLITS
 #define NUM_PSSM_SPLITS 0
 #endif
 
-#define SHADOW_DATA_SIZE (NUM_SHADOW_DIR_LIGHTS * NUM_PSSM_SPLITS + NUM_SHADOW_POINT_LIGHTS * 6 + NUM_SHADOW_SPOT_LIGHTS)
+#ifdef IN_PASS_SHADOWS
 
-#if SHADOW_DATA_SIZE > 0
+    uniform mat4 g_ShadowMatrices[(NB_LIGHTS/3) + NUM_PSSM_SPLITS];
 
-    varying vec4 vProjCoord[SHADOW_DATA_SIZE];
+#if NUM_PSSM_SPLITS > 0
+    varying vec3 dirProjCoord[NUM_PSSM_SPLITS];
+#else
+    varying vec3 dirProjCoord[1];
+#endif
 
     #ifdef VERTEX_SHADER
-        uniform mat4 g_ShadowMatrices[SHADOW_DATA_SIZE];
-
         void Shadow_ProcessProjCoord(vec3 worldPos) {
-            for (int i = 0; i < SHADOW_DATA_SIZE; i++) {
-                vProjCoord[i] = g_ShadowMatrices[i] * vec4(worldPos, 1.0);
+#if NUM_PSSM_SPLITS > 0
+            for (int i = 0; i < NUM_PSSM_SPLITS; i++) {
+                #if __VERSION__ >= 150
+                    dirProjCoord[i] = mat4x3(g_ShadowMatrices[i]) * vec4(worldPos, 1.0);
+                #else
+                    dirProjCoord[i] = (g_ShadowMatrices[i] * vec4(worldPos, 1.0)).xyz;
+                #endif
             }
+#endif
         }
     #else
         uniform sampler2DArrayShadow g_ShadowMapArray;
         uniform vec3 g_PssmSplits;
 
-        int pssmSliceOffset;
+        float pssmSliceOffset;
 
         void Shadow_ProcessPssmSlice() {
-            #if defined(NUM_PSSM_SPLITS) && NUM_PSSM_SPLITS > 1
-                pssmSliceOffset = int(dot(step(g_PssmSplits.xyz, gl_FragCoord.zzz), vec3(1.0)));
+            #if NUM_PSSM_SPLITS > 1
+                pssmSliceOffset = dot(step(g_PssmSplits.xyz, gl_FragCoord.zzz), vec3(1.0));
             #else
-                pssmSliceOffset = 0;
+                pssmSliceOffset = 0.0;
             #endif
         }
 
-        /**
-         * Returns a float from 0.0 - 5.0 containing the index
-         * of the cubemap face to fetch for the given direction
-         */
-        float Shadow_GetCubeMapFace(in vec3 direction) {
-            vec3 mag = abs(direction);
-
-            // Compare each component against the other two
-            // Largest component is set to 1.0, the rest are 0.0
-            vec3 largestComp = step(mag.yzx, mag) * step(mag.zxy, mag);
-
-            // Negative components are set to 1.0, the positive are 0.0
-            vec3 negComp = step(direction, vec3(0.0));
-
-            // Each component contains the face index to use
-            vec3 faceIndices = vec3(0.0, 2.0, 4.0) + negComp;
-
-            // Pick the face index with the largest component
-            return dot(largestComp, faceIndices);
-        }
-
-        float Shadow_ProcessDirectional(in int lightType, in vec3 lightDir, in float startArrayLayer, inout int startProjIndex) {
-            float arraySlice = startArrayLayer + float(pssmSliceOffset);
-            vec3 projCoord = vProjCoord[startProjIndex + pssmSliceOffset].xyz;
-            startProjIndex += NUM_PSSM_SPLITS;
-            return texture(g_ShadowMapArray, vec4(projCoord.xy, arraySlice, projCoord.z));
-        }
-
-        float Shadow_ProcessSpot(in int lightType, in vec3 lightDir, in float startArrayLayer, inout int startProjIndex) {
-            vec4 projCoord = vProjCoord[startProjIndex];
-            projCoord.xyz /= projCoord.w;
-            startProjIndex ++;
-            return texture(g_ShadowMapArray, vec4(projCoord.xy, startArrayLayer, projCoord.z));
-        }
-
-        float Shadow_Process(in int lightType, in vec3 lightDir, in float startArrayLayer, inout int startProjIndex) {
-            float arraySlice = startArrayLayer;
-            vec4 projCoord;
-
-            if (lightType == 0) {
-                arraySlice += float(pssmSliceOffset);
-                projCoord = vProjCoord[startProjIndex + pssmSliceOffset];
-                startProjIndex += NUM_PSSM_SPLITS;
-            } else if (lightType == 1) {
-                float face = Shadow_GetCubeMapFace(lightDir);
-                arraySlice += face;
-                projCoord = vProjCoord[startProjIndex + int(face)];
-                projCoord.xyz /= projCoord.w;
-                startProjIndex += 6;
+        vec3 Shadow_GetCubeMapTC(in vec3 direction) {
+            vec3 axis = abs(direction);
+            float largest = max(axis.x, max(axis.y, axis.z));
+            vec3 tc;
+            if (largest == axis.x) {
+                if (direction.x > 0.0) {
+                    tc = vec3( direction.z, -direction.y, 0.0);
+                } else {
+                    tc = vec3(-direction.z, -direction.y, 1.0);
+                }
+            } else if (largest == axis.y) {
+                if (direction.y > 0.0) {
+                    tc = vec3(-direction.x, direction.z, 2.0);
+                } else {
+                    tc = vec3(-direction.x, -direction.z, 3.0);
+                }
             } else {
-                projCoord = vProjCoord[startProjIndex];
-                projCoord.xyz /= projCoord.w;
-                startProjIndex += 1;
+                if (direction.z > 0.0) {
+                    tc = vec3(-direction.x, -direction.y, 4.0);
+                } else {
+                    tc = vec3(direction.x,  -direction.y, 5.0);
+                }
+            }
+            largest = 1.0 / largest;
+            tc.xy = 0.5 * (tc.xy * vec2(largest) + 1.0);
+            return tc;
+        }
+
+        float Shadow_Process(int lightIndex, float lightType, float shadowMapIndex, 
+                             vec3 lightVec, vec3 lightDir, 
+                             vec3 worldPos, float invRadius) {
+            vec4 tc;
+
+            if (lightType <= 0.2) {
+                vec3 projCoord = dirProjCoord[int(pssmSliceOffset)];
+                tc = vec4(projCoord.xy, shadowMapIndex + pssmSliceOffset, projCoord.z);
+            } else if (lightType <= 0.3) {
+                vec3 projCoord = Shadow_GetCubeMapTC(lightVec.xyz);
+                float dist = sqrt(length(lightVec) * invRadius);
+                tc = vec4(projCoord.xy, shadowMapIndex + projCoord.z, dist);
+            } else {
+                tc = g_ShadowMatrices[NUM_PSSM_SPLITS + lightIndex] * vec4(worldPos, 1.0);
+                tc.xyz /= tc.w;
+                tc = vec4(tc.xy, shadowMapIndex, tc.z);
             }
 
-            return texture(g_ShadowMapArray, vec4(projCoord.xy, arraySlice, projCoord.z));
+            #if __VERSION__ >= 150
+                return texture(g_ShadowMapArray, tc);
+            #else
+                return shadow2DArray(g_ShadowMapArray, tc).x;
+            #endif
         }
     #endif
 
@@ -149,10 +147,9 @@
         }
     #endif
 #else
-    #define NUM_SHADOW_DIR_LIGHTS 0
-    #define NUM_SHADOW_POINT_LIGHTS 0
-    #define NUM_SHADOW_SPOT_LIGHTS 0
     #define NUM_PSSM_SPLITS 0
+    
+    const int pssmSliceOffset = 0;
 
     void Shadow_ProcessProjCoord(vec3 worldPos) {
     }
@@ -160,15 +157,9 @@
     void Shadow_ProcessPssmSlice() {
     }
 
-    float Shadow_ProcessDirectional(int startLightIndex, float startArrayLayer) {
-        return 1.0;
-    }
-
-    float Shadow_ProcessSpot(int startLightIndex, float startArrayLayer) {
-        return 1.0;
-    }
-
-    float Shadow_Process(in int lightType, in vec3 lightDir, in float startArrayLayer, inout int startProjIndex) {
+    float Shadow_Process(int lightIndex, float lightType, float shadowMapIndex, 
+                             vec3 lightVec, vec3 lightDir, 
+                             vec3 worldPos, float invRadius) {
         return 1.0;
     }
 #endif

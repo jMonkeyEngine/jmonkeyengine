@@ -126,10 +126,6 @@ public class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
         return techniqueDef.getShader(assetManager, rendererCaps, defines);
     }
 
-    protected float getShadowMapIndex(Light light) {
-        return -1.0f;
-    }
-
     protected void updateLightListUniforms(Matrix4f viewMatrix, Shader shader) {
         Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
         ambientColor.setValue(VarType.Vector4, ambientLightColor);
@@ -142,36 +138,41 @@ public class StaticPassLightingLogic extends DefaultTechniqueDefLogic {
         lightData.setVector4Length(totalSize);
 
         int index = 0;
+        
+        for (SpotLight light : tempSpotLights) {
+            ColorRGBA color = light.getColor();
+            float lightTypeAndShadowMap = encodeLightTypeAndShadowMapIndex(light);
+            lightData.setVector4InArray(color.r, color.g, color.b, lightTypeAndShadowMap, index++);
+
+            tempPosition.set(light.getPosition());
+            float invRange = light.getInvSpotRange();
+            lightData.setVector4InArray(tempPosition.x, tempPosition.y, tempPosition.z, invRange, index++);
+            
+            tempDirection.set(light.getDirection());
+            float spotAngleCos = light.getPackedAngleCos();
+            lightData.setVector4InArray(tempDirection.x, tempDirection.y, tempDirection.z, spotAngleCos, index++);
+        }
+        
         for (DirectionalLight light : tempDirLights) {
             ColorRGBA color = light.getColor();
-            float shadowMapIndex = getShadowMapIndex(light);
+            float lightTypeAndShadowMap = encodeLightTypeAndShadowMapIndex(light);
+            lightData.setVector4InArray(color.r, color.g, color.b, lightTypeAndShadowMap, index++);
+            
             tempDirection.set(light.getDirection());
-            lightData.setVector4InArray(color.r, color.g, color.b, shadowMapIndex, index++);
             lightData.setVector4InArray(tempDirection.x, tempDirection.y, tempDirection.z, 1f, index++);
         }
 
         for (PointLight light : tempPointLights) {
             ColorRGBA color = light.getColor();
-            float shadowMapIndex = getShadowMapIndex(light);
+            float lightTypeAndShadowMap = encodeLightTypeAndShadowMapIndex(light);
+            lightData.setVector4InArray(color.r, color.g, color.b, lightTypeAndShadowMap, index++);
+            
             tempPosition.set(light.getPosition());
             float invRadius = light.getInvRadius();
-            lightData.setVector4InArray(color.r, color.g, color.b, shadowMapIndex, index++);
             lightData.setVector4InArray(tempPosition.x, tempPosition.y, tempPosition.z, invRadius, index++);
         }
 
-        for (SpotLight light : tempSpotLights) {
-            ColorRGBA color = light.getColor();
-            float shadowMapIndex = getShadowMapIndex(light);
-
-            tempPosition.set(light.getPosition());
-            tempDirection.set(light.getDirection());
-
-            float invRange = light.getInvSpotRange();
-            float spotAngleCos = light.getPackedAngleCos();
-            lightData.setVector4InArray(color.r, color.g, color.b, shadowMapIndex, index++);
-            lightData.setVector4InArray(tempPosition.x, tempPosition.y, tempPosition.z, invRange, index++);
-            lightData.setVector4InArray(tempDirection.x, tempDirection.y, tempDirection.z, spotAngleCos, index++);
-        }
+        
     }
 
     protected void updateShadowUniforms(Renderer renderer, Shader shader, int nextTextureUnit) {
