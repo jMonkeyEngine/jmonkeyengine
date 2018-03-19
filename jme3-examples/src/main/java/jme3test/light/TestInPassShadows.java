@@ -65,7 +65,6 @@ public class TestInPassShadows extends SimpleApplication {
     
     public static void main(String[] args) {
         TestInPassShadows app = new TestInPassShadows();
-        app.setShowSettings(false);
         AppSettings settings = new AppSettings(true);
         settings.setGammaCorrection(true);
         app.setSettings(settings);
