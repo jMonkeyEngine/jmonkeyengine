@@ -28,6 +28,9 @@ MaterialDef PBR Lighting {
         Texture2D RoughnessMap -LINEAR
 
         //Metallic and Roughness are packed respectively in the b and g channel of a single map
+        // r: unspecified
+        // g: Roughness
+        // b: Metallic
         Texture2D MetallicRoughnessMap -LINEAR
         
         // Texture of the emissive parts of the material
@@ -46,17 +49,6 @@ MaterialDef PBR Lighting {
         Texture2D SpecularGlossinessMap
         Color Specular : 1.0 1.0 1.0 1.0
         Float Glossiness : 1.0
-
-        Vector4 ProbeData
-
-        // Prefiltered Env Map for indirect specular lighting
-        TextureCubeMap PrefEnvMap -LINEAR
-        
-        // Irradiance map for indirect diffuse lighting
-        TextureCubeMap IrradianceMap -LINEAR
-
-        //integrate BRDF map for indirect Lighting
-        Texture2D IntegrateBRDF -LINEAR
 
         // Parallax/height map
         Texture2D ParallaxMap -LINEAR
