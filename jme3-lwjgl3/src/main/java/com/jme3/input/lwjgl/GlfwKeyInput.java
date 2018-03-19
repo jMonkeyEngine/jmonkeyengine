@@ -32,11 +32,11 @@
 
 package com.jme3.input.lwjgl;
 
+import static org.lwjgl.glfw.GLFW.*;
 import com.jme3.input.KeyInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.system.lwjgl.LwjglWindow;
-
 import org.lwjgl.glfw.GLFWCharCallback;
 import org.lwjgl.glfw.GLFWKeyCallback;
 
@@ -44,37 +44,54 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Logger;
 
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_LAST;
-import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-import static org.lwjgl.glfw.GLFW.GLFW_REPEAT;
-import static org.lwjgl.glfw.GLFW.glfwGetTime;
-import static org.lwjgl.glfw.GLFW.glfwSetCharCallback;
-import static org.lwjgl.glfw.GLFW.glfwSetKeyCallback;
-
+/**
+ * The LWJGL implementation of {@link KeyInput}.
+ */
 public class GlfwKeyInput implements KeyInput {
 
     private static final Logger logger = Logger.getLogger(GlfwKeyInput.class.getName());
 
-    private LwjglWindow context;
-    private RawInputListener listener;
-    private boolean initialized;
-    private GLFWKeyCallback keyCallback;
-    private GLFWCharCallback charCallback;
-    private Queue<KeyInputEvent> keyInputEvents = new LinkedList<KeyInputEvent>();
+    /**
+     * The queue of key events.
+     */
+    private final Queue<KeyInputEvent> keyInputEvents = new LinkedList<>();
 
-    public GlfwKeyInput(LwjglWindow context) {
+    /**
+     * The LWJGL context.
+     */
+    private LwjglWindow context;
+
+    /**
+     * The key callback.
+     */
+    private GLFWKeyCallback keyCallback;
+
+    /**
+     * The char callback.
+     */
+    private GLFWCharCallback charCallback;
+
+    /**
+     * The raw input listener.
+     */
+    private RawInputListener listener;
+
+    private boolean initialized;
+
+    public GlfwKeyInput(final LwjglWindow context) {
         this.context = context;
     }
 
+    @Override
     public void initialize() {
+
         if (!context.isRenderable()) {
             return;
         }
 
         glfwSetKeyCallback(context.getWindowHandle(), keyCallback = new GLFWKeyCallback() {
             @Override
-            public void invoke(long window, int key, int scancode, int action, int mods) {
+            public void invoke(final long window, final int key, final int scancode, final int action, final int mods) {
 
                 if (key < 0 || key > GLFW_KEY_LAST) {
                     return;
@@ -87,22 +104,11 @@ public class GlfwKeyInput implements KeyInput {
 
                 keyInputEvents.add(event);
             }
-
-            @Override
-            public void close() {
-                super.close();
-            }
-
-            @Override
-            public void callback(long args) {
-                super.callback(args);
-            }
         });
 
         glfwSetCharCallback(context.getWindowHandle(), charCallback = new GLFWCharCallback() {
-
             @Override
-            public void invoke(long window, int codepoint) {
+            public void invoke(final long window, final int codepoint) {
 
                 final char keyChar = (char) codepoint;
 
@@ -116,16 +122,6 @@ public class GlfwKeyInput implements KeyInput {
 
                 keyInputEvents.add(released);
             }
-
-            @Override
-            public void close() {
-                super.close();
-            }
-
-            @Override
-            public void callback(long args) {
-                super.callback(args);
-            }
         });
 
         initialized = true;
@@ -137,6 +133,7 @@ public class GlfwKeyInput implements KeyInput {
         return GLFW_KEY_LAST - GLFW_KEY_SPACE;
     }
 
+    @Override
     public void update() {
         if (!context.isRenderable()) {
             return;
@@ -147,6 +144,7 @@ public class GlfwKeyInput implements KeyInput {
         }
     }
 
+    @Override
     public void destroy() {
         if (!context.isRenderable()) {
             return;
@@ -157,14 +155,17 @@ public class GlfwKeyInput implements KeyInput {
         logger.fine("Keyboard destroyed.");
     }
 
+    @Override
     public boolean isInitialized() {
         return initialized;
     }
 
-    public void setInputListener(RawInputListener listener) {
+    @Override
+    public void setInputListener(final RawInputListener listener) {
         this.listener = listener;
     }
 
+    @Override
     public long getInputTimeNanos() {
         return (long) (glfwGetTime() * 1000000000);
     }

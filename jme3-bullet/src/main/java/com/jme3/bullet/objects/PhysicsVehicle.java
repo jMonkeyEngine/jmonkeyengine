@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -283,8 +283,8 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     }
 
     /**
-     * This vaue caps the maximum suspension force, raise this above the default 6000 if your suspension cannot
-     * handle the weight of your vehcile.
+     * This value caps the maximum suspension force, raise this above the default 6000 if your suspension cannot
+     * handle the weight of your vehicle.
      * @param maxSuspensionForce
      */
     public void setMaxSuspensionForce(float maxSuspensionForce) {
@@ -292,8 +292,8 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     }
 
     /**
-     * This vaue caps the maximum suspension force, raise this above the default 6000 if your suspension cannot
-     * handle the weight of your vehcile.
+     * This value caps the maximum suspension force, raise this above the default 6000 if your suspension cannot
+     * handle the weight of your vehicle.
      * @param wheel
      * @param maxSuspensionForce
      */

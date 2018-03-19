@@ -17,7 +17,7 @@ import com.jme3.texture.Image.Format;
 /**
  * A Cartoon Screen Space Ambient Occlusion filter with instance rendering capabilities.
  * @author reden - phr00t - https://github.com/phr00t
- * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  *
  */
 public class CartoonSSAO extends Filter{

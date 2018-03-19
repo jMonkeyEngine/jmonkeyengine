@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -98,7 +98,7 @@
  * need for intermediate events. (These intermediate events would be released
  * immediately). Therefore, the no-event alternatives increase the performance
  * because no additional event object has to be allocated and less system calls
- * are neccessary.
+ * are necessary.
  * 
  * <p>
  * <b>Interoperability between OpenCL and jME3:</b><br>
@@ -141,7 +141,7 @@
  * {@link com.jme3.opencl.Program}, {@link com.jme3.opencl.Kernel} and
  * {@link com.jme3.opencl.Event})
  * may throw the following exceptions in each method without being mentioned 
- * explicetly in the documentation:
+ * explicitly in the documentation:
  * <ul>
  * <li>{@code NullPointerException}: one of the arguments is {@code null} and 
  * {@code null} is not allowed</li>

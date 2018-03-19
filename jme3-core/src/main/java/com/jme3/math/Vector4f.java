@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -780,7 +780,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * Sets this vector to the interpolation by changeAmnt from this to the finalVec
      * this=(1-changeAmnt)*this + changeAmnt * finalVec
      * @param finalVec The final vector to interpolate towards
-     * @param changeAmnt An amount between 0.0 - 1.0 representing a precentage
+     * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
      *  change from this towards finalVec
      */
     public Vector4f interpolateLocal(Vector4f finalVec, float changeAmnt) {
@@ -794,9 +794,9 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
     /**
      * Sets this vector to the interpolation by changeAmnt from beginVec to finalVec
      * this=(1-changeAmnt)*beginVec + changeAmnt * finalVec
-     * @param beginVec the beging vector (changeAmnt=0)
+     * @param beginVec the beginning vector (changeAmnt=0)
      * @param finalVec The final vector to interpolate towards
-     * @param changeAmnt An amount between 0.0 - 1.0 representing a precentage
+     * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
      *  change from beginVec towards finalVec
      */
     public Vector4f interpolateLocal(Vector4f beginVec,Vector4f finalVec, float changeAmnt) {
@@ -877,7 +877,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>hashCode</code> returns a unique code for this vector object based
-     * on it's values. If two vectors are logically equivalent, they will return
+     * on its values. If two vectors are logically equivalent, they will return
      * the same hash code value.
      * @return the hash code value of this vector.
      */

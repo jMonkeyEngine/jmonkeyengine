@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ import com.jme3.util.BufferUtils;
 import java.io.IOException;
 
 /**
- * A simple cylinder, defined by it's height and radius.
+ * A simple cylinder, defined by its height and radius.
  * (Ported to jME3)
  *
  * @author Mark Powell

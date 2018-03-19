@@ -30,7 +30,7 @@ import java.util.Iterator;
 /**
  * A class dedicated to the management and the display of a Graphical User Interface (GUI) within a VR environment.
  * @author reden - phr00t - https://github.com/phr00t
- * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  *
  */
 public class VRGuiManager {
@@ -76,6 +76,14 @@ public class VRGuiManager {
 		this.environment = environment;
 	}
 
+	public boolean isWantsReposition() {
+		return wantsReposition;
+	}
+
+	public void setWantsReposition(boolean wantsReposition) {
+		this.wantsReposition = wantsReposition;
+	}
+	
 	/**
 	 * 
 	 * Makes auto GUI positioning happen not immediately, but like an
@@ -204,7 +212,7 @@ public class VRGuiManager {
 	/**
 	 * Update the GUI geometric state. This method should be called after GUI modification.
 	 */
-	protected void updateGuiQuadGeometricState() {
+	public void updateGuiQuadGeometricState() {
 		guiQuadNode.updateGeometricState();
 	}
 
@@ -212,7 +220,7 @@ public class VRGuiManager {
 	 * Position the GUI without delay.
 	 * @param tpf the time per frame.
 	 */
-	protected void positionGuiNow(float tpf) {
+	public void positionGuiNow(float tpf) {
 
 		if (environment != null){
 			wantsReposition = false;
@@ -347,7 +355,7 @@ public class VRGuiManager {
 	 * @param left the left eye viewport.
 	 * @param right the right eye viewport.
 	 */
-	protected void setupGui(Camera leftcam, Camera rightcam, ViewPort left, ViewPort right) {
+	public void setupGui(Camera leftcam, Camera rightcam, ViewPort left, ViewPort right) {
 
 		if (environment != null){
 			if( environment.hasTraditionalGUIOverlay() ) {

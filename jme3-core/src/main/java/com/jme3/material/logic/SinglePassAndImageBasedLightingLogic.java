@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -119,7 +119,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         Uniform lightProbeData = shader.getUniform("g_LightProbeData");
         lightProbeData.setVector4Length(1);
 
-        //TODO These 2 uniforms should be packed in an array, to ba able to have several probes and blend between them.
+        //TODO These 2 uniforms should be packed in an array, to be able to have several probes and blend between them.
         Uniform shCoeffs = shader.getUniform("g_ShCoeffs");
         Uniform lightProbePemMap = shader.getUniform("g_PrefEnvMap");
 

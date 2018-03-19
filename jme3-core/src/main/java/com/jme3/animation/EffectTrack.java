@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,18 +42,16 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.control.AbstractControl;
-import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
-import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * EffectTrack is a track to add to an existing animation, to emit particles
- * during animations for example : exhausts, dust raised by foot steps, shock
- * waves, lightnings etc...
+ * during animations for example: exhaust, dust raised by footsteps, shock
+ * waves, lightning, etc...
  *
  * usage is
  * <pre>
@@ -62,9 +60,9 @@ import java.util.logging.Logger;
  * control.getAnim("TheAnim").addTrack(track);
  * </pre>
  *
- * if the emitter has emits 0 particles per seconds emmitAllPArticles will be
- * called on it at time 0 + startOffset. if it he it has more it will start
- * emit normally at time 0 + startOffset.
+ * if the emitter emits 0 particles per second, emitAllPArticles will be
+ * called on it at time 0 + startOffset. if it has more it will start
+ * emitting normally at time 0 + startOffset.
  *
  *
  * @author Nehon
@@ -131,19 +129,6 @@ public class EffectTrack implements ClonableTrack {
 
         @Override
         protected void controlRender(RenderManager rm, ViewPort vp) {
-        }
-
-        @Override
-        public Control cloneForSpatial(Spatial spatial) {
-
-            KillParticleControl c = new KillParticleControl();
-            //this control should be removed as it shouldn't have been persisted in the first place
-            //In the quest to find the less hackish solution to achieve this,
-            //making it remove itself from the spatial in the first update loop when loaded was the less bad.
-            c.remove = true;
-            c.setSpatial(spatial);
-            return c;
-
         }
     };
 
@@ -213,7 +198,7 @@ public class EffectTrack implements ClonableTrack {
             control.addListener(new OnEndListener());
             initialized = true;
         }
-        //checking fo time to trigger the effect
+        //checking for time to trigger the effect
         if (!emitted && time >= startOffset) {
             emitted = true;
             emitter.setCullHint(CullHint.Dynamic);
@@ -430,7 +415,7 @@ public class EffectTrack implements ClonableTrack {
      */
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule out = ex.getCapsule(this);
-        //reseting the particle emission rate on the emitter before saving.
+        //reset the particle emission rate on the emitter before saving.
         emitter.setParticlesPerSec(particlesPerSeconds);
         out.write(emitter, "emitter", null);
         out.write(particlesPerSeconds, "particlesPerSeconds", 0);
@@ -449,7 +434,7 @@ public class EffectTrack implements ClonableTrack {
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
         this.particlesPerSeconds = in.readFloat("particlesPerSeconds", 0);
-        //reading the emitter even if the track will then reference its cloned counter part if it's loaded with the assetManager.
+        //reading the emitter even if the track will then reference its cloned counterpart if it's loaded with the assetManager.
         //This also avoid null pointer exception if the model is not loaded via the AssetManager.
         emitter = (ParticleEmitter) in.readSavable("emitter", null);
         emitter.setParticlesPerSec(0);

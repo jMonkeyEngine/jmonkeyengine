@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -99,7 +99,7 @@ public class HingeJoint extends PhysicsJoint {
      * @param high the high limit in radians.
      * @param _softness the factor at which the velocity error correction starts operating,i.e a softness of 0.9 means that the vel. corr starts at 90% of the limit range.
      * @param _biasFactor the magnitude of the position correction. It tells you how strictly the position error (drift ) is corrected.
-     * @param _relaxationFactor the rate at which velocity errors are corrected. This can be seen as the strength of the limits. A low value will make the the limits more spongy.
+     * @param _relaxationFactor the rate at which velocity errors are corrected. This can be seen as the strength of the limits. A low value will make the limits more spongy.
      */
     public void setLimit(float low, float high, float _softness, float _biasFactor, float _relaxationFactor) {
         biasFactor = _biasFactor;

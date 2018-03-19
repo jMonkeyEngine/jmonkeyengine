@@ -31,12 +31,14 @@
  */
 package com.jme3.scene.plugins.blender.textures;
 
+import com.jme3.asset.AssetManager;
+import com.jme3.asset.TextureKey;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.texture.Image;
+import com.jme3.texture.Texture;
 import com.jme3.texture.plugins.AWTLoader;
-import com.jme3.texture.plugins.DDSLoader;
-import com.jme3.texture.plugins.TGALoader;
-import java.io.InputStream;
+import com.jme3.texture.plugins.HDRLoader;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -47,11 +49,29 @@ import java.util.logging.Logger;
  */
 /* package */class ImageLoader extends AWTLoader {
     private static final Logger LOGGER    = Logger.getLogger(ImageLoader.class.getName());
-
-    protected DDSLoader         ddsLoader = new DDSLoader();                              // DirectX image loader
+    private static final Logger hdrLogger = Logger.getLogger(HDRLoader.class.getName()); // Used to silence HDR Errors
+    
+    /**
+     * List of Blender-Supported Texture Extensions (we have to guess them, so
+     * the AssetLoader can find them. Not good, but better than nothing.
+     * Source: https://docs.blender.org/manual/en/dev/data_system/files/media/image_formats.html
+     */
+    private static final String[] extensions = new String[]
+        { /* Windows Bitmap */".bmp",
+          /* Iris */ ".sgi", ".rgb", ".bw",
+          /* PNG */ ".png",
+          /* JPEG */ ".jpg", ".jpeg",
+          /* JPEG 2000 */ ".jp2", ".j2c",
+          /* Targa */".tga",
+          /* Cineon & DPX */".cin", ".dpx",
+          /* OpenEXR */ ".exr",
+          /* Radiance HDR */ ".hdr",
+          /* TIFF */ ".tif", ".tiff",
+          /* DDS (Direct X) */ ".dds" };
 
     /**
-     * This method loads the image from the blender file itself. It tries each loader to load the image.
+     * This method loads a image which is packed into the blender file.
+     * It makes use of all the registered AssetLoaders
      * 
      * @param inputStream
      *            blender input stream
@@ -60,76 +80,57 @@ import java.util.logging.Logger;
      * @param flipY
      *            if the image should be flipped (does not work with DirectX image)
      * @return loaded image or null if it could not be loaded
+     * @deprecated This method has only been left in for API compability.
+     * Use loadTexture instead
      */
-    public Image loadImage(BlenderInputStream inputStream, int startPosition, boolean flipY) {
-        // loading using AWT loader
-        inputStream.setPosition(startPosition);
-        Image result = this.loadImage(inputStream, ImageType.AWT, flipY);
-        // loading using TGA loader
-        if (result == null) {
-            inputStream.setPosition(startPosition);
-            result = this.loadImage(inputStream, ImageType.TGA, flipY);
+    public Image loadImage(AssetManager assetManager, BlenderInputStream inputStream, int startPosition, boolean flipY) {
+        Texture tex = loadTexture(assetManager, inputStream, startPosition, flipY);
+        
+        if (tex == null) {
+            return null;
+        } else {
+            return tex.getImage();
         }
-        // loading using DDS loader
-        if (result == null) {
-            inputStream.setPosition(startPosition);
-            result = this.loadImage(inputStream, ImageType.DDS, flipY);
-        }
-
-        if (result == null) {
-            LOGGER.warning("Image could not be loaded by none of available loaders!");
-        }
-
-        return result;
     }
-
+    
     /**
-     * This method loads an image of a specified type from the given input stream.
+     * This method loads a texture which is packed into the blender file.
+     * It makes use of all the registered AssetLoaders
      * 
      * @param inputStream
-     *            the input stream we read the image from
-     * @param imageType
-     *            the type of the image {@link ImageType}
+     *            blender input stream
+     * @param startPosition
+     *            position in the stream where the image data starts
      * @param flipY
      *            if the image should be flipped (does not work with DirectX image)
-     * @return loaded image or null if it could not be loaded
+     * @return loaded texture or null if it could not be loaded
      */
-    public Image loadImage(InputStream inputStream, ImageType imageType, boolean flipY) {
-        Image result = null;
-        switch (imageType) {
-            case AWT:
-                try {
-                    result = this.load(inputStream, flipY);
-                } catch (Exception e) {
-                    LOGGER.warning("Unable to load image using AWT loader!");
-                }
-                break;
-            case DDS:
-                try {
-                    result = ddsLoader.load(inputStream);
-                } catch (Exception e) {
-                    LOGGER.warning("Unable to load image using DDS loader!");
-                }
-                break;
-            case TGA:
-                try {
-                    result = TGALoader.load(inputStream, flipY);
-                } catch (Exception e) {
-                    LOGGER.warning("Unable to load image using TGA loader!");
-                }
-                break;
-            default:
-                throw new IllegalStateException("Unknown image type: " + imageType);
+    public Texture loadTexture(AssetManager assetManager, BlenderInputStream inputStream, int startPosition, boolean flipY) {
+        inputStream.setPosition(startPosition);
+        TextureKey tKey;
+        Texture result = null;
+        
+        hdrLogger.setLevel(Level.SEVERE); // When we bruteforce try HDR on a non hdr file, it prints unreadable chars
+        
+        for (String ext: extensions) {
+            tKey = new TextureKey("dummy" + ext, flipY);
+            try {
+                result = assetManager.loadAssetFromStream(tKey, inputStream);
+            } catch (Exception e) {
+                continue;
+            }
+            
+            if (result != null) {
+                break; // Could locate a possible asset
+            }
         }
+        
+        if (result == null) {
+            LOGGER.warning("Texture could not be loaded by any of the available loaders!\n"
+                    + "Since the file has been packed into the blender file, there is no"
+                    + "way for us to tell you which texture it was.");
+        }
+        
         return result;
-    }
-
-    /**
-     * Image types that can be loaded. AWT: png, jpg, jped or bmp TGA: tga DDS: DirectX image files
-     * 
-     * @author Marcin Roguski (Kaelthas)
-     */
-    private static enum ImageType {
-        AWT, TGA, DDS;
     }
 }

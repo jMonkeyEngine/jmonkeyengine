@@ -75,14 +75,4 @@ class LwjglGLDebugOutputHandler extends GLDebugMessageARBCallback {
 
         System.err.println(String.format(MESSAGE_FORMAT, id, sourceStr, typeStr, severityStr, message));
     }
-
-    @Override
-    public void close() {
-        super.close();
-    }
-
-    @Override
-    public void callback(long args) {
-        super.callback(args);
-    }
 }

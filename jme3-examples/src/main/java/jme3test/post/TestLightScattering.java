@@ -44,7 +44,6 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.shadow.PssmShadowRenderer;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
 
@@ -76,7 +75,9 @@ public class TestLightScattering extends SimpleApplication {
         rootNode.attachChild(scene);
 
         // load sky
-        rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/FullskiesBlueClear03.dds", false));
+        rootNode.attachChild(SkyFactory.createSky(assetManager,
+                "Textures/Sky/Bright/FullskiesBlueClear03.dds", 
+                SkyFactory.EnvMapType.CubeMap));
 
         DirectionalLight sun = new DirectionalLight();
         Vector3f lightDir = new Vector3f(-0.12f, -0.3729129f, 0.74847335f);

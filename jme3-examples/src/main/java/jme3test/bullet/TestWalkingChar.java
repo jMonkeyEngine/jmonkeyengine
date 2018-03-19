@@ -217,8 +217,9 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
         effect.setGravity(0, -5, 0);
         effect.setLowLife(.4f);
         effect.setHighLife(.5f);
-        effect.setInitialVelocity(new Vector3f(0, 7, 0));
-        effect.setVelocityVariation(1f);
+        effect.getParticleInfluencer()
+                .setInitialVelocity(new Vector3f(0, 7, 0));
+        effect.getParticleInfluencer().setVelocityVariation(1f);
         effect.setImagesX(2);
         effect.setImagesY(2);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
@@ -237,7 +238,9 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
     }
 
     private void createSky() {
-        rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
+        rootNode.attachChild(SkyFactory.createSky(assetManager, 
+                "Textures/Sky/Bright/BrightSky.dds", 
+                SkyFactory.EnvMapType.CubeMap));
     }
 
     private void createTerrain() {

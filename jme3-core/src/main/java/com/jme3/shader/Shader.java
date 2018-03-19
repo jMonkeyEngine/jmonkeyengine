@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ public final class Shader extends NativeObject {
     private final IntMap<Attribute> attribs;
 
     /**
-     * Type of shader. The shader will control the pipeline of it's type.
+     * Type of shader. The shader will control the pipeline of its type.
      */
     public static enum ShaderType {
 
@@ -83,12 +83,12 @@ public final class Shader extends NativeObject {
          */
         Geometry("geom"),
         /**
-         * Controls tesselation factor (e.g how often a input patch should be
+         * Controls tessellation factor (e.g how often a input patch should be
          * subdivided)
          */
         TessellationControl("tsctrl"),
         /**
-         * Controls tesselation transform (e.g similar to the vertex shader, but
+         * Controls tessellation transform (e.g similar to the vertex shader, but
          * required to mix inputs manual)
          */
         TessellationEvaluation("tseval");
@@ -106,7 +106,7 @@ public final class Shader extends NativeObject {
 
     /**
      * Shader source describes a shader object in OpenGL. Each shader source
-     * is assigned a certain pipeline which it controls (described by it's type).
+     * is assigned a certain pipeline which it controls (described by its type).
      */
     public static class ShaderSource extends NativeObject {
 
@@ -127,7 +127,7 @@ public final class Shader extends NativeObject {
         protected ShaderSource(ShaderSource ss){
             super(ss.id);
             // No data needs to be copied.
-            // (This is a destructable clone)
+            // (This is a destructible clone)
         }
 
         public ShaderSource(){
@@ -227,7 +227,7 @@ public final class Shader extends NativeObject {
     }
 
     /**
-     * Do not use this constructor. Used for destructable clones only.
+     * Do not use this constructor. Used for destructible clones only.
      */
     protected Shader(Shader s){
         super(s.id);
@@ -361,7 +361,7 @@ public final class Shader extends NativeObject {
      */
     public void resetLocations() {
         if (uniforms != null) {
-            // NOTE: Shader sources will be reset seperately from the shader itself.
+            // NOTE: Shader sources will be reset separately from the shader itself.
             for (Uniform uniform : uniforms.values()) {
                 uniform.reset(); // fixes issue with re-initialization
             }

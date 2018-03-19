@@ -57,7 +57,7 @@ import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
-import com.jme3.shadow.PssmShadowRenderer;
+import com.jme3.shadow.DirectionalLightShadowRenderer;
 import de.lessvoid.nifty.Nifty;
 
 public class TestCinematic extends SimpleApplication {
@@ -237,10 +237,11 @@ public class TestCinematic extends SimpleApplication {
         fpp.addFilter(fade);
 
         if (renderer.getCaps().contains(Caps.GLSL100)) {
-            PssmShadowRenderer pssm = new PssmShadowRenderer(assetManager, 512, 1);
-            pssm.setDirection(new Vector3f(0, -1, -1).normalizeLocal());
-            pssm.setShadowIntensity(0.4f);
-            viewPort.addProcessor(pssm);
+            DirectionalLightShadowRenderer dlsr
+                    = new DirectionalLightShadowRenderer(assetManager, 512, 1);
+            dlsr.setLight(light);
+            dlsr.setShadowIntensity(0.4f);
+            viewPort.addProcessor(dlsr);
             viewPort.addProcessor(fpp);
         }
     }

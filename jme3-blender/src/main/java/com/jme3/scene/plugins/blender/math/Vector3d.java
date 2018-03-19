@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -324,7 +324,7 @@ public final class Vector3d implements Savable, Cloneable, Serializable {
      *            the vector to take the cross product of with this.
      * @param result
      *            the vector to store the cross product result.
-     * @return result, after recieving the cross product vector.
+     * @return result, after receiving the cross product vector.
      */
     public Vector3d cross(Vector3d v, Vector3d result) {
         return this.cross(v.x, v.y, v.z, result);
@@ -342,7 +342,7 @@ public final class Vector3d implements Savable, Cloneable, Serializable {
      *            z component of the vector to take the cross product of with this.
      * @param result
      *            the vector to store the cross product result.
-     * @return result, after recieving the cross product vector.
+     * @return result, after receiving the cross product vector.
      */
     public Vector3d cross(double otherX, double otherY, double otherZ, Vector3d result) {
         if (result == null) {
@@ -485,12 +485,12 @@ public final class Vector3d implements Savable, Cloneable, Serializable {
     }
 
     /**
-     * <code>multLocal</code> multiplies a provided vector to this vector
+     * <code>multLocal</code> multiplies a provided vector by this vector
      * internally, and returns a handle to this vector for easy chaining of
      * calls. If the provided vector is null, null is returned.
      *
      * @param vec
-     *            the vector to mult to this vector.
+     *            the vector to multiply by this vector.
      * @return this
      */
     public Vector3d multLocal(Vector3d vec) {
@@ -522,7 +522,7 @@ public final class Vector3d implements Savable, Cloneable, Serializable {
     }
 
     /**
-     * <code>multLocal</code> multiplies a provided vector to this vector
+     * <code>multLocal</code> multiplies a provided vector by this vector
      * internally, and returns a handle to this vector for easy chaining of
      * calls. If the provided vector is null, null is returned.
      *
@@ -539,7 +539,7 @@ public final class Vector3d implements Savable, Cloneable, Serializable {
     }
 
     /**
-     * <code>multLocal</code> multiplies a provided vector to this vector
+     * <code>multLocal</code> multiplies a provided vector by this vector
      * internally, and returns a handle to this vector for easy chaining of
      * calls. If the provided vector is null, null is returned.
      *
@@ -657,7 +657,7 @@ public final class Vector3d implements Savable, Cloneable, Serializable {
     }
 
     /**
-     * <code>subtractLocal</code> subtracts a provided vector to this vector
+     * <code>subtractLocal</code> subtracts a provided vector from this vector
      * internally, and returns a handle to this vector for easy chaining of
      * calls. If the provided vector is null, null is returned.
      *
@@ -825,7 +825,7 @@ public final class Vector3d implements Savable, Cloneable, Serializable {
 
     /**
      * <code>hashCode</code> returns a unique code for this vector object based
-     * on it's values. If two vectors are logically equivalent, they will return
+     * on its values. If two vectors are logically equivalent, they will return
      * the same hash code value.
      * @return the hash code value of this vector.
      */

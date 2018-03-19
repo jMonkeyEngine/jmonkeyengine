@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,7 +69,7 @@ public class BlenderKey extends ModelKey {
      */
     protected String                   usedWorld;
     /**
-     * User's default material that is set fo objects that have no material definition in blender. The default value is
+     * User's default material that is set for objects that have no material definition in blender. The default value is
      * null. If the value is null the importer will use its own default material (gray color - like in blender).
      */
     protected Material                 defaultMaterial;
@@ -476,9 +476,9 @@ public class BlenderKey extends ModelKey {
     }
 
     /**
-     * This mehtod sets the name of the WORLD data block taht should be used during file loading. By default the name is
+     * This method sets the name of the WORLD data block that should be used during file loading. By default the name is
      * not set. If no name is set or the given name does not occur in the file - the first WORLD data block will be used
-     * during loading (assumin any exists in the file).
+     * during loading (assuming any exists in the file).
      * @param usedWorld
      *            the name of the WORLD block used during loading
      */
@@ -487,7 +487,7 @@ public class BlenderKey extends ModelKey {
     }
 
     /**
-     * This mehtod returns the name of the WORLD data block taht should be used during file loading.
+     * This method returns the name of the WORLD data block that should be used during file loading.
      * @return the name of the WORLD block used during loading
      */
     public String getUsedWorld() {

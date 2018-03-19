@@ -2,6 +2,7 @@
 **/.classpath
 **/.settings
 **/.project
+**/out
 /.gradle/
 /.nb-gradle/
 /.idea/

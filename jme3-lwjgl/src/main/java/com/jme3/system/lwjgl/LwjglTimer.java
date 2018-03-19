@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ public class LwjglTimer extends Timer {
 
     /**
      * Constructor builds a <code>Timer</code> object. All values will be
-     * initialized to it's default values.
+     * initialized to its default values.
      */
     public LwjglTimer() {
         reset();

@@ -37,18 +37,15 @@ import com.jme3.math.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Quad;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture2D;
-import com.jme3.texture.TextureCubeMap;
+import com.jme3.texture.*;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.ui.Picture;
 import com.jme3.util.BufferUtils;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import static com.jme3.math.FastMath.*;
-
 import com.jme3.util.TempVars;
+
+import java.nio.ByteBuffer;
+
+import static com.jme3.math.FastMath.*;
 
 /**
  *
@@ -88,6 +85,11 @@ public class EnvMapUtils {
         None
     }
 
+    public static enum GenerationType {
+        Fast,
+        HighQuality
+    }
+
     /**
      * Creates a cube map from 6 images
      *
@@ -116,6 +118,8 @@ public class EnvMapUtils {
 
         cubeImage.addData(backImg.getData(0));
         cubeImage.addData(frontImg.getData(0));
+
+        cubeImage.setMipMapSizes(rightImg.getMipMapSizes());
 
         TextureCubeMap cubeMap = new TextureCubeMap(cubeImage);
         cubeMap.setAnisotropicFilter(0);
@@ -147,6 +151,8 @@ public class EnvMapUtils {
         for (ByteBuffer d : srcImg.getData()) {
             cubeImage.addData(d.duplicate());
         }
+
+        cubeImage.setMipMapSizes(srcImg.getMipMapSizes());
 
         TextureCubeMap cubeMap = new TextureCubeMap(cubeImage);
         cubeMap.setAnisotropicFilter(sourceMap.getAnisotropicFilter());
@@ -730,7 +736,7 @@ public class EnvMapUtils {
         pem.setMagFilter(Texture.MagFilter.Bilinear);
         pem.setMinFilter(Texture.MinFilter.Trilinear);
         pem.getImage().setColorSpace(ColorSpace.Linear);
-        int nbMipMap = (int) (Math.log(size) / Math.log(2) - 1);
+        int nbMipMap = Math.min(6, (int) (Math.log(size) / Math.log(2)));
         CubeMapWrapper targetWrapper = new CubeMapWrapper(pem);
         targetWrapper.initMipMaps(nbMipMap);
         return pem;

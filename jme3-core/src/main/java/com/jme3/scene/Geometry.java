@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,9 +43,9 @@ import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
-import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.Queue;
 import java.util.logging.Level;
@@ -138,20 +138,6 @@ public class Geometry extends Spatial {
     }
 
     /**
-     * Update the world transform of this Geometry and clear the
-     * TRANSFORM refresh flag.
-     */
-    @Override
-    void checkDoTransformUpdate() {
-        if (ignoreTransform) {
-            worldTransform.loadIdentity();
-            refreshFlags &= ~RF_TRANSFORM;
-        } else {
-            super.checkDoTransformUpdate();
-        }    
-    }
-    
-    /**
      * @return If ignoreTransform mode is set.
      *
      * @see Geometry#setIgnoreTransform(boolean)
@@ -165,7 +151,6 @@ public class Geometry extends Spatial {
      */
     public void setIgnoreTransform(boolean ignoreTransform) {
         this.ignoreTransform = ignoreTransform;
-        setTransformRefresh();
     }
 
     /**
@@ -413,6 +398,9 @@ public class Geometry extends Spatial {
 
         // Compute the cached world matrix
         cachedWorldMat.loadIdentity();
+        if (ignoreTransform) {
+            return;
+        }
         cachedWorldMat.setRotationQuaternion(worldTransform.getRotation());
         cachedWorldMat.setTranslation(worldTransform.getTranslation());
 
@@ -519,36 +507,6 @@ public class Geometry extends Spatial {
     }
 
     /**
-     *  The old clone() method that did not use the new Cloner utility.
-     */
-    @Override
-    public Geometry oldClone(boolean cloneMaterial) {
-        Geometry geomClone = (Geometry) super.clone(cloneMaterial);
-
-        // This geometry is managed,
-        // but the cloned one is not attached to anything, hence not managed.
-        if (geomClone.isGrouped()) {
-            geomClone.groupNode = null;
-            geomClone.startIndex = -1;
-        }
-
-        geomClone.cachedWorldMat = cachedWorldMat.clone();
-        if (material != null) {
-            if (cloneMaterial) {
-                geomClone.material = material.clone();
-            } else {
-                geomClone.material = material;
-            }
-        }
-
-        if (mesh != null && mesh.getBuffer(Type.BindPosePosition) != null) {
-            geomClone.mesh = mesh.cloneForAnim();
-        }
-
-        return geomClone;
-    }
-
-    /**
      * This version of clone is a shallow clone, in other words, the
      * same mesh is referenced as the original geometry.
      * Exception: if the mesh is marked as being a software
@@ -583,7 +541,7 @@ public class Geometry extends Spatial {
         super.cloneFields(cloner, original);
 
         // If this is a grouped node and if our group node is
-        // also cloned then we'll grab it's reference.
+        // also cloned then we'll grab its reference.
         if( groupNode != null ) {
             if( cloner.isCloned(groupNode) ) {
                 // Then resolve the reference

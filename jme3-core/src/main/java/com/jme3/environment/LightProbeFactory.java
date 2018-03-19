@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,13 +31,14 @@
  */
 package com.jme3.environment;
 
-import com.jme3.environment.generation.*;
-import com.jme3.light.LightProbe;
-import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.app.Application;
+import com.jme3.environment.generation.*;
+import com.jme3.environment.util.EnvMapUtils;
+import com.jme3.light.LightProbe;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.TextureCubeMap;
+
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
@@ -46,7 +47,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  * Since the process can be long, you can provide a JobProgressListener that 
  * will be notified of the ongoing generation process when calling the makeProbe method.
  * 
- * The process is the folowing : 
+ * The process is as follows: 
  * 1. Create an EnvironmentCamera
  * 2. give it a position in the scene
  * 3. call {@link LightProbeFactory#makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Node)}
@@ -60,7 +61,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  * This class is entirely thread safe and can be called from any thread. 
  * 
  * Note that in case you are using a {@link JobProgressListener} all the its 
- * method will be called inside and app.enqueu callable.
+ * method will be called inside and app.enqueue callable.
  * This means that it's completely safe to modify the scenegraph within the 
  * Listener method, but also means that the even will be delayed until next update loop.
  * 
@@ -72,7 +73,7 @@ public class LightProbeFactory {
     /**
      * Creates a LightProbe with the giver EnvironmentCamera in the given scene.
      * 
-     * Note that this is an assynchronous process that will run on multiple threads.
+     * Note that this is an asynchronous process that will run on multiple threads.
      * The process is thread safe.
      * The created lightProbe will only be marked as ready when the rendering process is done.
      * 
@@ -93,7 +94,7 @@ public class LightProbeFactory {
     /**
      * Creates a LightProbe with the giver EnvironmentCamera in the given scene.
      * 
-     * Note that this is an assynchronous process that will run on multiple threads.
+     * Note that this is an asynchronous process that will run on multiple threads.
      * The process is thread safe.
      * The created lightProbe will only be marked as ready when the rendering process is done.
      *      
@@ -106,10 +107,11 @@ public class LightProbeFactory {
      
      * @param envCam the EnvironmentCamera
      * @param scene the Scene
-     * @param listener the listener of the genration progress.
+     * @param genType Fast or HighQuality. Fast may be ok for many types of environment, but you may need high quality when an environment map has very high lighting values.
+     * @param listener the listener of the generation progress.
      * @return the created LightProbe
      */
-    public static LightProbe makeProbe(final EnvironmentCamera envCam, Spatial scene, final JobProgressListener<LightProbe> listener) {
+    public static LightProbe makeProbe(final EnvironmentCamera envCam, Spatial scene, final EnvMapUtils.GenerationType genType, final JobProgressListener<LightProbe> listener) {
         final LightProbe probe = new LightProbe();
         probe.setPosition(envCam.getPosition());
         probe.setPrefilteredMap(EnvMapUtils.createPrefilteredEnvMap(envCam.getSize(), envCam.getImageFormat()));
@@ -117,33 +119,37 @@ public class LightProbeFactory {
 
             @Override
             public void done(TextureCubeMap map) {
-                generatePbrMaps(map, probe, envCam.getApplication(), listener);
+                generatePbrMaps(map, probe, envCam.getApplication(), genType, listener);
             }
         });
         return probe;
     }
-    
-     /**
-     * Updates a LightProbe with the giver EnvironmentCamera in the given scene.
-     * 
-     * Note that this is an assynchronous process that will run on multiple threads.
+
+    public static LightProbe makeProbe(final EnvironmentCamera envCam, Spatial scene, final JobProgressListener<LightProbe> listener) {
+        return makeProbe(envCam, scene, EnvMapUtils.GenerationType.Fast, listener);
+    }
+
+    /**
+     * Updates a LightProbe with the given EnvironmentCamera in the given scene.
+     * <p>
+     * Note that this is an asynchronous process that will run on multiple threads.
      * The process is thread safe.
      * The created lightProbe will only be marked as ready when the rendering process is done.
-     *      
-     * The JobProgressListener will be notified of the progress of the generation. 
-     * Note that you can also use a {@link JobProgressAdapter}. 
-     *      
+     * <p>
+     * The JobProgressListener will be notified of the progress of the generation.
+     * Note that you can also use a {@link JobProgressAdapter}.
+     *
+     * @param probe    the Light probe to update
+     * @param envCam   the EnvironmentCamera
+     * @param scene    the Scene
+     * @param genType  Fast or HighQuality. Fast may be ok for many types of environment, but you may need high quality when an environment map has very high lighting values.
+     * @param listener the listener of the generation progress.
+     * @return the created LightProbe
      * @see LightProbe
      * @see EnvironmentCamera
      * @see JobProgressListener
-     * 
-     * @param probe the Light probe to update
-     * @param envCam the EnvironmentCamera
-     * @param scene the Scene
-     * @param listener the listener of the genration progress.
-     * @return the created LightProbe
      */
-    public static LightProbe updateProbe(final LightProbe probe, final EnvironmentCamera envCam, Spatial scene, final JobProgressListener<LightProbe> listener) {
+    public static LightProbe updateProbe(final LightProbe probe, final EnvironmentCamera envCam, Spatial scene, final EnvMapUtils.GenerationType genType, final JobProgressListener<LightProbe> listener) {
         
         envCam.setPosition(probe.getPosition());
         
@@ -159,23 +165,27 @@ public class LightProbeFactory {
 
             @Override
             public void done(TextureCubeMap map) {
-                generatePbrMaps(map, probe, envCam.getApplication(), listener);
+                generatePbrMaps(map, probe, envCam.getApplication(), genType, listener);
             }
         });
         return probe;
     }
 
+    public static LightProbe updateProbe(final LightProbe probe, final EnvironmentCamera envCam, Spatial scene, final JobProgressListener<LightProbe> listener) {
+        return updateProbe(probe, envCam, scene, EnvMapUtils.GenerationType.Fast, listener);
+    }
+
     /**
      * Internally called to generate the maps.
      * This method will spawn 7 thread (one for the Irradiance spherical harmonics generator, and one for each face of the prefiltered env map).
-     * Those threads will be executed in a ScheduledThreadPoolExecutor that will be shutdown when the genration is done.
-     * 
+     * Those threads will be executed in a ScheduledThreadPoolExecutor that will be shutdown when the generation is done.
+     *
      * @param envMap the raw env map rendered by the env camera
-     * @param probe the LigthProbe to generate maps for
+     * @param probe the LightProbe to generate maps for
      * @param app the Application
      * @param listener a progress listener. (can be null if no progress reporting is needed)
      */
-    private static void generatePbrMaps(TextureCubeMap envMap, final LightProbe probe, Application app, final JobProgressListener<LightProbe> listener) {
+    private static void generatePbrMaps(TextureCubeMap envMap, final LightProbe probe, Application app, EnvMapUtils.GenerationType genType, final JobProgressListener<LightProbe> listener) {
         IrradianceSphericalHarmonicsGenerator irrShGenerator;
         PrefilteredEnvMapFaceGenerator[] pemGenerators = new PrefilteredEnvMapFaceGenerator[6];
 
@@ -189,7 +199,7 @@ public class LightProbeFactory {
 
         for (int i = 0; i < pemGenerators.length; i++) {
             pemGenerators[i] = new PrefilteredEnvMapFaceGenerator(app, i, new JobListener(listener, jobState, probe, i));
-            pemGenerators[i].setGenerationParam(EnvMapUtils.duplicateCubeMap(envMap), size, EnvMapUtils.FixSeamsMethod.None, probe.getPrefilteredEnvMap());
+            pemGenerators[i].setGenerationParam(EnvMapUtils.duplicateCubeMap(envMap), size, EnvMapUtils.FixSeamsMethod.None, genType, probe.getPrefilteredEnvMap());
             jobState.executor.execute(pemGenerators[i]);
         }
     }
@@ -227,7 +237,7 @@ public class LightProbeFactory {
     }
 
     /**
-     * An inner JobProgressListener to controll the genration process and properly clean up when it's done
+     * An inner JobProgressListener to control the generation process and properly clean up when it's done
      */
     private static class JobListener extends JobProgressAdapter<Integer> {
 

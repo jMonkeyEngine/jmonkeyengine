@@ -112,11 +112,10 @@ public class WeakRefCloneAssetCache implements AssetCache {
             // might not even have this asset anymore, it is OK.
             if (smartCache.remove(key) != null){
                 removedAssets ++;
-                //System.out.println("WeakRefAssetCache: The asset " + ref.assetKey + " was purged from the cache");
             }
         }
         if (removedAssets >= 1) {
-            logger.log(Level.FINE, "WeakRefAssetCache: {0} assets were purged from the cache.", removedAssets);
+            logger.log(Level.FINE, "WeakRefCloneAssetCache: {0} assets were purged from the cache.", removedAssets);
         }
     }
     

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -217,7 +217,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * <code>fromAngles</code> builds a quaternion from the Euler rotation
-     * angles (y,r,p).
+     * angles (x,y,z) aka (pitch, yaw, roll).
      *
      * @param angles
      *            the Euler angles of rotation (in radians).
@@ -233,7 +233,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * <code>fromAngles</code> builds a Quaternion from the Euler rotation
-     * angles (x,y,z) aka (pitch, yaw, rall)). Note that we are applying in order: (y, z, x) aka (yaw, roll, pitch) but
+     * angles (x,y,z) aka (pitch, yaw, roll)). Note that we are applying in order: (y, z, x) aka (yaw, roll, pitch) but
      * we've ordered them in x, y, and z for convenience.
      * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm</a>
      * 
@@ -276,8 +276,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>toAngles</code> returns this quaternion converted to Euler
-     * rotation angles (yaw,roll,pitch).<br/>
+     * <code>toAngles</code> returns this quaternion converted to Euler rotation
+     * angles (x,y,z) aka (pitch, yaw, roll).<br/>  
      * Note that the result is not always 100% accurate due to the implications of euler angles.
      * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm</a>
      * 
@@ -309,9 +309,9 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
             angles[2] = -FastMath.HALF_PI;
             angles[0] = 0;
         } else {
-            angles[1] = FastMath.atan2(2 * y * w - 2 * x * z, sqx - sqy - sqz + sqw); // roll or heading 
-            angles[2] = FastMath.asin(2 * test / unit); // pitch or attitude
-            angles[0] = FastMath.atan2(2 * x * w - 2 * y * z, -sqx + sqy - sqz + sqw); // yaw or bank
+            angles[1] = FastMath.atan2(2 * y * w - 2 * x * z, sqx - sqy - sqz + sqw); // yaw or heading 
+            angles[2] = FastMath.asin(2 * test / unit); // roll or bank
+            angles[0] = FastMath.atan2(2 * x * w - 2 * y * z, -sqx + sqy - sqz + sqw); // pitch or attitude
         }
         return angles;
     }
@@ -689,7 +689,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
             float invSinTheta = 1f / FastMath.sin(theta);
 
             // Calculate the scale for q1 and q2, according to the angle and
-            // it's sine value
+            // its sine
             scale0 = FastMath.sin((1 - t) * theta) * invSinTheta;
             scale1 = FastMath.sin((t * theta)) * invSinTheta;
         }
@@ -746,7 +746,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
             float invSinTheta = 1f / FastMath.sin(theta);
 
             // Calculate the scale for q1 and q2, according to the angle and
-            // it's sine value
+            // its sine
             scale0 = FastMath.sin((1 - changeAmnt) * theta) * invSinTheta;
             scale1 = FastMath.sin((changeAmnt * theta)) * invSinTheta;
         }
@@ -1161,7 +1161,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * <code>inverse</code> calculates the inverse of this quaternion and
      * returns this quaternion after it is calculated. If this quaternion does
-     * not have an inverse (if it's normal is 0 or less), nothing happens
+     * not have an inverse (if its normal is 0 or less), nothing happens
      *
      * @return the inverse of this quaternion
      */
@@ -1343,7 +1343,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @param store
      *            A Quaternion to store our result in. If null, a new one is
      *            created.
-     * @return The store quaternion (or a new Quaterion, if store is null) that
+     * @return The store quaternion (or a new Quaternion, if store is null) that
      *         describes a rotation that would point you in the exact opposite
      *         direction of this Quaternion.
      */

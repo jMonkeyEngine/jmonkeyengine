@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -121,10 +121,10 @@ public class ParticleEmitter extends Geometry {
             this.parentEmitter = parentEmitter;
         }
 
+        @Deprecated
         @Override
         public Control cloneForSpatial(Spatial spatial) {
-            return this; // WARNING: Sets wrong control on spatial. Will be
-            // fixed automatically by ParticleEmitter.clone() method.
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -384,7 +384,7 @@ public class ParticleEmitter extends Geometry {
      * Set to true if particles should spawn in world space.
      *
      * <p>If set to true and the particle emitter is moved in the scene,
-     * then particles that have already spawned won't be effected by this
+     * then particles that have already spawned won't be affected by this
      * motion. If set to false, the particles will emit in local space
      * and when the emitter is moved, so are all the particles that
      * were emitted previously.
@@ -846,7 +846,7 @@ public class ParticleEmitter extends Geometry {
      * @param initialVelocity Set the initial velocity a particle is spawned with,
      * the initial velocity given in the parameter will be varied according
      * to the velocity variation set in {@link ParticleEmitter#setVelocityVariation(float) }.
-     * A particle will move toward its velocity unless it is effected by the
+     * The particle will move with this velocity unless it is affected by
      * gravity.
      *
      * @deprecated

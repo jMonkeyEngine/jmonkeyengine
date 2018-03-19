@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,9 +32,7 @@
 package com.jme3.shadow;
 
 import com.jme3.bounding.BoundingBox;
-import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
-import com.jme3.collision.UnsupportedCollisionException;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Transform;
@@ -44,7 +42,6 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -510,9 +507,9 @@ public class ShadowUtil {
     
     /**
      * Populates the outputGeometryList with the geometry of the
-     * inputGeomtryList that are in the frustum of the given camera
+     * inputGeometryList that are in the frustum of the given camera
      *
-     * @param inputGeometryList The list containing all geometry to check
+     * @param inputGeometryList The list containing all geometries to check
      * against the camera frustum
      * @param camera the camera to check geometries against
      * @param outputGeometryList the list of all geometries that are in the
@@ -601,10 +598,10 @@ public class ShadowUtil {
     
     /**
      * Populates the outputGeometryList with the geometry of the
-     * inputGeomtryList that are in the radius of a light.
+     * inputGeometryList that are in the radius of a light.
      * The array of camera must be an array of 6 cameras initialized so they represent the light viewspace of a pointlight
      *
-     * @param inputGeometryList The list containing all geometry to check
+     * @param inputGeometryList The list containing all geometries to check
      * against the camera frustum
      * @param cameras the camera array to check geometries against
      * @param outputGeometryList the list of all geometries that are in the

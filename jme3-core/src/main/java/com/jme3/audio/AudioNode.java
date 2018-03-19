@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2016 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2016, 2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -221,7 +221,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Start playing an instance of this audio. This method can be used
      * to play the same <code>AudioNode</code> multiple times. Note
-     * that changes to the parameters of this AudioNode will not effect the
+     * that changes to the parameters of this AudioNode will not affect the
      * instances already playing.
      */
     public void playInstance(){
@@ -278,8 +278,8 @@ public class AudioNode extends Node implements AudioSource {
      * the dry filter will only influence the "dry" portion of the audio,
      * e.g. not the reverberated parts of the AudioNode playing.
      *
-     * See the relevent documentation for the {@link Filter} to determine
-     * the effect.
+     * See the relevant documentation for the {@link Filter} to determine the
+     * effect.
      *
      * @param dryFilter The filter to set, or null to disable dry filter.
      */
@@ -692,7 +692,7 @@ public class AudioNode extends Node implements AudioSource {
 
     /**
      * Set the audio node as positional.
-     * The position, velocity, and distance parameters effect positional
+     * The position, velocity, and distance parameters affect positional
      * audio nodes. Set to false if the audio node should play in "headspace".
      *
      * @param positional True if the audio node should be positional, otherwise

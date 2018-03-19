@@ -36,62 +36,75 @@ import org.lwjgl.openal.EXTEfx;
 
 import java.nio.IntBuffer;
 
+/**
+ * The LWJGL implementation of {@link EFX}.
+ */
 public class LwjglEFX implements EFX {
 
-    public void alGenAuxiliaryEffectSlots(int numSlots, IntBuffer buffers) {
+    @Override
+    public void alGenAuxiliaryEffectSlots(final int numSlots, final IntBuffer buffers) {
         if (buffers.position() != 0) throw new AssertionError();
         if (buffers.limit() != numSlots) throw new AssertionError();
         EXTEfx.alGenAuxiliaryEffectSlots(buffers);
     }
 
-    public void alGenEffects(int numEffects, IntBuffer buffers) {
+    @Override
+    public void alGenEffects(final int numEffects, final IntBuffer buffers) {
         if (buffers.position() != 0) throw new AssertionError();
         if (buffers.limit() != numEffects) throw new AssertionError();
         EXTEfx.alGenEffects(buffers);
     }
 
-    public void alEffecti(int effect, int param, int value) {
+    @Override
+    public void alEffecti(final int effect, final int param, final int value) {
         EXTEfx.alEffecti(effect, param, value);
     }
 
-    public void alAuxiliaryEffectSloti(int effectSlot, int param, int value) {
+    @Override
+    public void alAuxiliaryEffectSloti(final int effectSlot, final int param, final int value) {
         EXTEfx.alAuxiliaryEffectSloti(effectSlot, param, value);
     }
 
-    public void alDeleteEffects(int numEffects, IntBuffer buffers) {
+    @Override
+    public void alDeleteEffects(final int numEffects, final IntBuffer buffers) {
         if (buffers.position() != 0) throw new AssertionError();
         if (buffers.limit() != numEffects) throw new AssertionError();
         EXTEfx.alDeleteEffects(buffers);
     }
 
-    public void alDeleteAuxiliaryEffectSlots(int numEffectSlots, IntBuffer buffers) {
+    @Override
+    public void alDeleteAuxiliaryEffectSlots(final int numEffectSlots, final IntBuffer buffers) {
         if (buffers.position() != 0) throw new AssertionError();
         if (buffers.limit() != numEffectSlots) throw new AssertionError();
         EXTEfx.alDeleteAuxiliaryEffectSlots(buffers);
     }
 
-    public void alGenFilters(int numFilters, IntBuffer buffers) {
+    @Override
+    public void alGenFilters(final int numFilters, final IntBuffer buffers) {
         if (buffers.position() != 0) throw new AssertionError();
         if (buffers.limit() != numFilters) throw new AssertionError();
         EXTEfx.alGenFilters(buffers);
     }
 
-    public void alFilteri(int filter, int param, int value) {
+    @Override
+    public void alFilteri(final int filter, final int param, final int value) {
         EXTEfx.alFilteri(filter, param, value);
     }
 
-    public void alFilterf(int filter, int param, float value) {
+    @Override
+    public void alFilterf(final int filter, final int param, final float value) {
         EXTEfx.alFilterf(filter, param, value);
     }
 
-    public void alDeleteFilters(int numFilters, IntBuffer buffers) {
+    @Override
+    public void alDeleteFilters(final int numFilters, final IntBuffer buffers) {
         if (buffers.position() != 0) throw new AssertionError();
         if (buffers.limit() != numFilters) throw new AssertionError();
         EXTEfx.alDeleteFilters(buffers);
     }
 
-    public void alEffectf(int effect, int param, float value) {
+    @Override
+    public void alEffectf(final int effect, final int param, final float value) {
         EXTEfx.alEffectf(effect, param, value);
     }
-    
 }

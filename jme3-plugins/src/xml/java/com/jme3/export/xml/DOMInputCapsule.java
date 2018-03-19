@@ -974,13 +974,12 @@ public class DOMInputCapsule implements InputCapsule {
             ret = referencedSavables.get(reference);
         } else {
             String className = currentElem.getNodeName();
-            if (defVal != null) {
-                className = defVal.getClass().getName();
-            } else if (currentElem.hasAttribute("class")) {
+            if (currentElem.hasAttribute("class")) {
                 className = currentElem.getAttribute("class");
+            } else if (defVal != null) {
+                className = defVal.getClass().getName();
             }
             tmp = SavableClassUtil.fromName(className, null);
-            
             
             String versionsStr = currentElem.getAttribute("savable_versions");
             if (versionsStr != null && !versionsStr.equals("")){

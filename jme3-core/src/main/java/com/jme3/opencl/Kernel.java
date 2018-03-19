@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ import java.util.Arrays;
  * Again, the threads inside the work group can be organized in a 1D, 2D or 3D
  * grid, but this is also just a logical view (specifying how the threads are
  * indexed). 
- * The work group is imporatant for another concept: <i> shared memory</i>
+ * The work group is important for another concept: <i> shared memory</i>
  * Unlike the normal global or constant memory (passing a {@link Buffer} object
  * as argument), shared memory can't be set from outside. Shared memory is
  * allocated by the kernel and is only valid within the kernel. It is used
@@ -202,7 +202,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
      * Use this if you do not rely on specific work group layouts, i.e.
      * because shared memory is not used.
      * {@link #Run1(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) }
-     * implicetly calls this mehtod.
+     * implicitly calls this method.
      */
     public void setWorkGroupSizeToNull() {
         workGroupSize.set(1, 0, 0, 0);
@@ -494,7 +494,7 @@ public abstract class Kernel extends AbstractOpenCLObject {
      * Therefore, an instance of this class must be set as an argument AFTER
      * the work group size has been specified. This is
      * ensured by {@link #Run2(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) }.
-     * This argument can't be used when no work group size was defined explicetly
+     * This argument can't be used when no work group size was defined explicitly
      * (e.g. by {@link #setWorkGroupSizeToNull()} or {@link #Run1(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...) }.
      */
     public static final class LocalMemPerElement {

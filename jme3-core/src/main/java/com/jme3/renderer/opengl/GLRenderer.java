@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -222,7 +222,7 @@ public final class GLRenderer implements Renderer {
                 if (glslVer < 400) {
                     break;
                 }
-                // so that future OpenGL revisions wont break jme3
+                // so that future OpenGL revisions won't break jme3
                 // fall through intentional
             case 450:
                 caps.add(Caps.GLSL450);
@@ -450,7 +450,7 @@ public final class GLRenderer implements Renderer {
             logger.log(Level.FINER, "Samples: {0}", samples);
             boolean enabled = gl.glIsEnabled(GLExt.GL_MULTISAMPLE_ARB);
             if (samples > 0 && available && !enabled) {
-                // Doesn't seem to be neccessary .. OGL spec says its always
+                // Doesn't seem to be necessary .. OGL spec says it's always
                 // set by default?
                 gl.glEnable(GLExt.GL_MULTISAMPLE_ARB);
             }
@@ -870,7 +870,7 @@ public final class GLRenderer implements Renderer {
     }
     
     private int convertBlendEquationAlpha(RenderState.BlendEquationAlpha blendEquationAlpha) {
-        //Note: InheritColor mode should already be handled, that is why it does not belong the the switch case.
+        //Note: InheritColor mode should already be handled, that is why it does not belong the switch case.
         switch (blendEquationAlpha) {
             case Add:
                 return GL2.GL_FUNC_ADD;

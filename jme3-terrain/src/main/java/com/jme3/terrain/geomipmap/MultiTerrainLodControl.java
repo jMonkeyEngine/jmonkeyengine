@@ -33,8 +33,11 @@ package com.jme3.terrain.geomipmap;
 
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
+import com.jme3.terrain.Terrain;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.geomipmap.lodcalc.LodCalculator;
+import com.jme3.util.SafeArrayList;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,21 +51,41 @@ import java.util.List;
  * @author Brent Owens
  */
 public class MultiTerrainLodControl extends TerrainLodControl {
-    
-    List<TerrainQuad> terrains = new ArrayList<TerrainQuad>();
-    private List<TerrainQuad> addedTerrains = new ArrayList<TerrainQuad>();
-    private List<TerrainQuad> removedTerrains = new ArrayList<TerrainQuad>();
 
-    public MultiTerrainLodControl(List<Camera> cameras) {
-        this.cameras = cameras;
-        lodCalculator = new DistanceLodCalculator(65, 2.7f);
+    private SafeArrayList<TerrainQuad> terrains;
+
+    private List<TerrainQuad> addedTerrains;
+    private List<TerrainQuad> removedTerrains;
+
+    public MultiTerrainLodControl() {
+        terrains = new SafeArrayList<>(TerrainQuad.class);
+        removedTerrains = new ArrayList<>();
+        addedTerrains = new ArrayList<>();
     }
 
-    public MultiTerrainLodControl(Camera camera) {
-        List<Camera> cams = new ArrayList<Camera>();
-        cams.add(camera);
-        this.cameras = cams;
-        lodCalculator = new DistanceLodCalculator(65, 2.7f);
+    public MultiTerrainLodControl(final Terrain terrain) {
+        this();
+        setTerrain(terrain);
+    }
+
+    public MultiTerrainLodControl(final Camera camera) {
+        this();
+        setCamera(camera);
+    }
+
+    public MultiTerrainLodControl(final Terrain terrain, final Camera camera) {
+        this(terrain);
+        setCamera(camera);
+    }
+
+    public MultiTerrainLodControl(final Terrain terrain, final List<Camera> cameras) {
+        this(terrain);
+        setCameras(cameras);
+    }
+
+    @Override
+    protected DistanceLodCalculator makeLodCalculator() {
+        return new DistanceLodCalculator(65, 2.7f);
     }
     
     /**
@@ -84,7 +107,8 @@ public class MultiTerrainLodControl extends TerrainLodControl {
     }
     
     @Override
-    protected UpdateLOD getLodThread(List<Vector3f> locations, LodCalculator lodCalculator) {
+    protected UpdateLOD createLodUpdateTask(final List<Vector3f> locations,
+                                            final LodCalculator lodCalculator) {
         return new UpdateMultiLOD(locations, lodCalculator);
     }
     
@@ -92,8 +116,9 @@ public class MultiTerrainLodControl extends TerrainLodControl {
     protected void prepareTerrain() {
         if (!addedTerrains.isEmpty()) {
             for (TerrainQuad t : addedTerrains) {
-                if (!terrains.contains(t))
+                if (!terrains.contains(t)) {
                     terrains.add(t);
+                }
             }
             addedTerrains.clear();
         }
@@ -103,8 +128,10 @@ public class MultiTerrainLodControl extends TerrainLodControl {
             removedTerrains.clear();
         }
         
-        for (TerrainQuad terrain : terrains)
-            terrain.cacheTerrainTransforms();// cache the terrain's world transforms so they can be accessed on the separate thread safely
+        for (TerrainQuad terrain : terrains.getArray()) {
+            // cache the terrain's world transforms so they can be accessed on the separate thread safely
+            terrain.cacheTerrainTransforms();
+        }
     }
     
     /**
@@ -112,18 +139,15 @@ public class MultiTerrainLodControl extends TerrainLodControl {
      * multiple terrains.
      */
     protected class UpdateMultiLOD extends UpdateLOD {
-        
-        
-        protected UpdateMultiLOD(List<Vector3f> camLocations, LodCalculator lodCalculator) {
+
+        protected UpdateMultiLOD(final List<Vector3f> camLocations, final LodCalculator lodCalculator) {
             super(camLocations, lodCalculator);
         }
         
         @Override
         public HashMap<String, UpdatedTerrainPatch> call() throws Exception {
-            
-            setLodCalcRunning(true);
-            
-            HashMap<String,UpdatedTerrainPatch> updated = new HashMap<String,UpdatedTerrainPatch>();
+
+            HashMap<String, UpdatedTerrainPatch> updated = new HashMap<>();
             
             for (TerrainQuad terrainQuad : terrains) {
                 // go through each patch and calculate its LOD based on camera distance
@@ -146,7 +170,7 @@ public class MultiTerrainLodControl extends TerrainLodControl {
             }
             
             //setUpdateQuadLODs(updated); // set back to main ogl thread
-            setLodCalcRunning(false);
+            lodCalcRunning.set(false);
             
             return updated;
         }

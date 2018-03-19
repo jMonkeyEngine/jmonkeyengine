@@ -65,7 +65,7 @@ public interface GL3 extends GL2 {
     public static final int GL_RG16I = 33337;
     public static final int GL_RG16UI = 33338;
     public static final int GL_RG32I = 33339;
-    public static final int GL_RG32UI = 33340;  
+    public static final int GL_RG32UI = 33340;
     public static final int GL_RGBA32UI = 36208;
     public static final int GL_RGB32UI = 36209;
     public static final int GL_RGBA16UI = 36214;
@@ -82,10 +82,50 @@ public interface GL3 extends GL2 {
     public static final int GL_RG_INTEGER = 33320;
     public static final int GL_RGB_INTEGER = 36248;
     public static final int GL_RGBA_INTEGER = 36249;
-    
-    public void glBindFragDataLocation(int param1, int param2, String param3); /// GL3+
-    public void glBindVertexArray(int param1); /// GL3+
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glBindFragDataLocation">Reference Page</a></p>
+     * <p>
+     * Binds a user-defined varying out variable to a fragment shader color number.
+     *
+     * @param program     the name of the program containing varying out variable whose binding to modify.
+     * @param colorNumber the color number to bind the user-defined varying out variable to.
+     * @param name        the name of the user-defined varying out variable whose binding to modify.
+     */
+    public void glBindFragDataLocation(int program, int colorNumber, String name); /// GL3+
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glBindVertexArray">Reference Page</a></p>
+     * <p>
+     * Binds a vertex array object
+     *
+     * @param array the name of the vertex array to bind.
+     */
+    public void glBindVertexArray(int array); /// GL3+
+
+    /**
+     * Deletes vertex array objects.
+     *
+     * @param arrays an array containing the n names of the objects to be deleted.
+     */
     public void glDeleteVertexArrays(IntBuffer arrays); /// GL3+
-    public void glGenVertexArrays(IntBuffer param1); /// GL3+
-    public String glGetString(int param1, int param2); /// GL3+
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glGenVertexArrays">Reference Page</a></p>
+     *
+     * Generates vertex array object names.
+     *
+     * @param arrays a buffer in which the generated vertex array object names are stored.
+     */
+    public void glGenVertexArrays(IntBuffer arrays); /// GL3+
+
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glGetStringi">Reference Page</a></p>
+     * <p>
+     * Queries indexed string state.
+     *
+     * @param name  the indexed state to query. One of:<br><table><tr><td>{@link GL#GL_EXTENSIONS EXTENSIONS}</td><td>{@link GL2#GL_SHADING_LANGUAGE_VERSION SHADING_LANGUAGE_VERSION}</td></tr></table>
+     * @param index the index of the particular element being queried.
+     */
+    public String glGetString(int name, int index); /// GL3+
 }

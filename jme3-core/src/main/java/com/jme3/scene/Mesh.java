@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -139,8 +139,8 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
          */
         Hybrid(false),
         /**
-         * Used for Tesselation only. Requires to set the number of vertices
-         * for each patch (default is 3 for triangle tesselation)
+         * Used for Tessellation only. Requires to set the number of vertices
+         * for each patch (default is 3 for triangle tessellation)
          */
         Patch(true);
         private boolean listMode = false;
@@ -182,7 +182,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     private int vertCount = -1;
     private int elementCount = -1;
     private int instanceCount = -1;
-    private int patchVertexCount=3; //only used for tesselation
+    private int patchVertexCount=3; //only used for tessellation
     private int maxNumWeights = -1; // only if using skeletal animation
 
     private int[] elementLengths;
@@ -353,7 +353,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         VertexBuffer pos = getBuffer(Type.Position);
         if (pos == null || getBuffer(Type.BoneIndex) == null) {
             // ignore, this mesh doesn't have positional data
-            // or it doesn't have bone-vertex assignments, so its not animated
+            // or it doesn't have bone-vertex assignments, so it's not animated
             return;
         }
 
@@ -1494,7 +1494,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     }
 
     /**
-     * Gets the amout of vertices used for each patch;
+     * Gets the amount of vertices used for each patch;
      * @return
      */
     public int getPatchVertexCount() {
