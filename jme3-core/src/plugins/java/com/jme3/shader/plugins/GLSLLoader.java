@@ -34,10 +34,7 @@ package com.jme3.shader.plugins;
 import com.jme3.asset.*;
 import com.jme3.asset.cache.AssetCache;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -160,18 +157,27 @@ public class GLSLLoader implements AssetLoader {
         if (node.getDependencies().isEmpty()) {
             return node.getSource();
         } else {
-            StringBuilder sb = new StringBuilder(node.getSource());
-            List<String> resolvedShaderNodes = new ArrayList<>();
+            if (injectDependencies) {
+                StringBuilder sb = new StringBuilder(node.getSource());
+                List<String> resolvedShaderNodes = new ArrayList<>();
 
-            for (ShaderDependencyNode dependencyNode : node.getDependencies()) {
-                resolvedShaderNodes.add(resolveDependencies(dependencyNode, alreadyInjectedSet, extensions));
+                for (ShaderDependencyNode dependencyNode : node.getDependencies()) {
+                    resolvedShaderNodes.add(resolveDependencies(dependencyNode, alreadyInjectedSet, extensions, injectDependencies));
+                }
+
+                List<Integer> injectIndices = node.getDependencyInjectIndices();
+                for (int i = resolvedShaderNodes.size() - 1; i >= 0; i--) {
+                    // Must insert them backwards ..
+                    sb.insert(injectIndices.get(i), resolvedShaderNodes.get(i));
+                }
+                return sb.toString();
+            } else {
+                for (ShaderDependencyNode dependencyNode : node.getDependencies()) {
+                    resolveDependencies(dependencyNode, alreadyInjectedSet, extensions, injectDependencies);
+                }
+                return null;
             }
-            List<Integer> injectIndices = node.getDependencyInjectIndices();
-            for (int i = resolvedShaderNodes.size() - 1; i >= 0; i--) {
-                // Must insert them backwards ..
-                sb.insert(injectIndices.get(i), resolvedShaderNodes.get(i));
-            }
-            return sb.toString();
+
         }
     }
 
@@ -185,8 +191,7 @@ public class GLSLLoader implements AssetLoader {
         if (info.getKey() instanceof ShaderAssetKey) {
             injectDependencies = ((ShaderAssetKey) info.getKey()).isInjectDependencies();
         }
-        String extension = info.getKey().getExtension();
-        if (extension.equals("glsllib") || extension.equals("glsl")) {
+        if (info.getKey().getExtension().equals("glsllib")) {
             // NOTE: Loopback, GLSLLIB is loaded by this loader
             // and needs data as InputStream
             return reader;
