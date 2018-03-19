@@ -1,7 +1,7 @@
 #import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/Skinning.glsllib"
 #import "Common/ShaderLib/Instancing.glsllib"
-#import "Common/ShaderLib/InPassShadows.glsl"
+#import "Common/ShaderLib/InPassShadows.glsllib"
 
 attribute vec3 inPosition;
 attribute vec3 inNormal;

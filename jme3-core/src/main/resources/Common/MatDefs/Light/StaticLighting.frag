@@ -1,6 +1,6 @@
 #import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
-#import "Common/ShaderLib/InPassShadows.glsl"
+#import "Common/ShaderLib/InPassShadows.glsllib"
 #import "Common/ShaderLib/PBR.glsllib"
 
 #ifndef NUM_DIR_LIGHTS
