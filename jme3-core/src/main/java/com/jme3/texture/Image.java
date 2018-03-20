@@ -253,6 +253,34 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * Requires {@link Caps#SharedExponentTexture}.
          */
         RGB9E5(32,true),
+        
+        /**
+         * half-precision floating point red, green, and blue.
+         * 
+         * Requires {@link Caps#FloatTexture}.
+         */
+        RGB16F(48,true),
+        
+        /**
+         * half-precision floating point red, green, blue, and alpha.
+         * 
+         * Requires {@link Caps#FloatTexture}.
+         */
+        RGBA16F(64,true),
+        
+        /**
+         * single-precision floating point red, green, and blue.
+         * 
+         * Requires {@link Caps#FloatTexture}.
+         */
+        RGB32F(96,true),
+        
+        /**
+         * single-precision floating point red, green, blue and alpha.
+         * 
+         * Requires {@link Caps#FloatTexture}.
+         */
+        RGBA32F(128,true),
 
         @Deprecated
         Reserved11(0),
@@ -272,219 +300,30 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * Requires {@link Caps#TextureCompressionETC1}.
          */
         ETC1(4, false, true, false),
-		
-		/**
-         * half-precision floating point red.
-         * 
-         * Requires {@link Caps#FloatTexture}.
-         */
-        R16F(16,true),
-		
-		/**
-         * single-precision floating point red.
-         * 
-         * Requires {@link Caps#FloatTexture}.
-         */
-        R32F(32,true),
-        
-		/**
-         * half-precision floating point red and green.
-         * 
-         * Requires {@link Caps#FloatTexture}.
-         */
-        RG16F(32,true),
-		
-		/**
-         * single-precision floating point red and green.
-         * 
-         * Requires {@link Caps#FloatTexture}.
-         */
-        RG32F(64,true),
-		
-        /**
-         * half-precision floating point red, green, and blue.
-         * 
-         * Requires {@link Caps#FloatTexture} to be supported for textures. 
-		 * May be supported for renderbuffers, but the OpenGL specification does not require it.
-         */
-        RGB16F(48,true),
-		
-		/**
-         * single-precision floating point red, green, and blue.
-         * 
-         * Requires {@link Caps#FloatTexture} to be supported for textures. 
-		 * May be supported for renderbuffers, but the OpenGL specification does not require it.
-         */
-        RGB32F(96,true),
-        
-        /**
-         * half-precision floating point red, green, blue, and alpha.
-         * 
-         * Requires {@link Caps#FloatTexture}.
-         */
-        RGBA16F(64,true),
-        
-        /**
-         * single-precision floating point red, green, blue and alpha.
-         * 
-         * Requires {@link Caps#FloatTexture}.
-         */
-        RGBA32F(128,true),
-        
-		/**
-         * 8 bit signed int red.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */
-        R8I(8),
-		/**
-         * 8 bit unsigned int red.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */
-        R8UI(8),  	
-		/**
-         * 16 bit signed int red.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */
-        R16I(16),
-		/**
-         * 16 bit unsigned int red.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */		
-        R16UI(16),	  
-		/**
-         * 32 bit signed int red.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */		
-        R32I(32),
-		/**
-         * 32 bit unsigned int red.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */
-        R32UI(32),
-		
-		
-		/**
-         * 8 bit signed int red and green.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */
-        RG8I(16), 
-		/**
-         * 8 bit unsigned int red and green.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */
-        RG8UI(16), 	
-		/**
-         * 16 bit signed int red and green.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */
-        RG16I(32), 
-		/**
-         * 16 bit unsigned int red and green.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */
-        RG16UI(32), 
-		/**
-         * 32 bit signed int red and green.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */		
-        RG32I(64),
-		/**
-         * 32 bit unsigned int red and green.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */
-        RG32UI(64), 
-
-		/**
-         * 8 bit signed int red, green and blue.
-         * 
-         * Requires {@link Caps#IntegerTexture} to be supported for textures. 
-		 * May be supported for renderbuffers, but the OpenGL specification does not require it.
-         */
+            
+        R8I(8), 	  	  	  	 
+        R8UI(8),  	  	  	 
+        R16I(16), 	  	  	  	 
+        R16UI(16),	  	  	 
+        R32I(32),  	  	  	 
+        R32UI(32), 	  	  	 
+        RG8I(16),   	  	 
+        RG8UI(16), 	  	  	 
+        RG16I(32),   	  	 
+        RG16UI(32), 	  	 
+        RG32I(64),   	  	 
+        RG32UI(64), 	  	 
         RGB8I(24),   	 
-		/**
-         * 8 bit unsigned int red, green and blue.
-         * 
-         * Requires {@link Caps#IntegerTexture} to be supported for textures. 
-		 * May be supported for renderbuffers, but the OpenGL specification does not require it.
-         */
-        RGB8UI(24),
-		/**
-         * 16 bit signed int red, green and blue.
-         * 
-         * Requires {@link Caps#IntegerTexture} to be supported for textures. 
-		 * May be supported for renderbuffers, but the OpenGL specification does not require it.
-         */
-        RGB16I(48),
-		/**
-         * 16 bit unsigned int red, green and blue.
-         * 
-         * Requires {@link Caps#IntegerTexture} to be supported for textures. 
-		 * May be supported for renderbuffers, but the OpenGL specification does not require it.
-         */
-        RGB16UI(48),
-		/**
-         * 32 bit signed int red, green and blue.
-         * 
-         * Requires {@link Caps#IntegerTexture} to be supported for textures. 
-		 * May be supported for renderbuffers, but the OpenGL specification does not require it.
-         */
-        RGB32I(96),
-		/**
-         * 32 bit unsigned int red, green and blue.
-         * 
-         * Requires {@link Caps#IntegerTexture} to be supported for textures. 
-		 * May be supported for renderbuffers, but the OpenGL specification does not require it.
-         */
-        RGB32UI(96),  
-
-
-		/**
-         * 8 bit signed int red, green, blue and alpha.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */
+        RGB8UI(24),   	 
+        RGB16I(48),   	 
+        RGB16UI(48), 	  	 
+        RGB32I(96), 	  	 
+        RGB32UI(96),  	 
         RGBA8I(32), 
-		/**
-         * 8 bit unsigned int red, green, blue and alpha.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */
-        RGBA8UI(32),
-		/**
-         * 16 bit signed int red, green, blue and alpha.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */
-        RGBA16I(64),
-		/**
-         * 16 bit unsigned int red, green, blue and alpha.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */
-        RGBA16UI(64),
-		/**
-         * 32 bit signed int red, green, blue and alpha.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */
-        RGBA32I(128),
-		/**
-         * 32 bit unsigned int red, green, blue and alpha.
-         * 
-         * Requires {@link Caps#IntegerTexture}.
-         */
+        RGBA8UI(32), 	 
+        RGBA16I(64),	 
+        RGBA16UI(64),  
+        RGBA32I(128),  
         RGBA32UI(128) 
         ;
 
