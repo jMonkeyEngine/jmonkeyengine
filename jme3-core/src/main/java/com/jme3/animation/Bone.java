@@ -535,11 +535,19 @@ public final class Bone implements Savable, JmeCloneable {
             attachNode.setLocalRotation(modelRot);
             attachNode.setLocalScale(modelScale);
 
+        } else if (targetGeometry.isIgnoreTransform()) {
+            /*
+             * The animated meshes ignore transforms: match the world transform
+             * of the attachments node to the bone's transform.
+             */
+            Transform combined = new Transform(modelPos, modelRot, modelScale);
+            attachNode.setWorldTransform(combined);
+
         } else {
             Spatial loopSpatial = targetGeometry;
             Transform combined = new Transform(modelPos, modelRot, modelScale);
             /*
-             * Climb the scene graph applying local transforms until the 
+             * Climb the scene graph applying local transforms until the
              * attachments node's parent is reached.
              */
             while (loopSpatial != attachParent && loopSpatial != null) {
