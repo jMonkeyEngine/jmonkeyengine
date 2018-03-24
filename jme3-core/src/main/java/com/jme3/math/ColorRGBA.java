@@ -558,6 +558,19 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
         a = ((byte) (color) & 0xFF) / 255f;
         return this;
     }
+    /**
+     * Sets the RGBA values of this <code>ColorRGBA</code> with the given combined ABGR value 
+     * Bits 24-31 are alpha, bits 16-23 are blue, bits 8-15 are green, bits 0-7 are red.
+     * @param color The integer ABGR value used to set this object.
+     * @return this
+     */
+    public ColorRGBA fromIntABGR(int color) {
+        a = ((byte) (color >> 24) & 0xFF) / 255f;
+        b = ((byte) (color >> 16) & 0xFF) / 255f;
+        g = ((byte) (color >> 8) & 0xFF) / 255f;
+        r = ((byte) (color) & 0xFF) / 255f;
+        return this;
+    }
 
     /**
      * Transform this <code>ColorRGBA</code> to a <code>Vector3f</code> using
