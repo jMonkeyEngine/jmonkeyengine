@@ -23,7 +23,7 @@ MaterialDef Unshaded {
         // For Morph animation
         FloatArray MorphWeights
         Int NumberOfMorphTargets
-        Int NumberOfTargetsBuffers : 1
+        Int NumberOfTargetsBuffers
 
         // Alpha threshold for fragment discarding
         Float AlphaDiscardThreshold (AlphaTestFallOff)
