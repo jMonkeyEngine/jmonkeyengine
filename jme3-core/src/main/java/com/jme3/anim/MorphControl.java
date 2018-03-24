@@ -1,6 +1,6 @@
 package com.jme3.anim;
 
-import com.jme3.export.*;
+import com.jme3.export.Savable;
 import com.jme3.material.*;
 import com.jme3.renderer.*;
 import com.jme3.scene.*;
@@ -9,9 +9,7 @@ import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.shader.VarType;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.SafeArrayList;
-import javafx.geometry.Pos;
 
-import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
