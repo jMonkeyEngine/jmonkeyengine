@@ -106,7 +106,7 @@ MaterialDef PBR Lighting {
         // For Morph animation
         FloatArray MorphWeights
         Int NumberOfMorphTargets
-        Int NumberOfTargetsBuffers : 1
+        Int NumberOfTargetsBuffers
                 
         //For instancing
         Boolean UseInstancing
