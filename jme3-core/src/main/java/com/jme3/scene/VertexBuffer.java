@@ -606,6 +606,9 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * @return The total number of data elements in the data buffer.
      */
     public int getNumElements(){
+        if( data == null ) {
+            return 0;
+        }
         int elements = data.limit() / components;
         if (format == Format.Half)
             elements /= 2;
