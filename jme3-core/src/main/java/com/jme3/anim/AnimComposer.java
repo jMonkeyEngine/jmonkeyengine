@@ -59,9 +59,10 @@ public class AnimComposer extends AbstractControl {
         animClipMap.remove(anim.getName());
     }
 
-    public void setCurrentAction(String name) {
+    public Action setCurrentAction(String name) {
         currentAction = action(name);
         time = 0;
+        return currentAction;
     }
 
     public Action action(String name) {
