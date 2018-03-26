@@ -22,7 +22,10 @@ public abstract class Action implements Tween {
 
     @Override
     public boolean interpolate(double t) {
-        return subInterpolate(t * speed);
+        t = t * speed;
+        // make sure negative time is in [0, length] range
+        t = (t % length + length) % length;
+        return subInterpolate(t);
     }
 
     public abstract boolean subInterpolate(double t);

@@ -165,20 +165,14 @@ public class TestAnimMigration extends SimpleApplication {
             composer.actionSequence("Sequence",
                     composer.makeAction("Walk"),
                     composer.makeAction("Run"),
-                    composer.makeAction("Jumping")).setSpeed(4);
+                    composer.makeAction("Jumping")).setSpeed(2);
 
             action = composer.actionBlended("Blend", new LinearBlendSpace(1, 4),
                     "Walk", "Run");
 
             action.getBlendSpace().setValue(1);
 
-            composer.action("Walk").setSpeed(2);
-
-//            composer.actionSequence("Sequence",
-//                    composer.tweenFromClip("Walk"),
-//                    composer.tweenFromClip("Dodge"),
-//                    composer.tweenFromClip("push"));
-
+            composer.action("Walk").setSpeed(-1);
 
             anims.addFirst("Sequence");
             anims.addFirst("Blend");
