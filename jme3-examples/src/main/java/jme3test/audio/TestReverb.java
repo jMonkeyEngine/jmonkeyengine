@@ -29,6 +29,7 @@
 package jme3test.audio;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.Environment;
 import com.jme3.math.FastMath;
@@ -47,7 +48,8 @@ public class TestReverb extends SimpleApplication {
 
   @Override
   public void simpleInitApp() {
-    audioSource = new AudioNode(assetManager, "Sound/Effects/Bang.wav");
+    audioSource = new AudioNode(assetManager, "Sound/Effects/Bang.wav",
+            AudioData.DataType.Buffer);
 
     float[] eax = new float[]{15, 38.0f, 0.300f, -1000, -3300, 0,
       1.49f, 0.54f, 1.00f, -2560, 0.162f, 0.00f, 0.00f, 0.00f,

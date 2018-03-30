@@ -9,6 +9,8 @@ MaterialDef Depth Of Field {
         Float FocusDistance;
         Float XScale;
         Float YScale;
+        Float BlurThreshold : 0.2;
+        Boolean DebugUnfocus : false;
     }
 
     Technique {
@@ -16,11 +18,14 @@ MaterialDef Depth Of Field {
         FragmentShader GLSL150 GLSL100: Common/MatDefs/Post/DepthOfField.frag
 
         WorldParameters {
+            FrustumNearFar
         }
         
         Defines {
             RESOLVE_MS : NumSamples
             RESOLVE_DEPTH_MS : NumSamplesDepth
+            BLUR_THRESHOLD : BlurThreshold
+            DEBUG_UNFOCUS : DebugUnfocus
         }
     }
 

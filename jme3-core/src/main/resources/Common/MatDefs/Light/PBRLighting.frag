@@ -167,7 +167,6 @@ void main(){
       vec3 normal = norm;
     #endif
 
-    float specular = 0.5;
     #ifdef SPECGLOSSPIPELINE
 
         #ifdef USE_PACKED_SG
@@ -189,11 +188,17 @@ void main(){
         #endif
         vec4 diffuseColor = albedo;// * (1.0 - max(max(specularColor.r, specularColor.g), specularColor.b));
         Roughness = 1.0 - glossiness;
-    #else      
+        vec3 fZero = specularColor.xyz;
+    #else
+        float specular = 0.5;
         float nonMetalSpec = 0.08 * specular;
         vec4 specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
         vec4 diffuseColor = albedo - albedo * Metallic;
+        vec3 fZero = vec3(specular);
     #endif
+
+    gl_FragColor.rgb = vec3(0.0);
+    vec3 ao = vec3(1.0);
 
     #ifdef LIGHTMAP
        vec3 lightMapColor;
@@ -204,12 +209,14 @@ void main(){
        #endif
        #ifdef AO_MAP
          lightMapColor.gb = lightMapColor.rr;
+         ao = lightMapColor;
+       #else
+         gl_FragColor.rgb += diffuseColor.rgb * lightMapColor;
        #endif
        specularColor.rgb *= lightMapColor;
-       albedo.rgb  *= lightMapColor;
     #endif
 
-    gl_FragColor.rgb = vec3(0.0);
+
     float ndotv = max( dot( normal, viewDir ),0.0);
     for( int i = 0;i < NB_LIGHTS; i+=3){
         vec4 lightColor = g_LightData[i];
@@ -234,8 +241,8 @@ void main(){
         vec3 directDiffuse;
         vec3 directSpecular;
         
-        PBR_ComputeDirectLight(normal, lightDir.xyz, viewDir,
-                            lightColor.rgb,specular, Roughness, ndotv,
+        float hdotv = PBR_ComputeDirectLight(normal, lightDir.xyz, viewDir,
+                            lightColor.rgb, fZero, Roughness, ndotv,
                             directDiffuse,  directSpecular);
 
         vec3 directLighting = diffuseColor.rgb *directDiffuse + directSpecular;
@@ -264,7 +271,7 @@ void main(){
         indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, dominantR, nbMipMaps);
         indirectSpecular *= vec3(horiz);
 
-        vec3 indirectLighting =  indirectDiffuse + indirectSpecular;
+        vec3 indirectLighting = (indirectDiffuse + indirectSpecular) * ao;
 
         gl_FragColor.rgb = gl_FragColor.rgb + indirectLighting * step( 0.0, g_LightProbeData.w);
     #endif

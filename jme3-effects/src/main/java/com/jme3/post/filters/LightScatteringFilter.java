@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,8 +47,8 @@ import com.jme3.renderer.queue.RenderQueue;
 import java.io.IOException;
 
 /**
- * LightScattering filters creates rays comming from a light sources 
- * This is often reffered as god rays.
+ * LightScattering filters create rays coming from light sources 
+ * This is often referred to as god rays.
  *
  * @author Rémy Bouquet aka Nehon
  */
@@ -67,7 +67,7 @@ public class LightScatteringFilter extends Filter {
     private ViewPort viewPort;
 
     /**
-     * creates a lightScaterring filter
+     * creates a lightScattering filter
      */
     public LightScatteringFilter() {
         super("Light Scattering");
@@ -200,7 +200,7 @@ public class LightScatteringFilter extends Filter {
     }
 
     /**
-     * returns the nmber of samples for the radial blur
+     * returns the number of samples for the radial blur
      * @return 
      */
     public int getNbSamples() {
@@ -209,7 +209,7 @@ public class LightScatteringFilter extends Filter {
 
     /**
      * sets the number of samples for the radial blur default is 50
-     * the higher the value the higher the quality, but the slower the performances.
+     * the higher the value the higher the quality, but the slower the performance.
      * @param nbSamples 
      */
     public void setNbSamples(int nbSamples) {

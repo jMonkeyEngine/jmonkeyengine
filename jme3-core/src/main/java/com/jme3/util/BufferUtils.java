@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -291,7 +291,7 @@ public final class BufferUtils {
      * @param buf
      *            the buffer to insert into
      * @param index
-     *            the postion to place the data; in terms of colors not floats
+     *            the position to place the data; in terms of colors not floats
      */
     public static void setInBuffer(ColorRGBA color, FloatBuffer buf, int index) {
         buf.position(index * 4);
@@ -349,7 +349,7 @@ public final class BufferUtils {
      * @param buf
      *            the buffer to insert into
      * @param index
-     *            the postion to place the data; in terms of vectors not floats
+     *            the position to place the data; in terms of vectors not floats
      */
     public static void setInBuffer(Vector3f vector, FloatBuffer buf, int index) {
         if (buf == null) {
@@ -1027,7 +1027,7 @@ public final class BufferUtils {
 
     /**
      * Creates a new ByteBuffer with the same contents as the given ByteBuffer.
-     * The new ByteBuffer is seperate from the old one and changes are not
+     * The new ByteBuffer is separate from the old one and changes are not
      * reflected across. If you want to reflect changes, consider using
      * Buffer.duplicate().
      * 

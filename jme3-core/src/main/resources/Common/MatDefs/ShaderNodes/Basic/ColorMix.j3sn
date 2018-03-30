@@ -10,9 +10,9 @@ ShaderNodeDefinitions{
             @output outColor the mixed color
         }
         Input {
-            vec4 color1
-            vec4 color2
-            float factor
+            vec4 color1 vec4(1.0)
+            vec4 color2 vec4(1.0)
+            float factor 0.5
         }
         Output {
             vec4 outColor

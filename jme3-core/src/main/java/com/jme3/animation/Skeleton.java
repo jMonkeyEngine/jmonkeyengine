@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,13 @@
  */
 package com.jme3.animation;
 
+import com.jme3.anim.Armature;
 import com.jme3.export.*;
 import com.jme3.math.Matrix4f;
 import com.jme3.util.TempVars;
-import com.jme3.util.clone.JmeCloneable;
 import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,14 +48,16 @@ import java.util.List;
  * animated matrixes.
  * 
  * @author Kirill Vainer
+ * @deprecated use {@link Armature}
  */
+@Deprecated
 public final class Skeleton implements Savable, JmeCloneable {
 
     private Bone[] rootBones;
     private Bone[] boneList;
     
     /**
-     * Contains the skinning matrices, multiplying it by a vertex effected by a bone
+     * Contains the skinning matrices, multiplying it by a vertex affected by a bone
      * will cause it to go to the animated position.
      */
     private transient Matrix4f[] skinningMatrixes;
@@ -169,7 +173,7 @@ public final class Skeleton implements Savable, JmeCloneable {
     }
 
     /**
-     * Saves the current skeleton state as it's binding pose.
+     * Saves the current skeleton state as its binding pose.
      */
     public void setBindingPose() {
         for (int i = rootBones.length - 1; i >= 0; i--) {
@@ -304,6 +308,7 @@ public final class Skeleton implements Savable, JmeCloneable {
         createSkinningMatrices();
 
         for (Bone rootBone : rootBones) {
+            rootBone.reset();
             rootBone.update();
             rootBone.setBindingPose();
         }

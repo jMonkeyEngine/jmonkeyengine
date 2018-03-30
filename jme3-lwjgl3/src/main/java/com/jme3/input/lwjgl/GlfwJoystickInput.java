@@ -31,10 +31,10 @@
  */
 package com.jme3.input.lwjgl;
 
+import static org.lwjgl.glfw.GLFW.*;
 import com.jme3.input.*;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
-import org.lwjgl.opengl.GL11;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -42,9 +42,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static org.lwjgl.glfw.GLFW.*;
-
 /**
+ * The LWJGL implementation of {@link JoyInput}.
+ *
  * @author Daniel Johansson (dannyjo)
  * @since 3.1
  */
@@ -52,11 +52,13 @@ public class GlfwJoystickInput implements JoyInput {
 
     private static final Logger LOGGER = Logger.getLogger(InputManager.class.getName());
 
-    private boolean initialized = false;
     private RawInputListener listener;
-    private Map<Integer, GlfwJoystick> joysticks = new HashMap<Integer, GlfwJoystick>();
+    private Map<Integer, GlfwJoystick> joysticks = new HashMap<>();
 
-    public void setJoyRumble(int joyId, float amount) {
+    private boolean initialized = false;
+
+    @Override
+    public void setJoyRumble(final int joyId, final float amount) {
         if (joyId >= joysticks.size()) {
             throw new IllegalArgumentException();
         }
@@ -111,10 +113,12 @@ public class GlfwJoystickInput implements JoyInput {
         return String.valueOf(index);
     }
 
+    @Override
     public void initialize() {
         initialized = true;
     }
 
+    @Override
     public void update() {
         for (final Map.Entry<Integer, GlfwJoystick> entry : joysticks.entrySet()) {
             // Axes
@@ -135,18 +139,22 @@ public class GlfwJoystickInput implements JoyInput {
         }
     }
 
+    @Override
     public void destroy() {
         initialized = false;
     }
 
+    @Override
     public boolean isInitialized() {
         return initialized;
     }
 
-    public void setInputListener(RawInputListener listener) {
+    @Override
+    public void setInputListener(final RawInputListener listener) {
         this.listener = listener;
     }
 
+    @Override
     public long getInputTimeNanos() {
         return 0;
     }
@@ -156,7 +164,7 @@ public class GlfwJoystickInput implements JoyInput {
         private JoystickAxis povAxisX;
         private JoystickAxis povAxisY;
 
-        public GlfwJoystick(InputManager inputManager, JoyInput joyInput, int joyId, String name) {
+        public GlfwJoystick(final InputManager inputManager, final JoyInput joyInput, final int joyId, final String name) {
             super(inputManager, joyInput, joyId, name);
         }
 
@@ -171,7 +179,7 @@ public class GlfwJoystickInput implements JoyInput {
         }
 
         @Override
-        protected void addButton(JoystickButton button) {
+        protected void addButton(final JoystickButton button) {
             super.addButton(button);
         }
 

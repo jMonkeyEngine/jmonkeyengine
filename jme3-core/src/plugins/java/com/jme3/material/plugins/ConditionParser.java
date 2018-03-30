@@ -51,8 +51,8 @@ public class ConditionParser {
 
     public static void main(String argv[]) {
         ConditionParser parser = new ConditionParser();
-        List<String> defines = parser.extractDefines("(LightMap && SeparateTexCoord) || !ColorMap");
-
+        //List<String> defines = parser.extractDefines("(LightMap && SeparateTexCoord) || !ColorMap");
+        List<String> defines = parser.extractDefines("RoughnessMap && MetallicRoughnessMap");
         for (String string : defines) {
             System.err.println(string);
         }
@@ -78,15 +78,15 @@ public class ConditionParser {
      * parse a condition and returns the list of defines of this condition.
      * additionally this methods updates the formattedExpression with uppercased
      * defines names
-     * 
-     * supported expression syntax example: 
+     *
+     * supported expression syntax example:
      * <code>
      * "(LightMap && SeparateTexCoord) || !ColorMap"
      * "#if (defined(LightMap) && defined(SeparateTexCoord)) || !defined(ColorMap)"
      * "#ifdef LightMap"
      * "#ifdef (LightMap && SeparateTexCoord) || !ColorMap"
      * </code>
-     * 
+     *
      * @param expression the expression to parse
      * @return the list of defines
      */
@@ -99,13 +99,13 @@ public class ConditionParser {
         while (m.find()) {
             String match = m.group();
             defines.add(match);
-            formattedExpression = formattedExpression.replaceAll(match, "defined(" + match.toUpperCase() + ")");
+            formattedExpression = formattedExpression.replaceAll("\\b" + match + "\\b", "defined(" + match.toUpperCase() + ")");
         }
         return defines;
     }
 
     /**
-     * 
+     *
      * @return the formatted expression previously updated by extractDefines
      */
     public String getFormattedExpression() {

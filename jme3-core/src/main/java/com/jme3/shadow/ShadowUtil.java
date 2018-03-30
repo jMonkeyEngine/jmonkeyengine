@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -387,7 +387,7 @@ public class ShadowUtil {
                         BoundingBox occBB = (BoundingBox) occBox;
                         //Kirill 01/10/2011
                         // Extend the occluder further into the frustum
-                        // This fixes shadow dissapearing issues when
+                        // This fixes shadow disappearing issues when
                         // the caster itself is not in the view camera
                         // but its shadow is in the camera
                         //      The number is in world units
@@ -430,7 +430,7 @@ public class ShadowUtil {
                     BoundingBox occBB = (BoundingBox) occBox;
                     //Kirill 01/10/2011
                     // Extend the occluder further into the frustum
-                    // This fixes shadow dissapearing issues when
+                    // This fixes shadow disappearing issues when
                     // the caster itself is not in the view camera
                     // but its shadow is in the camera
                     //      The number is in world units
@@ -593,9 +593,9 @@ public class ShadowUtil {
     
     /**
      * Populates the outputGeometryList with the geometry of the
-     * inputGeomtryList that are in the frustum of the given camera
+     * inputGeometryList that are in the frustum of the given camera
      *
-     * @param inputGeometryList The list containing all geometry to check
+     * @param inputGeometryList The list containing all geometries to check
      * against the camera frustum
      * @param camera the camera to check geometries against
      * @param outputGeometryList the list of all geometries that are in the
@@ -684,10 +684,10 @@ public class ShadowUtil {
     
     /**
      * Populates the outputGeometryList with the geometry of the
-     * inputGeomtryList that are in the radius of a light.
+     * inputGeometryList that are in the radius of a light.
      * The array of camera must be an array of 6 cameras initialized so they represent the light viewspace of a pointlight
      *
-     * @param inputGeometryList The list containing all geometry to check
+     * @param inputGeometryList The list containing all geometries to check
      * against the camera frustum
      * @param cameras the camera array to check geometries against
      * @param outputGeometryList the list of all geometries that are in the

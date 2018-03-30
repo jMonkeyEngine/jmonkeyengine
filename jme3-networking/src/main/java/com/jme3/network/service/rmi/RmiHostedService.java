@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -150,7 +150,7 @@ public class RmiHostedService extends AbstractHostedService {
      *  Set to true if all new connections should automatically have RMI hosting started.
      *  Set to false if the game-specific connection setup will call startHostingOnConnection()
      *  after some connection setup is done (for example, logging in).  Note: generally
-     *  is is safe to autohost RMI as long as callers are careful about what they've added
+     *  is safe to autohost RMI as long as callers are careful about what they've added
      *  using shareGlobal().  One reasonable use-case is to shareGlobal() some kind of login
      *  service and nothing else.  All other shared objects would then be added as connection
      *  specific objects during successful login processing. 
@@ -167,7 +167,7 @@ public class RmiHostedService extends AbstractHostedService {
     }
 
     /**
-     *  Returns the RMI registry for the specific HostedConection.  Each connection
+     *  Returns the RMI registry for the specific HostedConnection.  Each connection
      *  has its own registry with its own connection-specific shared objects.
      */
     public RmiRegistry getRmiRegistry( HostedConnection hc ) {

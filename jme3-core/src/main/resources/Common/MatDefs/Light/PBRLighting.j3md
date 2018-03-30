@@ -28,6 +28,9 @@ MaterialDef PBR Lighting {
         Texture2D RoughnessMap -LINEAR
 
         //Metallic and Roughness are packed respectively in the b and g channel of a single map
+        // r: unspecified
+        // g: Roughness
+        // b: Metallic
         Texture2D MetallicRoughnessMap -LINEAR
         
         // Texture of the emissive parts of the material
@@ -46,17 +49,6 @@ MaterialDef PBR Lighting {
         Texture2D SpecularGlossinessMap
         Color Specular : 1.0 1.0 1.0 1.0
         Float Glossiness : 1.0
-
-        Vector4 ProbeData
-
-        // Prefiltered Env Map for indirect specular lighting
-        TextureCubeMap PrefEnvMap -LINEAR
-        
-        // Irradiance map for indirect diffuse lighting
-        TextureCubeMap IrradianceMap -LINEAR
-
-        //integrate BRDF map for indirect Lighting
-        Texture2D IntegrateBRDF -LINEAR
 
         // Parallax/height map
         Texture2D ParallaxMap -LINEAR
@@ -110,6 +102,11 @@ MaterialDef PBR Lighting {
         // For hardware skinning
         Int NumberOfBones
         Matrix4Array BoneMatrices
+
+        // For Morph animation
+        FloatArray MorphWeights
+        Int NumberOfMorphTargets
+        Int NumberOfTargetsBuffers
                 
         //For instancing
         Boolean UseInstancing
@@ -130,6 +127,7 @@ MaterialDef PBR Lighting {
             WorldViewProjectionMatrix
             CameraPosition
             WorldMatrix
+            WorldNormalMatrix
             ViewProjectionMatrix
             ViewMatrix
         }
@@ -157,6 +155,8 @@ MaterialDef PBR Lighting {
             NORMAL_TYPE: NormalType
             VERTEX_COLOR : UseVertexColor
             AO_MAP: LightMapAsAOMap
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
     }
 
@@ -177,6 +177,8 @@ MaterialDef PBR Lighting {
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
 
         ForcedRenderState {
@@ -214,6 +216,8 @@ MaterialDef PBR Lighting {
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
             BACKFACE_SHADOWS: BackfaceShadows
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
 
         ForcedRenderState {
@@ -246,6 +250,8 @@ MaterialDef PBR Lighting {
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
             BACKFACE_SHADOWS: BackfaceShadows
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
 
         ForcedRenderState {
@@ -271,6 +277,8 @@ MaterialDef PBR Lighting {
         Defines {
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
 
     }
@@ -290,6 +298,8 @@ MaterialDef PBR Lighting {
             NEED_TEXCOORD1
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
     }
 

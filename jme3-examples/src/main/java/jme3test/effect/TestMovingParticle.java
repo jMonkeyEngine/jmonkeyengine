@@ -60,10 +60,11 @@ public class TestMovingParticle extends SimpleApplication {
     public void simpleInitApp() {
         emit = new ParticleEmitter("Emitter", Type.Triangle, 300);
         emit.setGravity(0, 0, 0);
-        emit.setVelocityVariation(1);
+        emit.getParticleInfluencer().setVelocityVariation(1);
         emit.setLowLife(1);
         emit.setHighLife(1);
-        emit.setInitialVelocity(new Vector3f(0, .5f, 0));
+        emit.getParticleInfluencer()
+                .setInitialVelocity(new Vector3f(0, .5f, 0));
         emit.setImagesX(15);
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
         mat.setTexture("Texture", assetManager.loadTexture("Effects/Smoke/Smoke.png"));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,6 @@ package com.jme3.input;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
 import com.jme3.input.controls.*;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
@@ -420,7 +419,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
                 //the user is rotating the cam by dragging the mouse
                 if (canRotate) {
-                    //reseting the trailing lerp factor
+                    //reset the trailing lerp factor
                     trailingLerpFactor = 0;
                     //stop trailing user has the control
                     trailing = false;
@@ -582,18 +581,17 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * clone this camera for a spatial
+     *
      * @param spatial
      * @return
      */
+    @Deprecated
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        ChaseCamera cc = new ChaseCamera(cam, spatial, inputManager);
-        cc.setMaxDistance(getMaxDistance());
-        cc.setMinDistance(getMinDistance());
-        return cc;
+        throw new UnsupportedOperationException();
     }
 
-    @Override   
+    @Override
     public Object jmeClone() {
         ChaseCamera cc = new ChaseCamera(cam, inputManager);
         cc.target = target;

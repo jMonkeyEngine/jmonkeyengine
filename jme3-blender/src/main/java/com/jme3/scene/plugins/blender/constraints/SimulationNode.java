@@ -237,7 +237,7 @@ public class SimulationNode {
                         }
                     }
 
-                    // ... add virtual tracks if neccessary, for bones that were altered but had no tracks before ...
+                    // ... add virtual tracks if necessary, for bones that were altered but had no tracks before ...
                     for (Long boneOMA : alteredOmas) {
                         BoneContext boneContext = blenderContext.getBoneContext(boneOMA);
                         int boneIndex = skeleton.getBoneIndex(boneContext.getBone());

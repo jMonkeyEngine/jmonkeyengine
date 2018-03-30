@@ -195,7 +195,14 @@ public enum UniformBinding {
      * The light color when rendering in multi pass mode
      * Type: vec4
      */
-    LightColor("vec4");
+    LightColor("vec4"),
+
+    /**
+     * The normal matrix in world space for World space lighting. The inverse transpose of the world matrix.
+     * Converts normals from model space to world space.
+     * Type: mat3
+     */
+    WorldNormalMatrix("mat3");
     
     String glslType;
 

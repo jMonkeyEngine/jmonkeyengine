@@ -1,0 +1,57 @@
+ShaderNodeDefinitions{
+    ShaderNodeDefinition TexCoord {
+        //Vertex/Fragment
+        Type: Vertex
+
+        //Shader GLSL<version>: <Path to shader>
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Common/texCoord100.frag
+
+        Documentation{
+            //type documentation here. This is optional but recommended
+
+            //@input <glsltype> <varName> <description>
+            @input vec2 texCoord The input texture Coord
+            @input vec2 texCoord2 The input texture Coord
+            @input vec2 texCoord3 The input texture Coord
+            @input vec2 texCoord4 The input texture Coord
+            @input vec2 texCoord5 The input texture Coord
+            @input vec2 texCoord6 The input texture Coord
+            @input vec2 texCoord7 The input texture Coord
+            @input vec2 texCoord8 The input texture Coord
+
+            //@output <glslType> <varName> <description>
+            @output vec2 texCoord The input texture Coord
+            @output vec2 texCoord2 The input texture Coord
+            @output vec2 texCoord3 The input texture Coord
+            @output vec2 texCoord4 The input texture Coord
+            @output vec2 texCoord5 The input texture Coord
+            @output vec2 texCoord6 The input texture Coord
+            @output vec2 texCoord7 The input texture Coord
+            @output vec2 texCoord8 The input texture Coord
+        }
+        Input {
+            //all the node inputs
+            //<glslType> <varName>
+            vec2 texCoord
+            vec2 texCoord2
+            vec2 texCoord3
+            vec2 texCoord4
+            vec2 texCoord5
+            vec2 texCoord6
+            vec2 texCoord7
+            vec2 texCoord8
+        }
+        Output {
+            //all the node outputs
+            //<glslType> <varName>
+            vec2 texCoord
+            vec2 texCoord2
+            vec2 texCoord3
+            vec2 texCoord4
+            vec2 texCoord5
+            vec2 texCoord6
+            vec2 texCoord7
+            vec2 texCoord8
+        }
+    }
+}

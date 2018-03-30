@@ -32,8 +32,7 @@
 
 package jme3test.network;
 
-@Deprecated
-public class MovingAverage {
+class MovingAverage {
 
     private long[] samples;
     private long sum;

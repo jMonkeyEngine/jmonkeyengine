@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -122,7 +122,7 @@ public class JmeSystem {
      * Compresses a raw image into a stream.
      * 
      * The encoding is performed via system libraries. On desktop, the encoding
-     * is performed via ImageIO, whereas on Android, is is done via the 
+     * is performed via ImageIO, whereas on Android, is done via the 
      * Bitmap class.
      * 
      * @param outStream The stream where to write the image data.

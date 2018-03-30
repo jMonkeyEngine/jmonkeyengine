@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import com.jme3.texture.FrameBuffer;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.render.batch.BatchRenderConfiguration;
 import de.lessvoid.nifty.render.batch.BatchRenderDevice;
-import de.lessvoid.nifty.tools.TimeProvider;
+import de.lessvoid.nifty.spi.time.impl.AccurateTimeProvider;
 import de.lessvoid.nifty.tools.resourceloader.ResourceLocation;
 
 public class NiftyJmeDisplay implements SceneProcessor {
@@ -167,7 +167,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
      *
      * Currently you have to make sure to not use more image space than this single texture provides. However, Nifty
      * tries to be smart about this and internally will make sure that only the images are uploaded that your GUI
-     * really needs. So in general this shoudln't be an issue.
+     * really needs. So in general this shouldn't be an issue.
      *
      * A complete re-organisation of the texture atlas happens when a Nifty screen ends and another begins. Dynamically
      * adding images while a screen is running is supported as well.
@@ -210,7 +210,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
           new BatchRenderDevice(batchRendererBackend, batchRenderConfiguration),
           soundDev,
           inputSys,
-          new TimeProvider());
+          new AccurateTimeProvider());
       inputSys.setNifty(nifty);
 
       resourceLocation = new ResourceLocationJme();
@@ -233,7 +233,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
           new BatchRenderDevice(batchRendererBackend, batchRenderConfiguration),
           soundDev,
           inputSys,
-          new TimeProvider());
+          new AccurateTimeProvider());
       inputSys.setNifty(nifty);
 
       resourceLocation = new ResourceLocationJme();
@@ -259,7 +259,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
         this.renderDev = new RenderDeviceJme(this);
         this.batchRendererBackend = null;
 
-        nifty = new Nifty(renderDev, soundDev, inputSys, new TimeProvider());
+        nifty = new Nifty(renderDev, soundDev, inputSys, new AccurateTimeProvider());
         inputSys.setNifty(nifty);
 
         resourceLocation = new ResourceLocationJme();

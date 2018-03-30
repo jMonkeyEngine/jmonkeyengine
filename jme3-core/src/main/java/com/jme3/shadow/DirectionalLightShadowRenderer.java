@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,13 +51,13 @@ import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 
 /**
- * DirectionalLightShadowRenderer renderer use Parrallel Split Shadow Mapping
+ * DirectionalLightShadowRenderer renderer use Parallel Split Shadow Mapping
  * technique (pssm)<br> It splits the view frustum in several parts and compute
  * a shadow map for each one.<br> splits are distributed so that the closer they
  * are from the camera, the smaller they are to maximize the resolution used of
- * the shadow map.<br> This result in a better quality shadow than standard
+ * the shadow map.<br> This results in a better quality shadow than standard
  * shadow mapping.<br> for more informations on this read this <a
- * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
+ * href="https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html">https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html</a><br>
  * <p/>
  * @author Rémy Bouquet aka Nehon
  */
@@ -73,7 +73,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     private boolean stabilize = true;
 
     /**
-     * Used for serialzation use
+     * Used for serialization use
      * DirectionalLightShadowRenderer#DirectionalLightShadowRenderer(AssetManager
      * assetManager, int shadowMapSize, int nbSplits)
      */
@@ -83,7 +83,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
 
     /**
      * Create a DirectionalLightShadowRenderer More info on the technique at <a
-     * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>
+     * href="https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html">https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html</a>
      *
      * @param assetManager the application asset manager
      * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
@@ -185,7 +185,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
         // update frustum points based on current camera and split
         ShadowUtil.updateFrustumPoints(viewPort.getCamera(), splitsArray[shadowMapIndex], splitsArray[shadowMapIndex + 1], 1.0f, points);
 
-        //Updating shadow cam with curent split frustra
+        //Updating shadow cam with current split frusta
         if (lightReceivers.size()==0) {
             for (Spatial scene : viewPort.getScenes()) {
               ShadowUtil.getGeometriesInCamFrustum(scene, viewPort.getCamera(), RenderQueue.ShadowMode.Receive, lightReceivers);
@@ -234,7 +234,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     }
 
     /**
-     * returns the labda parameter see #setLambda(float lambda)
+     * returns the lambda parameter see #setLambda(float lambda)
      *
      * @return lambda
      */
@@ -244,10 +244,10 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
 
     /*
      * Adjust the repartition of the different shadow maps in the shadow extend
-     * usualy goes from 0.0 to 1.0
+     * usually goes from 0.0 to 1.0
      * a low value give a more linear repartition resulting in a constant quality in the shadow over the extends, but near shadows could look very jagged
      * a high value give a more logarithmic repartition resulting in a high quality for near shadows, but the quality quickly decrease over the extend.
-     * the default value is set to 0.65f (theoric optimal value).
+     * the default value is set to 0.65f (theoretic optimal value).
      * @param lambda the lambda value.
      */
     public void setLambda(float lambda) {
@@ -262,8 +262,8 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     }
     
     /**
-     * Enables the stabilization of the shadows's edges. (default is true)
-     * This prevents shadows' edges to flicker when the camera moves
+     * Enables the stabilization of the shadow's edges. (default is true)
+     * This prevents shadow edges from flickering when the camera moves.
      * However it can lead to some shadow quality loss in some particular scenes.
      * @param stabilize 
      */
@@ -283,7 +283,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         lambda = ic.readFloat("lambda", 0.65f);
-        zFarOverride = ic.readInt("zFarOverride", 0);
+        zFarOverride = ic.readFloat("zFarOverride", 0);
         light = (DirectionalLight) ic.readSavable("light", null);
         fadeInfo = (Vector2f) ic.readSavable("fadeInfo", null);
         fadeLength = ic.readFloat("fadeLength", 0f);

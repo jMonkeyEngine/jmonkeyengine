@@ -32,15 +32,12 @@
 package com.jme3.animation;
 
 import com.jme3.audio.AudioNode;
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
+import com.jme3.export.*;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
-import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -62,6 +59,7 @@ import java.util.logging.Logger;
  *
  * @author Nehon
  */
+@Deprecated
 public class AudioTrack implements ClonableTrack {
 
     private static final Logger logger = Logger.getLogger(AudioTrack.class.getName());

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2015-2016 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2015-2016, 2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -337,7 +337,7 @@ public class SpotLight extends Light {
      * Setting a non-zero range indicates the light should use attenuation.
      * If a pixel's distance to this light's position
      * is greater than the light's range, then the pixel will not be
-     * effected by this light, if the distance is less than the range, then
+     * affected by this light, if the distance is less than the range, then
      * the magnitude of the influence is equal to distance / range.
      * 
      * @param spotRange the range of the light influence.

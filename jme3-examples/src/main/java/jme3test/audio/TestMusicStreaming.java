@@ -34,6 +34,7 @@ package jme3test.audio;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.UrlLocator;
+import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
 
 public class TestMusicStreaming extends SimpleApplication {
@@ -46,7 +47,8 @@ public class TestMusicStreaming extends SimpleApplication {
     @Override
     public void simpleInitApp(){
         assetManager.registerLocator("http://www.vorbis.com/music/", UrlLocator.class);
-        AudioNode audioSource = new AudioNode(assetManager, "Lumme-Badloop.ogg", true);
+        AudioNode audioSource = new AudioNode(assetManager, "Lumme-Badloop.ogg",
+                AudioData.DataType.Stream);
         audioSource.setPositional(false);
         audioSource.setReverbEnabled(false);
         audioSource.play();

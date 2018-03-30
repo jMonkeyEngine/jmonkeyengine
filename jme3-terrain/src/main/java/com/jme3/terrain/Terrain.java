@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ public interface Terrain {
      * Each xz coordinate entry matches to a height entry, 1 for 1. So the 
      * first coordinate matches to the first height value, the last to the 
      * last etc.
-     * @param xz a list of coordinates where the hight will be set
+     * @param xz a list of coordinates where the height will be set
      * @param height the heights that match the xz coordinates
      */
     public void setHeight(List<Vector2f> xz, List<Float> height);
@@ -104,7 +104,7 @@ public interface Terrain {
      * Each xz coordinate entry matches to a height entry, 1 for 1. So the
      * first coordinate matches to the first height value, the last to the
      * last etc.
-     * @param xz a list of coordinates where the hight will be adjusted
+     * @param xz a list of coordinates where the height will be adjusted
      * @param height +- value to adjust the height by, that matches the xz coordinates
      */
     public void adjustHeight(List<Vector2f> xz, List<Float> height);

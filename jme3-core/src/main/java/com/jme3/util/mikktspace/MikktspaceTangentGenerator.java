@@ -950,7 +950,7 @@ public class MikktspaceTangentGenerator {
         }
         if ((pMyTriInfo.flag & GROUP_WITH_ANY) != 0) {
             // first to group with a group-with-anything triangle
-            // determines it's orientation.
+            // determines its orientation.
             // This is the only existing order dependency in the code!!
             if (pMyTriInfo.assignedGroup[0] == null
                     && pMyTriInfo.assignedGroup[1] == null

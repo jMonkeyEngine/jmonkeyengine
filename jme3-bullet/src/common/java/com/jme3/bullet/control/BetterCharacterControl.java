@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,9 +48,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
-import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.List;
@@ -663,13 +661,6 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     @Override
     protected void removeSpatialData(Spatial spat) {
         rigidBody.setUserObject(null);
-    }
-
-    @Override
-    public Control cloneForSpatial(Spatial spatial) {
-        BetterCharacterControl control = new BetterCharacterControl(radius, height, mass);
-        control.setJumpForce(jumpForce);
-        return control;
     }
 
     @Override

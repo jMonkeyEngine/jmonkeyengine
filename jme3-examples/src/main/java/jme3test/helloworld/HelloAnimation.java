@@ -32,10 +32,7 @@
 
 package jme3test.helloworld;
 
-import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.AnimEventListener;
-import com.jme3.animation.LoopMode;
+import com.jme3.animation.*;
 import com.jme3.app.SimpleApplication;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -70,7 +67,7 @@ public class HelloAnimation extends SimpleApplication
     rootNode.addLight(dl);
 
     /** Load a model that contains animation */
-    player = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+    player = (Node) assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
     player.setLocalScale(0.5f);
     rootNode.attachChild(player);
 

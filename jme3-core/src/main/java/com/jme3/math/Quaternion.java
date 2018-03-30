@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,10 +33,8 @@ package com.jme3.math;
 
 import com.jme3.export.*;
 import com.jme3.util.TempVars;
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+
+import java.io.*;
 import java.util.logging.Logger;
 
 /**
@@ -217,7 +215,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * <code>fromAngles</code> builds a quaternion from the Euler rotation
-     * angles (y,r,p).
+     * angles (x,y,z) aka (pitch, yaw, roll).
      *
      * @param angles
      *            the Euler angles of rotation (in radians).
@@ -233,7 +231,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * <code>fromAngles</code> builds a Quaternion from the Euler rotation
-     * angles (x,y,z) aka (pitch, yaw, rall)). Note that we are applying in order: (y, z, x) aka (yaw, roll, pitch) but
+     * angles (x,y,z) aka (pitch, yaw, roll)). Note that we are applying in order: (y, z, x) aka (yaw, roll, pitch) but
      * we've ordered them in x, y, and z for convenience.
      * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm</a>
      * 
@@ -276,8 +274,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
-     * <code>toAngles</code> returns this quaternion converted to Euler
-     * rotation angles (yaw,roll,pitch).<br/>
+     * <code>toAngles</code> returns this quaternion converted to Euler rotation
+     * angles (x,y,z) aka (pitch, yaw, roll).<br/>  
      * Note that the result is not always 100% accurate due to the implications of euler angles.
      * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm</a>
      * 
@@ -309,9 +307,9 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
             angles[2] = -FastMath.HALF_PI;
             angles[0] = 0;
         } else {
-            angles[1] = FastMath.atan2(2 * y * w - 2 * x * z, sqx - sqy - sqz + sqw); // roll or heading 
-            angles[2] = FastMath.asin(2 * test / unit); // pitch or attitude
-            angles[0] = FastMath.atan2(2 * x * w - 2 * y * z, -sqx + sqy - sqz + sqw); // yaw or bank
+            angles[1] = FastMath.atan2(2 * y * w - 2 * x * z, sqx - sqy - sqz + sqw); // yaw or heading 
+            angles[2] = FastMath.asin(2 * test / unit); // roll or bank
+            angles[0] = FastMath.atan2(2 * x * w - 2 * y * z, -sqx + sqy - sqz + sqw); // pitch or attitude
         }
         return angles;
     }
@@ -453,10 +451,55 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     /**
+     * <code>toTransformMatrix</code> converts this quaternion to a transform
+     * matrix. The result is stored in result.
+     * Note this method won't preserve the scale of the given matrix.
+     *
+     * @param store The Matrix3f to store the result in.
+     * @return the transform matrix with the rotation representation of this quaternion.
+     */
+    public Matrix4f toTransformMatrix(Matrix4f store) {
+
+        float norm = norm();
+        // we explicitly test norm against one here, saving a division
+        // at the cost of a test and branch.  Is it worth it?
+        float s = (norm == 1f) ? 2f : (norm > 0f) ? 2f / norm : 0;
+
+        // compute xs/ys/zs first to save 6 multiplications, since xs/ys/zs
+        // will be used 2-4 times each.
+        float xs = x * s;
+        float ys = y * s;
+        float zs = z * s;
+        float xx = x * xs;
+        float xy = x * ys;
+        float xz = x * zs;
+        float xw = w * xs;
+        float yy = y * ys;
+        float yz = y * zs;
+        float yw = w * ys;
+        float zz = z * zs;
+        float zw = w * zs;
+
+        // using s=2/norm (instead of 1/norm) saves 9 multiplications by 2 here
+        store.m00 = 1 - (yy + zz);
+        store.m01 = (xy - zw);
+        store.m02 = (xz + yw);
+        store.m10 = (xy + zw);
+        store.m11 = 1 - (xx + zz);
+        store.m12 = (yz - xw);
+        store.m20 = (xz - yw);
+        store.m21 = (yz + xw);
+        store.m22 = 1 - (xx + yy);
+
+        return store;
+    }
+
+    /**
      * <code>toRotationMatrix</code> converts this quaternion to a rotational
      * matrix. The result is stored in result. 4th row and 4th column values are
      * untouched. Note: the result is created from a normalized version of this quat.
-     * 
+     * Note that this method will preserve the scale of the given matrix
+     *
      * @param result
      *            The Matrix4f to store the result in.
      * @return the rotation matrix representation of this quaternion.
@@ -464,7 +507,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     public Matrix4f toRotationMatrix(Matrix4f result) {
         TempVars tempv = TempVars.get();
         Vector3f originalScale = tempv.vect1;
-        
+
         result.toScaleVector(originalScale);
         result.setScale(1, 1, 1);
         float norm = norm();
@@ -499,9 +542,9 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         result.m22 = 1 - (xx + yy);
 
         result.setScale(originalScale);
-        
+
         tempv.release();
-        
+
         return result;
     }
 
@@ -689,7 +732,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
             float invSinTheta = 1f / FastMath.sin(theta);
 
             // Calculate the scale for q1 and q2, according to the angle and
-            // it's sine value
+            // its sine
             scale0 = FastMath.sin((1 - t) * theta) * invSinTheta;
             scale1 = FastMath.sin((t * theta)) * invSinTheta;
         }
@@ -746,7 +789,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
             float invSinTheta = 1f / FastMath.sin(theta);
 
             // Calculate the scale for q1 and q2, according to the angle and
-            // it's sine value
+            // its sine
             scale0 = FastMath.sin((1 - changeAmnt) * theta) * invSinTheta;
             scale1 = FastMath.sin((changeAmnt * theta)) * invSinTheta;
         }
@@ -1161,7 +1204,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * <code>inverse</code> calculates the inverse of this quaternion and
      * returns this quaternion after it is calculated. If this quaternion does
-     * not have an inverse (if it's normal is 0 or less), nothing happens
+     * not have an inverse (if its normal is 0 or less), nothing happens
      *
      * @return the inverse of this quaternion
      */
@@ -1343,7 +1386,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @param store
      *            A Quaternion to store our result in. If null, a new one is
      *            created.
-     * @return The store quaternion (or a new Quaterion, if store is null) that
+     * @return The store quaternion (or a new Quaternion, if store is null) that
      *         describes a rotation that would point you in the exact opposite
      *         direction of this Quaternion.
      */

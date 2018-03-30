@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 jMonkeyEngine
+ * Copyright (c) 2016-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,7 +88,7 @@ public interface JmeCloneable extends Cloneable {
      *
      *  @param cloner The cloner that is performing the cloning operation.  The 
      *              cloneFields method can call back into the cloner to make
-     *              clones if its subordinate fields.     
+     *              clones of its subordinate fields.     
      *  @param original The original object from which this object was cloned.
      *              This is provided for the very rare case that this object needs
      *              to refer to its original for some reason.  In general, all of

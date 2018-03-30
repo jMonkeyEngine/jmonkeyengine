@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -202,7 +202,7 @@ public class MotionPath implements Savable {
     }
 
     /**
-     * Addsa waypoint to the path
+     * Add a waypoint to the path
      * @param wayPoint a position in world space
      */
     public void addWayPoint(Vector3f wayPoint) {
@@ -210,7 +210,7 @@ public class MotionPath implements Savable {
     }
 
     /**
-     * retruns the length of the path in world units
+     * Return the length of the path in world units
      * @return the length
      */
     public float getLength() {

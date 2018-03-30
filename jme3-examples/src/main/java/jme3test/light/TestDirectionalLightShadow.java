@@ -59,6 +59,7 @@ import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
+import com.jme3.util.SkyFactory.EnvMapType;
 import com.jme3.util.TangentBinormalGenerator;
 
 public class TestDirectionalLightShadow extends SimpleApplication implements ActionListener, AnalogListener {
@@ -155,7 +156,8 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
         al.setColor(ColorRGBA.White.mult(0.02f));
         rootNode.addLight(al);
 
-        Spatial sky = SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", false);
+        Spatial sky = SkyFactory.createSky(assetManager,
+                "Scenes/Beach/FullskiesSunset0068.dds", EnvMapType.CubeMap);
         sky.setLocalScale(350);
 
         rootNode.attachChild(sky);

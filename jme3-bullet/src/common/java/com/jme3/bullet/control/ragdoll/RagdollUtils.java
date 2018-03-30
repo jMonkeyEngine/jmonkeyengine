@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -123,7 +123,7 @@ public class RagdollUtils {
 
     /**
      * Create a hull collision shape from linked vertices to this bone.
-     * Vertices have to be previoulsly gathered in a map using buildPointMap method
+     * Vertices have to be previously gathered in a map using buildPointMap method
      * 
      * @param pointsMap
      * @param boneIndices
@@ -160,7 +160,7 @@ public class RagdollUtils {
         return new HullCollisionShape(p);
     }
 
-    //retruns the list of bone indices of the given bone and its child(if they are not in the boneList)
+    //returns the list of bone indices of the given bone and its child (if they are not in the boneList)
     public static List<Integer> getBoneIndices(Bone bone, Skeleton skeleton, Set<String> boneList) {
         List<Integer> list = new LinkedList<Integer>();
         if (boneList.isEmpty()) {
@@ -266,7 +266,7 @@ public class RagdollUtils {
 
     /**
      * Updates a bone position and rotation.
-     * if the child bones are not in the bone list this means, they are not associated with a physic shape.
+     * if the child bones are not in the bone list this means, they are not associated with a physics shape.
      * So they have to be updated
      * @param bone the bone
      * @param pos the position

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -152,7 +152,7 @@ public class KernelAdapter extends Thread
      *  than for any user-code safety.  99% of the time the user code should
      *  be writing for multithreaded access anyway.
      *
-     *  <p>The issue with the messages is that if a an implementation is
+     *  <p>The issue with the messages is that if an implementation is
      *  using a general thread pool then it would be possible for a 
      *  naive implementation to have one thread grab an Envelope from
      *  connection 1's and another grab the next Envelope.  Since an Envelope

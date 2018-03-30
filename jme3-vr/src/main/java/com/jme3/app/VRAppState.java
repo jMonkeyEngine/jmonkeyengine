@@ -1,7 +1,7 @@
 package com.jme3.app;
 
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,10 +34,10 @@ package com.jme3.app;
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
-import com.jme3.input.vr.OculusVR;
-import com.jme3.input.vr.OpenVR;
 import com.jme3.input.vr.VRAPI;
 import com.jme3.input.vr.VRInputAPI;
+import com.jme3.input.vr.VRMouseManager;
+import com.jme3.input.vr.VRViewManager;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -48,8 +48,6 @@ import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
 import com.jme3.util.VRGUIPositioningMode;
 import com.jme3.util.VRGuiManager;
-import com.jme3.util.VRMouseManager;
-import com.jme3.util.VRViewManager;
 
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -74,7 +72,7 @@ import java.util.logging.Logger;
  * <li>To start the main {@link Application application}.
  * </ul>
  * Attaching an instance of this app state to an already started application may cause crashes.
- * @author Julien Seinturier - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  */
 public class VRAppState extends AbstractAppState {
 
@@ -119,7 +117,7 @@ public class VRAppState extends AbstractAppState {
      }
     
     /**
-     * Create a new VR app state with given settings. The app state relies on the the given {@link VREnvironment VR environment}.
+     * Create a new VR app state with given settings. The app state relies on the given {@link VREnvironment VR environment}.
      * @param settings the settings to use.
      * @param environment the {@link VREnvironment VR environment} that this app state is using.
      */
@@ -148,9 +146,9 @@ public class VRAppState extends AbstractAppState {
     }
 
     /**
-     * Set the frustrum values for the application.
-     * @param near the frustrum near value.
-     * @param far the frustrum far value.
+     * Set the frustum values for the application.
+     * @param near the frustum near value.
+     * @param far the frustum far value.
      */
     public void setFrustrumNearFar(float near, float far) {
         fNear = near;
@@ -303,7 +301,7 @@ public class VRAppState extends AbstractAppState {
     }
     
     /**
-     * Set the scene observer. The VR headset will be linked to it. If no observer is set, the VR headset is linked to the the application {@link #getCamera() camera}.
+     * Set the scene observer. The VR headset will be linked to it. If no observer is set, the VR headset is linked to the application {@link #getCamera() camera}.
      * @param observer the scene observer.
      */
     public void setObserver(Spatial observer) {
@@ -404,17 +402,25 @@ public class VRAppState extends AbstractAppState {
             // it will get updated automatically in the viewmanager update otherwise
             // TODO isn't this done by SimpleApplication?
             for (Spatial spatial : application.getGuiViewPort().getScenes()) {
+            	//spatial.updateLogicalState(tpf);
             	spatial.updateGeometricState();
             }    
         }
-        
+
         // use the analog control on the first tracked controller to push around the mouse
-        // FIXME crashes on Rift/Touch (and probably OSVR), as it assumes the presence of the Vive touchpads
-        if(getVRHardware() instanceof OpenVR) {
-            environment.getVRMouseManager().updateAnalogAsMouse(0, null, null, null, tpf);
-        }
+        environment.getVRMouseManager().updateAnalogAsMouse(0, null, null, null, tpf);
     }
 
+    @Override
+    public void render(RenderManager rm) {
+      super.render(rm);
+      
+      // update compositor
+      if( environment.getVRViewManager() != null ) {
+        environment.getVRViewManager().render();
+      }
+    }
+    
     @Override
     public void postRender() {
         super.postRender();
@@ -422,16 +428,6 @@ public class VRAppState extends AbstractAppState {
         // update compositor
         if( environment.getVRViewManager() != null ) {
         	environment.getVRViewManager().postRender();
-        }
-    }
-
-    @Override
-    public void render(RenderManager rm) {
-        super.render(rm);
-
-        // update compositor
-        if( environment.getVRViewManager() != null ) {
-            environment.getVRViewManager().render();
         }
     }
 
@@ -601,11 +597,7 @@ public class VRAppState extends AbstractAppState {
             settings.setFrequency(environment.getVRHardware().getDisplayFrequency());
             settings.setFullscreen(false);
             settings.setVSync(false); // stop vsyncing on primary monitor!
-
-            // TODO: Is this preventing desktop display on _ALL_ HMDs?
-            if(!(getVRHardware() instanceof OculusVR)) {
-                settings.setSwapBuffers(environment.isSwapBuffers());
-            }
+            settings.setSwapBuffers(environment.isSwapBuffers());
         }
 
         // Updating application settings

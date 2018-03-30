@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011, Novyon Events
+ * Copyright (c) 2011-2018, Novyon Events
  * 
  * All rights reserved.
  * 
@@ -100,7 +100,7 @@ public class HydraulicErodeFilter extends AbstractFilter {
 					}
 				}
 
-				// step 3. water is transported to it's neighbours
+				// step 3. water is transported to its neighbours
 				float a = ga[idx] + wt[idx];
 				// float[] aj = new float[idxrel.length];
 				float amax = 0;

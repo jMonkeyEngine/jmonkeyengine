@@ -18,26 +18,26 @@ MaterialDef UnshadedNodes {
             ShaderNode GpuSkinning {
                 Definition : BasicGPUSkinning : Common/MatDefs/ShaderNodes/HardwareSkinning/HardwareSkinning.j3sn
                 Condition : NumberOfBones
-                InputMapping {
+                InputMappings {
                     modelPosition = Global.position
                     boneMatrices = MatParam.BoneMatrices
                     boneWeight = Attr.inHWBoneWeight
                     boneIndex = Attr.inHWBoneIndex
                 }
-                OutputMapping {
+                OutputMappings {
                     Global.position = modModelPosition
                 }
             }
             ShaderNode UnshadedVert {
                 Definition : CommonVert : Common/MatDefs/ShaderNodes/Common/CommonVert.j3sn
-                InputMapping {
+                InputMappings {
                     worldViewProjectionMatrix = WorldParam.WorldViewProjectionMatrix
                     modelPosition = Global.position.xyz
                     texCoord1 = Attr.inTexCoord : ColorMap || (LightMap && !SeparateTexCoord)
                     texCoord2 = Attr.inTexCoord2 : SeparateTexCoord
                     vertColor = Attr.inColor : VertexColor
                 }
-                OutputMapping {
+                OutputMappings {
                     Global.position = projPosition
                 }
             }
@@ -89,7 +89,7 @@ MaterialDef UnshadedNodes {
             ShaderNode AlphaDiscardThreshold {
                 Definition : AlphaDiscard : Common/MatDefs/ShaderNodes/Basic/AlphaDiscard.j3sn
                 Condition : AlphaDiscardThreshold
-                InputMapping {
+                InputMappings {
                     alpha = Global.outColor.a
                     threshold = MatParam.AlphaDiscardThreshold
                 }

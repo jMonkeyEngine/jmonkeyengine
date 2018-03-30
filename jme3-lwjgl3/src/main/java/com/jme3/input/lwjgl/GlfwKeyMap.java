@@ -36,10 +36,10 @@ import static com.jme3.input.KeyInput.*;
 
 public class GlfwKeyMap {
 
-    private static final int[] glfwToJmeKeyMap = new int[GLFW_KEY_LAST + 1];
+    private static final int[] GLFW_TO_JME_KEY_MAP = new int[GLFW_KEY_LAST + 1];
 
-    private static void reg(int jmeKey, int glfwKey) {
-        glfwToJmeKeyMap[glfwKey] = jmeKey;
+    private static void reg(final int jmeKey, final int glfwKey) {
+        GLFW_TO_JME_KEY_MAP[glfwKey] = jmeKey;
     }
 
     static {
@@ -165,7 +165,7 @@ public class GlfwKeyMap {
         reg(KEY_RMETA, GLFW_KEY_RIGHT_SUPER);
     }
 
-    public static int toJmeKeyCode(int glfwKey) {
-        return glfwToJmeKeyMap[glfwKey];
+    public static int toJmeKeyCode(final int glfwKey) {
+        return GLFW_TO_JME_KEY_MAP[glfwKey];
     }
 }

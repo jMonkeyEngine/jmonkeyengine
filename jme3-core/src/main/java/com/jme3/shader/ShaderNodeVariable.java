@@ -299,7 +299,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
 
     @Override
     public String toString() {
-        return "\n" + type + ' ' + (nameSpace != null ? (nameSpace + '.') : "") + name;
+        return type + ' ' + (nameSpace != null ? (nameSpace + '.') : "") + name;
     }
 
     /**

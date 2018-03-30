@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -569,8 +569,8 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     /**
      * This is a constant related to the index of refraction (IOR) used to compute the fresnel term.
      * F = R0 + (1-R0)( 1 - N.V)^5
-     * where F is the fresnel term, R0 the constant, N the normal vector and V tne view vector.
-     * It usually depend on the material you are lookinh through (here water).
+     * where F is the fresnel term, R0 the constant, N the normal vector and V the view vector.
+     * It usually depend on the material you are looking through (here water).
      * Default value is 0.3f
      * In practice, the lowest the value and the less the reflection can be seen on water
      * @param refractionConstant
@@ -683,7 +683,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * returns the refractionStrenght
+     * returns the refractionStrength
      * @return
      */
     public float getRefractionStrength() {
@@ -692,7 +692,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
 
     /**
      * This value modifies current fresnel term. If you want to weaken
-     * reflections use bigger value. If you want to empasize them use
+     * reflections use bigger value. If you want to emphasize them use
      * value smaller then 0. Default is 0.0f.
      * @param refractionStrength
      */
@@ -725,7 +725,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * returns the foam existance vector
+     * returns the foam existence vector
      * @return
      */
     public Vector3f getFoamExistence() {
@@ -766,7 +766,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * Returns the color exctinction vector of the water
+     * Returns the color extinction vector of the water
      * @return
      */
     public Vector3f getColorExtinction() {
@@ -778,7 +778,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
      * the first value is for red
      * the second is for green
      * the third is for blue
-     * Play with thos parameters to "trouble" the water
+     * Play with those parameters to "trouble" the water
      * default is (5.0, 20.0, 30.0f);
      * @param colorExtinction
      */
@@ -864,7 +864,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * Sets the shinines factor of the water
+     * Sets the shininess factor of the water
      * default is 0.7f
      * @param shininess
      */
@@ -876,7 +876,7 @@ public class WaterFilter extends Filter implements JmeCloneable, Cloneable {
     }
 
     /**
-     * retruns the speed of the waves
+     * returns the speed of the waves
      * @return
      */
     public float getSpeed() {

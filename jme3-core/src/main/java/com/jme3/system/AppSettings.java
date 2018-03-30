@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ public final class AppSettings extends HashMap<String, Object> {
     public static final String LWJGL_OPENGL2 = "LWJGL-OpenGL2";
 
     /**
-     * Use LWJGL as the display system and force using the core OpenGL3.3 renderer.
+     * Use LWJGL as the display system and force using the core OpenGL3.2 renderer.
      * <p>
      * If the underlying system does not support OpenGL3.2, then the context
      * initialization will throw an exception. Note that currently jMonkeyEngine
@@ -379,7 +379,7 @@ public final class AppSettings extends HashMap<String, Object> {
                     }
                 } else {
                     // Use old method for compatibility with older preferences
-                    // TODO: Remove when no longer neccessary
+                    // TODO: Remove when no longer necessary
                     Object defaultValue = defaults.get(key);
                     if (defaultValue instanceof Integer) {
                         put(key, prefs.getInt(key, (Integer) defaultValue));
@@ -1084,7 +1084,7 @@ public final class AppSettings extends HashMap<String, Object> {
     }
    
     /**
-     * Determine if the the display context will swap buffers every frame.
+     * Determine if the display context will swap buffers every frame.
      * 
      * @return True if buffer swapping is enabled, false otherwise.
      * 

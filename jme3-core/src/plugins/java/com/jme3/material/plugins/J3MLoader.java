@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -932,7 +932,7 @@ public class J3MLoader implements AssetLoader {
     }
 
     /**
-     * Internal object used for holding a {@link com.jme3.material.plugins.J3MLoader.TextureOption} and it's value. Also
+     * Internal object used for holding a {@link com.jme3.material.plugins.J3MLoader.TextureOption} and its value. Also
      * contains a couple of convenience methods for applying the TextureOption to either a TextureKey or a Texture.
      */
     private static class TextureOptionValue {

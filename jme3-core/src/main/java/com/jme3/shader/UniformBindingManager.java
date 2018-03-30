@@ -36,6 +36,7 @@ import com.jme3.math.*;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.system.Timer;
+
 import java.util.ArrayList;
 
 /**
@@ -66,6 +67,7 @@ public class UniformBindingManager {
     private Matrix4f worldViewMatrix = new Matrix4f();
     private Matrix4f worldViewProjMatrix = new Matrix4f();
     private Matrix3f normalMatrix = new Matrix3f();
+    private Matrix3f worldNormalMatrix = new Matrix3f();
     private Matrix4f worldMatrixInv = new Matrix4f();
     private Matrix3f worldMatrixInvTrsp = new Matrix3f();
     private Matrix4f viewMatrixInv = new Matrix4f();
@@ -113,6 +115,13 @@ public class UniformBindingManager {
                     normalMatrix.invertLocal();
                     normalMatrix.transposeLocal();
                     u.setValue(VarType.Matrix3, normalMatrix);
+                    break;
+                case WorldNormalMatrix:
+                    tempMatrix.set(worldMatrix);
+                    tempMatrix.toRotationMatrix(worldNormalMatrix);
+                    worldNormalMatrix.invertLocal();
+                    worldNormalMatrix.transposeLocal();
+                    u.setValue(VarType.Matrix3, worldNormalMatrix);
                     break;
                 case WorldViewProjectionMatrix:
                     worldViewProjMatrix.set(viewProjMatrix);

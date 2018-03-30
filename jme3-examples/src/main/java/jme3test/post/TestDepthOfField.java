@@ -21,6 +21,7 @@ import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
+import com.jme3.util.SkyFactory.EnvMapType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +66,8 @@ public class TestDepthOfField extends SimpleApplication {
         cam.setRotation(new Quaternion().fromAngles(new float[]{FastMath.PI * 0.06f, FastMath.PI * 0.65f, 0}));
 
 
-        Spatial sky = SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", false);
+        Spatial sky = SkyFactory.createSky(assetManager, 
+                "Scenes/Beach/FullskiesSunset0068.dds", EnvMapType.CubeMap);
         sky.setLocalScale(350);
         mainScene.attachChild(sky);
 

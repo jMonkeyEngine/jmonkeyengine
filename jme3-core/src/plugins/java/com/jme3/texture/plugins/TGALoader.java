@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -214,7 +214,7 @@ public final class TGALoader implements AssetLoader {
             byte alpha = 0;
 
             // Faster than doing a 16-or-24-or-32 check on each individual pixel,
-            // just make a seperate loop for each.
+            // just make a separate loop for each.
             if (pixelDepth == 16) {
                 byte[] data = new byte[2];
                 float scalar = 255f / 31f;
@@ -287,7 +287,7 @@ public final class TGALoader implements AssetLoader {
             byte blue = 0;
             byte alpha = 0;
             // Faster than doing a 16-or-24-or-32 check on each individual pixel,
-            // just make a seperate loop for each.
+            // just make a separate loop for each.
             if (pixelDepth == 32) {
                 for (int i = 0; i <= (height - 1); ++i) {
                     if (!flip) {
@@ -312,7 +312,7 @@ public final class TGALoader implements AssetLoader {
                                 rawData[rawDataIndex++] = alpha;
                             }
                         } else {
-                            // Its not RLE packed, but the next <count> pixels are raw.
+                            // It's not RLE packed, but the next <count> pixels are raw.
                             j += count;
                             while (count-- >= 0) {
                                 blue = dis.readByte();
@@ -349,7 +349,7 @@ public final class TGALoader implements AssetLoader {
                                 rawData[rawDataIndex++] = blue;
                             }
                         } else {
-                            // Its not RLE packed, but the next <count> pixels are raw.
+                            // It's not RLE packed, but the next <count> pixels are raw.
                             j += count;
                             while (count-- >= 0) {
                                 blue = dis.readByte();
@@ -388,7 +388,7 @@ public final class TGALoader implements AssetLoader {
                                 rawData[rawDataIndex++] = blue;
                             }
                         } else {
-                            // Its not RLE packed, but the next <count> pixels are raw.
+                            // It's not RLE packed, but the next <count> pixels are raw.
                             j += count;
                             while (count-- >= 0) {
                                 data[1] = dis.readByte();

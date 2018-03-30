@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -149,7 +149,7 @@ public class HDRLoader implements AssetLoader {
                 rleTempBuffer = BufferUtils.createByteBuffer(width * 4);
         }
         
-	// read each component seperately
+	// read each component separately
         for (int i = 0; i < 4; i++) {
             // read WIDTH bytes for the channel
             for (int j = 0; j < width;) {

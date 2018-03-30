@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@ public class IrradianceSphericalHarmonicsGenerator extends RunnableWithProgress 
     }
 
     /**
-     * Fills all the genration parameters
+     * Fills all the generation parameters
      *
      * @param sourceMap the source cube map
      *                  {@link EnvMapUtils.FixSeamsMethod}

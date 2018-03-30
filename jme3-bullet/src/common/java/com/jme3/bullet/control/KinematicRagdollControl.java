@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,38 +31,23 @@
  */
 package com.jme3.bullet.control;
 
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.Bone;
-import com.jme3.animation.Skeleton;
-import com.jme3.animation.SkeletonControl;
+import com.jme3.animation.*;
 import com.jme3.bullet.PhysicsSpace;
-import com.jme3.bullet.collision.PhysicsCollisionEvent;
-import com.jme3.bullet.collision.PhysicsCollisionListener;
-import com.jme3.bullet.collision.PhysicsCollisionObject;
-import com.jme3.bullet.collision.RagdollCollisionListener;
+import com.jme3.bullet.collision.*;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.HullCollisionShape;
-import com.jme3.bullet.control.ragdoll.HumanoidRagdollPreset;
-import com.jme3.bullet.control.ragdoll.RagdollPreset;
-import com.jme3.bullet.control.ragdoll.RagdollUtils;
+import com.jme3.bullet.control.ragdoll.*;
 import com.jme3.bullet.joints.SixDofJoint;
 import com.jme3.bullet.objects.PhysicsRigidBody;
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
-import com.jme3.export.Savable;
-import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
+import com.jme3.export.*;
+import com.jme3.math.*;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
-import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
@@ -73,7 +58,7 @@ import java.util.logging.Logger;
  * use this control you need a model with an AnimControl and a
  * SkeletonControl.<br> This should be the case if you imported an animated
  * model from Ogre or blender.<br> Note enabling/disabling the control
- * add/removes it from the physic space<br> <p> This control creates collision
+ * add/removes it from the physics space<br> <p> This control creates collision
  * shapes for each bones of the skeleton when you call
  * spatial.addControl(ragdollControl). <ul> <li>The shape is HullCollision shape
  * based on the vertices associated with each bone and based on a tweakable
@@ -84,16 +69,19 @@ import java.util.logging.Logger;
  * </ul> </p> <p> There are 2 modes for this control : <ul> <li><strong>The
  * kinematic modes :</strong><br> this is the default behavior, this means that
  * the collision shapes of the body are able to interact with physics enabled
- * objects. in this mode physic shapes follow the moovements of the animated
+ * objects. in this mode physics shapes follow the motion of the animated
  * skeleton (for example animated by a key framed animation) this mode is
  * enabled by calling setKinematicMode(); </li> <li><strong>The ragdoll modes
  * :</strong><br> To enable this behavior, you need to call setRagdollMode()
- * method. In this mode the charater is entirely controled by physics, so it
+ * method. In this mode the character is entirely controlled by physics, so it
  * will fall under the gravity and move if any force is applied to it. </li>
  * </ul> </p>
  *
  * @author Normen Hansen and Rémy Bouquet (Nehon)
+ *
+ * TODO this needs to be redone with the new animation system
  */
+@Deprecated
 public class KinematicRagdollControl extends AbstractPhysicsControl implements PhysicsCollisionListener, JmeCloneable {
 
     protected static final Logger logger = Logger.getLogger(KinematicRagdollControl.class.getName());
@@ -171,7 +159,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     }
 
     /**
-     * contruct a KinematicRagdollControl
+     * construct a KinematicRagdollControl
      */
     public KinematicRagdollControl() {
         baseRigidBody = new PhysicsRigidBody(new BoxCollisionShape(Vector3f.UNIT_XYZ.mult(0.1f)), 1);
@@ -201,7 +189,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         if(mode == Mode.IK){
             ikUpdate(tpf);
         } else if (mode == mode.Ragdoll && targetModel.getLocalTranslation().equals(modelPosition)) {
-            //if the ragdoll has the control of the skeleton, we update each bone with its position in physic world space.
+            //if the ragdoll has the control of the skeleton, we update each bone with its position in physics world space.
             ragDollUpdate(tpf);
         } else {
             kinematicUpdate(tpf);
@@ -217,12 +205,12 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
 
             Vector3f position = vars.vect1;
 
-            //retrieving bone position in physic world space
+            //retrieving bone position in physics world space
             Vector3f p = link.rigidBody.getMotionState().getWorldLocation();
             //transforming this position with inverse transforms of the model
             targetModel.getWorldTransform().transformInverseVector(p, position);
 
-            //retrieving bone rotation in physic world space
+            //retrieving bone rotation in physics world space
             Quaternion q = link.rigidBody.getMotionState().getWorldRotationQuat();
 
             //multiplying this rotation by the initialWorld rotation of the bone, 
@@ -255,7 +243,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
                     link.bone.setUserTransformsInModelSpace(position, tmpRot1);
                 } else {
                     //boneList is not empty, this means some bones of the skeleton might not be associated with a collision shape.
-                    //So we update them recusively
+                    //So we update them recursively
                     RagdollUtils.setTransform(link.bone, position, tmpRot1, false, boneList);
                 }
             }
@@ -264,7 +252,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     }
 
     protected void kinematicUpdate(float tpf) {
-        //the ragdoll does not have the controll, so the keyframed animation updates the physic position of the physic bonces
+        //the ragdoll does not have control, so the keyframed animation updates the physics position of the physics bonces
         TempVars vars = TempVars.get();
         Quaternion tmpRot1 = vars.quat1;
         Quaternion tmpRot2 = vars.quat2;
@@ -420,7 +408,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         targetModel.getWorldRotation().mult(tmpRot1, tmpRot1);
         tmpRot1.normalizeLocal();
 
-        //updating physic location/rotation of the physic bone
+        //updating physics location/rotation of the physics bone
         link.rigidBody.setPhysicsLocation(position);
         link.rigidBody.setPhysicsRotation(tmpRot1);
 
@@ -707,9 +695,9 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
 
     /**
      * Enable or disable the ragdoll behaviour. if ragdollEnabled is true, the
-     * character motion will only be powerd by physics else, the characted will
+     * character motion will only be powered by physics else, the character will
      * be animated by the keyframe animation, but will be able to physically
-     * interact with its physic environnement
+     * interact with its physics environment
      *
      * @param ragdollEnabled
      */
@@ -789,9 +777,9 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     }
 
     /**
-     * Set the control into Kinematic mode In theis mode, the collision shapes
+     * Set the control into Kinematic mode In this mode, the collision shapes
      * follow the movements of the skeleton, and can interact with physical
-     * environement
+     * environment
      */
     public void setKinematicMode() {
         if (mode != Mode.Kinematic) {
@@ -820,7 +808,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     }
     
     /**
-     * retruns the mode of this control
+     * returns the mode of this control
      *
      * @return
      */
@@ -903,7 +891,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     }
 
     /**
-     * For internal use only specific render for the ragdoll(if debugging)
+     * For internal use only specific render for the ragdoll (if debugging)
      *
      * @param rm
      * @param vp
@@ -912,16 +900,6 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     public void render(RenderManager rm, ViewPort vp) {
     }
 
-    @Override
-    public Control cloneForSpatial(Spatial spatial) {
-        KinematicRagdollControl control = new KinematicRagdollControl(preset, weightThreshold);
-        control.setMode(mode);
-        control.setRootMass(rootMass);
-        control.setWeightThreshold(weightThreshold);
-        control.setApplyPhysicsLocal(applyLocal);
-        return control;
-    }
-   
     @Override   
     public Object jmeClone() {
         KinematicRagdollControl control = new KinematicRagdollControl(preset, weightThreshold);        

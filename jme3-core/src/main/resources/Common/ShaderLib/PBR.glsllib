@@ -9,50 +9,6 @@ vec3 F_Shlick(float vh,	vec3 F0){
 	return mix(F0, vec3(1.0, 1.0, 1.0), fresnelFact);
 }
 
-void PBR_ComputeDirectLightSpecWF(vec3 normal, vec3 lightDir, vec3 viewDir,
-                            vec3 lightColor, vec3 specColor, float roughness, float ndotv,
-                            out vec3 outDiffuse, out vec3 outSpecular){
-    // Compute halfway vector.
-    vec3 halfVec = normalize(lightDir + viewDir);
-
-    // Compute ndotl, ndoth,  vdoth terms which are needed later.
-    float ndotl = max( dot(normal,   lightDir), 0.0);
-    float ndoth = max( dot(normal,   halfVec),  0.0);       
-    float hdotv = max( dot(viewDir,  halfVec),  0.0);
-
-    // Compute diffuse using energy-conserving Lambert.
-    // Alternatively, use Oren-Nayar for really rough 
-    // materials or if you have lots of processing power ...
-    outDiffuse = vec3(ndotl) * lightColor;
-
-    //cook-torrence, microfacet BRDF : http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf
-   
-    float alpha = roughness * roughness;
-
-    //D, GGX normaal Distribution function     
-    float alpha2 = alpha * alpha;
-    float sum  = ((ndoth * ndoth) * (alpha2 - 1.0) + 1.0);
-    float denom = PI * sum * sum;
-    float D = alpha2 / denom;  
-
-    // Compute Fresnel function via Schlick's approximation.
-    vec3 fresnel =  F_Shlick(hdotv,  specColor);
-    
-    //G Shchlick GGX Gometry shadowing term,  k = alpha/2
-    float k = alpha * 0.5;
-
-    // UE4 way to optimise shlick GGX Gometry shadowing term
-    //http://graphicrants.blogspot.co.uk/2013/08/specular-brdf-reference.html
-    float G_V = ndotv + sqrt( (ndotv - ndotv * k) * ndotv + k );
-    float G_L = ndotl + sqrt( (ndotl - ndotl * k) * ndotl + k );    
-    // the max here is to avoid division by 0 that may cause some small glitches.
-    float G = 1.0/max( G_V * G_L ,0.01); 
-
-    float specular = D * G * ndotl;  
- 
-    outSpecular = fresnel * vec3(specular) * lightColor;
-}
-
 vec3 sphericalHarmonics( const in vec3 normal, const vec3 sph[9] ){
     float x = normal.x;
     float y = normal.y;
@@ -76,8 +32,8 @@ vec3 sphericalHarmonics( const in vec3 normal, const vec3 sph[9] ){
 }
 
 
-void PBR_ComputeDirectLight(vec3 normal, vec3 lightDir, vec3 viewDir,
-                            vec3 lightColor, float fZero, float roughness, float ndotv,
+float PBR_ComputeDirectLight(vec3 normal, vec3 lightDir, vec3 viewDir,
+                            vec3 lightColor, vec3 fZero, float roughness, float ndotv,
                             out vec3 outDiffuse, out vec3 outSpecular){
     // Compute halfway vector.
     vec3 halfVec = normalize(lightDir + viewDir);
@@ -103,7 +59,7 @@ void PBR_ComputeDirectLight(vec3 normal, vec3 lightDir, vec3 viewDir,
     float D = alpha2 / denom;  
 
     // Compute Fresnel function via Schlick's approximation.
-    float fresnel = fZero + ( 1.0 - fZero ) * pow( 2.0, (-5.55473 * hdotv - 6.98316) * hdotv);
+    vec3 fresnel = F_Shlick(hdotv, fZero);
     
     //G Shchlick GGX Gometry shadowing term,  k = alpha/2
     float k = alpha * 0.5;
@@ -124,9 +80,10 @@ void PBR_ComputeDirectLight(vec3 normal, vec3 lightDir, vec3 viewDir,
     // the max here is to avoid division by 0 that may cause some small glitches.
     float G = 1.0/max( G_V * G_L ,0.01); 
 
-    float specular = D * fresnel * G * ndotl;  
+    float specular = D * G * ndotl;
  
-    outSpecular = vec3(specular) * lightColor;
+    outSpecular = vec3(specular) * fresnel * lightColor;
+    return hdotv;
 }
 
 vec3 integrateBRDFApprox( const in vec3 specular, float roughness, float NoV ){

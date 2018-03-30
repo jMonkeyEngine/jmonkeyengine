@@ -836,7 +836,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      *
      * @param renderManager The render manager to preload for
      */
-    public void preload(RenderManager renderManager) {
+    public void preload(RenderManager renderManager, Geometry geometry) {
         if (technique == null) {
             selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
         }
@@ -847,9 +847,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         if (techniqueDef.isNoRender()) {
             return;
         }
+        // Get world overrides
+        SafeArrayList<MatParamOverride> overrides = geometry.getWorldMatParamOverrides();
 
-        Shader shader = technique.makeCurrent(renderManager, null, null, null, rendererCaps);
-        updateShaderMaterialParameters(renderer, shader, null, null);
+        Shader shader = technique.makeCurrent(renderManager, overrides, null, null, rendererCaps);
+        updateShaderMaterialParameters(renderer, shader, overrides, null);
         renderManager.getRenderer().setShader(shader);
     }
 

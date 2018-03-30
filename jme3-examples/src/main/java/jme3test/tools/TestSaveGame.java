@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ public class TestSaveGame extends SimpleApplication {
         Spatial model = (Spatial) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         myPlayer.attachChild(model);
 
-        //before saving the game, the model should be detached so its not saved along with the node
+        //before saving the game, the model should be detached so it's not saved along with the node
         myPlayer.detachAllChildren();
         SaveGame.saveGame("mycompany/mygame", "savegame_001", myPlayer);
 
