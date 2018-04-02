@@ -496,53 +496,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     }
 
     /**
-     * Alter the local transform so that the world transform approximates the
-     * specified value.
-     *
-     * @param world desired world transform (not null, unaffected)
-     * @throws IllegalArgumentException if the spatial ignores transform OR the
-     * parent's world transform isn't invertible
-     */
-    public void setWorldTransform(Transform world) {
-        if (this instanceof Geometry && ((Geometry) this).ignoreTransform) {
-            throw new RuntimeException("spatial ignores transforms");
-        }
-
-        if (parent == null) {
-            /*
-             * special case: for a root spatial, the world transform is
-             * precisely the local transform
-             */
-            setLocalTransform(world);
-            return;
-        }
-
-        Transform parentTransform = parent.getWorldTransform();
-        Vector3f parentScale = parentTransform.getScale();
-        if (parentScale.x == 0f || parentScale.y == 0f || parentScale.z == 0f) {
-            throw new RuntimeException("parent scale isn't invertible");
-        }
-        Quaternion parentInvRotation = parentTransform.getRotation().inverse();
-        if (parentInvRotation == null) {
-            throw new RuntimeException("parent rotation isn't invertible");
-        }
-        /*
-         * Undo the operations of Transform.combineWithParent()
-         */
-        Transform tmpLocal = world.clone();
-        Vector3f translation = tmpLocal.getTranslation();
-        Quaternion rotation = tmpLocal.getRotation();
-        tmpLocal.getScale().divideLocal(parentScale);
-        parentInvRotation.mult(rotation, rotation);
-        Vector3f parentTranslation = parentTransform.getTranslation();
-        translation.subtractLocal(parentTranslation);
-        parentInvRotation.multLocal(translation);
-        translation.divideLocal(parentScale);
-
-        setLocalTransform(tmpLocal);
-    }
-
-    /**
      * <code>rotateUpTo</code> is a utility function that alters the
      * local rotation to point the Y axis in the direction given by newUp.
      *
