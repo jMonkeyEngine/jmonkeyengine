@@ -19,11 +19,11 @@ public class MatrixJointModelTransform implements JointModelTransform {
         if (parent != null) {
             ((MatrixJointModelTransform) parent.getJointModelTransform()).getModelTransformMatrix().mult(modelTransformMatrix, modelTransformMatrix);
         }
-        modelTransform.fromTransformMatrix(modelTransformMatrix);
+
     }
 
     public void getOffsetTransform(Matrix4f outTransform, Matrix4f inverseModelBindMatrix) {
-        outTransform.set(modelTransformMatrix).mult(inverseModelBindMatrix, outTransform);
+        modelTransformMatrix.mult(inverseModelBindMatrix, outTransform);
     }
 
     @Override
@@ -41,6 +41,7 @@ public class MatrixJointModelTransform implements JointModelTransform {
 
     @Override
     public Transform getModelTransform() {
+        modelTransform.fromTransformMatrix(modelTransformMatrix);
         return modelTransform;
     }
 }

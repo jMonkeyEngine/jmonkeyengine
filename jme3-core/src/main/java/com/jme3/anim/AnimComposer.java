@@ -8,6 +8,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 
 import java.io.IOException;
 import java.util.*;
@@ -17,12 +18,16 @@ import java.util.*;
  */
 public class AnimComposer extends AbstractControl {
 
+    public static final String DEFAULT_LAYER = "Default";
     private Map<String, AnimClip> animClipMap = new HashMap<>();
 
-    private Action currentAction;
     private Map<String, Action> actions = new HashMap<>();
     private float globalSpeed = 1f;
-    private float time;
+    private Map<String, Layer> layers = new LinkedHashMap<>();
+
+    public AnimComposer() {
+        layers.put(DEFAULT_LAYER, new Layer());
+    }
 
     /**
      * Retrieve an animation from the list of animations.
@@ -60,8 +65,17 @@ public class AnimComposer extends AbstractControl {
     }
 
     public Action setCurrentAction(String name) {
-        currentAction = action(name);
-        time = 0;
+        return setCurrentAction(name, DEFAULT_LAYER);
+    }
+
+    public Action setCurrentAction(String actionName, String layerName) {
+        Layer l = layers.get(layerName);
+        if (l == null) {
+            throw new IllegalArgumentException("Unknown layer " + layerName);
+        }
+        Action currentAction = action(actionName);
+        l.time = 0;
+        l.currentAction = currentAction;
         return currentAction;
     }
 
@@ -84,6 +98,12 @@ public class AnimComposer extends AbstractControl {
         return action;
     }
 
+    public void makeLayer(String name, AnimationMask mask){
+        Layer l = new Layer();
+        l.mask = mask;
+        layers.put(name, l);
+    }
+
 
     public BaseAction actionSequence(String name, Tween... tweens) {
         BaseAction action = new BaseAction(Tweens.sequence(tweens));
@@ -103,8 +123,10 @@ public class AnimComposer extends AbstractControl {
     }
 
     public void reset() {
-        currentAction = null;
-        time = 0;
+        for (Layer layer : layers.values()) {
+            layer.currentAction = null;
+            layer.time = 0;
+        }
     }
 
     public Collection<AnimClip> getAnimClips() {
@@ -117,11 +139,17 @@ public class AnimComposer extends AbstractControl {
 
     @Override
     protected void controlUpdate(float tpf) {
-        if (currentAction != null) {
-            time += tpf;
-            boolean running = currentAction.interpolate(time * globalSpeed);
+        for (Layer layer : layers.values()) {
+            Action currentAction = layer.currentAction;
+            if (currentAction == null) {
+                continue;
+            }
+            layer.time += tpf;
+            currentAction.setMask(layer.mask);
+            boolean running = currentAction.interpolate(layer.time * globalSpeed);
+            currentAction.setMask(null);
             if (!running) {
-                time = 0;
+                layer.time = 0;
             }
         }
     }
@@ -162,6 +190,14 @@ public class AnimComposer extends AbstractControl {
         }
         actions = act;
         animClipMap = clips;
+
+        Map<String, Layer> newLayers = new LinkedHashMap<>();
+        for (String key : layers.keySet()) {
+            newLayers.put(key, cloner.clone(layers.get(key)));
+        }
+
+        layers = newLayers;
+
     }
 
     @Override
@@ -176,5 +212,27 @@ public class AnimComposer extends AbstractControl {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.writeStringSavableMap(animClipMap, "animClipMap", new HashMap<String, AnimClip>());
+    }
+
+    public static class Layer implements JmeCloneable {
+        private Action currentAction;
+        private AnimationMask mask;
+        private float weight;
+        private float time;
+
+        @Override
+        public Object jmeClone() {
+            try {
+                Layer clone = (Layer) super.clone();
+                return clone;
+            } catch (CloneNotSupportedException ex) {
+                throw new AssertionError();
+            }
+        }
+
+        @Override
+        public void cloneFields(Cloner cloner, Object original) {
+            currentAction = null;
+        }
     }
 }

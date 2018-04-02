@@ -25,7 +25,11 @@ public class ClipAction extends BlendableAction {
         AnimTrack[] tracks = clip.getTracks();
         for (AnimTrack track : tracks) {
             if (track instanceof TransformTrack) {
-                interpolateTransformTrack(t, (TransformTrack) track);
+                TransformTrack tt = (TransformTrack) track;
+                if(getMask() != null && !getMask().contains(tt.getTarget())){
+                    continue;
+                }
+                interpolateTransformTrack(t, tt);
             } else if (track instanceof MorphTrack) {
                 interpolateMorphTrack(t, (MorphTrack) track);
             }
@@ -58,6 +62,10 @@ public class ClipAction extends BlendableAction {
 
     public void reset() {
 
+    }
+
+    public String toString() {
+        return clip.toString();
     }
 
     @Override

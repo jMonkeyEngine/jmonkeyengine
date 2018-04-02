@@ -22,6 +22,7 @@ import java.util.List;
 public class Joint implements Savable, JmeCloneable, HasLocalTransform {
 
     private String name;
+    private int id;
     private Joint parent;
     private SafeArrayList<Joint> children = new SafeArrayList<>(Joint.class);
     private Geometry targetGeometry;
@@ -278,6 +279,14 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
 
     public Matrix4f getInverseModelBindMatrix() {
         return inverseModelBindMatrix;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     @Override

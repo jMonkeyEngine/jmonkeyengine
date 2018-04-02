@@ -1,7 +1,6 @@
 package jme3test.model.anim;
 
-import com.jme3.anim.AnimComposer;
-import com.jme3.anim.SkinningControl;
+import com.jme3.anim.*;
 import com.jme3.anim.tween.action.Action;
 import com.jme3.anim.tween.action.BlendAction;
 import com.jme3.anim.tween.action.BlendableAction;
@@ -125,8 +124,19 @@ public class TestAnimMigration extends SimpleApplication {
             }
         }, "toggleArmature");
 
+        inputManager.addMapping("mask", new KeyTrigger(KeyInput.KEY_M));
+        inputManager.addListener(new ActionListener() {
+            @Override
+            public void onAction(String name, boolean isPressed, float tpf) {
+                if (isPressed) {
+                    composer.setCurrentAction("Wave", "LeftArm");
+                }
+            }
+        }, "mask");
+
         inputManager.addMapping("blendUp", new KeyTrigger(KeyInput.KEY_UP));
         inputManager.addMapping("blendDown", new KeyTrigger(KeyInput.KEY_DOWN));
+
         inputManager.addListener(new AnalogListener() {
 
             @Override
@@ -173,6 +183,8 @@ public class TestAnimMigration extends SimpleApplication {
             action.getBlendSpace().setValue(1);
 
             composer.action("Walk").setSpeed(-1);
+
+            composer.makeLayer("LeftArm", ArmatureMask.createMask(sc.getArmature(), "shoulder.L"));
 
             anims.addFirst("Sequence");
             anims.addFirst("Blend");

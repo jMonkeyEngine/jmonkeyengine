@@ -1,5 +1,6 @@
 package com.jme3.anim.tween.action;
 
+import com.jme3.anim.AnimationMask;
 import com.jme3.anim.tween.Tween;
 
 public abstract class Action implements Tween {
@@ -7,6 +8,7 @@ public abstract class Action implements Tween {
     protected Action[] actions;
     private double length;
     private double speed = 1;
+    private AnimationMask mask;
 
     protected Action(Tween... tweens) {
         this.actions = new Action[tweens.length];
@@ -45,5 +47,13 @@ public abstract class Action implements Tween {
 
     public void setSpeed(double speed) {
         this.speed = speed;
+    }
+
+    public AnimationMask getMask() {
+        return mask;
+    }
+
+    public void setMask(AnimationMask mask) {
+        this.mask = mask;
     }
 }

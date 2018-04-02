@@ -46,6 +46,7 @@ public class Armature implements JmeCloneable, Savable {
         List<Joint> rootJointList = new ArrayList<>();
         for (int i = jointList.length - 1; i >= 0; i--) {
             Joint joint = jointList[i];
+            joint.setId(i);
             instanciateJointModelTransform(joint);
             if (joint.getParent() == null) {
                 rootJointList.add(joint);
@@ -276,7 +277,9 @@ public class Armature implements JmeCloneable, Savable {
             throw new AssetLoadException("Cannnot find class for name " + className);
         }
 
+        int i = 0;
         for (Joint joint : jointList) {
+            joint.setId(i++);
             instanciateJointModelTransform(joint);
         }
         createSkinningMatrices();

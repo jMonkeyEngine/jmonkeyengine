@@ -67,6 +67,11 @@ public class AnimClip implements JmeCloneable, Savable {
     }
 
     @Override
+    public String toString() {
+        return "Clip " + name + ", " + length + 's';
+    }
+
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", null);
