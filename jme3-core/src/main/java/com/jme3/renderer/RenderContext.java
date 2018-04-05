@@ -32,6 +32,7 @@
 package com.jme3.renderer;
 
 import com.jme3.material.RenderState;
+import com.jme3.material.RenderState.BlendFunc;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
@@ -109,6 +110,30 @@ public class RenderContext {
      * @see RenderState#setBlendEquationAlpha(com.jme3.material.RenderState.BlendEquationAlpha) 
      */
     public RenderState.BlendEquationAlpha blendEquationAlpha = RenderState.BlendEquationAlpha.InheritColor;
+
+    /**
+     * @see RenderState#setCustomBlendFactors(com.jme3.material.RenderState.BlendFunc, com.jme3.material.RenderState.BlendFunc,
+     *      com.jme3.material.RenderState.BlendFunc, com.jme3.material.RenderState.BlendFunc)
+     */
+    public RenderState.BlendFunc sfactorRGB = RenderState.BlendFunc.One;
+
+    /**
+     * @see RenderState#setCustomBlendFactors(com.jme3.material.RenderState.BlendFunc, com.jme3.material.RenderState.BlendFunc,
+     *      com.jme3.material.RenderState.BlendFunc, com.jme3.material.RenderState.BlendFunc)
+     */
+    public RenderState.BlendFunc dfactorRGB = RenderState.BlendFunc.One;
+
+    /**
+     * @see RenderState#setCustomBlendFactors(com.jme3.material.RenderState.BlendFunc, com.jme3.material.RenderState.BlendFunc,
+     *      com.jme3.material.RenderState.BlendFunc, com.jme3.material.RenderState.BlendFunc)
+     */
+    public RenderState.BlendFunc sfactorAlpha = RenderState.BlendFunc.One;
+
+    /**
+     * @see RenderState#setCustomBlendFactors(com.jme3.material.RenderState.BlendFunc, com.jme3.material.RenderState.BlendFunc,
+     *      com.jme3.material.RenderState.BlendFunc, com.jme3.material.RenderState.BlendFunc)
+     */
+    public RenderState.BlendFunc dfactorAlpha = RenderState.BlendFunc.One;
 
     /**
      * @see RenderState#setWireframe(boolean) 
@@ -266,6 +291,10 @@ public class RenderContext {
         blendMode = RenderState.BlendMode.Off;
         blendEquation = RenderState.BlendEquation.Add;
         blendEquationAlpha = RenderState.BlendEquationAlpha.InheritColor;
+        sfactorRGB = BlendFunc.One;
+        dfactorRGB = BlendFunc.One;
+        sfactorAlpha = BlendFunc.One;
+        dfactorAlpha = BlendFunc.One;
         wireframe = false;
         boundShaderProgram = 0;
         boundShader = null;

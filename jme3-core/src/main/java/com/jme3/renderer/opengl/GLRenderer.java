@@ -33,6 +33,7 @@ package com.jme3.renderer.opengl;
 
 import com.jme3.material.RenderState;
 import com.jme3.material.RenderState.BlendFunc;
+import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.StencilOperation;
 import com.jme3.material.RenderState.TestFunction;
 import com.jme3.math.*;
@@ -743,68 +744,57 @@ public final class GLRenderer implements Renderer {
             context.cullMode = state.getFaceCullMode();
         }
 
-        if (state.getBlendMode() != context.blendMode) {
-            if (state.getBlendMode() == RenderState.BlendMode.Off) {
-                gl.glDisable(GL.GL_BLEND);
-            } else {
-                if (context.blendMode == RenderState.BlendMode.Off) {
-                    gl.glEnable(GL.GL_BLEND);
-                }
-                switch (state.getBlendMode()) {
-                    case Off:
-                        break;
-                    case Additive:
-                        gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE);
-                        break;
-                    case AlphaAdditive:
-                        gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE);
-                        break;
-                    case Alpha:
-                        gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-                        break;
-                    case PremultAlpha:
-                        gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE_MINUS_SRC_ALPHA);
-                        break;
-                    case Modulate:
-                        gl.glBlendFunc(GL.GL_DST_COLOR, GL.GL_ZERO);
-                        break;
-                    case ModulateX2:
-                        gl.glBlendFunc(GL.GL_DST_COLOR, GL.GL_SRC_COLOR);
-                        break;
-                    case Color:
-                    case Screen:
-                        gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE_MINUS_SRC_COLOR);
-                        break;
-                    case Exclusion:
-                        gl.glBlendFunc(GL.GL_ONE_MINUS_DST_COLOR, GL.GL_ONE_MINUS_SRC_COLOR);
-                        break;
-                    case Custom:
-                        gl.glBlendFuncSeparate(
-                            convertBlendFunc(state.getCustomSfactorRGB()),
-                            convertBlendFunc(state.getCustomDfactorRGB()),
-                            convertBlendFunc(state.getCustomSfactorAlpha()),
-                            convertBlendFunc(state.getCustomDfactorAlpha()));
-                        break;
-                    default:
-                        throw new UnsupportedOperationException("Unrecognized blend mode: "
-                                + state.getBlendMode());
-                }
-                
-                if (state.getBlendEquation() != context.blendEquation || state.getBlendEquationAlpha() != context.blendEquationAlpha) {
-                    int colorMode = convertBlendEquation(state.getBlendEquation());
-                    int alphaMode;
-                    if (state.getBlendEquationAlpha() == RenderState.BlendEquationAlpha.InheritColor) {
-                        alphaMode = colorMode;
-                    } else {
-                        alphaMode = convertBlendEquationAlpha(state.getBlendEquationAlpha());
-                    }
-                    gl.glBlendEquationSeparate(colorMode, alphaMode);
-                    context.blendEquation = state.getBlendEquation();
-                    context.blendEquationAlpha = state.getBlendEquationAlpha();
-                }
+        // Always update the blend equations and factors when using custom blend mode.
+        if (state.getBlendMode() == BlendMode.Custom) {
+            changeBlendMode(BlendMode.Custom);
+
+            blendFuncSeparate(
+                    state.getCustomSfactorRGB(),
+                    state.getCustomDfactorRGB(),
+                    state.getCustomSfactorAlpha(),
+                    state.getCustomDfactorAlpha());
+            blendEquationSeparate(state.getBlendEquation(), state.getBlendEquationAlpha());
+
+        // Update the blend equations and factors only on a mode change for all the other (common) blend modes.
+        } else if (state.getBlendMode() != context.blendMode) {
+            changeBlendMode(state.getBlendMode());
+
+            switch (state.getBlendMode()) {
+                case Off:
+                    break;
+                case Additive:
+                    blendFunc(RenderState.BlendFunc.One, RenderState.BlendFunc.One);
+                    break;
+                case AlphaAdditive:
+                    blendFunc(RenderState.BlendFunc.Src_Alpha, RenderState.BlendFunc.One);
+                    break;
+                case Alpha:
+                    blendFunc(RenderState.BlendFunc.Src_Alpha, RenderState.BlendFunc.One_Minus_Src_Alpha);
+                    break;
+                case PremultAlpha:
+                    blendFunc(RenderState.BlendFunc.One, RenderState.BlendFunc.One_Minus_Src_Alpha);
+                    break;
+                case Modulate:
+                    blendFunc(RenderState.BlendFunc.Dst_Color, RenderState.BlendFunc.Zero);
+                    break;
+                case ModulateX2:
+                    blendFunc(RenderState.BlendFunc.Dst_Color, RenderState.BlendFunc.Src_Color);
+                    break;
+                case Color:
+                case Screen:
+                    blendFunc(RenderState.BlendFunc.One, RenderState.BlendFunc.One_Minus_Src_Color);
+                    break;
+                case Exclusion:
+                    blendFunc(RenderState.BlendFunc.One_Minus_Dst_Color, RenderState.BlendFunc.One_Minus_Src_Color);
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unrecognized blend mode: "
+                            + state.getBlendMode());
             }
 
-            context.blendMode = state.getBlendMode();
+            // All of the common modes requires the ADD equation.
+            // (This might change in the future?)
+            blendEquationSeparate(RenderState.BlendEquation.Add, RenderState.BlendEquationAlpha.InheritColor);
         }
 
         if (context.stencilTest != state.isStencilTest()
@@ -849,6 +839,65 @@ public final class GLRenderer implements Renderer {
         if (context.lineWidth != state.getLineWidth()) {
             gl.glLineWidth(state.getLineWidth());
             context.lineWidth = state.getLineWidth();
+        }
+    }
+
+    private void changeBlendMode(RenderState.BlendMode blendMode) {
+        if (blendMode != context.blendMode) {
+            if (blendMode == RenderState.BlendMode.Off) {
+                gl.glDisable(GL.GL_BLEND);
+            } else if (context.blendMode == RenderState.BlendMode.Off) {
+                gl.glEnable(GL.GL_BLEND);
+            }
+
+            context.blendMode = blendMode;
+        }
+    }
+
+    private void blendEquationSeparate(RenderState.BlendEquation blendEquation, RenderState.BlendEquationAlpha blendEquationAlpha) {
+        if (blendEquation != context.blendEquation || blendEquationAlpha != context.blendEquationAlpha) {
+            int glBlendEquation = convertBlendEquation(blendEquation);
+            int glBlendEquationAlpha = blendEquationAlpha == RenderState.BlendEquationAlpha.InheritColor
+                    ? glBlendEquation
+                    : convertBlendEquationAlpha(blendEquationAlpha);
+            gl.glBlendEquationSeparate(glBlendEquation, glBlendEquationAlpha);
+            context.blendEquation = blendEquation;
+            context.blendEquationAlpha = blendEquationAlpha;
+        }
+    }
+
+    private void blendFunc(RenderState.BlendFunc sfactor, RenderState.BlendFunc dfactor) {
+        if (sfactor != context.sfactorRGB
+                || dfactor != context.dfactorRGB
+                || sfactor != context.sfactorAlpha
+                || dfactor != context.dfactorAlpha) {
+
+            gl.glBlendFunc(
+                    convertBlendFunc(sfactor),
+                    convertBlendFunc(dfactor));
+            context.sfactorRGB = sfactor;
+            context.dfactorRGB = dfactor;
+            context.sfactorAlpha = sfactor;
+            context.dfactorAlpha = dfactor;
+        }
+    }
+
+    private void blendFuncSeparate(RenderState.BlendFunc sfactorRGB, RenderState.BlendFunc dfactorRGB,
+            RenderState.BlendFunc sfactorAlpha, RenderState.BlendFunc dfactorAlpha) {
+        if (sfactorRGB != context.sfactorRGB
+                || dfactorRGB != context.dfactorRGB
+                || sfactorAlpha != context.sfactorAlpha
+                || dfactorAlpha != context.dfactorAlpha) {
+
+            gl.glBlendFuncSeparate(
+                    convertBlendFunc(sfactorRGB),
+                    convertBlendFunc(dfactorRGB),
+                    convertBlendFunc(sfactorAlpha),
+                    convertBlendFunc(dfactorAlpha));
+            context.sfactorRGB = sfactorRGB;
+            context.dfactorRGB = dfactorRGB;
+            context.sfactorAlpha = sfactorAlpha;
+            context.dfactorAlpha = dfactorAlpha;
         }
     }
 
