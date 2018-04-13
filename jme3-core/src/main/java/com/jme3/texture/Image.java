@@ -574,14 +574,14 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
 
     /**
-     * @see {@link #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, int[], boolean)}
+     * @see {@link #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, int[], com.jme3.texture.image.ColorSpace)}
      * @param format
      * @param width
      * @param height
      * @param depth
      * @param data
      * @param mipMapSizes 
-     * @deprecated use {@link #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, int[], boolean)}
+     * @deprecated use {@link #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, int[], com.jme3.texture.image.ColorSpace)}
      */
      @Deprecated
      public Image(Format format, int width, int height, int depth, ArrayList<ByteBuffer> data,
@@ -630,13 +630,13 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
     
     /**
-     * @see {@link #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, int[], boolean)}
+     * @see {@link #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, int[], com.jme3.texture.image.ColorSpace)}
      * @param format
      * @param width
      * @param height
      * @param data
      * @param mipMapSizes
-     * @deprecated use {@link #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, int[], boolean)}
+     * @deprecated use {@link #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, int[], com.jme3.texture.image.ColorSpace)}
      */
     @Deprecated
     public Image(Format format, int width, int height, ByteBuffer data,
@@ -664,13 +664,13 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
     
     /**
-     * @see {@link #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, boolean)}
+     * @see {@link #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, com.jme3.texture.image.ColorSpace)}
      * @param format
      * @param width
      * @param height
      * @param depth
      * @param data
-     * @deprecated use {@link #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, boolean)} 
+     * @deprecated use {@link #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, com.jme3.texture.image.ColorSpace)}
      */
     @Deprecated
     public Image(Format format, int width, int height, int depth, ArrayList<ByteBuffer> data) {
@@ -698,12 +698,12 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     
     
     /**
-     * @see {@link #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, boolean)} 
+     * @see {@link #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, com.jme3.texture.image.ColorSpace)}
      * @param format
      * @param width
      * @param height
      * @param data
-     * @deprecated use {@link #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, boolean)} 
+     * @deprecated use {@link #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, com.jme3.texture.image.ColorSpace)}
      */
     @Deprecated
     public Image(Format format, int width, int height, ByteBuffer data) {
