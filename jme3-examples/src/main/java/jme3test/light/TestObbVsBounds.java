@@ -33,35 +33,48 @@ package jme3test.light;
 
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
+import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
+import com.jme3.export.binary.BinaryExporter;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
-import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.AnalogListener;
-import com.jme3.input.controls.KeyTrigger;
-import com.jme3.input.controls.MouseAxisTrigger;
-import com.jme3.input.controls.MouseButtonTrigger;
-import com.jme3.light.AmbientLight;
-import com.jme3.light.DirectionalLight;
-import com.jme3.light.SpotLight;
+import com.jme3.input.controls.*;
+import com.jme3.light.*;
 import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.renderer.Camera;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.LightNode;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
+import com.jme3.scene.*;
 import com.jme3.scene.debug.Grid;
 import com.jme3.scene.debug.WireFrustum;
-import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.Cylinder;
+import com.jme3.scene.shape.*;
 import com.jme3.shadow.ShadowUtil;
-import com.jme3.texture.Texture;
 import com.jme3.util.TempVars;
 
-public class TestConeVSFrustum extends SimpleApplication {
+import java.io.File;
+import java.io.IOException;
+
+public class TestObbVsBounds extends SimpleApplication {
+
+    private Node ln;
+    private BoundingBox aabb = new BoundingBox();
+    private BoundingSphere sphere = new BoundingSphere(10, new Vector3f(-30, 0, -60));
+
+    private final static float MOVE_SPEED = 60;
+    private Vector3f tmp = new Vector3f();
+    private Quaternion tmpQuat = new Quaternion();
+    private boolean moving, shift;
+    private boolean panning;
+
+    private OrientedBoxProbeArea area = new OrientedBoxProbeArea();
+    private Camera frustumCam;
+
+    private Geometry areaGeom;
+    private Geometry frustumGeom;
+    private Geometry aabbGeom;
+    private Geometry sphereGeom;
 
     public static void main(String[] args) {
-        TestConeVSFrustum app = new TestConeVSFrustum();
+        TestObbVsBounds app = new TestObbVsBounds();
         app.start();
     }
 
@@ -70,15 +83,13 @@ public class TestConeVSFrustum extends SimpleApplication {
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);
         frustumCam = cam.clone();
         frustumCam.setFrustumFar(25);
-        Vector3f[] points = new Vector3f[8];
-        for (int i = 0; i < 8; i++) {
-            points[i] = new Vector3f();
-        }
-        ShadowUtil.updateFrustumPoints2(frustumCam, points);
-        WireFrustum frustumShape = new WireFrustum(points);
-        Geometry frustum = new Geometry("frustum", frustumShape);
-        frustum.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
-        rootNode.attachChild(frustum);
+        makeCamFrustum();
+        aabb.setCenter(20, 10, -60);
+        aabb.setXExtent(10);
+        aabb.setYExtent(5);
+        aabb.setZExtent(3);
+        makeBoxWire(aabb);
+        makeSphereWire(sphere);
 
         rootNode.addLight(new DirectionalLight());
         AmbientLight al = new AmbientLight();
@@ -92,29 +103,15 @@ public class TestConeVSFrustum extends SimpleApplication {
         rootNode.attachChild(gridGeom);
         gridGeom.setLocalTranslation(-125, -25, -125);
 
-//        flyCam.setMoveSpeed(30);
-//        flyCam.setDragToRotate(true);
-//        cam.setLocation(new Vector3f(56.182674f, 19.037334f, 7.093905f));
-//        cam.setRotation(new Quaternion(0.0816657f, -0.82228005f, 0.12213967f, 0.5497892f));
-        spotLight = new SpotLight();
-        spotLight.setSpotRange(25);
-        spotLight.setSpotOuterAngle(10 * FastMath.DEG_TO_RAD);
+        area.setCenter(Vector3f.ZERO);
+        area.setExtent(new Vector3f(4, 8, 5));
+        makeAreaGeom();
 
-        float radius = FastMath.tan(spotLight.getSpotOuterAngle()) * spotLight.getSpotRange();
-
-        Cylinder cylinder = new Cylinder(5, 16, 0.01f, radius, spotLight.getSpotRange(), true, false);
-        geom = new Geometry("light", cylinder);
-        geom.setMaterial(new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md"));
-        geom.getMaterial().setColor("Diffuse", ColorRGBA.White);
-        geom.getMaterial().setColor("Ambient", ColorRGBA.DarkGray);
-        geom.getMaterial().setBoolean("UseMaterialColors", true);
-        final LightNode ln = new LightNode("lb", spotLight);
-        ln.attachChild(geom);
-        geom.setLocalTranslation(0, -spotLight.getSpotRange() / 2f, 0);
-        geom.rotate(-FastMath.HALF_PI, 0, 0);
+        ln = new Node("lb");
+        ln.setLocalRotation(new Quaternion(-0.18826798f, -0.38304946f, -0.12780227f, 0.895261f));
+        ln.attachChild(areaGeom);
+        ln.setLocalScale(4,8,5);
         rootNode.attachChild(ln);
-//        ln.rotate(FastMath.QUARTER_PI, 0, 0);
-        //      ln.setLocalTranslation(0, 0, -16);
 
         inputManager.addMapping("click", new MouseButtonTrigger(MouseInput.BUTTON_RIGHT));
         inputManager.addMapping("shift", new KeyTrigger(KeyInput.KEY_LSHIFT), new KeyTrigger(KeyInput.KEY_RSHIFT));
@@ -150,8 +147,8 @@ public class TestConeVSFrustum extends SimpleApplication {
                     s = camTarget;
                     mult = -1;
                 }
-                if ((moving || panning) &&  s!=null) {
-                    if (shift) { 
+                if ((moving || panning) && s != null) {
+                    if (shift) {
                         if (name.equals("left")) {
                             tmp.set(cam.getDirection());
                             s.rotate(tmpQuat.fromAngleAxis(value, tmp));
@@ -208,56 +205,97 @@ public class TestConeVSFrustum extends SimpleApplication {
                 }
             }
         }, "click", "middleClick", "shift");
-        /**
-         * An unshaded textured cube. // * Uses texture from jme3-test-data
-         * library!
-         */
-        Box boxMesh = new Box(1f, 1f, 1f);
-        boxGeo = new Geometry("A Textured Box", boxMesh);
-        Material boxMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        Texture monkeyTex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
-        boxMat.setTexture("ColorMap", monkeyTex);
-        boxGeo.setMaterial(boxMat);
-//        rootNode.attachChild(boxGeo);
-//
-//boxGeo2 = boxGeo.clone();
-//rootNode.attachChild(boxGeo2); 
-        System.err.println("light " + spotLight.getPosition());
 
     }
-    Geometry boxGeo, boxGeo2;
-    private final static float MOVE_SPEED = 60;
-    Vector3f tmp = new Vector3f();
-    Quaternion tmpQuat = new Quaternion();
-    boolean moving, shift;
-    boolean panning;
-    Geometry geom;
-    SpotLight spotLight;
-    Camera frustumCam;
+
+    public void makeAreaGeom() {
+
+        Vector3f[] points = new Vector3f[8];
+
+        for (int i = 0; i < points.length; i++) {
+            points[i] = new Vector3f();
+        }
+
+        points[0].set(-1, -1, 1);
+        points[1].set(-1, 1, 1);
+        points[2].set(1, 1, 1);
+        points[3].set(1, -1, 1);
+
+        points[4].set(-1, -1, -1);
+        points[5].set(-1, 1, -1);
+        points[6].set(1, 1, -1);
+        points[7].set(1, -1, -1);
+
+        Mesh box = WireFrustum.makeFrustum(points);
+        areaGeom = new Geometry("light", (Mesh)box);
+        areaGeom.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
+        areaGeom.getMaterial().setColor("Color", ColorRGBA.White);
+    }
+
+    public void makeCamFrustum() {
+        Vector3f[] points = new Vector3f[8];
+        for (int i = 0; i < 8; i++) {
+            points[i] = new Vector3f();
+        }
+        ShadowUtil.updateFrustumPoints2(frustumCam, points);
+        WireFrustum frustumShape = new WireFrustum(points);
+        frustumGeom = new Geometry("frustum", frustumShape);
+        frustumGeom.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
+        rootNode.attachChild(frustumGeom);
+    }
+
+    public void makeBoxWire(BoundingBox box) {
+        Vector3f[] points = new Vector3f[8];
+        for (int i = 0; i < 8; i++) {
+            points[i] = new Vector3f();
+        }
+        points[0].set(-1, -1, 1);
+        points[1].set(-1, 1, 1);
+        points[2].set(1, 1, 1);
+        points[3].set(1, -1, 1);
+
+        points[4].set(-1, -1, -1);
+        points[5].set(-1, 1, -1);
+        points[6].set(1, 1, -1);
+        points[7].set(1, -1, -1);
+
+        WireFrustum frustumShape = new WireFrustum(points);
+        aabbGeom = new Geometry("box", frustumShape);
+        aabbGeom.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
+        aabbGeom.getMaterial().getAdditionalRenderState().setWireframe(true);
+        aabbGeom.setLocalTranslation(box.getCenter());
+        aabbGeom.setLocalScale(box.getXExtent(), box.getYExtent(), box.getZExtent());
+        rootNode.attachChild(aabbGeom);
+    }
+
+    public void makeSphereWire(BoundingSphere sphere) {
+
+        sphereGeom = new Geometry("box", new Sphere(16, 16, 10));
+        sphereGeom.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
+        sphereGeom.getMaterial().getAdditionalRenderState().setWireframe(true);
+        sphereGeom.setLocalTranslation(sphere.getCenter());
+        rootNode.attachChild(sphereGeom);
+    }
+
 
     @Override
     public void simpleUpdate(float tpf) {
+
+        area.setCenter(ln.getLocalTranslation());
+        area.setRotation(ln.getLocalRotation());
+
         TempVars vars = TempVars.get();
-        boolean intersect = spotLight.intersectsFrustum(frustumCam, vars);
-
-
-        if (intersect) {
-            geom.getMaterial().setColor("Diffuse", ColorRGBA.Green);
-        } else {
-            geom.getMaterial().setColor("Diffuse", ColorRGBA.White);
-        }
-        Vector3f farPoint = vars.vect1.set(spotLight.getPosition()).addLocal(vars.vect2.set(spotLight.getDirection()).multLocal(spotLight.getSpotRange()));
-
-        //computing the radius of the base disc
-        float farRadius = (spotLight.getSpotRange() / FastMath.cos(spotLight.getSpotOuterAngle())) * FastMath.sin(spotLight.getSpotOuterAngle());
-        //computing the projection direction : perpendicular to the light direction and coplanar with the direction vector and the normal vector
-        Vector3f perpDirection = vars.vect2.set(spotLight.getDirection()).crossLocal(frustumCam.getWorldPlane(3).getNormal()).normalizeLocal().crossLocal(spotLight.getDirection());
-        //projecting the far point on the base disc perimeter
-        Vector3f projectedPoint = vars.vect3.set(farPoint).addLocal(perpDirection.multLocal(farRadius));
-
-
+        boolean intersectBox = area.intersectsBox(aabb, vars);
+        boolean intersectFrustum = area.intersectsFrustum(frustumCam, vars);
+        boolean intersectSphere = area.intersectsSphere(sphere, vars);
         vars.release();
-//        boxGeo.setLocalTranslation(spotLight.getPosition());
-        //  boxGeo.setLocalTranslation(projectedPoint);
+
+        boolean intersect = intersectBox || intersectFrustum || intersectSphere;
+
+        areaGeom.getMaterial().setColor("Color", intersect ? ColorRGBA.Green : ColorRGBA.White);
+        sphereGeom.getMaterial().setColor("Color", intersectSphere ? ColorRGBA.Cyan : ColorRGBA.White);
+        frustumGeom.getMaterial().setColor("Color", intersectFrustum ? ColorRGBA.Cyan : ColorRGBA.White);
+        aabbGeom.getMaterial().setColor("Color", intersectBox ? ColorRGBA.Cyan : ColorRGBA.White);
+
     }
 }

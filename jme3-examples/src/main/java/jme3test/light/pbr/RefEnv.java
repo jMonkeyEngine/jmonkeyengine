@@ -1,7 +1,6 @@
 package jme3test.light.pbr;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.bounding.BoundingSphere;
 import com.jme3.environment.EnvironmentCamera;
 import com.jme3.environment.LightProbeFactory;
 import com.jme3.environment.generation.JobProgressAdapter;
@@ -10,6 +9,7 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.LightProbe;
+import com.jme3.light.SphereProbeArea;
 import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.scene.*;
@@ -127,7 +127,7 @@ public class RefEnv extends SimpleApplication {
                     rootNode.getChild(0).setCullHint(Spatial.CullHint.Dynamic);
                 }
             });
-            ((BoundingSphere) probe.getBounds()).setRadius(100);
+            ((SphereProbeArea) probe.getArea()).setRadius(100);
             rootNode.addLight(probe);
 
         }

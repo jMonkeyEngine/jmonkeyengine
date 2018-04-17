@@ -3,7 +3,6 @@
 #import "Common/ShaderLib/Parallax.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
 
-
 varying vec2 texCoord;
 #ifdef SEPARATE_TEXCOORD
   varying vec2 texCoord2;
@@ -12,7 +11,6 @@ varying vec2 texCoord;
 varying vec4 Color;
 
 uniform vec4 g_LightData[NB_LIGHTS];
-
 uniform vec3 g_CameraPosition;
 
 uniform float m_Roughness;
@@ -21,11 +19,20 @@ uniform float m_Metallic;
 varying vec3 wPosition;    
 
 
-#ifdef INDIRECT_LIGHTING
-//  uniform sampler2D m_IntegrateBRDF;
+#if NB_PROBES >= 1
   uniform samplerCube g_PrefEnvMap;
   uniform vec3 g_ShCoeffs[9];
-  uniform vec4 g_LightProbeData;
+  uniform mat4 g_LightProbeData;
+#endif
+#if NB_PROBES >= 2
+  uniform samplerCube g_PrefEnvMap2;
+  uniform vec3 g_ShCoeffs2[9];
+  uniform mat4 g_LightProbeData2;
+#endif
+#if NB_PROBES == 3
+  uniform samplerCube g_PrefEnvMap3;
+  uniform vec3 g_ShCoeffs3[9];
+  uniform mat4 g_LightProbeData3;
 #endif
 
 #ifdef BASECOLORMAP
@@ -86,6 +93,91 @@ varying vec3 wNormal;
 #ifdef DISCARD_ALPHA
 uniform float m_AlphaDiscardThreshold;
 #endif
+
+float renderProbe(vec3 viewDir, vec3 normal, vec3 norm, float Roughness, vec4 diffuseColor, vec4 specularColor, float ndotv, vec3 ao, mat4 lightProbeData,vec3 shCoeffs[9],samplerCube prefEnvMap, inout vec3 color ){
+
+    // lightProbeData is a mat4 with this layout
+    //   3x3 rot mat|
+    //      0  1  2 |  3
+    // 0 | ax bx cx | px | )
+    // 1 | ay by cy | py | probe position
+    // 2 | az bz cz | pz | )
+    // --|----------|
+    // 3 | sx sy sz   sp | -> 1/probe radius + nbMipMaps
+    //    --scale--
+    // parallax fix for spherical / obb bounds and probe blending from
+    // from https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
+    vec3 rv = reflect(-viewDir, normal);
+    vec4 probePos = lightProbeData[3];
+    float invRadius = fract( probePos.w);
+    float nbMipMaps = probePos.w - invRadius;
+    vec3 direction = wPosition - probePos.xyz;
+    float ndf = 0.0;
+
+    if(lightProbeData[0][3] != 0.0){
+        // oriented box probe
+        mat3 wToLocalRot = mat3(lightProbeData);
+        wToLocalRot = inverse(wToLocalRot);
+        vec3 scale = vec3(lightProbeData[0][3], lightProbeData[1][3], lightProbeData[2][3]);
+        #if NB_PROBES >= 2
+            // probe blending
+            // compute fragment position in probe local space
+            vec3 localPos = wToLocalRot * wPosition;
+            localPos -= probePos.xyz;
+            // compute normalized distance field
+            vec3 localDir = abs(localPos);
+            localDir /= scale;
+            ndf = max(max(localDir.x, localDir.y), localDir.z);
+        #endif
+        // parallax fix
+        vec3 rayLs = wToLocalRot * rv;
+        rayLs /= scale;
+
+        vec3 positionLs = wPosition - probePos.xyz;
+        positionLs = wToLocalRot * positionLs;
+        positionLs /= scale;
+
+        vec3 unit = vec3(1.0);
+        vec3 firstPlaneIntersect = (unit - positionLs) / rayLs;
+        vec3 secondPlaneIntersect = (-unit - positionLs) / rayLs;
+        vec3 furthestPlane = max(firstPlaneIntersect, secondPlaneIntersect);
+        float distance = min(min(furthestPlane.x, furthestPlane.y), furthestPlane.z);
+
+        vec3 intersectPositionWs = wPosition + rv * distance;
+        rv = intersectPositionWs - probePos.xyz;
+
+    } else {
+        // spherical probe
+        // paralax fix
+        rv = invRadius * direction + rv;
+
+        #if NB_PROBES >= 2
+            // probe blending
+            float dist = sqrt(dot(direction, direction));
+            ndf = dist * invRadius;
+        #endif
+    }
+
+    vec3 indirectDiffuse = vec3(0.0);
+    vec3 indirectSpecular = vec3(0.0);
+    indirectDiffuse = sphericalHarmonics(normal.xyz, shCoeffs) * diffuseColor.rgb;
+    vec3 dominantR = getSpecularDominantDir( normal, rv.xyz, Roughness * Roughness );
+    indirectSpecular = ApproximateSpecularIBLPolynomial(prefEnvMap, specularColor.rgb, Roughness, ndotv, dominantR, nbMipMaps);
+
+    #ifdef HORIZON_FADE
+        //horizon fade from http://marmosetco.tumblr.com/post/81245981087
+        float horiz = dot(rv, norm);
+        float horizFadePower = 1.0 - Roughness;
+        horiz = clamp( 1.0 + horizFadePower * horiz, 0.0, 1.0 );
+        horiz *= horiz;
+        indirectSpecular *= vec3(horiz);
+    #endif
+
+    vec3 indirectLighting = (indirectDiffuse + indirectSpecular) * ao;
+
+    color = indirectLighting * step( 0.0, probePos.w);
+    return ndf;
+}
 
 void main(){
     vec2 newTexCoord;
@@ -250,32 +342,47 @@ void main(){
         gl_FragColor.rgb += directLighting * fallOff;
     }
 
-    #ifdef INDIRECT_LIGHTING
-        vec3 rv = reflect(-viewDir.xyz, normal.xyz);
-        //prallax fix for spherical bounds from https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
-        // g_LightProbeData.w is 1/probe radius + nbMipMaps, g_LightProbeData.xyz is the position of the lightProbe.
-        float invRadius = fract( g_LightProbeData.w);
-        float nbMipMaps = g_LightProbeData.w - invRadius;
-        rv = invRadius * (wPosition - g_LightProbeData.xyz) +rv;
+    #if NB_PROBES >= 1
+        vec3 color1 = vec3(0.0);
+        vec3 color2 = vec3(0.0);
+        vec3 color3 = vec3(0.0);
+        float weight1 = 1.0;
+        float weight2 = 0.0;
+        float weight3 = 0.0;
 
-         //horizon fade from http://marmosetco.tumblr.com/post/81245981087
-        float horiz = dot(rv, norm);
-        float horizFadePower = 1.0 - Roughness;
-        horiz = clamp( 1.0 + horizFadePower * horiz, 0.0, 1.0 );
-        horiz *= horiz;
+        float ndf = renderProbe(viewDir, normal, norm, Roughness, diffuseColor, specularColor, ndotv, ao, g_LightProbeData, g_ShCoeffs, g_PrefEnvMap, color1);
+        #if NB_PROBES >= 2
+            float ndf2 = renderProbe(viewDir, normal, norm, Roughness, diffuseColor, specularColor, ndotv, ao, g_LightProbeData2, g_ShCoeffs2, g_PrefEnvMap2, color2);
+        #endif
+        #if NB_PROBES == 3
+            float ndf3 = renderProbe(viewDir, normal, norm, Roughness, diffuseColor, specularColor, ndotv, ao, g_LightProbeData3, g_ShCoeffs3, g_PrefEnvMap3, color3);
+        #endif
 
-        vec3 indirectDiffuse = vec3(0.0);
-        vec3 indirectSpecular = vec3(0.0);
-        indirectDiffuse = sphericalHarmonics(normal.xyz, g_ShCoeffs) * diffuseColor.rgb;
-        vec3 dominantR = getSpecularDominantDir( normal, rv.xyz, Roughness*Roughness );
-        indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, dominantR, nbMipMaps);
-        indirectSpecular *= vec3(horiz);
+         #if NB_PROBES >= 2
+            float invNdf =  max(1.0 - ndf,0.0);
+            float invNdf2 =  max(1.0 - ndf2,0.0);
+            float sumNdf = ndf + ndf2;
+            float sumInvNdf = invNdf + invNdf2;
+            #if NB_PROBES == 3
+                float invNdf3 = max(1.0 - ndf3,0.0);
+                sumNdf += ndf3;
+                sumInvNdf += invNdf3;
+                weight3 =  ((1.0 - (ndf3 / sumNdf)) / (NB_PROBES - 1)) *  (invNdf3 / sumInvNdf);
+            #endif
 
-        vec3 indirectLighting = (indirectDiffuse + indirectSpecular) * ao;
+            weight1 = ((1.0 - (ndf / sumNdf)) / (NB_PROBES - 1)) *  (invNdf / sumInvNdf);
+            weight2 = ((1.0 - (ndf2 / sumNdf)) / (NB_PROBES - 1)) *  (invNdf2 / sumInvNdf);
 
-        gl_FragColor.rgb = gl_FragColor.rgb + indirectLighting * step( 0.0, g_LightProbeData.w);
+            float weightSum = weight1 + weight2 + weight3;
+
+            weight1 /= weightSum;
+            weight2 /= weightSum;
+            weight3 /= weightSum;
+        #endif
+        gl_FragColor.rgb += color1 * clamp(weight1,0.0,1.0) + color2 * clamp(weight2,0.0,1.0) + color3 * clamp(weight3,0.0,1.0);
+
     #endif
- 
+
     #if defined(EMISSIVE) || defined (EMISSIVEMAP)
         #ifdef EMISSIVEMAP
             vec4 emissive = texture2D(m_EmissiveMap, newTexCoord);

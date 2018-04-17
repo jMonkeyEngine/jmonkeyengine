@@ -62,6 +62,9 @@ MaterialDef PBR Lighting {
         //Set to true to activate Steep Parallax mapping
         Boolean SteepParallax
 
+        //Horizon fade
+        Boolean HorizonFade
+
         // Set to Use Lightmap
         Texture2D LightMap
 
@@ -157,6 +160,7 @@ MaterialDef PBR Lighting {
             AO_MAP: LightMapAsAOMap
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+            HORIZON_FADE: HorizonFade
         }
     }
 

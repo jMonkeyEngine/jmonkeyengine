@@ -34,6 +34,7 @@ package com.jme3.bounding;
 import com.jme3.math.FastMath;
 import com.jme3.math.Plane;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
 import com.jme3.util.TempVars;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -105,6 +106,15 @@ public final class Intersection {
         if (x2 > minMax.y) {
             minMax.setY(x2);
         }
+    }
+
+    public static boolean intersect(Camera camera, Vector3f center,float radius){
+        for (int i = 5; i >= 0; i--) {
+            if (camera.getWorldPlane(i).pseudoDistance(center) <= -radius) {
+                return false;
+            }
+        }
+        return true;
     }
 
 //    private boolean axisTest(float a, float b, float fa, float fb, Vector3f v0, Vector3f v1, )
