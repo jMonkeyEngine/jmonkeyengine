@@ -94,91 +94,6 @@ varying vec3 wNormal;
 uniform float m_AlphaDiscardThreshold;
 #endif
 
-float renderProbe(vec3 viewDir, vec3 normal, vec3 norm, float Roughness, vec4 diffuseColor, vec4 specularColor, float ndotv, vec3 ao, mat4 lightProbeData,vec3 shCoeffs[9],samplerCube prefEnvMap, inout vec3 color ){
-
-    // lightProbeData is a mat4 with this layout
-    //   3x3 rot mat|
-    //      0  1  2 |  3
-    // 0 | ax bx cx | px | )
-    // 1 | ay by cy | py | probe position
-    // 2 | az bz cz | pz | )
-    // --|----------|
-    // 3 | sx sy sz   sp | -> 1/probe radius + nbMipMaps
-    //    --scale--
-    // parallax fix for spherical / obb bounds and probe blending from
-    // from https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
-    vec3 rv = reflect(-viewDir, normal);
-    vec4 probePos = lightProbeData[3];
-    float invRadius = fract( probePos.w);
-    float nbMipMaps = probePos.w - invRadius;
-    vec3 direction = wPosition - probePos.xyz;
-    float ndf = 0.0;
-
-    if(lightProbeData[0][3] != 0.0){
-        // oriented box probe
-        mat3 wToLocalRot = mat3(lightProbeData);
-        wToLocalRot = inverse(wToLocalRot);
-        vec3 scale = vec3(lightProbeData[0][3], lightProbeData[1][3], lightProbeData[2][3]);
-        #if NB_PROBES >= 2
-            // probe blending
-            // compute fragment position in probe local space
-            vec3 localPos = wToLocalRot * wPosition;
-            localPos -= probePos.xyz;
-            // compute normalized distance field
-            vec3 localDir = abs(localPos);
-            localDir /= scale;
-            ndf = max(max(localDir.x, localDir.y), localDir.z);
-        #endif
-        // parallax fix
-        vec3 rayLs = wToLocalRot * rv;
-        rayLs /= scale;
-
-        vec3 positionLs = wPosition - probePos.xyz;
-        positionLs = wToLocalRot * positionLs;
-        positionLs /= scale;
-
-        vec3 unit = vec3(1.0);
-        vec3 firstPlaneIntersect = (unit - positionLs) / rayLs;
-        vec3 secondPlaneIntersect = (-unit - positionLs) / rayLs;
-        vec3 furthestPlane = max(firstPlaneIntersect, secondPlaneIntersect);
-        float distance = min(min(furthestPlane.x, furthestPlane.y), furthestPlane.z);
-
-        vec3 intersectPositionWs = wPosition + rv * distance;
-        rv = intersectPositionWs - probePos.xyz;
-
-    } else {
-        // spherical probe
-        // paralax fix
-        rv = invRadius * direction + rv;
-
-        #if NB_PROBES >= 2
-            // probe blending
-            float dist = sqrt(dot(direction, direction));
-            ndf = dist * invRadius;
-        #endif
-    }
-
-    vec3 indirectDiffuse = vec3(0.0);
-    vec3 indirectSpecular = vec3(0.0);
-    indirectDiffuse = sphericalHarmonics(normal.xyz, shCoeffs) * diffuseColor.rgb;
-    vec3 dominantR = getSpecularDominantDir( normal, rv.xyz, Roughness * Roughness );
-    indirectSpecular = ApproximateSpecularIBLPolynomial(prefEnvMap, specularColor.rgb, Roughness, ndotv, dominantR, nbMipMaps);
-
-    #ifdef HORIZON_FADE
-        //horizon fade from http://marmosetco.tumblr.com/post/81245981087
-        float horiz = dot(rv, norm);
-        float horizFadePower = 1.0 - Roughness;
-        horiz = clamp( 1.0 + horizFadePower * horiz, 0.0, 1.0 );
-        horiz *= horiz;
-        indirectSpecular *= vec3(horiz);
-    #endif
-
-    vec3 indirectLighting = (indirectDiffuse + indirectSpecular) * ao;
-
-    color = indirectLighting * step( 0.0, probePos.w);
-    return ndf;
-}
-
 void main(){
     vec2 newTexCoord;
     vec3 viewDir = normalize(g_CameraPosition - wPosition);
@@ -350,12 +265,12 @@ void main(){
         float weight2 = 0.0;
         float weight3 = 0.0;
 
-        float ndf = renderProbe(viewDir, normal, norm, Roughness, diffuseColor, specularColor, ndotv, ao, g_LightProbeData, g_ShCoeffs, g_PrefEnvMap, color1);
+        float ndf = renderProbe(viewDir, wPosition, normal, norm, Roughness, diffuseColor, specularColor, ndotv, ao, g_LightProbeData, g_ShCoeffs, g_PrefEnvMap, color1);
         #if NB_PROBES >= 2
-            float ndf2 = renderProbe(viewDir, normal, norm, Roughness, diffuseColor, specularColor, ndotv, ao, g_LightProbeData2, g_ShCoeffs2, g_PrefEnvMap2, color2);
+            float ndf2 = renderProbe(viewDir, wPosition, normal, norm, Roughness, diffuseColor, specularColor, ndotv, ao, g_LightProbeData2, g_ShCoeffs2, g_PrefEnvMap2, color2);
         #endif
         #if NB_PROBES == 3
-            float ndf3 = renderProbe(viewDir, normal, norm, Roughness, diffuseColor, specularColor, ndotv, ao, g_LightProbeData3, g_ShCoeffs3, g_PrefEnvMap3, color3);
+            float ndf3 = renderProbe(viewDir, wPosition, normal, norm, Roughness, diffuseColor, specularColor, ndotv, ao, g_LightProbeData3, g_ShCoeffs3, g_PrefEnvMap3, color3);
         #endif
 
          #if NB_PROBES >= 2
