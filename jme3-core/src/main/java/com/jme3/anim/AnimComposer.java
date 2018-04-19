@@ -144,10 +144,12 @@ public class AnimComposer extends AbstractControl {
             if (currentAction == null) {
                 continue;
             }
-            layer.time += tpf;
+            layer.advance(tpf);
+
             currentAction.setMask(layer.mask);
-            boolean running = currentAction.interpolate(layer.time * globalSpeed);
+            boolean running = currentAction.interpolate(layer.time);
             currentAction.setMask(null);
+
             if (!running) {
                 layer.time = 0;
             }
@@ -214,11 +216,21 @@ public class AnimComposer extends AbstractControl {
         oc.writeStringSavableMap(animClipMap, "animClipMap", new HashMap<String, AnimClip>());
     }
 
-    public static class Layer implements JmeCloneable {
+    private class Layer implements JmeCloneable {
         private Action currentAction;
         private AnimationMask mask;
         private float weight;
-        private float time;
+        private double time;
+
+        public void advance(float tpf) {
+            time += tpf * currentAction.getSpeed() * globalSpeed;
+            // make sure negative time is in [0, length] range
+            if (time < 0) {
+                double length = currentAction.getLength();
+                time = (time % length + length) % length;
+            }
+
+        }
 
         @Override
         public Object jmeClone() {

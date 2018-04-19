@@ -9,6 +9,7 @@ public abstract class Action implements Tween {
     private double length;
     private double speed = 1;
     private AnimationMask mask;
+    private boolean forward = true;
 
     protected Action(Tween... tweens) {
         this.actions = new Action[tweens.length];
@@ -21,16 +22,6 @@ public abstract class Action implements Tween {
             }
         }
     }
-
-    @Override
-    public boolean interpolate(double t) {
-        t = t * speed;
-        // make sure negative time is in [0, length] range
-        t = (t % length + length) % length;
-        return subInterpolate(t);
-    }
-
-    public abstract boolean subInterpolate(double t);
 
     @Override
     public double getLength() {
@@ -47,6 +38,11 @@ public abstract class Action implements Tween {
 
     public void setSpeed(double speed) {
         this.speed = speed;
+        if( speed < 0){
+            setForward(false);
+        } else {
+            setForward(true);
+        }
     }
 
     public AnimationMask getMask() {
@@ -55,5 +51,20 @@ public abstract class Action implements Tween {
 
     public void setMask(AnimationMask mask) {
         this.mask = mask;
+    }
+
+    protected boolean isForward() {
+        return forward;
+    }
+
+    protected void setForward(boolean forward) {
+        if(this.forward == forward){
+            return;
+        }
+        this.forward = forward;
+        for (Action action : actions) {
+            action.setForward(forward);
+        }
+
     }
 }

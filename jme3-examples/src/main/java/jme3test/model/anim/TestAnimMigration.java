@@ -153,7 +153,7 @@ public class TestAnimMigration extends SimpleApplication {
                     action.getBlendSpace().setValue(blendValue);
                     action.setSpeed(blendValue);
                 }
-                System.err.println(blendValue);
+                //System.err.println(blendValue);
             }
         }, "blendUp", "blendDown");
     }
@@ -172,10 +172,15 @@ public class TestAnimMigration extends SimpleApplication {
             for (String name : composer.getAnimClipsNames()) {
                 anims.add(name);
             }
-            composer.actionSequence("Sequence",
+            composer.actionSequence("Sequence1",
                     composer.makeAction("Walk"),
                     composer.makeAction("Run"),
-                    composer.makeAction("Jumping")).setSpeed(2);
+                    composer.makeAction("Jumping")).setSpeed(1);
+
+            composer.actionSequence("Sequence2",
+                    composer.makeAction("Walk"),
+                    composer.makeAction("Run"),
+                    composer.makeAction("Jumping")).setSpeed(-1);
 
             action = composer.actionBlended("Blend", new LinearBlendSpace(1, 4),
                     "Walk", "Run");
@@ -186,8 +191,9 @@ public class TestAnimMigration extends SimpleApplication {
 
             composer.makeLayer("LeftArm", ArmatureMask.createMask(sc.getArmature(), "shoulder.L"));
 
-            anims.addFirst("Sequence");
             anims.addFirst("Blend");
+            anims.addFirst("Sequence2");
+            anims.addFirst("Sequence1");
 
             if (anims.isEmpty()) {
                 return;

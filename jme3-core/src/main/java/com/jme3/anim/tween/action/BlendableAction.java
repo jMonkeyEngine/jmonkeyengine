@@ -3,6 +3,7 @@ package com.jme3.anim.tween.action;
 import com.jme3.anim.tween.AbstractTween;
 import com.jme3.anim.tween.Tween;
 import com.jme3.anim.util.HasLocalTransform;
+import com.jme3.math.FastMath;
 import com.jme3.math.Transform;
 
 import java.util.Collection;
@@ -19,13 +20,12 @@ public abstract class BlendableAction extends Action {
         super(tweens);
     }
 
-
     public void setCollectTransformDelegate(BlendableAction delegate) {
         this.collectTransformDelegate = delegate;
     }
 
     @Override
-    public boolean subInterpolate(double t) {
+    public boolean interpolate(double t) {
         // Sanity check the inputs
         if (t < 0) {
             return true;
@@ -35,7 +35,12 @@ public abstract class BlendableAction extends Action {
             if (transition.getLength() > getLength()) {
                 transition.setLength(getLength());
             }
-            transition.interpolate(t);
+            if(isForward()) {
+                transition.interpolate(t);
+            } else {
+                float v = Math.max((float)(getLength() - t), 0f);
+                transition.interpolate(v);
+            }
         } else {
             transitionWeight = 1f;
         }
