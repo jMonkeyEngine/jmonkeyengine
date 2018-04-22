@@ -86,7 +86,7 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
 
         for (int i = 0; i < lights.size(); i++) {
             Light l = lights.get(i);
-            if (l instanceof AmbientLight) {
+            if (l.getType() == Light.Type.Ambient  || l.getType() == Light.Type.Probe) {
                 continue;
             }
 
@@ -156,8 +156,6 @@ public final class MultiPassLightingLogic extends DefaultTechniqueDefLogic {
 
                     lightDir.setValue(VarType.Vector4, tmpLightDirection);
 
-                    break;
-                case Probe:
                     break;
                 default:
                     throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
