@@ -67,7 +67,7 @@ public class BulletAppState implements AppState, PhysicsTickListener {
 
     /**
      * Creates a new BulletAppState running a PhysicsSpace for physics
-     * simulation, use getStateManager().addState(bulletAppState) to enable
+     * simulation, use getStateManager().attach(bulletAppState) to enable
      * physics for an Application.
      */
     public BulletAppState() {
@@ -75,7 +75,7 @@ public class BulletAppState implements AppState, PhysicsTickListener {
 
     /**
      * Creates a new BulletAppState running a PhysicsSpace for physics
-     * simulation, use getStateManager().addState(bulletAppState) to enable
+     * simulation, use getStateManager().attach(bulletAppState) to enable
      * physics for an Application.
      *
      * @param broadphaseType The type of broadphase collision detection,
@@ -87,7 +87,7 @@ public class BulletAppState implements AppState, PhysicsTickListener {
 
     /**
      * Creates a new BulletAppState running a PhysicsSpace for physics
-     * simulation, use getStateManager().addState(bulletAppState) to enable
+     * simulation, use getStateManager().attach(bulletAppState) to enable
      * physics for an Application. An AxisSweep broadphase is used.
      *
      * @param worldMin The minimum world extent
