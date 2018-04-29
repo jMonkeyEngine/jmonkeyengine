@@ -75,7 +75,7 @@ public class ShaderNodeLoaderDelegate {
     protected MaterialDef materialDef;
     protected String shaderLanguage;
     protected String shaderName;
-    protected String varNames = "";
+    protected String varNames = ";";
     protected AssetManager assetManager;
     protected ConditionParser conditionParser = new ConditionParser();
     protected List<String> nulledConditions = new ArrayList<String>();
@@ -177,7 +177,7 @@ public class ShaderNodeLoaderDelegate {
                         shaderNodeDefinition.setDocumentation(doc);
                     }
                 } else if (line.startsWith("Input")) {
-                    varNames = "";
+                    varNames = ";";
                     for (Statement statement1 : statement.getContents()) {
                         try {
                             shaderNodeDefinition.getInputs().add(readVariable(statement1));
@@ -186,7 +186,7 @@ public class ShaderNodeLoaderDelegate {
                         }
                     }
                 } else if (line.startsWith("Output")) {
-                    varNames = "";
+                    varNames = ";";
                     for (Statement statement1 : statement.getContents()) {
                         try {
                             if (statement1.getLine().trim().equals("None")) {
@@ -235,7 +235,7 @@ public class ShaderNodeLoaderDelegate {
             multiplicity = arr[1].replaceAll("\\]", "").trim();
         }
 
-        if (varNames.contains(varName + ";")) {
+        if (varNames.contains(";" + varName + ";")) {
             throw new MatParseException("Duplicate variable name " + varName, statement);
         }
 
