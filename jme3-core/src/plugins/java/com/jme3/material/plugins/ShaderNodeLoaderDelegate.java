@@ -48,10 +48,7 @@ import com.jme3.shader.VarType;
 import com.jme3.shader.VariableMapping;
 import com.jme3.util.blockparser.Statement;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class is here to be able to load shaderNodeDefinition from both the
@@ -77,7 +74,7 @@ public class ShaderNodeLoaderDelegate {
     protected MaterialDef materialDef;
     protected String shaderLanguage;
     protected String shaderName;
-    protected String varNames = "";
+    protected Set<String> varNames = new HashSet<>();
     protected AssetManager assetManager;
     protected ConditionParser conditionParser = new ConditionParser();
     protected List<String> nulledConditions = new ArrayList<String>();
@@ -179,7 +176,7 @@ public class ShaderNodeLoaderDelegate {
                         shaderNodeDefinition.setDocumentation(doc);
                     }
                 } else if (line.startsWith("Input")) {
-                    varNames = "";
+                    varNames.clear();
                     for (Statement statement1 : statement.getContents()) {
                         try {
                             shaderNodeDefinition.getInputs().add(readVariable(statement1));
@@ -188,7 +185,7 @@ public class ShaderNodeLoaderDelegate {
                         }
                     }
                 } else if (line.startsWith("Output")) {
-                    varNames = "";
+                    varNames.clear();
                     for (Statement statement1 : statement.getContents()) {
                         try {
                             if (statement1.getLine().trim().equals("None")) {
@@ -237,11 +234,11 @@ public class ShaderNodeLoaderDelegate {
             multiplicity = arr[1].replaceAll("\\]", "").trim();
         }
 
-        if (varNames.contains(varName + ";")) {
+        if (varNames.contains(varName)) {
             throw new MatParseException("Duplicate variable name " + varName, statement);
         }
 
-        varNames += varName + ";";
+        varNames.add(varName);
 
         final ShaderNodeVariable variable = new ShaderNodeVariable(varType, "", varName, multiplicity);
         variable.setDefaultValue(defaultValue);
@@ -1065,7 +1062,7 @@ public class ShaderNodeLoaderDelegate {
         materialDef = null;
         shaderLanguage = "";
         shaderName = "";
-        varNames = "";
+        varNames.clear();
         assetManager = null;
         nulledConditions.clear();
     }
