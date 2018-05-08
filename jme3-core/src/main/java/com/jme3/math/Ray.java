@@ -77,7 +77,7 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
      * Constructor instantiates a new <code>Ray</code> object. The origin and
      * direction are given.
      * @param origin the origin of the ray.
-     * @param direction the direction the ray travels in.
+     * @param direction a unit vector for the relative direction from the origin the ray travels in.
      */
     public Ray(Vector3f origin, Vector3f direction) {
         setOrigin(origin);
@@ -473,11 +473,20 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
     /**
      *
      * <code>setDirection</code> sets the direction vector of the ray.
-     * @param direction the direction of the ray.
+     * @param direction a unit vector for the relative direction from the origin the ray travels in.
      */
     public void setDirection(Vector3f direction) {
         assert direction.isUnitVector();
         this.direction.set(direction);
+    }
+
+    /**
+     * Normalize the vector from your origin to your target and uses that to set the direction.
+     * @param target the coordinates that your vector should point towards.
+     */
+    public void aimAtTarget(Vector3f target) {
+        Vector3f relativeDirection = target.subtract(origin);
+        setDirection(relativeDirection.normalize());
     }
 
     /**
