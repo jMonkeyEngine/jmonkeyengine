@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,53 +29,65 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.renderer;
+package com.jme3.shader;
 
 /**
- * <code>Limits</code> allows querying the limits of certain features in
- * {@link Renderer}.
- * <p>
- * For example, maximum texture sizes or number of samples.
+ * Implementation of shader's buffer block.
  *
- * @author Kirill Vainer
+ * @author JavaSaBr
  */
-public enum Limits {
-    /**
-     * Maximum number of vertex texture units, or number of textures that can be
-     * used in the vertex shader.
-     */
-    VertexTextureUnits,
-    /**
-     * Maximum number of fragment texture units, or number of textures that can
-     * be used in the fragment shader.
-     */
-    FragmentTextureUnits,
-    FragmentUniformVectors,
-    VertexUniformVectors,
-    VertexAttributes,
-    FrameBufferSamples,
-    FrameBufferAttachments,
-    FrameBufferMrtAttachments,
-    RenderBufferSize,
-    TextureSize,
-    CubemapSize,
-    ColorTextureSamples,
-    DepthTextureSamples,
-    TextureAnisotropy,
+public class ShaderBufferBlock extends ShaderVariable {
 
-    // UBO
-    UniformBufferObjectMaxVertexBlocks,
-    UniformBufferObjectMaxFragmentBlocks,
-    UniformBufferObjectMaxGeometryBlocks,
-    UniformBufferObjectMaxBlockSize,
+    /**
+     * Current used buffer object.
+     */
+    protected BufferObject bufferObject;
 
-    // SSBO
-    ShaderStorageBufferObjectMaxBlockSize,
-    ShaderStorageBufferObjectMaxVertexBlocks,
-    ShaderStorageBufferObjectMaxFragmentBlocks,
-    ShaderStorageBufferObjectMaxGeometryBlocks,
-    ShaderStorageBufferObjectMaxTessControlBlocks,
-    ShaderStorageBufferObjectMaxTessEvaluationBlocks,
-    ShaderStorageBufferObjectMaxComputeBlocks,
-    ShaderStorageBufferObjectMaxCombineBlocks,
+    /**
+     * Set the new buffer object.
+     *
+     * @param bufferObject the new buffer object.
+     */
+    public void setBufferObject(final BufferObject bufferObject) {
+
+        if (bufferObject == null) {
+            throw new IllegalArgumentException("for storage block " + name + ": storageData cannot be null");
+        }
+
+        this.bufferObject = bufferObject;
+
+        updateNeeded = true;
+    }
+
+    /**
+     * Return true if need to update this storage block.
+     *
+     * @return true if need to update this storage block.
+     */
+    public boolean isUpdateNeeded(){
+        return updateNeeded;
+    }
+
+    /**
+     * Clear the flag {@link #isUpdateNeeded()}.
+     */
+    public void clearUpdateNeeded(){
+        updateNeeded = false;
+    }
+
+    /**
+     * Reset this storage block.
+     */
+    public void reset(){
+        updateNeeded = true;
+    }
+
+    /**
+     * Get the current storage data.
+     *
+     * @return the current storage data.
+     */
+    public BufferObject getBufferObject() {
+        return bufferObject;
+    }
 }

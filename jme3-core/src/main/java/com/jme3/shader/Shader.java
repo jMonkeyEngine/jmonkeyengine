@@ -51,6 +51,11 @@ public final class Shader extends NativeObject {
      * Maps uniform name to the uniform variable.
      */
     private final ListMap<String, Uniform> uniforms;
+
+    /**
+     * Maps storage block name to the buffer block variables.
+     */
+    private final ListMap<String, ShaderBufferBlock> bufferBlocks;
     
     /**
      * Uniforms bound to {@link UniformBinding}s.
@@ -220,10 +225,11 @@ public final class Shader extends NativeObject {
      */
     public Shader(){
         super();
-        shaderSourceList = new ArrayList<ShaderSource>();
-        uniforms = new ListMap<String, Uniform>();
-        attribs = new IntMap<Attribute>();
-        boundUniforms = new ArrayList<Uniform>();
+        shaderSourceList = new ArrayList<>();
+        uniforms = new ListMap<>();
+        bufferBlocks = new ListMap<>();
+        attribs = new IntMap<>();
+        boundUniforms = new ArrayList<>();
     }
 
     /**
@@ -240,6 +246,7 @@ public final class Shader extends NativeObject {
         }
         
         uniforms = null;
+        bufferBlocks = null;
         boundUniforms = null;
         attribs = null;
     }
@@ -288,8 +295,38 @@ public final class Shader extends NativeObject {
         return uniform;
     }
 
+    /**
+     * Gets or creates a buffer block by the name.
+     *
+     * @param name the buffer block's name.
+     * @return the buffer block.
+     */
+    public ShaderBufferBlock getBufferBlock(final String name) {
+
+        assert name.startsWith("m_");
+
+        ShaderBufferBlock block = bufferBlocks.get(name);
+
+        if (block == null) {
+            block = new ShaderBufferBlock();
+            block.name = name;
+            bufferBlocks.put(name, block);
+        }
+
+        return block;
+    }
+
     public void removeUniform(String name){
         uniforms.remove(name);
+    }
+
+    /**
+     * Removes a buffer block by the name.
+     *
+     * @param name the buffer block's name.
+     */
+    public void removeBufferBlock(final String name){
+        bufferBlocks.remove(name);
     }
 
     public Attribute getAttribute(VertexBuffer.Type attribType){
@@ -306,7 +343,16 @@ public final class Shader extends NativeObject {
     public ListMap<String, Uniform> getUniformMap(){
         return uniforms;
     }
-    
+
+    /**
+     * Get the buffer blocks map.
+     *
+     * @return the buffer blocks map.
+     */
+    public ListMap<String, ShaderBufferBlock> getBufferBlockMap() {
+        return bufferBlocks;
+    }
+
     public ArrayList<Uniform> getBoundUniforms() {
         return boundUniforms;
     }
@@ -320,6 +366,7 @@ public final class Shader extends NativeObject {
         return getClass().getSimpleName() + 
                 "[numSources=" + shaderSourceList.size() +
                 ", numUniforms=" + uniforms.size() +
+                ", numBufferBlocks=" + bufferBlocks.size() +
                 ", shaderSources=" + getSources() + "]";
     }
 
@@ -343,7 +390,7 @@ public final class Shader extends NativeObject {
      * Resets all uniforms that do not have the "set-by-current-material" flag
      * to their default value (usually all zeroes or false).
      * When a uniform is modified, that flag is set, to remove the flag,
-     * use {@link #clearUniformsSetByCurrent() }.
+     * use {@link #clearUniformsSetByCurrentFlag() }.
      */
     public void resetUniformsNotSetByCurrent() {
         int size = uniforms.size();
@@ -364,6 +411,11 @@ public final class Shader extends NativeObject {
             // NOTE: Shader sources will be reset separately from the shader itself.
             for (Uniform uniform : uniforms.values()) {
                 uniform.reset(); // fixes issue with re-initialization
+            }
+        }
+        if (bufferBlocks != null) {
+            for (ShaderBufferBlock shaderBufferBlock : bufferBlocks.values()) {
+                shaderBufferBlock.reset();
             }
         }
         if (attribs != null) {
