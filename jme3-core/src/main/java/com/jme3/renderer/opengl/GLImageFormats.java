@@ -220,7 +220,7 @@ public final class GLImageFormats {
         
         // NOTE: OpenGL ES 2.0 does not support DEPTH_COMPONENT as internal format -- fallback to 16-bit depth.
         if (caps.contains(Caps.OpenGLES20)) {
-            format(formatToGL, Format.Depth, GL.GL_DEPTH_COMPONENT16, GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_BYTE);
+            format(formatToGL, Format.Depth, GL.GL_DEPTH_COMPONENT16, GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_SHORT);
         } else {
             format(formatToGL, Format.Depth, GL.GL_DEPTH_COMPONENT, GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_BYTE);
         }
