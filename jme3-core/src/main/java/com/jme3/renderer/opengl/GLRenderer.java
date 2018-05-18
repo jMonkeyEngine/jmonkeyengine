@@ -1327,6 +1327,7 @@ public final class GLRenderer implements Renderer {
                     + "Only GLSL 1.00 shaders are supported.");
         }
 
+        boolean insertPrecision = false;
         // Upload shader source.
         // Merge the defines and source code.
         stringBuf.setLength(0);
@@ -1346,7 +1347,7 @@ public final class GLRenderer implements Renderer {
                     
                     if (source.getType() == ShaderType.Fragment) {
                         // GLES2 requires precision qualifier.
-                        stringBuf.append("precision mediump float;\n");
+                        insertPrecision = true;
                     }
                 } else {
                     // version 100 does not exist in desktop GLSL.
@@ -1364,6 +1365,14 @@ public final class GLRenderer implements Renderer {
 
         stringBuf.append(source.getDefines());
         stringBuf.append(source.getSource());
+
+        if(insertPrecision){
+            // precision token is not a preprocessor dirrective therefore it must be placed after #extension tokens to avoid
+            // Error P0001: Extension directive must occur before any non-preprocessor tokens
+            int idx = stringBuf.lastIndexOf("#extension");
+            idx = stringBuf.indexOf("\n", idx);
+            stringBuf.insert(idx + 1, "precision mediump float;\n");
+        }
 
         intBuf1.clear();
         intBuf1.put(0, stringBuf.length());
