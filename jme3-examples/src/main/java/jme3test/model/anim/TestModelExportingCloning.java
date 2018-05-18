@@ -49,35 +49,9 @@ public class TestModelExportingCloning extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        cam.setLocation(new Vector3f(10f, 3f, 40f));
-        cam.lookAtDirection(Vector3f.UNIT_Z.negate(), Vector3f.UNIT_Y);
+        Spatial s = assetManager.loadModel("Models/gltf/human/human.j3o");
+        rootNode.attachChild(s);
 
-        DirectionalLight dl = new DirectionalLight();
-        dl.setDirection(new Vector3f(-0.1f, -0.7f, -1).normalizeLocal());
-        dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
-        rootNode.addLight(dl);
-
-        AnimControl control;
-        AnimChannel channel;
-        
-        Spatial originalModel = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-        control = originalModel.getControl(AnimControl.class);
-        channel = control.createChannel();
-        channel.setAnim("Walk");
-        rootNode.attachChild(originalModel);
-        
-        Spatial clonedModel = originalModel.clone();
-        clonedModel.move(10, 0, 0);
-        control = clonedModel.getControl(AnimControl.class);
-        channel = control.createChannel();
-        channel.setAnim("push");
-        rootNode.attachChild(clonedModel);
-        
-        Spatial exportedModel = BinaryExporter.saveAndLoad(assetManager, originalModel);
-        exportedModel.move(20, 0, 0);
-        control = exportedModel.getControl(AnimControl.class);
-        channel = control.createChannel();
-        channel.setAnim("pull");
-        rootNode.attachChild(exportedModel);
+        rootNode.addLight(new DirectionalLight(new Vector3f(-1,-1,-1)));
     }
 }
