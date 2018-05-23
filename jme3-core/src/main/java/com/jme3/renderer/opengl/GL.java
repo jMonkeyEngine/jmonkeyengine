@@ -45,156 +45,157 @@ import java.nio.ShortBuffer;
  */
 public interface GL {
 
-    static final int GL_ALPHA = 0x1906;
-    static final int GL_ALWAYS = 0x207;
-    static final int GL_ARRAY_BUFFER = 0x8892;
-    static final int GL_BACK = 0x405;
-    static final int GL_BLEND = 0xBE2;
-    static final int GL_BLUE = 0x1905;
-    static final int GL_BYTE = 0x1400;
-    static final int GL_CLAMP_TO_EDGE = 0x812F;
-    static final int GL_COLOR_BUFFER_BIT = 0x4000;
-    static final int GL_COMPILE_STATUS = 0x8B81;
-    static final int GL_CULL_FACE = 0xB44;
-    static final int GL_DECR = 0x1E03;
-    static final int GL_DECR_WRAP = 0x8508;
-    static final int GL_DEPTH_BUFFER_BIT = 0x100;
-    static final int GL_DEPTH_COMPONENT = 0x1902;
-    static final int GL_DEPTH_COMPONENT16 = 0x81A5;
-    static final int GL_DEPTH_TEST = 0xB71;
-    static final int GL_DOUBLE = 0x140A;
-    static final int GL_DST_ALPHA = 0x0304;
-    static final int GL_DST_COLOR = 0x306;
-    static final int GL_DYNAMIC_DRAW = 0x88E8;
-    static final int GL_ELEMENT_ARRAY_BUFFER = 0x8893;
-    static final int GL_EQUAL = 0x202;
-    static final int GL_EXTENSIONS = 0x1F03;
-    static final int GL_FALSE = 0x0;
-    static final int GL_FLOAT = 0x1406;
-    static final int GL_FRAGMENT_SHADER = 0x8B30;
-    static final int GL_FRONT = 0x404;
-    static final int GL_FUNC_ADD = 0x8006;
-    static final int GL_FUNC_SUBTRACT = 0x800A;
-    static final int GL_FUNC_REVERSE_SUBTRACT = 0x800B;
-    static final int GL_FRONT_AND_BACK = 0x408;
-    static final int GL_GEQUAL = 0x206;
-    static final int GL_GREATER = 0x204;
-    static final int GL_GREEN = 0x1904;
-    static final int GL_INCR = 0x1E02;
-    static final int GL_INCR_WRAP = 0x8507;
-    static final int GL_INFO_LOG_LENGTH = 0x8B84;
-    static final int GL_INT = 0x1404;
-    static final int GL_INVALID_ENUM = 0x500;
-    static final int GL_INVALID_VALUE = 0x501;
-    static final int GL_INVALID_OPERATION = 0x502;
-    static final int GL_INVERT = 0x150A;
-    static final int GL_KEEP = 0x1E00;
-    static final int GL_LEQUAL = 0x203;
-    static final int GL_LESS = 0x201;
-    static final int GL_LINEAR = 0x2601;
-    static final int GL_LINEAR_MIPMAP_LINEAR = 0x2703;
-    static final int GL_LINEAR_MIPMAP_NEAREST = 0x2701;
-    static final int GL_LINES = 0x1;
-    static final int GL_LINE_LOOP = 0x2;
-    static final int GL_LINE_STRIP = 0x3;
-    static final int GL_LINK_STATUS = 0x8B82;
-    static final int GL_LUMINANCE = 0x1909;
-    static final int GL_LUMINANCE_ALPHA = 0x190A;
-    static final int GL_MAX = 0x8008;
-    static final int GL_MAX_CUBE_MAP_TEXTURE_SIZE = 0x851C;
-    static final int GL_MAX_FRAGMENT_UNIFORM_COMPONENTS = 0x8B49;
-    static final int GL_MAX_FRAGMENT_UNIFORM_VECTORS = 0x8DFD;
-    static final int GL_MAX_TEXTURE_IMAGE_UNITS = 0x8872;
-    static final int GL_MAX_TEXTURE_SIZE = 0xD33;
-    static final int GL_MAX_VERTEX_ATTRIBS = 0x8869;
-    static final int GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS = 0x8B4C;
-    static final int GL_MAX_VERTEX_UNIFORM_COMPONENTS = 0x8B4A;
-    static final int GL_MAX_VERTEX_UNIFORM_VECTORS = 0x8DFB;
-    static final int GL_MIRRORED_REPEAT = 0x8370;
-    static final int GL_MIN = 0x8007;
-    static final int GL_NEAREST = 0x2600;
-    static final int GL_NEAREST_MIPMAP_LINEAR = 0x2702;
-    static final int GL_NEAREST_MIPMAP_NEAREST = 0x2700;
-    static final int GL_NEVER = 0x200;
-    static final int GL_NO_ERROR = 0x0;
-    static final int GL_NONE = 0x0;
-    static final int GL_NOTEQUAL = 0x205;
-    static final int GL_ONE = 0x1;
-    static final int GL_ONE_MINUS_DST_ALPHA = 0x0305;
-    static final int GL_ONE_MINUS_DST_COLOR = 0x307;
-    static final int GL_ONE_MINUS_SRC_ALPHA = 0x303;
-    static final int GL_ONE_MINUS_SRC_COLOR = 0x301;
-    static final int GL_OUT_OF_MEMORY = 0x505;
-    static final int GL_POINTS = 0x0;
-    static final int GL_POLYGON_OFFSET_FILL = 0x8037;
-    static final int GL_QUERY_RESULT = 0x8866;
-    static final int GL_QUERY_RESULT_AVAILABLE = 0x8867;
-    static final int GL_RED = 0x1903;
-    static final int GL_RENDERER = 0x1F01;
-    static final int GL_REPEAT = 0x2901;
-    static final int GL_REPLACE = 0x1E01;
-    static final int GL_RGB = 0x1907;
-    static final int GL_RGB565 = 0x8D62;
-    static final int GL_RGB5_A1 = 0x8057;
-    static final int GL_RGBA = 0x1908;
-    static final int GL_RGBA4 = 0x8056;
-    static final int GL_SCISSOR_TEST = 0xC11;
-    static final int GL_SHADING_LANGUAGE_VERSION = 0x8B8C;
-    static final int GL_SHORT = 0x1402;
-    static final int GL_SRC_ALPHA = 0x302;
-    static final int GL_SRC_ALPHA_SATURATE = 0x0308;
-    static final int GL_SRC_COLOR = 0x300;
-    static final int GL_STATIC_DRAW = 0x88E4;
-    static final int GL_STENCIL_BUFFER_BIT = 0x400;
-    static final int GL_STENCIL_TEST = 0xB90;
-    static final int GL_STREAM_DRAW = 0x88E0;
-    static final int GL_STREAM_READ = 0x88E1;
-    static final int GL_TEXTURE = 0x1702;
-    static final int GL_TEXTURE0 = 0x84C0;
-    static final int GL_TEXTURE1 = 0x84C1;
-    static final int GL_TEXTURE2 = 0x84C2;
-    static final int GL_TEXTURE3 = 0x84C3;
-    static final int GL_TEXTURE4 = 0x84C4;
-    static final int GL_TEXTURE5 = 0x84C5;
-    static final int GL_TEXTURE6 = 0x84C6;
-    static final int GL_TEXTURE7 = 0x84C7;
-    static final int GL_TEXTURE8 = 0x84C8;
-    static final int GL_TEXTURE9 = 0x84C9;
-    static final int GL_TEXTURE10 = 0x84CA;
-    static final int GL_TEXTURE11 = 0x84CB;
-    static final int GL_TEXTURE12 = 0x84CC;
-    static final int GL_TEXTURE13 = 0x84CD;
-    static final int GL_TEXTURE14 = 0x84CE;
-    static final int GL_TEXTURE15 = 0x84CF;
-    static final int GL_TEXTURE_2D = 0xDE1;
-    static final int GL_TEXTURE_CUBE_MAP = 0x8513;
-    static final int GL_TEXTURE_CUBE_MAP_POSITIVE_X = 0x8515;
-    static final int GL_TEXTURE_CUBE_MAP_NEGATIVE_X = 0x8516;
-    static final int GL_TEXTURE_CUBE_MAP_POSITIVE_Y = 0x8517;
-    static final int GL_TEXTURE_CUBE_MAP_NEGATIVE_Y = 0x8518;
-    static final int GL_TEXTURE_CUBE_MAP_POSITIVE_Z = 0x8519;
-    static final int GL_TEXTURE_CUBE_MAP_NEGATIVE_Z = 0x851A;
-    static final int GL_TEXTURE_MAG_FILTER = 0x2800;
-    static final int GL_TEXTURE_MIN_FILTER = 0x2801;
-    static final int GL_TEXTURE_WRAP_S = 0x2802;
-    static final int GL_TEXTURE_WRAP_T = 0x2803;
-    static final int GL_TIME_ELAPSED = 0x88BF;
-    static final int GL_TRIANGLES = 0x4;
-    static final int GL_TRIANGLE_FAN = 0x6;
-    static final int GL_TRIANGLE_STRIP = 0x5;
-    static final int GL_TRUE = 0x1;
-    static final int GL_UNPACK_ALIGNMENT = 0xCF5;
-    static final int GL_UNSIGNED_BYTE = 0x1401;
-    static final int GL_UNSIGNED_INT = 0x1405;
-    static final int GL_UNSIGNED_SHORT = 0x1403;
-    static final int GL_UNSIGNED_SHORT_5_6_5 = 0x8363;
-    static final int GL_UNSIGNED_SHORT_5_5_5_1 = 0x8034;
-    static final int GL_VENDOR = 0x1F00;
-    static final int GL_VERSION = 0x1F02;
-    static final int GL_VERTEX_SHADER = 0x8B31;
-    static final int GL_ZERO = 0x0;
+    public static final int GL_ALPHA = 0x1906;
+    public static final int GL_ALWAYS = 0x207;
+    public static final int GL_ARRAY_BUFFER = 0x8892;
+    public static final int GL_BACK = 0x405;
+    public static final int GL_BLEND = 0xBE2;
+    public static final int GL_BLUE = 0x1905;
+    public static final int GL_BYTE = 0x1400;
+    public static final int GL_CLAMP_TO_EDGE = 0x812F;
+    public static final int GL_COLOR_BUFFER_BIT = 0x4000;
+    public static final int GL_COMPILE_STATUS = 0x8B81;
+    public static final int GL_CULL_FACE = 0xB44;
+    public static final int GL_DECR = 0x1E03;
+    public static final int GL_DECR_WRAP = 0x8508;
+    public static final int GL_DEPTH_BUFFER_BIT = 0x100;
+    public static final int GL_DEPTH_COMPONENT = 0x1902;
+    public static final int GL_DEPTH_COMPONENT16 = 0x81A5;
+    public static final int GL_DEPTH_TEST = 0xB71;
+    public static final int GL_DOUBLE = 0x140A;
+    public static final int GL_DST_ALPHA = 0x0304;
+    public static final int GL_DST_COLOR = 0x306;
+    public static final int GL_DYNAMIC_DRAW = 0x88E8;
+    public static final int GL_DYNAMIC_COPY = 0x88EA;
+    public static final int GL_ELEMENT_ARRAY_BUFFER = 0x8893;
+    public static final int GL_EQUAL = 0x202;
+    public static final int GL_EXTENSIONS = 0x1F03;
+    public static final int GL_FALSE = 0x0;
+    public static final int GL_FLOAT = 0x1406;
+    public static final int GL_FRAGMENT_SHADER = 0x8B30;
+    public static final int GL_FRONT = 0x404;
+    public static final int GL_FUNC_ADD = 0x8006;
+    public static final int GL_FUNC_SUBTRACT = 0x800A;
+    public static final int GL_FUNC_REVERSE_SUBTRACT = 0x800B;
+    public static final int GL_FRONT_AND_BACK = 0x408;
+    public static final int GL_GEQUAL = 0x206;
+    public static final int GL_GREATER = 0x204;
+    public static final int GL_GREEN = 0x1904;
+    public static final int GL_INCR = 0x1E02;
+    public static final int GL_INCR_WRAP = 0x8507;
+    public static final int GL_INFO_LOG_LENGTH = 0x8B84;
+    public static final int GL_INT = 0x1404;
+    public static final int GL_INVALID_ENUM = 0x500;
+    public static final int GL_INVALID_VALUE = 0x501;
+    public static final int GL_INVALID_OPERATION = 0x502;
+    public static final int GL_INVERT = 0x150A;
+    public static final int GL_KEEP = 0x1E00;
+    public static final int GL_LEQUAL = 0x203;
+    public static final int GL_LESS = 0x201;
+    public static final int GL_LINEAR = 0x2601;
+    public static final int GL_LINEAR_MIPMAP_LINEAR = 0x2703;
+    public static final int GL_LINEAR_MIPMAP_NEAREST = 0x2701;
+    public static final int GL_LINES = 0x1;
+    public static final int GL_LINE_LOOP = 0x2;
+    public static final int GL_LINE_STRIP = 0x3;
+    public static final int GL_LINK_STATUS = 0x8B82;
+    public static final int GL_LUMINANCE = 0x1909;
+    public static final int GL_LUMINANCE_ALPHA = 0x190A;
+    public static final int GL_MAX = 0x8008;
+    public static final int GL_MAX_CUBE_MAP_TEXTURE_SIZE = 0x851C;
+    public static final int GL_MAX_FRAGMENT_UNIFORM_COMPONENTS = 0x8B49;
+    public static final int GL_MAX_FRAGMENT_UNIFORM_VECTORS = 0x8DFD;
+    public static final int GL_MAX_TEXTURE_IMAGE_UNITS = 0x8872;
+    public static final int GL_MAX_TEXTURE_SIZE = 0xD33;
+    public static final int GL_MAX_VERTEX_ATTRIBS = 0x8869;
+    public static final int GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS = 0x8B4C;
+    public static final int GL_MAX_VERTEX_UNIFORM_COMPONENTS = 0x8B4A;
+    public static final int GL_MAX_VERTEX_UNIFORM_VECTORS = 0x8DFB;
+    public static final int GL_MIRRORED_REPEAT = 0x8370;
+    public static final int GL_MIN = 0x8007;
+    public static final int GL_NEAREST = 0x2600;
+    public static final int GL_NEAREST_MIPMAP_LINEAR = 0x2702;
+    public static final int GL_NEAREST_MIPMAP_NEAREST = 0x2700;
+    public static final int GL_NEVER = 0x200;
+    public static final int GL_NO_ERROR = 0x0;
+    public static final int GL_NONE = 0x0;
+    public static final int GL_NOTEQUAL = 0x205;
+    public static final int GL_ONE = 0x1;
+    public static final int GL_ONE_MINUS_DST_ALPHA = 0x0305;
+    public static final int GL_ONE_MINUS_DST_COLOR = 0x307;
+    public static final int GL_ONE_MINUS_SRC_ALPHA = 0x303;
+    public static final int GL_ONE_MINUS_SRC_COLOR = 0x301;
+    public static final int GL_OUT_OF_MEMORY = 0x505;
+    public static final int GL_POINTS = 0x0;
+    public static final int GL_POLYGON_OFFSET_FILL = 0x8037;
+    public static final int GL_QUERY_RESULT = 0x8866;
+    public static final int GL_QUERY_RESULT_AVAILABLE = 0x8867;
+    public static final int GL_RED = 0x1903;
+    public static final int GL_RENDERER = 0x1F01;
+    public static final int GL_REPEAT = 0x2901;
+    public static final int GL_REPLACE = 0x1E01;
+    public static final int GL_RGB = 0x1907;
+    public static final int GL_RGB565 = 0x8D62;
+    public static final int GL_RGB5_A1 = 0x8057;
+    public static final int GL_RGBA = 0x1908;
+    public static final int GL_RGBA4 = 0x8056;
+    public static final int GL_SCISSOR_TEST = 0xC11;
+    public static final int GL_SHADING_LANGUAGE_VERSION = 0x8B8C;
+    public static final int GL_SHORT = 0x1402;
+    public static final int GL_SRC_ALPHA = 0x302;
+    public static final int GL_SRC_ALPHA_SATURATE = 0x0308;
+    public static final int GL_SRC_COLOR = 0x300;
+    public static final int GL_STATIC_DRAW = 0x88E4;
+    public static final int GL_STENCIL_BUFFER_BIT = 0x400;
+    public static final int GL_STENCIL_TEST = 0xB90;
+    public static final int GL_STREAM_DRAW = 0x88E0;
+    public static final int GL_STREAM_READ = 0x88E1;
+    public static final int GL_TEXTURE = 0x1702;
+    public static final int GL_TEXTURE0 = 0x84C0;
+    public static final int GL_TEXTURE1 = 0x84C1;
+    public static final int GL_TEXTURE2 = 0x84C2;
+    public static final int GL_TEXTURE3 = 0x84C3;
+    public static final int GL_TEXTURE4 = 0x84C4;
+    public static final int GL_TEXTURE5 = 0x84C5;
+    public static final int GL_TEXTURE6 = 0x84C6;
+    public static final int GL_TEXTURE7 = 0x84C7;
+    public static final int GL_TEXTURE8 = 0x84C8;
+    public static final int GL_TEXTURE9 = 0x84C9;
+    public static final int GL_TEXTURE10 = 0x84CA;
+    public static final int GL_TEXTURE11 = 0x84CB;
+    public static final int GL_TEXTURE12 = 0x84CC;
+    public static final int GL_TEXTURE13 = 0x84CD;
+    public static final int GL_TEXTURE14 = 0x84CE;
+    public static final int GL_TEXTURE15 = 0x84CF;
+    public static final int GL_TEXTURE_2D = 0xDE1;
+    public static final int GL_TEXTURE_CUBE_MAP = 0x8513;
+    public static final int GL_TEXTURE_CUBE_MAP_POSITIVE_X = 0x8515;
+    public static final int GL_TEXTURE_CUBE_MAP_NEGATIVE_X = 0x8516;
+    public static final int GL_TEXTURE_CUBE_MAP_POSITIVE_Y = 0x8517;
+    public static final int GL_TEXTURE_CUBE_MAP_NEGATIVE_Y = 0x8518;
+    public static final int GL_TEXTURE_CUBE_MAP_POSITIVE_Z = 0x8519;
+    public static final int GL_TEXTURE_CUBE_MAP_NEGATIVE_Z = 0x851A;
+    public static final int GL_TEXTURE_MAG_FILTER = 0x2800;
+    public static final int GL_TEXTURE_MIN_FILTER = 0x2801;
+    public static final int GL_TEXTURE_WRAP_S = 0x2802;
+    public static final int GL_TEXTURE_WRAP_T = 0x2803;
+    public static final int GL_TIME_ELAPSED = 0x88BF;
+    public static final int GL_TRIANGLES = 0x4;
+    public static final int GL_TRIANGLE_FAN = 0x6;
+    public static final int GL_TRIANGLE_STRIP = 0x5;
+    public static final int GL_TRUE = 0x1;
+    public static final int GL_UNPACK_ALIGNMENT = 0xCF5;
+    public static final int GL_UNSIGNED_BYTE = 0x1401;
+    public static final int GL_UNSIGNED_INT = 0x1405;
+    public static final int GL_UNSIGNED_SHORT = 0x1403;
+    public static final int GL_UNSIGNED_SHORT_5_6_5 = 0x8363;
+    public static final int GL_UNSIGNED_SHORT_5_5_5_1 = 0x8034;
+    public static final int GL_VENDOR = 0x1F00;
+    public static final int GL_VERSION = 0x1F02;
+    public static final int GL_VERTEX_SHADER = 0x8B31;
+    public static final int GL_ZERO = 0x0;
 
-    void resetStats();
+    public void resetStats();
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glActiveTexture">Reference Page</a></p>
@@ -204,7 +205,7 @@ public interface GL {
      *
      * @param texture which texture unit to make active. One of:<br><table><tr><td>{@link #GL_TEXTURE0 TEXTURE0}</td><td>GL_TEXTURE[1-31]</td></tr></table>
      */
-    void glActiveTexture(int texture);
+    public void glActiveTexture(int texture);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glAttachShader">Reference Page</a></p>
@@ -225,7 +226,7 @@ public interface GL {
      * @param program the program object to which a shader object will be attached.
      * @param shader  the shader object that is to be attached.
      */
-    void glAttachShader(int program, int shader);
+    public void glAttachShader(int program, int shader);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBeginQuery">Reference Page</a></p>
@@ -235,7 +236,7 @@ public interface GL {
      * @param target the target type of query object established.
      * @param query  the name of a query object.
      */
-    void glBeginQuery(int target, int query);
+    public void glBeginQuery(int target, int query);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBindBuffer">Reference Page</a></p>
@@ -245,7 +246,7 @@ public interface GL {
      * @param target the target to which the buffer object is bound.
      * @param buffer the name of a buffer object.
      */
-    void glBindBuffer(int target, int buffer);
+    public void glBindBuffer(int target, int buffer);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBindTexture">Reference Page</a></p>
@@ -259,7 +260,7 @@ public interface GL {
      * @param target  the texture target.
      * @param texture the texture object to bind.
      */
-    void glBindTexture(int target, int texture);
+    public void glBindTexture(int target, int texture);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBlendEquationSeparate">Reference Page</a></p>
@@ -269,7 +270,7 @@ public interface GL {
      * @param colorMode the RGB blend equation, how the red, green, and blue components of the source and destination colors are combined.
      * @param alphaMode the alpha blend equation, how the alpha component of the source and destination colors are combined
      */
-    void glBlendEquationSeparate(int colorMode, int alphaMode);
+    public void glBlendEquationSeparate(int colorMode, int alphaMode);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBlendFunc">Reference Page</a></p>
@@ -279,7 +280,7 @@ public interface GL {
      * @param sfactor the source weighting factor.
      * @param dfactor the destination weighting factor.
      */
-    void glBlendFunc(int sfactor, int dfactor);
+    public void glBlendFunc(int sfactor, int dfactor);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBlendFuncSeparate">Reference Page</a></p>
@@ -291,7 +292,7 @@ public interface GL {
      * @param sfactorAlpha how the alpha source blending factor is computed. The initial value is GL_ONE.
      * @param dfactorAlpha how the alpha destination blending factor is computed. The initial value is GL_ZERO.
      */
-    void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha);
+    public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dfactorAlpha);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
@@ -321,7 +322,7 @@ public interface GL {
      * @param dataSize the size in bytes of the buffer object's new data store
      * @param usage    the expected usage pattern of the data store.
      */
-    void glBufferData(int target, long dataSize, int usage);
+    public void glBufferData(int target, long dataSize, int usage);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
@@ -351,7 +352,7 @@ public interface GL {
      * @param data   a pointer to data that will be copied into the data store for initialization, or {@code NULL} if no data is to be copied.
      * @param usage  the expected usage pattern of the data store.
      */
-    void glBufferData(int target, FloatBuffer data, int usage);
+    public void glBufferData(int target, FloatBuffer data, int usage);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
@@ -381,7 +382,7 @@ public interface GL {
      * @param data   a pointer to data that will be copied into the data store for initialization, or {@code NULL} if no data is to be copied
      * @param usage  the expected usage pattern of the data store.
      */
-    void glBufferData(int target, ShortBuffer data, int usage);
+    public void glBufferData(int target, ShortBuffer data, int usage);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferData">Reference Page</a></p>
@@ -411,7 +412,7 @@ public interface GL {
      * @param data   a pointer to data that will be copied into the data store for initialization, or {@code NULL} if no data is to be copied.
      * @param usage  the expected usage pattern of the data store.
      */
-    void glBufferData(int target, ByteBuffer data, int usage);
+    public void glBufferData(int target, ByteBuffer data, int usage);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferSubData">Reference Page</a></p>
@@ -422,7 +423,7 @@ public interface GL {
      * @param offset the offset into the buffer object's data store where data replacement will begin, measured in bytes.
      * @param data   a pointer to the new data that will be copied into the data store.
      */
-    void glBufferSubData(int target, long offset, FloatBuffer data);
+    public void glBufferSubData(int target, long offset, FloatBuffer data);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferSubData">Reference Page</a></p>
@@ -433,7 +434,7 @@ public interface GL {
      * @param offset the offset into the buffer object's data store where data replacement will begin, measured in bytes.
      * @param data   a pointer to the new data that will be copied into the data store.
      */
-    void glBufferSubData(int target, long offset, ShortBuffer data);
+    public void glBufferSubData(int target, long offset, ShortBuffer data);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBufferSubData">Reference Page</a></p>
@@ -444,7 +445,7 @@ public interface GL {
      * @param offset the offset into the buffer object's data store where data replacement will begin, measured in bytes.
      * @param data   a pointer to the new data that will be copied into the data store.
      */
-    void glBufferSubData(int target, long offset, ByteBuffer data);
+    public void glBufferSubData(int target, long offset, ByteBuffer data);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glClear">Reference Page</a></p>
@@ -454,7 +455,7 @@ public interface GL {
      *
      * @param mask Zero or the bitwise OR of one or more values indicating which buffers are to be cleared.
      */
-    void glClear(int mask);
+    public void glClear(int mask);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glClearColor">Reference Page</a></p>
@@ -466,7 +467,7 @@ public interface GL {
      * @param blue  the value to which to clear the B channel of the color buffer.
      * @param alpha the value to which to clear the A channel of the color buffer.
      */
-    void glClearColor(float red, float green, float blue, float alpha);
+    public void glClearColor(float red, float green, float blue, float alpha);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glColorMask">Reference Page</a></p>
@@ -478,7 +479,7 @@ public interface GL {
      * @param blue  whether B values are written or not.
      * @param alpha whether A values are written or not.
      */
-    void glColorMask(boolean red, boolean green, boolean blue, boolean alpha);
+    public void glColorMask(boolean red, boolean green, boolean blue, boolean alpha);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glCompileShader">Reference Page</a></p>
@@ -487,7 +488,7 @@ public interface GL {
      *
      * @param shader the shader object to be compiled.
      */
-    void glCompileShader(int shader);
+    public void glCompileShader(int shader);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glCompressedTexImage2D">Reference Page</a></p>
@@ -502,7 +503,7 @@ public interface GL {
      * @param border         must be 0
      * @param data           a pointer to the compressed image data
      */
-    void glCompressedTexImage2D(int target, int level, int internalFormat, int width, int height, int border,
+    public void glCompressedTexImage2D(int target, int level, int internalFormat, int width, int height, int border,
                                 ByteBuffer data);
 
     /**
@@ -519,7 +520,7 @@ public interface GL {
      * @param format  the format of the compressed image data stored at address {@code data}.
      * @param data    a pointer to the compressed image data.
      */
-    void glCompressedTexSubImage2D(int target, int level, int xoffset, int yoffset, int width, int height, int format,
+    public void glCompressedTexSubImage2D(int target, int level, int xoffset, int yoffset, int width, int height, int format,
                                    ByteBuffer data);
 
     /**
@@ -527,7 +528,7 @@ public interface GL {
      * <p>
      * Creates a program object.
      */
-    int glCreateProgram();
+    public int glCreateProgram();
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glCreateShader">Reference Page</a></p>
@@ -536,7 +537,7 @@ public interface GL {
      *
      * @param shaderType the type of shader to be created. One of:<br><table><tr><td>{@link #GL_VERTEX_SHADER VERTEX_SHADER}</td><td>{@link #GL_FRAGMENT_SHADER FRAGMENT_SHADER}</td><td>{@link GL3#GL_GEOMETRY_SHADER GEOMETRY_SHADER}</td><td>{@link GL4#GL_TESS_CONTROL_SHADER TESS_CONTROL_SHADER}</td></tr><tr><td>{@link GL4#GL_TESS_EVALUATION_SHADER TESS_EVALUATION_SHADER}</td></tr></table>
      */
-    int glCreateShader(int shaderType);
+    public int glCreateShader(int shaderType);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glCullFace">Reference Page</a></p>
@@ -547,7 +548,7 @@ public interface GL {
      *
      * @param mode the CullFace mode. One of:<br><table><tr><td>{@link #GL_FRONT FRONT}</td><td>{@link #GL_BACK BACK}</td><td>{@link #GL_FRONT_AND_BACK FRONT_AND_BACK}</td></tr></table>
      */
-    void glCullFace(int mode);
+    public void glCullFace(int mode);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDeleteBuffers">Reference Page</a></p>
@@ -556,7 +557,7 @@ public interface GL {
      *
      * @param buffers an array of buffer objects to be deleted.
      */
-    void glDeleteBuffers(IntBuffer buffers);
+    public void glDeleteBuffers(IntBuffer buffers);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDeleteProgram">Reference Page</a></p>
@@ -565,7 +566,7 @@ public interface GL {
      *
      * @param program the program object to be deleted.
      */
-    void glDeleteProgram(int program);
+    public void glDeleteProgram(int program);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDeleteShader">Reference Page</a></p>
@@ -574,7 +575,7 @@ public interface GL {
      *
      * @param shader the shader object to be deleted.
      */
-    void glDeleteShader(int shader);
+    public void glDeleteShader(int shader);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDeleteTextures">Reference Page</a></p>
@@ -589,7 +590,7 @@ public interface GL {
      *
      * @param textures contains {@code n} names of texture objects to be deleted.
      */
-    void glDeleteTextures(IntBuffer textures);
+    public void glDeleteTextures(IntBuffer textures);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDepthFunc">Reference Page</a></p>
@@ -598,7 +599,7 @@ public interface GL {
      *
      * @param func the depth test comparison. One of:<br><table><tr><td>{@link #GL_NEVER NEVER}</td><td>{@link #GL_ALWAYS ALWAYS}</td><td>{@link #GL_LESS LESS}</td><td>{@link #GL_LEQUAL LEQUAL}</td><td>{@link #GL_EQUAL EQUAL}</td><td>{@link #GL_GREATER GREATER}</td><td>{@link #GL_GEQUAL GEQUAL}</td><td>{@link #GL_NOTEQUAL NOTEQUAL}</td></tr></table>
      */
-    void glDepthFunc(int func);
+    public void glDepthFunc(int func);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDepthMask">Reference Page</a></p>
@@ -607,7 +608,7 @@ public interface GL {
      *
      * @param flag whether depth values are written or not.
      */
-    void glDepthMask(boolean flag);
+    public void glDepthMask(boolean flag);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDepthRange">Reference Page</a></p>
@@ -617,7 +618,7 @@ public interface GL {
      * @param nearVal the near depth range.
      * @param farVal  the far depth range.
      */
-    void glDepthRange(double nearVal, double farVal);
+    public void glDepthRange(double nearVal, double farVal);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDetachShader">Reference Page</a></p>
@@ -627,7 +628,7 @@ public interface GL {
      * @param program the program object from which to detach the shader object.
      * @param shader  the shader object to be detached.
      */
-    void glDetachShader(int program, int shader);
+    public void glDetachShader(int program, int shader);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDisable">Reference Page</a></p>
@@ -636,7 +637,7 @@ public interface GL {
      *
      * @param cap the OpenGL state to disable.
      */
-    void glDisable(int cap);
+    public void glDisable(int cap);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDisableVertexAttribArray">Reference Page</a></p>
@@ -645,7 +646,7 @@ public interface GL {
      *
      * @param index the index of the generic vertex attribute to be disabled.
      */
-    void glDisableVertexAttribArray(int index);
+    public void glDisableVertexAttribArray(int index);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDrawArrays">Reference Page</a></p>
@@ -660,7 +661,7 @@ public interface GL {
      * @param first the first vertex to transfer to the GL.
      * @param count the number of vertices after {@code first} to transfer to the GL.
      */
-    void glDrawArrays(int mode, int first, int count);
+    public void glDrawArrays(int mode, int first, int count);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDrawRangeElements">Reference Page</a></p>
@@ -700,7 +701,7 @@ public interface GL {
      * @param type    the type of the values in {@code indices}.
      * @param indices a pointer to the location where the indices are stored.
      */
-    void glDrawRangeElements(int mode, int start, int end, int count, int type, long indices); /// GL2+
+    public void glDrawRangeElements(int mode, int start, int end, int count, int type, long indices); /// GL2+
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glEnable">Reference Page</a></p>
@@ -709,7 +710,7 @@ public interface GL {
      *
      * @param cap the OpenGL state to enable.
      */
-    void glEnable(int cap);
+    public void glEnable(int cap);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glEnableVertexAttribArray">Reference Page</a></p>
@@ -718,7 +719,7 @@ public interface GL {
      *
      * @param index the index of the generic vertex attribute to be enabled.
      */
-    void glEnableVertexAttribArray(int index);
+    public void glEnableVertexAttribArray(int index);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glEndQuery">Reference Page</a></p>
@@ -727,7 +728,7 @@ public interface GL {
      *
      * @param target the query object target.
      */
-    void glEndQuery(int target);
+    public void glEndQuery(int target);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGenBuffers">Reference Page</a></p>
@@ -736,7 +737,7 @@ public interface GL {
      *
      * @param buffers a buffer in which the generated buffer object names are stored.
      */
-    void glGenBuffers(IntBuffer buffers);
+    public void glGenBuffers(IntBuffer buffers);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGenTextures">Reference Page</a></p>
@@ -746,7 +747,7 @@ public interface GL {
      *
      * @param textures a scalar or buffer in which to place the returned texture names.
      */
-    void glGenTextures(IntBuffer textures);
+    public void glGenTextures(IntBuffer textures);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGenQueries">Reference Page</a></p>
@@ -755,7 +756,7 @@ public interface GL {
      *
      * @param ids a buffer in which the generated query object names are stored.
      */
-    void glGenQueries(int number, IntBuffer ids);
+    public void glGenQueries(int number, IntBuffer ids);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetAttribLocation">Reference Page</a></p>
@@ -765,7 +766,7 @@ public interface GL {
      * @param program the program object to be queried.
      * @param name    a null terminated string containing the name of the attribute variable whose location is to be queried.
      */
-    int glGetAttribLocation(int program, String name);
+    public int glGetAttribLocation(int program, String name);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetBooleanv">Reference Page</a></p>
@@ -779,7 +780,7 @@ public interface GL {
      * @param pname  the state variable.
      * @param params a scalar or buffer in which to place the returned data.
      */
-    void glGetBoolean(int pname, ByteBuffer params);
+    public void glGetBoolean(int pname, ByteBuffer params);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetBufferSubData">Reference Page</a></p>
@@ -790,7 +791,7 @@ public interface GL {
      * @param offset the offset into the buffer object's data store from which data will be returned, measured in bytes.
      * @param data   a pointer to the location where buffer object data is returned.
      */
-    void glGetBufferSubData(int target, long offset, ByteBuffer data);
+    public void glGetBufferSubData(int target, long offset, ByteBuffer data);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetError">Reference Page</a></p>
@@ -800,7 +801,7 @@ public interface GL {
      * further error will again record its code. If a call to {@code GetError} returns {@link #GL_NO_ERROR NO_ERROR}, then there has been no detectable error since
      * the last call to {@code GetError} (or since the GL was initialized).
      */
-    int glGetError();
+    public int glGetError();
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetIntegerv">Reference Page</a></p>
@@ -814,7 +815,7 @@ public interface GL {
      * @param pname  the state variable.
      * @param params a scalar or buffer in which to place the returned data.
      */
-    void glGetInteger(int pname, IntBuffer params);
+    public void glGetInteger(int pname, IntBuffer params);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetProgram">Reference Page</a></p>
@@ -825,7 +826,7 @@ public interface GL {
      * @param pname   the object parameter.
      * @param params  the requested object parameter.
      */
-    void glGetProgram(int program, int pname, IntBuffer params);
+    public void glGetProgram(int program, int pname, IntBuffer params);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetProgramInfoLog">Reference Page</a></p>
@@ -835,7 +836,7 @@ public interface GL {
      * @param program the program object whose information log is to be queried.
      * @param maxSize the size of the character buffer for storing the returned information log.
      */
-    String glGetProgramInfoLog(int program, int maxSize);
+    public String glGetProgramInfoLog(int program, int maxSize);
 
     /**
      * Unsigned version.
@@ -843,7 +844,7 @@ public interface GL {
      * @param query the name of a query object
      * @param pname the symbolic name of a query object parameter
      */
-    long glGetQueryObjectui64(int query, int pname);
+    public long glGetQueryObjectui64(int query, int pname);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetQueryObject">Reference Page</a></p>
@@ -853,7 +854,7 @@ public interface GL {
      * @param query the name of a query object
      * @param pname the symbolic name of a query object parameter. One of:<br><table><tr><td>{@link #GL_QUERY_RESULT QUERY_RESULT}</td><td>{@link #GL_QUERY_RESULT_AVAILABLE QUERY_RESULT_AVAILABLE}</td></tr></table>
      */
-    int glGetQueryObjectiv(int query, int pname);
+    public int glGetQueryObjectiv(int query, int pname);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetShader">Reference Page</a></p>
@@ -864,7 +865,7 @@ public interface GL {
      * @param pname  the object parameter.
      * @param params the requested object parameter.
      */
-    void glGetShader(int shader, int pname, IntBuffer params);
+    public void glGetShader(int shader, int pname, IntBuffer params);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetShaderInfoLog">Reference Page</a></p>
@@ -874,7 +875,7 @@ public interface GL {
      * @param shader  the shader object whose information log is to be queried.
      * @param maxSize the size of the character buffer for storing the returned information log.
      */
-    String glGetShaderInfoLog(int shader, int maxSize);
+    public String glGetShaderInfoLog(int shader, int maxSize);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetString">Reference Page</a></p>
@@ -883,7 +884,7 @@ public interface GL {
      *
      * @param name the property to query. One of:<br><table><tr><td>{@link #GL_RENDERER RENDERER}</td><td>{@link #GL_VENDOR VENDOR}</td><td>{@link #GL_EXTENSIONS EXTENSIONS}</td><td>{@link #GL_VERSION VERSION}</td><td>{@link GL2#GL_SHADING_LANGUAGE_VERSION SHADING_LANGUAGE_VERSION}</td></tr></table>
      */
-    String glGetString(int name);
+    public String glGetString(int name);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glGetUniformLocation">Reference Page</a></p>
@@ -893,7 +894,7 @@ public interface GL {
      * @param program the program object to be queried.
      * @param name    a null terminated string containing the name of the uniform variable whose location is to be queried.
      */
-    int glGetUniformLocation(int program, String name);
+    public int glGetUniformLocation(int program, String name);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glIsEnabled">Reference Page</a></p>
@@ -902,7 +903,7 @@ public interface GL {
      *
      * @param cap the enable state to query.
      */
-    boolean glIsEnabled(int cap);
+    public boolean glIsEnabled(int cap);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glLineWidth">Reference Page</a></p>
@@ -911,7 +912,7 @@ public interface GL {
      *
      * @param width the line width.
      */
-    void glLineWidth(float width);
+    public void glLineWidth(float width);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glLinkProgram">Reference Page</a></p>
@@ -920,7 +921,7 @@ public interface GL {
      *
      * @param program the program object to be linked.
      */
-    void glLinkProgram(int program);
+    public void glLinkProgram(int program);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glPixelStorei">Reference Page</a></p>
@@ -930,7 +931,7 @@ public interface GL {
      * @param pname the pixel store parameter to set.
      * @param param the parameter value
      */
-    void glPixelStorei(int pname, int param);
+    public void glPixelStorei(int pname, int param);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glPolygonOffset">Reference Page</a></p>
@@ -944,7 +945,7 @@ public interface GL {
      * @param factor the maximum depth slope factor.
      * @param units  the constant scale.
      */
-    void glPolygonOffset(float factor, float units);
+    public void glPolygonOffset(float factor, float units);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glReadPixels">Reference Page</a></p>
@@ -963,7 +964,7 @@ public interface GL {
      * @param type   the pixel type.
      * @param data   a buffer in which to place the returned pixel data.
      */
-    void glReadPixels(int x, int y, int width, int height, int format, int type, ByteBuffer data);
+    public void glReadPixels(int x, int y, int width, int height, int format, int type, ByteBuffer data);
 
 
     /**
@@ -983,7 +984,7 @@ public interface GL {
      * @param type   the pixel type.
      * @param offset a buffer in which to place the returned pixel data/
      */
-    void glReadPixels(int x, int y, int width, int height, int format, int type, long offset);
+    public void glReadPixels(int x, int y, int width, int height, int format, int type, long offset);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glScissor">Reference Page</a></p>
@@ -998,7 +999,7 @@ public interface GL {
      * @param width  the scissor rectangle width.
      * @param height the scissor rectangle height.
      */
-    void glScissor(int x, int y, int width, int height);
+    public void glScissor(int x, int y, int width, int height);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glShaderSource">Reference Page</a></p>
@@ -1013,7 +1014,7 @@ public interface GL {
      * @param shader  the shader object whose source code is to be replaced,
      * @param strings an array of pointers to strings containing the source code to be loaded into the shader
      */
-    void glShaderSource(int shader, String[] strings, IntBuffer length);
+    public void glShaderSource(int shader, String[] strings, IntBuffer length);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glStencilFuncSeparate">Reference Page</a></p>
@@ -1026,7 +1027,7 @@ public interface GL {
      *             buffer. The initial value is 0.
      * @param mask a mask that is ANDed with both the reference value and the stored stencil value when the test is done. The initial value is all 1's.
      */
-    void glStencilFuncSeparate(int face, int func, int ref, int mask);
+    public void glStencilFuncSeparate(int face, int func, int ref, int mask);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glStencilOpSeparate">Reference Page</a></p>
@@ -1039,7 +1040,7 @@ public interface GL {
      * @param dppass the stencil action when both the stencil test and the depth test pass, or when the stencil test passes and either there is no depth buffer or depth
      *               testing is not enabled. The initial value is GL_KEEP.
      */
-    void glStencilOpSeparate(int face, int sfail, int dpfail, int dppass);
+    public void glStencilOpSeparate(int face, int sfail, int dpfail, int dppass);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glTexImage2D">Reference Page</a></p>
@@ -1056,7 +1057,7 @@ public interface GL {
      * @param type           the texel data type.
      * @param data           the texel data.
      */
-    void glTexImage2D(int target, int level, int internalFormat, int width, int height, int border, int format,
+    public void glTexImage2D(int target, int level, int internalFormat, int width, int height, int border, int format,
                       int type, ByteBuffer data);
 
     /**
@@ -1068,7 +1069,7 @@ public interface GL {
      * @param pname  the parameter to set.
      * @param param  the parameter value.
      */
-    void glTexParameterf(int target, int pname, float param);
+    public void glTexParameterf(int target, int pname, float param);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glTexParameteri">Reference Page</a></p>
@@ -1079,7 +1080,7 @@ public interface GL {
      * @param pname  the parameter to set.
      * @param param  the parameter value.
      */
-    void glTexParameteri(int target, int pname, int param);
+    public void glTexParameteri(int target, int pname, int param);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glTexSubImage2D">Reference Page</a></p>
@@ -1097,7 +1098,7 @@ public interface GL {
      * @param type    the pixel data type.
      * @param data    the pixel data.
      */
-    void glTexSubImage2D(int target, int level, int xoffset, int yoffset, int width, int height, int format, int type,
+    public void glTexSubImage2D(int target, int level, int xoffset, int yoffset, int width, int height, int format, int type,
                          ByteBuffer data);
 
     /**
@@ -1108,7 +1109,7 @@ public interface GL {
      * @param location the location of the uniform variable to be modified.
      * @param value    a pointer to an array of {@code count} values that will be used to update the specified uniform variable.
      */
-    void glUniform1(int location, FloatBuffer value);
+    public void glUniform1(int location, FloatBuffer value);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUniform">Reference Page</a></p>
@@ -1118,7 +1119,7 @@ public interface GL {
      * @param location the location of the uniform variable to be modified.
      * @param value    a pointer to an array of {@code count} values that will be used to update the specified uniform variable.
      */
-    void glUniform1(int location, IntBuffer value);
+    public void glUniform1(int location, IntBuffer value);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUniform">Reference Page</a></p>
@@ -1128,7 +1129,7 @@ public interface GL {
      * @param location the location of the uniform variable to be modified.
      * @param v0       the uniform value.
      */
-    void glUniform1f(int location, float v0);
+    public void glUniform1f(int location, float v0);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUniform">Reference Page</a></p>
@@ -1138,7 +1139,7 @@ public interface GL {
      * @param location the location of the uniform variable to be modified.
      * @param v0       the uniform value.
      */
-    void glUniform1i(int location, int v0);
+    public void glUniform1i(int location, int v0);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUniform">Reference Page</a></p>
@@ -1148,7 +1149,7 @@ public interface GL {
      * @param location the location of the uniform variable to be modified.
      * @param value    a pointer to an array of {@code count} values that will be used to update the specified uniform variable.
      */
-    void glUniform2(int location, IntBuffer value);
+    public void glUniform2(int location, IntBuffer value);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUniform">Reference Page</a></p>
@@ -1158,7 +1159,7 @@ public interface GL {
      * @param location the location of the uniform variable to be modified.
      * @param value    a pointer to an array of {@code count} values that will be used to update the specified uniform variable.
      */
-    void glUniform2(int location, FloatBuffer value);
+    public void glUniform2(int location, FloatBuffer value);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUniform">Reference Page</a></p>
@@ -1169,7 +1170,7 @@ public interface GL {
      * @param v0       the uniform x value.
      * @param v1       the uniform y value.
      */
-    void glUniform2f(int location, float v0, float v1);
+    public void glUniform2f(int location, float v0, float v1);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUniform">Reference Page</a></p>
@@ -1179,7 +1180,7 @@ public interface GL {
      * @param location the location of the uniform variable to be modified.
      * @param value    a pointer to an array of {@code count} values that will be used to update the specified uniform variable.
      */
-    void glUniform3(int location, IntBuffer value);
+    public void glUniform3(int location, IntBuffer value);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUniform">Reference Page</a></p>
@@ -1189,7 +1190,7 @@ public interface GL {
      * @param location the location of the uniform variable to be modified.
      * @param value    a pointer to an array of {@code count} values that will be used to update the specified uniform variable.
      */
-    void glUniform3(int location, FloatBuffer value);
+    public void glUniform3(int location, FloatBuffer value);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUniform">Reference Page</a></p>
@@ -1201,7 +1202,7 @@ public interface GL {
      * @param v1       the uniform y value.
      * @param v2       the uniform z value.
      */
-    void glUniform3f(int location, float v0, float v1, float v2);
+    public void glUniform3f(int location, float v0, float v1, float v2);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUniform">Reference Page</a></p>
@@ -1211,7 +1212,7 @@ public interface GL {
      * @param location the location of the uniform variable to be modified.
      * @param value    a pointer to an array of {@code count} values that will be used to update the specified uniform variable.
      */
-    void glUniform4(int location, FloatBuffer value);
+    public void glUniform4(int location, FloatBuffer value);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUniform">Reference Page</a></p>
@@ -1221,7 +1222,7 @@ public interface GL {
      * @param location the location of the uniform variable to be modified.
      * @param value    a pointer to an array of {@code count} values that will be used to update the specified uniform variable.
      */
-    void glUniform4(int location, IntBuffer value);
+    public void glUniform4(int location, IntBuffer value);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUniform">Reference Page</a></p>
@@ -1234,7 +1235,7 @@ public interface GL {
      * @param v2       the uniform z value.
      * @param v3       the uniform w value.
      */
-    void glUniform4f(int location, float v0, float v1, float v2, float v3);
+    public void glUniform4f(int location, float v0, float v1, float v2, float v3);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUniform">Reference Page</a></p>
@@ -1245,7 +1246,7 @@ public interface GL {
      * @param transpose whether to transpose the matrix as the values are loaded into the uniform variable.
      * @param value     a pointer to an array of {@code count} values that will be used to update the specified uniform variable.
      */
-    void glUniformMatrix3(int location, boolean transpose, FloatBuffer value);
+    public void glUniformMatrix3(int location, boolean transpose, FloatBuffer value);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUniform">Reference Page</a></p>
@@ -1256,7 +1257,7 @@ public interface GL {
      * @param transpose whether to transpose the matrix as the values are loaded into the uniform variable.
      * @param value     a pointer to an array of {@code count} values that will be used to update the specified uniform variable.
      */
-    void glUniformMatrix4(int location, boolean transpose, FloatBuffer value);
+    public void glUniformMatrix4(int location, boolean transpose, FloatBuffer value);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glUseProgram">Reference Page</a></p>
@@ -1265,7 +1266,7 @@ public interface GL {
      *
      * @param program the program object whose executables are to be used as part of current rendering state.
      */
-    void glUseProgram(int program);
+    public void glUseProgram(int program);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glVertexAttribPointer">Reference Page</a></p>
@@ -1281,7 +1282,7 @@ public interface GL {
      * @param pointer    the vertex attribute data or the offset of the first component of the first generic vertex attribute in the array in the data store of the buffer
      *                   currently bound to the {@link GL#GL_ARRAY_BUFFER ARRAY_BUFFER} target. The initial value is 0.
      */
-    void glVertexAttribPointer(int index, int size, int type, boolean normalized, int stride, long pointer);
+    public void glVertexAttribPointer(int index, int size, int type, boolean normalized, int stride, long pointer);
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glViewport">Reference Page</a></p>
@@ -1297,5 +1298,5 @@ public interface GL {
      * @param width  the viewport width.
      * @param height the viewport height.
      */
-    void glViewport(int x, int y, int width, int height);
+    public void glViewport(int x, int y, int width, int height);
 }

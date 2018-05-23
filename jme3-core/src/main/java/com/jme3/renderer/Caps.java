@@ -394,7 +394,15 @@ public enum Caps {
     /**
      * GPU can provide and accept binary shaders.
      */
-    BinaryShader;
+    BinaryShader,
+    /**
+     * Supporting working with UniformBufferObject.
+     */
+    UniformBufferObject,
+    /**
+     * Supporting working with ShaderStorageBufferObjects.
+     */
+    ShaderStorageBufferObject;
 
     /**
      * Returns true if given the renderer capabilities, the texture
