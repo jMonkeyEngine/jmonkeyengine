@@ -32,6 +32,8 @@
 package com.jme3.math;
 
 import com.jme3.export.*;
+import com.jme3.util.TempVars;
+
 import java.io.IOException;
 
 /**
@@ -174,13 +176,14 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets this matrix to the interpolation between the first matrix and the second by delta amount.
+     * Sets this transform to the interpolation between the first transform and the second by delta amount.
      * @param t1 The beginning transform.
      * @param t2 The ending transform.
      * @param delta An amount between 0 and 1 representing how far to interpolate from t1 to t2.
      */
     public void interpolateTransforms(Transform t1, Transform t2, float delta) {
-        this.rot.slerp(t1.rot,t2.rot,delta);
+        t1.rot.nlerp(t2.rot, delta);
+        this.rot.set(t1.rot);
         this.translation.interpolateLocal(t1.translation,t2.translation,delta);
         this.scale.interpolateLocal(t1.scale,t2.scale,delta);
     }
@@ -257,17 +260,25 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     public Matrix4f toTransformMatrix() {
-        Matrix4f trans = new Matrix4f();
-        trans.setTranslation(translation);
-        trans.setRotationQuaternion(rot);
-        trans.setScale(scale);
-        return trans;
+        return toTransformMatrix(null);
+    }
+
+    public Matrix4f toTransformMatrix(Matrix4f store) {
+        if (store == null) {
+            store = new Matrix4f();
+        }
+        store.setTranslation(translation);
+        rot.toTransformMatrix(store);
+        store.setScale(scale);
+        return store;
     }
     
     public void fromTransformMatrix(Matrix4f mat) {
-        translation.set(mat.toTranslationVector());
-        rot.set(mat.toRotationQuat());
-        scale.set(mat.toScaleVector());
+        TempVars vars = TempVars.get();
+        translation.set(mat.toTranslationVector(vars.vect1));
+        rot.set(mat.toRotationQuat(vars.quat1));
+        scale.set(mat.toScaleVector(vars.vect2));
+        vars.release();
     }
     
     public Transform invert() {

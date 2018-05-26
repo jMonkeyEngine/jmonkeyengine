@@ -42,11 +42,11 @@ import java.util.HashSet;
 public final class DefaultLightFilter implements LightFilter {
 
     private Camera camera;
-    private final HashSet<Light> processedLights = new HashSet<>();
-    private final LightProbeBlendingStrategy probeBlendStrat;
+    private final HashSet<Light> processedLights = new HashSet<Light>();
+    private LightProbeBlendingStrategy probeBlendStrat;
 
     public DefaultLightFilter() {
-        probeBlendStrat = new BasicProbeBlendingStrategy();
+        probeBlendStrat = new WeightedProbeBlendingStrategy();
     }
 
     public DefaultLightFilter(LightProbeBlendingStrategy probeBlendStrat) {
@@ -114,5 +114,9 @@ public final class DefaultLightFilter implements LightFilter {
             vars.release();
         }
     }
-    
+
+    public void setLightProbeBlendingStrategy(LightProbeBlendingStrategy strategy){
+        probeBlendStrat = strategy;
+    }
+
 }

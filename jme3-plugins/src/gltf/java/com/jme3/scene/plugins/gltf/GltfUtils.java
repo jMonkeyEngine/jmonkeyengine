@@ -1,7 +1,6 @@
 package com.jme3.scene.plugins.gltf;
 
 import com.google.gson.*;
-import com.jme3.animation.Bone;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.math.*;
@@ -487,6 +486,8 @@ public class GltfUtils {
             mesh.setBuffer(VertexBuffer.Type.BoneIndex, 4, BufferUtils.createShortBuffer(jointsArray));
         }
         mesh.setBuffer(VertexBuffer.Type.BoneWeight, 4, BufferUtils.createFloatBuffer(weightsArray));
+        mesh.getBuffer(VertexBuffer.Type.BoneIndex).setUsage(VertexBuffer.Usage.CpuOnly);
+        mesh.getBuffer(VertexBuffer.Type.BoneWeight).setUsage(VertexBuffer.Usage.CpuOnly);
     }
 
     private static void populateFloatArray(float[] array, LittleEndien stream, int count, int byteOffset, int byteStride, int numComponents, VertexBuffer.Format format) throws IOException {
@@ -686,11 +687,11 @@ public class GltfUtils {
         }
     }
 
-    public static boolean equalBindAndLocalTransforms(Bone b) {
-        return equalsEpsilon(b.getBindPosition(), b.getLocalPosition())
-                && equalsEpsilon(b.getBindRotation(), b.getLocalRotation())
-                && equalsEpsilon(b.getBindScale(), b.getLocalScale());
-    }
+//    public static boolean equalBindAndLocalTransforms(Joint b) {
+//        return equalsEpsilon(b.getBindPosition(), b.getLocalPosition())
+//                && equalsEpsilon(b.getBindRotation(), b.getLocalRotation())
+//                && equalsEpsilon(b.getBindScale(), b.getLocalScale());
+//    }
 
     private static float epsilon = 0.0001f;
 

@@ -32,10 +32,7 @@
 package com.jme3.animation;
 
 import com.jme3.effect.ParticleEmitter;
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
+import com.jme3.export.*;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
@@ -67,6 +64,7 @@ import java.util.logging.Logger;
  *
  * @author Nehon
  */
+@Deprecated
 public class EffectTrack implements ClonableTrack {
 
     private static final Logger logger = Logger.getLogger(EffectTrack.class.getName());
@@ -130,15 +128,17 @@ public class EffectTrack implements ClonableTrack {
         @Override
         protected void controlRender(RenderManager rm, ViewPort vp) {
         }
-    };
+    }
 
     //Anim listener that stops the Emmitter when the animation is finished or changed.
     private class OnEndListener implements AnimEventListener {
 
+        @Override
         public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
             stop();
         }
 
+        @Override
         public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
         }
     }
@@ -188,6 +188,7 @@ public class EffectTrack implements ClonableTrack {
      * @see Track#setTime(float, float, com.jme3.animation.AnimControl,
      * com.jme3.animation.AnimChannel, com.jme3.util.TempVars)
      */
+    @Override
     public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars) {
 
         if (time >= length) {
@@ -233,6 +234,7 @@ public class EffectTrack implements ClonableTrack {
      *
      * @return length of the track
      */
+    @Override
     public float getLength() {
         return length;
     }
@@ -325,6 +327,7 @@ public class EffectTrack implements ClonableTrack {
         return null;
     }
 
+    @Override
     public void cleanUp() {
         TrackInfo t = (TrackInfo) emitter.getUserData("TrackInfo");
         t.getTracks().remove(this);
@@ -413,6 +416,7 @@ public class EffectTrack implements ClonableTrack {
      * @param ex exporter
      * @throws IOException exception
      */
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule out = ex.getCapsule(this);
         //reset the particle emission rate on the emitter before saving.
@@ -431,6 +435,7 @@ public class EffectTrack implements ClonableTrack {
      * @param im importer
      * @throws IOException Exception
      */
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
         this.particlesPerSeconds = in.readFloat("particlesPerSeconds", 0);

@@ -31,12 +31,10 @@
  */
 package com.jme3.scene.shape;
 
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
+import com.jme3.export.*;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
+
 import java.io.IOException;
 
 /**
@@ -88,12 +86,12 @@ public abstract class AbstractBox extends Mesh {
     /**
      * Convert the indices into the list of vertices that define the box's geometry.
      */
-    protected abstract void duUpdateGeometryIndices();
+    protected abstract void doUpdateGeometryIndices();
     
     /**
      * Update the normals of each of the box's planes.
      */
-    protected abstract void duUpdateGeometryNormals();
+    protected abstract void doUpdateGeometryNormals();
 
     /**
      * Update the points that define the texture of the box.
@@ -101,14 +99,14 @@ public abstract class AbstractBox extends Mesh {
      * It's a one-to-one ratio, where each plane of the box has its own copy
      * of the texture. That is, the texture is repeated one time for each face.
      */
-    protected abstract void duUpdateGeometryTextures();
+    protected abstract void doUpdateGeometryTextures();
 
     /**
      * Update the position of the vertices that define the box.
      * <p>
      * These eight points are determined from the minimum and maximum point.
      */
-    protected abstract void duUpdateGeometryVertices();
+    protected abstract void doUpdateGeometryVertices();
 
     /** 
      * Get the center point of this box. 
@@ -145,10 +143,10 @@ public abstract class AbstractBox extends Mesh {
      * need to call this method afterwards in order to update the box.
      */
     public final void updateGeometry() {
-        duUpdateGeometryVertices();
-        duUpdateGeometryNormals();
-        duUpdateGeometryTextures();
-        duUpdateGeometryIndices();
+        doUpdateGeometryVertices();
+        doUpdateGeometryNormals();
+        doUpdateGeometryTextures();
+        doUpdateGeometryIndices();
         setStatic();
     }
 

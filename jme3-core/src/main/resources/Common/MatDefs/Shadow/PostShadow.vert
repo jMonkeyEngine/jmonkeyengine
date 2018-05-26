@@ -49,10 +49,13 @@ const mat4 biasMat = mat4(0.5, 0.0, 0.0, 0.0,
                           0.0, 0.0, 0.5, 0.0,
                           0.5, 0.5, 0.5, 1.0);
 
-
 void main(){
    vec4 modelSpacePos = vec4(inPosition, 1.0);
-  
+
+   #ifdef NUM_MORPH_TARGETS
+       Morph_Compute(modelSpacePos);
+   #endif
+
    #ifdef NUM_BONES
        Skinning_Compute(modelSpacePos);
    #endif

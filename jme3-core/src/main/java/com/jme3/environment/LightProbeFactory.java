@@ -32,6 +32,7 @@
 package com.jme3.environment;
 
 import com.jme3.app.Application;
+import com.jme3.asset.AssetManager;
 import com.jme3.environment.generation.*;
 import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.light.LightProbe;
@@ -202,6 +203,26 @@ public class LightProbeFactory {
             pemGenerators[i].setGenerationParam(EnvMapUtils.duplicateCubeMap(envMap), size, EnvMapUtils.FixSeamsMethod.None, genType, probe.getPrefilteredEnvMap());
             jobState.executor.execute(pemGenerators[i]);
         }
+    }
+
+    /**
+     * For debuging porpose only
+     * Will return a Node meant to be added to a GUI presenting the 2 cube maps in a cross pattern with all the mip maps.
+     *
+     * @param manager the asset manager
+     * @return a debug node
+     */
+    public static Node getDebugGui(AssetManager manager, LightProbe probe) {
+        if (!probe.isReady()) {
+            throw new UnsupportedOperationException("This EnvProbe is not ready yet, try to test isReady()");
+        }
+
+        Node debugNode = new Node("debug gui probe");
+        Node debugPfemCm = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(probe.getPrefilteredEnvMap(), manager);
+        debugNode.attachChild(debugPfemCm);
+        debugPfemCm.setLocalTranslation(520, 0, 0);
+
+        return debugNode;
     }
 
     /**

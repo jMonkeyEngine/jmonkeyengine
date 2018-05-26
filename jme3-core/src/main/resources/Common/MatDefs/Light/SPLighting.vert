@@ -2,6 +2,8 @@
 #import "Common/ShaderLib/Instancing.glsllib"
 #import "Common/ShaderLib/Skinning.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
+#import "Common/ShaderLib/MorphAnim.glsllib"
+
 #ifdef VERTEX_LIGHTING
     #import "Common/ShaderLib/BlinnPhongLighting.glsllib"
 #endif
@@ -82,6 +84,14 @@ void main(){
    
    #if  defined(NORMALMAP) && !defined(VERTEX_LIGHTING)
         vec3 modelSpaceTan  = inTangent.xyz;
+   #endif
+
+   #ifdef NUM_MORPH_TARGETS
+        #if defined(NORMALMAP) && !defined(VERTEX_LIGHTING)
+           Morph_Compute(modelSpacePos, modelSpaceNorm, modelSpaceTan);
+        #else
+           Morph_Compute(modelSpacePos, modelSpaceNorm);
+        #endif
    #endif
 
    #ifdef NUM_BONES

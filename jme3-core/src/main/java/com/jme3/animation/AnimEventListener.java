@@ -37,6 +37,7 @@ package com.jme3.animation;
  * 
  * @author Kirill Vainer
  */
+@Deprecated
 public interface AnimEventListener {
 
     /**

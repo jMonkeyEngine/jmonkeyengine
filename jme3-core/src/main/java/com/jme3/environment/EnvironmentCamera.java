@@ -38,14 +38,9 @@ import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.light.LightProbe;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.Camera;
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.*;
 import com.jme3.scene.Spatial;
-import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image;
-import com.jme3.texture.Texture2D;
-import com.jme3.texture.TextureCubeMap;
+import com.jme3.texture.*;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.MipMapGenerator;
@@ -119,7 +114,7 @@ public class EnvironmentCamera extends BaseAppState {
     private final List<SnapshotJob> jobs = new ArrayList<SnapshotJob>();
 
     /**
-     * Creates an EnvironmentCamera with a size of 128
+     * Creates an EnvironmentCamera with a size of 256
      */
     public EnvironmentCamera() {
     }
@@ -322,7 +317,7 @@ public class EnvironmentCamera extends BaseAppState {
         final Camera offCamera = new Camera(mapSize, mapSize);
         offCamera.setLocation(worldPos);
         offCamera.setAxes(axisX, axisY, axisZ);
-        offCamera.setFrustumPerspective(90f, 1f, 1, 1000);
+        offCamera.setFrustumPerspective(90f, 1f, 0.1f, 1000);
         offCamera.setLocation(position);
         return offCamera;
     }

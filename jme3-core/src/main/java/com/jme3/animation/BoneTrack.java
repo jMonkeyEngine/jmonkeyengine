@@ -44,7 +44,9 @@ import java.util.BitSet;
  * Contains a list of transforms and times for each keyframe.
  * 
  * @author Kirill Vainer
+ * @deprecated use {@link com.jme3.anim.JointTrack}
  */
+@Deprecated
 public final class BoneTrack implements JmeCloneable, Track {
 
     /**

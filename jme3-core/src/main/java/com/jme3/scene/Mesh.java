@@ -39,24 +39,18 @@ import com.jme3.collision.bih.BIHTree;
 import com.jme3.export.*;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
-import com.jme3.math.Matrix4f;
-import com.jme3.math.Triangle;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.VertexBuffer.Format;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.math.*;
+import com.jme3.scene.VertexBuffer.*;
 import com.jme3.scene.mesh.*;
-import com.jme3.util.BufferUtils;
-import com.jme3.util.IntMap;
+import com.jme3.util.*;
 import com.jme3.util.IntMap.Entry;
-import com.jme3.util.SafeArrayList;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 
 import java.io.IOException;
 import java.nio.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * <code>Mesh</code> is used to store rendering data.
@@ -171,8 +165,8 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
 
     private CollisionData collisionTree = null;
 
-    private SafeArrayList<VertexBuffer> buffersList = new SafeArrayList<VertexBuffer>(VertexBuffer.class);
-    private IntMap<VertexBuffer> buffers = new IntMap<VertexBuffer>();
+    private SafeArrayList<VertexBuffer> buffersList = new SafeArrayList<>(VertexBuffer.class);
+    private IntMap<VertexBuffer> buffers = new IntMap<>();
     private VertexBuffer[] lodLevels;
     private float pointSize = 1;
     private float lineWidth = 1;
@@ -189,6 +183,8 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     private int[] modeStart;
 
     private Mode mode = Mode.Triangles;
+
+    private SafeArrayList<MorphTarget> morphTargets;
 
     /**
      * Creates a new mesh with no {@link VertexBuffer vertex buffers}.
@@ -210,7 +206,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
             clone.meshBound = meshBound.clone();
             clone.collisionTree = collisionTree != null ? collisionTree : null;
             clone.buffers = buffers.clone();
-            clone.buffersList = new SafeArrayList<VertexBuffer>(VertexBuffer.class,buffersList);
+            clone.buffersList = new SafeArrayList<>(VertexBuffer.class, buffersList);
             clone.vertexArrayID = -1;
             if (elementLengths != null) {
                 clone.elementLengths = elementLengths.clone();
@@ -240,8 +236,8 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
             //clone.collisionTree = collisionTree != null ? collisionTree : null;
             clone.collisionTree = null; // it will get re-generated in any case
 
-            clone.buffers = new IntMap<VertexBuffer>();
-            clone.buffersList = new SafeArrayList<VertexBuffer>(VertexBuffer.class);
+            clone.buffers = new IntMap<>();
+            clone.buffersList = new SafeArrayList<>(VertexBuffer.class);
             for (VertexBuffer vb : buffersList.getArray()){
                 VertexBuffer bufClone = vb.clone();
                 clone.buffers.put(vb.getBufferType().ordinal(), bufClone);
@@ -704,7 +700,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      */
     @Deprecated
     public void setInterleaved(){
-        ArrayList<VertexBuffer> vbs = new ArrayList<VertexBuffer>();
+        ArrayList<VertexBuffer> vbs = new ArrayList<>();
         vbs.addAll(buffersList);
 
 //        ArrayList<VertexBuffer> vbs = new ArrayList<VertexBuffer>(buffers.values());
@@ -827,8 +823,9 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * {@link #setInterleaved() interleaved} format.
      */
     public void updateCounts(){
-        if (getBuffer(Type.InterleavedData) != null)
+        if (getBuffer(Type.InterleavedData) != null) {
             throw new IllegalStateException("Should update counts before interleave");
+        }
 
         VertexBuffer pb = getBuffer(Type.Position);
         VertexBuffer ib = getBuffer(Type.Index);
@@ -851,11 +848,13 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      */
     public int getTriangleCount(int lod){
         if (lodLevels != null){
-            if (lod < 0)
+            if (lod < 0) {
                 throw new IllegalArgumentException("LOD level cannot be < 0");
+            }
 
-            if (lod >= lodLevels.length)
-                throw new IllegalArgumentException("LOD level "+lod+" does not exist!");
+            if (lod >= lodLevels.length) {
+                throw new IllegalArgumentException("LOD level " + lod + " does not exist!");
+            }
 
             return computeNumElements(lodLevels[lod].getData().limit());
         }else if (lod == 0){
@@ -975,8 +974,9 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * Sets the mesh's VAO ID. Internal use only.
      */
     public void setId(int id){
-        if (vertexArrayID != -1)
+        if (vertexArrayID != -1) {
             throw new IllegalStateException("ID has already been set.");
+        }
 
         vertexArrayID = id;
     }
@@ -1044,8 +1044,9 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * @throws IllegalArgumentException If the buffer type is already set
      */
     public void setBuffer(VertexBuffer vb){
-        if (buffers.containsKey(vb.getBufferType().ordinal()))
-            throw new IllegalArgumentException("Buffer type already set: "+vb.getBufferType());
+        if (buffers.containsKey(vb.getBufferType().ordinal())) {
+            throw new IllegalArgumentException("Buffer type already set: " + vb.getBufferType());
+        }
 
         buffers.put(vb.getBufferType().ordinal(), vb);
         buffersList.add(vb);
@@ -1158,8 +1159,9 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      */
     public FloatBuffer getFloatBuffer(Type type) {
         VertexBuffer vb = getBuffer(type);
-        if (vb == null)
+        if (vb == null) {
             return null;
+        }
 
         return (FloatBuffer) vb.getData();
     }
@@ -1173,8 +1175,9 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      */
     public ShortBuffer getShortBuffer(Type type) {
         VertexBuffer vb = getBuffer(type);
-        if (vb == null)
+        if (vb == null) {
             return null;
+        }
 
         return (ShortBuffer) vb.getData();
     }
@@ -1186,8 +1189,9 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      * @return A virtual or wrapped index buffer to read the data as a list
      */
     public IndexBuffer getIndicesAsList(){
-        if (mode == Mode.Hybrid)
+        if (mode == Mode.Hybrid) {
             throw new UnsupportedOperationException("Hybrid mode not supported");
+        }
 
         IndexBuffer ib = getIndexBuffer();
         if (ib != null){
@@ -1216,8 +1220,9 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      */
     public IndexBuffer getIndexBuffer() {
         VertexBuffer vb = getBuffer(Type.Index);
-        if (vb == null)
+        if (vb == null) {
             return null;
+        }
 
         return IndexBuffer.wrapIndexBuffer(vb.getData());
     }
@@ -1240,8 +1245,8 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         IndexBuffer indexBuf = getIndexBuffer();
         int numIndices = indexBuf.size();
 
-        IntMap<Integer> oldIndicesToNewIndices = new IntMap<Integer>(numIndices);
-        ArrayList<Integer> newIndicesToOldIndices = new ArrayList<Integer>();
+        IntMap<Integer> oldIndicesToNewIndices = new IntMap<>(numIndices);
+        ArrayList<Integer> newIndicesToOldIndices = new ArrayList<>();
         int newIndex = 0;
 
         for (int i = 0; i < numIndices; i++) {
@@ -1352,14 +1357,17 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
      */
     public void scaleTextureCoordinates(Vector2f scaleFactor){
         VertexBuffer tc = getBuffer(Type.TexCoord);
-        if (tc == null)
+        if (tc == null) {
             throw new IllegalStateException("The mesh has no texture coordinates");
+        }
 
-        if (tc.getFormat() != VertexBuffer.Format.Float)
+        if (tc.getFormat() != VertexBuffer.Format.Float) {
             throw new UnsupportedOperationException("Only float texture coord format is supported");
+        }
 
-        if (tc.getNumComponents() != 2)
+        if (tc.getNumComponents() != 2) {
             throw new UnsupportedOperationException("Only 2D texture coords are supported");
+        }
 
         FloatBuffer fb = (FloatBuffer) tc.getData();
         fb.clear();
@@ -1447,12 +1455,22 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     }
 
     /**
+     * @deprecated use isAnimatedByJoint
+     * @param boneIndex
+     * @return
+     */
+    @Deprecated
+    public boolean isAnimatedByBone(int boneIndex) {
+        return isAnimatedByJoint(boneIndex);
+    }
+
+    /**
      * Test whether the specified bone animates this mesh.
      *
-     * @param boneIndex the bone's index in its skeleton
+     * @param jointIndex the bone's index in its skeleton
      * @return true if the specified bone animates this mesh, otherwise false
      */
-    public boolean isAnimatedByBone(int boneIndex) {
+    public boolean isAnimatedByJoint(int jointIndex) {
         VertexBuffer biBuf = getBuffer(VertexBuffer.Type.BoneIndex);
         VertexBuffer wBuf = getBuffer(VertexBuffer.Type.BoneWeight);
         if (biBuf == null || wBuf == null) {
@@ -1472,7 +1490,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         /*
          * Test each vertex to determine whether the bone affects it.
          */
-        int biByte = boneIndex;
+        int biByte = jointIndex;
         for (int vIndex = 0; vIndex < numVertices; vIndex++) {
             for (int wIndex = 0; wIndex < 4; wIndex++) {
                 int bIndex = boneIndexBuffer.get();
@@ -1501,15 +1519,25 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         return patchVertexCount;
     }
 
+
+    public void addMorphTarget(MorphTarget target) {
+        if (morphTargets == null) {
+            morphTargets = new SafeArrayList<>(MorphTarget.class);
+        }
+        morphTargets.add(target);
+    }
+
+    public MorphTarget[] getMorphTargets() {
+        return morphTargets.getArray();
+    }
+
+    public boolean hasMorphTargets() {
+        return morphTargets != null && !morphTargets.isEmpty();
+    }
+
+    @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule out = ex.getCapsule(this);
-
-//        HashMap<String, VertexBuffer> map = new HashMap<String, VertexBuffer>();
-//        for (Entry<VertexBuffer> buf : buffers){
-//            if (buf.getValue() != null)
-//                map.put(buf.getKey()+"a", buf.getValue());
-//        }
-//        out.writeStringSavableMap(map, "buffers", null);
 
         out.write(meshBound, "modelBound", null);
         out.write(vertCount, "vertCount", -1);
@@ -1545,8 +1573,12 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         }
 
         out.write(lodLevels, "lodLevels", null);
+        if (morphTargets != null) {
+            out.writeSavableArrayList(new ArrayList(morphTargets), "morphTargets", null);
+        }
     }
 
+    @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
         meshBound = (BoundingVolume) in.readSavable("modelBound", null);
@@ -1582,6 +1614,11 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         if (lodLevelsSavable != null) {
             lodLevels = new VertexBuffer[lodLevelsSavable.length];
             System.arraycopy( lodLevelsSavable, 0, lodLevels, 0, lodLevels.length);
+        }
+
+        ArrayList<Savable> l = in.readSavableArrayList("morphTargets", null);
+        if (l != null) {
+            morphTargets = new SafeArrayList(MorphTarget.class, l);
         }
     }
 

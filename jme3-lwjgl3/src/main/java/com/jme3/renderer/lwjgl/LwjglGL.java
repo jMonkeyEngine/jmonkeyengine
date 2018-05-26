@@ -617,8 +617,33 @@ public class LwjglGL extends LwjglRender implements GL, GL2, GL3, GL4 {
     }
 
     @Override
+    public int glGetProgramResourceIndex(final int program, final int programInterface, final String name) {
+        return GL43.glGetProgramResourceIndex(program, programInterface, name);
+    }
+
+    @Override
+    public void glShaderStorageBlockBinding(final int program, final int storageBlockIndex, final int storageBlockBinding) {
+        GL43.glShaderStorageBlockBinding(program, storageBlockIndex, storageBlockBinding);
+    }
+
+    @Override
     public void glDeleteVertexArrays(final IntBuffer arrays) {
         checkLimit(arrays);
         ARBVertexArrayObject.glDeleteVertexArrays(arrays);
+    }
+
+    @Override
+    public int glGetUniformBlockIndex(final int program, final String uniformBlockName) {
+        return GL31.glGetUniformBlockIndex(program, uniformBlockName);
+    }
+
+    @Override
+    public void glBindBufferBase(final int target, final int index, final int buffer) {
+        GL30.glBindBufferBase(target, index, buffer);
+    }
+
+    @Override
+    public void glUniformBlockBinding(final int program, final int uniformBlockIndex, final int uniformBlockBinding) {
+        GL31.glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
     }
 }

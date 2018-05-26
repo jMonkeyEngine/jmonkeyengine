@@ -35,6 +35,7 @@ package com.jme3.animation;
  * <code>LoopMode</code> determines how animations repeat, or if they
  * do not repeat.
  */
+@Deprecated
 public enum LoopMode {
     /**
      * The animation will play repeatedly, when it reaches the end

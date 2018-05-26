@@ -34,9 +34,8 @@ package com.jme3.environment.util;
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
 import com.jme3.bounding.BoundingSphere;
+import com.jme3.light.*;
 import com.jme3.material.Material;
-import com.jme3.light.LightProbe;
-import com.jme3.light.Light;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -68,7 +67,7 @@ public class LightsDebugState extends BaseAppState {
     @Override
     protected void initialize(Application app) {
         debugNode = new Node("Environment debug Node");
-        Sphere s = new Sphere(16, 16, 1);
+        Sphere s = new Sphere(16, 16, 0.15f);
         debugGeom = new Geometry("debugEnvProbe", s);
         debugMaterial = new Material(app.getAssetManager(), "Common/MatDefs/Misc/reflect.j3md");
         debugGeom.setMaterial(debugMaterial);
@@ -80,6 +79,16 @@ public class LightsDebugState extends BaseAppState {
 
     @Override
     public void update(float tpf) {
+        if(!isEnabled()){
+            return;
+        }
+        updateLights(scene);
+        debugNode.updateLogicalState(tpf);
+        debugNode.updateGeometricState();
+        cleanProbes();
+    }
+
+    public void updateLights(Spatial scene) {
         for (Light light : scene.getWorldLightList()) {
             switch (light.getType()) {
 
@@ -101,16 +110,18 @@ public class LightsDebugState extends BaseAppState {
                         m.setTexture("CubeMap", probe.getPrefilteredEnvMap());
                     }
                     n.setLocalTranslation(probe.getPosition());
-                    n.getChild(1).setLocalScale(((BoundingSphere) probe.getBounds()).getRadius());
+                    n.getChild(1).setLocalScale(probe.getArea().getRadius());
                     break;
                 default:
                     break;
             }
         }
-        debugNode.updateLogicalState(tpf);
-        debugNode.updateGeometricState();
-        cleanProbes();
-
+        if( scene instanceof Node){
+            Node n = (Node)scene;
+            for (Spatial spatial : n.getChildren()) {
+                updateLights(spatial);
+            }
+        }
     }
 
     /**
@@ -138,6 +149,9 @@ public class LightsDebugState extends BaseAppState {
 
     @Override
     public void render(RenderManager rm) {
+        if(!isEnabled()){
+            return;
+        }
         rm.renderScene(debugNode, getApplication().getViewPort());
     }
 

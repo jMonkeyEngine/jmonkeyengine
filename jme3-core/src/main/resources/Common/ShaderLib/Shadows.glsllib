@@ -3,7 +3,10 @@
     // gather functions are declared to work on shadowmaps
     #extension GL_ARB_gpu_shader5 : enable
     #define IVEC2 ivec2
-    #ifdef HARDWARE_SHADOWS
+    #if defined GL_ES
+        #define SHADOWMAP sampler2D
+        #define SHADOWCOMPARE(tex,coord) step(coord.z, texture2DProj(tex, coord).r)
+    #elif defined HARDWARE_SHADOWS
         #define SHADOWMAP sampler2DShadow
         #define SHADOWCOMPAREOFFSET(tex,coord,offset) textureProjOffset(tex, coord, offset)
         #define SHADOWCOMPARE(tex,coord) textureProj(tex, coord)

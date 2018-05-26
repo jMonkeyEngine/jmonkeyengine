@@ -69,7 +69,6 @@ public class TestShadowsPerf extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        Logger.getLogger("com.jme3").setLevel(Level.SEVERE);
         flyCam.setMoveSpeed(50);
         flyCam.setEnabled(false);
         viewPort.setBackgroundColor(ColorRGBA.DarkGray);

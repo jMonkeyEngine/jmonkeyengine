@@ -1,0 +1,37 @@
+ShaderNodeDefinitions{
+    ShaderNodeDefinition Dashed {
+        //Vertex/Fragment
+        Type: Fragment
+
+        //Shader GLSL<version>: <Path to shader>
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Misc/Dashed100.frag
+
+        Documentation{
+            //type documentation here. This is optional but recommended
+            Output a dashed line (better have a LINE mode mesh)
+
+            //@input <glsltype> <varName> <description>
+            @input vec2 texCoord the texture coordinates
+            @input vec4 inColor The input color
+            
+
+            //@output <glslType> <varName> <description>
+            @output vec4 outColor The modified output color
+        }
+        Input {
+            //all the node inputs
+            //<glslType> <varName>
+            vec2 texCoord
+            vec4 inColor
+            vec4 startPos
+            vec2 resolution
+            
+            
+        }
+        Output {
+            //all the node outputs
+            //<glslType> <varName>
+            vec4 outColor
+        }
+    }
+}

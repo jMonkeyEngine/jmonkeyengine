@@ -31,10 +31,7 @@
  */
 package jme3test.bullet;
 
-import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.AnimEventListener;
-import com.jme3.animation.LoopMode;
+import com.jme3.animation.*;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
@@ -46,9 +43,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -58,6 +53,7 @@ import com.jme3.texture.Texture;
 /**
  * @author normenhansen
  */
+//TODO rework this Test when the new animation system is done.
 public class TestRagdollCharacter extends SimpleApplication implements AnimEventListener, ActionListener {
 
     BulletAppState bulletAppState;
@@ -89,7 +85,7 @@ public class TestRagdollCharacter extends SimpleApplication implements AnimEvent
         cam.setLocation(new Vector3f(-8,0,-4));
         cam.lookAt(new Vector3f(4,0,-7), Vector3f.UNIT_Y);
 
-        model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
+        model = (Node) assetManager.loadModel("Models/Sinbad/SinbadOldAnim.j3o");
         model.lookAt(new Vector3f(0,0,-1), Vector3f.UNIT_Y);
         model.setLocalTranslation(4, 0, -7f);
 
