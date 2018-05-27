@@ -75,7 +75,7 @@ import java.util.ArrayList;
  *
  * @author Kirill Vainer
  */
-public class PreShadowArrayRenderer implements SceneProcessor {
+public class InPassShadowRenderer implements SceneProcessor {
 
     private static final String PRE_SHADOW_TECHNIQUE_NAME = "PreShadow";
 
@@ -94,7 +94,7 @@ public class PreShadowArrayRenderer implements SceneProcessor {
     // parameters for directional lights
     private final DirectionalShadowParameters directionalParams = new DirectionalShadowParameters();
 
-    public PreShadowArrayRenderer() {
+    public InPassShadowRenderer() {
         for (int i = 0; i < points.length; i++) {
             points[i] = new Vector3f();
         }

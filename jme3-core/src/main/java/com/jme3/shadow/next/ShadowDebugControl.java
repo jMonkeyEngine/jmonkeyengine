@@ -38,7 +38,6 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
-import com.jme3.shader.VarType;
 import com.jme3.texture.Image;
 import com.jme3.texture.TextureArray;
 import com.jme3.ui.Picture;
@@ -54,7 +53,7 @@ final class ShadowDebugControl extends AbstractControl {
 
     private final List<Picture> pictures = new ArrayList<>();
 
-    public ShadowDebugControl(AssetManager assetManager, PreShadowArrayRenderer shadowRenderer) {
+    public ShadowDebugControl(AssetManager assetManager, InPassShadowRenderer shadowRenderer) {
         TextureArray shadowMapArray = shadowRenderer.getShadowMapTexture();
         Image shadowMap = shadowMapArray.getImage();
         for (int i = 0; i < shadowMap.getDepth(); i++) {

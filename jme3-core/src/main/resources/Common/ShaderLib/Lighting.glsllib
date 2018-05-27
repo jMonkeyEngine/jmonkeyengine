@@ -15,7 +15,7 @@ void lightComputeDir(in vec3 worldPos, in float lightType, in vec4 position, out
     lightDir.w = (1.0 - position.w * dist) / (1.0 + position.w * dist * dist);
     lightDir.w = clamp(lightDir.w, 1.0 - posLight, 1.0);
 #else
-    lightDir.w = 1.0; // clamp(1.0 - position.w * dist * posLight, 0.0, 1.0);
+    lightDir.w = clamp(1.0 - position.w * dist * posLight, 0.0, 1.0);
 #endif
     lightDir.xyz = tempVec / vec3(dist);
 }

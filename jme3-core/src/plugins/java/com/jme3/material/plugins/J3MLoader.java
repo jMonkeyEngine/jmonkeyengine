@@ -39,7 +39,6 @@ import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.material.TechniqueDef.LightMode;
 import com.jme3.material.TechniqueDef.ShadowMode;
-import com.jme3.material.logic.StaticPassLightingLogic;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -644,9 +643,6 @@ public class J3MLoader implements AssetLoader {
                 break;
             case SinglePass:
                 technique.setLogic(new SinglePassLightingLogic(technique));
-                break;
-            case StaticPass:
-                technique.setLogic(new ShadowStaticPassLightingLogic(technique));
                 break;
             case SinglePassAndImageBased:
                 technique.setLogic(new SinglePassAndImageBasedLightingLogic(technique));

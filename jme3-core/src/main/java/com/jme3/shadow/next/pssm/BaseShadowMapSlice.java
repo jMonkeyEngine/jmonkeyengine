@@ -53,6 +53,7 @@ public abstract class BaseShadowMapSlice<T extends Light> implements ShadowMapSl
     protected final Texture2D depthTexture;
     protected final Camera shadowCamera;
     protected final Vector3f[] points;
+    protected final Matrix4f biasedViewProjectionMatrix = new Matrix4f();
 
     public BaseShadowMapSlice(int size, Vector3f[] points) {
         this.depthTexture = new Texture2D(size, size, Image.Format.Depth16);
@@ -81,7 +82,6 @@ public abstract class BaseShadowMapSlice<T extends Light> implements ShadowMapSl
 
     @Override
     public Matrix4f getBiasedViewProjectionMatrix() {
-//        return shadowCamera.getViewProjectionMatrix();
-        throw new UnsupportedOperationException();
+        return BIAS_MATRIX.mult(shadowCamera.getViewProjectionMatrix(), biasedViewProjectionMatrix);
     }
 }

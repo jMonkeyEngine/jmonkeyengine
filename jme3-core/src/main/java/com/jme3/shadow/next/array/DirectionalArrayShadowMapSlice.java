@@ -48,6 +48,11 @@ public class DirectionalArrayShadowMapSlice extends BaseArrayShadowMapSlice<Dire
         this.shadowCamera.setParallelProjection(true);
     }
 
+    private static boolean isParallelToYUp(Vector3f direction) {
+        return direction.x == 0 && direction.z == 0
+                && (direction.y == -1 || direction.y == 1);
+    }
+
     public void updateShadowCamera(
             ViewPort viewPort,
             DirectionalLight light,
@@ -55,7 +60,12 @@ public class DirectionalArrayShadowMapSlice extends BaseArrayShadowMapSlice<Dire
             float near,
             float far,
             Vector3f[] points) {
-        shadowCamera.lookAtDirection(light.getDirection(), shadowCamera.getUp());
+        if (isParallelToYUp(light.getDirection())) {
+            // direction and up cannot be parallel
+            shadowCamera.lookAtDirection(light.getDirection(), Vector3f.UNIT_Z);
+        } else {
+            shadowCamera.lookAtDirection(light.getDirection(), Vector3f.UNIT_Y);
+        }
 
         int textureSize = frameBuffer.getWidth();
         ShadowUtil.updateFrustumPoints(viewPort.getCamera(), near, far, points);

@@ -32,15 +32,13 @@
 package com.jme3.shadow.next.pssm;
 
 import com.jme3.math.Vector3f;
-import com.jme3.math.Vector4f;
 import com.jme3.renderer.Camera;
 import com.jme3.shadow.PssmShadowUtil;
-import com.jme3.shadow.next.ShadowParameters;
 
 /**
  * @author Kirill Vainer
  */
-public final class DirectionalShadowParameters implements ShadowParameters {
+public final class DirectionalShadowParameters {
 
     private float lambda = 0.65f;
     private int numSplits = 4;
@@ -61,7 +59,9 @@ public final class DirectionalShadowParameters implements ShadowParameters {
     }
 
     public void setNumSplits(int numSplits) {
-        // TODO: ensure it is 1 to 4
+        if (numSplits < 1 || numSplits > 4) {
+            throw new IllegalArgumentException("Number of splits must be between 1 and 4");
+        }
         this.numSplits = numSplits;
         this.splitPositions = new float[numSplits + 1];
     }

@@ -52,7 +52,7 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
-import com.jme3.shadow.next.PreShadowArrayRenderer;
+import com.jme3.shadow.next.InPassShadowRenderer;
 import com.jme3.system.AppSettings;
 
 public class TestInPassShadows extends SimpleApplication {
@@ -60,7 +60,7 @@ public class TestInPassShadows extends SimpleApplication {
     private DirectionalLight dl;
     private SpotLight sl;
     private PointLight pl;
-    private PreShadowArrayRenderer psr;
+    private InPassShadowRenderer ipsr;
     private ToneMapFilter tmf;
     
     public static void main(String[] args) {
@@ -114,14 +114,14 @@ public class TestInPassShadows extends SimpleApplication {
                 30);
         rootNode.addLight(pl);
 
-        psr = new PreShadowArrayRenderer();
-        psr.setTextureSize(512);
-        psr.setPolyOffset(5, 0);
-        psr.directional().setNumSplits(1);
-        psr.addLight(dl);
-        psr.addLight(sl);
-        psr.addLight(pl);
-        viewPort.addProcessor(psr);
+        ipsr = new InPassShadowRenderer();
+        ipsr.setTextureSize(512);
+        ipsr.setPolyOffset(5, 0);
+        ipsr.directional().setNumSplits(1);
+        ipsr.addLight(dl);
+        ipsr.addLight(sl);
+        ipsr.addLight(pl);
+        viewPort.addProcessor(ipsr);
     }
 
     private void loadScene() {
@@ -186,7 +186,7 @@ public class TestInPassShadows extends SimpleApplication {
                         units -= tpf * 50f;
                         break;
                 }
-                psr.setPolyOffset(factor, units);
+                ipsr.setPolyOffset(factor, units);
                 System.out.println("PolyOffset(" + factor + ", " + units + ")");
             }
             
