@@ -129,27 +129,6 @@ MaterialDef Phong Lighting {
     }
 
     Technique {
-        LightMode StaticPass
- 
-        VertexShader   GLSL100 GLSL150 : Common/MatDefs/Light/StaticLighting.vert
-        FragmentShader GLSL100 GLSL150 : Common/MatDefs/Light/StaticLighting.frag
- 
-        WorldParameters {
-            WorldViewProjectionMatrix
-            NormalMatrix
-            WorldViewMatrix
-            ViewMatrix
-            CameraPosition
-            WorldMatrix
-            ViewProjectionMatrix
-        }
- 
-        Defines {
-            AMBIENTMAP : AmbientMap
-        }
-    }
-
-    Technique {
         LightMode SinglePass
 
         VertexShader GLSL100 GLSL150:   Common/MatDefs/Light/SPLighting.vert
@@ -162,13 +141,13 @@ MaterialDef Phong Lighting {
             ViewMatrix
             CameraPosition
             WorldMatrix
-            ViewProjectionMatrix            
+            ViewProjectionMatrix
         }
 
-        Defines {           
+        Defines {
             VERTEX_COLOR : UseVertexColor
-            VERTEX_LIGHTING : VertexLighting           
-            MATERIAL_COLORS : UseMaterialColors         
+            VERTEX_LIGHTING : VertexLighting
+            MATERIAL_COLORS : UseMaterialColors
             DIFFUSEMAP : DiffuseMap
             NORMALMAP : NormalMap
             SPECULARMAP : SpecularMap
@@ -181,8 +160,8 @@ MaterialDef Phong Lighting {
             SEPARATE_TEXCOORD : SeparateTexCoord
             DISCARD_ALPHA : AlphaDiscardThreshold
             USE_REFLECTION : EnvMap
-            SPHERE_MAP : EnvMapAsSphereMap  
-            NUM_BONES : NumberOfBones                        
+            SPHERE_MAP : EnvMapAsSphereMap
+            NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
