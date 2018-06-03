@@ -588,8 +588,7 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
      * @return the angle in radians.
      */
     public float angleBetween(Vector2f otherVector) {
-        float angle = FastMath.atan2(otherVector.y, otherVector.x)
-                - FastMath.atan2(y, x);
+        float angle = FastMath.atan2(otherVector.y - y, otherVector.x - x);
         return angle;
     }
     
