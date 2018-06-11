@@ -34,6 +34,7 @@ package com.jme3.shader;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.ShaderGenerationInfo;
 import com.jme3.material.TechniqueDef;
+import com.jme3.material.plugins.ConditionParser;
 import com.jme3.shader.Shader.ShaderType;
 import com.jme3.shader.plugins.ShaderAssetKey;
 
@@ -72,7 +73,15 @@ public abstract class ShaderGenerator {
      */
     Pattern extensions = Pattern.compile("(#extension.*\\s+)");
 
-    private Map<String, String> imports = new LinkedHashMap<>();
+    /**
+     * a set of imports to append to the shader source
+     */
+    private Set<String> imports = new HashSet<>();
+
+    /**
+     * The nodes function and their condition to be declared in the shader
+     */
+    protected Map<String, NodeDeclaration> declaredNodes = new LinkedHashMap<>();
 
     /**
      * Build a shaderGenerator
@@ -155,12 +164,6 @@ public abstract class ShaderGenerator {
 
         generateEndOfMainSection(source, info, type);
 
-        //insert imports backward
-        int insertIndex = sourceDeclaration.length();
-        for (String importSource : imports.values()) {
-            sourceDeclaration.insert(insertIndex, importSource);
-        }
-
         sourceDeclaration.append(source);
 
         return moveExtensionsUp(sourceDeclaration);
@@ -195,56 +198,92 @@ public abstract class ShaderGenerator {
      * @param type the Shader type
      */
     protected void generateDeclarationAndMainBody(List<ShaderNode> shaderNodes, StringBuilder sourceDeclaration, StringBuilder source, ShaderGenerationInfo info, Shader.ShaderType type) {
+        declaredNodes.clear();
         for (ShaderNode shaderNode : shaderNodes) {
             if (info.getUnusedNodes().contains(shaderNode.getName())) {
                 continue;
             }
+
             if (shaderNode.getDefinition().getType() == type) {
                 int index = findShaderIndexFromVersion(shaderNode, type);
                 String shaderPath = shaderNode.getDefinition().getShadersPath().get(index);
                 Map<String, String> sources = (Map<String, String>) assetManager.loadAsset(new ShaderAssetKey(shaderPath, false));
                 String loadedSource = sources.get("[main]");
                 for (String name : sources.keySet()) {
-                    if (!name.equals("[main]")) {
-                        imports.put(name, sources.get(name));
+                    if (!name.equals("[main]") && !imports.contains(name)) {
+                        imports.add(name);
+                        // append the imported file in place if it hasn't been imported already.
+                        sourceDeclaration.append(sources.get(name));
                     }
                 }
-                appendNodeDeclarationAndMain(loadedSource, sourceDeclaration, source, shaderNode, info, shaderPath);
+                // Nodes are functions added to the declaration part of the shader
+                // Multiple nodes may use the same definition and we don't want to declare it several times.
+                // Also nodes can have #ifdef conditions so we need to properly merge this conditions to declare the Node function.
+                NodeDeclaration nd = declaredNodes.get(shaderNode.getDefinition().getName());
+                loadedSource =  functionize(loadedSource, shaderNode.getDefinition());
+                if(nd == null){
+                    nd = new NodeDeclaration(shaderNode.getCondition(),  loadedSource);
+                    declaredNodes.put(shaderNode.getDefinition().getName(), nd);
+                } else {
+                    nd.condition = ConditionParser.mergeConditions(nd.condition, shaderNode.getCondition(), "||");
+                }
+
+                generateNodeMainSection(source, shaderNode, loadedSource, info);
             }
         }
+
+        generateDeclarationSection(sourceDeclaration);
+
     }
 
     /**
-     * Appends declaration and main part of a node to the shader declaration and
-     * main part. the loadedSource is split by "void main(){" to split
-     * declaration from main part of the node source code.The trailing "}" is
-     * removed from the main part. Each part is then respectively passed to
-     * generateDeclarativeSection and generateNodeMainSection.
-     *
-     * @see ShaderGenerator#generateDeclarativeSection
-     * @see ShaderGenerator#generateNodeMainSection
-     *
-     * @param loadedSource the actual source code loaded for this node.
-     * @param shaderPath path to the shader file
-     * @param sourceDeclaration the Shader declaration part string builder.
-     * @param source the Shader main part StringBuilder.
-     * @param shaderNode the shader node.
-     * @param info the ShaderGenerationInfo.
+     * Tuns old style shader node code into a proper function so that it can be appended to the declarative sectio.
+     * Note that this only needed for nodes coming from a j3sn file.
+     * @param source
+     * @param def
+     * @return
      */
-    protected void appendNodeDeclarationAndMain(String loadedSource, StringBuilder sourceDeclaration, StringBuilder source, ShaderNode shaderNode, ShaderGenerationInfo info, String shaderPath) {
-        if (loadedSource.length() > 1) {
-            loadedSource = loadedSource.substring(0, loadedSource.lastIndexOf("}"));
-            String[] sourceParts = loadedSource.split("\\s*void\\s*main\\s*\\(\\s*\\)\\s*\\{");
-            if(sourceParts.length<2){
-                throw new IllegalArgumentException("Syntax error in "+ shaderPath +". Cannot find 'void main(){' in \n"+ loadedSource);
-            }
-            generateDeclarativeSection(sourceDeclaration, shaderNode, sourceParts[0], info);
-            generateNodeMainSection(source, shaderNode, sourceParts[1], info);
-        } else {
-            //if source is empty, we still call generateNodeMainSection so that mappings can be done.
-            generateNodeMainSection(source, shaderNode, loadedSource, info);
+    public static String functionize(String source, ShaderNodeDefinition def){
+        StringBuffer signature = new StringBuffer();
+        def.setReturnType("void");
+        signature.append("void ").append(def.getName()).append("(");
+        boolean addParam = false;
+        if(def.getParams().isEmpty()){
+            addParam = true;
         }
 
+        boolean isFirst = true;
+        for (ShaderNodeVariable v : def.getInputs()) {
+            if(!isFirst){
+                signature.append(", ");
+            }
+            String qualifier;
+            qualifier = "const in";
+            signature.append(qualifier).append(" ").append(v.getType()).append(" ").append(v.getName());
+            isFirst = false;
+            if(addParam) {
+                def.getParams().add(v);
+            }
+        }
+
+        for (ShaderNodeVariable v : def.getOutputs()) {
+            if(def.getInputs().contains(v)){
+                continue;
+            }
+            if(!isFirst){
+                signature.append(", ");
+            }
+            signature.append("out ").append(v.getType()).append(" ").append(v.getName());
+            isFirst = false;
+            if(addParam) {
+                def.getParams().add(v);
+            }
+        }
+        signature.append("){");
+
+        source = source.replaceAll("\\s*void\\s*main\\s*\\(\\s*\\)\\s*\\{", signature.toString());
+
+        return source;
     }
 
     /**
@@ -287,19 +326,12 @@ public abstract class ShaderGenerator {
     protected abstract void generateVaryings(StringBuilder source, ShaderGenerationInfo info, ShaderType type);
 
     /**
-     * Appends the given shaderNode declarative part to the shader declarative
-     * part. If needed the shader type can be determined by fetching the
-     * shaderNode's definition type.
-     *
-     * @see ShaderNode#getDefinition()
-     * @see ShaderNodeDefinition#getType()
+     * Appends the shaderNodes function to the shader declarative
+     * part.
      * 
-     * @param nodeDecalarationSource the declaration part of the node
      * @param source the StringBuilder to append generated code.
-     * @param shaderNode the shaderNode.
-     * @param info the ShaderGenerationInfo.
      */
-    protected abstract void generateDeclarativeSection(StringBuilder source, ShaderNode shaderNode, String nodeDecalarationSource, ShaderGenerationInfo info);
+    protected abstract void generateDeclarationSection(StringBuilder source);
 
     /**
      * generates the start of the shader main section. this method is
@@ -363,4 +395,15 @@ public abstract class ShaderGenerator {
         }
         return index;
     }    
+
+    protected class NodeDeclaration{
+        String condition;
+        String source;
+
+        public NodeDeclaration(String condition, String source) {
+            this.condition = condition;
+            this.source = source;
+        }
+    }
+
 }

@@ -105,6 +105,28 @@ public class ConditionParser {
     }
 
     /**
+     * merges 2 condition with the given operator
+     *
+     * @param condition1 the first condition
+     * @param condition2 the second condition
+     * @param operator the operator ("&&" or "||&)
+     * @return the merged condition
+     */
+    public static String mergeConditions(String condition1, String condition2, String operator) {
+        if (condition1 != null) {
+            if (condition2 == null) {
+                return condition1;
+            } else {
+                String mergedCondition = "(" + condition1 + ") " + operator + " (" + condition2 + ")";
+                return mergedCondition;
+            }
+        } else {
+            return condition2;
+        }
+    }
+
+
+    /**
      *
      * @return the formatted expression previously updated by extractDefines
      */

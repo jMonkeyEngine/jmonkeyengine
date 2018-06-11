@@ -57,8 +57,10 @@ public class ShaderNodeDefinition implements Savable {
     private String documentation;
     private List<ShaderNodeVariable> inputs = new ArrayList<ShaderNodeVariable>();
     private List<ShaderNodeVariable> outputs = new ArrayList<ShaderNodeVariable>();
+    private List<ShaderNodeVariable> params = new ArrayList<>();
     private String path = null;
     private boolean noOutput = false;
+    private String returnType;
 
     /**
      * creates a ShaderNodeDefinition
@@ -183,8 +185,22 @@ public class ShaderNodeDefinition implements Savable {
     public void setPath(String path) {
         this.path = path;
     }
-    
-    
+
+    public String getReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(String returnType) {
+        this.returnType = returnType;
+    }
+
+    public List<ShaderNodeVariable> getParams() {
+        return params;
+    }
+
+    public void setParams(List<ShaderNodeVariable> params) {
+        this.params = params;
+    }
 
     /**
      * jme serialization (not used)
@@ -194,14 +210,15 @@ public class ShaderNodeDefinition implements Savable {
      */
     @Override
     public void write(JmeExporter ex) throws IOException {
-        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        OutputCapsule oc = ex.getCapsule(this);
         oc.write(name, "name", "");
         String[] str = new String[shadersLanguage.size()];
         oc.write(shadersLanguage.toArray(str), "shadersLanguage", null);
         oc.write(shadersPath.toArray(str), "shadersPath", null);
         oc.write(type, "type", null);
         oc.writeSavableArrayList((ArrayList) inputs, "inputs", new ArrayList<ShaderNodeVariable>());
-        oc.writeSavableArrayList((ArrayList) outputs, "inputs", new ArrayList<ShaderNodeVariable>());
+        oc.writeSavableArrayList((ArrayList) outputs, "outputs", new ArrayList<ShaderNodeVariable>());
+        oc.writeSavableArrayList((ArrayList) params, "params", new ArrayList<ShaderNodeVariable>());
     }
 
     public List<String> getShadersLanguage() {
@@ -250,6 +267,8 @@ public class ShaderNodeDefinition implements Savable {
         type = ic.readEnum("type", Shader.ShaderType.class, null);
         inputs = (List<ShaderNodeVariable>) ic.readSavableArrayList("inputs", new ArrayList<ShaderNodeVariable>());
         outputs = (List<ShaderNodeVariable>) ic.readSavableArrayList("outputs", new ArrayList<ShaderNodeVariable>());
+        params = (List<ShaderNodeVariable>) ic.readSavableArrayList("params", new ArrayList<ShaderNodeVariable>());
+        im.getAssetManager();
     }
 
     /**

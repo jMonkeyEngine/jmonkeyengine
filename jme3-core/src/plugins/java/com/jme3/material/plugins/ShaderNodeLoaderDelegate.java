@@ -580,7 +580,7 @@ public class ShaderNodeLoaderDelegate {
                         multiplicity = multiplicity.toUpperCase();
                         left.setMultiplicity(multiplicity);
                         // only declare the variable if the define is defined.
-                        left.setCondition(mergeConditions(left.getCondition(), "defined(" + multiplicity + ")", "||"));
+                        left.setCondition(ConditionParser.mergeConditions(left.getCondition(), "defined(" + multiplicity + ")", "||"));
                     } else {
                         throw new MatParseException("Wrong multiplicity for variable" + left.getName() + ". " +
                                 multiplicity + " should be an int or a declared material parameter.", statement);
@@ -1057,26 +1057,6 @@ public class ShaderNodeLoaderDelegate {
         }
     }
 
-    /**
-     * merges 2 condition with the given operator
-     *
-     * @param condition1 the first condition
-     * @param condition2 the second condition
-     * @param operator the operator ("&&" or "||&)
-     * @return the merged condition
-     */
-    public String mergeConditions(String condition1, String condition2, String operator) {
-        if (condition1 != null) {
-            if (condition2 == null) {
-                return condition1;
-            } else {
-                String mergedCondition = "(" + condition1 + ") " + operator + " (" + condition2 + ")";
-                return mergedCondition;
-            }
-        } else {
-            return condition2;
-        }
-    }
 
     /**
      * Searches a variable in a list from its name and merges the conditions of the

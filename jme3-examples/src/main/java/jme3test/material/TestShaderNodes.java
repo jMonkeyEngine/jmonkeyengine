@@ -4,7 +4,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
 import com.jme3.material.Technique;
 import com.jme3.material.TechniqueDef;
-import com.jme3.math.ColorRGBA;
+import com.jme3.math.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.shader.Shader;

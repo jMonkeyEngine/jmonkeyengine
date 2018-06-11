@@ -36,8 +36,9 @@ import com.jme3.material.ShaderGenerationInfo;
 import com.jme3.material.plugins.ConditionParser;
 import com.jme3.shader.Shader.ShaderType;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This shader Generator can generate Vertex and Fragment shaders from
@@ -51,6 +52,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * the indentation characters 1à tabulation characters
      */
     private final static String INDENTCHAR = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+    private final static Logger log = Logger.getLogger(Glsl100ShaderGenerator.class.getName());
 
     protected ShaderNodeVariable inPosTmp;
 
@@ -116,21 +118,16 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * if the declaration contains no code nothing is done, else it's appended
-     */
-    @Override
-    protected void generateDeclarativeSection(StringBuilder source, ShaderNode shaderNode, String nodeSource, ShaderGenerationInfo info) {
-        if (nodeSource.replaceAll("\\n", "").trim().length() > 0) {
-            nodeSource = updateDefinesName(nodeSource, shaderNode);
+
+    protected void generateDeclarationSection(StringBuilder source) {
+        for (String defName : declaredNodes.keySet()) {
+            NodeDeclaration nd = declaredNodes.get(defName);
             source.append("\n");
             unIndent();
-            startCondition(shaderNode.getCondition(), source);
-            source.append(nodeSource);
+            startCondition(nd.condition, source);
+            source.append(nd.source);
             source.append("\n");
-            endCondition(shaderNode.getCondition(), source);
+            endCondition(nd.condition, source);
             indent();
         }
     }
@@ -235,80 +232,111 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     @Override
     protected void generateNodeMainSection(StringBuilder source, ShaderNode shaderNode, String nodeSource, ShaderGenerationInfo info) {
 
-        nodeSource = updateDefinesName(nodeSource, shaderNode);
+
         source.append("\n");
-        comment(source, shaderNode, "Begin");
+        comment(source, shaderNode, "");
         startCondition(shaderNode.getCondition(), source);
 
-        final List<String> declaredInputs = new ArrayList<>();
-
-        // Decalring variables with default values first
         final ShaderNodeDefinition definition = shaderNode.getDefinition();
 
-        for (final ShaderNodeVariable var : definition.getInputs()) {
-
-            if (var.getType().startsWith("sampler")) {
-                continue;
+        StringBuilder b = new StringBuilder();
+        appendIndent(b);
+        b.append(definition.getName()).append("(");
+        boolean isFirst = true;
+        for (ShaderNodeVariable v : definition.getParams()) {
+            if (!isFirst) {
+                b.append(", ");
             }
+            if (definition.getInputs().contains(v)) {
 
-            final String fullName = shaderNode.getName() + "_" + var.getName();
+                List<VariableMapping> maps = shaderNode.getInputMapping(v.getName());
 
-            final ShaderNodeVariable variable = new ShaderNodeVariable(var.getType(), shaderNode.getName(),
-                    var.getName(), var.getMultiplicity());
+                boolean declared = false;
+                for (VariableMapping m : maps) {
+                    // map varyings to their inputs, as the code may not do the mapping.
+                    if (isVarying(info, m.getLeftVariable())) {
+                        map(m, source, false);
+                        declared = true;
+                    }
+                }
 
-            if (!isVarying(info, variable)) {
-                declareVariable(source, variable, var.getDefaultValue(), true, null);
-            }
-
-            nodeSource = replaceVariableName(nodeSource, variable);
-            declaredInputs.add(fullName);
-        }
-
-        for (VariableMapping mapping : shaderNode.getInputMapping()) {
-
-            final ShaderNodeVariable rightVariable = mapping.getRightVariable();
-            final ShaderNodeVariable leftVariable = mapping.getLeftVariable();
-
-            String newName = shaderNode.getName() + "_" + leftVariable.getName();
-            boolean isDeclared = declaredInputs.contains(newName);
-            //Variables fed with a sampler matparam or world param are replaced by the matparam itself
-            //It avoids issue with samplers that have to be uniforms.
-            if (rightVariable != null && isWorldOrMaterialParam(rightVariable) && rightVariable.getType().startsWith("sampler")) {
-                nodeSource = replace(nodeSource, leftVariable, rightVariable.getPrefix() + rightVariable.getName());
+                if (maps.isEmpty()) {
+                    //no mapping found
+                    if (v.getDefaultValue() != null) {
+                        // if there is a default value append it to the function call
+                        b.append(v.getDefaultValue());
+                    } else {
+                        // no default value, construct a variable with the proper type and dummy value and raise a warning
+                        b.append(getConstructor(v.getType()));
+                        log.log(Level.WARNING, "No input defined for variable " + v.getName() + " on shader node " + shaderNode.getName());
+                    }
+                } else if (maps.size() == 1 && !declared) {
+                    // one mapping for this variable, directly append the
+                    // other variable from the mapping to the function call
+                    VariableMapping m = maps.get(0);
+                    ShaderNodeVariable v2 = m.getRightVariable();
+                    b.append(getAppendableNameSpace(v2))
+                            .append(v2.getPrefix())
+                            .append(v2.getName());
+                    if (m.getRightSwizzling().length() > 0) {
+                        b.append(".");
+                        b.append(m.getRightSwizzling());
+                    }
+                } else {
+                    // 2 possible cases here
+                    // the variable is a varrying: we can append it directly
+                    // or
+                    // several mappings with different conditions: we have to declare the variable and
+                    // map it properly before appending the variable in the function call
+                    for (VariableMapping mapping : maps) {
+                        map(mapping, source, true);
+                    }
+                    b.append(shaderNode.getName())
+                            .append("_")
+                            .append(v.getName());
+                }
             } else {
-
-                if (leftVariable.getType().startsWith("sampler")) {
-                    throw new IllegalArgumentException("a Sampler must be a uniform");
+                // outputs
+                String name = shaderNode.getName() + "_" + v.getName();
+                // if the output is not a varying (already declared) we declare it)
+                if (!isVarying(info, name)) {
+                    appendIndent(source);
+                    source.append(v.getType()).append(" ").append(name).append(";\n");
                 }
-                map(mapping, source, !isDeclared);
+                // append the variable to the function call
+                b.append(shaderNode.getName())
+                        .append("_")
+                        .append(v.getName());
             }
-
-            if (!isDeclared) {
-                nodeSource = replace(nodeSource, leftVariable, newName);
-                declaredInputs.add(newName);
-            }
+            isFirst = false;
         }
 
+        b.append(");\n");
 
-
-        for (ShaderNodeVariable var : definition.getOutputs()) {
-            ShaderNodeVariable v = new ShaderNodeVariable(var.getType(), shaderNode.getName(), var.getName(), var.getMultiplicity());
-            if (!declaredInputs.contains(shaderNode.getName() + "_" + var.getName())) {
-                if (!isVarying(info, v)) {
-                    declareVariable(source, v);
-                }
-                nodeSource = replaceVariableName(nodeSource, v);
-            }
-        }
-        
-        source.append(nodeSource);
-   
+        // Map any output to global output.
         for (VariableMapping mapping : shaderNode.getOutputMapping()) {
-            map(mapping, source, true);
+            map(mapping, b, false);
         }
+        source.append(b);
+
         endCondition(shaderNode.getCondition(), source);
-        comment(source, shaderNode, "End");
     }
+
+    /**
+     * Returns a proper constructor call for a given type
+     * @param type
+     * @return
+     */
+    private String getConstructor(String type) {
+        if (type.startsWith("i") || type.startsWith("u")) {
+            return type + "(0)";
+        }
+        if (type.equals("boolean") || type.startsWith("u")) {
+            return "false";
+        }
+        return type + "(0.0)";
+    }
+
 
     /**
      * declares a variable, embed in a conditional block if needed
@@ -510,6 +538,17 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         return isVarying;
     }
 
+    protected boolean isVarying(ShaderGenerationInfo info, String variableName) {
+        for (ShaderNodeVariable shaderNodeVariable : info.getVaryings()) {
+            String name = shaderNodeVariable.getNameSpace() + "_" + shaderNodeVariable.getName();
+            if (name.equals(variableName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     /**
      * Appends a comment to the generated code
      * @param source the StringBuilder to use 
@@ -554,10 +593,10 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         String[] lines = nodeSource.split("\\n");
         ConditionParser parser = new ConditionParser();
         for (String line : lines) {
-
-            if (line.trim().startsWith("#if")) {
-                List<String> params = parser.extractDefines(line.trim());
-                String l = line.trim().replaceAll("defined", "").replaceAll("#if ", "").replaceAll("#ifdef", "");//parser.getFormattedExpression();
+            line = line.trim();
+            if (line.startsWith("#if")) {
+                List<String> params = parser.extractDefines(line);
+                String l = line.replaceAll("defined", "").replaceAll("#if ", "").replaceAll("#ifdef", "");
                 boolean match = false;
                 for (String param : params) {
                     for (VariableMapping map : shaderNode.getInputMapping()) {

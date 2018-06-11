@@ -144,6 +144,21 @@ public class ShaderNode implements Savable, Cloneable {
     }
 
     /**
+     * Returns a list of variable mapping for the given node input.
+     *
+     * @return the input mappings.
+     */
+    public List<VariableMapping> getInputMapping(String varName) {
+        List<VariableMapping> list = new ArrayList<>();
+        for (VariableMapping v : inputMapping) {
+            if (v.getLeftVariable().getName().equals(varName)){
+                list.add(v);
+            }
+        }
+        return list;
+    }
+
+    /**
      * Sets the input mappings.
      *
      * @param inputMapping the input mappings.
