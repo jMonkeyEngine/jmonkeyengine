@@ -103,6 +103,15 @@ public final class Shader extends NativeObject {
         public String getExtension() {
             return extension;
         }
+
+        public static ShaderType fromExtention(String ext){
+            for (ShaderType shaderType : values()) {
+                if(shaderType.extension.equals(ext)){
+                    return  shaderType;
+                }
+            }
+            return null;
+        }
         
         private ShaderType(String extension) {
             this.extension = extension;

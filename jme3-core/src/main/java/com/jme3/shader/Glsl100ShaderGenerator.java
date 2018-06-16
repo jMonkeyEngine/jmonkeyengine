@@ -36,6 +36,7 @@ import com.jme3.material.ShaderGenerationInfo;
 import com.jme3.material.plugins.ConditionParser;
 import com.jme3.shader.Shader.ShaderType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -231,8 +232,6 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      */
     @Override
     protected void generateNodeMainSection(StringBuilder source, ShaderNode shaderNode, String nodeSource, ShaderGenerationInfo info) {
-
-
         source.append("\n");
         comment(source, shaderNode, "");
         startCondition(shaderNode.getCondition(), source);
@@ -243,13 +242,14 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         appendIndent(b);
         b.append(definition.getName()).append("(");
         boolean isFirst = true;
+        List<VariableMapping> maps = new ArrayList<>();
         for (ShaderNodeVariable v : definition.getParams()) {
             if (!isFirst) {
                 b.append(", ");
             }
             if (definition.getInputs().contains(v)) {
 
-                List<VariableMapping> maps = shaderNode.getInputMapping(v.getName());
+                shaderNode.getInputMapping(v.getName(), maps);
 
                 boolean declared = false;
                 for (VariableMapping m : maps) {
@@ -267,6 +267,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
                         b.append(v.getDefaultValue());
                     } else {
                         // no default value, construct a variable with the proper type and dummy value and raise a warning
+                        b.append("/*UNMAPPED_").append(v.getName()).append("*/ ");
                         b.append(getConstructor(v.getType()));
                         log.log(Level.WARNING, "No input defined for variable " + v.getName() + " on shader node " + shaderNode.getName());
                     }
@@ -291,27 +292,27 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
                     for (VariableMapping mapping : maps) {
                         map(mapping, source, true);
                     }
-                    b.append(shaderNode.getName())
-                            .append("_")
-                            .append(v.getName());
+                    appendVariable(shaderNode.getName(), b, v);
                 }
             } else {
                 // outputs
-                String name = shaderNode.getName() + "_" + v.getName();
-                // if the output is not a varying (already declared) we declare it)
-                if (!isVarying(info, name)) {
-                    appendIndent(source);
-                    source.append(v.getType()).append(" ").append(name).append(";\n");
-                }
+                declareOutput(source, shaderNode.getName(), info, v);
                 // append the variable to the function call
-                b.append(shaderNode.getName())
-                        .append("_")
-                        .append(v.getName());
+                appendVariable(shaderNode.getName(), b, v);
             }
             isFirst = false;
         }
 
         b.append(");\n");
+
+        if(!definition.getReturnType().equals("void")){
+            // non void return type, the first output is the result
+            ShaderNodeVariable v = definition.getOutputs().get(0);
+            declareOutput(source, shaderNode.getName(), info, v);
+            appendIndent(source);
+            appendVariable(shaderNode.getName(), source, v);
+            source.append(" =");
+        }
 
         // Map any output to global output.
         for (VariableMapping mapping : shaderNode.getOutputMapping()) {
@@ -320,6 +321,19 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         source.append(b);
 
         endCondition(shaderNode.getCondition(), source);
+    }
+
+    private void declareOutput(StringBuilder source, String nameSpace, ShaderGenerationInfo info, ShaderNodeVariable v) {
+        String name = nameSpace + "_" + v.getName();
+        // if the output is not a varying (already declared) we declare it)
+        if (!isVarying(info, name)) {
+            appendIndent(source);
+            source.append(v.getType()).append(" ").append(name).append(";\n");
+        }
+    }
+
+    private void appendVariable(String nameSpace, StringBuilder b, ShaderNodeVariable v) {
+        b.append(nameSpace).append("_").append(v.getName());
     }
 
     /**

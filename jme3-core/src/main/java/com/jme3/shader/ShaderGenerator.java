@@ -219,11 +219,14 @@ public abstract class ShaderGenerator {
                 // Nodes are functions added to the declaration part of the shader
                 // Multiple nodes may use the same definition and we don't want to declare it several times.
                 // Also nodes can have #ifdef conditions so we need to properly merge this conditions to declare the Node function.
-                NodeDeclaration nd = declaredNodes.get(shaderNode.getDefinition().getName());
-                loadedSource =  functionize(loadedSource, shaderNode.getDefinition());
+                NodeDeclaration nd = declaredNodes.get(shaderPath);
                 if(nd == null){
+                    if(!shaderNode.getDefinition().getPath().equals(shaderPath)) {
+                        // old style shader node definition
+                        loadedSource = functionize(loadedSource, shaderNode.getDefinition());
+                    }
                     nd = new NodeDeclaration(shaderNode.getCondition(),  loadedSource);
-                    declaredNodes.put(shaderNode.getDefinition().getName(), nd);
+                    declaredNodes.put(shaderPath, nd);
                 } else {
                     nd.condition = ConditionParser.mergeConditions(nd.condition, shaderNode.getCondition(), "||");
                 }
@@ -237,7 +240,7 @@ public abstract class ShaderGenerator {
     }
 
     /**
-     * Tuns old style shader node code into a proper function so that it can be appended to the declarative sectio.
+     * Turns old style shader node code into a proper function so that it can be appended to the declarative section.
      * Note that this only needed for nodes coming from a j3sn file.
      * @param source
      * @param def

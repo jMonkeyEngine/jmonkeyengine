@@ -24,7 +24,7 @@ public class TestShaderNodes extends SimpleApplication {
         flyCam.setMoveSpeed(20);
         Logger.getLogger("com.jme3").setLevel(Level.WARNING);
         Box boxshape1 = new Box(1f, 1f, 1f);
-        Geometry cube_tex = new Geometry("A Textured Box", boxshape1);
+        Geometry cube = new Geometry("A Box", boxshape1);
         Texture tex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
 
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/UnshadedNodes.j3md");
@@ -37,7 +37,25 @@ public class TestShaderNodes extends SimpleApplication {
         
         mat.setColor("Color", ColorRGBA.Yellow);
         mat.setTexture("ColorMap", tex);
-        cube_tex.setMaterial(mat);
-        rootNode.attachChild(cube_tex);
+        cube.setMaterial(mat);
+        cube.move(-2.5f,0,0);
+        rootNode.attachChild(cube);
+
+
+        cube = cube.clone();
+        mat = new Material(assetManager, "jme3test/matdefs/test.j3md");
+        mat.selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
+        t = mat.getActiveTechnique();
+
+        for (Shader.ShaderSource shaderSource : t.getDef().getShader(assetManager, renderer.getCaps(), t.getDynamicDefines()).getSources()) {
+            System.out.println(shaderSource.getSource());
+        }
+
+        mat.setColor("Color", ColorRGBA.Yellow);
+        //mat.setTexture("ColorMap", tex);
+        cube.setMaterial(mat);
+        cube.move(2.5f,0,0);
+        rootNode.attachChild(cube);
+
     }
 }

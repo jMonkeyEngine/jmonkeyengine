@@ -31,6 +31,15 @@
  */
 package com.jme3.shader;
 
+import com.jme3.asset.AssetManager;
+import com.jme3.shader.plugins.ShaderAssetKey;
+
+import java.io.StringReader;
+import java.text.ParseException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class ShaderUtils {
 
     public static String convertToGLSL130(String input, boolean isFrag) {
@@ -135,5 +144,117 @@ public class ShaderUtils {
      */
     public static boolean isSwizzlable(String type) {
         return type.indexOf("vec4")>-1 || type.indexOf("vec3")>-1 || type.indexOf("vec2")>-1 || type.equals("float");
+    }
+
+    private final static Pattern defaultsPattern = Pattern.compile("defaults\\s*\\(\\s*(.*)\\s*\\)");
+    // matches "<type> <functionName>("
+    private final static Pattern typeNamePattern = Pattern.compile("(\\w+)\\s+(\\w+)\\s*\\(");
+    // matches "const? <in/out> <type> <parmaName>,"
+    private final static Pattern paramsPattern = Pattern.compile("((const)?\\s*(\\w+)\\s+(\\w+)\\s+(\\w+)\\s*[,\\)])");
+
+    public static List<ShaderNodeDefinition> parseDefinitions(String glsl) throws ParseException {
+        List<ShaderNodeDefinition> defs = new ArrayList<>();
+        String nodesCode[] = glsl.split("#pragma ShaderNode");
+        for (String code : nodesCode) {
+            if (code.trim().length() == 0) {
+                continue;
+            }
+            int firstCr = code.indexOf("\n");
+            int firstBracket = code.indexOf("{");
+            String pragma = code.substring(0, firstCr);
+            Matcher m1 = defaultsPattern.matcher(pragma);
+            String[] defaults = null;
+            if (m1.find()) {
+                defaults = m1.group(1).split(",");
+            }
+
+            code = code.substring(firstCr + 1, firstBracket);
+
+            Matcher m = typeNamePattern.matcher(code);
+
+            String returnType = null;
+            String functionName = null;
+            while (m.find()) {
+                returnType = m.group(1);
+                functionName = m.group(2);
+            }
+            if (returnType == null || functionName == null) {
+                throw new ParseException("Unmatched return type or function name in \n" + code, firstCr + 1);
+            }
+
+            ShaderNodeDefinition def = new ShaderNodeDefinition();
+            def.setName(functionName);
+            def.setReturnType(returnType);
+
+            m.reset();
+            m.usePattern(paramsPattern);
+
+            List<ShaderNodeVariable> inputs = new ArrayList<>();
+            List<ShaderNodeVariable> outputs = new ArrayList<>();
+            List<ShaderNodeVariable> params = new ArrayList<>();
+
+            if (!returnType.equals("void")) {
+                ShaderNodeVariable result = new ShaderNodeVariable(returnType, "result");
+                outputs.add(result);
+            }
+
+            int cpt = 0;
+            while (m.find()) {
+                String dir = m.group(3);
+                String type = m.group(4);
+                String varName = m.group(5);
+                ShaderNodeVariable v = new ShaderNodeVariable(type, varName);
+                params.add(v);
+                String defVal = null;
+                if (defaults != null && defaults.length > cpt) {
+                    defVal = defaults[cpt].trim();
+                    defVal = defVal.isEmpty() ? null : defVal;
+                }
+                v.setDefaultValue(defVal);
+                switch (dir) {
+                    case "in":
+                        inputs.add(v);
+                        break;
+                    case "out":
+                        outputs.add(v);
+                        break;
+                    default:
+                        throw new ParseException("Missing in or out keyword for variable " + varName + " in function " + functionName, m.start());
+                }
+                cpt++;
+            }
+
+            def.setParams(params);
+            def.setInputs(inputs);
+            if (outputs.isEmpty()) {
+                def.setNoOutput(true);
+            } else {
+                def.setOutputs(outputs);
+            }
+
+            defs.add(def);
+        }
+
+        return defs;
+    }
+
+    public static Shader.ShaderType getShaderType(String shaderPath) {
+        String ext = shaderPath.substring(shaderPath.lastIndexOf(".") + 1);
+        return Shader.ShaderType.fromExtention(ext);
+    }
+
+    public static List<ShaderNodeDefinition> loadSahderNodeDefinition(AssetManager assetManager, String definitionPath) throws ParseException {
+        Map<String, String> sources =  (Map<String, String>)  assetManager.loadAsset(new ShaderAssetKey(definitionPath, false));
+        String glsl = sources.get("[main]");
+        List<ShaderNodeDefinition> defs = ShaderUtils.parseDefinitions(glsl);
+        Shader.ShaderType type = ShaderUtils.getShaderType(definitionPath);
+        for (ShaderNodeDefinition d : defs) {
+            d.setType(type);
+            d.getShadersLanguage().add("GLSL100");
+            d.setPath(definitionPath);
+            d.getShadersPath().add(definitionPath);
+        }
+
+        return defs;
     }
 }

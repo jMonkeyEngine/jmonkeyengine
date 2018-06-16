@@ -1,0 +1,45 @@
+MaterialDef Simple {
+    MaterialParameters {
+        Vector4 Color
+    }
+
+    Technique {
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+
+        VertexShaderNodes {
+            ShaderNode CommonVert {
+                Definition: CommonVert: jme3test/matdefs/CommonVert.vert
+                InputMappings{
+                    worldViewProjectionMatrix = WorldParam.WorldViewProjectionMatrix
+                    modelPosition = Attr.inPosition
+                }
+                OutputMappings{
+                    Global.position = result
+                }
+            }
+            ShaderNode ColorStuff {
+                Definition: DoThing: jme3test/matdefs/CommonVert.vert
+                InputMappings{
+                    color = MatParam.Color
+                }
+                OutputMappings{
+                }
+            }
+        }
+
+        FragmentShaderNodes {
+            ShaderNode ColorMult {
+                Definition: ColorMult: jme3test/matdefs/ColorMult.frag
+                InputMappings{
+                    color2 = ColorStuff.result
+                }
+                OutputMappings{
+                    Global.color = result
+                }
+            }
+        }
+
+    }
+}

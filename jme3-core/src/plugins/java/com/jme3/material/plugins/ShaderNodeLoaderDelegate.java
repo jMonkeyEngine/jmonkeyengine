@@ -40,9 +40,11 @@ import com.jme3.material.ShaderGenerationInfo;
 import com.jme3.material.TechniqueDef;
 import com.jme3.shader.Shader.ShaderType;
 import com.jme3.shader.*;
+import com.jme3.shader.plugins.ShaderAssetKey;
 import com.jme3.util.blockparser.Statement;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -996,9 +998,15 @@ public class ShaderNodeLoaderDelegate {
 
         List<ShaderNodeDefinition> defs;
         try {
-            defs = assetManager.loadAsset(new ShaderNodeDefinitionKey(definitionPath));
+            if(definitionPath.endsWith(".j3sn")) {
+                defs = assetManager.loadAsset(new ShaderNodeDefinitionKey(definitionPath));
+            } else {
+                defs = ShaderUtils.loadSahderNodeDefinition(assetManager, definitionPath);
+            }
         } catch (final AssetNotFoundException e) {
             throw new MatParseException("Couldn't find " + definitionPath, statement, e);
+        } catch (ParseException e) {
+            throw new MatParseException("Error while loading shader node definition" + definitionPath, statement, e);
         }
 
         for (final ShaderNodeDefinition definition : defs) {
