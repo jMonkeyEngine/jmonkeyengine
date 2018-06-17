@@ -660,9 +660,8 @@ public class J3MLoader implements AssetLoader {
         if(isUseNodes){
             //used for caching later, the shader here is not a file.
             
-            // KIRILL 9/19/2015
-            // Not sure if this is needed anymore, since shader caching
-            // is now done by TechniqueDef.
+            // REMY 16/06/2018
+            // this is still needed in order for the weight of the technique to be computed.
             technique.setShaderFile(technique.hashCode() + "", technique.hashCode() + "", "GLSL100", "GLSL100");
             techniqueDefs.add(technique);
         }else if (shaderNames.containsKey(Shader.ShaderType.Vertex) && shaderNames.containsKey(Shader.ShaderType.Fragment)) {

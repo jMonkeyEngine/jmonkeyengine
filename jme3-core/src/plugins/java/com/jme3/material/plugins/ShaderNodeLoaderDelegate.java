@@ -582,7 +582,7 @@ public class ShaderNodeLoaderDelegate {
                         multiplicity = multiplicity.toUpperCase();
                         left.setMultiplicity(multiplicity);
                         // only declare the variable if the define is defined.
-                        left.setCondition(ConditionParser.mergeConditions(left.getCondition(), "defined(" + multiplicity + ")", "||"));
+                        left.setCondition(ShaderUtils.mergeConditions(left.getCondition(), "defined(" + multiplicity + ")", "||"));
                     } else {
                         throw new MatParseException("Wrong multiplicity for variable" + left.getName() + ". " +
                                 multiplicity + " should be an int or a declared material parameter.", statement);

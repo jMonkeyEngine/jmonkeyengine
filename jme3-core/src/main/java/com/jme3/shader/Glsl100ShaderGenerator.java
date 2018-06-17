@@ -275,13 +275,17 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
                     // one mapping for this variable, directly append the
                     // other variable from the mapping to the function call
                     VariableMapping m = maps.get(0);
-                    ShaderNodeVariable v2 = m.getRightVariable();
-                    b.append(getAppendableNameSpace(v2))
-                            .append(v2.getPrefix())
-                            .append(v2.getName());
-                    if (m.getRightSwizzling().length() > 0) {
-                        b.append(".");
-                        b.append(m.getRightSwizzling());
+                    if(m.getRightExpression()!=null) {
+                        b.append(m.getRightExpression());
+                    } else {
+                        ShaderNodeVariable v2 = m.getRightVariable();
+                        b.append(getAppendableNameSpace(v2))
+                                .append(v2.getPrefix())
+                                .append(v2.getName());
+                        if (m.getRightSwizzling().length() > 0) {
+                            b.append(".");
+                            b.append(m.getRightSwizzling());
+                        }
                     }
                 } else {
                     // 2 possible cases here
@@ -652,7 +656,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     }
 
     @Override
-    protected String getLanguageAndVersion(ShaderType type) {
+    protected String getLanguageAndVersion() {
         return "GLSL100";
     }
 

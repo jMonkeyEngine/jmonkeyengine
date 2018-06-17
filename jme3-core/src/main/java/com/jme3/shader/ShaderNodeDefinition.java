@@ -59,6 +59,7 @@ public class ShaderNodeDefinition implements Savable {
     private List<ShaderNodeVariable> outputs = new ArrayList<ShaderNodeVariable>();
     private List<ShaderNodeVariable> params = new ArrayList<>();
     private String path = null;
+    private String inlinedCode;
     private boolean noOutput = false;
     private String returnType;
 
@@ -237,8 +238,14 @@ public class ShaderNodeDefinition implements Savable {
         this.noOutput = noOutput;
     }
 
-    
-    
+    public String getInlinedCode() {
+        return inlinedCode;
+    }
+
+    public void setInlinedCode(String inlinedCode) {
+        this.inlinedCode = inlinedCode;
+    }
+
     /**
      * jme serialization (not used)
      *

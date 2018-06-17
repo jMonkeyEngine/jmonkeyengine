@@ -114,7 +114,7 @@ public abstract class ShaderGenerator {
         Shader shader = new Shader();
         for (ShaderType type : ShaderType.values()) {
             String extension = type.getExtension();
-            String language = getLanguageAndVersion(type);
+            String language = getLanguageAndVersion();
             String shaderSourceCode = buildShader(techniqueDef.getShaderNodes(), info, type);
             
             if (shaderSourceCode != null) {
@@ -203,32 +203,36 @@ public abstract class ShaderGenerator {
             if (info.getUnusedNodes().contains(shaderNode.getName())) {
                 continue;
             }
-
-            if (shaderNode.getDefinition().getType() == type) {
-                int index = findShaderIndexFromVersion(shaderNode, type);
-                String shaderPath = shaderNode.getDefinition().getShadersPath().get(index);
-                Map<String, String> sources = (Map<String, String>) assetManager.loadAsset(new ShaderAssetKey(shaderPath, false));
-                String loadedSource = sources.get("[main]");
-                for (String name : sources.keySet()) {
-                    if (!name.equals("[main]") && !imports.contains(name)) {
-                        imports.add(name);
-                        // append the imported file in place if it hasn't been imported already.
-                        sourceDeclaration.append(sources.get(name));
+            ShaderNodeDefinition def = shaderNode.getDefinition();
+            if (def.getType() == type) {
+                String loadedSource = def.getInlinedCode();
+                String shaderPath = def.getName() + "_Inlined";
+                if(loadedSource == null) {
+                    int index = findShaderIndexFromVersion(shaderNode);
+                    shaderPath = def.getShadersPath().get(index);
+                    Map<String, String> sources = (Map<String, String>) assetManager.loadAsset(new ShaderAssetKey(shaderPath, false));
+                    loadedSource = sources.get("[main]");
+                    for (String name : sources.keySet()) {
+                        if (!name.equals("[main]") && !imports.contains(name)) {
+                            imports.add(name);
+                            // append the imported file in place if it hasn't been imported already.
+                            sourceDeclaration.append(sources.get(name));
+                        }
                     }
                 }
                 // Nodes are functions added to the declaration part of the shader
                 // Multiple nodes may use the same definition and we don't want to declare it several times.
                 // Also nodes can have #ifdef conditions so we need to properly merge this conditions to declare the Node function.
                 NodeDeclaration nd = declaredNodes.get(shaderPath);
-                if(nd == null){
-                    if(!shaderNode.getDefinition().getPath().equals(shaderPath)) {
+                if (nd == null) {
+                    if (def.getInlinedCode() == null && !def.getPath().equals(shaderPath)) {
                         // old style shader node definition
                         loadedSource = functionize(loadedSource, shaderNode.getDefinition());
                     }
-                    nd = new NodeDeclaration(shaderNode.getCondition(),  loadedSource);
+                    nd = new NodeDeclaration(shaderNode.getCondition(), loadedSource);
                     declaredNodes.put(shaderPath, nd);
                 } else {
-                    nd.condition = ConditionParser.mergeConditions(nd.condition, shaderNode.getCondition(), "||");
+                    nd.condition = ShaderUtils.mergeConditions(nd.condition, shaderNode.getCondition(), "||");
                 }
 
                 generateNodeMainSection(source, shaderNode, loadedSource, info);
@@ -293,11 +297,10 @@ public abstract class ShaderGenerator {
      * returns the language + version of the shader should be something like
      * "GLSL100" for glsl 1.0 "GLSL150" for glsl 1.5.
      *
-     * @param type the shader type for which the version should be returned.
      *
      * @return the shaderLanguage and version.
      */
-    protected abstract String getLanguageAndVersion(Shader.ShaderType type);
+    protected abstract String getLanguageAndVersion();
 
     /**
      * generates the uniforms declaration for a shader of the given type.
@@ -379,15 +382,14 @@ public abstract class ShaderGenerator {
      * can handle
      *
      * @param shaderNode the shaderNode being processed
-     * @param type the shaderType
      * @return the index of the shader path in ShaderNodeDefinition shadersPath
      * list
      * @throws NumberFormatException
      */
-    protected int findShaderIndexFromVersion(ShaderNode shaderNode, ShaderType type) throws NumberFormatException {
+    protected int findShaderIndexFromVersion(ShaderNode shaderNode) throws NumberFormatException {
         int index = 0;
         List<String> lang = shaderNode.getDefinition().getShadersLanguage();
-        int genVersion = Integer.parseInt(getLanguageAndVersion(type).substring(4));
+        int genVersion = Integer.parseInt(getLanguageAndVersion().substring(4));
         int curVersion = 0;
         for (int i = 0; i < lang.size(); i++) {
             int version = Integer.parseInt(lang.get(i).substring(4));

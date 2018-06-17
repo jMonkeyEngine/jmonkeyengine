@@ -55,7 +55,7 @@ public class Glsl150ShaderGenerator extends Glsl100ShaderGenerator {
     }
 
     @Override
-    protected String getLanguageAndVersion(ShaderType type) {
+    protected String getLanguageAndVersion() {
         return "GLSL150";
     }
 

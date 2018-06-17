@@ -337,7 +337,11 @@ public class ShaderNodeVariable implements Savable, Cloneable {
     }
 
     @Override
-    public ShaderNodeVariable clone() throws CloneNotSupportedException {
-        return (ShaderNodeVariable) super.clone();
+    public ShaderNodeVariable clone() {
+        try {
+            return (ShaderNodeVariable) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }
