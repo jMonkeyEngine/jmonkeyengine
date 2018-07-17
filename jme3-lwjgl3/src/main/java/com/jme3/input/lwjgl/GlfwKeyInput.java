@@ -58,7 +58,7 @@ public class GlfwKeyInput implements KeyInput {
     /**
      * The LWJGL context.
      */
-    private LwjglWindow context;
+    private final LwjglWindow context;
 
     /**
      * The key callback.
