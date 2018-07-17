@@ -31,7 +31,6 @@
  */
 package com.jme3.input.lwjgl;
 
-import static org.lwjgl.glfw.GLFW.*;
 import com.jme3.cursors.plugins.JmeCursor;
 import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
@@ -39,17 +38,17 @@ import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.system.lwjgl.LwjglWindow;
 import com.jme3.util.BufferUtils;
-import org.lwjgl.glfw.*;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
-
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayDeque;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.logging.Logger;
+import org.lwjgl.glfw.*;
+import static org.lwjgl.glfw.GLFW.*;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
 /**
  * Captures mouse input using GLFW callbacks. It then temporarily stores these
@@ -110,8 +109,8 @@ public class GlfwMouseInput implements MouseInput {
 
     private final Map<JmeCursor, long[]> jmeToGlfwCursorMap = new HashMap<>();
 
-    private final Queue<MouseMotionEvent> mouseMotionEvents = new LinkedList<>();
-    private final Queue<MouseButtonEvent> mouseButtonEvents = new LinkedList<>();
+    private final Queue<MouseMotionEvent> mouseMotionEvents = new ArrayDeque<>();
+    private final Queue<MouseButtonEvent> mouseButtonEvents = new ArrayDeque<>();
 
     private final LwjglWindow context;
 
