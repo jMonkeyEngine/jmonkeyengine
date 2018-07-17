@@ -32,9 +32,6 @@
 
 package com.jme3.system.lwjgl;
 
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.GL_FALSE;
-import static org.lwjgl.system.MemoryUtil.NULL;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
@@ -47,9 +44,6 @@ import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.NanoTimer;
 import com.jme3.util.BufferUtils;
-import org.lwjgl.Version;
-import org.lwjgl.glfw.*;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
@@ -59,6 +53,11 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.lwjgl.Version;
+import org.lwjgl.glfw.*;
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.GL_FALSE;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 /**
  * A wrapper class over the GLFW framework in LWJGL 3.
@@ -383,6 +382,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             }
 
             if (errorCallback != null) {
+
+                // We need to specifically set this to null as we might set a new callback before we reinit GLFW
+                glfwSetErrorCallback(null);
+
                 errorCallback.close();
                 errorCallback = null;
             }
@@ -401,6 +404,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 glfwDestroyWindow(window);
                 window = NULL;
             }
+
+            glfwTerminate();
         } catch (final Exception ex) {
             listener.handleError("Failed to destroy context", ex);
         }
@@ -548,7 +553,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     /**
      * De-initialize in the OpenGL thread.
      */
-
     protected void deinitInThread() {
         listener.destroy();
 
