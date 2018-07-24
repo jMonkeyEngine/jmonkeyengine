@@ -116,13 +116,13 @@ public class AudioNode extends Node implements AudioSource {
          */
         Stopped,
     }
-   
+
     /**
      * Creates a new <code>AudioNode</code> without any audio data set.
      */
-    public AudioNode() {        
+    public AudioNode() {
     }
-    
+
     /**
      * Creates a new <code>AudioNode</code> with the given data and key.
      *
@@ -161,7 +161,7 @@ public class AudioNode extends Node implements AudioSource {
     public AudioNode(AssetManager assetManager, String name, boolean stream, boolean streamCache) {
         this.audioKey = new AudioKey(name, stream, streamCache);
         this.data = (AudioData) assetManager.loadAsset(audioKey);
-      }
+    }
 
     /**
      * Creates a new <code>AudioNode</code> with the given audio file.
@@ -713,7 +713,7 @@ public class AudioNode extends Node implements AudioSource {
         this.velocityFromTranslation = velocityFromTranslation;
     }
 
-     @Override
+    @Override
     public void updateLogicalState(float tpf) {
         super.updateLogicalState(tpf);
         lastTpf = tpf;
@@ -722,16 +722,14 @@ public class AudioNode extends Node implements AudioSource {
     @Override
     public void updateGeometricState() {
         super.updateGeometricState();
-        if(channel<0||this.getParent()==null||!velocityFromTranslation) return;
-        Vector3f currentWorldTranslation=worldTransform.getTranslation();
-        if(Float.isNaN(previousWorldTranslation.x)){
-            previousWorldTranslation.set(currentWorldTranslation);
-            return;
-        }
-        if(!previousWorldTranslation.equals(currentWorldTranslation)){
-            getRenderer().updateSourceParam(this,AudioParam.Position);
-            velocity.set(currentWorldTranslation).subtractLocal(previousWorldTranslation).multLocal(1f/lastTpf);
-            getRenderer().updateSourceParam(this,AudioParam.Velocity);
+        if (channel < 0 || this.getParent() == null) return;
+        Vector3f currentWorldTranslation = worldTransform.getTranslation();
+        if (!previousWorldTranslation.equals(currentWorldTranslation)) {
+            getRenderer().updateSourceParam(this, AudioParam.Position);
+            if (velocityFromTranslation && !Float.isNaN(previousWorldTranslation.x)) {
+                velocity.set(currentWorldTranslation).subtractLocal(previousWorldTranslation).multLocal(1f / lastTpf);
+                getRenderer().updateSourceParam(this, AudioParam.Velocity);
+            }
             previousWorldTranslation.set(currentWorldTranslation);
         }
     }
@@ -741,7 +739,7 @@ public class AudioNode extends Node implements AudioSource {
         AudioNode clone = (AudioNode) super.clone();
         return clone;
     }
- 
+
     /**
      *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
