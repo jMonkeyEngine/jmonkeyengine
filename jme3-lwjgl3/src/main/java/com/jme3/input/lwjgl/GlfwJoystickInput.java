@@ -31,16 +31,26 @@
  */
 package com.jme3.input.lwjgl;
 
-import static org.lwjgl.glfw.GLFW.*;
-import com.jme3.input.*;
-import com.jme3.input.event.JoyAxisEvent;
-import com.jme3.input.event.JoyButtonEvent;
-
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import org.lwjgl.glfw.GLFW;
+
+import com.jme3.input.AbstractJoystick;
+import com.jme3.input.DefaultJoystickAxis;
+import com.jme3.input.DefaultJoystickButton;
+import com.jme3.input.InputManager;
+import com.jme3.input.JoyInput;
+import com.jme3.input.Joystick;
+import com.jme3.input.JoystickAxis;
+import com.jme3.input.JoystickButton;
+import com.jme3.input.JoystickCompatibilityMappings;
+import com.jme3.input.RawInputListener;
+import com.jme3.input.event.JoyAxisEvent;
+import com.jme3.input.event.JoyButtonEvent;
 
 /**
  * The LWJGL implementation of {@link JoyInput}.
@@ -50,170 +60,181 @@ import java.util.logging.Logger;
  */
 public class GlfwJoystickInput implements JoyInput {
 
-    private static final Logger LOGGER = Logger.getLogger(InputManager.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(InputManager.class.getName());
 
-    private RawInputListener listener;
-    private Map<Integer, GlfwJoystick> joysticks = new HashMap<>();
+	private RawInputListener listener;
 
-    private boolean initialized = false;
+	private Map<Integer, GlfwJoystick> joysticks = new HashMap<>();
 
-    @Override
-    public void setJoyRumble(final int joyId, final float amount) {
-        if (joyId >= joysticks.size()) {
-            throw new IllegalArgumentException();
-        }
-    }
+	private Map<JoystickButton, Boolean> joyButtonPressed = new HashMap<>();
 
-    @Override
-    public Joystick[] loadJoysticks(final InputManager inputManager) {
-        for (int i = 0; i < GLFW_JOYSTICK_LAST; i++) {
-            if (glfwJoystickPresent(i)) {
-                final String name = glfwGetJoystickName(i);
-                final GlfwJoystick joystick = new GlfwJoystick(inputManager, this, i, name);
-                joysticks.put(i, joystick);
+	private boolean initialized = false;
 
-                final FloatBuffer floatBuffer = glfwGetJoystickAxes(i);
+	@Override
+	public void setJoyRumble(final int joyId, final float amount) {
+		if (joyId >= joysticks.size()) {
+			throw new IllegalArgumentException();
+		}
+	}
 
-                int axisIndex = 0;
-                while (floatBuffer.hasRemaining()) {
-                    floatBuffer.get();
+	@Override
+	public Joystick[] loadJoysticks(final InputManager inputManager) {
+		for (int i = 0; i < GLFW.GLFW_JOYSTICK_LAST; i++) {
+			if (GLFW.glfwJoystickPresent(i)) {
+				final String name = GLFW.glfwGetJoystickName(i);
+				final GlfwJoystick joystick = new GlfwJoystick(inputManager, this, i, name);
+				joysticks.put(i, joystick);
 
-                    final String logicalId = JoystickCompatibilityMappings.remapComponent(joystick.getName(), convertAxisIndex(axisIndex));
-                    final JoystickAxis joystickAxis = new DefaultJoystickAxis(inputManager, joystick, axisIndex, convertAxisIndex(axisIndex), logicalId, true, false, 0.0f);
-                    joystick.addAxis(axisIndex, joystickAxis);
-                    axisIndex++;
-                }
+				final FloatBuffer floatBuffer = GLFW.glfwGetJoystickAxes(i);
 
-                final ByteBuffer byteBuffer = glfwGetJoystickButtons(i);
+				int axisIndex = 0;
+				while (floatBuffer.hasRemaining()) {
+					floatBuffer.get();
 
-                int buttonIndex = 0;
-                while (byteBuffer.hasRemaining()) {
-                    byteBuffer.get();
-                    final String logicalId = JoystickCompatibilityMappings.remapComponent(joystick.getName(), String.valueOf(buttonIndex));
-                    joystick.addButton(new DefaultJoystickButton(inputManager, joystick, buttonIndex, String.valueOf(buttonIndex), logicalId));
-                    buttonIndex++;
-                }
-            }
-        }
+					final String logicalId = JoystickCompatibilityMappings.remapComponent(joystick.getName(),
+							convertAxisIndex(axisIndex));
+					final JoystickAxis joystickAxis = new DefaultJoystickAxis(inputManager, joystick, axisIndex,
+							convertAxisIndex(axisIndex), logicalId, true, false, 0.0f);
+					joystick.addAxis(axisIndex, joystickAxis);
+					axisIndex++;
+				}
 
-        return joysticks.values().toArray(new GlfwJoystick[joysticks.size()]);
-    }
+				final ByteBuffer byteBuffer = GLFW.glfwGetJoystickButtons(i);
 
-    private String convertAxisIndex(final int index) {
-        if (index == 0) {
-            return "pov_x";
-        } else if (index == 1) {
-            return "pov_y";
-        } else if (index == 2) {
-            return "z";
-        } else if (index == 3) {
-            return "rz";
-        }
+				int buttonIndex = 0;
+				while (byteBuffer.hasRemaining()) {
+					byteBuffer.get();
+					final String logicalId = JoystickCompatibilityMappings.remapComponent(joystick.getName(),
+							String.valueOf(buttonIndex));
+					JoystickButton button = new DefaultJoystickButton(inputManager, joystick, buttonIndex,
+							String.valueOf(buttonIndex), logicalId);
+					joystick.addButton(button);
+					joyButtonPressed.put(button, false);
+					buttonIndex++;
+				}
+			}
+		}
 
-        return String.valueOf(index);
-    }
+		return joysticks.values().toArray(new GlfwJoystick[joysticks.size()]);
+	}
 
-    @Override
-    public void initialize() {
-        initialized = true;
-    }
+	private String convertAxisIndex(final int index) {
+		if (index == 0) {
+			return "pov_x";
+		} else if (index == 1) {
+			return "pov_y";
+		} else if (index == 2) {
+			return "z";
+		} else if (index == 3) {
+			return "rz";
+		}
 
-    @Override
-    public void update() {
-        for (final Map.Entry<Integer, GlfwJoystick> entry : joysticks.entrySet()) {
-            // Axes
-            final FloatBuffer axisValues = glfwGetJoystickAxes(entry.getKey());
+		return String.valueOf(index);
+	}
 
-            for (final JoystickAxis axis : entry.getValue().getAxes()) {
-                final float value = axisValues.get(axis.getAxisId());
-                listener.onJoyAxisEvent(new JoyAxisEvent(axis, value));
-            }
+	@Override
+	public void initialize() {
+		initialized = true;
+	}
 
-            // Buttons
-            final ByteBuffer byteBuffer = glfwGetJoystickButtons(entry.getKey());
+	@Override
+	public void update() {
+		for (final Map.Entry<Integer, GlfwJoystick> entry : joysticks.entrySet()) {
+			// Axes
+			final FloatBuffer axisValues = GLFW.glfwGetJoystickAxes(entry.getKey());
 
-            for (final JoystickButton button : entry.getValue().getButtons()) {
-                final boolean pressed = byteBuffer.get(button.getButtonId()) == GLFW_PRESS;
-                listener.onJoyButtonEvent(new JoyButtonEvent(button, pressed));
-            }
-        }
-    }
+			for (final JoystickAxis axis : entry.getValue().getAxes()) {
+				final float value = axisValues.get(axis.getAxisId());
+				listener.onJoyAxisEvent(new JoyAxisEvent(axis, value));
+			}
 
-    @Override
-    public void destroy() {
-        initialized = false;
-    }
+			// Buttons
+			final ByteBuffer byteBuffer = GLFW.glfwGetJoystickButtons(entry.getKey());
 
-    @Override
-    public boolean isInitialized() {
-        return initialized;
-    }
+			for (final JoystickButton button : entry.getValue().getButtons()) {
+				final boolean pressed = byteBuffer.get(button.getButtonId()) == GLFW.GLFW_PRESS;
 
-    @Override
-    public void setInputListener(final RawInputListener listener) {
-        this.listener = listener;
-    }
+				if (joyButtonPressed.get(button) != pressed) {
+					joyButtonPressed.put(button, pressed);
+					listener.onJoyButtonEvent(new JoyButtonEvent(button, pressed));
+				}
+			}
+		}
+	}
 
-    @Override
-    public long getInputTimeNanos() {
-        return 0;
-    }
+	@Override
+	public void destroy() {
+		initialized = false;
+	}
 
-    protected class GlfwJoystick extends AbstractJoystick {
+	@Override
+	public boolean isInitialized() {
+		return initialized;
+	}
 
-        private JoystickAxis povAxisX;
-        private JoystickAxis povAxisY;
+	@Override
+	public void setInputListener(final RawInputListener listener) {
+		this.listener = listener;
+	}
 
-        public GlfwJoystick(final InputManager inputManager, final JoyInput joyInput, final int joyId, final String name) {
-            super(inputManager, joyInput, joyId, name);
-        }
+	@Override
+	public long getInputTimeNanos() {
+		return 0;
+	}
 
-        public void addAxis(final int index, final JoystickAxis axis) {
-            super.addAxis(axis);
+	protected class GlfwJoystick extends AbstractJoystick {
 
-            if (index == 0) {
-                povAxisX = axis;
-            } else if (index == 1) {
-                povAxisY = axis;
-            }
-        }
+		private JoystickAxis povAxisX;
+		private JoystickAxis povAxisY;
 
-        @Override
-        protected void addButton(final JoystickButton button) {
-            super.addButton(button);
-        }
+		public GlfwJoystick(final InputManager inputManager, final JoyInput joyInput, final int joyId,
+				final String name) {
+			super(inputManager, joyInput, joyId, name);
+		}
 
-        @Override
-        public JoystickAxis getXAxis() {
-            return povAxisX;
-        }
+		public void addAxis(final int index, final JoystickAxis axis) {
+			super.addAxis(axis);
 
-        @Override
-        public JoystickAxis getYAxis() {
-            return povAxisY;
-        }
+			if (index == 0) {
+				povAxisX = axis;
+			} else if (index == 1) {
+				povAxisY = axis;
+			}
+		}
 
-        @Override
-        public JoystickAxis getPovXAxis() {
-            return povAxisX;
-        }
+		@Override
+		protected void addButton(final JoystickButton button) {
+			super.addButton(button);
+		}
 
-        @Override
-        public JoystickAxis getPovYAxis() {
-            return povAxisY;
-        }
+		@Override
+		public JoystickAxis getXAxis() {
+			return povAxisX;
+		}
 
-        @Override
-        public int getXAxisIndex() {
-            return povAxisX.getAxisId();
-        }
+		@Override
+		public JoystickAxis getYAxis() {
+			return povAxisY;
+		}
 
-        @Override
-        public int getYAxisIndex() {
-            return povAxisY.getAxisId();
-        }
-    }
+		@Override
+		public JoystickAxis getPovXAxis() {
+			return povAxisX;
+		}
+
+		@Override
+		public JoystickAxis getPovYAxis() {
+			return povAxisY;
+		}
+
+		@Override
+		public int getXAxisIndex() {
+			return povAxisX.getAxisId();
+		}
+
+		@Override
+		public int getYAxisIndex() {
+			return povAxisY.getAxisId();
+		}
+	}
 }
-
-
-
