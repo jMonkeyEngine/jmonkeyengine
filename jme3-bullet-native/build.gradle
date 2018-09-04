@@ -11,6 +11,16 @@ if (!hasProperty('mainClass')) {
 dependencies {
     compile project(':jme3-bullet')
 }
+clean { dependsOn 'cleanHeaders', 'cleanUnzipped' }
+
+// clean up auto-generated C++ headers
+task cleanHeaders(type: Delete) {
+    delete fileTree(dir: 'src/native/cpp', include: 'com_jme3_bullet_*.h')
+}
+// clean up unzipped files
+task cleanUnzipped(type: Delete) {
+    delete bulletFolder
+}
 
 model {
     components {
@@ -115,7 +125,10 @@ model {
                 cppCompiler.define('WIN32')
             }
 
-            tasks.all { dependsOn unzipBulletIfNeeded }
+            tasks.all { 
+                dependsOn unzipBulletIfNeeded
+                dependsOn ':jme3-bullet:generateNativeHeaders'
+            }
 
             // Add output to jar file
             jar.into("native/${os}/${arch}") {
@@ -199,7 +212,7 @@ unzipBulletIfNeeded.dependsOn {
     }
 }
 
-// Helper class to wrap ant dowload task
+// Helper class to wrap ant download task
 class MyDownload extends DefaultTask {
     @Input
     String sourceUrl
