@@ -247,21 +247,31 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
     public void render(RenderManager rm, ViewPort vp) {
     }
 
-    public void setPhysicsSpace(PhysicsSpace space) {
-        if (space == null) {
-            if (this.space != null) {
-                this.space.removeCollisionObject(this);
-                added = false;
-            }
-        } else {
-            if (this.space == space) return;
-            // if this object isn't enabled, it will be added when it will be enabled.
-            if (isEnabled()) {
-                space.addCollisionObject(this);
-                added = true;
-            }
+    /**
+     * If enabled, add this control's body to the specified physics space. In
+     * not enabled, alter where the body would be added. The body is removed
+     * from any other space it's currently in.
+     *
+     * @param newSpace where to add, or null to simply remove
+     */
+    @Override
+    public void setPhysicsSpace(PhysicsSpace newSpace) {
+        if (space == newSpace) {
+            return;
         }
-        this.space = space;
+        if (added) {
+            space.removeCollisionObject(this);
+            added = false;
+        }
+        if (newSpace != null && isEnabled()) {
+            newSpace.addCollisionObject(this);
+            added = true;
+        }
+        /*
+         * If this control isn't enabled, its body will be
+         * added to the new space when the control becomes enabled.
+         */
+        space = newSpace;
     }
 
     public PhysicsSpace getPhysicsSpace() {
