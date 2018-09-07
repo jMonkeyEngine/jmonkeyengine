@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -150,20 +150,32 @@ public class BulletAppState implements AppState, PhysicsTickListener {
     }
 
     /**
-     * The physics system is started automatically on attaching, if you want to
-     * start it before for some reason, you can use this method.
+     * Allocate a physics space and start physics.
+     * <p>
+     * Physics starts automatically after the state is attached. To start it
+     * sooner, invoke this method.
      */
     public void startPhysics() {
         if (initialized) {
             return;
         }
-        //start physics thread(pool)
-        if (threadingType == ThreadingType.PARALLEL) {
-            startPhysicsOnExecutor();
-        } else {
-            pSpace = new PhysicsSpace(worldMin, worldMax, broadphaseType);
+
+        switch (threadingType) {
+            case PARALLEL:
+                boolean success = startPhysicsOnExecutor();
+                assert success;
+                assert pSpace != null;
+                break;
+
+            case SEQUENTIAL:
+                pSpace = new PhysicsSpace(worldMin, worldMax, broadphaseType);
+                pSpace.addTickListener(this);
+                break;
+
+            default:
+                throw new IllegalStateException(threadingType.toString());
         }
-        pSpace.addTickListener(this);
+
         initialized = true;
     }
 
