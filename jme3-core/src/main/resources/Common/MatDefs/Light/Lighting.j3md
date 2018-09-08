@@ -27,6 +27,9 @@ MaterialDef Phong Lighting {
         // Specular power/shininess
         Float Shininess : 1
 
+        // Ambient map
+        Texture2D AmbientMap
+
         // Diffuse map
         Texture2D DiffuseMap
 
@@ -79,7 +82,7 @@ MaterialDef Phong Lighting {
         Boolean EnvMapAsSphereMap
 
         //shadows
-         Int FilterMode
+        Int FilterMode
         Boolean HardwareShadows
 
         Texture2D ShadowMap0
@@ -120,6 +123,9 @@ MaterialDef Phong Lighting {
         Boolean UseInstancing
 
         Boolean BackfaceShadows : false
+
+        // PreShadow: use point light mode for depth
+        Boolean IsPointLight
     }
 
     Technique {
@@ -135,13 +141,13 @@ MaterialDef Phong Lighting {
             ViewMatrix
             CameraPosition
             WorldMatrix
-            ViewProjectionMatrix            
+            ViewProjectionMatrix
         }
 
-        Defines {           
+        Defines {
             VERTEX_COLOR : UseVertexColor
-            VERTEX_LIGHTING : VertexLighting           
-            MATERIAL_COLORS : UseMaterialColors         
+            VERTEX_LIGHTING : VertexLighting
+            MATERIAL_COLORS : UseMaterialColors
             DIFFUSEMAP : DiffuseMap
             NORMALMAP : NormalMap
             SPECULARMAP : SpecularMap
@@ -154,8 +160,8 @@ MaterialDef Phong Lighting {
             SEPARATE_TEXCOORD : SeparateTexCoord
             DISCARD_ALPHA : AlphaDiscardThreshold
             USE_REFLECTION : EnvMap
-            SPHERE_MAP : EnvMapAsSphereMap  
-            NUM_BONES : NumberOfBones                        
+            SPHERE_MAP : EnvMapAsSphereMap
+            NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
@@ -213,12 +219,16 @@ MaterialDef Phong Lighting {
             WorldViewMatrix
             ViewProjectionMatrix
             ViewMatrix
+            WorldMatrix
+            CameraPosition
+            FrustumNearFar
         }
 
         Defines {
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            POINT_LIGHT : IsPointLight
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }

@@ -148,7 +148,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
 
         //We prevent computing the frustum points and splits with zeroed or negative near clip value
         float frustumNear = Math.max(viewCam.getFrustumNear(), 0.001f);
-        ShadowUtil.updateFrustumPoints(viewCam, frustumNear, zFar, 1.0f, points);
+        ShadowUtil.updateFrustumPoints(viewCam, frustumNear, zFar, points);
 
         shadowCam.setFrustumFar(zFar);
         shadowCam.getRotation().lookAt(light.getDirection(), shadowCam.getUp());
@@ -183,7 +183,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList shadowMapOccluders) {
 
         // update frustum points based on current camera and split
-        ShadowUtil.updateFrustumPoints(viewPort.getCamera(), splitsArray[shadowMapIndex], splitsArray[shadowMapIndex + 1], 1.0f, points);
+        ShadowUtil.updateFrustumPoints(viewPort.getCamera(), splitsArray[shadowMapIndex], splitsArray[shadowMapIndex + 1], points);
 
         //Updating shadow cam with current split frusta
         if (lightReceivers.size()==0) {

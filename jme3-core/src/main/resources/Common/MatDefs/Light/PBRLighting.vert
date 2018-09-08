@@ -1,6 +1,7 @@
 #import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/Instancing.glsllib"
 #import "Common/ShaderLib/Skinning.glsllib"
+#import "Common/ShaderLib/InPassShadows.glsllib"
 #import "Common/ShaderLib/MorphAnim.glsllib"
 
 uniform vec4 m_BaseColor;
@@ -59,7 +60,11 @@ void main(){
        texCoord2 = inTexCoord2;
     #endif
 
-    wPosition = TransformWorld(modelSpacePos).xyz;
+    vec3 worldPos = TransformWorld(modelSpacePos).xyz;
+
+    Shadow_ProcessProjCoord(worldPos);
+
+    wPosition = worldPos;
     wNormal  = TransformWorldNormal(modelSpaceNorm);
 
     #if defined(NORMALMAP) || defined(PARALLAXMAP)

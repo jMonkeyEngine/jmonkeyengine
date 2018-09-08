@@ -2,6 +2,7 @@
 #import "Common/ShaderLib/PBR.glsllib"
 #import "Common/ShaderLib/Parallax.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
+#import "Common/ShaderLib/InPassShadows.glsllib"
 
 varying vec2 texCoord;
 #ifdef SEPARATE_TEXCOORD
@@ -34,6 +35,8 @@ varying vec3 wPosition;
   uniform vec3 g_ShCoeffs3[9];
   uniform mat4 g_LightProbeData3;
 #endif
+
+uniform vec4 g_AmbientLightColor;
 
 #ifdef BASECOLORMAP
   uniform sampler2D m_BaseColorMap;
@@ -94,7 +97,7 @@ varying vec3 wNormal;
 uniform float m_AlphaDiscardThreshold;
 #endif
 
-void main(){
+void main() {
     vec2 newTexCoord;
     vec3 viewDir = normalize(g_CameraPosition - wPosition);
 
@@ -223,11 +226,20 @@ void main(){
        specularColor.rgb *= lightMapColor;
     #endif
 
+    Shadow_ProcessPssmSlice();
+
 
     float ndotv = max( dot( normal, viewDir ),0.0);
     for( int i = 0;i < NB_LIGHTS; i+=3){
         vec4 lightColor = g_LightData[i];
-        vec4 lightData1 = g_LightData[i+1];                
+
+        float shadowMapIndex = -1.0;
+        if (lightColor.w < 0.0) {
+            shadowMapIndex = floor(-lightColor.w);
+            lightColor.w = fract(-lightColor.w);
+        }
+
+        vec4 lightData1 = g_LightData[i+1];
         vec4 lightDir;
         vec3 lightVec;            
         lightComputeDir(wPosition, lightColor.w, lightData1, lightDir, lightVec);
@@ -235,16 +247,19 @@ void main(){
         float fallOff = 1.0;
         #if __VERSION__ >= 110
             // allow use of control flow
-        if(lightColor.w > 1.0){
+        if(lightColor.w > 0.4){
         #endif
-            fallOff =  computeSpotFalloff(g_LightData[i+2], lightVec);
+            fallOff =  computeSpotFalloff(g_LightData[i+2], lightDir.xyz);
         #if __VERSION__ >= 110
         }
         #endif
         //point light attenuation
         fallOff *= lightDir.w;
 
-        lightDir.xyz = normalize(lightDir.xyz);            
+        if (shadowMapIndex >= 0.0) {
+            fallOff *= Shadow_Process(i / 3, lightColor.w, shadowMapIndex, lightVec, lightDir.xyz, wPosition, lightData1.w);
+        }
+       
         vec3 directDiffuse;
         vec3 directSpecular;
         
@@ -257,6 +272,8 @@ void main(){
         gl_FragColor.rgb += directLighting * fallOff;
     }
 
+
+    gl_FragColor.rgb += g_AmbientLightColor.rgb * diffuseColor.rgb;
     #if NB_PROBES >= 1
         vec3 color1 = vec3(0.0);
         vec3 color2 = vec3(0.0);
@@ -295,7 +312,6 @@ void main(){
             weight3 /= weightSum;
         #endif
         gl_FragColor.rgb += color1 * clamp(weight1,0.0,1.0) + color2 * clamp(weight2,0.0,1.0) + color3 * clamp(weight3,0.0,1.0);
-
     #endif
 
     #if defined(EMISSIVE) || defined (EMISSIVEMAP)

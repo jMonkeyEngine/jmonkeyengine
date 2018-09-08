@@ -32,7 +32,9 @@
 package com.jme3.material.logic;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.light.LightList;
+import com.jme3.material.MatParam;
+import com.jme3.material.RenderState;
+import com.jme3.material.TechniqueDef;
 import com.jme3.material.TechniqueDef.LightMode;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;
@@ -63,19 +65,18 @@ public interface TechniqueDefLogic {
      * 
      * @param assetManager The asset manager to use for loading shader source code,
      * shader nodes, and and lookup textures.
+     * @param geometry The geometry being rendered
      * @param renderManager The render manager for which rendering is to be performed.
      * @param rendererCaps Renderer capabilities. The returned shader must
      * support these capabilities.
-     * @param lights The lights with which the geometry shall be rendered. This
-     * list must not include culled lights.
      * @param defines The define list used by the technique, any 
      * {@link TechniqueDef#addShaderUnmappedDefine(java.lang.String) unmapped defines}
      * should be set here to change shader behavior.
      * 
      * @return The shader to use for rendering.
      */
-    public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager, 
-            EnumSet<Caps> rendererCaps, LightList lights, DefineList defines);
+    public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
+            EnumSet<Caps> rendererCaps, Geometry geometry, DefineList defines);
     
     /**
      * Requests that the <code>TechniqueDefLogic</code> renders the given geometry.
@@ -88,10 +89,10 @@ public interface TechniqueDefLogic {
      * can still be overriden.
      * 
      * @param renderManager The render manager to perform the rendering against.
-     * * @param shader The shader that was selected by this logic in 
+     * @param shader The shader that was selected by this logic in 
      * {@link #makeCurrent(com.jme3.asset.AssetManager, com.jme3.renderer.RenderManager, java.util.EnumSet, com.jme3.shader.DefineList)}.
      * @param geometry The geometry to render
-     * @param lights Lights which influence the geometry.
+     * @param lastTextureUnit The last unused texture unit
      */
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit);
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, int lastTextureUnit);
 }

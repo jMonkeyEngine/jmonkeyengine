@@ -59,6 +59,7 @@ public final class DefaultLightFilter implements LightFilter {
         for (Light light : processedLights) {
             light.frustumCheckNeeded = true;
         }
+        processedLights.clear();
     }
 
     @Override

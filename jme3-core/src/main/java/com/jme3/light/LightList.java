@@ -186,7 +186,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
 
         listSize = 0;
     }
-
+    
     /**
      * Sorts the elements in the list according to their Comparator.
      * There are two reasons why lights should be resorted.
@@ -216,6 +216,18 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable, Jme
 
             // now merge sort tlist into list
             SortUtil.msort(tlist, list, 0, listSize - 1, c);
+        }
+    }
+
+    public void sort(Comparator<Light> comparator) {
+        if (listSize > 1) {
+            if (tlist == null || tlist.length != list.length) {
+                tlist = list.clone();
+            } else {
+                System.arraycopy(list, 0, tlist, 0, list.length);
+            }
+
+            SortUtil.msort(tlist, list, 0, listSize - 1, comparator);
         }
     }
 

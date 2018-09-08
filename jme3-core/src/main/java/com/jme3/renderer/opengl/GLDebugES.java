@@ -221,7 +221,7 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
 
     @Override
     public void glGenQueries(int num, IntBuffer ids) {
-        glGenQueries(num, ids);
+        gl.glGenQueries(num, ids);
         checkError();
     }
 

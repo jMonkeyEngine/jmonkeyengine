@@ -158,7 +158,6 @@ public class BasicShadowRenderer implements SceneProcessor {
         ShadowUtil.updateFrustumPoints(viewCam,
                 viewCam.getFrustumNear(),
                 viewCam.getFrustumFar(),
-                1.0f,
                 points);
 
         Vector3f frustaCenter = new Vector3f();

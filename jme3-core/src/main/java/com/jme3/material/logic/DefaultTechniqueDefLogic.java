@@ -43,11 +43,13 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.instancing.InstancedGeometry;
 import com.jme3.shader.DefineList;
 import com.jme3.shader.Shader;
+import com.jme3.shadow.next.array.ArrayShadowMap;
 import java.util.EnumSet;
 
 public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
 
     protected final TechniqueDef techniqueDef;
+    protected final LightList filteredLightList = new LightList(null);
 
     public DefaultTechniqueDefLogic(TechniqueDef techniqueDef) {
         this.techniqueDef = techniqueDef;
@@ -55,7 +57,7 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
 
     @Override
     public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
-            EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
+            EnumSet<Caps> rendererCaps, Geometry geometry, DefineList defines) {
         return techniqueDef.getShader(assetManager, rendererCaps, defines);
     }
 
@@ -68,6 +70,41 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
                     instGeom.getAllInstanceData());
         } else {
             renderer.renderMesh(mesh, lodLevel, 1, null);
+        }
+    }
+    
+    @Override
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, int lastTexUnit) {
+        Renderer renderer = renderManager.getRenderer();
+        renderer.setShader(shader);
+        renderMeshFromGeometry(renderer, geometry);
+    }
+    
+    protected LightList getFilteredLightList(RenderManager renderManager, Geometry geom) {
+        filteredLightList.clear();
+        renderManager.getLightFilter().filterLights(geom, filteredLightList);
+        return filteredLightList;
+    }
+    
+    protected float encodeLightType(Light light) {
+        switch (light.getType()) {
+            case Directional:
+                return 0.125f;
+            case Point:
+                return 0.25f;
+            case Spot:
+                return 0.5f;
+            default:
+                throw new UnsupportedOperationException("Invalid light type: " + light.getType());
+        }
+    }
+    
+    protected float encodeLightTypeAndShadowMapIndex(Light light) {
+        if (light.getShadowMap() == null) {
+            return encodeLightType(light);
+        } else {
+            ArrayShadowMap map = (ArrayShadowMap) light.getShadowMap();
+            return -(encodeLightType(light) + map.getFirstArraySlice());
         }
     }
 
@@ -84,14 +121,5 @@ public class DefaultTechniqueDefLogic implements TechniqueDefLogic {
         }
         ambientLightColor.a = 1.0f;
         return ambientLightColor;
-    }
-
-
-
-    @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit) {
-        Renderer renderer = renderManager.getRenderer();
-        renderer.setShader(shader);
-        renderMeshFromGeometry(renderer, geometry);
     }
 }

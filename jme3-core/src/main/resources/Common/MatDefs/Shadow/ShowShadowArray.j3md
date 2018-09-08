@@ -1,0 +1,17 @@
+MaterialDef Pre Shadow {
+
+    MaterialParameters {
+        TextureArray ShadowMapArray
+        Float ShadowMapSlice
+    }
+
+    Technique {
+        VertexShader   GLSL150 : Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL150 : Common/MatDefs/Shadow/ShowShadowArray.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix
+        }
+    }
+}

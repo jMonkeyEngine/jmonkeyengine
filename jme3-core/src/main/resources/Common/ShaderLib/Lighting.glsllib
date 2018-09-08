@@ -7,7 +7,7 @@
 * Outputs the light direction and the light half vector. 
 */
 void lightComputeDir(in vec3 worldPos, in float lightType, in vec4 position, out vec4 lightDir, out vec3 lightVec){
-    float posLight = step(0.5, lightType);    
+    float posLight = step(0.2, lightType);    
     vec3 tempVec = position.xyz * sign(posLight - 0.5) - (worldPos * posLight);
     lightVec = tempVec;          
     float dist = length(tempVec);
@@ -23,9 +23,9 @@ void lightComputeDir(in vec3 worldPos, in float lightType, in vec4 position, out
 /*
 * Computes the spot falloff for a spotlight
 */
-float computeSpotFalloff(in vec4 lightDirection, in vec3 lightVector){
-    vec3 L=normalize(lightVector);
-    vec3 spotdir = normalize(lightDirection.xyz);
+float computeSpotFalloff(in vec4 lightDirection, in vec3 lightVector) {
+    vec3 L = lightVector;
+    vec3 spotdir = lightDirection.xyz;
     float curAngleCos = dot(-L, spotdir);    
     float innerAngleCos = floor(lightDirection.w) * 0.001;
     float outerAngleCos = fract(lightDirection.w);

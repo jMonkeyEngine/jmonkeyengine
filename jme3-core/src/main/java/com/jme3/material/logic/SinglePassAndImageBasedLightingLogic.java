@@ -34,13 +34,19 @@ package com.jme3.material.logic;
 import com.jme3.asset.AssetManager;
 import com.jme3.bounding.BoundingSphere;
 import com.jme3.light.*;
+import static com.jme3.light.Light.Type.Directional;
+import static com.jme3.light.Light.Type.Spot;
 import com.jme3.material.*;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.*;
 import com.jme3.renderer.*;
 import com.jme3.scene.Geometry;
 import com.jme3.shader.*;
-import com.jme3.util.TempVars;
+import com.jme3.shadow.next.array.ArrayShadowMap;
+import com.jme3.shadow.next.array.ArrayShadowMapSlice;
+import com.jme3.shadow.next.array.DirectionalArrayShadowMap;
+import com.jme3.texture.TextureArray;
+import java.util.Comparator;
 
 import java.util.*;
 
@@ -48,10 +54,16 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
 
     private static final String DEFINE_SINGLE_PASS_LIGHTING = "SINGLE_PASS_LIGHTING";
     private static final String DEFINE_NB_LIGHTS = "NB_LIGHTS";
-    private static final String DEFINE_NB_PROBES = "NB_PROBES";
+    private static final String DEFINE_INDIRECT_LIGHTING = "INDIRECT_LIGHTING";
+    private static final String DEFINE_IN_PASS_SHADOWS = "IN_PASS_SHADOWS";
+    private static final String DEFINE_NUM_PSSM_SPLITS = "NUM_PSSM_SPLITS";
     private static final RenderState ADDITIVE_LIGHT = new RenderState();
 
     private final ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
+    private TextureArray shadowMapArray;
+    private Vector3f pssmSplitsPositions;
+    private int numPssmSplits;
+    private static final String DEFINE_NB_PROBES = "NB_PROBES";
     private List<LightProbe> lightProbes = new ArrayList<>(3);
 
     static {
@@ -60,33 +72,79 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
     }
 
     private final int singlePassLightingDefineId;
+    private final int inPassShadowsDefineId;
     private final int nbLightsDefineId;
+    private final int numPssmSplitsDefineId;
     private final int nbProbesDefineId;
 
     public SinglePassAndImageBasedLightingLogic(TechniqueDef techniqueDef) {
         super(techniqueDef);
+        numPssmSplitsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NUM_PSSM_SPLITS, VarType.Int);
         singlePassLightingDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_SINGLE_PASS_LIGHTING, VarType.Boolean);
         nbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_LIGHTS, VarType.Int);
+        inPassShadowsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_IN_PASS_SHADOWS, VarType.Boolean);
         nbProbesDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_PROBES, VarType.Int);
     }
 
     @Override
     public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
-            EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
-        defines.set(nbLightsDefineId, renderManager.getSinglePassLightBatchSize() * 3);
+            EnumSet<Caps> rendererCaps, Geometry geometry, DefineList defines) {
+        
         defines.set(singlePassLightingDefineId, true);
 
-
-        //TODO here we have a problem, this is called once before render, so the define will be set for all passes (in case we have more than NB_LIGHTS lights)
-        //Though the second pass should not render IBL as it is taken care of on first pass like ambient light in phong lighting.
-        //We cannot change the define between passes and the old technique, and for some reason the code fails on mac (renders nothing).
-        if(lights != null) {
-            lightProbes.clear();
-            extractIndirectLights(lights, false);
-            defines.set(nbProbesDefineId, lightProbes.size());
+        // TODO: here we have a problem, this is called once before render,
+        // so the define will be set for all passes (in case we have more than NB_LIGHTS lights)
+        // Though the second pass should not render IBL as it is taken care of on 
+        // first pass like ambient light in phong lighting.
+        // We cannot change the define between passes and the old technique, and 
+        // for some reason the code fails on mac (renders nothing).
+        getFilteredLightList(renderManager, geometry);
+       
+        ambientLightColor.set(0, 0, 0, 1);
+        lightProbes.clear();
+        pssmSplitsPositions = null;
+        numPssmSplits = 0;
+        
+        for (int i = 0; i < filteredLightList.size(); i++) {
+            Light light = filteredLightList.get(i);
+            if (light instanceof AmbientLight) {
+                ambientLightColor.addLocal(light.getColor());
+                filteredLightList.remove(i--);
+            } else if (light instanceof LightProbe) {
+                lightProbes.add((LightProbe) light);
+                filteredLightList.remove(i--);
+            } else if (light.getShadowMap() != null) {
+                ArrayShadowMap shadowMap = (ArrayShadowMap) light.getShadowMap();
+                shadowMapArray = shadowMap.getArray();
+                if (light.getType() == Light.Type.Directional) {
+                    numPssmSplits = shadowMap.getNumSlices();
+                    pssmSplitsPositions = ((DirectionalArrayShadowMap) shadowMap).getProjectionSplitPositions();
+                }
+            }
         }
-
-        return super.makeCurrent(assetManager, renderManager, rendererCaps, lights, defines);
+        defines.set(nbProbesDefineId, lightProbes.size());
+        ambientLightColor.a = 1.0f;
+        
+        filteredLightList.sort(new Comparator<Light>() {
+            @Override
+            public int compare(Light a, Light b) {
+                boolean shadA = a.getShadowMap() != null;
+                boolean shadB = b.getShadowMap() != null;
+                if (shadA != shadB) {
+                    return shadA ? -1 : 1;
+                } else {
+                    int ordA = a.getType().ordinal();
+                    int ordB = b.getType().ordinal();
+                    return ordB - ordA;
+                }
+            }
+        });
+        
+        defines.set(nbLightsDefineId, renderManager.getSinglePassLightBatchSize() * 3);
+        defines.set(inPassShadowsDefineId, shadowMapArray != null);
+        defines.set(numPssmSplitsDefineId, numPssmSplits);
+        
+        return super.makeCurrent(assetManager, renderManager, rendererCaps, geometry, defines);
     }
 
     /**
@@ -123,13 +181,11 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
         Uniform shCoeffs3 = shader.getUniform("g_ShCoeffs3");
         Uniform lightProbePemMap3 = shader.getUniform("g_PrefEnvMap3");
 
-        lightProbes.clear();
         if (startIndex != 0) {
             // apply additive blending for 2nd and future passes
             rm.getRenderer().applyRenderState(ADDITIVE_LIGHT);
             ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);
-        }else{
-            extractIndirectLights(lightList,true);
+        } else {
             ambientColor.setValue(VarType.Vector4, ambientLightColor);
         }
 
@@ -150,88 +206,103 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
             lightProbeData.setValue(VarType.Matrix4, LightProbe.FALLBACK_MATRIX);
         }
 
+        Uniform shadowMatricesUniform = shader.getUniform("g_ShadowMatrices");
+        shadowMatricesUniform.setMatrix4Length(numLights + numPssmSplits);
+        int shadowMatrixIndex = numPssmSplits;
         int lightDataIndex = 0;
-        TempVars vars = TempVars.get();
-        Vector4f tmpVec = vars.vect4f1;
         int curIndex;
-        int endIndex = numLights + startIndex;
-        for (curIndex = startIndex; curIndex < endIndex && curIndex < lightList.size(); curIndex++) {
-
-
-            Light l = lightList.get(curIndex);
-            if(l.getType() == Light.Type.Ambient){
-                endIndex++;
-                continue;
+        int endIndex = Math.min(startIndex + numLights, lightList.size());
+        
+        ArrayShadowMap directionalShadowMap = null;
+        
+        for (curIndex = startIndex; curIndex < endIndex; curIndex++) {
+            Light light = lightList.get(curIndex);
+            
+            if (light.getType() == Light.Type.Ambient || light.getType() == Light.Type.Probe) {
+                throw new AssertionError();
             }
-            ColorRGBA color = l.getColor();
-            //Color
-
-            if(l.getType() != Light.Type.Probe){
-                lightData.setVector4InArray(color.getRed(),
-                        color.getGreen(),
-                        color.getBlue(),
-                        l.getType().getId(),
-                        lightDataIndex);
-                lightDataIndex++;
+            
+            if (light.getShadowMap() != null) {
+                ArrayShadowMap shadowMap = (ArrayShadowMap) light.getShadowMap();
+                if (light.getType() == Directional) {
+                    directionalShadowMap = shadowMap;
+                } else if (light.getType() == Spot) {
+                    for (int j = 0; j < shadowMap.getNumSlices(); j++) {
+                        ArrayShadowMapSlice slice = (ArrayShadowMapSlice) shadowMap.getSlice(j);
+                        shadowMatricesUniform.setMatrix4InArray(
+                                slice.getBiasedViewProjectionMatrix(),
+                                shadowMatrixIndex);
+                        shadowMatrixIndex++;
+                    }
+                }
             }
+            
+            ColorRGBA color = light.getColor();
+            lightData.setVector4InArray(
+                    color.getRed(),
+                    color.getGreen(),
+                    color.getBlue(),
+                    encodeLightTypeAndShadowMapIndex(light),
+                    lightDataIndex++);
 
-            switch (l.getType()) {
-                case Directional:
-                    DirectionalLight dl = (DirectionalLight) l;
+            switch (light.getType()) {
+                case Directional: {
+                    DirectionalLight dl = (DirectionalLight) light;
                     Vector3f dir = dl.getDirection();
-                    //Data directly sent in view space to avoid a matrix mult for each pixel
-                    tmpVec.set(dir.getX(), dir.getY(), dir.getZ(), 0.0f);
-                    lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), -1, lightDataIndex);
-                    lightDataIndex++;
-                    //PADDING
-                    lightData.setVector4InArray(0,0,0,0, lightDataIndex);
-                    lightDataIndex++;
+                    lightData.setVector4InArray(dir.getX(), dir.getY(), dir.getZ(), -1, lightDataIndex++);
+                    lightData.setVector4InArray(0, 0, 0, 0, lightDataIndex++);
                     break;
-                case Point:
-                    PointLight pl = (PointLight) l;
+                }
+                case Point: {
+                    PointLight pl = (PointLight) light;
                     Vector3f pos = pl.getPosition();
                     float invRadius = pl.getInvRadius();
-                    tmpVec.set(pos.getX(), pos.getY(), pos.getZ(), 1.0f);
-
-                    lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), invRadius, lightDataIndex);
-                    lightDataIndex++;
-                    //PADDING
-                    lightData.setVector4InArray(0,0,0,0, lightDataIndex);
-                    lightDataIndex++;
+                    lightData.setVector4InArray(pos.getX(), pos.getY(), pos.getZ(), invRadius, lightDataIndex++);
+                    lightData.setVector4InArray(0, 0, 0, 0, lightDataIndex++);
                     break;
-                case Spot:
-                    SpotLight sl = (SpotLight) l;
-                    Vector3f pos2 = sl.getPosition();
-                    Vector3f dir2 = sl.getDirection();
+                }
+                case Spot: {
+                    SpotLight sl = (SpotLight) light;
+                    Vector3f pos = sl.getPosition();
+                    Vector3f dir = sl.getDirection();
                     float invRange = sl.getInvSpotRange();
                     float spotAngleCos = sl.getPackedAngleCos();
-                    tmpVec.set(pos2.getX(), pos2.getY(), pos2.getZ(),  1.0f);
-
-                    lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), invRange, lightDataIndex);
-                    lightDataIndex++;
-
-                    tmpVec.set(dir2.getX(), dir2.getY(), dir2.getZ(),  0.0f);
-                    lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), spotAngleCos, lightDataIndex);
-                    lightDataIndex++;
+                    lightData.setVector4InArray(pos.getX(), pos.getY(), pos.getZ(), invRange, lightDataIndex++);
+                    lightData.setVector4InArray(dir.getX(), dir.getY(), dir.getZ(), spotAngleCos, lightDataIndex++);
                     break;
+                }
                 default:
-                    throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
+                    throw new UnsupportedOperationException("Unknown type of light: " + light.getType());
             }
         }
-        vars.release();
 
-        //Padding of unsued buffer space
-        while(lightDataIndex < numLights * 3) {
-            lightData.setVector4InArray(0f, 0f, 0f, 0f, lightDataIndex);
-            lightDataIndex++;
+        // Padding of unsued buffer space
+        while (lightDataIndex < numLights * 3) {
+            lightData.setVector4InArray(0f, 0f, 0f, 0f, lightDataIndex++);
         }
+        
+        if (directionalShadowMap != null) {
+            for (int i = 0; i < numPssmSplits; i++) {
+                ArrayShadowMapSlice slice = (ArrayShadowMapSlice) directionalShadowMap.getSlice(i);
+                shadowMatricesUniform.setMatrix4InArray(slice.getBiasedViewProjectionMatrix(), i);
+            }
+        }
+
+        if (shadowMapArray != null) {
+            rm.getRenderer().setTexture(lastTexUnit, shadowMapArray);
+            shader.getUniform("g_ShadowMapArray").setValue(VarType.Int, lastTexUnit);
+        }
+        
+        if (pssmSplitsPositions != null) {
+            shader.getUniform("g_PssmSplits").setValue(VarType.Vector3, pssmSplitsPositions);
+        }
+
         return curIndex;
     }
 
     private int setProbeData(RenderManager rm, int lastTexUnit, Uniform lightProbeData, Uniform shCoeffs, Uniform lightProbePemMap, LightProbe lightProbe) {
 
         lightProbeData.setValue(VarType.Matrix4, lightProbe.getUniformMatrix());
-                //setVector4InArray(lightProbe.getPosition().x, lightProbe.getPosition().y, lightProbe.getPosition().z, 1f / area.getRadius() + lightProbe.getNbMipMaps(), 0);
         shCoeffs.setValue(VarType.Vector3Array, lightProbe.getShCoeffs());
         //assigning new texture indexes
         int pemUnit = lastTexUnit++;
@@ -241,43 +312,20 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, int lastTexUnit) {
         int nbRenderedLights = 0;
         Renderer renderer = renderManager.getRenderer();
         int batchSize = renderManager.getSinglePassLightBatchSize();
-        if (lights.size() == 0) {
-            updateLightListUniforms(shader, geometry, lights,batchSize, renderManager, 0, lastTexUnit);
+        if (filteredLightList.size() == 0) {
+            updateLightListUniforms(shader, geometry, filteredLightList,batchSize, renderManager, 0, lastTexUnit);
             renderer.setShader(shader);
             renderMeshFromGeometry(renderer, geometry);
         } else {
-            while (nbRenderedLights < lights.size()) {
-                nbRenderedLights = updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, nbRenderedLights, lastTexUnit);
+            while (nbRenderedLights < filteredLightList.size()) {
+                nbRenderedLights = updateLightListUniforms(shader, geometry, filteredLightList, batchSize, renderManager, nbRenderedLights, lastTexUnit);
                 renderer.setShader(shader);
                 renderMeshFromGeometry(renderer, geometry);
             }
         }
-        return;
-    }
-
-    protected void extractIndirectLights(LightList lightList, boolean removeLights) {
-        ambientLightColor.set(0, 0, 0, 1);
-        for (int j = 0; j < lightList.size(); j++) {
-            Light l = lightList.get(j);
-            if (l instanceof AmbientLight) {
-                ambientLightColor.addLocal(l.getColor());
-                if(removeLights){
-                    lightList.remove(l);
-                    j--;
-                }
-            }
-            if (l instanceof LightProbe) {
-                lightProbes.add((LightProbe) l);
-                if(removeLights){
-                    lightList.remove(l);
-                    j--;
-                }
-            }
-        }
-        ambientLightColor.a = 1.0f;
     }
 }

@@ -165,7 +165,7 @@ void main(){
             if(lightColor.w > 1.0){
             #endif
                vec4 lightDirection = g_LightData[i+2];
-               spotFallOff = computeSpotFalloff(lightDirection, lightVec);
+               spotFallOff = computeSpotFalloff(lightDirection, lightDir.xyz);
             #if __VERSION__ >= 110
             }
             #endif

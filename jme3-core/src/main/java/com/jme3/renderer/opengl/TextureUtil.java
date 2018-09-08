@@ -199,10 +199,12 @@ final class TextureUtil {
                                      format.format,
                                      format.dataType,
                                      data);
-                } else {
+                } else if (data != null) {
                     // For texture arrays, only upload 1 slice at a time.
                     // zoffset specifies slice index, and depth is 1 to indicate
                     // a single texture in the array.
+                    // We don't need to do this for NULL data because the
+                    // main texture storage was already allocated with slice == -1
                     gl2.glTexSubImage3D(target,
                                         level,          // level
                                         0,              // xoffset

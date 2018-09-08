@@ -60,7 +60,7 @@ public class PreDepthProcessor implements SceneProcessor {
         preDepth.getAdditionalRenderState().setPolyOffset(0, 0);
         preDepth.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Back);
 
-        forcedRS = new RenderState();
+        forcedRS = RenderState.ADDITIONAL.clone();
         forcedRS.setDepthTest(true);
         forcedRS.setDepthWrite(false);
     }

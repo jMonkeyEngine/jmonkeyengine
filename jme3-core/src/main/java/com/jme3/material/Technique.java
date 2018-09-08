@@ -133,9 +133,10 @@ public final class Technique {
      * @param rendererCaps The renderer capabilities which the shader should support.
      * @return A compatible shader.
      */
-    Shader makeCurrent(RenderManager renderManager, SafeArrayList<MatParamOverride> worldOverrides,
+    Shader makeCurrent(RenderManager renderManager, Geometry geometry,
+            SafeArrayList<MatParamOverride> worldOverrides,
             SafeArrayList<MatParamOverride> forcedOverrides,
-            LightList lights, EnumSet<Caps> rendererCaps) {
+            EnumSet<Caps> rendererCaps) {
         TechniqueDefLogic logic = def.getLogic();
         AssetManager assetManager = owner.getMaterialDef().getAssetManager();
 
@@ -149,7 +150,7 @@ public final class Technique {
             applyOverrides(dynamicDefines, forcedOverrides);
         }
 
-        return logic.makeCurrent(assetManager, renderManager, rendererCaps, lights, dynamicDefines);
+        return logic.makeCurrent(assetManager, renderManager, rendererCaps, geometry, dynamicDefines);
     }
     
     /**
@@ -161,9 +162,9 @@ public final class Technique {
      * @param geometry The geometry to render
      * @param lights Lights which influence the geometry.
      */
-    void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit) {
+    void render(RenderManager renderManager, Shader shader, Geometry geometry, int lastTextureUnit) {
         TechniqueDefLogic logic = def.getLogic();
-        logic.render(renderManager, shader, geometry, lights, lastTexUnit);
+        logic.render(renderManager, shader, geometry, lastTextureUnit);
     }
     
     /**

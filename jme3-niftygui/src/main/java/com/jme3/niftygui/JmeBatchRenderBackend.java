@@ -453,7 +453,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
 
     private final Mesh mesh = new Mesh();
     private final Geometry meshGeometry = new Geometry("nifty-quad", mesh);
-    private final RenderState renderState = new RenderState();
+    private final RenderState renderState = RenderState.ADDITIONAL.clone();
 
     private FloatBuffer vertexPosBuffer;
     private FloatBuffer vertexTexCoordBuffer;

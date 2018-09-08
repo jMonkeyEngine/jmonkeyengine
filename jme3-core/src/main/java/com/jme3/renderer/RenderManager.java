@@ -84,7 +84,6 @@ public class RenderManager {
     private final SafeArrayList<MatParamOverride> forcedOverrides = new SafeArrayList<>(MatParamOverride.class);
     private int viewX, viewY, viewWidth, viewHeight;
     private final Matrix4f orthoMatrix = new Matrix4f();
-    private final LightList filteredLightList = new LightList(null);
     private boolean handleTranlucentBucket = true;
     private AppProfiler prof;
     private LightFilter lightFilter = new DefaultLightFilter();
@@ -562,15 +561,6 @@ public class RenderManager {
         } else {
             setWorldMatrix(geom.getWorldMatrix());
         }
-        
-        // Perform light filtering if we have a light filter.
-        LightList lightList = geom.getWorldLightList();
-        
-        if (lightFilter != null) {
-            filteredLightList.clear();
-            lightFilter.filterLights(geom, filteredLightList);
-            lightList = filteredLightList;
-        }
 
         Material material = geom.getMaterial();
 
@@ -588,30 +578,22 @@ public class RenderManager {
                         : TechniqueDef.DEFAULT_TECHNIQUE_NAME;
 
                 geom.getMaterial().selectTechnique(forcedTechnique, this);
-                //saving forcedRenderState for future calls
-                RenderState tmpRs = forcedRenderState;
-                if (geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState() != null) {
-                    //forcing forced technique renderState
-                    forcedRenderState = geom.getMaterial().getActiveTechnique().getDef().getForcedRenderState();
-                }
-                // use geometry's material
-                material.render(geom, lightList, this);
-                material.selectTechnique(previousTechniqueName, this);
 
-                //restoring forcedRenderState
-                forcedRenderState = tmpRs;
+                // use geometry's material
+                material.render(geom, this);
+                material.selectTechnique(previousTechniqueName, this);
 
                 //Reverted this part from revision 6197
                 //If forcedTechnique does not exists, and forcedMaterial is not set, the geom MUST NOT be rendered
             } else if (forcedMaterial != null) {
                 // use forced material
-                forcedMaterial.render(geom, lightList, this);
+                forcedMaterial.render(geom, this);
             }
         } else if (forcedMaterial != null) {
             // use forced material
-            forcedMaterial.render(geom, lightList, this);
+            forcedMaterial.render(geom, this);
         } else {
-            material.render(geom, lightList, this);
+            material.render(geom, this);
         }
     }
 

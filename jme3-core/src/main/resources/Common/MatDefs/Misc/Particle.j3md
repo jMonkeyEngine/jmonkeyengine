@@ -14,6 +14,9 @@ MaterialDef Point Sprite {
         Texture2D GlowMap
         // The glow color of the object
         Color GlowColor
+
+        // PreShadow: use point light mode for depth
+        Boolean IsPointLight
     }
 
     Technique {
@@ -56,10 +59,14 @@ MaterialDef Point Sprite {
             WorldViewMatrix
             ViewProjectionMatrix
             ViewMatrix
+            WorldMatrix
+            CameraPosition
+            FrustumNearFar
         }
 
         Defines {
             COLOR_MAP : Texture
+            POINT_LIGHT : IsPointLight
         }
 
         ForcedRenderState {

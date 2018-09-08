@@ -430,7 +430,6 @@ public class MaterialMatParamTest {
 
     private final Geometry geometry = new Geometry("Geometry", new Box(1, 1, 1));
     private final Node root = new Node("Root Node");
-    private final LightList lightList = new LightList(geometry);
 
     @Before
     public void setUp() {
@@ -526,7 +525,7 @@ public class MaterialMatParamTest {
     private void evaluateTechniqueDef() {
         Assert.assertFalse(evaluated);
         Material mat = geometry.getMaterial();
-        mat.render(geometry, lightList, renderManager);
+        mat.render(geometry, renderManager);
         Assert.assertTrue(evaluated);
     }
 

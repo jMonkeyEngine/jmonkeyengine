@@ -77,25 +77,31 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public Shader makeCurrent(AssetManager assetManager, RenderManager renderManager,
-            EnumSet<Caps> rendererCaps, LightList lights, DefineList defines) {
+    public Shader makeCurrent(
+            AssetManager assetManager, 
+            RenderManager renderManager,
+            EnumSet<Caps> rendererCaps, 
+            Geometry geometry,
+            DefineList defines) {
         defines.set(nbLightsDefineId, renderManager.getSinglePassLightBatchSize() * 3);
         defines.set(singlePassLightingDefineId, true);
-        return super.makeCurrent(assetManager, renderManager, rendererCaps, lights, defines);
+        return super.makeCurrent(assetManager, renderManager, rendererCaps, geometry, defines);
     }
 
     /**
-     * Uploads the lights in the light list as two uniform arrays.<br/><br/> *
+     * Uploads the lights in the light list as two uniform arrays.<br><br>
+     *
      * <p>
-     * <code>uniform vec4 g_LightColor[numLights];</code><br/> //
-     * g_LightColor.rgb is the diffuse/specular color of the light.<br/> //
-     * g_Lightcolor.a is the type of light, 0 = Directional, 1 = Point, <br/> //
-     * 2 = Spot. <br/> <br/>
-     * <code>uniform vec4 g_LightPosition[numLights];</code><br/> //
-     * g_LightPosition.xyz is the position of the light (for point lights)<br/>
-     * // or the direction of the light (for directional lights).<br/> //
+     * <code>uniform vec4 g_LightColor[numLights];</code><br>
+     * g_LightColor.rgb is the diffuse/specular color of the light.<br>
+     * g_Lightcolor.a is the type of light, 0 = Directional, 1 = Point, <br>
+     * 2 = Spot. <br> <br>
+     * <code>uniform vec4 g_LightPosition[numLights];</code><br>
+     * g_LightPosition.xyz is the position of the light (for point lights)<br>
+     * // or the direction of the light (for directional lights).<br>
      * g_LightPosition.w is the inverse radius (1/r) of the light (for
-     * attenuation) <br/> </p>
+     * attenuation) <br>
+     * </p>
      */
     protected int updateLightListUniforms(Shader shader, Geometry g, LightList lightList, int numLights, RenderManager rm, int startIndex) {
         if (numLights == 0) { // this shader does not do lighting, ignore.
@@ -131,7 +137,7 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
             lightData.setVector4InArray(color.getRed(),
                     color.getGreen(),
                     color.getBlue(),
-                    l.getType().getId(),
+                    encodeLightType(l),
                     lightDataIndex);
             lightDataIndex++;
 
@@ -198,10 +204,11 @@ public final class SinglePassLightingLogic extends DefaultTechniqueDefLogic {
     }
 
     @Override
-    public void render(RenderManager renderManager, Shader shader, Geometry geometry, LightList lights, int lastTexUnit) {
+    public void render(RenderManager renderManager, Shader shader, Geometry geometry, int lastTexUnit) {
         int nbRenderedLights = 0;
         Renderer renderer = renderManager.getRenderer();
         int batchSize = renderManager.getSinglePassLightBatchSize();
+        LightList lights = getFilteredLightList(renderManager, geometry);
         if (lights.size() == 0) {
             updateLightListUniforms(shader, geometry, lights, batchSize, renderManager, 0);
             renderer.setShader(shader);

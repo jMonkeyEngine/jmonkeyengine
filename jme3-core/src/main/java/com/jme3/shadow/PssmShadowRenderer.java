@@ -398,7 +398,7 @@ public class PssmShadowRenderer implements SceneProcessor {
 
         //We prevent computing the frustum points and splits with zeroed or negative near clip value
         float frustumNear = Math.max(viewCam.getFrustumNear(), 0.001f);
-        ShadowUtil.updateFrustumPoints(viewCam, frustumNear, zFar, 1.0f, points);
+        ShadowUtil.updateFrustumPoints(viewCam, frustumNear, zFar, points);
 
         //shadowCam.setDirection(direction);
         shadowCam.getRotation().lookAt(direction, shadowCam.getUp());
@@ -428,7 +428,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         for (int i = 0; i < nbSplits; i++) {
 
             // update frustum points based on current camera and split
-            ShadowUtil.updateFrustumPoints(viewCam, splitsArray[i], splitsArray[i + 1], 1.0f, points);
+            ShadowUtil.updateFrustumPoints(viewCam, splitsArray[i], splitsArray[i + 1], points);
 
             //Updating shadow cam with current split frusta
             ShadowUtil.updateShadowCamera(viewPort, lightReceivers, shadowCam, points, splitOccluders, shadowMapSize);
