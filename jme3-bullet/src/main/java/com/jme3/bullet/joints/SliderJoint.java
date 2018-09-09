@@ -289,8 +289,13 @@ public class SliderJoint extends PhysicsJoint {
 
     private native float getRestitutionOrthoLin(long objectId);
 
+    /**
+     * Alter the joint's restitution for off-axis translation.
+     *
+     * @param restitutionOrthoLin the desired restitution (default=0.7)
+     */
     public void setRestitutionOrthoLin(float restitutionOrthoLin) {
-        setDampingOrthoLin(objectId, restitutionOrthoLin);
+        setRestitutionOrthoLin(objectId, restitutionOrthoLin);
     }
 
     private native void setRestitutionOrthoLin(long objectId, float value);
