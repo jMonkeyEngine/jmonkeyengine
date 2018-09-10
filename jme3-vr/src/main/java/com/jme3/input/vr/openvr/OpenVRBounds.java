@@ -1,10 +1,11 @@
 package com.jme3.input.vr.openvr;
 
+import com.jme3.input.vr.VRAPI;
 import com.jme3.input.vr.VRBounds;
+import com.jme3.input.vr.lwjgl.OpenVrLwjgl;
 import com.jme3.math.Vector2f;
-import com.jme3.system.jopenvr.JOpenVRLibrary;
-import com.jme3.system.jopenvr.VR_IVRChaperone_FnTable;
-import com.sun.jna.ptr.FloatByReference;
+import com.jme3.util.BufferUtils;
+import java.nio.FloatBuffer;
 
 import java.util.logging.Logger;
 
@@ -17,33 +18,27 @@ public class OpenVRBounds implements VRBounds {
 
 	private static Logger logger = Logger.getLogger(OpenVRBounds.class.getName());
 	
-    private VR_IVRChaperone_FnTable vrChaperone;
     private Vector2f playSize;
+    private boolean setup = false;
     
     /**
      * Initialize the VR bounds.
      * @return <code>true</code> if the initialization is a success and <code>false</code> otherwise.
      */
-    public boolean init(OpenVR api) {
+    public boolean init(VRAPI api) {
     	
     	logger.config("Initialize VR bounds...");
     	
-        if( vrChaperone == null ) {
-            vrChaperone = new VR_IVRChaperone_FnTable(JOpenVRLibrary.VR_GetGenericInterface(JOpenVRLibrary.IVRChaperone_Version, api.hmdErrorStore).getPointer());
-            if( vrChaperone != null ) {
-                vrChaperone.setAutoSynch(false);
-                vrChaperone.read();
-                FloatByReference fbX = new FloatByReference();
-                FloatByReference fbZ = new FloatByReference();
-                vrChaperone.GetPlayAreaSize.apply(fbX, fbZ);
-                playSize = new Vector2f(fbX.getValue(), fbZ.getValue());
-                
-                logger.config("Initialize VR bounds [SUCCESS]");
-                return true; // init success
-            }
-            
-            logger.warning("Initialize VR bounds [FAILED].");
-            return false; // failed to init
+        if( !setup ) {
+//            vrChaperone = new VR_IVRChaperone_FnTable(JOpenVRLibrary.VR_GetGenericInterface(JOpenVRLibrary.IVRChaperone_Version, api.hmdErrorStore).getPointer());
+            FloatBuffer fbX = BufferUtils.createFloatBuffer(1);
+            FloatBuffer fbZ = BufferUtils.createFloatBuffer(1);
+            org.lwjgl.openvr.VRChaperone.VRChaperone_GetPlayAreaSize(fbX, fbZ);
+
+            playSize = new Vector2f(fbX.get(0), fbZ.get(0));
+            setup = true;
+            logger.config("Initialize VR bounds [SUCCESS]");
+            return true; // init success
         }
         
         logger.config("Initialize VR bounds already done.");

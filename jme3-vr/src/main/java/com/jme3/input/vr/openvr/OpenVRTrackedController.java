@@ -1,7 +1,9 @@
 package com.jme3.input.vr.openvr;
 
 import com.jme3.app.VREnvironment;
+import com.jme3.input.vr.VRInputAPI;
 import com.jme3.input.vr.VRTrackedController;
+import com.jme3.input.vr.lwjgl.OpenVrLwjgl;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -21,7 +23,7 @@ public class OpenVRTrackedController implements VRTrackedController{
 	/**
 	 * The underlying VRAPI.
 	 */
-	private OpenVRInput hardware     = null;
+	private VRInputAPI hardware     = null;
 	
 	/**
 	 * The name of the controller.
@@ -38,7 +40,7 @@ public class OpenVRTrackedController implements VRTrackedController{
 	 * @param manufacturer the manufacturer of the controller.
 	 * @param environment the VR environment.
 	 */
-    public OpenVRTrackedController(int controllerIndex, OpenVRInput hardware, String name, String manufacturer, VREnvironment environment){
+    public OpenVRTrackedController(int controllerIndex, VRInputAPI hardware, String name, String manufacturer, VREnvironment environment){
     	this.controllerIndex = controllerIndex;
     	this.hardware        = hardware;
     	
@@ -76,7 +78,7 @@ public class OpenVRTrackedController implements VRTrackedController{
 		
 		if (environment != null){
 			 if (hardware != null){
-					return ((OpenVR)environment.getVRHardware()).poseMatrices[controllerIndex];
+					return ((OpenVrLwjgl)environment.getVRHardware()).getPoseMatrices()[controllerIndex];
 				} else {
 					throw new IllegalStateException("No underlying VR API.");
 				}

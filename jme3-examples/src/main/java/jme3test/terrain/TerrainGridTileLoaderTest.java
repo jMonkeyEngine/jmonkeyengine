@@ -36,7 +36,7 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
     private float grassScale = 64;
     private float dirtScale = 16;
     private float rockScale = 128;
-    private boolean usePhysics = true;
+    private boolean usePhysics = false;
     private boolean physicsAdded = false;
 
     public static void main(final String[] args) {
@@ -128,7 +128,7 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
             player3 = new CharacterControl(capsuleShape, 0.5f);
             player3.setJumpSpeed(20);
             player3.setFallSpeed(10);
-            player3.setGravity(10);
+            player3.setGravity(0);
 
             player3.setPhysicsLocation(new Vector3f(cam.getLocation().x, 256, cam.getLocation().z));
 

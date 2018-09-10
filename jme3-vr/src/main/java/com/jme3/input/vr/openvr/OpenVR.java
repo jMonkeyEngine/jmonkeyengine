@@ -33,6 +33,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.lwjgl.BufferUtils;
 
 /**
  * A class that wraps an <a href="https://github.com/ValveSoftware/openvr/wiki/API-Documentation">OpenVR</a> system. 
@@ -176,7 +177,7 @@ public class OpenVR implements VRAPI {
             tlastVsync = new FloatByReference();
             _tframeCount = new LongByReference();
             
-            hmdDisplayFrequency = IntBuffer.allocate(1);
+            hmdDisplayFrequency = BufferUtils.createIntBuffer(1);
             hmdDisplayFrequency.put( (int) JOpenVRLibrary.ETrackedDeviceProperty.ETrackedDeviceProperty_Prop_DisplayFrequency_Float);
             hmdTrackedDevicePoseReference = new TrackedDevicePose_t.ByReference();
             hmdTrackedDevicePoses = (TrackedDevicePose_t[])hmdTrackedDevicePoseReference.toArray(JOpenVRLibrary.k_unMaxTrackedDeviceCount);
@@ -202,7 +203,7 @@ public class OpenVR implements VRAPI {
             
             // init bounds & chaperone info
             OpenVRBounds bounds = new OpenVRBounds();
-            bounds.init(this);
+//            bounds.init(this);
             environment.setVRBounds(bounds);
             
             logger.config("Initializing OpenVR system [SUCCESS]");

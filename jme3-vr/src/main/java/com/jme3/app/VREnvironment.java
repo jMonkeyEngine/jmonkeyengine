@@ -10,12 +10,13 @@ import com.jme3.input.vr.VRBounds;
 import com.jme3.input.vr.VRInputAPI;
 import com.jme3.input.vr.VRMouseManager;
 import com.jme3.input.vr.VRViewManager;
+import com.jme3.input.vr.lwjgl.OpenVRViewManagerLwjgl;
+import com.jme3.input.vr.lwjgl.OpenVrLwjgl;
 import com.jme3.input.vr.oculus.OculusMouseManager;
 import com.jme3.input.vr.oculus.OculusVR;
 import com.jme3.input.vr.oculus.OculusViewManager;
 import com.jme3.input.vr.openvr.OpenVR;
 import com.jme3.input.vr.openvr.OpenVRMouseManager;
-import com.jme3.input.vr.openvr.OpenVRViewManager;
 import com.jme3.input.vr.osvr.OSVR;
 import com.jme3.input.vr.osvr.OSVRViewManager;
 import com.jme3.renderer.Camera;
@@ -166,6 +167,8 @@ public class VREnvironment {
             } else {
                 ((OpenVR)hardware).getCompositor().SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseStanding);                
             }        
+        } else if(hardware instanceof OpenVrLwjgl){
+            ((OpenVrLwjgl)hardware).setTrackingSpace(isSeated);
         }
     }
     
@@ -401,7 +404,7 @@ public class VREnvironment {
     	
     	// Instanciate view manager
     	if (vrBinding == VRConstants.SETTING_VRAPI_OPENVR_VALUE){
-    		viewmanager = new OpenVRViewManager(this);
+    		viewmanager = new OpenVRViewManagerLwjgl(this);
     	} else if (vrBinding == VRConstants.SETTING_VRAPI_OSVR_VALUE){
     		viewmanager = new OSVRViewManager(this);
     	} else if (vrBinding == VRConstants.SETTING_VRAPI_OCULUSVR_VALUE) {
@@ -442,7 +445,7 @@ public class VREnvironment {
                 guiManager   = new VRGuiManager(this);
                 mouseManager = new OpenVRMouseManager(this);
 
-            	hardware = new OpenVR(this);
+            	hardware = new OpenVrLwjgl(this);
             	initialized = true;
                 logger.config("Creating OpenVR wrapper [SUCCESS]");
             } else if (vrBinding == VRConstants.SETTING_VRAPI_OCULUSVR_VALUE) {
