@@ -32,7 +32,6 @@
 package com.jme3.bullet;
 
 import com.jme3.app.AppTask;
-import com.jme3.asset.AssetManager;
 import com.jme3.bullet.collision.*;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.PhysicsControl;
@@ -634,9 +633,15 @@ public class PhysicsSpace {
 
         logger.log(Level.FINE, "Adding RigidBody {0} to physics space.", node.getObjectId());
         if (node instanceof PhysicsVehicle) {
-            logger.log(Level.FINE, "Adding vehicle constraint {0} to physics space.", Long.toHexString(((PhysicsVehicle) node).getVehicleId()));
-            physicsVehicles.put(((PhysicsVehicle) node).getVehicleId(), (PhysicsVehicle) node);
-            addVehicle(physicsSpaceId, ((PhysicsVehicle) node).getVehicleId());
+            PhysicsVehicle vehicle = (PhysicsVehicle) node;
+            vehicle.createVehicle(this);
+            long vehicleId = vehicle.getVehicleId();
+            assert vehicleId != 0L;
+            logger.log(Level.FINE,
+                    "Adding vehicle constraint {0} to physics space.",
+                    Long.toHexString(vehicleId));
+            physicsVehicles.put(vehicleId, vehicle);
+            addVehicle(physicsSpaceId, vehicleId);
         }
     }
 
