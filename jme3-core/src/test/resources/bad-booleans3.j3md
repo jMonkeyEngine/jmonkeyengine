@@ -1,0 +1,200 @@
+MaterialDef bad-booleans3 {
+
+    MaterialParameters {
+        Texture2D ColorMap
+        Texture2D LightMap
+        Color Color (Color)
+        Boolean VertexColor (UseVertexColor)
+        Float PointSize : 1.0
+        Boolean SeparateTexCoord
+
+        // Texture of the glowing parts of the material
+        Texture2D GlowMap
+        // The glow color of the object
+        Color GlowColor
+
+        // For instancing
+        Boolean UseInstancing
+
+        // For hardware skinning
+        Int NumberOfBones
+        Matrix4Array BoneMatrices
+
+        // For Morph animation
+        FloatArray MorphWeights
+        Int NumberOfMorphTargets
+        Int NumberOfTargetsBuffers
+
+        // Alpha threshold for fragment discarding
+        Float AlphaDiscardThreshold (AlphaTestFallOff)
+
+        //Shadows
+        Int FilterMode
+        Boolean HardwareShadows
+
+        Texture2D ShadowMap0
+        Texture2D ShadowMap1
+        Texture2D ShadowMap2
+        Texture2D ShadowMap3
+        //pointLights
+        Texture2D ShadowMap4
+        Texture2D ShadowMap5
+        
+        Float ShadowIntensity
+        Vector4 Splits
+        Vector2 FadeInfo
+
+        Matrix4 LightViewProjectionMatrix0
+        Matrix4 LightViewProjectionMatrix1
+        Matrix4 LightViewProjectionMatrix2
+        Matrix4 LightViewProjectionMatrix3
+        //pointLight
+        Matrix4 LightViewProjectionMatrix4
+        Matrix4 LightViewProjectionMatrix5
+        Vector3 LightPos
+        Vector3 LightDir
+
+        Float PCFEdge
+
+        Float ShadowMapSize
+
+        Boolean BackfaceShadows: true
+    }
+
+    Technique {
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Misc/Unshaded.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            INSTANCING : UseInstancing
+            SEPARATE_TEXCOORD : SeparateTexCoord
+            HAS_COLORMAP : ColorMap
+            HAS_LIGHTMAP : LightMap
+            HAS_VERTEXCOLOR : VertexColor
+            HAS_POINTSIZE : PointSize
+            HAS_COLOR : Color
+            NUM_BONES : NumberOfBones
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+        }
+    }
+
+    Technique PreNormalPass {
+
+        VertexShader GLSL100 GLSL150 :   Common/MatDefs/SSAO/normal.vert
+        FragmentShader GLSL100 GLSL150 : Common/MatDefs/SSAO/normal.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            NormalMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+        }
+   }
+
+    Technique PreShadow {
+
+        VertexShader GLSL100 GLSL150 :   Common/MatDefs/Shadow/PreShadow.vert
+        FragmentShader GLSL100 GLSL150 : Common/MatDefs/Shadow/PreShadow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            COLOR_MAP : ColorMap
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+        }
+
+        ForcedRenderState {
+            Wireframe true
+            FaceCull Off
+            DepthTest On
+            DepthWrite On
+            PolyOffset 5 3
+            ColorWrite Off
+        }
+
+    }
+
+
+    Technique PostShadow {
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            HARDWARE_SHADOWS : HardwareShadows
+            FILTER_MODE : FilterMode
+            PCFEDGE : PCFEdge
+            DISCARD_ALPHA : AlphaDiscardThreshold           
+            COLOR_MAP : ColorMap
+            SHADOWMAP_SIZE : ShadowMapSize
+            FADE : FadeInfo
+            PSSM : Splits
+            POINTLIGHT : LightViewProjectionMatrix5
+            NUM_BONES : NumberOfBones
+	        INSTANCING : UseInstancing
+	        BACKFACE_SHADOWS: BackfaceShadows
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+        }
+
+        ForcedRenderState {
+            Blend Modulate
+            DepthWrite Off                 
+            PolyOffset -0.1 0
+        }
+    }
+
+    Technique Glow {
+
+        VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL100 GLSL150: Common/MatDefs/Light/Glow.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            NEED_TEXCOORD1
+            HAS_GLOWMAP : GlowMap
+            HAS_GLOWCOLOR : GlowColor
+            NUM_BONES : NumberOfBones
+	        INSTANCING : UseInstancing
+            HAS_POINTSIZE : PointSize
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+        }
+    }
+}
