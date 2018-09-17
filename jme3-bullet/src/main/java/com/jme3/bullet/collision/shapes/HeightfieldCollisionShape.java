@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,36 +45,72 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Uses Bullet Physics Heightfield terrain collision system. This is MUCH faster
- * than using a regular mesh.
- * There are a couple tricks though:
- *	-No rotation or translation is supported.
- *	-The collision bbox must be centered around 0,0,0 with the height above and below the y-axis being
- *	equal on either side. If not, the whole collision box is shifted vertically and things don't collide
- *	as they should.
- * 
+ * A terrain collision shape based on Bullet's btHeightfieldTerrainShape.
+ * <p>
+ * This is much more efficient than a regular mesh, but it has a couple
+ * limitations:
+ * <ul>
+ * <li>No rotation or translation.</li>
+ * <li>The collision bounding box must be centered on (0,0,0) with the height
+ * above and below the X-Z plane being equal on either side. If not, the whole
+ * collision box is shifted vertically and objects won't collide properly.</li>
+ * </ul>
+ *
  * @author Brent Owens
  */
 public class HeightfieldCollisionShape extends CollisionShape {
 
+    /**
+     * number of rows in the heightfield (&gt;1)
+     */
     protected int heightStickWidth;
+    /**
+     * number of columns in the heightfield (&gt;1)
+     */
     protected int heightStickLength;
+    /**
+     * array of heightfield samples
+     */
     protected float[] heightfieldData;
     protected float heightScale;
     protected float minHeight;
     protected float maxHeight;
+    /**
+     * index of the height axis (0&rarr;X, 1&rarr;Y, 2&rarr;Z)
+     */
     protected int upAxis;
     protected boolean flipQuadEdges;
+    /**
+     * buffer for passing height data to Bullet
+     * <p>
+     * A Java reference must persist after createShape() completes, or else the
+     * buffer might get garbaged collected.
+     */    
     protected ByteBuffer bbuf;
 //    protected FloatBuffer fbuf;
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public HeightfieldCollisionShape() {
     }
 
+    /**
+     * Instantiate a new shape for the specified height map.
+     *
+     * @param heightmap (not null, length&ge;4, length a perfect square)
+     */
     public HeightfieldCollisionShape(float[] heightmap) {
         createCollisionHeightfield(heightmap, Vector3f.UNIT_XYZ);
     }
 
+    /**
+     * Instantiate a new shape for the specified height map and scale vector.
+     *
+     * @param heightmap (not null, length&ge;4, length a perfect square)
+     * @param scale (not null, no negative component, unaffected, default=1,1,1)
+     */
     public HeightfieldCollisionShape(float[] heightmap, Vector3f scale) {
         createCollisionHeightfield(heightmap, scale);
     }
@@ -120,6 +156,9 @@ public class HeightfieldCollisionShape extends CollisionShape {
         createShape();
     }
 
+    /**
+     * Instantiate the configured shape in Bullet.
+     */
     protected void createShape() {
         bbuf = BufferUtils.createByteBuffer(heightfieldData.length * 4); 
 //        fbuf = bbuf.asFloatBuffer();//FloatBuffer.wrap(heightfieldData);
@@ -138,11 +177,22 @@ public class HeightfieldCollisionShape extends CollisionShape {
 
     private native long createShape(int heightStickWidth, int heightStickLength, ByteBuffer heightfieldData, float heightScale, float minHeight, float maxHeight, int upAxis, boolean flipQuadEdges);
 
+    /**
+     * Does nothing.
+     * 
+     * @return null
+     */
     public Mesh createJmeMesh() {
         //TODO return Converter.convert(bulletMesh);
         return null;
     }
 
+    /**
+     * Serialize this shape, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
@@ -156,6 +206,12 @@ public class HeightfieldCollisionShape extends CollisionShape {
         capsule.write(flipQuadEdges, "flipQuadEdges", false);
     }
 
+    /**
+     * De-serialize this shape, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);

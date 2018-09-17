@@ -41,6 +41,11 @@ public class PhysicsCollisionEventFactory {
 
     private ConcurrentLinkedQueue<PhysicsCollisionEvent> eventBuffer = new ConcurrentLinkedQueue<PhysicsCollisionEvent>();
 
+    /**
+     * Obtain an unused event.
+     * 
+     * @return an event (not null)
+     */
     public PhysicsCollisionEvent getEvent(int type, PhysicsCollisionObject source, PhysicsCollisionObject nodeB, long manifoldPointObjectId) {
         PhysicsCollisionEvent event = eventBuffer.poll();
         if (event == null) {
@@ -51,6 +56,11 @@ public class PhysicsCollisionEventFactory {
         return event;
     }
 
+    /**
+     * Recycle the specified event.
+     * 
+     * @param event 
+     */
     public void recycle(PhysicsCollisionEvent event) {
         event.clean();
         eventBuffer.add(event);

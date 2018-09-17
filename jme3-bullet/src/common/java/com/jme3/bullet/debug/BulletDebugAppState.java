@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,31 +55,84 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * An app state to manage a debug visualization of a physics space.
+ * <p>
+ * This class is shared between JBullet and Native Bullet.
  *
  * @author normenhansen
  */
 public class BulletDebugAppState extends AbstractAppState {
 
+    /**
+     * message logger for this class
+     */
     protected static final Logger logger = Logger.getLogger(BulletDebugAppState.class.getName());
+    /**
+     * limit which objects are visualized, or null to visualize all objects
+     */
     protected DebugAppStateFilter filter;
     protected Application app;
     protected AssetManager assetManager;
+    /**
+     * physics space to visualize (not null)
+     */
     protected final PhysicsSpace space;
+    /**
+     * scene-graph node to parent the geometries
+     */
     protected final Node physicsDebugRootNode = new Node("Physics Debug Root Node");
+    /**
+     * view port in which to render (not null)
+     */
     protected ViewPort viewPort;
     protected RenderManager rm;
+    /**
+     * material for inactive rigid bodies
+     */
     public Material DEBUG_BLUE;
     public Material DEBUG_RED;
+    /**
+     * material for joints
+     */
     public Material DEBUG_GREEN;
+    /**
+     * material for ghosts
+     */
     public Material DEBUG_YELLOW;
+    /**
+     * material for vehicles and active rigid bodies
+     */
     public Material DEBUG_MAGENTA;
+    /**
+     * material for physics characters
+     */
     public Material DEBUG_PINK;
+    /**
+     * map rigid bodies to visualizations
+     */
     protected HashMap<PhysicsRigidBody, Spatial> bodies = new HashMap<PhysicsRigidBody, Spatial>();
+    /**
+     * map joints to visualizations
+     */
     protected HashMap<PhysicsJoint, Spatial> joints = new HashMap<PhysicsJoint, Spatial>();
+    /**
+     * map ghosts to visualizations
+     */
     protected HashMap<PhysicsGhostObject, Spatial> ghosts = new HashMap<PhysicsGhostObject, Spatial>();
+    /**
+     * map physics characters to visualizations
+     */
     protected HashMap<PhysicsCharacter, Spatial> characters = new HashMap<PhysicsCharacter, Spatial>();
+    /**
+     * map vehicles to visualizations
+     */
     protected HashMap<PhysicsVehicle, Spatial> vehicles = new HashMap<PhysicsVehicle, Spatial>();
-
+    /**
+     * Instantiate an app state to visualize the specified space. This constructor should be invoked only by
+     * BulletAppState.
+     *
+     * @param space physics space to visualize (not null, alias created)
+     */
     public BulletDebugAppState(PhysicsSpace space) {
         this.space = space;
     }
@@ -88,10 +141,22 @@ public class BulletDebugAppState extends AbstractAppState {
         return new DebugTools(assetManager);
     }
 
+    /**
+     * Alter which objects are visualized.
+     *
+     * @param filter the desired filter, or or null to visualize all objects
+     */
     public void setFilter(DebugAppStateFilter filter) {
         this.filter = filter;
     }
     
+    /**
+     * Initialize this state prior to its 1st update. Should be invoked only by
+     * a subclass or by the AppStateManager.
+     *
+     * @param stateManager the manager for this state (not null)
+     * @param app the application which owns this state (not null)
+     */
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
@@ -105,12 +170,25 @@ public class BulletDebugAppState extends AbstractAppState {
         viewPort.attachScene(physicsDebugRootNode);
     }
 
+    /**
+     * Transition this state from terminating to detached. Should be invoked
+     * only by a subclass or by the AppStateManager. Invoked once for each time
+     * {@link #initialize(com.jme3.app.state.AppStateManager, com.jme3.app.Application)}
+     * is invoked.
+     */
     @Override
     public void cleanup() {
         rm.removeMainView(viewPort);
         super.cleanup();
     }
 
+    /**
+     * Update this state prior to rendering. Should be invoked only by a
+     * subclass or by the AppStateManager. Invoked once per frame, provided the
+     * state is attached and enabled.
+     *
+     * @param tpf the time interval between frames (in seconds, &ge;0)
+     */
     @Override
     public void update(float tpf) {
         super.update(tpf);
@@ -125,6 +203,13 @@ public class BulletDebugAppState extends AbstractAppState {
         physicsDebugRootNode.updateGeometricState();
     }
 
+    /**
+     * Render this state. Should be invoked only by a subclass or by the
+     * AppStateManager. Invoked once per frame, provided the state is attached
+     * and enabled.
+     *
+     * @param rm the render manager (not null)
+     */
     @Override
     public void render(RenderManager rm) {
         super.render(rm);
@@ -133,6 +218,11 @@ public class BulletDebugAppState extends AbstractAppState {
         }
     }
 
+    /**
+     * Initialize the materials.
+     *
+     * @param app the application which owns this state (not null)
+     */
     private void setupMaterials(Application app) {
         AssetManager manager = app.getAssetManager();
         DEBUG_BLUE = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -311,14 +401,14 @@ public class BulletDebugAppState extends AbstractAppState {
     }
 
     /**
-     * Interface that allows filtering out objects from the debug display
+     * Interface to restrict which physics objects are visualized.
      */
     public static interface DebugAppStateFilter {
 
         /**
-         * Queries an object to be displayed
+         * Test whether the specified physics object should be displayed.
          *
-         * @param obj The object to be displayed
+         * @param obj the joint or collision object to test (unaffected)
          * @return return true if the object should be displayed, false if not
          */
         public boolean displayObject(Object obj);

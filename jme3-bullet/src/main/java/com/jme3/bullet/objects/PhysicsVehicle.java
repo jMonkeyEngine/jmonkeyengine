@@ -46,34 +46,68 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * <p>PhysicsVehicleNode - Special PhysicsNode that implements vehicle functions</p>
+ * A collision object for simplified vehicle simulation based on Bullet's
+ * btRaycastVehicle.
  * <p>
- * <i>From bullet manual:</i><br>
- * For most vehicle simulations, it is recommended to use the simplified Bullet
- * vehicle model as provided in btRaycastVehicle. Instead of simulation each wheel
- * and chassis as separate rigid bodies, connected by constraints, it uses a simplified model.
- * This simplified model has many benefits, and is widely used in commercial driving games.<br>
- * The entire vehicle is represented as a single rigidbody, the chassis.
- * The collision detection of the wheels is approximated by ray casts,
- * and the tire friction is a basic anisotropic friction model.
- * </p>
+ * <i>From Bullet manual:</i><br>
+ * For arcade style vehicle simulations, it is recommended to use the simplified
+ * Bullet vehicle model as provided in btRaycastVehicle. Instead of simulation
+ * each wheel and chassis as separate rigid bodies, connected by constraints, it
+ * uses a simplified model. This simplified model has many benefits, and is
+ * widely used in commercial driving games.
+ * <p>
+ * The entire vehicle is represented as a single rigidbody, the chassis. The
+ * collision detection of the wheels is approximated by ray casts, and the tire
+ * friction is a basic anisotropic friction model.
+ *
  * @author normenhansen
  */
 public class PhysicsVehicle extends PhysicsRigidBody {
 
+    /**
+     * Unique identifier of the btRaycastVehicle. The constructor sets this to a
+     * non-zero value.
+     */
     protected long vehicleId = 0;
+    /**
+     * Unique identifier of the ray caster.
+     */
     protected long rayCasterId = 0;
+    /**
+     * tuning parameters
+     */
     protected VehicleTuning tuning = new VehicleTuning();
+    /**
+     * list of wheels
+     */
     protected ArrayList<VehicleWheel> wheels = new ArrayList<VehicleWheel>();
+    /**
+     * physics space where this vehicle is added, or null if none
+     */
     protected PhysicsSpace physicsSpace;
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public PhysicsVehicle() {
     }
 
+    /**
+     * Instantiate a vehicle with the specified collision shape and mass=1.
+     *
+     * @param shape the desired shape (not null, alias created)
+     */
     public PhysicsVehicle(CollisionShape shape) {
         super(shape);
     }
 
+    /**
+     * Instantiate a vehicle with the specified collision shape and mass.
+     *
+     * @param shape the desired shape (not null, alias created)
+     * @param mass (&gt;0)
+     */
     public PhysicsVehicle(CollisionShape shape, float mass) {
         super(shape, mass);
     }
@@ -111,7 +145,10 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     }
 
     /**
-     * Used internally, creates the actual vehicle constraint when vehicle is added to phyicsspace
+     * Used internally, creates the actual vehicle constraint when vehicle is
+     * added to physics space.
+     *
+     * @param space which physics space
      */
     public void createVehicle(PhysicsSpace space) {
         physicsSpace = space;
@@ -145,14 +182,20 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     private native int addWheel(long objectId, Vector3f location, Vector3f direction, Vector3f axle, float restLength, float radius, VehicleTuning tuning, boolean frontWheel);
 
     /**
-     * Add a wheel to this vehicle
-     * @param connectionPoint The starting point of the ray, where the suspension connects to the chassis (chassis space)
-     * @param direction the direction of the wheel (should be -Y / 0,-1,0 for a normal car)
-     * @param axle The axis of the wheel, pointing right in vehicle direction (should be -X / -1,0,0 for a normal car)
-     * @param suspensionRestLength The current length of the suspension (metres)
-     * @param wheelRadius the wheel radius
-     * @param isFrontWheel sets if this wheel is a front wheel (steering)
-     * @return the PhysicsVehicleWheel object to get/set infos on the wheel
+     * Add a wheel to this vehicle.
+     *
+     * @param connectionPoint the location where the suspension connects to the
+     * chassis (in chassis coordinates, not null, unaffected)
+     * @param direction the suspension direction (in chassis coordinates, not
+     * null, unaffected, typically down/0,-1,0)
+     * @param axle the axis direction (in chassis coordinates, not null,
+     * unaffected, typically -1,0,0)
+     * @param suspensionRestLength the rest length of the suspension (in
+     * physics-space units)
+     * @param wheelRadius the wheel radius (in physics-space units, &gt;0)
+     * @param isFrontWheel true&rarr;front (steering) wheel,
+     * false&rarr;non-front wheel
+     * @return a new VehicleWheel for access (not null)
      */
     public VehicleWheel addWheel(Vector3f connectionPoint, Vector3f direction, Vector3f axle, float suspensionRestLength, float wheelRadius, boolean isFrontWheel) {
         return addWheel(null, connectionPoint, direction, axle, suspensionRestLength, wheelRadius, isFrontWheel);
@@ -160,14 +203,20 @@ public class PhysicsVehicle extends PhysicsRigidBody {
 
     /**
      * Add a wheel to this vehicle
-     * @param spat the wheel Geometry
-     * @param connectionPoint The starting point of the ray, where the suspension connects to the chassis (chassis space)
-     * @param direction the direction of the wheel (should be -Y / 0,-1,0 for a normal car)
-     * @param axle The axis of the wheel, pointing right in vehicle direction (should be -X / -1,0,0 for a normal car)
-     * @param suspensionRestLength The current length of the suspension (metres)
-     * @param wheelRadius the wheel radius
-     * @param isFrontWheel sets if this wheel is a front wheel (steering)
-     * @return the PhysicsVehicleWheel object to get/set infos on the wheel
+     *
+     * @param spat the associated spatial, or null if none
+     * @param connectionPoint the location where the suspension connects to the
+     * chassis (in chassis coordinates, not null, unaffected)
+     * @param direction the suspension direction (in chassis coordinates, not
+     * null, unaffected, typically down/0,-1,0)
+     * @param axle the axis direction (in chassis coordinates, not null,
+     * unaffected, typically -1,0,0)
+     * @param suspensionRestLength the rest length of the suspension (in
+     * physics-space units)
+     * @param wheelRadius the wheel radius (in physics-space units, &gt;0)
+     * @param isFrontWheel true&rarr;front (steering) wheel,
+     * false&rarr;non-front wheel
+     * @return a new VehicleWheel for access (not null)
      */
     public VehicleWheel addWheel(Spatial spat, Vector3f connectionPoint, Vector3f direction, Vector3f axle, float suspensionRestLength, float wheelRadius, boolean isFrontWheel) {
         VehicleWheel wheel = null;
@@ -190,8 +239,9 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     }
 
     /**
-     * This rebuilds the vehicle as there is no way in bullet to remove a wheel.
-     * @param wheel
+     * Remove a wheel.
+     *
+     * @param wheel the index of the wheel to remove (&ge;0)
      */
     public void removeWheel(int wheel) {
         wheels.remove(wheel);
@@ -200,195 +250,276 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     }
 
     /**
-     * You can get access to the single wheels via this method.
-     * @param wheel the wheel index
-     * @return the WheelInfo of the selected wheel
+     * Access the indexed wheel of this vehicle.
+     *
+     * @param wheel the index of the wheel to access (&ge;0, &lt;count)
+     * @return the pre-existing instance
      */
     public VehicleWheel getWheel(int wheel) {
         return wheels.get(wheel);
     }
 
+    /**
+     * Read the number of wheels on this vehicle.
+     *
+     * @return count (&ge;0)
+     */
     public int getNumWheels() {
         return wheels.size();
     }
 
     /**
-     * @return the frictionSlip
+     * Read the initial friction for new wheels.
+     *
+     * @return the coefficient of friction between tyre and ground
+     * (0.8&rarr;realistic car, 10000&rarr;kart racer)
      */
     public float getFrictionSlip() {
         return tuning.frictionSlip;
     }
 
     /**
-     * Use before adding wheels, this is the default used when adding wheels.
-     * After adding the wheel, use direct wheel access.<br>
-     * The coefficient of friction between the tyre and the ground.
-     * Should be about 0.8 for realistic cars, but can increased for better handling.
-     * Set large (10000.0) for kart racers
-     * @param frictionSlip the frictionSlip to set
+     * Alter the initial friction for new wheels. Effective only before adding
+     * wheels. After adding a wheel, use {@link #setFrictionSlip(int, float)}.
+     * <p>
+     * For better handling, increase the friction.
+     *
+     * @param frictionSlip the desired coefficient of friction between tyre and
+     * ground (0.8&rarr;realistic car, 10000&rarr;kart racer, default=10.5)
      */
     public void setFrictionSlip(float frictionSlip) {
         tuning.frictionSlip = frictionSlip;
     }
 
     /**
-     * The coefficient of friction between the tyre and the ground.
-     * Should be about 0.8 for realistic cars, but can increased for better handling.
-     * Set large (10000.0) for kart racers
-     * @param wheel
-     * @param frictionSlip
+     * Alter the friction of the indexed wheel.
+     * <p>
+     * For better handling, increase the friction.
+     *
+     * @param wheel the index of the wheel to modify (&ge;0)
+     * @param frictionSlip the desired coefficient of friction between tyre and
+     * ground (0.8&rarr;realistic car, 10000&rarr;kart racer)
      */
     public void setFrictionSlip(int wheel, float frictionSlip) {
         wheels.get(wheel).setFrictionSlip(frictionSlip);
     }
 
     /**
-     * Reduces the rolling torque applied from the wheels that cause the vehicle to roll over.
-     * This is a bit of a hack, but it's quite effective. 0.0 = no roll, 1.0 = physical behaviour.
-     * If m_frictionSlip is too high, you'll need to reduce this to stop the vehicle rolling over.
-     * You should also try lowering the vehicle's centre of mass
+     * Alter the roll influence of the indexed wheel.
+     * <p>
+     * The roll-influence factor reduces (or magnifies) any torque contributed
+     * by the wheel that would tend to cause the vehicle to roll over. This is a
+     * bit of a hack, but it's quite effective.
+     * <p>
+     * If the friction between the tyres and the ground is too high, you may
+     * reduce this factor to prevent the vehicle from rolling over. You should
+     * also try lowering the vehicle's center of mass.
+     *
+     * @param wheel the index of the wheel to modify (&ge;0)
+     * @param rollInfluence the desired roll-influence factor (0&rarr;no roll
+     * torque, 1&rarr;realistic behavior, default=1)
      */
     public void setRollInfluence(int wheel, float rollInfluence) {
         wheels.get(wheel).setRollInfluence(rollInfluence);
     }
 
     /**
-     * @return the maxSuspensionTravelCm
+     * Read the initial maximum suspension travel distance for new wheels.
+     *
+     * @return the maximum distance the suspension can be compressed (in
+     * centimeters)
      */
     public float getMaxSuspensionTravelCm() {
         return tuning.maxSuspensionTravelCm;
     }
 
     /**
-     * Use before adding wheels, this is the default used when adding wheels.
-     * After adding the wheel, use direct wheel access.<br>
-     * The maximum distance the suspension can be compressed (centimetres)
-     * @param maxSuspensionTravelCm the maxSuspensionTravelCm to set
+     * Alter the initial maximum suspension travel distance for new wheels.
+     * Effective only before adding wheels. After adding a wheel, use
+     * {@link #setMaxSuspensionTravelCm(int, float)}.
+     *
+     * @param maxSuspensionTravelCm the desired maximum distance the suspension
+     * can be compressed (in centimeters, default=500)
      */
     public void setMaxSuspensionTravelCm(float maxSuspensionTravelCm) {
         tuning.maxSuspensionTravelCm = maxSuspensionTravelCm;
     }
 
     /**
-     * The maximum distance the suspension can be compressed (centimetres)
-     * @param wheel
-     * @param maxSuspensionTravelCm
+     * Alter the maximum suspension travel distance for the indexed wheel.
+     *
+     * @param wheel the index of the wheel to modify (&ge;0)
+     * @param maxSuspensionTravelCm the desired maximum distance the suspension
+     * can be compressed (in centimeters)
      */
     public void setMaxSuspensionTravelCm(int wheel, float maxSuspensionTravelCm) {
         wheels.get(wheel).setMaxSuspensionTravelCm(maxSuspensionTravelCm);
     }
 
+    /**
+     * Read the initial maximum suspension force for new wheels.
+     *
+     * @return the maximum force per wheel
+     */
     public float getMaxSuspensionForce() {
         return tuning.maxSuspensionForce;
     }
 
     /**
-     * This value caps the maximum suspension force, raise this above the default 6000 if your suspension cannot
-     * handle the weight of your vehicle.
-     * @param maxSuspensionForce
+     * Alter the initial maximum suspension force for new wheels. Effective only
+     * before adding wheels. After adding a wheel, use
+     * {@link #setMaxSuspensionForce(int, float)}.
+     * <p>
+     * If the suspension cannot handle the vehicle's weight, increase this
+     * limit.
+     *
+     * @param maxSuspensionForce the desired maximum force per wheel
+     * (default=6000)
      */
     public void setMaxSuspensionForce(float maxSuspensionForce) {
         tuning.maxSuspensionForce = maxSuspensionForce;
     }
 
     /**
-     * This value caps the maximum suspension force, raise this above the default 6000 if your suspension cannot
-     * handle the weight of your vehicle.
-     * @param wheel
-     * @param maxSuspensionForce
+     * Alter the maximum suspension force for the specified wheel.
+     * <p>
+     * If the suspension cannot handle the vehicle's weight, increase this
+     * limit.
+     *
+     * @param wheel the index of the wheel to modify (&ge;0)
+     * @param maxSuspensionForce the desired maximum force per wheel
+     * (default=6000)
      */
     public void setMaxSuspensionForce(int wheel, float maxSuspensionForce) {
         wheels.get(wheel).setMaxSuspensionForce(maxSuspensionForce);
     }
 
     /**
-     * @return the suspensionCompression
+     * Read the initial damping (when the suspension is compressed) for new
+     * wheels.
+     *
+     * @return the damping coefficient
      */
     public float getSuspensionCompression() {
         return tuning.suspensionCompression;
     }
 
     /**
-     * Use before adding wheels, this is the default used when adding wheels.
-     * After adding the wheel, use direct wheel access.<br>
-     * The damping coefficient for when the suspension is compressed.
-     * Set to k * 2.0 * FastMath.sqrt(m_suspensionStiffness) so k is proportional to critical damping.<br>
-     * k = 0.0 undamped & bouncy, k = 1.0 critical damping<br>
-     * 0.1 to 0.3 are good values
-     * @param suspensionCompression the suspensionCompression to set
+     * Alter the initial damping (when the suspension is compressed) for new
+     * wheels. Effective only before adding wheels. After adding a wheel, use
+     * {@link #setSuspensionCompression(int, float)}.
+     * <p>
+     * Set to k * 2 * FastMath.sqrt(m_suspensionStiffness) where k is the
+     * damping ratio:
+     * <p>
+     * k = 0.0 undamped and bouncy, k = 1.0 critical damping, k between 0.1 and
+     * 0.3 are good values
+     *
+     * @param suspensionCompression the desired damping coefficient
+     * (default=0.83)
      */
     public void setSuspensionCompression(float suspensionCompression) {
         tuning.suspensionCompression = suspensionCompression;
     }
 
     /**
-     * The damping coefficient for when the suspension is compressed.
-     * Set to k * 2.0 * FastMath.sqrt(m_suspensionStiffness) so k is proportional to critical damping.<br>
-     * k = 0.0 undamped & bouncy, k = 1.0 critical damping<br>
-     * 0.1 to 0.3 are good values
-     * @param wheel
-     * @param suspensionCompression
+     * Alter the damping (when the suspension is compressed) for the indexed
+     * wheel.
+     * <p>
+     * Set to k * 2 * FastMath.sqrt(m_suspensionStiffness) where k is the
+     * damping ratio:
+     * <p>
+     * k = 0.0 undamped and bouncy, k = 1.0 critical damping, k between 0.1 and
+     * 0.3 are good values
+     *
+     * @param wheel the index of the wheel to modify (&ge;0)
+     * @param suspensionCompression the desired damping coefficient
      */
     public void setSuspensionCompression(int wheel, float suspensionCompression) {
         wheels.get(wheel).setWheelsDampingCompression(suspensionCompression);
     }
 
     /**
-     * @return the suspensionDamping
+     * Read the initial damping (when the suspension is expanded) for new
+     * wheels.
+     *
+     * @return the damping coefficient
      */
     public float getSuspensionDamping() {
         return tuning.suspensionDamping;
     }
 
     /**
-     * Use before adding wheels, this is the default used when adding wheels.
-     * After adding the wheel, use direct wheel access.<br>
-     * The damping coefficient for when the suspension is expanding.
-     * See the comments for setSuspensionCompression for how to set k.
-     * @param suspensionDamping the suspensionDamping to set
+     * Alter the initial damping (when the suspension is expanded) for new
+     * wheels. Effective only before adding wheels. After adding a wheel, use
+     * {@link #setSuspensionCompression(int, float)}.
+     * <p>
+     * Set to k * 2 * FastMath.sqrt(m_suspensionStiffness) where k is the
+     * damping ratio:
+     * <p>
+     * k = 0.0 undamped and bouncy, k = 1.0 critical damping, k between 0.1 and
+     * 0.3 are good values
+     *
+     * @param suspensionDamping the desired damping coefficient (default=0.88)
      */
     public void setSuspensionDamping(float suspensionDamping) {
         tuning.suspensionDamping = suspensionDamping;
     }
 
     /**
-     * The damping coefficient for when the suspension is expanding.
-     * See the comments for setSuspensionCompression for how to set k.
-     * @param wheel
-     * @param suspensionDamping
+     * Alter the damping (when the suspension is expanded) for the indexed
+     * wheel.
+     * <p>
+     * Set to k * 2 * FastMath.sqrt(m_suspensionStiffness) where k is the
+     * damping ratio:
+     * <p>
+     * k = 0.0 undamped and bouncy, k = 1.0 critical damping, k between 0.1 and
+     * 0.3 are good values
+     *
+     * @param wheel the index of the wheel to modify (&ge;0)
+     * @param suspensionDamping the desired damping coefficient
      */
     public void setSuspensionDamping(int wheel, float suspensionDamping) {
         wheels.get(wheel).setWheelsDampingRelaxation(suspensionDamping);
     }
 
     /**
-     * @return the suspensionStiffness
+     * Read the initial suspension stiffness for new wheels.
+     *
+     * @return the stiffness constant (10&rarr;off-road buggy, 50&rarr;sports
+     * car, 200&rarr;Formula-1 race car)
      */
     public float getSuspensionStiffness() {
         return tuning.suspensionStiffness;
     }
 
     /**
-     * Use before adding wheels, this is the default used when adding wheels.
-     * After adding the wheel, use direct wheel access.<br>
-     * The stiffness constant for the suspension.  10.0 - Offroad buggy, 50.0 - Sports car, 200.0 - F1 Car
-     * @param suspensionStiffness 
+     * Alter the initial suspension stiffness for new wheels. Effective only
+     * before adding wheels. After adding a wheel, use
+     * {@link #setSuspensionStiffness(int, float)}.
+     *
+     * @param suspensionStiffness the desired stiffness coefficient
+     * (10&rarr;off-road buggy, 50&rarr;sports car, 200&rarr;Formula-1 race car,
+     * default=5.88)
      */
     public void setSuspensionStiffness(float suspensionStiffness) {
         tuning.suspensionStiffness = suspensionStiffness;
     }
 
     /**
-     * The stiffness constant for the suspension.  10.0 - Offroad buggy, 50.0 - Sports car, 200.0 - F1 Car
-     * @param wheel
-     * @param suspensionStiffness
+     * Alter the suspension stiffness of the indexed wheel.
+     *
+     * @param wheel the index of the wheel to modify (&ge;0)
+     * @param suspensionStiffness the desired stiffness coefficient
+     * (10&rarr;off-road buggy, 50&rarr;sports car, 200&rarr;Formula-1 race car,
+     * default=5.88)
      */
     public void setSuspensionStiffness(int wheel, float suspensionStiffness) {
         wheels.get(wheel).setSuspensionStiffness(suspensionStiffness);
     }
 
     /**
-     * Reset the suspension
+     * Reset this vehicle's suspension.
      */
     public void resetSuspension() {
         resetSuspension(vehicleId);
@@ -397,8 +528,9 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     private native void resetSuspension(long vehicleId);
 
     /**
-     * Apply the given engine force to all wheels, works continuously
-     * @param force the force
+     * Apply the specified engine force to all wheels. Works continuously.
+     *
+     * @param force the desired amount of force
      */
     public void accelerate(float force) {
         for (int i = 0; i < wheels.size(); i++) {
@@ -407,9 +539,10 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     }
 
     /**
-     * Apply the given engine force, works continuously
-     * @param wheel the wheel to apply the force on
-     * @param force the force
+     * Apply the given engine force to the indexed wheel. Works continuously.
+     *
+     * @param wheel the index of the wheel to apply the force to (&ge;0)
+     * @param force the desired amount of force
      */
     public void accelerate(int wheel, float force) {
         applyEngineForce(vehicleId, wheel, force);
@@ -419,8 +552,9 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     private native void applyEngineForce(long vehicleId, int wheel, float force);
 
     /**
-     * Set the given steering value to all front wheels (0 = forward)
-     * @param value the steering angle of the front wheels (Pi = 360deg)
+     * Alter the steering angle of all front wheels.
+     *
+     * @param value the desired steering angle (in radians, 0=straight)
      */
     public void steer(float value) {
         for (int i = 0; i < wheels.size(); i++) {
@@ -431,9 +565,10 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     }
 
     /**
-     * Set the given steering value to the given wheel (0 = forward)
-     * @param wheel the wheel to set the steering on
-     * @param value the steering angle of the front wheels (Pi = 360deg)
+     * Alter the steering angle of the indexed wheel.
+     *
+     * @param wheel the index of the wheel to steer (&ge;0)
+     * @param value the desired steering angle (in radians, 0=straight)
      */
     public void steer(int wheel, float value) {
         steer(vehicleId, wheel, value);
@@ -442,8 +577,9 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     private native void steer(long vehicleId, int wheel, float value);
 
     /**
-     * Apply the given brake force to all wheels, works continuously
-     * @param force the force
+     * Apply the given brake force to all wheels. Works continuously.
+     *
+     * @param force the desired amount of force
      */
     public void brake(float force) {
         for (int i = 0; i < wheels.size(); i++) {
@@ -452,9 +588,10 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     }
 
     /**
-     * Apply the given brake force, works continuously
-     * @param wheel the wheel to apply the force on
-     * @param force the force
+     * Apply the given brake force to the indexed wheel. Works continuously.
+     *
+     * @param wheel the index of the wheel to apply the force to (&ge;0)
+     * @param force the desired amount of force
      */
     public void brake(int wheel, float force) {
         brake(vehicleId, wheel, force);
@@ -463,8 +600,9 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     private native void brake(long vehicleId, int wheel, float force);
 
     /**
-     * Get the current speed of the vehicle in km/h
-     * @return
+     * Read the vehicle's speed in km/h.
+     *
+     * @return speed (in kilometers per hour)
      */
     public float getCurrentVehicleSpeedKmHour() {
         return getCurrentVehicleSpeedKmHour(vehicleId);
@@ -473,9 +611,11 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     private native float getCurrentVehicleSpeedKmHour(long vehicleId);
 
     /**
-     * Get the current forward vector of the vehicle in world coordinates
-     * @param vector
-     * @return
+     * Copy the vehicle's forward direction.
+     *
+     * @param vector storage for the result (modified if not null)
+     * @return a direction vector (in physics-space coordinates, either the
+     * provided storage or a new vector)
      */
     public Vector3f getForwardVector(Vector3f vector) {
         if (vector == null) {
@@ -489,11 +629,19 @@ public class PhysicsVehicle extends PhysicsRigidBody {
 
     /**
      * used internally
+     *
+     * @return the unique identifier
      */
     public long getVehicleId() {
         return vehicleId;
     }
 
+    /**
+     * De-serialize this vehicle, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule capsule = im.getCapsule(this);
@@ -509,6 +657,12 @@ public class PhysicsVehicle extends PhysicsRigidBody {
         super.read(im);
     }
 
+    /**
+     * Serialize this vehicle, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule capsule = ex.getCapsule(this);
@@ -522,6 +676,12 @@ public class PhysicsVehicle extends PhysicsRigidBody {
         super.write(ex);
     }
 
+    /**
+     * Finalize this vehicle just before it is destroyed. Should be invoked only
+     * by a subclass or by the garbage collector.
+     *
+     * @throws Throwable ignored by the garbage collector
+     */
     @Override
     protected void finalize() throws Throwable {
         super.finalize();

@@ -56,15 +56,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This is intended to be a replacement for the internal bullet character class.
- * A RigidBody with cylinder collision shape is used and its velocity is set
- * continuously, a ray test is used to check if the character is on the ground.
- *
- * The character keeps his own local coordinate system which adapts based on the
- * gravity working on the character so the character will always stand upright.
- *
- * Forces in the local x/z plane are dampened while those in the local y
- * direction are applied fully (e.g. jumping, falling).
+ * This class is intended to replace the CharacterControl class.
+ * <p>
+ * A rigid body with cylinder collision shape is used and its velocity is set
+ * continuously. A ray test is used to test whether the character is on the
+ * ground.
+ * <p>
+ * The character keeps their own local coordinate system which adapts based on
+ * the gravity working on the character so they will always stand upright.
+ * <p>
+ * Motion in the local X-Z plane is damped.
+ * <p>
+ * This class is shared between JBullet and Native Bullet.
  *
  * @author normenhansen
  */
@@ -74,10 +77,16 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     protected PhysicsRigidBody rigidBody;
     protected float radius;
     protected float height;
+    /**
+     * mass of this character (&gt;0)
+     */
     protected float mass;
+    /**
+     * relative height when ducked (1=full height)
+     */
     protected float duckedFactor = 0.6f;
     /**
-     * Local up direction, derived from gravity.
+     * local up direction, derived from gravity
      */
     protected final Vector3f localUp = new Vector3f(0, 1, 0);
     /**
@@ -94,22 +103,27 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
      */
     protected final Quaternion localForwardRotation = new Quaternion(Quaternion.DIRECTION_Z);
     /**
-     * Is a z-forward vector based on the view direction and the current local
-     * x/z plane.
+     * a Z-forward vector based on the view direction and the local X-Z plane.
      */
     protected final Vector3f viewDirection = new Vector3f(0, 0, 1);
     /**
-     * Stores final spatial location, corresponds to RigidBody location.
+     * spatial location, corresponds to RigidBody location.
      */
     protected final Vector3f location = new Vector3f();
     /**
-     * Stores final spatial rotation, is a z-forward rotation based on the view
-     * direction and the current local x/z plane. See also rotatedViewDirection.
+     * spatial rotation, a Z-forward rotation based on the view direction and
+     * local X-Z plane.
+     *
+     * @see #rotatedViewDirection
      */
     protected final Quaternion rotation = new Quaternion(Quaternion.DIRECTION_Z);
     protected final Vector3f rotatedViewDirection = new Vector3f(0, 0, 1);
     protected final Vector3f walkDirection = new Vector3f();
     protected final Vector3f jumpForce;
+    /**
+     * X-Z motion damping factor (0&rarr;no damping, 1=no external forces,
+     * default=0.9)
+     */
     protected float physicsDamping = 0.9f;
     protected final Vector3f scale = new Vector3f(1, 1, 1);
     protected final Vector3f velocity = new Vector3f();
@@ -119,20 +133,23 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     protected boolean wantToUnDuck = false;
 
     /**
-     * Only used for serialization, do not use this constructor.
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
      */
     public BetterCharacterControl() {
         jumpForce = new Vector3f();
     }
 
     /**
-     * Creates a new character with the given properties. Note that to avoid
-     * issues the final height when ducking should be larger than 2x radius. The
-     * jumpForce will be set to an upwards force of 5x mass.
+     * Instantiate an enabled control with the specified properties.
+     * <p>
+     * The final height when ducking must be larger than 2x radius. The
+     * jumpForce will be set to an upward force of 5x mass.
      *
-     * @param radius
-     * @param height
-     * @param mass
+     * @param radius the radius of the character's collision shape (&gt;0)
+     * @param height the height of the character's collision shape
+     * (&gt;2*radius)
+     * @param mass the character's mass (&ge;0)
      */
     public BetterCharacterControl(float radius, float height, float mass) {
         this.radius = radius;
@@ -143,6 +160,13 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         rigidBody.setAngularFactor(0);
     }
 
+    /**
+     * Update this control. Invoked once per frame during the logical-state
+     * update, provided the control is added to a scene graph. Do not invoke
+     * directly from user code.
+     *
+     * @param tpf the time interval between frames (in seconds, &ge;0)
+     */
     @Override
     public void update(float tpf) {
         super.update(tpf);
@@ -151,16 +175,24 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         applyPhysicsTransform(location, rotation);
     }
 
+    /**
+     * Render this control. Invoked once per view port per frame, provided the
+     * control is added to a scene. Should be invoked only by a subclass or by
+     * the RenderManager.
+     *
+     * @param rm the render manager (not null)
+     * @param vp the view port to render (not null)
+     */
     @Override
     public void render(RenderManager rm, ViewPort vp) {
         super.render(rm, vp);
     }
 
     /**
-     * Used internally, don't call manually
+     * Callback from Bullet, invoked just before the physics is stepped.
      *
-     * @param space
-     * @param tpf
+     * @param space the space that is about to be stepped (not null)
+     * @param tpf the time per physics step (in seconds, &ge;0)
      */
     public void prePhysicsTick(PhysicsSpace space, float tpf) {
         checkOnGround();
@@ -172,8 +204,8 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         TempVars vars = TempVars.get();
 
         Vector3f currentVelocity = vars.vect2.set(velocity);
-        
-        // dampen existing x/z forces
+
+        // Attenuate any existing X-Z motion.
         float existingLeftVelocity = velocity.dot(localLeft);
         float existingForwardVelocity = velocity.dot(localForward);
         Vector3f counter = vars.vect1;
@@ -208,20 +240,20 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
-     * Used internally, don't call manually
+     * Callback from Bullet, invoked just after the physics has been stepped.
      *
-     * @param space
-     * @param tpf
+     * @param space the space that was just stepped (not null)
+     * @param tpf the time per physics step (in seconds, &ge;0)
      */
     public void physicsTick(PhysicsSpace space, float tpf) {
         rigidBody.getLinearVelocity(velocity);
     }
 
     /**
-     * Move the character somewhere. Note the character also takes the location
-     * of any spatial its being attached to in the moment it is attached.
+     * Move the character somewhere. Note the character also warps to the
+     * location of the spatial when the control is added.
      *
-     * @param vec The new character location.
+     * @param vec the desired character location (not null)
      */
     public void warp(Vector3f vec) {
         setPhysicsLocation(vec);
@@ -239,21 +271,20 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
-     * Set the jump force as a Vector3f. The jump force is local to the
-     * characters coordinate system, which normally is always z-forward (in
-     * world coordinates, parent coordinates when set to applyLocalPhysics)
+     * Alter the jump force. The jump force is local to the character's
+     * coordinate system, which normally is always z-forward (in world
+     * coordinates, parent coordinates when set to applyLocalPhysics)
      *
-     * @param jumpForce The new jump force
+     * @param jumpForce the desired jump force (not null, unaffected)
      */
     public void setJumpForce(Vector3f jumpForce) {
         this.jumpForce.set(jumpForce);
     }
 
     /**
-     * Gets the current jump force. The default is 5 * character mass in y
-     * direction.
+     * Access the jump force. The default is 5 * character mass in Y direction.
      *
-     * @return
+     * @return the pre-existing vector (not null)
      */
     public Vector3f getJumpForce() {
         return jumpForce;
@@ -264,7 +295,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
      * in the center of the character and might return false even if the
      * character is not falling yet.
      *
-     * @return
+     * @return true if on the ground, otherwise false
      */
     public boolean isOnGround() {
         return onGround;
@@ -277,7 +308,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
      * can in fact unduck and only do so when its possible. You can check the
      * state of the unducking by checking isDucked().
      *
-     * @param enabled
+     * @param enabled true&rarr;duck, false&rarr;unduck
      */
     public void setDucked(boolean enabled) {
         if (enabled) {
@@ -298,33 +329,33 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
      * Check if the character is ducking, either due to user input or due to
      * unducking being impossible at the moment (obstacle above).
      *
-     * @return
+     * @return true if ducking, otherwise false
      */
     public boolean isDucked() {
         return ducked;
     }
 
     /**
-     * Sets the height multiplication factor for ducking.
+     * Alter the height multiplier for ducking.
      *
-     * @param factor The factor by which the height should be multiplied when
-     * ducking
+     * @param factor the factor by which the height should be multiplied when
+     * ducking (&ge;0, &le;1)
      */
     public void setDuckedFactor(float factor) {
         duckedFactor = factor;
     }
 
     /**
-     * Gets the height multiplication factor for ducking.
+     * Read the height multiplier for ducking.
      *
-     * @return
+     * @return the factor (&ge;0, &le;1)
      */
     public float getDuckedFactor() {
         return duckedFactor;
     }
 
     /**
-     * Sets the walk direction of the character. This parameter is framerate
+     * Alter the character's the walk direction. This parameter is framerate
      * independent and the character will move continuously in the direction
      * given by the vector with the speed given by the vector length in m/s.
      *
@@ -335,20 +366,19 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
-     * Gets the current walk direction and speed of the character. The length of
-     * the vector defines the speed.
+     * Read the walk velocity. The length of the vector defines the speed.
      *
-     * @return
+     * @return the pre-existing vector (not null)
      */
     public Vector3f getWalkDirection() {
         return walkDirection;
     }
 
     /**
-     * Sets the view direction for the character. Note this only defines the
-     * rotation of the spatial in the local x/z plane of the character.
+     * Alter the character's view direction. Note this only defines the
+     * orientation in the local X-Z plane.
      *
-     * @param vec
+     * @param vec a direction vector (not null, unaffected)
      */
     public void setViewDirection(Vector3f vec) {
         viewDirection.set(vec);
@@ -356,10 +386,10 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
-     * Gets the current view direction, note this doesn't need to correspond
-     * with the spatials forward direction.
+     * Access the view direction. This need not agree with the spatial's forward
+     * direction.
      *
-     * @return
+     * @return the pre-existing vector (not null)
      */
     public Vector3f getViewDirection() {
         return viewDirection;
@@ -367,15 +397,15 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
 
     /**
      * Realign the local forward vector to given direction vector, if null is
-     * supplied Vector3f.UNIT_Z is used. Input vector has to be perpendicular to
-     * current gravity vector. This normally only needs to be called when the
+     * supplied Vector3f.UNIT_Z is used. The input vector must be perpendicular
+     * to gravity vector. This normally only needs to be invoked when the
      * gravity direction changed continuously and the local forward vector is
      * off due to drift. E.g. after walking around on a sphere "planet" for a
-     * while and then going back to a y-up coordinate system the local z-forward
-     * might not be 100% alinged with Z axis.
+     * while and then going back to a Y-up coordinate system the local Z-forward
+     * might not be 100% aligned with the Z axis.
      *
-     * @param vec The new forward vector, has to be perpendicular to the current
-     * gravity vector!
+     * @param vec the desired forward vector (perpendicular to the gravity
+     * vector, may be null, default=0,0,1)
      */
     public void resetForward(Vector3f vec) {
         if (vec == null) {
@@ -386,23 +416,21 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
-     * Get the current linear velocity along the three axes of the character.
-     * This is prepresented in world coordinates, parent coordinates when the
-     * control is set to applyLocalPhysics.
+     * Access the character's linear velocity in physics-space coordinates.
      *
-     * @return The current linear velocity of the character
+     * @return the pre-existing vector (not null)
      */
     public Vector3f getVelocity() {
         return velocity;
     }
 
     /**
-     * Set the gravity for this character. Note that this also realigns the
-     * local coordinate system of the character so that continuous changes in
-     * gravity direction are possible while maintaining a sensible control over
-     * the character.
+     * Alter the gravity acting on this character. Note that this also realigns
+     * the local coordinate system of the character so that continuous changes
+     * in gravity direction are possible while maintaining a sensible control
+     * over the character.
      *
-     * @param gravity
+     * @param gravity an acceleration vector (not null, unaffected)
      */
     public void setGravity(Vector3f gravity) {
         rigidBody.setGravity(gravity);
@@ -411,46 +439,48 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
-     * Get the current gravity of the character.
+     * Copy the character's gravity vector.
      *
-     * @return
+     * @return a new acceleration vector (not null)
      */
     public Vector3f getGravity() {
         return rigidBody.getGravity();
     }
 
     /**
-     * Get the current gravity of the character.
+     * Copy the character's gravity vector.
      *
-     * @param store The vector to store the result in
-     * @return
+     * @param store storage for the result (modified if not null)
+     * @return an acceleration vector (either the provided storage or a new
+     * vector, not null)
      */
     public Vector3f getGravity(Vector3f store) {
         return rigidBody.getGravity(store);
     }
 
     /**
-     * Sets how much the physics forces in the local x/z plane should be
-     * dampened.
-     * @param physicsDamping The dampening value, 0 = no dampening, 1 = no external force, default = 0.9
+     * Alter how much motion in the local X-Z plane is damped.
+     *
+     * @param physicsDamping the desired damping factor (0&rarr;no damping, 1=no
+     * external forces, default=0.9)
      */
     public void setPhysicsDamping(float physicsDamping) {
         this.physicsDamping = physicsDamping;
     }
 
     /**
-     * Gets how much the physics forces in the local x/z plane should be
-     * dampened.
+     * Read how much motion in the local X-Z plane is damped.
+     *
+     * @return the damping factor (0&rarr;no damping, 1=no external forces)
      */
     public float getPhysicsDamping() {
         return physicsDamping;
     }
 
     /**
-     * This actually sets a new collision shape to the character to change the
-     * height of the capsule.
+     * Alter the height of collision shape.
      *
-     * @param percent
+     * @param percent the desired height, as a percentage of the full height
      */
     protected void setHeightPercent(float percent) {
         scale.setY(percent);
@@ -458,7 +488,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
-     * This checks if the character is on the ground by doing a ray test.
+     * Test whether the character is on the ground, by means of a ray test.
      */
     protected void checkOnGround() {
         TempVars vars = TempVars.get();
@@ -499,12 +529,10 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
-     * Gets a new collision shape based on the current scale parameter. The
-     * created collisionshape is a capsule collision shape that is attached to a
-     * compound collision shape with an offset to set the object center at the
-     * bottom of the capsule.
+     * Create a collision shape based on the scale parameter. The new shape is a
+     * compound shape containing an offset capsule.
      *
-     * @return
+     * @return a new compound shape (not null)
      */
     protected CollisionShape getShape() {
         //TODO: cleanup size mess..
@@ -516,18 +544,18 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
-     * Gets the scaled height.
+     * Calculate the character's scaled height.
      *
-     * @return
+     * @return the height
      */
     protected float getFinalHeight() {
         return height * scale.getY();
     }
 
     /**
-     * Gets the scaled radius.
+     * Calculate the character's scaled radius.
      *
-     * @return
+     * @return the radius
      */
     protected float getFinalRadius() {
         return radius * scale.getZ();
@@ -536,7 +564,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     /**
      * Updates the local coordinate system from the localForward and localUp
      * vectors, adapts localForward, sets localForwardRotation quaternion to
-     * local z-forward rotation.
+     * local Z-forward rotation.
      */
     protected void updateLocalCoordinateSystem() {
         //gravity vector has possibly changed, calculate new world forward (UNIT_Z)
@@ -547,8 +575,8 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
-     * Updates the local x/z-flattened view direction and the corresponding
-     * rotation quaternion for the spatial.
+     * Updates the local X-Z view direction and the corresponding rotation
+     * quaternion for the spatial.
      */
     protected void updateLocalViewDirection() {
         //update local rotation quaternion to use for view rotation
@@ -568,7 +596,6 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
      * set to the new direction
      * @param worldUpVector The up vector to use, the result direction will be
      * perpendicular to this
-     * @return
      */
     protected final void calculateNewForward(Quaternion rotation, Vector3f direction, Vector3f worldUpVector) {
         if (direction == null) {
@@ -600,10 +627,9 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
-     * This is implemented from AbstractPhysicsControl and called when the
-     * spatial is attached for example.
+     * Translate the character to the specified location.
      *
-     * @param vec
+     * @param vec desired location (not null, unaffected)
      */
     @Override
     protected void setPhysicsLocation(Vector3f vec) {
@@ -612,12 +638,12 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
-     * This is implemented from AbstractPhysicsControl and called when the
-     * spatial is attached for example. We don't set the actual physics rotation
-     * but the view rotation here. It might actually be altered by the
-     * calculateNewForward method.
+     * Rotate the physics object to the specified orientation.
+     * <p>
+     * We don't set the actual physics rotation but the view rotation here. It
+     * might actually be altered by the calculateNewForward method.
      *
-     * @param quat
+     * @param quat desired orientation (not null, unaffected)
      */
     @Override
     protected void setPhysicsRotation(Quaternion quat) {
@@ -627,10 +653,9 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
-     * This is implemented from AbstractPhysicsControl and called when the
-     * control is supposed to add all objects to the physics space.
+     * Add all managed physics objects to the specified space.
      *
-     * @param space
+     * @param space which physics space to add to (not null)
      */
     @Override
     protected void addPhysics(PhysicsSpace space) {
@@ -642,10 +667,9 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
-     * This is implemented from AbstractPhysicsControl and called when the
-     * control is supposed to remove all objects from the physics space.
+     * Remove all managed physics objects from the specified space.
      *
-     * @param space
+     * @param space which physics space to remove from (not null)
      */
     @Override
     protected void removePhysics(PhysicsSpace space) {
@@ -653,16 +677,33 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         space.removeTickListener(this);
     }
 
+    /**
+     * Create spatial-dependent data. Invoked when this control is added to a
+     * spatial.
+     *
+     * @param spat the controlled spatial (not null, alias created)
+     */
     @Override
     protected void createSpatialData(Spatial spat) {
         rigidBody.setUserObject(spatial);
     }
 
+    /**
+     * Destroy spatial-dependent data. Invoked when this control is removed from
+     * a spatial.
+     *
+     * @param spat the previously controlled spatial (not null)
+     */
     @Override
     protected void removeSpatialData(Spatial spat) {
         rigidBody.setUserObject(null);
     }
 
+    /**
+     * Create a shallow clone for the JME cloner.
+     *
+     * @return a new control (not null)
+     */
     @Override
     public Object jmeClone() {
         BetterCharacterControl control = new BetterCharacterControl(radius, height, mass);
@@ -671,6 +712,12 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         return control;
     }     
 
+    /**
+     * Serialize this control, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -682,6 +729,12 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         oc.write(physicsDamping, "physicsDamping", 0.9f);
     }
 
+    /**
+     * De-serialize this control, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);

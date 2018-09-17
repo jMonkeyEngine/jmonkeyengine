@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,11 +44,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Basic Bullet Character
+ * A collision object for simplified character simulation, based on Bullet's
+ * btKinematicCharacterController.
+ *
  * @author normenhansen
  */
 public class PhysicsCharacter extends PhysicsCollisionObject {
 
+   /**
+     * Unique identifier of btKinematicCharacterController (as opposed to its
+     * collision object, which is a ghost). Constructors are responsible for
+     * setting this to a non-zero value. The id might change if the character
+     * gets rebuilt.
+     */
     protected long characterId = 0;
     protected float stepHeight;
     protected Vector3f walkDirection = new Vector3f();
@@ -59,12 +67,19 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     //TEMP VARIABLES
     protected final Quaternion tmp_inverseWorldRotation = new Quaternion();
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public PhysicsCharacter() {
     }
 
     /**
-     * @param shape The CollisionShape (no Mesh or CompoundCollisionShapes)
-     * @param stepHeight The quantization size for vertical movement
+     * Instantiate a character with the specified collision shape and step
+     * height.
+     *
+     * @param shape the desired shape (not null, alias created)
+     * @param stepHeight the quantization size for vertical movement
      */
     public PhysicsCharacter(CollisionShape shape, float stepHeight) {
         this.collisionShape = shape;
@@ -75,6 +90,9 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
         buildObject();
     }
 
+    /**
+     * Create the configured character in Bullet.
+     */
     protected void buildObject() {
         if (objectId == 0) {
             objectId = createGhostObject();
@@ -98,8 +116,9 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     private native long createCharacterObject(long objectId, long shapeId, float stepHeight);
 
     /**
-     * Sets the location of this physics character
-     * @param location
+     * Directly alter the location of this character's center of mass.
+     *
+     * @param location the desired physics location (not null, unaffected)
      */
     public void warp(Vector3f location) {
         warp(characterId, location);
@@ -108,11 +127,11 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     private native void warp(long characterId, Vector3f location);
 
     /**
-     * Set the walk direction, works continuously.
-     * This should probably be called setPositionIncrementPerSimulatorStep.
-     * This is neither a direction nor a velocity, but the amount to
-     * increment the position each physics tick. So vector length = accuracy*speed in m/s
-     * @param vec the walk direction to set
+     * Alter the walk offset. The offset will continue to be applied until
+     * altered again.
+     *
+     * @param vec the desired position increment for each physics tick (not
+     * null, unaffected)
      */
     public void setWalkDirection(Vector3f vec) {
         walkDirection.set(vec);
@@ -122,7 +141,9 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     private native void setWalkDirection(long characterId, Vector3f vec);
 
     /**
-     * @return the currently set walkDirection
+     * Access the walk offset.
+     *
+     * @return the pre-existing instance
      */
     public Vector3f getWalkDirection() {
         return walkDirection;
@@ -130,6 +151,7 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     
     /**
      * @deprecated Deprecated in bullet 2.86.1 use setUp(Vector3f) instead
+     * @param axis which axis: 0&rarr;X, 1&rarr;Y, 2&rarr;Z
      */
     @Deprecated
 	public void setUpAxis(int axis) {
@@ -147,6 +169,11 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
 		}
 	}
     
+    /**
+     * Alter this character's "up" direction.
+     *
+     * @param axis the desired direction (not null, not zero, unaffected)
+     */
     public void setUp(Vector3f axis) {
         setUp(characterId, axis);
     }
@@ -154,6 +181,11 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
 
     private native void setUp(long characterId, Vector3f axis);
 
+    /**
+     * Alter this character's angular velocity.
+     *
+     * @param v the desired angular velocity vector (not null, unaffected)
+     */
     
     public void setAngularVelocity(Vector3f v){
     	setAngularVelocity(characterId,v);
@@ -161,7 +193,13 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
         
     private native void setAngularVelocity(long characterId, Vector3f v);
 
-
+    /**
+     * Copy this character's angular velocity.
+     *
+     * @param out storage for the result (modified if not null)
+     * @return the velocity vector (either the provided storage or a new vector,
+     * not null)
+     */
     public Vector3f getAngularVelocity(Vector3f out){
     	if(out==null)out=new Vector3f();
     	getAngularVelocity(characterId,out);
@@ -171,13 +209,23 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     private native void getAngularVelocity(long characterId, Vector3f out);
     
 
+    /**
+     * Alter the linear velocity of this character's center of mass.
+     *
+     * @param v the desired velocity vector (not null)
+     */
     public void setLinearVelocity(Vector3f v){
     	setLinearVelocity(characterId,v);
     }
         
     private native void setLinearVelocity(long characterId, Vector3f v);
 
-
+    /**
+     * Copy the linear velocity of this character's center of mass.
+     *
+     * @param out storage for the result (modified if not null)
+     * @return a vector (either the provided storage or a new vector, not null)
+     */
     public Vector3f getLinearVelocity(Vector3f out){
     	if(out==null)out=new Vector3f();
     	getLinearVelocity(characterId,out);
@@ -187,10 +235,20 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     private native void getLinearVelocity(long characterId, Vector3f out);
         
 
+    /**
+     * Read the index of the "up" axis.
+     *
+     * @return which axis: 0&rarr;X, 1&rarr;Y, 2&rarr;Z
+     */
     public int getUpAxis() {
         return upAxis;
     }
 
+    /**
+     * Alter this character's fall speed.
+     *
+     * @param fallSpeed the desired speed (default=55)
+     */
     public void setFallSpeed(float fallSpeed) {
         this.fallSpeed = fallSpeed;
         setFallSpeed(characterId, fallSpeed);
@@ -198,10 +256,20 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
 
     private native void setFallSpeed(long characterId, float fallSpeed);
 
+    /**
+     * Read this character's fall speed.
+     *
+     * @return speed
+     */
     public float getFallSpeed() {
         return fallSpeed;
     }
 
+    /**
+     * Alter this character's jump speed.
+     *
+     * @param jumpSpeed the desired speed (default=10)
+     */
     public void setJumpSpeed(float jumpSpeed) {
         this.jumpSpeed = jumpSpeed;
         setJumpSpeed(characterId, jumpSpeed);
@@ -209,18 +277,30 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
 
     private native void setJumpSpeed(long characterId, float jumpSpeed);
 
+    /**
+     * Read this character's jump speed.
+     *
+     * @return speed
+     */
     public float getJumpSpeed() {
         return jumpSpeed;
     }
 
     /**
      * @deprecated Deprecated in bullet 2.86.1. Use setGravity(Vector3f) instead.
+     * @param value the desired upward component of the acceleration (typically
+     * negative)
      */
     @Deprecated
     public void setGravity(float value) {
     	setGravity(new Vector3f(0,value,0));
     }
     
+    /**
+     * Alter this character's gravitational acceleration.
+     *
+     * @param value the desired acceleration vector (not null, unaffected)
+     */
     public void setGravity(Vector3f value) {
         setGravity(characterId, value);
     }
@@ -229,12 +309,20 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
 
     /**
      * @deprecated Deprecated in bullet 2.86.1. Use getGravity(Vector3f) instead.
+     * @return the upward component of the acceleration (typically negative)
      */
     @Deprecated
     public float getGravity() {
         return getGravity(null).y;
     }
 
+    /**
+     * Copy this character's gravitational acceleration.
+     *
+     * @param out storage for the result (modified if not null)
+     * @return the acceleration vector (either the provided storage or a new
+     * vector, not null)
+     */
     public Vector3f getGravity(Vector3f out) {
     	if(out==null)out=new Vector3f();
     	getGravity(characterId,out);
@@ -244,12 +332,24 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     private native void getGravity(long characterId,Vector3f out);
 
         
+    /**
+     * Read this character's linear damping.
+     *
+     * @return the viscous damping ratio (0&rarr;no damping, 1&rarr;critically
+     * damped)
+     */        
     public float getLinearDamping(){
     	return getLinearDamping(characterId);
     }
     
     private native float getLinearDamping(long characterId);
     
+    /**
+     * Alter this character's linear damping.
+     *
+     * @param v the desired viscous damping ratio (0&rarr;no damping,
+     * 1&rarr;critically damped)
+     */
         
     public void setLinearDamping(float v ){
     	setLinearDamping(characterId,v );
@@ -258,13 +358,24 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     private native void setLinearDamping(long characterId,float v);
     
     
+    /**
+     * Read this character's angular damping.
+     *
+     * @return the viscous damping ratio (0&rarr;no damping, 1&rarr;critically
+     * damped)
+     */
     public float getAngularDamping(){
     	return getAngularDamping(characterId);
     }
     
     private native float getAngularDamping(long characterId);
     
-        
+    /**
+     * Alter this character's angular damping.
+     *
+     * @param v the desired viscous damping ratio (0&rarr;no damping,
+     * 1&rarr;critically damped, default=0)
+     */        
     public void setAngularDamping(float v ){
     	setAngularDamping(characterId,v );
     }
@@ -272,13 +383,22 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     private native void setAngularDamping(long characterId,float v);
     
     
+    /**
+     * Read this character's step height.
+     *
+     * @return the height (in physics-space units)
+     */
     public float getStepHeight(){
     	return getStepHeight(characterId);
     }
     
     private native float getStepHeight(long characterId);
     
-        
+    /**
+     * Alter this character's step height.
+     *
+     * @param v the desired height (in physics-space units)
+     */        
     public void setStepHeight(float v ){
     	setStepHeight(characterId,v );
     }
@@ -286,13 +406,22 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     private native void setStepHeight(long characterId,float v);
     
     
+    /**
+     * Read this character's maximum penetration depth.
+     *
+     * @return the depth (in physics-space units)
+     */
     public float getMaxPenetrationDepth(){
     	return getMaxPenetrationDepth(characterId);
     }
     
     private native float getMaxPenetrationDepth(long characterId);
     
-        
+    /**
+     * Alter this character's maximum penetration depth.
+     *
+     * @param v the desired depth (in physics-space units)
+     */        
     public void setMaxPenetrationDepth(float v ){
     	setMaxPenetrationDepth(characterId,v );
     }
@@ -303,18 +432,33 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     
     
     
+    /**
+     * Alter this character's maximum slope angle.
+     *
+     * @param slopeRadians the desired angle (in radians)
+     */
     public void setMaxSlope(float slopeRadians) {
         setMaxSlope(characterId, slopeRadians);
     }
 
     private native void setMaxSlope(long characterId, float slopeRadians);
 
+    /**
+     * Read this character's maximum slope angle.
+     *
+     * @return the angle (in radians)
+     */
     public float getMaxSlope() {
         return getMaxSlope(characterId);
     }
 
     private native float getMaxSlope(long characterId);
 
+    /**
+     * Test whether this character is on the ground.
+     *
+     * @return true if on the ground, otherwise false
+     */
     public boolean onGround() {
         return onGround(characterId);
     }
@@ -330,12 +474,24 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     }
     
     
+    /**
+     * Jump in the specified direction.
+     *
+     * @param dir desired jump direction (not null, unaffected)
+     */
     public void jump(Vector3f dir) {
     	jump(characterId,dir);
     }
     
     private native void jump(long characterId,Vector3f v);
 
+    /**
+     * Apply the specified CollisionShape to this character. Note that the
+     * character should not be in any physics space while changing shape; the
+     * character gets rebuilt on the physics side.
+     *
+     * @param collisionShape the shape to apply (not null, alias created)
+     */
     @Override
     public void setCollisionShape(CollisionShape collisionShape) {
 //        if (!(collisionShape.getObjectId() instanceof ConvexShape)) {
@@ -350,15 +506,21 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     }
 
     /**
-     * Set the physics location (same as warp())
-     * @param location the location of the actual physics object
+     * Directly alter this character's location. (Same as
+     * {@link #warp(com.jme3.math.Vector3f)}).)
+     *
+     * @param location the desired location (not null, unaffected)
      */
     public void setPhysicsLocation(Vector3f location) {
         warp(location);
     }
 
     /**
-     * @return the physicsLocation
+     * Copy the location of this character's center of mass.
+     *
+     * @param trans storage for the result (modified if not null)
+     * @return the location vector (either the provided storage or a new vector,
+     * not null)
      */
     public Vector3f getPhysicsLocation(Vector3f trans) {
         if (trans == null) {
@@ -371,36 +533,72 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     private native void getPhysicsLocation(long objectId, Vector3f vec);
 
     /**
-     * @return the physicsLocation
+     * Copy the location of this character's center of mass.
+     *
+     * @return a new location vector (not null)
      */
     public Vector3f getPhysicsLocation() {
         return getPhysicsLocation(null);
     }
 
+    /**
+     * Alter this character's continuous collision detection (CCD) swept sphere
+     * radius.
+     *
+     * @param radius (&ge;0, default=0)
+     */
     public void setCcdSweptSphereRadius(float radius) {
         setCcdSweptSphereRadius(objectId, radius);
     }
 
     private native void setCcdSweptSphereRadius(long objectId, float radius);
 
+    /**
+     * Alter the amount of motion required to activate continuous collision
+     * detection (CCD).
+     * <p>
+     * This addresses the issue of fast objects passing through other objects
+     * with no collision detected.
+     *
+     * @param threshold the desired threshold velocity (&gt;0) or zero to
+     * disable CCD (default=0)
+     */
     public void setCcdMotionThreshold(float threshold) {
         setCcdMotionThreshold(objectId, threshold);
     }
 
     private native void setCcdMotionThreshold(long objectId, float threshold);
 
+    /**
+     * Read the radius of the sphere used for continuous collision detection
+     * (CCD).
+     *
+     * @return radius (&ge;0)
+     */
     public float getCcdSweptSphereRadius() {
         return getCcdSweptSphereRadius(objectId);
     }
 
     private native float getCcdSweptSphereRadius(long objectId);
 
+    /**
+     * Calculate this character's continuous collision detection (CCD) motion
+     * threshold.
+     *
+     * @return the threshold velocity (&ge;0)
+     */
     public float getCcdMotionThreshold() {
         return getCcdMotionThreshold(objectId);
     }
 
     private native float getCcdMotionThreshold(long objectId);
 
+    /**
+     * Calculate the square of this character's continuous collision detection
+     * (CCD) motion threshold.
+     *
+     * @return the threshold velocity squared (&ge;0)
+     */
     public float getCcdSquareMotionThreshold() {
         return getCcdSquareMotionThreshold(objectId);
     }
@@ -409,14 +607,25 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
 
     /**
      * used internally
+     *
+     * @return the Bullet id
      */
     public long getControllerId() {
         return characterId;
     }
 
+    /**
+     * Has no effect.
+     */
     public void destroy() {
     }
 
+    /**
+     * Serialize this character, for example when saving to a J3O file.
+     *
+     * @param e exporter (not null)
+     * @throws IOException from exporter
+     */
     @Override
     public void write(JmeExporter e) throws IOException {
         super.write(e);
@@ -432,6 +641,13 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
         capsule.write(getPhysicsLocation(new Vector3f()), "physicsLocation", new Vector3f());
     }
 
+    /**
+     * De-serialize this character from the specified importer, for example when
+     * loading from a J3O file.
+     *
+     * @param e importer (not null)
+     * @throws IOException from importer
+     */
     @Override
     public void read(JmeImporter e) throws IOException {
         super.read(e);
@@ -448,6 +664,12 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
         setPhysicsLocation((Vector3f) capsule.readSavable("physicsLocation", new Vector3f()));
     }
 
+    /**
+     * Finalize this physics character just before it is destroyed. Should be
+     * invoked only by a subclass or by the garbage collector.
+     *
+     * @throws Throwable ignored by the garbage collector
+     */
     @Override
     protected void finalize() throws Throwable {
         super.finalize();

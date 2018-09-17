@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,35 +41,61 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Basic sphere collision shape
+ * A spherical collision shape based on Bullet's btSphereShape.
+ *
  * @author normenhansen
  */
 public class SphereCollisionShape extends CollisionShape {
 
+    /**
+     * copy of radius (&ge;0)
+     */
     protected float radius;
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public SphereCollisionShape() {
     }
 
     /**
-     * creates a SphereCollisionShape with the given radius
-     * @param radius
+     * Instantiate a sphere shape with the specified radius.
+     *
+     * @param radius the desired radius (&ge;0)
      */
     public SphereCollisionShape(float radius) {
         this.radius = radius;
         createShape();
     }
 
+    /**
+     * Read the radius of this shape.
+     *
+     * @return the radius (&ge;0)
+     */
     public float getRadius() {
         return radius;
     }
 
+    /**
+     * Serialize this shape, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
         capsule.write(radius, "radius", 0.5f);
     }
 
+    /**
+     * De-serialize this shape, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);
@@ -78,7 +104,11 @@ public class SphereCollisionShape extends CollisionShape {
     }
 
     /**
-     * WARNING - CompoundCollisionShape scaling has no effect.
+     * Alter the scaling factors of this shape. Scaling is disabled
+     * for sphere shapes.
+     *
+     * @param scale the desired scaling factor for each local axis (not null, no
+     * negative component, unaffected, default=1,1,1)
      */
     @Override
     public void setScale(Vector3f scale) {
@@ -87,6 +117,9 @@ public class SphereCollisionShape extends CollisionShape {
         }
     }
 
+    /**
+     * Instantiate the configured shape in Bullet.
+     */
     protected void createShape() {
         objectId = createShape(radius);
         Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Shape {0}", Long.toHexString(objectId));
