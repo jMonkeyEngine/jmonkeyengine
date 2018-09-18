@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,14 +32,35 @@
 package com.jme3.bullet.objects.infos;
 
 /**
- * 
+ * Typical tuning parameters for a PhysicsVehicle.
+ *
  * @author normenhansen
  */
 public class VehicleTuning {
+    /**
+     * suspension stiffness constant (10&rarr;off-road buggy, 50&rarr;sports
+     * car, 200&rarr;Formula-1 race car, default=5.88)
+     */
     public float suspensionStiffness = 5.88f;
+    /**
+     * suspension damping when compressed (0&rarr;no damping, default=0.83)
+     */
     public float suspensionCompression = 0.83f;
+    /**
+     * suspension damping when expanded (0&rarr;no damping, default=0.88)
+     */
     public float suspensionDamping = 0.88f;
+    /**
+     * maximum suspension travel distance (in centimeters, default=500)
+     */
     public float maxSuspensionTravelCm = 500f;
+    /**
+     * maximum force exerted by each wheel's suspension (default=6000)
+     */
     public float maxSuspensionForce = 6000f;
+    /**
+     * coefficient of friction between tyres and ground (0.8&rarr;realistic car,
+     * 10000&rarr;kart racer, default=10.5)
+     */
     public float frictionSlip = 10.5f;
 }

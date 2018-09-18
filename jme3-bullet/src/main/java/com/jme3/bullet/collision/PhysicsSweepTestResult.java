@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,13 +35,26 @@ import com.jme3.math.Vector3f;
 
 /**
  * Contains the results of a PhysicsSpace rayTest
+ *
  * @author normenhansen
  */
 public class PhysicsSweepTestResult {
 
+    /**
+     * collision object that was hit
+     */
     private PhysicsCollisionObject collisionObject;
+    /**
+     * normal vector at the point of contact
+     */
     private Vector3f hitNormalLocal;
+    /**
+     * fraction of the way between the transforms (from=0, to=1, &ge;0, &le;1)
+     */
     private float hitFraction;
+    /**
+     * true&rarr;need to transform normal into world space
+     */
     private boolean normalInWorldSpace;
 
     public PhysicsSweepTestResult() {
@@ -55,33 +68,49 @@ public class PhysicsSweepTestResult {
     }
 
     /**
-     * @return the collisionObject
+     * Access the collision object that was hit.
+     *
+     * @return the pre-existing instance
      */
     public PhysicsCollisionObject getCollisionObject() {
         return collisionObject;
     }
 
     /**
-     * @return the hitNormalLocal
+     * Access the normal vector at the point of contact.
+     *
+     * @return the pre-existing vector (not null)
      */
     public Vector3f getHitNormalLocal() {
         return hitNormalLocal;
     }
 
     /**
-     * @return the hitFraction
+     * Read the hit fraction.
+     *
+     * @return fraction (from=0, to=1, &ge;0, &le;1)
      */
     public float getHitFraction() {
         return hitFraction;
     }
 
     /**
-     * @return the normalInWorldSpace
+     * Test whether the normal is in world space.
+     *
+     * @return true if in world space, otherwise false
      */
     public boolean isNormalInWorldSpace() {
         return normalInWorldSpace;
     }
 
+    /**
+     * Fill in the fields of this result.
+     * 
+     * @param collisionObject
+     * @param hitNormalLocal
+     * @param hitFraction
+     * @param normalInWorldSpace 
+     */
     public void fill(PhysicsCollisionObject collisionObject, Vector3f hitNormalLocal, float hitFraction, boolean normalInWorldSpace) {
         this.collisionObject = collisionObject;
         this.hitNormalLocal = hitNormalLocal;

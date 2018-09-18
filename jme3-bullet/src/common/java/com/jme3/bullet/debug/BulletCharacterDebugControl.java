@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,16 +42,37 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
 /**
+ * A physics-debug control used to visualize a PhysicsCharacter.
+ * <p>
+ * This class is shared between JBullet and Native Bullet.
  *
  * @author normenhansen
  */
 public class BulletCharacterDebugControl extends AbstractPhysicsDebugControl {
 
+    /**
+     * character to visualize (not null)
+     */
     protected final PhysicsCharacter body;
+    /**
+     * temporary storage for physics location
+     */
     protected final Vector3f location = new Vector3f();
     protected final Quaternion rotation = new Quaternion();
+    /**
+     * shape for which geom was generated
+     */
     protected CollisionShape myShape;
+    /**
+     * geometry to visualize myShape (not null)
+     */
     protected Spatial geom;
+    /**
+     * Instantiate an enabled control to visualize the specified character.
+     *
+     * @param debugAppState which app state (not null, alias created)
+     * @param body the character to visualize (not null, alias created)
+     */
 
     public BulletCharacterDebugControl(BulletDebugAppState debugAppState, PhysicsCharacter body) {
         super(debugAppState);
@@ -61,6 +82,13 @@ public class BulletCharacterDebugControl extends AbstractPhysicsDebugControl {
         geom.setMaterial(debugAppState.DEBUG_PINK);
     }
 
+    /**
+     * Alter which spatial is controlled. Invoked when the control is added to
+     * or removed from a spatial. Should be invoked only by a subclass or from
+     * Spatial. Do not invoke directly from user code.
+     *
+     * @param spatial the spatial to control (or null)
+     */
     @Override
     public void setSpatial(Spatial spatial) {
         if (spatial != null && spatial instanceof Node) {
@@ -73,6 +101,13 @@ public class BulletCharacterDebugControl extends AbstractPhysicsDebugControl {
         super.setSpatial(spatial);
     }
 
+    /**
+     * Update this control. Invoked once per frame during the logical-state
+     * update, provided the control is enabled and added to a scene. Should be
+     * invoked only by a subclass or by AbstractControl.
+     *
+     * @param tpf the time interval between frames (in seconds, &ge;0)
+     */
     @Override
     protected void controlUpdate(float tpf) {
         if(myShape != body.getCollisionShape()){
@@ -86,6 +121,14 @@ public class BulletCharacterDebugControl extends AbstractPhysicsDebugControl {
         geom.setLocalScale(body.getCollisionShape().getScale());
     }
 
+    /**
+     * Render this control. Invoked once port per frame, provided the
+     * control is enabled and added to a scene. Should be invoked only by a
+     * subclass or by AbstractControl.
+     *
+     * @param rm the render manager (not null)
+     * @param vp the view port to render (not null)
+     */
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
     }
