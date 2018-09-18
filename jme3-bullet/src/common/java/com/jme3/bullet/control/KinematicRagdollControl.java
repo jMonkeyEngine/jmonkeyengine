@@ -43,11 +43,11 @@ import com.jme3.export.*;
 import com.jme3.math.*;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.JmeCloneable;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
@@ -198,6 +198,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
          * @param ex exporter (not null)
          * @throws IOException from exporter
          */
+        @Override
         public void write(JmeExporter ex) throws IOException {
             OutputCapsule oc = ex.getCapsule(this);
             oc.write(rigidBody, "rigidBody", null);
@@ -215,6 +216,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
          * @param im importer (not null)
          * @throws IOException from importer
          */
+        @Override
         public void read(JmeImporter im) throws IOException {
             InputCapsule ic = im.getCapsule(this);
             rigidBody = (PhysicsRigidBody) ic.readSavable("rigidBody", null);
@@ -274,6 +276,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
      *
      * @param tpf the time interval between frames (in seconds, &ge;0)
      */
+    @Override
     public void update(float tpf) {
         if (!enabled) {
             return;
@@ -334,15 +337,9 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
                 link.bone.setUserTransformsInModelSpace(position, tmpRot1);
 
             } else {
-                //If boneList is empty, every bone has a collision shape,
-                //so we simply update the bone position.
-                if (boneList.isEmpty()) {
-                    link.bone.setUserTransformsInModelSpace(position, tmpRot1);
-                } else {
-                    //boneList is not empty, this means some bones of the skeleton might not be associated with a collision shape.
-                    //So we update them recusively
-                    RagdollUtils.setTransform(link.bone, position, tmpRot1, false, boneList);
-                }
+                //some bones of the skeleton might not be associated with a collision shape.
+                //So we update them recusively
+                RagdollUtils.setTransform(link.bone, position, tmpRot1, false, boneList);
             }
         }
         vars.release();
@@ -377,17 +374,8 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
                 tmpRot1.set(tmpRot2);
                 position.set(position2);
 
-                //updating bones transforms
-                if (boneList.isEmpty()) {
-                    //we ensure we have the control to update the bone
-                    link.bone.setUserControl(true);
-                    link.bone.setUserTransformsInModelSpace(position, tmpRot1);
-                    //we give control back to the key framed animation.
-                    link.bone.setUserControl(false);
-                } else {
-                    RagdollUtils.setTransform(link.bone, position, tmpRot1, true, boneList);
-                }
-
+                //update bone transforms
+                RagdollUtils.setTransform(link.bone, position, tmpRot1, true, boneList);
             }
             //setting skeleton transforms to the ragdoll
             matchPhysicObjectToBone(link, position, tmpRot1);
@@ -575,6 +563,22 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         model.removeControl(sc);
         model.addControl(sc);
 
+        if (boneList.isEmpty()) {
+            // add all bones to the list
+            skeleton = sc.getSkeleton();
+            for (int boneI = 0; boneI < skeleton.getBoneCount(); boneI++) {
+                String boneName = skeleton.getBone(boneI).getName();
+                boneList.add(boneName);
+            }
+        }
+        // filter out bones without vertices
+        filterBoneList(sc);
+
+        if (boneList.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "No suitable bones were found in the model's skeleton.");
+        }
+
         // put into bind pose and compute bone transforms in model space
         // maybe don't reset to ragdoll out of animations?
         scanSpatial(model);
@@ -592,6 +596,25 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
             addPhysics(space);
         }
         logger.log(Level.FINE, "Created physics ragdoll for skeleton {0}", skeleton);
+    }
+
+    /**
+     * Remove any bones without vertices from the boneList, so that every hull
+     * shape will contain at least 1 vertex.
+     */
+    private void filterBoneList(SkeletonControl skeletonControl) {
+        Mesh[] targets = skeletonControl.getTargets();
+        Skeleton skel = skeletonControl.getSkeleton();
+        for (int boneI = 0; boneI < skel.getBoneCount(); boneI++) {
+            String boneName = skel.getBone(boneI).getName();
+            if (boneList.contains(boneName)) {
+                boolean hasVertices = RagdollUtils.hasVertices(boneI, targets,
+                        weightThreshold);
+                if (!hasVertices) {
+                    boneList.remove(boneName);
+                }
+            }
+        }
     }
 
     /**
@@ -655,7 +678,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
      */
     protected void boneRecursion(Spatial model, Bone bone, PhysicsRigidBody parent, int reccount, Map<Integer, List<Float>> pointsMap) {
         PhysicsRigidBody parentShape = parent;
-        if (boneList.isEmpty() || boneList.contains(bone.getName())) {
+        if (boneList.contains(bone.getName())) {
 
             PhysicsBoneLink link = new PhysicsBoneLink();
             link.bone = bone;

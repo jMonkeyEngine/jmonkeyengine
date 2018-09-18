@@ -57,6 +57,12 @@ import java.util.*;
 public class RagdollUtils {
 
     /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private RagdollUtils() {
+    }
+
+    /**
      * Alter the limits of the specified 6-DOF joint.
      *
      * @param joint which joint to alter (not null)
@@ -172,11 +178,11 @@ public class RagdollUtils {
             }
         }
 
+        assert !points.isEmpty();
         float[] p = new float[points.size()];
         for (int i = 0; i < points.size(); i++) {
             p[i] = points.get(i);
         }
-
 
         return new HullCollisionShape(p);
     }
@@ -235,11 +241,12 @@ public class RagdollUtils {
                 }
             }
         }
+
+        assert !points.isEmpty();
         float[] p = new float[points.size()];
         for (int i = 0; i < points.size(); i++) {
             p[i] = points.get(i);
         }
-
 
         return new HullCollisionShape(p);
     }
@@ -342,5 +349,40 @@ public class RagdollUtils {
         for (Bone child : bone.getChildren()) {
             setUserControl(child, bool);
         }
+    }
+
+    /**
+     * Test whether the indexed bone has at least one vertex in the specified
+     * meshes with a weight greater than the specified threshold.
+     *
+     * @param boneIndex the index of the bone (&ge;0)
+     * @param targets the meshes to search (not null, no null elements)
+     * @param weightThreshold the threshold (&ge;0, &le;1)
+     * @return true if at least 1 vertex found, otherwise false
+     */
+    public static boolean hasVertices(int boneIndex, Mesh[] targets,
+            float weightThreshold) {
+        for (Mesh mesh : targets) {
+            ByteBuffer boneIndices
+                    = (ByteBuffer) mesh.getBuffer(Type.BoneIndex).getData();
+            FloatBuffer boneWeight
+                    = (FloatBuffer) mesh.getBuffer(Type.BoneWeight).getData();
+
+            boneIndices.rewind();
+            boneWeight.rewind();
+
+            int vertexComponents = mesh.getVertexCount() * 3;
+            for (int i = 0; i < vertexComponents; i += 3) {
+                int start = i / 3 * 4;
+                for (int k = start; k < start + 4; k++) {
+                    if (boneIndices.get(k) == boneIndex
+                            && boneWeight.get(k) >= weightThreshold) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }
