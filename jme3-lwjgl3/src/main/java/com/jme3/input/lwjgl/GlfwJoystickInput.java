@@ -62,11 +62,11 @@ public class GlfwJoystickInput implements JoyInput {
 
 	private static final Logger LOGGER = Logger.getLogger(InputManager.class.getName());
 
+	private final Map<Integer, GlfwJoystick> joysticks = new HashMap<>();
+
+	private final Map<JoystickButton, Boolean> joyButtonPressed = new HashMap<>();
+
 	private RawInputListener listener;
-
-	private Map<Integer, GlfwJoystick> joysticks = new HashMap<>();
-
-	private Map<JoystickButton, Boolean> joyButtonPressed = new HashMap<>();
 
 	private boolean initialized = false;
 
@@ -106,7 +106,7 @@ public class GlfwJoystickInput implements JoyInput {
 					byteBuffer.get();
 					final String logicalId = JoystickCompatibilityMappings.remapComponent(joystick.getName(),
 							String.valueOf(buttonIndex));
-					JoystickButton button = new DefaultJoystickButton(inputManager, joystick, buttonIndex,
+					final JoystickButton button = new DefaultJoystickButton(inputManager, joystick, buttonIndex,
 							String.valueOf(buttonIndex), logicalId);
 					joystick.addButton(button);
 					joyButtonPressed.put(button, false);
