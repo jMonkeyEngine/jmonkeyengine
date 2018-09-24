@@ -74,7 +74,7 @@ public class PhysicsVehicle extends PhysicsRigidBody {
      */
     protected long rayCasterId = 0;
     /**
-     * tuning parameters
+     * tuning parameters applied when a wheel is created
      */
     protected VehicleTuning tuning = new VehicleTuning();
     /**
@@ -615,7 +615,7 @@ public class PhysicsVehicle extends PhysicsRigidBody {
      *
      * @param vector storage for the result (modified if not null)
      * @return a direction vector (in physics-space coordinates, either the
-     * provided storage or a new vector)
+     * provided storage or a new vector, not null)
      */
     public Vector3f getForwardVector(Vector3f vector) {
         if (vector == null) {

@@ -54,7 +54,7 @@ public class CylinderCollisionShape extends CollisionShape {
      */
     protected Vector3f halfExtents;
     /**
-     * main (height) axis (0&rarr;X, 1&rarr;Y, 2&rarr;Z)
+     * copy of main (height) axis (0&rarr;X, 1&rarr;Y, 2&rarr;Z)
      */
     protected int axis;
 
@@ -68,8 +68,8 @@ public class CylinderCollisionShape extends CollisionShape {
     /**
      * Instantiate a Z-axis cylinder shape with the specified half extents.
      *
-     * @param halfExtents the desired half extents (not null, no negative
-     * component, alias created)
+     * @param halfExtents the desired unscaled half extents (not null, no
+     * negative component, alias created)
      */
     public CylinderCollisionShape(Vector3f halfExtents) {
         this.halfExtents = halfExtents;
@@ -80,8 +80,8 @@ public class CylinderCollisionShape extends CollisionShape {
     /**
      * Instantiate a cylinder shape around the specified axis.
      *
-     * @param halfExtents the desired half extents (not null, no negative
-     * component, alias created)
+     * @param halfExtents the desired unscaled half extents (not null, no 
+     * negative component, alias created)
      * @param axis which local axis: 0&rarr;X, 1&rarr;Y, 2&rarr;Z
      */
     public CylinderCollisionShape(Vector3f halfExtents, int axis) {

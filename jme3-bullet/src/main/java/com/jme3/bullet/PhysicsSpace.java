@@ -595,8 +595,9 @@ public class PhysicsSpace {
     }
 
     /**
-     * Add all physics controls and joints in the specified subtree of the scene
-     * graph to this space (e.g. after loading from disk). Note: recursive!
+     * Add all collision objects and joints in the specified subtree of the
+     * scene graph to this space (e.g. after loading from disk). Note:
+     * recursive!
      *
      * @param spatial the root of the subtree (not null)
      */
@@ -1245,7 +1246,7 @@ public class PhysicsSpace {
      * <p>
      * In general, the smaller the time step, the more accurate (and
      * compute-intensive) the simulation will be. Bullet works best with a
-     * timestep of no more than 1/60 second.
+     * time step of no more than 1/60 second.
      *
      * @param accuracy the desired time step (in seconds, &gt;0, default=1/60)
      */

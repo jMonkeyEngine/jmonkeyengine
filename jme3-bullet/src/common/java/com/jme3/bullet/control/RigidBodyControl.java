@@ -176,7 +176,7 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
      * shallow-cloned control into a deep-cloned one, using the specified cloner
      * and original to resolve copied fields.
      *
-     * @param cloner the cloner currently cloning this control (not null)
+     * @param cloner the cloner that's cloning this control (not null)
      * @param original the control from which this control was shallow-cloned
      * (unused)
      */

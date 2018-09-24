@@ -287,7 +287,8 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     }
 
     /**
-     * @deprecated Deprecated in bullet 2.86.1. Use setGravity(Vector3f) instead.
+     * @deprecated Deprecated in bullet 2.86.1. Use setGravity(Vector3f)
+     * instead.
      * @param value the desired upward component of the acceleration (typically
      * negative)
      */
@@ -308,7 +309,8 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     private native void setGravity(long characterId, Vector3f gravity);
 
     /**
-     * @deprecated Deprecated in bullet 2.86.1. Use getGravity(Vector3f) instead.
+     * @deprecated Deprecated in bullet 2.86.1. Use getGravity(Vector3f)
+     * instead.
      * @return the upward component of the acceleration (typically negative)
      */
     @Deprecated

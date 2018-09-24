@@ -275,14 +275,15 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
      * coordinate system, which normally is always z-forward (in world
      * coordinates, parent coordinates when set to applyLocalPhysics)
      *
-     * @param jumpForce the desired jump force (not null, unaffected)
+     * @param jumpForce the desired jump force (not null, unaffected,
+     * default=5*mass in +Y direction)
      */
     public void setJumpForce(Vector3f jumpForce) {
         this.jumpForce.set(jumpForce);
     }
 
     /**
-     * Access the jump force. The default is 5 * character mass in Y direction.
+     * Access the jump force.
      *
      * @return the pre-existing vector (not null)
      */
@@ -291,9 +292,9 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
-     * Check if the character is on the ground. This is determined by a ray test
-     * in the center of the character and might return false even if the
-     * character is not falling yet.
+     * Test whether the character is supported. Uses a ray test from the center
+     * of the character and might return false even if the character is not
+     * falling yet.
      *
      * @return true if on the ground, otherwise false
      */
@@ -305,8 +306,8 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
      * Toggle character ducking. When ducked the characters capsule collision
      * shape height will be multiplied by duckedFactor to make the capsule
      * smaller. When unducking, the character will check with a ray test if it
-     * can in fact unduck and only do so when its possible. You can check the
-     * state of the unducking by checking isDucked().
+     * can in fact unduck and only do so when its possible. You can test the
+     * state using isDucked().
      *
      * @param enabled true&rarr;duck, false&rarr;unduck
      */

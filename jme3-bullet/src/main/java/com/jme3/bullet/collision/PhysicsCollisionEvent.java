@@ -36,7 +36,7 @@ import com.jme3.scene.Spatial;
 import java.util.EventObject;
 
 /**
- * An event that describes a collision in the physics world.
+ * Describe a collision in the physics world.
  * <p>
  * Do not retain this object, as it will be reused after the collision() method
  * returns. Copy any data you need during the collide() method.

@@ -122,7 +122,7 @@ public class BulletCharacterDebugControl extends AbstractPhysicsDebugControl {
     }
 
     /**
-     * Render this control. Invoked once port per frame, provided the
+     * Render this control. Invoked once per frame, provided the
      * control is enabled and added to a scene. Should be invoked only by a
      * subclass or by AbstractControl.
      *

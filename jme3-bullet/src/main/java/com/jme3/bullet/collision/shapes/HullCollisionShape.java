@@ -64,7 +64,8 @@ public class HullCollisionShape extends CollisionShape {
      * performance and stability, use the mesh should have no more than 100
      * vertices.
      *
-     * @param mesh a mesh on which to base the shape (not null)
+     * @param mesh a mesh on which to base the shape (not null, at least one
+     * vertex)
      */
     public HullCollisionShape(Mesh mesh) {
         this.points = getPoints(mesh);
@@ -72,10 +73,11 @@ public class HullCollisionShape extends CollisionShape {
     }
 
     /**
-     * Instantiate a collision shape based on the specified JME mesh.
+     * Instantiate a collision shape based on the specified array of
+     * coordinates.
      *
      * @param points an array of coordinates on which to base the shape (not
-     * null, length a multiple of 3)
+     * null, not empty, length a multiple of 3)
      */
     public HullCollisionShape(float[] points) {
         this.points = points;

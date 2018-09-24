@@ -63,8 +63,8 @@ public class BoxCollisionShape extends CollisionShape {
     /**
      * Instantiate a box shape with the specified half extents.
      *
-     * @param halfExtents the desired half extents (not null, no negative
-     * component, alias created)
+     * @param halfExtents the desired unscaled half extents (not null, no
+     * negative component, alias created)
      */
     public BoxCollisionShape(Vector3f halfExtents) {
         this.halfExtents = halfExtents;
@@ -72,7 +72,7 @@ public class BoxCollisionShape extends CollisionShape {
     }
 
     /**
-     * Access the half extents.
+     * Access the half extents of the box.
      *
      * @return the pre-existing instance (not null, no negative component)
      */
