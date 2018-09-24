@@ -41,7 +41,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A spherical collision shape based on Bullet's btSphereShape.
+ * A spherical collision shape based on Bullet's btSphereShape. These shapes
+ * have no margin and cannot be scaled.
  *
  * @author normenhansen
  */
@@ -70,7 +71,7 @@ public class SphereCollisionShape extends CollisionShape {
     }
 
     /**
-     * Read the radius of this shape.
+     * Read the radius of the sphere.
      *
      * @return the radius (&ge;0)
      */

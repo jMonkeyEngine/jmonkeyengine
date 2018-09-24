@@ -162,7 +162,7 @@ public abstract class PhysicsJoint implements Savable {
     /**
      * Access the local offset of the joint connection point in node A.
      *
-     * @return the pre-existing vector
+     * @return the pre-existing vector (not null)
      */
     public Vector3f getPivotA() {
         return pivotA;
@@ -171,7 +171,7 @@ public abstract class PhysicsJoint implements Savable {
     /**
      * Access the local offset of the joint connection point in node A.
      *
-     * @return the pre-existing vector
+     * @return the pre-existing vector (not null)
      */
     public Vector3f getPivotB() {
         return pivotB;

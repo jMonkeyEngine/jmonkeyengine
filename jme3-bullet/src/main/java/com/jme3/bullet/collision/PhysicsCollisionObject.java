@@ -236,7 +236,8 @@ public abstract class PhysicsCollisionObject implements Savable {
     }
 
     /**
-     * Initialize the user pointer and collision-group information of this object.
+     * Initialize the user pointer and collision-group information of this
+     * object.
      */
     protected void initUserPointer() {
         Logger.getLogger(this.getClass().getName()).log(Level.FINE, "initUserPointer() objectId = {0}", Long.toHexString(objectId));

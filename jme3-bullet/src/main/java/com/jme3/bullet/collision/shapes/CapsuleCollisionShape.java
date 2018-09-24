@@ -42,7 +42,7 @@ import java.util.logging.Logger;
 
 /**
  * A capsule collision shape based on Bullet's btCapsuleShapeX, btCapsuleShape,
- * or btCapsuleShapeZ.
+ * or btCapsuleShapeZ. These shapes have no margin and cannot be scaled.
  *
  * @author normenhansen
  */
@@ -97,7 +97,7 @@ public class CapsuleCollisionShape extends CollisionShape{
     /**
      * Read the radius of the capsule.
      *
-     * @return radius (&ge;0)
+     * @return the radius (&ge;0)
      */
     public float getRadius() {
         return radius;

@@ -50,7 +50,7 @@ import java.util.logging.Logger;
 public abstract class CollisionShape implements Savable {
 
     /**
-     * unique identifier of the Bullet shape
+     * unique identifier of the btCollisionShape
      * <p>
      * Constructors are responsible for setting this to a non-zero value. After
      * that, the id never changes.
@@ -61,8 +61,7 @@ public abstract class CollisionShape implements Savable {
      */
     protected Vector3f scale = new Vector3f(1, 1, 1);
     /**
-     * copy of collision margin (in physics-space units, &gt;0,
-     * default=0)
+     * copy of collision margin (in physics-space units, &gt;0, default=0)
      */
     protected float margin = 0.0f;
 
@@ -87,7 +86,7 @@ public abstract class CollisionShape implements Savable {
 //    private native void calculateLocalInertia(long objectId, long shapeId, float mass);
 
     /**
-     * Read the id of the Bullet shape.
+     * Read the id of the btCollisionShape.
      *
      * @return the unique identifier (not zero)
      */
@@ -128,7 +127,7 @@ public abstract class CollisionShape implements Savable {
     /**
      * Read the collision margin for this shape.
      *
-     * @return the margin distance (in physics-space units, &gt;0)
+     * @return the margin distance (in physics-space units, &ge;0)
      */
     public float getMargin() {
         return getMargin(objectId);
@@ -137,7 +136,7 @@ public abstract class CollisionShape implements Savable {
     private native float getMargin(long objectId);
 
     /**
-     * Alter the collision margin for this shape. CAUTION: Margin is applied
+     * Alter the collision margin of this shape. CAUTION: Margin is applied
      * differently, depending on the type of shape. Generally the collision
      * margin expands the object, creating a gap. Don't set the collision margin
      * to zero.

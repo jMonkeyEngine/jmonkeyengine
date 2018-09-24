@@ -34,7 +34,7 @@ package com.jme3.bullet.collision;
 import com.jme3.math.Vector3f;
 
 /**
- * Contains the results of a PhysicsSpace rayTest
+ * Represent the results of a Bullet sweep test.
  *
  * @author normenhansen
  */
@@ -57,6 +57,10 @@ public class PhysicsSweepTestResult {
      */
     private boolean normalInWorldSpace;
 
+    /**
+     * A private constructor to inhibit instantiation of this class by Java.
+     * These results are instantiated exclusively by native code.
+     */
     public PhysicsSweepTestResult() {
     }
 
@@ -86,7 +90,8 @@ public class PhysicsSweepTestResult {
     }
 
     /**
-     * Read the hit fraction.
+     * Read the fraction of fraction of the way between the transforms (from=0,
+     * to=1, &ge;0, &le;1)
      *
      * @return fraction (from=0, to=1, &ge;0, &le;1)
      */
