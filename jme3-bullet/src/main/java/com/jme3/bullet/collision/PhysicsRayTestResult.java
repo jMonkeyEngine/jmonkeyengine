@@ -76,7 +76,7 @@ public class PhysicsRayTestResult {
     /**
      * Access the normal vector at the point of contact.
      *
-     * @return the pre-existing vector (not null)
+     * @return a pre-existing unit vector (not null)
      */
     public Vector3f getHitNormalLocal() {
         return hitNormalLocal;

@@ -198,8 +198,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Directly alter this body's orientation.
      *
-     * @param rotation the desired orientation (quaternion, not null,
-     * unaffected)
+     * @param rotation the desired orientation (quaternion, in physics-space
+     * coordinates, not null, unaffected)
      */
     public void setPhysicsRotation(Quaternion rotation) {
         setPhysicsRotation(objectId, rotation);
@@ -211,8 +211,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      * Copy the location of this body's center of mass.
      *
      * @param trans storage for the result (modified if not null)
-     * @return the location (either the provided storage or a new vector, not
-     * null)
+     * @return the location (in physics-space coordinates, either the provided 
+     * storage or a new vector, not null)
      */
     public Vector3f getPhysicsLocation(Vector3f trans) {
         if (trans == null) {
@@ -250,7 +250,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     private native void setInverseInertiaLocal(long objectId, Vector3f gravity);
 
     /**
-     * Read the principal components of the local inverse inertia tensor.
+     * Copy the principal components of the local inverse inertia tensor.
      *
      * @param trans storage for the result (modified if not null)
      * @return a vector (either the provided storage or a new vector, not null)
@@ -271,8 +271,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      * Copy this body's orientation to a matrix.
      *
      * @param rot storage for the result (modified if not null)
-     * @return the orientation (either the provided storage or a new matrix, not
-     * null)
+     * @return the orientation (in physics-space coordinates, either the 
+     * provided storage or a new matrix, not null)
      */
     public Matrix3f getPhysicsRotationMatrix(Matrix3f rot) {
         if (rot == null) {
@@ -473,7 +473,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Copy this body's gravitational acceleration.
      *
-     * @return a new acceleration vector (not null)
+     * @return a new acceleration vector (in physics-space coordinates, not 
+     * null)
      */
     public Vector3f getGravity() {
         return getGravity(null);
@@ -483,8 +484,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      * Copy this body's gravitational acceleration.
      *
      * @param gravity storage for the result (modified if not null)
-     * @return an acceleration vector (either the provided storage or a new
-     * vector, not null)
+     * @return an acceleration vector (in physics-space coordinates, either the 
+     * provided storage or a new vector, not null)
      */
     public Vector3f getGravity(Vector3f gravity) {
         if (gravity == null) {
@@ -619,7 +620,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Copy this body's angular velocity.
      *
-     * @return a new velocity vector (not null)
+     * @return a new velocity vector (in physics-space coordinates, not null)
      */
     public Vector3f getAngularVelocity() {
         Vector3f vec = new Vector3f();
@@ -632,7 +633,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Copy this body's angular velocity.
      *
-     * @param vec storage for the result (not null, modified)
+     * @param vec storage for the result (in physics-space coordinates, not 
+     * null, modified)
      */
     public void getAngularVelocity(Vector3f vec) {
         getAngularVelocity(objectId, vec);
@@ -653,7 +655,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Copy the linear velocity of this body's center of mass.
      *
-     * @return a new velocity vector (not null)
+     * @return a new velocity vector (in physics-space coordinates, not null)
      */
     public Vector3f getLinearVelocity() {
         Vector3f vec = new Vector3f();
@@ -666,7 +668,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Copy the linear velocity of this body's center of mass.
      *
-     * @param vec storage for the result (not null, modified)
+     * @param vec storage for the result (in physics-space coordinates, not 
+     * null, modified)
      */
     public void getLinearVelocity(Vector3f vec) {
         getLinearVelocity(objectId, vec);
@@ -691,7 +694,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      * To apply an impulse, use applyImpulse, use applyContinuousForce to apply
      * continuous force.
      *
-     * @param force the force
+     * @param force the force (not null, unaffected)
      * @param location the location of the force
      */
     public void applyForce(Vector3f force, Vector3f location) {
@@ -708,7 +711,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      * To apply an impulse, use
      * {@link #applyImpulse(com.jme3.math.Vector3f, com.jme3.math.Vector3f)}.
      *
-     * @param force the force
+     * @param force the force (not null, unaffected)
      */
     public void applyCentralForce(Vector3f force) {
         applyCentralForce(objectId, force);
@@ -724,7 +727,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      * To apply an impulse, use
      * {@link #applyImpulse(com.jme3.math.Vector3f, com.jme3.math.Vector3f)}.
      *
-     * @param torque the torque
+     * @param torque the torque (not null, unaffected)
      */
     public void applyTorque(Vector3f torque) {
         applyTorque(objectId, torque);
@@ -736,8 +739,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Apply an impulse to the body the next physics update.
      *
-     * @param impulse applied impulse
-     * @param rel_pos location relative to object
+     * @param impulse applied impulse (not null, unaffected)
+     * @param rel_pos location relative to object (not null, unaffected)
      */
     public void applyImpulse(Vector3f impulse, Vector3f rel_pos) {
         applyImpulse(objectId, impulse, rel_pos);
@@ -870,9 +873,9 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     private native float getAngularSleepingThreshold(long objectId);
 
     /**
-     * Read the X-component of this body's angular factor.
+     * Read this body's angular factor for the X axis.
      *
-     * @return the X-component of the angular factor
+     * @return the angular factor
      */
     public float getAngularFactor() {
         return getAngularFactor(null).getX();
@@ -882,7 +885,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      * Copy this body's angular factors.
      *
      * @param store storage for the result (modified if not null)
-     * @return a vector (either the provided storage or a new vector, not null)
+     * @return the angular factor for each axis (either the provided storage or 
+     * new vector, not null)
      */
     public Vector3f getAngularFactor(Vector3f store) {
         // Done this way to prevent breaking the API.
@@ -920,7 +924,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Copy this body's linear factors.
      *
-     * @return a new vector (not null)
+     * @return the linear factor for each axis (not null)
      */
     public Vector3f getLinearFactor() {
         Vector3f vec = new Vector3f();
