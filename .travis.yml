@@ -1,6 +1,5 @@
 language: java
 sudo: true
-dist: precise
 
 branches:
   only:
