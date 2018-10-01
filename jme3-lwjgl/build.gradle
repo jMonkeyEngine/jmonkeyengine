@@ -1,9 +1,0 @@
-if (!hasProperty('mainClass')) {
-    ext.mainClass = ''
-}
-
-dependencies {
-    compile project(':jme3-core')
-    compile project(':jme3-desktop')
-    compile 'org.lwjgl.lwjgl:lwjgl:2.9.3'
-}

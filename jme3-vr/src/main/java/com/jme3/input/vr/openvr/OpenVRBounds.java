@@ -2,11 +2,13 @@ package com.jme3.input.vr.openvr;
 
 import com.jme3.input.vr.VRBounds;
 import com.jme3.math.Vector2f;
-import com.jme3.system.jopenvr.JOpenVRLibrary;
-import com.jme3.system.jopenvr.VR_IVRChaperone_FnTable;
-import com.sun.jna.ptr.FloatByReference;
+import org.lwjgl.openvr.VRChaperone;
+import org.lwjgl.system.MemoryStack;
 
+import java.nio.FloatBuffer;
 import java.util.logging.Logger;
+
+import static org.lwjgl.system.MemoryStack.stackPush;
 
 /**
  * A class that represents VR world bounds.
@@ -15,45 +17,34 @@ import java.util.logging.Logger;
  */
 public class OpenVRBounds implements VRBounds {
 
-	private static Logger logger = Logger.getLogger(OpenVRBounds.class.getName());
-	
-    private VR_IVRChaperone_FnTable vrChaperone;
+    private static Logger logger = Logger.getLogger(OpenVRBounds.class.getName());
+
     private Vector2f playSize;
-    
-    /**
-     * Initialize the VR bounds.
-     * @return <code>true</code> if the initialization is a success and <code>false</code> otherwise.
-     */
+
+      /**
+       * Initialize the VR bounds.
+       * @return <code>true</code> if the initialization is a success and <code>false</code> otherwise.
+       */
     public boolean init(OpenVR api) {
-    	
-    	logger.config("Initialize VR bounds...");
-    	
-        if( vrChaperone == null ) {
-            vrChaperone = new VR_IVRChaperone_FnTable(JOpenVRLibrary.VR_GetGenericInterface(JOpenVRLibrary.IVRChaperone_Version, api.hmdErrorStore).getPointer());
-            if( vrChaperone != null ) {
-                vrChaperone.setAutoSynch(false);
-                vrChaperone.read();
-                FloatByReference fbX = new FloatByReference();
-                FloatByReference fbZ = new FloatByReference();
-                vrChaperone.GetPlayAreaSize.apply(fbX, fbZ);
-                playSize = new Vector2f(fbX.getValue(), fbZ.getValue());
-                
-                logger.config("Initialize VR bounds [SUCCESS]");
-                return true; // init success
-            }
-            
-            logger.warning("Initialize VR bounds [FAILED].");
-            return false; // failed to init
+        logger.config("Initialize VR bounds...");
+
+        try (MemoryStack stack = stackPush()) {
+            FloatBuffer fbX = stack.mallocFloat(1);
+            FloatBuffer fbZ = stack.mallocFloat(1);
+
+            VRChaperone.VRChaperone_GetPlayAreaSize(fbX, fbZ);
+
+            playSize = new Vector2f(fbX.get(0), fbZ.get(0));
+
+            logger.config("Initialize VR bounds [SUCCESS]");
+            return true; // init success
         }
-        
-        logger.config("Initialize VR bounds already done.");
-        return true; // already initialized
     }
-    
+
     @Override
     public Vector2f getPlaySize() {
         return playSize;
     }
-    
+
 }
 

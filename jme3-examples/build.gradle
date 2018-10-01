@@ -38,6 +38,7 @@ dependencies {
     compile project(':jme3-plugins')
     compile project(':jme3-terrain')
     compile project(':jme3-testdata')
+    compile project(':jme3-vr')
 }
 
 jar.doFirst{
