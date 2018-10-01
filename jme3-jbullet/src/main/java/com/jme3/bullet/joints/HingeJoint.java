@@ -172,5 +172,6 @@ public class HingeJoint extends PhysicsJoint {
         constraint = new HingeConstraint(nodeA.getObjectId(), nodeB.getObjectId(),
                 Converter.convert(pivotA), Converter.convert(pivotB),
                 Converter.convert(axisA), Converter.convert(axisB));
+        ((HingeConstraint) constraint).setAngularOnly(angularOnly);
     }
 }
