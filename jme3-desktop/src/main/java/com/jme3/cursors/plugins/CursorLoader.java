@@ -699,7 +699,7 @@ public class CursorLoader implements AssetLoader {
                     imgDelay = BufferUtils.createIntBuffer(numImages);
                 }
                 imgDelay.put(cid.imgDelay);
-            } else if (imgData != null) {
+            } else if (imgDelay != null) {
                 imgDelay.put(cid.imgDelay);
             }
             xHotSpot = cid.xHotSpot;
