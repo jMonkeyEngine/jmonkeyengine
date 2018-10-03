@@ -224,18 +224,6 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                     // texture type
                     leftTextureType.set ( -1, ETextureType_TextureType_OpenGL, EColorSpace_ColorSpace_Gamma);
                     rightTextureType.set(-1, ETextureType_TextureType_OpenGL, EColorSpace_ColorSpace_Gamma);
-
-                    // TODO: restore the logging
-//                logger.config("Init eyes native texture binds");
-//                logger.config("  Left eye texture");
-//                logger.config("           address: "+leftTextureType.getPointer());
-//                logger.config("              size: "+leftTextureType.size()+" bytes");
-//                logger.config("       color space: "+ OpenVRUtil.getEColorSpaceString(leftTextureType.eColorSpace));
-//                logger.config("              type: "+OpenVRUtil.getETextureTypeString(leftTextureType.eType));
-//                logger.config("         auto read: "+leftTextureType.getAutoRead());
-//                logger.config("        auto write: "+leftTextureType.getAutoWrite());
-//                logger.config("    handle address: "+leftTextureType.handle);
-//                logger.config("      handle value: "+leftTextureType.handle);
                 }
             } else {
                 throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
