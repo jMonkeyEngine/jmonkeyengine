@@ -205,10 +205,10 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                     leftTextureBounds  = new VRTextureBounds(stack.malloc(VRTextureBounds.SIZEOF));
                     rightTextureBounds = new VRTextureBounds(stack.malloc(VRTextureBounds.SIZEOF));
 
-                    //leftTextureBounds .set(0f,   0f, 0.5f, 1f);
-                    //rightTextureBounds.set(0.5f, 0f, 1f, 1f);
-                    leftTextureBounds .set(0f, 0f, 1f, 1f);
-                    rightTextureBounds.set(0f, 0f, 1f, 1f);
+                    leftTextureBounds .set(0f,   0f, 0.5f, 1f);
+                    rightTextureBounds.set(0.5f, 0f, 1f, 1f);
+                    //leftTextureBounds .set(0f, 0f, 1f, 1f);
+                    //rightTextureBounds.set(0f, 0f, 1f, 1f);
 
                     logger.severe(String.format( "Left Texture bounds: (%s, %s) (%s, %s)",
                         leftTextureBounds.uMin(),
