@@ -123,9 +123,7 @@ public class VRGuiManager {
 	 * @return the GUI canvas size. This method return the size in pixels of the GUI available area within the VR view.
 	 */
 	public Vector2f getCanvasSize() {
-
 		if (environment != null){
-
 			if (environment.getApplication() != null){
 				if( screenSize == null ) {
 					if( environment.isInVR() && environment.getVRHardware() != null ) {
@@ -144,7 +142,6 @@ public class VRGuiManager {
 		} else {
 			throw new IllegalStateException("VR GUI manager is not attached to any environment.");
 		}
-
 	}   
 
 	/**
@@ -153,9 +150,7 @@ public class VRGuiManager {
 	 * @see #getCanvasSize()
 	 */
 	public Vector2f getCanvasToWindowRatio() {
-
 		if (environment != null){
-
 			if (environment.getApplication() != null){
 				if( ratio == null ) {
 					ratio = new Vector2f();
@@ -168,7 +163,6 @@ public class VRGuiManager {
 					ratio.y = Float.max(1f, canvas.y / height);
 				}
 				return ratio;
-
 			} else {
 				throw new IllegalStateException("VR GUI manager underlying environment is not attached to any application.");
 			}
@@ -191,7 +185,6 @@ public class VRGuiManager {
 	 * @param tpf the time per frame.
 	 */
 	private void positionTo(Vector3f pos, Quaternion dir, float tpf) {
-
 		if (environment != null){
 			Vector3f guiPos = guiQuadNode.getLocalTranslation();
 			guiPos.set(0f, 0f, guiDistance);
@@ -221,7 +214,6 @@ public class VRGuiManager {
 	 * @param tpf the time per frame.
 	 */
 	public void positionGuiNow(float tpf) {
-
 		if (environment != null){
 			wantsReposition = false;
 			if( environment.isInVR() == false ){

@@ -79,7 +79,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
      * @see #getFullTexId()
      */
     protected int getLeftTexId() {
-        return (int)getLeftTexture().getImage().getId();
+        return getLeftTexture().getImage().getId();
     }
 
     /**
@@ -89,7 +89,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
      * @see #getFullTexId()
      */
     protected int getRightTexId() {
-        return (int)getRightTexture().getImage().getId();
+        return getRightTexture().getImage().getId();
     }
 
     /**
@@ -99,7 +99,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
      * @see #getRightTexId()
      */
     private int getFullTexId() {
-        return (int)dualEyeTex.getImage().getId();
+        return dualEyeTex.getImage().getId();
     }
 
     /**
@@ -115,11 +115,11 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                     // texture bounds
                     leftTextureBounds  = new VRTextureBounds(stack.malloc(VRTextureBounds.SIZEOF));
                     rightTextureBounds = new VRTextureBounds(stack.malloc(VRTextureBounds.SIZEOF));
-                    leftTextureBounds .set(0f,   1f, 0f, 0.5f);
+                    leftTextureBounds .set(0f,   0f, 0.5f, 1f);
                     rightTextureBounds.set(0.5f, 0f, 1f, 1f);
 
                     // texture type
-                    leftTextureType.set ( 1, ETextureType_TextureType_OpenGL, EColorSpace_ColorSpace_Gamma);
+                    leftTextureType.set ( -1, ETextureType_TextureType_OpenGL, EColorSpace_ColorSpace_Gamma);
                     rightTextureType.set(-1, ETextureType_TextureType_OpenGL, EColorSpace_ColorSpace_Gamma);
 
                     // TODO: restore the logging
@@ -133,16 +133,6 @@ public class OpenVRViewManager extends AbstractVRViewManager {
 //                logger.config("        auto write: "+leftTextureType.getAutoWrite());
 //                logger.config("    handle address: "+leftTextureType.handle);
 //                logger.config("      handle value: "+leftTextureType.handle);
-//                logger.config("");
-//                logger.config("  Right eye texture");
-//                logger.config("           address: "+rightTextureType.getPointer());
-//                logger.config("              size: "+rightTextureType.size()+" bytes");
-//                logger.config("       color space: "+OpenVRUtil.getEColorSpaceString(rightTextureType.eColorSpace));
-//                logger.config("              type: "+OpenVRUtil.getETextureTypeString(rightTextureType.eType));
-//                logger.config("         auto read: "+rightTextureType.getAutoRead());
-//                logger.config("        auto write: "+rightTextureType.getAutoWrite());
-//                logger.config("    handle address: "+rightTextureType.handle);
-//                logger.config("      handle value: "+rightTextureType.handle);
                 }
             } else {
                 throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
@@ -158,79 +148,59 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     @Override
     public void postRender() {
 
-    	if (environment != null){
-    		if( environment.isInVR() ) {
+        if (environment != null) {
+            if (environment.isInVR()) {
                 VRAPI api = environment.getVRHardware();
-                if( api.getCompositor() != null ) {
-                    // using the compositor...
+                if (api.getCompositor() != null) {
                     int errl = 0, errr = 0;
-                    if( environment.isInstanceRendering() ) {
-                        if( leftTextureType.handle() == -1 || leftTextureType.handle() != getFullTexId() ) {
-                        	leftTextureType.handle(getFullTexId());
-                            if( leftTextureType.handle() != -1 ) {
-//                                leftTextureType.write();
-                            }
+                    if (environment.isInstanceRendering()) {
+                        if (leftTextureType.handle() == -1 || leftTextureType.handle() != getFullTexId()) {
+                            leftTextureType.handle(getFullTexId());
                         } else {
-                            if( api instanceof OpenVR ) {
-                                int submitFlag = EVRSubmitFlags_Submit_Default;
-                                errr = VRCompositor_Submit(EVREye_Eye_Right, leftTextureType, rightTextureBounds, submitFlag);
-                                errl = VRCompositor_Submit(EVREye_Eye_Left, leftTextureType, leftTextureBounds, submitFlag);
-                            }
+                            int submitFlag = EVRSubmitFlags_Submit_Default;
+                            errr = VRCompositor_Submit(EVREye_Eye_Right, leftTextureType, rightTextureBounds, submitFlag);
+                            errl = VRCompositor_Submit(EVREye_Eye_Left, leftTextureType, leftTextureBounds, submitFlag);
                         }
-                    } else if( leftTextureType.handle() == -1 || rightTextureType.handle() == -1 ||
-                               leftTextureType.handle() != getLeftTexId() || rightTextureType.handle() != getRightTexId() ) {
+                    } else if (leftTextureType.handle() == -1 || rightTextureType.handle() == -1 ||
+                            leftTextureType.handle() != getLeftTexId() || rightTextureType.handle() != getRightTexId()) {
                         leftTextureType.handle(getLeftTexId());
-                        if( leftTextureType.handle() != -1 ) {
-                        	logger.fine("Writing Left texture to native memory at " + leftTextureType);
-                            //leftTextureType.write();
-                        }
                         rightTextureType.handle(getRightTexId());
-                        if( rightTextureType.handle() != -1 ) {
-                        	logger.fine("Writing Right texture to native memory at " + leftTextureType);
-                            //rightTextureType.write();
-                        }
                     } else {
-                        if( api instanceof OpenVR ) {
-                            errl = VRCompositor_Submit(EVREye_Eye_Left, leftTextureType, null,
-                                                                   EVRSubmitFlags_Submit_Default);
-                            handleCompositorError(errl);
-                            errr = VRCompositor_Submit(EVREye_Eye_Right, rightTextureType, null,
-                                                                   EVRSubmitFlags_Submit_Default);
-                            handleCompositorError(errr);
-                        } else {
-
-                        }
+                        errl = VRCompositor_Submit(EVREye_Eye_Left, leftTextureType, leftTextureBounds,
+                                EVRSubmitFlags_Submit_Default);
+                        errr = VRCompositor_Submit(EVREye_Eye_Right, rightTextureType, rightTextureBounds,
+                                EVRSubmitFlags_Submit_Default);
                     }
 
-                    // TODO: restore this logging
-//                    if( errl != 0 ){
-//                    	logger.severe("Submit to left compositor error: " + OpenVRUtil.getEVRCompositorErrorString(errl)+" ("+Integer.toString(errl)+")");
-//                    	logger.severe("  Texture color space: "+OpenVRUtil.getEColorSpaceString(leftTextureType.eColorSpace));
-//                    	logger.severe("  Texture type: "+OpenVRUtil.getETextureTypeString(leftTextureType.eType));
-//                    	logger.severe("  Texture handle: "+leftTextureType.handle);
-//
-//                        logger.severe("  Left eye texture "+leftEyeTexture.getName()+" ("+leftEyeTexture.getImage().getId()+")");
-//                        logger.severe("                 Type: "+leftEyeTexture.getType());
-//                        logger.severe("                 Size: "+leftEyeTexture.getImage().getWidth()+"x"+leftEyeTexture.getImage().getHeight());
-//                        logger.severe("          Image depth: "+leftEyeTexture.getImage().getDepth());
-//                        logger.severe("         Image format: "+leftEyeTexture.getImage().getFormat());
-//                        logger.severe("    Image color space: "+leftEyeTexture.getImage().getColorSpace());
-//
-//                    }
-//
-//                    if( errr != 0 ){
-//                    	logger.severe("Submit to right compositor error: " + OpenVRUtil.getEVRCompositorErrorString(errl)+" ("+Integer.toString(errl)+")");
-//                    	logger.severe("  Texture color space: "+OpenVRUtil.getEColorSpaceString(rightTextureType.eColorSpace));
-//                    	logger.severe("  Texture type: "+OpenVRUtil.getETextureTypeString(rightTextureType.eType));
-//                    	logger.severe("  Texture handle: "+rightTextureType.handle);
-//
-//                        logger.severe("  Right eye texture "+rightEyeTexture.getName()+" ("+rightEyeTexture.getImage().getId()+")");
-//                        logger.severe("                 Type: "+rightEyeTexture.getType());
-//                        logger.severe("                 Size: "+rightEyeTexture.getImage().getWidth()+"x"+rightEyeTexture.getImage().getHeight());
-//                        logger.severe("          Image depth: "+rightEyeTexture.getImage().getDepth());
-//                        logger.severe("         Image format: "+rightEyeTexture.getImage().getFormat());
-//                        logger.severe("    Image color space: "+rightEyeTexture.getImage().getColorSpace());
-//                    }
+                    if( errl != 0 ) {
+                        handleCompositorError(errl);
+                        logger.severe("  Texture color space: "+ OpenVRUtil.getEColorSpaceString(leftTextureType.eColorSpace()));
+                        logger.severe("  Texture type: "+ OpenVRUtil.getETextureTypeString(leftTextureType.eType()));
+                        logger.severe("  Texture handle: "+ leftTextureType.handle());
+
+                        logger.severe("  Left eye texture "+leftEyeTexture.getName()+" ("+leftEyeTexture.getImage().getId()+")");
+                        logger.severe("                 Type: "+leftEyeTexture.getType());
+                        logger.severe("                 Size: "+leftEyeTexture.getImage().getWidth()+"x"+leftEyeTexture.getImage().getHeight());
+                        logger.severe("          Image depth: "+leftEyeTexture.getImage().getDepth());
+                        logger.severe("         Image format: "+leftEyeTexture.getImage().getFormat());
+                        logger.severe("    Image color space: "+leftEyeTexture.getImage().getColorSpace());
+                    }
+
+                    if( errr != 0 ) {
+                        handleCompositorError(errr);
+                        logger.severe("  Texture color space: "+ OpenVRUtil.getEColorSpaceString(rightTextureType.eColorSpace()));
+                        logger.severe("  Texture type: "+ OpenVRUtil.getETextureTypeString(rightTextureType.eType()));
+                        logger.severe("  Texture handle: "+ rightTextureType.handle());
+
+                        logger.severe("  Right eye texture "+rightEyeTexture.getName()+" ("+rightEyeTexture.getImage().getId()+")");
+                        logger.severe("                 Type: "+rightEyeTexture.getType());
+                        logger.severe("                 Size: "+rightEyeTexture.getImage().getWidth()+"x"+rightEyeTexture.getImage().getHeight());
+                        logger.severe("          Image depth: "+rightEyeTexture.getImage().getDepth());
+                        logger.severe("         Image format: "+rightEyeTexture.getImage().getFormat());
+                        logger.severe("    Image color space: "+rightEyeTexture.getImage().getColorSpace());
+
+
+                    }
                 }
             }
     	} else {
@@ -356,7 +326,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     /**
      * Replaces rootNode as the main cameras scene with the distortion mesh
      */
-    private void setupVRScene(){
+    private void setupVRScene() {
 
     	if (environment != null){
     		if (environment.getApplication() != null){
@@ -522,9 +492,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                 }
                 rightViewPort = setupViewBuffers(getRightCamera(), RIGHT_VIEW_NAME);
             } else {
-
             	if (environment.getApplication() != null){
-
                 	logger.severe("THIS CODE NEED CHANGES !!!");
                     leftViewPort = environment.getApplication().getViewPort();
                     //leftViewport.attachScene(app.getRootNode());
@@ -541,7 +509,6 @@ public class OpenVRViewManager extends AbstractVRViewManager {
             	} else {
         			throw new IllegalStateException("This VR environment is not attached to any application.");
         		}
-
             }
 
             // setup gui
