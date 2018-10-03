@@ -218,8 +218,10 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                         if( api instanceof OpenVR ) {
                             errl = VRCompositor_Submit(EVREye_Eye_Left, leftTextureType, null,
                                                                    EVRSubmitFlags_Submit_Default);
+                            handleCompositorError(errl);
                             errr = VRCompositor_Submit(EVREye_Eye_Right, rightTextureType, null,
                                                                    EVRSubmitFlags_Submit_Default);
+                            handleCompositorError(errr);
                         } else {
 
                         }
@@ -264,6 +266,46 @@ public class OpenVRViewManager extends AbstractVRViewManager {
 
     }
 
+    private void handleCompositorError(int err) {
+      switch (err) {
+        case EVRCompositorError_VRCompositorError_None:
+          logger.warning("There was no compositor");
+          break;
+        case EVRCompositorError_VRCompositorError_RequestFailed:
+          logger.warning("Compositor request Failed");
+          break;
+        case EVRCompositorError_VRCompositorError_IncompatibleVersion:
+          logger.warning("Incompatible compositor version");
+          break;
+        case EVRCompositorError_VRCompositorError_DoNotHaveFocus:
+          logger.warning("Some other app has compositor focus");
+          break;
+        case EVRCompositorError_VRCompositorError_InvalidTexture:
+          logger.warning("InvalidTexture (usually means bad arguments passed in)");
+          break;
+        case EVRCompositorError_VRCompositorError_IsNotSceneApplication:
+          logger.warning("Compositor: Is not scene application");
+          break;
+        case EVRCompositorError_VRCompositorError_TextureIsOnWrongDevice:
+          logger.warning("Application didn't user proper AdapterIndex. See GetDXGIOutputInfo");
+          break;
+        case EVRCompositorError_VRCompositorError_TextureUsesUnsupportedFormat:
+          logger.warning("TextureUsesUnsupportedFormat (scene textures must be compatible with DXGI sharing rules - e.g. uncompressed, no mips, etc.)");
+          break;
+        case EVRCompositorError_VRCompositorError_SharedTexturesNotSupported:
+          logger.warning("SharedTexturesNotSupported (application needs to call CreateDXGIFactory1 or later before creating DX device)");
+          break;
+        case EVRCompositorError_VRCompositorError_IndexOutOfRange:
+          logger.warning("Compositor: Index out of range");
+          break;
+        case EVRCompositorError_VRCompositorError_AlreadySubmitted:
+          logger.warning("AlreadySubmitted (app has submitted two left textures or two right textures in a single frame - i.e. before calling WaitGetPoses again)");
+          break;
+        case EVRCompositorError_VRCompositorError_InvalidBounds:
+          logger.warning("Compositor: Invalid Bounds");
+          break;
+      }
+    }
 
     @Override
     public void initialize() {

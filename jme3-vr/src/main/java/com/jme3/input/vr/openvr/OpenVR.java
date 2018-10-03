@@ -94,6 +94,8 @@ public class OpenVR implements VRAPI {
     private boolean enableDebugLatency = false;
 
     private VREnvironment environment = null;
+    private Object compositorPlaceholder = new Object();
+    private Object systemPlaceholder = new Object();
 
     /**
      * Create a new <a href="https://github.com/ValveSoftware/openvr/wiki/API-Documentation">OpenVR</a> system
@@ -138,13 +140,14 @@ public class OpenVR implements VRAPI {
     @Override
     public Object getVRSystem() {
         // TODO: is this used anywhere?
-        return null;
+        return systemPlaceholder;
     }
 
     @Override
     public Object getCompositor() {
-        // TODO: is this used anywhere?
-        return null;
+        // Looks like this is our way of saying we have a validp
+        // compositor
+        return compositorPlaceholder;
     }
 
     @Override

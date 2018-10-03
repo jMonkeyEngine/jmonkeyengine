@@ -497,6 +497,7 @@ public class VRAppState extends AbstractAppState {
                                     
         if( environment.isInVR()) {
             // TODO: make this cross-platform
+            // The values are in OpenVR
             try (MemoryStack stack = MemoryStack.stackPush()) {
                 IntBuffer widthBuffer = stack.ints(1);
                 IntBuffer heightBuffer = stack.ints(1);
