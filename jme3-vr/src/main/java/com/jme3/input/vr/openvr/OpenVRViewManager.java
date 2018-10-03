@@ -620,7 +620,6 @@ public class OpenVRViewManager extends AbstractVRViewManager {
             	if (environment.getApplication() != null){
                 	logger.severe("THIS CODE NEED CHANGES !!!");
                     leftViewPort = environment.getApplication().getViewPort();
-                    //leftViewport.attachScene(app.getRootNode());
                     rightCamera = getLeftCamera().clone();
                     if( environment.getVRHardware() != null ){
                     	getRightCamera().setProjectionMatrix(environment.getVRHardware().getHMDMatrixProjectionRightEye(getRightCamera()));
@@ -632,8 +631,8 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                     //RenderManager._VRInstancing_RightCamProjection = camRight.getViewProjectionMatrix();
                     setupFinalFullTexture(environment.getApplication().getViewPort().getCamera());
             	} else {
-        			throw new IllegalStateException("This VR environment is not attached to any application.");
-        		}
+                throw new IllegalStateException("This VR environment is not attached to any application.");
+              }
             }
 
             // setup gui
