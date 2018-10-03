@@ -54,7 +54,7 @@ public class VREnvironment {
     
     private boolean forceVR       = false;
     
-    private boolean vrSupportedOS = false;
+    private boolean vrSupportedOS = true;
     
     private boolean nogui = false;
     
