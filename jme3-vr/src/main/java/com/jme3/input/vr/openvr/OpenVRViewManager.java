@@ -64,12 +64,68 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     private final Vector3f hmdPos          = new Vector3f();
     private final Quaternion hmdRot        = new Quaternion();
 
+    private class Eye {
+      private Eye() {
+        bounds = VRTextureBounds.create()
+        bounds.set(0f, 0f, 1.0f, 1.0f)
+
+        // FBO
+        val buffer = ByteBuffer.allocateDirect(1 * 4).order(ByteOrder.nativeOrder()).asIntBuffer()
+        EXTFramebufferObject.glGenFramebuffersEXT(buffer)
+        val fbo = buffer.get()
+
+        // Bind FBO
+        EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, fbo)
+
+        // Texture
+        val texBuffer = BufferUtils.createIntBuffer(1)
+        glCreateTextures(GL_TEXTURE_2D, texBuffer)
+        texture = texBuffer[0]
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture)
+        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, vrApp.recWidth, vrApp.recHeight)
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, texture, 0)
+
+        // Depth Buffer
+        val depthFormat = GL_DEPTH_COMPONENT24
+        val depthRenderBufferID = glGenRenderbuffersEXT()
+        glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, depthFormat, 512, 512);
+        // Attach Depth
+        glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depthRenderBufferID);
+
+        glViewport(0, 0, vrApp.recWidth, vrApp.recHeight)
+
+        glClearColor(color[0], color[1], color[2], color[3])
+        glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+      }
+    }
+
+    private org.lwjgl.openvr.Texture makeTexture(handle: Long, textureType: Int, colorSpace: Int) {
+      val buffer = BufferUtils.createByteBuffer(Texture.SIZEOF)
+
+      val t = org.lwjgl.openvr.Texture(buffer)
+
+      t.set(handle, textureType, colorSpace)
+      t.eType(ETextureType_TextureType_OpenGL)
+      t.eColorSpace(colorSpace)
+
+      return t
+    }
+
+    private void initTextures() {
+      left = new Eye();
+      right = new Eye();
+
+      val leftEyeTexture = makeTexture(leftEye.texture.toLong(), ETextureType_TextureType_OpenGL, colorSpace)
+      val rightEyeTexture = makeTexture(rightEye.texture.toLong(), ETextureType_TextureType_OpenGL, colorSpace)
+    }
+
     /**
      * Create a new VR view manager attached to the given {@link VREnvironment VR environment}.
      * @param environment the {@link VREnvironment VR environment} to which this view manager is attached.
      */
     public OpenVRViewManager(VREnvironment environment){
     	this.environment = environment;
+      initTextures();
     }
 
     /**
@@ -166,10 +222,11 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                         leftTextureType.handle(getLeftTexId());
                         rightTextureType.handle(getRightTexId());
                     } else {
-                        errl = VRCompositor_Submit(EVREye_Eye_Left, leftTextureType, leftTextureBounds,
-                                EVRSubmitFlags_Submit_Default);
-                        errr = VRCompositor_Submit(EVREye_Eye_Right, rightTextureType, rightTextureBounds,
-                                EVRSubmitFlags_Submit_Default);
+                        // errl = VRCompositor_Submit(EVREye_Eye_Left, leftTextureType, leftTextureBounds, EVRSubmitFlags_Submit_Default);
+                        // errr = VRCompositor_Submit(EVREye_Eye_Right, rightTextureType, rightTextureBounds, EVRSubmitFlags_Submit_Default);
+
+                        errl = VRCompositor_Submit(EVREye_Eye_Left, redTexture, redTextureBounds, EVRSubmitFlags_Submit_Default);
+                        errr = VRCompositor_Submit(EVREye_Eye_Right, redTexture, redTextureBounds, EVRSubmitFlags_Submit_Default);
                     }
 
                     if( errl != 0 ) {
