@@ -554,38 +554,6 @@ public class VRAppState extends AbstractAppState {
         }
         
         if( !environment.isInVR() ) {
-        	
-        	//FIXME: Handling GLFW workaround on MacOS
-        	boolean macOs = false;
-            if (macOs) {
-                // GLFW workaround on macs
-                settings.setFrequency(defDev.getDisplayMode().getRefreshRate());
-                settings.setDepthBits(24);
-                settings.setVSync(true);
-                // try and read resolution from file in local dir
-                File resfile = new File("resolution.txt");
-                if( resfile.exists() ) {
-                    try {
-                        BufferedReader br = new BufferedReader(new FileReader(resfile));
-                        settings.setWidth(Integer.parseInt(br.readLine()));
-                        settings.setHeight(Integer.parseInt(br.readLine()));
-                        try {
-                            settings.setFullscreen(br.readLine().toLowerCase(Locale.ENGLISH).contains("full"));
-                        } catch(Exception e) {
-                            settings.setFullscreen(false);
-                        }
-                        br.close();
-                    } catch(Exception e) {
-                        settings.setWidth(1280);
-                        settings.setHeight(720);
-                    }
-                } else {
-                    settings.setWidth(1280);
-                    settings.setHeight(720);
-                    settings.setFullscreen(false);
-                }
-                settings.setResizable(false);
-            }
             settings.setSwapBuffers(true);
         } else {
             // use basic mirroring window, skip settings window
