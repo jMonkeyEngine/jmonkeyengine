@@ -174,6 +174,17 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                     leftTextureBounds .set(0f,   0f, 0.5f, 1f);
                     rightTextureBounds.set(0.5f, 0f, 1f, 1f);
 
+                    logger.severe(String.format( "Left Texture bounds: (%s, %s) (%s, %s)",
+                        leftTextureBounds.uMin(),
+                        leftTextureBounds.uMax(),
+                        leftTextureBounds.vMin(),
+                        leftTextureBounds.vMax()));
+                    logger.severe(String.format( "Right Texture bounds: (%s, %s) (%s, %s)",
+                        rightTextureBounds.uMin(),
+                        rightTextureBounds.uMax(),
+                        rightTextureBounds.vMin(),
+                        rightTextureBounds.vMax()));
+
                     // texture type
                     leftTextureType.set ( -1, ETextureType_TextureType_OpenGL, EColorSpace_ColorSpace_Gamma);
                     rightTextureType.set(-1, ETextureType_TextureType_OpenGL, EColorSpace_ColorSpace_Gamma);
@@ -227,6 +238,8 @@ public class OpenVRViewManager extends AbstractVRViewManager {
 
                         errl = VRCompositor_Submit(EVREye_Eye_Left, redTexture, redTextureBounds, EVRSubmitFlags_Submit_Default);
                         errr = VRCompositor_Submit(EVREye_Eye_Right, redTexture, redTextureBounds, EVRSubmitFlags_Submit_Default);
+//                        errl = VRCompositor_Submit(EVREye_Eye_Left, leftTextureType, null, EVRSubmitFlags_Submit_Default);
+//                        errr = VRCompositor_Submit(EVREye_Eye_Right, rightTextureType, null, EVRSubmitFlags_Submit_Default);
                     }
 
                     if( errl != 0 ) {
@@ -241,6 +254,12 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                         logger.severe("          Image depth: "+leftEyeTexture.getImage().getDepth());
                         logger.severe("         Image format: "+leftEyeTexture.getImage().getFormat());
                         logger.severe("    Image color space: "+leftEyeTexture.getImage().getColorSpace());
+                        logger.severe("Left Texture bounds: " + rightTextureBounds.toString());
+                        logger.severe(String.format( "Left Texture bounds: (%s, %s) (%s, %s)",
+                            leftTextureBounds.uMin(),
+                            leftTextureBounds.uMax(),
+                            leftTextureBounds.vMin(),
+                            leftTextureBounds.vMax()));
                     }
 
                     if( errr != 0 ) {
@@ -255,6 +274,12 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                         logger.severe("          Image depth: "+rightEyeTexture.getImage().getDepth());
                         logger.severe("         Image format: "+rightEyeTexture.getImage().getFormat());
                         logger.severe("    Image color space: "+rightEyeTexture.getImage().getColorSpace());
+
+                        logger.severe(String.format( "Right Texture bounds: (%s, %s) (%s, %s)",
+                            rightTextureBounds.uMin(),
+                            rightTextureBounds.uMax(),
+                            rightTextureBounds.vMin(),
+                            rightTextureBounds.vMax()));
 
 
                     }
