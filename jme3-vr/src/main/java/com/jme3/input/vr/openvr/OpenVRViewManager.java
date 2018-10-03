@@ -27,15 +27,28 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
 import com.jme3.util.VRGUIPositioningMode;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.EXTFramebufferObject;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.openvr.DistortionCoordinates;
 import org.lwjgl.openvr.VRCompositor;
 import org.lwjgl.openvr.VRTextureBounds;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
+import static com.jme3.renderer.opengl.GL.GL_COLOR_BUFFER_BIT;
+import static com.jme3.renderer.opengl.GL.GL_DEPTH_BUFFER_BIT;
+import static com.jme3.renderer.opengl.GL.GL_TEXTURE_2D;
+import static com.jme3.renderer.opengl.GL2.GL_DEPTH_COMPONENT24;
+import static org.lwjgl.opengl.EXTFramebufferObject.*;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL42.glTexStorage2D;
+import static org.lwjgl.opengl.GL45.glCreateTextures;
 import static org.lwjgl.openvr.VR.*;
 import static org.lwjgl.openvr.VRCompositor.VRCompositor_Submit;
 import static org.lwjgl.openvr.VRSystem.VRSystem_ComputeDistortion;
@@ -65,58 +78,69 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     private final Quaternion hmdRot        = new Quaternion();
 
     private class Eye {
-      private Eye() {
-        bounds = VRTextureBounds.create()
-        bounds.set(0f, 0f, 1.0f, 1.0f)
+
+        private VRTextureBounds bounds;
+        private int texture;
+
+      private Eye(int width, int height, float[] color) {
+        bounds = VRTextureBounds.create();
+        bounds.set(0f, 0f, 1.0f, 1.0f);
 
         // FBO
-        val buffer = ByteBuffer.allocateDirect(1 * 4).order(ByteOrder.nativeOrder()).asIntBuffer()
-        EXTFramebufferObject.glGenFramebuffersEXT(buffer)
-        val fbo = buffer.get()
+        IntBuffer buffer = ByteBuffer.allocateDirect(1 * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
+        EXTFramebufferObject.glGenFramebuffersEXT(buffer);
+        int fbo = buffer.get();
 
         // Bind FBO
-        EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, fbo)
+        EXTFramebufferObject.glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
 
         // Texture
-        val texBuffer = BufferUtils.createIntBuffer(1)
-        glCreateTextures(GL_TEXTURE_2D, texBuffer)
-        texture = texBuffer[0]
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture)
-        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, vrApp.recWidth, vrApp.recHeight)
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, texture, 0)
+        IntBuffer texBuffer = BufferUtils.createIntBuffer(1);
+        glCreateTextures(GL_TEXTURE_2D, texBuffer);
+        texture = texBuffer.get(0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, width, height);
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, texture, 0);
 
         // Depth Buffer
-        val depthFormat = GL_DEPTH_COMPONENT24
-        val depthRenderBufferID = glGenRenderbuffersEXT()
+        int depthFormat = GL_DEPTH_COMPONENT24;
+        int depthRenderBufferID = glGenRenderbuffersEXT();
         glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, depthFormat, 512, 512);
         // Attach Depth
         glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, depthRenderBufferID);
 
-        glViewport(0, 0, vrApp.recWidth, vrApp.recHeight)
+        glViewport(0, 0, width, height);
 
-        glClearColor(color[0], color[1], color[2], color[3])
-        glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+        glClearColor(color[0], color[1], color[2], color[3]);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       }
     }
 
-    private org.lwjgl.openvr.Texture makeTexture(handle: Long, textureType: Int, colorSpace: Int) {
-      val buffer = BufferUtils.createByteBuffer(Texture.SIZEOF)
+    private org.lwjgl.openvr.Texture makeTexture(long handle, int textureType, int colorSpace) {
+      ByteBuffer buffer = BufferUtils.createByteBuffer(org.lwjgl.openvr.Texture.SIZEOF);
+      org.lwjgl.openvr.Texture t = new org.lwjgl.openvr.Texture(buffer);
+      t.set(handle, textureType, colorSpace);
 
-      val t = org.lwjgl.openvr.Texture(buffer)
-
-      t.set(handle, textureType, colorSpace)
-      t.eType(ETextureType_TextureType_OpenGL)
-      t.eColorSpace(colorSpace)
-
-      return t
+      return t;
     }
 
-    private void initTextures() {
-      left = new Eye();
-      right = new Eye();
+        private Eye leftEye                             ;
+        private Eye rightEye                            ;
 
-      val leftEyeTexture = makeTexture(leftEye.texture.toLong(), ETextureType_TextureType_OpenGL, colorSpace)
-      val rightEyeTexture = makeTexture(rightEye.texture.toLong(), ETextureType_TextureType_OpenGL, colorSpace)
+        private org.lwjgl.openvr.Texture leftEyeLwjglTexture ;
+        private org.lwjgl.openvr.Texture rightEyeLwjglTexture;
+
+    private void initTextures() {
+        int width = 1512;
+        int height = 1680;
+        float[] red = {1.0f, 0.0f, 0.0f, 1.0f};
+        float[] green = {0.0f, 1.0f, 0.0f, 1.0f};
+
+        leftEye = new Eye(width, height, red);
+        rightEye = new Eye(width, height, green);
+
+        leftEyeLwjglTexture = makeTexture(leftEye.texture, ETextureType_TextureType_OpenGL, EColorSpace_ColorSpace_Gamma);
+        rightEyeLwjglTexture = makeTexture(rightEye.texture, ETextureType_TextureType_OpenGL, EColorSpace_ColorSpace_Gamma);
     }
 
     /**
@@ -125,7 +149,6 @@ public class OpenVRViewManager extends AbstractVRViewManager {
      */
     public OpenVRViewManager(VREnvironment environment){
     	this.environment = environment;
-      initTextures();
     }
 
     /**
@@ -236,50 +259,54 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                         // errl = VRCompositor_Submit(EVREye_Eye_Left, leftTextureType, leftTextureBounds, EVRSubmitFlags_Submit_Default);
                         // errr = VRCompositor_Submit(EVREye_Eye_Right, rightTextureType, rightTextureBounds, EVRSubmitFlags_Submit_Default);
 
-                        errl = VRCompositor_Submit(EVREye_Eye_Left, redTexture, redTextureBounds, EVRSubmitFlags_Submit_Default);
-                        errr = VRCompositor_Submit(EVREye_Eye_Right, redTexture, redTextureBounds, EVRSubmitFlags_Submit_Default);
+                      if ( leftEyeLwjglTexture == null || rightEyeLwjglTexture == null) {
+                        initTextures();
+                      }
+
+                        errl = VRCompositor_Submit(EVREye_Eye_Left, leftEyeLwjglTexture, leftEye.bounds, EVRSubmitFlags_Submit_Default);
+                        errr = VRCompositor_Submit(EVREye_Eye_Right, rightEyeLwjglTexture, rightEye.bounds, EVRSubmitFlags_Submit_Default);
 //                        errl = VRCompositor_Submit(EVREye_Eye_Left, leftTextureType, null, EVRSubmitFlags_Submit_Default);
 //                        errr = VRCompositor_Submit(EVREye_Eye_Right, rightTextureType, null, EVRSubmitFlags_Submit_Default);
                     }
 
                     if( errl != 0 ) {
                         handleCompositorError(errl);
-                        logger.severe("  Texture color space: "+ OpenVRUtil.getEColorSpaceString(leftTextureType.eColorSpace()));
-                        logger.severe("  Texture type: "+ OpenVRUtil.getETextureTypeString(leftTextureType.eType()));
-                        logger.severe("  Texture handle: "+ leftTextureType.handle());
-
-                        logger.severe("  Left eye texture "+leftEyeTexture.getName()+" ("+leftEyeTexture.getImage().getId()+")");
-                        logger.severe("                 Type: "+leftEyeTexture.getType());
-                        logger.severe("                 Size: "+leftEyeTexture.getImage().getWidth()+"x"+leftEyeTexture.getImage().getHeight());
-                        logger.severe("          Image depth: "+leftEyeTexture.getImage().getDepth());
-                        logger.severe("         Image format: "+leftEyeTexture.getImage().getFormat());
-                        logger.severe("    Image color space: "+leftEyeTexture.getImage().getColorSpace());
-                        logger.severe("Left Texture bounds: " + rightTextureBounds.toString());
-                        logger.severe(String.format( "Left Texture bounds: (%s, %s) (%s, %s)",
-                            leftTextureBounds.uMin(),
-                            leftTextureBounds.uMax(),
-                            leftTextureBounds.vMin(),
-                            leftTextureBounds.vMax()));
+//                        logger.severe("  Texture color space: "+ OpenVRUtil.getEColorSpaceString(leftTextureType.eColorSpace()));
+//                        logger.severe("  Texture type: "+ OpenVRUtil.getETextureTypeString(leftTextureType.eType()));
+//                        logger.severe("  Texture handle: "+ leftTextureType.handle());
+//
+//                        logger.severe("  Left eye texture "+leftEyeTexture.getName()+" ("+leftEyeTexture.getImage().getId()+")");
+//                        logger.severe("                 Type: "+leftEyeTexture.getType());
+//                        logger.severe("                 Size: "+leftEyeTexture.getImage().getWidth()+"x"+leftEyeTexture.getImage().getHeight());
+//                        logger.severe("          Image depth: "+leftEyeTexture.getImage().getDepth());
+//                        logger.severe("         Image format: "+leftEyeTexture.getImage().getFormat());
+//                        logger.severe("    Image color space: "+leftEyeTexture.getImage().getColorSpace());
+//                        logger.severe("Left Texture bounds: " + rightTextureBounds.toString());
+//                        logger.severe(String.format( "Left Texture bounds: (%s, %s) (%s, %s)",
+//                            leftTextureBounds.uMin(),
+//                            leftTextureBounds.uMax(),
+//                            leftTextureBounds.vMin(),
+//                            leftTextureBounds.vMax()));
                     }
 
                     if( errr != 0 ) {
                         handleCompositorError(errr);
-                        logger.severe("  Texture color space: "+ OpenVRUtil.getEColorSpaceString(rightTextureType.eColorSpace()));
-                        logger.severe("  Texture type: "+ OpenVRUtil.getETextureTypeString(rightTextureType.eType()));
-                        logger.severe("  Texture handle: "+ rightTextureType.handle());
-
-                        logger.severe("  Right eye texture "+rightEyeTexture.getName()+" ("+rightEyeTexture.getImage().getId()+")");
-                        logger.severe("                 Type: "+rightEyeTexture.getType());
-                        logger.severe("                 Size: "+rightEyeTexture.getImage().getWidth()+"x"+rightEyeTexture.getImage().getHeight());
-                        logger.severe("          Image depth: "+rightEyeTexture.getImage().getDepth());
-                        logger.severe("         Image format: "+rightEyeTexture.getImage().getFormat());
-                        logger.severe("    Image color space: "+rightEyeTexture.getImage().getColorSpace());
-
-                        logger.severe(String.format( "Right Texture bounds: (%s, %s) (%s, %s)",
-                            rightTextureBounds.uMin(),
-                            rightTextureBounds.uMax(),
-                            rightTextureBounds.vMin(),
-                            rightTextureBounds.vMax()));
+//                        logger.severe("  Texture color space: "+ OpenVRUtil.getEColorSpaceString(rightTextureType.eColorSpace()));
+//                        logger.severe("  Texture type: "+ OpenVRUtil.getETextureTypeString(rightTextureType.eType()));
+//                        logger.severe("  Texture handle: "+ rightTextureType.handle());
+//
+//                        logger.severe("  Right eye texture "+rightEyeTexture.getName()+" ("+rightEyeTexture.getImage().getId()+")");
+//                        logger.severe("                 Type: "+rightEyeTexture.getType());
+//                        logger.severe("                 Size: "+rightEyeTexture.getImage().getWidth()+"x"+rightEyeTexture.getImage().getHeight());
+//                        logger.severe("          Image depth: "+rightEyeTexture.getImage().getDepth());
+//                        logger.severe("         Image format: "+rightEyeTexture.getImage().getFormat());
+//                        logger.severe("    Image color space: "+rightEyeTexture.getImage().getColorSpace());
+//
+//                        logger.severe(String.format( "Right Texture bounds: (%s, %s) (%s, %s)",
+//                            rightTextureBounds.uMin(),
+//                            rightTextureBounds.uMax(),
+//                            rightTextureBounds.vMin(),
+//                            rightTextureBounds.vMax()));
 
 
                     }
