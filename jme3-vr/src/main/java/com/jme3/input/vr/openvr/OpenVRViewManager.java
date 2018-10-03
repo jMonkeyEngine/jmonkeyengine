@@ -261,8 +261,8 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                     // GPU fence
                     VRCompositor_PostPresentHandoff();
 
-                    if( errl != 0 ) {
-                        handleCompositorError(errl);
+//                    if( errl != 0 ) {
+//                        handleCompositorError(errl);
 //                        logger.severe("  Texture color space: "+ OpenVRUtil.getEColorSpaceString(leftTextureType.eColorSpace()));
 //                        logger.severe("  Texture type: "+ OpenVRUtil.getETextureTypeString(leftTextureType.eType()));
 //                        logger.severe("  Texture handle: "+ leftTextureType.handle());
@@ -279,10 +279,10 @@ public class OpenVRViewManager extends AbstractVRViewManager {
 //                            leftTextureBounds.uMax(),
 //                            leftTextureBounds.vMin(),
 //                            leftTextureBounds.vMax()));
-                    }
-
-                    if( errr != 0 ) {
-                        handleCompositorError(errr);
+//                    }
+//
+//                    if( errr != 0 ) {
+//                        handleCompositorError(errr);
 //                        logger.severe("  Texture color space: "+ OpenVRUtil.getEColorSpaceString(rightTextureType.eColorSpace()));
 //                        logger.severe("  Texture type: "+ OpenVRUtil.getETextureTypeString(rightTextureType.eType()));
 //                        logger.severe("  Texture handle: "+ rightTextureType.handle());
@@ -299,9 +299,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
 //                            rightTextureBounds.uMax(),
 //                            rightTextureBounds.vMin(),
 //                            rightTextureBounds.vMax()));
-
-
-                    }
+//                    }
                 }
             }
     	} else {
@@ -355,7 +353,6 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     	logger.config("Initializing VR view manager.");
 
     	if (environment != null){
-
           initTextureSubmitStructs();
           setupCamerasAndViews();
           setupVRScene();
@@ -428,7 +425,6 @@ public class OpenVRViewManager extends AbstractVRViewManager {
      * Replaces rootNode as the main cameras scene with the distortion mesh
      */
     private void setupVRScene() {
-
     	if (environment != null){
     		if (environment.getApplication() != null){
     			// no special scene to setup if we are doing instancing
