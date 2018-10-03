@@ -64,9 +64,9 @@ import java.util.logging.Logger;
 import static org.lwjgl.openvr.VRSystem.VRSystem_GetRecommendedRenderTargetSize;
 
 /**
- * A JMonkey app state dedicated to Virtual Reality. 
+ * A JMonkey app state dedicated to Virtual Reality.
  * An application that want to use VR devices (HTC vive, ...) has to use this app state.<br>
- * As this app state and the main {@link Application application} have to share {@link AppSettings application settings}, 
+ * As this app state and the main {@link Application application} have to share {@link AppSettings application settings},
  * the common way to use this app state is:<br>
  * <ul>
  * <li>To create {@link AppSettings application settings} and set the VR related settings (see {@link VRConstants}).
@@ -80,33 +80,33 @@ import static org.lwjgl.openvr.VRSystem.VRSystem_GetRecommendedRenderTargetSize;
 public class VRAppState extends AbstractAppState {
 
     private static final Logger logger = Logger.getLogger(VRAppState.class.getName());
-    
+
     /**
      * Is the application has not to start within VR mode (default is <code>false</code>).
      */
     public boolean DISABLE_VR = false;
-    
+
 
 
     private float fFar  = 1000f;
     private float fNear = 0.1f;
     private int xWin    = 1920;
     private int yWin    = 1080;
-    
+
     private float resMult = 1f;
- 
+
     /*
      where is the headset pointing, after all rotations are combined?
      depends on observer rotation, if any
      */
     private Quaternion tempq = new Quaternion();
-    
+
     private Application application      = null;
     private AppStateManager stateManager = null;
     private AppSettings settings         = null;
-    
+
     private VREnvironment environment    = null;
-    
+
     /**
      * Create a new default VR app state that relies on the given {@link VREnvironment VR environment}.
      * @param environment the {@link VREnvironment VR environment} that this app state is using.
@@ -114,11 +114,11 @@ public class VRAppState extends AbstractAppState {
     public VRAppState(VREnvironment environment) {
       super();
 
-      this.environment = environment; 
-      
+      this.environment = environment;
+
       this.setSettings(environment.getSettings());
      }
-    
+
     /**
      * Create a new VR app state with given settings. The app state relies on the the given {@link VREnvironment VR environment}.
      * @param settings the settings to use.
@@ -130,7 +130,7 @@ public class VRAppState extends AbstractAppState {
       processSettings(settings);
     }
 
-    
+
     /**
      * Simple update of the app state, this method should contains any spatial updates.
      * This method is called by the {@link #update(float) update()} method and should not be called manually.
@@ -139,7 +139,7 @@ public class VRAppState extends AbstractAppState {
     public void simpleUpdate(float tpf) {
     	return;
     }
-    
+
     /**
      * Rendering callback of the app state. This method is called by the {@link #update(float) update()} method and should not be called manually.
      * @param renderManager the {@link RenderManager render manager}.
@@ -157,7 +157,7 @@ public class VRAppState extends AbstractAppState {
         fNear = near;
         fFar = far;
     }
-    
+
     /**
      * Set the mirror window size in pixel.
      * @param width the width of the mirror window in pixel.
@@ -167,7 +167,7 @@ public class VRAppState extends AbstractAppState {
         xWin = width;
         yWin = height;
     }
-    
+
     /**
      * Set the resolution multiplier.
      * @param val the resolution multiplier.
@@ -178,8 +178,8 @@ public class VRAppState extends AbstractAppState {
         	environment.getVRViewManager().setResolutionMultiplier(resMult);
         }
     }
-   
-	
+
+
     /**
      * Move filters from the main scene into the eye's.
      * This removes filters from the main scene.
@@ -187,7 +187,7 @@ public class VRAppState extends AbstractAppState {
     public void moveScreenProcessingToVR() {
       environment.getVRViewManager().moveScreenProcessingToEyes();
     }
-    
+
     /**
      * Get the observer final rotation within the scene.
      * @return the observer final rotation within the scene.
@@ -200,8 +200,8 @@ public class VRAppState extends AbstractAppState {
             } else {
             	return ((Spatial)environment.getObserver()).getWorldRotation();
             }
-        }  
-        
+        }
+
         if( environment.getObserver() == null ) {
             tempq.set(environment.getDummyCamera().getRotation());
         } else {
@@ -209,7 +209,7 @@ public class VRAppState extends AbstractAppState {
         }
         return tempq.multLocal(environment.getVRHardware().getOrientation());
     }
-    
+
     /**
      * Get the observer final position within the scene.
      * @return the observer position.
@@ -220,10 +220,10 @@ public class VRAppState extends AbstractAppState {
             if( environment.getObserver() == null ) {
                 return environment.getCamera().getLocation();
             } else{
-            	return ((Spatial)environment.getObserver()).getWorldTranslation();            
+            	return ((Spatial)environment.getObserver()).getWorldTranslation();
             }
         }
-        
+
         Vector3f pos = environment.getVRHardware().getPosition();
         if( environment.getObserver() == null ) {
         	environment.getDummyCamera().getRotation().mult(pos, pos);
@@ -233,7 +233,7 @@ public class VRAppState extends AbstractAppState {
             return pos.addLocal(((Spatial)environment.getObserver()).getWorldTranslation());
         }
     }
-    
+
     /**
      * Get the VR headset left viewport.
      * @return the VR headset left viewport.
@@ -243,10 +243,10 @@ public class VRAppState extends AbstractAppState {
         if( environment.getVRViewManager() == null ){
         	return application.getViewPort();
         }
-        
+
         return environment.getVRViewManager().getLeftViewPort();
     }
-    
+
     /**
      * Get the VR headset right viewport.
      * @return the VR headset right viewport.
@@ -258,7 +258,7 @@ public class VRAppState extends AbstractAppState {
         }
         return environment.getVRViewManager().getRightViewPort();
     }
-    
+
     /**
      * Set the background color for both left and right view ports.
      * @param clr the background color.
@@ -267,15 +267,15 @@ public class VRAppState extends AbstractAppState {
         if( environment.getVRViewManager() == null ) {
             application.getViewPort().setBackgroundColor(clr);
         } else if( environment.getVRViewManager().getLeftViewPort() != null ) {
-        	
+
         	environment.getVRViewManager().getLeftViewPort().setBackgroundColor(clr);
-            
+
         	if( environment.getVRViewManager().getRightViewPort() != null ){
             	environment.getVRViewManager().getRightViewPort().setBackgroundColor(clr);
             }
         }
     }
-    
+
     /**
      * Get the {@link Application} to which this app state is attached.
      * @return the {@link Application} to which this app state is attached.
@@ -284,7 +284,7 @@ public class VRAppState extends AbstractAppState {
     public Application getApplication(){
     	return application;
     }
-    
+
     /**
      * Get the {@link AppStateManager state manager} to which this app state is attached.
      * @return the {@link AppStateManager state manager} to which this app state is attached.
@@ -293,16 +293,16 @@ public class VRAppState extends AbstractAppState {
     public AppStateManager getStateManager(){
     	return stateManager;
     }
-    
+
     /**
      * Get the scene observer. If no observer has been set, this method return the application {@link #getCamera() camera}.
-     * @return the scene observer. 
+     * @return the scene observer.
      * @see #setObserver(Spatial)
      */
     public Object getObserver() {
         return environment.getObserver();
     }
-    
+
     /**
      * Set the scene observer. The VR headset will be linked to it. If no observer is set, the VR headset is linked to the the application {@link #getCamera() camera}.
      * @param observer the scene observer.
@@ -310,7 +310,7 @@ public class VRAppState extends AbstractAppState {
     public void setObserver(Spatial observer) {
        environment.setObserver(observer);
     }
-    
+
     /**
      * Check if the rendering is instanced (see <a href="https://en.wikipedia.org/wiki/Geometry_instancing">Geometry instancing</a>).
      * @return <code>true</code> if the rendering is instanced and <code>false</code> otherwise.
@@ -318,15 +318,15 @@ public class VRAppState extends AbstractAppState {
     public boolean isInstanceRendering() {
         return environment.isInstanceRendering();
     }
-    
+
     /**
-     * Return the {@link VREnvironment VR environment} on which this app state relies. 
-     * @return the {@link VREnvironment VR environment} on which this app state relies. 
+     * Return the {@link VREnvironment VR environment} on which this app state relies.
+     * @return the {@link VREnvironment VR environment} on which this app state relies.
      */
     public VREnvironment getVREnvironment(){
     	return environment;
     }
-    
+
 	/**
 	 * Get the VR underlying hardware.
 	 * @return the VR underlying hardware.
@@ -334,7 +334,7 @@ public class VRAppState extends AbstractAppState {
 	public VRAPI getVRHardware() {
 	    return getVREnvironment().getVRHardware();
 	}
-	
+
 	/**
 	 * Get the VR dedicated input.
 	 * @return the VR dedicated input.
@@ -343,10 +343,10 @@ public class VRAppState extends AbstractAppState {
 	    if( getVREnvironment().getVRHardware() == null ){
 	    	return null;
 	    }
-	    
+
 	    return getVREnvironment().getVRHardware().getVRinput();
 	}
-	
+
 	/**
 	 * Get the VR view manager.
 	 * @return the VR view manager.
@@ -354,7 +354,7 @@ public class VRAppState extends AbstractAppState {
 	public VRViewManager getVRViewManager() {
 	    return getVREnvironment().getVRViewManager();
 	}
-	
+
 	/**
 	 * Get the GUI manager attached to this app state.
 	 * @return the GUI manager attached to this app state.
@@ -362,7 +362,7 @@ public class VRAppState extends AbstractAppState {
 	public VRGuiManager getVRGUIManager(){
 		return getVREnvironment().getVRGUIManager();
 	}
-	
+
 	/**
 	 * Get the VR mouse manager attached to this app state.
 	 * @return the VR mouse manager attached to this application.
@@ -370,7 +370,7 @@ public class VRAppState extends AbstractAppState {
 	public VRMouseManager getVRMouseManager(){
 		return getVREnvironment().getVRMouseManager();
 	}
-    
+
 	/**
 	 * Get the {@link AppSettings settings} attached to this app state.
 	 * @return the {@link AppSettings settings} attached to this app state.
@@ -379,7 +379,7 @@ public class VRAppState extends AbstractAppState {
 	public AppSettings getSettings(){
 		return settings;
 	}
-	
+
 	/**
 	 * Set the {@link AppSettings settings} attached to this app state.
 	 * @param settings the {@link AppSettings settings} attached to this app state.
@@ -389,13 +389,13 @@ public class VRAppState extends AbstractAppState {
 		this.settings = settings;
 		processSettings(settings);
 	}
-	
+
     @Override
-    public void update(float tpf) {    
-        
+    public void update(float tpf) {
+
         // update VR pose & cameras
         if( environment.getVRViewManager() != null ) {
-        	environment.getVRViewManager().update(tpf);    
+        	environment.getVRViewManager().update(tpf);
         } else if( environment.getObserver() != null ) {
             environment.getCamera().setFrame(((Spatial)environment.getObserver()).getWorldTranslation(), ((Spatial)environment.getObserver()).getWorldRotation());
         }
@@ -407,7 +407,7 @@ public class VRAppState extends AbstractAppState {
             for (Spatial spatial : application.getGuiViewPort().getScenes()) {
             	//spatial.updateLogicalState(tpf);
             	spatial.updateGeometricState();
-            }    
+            }
         }
 
         // use the analog control on the first tracked controller to push around the mouse
@@ -417,17 +417,17 @@ public class VRAppState extends AbstractAppState {
     @Override
     public void render(RenderManager rm) {
       super.render(rm);
-      
+
       // update compositor
       if( environment.getVRViewManager() != null ) {
         environment.getVRViewManager().render();
       }
     }
-    
+
     @Override
     public void postRender() {
         super.postRender();
-        
+
         // update compositor
         if( environment.getVRViewManager() != null ) {
         	environment.getVRViewManager().postRender();
@@ -437,28 +437,28 @@ public class VRAppState extends AbstractAppState {
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
-        
+
         this.application  = app;
         this.stateManager = stateManager;
-        
+
         // disable annoying warnings about GUI stuff being updated, which is normal behavior
         // for late GUI placement for VR purposes
-        Logger.getLogger("com.jme3").setLevel(Level.SEVERE);     
-        
+        Logger.getLogger("com.jme3").setLevel(Level.SEVERE);
+
         app.getCamera().setFrustumFar(fFar);
         app.getCamera().setFrustumNear(fNear);
 
         if( environment.isInVR() ) {
-        	
+
         	logger.config("VR mode enabled.");
-        	
+
             if( environment.getVRHardware() != null ) {
             	environment.getVRHardware().initVRCompositor(environment.compositorAllowed());
             } else {
             	logger.warning("No VR system found.");
             }
-            
-            
+
+
             environment.getVRViewManager().setResolutionMultiplier(resMult);
             //inputManager.addMapping(RESET_HMD, new KeyTrigger(KeyInput.KEY_F9));
             //setLostFocusBehavior(LostFocusBehavior.Disabled);
@@ -467,34 +467,34 @@ public class VRAppState extends AbstractAppState {
             //viewPort.attachScene(rootNode);
             //guiViewPort.attachScene(guiNode);
         }
-        
+
         if( environment.getVRViewManager() != null ) {
         	environment.getVRViewManager().initialize();
         }
     }
-    
+
     @Override
     public void stateAttached(AppStateManager stateManager) {
         super.stateAttached(stateManager); //To change body of generated methods, choose Tools | Templates.
-        
+
         if (settings == null) {
             settings = new AppSettings(true);
             logger.config("Using default settings.");
         } else {
         	logger.config("Using given settings.");
         }
-   
+
         // Attach VR environment to the application
         if (!environment.isInitialized()){
         	environment.initialize();
         }
-        
+
         if (environment.isInitialized()){
         	environment.atttach(this, stateManager.getApplication());
         } else {
         	logger.severe("Cannot attach VR environment to the VR app state as its not initialized.");
         }
-                                    
+
         if( environment.isInVR()) {
             // TODO: make this cross-platform
             // The values are in OpenVR
@@ -506,7 +506,8 @@ public class VRAppState extends AbstractAppState {
                 // create a window for the VR device
                 settings.setWidth(widthBuffer.get(0));
                 settings.setHeight(heightBuffer.get(0));
-                settings.setBitsPerPixel(24);
+                //settings.setBitsPerPixel(24);
+                settings.setBitsPerPixel(-1);
                 settings.setFrequency(90);
                 settings.setSwapBuffers(true);
                 settings.setVSync(true); // allow vsync on this display
@@ -516,7 +517,7 @@ public class VRAppState extends AbstractAppState {
             settings.setSamples(1);
             settings.setWidth(xWin);
             settings.setHeight(yWin);
-            settings.setBitsPerPixel(32);     
+            settings.setBitsPerPixel(32);
             settings.setFrameRate(0);
             settings.setFrequency(environment.getVRHardware().getDisplayFrequency());
             settings.setFullscreen(false);
@@ -533,17 +534,17 @@ public class VRAppState extends AbstractAppState {
     public void cleanup() {
         if( environment.getVRHardware() != null ) {
         	environment.getVRHardware().destroy();
-        }        
-        
+        }
+
         this.application  = null;
         this.stateManager = null;
     }
-    
+
     @Override
     public void stateDetached(AppStateManager stateManager) {
       super.stateDetached(stateManager);
     }
-    
+
     /**
      * Process the attached settings and apply changes to this app state.
      * @param settings the app settings to process.

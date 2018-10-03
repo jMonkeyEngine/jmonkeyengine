@@ -26,6 +26,7 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
+import com.jme3.util.ImageSaver;
 import com.jme3.util.VRGUIPositioningMode;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTFramebufferObject;
@@ -35,8 +36,14 @@ import org.lwjgl.openvr.VRCompositor;
 import org.lwjgl.openvr.VRTextureBounds;
 import org.lwjgl.system.MemoryStack;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.Iterator;
 import java.util.logging.Logger;
@@ -52,6 +59,7 @@ import static org.lwjgl.opengl.GL45.glCreateTextures;
 import static org.lwjgl.openvr.VR.*;
 import static org.lwjgl.openvr.VRCompositor.VRCompositor_Submit;
 import static org.lwjgl.openvr.VRSystem.VRSystem_ComputeDistortion;
+import static org.lwjgl.system.MemoryUtil.memAlloc;
 
 /**
  * A VR view manager based on OpenVR. This class enable to submit 3D views to the VR compositor.
@@ -124,11 +132,13 @@ public class OpenVRViewManager extends AbstractVRViewManager {
       return t;
     }
 
-        private Eye leftEye                             ;
-        private Eye rightEye                            ;
+    private Eye leftEye                             ;
+    private Eye rightEye                            ;
 
-        private org.lwjgl.openvr.Texture leftEyeLwjglTexture ;
-        private org.lwjgl.openvr.Texture rightEyeLwjglTexture;
+    private org.lwjgl.openvr.Texture leftEyeLwjglTexture ;
+    private org.lwjgl.openvr.Texture rightEyeLwjglTexture;
+
+    private ImageSaver imageSaver = new ImageSaver();
 
     private void initTextures() {
         int width = 1512;
@@ -194,8 +204,11 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                     // texture bounds
                     leftTextureBounds  = new VRTextureBounds(stack.malloc(VRTextureBounds.SIZEOF));
                     rightTextureBounds = new VRTextureBounds(stack.malloc(VRTextureBounds.SIZEOF));
-                    leftTextureBounds .set(0f,   0f, 0.5f, 1f);
-                    rightTextureBounds.set(0.5f, 0f, 1f, 1f);
+
+                    //leftTextureBounds .set(0f,   0f, 0.5f, 1f);
+                    //rightTextureBounds.set(0.5f, 0f, 1f, 1f);
+                    leftTextureBounds .set(0f, 0f, 1f, 1f);
+                    rightTextureBounds.set(0f, 0f, 1f, 1f);
 
                     logger.severe(String.format( "Left Texture bounds: (%s, %s) (%s, %s)",
                         leftTextureBounds.uMin(),
@@ -263,10 +276,17 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                         initTextures();
                       }
 
-                        errl = VRCompositor_Submit(EVREye_Eye_Left, leftEyeLwjglTexture, leftEye.bounds, EVRSubmitFlags_Submit_Default);
-                        errr = VRCompositor_Submit(EVREye_Eye_Right, rightEyeLwjglTexture, rightEye.bounds, EVRSubmitFlags_Submit_Default);
-//                        errl = VRCompositor_Submit(EVREye_Eye_Left, leftTextureType, null, EVRSubmitFlags_Submit_Default);
-//                        errr = VRCompositor_Submit(EVREye_Eye_Right, rightTextureType, null, EVRSubmitFlags_Submit_Default);
+                      imageSaver.saveTextureToFile(leftEyeLwjglTexture.handle(), "lwjgl-leftEye.png");
+                        imageSaver.saveTextureToFile(rightEyeLwjglTexture.handle(), "lwjgl-rightEye.png");
+
+                        imageSaver.saveTextureToFile(leftTextureType.handle(), "JME-left.png");
+                        imageSaver.saveTextureToFile(rightTextureType.handle(), "JME-right.png");
+
+                        //errl = VRCompositor_Submit(EVREye_Eye_Left, leftEyeLwjglTexture, leftEye.bounds, EVRSubmitFlags_Submit_Default);
+                        //errr = VRCompositor_Submit(EVREye_Eye_Right, rightEyeLwjglTexture, rightEye.bounds, EVRSubmitFlags_Submit_Default);
+
+                        errl = VRCompositor_Submit(EVREye_Eye_Left, leftTextureType, null, EVRSubmitFlags_Submit_Default);
+                        errr = VRCompositor_Submit(EVREye_Eye_Right, rightTextureType, null, EVRSubmitFlags_Submit_Default);
                     }
 
                     if( errl != 0 ) {
