@@ -10,10 +10,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_PACK_ALIGNMENT;
 import static org.lwjgl.opengl.GL11.glPixelStorei;
+import static org.lwjgl.opengl.GL12.GL_TEXTURE_DEPTH;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE_COMPRESSED;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE_COMPRESSED_IMAGE_SIZE;
+import static org.lwjgl.opengl.GL14.GL_TEXTURE_DEPTH_SIZE;
 import static org.lwjgl.system.MemoryUtil.memAlloc;
 
 public class ImageSaver {
@@ -65,5 +71,38 @@ public class ImageSaver {
             wBuf.clear();
             texSaveBuffer.clear();
         }
+    }
+
+    IntBuffer paramBuffer = BufferUtils.createIntBuffer(1);
+    public void getTextureInfo(long handle) {
+        glBindTexture(GL_TEXTURE_2D, (int) handle);
+
+        HashMap<String, Integer> h = new HashMap<String, Integer>();
+        h.put("GL_TEXTURE_ALPHA_SIZE"            ,  GL_TEXTURE_ALPHA_SIZE);
+        h.put("GL_TEXTURE_BLUE_SIZE"             ,  GL_TEXTURE_BLUE_SIZE);
+        h.put("GL_TEXTURE_BORDER"                ,  GL_TEXTURE_BORDER);
+        h.put("GL_TEXTURE_COMPRESSED"            ,  GL_TEXTURE_COMPRESSED);
+        h.put("GL_TEXTURE_COMPRESSED_IMAGE_SIZE" ,  GL_TEXTURE_COMPRESSED_IMAGE_SIZE);
+        h.put("GL_TEXTURE_DEPTH"                 ,  GL_TEXTURE_DEPTH);
+        h.put("GL_TEXTURE_DEPTH_SIZE"            ,  GL_TEXTURE_DEPTH_SIZE);
+        h.put("GL_TEXTURE_GREEN_SIZE"            ,  GL_TEXTURE_GREEN_SIZE);
+        h.put("GL_TEXTURE_HEIGHT"                ,  GL_TEXTURE_HEIGHT);
+        h.put("GL_TEXTURE_INTENSITY_SIZE"        ,  GL_TEXTURE_INTENSITY_SIZE);
+        h.put("GL_TEXTURE_INTERNAL_FORMAT"       ,  GL_TEXTURE_INTERNAL_FORMAT);
+        h.put("GL_TEXTURE_LUMINANCE_SIZE"        ,  GL_TEXTURE_LUMINANCE_SIZE);
+        h.put("GL_TEXTURE_RED_SIZE"              ,  GL_TEXTURE_RED_SIZE);
+        h.put("GL_TEXTURE_WIDTH"                 ,  GL_TEXTURE_WIDTH);
+
+        for(Map.Entry<String, Integer> entry : h.entrySet()) {
+            String name  = entry.getKey();
+            int glAttrib = entry.getValue();
+            glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, glAttrib, paramBuffer);
+
+            System.out.println(name + ": " + paramBuffer.get());
+
+            paramBuffer.clear();
+        }
+
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
