@@ -112,40 +112,15 @@ public class OpenVRViewManager extends AbstractVRViewManager {
 
             if (environment != null) {
                 if (environment.getVRHardware() instanceof OpenVR) {
-                    leftTextureBounds = new VRTextureBounds(stack.malloc(VRTextureBounds.SIZEOF));
+                    // texture bounds
+                    leftTextureBounds  = new VRTextureBounds(stack.malloc(VRTextureBounds.SIZEOF));
                     rightTextureBounds = new VRTextureBounds(stack.malloc(VRTextureBounds.SIZEOF));
-                    // left eye
-                    leftTextureBounds.uMax(0.5f);
-                    leftTextureBounds.uMin(0f);
-                    leftTextureBounds.vMax(1f);
-                    leftTextureBounds.vMin(0f);
-//                leftTextureBounds.setAutoSynch(false);
-//                leftTextureBounds.setAutoRead(false);
-//                leftTextureBounds.setAutoWrite(false);
-//                leftTextureBounds.write();
-                    // right eye
-                    rightTextureBounds.uMax(1f);
-                    rightTextureBounds.uMin(0.5f);
-                    rightTextureBounds.vMax(1f);
-                    rightTextureBounds.vMin(0f);
-//                rightTextureBounds.setAutoSynch(false);
-//                rightTextureBounds.setAutoRead(false);
-//                rightTextureBounds.setAutoWrite(false);
-//                rightTextureBounds.write();
-                    // texture type
-                    leftTextureType.eColorSpace(EColorSpace_ColorSpace_Gamma);
-                    leftTextureType.eType(ETextureType_TextureType_OpenGL);
-//                leftTextureType.setAutoSynch(false);
-//                leftTextureType.setAutoRead(false);
-//                leftTextureType.setAutoWrite(false);
-                    leftTextureType.handle(1);
-                    rightTextureType.eColorSpace(EColorSpace_ColorSpace_Gamma);
-                    rightTextureType.eType(ETextureType_TextureType_OpenGL);
-//                rightTextureType.setAutoSynch(false);
-//                rightTextureType.setAutoRead(false);
-//                rightTextureType.setAutoWrite(false);
-                    rightTextureType.handle(-1);
+                    leftTextureBounds .set(0f,   1f, 0f, 0.5f);
+                    rightTextureBounds.set(0.5f, 0f, 1f, 1f);
 
+                    // texture type
+                    leftTextureType.set ( 1, ETextureType_TextureType_OpenGL, EColorSpace_ColorSpace_Gamma);
+                    rightTextureType.set(-1, ETextureType_TextureType_OpenGL, EColorSpace_ColorSpace_Gamma);
 
                     // TODO: restore the logging
 //                logger.config("Init eyes native texture binds");
@@ -261,9 +236,6 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     	} else {
     		throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
     	}
-
-
-
     }
 
     private void handleCompositorError(int err) {
@@ -309,7 +281,6 @@ public class OpenVRViewManager extends AbstractVRViewManager {
 
     @Override
     public void initialize() {
-
     	logger.config("Initializing VR view manager.");
 
     	if (environment != null){
@@ -341,7 +312,6 @@ public class OpenVRViewManager extends AbstractVRViewManager {
      * @param xMult the camera width multiplier.
      */
     private void prepareCameraSize(Camera cam, float xMult) {
-
     	if (environment != null){
 
     		if (environment.getApplication() != null){
@@ -381,15 +351,12 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     	} else {
           throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
     	}
-
-
     }
 
     /**
      * Replaces rootNode as the main cameras scene with the distortion mesh
      */
     private void setupVRScene(){
-
 
     	if (environment != null){
     		if (environment.getApplication() != null){
@@ -472,33 +439,9 @@ public class OpenVRViewManager extends AbstractVRViewManager {
             VRAPI dev = environment.getVRHardware();
             if( dev != null ) {
 
-
                 // update the HMD's position & orientation
                 dev.updatePose();
                 dev.getPositionAndOrientation(hmdPos, hmdRot);
-/*
-                // TOREMOVE
-                Vector3f v   = dev.getVRinput().getTrackedController(0).getPosition();
-                Quaternion q = dev.getVRinput().getTrackedController(0).getOrientation();
-                if ((v != null)&&(q != null)){
-                    hmdPos.set(v);
-                    hmdRot.set(q);
-                }
-
-            	logger.severe("HMD controller ");
-            	logger.severe("  Position "+hmdPos);
-            	logger.severe("  Orientation "+hmdRot);
-
-            	VRTrackedController tc = null;
-                for(int i = 0; i < dev.getVRinput().getTrackedControllerCount(); i++){
-                	tc = dev.getVRinput().getTrackedController(i);
-                	logger.severe("Tracked controller "+i+": "+tc.getControllerName());
-                	logger.severe("  Position "+tc.getPosition());
-                	logger.severe("  Orientation "+tc.getOrientation());
-                	logger.severe("");
-                }
-*/
-                // TOREMOVE
 
                 if( obs != null ) {
                     // update hmdPos based on obs rotation
@@ -542,7 +485,6 @@ public class OpenVRViewManager extends AbstractVRViewManager {
         finalPosition.y += getHeightAdjustment();
         cam.setFrame(finalPosition, finalRotation);
     }
-
 
     private void setupCamerasAndViews() {
 

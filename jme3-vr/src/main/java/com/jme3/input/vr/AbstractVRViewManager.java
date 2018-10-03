@@ -145,12 +145,10 @@ public abstract class AbstractVRViewManager implements VRViewManager {
             } else {
             	throw new IllegalStateException("The VR environment is not attached to any application.");
             }
-            
 
     	} else {
     		throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
     	}
-    	
 
     }
     
