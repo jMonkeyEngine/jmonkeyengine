@@ -734,8 +734,8 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     	if (environment != null){
     		if (environment.getApplication() != null){
     			// create offscreen framebuffer
-    	        FrameBuffer offBufferLeft = new FrameBuffer(cam.getWidth(), cam.getHeight(), 1);
-    	        //offBufferLeft.setSrgb(true);
+    	        FrameBuffer offscreenBuffer = new FrameBuffer(cam.getWidth(), cam.getHeight(), 1);
+    	        //offscreenBuffer.setSrgb(true);
 
     	        //setup framebuffer's texture
     	        Texture2D offTex = new Texture2D(cam.getWidth(), cam.getHeight(), Image.Format.RGBA8);
@@ -743,8 +743,8 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     	        offTex.setMagFilter(Texture.MagFilter.Bilinear);
 
     	        //setup framebuffer to use texture
-    	        offBufferLeft.setDepthBuffer(Image.Format.Depth);
-    	        offBufferLeft.setColorTexture(offTex);
+    	        offscreenBuffer.setDepthBuffer(Image.Format.Depth);
+    	        offscreenBuffer.setColorTexture(offTex);
 
     	        ViewPort viewPort = environment.getApplication().getRenderManager().createPreView(viewName, cam);
     	        viewPort.setClearFlags(true, true, true);
@@ -756,7 +756,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
     	        }
 
     	        //set viewport to render to offscreen framebuffer
-    	        viewPort.setOutputFrameBuffer(offBufferLeft);
+    	        viewPort.setOutputFrameBuffer(offscreenBuffer);
     	        return viewPort;
     		} else {
     			throw new IllegalStateException("This VR environment is not attached to any application.");
