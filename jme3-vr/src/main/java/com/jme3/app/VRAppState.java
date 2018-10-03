@@ -48,17 +48,20 @@ import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
 import com.jme3.util.VRGUIPositioningMode;
 import com.jme3.util.VRGuiManager;
+import org.lwjgl.system.MemoryStack;
 
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
+import java.awt.*;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.nio.IntBuffer;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static org.lwjgl.openvr.VRSystem.VRSystem_GetRecommendedRenderTargetSize;
 
 /**
  * A JMonkey app state dedicated to Virtual Reality. 
@@ -491,70 +494,22 @@ public class VRAppState extends AbstractAppState {
         } else {
         	logger.severe("Cannot attach VR environment to the VR app state as its not initialized.");
         }
-
-        GraphicsDevice defDev = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
                                     
-        if( environment.isInVR() && !environment.compositorAllowed() ) {
-            // "easy extended" mode
-            // setup experimental JFrame on external device
-            // first, find the VR device
-            GraphicsDevice VRdev = null;
-            GraphicsDevice[] devs = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
-            // pick the display that isn't the default one
-            for(GraphicsDevice gd : devs) {
-                if( gd != defDev ) {
-                    VRdev = gd;
-                    break;
-                }
-            }
+        if( environment.isInVR()) {
+            // TODO: make this cross-platform
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                IntBuffer widthBuffer = stack.ints(1);
+                IntBuffer heightBuffer = stack.ints(1);
+                VRSystem_GetRecommendedRenderTargetSize(widthBuffer, heightBuffer);
 
-            // did we get the VR device?
-            if( VRdev != null ) {
-                // set properties for VR acceleration
-                try {   
-                    java.awt.DisplayMode useDM = null;
-                    int max = 0;
-                    for(java.awt.DisplayMode dm : VRdev.getDisplayModes()) {
-                        int check = dm.getHeight() + dm.getWidth() + dm.getRefreshRate() + dm.getBitDepth();
-                        if( check > max ) {
-                            max = check;
-                            useDM = dm;
-                        }
-                    }
-                    
-                    // create a window for the VR device
-                    settings.setWidth(useDM.getWidth());
-                    settings.setHeight(useDM.getHeight());
-                    settings.setBitsPerPixel(useDM.getBitDepth());
-                    settings.setFrequency(useDM.getRefreshRate());
-                    settings.setSwapBuffers(true);
-                    settings.setVSync(true); // allow vsync on this display
-                    stateManager.getApplication().setSettings(settings);
-                    logger.config("Updated underlying application settings.");
-                    
-                    //VRdev.setFullScreenWindow(VRwindow);
-                    // make sure we are in the right display mode
-                    if( VRdev.getDisplayMode().equals(useDM) == false ) {
-                        VRdev.setDisplayMode(useDM);
-                    }
-                    
-                    return;
-                } catch(Exception e) { 
-                    logger.log(Level.SEVERE, e.getMessage(), e);
-                }
-            } else {
-            	logger.config("Cannot access to external screen.");
+                // create a window for the VR device
+                settings.setWidth(widthBuffer.get(0));
+                settings.setHeight(heightBuffer.get(0));
+                settings.setBitsPerPixel(24);
+                settings.setFrequency(90);
+                settings.setSwapBuffers(true);
+                settings.setVSync(true); // allow vsync on this display
             }
-        } else {
-        	if (!environment.isInVR()){
-        	  logger.config("Cannot switch to VR mode (VR disabled by user).");
-        	} else if (!environment.compositorAllowed()){
-        	  logger.warning("Cannot switch to VR mode (VR not supported).");
-        	}
-        }
-        
-        if( !environment.isInVR() ) {
-            settings.setSwapBuffers(true);
         } else {
             // use basic mirroring window, skip settings window
             settings.setSamples(1);
@@ -571,7 +526,6 @@ public class VRAppState extends AbstractAppState {
         // Updating application settings
         stateManager.getApplication().setSettings(settings);
         logger.config("Updated underlying application settings.");
-        
     }
 
     @Override

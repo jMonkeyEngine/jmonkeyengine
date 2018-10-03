@@ -73,7 +73,8 @@ public class HelloVr extends SimpleApplication {
         mainScene = new Node("scene");
         observer = new Node("observer");
 
-        Spatial sky = SkyFactory.createSky(getAssetManager(), "Textures/Sky/Bright/spheremap.png", SkyFactory.EnvMapType.EquirectMap);
+//        Spatial sky = SkyFactory.createSky(getAssetManager(), "Textures/Sky/Bright/spheremap.png", SkyFactory.EnvMapType.EquirectMap);
+        Spatial sky = SkyFactory.createSky(getAssetManager(), "Textures/BrightSky.dds", SkyFactory.EnvMapType.CubeMap);
         rootNode.attachChild(sky);
 
         Geometry box = new Geometry("", new Box(5, 5, 5));
@@ -101,10 +102,12 @@ public class HelloVr extends SimpleApplication {
         rootNode.attachChild(floor);
 
         // hand wands
-        leftHand = (Geometry) getAssetManager().loadModel("Models/vive_controller.j3o");
+//        leftHand = (Geometry) getAssetManager().loadModel("Models/vive_controller.j3o");
+        leftHand = (Geometry) getAssetManager().loadModel("Models/body.obj");
         rightHand = leftHand.clone();
         Material handMat = new Material(getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
         handMat.setTexture("ColorMap", getAssetManager().loadTexture("Textures/vive_controller.png"));
+
         leftHand.setMaterial(handMat);
         rightHand.setMaterial(handMat);
         rootNode.attachChild(rightHand);

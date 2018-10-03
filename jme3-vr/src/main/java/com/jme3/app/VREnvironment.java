@@ -58,7 +58,7 @@ public class VREnvironment {
     
     private boolean nogui = false;
     
-    private boolean compositorOS;
+    private boolean compositorOS = true;
     
     private boolean useCompositor = true;
     
