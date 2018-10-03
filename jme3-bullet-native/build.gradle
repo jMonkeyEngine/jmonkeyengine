@@ -87,6 +87,7 @@ model {
                 return
             }
 
+            cppCompiler.define('BT_NO_PROFILE')
             if (toolChain in VisualCpp) {
                 cppCompiler.args "/I$javaHome\\include"
             } else{
