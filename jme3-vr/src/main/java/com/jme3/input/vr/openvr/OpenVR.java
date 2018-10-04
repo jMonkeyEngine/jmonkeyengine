@@ -60,8 +60,7 @@ public class OpenVR implements VRAPI {
     protected TrackedDevicePose.Buffer trackedDeviceGamePoses;
 //    protected TrackedDevicePose[] trackedDeviceRenderPoses;
 
-    //protected IntByReference hmdErrorStore;
-    protected IntBuffer hmdErrorStore;
+    protected IntBuffer hmdErrorStore = BufferUtils.createIntBuffer(1);
 
     private final Quaternion rotStore = new Quaternion();
     private final Vector3f posStore = new Vector3f();
@@ -187,8 +186,6 @@ public class OpenVR implements VRAPI {
     	String[] loadedLibraries = getLoadedLibraries(ClassLoader.getSystemClassLoader());
         logger.config("Loaded native libs: " + Arrays.toString(loadedLibraries));
 
-
-        hmdErrorStore = BufferUtils.createIntBuffer(1);
 //        if (VR_IsHmdPresent()) { throw new RuntimeException("Error : HMD not detected on the system"); }
 
         if (!VR_IsRuntimeInstalled()) {
