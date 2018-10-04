@@ -744,7 +744,7 @@ public class OpenVRViewManager extends AbstractVRViewManager {
                         texcoordB[coordPos] = u;
                         texcoordB[coordPos + 1] = 1 - v;
                     } else {
-                        distortionBuffer.rewind();
+                        distortionBuffer.flip();
                         DistortionCoordinates dc0 = new DistortionCoordinates(distortionBuffer);
                         VRSystem_ComputeDistortion(eye, u, v, dc0);
 
