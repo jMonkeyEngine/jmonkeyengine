@@ -7,6 +7,7 @@ package com.jme3.input.vr.openvr;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -465,6 +466,10 @@ public class OpenVRInput implements VRInputAPI {
                 0, (short) Math.round(3f * seconds / 1e-3f));
     }
 
+    private String bufferToString(ByteBuffer b) {
+        return StandardCharsets.UTF_8.decode(b).toString();
+    }
+
     private String fetchDeviceProperty(int i, int propType) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
 
@@ -480,9 +485,9 @@ public class OpenVRInput implements VRInputAPI {
                 throw new RuntimeException("Error in fetching device property:" + errBuffer.get(0));
             }
 
-            String s = new String(stringPropBuffer.array());
+//            String s = new String(stringPropBuffer.array());
             //stringPropBuffer.clear();
-            return s;
+            return bufferToString(stringPropBuffer);
         }
     }
 
