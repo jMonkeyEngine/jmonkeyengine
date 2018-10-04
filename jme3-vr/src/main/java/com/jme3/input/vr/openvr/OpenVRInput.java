@@ -465,8 +465,8 @@ public class OpenVRInput implements VRInputAPI {
     }
 
     private String fetchDeviceProperty(int i, int propType) {
-        stringPropBuffer.flip();
-        errBuffer.flip();
+        stringPropBuffer.rewind();
+        errBuffer.rewind();
 
         VRSystem_GetStringTrackedDeviceProperty(i, propType, stringPropBuffer, errBuffer);
 
