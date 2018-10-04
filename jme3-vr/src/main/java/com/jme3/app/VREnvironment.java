@@ -10,8 +10,7 @@ import com.jme3.input.vr.VRBounds;
 import com.jme3.input.vr.VRInputAPI;
 import com.jme3.input.vr.VRMouseManager;
 import com.jme3.input.vr.VRViewManager;
-import com.jme3.input.vr.lwjgl.OpenVRViewManagerLwjgl;
-import com.jme3.input.vr.lwjgl.OpenVrLwjgl;
+import com.jme3.input.vr.openvr.OpenVRViewManager;
 import com.jme3.input.vr.oculus.OculusMouseManager;
 import com.jme3.input.vr.oculus.OculusVR;
 import com.jme3.input.vr.oculus.OculusViewManager;
@@ -158,17 +157,9 @@ public class VREnvironment {
     public void setSeatedExperience(boolean isSeated) {
         seated = isSeated;
         if( hardware instanceof OpenVR ) {
-            if( hardware.getCompositor() == null ) {
-            	return;
+            if( ((OpenVR)hardware).isInitialized() ) {
+            	((OpenVR)hardware).setTrackingSpace(seated);
             }
-            
-            if( seated ) {
-                ((OpenVR)hardware).getCompositor().SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseSeated);
-            } else {
-                ((OpenVR)hardware).getCompositor().SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseStanding);                
-            }        
-        } else if(hardware instanceof OpenVrLwjgl){
-            ((OpenVrLwjgl)hardware).setTrackingSpace(isSeated);
         }
     }
     
@@ -404,7 +395,7 @@ public class VREnvironment {
     	
     	// Instanciate view manager
     	if (vrBinding == VRConstants.SETTING_VRAPI_OPENVR_VALUE){
-    		viewmanager = new OpenVRViewManagerLwjgl(this);
+    		viewmanager = new OpenVRViewManager(this);
     	} else if (vrBinding == VRConstants.SETTING_VRAPI_OSVR_VALUE){
     		viewmanager = new OSVRViewManager(this);
     	} else if (vrBinding == VRConstants.SETTING_VRAPI_OCULUSVR_VALUE) {
@@ -445,7 +436,7 @@ public class VREnvironment {
                 guiManager   = new VRGuiManager(this);
                 mouseManager = new OpenVRMouseManager(this);
 
-            	hardware = new OpenVrLwjgl(this);
+            	hardware = new OpenVR(this);
             	initialized = true;
                 logger.config("Creating OpenVR wrapper [SUCCESS]");
             } else if (vrBinding == VRConstants.SETTING_VRAPI_OCULUSVR_VALUE) {

@@ -2,7 +2,6 @@ package com.jme3.input.vr.openvr;
 
 import com.jme3.input.vr.VRAPI;
 import com.jme3.input.vr.VRBounds;
-import com.jme3.input.vr.lwjgl.OpenVrLwjgl;
 import com.jme3.math.Vector2f;
 import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
