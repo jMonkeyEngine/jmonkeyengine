@@ -262,8 +262,9 @@ public class OpenVR implements VRAPI {
     }
 
     private void resetErrorStore() {
-        hmdErrorStore.put(0,0); // clear the error store
-        hmdErrorStore.flip();
+        //hmdErrorStore.put(0,0); // clear the error store
+        //hmdErrorStore.flip();
+        hmdErrorStore.clear();
     }
 
     @Override
