@@ -39,7 +39,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.*;
-import com.jme3.util.BufferUtils;
+import org.lwjgl.BufferUtils;
 import com.jme3.util.VRGUIPositioningMode;
 
 import java.nio.IntBuffer;

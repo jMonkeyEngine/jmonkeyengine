@@ -13,7 +13,6 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
-//import com.jme3.util.BufferUtils;
 import com.jme3.system.NativeLibraryLoader;
 import com.jme3.util.VRUtil;
 import org.lwjgl.BufferUtils;
@@ -48,19 +47,17 @@ public class OpenVR implements VRAPI {
 	private static final Logger logger = Logger.getLogger(OpenVR.class.getName());
 	private static final boolean DEBUG = false;
 
-//    private static VR_IVRCompositor_FnTable compositorFunctions;
-    private static long vrsystemFunctions;
-//    private static VR_IVRTrackedCamera_FnTable cameraFunctions;
-
     private static boolean initSuccess = false;
     private static boolean flipEyes    = false;
+
+    private long vrsystemFunctions;
 
     private IntBuffer hmdDisplayFrequency;
     protected TrackedDevicePose.Buffer trackedDeviceRenderPoses;
     protected TrackedDevicePose.Buffer trackedDeviceGamePoses;
-//    protected TrackedDevicePose[] trackedDeviceRenderPoses;
 
-    protected IntBuffer hmdErrorStore = BufferUtils.createIntBuffer(1);
+    // TODO: we aren't able to clear this for some reason
+    public static IntBuffer hmdErrorStore = BufferUtils.createIntBuffer(1);
 
     private final Quaternion rotStore = new Quaternion();
     private final Vector3f posStore = new Vector3f();
@@ -240,7 +237,7 @@ public class OpenVR implements VRAPI {
 
     @Override
     public boolean initVRCompositor(boolean allowed) {
-        resetErrorStore();
+      resetErrorStore();
 
         if( environment.isSeatedExperience() ) {
             VRCompositor_SetTrackingSpace(ETrackingUniverseOrigin_TrackingUniverseSeated);
@@ -262,9 +259,8 @@ public class OpenVR implements VRAPI {
     }
 
     private void resetErrorStore() {
-        //hmdErrorStore.put(0,0); // clear the error store
-        //hmdErrorStore.flip();
-        hmdErrorStore.clear();
+        System.out.println("resetting error store: " + hmdErrorStore);
+        //hmdErrorStore.clear();
     }
 
     @Override

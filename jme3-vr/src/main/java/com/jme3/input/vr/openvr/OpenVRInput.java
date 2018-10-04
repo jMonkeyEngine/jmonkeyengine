@@ -21,9 +21,10 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
-import com.jme3.util.BufferUtils;
 import com.jme3.util.VRUtil;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.openvr.VRControllerState;
+import org.lwjgl.system.MemoryStack;
 
 import static org.lwjgl.openvr.VR.*;
 import static org.lwjgl.openvr.VRSystem.*;
@@ -102,8 +103,8 @@ public class OpenVRInput implements VRInputAPI {
 
     private final Quaternion tempq = new Quaternion();
 
-    private ByteBuffer stringPropBuffer = BufferUtils.createByteBuffer(k_unMaxPropertyStringSize);
-    private IntBuffer errBuffer = BufferUtils.createIntBuffer(1);
+    //public static ByteBuffer stringPropBuffer = BufferUtils.createByteBuffer(k_unMaxPropertyStringSize);
+    //public static IntBuffer errBuffer = BufferUtils.createIntBuffer(1);
 
     private VREnvironment environment;
 
@@ -465,16 +466,24 @@ public class OpenVRInput implements VRInputAPI {
     }
 
     private String fetchDeviceProperty(int i, int propType) {
-        stringPropBuffer.flip();
-        errBuffer.flip();
+        try (MemoryStack stack = MemoryStack.stackPush()) {
 
-        VRSystem_GetStringTrackedDeviceProperty(i, propType, stringPropBuffer, errBuffer);
+            ByteBuffer stringPropBuffer = stack.malloc(k_unMaxPropertyStringSize);
+            IntBuffer errBuffer = stack.ints(1);
+//        stringPropBuffer.flip();
+//        errBuffer.flip();
+            //errBuffer.clear();
 
-        if (errBuffer.get(0) != 0) {
-            throw new RuntimeException("Error in fetching device property:" + errBuffer.get(0));
+            VRSystem_GetStringTrackedDeviceProperty(i, propType, stringPropBuffer, errBuffer);
+
+            if (errBuffer.get(0) != 0) {
+                throw new RuntimeException("Error in fetching device property:" + errBuffer.get(0));
+            }
+
+            String s = new String(stringPropBuffer.array());
+            //stringPropBuffer.clear();
+            return s;
         }
-
-        return new String(stringPropBuffer.array());
     }
 
     @Override
