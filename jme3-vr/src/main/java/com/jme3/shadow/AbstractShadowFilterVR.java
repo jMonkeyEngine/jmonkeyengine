@@ -55,7 +55,7 @@ import java.io.IOException;
  *
  * @author Rémy Bouquet aka Nehon
  * @author reden - phr00t - https://github.com/phr00t
- * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  * @param <T> the type of the underlying renderer (subclass of {@link AbstractShadowRendererVR}).
  */
 public abstract class AbstractShadowFilterVR<T extends AbstractShadowRendererVR> extends Filter {

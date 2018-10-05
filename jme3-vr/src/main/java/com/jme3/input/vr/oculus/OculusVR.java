@@ -3,9 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jme3.input.vr;
+package com.jme3.input.vr.oculus;
 
 import com.jme3.app.VREnvironment;
+import com.jme3.input.vr.HmdType;
+import com.jme3.input.vr.VRAPI;
 import com.jme3.math.*;
 import com.jme3.renderer.Camera;
 import com.jme3.texture.*;
