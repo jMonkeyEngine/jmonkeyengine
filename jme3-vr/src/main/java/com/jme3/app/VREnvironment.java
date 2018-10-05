@@ -10,6 +10,9 @@ import com.jme3.input.vr.VRBounds;
 import com.jme3.input.vr.VRInputAPI;
 import com.jme3.input.vr.VRMouseManager;
 import com.jme3.input.vr.VRViewManager;
+import com.jme3.input.vr.lwjgl_openvr.LWJGLOpenVR;
+import com.jme3.input.vr.lwjgl_openvr.LWJGLOpenVRMouseManager;
+import com.jme3.input.vr.lwjgl_openvr.LWJGLOpenVRViewManager;
 import com.jme3.input.vr.oculus.OculusMouseManager;
 import com.jme3.input.vr.oculus.OculusVR;
 import com.jme3.input.vr.oculus.OculusViewManager;
@@ -166,6 +169,10 @@ public class VREnvironment {
             } else {
                 ((OpenVR)hardware).getCompositor().SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseStanding);                
             }        
+        } else if (hardware instanceof LWJGLOpenVR) {
+        	if( ((LWJGLOpenVR)hardware).isInitialized() ) {
+            	((LWJGLOpenVR)hardware).setTrackingSpace(seated);
+            }
         }
     }
     
@@ -406,6 +413,8 @@ public class VREnvironment {
     		viewmanager = new OSVRViewManager(this);
     	} else if (vrBinding == VRConstants.SETTING_VRAPI_OCULUSVR_VALUE) {
     		viewmanager = new OculusViewManager(this);
+    	} else if (vrBinding == VRConstants.SETTING_VRAPI_OPENVR_LWJGL_VALUE) {
+    		viewmanager = new LWJGLOpenVRViewManager(this);
     	} else {
     		logger.severe("Cannot instanciate view manager, unknown VRAPI type: "+vrBinding);
     	}
@@ -453,6 +462,14 @@ public class VREnvironment {
                 hardware = new OculusVR(this);
             	initialized = true;
             	logger.config("Creating Occulus Rift wrapper [SUCCESS]");
+            } else if (vrBinding == VRConstants.SETTING_VRAPI_OPENVR_LWJGL_VALUE) {
+            	
+            	guiManager   = new VRGuiManager(this);
+                mouseManager = new LWJGLOpenVRMouseManager(this);
+
+            	hardware = new LWJGLOpenVR(this);
+            	initialized = true;
+                logger.config("Creating OpenVR/LWJGL wrapper [SUCCESS]");
             } else {
             	logger.config("Cannot create VR binding: "+vrBinding+" [FAILED]");
             	logger.log(Level.SEVERE, "Cannot initialize VR environment [FAILED]");

@@ -47,8 +47,6 @@ import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.shadow.PssmShadowUtil;
-import com.jme3.shadow.ShadowUtil;
 
 import java.io.IOException;
 
