@@ -5,30 +5,35 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.app.state.AppState;
-import com.jme3.input.vr.OSVR;
-import com.jme3.input.vr.OpenVR;
-import com.jme3.input.vr.OculusVR;
 import com.jme3.input.vr.VRAPI;
 import com.jme3.input.vr.VRBounds;
 import com.jme3.input.vr.VRInputAPI;
+import com.jme3.input.vr.VRViewManager;
+import com.jme3.input.vr.oculus.OculusVR;
+import com.jme3.input.vr.oculus.OculusViewManager;
+import com.jme3.input.vr.openvr.OpenVR;
+import com.jme3.input.vr.openvr.OpenVRMouseManager;
+import com.jme3.input.vr.openvr.OpenVRViewManager;
+import com.jme3.input.vr.osvr.OSVR;
+import com.jme3.input.vr.osvr.OSVRViewManager;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
 import com.jme3.system.jopenvr.JOpenVRLibrary;
 import com.jme3.util.VRGuiManager;
-import com.jme3.util.VRMouseManager;
-import com.jme3.util.VRViewManager;
-import com.jme3.util.VRViewManagerOSVR;
-import com.jme3.util.VRViewManagerOculus;
-import com.jme3.util.VRViewManagerOpenVR;
 
+/**
+ * 
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
+ *
+ */
 public class VREnvironment {
 	
 	private static final Logger logger = Logger.getLogger(VREnvironment.class.getName());
 	
     private VRAPI hardware              = null;
     private VRGuiManager guiManager     = null;
-    private VRMouseManager mouseManager = null;
+    private OpenVRMouseManager mouseManager = null;
     private VRViewManager viewmanager   = null;
     
     private VRBounds bounds             = null;
@@ -76,9 +81,9 @@ public class VREnvironment {
     	this.settings = settings;
     	
         guiManager   = new VRGuiManager(this);
-        mouseManager = new VRMouseManager(this);
+        mouseManager = new OpenVRMouseManager(this);
         
-        bounds = new VRBounds();
+        bounds       = null;
         
         processSettings();
     }
@@ -92,8 +97,18 @@ public class VREnvironment {
 	}
 	
 	/**
+	 * Set the VR bounds.
+	 * @return the VR bounds.
+	 * @see #getVRBounds()
+	 */
+	public void setVRBounds(VRBounds bounds){
+		this.bounds = bounds;
+	}
+	
+	/**
 	 * Get the VR bounds.
 	 * @return the VR bounds.
+	 * @see #setVRBounds(VRBounds)
 	 */
 	public VRBounds getVRBounds(){
 		return bounds;
@@ -131,7 +146,7 @@ public class VREnvironment {
 	 * Get the VR mouse manager attached to this environment.
 	 * @return the VR mouse manager attached to this environment.
 	 */
-	public VRMouseManager getVRMouseManager(){
+	public OpenVRMouseManager getVRMouseManager(){
 		return mouseManager;
 	}
 
@@ -387,11 +402,11 @@ public class VREnvironment {
     	
     	// Instanciate view manager
     	if (vrBinding == VRConstants.SETTING_VRAPI_OPENVR_VALUE){
-    		viewmanager = new VRViewManagerOpenVR(this);
+    		viewmanager = new OpenVRViewManager(this);
     	} else if (vrBinding == VRConstants.SETTING_VRAPI_OSVR_VALUE){
-    		viewmanager = new VRViewManagerOSVR(this);
-        } else if (vrBinding == VRConstants.SETTING_VRAPI_OCULUSVR_VALUE) {
-            viewmanager = new VRViewManagerOculus(this);
+    		viewmanager = new OSVRViewManager(this);
+    	} else if (vrBinding == VRConstants.SETTING_VRAPI_OCULUSVR_VALUE) {
+    		viewmanager = new OculusViewManager(this);
     	} else {
     		logger.severe("Cannot instanciate view manager, unknown VRAPI type: "+vrBinding);
     	}
@@ -425,8 +440,8 @@ public class VREnvironment {
                 logger.config("Creating OpenVR wrapper [SUCCESS]");
             } else if (vrBinding == VRConstants.SETTING_VRAPI_OCULUSVR_VALUE) {
                 hardware = new OculusVR(this);
-                initialized = true;
-                logger.config("Creating LibOVR wrapper [SUCCESS]");
+            	initialized = true;
+            	logger.config("Creating Occulus Rift wrapper [SUCCESS]");
             } else {
             	logger.config("Cannot create VR binding: "+vrBinding+" [FAILED]");
             	logger.log(Level.SEVERE, "Cannot initialize VR environment [FAILED]");

@@ -1,9 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.jme3.util;
+package com.jme3.input.vr;
 
 import java.util.logging.Logger;
 
@@ -11,9 +6,7 @@ import org.lwjgl.glfw.GLFW;
 
 import com.jme3.app.VREnvironment;
 import com.jme3.input.MouseInput;
-import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.lwjgl.GlfwMouseInputVR;
-import com.jme3.input.vr.VRInputType;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.Vector2f;
 import com.jme3.scene.Node;
@@ -24,46 +17,38 @@ import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
 
 /**
- * A class dedicated to the handling of the mouse within VR environment.
- * @author Julien Seinturier - (c) 2016 - JOrigin project - <a href="http://www.jorigin.org">http:/www.jorigin.org</a>
+ * An abstract implementation of a {@link VRMouseManager}. This class should be overrided by specific hardware implementation of VR devices.
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  *
  */
-public class VRMouseManager {
- 
-	private static final Logger logger = Logger.getLogger(VRMouseManager.class.getName());
-	
+public abstract class AbstractVRMouseManager implements VRMouseManager {
+
+	private static final Logger logger = Logger.getLogger(AbstractVRMouseManager.class.getName());
 
 	private VREnvironment environment = null;
 	
-	private final int AVERAGE_AMNT = 4;
-    private int avgCounter;
+
     
     private Picture mouseImage;
     private int recentCenterCount = 0;
-    private final Vector2f cursorPos = new Vector2f();
+    
+    protected final Vector2f cursorPos = new Vector2f();
+    
     private float ySize, sensitivity = 8f, acceleration = 2f;
-    private final float[] lastXmv = new float[AVERAGE_AMNT], lastYmv = new float[AVERAGE_AMNT];
+
     private boolean thumbstickMode;
     private float moveScale = 1f;
-    
-    private float avg(float[] arr) {
-        float amt = 0f;
-        for(float f : arr) amt += f;
-        return amt / arr.length;
-    }
-    
+ 
     /**
-     * Create a new VR mouse manager within the given {@link VREnvironment VR environment}.
-     * @param environment the VR environment of the mouse manager.
+     * Create a new AbstractVRMouseManager attached to the given {@link VREnvironment VR environment}.
+     * @param environment the {@link VREnvironment VR environment} that this manager is attached to.
      */
-    public VRMouseManager(VREnvironment environment){
+    public AbstractVRMouseManager(VREnvironment environment) {
     	this.environment = environment;
     }
     
-    /**
-     * Initialize the VR mouse manager.
-     */
-    protected void initialize() {
+    @Override
+    public void initialize() {
     	
     	logger.config("Initializing VR mouse manager.");
     	
@@ -81,56 +66,48 @@ public class VRMouseManager {
         logger.config("Initialized VR mouse manager [SUCCESS]");
     }
     
+    @Override
+    public VREnvironment getVREnvironment() {
+      return environment;
+    }
+    
+    @Override
     public void setThumbstickMode(boolean set) {
         thumbstickMode = set;
     }
     
+    @Override
     public boolean isThumbstickMode() {
         return thumbstickMode;
     }
     
-    /**
-     * Set the speed of the mouse.
-     * @param sensitivity the sensitivity of the mouse.
-     * @param acceleration the acceleration of the mouse.
-     * @see #getSpeedAcceleration()
-     * @see #getSpeedSensitivity()
-     */
+    @Override
     public void setSpeed(float sensitivity, float acceleration) {
         this.sensitivity = sensitivity;
         this.acceleration = acceleration;
     }
     
-    /**
-     * Get the sensitivity of the mouse.
-     * @return the sensitivity of the mouse.
-     * @see #setSpeed(float, float)
-     */
+    @Override
     public float getSpeedSensitivity() {
         return sensitivity;
     }
     
-    /**
-     * Get the acceleration of the mouse.
-     * @return the acceleration of the mouse.
-     * @see #setSpeed(float, float)
-     */
+    @Override
     public float getSpeedAcceleration() {
         return acceleration;
     }
     
-    /**
-     * Set the mouse move scale.
-     * @param set the mouse move scale.
-     */
+    @Override
+    public float getMouseMoveScale() {
+    	return moveScale;
+    }
+    
+    @Override
     public void setMouseMoveScale(float set) {
         moveScale = set;
     }
     
-    /**
-     * Set the image to use as mouse cursor. The given string describe an asset that the underlying application asset manager has to load.
-     * @param texture the image to use as mouse cursor.
-     */
+    @Override
     public void setImage(String texture) {
     	
     	if (environment != null){
@@ -161,87 +138,9 @@ public class VRMouseManager {
           throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
     	} 
     }
-    
-    /**
-     * Update analog controller as it was a mouse controller.
-     * @param inputIndex the index of the controller attached to the VR system.
-     * @param mouseListener the JMonkey mouse listener to trigger.
-     * @param mouseXName the mouseX identifier.
-     * @param mouseYName the mouseY identifier
-     * @param tpf the time per frame.
-     */
-    public void updateAnalogAsMouse(int inputIndex, AnalogListener mouseListener, String mouseXName, String mouseYName, float tpf) {
-        
-    	if (environment != null){
-    		if (environment.getApplication() != null){
-    			// got a tracked controller to use as the "mouse"
-    	        if( environment.isInVR() == false || 
-    	        	environment.getVRinput() == null ||
-    	        	environment.getVRinput().isInputDeviceTracking(inputIndex) == false ){
-    	        	return;
-    	        }
-    	        
-    	        Vector2f tpDelta;
-    	        // TODO option to use Touch joysticks
-    	        if( thumbstickMode ) {
-    	            tpDelta = environment.getVRinput().getAxis(inputIndex, VRInputType.ViveTrackpadAxis);
-    	        } else {
-    	            tpDelta = environment.getVRinput().getAxisDeltaSinceLastCall(inputIndex, VRInputType.ViveTrackpadAxis);            
-    	        }
-    	        
-    	        float Xamount = (float)Math.pow(Math.abs(tpDelta.x) * sensitivity, acceleration);
-    	        float Yamount = (float)Math.pow(Math.abs(tpDelta.y) * sensitivity, acceleration);
-    	        
-    	        if( tpDelta.x < 0f ){
-    	        	Xamount = -Xamount;
-    	        }
-    	        
-    	        if( tpDelta.y < 0f ){
-    	        	Yamount = -Yamount;
-    	        }
-    	        
-    	        Xamount *= moveScale; Yamount *= moveScale;
-    	        if( mouseListener != null ) {
-    	            if( tpDelta.x != 0f && mouseXName != null ) mouseListener.onAnalog(mouseXName, Xamount * 0.2f, tpf);
-    	            if( tpDelta.y != 0f && mouseYName != null ) mouseListener.onAnalog(mouseYName, Yamount * 0.2f, tpf);            
-    	        }
-    	        
-    	        if( environment.getApplication().getInputManager().isCursorVisible() ) {
-    	            int index = (avgCounter+1) % AVERAGE_AMNT;
-    	            lastXmv[index] = Xamount * 133f;
-    	            lastYmv[index] = Yamount * 133f;
-    	            cursorPos.x -= avg(lastXmv);
-    	            cursorPos.y -= avg(lastYmv);
-    	            Vector2f maxsize = environment.getVRGUIManager().getCanvasSize();
-    	            
-    	            if( cursorPos.x > maxsize.x ){
-    	            	cursorPos.x = maxsize.x;
-    	            }
-    	            
-    	            if( cursorPos.x < 0f ){
-    	            	cursorPos.x = 0f;
-    	            }
-    	            
-    	            if( cursorPos.y > maxsize.y ){
-    	            	cursorPos.y = maxsize.y;
-    	            }
-    	            
-    	            if( cursorPos.y < 0f ){
-    	            	cursorPos.y = 0f;
-    	            }
-    	        }
-    		} else {
-    			throw new IllegalStateException("This VR environment is not attached to any application.");
-    		}
-    	} else {
-            throw new IllegalStateException("This VR view manager is not attached to any VR environment.");
-      	} 
-    }
-    
-    /**
-     * Get the actual cursor position.
-     * @return the actual cursor position.
-     */
+
+	
+    @Override
     public Vector2f getCursorPosition() {
     	
     	if (environment != null){
@@ -259,9 +158,7 @@ public class VRMouseManager {
       	} 
     }
     
-    /**
-     * Center the mouse on the display.
-     */
+    @Override
     public void centerMouse() {
     	
     	if (environment != null){
@@ -285,12 +182,8 @@ public class VRMouseManager {
     	
     }
     
-    /**
-     * Update the mouse manager. This method should not be called manually. 
-     * The standard behavior for this method is to be called from the {@link VRViewManager#update(float) update method} of the attached {@link VRViewManager VR view manager}.
-     * @param tpf the time per frame.
-     */
-    protected void update(float tpf) {
+    @Override
+    public void update(float tpf) {
         // if we are showing the cursor, add our picture as it
 
         if( environment.getApplication().getInputManager().isCursorVisible() ) {
@@ -331,5 +224,5 @@ public class VRMouseManager {
               n.updateGeometricState();
             }
         }
-    }    
+    }  
 }
