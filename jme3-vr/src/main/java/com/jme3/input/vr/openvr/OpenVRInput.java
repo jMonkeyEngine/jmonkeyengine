@@ -322,7 +322,7 @@ public class OpenVRInput implements VRInputAPI {
     public boolean isInputFocused() {
     	
     	if (environment != null){
-    		return ((VR_IVRSystem_FnTable)environment.getVRHardware().getVRSystem()).IsInputFocusCapturedByAnotherProcess.apply() == 0;
+    		return ((VR_IVRSystem_FnTable)environment.getVRHardware().getVRSystem()).IsInputAvailable.apply() == 0;
     	} else {
     		throw new IllegalStateException("VR input is not attached to a VR environment.");
     	}      

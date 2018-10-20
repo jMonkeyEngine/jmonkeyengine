@@ -38,16 +38,16 @@ import com.jme3.math.*;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
-import com.jme3.texture.*;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.VRGUIPositioningMode;
 
 import java.nio.IntBuffer;
 import java.util.Iterator;
 import java.util.Objects;
-import java.util.logging.Logger;
 
-import org.lwjgl.ovr.*;
+import org.lwjgl.ovr.OVRFovPort;
+import org.lwjgl.ovr.OVRPosef;
+import org.lwjgl.ovr.OVRUtil;
 
 import static org.lwjgl.ovr.OVR.*;
 import static org.lwjgl.ovr.OVRErrorCode.*;
@@ -58,8 +58,6 @@ import static org.lwjgl.ovr.OVRErrorCode.*;
  * @author Campbell Suter <znix@znix.xyz>
  */
 public class OculusViewManager extends AbstractVRViewManager {
-
-    private static final Logger LOG = Logger.getLogger(OculusViewManager.class.getName());
 
     private final VREnvironment environment;
     private final OculusVR hardware;
