@@ -30,6 +30,7 @@
 package jme3test.audio;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
 
 public class TestWav extends SimpleApplication {
@@ -54,7 +55,8 @@ public class TestWav extends SimpleApplication {
 
   @Override
   public void simpleInitApp() {
-    audioSource = new AudioNode(assetManager, "Sound/Effects/Gun.wav", false);
+    audioSource = new AudioNode(assetManager, "Sound/Effects/Gun.wav",
+            AudioData.DataType.Buffer);
     audioSource.setLooping(false);
   }
 }

@@ -1,6 +1,7 @@
 #import "Common/ShaderLib/GLSLCompat.glsllib"
 #import "Common/ShaderLib/Skinning.glsllib"
 #import "Common/ShaderLib/Instancing.glsllib"
+#import "Common/ShaderLib/MorphAnim.glsllib"
 
 attribute vec3 inPosition;
 
@@ -16,6 +17,9 @@ varying vec2 texCoord1;
 varying vec2 texCoord2;
 
 varying vec4 vertColor;
+#ifdef HAS_POINTSIZE
+    uniform float m_PointSize;
+#endif
 
 void main(){
     #ifdef NEED_TEXCOORD1
@@ -30,7 +34,16 @@ void main(){
         vertColor = inColor;
     #endif
 
+    #ifdef HAS_POINTSIZE
+        gl_PointSize = m_PointSize;
+    #endif
+
     vec4 modelSpacePos = vec4(inPosition, 1.0);
+
+    #ifdef NUM_MORPH_TARGETS
+        Morph_Compute(modelSpacePos);
+    #endif
+
     #ifdef NUM_BONES
         Skinning_Compute(modelSpacePos);
     #endif

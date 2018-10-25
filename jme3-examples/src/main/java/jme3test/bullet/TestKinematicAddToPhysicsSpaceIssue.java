@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,9 +66,9 @@ public class TestKinematicAddToPhysicsSpaceIssue extends SimpleApplication {
         physicsSphere.getControl(RigidBodyControl.class).setPhysicsLocation(new Vector3f(3, 6, 0));
         rootNode.attachChild(physicsSphere);
 
-        //Setting the rigidBody to kinematic before adding it to the physic space
+        //Setting the rigidBody to kinematic before adding it to the physics space
         physicsSphere.getControl(RigidBodyControl.class).setKinematic(true);
-        //adding it to the physic space
+        //adding it to the physics space
         getPhysicsSpace().add(physicsSphere);
         //Making it not kinematic again, it should fall under gravity, it doesn't
         physicsSphere.getControl(RigidBodyControl.class).setKinematic(false);
@@ -78,7 +78,7 @@ public class TestKinematicAddToPhysicsSpaceIssue extends SimpleApplication {
         physicsSphere2.getControl(RigidBodyControl.class).setPhysicsLocation(new Vector3f(5, 6, 0));
         rootNode.attachChild(physicsSphere2);
 
-        //Adding the rigid body to physic space
+        //Adding the rigid body to physics space
         getPhysicsSpace().add(physicsSphere2);
         //making it kinematic
         physicsSphere2.getControl(RigidBodyControl.class).setKinematic(false);

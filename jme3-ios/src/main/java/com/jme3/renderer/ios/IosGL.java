@@ -611,4 +611,9 @@ public class IosGL implements GL, GLExt, GLFbo {
     public Object glFenceSync(int condition, int flags) {
         throw new UnsupportedOperationException("OpenGL ES 2 does not support sync fences");
     }
+    
+    @Override
+    public void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer) {
+        throw new UnsupportedOperationException("OpenGL ES 2 does not support texture arrays");
+    }
 }

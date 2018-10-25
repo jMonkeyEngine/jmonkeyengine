@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -127,7 +127,7 @@ public class GeoMap implements Savable {
      * If false, then the data is unavailable- must be loaded with load()
      * before the methods getHeight/getNormal can be used
      *
-     * @return wether the geomap data is loaded in system memory
+     * @return whether the geomap data is loaded in system memory
      */
     public boolean isLoaded() {
         return true;

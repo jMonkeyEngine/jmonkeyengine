@@ -72,7 +72,9 @@ public class TestMultiplesFilters extends SimpleApplication {
         cam.setRotation(new Quaternion(0.0016069f, 0.9810479f, -0.008143323f, 0.19358753f));
 
         // load sky
-        rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
+        rootNode.attachChild(SkyFactory.createSky(assetManager, 
+                "Textures/Sky/Bright/BrightSky.dds", 
+                SkyFactory.EnvMapType.CubeMap));
 
         // create the geometry and attach it
         // load the level from zip or http zip

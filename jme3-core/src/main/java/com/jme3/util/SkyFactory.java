@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,7 +85,7 @@ public class SkyFactory {
      * Create a sky with radius=10 using the given cubemap or spheremap texture.
      *
      * For the sky to be visible, its radius must fall between the near and far
-     * planes of the camera's frustrum.
+     * planes of the camera's frustum.
      *
      * @param assetManager from which to load materials
      * @param texture to use
@@ -115,7 +115,7 @@ public class SkyFactory {
      * Create a sky with radius=10 using the given cubemap or spheremap texture.
      *
      * For the sky to be visible, its radius must fall between the near and far
-     * planes of the camera's frustrum.
+     * planes of the camera's frustum.
      *
      * @param assetManager from which to load materials
      * @param texture to use
@@ -149,7 +149,7 @@ public class SkyFactory {
      * </ul>
      * @param sphereRadius the sky sphere's radius: for the sky to be visible,
      * its radius must fall between the near and far planes of the camera's
-     * frustrum
+     * frustum
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
      * @deprecated use {@link SkyFactory#createSky(com.jme3.asset.AssetManager, com.jme3.texture.Texture, com.jme3.math.Vector3f, com.jme3.util.SkyFactory.EnvMapType, int)}
@@ -171,7 +171,7 @@ public class SkyFactory {
      * @param envMapType see {@link EnvMapType}
      * @param sphereRadius the sky sphere's radius: for the sky to be visible,
      * its radius must fall between the near and far planes of the camera's
-     * frustrum
+     * frustum
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph     
      */
@@ -191,7 +191,7 @@ public class SkyFactory {
         skyMat.setVector3("NormalScale", normalScale);
         switch (envMapType){
             case CubeMap : 
-                // make sure its a cubemap
+                // make sure it's a cubemap
                 if (!(texture instanceof TextureCubeMap)) {
                     Image img = texture.getImage();
                     texture = new TextureCubeMap();
@@ -342,7 +342,7 @@ public class SkyFactory {
      * Create a cube-mapped sky with radius=10 using six textures.
      *
      * For the sky to be visible, its radius must fall between the near and far
-     * planes of the camera's frustrum.
+     * planes of the camera's frustum.
      *
      * @param assetManager from which to load materials
      * @param west texture for the western face of the cube
@@ -379,7 +379,7 @@ public class SkyFactory {
      * transformation to the normal.
      * @param sphereRadius the sky sphere's radius: for the sky to be visible,
      * its radius must fall between the near and far planes of the camera's
-     * frustrum
+     * frustum
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
      */

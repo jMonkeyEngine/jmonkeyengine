@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,10 +35,9 @@ import com.jme3.math.FastMath;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.management.JMException;
 
 /**
- * <code>MidpointDisplacementHeightMap</code> generates an heightmap based on
+ * <code>MidpointDisplacementHeightMap</code> generates a heightmap based on
  * the midpoint displacement algorithm. See Constructor javadoc for more info.
  * @author cghislai
  */
@@ -51,7 +50,7 @@ public class MidpointDisplacementHeightMap extends AbstractHeightMap {
 
     /**
      * The constructor generates the heightmap. After the first 4 corners are
-     * randomly given an height, the center will be heighted to the average of
+     * randomly given a height, the center will be heighted to the average of
      * the 4 corners to which a random value is added. Then other passes fill
      * the heightmap by the same principle.
      * The random value is generated between the values <code>-range</code>
@@ -72,11 +71,11 @@ public class MidpointDisplacementHeightMap extends AbstractHeightMap {
      *          typically a good choice
      * @param seed
      *          A seed to feed the random number generator.
-     * @throw JMException if size is not a power of two plus one.
+     * @throw IllegalArgumentException if size is not a power of two plus one.
      */
-    public MidpointDisplacementHeightMap(int size, float range, float persistence, long seed) throws Exception {
+    public MidpointDisplacementHeightMap(int size, float range, float persistence, long seed) {
         if (size < 0 || !FastMath.isPowerOfTwo(size - 1)) {
-            throw new JMException("The size is negative or not of the form 2^N +1"
+            throw new IllegalArgumentException("The size is negative or not of the form 2^N +1"
                     + " (a power of two plus one)");
         }
         this.size = size;
@@ -88,7 +87,7 @@ public class MidpointDisplacementHeightMap extends AbstractHeightMap {
 
     /**
      * The constructor generates the heightmap. After the first 4 corners are
-     * randomly given an height, the center will be heighted to the average of
+     * randomly given a height, the center will be heighted to the average of
      * the 4 corners to which a random value is added. Then other passes fill
      * the heightmap by the same principle.
      * The random value is generated between the values <code>-range</code>
@@ -157,10 +156,10 @@ public class MidpointDisplacementHeightMap extends AbstractHeightMap {
 
     /**
      * Will fill the value at (coords[0]+stepSize/2, coords[1]+stepSize/2) with
-     * the average from the corners of the square with topleft corner at (coords[0],coords[1])
+     * the average from the corners of the square with top, left corner at (coords[0],coords[1])
      * and width of stepSize.
-     * @param tempBuffer the temprary heightmap
-     * @param coords an int array of lenght 2 with the x coord in position 0
+     * @param tempBuffer the temporary heightmap
+     * @param coords an int array of length 2 with the x coord in position 0
      * @param stepSize the size of the square
      * @param offsetRange the offset range within a random value is picked and added to the average
      * @param random the random generator

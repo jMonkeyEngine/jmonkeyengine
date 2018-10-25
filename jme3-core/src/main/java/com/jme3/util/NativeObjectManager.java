@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -133,8 +133,8 @@ public class NativeObjectManager {
                 // Unregister it from cleanup list.
                 NativeObjectRef ref2 = refMap.remove(obj.getUniqueId());
                 if (ref2 == null) {
-                    throw new IllegalArgumentException("This NativeObject is not " + 
-                                                       "registered in this NativeObjectManager");
+                    throw new IllegalArgumentException("The " + obj + " NativeObject is not "
+                            + "registered in this NativeObjectManager");
                 }
 
                 assert ref == null || ref == ref2;
@@ -158,7 +158,7 @@ public class NativeObjectManager {
         }
         if (deleteBufs && UNSAFE && realObj != null) {
             // Only the real object has native buffers. 
-            // The destructable clone has nothing and cannot be used in this case.
+            // The destructible clone has nothing and cannot be used in this case.
             realObj.deleteNativeBuffersInternal();
         }
     }

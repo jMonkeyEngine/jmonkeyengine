@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,29 +42,63 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * <i>From bullet manual:</i><br>
- * Hinge constraint, or revolute joint restricts two additional angular degrees of freedom,
- * so the body can only rotate around one axis, the hinge axis.
- * This can be useful to represent doors or wheels rotating around one axis.
- * The user can specify limits and motor for the hinge.
+ * A joint based on Bullet's btHingeConstraint.
+ * <p>
+ * <i>From the Bullet manual:</i><br>
+ * Hinge constraint, or revolute joint restricts two additional angular degrees
+ * of freedom, so the body can only rotate around one axis, the hinge axis. This
+ * can be useful to represent doors or wheels rotating around one axis. The user
+ * can specify limits and motor for the hinge.
+ *
  * @author normenhansen
  */
 public class HingeJoint extends PhysicsJoint {
 
     protected Vector3f axisA;
     protected Vector3f axisB;
+    /**
+     * copy of the angular-only flag (default=false)
+     */
     protected boolean angularOnly = false;
+    /**
+     * copy of the limit's bias factor, how strictly position errors (drift) is
+     * corrected (default=0.3)
+     */
     protected float biasFactor = 0.3f;
+    /**
+     * copy of the limit's relaxation factor, the rate at which velocity errors
+     * are corrected (default=1)
+     */
     protected float relaxationFactor = 1.0f;
+    /**
+     * copy of the limit's softness, the range fraction at which velocity-error
+     * correction starts operating (default=0.9)
+     */
     protected float limitSoftness = 0.9f;
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public HingeJoint() {
     }
 
     /**
-     * Creates a new HingeJoint
-     * @param pivotA local translation of the joint connection point in node A
-     * @param pivotB local translation of the joint connection point in node B
+     * Instantiate a HingeJoint. To be effective, the joint must be added to a
+     * physics space.
+     *
+     * @param nodeA the 1st body connected by the joint (not null, alias
+     * created)
+     * @param nodeB the 2nd body connected by the joint (not null, alias
+     * created)
+     * @param pivotA the local offset of the connection point in node A (not
+     * null, alias created)
+     * @param pivotB the local offset of the connection point in node B (not
+     * null, alias created)
+     * @param axisA the local axis of the connection to node A (not null, alias
+     * created)
+     * @param axisB the local axis of the connection to node B (not null, alias
+     * created)
      */
     public HingeJoint(PhysicsRigidBody nodeA, PhysicsRigidBody nodeB, Vector3f pivotA, Vector3f pivotB, Vector3f axisA, Vector3f axisB) {
         super(nodeA, nodeB, pivotA, pivotB);
@@ -74,10 +108,11 @@ public class HingeJoint extends PhysicsJoint {
     }
 
     /**
-     * Enables the motor.
-     * @param enable if true, motor is enabled.
-     * @param targetVelocity the target velocity of the rotation.
-     * @param maxMotorImpulse the max force applied to the hinge to rotate it.
+     * Enable or disable this joint's motor.
+     *
+     * @param enable true to enable, false to disable
+     * @param targetVelocity the desired target velocity
+     * @param maxMotorImpulse the desired maximum rotational force
      */
     public void enableMotor(boolean enable, float targetVelocity, float maxMotorImpulse) {
         enableMotor(objectId, enable, targetVelocity, maxMotorImpulse);
@@ -85,18 +120,33 @@ public class HingeJoint extends PhysicsJoint {
 
     private native void enableMotor(long objectId, boolean enable, float targetVelocity, float maxMotorImpulse);
 
+    /**
+     * Test whether this joint's motor is enabled.
+     *
+     * @return true if enabled, otherwise false
+     */
     public boolean getEnableMotor() {
         return getEnableAngularMotor(objectId);
     }
 
     private native boolean getEnableAngularMotor(long objectId);
 
+    /**
+     * Read the motor's target velocity.
+     *
+     * @return velocity
+     */
     public float getMotorTargetVelocity() {
         return getMotorTargetVelocity(objectId);
     }
 
     private native float getMotorTargetVelocity(long objectId);
 
+    /**
+     * Read the motor's maximum impulse.
+     *
+     * @return impulse
+     */
     public float getMaxMotorImpulse() {
         return getMaxMotorImpulse(objectId);
     }
@@ -104,9 +154,10 @@ public class HingeJoint extends PhysicsJoint {
     private native float getMaxMotorImpulse(long objectId);
 
     /**
-     * Sets the limits of this joint.
-     * @param low the low limit in radians.
-     * @param high the high limit in radians.
+     * Alter this joint's limits.
+     *
+     * @param low the desired lower limit of the hinge angle (in radians)
+     * @param high the desired upper limit of the joint angle (in radians)
      */
     public void setLimit(float low, float high) {
         setLimit(objectId, low, high);
@@ -115,13 +166,20 @@ public class HingeJoint extends PhysicsJoint {
     private native void setLimit(long objectId, float low, float high);
 
     /**
-     * Sets the limits of this joint.
-     * If you're above the softness, velocities that would shoot through the actual limit are slowed down. The bias be in the range of 0.2 - 0.5.
-     * @param low the low limit in radians.
-     * @param high the high limit in radians.
-     * @param _softness the factor at which the velocity error correction starts operating,i.e a softness of 0.9 means that the vel. corr starts at 90% of the limit range.
-     * @param _biasFactor the magnitude of the position correction. It tells you how strictly the position error (drift ) is corrected.
-     * @param _relaxationFactor the rate at which velocity errors are corrected. This can be seen as the strength of the limits. A low value will make the the limits more spongy.
+     * Alter this joint's limits. If you're above the softness, velocities that
+     * would shoot through the actual limit are slowed down. The bias should be
+     * in the range of 0.2 - 0.5.
+     *
+     * @param low the desired lower limit of the hinge angle (in radians)
+     * @param high the desired upper limit of the joint angle (in radians)
+     * @param _softness the desired range fraction at which velocity-error
+     * correction starts operating. A softness of 0.9 means that the correction
+     * starts at 90% of the limit range. (default=0.9)
+     * @param _biasFactor the desired magnitude of the position correction, how
+     * strictly position errors (drift) is corrected. (default=0.3)
+     * @param _relaxationFactor the desired rate at which velocity errors are
+     * corrected. This can be seen as the strength of the limits. A low value
+     * will make the limits more spongy. (default=1)
      */
     public void setLimit(float low, float high, float _softness, float _biasFactor, float _relaxationFactor) {
         biasFactor = _biasFactor;
@@ -132,18 +190,34 @@ public class HingeJoint extends PhysicsJoint {
 
     private native void setLimit(long objectId, float low, float high, float _softness, float _biasFactor, float _relaxationFactor);
 
+    /**
+     * Read the upper limit of the hinge angle.
+     *
+     * @return angle (in radians)
+     */
     public float getUpperLimit() {
         return getUpperLimit(objectId);
     }
 
     private native float getUpperLimit(long objectId);
 
+    /**
+     * Read the lower limit of the hinge angle.
+     *
+     * @return the angle (in radians)
+     */
     public float getLowerLimit() {
         return getLowerLimit(objectId);
     }
 
     private native float getLowerLimit(long objectId);
 
+    /**
+     * Alter the hinge translation flag.
+     *
+     * @param angularOnly true&rarr;rotate only, false&rarr;rotate and translate
+     * (default=false)
+     */
     public void setAngularOnly(boolean angularOnly) {
         this.angularOnly = angularOnly;
         setAngularOnly(objectId, angularOnly);
@@ -151,12 +225,23 @@ public class HingeJoint extends PhysicsJoint {
 
     private native void setAngularOnly(long objectId, boolean angularOnly);
 
+    /**
+     * Read the hinge angle.
+     *
+     * @return the angle (in radians)
+     */
     public float getHingeAngle() {
         return getHingeAngle(objectId);
     }
 
     private native float getHingeAngle(long objectId);
 
+    /**
+     * Serialize this joint, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
@@ -177,6 +262,12 @@ public class HingeJoint extends PhysicsJoint {
         capsule.write(getMaxMotorImpulse(), "maxMotorImpulse", 0.0f);
     }
 
+    /**
+     * De-serialize this joint, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);
@@ -200,9 +291,13 @@ public class HingeJoint extends PhysicsJoint {
         setLimit(lowerLimit, upperLimit, limitSoftness, biasFactor, relaxationFactor);
     }
 
+    /**
+     * Create the configured joint in Bullet.
+     */
     protected void createJoint() {
         objectId = createJoint(nodeA.getObjectId(), nodeB.getObjectId(), pivotA, axisA, pivotB, axisB);
         Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Joint {0}", Long.toHexString(objectId));
+        setAngularOnly(objectId, angularOnly);
     }
 
     private native long createJoint(long objectIdA, long objectIdB, Vector3f pivotA, Vector3f axisA, Vector3f pivotB, Vector3f axisB);

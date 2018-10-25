@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
     static final long serialVersionUID = 1;
 
     /** 
-     * The ray's begining point. 
+     * The ray's beginning point. 
      */
     public Vector3f origin = new Vector3f();
     
@@ -191,9 +191,9 @@ public final class Ray implements Savable, Cloneable, Collidable, java.io.Serial
      * @param v2
      *            third point of the triangle.
      * @param store
-     *            storage vector - if null, no intersection is calc'd
+     *            storage vector - if null, no intersection is calculated
      * @param doPlanar
-     *            true if we are calcing planar results.
+     *            true if we are calculating planar results.
      * @param quad
      * @return true if ray intersects triangle
      */

@@ -84,6 +84,19 @@ public class GLDebugDesktop extends GLDebugES implements GL2, GL3, GL4 {
     }
 
     @Override
+    public int glGetUniformBlockIndex(final int program, final String uniformBlockName) {
+        final int result = gl3.glGetUniformBlockIndex(program, uniformBlockName);
+        checkError();
+        return result;
+    }
+
+    @Override
+    public void glBindBufferBase(final int target, final int index, final int buffer) {
+        gl3.glBindBufferBase(target, index, buffer);
+        checkError();
+    }
+
+    @Override
     public void glDeleteVertexArrays(IntBuffer arrays) {
         gl3.glDeleteVertexArrays(arrays);
         checkError();
@@ -96,13 +109,26 @@ public class GLDebugDesktop extends GLDebugES implements GL2, GL3, GL4 {
     }
 
     @Override
-    public void glFramebufferTextureLayer(int param1, int param2, int param3, int param4, int param5) {
-        gl3.glFramebufferTextureLayer(param1, param2, param3, param4, param5);
+    public int glGetProgramResourceIndex(int program, int programInterface, String name) {
+        final int result = gl4.glGetProgramResourceIndex(program, programInterface, name);
+        checkError();
+        return result;
+    }
+
+    @Override
+    public void glShaderStorageBlockBinding(int program, int storageBlockIndex, int storageBlockBinding) {
+        gl4.glShaderStorageBlockBinding(program, storageBlockIndex, storageBlockBinding);
         checkError();
     }
 
     public void glBlendEquationSeparate(int colorMode, int alphaMode) {
         gl.glBlendEquationSeparate(colorMode, alphaMode);
+        checkError();
+    }
+
+    @Override
+    public void glUniformBlockBinding(final int program, final int uniformBlockIndex, final int uniformBlockBinding) {
+        gl3.glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
         checkError();
     }
 }

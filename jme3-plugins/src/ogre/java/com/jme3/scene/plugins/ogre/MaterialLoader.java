@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,6 +69,7 @@ public class MaterialLoader implements AssetLoader {
     private boolean twoSide = false;
     private boolean noLight = false;
     private boolean separateTexCoord = false;
+    private boolean receiveShadow = false;
     private int texUnit = 0;
 
     private ColorRGBA readColor(String content){
@@ -143,7 +144,7 @@ public class MaterialLoader implements AssetLoader {
             textures[texUnit].setAnisotropicFilter(loadedTexture.getAnisotropicFilter());
             textures[texUnit].setKey(loadedTexture.getKey());
             
-            // XXX: Is this really neccessary?
+            // XXX: Is this really necessary?
             textures[texUnit].setWrap(WrapMode.Repeat);
             if (texName != null){
                 textures[texUnit].setName(texName);
@@ -314,7 +315,8 @@ public class MaterialLoader implements AssetLoader {
             readTechnique(statement);
         }else if (statement.getLine().startsWith("receive_shadows")){
             String isOn = statement.getLine().split("\\s")[1];
-            if (isOn != null && isOn.equals("true")){
+            if (isOn != null && isOn.equals("on")){
+                receiveShadow = true;
             }
         }
     }
@@ -334,6 +336,11 @@ public class MaterialLoader implements AssetLoader {
            mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         }
         mat.setName(matName);
+
+        if(receiveShadow){
+            mat.setReceivesShadows(true);
+        }
+
         if (blend){
             RenderState rs = mat.getAdditionalRenderState();
             mat.setFloat("AlphaDiscardThreshold", 0.01f);
@@ -433,13 +440,14 @@ public class MaterialLoader implements AssetLoader {
         twoSide = false;
         matName = null;
         texName = null;
+        receiveShadow = false;
         return mat;
     }
     
     private MaterialList load(AssetManager assetManager, AssetKey key, InputStream in) throws IOException{
         folderName = key.getFolder();
         this.assetManager = assetManager;
-        
+
         MaterialList list = null;
         List<Statement> statements = BlockLanguageParser.parse(in);
         
@@ -471,8 +479,8 @@ public class MaterialLoader implements AssetLoader {
                 list.put(mat.getName(), mat);
             }
         }
-        
-        return list;
+
+      return list;
     }
     
     public Object load(AssetInfo info) throws IOException {

@@ -5,20 +5,33 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.app.state.AppState;
-import com.jme3.input.vr.OSVR;
-import com.jme3.input.vr.OpenVR;
 import com.jme3.input.vr.VRAPI;
+import com.jme3.input.vr.VRBounds;
 import com.jme3.input.vr.VRInputAPI;
+import com.jme3.input.vr.VRMouseManager;
+import com.jme3.input.vr.VRViewManager;
+import com.jme3.input.vr.lwjgl_openvr.LWJGLOpenVR;
+import com.jme3.input.vr.lwjgl_openvr.LWJGLOpenVRMouseManager;
+import com.jme3.input.vr.lwjgl_openvr.LWJGLOpenVRViewManager;
+import com.jme3.input.vr.oculus.OculusMouseManager;
+import com.jme3.input.vr.oculus.OculusVR;
+import com.jme3.input.vr.oculus.OculusViewManager;
+import com.jme3.input.vr.openvr.OpenVR;
+import com.jme3.input.vr.openvr.OpenVRMouseManager;
+import com.jme3.input.vr.openvr.OpenVRViewManager;
+import com.jme3.input.vr.osvr.OSVR;
+import com.jme3.input.vr.osvr.OSVRViewManager;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
 import com.jme3.system.AppSettings;
 import com.jme3.system.jopenvr.JOpenVRLibrary;
 import com.jme3.util.VRGuiManager;
-import com.jme3.util.VRMouseManager;
-import com.jme3.util.VRViewManager;
-import com.jme3.util.VRViewManagerOSVR;
-import com.jme3.util.VRViewManagerOpenVR;
 
+/**
+ * 
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
+ *
+ */
 public class VREnvironment {
 	
 	private static final Logger logger = Logger.getLogger(VREnvironment.class.getName());
@@ -27,6 +40,8 @@ public class VREnvironment {
     private VRGuiManager guiManager     = null;
     private VRMouseManager mouseManager = null;
     private VRViewManager viewmanager   = null;
+    
+    private VRBounds bounds             = null;
     
     /**
      * The underlying system VR API. By default set to {@link VRConstants#SETTING_VRAPI_OPENVR_VALUE}.
@@ -65,15 +80,12 @@ public class VREnvironment {
     
     private boolean initialized = false;
     
-    private boolean attached    = false;
     
     public VREnvironment(AppSettings settings){
     	
     	this.settings = settings;
-    	
-        guiManager   = new VRGuiManager(this);
-        mouseManager = new VRMouseManager(this);
-//        dummyCam = new Camera(settings.getWidth(), settings.getHeight());
+
+        bounds       = null;
         
         processSettings();
     }
@@ -84,6 +96,24 @@ public class VREnvironment {
 	 */
 	public VRAPI getVRHardware() {
 	    return hardware;
+	}
+	
+	/**
+	 * Set the VR bounds.
+	 * @return the VR bounds.
+	 * @see #getVRBounds()
+	 */
+	public void setVRBounds(VRBounds bounds){
+		this.bounds = bounds;
+	}
+	
+	/**
+	 * Get the VR bounds.
+	 * @return the VR bounds.
+	 * @see #setVRBounds(VRBounds)
+	 */
+	public VRBounds getVRBounds(){
+		return bounds;
 	}
 	
 	/**
@@ -139,6 +169,10 @@ public class VREnvironment {
             } else {
                 ((OpenVR)hardware).getCompositor().SetTrackingSpace.apply(JOpenVRLibrary.ETrackingUniverseOrigin.ETrackingUniverseOrigin_TrackingUniverseStanding);                
             }        
+        } else if (hardware instanceof LWJGLOpenVR) {
+        	if( ((LWJGLOpenVR)hardware).isInitialized() ) {
+            	((LWJGLOpenVR)hardware).setTrackingSpace(seated);
+            }
         }
     }
     
@@ -192,7 +226,7 @@ public class VREnvironment {
     }
     
     /**
-     * Set the scene observer. The VR headset will be linked to it. If no observer is set, the VR headset is linked to the the application {@link #getCamera() camera}.
+     * Set the scene observer. The VR headset will be linked to it. If no observer is set, the VR headset is linked to the application {@link #getCamera() camera}.
      * @param observer the scene observer.
      */
     public void setObserver(Spatial observer) {
@@ -347,7 +381,12 @@ public class VREnvironment {
     			if (application.getCamera() != null){
     				dummyCam = application.getCamera().clone();
     			} else {
-    				return new Camera(settings.getWidth(), settings.getHeight());
+    				
+    				if ((settings != null) && (settings.getWidth() != 0) && (settings.getHeight() != 0)){
+    		        	dummyCam = new Camera(settings.getWidth(), settings.getHeight());
+    		        } else {
+    		        	dummyCam = new Camera();
+    		        }
     			}
     		} else {
     			throw new IllegalStateException("VR environment is not attached to any application.");
@@ -369,9 +408,13 @@ public class VREnvironment {
     	
     	// Instanciate view manager
     	if (vrBinding == VRConstants.SETTING_VRAPI_OPENVR_VALUE){
-    		viewmanager = new VRViewManagerOpenVR(this);
+    		viewmanager = new OpenVRViewManager(this);
     	} else if (vrBinding == VRConstants.SETTING_VRAPI_OSVR_VALUE){
-    		viewmanager = new VRViewManagerOSVR(this);
+    		viewmanager = new OSVRViewManager(this);
+    	} else if (vrBinding == VRConstants.SETTING_VRAPI_OCULUSVR_VALUE) {
+    		viewmanager = new OculusViewManager(this);
+    	} else if (vrBinding == VRConstants.SETTING_VRAPI_OPENVR_LWJGL_VALUE) {
+    		viewmanager = new LWJGLOpenVRViewManager(this);
     	} else {
     		logger.severe("Cannot instanciate view manager, unknown VRAPI type: "+vrBinding);
     	}
@@ -396,13 +439,37 @@ public class VREnvironment {
         
         if( vrSupportedOS) {
         	if( vrBinding == VRConstants.SETTING_VRAPI_OSVR_VALUE ) {
+        		
+                guiManager   = new VRGuiManager(this);
+                mouseManager = new OpenVRMouseManager(this);
+        		
                 hardware = new OSVR(this);
                 initialized = true;
                 logger.config("Creating OSVR wrapper [SUCCESS]");
             } else if( vrBinding == VRConstants.SETTING_VRAPI_OPENVR_VALUE ) {
+            	
+                guiManager   = new VRGuiManager(this);
+                mouseManager = new OpenVRMouseManager(this);
+
             	hardware = new OpenVR(this);
             	initialized = true;
                 logger.config("Creating OpenVR wrapper [SUCCESS]");
+            } else if (vrBinding == VRConstants.SETTING_VRAPI_OCULUSVR_VALUE) {
+            	
+                guiManager   = new VRGuiManager(this);
+                mouseManager = new OculusMouseManager(this);
+            	
+                hardware = new OculusVR(this);
+            	initialized = true;
+            	logger.config("Creating Occulus Rift wrapper [SUCCESS]");
+            } else if (vrBinding == VRConstants.SETTING_VRAPI_OPENVR_LWJGL_VALUE) {
+            	
+            	guiManager   = new VRGuiManager(this);
+                mouseManager = new LWJGLOpenVRMouseManager(this);
+
+            	hardware = new LWJGLOpenVR(this);
+            	initialized = true;
+                logger.config("Creating OpenVR/LWJGL wrapper [SUCCESS]");
             } else {
             	logger.config("Cannot create VR binding: "+vrBinding+" [FAILED]");
             	logger.log(Level.SEVERE, "Cannot initialize VR environment [FAILED]");

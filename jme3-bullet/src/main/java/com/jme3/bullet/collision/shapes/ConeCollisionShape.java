@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,18 +41,40 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * A conical collision shape based on Bullet's btConeShapeX, btConeShape, or
+ * btConeShapeZ.
  *
  * @author normenhansen
  */
 public class ConeCollisionShape extends CollisionShape {
 
+    /**
+     * copy of radius (&ge;0)
+     */
     protected float radius;
+    /**
+     * copy of height (&ge;0)
+     */
     protected float height;
+    /**
+     * copy of main (height) axis (0&rarr;X, 1&rarr;Y, 2&rarr;Z)
+     */
     protected int axis;
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public ConeCollisionShape() {
     }
 
+    /**
+     * Instantiate a cone shape around the specified main (height) axis.
+     *
+     * @param radius the desired radius (&ge;0)
+     * @param height the desired height (&ge;0)
+     * @param axis which local axis: 0&rarr;X, 1&rarr;Y, 2&rarr;Z
+     */
     public ConeCollisionShape(float radius, float height, int axis) {
         this.radius = radius;
         this.height = height;
@@ -60,6 +82,12 @@ public class ConeCollisionShape extends CollisionShape {
         createShape();
     }
 
+    /**
+     * Instantiate a cone shape oriented along the Y axis.
+     *
+     * @param radius the desired radius (&ge;0)
+     * @param height the desired height (&ge;0)
+     */
     public ConeCollisionShape(float radius, float height) {
         this.radius = radius;
         this.height = height;
@@ -67,14 +95,30 @@ public class ConeCollisionShape extends CollisionShape {
         createShape();
     }
 
+    /**
+     * Read the radius of the cone.
+     *
+     * @return radius (&ge;0)
+     */
     public float getRadius() {
         return radius;
     }
-    
+
+    /**
+     * Read the height of the cone.
+     *
+     * @return height (&ge;0)
+     */
     public float getHeight() {
         return height;
     }
 
+    /**
+     * Serialize this shape, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
@@ -83,6 +127,12 @@ public class ConeCollisionShape extends CollisionShape {
         capsule.write(axis, "axis", PhysicsSpace.AXIS_Y);
     }
 
+    /**
+     * De-serialize this shape, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);
@@ -92,6 +142,9 @@ public class ConeCollisionShape extends CollisionShape {
         createShape();
     }
 
+    /**
+     * Instantiate the configured shape in Bullet.
+     */
     protected void createShape() {
         objectId = createShape(axis, radius, height);
         Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Shape {0}", Long.toHexString(objectId));

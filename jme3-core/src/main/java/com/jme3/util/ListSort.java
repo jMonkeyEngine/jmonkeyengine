@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ import java.util.Comparator;
  * difference that the temporary necessary memory space are allocated as the
  * geometry list grows and reused all along the application execution.
  *
- * Usage : ListSort has to be instanciated and kept with the geometry list ( or
+ * Usage : ListSort has to be instantiated and kept with the geometry list ( or
  * w/e it may have to sort) Then the allocate method has to be called to
  * allocate necessary tmp space needed for the sort. This should be called once
  * for optimal performance, but can be called several times if the length of the
@@ -91,7 +91,7 @@ public class ListSort<T> {
      * class + array was a convoluted pain.
      */
     /**
-     * array of start indices in the original array for runs : run i sarting
+     * array of start indices in the original array for runs : run i starting
      * index is at runIndices[i]
      */
     private int[] runsIndices = null;
@@ -108,12 +108,12 @@ public class ListSort<T> {
     /**
      * MIN_GALLOP set to 7 constant as described in listsort.txt. this magic
      * number indicates how many wins should trigger the switch from binary
-     * search to gallopping mode
+     * search to galloping mode
      */
     private static final int MIN_GALLOP = 7;
     /**
      * This variable allows to adjust when switching to galloping mode. lowered
-     * when the data are "naturally" structured highered when data are random.
+     * when the data are "naturally" structured, raised when data are random.
      */
     private int minGallop = MIN_GALLOP;
 
@@ -342,7 +342,7 @@ public class ListSort<T> {
              */
             int nbElems = start - left;
             /*
-             * grabbed from java7 TimSort, the swich is an optimization to 
+             * grabbed from java7 TimSort, the switch is an optimization to 
              * arraycopy in case there are 1 or 2 elements only to copy
              */
             switch (nbElems) {

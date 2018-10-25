@@ -34,12 +34,14 @@ package com.jme3.animation;
 import com.jme3.export.*;
 import com.jme3.math.Vector3f;
 import com.jme3.util.BufferUtils;
+
 import java.io.IOException;
 import java.nio.FloatBuffer;
 
 /**
  * A pose is a list of offsets that say where a mesh vertices should be for this pose.
  */
+@Deprecated
 public final class Pose implements Savable, Cloneable {
 
     private String name;

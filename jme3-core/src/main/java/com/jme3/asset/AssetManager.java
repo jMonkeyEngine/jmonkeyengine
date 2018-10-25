@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -217,7 +217,7 @@ public interface AssetManager {
      * Load an asset from a key, the asset will be located
      * by one of the {@link AssetLocator} implementations provided in the
      * {@link AssetManager#registerLocator(java.lang.String, java.lang.Class) }
-     * call. If located successfully, it will be loaded via the the appropriate
+     * call. If located successfully, it will be loaded via the appropriate
      * {@link AssetLoader} implementation based on the file's extension, as
      * specified in the call 
      * {@link AssetManager#registerLoader(java.lang.Class, java.lang.String[]) }.

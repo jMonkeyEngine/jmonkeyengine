@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,9 +34,8 @@ package com.jme3.environment.util;
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
 import com.jme3.bounding.BoundingSphere;
+import com.jme3.light.*;
 import com.jme3.material.Material;
-import com.jme3.light.LightProbe;
-import com.jme3.light.Light;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -61,30 +60,14 @@ public class LightsDebugState extends BaseAppState {
     private Geometry debugGeom;
     private Geometry debugBounds;
     private Material debugMaterial;
-    private DebugMode debugMode = DebugMode.PrefilteredEnvMap;
     private float probeScale = 1.0f;
     private Spatial scene = null;
     private final List<LightProbe> probes = new ArrayList<LightProbe>();
 
-    /**
-     * Debug mode for light probes
-     */
-    public enum DebugMode {
-
-        /**
-         * Displays the prefiltered env maps on the debug sphere
-         */
-        PrefilteredEnvMap,
-        /**
-         * displays the Irradiance map on the debug sphere
-         */
-        IrradianceMap
-    }
-
     @Override
     protected void initialize(Application app) {
         debugNode = new Node("Environment debug Node");
-        Sphere s = new Sphere(16, 16, 1);
+        Sphere s = new Sphere(16, 16, 0.15f);
         debugGeom = new Geometry("debugEnvProbe", s);
         debugMaterial = new Material(app.getAssetManager(), "Common/MatDefs/Misc/reflect.j3md");
         debugGeom.setMaterial(debugMaterial);
@@ -96,6 +79,16 @@ public class LightsDebugState extends BaseAppState {
 
     @Override
     public void update(float tpf) {
+        if(!isEnabled()){
+            return;
+        }
+        updateLights(scene);
+        debugNode.updateLogicalState(tpf);
+        debugNode.updateGeometricState();
+        cleanProbes();
+    }
+
+    public void updateLights(Spatial scene) {
         for (Light light : scene.getWorldLightList()) {
             switch (light.getType()) {
 
@@ -114,27 +107,25 @@ public class LightsDebugState extends BaseAppState {
                     Material m = probeGeom.getMaterial();
                     probeGeom.setLocalScale(probeScale);
                     if (probe.isReady()) {
-                        if (debugMode == DebugMode.IrradianceMap) {
-                            m.setTexture("CubeMap", probe.getIrradianceMap());
-                        } else {
-                            m.setTexture("CubeMap", probe.getPrefilteredEnvMap());
-                        }
+                        m.setTexture("CubeMap", probe.getPrefilteredEnvMap());
                     }
                     n.setLocalTranslation(probe.getPosition());
-                    n.getChild(1).setLocalScale(((BoundingSphere) probe.getBounds()).getRadius());
+                    n.getChild(1).setLocalScale(probe.getArea().getRadius());
                     break;
                 default:
                     break;
             }
         }
-        debugNode.updateLogicalState(tpf);
-        debugNode.updateGeometricState();
-        cleanProbes();
-
+        if( scene instanceof Node){
+            Node n = (Node)scene;
+            for (Spatial spatial : n.getChildren()) {
+                updateLights(spatial);
+            }
+        }
     }
 
     /**
-     * Set the scenes for wich to render light gizmos.
+     * Set the scenes for which to render light gizmos.
      * @param scene 
      */
     public void setScene(Spatial scene) {
@@ -158,27 +149,12 @@ public class LightsDebugState extends BaseAppState {
 
     @Override
     public void render(RenderManager rm) {
+        if(!isEnabled()){
+            return;
+        }
         rm.renderScene(debugNode, getApplication().getViewPort());
     }
 
-    /**
-     * 
-     * @see DebugMode
-     * @return the debug mode
-     */
-    public DebugMode getDebugMode() {
-        return debugMode;
-    }
-
-    /**
-     * sets the debug mode
-     * @see DebugMode
-     * @param debugMode the debug mode
-     */
-    public void setDebugMode(DebugMode debugMode) {
-        this.debugMode = debugMode;
-
-    }
 
     /**
      * returns the scale of the probe's debug sphere

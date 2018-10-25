@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,7 +59,7 @@ import java.util.logging.Logger;
 /**
  * AndroidSensorJoyInput converts the Android Sensor system into Joystick events.
  * A single joystick is configured and includes data for all configured sensors
- * as seperate axes of the joystick.
+ * as separate axes of the joystick.
  *
  * Each axis is named according to the static strings in SensorJoystickAxis.
  * Refer to the strings defined in SensorJoystickAxis for a list of supported
@@ -285,8 +285,8 @@ public class AndroidSensorJoyInput implements SensorEventListener {
     }
 
     /**
-     * Calculates the device orientation based off the data recieved from the
-     * Acceleration Sensor and Mangetic Field sensor
+     * Calculates the device orientation based off the data received from the
+     * Acceleration Sensor and Magnetic Field sensor
      * Values are returned relative to the Earth.
      *
      * From the Android Doc

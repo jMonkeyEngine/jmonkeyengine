@@ -99,6 +99,7 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glEnableVertexAttribArray", 0);
         noEnumArgs("glDisableVertexAttribArray", 0);
         noEnumArgs("glVertexAttribPointer", 0, 1, 4, 5);
+        noEnumArgs("glVertexAttribDivisorARB", 0, 1);
         noEnumArgs("glDrawRangeElements", 1, 2, 3, 5);
         noEnumArgs("glDrawArrays", 1, 2);
         noEnumArgs("glDeleteBuffers", 0);
@@ -111,6 +112,7 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glRenderbufferStorageMultisampleEXT", 1, 3, 4);
         noEnumArgs("glFramebufferRenderbufferEXT", 3);
         noEnumArgs("glFramebufferTexture2DEXT", 3, 4);
+        noEnumArgs("glFramebufferTextureLayerEXT", 2, 3, 4);
         noEnumArgs("glBlitFramebufferEXT", 0, 1, 2, 3, 4, 5, 6, 7, 8);
         
         noEnumArgs("glCreateProgram", -1);
@@ -165,16 +167,17 @@ public final class GLTracer implements InvocationHandler {
     
     /**
      * Creates a tracer implementation that wraps OpenGL ES 2.
-     * 
+     *
      * @param glInterface OGL object to wrap
-     * @param glInterfaceClass The interface to implement
+     * @param glInterfaceClasses The interface(s) to implement
      * @return A tracer that implements the given interface
      */
-    public static Object createGlesTracer(Object glInterface, Class<?> glInterfaceClass) {
-        IntMap<String> constMap = generateConstantMap(GL.class, GLFbo.class, GLExt.class);
-        return Proxy.newProxyInstance(glInterface.getClass().getClassLoader(),
-                                      new Class<?>[] { glInterfaceClass }, 
-                                      new GLTracer(glInterface, constMap));
+    public static Object createGlesTracer(Object glInterface, Class<?>... glInterfaceClasses) {
+        IntMap<String> constMap = generateConstantMap(GL.class, GL2.class, GL3.class, GLFbo.class, GLExt.class);
+        return Proxy.newProxyInstance(
+                glInterface.getClass().getClassLoader(),
+                glInterfaceClasses,
+                new GLTracer(glInterface, constMap));
     }
 
     /**
@@ -301,7 +304,8 @@ public final class GLTracer implements InvocationHandler {
             // will be printed in darker color
             methodName = methodName.substring(2);
             if (methodName.equals("Clear")
-                    || methodName.equals("DrawRangeElements")) {
+                    || methodName.equals("DrawRangeElements")
+                    || methodName.equals("DrawElementsInstancedARB")) {
                 print(methodName);
             } else {
                 if (methodName.endsWith("EXT")) {
@@ -363,8 +367,8 @@ public final class GLTracer implements InvocationHandler {
         printEnum(param);
         print(", ");
         
-        if (param == GL.GL_TEXTURE_BASE_LEVEL
-                || param == GL.GL_TEXTURE_MAX_LEVEL) {
+        if (param == GL2.GL_TEXTURE_BASE_LEVEL
+                || param == GL2.GL_TEXTURE_MAX_LEVEL) {
             printInt(value);
         } else {
             printEnum(value);

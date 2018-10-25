@@ -11,6 +11,9 @@ MaterialDef Terrain Lighting {
 
         // Are we rendering TerrainGrid
         Boolean isTerrainGrid
+        
+        // Use diffuse alpha when mixing
+        Boolean useDiffuseAlpha
 
         // Ambient color
         Color Ambient
@@ -160,6 +163,8 @@ MaterialDef Terrain Lighting {
             DIFFUSEMAP_9_SCALE : DiffuseMap_9_scale
             DIFFUSEMAP_10_SCALE : DiffuseMap_10_scale
             DIFFUSEMAP_11_SCALE : DiffuseMap_11_scale
+            
+            USE_ALPHA : useDiffuseAlpha
         }
     }
 
@@ -223,6 +228,8 @@ MaterialDef Terrain Lighting {
             DIFFUSEMAP_9_SCALE : DiffuseMap_9_scale
             DIFFUSEMAP_10_SCALE : DiffuseMap_10_scale
             DIFFUSEMAP_11_SCALE : DiffuseMap_11_scale
+            
+            USE_ALPHA : useDiffuseAlpha
         }
     }
 

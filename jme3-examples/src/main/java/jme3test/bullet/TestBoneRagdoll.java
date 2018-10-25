@@ -36,24 +36,17 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
-import com.jme3.bullet.collision.PhysicsCollisionEvent;
-import com.jme3.bullet.collision.PhysicsCollisionObject;
-import com.jme3.bullet.collision.RagdollCollisionListener;
+import com.jme3.bullet.collision.*;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.KinematicRagdollControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
-import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.KeyTrigger;
-import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.input.controls.*;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.debug.SkeletonDebugger;
@@ -65,6 +58,7 @@ import com.jme3.texture.Texture;
  * PHYSICS RAGDOLLS ARE NOT WORKING PROPERLY YET!
  * @author normenhansen
  */
+//TODO rework this Test when the new animation system is done.
 public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisionListener, AnimEventListener {
 
     private BulletAppState bulletAppState;
@@ -101,7 +95,7 @@ public class TestBoneRagdoll extends SimpleApplication implements RagdollCollisi
         PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
         setupLight();
 
-        model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
+        model = (Node) assetManager.loadModel("Models/Sinbad/SinbadOldAnim.j3o");
 
         //  model.setLocalRotation(new Quaternion().fromAngleAxis(FastMath.HALF_PI, Vector3f.UNIT_X));
 

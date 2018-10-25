@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import com.jme3.scene.Mesh;
 import java.util.List;
 
 /**
- * This emiter shape emits the particles from the given shape's interior constrained by its convex hull
+ * This emitter shape emits the particles from the given shape's interior constrained by its convex hull
  * (a geometry that tightly wraps the mesh). So in case of multiple meshes some vertices may appear
  * in a space between them.
  * @author Marcin Roguski (Kaelthas)

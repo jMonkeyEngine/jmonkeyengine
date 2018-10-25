@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,33 +47,79 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * <i>From bullet manual:</i><br>
- * This generic constraint can emulate a variety of standard constraints,
- * by configuring each of the 6 degrees of freedom (dof).
- * The first 3 dof axis are linear axis, which represent translation of rigidbodies,
- * and the latter 3 dof axis represent the angular motion. Each axis can be either locked,
- * free or limited. On construction of a new btGeneric6DofConstraint, all axis are locked.
- * Afterwards the axis can be reconfigured. Note that several combinations that
- * include free and/or limited angular degrees of freedom are undefined.
+ * A joint based on Bullet's btGeneric6DofConstraint.
+ * <p>
+ * <i>From the Bullet manual:</i><br>
+ * This generic constraint can emulate a variety of standard constraints, by
+ * configuring each of the 6 degrees of freedom (dof). The first 3 dof axis are
+ * linear axis, which represent translation of rigidbodies, and the latter 3 dof
+ * axis represent the angular motion. Each axis can be either locked, free or
+ * limited. On construction of a new btGeneric6DofSpring2Constraint, all axis
+ * are locked. Afterwards the axis can be reconfigured. Note that several
+ * combinations that include free and/or limited angular degrees of freedom are
+ * undefined.
+ * <p>
+ * For each axis:<ul>
+ * <li>Lowerlimit = Upperlimit &rarr; axis is locked</li>
+ * <li>Lowerlimit &gt; Upperlimit &rarr; axis is free</li>
+ * <li>Lowerlimit &lt; Upperlimit &rarr; axis it limited in that range</li>
+ * </ul>
+ *
  * @author normenhansen
  */
 public class SixDofJoint extends PhysicsJoint {
 
     Matrix3f rotA, rotB;
+    /**
+     * true&rarr;limits give the allowable range of movement of frameB in frameA
+     * space, false&rarr;limits give the allowable range of movement of frameA
+     * in frameB space
+     */
     boolean useLinearReferenceFrameA;
     LinkedList<RotationalLimitMotor> rotationalMotors = new LinkedList<RotationalLimitMotor>();
     TranslationalLimitMotor translationalMotor;
+    /**
+     * upper limits for rotation of all 3 axes
+     */
     Vector3f angularUpperLimit = new Vector3f(Vector3f.POSITIVE_INFINITY);
+    /**
+     * lower limits for rotation of all 3 axes
+     */
     Vector3f angularLowerLimit = new Vector3f(Vector3f.NEGATIVE_INFINITY);
+    /**
+     * upper limit for translation of all 3 axes
+     */
     Vector3f linearUpperLimit = new Vector3f(Vector3f.POSITIVE_INFINITY);
+    /**
+     * lower limits for translation of all 3 axes
+     */
     Vector3f linearLowerLimit = new Vector3f(Vector3f.NEGATIVE_INFINITY);
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public SixDofJoint() {
     }
 
     /**
-     * @param pivotA local translation of the joint connection point in node A
-     * @param pivotB local translation of the joint connection point in node B
+     * Instantiate a SixDofJoint. To be effective, the joint must be added to a
+     * physics space.
+     *
+     * @param nodeA the 1st body connected by the joint (not null, alias
+     * created)
+     * @param nodeB the 2nd body connected by the joint (not null, alias
+     * created)
+     * @param pivotA the local offset of the connection point in node A (not
+     * null, alias created)
+     * @param pivotB the local offset of the connection point in node B (not
+     * null, alias created)
+     * @param rotA the local orientation of the connection to node A (not null,
+     * alias created)
+     * @param rotB the local orientation of the connection to node B (not null,
+     * alias created)
+     * @param useLinearReferenceFrameA true&rarr;use node A, false&rarr;use node
+     * B
      */
     public SixDofJoint(PhysicsRigidBody nodeA, PhysicsRigidBody nodeB, Vector3f pivotA, Vector3f pivotB, Matrix3f rotA, Matrix3f rotB, boolean useLinearReferenceFrameA) {
         super(nodeA, nodeB, pivotA, pivotB);
@@ -87,8 +133,19 @@ public class SixDofJoint extends PhysicsJoint {
     }
 
     /**
-     * @param pivotA local translation of the joint connection point in node A
-     * @param pivotB local translation of the joint connection point in node B
+     * Instantiate a SixDofJoint. To be effective, the joint must be added to a
+     * physics space.
+     *
+     * @param nodeA the 1st body connected by the joint (not null, alias
+     * created)
+     * @param nodeB the 2nd body connected by the joint (not null, alias
+     * created)
+     * @param pivotA the local offset of the connection point in node A (not
+     * null, alias created)
+     * @param pivotB the local offset of the connection point in node B (not
+     * null, alias created)
+     * @param useLinearReferenceFrameA true&rarr;use node A, false&rarr;use node
+     * B
      */
     public SixDofJoint(PhysicsRigidBody nodeA, PhysicsRigidBody nodeB, Vector3f pivotA, Vector3f pivotB, boolean useLinearReferenceFrameA) {
         super(nodeA, nodeB, pivotA, pivotB);
@@ -114,24 +171,32 @@ public class SixDofJoint extends PhysicsJoint {
     private native long getTranslationalLimitMotor(long objectId);
 
     /**
-     * returns the TranslationalLimitMotor of this 6DofJoint which allows
-     * manipulating the translational axis
-     * @return the TranslationalLimitMotor
+     * Access the TranslationalLimitMotor of this joint, the motor which
+     * influences translation on all 3 axes.
+     *
+     * @return the pre-existing instance
      */
     public TranslationalLimitMotor getTranslationalLimitMotor() {
         return translationalMotor;
     }
 
     /**
-     * returns one of the three RotationalLimitMotors of this 6DofJoint which
-     * allow manipulating the rotational axes
-     * @param index the index of the RotationalLimitMotor
-     * @return the RotationalLimitMotor at the given index
+     * Access the indexed RotationalLimitMotor of this joint, the motor which
+     * influences rotation around one axis.
+     *
+     * @param index the axis index of the desired motor: 0&rarr;X, 1&rarr;Y,
+     * 2&rarr;Z
+     * @return the pre-existing instance
      */
     public RotationalLimitMotor getRotationalLimitMotor(int index) {
         return rotationalMotors.get(index);
     }
 
+    /**
+     * Alter the joint's upper limits for translation of all 3 axes.
+     *
+     * @param vector the desired upper limits (not null, unaffected)
+     */
     public void setLinearUpperLimit(Vector3f vector) {
         linearUpperLimit.set(vector);
         setLinearUpperLimit(objectId, vector);
@@ -139,6 +204,11 @@ public class SixDofJoint extends PhysicsJoint {
 
     private native void setLinearUpperLimit(long objctId, Vector3f vector);
 
+    /**
+     * Alter the joint's lower limits for translation of all 3 axes.
+     *
+     * @param vector the desired lower limits (not null, unaffected)
+     */
     public void setLinearLowerLimit(Vector3f vector) {
         linearLowerLimit.set(vector);
         setLinearLowerLimit(objectId, vector);
@@ -146,6 +216,11 @@ public class SixDofJoint extends PhysicsJoint {
 
     private native void setLinearLowerLimit(long objctId, Vector3f vector);
 
+    /**
+     * Alter the joint's upper limits for rotation of all 3 axes.
+     *
+     * @param vector the desired upper limits (in radians, not null, unaffected)
+     */
     public void setAngularUpperLimit(Vector3f vector) {
         angularUpperLimit.set(vector);
         setAngularUpperLimit(objectId, vector);
@@ -153,6 +228,11 @@ public class SixDofJoint extends PhysicsJoint {
 
     private native void setAngularUpperLimit(long objctId, Vector3f vector);
 
+    /**
+     * Alter the joint's lower limits for rotation of all 3 axes.
+     *
+     * @param vector the desired lower limits (in radians, not null, unaffected)
+     */
     public void setAngularLowerLimit(Vector3f vector) {
         angularLowerLimit.set(vector);
         setAngularLowerLimit(objectId, vector);
@@ -162,6 +242,12 @@ public class SixDofJoint extends PhysicsJoint {
 
     native long createJoint(long objectIdA, long objectIdB, Vector3f pivotA, Matrix3f rotA, Vector3f pivotB, Matrix3f rotB, boolean useLinearReferenceFrameA);
 
+    /**
+     * De-serialize this joint, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
@@ -197,6 +283,12 @@ public class SixDofJoint extends PhysicsJoint {
         getTranslationalLimitMotor().setUpperLimit((Vector3f) capsule.readSavable("transMotor_UpperLimit", Vector3f.ZERO));
     }
 
+    /**
+     * Serialize this joint, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);

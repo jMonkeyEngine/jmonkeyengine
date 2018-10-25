@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@ package com.jme3.util;
 import java.io.*;
 
 /**
- * <code>LittleEndien</code> is a class to read littleendien stored data
+ * <code>LittleEndien</code> is a class to read little-endian stored data
  * via a InputStream.  All functions work as defined in DataInput, but
  * assume they come from a LittleEndien input stream.  Currently used to read .ms3d and .3ds files.
  * @author Jack Lindamood

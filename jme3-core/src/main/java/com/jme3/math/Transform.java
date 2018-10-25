@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,8 @@
 package com.jme3.math;
 
 import com.jme3.export.*;
+import com.jme3.util.TempVars;
+
 import java.io.IOException;
 
 /**
@@ -174,39 +176,37 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * Sets this matrix to the interpolation between the first matrix and the second by delta amount.
-     * @param t1 The begining transform.
+     * Sets this transform to the interpolation between the first transform and the second by delta amount.
+     * @param t1 The beginning transform.
      * @param t2 The ending transform.
      * @param delta An amount between 0 and 1 representing how far to interpolate from t1 to t2.
      */
     public void interpolateTransforms(Transform t1, Transform t2, float delta) {
-        this.rot.slerp(t1.rot,t2.rot,delta);
+        t1.rot.nlerp(t2.rot, delta);
+        this.rot.set(t1.rot);
         this.translation.interpolateLocal(t1.translation,t2.translation,delta);
         this.scale.interpolateLocal(t1.scale,t2.scale,delta);
     }
 
     /**
-     * Changes the values of this matrix acording to it's parent.  Very similar to the concept of Node/Spatial transforms.
+     * Changes the values of this matrix according to its parent.  Very similar to the concept of Node/Spatial transforms.
      * @param parent The parent matrix.
      * @return This matrix, after combining.
      */
     public Transform combineWithParent(Transform parent) {
+        //applying parent scale to local scale
         scale.multLocal(parent.scale);
-//        rot.multLocal(parent.rot);
+        //applying parent rotation to local rotation.
         parent.rot.mult(rot, rot);
-
-        // This here, is evil code
-//        parent
-//            .rot
-//            .multLocal(translation)
-//            .multLocal(parent.scale)
-//            .addLocal(parent.translation);
-
+        //applying parent scale to local translation.
         translation.multLocal(parent.scale);
+        //applying parent rotation to local translation, then applying parent translation to local translation.
+        //Note that parent.rot.multLocal(translation) doesn't modify "parent.rot" but "translation"
         parent
             .rot
             .multLocal(translation)
             .addLocal(parent.translation);
+
         return this;
     }
 
@@ -248,7 +248,7 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
             store = new Vector3f();
 
         // The author of this code should look above and take the inverse of that
-        // But for some reason, they didnt ..
+        // But for some reason, they didn't ..
 //        in.subtract(translation, store).divideLocal(scale);
 //        rot.inverse().mult(store, store);
 
@@ -260,17 +260,25 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
     }
 
     public Matrix4f toTransformMatrix() {
-        Matrix4f trans = new Matrix4f();
-        trans.setTranslation(translation);
-        trans.setRotationQuaternion(rot);
-        trans.setScale(scale);
-        return trans;
+        return toTransformMatrix(null);
+    }
+
+    public Matrix4f toTransformMatrix(Matrix4f store) {
+        if (store == null) {
+            store = new Matrix4f();
+        }
+        store.setTranslation(translation);
+        rot.toTransformMatrix(store);
+        store.setScale(scale);
+        return store;
     }
     
     public void fromTransformMatrix(Matrix4f mat) {
-        translation.set(mat.toTranslationVector());
-        rot.set(mat.toRotationQuat());
-        scale.set(mat.toScaleVector());
+        TempVars vars = TempVars.get();
+        translation.set(mat.toTranslationVector(vars.vect1));
+        rot.set(mat.toRotationQuat(vars.quat1));
+        scale.set(mat.toScaleVector(vars.vect2));
+        vars.release();
     }
     
     public Transform invert() {
@@ -286,6 +294,17 @@ public final class Transform implements Savable, Cloneable, java.io.Serializable
         translation.set(0, 0, 0);
         scale.set(1, 1, 1);
         rot.set(0, 0, 0, 1);
+    }
+
+    /**
+     * Test for exact identity.
+     *
+     * @return true if exactly equal to {@link #IDENTITY}, otherwise false
+     */
+    public boolean isIdentity() {
+        return translation.x == 0f && translation.y == 0f && translation.z == 0f
+                && scale.x == 1f && scale.y == 1f && scale.z == 1f
+                && rot.w == 1f && rot.x == 0f && rot.y == 0f && rot.z == 0f;
     }
 
     @Override

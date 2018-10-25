@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -204,12 +204,12 @@ public class HelloPhysics extends SimpleApplication {
     rootNode.attachChild(ball_geo);
     /** Position the cannon ball  */
     ball_geo.setLocalTranslation(cam.getLocation());
-    /** Make the ball physcial with a mass > 0.0f */
+    /** Make the ball physical with a mass > 0.0f */
     ball_phy = new RigidBodyControl(1f);
     /** Add physical ball to physics space. */
     ball_geo.addControl(ball_phy);
     bulletAppState.getPhysicsSpace().add(ball_phy);
-    /** Accelerate the physcial ball to shoot it. */
+    /** Accelerate the physical ball to shoot it. */
     ball_phy.setLinearVelocity(cam.getDirection().mult(25));
   }
 

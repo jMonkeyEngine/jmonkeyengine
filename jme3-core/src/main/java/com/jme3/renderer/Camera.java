@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -440,23 +440,25 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * Resizes this camera's view with the given width and height. This is
-     * similar to constructing a new camera, but reusing the same Object. This
-     * method is called by an associated {@link RenderManager} to notify the camera of
-     * changes in the display dimensions.
+     * Resize this camera's view for the specified display size. Invoked by an
+     * associated {@link RenderManager} to notify the camera of changes to the
+     * display dimensions.
      *
-     * @param width the view width
-     * @param height the view height
-     * @param fixAspect If true, the camera's aspect ratio will be recomputed.
-     * Recomputing the aspect ratio requires changing the frustum values.
+     * @param width the new width of the display, in pixels
+     * @param height the new height of the display, in pixels
+     * @param fixAspect if true, recompute the camera's frustum to preserve its
+     * prior aspect ratio
      */
     public void resize(int width, int height, boolean fixAspect) {
         this.width = width;
         this.height = height;
         onViewPortChange();
 
-        if (fixAspect /*&& !parallelProjection*/) {
-            frustumRight = frustumTop * ((float) width / height);
+        if (fixAspect) {
+            float h = height * (viewPortTop - viewPortBottom);
+            float w = width * (viewPortRight - viewPortLeft);
+            float aspectRatio = w / h;
+            frustumRight = frustumTop * aspectRatio;
             frustumLeft = -frustumRight;
             onFrustumChange();
         }
@@ -1219,7 +1221,7 @@ public class Camera implements Savable, Cloneable {
         projectionMatrix.fromFrustum(frustumNear, frustumFar, frustumLeft, frustumRight, frustumTop, frustumBottom, parallelProjection);
 //        projectionMatrix.transposeLocal();
 
-        // The frame is effected by the frustum values
+        // The frame is affected by the frustum values
         // update it as well
         onFrameChange();
     }

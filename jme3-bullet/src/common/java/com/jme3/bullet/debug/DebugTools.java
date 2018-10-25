@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,43 +42,129 @@ import com.jme3.scene.Node;
 import com.jme3.scene.debug.Arrow;
 
 /**
+ * Debugging aids.
+ * <p>
+ * This class is shared between JBullet and Native Bullet.
  *
  * @author normenhansen
  */
 public class DebugTools {
 
     protected final AssetManager manager;
+    /**
+     * unshaded blue material
+     */
     public Material DEBUG_BLUE;
+    /**
+     * unshaded red material
+     */
     public Material DEBUG_RED;
+    /**
+     * unshaded green material
+     */
     public Material DEBUG_GREEN;
+    /**
+     * unshaded yellow material
+     */
     public Material DEBUG_YELLOW;
+    /**
+     * unshaded magenta material
+     */
     public Material DEBUG_MAGENTA;
+    /**
+     * unshaded pink material
+     */
     public Material DEBUG_PINK;
+    /**
+     * node for attaching debug geometries
+     */
     public Node debugNode = new Node("Debug Node");
+    /**
+     * mesh for the blue arrow
+     */
     public Arrow arrowBlue = new Arrow(Vector3f.ZERO);
+    /**
+     * geometry for the blue arrow
+     */
     public Geometry arrowBlueGeom = new Geometry("Blue Arrow", arrowBlue);
+    /**
+     * mesh for the green arrow
+     */
     public Arrow arrowGreen = new Arrow(Vector3f.ZERO);
+    /**
+     * geometry for the green arrow
+     */
     public Geometry arrowGreenGeom = new Geometry("Green Arrow", arrowGreen);
+    /**
+     * mesh for the red arrow
+     */
     public Arrow arrowRed = new Arrow(Vector3f.ZERO);
+    /**
+     * geometry for the red arrow
+     */
     public Geometry arrowRedGeom = new Geometry("Red Arrow", arrowRed);
+    /**
+     * mesh for the magenta arrow
+     */
     public Arrow arrowMagenta = new Arrow(Vector3f.ZERO);
+    /**
+     * geometry for the magenta arrow
+     */
     public Geometry arrowMagentaGeom = new Geometry("Magenta Arrow", arrowMagenta);
+    /**
+     * mesh for the yellow arrow
+     */
     public Arrow arrowYellow = new Arrow(Vector3f.ZERO);
+    /**
+     * geometry for the yellow arrow
+     */
     public Geometry arrowYellowGeom = new Geometry("Yellow Arrow", arrowYellow);
+    /**
+     * mesh for the pink arrow
+     */
     public Arrow arrowPink = new Arrow(Vector3f.ZERO);
+    /**
+     * geometry for the pink arrow
+     */
     public Geometry arrowPinkGeom = new Geometry("Pink Arrow", arrowPink);
+    /**
+     * local copy of {@link com.jme3.math.Vector3f#UNIT_X}
+     */
     protected static final Vector3f UNIT_X_CHECK = new Vector3f(1, 0, 0);
+    /**
+     * local copy of {@link com.jme3.math.Vector3f#UNIT_Y}
+     */
     protected static final Vector3f UNIT_Y_CHECK = new Vector3f(0, 1, 0);
+    /**
+     * local copy of {@link com.jme3.math.Vector3f#UNIT_Z}
+     */
     protected static final Vector3f UNIT_Z_CHECK = new Vector3f(0, 0, 1);
+    /**
+     * local copy of {@link com.jme3.math.Vector3f#UNIT_XYZ}
+     */
     protected static final Vector3f UNIT_XYZ_CHECK = new Vector3f(1, 1, 1);
+    /**
+     * local copy of {@link com.jme3.math.Vector3f#ZERO}
+     */
     protected static final Vector3f ZERO_CHECK = new Vector3f(0, 0, 0);
 
+    /**
+     * Instantiate a set of debug tools.
+     *
+     * @param manager for loading assets (not null, alias created)
+     */
     public DebugTools(AssetManager manager) {
         this.manager = manager;
         setupMaterials();
         setupDebugNode();
     }
 
+    /**
+     * Render all the debug geometries to the specified view port.
+     *
+     * @param rm the render manager (not null)
+     * @param vp the view port (not null)
+     */
     public void show(RenderManager rm, ViewPort vp) {
         if (!Vector3f.UNIT_X.equals(UNIT_X_CHECK) || !Vector3f.UNIT_Y.equals(UNIT_Y_CHECK) || !Vector3f.UNIT_Z.equals(UNIT_Z_CHECK)
                 || !Vector3f.UNIT_XYZ.equals(UNIT_XYZ_CHECK) || !Vector3f.ZERO.equals(ZERO_CHECK)) {
@@ -94,36 +180,75 @@ public class DebugTools {
         rm.renderScene(debugNode, vp);
     }
 
+    /**
+     * Alter the location and extent of the blue arrow.
+     *
+     * @param location the coordinates of the tail (not null, unaffected)
+     * @param extent the offset of the tip from the tail (not null, unaffected)
+     */
     public void setBlueArrow(Vector3f location, Vector3f extent) {
         arrowBlueGeom.setLocalTranslation(location);
         arrowBlue.setArrowExtent(extent);
     }
 
+    /**
+     * Alter the location and extent of the green arrow.
+     *
+     * @param location the coordinates of the tail (not null, unaffected)
+     * @param extent the offset of the tip from the tail (not null, unaffected)
+     */
     public void setGreenArrow(Vector3f location, Vector3f extent) {
         arrowGreenGeom.setLocalTranslation(location);
         arrowGreen.setArrowExtent(extent);
     }
 
+    /**
+     * Alter the location and extent of the red arrow.
+     *
+     * @param location the coordinates of the tail (not null, unaffected)
+     * @param extent the offset of the tip from the tail (not null, unaffected)
+     */
     public void setRedArrow(Vector3f location, Vector3f extent) {
         arrowRedGeom.setLocalTranslation(location);
         arrowRed.setArrowExtent(extent);
     }
 
+    /**
+     * Alter the location and extent of the magenta arrow.
+     *
+     * @param location the coordinates of the tail (not null, unaffected)
+     * @param extent the offset of the tip from the tail (not null, unaffected)
+     */
     public void setMagentaArrow(Vector3f location, Vector3f extent) {
         arrowMagentaGeom.setLocalTranslation(location);
         arrowMagenta.setArrowExtent(extent);
     }
 
+    /**
+     * Alter the location and extent of the yellow arrow.
+     *
+     * @param location the coordinates of the tail (not null, unaffected)
+     * @param extent the offset of the tip from the tail (not null, unaffected)
+     */
     public void setYellowArrow(Vector3f location, Vector3f extent) {
         arrowYellowGeom.setLocalTranslation(location);
         arrowYellow.setArrowExtent(extent);
     }
 
+    /**
+     * Alter the location and extent of the pink arrow.
+     *
+     * @param location the coordinates of the tail (not null, unaffected)
+     * @param extent the offset of the tip from the tail (not null, unaffected)
+     */
     public void setPinkArrow(Vector3f location, Vector3f extent) {
         arrowPinkGeom.setLocalTranslation(location);
         arrowPink.setArrowExtent(extent);
     }
 
+    /**
+     * Attach all the debug geometries to the debug node.
+     */
     protected void setupDebugNode() {
         arrowBlueGeom.setMaterial(DEBUG_BLUE);
         arrowGreenGeom.setMaterial(DEBUG_GREEN);
@@ -139,6 +264,9 @@ public class DebugTools {
         debugNode.attachChild(arrowPinkGeom);
     }
 
+    /**
+     * Initialize all the DebugTools materials.
+     */
     protected void setupMaterials() {
         DEBUG_BLUE = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
         DEBUG_BLUE.getAdditionalRenderState().setWireframe(true);

@@ -25,6 +25,7 @@ uniform mat4 g_WorldViewMatrix;
 uniform mat4 g_WorldViewProjectionMatrix;
 uniform mat4 g_ViewProjectionMatrix;
 uniform mat3 g_NormalMatrix;
+uniform mat3 g_WorldNormalMatrix;
 
 #if defined INSTANCING
 
@@ -101,7 +102,7 @@ vec3 TransformNormal(vec3 normal) {
 }
 
 vec3 TransformWorldNormal(vec3 normal) {
-    return normalize((g_WorldMatrix * vec4(normal,0.0)).xyz);
+    return normalize(g_WorldNormalMatrix * normal);
 }
 
  

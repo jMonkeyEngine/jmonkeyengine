@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -95,7 +95,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
 
     /**
      * @param height The height of the viewport. Used to convert
-     * buttom-left origin to upper-left origin.
+     * bottom-left origin to upper-left origin.
      */
     public void setHeight(int height) {
         this.height = height;
@@ -179,7 +179,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     }
 
     private void onTouchEventQueued(TouchEvent evt, NiftyInputConsumer nic) {
-        if (inputManager.getSimulateMouse()) {
+        if (inputManager.isSimulateMouse()) {
             return;
         }
 
@@ -311,7 +311,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
                 final TextField textField = element.getNiftyControl(TextField.class);
                 if (textField != null) {
                     Logger.getLogger(InputSystemJme.class.getName()).log(Level.FINE, "Current TextField: {0}", textField.getId());
-                    String initialValue = textField.getText();
+                    String initialValue = textField.getRealText();
                     if (initialValue == null) {
                         initialValue = "";
                     }

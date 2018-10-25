@@ -31,8 +31,7 @@
  */
 package jme3test.model.anim;
 
-import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
+import com.jme3.anim.AnimComposer;
 import com.jme3.app.SimpleApplication;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.light.DirectionalLight;
@@ -57,27 +56,23 @@ public class TestModelExportingCloning extends SimpleApplication {
         dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
         rootNode.addLight(dl);
 
-        AnimControl control;
-        AnimChannel channel;
-        
+        AnimComposer composer;
+
         Spatial originalModel = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-        control = originalModel.getControl(AnimControl.class);
-        channel = control.createChannel();
-        channel.setAnim("Walk");
+        composer = originalModel.getControl(AnimComposer.class);
+        composer.setCurrentAction("Walk");
         rootNode.attachChild(originalModel);
         
         Spatial clonedModel = originalModel.clone();
         clonedModel.move(10, 0, 0);
-        control = clonedModel.getControl(AnimControl.class);
-        channel = control.createChannel();
-        channel.setAnim("push");
+        composer = clonedModel.getControl(AnimComposer.class);
+        composer.setCurrentAction("push");
         rootNode.attachChild(clonedModel);
         
         Spatial exportedModel = BinaryExporter.saveAndLoad(assetManager, originalModel);
         exportedModel.move(20, 0, 0);
-        control = exportedModel.getControl(AnimControl.class);
-        channel = control.createChannel();
-        channel.setAnim("pull");
+        composer = exportedModel.getControl(AnimComposer.class);
+        composer.setCurrentAction("pull");
         rootNode.attachChild(exportedModel);
     }
 }

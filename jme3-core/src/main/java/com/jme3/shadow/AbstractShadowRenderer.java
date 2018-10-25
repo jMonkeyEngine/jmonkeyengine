@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,11 +32,7 @@
 package com.jme3.shadow;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
-import com.jme3.export.Savable;
+import com.jme3.export.*;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
@@ -99,7 +95,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     protected CompareMode shadowCompareMode = CompareMode.Hardware;
     protected Picture[] dispPic;
     protected RenderState forcedRenderState = new RenderState();
-    protected Boolean renderBackFacesShadows = true;
+    protected boolean renderBackFacesShadows = true;
     protected AppProfiler prof;
 
     /**
@@ -192,6 +188,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         setEdgeFilteringMode(edgeFilteringMode);
         setShadowIntensity(shadowIntensity);
         initForcedRenderState();
+        setRenderBackFacesShadows(isRenderBackFacesShadows());
     }
 
     protected void initForcedRenderState() {
@@ -485,7 +482,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         getReceivers(lightReceivers);
 
         if (lightReceivers.size() != 0) {
-            //setting params to recieving geometry list
+            //setting params to receiving geometry list
             setMatParams(lightReceivers);
 
             Camera cam = viewPort.getCamera();
@@ -558,18 +555,19 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
             for (int j = 0; j < nbShadowMaps; j++) {
                 mat.setMatrix4(lightViewStringCache[j], lightViewProjectionsMatrices[j]);
             }
+
             for (int j = 0; j < nbShadowMaps; j++) {
                 mat.setTexture(shadowMapStringCache[j], shadowMaps[j]);
             }
+
             mat.setBoolean("HardwareShadows", shadowCompareMode == CompareMode.Hardware);
             mat.setInt("FilterMode", edgeFilteringMode.getMaterialParamValue());
             mat.setFloat("PCFEdge", edgesThickness);
             mat.setFloat("ShadowIntensity", shadowIntensity);
+            mat.setBoolean("BackfaceShadows", renderBackFacesShadows);
+
             if (fadeInfo != null) {
                mat.setVector2("FadeInfo", fadeInfo);
-            }
-            if(renderBackFacesShadows != null){
-                mat.setBoolean("BackfaceShadows", renderBackFacesShadows);
             }
 
             setMaterialParameters(mat);
@@ -610,9 +608,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
         if (fadeInfo != null) {
             postshadowMat.setVector2("FadeInfo", fadeInfo);
         }
-        if(renderBackFacesShadows != null){
-            postshadowMat.setBoolean("BackfaceShadows", renderBackFacesShadows);
-        }
+        postshadowMat.setBoolean("BackfaceShadows", renderBackFacesShadows);
     }
     
     /**
@@ -730,6 +726,24 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     }
 
     /**
+     * Read the number of shadow maps rendered by this renderer.
+     *
+     * @return count
+     */
+    public int getNumShadowMaps() {
+        return nbShadowMaps;
+    }
+
+    /**
+     * Read the size of each shadow map rendered by this renderer.
+     *
+     * @return a map's height (which is also its width, in pixels)
+     */
+    public int getShadowMapSize() {
+        return (int) shadowMapSize;
+    }
+
+    /**
      * Sets the shadow edges thickness. default is 10, setting it to lower values
      * can help to reduce the jagged effect of the shadow edges
      *
@@ -738,7 +752,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
     public void setEdgesThickness(int edgesThickness) {
         this.edgesThickness = Math.max(1, Math.min(edgesThickness, 10));
         this.edgesThickness *= 0.1f;
-        postshadowMat.setFloat("PCFEdge", edgesThickness);
+        postshadowMat.setFloat("PCFEdge", this.edgesThickness);
     }
 
     /**
@@ -788,10 +802,11 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
 
     /**
      * if this processor renders back faces shadows
+     *
      * @return true if this processor renders back faces shadows
      */
     public boolean isRenderBackFacesShadows() {
-        return renderBackFacesShadows != null?renderBackFacesShadows:false;
+        return renderBackFacesShadows;
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 jMonkeyEngine
+ * Copyright (c) 2016-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *  This two step process has a few benefits.  First, it means that objects
  *  can easily have a regular shallow clone implementation just like any
  *  normal Java objects.  Second, the deep cloning of fields happens after
- *  creation wich means that the clone is available to future field cloning
+ *  creation which means that the clone is available to future field cloning
  *  to resolve circular references.</p>
  *
  *  <p>Similar to Java serialization, the handling of specific object
@@ -71,7 +71,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *  (For example, adding the IdentityCloneFunction for Mesh.class would cause
  *  all mesh instances to be shared with the original object graph.)</p>
  *
- *  <p>By default, the Cloner registers serveral default clone functions
+ *  <p>By default, the Cloner registers several default clone functions
  *  as follows:</p>
  *  <ul>
  *  <li>java.util.ArrayList: ListCloneFunction
@@ -187,7 +187,7 @@ public class Cloner {
      *  <li>Else an IllegalArgumentException is thrown.
      *  </ul>
      *
-     *  <p>The abililty to selectively use clone functions is useful when
+     *  <p>The ability to selectively use clone functions is useful when
      *  being called from a clone function.</p>
      *
      *  Note: objects returned by this method may not have yet had their cloneField()

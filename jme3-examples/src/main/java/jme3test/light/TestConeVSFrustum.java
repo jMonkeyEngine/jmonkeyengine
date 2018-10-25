@@ -102,7 +102,7 @@ public class TestConeVSFrustum extends SimpleApplication {
 
         float radius = FastMath.tan(spotLight.getSpotOuterAngle()) * spotLight.getSpotRange();
 
-        Cylinder cylinder = new Cylinder(5, 16, 0, radius, spotLight.getSpotRange(), true, false);
+        Cylinder cylinder = new Cylinder(5, 16, 0.01f, radius, spotLight.getSpotRange(), true, false);
         geom = new Geometry("light", cylinder);
         geom.setMaterial(new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md"));
         geom.getMaterial().setColor("Diffuse", ColorRGBA.White);

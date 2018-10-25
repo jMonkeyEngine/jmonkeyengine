@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,47 +34,67 @@ package com.jme3.bullet.collision;
 import com.jme3.math.Vector3f;
 
 /**
- * Contains the results of a PhysicsSpace rayTest
- *  bulletAppState.getPhysicsSpace().rayTest(new Vector3f(0,1000,0),new Vector3f(0,-1000,0));
-    javap -s java.util.List
+ * Represent the results of a Bullet ray test.
+ *
  * @author Empire-Phoenix,normenhansen
  */
 public class PhysicsRayTestResult {
 
+    /**
+     * collision object that was hit
+     */
     private PhysicsCollisionObject collisionObject;
+    /**
+     * normal vector at the point of contact
+     */
     private Vector3f hitNormalLocal;
+    /**
+     * fraction of the ray's total length (from=0, to=1, &ge;0, &le;1)
+     */
     private float hitFraction;
+    /**
+     * true&rarr;need to transform normal into world space
+     */
     private boolean normalInWorldSpace = true;
 
     /**
-     * allocated by native code only
+     * A private constructor to inhibit instantiation of this class by Java.
+     * These results are instantiated exclusively by native code.
      */
     private PhysicsRayTestResult() {
     }
 
     /**
-     * @return the collisionObject
+     * Access the collision object that was hit.
+     *
+     * @return the pre-existing instance
      */
     public PhysicsCollisionObject getCollisionObject() {
         return collisionObject;
     }
 
     /**
-     * @return the hitNormalLocal
+     * Access the normal vector at the point of contact.
+     *
+     * @return a pre-existing unit vector (not null)
      */
     public Vector3f getHitNormalLocal() {
         return hitNormalLocal;
     }
 
     /**
-     * @return the hitFraction
+     * Read the fraction of the ray's total length.
+     *
+     * @return fraction (from=0, to=1, &ge;0, &le;1)
      */
     public float getHitFraction() {
         return hitFraction;
     }
 
     /**
-     * @return the normalInWorldSpace
+     * Test whether the normal is in world space.
+     *
+     * @return true if in world space, otherwise false
      */
     public boolean isNormalInWorldSpace() {
         return normalInWorldSpace;

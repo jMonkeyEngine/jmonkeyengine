@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,14 +31,15 @@
  */
 package com.jme3.shader;
 
-import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.ShaderGenerationInfo;
-import com.jme3.material.Technique;
 import com.jme3.material.TechniqueDef;
 import com.jme3.shader.Shader.ShaderType;
-import java.util.List;
-import java.util.regex.*;
+import com.jme3.shader.plugins.ShaderAssetKey;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class is the base for a shader generator using the ShaderNodes system,
@@ -48,6 +49,11 @@ import java.util.regex.*;
  * @author Nehon
  */
 public abstract class ShaderGenerator {
+
+    public static final String NAME_SPACE_GLOBAL = "Global";
+    public static final String NAME_SPACE_VERTEX_ATTRIBUTE = "Attr";
+    public static final String NAME_SPACE_MAT_PARAM = "MatParam";
+    public static final String NAME_SPACE_WORLD_PARAM = "WorldParam";
 
     /**
      * the asset manager
@@ -65,6 +71,8 @@ public abstract class ShaderGenerator {
      * Extension pattern
      */
     Pattern extensions = Pattern.compile("(#extension.*\\s+)");
+
+    private Map<String, String> imports = new LinkedHashMap<>();
 
     /**
      * Build a shaderGenerator
@@ -126,7 +134,9 @@ public abstract class ShaderGenerator {
             // Too much code assumes that type is either Vertex or Fragment
             return null;
         }
-        
+
+        imports.clear();
+
         indent = 0;
 
         StringBuilder sourceDeclaration = new StringBuilder();
@@ -144,6 +154,12 @@ public abstract class ShaderGenerator {
         generateDeclarationAndMainBody(shaderNodes, sourceDeclaration, source, info, type);
 
         generateEndOfMainSection(source, info, type);
+
+        //insert imports backward
+        int insertIndex = sourceDeclaration.length();
+        for (String importSource : imports.values()) {
+            sourceDeclaration.insert(insertIndex, importSource);
+        }
 
         sourceDeclaration.append(source);
 
@@ -186,7 +202,13 @@ public abstract class ShaderGenerator {
             if (shaderNode.getDefinition().getType() == type) {
                 int index = findShaderIndexFromVersion(shaderNode, type);
                 String shaderPath = shaderNode.getDefinition().getShadersPath().get(index);
-                String loadedSource = (String) assetManager.loadAsset(new AssetKey(shaderPath));
+                Map<String, String> sources = (Map<String, String>) assetManager.loadAsset(new ShaderAssetKey(shaderPath, false));
+                String loadedSource = sources.get("[main]");
+                for (String name : sources.keySet()) {
+                    if (!name.equals("[main]")) {
+                        imports.put(name, sources.get(name));
+                    }
+                }
                 appendNodeDeclarationAndMain(loadedSource, sourceDeclaration, source, shaderNode, info, shaderPath);
             }
         }
@@ -203,7 +225,7 @@ public abstract class ShaderGenerator {
      * @see ShaderGenerator#generateNodeMainSection
      *
      * @param loadedSource the actual source code loaded for this node.
-     * @param shaderPath path the the shader file
+     * @param shaderPath path to the shader file
      * @param sourceDeclaration the Shader declaration part string builder.
      * @param source the Shader main part StringBuilder.
      * @param shaderNode the shader node.
@@ -266,7 +288,7 @@ public abstract class ShaderGenerator {
 
     /**
      * Appends the given shaderNode declarative part to the shader declarative
-     * part. If needed the sahder type can be determined by fetching the
+     * part. If needed the shader type can be determined by fetching the
      * shaderNode's definition type.
      *
      * @see ShaderNode#getDefinition()

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,14 +43,35 @@ import java.util.logging.Logger;
  */
 public abstract class RagdollPreset {
 
+    /**
+     * message logger for this class
+     */
     protected static final Logger logger = Logger.getLogger(RagdollPreset.class.getName());
+    /**
+     * map bone names to joint presets
+     */
     protected Map<String, JointPreset> boneMap = new HashMap<String, JointPreset>();
+    /**
+     * lexicon to map bone names to entries
+     */
     protected Map<String, LexiconEntry> lexicon = new HashMap<String, LexiconEntry>();
 
+    /**
+     * Initialize the map from bone names to joint presets.
+     */
     protected abstract void initBoneMap();
 
+    /**
+     * Initialize the lexicon.
+     */
     protected abstract void initLexicon();
 
+    /**
+     * Apply the preset for the named bone to the specified joint.
+     *
+     * @param boneName name
+     * @param joint where to apply the preset (not null, modified)
+     */
     public void setupJointForBone(String boneName, SixDofJoint joint) {
 
         if (boneMap.isEmpty()) {
@@ -87,14 +108,30 @@ public abstract class RagdollPreset {
 
     }
 
+    /**
+     * Range of motion for a joint.
+     */
     protected class JointPreset {
 
         private float maxX, minX, maxY, minY, maxZ, minZ;
 
+        /**
+         * Instantiate a preset with no motion allowed.
+         */
         public JointPreset() {
         }
 
         public JointPreset(float maxX, float minX, float maxY, float minY, float maxZ, float minZ) {
+        /**
+         * Instantiate a preset with the specified range of motion.
+         *
+         * @param maxX the maximum rotation on the X axis (in radians)
+         * @param minX the minimum rotation on the X axis (in radians)
+         * @param maxY the maximum rotation on the Y axis (in radians)
+         * @param minY the minimum rotation on the Y axis (in radians)
+         * @param maxZ the maximum rotation on the Z axis (in radians)
+         * @param minZ the minimum rotation on the Z axis (in radians)
+         */
             this.maxX = maxX;
             this.minX = minX;
             this.maxY = maxY;
@@ -103,6 +140,11 @@ public abstract class RagdollPreset {
             this.minZ = minZ;
         }
 
+        /**
+         * Apply this preset to the specified joint.
+         *
+         * @param joint where to apply (not null, modified)
+         */
         public void setupJoint(SixDofJoint joint) {
             joint.getRotationalLimitMotor(0).setHiLimit(maxX);
             joint.getRotationalLimitMotor(0).setLoLimit(minX);
@@ -113,13 +155,28 @@ public abstract class RagdollPreset {
         }
     }
 
+    /**
+     * One entry in a bone lexicon.
+     */
     protected class LexiconEntry extends HashMap<String, Integer> {
 
+        /**
+         * Add a synonym with the specified score.
+         *
+         * @param word a substring that might occur in a bone name (not null)
+         * @param score larger value means more likely to correspond
+         */
         public void addSynonym(String word, int score) {
             put(word.toLowerCase(), score);
         }
 
         public int getScore(String word) {
+        /**
+         * Calculate a total score for the specified bone name.
+         *
+         * @param name the name of a bone (not null)
+         * @return total score: larger value means more likely to correspond
+         */
             int score = 0;
             String searchWord = word.toLowerCase();
             for (String key : this.keySet()) {

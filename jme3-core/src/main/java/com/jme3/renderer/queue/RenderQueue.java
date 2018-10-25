@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -101,7 +101,7 @@ public class RenderQueue {
         
         /**
          * A special mode used for rendering transparent objects that
-         * should not be effected by {@link SceneProcessor}. 
+         * should not be affected by {@link SceneProcessor}. 
          * Generally this would contain translucent objects, and
          * also objects that do not write to the depth buffer such as
          * particle emitters.
@@ -165,7 +165,7 @@ public class RenderQueue {
      *
      *  <p>The most significant comparator is the one for the transparent
      *  bucket since there is no correct way to sort the transparent bucket
-     *  that will handle all geometry all the time.  In certain cases, the
+     *  that will handle all geometries all the time.  In certain cases, the
      *  application may know the best way to sort and now has the option of
      *  configuring a specific implementation.</p>
      *

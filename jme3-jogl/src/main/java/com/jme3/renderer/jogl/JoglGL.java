@@ -4,11 +4,10 @@ import com.jme3.renderer.RendererException;
 import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GL2;
 import com.jme3.renderer.opengl.GL3;
-
-import java.nio.*;
-
 import com.jme3.renderer.opengl.GL4;
 import com.jogamp.opengl.GLContext;
+
+import java.nio.*;
 
 public class JoglGL implements GL, GL2, GL3, GL4 {
     
@@ -628,7 +627,7 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
 	public void glPatchParameter(int count) {
         GLContext.getCurrentGL().getGL3().glPatchParameteri(com.jogamp.opengl.GL3.GL_PATCH_VERTICES, count);
     }
-    
+
     @Override
 	public void glDeleteVertexArrays(IntBuffer arrays) {
         checkLimit(arrays);
@@ -636,8 +635,28 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
     }
 
     @Override
-    public void glFramebufferTextureLayer(int param1, int param2, int param3, int param4, int param5) {
-        GLContext.getCurrentGL().getGL3().glFramebufferTextureLayer(param1, param2, param3, param4, param5);
+    public int glGetUniformBlockIndex(final int program, final String uniformBlockName) {
+        return GLContext.getCurrentGL().getGL3bc().glGetUniformBlockIndex(program, uniformBlockName);
     }
 
+    @Override
+    public void glBindBufferBase(final int target, final int index, final int buffer) {
+        GLContext.getCurrentGL().getGL3bc().glBindBufferBase(target, index, buffer);
+    }
+
+    @Override
+    public int glGetProgramResourceIndex(final int program, final int programInterface, final String name) {
+        throw new UnsupportedOperationException();
+        //return GLContext.getCurrentGL().getGL4bc().glGetProgramResourceIndex(program, programInterface, name);
+    }
+
+    @Override
+    public void glShaderStorageBlockBinding(final int program, final int storageBlockIndex, final int storageBlockBinding) {
+        GLContext.getCurrentGL().getGL4bc().glShaderStorageBlockBinding(program, storageBlockIndex, storageBlockBinding);
+    }
+
+    @Override
+    public void glUniformBlockBinding(final int program, final int uniformBlockIndex, final int uniformBlockBinding) {
+        GLContext.getCurrentGL().getGL3bc().glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+    }
 }

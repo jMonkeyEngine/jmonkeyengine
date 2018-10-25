@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,11 +47,15 @@ import com.jme3.scene.Spatial;
 public interface Control extends Savable {
 
     /**
-     * Creates a clone of the Control, the given Spatial is the cloned
-     * version of the spatial to which this control is attached to.
+     * Creates a clone of the Control, the given Spatial is the cloned version
+     * of the spatial to which this control is attached to.
+     *
      * @param spatial
      * @return A clone of this control for the spatial
+     * @deprecated Use
+     * {@link com.jme3.util.clone.JmeCloneable#cloneFields(com.jme3.util.clone.Cloner, java.lang.Object)}
      */
+    @Deprecated
     public Control cloneForSpatial(Spatial spatial);
 
     /**

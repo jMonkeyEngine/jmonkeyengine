@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,18 +39,26 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 /**
+ * A utility class for interfacing with Native Bullet.
  *
  * @author normenhansen
  */
 public class NativeMeshUtil {
     
+    /**
+     * Pass a mesh to Native Bullet.
+     *
+     * @param mesh the JME mesh to pass (not null)
+     * @return the unique identifier of the resulting btTriangleIndexVertexArray
+     * (not 0)
+     */
     public static long getTriangleIndexVertexArray(Mesh mesh){
         ByteBuffer triangleIndexBase = BufferUtils.createByteBuffer(mesh.getTriangleCount() * 3 * 4);
         ByteBuffer vertexBase = BufferUtils.createByteBuffer(mesh.getVertexCount() * 3 * 4);
         int numVertices = mesh.getVertexCount();
-        int vertexStride = 12; //3 verts * 4 bytes per.
+        int vertexStride = 12; //3 verts * 4 bytes each
         int numTriangles = mesh.getTriangleCount();
-        int triangleIndexStride = 12; //3 index entries * 4 bytes each.
+        int triangleIndexStride = 12; //3 index entries * 4 bytes each
 
         IndexBuffer indices = mesh.getIndicesAsList();
         FloatBuffer vertices = mesh.getFloatBuffer(Type.Position);
@@ -72,6 +80,18 @@ public class NativeMeshUtil {
         return createTriangleIndexVertexArray(triangleIndexBase, vertexBase, numTriangles, numVertices, vertexStride, triangleIndexStride);
     }
     
+    /**
+     * Instantiate a btTriangleIndexVertexArray. Native method.
+     *
+     * @param triangleIndexBase index buffer (not null)
+     * @param vertexBase vertex buffer (not null)
+     * @param numTraingles the number of triangles in the mesh (&ge;0)
+     * @param numVertices the number of vertices in the mesh (&ge;0)
+     * @param vertextStride (in bytes, &gt;0)
+     * @param triangleIndexStride (in bytes, &gt;0)
+     * @return the unique identifier of the resulting btTriangleIndexVertexArray
+     * (not 0)
+     */
     public static native long createTriangleIndexVertexArray(ByteBuffer triangleIndexBase, ByteBuffer vertexBase, int numTraingles, int numVertices, int vertextStride, int triangleIndexStride);
     
 }

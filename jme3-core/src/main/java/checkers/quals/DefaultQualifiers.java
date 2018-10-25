@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
  * annotations of the same name at a single location.
  *
  * Example:
- * <!-- &nbsp; is a hack that prevents @ from being the first charater on the line, which confuses Javadoc -->
+ * <!-- &nbsp; is a hack that prevents @ from being the first character on the line, which confuses Javadoc -->
  * <code><pre>
  * &nbsp; @DefaultQualifiers({
  * &nbsp;     @DefaultQualifier("NonNull"),

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ import java.util.ArrayList;
 
 /**
  * SSAO stands for screen space ambient occlusion
- * It's a technique that fake ambient lighting by computing shadows that near by objects would casts on each others 
+ * It's a technique that fakes ambient lighting by computing shadows that near by objects would casts on each others 
  * under the effect of an ambient light
  * more info on this in this blog post <a href="http://jmonkeyengine.org/2010/08/16/screen-space-ambient-occlusion-for-jmonkeyengine-3-0/">http://jmonkeyengine.org/2010/08/16/screen-space-ambient-occlusion-for-jmonkeyengine-3-0/</a>
  * 
@@ -207,7 +207,7 @@ public class SSAOFilter extends Filter {
     }
 
     /**
-     * Sets the the width of the occlusion cone considered by the occludee default is 0.1f
+     * Sets the width of the occlusion cone considered by the occludee default is 0.1f
      * @param bias 
      */
     public void setBias(float bias) {
@@ -247,7 +247,7 @@ public class SSAOFilter extends Filter {
     }
 
     /**
-     * Sets the radius of the area where random samples will be picked dafault 5.1f     
+     * Sets the radius of the area where random samples will be picked default 5.1f     
      * @param sampleRadius 
      */
     public void setSampleRadius(float sampleRadius) {

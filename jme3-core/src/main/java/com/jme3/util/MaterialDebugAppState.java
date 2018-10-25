@@ -200,7 +200,8 @@ public class MaterialDebugAppState extends AbstractAppState {
         assetManager.clearCache();
 
         //creating a dummy mat with the mat def of the mat to reload
-        Material dummy = new Material(mat.getMaterialDef());
+        // Force the reloading of the asset, otherwise the new shader code will not be applied.
+        Material dummy = new Material(assetManager, mat.getMaterialDef().getAssetName());
 
         for (MatParam matParam : mat.getParams()) {
             dummy.setParam(matParam.getName(), matParam.getVarType(), matParam.getValue());

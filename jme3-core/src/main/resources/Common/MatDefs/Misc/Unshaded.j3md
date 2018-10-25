@@ -5,6 +5,7 @@ MaterialDef Unshaded {
         Texture2D LightMap
         Color Color (Color)
         Boolean VertexColor (UseVertexColor)
+        Float PointSize : 1.0
         Boolean SeparateTexCoord
 
         // Texture of the glowing parts of the material
@@ -18,6 +19,11 @@ MaterialDef Unshaded {
         // For hardware skinning
         Int NumberOfBones
         Matrix4Array BoneMatrices
+
+        // For Morph animation
+        FloatArray MorphWeights
+        Int NumberOfMorphTargets
+        Int NumberOfTargetsBuffers
 
         // Alpha threshold for fragment discarding
         Float AlphaDiscardThreshold (AlphaTestFallOff)
@@ -71,29 +77,34 @@ MaterialDef Unshaded {
             HAS_COLORMAP : ColorMap
             HAS_LIGHTMAP : LightMap
             HAS_VERTEXCOLOR : VertexColor
+            HAS_POINTSIZE : PointSize
             HAS_COLOR : Color
             NUM_BONES : NumberOfBones
             DISCARD_ALPHA : AlphaDiscardThreshold
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
     }
 
     Technique PreNormalPass {
 
-          VertexShader GLSL100 GLSL150 :   Common/MatDefs/SSAO/normal.vert
-          FragmentShader GLSL100 GLSL150 : Common/MatDefs/SSAO/normal.frag
+        VertexShader GLSL100 GLSL150 :   Common/MatDefs/SSAO/normal.vert
+        FragmentShader GLSL100 GLSL150 : Common/MatDefs/SSAO/normal.frag
 
-          WorldParameters {
-              WorldViewProjectionMatrix
-              WorldViewMatrix
-              NormalMatrix
-              ViewProjectionMatrix
-              ViewMatrix
-          }
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            NormalMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
 
-          Defines {
-              NUM_BONES : NumberOfBones
-              INSTANCING : UseInstancing
-          }
+        Defines {
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+        }
    }
 
     Technique PreShadow {
@@ -113,6 +124,8 @@ MaterialDef Unshaded {
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
 
         ForcedRenderState {
@@ -148,8 +161,10 @@ MaterialDef Unshaded {
             PSSM : Splits
             POINTLIGHT : LightViewProjectionMatrix5
             NUM_BONES : NumberOfBones
-	    INSTANCING : UseInstancing
+	        INSTANCING : UseInstancing
 	        BACKFACE_SHADOWS: BackfaceShadows
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
 
         ForcedRenderState {
@@ -175,7 +190,10 @@ MaterialDef Unshaded {
             HAS_GLOWMAP : GlowMap
             HAS_GLOWCOLOR : GlowColor
             NUM_BONES : NumberOfBones
-	    INSTANCING : UseInstancing
+	        INSTANCING : UseInstancing
+            HAS_POINTSIZE : PointSize
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
     }
 }

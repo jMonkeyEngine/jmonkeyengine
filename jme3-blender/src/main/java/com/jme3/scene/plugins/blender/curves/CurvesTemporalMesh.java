@@ -37,7 +37,7 @@ import com.jme3.util.BufferUtils;
 
 /**
  * A temporal mesh for curves and surfaces. It works in similar way as TemporalMesh for meshes.
- * It prepares all neccessary lines and faces and allows to apply modifiers just like in regular temporal mesh.
+ * It prepares all necessary lines and faces and allows to apply modifiers just like in regular temporal mesh.
  * 
  * @author Marcin Roguski (Kaelthas)
  */
@@ -210,7 +210,7 @@ public class CurvesTemporalMesh extends TemporalMesh {
     }
 
     /**
-     * The method computes the value of a point at the certain relational distance from its beggining.
+     * The method computes the value of a point at the certain relational distance from its beginning.
      * @param alongRatio
      *            the relative distance along the curve; should be a value between 0 and 1 inclusive;
      *            if the value exceeds the boundaries it is truncated to them
@@ -369,7 +369,7 @@ public class CurvesTemporalMesh extends TemporalMesh {
     }
 
     /**
-     * The method loads the bevel object that sould be applied to curve. It can either be another curve or a generated one
+     * The method loads the bevel object that should be applied to curve. It can either be another curve or a generated one
      * based on the bevel generating parameters in blender.
      * @param curveStructure
      *            the structure with the curve's data (the curve being loaded, NOT the bevel curve)
@@ -707,7 +707,7 @@ public class CurvesTemporalMesh extends TemporalMesh {
 
     /**
      * the method applies scale for the given bevel points. The points table is
-     * being modified so expect ypur result there.
+     * being modified so expect your result there.
      * 
      * @param points
      *            the bevel points
@@ -726,7 +726,7 @@ public class CurvesTemporalMesh extends TemporalMesh {
 
     /**
      * A helper class that represents a single bezier line. It consists of Edge's and allows to
-     * get a subline of a lentgh of the line.
+     * get a subline of a length of the line.
      * 
      * @author Marcin Roguski (Kaelthas)
      */
@@ -776,7 +776,7 @@ public class CurvesTemporalMesh extends TemporalMesh {
             }
             if (cyclic) {
                 // if the first vertex is repeated at the end the distance will be = 0 so it won't affect the result, and if it is not repeated
-                // then it is neccessary to add the length between the last and the first vertex
+                // then it is necessary to add the length between the last and the first vertex
                 length += vertices[vertices.length - 1].distance(vertices[0]);
             }
         }
@@ -834,7 +834,7 @@ public class CurvesTemporalMesh extends TemporalMesh {
         }
 
         /**
-         * The method computes the value of a point at the certain relational distance from its beggining.
+         * The method computes the value of a point at the certain relational distance from its beginning.
          * @param alongRatio
          *            the relative distance along the curve; should be a value between 0 and 1 inclusive;
          *            if the value exceeds the boundaries it is truncated to them

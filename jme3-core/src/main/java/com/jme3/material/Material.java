@@ -46,10 +46,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
-import com.jme3.shader.Shader;
-import com.jme3.shader.Uniform;
-import com.jme3.shader.UniformBindingManager;
-import com.jme3.shader.VarType;
+import com.jme3.shader.*;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.image.ColorSpace;
@@ -413,6 +410,17 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     /**
+     * Returns the current parameter's value.
+     *
+     * @param name the parameter name to look up.
+     * @return current value or null if the parameter wasn't set.
+     */
+    public <T> T getParamValue(final String name) {
+        final MatParam param = paramValues.get(name);
+        return param == null ? null : (T) param.getValue();
+    }
+
+    /**
      * Returns the texture parameter set on this material with the given name,
      * returns <code>null</code> if the parameter is not set.
      *
@@ -529,24 +537,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         checkSetParam(type, name);
         MatParamTexture val = getTextureParam(name);
         if (val == null) {
-            MatParamTexture paramDef = (MatParamTexture) def.getMaterialParam(name);
-            if (paramDef.getColorSpace() != null && paramDef.getColorSpace() != value.getImage().getColorSpace()) {
-                value.getImage().setColorSpace(paramDef.getColorSpace());
-                logger.log(Level.FINE, "Material parameter {0} needs a {1} texture, "
-                        + "texture {2} was switched to {3} color space.",
-                        new Object[]{name, paramDef.getColorSpace().toString(),
-                            value.getName(),
-                            value.getImage().getColorSpace().name()});
-            } else if (paramDef.getColorSpace() == null && value.getName() != null && value.getImage().getColorSpace() == ColorSpace.Linear) {
-                logger.log(Level.WARNING,
-                        "The texture {0} has linear color space, but the material "
-                        + "parameter {2} specifies no color space requirement, this may "
-                        + "lead to unexpected behavior.\nCheck if the image "
-                        + "was not set to another material parameter with a linear "
-                        + "color space, or that you did not set the ColorSpace to "
-                        + "Linear using texture.getImage.setColorSpace().",
-                        new Object[]{value.getName(), value.getImage().getColorSpace().name(), name});
-            }
+            checkTextureParamColorSpace(name, value);
             paramValues.put(name, new MatParamTexture(type, name, value, null));
         } else {
             val.setTextureValue(value);
@@ -558,6 +549,27 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
         // need to recompute sort ID
         sortingId = -1;
+    }
+
+    private void checkTextureParamColorSpace(String name, Texture value) {
+        MatParamTexture paramDef = (MatParamTexture) def.getMaterialParam(name);
+        if (paramDef.getColorSpace() != null && paramDef.getColorSpace() != value.getImage().getColorSpace()) {
+            value.getImage().setColorSpace(paramDef.getColorSpace());
+            logger.log(Level.FINE, "Material parameter {0} needs a {1} texture, "
+                            + "texture {2} was switched to {3} color space.",
+                    new Object[]{name, paramDef.getColorSpace().toString(),
+                            value.getName(),
+                            value.getImage().getColorSpace().name()});
+        } else if (paramDef.getColorSpace() == null && value.getName() != null && value.getImage().getColorSpace() == ColorSpace.Linear) {
+            logger.log(Level.WARNING,
+                    "The texture {0} has linear color space, but the material "
+                            + "parameter {2} specifies no color space requirement, this may "
+                            + "lead to unexpected behavior.\nCheck if the image "
+                            + "was not set to another material parameter with a linear "
+                            + "color space, or that you did not set the ColorSpace to "
+                            + "Linear using texture.getImage.setColorSpace().",
+                    new Object[]{value.getName(), value.getImage().getColorSpace().name(), name});
+        }
     }
 
     /**
@@ -654,6 +666,28 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      */
     public void setColor(String name, ColorRGBA value) {
         setParam(name, VarType.Vector4, value);
+    }
+
+    /**
+     * Pass an uniform buffer object to the material shader.
+     *
+     * @param name  the name of the buffer object defined in the material definition (j3md).
+     * @param value the buffer object.
+     */
+    public void setUniformBufferObject(final String name, final BufferObject value) {
+        value.setBufferType(BufferObject.BufferType.UniformBufferObject);
+        setParam(name, VarType.BufferObject, value);
+    }
+
+    /**
+     * Pass a shader storage buffer object to the material shader.
+     *
+     * @param name  the name of the buffer object defined in the material definition (j3md).
+     * @param value the buffer object.
+     */
+    public void setShaderStorageBufferObject(final String name, final BufferObject value) {
+        value.setBufferType(BufferObject.BufferType.ShaderStorageBufferObject);
+        setParam(name, VarType.BufferObject, value);
     }
 
     /**
@@ -790,25 +824,44 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
 
         for (int i = 0; i < paramValues.size(); i++) {
+
             MatParam param = paramValues.getValue(i);
             VarType type = param.getVarType();
-            Uniform uniform = shader.getUniform(param.getPrefixedName());
 
-            if (uniform.isSetByCurrentMaterial()) {
-                continue;
-            }
+            if (isBO(type)) {
 
-            if (type.isTextureType()) {
-                renderer.setTexture(unit, (Texture) param.getValue());
-                uniform.setValue(VarType.Int, unit);
-                unit++;
+                final ShaderBufferBlock bufferBlock = shader.getBufferBlock(param.getPrefixedName());
+                bufferBlock.setBufferObject((BufferObject) param.getValue());
+
             } else {
-                uniform.setValue(type, param.getValue());
+
+                Uniform uniform = shader.getUniform(param.getPrefixedName());
+                if (uniform.isSetByCurrentMaterial()) {
+                    continue;
+                }
+
+                if (type.isTextureType()) {
+                    renderer.setTexture(unit, (Texture) param.getValue());
+                    uniform.setValue(VarType.Int, unit);
+                    unit++;
+                } else {
+                    uniform.setValue(type, param.getValue());
+                }
             }
         }
 
         //TODO HACKY HACK remove this when texture unit is handled by the uniform.
         return unit;
+    }
+
+    /**
+     * Returns true if the type is Buffer Object's type.
+     *
+     * @param type the material parameter type.
+     * @return true if the type is Buffer Object's type.
+     */
+    private boolean isBO(final VarType type) {
+        return type == VarType.BufferObject;
     }
 
     private void updateRenderState(RenderManager renderManager, Renderer renderer, TechniqueDef techniqueDef) {
@@ -832,7 +885,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      *
      * @param renderManager The render manager to preload for
      */
-    public void preload(RenderManager renderManager) {
+    public void preload(RenderManager renderManager, Geometry geometry) {
         if (technique == null) {
             selectTechnique(TechniqueDef.DEFAULT_TECHNIQUE_NAME, renderManager);
         }
@@ -843,9 +896,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         if (techniqueDef.isNoRender()) {
             return;
         }
+        // Get world overrides
+        SafeArrayList<MatParamOverride> overrides = geometry.getWorldMatParamOverrides();
 
-        Shader shader = technique.makeCurrent(renderManager, null, null, null, rendererCaps);
-        updateShaderMaterialParameters(renderer, shader, null, null);
+        Shader shader = technique.makeCurrent(renderManager, overrides, null, null, rendererCaps);
+        updateShaderMaterialParameters(renderer, shader, overrides, null);
         renderManager.getRenderer().setShader(shader);
     }
 
@@ -1062,6 +1117,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 if (texVal.getTextureValue() == null || texVal.getTextureValue().getImage() == null) {
                     continue;
                 }
+                checkTextureParamColorSpace(texVal.getName(), texVal.getTextureValue());
             }
 
             if (im.getFormatVersion() == 0 && param.getName().startsWith("m_")) {

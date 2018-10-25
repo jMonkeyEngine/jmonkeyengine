@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,17 +44,21 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 /**
+ * A utility class for generating collision shapes from Spatials.
+ * <p>
+ * This class is shared between JBullet and Native Bullet.
  *
  * @author normenhansen, tim8dev
  */
 public class CollisionShapeFactory {
 
     /**
-     * returns the correct transform for a collisionshape in relation
-     * to the ancestor for which the collisionshape is generated
+     * Calculate the correct transform for a collision shape relative to the
+     * ancestor for which the shape was generated.
+     *
      * @param spat
      * @param parent
-     * @return
+     * @return a new instance (not null)
      */
     private static Transform getTransform(Spatial spat, Spatial parent) {
         Transform shapeTransform = new Transform();
@@ -135,30 +139,48 @@ public class CollisionShapeFactory {
     }
 
     /**
-     * This type of collision shape is mesh-accurate and meant for immovable "world objects".
-     * Examples include terrain, houses or whole shooter levels.<br>
-     * Objects with "mesh" type collision shape will not collide with each other.
+     * This type of collision shape is mesh-accurate and meant for immovable
+     * "world objects". Examples include terrain, houses or whole shooter
+     * levels.
+     * <p>
+     * Objects with "mesh" type collision shape will not collide with each
+     * other.
+     *
+     * @param rootNode the node on which to base the shape (not null)
+     * @return a new shape (not null)
      */
     private static CompoundCollisionShape createMeshCompoundShape(Node rootNode) {
         return createCompoundShape(rootNode, new CompoundCollisionShape(), true);
     }
 
     /**
-     * This type of collision shape creates a CompoundShape made out of boxes that
-     * are based on the bounds of the Geometries  in the tree.
-     * @param rootNode
-     * @return
+     * This type of collision shape creates a CompoundShape made out of boxes
+     * that are based on the bounds of the Geometries in the tree.
+     *
+     * @param rootNode the node on which to base the shape (not null)
+     * @return a new shape (not null)
      */
     private static CompoundCollisionShape createBoxCompoundShape(Node rootNode) {
         return createCompoundShape(rootNode, new CompoundCollisionShape(), false);
     }
 
     /**
-     * This type of collision shape is mesh-accurate and meant for immovable "world objects".
-     * Examples include terrain, houses or whole shooter levels.<br/>
-     * Objects with "mesh" type collision shape will not collide with each other.<br/>
-     * Creates a HeightfieldCollisionShape if the supplied spatial is a TerrainQuad.
-     * @return A MeshCollisionShape or a CompoundCollisionShape with MeshCollisionShapes as children if the supplied spatial is a Node. A HeightieldCollisionShape if a TerrainQuad was supplied.
+     * Create a mesh shape for the given Spatial.
+     * <p>
+     * This type of collision shape is mesh-accurate and meant for immovable
+     * "world objects". Examples include terrain, houses or whole shooter
+     * levels.
+     * <p>
+     * Objects with "mesh" type collision shape will not collide with each
+     * other.
+     * <p>
+     * Creates a HeightfieldCollisionShape if the supplied spatial is a
+     * TerrainQuad.
+     *
+     * @param spatial the spatial on which to base the shape (not null)
+     * @return A MeshCollisionShape or a CompoundCollisionShape with
+     * MeshCollisionShapes as children if the supplied spatial is a Node. A
+     * HeightieldCollisionShape if a TerrainQuad was supplied.
      */
     public static CollisionShape createMeshShape(Spatial spatial) {
         if (spatial instanceof TerrainQuad) {
@@ -177,9 +199,14 @@ public class CollisionShapeFactory {
     }
 
     /**
-     * This method creates a hull shape for the given Spatial.<br>
-     * If you want to have mesh-accurate dynamic shapes (CPU intense!!!) use GImpact shapes, its probably best to do so with a low-poly version of your model.
-     * @return A HullCollisionShape or a CompoundCollisionShape with HullCollisionShapes as children if the supplied spatial is a Node.
+     * Create a hull shape for the given Spatial.
+     * <p>
+     * For mesh-accurate animated meshes (CPU intense!) use GImpact shapes.
+     *
+     * @param spatial the spatial on which to base the shape (not null)
+     * @return a HullCollisionShape (if spatial is a Geometry) or a
+     * CompoundCollisionShape with HullCollisionShapes as children (if spatial
+     * is a Node)
      */
     public static CollisionShape createDynamicMeshShape(Spatial spatial) {
         if (spatial instanceof Geometry) {
@@ -192,6 +219,14 @@ public class CollisionShapeFactory {
 
     }
 
+    /**
+     * Create a box shape for the given Spatial.
+     *
+     * @param spatial the spatial on which to base the shape (not null)
+     * @return a BoxCollisionShape (if spatial is a Geometry) or a
+     * CompoundCollisionShape with BoxCollisionShapes as children (if spatial is
+     * a Node)
+     */
     public static CollisionShape createBoxShape(Spatial spatial) {
         if (spatial instanceof Geometry) {
             return createSingleBoxShape((Geometry) spatial, spatial);
@@ -203,9 +238,12 @@ public class CollisionShapeFactory {
     }
 
     /**
-     * This type of collision shape is mesh-accurate and meant for immovable "world objects".
-     * Examples include terrain, houses or whole shooter levels.<br>
-     * Objects with "mesh" type collision shape will not collide with each other.
+     * This type of collision shape is mesh-accurate and meant for immovable
+     * "world objects". Examples include terrain, houses or whole shooter
+     * levels.
+     * <p>
+     * Objects with "mesh" type collision shape will not collide with each
+     * other.
      */
     private static MeshCollisionShape createSingleMeshShape(Geometry geom, Spatial parent) {
         Mesh mesh = geom.getMesh();
@@ -220,9 +258,13 @@ public class CollisionShapeFactory {
     }
 
     /**
-     * Uses the bounding box of the supplied spatial to create a BoxCollisionShape
-     * @param spatial
-     * @return BoxCollisionShape with the size of the spatials BoundingBox
+     * Use the bounding box of the supplied spatial to create a
+     * BoxCollisionShape.
+     *
+     * @param spatial the spatial on which to base the shape (not null)
+     * @param parent unused
+     * @return a new shape with the dimensions of the spatial's bounding box
+     * (not null)
      */
     private static BoxCollisionShape createSingleBoxShape(Spatial spatial, Spatial parent) {
         //TODO: using world bound here instead of "local world" bound...
@@ -232,7 +274,10 @@ public class CollisionShapeFactory {
     }
 
     /**
-     * This method creates a hull collision shape for the given mesh.<br>
+     * Create a hull collision shape for the specified geometry.
+     *
+     * @param geom the geometry on which to base the shape (not null)
+     * @param parent
      */
     private static HullCollisionShape createSingleDynamicMeshShape(Geometry geom, Spatial parent) {
         Mesh mesh = geom.getMesh();

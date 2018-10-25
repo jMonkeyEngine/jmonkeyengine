@@ -9,8 +9,8 @@ ShaderNodeDefinitions{
             @output outCoord the resulting coord
         }
         Input {
-            vec2 coord1
-            vec2 coord2            
+            vec2 coord1 vec2(1.0)
+            vec2 coord2 vec2(1.0)
         }
         Output {
             vec2 outCoord

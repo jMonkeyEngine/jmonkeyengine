@@ -1,10 +1,11 @@
 language: java
-sudo: false
+sudo: true
 
 branches:
   only:
   - master
   - v3.1
+  - /^v3.2.0-.*$/
 
 matrix:
   include:
@@ -13,11 +14,16 @@ matrix:
     env: UPLOAD=true UPLOAD_NATIVE=true
   - os: linux
     jdk: openjdk7
+    dist: precise
   - os: osx
+    osx_image: xcode9.3
     env: UPLOAD_NATIVE=true
 
 addons:
   ssh_known_hosts: github.com
+  hosts:
+    - travisci
+  hostname: travisci
   apt:
     packages:
     - gcc-multilib

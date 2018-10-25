@@ -51,6 +51,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.WireFrustum;
 import com.jme3.scene.shape.Box;
 import com.jme3.util.SkyFactory;
+import com.jme3.util.SkyFactory.EnvMapType;
 
 public class TestBloomAlphaThreshold extends SimpleApplication
 {
@@ -101,7 +102,10 @@ public class TestBloomAlphaThreshold extends SimpleApplication
 		teapot.setLocalScale(10.0f);
 		rootNode.attachChild(teapot);
 
-		Geometry soil = new Geometry("soil", new Box(new Vector3f(0, -13, 550), 800, 10, 700));
+                Vector3f boxMin1 = new Vector3f(-800f, -23f, -150f);
+                Vector3f boxMax1 = new Vector3f(800f, 3f, 1250f);
+                Box boxMesh1 = new Box(boxMin1, boxMax1);
+		Geometry soil = new Geometry("soil", boxMesh1);
 		soil.setMaterial(matSoil);
 		soil.setShadowMode(ShadowMode.CastAndReceive);
 		rootNode.attachChild(soil);
@@ -110,7 +114,10 @@ public class TestBloomAlphaThreshold extends SimpleApplication
 		matBox.setTexture("ColorMap", assetManager.loadTexture("Textures/ColoredTex/Monkey.png"));
 		matBox.setFloat("AlphaDiscardThreshold", 0.5f);
     
-		Geometry box = new Geometry("box", new Box(new Vector3f(-3.5f, 10, -2), 2, 2, 2));
+                Vector3f boxMin2 = new Vector3f(-5.5f, 8f, -4f);
+                Vector3f boxMax2 = new Vector3f(-1.5f, 12f, 0f);
+                Box boxMesh2 = new Box(boxMin2, boxMax2);
+		Geometry box = new Geometry("box", boxMesh2);
 		box.setMaterial(matBox);
                 box.setQueueBucket(RenderQueue.Bucket.Translucent);
 		// box.setShadowMode(ShadowMode.CastAndReceive);
@@ -122,7 +129,9 @@ public class TestBloomAlphaThreshold extends SimpleApplication
 		rootNode.addLight(light);
 
 		// load sky
-		Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Bright/FullskiesBlueClear03.dds", false);
+		Spatial sky = SkyFactory.createSky(assetManager, 
+                        "Textures/Sky/Bright/FullskiesBlueClear03.dds",
+                        EnvMapType.CubeMap);
 		sky.setCullHint(Spatial.CullHint.Never);
 		rootNode.attachChild(sky);
 

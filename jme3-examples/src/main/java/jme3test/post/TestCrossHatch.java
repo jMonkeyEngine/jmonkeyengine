@@ -49,6 +49,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.WireFrustum;
 import com.jme3.scene.shape.Box;
 import com.jme3.util.SkyFactory;
+import com.jme3.util.SkyFactory.EnvMapType;
 
 public class TestCrossHatch extends SimpleApplication {
 
@@ -114,7 +115,9 @@ public class TestCrossHatch extends SimpleApplication {
         rootNode.addLight(light);
 
         // load sky
-        Spatial sky = SkyFactory.createSky(assetManager, "Textures/Sky/Bright/FullskiesBlueClear03.dds", false);
+        Spatial sky = SkyFactory.createSky(assetManager, 
+                "Textures/Sky/Bright/FullskiesBlueClear03.dds",
+                EnvMapType.CubeMap);
         sky.setCullHint(Spatial.CullHint.Never);
         rootNode.attachChild(sky);
 
