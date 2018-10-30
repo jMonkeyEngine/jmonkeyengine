@@ -75,7 +75,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * joint list
      */
-    protected ArrayList<PhysicsJoint> joints = new ArrayList<PhysicsJoint>();
+    protected ArrayList<PhysicsJoint> joints = new ArrayList<PhysicsJoint>(4);
 
     /**
      * No-argument constructor needed by SavableClassUtil. Do not invoke
