@@ -245,15 +245,17 @@ public class BlenderLoader implements AssetLoader {
                 Structure objectStructure = pObject.fetchData().get(0);
 
                 Object object = objectHelper.toObject(objectStructure, blenderContext);
-                if (object instanceof LightNode) {
-                    result.addLight(((LightNode) object).getLight());// FIXME: check if this is needed !!!
-                    result.attachChild((LightNode) object);
-                } else if (object instanceof Node) {
+                if (object instanceof Node) {
                     if (LOGGER.isLoggable(Level.FINE)) {
                         LOGGER.log(Level.FINE, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
                     }
+
                     if (((Node) object).getParent() == null) {
                         result.attachChild((Spatial) object);
+                    }
+
+                    if(object instanceof LightNode) {
+                        result.addLight(((LightNode) object).getLight());
                     }
                 }
             }
