@@ -31,7 +31,6 @@
  */
 package com.jme3.input.lwjgl;
 
-import static org.lwjgl.glfw.GLFW.*;
 import com.jme3.cursors.plugins.JmeCursor;
 import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
@@ -39,17 +38,18 @@ import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.system.lwjgl.LwjglWindow;
 import com.jme3.util.BufferUtils;
-import org.lwjgl.glfw.*;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
-
 import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayDeque;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.logging.Logger;
+import org.lwjgl.glfw.*;
+import static org.lwjgl.glfw.GLFW.*;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 
 /**
  * Captures mouse input using GLFW callbacks. It then temporarily stores these
@@ -110,8 +110,8 @@ public class GlfwMouseInput implements MouseInput {
 
     private final Map<JmeCursor, long[]> jmeToGlfwCursorMap = new HashMap<>();
 
-    private final Queue<MouseMotionEvent> mouseMotionEvents = new LinkedList<>();
-    private final Queue<MouseButtonEvent> mouseButtonEvents = new LinkedList<>();
+    private final Queue<MouseMotionEvent> mouseMotionEvents = new ArrayDeque<>();
+    private final Queue<MouseButtonEvent> mouseButtonEvents = new ArrayDeque<>();
 
     private final LwjglWindow context;
 
@@ -147,14 +147,6 @@ public class GlfwMouseInput implements MouseInput {
         int yDelta;
         int x = (int) Math.round(xpos);
         int y = currentHeight - (int) Math.round(ypos);
-
-        if (mouseX == 0) {
-            mouseX = x;
-        }
-
-        if (mouseY == 0) {
-            mouseY = y;
-        }
 
         xDelta = x - mouseX;
         yDelta = y - mouseY;
@@ -198,6 +190,7 @@ public class GlfwMouseInput implements MouseInput {
             currentHeight = height.get();
         }
 
+        initCurrentMousePosition(window);
         glfwSetCursorPosCallback(window, cursorPosCallback = new GLFWCursorPosCallback() {
             @Override
             public void invoke(final long window, final double xpos, final double ypos) {
@@ -227,10 +220,39 @@ public class GlfwMouseInput implements MouseInput {
             }
         });
 
+        if(listener != null) {
+            sendFirstMouseEvent();
+        }
+
         setCursorVisible(cursorVisible);
         logger.fine("Mouse created.");
         initialized = true;
     }
+
+    private void initCurrentMousePosition(long window) {
+        DoubleBuffer x = BufferUtils.createDoubleBuffer(1);
+        DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
+        glfwGetCursorPos(window, x, y);
+        mouseX = (int) Math.round(x.get());
+        mouseY = (int) currentHeight - (int) Math.round(y.get());
+    }
+
+    /**
+     * Send the input listener a special mouse-motion event with zero deltas in
+     * order to initialize the listener's cursor position.
+     */
+    private void sendFirstMouseEvent() {
+        assert listener != null;
+
+        int xDelta = 0;
+        int yDelta = 0;
+        int wheelDelta = 0;
+        MouseMotionEvent evt = new MouseMotionEvent(mouseX, mouseY, xDelta, yDelta,
+                mouseWheel, wheelDelta);
+        evt.setTime(getInputTimeNanos());
+
+        listener.onMouseMotionEvent(evt);
+     }
 
     @Override
     public boolean isInitialized() {
@@ -309,6 +331,9 @@ public class GlfwMouseInput implements MouseInput {
     @Override
     public void setInputListener(RawInputListener listener) {
         this.listener = listener;
+        if (listener != null && initialized) {
+            sendFirstMouseEvent();
+        }
     }
 
     @Override

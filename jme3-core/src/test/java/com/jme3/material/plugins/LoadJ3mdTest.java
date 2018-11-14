@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,13 +38,11 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.shader.Shader;
 import com.jme3.system.*;
+import java.util.*;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LoadJ3mdTest {
@@ -58,6 +56,24 @@ public class LoadJ3mdTest {
             return LoadJ3mdTest.this.myCaps;
         }
     });
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBadBooleans1() {
+        supportGlsl(100);
+        material("bad-booleans1.j3md"); // DepthTest yes
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBadBooleans2() {
+        supportGlsl(100);
+        material("bad-booleans2.j3md"); // DepthWrite on
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBadBooleans3() {
+        supportGlsl(100);
+        material("bad-booleans3.j3md"); // Wireframe true
+    }
 
     @Test
     public void testShaderNodesMaterialDefLoading() {

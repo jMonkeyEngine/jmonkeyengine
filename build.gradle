@@ -1,10 +1,11 @@
 buildscript {
     repositories {
+        google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.5'
+        classpath 'com.android.tools.build:gradle:3.1.4'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
     }
 }
 
@@ -113,10 +114,6 @@ task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the pro
 
 task mergedSource(type: Copy){
 
-}
-
-task wrapper(type: Wrapper, description: 'Creates and deploys the Gradle wrapper to the current directory.') {
-    gradleVersion = '4.1'
 }
 
 ext {

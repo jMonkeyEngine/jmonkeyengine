@@ -8,9 +8,11 @@ import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.font.BitmapText;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import java.util.List;
+
 /**
  *
  * @author @wezrule
@@ -42,12 +44,19 @@ public class TestPhysicsRayCast extends SimpleApplication {
 
     @Override
     public void simpleUpdate(float tpf) {
-        List<PhysicsRayTestResult> rayTest = bulletAppState.getPhysicsSpace().rayTest(cam.getLocation(), cam.getLocation().add(cam.getDirection()));
+        float rayLength = 50f;
+        Vector3f start = cam.getLocation();
+        Vector3f end = cam.getDirection().scaleAdd(rayLength, start);
+        List<PhysicsRayTestResult> rayTest
+                = bulletAppState.getPhysicsSpace().rayTest(start, end);
         if (rayTest.size() > 0) {
             PhysicsRayTestResult get = rayTest.get(0);
             PhysicsCollisionObject collisionObject = get.getCollisionObject();
-            //do stuff
+            // Display the name of the 1st object in place of FPS.
             fpsText.setText(collisionObject.getUserObject().toString());
+        } else {
+            // Provide prompt feedback that no collision object was hit.
+            fpsText.setText("MISSING");
         }
     }
 

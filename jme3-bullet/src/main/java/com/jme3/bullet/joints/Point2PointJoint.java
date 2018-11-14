@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,62 +42,116 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * <i>From bullet manual:</i><br>
- * Point to point constraint, also known as ball socket joint limits the translation
- * so that the local pivot points of 2 rigidbodies match in worldspace.
- * A chain of rigidbodies can be connected using this constraint.
+ * A joint based on Bullet's btPoint2PointConstraint.
+ * <p>
+ * <i>From the Bullet manual:</i><br>
+ * Point to point constraint limits the translation so that the local pivot
+ * points of 2 rigidbodies match in worldspace. A chain of rigidbodies can be
+ * connected using this constraint.
+ *
  * @author normenhansen
  */
 public class Point2PointJoint extends PhysicsJoint {
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public Point2PointJoint() {
     }
 
     /**
-     * @param pivotA local translation of the joint connection point in node A
-     * @param pivotB local translation of the joint connection point in node B
+     * Instantiate a Point2PointJoint. To be effective, the joint must be added
+     * to a physics space.
+     *
+     * @param nodeA the 1st body connected by the joint (not null, alias
+     * created)
+     * @param nodeB the 2nd body connected by the joint (not null, alias
+     * created)
+     * @param pivotA the local offset of the connection point in node A (not
+     * null, alias created)
+     * @param pivotB the local offset of the connection point in node B (not
+     * null, alias created)
      */
     public Point2PointJoint(PhysicsRigidBody nodeA, PhysicsRigidBody nodeB, Vector3f pivotA, Vector3f pivotB) {
         super(nodeA, nodeB, pivotA, pivotB);
         createJoint();
     }
 
+    /**
+     * Alter the joint's damping.
+     *
+     * @param value the desired viscous damping ratio (0&rarr;no damping,
+     * 1&rarr;critically damped, default=1)
+     */
     public void setDamping(float value) {
         setDamping(objectId, value);
     }
 
     private native void setDamping(long objectId, float value);
 
+    /**
+     * Alter the joint's impulse clamp.
+     *
+     * @param value the desired impulse clamp value (default=0)
+     */
     public void setImpulseClamp(float value) {
         setImpulseClamp(objectId, value);
     }
 
     private native void setImpulseClamp(long objectId, float value);
 
+    /**
+     * Alter the joint's tau value.
+     *
+     * @param value the desired tau value (default=0.3)
+     */
     public void setTau(float value) {
         setTau(objectId, value);
     }
 
     private native void setTau(long objectId, float value);
 
+    /**
+     * Read the joint's damping ratio.
+     *
+     * @return the viscous damping ratio (0&rarr;no damping, 1&rarr;critically
+     * damped)
+     */
     public float getDamping() {
         return getDamping(objectId);
     }
 
     private native float getDamping(long objectId);
 
+    /**
+     * Read the joint's impulse clamp.
+     *
+     * @return the clamp value
+     */
     public float getImpulseClamp() {
         return getImpulseClamp(objectId);
     }
 
     private native float getImpulseClamp(long objectId);
 
+    /**
+     * Read the joint's tau value.
+     *
+     * @return the tau value
+     */
     public float getTau() {
         return getTau(objectId);
     }
 
     private native float getTau(long objectId);
 
+    /**
+     * Serialize this joint, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -107,6 +161,12 @@ public class Point2PointJoint extends PhysicsJoint {
         cap.write(getImpulseClamp(), "impulseClamp", 0f);
     }
 
+    /**
+     * De-serialize this joint, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
@@ -117,6 +177,9 @@ public class Point2PointJoint extends PhysicsJoint {
         setDamping(cap.readFloat("impulseClamp", 0f));
     }
 
+    /**
+     * Create the configured joint in Bullet.
+     */
     protected void createJoint() {
         objectId = createJoint(nodeA.getObjectId(), nodeB.getObjectId(), pivotA, pivotB);
         Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Joint {0}", Long.toHexString(objectId));

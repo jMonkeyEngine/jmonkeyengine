@@ -144,7 +144,7 @@ public class ParticlePointMesh extends ParticleMesh {
             colors.putInt(p.color.asIntABGR());
 
             int imgX = p.imageIndex % imagesX;
-            int imgY = (p.imageIndex - imgX) / imagesY;
+            int imgY = p.imageIndex/imagesX;
 
             float startX = ((float) imgX) / imagesX;
             float startY = ((float) imgY) / imagesY;

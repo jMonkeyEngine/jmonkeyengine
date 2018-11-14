@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,34 +42,60 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * A planar collision shape based on Bullet's btStaticPlaneShape.
  *
  * @author normenhansen
  */
 public class PlaneCollisionShape extends CollisionShape{
+    /**
+     * description of the plane
+     */
     private Plane plane;
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public PlaneCollisionShape() {
     }
 
     /**
-     * Creates a plane Collision shape
-     * @param plane the plane that defines the shape
+     * Instantiate a plane shape defined by the specified plane.
+     *
+     * @param plane the desired plane (not null, alias created)
      */
     public PlaneCollisionShape(Plane plane) {
         this.plane = plane;
         createShape();
     }
 
+    /**
+     * Access the defining plane.
+     *
+     * @return the pre-existing instance (not null)
+     */
     public final Plane getPlane() {
         return plane;
     }
 
+    /**
+     * Serialize this shape, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
         capsule.write(plane, "collisionPlane", new Plane());
     }
 
+    /**
+     * De-serialize this shape, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);
@@ -77,6 +103,9 @@ public class PlaneCollisionShape extends CollisionShape{
         createShape();
     }
 
+    /**
+     * Instantiate the configured shape in Bullet.
+     */
     protected void createShape() {
         objectId = createShape(plane.getNormal(), plane.getConstant());
         Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Shape {0}", Long.toHexString(objectId));

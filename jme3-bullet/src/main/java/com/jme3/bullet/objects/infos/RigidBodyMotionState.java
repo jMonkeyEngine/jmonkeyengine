@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,8 +40,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * stores transform info of a PhysicsNode in a threadsafe manner to
- * allow multithreaded access from the jme scenegraph and the bullet physicsspace
+ * The motion state (transform) of a rigid body, with thread-safe access.
+ *
  * @author normenhansen
  */
 public class RigidBodyMotionState {
@@ -51,9 +51,16 @@ public class RigidBodyMotionState {
     private Quaternion worldRotationQuat = new Quaternion();
     private Quaternion tmp_inverseWorldRotation = new Quaternion();
     private PhysicsVehicle vehicle;
+    /**
+     * true &rarr; physics coordinates match local transform, false &rarr;
+     * physics coordinates match world transform
+     */
     private boolean applyPhysicsLocal = false;
 //    protected LinkedList<PhysicsMotionStateListener> listeners = new LinkedList<PhysicsMotionStateListener>();
 
+    /**
+     * Instantiate a motion state.
+     */
     public RigidBodyMotionState() {
         this.motionStateId = createMotionState();
         Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created MotionState {0}", Long.toHexString(motionStateId));
@@ -62,8 +69,11 @@ public class RigidBodyMotionState {
     private native long createMotionState();
 
     /**
-     * applies the current transform to the given jme Node if the location has been updated on the physics side
-     * @param spatial
+     * If the motion state has been updated, apply the new transform to the
+     * specified spatial.
+     *
+     * @param spatial where to apply the physics transform (not null, modified)
+     * @return true if changed
      */
     public boolean applyTransform(Spatial spatial) {
         Vector3f localLocation = spatial.getLocalTranslation();
@@ -97,7 +107,10 @@ public class RigidBodyMotionState {
     private native boolean applyTransform(long stateId, Vector3f location, Quaternion rotation);
 
     /**
-     * @return the worldLocation
+     * Copy the location from this motion state.
+     *
+     * @return the pre-existing location vector (in physics-space coordinates,
+     * not null)
      */
     public Vector3f getWorldLocation() {
         getWorldLocation(motionStateId, worldLocation);
@@ -107,7 +120,10 @@ public class RigidBodyMotionState {
     private native void getWorldLocation(long stateId, Vector3f vec);
 
     /**
-     * @return the worldRotation
+     * Read the rotation of this motion state (as a matrix).
+     *
+     * @return the pre-existing rotation matrix (in physics-space coordinates,
+     * not null)
      */
     public Matrix3f getWorldRotation() {
         getWorldRotation(motionStateId, worldRotation);
@@ -117,7 +133,10 @@ public class RigidBodyMotionState {
     private native void getWorldRotation(long stateId, Matrix3f vec);
 
     /**
-     * @return the worldRotationQuat
+     * Read the rotation of this motion state (as a quaternion).
+     *
+     * @return the pre-existing instance (in physics-space coordinates, not
+     * null)
      */
     public Quaternion getWorldRotationQuat() {
         getWorldRotationQuat(motionStateId, worldRotationQuat);
@@ -127,20 +146,39 @@ public class RigidBodyMotionState {
     private native void getWorldRotationQuat(long stateId, Quaternion vec);
 
     /**
-     * @param vehicle the vehicle to set
+     * @param vehicle which vehicle will use this motion state
      */
     public void setVehicle(PhysicsVehicle vehicle) {
         this.vehicle = vehicle;
     }
 
+    /**
+     * Test whether physics-space coordinates should match the spatial's local
+     * coordinates.
+     *
+     * @return true if matching local coordinates, false if matching world
+     * coordinates
+     */
     public boolean isApplyPhysicsLocal() {
         return applyPhysicsLocal;
     }
 
+    /**
+     * Alter whether physics-space coordinates should match the spatial's local
+     * coordinates.
+     *
+     * @param applyPhysicsLocal true&rarr;match local coordinates,
+     * false&rarr;match world coordinates (default=false)
+     */
     public void setApplyPhysicsLocal(boolean applyPhysicsLocal) {
         this.applyPhysicsLocal = applyPhysicsLocal;
     }
     
+    /**
+     * Read the unique id of the native object.
+     *
+     * @return id (not zero)
+     */
     public long getObjectId(){
         return motionStateId;
     }
@@ -152,6 +190,12 @@ public class RigidBodyMotionState {
 //        listeners.remove(listener);
 //    }
 
+    /**
+     * Finalize this motion state just before it is destroyed. Should be invoked
+     * only by a subclass or by the garbage collector.
+     *
+     * @throws Throwable ignored by the garbage collector
+     */
     @Override
     protected void finalize() throws Throwable {
         super.finalize();

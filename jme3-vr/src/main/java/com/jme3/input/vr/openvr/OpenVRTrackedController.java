@@ -7,7 +7,7 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 
 /**
- * 
+ * A controller that is tracked within the VR environment. Such a controller can provide its position within the VR space.
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  *
  */

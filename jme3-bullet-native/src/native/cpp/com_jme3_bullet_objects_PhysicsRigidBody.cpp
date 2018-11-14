@@ -795,7 +795,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        body->setSleepingThresholds(value, body->getLinearSleepingThreshold());
+        body->setSleepingThresholds(value, body->getAngularSleepingThreshold());
     }
 
     /*
@@ -811,7 +811,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return;
         }
-        body->setSleepingThresholds(body->getAngularSleepingThreshold(), value);
+        body->setSleepingThresholds(body->getLinearSleepingThreshold(), value);
     }
 
     /*

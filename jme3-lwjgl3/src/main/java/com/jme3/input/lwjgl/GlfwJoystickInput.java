@@ -31,16 +31,15 @@
  */
 package com.jme3.input.lwjgl;
 
-import static org.lwjgl.glfw.GLFW.*;
 import com.jme3.input.*;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
-
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+import static org.lwjgl.glfw.GLFW.*;
 
 /**
  * The LWJGL implementation of {@link JoyInput}.
@@ -53,7 +52,7 @@ public class GlfwJoystickInput implements JoyInput {
     private static final Logger LOGGER = Logger.getLogger(InputManager.class.getName());
 
     private RawInputListener listener;
-    private Map<Integer, GlfwJoystick> joysticks = new HashMap<>();
+    private final Map<Integer, GlfwJoystick> joysticks = new HashMap<>();
 
     private boolean initialized = false;
 

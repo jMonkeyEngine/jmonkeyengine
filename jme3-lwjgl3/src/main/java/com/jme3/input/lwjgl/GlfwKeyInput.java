@@ -32,17 +32,16 @@
 
 package com.jme3.input.lwjgl;
 
-import static org.lwjgl.glfw.GLFW.*;
 import com.jme3.input.KeyInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.system.lwjgl.LwjglWindow;
-import org.lwjgl.glfw.GLFWCharCallback;
-import org.lwjgl.glfw.GLFWKeyCallback;
-
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.logging.Logger;
+import static org.lwjgl.glfw.GLFW.*;
+import org.lwjgl.glfw.GLFWCharCallback;
+import org.lwjgl.glfw.GLFWKeyCallback;
 
 /**
  * The LWJGL implementation of {@link KeyInput}.
@@ -54,12 +53,12 @@ public class GlfwKeyInput implements KeyInput {
     /**
      * The queue of key events.
      */
-    private final Queue<KeyInputEvent> keyInputEvents = new LinkedList<>();
+    private final Queue<KeyInputEvent> keyInputEvents = new ArrayDeque<>();
 
     /**
      * The LWJGL context.
      */
-    private LwjglWindow context;
+    private final LwjglWindow context;
 
     /**
      * The key callback.
