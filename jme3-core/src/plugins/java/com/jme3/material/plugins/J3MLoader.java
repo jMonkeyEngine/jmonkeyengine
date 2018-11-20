@@ -652,7 +652,7 @@ public class J3MLoader implements AssetLoader {
                 technique.setLogic(new SinglePassAndImageBasedLightingLogic(technique));
                 break;
             default:
-                throw new UnsupportedOperationException();
+                throw new IOException("Light mode not supported:" + technique.getLightMode());
         }
 
         List<TechniqueDef> techniqueDefs = new ArrayList<>();
