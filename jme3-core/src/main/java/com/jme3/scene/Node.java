@@ -31,15 +31,14 @@
  */
 package com.jme3.scene;
 
+import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
-import com.jme3.export.Savable;
 import com.jme3.material.Material;
 import com.jme3.util.SafeArrayList;
-import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -169,6 +168,9 @@ public class Node extends Spatial {
                     resultBound = child.getWorldBound().clone(this.worldBound);
                 }
             }
+        }
+        if (resultBound == null) {
+            resultBound = new BoundingBox(getWorldTranslation(), 0f, 0f, 0f);
         }
         this.worldBound = resultBound;
     }
