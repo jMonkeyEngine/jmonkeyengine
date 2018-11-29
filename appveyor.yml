@@ -34,7 +34,7 @@ build_script:
 cache:
 - C:\Users\appveyor\.gradle\caches
 - C:\Users\appveyor\.gradle\wrapper
-- jme3-bullet-native\bullet3.zip
+- jme3-bullet-native\bullet3.zip -> gradle.properties
 
 test: off
 deploy: off
