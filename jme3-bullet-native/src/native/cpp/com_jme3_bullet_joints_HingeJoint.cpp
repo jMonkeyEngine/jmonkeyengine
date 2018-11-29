@@ -85,7 +85,7 @@ extern "C" {
             env->ThrowNew(newExc, "The native object does not exist.");
             return 0;
         }
-        return joint->getMotorTargetVelosity();
+        return joint->getMotorTargetVelocity();
     }
 
     /*
