@@ -21,6 +21,10 @@ task cleanHeaders(type: Delete) {
 task cleanUnzipped(type: Delete) {
     delete bulletFolder
 }
+// clean up the downloaded archive
+task cleanZipFile(type: Delete) {
+    delete bulletZipFile
+}
 
 model {
     components {
@@ -37,13 +41,21 @@ model {
                     source {
                         srcDir 'src/native/cpp'
                         srcDir bulletSrcPath
+                        exclude 'Bullet3Collision/**'
+                        exclude 'Bullet3Dynamics/**'
+                        exclude 'Bullet3Geometry/**'
                         exclude 'Bullet3OpenCL/**'
+                        exclude 'Bullet3Serialize/**'
                         include '**/*.cpp'
                     }
                     exportedHeaders {
                         srcDir 'src/native/cpp'
                         srcDir bulletSrcPath
+                        exclude 'Bullet3Collision/**'
+                        exclude 'Bullet3Dynamics/**'
+                        exclude 'Bullet3Geometry/**'
                         exclude 'Bullet3OpenCL/**'
+                        exclude 'Bullet3Serialize/**'
                         include '**/*.h'
                     }
                 }
