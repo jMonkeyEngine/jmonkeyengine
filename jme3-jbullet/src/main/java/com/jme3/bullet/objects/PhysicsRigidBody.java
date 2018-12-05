@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -274,6 +274,26 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
     public boolean isKinematic() {
         return kinematic;
+    }
+
+    /**
+     * Enable/disable this body's contact response.
+     *
+     * @param newState true to respond to contacts (default=true)
+     */
+    public void setContactResponse(boolean newState) {
+        if (!newState) {
+            throw new UnsupportedOperationException("Not implemented.");
+        }
+    }
+
+    /**
+     * Test whether this body responds to contacts.
+     *
+     * @return true if responsive, otherwise false
+     */
+    public boolean isContactResponse() {
+        return true;
     }
 
     public void setCcdSweptSphereRadius(float radius) {
@@ -650,6 +670,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
         this.mass = mass;
         rebuildRigidBody();
         setGravity((Vector3f) capsule.readSavable("gravity", Vector3f.ZERO.clone()));
+        setContactResponse(capsule.readBoolean("contactResponse", true));
         setFriction(capsule.readFloat("friction", 0.5f));
         setKinematic(capsule.readBoolean("kinematic", false));
 

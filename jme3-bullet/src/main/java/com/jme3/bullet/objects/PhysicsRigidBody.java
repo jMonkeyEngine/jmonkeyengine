@@ -32,6 +32,7 @@
 package com.jme3.bullet.objects;
 
 import com.jme3.bullet.PhysicsSpace;
+import com.jme3.bullet.collision.CollisionFlag;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.MeshCollisionShape;
@@ -57,6 +58,11 @@ import java.util.logging.Logger;
  */
 public class PhysicsRigidBody extends PhysicsCollisionObject {
 
+    /**
+     * copy of the contact response state: true&rarr;responds to contacts,
+     * false&rarr;doesn't respond (default=true)
+     */
+    private boolean contactResponseState = true;
     /**
      * motion state
      */
@@ -368,6 +374,24 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      */
     public boolean isKinematic() {
         return kinematic;
+    }
+
+    /**
+     * Enable/disable this body's contact response.
+     *
+     * @param responsive true to respond to contacts, false to ignore them
+     * (default=true)
+     */
+    public void setContactResponse(boolean responsive) {
+        int flags = getCollisionFlags(objectId);
+        if (responsive) {
+            flags &= ~CollisionFlag.NO_CONTACT_RESPONSE;
+        } else {
+            flags |= CollisionFlag.NO_CONTACT_RESPONSE;
+        }
+        setCollisionFlags(objectId, flags);
+
+        contactResponseState = responsive;
     }
 
     /**
@@ -993,6 +1017,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
         capsule.write(getMass(), "mass", 1.0f);
 
         capsule.write(getGravity(), "gravity", Vector3f.ZERO);
+        capsule.write(isContactResponse(), "contactResponse", true);
         capsule.write(getFriction(), "friction", 0.5f);
         capsule.write(getRestitution(), "restitution", 0);
         Vector3f angularFactor = getAngularFactor(null);
@@ -1033,6 +1058,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
         this.mass = mass;
         rebuildRigidBody();
         setGravity((Vector3f) capsule.readSavable("gravity", Vector3f.ZERO.clone()));
+        setContactResponse(capsule.readBoolean("contactResponse", true));
         setFriction(capsule.readFloat("friction", 0.5f));
         setKinematic(capsule.readBoolean("kinematic", false));
 
