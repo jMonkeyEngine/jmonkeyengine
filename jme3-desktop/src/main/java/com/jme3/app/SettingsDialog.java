@@ -442,6 +442,7 @@ public final class SettingsDialog extends JFrame {
                 if (verifyAndSaveCurrentSelection()) {
                     setUserSelection(APPROVE_SELECTION);
                     dispose();
+                    System.gc();
                 }
             }
         });
