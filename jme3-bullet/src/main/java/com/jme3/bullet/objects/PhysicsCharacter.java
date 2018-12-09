@@ -31,6 +31,7 @@
  */
 package com.jme3.bullet.objects;
 
+import com.jme3.bullet.collision.CollisionFlag;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.export.InputCapsule;
@@ -50,7 +51,6 @@ import java.util.logging.Logger;
  * @author normenhansen
  */
 public class PhysicsCharacter extends PhysicsCollisionObject {
-
    /**
      * Unique identifier of btKinematicCharacterController (as opposed to its
      * collision object, which is a ghost). Constructors are responsible for
@@ -455,6 +455,22 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     }
 
     private native float getMaxSlope(long characterId);
+
+    /**
+     * Enable/disable this character's contact response.
+     *
+     * @param responsive true to respond to contacts, false to ignore them
+     * (default=true)
+     */
+    public void setContactResponse(boolean responsive) {
+        int flags = getCollisionFlags(objectId);
+        if (responsive) {
+            flags &= ~CollisionFlag.NO_CONTACT_RESPONSE;
+        } else {
+            flags |= CollisionFlag.NO_CONTACT_RESPONSE;
+        }
+        setCollisionFlags(objectId, flags);
+    }
 
     /**
      * Test whether this character is on the ground.
