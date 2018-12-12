@@ -57,12 +57,6 @@ import java.util.logging.Logger;
  * @author normenhansen
  */
 public class PhysicsRigidBody extends PhysicsCollisionObject {
-
-    /**
-     * copy of the contact response state: true&rarr;responds to contacts,
-     * false&rarr;doesn't respond (default=true)
-     */
-    private boolean contactResponseState = true;
     /**
      * motion state
      */
@@ -390,8 +384,6 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
             flags |= CollisionFlag.NO_CONTACT_RESPONSE;
         }
         setCollisionFlags(objectId, flags);
-
-        contactResponseState = responsive;
     }
 
     /**
