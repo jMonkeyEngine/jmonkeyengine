@@ -1031,6 +1031,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
         capsule.write(getPhysicsLocation(new Vector3f()), "physicsLocation", new Vector3f());
         capsule.write(getPhysicsRotationMatrix(new Matrix3f()), "physicsRotation", new Matrix3f());
+        capsule.write(getLinearVelocity(), "linearVelocity", null);
+        capsule.write(getAngularVelocity(), "angularVelocity", null);
 
         capsule.writeSavableArrayList(joints, "joints", null);
     }
@@ -1069,6 +1071,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
         setPhysicsLocation((Vector3f) capsule.readSavable("physicsLocation", new Vector3f()));
         setPhysicsRotation((Matrix3f) capsule.readSavable("physicsRotation", new Matrix3f()));
+        setLinearVelocity((Vector3f) capsule.readSavable("linearVelocity", new Vector3f()));
+        setAngularVelocity((Vector3f) capsule.readSavable("angularVelocity", new Vector3f()));
 
         joints = capsule.readSavableArrayList("joints", null);
     }

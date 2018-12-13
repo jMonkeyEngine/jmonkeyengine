@@ -634,6 +634,12 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
         rBody.destroy();
     }
 
+    /**
+     * Serialize this body, for example when saving to a J3O file.
+     *
+     * @param e exporter (not null)
+     * @throws IOException from exporter
+     */
     @Override
     public void write(JmeExporter e) throws IOException {
         super.write(e);
@@ -657,10 +663,18 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
         capsule.write(getPhysicsLocation(new Vector3f()), "physicsLocation", new Vector3f());
         capsule.write(getPhysicsRotationMatrix(new Matrix3f()), "physicsRotation", new Matrix3f());
+        capsule.write(getLinearVelocity(), "linearVelocity", null);
+        capsule.write(getAngularVelocity(), "angularVelocity", null);
 
         capsule.writeSavableArrayList(joints, "joints", null);
     }
 
+    /**
+     * De-serialize this body, for example when loading from a J3O file.
+     *
+     * @param e importer (not null)
+     * @throws IOException from importer
+     */
     @Override
     public void read(JmeImporter e) throws IOException {
         super.read(e);
@@ -683,6 +697,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
         setPhysicsLocation((Vector3f) capsule.readSavable("physicsLocation", new Vector3f()));
         setPhysicsRotation((Matrix3f) capsule.readSavable("physicsRotation", new Matrix3f()));
+        setLinearVelocity((Vector3f) capsule.readSavable("linearVelocity", new Vector3f()));
+        setAngularVelocity((Vector3f) capsule.readSavable("angularVelocity", new Vector3f()));
 
         joints = capsule.readSavableArrayList("joints", null);
     }
