@@ -442,6 +442,12 @@ public final class SettingsDialog extends JFrame {
                 if (verifyAndSaveCurrentSelection()) {
                     setUserSelection(APPROVE_SELECTION);
                     dispose();
+                    
+                    // System.gc() should be called to prevent "X Error of failed request: RenderBadPicture (invalid Picture parameter)"
+                    // on Linux when using AWT/Swing + GLFW. 
+                    // For more info see: https://github.com/LWJGL/lwjgl3/issues/149, https://hub.jmonkeyengine.org/t/experimenting-lwjgl3/37275
+                    System.gc();
+                    System.gc();
                 }
             }
         });
