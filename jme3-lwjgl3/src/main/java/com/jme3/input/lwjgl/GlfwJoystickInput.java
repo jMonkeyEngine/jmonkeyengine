@@ -31,14 +31,6 @@
  */
 package com.jme3.input.lwjgl;
 
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Logger;
-
-import org.lwjgl.glfw.GLFW;
-
 import com.jme3.input.AbstractJoystick;
 import com.jme3.input.DefaultJoystickAxis;
 import com.jme3.input.DefaultJoystickButton;
@@ -51,6 +43,14 @@ import com.jme3.input.JoystickCompatibilityMappings;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
+
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Logger;
+
+import org.lwjgl.glfw.GLFW;
 
 /**
  * The LWJGL implementation of {@link JoyInput}.
@@ -91,10 +91,8 @@ public class GlfwJoystickInput implements JoyInput {
                 while (floatBuffer.hasRemaining()) {
                     floatBuffer.get();
 
-                    final String logicalId = JoystickCompatibilityMappings.remapComponent(joystick.getName(),
-                            convertAxisIndex(axisIndex));
-                    final JoystickAxis joystickAxis = new DefaultJoystickAxis(inputManager, joystick, axisIndex,
-                            convertAxisIndex(axisIndex), logicalId, true, false, 0.0f);
+                    final String logicalId = JoystickCompatibilityMappings.remapComponent(joystick.getName(), convertAxisIndex(axisIndex));
+                    final JoystickAxis joystickAxis = new DefaultJoystickAxis(inputManager, joystick, axisIndex, convertAxisIndex(axisIndex), logicalId, true, false, 0.0f);
                     joystick.addAxis(axisIndex, joystickAxis);
                     axisIndex++;
                 }
@@ -104,10 +102,9 @@ public class GlfwJoystickInput implements JoyInput {
                 int buttonIndex = 0;
                 while (byteBuffer.hasRemaining()) {
                     byteBuffer.get();
-                    final String logicalId = JoystickCompatibilityMappings.remapComponent(joystick.getName(),
-                            String.valueOf(buttonIndex));
-                    final JoystickButton button = new DefaultJoystickButton(inputManager, joystick, buttonIndex,
-                            String.valueOf(buttonIndex), logicalId);
+
+                    final String logicalId = JoystickCompatibilityMappings.remapComponent(joystick.getName(), String.valueOf(buttonIndex));
+                    final JoystickButton button = new DefaultJoystickButton(inputManager, joystick, buttonIndex, String.valueOf(buttonIndex), logicalId);
                     joystick.addButton(button);
                     joyButtonPressed.put(button, false);
                     buttonIndex++;
@@ -187,8 +184,7 @@ public class GlfwJoystickInput implements JoyInput {
         private JoystickAxis povAxisX;
         private JoystickAxis povAxisY;
 
-        public GlfwJoystick(final InputManager inputManager, final JoyInput joyInput, final int joyId,
-                final String name) {
+        public GlfwJoystick(final InputManager inputManager, final JoyInput joyInput, final int joyId, final String name) {
             super(inputManager, joyInput, joyId, name);
         }
 
