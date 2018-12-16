@@ -69,13 +69,13 @@ public class TestBlenderObjectAnim extends SimpleApplication {
         Spatial scene = (Spatial) assetManager.loadModel(blenderKey);
         rootNode.attachChild(scene);
         
-        Spatial model = this.findNode(rootNode, "TestAnim");
+        Spatial model = this.findNode(rootNode, "Cube");
         model.center();
         
         control = model.getControl(AnimControl.class);
         channel = control.createChannel();
 
-        channel.setAnim("TestAnim");
+        channel.setAnim("Action");
     }
     
     /**
