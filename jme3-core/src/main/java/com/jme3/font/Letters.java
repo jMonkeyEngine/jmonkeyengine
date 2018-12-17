@@ -214,7 +214,7 @@ class Letters {
             if (cursor.isEndOfLine()) {
                 lineWidth = cursor.getX1()-block.getTextBox().x;
                 if (alignment == Align.Center) {
-                    gapX = Math.round((width-lineWidth)/2);
+                    gapX = (width-lineWidth)/2;
                 } else if (alignment == Align.Right) {
                     gapX = width-lineWidth;
                 } else {
