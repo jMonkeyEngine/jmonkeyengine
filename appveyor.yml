@@ -3,6 +3,7 @@ version: 1.0.{build}.{branch}
 branches:
   only:
   - master
+  - v3.2
 
 only_commits:
   files:
