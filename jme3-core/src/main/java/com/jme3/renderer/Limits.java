@@ -62,4 +62,20 @@ public enum Limits {
     ColorTextureSamples,
     DepthTextureSamples,
     TextureAnisotropy,
+
+    // UBO
+    UniformBufferObjectMaxVertexBlocks,
+    UniformBufferObjectMaxFragmentBlocks,
+    UniformBufferObjectMaxGeometryBlocks,
+    UniformBufferObjectMaxBlockSize,
+
+    // SSBO
+    ShaderStorageBufferObjectMaxBlockSize,
+    ShaderStorageBufferObjectMaxVertexBlocks,
+    ShaderStorageBufferObjectMaxFragmentBlocks,
+    ShaderStorageBufferObjectMaxGeometryBlocks,
+    ShaderStorageBufferObjectMaxTessControlBlocks,
+    ShaderStorageBufferObjectMaxTessEvaluationBlocks,
+    ShaderStorageBufferObjectMaxComputeBlocks,
+    ShaderStorageBufferObjectMaxCombineBlocks,
 }

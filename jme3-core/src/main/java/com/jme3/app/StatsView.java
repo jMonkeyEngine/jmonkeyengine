@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -117,11 +117,12 @@ public class StatsView extends Node implements Control, JmeCloneable {
         //statistics.clearFrame();
     }
 
+    @Deprecated
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        return (Control) spatial;
+        throw new UnsupportedOperationException();
     }
-
+    
     @Override
     public StatsView jmeClone() {
         throw new UnsupportedOperationException("Not yet implemented.");

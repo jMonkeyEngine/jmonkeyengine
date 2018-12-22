@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 jMonkeyEngine
+ * Copyright (c) 2014-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,19 +31,15 @@
  */
 package com.jme3.scene.instancing;
 
-import com.jme3.material.Material;
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.GeometryGroupNode;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.UserData;
-import com.jme3.scene.control.Control;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.material.MatParam;
+import com.jme3.material.Material;
+import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.scene.*;
+import com.jme3.scene.control.Control;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
@@ -135,11 +131,10 @@ public class InstancedNode extends GeometryGroupNode {
             this.node = node;
         }
 
+        @Deprecated
         @Override
         public Control cloneForSpatial(Spatial spatial) {
-            return this;
-            // WARNING: Sets wrong control on spatial. Will be
-            // fixed automatically by InstancedNode.clone() method.
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -217,6 +212,7 @@ public class InstancedNode extends GeometryGroupNode {
             ig.setMesh(lookUp.mesh);
             ig.setUserData(UserData.JME_PHYSICSIGNORE, true);
             ig.setCullHint(CullHint.Never);
+            ig.setShadowMode(RenderQueue.ShadowMode.Inherit);
             instancesMap.put(lookUp.clone(), ig);
             attachChild(ig);
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,9 +32,6 @@
 
 package com.jme3.system.lwjgl;
 
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.GL_FALSE;
-import static org.lwjgl.system.MemoryUtil.NULL;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
@@ -47,15 +44,20 @@ import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
 import com.jme3.system.NanoTimer;
 import com.jme3.util.BufferUtils;
-import org.lwjgl.Version;
-import org.lwjgl.glfw.*;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.lwjgl.Version;
+import org.lwjgl.glfw.*;
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.GL_FALSE;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 /**
  * A wrapper class over the GLFW framework in LWJGL 3.
@@ -65,6 +67,48 @@ import java.util.logging.Logger;
 public abstract class LwjglWindow extends LwjglContext implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(LwjglWindow.class.getName());
+
+    private static final EnumSet<JmeContext.Type> SUPPORTED_TYPES = EnumSet.of(
+            JmeContext.Type.Display,
+            JmeContext.Type.Canvas,
+            JmeContext.Type.OffscreenSurface);
+
+    private static final Map<String, Runnable> RENDER_CONFIGS = new HashMap<>();
+
+    static {
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL3, () -> {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL33, () -> {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL4, () -> {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL41, () -> {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL42, () -> {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL43, () -> {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL44, () -> {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
+        });
+        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL45, () -> {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+        });
+    }
 
     protected final AtomicBoolean needClose = new AtomicBoolean(false);
     protected final AtomicBoolean needRestart = new AtomicBoolean(false);
@@ -86,7 +130,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected boolean allowSwapBuffers = false;
 
     public LwjglWindow(final JmeContext.Type type) {
-        if (!JmeContext.Type.Display.equals(type) && !JmeContext.Type.OffscreenSurface.equals(type) && !JmeContext.Type.Canvas.equals(type)) {
+
+        if (!SUPPORTED_TYPES.contains(type)) {
             throw new IllegalArgumentException("Unsupported type '" + type.name() + "' provided");
         }
 
@@ -101,7 +146,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     }
 
     /**
-     * Set the title if its a windowed display
+     * Set the title if it's a windowed display
      *
      * @param title the title to set
      */
@@ -112,7 +157,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     }
 
     /**
-     * Restart if its a windowed or full-screen display.
+     * Restart if it's a windowed or full-screen display.
      */
     public void restart() {
         if (created.get()) {
@@ -134,16 +179,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 final String message = GLFWErrorCallback.getDescription(description);
                 listener.handleError(message, new Exception(message));
             }
-
-            @Override
-            public void close(){
-                super.close();
-            }
-
-            @Override
-            public void callback(long args) {
-                super.callback(args);
-            }
         });
 
         if (!glfwInit()) {
@@ -157,36 +192,12 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        if (renderer.equals(AppSettings.LWJGL_OPENGL3)) {
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-        } else if (renderer.equals(AppSettings.LWJGL_OPENGL33)) {
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        } else if (renderer.equals(AppSettings.LWJGL_OPENGL4)) {
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-        } else if (renderer.equals(AppSettings.LWJGL_OPENGL41)) {
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-        } else if (renderer.equals(AppSettings.LWJGL_OPENGL42)) {
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-        } else if (renderer.equals(AppSettings.LWJGL_OPENGL43)) {
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        } else if (renderer.equals(AppSettings.LWJGL_OPENGL44)) {
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
-        } else if (renderer.equals(AppSettings.LWJGL_OPENGL45)) {
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-        } else {
+        RENDER_CONFIGS.computeIfAbsent(renderer, s -> () -> {
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_FALSE);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ANY_PROFILE);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-        }
+        }).run();
 
         if (settings.getBoolean("RendererDebug")) {
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
@@ -242,16 +253,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 settings.setResolution(width, height);
                 listener.reshape(width, height);
             }
-
-            @Override
-            public void close() {
-                super.close();
-            }
-
-            @Override
-            public void callback(long args) {
-                super.callback(args);
-            }
         });
 
         glfwSetWindowFocusCallback(window, windowFocusCallback = new GLFWWindowFocusCallback() {
@@ -264,19 +265,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                     } else {
                         listener.loseFocus();
                     }
-
                     wasActive = !wasActive;
                 }
-            }
-
-            @Override
-            public void close() {
-                super.close();
-            }
-
-            @Override
-            public void callback(long args) {
-                super.callback(args);
             }
         });
 
@@ -392,6 +382,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             }
 
             if (errorCallback != null) {
+
+                // We need to specifically set this to null as we might set a new callback before we reinit GLFW
+                glfwSetErrorCallback(null);
+
                 errorCallback.close();
                 errorCallback = null;
             }
@@ -410,6 +404,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 glfwDestroyWindow(window);
                 window = NULL;
             }
+
+            glfwTerminate();
         } catch (final Exception ex) {
             listener.handleError("Failed to destroy context", ex);
         }
@@ -434,15 +430,12 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         try {
             if (!JmeSystem.isLowPermissions()) {
                 // Enable uncaught exception handler only for current thread
-                Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-                    @Override
-                    public void uncaughtException(Thread thread, Throwable thrown) {
-                        listener.handleError("Uncaught exception thrown in " + thread.toString(), thrown);
-                        if (needClose.get()) {
-                            // listener.handleError() has requested the
-                            // context to close. Satisfy request.
-                            deinitInThread();
-                        }
+                Thread.currentThread().setUncaughtExceptionHandler((thread, thrown) -> {
+                    listener.handleError("Uncaught exception thrown in " + thread.toString(), thrown);
+                    if (needClose.get()) {
+                        // listener.handleError() has requested the
+                        // context to close. Satisfy request.
+                        deinitInThread();
                     }
                 });
             }
@@ -560,7 +553,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     /**
      * De-initialize in the OpenGL thread.
      */
-
     protected void deinitInThread() {
         listener.destroy();
 
@@ -600,6 +592,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         deinitInThread();
     }
 
+    @Override
     public JoyInput getJoyInput() {
         if (joyInput == null) {
             joyInput = new GlfwJoystickInput();
@@ -607,6 +600,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         return joyInput;
     }
 
+    @Override
     public MouseInput getMouseInput() {
         if (mouseInput == null) {
             mouseInput = new GlfwMouseInput(this);
@@ -614,22 +608,25 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         return mouseInput;
     }
 
+    @Override
     public KeyInput getKeyInput() {
         if (keyInput == null) {
             keyInput = new GlfwKeyInput(this);
         }
-
         return keyInput;
     }
 
+    @Override
     public TouchInput getTouchInput() {
         return null;
     }
 
+    @Override
     public void setAutoFlushFrames(boolean enabled) {
         this.autoFlush = enabled;
     }
 
+    @Override
     public void destroy(boolean waitFor) {
         needClose.set(true);
 

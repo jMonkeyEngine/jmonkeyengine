@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,6 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
 import com.jme3.util.clone.Cloner;
@@ -52,39 +51,75 @@ import java.io.IOException;
 import java.util.Iterator;
 
 /**
+ * A physics control to link a PhysicsVehicle to a spatial.
+ * <p>
+ * This class is shared between JBullet and Native Bullet.
  *
  * @author normenhansen
  */
 public class VehicleControl extends PhysicsVehicle implements PhysicsControl, JmeCloneable {
 
+    /**
+     * spatial to which this control is added, or null if none
+     */
     protected Spatial spatial;
+    /**
+     * true&rarr;control is enabled, false&rarr;control is disabled
+     */
     protected boolean enabled = true;
+    /**
+     * space to which the vehicle is (or would be) added
+     */
     protected PhysicsSpace space = null;
+    /**
+     * true&rarr;vehicle is added to the physics space, false&rarr;not added
+     */
     protected boolean added = false;
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public VehicleControl() {
     }
 
     /**
-     * Creates a new PhysicsNode with the supplied collision shape
-     * @param shape
+     * Instantiate an enabled control with mass=1 and the specified collision
+     * shape.
+     *
+     * @param shape the desired shape (not null, alias created)
      */
     public VehicleControl(CollisionShape shape) {
         super(shape);
     }
 
+    /**
+     * Instantiate an enabled with the specified collision shape and mass.
+     *
+     * @param shape the desired shape (not null, alias created)
+     * @param mass (&gt;0)
+     */
     public VehicleControl(CollisionShape shape, float mass) {
         super(shape, mass);
     }
 
+    /**
+     * Test whether physics-space coordinates should match the spatial's local
+     * coordinates.
+     *
+     * @return true if matching local coordinates, false if matching world
+     * coordinates
+     */
     public boolean isApplyPhysicsLocal() {
         return motionState.isApplyPhysicsLocal();
     }
 
     /**
-     * When set to true, the physics coordinates will be applied to the local
-     * translation of the Spatial
-     * @param applyPhysicsLocal
+     * Alter whether physics-space coordinates should match the spatial's local
+     * coordinates.
+     *
+     * @param applyPhysicsLocal true&rarr;match local coordinates,
+     * false&rarr;match world coordinates (default=false)
      */
     public void setApplyPhysicsLocal(boolean applyPhysicsLocal) {
         motionState.setApplyPhysicsLocal(applyPhysicsLocal);
@@ -108,57 +143,22 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
         return spatial.getWorldRotation();
     }
 
+    /**
+     * Clone this control for a different spatial. No longer used as of JME 3.1.
+     *
+     * @param spatial the spatial for the clone to control (or null)
+     * @return a new control (not null)
+     */
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        VehicleControl control = new VehicleControl(collisionShape, mass);
-        control.setAngularFactor(getAngularFactor());
-        control.setAngularSleepingThreshold(getAngularSleepingThreshold());
-        control.setAngularVelocity(getAngularVelocity());
-        control.setCcdMotionThreshold(getCcdMotionThreshold());
-        control.setCcdSweptSphereRadius(getCcdSweptSphereRadius());
-        control.setCollideWithGroups(getCollideWithGroups());
-        control.setCollisionGroup(getCollisionGroup());
-        control.setDamping(getLinearDamping(), getAngularDamping());
-        control.setFriction(getFriction());
-        control.setGravity(getGravity());
-        control.setKinematic(isKinematic());
-        control.setLinearSleepingThreshold(getLinearSleepingThreshold());
-        control.setLinearVelocity(getLinearVelocity());
-        control.setPhysicsLocation(getPhysicsLocation());
-        control.setPhysicsRotation(getPhysicsRotationMatrix());
-        control.setRestitution(getRestitution());
-
-        control.setFrictionSlip(getFrictionSlip());
-        control.setMaxSuspensionTravelCm(getMaxSuspensionTravelCm());
-        control.setSuspensionStiffness(getSuspensionStiffness());
-        control.setSuspensionCompression(tuning.suspensionCompression);
-        control.setSuspensionDamping(tuning.suspensionDamping);
-        control.setMaxSuspensionForce(getMaxSuspensionForce());
-
-        for (Iterator<VehicleWheel> it = wheels.iterator(); it.hasNext();) {
-            VehicleWheel wheel = it.next();
-            VehicleWheel newWheel = control.addWheel(wheel.getLocation(), wheel.getDirection(), wheel.getAxle(), wheel.getRestLength(), wheel.getRadius(), wheel.isFrontWheel());
-            newWheel.setFrictionSlip(wheel.getFrictionSlip());
-            newWheel.setMaxSuspensionTravelCm(wheel.getMaxSuspensionTravelCm());
-            newWheel.setSuspensionStiffness(wheel.getSuspensionStiffness());
-            newWheel.setWheelsDampingCompression(wheel.getWheelsDampingCompression());
-            newWheel.setWheelsDampingRelaxation(wheel.getWheelsDampingRelaxation());
-            newWheel.setMaxSuspensionForce(wheel.getMaxSuspensionForce());
-
-            //TODO: bad way finding children!
-            if (spatial instanceof Node) {
-                Node node = (Node) spatial;
-                Spatial wheelSpat = node.getChild(wheel.getWheelSpatial().getName());
-                if (wheelSpat != null) {
-                    newWheel.setWheelSpatial(wheelSpat);
-                }
-            }
-        }
-        control.setApplyPhysicsLocal(isApplyPhysicsLocal());
-        return control;
+        throw new UnsupportedOperationException();
     }
 
-    @Override   
+    /**
+     * Create a shallow clone for the JME cloner.
+     *
+     * @return a new control (not null)
+     */
     public Object jmeClone() {
         VehicleControl control = new VehicleControl(collisionShape, mass);
         control.setAngularFactor(getAngularFactor());
@@ -168,6 +168,7 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
         control.setCcdSweptSphereRadius(getCcdSweptSphereRadius());
         control.setCollideWithGroups(getCollideWithGroups());
         control.setCollisionGroup(getCollisionGroup());
+        control.setContactResponse(isContactResponse());
         control.setDamping(getLinearDamping(), getAngularDamping());
         control.setFriction(getFriction());
         control.setGravity(getGravity());
@@ -206,6 +207,15 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
         return control;
     }     
 
+    /**
+     * Callback from {@link com.jme3.util.clone.Cloner} to convert this
+     * shallow-cloned control into a deep-cloned one, using the specified cloner
+     * and original to resolve copied fields.
+     *
+     * @param cloner the cloner that's cloning this control (not null)
+     * @param original the control from which this control was shallow-cloned
+     * (unused)
+     */
     @Override   
     public void cloneFields( Cloner cloner, Object original ) {
         this.spatial = cloner.clone(spatial);
@@ -216,6 +226,11 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
         }        
     }
          
+    /**
+     * Alter which spatial is controlled.
+     *
+     * @param spatial spatial to control (or null)
+     */
     public void setSpatial(Spatial spatial) {
         this.spatial = spatial;
         setUserObject(spatial);
@@ -226,6 +241,15 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
         setPhysicsRotation(getSpatialRotation());
     }
 
+    /**
+     * Enable or disable this control.
+     * <p>
+     * When the control is disabled, the vehicle is removed from physics space.
+     * When the control is enabled again, the physics object is moved to the
+     * spatial's location and then added to the physics space.
+     *
+     * @param enabled true&rarr;enable the control, false&rarr;disable it
+     */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
         if (space != null) {
@@ -243,10 +267,21 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
         }
     }
 
+    /**
+     * Test whether this control is enabled.
+     *
+     * @return true if enabled, otherwise false
+     */
     public boolean isEnabled() {
         return enabled;
     }
 
+    /**
+     * Update this control. Invoked once per frame, during the logical-state
+     * update, provided the control is added to a scene.
+     *
+     * @param tpf the time interval between frames (in seconds, &ge;0)
+     */
     public void update(float tpf) {
         if (enabled && spatial != null) {
             if (getMotionState().applyTransform(spatial)) {
@@ -258,31 +293,59 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
         }
     }
 
+    /**
+     * Render this control. Invoked once per view port per frame, provided the
+     * control is added to a scene. Should be invoked only by a subclass or by
+     * the RenderManager.
+     *
+     * @param rm the render manager (not null)
+     * @param vp the view port to render (not null)
+     */
     public void render(RenderManager rm, ViewPort vp) {
     }
 
-    public void setPhysicsSpace(PhysicsSpace space) {
-        createVehicle(space);
-        if (space == null) {
-            if (this.space != null) {
-                this.space.removeCollisionObject(this);
-                added = false;
-            }
-        } else {
-            if(this.space == space) return;
-            // if this object isn't enabled, it will be added when it will be enabled.
-            if (isEnabled()) {
-                space.addCollisionObject(this);
-                added = true;
-            }
+    /**
+     * If enabled, add this control's physics object to the specified physics
+     * space. In not enabled, alter where the object would be added. The object
+     * is removed from any other space it's currently in.
+     *
+     * @param newSpace where to add, or null to simply remove
+     */
+    @Override
+    public void setPhysicsSpace(PhysicsSpace newSpace) {
+        if (space == newSpace) {
+            return;
         }
-        this.space = space;
+        if (added) {
+            space.removeCollisionObject(this);
+            added = false;
+        }
+        if (newSpace != null && isEnabled()) {
+            newSpace.addCollisionObject(this);
+            added = true;
+        }
+        /*
+         * If this control isn't enabled, its physics object will be
+         * added to the new space when the control becomes enabled.
+         */
+        space = newSpace;
     }
 
+    /**
+     * Access the physics space to which the vehicle is (or would be) added.
+     *
+     * @return the pre-existing space, or null for none
+     */
     public PhysicsSpace getPhysicsSpace() {
         return space;
     }
 
+    /**
+     * Serialize this control, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -292,6 +355,12 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
         oc.write(spatial, "spatial", null);
     }
 
+    /**
+     * De-serialize this control, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);

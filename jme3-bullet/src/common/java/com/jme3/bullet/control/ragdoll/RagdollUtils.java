@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,14 +33,13 @@ package com.jme3.bullet.control.ragdoll;
 
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
+import com.jme3.animation.SkeletonControl;
 import com.jme3.bullet.collision.shapes.HullCollisionShape;
 import com.jme3.bullet.joints.SixDofJoint;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer.Type;
 import java.nio.ByteBuffer;
@@ -48,11 +47,31 @@ import java.nio.FloatBuffer;
 import java.util.*;
 
 /**
+ * Utility methods used by KinematicRagdollControl.
+ * <p>
+ * This class is shared between JBullet and Native Bullet.
  *
  * @author Nehon
  */
 public class RagdollUtils {
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private RagdollUtils() {
+    }
+
+    /**
+     * Alter the limits of the specified 6-DOF joint.
+     *
+     * @param joint which joint to alter (not null)
+     * @param maxX the maximum rotation on the X axis (in radians)
+     * @param minX the minimum rotation on the X axis (in radians)
+     * @param maxY the maximum rotation on the Y axis (in radians)
+     * @param minY the minimum rotation on the Y axis (in radians)
+     * @param maxZ the maximum rotation on the Z axis (in radians)
+     * @param minZ the minimum rotation on the Z axis (in radians)
+     */
     public static void setJointLimit(SixDofJoint joint, float maxX, float minX, float maxY, float minY, float maxZ, float minZ) {
 
         joint.getRotationalLimitMotor(0).setHiLimit(maxX);
@@ -63,22 +82,21 @@ public class RagdollUtils {
         joint.getRotationalLimitMotor(2).setLoLimit(minZ);
     }
 
+    /**
+     * Build a map of mesh vertices in a subtree of the scene graph.
+     *
+     * @param model the root of the subtree (may be null)
+     * @return a new map (not null)
+     */
     public static Map<Integer, List<Float>> buildPointMap(Spatial model) {
+        Map<Integer, List<Float>> map = new HashMap<>();
 
-
-        Map<Integer, List<Float>> map = new HashMap<Integer, List<Float>>();
-        if (model instanceof Geometry) {
-            Geometry g = (Geometry) model;
-            buildPointMapForMesh(g.getMesh(), map);
-        } else if (model instanceof Node) {
-            Node node = (Node) model;
-            for (Spatial s : node.getChildren()) {
-                if (s instanceof Geometry) {
-                    Geometry g = (Geometry) s;
-                    buildPointMapForMesh(g.getMesh(), map);
-                }
-            }
+        SkeletonControl skeletonCtrl = model.getControl(SkeletonControl.class);
+        Mesh[] targetMeshes = skeletonCtrl.getTargets();
+        for (Mesh mesh : targetMeshes) {
+            buildPointMapForMesh(mesh, map);
         }
+
         return map;
     }
 
@@ -122,14 +140,15 @@ public class RagdollUtils {
     }
 
     /**
-     * Create a hull collision shape from linked vertices to this bone.
-     * Vertices have to be previoulsly gathered in a map using buildPointMap method
-     * 
-     * @param pointsMap
-     * @param boneIndices
-     * @param initialScale
-     * @param initialPosition
-     * @return 
+     * Create a hull collision shape from linked vertices to this bone. Vertices
+     * must have previously been gathered using buildPointMap().
+     *
+     * @param pointsMap map from bone indices to coordinates (not null,
+     * unaffected)
+     * @param boneIndices (not null, unaffected)
+     * @param initialScale scale factors (not null, unaffected)
+     * @param initialPosition location (not null, unaffected)
+     * @return a new shape (not null)
      */
     public static HullCollisionShape makeShapeFromPointMap(Map<Integer, List<Float>> pointsMap, List<Integer> boneIndices, Vector3f initialScale, Vector3f initialPosition) {
 
@@ -151,16 +170,24 @@ public class RagdollUtils {
             }
         }
 
+        assert !points.isEmpty();
         float[] p = new float[points.size()];
         for (int i = 0; i < points.size(); i++) {
             p[i] = points.get(i);
         }
 
-
         return new HullCollisionShape(p);
     }
 
-    //retruns the list of bone indices of the given bone and its child(if they are not in the boneList)
+    /**
+     * Enumerate the bone indices of the specified bone and all its descendents.
+     *
+     * @param bone the input bone (not null)
+     * @param skeleton the skeleton containing the bone (not null)
+     * @param boneList a set of bone names (not null, unaffected)
+     *
+     * @return a new list (not null)
+     */
     public static List<Integer> getBoneIndices(Bone bone, Skeleton skeleton, Set<String> boneList) {
         List<Integer> list = new LinkedList<Integer>();
         if (boneList.isEmpty()) {
@@ -178,50 +205,51 @@ public class RagdollUtils {
 
     /**
      * Create a hull collision shape from linked vertices to this bone.
-     * 
-     * @param model
-     * @param boneIndices
-     * @param initialScale
-     * @param initialPosition
-     * @param weightThreshold
-     * @return 
+     *
+     * @param model the model on which to base the shape
+     * @param boneIndices indices of relevant bones (not null, unaffected)
+     * @param initialScale scale factors
+     * @param initialPosition location
+     * @param weightThreshold minimum weight for inclusion
+     * @return a new shape
      */
-    public static HullCollisionShape makeShapeFromVerticeWeights(Spatial model, List<Integer> boneIndices, Vector3f initialScale, Vector3f initialPosition, float weightThreshold) {
+    public static HullCollisionShape makeShapeFromVerticeWeights(Spatial model,
+            List<Integer> boneIndices, Vector3f initialScale,
+            Vector3f initialPosition, float weightThreshold) {
+        List<Float> points = new ArrayList<>(100);
 
-        ArrayList<Float> points = new ArrayList<Float>();
-        if (model instanceof Geometry) {
-            Geometry g = (Geometry) model;
+        SkeletonControl skeletonCtrl = model.getControl(SkeletonControl.class);
+        Mesh[] targetMeshes = skeletonCtrl.getTargets();
+        for (Mesh mesh : targetMeshes) {
             for (Integer index : boneIndices) {
-                points.addAll(getPoints(g.getMesh(), index, initialScale, initialPosition, weightThreshold));
-            }
-        } else if (model instanceof Node) {
-            Node node = (Node) model;
-            for (Spatial s : node.getChildren()) {
-                if (s instanceof Geometry) {
-                    Geometry g = (Geometry) s;
-                    for (Integer index : boneIndices) {
-                        points.addAll(getPoints(g.getMesh(), index, initialScale, initialPosition, weightThreshold));
-                    }
-
-                }
+                List<Float> bonePoints = getPoints(mesh, index, initialScale,
+                        initialPosition, weightThreshold);
+                points.addAll(bonePoints);
             }
         }
+
+        assert !points.isEmpty();
         float[] p = new float[points.size()];
         for (int i = 0; i < points.size(); i++) {
             p[i] = points.get(i);
         }
 
-
         return new HullCollisionShape(p);
     }
 
     /**
-     * returns a list of points for the given bone
-     * @param mesh
-     * @param boneIndex
-     * @param offset
-     * @param link
-     * @return 
+     * Enumerate vertices that meet the weight threshold for the indexed bone.
+     *
+     * @param mesh the mesh to analyze (not null)
+     * @param boneIndex the index of the bone (&ge;0)
+     * @param initialScale a scale applied to vertex positions (not null,
+     * unaffected)
+     * @param offset an offset subtracted from vertex positions (not null,
+     * unaffected)
+     * @param weightThreshold the minimum bone weight for inclusion in the
+     * result (&ge;0, &le;1)
+     * @return a new list of vertex coordinates (not null, length a multiple of
+     * 3)
      */
     private static List<Float> getPoints(Mesh mesh, int boneIndex, Vector3f initialScale, Vector3f offset, float weightThreshold) {
 
@@ -265,12 +293,16 @@ public class RagdollUtils {
     }
 
     /**
-     * Updates a bone position and rotation.
-     * if the child bones are not in the bone list this means, they are not associated with a physic shape.
-     * So they have to be updated
+     * Updates a bone position and rotation. if the child bones are not in the
+     * bone list this means, they are not associated with a physics shape. So
+     * they have to be updated
+     *
      * @param bone the bone
      * @param pos the position
      * @param rot the rotation
+     * @param restoreBoneControl true &rarr; user-control flag should be set
+     * @param boneList the names of all bones without collision shapes (not
+     * null, unaffected)
      */
     public static void setTransform(Bone bone, Vector3f pos, Quaternion rot, boolean restoreBoneControl, Set<String> boneList) {
         //we ensure that we have the control
@@ -292,10 +324,51 @@ public class RagdollUtils {
         }
     }
 
+    /**
+     * Alter the user-control flags of a bone and all its descendents.
+     *
+     * @param bone the ancestor bone (not null, modified)
+     * @param bool true to enable user control, false to disable
+     */
     public static void setUserControl(Bone bone, boolean bool) {
         bone.setUserControl(bool);
         for (Bone child : bone.getChildren()) {
             setUserControl(child, bool);
         }
+    }
+
+    /**
+     * Test whether the indexed bone has at least one vertex in the specified
+     * meshes with a weight greater than the specified threshold.
+     *
+     * @param boneIndex the index of the bone (&ge;0)
+     * @param targets the meshes to search (not null, no null elements)
+     * @param weightThreshold the threshold (&ge;0, &le;1)
+     * @return true if at least 1 vertex found, otherwise false
+     */
+    public static boolean hasVertices(int boneIndex, Mesh[] targets,
+            float weightThreshold) {
+        for (Mesh mesh : targets) {
+            ByteBuffer boneIndices
+                    = (ByteBuffer) mesh.getBuffer(Type.BoneIndex).getData();
+            FloatBuffer boneWeight
+                    = (FloatBuffer) mesh.getBuffer(Type.BoneWeight).getData();
+
+            boneIndices.rewind();
+            boneWeight.rewind();
+
+            int vertexComponents = mesh.getVertexCount() * 3;
+            for (int i = 0; i < vertexComponents; i += 3) {
+                int start = i / 3 * 4;
+                for (int k = start; k < start + 4; k++) {
+                    if (boneIndices.get(k) == boneIndex
+                            && boneWeight.get(k) >= weightThreshold) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }

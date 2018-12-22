@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -72,6 +72,7 @@ import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.PlaceholderAssets;
 
 /**
  * A class that is used in texture calculations.
@@ -251,7 +252,11 @@ public class TextureHelper extends AbstractBlenderHelper {
                     blenderContext.getInputStream().setPosition(dataFileBlock.getBlockPosition());
 
                     // Should the texture be flipped? It works for sinbad ..
-                    result = new Texture2D(new ImageLoader().loadImage(blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true));
+                    result = new ImageLoader().loadTexture(blenderContext.getAssetManager(), blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true);
+                    if (result == null) {
+                        result = new Texture2D(PlaceholderAssets.getPlaceholderImage(blenderContext.getAssetManager()));
+                        LOGGER.fine("ImageLoader returned null. It probably failed to load the packed texture, using placeholder asset");
+                    }
                 }
             }
         //} else {
@@ -310,7 +315,7 @@ public class TextureHelper extends AbstractBlenderHelper {
      * @param pos
      *            the relative position (value of range <0, 1> (both inclusive))
      * @param size
-     *            the size of the line the pixel lies on (width, heigth or
+     *            the size of the line the pixel lies on (width, height or
      *            depth)
      * @return the integer index of the pixel on the line of the specified width
      */
@@ -429,10 +434,10 @@ public class TextureHelper extends AbstractBlenderHelper {
     }
 
     /**
-     * This method loads the textre from outside the blend file using the
+     * This method loads the texture from outside the blend file using the
      * AssetManager that the blend file was loaded with. It returns a texture
      * with a full assetKey that references the original texture so it later
-     * doesn't need to ba packed when the model data is serialized. It searches
+     * doesn't need to be packed when the model data is serialized. It searches
      * the AssetManager for the full path if the model file is a relative path
      * and will attempt to truncate the path if it is an absolute file path
      * until the path can be found in the AssetManager. If the texture can not
@@ -614,8 +619,15 @@ public class TextureHelper extends AbstractBlenderHelper {
                     int texflag = ((Number) textureData.mtex.getFieldValue("texflag")).intValue();
                     boolean negateTexture = (texflag & 0x04) != 0;
 
+                    boolean colorSet = false;
                     for (int i = 0; i < mappings.length; ++i) {
                         if ((mappings[i] & mapto.intValue()) != 0) {
+                            if(mappings[i] == MaterialContext.MTEX_COL) {
+                                colorSet = true;
+                            } else if(colorSet && mappings[i] == MaterialContext.MTEX_ALPHA) {
+                                continue;
+                            }
+                            
                             CombinedTexture combinedTexture = new CombinedTexture(mappings[i], !skyTexture);
                             int blendType = ((Number) textureData.mtex.getFieldValue("blendtype")).intValue();
                             float[] color = new float[] { ((Number) textureData.mtex.getFieldValue("r")).floatValue(), ((Number) textureData.mtex.getFieldValue("g")).floatValue(), ((Number) textureData.mtex.getFieldValue("b")).floatValue() };
@@ -646,8 +658,16 @@ public class TextureHelper extends AbstractBlenderHelper {
         Map<Number, List<TextureData>> result = new HashMap<Number, List<TextureData>>();
         for (TextureData data : textures) {
             Number mapto = (Number) data.mtex.getFieldValue("mapto");
+            
+            boolean colorSet = false;
             for (int i = 0; i < mappings.length; ++i) {
                 if ((mappings[i] & mapto.intValue()) != 0) {
+                    if(mappings[i] == MaterialContext.MTEX_COL) {
+                        colorSet = true;
+                    } else if(colorSet && mappings[i] == MaterialContext.MTEX_ALPHA) {
+                        continue;
+                    }
+                    
                     List<TextureData> datas = result.get(mappings[i]);
                     if (datas == null) {
                         datas = new ArrayList<TextureData>();

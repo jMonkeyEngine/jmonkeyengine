@@ -1,0 +1,59 @@
+MaterialDef DashedLine {
+    MaterialParameters {
+    }
+
+    Technique {
+        WorldParameters {
+            WorldViewProjectionMatrix
+            Resolution
+        }
+
+        VertexShaderNodes {
+            ShaderNode TransformPosition {
+                Definition: TransformPosition: Common/MatDefs/ShaderNodes/Basic/TransformPosition.j3sn
+                InputMappings {
+                    transformsMatrix = WorldParam.WorldViewProjectionMatrix
+                    inputPosition = Attr.inNormal
+                }
+                OutputMappings {
+                }
+            }
+            ShaderNode PerspectiveDivide {
+                Definition: PerspectiveDivide: Common/MatDefs/ShaderNodes/Misc/PerspectiveDivide.j3sn
+                InputMappings {
+                    inVec = TransformPosition.outPosition
+                }
+                OutputMappings {
+                }
+            }
+            ShaderNode CommonVert {
+                Definition: CommonVert: Common/MatDefs/ShaderNodes/Common/CommonVert.j3sn
+                InputMappings {
+                    worldViewProjectionMatrix = WorldParam.WorldViewProjectionMatrix
+                    modelPosition = Attr.inPosition
+                    vertColor = Attr.inColor
+                    texCoord1 = Attr.inTexCoord
+                }
+                OutputMappings {
+                    Global.position = projPosition
+                }
+            }
+        }
+
+        FragmentShaderNodes {
+            ShaderNode Dashed {
+                Definition: Dashed: Common/MatDefs/ShaderNodes/Misc/Dashed.j3sn
+                InputMappings {
+                    texCoord = CommonVert.texCoord1
+                    inColor = CommonVert.vertColor
+                    resolution = WorldParam.Resolution
+                    startPos = PerspectiveDivide.outVec
+                }
+                OutputMappings {
+                    Global.color = outColor
+                }
+            }
+        }
+
+    }
+}

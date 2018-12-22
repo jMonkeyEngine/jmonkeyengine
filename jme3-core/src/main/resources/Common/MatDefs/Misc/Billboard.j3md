@@ -1,0 +1,78 @@
+MaterialDef Billboard {
+    MaterialParameters {
+        Float SpriteHeight : 10
+        Texture2D Texture
+    }
+
+    Technique {
+        WorldParameters {
+            WorldViewMatrix
+            ProjectionMatrix
+            WorldMatrix
+            CameraDirection
+            ViewPort
+            CameraPosition
+        }
+
+        VertexShaderNodes {
+            ShaderNode TexCoord {
+                Definition: AttributeToVarying: Common/MatDefs/ShaderNodes/Basic/AttributeToVarying.j3sn
+                InputMappings {
+                    vec2Variable = Attr.inTexCoord
+                    vec4Variable = Attr.inColor
+                }
+                OutputMappings {
+                }
+            }
+            ShaderNode FixedScale {
+                Definition: FixedScale: Common/MatDefs/ShaderNodes/Common/FixedScale.j3sn
+                InputMappings {
+                    projectionMatrix = WorldParam.ProjectionMatrix
+                    worldMatrix = WorldParam.WorldMatrix
+                    cameraDir = WorldParam.CameraDirection
+                    viewport = WorldParam.ViewPort
+                    modelPosition = Attr.inPosition
+                    cameraPos = WorldParam.CameraPosition
+                    spriteHeight = MatParam.SpriteHeight
+                }
+                OutputMappings {
+                }
+            }
+            ShaderNode Billboard {
+                Definition: Billboard: Common/MatDefs/ShaderNodes/Common/Billboard.j3sn
+                InputMappings {
+                    worldViewMatrix = WorldParam.WorldViewMatrix
+                    projectionMatrix = WorldParam.ProjectionMatrix
+                    modelPosition = Attr.inPosition
+                    scale = FixedScale.scale
+                }
+                OutputMappings {
+                    Global.position = projPosition
+                }
+            }
+        }
+
+        FragmentShaderNodes {
+            ShaderNode TextureFetch {
+                Definition: TextureFetch: Common/MatDefs/ShaderNodes/Basic/TextureFetch.j3sn
+                InputMappings {
+                    textureMap = MatParam.Texture
+                    texCoord = TexCoord.vec2Variable
+                }
+                OutputMappings {
+                }
+            }
+            ShaderNode ColorMult {
+                Definition: ColorMult: Common/MatDefs/ShaderNodes/Basic/ColorMult.j3sn
+                InputMappings {
+                    color1 = TextureFetch.outColor
+                    color2 = TexCoord.vec4Variable
+                }
+                OutputMappings {
+                    Global.color = outColor
+                }
+            }
+        }
+
+    }
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,8 @@ import com.jme3.export.*;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.util.TempVars;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.util.BitSet;
 
@@ -42,11 +44,13 @@ import java.util.BitSet;
  * Contains a list of transforms and times for each keyframe.
  * 
  * @author Kirill Vainer
+ * @deprecated use {@link com.jme3.anim.JointTrack}
  */
-public final class BoneTrack implements Track {
+@Deprecated
+public final class BoneTrack implements JmeCloneable, Track {
 
     /**
-     * Bone index in the skeleton which this track effects.
+     * Bone index in the skeleton which this track affects.
      */
     private int targetBoneIndex;
     
@@ -138,16 +142,23 @@ public final class BoneTrack implements Track {
 
     /**
      * Set the translations and rotations for this bone track
-     * @param times a float array with the time of each frame
-     * @param translations the translation of the bone for each frame
-     * @param rotations the rotation of the bone for each frame
+     *
+     * @param times the time of each frame, measured from the start of the track
+     * (not null, length&gt;0)
+     * @param translations the translation of the bone for each frame (not null,
+     * same length as times)
+     * @param rotations the rotation of the bone for each frame (not null, same
+     * length as times)
      */
     public void setKeyframes(float[] times, Vector3f[] translations, Quaternion[] rotations) {
         if (times.length == 0) {
             throw new RuntimeException("BoneTrack with no keyframes!");
         }
 
-        assert times.length == translations.length && times.length == rotations.length;
+        assert translations != null;
+        assert times.length == translations.length;
+        assert rotations != null;
+        assert times.length == rotations.length;
 
         this.times = times;
         this.translations = new CompactVector3Array();
@@ -160,15 +171,19 @@ public final class BoneTrack implements Track {
 
     /**
      * Set the translations, rotations and scales for this bone track
-     * @param times a float array with the time of each frame
-     * @param translations the translation of the bone for each frame
-     * @param rotations the rotation of the bone for each frame
-     * @param scales the scale of the bone for each frame
+     *
+     * @param times the time of each frame, measured from the start of the track
+     * (not null, length&gt;0)
+     * @param translations the translation of the bone for each frame (not null,
+     * same length as times)
+     * @param rotations the rotation of the bone for each frame (not null, same
+     * length as times)
+     * @param scales the scale of the bone for each frame (ignored if null)
      */
     public void setKeyframes(float[] times, Vector3f[] translations, Quaternion[] rotations, Vector3f[] scales) {
         this.setKeyframes(times, translations, rotations);
-        assert times.length == scales.length;
         if (scales != null) {
+            assert times.length == scales.length;
             this.scales = new CompactVector3Array();
             this.scales.add(scales);
             this.scales.freeze();
@@ -261,33 +276,48 @@ public final class BoneTrack implements Track {
     public float[] getKeyFrameTimes() {
         return times;
     }
-    
+
     /**
-     * This method creates a clone of the current object.
-     * @return a clone of the current object
+     * Create a deep clone of this track.
+     *
+     * @return a new track
      */
     @Override
     public BoneTrack clone() {
-        int tablesLength = times.length;
-
-        float[] times = this.times.clone();
-        Vector3f[] sourceTranslations = this.getTranslations();
-        Quaternion[] sourceRotations = this.getRotations();
-        Vector3f[] sourceScales = this.getScales();
-
-        Vector3f[] translations = new Vector3f[tablesLength];
-        Quaternion[] rotations = new Quaternion[tablesLength];
-        Vector3f[] scales = new Vector3f[tablesLength];
-        for (int i = 0; i < tablesLength; ++i) {
-            translations[i] = sourceTranslations[i].clone();
-            rotations[i] = sourceRotations[i].clone();
-            scales[i] = sourceScales != null ? sourceScales[i].clone() : new Vector3f(1.0f, 1.0f, 1.0f);
-        }
-        
-        // Need to use the constructor here because of the final fields used in this class
-        return new BoneTrack(targetBoneIndex, times, translations, rotations, scales);
+        return Cloner.deepClone(this);
     }
-    
+
+    /**
+     * Create a shallow clone for the JME cloner.
+     *
+     * @return a new track
+     */
+    @Override
+    public BoneTrack jmeClone() {
+        try {
+            return (BoneTrack) super.clone();
+        } catch (CloneNotSupportedException exception) {
+            throw new RuntimeException("Can't clone track", exception);
+        }
+    }
+
+    /**
+     * Callback from {@link com.jme3.util.clone.Cloner} to convert this
+     * shallow-cloned track into a deep-cloned one, using the specified cloner
+     * to resolve copied fields.
+     *
+     * @param cloner the cloner currently cloning this control (not null)
+     * @param original the track from which this track was shallow-cloned
+     * (unused)
+     */
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        translations = cloner.clone(translations);
+        rotations = cloner.clone(rotations);
+        scales = cloner.clone(scales);
+        times = cloner.clone(times);
+    }
+
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);

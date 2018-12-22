@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,7 +74,7 @@ public class ImageTileLoader implements TerrainGridTileLoader{
     }
 
     /**
-     * Effects vertical scale of the height of the terrain when loaded.
+     * Affects the vertical scale of the terrain when loaded.
      */
     public void setHeightScale(float heightScale) {
         this.heightScale = heightScale;

@@ -31,28 +31,30 @@
  */
 package jme3test.model.anim;
 
-import com.jme3.animation.*;
+import com.jme3.anim.AnimComposer;
+import com.jme3.anim.SkinningControl;
+import com.jme3.app.DetailedProfilerState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class TestHWSkinning extends SimpleApplication implements ActionListener{
 
-    private AnimChannel channel;
-    private AnimControl control;
+
+    // private AnimComposer composer;
     private String[] animNames = {"Dodge", "Walk", "pull", "push"};
-    private final static int SIZE = 10;
+    private final static int SIZE = 40;
     private boolean hwSkinningEnable = true;
-    private List<SkeletonControl> skControls = new ArrayList<SkeletonControl>();
+    private List<SkinningControl> skControls = new ArrayList<>();
     private BitmapText hwsText;
 
     public static void main(String[] args) {
@@ -63,8 +65,11 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
     @Override
     public void simpleInitApp() {
         flyCam.setMoveSpeed(10f);
-        cam.setLocation(new Vector3f(3.8664846f, 6.2704787f, 9.664585f));
-        cam.setRotation(new Quaternion(-0.054774776f, 0.94064945f, -0.27974048f, -0.18418397f));
+        flyCam.setDragToRotate(true);
+        setPauseOnLostFocus(false);
+        cam.setLocation(new Vector3f(38.76639f, 14.744472f, 45.097454f));
+        cam.setRotation(new Quaternion(-0.06086266f, 0.92303723f, -0.1639443f, -0.34266636f));
+
         makeHudText();
  
         DirectionalLight dl = new DirectionalLight();
@@ -72,31 +77,45 @@ public class TestHWSkinning extends SimpleApplication implements ActionListener{
         dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
         rootNode.addLight(dl);
 
+        Spatial models[] = new Spatial[4];
+        for (int i = 0; i < 4; i++) {
+            models[i] =loadModel(i);
+        }
+
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                Spatial model = (Spatial) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
-                model.setLocalScale(0.1f);
-                model.setLocalTranslation(i - SIZE / 2, 0, j - SIZE / 2);
-                control = model.getControl(AnimControl.class);
-
-                channel = control.createChannel();
-                channel.setAnim(animNames[(i + j) % 4]);
-                SkeletonControl skeletonControl = model.getControl(SkeletonControl.class);
-                skeletonControl.setHardwareSkinningPreferred(hwSkinningEnable);
-                skControls.add(skeletonControl);
-                rootNode.attachChild(model);
+                Node model = (Node)models[(i + j) % 4];
+                Spatial s = model.getChild(0).clone();
+                model.attachChild(s);
+                float x = (float)(i - SIZE / 2) / 0.1f;
+                float z = (float)(j - SIZE / 2) / 0.1f;
+                s.setLocalTranslation(x, 0, z);
             }
         }
 
         inputManager.addListener(this, "toggleHWS");
         inputManager.addMapping("toggleHWS", new KeyTrigger(KeyInput.KEY_SPACE));
+
+    }
+
+    private Spatial loadModel(int i) {
+        Spatial model = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        model.setLocalScale(0.1f);
+        AnimComposer composer = model.getControl(AnimComposer.class);
+
+        composer.setCurrentAction(animNames[i]);
+        SkinningControl skinningControl = model.getControl(SkinningControl.class);
+        skinningControl.setHardwareSkinningPreferred(hwSkinningEnable);
+        skControls.add(skinningControl);
+        rootNode.attachChild(model);
+        return model;
     }
 
     @Override
     public void onAction(String name, boolean isPressed, float tpf) {
         if(isPressed && name.equals("toggleHWS")){
             hwSkinningEnable = !hwSkinningEnable;
-            for (SkeletonControl control : skControls) {
+            for (SkinningControl control : skControls) {
                 control.setHardwareSkinningPreferred(hwSkinningEnable);
                 hwsText.setText("HWS : "+ hwSkinningEnable);
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,11 +34,17 @@ package com.jme3.bullet.control.ragdoll;
 import com.jme3.math.FastMath;
 
 /**
+ * Example ragdoll presets for a typical humanoid skeleton.
+ * <p>
+ * This class is shared between JBullet and Native Bullet.
  *
  * @author Nehon
  */
 public class HumanoidRagdollPreset extends RagdollPreset {
 
+    /**
+     * Initialize the map from bone names to joint presets.
+     */
     @Override
     protected void initBoneMap() {
         boneMap.put("head", new JointPreset(FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI, FastMath.QUARTER_PI, -FastMath.QUARTER_PI));
@@ -59,6 +65,9 @@ public class HumanoidRagdollPreset extends RagdollPreset {
 
     }
 
+    /**
+     * Initialize the lexicon.
+     */
     @Override
     protected void initLexicon() {
         LexiconEntry entry = new LexiconEntry();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,6 +62,12 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     protected T shadowRenderer;
     protected ViewPort viewPort;
 
+    /**
+     * used for serialization
+     */
+    protected AbstractShadowFilter(){
+    }
+    
     /**
      * Abstract class constructor
      *
@@ -172,7 +178,7 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     }
 
     /**
-     * returns the shdaow intensity
+     * returns the shadow intensity
      *
      * @see #setShadowIntensity(float shadowIntensity)
      * @return shadowIntensity
@@ -296,13 +302,31 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
 
 
     /**
-     * returns the the edge filtering mode
+     * returns the edge filtering mode
      *
      * @see EdgeFilteringMode
      * @return
      */
     public EdgeFilteringMode getEdgeFilteringMode() {
         return shadowRenderer.getEdgeFilteringMode();
+    }
+
+    /**
+     * Read the number of shadow maps rendered by this filter.
+     *
+     * @return count
+     */
+    public int getNumShadowMaps() {
+        return shadowRenderer.getNumShadowMaps();
+    }
+
+    /**
+     * Read the size of each shadow map rendered by this filter.
+     *
+     * @return a map's height (which is also its width, in pixels)
+     */
+    public int getShadowMapSize() {
+        return shadowRenderer.getShadowMapSize();
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,6 @@ import com.bulletphysics.dynamics.constraintsolver.TypedConstraint;
 import com.bulletphysics.dynamics.vehicle.RaycastVehicle;
 import com.bulletphysics.extras.gimpact.GImpactCollisionAlgorithm;
 import com.jme3.app.AppTask;
-import com.jme3.asset.AssetManager;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionEventFactory;
 import com.jme3.bullet.collision.PhysicsCollisionGroupListener;
@@ -84,8 +83,8 @@ import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.util.SafeArrayList;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -104,9 +103,21 @@ import java.util.logging.Logger;
  */
 public class PhysicsSpace {
 
+    /**
+     * message logger for this class
+     */
     private static final Logger logger = Logger.getLogger(PhysicsSpace.class.getName());
+    /**
+     * index of the X axis
+     */
     public static final int AXIS_X = 0;
+    /**
+     * index of the Y axis
+     */
     public static final int AXIS_Y = 1;
+    /**
+     * index of the Z axis
+     */
     public static final int AXIS_Z = 2;
     private static ThreadLocal<ConcurrentLinkedQueue<AppTask<?>>> pQueueTL =
             new ThreadLocal<ConcurrentLinkedQueue<AppTask<?>>>() {
@@ -129,14 +140,41 @@ public class PhysicsSpace {
     private Map<RigidBody, PhysicsRigidBody> physicsBodies = new ConcurrentHashMap<RigidBody, PhysicsRigidBody>();
     private Map<TypedConstraint, PhysicsJoint> physicsJoints = new ConcurrentHashMap<TypedConstraint, PhysicsJoint>();
     private Map<RaycastVehicle, PhysicsVehicle> physicsVehicles = new ConcurrentHashMap<RaycastVehicle, PhysicsVehicle>();
+    /**
+     * map from collision groups to registered group listeners
+     */
     private Map<Integer, PhysicsCollisionGroupListener> collisionGroupListeners = new ConcurrentHashMap<Integer, PhysicsCollisionGroupListener>();
+    /**
+     * queue of registered tick listeners
+     */
     private ConcurrentLinkedQueue<PhysicsTickListener> tickListeners = new ConcurrentLinkedQueue<PhysicsTickListener>();
-    private ArrayList<PhysicsCollisionListener> collisionListeners = new ArrayList<PhysicsCollisionListener>();
+    /**
+     * list of registered collision listeners
+     */
+    final private List<PhysicsCollisionListener> collisionListeners
+            = new SafeArrayList<>(PhysicsCollisionListener.class);
+    /**
+     * queue of collision events not yet distributed to listeners
+     */
     private ArrayDeque<PhysicsCollisionEvent> collisionEvents = new ArrayDeque<PhysicsCollisionEvent>();
     private PhysicsCollisionEventFactory eventFactory = new PhysicsCollisionEventFactory();
+    /**
+     * copy of minimum coordinate values when using AXIS_SWEEP broadphase
+     * algorithms
+     */
     private Vector3f worldMin = new Vector3f(-10000f, -10000f, -10000f);
+    /**
+     * copy of maximum coordinate values when using AXIS_SWEEP broadphase
+     * algorithms
+     */
     private Vector3f worldMax = new Vector3f(10000f, 10000f, 10000f);
+    /**
+     * physics time step (in seconds, &gt;0)
+     */
     private float accuracy = 1f / 60f;
+    /**
+     * maximum number of physics steps per frame (&ge;0, default=4)
+     */
     private int maxSubSteps = 4;
     private javax.vecmath.Vector3f rayVec1 = new javax.vecmath.Vector3f();
     private javax.vecmath.Vector3f rayVec2 = new javax.vecmath.Vector3f();
@@ -227,7 +265,7 @@ public class PhysicsSpace {
                     collides = (bp1.collisionFilterGroup & bp.collisionFilterMask) != 0;
                 }
                 if (collides) {
-                    assert (bp.clientObject instanceof com.bulletphysics.collision.dispatch.CollisionObject && bp.clientObject instanceof com.bulletphysics.collision.dispatch.CollisionObject);
+                    assert (bp.clientObject instanceof com.bulletphysics.collision.dispatch.CollisionObject && bp1.clientObject instanceof com.bulletphysics.collision.dispatch.CollisionObject);
                     com.bulletphysics.collision.dispatch.CollisionObject colOb = (com.bulletphysics.collision.dispatch.CollisionObject) bp.clientObject;
                     com.bulletphysics.collision.dispatch.CollisionObject colOb1 = (com.bulletphysics.collision.dispatch.CollisionObject) bp1.clientObject;
                     assert (colOb.getUserPointer() != null && colOb1.getUserPointer() != null);
@@ -827,7 +865,7 @@ public class PhysicsSpace {
      * when the fps is below the physics fps. Doing this maintains determinism in physics.
      * For example a maximum number of 2 can compensate for framerates as low as 30fps
      * when the physics has the default accuracy of 60 fps. Note that setting this
-     * value too high can make the physics drive down its own fps in case its overloaded.
+     * value too high can make the physics drive down its own fps in case it's overloaded.
      * @param steps The maximum number of extra steps, default is 4.
      */
     public void setMaxSubSteps(int steps) {

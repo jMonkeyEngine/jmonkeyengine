@@ -412,7 +412,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      * @param value translation amount
      */
     protected void riseCamera(float value){
-        Vector3f vel = new Vector3f(0, value * moveSpeed, 0);
+        Vector3f vel = initialUpVec.mult(value * moveSpeed);
         Vector3f pos = cam.getLocation().clone();
 
         if (motionAllowed != null)

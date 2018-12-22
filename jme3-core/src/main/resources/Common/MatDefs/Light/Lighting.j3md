@@ -110,6 +110,11 @@ MaterialDef Phong Lighting {
         // For hardware skinning
         Int NumberOfBones
         Matrix4Array BoneMatrices
+
+        // For Morph animation
+        FloatArray MorphWeights
+        Int NumberOfMorphTargets
+        Int NumberOfTargetsBuffers
                 
         //For instancing
         Boolean UseInstancing
@@ -152,6 +157,8 @@ MaterialDef Phong Lighting {
             SPHERE_MAP : EnvMapAsSphereMap  
             NUM_BONES : NumberOfBones                        
             INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
     }
 
@@ -191,6 +198,8 @@ MaterialDef Phong Lighting {
             SPHERE_MAP : EnvMapAsSphereMap  
             NUM_BONES : NumberOfBones                        
             INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
     }
 
@@ -210,6 +219,8 @@ MaterialDef Phong Lighting {
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
 
         ForcedRenderState {
@@ -247,6 +258,8 @@ MaterialDef Phong Lighting {
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
             BACKFACE_SHADOWS: BackfaceShadows
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
 
         ForcedRenderState {
@@ -274,6 +287,8 @@ MaterialDef Phong Lighting {
             DIFFUSEMAP_ALPHA : DiffuseMap
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
 
     }
@@ -296,6 +311,8 @@ MaterialDef Phong Lighting {
 
             NUM_BONES : NumberOfBones
             INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -85,7 +85,7 @@ public class DnaBlockData {
             names[i] = inputStream.readString();
         }
 
-        // reding types
+        // reading types
         inputStream.alignPosition(4);
         identifier = inputStream.readByte() << 24 | inputStream.readByte() << 16 | inputStream.readByte() << 8 | inputStream.readByte();
         if (identifier != TYPE_ID) {
@@ -181,7 +181,7 @@ public class DnaBlockData {
     /**
      * This method converts the given identifier code to string.
      * @param code
-     *            the code taht is to be converted
+     *            the code that is to be converted
      * @return the string value of the identifier
      */
     private String toString(int code) {

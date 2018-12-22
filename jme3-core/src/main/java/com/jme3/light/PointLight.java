@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2015-2016 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2015-2016, 2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ import java.io.IOException;
  * <p>
  * In addition to a position, point lights also have a radius which 
  * can be used to attenuate the influence of the light depending on the 
- * distance between the light and the effected object.
+ * distance between the light and the affected object.
  * 
  */
 public class PointLight extends Light {
@@ -155,7 +155,7 @@ public class PointLight extends Light {
      * Setting a non-zero radius indicates the light should use attenuation.
      * If a pixel's distance to this light's position
      * is greater than the light's radius, then the pixel will not be
-     * effected by this light, if the distance is less than the radius, then
+     * affected by this light, if the distance is less than the radius, then
      * the magnitude of the influence is equal to distance / radius.
      * 
      * @param radius the radius of the light influence.
@@ -212,12 +212,7 @@ public class PointLight extends Light {
         if (this.radius == 0) {
             return true;
         } else {
-            for (int i = 5; i >= 0; i--) {
-                if (camera.getWorldPlane(i).pseudoDistance(position) <= -radius) {
-                    return false;
-                }
-            }
-            return true;
+            return Intersection.intersect(camera, position, radius);
         }
     }
     

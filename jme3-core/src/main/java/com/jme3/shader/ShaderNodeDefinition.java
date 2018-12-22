@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -169,7 +169,7 @@ public class ShaderNodeDefinition implements Savable {
     }
 
     /**
-     * retrun the path of this definition
+     * return the path of this definition
      * @return 
      */
     public String getPath() {

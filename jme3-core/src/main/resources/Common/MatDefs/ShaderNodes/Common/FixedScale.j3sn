@@ -1,0 +1,41 @@
+ShaderNodeDefinitions{
+    ShaderNodeDefinition FixedScale {
+        //Vertex/Fragment
+        Type: Vertex
+
+        //Shader GLSL<version>: <Path to shader>
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Common/FixedScale100.frag
+
+        Documentation{
+            //type documentation here. This is optional but recommended
+
+            //@input <glsltype> <varName> <description>
+            @input vec4 viewport The viewport information (right, top, left, bottom)
+            @input vec3 cameraDir The direction of the camera
+            @input vec3 cameraPos The position of the camera
+            @input mat4 worldMatrix The world matrix
+            @input mat4 projectionMatrix The projection matrix
+            @input vec3 modelPosition the vertex position
+            @input float spriteHeight the desired image height in pixel
+
+            //@output <glslType> <varName> <description>
+            @output float scale The constant scale
+        }
+        Input {
+            //all the node inputs
+            //<glslType> <varName>
+            vec4 viewport
+            vec3 cameraDir
+            vec3 cameraPos
+            mat4 worldMatrix
+            mat4 projectionMatrix
+            vec3 modelPosition
+            float spriteHeight 10.0
+        }
+        Output {
+            //all the node outputs
+            //<glslType> <varName>
+            float scale
+        }
+    }
+}

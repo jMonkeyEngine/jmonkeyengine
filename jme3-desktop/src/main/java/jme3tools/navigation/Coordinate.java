@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -116,7 +116,7 @@ public class Coordinate {
      * This constructor takes a coordinate in the ALRS formats i.e
      * 38∞31.64'N for lat, and 28∞19.12'W for long
      * Note: ALRS positions are occasionally written with the decimal minutes
-     * apostrophe in the 'wrong' place and with an non CP1252 compliant decimal character.
+     * apostrophe in the 'wrong' place and with a non CP1252 compliant decimal character.
      * This issue has to be corrected in the source database
      * @param coOrdinate
      * @throws InvalidPositionException

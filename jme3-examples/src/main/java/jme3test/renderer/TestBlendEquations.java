@@ -36,12 +36,25 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 
+/**
+ * This test demonstrates the usage of customized blend equations and factors on a material.<br/>
+ * Customized blend equations and factors always requires {@link RenderState.BlendMode#Custom}.
+ *
+ * @author the_Minka
+ */
 public class TestBlendEquations extends SimpleApplication {
+
+    private Geometry leftQuad;
+    private Geometry rightQuad;
+
+    private float timer;
 
     public static void main(String[] args) {
         TestBlendEquations app = new TestBlendEquations();
@@ -49,62 +62,80 @@ public class TestBlendEquations extends SimpleApplication {
     }
 
     public void simpleInitApp() {
-        Geometry teaGeom = (Geometry) assetManager.loadModel("Models/Teapot/Teapot.obj");
-        teaGeom.scale(6);
-        teaGeom.getMaterial().getAdditionalRenderState().setBlendEquation(RenderState.BlendEquation.Add);
-        teaGeom.move(0, -2f, 0);
+        cam.setLocation(new Vector3f(0f, 0.5f, 3f));
+        viewPort.setBackgroundColor(ColorRGBA.LightGray);
 
-        DirectionalLight dl = new DirectionalLight();
-        dl.setColor(ColorRGBA.Red);
-        dl.setDirection(Vector3f.UNIT_XYZ.negate());
+        // Add a light source to the scene.
+        DirectionalLight directionalLight = new DirectionalLight();
+        directionalLight.setColor(ColorRGBA.Magenta);
+        directionalLight.setDirection(Vector3f.UNIT_XYZ.negate());
+        rootNode.addLight(directionalLight);
 
-        rootNode.addLight(dl);
-        rootNode.attachChild(teaGeom);
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", new ColorRGBA(0.5f, 0f, 1f, 0.3f));
-        mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Color);
-        mat.getAdditionalRenderState().setBlendEquation(RenderState.BlendEquation.Subtract);
+        // Create and add a teapot to the scene graph.
+        Spatial teapotModel = assetManager.loadModel("Models/Teapot/Teapot.obj");
+        rootNode.attachChild(teapotModel);
 
-        Geometry geo = new Geometry("BottomLeft", new Quad(guiViewPort.getCamera().getWidth() / 2, guiViewPort.getCamera().getHeight() / 2));
-        geo.setMaterial(mat);
-        geo.setQueueBucket(RenderQueue.Bucket.Gui);
-        geo.setLocalTranslation(0, 0, 1);
-
-        guiNode.attachChild(geo);
-
-        Material m = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        m.getAdditionalRenderState().setBlendEquation(RenderState.BlendEquation.ReverseSubtract);
-        m.setColor("Color", new ColorRGBA(0.0f, 1f, 1.f, 1f));
-        m.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.AlphaAdditive);
-
-        geo = new Geometry("BottomRight", new Quad(guiViewPort.getCamera().getWidth() / 2, guiViewPort.getCamera().getHeight() / 2));
-        geo.setMaterial(m);
-        geo.setQueueBucket(RenderQueue.Bucket.Gui);
-        geo.setLocalTranslation(guiViewPort.getCamera().getWidth() / 2, 0, 1);
-        
-        guiNode.attachChild(geo);
-        
-        m = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        m.getAdditionalRenderState().setBlendEquation(RenderState.BlendEquation.Min);
-        m.setColor("Color", new ColorRGBA(0.3f, 0f, 0.1f, 0.3f));
-        m.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Additive);
-
-        geo = new Geometry("TopRight", new Quad(guiViewPort.getCamera().getWidth() / 2, guiViewPort.getCamera().getHeight() / 2));
-        geo.setMaterial(m);
-        geo.setQueueBucket(RenderQueue.Bucket.Gui);
-        geo.setLocalTranslation(guiViewPort.getCamera().getWidth() / 2, guiViewPort.getCamera().getHeight() / 2, 1);
-
-        guiNode.attachChild(geo);
-
-        geo = new Geometry("OverTeaPot", new Quad(guiViewPort.getCamera().getWidth() / 2, guiViewPort.getCamera().getHeight() / 2));
-        geo.setMaterial(mat);
-        geo.setQueueBucket(RenderQueue.Bucket.Transparent);
-        geo.setLocalTranslation(0, -100, 5);
-
-        rootNode.attachChild(geo);
-
+        // Create the two moving quads with custom blend modes.
+        createLeftQuad();
+        createRightQuad();
     }
 
+    /**
+     * Adds a "transparent" quad to the scene, that shows an inverse blue value sight of the scene behind.
+     */
+    private void createLeftQuad() {
+        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+
+        // This color creates a blue value image. The effect will have a strength of 80% (set by the alpha value).
+        material.setColor("Color", new ColorRGBA(0f, 0f, 1f, 0.8f));
+
+        // Result.RGB = Source.A * Source.RGB - Source.A * Destination.RGB
+        // Result.A   = Destination.A
+        material.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Custom);
+        material.getAdditionalRenderState().setBlendEquation(RenderState.BlendEquation.Subtract);
+        material.getAdditionalRenderState().setBlendEquationAlpha(RenderState.BlendEquationAlpha.Add);
+        material.getAdditionalRenderState().setCustomBlendFactors(
+                RenderState.BlendFunc.Src_Alpha, RenderState.BlendFunc.Src_Alpha,
+                RenderState.BlendFunc.Zero, RenderState.BlendFunc.One);
+
+        leftQuad = new Geometry("LeftQuad", new Quad(1f, 1f));
+        leftQuad.setMaterial(material);
+        leftQuad.setQueueBucket(RenderQueue.Bucket.Transparent);
+        rootNode.attachChild(leftQuad);
+    }
+
+    /**
+     * Adds a "transparent" quad to the scene, that limits the color values of the scene behind the object.<br/>
+     * This effect can be good seen on bright areas of the scene (e.g. areas with specular lighting effects).
+     */
+    private void createRightQuad() {
+        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        material.setColor("Color", new ColorRGBA(0.4f, 0.4f, 0.4f, 1f));
+
+        // Min( Source , Destination)
+        material.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Custom);
+        material.getAdditionalRenderState().setBlendEquation(RenderState.BlendEquation.Min);
+        material.getAdditionalRenderState().setBlendEquationAlpha(RenderState.BlendEquationAlpha.Min);
+
+        // In OpenGL no blend factors are used, when using the blend equations Min or Max!
+        //material.getAdditionalRenderState().setCustomBlendFactors(
+        //        RenderState.BlendFunc.One, RenderState.BlendFunc.One,
+        //        RenderState.BlendFunc.One, RenderState.BlendFunc.One);
+
+        rightQuad = new Geometry("RightQuad", new Quad(1f, 1f));
+        rightQuad.setMaterial(material);
+        rightQuad.setQueueBucket(RenderQueue.Bucket.Transparent);
+        rootNode.attachChild(rightQuad);
+    }
+
+    @Override
+    public void simpleUpdate(float tpf) {
+        timer += tpf;
+
+        float xOffset = FastMath.sin(timer * 0.5f) * 2f;
+        leftQuad.setLocalTranslation(xOffset - 2f, 0f, 0.5f);
+        rightQuad.setLocalTranslation(xOffset + 1f, 0f, 0.5f);
+    }
 
 }

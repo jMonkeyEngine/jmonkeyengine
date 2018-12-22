@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
 /**
- * <code>Sphere</code> represents a 3D object with all points equidistance
+ * <code>Sphere</code> represents a 3D object with all points equidistant
  * from a center point.
  * 
  * @author Joshua Slack
@@ -62,7 +62,7 @@ public class Sphere extends Mesh {
          */
         Original,
         /** 
-         * Wrap texure radially, but spherically project along z-axis 
+         * Wrap texture radially, but spherically project along z-axis 
          */
         Projected,
         /** 

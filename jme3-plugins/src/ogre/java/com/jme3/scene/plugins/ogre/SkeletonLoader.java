@@ -31,55 +31,46 @@
  */
 package com.jme3.scene.plugins.ogre;
 
-import com.jme3.animation.Animation;
-import com.jme3.animation.Bone;
-import com.jme3.animation.BoneTrack;
-import com.jme3.animation.Skeleton;
+import com.jme3.anim.*;
+import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
-import com.jme3.asset.AssetManager;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.util.xml.SAXUtil;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
-import java.util.logging.Logger;
+import org.xml.sax.*;
+import org.xml.sax.helpers.DefaultHandler;
+
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
+import java.io.*;
+import java.util.*;
+import java.util.logging.Logger;
 
 public class SkeletonLoader extends DefaultHandler implements AssetLoader {
 
     private static final Logger logger = Logger.getLogger(SceneLoader.class.getName());
-    private AssetManager assetManager;
+    //private AssetManager assetManager;
     private Stack<String> elementStack = new Stack<String>();
-    private HashMap<Integer, Bone> indexToBone = new HashMap<Integer, Bone>();
-    private HashMap<String, Bone> nameToBone = new HashMap<String, Bone>();
-    private BoneTrack track;
-    private ArrayList<BoneTrack> tracks = new ArrayList<BoneTrack>();
-    private Animation animation;
-    private ArrayList<Animation> animations;
-    private Bone bone;
-    private Skeleton skeleton;
-    private ArrayList<Float> times = new ArrayList<Float>();
-    private ArrayList<Vector3f> translations = new ArrayList<Vector3f>();
-    private ArrayList<Quaternion> rotations = new ArrayList<Quaternion>();
-    private ArrayList<Vector3f> scales = new ArrayList<Vector3f>();
+    private HashMap<Integer, Joint> indexToJoint = new HashMap<>();
+    private HashMap<String, Joint> nameToJoint = new HashMap<>();
+    private TransformTrack track;
+    private ArrayList<TransformTrack> tracks = new ArrayList<>();
+    private AnimClip animClip;
+    private ArrayList<AnimClip> animClips;
+    private Joint joint;
+    private Armature armature;
+    private ArrayList<Float> times = new ArrayList<>();
+    private ArrayList<Vector3f> translations = new ArrayList<>();
+    private ArrayList<Quaternion> rotations = new ArrayList<>();
+    private ArrayList<Vector3f> scales = new ArrayList<>();
     private float time = -1;
     private Vector3f position;
     private Quaternion rotation;
     private Vector3f scale;
     private float angle;
     private Vector3f axis;
+    private List<Joint> unusedJoints = new ArrayList<>();
 
     public void startElement(String uri, String localName, String qName, Attributes attribs) throws SAXException {
         if (qName.equals("position") || qName.equals("translate")) {
@@ -99,38 +90,40 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             assert elementStack.peek().equals("track");
         } else if (qName.equals("track")) {
             assert elementStack.peek().equals("tracks");
-            String boneName = SAXUtil.parseString(attribs.getValue("bone"));
-            Bone bone = nameToBone.get(boneName);
-            int index = skeleton.getBoneIndex(bone);
-            track = new BoneTrack(index);
+            String jointName = SAXUtil.parseString(attribs.getValue("bone"));
+            joint = nameToJoint.get(jointName);
+            track = new TransformTrack();
+            track.setTarget(joint);
         } else if (qName.equals("boneparent")) {
             assert elementStack.peek().equals("bonehierarchy");
-            String boneName = attribs.getValue("bone");
+            String jointName = attribs.getValue("bone");
             String parentName = attribs.getValue("parent");
-            Bone bone = nameToBone.get(boneName);
-            Bone parent = nameToBone.get(parentName);
-            parent.addChild(bone);
+            Joint joint = nameToJoint.get(jointName);
+            Joint parent = nameToJoint.get(parentName);
+            parent.addChild(joint);
         } else if (qName.equals("bone")) {
             assert elementStack.peek().equals("bones");
 
             // insert bone into indexed map
-            bone = new Bone(attribs.getValue("name"));
+            joint = new Joint(attribs.getValue("name"));
             int id = SAXUtil.parseInt(attribs.getValue("id"));
-            indexToBone.put(id, bone);
-            nameToBone.put(bone.getName(), bone);
+            indexToJoint.put(id, joint);
+            nameToJoint.put(joint.getName(), joint);
         } else if (qName.equals("tracks")) {
             assert elementStack.peek().equals("animation");
             tracks.clear();
+            unusedJoints.clear();
+            unusedJoints.addAll(nameToJoint.values());
         } else if (qName.equals("animation")) {
             assert elementStack.peek().equals("animations");
             String name = SAXUtil.parseString(attribs.getValue("name"));
-            float length = SAXUtil.parseFloat(attribs.getValue("length"));
-            animation = new Animation(name, length);
+            //float length = SAXUtil.parseFloat(attribs.getValue("length"));
+            animClip = new AnimClip(name);
         } else if (qName.equals("bonehierarchy")) {
             assert elementStack.peek().equals("skeleton");
         } else if (qName.equals("animations")) {
             assert elementStack.peek().equals("skeleton");
-            animations = new ArrayList<Animation>();
+            animClips = new ArrayList<>();
         } else if (qName.equals("bones")) {
             assert elementStack.peek().equals("skeleton");
         } else if (qName.equals("skeleton")) {
@@ -149,32 +142,42 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             angle = 0;
             axis = null;
         } else if (qName.equals("bone")) {
-            bone.setBindTransforms(position, rotation, scale);
-            bone = null;
+            joint.getLocalTransform().setTranslation(position);
+            joint.getLocalTransform().setRotation(rotation);
+            if (scale != null) {
+                joint.getLocalTransform().setScale(scale);
+            }
+            joint = null;
             position = null;
             rotation = null;
             scale = null;
         } else if (qName.equals("bonehierarchy")) {
-            Bone[] bones = new Bone[indexToBone.size()];
-            // find bones without a parent and attach them to the skeleton
-            // also assign the bones to the bonelist
-            for (Map.Entry<Integer, Bone> entry : indexToBone.entrySet()) {
-                Bone bone = entry.getValue();
-                bones[entry.getKey()] = bone;
+            Joint[] joints = new Joint[indexToJoint.size()];
+            // find joints without a parent and attach them to the armature
+            // also assign the joints to the jointList
+            for (Map.Entry<Integer, Joint> entry : indexToJoint.entrySet()) {
+                Joint joint = entry.getValue();
+                joints[entry.getKey()] = joint;
             }
-            indexToBone.clear();
-            skeleton = new Skeleton(bones);
+            indexToJoint.clear();
+            armature = new Armature(joints);
+            armature.saveBindPose();
         } else if (qName.equals("animation")) {
-            animations.add(animation);
-            animation = null;
+            animClips.add(animClip);
+            animClip = null;
         } else if (qName.equals("track")) {
             if (track != null) { // if track has keyframes
                 tracks.add(track);
+                unusedJoints.remove(joint);
                 track = null;
             }
         } else if (qName.equals("tracks")) {
-            BoneTrack[] trackList = tracks.toArray(new BoneTrack[tracks.size()]);
-            animation.setTracks(trackList);
+            //nameToJoint contains the joints with no track
+            for (Joint j : unusedJoints) {
+                AnimMigrationUtils.padJointTracks(tracks, j);
+            }
+            TransformTrack[] trackList = tracks.toArray(new TransformTrack[tracks.size()]);
+            animClip.setTracks(trackList);
             tracks.clear();
         } else if (qName.equals("keyframe")) {
             assert time >= 0;
@@ -182,14 +185,13 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             assert rotation != null;
 
             times.add(time);
-            translations.add(position);
-            rotations.add(rotation);
+            translations.add(position.addLocal(joint.getLocalTranslation()));
+            rotations.add(joint.getLocalRotation().mult(rotation, rotation));
             if (scale != null) {
-                scales.add(scale);
+                scales.add(scale.multLocal(joint.getLocalScale()));
             }else{
                 scales.add(new Vector3f(1,1,1));
             }
-
             time = -1;
             position = null;
             rotation = null;
@@ -206,7 +208,6 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
                 Vector3f[] scalesArray = scales.toArray(new Vector3f[scales.size()]);
                 
                 track.setKeyframes(timesArray, transArray, rotArray, scalesArray);
-                //track.setKeyframes(timesArray, transArray, rotArray);
             } else {
                 track = null;
             }
@@ -216,7 +217,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             rotations.clear();
             scales.clear();
         } else if (qName.equals("skeleton")) {
-            nameToBone.clear();
+            nameToJoint.clear();
         }
         assert elementStack.peek().equals(qName);
         elementStack.pop();
@@ -228,17 +229,17 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
      */
     private void fullReset() {
         elementStack.clear();
-        indexToBone.clear();
-        nameToBone.clear();
+        indexToJoint.clear();
+        nameToJoint.clear();
         track = null;
         tracks.clear();
-        animation = null;
-        if (animations != null) {
-            animations.clear();
+        animClip = null;
+        if (animClips != null) {
+            animClips.clear();
         }
 
-        bone = null;
-        skeleton = null;
+        joint = null;
+        armature = null;
         times.clear();
         rotations.clear();
         translations.clear();
@@ -266,12 +267,12 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
             xr.setErrorHandler(this);
             InputStreamReader r = new InputStreamReader(in);
             xr.parse(new InputSource(r));
-            if (animations == null) {
-                animations = new ArrayList<Animation>();
+            if (animClips == null) {
+                animClips = new ArrayList<AnimClip>();
             }
-            AnimData data = new AnimData(skeleton, animations);
-            skeleton = null;
-            animations = null;
+            AnimData data = new AnimData(armature, animClips);
+            armature = null;
+            animClips = null;
             return data;
         } catch (SAXException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D dotScene");
@@ -288,7 +289,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
     }
 
     public Object load(AssetInfo info) throws IOException {
-        assetManager = info.getManager();
+        //AssetManager assetManager = info.getManager();
         InputStream in = null;
         try {
             in = info.openStream();

@@ -72,7 +72,7 @@ public class SceneLoader implements AssetLoader {
 	// Scene objects
 	private Map<Long, FbxObject> allObjects = new HashMap<>(); // All supported FBX objects
 	private Map<Long, FbxSkin> skinMap = new HashMap<>(); // Skin for bone clusters
-	private Map<Long, FbxObject> alayerMap = new HashMap<>(); // Amination layers
+	private Map<Long, FbxObject> alayerMap = new HashMap<>(); // Animation layers
 	public Map<Long, FbxNode> modelMap = new HashMap<>(); // Nodes
 	private Map<Long, FbxNode> limbMap = new HashMap<>(); // Nodes that are actually bones
 	private Map<Long, FbxBindPose> bindMap = new HashMap<>(); // Node bind poses
@@ -309,7 +309,7 @@ public class SceneLoader implements AssetLoader {
 				animList.add(layer.name, layer.name, 0, -1);
 			}
 		}
-		// Extract aminations
+		// Extract animations
 		HashMap<String, Animation> anims = new HashMap<String, Animation>();
 		for(AnimInverval animInfo : animList.list) {
 			float realLength = 0;

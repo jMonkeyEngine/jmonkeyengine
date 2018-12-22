@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -269,7 +269,7 @@ public class ByteUtils {
     }
 
     public static long convertLongFromBytes(byte[] bytes, int offset) {
-        // Convert it to an long
+        // Convert it to a long
         return    ((((long) bytes[offset+7]) & 0xFF) 
                 + ((((long) bytes[offset+6]) & 0xFF) << 8)
                 + ((((long) bytes[offset+5]) & 0xFF) << 16)
@@ -340,7 +340,7 @@ public class ByteUtils {
     //  **********  byte <> float  METHODS  **********
 
     /**
-     * Writes an float out to an OutputStream.
+     * Writes a float out to an OutputStream.
      * 
      * @param outputStream
      *            The OutputStream the float will be written to

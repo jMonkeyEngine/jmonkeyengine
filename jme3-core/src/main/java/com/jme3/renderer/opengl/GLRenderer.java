@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ package com.jme3.renderer.opengl;
 
 import com.jme3.material.RenderState;
 import com.jme3.material.RenderState.BlendFunc;
+import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.StencilOperation;
 import com.jme3.material.RenderState.TestFunction;
 import com.jme3.math.*;
@@ -44,11 +45,9 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
-import com.jme3.shader.Attribute;
-import com.jme3.shader.Shader;
+import com.jme3.shader.*;
 import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.shader.Shader.ShaderType;
-import com.jme3.shader.Uniform;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.RenderBuffer;
 import com.jme3.texture.Image;
@@ -60,17 +59,17 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.MipMapGenerator;
 import com.jme3.util.NativeObjectManager;
-import java.nio.*;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
+import jme3tools.shader.ShaderDebug;
+
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import jme3tools.shader.ShaderDebug;
 
 public final class GLRenderer implements Renderer {
 
@@ -222,7 +221,7 @@ public final class GLRenderer implements Renderer {
                 if (glslVer < 400) {
                     break;
                 }
-                // so that future OpenGL revisions wont break jme3
+                // so that future OpenGL revisions won't break jme3
                 // fall through intentional
             case 450:
                 caps.add(Caps.GLSL450);
@@ -450,7 +449,7 @@ public final class GLRenderer implements Renderer {
             logger.log(Level.FINER, "Samples: {0}", samples);
             boolean enabled = gl.glIsEnabled(GLExt.GL_MULTISAMPLE_ARB);
             if (samples > 0 && available && !enabled) {
-                // Doesn't seem to be neccessary .. OGL spec says its always
+                // Doesn't seem to be necessary .. OGL spec says it's always
                 // set by default?
                 gl.glEnable(GLExt.GL_MULTISAMPLE_ARB);
             }
@@ -477,6 +476,26 @@ public final class GLRenderer implements Renderer {
             if (binaryFormats > 0) {
                 caps.add(Caps.BinaryShader);
             }
+        }
+
+        if (hasExtension("GL_ARB_shader_storage_buffer_object")) {
+            caps.add(Caps.ShaderStorageBufferObject);
+            limits.put(Limits.ShaderStorageBufferObjectMaxBlockSize, getInteger(GL4.GL_MAX_SHADER_STORAGE_BLOCK_SIZE));
+            limits.put(Limits.ShaderStorageBufferObjectMaxComputeBlocks, getInteger(GL4.GL_MAX_COMPUTE_SHADER_STORAGE_BLOCKS));
+            limits.put(Limits.ShaderStorageBufferObjectMaxGeometryBlocks, getInteger(GL4.GL_MAX_GEOMETRY_SHADER_STORAGE_BLOCKS));
+            limits.put(Limits.ShaderStorageBufferObjectMaxFragmentBlocks, getInteger(GL4.GL_MAX_FRAGMENT_SHADER_STORAGE_BLOCKS));
+            limits.put(Limits.ShaderStorageBufferObjectMaxVertexBlocks, getInteger(GL4.GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS));
+            limits.put(Limits.ShaderStorageBufferObjectMaxTessControlBlocks, getInteger(GL4.GL_MAX_TESS_CONTROL_SHADER_STORAGE_BLOCKS));
+            limits.put(Limits.ShaderStorageBufferObjectMaxTessEvaluationBlocks, getInteger(GL4.GL_MAX_TESS_EVALUATION_SHADER_STORAGE_BLOCKS));
+            limits.put(Limits.ShaderStorageBufferObjectMaxCombineBlocks, getInteger(GL4.GL_MAX_COMBINED_SHADER_STORAGE_BLOCKS));
+        }
+
+        if (hasExtension("GL_ARB_uniform_buffer_object")) {
+            caps.add(Caps.UniformBufferObject);
+            limits.put(Limits.UniformBufferObjectMaxBlockSize, getInteger(GL3.GL_MAX_UNIFORM_BLOCK_SIZE));
+            limits.put(Limits.UniformBufferObjectMaxGeometryBlocks, getInteger(GL3.GL_MAX_GEOMETRY_UNIFORM_BLOCKS));
+            limits.put(Limits.UniformBufferObjectMaxFragmentBlocks, getInteger(GL3.GL_MAX_FRAGMENT_UNIFORM_BLOCKS));
+            limits.put(Limits.UniformBufferObjectMaxVertexBlocks, getInteger(GL3.GL_MAX_VERTEX_UNIFORM_BLOCKS));
         }
 
         // Print context information
@@ -743,68 +762,57 @@ public final class GLRenderer implements Renderer {
             context.cullMode = state.getFaceCullMode();
         }
 
-        if (state.getBlendMode() != context.blendMode) {
-            if (state.getBlendMode() == RenderState.BlendMode.Off) {
-                gl.glDisable(GL.GL_BLEND);
-            } else {
-                if (context.blendMode == RenderState.BlendMode.Off) {
-                    gl.glEnable(GL.GL_BLEND);
-                }
-                switch (state.getBlendMode()) {
-                    case Off:
-                        break;
-                    case Additive:
-                        gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE);
-                        break;
-                    case AlphaAdditive:
-                        gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE);
-                        break;
-                    case Alpha:
-                        gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-                        break;
-                    case PremultAlpha:
-                        gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE_MINUS_SRC_ALPHA);
-                        break;
-                    case Modulate:
-                        gl.glBlendFunc(GL.GL_DST_COLOR, GL.GL_ZERO);
-                        break;
-                    case ModulateX2:
-                        gl.glBlendFunc(GL.GL_DST_COLOR, GL.GL_SRC_COLOR);
-                        break;
-                    case Color:
-                    case Screen:
-                        gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE_MINUS_SRC_COLOR);
-                        break;
-                    case Exclusion:
-                        gl.glBlendFunc(GL.GL_ONE_MINUS_DST_COLOR, GL.GL_ONE_MINUS_SRC_COLOR);
-                        break;
-                    case Custom:
-                        gl.glBlendFuncSeparate(
-                            convertBlendFunc(state.getCustomSfactorRGB()),
-                            convertBlendFunc(state.getCustomDfactorRGB()),
-                            convertBlendFunc(state.getCustomSfactorAlpha()),
-                            convertBlendFunc(state.getCustomDfactorAlpha()));
-                        break;
-                    default:
-                        throw new UnsupportedOperationException("Unrecognized blend mode: "
-                                + state.getBlendMode());
-                }
-                
-                if (state.getBlendEquation() != context.blendEquation || state.getBlendEquationAlpha() != context.blendEquationAlpha) {
-                    int colorMode = convertBlendEquation(state.getBlendEquation());
-                    int alphaMode;
-                    if (state.getBlendEquationAlpha() == RenderState.BlendEquationAlpha.InheritColor) {
-                        alphaMode = colorMode;
-                    } else {
-                        alphaMode = convertBlendEquationAlpha(state.getBlendEquationAlpha());
-                    }
-                    gl.glBlendEquationSeparate(colorMode, alphaMode);
-                    context.blendEquation = state.getBlendEquation();
-                    context.blendEquationAlpha = state.getBlendEquationAlpha();
-                }
+        // Always update the blend equations and factors when using custom blend mode.
+        if (state.getBlendMode() == BlendMode.Custom) {
+            changeBlendMode(BlendMode.Custom);
+
+            blendFuncSeparate(
+                    state.getCustomSfactorRGB(),
+                    state.getCustomDfactorRGB(),
+                    state.getCustomSfactorAlpha(),
+                    state.getCustomDfactorAlpha());
+            blendEquationSeparate(state.getBlendEquation(), state.getBlendEquationAlpha());
+
+        // Update the blend equations and factors only on a mode change for all the other (common) blend modes.
+        } else if (state.getBlendMode() != context.blendMode) {
+            changeBlendMode(state.getBlendMode());
+
+            switch (state.getBlendMode()) {
+                case Off:
+                    break;
+                case Additive:
+                    blendFunc(RenderState.BlendFunc.One, RenderState.BlendFunc.One);
+                    break;
+                case AlphaAdditive:
+                    blendFunc(RenderState.BlendFunc.Src_Alpha, RenderState.BlendFunc.One);
+                    break;
+                case Alpha:
+                    blendFunc(RenderState.BlendFunc.Src_Alpha, RenderState.BlendFunc.One_Minus_Src_Alpha);
+                    break;
+                case PremultAlpha:
+                    blendFunc(RenderState.BlendFunc.One, RenderState.BlendFunc.One_Minus_Src_Alpha);
+                    break;
+                case Modulate:
+                    blendFunc(RenderState.BlendFunc.Dst_Color, RenderState.BlendFunc.Zero);
+                    break;
+                case ModulateX2:
+                    blendFunc(RenderState.BlendFunc.Dst_Color, RenderState.BlendFunc.Src_Color);
+                    break;
+                case Color:
+                case Screen:
+                    blendFunc(RenderState.BlendFunc.One, RenderState.BlendFunc.One_Minus_Src_Color);
+                    break;
+                case Exclusion:
+                    blendFunc(RenderState.BlendFunc.One_Minus_Dst_Color, RenderState.BlendFunc.One_Minus_Src_Color);
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unrecognized blend mode: "
+                            + state.getBlendMode());
             }
 
-            context.blendMode = state.getBlendMode();
+            // All of the common modes requires the ADD equation.
+            // (This might change in the future?)
+            blendEquationSeparate(RenderState.BlendEquation.Add, RenderState.BlendEquationAlpha.InheritColor);
         }
 
         if (context.stencilTest != state.isStencilTest()
@@ -852,6 +860,65 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    private void changeBlendMode(RenderState.BlendMode blendMode) {
+        if (blendMode != context.blendMode) {
+            if (blendMode == RenderState.BlendMode.Off) {
+                gl.glDisable(GL.GL_BLEND);
+            } else if (context.blendMode == RenderState.BlendMode.Off) {
+                gl.glEnable(GL.GL_BLEND);
+            }
+
+            context.blendMode = blendMode;
+        }
+    }
+
+    private void blendEquationSeparate(RenderState.BlendEquation blendEquation, RenderState.BlendEquationAlpha blendEquationAlpha) {
+        if (blendEquation != context.blendEquation || blendEquationAlpha != context.blendEquationAlpha) {
+            int glBlendEquation = convertBlendEquation(blendEquation);
+            int glBlendEquationAlpha = blendEquationAlpha == RenderState.BlendEquationAlpha.InheritColor
+                    ? glBlendEquation
+                    : convertBlendEquationAlpha(blendEquationAlpha);
+            gl.glBlendEquationSeparate(glBlendEquation, glBlendEquationAlpha);
+            context.blendEquation = blendEquation;
+            context.blendEquationAlpha = blendEquationAlpha;
+        }
+    }
+
+    private void blendFunc(RenderState.BlendFunc sfactor, RenderState.BlendFunc dfactor) {
+        if (sfactor != context.sfactorRGB
+                || dfactor != context.dfactorRGB
+                || sfactor != context.sfactorAlpha
+                || dfactor != context.dfactorAlpha) {
+
+            gl.glBlendFunc(
+                    convertBlendFunc(sfactor),
+                    convertBlendFunc(dfactor));
+            context.sfactorRGB = sfactor;
+            context.dfactorRGB = dfactor;
+            context.sfactorAlpha = sfactor;
+            context.dfactorAlpha = dfactor;
+        }
+    }
+
+    private void blendFuncSeparate(RenderState.BlendFunc sfactorRGB, RenderState.BlendFunc dfactorRGB,
+            RenderState.BlendFunc sfactorAlpha, RenderState.BlendFunc dfactorAlpha) {
+        if (sfactorRGB != context.sfactorRGB
+                || dfactorRGB != context.dfactorRGB
+                || sfactorAlpha != context.sfactorAlpha
+                || dfactorAlpha != context.dfactorAlpha) {
+
+            gl.glBlendFuncSeparate(
+                    convertBlendFunc(sfactorRGB),
+                    convertBlendFunc(dfactorRGB),
+                    convertBlendFunc(sfactorAlpha),
+                    convertBlendFunc(dfactorAlpha));
+            context.sfactorRGB = sfactorRGB;
+            context.dfactorRGB = dfactorRGB;
+            context.sfactorAlpha = sfactorAlpha;
+            context.dfactorAlpha = dfactorAlpha;
+        }
+    }
+
     private int convertBlendEquation(RenderState.BlendEquation blendEquation) {
         switch (blendEquation) {
             case Add:
@@ -870,7 +937,7 @@ public final class GLRenderer implements Renderer {
     }
     
     private int convertBlendEquationAlpha(RenderState.BlendEquationAlpha blendEquationAlpha) {
-        //Note: InheritColor mode should already be handled, that is why it does not belong the the switch case.
+        //Note: InheritColor mode should already be handled, that is why it does not belong the switch case.
         switch (blendEquationAlpha) {
             case Add:
                 return GL2.GL_FUNC_ADD;
@@ -1001,10 +1068,23 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    @Override
     public void postFrame() {
         objManager.deleteUnused(this);
         OpenCLObjectManager.getInstance().deleteUnusedObjects();
         gl.resetStats();
+    }
+
+    protected void bindProgram(Shader shader) {
+        int shaderId = shader.getId();
+        if (context.boundShaderProgram != shaderId) {
+            gl.glUseProgram(shaderId);
+            statistics.onShaderUse(shader, true);
+            context.boundShader = shader;
+            context.boundShaderProgram = shaderId;
+        } else {
+            statistics.onShaderUse(shader, false);
+        }
     }
 
     /*********************************************************************\
@@ -1018,18 +1098,6 @@ public final class GLRenderer implements Renderer {
             logger.log(Level.FINE, "Uniform {0} is not declared in shader {1}.", new Object[]{uniform.getName(), shader.getSources()});
         } else {
             uniform.setLocation(loc);
-        }
-    }
-
-    protected void bindProgram(Shader shader) {
-        int shaderId = shader.getId();
-        if (context.boundShaderProgram != shaderId) {
-            gl.glUseProgram(shaderId);
-            statistics.onShaderUse(shader, true);
-            context.boundShader = shader;
-            context.boundShaderProgram = shaderId;
-        } else {
-            statistics.onShaderUse(shader, false);
         }
     }
 
@@ -1138,6 +1206,58 @@ public final class GLRenderer implements Renderer {
         }
     }
 
+    /**
+     * Updates the buffer block for the shader.
+     *
+     * @param shader the shader.
+     * @param bufferBlock the storage block.
+     */
+    protected void updateShaderBufferBlock(final Shader shader, final ShaderBufferBlock bufferBlock) {
+
+        assert bufferBlock.getName() != null;
+        assert shader.getId() > 0;
+
+        final BufferObject bufferObject = bufferBlock.getBufferObject();
+        if (bufferObject.getUniqueId() == -1 || bufferObject.isUpdateNeeded()) {
+            updateBufferData(bufferObject);
+        }
+
+        if (!bufferBlock.isUpdateNeeded()) {
+            return;
+        }
+
+        bindProgram(shader);
+
+        final int shaderId = shader.getId();
+        final BufferObject.BufferType bufferType = bufferObject.getBufferType();
+
+        bindBuffer(bufferBlock, bufferObject, shaderId, bufferType);
+
+        bufferBlock.clearUpdateNeeded();
+    }
+
+    private void bindBuffer(final ShaderBufferBlock bufferBlock, final BufferObject bufferObject, final int shaderId,
+                            final BufferObject.BufferType bufferType) {
+
+        switch (bufferType) {
+            case UniformBufferObject: {
+                final int blockIndex = gl3.glGetUniformBlockIndex(shaderId, bufferBlock.getName());
+                gl3.glBindBufferBase(GL3.GL_UNIFORM_BUFFER, bufferObject.getBinding(), bufferObject.getId());
+                gl3.glUniformBlockBinding(GL3.GL_UNIFORM_BUFFER, blockIndex, bufferObject.getBinding());
+                break;
+            }
+            case ShaderStorageBufferObject: {
+                final int blockIndex = gl4.glGetProgramResourceIndex(shaderId, GL4.GL_SHADER_STORAGE_BLOCK, bufferBlock.getName());
+                gl4.glShaderStorageBlockBinding(shaderId, blockIndex, bufferObject.getBinding());
+                gl4.glBindBufferBase(GL4.GL_SHADER_STORAGE_BUFFER, bufferObject.getBinding(), bufferObject.getId());
+                break;
+            }
+            default: {
+                throw new IllegalArgumentException("Doesn't support binding of " + bufferType);
+            }
+        }
+    }
+
     protected void updateShaderUniforms(Shader shader) {
         ListMap<String, Uniform> uniforms = shader.getUniformMap();
         for (int i = 0; i < uniforms.size(); i++) {
@@ -1145,6 +1265,18 @@ public final class GLRenderer implements Renderer {
             if (uniform.isUpdateNeeded()) {
                 updateUniform(shader, uniform);
             }
+        }
+    }
+
+    /**
+     * Updates all shader's buffer blocks.
+     *
+     * @param shader the shader.
+     */
+    protected void updateShaderBufferBlocks(final Shader shader) {
+        final ListMap<String, ShaderBufferBlock> bufferBlocks = shader.getBufferBlockMap();
+        for (int i = 0; i < bufferBlocks.size(); i++) {
+            updateShaderBufferBlock(shader, bufferBlocks.getValue(i));
         }
     }
 
@@ -1195,6 +1327,7 @@ public final class GLRenderer implements Renderer {
                     + "Only GLSL 1.00 shaders are supported.");
         }
 
+        boolean insertPrecision = false;
         // Upload shader source.
         // Merge the defines and source code.
         stringBuf.setLength(0);
@@ -1214,7 +1347,7 @@ public final class GLRenderer implements Renderer {
                     
                     if (source.getType() == ShaderType.Fragment) {
                         // GLES2 requires precision qualifier.
-                        stringBuf.append("precision mediump float;\n");
+                        insertPrecision = true;
                     }
                 } else {
                     // version 100 does not exist in desktop GLSL.
@@ -1232,6 +1365,14 @@ public final class GLRenderer implements Renderer {
 
         stringBuf.append(source.getDefines());
         stringBuf.append(source.getSource());
+
+        if(insertPrecision){
+            // precision token is not a preprocessor dirrective therefore it must be placed after #extension tokens to avoid
+            // Error P0001: Extension directive must occur before any non-preprocessor tokens
+            int idx = stringBuf.lastIndexOf("#extension");
+            idx = stringBuf.indexOf("\n", idx);
+            stringBuf.insert(idx + 1, "precision mediump float;\n");
+        }
 
         intBuf1.clear();
         intBuf1.put(0, stringBuf.length());
@@ -1366,6 +1507,7 @@ public final class GLRenderer implements Renderer {
             assert shader.getId() > 0;
 
             updateShaderUniforms(shader);
+            updateShaderBufferBlocks(shader);
             bindProgram(shader);
         }
     }
@@ -2454,6 +2596,58 @@ public final class GLRenderer implements Renderer {
         vb.clearUpdateNeeded();
     }
 
+    @Override
+    public void updateBufferData(final BufferObject bo) {
+
+        int maxSize = Integer.MAX_VALUE;
+
+        final BufferObject.BufferType bufferType = bo.getBufferType();
+
+        if (!caps.contains(bufferType.getRequiredCaps())) {
+            throw new IllegalArgumentException("The current video hardware doesn't support " + bufferType);
+        }
+
+        final ByteBuffer data = bo.computeData(maxSize);
+        if (data == null) {
+            throw new IllegalArgumentException("Can't upload BO without data.");
+        }
+
+        int bufferId = bo.getId();
+        if (bufferId == -1) {
+
+            // create buffer
+            intBuf1.clear();
+            gl.glGenBuffers(intBuf1);
+            bufferId = intBuf1.get(0);
+
+            bo.setId(bufferId);
+
+            objManager.registerObject(bo);
+        }
+
+        data.rewind();
+
+        switch (bufferType) {
+            case UniformBufferObject: {
+                gl3.glBindBuffer(GL3.GL_UNIFORM_BUFFER, bufferId);
+                gl3.glBufferData(GL4.GL_UNIFORM_BUFFER, data, GL3.GL_DYNAMIC_DRAW);
+                gl3.glBindBuffer(GL4.GL_UNIFORM_BUFFER, 0);
+                break;
+            }
+            case ShaderStorageBufferObject: {
+                gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, bufferId);
+                gl4.glBufferData(GL4.GL_SHADER_STORAGE_BUFFER, data, GL4.GL_DYNAMIC_COPY);
+                gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, 0);
+                break;
+            }
+            default: {
+                throw new IllegalArgumentException("Doesn't support binding of " + bufferType);
+            }
+        }
+
+        bo.clearUpdateNeeded();
+    }
+
     public void deleteBuffer(VertexBuffer vb) {
         int bufId = vb.getId();
         if (bufId != -1) {
@@ -2465,6 +2659,23 @@ public final class GLRenderer implements Renderer {
 
             //statistics.onDeleteVertexBuffer();
         }
+    }
+
+    @Override
+    public void deleteBuffer(final BufferObject bo) {
+
+        int bufferId = bo.getId();
+        if (bufferId == -1) {
+            return;
+        }
+
+        intBuf1.clear();
+        intBuf1.put(bufferId);
+        intBuf1.flip();
+
+        gl.glDeleteBuffers(intBuf1);
+
+        bo.resetObject();
     }
 
     public void clearVertexAttribs() {

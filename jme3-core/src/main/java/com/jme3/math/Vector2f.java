@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -248,11 +248,11 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
      * finalVec this=(1-changeAmnt)*beginVec + changeAmnt * finalVec
      * 
      * @param beginVec
-     *            The begining vector (delta=0)
+     *            The beginning vector (delta=0)
      * @param finalVec
      *            The final vector to interpolate towards (delta=1)
      * @param changeAmnt
-     *            An amount between 0.0 - 1.0 representing a precentage change
+     *            An amount between 0.0 - 1.0 representing a percentage change
      *            from beginVec towards finalVec
      */
     public Vector2f interpolateLocal(Vector2f beginVec, Vector2f finalVec,
@@ -363,7 +363,7 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
     }
 
     /**
-     * <code>multLocal</code> multiplies a provided vector to this vector
+     * <code>multLocal</code> multiplies a provided vector by this vector
      * internally, and returns a handle to this vector for easy chaining of
      * calls. If the provided vector is null, null is returned.
      * 
@@ -579,7 +579,7 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>angleBetween</code> returns (in radians) the angle required to
-     * rotate a ray represented by this vector to lie colinear to a ray
+     * rotate a ray represented by this vector to be colinear with a ray
      * described by the given vector. It is assumed that both this vector and
      * the given vector are unit vectors (iow, normalized).
      * 
@@ -631,7 +631,7 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
 
     /**
      * <code>hashCode</code> returns a unique code for this vector object
-     * based on it's values. If two vectors are logically equivalent, they will
+     * based on its values. If two vectors are logically equivalent, they will
      * return the same hash code value.
      * 
      * @return the hash code value of this vector.

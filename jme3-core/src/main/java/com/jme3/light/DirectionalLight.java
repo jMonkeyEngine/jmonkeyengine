@@ -133,6 +133,11 @@ public class DirectionalLight extends Light {
     }
 
     @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[name=" + name + ", direction=" + direction + ", color=" + color + ", enabled=" + enabled + "]";
+    }
+
+    @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);

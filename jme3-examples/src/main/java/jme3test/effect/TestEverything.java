@@ -36,7 +36,8 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.*;
-import com.jme3.post.HDRRenderer;
+import com.jme3.post.FilterPostProcessor;
+import com.jme3.post.filters.ToneMapFilter;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
@@ -44,7 +45,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.shape.Box;
-import com.jme3.shadow.BasicShadowRenderer;
+import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
@@ -52,8 +53,8 @@ import com.jme3.util.TangentBinormalGenerator;
 
 public class TestEverything extends SimpleApplication {
 
-    private BasicShadowRenderer bsr;
-    private HDRRenderer hdrRender;
+    private DirectionalLightShadowRenderer dlsr;
+    private ToneMapFilter toneMapFilter;
     private Vector3f lightDir = new Vector3f(-1, -1, .5f).normalizeLocal();
 
     public static void main(String[] args){
@@ -63,26 +64,20 @@ public class TestEverything extends SimpleApplication {
 
     public void setupHdr(){
         if (renderer.getCaps().contains(Caps.GLSL100)){
-            hdrRender = new HDRRenderer(assetManager, renderer);
-            hdrRender.setMaxIterations(40);
-            hdrRender.setSamples(settings.getSamples());
-
-            hdrRender.setWhiteLevel(3);
-            hdrRender.setExposure(0.72f);
-            hdrRender.setThrottle(1);
+            toneMapFilter = new ToneMapFilter();
+            toneMapFilter.setWhitePoint(new Vector3f(3f, 3f, 3f));
+            FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+            fpp.addFilter(toneMapFilter);
+            viewPort.addProcessor(fpp);
 
     //        setPauseOnLostFocus(false);
-    //        new HDRConfig(hdrRender).setVisible(true);
-
-            viewPort.addProcessor(hdrRender);
         }
     }
 
     public void setupBasicShadow(){
         if (renderer.getCaps().contains(Caps.GLSL100)){
-            bsr = new BasicShadowRenderer(assetManager, 1024);
-            bsr.setDirection(lightDir);
-            viewPort.addProcessor(bsr);
+            dlsr = new DirectionalLightShadowRenderer(assetManager, 1024, 1);
+            viewPort.addProcessor(dlsr);
         }
     }
 
@@ -93,16 +88,20 @@ public class TestEverything extends SimpleApplication {
         }else{
             envMap = assetManager.loadTexture("Textures/Sky/St Peters/StPeters.jpg");
         }
-        rootNode.attachChild(SkyFactory.createSky(assetManager, envMap, new Vector3f(-1,-1,-1), true));
+        rootNode.attachChild(SkyFactory.createSky(assetManager, envMap, 
+                new Vector3f(-1,-1,-1), SkyFactory.EnvMapType.SphereMap));
     }
 
     public void setupLighting(){
         boolean hdr = false;
-        if (hdrRender != null){
-            hdr = hdrRender.isEnabled();
+        if (toneMapFilter != null){
+            hdr = toneMapFilter.isEnabled();
         }
 
         DirectionalLight dl = new DirectionalLight();
+        if (dlsr != null) {
+            dlsr.setLight(dl);
+        }
         dl.setDirection(lightDir);
         if (hdr){
             dl.setColor(new ColorRGBA(3, 3, 3, 1));

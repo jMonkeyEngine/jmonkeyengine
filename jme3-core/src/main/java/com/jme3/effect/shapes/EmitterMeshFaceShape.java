@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This emiter shape emits the particles from the given shape's faces.
+ * This emitter shape emits the particles from the given shape's faces.
  * @author Marcin Roguski (Kaelthas)
  */
 public class EmitterMeshFaceShape extends EmitterMeshVertexShape {

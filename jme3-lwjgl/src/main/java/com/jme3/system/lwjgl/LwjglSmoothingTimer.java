@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ public class LwjglSmoothingTimer extends Timer {
 
     /**
      * Constructor builds a <code>Timer</code> object. All values will be
-     * initialized to it's default values.
+     * initialized to its default values.
      */
     public LwjglSmoothingTimer() {
         reset();
@@ -144,7 +144,7 @@ public class LwjglSmoothingTimer extends Timer {
         if ( oldTime == -1 ) {
             // For the first frame use 60 fps. This value will not be counted in further averages.
             // This is done so initialization code between creating the timer and the first
-            // frame is not counted as a single frame on it's own.
+            // frame is not counted as a single frame on its own.
             lastTPF = 1 / 60f;
             lastFPS = 1f / lastTPF;
             return;

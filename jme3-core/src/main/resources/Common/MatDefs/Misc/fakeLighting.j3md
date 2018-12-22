@@ -1,0 +1,49 @@
+MaterialDef FakeLighting {
+    MaterialParameters {
+        Vector4 Color
+    }
+
+    Technique {
+       WorldParameters {
+           WorldViewProjectionMatrix
+           NormalMatrix
+       }
+
+       VertexShaderNodes {
+           ShaderNode Mat3Vec3Mult {
+               Definition: Mat3Vec3Mult: Common/MatDefs/ShaderNodes/Basic/Mat3Vec3Mult.j3sn
+               InputMappings {
+                   matrix3 = WorldParam.NormalMatrix
+                   vector3 = Attr.inNormal
+               }
+               OutputMappings {
+               }
+           }
+           ShaderNode CommonVert {
+               Definition: CommonVert: Common/MatDefs/ShaderNodes/Common/CommonVert.j3sn
+               InputMappings {
+                   worldViewProjectionMatrix = WorldParam.WorldViewProjectionMatrix
+                   modelPosition = Attr.inPosition
+               }
+               OutputMappings {
+                   Global.position = projPosition
+               }
+           }
+       }
+
+
+        FragmentShaderNodes {
+            ShaderNode FakeLighting {
+                Definition: FakeLighting: Common/MatDefs/ShaderNodes/Misc/fakeLighting.j3sn
+                InputMappings {
+                    inColor = MatParam.Color
+                    normal = Mat3Vec3Mult.outVector3.xyz
+                }
+                OutputMappings {
+                    Global.color = outColor
+                }
+            }
+        }
+
+    }
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ public final class LastTextureState {
         anisoFilter = 1;
         
         // The default in OpenGL is OFF, so we avoid setting this per texture
-        // if its not used.
+        // if it's not used.
         shadowCompareMode = Texture.ShadowCompareMode.Off;
     }
 }

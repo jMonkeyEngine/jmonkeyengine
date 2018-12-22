@@ -10,7 +10,7 @@ uniform float m_FocusDistance;
 uniform float m_XScale;
 uniform float m_YScale;
 
-vec2 m_NearFar = vec2( 0.1, 1000.0 );
+uniform vec2 g_FrustumNearFar;
 
 void main() {
 
@@ -31,8 +31,8 @@ void main() {
     // z * (zb - a) = b
     // z = b / (zb - a)
     //
-    float a = m_NearFar.y / (m_NearFar.y - m_NearFar.x);
-    float b = m_NearFar.y * m_NearFar.x / (m_NearFar.x - m_NearFar.y);
+    float a = g_FrustumNearFar.y / (g_FrustumNearFar.y - g_FrustumNearFar.x);
+    float b = g_FrustumNearFar.y * g_FrustumNearFar.x / (g_FrustumNearFar.x - g_FrustumNearFar.y);
     float z = b / (zBuffer - a);
 
     // Above could be the same for any depth-based filter
@@ -42,7 +42,7 @@ void main() {
     // at +/- m_FocusRange to either side of that.
     float unfocus = min( 1.0, abs( z - m_FocusDistance ) / m_FocusRange );
 
-    if( unfocus < 0.2 ) {
+    if( unfocus < BLUR_THRESHOLD ) {
         // If we are mostly in focus then don't bother with the
         // convolution filter
         gl_FragColor = texVal;
@@ -86,7 +86,11 @@ void main() {
 
     gl_FragColor = mix( texVal, sum, unfocus );
 
-    // I used this for debugging the range
-    // gl_FragColor.r = unfocus;
+    #ifdef DEBUG_UNFOCUS
+        // Used for debugging the range or user settings
+        gl_FragColor.r = unfocus;
+        gl_FragColor.g = unfocus;
+        gl_FragColor.b = unfocus;
+    #endif
     }
 }

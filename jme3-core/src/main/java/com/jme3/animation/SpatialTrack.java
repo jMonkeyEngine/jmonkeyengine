@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,27 +31,23 @@
  */
 package com.jme3.animation;
 
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
+import com.jme3.export.*;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
-
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * This class represents the track for spatial animation.
  * 
  * @author Marcin Roguski (Kaelthas)
  */
-public class SpatialTrack implements Track, JmeCloneable {
-    
+@Deprecated
+public class SpatialTrack implements JmeCloneable, Track {
+
     /** 
      * Translations of the track. 
      */
@@ -250,9 +246,16 @@ public class SpatialTrack implements Track, JmeCloneable {
             return times == null ? 0 : times[times.length - 1] - times[0];
     }
 
+    /**
+     * Create a clone with the same track spatial.
+     *
+     * @return a new track
+     */
     @Override
-    public Track clone() {
-        return (Track) jmeClone();
+    public SpatialTrack clone() {
+        Cloner cloner = new Cloner();
+        cloner.setClonedValue(trackSpatial, trackSpatial);
+        return cloner.clone(this);
     }
 
     @Override
@@ -268,24 +271,38 @@ public class SpatialTrack implements Track, JmeCloneable {
         return trackSpatial;
     }
 
+    /**
+     * Create a shallow clone for the JME cloner.
+     *
+     * @return a new track
+     */
     @Override
-    public Object jmeClone() {
-        int tablesLength = times.length;
-
-        float[] timesCopy = this.times.clone();
-        Vector3f[] translationsCopy = this.getTranslations() == null ? null : Arrays.copyOf(this.getTranslations(), tablesLength);
-        Quaternion[] rotationsCopy = this.getRotations() == null ? null : Arrays.copyOf(this.getRotations(), tablesLength);
-        Vector3f[] scalesCopy = this.getScales() == null ? null : Arrays.copyOf(this.getScales(), tablesLength);
-
-        //need to use the constructor here because of the final fields used in this class
-        return new SpatialTrack(timesCopy, translationsCopy, rotationsCopy, scalesCopy);
+    public SpatialTrack jmeClone() {
+        try {
+            return (SpatialTrack) super.clone();
+        } catch (CloneNotSupportedException exception) {
+            throw new RuntimeException("Can't clone track", exception);
+        }
     }
 
+    /**
+     * Callback from {@link com.jme3.util.clone.Cloner} to convert this
+     * shallow-cloned track into a deep-cloned one, using the specified cloner
+     * to resolve copied fields.
+     *
+     * @param cloner the cloner currently cloning this control (not null)
+     * @param original the track from which this track was shallow-cloned
+     * (unused)
+     */
     @Override
     public void cloneFields(Cloner cloner, Object original) {
-        this.trackSpatial = cloner.clone(((SpatialTrack) original).trackSpatial);
+        translations = cloner.clone(translations);
+        rotations = cloner.clone(rotations);
+        scales = cloner.clone(scales);
+        trackSpatial = cloner.clone(trackSpatial);
+        times = cloner.clone(times);
     }
-	
+
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);

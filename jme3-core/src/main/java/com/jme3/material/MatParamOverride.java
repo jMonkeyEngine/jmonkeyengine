@@ -140,6 +140,9 @@ public final class MatParamOverride extends MatParam {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(enabled, "enabled", true);
+        if (value == null) {
+            oc.write(true, "isNull", false);
+        }
     }
 
     @Override
@@ -147,5 +150,9 @@ public final class MatParamOverride extends MatParam {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         enabled = ic.readBoolean("enabled", true);
+        boolean isNull = ic.readBoolean("isNull", false);
+        if (isNull) {
+            setValue(null);
+        }
     }
 }

@@ -76,7 +76,7 @@ public class TestChooser extends JDialog {
     /**
      * Only accessed from EDT
      */
-    private Object[] selectedClass = null;
+    private java.util.List selectedClass = null;
     private boolean showSetting = true;
 
     /**
@@ -246,7 +246,7 @@ public class TestChooser extends JDialog {
         };
     }
 
-    private void startApp(final Object[] appClass){
+    private void startApp(final java.util.List appClass){
         if (appClass == null){
             JOptionPane.showMessageDialog(rootPane,
                                           "Please select a test from the list",
@@ -257,8 +257,8 @@ public class TestChooser extends JDialog {
 
             new Thread(new Runnable(){
                 public void run(){
-                    for (int i = 0; i < appClass.length; i++) {
-                	    Class<?> clazz = (Class)appClass[i];
+                    for (int i = 0; i < appClass.size(); i++) {
+                	    Class<?> clazz = (Class)appClass.get(i);
                 		try {
                 			if (LegacyApplication.class.isAssignableFrom(clazz)) {
                     			Object app = clazz.newInstance();
@@ -333,7 +333,7 @@ public class TestChooser extends JDialog {
         list.getSelectionModel().addListSelectionListener(
                 new ListSelectionListener() {
                     public void valueChanged(ListSelectionEvent e) {
-                        selectedClass = list.getSelectedValues();
+                        selectedClass = list.getSelectedValuesList();
                     }
                 });
         list.addMouseListener(new MouseAdapter() {
@@ -485,7 +485,7 @@ public class TestChooser extends JDialog {
         });
         jtf.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                selectedClass = classes.getSelectedValues();
+                selectedClass = classes.getSelectedValuesList();
                 startApp(selectedClass);
             }
         });

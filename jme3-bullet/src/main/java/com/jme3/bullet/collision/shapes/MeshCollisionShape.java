@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.BufferUtils;
 
 /**
- * Basic mesh collision shape
+ * A mesh collision shape based on Bullet's btBvhTriangleMeshShape.
  *
  * @author normenhansen
  */
@@ -64,38 +64,45 @@ public class MeshCollisionShape extends CollisionShape {
     private static final String NATIVE_BVH = "nativeBvh";
     protected int numVertices, numTriangles, vertexStride, triangleIndexStride;
     protected ByteBuffer triangleIndexBase, vertexBase;
+    /**
+     * Unique identifier of the Bullet mesh. The constructor sets this to a
+     * non-zero value.
+     */
     protected long meshId = 0;
     protected long nativeBVHBuffer = 0;
     private boolean memoryOptimized;
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public MeshCollisionShape() {
     }
 
     /**
-     * Creates a collision shape from the given Mesh. 
-     * Default behavior, more optimized for memory usage.
+     * Instantiate a collision shape based on the specified JME mesh, optimized
+     * for memory usage.
      *
-     * @param mesh
+     * @param mesh the mesh on which to base the shape (not null)
      */
     public MeshCollisionShape(Mesh mesh) {
         this(mesh, true);
     }
 
     /**
-     * Creates a collision shape from the given Mesh.
-     * <code>memoryOptimized</code> determines if optimized instead of 
-     * quantized BVH will be used.
-     * Internally, <code>memoryOptimized</code> BVH is slower to calculate (~4x) 
-     * but also smaller (~0.5x). 
-     * It is preferable to use the memory optimized version and then serialize
-     * the resulting MeshCollisionshape as this will also save the
-     * generated BVH. 
-     * An exception can be procedurally / generated collision shapes, where
-     * the generation time is more of a concern
+     * Instantiate a collision shape based on the specified JME mesh.
+     * <p>
+     * <code>memoryOptimized</code> determines if optimized instead of quantized
+     * BVH will be used. Internally, <code>memoryOptimized</code> BVH is slower
+     * to calculate (~4x) but also smaller (~0.5x). It is preferable to use the
+     * memory optimized version and then serialize the resulting
+     * MeshCollisionshape as this will also save the generated BVH. An exception
+     * can be procedurally / generated collision shapes, where the generation
+     * time is more of a concern
      *
-     * @param mesh the Mesh to use
-     * @param memoryOptimized True to generate a memory optimized BVH,
-     * false to generate quantized BVH.
+     * @param mesh the mesh on which to base the shape (not null)
+     * @param memoryOptimized true to generate a memory-optimized BVH, false to
+     * generate quantized BVH
      */
     public MeshCollisionShape(final Mesh mesh, final boolean memoryOptimized) {
         this.memoryOptimized = memoryOptimized;
@@ -103,16 +110,15 @@ public class MeshCollisionShape extends CollisionShape {
     }
 
     /**
-     * Advanced constructor, usually you don’t want to use this, but the Mesh
-     * based one. Passing false values can lead to a crash, use at own risk
-     *
+     * An advanced constructor. Passing false values can lead to a crash.
+     * Usually you don’t want to use this. Use at own risk.
+     * <p>
      * This constructor bypasses all copy logic normally used, this allows for
-     * faster bullet shape generation when using procedurally generated Meshes.
-     *
+     * faster Bullet shape generation when using procedurally generated Meshes.
      *
      * @param indices the raw index buffer
      * @param vertices the raw vertex buffer
-     * @param memoryOptimized use quantisize BVH, uses less memory, but slower
+     * @param memoryOptimized use quantized BVH, uses less memory, but slower
      */
     public MeshCollisionShape(ByteBuffer indices, ByteBuffer vertices, boolean memoryOptimized) {
         this.triangleIndexBase = indices;
@@ -153,6 +159,12 @@ public class MeshCollisionShape extends CollisionShape {
         this.createShape(null);
     }
 
+    /**
+     * Serialize this shape, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     @Override
     public void write(final JmeExporter ex) throws IOException {
         super.write(ex);
@@ -178,6 +190,12 @@ public class MeshCollisionShape extends CollisionShape {
         }
     }
 
+    /**
+     * De-serialize this shape, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     @Override
     public void read(final JmeImporter im) throws IOException {
         super.read(im);
@@ -195,6 +213,9 @@ public class MeshCollisionShape extends CollisionShape {
         createShape(nativeBvh);
     }
 
+    /**
+     * Instantiate the configured shape in Bullet.
+     */
     private void createShape(byte bvh[]) {
         boolean buildBvh=bvh==null||bvh.length==0;
         this.meshId = NativeMeshUtil.createTriangleIndexVertexArray(this.triangleIndexBase, this.vertexBase, this.numTriangles, this.numVertices, this.vertexStride, this.triangleIndexStride);
@@ -216,6 +237,12 @@ public class MeshCollisionShape extends CollisionShape {
     
     private native long createShape(boolean memoryOptimized, boolean buildBvt, long meshId);
 
+    /**
+     * Finalize this shape just before it is destroyed. Should be invoked only
+     * by a subclass or by the garbage collector.
+     *
+     * @throws Throwable ignored by the garbage collector
+     */
     @Override
     public void finalize() throws Throwable {
         super.finalize();

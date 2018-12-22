@@ -37,13 +37,16 @@ import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 
 /**
  * The animation class updates the animation target with the tracks of a given type.
  * 
  * @author Kirill Vainer, Marcin Roguski (Kaelthas)
+ * @deprecated use {@link com.jme3.anim.AnimClip}
  */
+@Deprecated
 public class Animation implements Savable, Cloneable, JmeCloneable {
 
     /** 

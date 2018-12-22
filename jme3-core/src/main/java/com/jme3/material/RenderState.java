@@ -331,9 +331,17 @@ public class RenderState implements Cloneable, Savable {
          */
         Exclusion,
         /**
-         * Allows for custom blending by using glBlendFuncSeparate.
+         * Uses the blend equations and blend factors defined by the render state.
          * <p>
-         * 
+         * These attributes can be set by using the following methods:
+         * <ul>
+         * <li>{@link RenderState#setBlendEquation(BlendEquation)}<br/>
+         * <li>{@link RenderState#setBlendEquationAlpha(BlendEquationAlpha)}<br/>
+         * <li>{@link RenderState#setCustomBlendFactors(BlendFunc, BlendFunc, BlendFunc, BlendFunc)}<br/>
+         * </ul>
+         * <p>
+         * Result.RGB = BlendEquation( sfactorRGB * Source.RGB , dfactorRGB * Destination.RGB )<br/>
+         * Result.A = BlendEquationAlpha( sfactorAlpha * Source.A , dfactorAlpha * Destination.A )
          */
         Custom
     }
@@ -425,8 +433,6 @@ public class RenderState implements Cloneable, Savable {
         ADDITIONAL.applyDepthWrite = false;
         ADDITIONAL.applyDepthTest = false;
         ADDITIONAL.applyColorWrite = false;
-        ADDITIONAL.applyBlendEquation = false;
-        ADDITIONAL.applyBlendEquationAlpha = false;
         ADDITIONAL.applyBlendMode = false;
         ADDITIONAL.applyPolyOffset = false;
     }
@@ -441,9 +447,7 @@ public class RenderState implements Cloneable, Savable {
     boolean colorWrite = true;
     boolean applyColorWrite = true;
     BlendEquation blendEquation = BlendEquation.Add;
-    boolean applyBlendEquation = true;
     BlendEquationAlpha blendEquationAlpha = BlendEquationAlpha.InheritColor;
-    boolean applyBlendEquationAlpha = true;
     BlendMode blendMode = BlendMode.Off;
     boolean applyBlendMode = true;
     float offsetFactor = 0;
@@ -466,10 +470,10 @@ public class RenderState implements Cloneable, Savable {
     TestFunction frontStencilFunction = TestFunction.Always;
     TestFunction backStencilFunction = TestFunction.Always;
     int cachedHashCode = -1;
-    BlendFunc sfactorRGB=BlendFunc.One;
-    BlendFunc dfactorRGB=BlendFunc.Zero;
-    BlendFunc sfactorAlpha=BlendFunc.One;
-    BlendFunc dfactorAlpha=BlendFunc.Zero;
+    BlendFunc sfactorRGB = BlendFunc.One;
+    BlendFunc dfactorRGB = BlendFunc.One;
+    BlendFunc sfactorAlpha = BlendFunc.One;
+    BlendFunc dfactorAlpha = BlendFunc.One;
             
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
@@ -507,8 +511,6 @@ public class RenderState implements Cloneable, Savable {
         oc.write(applyDepthWrite, "applyDepthWrite", true);
         oc.write(applyDepthTest, "applyDepthTest", true);
         oc.write(applyColorWrite, "applyColorWrite", true);
-        oc.write(applyBlendEquation, "applyBlendEquation", true);
-        oc.write(applyBlendEquationAlpha, "applyBlendEquationAlpha", true);
         oc.write(applyBlendMode, "applyBlendMode", true);
         oc.write(applyPolyOffset, "applyPolyOffset", true);
         oc.write(applyDepthFunc, "applyDepthFunc", true);
@@ -541,9 +543,9 @@ public class RenderState implements Cloneable, Savable {
         depthFunc = ic.readEnum("depthFunc", TestFunction.class, TestFunction.LessOrEqual);
         lineWidth = ic.readFloat("lineWidth", 1);
         sfactorRGB = ic.readEnum("sfactorRGB", BlendFunc.class, BlendFunc.One);
-        dfactorAlpha = ic.readEnum("dfactorRGB", BlendFunc.class, BlendFunc.Zero);
+        dfactorAlpha = ic.readEnum("dfactorRGB", BlendFunc.class, BlendFunc.One);
         sfactorRGB = ic.readEnum("sfactorAlpha", BlendFunc.class, BlendFunc.One);
-        dfactorAlpha = ic.readEnum("dfactorAlpha", BlendFunc.class, BlendFunc.Zero);
+        dfactorAlpha = ic.readEnum("dfactorAlpha", BlendFunc.class, BlendFunc.One);
 
 
         applyWireFrame = ic.readBoolean("applyWireFrame", true);
@@ -551,14 +553,11 @@ public class RenderState implements Cloneable, Savable {
         applyDepthWrite = ic.readBoolean("applyDepthWrite", true);
         applyDepthTest = ic.readBoolean("applyDepthTest", true);
         applyColorWrite = ic.readBoolean("applyColorWrite", true);
-        applyBlendEquation = ic.readBoolean("applyBlendEquation", true);
-        applyBlendEquationAlpha = ic.readBoolean("applyBlendEquationAlpha", true);
         applyBlendMode = ic.readBoolean("applyBlendMode", true);
         applyPolyOffset = ic.readBoolean("applyPolyOffset", true);
         applyDepthFunc = ic.readBoolean("applyDepthFunc", true);
         applyLineWidth = ic.readBoolean("applyLineWidth", true);
 
-        
     }
 
     /**
@@ -615,18 +614,31 @@ public class RenderState implements Cloneable, Savable {
             return false;
         }
 
-        if (blendEquation != rs.blendEquation) {
-            return false;
-        }
-
-        if (blendEquationAlpha != rs.blendEquationAlpha) {
-            return false;
-        }
-
         if (blendMode != rs.blendMode) {
             return false;
         }
 
+        if (blendMode == BlendMode.Custom) {
+            if (blendEquation != rs.blendEquation) {
+                return false;
+            }
+            if (blendEquationAlpha != rs.blendEquationAlpha) {
+                return false;
+            }
+
+            if (sfactorRGB != rs.sfactorRGB) {
+                return false;
+            }
+            if (dfactorRGB != rs.dfactorRGB) {
+                return false;
+            }
+            if (sfactorAlpha != rs.sfactorAlpha) {
+                return false;
+            }
+            if (dfactorAlpha != rs.dfactorAlpha) {
+                return false;
+            }
+        }
 
         if (offsetEnabled != rs.offsetEnabled) {
             return false;
@@ -674,14 +686,6 @@ public class RenderState implements Cloneable, Savable {
 
         if(lineWidth != rs.lineWidth){
             return false;
-        }
-        
-        if (blendMode.equals(BlendMode.Custom)) {
-           return sfactorRGB==rs.getCustomSfactorRGB()
-               && dfactorRGB==rs.getCustomDfactorRGB()
-               && sfactorAlpha==rs.getCustomSfactorAlpha()
-               && dfactorAlpha==rs.getCustomDfactorAlpha();
-           
         }
 
         return true;
@@ -768,80 +772,68 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * Set the blending equation.
+     * Set the blending equation for the color component (RGB).
      * <p>
-     * When blending is enabled, (<code>blendMode</code> is not
-     * {@link BlendMode#Off}) the input pixel will be blended with the pixel
-     * already in the color buffer. The blending equation is determined by the
-     * {@link BlendEquation}. For example, the mode {@link BlendMode#Additive}
-     * and {@link BlendEquation#Add} will add the input pixel's color to the
-     * color already in the color buffer:
+     * The blending equation determines, how the RGB values of the input pixel
+     * will be blended with the RGB values of the pixel already in the color buffer.<br/>
+     * For example, {@link BlendEquation#Add} will add the input pixel's color
+     * to the color already in the color buffer:
      * <br/>
      * <code>Result = Source Color + Destination Color</code>
-     * <br/>
-     * However, the mode {@link BlendMode#Additive}
-     * and {@link BlendEquation#Subtract} will subtract the input pixel's color to the
-     * color already in the color buffer:
-     * <br/>
-     * <code>Result = Source Color - Destination Color</code>
+     * <p>
+     * <b>Note:</b> This gets only used in {@link BlendMode#Custom} mode.
+     * All other blend modes will ignore this setting.
      *
-     * @param blendEquation The blend equation to use. 
+     * @param blendEquation The {@link BlendEquation} to use.
      */
     public void setBlendEquation(BlendEquation blendEquation) {
-        applyBlendEquation = true;
         this.blendEquation = blendEquation;
         cachedHashCode = -1;
     }
-    
+
     /**
      * Set the blending equation for the alpha component.
      * <p>
-     * When blending is enabled, (<code>blendMode</code> is not
-     * {@link BlendMode#Off}) the input pixel will be blended with the pixel
-     * already in the color buffer. The blending equation is determined by the
-     * {@link BlendEquation} and can be overrode for the alpha component using
-     * the {@link BlendEquationAlpha} . For example, the mode
-     * {@link BlendMode#Additive} and {@link BlendEquationAlpha#Add} will add
-     * the input pixel's alpha to the alpha component already in the color
-     * buffer:
+     * The alpha blending equation determines, how the alpha values of the input pixel
+     * will be blended with the alpha values of the pixel already in the color buffer.<br/>
+     * For example, {@link BlendEquationAlpha#Add} will add the input pixel's color
+     * to the color already in the color buffer:
      * <br/>
-     * <code>Result = Source Alpha + Destination Alpha</code>
-     * <br/>
-     * However, the mode {@link BlendMode#Additive} and
-     * {@link BlendEquationAlpha#Subtract} will subtract the input pixel's alpha
-     * to the alpha component already in the color buffer:
-     * <br/>
-     * <code>Result = Source Alpha - Destination Alpha</code>
+     * <code>Result = Source Color + Destination Color</code>
+     * <p>
+     * <b>Note:</b> This gets only used in {@link BlendMode#Custom} mode.
+     * All other blend modes will ignore this setting.
      *
-     * @param blendEquationAlpha The blend equation to use for the alpha
-     *                           component.
+     * @param blendEquationAlpha The {@link BlendEquationAlpha} to use.
      */
     public void setBlendEquationAlpha(BlendEquationAlpha blendEquationAlpha) {
-        applyBlendEquationAlpha = true;
         this.blendEquationAlpha = blendEquationAlpha;
         cachedHashCode = -1;
     }
 
-    
     /**
-     * Sets the custom blend factors for <code>BlendMode.Custom</code> as 
-     * defined by the appropriate <code>BlendFunc</code>.
-     * 
+     * Sets the blend factors used for the source and destination color.
+     * <p>
+     * These factors will be multiplied with the color values of the input pixel
+     * and the pixel already in the color buffer, before both colors gets combined by the {@link BlendEquation}.
+     * <p>
+     * <b>Note:</b> This gets only used in {@link BlendMode#Custom} mode.
+     * All other blend modes will ignore this setting.
+     *
      * @param sfactorRGB   The source blend factor for RGB components.
      * @param dfactorRGB   The destination blend factor for RGB components.
      * @param sfactorAlpha The source blend factor for the alpha component.
      * @param dfactorAlpha The destination blend factor for the alpha component.
      */
-    public void setCustomBlendFactors(BlendFunc sfactorRGB, BlendFunc dfactorRGB, BlendFunc sfactorAlpha, BlendFunc dfactorAlpha)
-    {
+    public void setCustomBlendFactors(BlendFunc sfactorRGB, BlendFunc dfactorRGB, BlendFunc sfactorAlpha, BlendFunc dfactorAlpha) {
        this.sfactorRGB = sfactorRGB;
        this.dfactorRGB = dfactorRGB;
        this.sfactorAlpha = sfactorAlpha;
        this.dfactorAlpha = dfactorAlpha;
        cachedHashCode = -1;
     }
-    
-    
+
+
     /**
      * Enable depth testing.
      *
@@ -1374,14 +1366,6 @@ public class RenderState implements Cloneable, Savable {
         return applyBlendMode;
     }
 
-    public boolean isApplyBlendEquation() {
-        return applyBlendEquation;
-    }
-
-    public boolean isApplyBlendEquationAlpha() {
-        return applyBlendEquationAlpha;
-    }
-
     public boolean isApplyColorWrite() {
         return applyColorWrite;
     }
@@ -1511,27 +1495,26 @@ public class RenderState implements Cloneable, Savable {
         } else {
             state.colorWrite = colorWrite;
         }
-        if (additionalState.applyBlendEquation) {
-            state.blendEquation = additionalState.blendEquation;
-        } else {
-            state.blendEquation = blendEquation;
-        }
-        if (additionalState.applyBlendEquationAlpha) {
-            state.blendEquationAlpha = additionalState.blendEquationAlpha;
-        } else {
-            state.blendEquationAlpha = blendEquationAlpha;
-        }        
         if (additionalState.applyBlendMode) {
             state.blendMode = additionalState.blendMode;
-            if (additionalState.getBlendMode().equals(BlendMode.Custom)) {
-               state.setCustomBlendFactors(
-                additionalState.getCustomSfactorRGB(),
-                additionalState.getCustomDfactorRGB(),
-                additionalState.getCustomSfactorAlpha(),
-                additionalState.getCustomDfactorAlpha());
+            if (additionalState.blendMode == BlendMode.Custom) {
+                state.blendEquation = additionalState.blendEquation;
+                state.blendEquationAlpha = additionalState.blendEquationAlpha;
+                state.sfactorRGB = additionalState.sfactorRGB;
+                state.dfactorRGB = additionalState.dfactorRGB;
+                state.sfactorAlpha = additionalState.sfactorAlpha;
+                state.dfactorAlpha = additionalState.dfactorAlpha;
             }
         } else {
             state.blendMode = blendMode;
+            if (blendMode == BlendMode.Custom) {
+                state.blendEquation = blendEquation;
+                state.blendEquationAlpha = blendEquationAlpha;
+                state.sfactorRGB = sfactorRGB;
+                state.dfactorRGB = dfactorRGB;
+                state.sfactorAlpha = sfactorAlpha;
+                state.dfactorAlpha = dfactorAlpha;
+            }
         }
 
         if (additionalState.applyPolyOffset) {
@@ -1608,8 +1591,6 @@ public class RenderState implements Cloneable, Savable {
         applyDepthWrite =  true;
         applyDepthTest =  true;
         applyColorWrite = true;
-        applyBlendEquation =  true;
-        applyBlendEquationAlpha =  true;
         applyBlendMode = true;
         applyPolyOffset =  true;
         applyDepthFunc = true;
@@ -1636,8 +1617,6 @@ public class RenderState implements Cloneable, Savable {
                 + "\ncolorWrite=" + colorWrite
                 + "\napplyColorWrite=" + applyColorWrite
                 + "\nblendEquation=" + blendEquation
-                + "\napplyBlendEquation=" + applyBlendEquation
-                + "\napplyBlendEquationAlpha=" + applyBlendEquationAlpha
                 + "\nblendMode=" + blendMode
                 + "\napplyBlendMode=" + applyBlendMode
                 + "\noffsetEnabled=" + offsetEnabled

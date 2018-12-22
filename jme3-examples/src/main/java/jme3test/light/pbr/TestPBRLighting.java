@@ -33,27 +33,21 @@ package jme3test.light.pbr;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingSphere;
-import com.jme3.environment.util.*;
-import com.jme3.light.LightProbe;
-import com.jme3.environment.LightProbeFactory;
 import com.jme3.environment.EnvironmentCamera;
+import com.jme3.environment.LightProbeFactory;
 import com.jme3.environment.generation.JobProgressAdapter;
+import com.jme3.environment.util.EnvMapUtils;
+import com.jme3.environment.util.LightsDebugState;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
-import com.jme3.light.DirectionalLight;
+import com.jme3.light.*;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.FXAAFilter;
 import com.jme3.post.filters.ToneMapFilter;
-import com.jme3.post.ssao.SSAOFilter;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
+import com.jme3.scene.*;
 import com.jme3.texture.plugins.ktx.KTXLoader;
 import com.jme3.util.MaterialDebugAppState;
 import com.jme3.util.SkyFactory;
@@ -210,7 +204,7 @@ public class TestPBRLighting extends SimpleApplication {
                     tex = EnvMapUtils.getCubeMapCrossDebugViewWithMipMaps(result.getPrefilteredEnvMap(), assetManager);
                 }
             });
-            ((BoundingSphere) probe.getBounds()).setRadius(100);
+            ((SphereProbeArea) probe.getArea()).setRadius(100);
             rootNode.addLight(probe);
             //getStateManager().getState(EnvironmentManager.class).addEnvProbe(probe);
 

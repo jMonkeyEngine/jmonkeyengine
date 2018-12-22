@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ import java.util.logging.Logger;
 /**
  * <code>CombinerHeightMap</code> generates a new height map based on
  * two provided height maps. These had maps can either be added together
- * or substracted from each other. Each heightmap has a weight to
+ * or subtracted from each other. Each heightmap has a weight to
  * determine how much one will affect the other. By default it is set to
  * 0.5, 0.5 and meaning the two heightmaps are averaged evenly. This
  * value can be adjusted at will, as long as the two factors are equal

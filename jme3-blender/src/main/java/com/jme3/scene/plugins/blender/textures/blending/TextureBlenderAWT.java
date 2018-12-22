@@ -163,9 +163,19 @@ public class TextureBlenderAWT extends AbstractTextureBlender {
      *            the blender context
      */
     protected void blendPixel(float[] result, float[] materialColor, float[] pixelColor, BlenderContext blenderContext) {
+        // We calculate first the importance of the texture (colFactor * texAlphaValue)
         float blendFactor = this.blendFactor * pixelColor[3];
-        float oneMinusFactor = 1.0f - blendFactor, col;
+        // Then, we get the object material factor ((1 - texture importance) * matAlphaValue) 
+        float oneMinusFactor = (1f - blendFactor) * materialColor[3];
+        // Finally, we can get the final blendFactor, which is 1 - the material factor.
+        blendFactor = 1f - oneMinusFactor;
+        
+        // --- Compact method ---
+        // float blendFactor = this.blendFactor * (1f - ((1f - pixelColor[3]) * materialColor[3]));
+        // float oneMinusFactor = 1f - blendFactor;
 
+        float col;
+        
         switch (blendType) {
             case MTEX_BLEND:
                 result[0] = blendFactor * pixelColor[0] + oneMinusFactor * materialColor[0];

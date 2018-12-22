@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -89,21 +89,10 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         return spatial.getWorldTranslation();
     }
 
+    @Deprecated
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        CharacterControl control = new CharacterControl(collisionShape, stepHeight);
-        control.setCcdMotionThreshold(getCcdMotionThreshold());
-        control.setCcdSweptSphereRadius(getCcdSweptSphereRadius());
-        control.setCollideWithGroups(getCollideWithGroups());
-        control.setCollisionGroup(getCollisionGroup());
-        control.setFallSpeed(getFallSpeed());
-        control.setGravity(getGravity());
-        control.setJumpSpeed(getJumpSpeed());
-        control.setMaxSlope(getMaxSlope());
-        control.setPhysicsLocation(getPhysicsLocation());
-        control.setUpAxis(getUpAxis());
-        control.setApplyPhysicsLocal(isApplyPhysicsLocal());
-        return control;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -113,6 +102,7 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         control.setCcdSweptSphereRadius(getCcdSweptSphereRadius());
         control.setCollideWithGroups(getCollideWithGroups());
         control.setCollisionGroup(getCollisionGroup());
+        control.setContactResponse(isContactResponse());
         control.setFallSpeed(getFallSpeed());
         control.setGravity(getGravity());
         control.setJumpSpeed(getJumpSpeed());
@@ -201,21 +191,31 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
     public void render(RenderManager rm, ViewPort vp) {
     }
 
-    public void setPhysicsSpace(PhysicsSpace space) {
-        if (space == null) {
-            if (this.space != null) {
-                this.space.removeCollisionObject(this);
-                added = false;
-            }
-        } else {
-            if(this.space == space) return;
-            // if this object isn't enabled, it will be added when it will be enabled.
-            if (isEnabled()) {
-                space.addCollisionObject(this);
-                added = true;
-            }
+    /**
+     * If enabled, add this control's physics object to the specified physics
+     * space. If not enabled, alter where the object would be added. The object
+     * is removed from any other space it's currently in.
+     *
+     * @param newSpace where to add, or null to simply remove
+     */
+    @Override
+    public void setPhysicsSpace(PhysicsSpace newSpace) {
+        if (space == newSpace) {
+            return;
         }
-        this.space = space;
+        if (added) {
+            space.removeCollisionObject(this);
+            added = false;
+        }
+        if (newSpace != null && isEnabled()) {
+            newSpace.addCollisionObject(this);
+            added = true;
+        }
+        /*
+         * If this control isn't enabled, its physics object will be
+         * added to the new space when the control becomes enabled.
+         */
+        space = newSpace;
     }
 
     public PhysicsSpace getPhysicsSpace() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ public class ColorOverlayFilter extends Filter {
     private ColorRGBA color = ColorRGBA.White;
 
     /**
-     * creates a colorOverlayFilter with a white coor (transparent)
+     * creates a colorOverlayFilter with a white color (transparent)
      */
     public ColorOverlayFilter() {
         super("Color Overlay");

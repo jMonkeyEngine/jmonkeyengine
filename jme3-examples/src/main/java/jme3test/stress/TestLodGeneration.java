@@ -31,9 +31,8 @@
  */
 package jme3test.stress;
 
+import com.jme3.anim.SkinningControl;
 import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.SkeletonControl;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.font.BitmapText;
@@ -43,18 +42,14 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer;
+import com.jme3.math.*;
+import com.jme3.scene.*;
+import jme3tools.optimize.LodGenerator;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import jme3tools.optimize.LodGenerator;
 
 public class TestLodGeneration extends SimpleApplication {
 
@@ -101,7 +96,7 @@ public class TestLodGeneration extends SimpleApplication {
 
 //           ch = model.getControl(AnimControl.class).createChannel();
 //          ch.setAnim("Wave");
-        SkeletonControl c = model.getControl(SkeletonControl.class);
+        SkinningControl c = model.getControl(SkinningControl.class);
         if (c != null) {
             c.setEnabled(false);
         }

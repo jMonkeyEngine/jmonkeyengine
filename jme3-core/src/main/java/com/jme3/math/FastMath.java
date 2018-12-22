@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -860,7 +860,7 @@ final public class FastMath {
     }
 
     /**
-     * Takes an value and expresses it in terms of min to max.
+     * Takes a value and expresses it in terms of min to max.
      * 
      * @param val -
      *            the angle to normalize (in radians)

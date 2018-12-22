@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ package com.jme3.terrain.heightmap;
 public interface Namer {
 
     /**
-     * Gets a name for a heightmap tile given it's cell id
+     * Gets a name for a heightmap tile given its cell id
      * @param x
      * @param y
      * @return

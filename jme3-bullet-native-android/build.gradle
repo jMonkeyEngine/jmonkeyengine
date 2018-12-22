@@ -104,7 +104,8 @@ task copyJmeAndroid(type: Copy) {
     into outputDir
 }
 
-task buildBulletNativeLib(type: Exec, dependsOn: [copyJmeAndroid, copyJmeCpp, copyBullet]) {
+//dependsOn ':jme3-bullet:generateNativeHeaders'
+task buildBulletNativeLib(type: Exec, dependsOn: [copyJmeAndroid, ':jme3-bullet:generateNativeHeaders', copyJmeCpp, copyBullet]) {
 //    args 'TARGET_PLATFORM=android-9'
 //    println "buildBulletNativeLib ndkWorkingPath: " + ndkWorkingPath
 //    println "buildBulletNativeLib rootProject.ndkCommandPath: " + rootProject.ndkCommandPath

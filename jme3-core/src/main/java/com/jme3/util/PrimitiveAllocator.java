@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
 /**
- * This class contains a primitve allocator with no special logic, should work
+ * This class contains a primitive allocator with no special logic, should work
  * on any jvm
  */
 public final class PrimitiveAllocator implements BufferAllocator {
@@ -43,7 +43,7 @@ public final class PrimitiveAllocator implements BufferAllocator {
     @Override
     public void destroyDirectBuffer(Buffer toBeDestroyed) {
         // no exception by intent, as this way naivly written java7/8
-        // applications wont crash on 9 assuming they can dispose buffers
+        // applications won't crash on 9 assuming they can dispose buffers
         System.err.println("Warning destroyBuffer not supported");
     }
 
