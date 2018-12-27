@@ -31,26 +31,15 @@
  */
 package com.jme3.input.lwjgl;
 
-import com.jme3.input.AbstractJoystick;
-import com.jme3.input.DefaultJoystickAxis;
-import com.jme3.input.DefaultJoystickButton;
-import com.jme3.input.InputManager;
-import com.jme3.input.JoyInput;
-import com.jme3.input.Joystick;
-import com.jme3.input.JoystickAxis;
-import com.jme3.input.JoystickButton;
-import com.jme3.input.JoystickCompatibilityMappings;
-import com.jme3.input.RawInputListener;
+import com.jme3.input.*;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
-
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
-
-import org.lwjgl.glfw.GLFW;
+import static org.lwjgl.glfw.GLFW.*;
 
 /**
  * The LWJGL implementation of {@link JoyInput}.
@@ -62,11 +51,10 @@ public class GlfwJoystickInput implements JoyInput {
 
     private static final Logger LOGGER = Logger.getLogger(InputManager.class.getName());
 
+    private RawInputListener listener;
     private final Map<Integer, GlfwJoystick> joysticks = new HashMap<>();
 
     private final Map<JoystickButton, Boolean> joyButtonPressed = new HashMap<>();
-
-    private RawInputListener listener;
 
     private boolean initialized = false;
 
@@ -79,13 +67,13 @@ public class GlfwJoystickInput implements JoyInput {
 
     @Override
     public Joystick[] loadJoysticks(final InputManager inputManager) {
-        for (int i = 0; i < GLFW.GLFW_JOYSTICK_LAST; i++) {
-            if (GLFW.glfwJoystickPresent(i)) {
-                final String name = GLFW.glfwGetJoystickName(i);
+        for (int i = 0; i < GLFW_JOYSTICK_LAST; i++) {
+            if (glfwJoystickPresent(i)) {
+                final String name = glfwGetJoystickName(i);
                 final GlfwJoystick joystick = new GlfwJoystick(inputManager, this, i, name);
                 joysticks.put(i, joystick);
 
-                final FloatBuffer floatBuffer = GLFW.glfwGetJoystickAxes(i);
+                final FloatBuffer floatBuffer = glfwGetJoystickAxes(i);
 
                 int axisIndex = 0;
                 while (floatBuffer.hasRemaining()) {
@@ -97,7 +85,7 @@ public class GlfwJoystickInput implements JoyInput {
                     axisIndex++;
                 }
 
-                final ByteBuffer byteBuffer = GLFW.glfwGetJoystickButtons(i);
+                final ByteBuffer byteBuffer = glfwGetJoystickButtons(i);
 
                 int buttonIndex = 0;
                 while (byteBuffer.hasRemaining()) {
@@ -138,7 +126,7 @@ public class GlfwJoystickInput implements JoyInput {
     public void update() {
         for (final Map.Entry<Integer, GlfwJoystick> entry : joysticks.entrySet()) {
             // Axes
-            final FloatBuffer axisValues = GLFW.glfwGetJoystickAxes(entry.getKey());
+            final FloatBuffer axisValues = glfwGetJoystickAxes(entry.getKey());
 
             for (final JoystickAxis axis : entry.getValue().getAxes()) {
                 final float value = axisValues.get(axis.getAxisId());
@@ -146,10 +134,10 @@ public class GlfwJoystickInput implements JoyInput {
             }
 
             // Buttons
-            final ByteBuffer byteBuffer = GLFW.glfwGetJoystickButtons(entry.getKey());
+            final ByteBuffer byteBuffer = glfwGetJoystickButtons(entry.getKey());
 
             for (final JoystickButton button : entry.getValue().getButtons()) {
-                final boolean pressed = byteBuffer.get(button.getButtonId()) == GLFW.GLFW_PRESS;
+                final boolean pressed = byteBuffer.get(button.getButtonId()) == GLFW_PRESS;
 
                 if (joyButtonPressed.get(button) != pressed) {
                     joyButtonPressed.put(button, pressed);
