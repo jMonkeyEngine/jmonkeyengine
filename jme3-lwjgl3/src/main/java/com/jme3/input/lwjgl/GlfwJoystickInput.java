@@ -106,7 +106,7 @@ public class GlfwJoystickInput implements JoyInput {
                     final String logicalId = JoystickCompatibilityMappings.remapComponent(joystick.getName(), String.valueOf(buttonIndex));
                     final JoystickButton button = new DefaultJoystickButton(inputManager, joystick, buttonIndex, String.valueOf(buttonIndex), logicalId);
                     joystick.addButton(button);
-                    joyButtonPressed.put(button, false);
+                    joyButtonPressed.put(button, false); 
                     buttonIndex++;
                 }
             }
