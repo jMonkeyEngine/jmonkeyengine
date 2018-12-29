@@ -145,6 +145,23 @@ public class LegacyApplication implements Application, SystemListener {
     public void setLostFocusBehavior(LostFocusBehavior lostFocusBehavior) {
         this.lostFocusBehavior = lostFocusBehavior;
     }
+    
+    /**
+     * Returns the applications speed.
+     *
+     * @return The speed of the application.
+     */
+    public float getSpeed() {
+        return speed;
+    }
+    
+    /**
+     * Changes the application speed. 0.0f prevents the application from updating.
+     * @param speed The speed to set.
+     */
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
 
     /**
      * Returns true if pause on lost focus is enabled, false otherwise.
