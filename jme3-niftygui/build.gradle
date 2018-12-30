@@ -2,40 +2,11 @@ if (!hasProperty('mainClass')) {
     ext.mainClass = ''
 }
 
+def niftyVersion = '1.4.3'
+
 dependencies {
     compile project(':jme3-core')
-    compile 'com.github.nifty-gui:nifty:1.4.2'
-    compile 'com.github.nifty-gui:nifty-default-controls:1.4.2'
-    compile 'com.github.nifty-gui:nifty-style-black:1.4.2'
-}
-
-ext.pomConfig = {
-    name POM_NAME
-    description POM_DESCRIPTION
-    url POM_URL
-    inceptionYear POM_INCEPTION_YEAR
-    scm {
-        url POM_SCM_URL
-        connection POM_SCM_CONNECTION
-        developerConnection POM_SCM_DEVELOPER_CONNECTION
-    }
-    licenses {
-        license {
-            name POM_LICENSE_NAME
-            url POM_LICENSE_URL
-            distribution POM_LICENSE_DISTRIBUTION
-        }
-    }
-    developers {
-        developer {
-            name 'jMonkeyEngine Team'
-            id 'jMonkeyEngine'
-        }
-    }
-    repositories {
-        repository {
-            id "nifty-maven-repo.sourceforge.net"
-            url "http://nifty-gui.sourceforge.net/nifty-maven-repo"
-        }
-    }
+    compile "com.github.nifty-gui:nifty:${niftyVersion}"
+    compile "com.github.nifty-gui:nifty-default-controls:${niftyVersion}"
+    compile "com.github.nifty-gui:nifty-style-black:${niftyVersion}"
 }
