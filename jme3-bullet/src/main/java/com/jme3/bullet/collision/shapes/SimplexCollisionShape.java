@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,16 +41,33 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A simple point, line, triangle or quad collisionShape based on one to four points-
+ * A simple point, line-segment, triangle, or tetrahedron collision shape based
+ * on Bullet's btBU_Simplex1to4.
+ *
  * @author normenhansen
  */
 public class SimplexCollisionShape extends CollisionShape {
 
+    /**
+     * vertex positions
+     */
     private Vector3f vector1, vector2, vector3, vector4;
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public SimplexCollisionShape() {
     }
 
+    /**
+     * Instantiate a tetrahedral collision shape based on the specified points.
+     *
+     * @param point1 the coordinates of 1st point (not null, alias created)
+     * @param point2 the coordinates of 2nd point (not null, alias created)
+     * @param point3 the coordinates of 3rd point (not null, alias created)
+     * @param point4 the coordinates of 4th point (not null, alias created)
+     */
     public SimplexCollisionShape(Vector3f point1, Vector3f point2, Vector3f point3, Vector3f point4) {
         vector1 = point1;
         vector2 = point2;
@@ -59,6 +76,13 @@ public class SimplexCollisionShape extends CollisionShape {
         createShape();
     }
 
+    /**
+     * Instantiate a triangular collision shape based on the specified points.
+     *
+     * @param point1 the coordinates of 1st point (not null, alias created)
+     * @param point2 the coordinates of 2nd point (not null, alias created)
+     * @param point3 the coordinates of 3rd point (not null, alias created)
+     */
     public SimplexCollisionShape(Vector3f point1, Vector3f point2, Vector3f point3) {
         vector1 = point1;
         vector2 = point2;
@@ -66,17 +90,34 @@ public class SimplexCollisionShape extends CollisionShape {
         createShape();
     }
 
+    /**
+     * Instantiate a line-segment collision shape based on the specified points.
+     *
+     * @param point1 the coordinates of 1st point (not null, alias created)
+     * @param point2 the coordinates of 2nd point (not null, alias created)
+     */
     public SimplexCollisionShape(Vector3f point1, Vector3f point2) {
         vector1 = point1;
         vector2 = point2;
         createShape();
     }
 
+    /**
+     * Instantiate a point collision shape based on the specified points.
+     *
+     * @param point1 the coordinates of point (not null, alias created)
+     */
     public SimplexCollisionShape(Vector3f point1) {
         vector1 = point1;
         createShape();
     }
 
+    /**
+     * Serialize this shape, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
@@ -86,6 +127,12 @@ public class SimplexCollisionShape extends CollisionShape {
         capsule.write(vector4, "simplexPoint4", null);
     }
 
+    /**
+     * De-serialize this shape, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);
@@ -96,6 +143,9 @@ public class SimplexCollisionShape extends CollisionShape {
         createShape();
     }
 
+    /**
+     * Instantiate the configured shape in Bullet.
+     */
     protected void createShape() {
         if (vector4 != null) {
             objectId = createShape(vector1, vector2, vector3, vector4);

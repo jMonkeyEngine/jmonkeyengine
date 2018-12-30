@@ -23,7 +23,7 @@ public class OrientedBoxProbeArea implements ProbeArea {
     }
 
     public OrientedBoxProbeArea(Transform transform) {
-        transform.set(transform);
+        this.transform.set(transform);
         updateMatrix();
     }
 

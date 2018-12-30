@@ -93,6 +93,7 @@ uniform mat4 g_WorldMatrix;
 uniform mat4 g_WorldViewMatrix;
 uniform mat4 g_WorldViewProjectionMatrix;
 uniform mat3 g_NormalMatrix;
+uniform mat3 g_WorldNormalMatrix;
 
 vec4 TransformWorld(vec4 position)
 {
@@ -116,6 +117,10 @@ vec4 TransformWorldViewProjectionVR(vec4 position)
 
 vec3 TransformNormal(vec3 normal) {
 	return g_NormalMatrix * normal;
+}
+
+vec3 TransformWorldNormal(vec3 normal) {
+    return normalize(g_WorldNormalMatrix * normal);
 }
 
 #endif

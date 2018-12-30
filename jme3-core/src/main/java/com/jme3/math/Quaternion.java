@@ -756,7 +756,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @param q2
      *            Final interpolation value
      * @param changeAmnt
-     *            The amount diffrence
+     *            The amount difference
      */
     public void slerp(Quaternion q2, float changeAmnt) {
         if (this.x == q2.x && this.y == q2.y && this.z == q2.z

@@ -31,7 +31,6 @@
  */
 package com.jme3.material.plugins;
 
-import com.jme3.material.logic.*;
 import com.jme3.asset.*;
 import com.jme3.material.*;
 import com.jme3.material.RenderState.BlendEquation;
@@ -39,7 +38,7 @@ import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.material.TechniqueDef.LightMode;
 import com.jme3.material.TechniqueDef.ShadowMode;
-import com.jme3.material.logic.StaticPassLightingLogic;
+import com.jme3.material.logic.*;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -51,7 +50,6 @@ import com.jme3.util.PlaceholderAssets;
 import com.jme3.util.blockparser.BlockLanguageParser;
 import com.jme3.util.blockparser.Statement;
 import com.jme3.util.clone.Cloner;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -451,8 +449,15 @@ public class J3MLoader implements AssetLoader {
         }
     }
 
-    private boolean parseBoolean(String word){
-        return word != null && word.equals("On");
+    private boolean parseBoolean(String word) {
+        switch (word) {
+            case "On":
+                return true;
+            case "Off":
+                return false;
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 
     private void readRenderStateStatement(Statement statement) throws IOException{
@@ -652,7 +657,7 @@ public class J3MLoader implements AssetLoader {
                 technique.setLogic(new SinglePassAndImageBasedLightingLogic(technique));
                 break;
             default:
-                throw new UnsupportedOperationException();
+                throw new IOException("Light mode not supported:" + technique.getLightMode());
         }
 
         List<TechniqueDef> techniqueDefs = new ArrayList<>();

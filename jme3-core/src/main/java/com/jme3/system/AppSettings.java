@@ -274,7 +274,7 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public void mergeFrom(AppSettings other) {
         for (String key : other.keySet()) {
-            if (get(key) == null) {
+            if( !this.containsKey(key) ) {
                 put(key, other.get(key));
             }
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,6 @@ import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
 import com.jme3.bullet.collision.shapes.infos.ChildCollisionShape;
 import com.jme3.math.Matrix3f;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
@@ -46,6 +45,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * A utility class to generate debug spatials from Bullet collision shapes.
  *
  * @author CJ Hare, normenhansen
  */
@@ -57,10 +57,13 @@ public class DebugShapeFactory {
 //    private static final Vector3f aabbMin = new Vector3f(-1e30f, -1e30f, -1e30f);
 
     /**
-     * Creates a debug shape from the given collision shape. This is mostly used internally.<br>
-     * To attach a debug shape to a physics object, call <code>attachDebugShape(AssetManager manager);</code> on it.
-     * @param collisionShape
-     * @return
+     * Create a debug spatial from the specified collision shape.
+     * <p>
+     * This is mostly used internally. To attach a debug shape to a physics
+     * object, call <code>attachDebugShape(AssetManager manager);</code> on it.
+     *
+     * @param collisionShape the shape to visualize (may be null, unaffected)
+     * @return a new tree of geometries, or null
      */
     public static Spatial getDebugShape(CollisionShape collisionShape) {
         if (collisionShape == null) {
@@ -102,6 +105,12 @@ public class DebugShapeFactory {
         return debugShape;
     }
 
+    /**
+     * Create a geometry for visualizing the specified shape.
+     *
+     * @param shape (not null, unaffected)
+     * @return a new geometry (not null)
+     */
     private static Geometry createDebugShape(CollisionShape shape) {
         Geometry geom = new Geometry();
         geom.setMesh(DebugShapeFactory.getDebugMesh(shape));
@@ -110,17 +119,17 @@ public class DebugShapeFactory {
         return geom;
     }
 
+    /**
+     * Create a mesh for visualizing the specified shape.
+     *
+     * @param shape (not null, unaffected)
+     * @return a new mesh (not null)
+     */
     public static Mesh getDebugMesh(CollisionShape shape) {
         Mesh mesh = new Mesh();
         DebugMeshCallback callback = new DebugMeshCallback();
-        /*
-         * Populate the mesh based on an unscaled shape;
-         * the shape's scale will be applied later, to the geometry.
-         */
-        Vector3f savedScale = shape.getScale().clone();
-        shape.setScale(Vector3f.UNIT_XYZ);
-        getVertices(shape.getObjectId(), callback);
-        shape.setScale(savedScale);
+        long id = shape.getObjectId();
+        getVertices(id, callback);
 
         mesh.setBuffer(Type.Position, 3, callback.getVertices());
         mesh.getFloatBuffer(Type.Position).clear();

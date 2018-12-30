@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,22 @@ extern "C" {
             return 0;
         }
         return joint->getAppliedImpulse();
+    }
+
+    /*
+     * Class:     com_jme3_bullet_joints_PhysicsJoint
+     * Method:    finalizeNative
+     * Signature: (J)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_PhysicsJoint_finalizeNative
+    (JNIEnv * env, jobject object, jlong jointId) {
+        btTypedConstraint* joint = reinterpret_cast<btTypedConstraint*> (jointId);
+        if (joint == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+        delete(joint);
     }
 
 #ifdef __cplusplus

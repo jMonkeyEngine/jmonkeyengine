@@ -7,10 +7,6 @@ if (!hasProperty('mainClass')) {
 task run(dependsOn: 'build', type:JavaExec) {
     main = mainClass
     classpath = sourceSets.main.runtimeClasspath
-    if (System.properties['os.name'].toLowerCase().contains('mac')) {
-        jvmArgs "-XstartOnFirstThread"
-        jvmArgs "-Djava.awt.headless=true"
-    }
 
     if (System.properties['java.util.logging.config.file'] != null) {
         systemProperty "java.util.logging.config.file", System.properties['java.util.logging.config.file']

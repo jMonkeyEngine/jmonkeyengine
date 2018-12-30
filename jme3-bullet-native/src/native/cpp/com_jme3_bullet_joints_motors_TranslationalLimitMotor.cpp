@@ -141,9 +141,9 @@ extern "C" {
      * Method:    getLimitSoftness
      * Signature: (J)F
      */
-    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_motors_TranslationalLimitMotor_getLetLimitSoftness
+    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_joints_motors_TranslationalLimitMotor_getLimitSoftness
     (JNIEnv *env, jobject object, jlong motorId) {
-        btTranslationalLimitMotor* motor = reinterpret_cast<btTranslationalLimitMotor*>(motorId);
+        btTranslationalLimitMotor* motor = reinterpret_cast<btTranslationalLimitMotor*> (motorId);
         if (motor == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The native object does not exist.");

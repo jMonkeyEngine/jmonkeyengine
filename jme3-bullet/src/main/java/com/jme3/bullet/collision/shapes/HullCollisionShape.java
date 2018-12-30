@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,24 +44,52 @@ import java.nio.FloatBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * A convex hull collision shape based on Bullet's btConvexHullShape.
+ */
 public class HullCollisionShape extends CollisionShape {
 
     private float[] points;
 //    protected FloatBuffer fbuf;
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public HullCollisionShape() {
     }
 
+    /**
+     * Instantiate a collision shape based on the specified JME mesh. For best
+     * performance and stability, use the mesh should have no more than 100
+     * vertices.
+     *
+     * @param mesh a mesh on which to base the shape (not null, at least one
+     * vertex)
+     */
     public HullCollisionShape(Mesh mesh) {
         this.points = getPoints(mesh);
         createShape();
     }
 
+    /**
+     * Instantiate a collision shape based on the specified array of
+     * coordinates.
+     *
+     * @param points an array of coordinates on which to base the shape (not
+     * null, not empty, length a multiple of 3)
+     */
     public HullCollisionShape(float[] points) {
         this.points = points;
         createShape();
     }
 
+    /**
+     * Serialize this shape, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -70,6 +98,12 @@ public class HullCollisionShape extends CollisionShape {
         capsule.write(points, "points", null);
     }
 
+    /**
+     * De-serialize this shape, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
@@ -89,6 +123,9 @@ public class HullCollisionShape extends CollisionShape {
         createShape();
     }
 
+    /**
+     * Instantiate the configured shape in Bullet.
+     */
     protected void createShape() {
 //        ObjectArrayList<Vector3f> pointList = new ObjectArrayList<Vector3f>();
 //        for (int i = 0; i < points.length; i += 3) {
@@ -114,6 +151,12 @@ public class HullCollisionShape extends CollisionShape {
 
     private native long createShape(ByteBuffer points);
 
+    /**
+     * Copy the vertex positions from a JME mesh.
+     *
+     * @param mesh the mesh to read (not null)
+     * @return a new array (not null, length a multiple of 3)
+     */
     protected float[] getPoints(Mesh mesh) {
         FloatBuffer vertices = mesh.getFloatBuffer(Type.Position);
         vertices.rewind();
