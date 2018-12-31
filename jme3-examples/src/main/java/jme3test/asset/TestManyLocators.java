@@ -47,9 +47,9 @@ public class TestManyLocators {
                            UrlLocator.class);
 
         am.registerLocator("town.zip", ZipLocator.class);
-        am.registerLocator("http://jmonkeyengine.googlecode.com/files/wildhouse.zip",
-                           HttpZipLocator.class);
-        
+        am.registerLocator(
+                    "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/wildhouse.zip", 
+                    HttpZipLocator.class);       
         
         am.registerLocator("/", ClasspathLocator.class);
         
@@ -78,7 +78,7 @@ public class TestManyLocators {
             System.out.println("Found zip image: " + b.toString());
 
         if (c == null)
-            System.out.println("Failed to load from wildhouse.zip on googlecode.com");
+            System.out.println("Failed to load from wildhouse.zip on googleapis.com");
         else
             System.out.println("Found online zip image: " + c.toString());
 
