@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 package jme3test.helloworld;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.plugins.ZipLocator;
+import com.jme3.asset.plugins.HttpZipLocator;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
@@ -88,7 +88,9 @@ public class HelloCollision extends SimpleApplication
     setUpLight();
 
     // We load the scene from the zip file and adjust its size.
-    assetManager.registerLocator("town.zip", ZipLocator.class);
+    assetManager.registerLocator(
+                    "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/town.zip",
+                    HttpZipLocator.class);
     sceneModel = assetManager.loadModel("main.scene");
     sceneModel.setLocalScale(2f);
 
