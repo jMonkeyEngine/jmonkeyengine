@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ import java.util.concurrent.Future;
  */
 public class UpdateControl extends AbstractControl {
 
-    private final ConcurrentLinkedQueue<AppTask<?>> taskQueue = new ConcurrentLinkedQueue<AppTask<?>>();
+    private ConcurrentLinkedQueue<AppTask<?>> taskQueue = new ConcurrentLinkedQueue<>();
 
     /**
      * Enqueues a task/callable object to execute in the jME3
@@ -99,6 +99,7 @@ public class UpdateControl extends AbstractControl {
     @Override
     public Object jmeClone() {
         UpdateControl clone = (UpdateControl)super.jmeClone();
+        clone.taskQueue = new ConcurrentLinkedQueue<>();
         
         // This is kind of questionable since the tasks aren't cloned and have
         // no reference to the new spatial or anything.  They'll get run again
