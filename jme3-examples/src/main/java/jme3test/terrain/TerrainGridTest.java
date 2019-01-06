@@ -2,7 +2,6 @@ package jme3test.terrain;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.ScreenshotAppState;
-import com.jme3.asset.plugins.HttpZipLocator;
 import com.jme3.asset.plugins.ZipLocator;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
@@ -26,7 +25,6 @@ import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.Namer;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
-import java.io.File;
 
 public class TerrainGridTest extends SimpleApplication {
 
@@ -46,12 +44,7 @@ public class TerrainGridTest extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        File file = new File("TerrainGridTestData.zip");
-        if (!file.exists()) {
-            assetManager.registerLocator("https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/TerrainGridTestData.zip", HttpZipLocator.class);
-        } else {
-            assetManager.registerLocator("TerrainGridTestData.zip", ZipLocator.class);
-        }
+        assetManager.registerLocator("TerrainGridTestData.zip", ZipLocator.class);
 
         this.flyCam.setMoveSpeed(100f);
         ScreenshotAppState state = new ScreenshotAppState();
@@ -167,12 +160,10 @@ public class TerrainGridTest extends SimpleApplication {
         this.inputManager.addMapping("Rights", new KeyTrigger(KeyInput.KEY_D));
         this.inputManager.addMapping("Ups", new KeyTrigger(KeyInput.KEY_W));
         this.inputManager.addMapping("Downs", new KeyTrigger(KeyInput.KEY_S));
-        this.inputManager.addMapping("Jumps", new KeyTrigger(KeyInput.KEY_SPACE));
         this.inputManager.addListener(this.actionListener, "Lefts");
         this.inputManager.addListener(this.actionListener, "Rights");
         this.inputManager.addListener(this.actionListener, "Ups");
         this.inputManager.addListener(this.actionListener, "Downs");
-        this.inputManager.addListener(this.actionListener, "Jumps");
     }
     private boolean left;
     private boolean right;
@@ -206,8 +197,6 @@ public class TerrainGridTest extends SimpleApplication {
                 } else {
                     TerrainGridTest.this.down = false;
                 }
-            } else if (name.equals("Jumps")) {
-                TerrainGridTest.this.player3.jump();
             }
         }
     };
