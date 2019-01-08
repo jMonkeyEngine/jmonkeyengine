@@ -36,10 +36,8 @@
 
 package com.jme3.anim.tween;
 
-
-import com.jme3.export.*;
-
-import java.io.IOException;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 
 /**
  * Base implementation of the Tween interface that provides
@@ -50,7 +48,7 @@ import java.io.IOException;
  *
  * @author Paul Speed
  */
-public abstract class AbstractTween implements Tween {
+public abstract class AbstractTween implements JmeCloneable, Tween {
 
     private double length;
 
@@ -94,4 +92,32 @@ public abstract class AbstractTween implements Tween {
     }
 
     protected abstract void doInterpolate(double t);
+
+    /**
+     * Create a shallow clone for the JME cloner.
+     *
+     * @return a new tween (not null)
+     */
+    @Override
+    public AbstractTween jmeClone() {
+        try {
+            AbstractTween clone = (AbstractTween) super.clone();
+            return clone;
+        } catch (CloneNotSupportedException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    /**
+     * Callback from {@link com.jme3.util.clone.Cloner} to convert this
+     * shallow-cloned tween into a deep-cloned one, using the specified cloner
+     * and original to resolve copied fields.
+     *
+     * @param cloner the cloner that's cloning this tween (not null)
+     * @param original the tween from which this tween was shallow-cloned
+     * (unused)
+     */
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+    }
 }

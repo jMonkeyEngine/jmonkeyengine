@@ -2,8 +2,10 @@ package com.jme3.anim.tween.action;
 
 import com.jme3.anim.AnimationMask;
 import com.jme3.anim.tween.Tween;
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 
-public abstract class Action implements Tween {
+public abstract class Action implements JmeCloneable, Tween {
 
     protected Action[] actions;
     private double length;
@@ -66,5 +68,35 @@ public abstract class Action implements Tween {
             action.setForward(forward);
         }
 
+    }
+
+    /**
+     * Create a shallow clone for the JME cloner.
+     *
+     * @return a new action (not null)
+     */
+    @Override
+    public Action jmeClone() {
+        try {
+            Action clone = (Action) super.clone();
+            return clone;
+        } catch (CloneNotSupportedException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    /**
+     * Callback from {@link com.jme3.util.clone.Cloner} to convert this
+     * shallow-cloned action into a deep-cloned one, using the specified cloner
+     * and original to resolve copied fields.
+     *
+     * @param cloner the cloner that's cloning this action (not null)
+     * @param original the action from which this action was shallow-cloned
+     * (unused)
+     */
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        actions = cloner.clone(actions);
+        mask = cloner.clone(mask);
     }
 }
