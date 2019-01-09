@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ public class TerrainTestTile extends SimpleApplication {
     private TiledTerrain terrain;
     Material matTerrain;
     Material matWire;
-    boolean wireframe = true;
+    boolean wireframe = false;
     boolean triPlanar = false;
     boolean wardiso = false;
     boolean minnaert = false;
@@ -135,7 +135,7 @@ public class TerrainTestTile extends SimpleApplication {
     public void loadHintText() {
         hintText = new BitmapText(guiFont, false);
         hintText.setLocalTranslation(0, getCamera().getHeight(), 0);
-        hintText.setText("Hit 'T' to toggle wireframe");
+        hintText.setText("Press T to toggle wireframe");
         guiNode.attachChild(hintText);
     }
 
@@ -150,7 +150,7 @@ public class TerrainTestTile extends SimpleApplication {
         public void onAction(String name, boolean pressed, float tpf) {
             if (name.equals("wireframe") && !pressed) {
                 wireframe = !wireframe;
-                if (!wireframe) {
+                if (wireframe) {
                     terrain.setMaterial(matWire);
                 } else {
                     terrain.setMaterial(matTerrain);

@@ -1,11 +1,10 @@
 package com.jme3.anim.tween.action;
 
 import com.jme3.anim.*;
-import com.jme3.anim.tween.AbstractTween;
 import com.jme3.anim.util.HasLocalTransform;
 import com.jme3.math.Transform;
 import com.jme3.scene.Geometry;
-
+import com.jme3.util.clone.Cloner;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -90,5 +89,34 @@ public class ClipAction extends BlendableAction {
         }
     }
 
+    /**
+     * Create a shallow clone for the JME cloner.
+     *
+     * @return a new action (not null)
+     */
+    @Override
+    public ClipAction jmeClone() {
+        try {
+            ClipAction clone = (ClipAction) super.clone();
+            return clone;
+        } catch (CloneNotSupportedException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
 
+    /**
+     * Callback from {@link com.jme3.util.clone.Cloner} to convert this
+     * shallow-cloned action into a deep-cloned one, using the specified cloner
+     * and original to resolve copied fields.
+     *
+     * @param cloner the cloner that's cloning this action (not null)
+     * @param original the action from which this action was shallow-cloned
+     * (unused)
+     */
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        super.cloneFields(cloner, original);
+        clip = cloner.clone(clip);
+        transform = cloner.clone(transform);
+    }
 }
