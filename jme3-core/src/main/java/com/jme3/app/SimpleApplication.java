@@ -77,6 +77,7 @@ public abstract class SimpleApplication extends LegacyApplication {
     protected BitmapFont guiFont;
     protected FlyByCamera flyCam;
     protected boolean showSettings = true;
+    protected float speed = 1f;
     private AppActionListener actionListener = new AppActionListener();
 
     private class AppActionListener implements ActionListener {
@@ -123,6 +124,23 @@ public abstract class SimpleApplication extends LegacyApplication {
         //re-setting settings they can have been merged from the registry.
         setSettings(settings);
         super.start();
+    }
+        
+    /**
+     * Returns the applications speed.
+     *
+     * @return The speed of the application.
+     */
+    public float getSpeed() {
+        return speed;
+    }
+    
+    /**
+     * Changes the application speed. 0.0f prevents the application from updating.
+     * @param speed The speed to set.
+     */
+    public void setSpeed(float speed) {
+        this.speed = speed;
     }
 
     /**
