@@ -715,7 +715,7 @@ public class LegacyApplication implements Application, SystemListener {
         if (prof!=null) prof.appStep(AppStep.QueuedTasks);
         runQueuedTasks();
 
-        if (paused)
+        if (speed == 0 || paused)
             return;
 
         timer.update();
