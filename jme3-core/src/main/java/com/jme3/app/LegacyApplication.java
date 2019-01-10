@@ -85,6 +85,7 @@ public class LegacyApplication implements Application, SystemListener {
 
     protected boolean inputEnabled = true;
     protected LostFocusBehavior lostFocusBehavior = LostFocusBehavior.ThrottleOnLostFocus;
+    protected float speed = 1f;
     protected boolean paused = false;
     protected MouseInput mouseInput;
     protected KeyInput keyInput;
