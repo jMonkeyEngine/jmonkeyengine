@@ -24,7 +24,7 @@ ShaderNodeDefinitions{
             mat4 worldViewMatrix
             mat4 projectionMatrix
             vec3 modelPosition
-            float scale 1
+            float scale 1.0
         }
         Output {
             //all the node outputs
