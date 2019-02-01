@@ -771,20 +771,22 @@ public class Node extends Spatial {
             }
         }
     }
+
     @Override
     public void depthFirstTraversal(SceneGraphVisitor visitor, DFSMode mode) {
         if (mode == DFSMode.POST_ORDER) {
             for (Spatial child : children.getArray()) {
-                child.depthFirstTraversal(visitor);
+                child.depthFirstTraversal(visitor, mode);
             }
             visitor.visit(this);
         } else { //pre order
             visitor.visit(this);
             for (Spatial child : children.getArray()) {
-                child.depthFirstTraversal(visitor);
+                child.depthFirstTraversal(visitor, mode);
             }
         }
     }
+
     @Override
     protected void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue) {
         queue.addAll(children);
