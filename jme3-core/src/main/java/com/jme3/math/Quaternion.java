@@ -1279,6 +1279,29 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         }
         return true;
     }
+    
+    /**
+     * Returns true if this quaternion is similar to the specified quaternion
+     * within some value of epsilon.
+     */
+    public boolean isSimilar(Quaternion other, float epsilon) {
+        if (other == null) {
+            return false;
+        }
+        if (Math.abs(other.x - x) > epsilon) {
+            return false;
+        }
+        if (Math.abs(other.y - y) > epsilon) {
+            return false;
+        }
+        if (Math.abs(other.z - z) > epsilon) {
+            return false;
+        }
+        if (Math.abs(other.w - w) > epsilon) {
+            return false;
+        }
+        return true;
+    }
 
     /**
      * 
