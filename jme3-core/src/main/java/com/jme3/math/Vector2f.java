@@ -702,10 +702,10 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
         if (other == null) {
             return false;
         }
-        if (Math.abs(other.x - x) > epsilon) {
+        if (Float.compare(Math.abs(other.x - x), epsilon) > 0) {
             return false;
         }
-        if (Math.abs(other.y - y) > epsilon) {
+        if (Float.compare(Math.abs(other.y - y), epsilon) > 0) {
             return false;
         }
         return true;

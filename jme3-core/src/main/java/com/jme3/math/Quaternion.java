@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1288,16 +1288,16 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         if (other == null) {
             return false;
         }
-        if (Math.abs(other.x - x) > epsilon) {
+        if (Float.compare(Math.abs(other.x - x), epsilon) > 0) {
             return false;
         }
-        if (Math.abs(other.y - y) > epsilon) {
+        if (Float.compare(Math.abs(other.y - y), epsilon) > 0) {
             return false;
         }
-        if (Math.abs(other.z - z) > epsilon) {
+        if (Float.compare(Math.abs(other.z - z), epsilon) > 0) {
             return false;
         }
-        if (Math.abs(other.w - w) > epsilon) {
+        if (Float.compare(Math.abs(other.w - w), epsilon) > 0) {
             return false;
         }
         return true;
