@@ -73,6 +73,13 @@ public class AnimComposer extends AbstractControl {
         if (l == null) {
             throw new IllegalArgumentException("Unknown layer " + layerName);
         }
+        
+        if (actionName == null) {
+            // Clear current action from specified layer
+            l.currentAction = null;
+            return null;
+        }
+        
         Action currentAction = action(actionName);
         l.time = 0;
         l.currentAction = currentAction;
@@ -101,13 +108,20 @@ public class AnimComposer extends AbstractControl {
     public boolean hasAction(String name) {
         return actions.containsKey(name);
     }
+    
+    public Action removeAction(String name) {
+        return actions.remove(name);
+    }
 
-    public void makeLayer(String name, AnimationMask mask){
+    public void makeLayer(String name, AnimationMask mask) {
         Layer l = new Layer();
         l.mask = mask;
         layers.put(name, l);
     }
 
+    public void removeLayer(String name) {
+        layers.remove(name);
+    }
 
     public BaseAction actionSequence(String name, Tween... tweens) {
         BaseAction action = new BaseAction(Tweens.sequence(tweens));
