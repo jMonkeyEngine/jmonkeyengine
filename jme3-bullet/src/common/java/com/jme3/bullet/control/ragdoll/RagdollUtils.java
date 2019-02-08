@@ -48,11 +48,31 @@ import java.nio.FloatBuffer;
 import java.util.*;
 
 /**
+ * Utility methods used by KinematicRagdollControl.
+ * <p>
+ * This class is shared between JBullet and Native Bullet.
  *
  * @author Nehon
  */
 public class RagdollUtils {
 
+    /**
+     * A private constructor to inhibit instantiation of this class.
+     */
+    private RagdollUtils() {
+    }
+
+    /**
+     * Alter the limits of the specified 6-DOF joint.
+     *
+     * @param joint which joint to alter (not null)
+     * @param maxX the maximum rotation on the X axis (in radians)
+     * @param minX the minimum rotation on the X axis (in radians)
+     * @param maxY the maximum rotation on the Y axis (in radians)
+     * @param minY the minimum rotation on the Y axis (in radians)
+     * @param maxZ the maximum rotation on the Z axis (in radians)
+     * @param minZ the minimum rotation on the Z axis (in radians)
+     */
     public static void setJointLimit(SixDofJoint joint, float maxX, float minX, float maxY, float minY, float maxZ, float minZ) {
 
         joint.getRotationalLimitMotor(0).setHiLimit(maxX);
@@ -63,6 +83,12 @@ public class RagdollUtils {
         joint.getRotationalLimitMotor(2).setLoLimit(minZ);
     }
 
+    /**
+     * Build a map of mesh vertices in a subtree of the scene graph.
+     *
+     * @param model the root of the subtree (may be null)
+     * @return a new map (not null)
+     */
     public static Map<Integer, List<Float>> buildPointMap(Spatial model) {
 
 
@@ -122,14 +148,15 @@ public class RagdollUtils {
     }
 
     /**
-     * Create a hull collision shape from linked vertices to this bone.
-     * Vertices have to be previously gathered in a map using buildPointMap method
-     * 
-     * @param pointsMap
-     * @param boneIndices
-     * @param initialScale
-     * @param initialPosition
-     * @return 
+     * Create a hull collision shape from linked vertices to this bone. Vertices
+     * must have previously been gathered using buildPointMap().
+     *
+     * @param pointsMap map from bone indices to coordinates (not null,
+     * unaffected)
+     * @param boneIndices (not null, unaffected)
+     * @param initialScale scale factors (not null, unaffected)
+     * @param initialPosition location (not null, unaffected)
+     * @return a new shape (not null)
      */
     public static HullCollisionShape makeShapeFromPointMap(Map<Integer, List<Float>> pointsMap, List<Integer> boneIndices, Vector3f initialScale, Vector3f initialPosition) {
 
@@ -151,16 +178,24 @@ public class RagdollUtils {
             }
         }
 
+        assert !points.isEmpty();
         float[] p = new float[points.size()];
         for (int i = 0; i < points.size(); i++) {
             p[i] = points.get(i);
         }
 
-
         return new HullCollisionShape(p);
     }
 
-    //returns the list of bone indices of the given bone and its child (if they are not in the boneList)
+    /**
+     * Enumerate the bone indices of the specified bone and all its descendents.
+     *
+     * @param bone the input bone (not null)
+     * @param skeleton the skeleton containing the bone (not null)
+     * @param boneList a set of bone names (not null, unaffected)
+     *
+     * @return a new list (not null)
+     */
     public static List<Integer> getBoneIndices(Bone bone, Skeleton skeleton, Set<String> boneList) {
         List<Integer> list = new LinkedList<Integer>();
         if (boneList.isEmpty()) {
@@ -178,13 +213,13 @@ public class RagdollUtils {
 
     /**
      * Create a hull collision shape from linked vertices to this bone.
-     * 
-     * @param model
-     * @param boneIndices
-     * @param initialScale
-     * @param initialPosition
-     * @param weightThreshold
-     * @return 
+     *
+     * @param model the model on which to base the shape
+     * @param boneIndices indices of relevant bones (not null, unaffected)
+     * @param initialScale scale factors
+     * @param initialPosition location
+     * @param weightThreshold minimum weight for inclusion
+     * @return a new shape
      */
     public static HullCollisionShape makeShapeFromVerticeWeights(Spatial model, List<Integer> boneIndices, Vector3f initialScale, Vector3f initialPosition, float weightThreshold) {
 
@@ -206,22 +241,29 @@ public class RagdollUtils {
                 }
             }
         }
+
+        assert !points.isEmpty();
         float[] p = new float[points.size()];
         for (int i = 0; i < points.size(); i++) {
             p[i] = points.get(i);
         }
 
-
         return new HullCollisionShape(p);
     }
 
     /**
-     * returns a list of points for the given bone
-     * @param mesh
-     * @param boneIndex
-     * @param offset
-     * @param link
-     * @return 
+     * Enumerate vertices that meet the weight threshold for the indexed bone.
+     *
+     * @param mesh the mesh to analyze (not null)
+     * @param boneIndex the index of the bone (&ge;0)
+     * @param initialScale a scale applied to vertex positions (not null,
+     * unaffected)
+     * @param offset an offset subtracted from vertex positions (not null,
+     * unaffected)
+     * @param weightThreshold the minimum bone weight for inclusion in the
+     * result (&ge;0, &le;1)
+     * @return a new list of vertex coordinates (not null, length a multiple of
+     * 3)
      */
     private static List<Float> getPoints(Mesh mesh, int boneIndex, Vector3f initialScale, Vector3f offset, float weightThreshold) {
 
@@ -265,12 +307,16 @@ public class RagdollUtils {
     }
 
     /**
-     * Updates a bone position and rotation.
-     * if the child bones are not in the bone list this means, they are not associated with a physics shape.
-     * So they have to be updated
+     * Updates a bone position and rotation. if the child bones are not in the
+     * bone list this means, they are not associated with a physics shape. So
+     * they have to be updated
+     *
      * @param bone the bone
      * @param pos the position
      * @param rot the rotation
+     * @param restoreBoneControl true &rarr; user-control flag should be set
+     * @param boneList the names of all bones without collision shapes (not
+     * null, unaffected)
      */
     public static void setTransform(Bone bone, Vector3f pos, Quaternion rot, boolean restoreBoneControl, Set<String> boneList) {
         //we ensure that we have the control
@@ -292,10 +338,51 @@ public class RagdollUtils {
         }
     }
 
+    /**
+     * Alter the user-control flags of a bone and all its descendents.
+     *
+     * @param bone the ancestor bone (not null, modified)
+     * @param bool true to enable user control, false to disable
+     */
     public static void setUserControl(Bone bone, boolean bool) {
         bone.setUserControl(bool);
         for (Bone child : bone.getChildren()) {
             setUserControl(child, bool);
         }
+    }
+
+    /**
+     * Test whether the indexed bone has at least one vertex in the specified
+     * meshes with a weight greater than the specified threshold.
+     *
+     * @param boneIndex the index of the bone (&ge;0)
+     * @param targets the meshes to search (not null, no null elements)
+     * @param weightThreshold the threshold (&ge;0, &le;1)
+     * @return true if at least 1 vertex found, otherwise false
+     */
+    public static boolean hasVertices(int boneIndex, Mesh[] targets,
+            float weightThreshold) {
+        for (Mesh mesh : targets) {
+            ByteBuffer boneIndices
+                    = (ByteBuffer) mesh.getBuffer(Type.BoneIndex).getData();
+            FloatBuffer boneWeight
+                    = (FloatBuffer) mesh.getBuffer(Type.BoneWeight).getData();
+
+            boneIndices.rewind();
+            boneWeight.rewind();
+
+            int vertexComponents = mesh.getVertexCount() * 3;
+            for (int i = 0; i < vertexComponents; i += 3) {
+                int start = i / 3 * 4;
+                for (int k = start; k < start + 4; k++) {
+                    if (boneIndices.get(k) == boneIndex
+                            && boneWeight.get(k) >= weightThreshold) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }

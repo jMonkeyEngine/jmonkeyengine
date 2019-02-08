@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,20 +41,37 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Basic capsule collision shape
+ * A capsule collision shape based on Bullet's btCapsuleShapeX, btCapsuleShape,
+ * or btCapsuleShapeZ. These shapes have no margin and cannot be scaled.
+ *
  * @author normenhansen
  */
 public class CapsuleCollisionShape extends CollisionShape{
-    protected float radius,height;
-    protected int axis;
+    /**
+     * copy of height of the cylindrical portion (&ge;0)
+     */
+    private float height;
+    /**
+     * copy of radius (&ge;0)
+     */
+    private float radius;
+    /**
+     * copy of main (height) axis (0&rarr;X, 1&rarr;Y, 2&rarr;Z)
+     */
+    private int axis;
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public CapsuleCollisionShape() {
     }
 
     /**
-     * creates a new CapsuleCollisionShape with the given radius and height
-     * @param radius the radius of the capsule
-     * @param height the height of the capsule
+     * Instantiate a Y-axis capsule shape with the specified radius and height.
+     *
+     * @param radius the desired radius (&ge;0)
+     * @param height the desired height (of the cylindrical portion) (&ge;0)
      */
     public CapsuleCollisionShape(float radius, float height) {
         this.radius=radius;
@@ -64,10 +81,11 @@ public class CapsuleCollisionShape extends CollisionShape{
     }
 
     /**
-     * creates a capsule shape around the given axis (0=X,1=Y,2=Z)
-     * @param radius
-     * @param height
-     * @param axis
+     * Instantiate a capsule shape around the specified main (height) axis.
+     *
+     * @param radius the desired radius (&ge;0)
+     * @param height the desired height (of the cylindrical portion) (&ge;0)
+     * @param axis which local axis: 0&rarr;X, 1&rarr;Y, 2&rarr;Z
      */
     public CapsuleCollisionShape(float radius, float height, int axis) {
         this.radius=radius;
@@ -76,20 +94,39 @@ public class CapsuleCollisionShape extends CollisionShape{
         createShape();
     }
 
+    /**
+     * Read the radius of the capsule.
+     *
+     * @return the radius (&ge;0)
+     */
     public float getRadius() {
         return radius;
     }
 
+    /**
+     * Read the height (of the cylindrical portion) of the capsule.
+     *
+     * @return height (&ge;0)
+     */
     public float getHeight() {
         return height;
     }
 
+    /**
+     * Determine the main (height) axis of the capsule.
+     *
+     * @return 0 for local X, 1 for local Y, or 2 for local Z
+     */
     public int getAxis() {
         return axis;
     }
 
     /**
-     * WARNING - CompoundCollisionShape scaling has no effect.
+     * Alter the scaling factors of this shape. Scaling is disabled
+     * for capsule shapes.
+     *
+     * @param scale the desired scaling factor for each local axis (not null, no
+     * negative component, unaffected, default=1,1,1)
      */
     @Override
     public void setScale(Vector3f scale) {
@@ -98,6 +135,12 @@ public class CapsuleCollisionShape extends CollisionShape{
         }
     }
 
+    /**
+     * Serialize this shape, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
@@ -106,6 +149,12 @@ public class CapsuleCollisionShape extends CollisionShape{
         capsule.write(axis, "axis", 1);
     }
 
+    /**
+     * De-serialize this shape, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);
@@ -115,6 +164,9 @@ public class CapsuleCollisionShape extends CollisionShape{
         createShape();
     }
 
+    /**
+     * Instantiate the configured shape in Bullet.
+     */
     protected void createShape(){
         objectId = createShape(axis, radius, height);
         Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Shape {0}", Long.toHexString(objectId));

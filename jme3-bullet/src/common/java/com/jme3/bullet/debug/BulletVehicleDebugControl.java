@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,6 +43,9 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.Arrow;
 
 /**
+ * A physics-debug control used to visualize a PhysicsVehicle.
+ * <p>
+ * This class is shared between JBullet and Native Bullet.
  *
  * @author normenhansen
  */
@@ -53,6 +56,12 @@ public class BulletVehicleDebugControl extends AbstractPhysicsDebugControl {
     protected final Vector3f location = new Vector3f();
     protected final Quaternion rotation = new Quaternion();
 
+    /**
+     * Instantiate an enabled control to visualize the specified vehicle.
+     *
+     * @param debugAppState which app state (not null, alias created)
+     * @param body which vehicle to visualize (not null, alias created)
+     */
     public BulletVehicleDebugControl(BulletDebugAppState debugAppState, PhysicsVehicle body) {
         super(debugAppState);
         this.body = body;
@@ -60,6 +69,13 @@ public class BulletVehicleDebugControl extends AbstractPhysicsDebugControl {
         createVehicle();
     }
 
+    /**
+     * Alter which spatial is controlled. Invoked when the control is added to
+     * or removed from a spatial. Should be invoked only by a subclass or from
+     * Spatial. Do not invoke directly from user code.
+     *
+     * @param spatial the spatial to control (or null)
+     */
     @Override
     public void setSpatial(Spatial spatial) {
         if (spatial != null && spatial instanceof Node) {
@@ -104,6 +120,13 @@ public class BulletVehicleDebugControl extends AbstractPhysicsDebugControl {
         }
     }
 
+    /**
+     * Update this control. Invoked once per frame during the logical-state
+     * update, provided the control is enabled and added to a scene. Should be
+     * invoked only by a subclass or by AbstractControl.
+     *
+     * @param tpf the time interval between frames (in seconds, &ge;0)
+     */
     @Override
     protected void controlUpdate(float tpf) {
         for (int i = 0; i < body.getNumWheels(); i++) {
@@ -136,6 +159,14 @@ public class BulletVehicleDebugControl extends AbstractPhysicsDebugControl {
         applyPhysicsTransform(body.getPhysicsLocation(location), body.getPhysicsRotation(rotation));
     }
 
+    /**
+     * Render this control. Invoked once per frame, provided the
+     * control is enabled and added to a scene. Should be invoked only by a
+     * subclass or by AbstractControl.
+     *
+     * @param rm the render manager (not null)
+     * @param vp the view port to render (not null)
+     */
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
     }

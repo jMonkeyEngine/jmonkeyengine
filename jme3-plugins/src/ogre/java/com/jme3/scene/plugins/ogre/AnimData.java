@@ -31,17 +31,18 @@
  */
 package com.jme3.scene.plugins.ogre;
 
-import com.jme3.animation.Animation;
-import com.jme3.animation.Skeleton;
+import com.jme3.anim.AnimClip;
+import com.jme3.anim.Armature;
+
 import java.util.ArrayList;
 
 public class AnimData {
 
-    public final Skeleton skeleton;
-    public final ArrayList<Animation> anims;
+    public final Armature armature;
+    public final ArrayList<AnimClip> anims;
 
-    public AnimData(Skeleton skeleton, ArrayList<Animation> anims) {
-        this.skeleton = skeleton;
+    public AnimData(Armature armature, ArrayList<AnimClip> anims) {
+        this.armature = armature;
         this.anims = anims;
     }
 }

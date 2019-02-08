@@ -31,9 +31,7 @@
  */
 package com.jme3.scene.plugins.ogre;
 
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.Animation;
-import com.jme3.animation.SkeletonControl;
+import com.jme3.anim.*;
 import com.jme3.asset.*;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialList;
@@ -41,30 +39,23 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.*;
-import com.jme3.scene.VertexBuffer.Format;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.scene.VertexBuffer.*;
 import com.jme3.scene.plugins.ogre.matext.OgreMaterialKey;
-import com.jme3.util.BufferUtils;
-import com.jme3.util.IntMap;
+import com.jme3.util.*;
 import com.jme3.util.IntMap.Entry;
-import com.jme3.util.PlaceholderAssets;
-import static com.jme3.util.xml.SAXUtil.*;
+import org.xml.sax.*;
+import org.xml.sax.helpers.DefaultHandler;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
+
+import static com.jme3.util.xml.SAXUtil.*;
 
 /**
  * Loads Ogre3D mesh.xml files.
@@ -799,35 +790,28 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             for (int i = 0; i < geoms.size(); i++) {
                 Geometry g = geoms.get(i);
                 Mesh m = geoms.get(i).getMesh();
-                
-                //FIXME the parameter is now useless.
-                //It was !HADWARE_SKINNING before, but since toggleing 
-                //HW skinning does not happen at load time it was always true.
-                //We should use something similar as for the HWBoneIndex and 
-                //HWBoneWeight : create the vertex buffers empty so that they 
-                //are put in the cache, and really populate them the first time 
-                //software skinning is used on the mesh.
-                m.generateBindPose(true);
-
+                m.generateBindPose();
             }
 
             // Put the animations in the AnimControl
-            HashMap<String, Animation> anims = new HashMap<String, Animation>();
-            ArrayList<Animation> animList = animData.anims;
+            HashMap<String, AnimClip> anims = new HashMap<>();
+            ArrayList<AnimClip> animList = animData.anims;
             for (int i = 0; i < animList.size(); i++) {
-                Animation anim = animList.get(i);
+                AnimClip anim = animList.get(i);
                 anims.put(anim.getName(), anim);
             }
 
-            AnimControl ctrl = new AnimControl(animData.skeleton);
-            ctrl.setAnimations(anims);
-            model.addControl(ctrl);
+            AnimComposer composer = new AnimComposer();
+            for (AnimClip clip : anims.values()) {
+                composer.addAnimClip(clip);
+            }
+            model.addControl(composer);
 
             // Put the skeleton in the skeleton control
-            SkeletonControl skeletonControl = new SkeletonControl(animData.skeleton);
+            SkinningControl skinningControl = new SkinningControl(animData.armature);
 
             // This will acquire the targets from the node
-            model.addControl(skeletonControl);
+            model.addControl(skinningControl);
         }
 
         return model;

@@ -278,8 +278,8 @@ public class AudioNode extends Node implements AudioSource {
      * the dry filter will only influence the "dry" portion of the audio,
      * e.g. not the reverberated parts of the AudioNode playing.
      *
-     * See the relevent documentation for the {@link Filter} to determine
-     * the effect.
+     * See the relevant documentation for the {@link Filter} to determine the
+     * effect.
      *
      * @param dryFilter The filter to set, or null to disable dry filter.
      */
@@ -722,25 +722,14 @@ public class AudioNode extends Node implements AudioSource {
     @Override
     public void updateGeometricState() {
         super.updateGeometricState();
-
-        if (channel < 0) {
-            return;
-        }
-
+        if (channel < 0 || this.getParent() == null) return;
         Vector3f currentWorldTranslation = worldTransform.getTranslation();
-
-        if (Float.isNaN(previousWorldTranslation.x)
-                || !previousWorldTranslation.equals(currentWorldTranslation)) {
-
+        if (!previousWorldTranslation.equals(currentWorldTranslation)) {
             getRenderer().updateSourceParam(this, AudioParam.Position);
-
-            if (velocityFromTranslation) {
-                velocity.set(currentWorldTranslation).subtractLocal(previousWorldTranslation);
-                velocity.multLocal(1f / lastTpf);
-
+            if (velocityFromTranslation && !Float.isNaN(previousWorldTranslation.x)) {
+                velocity.set(currentWorldTranslation).subtractLocal(previousWorldTranslation).multLocal(1f / lastTpf);
                 getRenderer().updateSourceParam(this, AudioParam.Velocity);
             }
-
             previousWorldTranslation.set(currentWorldTranslation);
         }
     }
@@ -748,10 +737,6 @@ public class AudioNode extends Node implements AudioSource {
     @Override
     public AudioNode clone(){
         AudioNode clone = (AudioNode) super.clone();
-
-        clone.direction = direction.clone();
-        clone.velocity  = velocity.clone();
-
         return clone;
     }
 
@@ -760,10 +745,11 @@ public class AudioNode extends Node implements AudioSource {
      */
     @Override
     public void cloneFields( Cloner cloner, Object original ) {
-        super.cloneFields(cloner, original);
+        super.cloneFields(cloner, original); 
 
-        this.direction = cloner.clone(direction);
-        this.velocity = cloner.clone(velocity);
+        this.direction=cloner.clone(direction);
+        this.velocity=velocityFromTranslation?new Vector3f():cloner.clone(velocity);      
+        this.previousWorldTranslation=Vector3f.NAN.clone();
 
         // Change in behavior: the filters were not cloned before meaning
         // that two cloned audio nodes would share the same filter instance.

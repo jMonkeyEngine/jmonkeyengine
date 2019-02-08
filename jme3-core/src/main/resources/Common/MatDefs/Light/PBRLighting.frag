@@ -3,7 +3,6 @@
 #import "Common/ShaderLib/Parallax.glsllib"
 #import "Common/ShaderLib/Lighting.glsllib"
 
-
 varying vec2 texCoord;
 #ifdef SEPARATE_TEXCOORD
   varying vec2 texCoord2;
@@ -12,7 +11,6 @@ varying vec2 texCoord;
 varying vec4 Color;
 
 uniform vec4 g_LightData[NB_LIGHTS];
-
 uniform vec3 g_CameraPosition;
 
 uniform float m_Roughness;
@@ -21,11 +19,20 @@ uniform float m_Metallic;
 varying vec3 wPosition;    
 
 
-#ifdef INDIRECT_LIGHTING
-//  uniform sampler2D m_IntegrateBRDF;
+#if NB_PROBES >= 1
   uniform samplerCube g_PrefEnvMap;
   uniform vec3 g_ShCoeffs[9];
-  uniform vec4 g_LightProbeData;
+  uniform mat4 g_LightProbeData;
+#endif
+#if NB_PROBES >= 2
+  uniform samplerCube g_PrefEnvMap2;
+  uniform vec3 g_ShCoeffs2[9];
+  uniform mat4 g_LightProbeData2;
+#endif
+#if NB_PROBES == 3
+  uniform samplerCube g_PrefEnvMap3;
+  uniform vec3 g_ShCoeffs3[9];
+  uniform mat4 g_LightProbeData3;
 #endif
 
 #ifdef BASECOLORMAP
@@ -167,7 +174,6 @@ void main(){
       vec3 normal = norm;
     #endif
 
-    float specular = 0.5;
     #ifdef SPECGLOSSPIPELINE
 
         #ifdef USE_PACKED_SG
@@ -181,7 +187,7 @@ void main(){
                 vec4 specularColor = vec4(1.0);
             #endif
             #ifdef GLOSSINESSMAP
-                float glossiness = texture2D(m_GlossinesMap, newTexCoord).r * m_Glossiness;
+                float glossiness = texture2D(m_GlossinessMap, newTexCoord).r * m_Glossiness;
             #else
                 float glossiness = m_Glossiness;
             #endif
@@ -189,10 +195,13 @@ void main(){
         #endif
         vec4 diffuseColor = albedo;// * (1.0 - max(max(specularColor.r, specularColor.g), specularColor.b));
         Roughness = 1.0 - glossiness;
-    #else      
+        vec3 fZero = specularColor.xyz;
+    #else
+        float specular = 0.5;
         float nonMetalSpec = 0.08 * specular;
         vec4 specularColor = (nonMetalSpec - nonMetalSpec * Metallic) + albedo * Metallic;
         vec4 diffuseColor = albedo - albedo * Metallic;
+        vec3 fZero = vec3(specular);
     #endif
 
     gl_FragColor.rgb = vec3(0.0);
@@ -239,8 +248,8 @@ void main(){
         vec3 directDiffuse;
         vec3 directSpecular;
         
-        PBR_ComputeDirectLight(normal, lightDir.xyz, viewDir,
-                            lightColor.rgb,specular, Roughness, ndotv,
+        float hdotv = PBR_ComputeDirectLight(normal, lightDir.xyz, viewDir,
+                            lightColor.rgb, fZero, Roughness, ndotv,
                             directDiffuse,  directSpecular);
 
         vec3 directLighting = diffuseColor.rgb *directDiffuse + directSpecular;
@@ -248,32 +257,47 @@ void main(){
         gl_FragColor.rgb += directLighting * fallOff;
     }
 
-    #ifdef INDIRECT_LIGHTING
-        vec3 rv = reflect(-viewDir.xyz, normal.xyz);
-        //prallax fix for spherical bounds from https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
-        // g_LightProbeData.w is 1/probe radius + nbMipMaps, g_LightProbeData.xyz is the position of the lightProbe.
-        float invRadius = fract( g_LightProbeData.w);
-        float nbMipMaps = g_LightProbeData.w - invRadius;
-        rv = invRadius * (wPosition - g_LightProbeData.xyz) +rv;
+    #if NB_PROBES >= 1
+        vec3 color1 = vec3(0.0);
+        vec3 color2 = vec3(0.0);
+        vec3 color3 = vec3(0.0);
+        float weight1 = 1.0;
+        float weight2 = 0.0;
+        float weight3 = 0.0;
 
-         //horizon fade from http://marmosetco.tumblr.com/post/81245981087
-        float horiz = dot(rv, norm);
-        float horizFadePower = 1.0 - Roughness;
-        horiz = clamp( 1.0 + horizFadePower * horiz, 0.0, 1.0 );
-        horiz *= horiz;
+        float ndf = renderProbe(viewDir, wPosition, normal, norm, Roughness, diffuseColor, specularColor, ndotv, ao, g_LightProbeData, g_ShCoeffs, g_PrefEnvMap, color1);
+        #if NB_PROBES >= 2
+            float ndf2 = renderProbe(viewDir, wPosition, normal, norm, Roughness, diffuseColor, specularColor, ndotv, ao, g_LightProbeData2, g_ShCoeffs2, g_PrefEnvMap2, color2);
+        #endif
+        #if NB_PROBES == 3
+            float ndf3 = renderProbe(viewDir, wPosition, normal, norm, Roughness, diffuseColor, specularColor, ndotv, ao, g_LightProbeData3, g_ShCoeffs3, g_PrefEnvMap3, color3);
+        #endif
 
-        vec3 indirectDiffuse = vec3(0.0);
-        vec3 indirectSpecular = vec3(0.0);
-        indirectDiffuse = sphericalHarmonics(normal.xyz, g_ShCoeffs) * diffuseColor.rgb;
-        vec3 dominantR = getSpecularDominantDir( normal, rv.xyz, Roughness*Roughness );
-        indirectSpecular = ApproximateSpecularIBLPolynomial(g_PrefEnvMap, specularColor.rgb, Roughness, ndotv, dominantR, nbMipMaps);
-        indirectSpecular *= vec3(horiz);
+         #if NB_PROBES >= 2
+            float invNdf =  max(1.0 - ndf,0.0);
+            float invNdf2 =  max(1.0 - ndf2,0.0);
+            float sumNdf = ndf + ndf2;
+            float sumInvNdf = invNdf + invNdf2;
+            #if NB_PROBES == 3
+                float invNdf3 = max(1.0 - ndf3,0.0);
+                sumNdf += ndf3;
+                sumInvNdf += invNdf3;
+                weight3 =  ((1.0 - (ndf3 / sumNdf)) / (NB_PROBES - 1)) *  (invNdf3 / sumInvNdf);
+            #endif
 
-        vec3 indirectLighting = (indirectDiffuse + indirectSpecular) * ao;
+            weight1 = ((1.0 - (ndf / sumNdf)) / (NB_PROBES - 1)) *  (invNdf / sumInvNdf);
+            weight2 = ((1.0 - (ndf2 / sumNdf)) / (NB_PROBES - 1)) *  (invNdf2 / sumInvNdf);
 
-        gl_FragColor.rgb = gl_FragColor.rgb + indirectLighting * step( 0.0, g_LightProbeData.w);
+            float weightSum = weight1 + weight2 + weight3;
+
+            weight1 /= weightSum;
+            weight2 /= weightSum;
+            weight3 /= weightSum;
+        #endif
+        gl_FragColor.rgb += color1 * clamp(weight1,0.0,1.0) + color2 * clamp(weight2,0.0,1.0) + color3 * clamp(weight3,0.0,1.0);
+
     #endif
- 
+
     #if defined(EMISSIVE) || defined (EMISSIVEMAP)
         #ifdef EMISSIVEMAP
             vec4 emissive = texture2D(m_EmissiveMap, newTexCoord);

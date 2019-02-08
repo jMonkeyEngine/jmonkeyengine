@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -89,7 +89,9 @@ public class TestQ3 extends SimpleApplication implements ActionListener {
 
         // load the level from zip or http zip
         if (useHttp) {
-            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/quake3level.zip", HttpZipLocator.class);
+            assetManager.registerLocator(
+                    "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/quake3level.zip",
+                    HttpZipLocator.class);
         } else {
             assetManager.registerLocator("quake3level.zip", ZipLocator.class);
         }

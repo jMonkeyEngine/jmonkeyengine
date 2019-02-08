@@ -31,6 +31,7 @@
  */
 package com.jme3.scene;
 
+import com.jme3.anim.util.HasLocalTransform;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.CloneableSmartAsset;
 import com.jme3.bounding.BoundingVolume;
@@ -48,11 +49,11 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.control.Control;
+import com.jme3.util.SafeArrayList;
+import com.jme3.util.TempVars;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.IdentityCloneFunction;
 import com.jme3.util.clone.JmeCloneable;
-import com.jme3.util.SafeArrayList;
-import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -67,7 +68,7 @@ import java.util.logging.Logger;
  * @author Joshua Slack
  * @version $Revision: 4075 $, $Data$
  */
-public abstract class Spatial implements Savable, Cloneable, Collidable, CloneableSmartAsset, JmeCloneable {
+public abstract class Spatial implements Savable, Cloneable, Collidable, CloneableSmartAsset, JmeCloneable, HasLocalTransform {
 
     private static final Logger logger = Logger.getLogger(Spatial.class.getName());
 
@@ -1367,66 +1368,11 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     }
 
     /**
-     *  The old clone() method that did not use the new Cloner utility.
+     * The old clone() method that did not use the new Cloner utility.
      */
+    @Deprecated
     public Spatial oldClone(boolean cloneMaterial) {
-        try {
-            Spatial clone = (Spatial) super.clone();
-            if (worldBound != null) {
-                clone.worldBound = worldBound.clone();
-            }
-            clone.worldLights = worldLights.clone();
-            clone.localLights = localLights.clone();
-
-            // Set the new owner of the light lists
-            clone.localLights.setOwner(clone);
-            clone.worldLights.setOwner(clone);
-
-            clone.worldOverrides = new SafeArrayList<>(MatParamOverride.class);
-            clone.localOverrides = new SafeArrayList<>(MatParamOverride.class);
-
-            for (MatParamOverride override : localOverrides) {
-                clone.localOverrides.add((MatParamOverride) override.clone());
-            }
-
-            // No need to force cloned to update.
-            // This node already has the refresh flags
-            // set below so it will have to update anyway.
-            clone.worldTransform = worldTransform.clone();
-            clone.localTransform = localTransform.clone();
-
-            if (clone instanceof Node) {
-                Node node = (Node) this;
-                Node nodeClone = (Node) clone;
-                nodeClone.children = new SafeArrayList<Spatial>(Spatial.class);
-                for (Spatial child : node.children) {
-                    Spatial childClone = child.clone(cloneMaterial);
-                    childClone.parent = nodeClone;
-                    nodeClone.children.add(childClone);
-                }
-            }
-
-            clone.parent = null;
-            clone.setBoundRefresh();
-            clone.setTransformRefresh();
-            clone.setLightListRefresh();
-            clone.setMatParamOverrideRefresh();
-
-            clone.controls = new SafeArrayList<Control>(Control.class);
-            for (int i = 0; i < controls.size(); i++) {
-                Control newControl = controls.get(i).cloneForSpatial(clone);
-                newControl.setSpatial(clone);
-                clone.controls.add(newControl);
-            }
-
-            if (userData != null) {
-                clone.userData = (HashMap<String, Savable>) userData.clone();
-            }
-
-            return clone;
-        } catch (CloneNotSupportedException ex) {
-            throw new AssertionError();
-        }
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -1435,9 +1381,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      *
      * Note that meshes of geometries are not cloned explicitly, they
      * are shared if static, or specially cloned if animated.
-     *
-     * All controls will be cloned using the Control.cloneForSpatial method
-     * on the clone.
      *
      * @see Mesh#cloneForAnim()
      */

@@ -31,24 +31,16 @@
  */
 package com.jme3.cinematic.events;
 
-import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.LoopMode;
+import com.jme3.animation.*;
 import com.jme3.app.Application;
 import com.jme3.cinematic.Cinematic;
 import com.jme3.cinematic.PlayState;
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
+import com.jme3.export.*;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.util.clone.Cloner;
-import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -60,6 +52,7 @@ import java.util.logging.Logger;
  *
  * @author Nehon
  */
+@Deprecated
 public class AnimationEvent extends AbstractCinematicEvent {
 
     // Version #2: directly keeping track on the model instead of trying to retrieve 

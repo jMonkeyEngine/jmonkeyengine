@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,6 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
-import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 
@@ -139,15 +138,6 @@ public class LodControl extends AbstractControl implements Cloneable, JmeCloneab
             numLevels = 0;
             numTris = null;
         }
-    }
-
-    @Override
-    public Control cloneForSpatial(Spatial spatial) {
-        LodControl clone = (LodControl) super.cloneForSpatial(spatial);
-        clone.lastDistance = 0;
-        clone.lastLevel = 0;
-        clone.numTris = numTris != null ? numTris.clone() : null;
-        return clone;
     }
 
     @Override

@@ -212,7 +212,42 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
          * Format should be {@link Format#Float} and number of components
          * should be 16.
          */
-        InstanceData
+        InstanceData,
+
+        /**
+         * Morph animations targets.
+         * Supports up tp 14 morph target buffers at the same time
+         * Limited due to the limited number of attributes you can bind to a vertex shader usually 16
+         * <p>
+         * MorphTarget buffers are either POSITION, NORMAL or TANGENT buffers.
+         * So we can support up to
+         * 14 simultaneous POSITION targets
+         * 7 simultaneous POSITION and NORMAL targets
+         * 4 simultaneous POSTION, NORMAL and TANGENT targets.
+         * <p>
+         * Note that the MorphControl will find how many buffers can be supported for each mesh/material combination.
+         * Note that all buffers have 3 components (Vector3f) even the Tangent buffer that
+         * does not contain the w (handedness) component that will not be interpolated for morph animation.
+         * <p>
+         * Note that those buffers contain the difference between the base buffer (POSITION, NORMAL or TANGENT) and the target value
+         * So that you can interpolate with a MADD operation in the vertex shader
+         * position = weight * diffPosition + basePosition;
+         */
+        MorphTarget0,
+        MorphTarget1,
+        MorphTarget2,
+        MorphTarget3,
+        MorphTarget4,
+        MorphTarget5,
+        MorphTarget6,
+        MorphTarget7,
+        MorphTarget8,
+        MorphTarget9,
+        MorphTarget10,
+        MorphTarget11,
+        MorphTarget12,
+        MorphTarget13,
+
     }
 
     /**
@@ -241,7 +276,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
          * Mesh data is <em>not</em> sent to GPU at all. It is only
          * used by the CPU.
          */
-        CpuOnly;
+        CpuOnly
     }
 
     /**
@@ -606,9 +641,13 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * @return The total number of data elements in the data buffer.
      */
     public int getNumElements(){
+        if( data == null ) {
+            return 0;
+        }
         int elements = data.limit() / components;
-        if (format == Format.Half)
+        if (format == Format.Half) {
             elements /= 2;
+        }
         return elements;
     }
 
@@ -639,14 +678,17 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * argument.
      */
     public void setupData(Usage usage, int components, Format format, Buffer data){
-        if (id != -1)
+        if (id != -1) {
             throw new UnsupportedOperationException("Data has already been sent. Cannot setupData again.");
+        }
 
-        if (usage == null || format == null || data == null)
+        if (usage == null || format == null || data == null) {
             throw new IllegalArgumentException("None of the arguments can be null");
-            
-        if (data.isReadOnly()) 
-            throw new IllegalArgumentException( "VertexBuffer data cannot be read-only." );
+        }
+
+        if (data.isReadOnly()) {
+            throw new IllegalArgumentException("VertexBuffer data cannot be read-only.");
+        }
 
         if (bufType != Type.InstanceData) {
             if (components < 1 || components > 4) {
@@ -717,11 +759,13 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * Converts single floating-point data to {@link Format#Half half} floating-point data.
      */
     public void convertToHalf(){
-        if (id != -1)
+        if (id != -1) {
             throw new UnsupportedOperationException("Data has already been sent.");
+        }
 
-        if (format != Format.Float)
+        if (format != Format.Float) {
             throw new IllegalStateException("Format must be float!");
+        }
 
         int numElements = data.limit() / components;
         format = Format.Half;
@@ -910,8 +954,9 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * match.
      */
     public void copyElements(int inIndex, VertexBuffer outVb, int outIndex, int len){
-        if (outVb.format != format || outVb.components != components)
+        if (outVb.format != format || outVb.components != components) {
             throw new IllegalArgumentException("Buffer format mismatch. Cannot copy");
+        }
 
         int inPos  = inIndex  * components;
         int outPos = outIndex * components;
@@ -978,8 +1023,9 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * of elements with the given number of components in each element.
      */
     public static Buffer createBuffer(Format format, int components, int numElements){
-        if (components < 1 || components > 4)
+        if (components < 1 || components > 4) {
             throw new IllegalArgumentException("Num components must be between 1 and 4");
+        }
 
         int total = numElements * components;
 

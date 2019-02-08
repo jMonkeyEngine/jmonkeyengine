@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,35 +41,63 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Basic box collision shape
+ * A rectangular-solid collision shape based on Bullet's btBoxShape.
+ *
  * @author normenhansen
  */
 public class BoxCollisionShape extends CollisionShape {
 
+    /**
+     * copy of half-extents of the box on each local axis (not null, no negative
+     * component)
+     */
     private Vector3f halfExtents;
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public BoxCollisionShape() {
     }
 
     /**
-     * creates a collision box from the given halfExtents
-     * @param halfExtents the halfExtents of the CollisionBox
+     * Instantiate a box shape with the specified half extents.
+     *
+     * @param halfExtents the desired unscaled half extents (not null, no
+     * negative component, alias created)
      */
     public BoxCollisionShape(Vector3f halfExtents) {
         this.halfExtents = halfExtents;
         createShape();
     }
 
+    /**
+     * Access the half extents of the box.
+     *
+     * @return the pre-existing instance (not null, no negative component)
+     */
     public final Vector3f getHalfExtents() {
         return halfExtents;
     }
-    
+
+    /**
+     * Serialize this shape, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
         capsule.write(halfExtents, "halfExtents", new Vector3f(1, 1, 1));
     }
 
+    /**
+     * De-serialize this shape, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);
@@ -78,6 +106,9 @@ public class BoxCollisionShape extends CollisionShape {
         createShape();
     }
 
+    /**
+     * Instantiate the configured shape in Bullet.
+     */
     protected void createShape() {
         objectId = createShape(halfExtents);
         Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Shape {0}", Long.toHexString(objectId));

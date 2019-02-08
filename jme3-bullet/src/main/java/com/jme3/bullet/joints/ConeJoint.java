@@ -43,10 +43,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * <i>From bullet manual:</i><br>
- * To create ragdolls, the cone twist constraint is very useful for limbs like the upper arm.
- * It is a special point to point constraint that adds cone and twist axis limits.
- * The x-axis serves as twist axis.
+ * A joint based on Bullet's btConeTwistConstraint.
+ * <p>
+ * <i>From the Bullet manual:</i><br>
+ * To create ragdolls, the cone twist constraint is very useful for limbs like
+ * the upper arm. It is a special point to point constraint that adds cone and
+ * twist axis limits. The x-axis serves as twist axis.
+ *
  * @author normenhansen
  */
 public class ConeJoint extends PhysicsJoint {
@@ -57,12 +60,25 @@ public class ConeJoint extends PhysicsJoint {
     protected float twistSpan = 1e30f;
     protected boolean angularOnly = false;
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public ConeJoint() {
     }
 
     /**
-     * @param pivotA local translation of the joint connection point in node A
-     * @param pivotB local translation of the joint connection point in node B
+     * Instantiate a ConeJoint. To be effective, the joint must be added to a
+     * physics space.
+     *
+     * @param nodeA the 1st body connected by the joint (not null, alias
+     * created)
+     * @param nodeB the 2nd body connected by the joint (not null, alias
+     * created)
+     * @param pivotA the local offset of the connection point in node A (not
+     * null, alias created)
+     * @param pivotB the local offset of the connection point in node B (not
+     * null, alias created)
      */
     public ConeJoint(PhysicsRigidBody nodeA, PhysicsRigidBody nodeB, Vector3f pivotA, Vector3f pivotB) {
         super(nodeA, nodeB, pivotA, pivotB);
@@ -72,8 +88,21 @@ public class ConeJoint extends PhysicsJoint {
     }
 
     /**
+     * Instantiate a ConeJoint. To be effective, the joint must be added to a
+     * physics space.
+     *
+     * @param nodeA the 1st body connected by the joint (not null, alias
+     * created)
+     * @param nodeB the 2nd body connected by the joint (not null, alias
+     * created)
      * @param pivotA local translation of the joint connection point in node A
+     * (not null, alias created)
      * @param pivotB local translation of the joint connection point in node B
+     * (not null, alias created)
+     * @param rotA the local orientation of the connection to node A (not null,
+     * alias created)
+     * @param rotB the local orientation of the connection to node B (not null,
+     * alias created)
      */
     public ConeJoint(PhysicsRigidBody nodeA, PhysicsRigidBody nodeB, Vector3f pivotA, Vector3f pivotB, Matrix3f rotA, Matrix3f rotB) {
         super(nodeA, nodeB, pivotA, pivotB);
@@ -82,6 +111,13 @@ public class ConeJoint extends PhysicsJoint {
         createJoint();
     }
 
+    /**
+     * Alter the angular limits for this joint.
+     *
+     * @param swingSpan1 angle (in radians)
+     * @param swingSpan2 angle (in radians)
+     * @param twistSpan angle (in radians)
+     */
     public void setLimit(float swingSpan1, float swingSpan2, float twistSpan) {
         this.swingSpan1 = swingSpan1;
         this.swingSpan2 = swingSpan2;
@@ -91,6 +127,11 @@ public class ConeJoint extends PhysicsJoint {
 
     private native void setLimit(long objectId, float swingSpan1, float swingSpan2, float twistSpan);
 
+    /**
+     * Alter whether this joint is angular only.
+     *
+     * @param value the desired setting (default=false)
+     */
     public void setAngularOnly(boolean value) {
         angularOnly = value;
         setAngularOnly(objectId, value);
@@ -98,6 +139,12 @@ public class ConeJoint extends PhysicsJoint {
 
     private native void setAngularOnly(long objectId, boolean value);
 
+    /**
+     * Serialize this joint, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -111,6 +158,12 @@ public class ConeJoint extends PhysicsJoint {
         capsule.write(twistSpan, "twistSpan", 1e30f);
     }
 
+    /**
+     * De-serialize this joint, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
@@ -125,6 +178,9 @@ public class ConeJoint extends PhysicsJoint {
         createJoint();
     }
 
+    /**
+     * Create the configured joint in Bullet.
+     */
     protected void createJoint() {
         objectId = createJoint(nodeA.getObjectId(), nodeB.getObjectId(), pivotA, rotA, pivotB, rotB);
         Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Joint {0}", Long.toHexString(objectId));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,23 +46,33 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * A CompoundCollisionShape allows combining multiple base shapes
- * to generate a more sophisticated shape.
+ * A collision shape formed by combining convex child shapes, based on Bullet's
+ * btCompoundShape.
+ *
  * @author normenhansen
  */
 public class CompoundCollisionShape extends CollisionShape {
 
+    /**
+     * children of this shape
+     */
     protected ArrayList<ChildCollisionShape> children = new ArrayList<ChildCollisionShape>();
 
+    /**
+     * Instantiate an empty compound shape (with no children).
+     */
     public CompoundCollisionShape() {
         objectId = createShape();//new CompoundShape();
         Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Shape {0}", Long.toHexString(objectId));
     }
 
     /**
-     * adds a child shape at the given local translation
-     * @param shape the child shape to add
-     * @param location the local location of the child shape
+     * Add a child shape with the specified local translation.
+     *
+     * @param shape the child shape to add (not null, not a compound shape,
+     * alias created)
+     * @param location the local coordinates of the child shape's center (not
+     * null, unaffected)
      */
     public void addChildShape(CollisionShape shape, Vector3f location) {
 //        Transform transA = new Transform(Converter.convert(new Matrix3f()));
@@ -73,9 +83,14 @@ public class CompoundCollisionShape extends CollisionShape {
     }
 
     /**
-     * adds a child shape at the given local translation
-     * @param shape the child shape to add
-     * @param location the local location of the child shape
+     * Add a child shape with the specified local translation and orientation.
+     *
+     * @param shape the child shape to add (not null, not a compound shape,
+     * alias created)
+     * @param location the local coordinates of the child shape's center (not
+     * null, unaffected)
+     * @param rotation the local orientation of the child shape (not null,
+     * unaffected)
      */
     public void addChildShape(CollisionShape shape, Vector3f location, Matrix3f rotation) {
         if(shape instanceof CompoundCollisionShape){
@@ -101,8 +116,9 @@ public class CompoundCollisionShape extends CollisionShape {
     }
 
     /**
-     * removes a child shape
-     * @param shape the child shape to remove
+     * Remove a child from this shape.
+     *
+     * @param shape the child shape to remove (not null)
      */
     public void removeChildShape(CollisionShape shape) {
         removeChildShape(objectId, shape.getObjectId());
@@ -115,6 +131,11 @@ public class CompoundCollisionShape extends CollisionShape {
         }
     }
 
+    /**
+     * Access the list of children.
+     *
+     * @return the pre-existing list (not null)
+     */
     public List<ChildCollisionShape> getChildren() {
         return children;
     }
@@ -125,12 +146,24 @@ public class CompoundCollisionShape extends CollisionShape {
     
     private native long removeChildShape(long objectId, long childId);
     
+    /**
+     * Serialize this shape, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
         capsule.writeSavableArrayList(children, "children", new ArrayList<ChildCollisionShape>());
     }
 
+    /**
+     * De-serialize this shape, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);

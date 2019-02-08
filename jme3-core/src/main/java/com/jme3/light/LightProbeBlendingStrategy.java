@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ public interface LightProbeBlendingStrategy {
     public void registerProbe(LightProbe probe);
     /**
      * Populates the resulting light probes into the given light list.
-     * @param g the geometry for wich the light list is computed
+     * @param g the geometry for which the light list is computed
      * @param lightList the result light list
      */
     public void populateProbes(Geometry g, LightList lightList);

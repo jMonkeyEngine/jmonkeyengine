@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,20 +41,35 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Basic cylinder collision shape
+ * A cylindrical collision shape based on Bullet's btCylinderShapeX, new
+ * btCylinderShape, or btCylinderShapeZ.
+ *
  * @author normenhansen
  */
 public class CylinderCollisionShape extends CollisionShape {
 
+    /**
+     * copy of half-extents of the cylinder on each local axis (not null, no
+     * negative component)
+     */
     protected Vector3f halfExtents;
+    /**
+     * copy of main (height) axis (0&rarr;X, 1&rarr;Y, 2&rarr;Z)
+     */
     protected int axis;
 
+    /**
+     * No-argument constructor needed by SavableClassUtil. Do not invoke
+     * directly!
+     */
     public CylinderCollisionShape() {
     }
 
     /**
-     * creates a cylinder shape from the given halfextents
-     * @param halfExtents the halfextents to use
+     * Instantiate a Z-axis cylinder shape with the specified half extents.
+     *
+     * @param halfExtents the desired unscaled half extents (not null, no
+     * negative component, alias created)
      */
     public CylinderCollisionShape(Vector3f halfExtents) {
         this.halfExtents = halfExtents;
@@ -63,9 +78,11 @@ public class CylinderCollisionShape extends CollisionShape {
     }
 
     /**
-     * Creates a cylinder shape around the given axis from the given halfextents
-     * @param halfExtents the halfextents to use
-     * @param axis (0=X,1=Y,2=Z)
+     * Instantiate a cylinder shape around the specified axis.
+     *
+     * @param halfExtents the desired unscaled half extents (not null, no 
+     * negative component, alias created)
+     * @param axis which local axis: 0&rarr;X, 1&rarr;Y, 2&rarr;Z
      */
     public CylinderCollisionShape(Vector3f halfExtents, int axis) {
         this.halfExtents = halfExtents;
@@ -73,16 +90,30 @@ public class CylinderCollisionShape extends CollisionShape {
         createShape();
     }
 
+    /**
+     * Access the half extents of the cylinder.
+     *
+     * @return the pre-existing vector (not null, no negative component)
+     */
     public final Vector3f getHalfExtents() {
         return halfExtents;
     }
 
+    /**
+     * Determine the main axis of the cylinder.
+     *
+     * @return 0&rarr;X, 1&rarr;Y, 2&rarr;Z
+     */
     public int getAxis() {
         return axis;
     }
 
     /**
-     * WARNING - CompoundCollisionShape scaling has no effect.
+     * Alter the scaling factors of this shape. Scaling is disabled
+     * for cylinder shapes.
+     *
+     * @param scale the desired scaling factor for each local axis (not null, no
+     * negative component, unaffected, default=1,1,1)
      */
     @Override
     public void setScale(Vector3f scale) {
@@ -91,6 +122,12 @@ public class CylinderCollisionShape extends CollisionShape {
     	 }
     }
 
+    /**
+     * Serialize this shape, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     * @throws IOException from exporter
+     */
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
@@ -98,6 +135,12 @@ public class CylinderCollisionShape extends CollisionShape {
         capsule.write(axis, "axis", 1);
     }
 
+    /**
+     * De-serialize this shape, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     * @throws IOException from importer
+     */
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);
@@ -106,6 +149,9 @@ public class CylinderCollisionShape extends CollisionShape {
         createShape();
     }
 
+    /**
+     * Instantiate the configured shape in Bullet.
+     */
     protected void createShape() {
         objectId = createShape(axis, halfExtents);
         Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Shape {0}", Long.toHexString(objectId));

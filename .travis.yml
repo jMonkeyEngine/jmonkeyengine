@@ -1,11 +1,11 @@
 language: java
-sudo: false
-dist: precise
+sudo: true
 
 branches:
   only:
   - master
   - v3.1
+  - /^v3.2.0-.*$/
 
 matrix:
   include:
@@ -14,7 +14,9 @@ matrix:
     env: UPLOAD=true UPLOAD_NATIVE=true
   - os: linux
     jdk: openjdk7
+    dist: precise
   - os: osx
+    osx_image: xcode9.3
     env: UPLOAD_NATIVE=true
 
 addons:

@@ -1,0 +1,35 @@
+ShaderNodeDefinitions{
+    ShaderNodeDefinition Billboard {
+        //Vertex/Fragment
+        Type: Vertex
+
+        //Shader GLSL<version>: <Path to shader>
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Common/Billboard100.frag
+
+        Documentation{
+            //type documentation here. This is optional but recommended
+
+            //@input <glsltype> <varName> <description>
+            @input mat4 worldViewMatrix The worldView matrix
+            @input mat4 projectionMatrix The projection matrix
+            @input vec3 modelPosition the vertex position
+            @input float scale the scale of the billboard (defautl 1)
+
+            //@output <glslType> <varName> <description>
+            @output vec4 projPosition The position in projection space
+        }
+        Input {
+            //all the node inputs
+            //<glslType> <varName>
+            mat4 worldViewMatrix
+            mat4 projectionMatrix
+            vec3 modelPosition
+            float scale 1
+        }
+        Output {
+            //all the node outputs
+            //<glslType> <varName>
+            vec4 projPosition
+        }
+    }
+}

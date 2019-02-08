@@ -57,7 +57,7 @@ import java.io.IOException;
  * are from the camera, the smaller they are to maximize the resolution used of
  * the shadow map.<br> This results in a better quality shadow than standard
  * shadow mapping.<br> for more informations on this read this <a
- * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
+ * href="https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html">https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html</a><br>
  * <p/>
  * @author Rémy Bouquet aka Nehon
  */
@@ -83,7 +83,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
 
     /**
      * Create a DirectionalLightShadowRenderer More info on the technique at <a
-     * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>
+     * href="https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html">https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html</a>
      *
      * @param assetManager the application asset manager
      * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,

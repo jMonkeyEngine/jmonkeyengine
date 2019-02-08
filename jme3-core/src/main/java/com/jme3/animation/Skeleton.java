@@ -31,11 +31,13 @@
  */
 package com.jme3.animation;
 
+import com.jme3.anim.Armature;
 import com.jme3.export.*;
 import com.jme3.math.Matrix4f;
 import com.jme3.util.TempVars;
-import com.jme3.util.clone.JmeCloneable;
 import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +48,9 @@ import java.util.List;
  * animated matrixes.
  * 
  * @author Kirill Vainer
+ * @deprecated use {@link Armature}
  */
+@Deprecated
 public final class Skeleton implements Savable, JmeCloneable {
 
     private Bone[] rootBones;

@@ -9,8 +9,8 @@ ShaderNodeDefinitions{
             @output outFloat the resulting coord
         }
         Input {
-            float float1
-            float float2           
+            float float1 1.0
+            float float2 1.0
         }
         Output {
             float outFloat

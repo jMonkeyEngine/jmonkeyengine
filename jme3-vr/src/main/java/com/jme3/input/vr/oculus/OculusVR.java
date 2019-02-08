@@ -610,7 +610,7 @@ public class OculusVR implements VRAPI {
      * @return The {@code to} argument.
      */
     public static Vector3f vecO2J(OVRVector3f from, Vector3f to) {
-        // jME and LibOVR disagree on which way X and Z is, too.
+        // jME and LibOVR disagree on which way X and Z are, too.
         to.set(
                 -from.x(),
                 from.y(),

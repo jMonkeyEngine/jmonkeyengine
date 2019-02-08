@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,17 @@ public class DebugMeshCallback {
 
     private ArrayList<Vector3f> list = new ArrayList<Vector3f>();
 
+    /**
+     * Add a vertex to the mesh under construction.
+     * <p>
+     * This method is invoked from native code.
+     *
+     * @param x local X coordinate of new vertex
+     * @param y local Y coordinate of new vertex
+     * @param z local Z coordinate of new vertex
+     * @param part ignored
+     * @param index ignored
+     */
     public void addVector(float x, float y, float z, int part, int index) {
         list.add(new Vector3f(x, y, z));
     }

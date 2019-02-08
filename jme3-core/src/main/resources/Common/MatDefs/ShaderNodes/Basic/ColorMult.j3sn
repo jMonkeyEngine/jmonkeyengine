@@ -9,8 +9,8 @@ ShaderNodeDefinitions{
             @output outColor the resulting color
         }
         Input {
-            vec4 color1
-            vec4 color2            
+            vec4 color1 vec4(1.0)
+            vec4 color2 vec4(1.0)
         }
         Output {
             vec4 outColor

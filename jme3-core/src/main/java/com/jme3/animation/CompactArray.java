@@ -31,6 +31,8 @@
  */
 package com.jme3.animation;
 
+import com.jme3.util.clone.Cloner;
+import com.jme3.util.clone.JmeCloneable;
 import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,9 +42,9 @@ import java.util.Map;
  * @author Lim, YongHoon
  * @param <T>
  */
-public abstract class CompactArray<T> {
+public abstract class CompactArray<T> implements JmeCloneable {
 
-    private Map<T, Integer> indexPool = new HashMap<T, Integer>();
+    protected Map<T, Integer> indexPool = new HashMap<T, Integer>();
     protected int[] index;
     protected float[] array;
     private boolean invalid;
@@ -68,6 +70,7 @@ public abstract class CompactArray<T> {
      * They are serialized automatically when get() method is called.
      * @param objArray
      */
+    @SuppressWarnings("unchecked")
     public void add(T... objArray) {
         if (objArray == null || objArray.length == 0) {
             return;
@@ -109,6 +112,10 @@ public abstract class CompactArray<T> {
     public void freeze() {
         serialize();
         indexPool.clear();
+    }
+
+    protected void setInvalid(boolean invalid) {
+        this.invalid = invalid;
     }
 
     /**
@@ -190,6 +197,7 @@ public abstract class CompactArray<T> {
      * @param objArray
      * @return 
      */
+    @SuppressWarnings("unchecked")
     public final int[] getIndex(T... objArray) {
         int[] index = new int[objArray.length];
         for (int i = 0; i < index.length; i++) {
@@ -228,6 +236,7 @@ public abstract class CompactArray<T> {
      * decompress and return object array
      * @return decompress and return object array
      */
+    @SuppressWarnings("unchecked")
     public final T[] toObjectArray() {
         try {
             T[] compactArr = (T[]) Array.newInstance(getElementClass(), getSerializedSize() / getTupleSize());
@@ -245,6 +254,47 @@ public abstract class CompactArray<T> {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * Create a deep clone of this array.
+     *
+     * @return a new array
+     * @throws java.lang.CloneNotSupportedException
+     */
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return Cloner.deepClone(this);
+    }
+
+    /**
+     * Create a shallow clone for the JME cloner.
+     *
+     * @return a new array
+     */
+    @Override
+    public Object jmeClone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException exception) {
+            throw new RuntimeException("Can't clone array", exception);
+        }
+    }
+
+    /**
+     * Callback from {@link com.jme3.util.clone.Cloner} to convert this
+     * shallow-cloned array into a deep-cloned one, using the specified cloner
+     * to resolve copied fields.
+     *
+     * @param cloner the cloner currently cloning this control (not null)
+     * @param original the array from which this array was shallow-cloned
+     * (unused)
+     */
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        indexPool = cloner.clone(indexPool);
+        index = cloner.clone(index);
+        array = cloner.clone(array);
     }
 
     /**

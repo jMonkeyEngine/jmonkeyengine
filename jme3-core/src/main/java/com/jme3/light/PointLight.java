@@ -212,12 +212,7 @@ public class PointLight extends Light {
         if (this.radius == 0) {
             return true;
         } else {
-            for (int i = 5; i >= 0; i--) {
-                if (camera.getWorldPlane(i).pseudoDistance(position) <= -radius) {
-                    return false;
-                }
-            }
-            return true;
+            return Intersection.intersect(camera, position, radius);
         }
     }
     

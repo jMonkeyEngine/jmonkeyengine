@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,9 +34,6 @@ package com.jme3.scene.control;
 import com.jme3.app.AppTask;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
-import com.jme3.scene.Spatial;
-import com.jme3.util.clone.Cloner;
-import com.jme3.util.clone.JmeCloneable;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
@@ -87,15 +84,6 @@ public class UpdateControl extends AbstractControl {
         
     }
 
-    @Override
-    public Control cloneForSpatial(Spatial newSpatial) {
-        UpdateControl control = new UpdateControl(); 
-        control.setSpatial(newSpatial);
-        control.setEnabled(isEnabled());
-        control.taskQueue.addAll(taskQueue);
-        return control;
-    }
-    
     @Override
     public Object jmeClone() {
         UpdateControl clone = (UpdateControl)super.jmeClone();

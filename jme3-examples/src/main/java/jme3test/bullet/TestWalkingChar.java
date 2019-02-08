@@ -31,10 +31,7 @@
  */
 package jme3test.bullet;
 
-import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.AnimEventListener;
-import com.jme3.animation.LoopMode;
+import com.jme3.animation.*;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
@@ -54,16 +51,12 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
+import com.jme3.scene.*;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
@@ -74,6 +67,7 @@ import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -297,7 +291,7 @@ public class TestWalkingChar extends SimpleApplication implements ActionListener
     private void createCharacter() {
         CapsuleCollisionShape capsule = new CapsuleCollisionShape(3f, 4f);
         character = new CharacterControl(capsule, 0.01f);
-        model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
+        model = (Node) assetManager.loadModel("Models/Oto/OtoOldAnim.j3o");
         //model.setLocalScale(0.5f);
         model.addControl(character);
         character.setPhysicsLocation(new Vector3f(-140, 40, -10));

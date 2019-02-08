@@ -1,0 +1,30 @@
+ShaderNodeDefinitions{
+    ShaderNodeDefinition PerspectiveDivide {
+        //Vertex/Fragment
+        Type: Vertex
+
+        //Shader GLSL<version>: <Path to shader>
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Misc/PerspectiveDivide100.frag
+
+        Documentation{
+            //type documentation here. This is optional but recommended
+		  performs inVec.xyz / inVec.w
+
+            //@input <glsltype> <varName> <description>
+            @input vec4 inVec The input vector
+
+            //@output <glslType> <varName> <description>
+            @output vec4 outVec The modified output vector
+        }
+        Input {
+            //all the node inputs
+            //<glslType> <varName>
+            vec4 inVec
+        }
+        Output {
+            //all the node outputs
+            //<glslType> <varName>
+            vec4 outVec
+        }
+    }
+}
