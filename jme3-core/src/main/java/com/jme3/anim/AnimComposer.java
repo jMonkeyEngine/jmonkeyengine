@@ -67,7 +67,15 @@ public class AnimComposer extends AbstractControl {
     public Action setCurrentAction(String name) {
         return setCurrentAction(name, DEFAULT_LAYER);
     }
-
+    
+    /**
+     * Run action on specified layer, if null action name is provided 
+     * this will clear current action from specified layer.
+     * 
+     * @param actionName The name of the action to run, if null it will clear current action from specified layer.
+     * @param layerName The layer on which action should run.
+     * @return The action corresponding to the given name.
+     */
     public Action setCurrentAction(String actionName, String layerName) {
         Layer l = layers.get(layerName);
         if (l == null) {
