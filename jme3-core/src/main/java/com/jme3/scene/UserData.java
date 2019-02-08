@@ -70,6 +70,9 @@ public final class UserData implements Savable {
     private static final int   TYPE_LIST         = 6;
     private static final int   TYPE_MAP          = 7;
     private static final int   TYPE_ARRAY        = 8;
+    private static final int   TYPE_DOUBLE       = 9;
+    private static final int   TYPE_SHORT        = 10;
+    private static final int   TYPE_BYTE         = 11;
 
     protected byte             type;
     protected Object           value;
@@ -87,7 +90,7 @@ public final class UserData implements Savable {
      *            Value of the data
      */
     public UserData(byte type, Object value) {
-        assert type >= 0 && type <= 8;
+        assert type >= 0 && type <= 11;
         this.type = type;
         this.value = value;
     }
@@ -120,6 +123,12 @@ public final class UserData implements Savable {
             return TYPE_MAP;
         } else if (type instanceof Object[]) {
             return TYPE_ARRAY;
+        } else if (type instanceof Double) {
+            return TYPE_DOUBLE;
+        } else if (type instanceof Short) {
+            return TYPE_SHORT;
+        } else if (type instanceof Byte) {
+            return TYPE_BYTE;
         } else {
             throw new IllegalArgumentException("Unsupported type: " + type.getClass().getName());
         }
@@ -165,6 +174,18 @@ public final class UserData implements Savable {
             case TYPE_ARRAY:
                 this.writeList(oc, Arrays.asList((Object[]) value), "0");
                 break;
+            case TYPE_DOUBLE:
+                Double d = (Double) value;
+                oc.write(d, "doubleVal", 0.);
+                break;
+            case TYPE_SHORT:
+                Short sh = (Short) value;
+                oc.write(sh, "shortVal", (short)0);
+                break;
+            case TYPE_BYTE:
+                Byte bh = (Byte) value;
+                oc.write(bh, "byteVal", (byte)0);
+                break;
             default:
                 throw new UnsupportedOperationException("Unsupported value type: " + value.getClass());
         }
@@ -206,6 +227,15 @@ public final class UserData implements Savable {
                 break;
             case TYPE_ARRAY:
                 value = this.readList(ic, "0").toArray();
+                break;
+            case TYPE_DOUBLE:
+                value = ic.readDouble("doubleVal", 0.);
+                break;
+            case TYPE_SHORT:
+                value = ic.readShort("shortVal", (short)0);
+                break;
+            case TYPE_BYTE:
+                value = ic.readByte("byteVal", (byte)0);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown type of stored data: " + type);
@@ -255,6 +285,15 @@ public final class UserData implements Savable {
                     Map<?, ?> map = (Map<?, ?>) o;
                     this.writeList(oc, map.keySet(), listName + "v(keys)" + counter);
                     this.writeList(oc, map.values(), listName + "v(vals)" + counter);
+                } else if (o instanceof Double) {
+                    oc.write(TYPE_DOUBLE, listName + "t" + counter, 0);
+                    oc.write((Double) o, listName + "v" + counter, 0.);
+                } else if (o instanceof Short) {
+                    oc.write(TYPE_SHORT, listName + "t" + counter, 0);
+                    oc.write((Short) o, listName + "v" + counter, (short)0);
+                } else if (o instanceof Byte) {
+                    oc.write(TYPE_BYTE, listName + "t" + counter, 0);
+                    oc.write((Byte) o, listName + "v" + counter, (byte)0);
                 } else {
                     throw new UnsupportedOperationException("Unsupported type stored in the list: " + o.getClass());
                 }
