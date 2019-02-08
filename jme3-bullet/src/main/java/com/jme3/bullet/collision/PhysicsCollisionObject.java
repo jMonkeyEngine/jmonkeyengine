@@ -255,6 +255,17 @@ public abstract class PhysicsCollisionObject implements Savable {
     }
 
     /**
+     * Test whether this object responds to contact with other objects.
+     *
+     * @return true if responsive, otherwise false
+     */
+    public boolean isContactResponse() {
+        int flags = getCollisionFlags(objectId);
+        boolean result = (flags & CollisionFlag.NO_CONTACT_RESPONSE) == 0x0;
+        return result;
+    }
+
+    /**
      * Associate a user object (such as a Spatial) with this collision object.
      *
      * @param userObject the object to associate with this collision object
@@ -313,6 +324,24 @@ public abstract class PhysicsCollisionObject implements Savable {
         CollisionShape shape = (CollisionShape) capsule.readSavable("collisionShape", null);
         collisionShape = shape;
     }
+
+    /**
+     * Read the collision flags of this object. Subclasses are responsible for
+     * cloning/reading/writing these flags.
+     *
+     * @param objectId the ID of the btCollisionObject (not zero)
+     * @return the collision flags (bit mask)
+     */
+    native protected int getCollisionFlags(long objectId);
+
+    /**
+     * Alter the collision flags of this object. Subclasses are responsible for
+     * cloning/reading/writing these flags.
+     *
+     * @param objectId the ID of the btCollisionObject (not zero)
+     * @param desiredFlags the desired collision flags (bit mask)
+     */
+    native protected void setCollisionFlags(long objectId, int desiredFlags);
 
     /**
      * Finalize this collision object just before it is destroyed. Should be

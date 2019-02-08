@@ -54,12 +54,23 @@ LOCAL_C_INCLUDES := $(BULLET_PATH)/\
     $(BULLET_PATH)/vectormath/sse\
     $(BULLET_PATH)/vectormath/neon
 
-LOCAL_CFLAGS := $(LOCAL_C_INCLUDES:%=-I%)
+#ARM mode more performant than thumb for old armeabi
+ifeq ($(TARGET_ARCH_ABI),$(filter $(TARGET_ARCH_ABI), armeabi))
+LOCAL_ARM_MODE := arm
+endif 
+
+#Enable neon for armv7
+ifeq ($(TARGET_ARCH_ABI),$(filter $(TARGET_ARCH_ABI), armeabi-v7a))
+LOCAL_ARM_NEON := true
+endif
+
+LOCAL_CFLAGS := $(LOCAL_C_INCLUDES:%=-I%) 
 LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -ldl -lm -llog
 
 FILE_LIST := $(wildcard $(LOCAL_PATH)/*.cpp)
 FILE_LIST += $(wildcard $(LOCAL_PATH)/**/*.cpp)
 FILE_LIST += $(wildcard $(LOCAL_PATH)/**/**/*.cpp)
+FILE_LIST := $(filter-out $(wildcard $(LOCAL_PATH)/Bullet3OpenCL/**/*.cpp), $(FILE_LIST))
 LOCAL_SRC_FILES := $(FILE_LIST:$(LOCAL_PATH)/%=%)
 
 include $(BUILD_SHARED_LIBRARY)

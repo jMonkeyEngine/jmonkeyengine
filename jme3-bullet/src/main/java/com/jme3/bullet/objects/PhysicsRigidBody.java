@@ -32,6 +32,7 @@
 package com.jme3.bullet.objects;
 
 import com.jme3.bullet.PhysicsSpace;
+import com.jme3.bullet.collision.CollisionFlag;
 import com.jme3.bullet.collision.PhysicsCollisionObject;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.MeshCollisionShape;
@@ -56,7 +57,6 @@ import java.util.logging.Logger;
  * @author normenhansen
  */
 public class PhysicsRigidBody extends PhysicsCollisionObject {
-
     /**
      * motion state
      */
@@ -75,7 +75,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * joint list
      */
-    protected ArrayList<PhysicsJoint> joints = new ArrayList<PhysicsJoint>();
+    protected ArrayList<PhysicsJoint> joints = new ArrayList<PhysicsJoint>(4);
 
     /**
      * No-argument constructor needed by SavableClassUtil. Do not invoke
@@ -368,6 +368,22 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      */
     public boolean isKinematic() {
         return kinematic;
+    }
+
+    /**
+     * Enable/disable this body's contact response.
+     *
+     * @param responsive true to respond to contacts, false to ignore them
+     * (default=true)
+     */
+    public void setContactResponse(boolean responsive) {
+        int flags = getCollisionFlags(objectId);
+        if (responsive) {
+            flags &= ~CollisionFlag.NO_CONTACT_RESPONSE;
+        } else {
+            flags |= CollisionFlag.NO_CONTACT_RESPONSE;
+        }
+        setCollisionFlags(objectId, flags);
     }
 
     /**
@@ -993,6 +1009,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
         capsule.write(getMass(), "mass", 1.0f);
 
         capsule.write(getGravity(), "gravity", Vector3f.ZERO);
+        capsule.write(isContactResponse(), "contactResponse", true);
         capsule.write(getFriction(), "friction", 0.5f);
         capsule.write(getRestitution(), "restitution", 0);
         Vector3f angularFactor = getAngularFactor(null);
@@ -1014,6 +1031,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
         capsule.write(getPhysicsLocation(new Vector3f()), "physicsLocation", new Vector3f());
         capsule.write(getPhysicsRotationMatrix(new Matrix3f()), "physicsRotation", new Matrix3f());
+        capsule.write(getLinearVelocity(), "linearVelocity", null);
+        capsule.write(getAngularVelocity(), "angularVelocity", null);
 
         capsule.writeSavableArrayList(joints, "joints", null);
     }
@@ -1033,6 +1052,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
         this.mass = mass;
         rebuildRigidBody();
         setGravity((Vector3f) capsule.readSavable("gravity", Vector3f.ZERO.clone()));
+        setContactResponse(capsule.readBoolean("contactResponse", true));
         setFriction(capsule.readFloat("friction", 0.5f));
         setKinematic(capsule.readBoolean("kinematic", false));
 
@@ -1051,6 +1071,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
         setPhysicsLocation((Vector3f) capsule.readSavable("physicsLocation", new Vector3f()));
         setPhysicsRotation((Matrix3f) capsule.readSavable("physicsRotation", new Matrix3f()));
+        setLinearVelocity((Vector3f) capsule.readSavable("linearVelocity", new Vector3f()));
+        setAngularVelocity((Vector3f) capsule.readSavable("angularVelocity", new Vector3f()));
 
         joints = capsule.readSavableArrayList("joints", null);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -872,6 +872,29 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
         if (Float.compare(y,comp.y) != 0) return false;
         if (Float.compare(z,comp.z) != 0) return false;
         if (Float.compare(w,comp.w) != 0) return false;
+        return true;
+    }
+    
+    /**
+     * Returns true if this vector is similar to the specified vector within
+     * some value of epsilon.
+     */
+    public boolean isSimilar(Vector4f other, float epsilon) {
+        if (other == null) {
+            return false;
+        }
+        if (Float.compare(Math.abs(other.x - x), epsilon) > 0) {
+            return false;
+        }
+        if (Float.compare(Math.abs(other.y - y), epsilon) > 0) {
+            return false;
+        }
+        if (Float.compare(Math.abs(other.z - z), epsilon) > 0) {
+            return false;
+        }
+        if (Float.compare(Math.abs(other.w - w), epsilon) > 0) {
+            return false;
+        }
         return true;
     }
 

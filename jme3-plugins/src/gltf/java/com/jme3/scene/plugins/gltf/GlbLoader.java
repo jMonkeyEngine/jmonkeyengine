@@ -18,6 +18,7 @@ public class GlbLoader extends GltfLoader {
 
     @Override
     public Object load(AssetInfo assetInfo) throws IOException {
+        data.clear();
         LittleEndien stream = new LittleEndien(new DataInputStream(assetInfo.openStream()));
         int magic = stream.readInt();
         int version = stream.readInt();

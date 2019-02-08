@@ -97,6 +97,10 @@ public class AnimComposer extends AbstractControl {
         action = new ClipAction(clip);
         return action;
     }
+    
+    public boolean hasAction(String name) {
+        return actions.containsKey(name);
+    }
 
     public void makeLayer(String name, AnimationMask mask){
         Layer l = new Layer();

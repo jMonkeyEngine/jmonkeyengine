@@ -52,7 +52,10 @@ public class GlfwJoystickInput implements JoyInput {
     private static final Logger LOGGER = Logger.getLogger(InputManager.class.getName());
 
     private RawInputListener listener;
+
     private final Map<Integer, GlfwJoystick> joysticks = new HashMap<>();
+
+    private final Map<JoystickButton, Boolean> joyButtonPressed = new HashMap<>();
 
     private boolean initialized = false;
 
@@ -88,8 +91,11 @@ public class GlfwJoystickInput implements JoyInput {
                 int buttonIndex = 0;
                 while (byteBuffer.hasRemaining()) {
                     byteBuffer.get();
+
                     final String logicalId = JoystickCompatibilityMappings.remapComponent(joystick.getName(), String.valueOf(buttonIndex));
-                    joystick.addButton(new DefaultJoystickButton(inputManager, joystick, buttonIndex, String.valueOf(buttonIndex), logicalId));
+                    final JoystickButton button = new DefaultJoystickButton(inputManager, joystick, buttonIndex, String.valueOf(buttonIndex), logicalId);
+                    joystick.addButton(button);
+                    joyButtonPressed.put(button, false); 
                     buttonIndex++;
                 }
             }
@@ -133,7 +139,11 @@ public class GlfwJoystickInput implements JoyInput {
 
             for (final JoystickButton button : entry.getValue().getButtons()) {
                 final boolean pressed = byteBuffer.get(button.getButtonId()) == GLFW_PRESS;
-                listener.onJoyButtonEvent(new JoyButtonEvent(button, pressed));
+
+                if (joyButtonPressed.get(button) != pressed) {
+                    joyButtonPressed.put(button, pressed);
+                    listener.onJoyButtonEvent(new JoyButtonEvent(button, pressed));
+                }
             }
         }
     }
@@ -213,6 +223,3 @@ public class GlfwJoystickInput implements JoyInput {
         }
     }
 }
-
-
-

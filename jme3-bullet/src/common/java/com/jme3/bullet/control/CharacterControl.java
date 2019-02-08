@@ -102,6 +102,7 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         control.setCcdSweptSphereRadius(getCcdSweptSphereRadius());
         control.setCollideWithGroups(getCollideWithGroups());
         control.setCollisionGroup(getCollisionGroup());
+        control.setContactResponse(isContactResponse());
         control.setFallSpeed(getFallSpeed());
         control.setGravity(getGravity());
         control.setJumpSpeed(getJumpSpeed());

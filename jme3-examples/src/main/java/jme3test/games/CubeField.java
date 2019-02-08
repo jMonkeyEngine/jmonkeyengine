@@ -281,7 +281,6 @@ public class CubeField extends SimpleApplication implements AnalogListener {
             	//better way to check collision
                 Geometry playerModel = (Geometry) player.getChild(0);
                 Geometry cubeModel = cubeField.get(i);
-                cubeModel.updateGeometricState();
 
                 BoundingVolume pVol = playerModel.getWorldBound();
                 BoundingVolume vVol = cubeModel.getWorldBound();

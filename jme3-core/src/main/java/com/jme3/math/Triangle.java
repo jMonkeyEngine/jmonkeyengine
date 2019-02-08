@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,6 +56,9 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     private float projection;
     private int index;
 
+    /**
+     * Instantiate a zero-size Triangle at the origin.
+     */
     public Triangle() {
     }
 
@@ -75,11 +78,11 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
-     *
      * <code>get</code> retrieves a point on the triangle denoted by the index
      * supplied.
-     * @param i the index of the point.
-     * @return the point.
+     *
+     * @param i the index of the point (0, 1, or 2)
+     * @return a pre-existing location vector
      */
     public Vector3f get(int i) {
         switch (i) {
@@ -94,26 +97,47 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
         }
     }
 
+    /**
+     * Access the location of the 1st point (A).
+     *
+     * @return the pre-existing vector (not null)
+     */
+    @Override
     public Vector3f get1() {
         return pointa;
     }
 
+    /**
+     * Access the location of the 2nd point (B).
+     *
+     * @return the pre-existing vector (not null)
+     */
+    @Override
     public Vector3f get2() {
         return pointb;
     }
 
+    /**
+     * Access the location of the 3rd point (C).
+     *
+     * @return the pre-existing vector (not null)
+     */
+    @Override
     public Vector3f get3() {
         return pointc;
     }
 
     /**
+     * <code>set</code> sets one of the triangle's points to that specified as a
+     * parameter.
      *
-     * <code>set</code> sets one of the triangle's points to that specified as
-     * a parameter.
-     * @param i the index to place the point.
-     * @param point the point to set.
+     * @param i the index to place the point (0, 1, or 2)
+     * @param point the desired location of the point (not null, unaffected)
      */
     public void set(int i, Vector3f point) {
+        center = null;
+        normal = null;
+
         switch (i) {
             case 0:
                 pointa.set(point);
@@ -128,12 +152,17 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
     }
 
     /**
+     * <code>set</code> alters the location of one of the triangle's points.
      *
-     * <code>set</code> sets one of the triangle's points to that specified as
-     * a parameter.
-     * @param i the index to place the point.
+     * @param i the index to place the point (0, 1, or 2)
+     * @param x the desired X-component of the point's location
+     * @param y the desired Y-component of the point's location
+     * @param z the desired Z-component of the point's location
      */
     public void set(int i, float x, float y, float z) {
+        center = null;
+        normal = null;
+
         switch (i) {
             case 0:
                 pointa.set(x, y, z);
@@ -147,19 +176,54 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
         }
     }
 
+    /**
+     * <code>set1</code> alters the location of the triangle's 1st point.
+     *
+     * @param v the desired location (not null, unaffected)
+     */
     public void set1(Vector3f v) {
+        center = null;
+        normal = null;
+
         pointa.set(v);
     }
 
+    /**
+     * <code>set2</code> alters the location of the triangle's 2nd point.
+     *
+     * @param v the desired location (not null, unaffected)
+     */
     public void set2(Vector3f v) {
+        center = null;
+        normal = null;
+
         pointb.set(v);
     }
 
+    /**
+     * <code>set3</code> alters the location of the triangle's 3rd point.
+     *
+     * @param v the desired location (not null, unaffected)
+     */
     public void set3(Vector3f v) {
+        center = null;
+        normal = null;
+
         pointc.set(v);
     }
 
+    /**
+     * <code>set</code> alters the locations of all 3 points.
+     *
+     * @param v1 the desired location of the 1st point (not null, unaffected)
+     * @param v2 the desired location of the 2nd point (not null, unaffected)
+     * @param v3 the desired location of the 3rd point (not null, unaffected)
+     */
+    @Override
     public void set(Vector3f v1, Vector3f v2, Vector3f v3) {
+        center = null;
+        normal = null;
+
         pointa.set(v1);
         pointb.set(v2);
         pointc.set(v3);
@@ -275,12 +339,14 @@ public class Triangle extends AbstractTriangle implements Savable, Cloneable, ja
         return store.normalizeLocal();
     }
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         e.getCapsule(this).write(pointa, "pointa", Vector3f.ZERO);
         e.getCapsule(this).write(pointb, "pointb", Vector3f.ZERO);
         e.getCapsule(this).write(pointc, "pointc", Vector3f.ZERO);
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         pointa = (Vector3f) e.getCapsule(this).readSavable("pointa", Vector3f.ZERO.clone());
         pointb = (Vector3f) e.getCapsule(this).readSavable("pointb", Vector3f.ZERO.clone());

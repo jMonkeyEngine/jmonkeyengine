@@ -3,9 +3,8 @@ package com.jme3.anim.tween.action;
 import com.jme3.anim.tween.AbstractTween;
 import com.jme3.anim.tween.Tween;
 import com.jme3.anim.util.HasLocalTransform;
-import com.jme3.math.FastMath;
 import com.jme3.math.Transform;
-
+import com.jme3.util.clone.Cloner;
 import java.util.Collection;
 
 public abstract class BlendableAction extends Action {
@@ -79,6 +78,37 @@ public abstract class BlendableAction extends Action {
 
     protected float getTransitionWeight() {
         return transitionWeight;
+    }
+
+    /**
+     * Create a shallow clone for the JME cloner.
+     *
+     * @return a new action (not null)
+     */
+    @Override
+    public BlendableAction jmeClone() {
+        try {
+            BlendableAction clone = (BlendableAction) super.clone();
+            return clone;
+        } catch (CloneNotSupportedException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    /**
+     * Callback from {@link com.jme3.util.clone.Cloner} to convert this
+     * shallow-cloned action into a deep-cloned one, using the specified cloner
+     * and original to resolve copied fields.
+     *
+     * @param cloner the cloner that's cloning this action (not null)
+     * @param original the action from which this action was shallow-cloned
+     * (unused)
+     */
+    @Override
+    public void cloneFields(Cloner cloner, Object original) {
+        super.cloneFields(cloner, original);
+        collectTransformDelegate = cloner.clone(collectTransformDelegate);
+        transition = cloner.clone(transition);
     }
 
     private class TransitionTween extends AbstractTween {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@
 package jme3test.export;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.AssetKey;
+import com.jme3.asset.MaterialKey;
 import com.jme3.asset.ModelKey;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.export.binary.BinaryImporter;
@@ -93,7 +93,7 @@ public class TestAssetLinkNode extends SimpleApplication {
         rootNode.attachChild(loaderNode);
 
         lightMdl = new Geometry("Light", new Sphere(10, 10, 0.1f));
-        lightMdl.setMaterial( (Material) assetManager.loadAsset(new AssetKey("Common/Materials/RedColor.j3m")));
+        lightMdl.setMaterial( (Material) assetManager.loadAsset(new MaterialKey("Common/Materials/RedColor.j3m")));
         rootNode.attachChild(lightMdl);
 
         // flourescent main light

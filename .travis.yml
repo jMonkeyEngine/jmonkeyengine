@@ -4,8 +4,8 @@ sudo: true
 branches:
   only:
   - master
-  - v3.1
-  - /^v3.2.0-.*$/
+  - v3.2
+  - /^v3.2.*$/
 
 matrix:
   include:

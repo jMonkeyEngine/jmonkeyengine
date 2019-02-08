@@ -210,6 +210,18 @@ public class AppStateManager {
      * @return First attached state that is an instance of stateClass
      */
     public <T extends AppState> T getState(Class<T> stateClass){
+        return getState(stateClass, false);
+    }
+    
+    /**
+     * Returns the first state that is an instance of subclass of the specified class.
+     * @param <T>
+     * @param stateClass
+     * @param failOnMiss 
+     * @return First attached state that is an instance of stateClass. If failOnMiss is true 
+     * then an IllegalArgumentException is thrown if the state is not attached.
+     */
+    public <T extends AppState> T getState(Class<T> stateClass, boolean failOnMiss){
         synchronized (states){
             AppState[] array = getStates();
             for (AppState state : array) {
@@ -229,6 +241,10 @@ public class AppStateManager {
                 }
             }
         }
+        
+        if(failOnMiss) {
+            throw new IllegalArgumentException("State not found for:" + stateClass);
+        }    
         return null;
     }
 

@@ -70,7 +70,10 @@ public class BulletGhostObjectDebugControl extends AbstractPhysicsDebugControl {
      * geometry to visualize myShape (not null)
      */
     protected Spatial geom;
-
+    /**
+     * physics scale for which geom was generated
+     */
+    final private Vector3f oldScale = new Vector3f();
     /**
      * Instantiate an enabled control to visualize the specified ghost object.
      *
@@ -81,8 +84,9 @@ public class BulletGhostObjectDebugControl extends AbstractPhysicsDebugControl {
         super(debugAppState);
         this.body = body;
         myShape = body.getCollisionShape();
-        this.geom = DebugShapeFactory.getDebugShape(body.getCollisionShape());
-        this.geom.setName(body.toString());
+        oldScale.set(myShape.getScale());
+        
+        this.geom = DebugShapeFactory.getDebugShape(myShape);
         this.geom.setName(body.toString());
         geom.setMaterial(debugAppState.DEBUG_YELLOW);
     }
@@ -115,15 +119,25 @@ public class BulletGhostObjectDebugControl extends AbstractPhysicsDebugControl {
      */
     @Override
     protected void controlUpdate(float tpf) {
-        if (myShape != body.getCollisionShape()) {
-            Node node = (Node) this.spatial;
+        CollisionShape newShape = body.getCollisionShape();
+        Vector3f newScale = newShape.getScale();
+        if (myShape != newShape || !oldScale.equals(newScale)) {
+            myShape = newShape;
+            oldScale.set(newScale);
+
+            Node node = (Node) spatial;
             node.detachChild(geom);
-            geom = DebugShapeFactory.getDebugShape(body.getCollisionShape());
-            geom.setMaterial(debugAppState.DEBUG_YELLOW);
+
+            geom = DebugShapeFactory.getDebugShape(myShape);
+            geom.setName(body.toString());
+
             node.attachChild(geom);
         }
-        applyPhysicsTransform(body.getPhysicsLocation(location), body.getPhysicsRotation(rotation));
-        geom.setLocalScale(body.getCollisionShape().getScale());
+        geom.setMaterial(debugAppState.DEBUG_YELLOW);
+
+        body.getPhysicsLocation(location);
+        body.getPhysicsRotation(rotation);
+        applyPhysicsTransform(location, rotation);
     }
 
     /**

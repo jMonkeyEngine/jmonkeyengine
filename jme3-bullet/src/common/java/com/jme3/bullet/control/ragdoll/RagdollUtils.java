@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,18 +33,20 @@ package com.jme3.bullet.control.ragdoll;
 
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
+import com.jme3.animation.SkeletonControl;
 import com.jme3.bullet.collision.shapes.HullCollisionShape;
 import com.jme3.bullet.joints.SixDofJoint;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 import java.util.*;
 
 /**
@@ -90,21 +92,14 @@ public class RagdollUtils {
      * @return a new map (not null)
      */
     public static Map<Integer, List<Float>> buildPointMap(Spatial model) {
+        Map<Integer, List<Float>> map = new HashMap<>();
 
-
-        Map<Integer, List<Float>> map = new HashMap<Integer, List<Float>>();
-        if (model instanceof Geometry) {
-            Geometry g = (Geometry) model;
-            buildPointMapForMesh(g.getMesh(), map);
-        } else if (model instanceof Node) {
-            Node node = (Node) model;
-            for (Spatial s : node.getChildren()) {
-                if (s instanceof Geometry) {
-                    Geometry g = (Geometry) s;
-                    buildPointMapForMesh(g.getMesh(), map);
-                }
-            }
+        SkeletonControl skeletonCtrl = model.getControl(SkeletonControl.class);
+        Mesh[] targetMeshes = skeletonCtrl.getTargets();
+        for (Mesh mesh : targetMeshes) {
+            buildPointMapForMesh(mesh, map);
         }
+
         return map;
     }
 
@@ -221,24 +216,18 @@ public class RagdollUtils {
      * @param weightThreshold minimum weight for inclusion
      * @return a new shape
      */
-    public static HullCollisionShape makeShapeFromVerticeWeights(Spatial model, List<Integer> boneIndices, Vector3f initialScale, Vector3f initialPosition, float weightThreshold) {
+    public static HullCollisionShape makeShapeFromVerticeWeights(Spatial model,
+            List<Integer> boneIndices, Vector3f initialScale,
+            Vector3f initialPosition, float weightThreshold) {
+        List<Float> points = new ArrayList<>(100);
 
-        ArrayList<Float> points = new ArrayList<Float>();
-        if (model instanceof Geometry) {
-            Geometry g = (Geometry) model;
+        SkeletonControl skeletonCtrl = model.getControl(SkeletonControl.class);
+        Mesh[] targetMeshes = skeletonCtrl.getTargets();
+        for (Mesh mesh : targetMeshes) {
             for (Integer index : boneIndices) {
-                points.addAll(getPoints(g.getMesh(), index, initialScale, initialPosition, weightThreshold));
-            }
-        } else if (model instanceof Node) {
-            Node node = (Node) model;
-            for (Spatial s : node.getChildren()) {
-                if (s instanceof Geometry) {
-                    Geometry g = (Geometry) s;
-                    for (Integer index : boneIndices) {
-                        points.addAll(getPoints(g.getMesh(), index, initialScale, initialPosition, weightThreshold));
-                    }
-
-                }
+                List<Float> bonePoints = getPoints(mesh, index, initialScale,
+                        initialPosition, weightThreshold);
+                points.addAll(bonePoints);
             }
         }
 
@@ -268,7 +257,8 @@ public class RagdollUtils {
     private static List<Float> getPoints(Mesh mesh, int boneIndex, Vector3f initialScale, Vector3f offset, float weightThreshold) {
 
         FloatBuffer vertices = mesh.getFloatBuffer(Type.Position);
-        ByteBuffer boneIndices = (ByteBuffer) mesh.getBuffer(Type.BoneIndex).getData();
+        VertexBuffer biBuf = mesh.getBuffer(VertexBuffer.Type.BoneIndex);
+        Buffer boneIndices = biBuf.getDataReadOnly();
         FloatBuffer boneWeight = (FloatBuffer) mesh.getBuffer(Type.BoneWeight).getData();
 
         vertices.rewind();
@@ -284,7 +274,8 @@ public class RagdollUtils {
             boolean add = false;
             int start = i / 3 * 4;
             for (k = start; k < start + 4; k++) {
-                if (boneIndices.get(k) == boneIndex && boneWeight.get(k) >= weightThreshold) {
+                if (readIndex(boneIndices, k) == boneIndex
+                        && boneWeight.get(k) >= weightThreshold) {
                     add = true;
                     break;
                 }
@@ -363,8 +354,8 @@ public class RagdollUtils {
     public static boolean hasVertices(int boneIndex, Mesh[] targets,
             float weightThreshold) {
         for (Mesh mesh : targets) {
-            ByteBuffer boneIndices
-                    = (ByteBuffer) mesh.getBuffer(Type.BoneIndex).getData();
+            VertexBuffer biBuf = mesh.getBuffer(VertexBuffer.Type.BoneIndex);
+            Buffer boneIndices = biBuf.getDataReadOnly();
             FloatBuffer boneWeight
                     = (FloatBuffer) mesh.getBuffer(Type.BoneWeight).getData();
 
@@ -375,7 +366,7 @@ public class RagdollUtils {
             for (int i = 0; i < vertexComponents; i += 3) {
                 int start = i / 3 * 4;
                 for (int k = start; k < start + 4; k++) {
-                    if (boneIndices.get(k) == boneIndex
+                    if (readIndex(boneIndices, k) == boneIndex
                             && boneWeight.get(k) >= weightThreshold) {
                         return true;
                     }
@@ -384,5 +375,30 @@ public class RagdollUtils {
         }
 
         return false;
+    }
+
+    /**
+     * Read an index from a buffer.
+     *
+     * @param buffer a buffer of bytes or shorts (not null)
+     * @param k the position from which the index will be read
+     * @return the index value (&ge;0)
+     */
+    public static int readIndex(Buffer buffer, int k) {
+        int result;
+        if (buffer instanceof ByteBuffer) {
+            ByteBuffer byteBuffer = (ByteBuffer) buffer;
+            byte b = byteBuffer.get(k);
+            result = 0xff & b;
+        } else if (buffer instanceof ShortBuffer) {
+            ShortBuffer shortBuffer = (ShortBuffer) buffer;
+            short s = shortBuffer.get(k);
+            result = 0xffff & s;
+        } else {
+            throw new IllegalArgumentException(buffer.getClass().getName());
+        }
+
+        assert result >= 0 : result;
+        return result;
     }
 }
