@@ -69,10 +69,9 @@ public class AnimComposer extends AbstractControl {
     }
     
     /**
-     * Run action on specified layer, if null action name is provided 
-     * this will clear current action from specified layer.
+     * Run an action on specified layer.
      * 
-     * @param actionName The name of the action to run, if null it will clear current action from specified layer.
+     * @param actionName The name of the action to run.
      * @param layerName The layer on which action should run.
      * @return The action corresponding to the given name.
      */
@@ -82,16 +81,20 @@ public class AnimComposer extends AbstractControl {
             throw new IllegalArgumentException("Unknown layer " + layerName);
         }
         
-        if (actionName == null) {
-            // Clear current action from specified layer
-            l.currentAction = null;
-            return null;
-        }
-        
         Action currentAction = action(actionName);
         l.time = 0;
         l.currentAction = currentAction;
         return currentAction;
+    }
+    
+    public void removeCurrentAction(String layerName) {
+        Layer l = layers.get(layerName);
+        if (l == null) {
+            throw new IllegalArgumentException("Unknown layer " + layerName);
+        }
+        
+        l.time = 0;
+        l.currentAction = null;
     }
 
     public Action action(String name) {
