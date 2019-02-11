@@ -67,16 +67,39 @@ public class AnimComposer extends AbstractControl {
     public Action setCurrentAction(String name) {
         return setCurrentAction(name, DEFAULT_LAYER);
     }
-
+    
+    /**
+     * Run an action on specified layer.
+     * 
+     * @param actionName The name of the action to run.
+     * @param layerName The layer on which action should run.
+     * @return The action corresponding to the given name.
+     */
     public Action setCurrentAction(String actionName, String layerName) {
         Layer l = layers.get(layerName);
         if (l == null) {
             throw new IllegalArgumentException("Unknown layer " + layerName);
         }
+        
         Action currentAction = action(actionName);
         l.time = 0;
         l.currentAction = currentAction;
         return currentAction;
+    }
+    
+    /**
+     * Remove current action on specified layer.
+     *
+     * @param layerName The name of the layer we want to remove it's action.
+     */
+    public void removeCurrentAction(String layerName) {
+        Layer l = layers.get(layerName);
+        if (l == null) {
+            throw new IllegalArgumentException("Unknown layer " + layerName);
+        }
+        
+        l.time = 0;
+        l.currentAction = null;
     }
 
     public Action action(String name) {
@@ -101,13 +124,31 @@ public class AnimComposer extends AbstractControl {
     public boolean hasAction(String name) {
         return actions.containsKey(name);
     }
+    
+    /**
+     * Remove specified action.
+     *
+     * @param name The name of the action to remove.
+     * @return The removed action.
+     */
+    public Action removeAction(String name) {
+        return actions.remove(name);
+    }
 
-    public void makeLayer(String name, AnimationMask mask){
+    public void makeLayer(String name, AnimationMask mask) {
         Layer l = new Layer();
         l.mask = mask;
         layers.put(name, l);
     }
 
+    /**
+     * Remove specified layer. This will stop the current action on this layer.
+     *
+     * @param name The name of the layer to remove.
+     */
+    public void removeLayer(String name) {
+        layers.remove(name);
+    }
 
     public BaseAction actionSequence(String name, Tween... tweens) {
         BaseAction action = new BaseAction(Tweens.sequence(tweens));
