@@ -87,6 +87,11 @@ public class AnimComposer extends AbstractControl {
         return currentAction;
     }
     
+    /**
+     * Remove current action on specified layer.
+     *
+     * @param layerName The name of the layer we want to remove it's action.
+     */
     public void removeCurrentAction(String layerName) {
         Layer l = layers.get(layerName);
         if (l == null) {
@@ -120,6 +125,12 @@ public class AnimComposer extends AbstractControl {
         return actions.containsKey(name);
     }
     
+    /**
+     * Remove specified action.
+     *
+     * @param name The name of the action to remove.
+     * @return The removed action.
+     */
     public Action removeAction(String name) {
         return actions.remove(name);
     }
@@ -130,6 +141,11 @@ public class AnimComposer extends AbstractControl {
         layers.put(name, l);
     }
 
+    /**
+     * Remove specified layer. This will stop the current action on this layer.
+     *
+     * @param name The name of the layer to remove.
+     */
     public void removeLayer(String name) {
         layers.remove(name);
     }
