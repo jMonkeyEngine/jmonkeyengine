@@ -42,7 +42,6 @@ import android.view.View;
 import com.jme3.input.JoyInput;
 import com.jme3.input.TouchInput;
 import com.jme3.system.AppSettings;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**

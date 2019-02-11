@@ -36,7 +36,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import com.jme3.input.event.TouchEvent;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**

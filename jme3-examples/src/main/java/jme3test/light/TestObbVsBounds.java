@@ -35,7 +35,6 @@ import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingSphere;
-import com.jme3.export.binary.BinaryExporter;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.*;
@@ -50,8 +49,6 @@ import com.jme3.scene.shape.*;
 import com.jme3.shadow.ShadowUtil;
 import com.jme3.util.TempVars;
 
-import java.io.File;
-import java.io.IOException;
 
 public class TestObbVsBounds extends SimpleApplication {
 

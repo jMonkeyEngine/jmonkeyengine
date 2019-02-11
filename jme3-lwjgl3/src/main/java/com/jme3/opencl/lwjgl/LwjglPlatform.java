@@ -31,20 +31,15 @@
  */
 package com.jme3.opencl.lwjgl;
 
-import com.jme3.lwjgl3.utils.APIBuffer;
-import static com.jme3.lwjgl3.utils.APIUtil.apiBuffer;
-import com.jme3.opencl.Device;
 import com.jme3.opencl.Platform;
 import com.jme3.opencl.lwjgl.info.Info;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.opencl.CL10;
-import static org.lwjgl.system.Pointer.POINTER_SHIFT;
 
 /**
  *

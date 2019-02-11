@@ -33,15 +33,11 @@ package com.jme3.cinematic.events;
 
 import com.jme3.app.Application;
 import com.jme3.cinematic.Cinematic;
-import com.jme3.cinematic.TimeLine;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.export.Savable;
-import com.jme3.scene.CameraNode;
 import java.io.IOException;
-import java.util.Map;
 
 /**
  *

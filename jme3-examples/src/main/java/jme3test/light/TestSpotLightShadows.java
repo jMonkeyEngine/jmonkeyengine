@@ -49,7 +49,6 @@ import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.shadow.SpotLightShadowFilter;
 import com.jme3.shadow.SpotLightShadowRenderer;
 import com.jme3.texture.Texture.WrapMode;
-import com.jme3.util.MaterialDebugAppState;
 import com.jme3.util.TangentBinormalGenerator;
 
 public class TestSpotLightShadows extends SimpleApplication {

@@ -34,31 +34,21 @@
  
 package jme3test.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.FontMetrics;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.RenderingHints;
-import java.awt.Toolkit;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.awt.font.TextAttribute;
 import java.io.IOException;
 import java.util.*;
-import javax.swing.*;
 
 import com.jme3.app.DebugKeysAppState;
 import com.jme3.app.StatsAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.ScreenshotAppState; 
 import com.jme3.bounding.BoundingBox;
-import com.jme3.font.BitmapCharacter;
 import com.jme3.font.BitmapCharacterSet;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;

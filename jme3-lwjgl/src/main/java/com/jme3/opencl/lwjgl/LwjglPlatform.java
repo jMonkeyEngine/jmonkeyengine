@@ -31,7 +31,6 @@
  */
 package com.jme3.opencl.lwjgl;
 
-import com.jme3.opencl.Device;
 import com.jme3.opencl.Platform;
 import java.util.ArrayList;
 import java.util.Arrays;

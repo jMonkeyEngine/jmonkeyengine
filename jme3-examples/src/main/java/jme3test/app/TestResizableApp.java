@@ -33,12 +33,10 @@ package jme3test.app;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapText;
-import com.jme3.font.Rectangle;
 import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
-import jme3test.model.shape.TestBox;
 
 /**
  * Tests the capability to resize the application window.

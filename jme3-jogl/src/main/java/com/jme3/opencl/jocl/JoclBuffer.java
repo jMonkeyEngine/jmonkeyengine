@@ -36,7 +36,6 @@ import java.nio.ByteBuffer;
 import com.jogamp.opencl.*;
 import com.jogamp.opencl.llb.CL;
 import com.jogamp.opencl.llb.gl.CLGL;
-import java.util.EnumSet;
 
 /**
  *

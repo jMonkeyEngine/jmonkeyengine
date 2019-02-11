@@ -40,7 +40,6 @@ import static com.jme3.scene.MPOTestUtils.*;
 import static org.junit.Assert.*;
 
 import com.jme3.system.TestUtil;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

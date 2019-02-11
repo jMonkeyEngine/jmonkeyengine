@@ -1,9 +1,7 @@
 package jme3test.model.anim;
 
 import com.jme3.anim.*;
-import com.jme3.anim.tween.action.Action;
 import com.jme3.anim.tween.action.BlendAction;
-import com.jme3.anim.tween.action.BlendableAction;
 import com.jme3.anim.tween.action.LinearBlendSpace;
 import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.app.ChaseCameraAppState;
@@ -20,7 +18,6 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.custom.ArmatureDebugAppState;
 
 import java.util.LinkedList;
-import java.util.Queue;
 
 /**
  * Created by Nehon on 18/12/2017.

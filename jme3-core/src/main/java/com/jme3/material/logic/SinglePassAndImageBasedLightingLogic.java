@@ -32,7 +32,6 @@
 package com.jme3.material.logic;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.bounding.BoundingSphere;
 import com.jme3.light.*;
 import com.jme3.material.*;
 import com.jme3.material.RenderState.BlendMode;
