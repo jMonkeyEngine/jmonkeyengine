@@ -43,7 +43,6 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.LinkedList;
-import java.util.LinkedList;
 
 /**
  * One page per BitmapText Font Texture.

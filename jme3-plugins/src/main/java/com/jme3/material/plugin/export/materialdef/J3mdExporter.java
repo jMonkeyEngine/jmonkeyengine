@@ -5,9 +5,6 @@
  */
 package com.jme3.material.plugin.export.materialdef;
 
-import com.jme3.export.JmeExporter;
-import com.jme3.export.OutputCapsule;
-import com.jme3.export.Savable;
 import com.jme3.material.*;
 
 import java.io.*;

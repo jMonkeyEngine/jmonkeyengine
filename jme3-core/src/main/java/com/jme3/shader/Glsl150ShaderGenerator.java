@@ -35,7 +35,6 @@ import com.jme3.asset.AssetManager;
 import com.jme3.material.ShaderGenerationInfo;
 import com.jme3.shader.Shader.ShaderType;
 
-import java.util.List;
 
 /**
  * This shader Generator can generate Vertex and Fragment shaders from

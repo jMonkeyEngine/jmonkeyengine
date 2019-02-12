@@ -6,7 +6,6 @@ import com.jme3.asset.*;
 import com.jme3.system.android.JmeAndroidSystem;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AndroidLocator implements AssetLocator {

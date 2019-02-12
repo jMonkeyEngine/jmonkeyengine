@@ -58,7 +58,6 @@ import com.jme3.renderer.opengl.GLTiming;
 import com.jme3.renderer.opengl.GLTimingState;
 import com.jme3.renderer.opengl.GLTracer;
 import com.jme3.system.*;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 

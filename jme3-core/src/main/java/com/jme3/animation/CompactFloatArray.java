@@ -32,7 +32,6 @@
 package com.jme3.animation;
 
 import com.jme3.export.*;
-import com.jme3.math.Vector3f;
 
 import java.io.IOException;
 

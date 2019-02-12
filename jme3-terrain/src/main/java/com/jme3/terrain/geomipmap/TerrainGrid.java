@@ -43,7 +43,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.UpdateControl;
 import com.jme3.terrain.Terrain;
-import com.jme3.terrain.heightmap.HeightMapGrid;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;

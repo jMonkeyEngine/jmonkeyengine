@@ -33,7 +33,6 @@
 package jme3test.app;
 
 import com.jme3.app.LegacyApplication;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 

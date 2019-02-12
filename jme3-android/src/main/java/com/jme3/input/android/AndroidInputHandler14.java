@@ -37,7 +37,6 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**

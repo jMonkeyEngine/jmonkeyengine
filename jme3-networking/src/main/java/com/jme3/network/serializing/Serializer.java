@@ -45,7 +45,6 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.jar.Attributes;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**

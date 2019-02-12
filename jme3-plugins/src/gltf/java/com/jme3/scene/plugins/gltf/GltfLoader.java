@@ -21,7 +21,6 @@ import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
-import java.rmi.ServerError;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;

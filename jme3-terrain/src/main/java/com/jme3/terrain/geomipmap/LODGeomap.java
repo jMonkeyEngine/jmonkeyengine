@@ -46,7 +46,6 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.Buffer;
-import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;

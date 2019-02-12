@@ -1,8 +1,6 @@
 package com.jme3.anim;
 
-import com.jme3.anim.tween.Tween;
 import com.jme3.export.*;
-import com.jme3.util.SafeArrayList;
 import com.jme3.util.clone.Cloner;
 import com.jme3.util.clone.JmeCloneable;
 

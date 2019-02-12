@@ -8,7 +8,6 @@ import com.jme3.renderer.Camera;
 import com.jme3.util.TempVars;
 
 import java.io.IOException;
-import java.util.logging.Level;
 
 public class SphereProbeArea implements ProbeArea {
 

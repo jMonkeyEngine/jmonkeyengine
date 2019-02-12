@@ -64,7 +64,6 @@ import com.jme3.system.Timer;
 import com.jogamp.opencl.CLDevice;
 import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.gl.CLGLContext;
-import com.jogamp.opencl.llb.CL;
 
 import java.nio.IntBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;

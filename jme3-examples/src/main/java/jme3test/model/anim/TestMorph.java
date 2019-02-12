@@ -10,11 +10,9 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.mesh.MorphTarget;
 import com.jme3.scene.shape.Box;
-import com.jme3.shader.VarType;
 import com.jme3.util.BufferUtils;
 
 import java.nio.FloatBuffer;

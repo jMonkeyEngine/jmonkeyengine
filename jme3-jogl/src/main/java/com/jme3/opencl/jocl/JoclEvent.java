@@ -32,7 +32,6 @@
 package com.jme3.opencl.jocl;
 
 import com.jme3.opencl.Event;
-import com.jme3.opencl.OpenCLObjectManager;
 import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.llb.CL;
 import java.util.logging.Logger;

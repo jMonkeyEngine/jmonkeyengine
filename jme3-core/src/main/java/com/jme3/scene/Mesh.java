@@ -50,7 +50,6 @@ import com.jme3.util.clone.JmeCloneable;
 import java.io.IOException;
 import java.nio.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * <code>Mesh</code> is used to store rendering data.

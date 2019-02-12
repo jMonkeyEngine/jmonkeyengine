@@ -36,15 +36,9 @@ import com.jme3.opencl.MemoryAccess;
 import com.jme3.opencl.OpenCLException;
 import com.jme3.util.BufferUtils;
 import com.jogamp.common.nio.PointerBuffer;
-import com.jogamp.opencl.CLEventList;
 import com.jogamp.opencl.CLException;
-import com.jogamp.opencl.CLMemory;
-import com.jogamp.opencl.CLVersion;
 import com.jogamp.opencl.llb.CL;
-import java.lang.reflect.Field;
 import java.nio.*;
-import java.util.EnumSet;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

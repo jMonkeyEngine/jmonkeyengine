@@ -51,7 +51,6 @@ import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class OpaqueComparatorTest {

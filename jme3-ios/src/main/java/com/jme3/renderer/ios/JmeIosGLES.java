@@ -5,7 +5,6 @@ import com.jme3.renderer.RendererException;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**

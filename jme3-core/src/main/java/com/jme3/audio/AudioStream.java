@@ -35,7 +35,6 @@ import com.jme3.util.NativeObject;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**

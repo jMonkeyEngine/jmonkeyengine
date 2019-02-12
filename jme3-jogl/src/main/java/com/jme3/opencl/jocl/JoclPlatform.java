@@ -31,13 +31,10 @@
  */
 package com.jme3.opencl.jocl;
 
-import com.jme3.opencl.Device;
 import com.jme3.opencl.Platform;
 import com.jogamp.opencl.CLDevice;
 import com.jogamp.opencl.CLPlatform;
-import com.jogamp.opencl.llb.CL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 

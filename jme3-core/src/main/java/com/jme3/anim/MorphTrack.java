@@ -32,11 +32,9 @@
 package com.jme3.anim;
 
 import com.jme3.anim.interpolator.FrameInterpolator;
-import com.jme3.animation.*;
 import com.jme3.export.*;
 import com.jme3.scene.Geometry;
 import com.jme3.util.clone.Cloner;
-import com.jme3.util.clone.JmeCloneable;
 
 import java.io.IOException;
 
