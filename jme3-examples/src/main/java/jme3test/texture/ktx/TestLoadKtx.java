@@ -32,13 +32,9 @@
 package jme3test.texture.ktx;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.TextureKey;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RenderManager;
-import com.jme3.scene.Node;
-import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
-import com.jme3.texture.TextureCubeMap;
 import com.jme3.texture.plugins.ktx.KTXLoader;
 import com.jme3.ui.Picture;
 

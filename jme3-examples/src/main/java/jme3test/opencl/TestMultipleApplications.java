@@ -34,7 +34,6 @@ package jme3test.opencl;
 import com.jme3.app.SimpleApplication;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
-import com.jme3.font.Rectangle;
 import com.jme3.opencl.*;
 import com.jme3.system.AppSettings;
 import java.util.Collections;

@@ -5,13 +5,11 @@
  */
 package com.jme3.material.plugin.export.materialdef;
 
-import com.jme3.export.*;
 import com.jme3.material.*;
 import com.jme3.math.*;
 import com.jme3.texture.image.ColorSpace;
 
 import java.io.*;
-import java.util.*;
 
 import static com.jme3.shader.VarType.Vector2;
 import static com.jme3.shader.VarType.Vector3;

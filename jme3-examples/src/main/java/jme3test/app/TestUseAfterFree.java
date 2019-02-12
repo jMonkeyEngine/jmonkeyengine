@@ -37,8 +37,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class TestUseAfterFree extends SimpleApplication {
 

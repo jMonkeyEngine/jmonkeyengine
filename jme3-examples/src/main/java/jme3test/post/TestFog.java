@@ -33,8 +33,6 @@
 package jme3test.post;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.plugins.HttpZipLocator;
-import com.jme3.asset.plugins.ZipLocator;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
@@ -49,13 +47,11 @@ import com.jme3.post.filters.FogFilter;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 

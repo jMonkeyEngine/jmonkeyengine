@@ -32,7 +32,6 @@
 package com.jme3.texture.image;
 
 import com.jme3.math.ColorRGBA;
-import com.jme3.system.JmeSystem;
 import com.jme3.texture.Image;
 
 /**

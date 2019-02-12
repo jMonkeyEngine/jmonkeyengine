@@ -51,8 +51,6 @@ import com.jme3.scene.shape.Sphere;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.util.TangentBinormalGenerator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class TestShadowsPerf extends SimpleApplication {
 

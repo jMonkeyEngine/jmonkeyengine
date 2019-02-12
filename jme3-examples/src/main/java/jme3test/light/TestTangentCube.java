@@ -33,7 +33,6 @@ package jme3test.light;
 
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
-import com.jme3.light.AmbientLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;

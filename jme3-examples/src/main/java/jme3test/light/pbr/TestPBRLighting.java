@@ -32,7 +32,6 @@
 package jme3test.light.pbr;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.bounding.BoundingSphere;
 import com.jme3.environment.EnvironmentCamera;
 import com.jme3.environment.LightProbeFactory;
 import com.jme3.environment.generation.JobProgressAdapter;
