@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine All rights reserved. <p/>
+ * Copyright (c) 2009-2019 jMonkeyEngine All rights reserved. <p/>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  * 
@@ -139,10 +139,10 @@ public class TestPhysicsCharacter extends SimpleApplication implements ActionLis
             walkDirection.addLocal(camLeft.negate());
         }
         if (leftRotate) {
-            viewDirection.addLocal(camLeft.mult(0.02f));
+            viewDirection.addLocal(camLeft.mult(tpf));
         } else
         if (rightRotate) {
-            viewDirection.addLocal(camLeft.mult(0.02f).negate());
+            viewDirection.addLocal(camLeft.mult(tpf).negate());
         }
         if (forward) {
             walkDirection.addLocal(camDir);
