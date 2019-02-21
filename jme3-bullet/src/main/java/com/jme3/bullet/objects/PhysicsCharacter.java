@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -88,6 +88,12 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
 //        }
         this.stepHeight = stepHeight;
         buildObject();
+        /*
+         * The default gravity for a Bullet btKinematicCharacterController
+         * is (0,0,-29.4), which makes no sense for JME.
+         * So override the default.
+         */
+        setGravity(new Vector3f(0f, -29.4f, 0f));
     }
 
     /**
@@ -289,14 +295,14 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     /**
      * @deprecated Deprecated in bullet 2.86.1. Use setGravity(Vector3f)
      * instead.
-     * @param value the desired upward component of the acceleration (typically
-     * negative)
+     * @param value the desired downward (-Y) component of the acceleration
+     * (typically positive)
      */
     @Deprecated
     public void setGravity(float value) {
-    	setGravity(new Vector3f(0,value,0));
+        setGravity(new Vector3f(0, -value, 0));
     }
-    
+
     /**
      * Alter this character's gravitational acceleration.
      *
@@ -311,11 +317,12 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     /**
      * @deprecated Deprecated in bullet 2.86.1. Use getGravity(Vector3f)
      * instead.
-     * @return the upward component of the acceleration (typically negative)
+     * @return the downward (-Y) component of the acceleration (typically
+     * positive)
      */
     @Deprecated
     public float getGravity() {
-        return getGravity(null).y;
+        return -getGravity(null).y;
     }
 
     /**
@@ -488,10 +495,15 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
      */
     @Deprecated
     public void jump() {
-    	jump(Vector3f.UNIT_Y);
+        jump(Vector3f.ZERO);
+        /*
+         * The zero vector is treated as a special case
+         * by Bullet's btKinematicCharacterController::jump(),
+         * causing the character to jump in its "up" direction
+         * with the pre-set speed.
+         */
     }
-    
-    
+
     /**
      * Jump in the specified direction.
      *
