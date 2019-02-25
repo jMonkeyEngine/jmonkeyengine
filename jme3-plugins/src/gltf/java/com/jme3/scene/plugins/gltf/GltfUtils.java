@@ -299,7 +299,6 @@ public class GltfUtils {
             }
             index += stride;
         }
-        System.err.println("");
     }
 
 
