@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -116,8 +116,8 @@ public final class Vector3d implements Savable, Cloneable, Serializable {
     /**
      * Constructor instantiates a new <code>Vector3d</code> that is a copy
      * of the provided vector
-     * @param copy
-     *            The Vector3d to copy
+     * @param vector3f
+     *            The Vector3f to copy
      */
     public Vector3d(Vector3f vector3f) {
         this(vector3f.x, vector3f.y, vector3f.z);

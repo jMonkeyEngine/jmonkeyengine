@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -304,10 +304,7 @@ public class BlenderContext {
      * 
      * @param oldMemoryAddress
      *            the address of the feature
-     * @param featureName
-     *            the name of the feature
-     * @param structure
-     *            the filled structure of the feature
+     * @param featureDataType
      * @param feature
      *            the feature we want to store
      */
@@ -330,7 +327,7 @@ public class BlenderContext {
      * @param oldMemoryAddress
      *            the address of the feature
      * @param loadedFeatureDataType
-     *            the type of data we want to retreive it can be either filled
+     *            the type of data we want to retrieve it can be either filled
      *            structure or already converted feature
      * @return loaded feature or null if it was not yet loaded
      */
@@ -497,7 +494,7 @@ public class BlenderContext {
     }
 
     /**
-     * This method retreives the structure at the top of the parent's stack but
+     * This method retrieves the structure at the top of the parent's stack but
      * does not remove it.
      * 
      * @return the structure from the top of the stack
@@ -754,7 +751,7 @@ public class BlenderContext {
     }
 
     /**
-     * This enum defines what loaded data type user wants to retreive. It can be
+     * This enum defines what loaded data type user wants to retrieve. It can be
      * either filled structure or already converted data.
      * 
      * @author Marcin Roguski (Kaelthas)
