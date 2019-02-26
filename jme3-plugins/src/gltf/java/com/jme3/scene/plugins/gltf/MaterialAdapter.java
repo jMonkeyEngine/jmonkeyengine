@@ -26,7 +26,7 @@ public abstract class MaterialAdapter {
     /**
      * Should return the material definition used by this material adapter
      *
-     * @return
+     * @return path to the material definition
      */
     protected abstract String getMaterialDefPath();
 
