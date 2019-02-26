@@ -100,7 +100,6 @@ public class VREnvironment {
 	
 	/**
 	 * Set the VR bounds.
-	 * @return the VR bounds.
 	 * @see #getVRBounds()
 	 */
 	public void setVRBounds(VRBounds bounds){

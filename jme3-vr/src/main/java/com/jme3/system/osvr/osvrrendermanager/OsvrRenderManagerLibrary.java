@@ -28,12 +28,12 @@ public class OsvrRenderManagerLibrary implements Library {
 		public static final int OSVR_OPEN_STATUS_COMPLETE = 2;
 	};
 	/**
-	 * @todo OSVR_RenderTimingInfo<br>
+	 * todo OSVR_RenderTimingInfo.
 	 * Original signature : <code>OSVR_ReturnCode osvrDestroyRenderManager(OSVR_RenderManager)</code>
 	 */
 	public static native byte osvrDestroyRenderManager(Pointer renderManager);
 	/**
-	 * @todo Make this actually cache, for now it does not.<br>
+	 * todo Make this actually cache, for now it does not.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrRenderManagerGetNumRenderInfo(OSVR_RenderManager, OSVR_RenderParams, OSVR_RenderInfoCount*)</code>
 	 */
 	public static native byte osvrRenderManagerGetNumRenderInfo(Pointer renderManager, OSVR_RenderParams.ByValue renderParams, NativeSizeByReference numRenderInfoOut);
