@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -139,7 +139,7 @@ public class NavCalculator {
      * Calculate a plane sailing situation - i.e. where Lats are the same 
      * @param p1
      * @param p2
-     * @return
+     * @return a new instance
      * @since 1.0
      */
     public RLSailing planeSailing(Position p1, Position p2) {
@@ -171,7 +171,7 @@ public class NavCalculator {
      * @param tc
      * @param p1 position one
      * @param p2 position two
-     * @return
+     * @return angle (in degrees)
      * @since 1.0
      */
     public static double convertCourse(float tc, Position p1, Position p2) {
@@ -312,9 +312,8 @@ public class NavCalculator {
      * Computes the coordinate of position B relative to an offset given
      * a distance and an angle.
      *
-     * @param offset        The offset position.
-     * @param bearing       The bearing between the offset and the coordinate
-     *                      that you want to calculate.
+     * @param initialPos
+     * @param heading
      * @param distance      The distance, in meters, between the offset
      *                      and point B.
      * @return              The position of point B that is located from
@@ -554,7 +553,7 @@ public class NavCalculator {
      * 
      * @param p1
      * @param p2
-     * @return
+     * @return bearing (in degrees)
      * @since 1.0
      */
     public static int computeBearing(Position p1, Position p2) {
@@ -572,7 +571,7 @@ public class NavCalculator {
      *
      * @param p1
      * @param p2
-     * @return
+     * @return angle (in degrees)
      */
     public static int computeAngle(Position p1, Position p2) {
         // cos (adj / hyp)

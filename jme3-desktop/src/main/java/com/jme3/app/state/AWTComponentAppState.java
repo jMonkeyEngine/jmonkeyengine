@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -116,8 +116,8 @@ public class AWTComponentAppState extends AbstractAppState {
   }
   
   /**
-   * Get the {@link AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
-   * @return the {@link AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
+   * Get the {@link com.jme3.system.AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
+   * @return the {@link com.jme3.system.AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
    * @see #setTransferMode(com.jme3.system.AWTFrameProcessor.TransferMode)
    */
   public AWTFrameProcessor.TransferMode getTransferMode(){
@@ -125,8 +125,8 @@ public class AWTComponentAppState extends AbstractAppState {
   }
   
   /**
-   * Set the {@link AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
-   * @param mode the {@link AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
+   * Set the {@link com.jme3.system.AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
+   * @param mode the {@link com.jme3.system.AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
    * @see #getTransferMode()
    */
   public void setTransferMode(AWTFrameProcessor.TransferMode mode) {

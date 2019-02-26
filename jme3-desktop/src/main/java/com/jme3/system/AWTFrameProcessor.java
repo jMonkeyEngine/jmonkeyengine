@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -420,7 +420,6 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 	 *
 	 * @param destination the destination.
 	 * @param application the application.
-	 * @param inputNode   the input node.
 	 * @param viewPort    the view port.
 	 * @param main        true if this processor is main.
 	 */
@@ -477,7 +476,6 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 	 *
 	 * @param application the application.
 	 * @param destination the destination.
-	 * @param inputNode   the input node.
 	 */
 	protected void bindDestination(Application application, Component destination) {
 
