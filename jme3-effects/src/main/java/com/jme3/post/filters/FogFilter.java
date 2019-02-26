@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -95,7 +95,7 @@ public class FogFilter extends Filter {
 
     /**
      * returns the fog color
-     * @return
+     * @return the pre-existing instance
      */
     public ColorRGBA getFogColor() {
         return fogColor;
@@ -114,7 +114,7 @@ public class FogFilter extends Filter {
 
     /**
      * returns the fog density
-     * @return
+     * @return the density value
      */
     public float getFogDensity() {
         return fogDensity;
@@ -133,7 +133,7 @@ public class FogFilter extends Filter {
 
     /**
      * returns the fog distance
-     * @return
+     * @return the distance
      */
     public float getFogDistance() {
         return fogDistance;

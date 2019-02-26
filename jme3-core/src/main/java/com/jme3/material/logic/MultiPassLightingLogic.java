@@ -31,6 +31,7 @@
  */
 package com.jme3.material.logic;
 
+import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.LightList;

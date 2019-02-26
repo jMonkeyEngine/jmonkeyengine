@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,7 +120,6 @@ public class VideoRecorderAppState extends AbstractAppState {
      * This constructor allows you to specify the output file of the video as well as the quality
      * @param file the video file
      * @param quality the quality of the jpegs in the video stream (0.0 smallest file - 1.0 largest file)
-     * @param framerate the frame rate of the resulting video, the application will be locked to this framerate
      */
     public VideoRecorderAppState(File file, float quality) {
         this.file = file;
