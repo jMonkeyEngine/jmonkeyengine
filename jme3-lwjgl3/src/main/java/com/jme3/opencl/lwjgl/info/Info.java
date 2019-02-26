@@ -35,29 +35,28 @@ public final class Info {
     };
 
     /**
-     * String version of: {@link CL10#clGetPlatformInfo GetPlatformInfo}
+     * String version of CL10#clGetPlatformInfo
      */
     public static String clGetPlatformInfoStringASCII(long platform, int param_name) {
         return PLATFORM.getStringASCII(platform, param_name);
     }
 
     /**
-     * String with explicit length version of: {@link CL10#clGetPlatformInfo GetPlatformInfo}
+     * String with explicit length version of CL10#clGetPlatformInfo
      */
     public static String clGetPlatformInfoStringASCII(long platform, int param_name, int param_value_size) {
         return PLATFORM.getStringASCII(platform, param_name, param_value_size);
     }
 
     /**
-     * UTF-8 string version of: {@link CL10#clGetPlatformInfo GetPlatformInfo}
+     * UTF-8 string version of CL10#clGetPlatformInfo
      */
     public static String clGetPlatformInfoStringUTF8(long platform, int param_name) {
         return PLATFORM.getStringUTF8(platform, param_name);
     }
 
     /**
-     * UTF-8 string with explicit length version of:
-     * {@link CL10#clGetPlatformInfo GetPlatformInfo}
+     * UTF-8 string with explicit length version of CL10#clGetPlatformInfo
      */
     public static String clGetPlatformInfoStringUTF8(long platform, int param_name, int param_value_size) {
         return PLATFORM.getStringUTF8(platform, param_name, param_value_size);
@@ -74,66 +73,63 @@ public final class Info {
     };
 
     /**
-     * Single boolean value version of:
-     * {@link CL10#clGetDeviceInfo GetDeviceInfo}
+     * Single boolean value version of CL10#clGetDeviceInfo
      */
     public static boolean clGetDeviceInfoBoolean(long device, int param_name) {
         return DEVICE.getBoolean(device, param_name);
     }
 
     /**
-     * Single int value version of: {@link CL10#clGetDeviceInfo GetDeviceInfo}
+     * Single int value version of CL10#clGetDeviceInfo
      */
     public static int clGetDeviceInfoInt(long device, int param_name) {
         return DEVICE.getInt(device, param_name);
     }
 
     /**
-     * Single long value version of: {@link CL10#clGetDeviceInfo GetDeviceInfo}
+     * Single long value version of CL10#clGetDeviceInfo
      */
     public static long clGetDeviceInfoLong(long device, int param_name) {
         return DEVICE.getLong(device, param_name);
     }
 
     /**
-     * Single pointer value version of:
-     * {@link CL10#clGetDeviceInfo GetDeviceInfo}
+     * Single pointer value version of CL10#clGetDeviceInfo
      */
     public static long clGetDeviceInfoPointer(long device, int param_name) {
         return DEVICE.getPointer(device, param_name);
     }
 
     /**
-     * PointBuffer version of: {@link CL10#clGetDeviceInfo GetDeviceInfo}
+     * PointBuffer version of CL10#clGetDeviceInfo
      */
     public static int clGetDeviceInfoPointers(long device, int param_name, PointerBuffer target) {
         return DEVICE.getPointers(device, param_name, target);
     }
 
     /**
-     * String version of: {@link CL10#clGetDeviceInfo GetDeviceInfo}
+     * String version of CL10#clGetDeviceInfo
      */
     public static String clGetDeviceInfoStringASCII(long device, int param_name) {
         return DEVICE.getStringASCII(device, param_name);
     }
 
     /**
-     * String with explicit length version of: {@link CL10#clGetDeviceInfo GetDeviceInfo}
+     * String with explicit length version of CL10#clGetDeviceInfo
      */
     public static String clGetDeviceInfoStringASCII(long device, int param_name, int param_value_size) {
         return DEVICE.getStringASCII(device, param_name, param_value_size);
     }
 
     /**
-     * UTF-8 string version of: {@link CL10#clGetDeviceInfo GetDeviceInfo}
+     * UTF-8 string version of CL10#clGetDeviceInfo
      */
     public static String clGetDeviceInfoStringUTF8(long device, int param_name) {
         return DEVICE.getStringUTF8(device, param_name);
     }
 
     /**
-     * UTF-8 string with explicit length version of:
-     * {@link CL10#clGetDeviceInfo GetDeviceInfo}
+     * UTF-8 string with explicit length version of CL10#clGetDeviceInfo
      */
     public static String clGetDeviceInfoStringUTF8(long device, int param_name, int param_value_size) {
         return DEVICE.getStringUTF8(device, param_name, param_value_size);
@@ -150,22 +146,21 @@ public final class Info {
     };
 
     /**
-     * Single int value version of: {@link CL10#clGetContextInfo GetContextInfo}
+     * Single int value version of CL10#clGetContextInfo
      */
     public static int clGetContextInfoInt(long context, int param_name) {
         return CONTEXT.getInt(context, param_name);
     }
 
     /**
-     * Single pointer value version of:
-     * {@link CL10#clGetContextInfo GetContextInfo}
+     * Single pointer value version of CL10#clGetContextInfo
      */
     public static long clGetContextInfoPointer(long context, int param_name) {
         return CONTEXT.getPointer(context, param_name);
     }
 
     /**
-     * PointBuffer version of: {@link CL10#clGetContextInfo GetContextInfo}
+     * PointBuffer version of CL10#clGetContextInfo
      */
     public static int clGetContextInfoPointers(long context, int param_name, PointerBuffer target) {
         return CONTEXT.getPointers(context, param_name, target);
@@ -182,24 +177,21 @@ public final class Info {
     };
 
     /**
-     * Single int value version of:
-     * {@link CL10#clGetCommandQueueInfo GetCommandQueueInfo}
+     * Single int value version of CL10#clGetCommandQueueInfo
      */
     public static int clGetCommandQueueInfoInt(long command_queue, int param_name) {
         return COMMAND_QUEUE.getInt(command_queue, param_name);
     }
 
     /**
-     * Single pointer value version of:
-     * {@link CL10#clGetCommandQueueInfo GetCommandQueueInfo}
+     * Single pointer value version of CL10#clGetCommandQueueInfo
      */
     public static long clGetCommandQueueInfoPointer(long command_queue, int param_name) {
         return COMMAND_QUEUE.getPointer(command_queue, param_name);
     }
 
     /**
-     * PointBuffer version of:
-     * {@link CL10#clGetCommandQueueInfo GetCommandQueueInfo}
+     * PointBuffer version of CL10#clGetCommandQueueInfo
      */
     public static int clGetCommandQueueInfoPointers(long command_queue, int param_name, PointerBuffer target) {
         return COMMAND_QUEUE.getPointers(command_queue, param_name, target);
@@ -216,39 +208,35 @@ public final class Info {
     };
 
     /**
-     * Single boolean value version of:
-     * {@link CL10#clGetMemObjectInfo GetMemObjectInfo}
+     * Single boolean value version of CL10#clGetMemObjectInfo
      */
     public static boolean clGetMemObjectInfoBoolean(long memobj, int param_name) {
         return MEM_OBJECT.getBoolean(memobj, param_name);
     }
 
     /**
-     * Single int value version of:
-     * {@link CL10#clGetMemObjectInfo GetMemObjectInfo}
+     * Single int value version of org.lwjgl.opencl.CL10#clGetMemObjectInfo
      */
     public static int clGetMemObjectInfoInt(long memobj, int param_name) {
         return MEM_OBJECT.getInt(memobj, param_name);
     }
 
     /**
-     * Single long value version of:
-     * {@link CL10#clGetMemObjectInfo GetMemObjectInfo}
+     * Single long value version of org.lwjgl.opencl.CL10#clGetMemObjectInfo
      */
     public static long clGetMemObjectInfoLong(long memobj, int param_name) {
         return MEM_OBJECT.getLong(memobj, param_name);
     }
 
     /**
-     * Single pointer value version of:
-     * {@link CL10#clGetMemObjectInfo GetMemObjectInfo}
+     * Single pointer value version of org.lwjgl.opencl.CL10#clGetMemObjectInfo
      */
     public static long clGetMemObjectInfoPointer(long memobj, int param_name) {
         return MEM_OBJECT.getPointer(memobj, param_name);
     }
 
     /**
-     * PointBuffer version of: {@link CL10#clGetMemObjectInfo GetMemObjectInfo}
+     * PointBuffer version of org.lwjgl.opencl.CL10#clGetMemObjectInfo
      */
     public static int clGetMemObjectInfoPointers(long memobj, int param_name, PointerBuffer target) {
         return MEM_OBJECT.getPointers(memobj, param_name, target);
@@ -265,21 +253,21 @@ public final class Info {
     };
 
     /**
-     * Single int value version of: {@link CL10#clGetImageInfo GetImageInfo}
+     * Single int value version of org.lwjgl.opencl.CL10#clGetImageInfo
      */
     public static int clGetImageInfoInt(long image, int param_name) {
         return IMAGE.getInt(image, param_name);
     }
 
     /**
-     * Single pointer value version of: {@link CL10#clGetImageInfo GetImageInfo}
+     * Single pointer value version of org.lwjgl.opencl.CL10#clGetImageInfo
      */
     public static long clGetImageInfoPointer(long image, int param_name) {
         return IMAGE.getPointer(image, param_name);
     }
 
     /**
-     * PointBuffer version of: {@link CL10#clGetImageInfo GetImageInfo}
+     * PointBuffer version of org.lwjgl.opencl.CL10#clGetImageInfo
      */
     public static int clGetImageInfoPointers(long image, int param_name, PointerBuffer target) {
         return IMAGE.getPointers(image, param_name, target);
@@ -296,7 +284,7 @@ public final class Info {
     };
 
     /**
-     * Single int value version of: {@link CL20#clGetPipeInfo GetPipeInfo}
+     * Single int value version of org.lwjgl.opencl.CL20#clGetPipeInfo
      */
     public static int clGetPipeInfoInt(long pipe, int param_name) {
         return PIPE.getInt(pipe, param_name);
@@ -313,43 +301,42 @@ public final class Info {
     };
 
     /**
-     * Single int value version of: {@link CL10#clGetProgramInfo GetProgramInfo}
+     * Single int value version of org.lwjgl.opencl.CL10#clGetProgramInfo
      */
     public static int clGetProgramInfoInt(long program, int param_name) {
         return PROGRAM.getInt(program, param_name);
     }
 
     /**
-     * Single pointer value version of:
-     * {@link CL10#clGetProgramInfo GetProgramInfo}
+     * Single pointer value version of org.lwjgl.opencl.CL10#clGetProgramInfo
      */
     public static long clGetProgramInfoPointer(long program, int param_name) {
         return PROGRAM.getPointer(program, param_name);
     }
 
     /**
-     * PointBuffer version of: {@link CL10#clGetProgramInfo GetProgramInfo}
+     * PointBuffer version of org.lwjgl.opencl.CL10#clGetProgramInfo
      */
     public static int clGetProgramInfoPointers(long program, int param_name, PointerBuffer target) {
         return PROGRAM.getPointers(program, param_name, target);
     }
 
     /**
-     * String version of: {@link CL10#clGetProgramInfo GetProgramInfo}
+     * String version of org.lwjgl.opencl.CL10#clGetProgramInfo
      */
     public static String clGetProgramInfoStringASCII(long program, int param_name) {
         return PROGRAM.getStringASCII(program, param_name);
     }
 
     /**
-     * String with explicit length version of: {@link CL10#clGetProgramInfo GetProgramInfo}
+     * String with explicit length version of org.lwjgl.opencl.CL10#clGetProgramInfo
      */
     public static String clGetProgramInfoStringASCII(long program, int param_name, int param_value_size) {
         return PROGRAM.getStringASCII(program, param_name, param_value_size);
     }
 
     /**
-     * UTF-8 string version of: {@link CL10#clGetProgramInfo GetProgramInfo}
+     * UTF-8 string version of: {@link org.lwjgl.opencl.CL10#clGetProgramInfo GetProgramInfo}
      */
     public static String clGetProgramInfoStringUTF8(long program, int param_name) {
         return PROGRAM.getStringUTF8(program, param_name);
@@ -357,7 +344,7 @@ public final class Info {
 
     /**
      * UTF-8 string with explicit length version of:
-     * {@link CL10#clGetProgramInfo GetProgramInfo}
+     * {@link org.lwjgl.opencl.CL10#clGetProgramInfo GetProgramInfo}
      */
     public static String clGetProgramInfoStringUTF8(long program, int param_name, int param_value_size) {
         return PROGRAM.getStringUTF8(program, param_name, param_value_size);
@@ -375,7 +362,7 @@ public final class Info {
 
     /**
      * Single int value version of:
-     * {@link CL10#clGetProgramBuildInfo GetProgramBuildInfo}
+     * {@link org.lwjgl.opencl.CL10#clGetProgramBuildInfo GetProgramBuildInfo}
      */
     public static int clGetProgramBuildInfoInt(long program, long device, int param_name) {
         return PROGRAM_BUILD.getInt(program, device, param_name);
@@ -383,7 +370,7 @@ public final class Info {
 
     /**
      * Single pointer value version of:
-     * {@link CL10#clGetProgramBuildInfo GetProgramBuildInfo}
+     * {@link org.lwjgl.opencl.CL10#clGetProgramBuildInfo GetProgramBuildInfo}
      */
     public static long clGetProgramBuildInfoPointer(long program, long device, int param_name) {
         return PROGRAM_BUILD.getPointer(program, device, param_name);
@@ -391,21 +378,21 @@ public final class Info {
 
     /**
      * PointBuffer version of:
-     * {@link CL10#clGetProgramBuildInfo GetProgramBuildInfo}
+     * {@link org.lwjgl.opencl.CL10#clGetProgramBuildInfo GetProgramBuildInfo}
      */
     public static int clGetProgramBuildInfoPointers(long program, long device, int param_name, PointerBuffer target) {
         return PROGRAM_BUILD.getPointers(program, device, param_name, target);
     }
 
     /**
-     * String version of: {@link CL10#clGetProgramBuildInfo GetProgramBuildInfo}
+     * String version of: {@link org.lwjgl.opencl.CL10#clGetProgramBuildInfo GetProgramBuildInfo}
      */
     public static String clGetProgramBuildInfoStringASCII(long program, long device, int param_name) {
         return PROGRAM_BUILD.getStringASCII(program, device, param_name);
     }
 
     /**
-     * String with explicit length version of: {@link CL10#clGetProgramBuildInfo GetProgramBuildInfo}
+     * String with explicit length version of: {@link org.lwjgl.opencl.CL10#clGetProgramBuildInfo GetProgramBuildInfo}
      */
     public static String clGetProgramBuildInfoStringASCII(long program, long device, int param_name, int param_value_size) {
         return PROGRAM_BUILD.getStringASCII(program, device, param_name, param_value_size);
@@ -413,7 +400,7 @@ public final class Info {
 
     /**
      * UTF-8 string version of:
-     * {@link CL10#clGetProgramBuildInfo GetProgramBuildInfo}
+     * {@link org.lwjgl.opencl.CL10#clGetProgramBuildInfo GetProgramBuildInfo}
      */
     public static String clGetProgramBuildInfoStringUTF8(long program, long device, int param_name) {
         return PROGRAM_BUILD.getStringUTF8(program, device, param_name);
@@ -421,7 +408,7 @@ public final class Info {
 
     /**
      * UTF-8 string with explicit length version of:
-     * {@link CL10#clGetProgramBuildInfo GetProgramBuildInfo}
+     * {@link org.lwjgl.opencl.CL10#clGetProgramBuildInfo GetProgramBuildInfo}
      */
     public static String clGetProgramBuildInfoStringUTF8(long program, long device, int param_name, int param_value_size) {
         return PROGRAM_BUILD.getStringUTF8(program, device, param_name, param_value_size);
@@ -438,7 +425,7 @@ public final class Info {
     };
 
     /**
-     * Single int value version of: {@link CL10#clGetKernelInfo GetKernelInfo}
+     * Single int value version of: {@link org.lwjgl.opencl.CL10#clGetKernelInfo GetKernelInfo}
      */
     public static int clGetKernelInfoInt(long kernel, int param_name) {
         return KERNEL.getInt(kernel, param_name);
@@ -446,35 +433,35 @@ public final class Info {
 
     /**
      * Single pointer value version of:
-     * {@link CL10#clGetKernelInfo GetKernelInfo}
+     * {@link org.lwjgl.opencl.CL10#clGetKernelInfo GetKernelInfo}
      */
     public static long clGetKernelInfoPointer(long kernel, int param_name) {
         return KERNEL.getPointer(kernel, param_name);
     }
 
     /**
-     * PointBuffer version of: {@link CL10#clGetKernelInfo GetKernelInfo}
+     * PointBuffer version of: {@link org.lwjgl.opencl.CL10#clGetKernelInfo GetKernelInfo}
      */
     public static int clGetKernelInfoPointers(long kernel, int param_name, PointerBuffer target) {
         return KERNEL.getPointers(kernel, param_name, target);
     }
 
     /**
-     * String version of: {@link CL10#clGetKernelInfo GetKernelInfo}
+     * String version of: {@link org.lwjgl.opencl.CL10#clGetKernelInfo GetKernelInfo}
      */
     public static String clGetKernelInfoStringASCII(long kernel, int param_name) {
         return KERNEL.getStringASCII(kernel, param_name);
     }
 
     /**
-     * String with explicit length version of: {@link CL10#clGetKernelInfo GetKernelInfo}
+     * String with explicit length version of: {@link org.lwjgl.opencl.CL10#clGetKernelInfo GetKernelInfo}
      */
     public static String clGetKernelInfoStringASCII(long kernel, int param_name, int param_value_size) {
         return KERNEL.getStringASCII(kernel, param_name, param_value_size);
     }
 
     /**
-     * UTF-8 string version of: {@link CL10#clGetKernelInfo GetKernelInfo}
+     * UTF-8 string version of: {@link org.lwjgl.opencl.CL10#clGetKernelInfo GetKernelInfo}
      */
     public static String clGetKernelInfoStringUTF8(long kernel, int param_name) {
         return KERNEL.getStringUTF8(kernel, param_name);
@@ -482,7 +469,7 @@ public final class Info {
 
     /**
      * UTF-8 string with explicit length version of:
-     * {@link CL10#clGetKernelInfo GetKernelInfo}
+     * {@link org.lwjgl.opencl.CL10#clGetKernelInfo GetKernelInfo}
      */
     public static String clGetKernelInfoStringUTF8(long kernel, int param_name, int param_value_size) {
         return KERNEL.getStringUTF8(kernel, param_name, param_value_size);
@@ -500,7 +487,7 @@ public final class Info {
 
     /**
      * Single long value version of:
-     * {@link CL10#clGetKernelWorkGroupInfo GetKernelWorkGroupInfo}
+     * {@link org.lwjgl.opencl.CL10#clGetKernelWorkGroupInfo GetKernelWorkGroupInfo}
      */
     public static long clGetKernelWorkGroupInfoLong(long kernel, long device, int param_name) {
         return KERNEL_WORKGROUP.getLong(kernel, device, param_name);
@@ -508,7 +495,7 @@ public final class Info {
 
     /**
      * Single pointer value version of:
-     * {@link CL10#clGetKernelWorkGroupInfo GetKernelWorkGroupInfo}
+     * {@link org.lwjgl.opencl.CL10#clGetKernelWorkGroupInfo GetKernelWorkGroupInfo}
      */
     public static long clGetKernelWorkGroupInfoPointer(long kernel, long device, int param_name) {
         return KERNEL_WORKGROUP.getPointer(kernel, device, param_name);
@@ -516,7 +503,7 @@ public final class Info {
 
     /**
      * PointBuffer version of:
-     * {@link CL10#clGetKernelWorkGroupInfo GetKernelWorkGroupInfo}
+     * {@link org.lwjgl.opencl.CL10#clGetKernelWorkGroupInfo GetKernelWorkGroupInfo}
      */
     public static int clGetKernelWorkGroupInfoPointers(long kernel, long device, int param_name, PointerBuffer target) {
         return KERNEL_WORKGROUP.getPointers(kernel, device, param_name, target);
@@ -534,7 +521,7 @@ public final class Info {
 
     /**
      * Single int value version of:
-     * {@link CL12#clGetKernelArgInfo GetKernelArgInfo}
+     * {@link org.lwjgl.opencl.CL12#clGetKernelArgInfo GetKernelArgInfo}
      */
     public static int clGetKernelArgInfoInt(long kernel, int arg_indx, int param_name) {
         return KERNEL_ARG.getInt(kernel, arg_indx, param_name);
@@ -542,28 +529,28 @@ public final class Info {
 
     /**
      * Single long value version of:
-     * {@link CL12#clGetKernelArgInfo GetKernelArgInfo}
+     * {@link org.lwjgl.opencl.CL12#clGetKernelArgInfo GetKernelArgInfo}
      */
     public static long clGetKernelArgInfoLong(long kernel, int arg_indx, int param_name) {
         return KERNEL_ARG.getLong(kernel, arg_indx, param_name);
     }
 
     /**
-     * String version of: {@link CL12#clGetKernelArgInfo GetKernelArgInfo}
+     * String version of: {@link org.lwjgl.opencl.CL12#clGetKernelArgInfo GetKernelArgInfo}
      */
     public static String clGetKernelArgInfoStringASCII(long kernel, int arg_indx, int param_name) {
         return KERNEL_ARG.getStringASCII(kernel, arg_indx, param_name);
     }
 
     /**
-     * String with explicit length version of: {@link CL12#clGetKernelArgInfo GetKernelArgInfo}
+     * String with explicit length version of: {@link org.lwjgl.opencl.CL12#clGetKernelArgInfo GetKernelArgInfo}
      */
     public static String clGetKernelArgInfoStringASCII(long kernel, int arg_indx, int param_name, int param_value_size) {
         return KERNEL_ARG.getStringASCII(kernel, arg_indx, param_name, param_value_size);
     }
 
     /**
-     * UTF-8 string version of: {@link CL12#clGetKernelArgInfo GetKernelArgInfo}
+     * UTF-8 string version of: {@link org.lwjgl.opencl.CL12#clGetKernelArgInfo GetKernelArgInfo}
      */
     public static String clGetKernelArgInfoStringUTF8(long kernel, int arg_indx, int param_name) {
         return KERNEL_ARG.getStringUTF8(kernel, arg_indx, param_name);
@@ -571,7 +558,7 @@ public final class Info {
 
     /**
      * UTF-8 string with explicit length version of:
-     * {@link CL12#clGetKernelArgInfo GetKernelArgInfo}
+     * {@link org.lwjgl.opencl.CL12#clGetKernelArgInfo GetKernelArgInfo}
      */
     public static String clGetKernelArgInfoStringUTF8(long kernel, int arg_indx, int param_name, int param_value_size) {
         return KERNEL_ARG.getStringUTF8(kernel, arg_indx, param_name, param_value_size);
@@ -589,14 +576,14 @@ public final class Info {
 
     /**
      * Single boolean value version of:
-     * {@link CL10#clGetSamplerInfo GetSamplerInfo}
+     * {@link org.lwjgl.opencl.CL10#clGetSamplerInfo GetSamplerInfo}
      */
     public static boolean clGetSamplerInfoBoolean(long sampler, int param_name) {
         return SAMPLER.getBoolean(sampler, param_name);
     }
 
     /**
-     * Single int value version of: {@link CL10#clGetSamplerInfo GetSamplerInfo}
+     * Single int value version of: {@link org.lwjgl.opencl.CL10#clGetSamplerInfo GetSamplerInfo}
      */
     public static int clGetSamplerInfoInt(long sampler, int param_name) {
         return SAMPLER.getInt(sampler, param_name);
@@ -604,14 +591,14 @@ public final class Info {
 
     /**
      * Single pointer value version of:
-     * {@link CL10#clGetSamplerInfo GetSamplerInfo}
+     * {@link org.lwjgl.opencl.CL10#clGetSamplerInfo GetSamplerInfo}
      */
     public static long clGetSamplerInfoPointer(long sampler, int param_name) {
         return SAMPLER.getPointer(sampler, param_name);
     }
 
     /**
-     * PointBuffer version of: {@link CL10#clGetSamplerInfo GetSamplerInfo}
+     * PointBuffer version of: {@link org.lwjgl.opencl.CL10#clGetSamplerInfo GetSamplerInfo}
      */
     public static int clGetSamplerInfoPointers(long sampler, int param_name, PointerBuffer target) {
         return SAMPLER.getPointers(sampler, param_name, target);
@@ -628,21 +615,21 @@ public final class Info {
     };
 
     /**
-     * Single int value version of: {@link CL10#clGetEventInfo GetEventInfo}
+     * Single int value version of: {@link org.lwjgl.opencl.CL10#clGetEventInfo GetEventInfo}
      */
     public static int clGetEventInfoInt(long event, int param_name) {
         return EVENT.getInt(event, param_name);
     }
 
     /**
-     * Single pointer value version of: {@link CL10#clGetEventInfo GetEventInfo}
+     * Single pointer value version of: {@link org.lwjgl.opencl.CL10#clGetEventInfo GetEventInfo}
      */
     public static long clGetEventInfoPointer(long event, int param_name) {
         return EVENT.getPointer(event, param_name);
     }
 
     /**
-     * PointBuffer version of: {@link CL10#clGetEventInfo GetEventInfo}
+     * PointBuffer version of: {@link org.lwjgl.opencl.CL10#clGetEventInfo GetEventInfo}
      */
     public static int clGetEventInfoPointers(long event, int param_name, PointerBuffer target) {
         return EVENT.getPointers(event, param_name, target);
@@ -660,7 +647,7 @@ public final class Info {
 
     /**
      * Single long value version of:
-     * {@link CL10#clGetEventProfilingInfo GetEventProfilingInfo}
+     * {@link org.lwjgl.opencl.CL10#clGetEventProfilingInfo GetEventProfilingInfo}
      */
     public static long clGetEventProfilingInfoLong(long event, int param_name) {
         return EVENT_PROFILING.getLong(event, param_name);
@@ -678,7 +665,7 @@ public final class Info {
 
     /**
      * Single int value version of:
-     * {@link CL10GL#clGetGLTextureInfo GetGLTextureInfo}
+     * {@link org.lwjgl.opencl.CL10GL#clGetGLTextureInfo GetGLTextureInfo}
      */
     public static int clGetGLTextureInfoInt(long memobj, int param_name) {
         return GL_TEXTURE.getInt(memobj, param_name);
