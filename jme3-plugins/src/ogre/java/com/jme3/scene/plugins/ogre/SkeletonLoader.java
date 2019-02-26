@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -224,7 +224,7 @@ public class SkeletonLoader extends DefaultHandler implements AssetLoader {
     }
 
     /**
-     * Reset the SkeletonLoader in case an error occured while parsing XML.
+     * Reset the SkeletonLoader in case an error occurred while parsing XML.
      * This allows future use of the loader even after an error.
      */
     private void fullReset() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 jMonkeyEngine
+ * Copyright (c) 2015-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,9 +55,9 @@ public abstract class ServiceManager<T> {
     }
 
     /**
-     *  Retreives the 'parent' of this service manager, usually
+     *  Retrieves the 'parent' of this service manager, usually
      *  a more specifically typed version of 'this' but it can be
-     *  anything the seervices are expecting.
+     *  anything the services are expecting.
      */
     protected abstract T getParent();
  

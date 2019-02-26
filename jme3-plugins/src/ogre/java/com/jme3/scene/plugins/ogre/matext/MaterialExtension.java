@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,7 +74,7 @@ public class MaterialExtension {
     }
 
     /**
-     * Retreives a mapping from an Ogre3D base material texture alias
+     * Retrieves a mapping from an Ogre3D base material texture alias
      * to a jME3 texture param
      * @param ogreTexAlias The texture alias in the Ogre3D base material
      * @return The texture alias in the Ogre3D base material
