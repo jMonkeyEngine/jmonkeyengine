@@ -63,7 +63,7 @@ public class OsvrMatrixConventionsLibrary implements Library {
 	/** Original signature : <code>void osvrVec3SetZ(OSVR_Vec3*, double)</code> */
 	public static native void osvrVec3SetZ(OSVR_Vec3 v, double val);
 	/**
-	 * @brief Set a Vec3 to the zero vector<br>
+	 * Set a Vec3 to the zero vector<br>
 	 * Original signature : <code>void osvrVec3Zero(OSVR_Vec3*)</code>
 	 */
 	public static native void osvrVec3Zero(OSVR_Vec3 v);
@@ -84,89 +84,99 @@ public class OsvrMatrixConventionsLibrary implements Library {
 	/** Original signature : <code>void osvrQuatSetZ(OSVR_Quaternion*, double)</code> */
 	public static native void osvrQuatSetZ(OSVR_Quaternion q, double val);
 	/**
-	 * @brief Set a quaternion to the identity rotation<br>
+	 * Set a quaternion to the identity rotation<br>
 	 * Original signature : <code>void osvrQuatSetIdentity(OSVR_Quaternion*)</code>
 	 */
 	public static native void osvrQuatSetIdentity(OSVR_Quaternion q);
 	/**
-	 * @brief Set a pose to identity<br>
+	 * Set a pose to identity<br>
 	 * Original signature : <code>void osvrPose3SetIdentity(OSVR_Pose3*)</code>
 	 */
 	public static native void osvrPose3SetIdentity(OSVR_Pose3 pose);
 	/**
-	 * @brief Set a matrix of doubles based on a Pose3.<br>
+	 * Set a matrix of doubles based on a Pose3.<br>
 	 * @param pose The Pose3 to convert<br>
 	 * @param flags Memory ordering flag - see @ref MatrixFlags<br>
-	 * @param[out] mat an array of 16 doubles<br>
+	 * @param mat an array of 16 doubles<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrPose3ToMatrixd(const OSVR_Pose3*, OSVR_MatrixConventions, double*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrPose3ToMatrixd(osvrmatrixconventions.OSVR_Pose3, short, java.nio.DoubleBuffer)} and {@link #osvrPose3ToMatrixd(osvrmatrixconventions.OSVR_Pose3, short, com.sun.jna.ptr.DoubleByReference)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrPose3ToMatrixd(com.jme3.system.osvr.osvrmatrixconventions.OSVR_Pose3, short, java.nio.DoubleBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrPose3ToMatrixd(OSVR_Pose3 pose, short flags, DoubleByReference mat);
 	/**
-	 * @brief Set a matrix of doubles based on a Pose3.<br>
+	 * Set a matrix of doubles based on a Pose3.<br>
 	 * @param pose The Pose3 to convert<br>
 	 * @param flags Memory ordering flag - see @ref MatrixFlags<br>
-	 * @param[out] mat an array of 16 doubles<br>
+	 * @param mat an array of 16 doubles<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrPose3ToMatrixd(const OSVR_Pose3*, OSVR_MatrixConventions, double*)</code>
 	 */
 	public static native byte osvrPose3ToMatrixd(OSVR_Pose3 pose, short flags, DoubleBuffer mat);
 	/**
-	 * @brief Set a matrix of floats based on a Pose3.<br>
+	 * Set a matrix of floats based on a Pose3.<br>
 	 * @param pose The Pose3 to convert<br>
 	 * @param flags Memory ordering flag - see @ref MatrixFlags<br>
-	 * @param[out] mat an array of 16 floats<br>
+	 * @param mat an array of 16 floats<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrPose3ToMatrixf(const OSVR_Pose3*, OSVR_MatrixConventions, float*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrPose3ToMatrixf(osvrmatrixconventions.OSVR_Pose3, short, java.nio.FloatBuffer)} and {@link #osvrPose3ToMatrixf(osvrmatrixconventions.OSVR_Pose3, short, com.sun.jna.ptr.FloatByReference)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrPose3ToMatrixf(com.jme3.system.osvr.osvrmatrixconventions.OSVR_Pose3, short, java.nio.FloatBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrPose3ToMatrixf(OSVR_Pose3 pose, short flags, FloatByReference mat);
 	/**
-	 * @brief Set a matrix of floats based on a Pose3.<br>
+	 * Set a matrix of floats based on a Pose3.<br>
 	 * @param pose The Pose3 to convert<br>
 	 * @param flags Memory ordering flag - see @ref MatrixFlags<br>
-	 * @param[out] mat an array of 16 floats<br>
+	 * @param mat an array of 16 floats<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrPose3ToMatrixf(const OSVR_Pose3*, OSVR_MatrixConventions, float*)</code>
 	 */
 	public static native byte osvrPose3ToMatrixf(OSVR_Pose3 pose, short flags, FloatBuffer mat);
 	/**
-	 * @brief Set a matrix based on a Pose3. (C++-only overload - detecting scalar<br>
+	 * Set a matrix based on a Pose3. (C++-only overload - detecting scalar<br>
 	 * type)<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrPose3ToMatrix(const OSVR_Pose3*, OSVR_MatrixConventions, double*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrPose3ToMatrix(osvrmatrixconventions.OSVR_Pose3, short, java.nio.DoubleBuffer)} and {@link #osvrPose3ToMatrix(osvrmatrixconventions.OSVR_Pose3, short, com.sun.jna.ptr.DoubleByReference)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrPose3ToMatrix(com.jme3.system.osvr.osvrmatrixconventions.OSVR_Pose3, short, java.nio.DoubleBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrPose3ToMatrix(OSVR_Pose3 pose, short flags, DoubleByReference mat);
 	/**
-	 * @brief Set a matrix based on a Pose3. (C++-only overload - detecting scalar<br>
+	 * Set a matrix based on a Pose3. (C++-only overload - detecting scalar<br>
 	 * type)<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrPose3ToMatrix(const OSVR_Pose3*, OSVR_MatrixConventions, double*)</code>
 	 */
 	public static native byte osvrPose3ToMatrix(OSVR_Pose3 pose, short flags, DoubleBuffer mat);
 	/**
-	 * @brief Set a matrix based on a Pose3. (C++-only overload - detecting scalar<br>
+	 * Set a matrix based on a Pose3. (C++-only overload - detecting scalar<br>
 	 * type)<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrPose3ToMatrix(const OSVR_Pose3*, OSVR_MatrixConventions, float*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrPose3ToMatrix(osvrmatrixconventions.OSVR_Pose3, short, java.nio.FloatBuffer)} and {@link #osvrPose3ToMatrix(osvrmatrixconventions.OSVR_Pose3, short, com.sun.jna.ptr.FloatByReference)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrPose3ToMatrix(com.jme3.system.osvr.osvrmatrixconventions.OSVR_Pose3, short, java.nio.FloatBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrPose3ToMatrix(OSVR_Pose3 pose, short flags, FloatByReference mat);
 	/**
-	 * @brief Set a matrix based on a Pose3. (C++-only overload - detecting scalar<br>
+	 * Set a matrix based on a Pose3. (C++-only overload - detecting scalar<br>
 	 * type)<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrPose3ToMatrix(const OSVR_Pose3*, OSVR_MatrixConventions, float*)</code>
 	 */
 	public static native byte osvrPose3ToMatrix(OSVR_Pose3 pose, short flags, FloatBuffer mat);
 	/**
-	 * @brief Set a matrix based on a Pose3. (C++-only overload - detects scalar<br>
+	 * Set a matrix based on a Pose3. (C++-only overload - detects scalar<br>
 	 * and takes array rather than pointer)<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrPose3ToMatrix(const OSVR_Pose3*, OSVR_MatrixConventions, Scalar[OSVR_MATRIX_SIZE])</code><br>
-	 * @deprecated use the safer methods {@link #osvrPose3ToMatrix(osvrmatrixconventions.OSVR_Pose3, short, osvrmatrixconventions.OsvrMatrixConventionsLibrary.Scalar[])} and {@link #osvrPose3ToMatrix(osvrmatrixconventions.OSVR_Pose3, short, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrPose3ToMatrix(com.jme3.system.osvr.osvrmatrixconventions.OSVR_Pose3, short, java.nio.DoubleBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrPose3ToMatrix(OSVR_Pose3 pose, short flags, Pointer mat);
 	/**
-	 * @brief Set a matrix based on a Pose3. (C++-only overload - detects scalar<br>
+	 * Set a matrix based on a Pose3. (C++-only overload - detects scalar<br>
 	 * and takes array rather than pointer)<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrPose3ToMatrix(const OSVR_Pose3*, OSVR_MatrixConventions, Scalar[OSVR_MATRIX_SIZE])</code>
 	 */

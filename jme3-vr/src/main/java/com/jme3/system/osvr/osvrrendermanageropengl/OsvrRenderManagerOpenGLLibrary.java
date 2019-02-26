@@ -33,12 +33,12 @@ public class OsvrRenderManagerOpenGLLibrary implements Library {
 		public static final int OSVR_OPEN_STATUS_COMPLETE = 2;
 	};
 	/**
-	 * @todo OSVR_RenderTimingInfo<br>
+	 * todo OSVR_RenderTimingInfo<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrDestroyRenderManager(OSVR_RenderManager)</code>
 	 */
 	public static native byte osvrDestroyRenderManager(Pointer renderManager);
 	/**
-	 * @todo Make this actually cache, for now it does not.<br>
+	 * todo Make this actually cache, for now it does not.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrRenderManagerGetNumRenderInfo(OSVR_RenderManager, OSVR_RenderParams, OSVR_RenderInfoCount*)</code>
 	 */
 	public static native byte osvrRenderManagerGetNumRenderInfo(Pointer renderManager, OSVR_RenderParams.ByValue renderParams, NativeSizeByReference numRenderInfoOut);
@@ -121,7 +121,9 @@ public class OsvrRenderManagerOpenGLLibrary implements Library {
 	public static native byte OSVR_Projection_to_Unreal(FloatBuffer Unreal_out, com.jme3.system.osvr.osvrrendermanageropengl.OSVR_ProjectionMatrix.ByValue projection_in);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrCreateRenderManagerOpenGL(OSVR_ClientContext, const char[], OSVR_GraphicsLibraryOpenGL, OSVR_RenderManager*, OSVR_RenderManagerOpenGL*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrCreateRenderManagerOpenGL(com.jme3.system.osvr.osvrrendermanageropengl.OsvrRenderManagerOpenGLLibrary.OSVR_ClientContext, byte[], com.jme3.system.osvr.osvrrendermanageropengl.OSVR_GraphicsLibraryOpenGL.ByValue, com.sun.jna.ptr.PointerByReference, com.sun.jna.ptr.PointerByReference)} and {@link #osvrCreateRenderManagerOpenGL(com.sun.jna.Pointer, com.sun.jna.Pointer, com.jme3.system.osvr.osvrrendermanageropengl.OSVR_GraphicsLibraryOpenGL.ByValue, com.sun.jna.ptr.PointerByReference, com.sun.jna.ptr.PointerByReference)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrCreateRenderManagerOpenGL(com.jme3.system.osvr.osvrclientkit.OsvrClientKitLibrary.OSVR_ClientContext, byte[], com.jme3.system.osvr.osvrrendermanageropengl.OSVR_GraphicsLibraryOpenGL.ByValue, com.sun.jna.ptr.PointerByReference, com.sun.jna.ptr.PointerByReference)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrCreateRenderManagerOpenGL(Pointer clientContext, Pointer graphicsLibraryName, com.jme3.system.osvr.osvrrendermanageropengl.OSVR_GraphicsLibraryOpenGL.ByValue graphicsLibrary, PointerByReference renderManagerOut, PointerByReference renderManagerOpenGLOut);

@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class CameraVideoStreamFrameHeader_t extends Structure {
 	/**
-	 * @see EVRTrackedCameraFrameType<br>
+
 	 * C type : EVRTrackedCameraFrameType
 	 */
 	public int eFrameType;

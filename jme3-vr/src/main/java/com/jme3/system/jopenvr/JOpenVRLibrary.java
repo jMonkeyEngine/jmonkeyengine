@@ -33,7 +33,6 @@ public class JOpenVRLibrary implements Library {
 */	
 	/**
 	 * Init the native binding to the underlying system library.
-	 * @return <code>true</code> if the link is effective and <code>false</code> otherwise.
 	 */
 	public static void init() throws UnsatisfiedLinkError {
         Native.unregister(JOpenVRLibrary.class);
@@ -1817,7 +1816,6 @@ public class JOpenVRLibrary implements Library {
 	/**
 	 * Original signature : <code>intptr_t VR_GetGenericInterface(const char*, EVRInitError*)</code><br>
 	 * <i>native declaration : headers\openvr_capi.h:1929</i><br>
-	 * @deprecated use the safer methods {@link #VR_GetGenericInterface(java.lang.String, java.nio.IntBuffer)} and {@link #VR_GetGenericInterface(com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@Deprecated 
 	public static native IntByReference VR_GetGenericInterface(Pointer pchInterfaceVersion, IntByReference peError);

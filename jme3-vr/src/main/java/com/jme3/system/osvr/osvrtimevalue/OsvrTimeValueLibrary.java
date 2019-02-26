@@ -19,12 +19,12 @@ public class OsvrTimeValueLibrary implements Library {
 	public static final int OSVR_TRUE = (int)(1);
 	public static final int OSVR_FALSE = (int)(0);
 	/**
-	 * @brief Gets the current time in the TimeValue. Parallel to gettimeofday.<br>
+	 * Gets the current time in the TimeValue. Parallel to gettimeofday.
 	 * Original signature : <code>void osvrTimeValueGetNow(OSVR_TimeValue*)</code>
 	 */
 	public static native void osvrTimeValueGetNow(OSVR_TimeValue dest);
 	/**
-	 * @brief Converts from a TimeValue struct to your system's struct timeval.<br>
+	 * Converts from a TimeValue struct to your system's struct timeval.
 	 * @param dest Pointer to an empty struct timeval for your platform.<br>
 	 * @param src A pointer to an OSVR_TimeValue you'd like to convert from.<br>
 	 * If either parameter is NULL, the function will return without doing<br>
@@ -33,7 +33,7 @@ public class OsvrTimeValueLibrary implements Library {
 	 */
 	public static native void osvrTimeValueToStructTimeval(OsvrTimeValueLibrary.timeval dest, OSVR_TimeValue src);
 	/**
-	 * @brief Converts from a TimeValue struct to your system's struct timeval.<br>
+	 * Converts from a TimeValue struct to your system's struct timeval.
 	 * @param dest An OSVR_TimeValue destination pointer.<br>
 	 * @param src Pointer to a struct timeval you'd like to convert from.<br>
 	 * The result is normalized.<br>
@@ -43,7 +43,7 @@ public class OsvrTimeValueLibrary implements Library {
 	 */
 	public static native void osvrStructTimevalToTimeValue(OSVR_TimeValue dest, OsvrTimeValueLibrary.timeval src);
 	/**
-	 * @brief "Normalizes" a time value so that the absolute number of microseconds<br>
+	 * "Normalizes" a time value so that the absolute number of microseconds
 	 * is less than 1,000,000, and that the sign of both components is the same.<br>
 	 * @param tv Address of a struct TimeValue to normalize in place.<br>
 	 * If the given pointer is NULL, this function returns without doing anything.<br>
@@ -51,7 +51,7 @@ public class OsvrTimeValueLibrary implements Library {
 	 */
 	public static native void osvrTimeValueNormalize(OSVR_TimeValue tv);
 	/**
-	 * @brief Sums two time values, replacing the first with the result.<br>
+	 * Sums two time values, replacing the first with the result.
 	 * @param tvA Destination and first source.<br>
 	 * @param tvB second source<br>
 	 * If a given pointer is NULL, this function returns without doing anything.<br>
@@ -60,7 +60,7 @@ public class OsvrTimeValueLibrary implements Library {
 	 */
 	public static native void osvrTimeValueSum(OSVR_TimeValue tvA, OSVR_TimeValue tvB);
 	/**
-	 * @brief Computes the difference between two time values, replacing the first<br>
+	 * Computes the difference between two time values, replacing the first
 	 * with the result.<br>
 	 * Effectively, `*tvA = *tvA - *tvB`<br>
 	 * @param tvA Destination and first source.<br>
@@ -71,7 +71,7 @@ public class OsvrTimeValueLibrary implements Library {
 	 */
 	public static native void osvrTimeValueDifference(OSVR_TimeValue tvA, OSVR_TimeValue tvB);
 	/**
-	 * @brief  Compares two time values (assumed to be normalized), returning<br>
+	 * Compares two time values (assumed to be normalized), returning
 	 * the same values as strcmp<br>
 	 * @return <0 if A is earlier than B, 0 if they are the same, and >0 if A<br>
 	 * is later than B.<br>
@@ -79,7 +79,7 @@ public class OsvrTimeValueLibrary implements Library {
 	 */
 	public static native int osvrTimeValueCmp(OSVR_TimeValue tvA, OSVR_TimeValue tvB);
 	/**
-	 * @brief Compute the difference between the two time values, returning the<br>
+	 * Compute the difference between the two time values, returning the
 	 * duration as a double-precision floating-point number of seconds.<br>
 	 * Effectively, `ret = *tvA - *tvB`<br>
 	 * @param tvA first source.<br>
@@ -89,7 +89,7 @@ public class OsvrTimeValueLibrary implements Library {
 	 */
 	public static native double osvrTimeValueDurationSeconds(OSVR_TimeValue tvA, OSVR_TimeValue tvB);
 	/**
-	 * @brief True if A is later than B<br>
+	 * True if A is later than B.
 	 * Original signature : <code>OSVR_CBool osvrTimeValueGreater(const OSVR_TimeValue*, const OSVR_TimeValue*)</code>
 	 */
 	public static native byte osvrTimeValueGreater(OSVR_TimeValue tvA, OSVR_TimeValue tvB);

@@ -1,7 +1,7 @@
 package com.jme3.shadow;
 
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -364,7 +364,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
      *
      * @param shadowMapIndex the index of the shadow map being rendered
      * @param shadowMapOccluders the list of occluders
-     * @return
+     * @return a list of occluders
      */
     protected abstract GeometryList getOccludersToRender(int shadowMapIndex, GeometryList shadowMapOccluders);
 
@@ -684,7 +684,7 @@ public abstract class AbstractShadowRendererVR implements SceneProcessor, Savabl
     
     /**
      * returns true if the light source bounding box is in the view frustum
-     * @return 
+     * @return true if box in frustum
      */
     protected abstract boolean checkCulling(Camera viewCam);
     

@@ -19,41 +19,45 @@ public class OsvrClientKitLibrary implements Library {
             Native.register(OsvrClientKitLibrary.class, OsvrClientKitLibrary.JNA_NATIVE_LIB);
 	}
 	/**
-	 * @brief Initialize the library.<br>
+	 * Initialize the library.
 	 * @param applicationIdentifier A null terminated string identifying your<br>
 	 * application. Reverse DNS format strongly suggested.<br>
 	 * @param flags initialization options (reserved) - pass 0 for now.<br>
-	 * @returns Client context - will be needed for subsequent calls<br>
+	 * @return Client context - will be needed for subsequent calls<br>
 	 * Original signature : <code>OSVR_ClientContext osvrClientInit(const char[], uint32_t)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientInit(byte[], int)} and {@link #osvrClientInit(com.sun.jna.Pointer, int)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientInit(byte[], int)}
+         * instead
 	 */
 	@Deprecated 
 	public static native OsvrClientKitLibrary.OSVR_ClientContext osvrClientInit(Pointer applicationIdentifier, int flags);
 	/**
-	 * @brief Initialize the library.<br>
+	 * Initialize the library.
 	 * @param applicationIdentifier A null terminated string identifying your<br>
 	 * application. Reverse DNS format strongly suggested.<br>
 	 * @param flags initialization options (reserved) - pass 0 for now.<br>
-	 * @returns Client context - will be needed for subsequent calls<br>
+	 * @return Client context - will be needed for subsequent calls<br>
 	 * Original signature : <code>OSVR_ClientContext osvrClientInit(const char[], uint32_t)</code>
 	 */
 	public static native OsvrClientKitLibrary.OSVR_ClientContext osvrClientInit(byte applicationIdentifier[], int flags);
 	/**
-	 * @brief Updates the state of the context - call regularly in your mainloop.<br>
+	 * Updates the state of the context - call regularly in your mainloop.
 	 * @param ctx Client context<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientUpdate(OSVR_ClientContext)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientUpdate(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientContext)} and {@link #osvrClientUpdate(com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientUpdate(OsvrClientKitLibrary.OSVR_ClientContext)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientUpdate(Pointer ctx);
 	/**
-	 * @brief Updates the state of the context - call regularly in your mainloop.<br>
+	 * Updates the state of the context - call regularly in your mainloop.
 	 * @param ctx Client context<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientUpdate(OSVR_ClientContext)</code>
 	 */
 	public static native byte osvrClientUpdate(OsvrClientKitLibrary.OSVR_ClientContext ctx);
 	/**
-	 * @brief Checks to see if the client context is fully started up and connected<br>
+	 * Checks to see if the client context is fully started up and connected
 	 * properly to a server.<br>
 	 * If this reports that the client context is not OK, there may not be a server<br>
 	 * running, or you may just have to call osvrClientUpdate() a few times to<br>
@@ -63,12 +67,14 @@ public class OsvrClientKitLibrary implements Library {
 	 * @return OSVR_RETURN_FAILURE if not yet fully connected/initialized, or if<br>
 	 * some other error (null context) occurs.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientCheckStatus(OSVR_ClientContext)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientCheckStatus(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientContext)} and {@link #osvrClientCheckStatus(com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientCheckStatus(com.jme3.system.osvr.osvrclientkit.OsvrClientKitLibrary.OSVR_ClientContext)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientCheckStatus(Pointer ctx);
 	/**
-	 * @brief Checks to see if the client context is fully started up and connected<br>
+	 * Checks to see if the client context is fully started up and connected
 	 * properly to a server.<br>
 	 * If this reports that the client context is not OK, there may not be a server<br>
 	 * running, or you may just have to call osvrClientUpdate() a few times to<br>
@@ -81,77 +87,85 @@ public class OsvrClientKitLibrary implements Library {
 	 */
 	public static native byte osvrClientCheckStatus(OsvrClientKitLibrary.OSVR_ClientContext ctx);
 	/**
-	 * @brief Shutdown the library.<br>
+	 * Shut down the library.
 	 * @param ctx Client context<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientShutdown(OSVR_ClientContext)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientShutdown(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientContext)} and {@link #osvrClientShutdown(com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientShutdown(OsvrClientKitLibrary.OSVR_ClientContext)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientShutdown(Pointer ctx);
 	/**
-	 * @brief Shutdown the library.<br>
+	 * Shut down the library.
 	 * @param ctx Client context<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientShutdown(OSVR_ClientContext)</code>
 	 */
 	public static native byte osvrClientShutdown(OsvrClientKitLibrary.OSVR_ClientContext ctx);
 	/**
-	 * @brief Log a message from the client.<br>
+	 * Log a message from the client.
 	 * Original signature : <code>void osvrClientLog(OSVR_ClientContext, OSVR_LogLevel, const char*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientLog(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientContext, int, java.lang.String)} and {@link #osvrClientLog(com.sun.jna.Pointer, int, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientLog(com.jme3.system.osvr.osvrclientkit.OsvrClientKitLibrary.OSVR_ClientContext, int, java.lang.String)}
+         * instead
 	 */
 	@Deprecated 
 	public static native void osvrClientLog(Pointer ctx, int severity, Pointer message);
 	/**
-	 * @brief Log a message from the client.<br>
+	 * Log a message from the client.
 	 * Original signature : <code>void osvrClientLog(OSVR_ClientContext, OSVR_LogLevel, const char*)</code>
 	 */
 	public static native void osvrClientLog(OsvrClientKitLibrary.OSVR_ClientContext ctx, int severity, String message);
 	/**
-	 * @brief Get the interface associated with the given path.<br>
+	 * Get the interface associated with the given path.
 	 * @param ctx Client context<br>
 	 * @param path A resource path (null-terminated string)<br>
-	 * @param[out] iface The interface object. May be freed when no longer needed,<br>
+	 * @param iface The interface object. May be freed when no longer needed,<br>
 	 * otherwise it will be freed when the context is closed.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetInterface(OSVR_ClientContext, const char[], OSVR_ClientInterface*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetInterface(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientContext, byte[], com.sun.jna.ptr.PointerByReference)} and {@link #osvrClientGetInterface(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.ptr.PointerByReference)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetInterface(com.jme3.system.osvr.osvrclientkit.OsvrClientKitLibrary.OSVR_ClientContext, byte[], com.sun.jna.ptr.PointerByReference)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetInterface(Pointer ctx, Pointer path, Pointer iface);
 	/**
-	 * @brief Get the interface associated with the given path.<br>
+	 * Get the interface associated with the given path.
 	 * @param ctx Client context<br>
 	 * @param path A resource path (null-terminated string)<br>
-	 * @param[out] iface The interface object. May be freed when no longer needed,<br>
+	 * @param iface The interface object. May be freed when no longer needed,<br>
 	 * otherwise it will be freed when the context is closed.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetInterface(OSVR_ClientContext, const char[], OSVR_ClientInterface*)</code>
 	 */
 	public static native byte osvrClientGetInterface(OsvrClientKitLibrary.OSVR_ClientContext ctx, byte path[], PointerByReference iface);
 	/**
-	 * @brief Get the interface associated with the given path.<br>
+	 * Get the interface associated with the given path.
 	 * @param ctx Client context<br>
 	 * @param path A resource path (null-terminated string)<br>
-	 * @param[out] iface The interface object. May be freed when no longer needed,<br>
+	 * @param iface The interface object. May be freed when no longer needed,<br>
 	 * otherwise it will be freed when the context is closed.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetInterface(OSVR_ClientContext, const char[], OSVR_ClientInterface*)</code>
 	 */
 	public static native byte osvrClientGetInterface(Pointer ctx, Pointer path, PointerByReference iface);
 	/**
-	 * @brief Free an interface object before context closure.<br>
+	 * Free an interface object before context closure.
 	 * @param ctx Client context<br>
 	 * @param iface The interface object<br>
-	 * @returns OSVR_RETURN_SUCCESS unless a null context or interface was passed<br>
+	 * @return OSVR_RETURN_SUCCESS unless a null context or interface was passed<br>
 	 * or the given interface was not found in the context (i.e. had already been<br>
 	 * freed)<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientFreeInterface(OSVR_ClientContext, OSVR_ClientInterface)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientFreeInterface(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientContext, osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface)} and {@link #osvrClientFreeInterface(com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientFreeInterface(com.jme3.system.osvr.osvrclientkit.OsvrClientKitLibrary.OSVR_ClientContext, com.jme3.system.osvr.osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientFreeInterface(Pointer ctx, Pointer iface);
 	/**
-	 * @brief Free an interface object before context closure.<br>
+	 * Free an interface object before context closure.
 	 * @param ctx Client context<br>
 	 * @param iface The interface object<br>
-	 * @returns OSVR_RETURN_SUCCESS unless a null context or interface was passed<br>
+	 * @return OSVR_RETURN_SUCCESS unless a null context or interface was passed<br>
 	 * or the given interface was not found in the context (i.e. had already been<br>
 	 * freed)<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientFreeInterface(OSVR_ClientContext, OSVR_ClientInterface)</code>
@@ -159,7 +173,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrClientFreeInterface(OsvrClientKitLibrary.OSVR_ClientContext ctx, OsvrClientKitLibrary.OSVR_ClientInterface iface);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterPoseCallback(OSVR_ClientInterface, OSVR_PoseCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterPoseCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterPoseCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterPoseCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterPoseCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -167,7 +183,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterPoseCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Pointer cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterPositionCallback(OSVR_ClientInterface, OSVR_PositionCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterPositionCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterPositionCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterPositionCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterPositionCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -175,7 +193,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterPositionCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Pointer cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterOrientationCallback(OSVR_ClientInterface, OSVR_OrientationCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterOrientationCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterOrientationCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterOrientationCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterOrientationCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -183,7 +203,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterOrientationCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Pointer cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterVelocityCallback(OSVR_ClientInterface, OSVR_VelocityCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterVelocityCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterVelocityCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterVelocityCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterVelocityCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -191,7 +213,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterVelocityCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Pointer cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterLinearVelocityCallback(OSVR_ClientInterface, OSVR_LinearVelocityCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterLinearVelocityCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterLinearVelocityCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterLinearVelocityCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterLinearVelocityCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -199,7 +223,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterLinearVelocityCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Pointer cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterAngularVelocityCallback(OSVR_ClientInterface, OSVR_AngularVelocityCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterAngularVelocityCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterAngularVelocityCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterAngularVelocityCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterAngularVelocityCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -207,7 +233,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterAngularVelocityCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Pointer cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterAccelerationCallback(OSVR_ClientInterface, OSVR_AccelerationCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterAccelerationCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterAccelerationCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterAccelerationCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterAccelerationCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -215,7 +243,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterAccelerationCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Pointer cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterLinearAccelerationCallback(OSVR_ClientInterface, OSVR_LinearAccelerationCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterLinearAccelerationCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterLinearAccelerationCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterLinearAccelerationCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterLinearAccelerationCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -223,7 +253,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterLinearAccelerationCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Pointer cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterAngularAccelerationCallback(OSVR_ClientInterface, OSVR_AngularAccelerationCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterAngularAccelerationCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterAngularAccelerationCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterAngularAccelerationCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterAngularAccelerationCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -231,7 +263,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterAngularAccelerationCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Pointer cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterButtonCallback(OSVR_ClientInterface, OSVR_ButtonCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterButtonCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterButtonCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterButtonCallback(com.jme3.system.osvr.osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Callback, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterButtonCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -239,7 +273,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterButtonCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Callback cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterAnalogCallback(OSVR_ClientInterface, OSVR_AnalogCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterAnalogCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterAnalogCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterAnalogCallback(com.jme3.system.osvr.osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Callback, com.sun.jna.Pointer)} 
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterAnalogCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -247,7 +283,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterAnalogCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Callback cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterImagingCallback(OSVR_ClientInterface, OSVR_ImagingCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterImagingCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterImagingCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterImagingCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterImagingCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -255,7 +293,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterImagingCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Pointer cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterLocation2DCallback(OSVR_ClientInterface, OSVR_Location2DCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterLocation2DCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterLocation2DCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterLocation2DCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterLocation2DCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -263,7 +303,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterLocation2DCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Pointer cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterDirectionCallback(OSVR_ClientInterface, OSVR_DirectionCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterDirectionCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterDirectionCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterDirectionCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterDirectionCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -271,7 +313,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterDirectionCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Pointer cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterEyeTracker2DCallback(OSVR_ClientInterface, OSVR_EyeTracker2DCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterEyeTracker2DCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterEyeTracker2DCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterEyeTracker2DCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterEyeTracker2DCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -279,7 +323,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterEyeTracker2DCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Pointer cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterEyeTracker3DCallback(OSVR_ClientInterface, OSVR_EyeTracker3DCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterEyeTracker3DCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterEyeTracker3DCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterEyeTracker3DCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterEyeTracker3DCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -287,7 +333,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterEyeTracker3DCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Pointer cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterEyeTrackerBlinkCallback(OSVR_ClientInterface, OSVR_EyeTrackerBlinkCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterEyeTrackerBlinkCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterEyeTrackerBlinkCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterEyeTrackerBlinkCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterEyeTrackerBlinkCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -295,7 +343,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterEyeTrackerBlinkCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Pointer cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterNaviVelocityCallback(OSVR_ClientInterface, OSVR_NaviVelocityCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterNaviVelocityCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterNaviVelocityCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterNaviVelocityCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterNaviVelocityCallback(Pointer iface, Pointer cb, Pointer userdata);
@@ -303,7 +353,9 @@ public class OsvrClientKitLibrary implements Library {
 	public static native byte osvrRegisterNaviVelocityCallback(OsvrClientKitLibrary.OSVR_ClientInterface iface, Pointer cb, Pointer userdata);
 	/**
 	 * Original signature : <code>OSVR_ReturnCode osvrRegisterNaviPositionCallback(OSVR_ClientInterface, OSVR_NaviPositionCallback, void*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrRegisterNaviPositionCallback(osvrclientkit.OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)} and {@link #osvrRegisterNaviPositionCallback(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrRegisterNaviPositionCallback(OsvrClientKitLibrary.OSVR_ClientInterface, com.sun.jna.Pointer, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrRegisterNaviPositionCallback(Pointer iface, Pointer cb, Pointer userdata);

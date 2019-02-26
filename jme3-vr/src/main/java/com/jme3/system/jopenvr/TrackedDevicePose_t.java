@@ -17,7 +17,6 @@ public class TrackedDevicePose_t extends Structure {
 	/** C type : HmdVector3_t */
 	public HmdVector3_t vAngularVelocity;
 	/**
-	 * @see ETrackingResult<br>
 	 * C type : ETrackingResult
 	 */
 	public int eTrackingResult;

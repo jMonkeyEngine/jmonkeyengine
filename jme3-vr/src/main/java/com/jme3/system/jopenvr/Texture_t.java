@@ -16,12 +16,10 @@ public class Texture_t extends Structure {
 	 */
 	public int handle;
 	/**
-	 * @see ETextureType<br>
 	 * C type : ETextureType
 	 */
 	public int eType;
 	/**
-	 * @see EColorSpace<br>
 	 * C type : EColorSpace
 	 */
 	public int eColorSpace;

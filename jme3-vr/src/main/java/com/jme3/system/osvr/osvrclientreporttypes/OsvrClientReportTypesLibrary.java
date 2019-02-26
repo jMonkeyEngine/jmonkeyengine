@@ -33,7 +33,7 @@ public class OsvrClientReportTypesLibrary implements Library {
 	/** Original signature : <code>void osvrVec3SetZ(OSVR_Vec3*, double)</code> */
 	public static native void osvrVec3SetZ(OSVR_Vec3 v, double val);
 	/**
-	 * @brief Set a Vec3 to the zero vector<br>
+	 * Set a Vec3 to the zero vector.
 	 * Original signature : <code>void osvrVec3Zero(OSVR_Vec3*)</code>
 	 */
 	public static native void osvrVec3Zero(OSVR_Vec3 v);
@@ -54,12 +54,12 @@ public class OsvrClientReportTypesLibrary implements Library {
 	/** Original signature : <code>void osvrQuatSetZ(OSVR_Quaternion*, double)</code> */
 	public static native void osvrQuatSetZ(OSVR_Quaternion q, double val);
 	/**
-	 * @brief Set a quaternion to the identity rotation<br>
+	 * Set a quaternion to the identity rotation.
 	 * Original signature : <code>void osvrQuatSetIdentity(OSVR_Quaternion*)</code>
 	 */
 	public static native void osvrQuatSetIdentity(OSVR_Quaternion q);
 	/**
-	 * @brief Set a pose to identity<br>
+	 * Set a pose to identity.
 	 * Original signature : <code>void osvrPose3SetIdentity(OSVR_Pose3*)</code>
 	 */
 	public static native void osvrPose3SetIdentity(OSVR_Pose3 pose);
@@ -72,7 +72,7 @@ public class OsvrClientReportTypesLibrary implements Library {
 	/** Original signature : <code>void osvrVec2SetY(OSVR_Vec2*, double)</code> */
 	public static native void osvrVec2SetY(OSVR_Vec2 v, double val);
 	/**
-	 * @brief Set a Vec2 to the zero vector<br>
+	 * Set a Vec2 to the zero vector.
 	 * Original signature : <code>void osvrVec2Zero(OSVR_Vec2*)</code>
 	 */
 	public static native void osvrVec2Zero(OSVR_Vec2 v);

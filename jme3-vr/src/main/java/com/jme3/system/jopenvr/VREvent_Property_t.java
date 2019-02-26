@@ -13,7 +13,6 @@ public class VREvent_Property_t extends Structure {
 	/** C type : PropertyContainerHandle_t */
 	public long container;
 	/**
-	 * @see ETrackedDeviceProperty<br>
 	 * C type : ETrackedDeviceProperty
 	 */
 	public int prop;
