@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ public class MidpointDisplacementHeightMap extends AbstractHeightMap {
      *          typically a good choice
      * @param seed
      *          A seed to feed the random number generator.
-     * @throw IllegalArgumentException if size is not a power of two plus one.
+     * @throws IllegalArgumentException if size is not a power of two plus one.
      */
     public MidpointDisplacementHeightMap(int size, float range, float persistence, long seed) {
         if (size < 0 || !FastMath.isPowerOfTwo(size - 1)) {
@@ -102,7 +102,7 @@ public class MidpointDisplacementHeightMap extends AbstractHeightMap {
      *          The factor by which the range will evolve at each iteration.
      *          A value of 0.5f will halve the range at each iteration and is
      *          typically a good choice
-     * @throw JMException if size is not a power of two plus one.
+     * @throws JMException if size is not a power of two plus one.
      */
     public MidpointDisplacementHeightMap(int size, float range, float persistence) throws Exception {
         this(size, range, persistence, new Random().nextLong());
@@ -110,7 +110,7 @@ public class MidpointDisplacementHeightMap extends AbstractHeightMap {
 
     /**
      * Generate the heightmap.
-     * @return
+     * @return true
      */
     @Override
     public boolean load() {
@@ -163,7 +163,7 @@ public class MidpointDisplacementHeightMap extends AbstractHeightMap {
      * @param stepSize the size of the square
      * @param offsetRange the offset range within a random value is picked and added to the average
      * @param random the random generator
-     * @return
+     * @return a new array or null
      */
     protected int[] doSquareStep(float[][] tempBuffer, int[] coords, int stepSize, float offsetRange, Random random) {
         float cornerAverage = 0;
@@ -195,7 +195,7 @@ public class MidpointDisplacementHeightMap extends AbstractHeightMap {
      * @param stepSize
      * @param offsetRange
      * @param random
-     * @return
+     * @return a new array or null
      */
     protected int[] doDiamondStep(float[][] tempBuffer, int[] coords, int stepSize, float offsetRange, Random random) {
         int cornerNbr = 0;
