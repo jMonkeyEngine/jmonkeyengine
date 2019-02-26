@@ -48,8 +48,6 @@ public abstract class Constraint {
      *            the constraint's structure (bConstraint clss in blender 2.49).
      * @param ownerOMA
      *            the old memory address of the constraint owner
-     * @param ownerType
-     *            the type of the constraint owner
      * @param influenceIpo
      *            the ipo curve of the influence factor
      * @param blenderContext

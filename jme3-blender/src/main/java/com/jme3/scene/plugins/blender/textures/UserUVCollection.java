@@ -62,7 +62,7 @@ public class UserUVCollection {
      *            the name of the UV set
      * @param vertexIndex
      *            the vertex index corresponds to the index in jme mesh and not the original one in blender
-     * @return
+     * @return a pre-existing coordinate vector
      */
     public Vector2f getUVForVertex(String uvSetName, int vertexIndex) {
         return uvsMap.get(uvSetName).get(vertexIndex);

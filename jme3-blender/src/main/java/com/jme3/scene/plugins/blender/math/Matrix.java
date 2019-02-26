@@ -186,11 +186,8 @@ public class Matrix extends SimpleMatrix {
     }
     
     /**
-     * Retreives the scale vector from the matrix and stores it into a given
+     * Retrieves the scale vector from the matrix and stores it into a given
      * vector.
-     * 
-     * @param the
-     *            vector where the scale will be stored
      */
     public Vector3d toScaleVector() {
         Vector3d result = new Vector3d();
@@ -199,11 +196,10 @@ public class Matrix extends SimpleMatrix {
     }
     
     /**
-     * Retreives the scale vector from the matrix and stores it into a given
+     * Retrieves the scale vector from the matrix and stores it into a given
      * vector.
      * 
-     * @param the
-     *            vector where the scale will be stored
+     * @param vector the vector where the scale will be stored
      */
     public void toScaleVector(Vector3d vector) {
         double scaleX = Math.sqrt(this.get(0, 0) * this.get(0, 0) + this.get(1, 0) * this.get(1, 0) + this.get(2, 0) * this.get(2, 0));
