@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ public class ConeCollisionShape extends CollisionShape {
      *
      * @param radius The radius of the cone in world units.
      * @param height The height of the cone in world units.
-     * @param The axis towards which the cone faces, see the PhysicsSpace.AXIS_* constants.
+     * @param axis The axis towards which the cone faces, see the PhysicsSpace.AXIS_* constants.
      */
     public ConeCollisionShape(float radius, float height, int axis) {
         this.radius = radius;
