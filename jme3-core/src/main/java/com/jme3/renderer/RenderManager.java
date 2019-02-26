@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -541,7 +541,7 @@ public class RenderManager {
      * If a {@link #setForcedTechnique(java.lang.String) forced technique} is
      * set on this RenderManager, then it is selected automatically
      * on the geometry's material and is used for rendering. Otherwise, one
-     * of the {@link MaterialDef#getDefaultTechniques() default techniques} is
+     * of the {@link com.jme3.material.MaterialDef#getTechniqueDefsNames() default techniques} is
      * used.
      * <p>
      * If a {@link #setForcedRenderState(com.jme3.material.RenderState) forced
@@ -553,8 +553,8 @@ public class RenderManager {
        * 
      * @see Technique
      * @see RenderState
-     * @see Material#selectTechnique(java.lang.String, com.jme3.renderer.RenderManager) 
-     * @see Material#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager) 
+     * @see com.jme3.material.Material#selectTechnique(java.lang.String, com.jme3.renderer.RenderManager) 
+     * @see com.jme3.material.Material#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager) 
      */
     public void renderGeometry(Geometry geom) {
         if (geom.isIgnoreTransform()) {
@@ -690,7 +690,7 @@ public class RenderManager {
      * In addition to enqueuing the visible geometries, this method
      * also scenes which cast or receive shadows, by putting them into the
      * RenderQueue's 
-     * {@link RenderQueue#addToShadowQueue(com.jme3.scene.Geometry, com.jme3.renderer.queue.RenderQueue.ShadowMode) 
+     * {@link RenderQueue#addToQueue(com.jme3.scene.Geometry, com.jme3.renderer.queue.RenderQueue.Bucket) 
      * shadow queue}. Each Spatial which has its 
      * {@link Spatial#setShadowMode(com.jme3.renderer.queue.RenderQueue.ShadowMode) shadow mode}
      * set to not off, will be put into the appropriate shadow queue, note that
@@ -1048,7 +1048,7 @@ public class RenderManager {
      * (see {@link #renderTranslucentQueue(com.jme3.renderer.ViewPort) })</li>
      * <li>If any objects remained in the render queue, they are removed
      * from the queue. This is generally objects added to the 
-     * {@link RenderQueue#renderShadowQueue(com.jme3.renderer.queue.RenderQueue.ShadowMode, com.jme3.renderer.RenderManager, com.jme3.renderer.Camera, boolean) 
+     * {@link RenderQueue#renderQueue(com.jme3.renderer.queue.RenderQueue.Bucket, com.jme3.renderer.RenderManager, com.jme3.renderer.Camera) 
      * shadow queue}
      * which were not rendered because of a missing shadow renderer.</li>
      * </ul>

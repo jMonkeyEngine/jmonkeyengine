@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -135,7 +135,7 @@ public class PssmShadowFilter extends Filter {
 
     /**
      * returns the light direction used by the processor
-     * @return 
+     * @return a direction vector
      */
     public Vector3f getDirection() {
         return pssmRenderer.getDirection();
@@ -172,7 +172,7 @@ public class PssmShadowFilter extends Filter {
 
     /**
      * How far the shadows are rendered in the view
-     * @see setShadowZExtend(float zFar)
+     * @see #setShadowZExtend(float zFar)
      * @return shadowZExtend
      */
     public float getShadowZExtend() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -446,7 +446,7 @@ public class DDSLoader implements AssetLoader {
      * @param flip Flip the loaded image by Y axis
      * @param totalSize Total size of the image in bytes including the mipmaps
      * @return A ByteBuffer containing the grayscale image data with mips.
-     * @throws java.io.IOException If an error occured while reading from InputStream
+     * @throws java.io.IOException If an error occurred while reading from InputStream
      */
     public ByteBuffer readGrayscale2D(boolean flip, int totalSize) throws IOException {
         ByteBuffer buffer = BufferUtils.createByteBuffer(totalSize);
@@ -481,7 +481,7 @@ public class DDSLoader implements AssetLoader {
      * @param flip Flip the image on the Y axis
      * @param totalSize Size of the image in bytes including mipmaps
      * @return ByteBuffer containing image data with mipmaps in the format specified by pixelFormat_
-     * @throws java.io.IOException If an error occured while reading from InputStream
+     * @throws java.io.IOException If an error occurred while reading from InputStream
      */
     public ByteBuffer readRGB2D(boolean flip, int totalSize) throws IOException {
         int redCount = count(redMask),
@@ -547,7 +547,7 @@ public class DDSLoader implements AssetLoader {
      *
      * @param totalSize Total size of the image in bytes, including mipmaps
      * @return ByteBuffer containing compressed DXT image in the format specified by pixelFormat_
-     * @throws java.io.IOException If an error occured while reading from InputStream
+     * @throws java.io.IOException If an error occurred while reading from InputStream
      */
     public ByteBuffer readDXT2D(boolean flip, int totalSize) throws IOException {
         logger.finest("Source image format: DXT");
@@ -584,7 +584,7 @@ public class DDSLoader implements AssetLoader {
      * @param flip Flip the loaded image by Y axis
      * @param totalSize Total size of the image in bytes including the mipmaps
      * @return A ByteBuffer containing the grayscale image data with mips.
-     * @throws java.io.IOException If an error occured while reading from InputStream
+     * @throws java.io.IOException If an error occurred while reading from InputStream
      */
     public ByteBuffer readGrayscale3D(boolean flip, int totalSize) throws IOException {
         ByteBuffer buffer = BufferUtils.createByteBuffer(totalSize * depth);
@@ -622,7 +622,7 @@ public class DDSLoader implements AssetLoader {
      * @param flip Flip the image on the Y axis
      * @param totalSize Size of the image in bytes including mipmaps
      * @return ByteBuffer containing image data with mipmaps in the format specified by pixelFormat_
-     * @throws java.io.IOException If an error occured while reading from InputStream
+     * @throws java.io.IOException If an error occurred while reading from InputStream
      */
     public ByteBuffer readRGB3D(boolean flip, int totalSize) throws IOException {
         int redCount = count(redMask),
@@ -690,7 +690,7 @@ public class DDSLoader implements AssetLoader {
      *
      * @param totalSize Total size of the image in bytes, including mipmaps
      * @return ByteBuffer containing compressed DXT image in the format specified by pixelFormat_
-     * @throws java.io.IOException If an error occured while reading from InputStream
+     * @throws java.io.IOException If an error occurred while reading from InputStream
      */
     public ByteBuffer readDXT3D(boolean flip, int totalSize) throws IOException {
         logger.finest("Source image format: DXT");
@@ -738,7 +738,7 @@ public class DDSLoader implements AssetLoader {
      * @return An ArrayList containing a single ByteBuffer for a 2D image, or 6 ByteBuffers for a cubemap.
      *         The cubemap ByteBuffer order is PositiveX, NegativeX, PositiveY, NegativeY, PositiveZ, NegativeZ.
      *
-     * @throws java.io.IOException If an error occured while reading from the stream.
+     * @throws java.io.IOException If an error occurred while reading from the stream.
      */
     public ArrayList<ByteBuffer> readData(boolean flip) throws IOException {
         int totalSize = 0;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ public final class SAXUtil {
      * 
      * @param i The string to parse
      * @param def The default value if the string is null
-     * @return
+     * @return the parsed value or def
      * @throws SAXException 
      */
     public static int parseInt(String i, int def) throws SAXException{

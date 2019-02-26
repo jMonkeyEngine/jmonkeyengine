@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,7 +77,7 @@ public class MorphTrack implements AnimTrack<float[]> {
     /**
      * return the array of weights of this track
      *
-     * @return
+     * @return the pre-existing array
      */
     public float[] getWeights() {
         return weights;
@@ -86,7 +86,7 @@ public class MorphTrack implements AnimTrack<float[]> {
     /**
      * returns the arrays of time for this track
      *
-     * @return
+     * @return the pre-existing array
      */
     public float[] getTimes() {
         return times;

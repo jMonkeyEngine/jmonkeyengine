@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,9 +58,9 @@ public interface JmeContext {
 
         /**
          * A canvas type context makes a rendering surface available as an
-         * AWT {@link java.awt.Canvas} object that can be embedded in a Swing/AWT
+         * AWT Canvas object that can be embedded in a Swing/AWT
          * frame. To retrieve the Canvas object, you should cast the context
-         * to {@link JmeCanvasContext}.
+         * to JmeCanvasContext.
          */
         Canvas,
 

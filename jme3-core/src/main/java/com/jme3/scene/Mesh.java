@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1456,7 +1456,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     /**
      * @deprecated use isAnimatedByJoint
      * @param boneIndex
-     * @return
+     * @return true if animated by that bone, otherwise false
      */
     @Deprecated
     public boolean isAnimatedByBone(int boneIndex) {
@@ -1512,7 +1512,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
 
     /**
      * Gets the amount of vertices used for each patch;
-     * @return
+     * @return the count (&ge;0)
      */
     public int getPatchVertexCount() {
         return patchVertexCount;

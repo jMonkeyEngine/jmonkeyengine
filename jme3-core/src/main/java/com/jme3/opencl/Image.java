@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -175,10 +175,10 @@ memory layout in which channels are stored in the image.
     /**
      * The image descriptor structure describes the type and dimensions of the image or image array.
      * <p>
-     * There exists two constructors:<br>
-     * {@link #ImageDescriptor(com.jme3.opencl.Image.ImageType, long, long, long, long) }
+     * There exist two constructors:<br>
+     * ImageDescriptor(ImageType, long, long, long, long)
      * is used when an image with new memory should be created (used most often).<br>
-     * {@link #ImageDescriptor(com.jme3.opencl.Image.ImageType, long, long, long, long, long, long, java.nio.ByteBuffer) }
+     * ImageDescriptor(ImageType, long, long, long, long, long, long, ByteBuffer)
      * creates an image using the provided {@code ByteBuffer} as source.
      */
     public static class ImageDescriptor { //Struct
@@ -270,12 +270,10 @@ memory layout in which channels are stored in the image.
     public abstract long getDepth();
     /**
      * @return the row pitch when the image was created from a host buffer
-     * @see ImageDescriptor#ImageDescriptor(com.jme3.opencl.Image.ImageType, long, long, long, long, long, long, java.nio.ByteBuffer) 
      */
     public abstract long getRowPitch();
     /**
      * @return the slice pitch when the image was created from a host buffer
-     * @see ImageDescriptor#ImageDescriptor(com.jme3.opencl.Image.ImageType, long, long, long, long, long, long, java.nio.ByteBuffer) 
      */
     public abstract long getSlicePitch();
     /**

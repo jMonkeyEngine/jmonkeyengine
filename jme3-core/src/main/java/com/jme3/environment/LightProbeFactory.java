@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,10 +51,11 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  * The process is as follows: 
  * 1. Create an EnvironmentCamera
  * 2. give it a position in the scene
- * 3. call {@link LightProbeFactory#makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Node)}
+ * 3. call {@link LightProbeFactory#makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Spatial)}
  * 4. add the created LightProbe to a node with the {@link Node#addLight(com.jme3.light.Light) } method.
  * 
- * Optionally for step 3 call {@link LightProbeFactory#makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Node, com.jme3.environment.generation.JobProgressListener) }
+ * Optionally for step 3 call
+ * {@link #makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Spatial, com.jme3.environment.generation.JobProgressListener)}
  * with a {@link JobProgressListener} to be notified of the progress of the generation process.
  * 
  * The generation will be split in several threads for faster generation. 
@@ -78,7 +79,8 @@ public class LightProbeFactory {
      * The process is thread safe.
      * The created lightProbe will only be marked as ready when the rendering process is done.
      * 
-     * If you want to monitor the process use {@link LightProbeFactory#makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Node, com.jme3.environment.generation.JobProgressListener) }
+     * If you want to monitor the process use
+     * {@link #makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Spatial, com.jme3.environment.generation.JobProgressListener)}
      * 
      *
      * 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,7 +82,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * return the array of rotations of this track
      *
-     * @return
+     * @return an array
      */
     public Quaternion[] getRotations() {
         return rotations.toObjectArray();
@@ -91,7 +91,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * returns the array of scales for this track
      *
-     * @return
+     * @return an array or null
      */
     public Vector3f[] getScales() {
         return scales == null ? null : scales.toObjectArray();
@@ -100,7 +100,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * returns the arrays of time for this track
      *
-     * @return
+     * @return the pre-existing array
      */
     public float[] getTimes() {
         return times;
@@ -109,7 +109,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     /**
      * returns the array of translations of this track
      *
-     * @return
+     * @return an array
      */
     public Vector3f[] getTranslations() {
         return translations.toObjectArray();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -261,7 +261,7 @@ public class BitmapFont implements Savable {
      * Merge two fonts.
      * If two font have the same style, merge will fail.
      * @param newFont Style must be assigned to this.
-     * @author Yonghoon
+     * author: Yonghoon
      */
     public void merge(BitmapFont newFont) {
         charSet.merge(newFont.charSet);

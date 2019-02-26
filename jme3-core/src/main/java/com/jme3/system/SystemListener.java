@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,8 +81,8 @@ public interface SystemListener {
     public void loseFocus();
 
     /**
-     * Called when an error has occured. This is typically
-     * invoked when an uncought exception is thrown in the render thread.
+     * Called when an error has occurred. This is typically
+     * invoked when an uncaught exception is thrown in the render thread.
      * @param errorMsg The error message, if any, or null.
      * @param t Throwable object, or null.
      */

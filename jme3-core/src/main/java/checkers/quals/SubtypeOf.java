@@ -6,8 +6,8 @@ import java.lang.annotation.*;
  * A meta-annotation to specify all the qualifiers that the given qualifier
  * is a subtype of.  This provides a declarative way to specify the type
  * qualifier hierarchy.  (Alternatively, the hierarchy can be defined
- * procedurally by subclassing {@link checkers.types.QualifierHierarchy} or
- * {@link checkers.types.TypeHierarchy}.)
+ * procedurally by subclassing checkers.types.QualifierHierarchy or
+ * checkers.types.TypeHierarchy.)
  *
  * <p>
  * Example:

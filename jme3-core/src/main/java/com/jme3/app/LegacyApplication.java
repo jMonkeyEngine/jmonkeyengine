@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -485,16 +485,15 @@ public class LegacyApplication implements Application, SystemListener {
     /**
      * Initializes the application's canvas for use.
      * <p>
-     * After calling this method, cast the {@link #getContext() context} to
-     * {@link JmeCanvasContext},
-     * then acquire the canvas with {@link JmeCanvasContext#getCanvas() }
+     * After calling this method, cast the {@link #getContext()} context to
+     * JmeCanvasContext,
+     * then acquire the canvas with JmeCanvasContext.getCanvas()
      * and attach it to an AWT/Swing Frame.
      * The rendering thread will start when the canvas becomes visible on
      * screen, however if you wish to start the context immediately you
      * may call {@link #startCanvas() } to force the rendering thread
      * to start.
      *
-     * @see JmeCanvasContext
      * @see Type#Canvas
      */
     public void createCanvas(){

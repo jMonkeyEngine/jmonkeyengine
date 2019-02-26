@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import java.util.ArrayList;
  * <code>UniformBindingManager</code> helps {@link RenderManager} to manage
  * {@link UniformBinding uniform bindings}.
  * 
- * The {@link #updateUniformBindings(java.util.List) } will update
+ * The {@link #updateUniformBindings(com.jme3.shader.Shader)} method will update
  * a given list of uniforms based on the current state
  * of the manager.
  * 
@@ -223,8 +223,6 @@ public class UniformBindingManager {
      * Internal use only. Sets the world matrix to use for future
      * rendering. This has no effect unless objects are rendered manually
      * using {@link Material#render(com.jme3.scene.Geometry, com.jme3.renderer.RenderManager) }.
-     * Using {@link #renderGeometry(com.jme3.scene.Geometry) } will 
-     * override this value.
      * 
      * @param mat The world matrix to set
      */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -381,14 +381,14 @@ public interface Renderer {
       * set shall undergo an sRGB to linear RGB color conversion when read by a shader.
       *
       * The conversion is performed for the following formats:
-      *  - {@link Image.Format#RGB8}
-      *  - {@link Image.Format#RGBA8}
-      *  - {@link Image.Format#Luminance8}
-      *  - {@link Image.Format#Luminance8Alpha8}
-      *  - {@link Image.Format#DXT1}
-      *  - {@link Image.Format#DXT1A}
-      *  - {@link Image.Format#DXT3}
-      *  - {@link Image.Format#DXT5}
+      *  - {@link com.jme3.texture.Image.Format#RGB8}
+      *  - {@link com.jme3.texture.Image.Format#RGBA8}
+      *  - {@link com.jme3.texture.Image.Format#Luminance8}
+      *  - {@link com.jme3.texture.Image.Format#Luminance8Alpha8}
+      *  - {@link com.jme3.texture.Image.Format#DXT1}
+      *  - {@link com.jme3.texture.Image.Format#DXT1A}
+      *  - {@link com.jme3.texture.Image.Format#DXT3}
+      *  - {@link com.jme3.texture.Image.Format#DXT5}
       * 
       * For all other formats, no conversion is performed.
       *
