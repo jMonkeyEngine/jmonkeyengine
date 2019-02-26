@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -512,7 +512,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
      * @param x
      * @param min
      * @param max
-     * @return
+     * @return the mapped value
      */
     public static float mapValue(float x, float min, float max) {
         return mapValue(x, 0, 1, min, max);
@@ -526,7 +526,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
      * @param inputMax
      * @param min
      * @param max
-     * @return
+     * @return the mapped value
      */
     public static float mapValue(float x, float inputMin, float inputMax, float min, float max) {
         return (x - inputMin) * (max - min) / (inputMax - inputMin) + min;

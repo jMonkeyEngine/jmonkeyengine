@@ -15,8 +15,7 @@ import java.util.List;
  * A spatial moves and sweeps its next movement for obstacles before moving
  * there Run this example with Vsync enabled
  *
- * @author
- * @wezrule
+ * @author wezrule
  */
 public class TestSweepTest extends SimpleApplication {
 

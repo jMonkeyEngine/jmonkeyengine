@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,12 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Quad;
 
+/**
+ * This test demonstrates the usage of customized blend equations and factors on a material.<br/>
+ * Customized blend equations and factors always requires {@link com.jme3.material.RenderState.BlendMode#Custom}.
+ *
+ * @author the_Minka
+ */
 public class TestBlendEquations extends SimpleApplication {
 
     public static void main(String[] args) {
