@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -117,7 +117,7 @@ public class BasicShadowRenderer implements SceneProcessor {
 
     /**
      * returns the light direction used for this processor
-     * @return 
+     * @return the pre-existing vector
      */
     public Vector3f getDirection() {
         return direction;
@@ -133,7 +133,7 @@ public class BasicShadowRenderer implements SceneProcessor {
 
     /**
      * debug only
-     * @return 
+     * @return the pre-existing array
      */
     public Vector3f[] getPoints() {
         return points;
@@ -142,7 +142,7 @@ public class BasicShadowRenderer implements SceneProcessor {
     /**
      * debug only
      * returns the shadow camera 
-     * @return 
+     * @return the pre-existing camera
      */
     public Camera getShadowCamera() {
         return shadowCam;
@@ -202,7 +202,7 @@ public class BasicShadowRenderer implements SceneProcessor {
 
     /**
      * debug only
-     * @return 
+     * @return the pre-existing instance
      */
     public Picture getDisplayPicture() {
         return dispPic;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -445,7 +445,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable, JmeCl
     /**
      * returns the skeleton of this control
      *
-     * @return
+     * @return the pre-existing instance
      */
     public Skeleton getSkeleton() {
         return skeleton;

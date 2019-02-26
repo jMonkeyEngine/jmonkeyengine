@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -285,7 +285,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     /**
      * used internally
      *
-     * @return
+     * @return true if initialized, otherwise false
      */
     public boolean isInitialized() {
         return initialized;
@@ -636,7 +636,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      *
      * @param type the type of data
      * @param key the key
-     * @return
+     * @return the pre-existing object, or null
      */
     public Object getEventData(String type, Object key) {
         if (eventsData != null) {

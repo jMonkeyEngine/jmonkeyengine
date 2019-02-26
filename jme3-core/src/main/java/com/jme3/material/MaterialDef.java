@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -128,9 +128,7 @@ public class MaterialDef{
      * 
      * @param type Type of the parameter
      * @param name Name of the parameter
-     * @param value Default value of the parameter
-     * @param ffBinding Fixed function binding for the parameter
-     * @param colorSpace the color space of the texture required by thiis texture param
+     * @param colorSpace the color space of the texture required by this texture param
      * @see ColorSpace
      */
     public void addMaterialParamTexture(VarType type, String name, ColorSpace colorSpace) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -364,7 +364,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * <p>This value is merely a marker, by itself it does nothing.
      * Generally model loaders will use this marker to indicate
      * the material should receive shadows and therefore any
-     * geometries using it should have the {@link ShadowMode#Receive} set
+     * geometries using it should have {@link com.jme3.renderer.queue.RenderQueue.ShadowMode#Receive} set
      * on them.
      *
      * @param receivesShadows if the material should receive shadows or not.
@@ -891,7 +891,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * or the first default technique that the renderer supports
      * (based on the technique's {@link TechniqueDef#getRequiredCaps() requested rendering capabilities})<ul>
      * <li>If the technique has been changed since the last frame, then it is notified via
-     * {@link Technique#makeCurrent(com.jme3.asset.AssetManager, boolean, java.util.EnumSet)
+     * {@link Technique#makeCurrent(com.jme3.renderer.RenderManager, com.jme3.util.SafeArrayList, com.jme3.util.SafeArrayList, com.jme3.light.LightList, java.util.EnumSet)
      * Technique.makeCurrent()}.
      * If the technique wants to use a shader to render the model, it should load it at this part -
      * the shader should have all the proper defines as declared in the technique definition,
@@ -907,7 +907,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * <li>{@link RenderManager#getForcedRenderState() RenderManager's Forced RenderState}
      * - i.e. renderstate requested by a {@link com.jme3.post.SceneProcessor} or
      * post-processing filter.</li></ol>
-     * <li>If the technique {@link TechniqueDef#isUsingShaders() uses a shader}, then the uniforms of the shader must be updated.<ul>
+     * <li>If the technique uses a shader, then the uniforms of the shader must be updated.<ul>
      * <li>Uniforms bound to material parameters are updated based on the current material parameter values.</li>
      * <li>Uniforms bound to world parameters are updated from the RenderManager.
      * Internally {@link UniformBindingManager} is used for this task.</li>
@@ -922,8 +922,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * rendered with {@link BlendMode#AlphaAdditive alpha-additive} blending and depth writing disabled.</li>
      * </ul>
      * <li>For techniques that do not use shaders,
-     * fixed function OpenGL is used to render the model (see {@link GL1Renderer} interface):<ul>
-     * <li>OpenGL state ({@link FixedFuncBinding}) that is bound to material parameters is updated. </li>
+     * fixed function OpenGL is used to render the model (see {@link com.jme3.renderer.opengl.GLRenderer} interface):<ul>
+     * <li>OpenGL state that is bound to material parameters is updated. </li>
      * <li>The texture set on the material is uploaded and bound.
      * Currently only 1 texture is supported for fixed function techniques.</li>
      * <li>If the technique uses lighting, then OpenGL lighting state is updated

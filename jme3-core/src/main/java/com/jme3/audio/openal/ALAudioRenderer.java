@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -897,7 +897,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                             reclaimChannel = true;
                         } else {
                             // Stream still has data. 
-                            // Buffer starvation occured.
+                            // Buffer starvation occurred.
                             // Audio decoder thread will fill the data 
                             // and start the channel again.
                         }

@@ -15,7 +15,7 @@ public interface MikkTSpaceContext {
      * Returns the number of faces (triangles/quads) on the mesh to be
      * processed.
      *
-     * @return
+     * @return the count (&ge;0)
      */
     public int getNumFaces();
 
@@ -24,7 +24,7 @@ public interface MikkTSpaceContext {
      * the range {0, 1, ..., getNumFaces()-1}
      *
      * @param face
-     * @return
+     * @return the count (&ge;0)
      */
     public int getNumVerticesOfFace(int face);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -2610,7 +2610,7 @@ public final class GLRenderer implements Renderer {
                 // OK: Works on all platforms.
                 break;
             case UnsignedInt:
-                // Requres extension on OpenGL ES 2.
+                // Requires extension on OpenGL ES 2.
                 if (!caps.contains(Caps.IntegerIndexBuffer)) {
                     throw new RendererException("32-bit index buffers are not supported by the video hardware");
                 }

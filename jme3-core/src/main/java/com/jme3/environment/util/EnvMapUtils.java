@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -136,13 +136,13 @@ public class EnvMapUtils {
      * original ones. see {@link ByteBuffer#duplicate()}
      *
      * Use this if you need to read from the map from multiple threads, it
-     * should garanty the thread safety. Note that if you want to write to the
+     * should guaranty the thread safety. Note that if you want to write to the
      * cube map you have to make sure that the different thread do not write to
      * the same area of the buffer. The position, limit and mark are not an
      * issue.
      *
      * @param sourceMap
-     * @return
+     * @return a new instance
      */
     public static TextureCubeMap duplicateCubeMap(TextureCubeMap sourceMap) {
         Image srcImg = sourceMap.getImage();
@@ -233,7 +233,7 @@ public class EnvMapUtils {
      * @param face the face to consider
      * @param store a vector3f where the resulting vector will be stored
      * @param fixSeamsMethod the method to fix the seams
-     * @return
+     * @return either store or a new vector
      */
     public static Vector3f getVectorFromCubemapFaceTexCoord(int x, int y, int mapSize, int face, Vector3f store, FixSeamsMethod fixSeamsMethod) {
         if (store == null) {
@@ -396,12 +396,12 @@ public class EnvMapUtils {
 
     /**
      * same as
-     * {@link EnvMapUtils#getSphericalHarmonicsCoefficents(com.jme3.texture.TextureCubeMap, com.jme3.utils.EnvMapUtils.FixSeamsMethod)}
+     * {@link #getSphericalHarmonicsCoefficents(com.jme3.texture.TextureCubeMap, com.jme3.environment.util.EnvMapUtils.FixSeamsMethod)}
      * the fix method used is {@link FixSeamsMethod#Wrap}
      *
      * @param cubeMap the environment cube map to compute SH for
-     * @return an array of 9 vector3f representing thos coefficients for each
-     * r,g,b channnel
+     * @return an array of 9 vectors representing the coefficients for each
+     * RGB channel
      */
     public static Vector3f[] getSphericalHarmonicsCoefficents(TextureCubeMap cubeMap) {
         return getSphericalHarmonicsCoefficents(cubeMap, FixSeamsMethod.Wrap);
@@ -419,8 +419,8 @@ public class EnvMapUtils {
      * @param cubeMap the environment cube map to compute SH for
      * @param fixSeamsMethod method to fix seams when computing the SH
      * coefficients
-     * @return an array of 9 vector3f representing thos coefficients for each
-     * r,g,b channnel
+     * @return an array of 9 vectors representing the coefficients for each
+     * RGB channel
      */
     public static Vector3f[] getSphericalHarmonicsCoefficents(TextureCubeMap cubeMap, FixSeamsMethod fixSeamsMethod) {
 
@@ -604,7 +604,7 @@ public class EnvMapUtils {
      *
      * @param cubeMap the cube map
      * @param assetManager the asset Manager
-     * @return
+     * @return a new Node
      */
     public static Node getCubeMapCrossDebugView(TextureCubeMap cubeMap, AssetManager assetManager) {
         Node n = new Node("CubeMapDebug" + cubeMap.getName());

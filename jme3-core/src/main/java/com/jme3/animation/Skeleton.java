@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -199,7 +199,7 @@ public final class Skeleton implements Savable, JmeCloneable {
 
     /**
      * returns the array of all root bones of this skeleton
-     * @return 
+     * @return the pre-existing array
      */
     public Bone[] getRoots() {
         return rootBones;
@@ -208,7 +208,7 @@ public final class Skeleton implements Savable, JmeCloneable {
     /**
      * return a bone for the given index
      * @param index
-     * @return 
+     * @return the pre-existing instance
      */
     public Bone getBone(int index) {
         return boneList[index];
@@ -217,7 +217,7 @@ public final class Skeleton implements Savable, JmeCloneable {
     /**
      * returns the bone with the given name
      * @param name
-     * @return 
+     * @return the pre-existing instance, or null if not found
      */
     public Bone getBone(String name) {
         for (int i = 0; i < boneList.length; i++) {
@@ -231,7 +231,7 @@ public final class Skeleton implements Savable, JmeCloneable {
     /**
      * returns the bone index of the given bone
      * @param bone
-     * @return 
+     * @return the index (&ge;0) or -1 if not found
      */
     public int getBoneIndex(Bone bone) {
         for (int i = 0; i < boneList.length; i++) {
@@ -246,7 +246,7 @@ public final class Skeleton implements Savable, JmeCloneable {
     /**
      * returns the bone index of the bone that has the given name
      * @param name
-     * @return 
+     * @return the index (&ge;0) or -1 if not found 
      */
     public int getBoneIndex(String name) {
         for (int i = 0; i < boneList.length; i++) {
@@ -259,8 +259,8 @@ public final class Skeleton implements Savable, JmeCloneable {
     }
 
     /**
-     * Compute the skining matrices for each bone of the skeleton that would be used to transform vertices of associated meshes
-     * @return 
+     * Compute the skinning matrices for each bone of the skeleton that would be used to transform vertices of associated meshes
+     * @return the pre-existing matrices
      */
     public Matrix4f[] computeSkinningMatrices() {
         TempVars vars = TempVars.get();
@@ -273,7 +273,7 @@ public final class Skeleton implements Savable, JmeCloneable {
 
     /**
      * returns the number of bones of this skeleton
-     * @return 
+     * @return the count (&ge;0)
      */
     public int getBoneCount() {
         return boneList.length;

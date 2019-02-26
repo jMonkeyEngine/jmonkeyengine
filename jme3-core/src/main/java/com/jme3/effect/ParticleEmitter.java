@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -854,7 +854,7 @@ public class ParticleEmitter extends Geometry {
      * Use ParticleEmitter.getParticleInfluencer().setInitialVelocity(initialVelocity); instead.
      *
      * @see ParticleEmitter#setVelocityVariation(float)
-     * @see ParticleEmitter#setGravity(float)
+     * @see #setGravity(com.jme3.math.Vector3f) 
      */
     @Deprecated
     public void setInitialVelocity(Vector3f initialVelocity) {
@@ -876,7 +876,8 @@ public class ParticleEmitter extends Geometry {
      * @param variation Set the variation by which the initial velocity
      * of the particle is determined. <code>variation</code> should be a value
      * from 0 to 1, where 0 means particles are to spawn with exactly
-     * the velocity given in {@link ParticleEmitter#setStartVel(com.jme3.math.Vector3f) },
+     * the velocity specified in 
+     * {@link com.jme3.effect.influencers.ParticleInfluencer#setInitialVelocity(com.jme3.math.Vector3f)},
      * and 1 means particles are to spawn with a completely random velocity.
      *
      * @deprecated

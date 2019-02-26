@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -290,7 +290,7 @@ public class TechniqueDef implements Savable, Cloneable {
      *
      * @param noRender not render or render ?
      *
-     * @see NoRender
+     * @see #isNoRender()
      */
     public void setNoRender(boolean noRender) {
         this.noRender = noRender;
@@ -374,7 +374,7 @@ public class TechniqueDef implements Savable, Cloneable {
      * @param paramName The parameter name to look up
      * @return The define name
      *
-     * @see #addShaderParamDefine(java.lang.String, java.lang.String)
+     * @see #addShaderParamDefine(java.lang.String, com.jme3.shader.VarType, java.lang.String)
      */
     public String getShaderParamDefine(String paramName){
         Integer defineId = paramToDefineId.get(paramName);
@@ -610,7 +610,7 @@ public class TechniqueDef implements Savable, Cloneable {
     /**
      * returns the weight of the technique def
      *
-     * @return
+     * @return the weight
      */
     public float getWeight() {
         return weight;
@@ -723,7 +723,7 @@ public class TechniqueDef implements Savable, Cloneable {
 
     /**
      * Returns the Enum containing the ShaderProgramNames;
-     * @return
+     * @return the pre-existing EnumMap
      */
     public EnumMap<Shader.ShaderType, String> getShaderProgramNames() {
         return shaderNames;
@@ -731,7 +731,7 @@ public class TechniqueDef implements Savable, Cloneable {
 
     /**
      * Returns the Enum containing the ShaderProgramLanguages;
-     * @return
+     * @return the pre-existing EnumMap
      */
     public EnumMap<Shader.ShaderType, String> getShaderProgramLanguages() {
         return shaderLanguages;

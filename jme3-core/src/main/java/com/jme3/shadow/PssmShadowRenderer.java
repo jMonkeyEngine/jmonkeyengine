@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -186,9 +186,7 @@ public class PssmShadowRenderer implements SceneProcessor {
      * @param manager the application asset manager
      * @param size the size of the rendered shadowmaps (512,1024,2048, etc...)
      * @param nbSplits the number of shadow maps rendered (the more shadow maps
-     * the more quality, the less fps).
-     * @param nbSplits the number of shadow maps rendered (the more shadow maps
-     * the more quality, the less fps).
+     * the more quality, the less fps)
      */
     public PssmShadowRenderer(AssetManager manager, int size, int nbSplits) {
         this(manager, size, nbSplits, new Material(manager, "Common/MatDefs/Shadow/PostShadow.j3md"));
@@ -367,7 +365,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     /**
      * returns the light direction used by the processor
      *
-     * @return
+     * @return the pre-existing vector
      */
     public Vector3f getDirection() {
         return direction;

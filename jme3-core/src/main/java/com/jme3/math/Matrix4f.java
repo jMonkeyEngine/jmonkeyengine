@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1740,7 +1740,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 	}
 
 	/**
-	 * Retreives the scale vector from the matrix.
+	 * Retrieves the scale vector from the matrix.
 	 * 
 	 * @return the scale vector
 	 */
@@ -1750,14 +1750,14 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 		return result;
 	}
 
-	/**
-	 * Retreives the scale vector from the matrix and stores it into a given
-	 * vector.
-	 * 
-	 * @param the
-	 *            vector where the scale will be stored
-	 */
-	public void toScaleVector(Vector3f vector) {
+    /**
+     * Retrieves the scale vector from the matrix and stores it into a given
+     * vector.
+     *
+     * @param store the vector where the scale will be stored
+     * @return the store vector
+     */
+    public Vector3f toScaleVector(Vector3f store) {
 		float scaleX = (float) Math.sqrt(m00 * m00 + m10 * m10 + m20 * m20);
 		float scaleY = (float) Math.sqrt(m01 * m01 + m11 * m11 + m21 * m21);
 		float scaleZ = (float) Math.sqrt(m02 * m02 + m12 * m12 + m22 * m22);

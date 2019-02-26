@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,7 +84,7 @@ public abstract class IndexBuffer {
     }
 
     /**
-     * @return
+     * @return the count (&ge;0)
      * @see Buffer#remaining()
      */
     public int remaining() {
@@ -94,7 +94,7 @@ public abstract class IndexBuffer {
     /**
      * Returns the vertex index for the current position.
      *
-     * @return
+     * @return the index
      */
     public abstract int get();
 
@@ -102,7 +102,7 @@ public abstract class IndexBuffer {
      * Returns the vertex index for the given index in the index buffer.
      * 
      * @param i The index inside the index buffer
-     * @return 
+     * @return the index
      */
     public abstract int get(int i);
     

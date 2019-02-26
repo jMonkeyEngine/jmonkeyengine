@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -816,7 +816,7 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Enable 3D stereo.
      * <p>This feature requires hardware support from the GPU driver.
-     * @see <a href="http://en.wikipedia.org/wiki/Quad_buffering">http://en.wikipedia.org/wiki/Quad_buffering</a><br />
+     * See <a href="http://en.wikipedia.org/wiki/Quad_buffering">http://en.wikipedia.org/wiki/Quad_buffering</a><br>
      * Once enabled, filters or scene processors that handle 3D stereo rendering
      * could use this feature to render using hardware 3D stereo.</p>
      * (Default: false)

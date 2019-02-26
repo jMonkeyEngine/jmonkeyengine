@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -245,7 +245,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      * returns the edge filtering mode
      *
      * @see EdgeFilteringMode
-     * @return
+     * @return the enum value
      */
     public EdgeFilteringMode getEdgeFilteringMode() {
         return edgeFilteringMode;
@@ -367,7 +367,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable,
      *
      * @param shadowMapIndex the index of the shadow map being rendered
      * @param shadowMapOccluders the list of occluders
-     * @return
+     * @return the geometryList
      */
     protected abstract GeometryList getOccludersToRender(int shadowMapIndex, GeometryList shadowMapOccluders);
 

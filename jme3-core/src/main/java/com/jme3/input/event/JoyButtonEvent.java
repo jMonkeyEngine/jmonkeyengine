@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,8 @@ public class JoyButtonEvent extends InputEvent {
     /**
      * Returns the JoystickButton that triggered this event.
      *
-     * @see JoystickAxis#assignAxis(java.lang.String, java.lang.String, int) 
+     * @see com.jme3.input.JoystickAxis#assignAxis(java.lang.String, java.lang.String)
+     * @return the button
      */
     public JoystickButton getButton() {
         return button;

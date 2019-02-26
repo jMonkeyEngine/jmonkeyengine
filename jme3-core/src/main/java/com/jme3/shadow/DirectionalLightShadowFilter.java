@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -126,7 +126,7 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
 
     /**
      * returns true if stabilization is enabled
-     * @return 
+     * @return true if stabilization is enabled
      */
     public boolean isEnabledStabilization() {
         return shadowRenderer.isEnabledStabilization();

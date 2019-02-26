@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import com.jme3.scene.Mesh;
 /**
  * A <code>CollisionResult</code> represents a single collision instance
  * between two {@link Collidable}. A collision check can result in many
- * collision instances (places where collision has occured).
+ * collision instances (places where collision has occurred).
  *
  * @author Kirill Vainer
  */

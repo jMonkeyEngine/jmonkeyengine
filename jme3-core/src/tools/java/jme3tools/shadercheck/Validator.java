@@ -18,14 +18,15 @@ public interface Validator {
     public boolean isInstalled();
 
     /**
-     * Returns the tool version as a string, must return null if the tool
+     * @return the tool version as a String, must return null if the tool
      * is not installed.
      */
     public String getInstalledVersion();
     
     /**
      * Validates the given shader to make sure it follows all requirements
-     * of the shader language specified as {@link Shader#getLanguage() }.
+     * of the shader language specified as
+     * {@link com.jme3.shader.Shader.ShaderSource#getLanguage()}.
      * The results of the validation will be written into the 
      * results argument.
      * 

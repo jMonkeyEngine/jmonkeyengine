@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,8 @@ import java.util.logging.Logger;
  * - The irradiance spherical harmonics factors (used for indirect diffuse lighting in the PBR pipeline).
  * - The prefiltered environment map (used for indirect specular lighting and reflection in the PBE pipeline).
  * Note that when instantiating the LightProbe, both of those structures are null.
- * To compute them see {@link LightProbeFactory#makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Node)}
+ * To compute them see
+ * {@link com.jme3.environment.LightProbeFactory#makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Spatial)}
  * and {@link EnvironmentCamera}.
  * 
  * The light probe has an area of effect that is a bounding volume centered on its position. (for now only Bounding spheres are supported).
@@ -88,8 +89,10 @@ public class LightProbe extends Light implements Savable {
     private int nbMipMaps;
 
     /**
-     * Empty constructor used for serialization. 
-     * You should never call it, use {@link LightProbeFactory#makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Node)} instead
+     * Empty constructor used for serialization.
+     * You should never call it, use 
+     * {@link com.jme3.environment.LightProbeFactory#makeProbe(com.jme3.environment.EnvironmentCamera, com.jme3.scene.Spatial)}
+     * instead.
      */
     public LightProbe() {        
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@ public class IrradianceSphericalHarmonicsGenerator extends RunnableWithProgress 
      * Fills all the generation parameters
      *
      * @param sourceMap the source cube map
-     *                  {@link EnvMapUtils.FixSeamsMethod}
+     *                  {@link com.jme3.environment.util.EnvMapUtils.FixSeamsMethod}
      * @param store     The cube map to store the result in.
      */
     public void setGenerationParam(TextureCubeMap sourceMap, LightProbe store) {

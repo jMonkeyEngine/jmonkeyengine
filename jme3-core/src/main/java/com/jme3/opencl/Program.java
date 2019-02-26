@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,7 +74,6 @@ public abstract class Program extends AbstractOpenCLObject {
     /**
      * Builds this program without additional arguments
      * @throws KernelCompilationException if the compilation fails
-     * @see #build(java.lang.String) 
      */
 	public void build() throws KernelCompilationException {
         build("", (Device[]) null);
@@ -85,7 +84,7 @@ public abstract class Program extends AbstractOpenCLObject {
      * @param name the name of the kernel as defined in the source code
      * @return the kernel object
      * @throws OpenCLException if the kernel was not found or some other
-     * error occured
+     * error occurred
      */
 	public abstract Kernel createKernel(String name);
     
