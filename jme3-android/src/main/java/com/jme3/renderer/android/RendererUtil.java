@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGL11;
 
 /**
- * Utility class used by the {@link OGLESShaderRenderer renderer} and sister
+ * Utility class used by the OGLESShaderRenderer and sister
  * classes.
  *
  * @author Kirill Vainer
