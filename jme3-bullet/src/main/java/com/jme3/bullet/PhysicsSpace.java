@@ -1018,7 +1018,7 @@ public class PhysicsSpace {
      * unaffected)
      * @return a new list of results (not null)
      */
-    public List rayTestRaw(Vector3f from, Vector3f to) {
+    public List<PhysicsRayTestResult> rayTestRaw(Vector3f from, Vector3f to) {
         List<PhysicsRayTestResult> results = new ArrayList<PhysicsRayTestResult>();
         rayTestRaw(from, to, results);
         
