@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1001,7 +1001,7 @@ public class PhysicsSpace {
      * unaffected)
      * @return a new list of results (not null)
      */
-    public List rayTest(Vector3f from, Vector3f to) {
+    public List<PhysicsRayTestResult> rayTest(Vector3f from, Vector3f to) {
         List<PhysicsRayTestResult> results = new ArrayList<PhysicsRayTestResult>();
         rayTest(from, to, results);
         
