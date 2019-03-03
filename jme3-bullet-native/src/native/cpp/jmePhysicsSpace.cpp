@@ -184,8 +184,8 @@ void jmePhysicsSpace::postTickCallback(btDynamicsWorld *world, btScalar timeStep
 }
 
 void jmePhysicsSpace::contactStartedCallback(btPersistentManifold* const &pm) {
-    btCollisionObject* co0 = pm->getBody0();
-    btCollisionObject* co1 = pm->getBody1();
+    const btCollisionObject* co0 = pm->getBody0();
+    const btCollisionObject* co1 = pm->getBody1();
     jmeUserPointer *up0 = (jmeUserPointer*) co0 -> getUserPointer();
     jmeUserPointer *up1 = (jmeUserPointer*) co1 -> getUserPointer();
     if (up0 != NULL) {
