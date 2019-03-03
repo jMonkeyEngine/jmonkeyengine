@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,7 +93,7 @@ public class BlenderInputStream extends InputStream {
         try {
             this.readStreamToCache(bufferedInputStream);
         } catch (IOException e) {
-            throw new BlenderFileException("Problems occured while caching the file!", e);
+            throw new BlenderFileException("Problems occurred while caching the file!", e);
         } finally {
             try {
                 inputStream.close();
@@ -144,7 +144,7 @@ public class BlenderInputStream extends InputStream {
             gis = new GZIPInputStream(new ByteArrayInputStream(cachedBuffer));
             this.readStreamToCache(gis);
         } catch (IOException e) {
-            throw new IllegalStateException("IO errors occured where they should NOT! " + "The data is already buffered at this point!", e);
+            throw new IllegalStateException("IO errors occurred where they should NOT! " + "The data is already buffered at this point!", e);
         } finally {
             try {
                 if (gis != null) {

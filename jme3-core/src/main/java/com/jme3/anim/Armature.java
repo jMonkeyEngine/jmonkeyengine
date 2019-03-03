@@ -276,7 +276,7 @@ public class Armature implements JmeCloneable, Savable {
         try {
             modelTransformClass = (Class<? extends JointModelTransform>) Class.forName(className);
         } catch (ClassNotFoundException e) {
-            throw new AssetLoadException("Cannnot find class for name " + className);
+            throw new AssetLoadException("Cannot find class for name " + className);
         }
 
         int i = 0;

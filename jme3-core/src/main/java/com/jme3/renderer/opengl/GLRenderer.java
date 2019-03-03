@@ -1641,7 +1641,7 @@ public final class GLRenderer implements Renderer {
             default:
                 //Programming error; will fail on all hardware
                 throw new IllegalStateException("Some video driver error "
-                        + "or programming error occured. "
+                        + "or programming error occurred. "
                         + "Framebuffer object status is invalid. ");
         }
     }

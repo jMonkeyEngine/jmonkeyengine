@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -258,12 +258,12 @@ public class DesktopAssetManager implements AssetManager {
             handler.establishParentKey(key);
             obj = loader.load(info);
         } catch (IOException ex) {
-            throw new AssetLoadException("An exception has occured while loading asset: " + key, ex);
+            throw new AssetLoadException("An exception has occurred while loading asset: " + key, ex);
         } finally {
             handler.releaseParentKey(key);
         }
         if (obj == null) {
-            throw new AssetLoadException("Error occured while loading asset \""
+            throw new AssetLoadException("Error occurred while loading asset \""
                     + key + "\" using " + loader.getClass().getSimpleName());
         } else {
             if (logger.isLoggable(Level.FINER)) {

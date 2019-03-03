@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -220,7 +220,7 @@ public class BlenderLoader implements AssetLoader {
         } catch (BlenderFileException e) {
             throw new IOException(e.getLocalizedMessage(), e);
         } catch (Exception e) {
-            throw new IOException("Unexpected importer exception occured: " + e.getLocalizedMessage(), e);
+            throw new IOException("Unexpected importer exception occurred: " + e.getLocalizedMessage(), e);
         } finally {
             this.clear(assetInfo);
         }
