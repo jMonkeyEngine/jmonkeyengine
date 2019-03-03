@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -110,7 +110,7 @@ public final class BinaryImporter implements JmeImporter {
             
             return s;
         } catch (IOException ex) {
-            logger.log(Level.SEVERE, "An error occured while loading jME binary object", ex);
+            logger.log(Level.SEVERE, "An error occurred while loading jME binary object", ex);
         } finally {
             if (is != null){
                 try {

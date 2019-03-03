@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -821,7 +821,7 @@ public class TerrainPatch extends Geometry {
         else if (other instanceof BoundingVolume)
             return collideWithBoundingVolume((BoundingVolume)other, results);
         else {
-            throw new UnsupportedCollisionException("TerrainPatch cannnot collide with "+other.getClass().getName());
+            throw new UnsupportedCollisionException("TerrainPatch cannot collide with "+other.getClass().getName());
         }
     }
 

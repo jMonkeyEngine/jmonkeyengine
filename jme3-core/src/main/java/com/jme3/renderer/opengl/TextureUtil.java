@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -304,7 +304,7 @@ final class TextureUtil {
         }
         
         if (image.getMipMapSizes() != null) {
-            throw new UnsupportedOperationException("Updating mip-mappped images is not supported");
+            throw new UnsupportedOperationException("Updating mip-mapped images is not supported");
         }
         
         if (image.getMultiSamples() > 1) {
