@@ -62,5 +62,5 @@ public:
         JNIEnv* getEnv();
         static void preTickCallback(btDynamicsWorld*, btScalar);
         static void postTickCallback(btDynamicsWorld*, btScalar);
-        static bool contactProcessedCallback(btManifoldPoint &, void *, void *);
+        static void contactStartedCallback(btPersistentManifold* const &);
 };
