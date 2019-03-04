@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2017 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,8 @@ package jme3test.games;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
+import com.jme3.bullet.collision.PhysicsCollisionEvent;
+import com.jme3.bullet.collision.PhysicsCollisionListener;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
@@ -64,7 +66,7 @@ import java.util.concurrent.Callable;
  * 
  * @author SkidRunner (Mark E. Picknell)
  */
-public class RollingTheMonkey extends SimpleApplication implements ActionListener {
+public class RollingTheMonkey extends SimpleApplication implements ActionListener, PhysicsCollisionListener {
     
     private static final String TITLE           = "Rolling The Monkey";
     private static final String MESSAGE         = "Thanks for Playing!";
@@ -123,6 +125,7 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
         BulletAppState bulletState = new BulletAppState();
         stateManager.attach(bulletState);
         space = bulletState.getPhysicsSpace();
+        space.addCollisionListener(this);
         
         // create light
         DirectionalLight sun = new DirectionalLight();
@@ -310,21 +313,10 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
         scoreText.setLocalTranslation((cam.getWidth() - scoreText.getLineWidth()) / 2.0f,
                 scoreText.getLineHeight(), 0.0f);
         
-        // Rotate all the pickups and check for overlaps
+        // Rotate all the pickups
         float pickUpSpeed = PICKUP_SPEED * tpf;
         for(Spatial pickUp : pickUps.getChildren()) {
             pickUp.rotate(pickUpSpeed, pickUpSpeed, pickUpSpeed);
-            
-            GhostControl pickUpControl = pickUp.getControl(GhostControl.class);
-            if (pickUpControl.isEnabled() 
-                    && pickUpControl.getOverlappingCount() > 1) {
-                pickUpControl.setEnabled(false);
-                pickUp.setLocalScale(0f);
-                ++score;
-                if (score >= PICKUP_COUNT) {
-                    messageText.setLocalScale(1.0f);
-                }
-            }
         }
         
         Vector3f centralForce = new Vector3f();
@@ -369,6 +361,37 @@ public class RollingTheMonkey extends SimpleApplication implements ActionListene
                     }
                 });
                 break;
+        }
+    }
+    @Override
+    public void collision(PhysicsCollisionEvent event) {
+        Spatial nodeA = event.getNodeA();
+        Spatial nodeB = event.getNodeB();
+        
+        String nameA = nodeA == null ? "" : nodeA.getName();
+        String nameB = nodeB == null ? "" : nodeB.getName();
+        
+        if(nameA.equals("player") && nameB.startsWith("pickUp")) {
+            GhostControl pickUpControl = nodeB.getControl(GhostControl.class);
+            if(pickUpControl != null && pickUpControl.isEnabled()) {
+                pickUpControl.setEnabled(false);
+                nodeB.removeFromParent();
+                nodeB.setLocalScale(0.0f);
+                score += 1;
+                if(score >= PICKUP_COUNT) {
+                    messageText.setLocalScale(1.0f);
+                }
+            }
+        } else if(nameA.startsWith("pickUp") && nameB.equals("player")) {
+            GhostControl pickUpControl = nodeA.getControl(GhostControl.class);
+            if(pickUpControl != null && pickUpControl.isEnabled()) {
+                pickUpControl.setEnabled(false);
+                nodeA.setLocalScale(0.0f);
+                score += 1;
+                if(score >= PICKUP_COUNT) {
+                    messageText.setLocalScale(1.0f);
+                }
+            }
         }
     }
     
