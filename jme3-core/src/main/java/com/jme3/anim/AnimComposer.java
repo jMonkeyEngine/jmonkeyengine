@@ -102,6 +102,12 @@ public class AnimComposer extends AbstractControl {
         l.currentAction = null;
     }
 
+    /**
+     * 
+     * @param name The name of the action to return.
+     * @return The action registered with specified name. It will make a new action if there isn't any.
+     * @see #makeAction(name) 
+     */
     public Action action(String name) {
         Action action = actions.get(name);
         if (action == null) {
@@ -110,7 +116,33 @@ public class AnimComposer extends AbstractControl {
         }
         return action;
     }
+    
+    /**
+     * 
+     * @param name The name of the action to return.
+     * @return The action registered with specified name or null if nothing is registered.
+     */
+    public Action getAction(String name){
+        return actions.get(name);
+    }
+    
+    /**
+     * Register given action with specified name.
+     * 
+     * @param name The name of the action.
+     * @param action The action to add.
+     */
+    public void addAction(String name, Action action){
+        actions.put(name, action);
+    }
 
+    /**
+     * Create a new ClipAction with specified clip name.
+     * 
+     * @param name The name of the clip.
+     * @return a new action
+     * @throws IllegalArgumentException if clip with specified name not found.
+     */
     public Action makeAction(String name) {
         Action action;
         AnimClip clip = animClipMap.get(name);
