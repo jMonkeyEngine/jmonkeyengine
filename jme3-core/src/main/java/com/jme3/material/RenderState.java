@@ -303,6 +303,17 @@ public class RenderState implements Cloneable, Savable {
          *          (1 - Source Alpha) * Dest Color -> (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
          */
         Alpha,
+         /**
+         * Alpha blending, interpolates to source color from dest color
+         * using source alpha.
+         * The resulting alpha is the sum between the source alpha and the destination alpha.
+         * <p>
+         * Result.rgb = Source Alpha * Source Color +
+         *          (1 - Source Alpha) * Dest Color -> (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+         * Result.a = 1 * Source Alpha + 1 * Dest Alpha -> (GL_ONE, GL_ONE)
+         * 
+         */
+        AlphaSumA,
         /**
          * Multiplies the source and dest colors.
          * <p>
