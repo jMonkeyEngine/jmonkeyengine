@@ -789,6 +789,14 @@ public final class GLRenderer implements Renderer {
                 case Alpha:
                     blendFunc(RenderState.BlendFunc.Src_Alpha, RenderState.BlendFunc.One_Minus_Src_Alpha);
                     break;
+                case AlphaSumA:
+                    blendFuncSeparate(
+                        RenderState.BlendFunc.Src_Alpha, 
+                        RenderState.BlendFunc.One_Minus_Src_Alpha,
+                        RenderState.BlendFunc.One,
+                        RenderState.BlendFunc.One                    
+                    );
+                    break;
                 case PremultAlpha:
                     blendFunc(RenderState.BlendFunc.One, RenderState.BlendFunc.One_Minus_Src_Alpha);
                     break;
