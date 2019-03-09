@@ -261,7 +261,7 @@ public class Animation implements Savable, Cloneable, JmeCloneable {
             // NOTE: Backward compat only .. Some animations have no
             // tracks set at all even though it makes no sense.
             // Since there's a null check in setTime(),
-            // its only appropriate that the check is made here as well.
+            // it's only appropriate that the check is made here as well.
             tracks = new SafeArrayList<Track>(Track.class);
             for (Savable savable : arr) {
                 tracks.add((Track) savable);

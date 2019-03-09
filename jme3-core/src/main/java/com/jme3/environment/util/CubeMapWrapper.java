@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -175,7 +175,7 @@ public class CubeMapWrapper {
 
     /**
      * writes a pixel given the coordinates vector and the color.
-     * @param vector the cooredinates where to write the pixel
+     * @param vector the coordinates where to write the pixel
      * @param color the color to write
      */
     public void setPixel(Vector3f vector, ColorRGBA color) {
@@ -186,7 +186,7 @@ public class CubeMapWrapper {
     }
     /**
      * writes a pixel given the coordinates vector, the mip level and the color.
-     * @param vector the cooredinates where to write the pixel
+     * @param vector the coordinates where to write the pixel
      * @param mipLevel the miplevel to write to
      * @param color the color to write
      */
@@ -231,7 +231,7 @@ public class CubeMapWrapper {
     }
 
     /**
-     * Inits the mip maps of a cube map witht he given number of mip maps
+     * Inits the mip maps of a cube map with the given number of mip maps
      * @param nbMipMaps the number of mip maps to initialize
      */
     public void initMipMaps(int nbMipMaps) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -218,7 +218,7 @@ public class AppStateManager {
                 }
             }
             
-            // This may be more trouble than its worth but I think
+            // This may be more trouble than it's worth but I think
             // it's necessary for proper decoupling of states and provides
             // similar behavior to before where a state could be looked
             // up even if it wasn't initialized. -pspeed

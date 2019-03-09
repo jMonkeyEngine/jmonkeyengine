@@ -841,7 +841,7 @@ public class MikktspaceTangentGenerator {
             //Edge * pEdges = (Edge *) malloc(sizeof(Edge)*iNrTrianglesIn*3);
             Edge[] pEdges = new Edge[iNrTrianglesIn * 3];
 
-            //TODO nehon weird... original algorithm check if pEdges is null but it's just been allocated... weirder, it does soemthing different if the edges are null...
+            //TODO nehon weird... original algorithm checked if pEdges is null but it's just been allocated... weirder, it does something different if the edges are null...
             //    if (pEdges==null)
             //      BuildNeighborsSlow(pTriInfos, piTriListIn, iNrTrianglesIn);
             //    else

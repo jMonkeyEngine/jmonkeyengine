@@ -10,7 +10,7 @@ import java.util.logging.LogManager;
 import static org.jmonkeyengine.jme3androidexamples.MainActivity.*;
 
 /**
- * A placeholder fragment containing a the jME GLSurfaceView.
+ * A placeholder fragment containing a jME GLSurfaceView.
  */
 public class JmeFragment extends AndroidHarnessFragment {
 

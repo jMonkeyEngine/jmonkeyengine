@@ -44,7 +44,7 @@ public class GltfModelKey extends ModelKey {
     }
 
     /**
-     * Registers and extension loader for th given extension name.
+     * Registers an extension loader for the given extension name.
      * For more information on extension please see glTF 2.0 extensions registry
      * https://github.com/KhronosGroup/glTF/blob/master/extensions/README.md
      *

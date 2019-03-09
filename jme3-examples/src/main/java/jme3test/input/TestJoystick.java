@@ -78,7 +78,7 @@ public class TestJoystick extends SimpleApplication {
         joystickInfo.setLocalTranslation( 0, cam.getHeight(), 0 );
         guiNode.attachChild( joystickInfo );
 
-        // Add a raw listener because it's eisier to get all joystick events
+        // Add a raw listener because it's easier to get all joystick events
         // this way.
         inputManager.addRawInputListener( new JoystickEventListener() );
         
