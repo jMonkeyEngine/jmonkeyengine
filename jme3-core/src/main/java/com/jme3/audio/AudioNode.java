@@ -299,7 +299,7 @@ public class AudioNode extends Node implements AudioSource {
      */
     public void setAudioData(AudioData audioData, AudioKey audioKey) {
         if (data != null) {
-            throw new IllegalStateException("Cannot change data once its set");
+            throw new IllegalStateException("Cannot change data once it's set");
         }
 
         data = audioData;

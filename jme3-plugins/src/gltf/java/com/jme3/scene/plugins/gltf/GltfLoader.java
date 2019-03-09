@@ -625,12 +625,12 @@ public class GltfLoader implements AssetLoader {
         for (int i = 0; i < cameras.size(); i++) {
 
             //Can't access resolution here... actually it's a shame we can't access settings from anywhere.
-            //users will have to call resize ont he camera.
+            //users will have to call resize on the camera.
             Camera cam = new Camera(1, 1);
 
             JsonObject camObj = cameras.get(i).getAsJsonObject();
             String type = getAsString(camObj, "type");
-            assertNotNull(type, "No type defined ofr camera");
+            assertNotNull(type, "No type defined for camera");
             JsonObject camData = camObj.getAsJsonObject(type);
             if (type.equals("perspective")) {
                 float aspectRatio = getAsFloat(camData, "aspectRation", 1f);
@@ -673,7 +673,7 @@ public class GltfLoader implements AssetLoader {
             return null;
         }
         Integer textureIndex = getAsInteger(texture, "index");
-        assertNotNull(textureIndex, "Texture as no index");
+        assertNotNull(textureIndex, "Texture has no index");
         assertNotNull(textures, "There are no textures, yet one is referenced by a material");
 
         JsonObject textureData = textures.get(textureIndex).getAsJsonObject();

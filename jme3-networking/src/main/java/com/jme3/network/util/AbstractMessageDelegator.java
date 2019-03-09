@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 jMonkeyEngine
+ * Copyright (c) 2015-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -111,17 +111,17 @@ public abstract class AbstractMessageDelegator<S extends MessageConnection>
             if( MessageConnection.class.isAssignableFrom(parms[0]) ) {
                 messageIndex++;
             } else {
-                log.finest("First paramter is not a MessageConnection or subclass.");
+                log.finest("First parameter is not a MessageConnection or subclass.");
                 return false;
             }
         }
  
         if( messageType == null && !Message.class.isAssignableFrom(parms[messageIndex]) ) {
-            log.finest("Second paramter is not a Message or subclass.");
+            log.finest("Second parameter is not a Message or subclass.");
             return false;
         }
         if( messageType != null && !parms[messageIndex].isAssignableFrom(messageType) ) {
-            log.log(Level.FINEST, "Second paramter is not a {0}", messageType);
+            log.log(Level.FINEST, "Second parameter is not a {0}", messageType);
             return false;
         }
         return true;            

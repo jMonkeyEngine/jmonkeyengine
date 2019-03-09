@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -180,7 +180,7 @@ public class KernelAdapter extends Thread
                 if( reliable ) {
                     // If it's a reliable connection then it's slightly more
                     // concerning but this can happen all the time for a UDP endpoint.
-                    log.log( Level.WARNING, "Recieved message from unconnected endpoint:" + p + "  message:" + m );
+                    log.log( Level.WARNING, "Received message from unconnected endpoint:" + p + "  message:" + m );
                 }                    
                 return; 
             }
