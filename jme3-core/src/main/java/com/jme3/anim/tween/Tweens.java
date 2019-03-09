@@ -378,7 +378,7 @@ public class Tweens {
             this.length = length;
 
             // Caller desires delegate to be 'length' instead of
-            // it's actual length so we will calculate a time scale
+            // its actual length so we will calculate a time scale
             // If the desired length is longer than delegate's then
             // we need to feed time in slower, ie: scale < 1
             if (length != 0) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -393,7 +393,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                 lastFilterIndex = i;
                 //the Fpp is initialized, but the viwport framebuffer is the 
                 //original out framebuffer so we must recover from a situation 
-                //where no filter was enabled. So we set th correc framebuffer 
+                //where no filter was enabled. So we set the correct framebuffer 
                 //on the viewport
                 if(isInitialized() && viewPort.getOutputFrameBuffer()==outputBuffer){
                     setupViewPortFrameBuffer();

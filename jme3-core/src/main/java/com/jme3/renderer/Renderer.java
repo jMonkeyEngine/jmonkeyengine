@@ -223,7 +223,7 @@ public interface Renderer {
     /**
      * Reads the pixels currently stored in the specified framebuffer
      * into the given ByteBuffer object. 
-     * Only color pixels are transferred, witht hte given format. 
+     * Only color pixels are transferred, with the given format. 
      * The given byte buffer should have at least
      * fb.getWidth() * fb.getHeight() * 4 bytes remaining.
      * 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -451,7 +451,7 @@ public class ListSort<T> {
         /* Where does B start in A?  Elements in A before that can be
          * ignored (already in place).
          */
-        //didn't find proper naming for k as it's used inthe original implementation
+        //didn't find proper naming for k as it's used in the original implementation
         int k = gallopRight(array[indexB], array, indexA, lenA, 0, comparator);        
         indexA += k;
         lenA -= k;
@@ -771,7 +771,7 @@ public class ListSort<T> {
                     /* lengthA==0 is impossible now if the comparison
                     * function is consistent, but we can't assume
                     * that it is.
-                    * a propper error will be thrown in mergeLow if lengthA == 0
+                    * a proper error will be thrown in mergeLow if lengthA == 0
                     */
                     if (lengthA <= 1){
                         return;
@@ -942,7 +942,7 @@ public class ListSort<T> {
                     /* lengthB==0 is impossible now if the comparison
                     * function is consistent, but we can't assume
                     * that it is.
-                    * a propper error will be thrown in mergeLow if lengthB == 0
+                    * a proper error will be thrown in mergeLow if lengthB == 0
                     */
                     if (lengthB <= 1){
                         return;

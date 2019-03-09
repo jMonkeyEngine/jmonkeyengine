@@ -90,7 +90,7 @@ public class AnimComposer extends AbstractControl {
     /**
      * Remove current action on specified layer.
      *
-     * @param layerName The name of the layer we want to remove it's action.
+     * @param layerName The name of the layer we want to remove its action.
      */
     public void removeCurrentAction(String layerName) {
         Layer l = layers.get(layerName);

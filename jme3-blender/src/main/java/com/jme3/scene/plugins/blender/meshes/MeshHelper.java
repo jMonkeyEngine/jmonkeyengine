@@ -247,7 +247,7 @@ public class MeshHelper extends AbstractBlenderHelper {
                 }
             }
         } else {
-            // in this case UV's are assigned to faces (the array has the same legnth as the faces count)
+            // in this case UV's are assigned to faces (the array has the same length as the faces count)
             Structure facesData = (Structure) meshStructure.getFieldValue("fdata");
             Pointer pFacesDataLayers = (Pointer) facesData.getFieldValue("layers");
             if (pFacesDataLayers.isNotNull()) {

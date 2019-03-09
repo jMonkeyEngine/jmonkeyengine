@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * <p>
  * This class is dedicated to the queuing of AWT related tasks and their execution.
- * It's enable to store tasks that have to be executed within an AWT context and execute them at the specified time.
+ * It's able to store tasks that have to be executed within an AWT context and execute them at the specified time.
  * </p>
  * <p>
  * This class is an AWT implementation of the <a href="http://www.oracle.com/technetwork/java/javase/overview/javafx-overview-2158620.html">JavaFX</a> original code provided by Alexander Brui (see <a href="https://github.com/JavaSaBr/JME3-JFX">JME3-FX</a>)
