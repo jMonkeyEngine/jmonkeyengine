@@ -1,13 +1,9 @@
 package org.jmonkeyengine.jme3androidexamples;
 
 import android.os.Bundle;
-import android.util.Log;
 import com.jme3.app.AndroidHarnessFragment;
-
 import java.util.logging.Level;
 import java.util.logging.LogManager;
-
-import static org.jmonkeyengine.jme3androidexamples.MainActivity.*;
 
 /**
  * A placeholder fragment containing a jME GLSurfaceView.
