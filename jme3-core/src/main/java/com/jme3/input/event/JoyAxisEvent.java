@@ -32,7 +32,6 @@
 package com.jme3.input.event;
 
 import com.jme3.input.InputManager;
-import com.jme3.input.Joystick;
 import com.jme3.input.JoystickAxis;
 
 /**

@@ -39,7 +39,6 @@ import com.jme3.light.LightList;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.material.TechniqueDef.LightMode;
-import com.jme3.material.TechniqueDef.ShadowMode;
 import com.jme3.math.*;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.RenderManager;

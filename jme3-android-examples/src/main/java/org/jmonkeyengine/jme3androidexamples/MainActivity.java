@@ -1,6 +1,5 @@
 package org.jmonkeyengine.jme3androidexamples;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
