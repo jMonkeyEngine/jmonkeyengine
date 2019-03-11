@@ -228,7 +228,7 @@ public class AnimComposer extends AbstractControl {
                 layer.running = true;
 
             } else if (!currentAction.isLooping() && !layer.running) {
-                return;
+                continue;
             }
 
             layer.advance(tpf);
