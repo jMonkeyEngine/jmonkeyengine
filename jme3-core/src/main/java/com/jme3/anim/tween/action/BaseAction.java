@@ -9,6 +9,7 @@ import java.util.List;
 public class BaseAction extends Action {
 
     private Tween tween;
+    private double time = -1;
 
     public BaseAction(Tween tween) {
         this.tween = tween;
@@ -32,6 +33,12 @@ public class BaseAction extends Action {
 
     @Override
     public boolean interpolate(double t) {
+        this.time = t;
         return tween.interpolate(t);
+    }
+
+    @Override
+    public double getTime() {
+        return time;
     }
 }

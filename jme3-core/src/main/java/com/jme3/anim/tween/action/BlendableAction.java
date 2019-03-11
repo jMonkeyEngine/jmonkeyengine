@@ -13,6 +13,7 @@ public abstract class BlendableAction extends Action {
     private float transitionWeight = 1.0f;
     private double transitionLength = 0.4f;
     private float weight = 1f;
+    private double time = -1;
     private TransitionTween transition = new TransitionTween(transitionLength);
 
     public BlendableAction(Tween... tweens) {
@@ -29,6 +30,8 @@ public abstract class BlendableAction extends Action {
         if (t < 0) {
             return true;
         }
+        
+        this.time = t;
 
         if (collectTransformDelegate == null) {
             if (transition.getLength() > getLength()) {
@@ -78,6 +81,11 @@ public abstract class BlendableAction extends Action {
 
     protected float getTransitionWeight() {
         return transitionWeight;
+    }
+
+    @Override
+    public double getTime() {
+        return time;
     }
 
     /**

@@ -12,6 +12,7 @@ public abstract class Action implements JmeCloneable, Tween {
     private double speed = 1;
     private AnimationMask mask;
     private boolean forward = true;
+    private boolean loop = true;
 
     protected Action(Tween... tweens) {
         this.actions = new Action[tweens.length];
@@ -40,7 +41,7 @@ public abstract class Action implements JmeCloneable, Tween {
 
     public void setSpeed(double speed) {
         this.speed = speed;
-        if( speed < 0){
+        if (speed < 0) {
             setForward(false);
         } else {
             setForward(true);
@@ -60,7 +61,7 @@ public abstract class Action implements JmeCloneable, Tween {
     }
 
     protected void setForward(boolean forward) {
-        if(this.forward == forward){
+        if (this.forward == forward) {
             return;
         }
         this.forward = forward;
@@ -68,6 +69,47 @@ public abstract class Action implements JmeCloneable, Tween {
             action.setForward(forward);
         }
 
+    }
+
+    /**
+     * @return True if the action will keep looping after it is done playing,
+     * otherwise, false.
+     */
+    public boolean isLooping() {
+        return loop;
+    }
+
+    /**
+     * Set the looping mode for the action. The default is true.
+     *
+     * @param loop True if the action should keep looping after it is done
+     * playing.
+     */
+    public void setLooping(boolean loop) {
+        this.loop = loop;
+    }
+
+    /**
+     * @return The current execution time for this action.
+     */
+    public abstract double getTime();
+
+    /**
+     * @return The remaining time left for this action. If the action is looping
+     * then this returns the remaining time for the current loop iteration.
+     */
+    public double getRemaining() {
+        if (getTime() < 0) {
+            return getLength();
+        }
+        return Math.max(0, getLength() - getTime());
+    }
+
+    /**
+     * @return The remaining time as a scaled value between 0 and 1.0.
+     */
+    public double getPercentRemaining() {
+        return getRemaining() / getLength();
     }
 
     /**

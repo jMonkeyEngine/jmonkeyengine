@@ -67,10 +67,10 @@ public class AnimComposer extends AbstractControl {
     public Action setCurrentAction(String name) {
         return setCurrentAction(name, DEFAULT_LAYER);
     }
-    
+
     /**
      * Run an action on specified layer.
-     * 
+     *
      * @param actionName The name of the action to run.
      * @param layerName The layer on which action should run.
      * @return The action corresponding to the given name.
@@ -80,13 +80,13 @@ public class AnimComposer extends AbstractControl {
         if (l == null) {
             throw new IllegalArgumentException("Unknown layer " + layerName);
         }
-        
+
         Action currentAction = action(actionName);
         l.time = 0;
         l.currentAction = currentAction;
         return currentAction;
     }
-    
+
     /**
      * Remove current action on specified layer.
      *
@@ -97,16 +97,17 @@ public class AnimComposer extends AbstractControl {
         if (l == null) {
             throw new IllegalArgumentException("Unknown layer " + layerName);
         }
-        
+
         l.time = 0;
         l.currentAction = null;
     }
 
     /**
-     * 
+     *
      * @param name The name of the action to return.
-     * @return The action registered with specified name. It will make a new action if there isn't any.
-     * @see #makeAction(name) 
+     * @return The action registered with specified name. It will make a new
+     * action if there isn't any.
+     * @see #makeAction(name)
      */
     public Action action(String name) {
         Action action = actions.get(name);
@@ -116,29 +117,29 @@ public class AnimComposer extends AbstractControl {
         }
         return action;
     }
-    
+
     /**
-     * 
      * @param name The name of the action to return.
-     * @return The action registered with specified name or null if nothing is registered.
+     * @return The action registered with specified name or null if nothing is
+     * registered.
      */
-    public Action getAction(String name){
+    public Action getAction(String name) {
         return actions.get(name);
     }
-    
+
     /**
      * Register given action with specified name.
-     * 
+     *
      * @param name The name of the action.
      * @param action The action to add.
      */
-    public void addAction(String name, Action action){
+    public void addAction(String name, Action action) {
         actions.put(name, action);
     }
 
     /**
      * Create a new ClipAction with specified clip name.
-     * 
+     *
      * @param name The name of the clip.
      * @return a new action
      * @throws IllegalArgumentException if clip with specified name not found.
@@ -152,11 +153,11 @@ public class AnimComposer extends AbstractControl {
         action = new ClipAction(clip);
         return action;
     }
-    
+
     public boolean hasAction(String name) {
         return actions.containsKey(name);
     }
-    
+
     /**
      * Remove specified action.
      *
@@ -221,15 +222,20 @@ public class AnimComposer extends AbstractControl {
             if (currentAction == null) {
                 continue;
             }
+
+            if (currentAction.isLooping() && !layer.running) {
+                layer.time = 0;
+                layer.running = true;
+
+            } else if (!currentAction.isLooping() && !layer.running) {
+                return;
+            }
+
             layer.advance(tpf);
 
             currentAction.setMask(layer.mask);
-            boolean running = currentAction.interpolate(layer.time);
+            layer.running = currentAction.interpolate(layer.time);
             currentAction.setMask(null);
-
-            if (!running) {
-                layer.time = 0;
-            }
         }
     }
 
@@ -294,10 +300,12 @@ public class AnimComposer extends AbstractControl {
     }
 
     private class Layer implements JmeCloneable {
+
         private Action currentAction;
         private AnimationMask mask;
         private float weight;
         private double time;
+        private boolean running = true;
 
         public void advance(float tpf) {
             time += tpf * currentAction.getSpeed() * globalSpeed;
