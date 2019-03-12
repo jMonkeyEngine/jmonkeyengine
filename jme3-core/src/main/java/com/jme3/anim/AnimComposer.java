@@ -84,6 +84,7 @@ public class AnimComposer extends AbstractControl {
         Action currentAction = action(actionName);
         l.time = 0;
         l.currentAction = currentAction;
+        l.running = true;
         return currentAction;
     }
 
@@ -100,6 +101,7 @@ public class AnimComposer extends AbstractControl {
 
         l.time = 0;
         l.currentAction = null;
+        l.running = false;
     }
 
     /**
@@ -223,12 +225,13 @@ public class AnimComposer extends AbstractControl {
                 continue;
             }
 
-            if (currentAction.isLooping() && !layer.running) {
-                layer.time = 0;
-                layer.running = true;
-
-            } else if (!currentAction.isLooping() && !layer.running) {
-                continue;
+            if (!layer.running) {
+                if (currentAction.isLooping()) {
+                    layer.time = 0;
+                    layer.running = true;
+                } else {
+                    continue;
+                }
             }
 
             layer.advance(tpf);
