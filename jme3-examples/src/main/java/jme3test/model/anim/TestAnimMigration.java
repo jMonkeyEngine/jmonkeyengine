@@ -1,6 +1,7 @@
 package jme3test.model.anim;
 
 import com.jme3.anim.*;
+import com.jme3.anim.tween.action.Action;
 import com.jme3.anim.tween.action.BlendAction;
 import com.jme3.anim.tween.action.LinearBlendSpace;
 import com.jme3.anim.util.AnimMigrationUtils;
@@ -52,7 +53,6 @@ public class TestAnimMigration extends SimpleApplication {
         AnimMigrationUtils.migrate(model);
 
         rootNode.attachChild(model);
-
 
         debugAppState = new ArmatureDebugAppState();
         stateManager.attach(debugAppState);
@@ -153,6 +153,30 @@ public class TestAnimMigration extends SimpleApplication {
                 //System.err.println(blendValue);
             }
         }, "blendUp", "blendDown");
+
+        inputManager.addMapping("setLooping", new KeyTrigger(KeyInput.KEY_L));
+        inputManager.addListener(new ActionListener() {
+            @Override
+            public void onAction(String name, boolean isPressed, float tpf) {
+                if (isPressed && composer != null) {
+                    String anim = anims.peekLast();
+                    Action action = composer.getAction(anim);
+                    action.setLooping(!action.isLooping());
+                    System.err.println(anim + ": setLooping=" + action.isLooping());
+                }
+            }
+        }, "setLooping");
+        inputManager.addMapping("printInfo", new KeyTrigger(KeyInput.KEY_P));
+        inputManager.addListener(new AnalogListener() {
+            @Override
+            public void onAnalog(String name, float value, float tpf) {
+                if (composer != null) {
+                    String actionName = anims.peekLast();
+                    Action action = composer.getAction(actionName);
+                    System.out.println(actionName + ":[length=" + action.getLength() + ", time=" + action.getTime() + ", remaining=" + action.getRemaining() + ", percent remaining=" + action.getPercentRemaining() + ", speed=" + action.getSpeed() +"]");
+                }
+            }
+        }, "printInfo");
     }
 
     private void setupModel(Spatial model) {
@@ -210,6 +234,5 @@ public class TestAnimMigration extends SimpleApplication {
                 }
             }
         }
-
     }
 }
