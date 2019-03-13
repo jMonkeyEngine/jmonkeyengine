@@ -56,7 +56,7 @@ public abstract class Action implements JmeCloneable, Tween {
         this.mask = mask;
     }
 
-    protected boolean isForward() {
+    public boolean isForward() {
         return forward;
     }
 

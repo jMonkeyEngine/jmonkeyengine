@@ -82,7 +82,7 @@ public class AnimComposer extends AbstractControl {
         }
 
         Action currentAction = action(actionName);
-        l.time = 0;
+        l.time = currentAction.isForward() ? 0 : currentAction.getLength();
         l.currentAction = currentAction;
         l.running = true;
         return currentAction;
@@ -225,20 +225,16 @@ public class AnimComposer extends AbstractControl {
                 continue;
             }
 
-            if (!layer.running) {
-                if (currentAction.isLooping()) {
-                    layer.time = 0;
-                    layer.running = true;
-                } else {
-                    continue;
-                }
+            if (!layer.running && currentAction.isLooping()) {
+                layer.time = currentAction.isForward() ? 0 : currentAction.getLength();
+                layer.running = true;
             }
 
-            layer.advance(tpf);
-
-            currentAction.setMask(layer.mask);
-            layer.running = currentAction.interpolate(layer.time);
-            currentAction.setMask(null);
+            if (layer.advance(tpf)) {
+                currentAction.setMask(layer.mask);
+                layer.running = currentAction.interpolate(layer.time);
+                currentAction.setMask(null);
+            }
         }
     }
 
@@ -310,14 +306,22 @@ public class AnimComposer extends AbstractControl {
         private double time;
         private boolean running = true;
 
-        public void advance(float tpf) {
+        public boolean advance(float tpf) {
+            if (!running) {
+                return false;
+            }
+
             time += tpf * currentAction.getSpeed() * globalSpeed;
             // make sure negative time is in [0, length] range
             if (time < 0) {
-                double length = currentAction.getLength();
-                time = (time % length + length) % length;
+                if (currentAction.isLooping()) {
+                    double length = currentAction.getLength();
+                    time = (time % length + length) % length;
+                } else {
+                    running = false;
+                }
             }
-
+            return running;
         }
 
         @Override
