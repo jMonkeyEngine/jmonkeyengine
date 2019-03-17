@@ -343,7 +343,7 @@ public final class Shader extends NativeObject {
      * Resets all uniforms that do not have the "set-by-current-material" flag
      * to their default value (usually all zeroes or false).
      * When a uniform is modified, that flag is set, to remove the flag,
-     * use {@link #clearUniformsSetByCurrent() }.
+     * use {@link #clearUniformsSetByCurrentFlag()}.
      */
     public void resetUniformsNotSetByCurrent() {
         int size = uniforms.size();
