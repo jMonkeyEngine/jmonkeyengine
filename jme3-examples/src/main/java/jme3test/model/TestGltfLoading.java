@@ -146,7 +146,7 @@ public class TestGltfLoading extends SimpleApplication {
 //        loadModel("Models/gltf/Monster/Monster.gltf", Vector3f.ZERO, 0.03f);
 
 //        loadModel("Models/gltf/corset/Corset.gltf", new Vector3f(0, -1, 0), 20f);
-        loadModel("Models/gltf/boxInter/BoxInterleaved.gltf", new Vector3f(0, 0, 0), 1f);
+//        loadModel("Models/gltf/boxInter/BoxInterleaved.gltf", new Vector3f(0, 0, 0), 1f);
 
 
         probeNode.attachChild(assets.get(0));
