@@ -106,7 +106,7 @@ public class AnimComposer extends AbstractControl {
      * 
      * @param name The name of the action to return.
      * @return The action registered with specified name. It will make a new action if there isn't any.
-     * @see #makeAction(name) 
+     * @see #makeAction(java.lang.String)
      */
     public Action action(String name) {
         Action action = actions.get(name);
