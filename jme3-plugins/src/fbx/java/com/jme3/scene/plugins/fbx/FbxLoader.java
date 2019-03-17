@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -149,7 +149,7 @@ public class FbxLoader implements AssetLoader {
     private void loadData(InputStream stream) throws IOException {
         FbxFile scene = FbxReader.readFBX(stream);
 
-        FbxDump.dumpFile(scene);
+        //FbxDump.dumpFile(scene);
 
         // TODO: Load FBX object templates
         
@@ -306,7 +306,7 @@ public class FbxLoader implements AssetLoader {
     private void constructAnimations() {
         // In FBX, animation are not attached to any root.
         // They are implicitly global.
-        // So, we need to use hueristics to find which node(s) 
+        // So, we need to use heuristics to find which node(s) 
         // an animation is associated with, so we can create the AnimControl
         // in the appropriate location in the scene.
         Map<FbxToJmeTrack, FbxToJmeTrack> pairs = new HashMap<FbxToJmeTrack, FbxToJmeTrack>();
@@ -339,8 +339,8 @@ public class FbxLoader implements AssetLoader {
             String animName = pair.animStack.getName();
             float duration    = pair.animStack.getDuration();
             
-            System.out.println("ANIMATION: " + animName + ", duration = " + duration);
-            System.out.println("NODE: " + pair.node.getName());
+            //System.out.println("ANIMATION: " + animName + ", duration = " + duration);
+            //System.out.println("NODE: " + pair.node.getName());
             
             duration = pair.getDuration();
             
