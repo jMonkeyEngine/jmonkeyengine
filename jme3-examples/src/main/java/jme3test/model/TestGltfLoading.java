@@ -70,7 +70,7 @@ public class TestGltfLoading extends SimpleApplication {
     }
 
     /*
-    WARNING this test case can't wok without the assets, and considering their size, they are not pushed into the repo
+    WARNING this test case can't work without the assets, and considering their size, they are not pushed into the repo
     you can find them here :
     https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0
     https://sketchfab.com/features/gltf
