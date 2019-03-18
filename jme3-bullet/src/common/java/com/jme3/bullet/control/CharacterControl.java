@@ -129,6 +129,13 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         setPhysicsLocation(getSpatialTranslation());
     }
 
+    /**
+     * @return returns spatial attached to the control.
+     */
+    public Spatial getSpatial(){
+        return this.spatial;
+    }
+
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
         if (space != null) {

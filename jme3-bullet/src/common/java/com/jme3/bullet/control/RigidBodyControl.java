@@ -208,6 +208,13 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
     }
 
     /**
+     * @return returns spatial attached to the control.
+     */
+    public Spatial getSpatial(){
+        return this.spatial;
+    }
+
+    /**
      * Set the collision shape based on the controlled spatial and its
      * descendents.
      */
