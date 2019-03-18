@@ -208,7 +208,7 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
     }
 
     /**
-     * @return returns the spatial the control is attached to..
+     * @return returns the spatial the control is added to, or null if the control is not attached to a spatial yet.
      */
     public Spatial getSpatial(){
         return this.spatial;
