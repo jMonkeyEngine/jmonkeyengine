@@ -60,7 +60,7 @@ public class TestIssue1004 extends SimpleApplication {
     public void simpleInitApp() {
         BulletAppState bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
-        String sinbadPath = "Models/Sinbad/SinbadOldAnim.j3o";
+        String sinbadPath = "Models/Sinbad/Sinbad.mesh.xml";
         Node sinbad = (Node) assetManager.loadModel(sinbadPath);
 
         Geometry geometry = (Geometry) sinbad.getChild(0);
