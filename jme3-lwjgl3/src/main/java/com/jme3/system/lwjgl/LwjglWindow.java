@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.system.lwjgl;
 
 import com.jme3.input.JoyInput;
@@ -118,8 +117,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     private GLFWErrorCallback errorCallback;
     private GLFWWindowSizeCallback windowSizeCallback;
     private GLFWWindowFocusCallback windowFocusCallback;
-
-    private Thread mainThread;
 
     private double frameSleepTime;
     private long window = NULL;
@@ -303,7 +300,9 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     protected void setWindowIcon(final AppSettings settings) {
 
         final Object[] icons = settings.getIcons();
-        if (icons == null) return;
+        if (icons == null) {
+            return;
+        }
 
         final GLFWImage[] images = imagesToGLFWImages(icons);
 
@@ -418,9 +417,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             return;
         }
 
-        // NOTE: this is required for Mac OS X!
-        mainThread = Thread.currentThread();
-        run();
+        new Thread(this, THREAD_NAME).start();
+        if (waitFor) {
+            waitFor(true);
+        }
     }
 
     /**
@@ -629,11 +629,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     @Override
     public void destroy(boolean waitFor) {
         needClose.set(true);
-
-        if (mainThread == Thread.currentThread()) {
-            // Ignore waitFor.
-            return;
-        }
 
         if (waitFor) {
             waitFor(false);
