@@ -418,12 +418,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             LOGGER.warning("create() called when display is already created!");
             return;
         }
-        if (waitFor) {
+        if (!waitFor) {
             mainThread = new Thread(this, THREAD_NAME);
             mainThread.start();
-            if (waitFor) {
-                waitFor(true);
-            }
+            waitFor(false);
         } else {
             //Fix for OS X, OpenGL must be run on main thread.
             mainThread = Thread.currentThread();
