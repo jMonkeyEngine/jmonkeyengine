@@ -425,7 +425,9 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
                 waitFor(true);
             }
         } else {
+            //Fix for OS X, OpenGL must be run on main thread.
             mainThread = Thread.currentThread();
+            run();
         }
     }
 
@@ -637,6 +639,7 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         needClose.set(true);
 
         if (mainThread == Thread.currentThread()) {
+            //If on main thread, no reason to wait.
             return;
         }
 
