@@ -213,14 +213,12 @@ public class DXTFlipper {
             case DXT5:
                 type = 3;
                 break;
-            /*
-            case LATC:
+            case RGTC2:
                 type = 4;
-                break;
-            case LTC:
+                break;                
+            case RGTC1:
                 type = 5;
                 break;
-            */
             default:
                 throw new IllegalArgumentException();
         }
