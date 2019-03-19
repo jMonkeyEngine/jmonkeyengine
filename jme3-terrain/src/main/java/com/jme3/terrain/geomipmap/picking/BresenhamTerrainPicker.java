@@ -75,23 +75,23 @@ public class BresenhamTerrainPicker implements TerrainPicker {
     public Vector3f getTerrainIntersection(Ray worldPick, CollisionResults results) {
 
         worldPickRay.set(worldPick);
-        List<TerrainPickData> pickData = new ArrayList<TerrainPickData>();
+        List<TerrainPickData> pickData = new ArrayList<>();
         root.findPick(worldPick.clone(), pickData);
         Collections.sort(pickData);
 
-        if (pickData.isEmpty())
+        if (pickData.isEmpty()) {
             return null;
+        }
 
         workRay.set(worldPick);
 
         for (TerrainPickData pd : pickData) {
             TerrainPatch patch = pd.targetPatch;
 
-
             tracer.getGridSpacing().set(patch.getWorldScale());
             tracer.setGridOrigin(patch.getWorldTranslation());
 
-            workRay.getOrigin().set(worldPick.getDirection()).multLocal(pd.cr.getDistance()-.1f).addLocal(worldPick.getOrigin());
+            workRay.getOrigin().set(worldPick.getDirection()).multLocal(pd.cr.getDistance() - .1f).addLocal(worldPick.getOrigin());
 
             tracer.startWalk(workRay);
 
@@ -102,14 +102,17 @@ public class BresenhamTerrainPicker implements TerrainPicker {
                 Triangle hit = new Triangle();
                 checkTriangles(loc.x, loc.y, workRay, intersection, patch, hit);
                 float distance = worldPickRay.origin.distance(intersection);
-                CollisionResult cr = new CollisionResult(intersection, distance);
-                cr.setGeometry(patch);
-                cr.setContactNormal(hit.getNormal());
-                results.addCollision(cr);
-                return intersection;
+
+                if (worldPick.getLimit() < Float.POSITIVE_INFINITY) {
+                    if (distance <= worldPick.getLimit()) {
+                        addCollision(results, patch, intersection, hit.getNormal(), distance);
+                        return intersection;
+                    } // else return null; // < this is the old behavior, since the code checked for the range afterwards.
+                } else { // unlimited range
+                    addCollision(results, patch, intersection, hit.getNormal(), distance);
+                    return intersection;
+                }
             }
-            
-            
 
             while (loc.x >= -1 && loc.x <= patch.getSize() && 
                    loc.y >= -1 && loc.y <= patch.getSize()) {
@@ -120,11 +123,16 @@ public class BresenhamTerrainPicker implements TerrainPicker {
                 if (checkTriangles(loc.x, loc.y, workRay, intersection, patch, hit)) {
                     // we found an intersection, so return that!
                     float distance = worldPickRay.origin.distance(intersection);
-                    CollisionResult cr = new CollisionResult(intersection, distance);
-                    cr.setGeometry(patch);
-                    results.addCollision(cr);
-                    cr.setContactNormal(hit.getNormal());
-                    return intersection;
+
+                    if (worldPick.getLimit() < Float.POSITIVE_INFINITY) {
+                        if (distance <= worldPick.getLimit()) {
+                            addCollision(results, patch, intersection, hit.getNormal(), distance);
+                            return intersection;
+                        } // else return null; // < this is the old behavior, since the code checked for the range afterwards.
+                    } else { // unlimited range
+                        addCollision(results, patch, intersection, hit.getNormal(), distance);
+                        return intersection;
+                    }
                 }
 
                 // because of how we get our height coords, we will
@@ -148,11 +156,16 @@ public class BresenhamTerrainPicker implements TerrainPicker {
                 if (checkTriangles(loc.x + dx, loc.y + dz, workRay, intersection, patch, hit)) {
                     // we found an intersection, so return that!
                     float distance = worldPickRay.origin.distance(intersection);
-                    CollisionResult cr = new CollisionResult(intersection, distance);
-                    results.addCollision(cr);
-                    cr.setGeometry(patch);
-                    cr.setContactNormal(hit.getNormal());
-                    return intersection;
+
+                    if (worldPick.getLimit() < Float.POSITIVE_INFINITY) {
+                        if (distance <= worldPick.getLimit()) {
+                            addCollision(results, patch, intersection, hit.getNormal(), distance);
+                            return intersection;
+                        } // else return null; // < this is the old behavior, since the code checked for the range afterwards.
+                    } else { // unlimited range
+                        addCollision(results, patch, intersection, hit.getNormal(), distance);
+                        return intersection;
+                    }
                 }
 
                 tracer.next();
@@ -160,6 +173,21 @@ public class BresenhamTerrainPicker implements TerrainPicker {
         }
 
         return null;
+    }
+
+    /**
+     * This method adds the found Collision to an existing collisionResult.
+     * @param results The results to add this collision to
+     * @param patch The TerrainPatch which collided
+     * @param intersection The actual intersection position
+     * @param normal The intersection normal
+     * @param distance The distance at which the hit occurred
+     */
+    private void addCollision(CollisionResults results, TerrainPatch patch, Vector3f intersection, Vector3f normal, float distance) {
+        CollisionResult cr = new CollisionResult(intersection, distance);
+        cr.setGeometry(patch);
+        cr.setContactNormal(normal);
+        results.addCollision(cr);
     }
 
     protected boolean checkTriangles(float gridX, float gridY, Ray pick, Vector3f intersection, TerrainPatch patch, Triangle store) {
