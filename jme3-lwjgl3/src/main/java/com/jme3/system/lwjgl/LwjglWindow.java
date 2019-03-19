@@ -118,6 +118,8 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     private GLFWWindowSizeCallback windowSizeCallback;
     private GLFWWindowFocusCallback windowFocusCallback;
 
+    private Thread mainThread;
+
     private double frameSleepTime;
     private long window = NULL;
     private int frameRateLimit = -1;
@@ -416,10 +418,14 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
             LOGGER.warning("create() called when display is already created!");
             return;
         }
-
-        new Thread(this, THREAD_NAME).start();
         if (waitFor) {
-            waitFor(true);
+            mainThread = new Thread(this, THREAD_NAME);
+            mainThread.start();
+            if (waitFor) {
+                waitFor(true);
+            }
+        } else {
+            mainThread = Thread.currentThread();
         }
     }
 
@@ -629,6 +635,10 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     @Override
     public void destroy(boolean waitFor) {
         needClose.set(true);
+
+        if (mainThread == Thread.currentThread()) {
+            return;
+        }
 
         if (waitFor) {
             waitFor(false);
