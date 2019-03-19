@@ -421,7 +421,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         if (!waitFor) {
             mainThread = new Thread(this, THREAD_NAME);
             mainThread.start();
-            waitFor(false);
         } else {
             //Fix for OS X, OpenGL must be run on main thread.
             mainThread = Thread.currentThread();
