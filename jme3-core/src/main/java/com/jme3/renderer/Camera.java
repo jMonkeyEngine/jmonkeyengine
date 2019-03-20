@@ -37,6 +37,8 @@ import com.jme3.export.*;
 import com.jme3.math.*;
 import com.jme3.util.TempVars;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -1479,5 +1481,39 @@ public class Camera implements Savable, Cloneable {
         onFrustumChange();
         onViewPortChange();
         onFrameChange();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Camera camera = (Camera) o;
+        return camera.frustumNear == frustumNear &&
+                camera.frustumFar == frustumFar &&
+                camera.frustumLeft == frustumLeft &&
+                camera.frustumRight == frustumRight &&
+                camera.frustumTop == frustumTop &&
+                camera.frustumBottom == frustumBottom &&
+                camera.viewPortLeft == viewPortLeft &&
+                camera.viewPortRight == viewPortRight &&
+                camera.viewPortTop == viewPortTop &&
+                camera.viewPortBottom == viewPortBottom &&
+                planeState == camera.planeState &&
+                width == camera.width &&
+                height == camera.height &&
+                viewportChanged == camera.viewportChanged &&
+                parallelProjection == camera.parallelProjection &&
+                overrideProjection == camera.overrideProjection &&
+                location.equals(camera.location) &&
+                rotation.equals(camera.rotation) &&
+                Arrays.equals(coeffLeft, camera.coeffLeft) &&
+                Arrays.equals(coeffRight, camera.coeffRight) &&
+                Arrays.equals(coeffBottom, camera.coeffBottom) &&
+                Arrays.equals(coeffTop, camera.coeffTop) &&
+                Arrays.equals(worldPlane, camera.worldPlane) &&
+                projectionMatrixOverride.equals(camera.projectionMatrixOverride) &&
+                viewMatrix.equals(camera.viewMatrix) &&
+                projectionMatrix.equals(camera.projectionMatrix) &&
+                viewProjectionMatrix.equals(camera.viewProjectionMatrix);
     }
 }
