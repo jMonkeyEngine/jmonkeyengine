@@ -291,4 +291,13 @@ public class Plane implements Savable, Cloneable, java.io.Serializable {
             throw new AssertionError();
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Plane plane = (Plane) o;
+        return Float.compare(plane.constant, constant) == 0 &&
+                normal.equals(plane.normal);
+    }
 }
