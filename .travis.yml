@@ -6,6 +6,7 @@ branches:
   - master
   - v3.2
   - /^v3.2.*$/
+  - /^v3.3.*$/
 
 matrix:
   include:
