@@ -399,6 +399,7 @@ public class GltfLoader implements AssetLoader {
                 mesh.generateBindPose();
             }
 
+            //Read morph targets
             JsonArray targets = meshObject.getAsJsonArray("targets");
             if(targets != null){
                 for (JsonElement target : targets) {
@@ -415,6 +416,10 @@ public class GltfLoader implements AssetLoader {
                 }
             }
 
+            //Read morph target names
+            JsonArray targetNames = meshObject.getAsJsonArray("targetNames");
+            
+            //Read mesh extras
             mesh = customContentManager.readExtensionAndExtras("primitive", meshObject, mesh);
 
             Geometry geom = new Geometry(null, mesh);

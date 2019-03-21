@@ -387,7 +387,6 @@ public class Geometry extends Spatial {
         }
     }
 
-
     /**
      * Indicate that the transform of this spatial has changed and that
      * a refresh is required.
@@ -514,7 +513,7 @@ public class Geometry extends Spatial {
      */
     @Override
     public Geometry clone(boolean cloneMaterial) {
-        return (Geometry)super.clone(cloneMaterial);
+        return (Geometry) super.clone(cloneMaterial);
     }
 
     /**
@@ -545,16 +544,16 @@ public class Geometry extends Spatial {
     }
 
     /**
-     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
+     * Called internally by com.jme3.util.clone.Cloner. Do not call directly.
      */
     @Override
-    public void cloneFields( Cloner cloner, Object original ) {
+    public void cloneFields(Cloner cloner, Object original) {
         super.cloneFields(cloner, original);
 
         // If this is a grouped node and if our group node is
         // also cloned then we'll grab its reference.
-        if( groupNode != null ) {
-            if( cloner.isCloned(groupNode) ) {
+        if (groupNode != null) {
+            if (cloner.isCloned(groupNode)) {
                 // Then resolve the reference
                 this.groupNode = cloner.clone(groupNode);
             } else {
@@ -576,7 +575,7 @@ public class Geometry extends Spatial {
 
         // See if we clone the mesh using the special animation
         // semi-deep cloning
-        if( shallowClone && mesh != null && mesh.getBuffer(Type.BindPosePosition) != null ) {
+        if (shallowClone && mesh != null && mesh.getBuffer(Type.BindPosePosition) != null) {
             // Then we need to clone the mesh a little deeper
             this.mesh = mesh.cloneForAnim();
         } else {
@@ -588,7 +587,7 @@ public class Geometry extends Spatial {
     }
 
     public void setMorphState(float[] state) {
-        if (mesh == null || mesh.getMorphTargets().length == 0){
+        if (mesh == null || mesh.getMorphTargets().length == 0) {
             return;
         }
 
@@ -599,6 +598,39 @@ public class Geometry extends Spatial {
         }
         System.arraycopy(state, 0, morphState, 0, morphState.length);
         this.dirtyMorph = true;
+    }
+
+    /**
+     * Set the state of the morph with the given name.
+     * 
+     * If the name of the morph is not found, no state will be set.
+     * 
+     * @param morphTarget The name of the morph to set the state of
+     * @param state The state to set the morph to
+     */
+    public void setMorphState(String morphTarget, float state) {
+        if (mesh == null || mesh.getMorphTargets().length == 0) {
+            return;
+        }
+        MorphTarget[] nbMorphTargets = mesh.getMorphTargets();
+
+        if (morphState == null) {
+            morphState = new float[nbMorphTargets.length];
+        }
+        
+        int index;
+        boolean found = false;
+        for (index = 0; index < nbMorphTargets.length; index++) {
+            String name = nbMorphTargets[index].getName();
+            if (name != null && name.equals(morphTarget)) {
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            morphState[index] = state;
+            this.dirtyMorph = true;
+        }
     }
 
     /**
@@ -628,6 +660,53 @@ public class Geometry extends Spatial {
             morphState = new float[mesh.getMorphTargets().length];
         }
         return morphState;
+    }
+    
+    /**
+     * Get the state of a morph
+     * @param morphTarget the name of the morph to get the state of
+     * @return the state of the morph, or -1 if the morph is not found
+     */
+    public float getMorphState(String morphTarget) {
+        MorphTarget[] nbMorphTargets = mesh.getMorphTargets();
+
+        if (morphState == null) {
+            morphState = new float[nbMorphTargets.length];
+        }
+        
+        int index;
+        boolean found = false;
+        for (index = 0; index < nbMorphTargets.length; index++) {
+            if (nbMorphTargets[index].getName().equals(morphTarget)) {
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            return morphState[index];
+        }
+        return -1;
+    }
+    
+    /**
+     * Get the name of all morphs in order.
+     * Morphs without names will be null
+     * @return an array
+     */
+    public String[] getMorphTargets() {
+        if (mesh == null || mesh.getMorphTargets().length == 0) {
+            return new String[0];
+        }
+        MorphTarget[] nbMorphTargets = mesh.getMorphTargets();
+        String[] targets = new String[nbMorphTargets.length];
+        if (morphState == null) {
+            morphState = new float[nbMorphTargets.length];
+        }
+        
+        for (int index = 0; index < nbMorphTargets.length; index++) {
+            targets[index] = nbMorphTargets[index].getName();
+        }
+        return targets;
     }
 
     /**
