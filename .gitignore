@@ -2,6 +2,7 @@
 **/.classpath
 **/.settings
 **/.project
+**/.vscode
 **/out/
 /.gradle/
 /.nb-gradle/
@@ -22,8 +23,9 @@
 .DS_Store
 /jme3-core/src/main/resources/com/jme3/system/version.properties
 /jme3-*/build/
+/jme3-*/bin/
 /jme3-bullet-native/bullet3.zip
-/jme3-bullet-native/bullet3-2.87/
+/jme3-bullet-native/bullet3-*/
 /jme3-bullet-native/src/native/cpp/com_jme3_bullet_*.h
 /jme3-android-native/openal-soft/
 /jme3-android-native/OpenALSoft.zip
