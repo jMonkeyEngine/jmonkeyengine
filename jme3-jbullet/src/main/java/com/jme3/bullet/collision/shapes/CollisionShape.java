@@ -106,6 +106,16 @@ public abstract class CollisionShape implements Savable {
         defaultMargin = margin;
     }
 
+    /**
+     * Read the default margin for new shapes.
+     *
+     * @return margin the default margin distance (in physics-space units,
+     * &gt;0)
+     */
+    public static float getDefaultMargin() {
+        return defaultMargin;
+    }
+
     public void setMargin(float margin) {
         cShape.setMargin(margin);
         this.margin = margin;

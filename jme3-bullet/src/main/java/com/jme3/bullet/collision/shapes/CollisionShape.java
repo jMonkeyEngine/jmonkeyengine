@@ -152,6 +152,16 @@ public abstract class CollisionShape implements Savable {
     }
 
     /**
+     * Read the default margin for new shapes.
+     *
+     * @return margin the default margin distance (in physics-space units,
+     * &gt;0)
+     */
+    public static float getDefaultMargin() {
+        return defaultMargin;
+    }
+
+    /**
      * Alter the collision margin of this shape. CAUTION: Margin is applied
      * differently, depending on the type of shape. Generally the collision
      * margin expands the object, creating a gap. Don't set the collision margin
