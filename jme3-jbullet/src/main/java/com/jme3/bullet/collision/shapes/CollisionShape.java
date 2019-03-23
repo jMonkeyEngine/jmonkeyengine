@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,9 +44,17 @@ import java.io.IOException;
  */
 public abstract class CollisionShape implements Savable {
 
+    /**
+     * default margin for new shapes (in physics-space units, &gt;0,
+     * default=0.04)
+     */
+    private static float defaultMargin = 0.04f;
     protected com.bulletphysics.collision.shapes.CollisionShape cShape;
     protected Vector3f scale = new Vector3f(1, 1, 1);
-    protected float margin = 0.0f;
+    /**
+     * copy of collision margin (in physics-space units, &gt;0, default=0)
+     */
+    protected float margin = defaultMargin;
 
     public CollisionShape() {
     }
@@ -86,6 +94,26 @@ public abstract class CollisionShape implements Savable {
 
     public float getMargin() {
         return cShape.getMargin();
+    }
+
+    /**
+     * Alter the default margin for new shapes.
+     *
+     * @param margin the desired margin distance (in physics-space units, &gt;0,
+     * default=0.04)
+     */
+    public static void setDefaultMargin(float margin) {
+        defaultMargin = margin;
+    }
+
+    /**
+     * Read the default margin for new shapes.
+     *
+     * @return margin the default margin distance (in physics-space units,
+     * &gt;0)
+     */
+    public static float getDefaultMargin() {
+        return defaultMargin;
     }
 
     public void setMargin(float margin) {

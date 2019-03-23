@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,11 @@ import java.util.logging.Logger;
 public abstract class CollisionShape implements Savable {
 
     /**
+     * default margin for new non-sphere/non-capsule shapes (in physics-space
+     * units, &gt;0, default=0.04)
+     */
+    private static float defaultMargin = 0.04f;
+    /**
      * unique identifier of the btCollisionShape
      * <p>
      * Constructors are responsible for setting this to a non-zero value. After
@@ -63,7 +68,7 @@ public abstract class CollisionShape implements Savable {
     /**
      * copy of collision margin (in physics-space units, &gt;0, default=0)
      */
-    protected float margin = 0.0f;
+    protected float margin = defaultMargin;
 
     public CollisionShape() {
     }
@@ -136,6 +141,27 @@ public abstract class CollisionShape implements Savable {
     private native float getMargin(long objectId);
 
     /**
+     * Alter the default margin for new shapes that are neither capsules nor
+     * spheres.
+     *
+     * @param margin the desired margin distance (in physics-space units, &gt;0,
+     * default=0.04)
+     */
+    public static void setDefaultMargin(float margin) {
+        defaultMargin = margin;
+    }
+
+    /**
+     * Read the default margin for new shapes.
+     *
+     * @return margin the default margin distance (in physics-space units,
+     * &gt;0)
+     */
+    public static float getDefaultMargin() {
+        return defaultMargin;
+    }
+
+    /**
      * Alter the collision margin of this shape. CAUTION: Margin is applied
      * differently, depending on the type of shape. Generally the collision
      * margin expands the object, creating a gap. Don't set the collision margin
@@ -145,7 +171,7 @@ public abstract class CollisionShape implements Savable {
      * compound shapes) changes can have unintended consequences.
      *
      * @param margin the desired margin distance (in physics-space units, &gt;0,
-     * default=0)
+     * default=0.04)
      */
     public void setMargin(float margin) {
         setMargin(objectId, margin);
