@@ -21,6 +21,7 @@ The engine is used by several commercial game studios and computer-science cours
  - [3079 (on steam)](http://store.steampowered.com/app/259620/)
  - [Lightspeed Frontier](http://www.lightspeedfrontier.com/)
  - [Skullstone](http://www.skullstonegame.com/)
+ - [Spoxel](https://store.steampowered.com/app/746880/Spoxel/)
 
 ## Getting started
 
