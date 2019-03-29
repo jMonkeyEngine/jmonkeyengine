@@ -67,20 +67,30 @@ public class BresenhamTerrainPicker implements TerrainPicker {
     private final TerrainQuad root;
     private final BresenhamYUpGridTracer tracer = new BresenhamYUpGridTracer();
 
+    private boolean multipleCollisions = true;
+
 
     public BresenhamTerrainPicker(TerrainQuad root) {
         this.root = root;
     }
 
-    public Vector3f getTerrainIntersection(Ray worldPick, CollisionResults results) {
+    public void setSupportMultipleCollisions(boolean multipleCollisions) {
+        this.multipleCollisions = multipleCollisions;
+    }
 
+    public boolean isSupportingMultipleCollisions() {
+        return multipleCollisions;
+    }
+
+    public int getTerrainIntersection(Ray worldPick, CollisionResults results) {
+        int numCollisions = 0;
         worldPickRay.set(worldPick);
         List<TerrainPickData> pickData = new ArrayList<>();
         root.findPick(worldPick.clone(), pickData);
         Collections.sort(pickData);
 
         if (pickData.isEmpty()) {
-            return null;
+            return 0;
         }
 
         workRay.set(worldPick);
@@ -100,79 +110,113 @@ public class BresenhamTerrainPicker implements TerrainPicker {
 
             if (tracer.isRayPerpendicularToGrid()) {
                 Triangle hit = new Triangle();
-                checkTriangles(loc.x, loc.y, workRay, intersection, patch, hit);
-                float distance = worldPickRay.origin.distance(intersection);
-
-                if (worldPick.getLimit() < Float.POSITIVE_INFINITY) {
-                    if (distance <= worldPick.getLimit()) {
-                        addCollision(results, patch, intersection, hit.getNormal(), distance);
-                        return intersection;
-                    } // else return null; // < this is the old behavior, since the code checked for the range afterwards.
-                } else { // unlimited range
-                    addCollision(results, patch, intersection, hit.getNormal(), distance);
-                    return intersection;
-                }
-            }
-
-            while (loc.x >= -1 && loc.x <= patch.getSize() && 
-                   loc.y >= -1 && loc.y <= patch.getSize()) {
-
-                //System.out.print(loc.x+","+loc.y+" : ");
-                // check the triangles of main square for intersection.
-                Triangle hit = new Triangle();
                 if (checkTriangles(loc.x, loc.y, workRay, intersection, patch, hit)) {
-                    // we found an intersection, so return that!
                     float distance = worldPickRay.origin.distance(intersection);
 
+                    //@TODO: Verify if it's even possible to have a ray hit multiple "PickData"s when being perpendicular at all.
+                    // because otherwise, we could always return 1 here.
                     if (worldPick.getLimit() < Float.POSITIVE_INFINITY) {
                         if (distance <= worldPick.getLimit()) {
-                            addCollision(results, patch, intersection, hit.getNormal(), distance);
-                            return intersection;
-                        } // else return null; // < this is the old behavior, since the code checked for the range afterwards.
+                            addCollision(results, patch, intersection, hit, distance);
+                            if (!multipleCollisions) {
+                                return 1;
+                            } else {
+                                numCollisions++;
+                            }
+                        } // else return 0; // < this is the old behavior, since the code checked for the range afterwards.
                     } else { // unlimited range
-                        addCollision(results, patch, intersection, hit.getNormal(), distance);
-                        return intersection;
+                        addCollision(results, patch, intersection, hit, distance);
+                        if (!multipleCollisions) {
+                            return 1;
+                        } else {
+                            numCollisions++;
+                        }
                     }
-                }
+                } // else no collision
+            } else { // If the ray is perpendicular, tracer.next() would never advance loc, leading to an infinite loop.
+                while (loc.x >= -1 && loc.x <= patch.getSize() &&
+                        loc.y >= -1 && loc.y <= patch.getSize()) {
 
-                // because of how we get our height coords, we will
-                // sometimes be off by a grid spot, so we check the next
-                // grid space up.
-                int dx = 0, dz = 0;
-                Direction d = tracer.getLastStepDirection();
-                switch (d) {
-                case PositiveX:
-                case NegativeX:
-                    dx = 0;
-                    dz = 1;
-                    break;
-                case PositiveZ:
-                case NegativeZ:
-                    dx = 1;
-                    dz = 0;
-                    break;
-                }
+                    //System.out.print(loc.x + "," + loc.y + " : ");
+                    // check the triangles of main square for intersection.
+                    Triangle hit = new Triangle();
+                    if (checkTriangles(loc.x, loc.y, workRay, intersection, patch, hit)) {
+                        // we found an intersection, so return that!
+                        float distance = worldPickRay.origin.distance(intersection);
 
-                if (checkTriangles(loc.x + dx, loc.y + dz, workRay, intersection, patch, hit)) {
-                    // we found an intersection, so return that!
-                    float distance = worldPickRay.origin.distance(intersection);
+                        if (worldPick.getLimit() < Float.POSITIVE_INFINITY) {
+                            if (distance <= worldPick.getLimit()) {
+                                addCollision(results, patch, intersection, hit, distance);
+                                if (!multipleCollisions) {
+                                    return 1;
+                                } else {
+                                    numCollisions++;
+                                }
+                            }//  else return 0; // < this is the old behavior, since the code checked for the range afterwards.
+                        } else { // unlimited range
+                            addCollision(results, patch, intersection, hit, distance);
+                            if (!multipleCollisions) {
+                                return 1;
+                            } else {
+                                numCollisions++;
+                            }
+                        }
+                    }
 
-                    if (worldPick.getLimit() < Float.POSITIVE_INFINITY) {
-                        if (distance <= worldPick.getLimit()) {
+                    /**
+                     * Commented out by MeFisto94 during refactoring because due to multiCollision we step through the
+                     * terrain and will reach this offset spot anyway. Leaving this method in just gives duplicates.
+                     * It has to be tested what happens at borders, where there would be no next iteration. I suspect
+                     * there the code would fail at checkTriangles anyway, because they would be out of bounds.
+                     */
+                /*
+                    // because of how we get our height coords, we will
+                    // sometimes be off by a grid spot, so we check the next
+                    // grid space up.
+                    int dx = 0, dz = 0;
+                    Direction d = tracer.getLastStepDirection();
+                    switch (d) {
+                        case PositiveX:
+                        case NegativeX:
+                            dx = 0;
+                            dz = 1;
+                            break;
+                        case PositiveZ:
+                        case NegativeZ:
+                            dx = 1;
+                            dz = 0;
+                            break;
+                    }
+
+                    if (checkTriangles(loc.x + dx, loc.y + dz, workRay, intersection, patch, hit)) {
+                        // we found an intersection, so return that!
+                        float distance = worldPickRay.origin.distance(intersection);
+
+                        if (worldPick.getLimit() < Float.POSITIVE_INFINITY) {
+                            if (distance <= worldPick.getLimit()) {
+                                addCollision(results, patch, intersection, hit.getNormal(), distance);
+                                if (!multipleCollisions) {
+                                    return 1;
+                                } else {
+                                    numCollisions++;
+                                }
+                            } // else return null; // < this is the old behavior, since the code checked for the range afterwards.
+                        } else { // unlimited range
                             addCollision(results, patch, intersection, hit.getNormal(), distance);
-                            return intersection;
-                        } // else return null; // < this is the old behavior, since the code checked for the range afterwards.
-                    } else { // unlimited range
-                        addCollision(results, patch, intersection, hit.getNormal(), distance);
-                        return intersection;
-                    }
+                            if (!multipleCollisions) {
+                                return 1;
+                            } else {
+                                numCollisions++;
+                            }
+                        }
+                    }*/
+                
+                    tracer.next();
                 }
-
-                tracer.next();
             }
         }
 
-        return null;
+        return numCollisions;
     }
 
     /**
@@ -180,13 +224,14 @@ public class BresenhamTerrainPicker implements TerrainPicker {
      * @param results The results to add this collision to
      * @param patch The TerrainPatch which collided
      * @param intersection The actual intersection position
-     * @param normal The intersection normal
+     * @param hit The hit triangle
      * @param distance The distance at which the hit occurred
      */
-    private void addCollision(CollisionResults results, TerrainPatch patch, Vector3f intersection, Vector3f normal, float distance) {
-        CollisionResult cr = new CollisionResult(intersection, distance);
+    private void addCollision(CollisionResults results, TerrainPatch patch, Vector3f intersection, Triangle hit, float distance) {
+        CollisionResult cr = new CollisionResult(intersection.clone(), distance);
         cr.setGeometry(patch);
-        cr.setContactNormal(normal);
+        cr.setContactNormal(hit.getNormal());
+        cr.setTriangleIndex(hit.getIndex()); // this will probably always be 0
         results.addCollision(cr);
     }
 
