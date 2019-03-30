@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,19 +31,25 @@
  */
 package jme3test.bullet;
 
-import com.jme3.animation.*;
+import com.jme3.anim.AnimComposer;
+import com.jme3.anim.tween.Tweens;
+import com.jme3.anim.tween.action.Action;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
-import com.jme3.bullet.control.KinematicRagdollControl;
+import com.jme3.bullet.animation.DynamicAnimControl;
+import com.jme3.bullet.animation.RangeOfMotion;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
-import com.jme3.math.*;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -53,101 +59,153 @@ import com.jme3.texture.Texture;
 /**
  * @author normenhansen
  */
-//TODO rework this Test when the new animation system is done.
-public class TestRagdollCharacter extends SimpleApplication implements AnimEventListener, ActionListener {
+public class TestRagdollCharacter
+        extends SimpleApplication
+        implements ActionListener {
 
-    BulletAppState bulletAppState;
-    Node model;
-    KinematicRagdollControl ragdoll;
-    boolean leftStrafe = false, rightStrafe = false, forward = false, backward = false,
+    private AnimComposer composer;
+    private boolean forward = false, backward = false,
             leftRotate = false, rightRotate = false;
-    AnimControl animControl;
-    AnimChannel animChannel;
+    private DynamicAnimControl ragdoll;
+    private Node model;
+    private PhysicsSpace physicsSpace;
 
     public static void main(String[] args) {
         TestRagdollCharacter app = new TestRagdollCharacter();
         app.start();
     }
 
+    public void onSliceDone() {
+        composer.setCurrentAction("IdleTop");
+    }
+
+    static void setupSinbad(DynamicAnimControl ragdoll) {
+        ragdoll.link("Waist", 1f,
+                new RangeOfMotion(1f, -0.4f, 0.8f, -0.8f, 0.4f, -0.4f));
+        ragdoll.link("Chest", 1f, new RangeOfMotion(0.4f, 0f, 0.4f));
+        ragdoll.link("Neck", 1f, new RangeOfMotion(0.5f, 1f, 0.7f));
+
+        ragdoll.link("Clavicle.R", 1f,
+                new RangeOfMotion(0.3f, -0.6f, 0f, 0f, 0.4f, -0.4f));
+        ragdoll.link("Humerus.R", 1f,
+                new RangeOfMotion(1.6f, -0.8f, 1f, -1f, 1.6f, -1f));
+        ragdoll.link("Ulna.R", 1f, new RangeOfMotion(0f, 0f, 1f, -1f, 0f, -2f));
+        ragdoll.link("Hand.R", 1f, new RangeOfMotion(0.8f, 0f, 0.2f));
+
+        ragdoll.link("Clavicle.L", 1f,
+                new RangeOfMotion(0.6f, -0.3f, 0f, 0f, 0.4f, -0.4f));
+        ragdoll.link("Humerus.L",
+                1f, new RangeOfMotion(0.8f, -1.6f, 1f, -1f, 1f, -1.6f));
+        ragdoll.link("Ulna.L", 1f, new RangeOfMotion(0f, 0f, 1f, -1f, 2f, 0f));
+        ragdoll.link("Hand.L", 1f, new RangeOfMotion(0.8f, 0f, 0.2f));
+
+        ragdoll.link("Thigh.R", 1f,
+                new RangeOfMotion(0.4f, -1f, 0.4f, -0.4f, 1f, -0.5f));
+        ragdoll.link("Calf.R", 1f, new RangeOfMotion(2f, 0f, 0f, 0f, 0f, 0f));
+        ragdoll.link("Foot.R", 1f, new RangeOfMotion(0.3f, 0.5f, 0f));
+
+        ragdoll.link("Thigh.L", 1f,
+                new RangeOfMotion(0.4f, -1f, 0.4f, -0.4f, 0.5f, -1f));
+        ragdoll.link("Calf.L", 1f, new RangeOfMotion(2f, 0f, 0f, 0f, 0f, 0f));
+        ragdoll.link("Foot.L", 1f, new RangeOfMotion(0.3f, 0.5f, 0f));
+    }
+
+    @Override
+    public void onAction(String binding, boolean isPressed, float tpf) {
+        if (binding.equals("Rotate Left")) {
+            if (isPressed) {
+                leftRotate = true;
+            } else {
+                leftRotate = false;
+            }
+        } else if (binding.equals("Rotate Right")) {
+            if (isPressed) {
+                rightRotate = true;
+            } else {
+                rightRotate = false;
+            }
+        } else if (binding.equals("Slice")) {
+            if (isPressed) {
+                composer.setCurrentAction("SliceOnce");
+            }
+        } else if (binding.equals("Walk Forward")) {
+            if (isPressed) {
+                forward = true;
+            } else {
+                forward = false;
+            }
+        } else if (binding.equals("Walk Backward")) {
+            if (isPressed) {
+                backward = true;
+            } else {
+                backward = false;
+            }
+        }
+    }
+
+    @Override
     public void simpleInitApp() {
+        flyCam.setMoveSpeed(50f);
+        cam.setLocation(new Vector3f(-16f, 4.7f, -1.6f));
+        cam.setRotation(new Quaternion(0.0484f, 0.804337f, -0.066f, 0.5885f));
+
         setupKeys();
-
-        bulletAppState = new BulletAppState();
-        bulletAppState.setEnabled(true);
-        stateManager.attach(bulletAppState);
-
-
-//        bulletAppState.getPhysicsSpace().enableDebug(assetManager);
-        PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager, bulletAppState.getPhysicsSpace());
-        initWall(2,1,1);
         setupLight();
 
-        cam.setLocation(new Vector3f(-8,0,-4));
-        cam.lookAt(new Vector3f(4,0,-7), Vector3f.UNIT_Y);
+        BulletAppState bulletAppState = new BulletAppState();
+        stateManager.attach(bulletAppState);
+        //bulletAppState.setDebugEnabled(true);
+        physicsSpace = bulletAppState.getPhysicsSpace();
 
-        model = (Node) assetManager.loadModel("Models/Sinbad/SinbadOldAnim.j3o");
-        model.lookAt(new Vector3f(0,0,-1), Vector3f.UNIT_Y);
-        model.setLocalTranslation(4, 0, -7f);
+        PhysicsTestHelper.createPhysicsTestWorld(rootNode, assetManager,
+                physicsSpace);
+        initWall(2f, 1f, 1f);
 
-        ragdoll = new KinematicRagdollControl(0.5f);
-        model.addControl(ragdoll);
-
-        getPhysicsSpace().add(ragdoll);
-        speed = 1.3f;
-
+        model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
         rootNode.attachChild(model);
+        model.lookAt(new Vector3f(0f, 0f, -1f), Vector3f.UNIT_Y);
+        model.setLocalTranslation(4f, 0f, -7f);
 
+        composer = model.getControl(AnimComposer.class);
+        composer.setCurrentAction("IdleTop");
 
-        AnimControl control = model.getControl(AnimControl.class);
-        animChannel = control.createChannel();
-        animChannel.setAnim("IdleTop");
-        control.addListener(this);
+        Action slice = composer.action("SliceHorizontal");
+        composer.actionSequence("SliceOnce",
+                slice, Tweens.callMethod(this, "onSliceDone"));
 
+        ragdoll = new DynamicAnimControl();
+        setupSinbad(ragdoll);
+        model.addControl(ragdoll);
+        physicsSpace.add(ragdoll);
     }
 
-    private void setupLight() {
-        DirectionalLight dl = new DirectionalLight();
-        dl.setDirection(new Vector3f(-0.1f, -0.7f, -1).normalizeLocal());
-        dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
-        rootNode.addLight(dl);
+    @Override
+    public void simpleUpdate(float tpf) {
+        if (forward) {
+            model.move(model.getLocalRotation().multLocal(new Vector3f(0f, 0f, tpf)));
+        } else if (backward) {
+            model.move(model.getLocalRotation().multLocal(new Vector3f(0f, 0f, -tpf)));
+        } else if (leftRotate) {
+            model.rotate(0f, tpf, 0f);
+        } else if (rightRotate) {
+            model.rotate(0f, -tpf, 0f);
+        }
     }
 
-    private PhysicsSpace getPhysicsSpace() {
-        return bulletAppState.getPhysicsSpace();
-    }
-
-    private void setupKeys() {
-        inputManager.addMapping("Rotate Left",
-                new KeyTrigger(KeyInput.KEY_H));
-        inputManager.addMapping("Rotate Right",
-                new KeyTrigger(KeyInput.KEY_K));
-        inputManager.addMapping("Walk Forward",
-                new KeyTrigger(KeyInput.KEY_U));
-        inputManager.addMapping("Walk Backward",
-                new KeyTrigger(KeyInput.KEY_J));
-        inputManager.addMapping("Slice",
-                new KeyTrigger(KeyInput.KEY_SPACE),
-                new KeyTrigger(KeyInput.KEY_RETURN));
-        inputManager.addListener(this, "Strafe Left", "Strafe Right");
-        inputManager.addListener(this, "Rotate Left", "Rotate Right");
-        inputManager.addListener(this, "Walk Forward", "Walk Backward");
-        inputManager.addListener(this, "Slice");
-    }
-
-    public void initWall(float bLength, float bWidth, float bHeight) {
+    private void initWall(float bLength, float bWidth, float bHeight) {
         Box brick = new Box(bLength, bHeight, bWidth);
-        brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
+        brick.scaleTextureCoordinates(new Vector2f(1f, 0.5f));
         Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         TextureKey key = new TextureKey("Textures/Terrain/BrickWall/BrickWall.jpg");
         key.setGenerateMips(true);
         Texture tex = assetManager.loadTexture(key);
         mat2.setTexture("ColorMap", tex);
-        
-        float startpt = bLength / 4;
-        float height = -5;
+
+        float startpt = bLength / 4f;
+        float height = -5f;
         for (int j = 0; j < 15; j++) {
             for (int i = 0; i < 4; i++) {
-                Vector3f ori = new Vector3f(i * bLength * 2 + startpt, bHeight + height, -10);
+                Vector3f ori = new Vector3f(i * bLength * 2f + startpt, bHeight + height, -10f);
                 Geometry reBoxg = new Geometry("brick", brick);
                 reBoxg.setMaterial(mat2);
                 reBoxg.setLocalTranslation(ori);
@@ -156,71 +214,34 @@ public class TestRagdollCharacter extends SimpleApplication implements AnimEvent
                 reBoxg.setShadowMode(ShadowMode.CastAndReceive);
                 reBoxg.getControl(RigidBodyControl.class).setFriction(0.6f);
                 this.rootNode.attachChild(reBoxg);
-                this.getPhysicsSpace().add(reBoxg);
+                physicsSpace.add(reBoxg);
             }
             startpt = -startpt;
-            height += 2 * bHeight;
+            height += 2f * bHeight;
         }
     }
 
-    public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
+    private void setupKeys() {
+        inputManager.addMapping("Rotate Left",
+                new KeyTrigger(KeyInput.KEY_H));
+        inputManager.addMapping("Rotate Right",
+                new KeyTrigger(KeyInput.KEY_K));
+        inputManager.addMapping("Walk Backward",
+                new KeyTrigger(KeyInput.KEY_J));
+        inputManager.addMapping("Walk Forward",
+                new KeyTrigger(KeyInput.KEY_U));
+        inputManager.addMapping("Slice",
+                new KeyTrigger(KeyInput.KEY_SPACE),
+                new KeyTrigger(KeyInput.KEY_RETURN));
 
-        if (channel.getAnimationName().equals("SliceHorizontal")) {
-            channel.setLoopMode(LoopMode.DontLoop);
-            channel.setAnim("IdleTop", 5);
-            channel.setLoopMode(LoopMode.Loop);
-        }
-
+        inputManager.addListener(this, "Rotate Left", "Rotate Right", "Slice",
+                "Walk Backward", "Walk Forward");
     }
 
-    public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
+    private void setupLight() {
+        DirectionalLight dl = new DirectionalLight();
+        dl.setDirection(new Vector3f(-0.1f, -0.7f, -1f).normalizeLocal());
+        dl.setColor(new ColorRGBA(1f, 1f, 1f, 1f));
+        rootNode.addLight(dl);
     }
-    
-    public void onAction(String binding, boolean value, float tpf) {
-        if (binding.equals("Rotate Left")) {
-            if (value) {
-                leftRotate = true;
-            } else {
-                leftRotate = false;
-            }
-        } else if (binding.equals("Rotate Right")) {
-            if (value) {
-                rightRotate = true;
-            } else {
-                rightRotate = false;
-            }
-        } else if (binding.equals("Walk Forward")) {
-            if (value) {
-                forward = true;
-            } else {
-                forward = false;
-            }
-        } else if (binding.equals("Walk Backward")) {
-            if (value) {
-                backward = true;
-            } else {
-                backward = false;
-            }
-        } else if (binding.equals("Slice")) {
-            if (value) {
-                animChannel.setAnim("SliceHorizontal");
-                animChannel.setSpeed(0.3f);
-            }
-        }
-    }
-
-    @Override
-    public void simpleUpdate(float tpf) {
-        if(forward){
-            model.move(model.getLocalRotation().multLocal(new Vector3f(0,0,1)).multLocal(tpf));
-        }else if(backward){
-            model.move(model.getLocalRotation().multLocal(new Vector3f(0,0,1)).multLocal(-tpf));
-        }else if(leftRotate){
-            model.rotate(0, tpf, 0);
-        }else if(rightRotate){
-            model.rotate(0, -tpf, 0);
-        }
-        fpsText.setText(cam.getLocation() + "/" + cam.getRotation());
-    }
-
 }
