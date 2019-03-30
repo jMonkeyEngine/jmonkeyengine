@@ -5,7 +5,7 @@ if (!hasProperty('mainClass')) {
 dependencies {
     compile project(':jme3-core')
     testCompile project(':jme3-core')
-    testRuntime project(':jme3-desktop')
+    testCompile project(':jme3-desktop')
     testCompile project(':jme3-core').sourceSets.test.output
-    testRuntime project(':jme3-testdata')
+    testCompile project(':jme3-testdata')
 }
