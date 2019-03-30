@@ -63,7 +63,7 @@ public class Armature implements JmeCloneable, Savable {
     }
 
     /**
-     * Update all joints sin this Amature.
+     * Update all joints in this Armature.
      */
     public void update() {
         for (Joint rootJoint : rootJoints) {
