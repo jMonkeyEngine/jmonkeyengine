@@ -1,9 +1,12 @@
 package jme3test.input;
 
+import java.util.*;
+
 import com.jme3.app.SimpleApplication;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.font.BitmapText;
+import com.jme3.input.DefaultJoystickAxis;
 import com.jme3.input.Joystick;
 import com.jme3.input.JoystickAxis;
 import com.jme3.input.JoystickButton;
@@ -160,9 +163,29 @@ public class TestJoystick extends SimpleApplication {
      */   
     protected class JoystickEventListener implements RawInputListener {
 
+        private Map<JoystickAxis, Float> lastValues = new HashMap<>();
+
         public void onJoyAxisEvent(JoyAxisEvent evt) {
-            setViewedJoystick( evt.getAxis().getJoystick() );
-            gamepad.setAxisValue( evt.getAxis(), evt.getValue() ); 
+            Float last = lastValues.remove(evt.getAxis());
+            float value = evt.getValue();
+                    
+            // Check the axis dead zone.  InputManager normally does this
+            // by default but not for raw events like we get here.
+            float effectiveDeadZone = Math.max(inputManager.getAxisDeadZone(), evt.getAxis().getDeadZone());
+            if( Math.abs(value) < effectiveDeadZone ) {
+                if( last == null ) {
+                    // Just skip the event
+                    return;
+                }
+                // Else set the value to 0
+                lastValues.remove(evt.getAxis());
+                value = 0;
+            }         
+            setViewedJoystick( evt.getAxis().getJoystick() );            
+            gamepad.setAxisValue( evt.getAxis(), value );
+            if( value != 0 ) {
+                lastValues.put(evt.getAxis(), value);
+            } 
         }
 
         public void onJoyButtonEvent(JoyButtonEvent evt) {
@@ -266,6 +289,7 @@ public class TestJoystick extends SimpleApplication {
         }
  
         public void setAxisValue( JoystickAxis axis, float value ) {
+                
             System.out.println( "Axis:" + axis.getName() + "=" + value );
             if( axis == axis.getJoystick().getXAxis() ) {
                 setXAxis(value);
