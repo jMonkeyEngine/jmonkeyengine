@@ -117,19 +117,21 @@ public class BresenhamTerrainPicker implements TerrainPicker {
                     // because otherwise, we could always return 1 here.
                     if (worldPick.getLimit() < Float.POSITIVE_INFINITY) {
                         if (distance <= worldPick.getLimit()) {
-                            addCollision(results, patch, intersection, hit, distance);
+                            if (addCollision(results, patch, intersection, hit, distance)) {
+                                if (!multipleCollisions) {
+                                    return 1;
+                                } else {
+                                    numCollisions++;
+                                }
+                            }
+                        } // else return 0; // < this is the old behavior, since the code checked for the range afterwards.
+                    } else { // unlimited range
+                        if (addCollision(results, patch, intersection, hit, distance)) {
                             if (!multipleCollisions) {
                                 return 1;
                             } else {
                                 numCollisions++;
                             }
-                        } // else return 0; // < this is the old behavior, since the code checked for the range afterwards.
-                    } else { // unlimited range
-                        addCollision(results, patch, intersection, hit, distance);
-                        if (!multipleCollisions) {
-                            return 1;
-                        } else {
-                            numCollisions++;
                         }
                     }
                 } // else no collision
@@ -146,30 +148,25 @@ public class BresenhamTerrainPicker implements TerrainPicker {
 
                         if (worldPick.getLimit() < Float.POSITIVE_INFINITY) {
                             if (distance <= worldPick.getLimit()) {
-                                addCollision(results, patch, intersection, hit, distance);
+                                if (addCollision(results, patch, intersection, hit, distance)) {
+                                    if (!multipleCollisions) {
+                                        return 1;
+                                    } else {
+                                        numCollisions++;
+                                    }
+                                }
+                            }//  else return 0; // < this is the old behavior, since the code checked for the range afterwards.
+                        } else { // unlimited range
+                            if (addCollision(results, patch, intersection, hit, distance)) {
                                 if (!multipleCollisions) {
                                     return 1;
                                 } else {
                                     numCollisions++;
                                 }
-                            }//  else return 0; // < this is the old behavior, since the code checked for the range afterwards.
-                        } else { // unlimited range
-                            addCollision(results, patch, intersection, hit, distance);
-                            if (!multipleCollisions) {
-                                return 1;
-                            } else {
-                                numCollisions++;
                             }
                         }
                     }
-
-                    /**
-                     * Commented out by MeFisto94 during refactoring because due to multiCollision we step through the
-                     * terrain and will reach this offset spot anyway. Leaving this method in just gives duplicates.
-                     * It has to be tested what happens at borders, where there would be no next iteration. I suspect
-                     * there the code would fail at checkTriangles anyway, because they would be out of bounds.
-                     */
-                /*
+                    
                     // because of how we get our height coords, we will
                     // sometimes be off by a grid spot, so we check the next
                     // grid space up.
@@ -194,22 +191,24 @@ public class BresenhamTerrainPicker implements TerrainPicker {
 
                         if (worldPick.getLimit() < Float.POSITIVE_INFINITY) {
                             if (distance <= worldPick.getLimit()) {
-                                addCollision(results, patch, intersection, hit.getNormal(), distance);
+                                if (addCollision(results, patch, intersection, hit, distance)) {
+                                    if (!multipleCollisions) {
+                                        return 1;
+                                    } else {
+                                        numCollisions++;
+                                    }
+                                }
+                            } // else return null; // < this is the old behavior, since the code checked for the range afterwards.
+                        } else { // unlimited range
+                            if (addCollision(results, patch, intersection, hit, distance)) {
                                 if (!multipleCollisions) {
                                     return 1;
                                 } else {
                                     numCollisions++;
                                 }
-                            } // else return null; // < this is the old behavior, since the code checked for the range afterwards.
-                        } else { // unlimited range
-                            addCollision(results, patch, intersection, hit.getNormal(), distance);
-                            if (!multipleCollisions) {
-                                return 1;
-                            } else {
-                                numCollisions++;
                             }
                         }
-                    }*/
+                    }
                 
                     tracer.next();
                 }
@@ -226,13 +225,25 @@ public class BresenhamTerrainPicker implements TerrainPicker {
      * @param intersection The actual intersection position
      * @param hit The hit triangle
      * @param distance The distance at which the hit occurred
+     * @return Whether the collision was accepted to the list or whether it has been deduplicated
      */
-    private void addCollision(CollisionResults results, TerrainPatch patch, Vector3f intersection, Triangle hit, float distance) {
+    private boolean addCollision(CollisionResults results, TerrainPatch patch, Vector3f intersection, Triangle hit, float distance) {
         CollisionResult cr = new CollisionResult(intersection.clone(), distance);
         cr.setGeometry(patch);
         cr.setContactNormal(hit.getNormal());
         cr.setTriangleIndex(hit.getIndex()); // this will probably always be 0
+
+        for (int i = 0; i < results.size(); i++) {
+            CollisionResult compare = results.getCollision(i);
+            if (compare.getDistance() == cr.getDistance() && compare.getGeometry() == cr.getGeometry() &&
+                compare.getContactPoint().equals(cr.getContactPoint()) &&
+                compare.getContactNormal().equals(cr.getContactNormal())) {
+                    return false; // Collision already available, deduplicate.
+            }
+        }
+
         results.addCollision(cr);
+        return true;
     }
 
     protected boolean checkTriangles(float gridX, float gridY, Ray pick, Vector3f intersection, TerrainPatch patch, Triangle store) {

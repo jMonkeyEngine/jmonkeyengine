@@ -1,8 +1,6 @@
 package com.jme3.terrain.collision;
 
-import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
-import com.jme3.math.FastMath;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.TerrainQuad;
@@ -66,11 +64,24 @@ public class TerrainCollisionTest extends BaseAWTTest {
         long l = System.nanoTime();
         int cw = quad.collideWith(r, cr);
         System.out.println((System.nanoTime() - l) + " ns");
-        System.out.println(cr.size());
-        System.out.println(cr);
         Assert.assertEquals(6, cw);
         Assert.assertEquals(6, cr.size());
 
+    }
+
+    @Test
+    public void testPreventRegression() {
+        // This test is as the multi collision changes lead to a regression where sometimes a collision was ignored
+        // Ray parameters obtained by using TerrainTestCollision (manual inspection of a feasible ray and commenting out setLocalScale(2))
+        Ray r = new Ray(new Vector3f(101.61858f, 78.35965f, 17.645157f), new Vector3f(-0.4188528f, -0.56462675f, 0.71116734f));
+
+        CollisionResults cr = new CollisionResults();
+        quad.collideWith(r, cr);
+
+        Assert.assertEquals(3, cr.size());
+        Assert.assertEquals(68.1499f, cr.getClosestCollision().getDistance(), 0.01f);
+        Assert.assertEquals(new Vector3f(73.07381f, 39.88039f, 66.11114f), cr.getClosestCollision().getContactPoint());
+        Assert.assertEquals(new Vector3f(0.9103665f, 0.33104235f, -0.24828176f), cr.getClosestCollision().getContactNormal());
     }
 
 }
