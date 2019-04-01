@@ -46,7 +46,7 @@ task copyTremorFiles(type: Copy) {
 
 // Generate headers via javah
 task generateJavahHeaders(type: Exec) {
-    executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
+    executable org.gradle.internal.jvm.Jvm.current().getExecutable('javap')
     args '-d', decodeSourceDir
     args '-classpath', project.projectClassPath
     args "com.jme3.audio.plugins.NativeVorbisFile"

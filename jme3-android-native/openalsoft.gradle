@@ -73,7 +73,7 @@ task copyJmeOpenALSoft(type: Copy, dependsOn:copyOpenALSoft) {
 }
 
 task generateOpenAlSoftHeaders(type:Exec, dependsOn: copyJmeOpenALSoft) {
-    executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
+    executable org.gradle.internal.jvm.Jvm.current().getExecutable('javap')
     args '-d', openalsoftJmeAndroidPath
     args '-classpath', project.projectClassPath
     args "com.jme3.audio.android.AndroidAL"

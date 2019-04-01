@@ -59,7 +59,7 @@ task generateNativeHeaders(type: Exec, dependsOn: classes) {
     def classpath = sourceSets.main.runtimeClasspath.asPath
     def nativeIncludes = new File(project(":jme3-bullet-native").projectDir, "src/native/cpp")
 
-    executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
+    executable org.gradle.internal.jvm.Jvm.current().getExecutable('javap')
     args "-d", nativeIncludes
     args "-classpath", classpath
     args classes.split(",").collect { it.trim() }
