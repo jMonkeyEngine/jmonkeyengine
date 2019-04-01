@@ -290,7 +290,7 @@ public class TestJoystick extends SimpleApplication {
  
         public void setAxisValue( JoystickAxis axis, float value ) {
                 
-            System.out.println( "Axis:" + axis.getName() + "=" + value );
+            System.out.println( "Axis:" + axis.getName() + "(id:" + axis.getLogicalId() + ")=" + value );
             if( axis == axis.getJoystick().getXAxis() ) {
                 setXAxis(value);
             } else if( axis == axis.getJoystick().getYAxis() ) {
@@ -304,6 +304,22 @@ public class TestJoystick extends SimpleApplication {
                 setZAxis(value);
             } else if( axis == axis.getJoystick().getAxis(JoystickAxis.Z_ROTATION) ) {
                 setZRotation(-value);
+            } else if( axis == axis.getJoystick().getAxis(JoystickAxis.LEFT_TRIGGER) ) {
+                if( axis.getJoystick().getButton(JoystickButton.BUTTON_6) == null ) {
+                    // left/right triggers sometimes only show up as axes
+                    boolean pressed = value != 0;
+                    if( pressed != buttons.get(JoystickButton.BUTTON_6).isDown() ) {
+                        setButtonValue(JoystickButton.BUTTON_6, pressed);
+                    }
+                }
+            } else if( axis == axis.getJoystick().getAxis(JoystickAxis.RIGHT_TRIGGER) ) {
+                if( axis.getJoystick().getButton(JoystickButton.BUTTON_7) == null ) {
+                    // left/right triggers sometimes only show up as axes
+                    boolean pressed = value != 0;
+                    if( pressed != buttons.get(JoystickButton.BUTTON_7).isDown() ) {
+                        setButtonValue(JoystickButton.BUTTON_7, pressed);
+                    }
+                }
             } else if( axis == axis.getJoystick().getPovXAxis() ) {
                 if( lastPovX < 0 ) {
                     setButtonValue( "POV -X", false );    
@@ -424,6 +440,10 @@ public class TestJoystick extends SimpleApplication {
             }
             
             System.out.println( getName() + " state:" + state );
+        }
+        
+        public boolean isDown() {
+            return state > 0;
         }
         
         public void down() {
