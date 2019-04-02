@@ -35,7 +35,6 @@ package com.jme3.network.service.rmi;
 import com.jme3.network.serializing.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import javax.jws.Oneway;
 
 
 /**
@@ -104,8 +103,8 @@ public final class MethodInfo {
     public static CallType getCallType( Method m ) {
         if( m.getReturnType() != Void.TYPE )
             return CallType.Synchronous;
-        if( m.getAnnotation(Oneway.class) != null )
-            return CallType.Asynchronous;
+        //if( m.getAnnotation(Oneway.class) != null )
+        //    return CallType.Asynchronous;
         if( m.getAnnotation(Asynchronous.class) == null )
             return CallType.Synchronous;
             
