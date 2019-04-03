@@ -105,7 +105,7 @@ public final class MethodInfo {
         if( m.getReturnType() != Void.TYPE ) {
             return CallType.Synchronous;
         }
-        if( m.getAnnotation(Asynchronous.class) == null ){
+        if( m.getAnnotation(Asynchronous.class) == null ) {
             return CallType.Synchronous;
         }
         for (Annotation annotation : m.getAnnotations()) {
