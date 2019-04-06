@@ -90,22 +90,20 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
     
     @Override
     public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
+        BufferedImage awtImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
+        Screenshots.convertScreenShot2(imageData.asIntBuffer(), awtImage);
+
         ImageWriter writer = ImageIO.getImageWritersByFormatName(format).next();
         ImageWriteParam writeParam = writer.getDefaultWriteParam();
-        
-        BufferedImage awtImage;
+
         if (format.equals("jpg")) {
             JPEGImageWriteParam jpegParam = (JPEGImageWriteParam) writeParam;
             jpegParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
             jpegParam.setCompressionQuality(0.95f);
-            awtImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_BGR);
-            Screenshots.convertScreenShot2(imageData.asIntBuffer(), awtImage);
-            awtImage = verticalFlip(awtImage);
-        } else {
-            awtImage = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-            Screenshots.convertScreenShot(imageData, awtImage);
         }
 
+        awtImage = verticalFlip(awtImage);
+        
         ImageOutputStream imgOut = new MemoryCacheImageOutputStream(outStream);
         writer.setOutput(imgOut);
         IIOImage outputImage = new IIOImage(awtImage, null, null);
