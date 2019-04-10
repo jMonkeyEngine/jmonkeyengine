@@ -137,7 +137,7 @@ public class DefaultAndroidProfiler implements AppProfiler {
 
     @Override
     public void appSubStep(String... additionalInfo) {
-        
+
     }
 
     public void vpStep(VpStep vpStep, ViewPort vp, RenderQueue.Bucket bucket) {

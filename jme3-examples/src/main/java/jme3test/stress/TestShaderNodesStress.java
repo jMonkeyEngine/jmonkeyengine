@@ -92,6 +92,11 @@ public class TestShaderNodesStress extends SimpleApplication {
         }
 
         @Override
+        public void appSubStep(String... additionalInfo) {
+
+        }
+
+        @Override
         public void vpStep(VpStep step, ViewPort vp, RenderQueue.Bucket bucket) {
 
         }
