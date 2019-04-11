@@ -126,7 +126,7 @@ public class TestBitmapFontAlignment extends SimpleApplication {
         getGuiNode().attachChild(backgroundBoxAlignBottomLeft);
 
         // Large quad with VAlign.Center and Align.Center
-        BitmapText label = guiFont.createLabel("This is text that is centered.");
+        BitmapText label = guiFont.createLabel("This text is centered, both horizontally and vertically.");
         Rectangle box = new Rectangle(width * 0.05f, height * 0.95f, width * 0.9f, height * 0.1f);
         label.setBox(box);
         label.setAlignment(BitmapFont.Align.Center);
