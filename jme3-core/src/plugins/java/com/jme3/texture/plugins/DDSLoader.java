@@ -280,16 +280,14 @@ public class DDSLoader implements AssetLoader {
                         normal = true;
                     }
                     break;
-                /*
                 case PF_ATI1:
                     bpp = 4;
-                    pixelFormat = Image.Format.LTC;
+                    pixelFormat = Image.Format.RGTC1;
                     break;
                 case PF_ATI2:
                     bpp = 8;
-                    pixelFormat = Image.Format.LATC;
+                    pixelFormat = Image.Format.RGTC2;
                     break;
-                */
                 case PF_DX10:
                     compressed = false;
                     directx10 = true;

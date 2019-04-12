@@ -154,7 +154,7 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
     /**
      * Sets the local transform with the bind transforms
      */
-    protected void applyBindPose() {
+    public void applyBindPose() {
         jointModelTransform.applyBindPose(localTransform, inverseModelBindMatrix, parent);
         updateModelTransforms();
 

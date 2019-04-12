@@ -21,6 +21,12 @@ public interface VRMouseManager {
    * @return the {@link VREnvironment VR Environment} to which this manager is attached.
    */
   public VREnvironment getVREnvironment();
+
+  /**
+   * Set if the mouse cursor should be used in the VR view.
+   * @param enabled <code>true</code> if the mouse cursor should be displayed in VR and <code>false</code> otherwise.
+   */
+  public void setVRMouseEnabled(boolean enabled);
   
   /**
    * Set if the VR device controller is used within thumb stick mode.
@@ -29,7 +35,7 @@ public interface VRMouseManager {
   public void setThumbstickMode(boolean set);
   
   /**
-   * Get  if the VR device controller is used within thumb stick mode.
+   * Get if the VR device controller is used within thumb stick mode.
    * @return <code>true</code> if the VR device controller is used within thumb stick mode and <code>false</code> otherwise.
    */
   public boolean isThumbstickMode();
