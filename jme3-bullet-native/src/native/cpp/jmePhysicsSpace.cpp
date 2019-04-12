@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,17 +74,16 @@ void jmePhysicsSpace::createPhysicsSpace(jfloat minX, jfloat minY, jfloat minZ, 
     btBroadphaseInterface* broadphase;
 
     switch (broadphaseId) {
-        case 0:
+        case 0: // SIMPLE
             broadphase = new btSimpleBroadphase();
             break;
-        case 1:
+        case 1: // AXIS_SWEEP_3
             broadphase = new btAxisSweep3(min, max);
             break;
-        case 2:
-            //TODO: 32bit!
-            broadphase = new btAxisSweep3(min, max);
+        case 2: // AXIS_SWEEP_3_32
+            broadphase = new bt32BitAxisSweep3(min, max);
             break;
-        case 3:
+        case 3: // DBVT
             broadphase = new btDbvtBroadphase();
             break;
     }
