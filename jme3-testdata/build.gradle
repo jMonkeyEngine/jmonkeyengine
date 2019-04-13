@@ -10,4 +10,5 @@ repositories {
 
 dependencies {
     compile 'lessvoid:nifty-examples:1.4.1'
+    runtime 'com.github.nifty-gui:nifty-style-black:1.4.3'
 }
