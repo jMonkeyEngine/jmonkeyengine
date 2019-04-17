@@ -227,7 +227,7 @@ public class AnimComposer extends AbstractControl {
      * @return the unmodifiable set of animation names.
      */
     public Set<String> getAnimClipsNames() {
-        return Collections.unmodifiableSet(new HashSet<>(animClipMap.keySet()));
+        return Collections.unmodifiableSet(animClipMap.keySet());
     }
 
     @Override
