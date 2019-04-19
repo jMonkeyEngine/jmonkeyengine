@@ -272,9 +272,10 @@ public class BufferObject extends NativeObject implements Savable, Cloneable {
      * information.
      */
     public void setTarget(Target target) {
-        if (getId() != -1) 
-            throw new IllegalStateException("Can't change buffer's target after the buffer is initialized.");
+//        if (getId() != -1) 
+//            throw new IllegalStateException("Can't change buffer's target after the buffer is initialized.");
         this.target = target;
+        this.setUpdateNeeded();
     }
     
     
@@ -821,6 +822,7 @@ public class BufferObject extends NativeObject implements Savable, Cloneable {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(components, "components", 0);
         oc.write(usage, "usage", Usage.Dynamic);
+        oc.write(target, "target", null);
 //        oc.write(bufType, "buffer_type", null);
         oc.write(format, "format", Format.Float);
 //        oc.write(normalized, "normalized", false);
@@ -857,6 +859,7 @@ public class BufferObject extends NativeObject implements Savable, Cloneable {
         InputCapsule ic = im.getCapsule(this);
         components = ic.readInt("components", 0);
         usage = ic.readEnum("usage", Usage.class, Usage.Dynamic);
+        target = ic.readEnum("target", Target.class, null);
 //        bufType = ic.readEnum("buffer_type", Type.class, null);
         format = ic.readEnum("format", Format.class, Format.Float);
 //        normalized = ic.readBoolean("normalized", false);
