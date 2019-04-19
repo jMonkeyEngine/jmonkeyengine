@@ -3,9 +3,12 @@ package com.jme3.shader;
 import com.jme3.math.*;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.Renderer;
+import com.jme3.scene.BufferObject;
+import com.jme3.scene.VertexBuffer;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObject;
 import com.jme3.util.SafeArrayList;
+import java.nio.Buffer;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
@@ -18,7 +21,7 @@ import java.util.Map;
  *
  * @author JavaSaBr
  */
-public class BufferObject extends NativeObject {
+public class UniformBufferObject extends BufferObject {
 
     private static final Map<Class<?>, VarType> CLASS_TO_VAR_TYPE = new HashMap<>();
 
@@ -113,45 +116,44 @@ public class BufferObject extends NativeObject {
      */
     private BufferType bufferType;
 
-    /**
-     * The previous data buffer.
-     */
-    private ByteBuffer previousData;
-
-    public BufferObject(final int binding, final Layout layout, final BufferType bufferType) {
+    public UniformBufferObject(final int binding, final Layout layout, final BufferType bufferType) {
+        super(bufferType == BufferType.UniformBufferObject?Target.Uniform:Target.ShaderStorage);
         this.handleRef = new Object();
         this.bufferType = bufferType;
         this.binding = binding;
         this.layout = layout;
         this.fields = new HashMap<>();
         this.fieldArray = new SafeArrayList<>(BufferObjectField.class);
+        setupData(target == Target.Uniform?VertexBuffer.Usage.Dynamic:VertexBuffer.Usage.DynamicCopy,
+                1, VertexBuffer.Format.Byte);
+        
     }
 
-    public BufferObject(final int binding, final Layout layout) {
+    public UniformBufferObject(final int binding, final Layout layout) {
         this(binding, layout, BufferType.UniformBufferObject);
     }
 
-    public BufferObject(final int binding, final BufferType bufferType) {
+    public UniformBufferObject(final int binding, final BufferType bufferType) {
         this(binding, Layout.std140, bufferType);
     }
 
-    public BufferObject(final BufferType bufferType) {
+    public UniformBufferObject(final BufferType bufferType) {
         this(1, Layout.std140, bufferType);
     }
 
-    public BufferObject(final Layout layout) {
+    public UniformBufferObject(final Layout layout) {
         this(1, layout, BufferType.UniformBufferObject);
     }
 
-    public BufferObject(final int binding) {
+    public UniformBufferObject(final int binding) {
         this(binding, Layout.std140, BufferType.UniformBufferObject);
     }
 
-    public BufferObject() {
+    public UniformBufferObject() {
         this(1, Layout.std140, BufferType.UniformBufferObject);
     }
 
-    private BufferObject(final Void unused, final int id) {
+    private UniformBufferObject(final Void unused, final int id) {
         super(id);
         this.fieldArray = null;
         this.fields = null;
@@ -198,6 +200,8 @@ public class BufferObject extends NativeObject {
         }
 
         this.bufferType = bufferType;
+        setTarget(bufferType == BufferType.UniformBufferObject?Target.Uniform:Target.ShaderStorage);
+        setUsage(target == Target.Uniform?VertexBuffer.Usage.Dynamic:VertexBuffer.Usage.DynamicCopy);
     }
 
     /**
@@ -251,6 +255,12 @@ public class BufferObject extends NativeObject {
         setUpdateNeeded();
     }
 
+    @Override
+    public Buffer getData() {
+        return computeData(Integer.MAX_VALUE);
+    }
+    
+
     /**
      * Computes the current binary data of this BO.
      *
@@ -270,16 +280,16 @@ public class BufferObject extends NativeObject {
                     "maximum available size " + maxSize);
         }
 
-        if (previousData != null) {
-            if (previousData.capacity() < estimateSize) {
-                BufferUtils.destroyDirectBuffer(previousData);
-                previousData = null;
+        if (this.data != null) {
+            if (this.data.capacity() < estimateSize) {
+                BufferUtils.destroyDirectBuffer(this.data);
+                this.data = null;
             } else {
-                previousData.clear();
+                this.data.clear();
             }
         }
 
-        final ByteBuffer data = previousData == null ? BufferUtils.createByteBuffer(estimateSize) : previousData;
+        final ByteBuffer data = (ByteBuffer) (this.data == null ? BufferUtils.createByteBuffer(estimateSize) : this.data);
 
         for (final BufferObjectField field : fieldArray) {
             writeField(field, data);
@@ -287,7 +297,7 @@ public class BufferObject extends NativeObject {
 
         data.flip();
 
-        this.previousData = data;
+        this.data = data;
 
         return data;
     }
@@ -809,15 +819,15 @@ public class BufferObject extends NativeObject {
 
     @Override
     public NativeObject createDestructableClone() {
-        return new BufferObject(null, getId());
+        return new UniformBufferObject(null, getId());
     }
 
     @Override
     protected void deleteNativeBuffers() {
         super.deleteNativeBuffers();
-        if (previousData != null) {
-            BufferUtils.destroyDirectBuffer(previousData);
-            previousData = null;
+        if (data != null) {
+            BufferUtils.destroyDirectBuffer(data);
+            data = null;
         }
     }
 

@@ -39,6 +39,8 @@ import com.jme3.material.RenderState.TestFunction;
 import com.jme3.math.*;
 import com.jme3.opencl.OpenCLObjectManager;
 import com.jme3.renderer.*;
+import com.jme3.scene.BufferObject;
+import com.jme3.scene.BufferObject.Target;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer;
@@ -1225,7 +1227,7 @@ public final class GLRenderer implements Renderer {
         assert bufferBlock.getName() != null;
         assert shader.getId() > 0;
 
-        final BufferObject bufferObject = bufferBlock.getBufferObject();
+        final UniformBufferObject bufferObject = bufferBlock.getBufferObject();
         if (bufferObject.getUniqueId() == -1 || bufferObject.isUpdateNeeded()) {
             updateBufferData(bufferObject);
         }
@@ -1237,15 +1239,15 @@ public final class GLRenderer implements Renderer {
         bindProgram(shader);
 
         final int shaderId = shader.getId();
-        final BufferObject.BufferType bufferType = bufferObject.getBufferType();
+        final UniformBufferObject.BufferType bufferType = bufferObject.getBufferType();
 
         bindBuffer(bufferBlock, bufferObject, shaderId, bufferType);
 
         bufferBlock.clearUpdateNeeded();
     }
 
-    private void bindBuffer(final ShaderBufferBlock bufferBlock, final BufferObject bufferObject, final int shaderId,
-                            final BufferObject.BufferType bufferType) {
+    private void bindBuffer(final ShaderBufferBlock bufferBlock, final UniformBufferObject bufferObject, final int shaderId,
+                            final UniformBufferObject.BufferType bufferType) {
 
         switch (bufferType) {
             case UniformBufferObject: {
@@ -2502,16 +2504,19 @@ public final class GLRenderer implements Renderer {
     }
 
     /*********************************************************************\
-     |* Vertex Buffers and Attributes                                     *|
+     |* Buffer Objects and Attributes                                    *|
      \*********************************************************************/
-    private int convertUsage(Usage usage) {
+    public int convertUsage(Usage usage) {
         switch (usage) {
-            case Static:
-                return GL.GL_STATIC_DRAW;
-            case Dynamic:
-                return GL.GL_DYNAMIC_DRAW;
-            case Stream:
-                return GL.GL_STREAM_DRAW;
+            case Static:        return GL.GL_STATIC_DRAW;
+            case Dynamic:       return GL.GL_DYNAMIC_DRAW;
+            case Stream:        return GL.GL_STREAM_DRAW;
+            case StaticRead:    return GL.GL_STATIC_READ;
+            case DynamicRead:   return GL.GL_DYNAMIC_READ;
+            case StreamRead:    return GL.GL_STREAM_READ;
+            case StaticCopy:    return GL.GL_STATIC_COPY;
+            case DynamicCopy:   return GL.GL_DYNAMIC_COPY;
+            case StreamCopy:    return GL.GL_STREAM_COPY;
             default:
                 throw new UnsupportedOperationException("Unknown usage type.");
         }
@@ -2537,153 +2542,96 @@ public final class GLRenderer implements Renderer {
                 return GL.GL_DOUBLE;
             default:
                 throw new UnsupportedOperationException("Unknown buffer format.");
-
         }
     }
-
-    public void updateBufferData(VertexBuffer vb) {
-        int bufId = vb.getId();
-        boolean created = false;
+    public int convertTarget(Target target) {
+        switch (target) {
+            case Array: return GL.GL_ARRAY_BUFFER;
+            case AtomicCounter: return GL4.GL_ATOMIC_COUNTER_BUFFER;
+            case CopyRead: return GL3.GL_COPY_READ_BUFFER;
+            case CopyWrite: return GL3.GL_COPY_WRITE_BUFFER;
+            case DispatchIndirect: return GL4.GL_DISPATCH_INDIRECT_BUFFER;
+            case DrawIndirect: return GL4.GL_DRAW_INDIRECT_BUFFER;
+            case ElementArray: return GL.GL_ELEMENT_ARRAY_BUFFER;
+            case PixelPack: return GL2.GL_PIXEL_PACK_BUFFER;
+            case PixelUnpack: return GL2.GL_PIXEL_UNPACK_BUFFER;
+            case Query: return GL4.GL_QUERY_BUFFER;
+            case ShaderStorage: 
+                if(!caps.contains(Caps.ShaderStorageBufferObject))
+                    throw new RendererException("UniformBuffer object not supported by current hardware.");
+                return GL4.GL_SHADER_STORAGE_BUFFER;
+            case Texture: return GL3.GL_TEXTURE_BUFFER;
+            case TransformFeedback: return GL3.GL_TRANSFORM_FEEDBACK_BUFFER;
+            case Uniform: 
+                if(!caps.contains(Caps.UniformBufferObject))
+                    throw new RendererException("UniformBuffer object not supported by current hardware.");
+                return GL3.GL_UNIFORM_BUFFER;
+            default:
+                throw new UnsupportedOperationException("Unknown target type.");
+        }
+    }
+    
+    public int bindBuffer(BufferObject bo) {
+        int bufId = bo.getId();
         if (bufId == -1) {
-            // create buffer
             gl.glGenBuffers(intBuf1);
             bufId = intBuf1.get(0);
-            vb.setId(bufId);
-            objManager.registerObject(vb);
-
-            //statistics.onNewVertexBuffer();
-
-            created = true;
+            bo.setId(bufId);
+            objManager.registerObject(bo);
         }
-
-        // bind buffer
-        int target;
-        if (vb.getBufferType() == VertexBuffer.Type.Index) {
-            target = GL.GL_ELEMENT_ARRAY_BUFFER;
-            if (context.boundElementArrayVBO != bufId) {
-                gl.glBindBuffer(target, bufId);
-                context.boundElementArrayVBO = bufId;
-                //statistics.onVertexBufferUse(vb, true);
-            } else {
-                //statistics.onVertexBufferUse(vb, false);
-            }
-        } else {
-            target = GL.GL_ARRAY_BUFFER;
-            if (context.boundArrayVBO != bufId) {
-                gl.glBindBuffer(target, bufId);
-                context.boundArrayVBO = bufId;
-                //statistics.onVertexBufferUse(vb, true);
-            } else {
-                //statistics.onVertexBufferUse(vb, false);
-            }
+        return bindBuffer(bo.getTarget(), bufId);
+    }
+    public int bindBuffer(Target target, int bufId) {
+        int t = convertTarget(target);
+        if(context.boundBO[target.ordinal()] != bufId) {
+            gl.glBindBuffer(t, bufId);
+            context.boundBO[target.ordinal()] = bufId;
         }
+        return t;
+    }
 
-        int usage = convertUsage(vb.getUsage());
-        vb.getData().rewind();
+    @Override
+    public void updateBufferData(BufferObject bo) {
+        int target = bindBuffer(bo);
 
-        switch (vb.getFormat()) {
+        int usage = convertUsage(bo.getUsage());
+        bo.getData().rewind();
+
+        switch (bo.getFormat()) {
             case Byte:
             case UnsignedByte:
-                gl.glBufferData(target, (ByteBuffer) vb.getData(), usage);
+                gl.glBufferData(target, (ByteBuffer) bo.getData(), usage);
                 break;
             case Short:
             case UnsignedShort:
-                gl.glBufferData(target, (ShortBuffer) vb.getData(), usage);
+                gl.glBufferData(target, (ShortBuffer) bo.getData(), usage);
                 break;
             case Int:
             case UnsignedInt:
-                glext.glBufferData(target, (IntBuffer) vb.getData(), usage);
+                glext.glBufferData(target, (IntBuffer) bo.getData(), usage);
                 break;
             case Float:
-                gl.glBufferData(target, (FloatBuffer) vb.getData(), usage);
+                gl.glBufferData(target, (FloatBuffer) bo.getData(), usage);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown buffer format.");
         }
 
-        vb.clearUpdateNeeded();
-    }
-
-    @Override
-    public void updateBufferData(final BufferObject bo) {
-
-        int maxSize = Integer.MAX_VALUE;
-
-        final BufferObject.BufferType bufferType = bo.getBufferType();
-
-        if (!caps.contains(bufferType.getRequiredCaps())) {
-            throw new IllegalArgumentException("The current video hardware doesn't support " + bufferType);
-        }
-
-        final ByteBuffer data = bo.computeData(maxSize);
-        if (data == null) {
-            throw new IllegalArgumentException("Can't upload BO without data.");
-        }
-
-        int bufferId = bo.getId();
-        if (bufferId == -1) {
-
-            // create buffer
-            intBuf1.clear();
-            gl.glGenBuffers(intBuf1);
-            bufferId = intBuf1.get(0);
-
-            bo.setId(bufferId);
-
-            objManager.registerObject(bo);
-        }
-
-        data.rewind();
-
-        switch (bufferType) {
-            case UniformBufferObject: {
-                gl3.glBindBuffer(GL3.GL_UNIFORM_BUFFER, bufferId);
-                gl3.glBufferData(GL4.GL_UNIFORM_BUFFER, data, GL3.GL_DYNAMIC_DRAW);
-                gl3.glBindBuffer(GL4.GL_UNIFORM_BUFFER, 0);
-                break;
-            }
-            case ShaderStorageBufferObject: {
-                gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, bufferId);
-                gl4.glBufferData(GL4.GL_SHADER_STORAGE_BUFFER, data, GL4.GL_DYNAMIC_COPY);
-                gl4.glBindBuffer(GL4.GL_SHADER_STORAGE_BUFFER, 0);
-                break;
-            }
-            default: {
-                throw new IllegalArgumentException("Doesn't support binding of " + bufferType);
-            }
-        }
-
         bo.clearUpdateNeeded();
     }
 
-    public void deleteBuffer(VertexBuffer vb) {
-        int bufId = vb.getId();
+    @Override
+    public void deleteBuffer(BufferObject bo) {
+        int bufId = bo.getId();
         if (bufId != -1) {
             // delete buffer
-            intBuf1.put(0, bufId);
-            intBuf1.position(0).limit(1);
+            intBuf1.clear();
+            intBuf1.put(bufId);
+            intBuf1.flip();
             gl.glDeleteBuffers(intBuf1);
-            vb.resetObject();
-
-            //statistics.onDeleteVertexBuffer();
+            bo.resetObject();
+//            statistics.onDeleteBufferObject();
         }
-    }
-
-    @Override
-    public void deleteBuffer(final BufferObject bo) {
-
-        int bufferId = bo.getId();
-        if (bufferId == -1) {
-            return;
-        }
-
-        intBuf1.clear();
-        intBuf1.put(bufferId);
-        intBuf1.flip();
-
-        gl.glDeleteBuffers(intBuf1);
-
-        bo.resetObject();
     }
 
     public void clearVertexAttribs() {
@@ -2756,13 +2704,14 @@ public final class GLRenderer implements Renderer {
             // NOTE: Use id from interleaved buffer if specified
             int bufId = idb != null ? idb.getId() : vb.getId();
             assert bufId != -1;
-            if (context.boundArrayVBO != bufId) {
-                gl.glBindBuffer(GL.GL_ARRAY_BUFFER, bufId);
-                context.boundArrayVBO = bufId;
-                //statistics.onVertexBufferUse(vb, true);
-            } else {
-                //statistics.onVertexBufferUse(vb, false);
-            }
+            bindBuffer(Target.Array, bufId);
+//            if (context.boundArrayVBO != bufId) {
+//                gl.glBindBuffer(GL.GL_ARRAY_BUFFER, bufId);
+//                context.boundArrayVBO = bufId;
+//                //statistics.onVertexBufferUse(vb, true);
+//            } else {
+//                //statistics.onVertexBufferUse(vb, false);
+//            }
 
             if (slotsRequired == 1) {
                 gl.glVertexAttribPointer(loc,
@@ -2846,13 +2795,14 @@ public final class GLRenderer implements Renderer {
         int bufId = indexBuf.getId();
         assert bufId != -1;
 
-        if (context.boundElementArrayVBO != bufId) {
-            gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, bufId);
-            context.boundElementArrayVBO = bufId;
-            //statistics.onVertexBufferUse(indexBuf, true);
-        } else {
-            //statistics.onVertexBufferUse(indexBuf, true);
-        }
+        bindBuffer(Target.ElementArray, bufId);
+//        if (context.boundElementArrayVBO != bufId) {
+//            gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, bufId);
+//            context.boundElementArrayVBO = bufId;
+//            //statistics.onVertexBufferUse(indexBuf, true);
+//        } else {
+//            //statistics.onVertexBufferUse(indexBuf, true);
+//        }
 
         int vertCount = mesh.getVertexCount();
         boolean useInstancing = count > 1 && caps.contains(Caps.MeshInstancing);

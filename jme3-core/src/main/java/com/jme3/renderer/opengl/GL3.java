@@ -88,6 +88,10 @@ public interface GL3 extends GL2 {
     public static final int GL_RGBA_INTEGER = 36249;
 
     public static final int GL_UNIFORM_OFFSET = 0x8A3B;
+    
+    public static final int GL_COPY_READ_BUFFER = 0x8F36;
+    public static final int GL_COPY_WRITE_BUFFER = 0x8F37;
+    public static final int GL_TEXTURE_BUFFER = 0x8C2A;
 
     /**
      * Accepted by the {@code target} parameters of BindBuffer, BufferData, BufferSubData, MapBuffer, UnmapBuffer, GetBufferSubData, and GetBufferPointerv.

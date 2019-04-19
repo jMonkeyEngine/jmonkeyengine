@@ -41,14 +41,14 @@ public class ShaderBufferBlock extends ShaderVariable {
     /**
      * Current used buffer object.
      */
-    protected BufferObject bufferObject;
+    protected UniformBufferObject bufferObject;
 
     /**
      * Set the new buffer object.
      *
      * @param bufferObject the new buffer object.
      */
-    public void setBufferObject(final BufferObject bufferObject) {
+    public void setBufferObject(final UniformBufferObject bufferObject) {
 
         if (bufferObject == null) {
             throw new IllegalArgumentException("for storage block " + name + ": storageData cannot be null");
@@ -87,7 +87,7 @@ public class ShaderBufferBlock extends ShaderVariable {
      *
      * @return the current storage data.
      */
-    public BufferObject getBufferObject() {
+    public UniformBufferObject getBufferObject() {
         return bufferObject;
     }
 }

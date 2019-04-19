@@ -52,6 +52,10 @@ public interface GL4 extends GL3 {
      */
     public static final int GL_SHADER_STORAGE_BUFFER = 0x90D2;
     public static final int GL_SHADER_STORAGE_BLOCK = 0x92E6;
+    
+    public static final int GL_DRAW_INDIRECT_BUFFER = 0x8F3F;
+    public static final int GL_DISPATCH_INDIRECT_BUFFER = 0x90EE;
+    public static final int GL_QUERY_BUFFER = 0x9192;
 
     /**
      *  Accepted by the &lt;pname&gt; parameter of GetIntegerv, GetBooleanv,
