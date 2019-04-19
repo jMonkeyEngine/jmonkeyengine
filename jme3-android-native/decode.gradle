@@ -58,7 +58,7 @@ task generateJavahHeaders(type: Exec) {
     executable org.gradle.internal.jvm.Jvm.current().getExecutable('javac')
     args '-h', decodeSourceDir
     args "@$projectDir/java_classes.jtxt"
-	args '-d', decodeClassesBuildDir
+    args '-d', decodeClassesBuildDir
 }
 
 // Copy jME Android native files to jni directory
