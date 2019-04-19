@@ -9,6 +9,7 @@ String openALSoftFolder = 'openal-soft-e5016f8'
 
 //Working directories for the ndk build.
 String openalsoftBuildDir = "${buildDir}" + File.separator + 'openalsoft'
+String openalsoftClassesBuildDir = "${buildDir}" + File.separator + 'openalsoft_classes'
 String openalsoftBuildJniDir = openalsoftBuildDir + File.separator + 'jni'
 String openalsoftBuildLibsDir = openalsoftBuildDir + File.separator + 'libs'
 
@@ -84,6 +85,7 @@ task generateOpenAlSoftHeaders(type:Exec, dependsOn: copyJmeOpenALSoft) {
     executable org.gradle.internal.jvm.Jvm.current().getExecutable('javac')
     args '-h', openalsoftJmeAndroidPath
     args "@$projectDir/java_classes.jtxt"
+	args '-d', openalsoftClassesBuildDir
 }
 
 task buildOpenAlSoftNativeLib(type: Exec, dependsOn: generateOpenAlSoftHeaders) {
