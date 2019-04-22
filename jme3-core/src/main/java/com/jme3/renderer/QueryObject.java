@@ -178,7 +178,7 @@ public class QueryObject extends NativeObject {
     
     /**
      * Waits until the query result is available and retrieves it.
-     * @return 
+     * @return the result of the query
      * 
      * @throws IllegalArgumentException if this query has not started and ended
      */
@@ -219,7 +219,7 @@ public class QueryObject extends NativeObject {
 
     /**
      * The state of this query.
-     * @return 
+     * @return query state
      */
     public State getState() {
         return state;

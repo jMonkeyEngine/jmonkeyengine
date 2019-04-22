@@ -62,7 +62,7 @@ public class TestTransformFeedback extends SimpleApplication {
         app.settings = new AppSettings(true);
         app.settings.setWidth(800);
         app.settings.setWidth(600);
-        app.settings.putBoolean("GraphicsDebug", true);
+//        app.settings.putBoolean("GraphicsDebug", true);
         app.settings.setRenderer(AppSettings.LWJGL_OPENGL3);
         app.setShowSettings(false);
         app.start();

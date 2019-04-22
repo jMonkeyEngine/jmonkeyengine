@@ -149,7 +149,7 @@ public class TransformFeedbackOutput {
     
     /**
      * Returns true if this output buffer is currently in use.
-     * @return 
+     * @return true if in use
      */
     public boolean isInUse() { return currentlyInUse; }
 
@@ -165,7 +165,7 @@ public class TransformFeedbackOutput {
     /**
      * Removed the binding at specified index.
      * @param i
-     * @return 
+     * @return the binding removed
      */
     public OutputBuffer removeBinding(int i) {
         if(isInUse()) throw new IllegalArgumentException("The output buffer is currently in use!");
@@ -190,7 +190,7 @@ public class TransformFeedbackOutput {
 
     /**
      * Returns the generated primitives which are produced by transform feedback.
-     * @return 
+     * @return mode POINTS, LINES or TRIANGLES
      */
     public Mesh.Mode getMode() {
         return mode;
