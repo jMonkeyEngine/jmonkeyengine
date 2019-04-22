@@ -31,6 +31,8 @@
  */
 package com.jme3.shader;
 
+import com.jme3.material.RenderState;
+import com.jme3.material.TechniqueDef;
 import com.jme3.renderer.Renderer;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.IntMap;
@@ -68,6 +70,15 @@ public final class Shader extends NativeObject {
      * Maps attribute name to the location of the attribute in the shader.
      */
     private final IntMap<Attribute> attribs;
+    
+    /**
+     * Bound transform feedback mode.
+     */
+    private TechniqueDef.TransformFeedbackMode boundTransformFeedbackMode = null;
+    /**
+     * Bound output transform feedback varyings.
+     */
+    private String[] boundTransformFeedbackVaryings = null;
 
     /**
      * Type of shader. The shader will control the pipeline of its type.
@@ -361,12 +372,49 @@ public final class Shader extends NativeObject {
         return shaderSourceList;
     }
 
+    /**
+     * Set transform feedback by passing array of output variables
+     * or disable it by passing null.
+     * 
+     * Only if mode is set to <code>Interleaved</code> or <code>Separate</code> this function has any effect.
+     * 
+     * @param mode
+     *      mode determines how output is written to the transform feedback buffer
+     * 
+     * @param varying 
+     *  <pre>
+     *     An array of strings specifying the names of the varying variables to use for transform feedback. 
+     *     Or null to disable transform feedback.
+     *     
+     *     If mode is Interleaved, the array may contain the following special string:
+     * 
+     *     gl_NextBuffer
+     *         Subsequent captured varyings will be stored in the next transform feedback binding point.
+     *     gl_SkipComponents#
+     *         This specifies that there will be an empty place in the captured data, so the feedback operation will skip writing up to # components. # is a number 1-4. Memory skipped in this way will not be modified. These components still count towards the limitations on transform feedback components to be captured in a single buffer. 
+     * </pre>
+     * 
+     */
+    public void setTransformFeedbackBinding(TechniqueDef.TransformFeedbackMode mode, String[] varying) {
+        boundTransformFeedbackMode = mode;
+        boundTransformFeedbackVaryings = varying;
+        setUpdateNeeded();
+    }
+    public TechniqueDef.TransformFeedbackMode getBoundTransformFeedbackMode() {
+        return boundTransformFeedbackMode;
+    }
+
+    public String[] getBoundTransformFeedbackVaryings() {
+        return boundTransformFeedbackVaryings;
+    }    
+
     @Override
     public String toString() {
         return getClass().getSimpleName() + 
                 "[numSources=" + shaderSourceList.size() +
                 ", numUniforms=" + uniforms.size() +
                 ", numBufferBlocks=" + bufferBlocks.size() +
+                ", transformFeedbackMode=" + boundTransformFeedbackMode +
                 ", shaderSources=" + getSources() + "]";
     }
 

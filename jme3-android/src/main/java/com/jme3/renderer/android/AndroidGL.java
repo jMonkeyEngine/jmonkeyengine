@@ -296,7 +296,9 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     @Override
     public int glGetQueryObjectiv(int query, int pname) {
         IntBuffer buff = IntBuffer.allocate(1);
-        GLES30.glGetQueryiv(query, pname, buff);
+        //bug? wrong method call
+        //GLES30.glGetQueryiv(query, pname, buff);
+        GLES30.glGetQueryObjectuiv(query, pname, buff);
         return buff.get(0);
     }
 
@@ -565,5 +567,15 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     @Override
     public void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer) {
         throw new UnsupportedOperationException("OpenGL ES 2 does not support texture arrays");
+    }
+
+    @Override
+    public void glGetQuery(int target, int pname, IntBuffer params) {
+        GLES30.glGetQueryiv(pname, pname, params);
+    }
+
+    @Override
+    public void glDeleteQueries(IntBuffer ib) {
+        GLES30.glDeleteQueries(ib.limit(), ib);
     }
 }

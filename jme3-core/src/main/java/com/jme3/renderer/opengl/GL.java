@@ -199,6 +199,10 @@ public interface GL {
     public static final int GL_VERTEX_SHADER = 0x8B31;
     public static final int GL_ZERO = 0x0;
     
+    public static final int GL_SAMPLES_PASSED = 35092;
+	public static final int GL_QUERY_COUNTER_BITS = 34916;
+	public static final int GL_CURRENT_QUERY = 34917;
+    
     public void resetStats();
 
     /**
@@ -1303,4 +1307,19 @@ public interface GL {
      * @param height the viewport height.
      */
     public void glViewport(int x, int y, int width, int height);
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glGetQueryiv">Reference Page</a></p>
+     * Returns parameters of a query object target
+     * 
+     * @param target query target
+     * @param pname GL_CURRENT_QUERY or GL_QUERY_COUNTER_BITS
+     * @param value pointer to buffer to store the result
+     */
+    public void glGetQuery(int target, int pname, IntBuffer value);
+    /**
+     * <p><a target="_blank" href="http://docs.gl/gl4/glDeleteQueries">Reference Page</a></p>
+     * Deletes named query objects.
+     * @param ib an array of query objects to be deleted.
+     */
+    public void glDeleteQueries(IntBuffer ib);
 }

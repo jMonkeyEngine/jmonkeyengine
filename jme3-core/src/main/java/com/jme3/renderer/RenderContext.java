@@ -35,6 +35,7 @@ import com.jme3.material.RenderState;
 import com.jme3.material.RenderState.BlendFunc;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.TransformFeedbackOutput;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
 import com.jme3.texture.FrameBuffer;
@@ -75,6 +76,21 @@ public class RenderContext {
      * @see RenderState#setPolyOffset(float, float) 
      */
     public boolean polyOffsetEnabled = false;
+    
+    /**
+     * Stores rasterized discard state.
+     */
+    public boolean rasterizerDiscard = false;
+    
+    /**
+     * Stores transform feedback state.
+     */
+    public int transformFeedbackEnabled = -1;
+    
+    /**
+     * Stored transform feedback output.
+     */
+    public TransformFeedbackOutput transformFeedbackOutput;
     
     /**
      * @see RenderState#setPolyOffset(float, float) 
@@ -281,6 +297,11 @@ public class RenderContext {
     public ColorRGBA clearColor = new ColorRGBA(0,0,0,0);
     
     /**
+     * Started queries.
+     */
+    public int[] startedQueries = new int[6/*QueryObject.Type.values().length*/];
+    
+    /**
      * Reset the RenderContext to default GL state
      */
     public void reset(){
@@ -317,6 +338,8 @@ public class RenderContext {
             boundBO[i] = 0;
         for (int i = 0; i < boundTextures.length; i++)
             boundTextures[i] = null;
+        for (int i = 0; i < startedQueries.length; i++)
+            startedQueries[i] = 0;
 
         textureIndexList.reset();
         boundTextureUnit = 0;
@@ -338,5 +361,9 @@ public class RenderContext {
         depthFunc = RenderState.TestFunction.LessOrEqual;    
         alphaFunc = RenderState.TestFunction.Greater;
         clearColor.set(0,0,0,0);
+        
+        rasterizerDiscard = false;
+        transformFeedbackEnabled = -1;
+        transformFeedbackOutput = null;
     }
 }

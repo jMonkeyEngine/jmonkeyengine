@@ -659,4 +659,44 @@ public class JoglGL implements GL, GL2, GL3, GL4 {
     public void glUniformBlockBinding(final int program, final int uniformBlockIndex, final int uniformBlockBinding) {
         GLContext.getCurrentGL().getGL3bc().glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
     }
+
+    @Override
+    public void glBindBufferRange(int target, int index, int buffer, long offset, long size) {
+        GLContext.getCurrentGL().getGL3().glBindBufferRange(target, index, buffer, offset, size);
+    }
+
+    @Override
+    public void glBeginTransformFeedback(int primitiveMode) {
+        GLContext.getCurrentGL().getGL3().glBeginTransformFeedback(primitiveMode);
+    }
+
+    @Override
+    public void glEndTransformFeedback() {
+        GLContext.getCurrentGL().getGL3().glEndTransformFeedback();
+    }
+
+    @Override
+    public void glTransformFeedbackVaryings(int program, String[] varyings, int bufferMode) {
+        GLContext.getCurrentGL().getGL3().glTransformFeedbackVaryings(program, varyings.length, varyings, bufferMode);
+    }
+
+    @Override
+    public void glGetQuery(int target, int pname, IntBuffer value) {
+        GLContext.getCurrentGL().getGL2().glGetQueryiv(target, pname, value);
+    }
+
+    @Override
+    public void glDeleteQueries(IntBuffer ib) {
+        GLContext.getCurrentGL().getGL2().glDeleteQueries(ib.limit(), ib);
+    }
+
+    @Override
+    public void glBeginQueryIndexed(int target, int index, int id) {
+        GLContext.getCurrentGL().getGL3().glBeginQueryIndexed(target, index, id);
+    }
+
+    @Override
+    public void glEndQueryIndexed(int target, int index) {
+        GLContext.getCurrentGL().getGL3().glEndQueryIndexed(target, index);
+    }
 }

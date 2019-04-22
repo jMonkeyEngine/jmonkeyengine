@@ -34,6 +34,8 @@ package com.jme3.material;
 import com.jme3.export.*;
 import com.jme3.scene.Mesh;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * <code>RenderState</code> specifies material rendering properties that cannot
@@ -432,7 +434,7 @@ public class RenderState implements Cloneable, Savable {
          */
         Invert
     }
-
+    
     static {
         NULL.cullMode = FaceCullMode.Off;
         NULL.depthTest = false;
@@ -446,6 +448,7 @@ public class RenderState implements Cloneable, Savable {
         ADDITIONAL.applyColorWrite = false;
         ADDITIONAL.applyBlendMode = false;
         ADDITIONAL.applyPolyOffset = false;
+        ADDITIONAL.applyRasterizerDiscard = false;
     }
     boolean wireframe = false;
     boolean applyWireFrame = true;
@@ -485,6 +488,8 @@ public class RenderState implements Cloneable, Savable {
     BlendFunc dfactorRGB = BlendFunc.One;
     BlendFunc sfactorAlpha = BlendFunc.One;
     BlendFunc dfactorAlpha = BlendFunc.One;
+    boolean rasterizerDiscard = false;
+    boolean applyRasterizerDiscard = true;
             
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
@@ -515,6 +520,7 @@ public class RenderState implements Cloneable, Savable {
         oc.write(dfactorRGB, "dfactorRGB", dfactorRGB);
         oc.write(sfactorAlpha, "sfactorAlpha", sfactorAlpha);
         oc.write(dfactorAlpha, "dfactorAlpha", dfactorAlpha);
+        oc.write(rasterizerDiscard, "rasterizerDiscard", rasterizerDiscard);
 
         // Only "additional render state" has them set to false by default
         oc.write(applyWireFrame, "applyWireFrame", true);
@@ -526,7 +532,7 @@ public class RenderState implements Cloneable, Savable {
         oc.write(applyPolyOffset, "applyPolyOffset", true);
         oc.write(applyDepthFunc, "applyDepthFunc", true);
         oc.write(applyLineWidth, "applyLineWidth", true);
-
+        oc.write(applyRasterizerDiscard, "applyRasterizerDiscard", true);
     }
 
     public void read(JmeImporter im) throws IOException {
@@ -557,8 +563,8 @@ public class RenderState implements Cloneable, Savable {
         dfactorAlpha = ic.readEnum("dfactorRGB", BlendFunc.class, BlendFunc.One);
         sfactorRGB = ic.readEnum("sfactorAlpha", BlendFunc.class, BlendFunc.One);
         dfactorAlpha = ic.readEnum("dfactorAlpha", BlendFunc.class, BlendFunc.One);
-
-
+        rasterizerDiscard = ic.readBoolean("rasterizerDiscard", false);
+        
         applyWireFrame = ic.readBoolean("applyWireFrame", true);
         applyCullMode = ic.readBoolean("applyCullMode", true);
         applyDepthWrite = ic.readBoolean("applyDepthWrite", true);
@@ -568,6 +574,7 @@ public class RenderState implements Cloneable, Savable {
         applyPolyOffset = ic.readBoolean("applyPolyOffset", true);
         applyDepthFunc = ic.readBoolean("applyDepthFunc", true);
         applyLineWidth = ic.readBoolean("applyLineWidth", true);
+        applyRasterizerDiscard = ic.readBoolean("applyRasterizerDiscard", true);
 
     }
 
@@ -698,6 +705,8 @@ public class RenderState implements Cloneable, Savable {
         if(lineWidth != rs.lineWidth){
             return false;
         }
+        
+        if(rasterizerDiscard != rs.rasterizerDiscard) return false;
 
         return true;
     }
@@ -998,6 +1007,17 @@ public class RenderState implements Cloneable, Savable {
         this.applyLineWidth = true;
         cachedHashCode = -1;
     }
+
+    /**
+     * Set whether rasterization stage should be skipped.
+     * Eg. useful with conjunction with transform feedback.
+     * @param rasterizerDiscard 
+     */
+    public void setRasterizerDiscard(boolean rasterizerDiscard) {
+        applyRasterizerDiscard = true;
+        this.rasterizerDiscard = rasterizerDiscard;
+        cachedHashCode = -1;
+    }   
 
     /**
      * Check if stencil test is enabled.
@@ -1372,7 +1392,15 @@ public class RenderState implements Cloneable, Savable {
         return lineWidth;
     }
 
-
+    /**
+     * Check if rasterizer discard is enabled.
+     * 
+     * @return true is rasterizer discard is enabled
+     */
+    public boolean isRasterizerDiscard() {
+        return rasterizerDiscard;
+    }
+    
 
     public boolean isApplyBlendMode() {
         return applyBlendMode;
@@ -1412,6 +1440,9 @@ public class RenderState implements Cloneable, Savable {
         return applyLineWidth;
     }
 
+    public boolean isApplyRasterizerDiscard() {
+        return applyRasterizerDiscard;
+    }    
     /**
      *
      */
@@ -1445,6 +1476,7 @@ public class RenderState implements Cloneable, Savable {
             hash = 79 * hash + this.dfactorRGB.hashCode();
             hash = 79 * hash + this.sfactorAlpha.hashCode();
             hash = 79 * hash + this.dfactorAlpha.hashCode();
+            hash = 79 * hash + (this.rasterizerDiscard ? 1 : 0);
             cachedHashCode = hash;
         }
         return cachedHashCode;
@@ -1570,6 +1602,12 @@ public class RenderState implements Cloneable, Savable {
         } else {
             state.lineWidth = lineWidth;
         }
+        if (additionalState.applyRasterizerDiscard) {
+            state.rasterizerDiscard = additionalState.rasterizerDiscard;
+        }
+        else {
+            state.rasterizerDiscard = rasterizerDiscard;
+        }
         state.cachedHashCode = -1;
         return state;
     }
@@ -1597,6 +1635,7 @@ public class RenderState implements Cloneable, Savable {
         blendEquation = state.blendEquation;
         depthFunc = state.depthFunc;
         lineWidth = state.lineWidth;
+        rasterizerDiscard = state.rasterizerDiscard;
 
         applyWireFrame =  true;
         applyCullMode =  true;
@@ -1607,6 +1646,7 @@ public class RenderState implements Cloneable, Savable {
         applyPolyOffset =  true;
         applyDepthFunc = true;
         applyLineWidth = true;
+        applyRasterizerDiscard = true;
         
         sfactorRGB = state.sfactorRGB;
         dfactorRGB = state.dfactorRGB;
@@ -1637,6 +1677,8 @@ public class RenderState implements Cloneable, Savable {
                 + "\noffsetUnits=" + offsetUnits
                 + "\nlineWidth=" + lineWidth
                 + (blendMode.equals(BlendMode.Custom)? "\ncustomBlendFactors=("+sfactorRGB+", "+dfactorRGB+", "+sfactorAlpha+", "+dfactorAlpha+")":"")
+                + "\nrasterizerDiscard=" + rasterizerDiscard
+                + "\napplyRasterizerDiscard=" + applyRasterizerDiscard
                 +"\n]";
     }
 }

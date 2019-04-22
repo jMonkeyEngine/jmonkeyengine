@@ -92,6 +92,13 @@ public interface GL3 extends GL2 {
     public static final int GL_COPY_READ_BUFFER = 0x8F36;
     public static final int GL_COPY_WRITE_BUFFER = 0x8F37;
     public static final int GL_TEXTURE_BUFFER = 0x8C2A;
+    
+    /**
+     * Query target (OpenGL 3.3+)
+     */
+    public static final int GL_ANY_SAMPLES_PASSED = 35887;
+    public static final int GL_TIMESTAMP = 36392;
+
 
     /**
      * Accepted by the {@code target} parameters of BindBuffer, BufferData, BufferSubData, MapBuffer, UnmapBuffer, GetBufferSubData, and GetBufferPointerv.
@@ -130,6 +137,20 @@ public interface GL3 extends GL2 {
      * BindBufferRange, BindBufferOffset and BindBufferBase.
      */
     public static final int GL_TRANSFORM_FEEDBACK_BUFFER = 0x8C8E;
+    public static final int GL_TRANSFORM_FEEDBACK_BUFFER_START = 35972;
+	public static final int GL_TRANSFORM_FEEDBACK_BUFFER_SIZE = 35973;
+	public static final int GL_TRANSFORM_FEEDBACK_BUFFER_BINDING = 35983;
+	public static final int GL_INTERLEAVED_ATTRIBS = 35980;
+	public static final int GL_SEPARATE_ATTRIBS = 35981;
+	public static final int GL_PRIMITIVES_GENERATED = 35975;
+	public static final int GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN = 35976;
+	public static final int GL_RASTERIZER_DISCARD = 35977;
+	public static final int GL_MAX_TRANSFORM_FEEDBACK_INTERLEAVED_COMPONENTS = 35978;
+	public static final int GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS = 35979;
+	public static final int GL_MAX_TRANSFORM_FEEDBACK_SEPARATE_COMPONENTS = 35968;
+	public static final int GL_TRANSFORM_FEEDBACK_VARYINGS = 35971;
+	public static final int GL_TRANSFORM_FEEDBACK_BUFFER_MODE = 35967;
+	public static final int GL_TRANSFORM_FEEDBACK_VARYING_MAX_LENGTH = 35958;
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glBindFragDataLocation">Reference Page</a></p>
@@ -199,6 +220,8 @@ public interface GL3 extends GL2 {
      * @param buffer a buffer object to bind to the specified binding point
      */
     public void glBindBufferBase(int target, int index, int buffer);
+    
+    public void glBindBufferRange(int target, int index, int buffer, long offset, long size);
 
     /**
      * Binding points for active uniform blocks are assigned using glUniformBlockBinding. Each of a program's active
@@ -219,4 +242,13 @@ public interface GL3 extends GL2 {
      *                            uniformBlockIndex within program.
      */
     public void glUniformBlockBinding(int program, int uniformBlockIndex, int uniformBlockBinding);
+
+    public void glTransformFeedbackVaryings(int program, String[] varyings, int bufferMode);
+    
+    public void glBeginTransformFeedback(int primitiveMode);
+    
+    public void glEndTransformFeedback();
+    
+    
+
 }

@@ -646,4 +646,44 @@ public class LwjglGL extends LwjglRender implements GL, GL2, GL3, GL4 {
     public void glUniformBlockBinding(final int program, final int uniformBlockIndex, final int uniformBlockBinding) {
         GL31.glUniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
     }
+
+    @Override
+    public void glBindBufferRange(int target, int index, int buffer, long offset, long size) {
+        GL30.glBindBufferRange(target, index, buffer, offset, size);
+    }
+
+    @Override
+    public void glBeginTransformFeedback(int primitiveMode) {
+        GL30.glBeginTransformFeedback(primitiveMode);
+    }
+
+    @Override
+    public void glEndTransformFeedback() {
+        GL30.glEndTransformFeedback();
+    }
+
+    @Override
+    public void glTransformFeedbackVaryings(int program, String[] varyings, int bufferMode) {
+        GL30.glTransformFeedbackVaryings(program, varyings, bufferMode);
+    }
+
+    @Override
+    public void glGetQuery(int target, int pname, IntBuffer value) {
+        GL20.glGetQueryiv(target, pname, value);
+    }
+
+    @Override
+    public void glDeleteQueries(IntBuffer ib) {
+        GL20.glDeleteQueries(ib);
+    }
+
+    @Override
+    public void glBeginQueryIndexed(int target, int index, int id) {
+        GL40.glBeginQueryIndexed(target, index, id);
+    }
+
+    @Override
+    public void glEndQueryIndexed(int target, int index) {
+        GL40.glEndQueryIndexed(target, index);
+    }
 }

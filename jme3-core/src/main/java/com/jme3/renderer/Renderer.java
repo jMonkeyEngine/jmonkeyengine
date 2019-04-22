@@ -35,6 +35,7 @@ import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.BufferObject;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.TransformFeedbackOutput;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.UniformBufferObject;
 import com.jme3.shader.Shader;
@@ -432,4 +433,46 @@ public interface Renderer {
      */
     public boolean isTaskResultAvailable(int taskId);
 
+    /**
+     * Enable transform feedback and set the output buffer.
+     * Multiple render commands can be exectured to fill the output buffer
+     * as long as they use the same compiled shader. (Materials can be different
+     * as long as only their uniforms are updated, and such action wont trigger
+     * shader recompilation.)
+     * If multiple materials are present a render exception will be thrown when
+     * rendering the first different material.
+     * 
+     * @param output transform feedback output to write to or null to disable
+     *          transform feedback
+     */
+    public void setTransformFeedbackOutput(TransformFeedbackOutput output);
+    
+    /**
+     * Returns true is query results is ready.
+     * @param q query object
+     * @return true is result is ready
+     */
+    public boolean isQueryResultReady(QueryObject q);
+    /**
+     * Retrieves the query result, blocking if query has
+     * not completed yet.
+     * @param q query object
+     * @return value of the query
+     */
+    public long getQueryResult(QueryObject q);
+    /**
+     * Start the query.
+     * @param q query object
+     */
+    public void beginQuery(QueryObject q);
+    /**
+     * Ends the query.
+     * @param q query object.
+     */
+    public void endQuery(QueryObject q);
+    /**
+     * Deletes the query.
+     * @param q query object.
+     */
+    public void deleteQuery(QueryObject q);
 }

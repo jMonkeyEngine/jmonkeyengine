@@ -51,8 +51,7 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
         checkError();
     }
     
-    public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dFactorAlpha)
-    {
+    public void glBlendFuncSeparate(int sfactorRGB, int dfactorRGB, int sfactorAlpha, int dFactorAlpha) {
        gl.glBlendFuncSeparate(sfactorRGB, dfactorRGB, sfactorAlpha, dFactorAlpha);
        checkError();
     }
@@ -206,6 +205,7 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
 
     @Override
     public void glEndQuery(int target) {
+        gl.glEndQuery(target);
         checkError();
     }
 
@@ -221,7 +221,7 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
 
     @Override
     public void glGenQueries(int num, IntBuffer ids) {
-        glGenQueries(num, ids);
+        gl.glGenQueries(num, ids);
         checkError();
     }
 
@@ -607,6 +607,18 @@ public class GLDebugES extends GLDebug implements GL, GLFbo, GLExt {
     @Override
     public void glFramebufferTextureLayerEXT(int param1, int param2, int param3, int param4, int param5) {
         glfbo.glFramebufferTextureLayerEXT(param1, param2, param3, param4, param5);
+        checkError();
+    }
+
+    @Override
+    public void glGetQuery(int target, int pname, IntBuffer params) {
+        gl.glGetQuery(target, pname, params);
+        checkError();
+    }
+
+    @Override
+    public void glDeleteQueries(IntBuffer ib) {
+        gl.glDeleteQueries(ib);
         checkError();
     }
 }

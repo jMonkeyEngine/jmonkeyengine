@@ -117,6 +117,29 @@ public class TechniqueDef implements Savable, Cloneable {
          */
         StaticPass
     }
+    
+    /**
+     * <code>TransformFeedbackMode</code> specifies how data is outputted
+     * to a transform feedback buffer.
+     */
+    public enum TransformFeedbackMode {
+        /**
+         * TransformFeedback is disabled.
+         */
+        Off,
+        /**
+         * All captured outputs go into the same buffer, interleaved with one another.
+         */
+        Interleaved,
+        /**
+         * Each captured output goes into a separate buffer binding point.
+         */
+        Separate,
+        /**
+         * The captured data is specified in-shader.
+         */
+        InShader
+    }
 
     public enum ShadowMode {
         Disable,
@@ -164,6 +187,15 @@ public class TechniqueDef implements Savable, Cloneable {
 
     //used to find the best fit technique
     private float weight = 0;
+    
+     /**
+     * Bound transform feedback mode.
+     */
+    private TransformFeedbackMode boundTransformFeedbackMode = null;
+    /**
+     * Bound output transform feedback varyings.
+     */
+    private String[] boundTransformFeedbackVaryings = null;
 
     /**
      * Creates a new technique definition.
@@ -518,6 +550,9 @@ public class TechniqueDef implements Savable, Cloneable {
             shader.addUniformBinding(binding);
         }
         
+        if(boundTransformFeedbackMode != null)
+            shader.setTransformFeedbackBinding(boundTransformFeedbackMode, boundTransformFeedbackVaryings);
+        
         return shader;
     }
     
@@ -673,6 +708,8 @@ public class TechniqueDef implements Savable, Cloneable {
         oc.write(usesNodes, "usesNodes", false);
         oc.writeSavableArrayList((ArrayList)shaderNodes,"shaderNodes", null);
         oc.write(shaderGenerationInfo, "shaderGenerationInfo", null);
+        oc.write(boundTransformFeedbackMode, "boundTransformFeedbackMode", null);
+        oc.write(boundTransformFeedbackVaryings, "boundTransformFeedbackVaryings", null);
 
         // TODO: Finish this when Map<String, String> export is available
 //        oc.write(defineParams, "defineParams", null);
@@ -710,6 +747,9 @@ public class TechniqueDef implements Savable, Cloneable {
         usesNodes = ic.readBoolean("usesNodes", false);
         shaderNodes = ic.readSavableArrayList("shaderNodes", null);
         shaderGenerationInfo = (ShaderGenerationInfo) ic.readSavable("shaderGenerationInfo", null);
+    
+        boundTransformFeedbackMode = ic.readEnum("boundTransformFeedbackMode", TransformFeedbackMode.class, null);
+        boundTransformFeedbackVaryings = ic.readStringArray("boundTransformFeedbackVaryings", null);
     }
 
     public List<ShaderNode> getShaderNodes() {
@@ -744,6 +784,40 @@ public class TechniqueDef implements Savable, Cloneable {
     public void setShaderGenerationInfo(ShaderGenerationInfo shaderGenerationInfo) {
         this.shaderGenerationInfo = shaderGenerationInfo;
     }
+    /**
+     * Set transform feedback by passing array of output variables
+     * or disable it by passing null.
+     * 
+     * Only if mode is set to <code>Interleaved</code> or <code>Separate</code> this function has any effect.
+     * 
+     * @param mode
+     *      mode determines how output is written to the transform feedback buffer
+     * 
+     * @param varying 
+     *  <pre>
+     *     An array of strings specifying the names of the varying variables to use for transform feedback. 
+     *     Or null to disable transform feedback.
+     *     
+     *     If mode is Interleaved, the array may contain the following special string:
+     * 
+     *     gl_NextBuffer
+     *         Subsequent captured varyings will be stored in the next transform feedback binding point.
+     *     gl_SkipComponents#
+     *         This specifies that there will be an empty place in the captured data, so the feedback operation will skip writing up to # components. # is a number 1-4. Memory skipped in this way will not be modified. These components still count towards the limitations on transform feedback components to be captured in a single buffer. 
+     * </pre>
+     * 
+     */
+    public void setTransformFeedbackBinding(TransformFeedbackMode mode, String[] varying) {
+        boundTransformFeedbackMode = mode;
+        boundTransformFeedbackVaryings = varying;
+    }
+    public TransformFeedbackMode getBoundTransformFeedbackMode() {
+        return boundTransformFeedbackMode;
+    }
+
+    public CharSequence[] getBoundTransformFeedbackVaryings() {
+        return boundTransformFeedbackVaryings;
+    }    
 
     @Override
     public String toString() {
@@ -753,7 +827,9 @@ public class TechniqueDef implements Savable, Cloneable {
                 + ", lightMode=" + lightMode
                 + ", usesNodes=" + usesNodes
                 + ", renderState=" + renderState
-                + ", forcedRenderState=" + forcedRenderState + "]";
+                + ", forcedRenderState=" + forcedRenderState
+                + ", transformFeedbackMode=" + boundTransformFeedbackMode +
+                "]";
     }
 
     /**
@@ -818,6 +894,10 @@ public class TechniqueDef implements Savable, Cloneable {
 
         clone.worldBinds = new ArrayList<>(worldBinds.size());
         clone.worldBinds.addAll(worldBinds);
+        
+        if(boundTransformFeedbackMode != null) {
+            clone.setTransformFeedbackBinding(boundTransformFeedbackMode, boundTransformFeedbackVaryings);
+        }
 
         return clone;
     }

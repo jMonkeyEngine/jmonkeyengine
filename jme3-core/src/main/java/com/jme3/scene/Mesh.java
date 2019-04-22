@@ -896,6 +896,19 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     }
 
     /**
+     * Set the number of instances that will be drawn.
+     * This method is optional, and useful if one does not want
+     * to draw all the instances.
+     * Otherwise updateCounts() will set instanceCount to the maximum
+     * number of instances.
+     * This value will be overwritten if updateCounts() is called.
+     * @param instanceCount number of instances
+     */
+    public void setInstanceCount(int instanceCount) {
+        this.instanceCount = instanceCount;
+    }
+    
+    /**
      * Gets the triangle vertex positions at the given triangle index
      * and stores them into the v1, v2, v3 arguments.
      *
