@@ -87,6 +87,17 @@ public class DetailedProfiler implements AppProfiler {
             closeFrame();
         }
     }
+    
+    
+    @Override
+    public void appSubStep(String... additionalInfo) {
+        if (data != null) {
+            String pathStep = getPath("", additionalInfo);
+            path.setLength(0);
+            path.append(curAppPath).append(pathStep);
+            addStep(path.toString(), System.nanoTime());
+        }
+    }
 
     private void closeFrame() {
         //close frame
