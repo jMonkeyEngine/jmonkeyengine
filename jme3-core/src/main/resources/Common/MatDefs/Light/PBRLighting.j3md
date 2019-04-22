@@ -118,6 +118,9 @@ MaterialDef PBR Lighting {
         Boolean UseVertexColor
 
         Boolean BackfaceShadows : false
+
+        //For ambient filter
+        Color FilterColor
     }
 
     Technique {
@@ -161,6 +164,7 @@ MaterialDef PBR Lighting {
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
             HORIZON_FADE: HorizonFade
+            FILTER_COLOR : FilterColor
         }
     }
 
