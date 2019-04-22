@@ -69,7 +69,7 @@ public class TestTransformFeedback extends SimpleApplication {
     }
    
     TransformFeedbackOutput tf; //transform feedback object
-    QueryObject query; //qieru to retrieve the number of visible instances
+    QueryObject query; //query to retrieve the number of visible instances
     Geometry cullGeometry; //geometry with location of instances
     
     Geometry instancedGeometry; //the actual instanced geometry

@@ -698,10 +698,6 @@ public final class GLRenderer implements Renderer {
 
     public void setBackgroundColor(ColorRGBA color) {
         if (!context.clearColor.equals(color)) {
-            if(context.rasterizerDiscard) {
-                gl.glDisable(GL3.GL_RASTERIZER_DISCARD);
-                context.rasterizerDiscard = false;
-            }
             gl.glClearColor(color.r, color.g, color.b, color.a);
             context.clearColor.set(color);
         }
