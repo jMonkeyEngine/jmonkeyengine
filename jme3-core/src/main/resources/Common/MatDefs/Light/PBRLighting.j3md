@@ -119,8 +119,8 @@ MaterialDef PBR Lighting {
 
         Boolean BackfaceShadows : false
 
-        //For ambient filter
-        Color FilterColor
+        //the ambient color
+        Color AmbientColor
     }
 
     Technique {
@@ -164,7 +164,7 @@ MaterialDef PBR Lighting {
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
             HORIZON_FADE: HorizonFade
-            FILTER_COLOR : FilterColor
+            AMBIENT_COLOR : AmbientColor
         }
     }
 

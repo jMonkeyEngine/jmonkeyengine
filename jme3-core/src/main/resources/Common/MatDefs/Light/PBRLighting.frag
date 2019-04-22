@@ -94,8 +94,8 @@ varying vec3 wNormal;
   uniform float m_AlphaDiscardThreshold;
 #endif
 
-#ifdef FILTER_COLOR
-  uniform vec4 m_FilterColor;
+#ifdef AMBIENT_COLOR
+  uniform vec4 m_AmbientColor;
 #endif
 
 void main(){
@@ -299,10 +299,10 @@ void main(){
             weight3 /= weightSum;
         #endif
 
-        #ifdef FILTER_COLOR
-            color1.rgb *= m_FilterColor.rgb;
-            color2.rgb *= m_FilterColor.rgb;
-            color3.rgb *= m_FilterColor.rgb;
+        #ifdef AMBIENT_COLOR
+            color1.rgb *= m_AmbientColor.rgb;
+            color2.rgb *= m_AmbientColor.rgb;
+            color3.rgb *= m_AmbientColor.rgb;
         #endif 
         gl_FragColor.rgb += color1 * clamp(weight1,0.0,1.0) + color2 * clamp(weight2,0.0,1.0) + color3 * clamp(weight3,0.0,1.0);
 
