@@ -2,6 +2,8 @@ if (!hasProperty('mainClass')) {
     ext.mainClass = ''
 }
 
+String classBuildDir = "${buildDir}" + File.separator + 'classes'
+
 sourceSets {
     main {
         java {
@@ -27,13 +29,10 @@ task generateNativeHeaders(type: Exec, dependsOn: classes) {
     def nativeIncludes = new File(project(":jme3-bullet-native").projectDir, "src/native/cpp")
 	def filesList = "\"" + files0.join("\"\n\"") + "\"\n\"" + files1.join("\"\n\"") + "\"\n\"" + files2.join("\"\n\"") + "\"\n\"" + files3.join("\"\n\"") + "\"\n\"" + files4.join("\"\n\"") + "\"\n\"" + files5.join("\"\n\"") + "\""
 	new File("$projectDir/java_classes.jtxt").text = filesList.replaceAll(java.util.regex.Pattern.quote("\\"), java.util.regex.Matcher.quoteReplacement("/"))
-    //project.logger.lifecycle("Files: " + files0.size())
-    //project.logger.lifecycle("Files: " + files1.size())
     executable org.gradle.internal.jvm.Jvm.current().getExecutable('javac')
     args "-h", nativeIncludes
-    //args "-classpath", classpath
     args "@$projectDir/java_classes.jtxt"
-    //args classes.split(",").collect { it.trim() }
+    args '-d', classBuildDir
 }
 
 assemble.dependsOn(generateNativeHeaders)
