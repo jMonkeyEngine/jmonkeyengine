@@ -210,13 +210,13 @@ public class AnimComposer extends AbstractControl {
     }
 
     /**
-     * Returns an unmodifiable set of all available animations. When an attempt
-     * is made to modify the set, an UnsupportedOperationException is thrown.
+     * Returns an unmodifiable collection of all available animations. When an attempt
+     * is made to modify the collection, an UnsupportedOperationException is thrown.
      *
-     * @return the unmodifiable set of animations
+     * @return the unmodifiable collection of animations
      */
-    public Set<AnimClip> getAnimClips() {
-        return Collections.unmodifiableSet(new HashSet<>(animClipMap.values()));
+    public Collection<AnimClip> getAnimClips() {
+        return Collections.unmodifiableCollection(animClipMap.values());
     }
 
     /**
