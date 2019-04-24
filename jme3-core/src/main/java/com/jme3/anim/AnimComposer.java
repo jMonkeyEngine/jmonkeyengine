@@ -3,7 +3,10 @@ package com.jme3.anim;
 import com.jme3.anim.tween.Tween;
 import com.jme3.anim.tween.Tweens;
 import com.jme3.anim.tween.action.*;
-import com.jme3.export.*;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.control.AbstractControl;
@@ -206,12 +209,25 @@ public class AnimComposer extends AbstractControl {
         }
     }
 
+    /**
+     * Returns an unmodifiable collection of all available animations. When an attempt
+     * is made to modify the collection, an UnsupportedOperationException is thrown.
+     *
+     * @return the unmodifiable collection of animations
+     */
     public Collection<AnimClip> getAnimClips() {
         return Collections.unmodifiableCollection(animClipMap.values());
     }
 
-    public Collection<String> getAnimClipsNames() {
-        return Collections.unmodifiableCollection(animClipMap.keySet());
+    /**
+     * Returns an unmodifiable set of all available animation names. When an
+     * attempt is made to modify the set, an UnsupportedOperationException is
+     * thrown.
+     *
+     * @return the unmodifiable set of animation names.
+     */
+    public Set<String> getAnimClipsNames() {
+        return Collections.unmodifiableSet(animClipMap.keySet());
     }
 
     @Override
