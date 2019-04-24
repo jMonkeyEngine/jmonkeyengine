@@ -296,7 +296,7 @@ void main(){
             weight3 /= weightSum;
         #endif
 
-        #ifdef AMBIENT_LIGHT_COLOR
+        #if USE_AMBIENT_LIGHT
             color1.rgb *= g_AmbientLightColor.rgb;
             color2.rgb *= g_AmbientLightColor.rgb;
             color3.rgb *= g_AmbientLightColor.rgb;
