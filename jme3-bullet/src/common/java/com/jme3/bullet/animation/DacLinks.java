@@ -127,8 +127,7 @@ public class DacLinks
     // constructors
 
     /**
-     * Instantiate an enabled control without any linked bones or attachments
-     * (torso only).
+     * Instantiate an enabled control without any linked bones (torso only).
      */
     DacLinks() {
     }
