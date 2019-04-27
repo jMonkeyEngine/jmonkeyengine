@@ -41,8 +41,8 @@ import de.lessvoid.nifty.screen.ScreenController;
  * Test case for JME issue #99: blendMode="multiply" in Nifty renders
  * incorrectly.
  * <p>
- * If successful, two text labels will be visible. If unsuccessful, only the top
- * one will be visible.
+ * If successful, two text labels will be legible. If unsuccessful, only the top
+ * one will be legible.
  *
  * @author Stephen Gold sgold@sonic.net
  */
