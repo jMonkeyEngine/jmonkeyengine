@@ -12,6 +12,7 @@ varying vec4 Color;
 
 uniform vec4 g_LightData[NB_LIGHTS];
 uniform vec3 g_CameraPosition;
+uniform vec4 g_AmbientLightColor;
 
 uniform float m_Roughness;
 uniform float m_Metallic;
@@ -40,7 +41,7 @@ varying vec3 wPosition;
 #endif
 
 #ifdef USE_PACKED_MR
-     uniform sampler2D m_MetallicRoughnessMap;
+  uniform sampler2D m_MetallicRoughnessMap;
 #else
     #ifdef METALLICMAP
       uniform sampler2D m_MetallicMap;
@@ -51,10 +52,10 @@ varying vec3 wPosition;
 #endif
 
 #ifdef EMISSIVE
-    uniform vec4 m_Emissive;
+  uniform vec4 m_Emissive;
 #endif
 #ifdef EMISSIVEMAP
-    uniform sampler2D m_EmissiveMap;
+  uniform sampler2D m_EmissiveMap;
 #endif
 #if defined(EMISSIVE) || defined(EMISSIVEMAP)
     uniform float m_EmissivePower;
@@ -91,7 +92,7 @@ varying vec3 wPosition;
 varying vec3 wNormal;
 
 #ifdef DISCARD_ALPHA
-uniform float m_AlphaDiscardThreshold;
+  uniform float m_AlphaDiscardThreshold;
 #endif
 
 void main(){
@@ -273,7 +274,7 @@ void main(){
             float ndf3 = renderProbe(viewDir, wPosition, normal, norm, Roughness, diffuseColor, specularColor, ndotv, ao, g_LightProbeData3, g_ShCoeffs3, g_PrefEnvMap3, color3);
         #endif
 
-         #if NB_PROBES >= 2
+        #if NB_PROBES >= 2
             float invNdf =  max(1.0 - ndf,0.0);
             float invNdf2 =  max(1.0 - ndf2,0.0);
             float sumNdf = ndf + ndf2;
@@ -293,6 +294,12 @@ void main(){
             weight1 /= weightSum;
             weight2 /= weightSum;
             weight3 /= weightSum;
+        #endif
+
+        #if USE_AMBIENT_LIGHT
+            color1.rgb *= g_AmbientLightColor.rgb;
+            color2.rgb *= g_AmbientLightColor.rgb;
+            color3.rgb *= g_AmbientLightColor.rgb;
         #endif
         gl_FragColor.rgb += color1 * clamp(weight1,0.0,1.0) + color2 * clamp(weight2,0.0,1.0) + color3 * clamp(weight3,0.0,1.0);
 
