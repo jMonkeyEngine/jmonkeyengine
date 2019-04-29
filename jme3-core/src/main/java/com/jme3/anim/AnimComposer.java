@@ -29,7 +29,7 @@ public class AnimComposer extends AbstractControl {
     private Map<String, Layer> layers = new LinkedHashMap<>();
 
     public AnimComposer() {
-        layers.put(DEFAULT_LAYER, new Layer());
+        layers.put(DEFAULT_LAYER, new Layer(this));
     }
 
     /**
@@ -171,7 +171,7 @@ public class AnimComposer extends AbstractControl {
     }
 
     public void makeLayer(String name, AnimationMask mask) {
-        Layer l = new Layer();
+        Layer l = new Layer(this);
         l.mask = mask;
         layers.put(name, l);
     }
@@ -311,14 +311,19 @@ public class AnimComposer extends AbstractControl {
         oc.write(globalSpeed, "globalSpeed", 1f);
     }
 
-    private class Layer implements JmeCloneable {
+    private static class Layer implements JmeCloneable {
+        private AnimComposer ac;
         private Action currentAction;
         private AnimationMask mask;
         private float weight;
         private double time;
 
+        public Layer(AnimComposer ac) {
+            this.ac = ac;
+        }
+        
         public void advance(float tpf) {
-            time += tpf * currentAction.getSpeed() * globalSpeed;
+            time += tpf * currentAction.getSpeed() * ac.globalSpeed;
             // make sure negative time is in [0, length] range
             if (time < 0) {
                 double length = currentAction.getLength();
@@ -339,6 +344,7 @@ public class AnimComposer extends AbstractControl {
 
         @Override
         public void cloneFields(Cloner cloner, Object original) {
+            ac = cloner.clone(ac);
             currentAction = null;
         }
     }
