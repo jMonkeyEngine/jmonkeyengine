@@ -300,6 +300,7 @@ public class AnimComposer extends AbstractControl {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         animClipMap = (Map<String, AnimClip>) ic.readStringSavableMap("animClipMap", new HashMap<String, AnimClip>());
+        globalSpeed = ic.readFloat("globalSpeed", 1f);
     }
 
     @Override
@@ -307,6 +308,7 @@ public class AnimComposer extends AbstractControl {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.writeStringSavableMap(animClipMap, "animClipMap", new HashMap<String, AnimClip>());
+        oc.write(globalSpeed, "globalSpeed", 1f);
     }
 
     private class Layer implements JmeCloneable {
