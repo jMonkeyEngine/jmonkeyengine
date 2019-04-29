@@ -15,7 +15,7 @@ matrix:
     env: UPLOAD=true UPLOAD_NATIVE=true
   - os: linux
     jdk: openjdk11
-    dist: precise
+    dist: xenial
   - os: osx
     osx_image: xcode9.3
     env: UPLOAD_NATIVE=true
