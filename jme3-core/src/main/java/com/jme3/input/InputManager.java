@@ -42,6 +42,7 @@ import com.jme3.util.IntMap.Entry;
 import com.jme3.util.SafeArrayList;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -106,6 +107,7 @@ public class InputManager implements RawInputListener {
     private final IntMap<Float> axisValues = new IntMap<Float>();
     private final SafeArrayList<RawInputListener> rawListeners = new SafeArrayList<RawInputListener>(RawInputListener.class);
     private final ArrayList<InputEvent> inputQueue = new ArrayList<InputEvent>();
+    private final List<JoystickConnectionListener> joystickConnectionListeners = new ArrayList<>();
 
     private static class Mapping {
 
@@ -953,4 +955,52 @@ public class InputManager implements RawInputListener {
         cursorPos.set(evt.getX(), evt.getY());
         inputQueue.add(evt);
     }
+
+    /**
+     * Re-sets the joystick list when a joystick is added or removed.
+     * This should only be called internally.
+     *
+     * @param joysticks
+     */
+    public void setJoysticks(Joystick[] joysticks) {
+        this.joysticks = joysticks;
+    }
+
+    /**
+     * Add a listener that reports when a joystick has been added or removed.
+     * Currently only implemented in LWJGL3
+     * @param listener the listner.
+     */
+    public boolean addJoystickConnectionListener(JoystickConnectionListener listener) {
+        return joystickConnectionListeners.add(listener);
+    }
+
+    /**
+     * Remove an existing listener.
+     * @param listener the listener to remove.
+     * @return true if this listener was removed, or false if it was not found.
+     */
+    public boolean removeJoystickConnectionListener(JoystickConnectionListener listener) {
+        return joystickConnectionListeners.remove(listener);
+    }
+
+    /**
+     * Remove all joystick connection listeners.
+     */
+    public void clearJoystickConnectionListeners() {
+        joystickConnectionListeners.clear();
+    }
+
+    /**
+     * Called when a joystick has been added or removed.
+     * This should only be called internally.
+     * @param joystickId the ID of the joystick.
+     * @param event      the event that occured (connected / disconnected).
+     */
+    public void fireJoystickConnectionEvent(int joystickId, int event) {
+        for (JoystickConnectionListener listener : joystickConnectionListeners) {
+            listener.connectionChanged(joystickId, JoystickState.fromCode(event));
+        }
+    }
+
 }

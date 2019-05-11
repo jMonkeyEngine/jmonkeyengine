@@ -65,6 +65,7 @@ import com.jme3.util.LWJGLBufferAllocator.ConcurrentLWJGLBufferAllocator;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWJoystickCallback;
 import org.lwjgl.opencl.APPLEGLSharing;
 import org.lwjgl.opencl.CL10;
 import org.lwjgl.opencl.KHRGLSharing;
@@ -232,6 +233,14 @@ public abstract class LwjglContext implements JmeContext {
         if (joyInput != null) {
             joyInput.initialize();
         }
+
+        GLFW.glfwSetJoystickCallback(new GLFWJoystickCallback() {
+            @Override
+            public void invoke(int jid, int event) {
+                joyInput.reloadJoysticks();
+                joyInput.fireJoystickConnectionEvent(jid, event);
+            }
+        });
 
         renderable.set(true);
     }
