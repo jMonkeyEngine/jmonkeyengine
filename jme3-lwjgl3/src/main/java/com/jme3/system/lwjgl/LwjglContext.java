@@ -37,6 +37,8 @@ import static java.util.stream.Collectors.toSet;
 import static org.lwjgl.opencl.CL10.CL_CONTEXT_PLATFORM;
 import static org.lwjgl.opengl.GL.createCapabilities;
 import static org.lwjgl.opengl.GL11.glGetInteger;
+
+import com.jme3.input.JoystickState;
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
@@ -238,7 +240,12 @@ public abstract class LwjglContext implements JmeContext {
             @Override
             public void invoke(int jid, int event) {
                 joyInput.reloadJoysticks();
-                joyInput.fireJoystickConnectionEvent(jid, event);
+
+                JoystickState state = event == GLFW.GLFW_CONNECTED
+                        ? JoystickState.Connected
+                        : JoystickState.Disconnected;
+
+                joyInput.fireJoystickConnectionEvent(jid, state);
             }
         });
 
