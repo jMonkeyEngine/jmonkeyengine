@@ -49,7 +49,7 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class GlfwJoystickInput implements JoyInput {
 
-    private static final Logger LOGGER = Logger.getLogger(InputManager.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(GlfwJoystickInput.class.getName());
 
     private RawInputListener listener;
 
@@ -57,7 +57,7 @@ public class GlfwJoystickInput implements JoyInput {
 
     private final Map<JoystickButton, Boolean> joyButtonPressed = new HashMap<>();
 
-    private InputManager inputManager;
+    // private InputManager inputManager;
 
     private boolean initialized = false;
 
@@ -68,23 +68,21 @@ public class GlfwJoystickInput implements JoyInput {
         }
     }
 
-    public void fireJoystickConnectionEvent(int jid, int event) {
-        inputManager.fireJoystickConnectionEvent(jid, event);
+    public void fireJoystickConnectionEvent(int jid, JoystickState state) {
+        ((InputManager)listener).fireJoystickConnectionEvent(jid, state);
     }
 
     public void reloadJoysticks() {
         joysticks.clear();
 
-        if (inputManager != null) {
-            Joystick[] joysticks = loadJoysticks(inputManager);
-            inputManager.setJoysticks(joysticks);
-        }
+        InputManager inputManager = (InputManager) listener;
+
+        Joystick[] joysticks = loadJoysticks(inputManager);
+        inputManager.setJoysticks(joysticks);
     }
 
     @Override
     public Joystick[] loadJoysticks(final InputManager inputManager) {
-
-        this.inputManager = inputManager;
 
         for (int i = 0; i < GLFW_JOYSTICK_LAST; i++) {
             if (glfwJoystickPresent(i)) {
