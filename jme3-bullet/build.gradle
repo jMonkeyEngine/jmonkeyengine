@@ -33,12 +33,6 @@ task generateNativeHeaders(type: Exec, dependsOn: classes) {
     args "-h", nativeIncludes
     args "@$projectDir/java_classes.jtxt"
     args '-d', classBuildDir
-    args "-encoding", "UTF-8"
 }
 
 assemble.dependsOn(generateNativeHeaders)
-
-javadoc {
-    options.charSet = 'UTF-8'
-    options.encoding = 'UTF-8'
-}
