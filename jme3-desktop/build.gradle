@@ -5,3 +5,8 @@ if (!hasProperty('mainClass')) {
 dependencies {
     compile project(':jme3-core')
 }
+
+javadoc {
+    options.charSet = 'UTF-8'
+    options.encoding = 'UTF-8'
+}
