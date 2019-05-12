@@ -995,11 +995,11 @@ public class InputManager implements RawInputListener {
      * Called when a joystick has been added or removed.
      * This should only be called internally.
      * @param joystickId the ID of the joystick.
-     * @param state      the state that occured (connected / disconnected).
+     * @param connected  the connection state of the joystick.
      */
-    public void fireJoystickConnectionEvent(int joystickId, JoystickState state) {
+    public void fireJoystickConnectionEvent(int joystickId, boolean connected) {
         for (JoystickConnectionListener listener : joystickConnectionListeners) {
-            listener.connectionChanged(joystickId, state);
+            listener.connectionChanged(joystickId, connected);
         }
     }
 

@@ -68,8 +68,8 @@ public class GlfwJoystickInput implements JoyInput {
         }
     }
 
-    public void fireJoystickConnectionEvent(int jid, JoystickState state) {
-        ((InputManager)listener).fireJoystickConnectionEvent(jid, state);
+    public void fireJoystickConnectionEvent(int jid, boolean connected) {
+        ((InputManager)listener).fireJoystickConnectionEvent(jid, connected);
     }
 
     public void reloadJoysticks() {
