@@ -57,8 +57,6 @@ public class GlfwJoystickInput implements JoyInput {
 
     private final Map<JoystickButton, Boolean> joyButtonPressed = new HashMap<>();
 
-    // private InputManager inputManager;
-
     private boolean initialized = false;
 
     @Override
@@ -68,8 +66,14 @@ public class GlfwJoystickInput implements JoyInput {
         }
     }
 
-    public void fireJoystickConnectionEvent(int jid, boolean connected) {
-        ((InputManager)listener).fireJoystickConnectionEvent(jid, connected);
+    public void fireJoystickConnectedEvent(int jid) {
+        Joystick joystick = joysticks.get(jid);
+        ((InputManager)listener).fireJoystickConnectedEvent(joystick);
+    }
+
+    public void fireJoystickDisconnectedEvent(int jid) {
+        Joystick joystick = joysticks.get(jid);
+        ((InputManager)listener).fireJoystickDisconnectedEvent(joystick);
     }
 
     public void reloadJoysticks() {
