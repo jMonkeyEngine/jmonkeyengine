@@ -3139,13 +3139,15 @@ public final class GLRenderer implements Renderer {
 
 	@Override
 	public boolean getAlphaToCoverage() {
-		// TODO Auto-generated method stub
+		if (caps.contains(Caps.Multisample)) {
+			return gl.glIsEnabled(GLExt.GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
+               
+        }
 		return false;
 	}
 
 	@Override
 	public int getDefaultAnisotropicFilter() {
-		// TODO Auto-generated method stub
-		return 0;
+		return this.defaultAnisotropicFilter;
 	}
 }
