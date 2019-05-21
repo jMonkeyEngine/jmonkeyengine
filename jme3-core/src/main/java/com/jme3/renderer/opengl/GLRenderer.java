@@ -3136,4 +3136,16 @@ public final class GLRenderer implements Renderer {
     public boolean isTaskResultAvailable(int taskId) {
         return gl.glGetQueryObjectiv(taskId, GL.GL_QUERY_RESULT_AVAILABLE) == 1;
     }
+
+	@Override
+	public boolean getAlphaToCoverage() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int getDefaultAnisotropicFilter() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
