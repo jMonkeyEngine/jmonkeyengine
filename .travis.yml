@@ -74,7 +74,6 @@ deploy:
     repo: jMonkeyEngine/jmonkeyengine
     tags: true
 
-
 # before_install:
   # required libs for android build tools
   # sudo apt-get update
