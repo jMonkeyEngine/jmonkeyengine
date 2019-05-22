@@ -84,5 +84,3 @@ deploy:
   # wget http://dl.google.com/android/ndk/android-ndk-r10c-linux-x86_64.bin -O ndk.bin
   # 7z x ndk.bin -y > /dev/null
   # export ANDROID_NDK=`pwd`/android-ndk-r10c
-
-
