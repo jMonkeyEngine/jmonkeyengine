@@ -120,6 +120,14 @@ MaterialDef Phong Lighting {
         Boolean UseInstancing
 
         Boolean BackfaceShadows : false
+
+        // fog - jayfella
+        Boolean UseFog
+        Color FogColor
+        Vector2 LinearFog
+        Float ExpFog
+        Float ExpSqFog
+
     }
 
     Technique {
@@ -200,6 +208,12 @@ MaterialDef Phong Lighting {
             INSTANCING : UseInstancing
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+
+            // fog - jayfella
+            USE_FOG : UseFog
+            FOG_LINEAR : LinearFog
+            FOG_EXP : ExpFog
+            FOG_EXPSQ : ExpSqFog
         }
     }
 
