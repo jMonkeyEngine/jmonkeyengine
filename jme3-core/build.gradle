@@ -41,8 +41,3 @@ task updateVersionPropertiesFile {
 }
 
 processResources.dependsOn updateVersionPropertiesFile
-
-javadoc {
-    options.charSet = 'UTF-8'
-    options.encoding = 'UTF-8'
-}
