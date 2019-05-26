@@ -127,3 +127,7 @@ task dist (dependsOn: ['build', ':jme3-jogl:jar', ':jme3-bullet:jar', ':jme3-and
         }
     }
 }
+javadoc {
+    options.charSet = 'UTF-8'
+    options.encoding = 'UTF-8'
+}
