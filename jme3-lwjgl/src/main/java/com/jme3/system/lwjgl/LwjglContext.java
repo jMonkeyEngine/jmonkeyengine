@@ -117,7 +117,6 @@ public abstract class LwjglContext implements JmeContext {
             //     maj=3;
             //     min=0;
             //     break;
-            default:
             case AppSettings.LWJGL_OPENGL3:
             // case AppSettings.LWJGL_OPENGL32:
                 maj=3;
