@@ -148,10 +148,14 @@ public abstract class LwjglContext implements JmeContext {
                 maj=4;
                 min=4;
                 break;
+            case AppSettings.LWJGL_OPENGL45:
+                maj=4;
+                min=5;
+                break;
         }
         return maj == -1?null:new int[]{maj,min};
     }
-    
+
     protected ContextAttribs createContextAttribs() {
         int vers[]=getGLVersion(settings.getRenderer());
         if (settings.getBoolean("GraphicsDebug") || (vers!=null&&vers[0]!=2)) {
