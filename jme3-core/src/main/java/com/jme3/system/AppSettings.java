@@ -71,6 +71,35 @@ public final class AppSettings extends HashMap<String, Object> {
     public static final String LWJGL_OPENGL2 = "LWJGL-OpenGL2";
 
     /**
+     * Use LWJGL as the display system and force using the core OpenGL3.0 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL3.0, then the context
+     * initialization will throw an exception. Note that currently jMonkeyEngine
+     * does not have any shaders that support OpenGL3.0 therefore this 
+     * option is not useful.
+     * <p>
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String LWJGL_OPENGL30 = "LWJGL-OpenGL30";
+
+    /**
+     * Use LWJGL as the display system and force using the core OpenGL3.2 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL3.2, then the context
+     * initialization will throw an exception. Note that currently jMonkeyEngine
+     * does not have any shaders that support OpenGL3.2 therefore this
+     * option is not useful.
+     * <p>
+     * Note: OpenGL 3.2 is used to give 3.x support to Mac users.
+     *
+     * @deprecated Previously meant 3.2, use LWJGL_OPENGL32 or LWJGL_OPENGL30
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    @Deprecated
+    public static final String LWJGL_OPENGL3 = "LWJGL-OpenGL3";
+
+    /**
      * Use LWJGL as the display system and force using the core OpenGL3.2 renderer.
      * <p>
      * If the underlying system does not support OpenGL3.2, then the context
@@ -82,7 +111,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
-    public static final String LWJGL_OPENGL3 = "LWJGL-OpenGL3";
+    public static final String LWJGL_OPENGL32 = "LWJGL-OpenGL32";
 
     /**
      * Use LWJGL as the display system and force using the OpenGL3.3 renderer.
@@ -100,9 +129,21 @@ public final class AppSettings extends HashMap<String, Object> {
      * If the underlying system does not support OpenGL4.0, then the context
      * initialization will throw an exception.
      *
+     * @deprecated Use LWJGL_OPENGL40
      * @see AppSettings#setRenderer(java.lang.String)
      */
+    @Deprecated
     public static final String LWJGL_OPENGL4 = "LWJGL-OpenGL4";
+
+    /**
+     * Use LWJGL as the display system and force using the OpenGL4.0 renderer.
+     * <p>
+     * If the underlying system does not support OpenGL4.0, then the context
+     * initialization will throw an exception.
+     *
+     * @see AppSettings#setRenderer(java.lang.String)
+     */
+    public static final String LWJGL_OPENGL40 = "LWJGL-OpenGL40";
 
     /**
      * Use LWJGL as the display system and force using the OpenGL4.1 renderer.

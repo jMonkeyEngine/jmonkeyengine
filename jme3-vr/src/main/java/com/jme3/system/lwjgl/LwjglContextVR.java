@@ -147,13 +147,14 @@ public abstract class LwjglContextVR implements JmeContext {
     }
 
     protected void initContextFirstTime() {
-        final GLCapabilities capabilities = createCapabilities(settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3));
+        final GLCapabilities capabilities = createCapabilities(settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3) || 
+                settings.getRenderer().equals(AppSettings.LWJGL_OPENGL32));
 
         if (!capabilities.OpenGL20) {
             throw new RendererException("OpenGL 2.0 or higher is required for jMonkeyEngine");
         }
 
-        if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL2)
+        if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL2) || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL32)
                 || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
             GL gl = new LwjglGL();
             GLExt glext = new LwjglGLExt();
