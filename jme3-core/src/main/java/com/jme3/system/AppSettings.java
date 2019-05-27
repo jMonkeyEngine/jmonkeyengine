@@ -111,7 +111,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
-    public static final String LWJGL_OPENGL32 = "LWJGL-OpenGL32";
+    public static final String LWJGL_OPENGL32 = LWJGL_OPENGL3;
 
     /**
      * Use LWJGL as the display system and force using the OpenGL3.3 renderer.
@@ -143,7 +143,7 @@ public final class AppSettings extends HashMap<String, Object> {
      *
      * @see AppSettings#setRenderer(java.lang.String)
      */
-    public static final String LWJGL_OPENGL40 = "LWJGL-OpenGL40";
+    public static final String LWJGL_OPENGL40 = LWJGL_OPENGL4;
 
     /**
      * Use LWJGL as the display system and force using the OpenGL4.1 renderer.

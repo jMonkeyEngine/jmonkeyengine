@@ -76,10 +76,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
     private static final Map<String, Runnable> RENDER_CONFIGS = new HashMap<>();
 
     static {
-        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL3, () -> {
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-        });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL30, () -> {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
@@ -91,10 +87,6 @@ public abstract class LwjglWindow extends LwjglContext implements Runnable {
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL33, () -> {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        });
-        RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL4, () -> {
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
         });
         RENDER_CONFIGS.put(AppSettings.LWJGL_OPENGL40, () -> {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
