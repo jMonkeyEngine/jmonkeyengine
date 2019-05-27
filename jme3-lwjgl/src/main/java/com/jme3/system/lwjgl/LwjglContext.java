@@ -107,59 +107,59 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     protected int[] getGLVersion(String renderer) {
-        int maj=-1, min=-1;
-        switch(settings.getRenderer()){
+        int maj = -1, min = -1;
+        switch (settings.getRenderer()) {
             case AppSettings.LWJGL_OPENGL2:
-                maj=2;
-                min=0;
+                maj = 2;
+                min = 0;
                 break;
             // case AppSettings.LWJGL_OPENGL30:
-            //     maj=3;
-            //     min=0;
-            //     break;
+            // maj=3;
+            // min=0;
+            // break;
             case AppSettings.LWJGL_OPENGL3:
-            // case AppSettings.LWJGL_OPENGL32:
-                maj=3;
-                min=2;
+                // case AppSettings.LWJGL_OPENGL32:
+                maj = 3;
+                min = 2;
                 break;
             case AppSettings.LWJGL_OPENGL33:
-                maj=3;
-                min=3;
+                maj = 3;
+                min = 3;
                 break;
             case AppSettings.LWJGL_OPENGL4:
-            // case AppSettings.LWJGL_OPENGL40:
-                maj=4;
-                min=0;
+                // case AppSettings.LWJGL_OPENGL40:
+                maj = 4;
+                min = 0;
                 break;
             case AppSettings.LWJGL_OPENGL41:
-                maj=4;
-                min=1;
+                maj = 4;
+                min = 1;
                 break;
             case AppSettings.LWJGL_OPENGL42:
-                maj=4;
-                min=2;
+                maj = 4;
+                min = 2;
                 break;
             case AppSettings.LWJGL_OPENGL43:
-                maj=4;
-                min=3;
+                maj = 4;
+                min = 3;
                 break;
             case AppSettings.LWJGL_OPENGL44:
-                maj=4;
-                min=4;
+                maj = 4;
+                min = 4;
                 break;
             case AppSettings.LWJGL_OPENGL45:
-                maj=4;
-                min=5;
+                maj = 4;
+                min = 5;
                 break;
         }
-        return maj == -1?null:new int[]{maj,min};
+        return maj == -1 ? null : new int[] { maj, min };
     }
 
     protected ContextAttribs createContextAttribs() {
-        int vers[]=getGLVersion(settings.getRenderer());
-        if (settings.getBoolean("GraphicsDebug") || (vers!=null&&vers[0]!=2)) {
+        int vers[] = getGLVersion(settings.getRenderer());
+        if (settings.getBoolean("GraphicsDebug") || (vers != null && vers[0] != 2)) {
             ContextAttribs attr;
-            if (vers!=null&&vers[0]!=2) {
+            if (vers != null && vers[0] != 2) {
                 attr = new ContextAttribs(vers[0], vers[1]);
                 attr = attr.withProfileCore(true).withForwardCompatible(true).withProfileCompatibility(false);
             } else {
@@ -254,8 +254,8 @@ public abstract class LwjglContext implements JmeContext {
                     + "required for jMonkeyEngine");
         }
         
-        int vers[]=getGLVersion(settings.getRenderer());
-        if (vers!=null) {
+        int vers[] = getGLVersion(settings.getRenderer());
+        if (vers != null) {
             GL gl = new LwjglGL();
             GLExt glext = new LwjglGLExt();
             GLFbo glfbo;
