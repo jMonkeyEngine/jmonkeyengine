@@ -403,7 +403,20 @@ public enum Caps {
     /**
      * Supporting working with ShaderStorageBufferObjects.
      */
-    ShaderStorageBufferObject;
+    ShaderStorageBufferObject,
+
+    /**
+     * Supports OpenGL ES 3
+     */
+    OpenGLES30,
+
+    /**
+     * Supports GLSL 3.0
+     */
+    GLSL300;
+
+    
+
 
     /**
      * Returns true if given the renderer capabilities, the texture

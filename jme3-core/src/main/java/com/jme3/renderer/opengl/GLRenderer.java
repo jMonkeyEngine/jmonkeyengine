@@ -166,9 +166,16 @@ public final class GLRenderer implements Renderer {
     }
 
     private void loadCapabilitiesES() {
+        int oglVer = extractVersion(gl.glGetString(GL.GL_VERSION));
         caps.add(Caps.GLSL100);
         caps.add(Caps.OpenGLES20);
 
+        if (oglVer >= 300) {
+            caps.add(Caps.OpenGLES30);
+            caps.add(Caps.GLSL300);
+            // Instancing is core in GLES300
+            caps.add(Caps.MeshInstancing);
+        }
         // Important: Do not add OpenGL20 - that's the desktop capability!
     }
 
@@ -293,6 +300,7 @@ public final class GLRenderer implements Renderer {
 
         if (hasExtension("GL_ARB_draw_instanced") &&
                 hasExtension("GL_ARB_instanced_arrays")) {
+            // TODO: If there a way to call the EXT extension for GLES2, should check also (hasExtension("GL_EXT_draw_instanced") && hasExtension("GL_EXT_instanced_arrays"))
             caps.add(Caps.MeshInstancing);
         }
 
@@ -1327,10 +1335,16 @@ public final class GLRenderer implements Renderer {
             throw new RendererException("Cannot recompile shader source");
         }
 
+        boolean gles3 = caps.contains(Caps.OpenGLES30);
         boolean gles2 = caps.contains(Caps.OpenGLES20);
         String language = source.getLanguage();
 
-        if (gles2 && !language.equals("GLSL100")) {
+
+        if (gles3 && !(language.equals("GLSL100") || language.equals("GLSL300") )) {
+            throw new RendererException("This shader cannot run in OpenGL ES 3. "
+                    + "Only GLSL 3.00 and 1.00 shaders are supported.");
+        }
+        else if (gles2 && !language.equals("GLSL100")) {
             throw new RendererException("This shader cannot run in OpenGL ES 2. "
                     + "Only GLSL 1.00 shaders are supported.");
         }
@@ -1341,7 +1355,7 @@ public final class GLRenderer implements Renderer {
         stringBuf.setLength(0);
         if (language.startsWith("GLSL")) {
             int version = Integer.parseInt(language.substring(4));
-            if (version > 100) {
+            if (version > 100 && version != 300) {
                 stringBuf.append("#version ");
                 stringBuf.append(language.substring(4));
                 if (version >= 150) {
@@ -1349,7 +1363,11 @@ public final class GLRenderer implements Renderer {
                 }
                 stringBuf.append("\n");
             } else {
-                if (gles2) {
+                if (gles3 && version == 300) {
+                    // gles3 specific version
+                    stringBuf.append("#version 300 core\n");
+                }
+                else if (gles2 || gles3) {
                     // request GLSL ES (1.00) when compiling under GLES2.
                     stringBuf.append("#version 100\n");
                     

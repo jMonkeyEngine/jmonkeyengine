@@ -99,13 +99,13 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
      * @return GLSurfaceView The newly created view
      */
     public GLSurfaceView createView(Context context) {
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        ConfigurationInfo info = am.getDeviceConfigurationInfo();
         // NOTE: We assume all ICS devices have OpenGL ES 2.0.
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             // below 4.0, check OpenGL ES 2.0 support.
-            ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-            ConfigurationInfo info = am.getDeviceConfigurationInfo();
             if (info.reqGlEsVersion < 0x20000) {
-                throw new UnsupportedOperationException("OpenGL ES 2.0 is not supported on this device");
+                throw new UnsupportedOperationException("OpenGL ES 2.0 or better is not supported on this device");
             }
         } else if (Build.VERSION.SDK_INT < 9){
             throw new UnsupportedOperationException("jME3 requires Android 2.3 or later");
@@ -126,7 +126,8 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         // setEGLContextClientVersion must be set before calling setRenderer
         // this means it cannot be set in AndroidConfigChooser (too late)
-        view.setEGLContextClientVersion(2);
+        // use proper openGL ES version
+        view.setEGLContextClientVersion(info.reqGlEsVersion>>16);
 
         view.setFocusableInTouchMode(true);
         view.setFocusable(true);

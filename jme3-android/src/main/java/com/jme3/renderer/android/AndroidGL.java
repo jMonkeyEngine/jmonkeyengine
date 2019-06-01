@@ -461,7 +461,7 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     }
 
     public void glDrawArraysInstancedARB(int mode, int first, int count, int primcount) {
-        throw new UnsupportedOperationException("Instancing not available on Android");
+        GLES30.glDrawArraysInstanced(mode, first, count, primcount);
     }
 
     public void glDrawBuffers(IntBuffer bufs) {
@@ -469,7 +469,7 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     }
 
     public void glDrawElementsInstancedARB(int mode, int indices_count, int type, long indices_buffer_offset, int primcount) {
-        throw new UnsupportedOperationException("Instancing not available on Android");
+        GLES30.glDrawElementsInstanced(mode, indices_count, type, indices_buffer_offset, primcount);
     }
 
     public void glGetMultisample(int pname, int index, FloatBuffer val) {
@@ -485,7 +485,7 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     }
 
     public void glVertexAttribDivisorARB(int index, int divisor) {
-        throw new UnsupportedOperationException("Instancing not available on Android");
+        GLES30.glVertexAttribDivisor(index, divisor);
     }
 
     public void glBindFramebufferEXT(int param1, int param2) {

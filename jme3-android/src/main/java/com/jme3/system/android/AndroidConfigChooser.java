@@ -19,6 +19,7 @@ public class AndroidConfigChooser implements EGLConfigChooser {
     private static final Logger logger = Logger.getLogger(AndroidConfigChooser.class.getName());
     protected AppSettings settings;
     private final static int EGL_OPENGL_ES2_BIT = 4;
+    private final static int EGL_OPENGL_ES3_BIT = 0x40;
 
     public AndroidConfigChooser(AppSettings settings) {
         this.settings = settings;
@@ -140,9 +141,20 @@ public class AndroidConfigChooser implements EGLConfigChooser {
 
         int[] num_config = new int[1];
         int[] configSpec = new int[]{
-            EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+            EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES3_BIT,
             EGL10.EGL_NONE};
 
+        // Try openGL ES 3
+        try {
+            if (!egl.eglChooseConfig(display, configSpec, null, 0, num_config)) {
+                RendererUtil.checkEGLError(egl);
+            }
+        } catch (com.jme3.renderer.RendererException re) { 
+            // it's just the device not supporting GLES3. Fallback to GLES2
+        } 
+
+        // Get back to openGL ES 2
+        configSpec[1]=EGL_OPENGL_ES2_BIT;
         if (!egl.eglChooseConfig(display, configSpec, null, 0, num_config)) {
             RendererUtil.checkEGLError(egl);
             throw new AssertionError();
