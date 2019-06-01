@@ -469,7 +469,7 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     }
 
     public void glDrawElementsInstancedARB(int mode, int indices_count, int type, long indices_buffer_offset, int primcount) {
-        GLES30.glDrawElementsInstanced(mode, indices_count, type, indices_buffer_offset, primcount);
+        GLES30.glDrawElementsInstanced(mode, indices_count, type, (int)indices_buffer_offset, primcount);
     }
 
     public void glGetMultisample(int pname, int index, FloatBuffer val) {
