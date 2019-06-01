@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,9 +36,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.*;
-import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.scene.mesh.IndexBuffer;
 
 import static com.jme3.util.BufferUtils.*;
@@ -266,8 +264,8 @@ public class TangentBinormalGenerator {
         return vertices;
     }
     
-    //Don't remove splitmirorred boolean,It's not used right now, but I intend to
-    //make this method also split vertice with rotated tangent space and I'll
+    //Don't remove splitmirorred boolean. It's not used right now, but I intend to
+    //make this method also split vertices with rotated tangent space and I'll
     //add another splitRotated boolean 
     private static List<VertexData> splitVertices(Mesh mesh, List<VertexData> vertexData, boolean splitMirorred) {
         int nbVertices = mesh.getBuffer(Type.Position).getNumElements();
@@ -646,8 +644,8 @@ public class TangentBinormalGenerator {
             
             boolean found = false;
             //Nehon 07/07/2013
-            //Removed this part, joining splitted vertice to compute tangent space makes no sense to me
-            //separate vertice should have separate tangent space   
+            //Removed this part, joining split vertices to compute tangent space makes no sense to me
+            //separate vertices should have separate tangent space   
             if(!splitMirrored){
                 for (int j = 0; j < vertexMap.size(); j++) {
                     VertexInfo vertexInfo = vertexMap.get(j);

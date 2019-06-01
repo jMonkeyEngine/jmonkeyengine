@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -304,7 +304,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     /**
      * Directional light are always in the view frustum
      * @param viewCam
-     * @return 
+     * @return true
      */
     @Override
     protected boolean checkCulling(Camera viewCam) {

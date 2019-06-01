@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -961,7 +961,7 @@ public final class Bone implements Savable, JmeCloneable {
     /**
      * returns true if this bone can be directly manipulated by the user.
      * @see #setUserControl(boolean)
-     * @return
+     * @return true if can be manipulated
      */
     public boolean hasUserControl(){
         return userControl;

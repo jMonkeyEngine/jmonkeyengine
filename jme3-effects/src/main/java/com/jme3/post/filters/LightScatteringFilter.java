@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -133,7 +133,7 @@ public class LightScatteringFilter extends Filter {
     /**
      * returns the blur start of the scattering 
      * see {@link #setBlurStart(float blurStart)}
-     * @return 
+     * @return the start distance
      */
     public float getBlurStart() {
         return blurStart;
@@ -151,7 +151,7 @@ public class LightScatteringFilter extends Filter {
     /**
      * returns the blur width<br>
      * see {@link #setBlurWidth(float blurWidth)}
-     * @return 
+     * @return the width
      */
     public float getBlurWidth() {
         return blurWidth;
@@ -169,7 +169,7 @@ public class LightScatteringFilter extends Filter {
      * returns the light density
      * see {@link #setLightDensity(float lightDensity)}
      * 
-     * @return 
+     * @return the density
      */
     public float getLightDensity() {
         return lightDensity;
@@ -185,7 +185,7 @@ public class LightScatteringFilter extends Filter {
 
     /**
      * returns the light position
-     * @return 
+     * @return the pre-existing vector
      */
     public Vector3f getLightPosition() {
         return lightPosition;
@@ -201,7 +201,7 @@ public class LightScatteringFilter extends Filter {
 
     /**
      * returns the number of samples for the radial blur
-     * @return 
+     * @return count (&ge;0)
      */
     public int getNbSamples() {
         return nbSamples;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 package com.jme3.texture.image;
 
 import com.jme3.math.ColorRGBA;
-import com.jme3.system.JmeSystem;
 import com.jme3.texture.Image;
 
 /**
@@ -40,7 +39,7 @@ import com.jme3.texture.Image;
  * <br>
  * Allows directly manipulating pixels of the image by writing and 
  * reading {@link ColorRGBA colors} at any coordinate, without
- * regard to the underlying {@link Image.Format format} of the image.
+ * regard to the underlying {@link com.jme3.texture.Image.Format format} of the image.
  * NOTE: compressed and depth formats are <strong>not supported</strong>.
  * Special RGB formats like RGB111110F and RGB9E5 are not supported
  * at the moment, but may be added later on. For now 
@@ -136,7 +135,7 @@ public abstract class ImageRaster {
      * lower than 0.0 are still not allowed (as all formats are unsigned).
      * <p>
      * If the underlying format is grayscale (e.g. one of the luminance formats,
-     * such as {@link Image.Format#Luminance8}) then a color to grayscale
+     * such as {@link com.jme3.texture.Image.Format#Luminance8}) then a color to grayscale
      * conversion is done first, before writing the result into the image.
      * <p>
      * If the image does not have some of the components in the color (such
@@ -160,7 +159,7 @@ public abstract class ImageRaster {
      * <p>
      * Any components that are not defined in the image format
      * will be set to 1.0 in the returned color. For example,
-     * reading from an {@link Image.Format#Alpha8} format will
+     * reading from an {@link com.jme3.texture.Image.Format#Alpha8} format will
      * return a ColorRGBA with the R, G, and B components set to 1.0, and
      * the A component set to the alpha in the image.
      * <p>
@@ -170,7 +169,7 @@ public abstract class ImageRaster {
      * Integer formats are converted to the range 0.0 - 1.0, based
      * on the maximum possible integer value that can be represented
      * by the number of bits the component has.
-     * For example, the {@link Image.Format#RGB5A1} format can
+     * For example, the {@link com.jme3.texture.Image.Format#RGB5A1} format can
      * contain the integer values 0 - 31, a conversion to floating point
      * is done by diving the integer value by 31 (done with floating point
      * precision).

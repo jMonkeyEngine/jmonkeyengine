@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,11 +32,9 @@
 package com.jme3.anim;
 
 import com.jme3.anim.interpolator.FrameInterpolator;
-import com.jme3.animation.*;
 import com.jme3.export.*;
 import com.jme3.scene.Geometry;
 import com.jme3.util.clone.Cloner;
-import com.jme3.util.clone.JmeCloneable;
 
 import java.io.IOException;
 
@@ -79,7 +77,7 @@ public class MorphTrack implements AnimTrack<float[]> {
     /**
      * return the array of weights of this track
      *
-     * @return
+     * @return the pre-existing array
      */
     public float[] getWeights() {
         return weights;
@@ -88,7 +86,7 @@ public class MorphTrack implements AnimTrack<float[]> {
     /**
      * returns the arrays of time for this track
      *
-     * @return
+     * @return the pre-existing array
      */
     public float[] getTimes() {
         return times;

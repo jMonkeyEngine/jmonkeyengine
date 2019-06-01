@@ -33,12 +33,9 @@
 package jme3test.asset;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.TextureKey;
 import com.jme3.asset.plugins.HttpZipLocator;
-import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Quad;
-import com.jme3.texture.Texture;
 import com.jme3.ui.Picture;
 
 /**

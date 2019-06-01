@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -135,7 +135,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
         try {
             Util.checkGLError();
         } catch (OpenGLException ex){
-            listener.handleError("An OpenGL error has occured!", ex);
+            listener.handleError("An OpenGL error has occurred!", ex);
         }
         // NOTE: Always return true since this is used in an "assert" statement
         return true;
@@ -203,7 +203,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
     public void run(){
         if (listener == null) {
             throw new IllegalStateException("SystemListener is not set on context!"
-                                          + "Must set with JmeContext.setSystemListner().");
+                                          + "Must set with JmeContext.setSystemListener().");
         }
 
         loadNatives();

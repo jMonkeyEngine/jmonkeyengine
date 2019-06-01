@@ -114,10 +114,10 @@ public class TestDepthStencil extends SimpleApplication {
                 if (name.equals("toggle") && keyPressed) {
                     if (enableStencil) {
                         enableStencil = false;
-                        System.out.println("Stencil Enabled (model should be hidden)");
+                        System.out.println("Stencil Disabled (model should be visible)");
                     } else {
                         enableStencil = true;
-                        System.out.println("Stencil Disabled (model should be visible)");
+                        System.out.println("Stencil Enabled (model should be hidden)");
                     }
                 }
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,6 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.TextureCubeMap;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 /**
  * <code>SkyFactory</code> is used to create jME {@link Spatial}s that can
@@ -62,7 +61,7 @@ public class SkyFactory {
     public enum EnvMapType{
         /**
          * The env map is a cube map see {@link TextureCubeMap} or 6 separate images that form a cube map
-         * The texture is either a {@link TextureCubeMap} or 6 {@link Texture2D}. 
+         * The texture is either a {@link TextureCubeMap} or 6 {@link com.jme3.texture.Texture2D}. 
          * In the latter case, a TextureCubeMap is build from the 6 2d maps.
          */
         CubeMap,
@@ -152,7 +151,7 @@ public class SkyFactory {
      * frustum
      * @return a new spatial representing the sky, ready to be attached to the
      * scene graph
-     * @deprecated use {@link SkyFactory#createSky(com.jme3.asset.AssetManager, com.jme3.texture.Texture, com.jme3.math.Vector3f, com.jme3.util.SkyFactory.EnvMapType, int)}
+     * @deprecated use {@link #createSky(com.jme3.asset.AssetManager, com.jme3.texture.Texture, com.jme3.math.Vector3f, com.jme3.util.SkyFactory.EnvMapType, float)}
      */
     @Deprecated
     public static Spatial createSky(AssetManager assetManager, Texture texture,
@@ -254,7 +253,7 @@ public class SkyFactory {
     * </ul> 
     * @return a new spatial representing the sky, ready to be attached to the
     * scene graph
-    * @deprecated use {@link SkyFactory#createSky(com.jme3.asset.AssetManager, java.lang.String, com.jme3.math.Vector3f, com.jme3.util.SkyFactory.EnvMapType)}
+    * @deprecated use {@link #createSky(com.jme3.asset.AssetManager, java.lang.String, com.jme3.util.SkyFactory.EnvMapType)}
     */  
     @Deprecated
     public static Spatial createSky(AssetManager assetManager, String textureName, boolean sphereMap) {

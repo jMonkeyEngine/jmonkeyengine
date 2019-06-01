@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -409,7 +409,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
     /**
      * returns the armature of this control
      *
-     * @return
+     * @return the pre-existing instance
      */
     public Armature getArmature() {
         return armature;

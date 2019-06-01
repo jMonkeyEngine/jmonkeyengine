@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -110,7 +110,7 @@ public class DepthOfFieldFilter extends Filter {
 
     /**
      * returns the focus distance
-     * @return 
+     * @return the distance
      */
     public float getFocusDistance() {
         return focusDistance;
@@ -131,7 +131,7 @@ public class DepthOfFieldFilter extends Filter {
 
     /**
      * returns the focus range
-     * @return 
+     * @return the distance
      */
     public float getFocusRange() {
         return focusRange;
@@ -159,7 +159,7 @@ public class DepthOfFieldFilter extends Filter {
 
     /**
      * returns the blur scale
-     * @return 
+     * @return the scale
      */
     public float getBlurScale() {
         return blurScale;
@@ -188,7 +188,7 @@ public class DepthOfFieldFilter extends Filter {
 
     /**
      * returns the blur threshold.
-     * @return 
+     * @return the threshold
      */
     public float getBlurThreshold() {
         return blurThreshold;

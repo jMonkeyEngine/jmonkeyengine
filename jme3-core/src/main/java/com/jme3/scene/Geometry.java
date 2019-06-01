@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -603,7 +603,7 @@ public class Geometry extends Spatial {
 
     /**
      * returns true if the morph state has changed on the last frame.
-     * @return
+     * @return true if changed, otherwise false
      */
     public boolean isDirtyMorph() {
         return dirtyMorph;
@@ -621,7 +621,7 @@ public class Geometry extends Spatial {
     /**
      * returns the morph state of this Geometry.
      * Used internally by the MorphControl.
-     * @return
+     * @return an array
      */
     public float[] getMorphState() {
         if (morphState == null) {

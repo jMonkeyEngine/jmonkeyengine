@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -219,7 +219,7 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Returns line color
-     * @return 
+     * @return the pre-existing instance
      */
     public ColorRGBA getLineColor() {
         return lineColor;
@@ -227,7 +227,7 @@ public class CrossHatchFilter extends Filter {
 
     /**
      * Returns paper background color
-     * @return 
+     * @return the pre-existing instance
      */
     public ColorRGBA getPaperColor() {
         return paperColor;

@@ -10,7 +10,6 @@ import java.util.List;
  */
 public class OSVR_OpenResultsOpenGL extends Structure {
 	/**
-	 * @see OSVR_OpenStatus<br>
 	 * C type : OSVR_OpenStatus
 	 */
 	public int status;

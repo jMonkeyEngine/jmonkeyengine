@@ -53,7 +53,7 @@ MaterialDef PBR Lighting {
         // Parallax/height map
         Texture2D ParallaxMap -LINEAR
 
-        //Set to true is parallax map is stored in the alpha channel of the normal map
+        //Set to true if parallax map is stored in the alpha channel of the normal map
         Boolean PackedNormalParallax   
 
         //Sets the relief height for parallax mapping
@@ -111,10 +111,10 @@ MaterialDef PBR Lighting {
         Int NumberOfMorphTargets
         Int NumberOfTargetsBuffers
                 
-        //For instancing
+        // For instancing
         Boolean UseInstancing
 
-        //For Vertex Color
+        // For Vertex Color
         Boolean UseVertexColor
 
         Boolean BackfaceShadows : false

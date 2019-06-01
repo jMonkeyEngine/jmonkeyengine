@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2015 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -289,7 +289,7 @@ public class EnvironmentCamera extends BaseAppState {
     /**
      * returns the images format used for the generated maps.
      *
-     * @return
+     * @return the enum value
      */
     public Image.Format getImageFormat() {
         return imageFormat;
@@ -311,7 +311,7 @@ public class EnvironmentCamera extends BaseAppState {
      * @param axisX the x axis
      * @param axisY the y axis
      * @param axisZ tha z axis
-     * @return
+     * @return a new instance
      */
     protected Camera createOffCamera(final int mapSize, final Vector3f worldPos, final Vector3f axisX, final Vector3f axisY, final Vector3f axisZ) {
         final Camera offCamera = new Camera(mapSize, mapSize);
@@ -327,7 +327,7 @@ public class EnvironmentCamera extends BaseAppState {
      *
      * @param name
      * @param offCamera
-     * @return
+     * @return a new instance
      */
     protected ViewPort createOffViewPort(final String name, final Camera offCamera) {
         final ViewPort offView = new ViewPort(name, offCamera);
@@ -341,7 +341,7 @@ public class EnvironmentCamera extends BaseAppState {
      *
      * @param mapSize
      * @param offView
-     * @return
+     * @return a new instance
      */
     protected FrameBuffer createOffScreenFrameBuffer(int mapSize, ViewPort offView) {
         // create offscreen framebuffer

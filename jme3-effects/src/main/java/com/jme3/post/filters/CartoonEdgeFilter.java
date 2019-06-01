@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -115,7 +115,7 @@ public class CartoonEdgeFilter extends Filter {
     /**
      * Return the depth sensitivity<br>
      * for more details see {@link #setDepthSensitivity(float depthSensitivity)}
-     * @return 
+     * @return the depth sensitivity
      */
     public float getDepthSensitivity() {
         return depthSensitivity;
@@ -136,7 +136,7 @@ public class CartoonEdgeFilter extends Filter {
     /**
      * returns the depth threshold<br>
      * for more details see {@link #setDepthThreshold(float depthThreshold)}
-     * @return 
+     * @return the threshold
      */
     public float getDepthThreshold() {
         return depthThreshold;
@@ -157,7 +157,7 @@ public class CartoonEdgeFilter extends Filter {
     /**
      * returns the edge intensity<br>
      * for more details see {@link #setEdgeIntensity(float edgeIntensity) }
-     * @return 
+     * @return the intensity
      */
     public float getEdgeIntensity() {
         return edgeIntensity;
@@ -177,7 +177,7 @@ public class CartoonEdgeFilter extends Filter {
 
     /**
      * returns the width of the edges
-     * @return 
+     * @return the width
      */
     public float getEdgeWidth() {
         return edgeWidth;
@@ -198,7 +198,7 @@ public class CartoonEdgeFilter extends Filter {
     /**
      * returns the normals sensitivity<br>
      * form more details see {@link #setNormalSensitivity(float normalSensitivity)}
-     * @return 
+     * @return the sensitivity
      */
     public float getNormalSensitivity() {
         return normalSensitivity;
@@ -219,7 +219,7 @@ public class CartoonEdgeFilter extends Filter {
      * returns the normal threshold<br>
      * for more details see {@link #setNormalThreshold(float normalThreshold)}
      * 
-     * @return 
+     * @return the threshold
      */
     public float getNormalThreshold() {
         return normalThreshold;
@@ -238,7 +238,7 @@ public class CartoonEdgeFilter extends Filter {
 
     /**
      * returns the edge color
-     * @return
+     * @return the pre-existing instance
      */
     public ColorRGBA getEdgeColor() {
         return edgeColor;

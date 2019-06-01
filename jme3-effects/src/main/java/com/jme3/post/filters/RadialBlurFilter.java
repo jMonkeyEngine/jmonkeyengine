@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -81,7 +81,7 @@ public class RadialBlurFilter extends Filter {
 
     /**
      * return the sample distance
-     * @return 
+     * @return the distance
      */
     public float getSampleDistance() {
         return sampleDist;
@@ -97,7 +97,7 @@ public class RadialBlurFilter extends Filter {
 
     /**
      * 
-     * @return 
+     * @return the distance
      * @deprecated use {@link #getSampleDistance()}
      */
     @Deprecated
@@ -117,7 +117,7 @@ public class RadialBlurFilter extends Filter {
 
     /**
      * Returns the sample Strength
-     * @return 
+     * @return the strength value
      */
     public float getSampleStrength() {
         return sampleStrength;

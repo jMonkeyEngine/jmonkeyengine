@@ -36,7 +36,6 @@ import android.view.MotionEvent;
 import com.jme3.input.event.TouchEvent;
 import com.jme3.math.Vector2f;
 import java.util.HashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**

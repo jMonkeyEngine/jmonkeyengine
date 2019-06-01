@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@ public class TestGltfLoading extends SimpleApplication {
     }
 
     /*
-    WARNING this test case can't wok without the assets, and considering their size, they are not pushed into the repo
+    WARNING this test case can't work without the assets, and considering their size, they are not pushed into the repo
     you can find them here :
     https://github.com/KhronosGroup/glTF-Sample-Models/tree/master/2.0
     https://sketchfab.com/features/gltf
@@ -124,7 +124,7 @@ public class TestGltfLoading extends SimpleApplication {
         //loadModel("Models/gltf/morphCube/AnimatedMorphCube.gltf", new Vector3f(0, 0, 0), 1f);
      //   loadModel("Models/gltf/morph/SimpleMorph.gltf", new Vector3f(0, 0, 0), 0.1f);
         //loadModel("Models/gltf/nier/scene.gltf", new Vector3f(0, -1.5f, 0), 0.01f);
-        loadModel("Models/gltf/izzy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
+        //loadModel("Models/gltf/izzy/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
         //loadModel("Models/gltf/darth/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
         //loadModel("Models/gltf/mech/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
         //loadModel("Models/gltf/elephant/scene.gltf", new Vector3f(0, -1, 0), 0.01f);
@@ -137,7 +137,7 @@ public class TestGltfLoading extends SimpleApplication {
         //loadModel("Models/gltf/manta/scene.gltf", Vector3f.ZERO, 0.2f);
         //loadModel("Models/gltf/bone/scene.gltf", Vector3f.ZERO, 0.1f);
 //        loadModel("Models/gltf/box/box.gltf", Vector3f.ZERO, 1);
-//        loadModel("Models/gltf/duck/Duck.gltf", new Vector3f(0, -1, 0), 1);
+        loadModel("Models/gltf/duck/Duck.gltf", new Vector3f(0, -1, 0), 1);
 //        loadModel("Models/gltf/damagedHelmet/damagedHelmet.gltf", Vector3f.ZERO, 1);
 //        loadModel("Models/gltf/hornet/scene.gltf", new Vector3f(0, -0.5f, 0), 0.4f);
 ////        loadModel("Models/gltf/adamHead/adamHead.gltf", Vector3f.ZERO, 0.6f);

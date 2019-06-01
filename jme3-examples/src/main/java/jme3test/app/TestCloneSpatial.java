@@ -43,7 +43,6 @@ import com.jme3.math.*;
 import com.jme3.scene.*;
 import com.jme3.scene.control.*;
 import com.jme3.scene.shape.*;
-import com.jme3.util.clone.*;
 
 
 /**

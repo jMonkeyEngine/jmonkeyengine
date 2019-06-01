@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -194,7 +194,7 @@ public class SoundEvent extends AbstractCinematicEvent {
 
     /**
      *  Returns the underlying audio node of this sound track
-     * @return
+     * @return the pre-existing instance
      */
     public AudioNode getAudioNode() {
         return audioNode;

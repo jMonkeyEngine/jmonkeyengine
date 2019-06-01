@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,6 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.Buffer;
-import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -149,7 +148,6 @@ public class LODGeomap extends GeoMap {
      * Create the LOD index array that will seam its edges with its neighbour's LOD.
      * This is a scary method!!! It will break your mind.
      *
-     * @param store to store the index buffer
      * @param lod level of detail of the mesh
      * @param rightLod LOD of the right neighbour
      * @param topLod LOD of the top neighbour
@@ -1069,7 +1067,7 @@ public class LODGeomap extends GeoMap {
      *
      * @param x local x coordinate
      * @param z local z coordinate
-     * @return
+     * @return a new array or null
      */
     protected Triangle[] getGridTrianglesAtPoint(float x, float z) {
         int gridX = (int) x;

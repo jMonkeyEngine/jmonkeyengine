@@ -295,8 +295,7 @@ public class J3MLoader implements AssetLoader {
             for (final TextureOptionValue textureOptionValue : textureOptionValues) {
                 textureOptionValue.applyToTexture(texture);
             }
-        }
-
+        }        
         return texture;
     }
 
@@ -402,7 +401,7 @@ public class J3MLoader implements AssetLoader {
             defaultValObj = readValue(type, defaultVal);
         }
         if(type.isTextureType()){
-            materialDef.addMaterialParamTexture(type, name, colorSpace);
+            materialDef.addMaterialParamTexture(type, name, colorSpace,(Texture)defaultValObj);
         }else{
             materialDef.addMaterialParam(type, name, defaultValObj);
         }
@@ -657,7 +656,7 @@ public class J3MLoader implements AssetLoader {
                 technique.setLogic(new SinglePassAndImageBasedLightingLogic(technique));
                 break;
             default:
-                throw new UnsupportedOperationException();
+                throw new IOException("Light mode not supported:" + technique.getLightMode());
         }
 
         List<TechniqueDef> techniqueDefs = new ArrayList<>();

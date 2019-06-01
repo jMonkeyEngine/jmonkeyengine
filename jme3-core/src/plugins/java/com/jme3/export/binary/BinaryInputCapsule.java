@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1073,7 +1073,7 @@ final class BinaryInputCapsule implements InputCapsule {
             else {
                 logger.log(
                         Level.WARNING,
-                        "Your export has been saved with an incorrect encoding for it's String fields which means it might not load correctly " +
+                        "Your export has been saved with an incorrect encoding for its String fields which means it might not load correctly " +
                         "due to encoding issues. You should probably re-export your work. See ISSUE 276 in the jME issue tracker."
                 );
                 // We use ISO8859_1 to be consistent across platforms. We could default to native encoding, but this would lead to inconsistent

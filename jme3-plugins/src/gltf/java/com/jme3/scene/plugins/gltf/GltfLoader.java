@@ -16,12 +16,9 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.IntMap;
 import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
-
-import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
-import java.rmi.ServerError;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -544,7 +541,7 @@ public class GltfLoader implements AssetLoader {
         if (uri != null) {
             if (uri.startsWith("data:")) {
                 //base 64 embed data
-                data = DatatypeConverter.parseBase64Binary(uri.substring(uri.indexOf(",") + 1));
+                data = Base64.getDecoder().decode(uri.substring(uri.indexOf(",") + 1));
             } else {
                 //external file let's load it
                 if (!uri.endsWith(".bin")) {
@@ -626,12 +623,12 @@ public class GltfLoader implements AssetLoader {
         for (int i = 0; i < cameras.size(); i++) {
 
             //Can't access resolution here... actually it's a shame we can't access settings from anywhere.
-            //users will have to call resize ont he camera.
+            //users will have to call resize on the camera.
             Camera cam = new Camera(1, 1);
 
             JsonObject camObj = cameras.get(i).getAsJsonObject();
             String type = getAsString(camObj, "type");
-            assertNotNull(type, "No type defined ofr camera");
+            assertNotNull(type, "No type defined for camera");
             JsonObject camData = camObj.getAsJsonObject(type);
             if (type.equals("perspective")) {
                 float aspectRatio = getAsFloat(camData, "aspectRation", 1f);
@@ -674,7 +671,7 @@ public class GltfLoader implements AssetLoader {
             return null;
         }
         Integer textureIndex = getAsInteger(texture, "index");
-        assertNotNull(textureIndex, "Texture as no index");
+        assertNotNull(textureIndex, "Texture has no index");
         assertNotNull(textures, "There are no textures, yet one is referenced by a material");
 
         JsonObject textureData = textures.get(textureIndex).getAsJsonObject();
@@ -715,7 +712,7 @@ public class GltfLoader implements AssetLoader {
         } else if (uri.startsWith("data:")) {
             //base64 encoded image
             String[] uriInfo = uri.split(",");
-            byte[] data = DatatypeConverter.parseBase64Binary(uriInfo[1]);
+            byte[] data = Base64.getDecoder().decode(uriInfo[1]);
             String headerInfo = uriInfo[0].split(";")[0];
             String extension = headerInfo.split("/")[1];
             TextureKey key = new TextureKey("image" + sourceIndex + "." + extension, flip);

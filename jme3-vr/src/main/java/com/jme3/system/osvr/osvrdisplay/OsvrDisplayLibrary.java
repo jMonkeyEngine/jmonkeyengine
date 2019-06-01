@@ -27,7 +27,7 @@ public class OsvrDisplayLibrary implements Library {
 		Native.register(OsvrDisplayLibrary.class, OsvrDisplayLibrary.JNA_NATIVE_LIB);
 	}
 	/**
-	 * @brief Allocates a display configuration object populated with data from the<br>
+	 * Allocates a display configuration object populated with data from the<br>
 	 * OSVR system.<br>
 	 * Before this call will succeed, your application will need to be correctly<br>
 	 * and fully connected to an OSVR server. You may consider putting this call in<br>
@@ -55,19 +55,21 @@ public class OsvrDisplayLibrary implements Library {
 	 * practice, typically more) osvrClientUpdate() must be performed before a new<br>
 	 * tracker report is available to populate that state. See<br>
 	 * osvrClientCheckDisplayStartup() to query if all startup data is available.<br>
-	 * @todo Decide if relative viewport should be constant in a display config,<br>
+	 * todo Decide if relative viewport should be constant in a display config,<br>
 	 * and update docs accordingly.<br>
-	 * @todo Decide if distortion params should be constant in a display config,<br>
+	 * todo Decide if distortion params should be constant in a display config,<br>
 	 * and update docs accordingly.<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed or some other<br>
 	 * error occurred, in which case the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetDisplay(OSVR_ClientContext, OSVR_DisplayConfig*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetDisplay(osvrdisplay.OsvrDisplayLibrary.OSVR_ClientContext, com.sun.jna.ptr.PointerByReference)} and {@link #osvrClientGetDisplay(com.sun.jna.Pointer, com.sun.jna.ptr.PointerByReference)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetDisplay(com.jme3.system.osvr.osvrclientkit.OsvrClientKitLibrary.OSVR_ClientContext, com.sun.jna.ptr.PointerByReference)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetDisplay(Pointer ctx, Pointer disp);
 	/**
-	 * @brief Allocates a display configuration object populated with data from the<br>
+	 * Allocates a display configuration object populated with data from the<br>
 	 * OSVR system.<br>
 	 * Before this call will succeed, your application will need to be correctly<br>
 	 * and fully connected to an OSVR server. You may consider putting this call in<br>
@@ -95,9 +97,9 @@ public class OsvrDisplayLibrary implements Library {
 	 * practice, typically more) osvrClientUpdate() must be performed before a new<br>
 	 * tracker report is available to populate that state. See<br>
 	 * osvrClientCheckDisplayStartup() to query if all startup data is available.<br>
-	 * @todo Decide if relative viewport should be constant in a display config,<br>
+	 * todo Decide if relative viewport should be constant in a display config,<br>
 	 * and update docs accordingly.<br>
-	 * @todo Decide if distortion params should be constant in a display config,<br>
+	 * todo Decide if distortion params should be constant in a display config,<br>
 	 * and update docs accordingly.<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed or some other<br>
 	 * error occurred, in which case the output argument is unmodified.<br>
@@ -105,7 +107,7 @@ public class OsvrDisplayLibrary implements Library {
 	 */
 	public static native byte osvrClientGetDisplay(OsvrClientKitLibrary.OSVR_ClientContext ctx, PointerByReference disp);
 	/**
-	 * @brief Allocates a display configuration object populated with data from the<br>
+	 * Allocates a display configuration object populated with data from the<br>
 	 * OSVR system.<br>
 	 * Before this call will succeed, your application will need to be correctly<br>
 	 * and fully connected to an OSVR server. You may consider putting this call in<br>
@@ -133,9 +135,9 @@ public class OsvrDisplayLibrary implements Library {
 	 * practice, typically more) osvrClientUpdate() must be performed before a new<br>
 	 * tracker report is available to populate that state. See<br>
 	 * osvrClientCheckDisplayStartup() to query if all startup data is available.<br>
-	 * @todo Decide if relative viewport should be constant in a display config,<br>
+	 * todo Decide if relative viewport should be constant in a display config,<br>
 	 * and update docs accordingly.<br>
-	 * @todo Decide if distortion params should be constant in a display config,<br>
+	 * todo Decide if distortion params should be constant in a display config,<br>
 	 * and update docs accordingly.<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed or some other<br>
 	 * error occurred, in which case the output argument is unmodified.<br>
@@ -143,19 +145,21 @@ public class OsvrDisplayLibrary implements Library {
 	 */
 	public static native byte osvrClientGetDisplay(Pointer ctx, PointerByReference disp);
 	/**
-	 * @brief Frees a display configuration object. The corresponding context must<br>
+	 * Frees a display configuration object. The corresponding context must<br>
 	 * still be open.<br>
 	 * If you fail to call this, it will be automatically called as part of<br>
 	 * clean-up when the corresponding context is closed.<br>
 	 * @return OSVR_RETURN_FAILURE if a null config was passed, or if the given<br>
 	 * display object was already freed.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientFreeDisplay(OSVR_DisplayConfig)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientFreeDisplay(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig)} and {@link #osvrClientFreeDisplay(com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientFreeDisplay(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientFreeDisplay(Pointer disp);
 	/**
-	 * @brief Frees a display configuration object. The corresponding context must<br>
+	 * Frees a display configuration object. The corresponding context must<br>
 	 * still be open.<br>
 	 * If you fail to call this, it will be automatically called as part of<br>
 	 * clean-up when the corresponding context is closed.<br>
@@ -165,7 +169,7 @@ public class OsvrDisplayLibrary implements Library {
 	 */
 	public static native byte osvrClientFreeDisplay(OsvrDisplayLibrary.OSVR_DisplayConfig disp);
 	/**
-	 * @brief Checks to see if a display is fully configured and ready, including<br>
+	 * Checks to see if a display is fully configured and ready, including<br>
 	 * having received its first pose update.<br>
 	 * Once this first succeeds, it will continue to succeed for the lifetime of<br>
 	 * the display config object, so it is not necessary to keep calling once you<br>
@@ -173,12 +177,14 @@ public class OsvrDisplayLibrary implements Library {
 	 * @return OSVR_RETURN_FAILURE if a null config was passed, or if the given<br>
 	 * display config object was otherwise not ready for full use.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientCheckDisplayStartup(OSVR_DisplayConfig)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientCheckDisplayStartup(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig)} and {@link #osvrClientCheckDisplayStartup(com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientCheckDisplayStartup(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientCheckDisplayStartup(Pointer disp);
 	/**
-	 * @brief Checks to see if a display is fully configured and ready, including<br>
+	 * Checks to see if a display is fully configured and ready, including<br>
 	 * having received its first pose update.<br>
 	 * Once this first succeeds, it will continue to succeed for the lifetime of<br>
 	 * the display config object, so it is not necessary to keep calling once you<br>
@@ -189,97 +195,97 @@ public class OsvrDisplayLibrary implements Library {
 	 */
 	public static native byte osvrClientCheckDisplayStartup(OsvrDisplayLibrary.OSVR_DisplayConfig disp);
 	/**
-	 * @brief A display config can have one or more display inputs to pass pixels<br>
+	 * A display config can have one or more display inputs to pass pixels<br>
 	 * over (HDMI/DVI connections, etc): retrieve the number of display inputs in<br>
 	 * the current configuration.<br>
 	 * @param disp Display config object.<br>
-	 * @param[out] numDisplayInputs Number of display inputs in the logical display<br>
+	 * @param numDisplayInputs Number of display inputs in the logical display<br>
 	 * topology, **constant** throughout the active, valid lifetime of a display<br>
 	 * config object.<br>
-	 * @sa OSVR_DisplayInputCount<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in<br>
 	 * which case the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetNumDisplayInputs(OSVR_DisplayConfig, OSVR_DisplayInputCount*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetNumDisplayInputs(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, java.nio.ByteBuffer)} and {@link #osvrClientGetNumDisplayInputs(com.sun.jna.Pointer, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetNumDisplayInputs(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, java.nio.ByteBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetNumDisplayInputs(Pointer disp, Pointer numDisplayInputs);
 	/**
-	 * @brief A display config can have one or more display inputs to pass pixels<br>
+	 * A display config can have one or more display inputs to pass pixels<br>
 	 * over (HDMI/DVI connections, etc): retrieve the number of display inputs in<br>
 	 * the current configuration.<br>
 	 * @param disp Display config object.<br>
-	 * @param[out] numDisplayInputs Number of display inputs in the logical display<br>
+	 * @param numDisplayInputs Number of display inputs in the logical display<br>
 	 * topology, **constant** throughout the active, valid lifetime of a display<br>
 	 * config object.<br>
-	 * @sa OSVR_DisplayInputCount<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in<br>
 	 * which case the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetNumDisplayInputs(OSVR_DisplayConfig, OSVR_DisplayInputCount*)</code>
 	 */
 	public static native byte osvrClientGetNumDisplayInputs(OsvrDisplayLibrary.OSVR_DisplayConfig disp, ByteBuffer numDisplayInputs);
 	/**
-	 * @brief Retrieve the pixel dimensions of a given display input for a display<br>
+	 * Retrieve the pixel dimensions of a given display input for a display<br>
 	 * config<br>
 	 * @param disp Display config object.<br>
 	 * @param displayInputIndex The zero-based index of the display input.<br>
-	 * @param[out] width Width (in pixels) of the display input.<br>
-	 * @param[out] height Height (in pixels) of the display input.<br>
+	 * @param width Width (in pixels) of the display input.<br>
+	 * @param height Height (in pixels) of the display input.<br>
 	 * The out parameters are **constant** throughout the active, valid lifetime of<br>
 	 * a display config object.<br>
-	 * @sa OSVR_DisplayDimension<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in<br>
 	 * which case the output arguments are unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetDisplayDimensions(OSVR_DisplayConfig, OSVR_DisplayInputCount, OSVR_DisplayDimension*, OSVR_DisplayDimension*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetDisplayDimensions(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, byte, java.nio.IntBuffer, java.nio.IntBuffer)} and {@link #osvrClientGetDisplayDimensions(com.sun.jna.Pointer, byte, com.sun.jna.ptr.IntByReference, com.sun.jna.ptr.IntByReference)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetDisplayDimensions(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, byte, java.nio.IntBuffer, java.nio.IntBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetDisplayDimensions(Pointer disp, byte displayInputIndex, IntByReference width, IntByReference height);
 	/**
-	 * @brief Retrieve the pixel dimensions of a given display input for a display<br>
+	 * Retrieve the pixel dimensions of a given display input for a display<br>
 	 * config<br>
 	 * @param disp Display config object.<br>
 	 * @param displayInputIndex The zero-based index of the display input.<br>
-	 * @param[out] width Width (in pixels) of the display input.<br>
-	 * @param[out] height Height (in pixels) of the display input.<br>
+	 * @param width Width (in pixels) of the display input.<br>
+	 * @param height Height (in pixels) of the display input.<br>
 	 * The out parameters are **constant** throughout the active, valid lifetime of<br>
 	 * a display config object.<br>
-	 * @sa OSVR_DisplayDimension<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in<br>
 	 * which case the output arguments are unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetDisplayDimensions(OSVR_DisplayConfig, OSVR_DisplayInputCount, OSVR_DisplayDimension*, OSVR_DisplayDimension*)</code>
 	 */
 	public static native byte osvrClientGetDisplayDimensions(OsvrDisplayLibrary.OSVR_DisplayConfig disp, byte displayInputIndex, IntBuffer width, IntBuffer height);
 	/**
-	 * @brief A display config can have one (or theoretically more) viewers:<br>
+	 * A display config can have one (or theoretically more) viewers:<br>
 	 * retrieve the viewer count.<br>
 	 * @param disp Display config object.<br>
-	 * @param[out] viewers Number of viewers in the logical display topology,<br>
+	 * @param viewers Number of viewers in the logical display topology,<br>
 	 * *constant** throughout the active, valid lifetime of a display config<br>
 	 * object.<br>
-	 * @sa OSVR_ViewerCount<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
 	 * the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetNumViewers(OSVR_DisplayConfig, OSVR_ViewerCount*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetNumViewers(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, java.nio.IntBuffer)} and {@link #osvrClientGetNumViewers(com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetNumViewers(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, java.nio.IntBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetNumViewers(Pointer disp, IntByReference viewers);
 	/**
-	 * @brief A display config can have one (or theoretically more) viewers:<br>
+	 * A display config can have one (or theoretically more) viewers:<br>
 	 * retrieve the viewer count.<br>
 	 * @param disp Display config object.<br>
-	 * @param[out] viewers Number of viewers in the logical display topology,<br>
+	 * @param viewers Number of viewers in the logical display topology,<br>
 	 * *constant** throughout the active, valid lifetime of a display config<br>
 	 * object.<br>
-	 * @sa OSVR_ViewerCount<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
 	 * the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetNumViewers(OSVR_DisplayConfig, OSVR_ViewerCount*)</code>
 	 */
 	public static native byte osvrClientGetNumViewers(OsvrDisplayLibrary.OSVR_DisplayConfig disp, IntBuffer viewers);
 	/**
-	 * @brief Get the pose of a viewer in a display config.<br>
+	 * Get the pose of a viewer in a display config.<br>
 	 * Note that there may not necessarily be any surfaces rendered from this pose<br>
 	 * (it's the unused "center" eye in a stereo configuration, for instance) so<br>
 	 * only use this if it makes integration into your engine or existing<br>
@@ -288,12 +294,14 @@ public class OsvrDisplayLibrary implements Library {
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed or no pose was<br>
 	 * yet available, in which case the pose argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetViewerPose(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_Pose3*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetViewerPose(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, com.sun.jna.Pointer)} and {@link #osvrClientGetViewerPose(com.sun.jna.Pointer, int, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetViewerPose(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetViewerPose(Pointer disp, int viewer, Pointer pose);
 	/**
-	 * @brief Get the pose of a viewer in a display config.<br>
+	 * Get the pose of a viewer in a display config.<br>
 	 * Note that there may not necessarily be any surfaces rendered from this pose<br>
 	 * (it's the unused "center" eye in a stereo configuration, for instance) so<br>
 	 * only use this if it makes integration into your engine or existing<br>
@@ -305,89 +313,93 @@ public class OsvrDisplayLibrary implements Library {
 	 */
 	public static native byte osvrClientGetViewerPose(OsvrDisplayLibrary.OSVR_DisplayConfig disp, int viewer, Pointer pose);
 	/**
-	 * @brief Each viewer in a display config can have one or more "eyes" which<br>
+	 * Each viewer in a display config can have one or more "eyes" which<br>
 	 * have a substantially similar pose: get the count.<br>
 	 * @param disp Display config object.<br>
 	 * @param viewer Viewer ID<br>
-	 * @param[out] eyes Number of eyes for this viewer in the logical display<br>
+	 * @param eyes Number of eyes for this viewer in the logical display<br>
 	 * topology, **constant** throughout the active, valid lifetime of a display<br>
 	 * config object<br>
-	 * @sa OSVR_EyeCount<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
 	 * the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetNumEyesForViewer(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetNumEyesForViewer(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, java.nio.ByteBuffer)} and {@link #osvrClientGetNumEyesForViewer(com.sun.jna.Pointer, int, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetNumEyesForViewer(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, java.nio.ByteBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetNumEyesForViewer(Pointer disp, int viewer, Pointer eyes);
 	/**
-	 * @brief Each viewer in a display config can have one or more "eyes" which<br>
+	 * Each viewer in a display config can have one or more "eyes" which<br>
 	 * have a substantially similar pose: get the count.<br>
 	 * @param disp Display config object.<br>
 	 * @param viewer Viewer ID<br>
-	 * @param[out] eyes Number of eyes for this viewer in the logical display<br>
+	 * @param eyes Number of eyes for this viewer in the logical display<br>
 	 * topology, **constant** throughout the active, valid lifetime of a display<br>
 	 * config object<br>
-	 * @sa OSVR_EyeCount<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
 	 * the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetNumEyesForViewer(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount*)</code>
 	 */
 	public static native byte osvrClientGetNumEyesForViewer(OsvrDisplayLibrary.OSVR_DisplayConfig disp, int viewer, ByteBuffer eyes);
 	/**
-	 * @brief Get the "viewpoint" for the given eye of a viewer in a display<br>
+	 * Get the "viewpoint" for the given eye of a viewer in a display<br>
 	 * config.<br>
 	 * Will only succeed if osvrClientCheckDisplayStartup() succeeds.<br>
 	 * @param disp Display config object<br>
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
-	 * @param[out] pose Room-space pose (not relative to pose of the viewer)<br>
+	 * @param pose Room-space pose (not relative to pose of the viewer)<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed or no pose was<br>
 	 * yet available, in which case the pose argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetViewerEyePose(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_Pose3*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetViewerEyePose(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, com.sun.jna.Pointer)} and {@link #osvrClientGetViewerEyePose(com.sun.jna.Pointer, int, byte, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetViewerEyePose(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, com.sun.jna.Pointer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetViewerEyePose(Pointer disp, int viewer, byte eye, Pointer pose);
 	/**
-	 * @brief Get the "viewpoint" for the given eye of a viewer in a display<br>
+	 * Get the "viewpoint" for the given eye of a viewer in a display<br>
 	 * config.<br>
 	 * Will only succeed if osvrClientCheckDisplayStartup() succeeds.<br>
 	 * @param disp Display config object<br>
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
-	 * @param[out] pose Room-space pose (not relative to pose of the viewer)<br>
+	 * @param pose Room-space pose (not relative to pose of the viewer)<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed or no pose was<br>
 	 * yet available, in which case the pose argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetViewerEyePose(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_Pose3*)</code>
 	 */
 	public static native byte osvrClientGetViewerEyePose(OsvrDisplayLibrary.OSVR_DisplayConfig disp, int viewer, byte eye, Pointer pose);
 	/**
-	 * @brief Get the view matrix (inverse of pose) for the given eye of a<br>
+	 * Get the view matrix (inverse of pose) for the given eye of a<br>
 	 * viewer in a display config - matrix of **doubles**.<br>
 	 * Will only succeed if osvrClientCheckDisplayStartup() succeeds.<br>
 	 * @param disp Display config object<br>
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
 	 * @param flags Bitwise OR of matrix convention flags (see @ref MatrixFlags)<br>
-	 * @param[out] mat Pass a double[::OSVR_MATRIX_SIZE] to get the transformation<br>
+	 * @param mat Pass a double[::OSVR_MATRIX_SIZE] to get the transformation<br>
 	 * matrix from room space to eye space (not relative to pose of the viewer)<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed or no pose was<br>
 	 * yet available, in which case the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetViewerEyeViewMatrixd(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_MatrixConventions, double*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetViewerEyeViewMatrixd(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, short, java.nio.DoubleBuffer)} and {@link #osvrClientGetViewerEyeViewMatrixd(com.sun.jna.Pointer, int, byte, short, com.sun.jna.ptr.DoubleByReference)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetViewerEyeViewMatrixd(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, short, java.nio.DoubleBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetViewerEyeViewMatrixd(Pointer disp, int viewer, byte eye, short flags, DoubleByReference mat);
 	/**
-	 * @brief Get the view matrix (inverse of pose) for the given eye of a<br>
+	 * Get the view matrix (inverse of pose) for the given eye of a<br>
 	 * viewer in a display config - matrix of **doubles**.<br>
 	 * Will only succeed if osvrClientCheckDisplayStartup() succeeds.<br>
 	 * @param disp Display config object<br>
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
 	 * @param flags Bitwise OR of matrix convention flags (see @ref MatrixFlags)<br>
-	 * @param[out] mat Pass a double[::OSVR_MATRIX_SIZE] to get the transformation<br>
+	 * @param mat Pass a double[::OSVR_MATRIX_SIZE] to get the transformation<br>
 	 * matrix from room space to eye space (not relative to pose of the viewer)<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed or no pose was<br>
 	 * yet available, in which case the output argument is unmodified.<br>
@@ -395,31 +407,33 @@ public class OsvrDisplayLibrary implements Library {
 	 */
 	public static native byte osvrClientGetViewerEyeViewMatrixd(OsvrDisplayLibrary.OSVR_DisplayConfig disp, int viewer, byte eye, short flags, DoubleBuffer mat);
 	/**
-	 * @brief Get the view matrix (inverse of pose) for the given eye of a<br>
+	 * Get the view matrix (inverse of pose) for the given eye of a<br>
 	 * viewer in a display config - matrix of **floats**.<br>
 	 * Will only succeed if osvrClientCheckDisplayStartup() succeeds.<br>
 	 * @param disp Display config object<br>
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
 	 * @param flags Bitwise OR of matrix convention flags (see @ref MatrixFlags)<br>
-	 * @param[out] mat Pass a float[::OSVR_MATRIX_SIZE] to get the transformation<br>
+	 * @param mat Pass a float[::OSVR_MATRIX_SIZE] to get the transformation<br>
 	 * matrix from room space to eye space (not relative to pose of the viewer)<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed or no pose was<br>
 	 * yet available, in which case the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetViewerEyeViewMatrixf(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_MatrixConventions, float*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetViewerEyeViewMatrixf(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, short, java.nio.FloatBuffer)} and {@link #osvrClientGetViewerEyeViewMatrixf(com.sun.jna.Pointer, int, byte, short, com.sun.jna.ptr.FloatByReference)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetViewerEyeViewMatrixf(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, short, java.nio.FloatBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetViewerEyeViewMatrixf(Pointer disp, int viewer, byte eye, short flags, FloatByReference mat);
 	/**
-	 * @brief Get the view matrix (inverse of pose) for the given eye of a<br>
+	 * Get the view matrix (inverse of pose) for the given eye of a<br>
 	 * viewer in a display config - matrix of **floats**.<br>
 	 * Will only succeed if osvrClientCheckDisplayStartup() succeeds.<br>
 	 * @param disp Display config object<br>
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
 	 * @param flags Bitwise OR of matrix convention flags (see @ref MatrixFlags)<br>
-	 * @param[out] mat Pass a float[::OSVR_MATRIX_SIZE] to get the transformation<br>
+	 * @param mat Pass a float[::OSVR_MATRIX_SIZE] to get the transformation<br>
 	 * matrix from room space to eye space (not relative to pose of the viewer)<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed or no pose was<br>
 	 * yet available, in which case the output argument is unmodified.<br>
@@ -427,39 +441,39 @@ public class OsvrDisplayLibrary implements Library {
 	 */
 	public static native byte osvrClientGetViewerEyeViewMatrixf(OsvrDisplayLibrary.OSVR_DisplayConfig disp, int viewer, byte eye, short flags, FloatBuffer mat);
 	/**
-	 * @brief Each eye of each viewer in a display config has one or more surfaces<br>
+	 * Each eye of each viewer in a display config has one or more surfaces<br>
 	 * (aka "screens") on which content should be rendered.<br>
 	 * @param disp Display config object<br>
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
-	 * @param[out] surfaces Number of surfaces (numbered [0, surfaces - 1]) for the<br>
+	 * @param surfaces Number of surfaces (numbered [0, surfaces - 1]) for the<br>
 	 * given viewer and eye. **Constant** throughout the active, valid lifetime of<br>
 	 * a display config object.<br>
-	 * @sa OSVR_SurfaceCount<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
 	 * the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetNumSurfacesForViewerEye(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_SurfaceCount*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetNumSurfacesForViewerEye(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, java.nio.IntBuffer)} and {@link #osvrClientGetNumSurfacesForViewerEye(com.sun.jna.Pointer, int, byte, com.sun.jna.ptr.IntByReference)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetNumSurfacesForViewerEye(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, java.nio.IntBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetNumSurfacesForViewerEye(Pointer disp, int viewer, byte eye, IntByReference surfaces);
 	/**
-	 * @brief Each eye of each viewer in a display config has one or more surfaces<br>
+	 * Each eye of each viewer in a display config has one or more surfaces<br>
 	 * (aka "screens") on which content should be rendered.<br>
 	 * @param disp Display config object<br>
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
-	 * @param[out] surfaces Number of surfaces (numbered [0, surfaces - 1]) for the<br>
+	 * @param surfaces Number of surfaces (numbered [0, surfaces - 1]) for the<br>
 	 * given viewer and eye. **Constant** throughout the active, valid lifetime of<br>
 	 * a display config object.<br>
-	 * @sa OSVR_SurfaceCount<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
 	 * the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetNumSurfacesForViewerEye(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_SurfaceCount*)</code>
 	 */
 	public static native byte osvrClientGetNumSurfacesForViewerEye(OsvrDisplayLibrary.OSVR_DisplayConfig disp, int viewer, byte eye, IntBuffer surfaces);
 	/**
-	 * @brief Get the dimensions/location of the viewport **within the display<br>
+	 * Get the dimensions/location of the viewport **within the display<br>
 	 * input** for a surface seen by an eye of a viewer in a display config. (This<br>
 	 * does not include other video inputs that may be on a single virtual desktop,<br>
 	 * etc. or explicitly account for display configurations that use multiple<br>
@@ -470,21 +484,23 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
 	 * @param surface Surface ID<br>
-	 * @param[out] left Output: Distance in pixels from the left of the video input<br>
+	 * @param left Output: Distance in pixels from the left of the video input<br>
 	 * to the left of the viewport.<br>
-	 * @param[out] bottom Output: Distance in pixels from the bottom of the video<br>
+	 * @param bottom Output: Distance in pixels from the bottom of the video<br>
 	 * input to the bottom of the viewport.<br>
-	 * @param[out] width Output: Width of viewport in pixels.<br>
-	 * @param[out] height Output: Height of viewport in pixels.<br>
+	 * @param width Output: Width of viewport in pixels.<br>
+	 * @param height Output: Height of viewport in pixels.<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
 	 * the output arguments are unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetRelativeViewportForViewerEyeSurface(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_SurfaceCount, OSVR_ViewportDimension*, OSVR_ViewportDimension*, OSVR_ViewportDimension*, OSVR_ViewportDimension*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetRelativeViewportForViewerEyeSurface(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, java.nio.IntBuffer, java.nio.IntBuffer, java.nio.IntBuffer, java.nio.IntBuffer)} and {@link #osvrClientGetRelativeViewportForViewerEyeSurface(com.sun.jna.Pointer, int, byte, int, com.sun.jna.ptr.IntByReference, com.sun.jna.ptr.IntByReference, com.sun.jna.ptr.IntByReference, com.sun.jna.ptr.IntByReference)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetRelativeViewportForViewerEyeSurface(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, java.nio.IntBuffer, java.nio.IntBuffer, java.nio.IntBuffer, java.nio.IntBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetRelativeViewportForViewerEyeSurface(Pointer disp, int viewer, byte eye, int surface, IntByReference left, IntByReference bottom, IntByReference width, IntByReference height);
 	/**
-	 * @brief Get the dimensions/location of the viewport **within the display<br>
+	 * Get the dimensions/location of the viewport **within the display<br>
 	 * input** for a surface seen by an eye of a viewer in a display config. (This<br>
 	 * does not include other video inputs that may be on a single virtual desktop,<br>
 	 * etc. or explicitly account for display configurations that use multiple<br>
@@ -495,19 +511,19 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
 	 * @param surface Surface ID<br>
-	 * @param[out] left Output: Distance in pixels from the left of the video input<br>
+	 * @param left Output: Distance in pixels from the left of the video input<br>
 	 * to the left of the viewport.<br>
-	 * @param[out] bottom Output: Distance in pixels from the bottom of the video<br>
+	 * @param bottom Output: Distance in pixels from the bottom of the video<br>
 	 * input to the bottom of the viewport.<br>
-	 * @param[out] width Output: Width of viewport in pixels.<br>
-	 * @param[out] height Output: Height of viewport in pixels.<br>
+	 * @param width Output: Width of viewport in pixels.<br>
+	 * @param height Output: Height of viewport in pixels.<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
 	 * the output arguments are unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetRelativeViewportForViewerEyeSurface(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_SurfaceCount, OSVR_ViewportDimension*, OSVR_ViewportDimension*, OSVR_ViewportDimension*, OSVR_ViewportDimension*)</code>
 	 */
 	public static native byte osvrClientGetRelativeViewportForViewerEyeSurface(OsvrDisplayLibrary.OSVR_DisplayConfig disp, int viewer, byte eye, int surface, IntBuffer left, IntBuffer bottom, IntBuffer width, IntBuffer height);
 	/**
-	 * @brief Get the index of the display input for a surface seen by an eye of a<br>
+	 * Get the index of the display input for a surface seen by an eye of a<br>
 	 * viewer in a display config.<br>
 	 * This is the OSVR-assigned display input: it may not (and in practice,<br>
 	 * usually will not) match any platform-specific display indices. This function<br>
@@ -517,21 +533,23 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
 	 * @param surface Surface ID<br>
-	 * @param[out] displayInput Zero-based index of the display input pixels for<br>
+	 * @param displayInput Zero-based index of the display input pixels for<br>
 	 * this surface are tranmitted over.<br>
 	 * This association is **constant** throughout the active, valid lifetime of a<br>
 	 * display config object.<br>
-	 * @sa osvrClientGetNumDisplayInputs(),<br>
-	 * osvrClientGetRelativeViewportForViewerEyeSurface()<br>
+         * @see #osvrClientGetNumDisplayInputs(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, java.nio.ByteBuffer) 
+         * @see #osvrClientGetRelativeViewportForViewerEyeSurface(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, java.nio.IntBuffer, java.nio.IntBuffer, java.nio.IntBuffer, java.nio.IntBuffer)
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which<br>
 	 * case the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetViewerEyeSurfaceDisplayInputIndex(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_SurfaceCount, OSVR_DisplayInputCount*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetViewerEyeSurfaceDisplayInputIndex(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, java.nio.ByteBuffer)} and {@link #osvrClientGetViewerEyeSurfaceDisplayInputIndex(com.sun.jna.Pointer, int, byte, int, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetViewerEyeSurfaceDisplayInputIndex(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, java.nio.ByteBuffer)} 
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetViewerEyeSurfaceDisplayInputIndex(Pointer disp, int viewer, byte eye, int surface, Pointer displayInput);
 	/**
-	 * @brief Get the index of the display input for a surface seen by an eye of a<br>
+	 * Get the index of the display input for a surface seen by an eye of a<br>
 	 * viewer in a display config.<br>
 	 * This is the OSVR-assigned display input: it may not (and in practice,<br>
 	 * usually will not) match any platform-specific display indices. This function<br>
@@ -541,19 +559,19 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
 	 * @param surface Surface ID<br>
-	 * @param[out] displayInput Zero-based index of the display input pixels for<br>
+	 * @param displayInput Zero-based index of the display input pixels for<br>
 	 * this surface are tranmitted over.<br>
 	 * This association is **constant** throughout the active, valid lifetime of a<br>
 	 * display config object.<br>
-	 * @sa osvrClientGetNumDisplayInputs(),<br>
-	 * osvrClientGetRelativeViewportForViewerEyeSurface()<br>
+         * @see #osvrClientGetNumDisplayInputs(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, java.nio.ByteBuffer) 
+         * @see #osvrClientGetRelativeViewportForViewerEyeSurface(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, java.nio.IntBuffer, java.nio.IntBuffer, java.nio.IntBuffer, java.nio.IntBuffer)
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which<br>
 	 * case the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetViewerEyeSurfaceDisplayInputIndex(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_SurfaceCount, OSVR_DisplayInputCount*)</code>
 	 */
 	public static native byte osvrClientGetViewerEyeSurfaceDisplayInputIndex(OsvrDisplayLibrary.OSVR_DisplayConfig disp, int viewer, byte eye, int surface, ByteBuffer displayInput);
 	/**
-	 * @brief Get the projection matrix for a surface seen by an eye of a viewer<br>
+	 * Get the projection matrix for a surface seen by an eye of a viewer<br>
 	 * in a display config. (double version)<br>
 	 * @param disp Display config object<br>
 	 * @param viewer Viewer ID<br>
@@ -564,17 +582,19 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param far Distance from viewpoint to far clipping plane - must be positive<br>
 	 * and not equal to near, typically greater than near.<br>
 	 * @param flags Bitwise OR of matrix convention flags (see @ref MatrixFlags)<br>
-	 * @param[out] matrix Output projection matrix: supply an array of 16<br>
+	 * @param matrix Output projection matrix: supply an array of 16<br>
 	 * (::OSVR_MATRIX_SIZE) doubles.<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
 	 * the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetViewerEyeSurfaceProjectionMatrixd(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_SurfaceCount, double, double, OSVR_MatrixConventions, double*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetViewerEyeSurfaceProjectionMatrixd(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, double, double, short, java.nio.DoubleBuffer)} and {@link #osvrClientGetViewerEyeSurfaceProjectionMatrixd(com.sun.jna.Pointer, int, byte, int, double, double, short, com.sun.jna.ptr.DoubleByReference)} instead
+	 * @deprecated use the safer method 
+         * {@link #osvrClientGetViewerEyeSurfaceProjectionMatrixd(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, double, double, short, java.nio.DoubleBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetViewerEyeSurfaceProjectionMatrixd(Pointer disp, int viewer, byte eye, int surface, double near, double far, short flags, DoubleByReference matrix);
 	/**
-	 * @brief Get the projection matrix for a surface seen by an eye of a viewer<br>
+	 * Get the projection matrix for a surface seen by an eye of a viewer<br>
 	 * in a display config. (double version)<br>
 	 * @param disp Display config object<br>
 	 * @param viewer Viewer ID<br>
@@ -585,7 +605,7 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param far Distance from viewpoint to far clipping plane - must be positive<br>
 	 * and not equal to near, typically greater than near.<br>
 	 * @param flags Bitwise OR of matrix convention flags (see @ref MatrixFlags)<br>
-	 * @param[out] matrix Output projection matrix: supply an array of 16<br>
+	 * @param matrix Output projection matrix: supply an array of 16<br>
 	 * (::OSVR_MATRIX_SIZE) doubles.<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
 	 * the output argument is unmodified.<br>
@@ -593,7 +613,7 @@ public class OsvrDisplayLibrary implements Library {
 	 */
 	public static native byte osvrClientGetViewerEyeSurfaceProjectionMatrixd(OsvrDisplayLibrary.OSVR_DisplayConfig disp, int viewer, byte eye, int surface, double near, double far, short flags, DoubleBuffer matrix);
 	/**
-	 * @brief Get the projection matrix for a surface seen by an eye of a viewer<br>
+	 * Get the projection matrix for a surface seen by an eye of a viewer<br>
 	 * in a display config. (float version)<br>
 	 * @param disp Display config object<br>
 	 * @param viewer Viewer ID<br>
@@ -604,17 +624,19 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param far Distance to far clipping plane - must be nonzero, typically<br>
 	 * positive and greater than near.<br>
 	 * @param flags Bitwise OR of matrix convention flags (see @ref MatrixFlags)<br>
-	 * @param[out] matrix Output projection matrix: supply an array of 16<br>
+	 * @param matrix Output projection matrix: supply an array of 16<br>
 	 * (::OSVR_MATRIX_SIZE) floats.<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
 	 * the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetViewerEyeSurfaceProjectionMatrixf(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_SurfaceCount, float, float, OSVR_MatrixConventions, float*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetViewerEyeSurfaceProjectionMatrixf(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, float, float, short, java.nio.FloatBuffer)} and {@link #osvrClientGetViewerEyeSurfaceProjectionMatrixf(com.sun.jna.Pointer, int, byte, int, float, float, short, com.sun.jna.ptr.FloatByReference)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetViewerEyeSurfaceProjectionMatrixf(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, float, float, short, java.nio.FloatBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetViewerEyeSurfaceProjectionMatrixf(Pointer disp, int viewer, byte eye, int surface, float near, float far, short flags, FloatByReference matrix);
 	/**
-	 * @brief Get the projection matrix for a surface seen by an eye of a viewer<br>
+	 * Get the projection matrix for a surface seen by an eye of a viewer<br>
 	 * in a display config. (float version)<br>
 	 * @param disp Display config object<br>
 	 * @param viewer Viewer ID<br>
@@ -625,7 +647,7 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param far Distance to far clipping plane - must be nonzero, typically<br>
 	 * positive and greater than near.<br>
 	 * @param flags Bitwise OR of matrix convention flags (see @ref MatrixFlags)<br>
-	 * @param[out] matrix Output projection matrix: supply an array of 16<br>
+	 * @param matrix Output projection matrix: supply an array of 16<br>
 	 * (::OSVR_MATRIX_SIZE) floats.<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
 	 * the output argument is unmodified.<br>
@@ -633,7 +655,7 @@ public class OsvrDisplayLibrary implements Library {
 	 */
 	public static native byte osvrClientGetViewerEyeSurfaceProjectionMatrixf(OsvrDisplayLibrary.OSVR_DisplayConfig disp, int viewer, byte eye, int surface, float near, float far, short flags, FloatBuffer matrix);
 	/**
-	 * @brief Get the clipping planes (positions at unit distance) for a surface<br>
+	 * Get the clipping planes (positions at unit distance) for a surface<br>
 	 * seen by an eye of a viewer<br>
 	 * in a display config.<br>
 	 * This is only for use in integrations that cannot accept a fully-formulated<br>
@@ -648,19 +670,21 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
 	 * @param surface Surface ID<br>
-	 * @param[out] left Distance to left clipping plane<br>
-	 * @param[out] right Distance to right clipping plane<br>
-	 * @param[out] bottom Distance to bottom clipping plane<br>
-	 * @param[out] top Distance to top clipping plane<br>
+	 * @param left Distance to left clipping plane<br>
+	 * @param right Distance to right clipping plane<br>
+	 * @param bottom Distance to bottom clipping plane<br>
+	 * @param top Distance to top clipping plane<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
 	 * the output arguments are unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetViewerEyeSurfaceProjectionClippingPlanes(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_SurfaceCount, double*, double*, double*, double*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetViewerEyeSurfaceProjectionClippingPlanes(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, java.nio.DoubleBuffer, java.nio.DoubleBuffer, java.nio.DoubleBuffer, java.nio.DoubleBuffer)} and {@link #osvrClientGetViewerEyeSurfaceProjectionClippingPlanes(com.sun.jna.Pointer, int, byte, int, com.sun.jna.ptr.DoubleByReference, com.sun.jna.ptr.DoubleByReference, com.sun.jna.ptr.DoubleByReference, com.sun.jna.ptr.DoubleByReference)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetViewerEyeSurfaceProjectionClippingPlanes(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, java.nio.DoubleBuffer, java.nio.DoubleBuffer, java.nio.DoubleBuffer, java.nio.DoubleBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetViewerEyeSurfaceProjectionClippingPlanes(Pointer disp, int viewer, byte eye, int surface, DoubleByReference left, DoubleByReference right, DoubleByReference bottom, DoubleByReference top);
 	/**
-	 * @brief Get the clipping planes (positions at unit distance) for a surface<br>
+	 * Get the clipping planes (positions at unit distance) for a surface<br>
 	 * seen by an eye of a viewer<br>
 	 * in a display config.<br>
 	 * This is only for use in integrations that cannot accept a fully-formulated<br>
@@ -675,17 +699,17 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
 	 * @param surface Surface ID<br>
-	 * @param[out] left Distance to left clipping plane<br>
-	 * @param[out] right Distance to right clipping plane<br>
-	 * @param[out] bottom Distance to bottom clipping plane<br>
-	 * @param[out] top Distance to top clipping plane<br>
+	 * @param left Distance to left clipping plane<br>
+	 * @param right Distance to right clipping plane<br>
+	 * @param bottom Distance to bottom clipping plane<br>
+	 * @param top Distance to top clipping plane<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
 	 * the output arguments are unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetViewerEyeSurfaceProjectionClippingPlanes(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_SurfaceCount, double*, double*, double*, double*)</code>
 	 */
 	public static native byte osvrClientGetViewerEyeSurfaceProjectionClippingPlanes(OsvrDisplayLibrary.OSVR_DisplayConfig disp, int viewer, byte eye, int surface, DoubleBuffer left, DoubleBuffer right, DoubleBuffer bottom, DoubleBuffer top);
 	/**
-	 * @brief Determines if a surface seen by an eye of a viewer in a display<br>
+	 * Determines if a surface seen by an eye of a viewer in a display<br>
 	 * config requests some distortion to be performed.<br>
 	 * This simply reports true or false, and does not specify which kind of<br>
 	 * distortion implementations have been parameterized for this display. For<br>
@@ -695,18 +719,20 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
 	 * @param surface Surface ID<br>
-	 * @param[out] distortionRequested Output parameter: whether distortion is<br>
+	 * @param distortionRequested Output parameter: whether distortion is<br>
 	 * requested. **Constant** throughout the active, valid lifetime of a display<br>
 	 * config object.<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
 	 * the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientDoesViewerEyeSurfaceWantDistortion(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_SurfaceCount, OSVR_CBool*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientDoesViewerEyeSurfaceWantDistortion(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, java.nio.ByteBuffer)} and {@link #osvrClientDoesViewerEyeSurfaceWantDistortion(com.sun.jna.Pointer, int, byte, int, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientDoesViewerEyeSurfaceWantDistortion(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, java.nio.ByteBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientDoesViewerEyeSurfaceWantDistortion(Pointer disp, int viewer, byte eye, int surface, Pointer distortionRequested);
 	/**
-	 * @brief Determines if a surface seen by an eye of a viewer in a display<br>
+	 * Determines if a surface seen by an eye of a viewer in a display<br>
 	 * config requests some distortion to be performed.<br>
 	 * This simply reports true or false, and does not specify which kind of<br>
 	 * distortion implementations have been parameterized for this display. For<br>
@@ -716,7 +742,7 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
 	 * @param surface Surface ID<br>
-	 * @param[out] distortionRequested Output parameter: whether distortion is<br>
+	 * @param distortionRequested Output parameter: whether distortion is<br>
 	 * requested. **Constant** throughout the active, valid lifetime of a display<br>
 	 * config object.<br>
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
@@ -725,7 +751,7 @@ public class OsvrDisplayLibrary implements Library {
 	 */
 	public static native byte osvrClientDoesViewerEyeSurfaceWantDistortion(OsvrDisplayLibrary.OSVR_DisplayConfig disp, int viewer, byte eye, int surface, ByteBuffer distortionRequested);
 	/**
-	 * @brief Returns the priority/availability of radial distortion parameters for<br>
+	 * Returns the priority/availability of radial distortion parameters for<br>
 	 * a surface seen by an eye of a viewer in a display config.<br>
 	 * If osvrClientDoesViewerEyeSurfaceWantDistortion() reports false, then the<br>
 	 * display does not request distortion of any sort, and thus neither this nor<br>
@@ -735,7 +761,7 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
 	 * @param surface Surface ID<br>
-	 * @param[out] priority Output: the priority level. Negative values<br>
+	 * @param priority Output: the priority level. Negative values<br>
 	 * (canonically OSVR_DISTORTION_PRIORITY_UNAVAILABLE) indicate this technique<br>
 	 * not available, higher values indicate higher preference for the given<br>
 	 * technique based on the device's description. **Constant** throughout the<br>
@@ -743,12 +769,14 @@ public class OsvrDisplayLibrary implements Library {
 	 * @return OSVR_RETURN_FAILURE if invalid parameters were passed, in which case<br>
 	 * the output argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetViewerEyeSurfaceRadialDistortionPriority(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_SurfaceCount, OSVR_DistortionPriority*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetViewerEyeSurfaceRadialDistortionPriority(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, java.nio.IntBuffer)} and {@link #osvrClientGetViewerEyeSurfaceRadialDistortionPriority(com.sun.jna.Pointer, int, byte, int, com.sun.jna.ptr.IntByReference)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetViewerEyeSurfaceRadialDistortionPriority(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, java.nio.IntBuffer)}
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetViewerEyeSurfaceRadialDistortionPriority(Pointer disp, int viewer, byte eye, int surface, IntByReference priority);
 	/**
-	 * @brief Returns the priority/availability of radial distortion parameters for<br>
+	 * Returns the priority/availability of radial distortion parameters for<br>
 	 * a surface seen by an eye of a viewer in a display config.<br>
 	 * If osvrClientDoesViewerEyeSurfaceWantDistortion() reports false, then the<br>
 	 * display does not request distortion of any sort, and thus neither this nor<br>
@@ -758,7 +786,7 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
 	 * @param surface Surface ID<br>
-	 * @param[out] priority Output: the priority level. Negative values<br>
+	 * @param priority Output: the priority level. Negative values<br>
 	 * (canonically OSVR_DISTORTION_PRIORITY_UNAVAILABLE) indicate this technique<br>
 	 * not available, higher values indicate higher preference for the given<br>
 	 * technique based on the device's description. **Constant** throughout the<br>
@@ -769,7 +797,7 @@ public class OsvrDisplayLibrary implements Library {
 	 */
 	public static native byte osvrClientGetViewerEyeSurfaceRadialDistortionPriority(OsvrDisplayLibrary.OSVR_DisplayConfig disp, int viewer, byte eye, int surface, IntBuffer priority);
 	/**
-	 * @brief Returns the radial distortion parameters, if known/requested, for a<br>
+	 * Returns the radial distortion parameters, if known/requested, for a<br>
 	 * surface seen by an eye of a viewer in a display config.<br>
 	 * Will only succeed if osvrClientGetViewerEyeSurfaceRadialDistortionPriority()<br>
 	 * reports a non-negative priority.<br>
@@ -777,17 +805,19 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
 	 * @param surface Surface ID<br>
-	 * @param[out] params Output: the parameters for radial distortion<br>
+	 * @param params Output: the parameters for radial distortion<br>
 	 * @return OSVR_RETURN_FAILURE if this surface does not have these parameters<br>
 	 * described, or if invalid parameters were passed, in which case the output<br>
 	 * argument is unmodified.<br>
 	 * Original signature : <code>OSVR_ReturnCode osvrClientGetViewerEyeSurfaceRadialDistortion(OSVR_DisplayConfig, OSVR_ViewerCount, OSVR_EyeCount, OSVR_SurfaceCount, OSVR_RadialDistortionParameters*)</code><br>
-	 * @deprecated use the safer methods {@link #osvrClientGetViewerEyeSurfaceRadialDistortion(osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, com.sun.jna.Pointer)} and {@link #osvrClientGetViewerEyeSurfaceRadialDistortion(com.sun.jna.Pointer, int, byte, int, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer method
+         * {@link #osvrClientGetViewerEyeSurfaceRadialDistortion(com.jme3.system.osvr.osvrdisplay.OsvrDisplayLibrary.OSVR_DisplayConfig, int, byte, int, com.sun.jna.Pointer)} 
+         * instead
 	 */
 	@Deprecated 
 	public static native byte osvrClientGetViewerEyeSurfaceRadialDistortion(Pointer disp, int viewer, byte eye, int surface, Pointer params);
 	/**
-	 * @brief Returns the radial distortion parameters, if known/requested, for a<br>
+	 * Returns the radial distortion parameters, if known/requested, for a<br>
 	 * surface seen by an eye of a viewer in a display config.<br>
 	 * Will only succeed if osvrClientGetViewerEyeSurfaceRadialDistortionPriority()<br>
 	 * reports a non-negative priority.<br>
@@ -795,7 +825,7 @@ public class OsvrDisplayLibrary implements Library {
 	 * @param viewer Viewer ID<br>
 	 * @param eye Eye ID<br>
 	 * @param surface Surface ID<br>
-	 * @param[out] params Output: the parameters for radial distortion<br>
+	 * @param params Output: the parameters for radial distortion<br>
 	 * @return OSVR_RETURN_FAILURE if this surface does not have these parameters<br>
 	 * described, or if invalid parameters were passed, in which case the output<br>
 	 * argument is unmodified.<br>

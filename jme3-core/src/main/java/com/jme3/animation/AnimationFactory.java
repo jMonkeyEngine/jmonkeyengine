@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -443,7 +443,7 @@ public class AnimationFactory {
                 //jumping to the next keyFrame
                 i = key;
             } else {
-                //No more key frame, filling the array witht he last transform computed.
+                //No more key frame, filling the array with the last transform computed.
                 for (int j = i; j < totalFrames; j++) {
 
                     switch (type) {

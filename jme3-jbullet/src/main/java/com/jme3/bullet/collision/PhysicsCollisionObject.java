@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,7 @@ public abstract class PhysicsCollisionObject implements Savable {
 
     /**
      * Returns the collision group for this collision shape
-     * @return
+     * @return a bitmask with 1 bit set
      */
     public int getCollisionGroup() {
         return collisionGroup;
@@ -129,7 +129,7 @@ public abstract class PhysicsCollisionObject implements Savable {
 
     /**
      * Gets the bitmask of collision groups that this object collides with.
-     * @return
+     * @return a bitmask
      */
     public int getCollideWithGroups() {
         return collisionGroupsMask;

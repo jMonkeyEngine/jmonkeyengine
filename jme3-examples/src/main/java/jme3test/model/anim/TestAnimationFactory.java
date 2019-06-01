@@ -46,7 +46,7 @@ public class TestAnimationFactory extends SimpleApplication {
         model.attachChild(childModel);
         TangentBinormalGenerator.generate(model);
 
-        //creating quite complex animation witht the AnimationHelper
+        //creating quite complex animation with the AnimationHelper
         // animation of 6 seconds named "anim" and with 25 frames per second
         AnimationFactory animationFactory = new AnimationFactory(6, "anim", 25);
         

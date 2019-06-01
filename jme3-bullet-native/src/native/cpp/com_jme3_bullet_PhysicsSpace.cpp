@@ -46,16 +46,21 @@ extern "C" {
      * Signature: (FFFFFFI)J
      */
     JNIEXPORT jlong JNICALL Java_com_jme3_bullet_PhysicsSpace_createPhysicsSpace
-    (JNIEnv * env, jobject object, jfloat minX, jfloat minY, jfloat minZ, jfloat maxX, jfloat maxY, jfloat maxZ, jint broadphase, jboolean threading) {
+    (JNIEnv * env, jobject object, jfloat minX, jfloat minY, jfloat minZ,
+            jfloat maxX, jfloat maxY, jfloat maxZ, jint broadphase,
+            jboolean threading) {
         jmeClasses::initJavaClasses(env);
+
         jmePhysicsSpace* space = new jmePhysicsSpace(env, object);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space has not been created.");
             return 0;
         }
-        space->createPhysicsSpace(minX, minY, minZ, maxX, maxY, maxZ, broadphase, threading);
-        return reinterpret_cast<jlong>(space);
+
+        space->createPhysicsSpace(minX, minY, minZ, maxX, maxY, maxZ,
+                broadphase, threading);
+        return reinterpret_cast<jlong> (space);
     }
 
     /*
@@ -64,8 +69,9 @@ extern "C" {
      * Signature: (JFIF)V
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_stepSimulation
-    (JNIEnv * env, jobject object, jlong spaceId, jfloat tpf, jint maxSteps, jfloat accuracy) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
+    (JNIEnv * env, jobject object, jlong spaceId, jfloat tpf, jint maxSteps,
+            jfloat accuracy) {
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
@@ -81,8 +87,8 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_addCollisionObject
     (JNIEnv * env, jobject object, jlong spaceId, jlong objectId) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
-        btCollisionObject* collisionObject = reinterpret_cast<btCollisionObject*>(objectId);
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
+        btCollisionObject* collisionObject = reinterpret_cast<btCollisionObject*> (objectId);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
@@ -93,7 +99,7 @@ extern "C" {
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
-        jmeUserPointer *userPointer = (jmeUserPointer*)collisionObject->getUserPointer();
+        jmeUserPointer *userPointer = (jmeUserPointer*) collisionObject->getUserPointer();
         userPointer -> space = space;
 
         space->getDynamicsWorld()->addCollisionObject(collisionObject);
@@ -106,8 +112,8 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_removeCollisionObject
     (JNIEnv * env, jobject object, jlong spaceId, jlong objectId) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
-        btCollisionObject* collisionObject = reinterpret_cast<btCollisionObject*>(objectId);
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
+        btCollisionObject* collisionObject = reinterpret_cast<btCollisionObject*> (objectId);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
@@ -119,7 +125,7 @@ extern "C" {
             return;
         }
         space->getDynamicsWorld()->removeCollisionObject(collisionObject);
-        jmeUserPointer *userPointer = (jmeUserPointer*)collisionObject->getUserPointer();
+        jmeUserPointer *userPointer = (jmeUserPointer*) collisionObject->getUserPointer();
         userPointer -> space = NULL;
     }
 
@@ -130,8 +136,8 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_addRigidBody
     (JNIEnv * env, jobject object, jlong spaceId, jlong rigidBodyId) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
-        btRigidBody* collisionObject = reinterpret_cast<btRigidBody*>(rigidBodyId);
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
+        btRigidBody* collisionObject = reinterpret_cast<btRigidBody*> (rigidBodyId);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
@@ -142,7 +148,7 @@ extern "C" {
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
-        jmeUserPointer *userPointer = (jmeUserPointer*)collisionObject->getUserPointer();
+        jmeUserPointer *userPointer = (jmeUserPointer*) collisionObject->getUserPointer();
         userPointer -> space = space;
         space->getDynamicsWorld()->addRigidBody(collisionObject);
     }
@@ -154,8 +160,8 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_removeRigidBody
     (JNIEnv * env, jobject object, jlong spaceId, jlong rigidBodyId) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
-        btRigidBody* collisionObject = reinterpret_cast<btRigidBody*>(rigidBodyId);
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
+        btRigidBody* collisionObject = reinterpret_cast<btRigidBody*> (rigidBodyId);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
@@ -166,7 +172,7 @@ extern "C" {
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
-        jmeUserPointer *userPointer = (jmeUserPointer*)collisionObject->getUserPointer();
+        jmeUserPointer *userPointer = (jmeUserPointer*) collisionObject->getUserPointer();
         userPointer -> space = NULL;
         space->getDynamicsWorld()->removeRigidBody(collisionObject);
     }
@@ -178,8 +184,8 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_addCharacterObject
     (JNIEnv * env, jobject object, jlong spaceId, jlong objectId) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
-        btCollisionObject* collisionObject = reinterpret_cast<btCollisionObject*>(objectId);
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
+        btCollisionObject* collisionObject = reinterpret_cast<btCollisionObject*> (objectId);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
@@ -190,12 +196,12 @@ extern "C" {
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
-        jmeUserPointer *userPointer = (jmeUserPointer*)collisionObject->getUserPointer();
+        jmeUserPointer *userPointer = (jmeUserPointer*) collisionObject->getUserPointer();
         userPointer -> space = space;
         space->getDynamicsWorld()->addCollisionObject(collisionObject,
                 btBroadphaseProxy::CharacterFilter,
                 btBroadphaseProxy::StaticFilter | btBroadphaseProxy::DefaultFilter
-        );
+                );
     }
 
     /*
@@ -205,8 +211,8 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_removeCharacterObject
     (JNIEnv * env, jobject object, jlong spaceId, jlong objectId) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
-        btCollisionObject* collisionObject = reinterpret_cast<btCollisionObject*>(objectId);
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
+        btCollisionObject* collisionObject = reinterpret_cast<btCollisionObject*> (objectId);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
@@ -217,7 +223,7 @@ extern "C" {
             env->ThrowNew(newExc, "The collision object does not exist.");
             return;
         }
-        jmeUserPointer *userPointer = (jmeUserPointer*)collisionObject->getUserPointer();
+        jmeUserPointer *userPointer = (jmeUserPointer*) collisionObject->getUserPointer();
         userPointer -> space = NULL;
         space->getDynamicsWorld()->removeCollisionObject(collisionObject);
     }
@@ -229,8 +235,8 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_addAction
     (JNIEnv * env, jobject object, jlong spaceId, jlong objectId) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
-        btActionInterface* actionObject = reinterpret_cast<btActionInterface*>(objectId);
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
+        btActionInterface* actionObject = reinterpret_cast<btActionInterface*> (objectId);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
@@ -251,8 +257,8 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_removeAction
     (JNIEnv * env, jobject object, jlong spaceId, jlong objectId) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
-        btActionInterface* actionObject = reinterpret_cast<btActionInterface*>(objectId);
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
+        btActionInterface* actionObject = reinterpret_cast<btActionInterface*> (objectId);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
@@ -273,8 +279,8 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_addVehicle
     (JNIEnv * env, jobject object, jlong spaceId, jlong objectId) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
-        btActionInterface* actionObject = reinterpret_cast<btActionInterface*>(objectId);
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
+        btActionInterface* actionObject = reinterpret_cast<btActionInterface*> (objectId);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
@@ -295,8 +301,8 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_removeVehicle
     (JNIEnv * env, jobject object, jlong spaceId, jlong objectId) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
-        btActionInterface* actionObject = reinterpret_cast<btActionInterface*>(objectId);
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
+        btActionInterface* actionObject = reinterpret_cast<btActionInterface*> (objectId);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
@@ -317,8 +323,8 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_addConstraint
     (JNIEnv * env, jobject object, jlong spaceId, jlong objectId) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
-        btTypedConstraint* constraint = reinterpret_cast<btTypedConstraint*>(objectId);
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
+        btTypedConstraint* constraint = reinterpret_cast<btTypedConstraint*> (objectId);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
@@ -339,8 +345,8 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_addConstraintC
     (JNIEnv * env, jobject object, jlong spaceId, jlong objectId, jboolean collision) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
-        btTypedConstraint* constraint = reinterpret_cast<btTypedConstraint*>(objectId);
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
+        btTypedConstraint* constraint = reinterpret_cast<btTypedConstraint*> (objectId);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
@@ -361,8 +367,8 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_removeConstraint
     (JNIEnv * env, jobject object, jlong spaceId, jlong objectId) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
-        btTypedConstraint* constraint = reinterpret_cast<btTypedConstraint*>(objectId);
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
+        btTypedConstraint* constraint = reinterpret_cast<btTypedConstraint*> (objectId);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
@@ -383,7 +389,7 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_setGravity
     (JNIEnv * env, jobject object, jlong spaceId, jobject vector) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
@@ -391,6 +397,7 @@ extern "C" {
         }
         btVector3 gravity = btVector3();
         jmeBulletUtil::convert(env, vector, &gravity);
+
         space->getDynamicsWorld()->setGravity(gravity);
     }
 
@@ -411,13 +418,13 @@ extern "C" {
      */
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_finalizeNative
     (JNIEnv * env, jobject object, jlong spaceId) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
         if (space == NULL) {
             return;
         }
         delete(space);
     }
-    
+
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_rayTest_1native
     (JNIEnv * env, jobject object, jobject from, jobject to, jlong spaceId, jobject resultlist, jint flags) {
 
@@ -465,13 +472,12 @@ extern "C" {
         resultCallback.resultlist = resultlist;
         resultCallback.m_flags = flags;
         space->getDynamicsWorld()->rayTest(native_from, native_to, resultCallback);
+
         return;
     }
 
-
-
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_sweepTest_1native
-        (JNIEnv * env, jobject object, jlong shapeId, jobject from, jobject to, jlong spaceId, jobject resultlist, jfloat allowedCcdPenetration) {
+    (JNIEnv * env, jobject object, jlong shapeId, jobject from, jobject to, jlong spaceId, jobject resultlist, jfloat allowedCcdPenetration) {
 
         jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
         if (space == NULL) {
@@ -489,7 +495,7 @@ extern "C" {
 
         struct AllConvexResultCallback : public btCollisionWorld::ConvexResultCallback {
 
-            AllConvexResultCallback(const btTransform& convexFromWorld, const  btTransform & convexToWorld) : m_convexFromWorld(convexFromWorld), m_convexToWorld(convexToWorld) {
+            AllConvexResultCallback(const btTransform& convexFromWorld, const btTransform & convexToWorld) : m_convexFromWorld(convexFromWorld), m_convexToWorld(convexToWorld) {
             }
             jobject resultlist;
             JNIEnv* env;
@@ -500,17 +506,16 @@ extern "C" {
             btVector3 m_hitPointWorld;
 
             virtual btScalar addSingleResult(btCollisionWorld::LocalConvexResult& convexResult, bool normalInWorldSpace) {
-                    if (normalInWorldSpace) {
-                            m_hitNormalWorld = convexResult.m_hitNormalLocal;
-                    }
-                    else {
-                            m_hitNormalWorld = convexResult.m_hitCollisionObject->getWorldTransform().getBasis() * convexResult.m_hitNormalLocal;
-                    }
-                    m_hitPointWorld.setInterpolate3(m_convexFromWorld.getBasis() * m_convexFromWorld.getOrigin(), m_convexToWorld.getBasis() * m_convexToWorld.getOrigin(), convexResult.m_hitFraction);
+                if (normalInWorldSpace) {
+                    m_hitNormalWorld = convexResult.m_hitNormalLocal;
+                } else {
+                    m_hitNormalWorld = convexResult.m_hitCollisionObject->getWorldTransform().getBasis() * convexResult.m_hitNormalLocal;
+                }
+                m_hitPointWorld.setInterpolate3(m_convexFromWorld.getBasis() * m_convexFromWorld.getOrigin(), m_convexToWorld.getBasis() * m_convexToWorld.getOrigin(), convexResult.m_hitFraction);
 
-                    jmeBulletUtil::addSweepResult(env, resultlist, &m_hitNormalWorld, &m_hitPointWorld, convexResult.m_hitFraction, convexResult.m_hitCollisionObject);
+                jmeBulletUtil::addSweepResult(env, resultlist, &m_hitNormalWorld, &m_hitPointWorld, convexResult.m_hitFraction, convexResult.m_hitCollisionObject);
 
-                    return 1.f;
+                return 1.f;
             }
         };
 
@@ -528,16 +533,16 @@ extern "C" {
         space->getDynamicsWorld()->convexSweepTest((btConvexShape *) shape, native_from, native_to, resultCallback, native_allowed_ccd_penetration);
         return;
     }
-    
+
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_setSolverNumIterations
     (JNIEnv *env, jobject object, jlong spaceId, jint value) {
-        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*>(spaceId);
+        jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
         if (space == NULL) {
             jclass newExc = env->FindClass("java/lang/NullPointerException");
             env->ThrowNew(newExc, "The physics space does not exist.");
             return;
         }
-        
+
         space->getDynamicsWorld()->getSolverInfo().m_numIterations = value;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -221,7 +221,7 @@ public abstract class Filter implements Savable {
 
     /**
      * returns the default pass depth format
-     * @return
+     * @return the enum value
      */
     protected Format getDefaultPassDepthFormat() {
         return Format.Depth;
@@ -371,14 +371,14 @@ public abstract class Filter implements Savable {
 
     /**
      * returns the default pass frame buffer
-     * @return
+     * @return the pre-existing buffer
      */
     protected FrameBuffer getRenderFrameBuffer() {
         return defaultPass.renderFrameBuffer;
     }
 
     /**
-     * sets the default pas frame buffer
+     * sets the default pass frame buffer
      * @param renderFrameBuffer
      */
     protected void setRenderFrameBuffer(FrameBuffer renderFrameBuffer) {
@@ -387,7 +387,7 @@ public abstract class Filter implements Savable {
 
     /**
      * returns the rendered texture of this filter
-     * @return
+     * @return the pre-existing texture
      */
     protected Texture2D getRenderedTexture() {
         return defaultPass.renderedTexture;
@@ -434,7 +434,7 @@ public abstract class Filter implements Savable {
     
     /**
      * returns the list of the postRender passes
-     * @return
+     * @return the pre-existing List
      */
     protected List<Pass> getPostRenderPasses() {
         return postRenderPasses;

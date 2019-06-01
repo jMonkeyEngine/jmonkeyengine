@@ -35,7 +35,6 @@ import com.jme3.opencl.*;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.common.nio.PointerBuffer;
 import com.jogamp.opencl.CLPlatform;
-import com.jogamp.opencl.CLProgram;
 import com.jogamp.opencl.llb.CL;
 import com.jogamp.opencl.util.CLUtil;
 import java.nio.ByteBuffer;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -852,7 +852,7 @@ public class TerrainQuad extends Node implements Terrain {
      * exists already, then it will grow the box to fit the new changedPoint.
      * If the affectedAreaBBox is null, then it will create one of unit size.
      *
-     * @param needToRecalculateNormals if null, will cause needToRecalculateNormals() to return false
+     * @param changedPoint a location to include
      */
     protected void setNormalRecalcNeeded(Vector2f changedPoint) {
         if (changedPoint == null) { // set needToRecalculateNormals() to false

@@ -27,7 +27,7 @@ class Field implements Cloneable {
     /** This variable indicates the level of the pointer. */
     public int               pointerLevel;
     /**
-     * This variable determines the sizes of the array. If the value is null the n the field is not an array.
+     * This variable determines the sizes of the array. If the value is null then the field is not an array.
      */
     public int[]             tableSizes;
     /** This variable indicates if the field is a function pointer. */
@@ -52,7 +52,7 @@ class Field implements Cloneable {
 
     /**
      * Copy constructor. Used in clone method. Copying is not full. The value in the new object is not set so that we
-     * have a clead empty copy of the filed to fill with data.
+     * have a clean empty copy of the field to fill with data.
      * @param field
      *            the object that we copy
      */
@@ -73,7 +73,7 @@ class Field implements Cloneable {
     }
 
     /**
-     * This method fills the field wth data read from the input stream.
+     * This method fills the field with data read from the input stream.
      * @param blenderInputStream
      *            the stream we read data from
      * @throws BlenderFileException
@@ -264,9 +264,9 @@ class Field implements Cloneable {
     }
 
     /**
-     * This method removes all whitespaces from the text.
+     * This method removes all whitespace from the text.
      * @param text
-     *            the text we remove whitespaces from
+     *            the text we remove whitespace from
      */
     private void removeWhitespaces(StringBuilder text) {
         for (int i = 0; i < text.length(); ++i) {
@@ -306,7 +306,7 @@ class Field implements Cloneable {
         StringBuilder result = new StringBuilder();
         result.append(this.getFullName());
 
-        // insert appropriate amount of spaces to format the output corrently
+        // insert appropriate number of spaces to format the output corrently
         int nameLength = result.length();
         result.append(' ');// at least one space is a must
         for (int i = 1; i < NAME_LENGTH - nameLength; ++i) {// we start from i=1 because one space is already added

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -244,7 +244,7 @@ public class MotionPath implements Savable {
 
     /**
      * returns an iterator on the waypoints collection
-     * @return
+     * @return an iterator
      */
     public Iterator<Vector3f> iterator() {
         return spline.getControlPoints().iterator();
@@ -317,7 +317,7 @@ public class MotionPath implements Savable {
 
     /**
      * return the number of waypoints of this path
-     * @return
+     * @return the count (&ge;0)
      */
     public int getNbWayPoints() {
         return spline.getControlPoints().size();
@@ -334,7 +334,7 @@ public class MotionPath implements Savable {
 
     /**
      * Returns the curve tension
-     * @return
+     * @return the curve tension
      */
     public float getCurveTension() {
         return spline.getCurveTension();
@@ -378,7 +378,7 @@ public class MotionPath implements Savable {
 
     /**
      * returns true if the path is a cycle
-     * @return
+     * @return true if the path is a cycle
      */
     public boolean isCycle() {
         return spline.isCycle();

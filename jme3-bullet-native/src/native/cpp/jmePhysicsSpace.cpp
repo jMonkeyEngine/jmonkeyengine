@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,17 +74,16 @@ void jmePhysicsSpace::createPhysicsSpace(jfloat minX, jfloat minY, jfloat minZ, 
     btBroadphaseInterface* broadphase;
 
     switch (broadphaseId) {
-        case 0:
+        case 0: // SIMPLE
             broadphase = new btSimpleBroadphase();
             break;
-        case 1:
+        case 1: // AXIS_SWEEP_3
             broadphase = new btAxisSweep3(min, max);
             break;
-        case 2:
-            //TODO: 32bit!
-            broadphase = new btAxisSweep3(min, max);
+        case 2: // AXIS_SWEEP_3_32
+            broadphase = new bt32BitAxisSweep3(min, max);
             break;
-        case 3:
+        case 3: // DBVT
             broadphase = new btDbvtBroadphase();
             break;
     }
@@ -150,8 +149,8 @@ void jmePhysicsSpace::createPhysicsSpace(jfloat minX, jfloat minY, jfloat minZ, 
     dynamicsWorld->getPairCache()->setOverlapFilterCallback(new jmeFilterCallback());
     dynamicsWorld->setInternalTickCallback(&jmePhysicsSpace::preTickCallback, static_cast<void *> (this), true);
     dynamicsWorld->setInternalTickCallback(&jmePhysicsSpace::postTickCallback, static_cast<void *> (this));
-    if (gContactProcessedCallback == NULL) {
-        gContactProcessedCallback = &jmePhysicsSpace::contactProcessedCallback;
+    if (gContactStartedCallback == NULL) {
+        gContactStartedCallback = &jmePhysicsSpace::contactStartedCallback;
     }
 }
 
@@ -183,11 +182,10 @@ void jmePhysicsSpace::postTickCallback(btDynamicsWorld *world, btScalar timeStep
     }
 }
 
-bool jmePhysicsSpace::contactProcessedCallback(btManifoldPoint &cp, void *body0, void *body1) {
-    //    printf("contactProcessedCallback %d %dn", body0, body1);
-    btCollisionObject* co0 = (btCollisionObject*) body0;
+void jmePhysicsSpace::contactStartedCallback(btPersistentManifold* const &pm) {
+    const btCollisionObject* co0 = pm->getBody0();
+    const btCollisionObject* co1 = pm->getBody1();
     jmeUserPointer *up0 = (jmeUserPointer*) co0 -> getUserPointer();
-    btCollisionObject* co1 = (btCollisionObject*) body1;
     jmeUserPointer *up1 = (jmeUserPointer*) co1 -> getUserPointer();
     if (up0 != NULL) {
         jmePhysicsSpace *dynamicsWorld = (jmePhysicsSpace *)up0->space;
@@ -197,18 +195,18 @@ bool jmePhysicsSpace::contactProcessedCallback(btManifoldPoint &cp, void *body0,
             if (javaPhysicsSpace != NULL) {
                 jobject javaCollisionObject0 = env->NewLocalRef(up0->javaCollisionObject);
                 jobject javaCollisionObject1 = env->NewLocalRef(up1->javaCollisionObject);
-                env->CallVoidMethod(javaPhysicsSpace, jmeClasses::PhysicsSpace_addCollisionEvent, javaCollisionObject0, javaCollisionObject1, (jlong) & cp);
+                for(int i=0;i<pm->getNumContacts();i++){
+                    env->CallVoidMethod(javaPhysicsSpace, jmeClasses::PhysicsSpace_addCollisionEvent, javaCollisionObject0, javaCollisionObject1, (jlong) & pm->getContactPoint(i));
+                    if (env->ExceptionCheck()) {
+                        env->Throw(env->ExceptionOccurred());
+                    }
+                }
                 env->DeleteLocalRef(javaPhysicsSpace);
                 env->DeleteLocalRef(javaCollisionObject0);
                 env->DeleteLocalRef(javaCollisionObject1);
-                if (env->ExceptionCheck()) {
-                    env->Throw(env->ExceptionOccurred());
-                    return true;
-                }
             }
         }
     }
-    return true;
 }
 
 btDynamicsWorld* jmePhysicsSpace::getDynamicsWorld() {

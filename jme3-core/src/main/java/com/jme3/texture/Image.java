@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -185,6 +185,14 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * 
          */
         DXT5(8,false,true, false),
+
+        RGTC2(8,false,true, false),
+
+        SIGNED_RGTC2(8,false,true, false),
+        
+        RGTC1(4,false,true, false),
+        
+        SIGNED_RGTC1(4,false,true, false),
         
         /**
          * Luminance-Alpha Texture Compression. 
@@ -735,7 +743,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
 
     /**
-     * @see {@link #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, int[], com.jme3.texture.image.ColorSpace)}
+     * @see #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, int[], com.jme3.texture.image.ColorSpace)
      * @param format
      * @param width
      * @param height
@@ -791,7 +799,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
     
     /**
-     * @see {@link #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, int[], com.jme3.texture.image.ColorSpace)}
+     * @see #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, int[], com.jme3.texture.image.ColorSpace)
      * @param format
      * @param width
      * @param height
@@ -825,7 +833,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
     
     /**
-     * @see {@link #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, com.jme3.texture.image.ColorSpace)}
+     * @see #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, com.jme3.texture.image.ColorSpace)
      * @param format
      * @param width
      * @param height
@@ -859,7 +867,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     
     
     /**
-     * @see {@link #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, com.jme3.texture.image.ColorSpace)}
+     * @see #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, com.jme3.texture.image.ColorSpace)
      * @param format
      * @param width
      * @param height
@@ -1130,7 +1138,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * @param colorSpace @see ColorSpace. Set to sRGB to enable srgb -&gt; linear 
      * conversion, Linear otherwise.
      *
-     * @seealso Renderer#setLinearizeSrgbImages(boolean)
+     * @see Renderer#setLinearizeSrgbImages(boolean)
      *
      */
     public void setColorSpace(ColorSpace colorSpace) {
@@ -1148,7 +1156,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      *
      * @return True, if the image is an SRGB image, false if it is linear RGB.
      *
-     * @seealso Renderer#setLinearizeSrgbImages(boolean)
+     * @see Renderer#setLinearizeSrgbImages(boolean)
      */
     public ColorSpace getColorSpace() {
         return colorSpace;

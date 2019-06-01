@@ -1,15 +1,9 @@
 package jme3test.android;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.light.AmbientLight;
-import com.jme3.light.PointLight;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.Sphere;
-import com.jme3.util.TangentBinormalGenerator;
 
 /**
  * Test case to look for images stored in the Android drawable and mipmap directories.  Image files are

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -348,7 +348,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
     /**
      * returns the zoom speed
      *
-     * @return
+     * @return the speed
      */
     public float getZoomSpeed() {
         return zoomSpeed;
@@ -358,7 +358,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
      * Sets the zoom speed, the lower the value, the slower the camera will zoom
      * in and out. default is 2.
      *
-     * @param zoomSpeed
+     * @param zoomSpeed the speed
      */
     public void setZoomSpeed(float zoomSpeed) {
         this.zoomSpeed = zoomSpeed;
@@ -415,7 +415,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
     /**
      * @return If drag to rotate feature is enabled.
      *
-     * @see FlyByCamera#setDragToRotate(boolean)
+     * @see #setDragToRotate(boolean)
      */
     public boolean isDragToRotate() {
         return dragToRotate;

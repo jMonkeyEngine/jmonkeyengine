@@ -33,28 +33,14 @@ package jme3test.light.pbr;
 
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
-import com.jme3.bounding.BoundingSphere;
-import com.jme3.environment.EnvironmentCamera;
-import com.jme3.environment.LightProbeFactory;
-import com.jme3.environment.generation.JobProgressAdapter;
-import com.jme3.environment.util.EnvMapUtils;
-import com.jme3.environment.util.LightsDebugState;
-import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
-import com.jme3.light.LightProbe;
 import com.jme3.material.Material;
 import com.jme3.math.*;
-import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.ToneMapFilter;
 import com.jme3.scene.*;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.texture.plugins.ktx.KTXLoader;
-import com.jme3.util.MaterialDebugAppState;
-import com.jme3.util.SkyFactory;
-import com.jme3.util.mikktspace.MikktspaceTangentGenerator;
 
 /**
  * A test case for PBR lighting.

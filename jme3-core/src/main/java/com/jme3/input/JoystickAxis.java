@@ -42,6 +42,29 @@ public interface JoystickAxis {
     public static final String Y_AXIS = "y";
     public static final String Z_AXIS = "z";
     public static final String Z_ROTATION = "rz";
+    public static final String LEFT_TRIGGER = "rx";
+    public static final String RIGHT_TRIGGER = "ry";
+    
+    // Note: the left/right trigger bit may be a bit controversial in
+    // the sense that this is one case where XBox controllers make a lot
+    // more sense.
+    // I've seen the following mappings for various things:
+    // 
+    // Axis          | XBox  | Non-Xbox (generally) (includes actual Sony PS4 controllers)
+    // --------------+-------+---------------
+    // left trigger  | z     | rx   (also button 6)
+    // right trigger | rz    | ry   (also button 7)
+    // left stick x  | x     | x
+    // left stick y  | y     | y
+    // right stick x | rx    | z
+    // right stick y | ry    | rz
+    //
+    // The issue is that in all cases I've seen, the XBox controllers will
+    // use the name "xbox" somewhere in their name.  The Non-XBox controllers
+    // never mention anything uniform... even the PS4 controller only calls
+    // itself "Wireless Controller".  In that light, it seems easier to make
+    // the default the ugly case and the "XBox" way the exception because it
+    // can more easily be identified.
 
     public static final String POV_X = "pov_x";
     public static final String POV_Y = "pov_y";

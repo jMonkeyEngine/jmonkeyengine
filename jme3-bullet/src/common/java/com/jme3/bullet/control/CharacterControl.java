@@ -102,6 +102,7 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         control.setCcdSweptSphereRadius(getCcdSweptSphereRadius());
         control.setCollideWithGroups(getCollideWithGroups());
         control.setCollisionGroup(getCollisionGroup());
+        control.setContactResponse(isContactResponse());
         control.setFallSpeed(getFallSpeed());
         control.setGravity(getGravity());
         control.setJumpSpeed(getJumpSpeed());
@@ -126,6 +127,13 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
             return;
         }
         setPhysicsLocation(getSpatialTranslation());
+    }
+
+    /**
+     * @return returns the spatial the control is added to, or null if the control is not attached to a spatial yet.
+     */
+    public Spatial getSpatial(){
+        return this.spatial;
     }
 
     public void setEnabled(boolean enabled) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -216,7 +216,7 @@ public abstract class AbstractHeightMap implements HeightMap {
 
     /**
      * Build a new array of height data with the scaled values.
-     * @return
+     * @return a new array
      */
     public float[] getScaledHeightMap() {
         float[] hm = new float[heightData.length];
@@ -351,9 +351,8 @@ public abstract class AbstractHeightMap implements HeightMap {
 
     /**
      * <code>erodeTerrain</code> is a convenience method that applies the FIR
-     * filter to a given height map. This simulates water errosion.
+     * filter to a given height map. This simulates water erosion.
      *
-     * @see setFilter
      */
     public void erodeTerrain() {
         //erode left to right

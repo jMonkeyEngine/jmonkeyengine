@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ public class Envelope
     /**
      *  Creates an incoming envelope holding the data from the specified
      *  source.  The 'reliable' flag further indicates on which mode of
-     *  transport the data arrrived.
+     *  transport the data arrived.
      */
     public Envelope( Endpoint source, byte[] data, boolean reliable )
     {

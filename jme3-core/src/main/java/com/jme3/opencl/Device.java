@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -155,7 +155,7 @@ public interface Device {
 	long getMaximumWorkItemDimensions();
     /**
      * Maximum number of work-items that can be specified in each dimension of the
-     * work-group to {@link Kernel#Run2(com.jme3.opencl.CommandQueue, com.jme3.opencl.WorkSize, com.jme3.opencl.WorkSize, java.lang.Object...) }.
+     * work-group to {@link Kernel#Run2(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...)}.
      * The array has a length of at least 3.
      * @return the maximum size of the work group in each dimension
      */

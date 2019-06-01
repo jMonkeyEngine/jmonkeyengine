@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -788,6 +788,14 @@ public final class GLRenderer implements Renderer {
                     break;
                 case Alpha:
                     blendFunc(RenderState.BlendFunc.Src_Alpha, RenderState.BlendFunc.One_Minus_Src_Alpha);
+                    break;
+                case AlphaSumA:
+                    blendFuncSeparate(
+                        RenderState.BlendFunc.Src_Alpha, 
+                        RenderState.BlendFunc.One_Minus_Src_Alpha,
+                        RenderState.BlendFunc.One,
+                        RenderState.BlendFunc.One                    
+                    );
                     break;
                 case PremultAlpha:
                     blendFunc(RenderState.BlendFunc.One, RenderState.BlendFunc.One_Minus_Src_Alpha);
@@ -1641,7 +1649,7 @@ public final class GLRenderer implements Renderer {
             default:
                 //Programming error; will fail on all hardware
                 throw new IllegalStateException("Some video driver error "
-                        + "or programming error occured. "
+                        + "or programming error occurred. "
                         + "Framebuffer object status is invalid. ");
         }
     }
@@ -2821,7 +2829,7 @@ public final class GLRenderer implements Renderer {
                 // OK: Works on all platforms.
                 break;
             case UnsignedInt:
-                // Requres extension on OpenGL ES 2.
+                // Requires extension on OpenGL ES 2.
                 if (!caps.contains(Caps.IntegerIndexBuffer)) {
                     throw new RendererException("32-bit index buffers are not supported by the video hardware");
                 }

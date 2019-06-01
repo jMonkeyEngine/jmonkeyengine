@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -268,7 +268,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     /**
     * Cleans up the input mappings from the input manager.
     * Undoes the work of registerWithInput().
-    * @param inputManager InputManager from which to cleanup mappings.
+    * @param mgr the InputManager to clean up
     */
     public void cleanupWithInput(InputManager mgr){
         mgr.deleteMapping(CameraInput.CHASECAM_TOGGLEROTATE);
@@ -583,7 +583,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
      * clone this camera for a spatial
      *
      * @param spatial
-     * @return
+     * @return never
      */
     @Deprecated
     @Override
@@ -707,7 +707,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * returns the chasing sensitivity
-     * @return
+     * @return the sensitivity
      */
     public float getChasingSensitivity() {
         return chasingSensitivity;
@@ -726,7 +726,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * Returns the rotation sensitivity
-     * @return
+     * @return the sensitivity
      */
     public float getRotationSensitivity() {
         return rotationSensitivity;
@@ -745,7 +745,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * returns true if the trailing is enabled
-     * @return
+     * @return true if enabled, otherwise false
      */
     public boolean isTrailingEnabled() {
         return trailingEnabled;
@@ -763,7 +763,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     /**
      *
      * returns the trailing rotation inertia
-     * @return
+     * @return the inertia
      */
     public float getTrailingRotationInertia() {
         return trailingRotationInertia;
@@ -781,7 +781,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * returns the trailing sensitivity
-     * @return
+     * @return the sensitivity
      */
     public float getTrailingSensitivity() {
         return trailingSensitivity;
@@ -799,7 +799,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * returns the zoom sensitivity
-     * @return
+     * @return the sensitivity
      */
     public float getZoomSensitivity() {
         return zoomSensitivity;
@@ -863,7 +863,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
     /**
      * @return If drag to rotate feature is enabled.
      *
-     * @see FlyByCamera#setDragToRotate(boolean)
+     * @see #setDragToRotate(boolean)
      */
     public boolean isDragToRotate() {
         return dragToRotate;
@@ -904,7 +904,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * return the current distance from the camera to the target
-     * @return
+     * @return the distance
      */
     public float getDistanceToTarget() {
         return distance;
@@ -912,7 +912,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * returns the current horizontal rotation around the target in radians
-     * @return
+     * @return the angle
      */
     public float getHorizontalRotation() {
         return rotation;
@@ -920,7 +920,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * returns the current vertical rotation around the target in radians.
-     * @return
+     * @return the angle in radians
      */
     public float getVerticalRotation() {
         return vRotation;
@@ -928,7 +928,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * returns the offset from the target's position where the camera looks at
-     * @return
+     * @return the pre-existing vector
      */
     public Vector3f getLookAtOffset() {
         return lookAtOffset;
@@ -952,7 +952,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control, Jme
 
     /**
      * Returns the up vector of the camera used for the lookAt on the target
-     * @return
+     * @return the pre-existing vector
      */
     public Vector3f getUpVector() {
         return initialUpVec;

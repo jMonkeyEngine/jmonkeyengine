@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -140,11 +140,11 @@ public class MeshHelper extends AbstractBlenderHelper {
     }
 
     /**
-     * This method returns the vertices.
+     * This method returns the vertices: a list of vertex positions and a list
+     * of vertex normals.
      * 
      * @param meshStructure
      *            the structure containing the mesh data
-     * @return a list of two - element arrays, the first element is the vertex and the second - its normal
      * @throws BlenderFileException
      *             this exception is thrown when the blend file structure is somehow invalid or corrupted
      */
@@ -247,7 +247,7 @@ public class MeshHelper extends AbstractBlenderHelper {
                 }
             }
         } else {
-            // in this case UV's are assigned to faces (the array has the same legnth as the faces count)
+            // in this case UV's are assigned to faces (the array has the same length as the faces count)
             Structure facesData = (Structure) meshStructure.getFieldValue("fdata");
             Pointer pFacesDataLayers = (Pointer) facesData.getFieldValue("layers");
             if (pFacesDataLayers.isNotNull()) {

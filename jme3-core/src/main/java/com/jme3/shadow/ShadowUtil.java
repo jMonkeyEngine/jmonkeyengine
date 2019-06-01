@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ import java.util.List;
 /**
  * Includes various useful shadow mapping functions.
  *
- * @see <ul> <li><a
+ * See <ul> <li><a
  * href="http://appsrv.cse.cuhk.edu.hk/~fzhang/pssm_vrcia/">http://appsrv.cse.cuhk.edu.hk/~fzhang/pssm_vrcia/</a></li>
  * <li><a
  * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a></li>
@@ -171,7 +171,7 @@ public class ShadowUtil {
      * Compute bounds of a geomList
      * @param list
      * @param transform
-     * @return
+     * @return a new instance
      */
     public static BoundingBox computeUnionBound(GeometryList list, Transform transform) {
         BoundingBox bbox = new BoundingBox();
@@ -192,7 +192,7 @@ public class ShadowUtil {
      * Compute bounds of a geomList
      * @param list
      * @param mat
-     * @return
+     * @return a new instance
      */
     public static BoundingBox computeUnionBound(GeometryList list, Matrix4f mat) {
         BoundingBox bbox = new BoundingBox();
@@ -213,7 +213,7 @@ public class ShadowUtil {
      * Computes the bounds of multiple bounding volumes
      *
      * @param bv
-     * @return
+     * @return a new instance
      */
     public static BoundingBox computeUnionBound(List<BoundingVolume> bv) {
         BoundingBox bbox = new BoundingBox();
@@ -229,7 +229,7 @@ public class ShadowUtil {
      *
      * @param pts
      * @param transform
-     * @return
+     * @return a new instance
      */
     public static BoundingBox computeBoundForPoints(Vector3f[] pts, Transform transform) {
         Vector3f min = new Vector3f(Vector3f.POSITIVE_INFINITY);
@@ -250,7 +250,7 @@ public class ShadowUtil {
      * Compute bounds from an array of points
      * @param pts
      * @param mat
-     * @return
+     * @return a new BoundingBox
      */
     public static BoundingBox computeBoundForPoints(Vector3f[] pts, Matrix4f mat) {
         Vector3f min = new Vector3f(Vector3f.POSITIVE_INFINITY);
@@ -718,7 +718,8 @@ public class ShadowUtil {
      * of OccludersExtractor.rootScene node that are both in the frustum of the given vpCamera and some camera inside cameras array.
      * The array of cameras must be initialized to represent the light viewspace of some light like pointLight or spotLight
      *
-     * @param camera the viewPort camera 
+     * @param rootScene
+     * @param vpCamera the viewPort camera 
      * @param cameras the camera array to check geometries against, representing the light viewspace
      * @param outputGeometryList the output list of all geometries that are in the camera frustum
      */

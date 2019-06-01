@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+The GUI layout for the TestIssue99 application.
+-->
+<nifty xmlns="http://nifty-gui.lessvoid.com/nifty-gui">
+    <screen id="test-issue-99"
+            controller="jme3test.niftygui.TestIssue99">
+        <layer childLayout="vertical">
+            <panel/>
+
+            <panel childLayout="horizontal"
+                   backgroundColor="#888f"
+                   height="160px" width="640px">
+                <control name="label"
+                         color="#000f"
+                         text="The text of a label."
+                         width="*"/>
+            </panel>
+
+            <panel/>
+
+            <control name="scrollPanel"
+                     horizontal="false">
+                <panel childLayout="vertical">
+
+                    <panel childLayout="horizontal"
+                           backgroundColor="#888f"
+                           height="160px" width="640px">
+                        <control name="label"
+                                 color="#000f"
+                                 text="The text of another label."
+                                 width="*"/>
+                    </panel>
+
+                </panel>
+            </control>
+
+            <panel/>
+        </layer>
+    </screen>
+</nifty>

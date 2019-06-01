@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -220,7 +220,7 @@ public final class Shader extends NativeObject {
     }
 
     /**
-     * Creates a new shader, {@link #initialize() } must be called
+     * Creates a new shader, initialize() must be called
      * after this constructor for the shader to be usable.
      */
     public Shader(){

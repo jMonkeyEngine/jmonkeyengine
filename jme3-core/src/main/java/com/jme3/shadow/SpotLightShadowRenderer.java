@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -224,7 +224,7 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     /**
      *
      * @param viewCam
-     * @return 
+     * @return true if intersects, otherwise false
      */
     @Override
     protected boolean checkCulling(Camera viewCam) {      

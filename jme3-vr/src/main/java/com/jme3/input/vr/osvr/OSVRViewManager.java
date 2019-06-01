@@ -441,7 +441,7 @@ public class OSVRViewManager extends AbstractVRViewManager{
     
     /**
      * Update the VR view manager. 
-     * This method is called by the attached {@link VRApplication VR application} and should not be called manually.
+     * This method is called by the attached VR application and should not be called manually.
      * @param tpf the time per frame.
      */
     public void update(float tpf) {

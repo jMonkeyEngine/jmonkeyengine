@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -106,7 +106,7 @@ public class RadialParticleInfluencer extends DefaultParticleInfluencer {
 
     /**
      * nullify y component of particle velocity to make the effect expand only on x and z axis
-     * @return
+     * @return true if nullifying, otherwise false
      */
     public boolean isHorizontal() {
         return horizontal;

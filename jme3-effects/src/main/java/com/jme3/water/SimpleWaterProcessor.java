@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -310,7 +310,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * Get the water material from this processor, apply this to your water quad.
-     * @return
+     * @return the pre-existing Material
      */
     public Material getMaterial() {
         return material;
@@ -327,7 +327,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * returns the width of the reflection and refraction textures
-     * @return
+     * @return the width (in pixels)
      */
     public int getRenderWidth() {
         return renderWidth;
@@ -335,7 +335,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * returns the height of the reflection and refraction textures
-     * @return
+     * @return the height (in pixels)
      */
     public int getRenderHeight() {
         return renderHeight;
@@ -354,7 +354,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * returns the water plane
-     * @return
+     * @return the pre-existing instance
      */
     public Plane getPlane() {
         return plane;
@@ -417,7 +417,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * return the water depth
-     * @return
+     * @return the depth
      */
     public float getWaterDepth() {
         return waterDepth;
@@ -425,7 +425,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * returns water transparency
-     * @return
+     * @return the transparency value
      */
     public float getWaterTransparency() {
         return waterTransparency;
@@ -515,7 +515,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * returns true if the waterprocessor is in debug mode
-     * @return
+     * @return true if in debug mode, otherwise false
      */
     public boolean isDebug() {
         return debug;
@@ -533,7 +533,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
      * Creates a quad with the water material applied to it.
      * @param width
      * @param height
-     * @return
+     * @return a new Geometry
      */
     public Geometry createWaterGeometry(float width, float height) {
         Quad quad = new Quad(width, height);
@@ -545,7 +545,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * returns the reflection clipping plane offset
-     * @return
+     * @return the offset value
      */
     public float getReflectionClippingOffset() {
         return reflectionClippingOffset;
@@ -563,7 +563,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * returns the refraction clipping plane offset
-     * @return
+     * @return the offset value
      */
     public float getRefractionClippingOffset() {
         return refractionClippingOffset;

@@ -36,9 +36,6 @@
 
 package com.jme3.anim.tween;
 
-
-import com.jme3.export.Savable;
-
 /**
  * Represents some action that interpolates across input between 0
  * and some length value.  (For example, movement, rotation, fading.)

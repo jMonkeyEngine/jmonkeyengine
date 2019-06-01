@@ -150,6 +150,7 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
         control.setCcdSweptSphereRadius(getCcdSweptSphereRadius());
         control.setCollideWithGroups(getCollideWithGroups());
         control.setCollisionGroup(getCollisionGroup());
+        control.setContactResponse(isContactResponse());
         control.setDamping(getLinearDamping(), getAngularDamping());
         control.setFriction(getFriction());
         control.setGravity(getGravity());
@@ -204,6 +205,13 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
         }
         setPhysicsLocation(getSpatialTranslation());
         setPhysicsRotation(getSpatialRotation());
+    }
+
+    /**
+     * @return returns the spatial the control is added to, or null if the control is not attached to a spatial yet.
+     */
+    public Spatial getSpatial(){
+        return this.spatial;
     }
 
     /**

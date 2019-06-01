@@ -63,7 +63,7 @@ public class Armature implements JmeCloneable, Savable {
     }
 
     /**
-     * Update all joints sin this Amature.
+     * Update all joints in this Armature.
      */
     public void update() {
         for (Joint rootJoint : rootJoints) {
@@ -83,7 +83,9 @@ public class Armature implements JmeCloneable, Savable {
      * Default is {@link MatrixJointModelTransform}
      *
      * @param modelTransformClass
-     * @see {@link JointModelTransform},{@link MatrixJointModelTransform},{@link SeparateJointModelTransform},
+     * @see JointModelTransform
+     * @see MatrixJointModelTransform
+     * @see SeparateJointModelTransform
      */
     public void setModelTransformClass(Class<? extends JointModelTransform> modelTransformClass) {
         this.modelTransformClass = modelTransformClass;
@@ -106,7 +108,7 @@ public class Armature implements JmeCloneable, Savable {
     /**
      * returns the array of all root joints of this Armature
      *
-     * @return
+     * @return the pre-existing array
      */
     public Joint[] getRoots() {
         return rootJoints;
@@ -120,7 +122,7 @@ public class Armature implements JmeCloneable, Savable {
      * return a joint for the given index
      *
      * @param index
-     * @return
+     * @return the pre-existing instance
      */
     public Joint getJoint(int index) {
         return jointList[index];
@@ -130,7 +132,7 @@ public class Armature implements JmeCloneable, Savable {
      * returns the joint with the given name
      *
      * @param name
-     * @return
+     * @return the pre-existing instance or null if not found
      */
     public Joint getJoint(String name) {
         for (int i = 0; i < jointList.length; i++) {
@@ -145,7 +147,7 @@ public class Armature implements JmeCloneable, Savable {
      * returns the bone index of the given bone
      *
      * @param joint
-     * @return
+     * @return the index (&ge;0) or -1 if not found
      */
     public int getJointIndex(Joint joint) {
         for (int i = 0; i < jointList.length; i++) {
@@ -161,7 +163,7 @@ public class Armature implements JmeCloneable, Savable {
      * returns the joint index of the joint that has the given name
      *
      * @param name
-     * @return
+     * @return the index (&ge;0) or -1 if not found
      */
     public int getJointIndex(String name) {
         for (int i = 0; i < jointList.length; i++) {
@@ -219,7 +221,7 @@ public class Armature implements JmeCloneable, Savable {
     /**
      * Compute the skinning matrices for each bone of the armature that would be used to transform vertices of associated meshes
      *
-     * @return
+     * @return the pre-existing array
      */
     public Matrix4f[] computeSkinningMatrices() {
         for (int i = 0; i < jointList.length; i++) {
@@ -231,7 +233,7 @@ public class Armature implements JmeCloneable, Savable {
     /**
      * returns the number of joints of this armature
      *
-     * @return
+     * @return the count (&ge;0)
      */
     public int getJointCount() {
         return jointList.length;
@@ -274,7 +276,7 @@ public class Armature implements JmeCloneable, Savable {
         try {
             modelTransformClass = (Class<? extends JointModelTransform>) Class.forName(className);
         } catch (ClassNotFoundException e) {
-            throw new AssetLoadException("Cannnot find class for name " + className);
+            throw new AssetLoadException("Cannot find class for name " + className);
         }
 
         int i = 0;

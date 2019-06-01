@@ -306,7 +306,7 @@ public class Face implements Comparator<Integer> {
                 }
             }
         } catch (BlenderFileException e) {
-            LOGGER.log(Level.WARNING, "Errors occured during face triangulation: {0}. The face will be triangulated with the most direct algorithm, but the results might not be identical to blender.", e.getLocalizedMessage());
+            LOGGER.log(Level.WARNING, "Errors occurred during face triangulation: {0}. The face will be triangulated with the most direct algorithm, but the results might not be identical to blender.", e.getLocalizedMessage());
             warning = TriangulationWarning.UNKNOWN;
         }
         if(warning != TriangulationWarning.NONE) {

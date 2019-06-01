@@ -38,7 +38,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.util.SafeArrayList;
-import java.util.List;
 
 /**
  * A <code>ViewPort</code> represents a view inside the display

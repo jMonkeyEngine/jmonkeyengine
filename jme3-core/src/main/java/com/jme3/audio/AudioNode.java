@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2016, 2018 jMonkeyEngine
+ * Copyright (c) 2009-2012, 2016, 2018-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -299,7 +299,7 @@ public class AudioNode extends Node implements AudioSource {
      */
     public void setAudioData(AudioData audioData, AudioKey audioKey) {
         if (data != null) {
-            throw new IllegalStateException("Cannot change data once its set");
+            throw new IllegalStateException("Cannot change data once it's set");
         }
 
         data = audioData;
@@ -490,7 +490,7 @@ public class AudioNode extends Node implements AudioSource {
     /**
      * Set to true to enable reverberation effects for this audio node.
      * Does nothing if the audio node is not positional.
-     * <br/>
+     * <br>
      * When enabled, the audio environment set with
      * {@link AudioRenderer#setEnvironment(com.jme3.audio.Environment) }
      * will apply a reverb effect to the audio playing from this audio node.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -231,7 +231,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
 
     /**
      * This method is meant to be called by the motion path only.
-     * @return
+     * @return true if needed, otherwise false
      */
     public boolean needsDirection() {
         return directionType == Direction.Path || directionType == Direction.PathAndRotation;
@@ -272,7 +272,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
     /**
      * Clone this control for the given spatial.
      * @param spatial
-     * @return
+     * @return never
      */
     @Deprecated
     @Override
@@ -321,7 +321,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
 
     /**
      * This method is meant to be called by the motion path only.
-     * @return
+     * @return the value
      */
     public float getCurrentValue() {
         return currentValue;
@@ -337,7 +337,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
 
     /**
      * This method is meant to be called by the motion path only.
-     * @return
+     * @return the waypoint index
      */
     public int getCurrentWayPoint() {
         return currentWayPoint;
@@ -353,7 +353,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
 
     /**
      * Returns the direction the spatial is moving.
-     * @return
+     * @return the pre-existing vector
      */
     public Vector3f getDirection() {
         return direction;
@@ -431,7 +431,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
 
     /**
      * Return the motion path this control follows.
-     * @return
+     * @return the pre-existing instance
      */
     public MotionPath getPath() {
         return path;
@@ -470,7 +470,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control, JmeC
 
     /**
      * Return the distance traveled by the spatial on the path.
-     * @return 
+     * @return the distance
      */
     public float getTraveledDistance() {
         return traveledDistance;

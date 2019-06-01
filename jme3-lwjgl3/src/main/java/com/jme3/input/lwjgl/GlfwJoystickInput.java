@@ -49,10 +49,13 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class GlfwJoystickInput implements JoyInput {
 
-    private static final Logger LOGGER = Logger.getLogger(InputManager.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(GlfwJoystickInput.class.getName());
 
     private RawInputListener listener;
+
     private final Map<Integer, GlfwJoystick> joysticks = new HashMap<>();
+
+    private final Map<JoystickButton, Boolean> joyButtonPressed = new HashMap<>();
 
     private boolean initialized = false;
 
@@ -63,8 +66,28 @@ public class GlfwJoystickInput implements JoyInput {
         }
     }
 
+    public void fireJoystickConnectedEvent(int jid) {
+        Joystick joystick = joysticks.get(jid);
+        ((InputManager)listener).fireJoystickConnectedEvent(joystick);
+    }
+
+    public void fireJoystickDisconnectedEvent(int jid) {
+        Joystick joystick = joysticks.get(jid);
+        ((InputManager)listener).fireJoystickDisconnectedEvent(joystick);
+    }
+
+    public void reloadJoysticks() {
+        joysticks.clear();
+
+        InputManager inputManager = (InputManager) listener;
+
+        Joystick[] joysticks = loadJoysticks(inputManager);
+        inputManager.setJoysticks(joysticks);
+    }
+
     @Override
     public Joystick[] loadJoysticks(final InputManager inputManager) {
+
         for (int i = 0; i < GLFW_JOYSTICK_LAST; i++) {
             if (glfwJoystickPresent(i)) {
                 final String name = glfwGetJoystickName(i);
@@ -88,8 +111,11 @@ public class GlfwJoystickInput implements JoyInput {
                 int buttonIndex = 0;
                 while (byteBuffer.hasRemaining()) {
                     byteBuffer.get();
+
                     final String logicalId = JoystickCompatibilityMappings.remapComponent(joystick.getName(), String.valueOf(buttonIndex));
-                    joystick.addButton(new DefaultJoystickButton(inputManager, joystick, buttonIndex, String.valueOf(buttonIndex), logicalId));
+                    final JoystickButton button = new DefaultJoystickButton(inputManager, joystick, buttonIndex, String.valueOf(buttonIndex), logicalId);
+                    joystick.addButton(button);
+                    joyButtonPressed.put(button, false); 
                     buttonIndex++;
                 }
             }
@@ -120,20 +146,34 @@ public class GlfwJoystickInput implements JoyInput {
     @Override
     public void update() {
         for (final Map.Entry<Integer, GlfwJoystick> entry : joysticks.entrySet()) {
+
             // Axes
             final FloatBuffer axisValues = glfwGetJoystickAxes(entry.getKey());
 
-            for (final JoystickAxis axis : entry.getValue().getAxes()) {
-                final float value = axisValues.get(axis.getAxisId());
-                listener.onJoyAxisEvent(new JoyAxisEvent(axis, value));
+            // if a joystick is added or removed, the callback reloads the joysticks.
+            // when the callback is called and reloads the joystick, this iterator may already have started iterating.
+            // To avoid a NullPointerException we null-check the axisValues and bytebuffer objects.
+            // If the joystick it's iterating over no-longer exists it will return null.
+
+            if (axisValues != null) {
+                for (final JoystickAxis axis : entry.getValue().getAxes()) {
+                    final float value = axisValues.get(axis.getAxisId());
+                    listener.onJoyAxisEvent(new JoyAxisEvent(axis, value));
+                }
             }
 
             // Buttons
             final ByteBuffer byteBuffer = glfwGetJoystickButtons(entry.getKey());
 
-            for (final JoystickButton button : entry.getValue().getButtons()) {
-                final boolean pressed = byteBuffer.get(button.getButtonId()) == GLFW_PRESS;
-                listener.onJoyButtonEvent(new JoyButtonEvent(button, pressed));
+            if (byteBuffer != null) {
+                for (final JoystickButton button : entry.getValue().getButtons()) {
+                    final boolean pressed = byteBuffer.get(button.getButtonId()) == GLFW_PRESS;
+
+                    if (joyButtonPressed.get(button) != pressed) {
+                        joyButtonPressed.put(button, pressed);
+                        listener.onJoyButtonEvent(new JoyButtonEvent(button, pressed));
+                    }
+                }
             }
         }
     }
@@ -213,6 +253,3 @@ public class GlfwJoystickInput implements JoyInput {
         }
     }
 }
-
-
-

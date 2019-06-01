@@ -15,7 +15,6 @@ public class VREvent_DualAnalog_t extends Structure {
 	public float transformedX;
 	public float transformedY;
 	/**
-	 * @see EDualAnalogWhich<br>
 	 * C type : EDualAnalogWhich
 	 */
 	public int which;

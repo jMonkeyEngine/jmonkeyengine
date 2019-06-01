@@ -1,7 +1,6 @@
 package jme3test.model.anim;
 
 import com.jme3.anim.*;
-import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.app.ChaseCameraAppState;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.plugins.FileLocator;
@@ -9,8 +8,6 @@ import com.jme3.export.binary.BinaryExporter;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
-import com.jme3.light.AmbientLight;
-import com.jme3.light.DirectionalLight;
 import com.jme3.math.*;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;

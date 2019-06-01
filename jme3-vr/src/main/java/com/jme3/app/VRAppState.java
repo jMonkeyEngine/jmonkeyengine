@@ -1,7 +1,7 @@
 package com.jme3.app;
 
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,6 @@ import java.awt.GraphicsEnvironment;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -292,7 +291,7 @@ public class VRAppState extends AbstractAppState {
     }
     
     /**
-     * Get the scene observer. If no observer has been set, this method return the application {@link #getCamera() camera}.
+     * Get the scene observer. If no observer has been set, this method returns the application camera.
      * @return the scene observer. 
      * @see #setObserver(Spatial)
      */
@@ -301,7 +300,7 @@ public class VRAppState extends AbstractAppState {
     }
     
     /**
-     * Set the scene observer. The VR headset will be linked to it. If no observer is set, the VR headset is linked to the application {@link #getCamera() camera}.
+     * Set the scene observer. The VR headset will be linked to it. If no observer is set, the VR headset is linked to the application camera.
      * @param observer the scene observer.
      */
     public void setObserver(Spatial observer) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -97,7 +97,8 @@ public class FaultHeightMap extends AbstractHeightMap {
      * @param minFaultHeight Height modified on each side
      * @param maxFaultHeight Height modified on each side
      * @param seed A seed to feed the Random generator
-     * @see setFaultRange, setMinRadius, setMaxRadius
+     * @see #setMinRadius(float)
+     * @see #setMaxRadius(float) 
      */
     public FaultHeightMap(int size, int iterations, int faultType, int faultShape, float minFaultHeight, float maxFaultHeight, long seed) throws Exception {
         if (size < 0 || iterations < 0) {

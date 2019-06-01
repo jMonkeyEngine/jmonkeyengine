@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -274,6 +274,33 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
     public boolean isKinematic() {
         return kinematic;
+    }
+
+    /**
+     * Enable/disable this body's contact response.
+     *
+     * @param responsive true to respond to contacts, false to ignore them
+     * (default=true)
+     */
+    public void setContactResponse(boolean responsive) {
+        int flags = rBody.getCollisionFlags();
+        if (responsive) {
+            flags &= ~CollisionFlags.NO_CONTACT_RESPONSE;
+        } else {
+            flags |= CollisionFlags.NO_CONTACT_RESPONSE;
+        }
+        rBody.setCollisionFlags(flags);
+    }
+
+    /**
+     * Test whether this body responds to contacts.
+     *
+     * @return true if responsive, otherwise false
+     */
+    public boolean isContactResponse() {
+        int flags = rBody.getCollisionFlags();
+        boolean result = (flags & CollisionFlags.NO_CONTACT_RESPONSE) == 0x0;
+        return result;
     }
 
     public void setCcdSweptSphereRadius(float radius) {
@@ -614,6 +641,12 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
         rBody.destroy();
     }
 
+    /**
+     * Serialize this body, for example when saving to a J3O file.
+     *
+     * @param e exporter (not null)
+     * @throws IOException from exporter
+     */
     @Override
     public void write(JmeExporter e) throws IOException {
         super.write(e);
@@ -637,10 +670,18 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
         capsule.write(getPhysicsLocation(new Vector3f()), "physicsLocation", new Vector3f());
         capsule.write(getPhysicsRotationMatrix(new Matrix3f()), "physicsRotation", new Matrix3f());
+        capsule.write(getLinearVelocity(), "linearVelocity", null);
+        capsule.write(getAngularVelocity(), "angularVelocity", null);
 
         capsule.writeSavableArrayList(joints, "joints", null);
     }
 
+    /**
+     * De-serialize this body, for example when loading from a J3O file.
+     *
+     * @param e importer (not null)
+     * @throws IOException from importer
+     */
     @Override
     public void read(JmeImporter e) throws IOException {
         super.read(e);
@@ -650,6 +691,7 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
         this.mass = mass;
         rebuildRigidBody();
         setGravity((Vector3f) capsule.readSavable("gravity", Vector3f.ZERO.clone()));
+        setContactResponse(capsule.readBoolean("contactResponse", true));
         setFriction(capsule.readFloat("friction", 0.5f));
         setKinematic(capsule.readBoolean("kinematic", false));
 
@@ -662,6 +704,8 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
 
         setPhysicsLocation((Vector3f) capsule.readSavable("physicsLocation", new Vector3f()));
         setPhysicsRotation((Matrix3f) capsule.readSavable("physicsRotation", new Matrix3f()));
+        setLinearVelocity((Vector3f) capsule.readSavable("linearVelocity", new Vector3f()));
+        setAngularVelocity((Vector3f) capsule.readSavable("angularVelocity", new Vector3f()));
 
         joints = capsule.readSavableArrayList("joints", null);
     }

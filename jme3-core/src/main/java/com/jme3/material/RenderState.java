@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -303,6 +303,17 @@ public class RenderState implements Cloneable, Savable {
          *          (1 - Source Alpha) * Dest Color -> (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
          */
         Alpha,
+         /**
+         * Alpha blending, interpolates to source color from dest color
+         * using source alpha.
+         * The resulting alpha is the sum between the source alpha and the destination alpha.
+         * <p>
+         * Result.rgb = Source Alpha * Source Color +
+         *          (1 - Source Alpha) * Dest Color -> (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+         * Result.a = 1 * Source Alpha + 1 * Dest Alpha -> (GL_ONE, GL_ONE)
+         * 
+         */
+        AlphaSumA,
         /**
          * Multiplies the source and dest colors.
          * <p>
@@ -975,7 +986,8 @@ public class RenderState implements Cloneable, Savable {
 
     /**
      * Sets the mesh line width.
-     * This is to use in conjunction with {@link #setWireframe(boolean)} or with a mesh in {@link Mesh.Mode#Lines} mode.
+     * Use this in conjunction with {@link #setWireframe(boolean)} or with a mesh in
+     * {@link com.jme3.scene.Mesh.Mode#Lines} mode.
      * @param lineWidth the line width.
      */
     public void setLineWidth(float lineWidth) {

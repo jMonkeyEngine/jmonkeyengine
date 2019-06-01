@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -110,7 +110,7 @@ public class ReflectionProcessor implements SceneProcessor {
     /**
      * Internal use only<br>
      * returns the frame buffer
-     * @return 
+     * @return the pre-existing buffer
      */
     public FrameBuffer getReflectionBuffer() {
         return reflectionBuffer;
@@ -127,7 +127,7 @@ public class ReflectionProcessor implements SceneProcessor {
 
     /**
      * returns the reflection cam
-     * @return 
+     * @return the pre-existing Camera
      */
     public Camera getReflectionCam() {
         return reflectionCam;
@@ -143,7 +143,7 @@ public class ReflectionProcessor implements SceneProcessor {
 
     /**
      * returns the reflection clip plane
-     * @return 
+     * @return the pre-existing instance
      */
     public Plane getReflectionClipPlane() {
         return reflectionClipPlane;

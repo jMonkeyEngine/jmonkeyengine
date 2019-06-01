@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -130,7 +130,7 @@ public class CollisionResults implements Iterable<CollisionResult> {
     /**
      * Internal use only.
      * @param index
-     * @return
+     * @return the pre-existing instance
      */
     public CollisionResult getCollisionDirect(int index){
         if (results == null) {

@@ -32,9 +32,7 @@
 package com.jme3.opencl.jocl;
 
 import com.jme3.opencl.Device;
-import com.jme3.opencl.Platform;
 import com.jogamp.opencl.CLDevice;
-import java.util.Arrays;
 import java.util.Collection;
 
 /**

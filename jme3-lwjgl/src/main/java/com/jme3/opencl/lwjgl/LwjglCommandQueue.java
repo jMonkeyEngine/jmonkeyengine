@@ -33,7 +33,6 @@ package com.jme3.opencl.lwjgl;
 
 import com.jme3.opencl.CommandQueue;
 import com.jme3.opencl.Device;
-import com.jme3.opencl.OpenCLObjectManager;
 import org.lwjgl.opencl.CL10;
 import org.lwjgl.opencl.CLCommandQueue;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -200,7 +200,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
 
     /**
      * Returns the actual duration of the animation (initialDuration/speed)
-     * @return
+     * @return the duration (in seconds)
      */
     public float getDuration() {
         return initialDuration / speed;
@@ -218,7 +218,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
 
     /**
      * Returns the speed of the animation.
-     * @return
+     * @return the speed
      */
     public float getSpeed() {
         return speed;
@@ -226,7 +226,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
 
     /**
      * Returns the current playstate of the animation (playing or paused or stopped).
-     * @return
+     * @return the enum value
      */
     public PlayState getPlayState() {
         return playState;
@@ -234,7 +234,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
 
     /**
      * Returns the initial duration of the animation at speed = 1 in seconds.
-     * @return
+     * @return the duration in seconds
      */
     public float getInitialDuration() {
         return initialDuration;
@@ -251,7 +251,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     /**
      * Returns the loopMode of the animation.
      * @see LoopMode
-     * @return
+     * @return the enum value
      */
     public LoopMode getLoopMode() {
         return loopMode;

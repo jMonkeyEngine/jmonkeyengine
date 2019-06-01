@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,7 @@ public class AnimationUtils {
      * @param time
      * @param duration
      * @param loopMode
-     * @return 
+     * @return the clamped time (in seconds)
      */
      public static float clampWrapTime(float time, float duration, LoopMode loopMode){
          if (time == 0 || duration == 0) {

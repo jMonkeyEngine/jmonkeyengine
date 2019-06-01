@@ -198,8 +198,7 @@ public class TemporalMesh extends Geometry {
     }
 
     /**
-     * @param the
-     *            edge of the mesh
+     * @param edge the edge of the mesh
      * @return a list of faces that contain the given edge or an empty list
      */
     public Collection<Face> getAdjacentFaces(Edge edge) {
@@ -212,8 +211,7 @@ public class TemporalMesh extends Geometry {
     }
 
     /**
-     * @param the
-     *            index of the mesh
+     * @param index the index of the mesh
      * @return a list of edges that contain the index
      */
     public Collection<Edge> getAdjacentEdges(Integer index) {
@@ -223,8 +221,7 @@ public class TemporalMesh extends Geometry {
     /**
      * Tells if the given edge is a boundary edge. The boundary edge means that it belongs to a single
      * face or to none.
-     * @param the
-     *            edge of the mesh
+     * @param edge the edge of the mesh
      * @return <b>true</b> if the edge is a boundary one and <b>false</b> otherwise
      */
     public boolean isBoundary(Edge edge) {
@@ -289,8 +286,9 @@ public class TemporalMesh extends Geometry {
     /**
      * The method rebuilds the mappings between faces and edges. Should be called after
      * every major change of the temporal mesh done outside it.
-     * @note I will remove this method soon and make the mappings to be done automatically
-     *       when the mesh is modified.
+     * <p>
+     * Note: I will remove this method soon and cause the mappings to be done
+     * automatically when the mesh is modified.
      */
     public void rebuildIndexesMappings() {
         indexToEdgeMapping.clear();

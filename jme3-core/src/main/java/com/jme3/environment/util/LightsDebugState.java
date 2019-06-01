@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,6 @@ package com.jme3.environment.util;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
-import com.jme3.bounding.BoundingSphere;
 import com.jme3.light.*;
 import com.jme3.material.Material;
 import com.jme3.renderer.RenderManager;
@@ -158,7 +157,7 @@ public class LightsDebugState extends BaseAppState {
 
     /**
      * returns the scale of the probe's debug sphere
-     * @return 
+     * @return the scale factor
      */
     public float getProbeScale() {
         return probeScale;

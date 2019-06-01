@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,18 +32,12 @@
 package com.jme3.environment.generation;
 
 import com.jme3.app.Application;
-import com.jme3.environment.util.CubeMapWrapper;
 import com.jme3.environment.util.EnvMapUtils;
 import com.jme3.light.LightProbe;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.texture.TextureCubeMap;
-import com.jme3.util.BufferUtils;
-
-import java.nio.ByteBuffer;
 import java.util.concurrent.Callable;
 
-import static com.jme3.environment.util.EnvMapUtils.shBandFactor;
 
 /**
  * Generates the Irradiance map for PBR. This job can be launched from a separate
@@ -76,7 +70,7 @@ public class IrradianceSphericalHarmonicsGenerator extends RunnableWithProgress 
      * Fills all the generation parameters
      *
      * @param sourceMap the source cube map
-     *                  {@link EnvMapUtils.FixSeamsMethod}
+     *                  {@link com.jme3.environment.util.EnvMapUtils.FixSeamsMethod}
      * @param store     The cube map to store the result in.
      */
     public void setGenerationParam(TextureCubeMap sourceMap, LightProbe store) {

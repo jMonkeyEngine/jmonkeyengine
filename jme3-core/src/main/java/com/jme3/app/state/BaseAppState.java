@@ -142,7 +142,11 @@ public abstract class BaseAppState implements AppState {
     }
 
     public final <T extends AppState> T getState( Class<T> type ) {
-        return getStateManager().getState(type);
+        return getState( type, false );
+    }
+    
+    public final <T extends AppState> T getState( Class<T> type, boolean failOnMiss ) {
+        return getStateManager().getState( type, failOnMiss );
     }
 
     @Override

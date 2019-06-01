@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,10 +32,10 @@
 package com.jme3.opencl;
 
 /**
- * This exception is thrown by {@link Program#build() } and {@link Program#build(java.lang.String) }
+ * This exception is thrown by {@link Program#build()}
  * when the compilation failed.
  * The error log returned by {@link #getLog() } contains detailed information
- * where the error occured.
+ * where the error occurred.
  * @author shaman
  */
 public class KernelCompilationException extends OpenCLException {
@@ -49,7 +49,7 @@ public class KernelCompilationException extends OpenCLException {
 
     /**
      * The output of the compiler
-     * @return 
+     * @return the output text
      */
 	public String getLog() {
 		return log;

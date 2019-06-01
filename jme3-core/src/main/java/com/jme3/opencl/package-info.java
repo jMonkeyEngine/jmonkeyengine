@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package com.jme3.opencl;
 /**
  * This package contains an API for using OpenCL together with jME3.
  * <p>
@@ -62,7 +63,8 @@
  * with the following syntax: {@code __kernel void KernelName(KernelArgs) {Code} }.
  * On the programming side, a {@link com.jme3.opencl.Kernel} instance is obtained
  * by calling {@link com.jme3.opencl.Program#createKernel(java.lang.String) }.
- * To execute the kernel, the method {@link com.jme3.opencl.Kernel#Run1(com.jme3.opencl.CommandQueue, com.jme3.opencl.WorkSize, java.lang.Object...) }
+ * To execute the kernel, the method
+ * {@link Kernel#Run1(com.jme3.opencl.CommandQueue, com.jme3.opencl.Kernel.WorkSize, java.lang.Object...)}
  * is provided. You first pass the command queue and the work size (i.e. the number of parallel executed threads)
  * followed by the kernel arguments.
  * <br>
@@ -77,8 +79,7 @@
  * of the buffer, the behavior is completely undefined and may often result in
  * a program cache later on.
  * {@link com.jme3.opencl.Image} objects are structured one, two or three dimensional
- * memory chunks of a fixed type. They are created by 
- * {@link com.jme3.opencl.Context#createImage(com.jme3.opencl.MemoryAccess, com.jme3.opencl.Image.ImageFormat, com.jme3.opencl.Image.ImageDescriptor, java.nio.ByteBuffer) }.
+ * memory chunks of a fixed type. They are created by Context.createImage().
  * They need special functions in the kernel code to write to or read from images.
  * Both buffer and image objects provide methods for copying between buffers and images,
  * reading and writing to host code and directly mapping memory parts to the host code.
@@ -158,6 +159,5 @@
  * OpenCL 1.2 and 2.0.
  * </ul>
  */
-package com.jme3.opencl;
 
 //TODO: add profiling to Kernel, CommandQueue

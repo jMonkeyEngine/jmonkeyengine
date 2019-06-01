@@ -102,7 +102,7 @@ public final class MaterialContext implements Savable {
         long flag = ((Number)structure.getFieldValue("flag")).longValue();
         if((flag & FLAG_TRANSPARENT) != 0) {
             // veryfying if the transparency is present
-            // (in blender transparent mask is 0x10000 but its better to verify it because blender can indicate transparency when
+            // (in blender transparent mask is 0x10000 but it's better to verify it because blender can indicate transparency when
             // it is not required
             boolean transparent = false;
             if (diffuseColor != null) {

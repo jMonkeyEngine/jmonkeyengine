@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,10 +80,8 @@ public abstract class NativeObject implements Cloneable {
     protected boolean updateNeeded = true;
 
     /**
-     * Creates a new GLObject with the given type. Should be
+     * Creates a new GLObject. Should be
      * called by the subclasses.
-     * 
-     * @param type The type that the subclass represents.
      */
     public NativeObject(){
         this.handleRef = new Object();

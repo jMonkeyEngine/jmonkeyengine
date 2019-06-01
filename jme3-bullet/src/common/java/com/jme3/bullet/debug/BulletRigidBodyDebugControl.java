@@ -70,6 +70,10 @@ public class BulletRigidBodyDebugControl extends AbstractPhysicsDebugControl {
      * geometry to visualize myShape (not null)
      */
     protected Spatial geom;
+    /**
+     * physics scale for which geom was generated
+     */
+    final private Vector3f oldScale = new Vector3f();
 
     /**
      * Instantiate an enabled control to visualize the specified body.
@@ -81,7 +85,9 @@ public class BulletRigidBodyDebugControl extends AbstractPhysicsDebugControl {
         super(debugAppState);
         this.body = body;
         myShape = body.getCollisionShape();
-        this.geom = DebugShapeFactory.getDebugShape(body.getCollisionShape());
+        oldScale.set(myShape.getScale());
+
+        this.geom = DebugShapeFactory.getDebugShape(myShape);
         this.geom.setName(body.toString());
         geom.setMaterial(debugAppState.DEBUG_BLUE);
     }
@@ -114,10 +120,18 @@ public class BulletRigidBodyDebugControl extends AbstractPhysicsDebugControl {
      */
     @Override
     protected void controlUpdate(float tpf) {
-        if(myShape != body.getCollisionShape()){
-            Node node = (Node) this.spatial;
+        CollisionShape newShape = body.getCollisionShape();
+        Vector3f newScale = newShape.getScale();
+        if (myShape != newShape || !oldScale.equals(newScale)) {
+            myShape = newShape;
+            oldScale.set(newScale);
+
+            Node node = (Node) spatial;
             node.detachChild(geom);
-            geom = DebugShapeFactory.getDebugShape(body.getCollisionShape());
+
+            geom = DebugShapeFactory.getDebugShape(myShape);
+            geom.setName(body.toString());
+
             node.attachChild(geom);
         }
         if(body.isActive()){
@@ -125,8 +139,10 @@ public class BulletRigidBodyDebugControl extends AbstractPhysicsDebugControl {
         }else{
             geom.setMaterial(debugAppState.DEBUG_BLUE);
         }
-        applyPhysicsTransform(body.getPhysicsLocation(location), body.getPhysicsRotation(rotation));
-        geom.setLocalScale(body.getCollisionShape().getScale());
+
+        body.getPhysicsLocation(location);
+        body.getPhysicsRotation(rotation);
+        applyPhysicsTransform(location, rotation);
     }
 
     /**

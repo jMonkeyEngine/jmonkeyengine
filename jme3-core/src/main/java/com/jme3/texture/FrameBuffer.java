@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ import java.util.ArrayList;
  * depth testing (which requires a depth buffer). 
  * Buffers can be copied to other framebuffers
  * including the main screen, by using 
- * {@link Renderer#copyFrameBuffer(com.jme3.texture.FrameBuffer, com.jme3.texture.FrameBuffer) }.
+ * {@link Renderer#copyFrameBuffer(com.jme3.texture.FrameBuffer, com.jme3.texture.FrameBuffer, boolean)}.
  * The content of a {@link RenderBuffer} can be retrieved by using 
  * {@link Renderer#readFrameBuffer(com.jme3.texture.FrameBuffer, java.nio.ByteBuffer) }.
  * <p>
@@ -510,7 +510,7 @@ public class FrameBuffer extends NativeObject {
     }
 
     /**
-     * @return The color buffer with the index set by {@link #setTargetIndex(int), or null
+     * @return The color buffer with the index set by {@link #setTargetIndex(int)}, or null
      * if no color buffers are attached.
 	 * If MRT is disabled, the first color buffer is returned.
      */
@@ -600,15 +600,14 @@ public class FrameBuffer extends NativeObject {
      * Specifies that the color values stored in this framebuffer are in SRGB
      * format.
      *
-     * The FrameBuffer must have a texture attached with the flag
-     * {@link Image#isSrgb()} set to true.
+     * The FrameBuffer must have an SRGB texture attached.
      *
      * The Renderer must expose the {@link Caps#Srgb sRGB pipeline} capability
      * for this option to take any effect.
      *
      * Rendering operations performed on this framebuffer shall undergo a linear
      * -&gt; sRGB color space conversion when this flag is enabled. If
-     * {@link RenderState#getBlendMode() blending} is enabled, it will be
+     * {@link com.jme3.material.RenderState#getBlendMode() blending} is enabled, it will be
      * performed in linear space by first decoding the stored sRGB pixel values
      * into linear, combining with the shader result, and then converted back to
      * sRGB upon being written into the framebuffer.
@@ -616,7 +615,7 @@ public class FrameBuffer extends NativeObject {
      * @param srgb If the framebuffer color values should be stored in sRGB
      * color space.
      *
-     * @throws InvalidStateException If the texture attached to this framebuffer
+     * @throws IllegalStateException If the texture attached to this framebuffer
      * is not sRGB.
      */
     public void setSrgb(boolean srgb) {
@@ -626,7 +625,7 @@ public class FrameBuffer extends NativeObject {
     /**
      * Determines if this framebuffer contains SRGB data.
      *
-     * @returns True if the framebuffer color values are in SRGB space, false if
+     * @return True if the framebuffer color values are in SRGB space, false if
      * in linear space.
      */
     public boolean isSrgb() {

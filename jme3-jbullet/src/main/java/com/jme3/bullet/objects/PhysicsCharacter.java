@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -169,6 +169,26 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
         return character.getMaxSlope();
     }
 
+    /**
+     * Enable/disable this body's contact response.
+     *
+     * @param newState true to respond to contacts (default=true)
+     */
+    public void setContactResponse(boolean newState) {
+        if (!newState) {
+            throw new UnsupportedOperationException("Not implemented.");
+        }
+    }
+
+    /**
+     * Test whether this body responds to contacts.
+     *
+     * @return true if responsive, otherwise false
+     */
+    public boolean isContactResponse() {
+        return true;
+    }
+
     public boolean onGround() {
         return character.onGround();
     }
@@ -279,6 +299,7 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
         buildObject();
         character = new KinematicCharacterController(gObject, (ConvexShape) collisionShape.getCShape(), stepHeight);
         setGravity(capsule.readFloat("gravity", 9.8f * 3));
+        setContactResponse(capsule.readBoolean("contactResponse", true));
         setMaxSlope(capsule.readFloat("maxSlope", 1.0f));
         setFallSpeed(capsule.readFloat("fallSpeed", 55.0f));
         setJumpSpeed(capsule.readFloat("jumpSpeed", 10.0f));

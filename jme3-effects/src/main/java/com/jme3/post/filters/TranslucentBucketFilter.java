@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -107,8 +107,8 @@ public final class TranslucentBucketFilter extends Filter {
     }
 
     /**
-     * Override this method and return false if your Filter does not need the scene texture
-     * @return
+     * Override this method and return true if your Filter needs the scene texture
+     * @return false
      */
     @Override
     protected boolean isRequiresSceneTexture() {

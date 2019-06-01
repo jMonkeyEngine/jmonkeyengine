@@ -153,7 +153,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
      *            the blender context
      * @return constraint object for the required type
      * @throws BlenderFileException
-     *             thrown when problems with blender file occured
+     *             thrown when problems with blender file occurred
      */
     private Constraint createConstraint(String dataType, Structure constraintStructure, Long ownerOMA, Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
         if (dataType == null || "Mesh".equalsIgnoreCase(dataType) || "Camera".equalsIgnoreCase(dataType) || "Lamp".equalsIgnoreCase(dataType)) {
@@ -197,7 +197,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
     }
 
     /**
-     * The method retreives the transform from a feature in a given space.
+     * The method retrieves the transform from a feature in a given space.
      * 
      * @param oma
      *            the OMA of the feature (spatial or armature node)
@@ -205,7 +205,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
      *            the feature's subtarget (bone in a case of armature's node)
      * @param space
      *            the space the transform is evaluated to
-     * @return thensform of a feature in a given space
+     * @return the transform of a feature in a given space
      */
     public Transform getTransform(Long oma, String subtargetName, Space space) {
         Spatial feature = (Spatial) blenderContext.getLoadedFeature(oma, LoadedDataType.FEATURE);

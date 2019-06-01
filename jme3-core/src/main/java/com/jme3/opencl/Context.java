@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ public abstract class Context extends AbstractOpenCLObject {
      * memory size and so on, are queried over the Device instances.
      * <br>
      * The available devices were specified by a {@link PlatformChooser}.
-     * @return 
+     * @return a list of devices
      */
     public abstract List<? extends Device> getDevices();
 
@@ -184,10 +184,10 @@ public abstract class Context extends AbstractOpenCLObject {
      * <b>Note:</b> The vertex buffer must already been uploaded to the GPU,
      * i.e. it must be used at least once for drawing.
      * <p>
-     * Before the returned buffer can be used, it must be acquried explicitly
+     * Before the returned buffer can be used, it must be acquired explicitly
      * by {@link Buffer#acquireBufferForSharingAsync(com.jme3.opencl.CommandQueue) }
      * and after modifying it, released by {@link Buffer#releaseBufferForSharingAsync(com.jme3.opencl.CommandQueue) }.
-     * This is needed so that OpenGL and OpenCL operations do not interfer with each other.
+     * This is needed so that OpenGL and OpenCL operations do not interfere with each other.
      * @param vb the vertex buffer to share
      * @param access the memory access for the kernel
      * @return the new buffer
@@ -204,10 +204,10 @@ public abstract class Context extends AbstractOpenCLObject {
      * <b>Note:</b> The image must already been uploaded to the GPU,
      * i.e. it must be used at least once for drawing.
      * <p>
-     * Before the returned image can be used, it must be acquried explicitly
+     * Before the returned image can be used, it must be acquired explicitly
      * by {@link Image#acquireImageForSharingAsync(com.jme3.opencl.CommandQueue) }
      * and after modifying it, released by {@link Image#releaseImageForSharingAsync(com.jme3.opencl.CommandQueue) }
-     * This is needed so that OpenGL and OpenCL operations do not interfer with each other.
+     * This is needed so that OpenGL and OpenCL operations do not interfere with each other.
      * 
      * @param image the jME3 image object
      * @param textureType the texture type (1D, 2D, 3D), since this is not stored in the image
@@ -226,10 +226,10 @@ public abstract class Context extends AbstractOpenCLObject {
      * <b>Note:</b> The image must already been uploaded to the GPU,
      * i.e. it must be used at least once for drawing.
      * <p>
-     * Before the returned image can be used, it must be acquried explicitly
+     * Before the returned image can be used, it must be acquired explicitly
      * by {@link Image#acquireImageForSharingAsync(com.jme3.opencl.CommandQueue) }
      * and after modifying it, released by {@link Image#releaseImageForSharingAsync(com.jme3.opencl.CommandQueue) }
-     * This is needed so that OpenGL and OpenCL operations do not interfer with each other.
+     * This is needed so that OpenGL and OpenCL operations do not interfere with each other.
      * <p>
      * This method is equivalent to calling
      * {@code bindImage(texture.getImage(), texture.getType(), miplevel, access)}.
@@ -263,14 +263,14 @@ public abstract class Context extends AbstractOpenCLObject {
      * <b>Note:</b> The renderbuffer must already been uploaded to the GPU,
      * i.e. it must be used at least once for drawing.
      * <p>
-     * Before the returned image can be used, it must be acquried explicitly
+     * Before the returned image can be used, it must be acquired explicitly
      * by {@link Image#acquireImageForSharingAsync(com.jme3.opencl.CommandQueue) }
      * and after modifying it, released by {@link Image#releaseImageForSharingAsync(com.jme3.opencl.CommandQueue) }
-     * This is needed so that OpenGL and OpenCL operations do not interfer with each other.
+     * This is needed so that OpenGL and OpenCL operations do not interfere with each other.
      * 
      * @param buffer
      * @param access
-     * @return 
+     * @return an image
      */
     public Image bindRenderBuffer(FrameBuffer.RenderBuffer buffer, MemoryAccess access) {
         if (buffer.getTexture() == null) {

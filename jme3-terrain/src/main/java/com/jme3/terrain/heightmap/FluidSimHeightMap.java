@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -248,7 +248,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
      *
      * @param maxInitialHeight
      *                        the maximum initial height
-     * @see #setMinInitialHeight(int)
+     * @see #setMinInitialHeight(float)
      */
     public void setMaxInitialHeight(float maxInitialHeight) {
         this.maxInitialHeight = maxInitialHeight;
@@ -259,7 +259,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
      *
      * @param minInitialHeight
      *                        the minimum initial height
-     * @see #setMaxInitialHeight(int)
+     * @see #setMaxInitialHeight(float)
      */
     public void setMinInitialHeight(float minInitialHeight) {
         this.minInitialHeight = minInitialHeight;

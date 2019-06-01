@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ public class DebugShapeFactory {
      * Creates a debug shape from the given collision shape. This is mostly used internally.<br>
      * To attach a debug shape to a physics object, call <code>attachDebugShape(AssetManager manager);</code> on it.
      * @param collisionShape
-     * @return
+     * @return a new Spatial or null
      */
     public static Spatial getDebugShape(CollisionShape collisionShape) {
         if (collisionShape == null) {
@@ -152,7 +152,7 @@ public class DebugShapeFactory {
      *  Processes the given convex shape to retrieve a correctly ordered FloatBuffer to
      *  construct the shape from with a TriMesh.
      *
-     * @param convexShape the shape to retreieve the vertices from.
+     * @param convexShape the shape to retrieve the vertices from.
      * @return the vertices as a FloatBuffer, ordered as Triangles.
      */
     private static FloatBuffer getVertices(ConvexShape convexShape) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,8 +68,8 @@ public class RigidBodyMotionState extends MotionState {
 
     /**
      * called from bullet when creating the rigidbody
-     * @param t
-     * @return
+     * @param t caller-provided storage for the Transform
+     * @return t
      */
     public Transform getWorldTransform(Transform t) {
         t.set(motionStateTrans);

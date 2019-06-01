@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ import java.util.ArrayList;
  * There are 2 mode : Scene and Objects.<br>
  * Scene mode extracts the bright parts of the scene to make them glow<br>
  * Object mode make objects glow according to their material's glowMap or their GlowColor<br>
- * @see <a href="http://jmonkeyengine.github.io/wiki/jme3/advanced/bloom_and_glow.html">advanced:bloom_and_glow</a> for more details
+ * See <a href="http://jmonkeyengine.github.io/wiki/jme3/advanced/bloom_and_glow.html">advanced:bloom_and_glow</a> for more details
  * 
  * @author Rémy Bouquet aka Nehon
  */
@@ -226,7 +226,7 @@ public class BloomFilter extends Filter {
 
     /**
      * returns the bloom intensity
-     * @return 
+     * @return the intensity value
      */
     public float getBloomIntensity() {
         return bloomIntensity;
@@ -242,7 +242,7 @@ public class BloomFilter extends Filter {
 
     /**
      * returns the blur scale
-     * @return 
+     * @return the blur scale
      */
     public float getBlurScale() {
         return blurScale;
@@ -259,7 +259,7 @@ public class BloomFilter extends Filter {
     /**
      * returns the exposure cutoff<br>
      * for more details see {@link #setExposureCutOff(float exposureCutOff)}
-     * @return 
+     * @return the exposure cutoff
      */    
     public float getExposureCutOff() {
         return exposureCutOff;
@@ -275,8 +275,8 @@ public class BloomFilter extends Filter {
 
     /**
      * returns the exposure power<br>
-     * form more details see {@link #setExposurePower(float exposurePower)}
-     * @return 
+     * for more details see {@link #setExposurePower(float exposurePower)}
+     * @return the exposure power
      */
     public float getExposurePower() {
         return exposurePower;
@@ -293,8 +293,8 @@ public class BloomFilter extends Filter {
 
     /**
      * returns the downSampling factor<br>
-     * form more details see {@link #setDownSamplingFactor(float downSamplingFactor)}
-     * @return
+     * for more details see {@link #setDownSamplingFactor(float downSamplingFactor)}
+     * @return the downsampling factor
      */
     public float getDownSamplingFactor() {
         return downSamplingFactor;

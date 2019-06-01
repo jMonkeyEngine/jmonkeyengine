@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,6 @@
 package com.jme3.input.event;
 
 import com.jme3.input.InputManager;
-import com.jme3.input.Joystick;
 import com.jme3.input.JoystickAxis;
 
 /**
@@ -53,7 +52,7 @@ public class JoyAxisEvent extends InputEvent {
     /**
      * Returns the JoystickAxis that triggered this event.
      *
-     * @see JoystickAxis#assignAxis(java.lang.String, java.lang.String, int) 
+     * @see com.jme3.input.JoystickAxis#assignAxis(java.lang.String, java.lang.String)
      */
     public JoystickAxis getAxis() {
         return axis;
@@ -64,7 +63,7 @@ public class JoyAxisEvent extends InputEvent {
      * 
      * @return joystick axis index.
      * 
-     * @see Joystick#assignAxis(java.lang.String, java.lang.String, int) 
+     * @see com.jme3.input.JoystickAxis#assignAxis(java.lang.String, java.lang.String)
      */
     public int getAxisIndex() {
         return axis.getAxisId();

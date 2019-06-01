@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2014 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ import java.util.List;
 
 /**
  * Defines animations set that will be created while loading FBX scene
- * <p>Animation <code>name</code> is using to access animation via {@link AnimControl}.<br>
+ * <p>Animation <code>name</code> is using to access animation via {@link com.jme3.animation.AnimControl}.<br>
  * <code>firstFrame</code> and <code>lastFrame</code> defines animation time interval.<br>
  * Use <code>layerName</code> also to define source animation layer in the case of multiple layers in the scene.<br>
  * Skeletal animations will be created if only scene contain skeletal bones</p>
@@ -47,8 +47,7 @@ public class AnimationList {
 	
 	/**
 	 * Use in the case of multiple animation layers in FBX asset
-	 * @param name - animation name to assess via {@link AnimControl}
-	 * @param layerName - source layer
+	 * @param name - animation name to access via {@link com.jme3.animation.AnimControl}
 	 */
 	public void add(String name, int firstFrame, int lastFrame) {
 		add(name, null, firstFrame, lastFrame);
@@ -56,7 +55,7 @@ public class AnimationList {
 	
 	/**
 	 * Use in the case of multiple animation layers in FBX asset
-	 * @param name - animation name to assess via {@link AnimControl}
+	 * @param name - animation name to access via {@link com.jme3.animation.AnimControl}
 	 * @param layerName - source layer
 	 */
 	public void add(String name, String layerName, int firstFrame, int lastFrame) {

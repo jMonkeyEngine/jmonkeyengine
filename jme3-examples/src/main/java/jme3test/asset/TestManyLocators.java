@@ -43,13 +43,13 @@ public class TestManyLocators {
     public static void main(String[] args){
         AssetManager am = JmeSystem.newAssetManager();
 
-        am.registerLocator("http://www.jmonkeyengine.com/wp-content/uploads/2010/09/",
+        am.registerLocator("http://wiki.jmonkeyengine.org/jme3/beginner",
                            UrlLocator.class);
 
         am.registerLocator("town.zip", ZipLocator.class);
-        am.registerLocator("http://jmonkeyengine.googlecode.com/files/wildhouse.zip",
-                           HttpZipLocator.class);
-        
+        am.registerLocator(
+                    "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/jmonkeyengine/wildhouse.zip", 
+                    HttpZipLocator.class);       
         
         am.registerLocator("/", ClasspathLocator.class);
         
@@ -65,7 +65,7 @@ public class TestManyLocators {
         AssetInfo c = am.locateAsset(new ModelKey("glasstile2.png"));
 
         // Try loading directly from HTTP
-        AssetInfo d = am.locateAsset(new TextureKey("planet-2.jpg"));
+        AssetInfo d = am.locateAsset(new TextureKey("beginner-physics.png"));
 
         if (a == null)
             System.out.println("Failed to load from classpath");
@@ -73,12 +73,12 @@ public class TestManyLocators {
             System.out.println("Found classpath font: " + a.toString());
 
         if (b == null)
-            System.out.println("Failed to load from town.zip");
+            System.out.println("Failed to load from town.zip file");
         else
             System.out.println("Found zip image: " + b.toString());
 
         if (c == null)
-            System.out.println("Failed to load from wildhouse.zip on googlecode.com");
+            System.out.println("Failed to load from wildhouse.zip on googleapis.com");
         else
             System.out.println("Found online zip image: " + c.toString());
 

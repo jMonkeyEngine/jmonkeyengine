@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -223,7 +223,7 @@ public interface Renderer {
     /**
      * Reads the pixels currently stored in the specified framebuffer
      * into the given ByteBuffer object. 
-     * Only color pixels are transferred, witht hte given format. 
+     * Only color pixels are transferred, with the given format. 
      * The given byte buffer should have at least
      * fb.getWidth() * fb.getHeight() * 4 bytes remaining.
      * 
@@ -381,14 +381,14 @@ public interface Renderer {
       * set shall undergo an sRGB to linear RGB color conversion when read by a shader.
       *
       * The conversion is performed for the following formats:
-      *  - {@link Image.Format#RGB8}
-      *  - {@link Image.Format#RGBA8}
-      *  - {@link Image.Format#Luminance8}
-      *  - {@link Image.Format#Luminance8Alpha8}
-      *  - {@link Image.Format#DXT1}
-      *  - {@link Image.Format#DXT1A}
-      *  - {@link Image.Format#DXT3}
-      *  - {@link Image.Format#DXT5}
+      *  - {@link com.jme3.texture.Image.Format#RGB8}
+      *  - {@link com.jme3.texture.Image.Format#RGBA8}
+      *  - {@link com.jme3.texture.Image.Format#Luminance8}
+      *  - {@link com.jme3.texture.Image.Format#Luminance8Alpha8}
+      *  - {@link com.jme3.texture.Image.Format#DXT1}
+      *  - {@link com.jme3.texture.Image.Format#DXT1A}
+      *  - {@link com.jme3.texture.Image.Format#DXT3}
+      *  - {@link com.jme3.texture.Image.Format#DXT5}
       * 
       * For all other formats, no conversion is performed.
       *

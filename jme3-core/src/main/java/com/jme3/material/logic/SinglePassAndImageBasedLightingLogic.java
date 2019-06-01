@@ -32,7 +32,6 @@
 package com.jme3.material.logic;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.bounding.BoundingSphere;
 import com.jme3.light.*;
 import com.jme3.material.*;
 import com.jme3.material.RenderState.BlendMode;
@@ -49,8 +48,10 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
     private static final String DEFINE_SINGLE_PASS_LIGHTING = "SINGLE_PASS_LIGHTING";
     private static final String DEFINE_NB_LIGHTS = "NB_LIGHTS";
     private static final String DEFINE_NB_PROBES = "NB_PROBES";
+    private static final String DEFINE_USE_AMBIENT_LIGHT = "USE_AMBIENT_LIGHT";
     private static final RenderState ADDITIVE_LIGHT = new RenderState();
 
+    private boolean useAmbientLight;
     private final ColorRGBA ambientLightColor = new ColorRGBA(0, 0, 0, 1);
     private List<LightProbe> lightProbes = new ArrayList<>(3);
 
@@ -62,12 +63,14 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
     private final int singlePassLightingDefineId;
     private final int nbLightsDefineId;
     private final int nbProbesDefineId;
+    private final int useAmbientLightDefineId;
 
     public SinglePassAndImageBasedLightingLogic(TechniqueDef techniqueDef) {
         super(techniqueDef);
         singlePassLightingDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_SINGLE_PASS_LIGHTING, VarType.Boolean);
         nbLightsDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_LIGHTS, VarType.Int);
         nbProbesDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_NB_PROBES, VarType.Int);
+        useAmbientLightDefineId = techniqueDef.addShaderUnmappedDefine(DEFINE_USE_AMBIENT_LIGHT, VarType.Boolean);
     }
 
     @Override
@@ -84,6 +87,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
             lightProbes.clear();
             extractIndirectLights(lights, false);
             defines.set(nbProbesDefineId, lightProbes.size());
+            defines.set(useAmbientLightDefineId, useAmbientLight);
         }
 
         return super.makeCurrent(assetManager, renderManager, rendererCaps, lights, defines);
@@ -128,7 +132,7 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
             // apply additive blending for 2nd and future passes
             rm.getRenderer().applyRenderState(ADDITIVE_LIGHT);
             ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);
-        }else{
+        } else{
             extractIndirectLights(lightList,true);
             ambientColor.setValue(VarType.Vector4, ambientLightColor);
         }
@@ -261,9 +265,11 @@ public final class SinglePassAndImageBasedLightingLogic extends DefaultTechnique
 
     protected void extractIndirectLights(LightList lightList, boolean removeLights) {
         ambientLightColor.set(0, 0, 0, 1);
+        useAmbientLight = false;
         for (int j = 0; j < lightList.size(); j++) {
             Light l = lightList.get(j);
             if (l instanceof AmbientLight) {
+                useAmbientLight = true;
                 ambientLightColor.addLocal(l.getColor());
                 if(removeLights){
                     lightList.remove(l);

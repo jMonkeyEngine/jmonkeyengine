@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,7 @@ public class AppletHarness extends Applet {
             } catch (IOException ex){
                 // Called before application has been created ....
                 // Display error message through AWT
-                JOptionPane.showMessageDialog(this, "An error has occured while "
+                JOptionPane.showMessageDialog(this, "An error has occurred while "
                                                   + "loading applet configuration"
                                                   + ex.getMessage(),
                                               "jME3 Applet",

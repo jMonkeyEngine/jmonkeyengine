@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -131,7 +131,7 @@ public abstract class CompactArray<T> implements JmeCloneable {
      * returns the object for the given index
      * @param index the index
      * @param store an object to store the result 
-     * @return 
+     * @return an element
      */
     public final T get(int index, T store) {
         serialize();
@@ -141,7 +141,7 @@ public abstract class CompactArray<T> implements JmeCloneable {
 
     /**
      * return a float array of serialized data
-     * @return 
+     * @return the pre-existing array
      */
     public final float[] getSerializedData() {
         serialize();
@@ -177,7 +177,7 @@ public abstract class CompactArray<T> implements JmeCloneable {
      * Ensure the capacity for the given array and the given size
      * @param arr the array
      * @param size the size
-     * @return 
+     * @return an array
      */
     protected float[] ensureCapacity(float[] arr, int size) {
         if (arr == null) {
@@ -195,7 +195,7 @@ public abstract class CompactArray<T> implements JmeCloneable {
     /**
      * Return an array of indices for the given objects
      * @param objArray
-     * @return 
+     * @return a new array
      */
     @SuppressWarnings("unchecked")
     public final int[] getIndex(T... objArray) {
