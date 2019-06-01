@@ -992,4 +992,16 @@ final public class FastMath {
                 | ((((f & 0x7f800000) - 0x38000000) >> 13) & 0x7c00)
                 | ((f >> 13) & 0x03ff));
     }
+
+    /**
+     * Converts a range of min/max to a 0-1 range.
+     * @param value the value between min-max (inclusive).
+     * @param min   the minimum of the range.
+     * @param max   the maximum of the range.
+     * @return A value between 0-1 if the given value is between min/max.
+     */
+    public static float unInterpolateLinear(float value, float min, float max) {
+        return (value - min) / (max - min);
+    }
+
 }
