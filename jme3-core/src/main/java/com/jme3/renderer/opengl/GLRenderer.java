@@ -1339,10 +1339,11 @@ public final class GLRenderer implements Renderer {
         boolean gles2 = caps.contains(Caps.OpenGLES20);
         String language = source.getLanguage();
 
-
-        if (gles3 && !(language.equals("GLSL100") || language.equals("GLSL300") )) {
-            throw new RendererException("This shader cannot run in OpenGL ES 3. "
-                    + "Only GLSL 3.00 and 1.00 shaders are supported.");
+        if (gles3) {
+            if( !language.equals("GLSL100") && !language.equals("GLSL300") ) {
+                throw new RendererException("This shader cannot run in OpenGL ES 3. "
+                        + "Only GLSL 3.00 and 1.00 shaders are supported.");
+            }
         }
         else if (gles2 && !language.equals("GLSL100")) {
             throw new RendererException("This shader cannot run in OpenGL ES 2. "
@@ -1363,16 +1364,18 @@ public final class GLRenderer implements Renderer {
                 }
                 stringBuf.append("\n");
             } else {
-                if (gles3 && version == 300) {
-                    // gles3 specific version
-                    stringBuf.append("#version 300 core\n");
-                }
-                else if (gles2 || gles3) {
-                    // request GLSL ES (1.00) when compiling under GLES2.
-                    stringBuf.append("#version 100\n");
+                if (gles2 || gles3) {
+                    if (gles3 && version == 300) {
+                        // gles3 specific version
+                        stringBuf.append("#version 300 es\n");
+                    }
+                    else {
+                        // request GLSL ES (1.00) when compiling under GLES2.
+                        stringBuf.append("#version 100\n");
+                    }
                     
                     if (source.getType() == ShaderType.Fragment) {
-                        // GLES2 requires precision qualifier.
+                        // GLES requires precision qualifier.
                         insertPrecision = true;
                     }
                 } else {
