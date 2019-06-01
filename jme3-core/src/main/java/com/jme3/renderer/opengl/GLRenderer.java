@@ -662,14 +662,12 @@ public final class GLRenderer implements Renderer {
 
     public void setAlphaToCoverage(boolean value) {
         if (caps.contains(Caps.Multisample)) {
-            System.out.println("caps have multi");
             if (value) {
                 gl.glEnable(GLExt.GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
             } else {
                 gl.glDisable(GLExt.GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
             }
         }
-        System.out.println("caps dont have multi");
     }
 
     public void applyRenderState(RenderState state) {

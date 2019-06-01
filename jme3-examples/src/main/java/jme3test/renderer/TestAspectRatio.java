@@ -37,6 +37,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 
+
 /**
  * Simple application to test a viewport/camera with a different aspect ratio
  * than the display -- issue #357. The cube should render as a blue square, not

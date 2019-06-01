@@ -6,7 +6,7 @@
 **/out/
 /.gradle/
 /.nb-gradle/
-/.idea/
+**/.idea/**
 /dist/
 /build/
 /bin/
