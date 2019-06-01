@@ -406,16 +406,36 @@ public enum Caps {
     ShaderStorageBufferObject,
 
     /**
-     * Supports OpenGL ES 3
+     * Supports OpenGL ES 3.0
      */
     OpenGLES30,
 
     /**
      * Supports GLSL 3.0
      */
-    GLSL300;
+    GLSL300,
 
-    
+    /**
+     * Supports OpenGL ES 3.1
+     */
+    OpenGLES31,
+
+    /**
+     * Supports GLSL 3.1
+     */
+    GLSL310,
+
+    /**
+     * Supports OpenGL ES 3.2
+     */
+    OpenGLES32,
+
+    /**
+     * Supports GLSL 3.2
+     */
+    GLSL320;
+
+      
 
 
     /**

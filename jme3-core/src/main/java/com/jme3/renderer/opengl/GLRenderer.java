@@ -176,6 +176,14 @@ public final class GLRenderer implements Renderer {
             // Instancing is core in GLES300
             caps.add(Caps.MeshInstancing);
         }
+        if (oglVer >= 310) {
+            caps.add(Caps.OpenGLES31);
+            caps.add(Caps.GLSL310);
+        }
+        if (oglVer >= 320) {
+            caps.add(Caps.OpenGLES32);
+            caps.add(Caps.GLSL320);
+        }
         // Important: Do not add OpenGL20 - that's the desktop capability!
     }
 
@@ -1339,13 +1347,7 @@ public final class GLRenderer implements Renderer {
         boolean gles2 = caps.contains(Caps.OpenGLES20);
         String language = source.getLanguage();
 
-        if (gles3) {
-            if( !language.equals("GLSL100") && !language.equals("GLSL300") ) {
-                throw new RendererException("This shader cannot run in OpenGL ES 3. "
-                        + "Only GLSL 3.00 and 1.00 shaders are supported.");
-            }
-        }
-        else if (gles2 && !language.equals("GLSL100")) {
+        if (!gles3 && gles2 && !language.equals("GLSL100")) { //avoid this check for gles3
             throw new RendererException("This shader cannot run in OpenGL ES 2. "
                     + "Only GLSL 1.00 shaders are supported.");
         }
@@ -1354,35 +1356,37 @@ public final class GLRenderer implements Renderer {
         // Upload shader source.
         // Merge the defines and source code.
         stringBuf.setLength(0);
+        int version = Integer.parseInt(language.substring(4));
         if (language.startsWith("GLSL")) {
-            int version = Integer.parseInt(language.substring(4));
-            if (version > 100 && version != 300) {
+            if (version > 100) {
                 stringBuf.append("#version ");
                 stringBuf.append(language.substring(4));
                 if (version >= 150) {
-                    stringBuf.append(" core");
+                    if(gles3) {
+                        stringBuf.append(" es");
+                    }
+                    else {
+                        stringBuf.append(" core");
+                    }
                 }
                 stringBuf.append("\n");
             } else {
                 if (gles2 || gles3) {
-                    if (gles3 && version == 300) {
-                        // gles3 specific version
-                        stringBuf.append("#version 300 es\n");
-                    }
-                    else {
-                        // request GLSL ES (1.00) when compiling under GLES2.
-                        stringBuf.append("#version 100\n");
-                    }
+                    // request GLSL ES (1.00) when compiling under GLES2.
+                    stringBuf.append("#version 100\n");
                     
-                    if (source.getType() == ShaderType.Fragment) {
-                        // GLES requires precision qualifier.
-                        insertPrecision = true;
-                    }
                 } else {
                     // version 100 does not exist in desktop GLSL.
                     // put version 110 in that case to enable strict checking
                     // (Only enabled for desktop GL)
                     stringBuf.append("#version 110\n");
+                }
+            }
+
+            if (gles2 || gles3) {
+                if (source.getType() == ShaderType.Fragment) {
+                    // GLES requires precision qualifier.
+                    insertPrecision = true;
                 }
             }
         }
@@ -1400,6 +1404,11 @@ public final class GLRenderer implements Renderer {
             // Error P0001: Extension directive must occur before any non-preprocessor tokens
             int idx = stringBuf.lastIndexOf("#extension");
             idx = stringBuf.indexOf("\n", idx);
+
+            if(version>300) {
+                stringBuf.insert(idx + 1, "precision mediump sampler2D;\n");
+                stringBuf.insert(idx + 1, "precision mediump sampler2DShadow;\n");
+            }
             stringBuf.insert(idx + 1, "precision mediump float;\n");
         }
 
