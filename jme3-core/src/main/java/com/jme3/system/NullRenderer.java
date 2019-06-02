@@ -213,13 +213,13 @@ public class NullRenderer implements Renderer {
     public void setDefaultAnisotropicFilter(int level) {
     }
 
-	@Override
-	public boolean getAlphaToCoverage() {
-		return false;
-	}
+    @Override
+    public boolean getAlphaToCoverage() {
+        return false;
+    }
 
-	@Override
-	public int getDefaultAnisotropicFilter() {
-		return 0;
-	}
+    @Override
+    public int getDefaultAnisotropicFilter() {
+        return 0;
+    }
 }
