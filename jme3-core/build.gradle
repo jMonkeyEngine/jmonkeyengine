@@ -41,11 +41,3 @@ task updateVersionPropertiesFile {
 }
 
 processResources.dependsOn updateVersionPropertiesFile
-
-
-dependencies {
-    testRuntime 'org.lwjgl.lwjgl:lwjgl:2.9.3'
-    testCompile project(':jme3-lwjgl')
-
-}
-
