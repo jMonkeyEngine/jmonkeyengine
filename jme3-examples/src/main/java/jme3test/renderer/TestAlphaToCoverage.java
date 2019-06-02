@@ -36,8 +36,8 @@ public class TestAlphaToCoverage extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        glRenderer.setAlphaToCoverage(true);
-        assert glRenderer.getAlphaToCoverage();
+        glRenderer.setAlphaToCoverage(false);
+        assert !glRenderer.getAlphaToCoverage();
 
         caps.add(Caps.Multisample);
         glRenderer.setAlphaToCoverage(true);
