@@ -12,6 +12,13 @@ import com.jme3.renderer.Caps;
 
 import java.util.EnumSet;
 
+/**
+ * Simple application to test the getter and setters of AlphaToCoverage and
+ * DefaultAnisotropicFilter from the GLRenderer class.
+ *
+ * Since the app doesn't display anything relevant a stop() has been added
+ * This starts and closes the app on a successful run
+ */
 public class TestAlphaToCoverage extends SimpleApplication {
 
     public static void main(String[] args) {
@@ -29,6 +36,9 @@ public class TestAlphaToCoverage extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+        glRenderer.setAlphaToCoverage(true);
+        assert glRenderer.getAlphaToCoverage();
+
         caps.add(Caps.Multisample);
         glRenderer.setAlphaToCoverage(true);
         assert glRenderer.getAlphaToCoverage();
@@ -37,6 +47,8 @@ public class TestAlphaToCoverage extends SimpleApplication {
 
         glRenderer.setDefaultAnisotropicFilter(1);
         assert glRenderer.getDefaultAnisotropicFilter() == 1;
+
+        stop();
     }
 
 }
