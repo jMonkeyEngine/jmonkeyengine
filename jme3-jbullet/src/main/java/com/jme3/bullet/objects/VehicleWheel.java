@@ -178,7 +178,7 @@ public class VehicleWheel implements Savable {
     /**
      * the damping coefficient for when the suspension is compressed.
      * Set to k * 2.0 * FastMath.sqrt(m_suspensionStiffness) so k is proportional to critical damping.<br>
-     * k = 0.0 undamped & bouncy, k = 1.0 critical damping<br>
+     * k = 0.0 undamped/bouncy, k = 1.0 critical damping<br>
      * 0.1 to 0.3 are good values
      * @param wheelsDampingCompression
      */
