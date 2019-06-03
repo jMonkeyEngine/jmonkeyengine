@@ -433,7 +433,12 @@ public enum Caps {
     /**
      * Supports GLSL 3.2
      */
-    GLSL320;
+    GLSL320,
+
+    /**
+     * Explicit support of depth 24 textures
+     */
+    Depth24;
 
       
 

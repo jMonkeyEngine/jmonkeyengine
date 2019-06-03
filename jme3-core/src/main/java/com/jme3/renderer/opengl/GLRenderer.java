@@ -346,8 +346,10 @@ public final class GLRenderer implements Renderer {
 
         if (hasExtension("GL_OES_depth_texture") || gl2 != null) {
             caps.add(Caps.DepthTexture);
+        }
 
-            // TODO: GL_OES_depth24
+        if (hasExtension("GL_OES_depth24")) {
+            caps.add(Caps.Depth24);
         }
 
         if (hasExtension("GL_OES_rgb8_rgba8") ||
