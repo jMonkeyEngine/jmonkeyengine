@@ -183,6 +183,8 @@ public final class GLRenderer implements Renderer {
         if (oglVer >= 320) {
             caps.add(Caps.OpenGLES32);
             caps.add(Caps.GLSL320);
+            caps.add(Caps.GeometryShader);
+            caps.add(Caps.TesselationShader);
         }
         // Important: Do not add OpenGL20 - that's the desktop capability!
     }
@@ -308,7 +310,7 @@ public final class GLRenderer implements Renderer {
 
         if (hasExtension("GL_ARB_draw_instanced") &&
                 hasExtension("GL_ARB_instanced_arrays")) {
-            // TODO: If there a way to call the EXT extension for GLES2, should check also (hasExtension("GL_EXT_draw_instanced") && hasExtension("GL_EXT_instanced_arrays"))
+            // TODO: If there were a way to call the EXT extension for GLES2, should check also (hasExtension("GL_EXT_draw_instanced") && hasExtension("GL_EXT_instanced_arrays"))
             caps.add(Caps.MeshInstancing);
         }
 
@@ -514,6 +516,14 @@ public final class GLRenderer implements Renderer {
             limits.put(Limits.UniformBufferObjectMaxGeometryBlocks, getInteger(GL3.GL_MAX_GEOMETRY_UNIFORM_BLOCKS));
             limits.put(Limits.UniformBufferObjectMaxFragmentBlocks, getInteger(GL3.GL_MAX_FRAGMENT_UNIFORM_BLOCKS));
             limits.put(Limits.UniformBufferObjectMaxVertexBlocks, getInteger(GL3.GL_MAX_VERTEX_UNIFORM_BLOCKS));
+        }
+
+        if (hasExtension("GL_OES_geometry_shader") || hasExtension("GL_EXT_geometry_shader")) {
+            caps.add(Caps.GeometryShader);
+        }
+
+        if (hasExtension("GL_OES_tessellation_shader") || hasExtension("GL_EXT_tessellation_shader")) {
+            caps.add(Caps.TesselationShader);
         }
 
         // Print context information
