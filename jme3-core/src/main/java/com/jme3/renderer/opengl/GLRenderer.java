@@ -1396,10 +1396,11 @@ public final class GLRenderer implements Renderer {
             }
 
             if (gles2 || gles3) {
-                if (source.getType() == ShaderType.Fragment) {
+                //Add precision to all shaders to avoid type missmatch when compiling on some devices
+//                if (source.getType() == ShaderType.Fragment) {
                     // GLES requires precision qualifier.
                     insertPrecision = true;
-                }
+//                }
             }
         }
 
