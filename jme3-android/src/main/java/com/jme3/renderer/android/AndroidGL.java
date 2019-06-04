@@ -465,7 +465,8 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     }
 
     public void glDrawBuffers(IntBuffer bufs) {
-        throw new UnsupportedOperationException("MRT not available on Android");
+        GLES30.glDrawBuffers(bufs.limit(), bufs);
+        //throw new UnsupportedOperationException("MRT not available on Android");
     }
 
     public void glDrawElementsInstancedARB(int mode, int indices_count, int type, long indices_buffer_offset, int primcount) {
@@ -473,14 +474,16 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     }
 
     public void glGetMultisample(int pname, int index, FloatBuffer val) {
-        throw new UnsupportedOperationException("Multisample renderbuffers not available on Android");
+        //GLES31.glGetMultisamplefv(pname, index, val);
+        throw new UnsupportedOperationException("Multisample textures not available on Android");
     }
 
     public void glRenderbufferStorageMultisampleEXT(int target, int samples, int internalformat, int width, int height) {
-        throw new UnsupportedOperationException("Multisample renderbuffers not available on Android");
+        GLES30.glRenderbufferStorageMultisample(target, samples, internalformat, width, height);
     }
 
     public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedsamplelocations) {
+        //GLES31.glTexStorage2DMultisample(target, samples, internalformat, width, height, fixedsamplelocations);
         throw new UnsupportedOperationException("Multisample textures not available on Android");
     }
 
