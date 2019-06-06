@@ -143,21 +143,27 @@ public class AndroidConfigChooser implements EGLConfigChooser {
         int[] configSpec = new int[]{
             EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES3_BIT,
             EGL10.EGL_NONE};
+        boolean gles3=true;
 
         // Try openGL ES 3
         try {
             if (!egl.eglChooseConfig(display, configSpec, null, 0, num_config)) {
                 RendererUtil.checkEGLError(egl);
+                gles3=false;
             }
         } catch (com.jme3.renderer.RendererException re) { 
             // it's just the device not supporting GLES3. Fallback to GLES2
+            gles3=false;
         } 
 
-        // Get back to openGL ES 2
-        configSpec[1]=EGL_OPENGL_ES2_BIT;
-        if (!egl.eglChooseConfig(display, configSpec, null, 0, num_config)) {
-            RendererUtil.checkEGLError(egl);
-            throw new AssertionError();
+        if(!gles3)
+        {
+            // Get back to openGL ES 2
+            configSpec[1]=EGL_OPENGL_ES2_BIT;
+            if (!egl.eglChooseConfig(display, configSpec, null, 0, num_config)) {
+                RendererUtil.checkEGLError(egl);
+                throw new AssertionError();
+            }
         }
 
         int numConfigs = num_config[0];
