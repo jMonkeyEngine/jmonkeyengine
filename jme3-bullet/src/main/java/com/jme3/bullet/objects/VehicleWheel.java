@@ -646,6 +646,7 @@ public class VehicleWheel implements Savable {
         maxSuspensionForce = capsule.readFloat("maxSuspensionForce", 6000f);
         radius = capsule.readFloat("wheelRadius", 0.5f);
         restLength = capsule.readFloat("restLength", 1f);
+        extRotation = (Quaternion) capsule.readSavable("extRotation", new Quaternion());
     }
 
     /**
@@ -671,6 +672,7 @@ public class VehicleWheel implements Savable {
         capsule.write(maxSuspensionForce, "maxSuspensionForce", 6000f);
         capsule.write(radius, "wheelRadius", 0.5f);
         capsule.write(restLength, "restLength", 1f);
+        capsule.write(extRotation, "extRotation", new Quaternion());
     }
 
     /**
