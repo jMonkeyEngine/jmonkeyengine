@@ -133,6 +133,11 @@ public class VehicleWheel implements Savable {
     private boolean applyLocal = false;
 
     /**
+     * An external rotation, typically used to emulate wheelspin or damage.
+     */
+    private Quaternion extRotation = new Quaternion();
+
+    /**
      * No-argument constructor needed by SavableClassUtil. Do not invoke
      * directly!
      */
@@ -200,6 +205,18 @@ public class VehicleWheel implements Savable {
     private native void getWheelRotation(long vehicleId, int wheelId, Matrix3f location);
 
     /**
+     * Set an external rotation to the wheel. Typically used to emulate wheelspin or damage.
+     * @param quaternion
+     */
+    public void setExtRotation(Quaternion quaternion) {
+        extRotation.set(quaternion);
+    }
+
+    public void getExtRotation(Quaternion store) {
+        store.set(extRotation);
+    }
+
+    /**
      * Apply this wheel's physics location and orientation to its associated
      * spatial, if any.
      */
@@ -214,6 +231,8 @@ public class VehicleWheel implements Savable {
             localLocation.divideLocal(wheelSpatial.getParent().getWorldScale());
             tmp_inverseWorldRotation.set(wheelSpatial.getParent().getWorldRotation()).inverseLocal().multLocal(localLocation);
 
+            wheelWorldRotation.multLocal(extRotation);
+
             localRotationQuat.set(wheelWorldRotation);
             tmp_inverseWorldRotation.set(wheelSpatial.getParent().getWorldRotation()).inverseLocal().mult(localRotationQuat, localRotationQuat);
 
@@ -221,6 +240,8 @@ public class VehicleWheel implements Savable {
             wheelSpatial.setLocalRotation(localRotationQuat);
         } else {
             wheelSpatial.setLocalTranslation(wheelWorldLocation);
+
+            wheelWorldRotation.multLocal(extRotation);
             wheelSpatial.setLocalRotation(wheelWorldRotation);
         }
     }
