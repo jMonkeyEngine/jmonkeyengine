@@ -66,6 +66,7 @@ public class VehicleWheel implements Savable {
     protected com.jme3.math.Matrix3f tmp_Matrix = new com.jme3.math.Matrix3f();
     protected final Quaternion tmp_inverseWorldRotation = new Quaternion();
     private boolean applyLocal = false;
+    private Quaternion extRotation = new Quaternion();
 
     public VehicleWheel() {
     }
@@ -92,6 +93,18 @@ public class VehicleWheel implements Savable {
         wheelWorldRotation.fromRotationMatrix(tmp_Matrix);
     }
 
+    /**
+     * Set an external rotation to the wheel. Typically used to emulate wheelspin or damage.
+     * @param quaternion
+     */
+    public void setExtRotation(Quaternion quaternion) {
+        extRotation.set(quaternion);
+    }
+
+    public void getExtRotation(Quaternion store) {
+        store.set(extRotation);
+    }
+
     public void applyWheelTransform() {
         if (wheelSpatial == null) {
             return;
@@ -103,6 +116,8 @@ public class VehicleWheel implements Savable {
             localLocation.divideLocal(wheelSpatial.getParent().getWorldScale());
             tmp_inverseWorldRotation.set(wheelSpatial.getParent().getWorldRotation()).inverseLocal().multLocal(localLocation);
 
+            wheelWorldRotation.multLocal(extRotation);
+
             localRotationQuat.set(wheelWorldRotation);
             tmp_inverseWorldRotation.set(wheelSpatial.getParent().getWorldRotation()).inverseLocal().mult(localRotationQuat, localRotationQuat);
 
@@ -110,6 +125,8 @@ public class VehicleWheel implements Savable {
             wheelSpatial.setLocalRotation(localRotationQuat);
         } else {
             wheelSpatial.setLocalTranslation(wheelWorldLocation);
+
+            wheelWorldRotation.multLocal(extRotation);
             wheelSpatial.setLocalRotation(wheelWorldRotation);
         }
     }
@@ -357,6 +374,7 @@ public class VehicleWheel implements Savable {
         maxSuspensionForce = capsule.readFloat("maxSuspensionForce", 6000f);
         radius = capsule.readFloat("wheelRadius", 0.5f);
         restLength = capsule.readFloat("restLength", 1f);
+        extRotation = (Quaternion) capsule.readSavable("extRotation", new Quaternion());
     }
 
     @Override
@@ -376,6 +394,7 @@ public class VehicleWheel implements Savable {
         capsule.write(maxSuspensionForce, "maxSuspensionForce", 6000f);
         capsule.write(radius, "wheelRadius", 0.5f);
         capsule.write(restLength, "restLength", 1f);
+        capsule.write(extRotation, "extRotation", new Quaternion());
     }
 
     /**
