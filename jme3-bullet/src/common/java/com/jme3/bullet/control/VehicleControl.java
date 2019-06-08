@@ -199,6 +199,10 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl, Jm
             // Copy the wheel spatial reference directly for now.  They'll
             // get fixed up in the cloneFields() method
             newWheel.setWheelSpatial(wheel.getWheelSpatial());
+
+            Quaternion extRotation = new Quaternion();
+            wheel.getExtRotation(extRotation);
+            newWheel.setExtRotation(extRotation);
         }
         control.setApplyPhysicsLocal(isApplyPhysicsLocal());
         control.setEnabled(isEnabled());
