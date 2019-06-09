@@ -91,7 +91,7 @@ final public class FastMath {
      * Get the next power of two of the given number.
      * 
      * E.g. for an input 100, this returns 128.
-     * Returns 1 for all numbers <= 1.
+     * Returns 1 for all numbers less than or equal to 1.
      * 
      * @param number The number to obtain the POT for.
      * @return The next power of two.
@@ -942,7 +942,8 @@ final public class FastMath {
      * Converts a single precision (32 bit) floating point value
      * into half precision (16 bit).
      *
-     * <p>Source: <a href="ftp://www.fox-toolkit.org/pub/fasthalffloatconversion.pdf</a>
+     * <p>Source: <a href="ftp://www.fox-toolkit.org/pub/fasthalffloatconversion.pdf">
+     * ftp://www.fox-toolkit.org/pub/fasthalffloatconversion.pdf</a>
      *
      * @param half The half floating point value as a short.
      * @return floating point value of the half.

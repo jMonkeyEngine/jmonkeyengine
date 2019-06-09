@@ -452,7 +452,7 @@ public class ByteUtils {
      * of bytes have been read.
      * 
      * @param store
-     *            the byte array to store in. Should have a length > bytes
+     *            the byte array to store in. Array length must be greater than bytes param.
      * @param bytes
      *            the number of bytes to read.
      * @param is
