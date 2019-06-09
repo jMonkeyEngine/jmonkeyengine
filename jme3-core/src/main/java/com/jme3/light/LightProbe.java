@@ -120,7 +120,7 @@ public class LightProbe extends Light implements Savable {
      // 1 | ay by cy | py | probe position
      // 2 | az bz cz | pz | )
      // --|----------|
-     // 3 | sx sy sz   sp | -> 1/probe radius + nbMipMaps
+     // 3 | sx sy sz   sp |    1/probe radius + nbMipMaps
      //    --scale--
      * <p>
      * (ax, ay, az) is the pitch rotation axis
