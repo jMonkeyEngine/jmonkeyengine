@@ -1242,6 +1242,7 @@ public class RenderState implements Cloneable, Savable {
      * material parameter.
      * @return false
      */
+    @Deprecated
     public boolean isAlphaTest() {
         return false;
     }

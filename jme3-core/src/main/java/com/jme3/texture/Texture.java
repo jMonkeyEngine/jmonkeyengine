@@ -248,6 +248,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          * 
          * @deprecated Not supported by OpenGL 3
          */
+        @Deprecated
         MirrorEdgeClamp;
     }
 
