@@ -10,12 +10,12 @@ import java.util.List;
  */
 public class OSVR_RenderParams extends Structure {
 	/**
-	 * < Room space to insert<br>
+	 * Room space to insert<br>
 	 * C type : OSVR_PoseState*
 	 */
 	public Pointer worldFromRoomAppend;
 	/**
-	 * < Overrides head space<br>
+	 * Overrides head space<br>
 	 * C type : OSVR_PoseState*
 	 */
 	public Pointer roomFromHeadReplace;
@@ -28,9 +28,9 @@ public class OSVR_RenderParams extends Structure {
 		return Arrays.asList("worldFromRoomAppend", "roomFromHeadReplace", "nearClipDistanceMeters", "farClipDistanceMeters");
 	}
 	/**
-	 * @param worldFromRoomAppend < Room space to insert<br>
+	 * @param worldFromRoomAppend Room space to insert<br>
 	 * C type : OSVR_PoseState*<br>
-	 * @param roomFromHeadReplace < Overrides head space<br>
+	 * @param roomFromHeadReplace Overrides head space<br>
 	 * C type : OSVR_PoseState*
 	 */
 	public OSVR_RenderParams(Pointer worldFromRoomAppend, Pointer roomFromHeadReplace, double nearClipDistanceMeters, double farClipDistanceMeters) {

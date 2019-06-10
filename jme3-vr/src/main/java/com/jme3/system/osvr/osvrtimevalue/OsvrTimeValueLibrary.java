@@ -73,7 +73,7 @@ public class OsvrTimeValueLibrary implements Library {
 	/**
 	 * Compares two time values (assumed to be normalized), returning
 	 * the same values as strcmp<br>
-	 * @return <0 if A is earlier than B, 0 if they are the same, and >0 if A<br>
+	 * @return &lt;0 if A is earlier than B, 0 if they are the same, and &gt;0 if A<br>
 	 * is later than B.<br>
 	 * Original signature : <code>int osvrTimeValueCmp(const OSVR_TimeValue*, const OSVR_TimeValue*)</code>
 	 */
@@ -95,17 +95,17 @@ public class OsvrTimeValueLibrary implements Library {
 	public static native byte osvrTimeValueGreater(OSVR_TimeValue tvA, OSVR_TimeValue tvB);
 	/**
 	 * Returns true if the time value is normalized. Typically used in assertions.<br>
-	 * Original signature : <code>bool osvrTimeValueIsNormalized(const OSVR_TimeValue&)</code>
+	 * Original signature : <code>bool osvrTimeValueIsNormalized(const OSVR_TimeValue&amp;)</code>
 	 */
 	public static native byte osvrTimeValueIsNormalized(OSVR_TimeValue tv);
 	/**
-	 * Operator > overload for time values<br>
-	 * Original signature : <code>bool operator>(const OSVR_TimeValue&, const OSVR_TimeValue&)</code>
+	 * Operator &gt; overload for time values<br>
+	 * Original signature : <code>bool operator&gt;(const OSVR_TimeValue&amp;, const OSVR_TimeValue&amp;)</code>
 	 */
 	public static native byte operatorGreater(OSVR_TimeValue tvA, OSVR_TimeValue tvB);
 	/**
 	 * Operator == overload for time values<br>
-	 * Original signature : <code>bool operator==(const OSVR_TimeValue&, const OSVR_TimeValue&)</code>
+	 * Original signature : <code>bool operator==(const OSVR_TimeValue&amp;, const OSVR_TimeValue&amp;)</code>
 	 */
 	public static native byte operatorIsEqual(OSVR_TimeValue tvA, OSVR_TimeValue tvB);
 	public static class timeval extends PointerType {
