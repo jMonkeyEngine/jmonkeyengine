@@ -25,7 +25,7 @@ public class VREvent_DualAnalog_t extends Structure {
 		return Arrays.asList("x", "y", "transformedX", "transformedY", "which");
 	}
 	/**
-	 * @param which @see EDualAnalogWhich<br>
+	 * @param which @see JOpenVRLibrary.EDualAnalogWhich <br>
 	 * C type : EDualAnalogWhich
 	 */
 	public VREvent_DualAnalog_t(float x, float y, float transformedX, float transformedY, int which) {
