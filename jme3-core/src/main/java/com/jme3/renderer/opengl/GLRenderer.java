@@ -1421,7 +1421,7 @@ public final class GLRenderer implements Renderer {
             int idx = stringBuf.lastIndexOf("#extension");
             idx = stringBuf.indexOf("\n", idx);
 
-            if(version>300) {
+            if(version>=300) {
                 stringBuf.insert(idx + 1, "precision mediump sampler2D;\n");
                 stringBuf.insert(idx + 1, "precision mediump sampler2DShadow;\n");
             }
