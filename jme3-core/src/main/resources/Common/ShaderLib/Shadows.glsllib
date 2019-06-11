@@ -102,10 +102,14 @@ float Shadow_DoShadowCompare(in SHADOWMAP tex,in vec4 projCoord){
 }
 
 float Shadow_BorderCheck(in vec2 coord){
-    // Fastest, "hack" method (uses 4-5 instructions)
-    vec4 t = vec4(coord.xy, 0.0, 1.0);
-    t = step(t.wwxy, t.xyzz);
-    return dot(t,t);
+    #ifdef GL_ES
+        return 0.0;
+    #else
+        // Fastest, "hack" method (uses 4-5 instructions)
+        vec4 t = vec4(coord.xy, 0.0, 1.0);
+        t = step(t.wwxy, t.xyzz);
+        return dot(t,t);
+    #endif
 }
 
 float Shadow_Nearest(in SHADOWMAP tex,in vec4 projCoord){
