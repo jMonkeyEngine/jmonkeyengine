@@ -140,8 +140,8 @@ MaterialDef Unshaded {
 
 
     Technique PostShadow {
-        VertexShader GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
-        FragmentShader GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadow.frag
+        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: Common/MatDefs/Shadow/PostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
