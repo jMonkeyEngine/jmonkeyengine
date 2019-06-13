@@ -1422,10 +1422,10 @@ public final class GLRenderer implements Renderer {
             idx = stringBuf.indexOf("\n", idx);
 
             if(version>=300) {
-                stringBuf.insert(idx + 1, "precision mediump sampler2D;\n");
-                stringBuf.insert(idx + 1, "precision mediump sampler2DShadow;\n");
+                stringBuf.insert(idx + 1, "precision highp sampler2D;\n");
+                stringBuf.insert(idx + 1, "precision highp sampler2DShadow;\n");
             }
-            stringBuf.insert(idx + 1, "precision mediump float;\n");
+            stringBuf.insert(idx + 1, "precision highp float;\n");
         }
 
         intBuf1.clear();
