@@ -33,4 +33,8 @@ out vec4 outFragColor;
 #    define varying in
 #    define gl_FragColor outFragColor
 #  endif
+#else
+#  define isnan(val) !(val<0.0||val>0.0||val==0.0)
 #endif
+
+
