@@ -387,7 +387,7 @@ public class Geometry extends Spatial {
         }
     }
 
-    
+
     /**
      * Indicate that the transform of this spatial has changed and that
      * a refresh is required.
@@ -553,8 +553,8 @@ public class Geometry extends Spatial {
 
         // If this is a grouped node and if our group node is
         // also cloned then we'll grab its reference.
-        if ( groupNode != null ) {
-            if ( cloner.isCloned(groupNode) ) {
+        if( groupNode != null ) {
+            if( cloner.isCloned(groupNode) ) {
                 // Then resolve the reference
                 this.groupNode = cloner.clone(groupNode);
             } else {
@@ -576,7 +576,7 @@ public class Geometry extends Spatial {
 
         // See if we clone the mesh using the special animation
         // semi-deep cloning
-        if ( shallowClone && mesh != null && mesh.getBuffer(Type.BindPosePosition) != null ) {
+        if( shallowClone && mesh != null && mesh.getBuffer(Type.BindPosePosition) != null ) {
             // Then we need to clone the mesh a little deeper
             this.mesh = mesh.cloneForAnim();
         } else {
@@ -587,8 +587,8 @@ public class Geometry extends Spatial {
         this.material = cloner.clone(material);
     }
 
-    public void setMorphState(float[] state){
-        if (mesh == null || mesh.getMorphTargets().length == 0) {
+    public void setMorphState(float[] state) {
+        if (mesh == null || mesh.getMorphTargets().length == 0){
             return;
         }
 
