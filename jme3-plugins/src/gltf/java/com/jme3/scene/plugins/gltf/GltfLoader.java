@@ -397,11 +397,23 @@ public class GltfLoader implements AssetLoader {
                 mesh.generateBindPose();
             }
 
+            //Read morph target names
+            LinkedList<String> targetNames = new LinkedList<>();
+            if (meshObject.has("extras") && meshObject.getAsJsonObject("extras").has("targetNames")) {
+                JsonArray targetNamesJson = meshObject.getAsJsonObject("extras").getAsJsonArray("targetNames");
+                for (JsonElement target : targetNamesJson) {
+                    targetNames.add(target.getAsString());
+                }
+            }
+            
             //Read morph targets
             JsonArray targets = meshObject.getAsJsonArray("targets");
             if(targets != null){
                 for (JsonElement target : targets) {
                     MorphTarget morphTarget = new MorphTarget();
+                    if (targetNames.size() > 0) {
+                        morphTarget.setName(targetNames.pop());
+                    }
                     for (Map.Entry<String, JsonElement> entry : target.getAsJsonObject().entrySet()) {
                         String bufferType = entry.getKey();
                         VertexBuffer.Type type = getVertexBufferType(bufferType);
@@ -413,10 +425,7 @@ public class GltfLoader implements AssetLoader {
                     mesh.addMorphTarget(morphTarget);
                 }
             }
-
-            //Read morph target names
-            JsonArray targetNames = meshObject.getAsJsonArray("targetNames");
-            
+        
             //Read mesh extras
             mesh = customContentManager.readExtensionAndExtras("primitive", meshObject, mesh);
 
