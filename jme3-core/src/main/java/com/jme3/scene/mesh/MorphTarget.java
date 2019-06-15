@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class MorphTarget implements Savable {
     private EnumMap<VertexBuffer.Type, FloatBuffer> buffers = new EnumMap<>(VertexBuffer.Type.class);
-    private String name;
+    private String name = null;
     
     public MorphTarget() {
         
@@ -48,6 +48,7 @@ public class MorphTarget implements Savable {
             Buffer roData = entry.getValue().asReadOnlyBuffer();
             oc.write((FloatBuffer) roData, entry.getKey().name(),null);
         }
+        oc.write(name, "morphName", null);
     }
 
     @Override
@@ -59,6 +60,6 @@ public class MorphTarget implements Savable {
                 setBuffer(type, b);
             }
         }
-
+        name = ic.readString("morphName", null);
     }
 }
