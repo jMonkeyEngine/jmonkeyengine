@@ -387,6 +387,7 @@ public class Geometry extends Spatial {
         }
     }
 
+    
     /**
      * Indicate that the transform of this spatial has changed and that
      * a refresh is required.
@@ -513,7 +514,7 @@ public class Geometry extends Spatial {
      */
     @Override
     public Geometry clone(boolean cloneMaterial) {
-        return (Geometry) super.clone(cloneMaterial);
+        return (Geometry)super.clone(cloneMaterial);
     }
 
     /**
@@ -544,16 +545,16 @@ public class Geometry extends Spatial {
     }
 
     /**
-     * Called internally by com.jme3.util.clone.Cloner. Do not call directly.
+     *  Called internally by com.jme3.util.clone.Cloner.  Do not call directly.
      */
     @Override
-    public void cloneFields(Cloner cloner, Object original) {
+    public void cloneFields( Cloner cloner, Object original ) {
         super.cloneFields(cloner, original);
 
         // If this is a grouped node and if our group node is
         // also cloned then we'll grab its reference.
-        if (groupNode != null) {
-            if (cloner.isCloned(groupNode)) {
+        if ( groupNode != null ) {
+            if ( cloner.isCloned(groupNode) ) {
                 // Then resolve the reference
                 this.groupNode = cloner.clone(groupNode);
             } else {
@@ -575,7 +576,7 @@ public class Geometry extends Spatial {
 
         // See if we clone the mesh using the special animation
         // semi-deep cloning
-        if (shallowClone && mesh != null && mesh.getBuffer(Type.BindPosePosition) != null) {
+        if ( shallowClone && mesh != null && mesh.getBuffer(Type.BindPosePosition) != null ) {
             // Then we need to clone the mesh a little deeper
             this.mesh = mesh.cloneForAnim();
         } else {
@@ -586,7 +587,7 @@ public class Geometry extends Spatial {
         this.material = cloner.clone(material);
     }
 
-    public void setMorphState(float[] state) {
+    public void setMorphState(float[] state){
         if (mesh == null || mesh.getMorphTargets().length == 0) {
             return;
         }
@@ -693,20 +694,11 @@ public class Geometry extends Spatial {
      * Morphs without names will be null
      * @return an array
      */
-    public String[] getMorphTargets() {
+    public String[] getMorphNames() {
         if (mesh == null || mesh.getMorphTargets().length == 0) {
             return new String[0];
         }
-        MorphTarget[] nbMorphTargets = mesh.getMorphTargets();
-        String[] targets = new String[nbMorphTargets.length];
-        if (morphState == null) {
-            morphState = new float[nbMorphTargets.length];
-        }
-        
-        for (int index = 0; index < nbMorphTargets.length; index++) {
-            targets[index] = nbMorphTargets[index].getName();
-        }
-        return targets;
+        return mesh.getMorphTargetNames();
     }
 
     /**

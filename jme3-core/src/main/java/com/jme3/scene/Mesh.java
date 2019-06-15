@@ -1529,6 +1529,25 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     public MorphTarget[] getMorphTargets() {
         return morphTargets.getArray();
     }
+    
+        /**
+     * Get the name of all morphs in order.
+     * Morphs without names will be null
+     * @return an array
+     */
+    public String[] getMorphTargetNames() {
+        
+        MorphTarget[] nbMorphTargets = getMorphTargets();
+        if (nbMorphTargets.length == 0) {
+            return new String[0];
+        }
+        String[] targets = new String[nbMorphTargets.length];
+
+        for (int index = 0; index < nbMorphTargets.length; index++) {
+            targets[index] = nbMorphTargets[index].getName();
+        }
+        return targets;
+    }
 
     public boolean hasMorphTargets() {
         return morphTargets != null && !morphTargets.isEmpty();
