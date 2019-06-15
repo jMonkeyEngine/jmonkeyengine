@@ -220,7 +220,7 @@ task unzipBulletIfNeeded {
 }
 
 unzipBulletIfNeeded.dependsOn {
-    if (buildNativeProjects == "true" && !file(bulletFolder).isDirectory()) {
+    if (buildNativeProjects == "true") {
         unzipBullet
     }
 }

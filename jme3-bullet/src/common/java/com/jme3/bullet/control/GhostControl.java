@@ -207,6 +207,13 @@ public class GhostControl extends PhysicsGhostObject implements PhysicsControl, 
     }
 
     /**
+     * @return returns the spatial the control is added to, or null if the control is not attached to a spatial yet.
+     */
+    public Spatial getSpatial(){
+        return this.spatial;
+    }
+
+    /**
      * Enable or disable this control.
      * <p>
      * When the control is disabled, the ghost object is removed from physics

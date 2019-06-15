@@ -61,18 +61,21 @@ public class TestModelExportingCloning extends SimpleApplication {
         Spatial originalModel = assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         composer = originalModel.getControl(AnimComposer.class);
         composer.setCurrentAction("Walk");
+        composer.setGlobalSpeed(1.5f);
         rootNode.attachChild(originalModel);
         
         Spatial clonedModel = originalModel.clone();
         clonedModel.move(10, 0, 0);
         composer = clonedModel.getControl(AnimComposer.class);
         composer.setCurrentAction("push");
+        System.out.println("clonedModel: globalSpeed=" + composer.getGlobalSpeed());
         rootNode.attachChild(clonedModel);
         
         Spatial exportedModel = BinaryExporter.saveAndLoad(assetManager, originalModel);
         exportedModel.move(20, 0, 0);
         composer = exportedModel.getControl(AnimComposer.class);
         composer.setCurrentAction("pull");
+        System.out.println("exportedModel: globalSpeed=" + composer.getGlobalSpeed());
         rootNode.attachChild(exportedModel);
     }
 }

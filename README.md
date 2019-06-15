@@ -15,12 +15,13 @@ The engine is used by several commercial game studios and computer-science cours
  - [Copod](http://herebeben.com/copod)
  - [Attack of the Gelatinous Blob](http://attackofthegelatinousblob.com/)
  - [Chaos](http://4realms.net/)
- - [Mythruna](https://mythruna.com/)
+ - [Mythruna](http://mythruna.com/)
  - [PirateHell](http://www.desura.com/games/piratehell)
  - [3089 (on steam)](http://store.steampowered.com/app/263360/)
  - [3079 (on steam)](http://store.steampowered.com/app/259620/)
  - [Lightspeed Frontier](http://www.lightspeedfrontier.com/)
  - [Skullstone](http://www.skullstonegame.com/)
+ - [Spoxel](https://store.steampowered.com/app/746880/Spoxel/)
 
 ## Getting started
 

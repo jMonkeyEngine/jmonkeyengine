@@ -788,7 +788,7 @@ public class PhysicsSpace {
 
     /**
      * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br/>
-     * You have to use different Transforms for start and end (at least distance > 0.4f).
+     * You have to use different Transforms for start and end (at least distance greater than 0.4f).
      * SweepTest will not see a collision if it starts INSIDE an object and is moving AWAY from its center.
      */
     public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end) {
@@ -804,7 +804,7 @@ public class PhysicsSpace {
 
     /**
      * Performs a sweep collision test and returns the results as a list of PhysicsSweepTestResults<br/>
-     * You have to use different Transforms for start and end (at least distance > 0.4f).
+     * You have to use different Transforms for start and end (at least distance greater than 0.4f).
      * SweepTest will not see a collision if it starts INSIDE an object and is moving AWAY from its center.
      */
     public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results) {
@@ -917,7 +917,7 @@ public class PhysicsSpace {
      * 
      * The default is 10. Use 4 for low quality, 20 for high quality.
      * 
-     * @param numIterations The number of iterations used by the contact & constraint solver.
+     * @param numIterations The number of iterations used by the contact and constraint solver.
      */
     public void setSolverNumIterations(int numIterations) {
         dynamicsWorld.getSolverInfo().numIterations = numIterations;

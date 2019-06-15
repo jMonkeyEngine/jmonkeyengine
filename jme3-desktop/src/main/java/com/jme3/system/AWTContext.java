@@ -126,7 +126,7 @@ public class AWTContext implements JmeContext {
    */
   protected AppSettings createSettings() {
       final AppSettings settings = new AppSettings(true);
-      settings.setRenderer(AppSettings.LWJGL_OPENGL3);
+      settings.setRenderer(AppSettings.LWJGL_OPENGL32);
       return settings;
   }
 
@@ -145,7 +145,7 @@ public class AWTContext implements JmeContext {
   @Override
   public void setSettings(AppSettings settings) {
       this.settings.copyFrom(settings);
-      this.settings.setRenderer(AppSettings.LWJGL_OPENGL3);
+      this.settings.setRenderer(AppSettings.LWJGL_OPENGL32);
       this.backgroundContext.setSettings(settings);
   }
 

@@ -44,14 +44,14 @@ import java.util.ArrayList;
  * Describes a cubemap texture.
  * The image specified by setImage must contain 6 data units,
  * each data contains a 2D image representing a cube's face.
- * The slices are specified in this order:<br/>
- * <br/>
- * 0 => Positive X (+x)<br/>
- * 1 => Negative X (-x)<br/>
- * 2 => Positive Y (+y)<br/>
- * 3 => Negative Y (-y)<br/>
- * 4 => Positive Z (+z)<br/>
- * 5 => Negative Z (-z)<br/>
+ * The slices are specified in this order:<br>
+ * <br>
+ * 0 -- Positive X (+x)<br>
+ * 1 -- Negative X (-x)<br>
+ * 2 -- Positive Y (+y)<br>
+ * 3 -- Negative Y (-y)<br>
+ * 4 -- Positive Z (+z)<br>
+ * 5 -- Negative Z (-z)<br>
  *
  * @author Joshua Slack
  */

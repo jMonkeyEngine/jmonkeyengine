@@ -722,7 +722,7 @@ public class AudioNode extends Node implements AudioSource {
     @Override
     public void updateGeometricState() {
         super.updateGeometricState();
-        if (channel < 0 || this.getParent() == null) return;
+        if (channel < 0) return;
         Vector3f currentWorldTranslation = worldTransform.getTranslation();
         if (!previousWorldTranslation.equals(currentWorldTranslation)) {
             getRenderer().updateSourceParam(this, AudioParam.Position);

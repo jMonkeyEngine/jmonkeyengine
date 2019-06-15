@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -279,12 +279,17 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
     /**
      * Enable/disable this body's contact response.
      *
-     * @param newState true to respond to contacts (default=true)
+     * @param responsive true to respond to contacts, false to ignore them
+     * (default=true)
      */
-    public void setContactResponse(boolean newState) {
-        if (!newState) {
-            throw new UnsupportedOperationException("Not implemented.");
+    public void setContactResponse(boolean responsive) {
+        int flags = rBody.getCollisionFlags();
+        if (responsive) {
+            flags &= ~CollisionFlags.NO_CONTACT_RESPONSE;
+        } else {
+            flags |= CollisionFlags.NO_CONTACT_RESPONSE;
         }
+        rBody.setCollisionFlags(flags);
     }
 
     /**
@@ -293,7 +298,9 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      * @return true if responsive, otherwise false
      */
     public boolean isContactResponse() {
-        return true;
+        int flags = rBody.getCollisionFlags();
+        boolean result = (flags & CollisionFlags.NO_CONTACT_RESPONSE) == 0x0;
+        return result;
     }
 
     public void setCcdSweptSphereRadius(float radius) {

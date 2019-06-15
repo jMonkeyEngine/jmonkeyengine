@@ -52,6 +52,11 @@ public interface AppProfiler {
     public void appStep(AppStep step);
     
     /**
+     * Called as a substep of the previous AppStep
+     */
+    public void appSubStep(String... additionalInfo);
+    
+    /**
      *  Called at the beginning of the specified VpStep during
      *  the rendering of the specified ViewPort.  For bucket-specific
      *  steps the Bucket parameter will be non-null.

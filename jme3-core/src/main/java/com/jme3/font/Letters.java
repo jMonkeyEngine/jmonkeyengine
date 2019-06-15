@@ -35,6 +35,7 @@ import com.jme3.font.BitmapFont.Align;
 import com.jme3.font.BitmapFont.VAlign;
 import com.jme3.font.ColorTags.Range;
 import com.jme3.math.ColorRGBA;
+
 import java.util.LinkedList;
 
 /**
@@ -179,8 +180,8 @@ class Letters {
             l = l.getNext();
         }
 
-        align();
         block.setLineCount(lineCount);
+        align();
         rewind();
     }
 
@@ -203,10 +204,10 @@ class Letters {
                 gapY = 0;
                 break;
             case Center:
-                gapY = (height-totalHeight)*0.5f;
+                gapY = (height - totalHeight) * 0.5f;
                 break;
             case Bottom:
-                gapY = height-totalHeight;
+                gapY = height - totalHeight;
                 break;
             }
         }
@@ -323,9 +324,9 @@ class Letters {
             while (!l.isTail()) {
                 totalWidth = Math.max(totalWidth, l.getX1());
                 l = l.getNext();
-                totalHeight = Math.max(totalHeight, -l.getY1());
             }
         }
+        totalHeight = font.getLineHeight(block) * block.getLineCount();
     }
 
     /**

@@ -47,7 +47,7 @@ public class SortUtil {
     private static final int INSERTION_SORT_THRESHOLD = 7;
     
     
-    /**
+    /*
  procedure optimizedGnomeSort(a[])
     pos := 1
     last := 0

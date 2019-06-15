@@ -8,6 +8,11 @@
     #import "Common/ShaderLib/BlinnPhongLighting.glsllib"
 #endif
 
+// fog - jayfella
+#ifdef USE_FOG
+varying float fog_distance;
+uniform vec3 g_CameraPosition;
+#endif
 
 uniform vec4 m_Ambient;
 uniform vec4 m_Diffuse;
@@ -187,5 +192,9 @@ void main(){
 
     #ifdef USE_REFLECTION
         computeRef(modelSpacePos);
-    #endif 
+    #endif
+
+    #ifdef USE_FOG
+    fog_distance = distance(g_CameraPosition, (g_WorldMatrix * modelSpacePos).xyz);
+    #endif
 }

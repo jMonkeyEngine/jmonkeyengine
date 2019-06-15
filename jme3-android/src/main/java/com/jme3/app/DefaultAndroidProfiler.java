@@ -63,7 +63,7 @@ import com.jme3.renderer.queue.RenderQueue;
  *
  *  <p>This profiler uses the Android Trace class which is only supported
  *  on Android SDK rev 18 and higher (ver 4.3 and higher).  If the
- *  device is running a version < rev 18, the logging will
+ *  device is running a version less than rev 18, the logging will
  *  be skipped.</p>
  *
  *  <p>In the MainActivity class, add the following:</p>
@@ -133,6 +133,11 @@ public class DefaultAndroidProfiler implements AppProfiler {
                     break;
             }
         }
+    }
+
+    @Override
+    public void appSubStep(String... additionalInfo) {
+
     }
 
     public void vpStep(VpStep vpStep, ViewPort vp, RenderQueue.Bucket bucket) {

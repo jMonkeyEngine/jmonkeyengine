@@ -188,6 +188,10 @@ public class BasicProfiler implements AppProfiler {
     }
     
     @Override
+    public void appSubStep(String... additionalInfo) {
+    }
+    
+    @Override
     public void vpStep( VpStep step, ViewPort vp, Bucket bucket ) {
     }
 

@@ -54,6 +54,10 @@ public interface GL3 extends GL2 {
     public static final int GL_TEXTURE_SWIZZLE_B = 0x8E44;
     public static final int GL_TEXTURE_SWIZZLE_G = 0x8E43;
     public static final int GL_TEXTURE_SWIZZLE_R = 0x8E42;
+    public static final int GL_COMPRESSED_RED_RGTC1 = 0x8DBB;
+    public static final int GL_COMPRESSED_SIGNED_RED_RGTC1 = 0x8DBC;
+    public static final int GL_COMPRESSED_RG_RGTC2 = 0x8DBD;
+    public static final int GL_COMPRESSED_SIGNED_RG_RGTC2 = 0x8DBE;
     public static final int GL_R8I = 33329;
     public static final int GL_R8UI = 33330;
     public static final int GL_R16I = 33331;

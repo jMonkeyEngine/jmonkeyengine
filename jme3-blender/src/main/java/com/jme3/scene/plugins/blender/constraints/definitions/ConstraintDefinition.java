@@ -151,7 +151,7 @@ public abstract class ConstraintDefinition {
      * @param targetTransform
      *            the target transform used by some of the constraints
      * @param influence
-     *            the influence of the constraint (from range <0; 1>)
+     *            the influence of the constraint from range [0; 1]
      */
     public abstract void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence);
 
