@@ -399,8 +399,8 @@ public class GltfLoader implements AssetLoader {
 
             //Read morph target names
             LinkedList<String> targetNames = new LinkedList<>();
-            if (meshObject.has("extras") && meshObject.getAsJsonObject("extras").has("targetNames")) {
-                JsonArray targetNamesJson = meshObject.getAsJsonObject("extras").getAsJsonArray("targetNames");
+            if (meshData.has("extras") && meshData.getAsJsonObject("extras").has("targetNames")) {
+                JsonArray targetNamesJson = meshData.getAsJsonObject("extras").getAsJsonArray("targetNames");
                 for (JsonElement target : targetNamesJson) {
                     targetNames.add(target.getAsString());
                 }
