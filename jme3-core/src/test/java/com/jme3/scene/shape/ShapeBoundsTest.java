@@ -41,8 +41,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Tests that all shapes have had a world bound calculated. Test added for issue #1121. This is a clear
- * failure: BoundingBox [Center: (0.0, 0.0, 0.0) xExtent: 0.0 yExtent: 0.0 zExtent: 0.0]
+ * Tests that all shapes have had a world bound calculated, and that vertices are within those bounds. Test
+ * added for issue #1121. This is a clear failure: BoundingBox [Center: (0.0, 0.0, 0.0) xExtent: 0.0 yExtent:
+ * 0.0 zExtent: 0.0]
  *
  * @author lou
  */
