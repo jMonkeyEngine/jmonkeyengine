@@ -9,13 +9,13 @@ import java.util.List;
  * For help, please visit <a href="http://nativelibs4java.googlecode.com/">NativeLibs4Java</a> , <a href="http://rococoa.dev.java.net/">Rococoa</a>, or <a href="http://jna.dev.java.net/">JNA</a>.
  */
 public class OSVR_ViewportDescription extends Structure {
-	/** < Left side of the viewport in pixels */
+	/** Left side of the viewport in pixels */
 	public double left;
-	/** < First pixel in the viewport at the bottom. */
+	/** First pixel in the viewport at the bottom. */
 	public double lower;
-	/** < Last pixel in the viewport at the top */
+	/** Last pixel in the viewport at the top */
 	public double width;
-	/** < Last pixel on the right of the viewport in pixels */
+	/** Last pixel on the right of the viewport in pixels */
 	public double height;
 	public OSVR_ViewportDescription() {
 		super();
@@ -24,10 +24,10 @@ public class OSVR_ViewportDescription extends Structure {
 		return Arrays.asList("left", "lower", "width", "height");
 	}
 	/**
-	 * @param left < Left side of the viewport in pixels<br>
-	 * @param lower < First pixel in the viewport at the bottom.<br>
-	 * @param width < Last pixel in the viewport at the top<br>
-	 * @param height < Last pixel on the right of the viewport in pixels
+	 * @param left Left side of the viewport in pixels<br>
+	 * @param lower First pixel in the viewport at the bottom.<br>
+	 * @param width Last pixel in the viewport at the top<br>
+	 * @param height Last pixel on the right of the viewport in pixels
 	 */
 	public OSVR_ViewportDescription(double left, double lower, double width, double height) {
 		super();

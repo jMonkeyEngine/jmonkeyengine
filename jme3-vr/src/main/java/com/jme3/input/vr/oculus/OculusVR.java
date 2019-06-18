@@ -33,7 +33,7 @@ import static org.lwjgl.system.MemoryUtil.*;
  * <li>Vectors should have their X and Z axes flipped, but apparently not Y.</li>
  * </ul>
  *
- * @author Campbell Suter <znix@znix.xyz>
+ * @author Campbell Suter (znix@znix.xyz)
  */
 public class OculusVR implements VRAPI {
 

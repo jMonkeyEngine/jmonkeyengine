@@ -57,6 +57,7 @@ public interface Joystick {
      * @see Joystick#getButtonCount()
      * @deprecated Use JoystickButton.assignButton() instead.
      */
+    @Deprecated
     public void assignButton(String mappingName, int buttonId);
 
     /**
@@ -69,6 +70,7 @@ public interface Joystick {
      * @see Joystick#getAxisCount()
      * @deprecated Use JoystickAxis.assignAxis() instead.
      */
+    @Deprecated
     public void assignAxis(String positiveMapping, String negativeMapping, int axisId); 
 
     /**

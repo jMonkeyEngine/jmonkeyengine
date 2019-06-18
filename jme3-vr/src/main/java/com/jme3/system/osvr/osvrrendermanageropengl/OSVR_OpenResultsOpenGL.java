@@ -24,7 +24,7 @@ public class OSVR_OpenResultsOpenGL extends Structure {
 		return Arrays.asList("status", "library", "buffers");
 	}
 	/**
-	 * @param status @see OSVR_OpenStatus<br>
+	 * @param status @see OsvrRenderManagerOpenGLLibrary.OSVR_OpenStatus <br>
 	 * C type : OSVR_OpenStatus<br>
 	 * @param library C type : OSVR_GraphicsLibraryOpenGL<br>
 	 * @param buffers C type : OSVR_RenderBufferOpenGL
