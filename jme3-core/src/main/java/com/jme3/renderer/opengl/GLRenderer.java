@@ -2399,7 +2399,7 @@ public final class GLRenderer implements Renderer {
                     // For OpenGL3 and up.
                     // We'll generate mipmaps via glGenerateMipmapEXT (see below)
                 }
-            } else if (caps.contains(Caps.OpenGL20)) {
+            } else if (caps.contains(Caps.OpenGL20) || caps.contains(Caps.OpenGLES30)) {
                 if (img.hasMipmaps()) {
                     // Image already has mipmaps, set the max level based on the 
                     // number of mipmaps we have.
