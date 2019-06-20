@@ -36,6 +36,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
@@ -153,6 +154,23 @@ public class GImpactCollisionShape extends CollisionShape {
         vertexBase = ByteBuffer.wrap(capsule.readByteArray("vertexBase", new byte[0]));
         createShape();
     }
+    
+    /**
+     * Alter the scaling factors of this shape.
+     * <p>
+     * Note that if the shape is shared (between collision objects and/or
+     * compound shapes) changes can have unintended consequences.
+     *
+     * @param scale the desired scaling factor for each local axis (not null, no
+     * negative component, unaffected, default=(1,1,1))
+     */
+    @Override
+    public void setScale(Vector3f scale) {
+        super.setScale(scale);
+        recalcAabb(objectId);
+    }
+
+    native private void recalcAabb(long shapeId);
 
     /**
      * Instantiate the configured shape in Bullet.
