@@ -69,12 +69,11 @@ public class TestGimpactShape extends SimpleApplication {
     private BulletAppState bulletAppState;
     private int solverNumIterations = 10;
     private BitmapFont font;
-    private BitmapText testInfo;
+    private final BitmapText[] testInfo = new BitmapText[2];
     private BitmapText timeElapsedTxt;
     private BitmapText solverNumIterationsTxt;
     private BitmapText testScale;
     private final List<Spatial> testObjects = new ArrayList<>();
-    private final float TIME_PER_TEST = 20;
     private float testTimer = 0;
     private float scaleMod = 1;
     private boolean restart = true;
@@ -99,15 +98,20 @@ public class TestGimpactShape extends SimpleApplication {
 
         guiNode = getGuiNode();
         font = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        testInfo = new BitmapText(font);
+        testInfo[0] = new BitmapText(font);
+        testInfo[1] = new BitmapText(font);
         timeElapsedTxt = new BitmapText(font);
         solverNumIterationsTxt = new BitmapText(font);
         testScale = new BitmapText(font);
 
-        float lineHeight = testInfo.getLineHeight();
-        testInfo.setText("Camera move keys:W/A/S/D/Q/Z      Solver iterations: 1=10, 2=20, 3=30      Inc/Dec object scale: +-");
-        testInfo.setLocalTranslation(10, test.settings.getHeight(), 0);
-        guiNode.attachChild(testInfo);
+        float lineHeight = testInfo[0].getLineHeight();
+        testInfo[0].setText("Camera move:W/A/S/D/Q/Z   Solver iterations: 1=10, 2=20, 3=30");
+        testInfo[0].setLocalTranslation(5, test.settings.getHeight(), 0);
+        guiNode.attachChild(testInfo[0]);
+        testInfo[1].setText("P: Toggle pause   Increase/Decrease object scale: +, -");
+        testInfo[1].setLocalTranslation(5, test.settings.getHeight() - lineHeight, 0);
+        guiNode.attachChild(testInfo[1]);
+
         timeElapsedTxt.setLocalTranslation(202, lineHeight * 1, 0);
         guiNode.attachChild(timeElapsedTxt);
         solverNumIterationsTxt.setLocalTranslation(202, lineHeight * 2, 0);
@@ -115,15 +119,24 @@ public class TestGimpactShape extends SimpleApplication {
         testScale.setLocalTranslation(202, lineHeight * 3, 0);
         guiNode.attachChild(testScale);
 
-        inputManager.addMapping("next", new KeyTrigger(KeyInput.KEY_SPACE));
+        inputManager.addMapping("restart", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addListener((ActionListener) (String name, boolean isPressed, float tpf) -> {
             restart = true;
-        }, "next");
+        }, "restart");
+        
+        inputManager.addMapping("pause", new KeyTrigger(KeyInput.KEY_P));
+        inputManager.addListener((ActionListener) (String name, boolean isPressed, float tpf) -> {
+            if (!isPressed) {
+                return;
+            }
+            bulletAppState.setSpeed(bulletAppState.getSpeed() > 0.1 ? 0 : 1);
+        }, "pause");
+        
         inputManager.addMapping("1", new KeyTrigger(KeyInput.KEY_1));
         inputManager.addMapping("2", new KeyTrigger(KeyInput.KEY_2));
         inputManager.addMapping("3", new KeyTrigger(KeyInput.KEY_3));
-        inputManager.addMapping("+", new KeyTrigger(KeyInput.KEY_ADD));
-        inputManager.addMapping("-", new KeyTrigger(KeyInput.KEY_SUBTRACT));
+        inputManager.addMapping("+", new KeyTrigger(KeyInput.KEY_ADD), new KeyTrigger(KeyInput.KEY_EQUALS));
+        inputManager.addMapping("-", new KeyTrigger(KeyInput.KEY_SUBTRACT), new KeyTrigger(KeyInput.KEY_MINUS));
         inputManager.addListener((ActionListener) (String name, boolean isPressed, float tpf) -> {
             switch (name) {
                 case "1":
@@ -274,13 +287,6 @@ public class TestGimpactShape extends SimpleApplication {
     @Override
     public void simpleUpdate(float tpf) {
         testTimer += tpf;
-
-        if (testTimer / TIME_PER_TEST > 1) {
-            restart = true;
-
-            solverNumIterations += 10;
-            solverNumIterations = solverNumIterations > 30 ? 10 : solverNumIterations;
-        }
 
         if (restart) {
             cleanup();
