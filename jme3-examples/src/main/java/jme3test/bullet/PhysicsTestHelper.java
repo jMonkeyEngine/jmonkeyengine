@@ -251,6 +251,16 @@ public class PhysicsTestHelper {
         app.getInputManager().addListener(actionListener, "shoot");
     }
 
+    /**
+     * Creates a curved "floor" with a GImpactCollisionShape provided as the RigidBodyControl's collision
+     * shape. Surface has four slightly concave corners to allow for multiple tests and minimize falling off
+     * the edge of the floor.
+     *
+     * @param assetManager for loading assets
+     * @param floorDimensions width/depth of the "floor" (X/Z)
+     * @param position sets the floor's local translation
+     * @return
+     */
     public static Geometry createGImpactTestFloor(AssetManager assetManager, float floorDimensions, Vector3f position) {
         Geometry floor = createTestFloor(assetManager, floorDimensions, position);
         RigidBodyControl floorControl = new RigidBodyControl(new GImpactCollisionShape(floor.getMesh()), 0);
@@ -258,6 +268,16 @@ public class PhysicsTestHelper {
         return floor;
     }
 
+    /**
+     * Creates a curved "floor" with a MeshCollisionShape provided as the RigidBodyControl's collision shape.
+     * Surface has four slightly concave corners to allow for multiple tests and minimize falling off the edge
+     * of the floor.
+     *
+     * @param assetManager for loading assets
+     * @param floorDimensions width/depth of the "floor" (X/Z)
+     * @param position sets the floor's local translation
+     * @return
+     */
     public static Geometry createMeshTestFloor(AssetManager assetManager, float floorDimensions, Vector3f position) {
         Geometry floor = createTestFloor(assetManager, floorDimensions, position);
         RigidBodyControl floorControl = new RigidBodyControl(new MeshCollisionShape(floor.getMesh()), 0);

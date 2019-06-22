@@ -59,7 +59,31 @@ import java.util.List;
 import jme3test.bullet.PhysicsTestHelper;
 
 /**
- *
+ * This test demonstrates various GImpactCollisionShapes colliding against two identical curved surfaces. The
+ * left surface is a MeshCollisionShape, right surface is another GImpactCollisionShape. An ideal result is
+ * for all objects to land and change to a blue colored mesh indicating they are inactive. Falling through the
+ * floor, or never going inactive (bouncing forever) are failure conditions.
+ * <p>
+ * Observations as of June 2019 (JME v3.3.0-alpha2):
+ * <ol>
+ * <li>
+ * With default starting parameters, Native Bullet should pass the test parameters above. JBullet fails due to
+ * the rocket/MeshCollisionShape never going inactive.
+ * </li>
+ * <li>
+ * Native Bullet behaves better than JBullet. JBullet sometimes allows objects to "gain too much energy" after
+ * a collision, such as the rocket or teapot. Native also does this, to a lesser degree. This generally
+ * appears to happen at larger object scales.
+ * </li>
+ * <li>
+ * JBullet allows some objects to get "stuck" inside the floor, which usually results in a fall-through
+ * eventually, generally a larger scales for this test.
+ * </li>
+ * <li>
+ * Some shapes such as PQTorus & signpost never go inactive at larger scales for both Native and JBullet (test
+ * at 1.5 and 1.9 scale)
+ * </li>
+ * </ol>
  *
  * @author lou
  */
@@ -77,11 +101,17 @@ public class TestGimpactShape extends SimpleApplication {
     private float testTimer = 0;
     private float scaleMod = 1;
     private boolean restart = true;
+    private static final boolean SKIP_SETTINGS = false;//Used for repeated runs of this test during dev
 
     public static void main(String[] args) {
         test = new TestGimpactShape();
         test.setSettings(new AppSettings(true));
         test.settings.setFrameRate(60);
+        if (SKIP_SETTINGS) {
+            test.settings.setWidth(1920);
+            test.settings.setHeight(1150);
+            test.showSettings = !SKIP_SETTINGS;
+        }
         test.start();
     }
 
@@ -96,6 +126,7 @@ public class TestGimpactShape extends SimpleApplication {
         dl.setColor(ColorRGBA.Green);
         rootNode.addLight(dl);
 
+        //Setup test instructions
         guiNode = getGuiNode();
         font = assetManager.loadFont("Interface/Fonts/Default.fnt");
         testInfo[0] = new BitmapText(font);
@@ -105,10 +136,10 @@ public class TestGimpactShape extends SimpleApplication {
         testScale = new BitmapText(font);
 
         float lineHeight = testInfo[0].getLineHeight();
-        testInfo[0].setText("Camera move:W/A/S/D/Q/Z   Solver iterations: 1=10, 2=20, 3=30");
+        testInfo[0].setText("Camera move:W/A/S/D/Q/Z     Solver iterations: 1=10, 2=20, 3=30");
         testInfo[0].setLocalTranslation(5, test.settings.getHeight(), 0);
         guiNode.attachChild(testInfo[0]);
-        testInfo[1].setText("P: Toggle pause   Increase/Decrease object scale: +, -");
+        testInfo[1].setText("P: Toggle pause     Inc/Dec object scale: +, -     Space: Restart test");
         testInfo[1].setLocalTranslation(5, test.settings.getHeight() - lineHeight, 0);
         guiNode.attachChild(testInfo[1]);
 
@@ -119,11 +150,12 @@ public class TestGimpactShape extends SimpleApplication {
         testScale.setLocalTranslation(202, lineHeight * 3, 0);
         guiNode.attachChild(testScale);
 
+        //Setup interactive test controls
         inputManager.addMapping("restart", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addListener((ActionListener) (String name, boolean isPressed, float tpf) -> {
             restart = true;
         }, "restart");
-        
+
         inputManager.addMapping("pause", new KeyTrigger(KeyInput.KEY_P));
         inputManager.addListener((ActionListener) (String name, boolean isPressed, float tpf) -> {
             if (!isPressed) {
@@ -131,13 +163,16 @@ public class TestGimpactShape extends SimpleApplication {
             }
             bulletAppState.setSpeed(bulletAppState.getSpeed() > 0.1 ? 0 : 1);
         }, "pause");
-        
+
         inputManager.addMapping("1", new KeyTrigger(KeyInput.KEY_1));
         inputManager.addMapping("2", new KeyTrigger(KeyInput.KEY_2));
         inputManager.addMapping("3", new KeyTrigger(KeyInput.KEY_3));
         inputManager.addMapping("+", new KeyTrigger(KeyInput.KEY_ADD), new KeyTrigger(KeyInput.KEY_EQUALS));
         inputManager.addMapping("-", new KeyTrigger(KeyInput.KEY_SUBTRACT), new KeyTrigger(KeyInput.KEY_MINUS));
         inputManager.addListener((ActionListener) (String name, boolean isPressed, float tpf) -> {
+            if (!isPressed) {
+                return;
+            }
             switch (name) {
                 case "1":
                     solverNumIterations = 10;
@@ -155,14 +190,14 @@ public class TestGimpactShape extends SimpleApplication {
                     scaleMod -= scaleMod > 0.5f ? 0.1f : 0;
                     break;
             }
-            testScale.setText("Object scale: " + scaleMod);
             restart = true;
         }, "1", "2", "3", "+", "-");
 
-        init();
+        initializeNewTest();
     }
 
-    private void init() {
+    private void initializeNewTest() {
+        testScale.setText("Object scale: " + scaleMod);
         solverNumIterationsTxt.setText("Solver Iterations: " + solverNumIterations);
 
         bulletAppState = new BulletAppState();
@@ -290,7 +325,7 @@ public class TestGimpactShape extends SimpleApplication {
 
         if (restart) {
             cleanup();
-            init();
+            initializeNewTest();
             restart = false;
             testTimer = 0;
         }
