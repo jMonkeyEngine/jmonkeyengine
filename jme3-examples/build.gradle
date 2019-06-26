@@ -22,9 +22,12 @@ dependencies {
     compile project(':jme3-core')
     compile project(':jme3-desktop')
     compile project(':jme3-effects')
-//    compile project(':jme3-bullet')
-//    compile project(':jme3-bullet-native')
-    compile project(':jme3-jbullet')
+
+    // EITHER use jme3-bullet + jme3-bullet-native OR ELSE jme3-jbullet
+    compile project(':jme3-bullet')
+    compile project(':jme3-bullet-native')
+//    compile project(':jme3-jbullet')
+
     compile project(':jme3-jogg')
     compile project(':jme3-jogl')
     compile project(':jme3-lwjgl')
