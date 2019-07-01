@@ -9,6 +9,13 @@ buildscript {
     }
 }
 
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
 apply plugin: 'base'
 apply from: file('version.gradle')
 
