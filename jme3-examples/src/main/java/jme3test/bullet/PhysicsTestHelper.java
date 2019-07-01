@@ -262,7 +262,7 @@ public class PhysicsTestHelper {
      * @return
      */
     public static Geometry createGImpactTestFloor(AssetManager assetManager, float floorDimensions, Vector3f position) {
-        Geometry floor = createTestFloor(assetManager, floorDimensions, position);
+        Geometry floor = createTestFloor(assetManager, floorDimensions, position, ColorRGBA.Red);
         RigidBodyControl floorControl = new RigidBodyControl(new GImpactCollisionShape(floor.getMesh()), 0);
         floor.addControl(floorControl);
         return floor;
@@ -279,16 +279,17 @@ public class PhysicsTestHelper {
      * @return
      */
     public static Geometry createMeshTestFloor(AssetManager assetManager, float floorDimensions, Vector3f position) {
-        Geometry floor = createTestFloor(assetManager, floorDimensions, position);
+        Geometry floor = createTestFloor(assetManager, floorDimensions, position, new ColorRGBA(0.5f, 0.5f, 0.9f, 1));
         RigidBodyControl floorControl = new RigidBodyControl(new MeshCollisionShape(floor.getMesh()), 0);
         floor.addControl(floorControl);
         return floor;
     }
 
-    private static Geometry createTestFloor(AssetManager assetManager, float floorDimensions, Vector3f position) {
+    private static Geometry createTestFloor(AssetManager assetManager, float floorDimensions, Vector3f position, ColorRGBA color) {
         Geometry floor = new Geometry("floor", createFloorMesh(20, floorDimensions));
         Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         material.getAdditionalRenderState().setWireframe(true);
+        material.setColor("Color", color);
         floor.setMaterial(material);
         floor.setLocalTranslation(position);
         return floor;

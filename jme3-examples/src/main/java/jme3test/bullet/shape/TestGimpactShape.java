@@ -197,7 +197,7 @@ public class TestGimpactShape extends SimpleApplication {
     }
 
     private void initializeNewTest() {
-        testScale.setText("Object scale: " + scaleMod);
+        testScale.setText("Object scale: " + String.format("%.1f", scaleMod));
         solverNumIterationsTxt.setText("Solver Iterations: " + solverNumIterations);
 
         bulletAppState = new BulletAppState();
@@ -321,7 +321,7 @@ public class TestGimpactShape extends SimpleApplication {
 
     @Override
     public void simpleUpdate(float tpf) {
-        testTimer += tpf;
+        testTimer += tpf * bulletAppState.getSpeed();
 
         if (restart) {
             cleanup();
@@ -329,7 +329,7 @@ public class TestGimpactShape extends SimpleApplication {
             restart = false;
             testTimer = 0;
         }
-        timeElapsedTxt.setText("Time Elapsed: " + testTimer);
+        timeElapsedTxt.setText("Time Elapsed: " + String.format("%.3f", testTimer));
     }
 
     private void cleanup() {
