@@ -419,7 +419,7 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.PartialNonPowerOfTwoTextures);
         }
 
-        if (hasExtension("GL_EXT_texture_array") || caps.contains(Caps.OpenGL30)) {
+        if (hasExtension("GL_EXT_texture_array") || caps.contains(Caps.OpenGL30) ||  caps.contains(Caps.OpenGLES30)) {
             caps.add(Caps.TextureArray);
         }
 
@@ -445,7 +445,7 @@ public final class GLRenderer implements Renderer {
                 limits.put(Limits.FrameBufferSamples, getInteger(GLExt.GL_MAX_SAMPLES_EXT));
             }
 
-            if (hasExtension("GL_ARB_texture_multisample") || caps.contains(Caps.OpenGLES31)) { // GLES30 does not fully support it
+            if (hasExtension("GL_ARB_texture_multisample") || caps.contains(Caps.OpenGLES32)) { // GLES32 does not fully support it
                 caps.add(Caps.TextureMultisample);
                 limits.put(Limits.ColorTextureSamples, getInteger(GLExt.GL_MAX_COLOR_TEXTURE_SAMPLES));
                 limits.put(Limits.DepthTextureSamples, getInteger(GLExt.GL_MAX_DEPTH_TEXTURE_SAMPLES));
@@ -465,7 +465,7 @@ public final class GLRenderer implements Renderer {
             }
         }
 
-        if (hasExtension("GL_ARB_multisample")) {
+        if (hasExtension("GL_ARB_multisample") || caps.contains(Caps.OpenGLES20)) {
             boolean available = getInteger(GLExt.GL_SAMPLE_BUFFERS_ARB) != 0;
             int samples = getInteger(GLExt.GL_SAMPLES_ARB);
             logger.log(Level.FINER, "Samples: {0}", samples);
@@ -2094,7 +2094,7 @@ public final class GLRenderer implements Renderer {
                     return GLExt.GL_TEXTURE_2D_ARRAY_EXT;
                 }
             case ThreeDimensional:
-                if (!caps.contains(Caps.OpenGL20)) {
+                if (!caps.contains(Caps.OpenGL20) && !caps.contains(Caps.OpenGLES30)) {
                     throw new RendererException("3D textures are not supported" +
                             " by the video hardware.");
                 }
