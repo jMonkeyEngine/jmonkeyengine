@@ -222,8 +222,8 @@ public class NullRenderer implements Renderer {
 
     @Override
     public boolean isQueryResultReady(QueryObject q) {
-
-    
+		return false;
+	}
     @Override
     public long getQueryResult(QueryObject q) {
         return 0;
