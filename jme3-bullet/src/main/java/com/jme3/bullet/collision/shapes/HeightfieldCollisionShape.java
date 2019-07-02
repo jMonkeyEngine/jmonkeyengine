@@ -147,7 +147,7 @@ public class HeightfieldCollisionShape extends CollisionShape {
         this.maxHeight = max;
 
         this.upAxis = 1;
-        this.flipQuadEdges = false;
+        flipQuadEdges = true;
 
         heightStickWidth = (int) FastMath.sqrt(heightfieldData.length);
         heightStickLength = heightStickWidth;

@@ -783,7 +783,7 @@ public class ParticleEmitter extends Geometry {
      */
     public void setParticlesPerSec(float particlesPerSec) {
         this.particlesPerSec = particlesPerSec;
-        timeDifference = 0;
+        timeDifference = Math.min(timeDifference,1f / particlesPerSec); //prevent large accumulated timeDifference from causing a huge number of particles to be emitted
     }
 
     /**

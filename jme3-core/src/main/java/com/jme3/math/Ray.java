@@ -43,8 +43,9 @@ import java.io.IOException;
 /**
  * <code>Ray</code> defines a line segment which has an origin and a direction.
  * That is, a point and an infinite ray is cast from this point. The ray is
- * defined by the following equation: R(t) = origin + t*direction for t >= 0.
- * 
+ * defined by the following equation: {@literal
+ * R(t) = origin + t*direction for t >= 0.
+ * }
  * @author Mark Powell
  * @author Joshua Slack
  */

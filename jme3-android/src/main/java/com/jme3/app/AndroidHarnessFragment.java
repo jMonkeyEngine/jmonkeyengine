@@ -116,7 +116,7 @@ public class AndroidHarnessFragment extends Fragment implements
     protected int eglStencilBits = 0;
 
     /**
-     * Set the desired frame rate.  If frameRate > 0, the application
+     * Set the desired frame rate.  If frameRate higher than 0, the application
      * will be capped at the desired frame rate.
      * (default = -1, no frame rate cap)
      */
@@ -129,7 +129,7 @@ public class AndroidHarnessFragment extends Fragment implements
      * will have the resolution set to a maximum of maxResolutionDimension.
      * The other direction will be set to a value that maintains the aspect
      * ratio of the surfaceview. </br>
-     * Any value < 0 (default = -1) will result in the surfaceview having the
+     * Any value less than 0 (default = -1) will result in the surfaceview having the
      * same resolution as the view layout (ie. no max resolution).
      */
     protected int maxResolutionDimension = -1;

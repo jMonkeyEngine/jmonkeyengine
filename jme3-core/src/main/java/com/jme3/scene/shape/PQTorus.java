@@ -210,6 +210,8 @@ public class PQTorus extends Mesh {
         setBuffer(Type.Normal,   3, fnb);
         setBuffer(Type.TexCoord, 2, ftb);
         setBuffer(Type.Index,    3, sib);
+        
+        updateBound();
     }
 
     @Override

@@ -79,13 +79,11 @@ public class ConditionParser {
      * additionally this methods updates the formattedExpression with uppercased
      * defines names
      *
-     * supported expression syntax example:
-     * <code>
-     * "(LightMap && SeparateTexCoord) || !ColorMap"
-     * "#if (defined(LightMap) && defined(SeparateTexCoord)) || !defined(ColorMap)"
-     * "#ifdef LightMap"
-     * "#ifdef (LightMap && SeparateTexCoord) || !ColorMap"
-     * </code>
+     * supported expression syntax example:<br><br>
+     * {@code "(LightMap && SeparateTexCoord) || !ColorMap"}<br><br>
+     * {@code "#if (defined(LightMap) && defined(SeparateTexCoord)) || !defined(ColorMap)"}<br><br>
+     * {@code "#ifdef LightMap"}<br><br>
+     * {@code "#ifdef (LightMap && SeparateTexCoord) || !ColorMap"}<br>
      *
      * @param expression the expression to parse
      * @return the list of defines

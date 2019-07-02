@@ -763,8 +763,8 @@ public abstract class VRApplication implements Application, SystemListener {
         
         // set opengl mode
         if( tryOpenGL3 ) {
-        	logger.config("Using LWJGL OpenGL 3 renderer.");
-            settings.setRenderer(AppSettings.LWJGL_OPENGL3);
+        	logger.config("Using LWJGL OpenGL 3.2 renderer.");
+            settings.setRenderer(AppSettings.LWJGL_OPENGL32);
         } else {
         	logger.config("Using LWJGL OpenGL 2 renderer.");
             settings.setRenderer(AppSettings.LWJGL_OPENGL2);

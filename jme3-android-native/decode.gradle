@@ -3,6 +3,7 @@ String stbiUrl = 'https://raw.githubusercontent.com/nothings/stb/master/stb_imag
 
 // Working directories for the ndk build.
 String decodeBuildDir = "${buildDir}" + File.separator + 'decode'
+String decodeClassesBuildDir = "${buildDir}" + File.separator + 'decode_classes'
 String decodeBuildJniDir = decodeBuildDir + File.separator + 'jni'
 String decodeBuildLibsDir = decodeBuildDir + File.separator + 'libs'
 
@@ -57,6 +58,7 @@ task generateJavahHeaders(type: Exec) {
     executable org.gradle.internal.jvm.Jvm.current().getExecutable('javac')
     args '-h', decodeSourceDir
     args "@$projectDir/java_classes.jtxt"
+    args '-d', decodeClassesBuildDir
 }
 
 // Copy jME Android native files to jni directory

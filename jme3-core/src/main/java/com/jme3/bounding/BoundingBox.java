@@ -79,9 +79,9 @@ public class BoundingBox extends BoundingVolume {
      * Instantiate a <code>BoundingBox</code> with given center and extents.
      *
      * @param c the coordinates of the center of the box (not null, not altered)
-     * @param x the X-extent of the box (>=0, may be +Infinity)
-     * @param y the Y-extent of the box (>=0, may be +Infinity)
-     * @param z the Z-extent of the box (>=0, may be +Infinity)
+     * @param x the X-extent of the box (0 or greater, may be +Infinity)
+     * @param y the Y-extent of the box (0 or greater, may be +Infinity)
+     * @param z the Z-extent of the box (0 or greater, may be +Infinity)
      */
     public BoundingBox(Vector3f c, float x, float y, float z) {
         this.center.set(c);
