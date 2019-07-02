@@ -541,7 +541,7 @@ public final class GLRenderer implements Renderer {
         }
         if(caps.contains(Caps.OpenGL43) || hasExtension("GL_ARB_ES3_compatibility")) {
             caps.add(Caps.OcclusionQueryConservative);
-            if(gl2 != null) limits.put(Limits.QueryAnySamplesCounterBits, getQueryCounterBits(QueryObject.Type.AnySamplesPassedConservative));
+            if(gl2 != null && caps.contains(Caps.OpenGL43)) limits.put(Limits.QueryAnySamplesCounterBits, getQueryCounterBits(QueryObject.Type.AnySamplesPassedConservative));
         }
         
 
@@ -3398,5 +3398,18 @@ public final class GLRenderer implements Renderer {
             gl.glDeleteQueries(intBuf1);
             q.resetObject();
         }
+    }
+    @Override
+    public boolean getAlphaToCoverage() {
+        if (caps.contains(Caps.Multisample)) {
+            return gl.glIsEnabled(GLExt.GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
+
+        }
+        return false;
+    }
+
+    @Override
+    public int getDefaultAnisotropicFilter() {
+        return this.defaultAnisotropicFilter;
     }
 }

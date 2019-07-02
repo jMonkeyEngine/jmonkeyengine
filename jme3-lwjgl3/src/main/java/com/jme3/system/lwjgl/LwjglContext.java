@@ -37,6 +37,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.lwjgl.opencl.CL10.CL_CONTEXT_PLATFORM;
 import static org.lwjgl.opengl.GL.createCapabilities;
 import static org.lwjgl.opengl.GL11.glGetInteger;
+
 import com.jme3.input.lwjgl.GlfwJoystickInput;
 import com.jme3.input.lwjgl.GlfwKeyInput;
 import com.jme3.input.lwjgl.GlfwMouseInput;
@@ -65,6 +66,7 @@ import com.jme3.util.LWJGLBufferAllocator.ConcurrentLWJGLBufferAllocator;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWJoystickCallback;
 import org.lwjgl.opencl.APPLEGLSharing;
 import org.lwjgl.opencl.CL10;
 import org.lwjgl.opencl.KHRGLSharing;
@@ -103,9 +105,10 @@ public abstract class LwjglContext implements JmeContext {
 
     private static final Set<String> SUPPORTED_RENDERS = new HashSet<>(Arrays.asList(
             AppSettings.LWJGL_OPENGL2,
-            AppSettings.LWJGL_OPENGL3,
+            AppSettings.LWJGL_OPENGL30,
+            AppSettings.LWJGL_OPENGL32,
             AppSettings.LWJGL_OPENGL33,
-            AppSettings.LWJGL_OPENGL4,
+            AppSettings.LWJGL_OPENGL40,
             AppSettings.LWJGL_OPENGL41,
             AppSettings.LWJGL_OPENGL42,
             AppSettings.LWJGL_OPENGL43,
@@ -232,6 +235,24 @@ public abstract class LwjglContext implements JmeContext {
         if (joyInput != null) {
             joyInput.initialize();
         }
+
+        GLFW.glfwSetJoystickCallback(new GLFWJoystickCallback() {
+            @Override
+            public void invoke(int jid, int event) {
+
+                // Invoke the disconnected event before we reload the joysticks or we lose the reference to it.
+                // Invoke the connected event after we reload the joysticks to obtain the reference to it.
+
+                if ( event == GLFW.GLFW_CONNECTED ) {
+                    joyInput.reloadJoysticks();
+                    joyInput.fireJoystickConnectedEvent(jid);
+                }
+                else {
+                    joyInput.fireJoystickDisconnectedEvent(jid);
+                    joyInput.reloadJoysticks();
+                }
+            }
+        });
 
         renderable.set(true);
     }

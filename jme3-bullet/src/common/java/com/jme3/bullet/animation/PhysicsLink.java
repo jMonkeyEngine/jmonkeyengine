@@ -52,8 +52,8 @@ import java.util.logging.Logger;
 /**
  * The abstract base class used by DynamicAnimControl to link pieces of a JME
  * model to their corresponding collision objects in a ragdoll. Subclasses
- * include: AttachmentLink, BoneLink, and TorsoLink. The links in each
- * DynamicAnimControl form a hierarchy with the TorsoLink at its root.
+ * include BoneLink and TorsoLink. The links in each DynamicAnimControl form a
+ * hierarchy with the TorsoLink at its root.
  * <p>
  * This class is shared between JBullet and Native Bullet.
  *
@@ -246,15 +246,6 @@ abstract public class PhysicsLink
         } else {
             return false;
         }
-    }
-
-    /**
-     * Test whether the attached model (if any) has been released.
-     *
-     * @return false unless this is an AttachmentLink
-     */
-    public boolean isReleased() {
-        return false;
     }
 
     /**

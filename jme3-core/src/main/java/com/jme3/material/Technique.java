@@ -169,7 +169,7 @@ public final class Technique {
     /**
      * Get the {@link DefineList} for dynamic defines.
      * 
-     * Dynamic defines are used to implement material parameter -> define
+     * Dynamic defines are used to implement material parameter -- define
      * bindings as well as {@link TechniqueDefLogic} specific functionality.
      * 
      * @return all dynamic defines.

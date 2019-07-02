@@ -153,7 +153,7 @@ public abstract class Serializer {
     
     /**
      *  When set to true, classes that do not have intrinsic IDs in their
-     *  @Serializable will not be auto-registered during write.  Defaults
+     *  {@code @Serializable } will not be auto-registered during write.  Defaults
      *  to true since this is almost never desired behavior with the way
      *  this code works.  Set to false to get the old permissive behavior.
      */

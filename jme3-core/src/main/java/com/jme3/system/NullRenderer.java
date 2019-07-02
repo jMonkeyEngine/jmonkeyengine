@@ -207,6 +207,14 @@ public class NullRenderer implements Renderer {
     @Override
     public void setDefaultAnisotropicFilter(int level) {
     }
+    @Override
+    public boolean getAlphaToCoverage() {
+        return false;
+    }
+    @Override
+    public int getDefaultAnisotropicFilter() {
+        return 0;
+    }
 
     @Override
     public void setTransformFeedbackOutput(TransformFeedbackOutput output) {
@@ -214,9 +222,8 @@ public class NullRenderer implements Renderer {
 
     @Override
     public boolean isQueryResultReady(QueryObject q) {
-        return false;
-    }
 
+    
     @Override
     public long getQueryResult(QueryObject q) {
         return 0;

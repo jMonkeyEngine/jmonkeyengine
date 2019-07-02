@@ -13,7 +13,7 @@ public class OSVR_ProjectionMatrix extends Structure {
 	public double right;
 	public double top;
 	public double bottom;
-	/** < Cannot name "near" because Visual Studio keyword */
+	/** Cannot name "near" because Visual Studio keyword */
 	public double nearClip;
 	public double farClip;
 	public OSVR_ProjectionMatrix() {
@@ -22,7 +22,7 @@ public class OSVR_ProjectionMatrix extends Structure {
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("left", "right", "top", "bottom", "nearClip", "farClip");
 	}
-	/** @param nearClip < Cannot name "near" because Visual Studio keyword */
+	/** @param nearClip Cannot name "near" because Visual Studio keyword */
 	public OSVR_ProjectionMatrix(double left, double right, double top, double bottom, double nearClip, double farClip) {
 		super();
 		this.left = left;

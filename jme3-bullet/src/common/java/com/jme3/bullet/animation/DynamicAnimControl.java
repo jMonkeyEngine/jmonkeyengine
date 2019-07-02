@@ -85,7 +85,7 @@ public class DynamicAnimControl
     // fields
 
     /**
-     * calculated total mass, not including released attachments
+     * calculated total mass
      */
     private float ragdollMass = 0f;
     /**
@@ -105,8 +105,7 @@ public class DynamicAnimControl
     // constructors
 
     /**
-     * Instantiate an enabled control without any linked bones or attachments
-     * (torso only).
+     * Instantiate an enabled control without any linked bones (torso only).
      */
     public DynamicAnimControl() {
     }
@@ -160,8 +159,7 @@ public class DynamicAnimControl
     }
 
     /**
-     * Calculate the ragdoll's total mass and center of mass, excluding released
-     * attachments.
+     * Calculate the ragdoll's total mass and center of mass.
      * <p>
      * Allowed only when the control IS added to a spatial.
      *
@@ -187,7 +185,7 @@ public class DynamicAnimControl
 
     /**
      * Alter the contact-response setting of the specified link and all its
-     * descendants (excluding released attachments). Note: recursive!
+     * descendants. Note: recursive!
      * <p>
      * Allowed only when the control IS added to a spatial.
      *
@@ -199,14 +197,12 @@ public class DynamicAnimControl
             boolean desiredResponse) {
         verifyAddedToSpatial("change modes");
 
-        if (!rootLink.isReleased()) {
-            PhysicsRigidBody rigidBody = rootLink.getRigidBody();
-            rigidBody.setContactResponse(desiredResponse);
+        PhysicsRigidBody rigidBody = rootLink.getRigidBody();
+        rigidBody.setContactResponse(desiredResponse);
 
-            PhysicsLink[] children = rootLink.listChildren();
-            for (PhysicsLink child : children) {
-                setContactResponseSubtree(child, desiredResponse);
-            }
+        PhysicsLink[] children = rootLink.listChildren();
+        for (PhysicsLink child : children) {
+            setContactResponseSubtree(child, desiredResponse);
         }
     }
 
@@ -240,8 +236,8 @@ public class DynamicAnimControl
     }
 
     /**
-     * Immediately put the specified link and all its descendants (excluding
-     * released attachments) into dynamic mode. Note: recursive!
+     * Immediately put the specified link and all its descendants into dynamic
+     * mode. Note: recursive!
      * <p>
      * Allowed only when the control IS added to a spatial.
      *
@@ -503,9 +499,8 @@ public class DynamicAnimControl
     }
 
     /**
-     * Recalculate the total mass of the ragdoll, not including released
-     * attachments. Also updates the location and estimated velocity of the
-     * center of mass.
+     * Recalculate the total mass of the ragdoll. Also updates the location and
+     * estimated velocity of the center of mass.
      */
     private void recalculateCenter() {
         double massSum = 0.0;
@@ -514,19 +509,17 @@ public class DynamicAnimControl
         Vector3f tmpVector = new Vector3f();
         List<PhysicsLink> links = listLinks(PhysicsLink.class);
         for (PhysicsLink link : links) {
-            if (!link.isReleased()) {
-                PhysicsRigidBody rigidBody = link.getRigidBody();
-                float mass = rigidBody.getMass();
-                massSum += mass;
+            PhysicsRigidBody rigidBody = link.getRigidBody();
+            float mass = rigidBody.getMass();
+            massSum += mass;
 
-                rigidBody.getPhysicsLocation(tmpVector);
-                tmpVector.multLocal(mass);
-                locationSum.addLocal(tmpVector);
+            rigidBody.getPhysicsLocation(tmpVector);
+            tmpVector.multLocal(mass);
+            locationSum.addLocal(tmpVector);
 
-                link.velocity(tmpVector);
-                tmpVector.multLocal(mass);
-                velocitySum.addLocal(tmpVector);
-            }
+            link.velocity(tmpVector);
+            tmpVector.multLocal(mass);
+            velocitySum.addLocal(tmpVector);
         }
 
         float invMass = (float) (1.0 / massSum);

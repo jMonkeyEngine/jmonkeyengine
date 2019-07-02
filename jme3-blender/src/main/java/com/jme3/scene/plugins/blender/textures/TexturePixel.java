@@ -118,7 +118,7 @@ public class TexturePixel implements Cloneable {
 
     /**
      * This method sets the alpha value (converts it to float number from range
-     * <0, 1>).
+     * [0, 1]).
      * 
      * @param alpha
      *            the alpha value
@@ -129,7 +129,7 @@ public class TexturePixel implements Cloneable {
 
     /**
      * This method sets the alpha value (converts it to float number from range
-     * <0, 1>).
+     * [0, 1]).
      * 
      * @param alpha
      *            the alpha value

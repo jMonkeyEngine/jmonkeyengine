@@ -24,7 +24,7 @@ public class VREvent_Property_t extends Structure {
 	}
 	/**
 	 * @param container C type : PropertyContainerHandle_t<br>
-	 * @param prop @see ETrackedDeviceProperty<br>
+	 * @param prop @see JOpenVRLibrary.ETrackedDeviceProperty <br>
 	 * C type : ETrackedDeviceProperty
 	 */
 	public VREvent_Property_t(long container, int prop) {

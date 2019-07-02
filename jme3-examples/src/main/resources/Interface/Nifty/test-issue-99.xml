@@ -10,7 +10,7 @@ The GUI layout for the TestIssue99 application.
 
             <panel childLayout="horizontal"
                    backgroundColor="#888f"
-                   height="160px">
+                   height="160px" width="640px">
                 <control name="label"
                          color="#000f"
                          text="The text of a label."
@@ -25,7 +25,7 @@ The GUI layout for the TestIssue99 application.
 
                     <panel childLayout="horizontal"
                            backgroundColor="#888f"
-                           height="160px">
+                           height="160px" width="640px">
                         <control name="label"
                                  color="#000f"
                                  text="The text of another label."

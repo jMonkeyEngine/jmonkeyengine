@@ -52,12 +52,13 @@ import java.util.Comparator;
  * for optimal performance, but can be called several times if the length of the
  * list changes
  *
+ * {@code
  * Disclaimer : I was intrigued by the use of val >>> 1 in java 7 Timsort class
  * instead of val / 2 (integer division). Micro benching revealed that val >>> 1
  * is twice faster than val / 2 in java 6 and has similar perf in java 7. The
  * following code uses val >>> 1 when ever a value needs to be divided by 2 and
  * rounded to its floor
- *
+ * }
  *
  * @author Nehon
  */
@@ -66,7 +67,7 @@ public class ListSort<T> {
     /**
      * Threshold for binary sort vs merge. Original algorithm use 64, java7
      * TimSort uses 32 and I used 128, see this post for explanations :
-     * http://hub.jmonkeyengine.org/groups/development-discussion-jme3/forum/topic/i-got-that-sorted-out-huhuhu/
+     * https://hub.jmonkeyengine.org/t/i-got-that-sorted-out-huhuhu/24478
      */
     private static final int MIN_SIZE = 128;
     private T[] array;

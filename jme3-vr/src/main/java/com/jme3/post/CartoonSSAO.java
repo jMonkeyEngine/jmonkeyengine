@@ -43,7 +43,7 @@ public class CartoonSSAO extends Filter{
 
     /**
     * Create a Screen Space Ambient Occlusion Filter.
-    * @param downsample factor to divide resolution by for filter, >1 increases speed but degrades quality.
+    * @param downsample factor to divide resolution by for filter, &gt;1 increases speed but degrades quality.
     * @param instancedRendering <code>true</code> if this filter has to use instance rendering and <code>false</code> (default) otherwise.
     */
     public CartoonSSAO(float downsample, boolean instancedRendering) {

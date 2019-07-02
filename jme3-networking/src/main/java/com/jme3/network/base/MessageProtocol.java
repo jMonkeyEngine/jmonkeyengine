@@ -99,7 +99,7 @@ public class MessageProtocol
      *  Adds the specified buffer, extracting the contained messages 
      *  and making them available to getMessage().  The left over
      *  data is buffered to be combined with future data.
-     &
+     *
      *  @return The total number of queued messages after this call.       
      */
     public int addBuffer( ByteBuffer buffer )

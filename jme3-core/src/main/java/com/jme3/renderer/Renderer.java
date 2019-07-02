@@ -432,6 +432,19 @@ public interface Renderer {
      * @return true if the results of the task with the given task id are available.
      */
     public boolean isTaskResultAvailable(int taskId);
+    
+    
+    /**
+     * Gets the alpha to coverage state.
+     * 
+     */
+    public boolean getAlphaToCoverage(); 
+    
+    /**
+     * Get the default anisotropic filter level for textures.
+     *
+     */
+    public int getDefaultAnisotropicFilter();
 
     /**
      * Enable transform feedback and set the output buffer.

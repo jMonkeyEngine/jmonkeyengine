@@ -1,0 +1,25 @@
+
+vec4 getFogLinear(in vec4 diffuseColor, in vec4 fogColor, in float start, in float end, in float distance) {
+
+    float fogFactor = (end - distance) / (end - start);
+    fogFactor = clamp(fogFactor, 0.0, 1.0);
+
+    return mix(fogColor, diffuseColor, fogFactor);
+}
+
+vec4 getFogExp(in vec4 diffuseColor, in vec4 fogColor, in float fogDensity, in float distance) {
+
+    float fogFactor = 1.0 / exp(distance * fogDensity);
+    fogFactor = clamp( fogFactor, 0.0, 1.0 );
+
+    return mix(fogColor, diffuseColor, fogFactor);
+}
+
+vec4 getFogExpSquare(in vec4 diffuseColor, in vec4 fogColor, in float fogDensity, in float distance) {
+
+    float fogFactor = 1.0 / exp( (distance * fogDensity) * (distance * fogDensity));
+    fogFactor = clamp( fogFactor, 0.0, 1.0 );
+
+    vec4 finalColor = mix(fogColor, diffuseColor, fogFactor);
+    return finalColor;
+}
