@@ -99,6 +99,7 @@ public final class GLRenderer implements Renderer {
     private final GL2 gl2;
     private final GL3 gl3;
     private final GL4 gl4;
+    private final GLES_30 gles30;
     private final GLExt glext;
     private final GLFbo glfbo;
     private final TextureUtil texUtil;
@@ -108,6 +109,7 @@ public final class GLRenderer implements Renderer {
         this.gl2 = gl instanceof GL2 ? (GL2)gl : null;
         this.gl3 = gl instanceof GL3 ? (GL3)gl : null;
         this.gl4 = gl instanceof GL4 ? (GL4)gl : null;
+        this.gles30 = gl instanceof GLES_30 ? (GLES_30)gl : null;
         this.glfbo = glfbo;
         this.glext = glext;
         this.texUtil = new TextureUtil(gl, gl2, glext);
@@ -1602,6 +1604,7 @@ public final class GLRenderer implements Renderer {
     }
 
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
+System.out.println("JOLIVER - copyeFrameBuffer AKA blit");
         if (caps.contains(Caps.FrameBufferBlit)) {
             int srcX0 = 0;
             int srcY0 = 0;
@@ -1888,7 +1891,16 @@ public final class GLRenderer implements Renderer {
     }
 
     public void setReadDrawBuffers(FrameBuffer fb) {
-        if (gl2 == null) {
+System.out.println("JOLIVER - setReadDrawBuffers");
+if (fb == null) {
+System.out.println("JOLIVER - FB null");
+} else {
+System.out.println("JOLIVER - FB colors: " + fb.getNumColorBuffers());
+System.out.println("JOLIVER - FB multitarget: " + fb.isMultiTarget());
+System.out.println("JOLIVER - FB target idx: " + fb.getTargetIndex());
+}
+        if (gl2 == null && gles30 == null) {
+System.out.println("JOLIVER - Quit method gl2 & gles30 ==null :(  ");
             return;
         }
         
@@ -1899,11 +1911,19 @@ public final class GLRenderer implements Renderer {
         if (fb == null) {
             // Set Read/Draw buffers to initial value.
             if (context.boundDrawBuf != INITIAL) {
-                gl2.glDrawBuffer(context.initialDrawBuf);
+                if(gl2!=null) {
+                    gl2.glDrawBuffer(context.initialDrawBuf);
+                } else {
+                    gles30.glDrawBuffer(context.initialDrawBuf);
+                }
                 context.boundDrawBuf = INITIAL;
             }
             if (context.boundReadBuf != INITIAL) {
-                gl2.glReadBuffer(context.initialReadBuf);
+                if(gl2!=null) {
+                    gl2.glReadBuffer(context.initialReadBuf);
+                } else {
+                    gles30.glReadBuffer(context.initialReadBuf);
+                }
                 context.boundReadBuf = INITIAL;
             }
         } else {
@@ -1911,11 +1931,19 @@ public final class GLRenderer implements Renderer {
                 // make sure to select NONE as draw buf
                 // no color buffer attached.
                 if (context.boundDrawBuf != NONE) {
-                    gl2.glDrawBuffer(GL.GL_NONE);
+                    if(gl2!=null) {
+                        gl2.glDrawBuffer(GL.GL_NONE);
+                    } else {
+                        gles30.glDrawBuffer(GL.GL_NONE);
+                    }
                     context.boundDrawBuf = NONE;
                 }
                 if (context.boundReadBuf != NONE) {
-                    gl2.glReadBuffer(GL.GL_NONE);
+                    if(gl2!=null) {
+                        gl2.glReadBuffer(GL.GL_NONE);
+                    } else {
+                        gles30.glReadBuffer(GL.GL_NONE);
+                    }
                     context.boundReadBuf = NONE;
                 }
             } else {
@@ -1948,7 +1976,12 @@ public final class GLRenderer implements Renderer {
                     RenderBuffer rb = fb.getColorBuffer(fb.getTargetIndex());
                     // select this draw buffer
                     if (context.boundDrawBuf != rb.getSlot()) {
-                        gl2.glDrawBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
+                        if(gl2!=null) {
+                            gl2.glDrawBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
+                        } else {
+System.out.println("JOLIVER: - DrawBuffer! ");
+                            gles30.glDrawBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
+                        }
                         context.boundDrawBuf = rb.getSlot();
                     }
                 }
@@ -2027,7 +2060,13 @@ public final class GLRenderer implements Renderer {
                     gl2.glReadBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
                     context.boundReadBuf = rb.getSlot();
                 }
+            } else if (gles30 != null) {
+                if (context.boundReadBuf != rb.getSlot()) {
+                    gles30.glReadBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
+                    context.boundReadBuf = rb.getSlot();
+                }
             }
+ 
         } else {
             setFrameBuffer(null);
         }
@@ -2218,9 +2257,9 @@ public final class GLRenderer implements Renderer {
         switch (tex.getType()) {
             case ThreeDimensional:
             case CubeMap: // cubemaps use 3D coords
-                if (gl2 != null && curState.rWrap != tex.getWrap(WrapAxis.R)) {
+                if ((gl2 != null || gles30 !=null) && curState.rWrap != tex.getWrap(WrapAxis.R)) {
                     bindTextureAndUnit(target, image, unit);
-                    gl2.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_R, convertWrapMode(tex.getWrap(WrapAxis.R)));
+                    gl.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_R, convertWrapMode(tex.getWrap(WrapAxis.R)));
                     curState.rWrap = tex.getWrap(WrapAxis.R);
                 }
                 //There is no break statement on purpose here

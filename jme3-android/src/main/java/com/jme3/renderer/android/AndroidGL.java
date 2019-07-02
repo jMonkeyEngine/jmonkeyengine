@@ -34,6 +34,7 @@ package com.jme3.renderer.android;
 import android.opengl.*;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.opengl.*;
+import com.jme3.util.BufferUtils;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -41,7 +42,9 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-public class AndroidGL implements GL, GLExt, GLFbo {
+public class AndroidGL implements GL, GLES_30, GLExt, GLFbo {
+
+    IntBuffer tmpBuff = BufferUtils.createIntBuffer(1);
 
     public void resetStats() {
     }
@@ -567,6 +570,39 @@ public class AndroidGL implements GL, GLExt, GLFbo {
     
     @Override
     public void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer) {
-        throw new UnsupportedOperationException("OpenGL ES 2 does not support texture arrays");
+        GLES30.glFramebufferTextureLayer(target, attachment, texture, level, layer);
+//        throw new UnsupportedOperationException("OpenGL ES 2 does not support texture arrays");
+    }
+
+    public void glDrawBuffer(int mode) {
+        tmpBuff.clear();
+        tmpBuff.put(0, mode);
+        tmpBuff.rewind();
+        glDrawBuffers(tmpBuff);
+    }
+
+    public void glReadBuffer(int mode) {
+        GLES30.glReadBuffer(mode);
+    }
+
+    public void glCompressedTexImage3D(int target, int level, int internalFormat, int width, int height, int depth,
+                                           int border, ByteBuffer data) {
+        GLES30.glCompressedTexImage3D(target, level, internalFormat, width, height, depth, border, getLimitBytes(data), data);
+    }
+
+    public void glCompressedTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width,
+                                              int height, int depth, int format, ByteBuffer data) {
+        GLES30.glCompressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, getLimitBytes(data), data);
+    }
+
+    public void glTexImage3D(int target, int level, int internalFormat, int width, int height, int depth, int border,
+                                 int format, int type, ByteBuffer data) {
+        GLES30.glTexImage3D(target, level, internalFormat, width, height, depth, border, format, type, data);
+    }
+
+    public void glTexSubImage3D(int target, int level, int xoffset, int yoffset, int zoffset, int width, int height,
+                                    int depth, int format, int type, ByteBuffer data) {
+        GLES30.glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, data);
     }
 }
+
