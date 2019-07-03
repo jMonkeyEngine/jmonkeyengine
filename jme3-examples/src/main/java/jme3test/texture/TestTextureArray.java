@@ -31,8 +31,8 @@ public class TestTextureArray extends SimpleApplication
        }
        
        
-       Texture tex1 = assetManager.loadTexture( "Textures/Terrain/Pond/Pond.jpg");
-       Texture tex2 = assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg");
+       Texture tex1 = assetManager.loadTexture( "Textures/Terrain/Pond/Pond.png");
+       Texture tex2 = assetManager.loadTexture("Textures/Terrain/Rock2/rock.png");
        List<Image> images = new ArrayList<Image>();
        images.add(tex1.getImage());
        images.add(tex2.getImage());
