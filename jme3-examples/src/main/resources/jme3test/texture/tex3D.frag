@@ -1,3 +1,5 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+
 uniform sampler3D m_Texture;
 
 varying vec3 texCoord;

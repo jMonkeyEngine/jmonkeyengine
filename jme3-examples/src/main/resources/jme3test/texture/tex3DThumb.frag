@@ -1,3 +1,5 @@
+#import "Common/ShaderLib/GLSLCompat.glsllib"
+
 uniform sampler3D m_Texture;
 uniform int m_Rows;
 uniform float m_InvDepth;

@@ -471,6 +471,7 @@ public final class GLRenderer implements Renderer {
             boolean available = getInteger(GLExt.GL_SAMPLE_BUFFERS_ARB) != 0;
             int samples = getInteger(GLExt.GL_SAMPLES_ARB);
             logger.log(Level.FINER, "Samples: {0}", samples);
+System.out.println("JOLIVER: Samples: " + samples + " available:" + available);
             boolean enabled = gl.glIsEnabled(GLExt.GL_MULTISAMPLE_ARB);
             if (samples > 0 && available && !enabled) {
                 // Doesn't seem to be necessary .. OGL spec says it's always
@@ -1424,8 +1425,10 @@ public final class GLRenderer implements Renderer {
             idx = stringBuf.indexOf("\n", idx);
 
             if(version>=300) {
-                stringBuf.insert(idx + 1, "precision highp sampler2D;\n");
+                stringBuf.insert(idx + 1, "precision highp sampler2DArray;\n");
                 stringBuf.insert(idx + 1, "precision highp sampler2DShadow;\n");
+                stringBuf.insert(idx + 1, "precision highp sampler3D;\n");
+                stringBuf.insert(idx + 1, "precision highp sampler2D;\n");
             }
             stringBuf.insert(idx + 1, "precision highp float;\n");
         }
@@ -1899,7 +1902,7 @@ System.out.println("JOLIVER - FB colors: " + fb.getNumColorBuffers());
 System.out.println("JOLIVER - FB multitarget: " + fb.isMultiTarget());
 System.out.println("JOLIVER - FB target idx: " + fb.getTargetIndex());
 }
-        if (gl2 == null && gles30 == null) {
+        if (gl2 == null /*&& gles30 == null*/) {
 System.out.println("JOLIVER - Quit method gl2 & gles30 ==null :(  ");
             return;
         }
