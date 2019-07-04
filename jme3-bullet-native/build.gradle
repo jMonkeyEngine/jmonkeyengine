@@ -108,13 +108,13 @@ model {
 
             if (os == "osx") {
                 cppCompiler.args '-I', "$javaHome/include/darwin"
-                cppCompiler.args "-Ofast"
+                cppCompiler.args "-O3"
                 cppCompiler.args "-U_FORTIFY_SOURCE"
             } else if (os == "linux") {
                 cppCompiler.args "-fvisibility=hidden"
                 cppCompiler.args '-I', "$javaHome/include/linux"
                 cppCompiler.args "-fPIC"
-                cppCompiler.args "-Ofast"
+                cppCompiler.args "-O3"
                 cppCompiler.args "-U_FORTIFY_SOURCE"
                 cppCompiler.args "-fpermissive"
                 linker.args "-fvisibility=hidden"
@@ -127,7 +127,7 @@ model {
                     }
                     cppCompiler.args "-fpermissive"
                     cppCompiler.args "-static"
-                    cppCompiler.args "-Ofast"
+                    cppCompiler.args "-O3"
                     cppCompiler.args "-U_FORTIFY_SOURCE"
                     linker.args "-static"
                     linker.args "-Wl,--exclude-all-symbols"
