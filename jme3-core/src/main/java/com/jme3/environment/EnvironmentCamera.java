@@ -257,7 +257,11 @@ public class EnvironmentCamera extends BaseAppState {
         final Texture2D[] textures = new Texture2D[6];
 
         if (imageFormat == Image.Format.RGB16F && !app.getRenderer().getCaps().contains(Caps.FloatTexture)) {
-            imageFormat = Image.Format.RGB8;
+            if(app.getRenderer().getCaps().contains(Caps.OpenGLES32)) {
+                imageFormat = Image.Format.RGBA16F;
+            } else {
+                imageFormat = Image.Format.RGB8;
+            }
         }
 
         viewports = new ViewPort[6];

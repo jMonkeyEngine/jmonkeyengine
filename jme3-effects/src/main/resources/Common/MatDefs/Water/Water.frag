@@ -447,7 +447,7 @@ void main(){
         for (int i = 0; i < m_NumSamples; i++){
             color += main_multiSample(i);
         }
-        gl_FragColor = color / m_NumSamples;
+        gl_FragColor = color / float(m_NumSamples);
     #else
         gl_FragColor = main_multiSample(0);
     #endif

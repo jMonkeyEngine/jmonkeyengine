@@ -71,6 +71,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
 public final class GLRenderer implements Renderer {
 
     private static final Logger logger = Logger.getLogger(GLRenderer.class.getName());
@@ -438,16 +439,16 @@ public final class GLRenderer implements Renderer {
             limits.put(Limits.RenderBufferSize, getInteger(GLFbo.GL_MAX_RENDERBUFFER_SIZE_EXT));
             limits.put(Limits.FrameBufferAttachments, getInteger(GLFbo.GL_MAX_COLOR_ATTACHMENTS_EXT));
 
-            if (hasExtension("GL_EXT_framebuffer_blit") || caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30)) {
+            if (hasExtension("GL_EXT_framebuffer_blit") || caps.contains(Caps.OpenGL30) /* || caps.contains(Caps.OpenGLES30)*/) {
                 caps.add(Caps.FrameBufferBlit);
             }
 
-            if (hasExtension("GL_EXT_framebuffer_multisample") || caps.contains(Caps.OpenGLES30)) {
+            if (hasExtension("GL_EXT_framebuffer_multisample") /*|| caps.contains(Caps.OpenGLES30)*/) {
                 caps.add(Caps.FrameBufferMultisample);
                 limits.put(Limits.FrameBufferSamples, getInteger(GLExt.GL_MAX_SAMPLES_EXT));
             }
 
-            if (hasExtension("GL_ARB_texture_multisample") || caps.contains(Caps.OpenGLES32)) { // GLES32 does not fully support it
+            if (hasExtension("GL_ARB_texture_multisample") /*|| caps.contains(Caps.OpenGLES31)*/) { // GLES31 does not fully support it
                 caps.add(Caps.TextureMultisample);
                 limits.put(Limits.ColorTextureSamples, getInteger(GLExt.GL_MAX_COLOR_TEXTURE_SAMPLES));
                 limits.put(Limits.DepthTextureSamples, getInteger(GLExt.GL_MAX_DEPTH_TEXTURE_SAMPLES));
@@ -456,8 +457,8 @@ public final class GLRenderer implements Renderer {
                     limits.put(Limits.FrameBufferSamples, limits.get(Limits.ColorTextureSamples));
                 }
             }
-
-            if (hasExtension("GL_ARB_draw_buffers") || caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30)) {
+ 
+            if (hasExtension("GL_ARB_draw_buffers") || caps.contains(Caps.OpenGL30) /*|| caps.contains(Caps.OpenGLES30)*/) {
                 limits.put(Limits.FrameBufferMrtAttachments, getInteger(GLExt.GL_MAX_DRAW_BUFFERS_ARB));
                 if (limits.get(Limits.FrameBufferMrtAttachments) > 1) {
                     caps.add(Caps.FrameBufferMRT);
@@ -471,7 +472,6 @@ public final class GLRenderer implements Renderer {
             boolean available = getInteger(GLExt.GL_SAMPLE_BUFFERS_ARB) != 0;
             int samples = getInteger(GLExt.GL_SAMPLES_ARB);
             logger.log(Level.FINER, "Samples: {0}", samples);
-System.out.println("JOLIVER: Samples: " + samples + " available:" + available);
             boolean enabled = gl.glIsEnabled(GLExt.GL_MULTISAMPLE_ARB);
             if (samples > 0 && available && !enabled) {
                 // Doesn't seem to be necessary .. OGL spec says it's always
@@ -1424,6 +1424,9 @@ System.out.println("JOLIVER: Samples: " + samples + " available:" + available);
             int idx = stringBuf.lastIndexOf("#extension");
             idx = stringBuf.indexOf("\n", idx);
 
+            if(version>=310) {
+                stringBuf.insert(idx + 1, "precision highp sampler2DMS;\n");
+            }
             if(version>=300) {
                 stringBuf.insert(idx + 1, "precision highp sampler2DArray;\n");
                 stringBuf.insert(idx + 1, "precision highp sampler2DShadow;\n");
@@ -1607,7 +1610,6 @@ System.out.println("JOLIVER: Samples: " + samples + " available:" + available);
     }
 
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
-System.out.println("JOLIVER - copyeFrameBuffer AKA blit");
         if (caps.contains(Caps.FrameBufferBlit)) {
             int srcX0 = 0;
             int srcY0 = 0;
@@ -1664,6 +1666,7 @@ System.out.println("JOLIVER - copyeFrameBuffer AKA blit");
             if (copyDepth) {
                 mask |= GL.GL_DEPTH_BUFFER_BIT;
             }
+
             glfbo.glBlitFramebufferEXT(srcX0, srcY0, srcX1, srcY1,
                     dstX0, dstY0, dstX1, dstY1, mask,
                     GL.GL_NEAREST);
@@ -1894,16 +1897,7 @@ System.out.println("JOLIVER - copyeFrameBuffer AKA blit");
     }
 
     public void setReadDrawBuffers(FrameBuffer fb) {
-System.out.println("JOLIVER - setReadDrawBuffers");
-if (fb == null) {
-System.out.println("JOLIVER - FB null");
-} else {
-System.out.println("JOLIVER - FB colors: " + fb.getNumColorBuffers());
-System.out.println("JOLIVER - FB multitarget: " + fb.isMultiTarget());
-System.out.println("JOLIVER - FB target idx: " + fb.getTargetIndex());
-}
-        if (gl2 == null /*&& gles30 == null*/) {
-System.out.println("JOLIVER - Quit method gl2 & gles30 ==null :(  ");
+        if (gl2 == null /* && gles30 == null */) {
             return;
         }
         
@@ -1982,7 +1976,6 @@ System.out.println("JOLIVER - Quit method gl2 & gles30 ==null :(  ");
                         if(gl2!=null) {
                             gl2.glDrawBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
                         } else {
-System.out.println("JOLIVER: - DrawBuffer! ");
                             gles30.glDrawBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
                         }
                         context.boundDrawBuf = rb.getSlot();
@@ -2428,7 +2421,6 @@ System.out.println("JOLIVER: - DrawBuffer! ");
         bindTextureAndUnit(target, img, unit);
 
         int imageSamples = img.getMultiSamples();
-
         if (imageSamples <= 1) {
             if (!img.hasMipmaps() && img.isGeneratedMipmapsRequired()) {
                 // Image does not have mipmaps, but they are required.

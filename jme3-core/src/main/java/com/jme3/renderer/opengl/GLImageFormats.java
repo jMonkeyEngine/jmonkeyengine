@@ -220,10 +220,15 @@ public final class GLImageFormats {
 
         // Supported in GLES30 core as texture but not as renderbuffer. TODO: add other interesting formats like this one which is used as default for HDR textures
         if (caps.contains(Caps.OpenGLES30)) { 
-            format(formatToGL, Format.RGB16F,               GLExt.GL_RGB16F_ARB,             GL.GL_RGB,             halfFloatFormat);
+//            format(formatToGL, Format.RGB16F,               GLExt.GL_RGB16F_ARB,             GL.GL_RGB,             halfFloatFormat);
         }
         
-        // Need to check if Caps.DepthTexture is supported prior to using for textures
+        // Supported in GLES32 core 
+        if (caps.contains(Caps.OpenGLES32)) { 
+            format(formatToGL, Format.RGBA16F,              GLExt.GL_RGBA16F_ARB,            GL.GL_RGBA,            halfFloatFormat);
+        }
+
+         // Need to check if Caps.DepthTexture is supported prior to using for textures
         // But for renderbuffers its OK.
         format(formatToGL, Format.Depth16, GL.GL_DEPTH_COMPONENT16,  GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_SHORT);
         

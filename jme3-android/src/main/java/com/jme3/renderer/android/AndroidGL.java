@@ -469,7 +469,6 @@ public class AndroidGL implements GL, GLES_30, GLExt, GLFbo {
 
     public void glDrawBuffers(IntBuffer bufs) {
         GLES30.glDrawBuffers(bufs.limit(), bufs);
-        //throw new UnsupportedOperationException("MRT not available on Android");
     }
 
     public void glDrawElementsInstancedARB(int mode, int indices_count, int type, long indices_buffer_offset, int primcount) {
@@ -478,7 +477,6 @@ public class AndroidGL implements GL, GLES_30, GLExt, GLFbo {
 
     public void glGetMultisample(int pname, int index, FloatBuffer val) {
         GLES31.glGetMultisamplefv(pname, index, val);
-        //throw new UnsupportedOperationException("Multisample textures not available on Android");
     }
 
     public void glRenderbufferStorageMultisampleEXT(int target, int samples, int internalformat, int width, int height) {
@@ -487,7 +485,6 @@ public class AndroidGL implements GL, GLES_30, GLExt, GLFbo {
 
     public void glTexImage2DMultisample(int target, int samples, int internalformat, int width, int height, boolean fixedsamplelocations) {
         GLES31.glTexStorage2DMultisample(target, samples, internalformat, width, height, fixedsamplelocations);
-        //throw new UnsupportedOperationException("Multisample textures not available on Android");
     }
 
     public void glVertexAttribDivisorARB(int index, int divisor) {
@@ -571,7 +568,6 @@ public class AndroidGL implements GL, GLES_30, GLExt, GLFbo {
     @Override
     public void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer) {
         GLES30.glFramebufferTextureLayer(target, attachment, texture, level, layer);
-//        throw new UnsupportedOperationException("OpenGL ES 2 does not support texture arrays");
     }
 
     public void glDrawBuffer(int mode) {
