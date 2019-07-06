@@ -1530,7 +1530,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         return morphTargets.getArray();
     }
     
-        /**
+    /**
      * Get the name of all morphs in order.
      * Morphs without names will be null
      * @return an array
@@ -1551,6 +1551,22 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
 
     public boolean hasMorphTargets() {
         return morphTargets != null && !morphTargets.isEmpty();
+    }
+    
+    /**
+     * Get the index of the morph that has the given name.
+     * @param morphName The name of the morph to search for
+     * @return The index of the morph, or -1 if not found. 
+     */
+    public int getMorphIndex(String morphName) {
+        int index = -1;
+        MorphTarget[] nbMorphTargets = getMorphTargets();
+        for (int i = 0; i < nbMorphTargets.length; i++) {
+            if (nbMorphTargets[i].getName().equals(morphName)) {
+                index = i;
+            }
+        }
+        return index;
     }
 
     @Override

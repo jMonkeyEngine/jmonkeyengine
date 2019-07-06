@@ -610,25 +610,8 @@ public class Geometry extends Spatial {
      * @param state The state to set the morph to
      */
     public void setMorphState(String morphTarget, float state) {
-        if (mesh == null || mesh.getMorphTargets().length == 0) {
-            return;
-        }
-        MorphTarget[] nbMorphTargets = mesh.getMorphTargets();
-
-        if (morphState == null) {
-            morphState = new float[nbMorphTargets.length];
-        }
-        
-        int index;
-        boolean found = false;
-        for (index = 0; index < nbMorphTargets.length; index++) {
-            String name = nbMorphTargets[index].getName();
-            if (name != null && name.equals(morphTarget)) {
-                found = true;
-                break;
-            }
-        }
-        if (found) {
+        int index = mesh.getMorphIndex(morphTarget); // need to add `getMorphIndex` into Mesh class
+        if(index > 0) {
             morphState[index] = state;
             this.dirtyMorph = true;
         }
@@ -669,24 +652,12 @@ public class Geometry extends Spatial {
      * @return the state of the morph, or -1 if the morph is not found
      */
     public float getMorphState(String morphTarget) {
-        MorphTarget[] nbMorphTargets = mesh.getMorphTargets();
-
-        if (morphState == null) {
-            morphState = new float[nbMorphTargets.length];
-        }
-        
-        int index;
-        boolean found = false;
-        for (index = 0; index < nbMorphTargets.length; index++) {
-            if (nbMorphTargets[index].getName().equals(morphTarget)) {
-                found = true;
-                break;
-            }
-        }
-        if (found) {
+        int index = mesh.getMorphIndex(morphTarget); // need to add `getMorphIndex` into Mesh class
+        if(index < 0) {
+            return -1;
+        } else  {
             return morphState[index];
         }
-        return -1;
     }
     
     /**
