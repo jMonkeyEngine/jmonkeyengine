@@ -610,7 +610,7 @@ public class Geometry extends Spatial {
      * @param state The state to set the morph to
      */
     public void setMorphState(String morphTarget, float state) {
-        int index = mesh.getMorphIndex(morphTarget); // need to add `getMorphIndex` into Mesh class
+        int index = mesh.getMorphIndex(morphTarget);
         if(index > 0) {
             morphState[index] = state;
             this.dirtyMorph = true;
@@ -652,7 +652,7 @@ public class Geometry extends Spatial {
      * @return the state of the morph, or -1 if the morph is not found
      */
     public float getMorphState(String morphTarget) {
-        int index = mesh.getMorphIndex(morphTarget); // need to add `getMorphIndex` into Mesh class
+        int index = mesh.getMorphIndex(morphTarget);
         if(index < 0) {
             return -1;
         } else  {
