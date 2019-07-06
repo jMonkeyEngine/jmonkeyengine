@@ -1564,6 +1564,7 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
         for (int i = 0; i < nbMorphTargets.length; i++) {
             if (nbMorphTargets[i].getName().equals(morphName)) {
                 index = i;
+                break;
             }
         }
         return index;

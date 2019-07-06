@@ -611,7 +611,7 @@ public class Geometry extends Spatial {
      */
     public void setMorphState(String morphTarget, float state) {
         int index = mesh.getMorphIndex(morphTarget);
-        if(index > 0) {
+        if (index >= 0) {
             morphState[index] = state;
             this.dirtyMorph = true;
         }
@@ -653,7 +653,7 @@ public class Geometry extends Spatial {
      */
     public float getMorphState(String morphTarget) {
         int index = mesh.getMorphIndex(morphTarget);
-        if(index < 0) {
+        if (index < 0) {
             return -1;
         } else  {
             return morphState[index];
