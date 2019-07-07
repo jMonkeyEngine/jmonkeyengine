@@ -659,18 +659,6 @@ public class Geometry extends Spatial {
             return morphState[index];
         }
     }
-    
-    /**
-     * Get the name of all morphs in order.
-     * Morphs without names will be null
-     * @return an array
-     */
-    public String[] getMorphNames() {
-        if (mesh == null || mesh.getMorphTargets().length == 0) {
-            return new String[0];
-        }
-        return mesh.getMorphTargetNames();
-    }
 
     /**
      * Return the number of morph targets that can be handled on the GPU simultaneously for this geometry.
