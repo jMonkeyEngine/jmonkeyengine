@@ -22,6 +22,15 @@ p.s. We will try hold ourselves to a [certain standard](http://www.defmacro.org/
 
 Developers in the Contributors team can push directly to Main instead of submitting pull requests, however for new features it is often a good idea to do a pull request as a means to get a last code review.
 
+## Customs around integration, branching, tagging, and releases
+
+- Most pull requests are integrated directly into the master branch of the repository.
+- Integrators should note, unless the history of the pull request is important, it should be integrated to a single commit using “squash and merge”. If the history is important, favor “rebase and merge”. Don’t create a merge commit unless GitHub cannot rebase the PR.
+- For each major release (such as v3.0 or v3.3), an appropriately named release branch is created in the repository.
+- For each minor (or “dot-dot”) release (such as v3.2.3), an appropriately named tag is created in the repository.
+- In general, library changes that plausibly might break existing apps appear only in major releases, not minor ones.
+
+
 ## Building the engine
 
 1. Install [Gradle](http://www.gradle.org/)
