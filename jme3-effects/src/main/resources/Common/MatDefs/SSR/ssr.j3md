@@ -32,10 +32,7 @@ MaterialDef SSR {
 
         // Reflections fading 
         Vector2 NearReflectionsFade : 0.01 1.0
-        Vector2 FarReflectionsFade : 80.0 100.0
-
-        ///
-        Vector3 FrustumCorner
+        Vector2 FarReflectionsFade : 200.0 300.0
 
         Int NumSamples
         Int NumSamplesDepth

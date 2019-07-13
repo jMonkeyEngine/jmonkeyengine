@@ -97,9 +97,7 @@ uniform sampler2D m_Texture;
 uniform vec3 g_CameraPosition;
 uniform mat4 g_ViewProjectionMatrixInverse;
 uniform mat4 g_ViewProjectionMatrix;
-uniform mat4 g_ProjectionMatrix;
 uniform vec2 g_FrustumNearFar;
-uniform vec3 m_FrustumCorner;
 uniform vec2 m_NearReflectionsFade;
 uniform vec2 m_FarReflectionsFade;
 uniform int m_RaySamples;
@@ -179,45 +177,7 @@ vec3 screenPosToWPos(in vec3 screenPos){
     return pos.xyz/pos.w;
 }
 
-vec3 getPosition(float depthv, in vec2 uv){
-  //Reconstruction from depth
-  float depth = depthv;//(2.0 * g_FrustumNearFar.x) / (g_FrustumNearFar.y + g_FrustumNearFar.x - depthv * (g_FrustumNearFar.y-g_FrustumNearFar.x));
-
-  //one frustum corner methodPreNormalPass
-  float x = mix(-m_FrustumCorner.x, m_FrustumCorner.x, uv.x);
-  float y = mix(-m_FrustumCorner.y, m_FrustumCorner.y, uv.y);
-
-  return depth * vec3(x, y, m_FrustumCorner.z);
-}
-
-#define fresnelExp 5.0
-
-float fresnel(vec3 direction, vec3 normal) {
-    vec3 halfDirection = normalize(normal + direction);
-    
-    float cosine = dot(halfDirection, direction);
-    float product = max(cosine, 0.0);
-    float factor = 1.0 - pow(product, fresnelExp);
-    
-    return factor;
-}
-
-
-
 #ifdef USE_APPROXIMATED_NORMALS
-    vec3 approximateNormal2(in vec3 pos,in vec2 texCoord){
-        float step = g_ResolutionInverse.x ;
-    float stepy = g_ResolutionInverse.y ;
-    float depth2 = getDepth(m_DepthTexture,texCoord + vec2(step,-stepy)).r;
-    float depth3 = getDepth(m_DepthTexture,texCoord + vec2(-step,-stepy)).r;
-    vec3 pos2 = vec3(getPosition(depth2,texCoord + vec2(step,-stepy)));
-    vec3 pos3 = vec3(getPosition(depth3,texCoord + vec2(-step,-stepy)));
-
-    vec3 v1 = (pos - pos2).xyz;
-    vec3 v2 = (pos3 - pos2).xyz;
-    vec4 normal = vec4(normalize(cross(-v1, v2)), 1.0) ;
-    return normal.xyz / normal.w;
-    }
     /**
     * Use nearby positions to aproximate normals
     */
@@ -241,7 +201,7 @@ float fresnel(vec3 direction, vec3 normal) {
 #else
     vec3 getNormal(in vec2 texCoord){
         vec3 wNormal = texture(m_Normals, texCoord).xyz * 2.0 - 1.0;
-        vec4 normal = vec4(wNormal , 1.0);// * g_ProjectionMatrix;
+        vec4 normal = vec4(wNormal , 1.0);
         wNormal = normal.xyz / normal.w;
         wNormal.z = (2.0 * g_FrustumNearFar.x) / (g_FrustumNearFar.y + g_FrustumNearFar.x - wNormal.z * (g_FrustumNearFar.y-g_FrustumNearFar.x));
         #ifdef RG_NORMAL_MAP

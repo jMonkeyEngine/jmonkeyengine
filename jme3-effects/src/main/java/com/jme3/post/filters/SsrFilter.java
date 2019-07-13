@@ -50,7 +50,6 @@ import java.util.ArrayList;
 public class SsrFilter extends Filter{
     
     private Vector2f frustumNearFar;
-    private Vector3f frustumCorner;
 
     private RenderManager renderManager;
     private ViewPort viewPort;
@@ -69,6 +68,8 @@ public class SsrFilter extends Filter{
     private float blurScale = 1f;
     private float sigma = 5f;
     private float reflectionFactor = 1f;
+    private Vector2f nearFade = new Vector2f(0.01f, 1.0f);
+    private Vector2f farFade = new Vector2f(200f, 300f);
 
 
     public SsrFilter(){
@@ -94,7 +95,6 @@ public class SsrFilter extends Filter{
 
         float farY = (vp.getCamera().getFrustumTop() / vp.getCamera().getFrustumNear()) * vp.getCamera().getFrustumFar();
         float farX = farY * ((float) screenWidth / (float) screenHeight);
-        frustumCorner = new Vector3f(farX, farY, vp.getCamera().getFrustumFar());
         frustumNearFar.x = vp.getCamera().getFrustumNear();
         frustumNearFar.y = vp.getCamera().getFrustumFar();
         
@@ -105,7 +105,6 @@ public class SsrFilter extends Filter{
 //        }
 
         ssrMaterial = new Material(manager, "Common/MatDefs/SSR/ssr.j3md"); 
-        ssrMaterial.setVector3("FrustumCorner", frustumCorner);
 //        if(!approximateNormals){
             ssrMaterial.setTexture("Normals", normalPass.getRenderedTexture());
 //        }
@@ -114,7 +113,8 @@ public class SsrFilter extends Filter{
         ssrMaterial.setFloat("StepLength", stepLength);
         ssrMaterial.setFloat("ReflectionFactor", reflectionFactor);
         ssrMaterial.setBoolean("ApproximateNormals", approximateNormals);
-        
+        ssrMaterial.setVector2("NearReflectionsFade", nearFade);
+        ssrMaterial.setVector2("FarReflectionsFade", farFade);
         
         ssrPass = new Pass("SSR pass") {
 
@@ -276,6 +276,28 @@ public class SsrFilter extends Filter{
         this.approximateGlossiness = approximateGlossiness;
         if(ssrMaterial != null){
             ssrMaterial.setBoolean("ApproximateGlossiness", approximateGlossiness);
+        }
+    }
+
+    public Vector2f getNearFade() {
+        return nearFade;
+    }
+
+    public void setNearFade(Vector2f nearFade) {
+        this.nearFade = nearFade;
+        if(ssrMaterial != null){
+            ssrMaterial.setVector2("NearReflectionsFade", nearFade);
+        }
+    }
+
+    public Vector2f getFarFade() {
+        return farFade;
+    }
+
+    public void setFarFade(Vector2f farFade) {
+        this.farFade = farFade;
+        if(ssrMaterial != null){
+            ssrMaterial.setVector2("FarReflectionsFade", farFade);
         }
     }
     
