@@ -9,6 +9,7 @@ MaterialDef SSRMerger {
         Boolean FastBlur : False  
         Float BlurScale: 1.0
         Float Sigma: 5.0
+        Int KernelSize : 5
 
         Int NumSamples
         
@@ -29,6 +30,9 @@ MaterialDef SSRMerger {
             HORIZONTAL : Horizontal
             VERTICAL : Vertical
             USE_FAST_BLUR : FastBlur
+            BLUR_SCALE : BlurScale
+            SIGMA : Sigma
+            KERNEL_SIZE : KernelSize
         }
 
     }

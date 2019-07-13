@@ -63,7 +63,7 @@ MaterialDef SSR {
             USE_APPROXIMATED_NORMALS: ApproximateNormals
             USE_APPROXIMATED_GLOSSINESS: ApproximateGlossiness
             GLOSSINESS_PACKET_IN_NORMAL_B: GlossinessPackedInNormalB
-            RAY_SAMPLES: NumSamples
+            RAY_SAMPLES: RaySamples
             NEARBY_SAMPLES: NearbySamples
         }
     }

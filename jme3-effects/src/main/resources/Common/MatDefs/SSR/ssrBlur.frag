@@ -6,8 +6,6 @@ uniform sampler2D m_SSR;
 
 uniform vec2 g_Resolution;
 uniform vec2 g_ResolutionInverse;
-uniform float m_BlurScale;
-uniform float m_Sigma;
 
 noperspective in vec2 texCoord;
 out vec4 outFragColor;
@@ -48,11 +46,11 @@ vec4 fastBlur(sampler2D image, vec2 direction) {
 #else 
 
 float normpdf(in float x){
-	return 0.39894*exp(-0.5*x*x/(m_Sigma*m_Sigma))/m_Sigma;
+	return 0.39894*exp(-0.5*x*x/(SIGMA * SIGMA))/SIGMA;
 }
 // based on: https://www.shadertoy.com/view/XdfGDH
 vec4 blur(sampler2D image){
-    const int mSize = 5;
+    const int mSize = KERNEL_SIZE;
     const int kSize = (mSize-1)/2;
     float kernel[mSize];
     vec4 final_colour = vec4(0.0);
@@ -91,9 +89,9 @@ void main(){
     if(texture(m_SSR, texCoord).a > ALPHA_CUT_OFF){
         #ifdef USE_FAST_BLUR
             #ifdef HORIZONTAL
-                vec4 sum = fastBlur(m_SSR, vec2(1 * m_BlurScale, 0) * g_ResolutionInverse);
+                vec4 sum = fastBlur(m_SSR, vec2(1 * BLUR_SCALE, 0) * g_ResolutionInverse);
             #else
-                vec4 sum = fastBlur(m_SSR, vec2(0, 1 * m_BlurScale) * g_ResolutionInverse);
+                vec4 sum = fastBlur(m_SSR, vec2(0, 1 * BLUR_SCALE) * g_ResolutionInverse);
             #endif
         #else
             vec4 sum = blur(m_SSR);

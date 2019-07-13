@@ -100,7 +100,6 @@ uniform mat4 g_ViewProjectionMatrix;
 uniform vec2 g_FrustumNearFar;
 uniform vec2 m_NearReflectionsFade;
 uniform vec2 m_FarReflectionsFade;
-uniform int m_RaySamples;
 uniform float m_StepLength;
 uniform float m_ReflectionFactor;
 /**
@@ -155,7 +154,12 @@ vec3 getScreenPos(in vec2 texCoord,in float depth){
 * Exponential to linear depth
 */
 float linearizeDepth(in float depth){
-    return (2. * g_FrustumNearFar.x) / (g_FrustumNearFar.y + g_FrustumNearFar.x - depth * (g_FrustumNearFar.y - g_FrustumNearFar.x));
+    float f=g_FrustumNearFar.y;
+    float n = g_FrustumNearFar.x;
+    float d=depth*2.-1.;
+    d= (2. * n *f ) / (f + n - d * (f - n));
+    return (d-n)/(f-n);
+    //return (2. * g_FrustumNearFar.x) / (g_FrustumNearFar.y + g_FrustumNearFar.x - depth * (g_FrustumNearFar.y - g_FrustumNearFar.x));
 }
 
 /**
@@ -317,7 +321,7 @@ HitResult performRayMarching(in Ray ray){
 
     float linearSourceDepth=linearizeDepth(ray.sFrom.z);
 
-    for(int i = 0; i < m_RaySamples; i++) {
+    for(int i = 0; i < RAY_SAMPLES; i++) {
         // if(hit)break;
         sampleWPos = ray.wFrom + ray.wDir * stepLength;
         sampleScreenPos = wposToScreenPos(sampleWPos); // ray.sFrom + ray.sDir * stepLength;
