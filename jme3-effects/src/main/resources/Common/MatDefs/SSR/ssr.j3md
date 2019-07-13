@@ -1,0 +1,74 @@
+MaterialDef SSR {
+
+    MaterialParameters {
+        // Scene depth 
+        Texture2D DepthTexture
+
+        // Scene color 
+        Texture2D Texture 
+
+        Texture2D Normals
+
+        // How many samples along the ray
+        Int RaySamples: 16
+
+        // How many samples around the hit position
+        Int NearbySamples: 4
+
+        Float StepLength : 1.0
+
+        // Read only XY from normalmap and generate Z
+        Boolean RGNormalMap: False
+
+        // Z component of normal map is actually glossiness
+        Boolean GlossinessPackedInNormalB : False
+
+        // Approximate normals using the depth buffer (automatically actived if you don't provide a Normals texture)
+        Boolean ApproximateNormals : False
+
+        // Approximate glossiness using the normal map 
+        // (requires Normals, can be used together with GlossinessPackedInNormalB to reduce noise for high frequency normals)
+        Boolean ApproximateGlossiness : True
+
+        // Reflections fading 
+        Vector2 NearReflectionsFade : 0.01 1.0
+        Vector2 FarReflectionsFade : 80.0 100.0
+
+        ///
+        Vector3 FrustumCorner
+
+        Int NumSamples
+        Int NumSamplesDepth
+
+        Float ReflectionFactor : 1.0
+
+      
+    }
+
+    Technique {
+        VertexShader GLSL130:   Common/MatDefs/SSR/ssr.vert
+        FragmentShader GLSL130:  Common/MatDefs/SSR/ssr.frag
+
+        WorldParameters {
+            ResolutionInverse
+            CameraPosition
+            ViewProjectionMatrix
+            ViewProjectionMatrixInverse
+            FrustumNearFar
+            ProjectionMatrix
+            ProjectionMatrixInverse
+        }
+
+        Defines {
+            SCENE_NORMALS:Normals
+            SCENE: Texture
+            RG_NORMAL_MAP: RGNormalMap
+            USE_APPROXIMATED_NORMALS: ApproximateNormals
+            USE_APPROXIMATED_GLOSSINESS: ApproximateGlossiness
+            GLOSSINESS_PACKET_IN_NORMAL_B: GlossinessPackedInNormalB
+            RAY_SAMPLES: NumSamples
+            NEARBY_SAMPLES: NearbySamples
+        }
+    }
+
+}
