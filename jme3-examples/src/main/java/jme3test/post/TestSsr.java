@@ -39,10 +39,8 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.SsrFilter;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.Texture;
-import com.jme3.util.TangentBinormalGenerator;
 
 public class TestSsr extends SimpleApplication {
 
@@ -55,7 +53,7 @@ public class TestSsr extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        cam.setLocation(new Vector3f(10, 5, 10));
+        cam.setLocation(new Vector3f(20, 15, 20));
         cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
 //        cam.setRotation(new Quaternion(0.046916496f, -0.69500375f, 0.045538206f, 0.7160271f));
 
@@ -93,7 +91,8 @@ public class TestSsr extends SimpleApplication {
         rootNode.addLight(p2);
 
         model = assetManager.loadModel("Scenes/SSR/testScene.j3o");
-        
+//        model = assetManager.loadModel("Scenes/ManyLights/Main.scene");
+//        
 //        model.setMaterial(mat);
         
 //        model = (Geometry) assetManager.loadModel("Models/Sponza/Sponza.j3o");
@@ -104,13 +103,14 @@ public class TestSsr extends SimpleApplication {
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         SsrFilter ssrFilter = new SsrFilter();
-        ssrFilter.setDownSampleFactor(1.5f);
+        ssrFilter.setDownSampleFactor(2f);
         ssrFilter.setApproximateNormals(false);
-        ssrFilter.setFastBlur(false);
+        ssrFilter.setFastBlur(true);
         ssrFilter.setStepLength(0.5f);
         ssrFilter.setRaySteps(16);
-        ssrFilter.setSigma(2f);
-        ssrFilter.setReflectionFactor(0.25f);
+        ssrFilter.setSigma(5f);
+        ssrFilter.setSampleNearby(false);
+        ssrFilter.setReflectionFactor(0.5f);
         fpp.addFilter(ssrFilter);
         viewPort.addProcessor(fpp);
     }
