@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //// Size of a pixel used by NEARBY_SAMPLES
 #define PIXEL_SIZE_MULT 1.
 //// A depth difference equals or below this will be considered 0
-#define DEPTH_TEST_BIAS 0.00001
+#define DEPTH_TEST_BIAS 0.0001
 ////
 //// # DEBUG
 // #define _ENABLE_TESTS 1
@@ -71,11 +71,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ///// ########### ########### ########### 
 
 
-#ifndef SCENE_NORMALS
-    // If normal map is not provided, fallback to normal approximation
-    #define USE_APPROXIMATED_NORMALS 1
-    #undef USE_APPROXIMATED_GLOSSINESS
-#else 
+#ifdef SCENE_NORMALS
     uniform sampler2D m_Normals;
 #endif
 
@@ -185,7 +181,7 @@ vec3 screenPosToWPos(in vec3 screenPos){
 
 vec3 getPosition(float depthv, in vec2 uv){
   //Reconstruction from depth
-  float depth = (2.0 * g_FrustumNearFar.x) / (g_FrustumNearFar.y + g_FrustumNearFar.x - depthv * (g_FrustumNearFar.y-g_FrustumNearFar.x));
+  float depth = depthv;//(2.0 * g_FrustumNearFar.x) / (g_FrustumNearFar.y + g_FrustumNearFar.x - depthv * (g_FrustumNearFar.y-g_FrustumNearFar.x));
 
   //one frustum corner methodPreNormalPass
   float x = mix(-m_FrustumCorner.x, m_FrustumCorner.x, uv.x);
@@ -219,7 +215,7 @@ float fresnel(vec3 direction, vec3 normal) {
 
     vec3 v1 = (pos - pos2).xyz;
     vec3 v2 = (pos3 - pos2).xyz;
-    vec4 normal = vec4(normalize(cross(-v1, v2)), 1.0) * g_ProjectionMatrix;
+    vec4 normal = vec4(normalize(cross(-v1, v2)), 1.0) ;
     return normal.xyz / normal.w;
     }
     /**
@@ -245,7 +241,7 @@ float fresnel(vec3 direction, vec3 normal) {
 #else
     vec3 getNormal(in vec2 texCoord){
         vec3 wNormal = texture(m_Normals, texCoord).xyz * 2.0 - 1.0;
-        vec4 normal = vec4(wNormal , 1.0) * g_ProjectionMatrix;
+        vec4 normal = vec4(wNormal , 1.0);// * g_ProjectionMatrix;
         wNormal = normal.xyz / normal.w;
         wNormal.z = (2.0 * g_FrustumNearFar.x) / (g_FrustumNearFar.y + g_FrustumNearFar.x - wNormal.z * (g_FrustumNearFar.y-g_FrustumNearFar.x));
         #ifdef RG_NORMAL_MAP
@@ -389,7 +385,7 @@ HitResult performRayMarching(in Ray ray){
             }
         #if NEARBY_SAMPLES>0
             hitSurfaceScreenPos = getScreenPos(sampleScreenPos.xy,
-                texture(m_DepthTexture, sampleScreenPos.xy+_SAMPLES[j].xy * g_ResolutionInverse).r
+                texture(m_DepthTexture, sampleScreenPos.xy + _SAMPLES[j].xy * g_ResolutionInverse).r
             );
             j++;
         }while(j<=NEARBY_SAMPLES);

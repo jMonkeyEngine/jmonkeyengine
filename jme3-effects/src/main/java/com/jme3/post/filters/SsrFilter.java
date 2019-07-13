@@ -57,6 +57,8 @@ public class SsrFilter extends Filter{
     private Pass normalPass;
     private Pass ssrPass;
     private boolean approximateNormals = false;
+    private boolean approximateGlossiness = true;
+
     private float downSampleFactor = 1f;
 
     private Material ssrMaterial;
@@ -97,20 +99,21 @@ public class SsrFilter extends Filter{
         frustumNearFar.y = vp.getCamera().getFrustumFar();
         
         
-        //if(!approximateNormals){
+//        if(!approximateNormals){
             normalPass = new Pass();
             normalPass.init(renderManager.getRenderer(), (int) (screenWidth / downSampleFactor), (int) (screenHeight / downSampleFactor), Image.Format.RGBA8, Image.Format.Depth);
-        //}
+//        }
 
         ssrMaterial = new Material(manager, "Common/MatDefs/SSR/ssr.j3md"); 
         ssrMaterial.setVector3("FrustumCorner", frustumCorner);
-        //if(!approximateNormals){
+//        if(!approximateNormals){
             ssrMaterial.setTexture("Normals", normalPass.getRenderedTexture());
-        //}
+//        }
         ssrMaterial.setInt("RaySamples", raySteps);
         ssrMaterial.setInt("NearbySamples", sampleNearby ? 4 : 0);
         ssrMaterial.setFloat("StepLength", stepLength);
         ssrMaterial.setFloat("ReflectionFactor", reflectionFactor);
+        ssrMaterial.setBoolean("ApproximateNormals", approximateNormals);
         
         
         ssrPass = new Pass("SSR pass") {
@@ -264,6 +267,17 @@ public class SsrFilter extends Filter{
     }
     
        
+    
+    public boolean isApproximateGlossiness() {
+        return approximateGlossiness;
+    }
+
+    public void setApproximateGlossiness(boolean approximateGlossiness) {
+        this.approximateGlossiness = approximateGlossiness;
+        if(ssrMaterial != null){
+            ssrMaterial.setBoolean("ApproximateGlossiness", approximateGlossiness);
+        }
+    }
     
     
 }
