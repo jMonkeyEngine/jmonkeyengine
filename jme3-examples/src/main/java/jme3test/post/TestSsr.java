@@ -90,8 +90,8 @@ public class TestSsr extends SimpleApplication {
         p2.setRadius(15);
         rootNode.addLight(p2);
 
-        model = assetManager.loadModel("Scenes/SSR/testScene.j3o");
-//        model = assetManager.loadModel("Scenes/ManyLights/Main.scene");
+//        model = assetManager.loadModel("Scenes/SSR/testScene.j3o");
+        model = assetManager.loadModel("Scenes/ManyLights/Main.scene");
 //        
 //        model.setMaterial(mat);
         
@@ -107,7 +107,7 @@ public class TestSsr extends SimpleApplication {
         ssrFilter.setApproximateNormals(false);
         ssrFilter.setFastBlur(true);
         ssrFilter.setStepLength(0.5f);
-        ssrFilter.setRaySteps(16);
+        ssrFilter.setRaySteps(32);
         ssrFilter.setSigma(5f);
         ssrFilter.setSampleNearby(false);
         ssrFilter.setReflectionFactor(0.5f);
