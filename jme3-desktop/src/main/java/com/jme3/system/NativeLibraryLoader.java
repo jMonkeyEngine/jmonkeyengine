@@ -624,8 +624,8 @@ public final class NativeLibraryLoader {
             in = conn.getInputStream();
         } catch (IOException ex) {
             // Maybe put more detail here? Not sure..
-            throw new UnsatisfiedLinkError("Failed to open file: '" + url + 
-                                           "'. Error: " + ex);
+            throw new UncheckedIOException("Failed to open file: '" + url + 
+                                           "'. Error: " + ex, ex);
         }
         
         File targetFile = new File(extactionDirectory, loadedAsFileName);
@@ -665,8 +665,8 @@ public final class NativeLibraryLoader {
             if (ex.getMessage().contains("used by another process")) {
                 return;
             } else {
-                throw new UnsatisfiedLinkError("Failed to extract native "
-                        + "library to: " + targetFile);
+                throw new UncheckedIOException("Failed to extract native "
+                        + "library to: " + targetFile, ex);
             }
         } finally {
             // XXX: HACK. Vary loading method based on library name..
