@@ -77,6 +77,8 @@ public interface GLES_30 extends GL {
     public static final int GL_TEXTURE_WRAP_R = 0x8072;
     public static final int GL_VERTEX_PROGRAM_POINT_SIZE = 0x8642;
     public static final int GL_UNSIGNED_INT_8_8_8_8 = 0x8035;
+    public static final int GL_RGB10_A2 = 0x8059;
+    public static final int GL_UNSIGNED_INT_2_10_10_10_REV = 0x8368;
 
     /**
      * <p><a target="_blank" href="http://docs.gl/gl4/glDrawBuffer">Reference Page</a></p>

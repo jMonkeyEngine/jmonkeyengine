@@ -218,16 +218,20 @@ public final class GLImageFormats {
             }
         }
 
-        // Supported in GLES30 core as texture but not as renderbuffer. TODO: add other interesting formats like this one which is used as default for HDR textures
+        // Supported in GLES30 core 
         if (caps.contains(Caps.OpenGLES30)) { 
-//            format(formatToGL, Format.RGB16F,               GLExt.GL_RGB16F_ARB,             GL.GL_RGB,             halfFloatFormat);
+            format(formatToGL, Format.RGB10A2,                  GLES_30.GL_RGB10_A2,             GL.GL_RGBA,            GLES_30.GL_UNSIGNED_INT_2_10_10_10_REV);
+            if (!caps.contains(Caps.FloatTexture)) {
+                format(formatToGL, Format.RGB16F,               GLExt.GL_RGB16F_ARB,             GL.GL_RGB,             GLExt.GL_HALF_FLOAT_ARB);
+                format(formatToGL, Format.RGB32F,               GLExt.GL_RGB32F_ARB,             GL.GL_RGB,             GL.GL_FLOAT);
+                format(formatToGL, Format.RGBA16F,              GLExt.GL_RGBA16F_ARB,            GL.GL_RGBA,            GLExt.GL_HALF_FLOAT_ARB);
+                format(formatToGL, Format.RGBA32F,              GLExt.GL_RGBA32F_ARB,            GL.GL_RGBA,            GL.GL_FLOAT);
+            }
+            if (!caps.contains(Caps.PackedFloatTexture)) {
+                format(formatToGL, Format.RGB111110F,           GLExt.GL_R11F_G11F_B10F_EXT,     GL.GL_RGB,             GLExt.GL_UNSIGNED_INT_10F_11F_11F_REV_EXT);
+            }
         }
         
-        // Supported in GLES32 core 
-        if (caps.contains(Caps.OpenGLES32)) { 
-            format(formatToGL, Format.RGBA16F,              GLExt.GL_RGBA16F_ARB,            GL.GL_RGBA,            halfFloatFormat);
-        }
-
          // Need to check if Caps.DepthTexture is supported prior to using for textures
         // But for renderbuffers its OK.
         format(formatToGL, Format.Depth16, GL.GL_DEPTH_COMPONENT16,  GL.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_SHORT);

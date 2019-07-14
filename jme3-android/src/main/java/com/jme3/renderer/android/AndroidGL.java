@@ -364,7 +364,7 @@ public class AndroidGL implements GL, GLES_30, GLExt, GLFbo {
     }
 
     public void glTexImage2D(int target, int level, int internalFormat, int width, int height, int border, int format, int type, ByteBuffer data) {
-        GLES20.glTexImage2D(target, level, format, width, height, 0, format, type, data);
+        GLES20.glTexImage2D(target, level, internalFormat, width, height, 0, format, type, data);
     }
 
     public void glTexParameterf(int target, int pname, float param) {
@@ -600,5 +600,6 @@ public class AndroidGL implements GL, GLES_30, GLExt, GLFbo {
                                     int depth, int format, int type, ByteBuffer data) {
         GLES30.glTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, data);
     }
+
 }
 

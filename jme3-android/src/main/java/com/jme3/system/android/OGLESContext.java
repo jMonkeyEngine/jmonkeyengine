@@ -53,6 +53,7 @@ import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.android.AndroidGL;
 import com.jme3.renderer.opengl.GL;
+import com.jme3.renderer.opengl.GLES_30;
 import com.jme3.renderer.opengl.GLDebugES;
 import com.jme3.renderer.opengl.GLExt;
 import com.jme3.renderer.opengl.GLFbo;
@@ -202,7 +203,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             gl = new GLDebugES((GL) gl, (GLExt) gl, (GLFbo) gl);
         }
         if (settings.getBoolean("GraphicsTrace")) {
-            gl = GLTracer.createGlesTracer(gl, GL.class, GLFbo.class, GLExt.class);
+            gl = GLTracer.createGlesTracer(gl, GL.class, GLES_30.class, GLFbo.class, GLExt.class);
         }
         renderer = new GLRenderer((GL)gl, (GLExt)gl, (GLFbo)gl);
         renderer.initialize();
