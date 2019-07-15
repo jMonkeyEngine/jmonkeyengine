@@ -221,6 +221,9 @@ public final class GLImageFormats {
         // Supported in GLES30 core 
         if (caps.contains(Caps.OpenGLES30)) { 
             format(formatToGL, Format.RGB10A2,              GLES_30.GL_RGB10_A2,             GL.GL_RGBA,            GLES_30.GL_UNSIGNED_INT_2_10_10_10_REV);
+            format(formatToGL, Format.Alpha8,               GL2.GL_ALPHA8,                   GL.GL_ALPHA,           GL.GL_UNSIGNED_BYTE);
+            format(formatToGL, Format.Luminance8,           GL.GL_LUMINANCE,                 GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE);
+            format(formatToGL, Format.Luminance8Alpha8,     GL.GL_LUMINANCE_ALPHA,           GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE);
 
             formatSrgb(formatToGL, Format.RGB8,             GLExt.GL_SRGB8_EXT,              GL.GL_RGB,             GL.GL_UNSIGNED_BYTE);
             formatSrgb(formatToGL, Format.RGBA8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE);
