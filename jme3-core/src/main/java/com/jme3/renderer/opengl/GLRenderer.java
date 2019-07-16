@@ -365,7 +365,7 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.Rgba8);
         }
 
-        if (caps.contains(Caps.OpenGL30) || hasExtension("GL_OES_packed_depth_stencil")) {
+        if (caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30) || hasExtension("GL_OES_packed_depth_stencil")) {
             caps.add(Caps.PackedDepthStencilBuffer);
         }
 
@@ -375,7 +375,7 @@ public final class GLRenderer implements Renderer {
             caps.add(Caps.FloatColorBuffer);
         }
 
-        if (hasExtension("GL_ARB_depth_buffer_float")) {
+        if (caps.contains(Caps.OpenGLES30) || hasExtension("GL_ARB_depth_buffer_float")) {
             caps.add(Caps.FloatDepthBuffer);
         }
 
