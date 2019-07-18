@@ -98,6 +98,7 @@ public abstract class AbstractJoystick implements Joystick {
      * @deprecated Use JoystickButton.assignButton() instead.
      */
     @Override
+    @Deprecated
     public void assignButton(String mappingName, int buttonId){
         if (buttonId < 0 || buttonId >= getButtonCount())
             throw new IllegalArgumentException();
@@ -116,6 +117,7 @@ public abstract class AbstractJoystick implements Joystick {
      * @deprecated Use JoystickAxis.assignAxis() instead.
      */
     @Override
+    @Deprecated
     public void assignAxis(String positiveMapping, String negativeMapping, int axisId){
     
         // For backwards compatibility

@@ -602,6 +602,22 @@ public class Geometry extends Spatial {
     }
 
     /**
+     * Set the state of the morph with the given name.
+     * 
+     * If the name of the morph is not found, no state will be set.
+     * 
+     * @param morphTarget The name of the morph to set the state of
+     * @param state The state to set the morph to
+     */
+    public void setMorphState(String morphTarget, float state) {
+        int index = mesh.getMorphIndex(morphTarget);
+        if (index >= 0) {
+            morphState[index] = state;
+            this.dirtyMorph = true;
+        }
+    }
+
+    /**
      * returns true if the morph state has changed on the last frame.
      * @return true if changed, otherwise false
      */
@@ -628,6 +644,20 @@ public class Geometry extends Spatial {
             morphState = new float[mesh.getMorphTargets().length];
         }
         return morphState;
+    }
+    
+    /**
+     * Get the state of a morph
+     * @param morphTarget the name of the morph to get the state of
+     * @return the state of the morph, or -1 if the morph is not found
+     */
+    public float getMorphState(String morphTarget) {
+        int index = mesh.getMorphIndex(morphTarget);
+        if (index < 0) {
+            return -1;
+        } else  {
+            return morphState[index];
+        }
     }
 
     /**

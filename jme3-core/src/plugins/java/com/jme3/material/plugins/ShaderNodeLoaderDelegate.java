@@ -1058,11 +1058,11 @@ public class ShaderNodeLoaderDelegate {
     }
 
     /**
-     * merges 2 condition with the given operator
+     * Merges 2 conditions with the given operator
      *
      * @param condition1 the first condition
      * @param condition2 the second condition
-     * @param operator the operator ("&&" or "||&)
+     * @param operator the operator {@literal ("&&" or "||&)}
      * @return the merged condition
      */
     public String mergeConditions(String condition1, String condition2, String operator) {

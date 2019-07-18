@@ -32,9 +32,9 @@ public class Texture_t extends Structure {
 	/**
 	 * @param handle void *<br>
 	 * C type : void*<br>
-	 * @param eType @see ETextureType<br>
+	 * @param eType @see JOpenVRLibrary.ETextureType <br>
 	 * C type : ETextureType<br>
-	 * @param eColorSpace @see EColorSpace<br>
+	 * @param eColorSpace @see JOpenVRLibrary.EColorSpace <br>
 	 * C type : EColorSpace
 	 */
 	public Texture_t(int handle, int eType, int eColorSpace) {

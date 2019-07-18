@@ -123,7 +123,7 @@ public interface VRInputAPI {
     public Object getRawControllerState(int index);
     
     /**
-     * Swap the two hands (exchange the hands controller 1 & 2 indices).
+     * Swap the two hands (exchange the hands controller 1 and 2 indices).
      */
     public void swapHands();
     

@@ -113,12 +113,11 @@ public abstract class LwjglContext implements JmeContext {
                 maj = 2;
                 min = 0;
                 break;
-            // case AppSettings.LWJGL_OPENGL30:
-            // maj=3;
-            // min=0;
-            // break;
-            case AppSettings.LWJGL_OPENGL3:
-                // case AppSettings.LWJGL_OPENGL32:
+            case AppSettings.LWJGL_OPENGL30:
+                maj = 3;
+                min = 0;
+                break;
+            case AppSettings.LWJGL_OPENGL32:
                 maj = 3;
                 min = 2;
                 break;
@@ -126,8 +125,7 @@ public abstract class LwjglContext implements JmeContext {
                 maj = 3;
                 min = 3;
                 break;
-            case AppSettings.LWJGL_OPENGL4:
-                // case AppSettings.LWJGL_OPENGL40:
+            case AppSettings.LWJGL_OPENGL40:
                 maj = 4;
                 min = 0;
                 break;

@@ -158,6 +158,7 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @deprecated Use {@link AudioNode#AudioNode(com.jme3.asset.AssetManager, java.lang.String, com.jme3.audio.AudioData.DataType)} instead
      */
+    @Deprecated
     public AudioNode(AssetManager assetManager, String name, boolean stream, boolean streamCache) {
         this.audioKey = new AudioKey(name, stream, streamCache);
         this.data = (AudioData) assetManager.loadAsset(audioKey);
@@ -173,6 +174,7 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @deprecated Use {@link AudioNode#AudioNode(com.jme3.asset.AssetManager, java.lang.String, com.jme3.audio.AudioData.DataType)} instead
      */
+    @Deprecated
     public AudioNode(AssetManager assetManager, String name, boolean stream) {
         this(assetManager, name, stream, true); // Always streamCached
     }
@@ -186,6 +188,7 @@ public class AudioNode extends Node implements AudioSource {
      *
      * @deprecated AudioRenderer parameter is ignored.
      */
+    @Deprecated
     public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name) {
         this(assetManager, name, DataType.Buffer);
     }
@@ -197,6 +200,7 @@ public class AudioNode extends Node implements AudioSource {
      * @param name The filename of the audio file
      * @deprecated Use {@link AudioNode#AudioNode(com.jme3.asset.AssetManager, java.lang.String, com.jme3.audio.AudioData.DataType) } instead
      */
+    @Deprecated
     public AudioNode(AssetManager assetManager, String name) {
         this(assetManager, name, DataType.Buffer);
     }
@@ -722,7 +726,7 @@ public class AudioNode extends Node implements AudioSource {
     @Override
     public void updateGeometricState() {
         super.updateGeometricState();
-        if (channel < 0 || this.getParent() == null) return;
+        if (channel < 0) return;
         Vector3f currentWorldTranslation = worldTransform.getTranslation();
         if (!previousWorldTranslation.equals(currentWorldTranslation)) {
             getRenderer().updateSourceParam(this, AudioParam.Position);

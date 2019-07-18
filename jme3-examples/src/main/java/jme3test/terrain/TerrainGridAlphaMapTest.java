@@ -294,7 +294,9 @@ public class TerrainGridAlphaMapTest extends SimpleApplication {
                     TerrainGridAlphaMapTest.this.down = false;
                 }
             } else if (name.equals("Jumps")) {
-                TerrainGridAlphaMapTest.this.player3.jump();
+                if (usePhysics && keyPressed) {
+                    player3.jump();
+                }
             }
         }
     };

@@ -248,6 +248,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          * 
          * @deprecated Not supported by OpenGL 3
          */
+        @Deprecated
         MirrorEdgeClamp;
     }
 
@@ -278,21 +279,23 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          */
         Off,
 
-        /**
+        /** 
+         * {@code
          * Compares the 3rd texture coordinate R to the value
          * in this depth texture. If R <= texture value then result is 1.0,
          * otherwise, result is 0.0. If filtering is set to bilinear or trilinear
          * the implementation may sample the texture multiple times to provide
-         * smoother results in the range [0, 1].
+         * smoother results in the range [0, 1].}
          */
         LessOrEqual,
 
         /**
+         * {@code
          * Compares the 3rd texture coordinate R to the value
          * in this depth texture. If R >= texture value then result is 1.0,
          * otherwise, result is 0.0. If filtering is set to bilinear or trilinear
          * the implementation may sample the texture multiple times to provide
-         * smoother results in the range [0, 1].
+         * smoother results in the range [0, 1].}
          */
         GreaterOrEqual
     }

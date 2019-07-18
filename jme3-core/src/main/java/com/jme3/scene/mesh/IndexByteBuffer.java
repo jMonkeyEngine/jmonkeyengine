@@ -34,6 +34,8 @@ package com.jme3.scene.mesh;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
+import com.jme3.scene.VertexBuffer.Format;
+
 /**
  * IndexBuffer implementation for {@link ByteBuffer}s.
  * 
@@ -59,8 +61,15 @@ public class IndexByteBuffer extends IndexBuffer {
     }
 
     @Override
-    public void put(int i, int value) {
+    public IndexByteBuffer put(int i, int value) {
         buf.put(i, (byte) value);
+        return this;
+    }
+    
+    @Override
+    public IndexByteBuffer put(int value) {
+        buf.put((byte) value);
+        return this;
     }
 
     @Override
@@ -71,6 +80,11 @@ public class IndexByteBuffer extends IndexBuffer {
     @Override
     public Buffer getBuffer() {
         return buf;
+    }
+    
+    @Override
+    public Format getFormat () {
+        return Format.UnsignedByte;
     }
 
 }
