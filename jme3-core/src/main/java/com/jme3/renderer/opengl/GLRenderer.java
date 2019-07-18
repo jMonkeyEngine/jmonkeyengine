@@ -439,16 +439,16 @@ public final class GLRenderer implements Renderer {
             limits.put(Limits.RenderBufferSize, getInteger(GLFbo.GL_MAX_RENDERBUFFER_SIZE_EXT));
             limits.put(Limits.FrameBufferAttachments, getInteger(GLFbo.GL_MAX_COLOR_ATTACHMENTS_EXT));
 
-            if (hasExtension("GL_EXT_framebuffer_blit") || caps.contains(Caps.OpenGL30) /* || caps.contains(Caps.OpenGLES30)*/) {
+            if (hasExtension("GL_EXT_framebuffer_blit") || caps.contains(Caps.OpenGL30)  || caps.contains(Caps.OpenGLES30)) {
                 caps.add(Caps.FrameBufferBlit);
             }
 
-            if (hasExtension("GL_EXT_framebuffer_multisample") /*|| caps.contains(Caps.OpenGLES30)*/) {
+            if (hasExtension("GL_EXT_framebuffer_multisample") || caps.contains(Caps.OpenGLES30)) {
                 caps.add(Caps.FrameBufferMultisample);
                 limits.put(Limits.FrameBufferSamples, getInteger(GLExt.GL_MAX_SAMPLES_EXT));
             }
 
-            if (hasExtension("GL_ARB_texture_multisample") /*|| caps.contains(Caps.OpenGLES31)*/) { // GLES31 does not fully support it
+            if (hasExtension("GL_ARB_texture_multisample") || caps.contains(Caps.OpenGLES31)) { // GLES31 does not fully support it
                 caps.add(Caps.TextureMultisample);
                 limits.put(Limits.ColorTextureSamples, getInteger(GLExt.GL_MAX_COLOR_TEXTURE_SAMPLES));
                 limits.put(Limits.DepthTextureSamples, getInteger(GLExt.GL_MAX_DEPTH_TEXTURE_SAMPLES));
@@ -458,7 +458,7 @@ public final class GLRenderer implements Renderer {
                 }
             }
  
-            if (hasExtension("GL_ARB_draw_buffers") || caps.contains(Caps.OpenGL30) /*|| caps.contains(Caps.OpenGLES30)*/) {
+            if (hasExtension("GL_ARB_draw_buffers") || caps.contains(Caps.OpenGL30) || caps.contains(Caps.OpenGLES30)) {
                 limits.put(Limits.FrameBufferMrtAttachments, getInteger(GLExt.GL_MAX_DRAW_BUFFERS_ARB));
                 if (limits.get(Limits.FrameBufferMrtAttachments) > 1) {
                     caps.add(Caps.FrameBufferMRT);
