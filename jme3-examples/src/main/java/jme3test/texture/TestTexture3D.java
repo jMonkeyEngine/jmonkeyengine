@@ -116,17 +116,16 @@ public class TestTexture3D extends SimpleApplication {
          */
     private Texture getTexture() throws IOException {
         ArrayList<ByteBuffer> data = new ArrayList<ByteBuffer>(1);
-        ByteBuffer bb = BufferUtils.createByteBuffer(10 * 10 * 10 * 4);//all data must be inside one buffer
+        ByteBuffer bb = BufferUtils.createByteBuffer(10 * 10 * 10 * 3);//all data must be inside one buffer
         for (int i = 0; i < 10; ++i) {
             for (int j = 0; j < 10 * 10; ++j) {
                 bb.put((byte) (255f*i/10f));
                 bb.put((byte) (255f*i/10f));
                 bb.put((byte) (255f));
-                bb.put((byte) (255f));
             }
         }
         bb.rewind();
         data.add(bb);
-        return new Texture3D(new Image(Format.RGBA8, 10, 10, 10, data, null, ColorSpace.Linear));
+        return new Texture3D(new Image(Format.RGB8, 10, 10, 10, data, null, ColorSpace.Linear));
     }
 }
