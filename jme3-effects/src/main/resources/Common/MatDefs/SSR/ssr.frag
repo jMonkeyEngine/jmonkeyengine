@@ -1,5 +1,4 @@
 #import "Common/ShaderLib/GLSLCompat.glsllib"
-
 #import "Common/ShaderLib/MultiSample.glsllib"
 /**
 #######################
@@ -97,6 +96,7 @@ uniform sampler2D m_Texture;
 uniform vec3 g_CameraPosition;
 uniform mat4 g_ViewProjectionMatrixInverse;
 uniform mat4 g_ViewProjectionMatrix;
+uniform mat4 g_ProjectionMatrix;
 uniform vec2 g_FrustumNearFar;
 uniform vec2 m_NearReflectionsFade;
 uniform vec2 m_FarReflectionsFade;
@@ -146,7 +146,7 @@ struct HitResult {
 *        z=(0,1) for near and far
 */
 vec3 getScreenPos(in vec2 texCoord,in float depth){
-    vec3 screenpos= vec3(texCoord,depth);
+    vec3 screenpos= vec3(texCoord, depth);
     return screenpos;
 }
 
@@ -191,12 +191,12 @@ vec3 screenPosToWPos(in vec3 screenPos){
             vec3 v1=dFdx(pos);
             vec3 v2=dFdy(pos);
         #else
-            float step = g_ResolutionInverse.x ;
-            float stepy = g_ResolutionInverse.y ;
+            float step = g_ResolutionInverse.x;
+            float stepy = g_ResolutionInverse.y;
             float depth2 = texture(m_DepthTexture,texCoord + vec2(step,-stepy)).r;
             float depth3 = texture(m_DepthTexture,texCoord + vec2(-step,-stepy)).r;
-            vec3 pos2=screenPosToWPos( getScreenPos(texCoord + vec2(step,-stepy),depth2) );
-            vec3 pos3=screenPosToWPos( getScreenPos(texCoord + vec2(-step,-stepy),depth3) );
+            vec3 pos2=screenPosToWPos( getScreenPos(texCoord + vec2(step,-stepy), depth2) );
+            vec3 pos3=screenPosToWPos( getScreenPos(texCoord + vec2(-step,-stepy), depth3) );
             vec3 v1 = (pos - pos2).xyz;
             vec3 v2 = (pos3 - pos2).xyz;              
         #endif
@@ -276,16 +276,16 @@ Ray createRay(in vec2 texCoord,in float depth){
     Ray ray;
     ray.sFrom=getScreenPos(texCoord,depth);
     ray.wFrom = screenPosToWPos(ray.sFrom);
-    ray.surfaceGlossiness=1.;
+    ray.surfaceGlossiness=1.* m_ReflectionFactor;
 
     #ifdef USE_APPROXIMATED_NORMALS
         vec3 wNormal=approximateNormal(ray.wFrom, texCoord);
     #else
         vec3 wNormal= getNormal(texCoord);
         #ifdef GLOSSINESS_PACKET_IN_NORMAL_B
-            ray.surfaceGlossiness = wNormal.z * m_ReflectionFactor;
+            ray.surfaceGlossiness = wNormal.z;
         #elif defined(USE_APPROXIMATED_GLOSSINESS) 
-            ray.surfaceGlossiness = min(ray.surfaceGlossiness, approximateGlossiness(wNormal,texCoord)) * m_ReflectionFactor;
+            ray.surfaceGlossiness = min(ray.surfaceGlossiness, approximateGlossiness(wNormal,texCoord));
         #endif
     #endif
     
@@ -380,7 +380,7 @@ void main(){
         // Render reflections
         if(result.screenPos.x!=-1){
             outFragColor.rgb = texture2D(m_Texture,result.screenPos.xy).rgb;
-            outFragColor.a = d*ray.surfaceGlossiness*result.reflStrength;
+            outFragColor.a = d * ray.surfaceGlossiness*result.reflStrength;
             //float fresnel = fresnel(ray.wDir, ray.normal);
             //outFragColor.rgb *= fresnel;
         }  

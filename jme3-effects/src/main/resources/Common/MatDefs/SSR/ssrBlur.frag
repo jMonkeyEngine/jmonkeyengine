@@ -68,15 +68,18 @@ vec4 blur(sampler2D image){
 
     //read out the texels
     for (int i=-kSize; i <= kSize; ++i){
-            for (int j=-kSize; j <= kSize; ++j){
-                vec4 color = texture(image, texCoord + vec2(i,j) * g_ResolutionInverse);
-                if(color.a > ALPHA_CUT_OFF){
-                    final_colour += kernel[kSize+j]*kernel[kSize+i]*color;
-                }
-            }
+        #ifdef HORIZONTAL
+            vec2 uv = vec2(i, 0);
+        #else
+            vec2 uv = vec2(0, i);
+        #endif
+        vec4 color = texture(image, texCoord + uv * g_ResolutionInverse);
+        //if(color.a > ALPHA_CUT_OFF){
+            final_colour += kernel[kSize+i]*color;
+        //}
     }
 
-    final_colour /= Z * Z / 1.1;
+    final_colour /= Z / 1.1;
     return final_colour;
 }
 

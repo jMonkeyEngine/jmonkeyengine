@@ -32,6 +32,10 @@
 package com.jme3.post.filters;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -41,6 +45,7 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.Image;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -55,6 +60,7 @@ public class SsrFilter extends Filter{
     private ViewPort viewPort;
     private Pass normalPass;
     private Pass ssrPass;
+    private Pass[] blurPass;
     private boolean approximateNormals = false;
     private boolean approximateGlossiness = true;
 
@@ -70,7 +76,8 @@ public class SsrFilter extends Filter{
     private float reflectionFactor = 1f;
     private Vector2f nearFade = new Vector2f(0.01f, 1.0f);
     private Vector2f farFade = new Vector2f(200f, 300f);
-
+    private int blurPasses = 4;
+    private Image.Format ssrImageFormat = Image.Format.RGBA16F;
 
     public SsrFilter(){
         super("SSR Filter");
@@ -131,12 +138,33 @@ public class SsrFilter extends Filter{
             
         };
 
-        ssrPass.init(renderManager.getRenderer(), (int) (screenWidth / downSampleFactor), (int) (screenHeight / downSampleFactor), Image.Format.RGBA8, Image.Format.Depth, 1, ssrMaterial);
+        ssrPass.init(renderManager.getRenderer(), (int) (screenWidth / downSampleFactor), (int) (screenHeight / downSampleFactor), ssrImageFormat, Image.Format.Depth, 1, ssrMaterial);
         postRenderPasses.add(ssrPass);
+        
+        Material blurMaterial = new Material(manager, "Common/MatDefs/SSR/ssrBlur.j3md"); 
+        blurMaterial.setTexture("SSR", ssrPass.getRenderedTexture());
+        blurMaterial.setBoolean("Horizontal", true);
+        blurMaterial.setBoolean("FastBlur", fastBlur);
+        blurMaterial.setFloat("BlurScale", blurScale);
+        blurMaterial.setFloat("Sigma", sigma);
+        
+        blurPass = new Pass[blurPasses-1];
+        for(int i = 0; i < blurPasses-1; i++){
+            blurPass[i] = new Pass("Blur Pass"); 
+            Material passMat = blurMaterial.clone();
+            passMat.setBoolean("Horizontal", i % 2 == 0);
+            if(i == 0){
+                passMat.setTexture("SSR", ssrPass.getRenderedTexture());
+            } else {
+                passMat.setTexture("SSR", blurPass[i-1].getRenderedTexture());
+            }
+            blurPass[i].init(renderManager.getRenderer(), (int) (screenWidth / downSampleFactor), (int) (screenHeight / downSampleFactor), Image.Format.RGBA8, Image.Format.Depth, 1, passMat);
+            postRenderPasses.add(blurPass[i]);
+        }
 
         material = new Material(manager, "Common/MatDefs/SSR/ssrBlur.j3md"); 
-        material.setTexture("SSR", ssrPass.getRenderedTexture());
-        material.setBoolean("Horizontal", true);
+        material.setTexture("SSR", blurPasses > 1 ? blurPass[blurPasses-2].getRenderedTexture() : ssrPass.getRenderedTexture());
+        material.setBoolean("Horizontal", blurPasses % 2 == 1);
         material.setBoolean("FastBlur", fastBlur);
         material.setFloat("BlurScale", blurScale);
         material.setFloat("Sigma", sigma);
@@ -179,6 +207,7 @@ public class SsrFilter extends Filter{
 
     /**
      * Value to scale (down) the textures the filter uses.
+     * Some values work better than others with approximateNormals. Good values: 1.5f, 3f;
      * @param downSampleFactor 
      */
     public void setDownSampleFactor(float downSampleFactor) {
@@ -300,6 +329,62 @@ public class SsrFilter extends Filter{
             ssrMaterial.setVector2("FarReflectionsFade", farFade);
         }
     }
+
+    public int getBlurPasses() {
+        return blurPasses;
+    }
+
+    public void setBlurPasses(int blurPasses) {
+        this.blurPasses = blurPasses;
+    }
+
+    public Image.Format getSsrImageFormat() {
+        return ssrImageFormat;
+    }
+
+    public void setSsrImageFormat(Image.Format ssrImageFormat) {
+        this.ssrImageFormat = ssrImageFormat;
+    }
+
     
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(approximateNormals, "approximateNormals", true);
+        oc.write(approximateGlossiness, "approximateGlossiness", true);
+        oc.write(sampleNearby, "sampleNearby", true);
+        oc.write(fastBlur, "fastBlur", true);
+        oc.write(downSampleFactor, "downSampleFactor", 1f);
+        oc.write(stepLength, "stepLength", 1f);
+        oc.write(blurScale, "blurScale", 1f);
+        oc.write(sigma, "sigma", 5f);
+        oc.write(reflectionFactor, "reflectionFactor", 1f);
+        oc.write(raySteps, "raySteps", 16);
+        oc.write(blurPasses, "blurPasses", 2);
+        oc.write(new float[]{nearFade.x, nearFade.y}, "nearFade", new float[]{0.01f, 1.0f});
+        oc.write(new float[]{farFade.x, farFade.y}, "farFade", new float[]{200f, 300f});
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule ic = im.getCapsule(this);
+        approximateNormals = ic.readBoolean("approximateNormals", true);
+        approximateGlossiness = ic.readBoolean("intensity", true);
+        sampleNearby = ic.readBoolean("sampleNearby", true);
+        fastBlur = ic.readBoolean("fastBlur", true);
+        downSampleFactor = ic.readFloat("downSampleFactor", 1f);
+        stepLength = ic.readFloat("stepLength", 1f);
+        blurScale = ic.readFloat("blurScale", 1f);
+        sigma = ic.readFloat("sigma", 5f);
+        reflectionFactor = ic.readFloat("reflectionFactor", 1f);
+        raySteps = ic.readInt("raySteps", 16);
+        blurPasses = ic.readInt("blurPasses", 2);
+        float[] nearArray = ic.readFloatArray("nearFade", new float[]{0.01f, 1.0f});
+        nearFade = new Vector2f(nearArray[0], nearArray[1]);
+        float[] farArray = ic.readFloatArray("farFade", new float[]{200f, 300f});
+        farFade = new Vector2f(farArray[0], farArray[1]);
+    }
     
 }
