@@ -36,8 +36,8 @@ import java.awt.Component;
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
-import com.jme3.system.AWTFrameProcessor;
-import com.jme3.system.AWTTaskExecutor;
+import com.jme3.system.awt.AWTFrameProcessor;
+import com.jme3.system.awt.AWTTaskExecutor;
 
 /**
  * An app state dedicated to the rendering of a JMonkey application within an AWT component.
@@ -116,17 +116,17 @@ public class AWTComponentAppState extends AbstractAppState {
   }
   
   /**
-   * Get the {@link com.jme3.system.AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
-   * @return the {@link com.jme3.system.AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
-   * @see #setTransferMode(com.jme3.system.AWTFrameProcessor.TransferMode)
+   * Get the {@link AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
+   * @return the {@link AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
+   * @see #setTransferMode(AWTFrameProcessor.TransferMode)
    */
   public AWTFrameProcessor.TransferMode getTransferMode(){
 	  return transferMode;
   }
   
   /**
-   * Set the {@link com.jme3.system.AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
-   * @param mode the {@link com.jme3.system.AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
+   * Set the {@link AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
+   * @param mode the {@link AWTFrameProcessor.TransferMode transfer mode} that is used by the underlying frame processor.
    * @see #getTransferMode()
    */
   public void setTransferMode(AWTFrameProcessor.TransferMode mode) {

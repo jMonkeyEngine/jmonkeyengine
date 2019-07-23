@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2019 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.system;
+package com.jme3.system.awt;
 
 import java.awt.Component;
 import java.awt.EventQueue;
@@ -40,8 +40,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.jme3.app.Application;
-import com.jme3.input.AWTKeyInput;
-import com.jme3.input.AWTMouseInput;
+import com.jme3.input.awt.AWTKeyInput;
+import com.jme3.input.awt.AWTMouseInput;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.Camera;

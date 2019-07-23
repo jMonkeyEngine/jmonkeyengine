@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,296 +31,221 @@
  */
 package com.jme3.input.awt;
 
+import java.awt.Component;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+
 import com.jme3.cursors.plugins.JmeCursor;
 import com.jme3.input.MouseInput;
-import com.jme3.input.RawInputListener;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.SwingUtilities;
+import com.jme3.system.JmeContext;
+import com.jme3.system.awt.AWTContext;
 
 /**
- * <code>AwtMouseInput</code>
- *
- * @author Joshua Slack
- * @author MHenze (cylab)
- *
- * @version $Revision$
+ * The implementation of the {@link MouseInput} dedicated to AWT {@link Component component}.
+ * <p>
+ * This class is based on the <a href="http://www.oracle.com/technetwork/java/javase/overview/javafx-overview-2158620.html">JavaFX</a> original code provided by Alexander Brui (see <a href="https://github.com/JavaSaBr/JME3-JFX">JME3-FX</a>)
+ * </p>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
+ * @author Alexander Brui (JavaSaBr)
  */
-public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListener, MouseMotionListener {
+public class AWTMouseInput extends AWTInput implements MouseInput, MouseListener, MouseMotionListener, MouseWheelListener {
 
-    public static int WHEEL_AMP = 40;   // arbitrary...  Java's mouse wheel seems to report something a lot lower than lwjgl's
+    private static final Map<Integer, Integer> MOUSE_BUTTON_TO_JME = new HashMap<>();
 
-    private static final Logger logger = Logger.getLogger(AwtMouseInput.class.getName());
-
-    private boolean visible = true;
-
-    private RawInputListener listener;
-
-    private Component component;
-
-    private final ArrayList<MouseButtonEvent> eventQueue = new ArrayList<MouseButtonEvent>();
-    private final ArrayList<MouseButtonEvent> eventQueueCopy = new ArrayList<MouseButtonEvent>();
-
-    private int lastEventX;
-    private int lastEventY;
-    private int lastEventWheel;
-
-    private Cursor transparentCursor;
-
-    private Robot robot;
-    private int wheelPos;
-    private Point location;
-    private Point centerLocation;
-    private Point centerLocationOnScreen;
-    private Point lastKnownLocation;
-    private boolean isRecentering;
-    private boolean cursorMoved;
-    private int eventsSinceRecenter;
-
-    public AwtMouseInput() {
-        location = new Point();
-        centerLocation = new Point();
-        centerLocationOnScreen = new Point();
-        lastKnownLocation = new Point();
-
-        try {
-            robot = new Robot();
-        } catch (java.awt.AWTException e) {
-            logger.log(Level.SEVERE, "Could not create a robot, so the mouse cannot be grabbed! ", e);
-        }
+    static {
+        MOUSE_BUTTON_TO_JME.put(MouseEvent.BUTTON1, BUTTON_LEFT);
+        MOUSE_BUTTON_TO_JME.put(MouseEvent.BUTTON2, BUTTON_MIDDLE);
+        MOUSE_BUTTON_TO_JME.put(MouseEvent.BUTTON3, BUTTON_RIGHT);
     }
 
-    public void setInputSource(Component comp) {
-        if (component != null) {
-            component.removeMouseListener(this);
-            component.removeMouseMotionListener(this);
-            component.removeMouseWheelListener(this);
+    /**
+     * The scale factor for scrolling.
+     */
+    private static final int WHEEL_SCALE = 10;
 
-            eventQueue.clear();
+    private final LinkedList<MouseMotionEvent> mouseMotionEvents;
 
-            wheelPos = 0;
-            isRecentering = false;
-            eventsSinceRecenter = 0;
-            lastEventX = 0;
-            lastEventY = 0;
-            lastEventWheel = 0;
-            location = new Point();
-            centerLocation = new Point();
-            centerLocationOnScreen = new Point();
-            lastKnownLocation = new Point();
-        }
+    private final LinkedList<MouseButtonEvent> mouseButtonEvents;
 
-        component = comp;
+    private int mouseX;
+    private int mouseY;
+    private int mouseWheel;
+
+    public AWTMouseInput() {
+        super();
+        mouseMotionEvents = new LinkedList<MouseMotionEvent>();
+        mouseButtonEvents = new LinkedList<MouseButtonEvent>();
+    }
+    
+    public AWTMouseInput(JmeContext context) {
+        super(context);
+        mouseMotionEvents = new LinkedList<MouseMotionEvent>();
+        mouseButtonEvents = new LinkedList<MouseButtonEvent>();
+    }
+
+    @Override
+    public void bind(Component component) {
+        super.bind(component);
         component.addMouseListener(this);
         component.addMouseMotionListener(this);
         component.addMouseWheelListener(this);
     }
 
-    public void initialize() {
+    @Override
+    public void unbind() {
+        if (component != null) {
+          component.removeMouseListener(this);
+          component.removeMouseMotionListener(this);
+          component.removeMouseWheelListener(this);
+        }
+        super.unbind();
     }
 
-    public void destroy() {
-    }
-
-    public boolean isInitialized() {
-        return true;
-    }
-
-    public void setInputListener(RawInputListener listener) {
-        this.listener = listener;
-    }
-
-    public long getInputTimeNanos() {
-        return System.nanoTime();
-    }
-    
-    public void setCursorVisible(boolean visible) {
-//        if(JmeSystem.getPlatform() != Platform.MacOSX32 &&
-//                JmeSystem.getPlatform() != Platform.MacOSX64 &&
-//                JmeSystem.getPlatform() != Platform.MacOSX_PPC32 &&
-//                JmeSystem.getPlatform() != Platform.MacOSX_PPC64){
-        if (this.visible != visible) {
-            lastKnownLocation.x = lastKnownLocation.y = 0;
-
-            this.visible = visible;
-            final boolean newVisible = visible;
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    component.setCursor(newVisible ? null : getTransparentCursor());
-                    if (!newVisible) {
-                        recenterMouse(component);
-                    }
-                }
-            });
-//        }
+    @Override
+    protected void updateImpl() {
+        while (!mouseMotionEvents.isEmpty()) {
+            listener.onMouseMotionEvent(mouseMotionEvents.poll());
+        }
+        while (!mouseButtonEvents.isEmpty()) {
+            listener.onMouseButtonEvent(mouseButtonEvents.poll());
         }
     }
 
-    public void update() {
-        if (cursorMoved) {
-            int newX = location.x;
-            int newY = location.y;
-            int newWheel = wheelPos;
+    private void onWheelScroll(final double xOffset, final double yOffset) {
 
-            // invert actual Y and DY for motion events
-            int actualX = lastKnownLocation.x;
-            int actualY = component.getHeight() - lastKnownLocation.y;
-            MouseMotionEvent evt = new MouseMotionEvent(actualX, actualY,
-                                                        newX - lastEventX,
-                                                        lastEventY - newY,
-                                                        wheelPos, lastEventWheel - wheelPos);
-            listener.onMouseMotionEvent(evt);
+        mouseWheel += yOffset;
 
-            lastEventX = newX;
-            lastEventY = newY;
-            lastEventWheel = newWheel;
+        final MouseMotionEvent mouseMotionEvent = new MouseMotionEvent(mouseX, mouseY, 0, 0, mouseWheel, (int) Math.round(yOffset));
+        mouseMotionEvent.setTime(getInputTimeNanos());
 
-            cursorMoved = false;
-        }
+        EXECUTOR.addToExecute(new Runnable() {
 
-        synchronized (eventQueue) {
-            eventQueueCopy.clear();
-            eventQueueCopy.addAll(eventQueue);
-            eventQueue.clear();
-        }
-
-        int size = eventQueueCopy.size();
-        for (int i = 0; i < size; i++) {
-            listener.onMouseButtonEvent(eventQueueCopy.get(i));
-        }
+          @Override
+          public void run() {
+            mouseMotionEvents.add(mouseMotionEvent);
+          }
+          
+        });
     }
 
-    private Cursor getTransparentCursor() {
-        if (transparentCursor == null) {
-            BufferedImage cursorImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
-            cursorImage.setRGB(0, 0, 0);
-            transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImage, new Point(0, 0), "empty cursor");
+    private void onCursorPos(double xpos, double ypos) {
+
+        int xDelta;
+        int yDelta;
+        int x = (int) Math.round(xpos);
+        
+        int y = 0;
+        if ((context != null) && (context instanceof AWTContext)) {
+        	y = ((AWTContext)context).getHeight() - (int) Math.round(ypos);
+        } else {
+        	y = (int) Math.round(ypos);
         }
-        return transparentCursor;
+        
+        if (mouseX == 0) mouseX = x;
+        if (mouseY == 0) mouseY = y;
+
+        xDelta = x - mouseX;
+        yDelta = y - mouseY;
+
+        mouseX = x;
+        mouseY = y;
+
+        if (xDelta == 0 && yDelta == 0) return;
+
+        final MouseMotionEvent mouseMotionEvent = new MouseMotionEvent(x, y, xDelta, yDelta, mouseWheel, 0);
+        mouseMotionEvent.setTime(getInputTimeNanos());
+
+        EXECUTOR.addToExecute(new Runnable() {
+
+          @Override
+          public void run() {
+            mouseMotionEvents.add(mouseMotionEvent);
+          }
+          
+        });
     }
 
-//	public void setHardwareCursor(URL file, int xHotspot, int yHotspot) {
-//	    //Create the image from the provided url
-//	    java.awt.Image cursorImage = new ImageIcon( file ).getImage( );
-//	    //Create a custom cursor with this image
-//	    opaqueCursor = Toolkit.getDefaultToolkit().createCustomCursor( cursorImage , new Point( xHotspot , yHotspot ) , "custom cursor" );
-//	    //Use this cursor
-//	    setCursorVisible( isCursorVisible );
-//	}
+    private void onMouseButton(MouseEvent event, final boolean pressed) {
 
+        final MouseButtonEvent mouseButtonEvent = new MouseButtonEvent(convertButton(event.getButton()), pressed, mouseX, mouseY);
+        mouseButtonEvent.setTime(getInputTimeNanos());
 
+        EXECUTOR.addToExecute(new Runnable() {
+
+          @Override
+          public void run() {
+            mouseButtonEvents.add(mouseButtonEvent);
+          }
+          
+        });
+    }
+
+    private int convertButton(int i) {
+        final Integer result = MOUSE_BUTTON_TO_JME.get(i);
+        return result == null ? 0 : result;
+    }
+
+    @Override
+    public void setCursorVisible(final boolean visible) {
+    }
+
+    @Override
     public int getButtonCount() {
         return 3;
     }
 
-    public void mouseClicked(MouseEvent awtEvt) {
-//        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(arg0), false);
-//        listener.onMouseButtonEvent(evt);
-    }
-
-    public void mousePressed(MouseEvent awtEvt) {
-        // Must flip Y!
-        int y = component.getHeight() - awtEvt.getY();
-        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(awtEvt), true, awtEvt.getX(), y);
-        evt.setTime(awtEvt.getWhen());
-        synchronized (eventQueue) {
-            eventQueue.add(evt);
-        }
-    }
-
-    public void mouseReleased(MouseEvent awtEvt) {
-        int y = component.getHeight() - awtEvt.getY();
-        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(awtEvt), false, awtEvt.getX(), y);
-        evt.setTime(awtEvt.getWhen());
-        synchronized (eventQueue) {
-            eventQueue.add(evt);
-        }
-    }
-
-    public void mouseEntered(MouseEvent awtEvt) {
-        if (!visible) {
-            recenterMouse(awtEvt.getComponent());
-        }
-    }
-
-    public void mouseExited(MouseEvent awtEvt) {
-        if (!visible) {
-            recenterMouse(awtEvt.getComponent());
-        }
-    }
-
-    public void mouseWheelMoved(MouseWheelEvent awtEvt) {
-        int dwheel = awtEvt.getUnitsToScroll();
-        wheelPos += dwheel * WHEEL_AMP;
-        cursorMoved = true;
-    }
-
-    public void mouseDragged(MouseEvent awtEvt) {
-        mouseMoved(awtEvt);
-    }
-
-    public void mouseMoved(MouseEvent awtEvt) {
-        if (isRecentering) {
-            // MHenze (cylab) Fix Issue 35:
-            // As long as the MouseInput is in recentering mode, nothing is done until the mouse is entered in the component
-            // by the events generated by the robot. If this happens, the last known location is resetted.
-            if ((centerLocation.x == awtEvt.getX() && centerLocation.y == awtEvt.getY()) || eventsSinceRecenter++ == 5) {
-                lastKnownLocation.x = awtEvt.getX();
-                lastKnownLocation.y = awtEvt.getY();
-                isRecentering = false;
-            }
-        } else {
-            // MHenze (cylab) Fix Issue 35:
-            // Compute the delta and absolute coordinates and recenter the mouse if necessary
-            int dx = awtEvt.getX() - lastKnownLocation.x;
-            int dy = awtEvt.getY() - lastKnownLocation.y;
-            location.x += dx;
-            location.y += dy;
-            if (!visible) {
-                recenterMouse(awtEvt.getComponent());
-            }
-            lastKnownLocation.x = awtEvt.getX();
-            lastKnownLocation.y = awtEvt.getY();
-
-            cursorMoved = true;
-        }
-    }
-
-    // MHenze (cylab) Fix Issue 35: A method to generate recenter the mouse to allow the InputSystem to "grab" the mouse
-    private void recenterMouse(final Component component) {
-        if (robot != null) {
-            eventsSinceRecenter = 0;
-            isRecentering = true;
-            centerLocation.setLocation(component.getWidth() / 2, component.getHeight() / 2);
-            centerLocationOnScreen.setLocation(centerLocation);
-            SwingUtilities.convertPointToScreen(centerLocationOnScreen, component);
-            robot.mouseMove(centerLocationOnScreen.x, centerLocationOnScreen.y);
-        }
-    }
-
-    private int getJMEButtonIndex(MouseEvent awtEvt) {
-        int index;
-        switch (awtEvt.getButton()) {
-            default:
-            case MouseEvent.BUTTON1: //left
-                index = MouseInput.BUTTON_LEFT;
-                break;
-            case MouseEvent.BUTTON2: //middle
-                index = MouseInput.BUTTON_MIDDLE;
-                break;
-            case MouseEvent.BUTTON3: //right
-                index = MouseInput.BUTTON_RIGHT;
-                break;
-        }
-        return index;
-    }
-
+    @Override
     public void setNativeCursor(JmeCursor cursor) {
+    }
+
+    @Override
+    public void mouseDragged(java.awt.event.MouseEvent e) {
+      onCursorPos(e.getX(), e.getY());
+    }
+
+    @Override
+    public void mouseMoved(java.awt.event.MouseEvent e) {
+      onCursorPos(e.getX(), e.getY());
+    }
+
+    @Override
+    public void mouseClicked(java.awt.event.MouseEvent e) {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public void mousePressed(java.awt.event.MouseEvent e) {
+      onMouseButton(e, true);
+    }
+
+    @Override
+    public void mouseReleased(java.awt.event.MouseEvent e) {
+      onMouseButton(e, false);
+    }
+
+    @Override
+    public void mouseEntered(java.awt.event.MouseEvent e) {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public void mouseExited(java.awt.event.MouseEvent e) {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+      onWheelScroll(e.getWheelRotation() * WHEEL_SCALE, e.getWheelRotation() * WHEEL_SCALE);
     }
 }

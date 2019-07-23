@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.system;
+package com.jme3.system.awt;
 
 import java.awt.Component;
 import java.awt.EventQueue;
@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
-import com.jme3.system.AWTFrameProcessor.TransferMode;
+import com.jme3.system.awt.AWTFrameProcessor.TransferMode;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.util.BufferUtils;

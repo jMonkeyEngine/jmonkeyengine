@@ -29,13 +29,15 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.system;
+package com.jme3.system.awt;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import com.jme3.input.AWTKeyInput;
-import com.jme3.input.AWTMouseInput;
 import com.jme3.input.JoyInput;
 import com.jme3.input.TouchInput;
+import com.jme3.input.awt.AWTKeyInput;
+import com.jme3.input.awt.AWTMouseInput;
 import com.jme3.opencl.Context;
 import com.jme3.renderer.Renderer;
 import com.jme3.system.AppSettings;
@@ -54,6 +56,8 @@ import com.jme3.system.Timer;
  */
 public class AWTContext implements JmeContext {
 
+  private static final Logger logger = Logger.getLogger(JmeContext.class.getName());
+	
   /**
    * The settings.
    */
@@ -126,7 +130,18 @@ public class AWTContext implements JmeContext {
    */
   protected AppSettings createSettings() {
       final AppSettings settings = new AppSettings(true);
-      settings.setRenderer(AppSettings.LWJGL_OPENGL32);
+      
+      String renderer = System.getProperty("jme3.awt.renderer");
+      
+      if (renderer != null) {
+    	  settings.setRenderer(renderer);
+    	  logger.log(Level.INFO, "Using underlying renderer "+settings.getRenderer()+".");
+      } else {
+    	  settings.setRenderer(AppSettings.LWJGL_OPENGL45);  
+    	  logger.log(Level.INFO, "Using default underlying renderer "+settings.getRenderer());
+    	  logger.log(Level.INFO, getClass().getSimpleName()+" underlying renderer can be set using jme3.awt.renderer property.");
+      }
+      
       return settings;
   }
 
@@ -145,7 +160,18 @@ public class AWTContext implements JmeContext {
   @Override
   public void setSettings(AppSettings settings) {
       this.settings.copyFrom(settings);
-      this.settings.setRenderer(AppSettings.LWJGL_OPENGL32);
+      
+      String renderer = System.getProperty("jme3.awt.renderer");
+      
+      if (renderer != null) {
+    	  settings.setRenderer(renderer);
+    	  logger.log(Level.INFO, "Using underlying renderer "+settings.getRenderer()+".");
+      } else {
+    	  settings.setRenderer(AppSettings.LWJGL_OPENGL45);  
+    	  logger.log(Level.INFO, "Using default underlying renderer "+settings.getRenderer());
+    	  logger.log(Level.INFO, getClass().getSimpleName()+" underlying renderer can be set using jme3.awt.renderer property.");
+      }
+      
       this.backgroundContext.setSettings(settings);
   }
 
@@ -215,9 +241,17 @@ public class AWTContext implements JmeContext {
 
   @Override
   public void create(final boolean waitFor) {
-        String render = System.getProperty("awt.background.render", AppSettings.LWJGL_OPENGL33);
-        backgroundContext.getSettings().setRenderer(render);
-        backgroundContext.create(waitFor);
+	  
+      String renderer = System.getProperty("jme3.awt.renderer");
+      
+      if (renderer != null) {
+    	  backgroundContext.getSettings().setRenderer(renderer);
+      } else {
+    	  backgroundContext.getSettings().setRenderer(AppSettings.LWJGL_OPENGL45);  
+      }
+	  
+      logger.log(Level.INFO, "Creating background renderer using "+backgroundContext.getSettings().getRenderer()+" renderer");
+      backgroundContext.create(waitFor);
   }
 
   @Override

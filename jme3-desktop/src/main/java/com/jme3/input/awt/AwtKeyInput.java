@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2018 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,587 +31,213 @@
  */
 package com.jme3.input.awt;
 
-import com.jme3.input.KeyInput;
-import com.jme3.input.RawInputListener;
-import com.jme3.input.event.KeyInputEvent;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+
+import com.jme3.input.KeyInput;
+import com.jme3.input.event.KeyInputEvent;
+import com.jme3.system.JmeContext;
+import com.jme3.system.awt.AWTContext;
+
 
 /**
- * <code>AwtKeyInput</code>
- *
- * @author Joshua Slack
- * @author Kirill Vainer
- * @version $Revision: 4133 $
+ * The implementation of the {@link KeyInput} dedicated to AWT {@link Component component}.
+ * <p>
+ * This class is based on the <a href="http://www.oracle.com/technetwork/java/javase/overview/javafx-overview-2158620.html">JavaFX</a> original code provided by Alexander Brui (see <a href="https://github.com/JavaSaBr/JME3-JFX">JME3-FX</a>)
+ * </p>
+ * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
+ * @author Alexander Brui (JavaSaBr)
  */
-public class AwtKeyInput implements KeyInput, KeyListener {
+public class AWTKeyInput extends AWTInput implements KeyInput, KeyListener{
 
-    private static final Logger logger = Logger.getLogger(AwtKeyInput.class.getName());
+    private static final Map<Integer, Integer> KEY_CODE_TO_JME = new HashMap<>();
+
+    static {
+        KEY_CODE_TO_JME.put(KeyEvent.VK_ESCAPE, KEY_ESCAPE);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_0, KEY_0);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_1, KEY_1);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_2, KEY_2);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_3, KEY_3);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_4, KEY_4);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_5, KEY_5);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_6, KEY_6);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_7, KEY_7);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_8, KEY_8);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_9, KEY_9);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_MINUS, KEY_MINUS);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_EQUALS, KEY_EQUALS);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_BACK_SPACE, KEY_BACK);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_TAB, KEY_TAB);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_Q, KEY_Q);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_W, KEY_W);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_E, KEY_E);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_R, KEY_R);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_T, KEY_T);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_U, KEY_U);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_I, KEY_I);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_O, KEY_O);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_P, KEY_P);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_OPEN_BRACKET, KEY_LBRACKET);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_CLOSE_BRACKET, KEY_RBRACKET);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_ENTER, KEY_RETURN);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_CONTROL, KEY_LCONTROL);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_A, KEY_A);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_S, KEY_S);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_D, KEY_D);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_F, KEY_F);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_G, KEY_G);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_H, KEY_H);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_J, KEY_J);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_Y, KEY_Y);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_K, KEY_K);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_L, KEY_L);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_SEMICOLON, KEY_SEMICOLON);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_QUOTE, KEY_APOSTROPHE);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_DEAD_GRAVE, KEY_GRAVE);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_SHIFT, KEY_LSHIFT);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_BACK_SLASH, KEY_BACKSLASH);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_Z, KEY_Z);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_X, KEY_X);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_C, KEY_C);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_V, KEY_V);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_B, KEY_B);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_N, KEY_N);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_M, KEY_M);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_COMMA, KEY_COMMA);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_PERIOD, KEY_PERIOD);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_SLASH, KEY_SLASH);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_MULTIPLY, KEY_MULTIPLY);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_SPACE, KEY_SPACE);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_CAPS_LOCK, KEY_CAPITAL);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_F1, KEY_F1);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_F2, KEY_F2);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_F3, KEY_F3);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_F4, KEY_F4);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_F5, KEY_F5);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_F6, KEY_F6);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_F7, KEY_F7);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_F8, KEY_F8);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_F9, KEY_F9);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_F10, KEY_F10);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_NUM_LOCK, KEY_NUMLOCK);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_SCROLL_LOCK, KEY_SCROLL);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_NUMPAD7, KEY_NUMPAD7);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_NUMPAD8, KEY_NUMPAD8);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_NUMPAD9, KEY_NUMPAD9);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_SUBTRACT, KEY_SUBTRACT);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_NUMPAD4, KEY_NUMPAD4);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_NUMPAD5, KEY_NUMPAD5);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_NUMPAD6, KEY_NUMPAD6);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_ADD, KEY_ADD);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_NUMPAD1, KEY_NUMPAD1);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_NUMPAD2, KEY_NUMPAD2);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_NUMPAD3, KEY_NUMPAD3);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_NUMPAD0, KEY_NUMPAD0);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_DECIMAL, KEY_DECIMAL);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_F11, KEY_F11);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_F12, KEY_F12);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_F13, KEY_F13);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_F14, KEY_F14);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_F15, KEY_F15);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_KANA, KEY_KANA);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_CONVERT, KEY_CONVERT);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_NONCONVERT, KEY_NOCONVERT);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_CIRCUMFLEX, KEY_CIRCUMFLEX);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_AT, KEY_AT);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_COLON, KEY_COLON);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_UNDERSCORE, KEY_UNDERLINE);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_STOP, KEY_STOP);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_DIVIDE, KEY_DIVIDE);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_PAUSE, KEY_PAUSE);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_HOME, KEY_HOME);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_UP, KEY_UP);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_PAGE_UP, KEY_PRIOR);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_LEFT, KEY_LEFT);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_RIGHT, KEY_RIGHT);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_END, KEY_END);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_DOWN, KEY_DOWN);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_PAGE_DOWN, KEY_NEXT);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_INSERT, KEY_INSERT);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_DELETE, KEY_DELETE);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_ALT, KEY_LMENU);
+        KEY_CODE_TO_JME.put(KeyEvent.VK_META, KEY_RCONTROL);
+    }
+
+    private final LinkedList<KeyInputEvent> keyInputEvents;
+
+    public AWTKeyInput() {
+        super();
+        keyInputEvents = new LinkedList<KeyInputEvent>();
+    }
     
-    private final ArrayList<KeyInputEvent> eventQueue = new ArrayList<KeyInputEvent>();
-    private RawInputListener listener;
-    private Component component;
-    private BitSet keyStateSet = new BitSet(0xFF);
-    
-    public AwtKeyInput(){
+    public AWTKeyInput(JmeContext context) {
+        super(context);
+        keyInputEvents = new LinkedList<KeyInputEvent>();
     }
 
-    public void initialize() {
-    }
-    
-    public void destroy() {
+    @Override
+    public void bind(Component component) {
+        super.bind(component);
+        component.addKeyListener(this);
     }
 
-    public void setInputSource(Component comp){
-        synchronized (eventQueue){
-            if (component != null){
-                component.removeKeyListener(this);
-                eventQueue.clear();
-                keyStateSet.clear();
-            }
-            component = comp;
-            component.addKeyListener(this);
+    @Override
+    public void unbind() {
+        if (component != null) {
+            component.removeKeyListener(this);
         }
-    }
-    
-    public long getInputTimeNanos() {
-        return System.nanoTime();
+        super.unbind();
     }
 
-    public int getKeyCount() {
-        return KeyEvent.KEY_LAST+1;
+    private void onKeyEvent(KeyEvent keyEvent, boolean pressed) {
+
+        int code = convertKeyCode(keyEvent.getID());
+        char keyChar = keyEvent.getKeyChar();
+
+        final KeyInputEvent event = new KeyInputEvent(code, keyChar, pressed, false);
+        event.setTime(getInputTimeNanos());
+
+        EXECUTOR.addToExecute(new Runnable() {
+
+          @Override
+          public void run() {
+            keyInputEvents.add(event);
+          }
+          
+        });
     }
 
-    public void update() {
-        synchronized (eventQueue){
-            // flush events to listener
-            for (int i = 0; i < eventQueue.size(); i++){
-                listener.onKeyEvent(eventQueue.get(i));
-            }
-            eventQueue.clear();
-        }
-    }
-
-    public boolean isInitialized() {
-        return true;
-    }
-
-    public void setInputListener(RawInputListener listener) {
-        this.listener = listener;
-    }
-
-    public void keyTyped(KeyEvent evt) {
-        // key code is zero for typed events
-    }
-
-    public void keyPressed(KeyEvent evt) {
-        int code = convertAwtKey(evt.getKeyCode());
-        
-        // Check if key was already pressed
-        if (!keyStateSet.get(code)){
-            keyStateSet.set(code);
-            KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), true, false);
-            keyEvent.setTime(evt.getWhen());
-            synchronized (eventQueue){
-                eventQueue.add(keyEvent);
-            }            
+    @Override
+    protected void updateImpl() {
+        while (!keyInputEvents.isEmpty()) {
+            listener.onKeyEvent(keyInputEvents.poll());
         }
     }
 
-    public void keyReleased(KeyEvent evt) {
-        int code = convertAwtKey(evt.getKeyCode());
-        
-        // Check if key was already released
-        if (keyStateSet.get(code)) {
-            keyStateSet.clear(code);
-            KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), false, false);
-            keyEvent.setTime(evt.getWhen());
-            synchronized (eventQueue){
-                eventQueue.add(keyEvent);
-            }                        
-        }
+    private int convertKeyCode(int keyCode) {
+        final Integer code = KEY_CODE_TO_JME.get(keyCode);
+        return code == null ? KEY_UNKNOWN : code;
     }
 
-    /**
-     * <code>convertJmeCode</code> converts KeyInput key codes to AWT key codes.
-     *
-     * @param key jme KeyInput key code
-     * @return awt KeyEvent key code
-     */
-    public static int convertJmeCode( int key ) {
-        switch ( key ) {
-            case KEY_ESCAPE:
-                return KeyEvent.VK_ESCAPE;
-            case KEY_1:
-                return KeyEvent.VK_1;
-            case KEY_2:
-                return KeyEvent.VK_2;
-            case KEY_3:
-                return KeyEvent.VK_3;
-            case KEY_4:
-                return KeyEvent.VK_4;
-            case KEY_5:
-                return KeyEvent.VK_5;
-            case KEY_6:
-                return KeyEvent.VK_6;
-            case KEY_7:
-                return KeyEvent.VK_7;
-            case KEY_8:
-                return KeyEvent.VK_8;
-            case KEY_9:
-                return KeyEvent.VK_9;
-            case KEY_0:
-                return KeyEvent.VK_0;
-            case KEY_MINUS:
-                return KeyEvent.VK_MINUS;
-            case KEY_EQUALS:
-                return KeyEvent.VK_EQUALS;
-            case KEY_BACK:
-                return KeyEvent.VK_BACK_SPACE;
-            case KEY_TAB:
-                return KeyEvent.VK_TAB;
-            case KEY_Q:
-                return KeyEvent.VK_Q;
-            case KEY_W:
-                return KeyEvent.VK_W;
-            case KEY_E:
-                return KeyEvent.VK_E;
-            case KEY_R:
-                return KeyEvent.VK_R;
-            case KEY_T:
-                return KeyEvent.VK_T;
-            case KEY_Y:
-                return KeyEvent.VK_Y;
-            case KEY_U:
-                return KeyEvent.VK_U;
-            case KEY_I:
-                return KeyEvent.VK_I;
-            case KEY_O:
-                return KeyEvent.VK_O;
-            case KEY_P:
-                return KeyEvent.VK_P;
-            case KEY_LBRACKET:
-                return KeyEvent.VK_OPEN_BRACKET;
-            case KEY_RBRACKET:
-                return KeyEvent.VK_CLOSE_BRACKET;
-            case KEY_RETURN:
-                return KeyEvent.VK_ENTER;
-            case KEY_LCONTROL:
-                return KeyEvent.VK_CONTROL;
-            case KEY_A:
-                return KeyEvent.VK_A;
-            case KEY_S:
-                return KeyEvent.VK_S;
-            case KEY_D:
-                return KeyEvent.VK_D;
-            case KEY_F:
-                return KeyEvent.VK_F;
-            case KEY_G:
-                return KeyEvent.VK_G;
-            case KEY_H:
-                return KeyEvent.VK_H;
-            case KEY_J:
-                return KeyEvent.VK_J;
-            case KEY_K:
-                return KeyEvent.VK_K;
-            case KEY_L:
-                return KeyEvent.VK_L;
-            case KEY_SEMICOLON:
-                return KeyEvent.VK_SEMICOLON;
-            case KEY_APOSTROPHE:
-                return KeyEvent.VK_QUOTE;
-            case KEY_GRAVE:
-                return KeyEvent.VK_DEAD_GRAVE;
-            case KEY_LSHIFT:
-                return KeyEvent.VK_SHIFT;
-            case KEY_BACKSLASH:
-                return KeyEvent.VK_BACK_SLASH;
-            case KEY_Z:
-                return KeyEvent.VK_Z;
-            case KEY_X:
-                return KeyEvent.VK_X;
-            case KEY_C:
-                return KeyEvent.VK_C;
-            case KEY_V:
-                return KeyEvent.VK_V;
-            case KEY_B:
-                return KeyEvent.VK_B;
-            case KEY_N:
-                return KeyEvent.VK_N;
-            case KEY_M:
-                return KeyEvent.VK_M;
-            case KEY_COMMA:
-                return KeyEvent.VK_COMMA;
-            case KEY_PERIOD:
-                return KeyEvent.VK_PERIOD;
-            case KEY_SLASH:
-                return KeyEvent.VK_SLASH;
-            case KEY_RSHIFT:
-                return KeyEvent.VK_SHIFT;
-            case KEY_MULTIPLY:
-                return KeyEvent.VK_MULTIPLY;
-            case KEY_SPACE:
-                return KeyEvent.VK_SPACE;
-            case KEY_CAPITAL:
-                return KeyEvent.VK_CAPS_LOCK;
-            case KEY_F1:
-                return KeyEvent.VK_F1;
-            case KEY_F2:
-                return KeyEvent.VK_F2;
-            case KEY_F3:
-                return KeyEvent.VK_F3;
-            case KEY_F4:
-                return KeyEvent.VK_F4;
-            case KEY_F5:
-                return KeyEvent.VK_F5;
-            case KEY_F6:
-                return KeyEvent.VK_F6;
-            case KEY_F7:
-                return KeyEvent.VK_F7;
-            case KEY_F8:
-                return KeyEvent.VK_F8;
-            case KEY_F9:
-                return KeyEvent.VK_F9;
-            case KEY_F10:
-                return KeyEvent.VK_F10;
-            case KEY_NUMLOCK:
-                return KeyEvent.VK_NUM_LOCK;
-            case KEY_SCROLL:
-                return KeyEvent.VK_SCROLL_LOCK;
-            case KEY_NUMPAD7:
-                return KeyEvent.VK_NUMPAD7;
-            case KEY_NUMPAD8:
-                return KeyEvent.VK_NUMPAD8;
-            case KEY_NUMPAD9:
-                return KeyEvent.VK_NUMPAD9;
-            case KEY_SUBTRACT:
-                return KeyEvent.VK_SUBTRACT;
-            case KEY_NUMPAD4:
-                return KeyEvent.VK_NUMPAD4;
-            case KEY_NUMPAD5:
-                return KeyEvent.VK_NUMPAD5;
-            case KEY_NUMPAD6:
-                return KeyEvent.VK_NUMPAD6;
-            case KEY_ADD:
-                return KeyEvent.VK_ADD;
-            case KEY_NUMPAD1:
-                return KeyEvent.VK_NUMPAD1;
-            case KEY_NUMPAD2:
-                return KeyEvent.VK_NUMPAD2;
-            case KEY_NUMPAD3:
-                return KeyEvent.VK_NUMPAD3;
-            case KEY_NUMPAD0:
-                return KeyEvent.VK_NUMPAD0;
-            case KEY_DECIMAL:
-                return KeyEvent.VK_DECIMAL;
-            case KEY_F11:
-                return KeyEvent.VK_F11;
-            case KEY_F12:
-                return KeyEvent.VK_F12;
-            case KEY_F13:
-                return KeyEvent.VK_F13;
-            case KEY_F14:
-                return KeyEvent.VK_F14;
-            case KEY_F15:
-                return KeyEvent.VK_F15;
-            case KEY_KANA:
-                return KeyEvent.VK_KANA;
-            case KEY_CONVERT:
-                return KeyEvent.VK_CONVERT;
-            case KEY_NOCONVERT:
-                return KeyEvent.VK_NONCONVERT;
-            case KEY_NUMPADEQUALS:
-                return KeyEvent.VK_EQUALS;
-            case KEY_CIRCUMFLEX:
-                return KeyEvent.VK_CIRCUMFLEX;
-            case KEY_AT:
-                return KeyEvent.VK_AT;
-            case KEY_COLON:
-                return KeyEvent.VK_COLON;
-            case KEY_UNDERLINE:
-                return KeyEvent.VK_UNDERSCORE;
-            case KEY_STOP:
-                return KeyEvent.VK_STOP;
-            case KEY_NUMPADENTER:
-                return KeyEvent.VK_ENTER;
-            case KEY_RCONTROL:
-                return KeyEvent.VK_CONTROL;
-            case KEY_NUMPADCOMMA:
-                return KeyEvent.VK_COMMA;
-            case KEY_DIVIDE:
-                return KeyEvent.VK_DIVIDE;
-            case KEY_PAUSE:
-                return KeyEvent.VK_PAUSE;
-            case KEY_HOME:
-                return KeyEvent.VK_HOME;
-            case KEY_UP:
-                return KeyEvent.VK_UP;
-            case KEY_PRIOR:
-                return KeyEvent.VK_PAGE_UP;
-            case KEY_LEFT:
-                return KeyEvent.VK_LEFT;
-            case KEY_RIGHT:
-                return KeyEvent.VK_RIGHT;
-            case KEY_END:
-                return KeyEvent.VK_END;
-            case KEY_DOWN:
-                return KeyEvent.VK_DOWN;
-            case KEY_NEXT:
-                return KeyEvent.VK_PAGE_DOWN;
-            case KEY_INSERT:
-                return KeyEvent.VK_INSERT;
-            case KEY_DELETE:
-                return KeyEvent.VK_DELETE;
-            case KEY_LMENU:
-                return KeyEvent.VK_ALT; //todo: location left
-            case KEY_RMENU:
-                return KeyEvent.VK_ALT; //todo: location right
-            case KEY_PRTSCR:
-                return KeyEvent.VK_PRINTSCREEN;
-        }
-        logger.log(Level.WARNING, "unsupported key:{0}", key);
-        return 0x10000 + key;
+    @Override
+    public void keyTyped(KeyEvent e) {
+      System.out.println("Key typed "+e.getKeyChar());
+      //onKeyEvent(e, false);
     }
 
-    /**
-     * <code>convertAwtKey</code> converts AWT key codes to KeyInput key codes.
-     *
-     * @param key awt KeyEvent key code
-     * @return jme KeyInput key code
-     */
-    public static int convertAwtKey(int key) {
-        switch ( key ) {
-            case KeyEvent.VK_ESCAPE:
-                return KEY_ESCAPE;
-            case KeyEvent.VK_1:
-                return KEY_1;
-            case KeyEvent.VK_2:
-                return KEY_2;
-            case KeyEvent.VK_3:
-                return KEY_3;
-            case KeyEvent.VK_4:
-                return KEY_4;
-            case KeyEvent.VK_5:
-                return KEY_5;
-            case KeyEvent.VK_6:
-                return KEY_6;
-            case KeyEvent.VK_7:
-                return KEY_7;
-            case KeyEvent.VK_8:
-                return KEY_8;
-            case KeyEvent.VK_9:
-                return KEY_9;
-            case KeyEvent.VK_0:
-                return KEY_0;
-            case KeyEvent.VK_MINUS:
-                return KEY_MINUS;
-            case KeyEvent.VK_EQUALS:
-                return KEY_EQUALS;
-            case KeyEvent.VK_BACK_SPACE:
-                return KEY_BACK;
-            case KeyEvent.VK_TAB:
-                return KEY_TAB;
-            case KeyEvent.VK_Q:
-                return KEY_Q;
-            case KeyEvent.VK_W:
-                return KEY_W;
-            case KeyEvent.VK_E:
-                return KEY_E;
-            case KeyEvent.VK_R:
-                return KEY_R;
-            case KeyEvent.VK_T:
-                return KEY_T;
-            case KeyEvent.VK_Y:
-                return KEY_Y;
-            case KeyEvent.VK_U:
-                return KEY_U;
-            case KeyEvent.VK_I:
-                return KEY_I;
-            case KeyEvent.VK_O:
-                return KEY_O;
-            case KeyEvent.VK_P:
-                return KEY_P;
-            case KeyEvent.VK_OPEN_BRACKET:
-                return KEY_LBRACKET;
-            case KeyEvent.VK_CLOSE_BRACKET:
-                return KEY_RBRACKET;
-            case KeyEvent.VK_ENTER:
-                return KEY_RETURN;
-            case KeyEvent.VK_CONTROL:
-                return KEY_LCONTROL;
-            case KeyEvent.VK_A:
-                return KEY_A;
-            case KeyEvent.VK_S:
-                return KEY_S;
-            case KeyEvent.VK_D:
-                return KEY_D;
-            case KeyEvent.VK_F:
-                return KEY_F;
-            case KeyEvent.VK_G:
-                return KEY_G;
-            case KeyEvent.VK_H:
-                return KEY_H;
-            case KeyEvent.VK_J:
-                return KEY_J;
-            case KeyEvent.VK_K:
-                return KEY_K;
-            case KeyEvent.VK_L:
-                return KEY_L;
-            case KeyEvent.VK_SEMICOLON:
-                return KEY_SEMICOLON;
-            case KeyEvent.VK_QUOTE:
-                return KEY_APOSTROPHE;
-            case KeyEvent.VK_DEAD_GRAVE:
-                return KEY_GRAVE;
-            case KeyEvent.VK_SHIFT:
-                return KEY_LSHIFT;
-            case KeyEvent.VK_BACK_SLASH:
-                return KEY_BACKSLASH;
-            case KeyEvent.VK_Z:
-                return KEY_Z;
-            case KeyEvent.VK_X:
-                return KEY_X;
-            case KeyEvent.VK_C:
-                return KEY_C;
-            case KeyEvent.VK_V:
-                return KEY_V;
-            case KeyEvent.VK_B:
-                return KEY_B;
-            case KeyEvent.VK_N:
-                return KEY_N;
-            case KeyEvent.VK_M:
-                return KEY_M;
-            case KeyEvent.VK_COMMA:
-                return KEY_COMMA;
-            case KeyEvent.VK_PERIOD:
-                return KEY_PERIOD;
-            case KeyEvent.VK_SLASH:
-                return KEY_SLASH;
-            case KeyEvent.VK_MULTIPLY:
-                return KEY_MULTIPLY;
-            case KeyEvent.VK_SPACE:
-                return KEY_SPACE;
-            case KeyEvent.VK_CAPS_LOCK:
-                return KEY_CAPITAL;
-            case KeyEvent.VK_F1:
-                return KEY_F1;
-            case KeyEvent.VK_F2:
-                return KEY_F2;
-            case KeyEvent.VK_F3:
-                return KEY_F3;
-            case KeyEvent.VK_F4:
-                return KEY_F4;
-            case KeyEvent.VK_F5:
-                return KEY_F5;
-            case KeyEvent.VK_F6:
-                return KEY_F6;
-            case KeyEvent.VK_F7:
-                return KEY_F7;
-            case KeyEvent.VK_F8:
-                return KEY_F8;
-            case KeyEvent.VK_F9:
-                return KEY_F9;
-            case KeyEvent.VK_F10:
-                return KEY_F10;
-            case KeyEvent.VK_NUM_LOCK:
-                return KEY_NUMLOCK;
-            case KeyEvent.VK_SCROLL_LOCK:
-                return KEY_SCROLL;
-            case KeyEvent.VK_NUMPAD7:
-                return KEY_NUMPAD7;
-            case KeyEvent.VK_NUMPAD8:
-                return KEY_NUMPAD8;
-            case KeyEvent.VK_NUMPAD9:
-                return KEY_NUMPAD9;
-            case KeyEvent.VK_SUBTRACT:
-                return KEY_SUBTRACT;
-            case KeyEvent.VK_NUMPAD4:
-                return KEY_NUMPAD4;
-            case KeyEvent.VK_NUMPAD5:
-                return KEY_NUMPAD5;
-            case KeyEvent.VK_NUMPAD6:
-                return KEY_NUMPAD6;
-            case KeyEvent.VK_ADD:
-                return KEY_ADD;
-            case KeyEvent.VK_NUMPAD1:
-                return KEY_NUMPAD1;
-            case KeyEvent.VK_NUMPAD2:
-                return KEY_NUMPAD2;
-            case KeyEvent.VK_NUMPAD3:
-                return KEY_NUMPAD3;
-            case KeyEvent.VK_NUMPAD0:
-                return KEY_NUMPAD0;
-            case KeyEvent.VK_DECIMAL:
-                return KEY_DECIMAL;
-            case KeyEvent.VK_F11:
-                return KEY_F11;
-            case KeyEvent.VK_F12:
-                return KEY_F12;
-            case KeyEvent.VK_F13:
-                return KEY_F13;
-            case KeyEvent.VK_F14:
-                return KEY_F14;
-            case KeyEvent.VK_F15:
-                return KEY_F15;
-            case KeyEvent.VK_KANA:
-                return KEY_KANA;
-            case KeyEvent.VK_CONVERT:
-                return KEY_CONVERT;
-            case KeyEvent.VK_NONCONVERT:
-                return KEY_NOCONVERT;
-            case KeyEvent.VK_CIRCUMFLEX:
-                return KEY_CIRCUMFLEX;
-            case KeyEvent.VK_AT:
-                return KEY_AT;
-            case KeyEvent.VK_COLON:
-                return KEY_COLON;
-            case KeyEvent.VK_UNDERSCORE:
-                return KEY_UNDERLINE;
-            case KeyEvent.VK_STOP:
-                return KEY_STOP;
-            case KeyEvent.VK_DIVIDE:
-                return KEY_DIVIDE;
-            case KeyEvent.VK_PAUSE:
-                return KEY_PAUSE;
-            case KeyEvent.VK_HOME:
-                return KEY_HOME;
-            case KeyEvent.VK_UP:
-                return KEY_UP;
-            case KeyEvent.VK_PAGE_UP:
-                return KEY_PRIOR;
-            case KeyEvent.VK_LEFT:
-                return KEY_LEFT;
-            case KeyEvent.VK_RIGHT:
-                return KEY_RIGHT;
-            case KeyEvent.VK_END:
-                return KEY_END;
-            case KeyEvent.VK_DOWN:
-                return KEY_DOWN;
-            case KeyEvent.VK_PAGE_DOWN:
-                return KEY_NEXT;
-            case KeyEvent.VK_INSERT:
-                return KEY_INSERT;
-            case KeyEvent.VK_DELETE:
-                return KEY_DELETE;
-            case KeyEvent.VK_ALT:
-                return KEY_LMENU; //Left vs. Right need to improve
-            case KeyEvent.VK_META:
-            	return KEY_RCONTROL;
-            case KeyEvent.VK_PRINTSCREEN:
-                return KEY_PRTSCR;
-
-        }
-        logger.log( Level.WARNING, "unsupported key:{0}", key);
-        if ( key >= 0x10000 ) {
-            return key - 0x10000;
-        }
-
-        return 0;
+    @Override
+    public void keyPressed(KeyEvent e) {
+      System.out.println("Key pressed "+e.getKeyChar());
+      onKeyEvent(e, true);
     }
 
+    @Override
+    public void keyReleased(KeyEvent e) {
+      System.out.println("Key released "+e.getKeyChar());
+      onKeyEvent(e, false);
+    }
 }
