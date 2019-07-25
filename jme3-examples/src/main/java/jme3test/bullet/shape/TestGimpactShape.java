@@ -106,7 +106,7 @@ public class TestGimpactShape extends SimpleApplication {
     public static void main(String[] args) {
         test = new TestGimpactShape();
         test.setSettings(new AppSettings(true));
-        test.settings.setFrameRate(60);
+        test.settings.setVSync(true);
         if (SKIP_SETTINGS) {
             test.settings.setWidth(1920);
             test.settings.setHeight(1150);
@@ -117,6 +117,7 @@ public class TestGimpactShape extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+        test = this;
         getCamera().setLocation(new Vector3f(40, 30, 160));
         getCamera().lookAt(new Vector3f(40, -5, 0), Vector3f.UNIT_Y);
         getFlyByCamera().setMoveSpeed(25);
