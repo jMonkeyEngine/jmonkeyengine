@@ -41,7 +41,6 @@ import java.util.Map;
 import com.jme3.input.KeyInput;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.system.JmeContext;
-import com.jme3.system.awt.AWTContext;
 
 
 /**
@@ -225,19 +224,16 @@ public class AWTKeyInput extends AWTInput implements KeyInput, KeyListener{
 
     @Override
     public void keyTyped(KeyEvent e) {
-      System.out.println("Key typed "+e.getKeyChar());
       //onKeyEvent(e, false);
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-      System.out.println("Key pressed "+e.getKeyChar());
       onKeyEvent(e, true);
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-      System.out.println("Key released "+e.getKeyChar());
       onKeyEvent(e, false);
     }
 }

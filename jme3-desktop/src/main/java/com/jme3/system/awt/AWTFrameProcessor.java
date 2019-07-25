@@ -33,6 +33,11 @@ package com.jme3.system.awt;
 
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.HierarchyBoundsListener;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
@@ -60,7 +65,7 @@ import com.jme3.texture.Image;
  * @author Alexander Brui (JavaSaBr)
  *
  */
-public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener {
+public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener, ComponentListener, HierarchyListener, HierarchyBoundsListener{
 
 	public enum TransferMode {
 		ALWAYS,
@@ -195,6 +200,40 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 		System.out.println("Property changed: "+evt.getPropertyName()+" "+evt.getOldValue()+" -> "+evt.getNewValue());
 	}
 
+	@Override
+	public void componentResized(ComponentEvent e) {
+		if (e != null) {
+			if (e.getComponent() != null) {
+				System.out.println("Component resized: "+e.getComponent().getWidth()+"x"+e.getComponent().getHeight());
+			}
+		}
+	}
+
+	@Override
+	public void componentMoved(ComponentEvent e) {
+	}
+
+	@Override
+	public void componentShown(ComponentEvent e) {
+	}
+
+	@Override
+	public void componentHidden(ComponentEvent e) {
+	}
+	
+	@Override
+	public void hierarchyChanged(HierarchyEvent e) {
+		System.out.println("Hierarchy event: "+e.toString());		
+	}
+	
+	@Override
+	public void ancestorMoved(HierarchyEvent e) {}
+
+	@Override
+	public void ancestorResized(HierarchyEvent e) {
+		System.out.println("Hierarchy ancestor resized, component current size"+" "+destination.getWidth()+"x"+destination.getHeight());		
+	}
+	
 	public AWTFrameProcessor() {
 		transferMode = TransferMode.ALWAYS;
 		askWidth = 1;
@@ -537,6 +576,11 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 		Component destination = getDestination();
 		destination.addPropertyChangeListener(this);
 		destination.addPropertyChangeListener(this);
+		
+		destination.addComponentListener(this);
+
+		destination.addHierarchyListener(this);
+		destination.addHierarchyBoundsListener(this);
 	}
 
 
@@ -544,6 +588,11 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 		Component destination = getDestination();
 		destination.removePropertyChangeListener(this);
 		destination.removePropertyChangeListener(this);
+		
+		destination.removeComponentListener(this);
+		
+		destination.removeHierarchyListener(this);
+		destination.removeHierarchyBoundsListener(this);
 	}
 
 	/**

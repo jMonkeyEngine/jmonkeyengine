@@ -221,12 +221,6 @@ public class AWTComponentAppStateSample {
    */
   public AWTComponentAppStateSample(){
 
-	// 1. Set the underlying renderer
-	String renderer = System.getProperty("jme3.awt.renderer");
-	if (renderer == null) {
-	  System.setProperty("jme3.awt.renderer", AppSettings.LWJGL_OPENGL45);
-	}
-	  
     // 2. Create settings that are compatible with AWT rendering
     AppSettings settings = new AppSettings(true);
     settings.setFullscreen(false);

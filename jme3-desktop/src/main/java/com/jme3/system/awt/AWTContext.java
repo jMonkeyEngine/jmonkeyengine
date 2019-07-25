@@ -51,6 +51,7 @@ import com.jme3.system.Timer;
  * <p>
  * This class is based on the <a href="http://www.oracle.com/technetwork/java/javase/overview/javafx-overview-2158620.html">JavaFX</a> original code provided by Alexander Brui (see <a href="https://github.com/JavaSaBr/JME3-JFX">JME3-FX</a>)
  * </p>
+ * It is possible to specify a system renderer to use by setting the system property <i>jme3.system.renderer</i> with a value that specifies the renderer to use (These values can be obtained from {@link AppSettings} class).
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  * @author Alexander Brui (JavaSaBr)
  */
@@ -83,6 +84,8 @@ public class AWTContext implements JmeContext {
    */
   private volatile int height;
 
+  private String underlyingRenderer = null;
+  
   /**
    * The background context.
    */
@@ -131,20 +134,40 @@ public class AWTContext implements JmeContext {
   protected AppSettings createSettings() {
       final AppSettings settings = new AppSettings(true);
       
-      String renderer = System.getProperty("jme3.awt.renderer");
+      String renderer = System.getProperty("jme3.system.renderer");
       
       if (renderer != null) {
-    	  settings.setRenderer(renderer);
+    	  underlyingRenderer = renderer;
+    	  settings.setRenderer(underlyingRenderer);
     	  logger.log(Level.INFO, "Using underlying renderer "+settings.getRenderer()+".");
       } else {
-    	  settings.setRenderer(AppSettings.LWJGL_OPENGL45);  
-    	  logger.log(Level.INFO, "Using default underlying renderer "+settings.getRenderer());
+    	  underlyingRenderer = settings.getRenderer();
+    	  logger.log(Level.INFO, "Using default underlying renderer "+underlyingRenderer);
     	  logger.log(Level.INFO, getClass().getSimpleName()+" underlying renderer can be set using jme3.awt.renderer property.");
       }
       
       return settings;
   }
 
+  @Override
+  public void setSettings(AppSettings settings) {
+      this.settings.copyFrom(settings);
+      
+      String renderer = System.getProperty("jme3.system.renderer");
+      
+      if (renderer != null) {
+    	  underlyingRenderer = renderer;
+    	  this.settings.setRenderer(underlyingRenderer);
+    	  logger.log(Level.INFO, "Using underlying renderer "+this.settings.getRenderer()+".");
+      } else {
+    	  this.settings.setRenderer(underlyingRenderer);
+    	  logger.log(Level.INFO, "Using default underlying renderer "+this.settings.getRenderer());
+    	  logger.log(Level.INFO, getClass().getSimpleName()+" underlying renderer can be set using jme3.awt.renderer property.");
+      }
+      
+      this.backgroundContext.setSettings(this.settings);
+  }
+  
   /**
    * @return new context/
    */
@@ -155,24 +178,6 @@ public class AWTContext implements JmeContext {
   @Override
   public Type getType() {
       return Type.OffscreenSurface;
-  }
-
-  @Override
-  public void setSettings(AppSettings settings) {
-      this.settings.copyFrom(settings);
-      
-      String renderer = System.getProperty("jme3.awt.renderer");
-      
-      if (renderer != null) {
-    	  settings.setRenderer(renderer);
-    	  logger.log(Level.INFO, "Using underlying renderer "+settings.getRenderer()+".");
-      } else {
-    	  settings.setRenderer(AppSettings.LWJGL_OPENGL45);  
-    	  logger.log(Level.INFO, "Using default underlying renderer "+settings.getRenderer());
-    	  logger.log(Level.INFO, getClass().getSimpleName()+" underlying renderer can be set using jme3.awt.renderer property.");
-      }
-      
-      this.backgroundContext.setSettings(settings);
   }
 
   @Override
@@ -241,15 +246,6 @@ public class AWTContext implements JmeContext {
 
   @Override
   public void create(final boolean waitFor) {
-	  
-      String renderer = System.getProperty("jme3.awt.renderer");
-      
-      if (renderer != null) {
-    	  backgroundContext.getSettings().setRenderer(renderer);
-      } else {
-    	  backgroundContext.getSettings().setRenderer(AppSettings.LWJGL_OPENGL45);  
-      }
-	  
       logger.log(Level.INFO, "Creating background renderer using "+backgroundContext.getSettings().getRenderer()+" renderer");
       backgroundContext.create(waitFor);
   }
