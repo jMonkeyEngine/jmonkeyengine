@@ -297,7 +297,7 @@ public class TransformTrack implements AnimTrack<Transform> {
     }
 
     @Override
-    public Object jmeClone() {
+    public TransformTrack jmeClone() {
         try {
             TransformTrack clone = (TransformTrack) super.clone();
             return clone;
