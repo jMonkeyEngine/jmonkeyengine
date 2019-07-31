@@ -197,14 +197,13 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		System.out.println("Property changed: "+evt.getPropertyName()+" "+evt.getOldValue()+" -> "+evt.getNewValue());
 	}
 
 	@Override
 	public void componentResized(ComponentEvent e) {
-		if (e != null) {
+		if ((e != null) && (e.getComponent() == destination)){
 			if (e.getComponent() != null) {
-				reshape();
+				notifyChangedDimension(e.getComponent().getWidth(), e.getComponent().getHeight());
 			}
 		}
 	}
@@ -222,8 +221,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 	}
 	
 	@Override
-	public void hierarchyChanged(HierarchyEvent e) {
-		System.out.println("Hierarchy event: "+e.toString());		
+	public void hierarchyChanged(HierarchyEvent e) {	
 	}
 	
 	@Override
@@ -231,7 +229,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 
 	@Override
 	public void ancestorResized(HierarchyEvent e) {
-		System.out.println("Hierarchy ancestor resized, component current size"+" "+destination.getWidth()+"x"+destination.getHeight());		
+	    notifyChangedDimension(destination.getWidth(), destination.getHeight());
 	}
 	
 	public AWTFrameProcessor() {
@@ -247,7 +245,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 	 *
 	 * @param newValue the new value of the ratio.
 	 */
-	protected void notifyChangedRatio(Boolean newValue) {
+	protected void notifyChangedpRatio(Boolean newValue) {
 		notifyComponentResized(destination.getWidth(), destination.getHeight(), newValue);
 	}
 
@@ -269,6 +267,16 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 		notifyComponentResized(newValue.intValue(), destination.getHeight(), isPreserveRatio());
 	}
 
+	/**
+	 * Notify about that the dimensions were changed.
+	 *
+	 * @param width the new value of the width.
+	 * @param height the new value of the height.
+	 */
+	protected void notifyChangedDimension(Number width, Number height) {
+		notifyComponentResized(width.intValue(), height.intValue(), isPreserveRatio());
+	}
+	
 	/**
 	 * Gets the application.
 	 *
@@ -370,14 +378,13 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 	}
 
 	/**
-	 * Handle resizing.
-	 *
+	 * Handle rendering component resizing.
 	 * @param newWidth  the new width.
 	 * @param newHeight the new height.
 	 * @param fixAspect true if need to fix aspect.
 	 */
 	protected void notifyComponentResized(int newWidth, int newHeight, boolean fixAspect) {
-
+		
 		newWidth = Math.max(newWidth, 1);
 		newHeight = Math.max(newHeight, 1);
 

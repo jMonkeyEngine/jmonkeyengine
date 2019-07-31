@@ -58,18 +58,12 @@ import com.jme3.system.awt.AWTContext;
  */
 public class AWTInputMouse extends AWTInput implements MouseInput, MouseListener, MouseMotionListener, MouseWheelListener {
 
-    private static final Map<Integer, Integer> MOUSE_BUTTON_TO_JME = new HashMap<>();
-
-    static {
-        MOUSE_BUTTON_TO_JME.put(MouseEvent.BUTTON1, BUTTON_LEFT);
-        MOUSE_BUTTON_TO_JME.put(MouseEvent.BUTTON2, BUTTON_MIDDLE);
-        MOUSE_BUTTON_TO_JME.put(MouseEvent.BUTTON3, BUTTON_RIGHT);
-    }
-
+    private Map<Integer, Integer> buttonMapping;
+    
     /**
      * The scale factor for scrolling.
      */
-    private static final int WHEEL_SCALE = 10;
+    private int wheelScale = 10;
 
     private final LinkedList<MouseMotionEvent> mouseMotionEvents;
 
@@ -79,16 +73,46 @@ public class AWTInputMouse extends AWTInput implements MouseInput, MouseListener
     private int mouseY;
     private int mouseWheel;
 
+    /**
+     * Create a new {@link MouseInput Mouse input} that is binded with AWT Mouse. By default, mouse button mapping is:
+     * <ul>
+     * <li>{@link MouseEvent.BUTTON1} is mapped with {@link BUTTON_LEFT}
+     * <li>{@link MouseEvent.BUTTON2} is mapped with {@link BUTTON_MIDDLE}
+     * <li>{@link MouseEvent.BUTTON3} is mapped with {@link BUTTON_RIGHT}
+     * </ul>
+     * The button mapping can be changed using {@link #setButtonMapping(Map) setButtonMapping() method}.
+     */
     public AWTInputMouse() {
         super();
         mouseMotionEvents = new LinkedList<MouseMotionEvent>();
         mouseButtonEvents = new LinkedList<MouseButtonEvent>();
+        
+        buttonMapping = new HashMap<>();
+        buttonMapping.put(MouseEvent.BUTTON1, BUTTON_LEFT);
+        buttonMapping.put(MouseEvent.BUTTON2, BUTTON_MIDDLE);
+        buttonMapping.put(MouseEvent.BUTTON3, BUTTON_RIGHT);
     }
     
+    /**
+     * Create a new {@link MouseInput Mouse input} that is binded with AWT Mouse and the given context. 
+     * By default, mouse button mapping is:
+     * <ul>
+     * <li>{@link MouseEvent.BUTTON1} is mapped with {@link BUTTON_LEFT}
+     * <li>{@link MouseEvent.BUTTON2} is mapped with {@link BUTTON_MIDDLE}
+     * <li>{@link MouseEvent.BUTTON3} is mapped with {@link BUTTON_RIGHT}
+     * </ul>
+     * The button mapping can be changed using {@link #setButtonMapping(Map) setButtonMapping() method}.
+     * @param context to context to use.
+     */
     public AWTInputMouse(JmeContext context) {
         super(context);
         mouseMotionEvents = new LinkedList<MouseMotionEvent>();
         mouseButtonEvents = new LinkedList<MouseButtonEvent>();
+        
+        buttonMapping = new HashMap<>();
+        buttonMapping.put(MouseEvent.BUTTON1, BUTTON_LEFT);
+        buttonMapping.put(MouseEvent.BUTTON2, BUTTON_MIDDLE);
+        buttonMapping.put(MouseEvent.BUTTON3, BUTTON_RIGHT);
     }
 
     @Override
@@ -119,6 +143,43 @@ public class AWTInputMouse extends AWTInput implements MouseInput, MouseListener
         }
     }
 
+    /**
+     * Get the scale to apply to Wheel motion.
+     * @return the scale to apply to Wheel motion.
+     * @see #getSetWheelScale(int)
+     */
+    public int getWheelScale() {
+    	return wheelScale;
+    }
+    
+    /**
+     * Set the scale to apply to Wheel motion.
+     * @param scale the scale to apply to Wheel motion.
+     * @see #getWheelScale()
+     */
+    public void getSetWheelScale(int scale) {
+      wheelScale = scale;
+    }
+    
+    /**
+     * Get the button mapping between JME and AWT. 
+     * Within the map, keys are the JME button and values are the AWT Mouse button that is affected.
+     * @return the button mapping between JME and AWT. 
+     * @see #setButtonMapping(Map)
+     */
+    public Map<Integer, Integer> getButtonMapping() {
+    	return buttonMapping;
+    }
+    
+    /**
+     * Set the button mapping between JME and AWT. 
+     * @param mapping the button mapping between JME and AWT. 
+     * @see #getButtonMapping()
+     */
+    public void setButtonMapping(Map<Integer, Integer> mapping) {
+    	this.buttonMapping = mapping;
+    }
+    
     private void onWheelScroll(final double xOffset, final double yOffset) {
 
         mouseWheel += yOffset;
@@ -189,7 +250,7 @@ public class AWTInputMouse extends AWTInput implements MouseInput, MouseListener
     }
 
     private int convertButton(int i) {
-        final Integer result = MOUSE_BUTTON_TO_JME.get(i);
+        final Integer result = buttonMapping.get(i);
         return result == null ? 0 : result;
     }
 
@@ -246,6 +307,6 @@ public class AWTInputMouse extends AWTInput implements MouseInput, MouseListener
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
-      onWheelScroll(e.getWheelRotation() * WHEEL_SCALE, e.getWheelRotation() * WHEEL_SCALE);
+      onWheelScroll(e.getWheelRotation() * wheelScale, e.getWheelRotation() * wheelScale);
     }
 }

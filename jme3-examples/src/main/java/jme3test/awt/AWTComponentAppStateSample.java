@@ -9,7 +9,6 @@ import java.awt.event.WindowListener;
 import javax.swing.JFrame;
 
 import com.jme3.app.Application;
-import com.jme3.app.LegacyApplication;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AWTComponentAppState;
 import com.jme3.material.Material;
@@ -129,88 +128,6 @@ public class AWTComponentAppStateSample {
   }
 
   /**
-   * Initialize the link between the JMonkey components (application, display panel) and the GUI.
-   * This method start the 3D rendering loop and link the graphical user components.
-   */
-  protected void initJMEApplicationLink(LegacyApplication application){
-
-    if (application != null){
-      System.out.println("JMonkey application created.");
-    } else {
-      System.err.println("Cannot create JMonkey application.");
-      return;
-    }
-
-    while((application.getContext() == null)||(!application.getContext().isCreated())){
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException e) {
-        System.err.println("Error during initialization: "+e.getMessage());
-        e.printStackTrace(System.err);
-      }
-    }
-
-    if (application.getContext() != null){
-      System.out.println("JMonkey Application context initialized.");
-    } else {
-      System.err.println("Cannot initialize JMonkey Application context.");
-    }
-
-    while((application.getViewPort() == null)||(!application.getViewPort().isEnabled())){
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException e) {
-        System.err.println("Error during initialization: "+e.getMessage());
-        e.printStackTrace(System.err);
-      }
-    }
-
-
-    if ((application.getViewPort() != null)&&(application.getViewPort().isEnabled())){
-
-      ColorRGBA bg = new ColorRGBA(0.4313f, 0.4313f, 0.4313f, 1.0f);
-
-      application.getViewPort().setBackgroundColor(bg);
-      System.out.println("JMonkey Application viewport initialized.");
-    } else {
-      System.err.println("Cannot initialize JMonkey Application viewport.");
-    }
-
-    while(application.getAssetManager() == null){
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException e) {
-        System.err.println("Error during initialization: "+e.getMessage());
-        e.printStackTrace(System.err);
-      }
-    }
-
-    while(application.getStateManager() == null){
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException e) {
-        System.err.println("Error during initialization: "+e.getMessage());
-        e.printStackTrace(System.err);
-      }
-    }
-
-    if (application.getStateManager() != null){
-      System.out.println("State manager initialized.");
-    } else {
-      System.err.println("Cannot initialize state manager.");
-    }
-
-    while(application.getCamera() == null){
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException e) {
-        System.err.println("Error during initialization: "+e.getMessage());
-        e.printStackTrace(System.err);
-      }
-    }
-  }
-
-  /**
    * An example that shows how to render JME content within an AWT component. 
    * The use of this panel requires:<br>
    * <ul>
@@ -221,25 +138,25 @@ public class AWTComponentAppStateSample {
    */
   public AWTComponentAppStateSample(){
 
-    // 2. Create settings that are compatible with AWT rendering
+    // 1. Create settings that are compatible with AWT rendering
     AppSettings settings = new AppSettings(true);
     settings.setFullscreen(false);
     settings.setCustomRenderer(AWTContext.class);
 
-    // 3. Initialize the underlying JMonkey related objects
+    // 2. Initialize the underlying JMonkey related objects
     System.out.print("Initializing JME application... ");
     final Application application = createJMEApplication(settings);
     System.out.println(" [DONE]");
 
-    // 4. Create the component that will support the rendering.
+    // 3. Create the component that will support the rendering.
     //    Any subclass of Component can be used.
     Canvas component = new Canvas();
     component.setSize(800,  600);
 
-    // 5. Create the app state dedicated to AWT component rendering
+    // 4. Create the app state dedicated to AWT component rendering
     AWTComponentAppState appState = new AWTComponentAppState(component);
 
-    // 6. Attach the app state to the application
+    // 5. Attach the app state to the application
     application.getStateManager().attach(appState);
 
     // 6. Start the application
