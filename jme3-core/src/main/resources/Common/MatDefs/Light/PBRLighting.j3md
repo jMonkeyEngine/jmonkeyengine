@@ -287,6 +287,29 @@ MaterialDef PBR Lighting {
 
     }
 
+    Technique PreNormalGlossPass {
+
+        VertexShader GLSL100 :   Common/MatDefs/SSR/normal_gloss.vert
+        FragmentShader GLSL100 : Common/MatDefs/SSR/normal_gloss.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            WorldMatrix
+            NormalMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
+            NUM_MORPH_TARGETS: NumberOfMorphTargets
+            NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+        }
+
+    }
+
     Technique Glow {
 
         VertexShader GLSL100 GLSL150:   Common/MatDefs/Misc/Unshaded.vert
