@@ -45,8 +45,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.jme3.app.Application;
-import com.jme3.input.awt.AWTKeyInput;
-import com.jme3.input.awt.AWTMouseInput;
+import com.jme3.input.awt.AWTInputKeyboard;
+import com.jme3.input.awt.AWTInputMouse;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
 import com.jme3.renderer.Camera;
@@ -204,7 +204,7 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 	public void componentResized(ComponentEvent e) {
 		if (e != null) {
 			if (e.getComponent() != null) {
-				System.out.println("Component resized: "+e.getComponent().getWidth()+"x"+e.getComponent().getHeight());
+				reshape();
 			}
 		}
 	}
@@ -527,9 +527,9 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 			if (application.getContext() != null) {
 				if (application.getContext() instanceof AWTContext) {
 					AWTContext context = (AWTContext) application.getContext();
-					AWTMouseInput mouseInput = context.getMouseInput();
+					AWTInputMouse mouseInput = context.getMouseInput();
 					mouseInput.bind(destination);
-					AWTKeyInput keyInput = context.getKeyInput();
+					AWTInputKeyboard keyInput = context.getKeyInput();
 					keyInput.bind(destination);
 
 					setDestination(destination);
@@ -557,9 +557,9 @@ public class AWTFrameProcessor implements SceneProcessor, PropertyChangeListener
 
 		if (hasApplication() && isMain()) {
 			final AWTContext context = (AWTContext) getApplication().getContext();
-			final AWTMouseInput mouseInput = context.getMouseInput();
+			final AWTInputMouse mouseInput = context.getMouseInput();
 			mouseInput.unbind();
-			final AWTKeyInput keyInput = context.getKeyInput();
+			final AWTInputKeyboard keyInput = context.getKeyInput();
 			keyInput.unbind();
 		}
 

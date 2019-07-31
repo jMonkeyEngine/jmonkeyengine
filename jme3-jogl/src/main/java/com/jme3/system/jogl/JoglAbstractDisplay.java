@@ -35,9 +35,8 @@ package com.jme3.system.jogl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
-import com.jme3.input.awt.AWTInput;
-import com.jme3.input.awt.AWTKeyInput;
-import com.jme3.input.awt.AWTMouseInput;
+import com.jme3.input.awt.AwtKeyInput;
+import com.jme3.input.awt.AwtMouseInput;
 import com.jme3.system.AppSettings;
 import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.AnimatorBase;
@@ -149,8 +148,8 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
     @Override
     public KeyInput getKeyInput() {
         if (keyInput == null) {
-            keyInput = new AWTKeyInput();
-            ((AWTKeyInput)keyInput).bind(canvas);
+            keyInput = new AwtKeyInput();
+            ((AwtKeyInput)keyInput).setInputSource(canvas);
         }
         return keyInput;
     }
@@ -158,8 +157,8 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
     @Override
     public MouseInput getMouseInput() {
         if (mouseInput == null) {
-            mouseInput = new AWTMouseInput();
-            ((AWTMouseInput)mouseInput).bind(canvas);
+            mouseInput = new AwtMouseInput();
+            ((AwtMouseInput)mouseInput).setInputSource(canvas);
         }
         return mouseInput;
     }

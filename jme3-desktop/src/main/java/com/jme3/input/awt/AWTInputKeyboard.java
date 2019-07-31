@@ -51,7 +51,7 @@ import com.jme3.system.JmeContext;
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  * @author Alexander Brui (JavaSaBr)
  */
-public class AWTKeyInput extends AWTInput implements KeyInput, KeyListener{
+public class AWTInputKeyboard extends AWTInput implements KeyInput, KeyListener{
 
     private static final Map<Integer, Integer> KEY_CODE_TO_JME = new HashMap<>();
 
@@ -168,12 +168,12 @@ public class AWTKeyInput extends AWTInput implements KeyInput, KeyListener{
 
     private final LinkedList<KeyInputEvent> keyInputEvents;
 
-    public AWTKeyInput() {
+    public AWTInputKeyboard() {
         super();
         keyInputEvents = new LinkedList<KeyInputEvent>();
     }
     
-    public AWTKeyInput(JmeContext context) {
+    public AWTInputKeyboard(JmeContext context) {
         super(context);
         keyInputEvents = new LinkedList<KeyInputEvent>();
     }

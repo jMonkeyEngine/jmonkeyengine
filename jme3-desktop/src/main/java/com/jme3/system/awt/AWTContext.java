@@ -36,8 +36,8 @@ import java.util.logging.Logger;
 
 import com.jme3.input.JoyInput;
 import com.jme3.input.TouchInput;
-import com.jme3.input.awt.AWTKeyInput;
-import com.jme3.input.awt.AWTMouseInput;
+import com.jme3.input.awt.AWTInputKeyboard;
+import com.jme3.input.awt.AWTInputMouse;
 import com.jme3.opencl.Context;
 import com.jme3.renderer.Renderer;
 import com.jme3.system.AppSettings;
@@ -67,12 +67,12 @@ public class AWTContext implements JmeContext {
   /**
    * The key input.
    */
-  protected final AWTKeyInput keyInput;
+  protected final AWTInputKeyboard keyInput;
 
   /**
    * The mouse input.
    */
-  protected final AWTMouseInput mouseInput;
+  protected final AWTInputMouse mouseInput;
 
   /**
    * The current width.
@@ -91,9 +91,12 @@ public class AWTContext implements JmeContext {
    */
   protected JmeContext backgroundContext;
 
+  /**
+   * Create a new AWT Context
+   */
   public AWTContext() {
-      this.keyInput = new AWTKeyInput(this);
-      this.mouseInput = new AWTMouseInput(this);
+      this.keyInput = new AWTInputKeyboard(this);
+      this.mouseInput = new AWTInputMouse(this);
       this.settings = createSettings();
       this.backgroundContext = createBackgroundContext();
       this.height = 1;
@@ -101,35 +104,44 @@ public class AWTContext implements JmeContext {
   }
 
   /**
+   * Get the current display height of the context.
    * @return the current height.
+   * @see #getWidth()
    */
   public int getHeight() {
       return height;
   }
 
   /**
+   * Set the current display height of the context.
    * @param height the current height.
+   * @see #setWidth(int)
    */
   public void setHeight(final int height) {
       this.height = height;
   }
 
   /**
+   * Get the current display width of the context.
    * @return the current width.
+   * @see #getHeight()
    */
   public int getWidth() {
       return width;
   }
 
   /**
+   * Set the current display width of the context.
    * @param width the current width.
+   * @see #setHeight(int)
    */
   public void setWidth(final int width) {
       this.width = width;
   }
 
   /**
-   * @return new settings.
+   * Create a default application settings.
+   * @return the created application settings.
    */
   protected AppSettings createSettings() {
       final AppSettings settings = new AppSettings(true);
@@ -169,7 +181,8 @@ public class AWTContext implements JmeContext {
   }
   
   /**
-   * @return new context/
+   * Create a background context for displaying.
+   * @return the created context
    */
   protected JmeContext createBackgroundContext() {
       return JmeSystem.newContext(settings, Type.OffscreenSurface);
@@ -201,12 +214,12 @@ public class AWTContext implements JmeContext {
   }
 
   @Override
-  public AWTMouseInput getMouseInput() {
+  public AWTInputMouse getMouseInput() {
       return mouseInput;
   }
 
   @Override
-  public AWTKeyInput getKeyInput() {
+  public AWTInputKeyboard getKeyInput() {
       return keyInput;
   }
 

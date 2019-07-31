@@ -56,7 +56,7 @@ import com.jme3.system.awt.AWTContext;
  * @author Julien Seinturier - COMEX SA - <a href="http://www.seinturier.fr">http://www.seinturier.fr</a>
  * @author Alexander Brui (JavaSaBr)
  */
-public class AWTMouseInput extends AWTInput implements MouseInput, MouseListener, MouseMotionListener, MouseWheelListener {
+public class AWTInputMouse extends AWTInput implements MouseInput, MouseListener, MouseMotionListener, MouseWheelListener {
 
     private static final Map<Integer, Integer> MOUSE_BUTTON_TO_JME = new HashMap<>();
 
@@ -79,13 +79,13 @@ public class AWTMouseInput extends AWTInput implements MouseInput, MouseListener
     private int mouseY;
     private int mouseWheel;
 
-    public AWTMouseInput() {
+    public AWTInputMouse() {
         super();
         mouseMotionEvents = new LinkedList<MouseMotionEvent>();
         mouseButtonEvents = new LinkedList<MouseButtonEvent>();
     }
     
-    public AWTMouseInput(JmeContext context) {
+    public AWTInputMouse(JmeContext context) {
         super(context);
         mouseMotionEvents = new LinkedList<MouseMotionEvent>();
         mouseButtonEvents = new LinkedList<MouseButtonEvent>();
