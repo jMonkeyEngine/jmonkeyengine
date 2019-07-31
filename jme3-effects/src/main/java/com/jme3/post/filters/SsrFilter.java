@@ -78,6 +78,8 @@ public class SsrFilter extends Filter{
     private Vector2f farFade = new Vector2f(200f, 300f);
     private int blurPasses = 4;
     private Image.Format ssrImageFormat = Image.Format.RGBA16F;
+    private boolean rgNormalMap;
+    private boolean glossinessPackedInNormalB = true;
 
     public SsrFilter(){
         super("SSR Filter");
@@ -119,6 +121,8 @@ public class SsrFilter extends Filter{
         ssrMaterial.setInt("NearbySamples", sampleNearby ? 4 : 0);
         ssrMaterial.setFloat("StepLength", stepLength);
         ssrMaterial.setFloat("ReflectionFactor", reflectionFactor);
+        ssrMaterial.setBoolean("GlossinessPackedInNormalB", glossinessPackedInNormalB);
+        ssrMaterial.setBoolean("RGNormalMap", glossinessPackedInNormalB);
         ssrMaterial.setBoolean("ApproximateNormals", approximateNormals);
         ssrMaterial.setVector2("NearReflectionsFade", nearFade);
         ssrMaterial.setVector2("FarReflectionsFade", farFade);
@@ -177,7 +181,12 @@ public class SsrFilter extends Filter{
             Renderer r = renderManager.getRenderer();
             r.setFrameBuffer(normalPass.getRenderFrameBuffer());
             renderManager.getRenderer().clearBuffers(true, true, true);
-            renderManager.setForcedTechnique("PreNormalPass");
+            if(glossinessPackedInNormalB){
+                renderManager.setForcedTechnique("PreNormalGlossPass");
+            } else {
+                renderManager.setForcedTechnique("PreNormalPass");
+            }
+            
             renderManager.renderViewPortQueues(viewPort, false);
             renderManager.setForcedTechnique(null);
             renderManager.getRenderer().setFrameBuffer(viewPort.getOutputFrameBuffer());
@@ -346,6 +355,19 @@ public class SsrFilter extends Filter{
         this.ssrImageFormat = ssrImageFormat;
     }
 
+    public boolean isGlossinessPackedInNormalB() {
+        return glossinessPackedInNormalB;
+    }
+
+    public void setGlossinessPackedInNormalB(boolean glossinessPackedInNormalB) {
+        this.glossinessPackedInNormalB = glossinessPackedInNormalB;
+        if(ssrMaterial != null){
+            ssrMaterial.setBoolean("GlossinessPackedInNormalB", glossinessPackedInNormalB);
+            ssrMaterial.setBoolean("RGNormalMap", glossinessPackedInNormalB);
+        }
+    }
+
+    
     
     @Override
     public void write(JmeExporter ex) throws IOException {

@@ -181,6 +181,21 @@ vec3 screenPosToWPos(in vec3 screenPos){
     return pos.xyz/pos.w;
 }
 
+#ifdef USE_APPROXIMATED_GLOSSINESS
+    /**
+    * Use nearby normals to aproximate glossiness
+    */
+    float approximateGlossiness(in vec3 normal,in vec2 texCoord){
+        vec3 d1 = dFdx(normal);
+        vec3 d2 = dFdy(normal);
+        float maxd=max(dot(d1,d1),dot(d2,d2));
+        maxd=smoothstep(0.,1.,maxd);
+        maxd=pow(maxd,8)*1.;
+        return 1.-clamp(maxd,0,1);
+    }
+#endif
+
+
 #ifdef USE_APPROXIMATED_NORMALS
     /**
     * Use nearby positions to aproximate normals
@@ -203,29 +218,28 @@ vec3 screenPosToWPos(in vec3 screenPos){
         return normalize(cross(-v1, v2));
     }
 #else
-    vec3 getNormal(in vec2 texCoord){
-        vec3 wNormal = texture(m_Normals, texCoord).xyz * 2.0 - 1.0;
-        vec4 normal = vec4(wNormal , 1.0);
-        wNormal = normal.xyz / normal.w;
-        wNormal.z = (2.0 * g_FrustumNearFar.x) / (g_FrustumNearFar.y + g_FrustumNearFar.x - wNormal.z * (g_FrustumNearFar.y-g_FrustumNearFar.x));
+    vec3 getNormal(in vec2 texCoord, out float glossiness){
+        vec3 wNormal = texture(m_Normals, texCoord).xyz;
+        
         #ifdef RG_NORMAL_MAP
+            #ifdef GLOSSINESS_PACKET_IN_NORMAL_B
+                glossiness = wNormal.z;
+            #endif
+            wNormal.xy = wNormal.xy * 2.0 - 1.0;
+            //wNormal.z = sqrt(1.0 - wNormal.x*wNormal.x - wNormal.y * wNormal.y);
             wNormal.z = sqrt(1-clamp(dot(wNormal.xy, wNormal.xy),0.,1.)); // Reconstruct Z
+        #else
+            wNormal = wNormal * 2.0 - 1.0;
+            vec4 normal = vec4(wNormal , 1.0);
+            wNormal = normal.xyz / normal.w;
+            wNormal.z = (2.0 * g_FrustumNearFar.x) / (g_FrustumNearFar.y + g_FrustumNearFar.x - wNormal.z * (g_FrustumNearFar.y-g_FrustumNearFar.x));
         #endif
+        
+        #ifdef USE_APPROXIMATED_GLOSSINESS 
+            glossiness = min(glossiness, approximateGlossiness(wNormal,texCoord));
+        #endif
+        
         return normalize(wNormal);
-    }
-#endif
-
-#ifdef USE_APPROXIMATED_GLOSSINESS
-    /**
-    * Use nearby normals to aproximate glossiness
-    */
-    float approximateGlossiness(in vec3 normal,in vec2 texCoord){
-        vec3 d1 = dFdx(normal);
-        vec3 d2 = dFdy(normal);
-        float maxd=max(dot(d1,d1),dot(d2,d2));
-        maxd=smoothstep(0.,1.,maxd);
-        maxd=pow(maxd,8)*1.;
-        return 1.-clamp(maxd,0,1);
     }
 #endif
 
@@ -277,16 +291,13 @@ Ray createRay(in vec2 texCoord,in float depth){
     ray.sFrom=getScreenPos(texCoord,depth);
     ray.wFrom = screenPosToWPos(ray.sFrom);
     ray.surfaceGlossiness=1.* m_ReflectionFactor;
-
+    
     #ifdef USE_APPROXIMATED_NORMALS
         vec3 wNormal=approximateNormal(ray.wFrom, texCoord);
     #else
-        vec3 wNormal= getNormal(texCoord);
-        #ifdef GLOSSINESS_PACKET_IN_NORMAL_B
-            ray.surfaceGlossiness = wNormal.z;
-        #elif defined(USE_APPROXIMATED_GLOSSINESS) 
-            ray.surfaceGlossiness = min(ray.surfaceGlossiness, approximateGlossiness(wNormal,texCoord));
-        #endif
+        float glossiness = 0.0;
+        vec3 wNormal= getNormal(texCoord, glossiness);
+        ray.surfaceGlossiness=glossiness * m_ReflectionFactor;
     #endif
     
     ray.normal = wNormal;
