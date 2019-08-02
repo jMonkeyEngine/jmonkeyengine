@@ -306,6 +306,10 @@ MaterialDef PBR Lighting {
             INSTANCING : UseInstancing
             NUM_MORPH_TARGETS: NumberOfMorphTargets
             NUM_TARGETS_BUFFERS: NumberOfTargetsBuffers
+            NORMALMAP : NormalMap
+            ROUGHNESSMAP : RoughnessMap
+            SPECGLOSSPIPELINE : UseSpecGloss
+            GLOSSINESSMAP : GlossinessMap
         }
 
     }
