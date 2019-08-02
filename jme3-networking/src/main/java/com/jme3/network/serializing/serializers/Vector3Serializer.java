@@ -43,6 +43,11 @@ import java.nio.ByteBuffer;
 public class Vector3Serializer extends Serializer {
 
     public Vector3f readObject(ByteBuffer data, Class c) throws IOException {
+        // Read the null/non-null marker
+        if (data.get() == 0x0) {
+            return null;
+        }
+        
         Vector3f vec3 = new Vector3f();
         vec3.x = data.getFloat();
         vec3.y = data.getFloat();
@@ -51,6 +56,13 @@ public class Vector3Serializer extends Serializer {
     }
 
     public void writeObject(ByteBuffer buffer, Object object) throws IOException {
+        // Add the null/non-null marker
+        buffer.put((byte) (object != null ? 0x1 : 0x0));
+        if (object == null) {
+            // Nothing left to do
+            return;
+        }
+        
         Vector3f vec3 = (Vector3f) object;
         buffer.putFloat(vec3.x);
         buffer.putFloat(vec3.y);
