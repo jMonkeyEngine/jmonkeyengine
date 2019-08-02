@@ -384,6 +384,8 @@ public class SsrFilter extends Filter{
         oc.write(reflectionFactor, "reflectionFactor", 1f);
         oc.write(raySteps, "raySteps", 16);
         oc.write(blurPasses, "blurPasses", 2);
+        oc.write(glossinessPackedInNormalB, "glossinessPackedInNormalB", false);
+        oc.write(ssrImageFormat.toString(), "ssrImageFormat", Image.Format.RGBA16F.toString());
         oc.write(new float[]{nearFade.x, nearFade.y}, "nearFade", new float[]{0.01f, 1.0f});
         oc.write(new float[]{farFade.x, farFade.y}, "farFade", new float[]{200f, 300f});
     }
@@ -403,6 +405,9 @@ public class SsrFilter extends Filter{
         reflectionFactor = ic.readFloat("reflectionFactor", 1f);
         raySteps = ic.readInt("raySteps", 16);
         blurPasses = ic.readInt("blurPasses", 2);
+        glossinessPackedInNormalB = ic.readBoolean("glossinessPackedInNormalB", false);
+        String format = ic.readString("ssrImageFormat", Image.Format.RGBA16F.toString());
+        ssrImageFormat = Image.Format.valueOf(format);
         float[] nearArray = ic.readFloatArray("nearFade", new float[]{0.01f, 1.0f});
         nearFade = new Vector2f(nearArray[0], nearArray[1]);
         float[] farArray = ic.readFloatArray("farFade", new float[]{200f, 300f});
