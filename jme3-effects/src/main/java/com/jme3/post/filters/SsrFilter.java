@@ -195,7 +195,9 @@ public class SsrFilter extends Filter{
 
     @Override
     protected void cleanUpFilter(Renderer r) {
-        normalPass.cleanup(r);
+        if(normalPass != null){
+            normalPass.cleanup(r);
+        }
     }    
 
     @Override
