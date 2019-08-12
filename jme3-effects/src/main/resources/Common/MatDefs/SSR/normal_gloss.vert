@@ -21,12 +21,12 @@ void main(void)
    vec3 modelSpaceNormals = inNormal;
    
    #if defined(NORMALMAP)
-      wTangent = vec4(TransformWorldNormal(inTangent.xyz),inTangent.w);
+      wTangent = vec4(TransformWorld(vec4(inTangent.xyz, 1.0)).xyz,inTangent.w);
    #endif
    
    #ifdef NUM_BONES
        Skinning_Compute(modelSpacePos,modelSpaceNormals);
    #endif
-   wNormal = normalize(TransformWorldNormal(modelSpaceNormals));
+   wNormal = normalize(TransformWorld(vec4(modelSpaceNormals, 1.0)).xyz);
    gl_Position = TransformWorldViewProjection(modelSpacePos);
 }
