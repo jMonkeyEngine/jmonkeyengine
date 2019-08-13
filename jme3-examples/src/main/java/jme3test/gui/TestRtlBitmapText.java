@@ -40,7 +40,7 @@ import com.jme3.font.Rectangle;
 /**
  * Test case for JME issue #1158: BitmapText right to left line wrapping not work
  */
-public class TestRTLBitmapText extends SimpleApplication {
+public class TestRtlBitmapText extends SimpleApplication {
 
     // A right to left text.
     private String text = ".text left to right test a is This";
