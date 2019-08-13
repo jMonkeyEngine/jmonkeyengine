@@ -46,7 +46,7 @@ public class TestRtlBitmapText extends SimpleApplication {
     private String text = ".text left to right test a is This";
 
     public static void main(String[] args) {
-        TestRTLBitmapText app = new TestRTLBitmapText();
+        TestRtlBitmapText app = new TestRtlBitmapText();
         app.start();
     }
 
