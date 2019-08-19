@@ -421,6 +421,8 @@ public class LWJGLOpenVR implements VRAPI {
                 completeName = completeName.toLowerCase(Locale.ENGLISH).trim();
                 if( completeName.contains("htc") || completeName.contains("vive") ) {
                     return HmdType.HTC_VIVE;
+                } else if ( completeName.contains("index") ) {
+                    return HmdType.VALVE_INDEX;
                 } else if( completeName.contains("osvr") ) {
                     return HmdType.OSVR;
                 } else if( completeName.contains("oculus") || completeName.contains("rift") ||
