@@ -369,7 +369,26 @@ public class SsrFilter extends Filter{
         }
     }
 
-    
+    @Override
+    public SsrFilter clone(){
+        SsrFilter clone = new SsrFilter();
+        clone.approximateNormals = approximateNormals;
+        clone.approximateGlossiness = approximateGlossiness;
+        clone.sampleNearby = sampleNearby;
+        clone.fastBlur = fastBlur;
+        clone.downSampleFactor = downSampleFactor;
+        clone.stepLength = stepLength;
+        clone.blurScale = blurScale;
+        clone.sigma = sigma;
+        clone.reflectionFactor = reflectionFactor;
+        clone.raySteps = raySteps;
+        clone.blurPasses = blurPasses;
+        clone.glossinessPackedInNormalB = glossinessPackedInNormalB;
+        clone.ssrImageFormat = ssrImageFormat;
+        clone.nearFade = nearFade.clone();
+        clone.farFade = farFade.clone();
+        return clone;
+    }
     
     @Override
     public void write(JmeExporter ex) throws IOException {
