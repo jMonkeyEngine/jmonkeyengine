@@ -13,7 +13,7 @@ public enum HmdType {
     HTC_VIVE,
 
     /**
-     * <a href="">Valve Index</a> Head Mounted Device (HMD).
+     * <a href="https://www.valvesoftware.com/en/index">Valve Index</a> Head Mounted Device (HMD).
      */
     VALVE_INDEX,
 
