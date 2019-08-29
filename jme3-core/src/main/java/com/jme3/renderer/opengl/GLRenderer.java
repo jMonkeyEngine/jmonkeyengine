@@ -100,7 +100,6 @@ public final class GLRenderer implements Renderer {
     private final GL2 gl2;
     private final GL3 gl3;
     private final GL4 gl4;
-    private final GLES_30 gles30;
     private final GLExt glext;
     private final GLFbo glfbo;
     private final TextureUtil texUtil;
@@ -110,7 +109,6 @@ public final class GLRenderer implements Renderer {
         this.gl2 = gl instanceof GL2 ? (GL2)gl : null;
         this.gl3 = gl instanceof GL3 ? (GL3)gl : null;
         this.gl4 = gl instanceof GL4 ? (GL4)gl : null;
-        this.gles30 = gl instanceof GLES_30 ? (GLES_30)gl : null;
         this.glfbo = glfbo;
         this.glext = glext;
         this.texUtil = new TextureUtil(gl, gl2, glext);
@@ -572,7 +570,7 @@ public final class GLRenderer implements Renderer {
     }
 
     private void loadCapabilities() {
-        if (gl2 != null) {
+        if (gl2 != null && !(gl instanceof GLES_30)) {
             loadCapabilitiesGL2();
         } else {
             loadCapabilitiesES();
@@ -1419,6 +1417,7 @@ public final class GLRenderer implements Renderer {
         stringBuf.append(source.getSource());
 
         if(insertPrecision){
+            // default precision could be defined in GLSLCompat.glsllib so final users can use custom defined precision instead
             // precision token is not a preprocessor dirrective therefore it must be placed after #extension tokens to avoid
             // Error P0001: Extension directive must occur before any non-preprocessor tokens
             int idx = stringBuf.lastIndexOf("#extension");
@@ -1897,7 +1896,7 @@ public final class GLRenderer implements Renderer {
     }
 
     public void setReadDrawBuffers(FrameBuffer fb) {
-        if (gl2 == null /* && gles30 == null */) {
+        if (gl2 == null || gl instanceof GLES_30) {
             return;
         }
         
@@ -1908,19 +1907,11 @@ public final class GLRenderer implements Renderer {
         if (fb == null) {
             // Set Read/Draw buffers to initial value.
             if (context.boundDrawBuf != INITIAL) {
-                if(gl2!=null) {
-                    gl2.glDrawBuffer(context.initialDrawBuf);
-                } else {
-                    gles30.glDrawBuffer(context.initialDrawBuf);
-                }
+                gl2.glDrawBuffer(context.initialDrawBuf);
                 context.boundDrawBuf = INITIAL;
             }
             if (context.boundReadBuf != INITIAL) {
-                if(gl2!=null) {
-                    gl2.glReadBuffer(context.initialReadBuf);
-                } else {
-                    gles30.glReadBuffer(context.initialReadBuf);
-                }
+                gl2.glReadBuffer(context.initialReadBuf);
                 context.boundReadBuf = INITIAL;
             }
         } else {
@@ -1928,19 +1919,11 @@ public final class GLRenderer implements Renderer {
                 // make sure to select NONE as draw buf
                 // no color buffer attached.
                 if (context.boundDrawBuf != NONE) {
-                    if(gl2!=null) {
-                        gl2.glDrawBuffer(GL.GL_NONE);
-                    } else {
-                        gles30.glDrawBuffer(GL.GL_NONE);
-                    }
+                    gl2.glDrawBuffer(GL.GL_NONE);
                     context.boundDrawBuf = NONE;
                 }
                 if (context.boundReadBuf != NONE) {
-                    if(gl2!=null) {
-                        gl2.glReadBuffer(GL.GL_NONE);
-                    } else {
-                        gles30.glReadBuffer(GL.GL_NONE);
-                    }
+                    gl2.glReadBuffer(GL.GL_NONE);
                     context.boundReadBuf = NONE;
                 }
             } else {
@@ -1973,11 +1956,7 @@ public final class GLRenderer implements Renderer {
                     RenderBuffer rb = fb.getColorBuffer(fb.getTargetIndex());
                     // select this draw buffer
                     if (context.boundDrawBuf != rb.getSlot()) {
-                        if(gl2!=null) {
-                            gl2.glDrawBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
-                        } else {
-                            gles30.glDrawBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
-                        }
+                        gl2.glDrawBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
                         context.boundDrawBuf = rb.getSlot();
                     }
                 }
@@ -2054,11 +2033,6 @@ public final class GLRenderer implements Renderer {
             if (gl2 != null) {
                 if (context.boundReadBuf != rb.getSlot()) {
                     gl2.glReadBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
-                    context.boundReadBuf = rb.getSlot();
-                }
-            } else if (gles30 != null) {
-                if (context.boundReadBuf != rb.getSlot()) {
-                    gles30.glReadBuffer(GLFbo.GL_COLOR_ATTACHMENT0_EXT + rb.getSlot());
                     context.boundReadBuf = rb.getSlot();
                 }
             }
@@ -2253,7 +2227,7 @@ public final class GLRenderer implements Renderer {
         switch (tex.getType()) {
             case ThreeDimensional:
             case CubeMap: // cubemaps use 3D coords
-                if ((gl2 != null || gles30 !=null) && curState.rWrap != tex.getWrap(WrapAxis.R)) {
+                if (gl2 != null && curState.rWrap != tex.getWrap(WrapAxis.R)) {
                     bindTextureAndUnit(target, image, unit);
                     gl.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_R, convertWrapMode(tex.getWrap(WrapAxis.R)));
                     curState.rWrap = tex.getWrap(WrapAxis.R);

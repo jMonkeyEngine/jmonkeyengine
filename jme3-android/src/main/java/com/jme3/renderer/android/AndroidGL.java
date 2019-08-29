@@ -42,7 +42,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-public class AndroidGL implements GL, GLES_30, GLExt, GLFbo {
+public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
 
     IntBuffer tmpBuff = BufferUtils.createIntBuffer(1);
 
@@ -568,6 +568,15 @@ public class AndroidGL implements GL, GLES_30, GLExt, GLFbo {
     @Override
     public void glFramebufferTextureLayerEXT(int target, int attachment, int texture, int level, int layer) {
         GLES30.glFramebufferTextureLayer(target, attachment, texture, level, layer);
+    }
+
+    public void glAlphaFunc(int func, float ref) {
+    }
+    
+    public void glPointSize(float size) {
+    }
+
+    public void glPolygonMode(int face, int mode) {
     }
 
     public void glDrawBuffer(int mode) {
