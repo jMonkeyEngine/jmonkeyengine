@@ -2227,7 +2227,7 @@ public final class GLRenderer implements Renderer {
         switch (tex.getType()) {
             case ThreeDimensional:
             case CubeMap: // cubemaps use 3D coords
-                if (gl2 != null && curState.rWrap != tex.getWrap(WrapAxis.R)) {
+                if (gl2 != null && (caps.contains(Caps.OpenGL20) || caps.contains(Caps.OpenGLES30)) && curState.rWrap != tex.getWrap(WrapAxis.R)) {
                     bindTextureAndUnit(target, image, unit);
                     gl.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_R, convertWrapMode(tex.getWrap(WrapAxis.R)));
                     curState.rWrap = tex.getWrap(WrapAxis.R);

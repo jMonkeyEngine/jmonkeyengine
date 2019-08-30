@@ -579,6 +579,7 @@ public class AndroidGL implements GL, GL2, GLES_30, GLExt, GLFbo {
     public void glPolygonMode(int face, int mode) {
     }
 
+    // Wrapper to DrawBuffers as there's no DrawBuffer method in GLES
     public void glDrawBuffer(int mode) {
         tmpBuff.clear();
         tmpBuff.put(0, mode);
