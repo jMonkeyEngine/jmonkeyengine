@@ -37,12 +37,7 @@ import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
-import com.jme3.light.AmbientLight;
-import com.jme3.light.DirectionalLight;
-import com.jme3.light.Light;
-import com.jme3.light.LightList;
-import com.jme3.light.PointLight;
-import com.jme3.light.SpotLight;
+import com.jme3.light.*;
 import com.jme3.material.Material;
 import com.jme3.material.TechniqueDef;
 import com.jme3.math.ColorRGBA;
@@ -52,7 +47,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
@@ -105,27 +99,19 @@ public class TestManyLightsSingle extends SimpleApplication {
             if (nb > 60) {
                 n.removeLight(light);
             } else {
-
-                LightNode ln = new LightNode("l", light);
-                n.attachChild(ln);
-                ln.setLocalTranslation(p.getPosition());
                 int rand = FastMath.nextRandomInt(0, 3);
                 switch (rand) {
                     case 0:
                         light.setColor(ColorRGBA.Red);
-                        //   ln.addControl(new MoveControl(5f));
                         break;
                     case 1:
                         light.setColor(ColorRGBA.Yellow);
-                        //    ln.addControl(new MoveControl(5f));
                         break;
                     case 2:
                         light.setColor(ColorRGBA.Green);
-                        //ln.addControl(new MoveControl(-5f));
                         break;
                     case 3:
                         light.setColor(ColorRGBA.Orange);
-                        //ln.addControl(new MoveControl(-5f));
                         break;
                 }
             }
