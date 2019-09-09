@@ -24,7 +24,7 @@ matrix:
   - language: android
     os: linux
     dist: trusty
-    jdk: openjdk10
+    jdk: openjdk9
     android:
         components:
             - tools
