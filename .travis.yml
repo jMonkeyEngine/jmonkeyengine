@@ -1,5 +1,5 @@
 language: java
-sudo: true
+sudo: false
 
 branches:
   only:
@@ -7,6 +7,7 @@ branches:
   - /^v3.3.*$/
   - v3.2
   - /^v3.2.*$/
+  - travis/build-android-natives
 
 matrix:
   include:
@@ -20,6 +21,25 @@ matrix:
   - os: osx
     osx_image: xcode9.3
     env: UPLOAD_NATIVE=true
+  - language: android
+    os: linux
+    dist: trusty
+    android:
+        components:
+            - tools
+            - platform-tools
+            - extra-google-m2repository
+            - extra-android-m2repository
+    install:
+      - echo y | sdkmanager "ndk-bundle"
+      - echo y | sdkmanager "cmake;3.6.4111459"
+      - echo y | sdkmanager --channel=3 --channel=1 "cmake;3.10.2.4988404"
+      - echo y | sdkmanager "lldb;3.1"
+        #  - sdkmanager --update
+    before_script:
+      - export ANDROID_NDK=$ANDROID_HOME/ndk-bundle
+    script:
+      - ./gradlew -PbuildNativeProjects=true assemble
 
 addons:
   ssh_known_hosts: github.com
