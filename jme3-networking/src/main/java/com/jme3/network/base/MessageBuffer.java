@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,29 +29,37 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+ 
 package com.jme3.network.base;
 
 import java.nio.ByteBuffer;
+
 import com.jme3.network.Message;
 
 /**
- *  Consolidates the conversion of messages to/from byte buffers
- *  and provides a rolling message buffer.  ByteBuffers can be
- *  pushed in and messages will be extracted, accumulated, and 
- *  available for retrieval.  The MessageBuffers returned are generally
- *  not thread safe and are meant to be used within a single message 
- *  processing thread.  MessageProtocol implementations themselves should
- *  be thread safe.
- *
- *  <p>The specific serialization protocol used is up to the implementation.</p>
+ *  Accumulates network data into Message objects.  This allows
+ *  random chunks of bytes to be assembled into messages even if
+ *  the buffer boundaries don't line up.
  *
  *  @author    Paul Speed
- */ 
-public interface MessageProtocol {
-    public ByteBuffer toByteBuffer( Message message, ByteBuffer target );
-    public Message toMessage( ByteBuffer bytes );
-    public MessageBuffer createBuffer();
+ */
+public interface MessageBuffer {
+
+    /**
+     *  Returns the next message in the buffer or null if there are no more
+     *  messages in the buffer.  
+     */
+    public Message pollMessage();
+    
+    /**
+     *  Returns true if there is a message waiting in the buffer.
+     */
+    public boolean hasMessages();
+ 
+    /**
+     *  Adds byte data to the message buffer.  Returns true if there is
+     *  a message waiting after this call.
+     */   
+    public boolean addBytes( ByteBuffer buffer );
 }
-
-
 

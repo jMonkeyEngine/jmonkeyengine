@@ -32,6 +32,7 @@
 package com.jme3.network.base;
 
 import com.jme3.network.*;
+import com.jme3.network.base.protocol.SerializerMessageProtocol;
 import com.jme3.network.kernel.Endpoint;
 import com.jme3.network.kernel.Kernel;
 import com.jme3.network.message.ChannelInfoMessage;
@@ -88,6 +89,7 @@ public class DefaultServer implements Server
     private final List<ConnectionListener> connectionListeners = new CopyOnWriteArrayList<ConnectionListener>();
     
     private HostedServiceManager services;
+    private MessageProtocol protocol = new SerializerMessageProtocol();
     
     public DefaultServer( String gameName, int version, Kernel reliable, Kernel fast )
     {
@@ -99,10 +101,10 @@ public class DefaultServer implements Server
         this.services = new HostedServiceManager(this);        
         addStandardServices();
         
-        reliableAdapter = new KernelAdapter( this, reliable, dispatcher, true );
+        reliableAdapter = new KernelAdapter(this, reliable, protocol, dispatcher, true);
         channels.add( reliableAdapter );
         if( fast != null ) {
-            fastAdapter = new KernelAdapter( this, fast, dispatcher, false );
+            fastAdapter = new KernelAdapter(this, fast, protocol, dispatcher, false);
             channels.add( fastAdapter );
         }
     }   
@@ -153,7 +155,7 @@ public class DefaultServer implements Server
             alternatePorts.add(port);
             
             Kernel kernel = kernelFactory.createKernel(result, port); 
-            channels.add( new KernelAdapter(this, kernel, dispatcher, true) );
+            channels.add( new KernelAdapter(this, kernel, protocol, dispatcher, true) );
             
             return result;
         } catch( IOException e ) {
@@ -238,7 +240,7 @@ public class DefaultServer implements Server
         if( connections.isEmpty() )
             return;
  
-        ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
+        ByteBuffer buffer = protocol.toByteBuffer(message, null);
  
         FilterAdapter adapter = filter == null ? null : new FilterAdapter(filter);
                
@@ -263,7 +265,7 @@ public class DefaultServer implements Server
 
         checkChannel(channel);
         
-        ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
+        ByteBuffer buffer = protocol.toByteBuffer(message, null);
  
         FilterAdapter adapter = filter == null ? null : new FilterAdapter(filter);
 
@@ -579,7 +581,7 @@ public class DefaultServer implements Server
             if( log.isLoggable(Level.FINER) ) {
                 log.log(Level.FINER, "send({0})", message);
             }
-            ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
+            ByteBuffer buffer = protocol.toByteBuffer(message, null);
             if( message.isReliable() || channels[CH_UNRELIABLE] == null ) {
                 channels[CH_RELIABLE].send( buffer );
             } else {
@@ -594,7 +596,7 @@ public class DefaultServer implements Server
                 log.log(Level.FINER, "send({0}, {1})", new Object[]{channel, message});
             }
             checkChannel(channel);
-            ByteBuffer buffer = MessageProtocol.messageToBuffer(message, null);
+            ByteBuffer buffer = protocol.toByteBuffer(message, null);
             channels[channel+CH_FIRST].send(buffer);
         }
  

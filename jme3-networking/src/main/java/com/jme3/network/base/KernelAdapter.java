@@ -70,21 +70,24 @@ public class KernelAdapter extends Thread
     private Kernel kernel;
     private MessageListener<HostedConnection> messageDispatcher;
     private AtomicBoolean go = new AtomicBoolean(true);
- 
+     
+    private MessageProtocol protocol;
+    
     // Keeps track of the in-progress messages that are received
     // on reliable connections
-    private Map<Endpoint, MessageProtocol> messageBuffers = new ConcurrentHashMap<Endpoint,MessageProtocol>();
+    private Map<Endpoint, MessageBuffer> messageBuffers = new ConcurrentHashMap<>();
     
     // Marks the messages as reliable or not if they came
     // through this connector.
     private boolean reliable;
     
-    public KernelAdapter( DefaultServer server, Kernel kernel, MessageListener<HostedConnection> messageDispatcher,
+    public KernelAdapter( DefaultServer server, Kernel kernel, MessageProtocol protocol, MessageListener<HostedConnection> messageDispatcher,
                           boolean reliable )
     {
         super( String.valueOf(kernel) );
         this.server = server;
         this.kernel = kernel;
+        this.protocol = protocol;
         this.messageDispatcher = messageDispatcher;
         this.reliable = reliable;
         setDaemon(true);
@@ -190,7 +193,7 @@ public class KernelAdapter extends Thread
         }
     }
 
-    protected MessageProtocol getMessageBuffer( Endpoint p )
+    protected MessageBuffer getMessageBuffer( Endpoint p )
     {
         if( !reliable ) {
             // Since UDP comes in packets and they aren't split
@@ -198,12 +201,12 @@ public class KernelAdapter extends Thread
             // be a down side because there is no way for us to reliably
             // clean these up later since we'd create another one for 
             // any random UDP packet that comes to the port.
-            return new MessageProtocol();
+            return protocol.createBuffer();
         } else {
             // See if we already have one
-            MessageProtocol result = messageBuffers.get(p);
+            MessageBuffer result = messageBuffers.get(p);
             if( result == null ) {
-                result = new MessageProtocol();
+                result = protocol.createBuffer();
                 messageBuffers.put(p, result);
             }
             return result;
@@ -212,13 +215,12 @@ public class KernelAdapter extends Thread
 
     protected void createAndDispatch( Envelope env )
     {
-        MessageProtocol protocol = getMessageBuffer(env.getSource()); 
+        MessageBuffer protocol = getMessageBuffer(env.getSource()); 
     
         byte[] data = env.getData();
         ByteBuffer buffer = ByteBuffer.wrap(data);
 
-        int count = protocol.addBuffer( buffer );
-        if( count == 0 ) {
+        if( !protocol.addBytes(buffer) ) {
             // This can happen if there was only a partial message
             // received.  However, this should never happen for unreliable
             // connections.
@@ -236,9 +238,9 @@ public class KernelAdapter extends Thread
         
         // Should be complete... and maybe we should check but we don't
         Message m = null;
-        while( (m = protocol.getMessage()) != null ) {
+        while( (m = protocol.pollMessage()) != null ) {
             m.setReliable(reliable);
-            dispatch( env.getSource(), m );
+            dispatch(env.getSource(), m);
         }
     } 
 
