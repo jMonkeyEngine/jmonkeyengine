@@ -93,7 +93,8 @@ public class SerializerMessageProtocol implements MessageProtocol {
     }
       
     public MessageBuffer createBuffer() {
-        return new GreedyMessageBuffer(this);
+        // Defaulting to LazyMessageBuffer
+        return new LazyMessageBuffer(this);
     }
      
 }
