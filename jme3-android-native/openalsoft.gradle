@@ -18,7 +18,6 @@ String openalsoftPreCompiledLibsDir = 'libs' + File.separator + 'openalsoft'
 
 // jME Android Native source files path
 String openalsoftJmeAndroidPath = 'src/native/jme_openalsoft'
-String jmeHeaders = 'src/native/headers'
 
 // Download external source files if not available
 task downloadOpenALSoft(type: MyDownload) {
@@ -64,13 +63,13 @@ copyOpenALSoft.dependsOn {
 }
 
 // Copy JME Headers to jni directory
-task copyJmeHeaders(type: Copy) {
+task copyJmeHeadersOpenAL(type: Copy) {
     from file(jmeHeaders)
     into file(openalsoftBuildJniDir + File.separator + "headers")
 }
 
 // Copy jME Android native files to jni directory
-task copyJmeOpenALSoft(type: Copy, dependsOn:copyOpenALSoft) {
+task copyJmeOpenALSoft(type: Copy, dependsOn: [copyOpenALSoft, copyJmeHeadersOpenAL]) {
     def sourceDir = file(openalsoftJmeAndroidPath)
     def outputDir = file(openalsoftBuildJniDir)
 //    println "copyJmeOpenALSoft sourceDir: " + sourceDir
