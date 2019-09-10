@@ -42,10 +42,10 @@ matrix:
     before_script:
       - export ANDROID_NDK=$ANDROID_HOME/ndk-bundle
     script:
-      - '[ -n "$UPLOAD_NATIVE" ] && ./gradlew -PbuildNativeProjects=true jme3-android-native:assemble'
+      - ./gradlew -PbuildNativeProjects=true jme3-android-native:assemble
     after_success:
-      - '[ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD_NATIVE" ] && ./private/upload_native.sh || :'
-      - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD" ] && ./gradlew bintrayUpload || :'
+      - '[ "$TRAVIS_PULL_REQUEST" == "false" ] && ./private/upload_native.sh || :'
+      - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && ./gradlew bintrayUpload || :'
 
 addons:
   ssh_known_hosts: github.com
