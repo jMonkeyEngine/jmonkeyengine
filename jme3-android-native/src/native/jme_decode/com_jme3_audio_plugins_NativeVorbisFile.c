@@ -4,7 +4,7 @@
 
 #include "Tremor/ivorbisfile.h"
 
-#include "com_jme3_audio_plugins_NativeVorbisFile.h"
+#include "../headers/com_jme3_audio_plugins_NativeVorbisFile.h"
 
 #ifndef NDEBUG
 #include <android/log.h>

@@ -1,5 +1,5 @@
 #include "util.h"
-#include "com_jme3_audio_android_AndroidALC.h"
+#include "../headers/com_jme3_audio_android_AndroidALC.h"
 #include "AL/alc.h"
 #include "AL/alext.h"
 
