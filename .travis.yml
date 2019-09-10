@@ -7,7 +7,6 @@ branches:
   - /^v3.3.*$/
   - v3.2
   - /^v3.2.*$/
-  - travis/build-android-natives
 
 matrix:
   include:
