@@ -25,8 +25,9 @@ matrix:
     os: linux
     dist: trusty
     jdk: openjdk10
-    android:
-        components:
+    # The following commented lines were part of googles NDK example but aren't required by us it seems.
+    #android:
+    #    components:
             # - tools
             # - platform-tools
             #- extra-google-m2repository
@@ -41,7 +42,10 @@ matrix:
     before_script:
       - export ANDROID_NDK=$ANDROID_HOME/ndk-bundle
     script:
-      - ./gradlew -PbuildNativeProjects=true jme3-android-native:assemble
+      - '[ -n "$UPLOAD_NATIVE" ] && ./gradlew -PbuildNativeProjects=true jme3-android-native:assemble'
+    after_success:
+      - '[ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD_NATIVE" ] && ./private/upload_native.sh || :'
+      - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD" ] && ./gradlew bintrayUpload || :'
 
 addons:
   ssh_known_hosts: github.com
