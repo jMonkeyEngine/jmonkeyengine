@@ -48,7 +48,7 @@ task copyTremorFiles(type: Copy) {
 
 task copyJmeHeaders(type: Copy) {
     from file(jmeHeaders)
-    into file(decodeBuildJniDir)
+    into file(decodeBuildJniDir + File.separator + "headers")
 }
 
 // Copy jME Android native files to jni directory
