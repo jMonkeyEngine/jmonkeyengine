@@ -27,7 +27,7 @@ matrix:
     jdk: openjdk10
     android:
         components:
-            - tools
+            # - tools
             # - platform-tools
             #- extra-google-m2repository
             #- extra-android-m2repository
