@@ -12,6 +12,7 @@ String decodePreCompiledLibsDir = 'libs' + File.separator + 'decode'
 
 // jME Android Native source files path
 String decodeSourceDir = 'src/native/jme_decode'
+String jmeHeaders = 'src/native/headers'
 
 task downloadStbImage(type: MyDownload) {
     sourceUrl = stbiUrl
@@ -45,8 +46,13 @@ task copyTremorFiles(type: Copy) {
     into outputDir
 }
 
+task copyJmeHeaders(type: Copy) {
+    from file(jmeHeaders)
+    into file(decodeBuildJniDir)
+}
+
 // Copy jME Android native files to jni directory
-task copySourceToBuild(type: Copy, dependsOn:[copyTremorFiles, copyStbiFiles]) {
+task copySourceToBuild(type: Copy, dependsOn:[copyTremorFiles, copyStbiFiles, copyJmeHeaders]) {
     def sourceDir = file(decodeSourceDir)
     def outputDir = file(decodeBuildJniDir)
 
