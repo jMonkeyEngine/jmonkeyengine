@@ -33,10 +33,10 @@ matrix:
             - extra-android-m2repository
     install:
       - export JAVA_OPTS='-XX:+IgnoreUnrecognizedVMOptions --add-modules java.se.ee'
-      - echo y | sdkmanager "ndk-bundle"
-      - echo y | sdkmanager "cmake;3.6.4111459"
-      - echo y | sdkmanager --channel=3 --channel=1 "cmake;3.10.2.4988404"
-      - echo y | sdkmanager "lldb;3.1"
+      - echo y | sdkmanager "ndk-bundle" > /dev/null
+      - echo y | sdkmanager "cmake;3.6.4111459" > /dev/null
+      - echo y | sdkmanager --channel=3 --channel=1 "cmake;3.10.2.4988404" > /dev/null
+      - echo y | sdkmanager "lldb;3.1" > /dev/null
         #  - sdkmanager --update
     before_script:
       - export ANDROID_NDK=$ANDROID_HOME/ndk-bundle
