@@ -41,7 +41,7 @@ matrix:
     before_script:
       - export ANDROID_NDK=$ANDROID_HOME/ndk-bundle
     script:
-      - ./gradlew -PbuildNativeProjects=true assemble
+      - ./gradlew -PbuildNativeProjects=true jme3-android-native:assemble
 
 addons:
   ssh_known_hosts: github.com
