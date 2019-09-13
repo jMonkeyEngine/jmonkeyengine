@@ -30,7 +30,7 @@ matrix:
     before_script:
       - export ANDROID_NDK=$ANDROID_HOME/ndk-bundle
     script:
-      - ./gradlew -PbuildNativeProjects=true jme3-android-native:assemble
+      - ./gradlew -PbuildNativeProjects=true jme3-android-native:assemble jme3-bullet-native-android:assemble
     after_success:
       - '[ "$TRAVIS_PULL_REQUEST" == "false" ] && ./private/upload_native.sh || :'
       - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && ./gradlew bintrayUpload || :'
