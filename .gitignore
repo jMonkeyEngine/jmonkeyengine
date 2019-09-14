@@ -33,8 +33,6 @@
 /jme3-android-native/OpenALSoft.zip
 /jme3-android-native/src/native/jme_decode/STBI/
 /jme3-android-native/src/native/jme_decode/Tremor/
-/jme3-android-native/src/native/jme_decode/com_jme3_audio_plugins_NativeVorbisFile.h
-/jme3-android-native/src/native/jme_decode/com_jme3_texture_plugins_AndroidNativeImageLoader.h
 /jme3-android-native/stb_image.h
 !/jme3-bullet-native/libs/native/windows/x86_64/bulletjme.dll
 !/jme3-bullet-native/libs/native/windows/x86/bulletjme.dll

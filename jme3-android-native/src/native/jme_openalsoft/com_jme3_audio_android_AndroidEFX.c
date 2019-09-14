@@ -1,5 +1,5 @@
 #include "util.h"
-#include "com_jme3_audio_android_AndroidEFX.h"
+#include "../headers/com_jme3_audio_android_AndroidEFX.h"
 #include "AL/alext.h"
 
 JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidEFX_alGenAuxiliaryEffectSlots
