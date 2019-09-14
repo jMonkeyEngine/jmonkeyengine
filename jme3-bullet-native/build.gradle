@@ -140,7 +140,7 @@ model {
 
             tasks.all { 
                 dependsOn unzipBulletIfNeeded
-                dependsOn ':jme3-bullet:generateNativeHeaders'
+                dependsOn ':jme3-bullet:compileJava'
             }
 
             // Add output to jar file
