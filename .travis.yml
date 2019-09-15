@@ -20,6 +20,20 @@ matrix:
   - os: osx
     osx_image: xcode9.3
     env: UPLOAD_NATIVE=true
+  - language: android
+    os: linux
+    dist: trusty
+    jdk: openjdk10
+    install:
+      - export JAVA_OPTS='-XX:+IgnoreUnrecognizedVMOptions --add-modules java.se.ee'
+      - echo y | sdkmanager "ndk-bundle" &> /dev/null
+    before_script:
+      - export ANDROID_NDK=$ANDROID_HOME/ndk-bundle
+    script:
+      - ./gradlew -PbuildNativeProjects=true jme3-android-native:assemble
+    after_success:
+      - '[ "$TRAVIS_PULL_REQUEST" == "false" ] && ./private/upload_native.sh || :'
+      - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && ./gradlew bintrayUpload || :'
 
 addons:
   ssh_known_hosts: github.com
