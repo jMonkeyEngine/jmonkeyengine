@@ -51,12 +51,25 @@ import java.util.logging.Logger;
  */
 public class BulletAppState implements AppState, PhysicsTickListener {
 
+    // FIXME: the bullet app state doesn't follow the proper AppState
+    // contract as it messes with its initialized state independently
+    // of when initialize()/cleanup() is actually called.  This means
+    // that it's quite likely that the state manager will think the
+    // app state is initialized when it, itself, doesn't.  This is
+    // a good example of why extending the abstract app state classes
+    // is better than implementing app state directly.  If it wants
+    // to support a separate stated/not-started concept then that's
+    // separate from initialized/not-initialized but way more refactoring
+    // than I want to think about today.  -pspeed:2019-09-15
+
     /**
      * true if-and-only-if the physics simulation is running (started but not
      * yet stopped)
      */
     protected boolean initialized = false;
     protected Application app;
+    private String id;
+    
     /**
      * manager that manages this state, set during attach
      */
@@ -292,6 +305,20 @@ public class BulletAppState implements AppState, PhysicsTickListener {
      */
     public boolean isInitialized() {
         return initialized;
+    }
+
+    /**
+     *  Sets the unique ID of this app state.  Note: that setting
+     *  this while an app state is attached to the state manager will
+     *  have no effect on ID-based lookups.
+     */
+    protected void setId( String id ) {
+        this.id = id;
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     /**

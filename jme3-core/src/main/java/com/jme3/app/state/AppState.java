@@ -91,6 +91,12 @@ public interface AppState {
     public boolean isInitialized();
 
     /**
+     *  Returns the unique ID for this AppState or null if it has no
+     *  unique ID.
+     */
+    public String getId();
+
+    /**
      * Enable or disable the functionality of the <code>AppState</code>.
      * The effect of this call depends on implementation. An 
      * <code>AppState</code> starts as being enabled by default.
