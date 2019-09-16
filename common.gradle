@@ -3,6 +3,7 @@
 //
 
 apply plugin: 'java'
+apply plugin: 'groovy'
 apply plugin: 'maven'
 
 group = 'org.jmonkeyengine'
@@ -26,7 +27,19 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '1.10.19'
     testCompile group: 'org.easytesting', name: 'fest-assert-core', version: '2.0M10'
+    testCompile 'org.codehaus.groovy:groovy-all:2.5.8'
 }
+
+
+// Uncomment if you want to see the status of every test that is run and
+// the test output.
+/*
+test {
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
+}
+*/
 
 jar {
     manifest {
