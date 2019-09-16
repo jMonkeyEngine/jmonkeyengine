@@ -9,6 +9,8 @@ Communication always comes first. **All** code changes and other contributions s
 
 ### New Contributors
 
+Check out the [Projects](https://github.com/jMonkeyEngine/jmonkeyengine/projects/1) tab, where the team has prioritized issues that you as a new contributor can undertake that will familiarize you to the workflow of contributing. This highlights some issues the team thinks would be a good start for new contributors but you are free to contribute on any other issues or integration you wish.
+
 When you're ready to submit your code, just make a [pull request](https://help.github.com/articles/using-pull-requests).
 
 - Do not commit your code until you have received proper feedback.
