@@ -1,5 +1,4 @@
 language: java
-sudo: true
 
 branches:
   only:
