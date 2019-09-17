@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@ import com.jme3.export.SavableClassUtil;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -962,6 +963,7 @@ public class DOMInputCapsule implements InputCapsule {
 
     private Savable readSavableFromCurrentElem(Savable defVal) throws
             InstantiationException, ClassNotFoundException,
+            NoSuchMethodException, InvocationTargetException,
             IOException, IllegalAccessException {
         Savable ret = defVal;
         Savable tmp = null;
