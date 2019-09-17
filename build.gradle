@@ -112,6 +112,11 @@ task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the pro
     }
 }
 
+clean.dependsOn('cleanMergedJavadoc')
+task cleanMergedJavadoc(type: Delete) {
+    delete file('dist/javadoc')
+}
+
 task mergedSource(type: Copy){
 
 }
