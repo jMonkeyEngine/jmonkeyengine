@@ -36,7 +36,6 @@ import com.jme3.effect.shapes.*;
 import com.jme3.material.MatParamTexture;
 
 import java.io.IOException;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -234,14 +233,11 @@ public class SavableClassUtil {
     private static Constructor findNoArgConstructor(String className)
             throws ClassNotFoundException {
         Class clazz = Class.forName(className);
-        Constructor[] allConstructors = clazz.getDeclaredConstructors();
-
-        Constructor result = null;
-        for (Constructor constructor : allConstructors) {
-            if (constructor.getParameterTypes().length == 0) {
-                result = constructor;
-                break;
-            }
+        Constructor result;
+        try {
+            result = clazz.getDeclaredConstructor();
+        } catch (NoSuchMethodException e) {
+            result = null;
         }
 
         return result;
