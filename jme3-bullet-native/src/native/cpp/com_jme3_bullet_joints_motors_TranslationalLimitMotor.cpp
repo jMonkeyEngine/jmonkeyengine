@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -230,6 +230,43 @@ extern "C" {
             return;
         }
         motor->m_restitution = value;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_joints_motors_TranslationalLimitMotor
+     * Method:    setEnabled
+     * Signature: (JIZ)V
+     */
+    JNIEXPORT void JNICALL Java_com_jme3_bullet_joints_motors_TranslationalLimitMotor_setEnabled
+    (JNIEnv *env, jobject object, jlong motorId, jint axisIndex, jboolean newSetting) {
+        btTranslationalLimitMotor *pMotor
+                = reinterpret_cast<btTranslationalLimitMotor *> (motorId);
+        if (pMotor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return;
+        }
+
+        pMotor->m_enableMotor[axisIndex] = (bool)newSetting;
+    }
+
+    /*
+     * Class:     com_jme3_bullet_joints_motors_TranslationalLimitMotor
+     * Method:    isEnabled
+     * Signature: (JI)Z
+     */
+    JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_joints_motors_TranslationalLimitMotor_isEnabled
+    (JNIEnv *env, jobject object, jlong motorId, jint axisIndex) {
+        btTranslationalLimitMotor *pMotor
+                = reinterpret_cast<btTranslationalLimitMotor *> (motorId);
+        if (pMotor == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+
+        bool result = pMotor->m_enableMotor[axisIndex];
+        return (jboolean) result;
     }
 
 #ifdef __cplusplus

@@ -281,6 +281,11 @@ public class SixDofJoint extends PhysicsJoint {
         getTranslationalLimitMotor().setLowerLimit((Vector3f) capsule.readSavable("transMotor_LowerLimit", Vector3f.ZERO));
         getTranslationalLimitMotor().setRestitution(capsule.readFloat("transMotor_Restitution", 0.5f));
         getTranslationalLimitMotor().setUpperLimit((Vector3f) capsule.readSavable("transMotor_UpperLimit", Vector3f.ZERO));
+
+        for (int axisIndex = 0; axisIndex < 3; ++axisIndex) {
+            translationalMotor.setEnabled(axisIndex, capsule.readBoolean(
+                    "transMotor_Enable" + axisIndex, false));
+        }
     }
 
     /**
@@ -318,5 +323,10 @@ public class SixDofJoint extends PhysicsJoint {
         capsule.write(getTranslationalLimitMotor().getLowerLimit(), "transMotor_LowerLimit", Vector3f.ZERO);
         capsule.write(getTranslationalLimitMotor().getRestitution(), "transMotor_Restitution", 0.5f);
         capsule.write(getTranslationalLimitMotor().getUpperLimit(), "transMotor_UpperLimit", Vector3f.ZERO);
+
+        for (int axisIndex = 0; axisIndex < 3; ++axisIndex) {
+            capsule.write(translationalMotor.isEnabled(axisIndex),
+                    "transMotor_Enable" + axisIndex, false);
+        }
     }
 }
