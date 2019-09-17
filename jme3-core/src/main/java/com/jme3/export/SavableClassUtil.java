@@ -172,17 +172,9 @@ public class SavableClassUtil {
         className = remapClass(className);
 
         Constructor noArgConstructor = findNoArgConstructor(className);
-        if (noArgConstructor == null) {
-            throw new InstantiationException(
-                    "Loading requires a no-arg constructor, but class "
-                    + className + " lacks one.");
-        }
-
         noArgConstructor.setAccessible(true);
-
-        Object[] noArgs = null;
         try {
-            return (Savable) noArgConstructor.newInstance(noArgs);
+            return (Savable) noArgConstructor.newInstance();
         } catch (InvocationTargetException | InstantiationException e) {
             Logger.getLogger(SavableClassUtil.class.getName()).log(
                     Level.SEVERE, "Could not access constructor of class ''{0}" + "''! \n"
@@ -227,17 +219,18 @@ public class SavableClassUtil {
      * Use reflection to gain access to the no-arg constructor of the named
      * class.
      *
-     * @return the pre-existing constructor, or null if the class lacks a no-arg
-     * constructor
+     * @return the pre-existing constructor (not null)
      */
     private static Constructor findNoArgConstructor(String className)
-            throws ClassNotFoundException {
+            throws ClassNotFoundException, InstantiationException {
         Class clazz = Class.forName(className);
         Constructor result;
         try {
             result = clazz.getDeclaredConstructor();
         } catch (NoSuchMethodException e) {
-            result = null;
+            throw new InstantiationException(
+                    "Loading requires a no-arg constructor, but class "
+                    + className + " lacks one.");
         }
 
         return result;
