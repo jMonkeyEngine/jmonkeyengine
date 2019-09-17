@@ -235,7 +235,6 @@ public class SavableClassUtil {
             throws ClassNotFoundException {
         Class clazz = Class.forName(className);
         Constructor[] allConstructors = clazz.getDeclaredConstructors();
-        AccessibleObject.setAccessible(allConstructors, true);
 
         Constructor result = null;
         for (Constructor constructor : allConstructors) {
