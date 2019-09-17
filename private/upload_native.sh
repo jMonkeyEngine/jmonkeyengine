@@ -25,18 +25,18 @@ if [ "$NATIVE_CHANGES_BULLET" != "" ]; then
     git commit -v -m "[ci skip] bullet: update $TRAVIS_OS_NAME natives"
     git pull -q --rebase
     git push git@github.com:jMonkeyEngine/jmonkeyengine.git
-elif [ "$NATIVE_CHANGES_ANDROID_BULLET" != "" ]; then
+fi
+if [ "$NATIVE_CHANGES_ANDROID_BULLET" != "" ]; then
     native_changes_common
     git add -v -- jme3-bullet-native-android/libs/
     git commit -v -m "[ci skip] android bullet: update natives"
     git pull -q --rebase
     git push git@github.com:jMonkeyEngine/jmonkeyengine.git
-elif [ "$NATIVE_CHANGES_ANDROID_NATIVES" != "" ]; then
+fi
+if [ "$NATIVE_CHANGES_ANDROID_NATIVES" != "" ]; then
     native_changes_common
     git add -v -- jme3-android-native/libs/
     git commit -v -m "[ci skip] android: update natives"
     git pull -q --rebase
     git push git@github.com:jMonkeyEngine/jmonkeyengine.git
-else
-    echo No native changes.
 fi
