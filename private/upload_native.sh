@@ -17,7 +17,7 @@ function native_changes_common() {
 echo " - Checking if natives changed in commit $TRAVIS_COMMIT.."
 NATIVE_CHANGES_BULLET="$(git diff-tree --name-only "$TRAVIS_COMMIT" -- jme3-bullet-native/)"
 NATIVE_CHANGES_ANDROID_BULLET="$(git diff-tree --name-only "$TRAVIS_COMMIT" -- jme3-bullet-native-android/)"
-NATIVE_CHANGES_BULLET="$(git diff-tree --name-only "$TRAVIS_COMMIT" -- jme3-android-native/)"
+NATIVE_CHANGES_ANDROID_NATIVES="$(git diff-tree --name-only "$TRAVIS_COMMIT" -- jme3-android-native/)"
 
 if [ "$NATIVE_CHANGES_BULLET" != "" ]; then
     native_changes_common
