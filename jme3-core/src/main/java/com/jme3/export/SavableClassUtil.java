@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,9 @@ import com.jme3.effect.shapes.*;
 import com.jme3.material.MatParamTexture;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -161,16 +163,19 @@ public class SavableClassUtil {
      * @return the Savable instance of the class.
      * @throws InstantiationException thrown if the class does not have an empty constructor.
      * @throws IllegalAccessException thrown if the class is not accessable.
+     * @throws java.lang.reflect.InvocationTargetException
      * @throws ClassNotFoundException thrown if the class name is not in the classpath.
-     * @throws IOException when loading ctor parameters fails
      */
-    public static Savable fromName(String className) throws InstantiationException,
-            IllegalAccessException, ClassNotFoundException, IOException {
-
+    public static Savable fromName(String className)
+            throws ClassNotFoundException, IllegalAccessException,
+            InstantiationException, InvocationTargetException {
         className = remapClass(className);
+
+        Constructor noArgConstructor = findNoArgConstructor(className);
+        noArgConstructor.setAccessible(true);
         try {
-            return (Savable) Class.forName(className).newInstance();
-        } catch (InstantiationException e) {
+            return (Savable) noArgConstructor.newInstance();
+        } catch (InvocationTargetException | InstantiationException e) {
             Logger.getLogger(SavableClassUtil.class.getName()).log(
                     Level.SEVERE, "Could not access constructor of class ''{0}" + "''! \n"
                     + "Some types need to have the BinaryImporter set up in a special way. Please doublecheck the setup.", className);
@@ -184,6 +189,7 @@ public class SavableClassUtil {
     }
 
     public static Savable fromName(String className, List<ClassLoader> loaders) throws InstantiationException,
+            InvocationTargetException, NoSuchMethodException,
             IllegalAccessException, ClassNotFoundException, IOException {
         if (loaders == null) {
             return fromName(className);
@@ -207,5 +213,26 @@ public class SavableClassUtil {
         }
 
         return fromName(className);
+    }
+
+    /**
+     * Use reflection to gain access to the no-arg constructor of the named
+     * class.
+     *
+     * @return the pre-existing constructor (not null)
+     */
+    private static Constructor findNoArgConstructor(String className)
+            throws ClassNotFoundException, InstantiationException {
+        Class clazz = Class.forName(className);
+        Constructor result;
+        try {
+            result = clazz.getDeclaredConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new InstantiationException(
+                    "Loading requires a no-arg constructor, but class "
+                    + className + " lacks one.");
+        }
+
+        return result;
     }
 }
