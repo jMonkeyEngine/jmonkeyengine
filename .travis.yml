@@ -44,6 +44,9 @@ addons:
     packages:
     - gcc-multilib
     - g++-multilib
+    - gcc-7-arm-linux-gnueabihf
+    - gcc-7-arm-linux-gnueabi
+    - gcc-8-aarch64-linux-gnu
     - g++-7-arm-linux-gnueabihf
     - g++-7-arm-linux-gnueabi
     - g++-8-aarch64-linux-gnu
