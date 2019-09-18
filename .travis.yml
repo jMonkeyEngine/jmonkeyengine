@@ -18,6 +18,7 @@ matrix:
         packages:
             #- gcc-multilib
             #- g++-multilib
+            - lib32gcc-7-dev
             - gcc
             - g++
             - gcc-7-arm-linux-gnueabihf
@@ -71,7 +72,6 @@ install:
   - '[ -n "$UPLOAD_NATIVE" ] && gradle -PbuildNativeProjects=true assemble -xjme3-android-native:assemble -xjme3-bullet-native-android:assemble || ./gradlew assemble -xjme3-android-native:assemble -xjme3-bullet-native-android:assemble'
 
 script:
-  - cat /home/travis/build/MeFisto94/jmonkeyengine/jme3-bullet-native/build/tmp/compileBulletjmeLinux32SharedLibraryBulletjmeCpp/options.txt
   - ./gradlew check
 
 after_success:
