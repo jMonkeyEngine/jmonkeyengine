@@ -30,6 +30,9 @@ matrix:
             - libc6-i386
             - libc6-dev-i386
             - libstdc++-7-dev-i386
+            - libstdc++6-i386-cross
+            - lib32stdc++-7-dev
+            - libx32stdc++-7-dev
   - os: linux
     jdk: openjdk11
     dist: bionic
