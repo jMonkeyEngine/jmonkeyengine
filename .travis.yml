@@ -12,7 +12,7 @@ matrix:
   include:
   - os: linux
     jdk: openjdk8
-    dist: bionic
+    dist: xenial
     env: UPLOAD=true UPLOAD_NATIVE=true
   - os: linux
     jdk: openjdk11
