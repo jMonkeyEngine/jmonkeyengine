@@ -35,6 +35,8 @@ model {
             targetPlatform 'Mac32'
             targetPlatform 'Linux64'
             targetPlatform 'Linux32'
+            targetPlatform 'LinuxArm'
+            targetPlatform 'LinuxArm64'
 
             sources {
                 cpp {
@@ -58,6 +60,25 @@ model {
                         exclude 'Bullet3Serialize/**'
                         include '**/*.h'
                     }
+                }
+            }
+        }
+    }
+    
+    toolChains {
+        gccArm(Gcc) {
+            target("LinuxArm"){
+                path "/usr/bin"
+                cCompiler.executable = "arm-linux-gnueabi-gcc"
+                cppCompiler.executable = "arm-linux-gnueabi-gcc"
+                linker.executable = "arm-linux-gnueabi-ld"
+                assembler.executable = "arm-linux-gnueabi-as"
+                
+                cppCompiler.withArguments { args ->
+                    args << "-m32"
+                }
+                linker.withArguments { args ->
+                    args << "-m32"
                 }
             }
         }
@@ -186,6 +207,15 @@ model {
         }
         Linux64 {
             architecture "x86_64"
+            operatingSystem "linux"
+        }
+        LinuxArm {
+            architecture "arm"
+            operatingSystem "linux"
+        }
+        
+        LinuxArm64 {
+            architecture "arm64"
             operatingSystem "linux"
         }
     }

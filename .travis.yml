@@ -6,6 +6,7 @@ branches:
   - /^v3.3.*$/
   - v3.2
   - /^v3.2.*$/
+  - feature/bullet-arm
 
 matrix:
   include:
@@ -43,6 +44,7 @@ addons:
     packages:
     - gcc-multilib
     - g++-multilib
+    - arm-linux-gnueabi-gcc
 
 before_install:
   - '[ -n "$UPLOAD" ] && git fetch --unshallow || :'
