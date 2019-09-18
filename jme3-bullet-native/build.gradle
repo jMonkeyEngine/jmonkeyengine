@@ -36,6 +36,7 @@ model {
             targetPlatform 'Linux64'
             targetPlatform 'Linux32'
             targetPlatform 'LinuxArm'
+            targetPlatform 'LinuxArmHF'
             targetPlatform 'LinuxArm64'
 
             sources {
@@ -67,26 +68,28 @@ model {
     
     toolChains {
         gccArm(Gcc) {
-            /*target("LinuxArm"){
+            // Fun Fact: Gradle uses gcc as linker frontend, so we don't specify ld directly here
+            target("LinuxArm"){
                 path "/usr/bin"
                 cCompiler.executable = "arm-linux-gnueabi-gcc"
-                cppCompiler.executable = "arm-linux-gnueabi-cpp"
-                linker.executable = "arm-linux-gnueabi-ld"
+                cppCompiler.executable = "arm-linux-gnueabi-gcc"
+                linker.executable = "arm-linux-gnueabi-gcc"
                 assembler.executable = "arm-linux-gnueabi-as"
-                
-                cppCompiler.withArguments { args ->
-                    args << "-m32"
-                }
-                linker.withArguments { args ->
-                    args << "-m32"
-                }
-            }*/
+            }
+            
+            target("LinuxArmHF"){
+                path "/usr/bin"
+                cCompiler.executable = "arm-linux-gnueabihf-gcc-7"
+                cppCompiler.executable = "arm-linux-gnueabihf-g++-7"
+                linker.executable = "arm-linux-gnueabihf-gcc-7"
+                assembler.executable = "arm-linux-gnueabihf-as"
+            }
             
             target("LinuxArm64"){
                 path "/usr/bin"
                 cCompiler.executable = "aarch64-linux-gnu-gcc-8"
                 cppCompiler.executable = "aarch64-linux-gnu-gcc-8"
-                linker.executable = "aarch64-linux-gnu-ld"
+                linker.executable = "aarch64-linux-gnu-gcc-8"
                 assembler.executable = "aarch64-linux-gnu-as"
             }
         }
@@ -146,7 +149,7 @@ model {
                 cppCompiler.args "-O3"
                 cppCompiler.args "-U_FORTIFY_SOURCE"
                 cppCompiler.args "-fpermissive"
-                linker.args "-fvisibility=hidden"
+                linker.args "-fvisibility=hidden"                
             } else if (os == "windows") {
                 if (toolChain in Gcc) {
                     if (toolChain.name.startsWith('mingw')) {
@@ -221,7 +224,10 @@ model {
             architecture "arm"
             operatingSystem "linux"
         }
-        
+        LinuxArmHF {
+            architecture "armhf"
+            operatingSystem "linux"        
+        }
         LinuxArm64 {
             architecture "aarch64"
             operatingSystem "linux"
