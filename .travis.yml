@@ -67,7 +67,7 @@ cache:
     - $HOME/.gradle/wrapper/
 
 install:
-  - '[ -n "$UPLOAD_NATIVE" ] && gradle -PbuildNativeProjects=true jme3-bullet-native:assembleDependentsBulletjmeLinuxArm64SharedLibrary -xjme3-android-native:assemble -xjme3-bullet-native-android:assemble || ./gradlew assemble -xjme3-android-native:assemble -xjme3-bullet-native-android:assemble'
+  - '[ -n "$UPLOAD_NATIVE" ] && gradle -PbuildNativeProjects=true assemble -xjme3-android-native:assemble -xjme3-bullet-native-android:assemble || ./gradlew assemble -xjme3-android-native:assemble -xjme3-bullet-native-android:assemble'
 
 script:
   - ./gradlew check
