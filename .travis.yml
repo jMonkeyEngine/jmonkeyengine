@@ -45,8 +45,7 @@ addons:
     - gcc-multilib
     - g++-multilib
     - g++-7-arm-linux-gnueabihf
-    - arm-linux-gnueabi-g++
-    #- gcc-8-aarch64-linux-gnu
+    - g++-7-arm-linux-gnueabi
     - g++-8-aarch64-linux-gnu
 
 before_install:
