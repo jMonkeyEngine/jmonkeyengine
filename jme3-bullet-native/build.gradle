@@ -67,10 +67,10 @@ model {
     
     toolChains {
         gccArm(Gcc) {
-            target("LinuxArm"){
+            /*target("LinuxArm"){
                 path "/usr/bin"
                 cCompiler.executable = "arm-linux-gnueabi-gcc"
-                cppCompiler.executable = "arm-linux-gnueabi-gcc"
+                cppCompiler.executable = "arm-linux-gnueabi-cpp"
                 linker.executable = "arm-linux-gnueabi-ld"
                 assembler.executable = "arm-linux-gnueabi-as"
                 
@@ -80,6 +80,14 @@ model {
                 linker.withArguments { args ->
                     args << "-m32"
                 }
+            }*/
+            
+            target("LinuxArm64"){
+                path "/usr/bin"
+                cCompiler.executable = "aarch64-linux-gnu-gcc-8"
+                cppCompiler.executable = "aarch64-linux-gnu-gcc-8"
+                linker.executable = "aarch64-linux-gnu-ld"
+                assembler.executable = "aarch64-linux-gnu-as"
             }
         }
     }
@@ -215,7 +223,7 @@ model {
         }
         
         LinuxArm64 {
-            architecture "arm64"
+            architecture "aarch64"
             operatingSystem "linux"
         }
     }

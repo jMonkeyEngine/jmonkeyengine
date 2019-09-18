@@ -44,7 +44,9 @@ addons:
     packages:
     - gcc-multilib
     - g++-multilib
-    - arm-linux-gnueabi-gcc
+    # - arm-linux-gnueabi-gcc
+    - gcc-8-aarch64-linux-gnu
+    - g++-8-aarch64-linux-gnu
 
 before_install:
   - '[ -n "$UPLOAD" ] && git fetch --unshallow || :'
@@ -59,7 +61,7 @@ cache:
     - $HOME/.gradle/wrapper/
 
 install:
-  - '[ -n "$UPLOAD_NATIVE" ] && ./gradlew -PbuildNativeProjects=true assemble -xjme3-android-native:assemble -xjme3-bullet-native-android:assemble || ./gradlew assemble -xjme3-android-native:assemble -xjme3-bullet-native-android:assemble'
+  - '[ -n "$UPLOAD_NATIVE" ] && gradle -PbuildNativeProjects=true jme3-bullet-native:assembleDependentsBulletjmeLinuxArm64SharedLibrary -xjme3-android-native:assemble -xjme3-bullet-native-android:assemble || ./gradlew assemble -xjme3-android-native:assemble -xjme3-bullet-native-android:assemble'
 
 script:
   - ./gradlew check
