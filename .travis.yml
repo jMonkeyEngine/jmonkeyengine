@@ -46,7 +46,7 @@ matrix:
             - gcc-multilib
             - g++-multilib
     before_install:
-        - sudo apt install -y gcc-7-arm-linux-gnueabihf gcc-7-arm-linux-gnueabi gcc-8-aarch64-linux-gnu g++-7-arm-linux-gnueabihf g++-7-arm-linux-gnueabi g++-8-aarch64-linux-gnu libstdc++-7-dev-armel-cross libstdc++-7-dev-armhf-cross libstdc++-8-dev-arm64-cross libgcc-7-dev-armel-cross libgcc-7-dev-armhf-cross libgcc-8-dev-arm64-cross
+        - sudo apt update && sudo apt install -fy gcc-7-arm-linux-gnueabihf gcc-7-arm-linux-gnueabi gcc-8-aarch64-linux-gnu g++-7-arm-linux-gnueabihf g++-7-arm-linux-gnueabi g++-8-aarch64-linux-gnu
   - os: linux
     jdk: openjdk11
     dist: bionic
