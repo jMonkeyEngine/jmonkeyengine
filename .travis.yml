@@ -16,11 +16,9 @@ matrix:
     env: UPLOAD=true UPLOAD_NATIVE=true
     apt:
         packages:
-            #- gcc-multilib
-            #- g++-multilib
             - lib32gcc-7-dev
-            - gcc
-            - g++
+            - gcc-7-multilib
+            - g++-7-multilib
             - gcc-7-arm-linux-gnueabihf
             - gcc-7-arm-linux-gnueabi
             - gcc-8-aarch64-linux-gnu
