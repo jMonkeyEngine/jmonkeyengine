@@ -11,8 +11,8 @@ branches:
 matrix:
   include:
   - os: linux
-    jdk: openjdk8
-    dist: xenial
+    jdk: openjdk9
+    dist: bionic
     env: UPLOAD=true UPLOAD_NATIVE=true
   - os: linux
     jdk: openjdk11
