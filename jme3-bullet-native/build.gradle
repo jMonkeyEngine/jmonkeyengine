@@ -149,7 +149,12 @@ model {
                 cppCompiler.args "-O3"
                 cppCompiler.args "-U_FORTIFY_SOURCE"
                 cppCompiler.args "-fpermissive"
-                linker.args "-fvisibility=hidden"                
+                
+                if (arch == "x86_64") {
+                    cppCompiler.args "-m32"
+                }
+                
+                linker.args "-fvisibility=hidden"
             } else if (os == "windows") {
                 if (toolChain in Gcc) {
                     if (toolChain.name.startsWith('mingw')) {
