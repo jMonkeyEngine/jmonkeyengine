@@ -31,6 +31,17 @@ matrix:
             - libstdc++6-i386-cross
             - lib32stdc++-7-dev
             - libx32stdc++-7-dev
+            - linux-libc-dev-arm64-cross
+            - libubsan1-arm64-cross
+            - libstdc++6-arm64-cross
+            - libstdc++-8-dev-arm64-cross
+            - libgcc1-arm64-cross
+            - libgcc-8-dev-arm64-cross 
+            - libc6-x32 
+            - libc6-dev-arm64-cross
+            - libatomic1-arm64-cross
+            - libasan5-arm64-cross
+            - binutils-common:amd64
   - os: linux
     jdk: openjdk11
     dist: bionic
