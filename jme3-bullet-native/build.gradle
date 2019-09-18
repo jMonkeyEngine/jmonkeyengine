@@ -71,9 +71,9 @@ model {
             // Fun Fact: Gradle uses gcc as linker frontend, so we don't specify ld directly here
             target("LinuxArm"){
                 path "/usr/bin"
-                cCompiler.executable = "arm-linux-gnueabi-gcc"
-                cppCompiler.executable = "arm-linux-gnueabi-gcc"
-                linker.executable = "arm-linux-gnueabi-gcc"
+                cCompiler.executable = "arm-linux-gnueabi-gcc-7"
+                cppCompiler.executable = "arm-linux-gnueabi-g++-7"
+                linker.executable = "arm-linux-gnueabi-gcc-7"
                 assembler.executable = "arm-linux-gnueabi-as"
             }
             
@@ -88,7 +88,7 @@ model {
             target("LinuxArm64"){
                 path "/usr/bin"
                 cCompiler.executable = "aarch64-linux-gnu-gcc-8"
-                cppCompiler.executable = "aarch64-linux-gnu-gcc-8"
+                cppCompiler.executable = "aarch64-linux-gnu-g++-8"
                 linker.executable = "aarch64-linux-gnu-gcc-8"
                 assembler.executable = "aarch64-linux-gnu-as"
             }
