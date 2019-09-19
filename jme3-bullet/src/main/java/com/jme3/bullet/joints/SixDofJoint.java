@@ -166,6 +166,24 @@ public class SixDofJoint extends PhysicsJoint {
         translationalMotor = new TranslationalLimitMotor(getTranslationalLimitMotor(objectId));
     }
 
+    native private void getAngles(long jointId, Vector3f storeVector);
+
+    /**
+     * Copy the joint's rotation angles.
+     *
+     * @param storeResult storage for the result (modified if not null)
+     * @return the rotation angle for each local axis (in radians, either
+     * storeResult or a new vector, not null)
+     */
+    public Vector3f getAngles(Vector3f storeResult) {
+        Vector3f result = (storeResult == null) ? new Vector3f() : storeResult;
+
+        long constraintId = getObjectId();
+        getAngles(constraintId, result);
+
+        return result;
+    }
+
     private native long getRotationalLimitMotor(long objectId, int index);
 
     private native long getTranslationalLimitMotor(long objectId);
