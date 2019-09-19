@@ -11,17 +11,15 @@ The engine is used by several commercial game studios and computer-science cours
 
  - [jME powered games on IndieDB](http://www.indiedb.com/engines/jmonkeyengine/games)
  - [Maker's Tale](http://steamcommunity.com/sharedfiles/filedetails/?id=93461954t)
- - [Boardtastic 2](https://play.google.com/store/apps/details?id=com.boardtastic.skateboarding)
- - [Copod](http://herebeben.com/copod)
- - [Attack of the Gelatinous Blob](http://attackofthegelatinousblob.com/)
- - [Chaos](http://4realms.net/)
+ - [Boardtastic 2](https://boardtastic-2.fileplanet.com/apk)
+ - [Attack of the Gelatinous Blob](https://attack-gelatinous-blob.softwareandgames.com/)
  - [Mythruna](http://mythruna.com/)
- - [PirateHell](http://www.desura.com/games/piratehell)
- - [3089 (on steam)](http://store.steampowered.com/app/263360/)
- - [3079 (on steam)](http://store.steampowered.com/app/259620/)
- - [Lightspeed Frontier](https://store.steampowered.com/app/548650/Lightspeed_Frontier/)
+ - [PirateHell (on Steam)](https://store.steampowered.com/app/321080/Pirate_Hell/)
+ - [3089 (on Steam)](http://store.steampowered.com/app/263360/)
+ - [3079 (on Steam)](http://store.steampowered.com/app/259620/)
+ - [Lightspeed Frontier (on Steam)](https://store.steampowered.com/app/548650/Lightspeed_Frontier/)
  - [Skullstone](http://www.skullstonegame.com/)
- - [Spoxel](https://store.steampowered.com/app/746880/Spoxel/)
+ - [Spoxel (on Steam)](https://store.steampowered.com/app/746880/Spoxel/)
 
 ## Getting started
 
