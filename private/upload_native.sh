@@ -17,10 +17,10 @@ function native_changes_common() {
     git checkout "$TRAVIS_BRANCH"
 }
 
-echo " - Checking if natives changed in commit $TRAVIS_COMMIT.."
-NATIVE_CHANGES_BULLET="$(git diff-tree --name-only "$TRAVIS_COMMIT" -- jme3-bullet-native/)"
-NATIVE_CHANGES_ANDROID_BULLET="$(git diff-tree --name-only "$TRAVIS_COMMIT" -- jme3-bullet-native-android/)"
-NATIVE_CHANGES_ANDROID_NATIVES="$(git diff-tree --name-only "$TRAVIS_COMMIT" -- jme3-android-native/)"
+echo " - Determine which native libraries changed, if any"
+NATIVE_CHANGES_BULLET="$(git diff --name-only -- jme3-bullet-native/libs/native/)"
+NATIVE_CHANGES_ANDROID_BULLET="$(git diff --name-only -- jme3-bullet-native-android/libs/)"
+NATIVE_CHANGES_ANDROID_NATIVES="$(git diff --name-only -- jme3-android-native/libs/)"
 
 if [ "$NATIVE_CHANGES_BULLET" != "" ]; then
     echo " - Found changes in jme3-bullet-native"
