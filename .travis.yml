@@ -44,6 +44,8 @@ matrix:
             #- binutils-common:amd64
             - gcc-multilib
             - g++-multilib
+    before_install:
+        - sudo apt update && sudo apt install -fy 
   - os: linux
     jdk: openjdk11
     dist: bionic
