@@ -11,8 +11,8 @@ branches:
 matrix:
   include:
   - os: linux
-    jdk: openjdk8
-    dist: trusty
+    jdk: oraclejdk8
+    dist: precise
     env: UPLOAD=true
   - os: linux
     jdk: openjdk11
