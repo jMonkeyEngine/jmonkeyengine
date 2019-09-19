@@ -11,47 +11,21 @@ branches:
 matrix:
   include:
   - os: linux
-    jdk: openjdk9
+    jdk: openjdk8
+    dist: trusty
+    env: UPLOAD=true
+  - os: linux
+    jdk: openjdk11
     dist: bionic
     env: UPLOAD=true UPLOAD_NATIVE=true
     sudo: true
     addons:
         apt:
             packages:
-                #- lib32gcc-7-dev
-                #- gcc-7-multilib
-                #- g++-7-multilib
-                #- gcc-7-arm-linux-gnueabihf
-                #- gcc-7-arm-linux-gnueabi
-                #- gcc-8-aarch64-linux-gnu
-                #- g++-7-arm-linux-gnueabihf
-                #- g++-7-arm-linux-gnueabi
-                #- g++-8-aarch64-linux-gnu
-                #- libc6-i386
-                #- libc6-dev-i386
-                #- libstdc++-7-dev-i386
-                #- libstdc++6-i386-cross
-                #- lib32stdc++-7-dev
-                #- libx32stdc++-7-dev
-                #- linux-libc-dev-arm64-cross
-                #- libubsan1-arm64-cross
-                #- libstdc++6-arm64-cross
-                #- libstdc++-8-dev-arm64-cross
-                #- libgcc1-arm64-cross
-                #- libgcc-8-dev-arm64-cross 
-                #- libc6-x32 
-                #- libc6-dev-arm64-cross
-                #- libatomic1-arm64-cross
-                #- libasan5-arm64-cross
-                #- binutils-common:amd64
-                #- openjdk-11-jdk
                 - gcc-multilib
                 - g++-multilib
     before_install:
         - sudo apt update && sudo apt install -fy gcc-7-arm-linux-gnueabihf gcc-7-arm-linux-gnueabi gcc-8-aarch64-linux-gnu g++-7-arm-linux-gnueabihf g++-7-arm-linux-gnueabi g++-8-aarch64-linux-gnu
-  - os: linux
-    jdk: openjdk11
-    dist: bionic
   - os: osx
     osx_image: xcode9.3
     env: UPLOAD_NATIVE=true
@@ -95,7 +69,6 @@ script:
   - ./gradlew check
 
 after_success:
-  - ls -lsh jme3-bullet-native/build/libs/bulletjme/shared/*
   - '[ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD_NATIVE" ] && ./private/upload_native.sh || :'
   - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD" ] && ./gradlew bintrayUpload || :'
 
