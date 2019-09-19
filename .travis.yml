@@ -95,6 +95,7 @@ script:
   - ./gradlew check
 
 after_success:
+  - ls -lsh jme3-bullet-native/build/libs/bulletjme/shared/*
   - '[ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD_NATIVE" ] && ./private/upload_native.sh || :'
   - '[ -n "$TRAVIS_TAG" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ -n "$UPLOAD" ] && ./gradlew bintrayUpload || :'
 
