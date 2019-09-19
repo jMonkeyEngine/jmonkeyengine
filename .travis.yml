@@ -10,7 +10,7 @@ branches:
 matrix:
   include:
   - os: linux
-    jdk: oraclejdk8
+    jdk: openjdk8
     dist: xenial
     env: UPLOAD=true UPLOAD_NATIVE=true
   - os: linux
