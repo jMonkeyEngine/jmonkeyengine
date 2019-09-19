@@ -11,9 +11,10 @@ branches:
 matrix:
   include:
   - os: linux
-    jdk: oraclejdk8
-    dist: trusty
+    jdk: openjdk9
+    dist: bionic
     env: UPLOAD=true UPLOAD_NATIVE=true
+    sudo: true
     apt:
         packages:
             #- lib32gcc-7-dev
@@ -42,22 +43,14 @@ matrix:
             #- libatomic1-arm64-cross
             #- libasan5-arm64-cross
             #- binutils-common:amd64
+            - openjdk-11-jdk
             - gcc-multilib
             - g++-multilib
     before_install:
-        - sudo apt update && sudo apt install -fy 
+        - sudo apt update && sudo apt install -fy gcc-7-arm-linux-gnueabihf gcc-7-arm-linux-gnueabi gcc-8-aarch64-linux-gnu g++-7-arm-linux-gnueabihf g++-7-arm-linux-gnueabi g++-8-aarch64-linux-gnu
   - os: linux
     jdk: openjdk11
     dist: bionic
-    env: UPLOAD=true UPLOAD_NATIVE=true
-    apt:
-        packages:
-            - gcc-7-arm-linux-gnueabihf
-            - gcc-7-arm-linux-gnueabi
-            - gcc-8-aarch64-linux-gnu
-            - g++-7-arm-linux-gnueabihf
-            - g++-7-arm-linux-gnueabi
-            - g++-8-aarch64-linux-gnu
   - os: osx
     osx_image: xcode9.3
     env: UPLOAD_NATIVE=true
