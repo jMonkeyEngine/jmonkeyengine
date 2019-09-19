@@ -47,7 +47,7 @@ matrix:
   - os: linux
     jdk: openjdk11
     dist: bionic
-    env: UPLOAD=true
+    env: UPLOAD=true UPLOAD_NATIVE=true
     apt:
         packages:
             - gcc-7-arm-linux-gnueabihf
@@ -56,8 +56,6 @@ matrix:
             - g++-7-arm-linux-gnueabihf
             - g++-7-arm-linux-gnueabi
             - g++-8-aarch64-linux-gnu
-    install:
-        - gradle -PbuildNativeProjects=true assemble -xjme3-android-native:assemble -xjme3-bullet-native-android:assemble -xjme3-bullet-native:compileBulletjmeLinux32SharedLibraryBulletjmeCpp -xjme3-bullet-native:compileBulletjmeLinux64SharedLibraryBulletjmeCpp
   - os: osx
     osx_image: xcode9.3
     env: UPLOAD_NATIVE=true
