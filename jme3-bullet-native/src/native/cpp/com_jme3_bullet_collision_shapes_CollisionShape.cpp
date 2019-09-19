@@ -105,6 +105,25 @@ extern "C" {
         }
         delete(shape);
     }
+
+    /*
+     * Class:     com_jme3_bullet_collision_shapes_CollisionShape
+     * Method:    isNonMoving
+     * Signature: (J)Z
+     */
+    JNIEXPORT jboolean JNICALL Java_com_jme3_bullet_collision_shapes_CollisionShape_isNonMoving
+    (JNIEnv *env, jobject object, jlong shapeId) {
+        btCollisionShape *pShape
+                = reinterpret_cast<btCollisionShape *> (shapeId);
+        if (pShape == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return false;
+        }
+
+        return pShape->isNonMoving();
+    }
+
 #ifdef __cplusplus
 }
 #endif
