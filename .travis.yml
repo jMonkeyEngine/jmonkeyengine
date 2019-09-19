@@ -11,7 +11,7 @@ matrix:
   include:
   - os: linux
     jdk: oraclejdk8
-    dist: precise
+    dist: xenial
     env: UPLOAD=true UPLOAD_NATIVE=true
   - os: linux
     jdk: openjdk11
