@@ -14,50 +14,48 @@ matrix:
     jdk: oraclejdk8
     dist: trusty
     env: UPLOAD=true UPLOAD_NATIVE=true
-    addons:
-        apt:
-            packages:
-                #- lib32gcc-7-dev
-                #- gcc-7-multilib
-                #- g++-7-multilib
-                #- gcc-7-arm-linux-gnueabihf
-                #- gcc-7-arm-linux-gnueabi
-                #- gcc-8-aarch64-linux-gnu
-                #- g++-7-arm-linux-gnueabihf
-                #- g++-7-arm-linux-gnueabi
-                #- g++-8-aarch64-linux-gnu
-                #- libc6-i386
-                #- libc6-dev-i386
-                #- libstdc++-7-dev-i386
-                #- libstdc++6-i386-cross
-                #- lib32stdc++-7-dev
-                #- libx32stdc++-7-dev
-                #- linux-libc-dev-arm64-cross
-                #- libubsan1-arm64-cross
-                #- libstdc++6-arm64-cross
-                #- libstdc++-8-dev-arm64-cross
-                #- libgcc1-arm64-cross
-                #- libgcc-8-dev-arm64-cross 
-                #- libc6-x32 
-                #- libc6-dev-arm64-cross
-                #- libatomic1-arm64-cross
-                #- libasan5-arm64-cross
-                #- binutils-common:amd64
-                - gcc-multilib
-                - g++-multilib
+    apt:
+        packages:
+            #- lib32gcc-7-dev
+            #- gcc-7-multilib
+            #- g++-7-multilib
+            #- gcc-7-arm-linux-gnueabihf
+            #- gcc-7-arm-linux-gnueabi
+            #- gcc-8-aarch64-linux-gnu
+            #- g++-7-arm-linux-gnueabihf
+            #- g++-7-arm-linux-gnueabi
+            #- g++-8-aarch64-linux-gnu
+            #- libc6-i386
+            #- libc6-dev-i386
+            #- libstdc++-7-dev-i386
+            #- libstdc++6-i386-cross
+            #- lib32stdc++-7-dev
+            #- libx32stdc++-7-dev
+            #- linux-libc-dev-arm64-cross
+            #- libubsan1-arm64-cross
+            #- libstdc++6-arm64-cross
+            #- libstdc++-8-dev-arm64-cross
+            #- libgcc1-arm64-cross
+            #- libgcc-8-dev-arm64-cross 
+            #- libc6-x32 
+            #- libc6-dev-arm64-cross
+            #- libatomic1-arm64-cross
+            #- libasan5-arm64-cross
+            #- binutils-common:amd64
+            - gcc-multilib
+            - g++-multilib
   - os: linux
     jdk: openjdk11
     dist: bionic
     env: UPLOAD=true
-    addons:
-        apt:
-            packages:
-                - gcc-7-arm-linux-gnueabihf
-                - gcc-7-arm-linux-gnueabi
-                - gcc-8-aarch64-linux-gnu
-                - g++-7-arm-linux-gnueabihf
-                - g++-7-arm-linux-gnueabi
-                - g++-8-aarch64-linux-gnu
+    apt:
+        packages:
+            - gcc-7-arm-linux-gnueabihf
+            - gcc-7-arm-linux-gnueabi
+            - gcc-8-aarch64-linux-gnu
+            - g++-7-arm-linux-gnueabihf
+            - g++-7-arm-linux-gnueabi
+            - g++-8-aarch64-linux-gnu
     install:
         - gradle -PbuildNativeProjects=true assemble -xjme3-android-native:assemble -xjme3-bullet-native-android:assemble -xjme3-bullet-native:compileBulletjmeLinux32SharedLibraryBulletjmeCpp -xjme3-bullet-native:compileBulletjmeLinux64SharedLibraryBulletjmeCpp
   - os: osx
