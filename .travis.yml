@@ -44,7 +44,7 @@ matrix:
                 #- libatomic1-arm64-cross
                 #- libasan5-arm64-cross
                 #- binutils-common:amd64
-                - openjdk-11-jdk
+                #- openjdk-11-jdk
                 - gcc-multilib
                 - g++-multilib
     before_install:
