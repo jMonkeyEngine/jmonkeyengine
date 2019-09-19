@@ -150,10 +150,6 @@ model {
                 cppCompiler.args "-U_FORTIFY_SOURCE"
                 cppCompiler.args "-fpermissive"
                 
-                if (arch == "x86_64") {
-                    cppCompiler.args "-m32"
-                }
-                
                 linker.args "-fvisibility=hidden"
             } else if (os == "windows") {
                 if (toolChain in Gcc) {
