@@ -29,15 +29,29 @@ task cleanZipFile(type: Delete) {
 model {
     components {
         bulletjme(NativeLibrarySpec) {
-            targetPlatform 'Windows64'
-            targetPlatform 'Windows32'
-            targetPlatform 'Mac64'
-            targetPlatform 'Mac32'
-            targetPlatform 'Linux64'
-            targetPlatform 'Linux32'
-            targetPlatform 'LinuxArm'
-            targetPlatform 'LinuxArmHF'
-            targetPlatform 'LinuxArm64'
+
+
+            String[] targets=[
+                "Windows64",
+                "Windows32",
+                "Mac64",
+                "Mac32",
+                "Linux64",
+                "Linux32",
+                "LinuxArm",
+                "LinuxArmHF",
+                "LinuxArm64"    
+            ];
+          
+            String[] filter=buildForPlatforms.split(",");
+            for(String target:targets){
+                for(String f:filter){
+                    if(f.equals(target)){
+                        targetPlatform(target);
+                        break;
+                    }
+                }
+            }
 
             sources {
                 cpp {
@@ -66,25 +80,29 @@ model {
         }
     }
     
+   
     toolChains {
+        visualCpp(VisualCpp)
+        gcc(Gcc)
+        clang(Clang)
         gccArm(Gcc) {
             // Fun Fact: Gradle uses gcc as linker frontend, so we don't specify ld directly here
             target("LinuxArm"){
                 path "/usr/bin"
-                cCompiler.executable = "arm-linux-gnueabi-gcc-7"
-                cppCompiler.executable = "arm-linux-gnueabi-g++-7"
-                linker.executable = "arm-linux-gnueabi-gcc-7"
+                cCompiler.executable = "arm-linux-gnueabi-gcc-8"
+                cppCompiler.executable = "arm-linux-gnueabi-g++-8"
+                linker.executable = "arm-linux-gnueabi-gcc-8"
                 assembler.executable = "arm-linux-gnueabi-as"
             }
-            
+
             target("LinuxArmHF"){
                 path "/usr/bin"
-                cCompiler.executable = "arm-linux-gnueabihf-gcc-7"
-                cppCompiler.executable = "arm-linux-gnueabihf-g++-7"
-                linker.executable = "arm-linux-gnueabihf-gcc-7"
+                cCompiler.executable = "arm-linux-gnueabihf-gcc-8"
+                cppCompiler.executable = "arm-linux-gnueabihf-g++-8"
+                linker.executable = "arm-linux-gnueabihf-gcc-8"
                 assembler.executable = "arm-linux-gnueabihf-as"
             }
-            
+
             target("LinuxArm64"){
                 path "/usr/bin"
                 cCompiler.executable = "aarch64-linux-gnu-gcc-8"
