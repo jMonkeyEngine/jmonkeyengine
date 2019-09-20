@@ -1,0 +1,421 @@
+######################################################################################
+# Note: We use github actions artifact to share files between jobs
+################# CONFIGURATION ######################################################
+# BINTRAY RELEASE & NATIVE SNAPSHOT
+#   Configure the following secrets/variables (customize the values with your own)
+#     BINTRAY_GENERIC_REPO=riccardoblsandbox/jmonkeyengine-files
+#     BINTRAY_MAVEN_REPO=riccardoblsandbox/jmonkeyengine
+#     BINTRAY_USER=riccardo
+#     BINTRAY_APIKEY=XXXXXX
+#     BINTRAY_LICENSE="BSD 3-Clause"
+#
+# PACKAGE REGISTRY RELEASE
+#   Nothing to do, everything is autoconfigured to work with the account/org that 
+#   is hosting this file.
+######################################################################################
+#
+#       - Riccardo Balbo
+######################################################################################
+
+name: Build jMonkeyEngine
+on:
+  push:
+    branches:
+      - master
+      - actions
+      - v3.3.*
+      - v3.2
+      - v3.2.*
+  pull_request:
+  release:
+    types: [published]
+  
+jobs:
+
+  BuildLinuxArmNatives:
+    name: Build natives for linux (arm)
+    runs-on: ubuntu-18.04
+    container:
+      image: riccardoblb/buildenv-linuxarm
+   
+    steps:
+      - name: Clone the repo
+        uses: actions/checkout@v1     
+        with:
+          fetch-depth: 1
+
+      - name: Build        
+        run: |
+          gradle --no-daemon -PbuildForPlatforms=LinuxArm,LinuxArmHF,LinuxArm64 -PbuildNativeProjects=true -xmergedJavadoc \
+          :jme3-bullet-native:assemble 
+
+      - name: Upload natives
+        uses: actions/upload-artifact@master
+        with:
+          name: linuxarm-natives
+          path: build/native 
+
+
+  BuildAndroidNatives:
+    name: Build natives for android
+    runs-on: ubuntu-18.04
+    container:
+      image: riccardoblb/buildenv-android
+      env:
+        JAVA_OPTS: "-XX:+IgnoreUnrecognizedVMOptions"
+
+    steps:
+      - name: Clone the repo
+        uses: actions/checkout@v1     
+        with:
+          fetch-depth: 1
+
+      - name: Build        
+        run: |
+       
+          gradle --no-daemon -PbuildNativeProjects=true -xmergedJavadoc \
+          :jme3-android-native:assemble \
+          :jme3-bullet-native-android:assemble 
+     
+      - name: Upload natives
+        uses: actions/upload-artifact@master
+        with:
+          name: android-natives
+          path: build/native
+     
+  BuildNatives:
+    strategy:
+      matrix:
+        os: [ubuntu-18.04,windows-2019,macOS-10.14] 
+        jdk: [8.x.x]
+        include:
+          - os: ubuntu-18.04
+            osName: linux
+          - os: windows-2019
+            osName: windows
+          - os: macOS-10.14
+            osName: mac
+              
+    name: Build natives for ${{ matrix.osName }}
+    runs-on: ${{ matrix.os }}    
+    steps:    
+    
+      - name: Clone the repo
+        uses: actions/checkout@v1     
+        with:
+          fetch-depth: 1
+           
+      - name: Prepare java environment
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.jdk }}
+          architecture: x64 
+          
+      - name: Build Natives
+        shell: bash
+        env:
+          OS_NAME: ${{ matrix.osName }}
+        run: |
+          if [ "$OS_NAME" = "mac" ];
+          then
+            echo "Prepare mac"
+            # We need this older version to compile for 32bit...
+            sudo xcode-select -switch  /Applications/Xcode_9.4.1.app
+            sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
+          elif [ "$OS_NAME" = "linux" ];
+          then
+            echo "Prepare linux"
+            sudo apt-get update
+            sudo apt-get install -y gcc-multilib g++-multilib
+          else
+            echo "Prepare windows"
+          fi
+          
+          gradle --no-daemon -PbuildNativeProjects=true -Dmaven.repo.local="$PWD/dist/maven" \
+          -xmergedJavadoc build \
+          :jme3-bullet-native:build
+                  
+      # Upload natives to be used later by the BuildJMonkey job
+      - name: Upload natives
+        uses: actions/upload-artifact@master
+        with:
+          name: ${{ matrix.osName }}-natives
+          path: build/native
+ 
+
+  BuildJMonkey:  
+    needs: [BuildNatives,BuildAndroidNatives]
+    name: Build on ${{ matrix.osName }} jdk${{ matrix.jdk }}
+    runs-on: ${{ matrix.os }}    
+    strategy:
+      matrix:
+        os: [ubuntu-18.04,windows-2019,macOS-10.14]
+        jdk: [8.x.x,11.x.x]
+        include:
+          - os: ubuntu-18.04
+            osName: linux
+          - os: windows-2019
+            osName: windows
+          - os: macOS-10.14
+            osName: mac  
+    steps:          
+    
+      - name: Clone the repo
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+          
+      - name: Setup the java environment
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.jdk }}
+          architecture: x64 
+
+      - name: "Install dependencies"
+        env:
+          OS_NAME: ${{ matrix.osName }}
+        shell: bash
+        run: |
+          if [ "$OS_NAME" = "mac" ];
+          then
+            echo "Prepare mac"
+            brew install unzip zip
+          elif [ "$OS_NAME" = "linux" ];
+          then
+            echo "Prepare Linux"
+            sudo apt-get update
+            sudo apt-get install -y unzip zip
+          else
+            echo "Prepare windows"
+            echo "Install on Windows"
+            choco install unzip zip
+          fi
+                     
+      - name: Download natives for linux
+        uses: actions/download-artifact@master
+        with:
+          name: linux-natives
+          path: build/native
+
+      - name: Download natives for windows
+        uses: actions/download-artifact@master
+        with:
+          name: windows-natives
+          path: build/native
+             
+      - name: Download natives for mac
+        uses: actions/download-artifact@master
+        with:
+          name: mac-natives
+          path: build/native
+
+      - name: Download natives for android
+        uses: actions/download-artifact@master
+        with:
+          name: android-natives
+          path: build/native
+
+      - name: Download natives for linux (arm)
+        uses: actions/download-artifact@master
+        with:
+          name: linuxarm-natives
+          path: build/native
+           
+                                                     
+      - name: Build Engine
+        shell: bash
+        env: 
+          JDK_VERSION:  ${{ matrix.jdk }}
+        run: |
+          source .github/actions/tools/travisCompatEnv.sh
+          
+          gradle -xmergedJavadoc build
+          # Workaround for #1176: Skip in java 11
+          if [ "${{ matrix.jdk }}" = "8.x.x" ]; then  gradle mergedJavadoc ; fi
+          gradle -xmergedJavadoc createZipDistribution
+
+          mkdir -p ./dist/release/
+          mv build/distributions/*.zip dist/release/
+          
+          mkdir -p ./dist/maven/
+          gradle -xmergedJavadoc install -Dmaven.repo.local="$PWD/dist/maven"
+
+          echo "Build native zip"
+          cdir="$PWD"
+          cd "build/native"
+          zip -r "$cdir/dist/jme3-natives.zip" *       
+          cd "$cdir"
+          echo "Done"
+
+      # Used later by DeploySnapshot
+      - name: Upload merged natives
+        if:  matrix.jdk == '8.x.x' && matrix.os == 'ubuntu-18.04'
+        uses: actions/upload-artifact@master
+        with:
+          name: natives
+          path: dist/jme3-natives.zip
+          
+      # Upload maven artifacts to be used later by the deploy job
+      - name: Upload maven artifacts
+        if: github.event_name == 'release' && matrix.jdk == '8.x.x' && matrix.os == 'ubuntu-18.04'
+        uses: actions/upload-artifact@master
+        with:
+          name: maven
+          path: dist/maven              
+          
+      # Upload release archive to be used later by the deploy job    
+      - name: Upload release
+        if: github.event_name == 'release' && matrix.jdk == '8.x.x' && matrix.os == 'ubuntu-18.04'
+        uses: actions/upload-artifact@master
+        with:
+          name: release
+          path: dist/release             
+
+  DeploySnapshot:
+    needs: [BuildJMonkey]
+    name: "Deploy snapshot"
+    runs-on: ubuntu-18.04
+    if: github.event_name == 'push'
+    steps:
+      - name: Clone the repo
+        run: |
+          branch="${GITHUB_REF//refs\/heads\//}"
+          if [ "$branch" != "" ];
+          then
+            git clone --single-branch --branch "$branch" https://github.com/${GITHUB_REPOSITORY}.git .
+          fi
+
+      
+      - name: Download merged natives
+        uses: actions/download-artifact@master
+        with:
+          name: natives
+          path: dist/
+
+      - name: Deploy natives snapshot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        run: |
+          source .github/actions/tools/bintray.sh
+          NATIVE_CHANGES="yes"
+          branch="${GITHUB_REF//refs\/heads\//}"
+          if [ "$branch" != "" ];
+          then
+            if [ -f "natives-snapshot.properties" ];
+            then
+              nativeSnapshot=`cat "natives-snapshot.properties"`
+              nativeSnapshot="${nativeSnapshot#*=}"
+
+              if [ "`git rev-list --count $nativeSnapshot..$GITHUB_SHA`" = "0" ]; # if nativeSnapshot comes after GITHUB_SHA, skip
+              then
+                NATIVE_CHANGES=""
+              else
+                echo "Detect changes"
+                NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot" -- jme3-bullet-native/)"
+                if [ "$NATIVE_CHANGES" = "" ];then NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  jme3-android-native/)"; fi
+                if [ "$NATIVE_CHANGES" = "" ];then NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  jme3-bullet-native-android/)"; fi
+                if [ "$NATIVE_CHANGES" = "" ];then NATIVE_CHANGES="$(git diff-tree --name-only "$GITHUB_SHA" "$nativeSnapshot"  --  jme3-bullet/)"; fi
+              fi
+            fi
+
+            if [ "$NATIVE_CHANGES" = "" ];
+            then
+              echo "No changes, skip."
+            else
+              if [ "${{ secrets.BINTRAY_GENERIC_REPO }}" = "" ];
+              then
+               
+                echo "Configure the following secrets to enable native snapshot deployment"
+                echo "BINTRAY_GENERIC_REPO, BINTRAY_USER, BINTRAY_APIKEY"
+           
+              else
+
+                bintray_uploadFile dist/jme3-natives.zip \
+                  $GITHUB_SHA/$GITHUB_SHA/jme3-natives.zip \
+                  ${{ secrets.BINTRAY_GENERIC_REPO }} "content" "natives" \
+                  ${{ secrets.BINTRAY_USER }} \
+                  ${{ secrets.BINTRAY_APIKEY }}  \
+                  "https://github.com/${GITHUB_REPOSITORY}" \
+                  "${{ secrets.BINTRAY_LICENSE }}" "true"
+
+                echo "natives.snapshot=$GITHUB_SHA" > natives-snapshot.properties
+                
+                git config --global user.name "Github Actions"
+                git config --global user.email "actions@users.noreply.github.com"
+      
+                git add natives-snapshot.properties
+              
+                git commit -m "[skip ci] update natives snapshot"
+                
+                git pull -q --rebase
+
+                header=$(echo -n "ad-m:${GITHUB_TOKEN}" | base64)
+                (git -c http.extraheader="AUTHORIZATION: basic $header" push origin "$branch" || true)
+              
+              fi
+            fi
+          fi
+
+
+  DeployRelease:  
+    needs: [BuildJMonkey]
+    name: Deploy Release
+    runs-on: ubuntu-18.04
+    if: github.event_name == 'release'
+    steps:   
+    
+      # We need to clone everything again for uploadToMaven.sh ...
+      - name: Clone the repo
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+    
+      - name: Download maven artifacts
+        uses: actions/download-artifact@master
+        with:
+          name: maven
+          path: dist/maven
+      
+      - name: Download release
+        uses: actions/download-artifact@master
+        with:
+          name: release
+          path: dist/release      
+      
+      - name: Deploy to github releases    
+        env:           
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   
+        run: |
+          echo "${GITHUB_EVENT_PATH}"
+          cat ${GITHUB_EVENT_PATH}
+          releaseId=$(jq --raw-output '.release.id' ${GITHUB_EVENT_PATH})
+          echo "Upload to release $releaseId"
+          filename="$(ls dist/release/*.zip)"
+          url="https://uploads.github.com/repos/${GITHUB_REPOSITORY}/releases/$releaseId/assets?name=$(basename $filename)"
+          echo "Upload to $url"
+          curl -L \
+          -H "Authorization: token ${GITHUB_TOKEN}" \
+          -H "Content-Type: application/zip" \
+          --data-binary @"$filename" \
+          "$url"
+            
+      - name: Deploy to bintray
+        run: |
+          source .github/actions/tools/uploadToMaven.sh
+          if [ "${{ secrets.BINTRAY_MAVEN_REPO }}" = "" ];
+          then
+            echo "Configure the following secrets to enable bintray deployment"
+            echo "BINTRAY_MAVEN_REPO, BINTRAY_USER, BINTRAY_APIKEY"
+          else
+            uploadAllToMaven dist/maven/ https://api.bintray.com/maven/${{ secrets.BINTRAY_MAVEN_REPO }} ${{ secrets.BINTRAY_USER }} ${{ secrets.BINTRAY_APIKEY }} "https://github.com/${GITHUB_REPOSITORY}" "${{ secrets.BINTRAY_LICENSE }}"
+          fi
+      
+      - name: Deploy to github package registry
+        run: |
+          source .github/actions/tools/uploadToMaven.sh
+          registry="https://maven.pkg.github.com/$GITHUB_REPOSITORY"
+          echo "Deploy to github package registry $registry"
+          uploadAllToMaven dist/maven/ $registry ${GITHUB_ACTOR} ${{ secrets.GITHUB_TOKEN }}
+          
+
