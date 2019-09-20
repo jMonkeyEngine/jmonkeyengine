@@ -25,7 +25,7 @@ repositories {
 dependencies {
     // Adding dependencies here will add the dependencies to each subproject.
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '1.10.19'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '3.0.0'
     testCompile group: 'org.easytesting', name: 'fest-assert-core', version: '2.0M10'
     testCompile 'org.codehaus.groovy:groovy-all:2.5.8'
 }
