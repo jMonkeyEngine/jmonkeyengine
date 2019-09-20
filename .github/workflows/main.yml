@@ -23,6 +23,7 @@ on:
     branches:
       - master
       - actions
+      - newbuild
       - v3.3.*
       - v3.2
       - v3.2.*
@@ -411,11 +412,11 @@ jobs:
             uploadAllToMaven dist/maven/ https://api.bintray.com/maven/${{ secrets.BINTRAY_MAVEN_REPO }} ${{ secrets.BINTRAY_USER }} ${{ secrets.BINTRAY_APIKEY }} "https://github.com/${GITHUB_REPOSITORY}" "${{ secrets.BINTRAY_LICENSE }}"
           fi
       
-      - name: Deploy to github package registry
-        run: |
-          source .github/actions/tools/uploadToMaven.sh
-          registry="https://maven.pkg.github.com/$GITHUB_REPOSITORY"
-          echo "Deploy to github package registry $registry"
-          uploadAllToMaven dist/maven/ $registry ${GITHUB_ACTOR} ${{ secrets.GITHUB_TOKEN }}
+      # - name: Deploy to github package registry
+      #   run: |
+      #     source .github/actions/tools/uploadToMaven.sh
+      #     registry="https://maven.pkg.github.com/$GITHUB_REPOSITORY"
+      #     echo "Deploy to github package registry $registry"
+      #     uploadAllToMaven dist/maven/ $registry ${GITHUB_ACTOR} ${{ secrets.GITHUB_TOKEN }}
           
 
