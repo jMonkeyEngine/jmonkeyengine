@@ -149,7 +149,7 @@ task configureAndroidNDK {
     }
 }
 
-if(buildNativeProjects!="true"){
+if(skipPrebuildLibraries!="true"&&buildNativeProjects!="true"){
     String rootPath = rootProject.projectDir.absolutePath
 
     Properties nativesSnasphotProp = new Properties()

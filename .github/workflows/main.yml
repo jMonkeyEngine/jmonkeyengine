@@ -229,16 +229,16 @@ jobs:
         run: |
           source .github/actions/tools/travisCompatEnv.sh
           
-          gradle -xmergedJavadoc build
+          gradle -PskipPrebuildLibraries=true -xmergedJavadoc build
           # Workaround for #1176: Skip in java 11
-          if [ "${{ matrix.jdk }}" = "8.x.x" ]; then  gradle mergedJavadoc ; fi
-          gradle -xmergedJavadoc createZipDistribution
+          if [ "${{ matrix.jdk }}" = "8.x.x" ]; then  gradle -PskipPrebuildLibraries=true mergedJavadoc ; fi
+          gradle -PskipPrebuildLibraries=true -xmergedJavadoc createZipDistribution
 
           mkdir -p ./dist/release/
           mv build/distributions/*.zip dist/release/
           
           mkdir -p ./dist/maven/
-          gradle -xmergedJavadoc install -Dmaven.repo.local="$PWD/dist/maven"
+          gradle -PskipPrebuildLibraries=true -xmergedJavadoc install -Dmaven.repo.local="$PWD/dist/maven"
 
           echo "Build native zip"
           cdir="$PWD"
