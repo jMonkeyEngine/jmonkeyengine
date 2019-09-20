@@ -14,7 +14,8 @@ String openalsoftBuildJniDir = openalsoftBuildDir + File.separator + 'jni'
 String openalsoftBuildLibsDir = openalsoftBuildDir + File.separator + 'libs'
 
 //Pre-compiled libs directory
-String openalsoftPreCompiledLibsDir = 'libs' + File.separator + 'openalsoft'
+def rootPath = rootProject.projectDir.absolutePath
+String openalsoftPreCompiledLibsDir = rootPath + File.separator + 'build' + File.separator + 'native' + File.separator +  'android' + File.separator + 'openalsoft'
 
 // jME Android Native source files path
 String openalsoftJmeAndroidPath = 'src/native/jme_openalsoft'

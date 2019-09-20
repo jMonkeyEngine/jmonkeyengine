@@ -1,3 +1,6 @@
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+
 buildscript {
     repositories {
         google()
@@ -145,6 +148,69 @@ task configureAndroidNDK {
         ndkCommandPath = ndkBuildPath
     }
 }
+
+gradle.rootProject.ext.set("usePrebuildNatives", buildNativeProjects!="true");
+
+if(skipPrebuildLibraries!="true"&&buildNativeProjects!="true"){
+    String rootPath = rootProject.projectDir.absolutePath
+
+    Properties nativesSnasphotProp = new Properties()
+    File nativesSnasphotPropF=new File("${rootPath}/natives-snapshot.properties");
+    
+    if(nativesSnasphotPropF.exists()){
+
+        nativesSnasphotPropF.withInputStream { nativesSnasphotProp.load(it) }
+
+        String nativesSnasphot=nativesSnasphotProp.getProperty("natives.snapshot");
+        String nativesUrl=PREBUILD_NATIVES_URL.replace('${natives.snapshot}',nativesSnasphot)
+        println "Use natives snapshot: "+nativesUrl
+
+        String nativesZipFile="${rootPath}" + File.separator + "build"+ File.separator +nativesSnasphot+"-natives.zip"
+        String nativesPath="${rootPath}" + File.separator + "build"+ File.separator +"native"
+
+        build.dependsOn('getPrebuiltNatives')
+
+        task getPrebuiltNatives() { 
+            doFirst {
+                File target = file(nativesZipFile);
+                    
+                if (!target.exists()) {    
+                    println("Download natives from "+nativesUrl+" to "+nativesZipFile);
+                    target.getParentFile().mkdirs();
+                    ant.get(src: nativesUrl, dest: target);
+                }
+
+                for(File src : zipTree(nativesZipFile)){
+                    String srcRel=src.getAbsolutePath().substring((int)(nativesZipFile.length()+1));
+                    srcRel=srcRel.substring(srcRel.indexOf("/")+1);
+
+                    File dest=new File(nativesPath+File.separator+srcRel);
+
+                    boolean include=false;
+                    if(!dest.exists()){
+                        include=true;
+                        println("Copy "+src+" "+dest+  ". Destination does not exist");
+                    }else if(dest.lastModified()<src.lastModified()){
+                        include=true;
+                        println("Copy "+src+" "+dest+  ". Source is newer. src "+src.lastModified()+ " dest "+dest.lastModified());
+                    }
+                    else{
+                        println(""+dest+" Up to date. Skip.");
+                    }
+
+                    if(include){
+                        dest.getParentFile().mkdirs();
+                        Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+
 
 //class IncrementalReverseTask extends DefaultTask {
 //    @InputDirectory

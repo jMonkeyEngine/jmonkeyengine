@@ -8,7 +8,8 @@ String decodeBuildJniDir = decodeBuildDir + File.separator + 'jni'
 String decodeBuildLibsDir = decodeBuildDir + File.separator + 'libs'
 
 // Pre-compiled libs directory
-String decodePreCompiledLibsDir = 'libs' + File.separator + 'decode'
+def rootPath = rootProject.projectDir.absolutePath
+String decodePreCompiledLibsDir = rootPath + File.separator + 'build' + File.separator + 'native' + File.separator +  'android' + File.separator + 'decode'
 
 // jME Android Native source files path
 String decodeSourceDir = 'src/native/jme_decode'

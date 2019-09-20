@@ -14,7 +14,8 @@ String jniPath = ndkWorkingPath + '/jni'
 String ndkOutputPath = ndkWorkingPath + '/libs'
 
 //Pre-compiled libs directory
-String bulletPreCompiledLibsDir = 'libs'
+def rootPath = rootProject.projectDir.absolutePath
+String bulletPreCompiledLibsDir = rootPath + File.separator + 'build' + File.separator + 'native' + File.separator +  'android' + File.separator + 'bullet'
 
 if (!hasProperty('mainClass')) {
     ext.mainClass = ''
