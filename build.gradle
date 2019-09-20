@@ -102,8 +102,8 @@ task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the pro
     source subprojects.collect {project ->
         project.sourceSets*.allJava
     }
-//    classpath = files(subprojects.collect {project ->
-//            project.sourceSets*.compileClasspath})
+    classpath = files(subprojects.collect {project ->
+            project.sourceSets*.compileClasspath})
     //    source {
     //        subprojects*.sourceSets*.main*.allSource
     //    }
