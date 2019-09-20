@@ -79,8 +79,8 @@ model {
             }
         }
     }
-    
-   
+
+     
     toolChains {
         visualCpp(VisualCpp)
         gcc(Gcc)
@@ -110,12 +110,12 @@ model {
                 linker.executable = "aarch64-linux-gnu-gcc-8"
                 assembler.executable = "aarch64-linux-gnu-as"
             }
-        }
+        }  
     }
 
     binaries {
         withType(SharedLibraryBinarySpec) {
-            def projectPath = project.projectDir.absolutePath
+            def rootPath = rootProject.projectDir.absolutePath
             def javaHome = org.gradle.internal.jvm.Jvm.current().javaHome
             def os = targetPlatform.operatingSystem.name
             def arch = targetPlatform.architecture.name
@@ -139,7 +139,7 @@ model {
                     }
                 } else {
                     // Get from libs folder if no fresh build is available in the build folder and add to jar file
-                    def precompiledFile = Paths.get(projectPath, 'libs', 'native', os, arch, fileName).toFile()
+                    def precompiledFile = Paths.get(rootPath, 'build', 'native', 'bullet', os, arch, fileName).toFile()
                     if (precompiledFile.exists()) {
                         jar.into("native/${os}/${arch}") {
                             from precompiledFile
@@ -203,8 +203,8 @@ model {
             // Add output to libs folder
             task "copyBinaryToLibs${targetPlatform.name}"(type: Copy, dependsOn: tasks) {
                 from sharedLibraryFile
-                into "libs/native/${os}/${arch}"
-            }
+                into "${rootPath}/build/native/bullet/${os}/${arch}"
+            } 
             // Add depend on copy
             jar.dependsOn("copyBinaryToLibs${targetPlatform.name}")
         }
