@@ -10,12 +10,16 @@ branches:
 matrix:
   include:
   - os: linux
-    jdk: openjdk8
-    dist: xenial
-    env: UPLOAD=true UPLOAD_NATIVE=true
+    dist: trusty
+    jdk: oraclejdk8
+    env: UPLOAD=true
   - os: linux
     jdk: openjdk11
     dist: xenial
+  - os: linux
+    dist: xenial
+    jdk: openjdk8
+    env: UPLOAD_NATIVE=true
   - os: osx
     osx_image: xcode9.3
     env: UPLOAD_NATIVE=true
