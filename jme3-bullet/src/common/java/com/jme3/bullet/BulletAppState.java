@@ -57,10 +57,8 @@ public class BulletAppState
      * true if-and-only-if the physics simulation is running (started but not
      * yet stopped)
      */
-    protected boolean isRunning = false;
+    protected volatile boolean isRunning = false;
     protected Application app;
-    private String id;
-    
     /**
      * manager that manages this state, set during attach
      */
