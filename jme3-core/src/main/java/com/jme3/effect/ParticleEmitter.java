@@ -71,8 +71,11 @@ import java.io.IOException;
  * {@link ParticleEmitter#setParticleInfluencer(com.jme3.effect.influencers.ParticleInfluencer) }.
  * By default the implementation {@link DefaultParticleInfluencer} is used.
  *
+ * @deprecated Use com.jme3.particles.Emitter instead
+ *
  * @author Kirill Vainer
  */
+@Deprecated
 public class ParticleEmitter extends Geometry {
 
     private boolean enabled = true;
