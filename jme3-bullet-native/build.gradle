@@ -35,6 +35,9 @@ model {
             targetPlatform 'Mac32'
             targetPlatform 'Linux64'
             targetPlatform 'Linux32'
+            targetPlatform 'LinuxArm'
+            targetPlatform 'LinuxArmHF'
+            targetPlatform 'LinuxArm64'
 
             sources {
                 cpp {
@@ -59,6 +62,35 @@ model {
                         include '**/*.h'
                     }
                 }
+            }
+        }
+    }
+    
+    toolChains {
+        gccArm(Gcc) {
+            // Fun Fact: Gradle uses gcc as linker frontend, so we don't specify ld directly here
+            target("LinuxArm"){
+                path "/usr/bin"
+                cCompiler.executable = "arm-linux-gnueabi-gcc-7"
+                cppCompiler.executable = "arm-linux-gnueabi-g++-7"
+                linker.executable = "arm-linux-gnueabi-gcc-7"
+                assembler.executable = "arm-linux-gnueabi-as"
+            }
+            
+            target("LinuxArmHF"){
+                path "/usr/bin"
+                cCompiler.executable = "arm-linux-gnueabihf-gcc-7"
+                cppCompiler.executable = "arm-linux-gnueabihf-g++-7"
+                linker.executable = "arm-linux-gnueabihf-gcc-7"
+                assembler.executable = "arm-linux-gnueabihf-as"
+            }
+            
+            target("LinuxArm64"){
+                path "/usr/bin"
+                cCompiler.executable = "aarch64-linux-gnu-gcc-8"
+                cppCompiler.executable = "aarch64-linux-gnu-g++-8"
+                linker.executable = "aarch64-linux-gnu-gcc-8"
+                assembler.executable = "aarch64-linux-gnu-as"
             }
         }
     }
@@ -186,6 +218,18 @@ model {
         }
         Linux64 {
             architecture "x86_64"
+            operatingSystem "linux"
+        }
+        LinuxArm {
+            architecture "arm"
+            operatingSystem "linux"
+        }
+        LinuxArmHF {
+            architecture "armhf"
+            operatingSystem "linux"        
+        }
+        LinuxArm64 {
+            architecture "aarch64"
             operatingSystem "linux"
         }
     }

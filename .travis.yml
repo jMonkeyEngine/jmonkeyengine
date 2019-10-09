@@ -6,20 +6,26 @@ branches:
   - /^v3.3.*$/
   - v3.2
   - /^v3.2.*$/
+  - feature/bullet-arm
 
 matrix:
   include:
   - os: linux
-    dist: trusty
     jdk: oraclejdk8
+    dist: precise
     env: UPLOAD=true
   - os: linux
     jdk: openjdk11
-    dist: xenial
-  - os: linux
-    dist: xenial
-    jdk: openjdk8
-    env: UPLOAD_NATIVE=true
+    dist: bionic
+    env: UPLOAD=true UPLOAD_NATIVE=true
+    sudo: true
+    addons:
+        apt:
+            packages:
+                - gcc-multilib
+                - g++-multilib
+    before_install:
+        - sudo apt update && sudo apt install -fy gcc-7-arm-linux-gnueabihf gcc-7-arm-linux-gnueabi gcc-8-aarch64-linux-gnu g++-7-arm-linux-gnueabihf g++-7-arm-linux-gnueabi g++-8-aarch64-linux-gnu
   - os: osx
     osx_image: xcode9.3
     env: UPLOAD_NATIVE=true
@@ -42,10 +48,6 @@ addons:
   hosts:
     - travisci
   hostname: travisci
-  apt:
-    packages:
-    - gcc-multilib
-    - g++-multilib
 
 before_install:
   - '[ -n "$UPLOAD" ] && git fetch --unshallow || :'
