@@ -268,6 +268,9 @@ public class Joint implements Savable, JmeCloneable, HasLocalTransform {
         return attachedNode;
     }
 
+    public Transform getInitialTransform() {
+        return initialTransform;
+    }
 
     public Transform getLocalTransform() {
         return localTransform;
