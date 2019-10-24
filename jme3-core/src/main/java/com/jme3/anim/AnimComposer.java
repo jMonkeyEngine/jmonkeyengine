@@ -32,6 +32,10 @@ public class AnimComposer extends AbstractControl {
         layers.put(DEFAULT_LAYER, new Layer(this));
     }
 
+    public boolean hasAnimClip(String name) {
+        return animClipMap.containsKey(name);
+    }
+
     /**
      * Retrieve an animation from the list of animations.
      *
