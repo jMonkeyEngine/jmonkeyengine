@@ -2,6 +2,8 @@ apply plugin: 'cpp'
 
 import java.nio.file.Paths
 
+def rootPath = rootProject.projectDir.absolutePath
+
 String bulletSrcPath = bulletFolder + '/src'
 
 if (!hasProperty('mainClass')) {
@@ -120,7 +122,6 @@ model {
 
     binaries {
         withType(SharedLibraryBinarySpec) {
-            def rootPath = rootProject.projectDir.absolutePath
             def javaHome = org.gradle.internal.jvm.Jvm.current().javaHome
             def os = targetPlatform.operatingSystem.name
             def arch = targetPlatform.architecture.name
@@ -130,88 +131,57 @@ model {
             arch = arch.replaceAll('-', '_')
 
             // For all binaries that can't be built on the current system
-            if (buildNativeProjects != "true") {
-                buildable = false
-            }
+            if (buildNativeProjects != "true")  buildable = false
 
-            if (!buildable) {
-                if (sharedLibraryFile.exists()) {
-                    // Add binary to jar file if the binary exists in the build folder already,
-                    // e.g. when the build of jme3-bullet-native has been run on a virtual box
-                    // and the project hasn't been cleaned yet.
-                    jar.into("native/${os}/${arch}") {
-                        from sharedLibraryFile
-                    }
-                } else {
-                    // Get from libs folder if no fresh build is available in the build folder and add to jar file
-                    def precompiledFile = Paths.get(rootPath, 'build', 'native', 'bullet', os, arch, fileName).toFile()
-                    if (precompiledFile.exists()) {
-                        jar.into("native/${os}/${arch}") {
-                            from precompiledFile
-                        }
-                    }
+            if (buildable) {            
+                cppCompiler.define('BT_NO_PROFILE')
+                if (toolChain in VisualCpp) {
+                    cppCompiler.args "/I$javaHome\\include"
+                } else{
+                    cppCompiler.args '-I', "$javaHome/include"
                 }
-                return
-            }
 
-            cppCompiler.define('BT_NO_PROFILE')
-            if (toolChain in VisualCpp) {
-                cppCompiler.args "/I$javaHome\\include"
-            } else{
-                cppCompiler.args '-I', "$javaHome/include"
-            }
-
-            if (os == "osx") {
-                cppCompiler.args '-I', "$javaHome/include/darwin"
-                cppCompiler.args "-O3"
-                cppCompiler.args "-U_FORTIFY_SOURCE"
-            } else if (os == "linux") {
-                cppCompiler.args "-fvisibility=hidden"
-                cppCompiler.args '-I', "$javaHome/include/linux"
-                cppCompiler.args "-fPIC"
-                cppCompiler.args "-O3"
-                cppCompiler.args "-U_FORTIFY_SOURCE"
-                cppCompiler.args "-fpermissive"
-                linker.args "-fvisibility=hidden"
-            } else if (os == "windows") {
-                if (toolChain in Gcc) {
-                    if (toolChain.name.startsWith('mingw')) {
-                        cppCompiler.args '-I', "$projectDir/src/native/cpp/fake_win32"
-                    } else {
-                        cppCompiler.args '-I', "$javaHome/include/win32"
-                    }
-                    cppCompiler.args "-fpermissive"
-                    cppCompiler.args "-static"
+                if (os == "osx") {
+                    cppCompiler.args '-I', "$javaHome/include/darwin"
                     cppCompiler.args "-O3"
                     cppCompiler.args "-U_FORTIFY_SOURCE"
-                    linker.args "-static"
-                    linker.args "-Wl,--exclude-all-symbols"
+                } else if (os == "linux") {
+                    cppCompiler.args "-fvisibility=hidden"
+                    cppCompiler.args '-I', "$javaHome/include/linux"
+                    cppCompiler.args "-fPIC"
+                    cppCompiler.args "-O3"
+                    cppCompiler.args "-U_FORTIFY_SOURCE"
+                    cppCompiler.args "-fpermissive"
+                    linker.args "-fvisibility=hidden"
+                } else if (os == "windows") {
+                    if (toolChain in Gcc) {
+                        if (toolChain.name.startsWith('mingw'))  cppCompiler.args '-I', "$projectDir/src/native/cpp/fake_win32"
+                        else  cppCompiler.args '-I', "$javaHome/include/win32"                        
+                        cppCompiler.args "-fpermissive"
+                        cppCompiler.args "-static"
+                        cppCompiler.args "-O3"
+                        cppCompiler.args "-U_FORTIFY_SOURCE"
+                        linker.args "-static"
+                        linker.args "-Wl,--exclude-all-symbols"
+                    } else if (toolChain in VisualCpp) {
+                        cppCompiler.args "/I$javaHome\\include\\win32"
+                    }
+                    cppCompiler.define('WIN32')
                 }
-                else if (toolChain in VisualCpp) {
-                    cppCompiler.args "/I$javaHome\\include\\win32"
+                tasks.all { 
+                    dependsOn unzipBulletIfNeeded
+                    dependsOn ':jme3-bullet:compileJava'
                 }
-                cppCompiler.define('WIN32')
-            }
 
-            tasks.all { 
-                dependsOn unzipBulletIfNeeded
-                dependsOn ':jme3-bullet:compileJava'
-            }
+                task "copyBinaryToLibs${targetPlatform.name}"(type: Copy, dependsOn: tasks) {
+                    from sharedLibraryFile
+                    into "${rootPath}/build/native/bullet/native/${os}/${arch}"
+                } 
 
-            // Add output to jar file
-            jar.into("native/${os}/${arch}") {
-                from sharedLibraryFile
-            }
+                // Add depend on copy
+                jar.dependsOn("copyBinaryToLibs${targetPlatform.name}")
 
-            // Add depend on build
-            jar.dependsOn tasks
-            // Add output to libs folder
-            task "copyBinaryToLibs${targetPlatform.name}"(type: Copy, dependsOn: tasks) {
-                from sharedLibraryFile
-                into "${rootPath}/build/native/bullet/${os}/${arch}"
-            } 
-            // Add depend on copy
-            jar.dependsOn("copyBinaryToLibs${targetPlatform.name}")
+            }
         }
         withType(StaticLibraryBinarySpec) {
             buildable = false
@@ -263,6 +233,9 @@ sourceSets {
     main {
         java {
             srcDir 'src/native/cpp'
+        }
+        resources {
+            srcDir file(Paths.get(rootPath, 'build', 'native', 'bullet'))
         }
     }
 }

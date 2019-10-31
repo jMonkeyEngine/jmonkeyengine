@@ -184,12 +184,19 @@ if(skipPrebuildLibraries!="true"&&buildNativeProjects!="true"){
                     String srcRel=src.getAbsolutePath().substring((int)(nativesZipFile.length()+1));
                     srcRel=srcRel.substring(srcRel.indexOf("/")+1);
 
+                    // TODO backward compatibility with old path, To be removed.
+                    int j=srcRel.indexOf("/");
+                    String p1=srcRel.substring(0,j);
+                    String p2=srcRel.substring(j);
+                    if(!p1.equals("android")&&!p2.startsWith("/native"))  srcRel=p1+"/native"+p2;
+                    //
+
                     File dest=new File(nativesPath+File.separator+srcRel);
 
                     boolean include=false;
                     if(!dest.exists()){
                         include=true;
-                        println("Copy "+src+" "+dest+  ". Destination does not exist");
+                        println("Copy "+src+" "+dest);
                     }else if(dest.lastModified()<src.lastModified()){
                         include=true;
                         println("Copy "+src+" "+dest+  ". Source is newer. src "+src.lastModified()+ " dest "+dest.lastModified());
