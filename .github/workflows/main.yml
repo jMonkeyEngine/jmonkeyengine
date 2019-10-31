@@ -150,7 +150,17 @@ jobs:
             echo "Prepare mac"
             # We need this older version to compile for 32bit...
             sudo xcode-select -switch  /Applications/Xcode_9.4.1.app
+
+            # ghetto fix for expired certificate (still safer than -allowUntrusted) 
+            cdate=`date +%m%d%H%M%y`
+            sudo date -u 1020000019
+            
+
             sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
+          
+            # restore real date
+            sudo date -u "$cdate"
+          
           elif [ "$OS_NAME" = "linux" ];
           then
             echo "Prepare linux"
