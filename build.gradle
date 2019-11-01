@@ -195,9 +195,12 @@ if(skipPrebuildLibraries!="true"&&buildNativeProjects!="true"){
                     String p2=srcRel.substring(j);
                     if(!p1.equals("android")&&!p2.startsWith("/native"))  srcRel=p1+"/native"+p2;
                     File dest=new File(nativesPath+File.separator+srcRel);
-                    println("Copy "+src+" "+dest);
-                    dest.getParentFile().mkdirs();
-                    Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    boolean doCopy = !(dest.exists() && dest.lastModified() > src.lastModified())
+                    if (doCopy) {
+                        println("Copy "+src+" "+dest);
+                        dest.getParentFile().mkdirs();
+                        Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    }
                 }
             }
         }
