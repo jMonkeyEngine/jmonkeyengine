@@ -168,18 +168,23 @@ if(skipPrebuildLibraries!="true"&&buildNativeProjects!="true"){
         String nativesZipFile="${rootPath}" + File.separator + "build"+ File.separator +nativesSnasphot+"-natives.zip"
         String nativesPath="${rootPath}" + File.separator + "build"+ File.separator +"native"
 
-        build.dependsOn('getPrebuiltNatives')
 
-        task getPrebuiltNatives() { 
+        task getNativesZipFile {
+            outputs.file nativesZipFile
             doFirst {
                 File target = file(nativesZipFile);
-                    
-                if (!target.exists()) {    
-                    println("Download natives from "+nativesUrl+" to "+nativesZipFile);
-                    target.getParentFile().mkdirs();
-                    ant.get(src: nativesUrl, dest: target);
-                }
+                println("Download natives from "+nativesUrl+" to "+nativesZipFile);
+                target.getParentFile().mkdirs();
+                ant.get(src: nativesUrl, dest: target);
+            }
+        }
 
+        task extractPrebuiltNatives {
+            inputs.file nativesZipFile
+            outputs.dir nativesPath
+            dependsOn getNativesZipFile
+
+            doFirst {
                 for(File src : zipTree(nativesZipFile)){
                     String srcRel=src.getAbsolutePath().substring((int)(nativesZipFile.length()+1));
                     srcRel=srcRel.substring(srcRel.indexOf("/")+1);
@@ -189,29 +194,17 @@ if(skipPrebuildLibraries!="true"&&buildNativeProjects!="true"){
                     String p1=srcRel.substring(0,j);
                     String p2=srcRel.substring(j);
                     if(!p1.equals("android")&&!p2.startsWith("/native"))  srcRel=p1+"/native"+p2;
-                    //
-
                     File dest=new File(nativesPath+File.separator+srcRel);
-
-                    boolean include=false;
-                    if(!dest.exists()){
-                        include=true;
+                    boolean doCopy = !(dest.exists() && dest.lastModified() > src.lastModified())
+                    if (doCopy) {
                         println("Copy "+src+" "+dest);
-                    }else if(dest.lastModified()<src.lastModified()){
-                        include=true;
-                        println("Copy "+src+" "+dest+  ". Source is newer. src "+src.lastModified()+ " dest "+dest.lastModified());
-                    }
-                    else{
-                        println(""+dest+" Up to date. Skip.");
-                    }
-
-                    if(include){
                         dest.getParentFile().mkdirs();
                         Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     }
                 }
             }
         }
+        build.dependsOn extractPrebuiltNatives
     }
 }
 
