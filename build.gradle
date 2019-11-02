@@ -189,11 +189,6 @@ if(skipPrebuildLibraries!="true"&&buildNativeProjects!="true"){
                     String srcRel=src.getAbsolutePath().substring((int)(nativesZipFile.length()+1));
                     srcRel=srcRel.substring(srcRel.indexOf("/")+1);
 
-                    // TODO backward compatibility with old path, To be removed.
-                    int j=srcRel.indexOf("/");
-                    String p1=srcRel.substring(0,j);
-                    String p2=srcRel.substring(j);
-                    if(!p1.equals("android")&&!p2.startsWith("/native"))  srcRel=p1+"/native"+p2;
                     File dest=new File(nativesPath+File.separator+srcRel);
                     boolean doCopy = !(dest.exists() && dest.lastModified() > src.lastModified())
                     if (doCopy) {
