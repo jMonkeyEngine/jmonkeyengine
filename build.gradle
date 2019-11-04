@@ -187,7 +187,7 @@ if(skipPrebuildLibraries!="true"&&buildNativeProjects!="true"){
             doFirst {
                 for(File src : zipTree(nativesZipFile)){
                     String srcRel=src.getAbsolutePath().substring((int)(nativesZipFile.length()+1));
-                    srcRel=srcRel.substring(srcRel.indexOf("/")+1);
+                    srcRel=srcRel.substring(srcRel.indexOf( File.separator)+1);
 
                     File dest=new File(nativesPath+File.separator+srcRel);
                     boolean doCopy = !(dest.exists() && dest.lastModified() > src.lastModified())
