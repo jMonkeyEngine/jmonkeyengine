@@ -18,8 +18,8 @@ ext {
     jmeShortGitHash = ""
     jmeBuildDate    = new SimpleDateFormat("yyyy-MM-dd").format(new Date())
     jmeBranchName   = "unknown"
-    jmeFullVersion  = "${jmeVersion}-UNKNOWN"
-    jmePomVersion   = "${jmeVersion}-UNKNOWN"
+    jmeFullVersion  = "${jmeVersion}-SNAPSHOT"
+    jmeVersionTag="SNAPSHOT"
 }
 
 task configureVersionInfo {
@@ -32,19 +32,38 @@ task configureVersionInfo {
         jmeBranchName = grgit.branch.current.name
         jmeGitTag = grgit.tag.list().find { it.commit == head }
 
-    
-
-        if (jmeGitTag != null) {
-            jmeGitTag = jmeGitTag.name
-            jmeFullVersion  = jmeGitTag
-            jmePomVersion   = jmeGitTag
-        } else if(jmeGitHash!=null&&!jmeGitHash.equals("")){
-            jmeFullVersion  = jmeGitHash
-            jmePomVersion   = jmeGitHash
+        if(jmeVersionName==""){
+            if (jmeGitTag != null) {
+                jmeGitTag = jmeGitTag.name
+                jmeFullVersion  = jmeGitTag
+                jmeVersionTag = ""
+            } else {
+                if(useCommitHashAsVersionName=="true"&&jmeGitHash!=null&&!jmeGitHash.equals("")){
+                    jmeFullVersion  = jmeGitHash
+                    jmeVersionTag = ""
+                }else{
+                    jmeFullVersion="${jmeVersion}-";
+                    if(jmeBranchName!="master")jmeFullVersion+="${jmeBranchName}-";
+                    jmeFullVersion+="SNAPSHOT"
+                    jmeVersionTag="SNAPSHOT"
+                }
+            }
+        }else{
+            jmeVersionTag=""
+            jmeFullVersion=jmeVersionName
         }
 
-        logger.warn("Full Version: ${jmeFullVersion}")
-        logger.warn("POM Version: ${jmePomVersion}")
+    
+        println("Revision: ${jmeRevision}")
+        println("Hash: ${jmeGitHash}")
+        println("Short Hash: ${jmeShortGitHash}")
+        println("Tag: ${jmeGitTag}")
+        println("Build Date: ${jmeBuildDate}")
+        println("Build Branch: ${jmeBranchName}")
+        println("Use commit hash as version ${useCommitHashAsVersionName}")
+        println("Build Tag: ${jmeVersionTag}")
+        println("Build Version: ${jmeFullVersion}")
+
     } catch (ex) {
         // Failed to get repo info
         logger.warn("Failed to get repository info: " + ex.message + ". " + \

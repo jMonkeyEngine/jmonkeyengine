@@ -75,7 +75,7 @@ jobs:
           # Build
           # Note: since this is crossbuild we use the buildForPlatforms filter to tell
           # the buildscript wich platforms it should build for.
-          gradle --no-daemon -PbuildForPlatforms=LinuxArm,LinuxArmHF,LinuxArm64 -PbuildNativeProjects=true \
+          gradle -PuseCommitHashAsVersionName=true --no-daemon -PbuildForPlatforms=LinuxArm,LinuxArmHF,LinuxArm64 -PbuildNativeProjects=true \
           :jme3-bullet-native:assemble 
 
       - name: Upload natives
@@ -99,7 +99,7 @@ jobs:
 
       - name: Build        
         run: |       
-          gradle --no-daemon -PbuildNativeProjects=true \
+          gradle -PuseCommitHashAsVersionName=true --no-daemon -PbuildNativeProjects=true \
           :jme3-android-native:assemble \
           :jme3-bullet-native-android:assemble 
      
@@ -159,7 +159,7 @@ jobs:
           fi
           
           # Build
-          gradle  --no-daemon -PbuildNativeProjects=true -Dmaven.repo.local="$PWD/dist/maven" \
+          gradle  -PuseCommitHashAsVersionName=true --no-daemon  -PbuildNativeProjects=true -Dmaven.repo.local="$PWD/dist/maven" \
           build \
           :jme3-bullet-native:build
                   
@@ -238,7 +238,7 @@ jobs:
         shell: bash
         run: |
           # Build
-          gradle -PskipPrebuildLibraries=true build
+          gradle -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true build
           
           if [ "${{ matrix.deploy }}" = "true" ];
           then  
@@ -247,7 +247,7 @@ jobs:
             sudo apt-get install -y zip
 
             # Create the zip release and the javadoc
-            gradle -PskipPrebuildLibraries=true mergedJavadoc createZipDistribution
+            gradle -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true mergedJavadoc createZipDistribution
           
             # We prepare the release for deploy
             mkdir -p ./dist/release/
@@ -255,7 +255,7 @@ jobs:
             
             # Create the maven artifacts
             mkdir -p ./dist/maven/
-            gradle -PskipPrebuildLibraries=true install -Dmaven.repo.local="$PWD/dist/maven"
+            gradle -PuseCommitHashAsVersionName=true -PskipPrebuildLibraries=true install -Dmaven.repo.local="$PWD/dist/maven"
 
             # Zip the natives into a single archive (we are going to use this to deploy native snapshots)
             echo "Create native zip"
