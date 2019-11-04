@@ -7,7 +7,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 
 group = 'org.jmonkeyengine'
-version = jmePomVersion
+version = jmeFullVersion
 
 sourceCompatibility = '1.8'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -51,9 +51,9 @@ jar {
 javadoc {
     failOnError = false
     options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
-    options.docTitle = "jMonkeyEngine ${jmeMainVersion} ${project.name} Javadoc"
-    options.windowTitle = "jMonkeyEngine ${jmeMainVersion} ${project.name} Javadoc"
-    options.header = "<b>jMonkeyEngine ${jmeMainVersion} ${project.name}</b>"
+    options.docTitle = "jMonkeyEngine ${jmeFullVersion} ${project.name} Javadoc"
+    options.windowTitle = "jMonkeyEngine ${jmeFullVersion} ${project.name} Javadoc"
+    options.header = "<b>jMonkeyEngine ${jmeFullVersion} ${project.name}</b>"
     options.author = "true"
     options.use = "true"
     options.charSet = "UTF-8"
