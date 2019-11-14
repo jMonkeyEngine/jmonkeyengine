@@ -59,6 +59,8 @@ import com.jme3.renderer.opengl.GLFbo;
 import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.renderer.opengl.GLTracer;
 import com.jme3.system.*;
+import com.jme3.util.AndroidBufferAllocator;
+import com.jme3.util.BufferAllocatorFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -80,6 +82,14 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected AndroidInputHandler androidInput;
     protected long minFrameDuration = 0;                   // No FPS cap
     protected long lastUpdateTime = 0;
+
+    static {
+        final String implementation = BufferAllocatorFactory.PROPERTY_BUFFER_ALLOCATOR_IMPLEMENTATION;
+
+        if (System.getProperty(implementation) == null) {
+            System.setProperty(implementation, AndroidBufferAllocator.class.getName());
+        }
+    }
 
     public OGLESContext() {
     }
