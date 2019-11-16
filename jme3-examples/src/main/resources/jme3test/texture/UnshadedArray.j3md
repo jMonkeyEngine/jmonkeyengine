@@ -14,8 +14,8 @@ MaterialDef Unshaded {
     }
 
     Technique {
-        VertexShader GLSL100:   jme3test/texture/UnshadedArray.vert
-        FragmentShader GLSL100: jme3test/texture/UnshadedArray.frag
+        VertexShader GLSL300 GLSL100:   jme3test/texture/UnshadedArray.vert
+        FragmentShader GLSL300 GLSL100: jme3test/texture/UnshadedArray.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -32,8 +32,8 @@ MaterialDef Unshaded {
 
       Technique PreNormalPass {
 
-            VertexShader GLSL100 :   Common/MatDefs/SSAO/normal.vert
-            FragmentShader GLSL100 : Common/MatDefs/SSAO/normal.frag
+            VertexShader GLSL300 GLSL100 :   Common/MatDefs/SSAO/normal.vert
+            FragmentShader GLSL300 GLSL100 : Common/MatDefs/SSAO/normal.frag
 
             WorldParameters {
                 WorldViewProjectionMatrix
@@ -50,8 +50,8 @@ MaterialDef Unshaded {
 
     Technique Glow {
 
-        VertexShader GLSL100:   Cjme3test/texture/UnshadedArray.vert
-        FragmentShader GLSL100: Common/MatDefs/Light/Glow.frag
+        VertexShader GLSL300 GLSL100:   jme3test/texture/UnshadedArray.vert
+        FragmentShader GLSL300 GLSL100: Common/MatDefs/Light/Glow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

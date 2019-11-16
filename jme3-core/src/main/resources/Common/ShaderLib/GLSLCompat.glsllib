@@ -19,13 +19,18 @@
 #endif
 
 #if __VERSION__ >= 130
+#  ifdef GL_ES
+out highp vec4 outFragColor;
+#  else
 out vec4 outFragColor;
+#endif
 #  define texture1D texture
 #  define texture2D texture
 #  define texture3D texture
 #  define textureCube texture
 #  define texture2DLod textureLod
 #  define textureCubeLod textureLod
+#  define texture2DArray texture
 #  if defined VERTEX_SHADER
 #    define varying out
 #    define attribute in
@@ -33,4 +38,8 @@ out vec4 outFragColor;
 #    define varying in
 #    define gl_FragColor outFragColor
 #  endif
+#else
+#  define isnan(val) !(val<0.0||val>0.0||val==0.0)
 #endif
+
+

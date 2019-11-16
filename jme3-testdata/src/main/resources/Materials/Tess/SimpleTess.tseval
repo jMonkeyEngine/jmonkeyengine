@@ -8,6 +8,6 @@ void main(){
         vec3 p1 = mix(gl_in[1].gl_Position.xyz, gl_in[2].gl_Position.xyz, gl_TessCoord.x);
         // interpolate in vert direction
         vec3 tePosition = mix(p0, p1, gl_TessCoord.y);
-        gl_Position = g_WorldViewProjectionMatrix * vec4(tePosition, 1);
+        gl_Position = g_WorldViewProjectionMatrix * vec4(tePosition, 1.0);
 }
 

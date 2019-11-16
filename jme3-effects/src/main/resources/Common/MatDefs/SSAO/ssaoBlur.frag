@@ -32,77 +32,77 @@ vec4 convolutionFilter(){
     float zsum = 1.0;
     float Zp =readDepth(texCoord);
 
-    vec2 sample = vec2(x - 2.0 * xScale, y - 2.0 * yScale);
-    float zTmp = readDepth(sample);
+    vec2 samplePos = vec2(x - 2.0 * xScale, y - 2.0 * yScale);
+    float zTmp = readDepth(samplePos);
     float coefZ = 1.0 / (epsilon + abs(Zp - zTmp));
     zsum += coefZ;
-    sum += coefZ* texture2D( m_SSAOMap, sample);
+    sum += coefZ* texture2D( m_SSAOMap, samplePos);
 
-    sample = vec2(x - 0.0 * xScale, y - 2.0 * yScale);
-    zTmp =readDepth(sample);
+    samplePos = vec2(x - 0.0 * xScale, y - 2.0 * yScale);
+    zTmp =readDepth(samplePos);
     coefZ = 1.0 / (epsilon + abs(Zp - zTmp));
     zsum += coefZ;
-    sum += coefZ* texture2D( m_SSAOMap, sample);
+    sum += coefZ* texture2D( m_SSAOMap, samplePos);
 
-    sample = vec2(x + 2.0 * xScale, y - 2.0 * yScale);
-    zTmp =readDepth(sample);
+    samplePos = vec2(x + 2.0 * xScale, y - 2.0 * yScale);
+    zTmp =readDepth(samplePos);
     coefZ = 1.0 / (epsilon + abs(Zp - zTmp));
     zsum += coefZ;
-    sum += coefZ* texture2D( m_SSAOMap, sample);
+    sum += coefZ* texture2D( m_SSAOMap, samplePos);
 
-    sample = vec2(x - 1.0 * xScale, y - 1.0 * yScale);
-    zTmp =readDepth(sample);
+    samplePos = vec2(x - 1.0 * xScale, y - 1.0 * yScale);
+    zTmp =readDepth(samplePos);
     coefZ = 1.0 / (epsilon + abs(Zp - zTmp));
     zsum += coefZ;
-    sum += coefZ* texture2D( m_SSAOMap, sample);
+    sum += coefZ* texture2D( m_SSAOMap, samplePos);
 
-    sample = vec2(x + 1.0 * xScale, y - 1.0 * yScale);
-    zTmp =readDepth(sample);
+    samplePos = vec2(x + 1.0 * xScale, y - 1.0 * yScale);
+    zTmp =readDepth(samplePos);
     coefZ = 1.0 / (epsilon + abs(Zp - zTmp));
     zsum += coefZ;
-    sum += coefZ* texture2D( m_SSAOMap, sample);
+    sum += coefZ* texture2D( m_SSAOMap, samplePos);
 
-    sample = vec2(x - 2.0 * xScale, y - 0.0 * yScale);
-    zTmp =readDepth(sample);
+    samplePos = vec2(x - 2.0 * xScale, y - 0.0 * yScale);
+    zTmp =readDepth(samplePos);
     coefZ = 1.0 / (epsilon + abs(Zp - zTmp));
     zsum += coefZ;
-    sum += coefZ* texture2D( m_SSAOMap, sample);
+    sum += coefZ* texture2D( m_SSAOMap, samplePos);
 
-    sample = vec2(x + 2.0 * xScale, y - 0.0 * yScale);
-    zTmp =readDepth(sample);
+    samplePos = vec2(x + 2.0 * xScale, y - 0.0 * yScale);
+    zTmp =readDepth(samplePos);
     coefZ = 1.0 / (epsilon + abs(Zp - zTmp));
     zsum += coefZ;
-    sum += coefZ* texture2D( m_SSAOMap, sample);
+    sum += coefZ* texture2D( m_SSAOMap, samplePos);
 
-    sample = vec2(x - 1.0 * xScale, y + 1.0 * yScale);
-    zTmp =readDepth(sample);
+    samplePos = vec2(x - 1.0 * xScale, y + 1.0 * yScale);
+    zTmp =readDepth(samplePos);
     coefZ = 1.0 / (epsilon + abs(Zp - zTmp));
     zsum += coefZ;
-    sum += coefZ* texture2D( m_SSAOMap, sample);
+    sum += coefZ* texture2D( m_SSAOMap, samplePos);
 
-    sample = vec2(x + 1.0 * xScale, y + 1.0 * yScale);
-    zTmp =readDepth(sample);
+    samplePos = vec2(x + 1.0 * xScale, y + 1.0 * yScale);
+    zTmp =readDepth(samplePos);
     coefZ = 1.0 / (epsilon + abs(Zp - zTmp));
     zsum += coefZ;
-    sum += coefZ* texture2D( m_SSAOMap, sample);
+    sum += coefZ* texture2D( m_SSAOMap, samplePos);
 
-    sample = vec2(x - 2.0 * xScale, y + 2.0 * yScale);
-    zTmp =readDepth(sample);
+    samplePos = vec2(x - 2.0 * xScale, y + 2.0 * yScale);
+    zTmp =readDepth(samplePos);
     coefZ = 1.0 / (epsilon + abs(Zp - zTmp));
     zsum += coefZ;
-    sum += coefZ* texture2D( m_SSAOMap, sample);
+    sum += coefZ* texture2D( m_SSAOMap, samplePos);
 
-    sample = vec2(x - 0.0 * xScale, y + 2.0 * yScale);
-    zTmp =readDepth(sample);
+    samplePos = vec2(x - 0.0 * xScale, y + 2.0 * yScale);
+    zTmp =readDepth(samplePos);
     coefZ = 1.0 / (epsilon + abs(Zp - zTmp));
     zsum += coefZ;
-    sum += coefZ* texture2D( m_SSAOMap, sample);
+    sum += coefZ* texture2D( m_SSAOMap, samplePos);
 
-    sample = vec2(x + 2.0 * xScale, y + 2.0 * yScale);
-    zTmp =readDepth(sample);
+    samplePos = vec2(x + 2.0 * xScale, y + 2.0 * yScale);
+    zTmp =readDepth(samplePos);
     coefZ = 1.0 / (epsilon + abs(Zp - zTmp));
     zsum += coefZ;
-    sum += coefZ* texture2D( m_SSAOMap, sample);
+    sum += coefZ* texture2D( m_SSAOMap, samplePos);
 
 
     return  sum / zsum;

@@ -16,7 +16,7 @@ uniform int m_NumSamplesDepth;
 #endif
 
 // NOTE: Only define multisample functions if multisample is available
-#if defined(GL_ARB_texture_multisample)
+#if defined(GL_ARB_texture_multisample) || (defined GL_ES && __VERSION__>=310)
 vec4 textureFetch(in sampler2DMS tex,in vec2 texC, in int numSamples){
       ivec2 iTexC = ivec2(texC * vec2(textureSize(tex)));
       vec4 color = vec4(0.0);

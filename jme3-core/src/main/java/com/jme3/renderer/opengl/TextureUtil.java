@@ -142,13 +142,13 @@ final class TextureUtil {
             if (target == GL2.GL_TEXTURE_3D) {
                 // For 3D textures, we upload the entire mipmap level.
                 gl2.glCompressedTexImage3D(target,
-                                           level,
-                                           format.internalFormat,
-                                           width,
-                                           height,
-                                           depth,
-                                           0,
-                                           data);
+                                            level,
+                                            format.internalFormat,
+                                            width,
+                                            height,
+                                            depth,
+                                            0,
+                                            data);
             } else if (target == GLExt.GL_TEXTURE_2D_ARRAY_EXT) {
                 // For texture arrays, only upload 1 slice at a time.
                 // zoffset specifies slice index, and depth is 1 to indicate
