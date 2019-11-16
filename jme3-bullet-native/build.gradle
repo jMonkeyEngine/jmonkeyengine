@@ -37,7 +37,6 @@ model {
                 "Windows64",
                 "Windows32",
                 "Mac64",
-                "Mac32",
                 "Linux64",
                 "Linux32",
                 "LinuxArm",
@@ -71,6 +70,7 @@ model {
                         exclude 'Bullet3OpenCL/**'
                         exclude 'Bullet3Serialize/**'
                         include '**/*.cpp'
+                        exclude '**/*All.cpp'
                     }
                     exportedHeaders {
                         srcDir 'src/native/cpp'
@@ -196,10 +196,6 @@ model {
         Windows64 {
             architecture "x86_64"
             operatingSystem "windows"
-        }
-        Mac32 {
-            architecture "x86"
-            operatingSystem "osx"
         }
         Mac64 {
             architecture "x86_64"
