@@ -194,6 +194,7 @@ public interface GL {
     public static final int GL_VERSION = 0x1F02;
     public static final int GL_VERTEX_SHADER = 0x8B31;
     public static final int GL_ZERO = 0x0;
+    public static final int GL_UNPACK_ROW_LENGTH = 0x0CF2;
 
     public void resetStats();
 
