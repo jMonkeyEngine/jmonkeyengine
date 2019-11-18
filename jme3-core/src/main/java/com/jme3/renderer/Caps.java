@@ -438,10 +438,11 @@ public enum Caps {
     /**
      * Explicit support of depth 24 textures
      */
-    Depth24;
+    Depth24,     
 
-      
-
+    
+    UnpackRowLength
+    ;
 
     /**
      * Returns true if given the renderer capabilities, the texture
