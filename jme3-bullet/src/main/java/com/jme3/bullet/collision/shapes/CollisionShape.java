@@ -87,7 +87,7 @@ public abstract class CollisionShape implements Savable {
 ////            objectId.calculateLocalInertia(mass, vector);
 ////        }
 //    }
-//    
+//
 //    private native void calculateLocalInertia(long objectId, long shapeId, float mass);
 
     /**
@@ -130,6 +130,19 @@ public abstract class CollisionShape implements Savable {
     }
 
     /**
+     * Test whether this shape can be applied to a dynamic rigid body. The only
+     * non-moving shapes are the heightfield, mesh, and plane shapes.
+     *
+     * @return true if non-moving, false otherwise
+     */
+    public boolean isNonMoving() {
+        boolean result = isNonMoving(objectId);
+        return result;
+    }
+
+    native private boolean isNonMoving(long objectId);
+
+    /**
      * Read the collision margin for this shape.
      *
      * @return the margin distance (in physics-space units, &ge;0)
@@ -137,7 +150,7 @@ public abstract class CollisionShape implements Savable {
     public float getMargin() {
         return getMargin(objectId);
     }
-    
+
     private native float getMargin(long objectId);
 
     /**
@@ -177,9 +190,9 @@ public abstract class CollisionShape implements Savable {
         setMargin(objectId, margin);
         this.margin = margin;
     }
-    
+
     private native void setLocalScaling(long obectId, Vector3f scale);
-    
+
     private native void setMargin(long objectId, float margin);
 
     /**

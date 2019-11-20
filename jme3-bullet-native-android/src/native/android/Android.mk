@@ -71,6 +71,7 @@ FILE_LIST := $(wildcard $(LOCAL_PATH)/*.cpp)
 FILE_LIST += $(wildcard $(LOCAL_PATH)/**/*.cpp)
 FILE_LIST += $(wildcard $(LOCAL_PATH)/**/**/*.cpp)
 FILE_LIST := $(filter-out $(wildcard $(LOCAL_PATH)/Bullet3OpenCL/**/*.cpp), $(FILE_LIST))
+FILE_LIST := $(filter-out $(wildcard $(LOCAL_PATH)/*All.cpp), $(FILE_LIST))
 LOCAL_SRC_FILES := $(FILE_LIST:$(LOCAL_PATH)/%=%)
 
 include $(BUILD_SHARED_LIBRARY)

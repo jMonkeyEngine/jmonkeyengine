@@ -194,6 +194,7 @@ public interface GL {
     public static final int GL_VERSION = 0x1F02;
     public static final int GL_VERTEX_SHADER = 0x8B31;
     public static final int GL_ZERO = 0x0;
+    public static final int GL_UNPACK_ROW_LENGTH = 0x0CF2;
 
     public void resetStats();
 
@@ -991,7 +992,7 @@ public interface GL {
      * <p>
      * Defines the scissor rectangle for all viewports. The scissor test is enabled or disabled for all viewports using {@link #glEnable Enable} or {@link #glDisable Disable}
      * with the symbolic constant {@link #GL_SCISSOR_TEST SCISSOR_TEST}. When disabled, it is as if the scissor test always passes. When enabled, if
-     * <code>left <= x<sub>w</sub> < left + width</code> and <code>bottom <= y<sub>w</sub> < bottom + height</code> for the scissor rectangle, then the scissor
+     * left &lt;= x<sub>w</sub> &lt; left + width and bottom &lt;= y<sub>w</sub> &lt; bottom + height for the scissor rectangle, then the scissor
      * test passes. Otherwise, the test fails and the fragment is discarded.
      *
      * @param x      the left scissor rectangle coordinate.

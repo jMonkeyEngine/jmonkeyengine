@@ -4,4 +4,8 @@ if (!hasProperty('mainClass')) {
 
 dependencies {
     compile project(':jme3-core')
+    testCompile project(':jme3-core')
+    testCompile project(':jme3-desktop')
+    testCompile project(':jme3-core').sourceSets.test.output
+    testCompile project(':jme3-testdata')
 }

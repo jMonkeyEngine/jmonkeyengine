@@ -1,16 +1,23 @@
 #if __VERSION__ >= 130
     // Because gpu_shader5 is actually where those
     // gather functions are declared to work on shadowmaps
-    #extension GL_ARB_gpu_shader5 : enable
+    // This "if" statement is useless as jme3 changes line ordering, so all extensions are tried to be loaded
+    #ifdef GL_ES
+        #extension GL_OES_gpu_shader5 : enable
+    #else
+        #extension GL_ARB_gpu_shader5 : enable
+    #endif
+
     #define IVEC2 ivec2
-    #if defined GL_ES
-        #define SHADOWMAP sampler2D
-        #define SHADOWCOMPARE(tex,coord) step(coord.z, texture2DProj(tex, coord).r)
-    #elif defined HARDWARE_SHADOWS
+    #ifdef HARDWARE_SHADOWS
         #define SHADOWMAP sampler2DShadow
         #define SHADOWCOMPAREOFFSET(tex,coord,offset) textureProjOffset(tex, coord, offset)
         #define SHADOWCOMPARE(tex,coord) textureProj(tex, coord)
-        #define SHADOWGATHER(tex,coord) textureGather(tex, coord.xy, coord.z)
+        #if defined GL_ES && __VERSION__ <= 300
+            #define SHADOWGATHER(tex,coord) step(coord.z, textureGather(tex, coord.xy))
+        #else
+            #define SHADOWGATHER(tex,coord) textureGather(tex, coord.xy, coord.z)
+        #endif
     #else
         #define SHADOWMAP sampler2D
         #define SHADOWCOMPAREOFFSET(tex,coord,offset) step(coord.z, textureProjOffset(tex, coord, offset).r)
@@ -31,7 +38,10 @@
     #endif
 #else
     #define IVEC2 vec2
-    #ifdef HARDWARE_SHADOWS
+    #if defined GL_ES
+        #define SHADOWMAP sampler2D
+        #define SHADOWCOMPARE(tex,coord) step(coord.z, texture2DProj(tex, coord).r)
+    #elif defined HARDWARE_SHADOWS
         #define SHADOWMAP sampler2DShadow
         #define SHADOWCOMPARE(tex,coord) shadow2DProj(tex, coord).r
     #else
@@ -91,10 +101,14 @@ float Shadow_DoShadowCompare(in SHADOWMAP tex,in vec4 projCoord){
 }
 
 float Shadow_BorderCheck(in vec2 coord){
-    // Fastest, "hack" method (uses 4-5 instructions)
-    vec4 t = vec4(coord.xy, 0.0, 1.0);
-    t = step(t.wwxy, t.xyzz);
-    return dot(t,t);
+    #ifdef GL_ES
+        return 0.0;
+    #else
+        // Fastest, "hack" method (uses 4-5 instructions)
+        vec4 t = vec4(coord.xy, 0.0, 1.0);
+        t = step(t.wwxy, t.xyzz);
+        return dot(t,t);
+    #endif
 }
 
 float Shadow_Nearest(in SHADOWMAP tex,in vec4 projCoord){
@@ -117,7 +131,8 @@ float Shadow_DoDither_2x2(in SHADOWMAP tex, in vec4 projCoord){
         return 1.0;
 
     float shadow = 0.0;
-    IVEC2 o = IVEC2(mod(floor(gl_FragCoord.xy), 2.0));
+    //IVEC2 o = IVEC2(mod(floor(gl_FragCoord.xy), 2.0));
+    vec2 o = vec2(IVEC2(mod(floor(gl_FragCoord.xy), 2.0))); //Strict type checking in GLSL ES
     shadow += Shadow_DoShadowCompareOffset(tex, projCoord, (vec2(-1.5, 1.5)+o));
     shadow += Shadow_DoShadowCompareOffset(tex, projCoord, (vec2( 0.5, 1.5)+o));
     shadow += Shadow_DoShadowCompareOffset(tex, projCoord, (vec2(-1.5, -0.5)+o));
@@ -134,7 +149,7 @@ float Shadow_DoBilinear_2x2(in SHADOWMAP tex, in vec4 projCoord){
 
     vec4 gather = vec4(0.0);
     #if __VERSION__ >= 130
-        #ifdef GL_ARB_gpu_shader5
+        #if defined GL_ARB_gpu_shader5 || defined GL_OES_gpu_shader5
             vec4 coord = vec4(projCoord.xyz / projCoord.www,0.0);
             gather = SHADOWGATHER(tex, coord);
         #else

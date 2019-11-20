@@ -27,7 +27,7 @@ public class VROverlayIntersectionParams_t extends Structure {
 	/**
 	 * @param vSource C type : HmdVector3_t<br>
 	 * @param vDirection C type : HmdVector3_t<br>
-	 * @param eOrigin @see ETrackingUniverseOrigin<br>
+	 * @param eOrigin @see JOpenVRLibrary.ETrackingUniverseOrigin <br>
 	 * C type : ETrackingUniverseOrigin
 	 */
 	public VROverlayIntersectionParams_t(HmdVector3_t vSource, HmdVector3_t vDirection, int eOrigin) {

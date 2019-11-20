@@ -99,6 +99,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     private boolean initialized = false;
     private Map<String, Map<Object, Object>> eventsData;
     private float nextEnqueue = 0;
+    private String id;
 
     /**
      * Used for serialization creates a cinematic, don't use this constructor
@@ -289,6 +290,20 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      */
     public boolean isInitialized() {
         return initialized;
+    }
+
+    /**
+     *  Sets the unique ID of this app state.  Note: that setting
+     *  this while an app state is attached to the state manager will
+     *  have no effect on ID-based lookups.
+     */
+    protected void setId( String id ) {
+        this.id = id;
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     /**

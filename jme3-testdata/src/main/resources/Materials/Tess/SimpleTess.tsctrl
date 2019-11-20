@@ -5,13 +5,15 @@ out gl_PerVertex{
 uniform int m_TessellationFactor;
 void main(){
     if (gl_InvocationID == 0){
-        gl_TessLevelOuter[0]=m_TessellationFactor;
-        gl_TessLevelOuter[1]=m_TessellationFactor;
-        gl_TessLevelOuter[2]=m_TessellationFactor;
-        gl_TessLevelOuter[3]=m_TessellationFactor;
+        float f_TessellationFactor=float(m_TessellationFactor);
 
-        gl_TessLevelInner[0]=m_TessellationFactor;
-        gl_TessLevelInner[1]=m_TessellationFactor;
+        gl_TessLevelOuter[0]=f_TessellationFactor;
+        gl_TessLevelOuter[1]=f_TessellationFactor;
+        gl_TessLevelOuter[2]=f_TessellationFactor;
+        gl_TessLevelOuter[3]=f_TessellationFactor;
+
+        gl_TessLevelInner[0]=f_TessellationFactor;
+        gl_TessLevelInner[1]=f_TessellationFactor;
     }
     gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
 }

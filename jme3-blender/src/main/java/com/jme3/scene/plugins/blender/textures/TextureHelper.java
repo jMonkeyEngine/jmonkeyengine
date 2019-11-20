@@ -313,7 +313,7 @@ public class TextureHelper extends AbstractBlenderHelper {
      * This method returns the proper pixel position on the image.
      * 
      * @param pos
-     *            the relative position (value of range <0, 1> (both inclusive))
+     *            the relative position (value of range [0, 1] (both inclusive))
      * @param size
      *            the size of the line the pixel lies on (width, height or
      *            depth)

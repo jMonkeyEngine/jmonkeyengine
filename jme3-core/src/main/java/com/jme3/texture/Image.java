@@ -494,6 +494,11 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * Requires {@link Caps#FloatTexture}.
          */
         RG32F(64,true),
+
+        /**
+         * 10-bit red, green, and blue with 2-bit alpha.
+         */
+        RGB10A2(32),
         ;
 
         private int bpp;

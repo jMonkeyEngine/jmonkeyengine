@@ -34,6 +34,8 @@ package com.jme3.scene.mesh;
 import java.nio.Buffer;
 import java.nio.ShortBuffer;
 
+import com.jme3.scene.VertexBuffer.Format;
+
 /**
  * IndexBuffer implementation for {@link ShortBuffer}s.
  * 
@@ -58,8 +60,15 @@ public class IndexShortBuffer extends IndexBuffer {
     }
 
     @Override
-    public void put(int i, int value) {
+    public IndexShortBuffer put(int i, int value) {
         buf.put(i, (short) value);
+        return this;
+    }
+    
+    @Override
+    public IndexShortBuffer put(int value) {
+        buf.put((short) value);
+        return this;
     }
 
     @Override
@@ -70,5 +79,10 @@ public class IndexShortBuffer extends IndexBuffer {
     @Override
     public Buffer getBuffer() {
         return buf;
+    }
+    
+    @Override
+    public Format getFormat () {
+        return Format.UnsignedShort;
     }
 }

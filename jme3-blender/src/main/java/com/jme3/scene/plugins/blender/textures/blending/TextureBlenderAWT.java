@@ -142,8 +142,15 @@ public class TextureBlenderAWT extends AbstractTextureBlender {
             }
             dataArray.add(newData);
         }
-
-        Image result = depth > 1 ? new Image(Format.RGBA8, width, height, depth, dataArray, ColorSpace.Linear) : new Image(Format.RGBA8, width, height, dataArray.get(0), ColorSpace.Linear);
+        
+        ColorSpace colorSpace;
+        if (baseImage != null) {
+            colorSpace = baseImage.getColorSpace() != null ? baseImage.getColorSpace() : ColorSpace.Linear;
+        } else {
+            colorSpace = image.getColorSpace();
+        }
+        
+        Image result = depth > 1 ? new Image(Format.RGBA8, width, height, depth, dataArray, colorSpace) : new Image(Format.RGBA8, width, height, dataArray.get(0), colorSpace);
         if (image.getMipMapSizes() != null) {
             result.setMipMapSizes(image.getMipMapSizes().clone());
         }

@@ -105,9 +105,10 @@ public abstract class LwjglContext implements JmeContext {
 
     private static final Set<String> SUPPORTED_RENDERS = new HashSet<>(Arrays.asList(
             AppSettings.LWJGL_OPENGL2,
-            AppSettings.LWJGL_OPENGL3,
+            AppSettings.LWJGL_OPENGL30,
+            AppSettings.LWJGL_OPENGL32,
             AppSettings.LWJGL_OPENGL33,
-            AppSettings.LWJGL_OPENGL4,
+            AppSettings.LWJGL_OPENGL40,
             AppSettings.LWJGL_OPENGL41,
             AppSettings.LWJGL_OPENGL42,
             AppSettings.LWJGL_OPENGL43,

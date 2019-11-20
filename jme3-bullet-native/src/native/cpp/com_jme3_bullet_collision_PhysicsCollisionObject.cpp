@@ -178,6 +178,24 @@ extern "C" {
         collisionObject->setCollisionFlags(desiredFlags);
     }
 
+    /*
+     * Class:     com_jme3_bullet_collision_PhysicsCollisionObject
+     * Method:    getDeactivationTime
+     * Signature: (J)F
+     */
+    JNIEXPORT jfloat JNICALL Java_com_jme3_bullet_collision_PhysicsCollisionObject_getDeactivationTime
+    (JNIEnv *env, jobject object, jlong pcoId) {
+        btCollisionObject *pCollisionObject
+                = reinterpret_cast<btCollisionObject *> (pcoId);
+        if (pCollisionObject == NULL) {
+            jclass newExc = env->FindClass("java/lang/NullPointerException");
+            env->ThrowNew(newExc, "The native object does not exist.");
+            return 0;
+        }
+
+        jfloat result = pCollisionObject->getDeactivationTime();
+        return result;
+    }    
 
 #ifdef __cplusplus
 }

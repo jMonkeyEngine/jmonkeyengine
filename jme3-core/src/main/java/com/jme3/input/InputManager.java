@@ -776,6 +776,7 @@ public class InputManager implements RawInputListener {
      * Returns state of simulation of mouse events. Used for touchscreen input only.
      *
      */
+    @Deprecated
     public boolean getSimulateMouse() {
         if (touch != null) {
             return touch.isSimulateMouse();

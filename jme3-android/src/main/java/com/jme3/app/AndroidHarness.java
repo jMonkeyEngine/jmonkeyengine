@@ -88,7 +88,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected int eglStencilBits = 0;
 
     /**
-     * Set the desired frame rate.  If frameRate > 0, the application
+     * Set the desired frame rate.  If frameRate higher than 0, the application
      * will be capped at the desired frame rate.
      * (default = -1, no frame rate cap)
      */

@@ -8,10 +8,12 @@ String decodeBuildJniDir = decodeBuildDir + File.separator + 'jni'
 String decodeBuildLibsDir = decodeBuildDir + File.separator + 'libs'
 
 // Pre-compiled libs directory
-String decodePreCompiledLibsDir = 'libs' + File.separator + 'decode'
+def rootPath = rootProject.projectDir.absolutePath
+String decodePreCompiledLibsDir = rootPath + File.separator + 'build' + File.separator + 'native' + File.separator +  'android' + File.separator + 'decode'
 
 // jME Android Native source files path
 String decodeSourceDir = 'src/native/jme_decode'
+String jmeHeaders = 'src/native/headers'
 
 task downloadStbImage(type: MyDownload) {
     sourceUrl = stbiUrl
@@ -45,24 +47,13 @@ task copyTremorFiles(type: Copy) {
     into outputDir
 }
 
-// Generate headers via javac -h
-task generateJavahHeaders(type: Exec) {
-    def files0 = fileTree("src/main/java/").filter { it.isFile() && it.getName().endsWith(".java") }.files
-    def files1 = fileTree("src/common/java/").filter { it.isFile() && it.getName().endsWith(".java") }.files
-    def files2 = fileTree("../jme3-core/src/main/java/").filter { it.isFile() && it.getName().endsWith(".java") }.files
-    def files3 = fileTree("../jme3-core/src/plugins/java/").filter { it.isFile() && it.getName().endsWith(".java") }.files
-    def files4 = fileTree("../jme3-core/src/tools/java/").filter { it.isFile() && it.getName().endsWith(".java") }.files
-    def files5 = fileTree("../jme3-terrain/src/main/java/").filter { it.isFile() && it.getName().endsWith(".java") }.files
-    def filesList = "\"" + files0.join("\"\n\"") + "\"\n\"" + files1.join("\"\n\"") + "\"\n\"" + files2.join("\"\n\"") + "\"\n\"" + files3.join("\"\n\"") + "\"\n\"" + files4.join("\"\n\"") + "\"\n\"" + files5.join("\"\n\"") + "\""
-	new File("$projectDir/java_classes.jtxt").text = filesList.replaceAll(java.util.regex.Pattern.quote("\\"), java.util.regex.Matcher.quoteReplacement("/"))
-    executable org.gradle.internal.jvm.Jvm.current().getExecutable('javac')
-    args '-h', decodeSourceDir
-    args "@$projectDir/java_classes.jtxt"
-    args '-d', decodeClassesBuildDir
+task copyJmeHeadersDecode(type: Copy) {
+    from file(jmeHeaders)
+    into file(decodeBuildJniDir + File.separator + "headers")
 }
 
 // Copy jME Android native files to jni directory
-task copySourceToBuild(type: Copy, dependsOn:[copyTremorFiles, copyStbiFiles, generateJavahHeaders]) {
+task copySourceToBuild(type: Copy, dependsOn:[copyTremorFiles, copyStbiFiles, copyJmeHeadersDecode]) {
     def sourceDir = file(decodeSourceDir)
     def outputDir = file(decodeBuildJniDir)
 

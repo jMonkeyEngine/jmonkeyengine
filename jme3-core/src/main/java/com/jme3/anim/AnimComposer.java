@@ -32,6 +32,10 @@ public class AnimComposer extends AbstractControl {
         layers.put(DEFAULT_LAYER, new Layer(this));
     }
 
+    public boolean hasAnimClip(String name) {
+        return animClipMap.containsKey(name);
+    }
+
     /**
      * Retrieve an animation from the list of animations.
      *
@@ -103,6 +107,36 @@ public class AnimComposer extends AbstractControl {
         
         l.time = 0;
         l.currentAction = null;
+    }
+    
+    /**
+     * Returns current time of the specified layer.
+     */
+    public double getTime(String layerName) {
+        Layer l = layers.get(layerName);
+        if (l == null) {
+            throw new IllegalArgumentException("Unknown layer " + layerName);
+        }
+        return l.time;
+    }
+
+    /**
+     * Sets current time on the specified layer. 
+     */
+    public void setTime(String layerName, double time) {
+        Layer l = layers.get(layerName);
+        if (l == null) {
+            throw new IllegalArgumentException("Unknown layer " + layerName);
+        }
+        if (l.currentAction == null) {
+            throw new RuntimeException("There is no action running in layer " + layerName);
+        }
+        double length = l.currentAction.getLength();
+        if (time >= 0) {
+            l.time = time % length;
+        } else {
+            l.time = time % length + length;
+        }
     }
 
     /**

@@ -51,9 +51,9 @@ public class SceneGraphVisitorAdapter implements SceneGraphVisitor {
     /**
      * Called when a {@link Node} is visited.
      * 
-     * @param geom The visited node
+     * @param node The visited node
      */
-    public void visit(Node geom) {}
+    public void visit(Node node) {}
 
     @Override
     public final void visit(Spatial spatial) {

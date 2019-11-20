@@ -157,7 +157,7 @@ public class CrossHatchFilter extends Filter {
     }
 
     /**
-     * Sets line/paper color ratio for areas with values < luminance5,
+     * Sets line/paper color ratio for areas with values less than luminance5,
      * really dark areas get no lines but a filled blob instead
      * @param fillValue 
      */

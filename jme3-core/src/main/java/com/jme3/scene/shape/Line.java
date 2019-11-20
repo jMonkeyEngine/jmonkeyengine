@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -51,8 +51,11 @@ public class Line extends Mesh {
 
     private Vector3f start;
     private Vector3f end;
-    
-    public Line() {
+
+    /**
+     * No-argument constructor needed by SavableClassUtil.
+     */
+    public Line() { // TODO protected
     }
 
     public Line(Vector3f start, Vector3f end) {
@@ -79,9 +82,16 @@ public class Line extends Mesh {
     }
 
     /**
-     * Update the start and end points of the line.
+     * Alter the start and end.
+     *
+     * @param start the desired mesh location of the start (not null,
+     * unaffected)
+     * @param end the desired mesh location of the end (not null, unaffected)
      */
     public void updatePoints(Vector3f start, Vector3f end) {
+        this.start.set(start);
+        this.end.set(end);
+
         VertexBuffer posBuf = getBuffer(Type.Position);
         
         FloatBuffer fb = (FloatBuffer) posBuf.getData();
