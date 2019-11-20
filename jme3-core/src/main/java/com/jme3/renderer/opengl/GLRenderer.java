@@ -612,7 +612,7 @@ public final class GLRenderer implements Renderer {
             int vaoId = intBuf16.get(0);
             gl3.glBindVertexArray(vaoId);
         }
-        if (gl2 != null) {
+        if (gl2 != null && !(gl instanceof GLES_30)) {
             gl2.glEnable(GL2.GL_VERTEX_PROGRAM_POINT_SIZE);
             if (!caps.contains(Caps.CoreProfile)) {
                 gl2.glEnable(GL2.GL_POINT_SPRITE);
