@@ -4,7 +4,7 @@ import org.ajoberstar.grgit.*
 
 buildscript {
     repositories {
-		mavenLocal()
+        mavenLocal()
         mavenCentral()
     }
     dependencies {
