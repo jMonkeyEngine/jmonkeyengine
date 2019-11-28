@@ -345,10 +345,13 @@ public class Node extends Spatial {
      * @throws NullPointerException if child is null.
      */
     public int attachChildAt(Spatial child, int index) {
-        if (child == null)
-            throw new NullPointerException();
-
-        if (child.getParent() != this && child != this) {
+        if (child == null) {
+            throw new IllegalArgumentException("child cannot be null");
+        }
+        if (child == this) {
+            throw new IllegalArgumentException("Cannot add child to itself");
+        }            
+        if (child.getParent() != this) {
             if (child.getParent() != null) {
                 child.getParent().detachChild(child);
             }
