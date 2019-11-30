@@ -59,7 +59,7 @@ public class MorphTrack implements AnimTrack<float[]> {
     /**
      * Serialization-only. Do not use.
      */
-    public MorphTrack() {
+    protected MorphTrack() {
     }
 
     /**

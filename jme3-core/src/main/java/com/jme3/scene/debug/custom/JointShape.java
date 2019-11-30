@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ public class JointShape extends Mesh {
     /**
      * Serialization only. Do not use.
      */
-    public JointShape() {
+    protected JointShape() {
         float width = 1;
         float height = 1;
         setBuffer(Type.Position, 3, new float[]{-width * 0.5f, -width * 0.5f, 0,

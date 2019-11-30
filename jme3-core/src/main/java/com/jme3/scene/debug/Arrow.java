@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ public class Arrow extends Mesh {
     /**
      * Serialization only. Do not use.
      */
-    public Arrow() {
+    protected Arrow() {
     }
 
     /**

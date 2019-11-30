@@ -59,7 +59,7 @@ public class MaterialDef{
     /**
      * Serialization only. Do not use.
      */
-    public MaterialDef(){
+    protected MaterialDef(){
     }
     
     /**
