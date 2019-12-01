@@ -115,7 +115,7 @@ public class SkinningControl extends AbstractControl implements Cloneable, JmeCl
     /**
      * Serialization only. Do not use.
      */
-    public SkinningControl() {
+    protected SkinningControl() {
     }
 
     /**

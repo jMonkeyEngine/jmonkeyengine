@@ -105,7 +105,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * Used for serialization creates a cinematic, don't use this constructor
      * directly
      */
-    public Cinematic() {
+    protected Cinematic() {
         super();
     }
 
