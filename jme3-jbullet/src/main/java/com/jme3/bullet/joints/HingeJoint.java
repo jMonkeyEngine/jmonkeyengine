@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ public class HingeJoint extends PhysicsJoint {
     protected float relaxationFactor = 1.0f;
     protected float limitSoftness = 0.9f;
 
-    public HingeJoint() {
+    protected HingeJoint() {
     }
 
     /**

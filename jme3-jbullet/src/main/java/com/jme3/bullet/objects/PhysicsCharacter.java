@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     private com.jme3.math.Transform physicsLocation = new com.jme3.math.Transform();
     private javax.vecmath.Vector3f tempVec = new javax.vecmath.Vector3f();
 
-    public PhysicsCharacter() {
+    protected PhysicsCharacter() {
     }
 
     /**
