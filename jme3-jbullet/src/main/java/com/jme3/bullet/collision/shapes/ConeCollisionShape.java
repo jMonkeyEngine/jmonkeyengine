@@ -56,7 +56,7 @@ public class ConeCollisionShape extends CollisionShape {
     /**
      * Serialization only, do not use.
      */
-    public ConeCollisionShape() {
+    protected ConeCollisionShape() {
     }
 
     /**

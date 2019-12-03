@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ public class CylinderCollisionShape extends CollisionShape {
     protected Vector3f halfExtents;
     protected int axis;
 
-    public CylinderCollisionShape() {
+    protected CylinderCollisionShape() {
     }
 
     /**
