@@ -49,7 +49,10 @@ public class CameraNode extends Node {
 
     private CameraControl camControl;
 
-    public CameraNode() {
+    /**
+     * Serialization only. Do not use.
+     */
+    protected CameraNode() {
         super();
     }
 

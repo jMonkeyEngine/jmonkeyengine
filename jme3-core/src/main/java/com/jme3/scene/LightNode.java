@@ -49,7 +49,10 @@ public class LightNode extends Node {
 
     private LightControl lightControl;
 
-    public LightNode() {
+    /**
+     * Serialization only. Do not use.
+     */
+    protected LightNode() {
     }
 
     public LightNode(String name, Light light) {
