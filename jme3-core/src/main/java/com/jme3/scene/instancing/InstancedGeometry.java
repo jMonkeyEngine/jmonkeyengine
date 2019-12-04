@@ -64,10 +64,7 @@ public class InstancedGeometry extends Geometry {
 
     private int firstUnusedIndex = 0;
 
-    /**
-     * Serialization only. Do not use.
-     */
-    protected InstancedGeometry() {
+    public InstancedGeometry() {
         super();
         setIgnoreTransform(true);
         setBatchHint(BatchHint.Never);

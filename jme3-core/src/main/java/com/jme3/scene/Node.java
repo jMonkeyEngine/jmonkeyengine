@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,7 @@ public class Node extends Spatial {
     private boolean updateListValid = false;
 
     /**
-     * Serialization only. Do not use.
+     * Instantiate a <code>Node</code> with no name, no parent, and no children.
      */
     public Node() {
         this(null);
@@ -93,8 +93,7 @@ public class Node extends Spatial {
      * Constructor instantiates a new <code>Node</code> with a default empty
      * list for containing children.
      *
-     * @param name the name of the scene element. This is required for
-     * identification and comparison purposes.
+     * @param name the name of the scene element
      */
     public Node(String name) {
         super(name);

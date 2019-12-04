@@ -98,7 +98,8 @@ public class Geometry extends Spatial {
     private int nbSimultaneousGPUMorph = -1;
 
     /**
-     * Serialization only. Do not use.
+     * Instantiate a <code>Geometry</code> with no name, no mesh, and no
+     * material. The mesh and material must be set prior to rendering.
      */
     public Geometry() {
         this(null);
