@@ -1527,7 +1527,11 @@ public class Mesh implements Savable, Cloneable, JmeCloneable {
     }
 
     public MorphTarget[] getMorphTargets() {
-        return morphTargets.getArray();
+        if (morphTargets == null) {
+            return new MorphTarget[0];
+        } else {
+            return morphTargets.getArray();
+        }
     }
     
     /**
