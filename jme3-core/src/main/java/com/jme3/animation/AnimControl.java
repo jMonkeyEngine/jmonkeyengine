@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018 jMonkeyEngine
+ * Copyright (c) 2009-2019 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,9 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
     }
 
     /**
-     * Serialization only. Do not use.
+     * Instantiate an animation control with no skeleton, suitable only for
+     * animations that don't contain any bone tracks. Also used for
+     * serialization.
      */
     public AnimControl() {
     }
@@ -144,6 +146,7 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
 
     /**
      * Retrieve an animation from the list of animations.
+     *
      * @param name The name of the animation to retrieve.
      * @return The animation corresponding to the given name, or null, if no
      * such named animation exists.
@@ -155,6 +158,7 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
     /**
      * Adds an animation to be available for playing to this
      * <code>AnimControl</code>.
+     *
      * @param anim The animation to add.
      */
     public void addAnim(Animation anim) {
@@ -163,6 +167,7 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
 
     /**
      * Remove an animation so that it is no longer available for playing.
+     *
      * @param anim The animation to remove.
      */
     public void removeAnim(Animation anim) {
@@ -231,6 +236,7 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
 
     /**
      * Adds a new listener to receive animation related events.
+     *
      * @param listener The listener to add.
      */
     public void addListener(AnimEventListener listener) {
@@ -244,6 +250,7 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
 
     /**
      * Removes the given listener from listening to events.
+     *
      * @param listener
      * @see AnimControl#addListener(com.jme3.animation.AnimEventListener)
      */
@@ -308,6 +315,7 @@ public final class AnimControl extends AbstractControl implements Cloneable, Jme
 
     /**
      * Returns the length of the given named animation.
+     *
      * @param name The name of the animation
      * @return The length of time, in seconds, of the named animation.
      */
