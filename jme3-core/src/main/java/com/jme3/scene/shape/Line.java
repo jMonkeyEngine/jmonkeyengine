@@ -55,7 +55,7 @@ public class Line extends Mesh {
     /**
      * No-argument constructor needed by SavableClassUtil.
      */
-    public Line() { // TODO protected
+    protected Line() {
     }
 
     public Line(Vector3f start, Vector3f end) {
@@ -68,7 +68,6 @@ public class Line extends Mesh {
         this.end.set(end);
         setBuffer(Type.Position, 3, new float[]{start.x,    start.y,    start.z,
                                                 end.x,      end.y,      end.z,});
-
 
         setBuffer(Type.TexCoord, 2, new float[]{0, 0,
                                                 1, 1});
